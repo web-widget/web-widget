@@ -1,4 +1,4 @@
-# Web Widget specification
+# WebWidget
 
 本规范定义了一种通用的网页小挂件标准格式，它可以让前端组件集成在不同的、由 Web 开发的应用中。
 
@@ -50,3 +50,20 @@ TODO
 ## 打开其他 WebWidget
 
 TODO
+
+## 其他
+
+本章节非规范内容。
+
+### 加载 WebWidget
+
+WebWidget 是一种和特定技术栈、加载器无关的格式，可以自行实现或者使用社区已有的方案来完成它的加载与运行。
+
+* 使用 WebSandbox 来加载
+* 使用 single-spa
+
+TODO
+
+### 发布 WebWidget
+
+WebWidget 可以发布到任何地方，例如企业的私有 CDN，如果你想让所有人都可以使用到，推荐发布到 Npm 或者 Github，这样使用者可以通过公共 CDN 加载它。 
