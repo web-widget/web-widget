@@ -16,18 +16,21 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 
 ### 契机
 
-1. NoCode/LowCode 思想下，可视化 Web 应用搭建系统层出不求，这样的体系下需要大量开箱即用的组件才能满足客户的需求
+1. 在 NoCode/LowCode 理念流行下，可视化 Web 应用搭建系统层出不求，这样的体系下需要大量的、开箱即用的组件才能满足客户的需求
 2. 微前端成为流行的技术理念，single-spa 定义的生命周期格式让 Web 应用跨技术栈、标准化接口提供很好的实践范例
 3. Npm 成为了一个托管资源庞大的前端组件的大仓库，基于它有多个开箱即用的公共 CDN 服务
-4. WebComponents 作为标准的、面向未来的组件解决方案，几乎所有流行开源框架都支持它
-5. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），使得我们可以创造独立且安全的第三方组件运行环境
+4. WebComponents 成为面向未来的组件标准，几乎所有流行开源框架都支持它
+5. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），使得我们可以创建安全的第三方组件运行环境
 
-## 概念
+上述这些问题与契机，使得我们有足够的动力来驱动建设一个 WebWidget 标准规范。
 
-* Widget View：WebWidget 本身是一个 Web Components，它的标签名是 `<web-sandbox>`
-* Widget Script：用来定义 WebWidget 的界面、功能的脚本
+## 标准化的目标
 
-## 使用范例
+* WebWidget 视图规范。例如标签、DOM 接口等
+* 应用入口文件规范。例如生命周期、服务声明与调用等
+* 应用描述文件规范。例如应用名称、简介、图标等
+
+## WebWidget 标签使用范例
 
 ### 载入组件
 
