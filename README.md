@@ -24,7 +24,7 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 
 ## 范例
 
-### 简单使用
+### 载入组件
 
 ```html
 <web-widget src="widget.js"></web-widget>
@@ -39,7 +39,7 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 </web-widget>
 ```
 
-### 载入并使用 Web Components
+### 使用 Web Components
 
 ```html
 <web-widget is="my-element" src="widget.js">
