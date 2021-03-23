@@ -22,6 +22,41 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 4. WebComponents 作为标准的、面向未来的组件解决方案，几乎所有流行开源框架都支持它
 5. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），使得我们可以创造独立且安全的第三方组件运行环境
 
+## 标签
+
+### 简单使用
+
+```html
+<web-widget src="widget.js"></web-widget>
+```
+
+### 使用插槽
+
+```html
+<web-widget src="widget.js">
+  <span slot="title">hello</span>
+  <span slot="content">Let's have some different text!</span>
+</web-widget>
+```
+
+### 沙盒化
+
+```html
+<web-widget src="widget.js" sandbox>
+  <span slot="title">hello</span>
+  <span slot="content">Let's have some different text!</span>
+</web-widget>
+```
+
+### 载入并使用 Web Components
+
+```html
+<web-widget is="my-element" src="widget.js" sandbox>
+  <span slot="title">hello</span>
+  <span slot="content">Let's have some different text!</span>
+</web-widget>
+```
+
 ## 和 WebComponents 的差异
 
 TODO
