@@ -51,7 +51,7 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 ### 使用沙盒隔离环境
 
 ```html
-<web-widget src="widget.js" sandbox>
+<web-widget src="widget.js" sandboxed csp="script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;">
   <span slot="title">hello</span>
   <span slot="content">Let's have some different text!</span>
 </web-widget>
