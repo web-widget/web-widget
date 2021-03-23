@@ -39,7 +39,7 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 </web-widget>
 ```
 
-### 沙盒化
+### 使用沙盒隔离环境
 
 ```html
 <web-widget src="widget.js" sandbox>
