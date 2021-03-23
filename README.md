@@ -39,19 +39,19 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 </web-widget>
 ```
 
-### 使用沙盒隔离环境
+### 载入并使用 Web Components
 
 ```html
-<web-widget src="widget.js" sandbox>
+<web-widget is="my-element" src="widget.js">
   <span slot="title">hello</span>
   <span slot="content">Let's have some different text!</span>
 </web-widget>
 ```
 
-### 载入并使用 Web Components
+### 使用沙盒隔离环境
 
 ```html
-<web-widget is="my-element" src="widget.js" sandbox>
+<web-widget src="widget.js" sandbox>
   <span slot="title">hello</span>
   <span slot="content">Let's have some different text!</span>
 </web-widget>
