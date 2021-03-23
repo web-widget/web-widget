@@ -22,6 +22,11 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 4. WebComponents 作为标准的、面向未来的组件解决方案，几乎所有流行开源框架都支持它
 5. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），使得我们可以创造独立且安全的第三方组件运行环境
 
+## 概念
+
+* Widget View：WebWidget 本身是一个 Web Components，它的标签名是 `<web-sandbox>`
+* Widget Script：用来定义 WebWidget 的界面、功能的脚本
+
 ## 使用范例
 
 ### 载入组件
@@ -39,7 +44,7 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 </web-widget>
 ```
 
-### 使用 Web Components
+### 使用 Web Components 扩展
 
 ```html
 <web-widget is="my-element" src="widget.js">
