@@ -33,7 +33,7 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 
 ## 标准化目标
 
-* WebWidget Loader
+* WebWidget 加载器
   * 标签
   * 接口
 * WebWidget 入口文件
