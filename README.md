@@ -22,7 +22,14 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 4. WebComponents 成为面向未来的组件标准，几乎所有流行开源框架都支持它
 5. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），使得我们可以创建安全的第三方组件运行环境
 
-上述这些问题与契机，使得我们有足够的动力来驱动建设一个 WebWidget 标准规范。
+### 愿景
+
+基于上述问题与契机，建设 WebWidget 规范的直接动机来自于 NoCode 产品中的组件系统，例如可视化页面搭建编辑器。
+
+1. 所有人都可以使用 WebWidget，而非只有开发者
+2. 组件即资产，和技术栈无关
+3. 所有的组件，都可有机会以变成 WebWidget
+4. 所有的 NoCode 产品，都可兼容 WebWidget
 
 ## 标准化的目标
 
