@@ -27,8 +27,8 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 基于上述问题与契机，建设 WebWidget 规范的直接动机来自于 NoCode 产品中的组件系统，例如可视化页面搭建编辑器。
 
 1. 所有人都可以使用 WebWidget，而非只有开发者
-2. 组件即资产，在任何技术栈下都可使用
-3. 所有的组件，都可轻松变成 WebWidget
+2. WebWidget 是服务，在任何技术栈下都可使用
+3. 所有的前端组件，都可轻松变成 WebWidget
 4. 所有的 NoCode 产品，都可兼容 WebWidget
 
 ## 标准化目标
