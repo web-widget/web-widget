@@ -1,10 +1,10 @@
-# WebWidget
+# WebWidget 白皮书
 
 本规范定义了一种通用的网页小挂件标准格式，它可以集成在不同的 Web 技术开发的应用中。
 
 ## 什么是 WebWidget
 
-WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android 的小挂件，它可以当作小应用被宿主随时加载与启动，它依赖于 Web 技术（尤其是 CSS 和 JavaScript）。
+WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI Library 不同，它提供的是服务。
 
 ## 为什么要设计 WebWidget
 
@@ -27,7 +27,7 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
 基于上述问题与契机，建设 WebWidget 规范的直接动机来自于 NoCode 产品中的组件系统，例如可视化页面搭建编辑器。
 
 1. 所有人都可以使用 WebWidget，而非只有开发者
-2. WebWidget 是服务，在任何技术栈下都可使用
+2. WebWidget 是服务，在任何技术框架下都可使用
 3. 所有的前端组件，都可轻松变成 WebWidget
 4. 所有的 NoCode 产品，都可兼容 WebWidget
 
