@@ -38,6 +38,8 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
   * 接口
 * WebWidget 入口文件
   * 生命周期
+  * 插槽
+  * 属性配置
   * 动作/方法
   * 唤起其他应用
   * 主题适应
@@ -82,35 +84,6 @@ WebWidget 是一种轻量级的应用程序，它有点类似 iOS 与 Android �
   <span slot="content">Let's have some different text!</span>
 </web-widget>
 ```
-
-## 和 WebComponents 的差异
-
-TODO
-
-## 运行在沙箱环境中
-
-TODO
-
-## WebWidget 描述
-
-TODO
-
-## 生命周期
-
-TODO
-
-## 声明对外提供的服务
-
-* API
-* 属性
-* 插槽
-* 事件
-
-TODO
-
-## 打开其他 WebWidget
-
-TODO
 
 ## 其他
 
