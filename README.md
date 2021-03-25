@@ -30,6 +30,7 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 2. WebWidget 是服务，在任何前端框架下都可使用
 3. 所有的前端组件，都可轻松变成 WebWidget
 4. 所有的 NoCode 产品，都可兼容 WebWidget
+5. Npm 或 Github 可以作为 WebWidget 的应用市场，使用公共 CDN 随时分发
 
 ## 标准化目标
 
