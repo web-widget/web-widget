@@ -71,6 +71,32 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 </web-widget>
 ```
 
+### 传入数据
+
+本地：
+
+```html
+<web-widget src="widget.js">
+  <script type="data-source">
+    {
+      "web": "widget"
+    }
+  </script>
+  <span slot="title">hello</span>
+  <span slot="content">Let's have some different text!</span>
+</web-widget>
+```
+
+远程：
+
+```html
+<web-widget src="widget.js">
+  <script type="data-source" src="https://api.com/?data"></script>
+  <span slot="title">hello</span>
+  <span slot="content">Let's have some different text!</span>
+</web-widget>
+```
+
 ### 使用 Web Components 扩展
 
 ```html
