@@ -279,21 +279,20 @@ function bootstrap(properties) {
 | ------------------------------------------------------------ | ---- | --------------------------------------- | ------------------------------------------------------------ |
 | `name`                                                       | Y    | `string`                                | 应用的名称必须用全小写无空格的字母组成。                     |
 | `web-widget`                                                 | Y    | `string`                                | WebWidget 规范版本。当前为 `1.0.0`                     |
-| `version`                                                    | Y    | `string`                                | [SemVer](https://semver.org/)版本模式兼容。                  |
+| `version`                                                    | Y    | `string`                                | [SemVer](https://semver.org/) 版本模式兼容。                  |
 | `publisher`                                                  | Y    | `string`                                | [发行方名称](https://liiked.github.io/VS-Code-Extension-Doc-ZH/#/extension-authoring/publish-extension?id=创建一个发行方) |
-| `license`                                                    |      | `string`                                | 参考[npm's documentation](https://docs.npmjs.com/files/package.json#license)。如果你在应用根目录已经提供了`LICENSE`文件。那么`license`的值应该是`"SEE LICENSE IN <filename>"`。 |
+| `license`                                                    |      | `string`                                | 参考 [npm's documentation](https://docs.npmjs.com/files/package.json#license)。如果你在应用根目录已经提供了 `LICENSE` 文件。那么 `license` 的值应该是 `"SEE LICENSE IN <filename>"`。 |
 | `displayName`                                                |      | `string`                                | 应用市场所显示的应用名称。                                   |
 | `description`                                                |      | `string`                                | 简单地描述一下你的应用是做什么的。                           |
-| `categories`                                                 |      | `string[]`                              | 你想要使用的应用分类` |
+| `categories`                                                 |      | `string[]`                              | 你想要使用的应用分类 |
 | `keywords`                                                   |      | `array`                                 | **关键字**（数组），这样用户可以更方便地找到你的应用。到时候会和市场上的其他应用以**标签**筛选在一起。 |
 | `preview`                                                    |      | `boolean`                               | 在市场中会显示 Preview 标记。                                  |
 | `main`                                                       |      | `string`                                | 你的应用入口                                                 |
-| `markdown`                                                   |      | `string`                                | 控制市场中使用的Markdown渲染引擎。可以是`github` (默认) 或 `standard`。 |
-| `qna`                                                        |      | `marketplace` (默认), `string`, `false` | 控制市场中的**Q & A** 链接。 设置成`marketplace`时，自动使用市场默认的Q & A网址。或者提供一个URL转跳到你的Q & A 地址。设置为`false`时禁用。 |
-| `extensionDependencies`                                      |      | `array`                                 | 应用依赖，由应用ID组成的数组。当主要应用安装完成后，其他应用会相应安装。应用ID的格式为 `${publisher}.${name}`。 |
-| `icon`                                                       |      | `string`                                | icon的文件路径，最小 128x128 像素 (视网膜屏幕则需 256x256)。 |
+| `markdown`                                                   |      | `string`                                | 控制市场中使用的 Markdown 渲染引擎。可以是 `github` (默认) 或 `standard`。 |
+| `qna`                                                        |      | `marketplace` (默认), `string`, `false` | 控制市场中的 **Q & A** 链接。 设置成 `marketplace` 时，自动使用市场默认的 Q & A 网址。或者提供一个URL转跳到你的 Q & A 地址。设置为 `false` 时禁用。 |
+| `icon`                                                       |      | `string`                                | icon 的文件路径，最小 128x128 像素 (视网膜屏幕则需 256x256)。 |
 
-你还可以参考[npm的`package.json`](https://docs.npmjs.com/files/package.json)
+你还可以参考 [npm 的 `package.json`](https://docs.npmjs.com/files/package.json)。
 
 ## 其他
 
