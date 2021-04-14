@@ -231,14 +231,14 @@ document.body.appendChild(widget);
 // 触发 unmount
 widget.hidden = false;
 
-// 触发 mount
-widget.hidden = true;
-
 // 触发 unload
 document.body.revmoeChild(widget);
 
 // 触发 bootstrap
 document.body.appendChild(widget);
+
+// 触发 mount
+widget.hidden = true;
 ```
 
 ### 生命周期参数
