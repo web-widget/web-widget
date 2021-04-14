@@ -63,7 +63,7 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它的具体功能由 `src` 定义的脚本实现。
 
 ```html
-<web-widget src="app.js"></web-widget>
+<web-widget src="app.widget.js"></web-widget>
 ```
 
 为了不影响主页面的加载性能，WebWidget 的脚本是异步载入的。为了符合渐进式增强的体验，最佳做法是使用占位符与后备。
@@ -73,7 +73,7 @@ WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它�
 标有 `placeholder` 属性的元素将充当 WebWidget 元素的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 元素的直接子级。标记为 `placeholder` 的元素将始终 fill（填充）父级 WebWidget 元素。
 
 ```html
-<web-widget src="app.js">
+<web-widget src="app.widget.js">
   <img placeholder src="preview.jpg" />
 </web-widget>
 ```
@@ -97,12 +97,16 @@ WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它�
 
 ### 插槽
 
+如果 WebWidget App 支持插槽，那么可以直接使用 `slot` 属性来指定插入的位置：
+
 ```html
-<web-widget src="app.js">
+<web-widget src="app.widget.js">
   <span slot="title">hello</span>
   <span slot="content">Let's have some different text!</span>
 </web-widget>
 ```
+
+插槽源自于 Web Component，更多插槽信息可以访问 <https://developer.mozilla.org/en-US/docs/Web/Web_Components>。
 
 ### 数据
 
@@ -110,7 +114,7 @@ WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它�
 
 ```html
 <web-widget
-  src="app.js"
+  src="app.widget.js"
   data-username="web-widget"
   data-email="web-widget@web-sandbox.js.org"
 >
@@ -131,7 +135,7 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 受限于 HTML5 的约束，通过 `data-*` 只能传递 `string` 类型的值，如果想要传递 JSON 数据，您通过一个子元素指定 `is="data-source"` 属性来写 JSON 数据：
 
 ```html
-<web-widget src="app.js">
+<web-widget src="app.widget.js">
   <script is="data-source" type="json">
     {
       "username": "web-widget",
@@ -140,6 +144,8 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
   </script>
 </web-widget>
 ```
+
+如果同时存在 `is="data-source"` 与 `data-*` 定义的数据，最终会进行合并。
 
 ### 自定义元素
 
@@ -155,13 +161,139 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 给 WebWidget 增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 WebWidget App 的所有的操作限制在 `<web-widget>` 视图内，网络、本地存储等都将被限制。
 
 ```html
-<web-widget src="app.js" sandboxed csp="script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;">
+<web-widget src="app.widget.js" sandboxed csp="script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;">
   <span slot="title">hello</span>
   <span slot="content">Let's have some different text!</span>
 </web-widget>
 ```
 
 关于沙盒环境的限制，具体可以参考 [WebSandbox.js](https://web-sandbox.org.js)。
+
+## 接口
+
+```js
+const widget = document.createElement('web-widget');
+widget.src = 'app.widget.js';
+document.body.appendChild(widget);
+```
+
+* `src` 应用入口文件。必须支持跨域访问
+* `status` 应用的加载状态（只读）
+  * `null` 默认状态
+  * `"pending"` 正在加载
+  * `"fulfilled"` 加载成功
+  * `"rejected"` 加载失败
+* `name` 应用名称。应用脚本可以通过生命周期的 `properties` 访问到
+* `hidden` 显示与隐藏应用。不同于 CSS `display: none`，`hidden` 会触发应用的生命周期
+* `sandboxed` 沙盒化。启用后，WebWidget 应用将被强制容器化，避免影响主文档
+* `csp` 内容安全策略。只有开启 `sandboxed` 属性后才有效
+* `contentWindow` 容器的内部 `window` 对象。只有开启 `sandboxed` 属性后才有效
+* `contentDocument` 容器的内部 `document` 对象。只有开启 `sandboxed` 属性后才有效
+* `evaluate(source, context)` 运行 JavaScript 代码。开启 `sandboxed` 后，它将在沙盒环境中执行
+
+## 应用入口文件
+
+应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，入口文件必须实现下面提到的应用生命周期函数。
+
+适配有有生命周期的入口文件。
+
+```js
+export default {
+  async bootstrap: (properties) => {},
+  async mount: (properties) => {},
+  async unmount: (properties) => {},
+  async unload: (properties) => {}
+}
+```
+
+由于浏览器等限制，应用必须打包为 UMD 格式。
+
+> 💡 `.widget.js` 后缀名是一个约定，它的目的是让开发工具能够更好识别 WebWidget 应用。
+
+## 应用生命周期
+
+生命周期函数是加载器在注册的应用上调用的一系列函数，加载器会在各应用的主文件中，查找对应的函数名并进行调用。
+
+注:
+
+* `bootstrap`、 `mount` 与 `unmount` 的实现是必须的，`unload` 则是可选的
+* 生命周期函数必须有返回值，可以是 `promise` 或者 `async` 函数
+* 如果导出的是函数数组而不是单个函数，这些函数会被依次调用，对于 `promise` 函数，会等到 resolve 之后再调用下一个函数
+* 如果应用只被预加载，各个应用会被下载，但不会被初始化、挂载或卸载
+
+WebWidget 元素会在不同的阶段主动触发这些应用生命周期：
+
+```js
+const widget = document.createElement('web-widget');
+
+// 触发 bootstrap
+widget.src = 'app.widget.js';
+
+// 触发 mount
+document.body.appendChild(widget);
+
+// 触发 unmount
+widget.hidden = false;
+
+// 触发 mount
+widget.hidden = true;
+
+// 触发 unload
+document.body.revmoeChild(widget);
+
+// 触发 bootstrap
+document.body.appendChild(widget);
+```
+
+### 生命周期参数
+
+生命周期函数使用"properties" 传参：
+
+```js
+function bootstrap(properties) {
+  const {
+    name,         // 应用名称
+    data,         // 应用静态数据
+    container     // 应用的 DOM 容器
+  } = properties;
+  return Promise.resolve();
+}
+```
+
+### 内置参数
+
+每个生命周期函数的入参都会保证有如下参数：
+
+* `name`: 注册到主文档的应用名称
+* `data`: 应用初始化的数据。这是一个只读、可被序列化的数据结构。[参考](https://developer.mozilla.org/zh-CN/docs/Web/Guide/API/DOM/The_structured_clone_algorithm)
+* `container`: 应用 DOM 元素的容器。这是一个 HTMLElement 对象实例，拥有 `appendChild()` 、`removeChild()`、`innerHTML`
+* `addEventListener()`: 添加事件。[参考](https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/addEventListener)
+* `dispatchEvent()`: 派发事件。[参考](https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/dispatchEvent)
+* `sandboxed`: 应用是否处于 WebSandbox DOM 沙箱中
+
+## 应用描述文件
+
+使用 pageckage.json 来描述应用，相关的字段：
+
+| 必须                                                         | 类型 | 详细                                    |                                                              |
+| ------------------------------------------------------------ | ---- | --------------------------------------- | ------------------------------------------------------------ |
+| `name`                                                       | Y    | `string`                                | 应用的名称必须用全小写无空格的字母组成。                     |
+| `web-widget`                                                 | Y    | `string`                                | WebWidget 规范版本。当前为 `1.0.0`                     |
+| `version`                                                    | Y    | `string`                                | [SemVer](https://semver.org/)版本模式兼容。                  |
+| `publisher`                                                  | Y    | `string`                                | [发行方名称](https://liiked.github.io/VS-Code-Extension-Doc-ZH/#/extension-authoring/publish-extension?id=创建一个发行方) |
+| `license`                                                    |      | `string`                                | 参考[npm's documentation](https://docs.npmjs.com/files/package.json#license)。如果你在应用根目录已经提供了`LICENSE`文件。那么`license`的值应该是`"SEE LICENSE IN <filename>"`。 |
+| `displayName`                                                |      | `string`                                | 应用市场所显示的应用名称。                                   |
+| `description`                                                |      | `string`                                | 简单地描述一下你的应用是做什么的。                           |
+| `categories`                                                 |      | `string[]`                              | 你想要使用的应用分类` |
+| `keywords`                                                   |      | `array`                                 | **关键字**（数组），这样用户可以更方便地找到你的应用。到时候会和市场上的其他应用以**标签**筛选在一起。 |
+| `preview`                                                    |      | `boolean`                               | 在市场中会显示 Preview 标记。                                  |
+| `main`                                                       |      | `string`                                | 你的应用入口                                                 |
+| `markdown`                                                   |      | `string`                                | 控制市场中使用的Markdown渲染引擎。可以是`github` (默认) 或 `standard`。 |
+| `qna`                                                        |      | `marketplace` (默认), `string`, `false` | 控制市场中的**Q & A** 链接。 设置成`marketplace`时，自动使用市场默认的Q & A网址。或者提供一个URL转跳到你的Q & A 地址。设置为`false`时禁用。 |
+| `extensionDependencies`                                      |      | `array`                                 | 应用依赖，由应用ID组成的数组。当主要应用安装完成后，其他应用会相应安装。应用ID的格式为 `${publisher}.${name}`。 |
+| `icon`                                                       |      | `string`                                | icon的文件路径，最小 128x128 像素 (视网膜屏幕则需 256x256)。 |
+
+你还可以参考[npm的`package.json`](https://docs.npmjs.com/files/package.json)
 
 ## 其他
 
