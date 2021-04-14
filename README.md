@@ -35,26 +35,24 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 
 ## 标准化目标
 
-* WebWidget 加载器
-  * 标签
-  * 接口
+* WebWidget 加载器实现
+  * [x] 标签
+  * [x] 接口
 * WebWidget 入口文件
-  * 生命周期
-  * 插槽
-  * 属性配置
-  * 动作/方法
-  * 唤起其他 WebWidget
-  * 主题适应
+  * [x] 生命周期
+  * [x] 属性配置数据
+  * [ ] 动作或方法
+  * [ ] 唤起其他 WebWidget
+  * [ ] 主题适应
   * ……
 * WebWidget 描述文件
-  * 名称
-  * 简介
-  * 图标
-  * 关键字
-  * 说明文档
-  * 入口文件地址
+  * [x] 名称
+  * [x] 简介
+  * [x] 图标
+  * [x] 关键字
+  * [x] 说明文档
+  * [x] 入口文件地址
   * ……
-
 
 ## 标签
 
@@ -80,12 +78,12 @@ WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它�
 
 ### 后备
 
-您可以在某元素上指定 `fallback` 属性，以便指明出现以下情况时采取的后备行为：
+你可以在某元素上指定 `fallback` 属性，以便指明出现以下情况时采取的后备行为：
 
 * 浏览器不支持某个元素
 * 内容未能加载（例如，推文被删除）
 * 图片类型不受支持（例如，并非所有浏览器都支持 WebP）
-* 您可以在任何 HTML 元素（而不仅仅是 WebWidget 元素）上设置 `fallback` 属性。如果指定，则 `fallback` 元素必须是 WebWidget 元素的直接子级
+* 你可以在任何 HTML 元素（而不仅仅是 WebWidget 元素）上设置 `fallback` 属性。如果指定，则 `fallback` 元素必须是 WebWidget 元素的直接子级
 
 ```html
 <web-widget src="video.js">
@@ -132,7 +130,7 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 }
 ```
 
-受限于 HTML5 的约束，通过 `data-*` 只能传递 `string` 类型的值，如果想要传递 JSON 数据，您通过一个子元素指定 `is="data-source"` 属性来写 JSON 数据：
+受限于 HTML5 的约束，通过 `data-*` 只能传递 `string` 类型的值，如果想要传递 JSON 数据，你通过一个子元素指定 `is="data-source"` 属性来写 JSON 数据：
 
 ```html
 <web-widget src="app.widget.js">
