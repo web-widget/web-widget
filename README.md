@@ -17,10 +17,11 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 ### 契机
 
 1. 在 NoCode/LowCode 理念流行下，可视化 Web 应用搭建系统层出不求，这样的体系下需要大量的、开箱即用的组件才能满足客户的需求
-2. 微前端成为流行的技术理念，single-spa 定义的生命周期格式让 Web 应用跨技术栈、标准化接口提供很好的实践范例
+2. 微前端成为流行的技术理念，[single-spa](https://single-spa.js.org/) 定义的生命周期格式让 Web 应用跨技术栈、标准化接口提供很好的实践范例
 3. Npm 成为了一个托管资源庞大的前端组件的大仓库，基于它有多个开箱即用的公共 CDN 服务
 4. WebComponents 成为面向未来的组件标准，几乎所有流行开源框架都支持它
-5. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），使得我们可以创建安全的第三方组件运行环境
+5. [AMP](https://amp.dev) 提供了极致的网页载入性能优化思路
+6. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），使得我们可以创建安全的第三方组件运行环境
 
 ### 愿景
 
@@ -54,13 +55,18 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
   * 入口文件地址
   * ……
 
-## WebWidget 标签使用范例
+
+## 标签
 
 ### 基本
 
+WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它的具体功能由 `src` 定义的脚本实现。
+
 ```html
-<web-widget src="widget.js"></web-widget>
+<web-widget src="app.js"></web-widget>
 ```
+
+为了不影响主页面的加载性能，WebWidget 的脚本是异步载入的。
 
 ### 占位符与后备
 
@@ -71,8 +77,8 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 标有 `placeholder` 属性的元素将充当 WebWidget 元素的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 元素的直接子级。标记为 `placeholder` 的元素将始终 fill（填充）父级 WebWidget 元素。
 
 ```html
-<web-widget src="widget.js">
-  <img placeholder src="p.jpg" />
+<web-widget src="app.js">
+  <img placeholder src="preview.jpg" />
 </web-widget>
 ```
 
@@ -93,38 +99,46 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 </web-widget>
 ```
 
-### 使用插槽
+### 插槽
+
+如果 WebWidget 提供了
 
 ```html
-<web-widget src="widget.js">
+<web-widget src="app.js">
   <span slot="title">hello</span>
   <span slot="content">Let's have some different text!</span>
 </web-widget>
 ```
 
-### 传入数据
+### 数据
 
-本地：
+通过 `data-*` 属性可以为 WebWidget App 传递静态的数据：
 
 ```html
-<web-widget src="widget.js">
-  <script type="data-source">
+<web-widget src="app.js" data-username="web-widget" data-email="web-widget@web-sandbox.js.org"></web-widget>
+```
+
+WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到数据：
+
+```json
+{
+  "data": {
+    "username": "web-widget",
+    "email": "web-widget@web-sandbox.js.org"
+  }
+}
+```
+
+受限于 HTML5 的定义，通过 `data-*` 只能传递 `string` 类型的值，如果想要传递 JSON 数据，您可以在 WebWidget 的子元素指定 `is="data-source">` 属性，这样它能够直接使用 JSON 数据格式：
+
+```html
+<web-widget src="app.js">
+  <script is="data-source" type="json">
     {
-      "web": "widget"
+      "username": "web-widget",
+      "email": "web-widget@web-sandbox.js.org"
     }
   </script>
-  <span slot="title">hello</span>
-  <span slot="content">Let's have some different text!</span>
-</web-widget>
-```
-
-远程：
-
-```html
-<web-widget src="widget.js">
-  <script type="data-source" src="https://api.com/?data"></script>
-  <span slot="title">hello</span>
-  <span slot="content">Let's have some different text!</span>
 </web-widget>
 ```
 
@@ -137,10 +151,10 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 </web-widget>
 ```
 
-### 使用沙盒隔离环境
+### 沙盒
 
 ```html
-<web-widget src="widget.js" sandboxed csp="script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;">
+<web-widget src="app.js" sandboxed csp="script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;">
   <span slot="title">hello</span>
   <span slot="content">Let's have some different text!</span>
 </web-widget>
