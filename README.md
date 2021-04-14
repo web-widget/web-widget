@@ -72,7 +72,7 @@ WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它�
 
 为了符合渐进式增强的体验，最佳做法是使用占位符与后备。
 
-占位符：
+### 占位符
 
 标有 `placeholder` 属性的元素将充当 WebWidget 元素的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 元素的直接子级。标记为 `placeholder` 的元素将始终 fill（填充）父级 WebWidget 元素。
 
@@ -82,7 +82,7 @@ WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它�
 </web-widget>
 ```
 
-后备：
+#### 后备
 
 您可以在某元素上指定 `fallback` 属性，以便指明出现以下情况时采取的后备行为：
 
