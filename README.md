@@ -1,4 +1,4 @@
-# WebWidget 白皮书
+# WebWidget 规范草案
 
 本规范定义了一种通用的网页小挂件标准格式，它可以集成在不同的 Web 技术开发的应用中。
 
@@ -56,10 +56,41 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 
 ## WebWidget 标签使用范例
 
-### 载入组件
+### 基本
 
 ```html
 <web-widget src="widget.js"></web-widget>
+```
+
+### 占位符与后备
+
+为了符合渐进式增强的体验，最佳做法是使用占位符与后备。
+
+占位符：
+
+标有 `placeholder` 属性的元素将充当 WebWidget 元素的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 元素的直接子级。标记为 `placeholder` 的元素将始终 fill（填充）父级 WebWidget 元素。
+
+```html
+<web-widget src="widget.js">
+  <img placeholder src="p.jpg" />
+</web-widget>
+```
+
+后备：
+
+您可以在某元素上指定 `fallback` 属性，以便指明出现以下情况时采取的后备行为：
+
+* 浏览器不支持某个元素
+* 内容未能加载（例如，推文被删除）
+* 图片类型不受支持（例如，并非所有浏览器都支持 WebP）
+* 您可以在任何 HTML 元素（而不仅仅是 WebWidget 元素）上设置 `fallback` 属性。如果指定，则 `fallback` 元素必须是 WebWidget 元素的直接子级
+
+```html
+<web-widget src="video.js">
+  <div fallback>
+    <p>This browser does not support the video element.</p>
+  </div>
+</web-widget>
 ```
 
 ### 使用插槽
@@ -97,10 +128,10 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 </web-widget>
 ```
 
-### 使用 Web Components 扩展
+### 自定义元素
 
 ```html
-<web-widget is="my-element" src="widget.js">
+<web-widget custom-element="my-element" src="my-element.js">
   <span slot="title">hello</span>
   <span slot="content">Let's have some different text!</span>
 </web-widget>
@@ -114,6 +145,7 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
   <span slot="content">Let's have some different text!</span>
 </web-widget>
 ```
+
 
 ## 其他
 
