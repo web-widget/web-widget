@@ -19,7 +19,7 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 1. 在 NoCode/LowCode 理念流行下，可视化 Web 应用搭建系统层出不求，这样的体系下需要大量的、开箱即用的组件才能满足客户的需求
 2. 微前端成为流行的技术理念，[single-spa](https://single-spa.js.org/) 定义的生命周期格式让 Web 应用跨技术栈、标准化接口提供很好的实践范例
 3. Npm 成为了一个托管资源庞大的前端组件的大仓库，基于它有多个开箱即用的公共 CDN 服务
-4. WebComponents 成为面向未来的组件标准，几乎所有流行开源框架都支持它
+4. Web Components 成为面向未来的组件标准，几乎所有流行开源框架都支持它
 5. [AMP](https://amp.dev) 提供了极致的网页载入性能优化思路
 6. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），使得我们可以创建安全的第三方组件运行环境
 
@@ -101,8 +101,6 @@ WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它�
 
 ### 插槽
 
-如果 WebWidget 提供了
-
 ```html
 <web-widget src="app.js">
   <span slot="title">hello</span>
@@ -115,7 +113,12 @@ WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它�
 通过 `data-*` 属性可以为 WebWidget App 传递静态的数据：
 
 ```html
-<web-widget src="app.js" data-username="web-widget" data-email="web-widget@web-sandbox.js.org"></web-widget>
+<web-widget
+  src="app.js"
+  data-username="web-widget"
+  data-email="web-widget@web-sandbox.js.org"
+>
+</web-widget>
 ```
 
 WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到数据：
@@ -129,7 +132,7 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 }
 ```
 
-受限于 HTML5 的定义，通过 `data-*` 只能传递 `string` 类型的值，如果想要传递 JSON 数据，您可以在 WebWidget 的子元素指定 `is="data-source">` 属性，这样它能够直接使用 JSON 数据格式：
+受限于 HTML5 的约束，通过 `data-*` 只能传递 `string` 类型的值，如果想要传递 JSON 数据，您通过一个子元素指定 `is="data-source"` 属性来写 JSON 数据：
 
 ```html
 <web-widget src="app.js">
@@ -153,6 +156,8 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 
 ### 沙盒
 
+给 WebWidget 增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 WebWidget App 的所有的操作限制在 `<web-widget>` 视图内，网络、本地存储等都将被限制。
+
 ```html
 <web-widget src="app.js" sandboxed csp="script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;">
   <span slot="title">hello</span>
@@ -160,6 +165,7 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 </web-widget>
 ```
 
+关于沙盒环境的限制，具体可以参考 [WebSandbox.js](https://web-sandbox.org.js)。
 
 ## 其他
 
@@ -167,16 +173,10 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 
 ### SEO
 
-TODO
+因为 WebWidget 是一个标准的 Web Component，因此它的 SEO 问题本质上是 JavaScript 和 Web Component 的 SEO 问题。社区中有两种实践方式：
 
-### 加载 WebWidget
-
-WebWidget 是一种和特定技术栈、加载器无关的格式，可以自行实现或者使用社区已有的方案来完成它的加载与运行。
-
-* 使用 WebSandbox 来加载
-* 使用 single-spa
-
-TODO
+* 使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom) 来描述关键内容
+* 使用 [JSON-LD](https://json-ld.org/) 描述关键内容
 
 ### 发布 WebWidget
 
