@@ -310,6 +310,8 @@ function bootstrap(properties) {
 * `container`: 应用 DOM 元素的容器。这是一个 HTMLElement 对象实例，拥有 `appendChild()` 、`removeChild()`、`innerHTML`
 * `sandboxed`: 应用是否处于 WebSandbox DOM 沙箱中
 
+> 💡 应用生命周期来自于微前端框架 [single-spa](https://single-spa.js.org/) 的定义，这样可以确保 WebWidget 的应用能够被 [single-spa](https://single-spa.js.org/) 或其兼容的加载器加载。
+
 ## 应用描述文件
 
 使用 pageckage.json 来描述应用，相关的字段：
