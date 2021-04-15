@@ -162,11 +162,11 @@ export default class MyElement extends HTMLElement {
 
 在这个模式下，入口文件不需要生命周期函数（也不会运行）。 
 
-> 💡 自定义元素模式开辟了一个新的概念，它不要求入口文件实现生命周期函数，这意味着将失去很多 WebWidget 的能力，增加了理解成本，因此我们需要评估是否将其纳入 WebWidget v1.0.0 规范中。
+> 💡 自定义元素模式它不要求入口文件实现生命周期函数，这意味着将失去标准 WebWidget 应用拥有的主要能力，它更像是 Web Component 加载器。因此我们需要评估是否将其纳入 WebWidget v1.0.0 规范中。
 
 ### 沙盒
 
-给 WebWidget 增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 WebWidget App 的所有的操作限制在 `<web-widget>` 视图内，网络、本地存储等都将被限制。`sandboxed` 不仅仅避免安全隐患，还能以更简单的方式解决不同前端框架共存、版本兼容的问题。
+给 WebWidget 增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 WebWidget App 的所有的操作限制在 `<web-widget>` 视图内，它的网络、本地存储等都将被管控，让不可信代码能够安全的运行。除此之外，还能以更简单的方式解决不同前端框架共存、版本兼容的问题。
 
 ```html
 <web-widget src="app.widget.js" sandboxed csp="script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;">
@@ -176,6 +176,8 @@ export default class MyElement extends HTMLElement {
 ```
 
 关于沙盒环境的限制，具体可以参考 [WebSandbox.js](https://web-sandbox.org.js)。
+
+> 💡 开启沙盒后，如果应用没有实现生命周期函数，也能确保它能够正常被渲染的同时也不会对主文档产生副作用，这可以用来快速迁移一些旧的组件。
 
 ## 接口
 
