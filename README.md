@@ -2,7 +2,7 @@
 
 ## 什么是 WebWidget
 
-WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI Library 不同，它提供的是标准化的服务，它也可以集成在不同的 Web 技术开发的应用中。
+WebWidget 是一种用于网页的小挂件标准，和传统的前端命令式的 UI Library 不同，它提供的是服务抽象，能够适应于可视化编排、跨技术栈的需要。
 
 ## 为什么要设计 WebWidget
 
@@ -20,16 +20,16 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 2. 微前端成为流行的技术理念，[single-spa](https://single-spa.js.org/) 定义的生命周期格式让 Web 应用跨技术栈、标准化接口提供很好的实践范例
 3. Npm 成为了一个托管资源庞大的前端组件的大仓库，基于它有多个开箱即用的公共 CDN 服务
 4. Web Components 成为面向未来的组件标准，几乎所有流行开源框架都支持它
-5. [AMP](https://amp.dev) 提供了极致的网页载入性能优化思路，它提出了工业化的解决方案标准给我们带来很多灵感
-6. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），使得我们可以创建安全的第三方组件运行环境
+5. [AMP](https://amp.dev) 提供了极致的网页载入性能优化思路，它提出了工业化的解决方案
+6. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），可以创建安全的第三方组件运行的容器化环境
 
 ### 愿景
 
-1. 所有人都可以使用 WebWidget，而非只有开发者
-2. 和技术栈无关，兼容所有前端框架
+1. 更多的人可以使用 WebWidget 来搭建产品，不仅仅是开发者
+2. 不和技术栈无关，能够兼容所有的前端框架
 3. 所有的前端组件，都可轻松变成 WebWidget
 4. 所有的 NoCode 产品，都可兼容 WebWidget
-5. Npm 或 Github 可以作为 WebWidget 的应用市场，使用公共 CDN 随时分发
+5. Npm 或 Github 成为 WebWidget 的开放应用市场，使用公共 CDN 随时分发
 
 ## 标准化内容
 
@@ -175,9 +175,9 @@ export default class MyElement extends HTMLElement {
 </web-widget>
 ```
 
-关于沙盒环境的限制，具体可以参考 [WebSandbox.js](https://web-sandbox.org.js)。
+开启沙盒后，如果应用没有实现生命周期函数，也能确保它能够正常被渲染的同时也不会对主文档产生副作用，这可以用来快速迁移一些旧的组件。
 
-> 💡 开启沙盒后，如果应用没有实现生命周期函数，也能确保它能够正常被渲染的同时也不会对主文档产生副作用，这可以用来快速迁移一些旧的组件。
+关于沙盒环境的限制，具体可以参考 [WebSandbox.js](https://web-sandbox.org.js)。
 
 ## 接口
 
@@ -350,7 +350,7 @@ WebWidget 可以发布到任何地方，例如企业的私有 CDN，如果你想
 
 ### WebWidget 应用自动升级
 
-一些公共 CDN 提供了自动更新的机制，例如 [jsdelivr](https://www.jsdelivr.com)，我们可以通过它实现 WebWidget 应用的自动升级。
+一些公共 CDN 提供了自动更新的机制，例如 [jsdelivr](https://www.jsdelivr.com)，你可以通过它实现 WebWidget 应用的自动升级。
 
 始终使用最新版本：
 
