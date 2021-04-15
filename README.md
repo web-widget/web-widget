@@ -1,6 +1,6 @@
 # WebWidget 标准
 
-> 💡 本文档处于共创过程阶段，使用 `💡` 标记的地方为设计者的注释。
+> 💡 本文档处于草稿阶段，使用 `💡` 标记的地方为文档编写过程中的注释。
 
 ## 什么是 WebWidget
 
@@ -40,6 +40,7 @@ WebWidget 标准由如下三个部分组成：
 * 加载器
   * [x] 标签
   * [x] 接口
+  * [x] 事件
   * [x] 沙盒
 * 应用入口
   * [x] 生命周期
@@ -121,7 +122,7 @@ WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它�
 </web-widget>
 ```
 
-WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到数据：
+WebWidget App 可以通过生命周期函数获的 `properties.data` 参数获取到数据：
 
 ```json
 {
@@ -176,7 +177,7 @@ export default class MyElement extends HTMLElement {
 
 ### 沙盒
 
-给 WebWidget 增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 WebWidget App 的所有的操作限制在 `<web-widget>` 视图内，它的网络、本地存储等都将被管控，让不可信代码能够安全的运行。除此之外，
+给 WebWidget 增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 WebWidget App 的所有的操作限制在 `<web-widget>` 视图内，它的网络、本地存储等都将被管控，让不可信代码能够安全的运行。
 
 ```html
 <web-widget src="app.widget.js" sandboxed csp="script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;">
@@ -193,6 +194,9 @@ export default class MyElement extends HTMLElement {
 
 ```js
 const widget = document.createElement('web-widget');
+widget.data = {
+  username: 'web-widget'
+};
 widget.src = 'app.widget.js';
 document.body.appendChild(widget);
 ```
@@ -247,6 +251,11 @@ document.body.appendChild(widget);
 * `"pending"`
 * `"fulfilled"`
 * `"rejected"`
+
+## 事件
+
+* `load`
+* `error`
 
 ## 应用入口文件
 
