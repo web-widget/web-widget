@@ -155,14 +155,14 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 
 ```js
 // my-element.js
-class MyElement extends HTMLElement {
+export default class MyElement extends HTMLElement {
   // ...
 }
-
-customElements.define('my-element', MyElement);
 ```
 
-在这个模式下，入口文件不需要生命周期函数（也不会运行）、相同的 `src` 不会重复执行。 
+在这个模式下，入口文件不需要生命周期函数（也不会运行）。 
+
+> 💡 自定义元素模式开辟了一个新的概念，它不要求入口文件实现生命周期函数，这意味着将失去很多 WebWidget 的能力，增加了理解成本，因此我们需要评估是否将其纳入 WebWidget v1.0.0 规范中。
 
 ### 沙盒
 
@@ -308,8 +308,6 @@ function bootstrap(properties) {
 * `name`: 注册到主文档的应用名称
 * `data`: 应用初始化的数据。这是一个只读、可被序列化的数据结构。[参考](https://developer.mozilla.org/zh-CN/docs/Web/Guide/API/DOM/The_structured_clone_algorithm)
 * `container`: 应用 DOM 元素的容器。这是一个 HTMLElement 对象实例，拥有 `appendChild()` 、`removeChild()`、`innerHTML`
-* `addEventListener()`: 添加事件。[参考](https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/addEventListener)
-* `dispatchEvent()`: 派发事件。[参考](https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/dispatchEvent)
 * `sandboxed`: 应用是否处于 WebSandbox DOM 沙箱中
 
 ## 应用描述文件
