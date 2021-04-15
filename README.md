@@ -142,17 +142,9 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 
 如果同时存在 `is="data-source"` 与 `data-*` 定义的数据，最终会进行合并。
 
-### 自定义元素
+### 自定义元素模式
 
-```js
-class MyElement extends HTMLElement {
-  // ...
-}
-
-customElements.define('my-element', MyElement, {
-  extends: 'script'
-});
-```
+如果入口文件是一个标准的 Web Component，那么使用 `custom-element` 属性可以简化 Web Component 的加载与使用。
 
 ```html
 <web-widget custom-element="my-element" src="my-element.js">
@@ -160,6 +152,17 @@ customElements.define('my-element', MyElement, {
   <span slot="content">Let's have some different text!</span>
 </web-widget>
 ```
+
+```js
+// my-element.js
+class MyElement extends HTMLElement {
+  // ...
+}
+
+customElements.define('my-element', MyElement);
+```
+
+在这个模式下，入口文件不需要生命周期函数（也不会运行）、相同的 `src` 不会重复执行。 
 
 ### 沙盒
 
