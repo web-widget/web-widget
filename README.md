@@ -33,7 +33,7 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 
 ## 标准化内容
 
-* 容器
+* 加载器
   * [x] 标签
   * [x] 接口
   * [x] 沙盒
@@ -143,6 +143,16 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 如果同时存在 `is="data-source"` 与 `data-*` 定义的数据，最终会进行合并。
 
 ### 自定义元素
+
+```js
+class MyElement extends HTMLElement {
+  // ...
+}
+
+customElements.define('my-element', MyElement, {
+  extends: 'script'
+});
+```
 
 ```html
 <web-widget custom-element="my-element" src="my-element.js">
@@ -330,6 +340,28 @@ function bootstrap(properties) {
 * 使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom) 来描述关键内容
 * 使用 [JSON-LD](https://json-ld.org/) 描述关键内容
 
-### 发布 WebWidget
+### 发布 WebWidget 应用
 
 WebWidget 可以发布到任何地方，例如企业的私有 CDN，如果你想让所有人都可以使用到，推荐发布到 Npm 或者 Github，这样使用者可以通过公共 CDN 加载它。 
+
+### WebWidget 应用自动升级
+
+一些公共 CDN 提供了自动更新的机制，例如 [jsdelivr](https://www.jsdelivr.com)，我们可以通过它实现 WebWidget 应用的自动升级。
+
+始终使用最新版本：
+
+```html
+<web-widget src="https://cdn.jsdelivr.net/npm/tabs-widget"></web-widget>
+```
+
+使用 2.x.x 的最新版本：
+
+```html
+<web-widget src="https://cdn.jsdelivr.net/npm/tabs-widget@2"></web-widget>
+```
+
+锁定版本：
+
+```html
+<web-widget src="https://cdn.jsdelivr.net/npm/tabs-widget@1.0.0"></web-widget>
+```
