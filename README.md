@@ -1,5 +1,7 @@
 # WebWidget 标准
 
+> 💡 本文档处于共创过程阶段，使用 `💡` 标记的地方为设计者的注释。
+
 ## 什么是 WebWidget
 
 WebWidget 是一种用于网页的小挂件标准，和传统的命令式的 UI Library 不同，它提供的是面向用户需求的服务级别抽象，能够适应于无代码编程、跨技术栈的需要。
@@ -130,11 +132,11 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 }
 ```
 
-受限于 HTML5 的约束，通过 `data-*` 只能传递 `string` 类型的值，如果想要传递 JSON 数据，你通过一个子元素指定 `is="data-source"` 属性来写 JSON 数据：
+受限于 HTML5 的约束，通过 `data-*` 只能传递 `string` 类型的值，如果想要传递 JSON 数据，你可以通过 `include-data` 属性指定包含目标 ID 元素节点的内容作为 JSON 数据:
 
 ```html
-<web-widget src="app.widget.js">
-  <script is="data-source" type="json">
+<web-widget src="app.widget.js" include-data="data-source">
+  <script id="data-source" type="json">
     {
       "username": "web-widget",
       "email": "web-widget@web-sandbox.js.org"
@@ -143,7 +145,12 @@ WebWidget App 可以通过生命周期函数获的 `properties` 参数获取到�
 </web-widget>
 ```
 
-如果同时存在 `is="data-source"` 与 `data-*` 定义的数据，最终会进行合并。
+推荐使用带有 `type="json"` 属性的 `<script>` 标签作为 JSON 数据容器。原因：
+
+* 浏览器不会渲染它的内容
+* 有更好的语义
+
+如果同时存在 `include-data` 与 `data-*`，只有 `include-data` 会生效。
 
 ### 自定义元素模式
 
@@ -169,7 +176,7 @@ export default class MyElement extends HTMLElement {
 
 ### 沙盒
 
-给 WebWidget 增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 WebWidget App 的所有的操作限制在 `<web-widget>` 视图内，它的网络、本地存储等都将被管控，让不可信代码能够安全的运行。除此之外，还能以更简单的方式解决不同前端框架共存、版本兼容的问题。
+给 WebWidget 增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 WebWidget App 的所有的操作限制在 `<web-widget>` 视图内，它的网络、本地存储等都将被管控，让不可信代码能够安全的运行。除此之外，
 
 ```html
 <web-widget src="app.widget.js" sandboxed csp="script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;">
@@ -178,7 +185,7 @@ export default class MyElement extends HTMLElement {
 </web-widget>
 ```
 
-开启沙盒后，如果应用没有实现生命周期函数，也能确保它能够正常被渲染的同时也不会对主文档产生副作用，这可以用来快速迁移一些旧的组件。
+如果应用没有实现生命周期函数，开启沙盒后也能确保它能够正常被渲染的同时也不会对主文档产生副作用，因此可以使用沙盒特性来快速迁移一些旧的代码。
 
 关于沙盒环境的限制，具体可以参考 [WebSandbox.js](https://web-sandbox.org.js)。
 
@@ -196,7 +203,11 @@ document.body.appendChild(widget);
 
 ### `name`
 
-应用名称。应用脚本可以通过生命周期的 `properties` 访问到。
+应用名称。应用脚本可以通过生命周期的 `properties.name` 访问到。
+
+### `data`
+
+应用的数据。应用脚本可以通过生命周期的 `properties.data` 访问到。
 
 ### `hidden`
 
