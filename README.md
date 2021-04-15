@@ -6,6 +6,8 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 
 ## 为什么要设计 WebWidget
 
+建设 WebWidget 规范的直接动机来自于构建 NoCode 产品中的组件系统需要，例如可视化页面搭建编辑器的组件系统。
+
 ### 问题
 
 1. 开源社区大量的组件只能在特定的技术框架中才能运行，甚至一些组件依赖了特定的技术框架版本
@@ -18,12 +20,10 @@ WebWidget 是一种和技术栈无关的小挂件标准，和传统的前端 UI 
 2. 微前端成为流行的技术理念，[single-spa](https://single-spa.js.org/) 定义的生命周期格式让 Web 应用跨技术栈、标准化接口提供很好的实践范例
 3. Npm 成为了一个托管资源庞大的前端组件的大仓库，基于它有多个开箱即用的公共 CDN 服务
 4. Web Components 成为面向未来的组件标准，几乎所有流行开源框架都支持它
-5. [AMP](https://amp.dev) 提供了极致的网页载入性能优化思路
+5. [AMP](https://amp.dev) 提供了极致的网页载入性能优化思路，它提出了工业化的解决方案标准给我们带来很多灵感
 6. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），使得我们可以创建安全的第三方组件运行环境
 
 ### 愿景
-
-建设 WebWidget 规范的直接动机来自于 NoCode 产品中的组件系统，例如可视化页面搭建编辑器。
 
 1. 所有人都可以使用 WebWidget，而非只有开发者
 2. 和技术栈无关，兼容所有前端框架
@@ -172,19 +172,52 @@ widget.src = 'app.widget.js';
 document.body.appendChild(widget);
 ```
 
-* `src` 应用入口文件。必须支持跨域访问
-* `name` 应用名称。应用脚本可以通过生命周期的 `properties` 访问到
-* `hidden` 显示与隐藏应用。不同于 CSS `display: none`，`hidden` 会触发应用的生命周期
-* `sandboxed` 沙盒化。启用后，WebWidget 应用将被强制容器化，避免影响主文档
-* `csp` 内容安全策略。只有开启 `sandboxed` 属性后才有效
-* `contentWindow` 容器的内部 `window` 对象。只有开启 `sandboxed` 属性后才有效
-* `contentDocument` 容器的内部 `document` 对象。只有开启 `sandboxed` 属性后才有效
-* `evaluate(source, context)` 运行 JavaScript 代码。开启 `sandboxed` 后，它将在沙盒环境中执行
-* `status` 应用的加载状态（只读）
-  * `null` 默认状态
-  * `"pending"` 正在加载
-  * `"fulfilled"` 加载成功
-  * `"rejected"` 加载失败
+### `src`
+
+应用入口文件。
+
+### `name`
+
+应用名称。应用脚本可以通过生命周期的 `properties` 访问到。
+
+### `hidden`
+
+显示与隐藏应用。不同于 CSS `display: none`，`hidden` 会触发应用的生命周期。
+
+### `sandboxed`
+
+沙盒化。启用后，WebWidget 应用将被强制容器化，避免影响主文档。
+
+### `csp`
+
+内容安全策略。只有开启 `sandboxed` 属性后才有效。
+
+### `contentWindow`
+
+容器的内部 `window` 对象。只有开启 `sandboxed` 属性后才有效。
+
+### `contentDocument`
+
+容器的内部 `document` 对象。只有开启 `sandboxed` 属性后才有效。
+
+### `evaluate(source, context)`
+
+运行 JavaScript 代码。开启 `sandboxed` 后，它将在沙盒环境中执行。
+
+### `loading`
+
+指示浏览器应当如何加载。允许的值：
+
+* `"eager"` 立即加载，不管它是否在可视视口（visible viewport）之外（默认值）
+* `"lazy"` 延迟加载，直到它和视口接近的距离
+
+### `status`
+
+应用的加载状态（只读），可能出现的值：
+
+* `"pending"`
+* `"fulfilled"`
+* `"rejected"`
 
 ## 应用入口文件
 
@@ -273,7 +306,7 @@ function bootstrap(properties) {
 | 必须                                                         | 类型 | 详细                                    |                                                              |
 | ------------------------------------------------------------ | ---- | --------------------------------------- | ------------------------------------------------------------ |
 | `name`                                                       | Y    | `string`                                | 应用的名称必须用全小写无空格的字母组成。                     |
-| `web-widget`                                                 | Y    | `string`                                | WebWidget 规范版本。当前为 `1.0.0`                     |
+| `web-widget`                                                 | Y    | `string`                                | 应用采用的 WebWidget 规范版本。当前为 `1.0.0`                     |
 | `version`                                                    | Y    | `string`                                | [SemVer](https://semver.org/) 版本模式兼容。                  |
 | `license`                                                    |      | `string`                                | 参考 [npm's documentation](https://docs.npmjs.com/files/package.json#license)。如果你在应用根目录已经提供了 `LICENSE` 文件。那么 `license` 的值应该是 `"SEE LICENSE IN <filename>"`。 |
 | `displayName`                                                |      | `string`                                | 应用市场所显示的应用名称。                                   |
