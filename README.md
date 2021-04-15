@@ -4,11 +4,9 @@
 
 ## 什么是 WebWidget
 
-WebWidget 是一种用于网页的小挂件标准，和传统的命令式的 UI Library 不同，它提供的是面向用户需求的服务级别抽象，能够适应于无代码编程、跨技术栈的需要。
+WebWidget 是一种用于网页的小挂件标准，和传统的命令式的 UI Library 不同，它介于组件与应用程序形态之间，并且接口被标准化、能够适应于无代码编程与跨技术栈兼容的需要。
 
 ## 为什么要设计 WebWidget
-
-建设 WebWidget 规范的直接动机来自于 NoCode 产品共同的需求驱动，例如可视化网页编辑器。
 
 ### 问题
 
@@ -27,6 +25,8 @@ WebWidget 是一种用于网页的小挂件标准，和传统的命令式的 UI 
 
 ### 愿景
 
+建设 WebWidget 规范的直接动机来自于 NoCode 产品共同的需求驱动，例如可视化网页编辑器。
+
 1. 更多的人可以使用 WebWidget 来搭建产品，不仅仅是开发者
 2. 不和技术栈无关，能够兼容所有的前端框架
 3. 所有的前端组件，都可轻松变成 WebWidget
@@ -37,18 +37,20 @@ WebWidget 是一种用于网页的小挂件标准，和传统的命令式的 UI 
 
 WebWidget 标准由如下三个部分组成：
 
-* 加载器
+* 容器
   * [x] 标签
   * [x] 接口
   * [x] 事件
   * [x] 沙盒
-* 应用入口
+* 应用
   * [x] 生命周期
-  * [x] 属性配置数据
-  * [ ] 动作或方法
-  * [ ] 唤起其他 WebWidget
-  * [ ] 主题变量
-  * [ ] 多语言变量
+  * [x] 配置数据
+  * [ ] 服务接口
+  * [ ] 应用之间唤起
+  * [ ] 应用之间通讯
+  * [ ] 环境
+    * [ ] 主题变量
+    * [ ] 多语言变量
 * 应用描述
   * [x] 名称
   * [x] 简介
@@ -109,7 +111,7 @@ WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它�
 
 插槽源自于 Web Component，更多插槽信息可以访问 <https://developer.mozilla.org/en-US/docs/Web/Web_Components>。
 
-### 数据
+### 配置数据
 
 通过 `data-*` 属性可以为 WebWidget App 传递静态的数据：
 
@@ -133,7 +135,7 @@ WebWidget App 可以通过生命周期函数获的 `properties.data` 参数获�
 }
 ```
 
-受限于 HTML5 的约束，通过 `data-*` 只能传递 `string` 类型的值，如果想要传递 JSON 数据，你可以通过 `include-data` 属性指定包含目标 ID 元素节点的内容作为 JSON 数据:
+受限于 HTML5 的约束，通过 `data-*` 只能传递 `string` 类型的值，如果想要传递 JSON 数据，你可以通过 `include-data` 属性指定包含目标 ID 元素节点的内容作为 JSON 数据：
 
 ```html
 <web-widget src="app.widget.js" include-data="data-source">
@@ -267,6 +269,7 @@ document.body.appendChild(widget);
 export default {
   async bootstrap: (properties) => {},
   async mount: (properties) => {},
+  async update: (properties) => {},
   async unmount: (properties) => {},
   async unload: (properties) => {}
 }
@@ -282,10 +285,12 @@ export default {
 
 注:
 
-* `bootstrap`、 `mount` 与 `unmount` 的实现是必须的，`unload` 则是可选的
+* `bootstrap`、 `mount` 与 `unmount` 的实现是必须的， `update` 与 `unload` 则是可选的
 * 生命周期函数必须有返回值，可以是 `promise` 或者 `async` 函数
 * 如果导出的是函数数组而不是单个函数，这些函数会被依次调用，对于 `promise` 函数，会等到 resolve 之后再调用下一个函数
 * 如果应用只被预加载，各个应用会被下载，但不会被初始化、挂载或卸载
+
+> 💡 应用生命周期来自于微前端框架 [single-spa](https://single-spa.js.org/) 的定义，这样可以确保 WebWidget 的应用能够被 [single-spa](https://single-spa.js.org/) 或其兼容的加载器加载。
 
 WebWidget 元素会在不同的阶段主动触发这些应用生命周期：
 
@@ -330,12 +335,71 @@ function bootstrap(properties) {
 
 每个生命周期函数的入参都会保证有如下参数：
 
-* `name`: 注册到主文档的应用名称
-* `data`: 应用初始化的数据。这是一个只读、可被序列化的数据结构。[参考](https://developer.mozilla.org/zh-CN/docs/Web/Guide/API/DOM/The_structured_clone_algorithm)
-* `container`: 应用 DOM 元素的容器。这是一个 HTMLElement 对象实例，拥有 `appendChild()` 、`removeChild()`、`innerHTML`
-* `sandboxed`: 应用是否处于 WebSandbox DOM 沙箱中
+### `name`
 
-> 💡 应用生命周期来自于微前端框架 [single-spa](https://single-spa.js.org/) 的定义，这样可以确保 WebWidget 的应用能够被 [single-spa](https://single-spa.js.org/) 或其兼容的加载器加载。
+注册到主文档的应用名称。
+
+### `data`
+
+应用初始化的数据。这是一个只读、可被序列化的数据结构。[参考](https://developer.mozilla.org/zh-CN/docs/Web/Guide/API/DOM/The_structured_clone_algorithm)。
+
+### `container`
+
+应用 DOM 元素的容器。这是一个 HTMLElement 对象实例，至少拥有 `appendChild()` 、`removeChild()`、`innerHTML` 填充容器内容接口。
+
+> 💡 single-spa 的 Parcel 明确要求使用 `domElement` 字段作为挂载容器，否则它会报错。我们没有使用 single-spa 使用的 `domElement` 的命名是因为它更像描述一个对象的类型而非用途，这样语义不够明确。这里会引发一个新的问题：我们是否要 100% 兼容 single-spa？
+
+### `sandboxed`
+
+应用是否处于 WebSandbox DOM 沙箱中。
+
+### `mountParcel(parcelConfig, parcelProps)`
+
+手动挂载的函数。你可以在 WebWidget 应用中打开其他 WebWidget。
+
+#### 参数
+
+##### parcelConfig
+
+parcelConfig 是你想调用的 WebWidget 的生命周期对象：
+
+```js
+import('app.widget.js').then(lifecycle => {
+  mountParcel(lifecycle, parcelProps);
+});
+```
+
+或者：
+
+```js
+mountParcel(import('app.widget.js'), parcelProps);
+```
+
+##### parcelProps
+
+结构等同于 WebWidget 应用 properties，如果你想在应用里嵌套其他应用，需要指定不同的 `container`。
+
+如果你想在应用外打开其他应用，需要指定 `parentSlot` 字段，这个字段是宿主所提供的插槽名称。举个例子，你想在处于可视化编辑器环境中的 WebWidget 应用提供一个设置面板，并且在对话框中打开：
+
+```js
+mountParcel(import('app-settings-panel.widget.js'), {
+  parentSlot: 'dialog',
+  //...
+});
+```
+
+#### 返回值
+
+* `mount`
+* `unmount`
+* `update`
+* `getStatus`
+* `loadPromise`
+* `bootstrapPromise`
+* `mountPromise`
+* `unmountPromise`
+
+> 💡 这里需要补充
 
 ## 应用描述文件
 
@@ -345,14 +409,15 @@ function bootstrap(properties) {
 | ------------------------------------------------------------ | ---- | --------------------------------------- | ------------------------------------------------------------ |
 | `name`                                                       | Y    | `string`                                | 应用的名称必须用全小写无空格的字母组成                             |
 | `main`                                                       | Y    | `string`                                | 应用入口                                                      |
-| `web-widget`                                                 | Y    | `string`                                | 应用采用的 WebWidget 规范版本。当前为 `1.0.0`                    |
+| `webWidget`                                                  | Y    | `string`                                | 应用采用的 WebWidget 规范版本。当前为 `1.0.0`                    |
 | `version`                                                    | Y    | `string`                                | [SemVer](https://semver.org/) 版本模式兼容                     |
+| `configuratorMain`                                           |      | `string`                                | 应用编辑模式的设置面板入口。用于给可视化编辑器提供应用参数的 UI，它也是一个 webWidget 应用 |
 | `license`                                                    |      | `string`                                | 参考 [npm's documentation](https://docs.npmjs.com/files/package.json#license)。如果你在应用根目录已经提供了 `LICENSE` 文件。那么 `license` 的值应该是 `"SEE LICENSE IN <filename>"` |
 | `displayName`                                                |      | `string`                                | 应用市场所显示的应用名称                                          |
 | `description`                                                |      | `string`                                | 简单地描述应用是做什么的                                          |
 | `categories`                                                 |      | `string[]`                              | 应用分类                                                       |
 | `keywords`                                                   |      | `array`                                 | **关键字**（数组），这样用户可以更方便地找到你的应用。到时候会和市场上的其他应用以**标签**筛选在一起 |
-| `icon`                                                       |      | `string`                                | icon 的文件路径，最小 128x128 像素 (视网膜屏幕则需 256x256)          |
+| `icon`                                                       |      | `string`                                | icon 的文件路径，最小 128x128 像素 (视网膜屏幕则需 256x256)         |
 
 你还可以参考 [npm 的 `package.json`](https://docs.npmjs.com/files/package.json)。
 
