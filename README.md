@@ -44,7 +44,8 @@ WebWidget 标准由如下三个部分组成：
   * [x] 属性配置数据
   * [ ] 动作或方法
   * [ ] 唤起其他 WebWidget
-  * [ ] 主题适应
+  * [ ] 主题变量
+  * [ ] 多语言变量
 * 应用描述
   * [x] 名称
   * [x] 简介
@@ -335,6 +336,8 @@ function bootstrap(properties) {
 
 你还可以参考 [npm 的 `package.json`](https://docs.npmjs.com/files/package.json)。
 
+> 💡 我们需要考虑多语言适配。
+
 ## 其他
 
 本章节非规范内容。
@@ -360,14 +363,14 @@ WebWidget 可以发布到任何地方，例如企业的私有 CDN，如果你想
 <web-widget src="https://cdn.jsdelivr.net/npm/tabs-widget"></web-widget>
 ```
 
-使用 2.x.x 的最新版本：
+以兼容性的方式自动更新：
 
 ```html
 <web-widget src="https://cdn.jsdelivr.net/npm/tabs-widget@2"></web-widget>
 ```
 
-锁定版本：
+禁止更新：
 
 ```html
-<web-widget src="https://cdn.jsdelivr.net/npm/tabs-widget@1.0.0"></web-widget>
+<web-widget src="https://cdn.jsdelivr.net/npm/tabs-widget@2.0.0"></web-widget>
 ```
