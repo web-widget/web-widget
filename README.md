@@ -347,8 +347,6 @@ function bootstrap(properties) {
 
 应用 DOM 元素的容器。这是一个 HTMLElement 对象实例，至少拥有 `appendChild()` 、`removeChild()`、`innerHTML` 填充容器内容接口。
 
-> 💡 single-spa 的 Parcel 明确要求使用 `domElement` 字段作为挂载容器，否则它会报错。我们没有使用 single-spa 使用的 `domElement` 的命名是因为它更像描述一个对象的类型而非用途，这样语义不够明确。这里会引发一个新的问题：我们是否要 100% 兼容 single-spa？
-
 ### `sandboxed`
 
 应用是否处于 WebSandbox DOM 沙箱中。
@@ -377,18 +375,24 @@ mountParcel(import('app.widget.js'), parcelProps);
 
 ##### parcelProps
 
-结构等同于 WebWidget 应用 properties，如果你想在应用里嵌套其他应用，需要指定不同的 `container`。
+结构等同于 WebWidget 应用 properties。
 
-如果你想在应用外打开其他应用，需要指定 `parentSlot` 字段，这个字段是宿主所提供的插槽名称。举个例子，你想在处于可视化编辑器环境中的 WebWidget 应用提供一个设置面板，并且在对话框中打开：
+如果你想在应用里嵌套其他应用，需要指定一个新的 `container`；如果你想在应用外打开其他应用，需要指定 `slot` 字段，这个字段是宿主所提供的插槽名称。举个例子，你想为自己的应用提供可以设置面板并且使用外部的对话框打开：
 
 ```js
 mountParcel(import('app-settings-panel.widget.js'), {
-  parentSlot: 'dialog',
+  slot: 'dialog',
   //...
 });
 ```
 
+> 💡 需要补充描述 WebWidget 的接口是如何支持应用 `slot` 的请求。
+>
+> 💡 single-spa 的 Parcel 明确要求使用 `domElement` 字段作为挂载容器，否则它会报错。我们没有使用 single-spa 使用的 `domElement` 而是 `container` 的原因是：`domElement` 它更像描述一个对象的类型而非用途，这样语义不够明确。这里会引发一个新的问题：我们是否要 100% 兼容 single-spa？
+
 #### 返回值
+
+返回一个 Parcel 对象，包含如下方法：
 
 * `mount`
 * `unmount`
@@ -399,7 +403,51 @@ mountParcel(import('app-settings-panel.widget.js'), {
 * `mountPromise`
 * `unmountPromise`
 
-> 💡 这里需要补充
+##### `unmount`
+
+`parcel.unmount()` 返回一个 promise，当 parcel 卸载成功后 resolve。promise 可能会抛出异常，需进行处理。
+
+##### `mount`
+
+`parcel.unmount()` 返回一个 promise，当 parcel 卸载成功后 resolve。promise 可能会抛出异常，需进行处理。
+
+##### `update`
+
+`parcel.update(props)` 允许你改变传给 parcel 的参数。注意不是所有的 parcel 都支持 update 方法。`update` 方法返回一个 promise，更新成功后 resolve。
+
+```js
+const parcel = singleSpa.mountRootParcel(parcelConfig, parcelProps);
+parcel.update(newParcelProps);
+```
+
+##### `getStatus`
+
+`parcel.getStatus()` 返回一个字符串代表 parcel 的状态。所有状态如下：
+
+- `NOT_BOOTSTRAPPED`: 未初始化
+- `BOOTSTRAPPING`: 初始化中
+- `NOT_MOUNTED`: 完成初始化，未挂载
+- `MOUNTED`: 激活状态，且已挂载至DOM
+- `UNMOUNTING`: 卸载中
+- `UPDATING`: 更新中
+- `SKIP_BECAUSE_BROKEN`: 在初始化、挂载、卸载或更新时发生异常。其他 parcel 可能会被正常使用，但当前 parcel 会被跳过。
+
+##### `loadPromise`
+
+`parcel.loadPromise()` 返回一个 promise，当 parcel 被装载 (loaded) 后 resolve。
+
+##### `bootstrapPromise`
+
+`parcel.bootstrapPromise()` 返回一个 promise，当 parcel 初始化后 resolve。
+
+##### `mountPromise`
+
+`parcel.mountPromise()` 返回一个 promise，当 parcel 加载后 resolve。通常用于检测 parcel 生成的 DOM 是否已经挂载。
+
+##### `unmountPromise`
+
+`parcel.unmountPromise()` 返回一个 promise，当 parcel 卸载后 resolve。
+
 
 ## 应用描述文件
 
