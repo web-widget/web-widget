@@ -353,7 +353,7 @@ function bootstrap(properties) {
 
 ### `mountParcel(parcelConfig, parcelProps)`
 
-手动挂载的函数。你可以在 WebWidget 应用中打开其他 WebWidget。
+手动挂载的函数。你可以在 WebWidget 应用中打开或者嵌套其他 WebWidget 应用，并且支持通讯。
 
 #### 参数
 
