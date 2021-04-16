@@ -234,9 +234,13 @@ document.body.appendChild(widget);
 
 容器的内部 `window` 对象。只有开启 `sandboxed` 属性后才有效。
 
+> 💡 此特性源自于 `<iframe>` 标签。
+
 ### `contentDocument`
 
 容器的内部 `document` 对象。只有开启 `sandboxed` 属性后才有效。
+
+> 💡 此特性源自于 `<iframe>` 标签。
 
 ### `evaluate(source, context)`
 
@@ -248,6 +252,8 @@ document.body.appendChild(widget);
 
 * `"eager"` 立即加载，不管它是否在可视视口（visible viewport）之外（默认值）
 * `"lazy"` 延迟加载，直到它和视口接近的距离
+
+> 💡 此特性源自于 `<img>` 标签。
 
 ### `status`
 
