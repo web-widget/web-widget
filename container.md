@@ -113,7 +113,9 @@ export default class MyElement extends HTMLElement {
 
 在这个模式下，入口文件不需要生命周期函数（也不会运行）。 
 
-> 💡 自定义元素模式它不要求入口文件实现生命周期函数，这意味着将失去标准 WebWidget 应用拥有的主要能力，它更像是 Web Component 加载器。因此我们需要评估是否将其纳入 WebWidget v1.0.0 规范中。
+> 💡 注释
+> 
+> 自定义元素模式它不要求入口文件实现生命周期函数，这意味着将失去标准 WebWidget 应用拥有的主要能力，它更像是 Web Component 加载器。因此我们需要评估是否将其纳入 WebWidget v1.0.0 规范中。
 
 ## 沙盒
 
@@ -128,7 +130,7 @@ export default class MyElement extends HTMLElement {
 
 如果应用没有实现生命周期函数，开启沙盒后也能确保它能够正常被渲染的同时也不会对主文档产生副作用，因此可以使用沙盒特性来快速迁移一些旧的代码。
 
-关于沙盒环境的限制，具体可以参考 [WebSandbox.js](https://web-sandbox.org.js)。
+关于沙盒环境的限制可以参考 [WebSandbox.js](https://web-sandbox.org.js)。
 
 ## 接口
 
@@ -153,6 +155,10 @@ document.body.appendChild(widget);
 
 应用的数据。应用脚本可以通过生命周期的 `properties.data` 访问到。
 
+### `update(data)`
+
+更新应用数据。调用此方法后，将会执行应用 `update` 生命周期函数。
+
 ### `hidden`
 
 显示与隐藏应用。不同于 CSS `display: none`，`hidden` 会触发应用的生命周期 `mount` 与 `unmount` 函数。
@@ -169,17 +175,9 @@ document.body.appendChild(widget);
 
 容器的内部 `window` 对象。只有开启 `sandboxed` 属性后才有效。
 
-> 💡 此特性源自于 `<iframe>` 标签。
-
 ### `contentDocument`
 
 容器的内部 `document` 对象。只有开启 `sandboxed` 属性后才有效。
-
-> 💡 此特性源自于 `<iframe>` 标签。
-
-### `evaluate(source, context)`
-
-运行 JavaScript 代码。开启 `sandboxed` 后，它将在沙盒环境中执行。
 
 ### `loading`
 
@@ -187,8 +185,6 @@ document.body.appendChild(widget);
 
 * `"eager"` 立即加载，不管它是否在可视视口（visible viewport）之外（默认值）
 * `"lazy"` 延迟加载，直到它和视口接近的距离
-
-> 💡 此特性源自于 `<iframe>` 标签。
 
 ### `importance`
 
@@ -198,9 +194,15 @@ document.body.appendChild(widget);
 * `"high"` 在下载时优先级较高
 * `"low"` 在下载时优先级较低
 
-> 💡 此特性源自于 `<iframe>` 标签。
+### `evaluate(source, context)`
+
+运行 JavaScript 代码。开启 `sandboxed` 后，它将在沙盒环境中执行。
 
 ## 事件
 
 * `load`
 * `error`
+
+> 💡 注释
+> 
+> `contentWindow`、`contentDocument`、`loading`、`importance` 特性源自于 `<iframe>` 标签的实验性属性。
