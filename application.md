@@ -1,10 +1,14 @@
 # WebWidget 应用
 
+> 💡 注释
+> 
+> TODO
+> * 主题变量
+> * 多语言变量
+
 ## 应用入口文件
 
-应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，入口文件必须实现下面提到的应用生命周期函数。
-
-适配有有生命周期的入口文件。
+应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，入口文件实现如下接口：
 
 ```js
 export default {
@@ -18,7 +22,9 @@ export default {
 
 由于浏览器等限制，应用必须打包为 UMD 格式。
 
-> 💡 `.widget.js` 后缀名是一个约定，它的目的是让开发工具能够更好识别 WebWidget 应用。
+> 💡 注释
+> 
+>  `.widget.js` 后缀名是一个约定，它的目的是让开发工具能够更好识别 WebWidget 应用。
 
 ## 应用生命周期
 
@@ -31,7 +37,9 @@ export default {
 * 如果导出的是函数数组而不是单个函数，这些函数会被依次调用，对于 `promise` 函数，会等到 resolve 之后再调用下一个函数
 * 如果应用只被预加载，各个应用会被下载，但不会被初始化、挂载或卸载
 
-> 💡 应用生命周期来自于微前端框架 [single-spa](https://single-spa.js.org/) 的定义，这样可以确保 WebWidget 的应用能够被 [single-spa](https://single-spa.js.org/) 或其兼容的加载器加载。
+> 💡 注释
+> 
+> 应用生命周期来自于微前端框架 [single-spa](https://single-spa.js.org/) 的定义，这样可以确保 WebWidget 的应用能够被 [single-spa](https://single-spa.js.org/) 或其兼容的加载器加载。
 
 WebWidget 元素会在不同的阶段主动触发这些应用生命周期：
 
@@ -125,9 +133,11 @@ mountParcel(import('app-settings-panel.widget.js'), {
 });
 ```
 
-> 💡 需要补充描述 WebWidget 的接口是如何支持应用 `slot` 的请求。
+> 💡 注释
 >
-> 💡 single-spa 的 Parcel 明确要求使用 `domElement` 字段作为挂载容器，否则它会报错。我们没有使用 single-spa 使用的 `domElement` 而是 `container` 的原因是：`domElement` 它更像描述一个对象的类型而非用途，这样语义不够明确。这里会引发一个新的问题：我们是否要 100% 兼容 single-spa？
+> 需要补充描述 WebWidget 的接口是如何支持应用 `slot` 的请求。
+>
+> single-spa 的 Parcel 明确要求使用 `domElement` 字段作为挂载容器，否则它会报错。我们没有使用 single-spa 使用的 `domElement` 而是 `container` 的原因是：`domElement` 它更像描述一个对象的类型而非用途，这样语义不够明确。这里会引发一个新的问题：我们是否要 100% 兼容 single-spa？
 
 #### 返回值
 
@@ -308,3 +318,9 @@ export const timeouts = {
   },
 };
 ```
+
+## 公共库
+
+> 💡 注释
+> 
+WebWidget 和具体的框架无关，这意味着应用需要自己引入公共库。我们需要考虑如何最大程度的利用缓存。
