@@ -28,7 +28,7 @@ WebWidget 是一种用于网页的小挂件标准，和传统的命令式的 UI 
 建设 WebWidget 规范的直接动机来自于 NoCode 产品共同的需求驱动，例如可视化网页编辑器。
 
 1. 更多的人可以使用 WebWidget 来搭建产品，不仅仅是开发者
-2. 不和技术栈无关，能够兼容所有的前端框架
+2. WebWidget 可以运行在不同的前端技术框架中
 3. 所有的前端组件，都可轻松变成 WebWidget
 4. 所有的 NoCode 产品，都可兼容 WebWidget
 5. Npm 或 Github 成为 WebWidget 的开放应用市场，使用公共 CDN 随时分发
@@ -66,7 +66,7 @@ WebWidget 标准由如下三个部分组成：
 
 ### 基本
 
-WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它的具体功能由 `src` 定义的脚本实现。
+WebWidget 是一个标准的 Web Component 组件，它也是一个容器，容器内的具体功能由 `src` 定义的脚本实现。
 
 ```html
 <web-widget src="app.widget.js"></web-widget>
@@ -76,28 +76,29 @@ WebWidget 是一个标准的 Web Component 组件，它作为一个容器，它�
 
 ### 占位符
 
-标有 `placeholder` 属性的元素将充当 WebWidget 元素的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 元素的直接子级。标记为 `placeholder` 的元素将始终 fill（填充）父级 WebWidget 元素。
+`placeholder` 元素将充当 WebWidget 元素的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 元素的直接子级。`placeholder` 元素将始终 fill（填充）父级 WebWidget 元素。
 
 ```html
 <web-widget src="app.widget.js">
-  <img placeholder src="preview.jpg" />
+  <placeholder>
+    <img src="preview.jpg" />
+  </placeholder>
 </web-widget>
 ```
 
 ### 后备
 
-你可以在某元素上指定 `fallback` 属性，以便指明出现以下情况时采取的后备行为：
+`fallback` 元素将充当 WebWidget 元素的后备占位符号，以便指明出现以下情况时采取的后备行为：
 
 * 浏览器不支持某个元素
 * 内容未能加载（例如，推文被删除）
 * 图片类型不受支持（例如，并非所有浏览器都支持 WebP）
-* 你可以在任何 HTML 元素（而不仅仅是 WebWidget 元素）上设置 `fallback` 属性。如果指定，则 `fallback` 元素必须是 WebWidget 元素的直接子级
 
 ```html
 <web-widget src="video.js">
-  <div fallback>
+  <fallback hidden>
     <p>This browser does not support the video element.</p>
-  </div>
+  </fallback>
 </web-widget>
 ```
 
@@ -220,7 +221,7 @@ document.body.appendChild(widget);
 
 ### `hidden`
 
-显示与隐藏应用。不同于 CSS `display: none`，`hidden` 会触发应用的生命周期。
+显示与隐藏应用。不同于 CSS `display: none`，`hidden` 会触发应用的生命周期 `mount` 与 `unmount` 函数。
 
 ### `sandboxed`
 
@@ -253,15 +254,17 @@ document.body.appendChild(widget);
 * `"eager"` 立即加载，不管它是否在可视视口（visible viewport）之外（默认值）
 * `"lazy"` 延迟加载，直到它和视口接近的距离
 
-> 💡 此特性源自于 `<img>` 标签。
+> 💡 此特性源自于 `<iframe>` 标签。
 
-### `status`
+### `importance`
 
-应用的加载状态（只读），可能出现的值：
+指示下载资源时相对重要性，或者说优先级。允许的值：
 
-* `"pending"`
-* `"fulfilled"`
-* `"rejected"`
+* `"auto"` 不指定优先级
+* `"high"` 在下载时优先级较高
+* `"low"` 在下载时优先级较低
+
+> 💡 此特性源自于 `<iframe>` 标签。
 
 ## 事件
 
@@ -316,7 +319,7 @@ document.body.appendChild(widget);
 widget.hidden = false;
 
 // 触发 unload
-document.body.revmoeChild(widget);
+document.body.removeChild(widget);
 
 // 触发 bootstrap
 document.body.appendChild(widget);
@@ -457,6 +460,127 @@ parcel.update(newParcelProps);
 
 `parcel.unmountPromise()` 返回一个 promise，当 parcel 卸载后 resolve。
 
+### 下载
+
+注册的应用会被懒加载，这指的是该应用的代码会从服务器端下载并执行。在下载过程中，建议尽可能执行少的操作，可以在 `bootstrap` 生命周期之后再执行各项操作。若确实有在下载时需要执行的操作，可将代码放入子应用入口文件中，但要放在各导出函数的外部。例如：
+
+```js
+console.log("The registered application has been loaded!");
+export async function bootstrap(props) {...}
+export async function mount(props) {...}
+export async function unmount(props) {...}
+```
+
+### 初始化
+
+这个生命周期函数会在应用第一次挂载前执行一次。
+
+```js
+export function bootstrap(props) {
+  return Promise
+    .resolve()
+    .then(() => {
+      // One-time initialization code goes here
+      console.log('bootstrapped!')
+    });
+}
+```
+
+### 挂载
+
+```js
+export function mount(props) {
+  return Promise
+    .resolve()
+    .then(() => {
+      // Do framework UI rendering here
+      console.log('mounted!')
+    });
+}
+```
+
+如果 `mount` 的 `Promise` 状态为 `reject`，那么 WebWidget 元素的子元素 `<fallback>` 将会显示。
+
+### 更新
+
+如果两个应用相互调用、传递数据，这时候可能会触发“更新”生命周期。
+
+```js
+export function update(props) {
+  return Promise
+    .resolve()
+    .then(() => {
+      // Do framework UI rendering here
+      console.log('mounted!')
+    });
+}
+```
+
+### 卸载
+
+卸载函数被调用时，会清理在挂载应用时被创建的 DOM 元素、事件监听、内存、全局变量和消息订阅等。
+
+```js
+export function unmount(props) {
+  return Promise
+    .resolve()
+    .then(() => {
+      // Do framework UI unrendering here
+      console.log('unmounted!');
+    });
+}
+```
+
+### 移除
+
+“移除”生命周期函数的实现是可选的。如果一个已注册的应用没有实现这个生命周期函数，则假设这个应用无需被移除。
+
+移除的目的是各应用在移除之前执行部分逻辑，一旦应用被移除，它的状态将会变成 `NOT_LOADED`，下次激活时会被重新初始化。
+
+移除函数的设计动机是对所有注册的应用实现“热下载”，不过在其他场景中也非常有用，比如想要重新初始化一个应用，且在重新初始化之前执行一些逻辑操作时。
+
+```js
+export function unload(props) {
+  return Promise
+    .resolve()
+    .then(() => {
+      // Hot-reloading implementation goes here
+      console.log('unloaded!');
+    });
+}
+```
+
+### 超时
+
+默认情况下，所有注册的应用遵循全局超时配置，但对于每个应用，也可以通过在主入口文件导出一个 `timeouts` 对象来重新定义超时时间。如：
+
+```js
+export function bootstrap(props) {...}
+export function mount(props) {...}
+export function unmount(props) {...}
+export const timeouts = {
+  bootstrap: {
+    millis: 5000,
+    dieOnTimeout: true,
+    warningMillis: 2500,
+  },
+  mount: {
+    millis: 5000,
+    dieOnTimeout: false,
+    warningMillis: 2500,
+  },
+  unmount: {
+    millis: 5000,
+    dieOnTimeout: true,
+    warningMillis: 2500,
+  },
+  unload: {
+    millis: 5000,
+    dieOnTimeout: true,
+    warningMillis: 2500,
+  },
+};
+```
 
 ## 应用描述文件
 
