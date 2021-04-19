@@ -21,7 +21,7 @@ WebWidget 是一种用于网页的小挂件标准，和传统的命令式的 UI 
 3. Npm 成为了一个托管资源庞大的前端组件的大仓库，基于它有多个开箱即用的公共 CDN 服务
 4. Web Components 成为面向未来的组件标准，几乎所有流行开源框架都支持它
 5. [AMP](https://amp.dev) 提供了极致的网页载入性能优化思路，它提出了工业化的解决方案
-6. 虚拟化技术延伸到了 Web 前端领域（例如 [WebSandbox.js](https://web-sandbox.js.org)），可以创建安全的第三方组件运行的容器化环境
+6. [WebSandbox.js](https://web-sandbox.js.org) 将虚拟化技术推进到 Web 前端领域，使得创建安全的第三方组件运行的容器化环境成为可能
 
 ### 愿景
 
@@ -37,572 +37,54 @@ WebWidget 是一种用于网页的小挂件标准，和传统的命令式的 UI 
 
 WebWidget 标准由如下三个部分组成：
 
-* 容器
-  * [x] 标签
-  * [ ] 接口
-    * [ ] 处理应用在容器外打开其他应用的请求
-  * [x] 事件
-  * [x] 沙盒
-* 应用
-  * [x] 生命周期
-  * [x] 配置数据
-  * [ ] 服务接口
-  * [x] 相互调用
-    * [x] 应用之间唤起
-    * [x] 应用之间通讯
-  * [ ] 环境
-    * [ ] 主题变量
-    * [ ] 多语言变量
-* 应用描述
-  * [x] 名称
-  * [x] 简介
-  * [x] 图标
-  * [x] 关键字
-  * [x] 说明文档
-  * [x] 应用入口文件地址
-  * [x] 应用配置面板入口地址
+### [容器](container.md)
 
-## 标签
-
-### 基本
-
-WebWidget 是一个标准的 Web Component 组件，它也是一个容器，容器内的具体功能由 `src` 定义的脚本实现。
+类似 Docker，它是运行应用的容器。通常使用 HTML 来创建一个容器的视图，例如：
 
 ```html
 <web-widget src="app.widget.js"></web-widget>
 ```
 
-为了不影响主页面的加载性能，WebWidget 的脚本是异步载入的。为了符合渐进式增强的体验，最佳做法是使用占位符与后备。
+* [标签](container.md#标签)
+* [接口](container.md#接口)
+* [事件](container.md#事件)
+* [沙盒](container.md#沙盒)
 
-### 占位符
+### [应用](application.md)
 
-`placeholder` 元素将充当 WebWidget 元素的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 元素的直接子级。`placeholder` 元素将始终 fill（填充）父级 WebWidget 元素。
-
-```html
-<web-widget src="app.widget.js">
-  <placeholder>
-    <img src="preview.jpg" />
-  </placeholder>
-</web-widget>
-```
-
-### 后备
-
-`fallback` 元素将充当 WebWidget 元素的后备占位符号，以便指明出现以下情况时采取的后备行为：
-
-* 浏览器不支持某个元素
-* 内容未能加载（例如，推文被删除）
-* 图片类型不受支持（例如，并非所有浏览器都支持 WebP）
-
-```html
-<web-widget src="video.js">
-  <fallback hidden>
-    <p>This browser does not support the video element.</p>
-  </fallback>
-</web-widget>
-```
-
-### 插槽
-
-如果 WebWidget App 支持插槽，那么可以直接使用 `slot` 属性来指定插入的位置：
-
-```html
-<web-widget src="app.widget.js">
-  <span slot="title">hello</span>
-  <span slot="content">Let's have some different text!</span>
-</web-widget>
-```
-
-插槽源自于 Web Component，更多插槽信息可以访问 <https://developer.mozilla.org/en-US/docs/Web/Web_Components>。
-
-### 配置数据
-
-通过 `data-*` 属性可以为 WebWidget App 传递静态的数据：
-
-```html
-<web-widget
-  src="app.widget.js"
-  data-username="web-widget"
-  data-email="web-widget@web-sandbox.js.org"
->
-</web-widget>
-```
-
-WebWidget App 可以通过生命周期函数获的 `properties.data` 参数获取到数据：
-
-```json
-{
-  "data": {
-    "username": "web-widget",
-    "email": "web-widget@web-sandbox.js.org"
-  }
-}
-```
-
-受限于 HTML5 的约束，通过 `data-*` 只能传递 `string` 类型的值，如果想要传递 JSON 数据，你可以通过 `include-data` 属性指定包含目标 ID 元素节点的内容作为 JSON 数据：
-
-```html
-<web-widget src="app.widget.js" include-data="data-source">
-  <script id="data-source" type="json">
-    {
-      "username": "web-widget",
-      "email": "web-widget@web-sandbox.js.org"
-    }
-  </script>
-</web-widget>
-```
-
-推荐使用带有 `type="json"` 属性的 `<script>` 标签作为 JSON 数据容器。原因：
-
-* 浏览器不会渲染它的内容
-* 有更好的语义
-
-如果同时存在 `include-data` 与 `data-*`，只有 `include-data` 会生效。
-
-### 自定义元素模式
-
-如果入口文件是一个标准的 Web Component，那么使用 `custom-element` 属性可以简化 Web Component 的加载与使用。
-
-```html
-<web-widget custom-element="my-element" src="my-element.js">
-  <span slot="title">hello</span>
-  <span slot="content">Let's have some different text!</span>
-</web-widget>
-```
+WebWidget 应用的入口是 js 文件，它实现了标准化的接口，例如：
 
 ```js
-// my-element.js
-export default class MyElement extends HTMLElement {
-  // ...
-}
-```
-
-在这个模式下，入口文件不需要生命周期函数（也不会运行）。 
-
-> 💡 自定义元素模式它不要求入口文件实现生命周期函数，这意味着将失去标准 WebWidget 应用拥有的主要能力，它更像是 Web Component 加载器。因此我们需要评估是否将其纳入 WebWidget v1.0.0 规范中。
-
-### 沙盒
-
-给 WebWidget 增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 WebWidget App 的所有的操作限制在 `<web-widget>` 视图内，它的网络、本地存储等都将被管控，让不可信代码能够安全的运行。
-
-```html
-<web-widget src="app.widget.js" sandboxed csp="script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;">
-  <span slot="title">hello</span>
-  <span slot="content">Let's have some different text!</span>
-</web-widget>
-```
-
-如果应用没有实现生命周期函数，开启沙盒后也能确保它能够正常被渲染的同时也不会对主文档产生副作用，因此可以使用沙盒特性来快速迁移一些旧的代码。
-
-关于沙盒环境的限制，具体可以参考 [WebSandbox.js](https://web-sandbox.org.js)。
-
-## 接口
-
-```js
-const widget = document.createElement('web-widget');
-widget.data = {
-  username: 'web-widget'
-};
-widget.src = 'app.widget.js';
-document.body.appendChild(widget);
-```
-
-### `src`
-
-应用入口文件。
-
-### `name`
-
-应用名称。应用脚本可以通过生命周期的 `properties.name` 访问到。
-
-### `data`
-
-应用的数据。应用脚本可以通过生命周期的 `properties.data` 访问到。
-
-### `hidden`
-
-显示与隐藏应用。不同于 CSS `display: none`，`hidden` 会触发应用的生命周期 `mount` 与 `unmount` 函数。
-
-### `sandboxed`
-
-沙盒化。启用后，WebWidget 应用将被强制容器化，避免影响主文档。
-
-### `csp`
-
-内容安全策略。只有开启 `sandboxed` 属性后才有效。
-
-### `contentWindow`
-
-容器的内部 `window` 对象。只有开启 `sandboxed` 属性后才有效。
-
-> 💡 此特性源自于 `<iframe>` 标签。
-
-### `contentDocument`
-
-容器的内部 `document` 对象。只有开启 `sandboxed` 属性后才有效。
-
-> 💡 此特性源自于 `<iframe>` 标签。
-
-### `evaluate(source, context)`
-
-运行 JavaScript 代码。开启 `sandboxed` 后，它将在沙盒环境中执行。
-
-### `loading`
-
-指示浏览器应当如何加载。允许的值：
-
-* `"eager"` 立即加载，不管它是否在可视视口（visible viewport）之外（默认值）
-* `"lazy"` 延迟加载，直到它和视口接近的距离
-
-> 💡 此特性源自于 `<iframe>` 标签。
-
-### `importance`
-
-指示下载资源时相对重要性，或者说优先级。允许的值：
-
-* `"auto"` 不指定优先级
-* `"high"` 在下载时优先级较高
-* `"low"` 在下载时优先级较低
-
-> 💡 此特性源自于 `<iframe>` 标签。
-
-## 事件
-
-* `load`
-* `error`
-
-## 应用入口文件
-
-应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，入口文件必须实现下面提到的应用生命周期函数。
-
-适配有有生命周期的入口文件。
-
-```js
+// app.widget.js
 export default {
   async bootstrap: (properties) => {},
   async mount: (properties) => {},
-  async update: (properties) => {},
   async unmount: (properties) => {},
   async unload: (properties) => {}
 }
 ```
 
-由于浏览器等限制，应用必须打包为 UMD 格式。
-
-> 💡 `.widget.js` 后缀名是一个约定，它的目的是让开发工具能够更好识别 WebWidget 应用。
-
-## 应用生命周期
-
-生命周期函数是加载器在注册的应用上调用的一系列函数，加载器会在各应用的主文件中，查找对应的函数名并进行调用。
-
-注:
-
-* `bootstrap`、 `mount` 与 `unmount` 的实现是必须的， `update` 与 `unload` 则是可选的
-* 生命周期函数必须有返回值，可以是 `promise` 或者 `async` 函数
-* 如果导出的是函数数组而不是单个函数，这些函数会被依次调用，对于 `promise` 函数，会等到 resolve 之后再调用下一个函数
-* 如果应用只被预加载，各个应用会被下载，但不会被初始化、挂载或卸载
-
-> 💡 应用生命周期来自于微前端框架 [single-spa](https://single-spa.js.org/) 的定义，这样可以确保 WebWidget 的应用能够被 [single-spa](https://single-spa.js.org/) 或其兼容的加载器加载。
-
-WebWidget 元素会在不同的阶段主动触发这些应用生命周期：
-
-```js
-const widget = document.createElement('web-widget');
-
-// 触发 bootstrap
-widget.src = 'app.widget.js';
-
-// 触发 mount
-document.body.appendChild(widget);
-
-// 触发 unmount
-widget.hidden = false;
-
-// 触发 unload
-document.body.removeChild(widget);
-
-// 触发 bootstrap
-document.body.appendChild(widget);
-
-// 触发 mount
-widget.hidden = true;
-```
-
-### 生命周期参数
-
-生命周期函数使用"properties" 传参：
-
-```js
-function bootstrap(properties) {
-  const {
-    name,         // 应用名称
-    data,         // 应用静态数据
-    container     // 应用的 DOM 容器
-  } = properties;
-  return Promise.resolve();
-}
-```
-
-### 内置参数
-
-每个生命周期函数的入参都会保证有如下参数：
-
-### `name`
-
-注册到主文档的应用名称。
-
-### `data`
-
-应用初始化的数据。这是一个只读、可被序列化的数据结构。[参考](https://developer.mozilla.org/zh-CN/docs/Web/Guide/API/DOM/The_structured_clone_algorithm)。
-
-### `container`
-
-应用 DOM 元素的容器。这是一个 HTMLElement 对象实例，至少拥有 `appendChild()` 、`removeChild()`、`innerHTML` 填充容器内容接口。
-
-### `sandboxed`
-
-应用是否处于 WebSandbox DOM 沙箱中。
-
-### `mountParcel(parcelConfig, parcelProps)`
-
-手动挂载的函数。你可以在 WebWidget 应用中打开或者嵌套其他 WebWidget 应用，并且支持通讯。
-
-#### 参数
-
-##### parcelConfig
-
-parcelConfig 是你想调用的 WebWidget 的生命周期对象：
-
-```js
-import('app.widget.js').then(lifecycle => {
-  mountParcel(lifecycle, parcelProps);
-});
-```
-
-或者：
-
-```js
-mountParcel(import('app.widget.js'), parcelProps);
-```
-
-##### parcelProps
-
-结构等同于 WebWidget 应用 properties。
-
-如果你想在应用里嵌套其他应用，需要指定一个新的 `container`；如果你想在应用外打开其他应用，需要指定 `slot` 字段，这个字段是宿主所提供的插槽名称。举个例子，你想为自己的应用提供可以设置面板并且使用外部的对话框打开：
-
-```js
-mountParcel(import('app-settings-panel.widget.js'), {
-  slot: 'dialog',
-  //...
-});
-```
-
-> 💡 需要补充描述 WebWidget 的接口是如何支持应用 `slot` 的请求。
->
-> 💡 single-spa 的 Parcel 明确要求使用 `domElement` 字段作为挂载容器，否则它会报错。我们没有使用 single-spa 使用的 `domElement` 而是 `container` 的原因是：`domElement` 它更像描述一个对象的类型而非用途，这样语义不够明确。这里会引发一个新的问题：我们是否要 100% 兼容 single-spa？
-
-#### 返回值
-
-返回一个 Parcel 对象，包含如下方法：
-
-* `mount`
-* `unmount`
-* `update`
-* `getStatus`
-* `loadPromise`
-* `bootstrapPromise`
-* `mountPromise`
-* `unmountPromise`
-
-##### `unmount`
-
-`parcel.unmount()` 返回一个 promise，当 parcel 卸载成功后 resolve。promise 可能会抛出异常，需进行处理。
-
-##### `mount`
-
-`parcel.unmount()` 返回一个 promise，当 parcel 卸载成功后 resolve。promise 可能会抛出异常，需进行处理。
-
-##### `update`
-
-`parcel.update(props)` 允许你改变传给 parcel 的参数。注意不是所有的 parcel 都支持 update 方法。`update` 方法返回一个 promise，更新成功后 resolve。
-
-```js
-const parcel = singleSpa.mountRootParcel(parcelConfig, parcelProps);
-parcel.update(newParcelProps);
-```
-
-##### `getStatus`
-
-`parcel.getStatus()` 返回一个字符串代表 parcel 的状态。所有状态如下：
-
-- `NOT_BOOTSTRAPPED`: 未初始化
-- `BOOTSTRAPPING`: 初始化中
-- `NOT_MOUNTED`: 完成初始化，未挂载
-- `MOUNTED`: 激活状态，且已挂载至DOM
-- `UNMOUNTING`: 卸载中
-- `UPDATING`: 更新中
-- `SKIP_BECAUSE_BROKEN`: 在初始化、挂载、卸载或更新时发生异常。其他 parcel 可能会被正常使用，但当前 parcel 会被跳过。
-
-##### `loadPromise`
-
-`parcel.loadPromise()` 返回一个 promise，当 parcel 被装载 (loaded) 后 resolve。
-
-##### `bootstrapPromise`
-
-`parcel.bootstrapPromise()` 返回一个 promise，当 parcel 初始化后 resolve。
-
-##### `mountPromise`
-
-`parcel.mountPromise()` 返回一个 promise，当 parcel 加载后 resolve。通常用于检测 parcel 生成的 DOM 是否已经挂载。
-
-##### `unmountPromise`
-
-`parcel.unmountPromise()` 返回一个 promise，当 parcel 卸载后 resolve。
-
-### 下载
-
-注册的应用会被懒加载，这指的是该应用的代码会从服务器端下载并执行。在下载过程中，建议尽可能执行少的操作，可以在 `bootstrap` 生命周期之后再执行各项操作。若确实有在下载时需要执行的操作，可将代码放入子应用入口文件中，但要放在各导出函数的外部。例如：
-
-```js
-console.log("The registered application has been loaded!");
-export async function bootstrap(props) {...}
-export async function mount(props) {...}
-export async function unmount(props) {...}
-```
-
-### 初始化
-
-这个生命周期函数会在应用第一次挂载前执行一次。
-
-```js
-export function bootstrap(props) {
-  return Promise
-    .resolve()
-    .then(() => {
-      // One-time initialization code goes here
-      console.log('bootstrapped!')
-    });
-}
-```
-
-### 挂载
-
-```js
-export function mount(props) {
-  return Promise
-    .resolve()
-    .then(() => {
-      // Do framework UI rendering here
-      console.log('mounted!')
-    });
-}
-```
-
-如果 `mount` 的 `Promise` 状态为 `reject`，那么 WebWidget 元素的子元素 `<fallback>` 将会显示。
-
-### 更新
-
-如果两个应用相互调用、传递数据，这时候可能会触发“更新”生命周期。
-
-```js
-export function update(props) {
-  return Promise
-    .resolve()
-    .then(() => {
-      // Do framework UI rendering here
-      console.log('mounted!')
-    });
-}
-```
-
-### 卸载
-
-卸载函数被调用时，会清理在挂载应用时被创建的 DOM 元素、事件监听、内存、全局变量和消息订阅等。
-
-```js
-export function unmount(props) {
-  return Promise
-    .resolve()
-    .then(() => {
-      // Do framework UI unrendering here
-      console.log('unmounted!');
-    });
-}
-```
-
-### 移除
-
-“移除”生命周期函数的实现是可选的。如果一个已注册的应用没有实现这个生命周期函数，则假设这个应用无需被移除。
-
-移除的目的是各应用在移除之前执行部分逻辑，一旦应用被移除，它的状态将会变成 `NOT_LOADED`，下次激活时会被重新初始化。
-
-移除函数的设计动机是对所有注册的应用实现“热下载”，不过在其他场景中也非常有用，比如想要重新初始化一个应用，且在重新初始化之前执行一些逻辑操作时。
-
-```js
-export function unload(props) {
-  return Promise
-    .resolve()
-    .then(() => {
-      // Hot-reloading implementation goes here
-      console.log('unloaded!');
-    });
-}
-```
-
-### 超时
-
-默认情况下，所有注册的应用遵循全局超时配置，但对于每个应用，也可以通过在主入口文件导出一个 `timeouts` 对象来重新定义超时时间。如：
-
-```js
-export function bootstrap(props) {...}
-export function mount(props) {...}
-export function unmount(props) {...}
-export const timeouts = {
-  bootstrap: {
-    millis: 5000,
-    dieOnTimeout: true,
-    warningMillis: 2500,
-  },
-  mount: {
-    millis: 5000,
-    dieOnTimeout: false,
-    warningMillis: 2500,
-  },
-  unmount: {
-    millis: 5000,
-    dieOnTimeout: true,
-    warningMillis: 2500,
-  },
-  unload: {
-    millis: 5000,
-    dieOnTimeout: true,
-    warningMillis: 2500,
-  },
-};
-```
-
-## 应用描述文件
-
-使用 pageckage.json 来描述应用，相关的字段：
-
-| 名称                                                         | 必须  | 类型                                     | 详细                                                         |
-| ------------------------------------------------------------ | ---- | --------------------------------------- | ------------------------------------------------------------ |
-| `name`                                                       | Y    | `string`                                | 应用的名称必须用全小写无空格的字母组成                             |
-| `main`                                                       | Y    | `string`                                | 应用入口                                                      |
-| `webWidget`                                                  | Y    | `string`                                | 应用采用的 WebWidget 规范版本。当前为 `1.0.0`                    |
-| `version`                                                    | Y    | `string`                                | [SemVer](https://semver.org/) 版本模式兼容                     |
-| `configuratorMain`                                           |      | `string`                                | 应用编辑模式的设置面板入口。用于给可视化编辑器提供应用参数的 UI，它也是一个 webWidget 应用 |
-| `license`                                                    |      | `string`                                | 参考 [npm's documentation](https://docs.npmjs.com/files/package.json#license)。如果你在应用根目录已经提供了 `LICENSE` 文件。那么 `license` 的值应该是 `"SEE LICENSE IN <filename>"` |
-| `displayName`                                                |      | `string`                                | 应用市场所显示的应用名称                                          |
-| `description`                                                |      | `string`                                | 简单地描述应用是做什么的                                          |
-| `categories`                                                 |      | `string[]`                              | 应用分类                                                       |
-| `keywords`                                                   |      | `array`                                 | **关键字**（数组），这样用户可以更方便地找到你的应用。到时候会和市场上的其他应用以**标签**筛选在一起 |
-| `icon`                                                       |      | `string`                                | icon 的文件路径，最小 128x128 像素 (视网膜屏幕则需 256x256)         |
-
-你还可以参考 [npm 的 `package.json`](https://docs.npmjs.com/files/package.json)。
-
-> 💡 我们需要考虑多语言适配。
+* [生命周期](application.md#生命周期)
+* [配置数据](application.md#配置数据)
+* [服务接口](application.md#服务接口)
+* [相互调用](application.md#相互调用)
+  * 应用之间唤起
+  * 应用之间通讯
+* [环境](application.md#环境)
+  * 主题变量
+  * 多语言变量
+
+### [应用描述](describe.md)
+
+WebWidget 应用将由 NPM 托管，同时也遵循 npm pageckage.json 的规范。
+
+* [名称](describe.md#名称)
+* 简介
+* 图标
+* 关键字
+* 说明文档
+* 应用入口文件地址
+* 应用配置面板入口地址
 
 ## 其他
 
