@@ -39,10 +39,10 @@ WebWidget 标准由如下三个部分组成：
 
 ### [容器](container.md)
 
-类似 Docker，它是运行应用的容器。通常使用 HTML 来创建一个容器的视图，例如：
+它是运行应用的容器，使用 HTML 标签可以立即创建一个 WebWidget 应用的运行容器：
 
 ```html
-<web-widget src="app.widget.js"></web-widget>
+<web-widget src="my-app.widget.js"></web-widget>
 ```
 
 * [标签](container.md#标签)
@@ -52,10 +52,10 @@ WebWidget 标准由如下三个部分组成：
 
 ### [应用](application.md)
 
-WebWidget 应用的入口是 js 文件，它实现了标准化的接口，例如：
+它是应用的入口文件，实现特定的生命周期接口即可被 WebWidget 容器调用，例如：
 
 ```js
-// app.widget.js
+// my-app.widget.js
 export default {
   async bootstrap: (properties) => {},
   async mount: (properties) => {},
@@ -76,9 +76,10 @@ export default {
 
 ### [应用描述](describe.md)
 
-WebWidget 应用将由 NPM 托管，同时也遵循 npm pageckage.json 的规范。
+WebWidget 应用使用 pageckage.json 来描述应用信息，这样可以将它发布在 Npm 平台。
 
 * [名称](describe.md#名称)
+* WebWidget
 * 简介
 * 图标
 * 关键字
