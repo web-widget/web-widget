@@ -1,10 +1,8 @@
 # WebWidget 标准
 
-> 💡 本文档处于草稿阶段，使用 `💡` 标记的地方为文档编写过程中的注释。
-
 ## 什么是 WebWidget
 
-WebWidget 是一种用于网页的小挂件标准，和传统的命令式的 UI Library 不同，它介于组件与应用程序形态之间，并且接口被标准化、能够适应于无代码编程与跨技术栈兼容的需要。
+WebWidget 是一种用于网页的小挂件，和传统的命令式的 UI Library 不同，它介于组件与应用程序形态之间，并且接口被标准化、能够适应于无代码编程与跨技术栈兼容的需要。
 
 ## 为什么要设计 WebWidget
 
@@ -37,22 +35,19 @@ WebWidget 是一种用于网页的小挂件标准，和传统的命令式的 UI 
 
 WebWidget 标准由如下三个部分组成：
 
-### [容器](container.md)
+### 容器
 
-它是运行应用的容器，使用 HTML 标签可以立即创建一个 WebWidget 应用的运行容器：
+它是运行 WebWidget 应用的容器，使用 HTML 标签可以立即创建一个容器并且启动应用：
 
 ```html
-<web-widget src="my-app.widget.js"></web-widget>
+<web-widget src="my-app.widget.js" sandboxed></web-widget>
 ```
 
-* [标签](container.md#标签)
-* [接口](container.md#接口)
-* [事件](container.md#事件)
-* [沙盒](container.md#沙盒)
+[详细文档](container.md)
 
-### [应用](application.md)
+### 应用
 
-它是应用的入口文件，实现特定的生命周期接口即可被 WebWidget 容器调用，例如：
+它是应用的入口文件，实现特定的生命周期接口即可被 WebWidget 容器调用，这和微前端的应用概念惊人相似，例如：
 
 ```js
 // my-app.widget.js
@@ -64,28 +59,23 @@ export default {
 }
 ```
 
-* [生命周期](application.md#生命周期)
-* [配置数据](application.md#配置数据)
-* [服务接口](application.md#服务接口)
-* [相互调用](application.md#相互调用)
-  * 应用之间唤起
-  * 应用之间通讯
-* [环境](application.md#环境)
-  * 主题变量
-  * 多语言变量
+[详细文档](application.md)
 
-### [应用描述](describe.md)
+### 应用描述
 
-WebWidget 应用使用 pageckage.json 来描述应用信息，这样可以将它发布在 Npm 平台。
+WebWidget 应用使用 pageckage.json 来描述应用信息，这样可以将它发布在 Npm 平台，使用公共 CND 来加载应用。
 
-* [名称](describe.md#名称)
-* WebWidget
-* 简介
-* 图标
-* 关键字
-* 说明文档
-* 应用入口文件地址
-* 应用配置面板入口地址
+```json
+{
+  "name": "my-app",
+  "WebWidget": "1.0.0",
+  "version": "0.0.1",
+  "main": "dist/umd/index.widget.js",
+  "……": "……"
+}
+```
+
+[详细文档](describe.md)
 
 ## 其他
 
