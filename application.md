@@ -20,11 +20,13 @@ export default {
 }
 ```
 
-由于浏览器等限制，应用必须打包为 UMD 格式。
+### 构建打包
+
+由于浏览器动态执行代码的限制，目前只能使用 UMD 格式才能被 WebWidget 的容器运行。
 
 > 💡 注释
 > 
->  `.widget.js` 后缀名是一个约定，它的目的是让开发工具能够更好识别 WebWidget 应用。
+>  `.widget.js` 后缀名是一个约定而非规范内容，它的目的是让开发工具能够更好识别 WebWidget 应用。
 
 ## 应用生命周期
 
@@ -100,16 +102,38 @@ function bootstrap(properties) {
 
 ### `mountParcel(parcelConfig, parcelProps)`
 
-手动挂载的函数。你可以在 WebWidget 应用中打开或者嵌套其他 WebWidget 应用，并且支持通讯。
+挂载子应用的方法。参考 [挂载子应用](#挂载子应用)
 
-#### 参数
+### `getRootContainer(name)`
 
-##### parcelConfig
+获取顶层的注册的容器节点。
+
+## 挂载子应用
+
+你可以在 WebWidget 应用嵌套或者在另外的地方新打开其他 WebWidget 应用，并且支持通讯。通过应用生命周期的“properties”参数可以获取到 `mountParcel(parcelConfig, parcelProps)` 方法。
+
+```js
+function mount(properties) {
+  const {
+    name,
+    mountParcel,
+    container
+  } = properties;
+
+  mountParcel(parcelConfig, parcelProps);
+
+  return Promise.resolve();
+}
+```
+
+### 参数
+
+#### parcelConfig
 
 parcelConfig 是你想调用的 WebWidget 的生命周期对象：
 
 ```js
-import('app.widget.js').then(lifecycle => {
+import('app1.widget.js').then(lifecycle => {
   mountParcel(lifecycle, parcelProps);
 });
 ```
@@ -117,29 +141,14 @@ import('app.widget.js').then(lifecycle => {
 或者：
 
 ```js
-mountParcel(import('app.widget.js'), parcelProps);
+mountParcel(() => import('app1.widget.js'), parcelProps);
 ```
 
-##### parcelProps
+#### parcelProps
 
 结构等同于 WebWidget 应用 properties。
 
-如果你想在应用里嵌套其他应用，需要指定一个新的 `container`；如果你想在应用外打开其他应用，需要指定 `slot` 字段，这个字段是宿主所提供的插槽名称。举个例子，你想为自己的应用提供可以设置面板并且使用外部的对话框打开：
-
-```js
-mountParcel(import('app-settings-panel.widget.js'), {
-  slot: 'dialog',
-  //...
-});
-```
-
-> 💡 注释
->
-> 需要补充描述 WebWidget 的接口是如何支持应用 `slot` 的请求。
->
-> single-spa 的 Parcel 明确要求使用 `domElement` 字段作为挂载容器，否则它会报错。我们没有使用 single-spa 使用的 `domElement` 而是 `container` 的原因是：`domElement` 它更像描述一个对象的类型而非用途，这样语义不够明确。这里会引发一个新的问题：我们是否要 100% 兼容 single-spa？
-
-#### 返回值
+### 返回值
 
 返回一个 Parcel 对象，包含如下方法：
 
@@ -152,15 +161,15 @@ mountParcel(import('app-settings-panel.widget.js'), {
 * `mountPromise`
 * `unmountPromise`
 
-##### `unmount`
+#### `unmount`
 
 `parcel.unmount()` 返回一个 promise，当 parcel 卸载成功后 resolve。promise 可能会抛出异常，需进行处理。
 
-##### `mount`
+#### `mount`
 
 `parcel.unmount()` 返回一个 promise，当 parcel 卸载成功后 resolve。promise 可能会抛出异常，需进行处理。
 
-##### `update`
+#### `update`
 
 `parcel.update(props)` 允许你改变传给 parcel 的参数。注意不是所有的 parcel 都支持 update 方法。`update` 方法返回一个 promise，更新成功后 resolve。
 
@@ -169,7 +178,7 @@ const parcel = singleSpa.mountRootParcel(parcelConfig, parcelProps);
 parcel.update(newParcelProps);
 ```
 
-##### `getStatus`
+#### `getStatus`
 
 `parcel.getStatus()` 返回一个字符串代表 parcel 的状态。所有状态如下：
 
@@ -181,23 +190,87 @@ parcel.update(newParcelProps);
 - `UPDATING`: 更新中
 - `SKIP_BECAUSE_BROKEN`: 在初始化、挂载、卸载或更新时发生异常。其他 parcel 可能会被正常使用，但当前 parcel 会被跳过。
 
-##### `loadPromise`
+#### `loadPromise`
 
 `parcel.loadPromise()` 返回一个 promise，当 parcel 被装载 (loaded) 后 resolve。
 
-##### `bootstrapPromise`
+#### `bootstrapPromise`
 
 `parcel.bootstrapPromise()` 返回一个 promise，当 parcel 初始化后 resolve。
 
-##### `mountPromise`
+#### `mountPromise`
 
 `parcel.mountPromise()` 返回一个 promise，当 parcel 加载后 resolve。通常用于检测 parcel 生成的 DOM 是否已经挂载。
 
-##### `unmountPromise`
+#### `unmountPromise`
 
 `parcel.unmountPromise()` 返回一个 promise，当 parcel 卸载后 resolve。
 
-## 下载
+### 示例
+
+#### 嵌入子应用
+
+指定一个新的 `container`。
+
+```js
+function mount(properties) {
+  const {
+    name,
+    mountParcel,
+    container
+  } = properties;
+
+
+  subContainer = subContainer || document.createElement('div');
+  mountParcel(() => import('app1.widget.js'), {
+    name: 'subApp',
+    container: subContainer,
+    //...
+  });
+  container.appendChild(subContainer);
+
+  return Promise.resolve();
+}
+```
+
+> 如果应用被卸载，子应用也会被卸载。
+
+> 💡 接口和 single-spa 保持了一致，但是参数上有差异：single-spa 明确要求使用 `domElement` 字段作为挂载容器，否则它会报错。我们没有使用 single-spa 使用的 `domElement` 而是 `container` 的原因是：`domElement` 它更像描述一个对象的类型而非用途，这样语义不够明确。这里会引发一个新的问题：我们是否要 100% 兼容 single-spa？
+
+#### 应用外打开子应用
+
+如果在外部打开一个子应用，那么必须知道它插入点，使用 `getRootContainer()` 可以获取到支持的插入点。
+
+```js
+function mount(properties) {
+  const {
+    mountParcel,
+    getRootContainer
+  } = properties;
+  getRootContainer('dialog').then(container => {
+    mountParcel(() => import('app-settings-panel.widget.js'), {
+      container
+      //...
+    });
+  });
+}
+```
+
+> 如果当前应用处于沙盒模式，那么 `getRootContainer()` 会返回一个沙盒中的元素节点，这样可以确保应用不会从沙盒中逃逸。
+
+宿主可以通过 `WebWidget.defineRootContainer()` 方法注册插入点：
+
+```js
+WebWidget.defineRootContainer('dialog', name => {
+  return import('ui-dialog').then(dailog => {
+    return dailog.container;
+  });
+});
+```
+
+## 生命周期函数
+
+### 下载
 
 注册的应用会被懒加载，这指的是该应用的代码会从服务器端下载并执行。在下载过程中，建议尽可能执行少的操作，可以在 `bootstrap` 生命周期之后再执行各项操作。若确实有在下载时需要执行的操作，可将代码放入子应用入口文件中，但要放在各导出函数的外部。例如：
 
@@ -208,7 +281,7 @@ export async function mount(props) {...}
 export async function unmount(props) {...}
 ```
 
-## 初始化
+### 初始化
 
 这个生命周期函数会在应用第一次挂载前执行一次。
 
@@ -223,7 +296,7 @@ export function bootstrap(props) {
 }
 ```
 
-## 挂载
+### 挂载
 
 ```js
 export function mount(props) {
@@ -238,7 +311,7 @@ export function mount(props) {
 
 如果 `mount` 的 `Promise` 状态为 `reject`，那么 WebWidget 元素的子元素 `<fallback>` 将会显示。
 
-## 更新
+### 更新
 
 如果两个应用相互调用、传递数据，这时候可能会触发“更新”生命周期。
 
@@ -253,7 +326,7 @@ export function update(props) {
 }
 ```
 
-## 卸载
+### 卸载
 
 卸载函数被调用时，会清理在挂载应用时被创建的 DOM 元素、事件监听、内存、全局变量和消息订阅等。
 
@@ -268,7 +341,7 @@ export function unmount(props) {
 }
 ```
 
-## 移除
+### 移除
 
 “移除”生命周期函数的实现是可选的。如果一个已注册的应用没有实现这个生命周期函数，则假设这个应用无需被移除。
 
@@ -287,7 +360,7 @@ export function unload(props) {
 }
 ```
 
-## 超时
+### 超时
 
 默认情况下，所有注册的应用遵循全局超时配置，但对于每个应用，也可以通过在主入口文件导出一个 `timeouts` 对象来重新定义超时时间。如：
 
