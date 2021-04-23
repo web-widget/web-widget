@@ -83,6 +83,18 @@ WebWidget 应用使用 pageckage.json 来描述应用信息，这样可以将它
 
 本章节非规范内容。
 
+### 性能
+
+如果想要实现极致的首屏载入速度，一些推荐的设置：
+
+* 布局、文本、图片直出渲染
+* CSS 样式嵌入在页面中
+* 为 WebWidget 应用开启懒加载
+* 为 WebWidget 提供占位符
+* WebWidget 的运行时文件使用异步加载
+
+更多系统性的优化策略可以见 [AMP](https://amp.dev)。
+
 ### SEO
 
 因为 WebWidget 是一个标准的 Web Component，因此它的 SEO 问题本质上是 JavaScript 和 Web Component 的 SEO 问题。社区中有两种实践方式：
