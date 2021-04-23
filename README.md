@@ -1,5 +1,7 @@
 # WebWidget 标准
 
+> WebWidget 标准相关的文档目前处于讨论阶段，包含有 💡 图标的内容为设计者注释。
+
 ## 什么是 WebWidget
 
 WebWidget 是一种用于网页的小挂件，和传统的命令式的 UI Library 不同，它介于组件与应用程序形态之间，并且接口被标准化、能够适应于无代码编程与跨技术栈兼容的需要。
@@ -43,7 +45,7 @@ WebWidget 标准由如下三个部分组成：
 <web-widget src="my-app.widget.js" sandboxed></web-widget>
 ```
 
-[规范文档](container.md)
+[容器规范文档](container.md)
 
 ### 应用
 
@@ -59,7 +61,7 @@ export default {
 }
 ```
 
-[规范文档](application.md)
+[应用规范文档](application.md)
 
 ### 应用描述
 
@@ -75,7 +77,7 @@ WebWidget 应用使用 pageckage.json 来描述应用信息，这样可以将它
 }
 ```
 
-[规范文档](describe.md)
+[应用描述规范文档](describe.md)
 
 ## 其他
 
