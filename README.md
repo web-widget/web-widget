@@ -12,7 +12,7 @@ WebWidget 是一种用于网页的小挂件，和传统的命令式的 UI Librar
 
 1. 开源社区大量的组件只能在特定的技术框架中才能运行，甚至一些组件依赖了特定的技术框架版本
 2. 开发者需要花大量的时间研究每一个命令式组件的接口，写很多胶水代码、测试胶水代码后才能完成一个应用
-3. 开源组件组件以及其依赖的安全问题、和应用的兼容性问题通常难以被察觉
+3. 开源组件的安全与兼容性问题通常难以被察觉
 
 ### 契机
 
@@ -27,7 +27,7 @@ WebWidget 是一种用于网页的小挂件，和传统的命令式的 UI Librar
 
 建设 WebWidget 规范的直接动机来自于 NoCode 产品共同的需求驱动，例如可视化网页编辑器的开放式组件系统。
 
-1. 让更多的人可以使用 WebWidget 来搭建产品，不仅仅是开发者
+1. 所有人可以使用 WebWidget 来搭建产品，不仅仅是开发者
 2. WebWidget 可以运行在不同的前端技术框架中
 3. 所有的前端组件，都可轻松变成 WebWidget
 4. 所有的 NoCode 产品，都可兼容 WebWidget
@@ -42,7 +42,7 @@ WebWidget 标准由如下三个部分组成：
 它是运行 WebWidget 应用的容器，使用 HTML 标签可以立即创建一个带有沙盒的容器并且启动应用：
 
 ```html
-<web-widget src="my-app.widget.js" sandboxed></web-widget>
+<web-widget name="my-app" src="my-app.widget.js" sandboxed></web-widget>
 ```
 
 [容器规范文档](container.md)
@@ -65,7 +65,7 @@ export default {
 
 ### 应用描述
 
-WebWidget 应用使用 pageckage.json 来描述应用信息，这样可以将它发布在 Npm 平台，使用公共 CND 来加载应用。
+应用有自己的名字、图标等信息，以便在组件系统 or 应用市场中展示。例如：
 
 ```json
 {
