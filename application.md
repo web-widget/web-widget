@@ -259,7 +259,7 @@ function mount(properties) {
 
 > 如果当前应用处于沙盒模式，那么 `getPortal()` 会返回一个沙盒中的元素节点，这样可以确保应用不会从沙盒中逃逸。
 
-宿主可以通过 `WebWidget.registerPortal(name, callback, options)` 方法注册插入点：
+宿主可以通过 `WebWidget.registerPortal(name, callback)` 方法注册插入点：
 
 ```js
 WebWidget.registerPortal('dialog', name => {
