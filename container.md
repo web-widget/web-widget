@@ -134,6 +134,13 @@ export default class MyElement extends HTMLElement {
 
 ## 接口
 
+* [HTMLWebWidgetElement](#HTMLWebWidgetElement)
+* [WebWidget](#HTMLWebWidgetElement)
+
+## HTMLWebWidgetElement
+
+通过 `document.createElement('web-widget')` 会返回一个 `HTMLWebWidgetElement` 实例：
+
 ```js
 const widget = document.createElement('web-widget');
 widget.data = {
@@ -198,6 +205,39 @@ document.body.appendChild(widget);
 
 运行 JavaScript 代码。开启 `sandboxed` 后，它将在沙盒环境中执行。
 
+## WebWidget
+
+### \#registerPortal(name, callback)
+
+如果应用需要在外部打开一个子应用，那么必须知道它插入点，使用 `registerPortal()` 可以注册插入点。
+
+```js
+WebWidget.registerPortal('dialog', name => {
+  return import('ui-dialog').then(dailog => {
+    return dailog.container;
+  });
+});
+```
+
+应用可以通过 `getPortal(name)` 获取到插入点。
+
+```js
+// app.widget.js
+function mount(properties) {
+  const {
+    mountParcel,
+    getPortal
+  } = properties;
+
+  getPortal('dialog').then(container => {
+    mountParcel(() => import('app-settings-panel.widget.js'), {
+      container
+      //...
+    });
+  });
+}
+```
+
 ## 事件
 
 * `load`
@@ -205,4 +245,4 @@ document.body.appendChild(widget);
 
 > 💡 注释
 > 
-> `contentWindow`、`contentDocument`、`loading`、`importance` 特性源自于 `<iframe>` 标签的实验性属性。
+> `contentWindow`、`contentDocument`、`loading`、`importance` 特性参考自 `<iframe>` 标签属性。
