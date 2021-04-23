@@ -104,7 +104,7 @@ function bootstrap(properties) {
 
 挂载子应用的方法。参考 [挂载子应用](#挂载子应用)
 
-### `getRootContainer(name)`
+### `getPortal(name)`
 
 获取顶层的注册的容器节点。
 
@@ -220,15 +220,15 @@ function mount(properties) {
     container
   } = properties;
 
-
   subContainer = subContainer || document.createElement('div');
+
   mountParcel(() => import('app1.widget.js'), {
     name: 'subApp',
     container: subContainer,
     //...
   });
-  container.appendChild(subContainer);
 
+  container.appendChild(subContainer);
   return Promise.resolve();
 }
 ```
@@ -239,15 +239,16 @@ function mount(properties) {
 
 #### 应用外打开子应用
 
-如果在外部打开一个子应用，那么必须知道它插入点，使用 `getRootContainer()` 可以获取到支持的插入点。
+如果在外部打开一个子应用，那么必须知道它插入点，使用 `getPortal()` 可以获取到支持的插入点。
 
 ```js
 function mount(properties) {
   const {
     mountParcel,
-    getRootContainer
+    getPortal
   } = properties;
-  getRootContainer('dialog').then(container => {
+
+  getPortal('dialog').then(container => {
     mountParcel(() => import('app-settings-panel.widget.js'), {
       container
       //...
@@ -256,17 +257,19 @@ function mount(properties) {
 }
 ```
 
-> 如果当前应用处于沙盒模式，那么 `getRootContainer()` 会返回一个沙盒中的元素节点，这样可以确保应用不会从沙盒中逃逸。
+> 如果当前应用处于沙盒模式，那么 `getPortal()` 会返回一个沙盒中的元素节点，这样可以确保应用不会从沙盒中逃逸。
 
-宿主可以通过 `WebWidget.defineRootContainer()` 方法注册插入点：
+宿主可以通过 `WebWidget.registerPortal(name, callback, options)` 方法注册插入点：
 
 ```js
-WebWidget.defineRootContainer('dialog', name => {
+WebWidget.registerPortal('dialog', name => {
   return import('ui-dialog').then(dailog => {
     return dailog.container;
   });
 });
 ```
+
+> 💡 应用如果在外面打开键盘焦点管理非常重要。
 
 ## 生命周期函数
 
