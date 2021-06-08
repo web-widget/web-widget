@@ -79,6 +79,30 @@ export default {
 
 详情见 [WebWidget 设计背后演化](docs/design.md)
 
+## 规范的实现
+
+* [-] [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) 基于 Web Components 的 WebWidget 的实现
+  * [x] `application` （实验性）
+  * [x] `inactive`
+  * [ ] `importance`
+  * [ ] `loading`
+  * [x] `name`
+  * [x] `src`
+  * [x] `text`
+  * [ ] `sandboxed` 继承自 [WebSandbox.js](https://web-sandbox.js.org) 的特性，但它尚未能够达到生产环境可用的级别
+  * [x] `status`
+  * [x] `portals`
+  * [x] `load`
+  * [x] `bootstrap`
+  * [x] `mount`
+  * [x] `update`
+  * [x] `unmount`
+  * [x] `unload`
+  * [x] `name`
+* [x] [src/HTMLWebWidgetImportElement.js](src/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现
+* [ ] [src/HTMLWebComponentImportElement.js](src/HTMLWebComponentImportElement.js) 原生 Web Components 模块适配器（实验性）
+* [x] [src/WebWidgetRouter.js](src/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现
+
 ## 应用场景
 
 本章节非规范内容，仅用于辅助说明 WebWidget 的可扩展性。
@@ -220,10 +244,3 @@ WebWidget 可以发布到任何地方，例如企业的私有 CDN，如果你想
 ```html
 <web-widget src="https://cdn.jsdelivr.net/npm/tabs-widget@2.0.0"></web-widget>
 ```
-
-## 仓库代码目录
-
-* [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) 基于 Web Components 的 WebWidget 的实现
-* [src/HTMLWebWidgetImportElement.js](src/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现
-* [src/HTMLWebComponentImportElement.js](src/HTMLWebComponentImportElement.js) 原生 Web Components 模块适配器
-* [src/WebWidgetRouter.js](src/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现 
