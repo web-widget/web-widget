@@ -368,12 +368,11 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
         break;
 
       case 'destroyed':
-        // TODO
-        // if (this.sandboxed) {
-        //   super.lifecycleCallback(...arguments);
-        // }
+        if (this.sandboxed) {
+          super.lifecycleCallback(...arguments);
+        }
 
-        // this.unload();
+        this.unload();
         break;
 
       case 'attributeChanged':

@@ -1,5 +1,4 @@
 import { NOT_LOADED } from './status.js';
-import WebWidgetPortalRegistry from '../../WebWidgetPortalRegistry.js';
 
 export class Model {
   constructor({
@@ -28,8 +27,8 @@ export class Model {
       mount: null,
       mountPromise: null,
       name,
-      portalRegistry: new WebWidgetPortalRegistry(),
-      portals: [],
+      portalRegistry: null,
+      portals: null,
       properties,
       rootPortalRegistry,
       sandbox,

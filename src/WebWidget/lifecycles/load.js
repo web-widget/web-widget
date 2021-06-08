@@ -7,6 +7,7 @@ import {
 import { ensureValidAppTimeouts } from '../applications/timeouts.js';
 import { flattenFnArray, toProperties } from './lifecycle-helpers.js';
 import { formatErrorMessage } from '../applications/errors.js';
+import WebWidgetPortalRegistry from '../../WebWidgetPortalRegistry.js';
 
 export async function toLoadPromise(model) {
   if (model.loadPromise) {
@@ -24,6 +25,8 @@ export async function toLoadPromise(model) {
       Object.assign(model, {
         bootstrap: flattenFnArray(model, result, 'bootstrap'),
         mount: flattenFnArray(model, result, 'mount'),
+        portalRegistry: new WebWidgetPortalRegistry(),
+        portals: [],
         status: NOT_BOOTSTRAPPED,
         timeouts: ensureValidAppTimeouts(result.timeouts),
         unload: flattenFnArray(model, result, 'unload'),

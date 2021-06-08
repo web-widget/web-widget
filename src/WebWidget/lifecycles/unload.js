@@ -15,6 +15,8 @@ function resetModel(model) {
     loadPromise: null,
     mount: null,
     mountPromise: null,
+    portalRegistry: null,
+    portals: null,
     status: NOT_LOADED,
     timeouts: null,
     unload: null,
