@@ -1,25 +1,33 @@
 define(() => {
-  let div;
-  console.log('news load');
+  let main, nav;
+  console.log('News load');
   return {
-    async bootstrap() {
-      console.log('news bootstrap');
-      div = document.createElement('div');
-    },
-    async mount({ container, data }) {
-      console.log('news mount');
-      div.innerHTML = `
-        <web-widget id="nav" src="./nav.widget.js"></web-widget>
-        <main>
-          <h3>News</h3>
-          <pre>${JSON.stringify(data, null, 2)}</pre>
-        </main>
+    async bootstrap({ data }) {
+      console.log('News bootstrap');
+      main = document.createElement('main');
+      main.innerHTML = `
+        <h3>News</h3>
+        <pre>${JSON.stringify(data, null, 2)}</pre>
       `;
-      container.appendChild(div);
+
+      nav = document.createElement('web-widget');
+      nav.src = './nav.widget.js';
+      nav.inactive = true;
+    },
+    async mount({ container }) {
+      console.log('News mount');
+
+      nav.hidden = true;
+      container.appendChild(nav);
+      await nav.mount();
+      nav.hidden = false;
+
+      container.appendChild(main);
     },
     async unmount({ container }) {
-      console.log('news unmount');
-      container.removeChild(div);
+      console.log('News unmount');
+      container.removeChild(nav);
+      container.removeChild(main);
     }
   };
 });

@@ -1,25 +1,33 @@
 define(() => {
-  let div, nav;
-  console.log('index load');
+  let main, nav;
+  console.log('Home load');
   return {
-    async bootstrap() {
-      console.log('index bootstrap');
-      div = document.createElement('div');
-    },
-    async mount({ container, data }) {
-      console.log('index mount');
-      div.innerHTML = `
-        <web-widget id="nav" src="./nav.widget.js"></web-widget>
-        <main>
-          <h3>Home</h3>
-          <pre>${JSON.stringify(data, null, 2)}</pre>
-        </main>
+    async bootstrap({ data }) {
+      console.log('Home bootstrap');
+      main = document.createElement('main');
+      main.innerHTML = `
+        <h3>Home</h3>
+        <pre>${JSON.stringify(data, null, 2)}</pre>
       `;
-      container.appendChild(div);
+
+      nav = document.createElement('web-widget');
+      nav.src = './nav.widget.js';
+      nav.inactive = true;
+    },
+    async mount({ container }) {
+      console.log('Home mount');
+
+      nav.hidden = true;
+      container.appendChild(nav);
+      await nav.mount();
+      nav.hidden = false;
+
+      container.appendChild(main);
     },
     async unmount({ container }) {
-      console.log('index unmount');
-      container.removeChild(div);
+      console.log('Home unmount');
+      container.removeChild(nav);
+      container.removeChild(main);
     }
   };
 });

@@ -11,11 +11,16 @@ import { formatErrorMessage } from '../applications/errors.js';
 function resetModel(model) {
   Object.assign(model, {
     bootstrap: null,
+    bootstrapPromise: null,
+    loadPromise: null,
     mount: null,
+    mountPromise: null,
     status: NOT_LOADED,
     timeouts: null,
     unload: null,
+    unloadPromise: null,
     unmount: null,
+    unmountPromise: null,
     update: null
   });
 }
