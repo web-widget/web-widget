@@ -81,7 +81,7 @@ export default {
 
 ## 规范的实现
 
-* [-] [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) 基于 Web Components 的 WebWidget 的实现
+* [ ] [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) 基于 Web Components 的 WebWidget 的实现
   * [x] `application` （实验性）
   * [x] `inactive`
   * [ ] `importance`
