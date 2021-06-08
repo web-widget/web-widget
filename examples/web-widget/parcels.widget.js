@@ -45,7 +45,6 @@ define({
 
     container.querySelector('#mount-widget').onclick = () => {
       const parent = document.createElement('web-widget');
-      parent.sandboxed = true;
       parent.application = async () => {
         return `define(${(() => {
           return {

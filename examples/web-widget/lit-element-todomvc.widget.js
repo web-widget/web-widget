@@ -26,7 +26,7 @@ define({
       return Promise.resolve();
     }
 
-    return importScript('./libs/lit-element-todomvc.js');
+    return importScript('../libs/lit-element-todomvc.js');
   },
 
   async mount({ container }) {
