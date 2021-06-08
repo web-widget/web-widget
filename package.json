@@ -1,0 +1,62 @@
+{
+  "name": "@web-sandbox.js/web-widget",
+  "version": "0.0.1-alpha",
+  "description": "web widget",
+  "main": "dist/web-widget.umd.js",
+  "browser": "dist/web-widget.umd.js",
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "npm run web-widget:build",
+    "build-examples": "npm run web-widget:build-examples",
+    "serve": "es-dev-server --node-resolve --watch",
+    "web-widget:lint": "eslint ./src ./test ./examples",
+    "web-widget:prettier": "prettier --config ./.prettierrc --write ./src/**/**/*.js ./test/**/**/*.js ./examples/**/**/*.js",
+    "web-widget:build": "npm run web-widget:build:dev && npm run web-widget:build:prod",
+    "web-widget:watch": "npm run web-widget:build:dev --watch",
+    "web-widget:build:dev": "rollup -c",
+    "web-widget:build:prod": "rollup -c --environment NODE_ENV:production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-sandbox-js/web-widget.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "microfrontends",
+    "single",
+    "page",
+    "application",
+    "framework",
+    "react",
+    "angular",
+    "vue",
+    "router",
+    "microservices",
+    "frontend",
+    "Sandbox",
+    "Realm",
+    "Shadow DOM",
+    "Web Components"
+  ],
+  "author": "aui",
+  "bugs": {
+    "url": "https://github.com/web-sandbox-js/web-widget/issues"
+  },
+  "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
+  "devDependencies": {
+    "babel-loader": "^8.2.2",
+    "cross-env": "^7.0.2",
+    "eslint": "^6.4.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.3.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.4.0",
+    "rollup": "^2.50.5",
+    "rollup-plugin-babel-minify": "^10.0.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-includepaths": "^0.2.4",
+    "es-dev-server": "^2.1.0"
+  }
+}

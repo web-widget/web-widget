@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" main="IE=edge">
+  <title>WebWidget DEMO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+  <web-component.import as="hello-world" src="/examples/libs/lit-element-todomvc.js"></web-component.import>
+  <div>
+    <button onclick="getElementById('test').remove()">remove</button>
+  </div>
+
+  <hello-world id="test">
+    <p slot="main">hello wrold</p>
+  </hello-world>
+
+  <hello-world>
+    <p slot="main">hello web-widget</p>
+  </hello-world>
+
+  <script type="module">
+    import '../../src/HTMLWebWidgetElement.js';
+    import '../../src/HTMLWebWidgetImportElement.js';
+    import '../../src/HTMLWebComponentImportElement.js';
+  </script>
+</body>
+
+</html>
