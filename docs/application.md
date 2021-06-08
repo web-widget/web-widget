@@ -2,7 +2,7 @@
 
 ## 应用入口文件
 
-应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，入口文件实现如下接口：
+应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，入口文件支持定义生命周期参数：
 
 ```js
 export default {
