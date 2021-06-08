@@ -106,6 +106,8 @@ export async function mount({ createPortal }) {
 }
 ```
 
+> 挂载点必须先定义才能被使用，主文档可以通过 `WebWidget.portals.define(name, factory)` 来定义挂载点，应用也可以通过生命周期参数 `customPortals` 来定义子应用的挂载点。
+
 ### `customPortals`
 
 当前应用作用域的挂载点注册中心。它有两个 API：
@@ -153,9 +155,8 @@ customPortals.define('dialog', () => {
 });
 ```
 
-`customPortals` API 与全局的 `WebWidget.portals` 使用方式一致，区别是：
-
-当应用使用 `createPortal(widget, name)` 传送子应用的时候，它会沿着 DOM 树寻找父应用的 `customPortals` 挂载点，如果没有它会寻找主文档的 `WebWidget.portals` 全局挂载点，这个过程很像 DOM 事件冒泡机制。
+`customPortals` API 与全局的 `WebWidget.portals` 使用方式一致，区别是：`customPortals` 定义的挂载点只能在其挂载的子应用中使用。
+当应用使用 `createPortal(widget, name)` 传送子应用的时候，它会沿着 DOM 树寻找父应用的 `customPortals` 挂载点，如果没有它会寻找主文档的 `WebWidget.portals` 全局挂载点，这个过程很像 DOM 的事件冒泡机制。
 
 ## 挂载子应用
 
