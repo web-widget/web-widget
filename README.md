@@ -41,7 +41,7 @@ WebWidget 标准由如下三个部分组成：
 <web-widget name="my-app" src="my-app.widget.js" sandboxed></web-widget>
 ```
 
-[容器规范文档](docs/container.md)
+详情见 [容器规范文档](docs/container.md)
 
 ### 应用
 
@@ -57,7 +57,7 @@ export default {
 }
 ```
 
-[应用规范文档](docs/application.md)
+详情见 [应用规范文档](docs/application.md)
 
 ### 应用描述
 
@@ -73,15 +73,15 @@ export default {
 }
 ```
 
-[应用描述规范文档](docs/describe.md)
+详情见 [应用描述规范文档](docs/describe.md)
 
 ## API 设计过程的探索
 
-[WebWidget 设计背后演化](docs/design.md)
+详情见 [WebWidget 设计背后演化](docs/design.md)
 
 ## 应用场景
 
-本章节非规范内容，仅用于辅助说明 WebWidget 的概念。
+本章节非规范内容，仅用于辅助说明 WebWidget 的扩展性。
 
 ### 性能
 
@@ -104,7 +104,7 @@ export default {
 
 ### 路由驱动
 
-通常情况下 WebWidget 会基于 DOM 的生命周期来自动响应生命周期，给 WebWidget 容器添加一个`inactive` 属性即可关闭生命周期联动，以便交给路由库来管理。
+通常情况下 WebWidget 会基于 DOM 的生命周期来触发应用的生命周期函数，如果给容器添加一个`inactive` 属性即可关闭与 DOM 生命周期的绑定，以便交给程序来控制它，例如前端路由库。
 
 ```html
 <web-widget id="home" src="./index.widget.js" inactive></web-widget>
