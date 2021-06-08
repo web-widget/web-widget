@@ -176,7 +176,8 @@ const createWebWidget = view => {
   const debug = getProperty(view, 'debug');
   const parser = getProperty(view, PARSER) || UMDParser;
   const id = view.id;
-  const name = view.name;
+  const name =
+    view.name || (application ? application.name : view.id || view.localName);
   const sandbox = view[SANDBOX_INSTANCE];
   const url = src || application.url; /// /
   const main = src || application || (async () => text);
@@ -205,7 +206,7 @@ const createWebWidget = view => {
     debug,
     id,
     loader,
-    name: name || (application ? application.name : view.localName),
+    name,
     parent,
     properties,
     rootPortalRegistry,

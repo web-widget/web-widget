@@ -1,5 +1,6 @@
-/* global location, console */
+/* global location */
 
+import { queueMicrotask } from '../../utils/queue-microtask.js';
 import { widgets, get } from '../applications/widgets.js';
 
 function shouldBeActive(widget) {
@@ -7,18 +8,19 @@ function shouldBeActive(widget) {
   try {
     // eslint-disable-next-line no-restricted-globals
     return activeWhen(location);
-  } catch (err) {
-    // eslint-disable-next-line no-console, no-undef
-    console.error(err);
+  } catch (error) {
+    queueMicrotask(() => {
+      throw error;
+    });
     return false;
   }
 }
 
-export function reroute() {
+export async function reroute() {
   const activeList = [];
   const inactiveList = [];
 
-  widgets.forEach((activeWhen, widget) => {
+  widgets.forEach(widget => {
     if (shouldBeActive(widget)) {
       activeList.push(widget);
     } else {
@@ -26,11 +28,37 @@ export function reroute() {
     }
   });
 
-  Promise.all(activeList.map(widget => widget.bootstrap())).then(() =>
-    Promise.all(inactiveList.map(widget => widget.unmount())).then(() => {
-      activeList
-        .filter(widget => shouldBeActive(widget))
-        .forEach(widget => widget.mount());
-    })
+  const loadPromise = Promise.all(
+    activeList.map(widget =>
+      widget.bootstrap().catch(error =>
+        queueMicrotask(() => {
+          throw error;
+        })
+      )
+    )
+  );
+
+  await Promise.all(
+    inactiveList.map(widget =>
+      widget.unmount().catch(error =>
+        queueMicrotask(() => {
+          throw error;
+        })
+      )
+    )
+  );
+
+  await loadPromise;
+
+  await Promise.all(
+    activeList
+      .filter(widget => shouldBeActive(widget))
+      .map(widget =>
+        widget.mount().catch(error =>
+          queueMicrotask(() => {
+            throw error;
+          })
+        )
+      )
   );
 }
