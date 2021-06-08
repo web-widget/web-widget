@@ -81,7 +81,7 @@ export default {
 
 ## 应用场景
 
-本章节非规范内容，仅用于辅助说明 WebWidget 的扩展性。
+本章节非规范内容，仅用于辅助说明 WebWidget 的可扩展性。
 
 ### 性能
 
@@ -133,6 +133,64 @@ export default {
 </script>
 ```
 
+## WebWidget HTML 模块化导入
+
+通过继承 `HTMLWebWidgetElement` 接口如果仅仅只是重新定义标签名，那么这些需求使用标签来表达会更容易理解，就像 ECMAScript 的 `import` 语句一样。
+
+```html
+<web-widget.import as=tagName src=widgetUrl></web-widget.import>
+```
+
+这样还有一个好处是可以避免反复定义 csp 等复杂的配置：
+
+```html
+<web-widget.import
+  as="hello-world"
+  src="./slot.widget.js"
+  sandboxed
+  csp="
+    default-src 'none';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net web-sandbox.js.org;
+    style-src 'self' 'unsafe-inline' cdn.jsdelivr.net;
+    navigate-to 'self' web-sandbox.js.org;
+  ">
+</web-widget.import>
+
+<hello-world>
+  <p slot="main">hello wrold</p>
+</hello-world>
+
+<hello-world>
+  <p slot="main">hello web-widget</p>
+</hello-world>
+
+<script type="module">
+  import '../../src/HTMLWebWidgetElement.js';
+  import '../../src/HTMLWebWidgetImportElement.js';
+</script>
+```
+
+## Web Components HTML 模块化导入
+
+```html
+<web-component.import as=tagName src=webComponentsUrl></web-component.import>
+```
+
+它拥有和 `<web-widget.import>` 一样的属性，不同的是它只支持标准的 Web Components 模块格式。Web Components 模块无需打包成 UMD 规范，也无需遵循 WebWidget 的生命周期定义。只需要按照 Web Components 的要求实现自定义元素的构造器，并且使用 `customElements.define(name, Element)` 注册。例如：
+
+```js
+class MyElment extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.shadowRoot = `
+      <main><slot name="main">hello wrold</slot></main>
+    `;
+  }
+}
+customElements.define('my-element', MyElment);
+```
+
 ### 服务器渲染
 
 > 文档待补充。
@@ -167,5 +225,5 @@ WebWidget 可以发布到任何地方，例如企业的私有 CDN，如果你想
 
 * [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) 基于 Web Components 的 WebWidget 的实现
 * [src/HTMLWebWidgetImportElement.js](src/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现
-* [src/HTMLWebComponentImportElement.js](src/HTMLWebComponentImportElement.js) 原生 Web Components 模块导入实现
+* [src/HTMLWebComponentImportElement.js](src/HTMLWebComponentImportElement.js) 原生 Web Components 模块适配器
 * [src/WebWidgetRouter.js](src/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现 
