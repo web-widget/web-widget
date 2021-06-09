@@ -28,17 +28,17 @@
 
     register(
       document.querySelector('#home'),
-      location => location.pathname === '/examples/web-widget-router/'
+      location => location.pathname === '/'
     );
 
     register(
       document.querySelector('#news'),
-      location => location.pathname.startsWith('/examples/web-widget-router/news')
+      location => location.pathname.startsWith('/news')
     );
 
     register(
       document.querySelector('#about'),
-      location => location.pathname.startsWith('/examples/web-widget-router/about')
+      location => location.pathname.startsWith('/about')
     );
 
     start();
