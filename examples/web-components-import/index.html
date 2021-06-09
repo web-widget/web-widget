@@ -10,18 +10,15 @@
 
 <body>
 
-  <web-component.import as="hello-world" src="/examples/libs/lit-element-todomvc.js"></web-component.import>
-  <div>
-    <button onclick="getElementById('test').remove()">remove</button>
-  </div>
+  <web-component.import as="slot-demo" src="./web-components.js"></web-component.import>
+  <web-component.import as="todo-demo" src="/examples/libs/lit-element-todomvc.js"></web-component.import>
+  
+  <slot-demo>
+    <h3 slot="header">Hello</h3>
+    <p slot="main">Wrold</p>
+  </slot-demo>
 
-  <hello-world id="test">
-    <p slot="main">hello wrold</p>
-  </hello-world>
-
-  <hello-world>
-    <p slot="main">hello web-widget</p>
-  </hello-world>
+  <todo-demo id="test"></todo-demo>
 
   <script type="module">
     import '../../src/HTMLWebWidgetElement.js';

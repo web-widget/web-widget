@@ -1,7 +1,6 @@
 /* eslint-disable max-classes-per-file */
 /* global window, document, customElements, HTMLWebWidgetImportElement */
 import { evaluate } from './utils/script-loader.js';
-import { queueMicrotask } from './utils/queue-microtask.js';
 
 function createHTMLElementClassProxy(sandbox) {
   const win = sandbox ? sandbox.global : window;
@@ -26,6 +25,7 @@ function createHTMLElementClassProxy(sandbox) {
       }
 
       const ADOPTED_STYLESHEETS = Symbol('adoptedStyleSheets');
+
       customElements.define(
         'shadow-root',
         class extends HTMLElement$ {
@@ -86,7 +86,8 @@ function createHTMLElementClassProxy(sandbox) {
       );
     };
 
-    const attachShadow = (host, { mode }) => {
+    const attachShadow = function({ mode }) {
+      const host = this;
       defineShadowRootElement();
       const shadowRoot = document.createElement('shadow-root');
       shadowRoot.setAttribute(mode, '');
@@ -104,17 +105,22 @@ function createHTMLElementClassProxy(sandbox) {
         });
       }
 
-      queueMicrotask(() => {
-        host.appendChild(shadowRoot);
-      });
-
       return shadowRoot;
     };
+
+    const SHADOW_ROOT = Symbol('shadowRoot');
 
     // 避免拦截组件的 shadowDOM 创建，让 WebWidget 可以继续使用插槽
     return class HTMLElementProxy extends HTMLElement$ {
       attachShadow() {
-        return attachShadow(this, ...arguments);
+        this[SHADOW_ROOT] = attachShadow.call(this, ...arguments);
+        return this[SHADOW_ROOT];
+      }
+
+      connectedCallback() {
+        if (this[SHADOW_ROOT]) {
+          this.appendChild(this[SHADOW_ROOT]);
+        }
       }
     };
   };
@@ -141,9 +147,22 @@ function createCustomElementsProxy(sandbox, definedCallback) {
 function WebComponentsParser(source, sandbox, context = {}) {
   let name;
   const HTMLElementProxy = createHTMLElementClassProxy(sandbox);
-  const defineProxy = createCustomElementsProxy(sandbox, tagName => {
-    name = tagName;
-  });
+  const defineProxy = createCustomElementsProxy(
+    sandbox,
+    (tagName, constructor) => {
+      name = tagName;
+      const prototype = constructor.prototype;
+      const connectedCallback = prototype.connectedCallback;
+
+      if (connectedCallback && !connectedCallback.proxy) {
+        prototype.connectedCallback = function() {
+          HTMLElementProxy.prototype.connectedCallback.call(this);
+          connectedCallback.call(this);
+        };
+        prototype.connectedCallback.proxy = true;
+      }
+    }
+  );
 
   const win = sandbox ? sandbox.global : window;
   const HTMLElementRaw = win.HTMLElement;
