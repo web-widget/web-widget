@@ -5,8 +5,8 @@ class MyElment extends HTMLElement {
 
     const element = document.createElement('div');
     element.innerHTML = `
-      <h3><slot name="header">header</slot></h3>
-      <p><slot name="main">main</slot></p>
+      <div><slot name="header">header</slot></div>
+      <div><slot name="main">main</slot></div>
     `;
     this.shadowRoot.appendChild(element);
   }
