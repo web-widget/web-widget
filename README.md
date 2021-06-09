@@ -136,6 +136,15 @@ export default {
 * 使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom) 来描述关键内容
 * 使用 [JSON-LD](https://json-ld.org/) 描述关键内容
 
+使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom)：
+
+```html
+<web-widget name="my-app" src="my-app.widget.js">
+  <h3 slot="header">Hello</h3>
+  <p slot="main">World</p>
+</web-widget>
+```
+
 ### 路由驱动
 
 通常情况下 WebWidget 会基于 DOM 的生命周期来触发应用的生命周期函数，如果给容器添加一个`inactive` 属性即可关闭与 DOM 生命周期的绑定，以便交给程序来控制它，例如前端路由库。
@@ -254,3 +263,8 @@ WebWidget 可以发布到任何地方，例如企业的私有 CDN，如果你想
 ```html
 <web-widget src="https://cdn.jsdelivr.net/npm/tabs-widget@2.0.0"></web-widget>
 ```
+
+## 待讨论问题
+
+* 如何通过 CSS 来控制 WebWidget 的状态？
+* WebWidget 容器是否应该默认开启 ShadowDOM 或提供选项可配置？
