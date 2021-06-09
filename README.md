@@ -81,27 +81,36 @@ export default {
 
 ## 规范的实现
 
-* [ ] [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) 基于 Web Components 的 WebWidget 的实现
-  * [x] `application` （实验性）
-  * [x] `inactive`
-  * [ ] `importance`
-  * [ ] `loading`
-  * [x] `name`
-  * [x] `src`
-  * [x] `text`
-  * [ ] `sandboxed` 继承自 [WebSandbox.js](https://web-sandbox.js.org) 的特性，但它尚未能够达到生产环境可用的级别
-  * [x] `status`
-  * [x] `portals`
-  * [x] `load`
-  * [x] `bootstrap`
-  * [x] `mount`
-  * [x] `update`
-  * [x] `unmount`
-  * [x] `unload`
-  * [x] `name`
-* [x] [src/HTMLWebWidgetImportElement.js](src/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现
-* [ ] [src/HTMLWebComponentImportElement.js](src/HTMLWebComponentImportElement.js) 原生 Web Components 模块适配器（实验性）
-* [x] [src/WebWidgetRouter.js](src/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现
+* [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) 基于 Web Components 的 WebWidget 的实现
+  * `application` （实验性）
+  * `inactive`
+  * `importance` （尚未实现）
+  * `loading`（尚未实现）
+  * `name`
+  * `src`
+  * `text`
+  * `sandboxed`（已经实现，需要依赖 [WebSandbox.js](https://web-sandbox.js.org)）
+  * `status`
+  * `portals`
+  * `load`
+  * `bootstrap`
+  * `mount`
+  * `update`
+  * `unmount`
+  * `unload`
+
+辅助工具：
+
+* [src/WebWidgetRouter.js](src/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现
+  * `start`
+  * `register`
+  * `unregister`
+* [src/HTMLWebWidgetImportElement.js](src/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现
+* [src/HTMLWebComponentImportElement.js](src/HTMLWebComponentImportElement.js) 原生 Web Components 模块适配器（实验性）
+  * 适配 WebWidget 应用生命周期以及容器特性
+  * 支持 Web Components 的 HTML 属性（尚未实现）
+
+> 辅助工具不属于本项目的内容，因此后续将从当前项目中移除，以便独立维护。
 
 ## 应用场景
 
