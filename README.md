@@ -116,17 +116,18 @@ export default {
 
 本章节非规范内容，仅用于辅助说明 WebWidget 的可扩展性。
 
-### 性能
+### 首屏载入速度优化
 
-如果想要实现极致的首屏载入速度，一些推荐的设置：
+[AMP](https://amp.dev) 通过性能优先的工程设计为 WebWidget 的诞生提供了很多灵感，其中 [AMP](https://amp.dev) 的优化策略对采用 WebWidget 的网站也同样有效，一些推荐设置：
 
-* 布局、文本、图片直出渲染
-* CSS 样式嵌入在页面中
+* HTML 中的布局、文本等核心内容通过服务器渲染，而 WebWidget 由客户端渲染
+* 上述标签的 CSS 样式内嵌入在页面中
+* 为 WebWidget 标签预设置尺寸，避免渲染回流
 * 为 WebWidget 应用开启懒加载
 * 为 WebWidget 提供占位符
-* WebWidget 的运行时文件使用异步加载
+* 为 WebWidget 的运行时文件采用异步加载
 
-更多系统性的优化策略可以见 [AMP](https://amp.dev)。
+更多相关信息可以参考 [AMP](https://amp.dev) 的官网。
 
 ### SEO
 
