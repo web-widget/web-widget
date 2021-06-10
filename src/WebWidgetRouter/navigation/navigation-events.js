@@ -43,7 +43,7 @@ export function setUrlRerouteOnly(val) {
 }
 
 function urlReroute() {
-  reroute([], arguments);
+  reroute();
 }
 
 function createPopStateEvent(state, originalMethodName) {
@@ -83,7 +83,7 @@ function patchedUpdateState(updateState, methodName) {
         // do not fire an artificial popstate event before single-spa is started,
         // since no single-spa applications need to know about routing events
         // outside of their own router.
-        reroute([]);
+        reroute();
       }
     }
 
