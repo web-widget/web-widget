@@ -1,23 +1,5 @@
 /* global window, customElements, Event */
-import {
-  NOT_LOADED,
-  LOADING_SOURCE_CODE,
-  NOT_BOOTSTRAPPED,
-  BOOTSTRAPPING,
-  NOT_MOUNTED,
-  MOUNTING,
-  MOUNTED,
-  UPDATING,
-  UNMOUNTING,
-  UNLOADING,
-  LOAD_ERROR,
-  BOOTSTRAPP_ERROR,
-  MOUNT_ERROR,
-  UPDAT_ERROR,
-  UNMOUNT_ERROR,
-  UNLOAD_ERROR,
-  SKIP_BECAUSE_BROKEN
-} from './WebWidget/applications/status.js';
+import * as status from './WebWidget/applications/status.js';
 import {
   appendSourceUrl,
   scriptSourceLoader,
@@ -279,7 +261,7 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
     if (this[MODEL]) {
       return this[MODEL].status;
     }
-    return NOT_LOADED;
+    return status.NOT_LOADED;
   }
 
   static get portals() {
@@ -397,26 +379,7 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
 }
 
 Object.assign(HTMLWebWidgetElement, { CONFIG, PARSER, MODEL }); // 内部接口
-
-Object.assign(HTMLWebWidgetElement, {
-  NOT_LOADED,
-  LOADING_SOURCE_CODE,
-  NOT_BOOTSTRAPPED,
-  BOOTSTRAPPING,
-  NOT_MOUNTED,
-  MOUNTING,
-  MOUNTED,
-  UPDATING,
-  UNMOUNTING,
-  UNLOADING,
-  LOAD_ERROR,
-  BOOTSTRAPP_ERROR,
-  MOUNT_ERROR,
-  UPDAT_ERROR,
-  UNMOUNT_ERROR,
-  UNLOAD_ERROR,
-  SKIP_BECAUSE_BROKEN
-});
+Object.assign(HTMLWebWidgetElement, status);
 
 window.WebWidget = HTMLWebWidgetElement;
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
