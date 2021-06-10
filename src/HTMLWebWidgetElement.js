@@ -19,7 +19,7 @@ const HTMLWebSandboxElement =
   window.HTMLWebSandboxElement || HTMLWebSandboxBaseInterface;
 const rootPortalRegistry = new WebWidgetPortalRegistry();
 
-const AUTOLOAD_DISABLED = HTMLWebSandboxElement.HTMLWebSandboxElement;
+const AUTOLOAD_DISABLED = HTMLWebSandboxElement.AUTOLOAD_DISABLED;
 const SANDBOX_INSTANCE = HTMLWebSandboxElement.SANDBOX_INSTANCE;
 const CONFIG = Symbol('config');
 const PARSER = Symbol('parser');
