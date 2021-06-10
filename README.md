@@ -81,7 +81,7 @@ export default {
 
 ## 规范的实现
 
-* [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) 基于 Web Components 的 WebWidget 的实现
+* [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) WebWidget 的核心实现
   * `application` （实验性）
   * `inactive`
   * `importance` （尚未实现）
@@ -89,7 +89,7 @@ export default {
   * `name`
   * `src`
   * `text`
-  * `sandboxed`（已经实现，需要依赖 [WebSandbox.js](https://github.com/web-sandbox-js/web-sandbox)）
+  * `sandboxed`（需要依赖 [WebSandbox.js](https://github.com/web-sandbox-js/web-sandbox)）
   * `status`
   * `portals`
   * `load`
@@ -99,7 +99,7 @@ export default {
   * `unmount`
   * `unload`
 
-辅助工具：
+WebWidget 辅助工具：
 
 * [src/WebWidgetRouter.js](src/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现
   * `start`
