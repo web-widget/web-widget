@@ -19,6 +19,11 @@ function shouldBeActive(widget) {
 export async function reroute() {
   const activeList = [];
   const inactiveList = [];
+  function onerror(error) {
+    queueMicrotask(() => {
+      throw error;
+    });
+  }
 
   widgets.forEach(widget => {
     if (shouldBeActive(widget)) {
@@ -28,37 +33,19 @@ export async function reroute() {
     }
   });
 
-  const loadPromise = Promise.all(
-    activeList.map(widget =>
-      widget.bootstrap().catch(error =>
-        queueMicrotask(() => {
-          throw error;
-        })
-      )
-    )
+  await Promise.all(
+    activeList.map(widget => widget.bootstrap().catch(onerror))
   );
 
   await Promise.all(
-    inactiveList.map(widget =>
-      widget.unmount().catch(error =>
-        queueMicrotask(() => {
-          throw error;
-        })
-      )
-    )
+    inactiveList
+      .filter(widget => !shouldBeActive(widget))
+      .map(widget => widget.unmount().catch(onerror))
   );
-
-  await loadPromise;
 
   await Promise.all(
     activeList
       .filter(widget => shouldBeActive(widget))
-      .map(widget =>
-        widget.mount().catch(error =>
-          queueMicrotask(() => {
-            throw error;
-          })
-        )
-      )
+      .map(widget => widget.mount().catch(onerror))
   );
 }
