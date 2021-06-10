@@ -1,4 +1,4 @@
-/* global window, customElements, Event */
+/* global window, customElements, Event, ShadowRoot */
 import * as status from './WebWidget/applications/status.js';
 import {
   appendSourceUrl,
@@ -103,10 +103,12 @@ const getParentModel = view => {
 const getChildModels = view => {
   const model = view[MODEL];
   const shadowRoot = model.shadow;
-  const childWebWidgetElements = [
-    ...getChildWebWidgetElements(view),
-    ...getChildWebWidgetElements(shadowRoot)
-  ];
+  const childWebWidgetElements = getChildWebWidgetElements(view);
+
+  if (shadowRoot) {
+    childWebWidgetElements.push(...getChildWebWidgetElements(shadowRoot));
+  }
+
   const childModels = childWebWidgetElements.map(
     webWidgetElement => webWidgetElement[MODEL]
   );
@@ -177,7 +179,10 @@ const createWebWidget = view => {
     container = sandbox.global.document.body;
     shadow = sandbox.toNative(sandbox.global.document);
   } else {
-    container = shadow = view.attachShadow({ mode: 'closed' });
+    container = view.createContainer();
+    if (container instanceof ShadowRoot) {
+      shadow = container;
+    }
   }
 
   const parent = () => getParentModel(view);
@@ -318,6 +323,11 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
     }
     await this.unmount();
     await toUnloadPromise(this[MODEL]);
+  }
+
+  // 非公开的钩子：用于关闭 Shadow Dom
+  createContainer() {
+    return this.attachShadow({ mode: 'closed' });
   }
 
   lifecycleCallback(type, ...params) {
