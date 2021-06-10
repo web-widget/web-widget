@@ -39,6 +39,7 @@ const isResourceReady = view =>
     getProperty(view, 'text'));
 const isAutoLoad = view =>
   isBindingElementLifecycle(view) && isResourceReady(view);
+const isAutoUnload = isBindingElementLifecycle;
 
 const toLoader = (target, sandbox, parser) => {
   let loader = target;
@@ -117,23 +118,6 @@ const getChildModels = view => {
   return childModels;
 };
 
-const getDataset = view => {
-  const data = {};
-  const includeDataId = view.getAttribute('include-data');
-
-  if (includeDataId) {
-    const dataSourceNode =
-      includeDataId && view.getRootNode().getElementById(includeDataId);
-    const dataSourceContent = dataSourceNode && dataSourceNode.textContent;
-    if (dataSourceContent) {
-      Object.assign(data, JSON.parse(dataSourceContent));
-    }
-  }
-
-  Object.assign(data, view.dataset);
-  return data;
-};
-
 const tryAutoLoad = view => {
   if (isAutoLoad(view)) {
     view.mount();
@@ -141,7 +125,7 @@ const tryAutoLoad = view => {
 };
 
 const tryAutoUnload = view => {
-  if (isBindingElementLifecycle(view)) {
+  if (isAutoUnload(view)) {
     view.unload();
   }
 };
@@ -167,7 +151,7 @@ const createWebWidget = view => {
   const sandbox = view[SANDBOX_INSTANCE];
   const url = src || application.url; /// /
   const main = src || application || (async () => text);
-  const data = getDataset(view);
+  const data = view.createData();
   const properties = { data };
 
   if (sandbox) {
@@ -328,6 +312,24 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
   // 非公开的钩子：用于关闭 Shadow Dom
   createContainer() {
     return this.attachShadow({ mode: 'closed' });
+  }
+
+  // 非公开的钩子：用于重设数据集
+  createData() {
+    const data = {};
+    const includeDataId = this.getAttribute('include-data');
+
+    if (includeDataId) {
+      const dataSourceNode =
+        includeDataId && this.getRootNode().getElementById(includeDataId);
+      const dataSourceContent = dataSourceNode && dataSourceNode.textContent;
+      if (dataSourceContent) {
+        Object.assign(data, JSON.parse(dataSourceContent));
+      }
+    }
+
+    Object.assign(data, this.dataset);
+    return data;
   }
 
   lifecycleCallback(type) {
