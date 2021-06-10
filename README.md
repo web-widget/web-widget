@@ -131,7 +131,7 @@ WebWidget 辅助工具：
 </web-widget>
 ```
 
-如果父节点的 WebWidget 启用了 `sandboxed` 属性，子节点（包括 ShadowRoot）也将继承沙盒的权限。
+如果父节点的 WebWidget 启用了 `sandboxed` 属性，子节点（包括 ShadowRoot）中的 WebWidget 也将继承沙盒的权限。
 
 ```html
 <web-widget
@@ -144,8 +144,8 @@ WebWidget 辅助工具：
     navigate-to 'self' web-sandbox.js.org;
   ">
     #shadow-root (closed)
-      <web-sandbox src="./a.widget.js"></web-sandbox>
-    <web-sandbox src="./b.widget.js"></web-sandbox>
+      <web-widget src="./a.widget.js"></web-widget>
+    <web-widget src="./b.widget.js"></web-widget>
 </web-widget>
 ```
 
