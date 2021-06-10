@@ -330,7 +330,7 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
     return this.attachShadow({ mode: 'closed' });
   }
 
-  lifecycleCallback(type, ...params) {
+  lifecycleCallback(type) {
     let parentModel;
     switch (type) {
       case 'firstConnected':
@@ -369,14 +369,7 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
           super.lifecycleCallback(...arguments);
         }
 
-        switch (params[0]) {
-          case 'text':
-          case 'src':
-          case 'inactive':
-            tryAutoLoad(this);
-            break;
-          default:
-        }
+        tryAutoLoad(this);
         break;
 
       default:
