@@ -5,7 +5,8 @@ import {
   NOT_LOADED
 } from '../applications/status.js';
 import { ensureValidAppTimeouts } from '../applications/timeouts.js';
-import { flattenFnArray, toProperties } from './lifecycle-helpers.js';
+import { flattenFnArray } from './lifecycle-helpers.js';
+import { toProperties } from '../applications/properties.js';
 import { formatErrorMessage } from '../applications/errors.js';
 import WebWidgetPortalRegistry from '../../WebWidgetPortalRegistry.js';
 

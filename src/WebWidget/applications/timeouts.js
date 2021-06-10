@@ -1,6 +1,6 @@
 /* global setTimeout, console */
 
-import { toProperties } from '../lifecycles/lifecycle-helpers.js';
+import { toProperties } from './properties.js';
 import { formatErrorMessage } from './errors.js';
 
 const defaultWarningMillis = 1000;
