@@ -19,13 +19,13 @@ const HTMLWebSandboxElement =
   window.HTMLWebSandboxElement || HTMLWebSandboxBaseInterface;
 const rootPortalRegistry = new WebWidgetPortalRegistry();
 
-const AUTOLOAD_DISABLED = HTMLWebSandboxElement.AUTOLOAD_DISABLED;
+const SANDBOX_AUTOLOAD_DISABLED = HTMLWebSandboxElement.AUTOLOAD_DISABLED;
 const SANDBOX_INSTANCE = HTMLWebSandboxElement.SANDBOX_INSTANCE;
 const CONFIG = Symbol('config');
 const PARSER = Symbol('parser');
 const MODEL = Symbol('model');
 const APPLICATION = Symbol('application');
-const RESOURCE_LOAD_EVENT = Symbol('resourceLoaded');
+const RESOURCE_LOADED = Symbol('resourceLoaded');
 
 const getProperty = (view, name) => {
   const config = view[CONFIG] || {};
@@ -207,8 +207,8 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
   constructor() {
     super();
 
-    if (AUTOLOAD_DISABLED) {
-      this[AUTOLOAD_DISABLED] = true;
+    if (SANDBOX_AUTOLOAD_DISABLED) {
+      this[SANDBOX_AUTOLOAD_DISABLED] = true;
     }
   }
 
@@ -272,8 +272,8 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
     createWebWidget(this);
     const loadPromise = toLoadPromise(this[MODEL]);
 
-    if (this.src && !this[RESOURCE_LOAD_EVENT]) {
-      this[RESOURCE_LOAD_EVENT] = true;
+    if (this.src && !this[RESOURCE_LOADED]) {
+      this[RESOURCE_LOADED] = true;
       loadPromise.then(
         () => {
           this.dispatchEvent(new Event('load'));
