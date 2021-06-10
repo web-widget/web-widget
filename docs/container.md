@@ -133,7 +133,7 @@ document.body.appendChild(widget);
 
 ### `inactive`
 
-设置为非激活状态。如果为元素包含 `inactive` 属性，元素插入 DOM 树的时候将不再自动触发 `load`、`bootstrap`、`mount`，应用的生命周期只能手动调用或者给外部路由管理库来调用。
+取消 DOM 的生命周期与应用生命周期的绑定。如果为元素包含 `inactive` 属性，元素插入 DOM 树或移除的时候都不会自动触发应用生命周期函数，应用的生命周期只能手动调用，例如外部路由管理库来调用。
 
 ### `sandboxed`
 
