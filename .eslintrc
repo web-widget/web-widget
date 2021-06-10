@@ -14,9 +14,7 @@
   "plugins": [
     "prettier"
   ],
-  "globals": {
-    "__DEV__": true
-  },
+  "globals": {},
   "rules": {
     "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
     "prettier/prettier": "error",

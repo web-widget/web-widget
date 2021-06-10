@@ -66,7 +66,7 @@ function createPopStateEvent(state, originalMethodName) {
 }
 
 function patchedUpdateState(updateState, methodName) {
-  return function() {
+  return function () {
     const urlBefore = window.location.href;
     const result = updateState.apply(this, arguments);
     const urlAfter = window.location.href;
@@ -99,7 +99,7 @@ if (isInBrowser) {
   // Monkeypatch addEventListener so that we can ensure correct timing
   const originalAddEventListener = window.addEventListener;
   const originalRemoveEventListener = window.removeEventListener;
-  window.addEventListener = function(eventName, fn) {
+  window.addEventListener = function (eventName, fn) {
     if (typeof fn === 'function') {
       if (
         routingEventsListeningTo.indexOf(eventName) >= 0 &&
@@ -114,7 +114,7 @@ if (isInBrowser) {
     return originalAddEventListener.apply(this, arguments);
   };
 
-  window.removeEventListener = function(eventName, listenerFn) {
+  window.removeEventListener = function (eventName, listenerFn) {
     if (typeof listenerFn === 'function') {
       if (routingEventsListeningTo.indexOf(eventName) >= 0) {
         capturedEventListeners[eventName] = capturedEventListeners[

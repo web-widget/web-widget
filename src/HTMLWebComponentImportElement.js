@@ -86,7 +86,7 @@ function createHTMLElementClassProxy(sandbox) {
       );
     };
 
-    const attachShadow = function({ mode }) {
+    const attachShadow = function ({ mode }) {
       const host = this;
       defineShadowRootElement();
       const shadowRoot = document.createElement('shadow-root');
@@ -133,14 +133,16 @@ function createCustomElementsProxy(sandbox, definedCallback) {
   const customElements = win.customElements;
   const get$ = customElements.get.bind(customElements);
   const define$ = customElements.define.bind(customElements);
-  const creater = (definedCallback, define$, get$) => (...params) => {
-    params[0] = `${params[0]}.private`;
-    const name = params[0];
-    definedCallback(...params);
-    if (!get$(name)) {
-      define$(...params);
-    }
-  };
+  const creater =
+    (definedCallback, define$, get$) =>
+    (...params) => {
+      params[0] = `${params[0]}.private`;
+      const name = params[0];
+      definedCallback(...params);
+      if (!get$(name)) {
+        define$(...params);
+      }
+    };
   return evaluate(creater, sandbox)(definedCallback, define$, get$);
 }
 
@@ -155,7 +157,7 @@ function WebComponentsParser(source, sandbox, context = {}) {
       const connectedCallback = prototype.connectedCallback;
 
       if (connectedCallback && !connectedCallback.proxy) {
-        prototype.connectedCallback = function() {
+        prototype.connectedCallback = function () {
           HTMLElementProxy.prototype.connectedCallback.call(this);
           connectedCallback.call(this);
         };

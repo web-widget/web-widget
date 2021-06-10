@@ -133,7 +133,7 @@ export function flattenFnArray(model, result, lifecycle) {
     fns = [() => Promise.resolve()];
   }
 
-  return function(props) {
+  return function (props) {
     return fns.reduce((resultPromise, fn, index) => {
       return resultPromise.then(() => {
         const thisPromise = fn(props);
