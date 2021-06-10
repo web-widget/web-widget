@@ -77,7 +77,7 @@ export default {
 
 ## API 设计过程的探索
 
-详情见 [WebWidget 设计背后演化](docs/design.md)
+详情见 [标准化微前端容器— WebWidget 设计过程](docs/design.md)
 
 ## 规范的实现
 
@@ -89,7 +89,7 @@ export default {
   * `name`
   * `src`
   * `text`
-  * `sandboxed`（已经实现，需要依赖 [WebSandbox.js](https://web-sandbox.js.org)）
+  * `sandboxed`（已经实现，需要依赖 [WebSandbox.js](https://github.com/web-sandbox-js/web-sandbox)）
   * `status`
   * `portals`
   * `load`
