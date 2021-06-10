@@ -1,10 +1,10 @@
 /* global location */
 
 import { queueMicrotask } from '../../utils/queue-microtask.js';
-import { widgets, get } from '../applications/widgets.js';
+import { registry } from '../applications/registry.js';
 
 function shouldBeActive(widget) {
-  const activeWhen = get(widget);
+  const activeWhen = registry.get(widget);
   try {
     // eslint-disable-next-line no-restricted-globals
     return activeWhen(location);
@@ -25,7 +25,7 @@ export async function reroute() {
     });
   }
 
-  widgets.forEach(widget => {
+  registry.forEach(widget => {
     if (shouldBeActive(widget)) {
       activeList.push(widget);
     } else {
