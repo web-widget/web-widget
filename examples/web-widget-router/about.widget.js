@@ -17,10 +17,8 @@ define(() => {
     async mount({ container }) {
       console.log('About mount');
 
-      nav.hidden = true;
       container.appendChild(nav);
       await nav.mount();
-      nav.hidden = false;
 
       container.appendChild(main);
     },

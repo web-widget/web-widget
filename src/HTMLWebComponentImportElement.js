@@ -156,12 +156,12 @@ function WebComponentsParser(source, sandbox, context = {}) {
       const prototype = constructor.prototype;
       const connectedCallback = prototype.connectedCallback;
 
-      if (connectedCallback && !connectedCallback.proxy) {
+      if (connectedCallback && !connectedCallback.proxyed) {
         prototype.connectedCallback = function () {
           HTMLElementProxy.prototype.connectedCallback.call(this);
           connectedCallback.call(this);
         };
-        prototype.connectedCallback.proxy = true;
+        prototype.connectedCallback.proxyed = true;
       }
     }
   );
