@@ -1,6 +1,7 @@
 /* global URL, fetch */
 export const appendSourceUrl = (source, url) => {
-  const sourceURLRegEx = /(\/\/# sourceURL=)((https?:\/\/)?([\w-])+\.{1}([a-zA-Z]{2,63})([/\w-]*)*\/?\??([^#\n\r]*)?)/;
+  const sourceURLRegEx =
+    /(\/\/# sourceURL=)((https?:\/\/)?([\w-])+\.{1}([a-zA-Z]{2,63})([/\w-]*)*\/?\??([^#\n\r]*)?)/;
 
   if (!sourceURLRegEx.test(source)) {
     source += `\n//# sourceURL=${url}`;
@@ -63,7 +64,6 @@ export function UMDParser(source, sandbox, context = {}) {
 export const scriptSourceLoader = (url, options = {}) => {
   return fetch(url, {
     credentials: 'same-origin',
-    cache: 'force-cache',
     ...options
   }).then(res => {
     if (!res.ok) {
