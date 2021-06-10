@@ -6,11 +6,11 @@
 
 ```js
 export default {
-  async bootstrap: (properties) => {},
-  async mount: (properties) => {},
-  async update: (properties) => {},
-  async unmount: (properties) => {},
-  async unload: (properties) => {}
+  bootstrap: async (properties) => {},
+  mount: async (properties) => {},
+  update: async (properties) => {},
+  unmount: async (properties) => {},
+  unload: async (properties) => {}
 }
 ```
 
