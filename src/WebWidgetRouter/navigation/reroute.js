@@ -3,7 +3,7 @@
 import { queueMicrotask } from '../../utils/queue-microtask.js';
 import { registry } from '../applications/registry.js';
 
-function shouldBeActive(widget) {
+const shouldBeActive = widget => {
   const activeWhen = registry.get(widget);
   try {
     // eslint-disable-next-line no-restricted-globals
@@ -14,38 +14,29 @@ function shouldBeActive(widget) {
     });
     return false;
   }
-}
+};
+
+const onerror = error => {
+  queueMicrotask(() => {
+    throw error;
+  });
+};
+
+const getWidgets = active =>
+  [...registry].filter(
+    active ? shouldBeActive : widget => !shouldBeActive(widget)
+  );
 
 export async function reroute() {
-  const activeList = [];
-  const inactiveList = [];
-  function onerror(error) {
-    queueMicrotask(() => {
-      throw error;
-    });
-  }
-
-  registry.forEach(widget => {
-    if (shouldBeActive(widget)) {
-      activeList.push(widget);
-    } else {
-      inactiveList.push(widget);
-    }
-  });
-
   await Promise.all(
-    activeList.map(widget => widget.bootstrap().catch(onerror))
+    getWidgets(true).map(widget => widget.bootstrap().catch(onerror))
   );
 
   await Promise.all(
-    inactiveList
-      .filter(widget => !shouldBeActive(widget))
-      .map(widget => widget.unmount().catch(onerror))
+    getWidgets(false).map(widget => widget.unmount().catch(onerror))
   );
 
   await Promise.all(
-    activeList
-      .filter(widget => shouldBeActive(widget))
-      .map(widget => widget.mount().catch(onerror))
+    getWidgets(true).map(widget => widget.mount().catch(onerror))
   );
 }
