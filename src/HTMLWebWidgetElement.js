@@ -44,19 +44,19 @@ const PARSER = Symbol('parser');
 const MODEL = Symbol('model');
 const APPLICATION = Symbol('application');
 const RESOURCE_LOAD_EVENT = Symbol('resourceLoaded');
-const ATTRIBUTE_CHANGED_IGNORE = Symbol('attributeChangedIgnore');
 
 const getProperty = (view, name) => {
   const config = view[CONFIG] || {};
   return config[name] || view[name];
 };
-const isActive = view => !getProperty(view, 'inactive');
+const isBindingElementLifecycle = view => !getProperty(view, 'inactive');
 const isResourceReady = view =>
   view.isConnected &&
   (getProperty(view, 'src') ||
     getProperty(view, 'application') ||
     getProperty(view, 'text'));
-const isAutoLoad = view => isActive(view) && isResourceReady(view);
+const isAutoLoad = view =>
+  isBindingElementLifecycle(view) && isResourceReady(view);
 
 const toLoader = (target, sandbox, parser) => {
   let loader = target;
@@ -150,13 +150,15 @@ const getDataset = view => {
   return data;
 };
 
-const tryAutoLoad = async view => {
+const tryAutoLoad = view => {
   if (isAutoLoad(view)) {
-    if (isActive(view)) {
-      view.mount();
-    } else {
-      view.unmount();
-    }
+    view.mount();
+  }
+};
+
+const tryAutoUnload = view => {
+  if (isBindingElementLifecycle(view)) {
+    view.unload();
   }
 };
 
@@ -311,14 +313,11 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
   async mount() {
     await this.bootstrap();
     await toMountPromise(this[MODEL]);
-    this[ATTRIBUTE_CHANGED_IGNORE] = true;
-    this.removeAttribute('inactive');
-    this[ATTRIBUTE_CHANGED_IGNORE] = false;
   }
 
   async update(properties) {
     if (!this[MODEL]) {
-      throw new Error('Not initialized');
+      throw new Error('Uninitialized');
     }
     this[MODEL].properties = properties;
     await toUpdatePromise(this[MODEL]);
@@ -329,9 +328,6 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
       return;
     }
     await toUnmountPromise(this[MODEL]);
-    this[ATTRIBUTE_CHANGED_IGNORE] = true;
-    this.setAttribute('inactive', '');
-    this[ATTRIBUTE_CHANGED_IGNORE] = false;
   }
 
   async unload() {
@@ -373,14 +369,10 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
           super.lifecycleCallback(...arguments);
         }
 
-        this.unload();
+        tryAutoUnload(this);
         break;
 
       case 'attributeChanged':
-        if (this[ATTRIBUTE_CHANGED_IGNORE]) {
-          break;
-        }
-
         if (this.sandboxed) {
           super.lifecycleCallback(...arguments);
         }
