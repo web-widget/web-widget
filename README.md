@@ -116,6 +116,39 @@ export default {
 
 本章节非规范内容，仅用于辅助说明 WebWidget 的可扩展性。
 
+### 为应用启用沙盒与专属的内容安全策略
+
+```html
+<web-widget
+  src="./app.widget.js"
+  sandboxed
+  csp="
+    default-src 'none';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net web-sandbox.js.org;
+    style-src 'self' 'unsafe-inline' cdn.jsdelivr.net;
+    navigate-to 'self' web-sandbox.js.org;
+  ">
+</web-widget>
+```
+
+如果父节点的 WebWidget 启用了 `sandboxed` 属性，子节点（包括 ShadowRoot）也将继承沙盒的权限。
+
+```html
+<web-widget
+  src="./app.widget.js"
+  sandboxed
+  csp="
+    default-src 'none';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net web-sandbox.js.org;
+    style-src 'self' 'unsafe-inline' cdn.jsdelivr.net;
+    navigate-to 'self' web-sandbox.js.org;
+  ">
+    #shadow-root (closed)
+      <web-sandbox src="./a.widget.js"></web-sandbox>
+    <web-sandbox src="./b.widget.js"></web-sandbox>
+</web-widget>
+```
+
 ### 首屏载入速度优化
 
 [AMP](https://amp.dev) 通过性能优先的工程设计为 WebWidget 的诞生提供了很多灵感，其中 [AMP](https://amp.dev) 的优化策略对采用 WebWidget 的网站也同样有效，一些推荐设置：
@@ -222,6 +255,7 @@ export default {
 它拥有和 `<web-widget.import>` 一样的属性，不同的是它只支持标准的 Web Components 模块格式。Web Components 模块无需打包成 UMD 规范，也无需遵循 WebWidget 的生命周期定义。只需要按照 Web Components 的要求实现自定义元素的构造器，并且使用 `customElements.define(name, Element)` 注册。例如：
 
 ```js
+// my-element.js
 class MyElment extends HTMLElement {
   constructor() {
     super();
@@ -232,6 +266,20 @@ class MyElment extends HTMLElement {
   }
 }
 customElements.define('my-element', MyElment);
+```
+
+```html
+<web-component.import as="slot-demo" src="./my-element.js"></web-component.import>
+
+<slot-demo>
+  <p slot="main">Hello Wrold</p>
+</slot-demo>
+
+<script type="module">
+  import '../../src/HTMLWebWidgetElement.js';
+  import '../../src/HTMLWebWidgetImportElement.js';
+  import '../../src/HTMLWebComponentImportElement.js';
+</script>
 ```
 
 ### 服务器渲染
