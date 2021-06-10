@@ -1,55 +1,92 @@
-# WebWidget 设计背后演化
+## 标准化微前端容器— WebWidget 设计过程
 
-## 方案一：基于 [single-spa](https://single-spa.js.org/)
+最近我们解决了一个前所未有的工程化挑战：在 Web 中设计一个支持可被可视化编辑编组件系统，并且允许安全运行来自用户的代码。例如通过可视化编辑器对组件的布局或者配置进行调整、运行来自 Npm 或者 Github 的远程代码等。
+
+我们的编辑器是通过 Web 技术构建的，我们使用了 Vue 来构建用户界面，因此借助 Vue 或者 React 的组件系统会很容易实现组件的动态注入，这也是我们旧组件系统的技术方案。
+
+对于新一代的编辑器，我们希望能够编排更多的前端组件，这些组件可能来自不同的技术栈实现，它们可能通过本地导入或者直接使用 CDN 加载。这个目标真正的挑战在于：这些组件不再像过去一样都经过我们内部的开发人员的精心的设计，它们很有可能无法运行甚至包含恶意代码。
+
+我们的目标可以归结于两个问题：
+
+1. 如何安全的运行代码
+2. 如何让组件支持可视化编排
+
+关于如何安全运行代码（JavaScript）这个大课题上，无论 微软、Google、Facebook、Figma 等公司都有提出过不同的解决方案，但是它们的都无法解决我们面临的问题，因此我们使用了新的安全模型与虚拟化技术来达到这一目标：
+
+* JS 语言安全——Realm: 基于 TC39 最新草案实现
+* CSS 安全——Shadow DOM: Web 正式标准
+* HTML 安全——Sanitizer: 基于 W3C 草案实现
+* 内容安全策略——CSP: 基于 W3C 正式标准实现
+
+这个运行用户代码的可信环境实现了大部分浏览器 BOM 接口，它拥有完整的 DOM 树结构：
+
+```html
+<web-sandbox>         ——— window
+  #shadow-root        ——— document
+    <html>            ——— document.documentElement
+      <head></head>   ——— document.head
+      <body></body>   ——— document.body
+    </html>
+</web-sandbox>
+```
+
+为了确保我们新的组件系统足够的信心被用户采用，因此我们内部也将使用同样的机制来进行组件开发。内部与外部组件的差别仅仅在于权限的范围差异，这一点很像 iOS 的应用系统：官方开发的应用将有更多的权限以实现更加强大的功能，第三方的应用将运行在沙盒下以确保用户的安全。
+
+这项技术被称作 WebSandbox，它的原理更多内容可以在 [WebSandbox.js](https://github.com/web-sandbox-js/web-sandbox) 仓库中找到。而当前文章的重点是描述第 2 个问题：如何让组件支持可视化编排。
+
+ ## NoCode 的组件提供的是服务
+
+传统的 UI 组件的设计大多数是面向过程的，它们必须通过胶水代码以及特定的框架才能运行起来，而实现这些 UI 组件的可视化编排难以摆脱对胶水代码的依赖。要想组件能够运行在 NoCode 模式下，这要求组件提供的是服务。就像客户端调用服务一样，都通过 HTTP 标准化的协议来调用，所有和服务交互的过程都被高度标准化。
+
+我们考虑了很多不同的路线和方法来实现组件的服务化抽象，在数月的尝试中找到了认为接近问题本质的设计方案，其中包含三个最核心的尝试。
+
+## 尝试 1：直接使用 single-spa
+
+[single-spa](https://single-spa.js.org/)  是我们找到最接近服务化理念的方法，它作为一个开源的 JavaScript 的库、较早的帮助社区中实践前端的微服务。它和我们的目标有共同之处：
+
+* 应用之间独立开发、构建、部署
+* 和技术栈无关
+
+它抽象了应用的生命周期函数，要求应用实现带有生命周期的 js 作为应用入口：
+
+```js
+export default {
+  bootstrap: async (properties) => {},
+  mount: async (properties) => {},
+  unmount: async (properties) => {},
+  unload: async (properties) => {}
+}
+```
+
+而应用的启动参数将通过 `properties` 获取到。
+
+我们一开始对 [single-spa](https://single-spa.js.org/)  的方案抱有了较大的信心，如果完全兼容它意味着我们可以直接享受它社区给我们的资源，也能够给  [single-spa](https://single-spa.js.org/)  社区共享我们的力量。当我们深入到更多细节的时候，逐渐了发现了一些本质上的差异，这个差异决定我们需要在它基础上进行较大的改进。
 
 [single-spa](https://single-spa.js.org/) 定义了 Applications 与 Parcels 两个概念，其中 Parcels 是通过 Applications 内部的 `mountParcel()` 来挂载的。
 
 ```js
-define({
-  async mount(properties) {
-    const {
-      name,
-      mountParcel,
-      container
-    } = properties;
-
-    mountParcel(parcelConfig, parcelProps);
-  }
-));
+export async function mount({ mountParcel }) {
+  // more code..
+  const parcel = mountParcel(parcelConfig, parcelProps);
+}
 ```
 
-### 我们为什么要改进
+[single-spa](https://single-spa.js.org/) 它的目标解决路由驱动场景下微前端的架构，路由直接驱动的是 Applications，因此 Applications  是一等公民。而 `mountParcel()`  作为 Applications 之间的模块共享方案却拥有另外一套皆然不同的 API 来管理它，并且文档非常难以理解。于此同时，官方也不推荐用户使用它，因为通过它共享组件会放大微前端的缺点。总之， `mountParcel()`  有点像一个补丁一样的存在，非良好的设计。
 
-[single-spa](https://single-spa.js.org/) 的生命周期函数设计非常优秀，它的目标解决路由驱动场景下微前端的架构，这和我们目标上有一些差异：
+路由驱动场景下的目标是尽可能保服务之间不受影响，在 [single-spa](https://single-spa.js.org/)  的设计中，因此一些应用的异常会被它忽略，这会导致错误难以被捕获、被发现。
 
-* 应用的挂载采用了单实例模型设计，而组件模型通常应该默认支持多实例的
-* 它的目标是尽可能保证主应用能够被成功挂载或卸载，子应用的异常通常会被拦截掉，这会导致难错误难以被发现、修复
-* single-spa 在应用生命周期参数注入了它自己的业务接口，应用对宿主有依赖会导致日后产生兼容性问题（如果 single-spa 本身能够成为标准并且稳定下来，那么这个问题不会存在）
-* 在 single-spa 的文档中，Parcels 似乎是一个被“冷遇”的接口，一方面是文档明确提出不应该被广泛使用，因为它会加重应用复杂度；另一方面是 Parcels 的文档非常难以理解
+[single-spa](https://single-spa.js.org/)  在应用生命周期参数注入了它自己的业务接口，一旦应用对宿主的接口有依赖会导致日后产生兼容性问题。如果 [single-spa](https://single-spa.js.org/) 本身能够成为标准并且稳定下来，那么这个问题不会存在。
 
-## 方案二：将挂载应用、挂载子应用、传送门挂载应用抽象为同一个接口
+## 尝试 2：将挂载应用、挂载子应用、传送门挂载应用抽象为同一个接口
 
 ### 在自身容器中挂载应用
 
 ```js
-define({
-  async mount({ container, WebWidget }) {
-    const div = document.createElement('div');
-    const userWidget = new WebWidget(div, './users.widget.js');
-    container.appendChild(div);
-  })
-});
-```
-
-生成的 DOM：
-
-```html
-<web-widget>
-  #shadow-root (closed)
-    <div>
-      #shadow-root (closed)
-    </div>
-</web-widget>
+export async function mount({ container, WebWidget }) {
+  const div = document.createElement('div');
+  const userWidget = new WebWidget(div, './users.widget.js');
+  container.appendChild(div);
+})
 ```
 
 ### 应用之间嵌套
@@ -57,34 +94,17 @@ define({
 将 `WebWidget` 作为另外一个 `WebWidget` 的容器：
 
 ```js
-define({
-  async mount({ container, WebWidget }) {
-    const div = document.createElement('div');
-    const cardWidget = new WebWidget(div, './card.widget.js');
-    const userWidget = new WebWidget(cardWidget, './users.widget.js', {}, {
-      slot: 'main'
-    });
-    cardWidget.mount().then(() => userWidget.mount());
-  })
-});
+export async function mount({ container, WebWidget }) {
+  const div = document.createElement('div');
+  const cardWidget = new WebWidget(div, './card.widget.js');
+  const userWidget = new WebWidget(cardWidget, './users.widget.js', {}, {
+    slot: 'main'
+  });
+  cardWidget.mount().then(() => userWidget.mount());
+})
 ```
 
-生成的 DOM：
-
-```html
-<web-widget>
-  #shadow-root (closed)
-    <div>
-      #shadow-root (closed)
-        <slot name="main">...</slot>
-      <web-widget-slot slot="main">
-        #shadow-root (closed)
-      </web-widget-slot>
-    </div>
-</web-widget>
-```
-
-## 方案三：基于 Web Components 抽象
+## 尝试 3：基于 Web Components 抽象
 
 无论是主文档还是应用、子应用内，均可以使用 HTML 标签进行声明：
 
@@ -95,13 +115,11 @@ define({
 ### 在自身容器中挂载应用
 
 ```js
-define({
-  async mount({ container }) {
-    const userWidget = document.createElement('web-widget');
-    userWidget.src = './users.widget.js';
-    container.appendChild(userWidget);
-  })
-});
+export async function mount({ container }) {
+  const userWidget = document.createElement('web-widget');
+  userWidget.src = './users.widget.js';
+  container.appendChild(userWidget);
+})
 ```
 
 生成的 DOM：
@@ -118,17 +136,15 @@ define({
 ### 应用之间嵌套
 
 ```js
-define({
-  async mount({ container }) {
-    const cardWidget = document.createElement('web-widget');
-    cardWidget.src = './card.widget.js';
-    const userWidget = document.createElement('web-widget');
-    userWidget.slot = 'main';
-    userWidget.src = './user.widget.js';
-    container.appendChild(cardWidget);
-    cardWidget.appendChild(userWidget);
-  })
-});
+export async function mount({ container }) {
+  const cardWidget = document.createElement('web-widget');
+  cardWidget.src = './card.widget.js';
+  const userWidget = document.createElement('web-widget');
+  userWidget.slot = 'main';
+  userWidget.src = './user.widget.js';
+  container.appendChild(cardWidget);
+  cardWidget.appendChild(userWidget);
+})
 ```
 
 生成的 DOM：
@@ -167,16 +183,14 @@ webWidgetPortalRegistry.define('dialog', () => {
 ### 应用内创建送门
 
 ```js
-define({
-  async mount({ container, createPortal }) {
-    const userWidget = document.createElement('web-widget');
-    userWidget.slot = 'main';
-    userWidget.src = './user.widget.js';
-    // 传送应用
-    const cardWidget = createPortal(userWidget, 'dialog');
-    cardWidget.unmount();
-  })
-});
+export async function mount({ container, createPortal }) {
+  const userWidget = document.createElement('web-widget');
+  userWidget.slot = 'main';
+  userWidget.src = './user.widget.js';
+  // 传送应用
+  const cardWidget = createPortal(userWidget, 'dialog');
+  cardWidget.unmount();
+})
 ```
 
 生成的 DOM：
@@ -194,6 +208,25 @@ define({
   </web-widget>
 </web-widget>
 ```
+
+## 组合的力量
+
+使用 Web Components 与 实现一个自定义元素只需要将使用到 `class` 语句并且注册，类似：
+
+```js
+class HTMLWebWidgetElement extends HTMLElement {
+  constructor() {
+    super();
+    // ...
+  }
+}
+customElements.define('web-widget', HTMLWebWidgetElement);
+```
+
+> 此章节未完成，观点：
+>
+> 1. 本质的东西会成为标准
+> 2. 复杂问题解决方案会回到程序的设计模式
 
 ## 重写元素名称
 
@@ -270,6 +303,36 @@ class MyElment extends HTMLElement {
 customElements.define('my-element', MyElment);
 ```
 
+## 路由驱动
+
+通常情况下 WebWidget 会基于 DOM 的生命周期来触发应用的生命周期函数，如果给容器添加一个`inactive` 属性即可关闭与 DOM 生命周期的绑定，以便交给程序来控制它，例如前端路由库。
+
+```html
+<web-widget id="home" src="./index.widget.js" inactive></web-widget>
+<web-widget id="news" src="./news.widget.js" inactive></web-widget>
+<web-widget id="about" src="./about.widget.js" inactive></web-widget>
+<script type="module">
+  import '../../src/HTMLWebWidgetElement.js';
+  import { register, start } from  '../../src/WebWidgetRouter/index.js';
+
+  register(
+    document.querySelector('#home'),
+    location => location.pathname === '/'
+  );
+
+  register(
+    document.querySelector('#news'),
+    location => location.pathname.startsWith('/news')
+  );
+
+  register(
+    document.querySelector('#about'),
+    location => location.pathname.startsWith('/about')
+  );
+
+  start();
+</script>
+```
 
 ## 总结
 
@@ -289,4 +352,4 @@ customElements.define('my-element', MyElment);
 * 易于进行 SEO 优化
 * 易于进行性能优化，例如自动实施懒加载与优先加载
 * 可被组合，被扩展形成新的解决方案。例如通过配合路由库创建企业级业务微前端架构
-* 得到一个接近理想的 Web Components 模块导入方案+++++
+* 得到一个接近理想的 Web Components 模块导入方案
