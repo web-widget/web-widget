@@ -42,10 +42,11 @@
 
 ## 尝试 1：直接使用 single-spa
 
-[single-spa](https://single-spa.js.org/)  是我们找到最接近服务化理念的方法，它作为一个开源的 JavaScript 的库、较早的帮助社区中实践前端的微服务。它和我们的目标有共同之处：
+[single-spa](https://single-spa.js.org/) 是一个开源的 JavaScript 的库，它较早的将后端微服务的理念引入到前端工程，即——微前端。它的成果中包含了我们想要的关键部分：
 
+* 将应用的概念具像化
 * 应用之间独立开发、构建、部署
-* 和技术栈无关
+* 应用与技术栈无关
 
 它抽象了应用的生命周期函数，要求应用实现带有生命周期的 js 作为应用入口：
 
@@ -58,24 +59,20 @@ export default {
 }
 ```
 
-而应用的启动参数将通过 `properties` 获取到。
+我们一开始对 [single-spa](https://single-spa.js.org/) 的方案抱有了较大的信心，如果完全兼容它意味着我们可以直接享受它社区给我们的资源，也能够给 [single-spa](https://single-spa.js.org/) 社区共享我们的力量。但是当我们深入到更多细节的时候，逐渐了发现了一些本质上的差异：[single-spa](https://single-spa.js.org/) 它的目标解决路由驱动场景下微前端的架构，这种架构下以单实例模型为主。
 
-我们一开始对 [single-spa](https://single-spa.js.org/)  的方案抱有了较大的信心，如果完全兼容它意味着我们可以直接享受它社区给我们的资源，也能够给  [single-spa](https://single-spa.js.org/)  社区共享我们的力量。当我们深入到更多细节的时候，逐渐了发现了一些本质上的差异，这个差异决定我们需要在它基础上进行较大的改进。
-
-[single-spa](https://single-spa.js.org/) 定义了 Applications 与 Parcels 两个概念，其中 Parcels 是通过 Applications 内部的 `mountParcel()` 来挂载的。
+[single-spa](https://single-spa.js.org/) 的路由直接驱动的是 Applications，因此 Applications 是一等公民。而 Applications 内部要挂载其他 Applications 的时候，它使用新的概念——Parcels。
 
 ```js
 export async function mount({ mountParcel }) {
   // more code..
-  const parcel = mountParcel(parcelConfig, parcelProps);
+  const parcelApi = mountParcel(parcelConfig, parcelProps);
 }
 ```
 
-[single-spa](https://single-spa.js.org/) 它的目标解决路由驱动场景下微前端的架构，路由直接驱动的是 Applications，因此 Applications  是一等公民。而 `mountParcel()`  作为 Applications 之间的模块共享方案却拥有另外一套皆然不同的 API 来管理它，并且文档非常难以理解。于此同时，官方也不推荐用户使用它，因为通过它共享组件会放大微前端的缺点。总之， `mountParcel()`  有点像一个补丁一样的存在，非良好的设计。
-
-路由驱动场景下的目标是尽可能保服务之间不受影响，在 [single-spa](https://single-spa.js.org/)  的设计中，因此一些应用的异常会被它忽略，这会导致错误难以被捕获、被发现。
-
-[single-spa](https://single-spa.js.org/)  在应用生命周期参数注入了它自己的业务接口，一旦应用对宿主的接口有依赖会导致日后产生兼容性问题。如果 [single-spa](https://single-spa.js.org/) 本身能够成为标准并且稳定下来，那么这个问题不会存在。
+* `mountParcel()` 拥有另外一套皆然不同的 API，并且文档非常难以理解。于此同时，官方也不推荐用户使用它，因为通过它共享组件会放大微前端的缺点。总之， `mountParcel()` 有点像一个补丁一样的存在，它并不是一个很好的设计
+* 路由驱动场景下的目标是尽可能保服务之间不受影响，在 [single-spa](https://single-spa.js.org/) 的设计中，因此一些应用的异常会被它忽略，这会导致错误难以被捕获、被发现
+* [single-spa](https://single-spa.js.org/) 在应用生命周期参数注入了它自己的业务接口，一旦应用对宿主的接口有依赖会导致日后产生兼容性问题。如果 [single-spa](https://single-spa.js.org/) 本身能够成为标准并且稳定下来，那么这个问题不会存在
 
 ## 尝试 2：将挂载应用、挂载子应用、传送门挂载应用抽象为同一个接口
 
@@ -311,6 +308,7 @@ customElements.define('my-element', MyElment);
 <web-widget id="home" src="./index.widget.js" inactive></web-widget>
 <web-widget id="news" src="./news.widget.js" inactive></web-widget>
 <web-widget id="about" src="./about.widget.js" inactive></web-widget>
+
 <script type="module">
   import '../../src/HTMLWebWidgetElement.js';
   import { register, start } from  '../../src/WebWidgetRouter/index.js';
