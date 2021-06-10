@@ -123,7 +123,7 @@ const getDataset = view => {
 
   if (includeDataId) {
     const dataSourceNode =
-      includeDataId && view.ownerDocument.getElementById(includeDataId);
+      includeDataId && view.getRootNode().getElementById(includeDataId);
     const dataSourceContent = dataSourceNode && dataSourceNode.textContent;
     if (dataSourceContent) {
       Object.assign(data, JSON.parse(dataSourceContent));
