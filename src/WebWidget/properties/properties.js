@@ -10,7 +10,8 @@ export { createSandboxed } from './sandboxed.js';
 // 钩子：创建应用生命周期 properties 参数
 export function createProperties({ view }) {
   const cache = new Map();
-  const lifecycleProperties = view.constructor.lifecycleProperties;
+  const HTMLWebWidgetElement = view.constructor;
+  const lifecycleProperties = HTMLWebWidgetElement.lifecycleProperties;
 
   const properties = lifecycleProperties.reduce((accumulator, name) => {
     const hookName = `create-${name}`.replace(/-(\w)/, ($0, $1) =>
