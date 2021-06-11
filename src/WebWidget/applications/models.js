@@ -9,7 +9,6 @@ export class Model {
     name,
     parent,
     properties,
-    rootPortalRegistry,
     sandbox,
     url,
     view
@@ -27,7 +26,6 @@ export class Model {
       portalRegistry: null,
       portals: null,
       properties,
-      rootPortalRegistry,
       sandbox,
       status: NOT_LOADED,
       timeouts: null,

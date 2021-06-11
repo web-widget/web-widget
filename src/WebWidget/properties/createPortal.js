@@ -16,7 +16,7 @@ export function createCreatePortal(model) {
         }
       } while (current);
 
-      return model.rootPortalRegistry.get(name);
+      return HTMLWebWidgetElement.portals.get(name);
     };
     const factory = findCustomPortal(model, name);
 

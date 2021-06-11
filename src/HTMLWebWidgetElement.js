@@ -177,7 +177,6 @@ const createWebWidget = view => {
     name,
     parent,
     properties,
-    rootPortalRegistry,
     sandbox,
     url,
     view
