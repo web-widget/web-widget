@@ -28,8 +28,11 @@ const MODEL = Symbol('model');
 const APPLICATION = Symbol('application');
 const RESOURCE_LOADED = Symbol('resourceLoaded');
 
-const lifecycleProperties = Object.keys(properties).filter(name =>
+const lifecyclePropertieCreaters = Object.keys(properties).filter(name =>
   name.startsWith('create')
+);
+const lifecycleProperties = lifecyclePropertieCreaters.map(name =>
+  name.replace(/create([\w])/, ($0, $1) => $1.toLowerCase())
 );
 
 const getProperty = (view, name) => {
@@ -302,13 +305,6 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
     await toUnloadPromise(this[MODEL]);
   }
 
-  // 定义应用的生命周期函数允许的字段
-  static get lifecycleProperties() {
-    return lifecycleProperties.map(name =>
-      name.replace(/create([\w])/, ($0, $1) => $1.toLowerCase())
-    );
-  }
-
   lifecycleCallback(type) {
     let parentModel;
     switch (type) {
@@ -364,9 +360,10 @@ Object.assign(HTMLWebWidgetElement, { CONFIG, PARSER, MODEL }); // 内部接口
 Object.assign(HTMLWebWidgetElement, status);
 
 // 生成应用生命周期函数的 properties 字段的钩子
+HTMLWebWidgetElement.lifecycleProperties = lifecycleProperties;
 Object.assign(
   HTMLWebWidgetElement.prototype,
-  lifecycleProperties.reduce((accumulator, name) => {
+  lifecyclePropertieCreaters.reduce((accumulator, name) => {
     accumulator[name] = function hook() {
       return properties[name](
         this[MODEL] || {
