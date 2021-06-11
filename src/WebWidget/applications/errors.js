@@ -5,7 +5,12 @@ export function formatErrorMessage(model, error) {
   }
 
   if (!error.message.includes(prefix)) {
-    error.message = `${prefix}: ${error.message}`;
+    Reflect.defineProperty(error, 'message', {
+      value: `${prefix}: ${error.message}`,
+      writable: true,
+      enumerable: false,
+      configurable: true
+    });
   }
 
   return error;

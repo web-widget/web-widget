@@ -3,7 +3,6 @@ import { NOT_LOADED } from './status.js';
 export class Model {
   constructor({
     children,
-    container,
     debug,
     id,
     loader,
@@ -12,14 +11,12 @@ export class Model {
     properties,
     rootPortalRegistry,
     sandbox,
-    shadow,
     url,
     view
   }) {
     Object.assign(this, {
       bootstrap: null,
       bootstrapPromise: null,
-      container,
       debug,
       id,
       loader,
@@ -32,7 +29,6 @@ export class Model {
       properties,
       rootPortalRegistry,
       sandbox,
-      shadow,
       status: NOT_LOADED,
       timeouts: null,
       unload: null,

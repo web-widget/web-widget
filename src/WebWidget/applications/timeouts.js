@@ -1,6 +1,6 @@
 /* global setTimeout, console */
 
-import { toProperties } from './properties.js';
+import { toProperties } from '../properties/properties.js';
 import { formatErrorMessage } from './errors.js';
 
 const defaultWarningMillis = 1000;

@@ -1,10 +1,11 @@
 /* global window, customElements, Event, ShadowRoot */
-import * as status from './WebWidget/applications/status.js';
 import {
   appendSourceUrl,
   scriptSourceLoader,
   UMDParser
 } from './utils/script-loader.js';
+import * as status from './WebWidget/applications/status.js';
+import * as properties from './WebWidget/properties/properties.js';
 import { Model } from './WebWidget/applications/models.js';
 import { toBootstrapPromise } from './WebWidget/lifecycles/bootstrap.js';
 import { toLoadPromise } from './WebWidget/lifecycles/load.js';
@@ -26,6 +27,10 @@ const PARSER = Symbol('parser');
 const MODEL = Symbol('model');
 const APPLICATION = Symbol('application');
 const RESOURCE_LOADED = Symbol('resourceLoaded');
+
+const lifecycleProperties = Object.keys(properties).filter(name =>
+  name.startsWith('create')
+);
 
 const getProperty = (view, name) => {
   const config = view[CONFIG] || {};
@@ -102,8 +107,16 @@ const getParentModel = view => {
 };
 
 const getChildModels = view => {
+  let shadowRoot;
   const model = view[MODEL];
-  const shadowRoot = model.shadow;
+  const sandbox = model.sandbox;
+  const container = model.properties.container;
+
+  if (container instanceof ShadowRoot) {
+    shadowRoot = container;
+  } else if (container === sandbox.global.document) {
+    shadowRoot = sandbox.toNative(model.sandbox.global.document);
+  }
   const childWebWidgetElements = getChildWebWidgetElements(view);
 
   if (shadowRoot) {
@@ -139,7 +152,6 @@ const createWebWidget = view => {
     throw new Error('Resources are not yet ready');
   }
 
-  let container, shadow;
   const src = getProperty(view, 'src');
   const text = getProperty(view, 'text');
   const application = getProperty(view, 'application');
@@ -151,23 +163,7 @@ const createWebWidget = view => {
   const sandbox = view[SANDBOX_INSTANCE];
   const url = src || application.url; /// /
   const main = src || application || (async () => text);
-  const data = view.createData();
-  const properties = { data };
-
-  if (sandbox) {
-    const sandboxDoc = sandbox.global.document;
-    const style = sandboxDoc.createElement('style');
-
-    style.textContent = `body{margin:0}`;
-    sandboxDoc.head.appendChild(style);
-    container = sandbox.global.document.body;
-    shadow = sandbox.toNative(sandbox.global.document);
-  } else {
-    container = view.createContainer();
-    if (container instanceof ShadowRoot) {
-      shadow = container;
-    }
-  }
+  const properties = view.createProperties();
 
   const parent = () => getParentModel(view);
   const children = () => getChildModels(view);
@@ -175,7 +171,6 @@ const createWebWidget = view => {
 
   view[MODEL] = new Model({
     children,
-    container,
     debug,
     id,
     loader,
@@ -184,7 +179,6 @@ const createWebWidget = view => {
     properties,
     rootPortalRegistry,
     sandbox,
-    shadow,
     url,
     view
   });
@@ -286,11 +280,11 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
     await toMountPromise(this[MODEL]);
   }
 
-  async update(properties) {
+  async update(properties = {}) {
     if (!this[MODEL]) {
       throw new Error('Uninitialized');
     }
-    this[MODEL].properties = properties;
+    Object.assign(this[MODEL].properties, properties);
     await toUpdatePromise(this[MODEL]);
   }
 
@@ -309,27 +303,11 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
     await toUnloadPromise(this[MODEL]);
   }
 
-  // 非公开的钩子：用于关闭 Shadow Dom
-  createContainer() {
-    return this.attachShadow({ mode: 'closed' });
-  }
-
-  // 非公开的钩子：用于重设数据集
-  createData() {
-    const data = {};
-    const includeDataId = this.getAttribute('include-data');
-
-    if (includeDataId) {
-      const dataSourceNode =
-        includeDataId && this.getRootNode().getElementById(includeDataId);
-      const dataSourceContent = dataSourceNode && dataSourceNode.textContent;
-      if (dataSourceContent) {
-        Object.assign(data, JSON.parse(dataSourceContent));
-      }
-    }
-
-    Object.assign(data, this.dataset);
-    return data;
+  // 定义应用的生命周期函数允许的字段
+  static get lifecycleProperties() {
+    return lifecycleProperties.map(name =>
+      name.replace(/create([\w])/, ($0, $1) => $1.toLowerCase())
+    );
   }
 
   lifecycleCallback(type) {
@@ -385,6 +363,21 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
 
 Object.assign(HTMLWebWidgetElement, { CONFIG, PARSER, MODEL }); // 内部接口
 Object.assign(HTMLWebWidgetElement, status);
+
+// 生成应用生命周期函数的 properties 字段的钩子
+Object.assign(
+  HTMLWebWidgetElement.prototype,
+  lifecycleProperties.reduce((accumulator, name) => {
+    accumulator[name] = function hook() {
+      return properties[name](
+        this[MODEL] || {
+          view: this
+        }
+      );
+    };
+    return accumulator;
+  }, {})
+);
 
 window.WebWidget = HTMLWebWidgetElement;
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;

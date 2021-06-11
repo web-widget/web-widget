@@ -61,7 +61,7 @@ export default {
 
 我们一开始对 [single-spa](https://single-spa.js.org/) 的方案抱有了较大的信心，如果完全兼容它意味着我们可以直接享受它社区给我们的资源，也能够给 [single-spa](https://single-spa.js.org/) 社区共享我们的力量。但是当我们深入到更多细节的时候，逐渐了发现了一些本质上的差异：[single-spa](https://single-spa.js.org/) 它的目标解决路由驱动场景下微前端的架构，这种架构下以单实例模型为主。
 
-[single-spa](https://single-spa.js.org/) 的路由直接驱动的是 Applications，因此 Applications 是一等公民。而 Applications 内部要挂载其他 Applications 的时候，它使用新的概念——Parcels。
+[single-spa](https://single-spa.js.org/) 的路由直接驱动的是 Applications，因此 Applications 是一等公民。而 Applications 内部要挂载其他 Applications 的时候，它使用一个新的概念——Parcels。
 
 ```js
 export async function mount({ mountParcel }) {
@@ -74,9 +74,17 @@ export async function mount({ mountParcel }) {
 * 路由驱动场景下的目标是尽可能保服务之间不受影响，在 [single-spa](https://single-spa.js.org/) 的设计中，因此一些应用的异常会被它忽略，这会导致错误难以被捕获、被发现
 * [single-spa](https://single-spa.js.org/) 在应用生命周期参数注入了它自己的业务接口，一旦应用对宿主的接口有依赖会导致日后产生兼容性问题。如果 [single-spa](https://single-spa.js.org/) 本身能够成为标准并且稳定下来，那么这个问题不会存在
 
-## 尝试 2：将挂载应用、挂载子应用、传送门挂载应用抽象为同一个接口
+## 尝试 2：将挂载应用、挂载子应用抽象为同一个接口
 
-### 在自身容器中挂载应用
+通过第 1 方案的尝试，我们逐渐意识到 Applications 与 Parcels 以及我们自己可视化编排的组件可以被抽象为同一个概念，正因为它似乎和已有的概念不相同，于是我们造了一个新的名字——WebWidget。
+
+### 在文档中挂载一个应用
+
+```js
+new WebWidget(document.body, './main.widget.js');
+```
+
+### 在应用中挂载子应用
 
 ```js
 export async function mount({ container, WebWidget }) {
@@ -100,6 +108,10 @@ export async function mount({ container, WebWidget }) {
   cardWidget.mount().then(() => userWidget.mount());
 })
 ```
+
+由于它仅仅是一个应用的抽象，没有路由管理等多余的职责，因此也可以轻易的和路由管理库配合。
+
+> 此章节待完善：命令式接口缺乏视图的抽象。
 
 ## 尝试 3：基于 Web Components 抽象
 

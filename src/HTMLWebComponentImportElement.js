@@ -177,8 +177,12 @@ function WebComponentsParser(source, sandbox, context = {}) {
   win.customElements.define = defineRaw;
 
   return ((name, document, element) => ({
-    async bootstrap() {
+    async bootstrap({ attributes }) {
       element = document.createElement(name);
+      Object.keys(attributes).forEach(name => {
+        const value = attributes[name];
+        element.setAttribute(name, value);
+      });
     },
     async mount({ container }) {
       container.appendChild(element);

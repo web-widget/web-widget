@@ -6,7 +6,7 @@ import {
 } from '../applications/status.js';
 import { ensureValidAppTimeouts } from '../applications/timeouts.js';
 import { flattenFnArray } from './lifecycle-helpers.js';
-import { toProperties } from '../applications/properties.js';
+import { toProperties } from '../properties/properties.js';
 import { formatErrorMessage } from '../applications/errors.js';
 import WebWidgetPortalRegistry from '../../WebWidgetPortalRegistry.js';
 
