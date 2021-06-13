@@ -43,17 +43,20 @@ export async function toUnloadPromise(model) {
 
   model.unloadPromise =
     model.status === LOAD_ERROR
-      ? Promise.resolve(model)
+      ? Promise.resolve()
       : reasonableTime(model, 'unload');
 
   model.status = UNLOADING;
 
-  return model.unloadPromise
+  model.unloadPromise = model.unloadPromise
     .then(() => {
       resetModel(model);
     })
     .catch(error => {
       model.status = UNLOAD_ERROR;
+      model.unloadPromise = null;
       throw formatErrorMessage(model, error);
     });
+
+  return model.unloadPromise;
 }

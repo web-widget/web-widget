@@ -361,19 +361,16 @@ Object.assign(HTMLWebWidgetElement, status);
 
 // 生成应用生命周期函数的 properties 字段的钩子
 HTMLWebWidgetElement.lifecycleProperties = lifecycleProperties;
-Object.assign(
-  HTMLWebWidgetElement.prototype,
-  lifecyclePropertieCreaters.reduce((accumulator, name) => {
-    accumulator[name] = function hook() {
-      return properties[name](
-        this[MODEL] || {
-          view: this
-        }
-      );
-    };
-    return accumulator;
-  }, {})
-);
+lifecyclePropertieCreaters.reduce((accumulator, name) => {
+  accumulator[name] = function hook() {
+    return properties[name](
+      this[MODEL] || {
+        view: this
+      }
+    );
+  };
+  return accumulator;
+}, HTMLWebWidgetElement.prototype);
 
 window.WebWidget = HTMLWebWidgetElement;
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
