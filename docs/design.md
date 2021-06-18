@@ -187,29 +187,25 @@ export async function mount({ container }) {
 ### 应用之间嵌套
 
 ```js
-export async function mount({ container }) {
-  const cardWidget = document.createElement('web-widget');
-  cardWidget.src = './card.widget.js';
-  const userWidget = document.createElement('web-widget');
-  userWidget.slot = 'main';
-  userWidget.src = './user.widget.js';
-  container.appendChild(cardWidget);
-  cardWidget.appendChild(userWidget);
-})
+
+const cardWidget = document.createElement('web-widget');
+cardWidget.src = './card.widget.js';
+const userWidget = document.createElement('web-widget');
+userWidget.slot = 'main';
+userWidget.src = './user.widget.js';
+document.body.appendChild(cardWidget);
+cardWidget.appendChild(userWidget);
 ```
 
 生成的 DOM：
 
 ```html
-<web-widget>
+<web-widget src="./card.widget.js">
   #shadow-root (closed)
-    <web-widget src="./card.widget.js">
-      #shadow-root (closed)
-        <slot name="main">...</slot>
-      <web-widget slot="main" src="./user.widget.js">
-        #shadow-root (closed)
-      </web-widget>
-    </web-widget>
+    <slot name="main">...</slot>
+  <web-widget slot="main" src="./user.widget.js">
+    #shadow-root (closed)
+  </web-widget>
 </web-widget>
 ```
 
@@ -260,7 +256,7 @@ export async function mount({ container, createPortal }) {
 </web-widget>
 ```
 
-## 组合的力量
+## 可扩展性
 
 使用 Web Components 与 实现一个自定义元素只需要将使用到 `class` 语句并且注册，类似：
 
@@ -276,8 +272,7 @@ customElements.define('web-widget', HTMLWebWidgetElement);
 
 > 此章节未完成，观点：
 >
-> 1. 本质的东西会成为标准
-> 2. 复杂问题解决方案会回到程序的设计模式
+> 1. 复杂问题解决方案会回到程序的设计模式
 
 ## 重写元素名称
 
@@ -339,7 +334,7 @@ customElements.define('web-widget', HTMLWebWidgetElement);
 <web-component.import as=tagName src=webComponentsUrl></web-component.import>
 ```
 
-它拥有和 `<web-widget.import>` 一样的属性，不同的是它只支持标准的 Web Components 模块格式。Web Components 模块无需打包成 UMD 规范，也无需遵循 WebWidget 的生命周期定义。只需要按照 Web Components 的要求实现自定义元素的构造器，并且使用 `customElements.define(name, Element)` 注册。例如：
+它拥有和 `<web-widget.import>` 一样的属性，不同的是它只支持标准的 Web Components 模块格式。Web Components 模块无需打包成 UMD 规范，也无需遵循 WebWidget 的生命周期定义，只需要按照 Web Components 的要求定义单文件组件。例如：
 
 ```js
 // my-element.js
