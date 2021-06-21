@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" main="IE=edge">
+  <title>WebWidget DEMO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background-color: rgb(241, 243, 244);
+    }
+    web-widget:not(:defined) {
+      display: none;
+    }
+
+    web-widget:defined {
+      display: block;
+    }
+    dialog {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 9;
+      border-radius: 10px;
+      overflow: auto;
+    }
+    dialog::backdrop {
+      position: fixed;
+      top: 0px;
+      right: 0px;
+      bottom: 0px;
+      left: 0px;
+      background: rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(5px);
+    }
+  </style>
+  <script>
+    window.__DEV__ = true;
+  </script>
+</head>
+
+<body>
+
+  <!-- <web-widget
+    name="basic"
+    debug
+    sandboxed>
+    <template main>
+      <data>
+        {
+          "id": "rere"
+        }
+      </data>
+      <script>
+        define(() => ({
+          async mount({ container }) {
+            console.log('aaa mount');
+            container.innerHTML = 'hahah<slot name="main"></slot>';
+          },
+          async unmount({ container }) {
+            console.log('aaa unmount');
+            container.innerHTML = '';
+          }
+        }));
+      </script>
+    </template>
+  </web-widget> -->
+
+  <web-widget
+    name="parcels-demo"
+    src="./parcels.widget.js"
+    sandboxed
+    csp="
+      default-src 'none';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;
+      style-src * 'unsafe-inline' cdn.jsdelivr.net;
+      navigate-to 'self' web-sandbox.js.org;
+    ">
+  </web-widget>
+
+
+  <script type="module">
+    import '../../../web-sandbox/src/index.js';
+    //import '../../src/HTMLWebSandboxElement.js';
+    import '../../src/HTMLWebWidgetElement.js';
+
+    customElements.define('hello-world', class HelloWorld extends HTMLWebWidgetElement {});
+
+    
+    const dialog = document.createElement('dialog');
+    const widget = document.createElement('web-widget');
+    widget.name = 'dialog';
+    widget.inactive = true;
+    widget.application =  {
+      async bootstrap({ container, context }) {
+        console.log('dialog bootstrap')
+        const dialogMain = document.createElement('slot');
+        const dialogCloseButton = document.createElement('button');
+        dialogCloseButton.innerText = '✕';
+        dialogCloseButton.onclick = () => context.unmount();
+
+        container.appendChild(dialogCloseButton);
+        container.appendChild(dialogMain);
+
+        dialog.style = 'width: 800px; height: 600px';
+        dialog.addEventListener('close', () => {
+          context.unmount();
+        });
+      },
+      async mount() {
+        console.log('dialog mount')
+        dialog.show();
+      },
+      async unmount({ context }) {
+        console.log('dialog unmount')
+        dialog.close();
+      }
+    };
+
+    document.body.appendChild(dialog);
+    dialog.appendChild(widget);
+
+    WebWidget.portals.define('dialog', () => {
+      return widget;
+    });
+  </script>
+</body>
+
+</html>

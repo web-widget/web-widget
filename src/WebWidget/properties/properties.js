@@ -20,7 +20,7 @@ export function createProperties({ view }) {
 
     if (typeof view[hookName] !== 'function') {
       throw TypeError(
-        `A hook must be a function: HTMLWebWidgetElement.prototype.${hookName}`
+        `A hook must be a function: ${this.constructor.name}.prototype.${hookName}`
       );
     }
 
