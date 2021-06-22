@@ -1,4 +1,4 @@
-/* global window, customElements, Event, ShadowRoot, URL, HTMLElement */
+/* global window, customElements, Event, ShadowRoot, URL, HTMLElement, IntersectionObserver */
 import {
   appendSourceUrl,
   scriptSourceLoader,
@@ -46,13 +46,13 @@ const isAutoLoad = view =>
   isBindingElementLifecycle(view) && isResourceReady(view);
 const isAutoUnload = isBindingElementLifecycle;
 
-function toLoader(target, sandbox, parser) {
+function toLoader(target, sandbox, parser, importance) {
   let loader = target;
 
   if (typeof target === 'string') {
     const url = target;
     const fn = () =>
-      scriptSourceLoader(url).then(source => {
+      scriptSourceLoader(url, { importance }).then(source => {
         const config = parser(appendSourceUrl(source, url), sandbox);
         return config;
       });
@@ -182,7 +182,7 @@ function createWebWidget(view) {
   const properties = view.createProperties();
   const parent = () => getParentModel(view);
   const children = () => getChildModels(view);
-  const loader = toLoader(main, sandbox, parser);
+  const loader = toLoader(main, sandbox, parser, view.importance);
 
   view[MODEL] = new Model({
     children,
@@ -199,6 +199,14 @@ function createWebWidget(view) {
 
   return view[MODEL];
 }
+
+const lazyImageObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.intersectionRatio > 0) {
+      tryAutoLoad(entry.target);
+    }
+  });
+});
 
 class HTMLWebWidgetElement extends (HTMLWebSandboxElement || HTMLElement) {
   constructor() {
@@ -228,7 +236,7 @@ class HTMLWebWidgetElement extends (HTMLWebSandboxElement || HTMLElement) {
   }
 
   get importance() {
-    return this.getAttribute('importance') || '';
+    return this.getAttribute('importance') || 'auto';
   }
 
   set importance(value) {
@@ -236,7 +244,7 @@ class HTMLWebWidgetElement extends (HTMLWebSandboxElement || HTMLElement) {
   }
 
   get loading() {
-    return this.getAttribute('loading') || '';
+    return this.getAttribute('loading') || 'auto';
   }
 
   set loading(value) {
@@ -355,20 +363,23 @@ class HTMLWebWidgetElement extends (HTMLWebSandboxElement || HTMLElement) {
           // TODO 继承 baseURI
         }
 
-        queueMicrotask(() => {
-          tryAutoLoad(this);
-        });
+      // eslint-disable-next-line no-fallthrough
+      case 'attributeChanged':
+        if (this.loading === 'lazy') {
+          lazyImageObserver.observe(this);
+        } else {
+          queueMicrotask(() => {
+            tryAutoLoad(this);
+          });
+        }
         break;
 
       case 'destroyed':
+        if (this.loading === 'lazy') {
+          lazyImageObserver.unobserve(this);
+        }
         queueMicrotask(() => {
           tryAutoUnload(this);
-        });
-        break;
-
-      case 'attributeChanged':
-        queueMicrotask(() => {
-          tryAutoLoad(this);
         });
         break;
 
