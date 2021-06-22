@@ -1,6 +1,6 @@
 import { queueMicrotask } from './queueMicrotask.js';
 
-const FIRST_CONNECTED = Symbol('first-connect');
+const FIRST_CONNECTED = Symbol('firstConnect');
 const MOVEING = Symbol('moveing');
 
 export const lifecycleCallbacks = {
