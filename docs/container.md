@@ -168,7 +168,8 @@ document.body.appendChild(widget);
 
 指示浏览器应当如何加载。允许的值：
 
-* `"eager"` 立即加载，不管它是否在可视视口（visible viewport）之外（默认值）
+* `"auto"` 自动
+* `"eager"` 立即加载，不管它是否在可视视口（visible viewport）之外
 * `"lazy"` 延迟加载，直到它和视口接近的距离
 
 ### `importance`

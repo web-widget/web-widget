@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" main="IE=edge">
+  <title>WebWidget DEMO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">  
+</head>
+
+<body>
+
+  <web-widget.import
+    as="hello-world"
+    src="./slot.widget.js"
+    sandboxed
+    >
+  </web-widget.import>
+
+  <div>
+    <button onclick="getElementById('test').remove()">remove</button>
+  </div>
+
+  <hello-world id="test">
+    <p slot="main">hello wrold</p>
+  </hello-world>
+
+  <hello-world>
+    <p slot="main">hello web-widget</p>
+  </hello-world>
+
+  <hello-world>
+    <p slot="main">hello web-sandbox</p>
+  </hello-world>
+
+  <script type="module">
+    import '../../../web-sandbox/src/index.js';
+    import '../../src/HTMLWebWidgetElement.js';
+    import '../../src/HTMLWebWidgetImportElement.js';
+  </script>
+</body>
+
+</html>
