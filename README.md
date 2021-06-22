@@ -84,7 +84,7 @@ export default {
 * [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) WebWidget 的核心实现
   * `application`（实验性）
   * `inactive`
-  * `importance`（取决于浏览器对 `fetch()` 对此特性的支持程度）
+  * `importance`（取决于浏览器 `fetch()` API 对此特性的支持程度）
   * `loading`
   * `name`
   * `src`
