@@ -10,13 +10,17 @@
 
 <body>
 
-  <web-widget src="./hello-world.widget.js"></web-widget>
+  <web-widget src="./hello-world.widget.js" noshadow></web-widget>
 
   <script type="module">
     import '../../src/HTMLWebWidgetElement.js';
 
+    const createContainer =  HTMLWebWidgetElement.prototype.createContainer;
     HTMLWebWidgetElement.prototype.createContainer = function() {
-      return this;
+      if (this.getAttribute('noshadow') !== null) {
+        return this;
+      }
+      return createContainer.apply(this, arguments);;
     }
   </script>
 </body>

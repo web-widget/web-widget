@@ -5,7 +5,7 @@ import {
   SKIP_BECAUSE_BROKEN,
   UNMOUNT_ERROR
 } from '../applications/status.js';
-import { queueMicrotask } from '../../utils/queue-microtask.js';
+import { queueMicrotask } from '../../utils/queueMicrotask.js';
 import { reasonableTime } from '../applications/timeouts.js';
 import { formatErrorMessage } from '../applications/errors.js';
 

@@ -1,9 +1,11 @@
-/* global window, customElements, Event, ShadowRoot */
+/* global window, customElements, Event, ShadowRoot, URL, HTMLElement */
 import {
   appendSourceUrl,
   scriptSourceLoader,
   UMDParser
 } from './utils/script-loader.js';
+import { queueMicrotask } from './utils/queueMicrotask.js';
+import { lifecycleCallbacks } from './utils/lifecycleCallbacks.js';
 import * as status from './WebWidget/applications/status.js';
 import * as properties from './WebWidget/properties/properties.js';
 import { Model } from './WebWidget/applications/models.js';
@@ -14,14 +16,9 @@ import { toUnloadPromise } from './WebWidget/lifecycles/unload.js';
 import { toUnmountPromise } from './WebWidget/lifecycles/unmount.js';
 import { toUpdatePromise } from './WebWidget/lifecycles/update.js';
 import WebWidgetPortalRegistry from './WebWidgetPortalRegistry.js';
-import HTMLWebSandboxBaseInterface from './HTMLWebSandboxBaseInterface.js';
 
-const HTMLWebSandboxElement =
-  window.HTMLWebSandboxElement || HTMLWebSandboxBaseInterface;
+const HTMLWebSandboxElement = window.HTMLWebSandboxElement || undefined;
 const rootPortalRegistry = new WebWidgetPortalRegistry();
-
-const SANDBOX_AUTOLOAD_DISABLED = HTMLWebSandboxElement.AUTOLOAD_DISABLED;
-const SANDBOX_INSTANCE = HTMLWebSandboxElement.SANDBOX_INSTANCE;
 const CONFIG = Symbol('config');
 const PARSER = Symbol('parser');
 const MODEL = Symbol('model');
@@ -49,7 +46,7 @@ const isAutoLoad = view =>
   isBindingElementLifecycle(view) && isResourceReady(view);
 const isAutoUnload = isBindingElementLifecycle;
 
-const toLoader = (target, sandbox, parser) => {
+function toLoader(target, sandbox, parser) {
   let loader = target;
 
   if (typeof target === 'string') {
@@ -73,9 +70,9 @@ const toLoader = (target, sandbox, parser) => {
 
       return config;
     });
-};
+}
 
-const getParentWebWidgetElement = view => {
+function getParentWebWidgetElement(view) {
   let current = view;
   do {
     current = current.getRootNode().host;
@@ -84,9 +81,9 @@ const getParentWebWidgetElement = view => {
     }
   } while (current);
   return null;
-};
+}
 
-const getChildWebWidgetElements = view => {
+function getChildWebWidgetElements(view) {
   const nodes = [];
   const stack = [...view.children];
   while (stack.length) {
@@ -99,17 +96,17 @@ const getChildWebWidgetElements = view => {
     }
   }
   return nodes;
-};
+}
 
-const getParentModel = view => {
+function getParentModel(view) {
   const parentWidgetElement = getParentWebWidgetElement(view);
   if (parentWidgetElement) {
     return parentWidgetElement[MODEL];
   }
   return null;
-};
+}
 
-const getChildModels = view => {
+function getChildModels(view) {
   let shadowRoot;
   const model = view[MODEL];
   const sandbox = model.sandbox;
@@ -132,42 +129,57 @@ const getChildModels = view => {
   childModels.push(...model.portals);
 
   return childModels;
-};
+}
 
-const tryAutoLoad = view => {
+function tryAutoLoad(view) {
   if (isAutoLoad(view)) {
     view.mount();
   }
-};
+}
 
-const tryAutoUnload = view => {
+function tryAutoUnload(view) {
   if (isAutoUnload(view)) {
-    view.unload();
+    view.unload().then(() => {
+      if (
+        HTMLWebSandboxElement &&
+        view[HTMLWebSandboxElement.SANDBOX_INSTANCE]
+      ) {
+        view[HTMLWebSandboxElement.SANDBOX_DESTROY]();
+      }
+    });
   }
-};
+}
 
-const createWebWidget = view => {
+function createWebWidget(view) {
   if (view[MODEL]) {
     return view[MODEL];
   }
 
   if (!isResourceReady(view)) {
-    throw new Error('Resources are not yet ready');
+    throw new Error('Uninitialized');
   }
 
+  let sandbox;
   const src = getProperty(view, 'src');
   const text = getProperty(view, 'text');
   const application = getProperty(view, 'application');
   const debug = getProperty(view, 'debug');
   const parser = getProperty(view, PARSER) || UMDParser;
+  const sandboxed = getProperty(view, 'sandboxed');
+
+  if (sandboxed) {
+    if (!HTMLWebSandboxElement) {
+      throw new Error(`"HTMLWebSandboxElement" is required to run the sandbox`);
+    }
+    sandbox = view[HTMLWebSandboxElement.SANDBOX_CREATE]();
+  }
+
   const id = view.id;
   const name =
     view.name || (application ? application.name : view.id || view.localName);
-  const sandbox = view[SANDBOX_INSTANCE];
   const url = src || application.url; /// /
   const main = src || application || (async () => text);
   const properties = view.createProperties();
-
   const parent = () => getParentModel(view);
   const children = () => getChildModels(view);
   const loader = toLoader(main, sandbox, parser);
@@ -186,14 +198,13 @@ const createWebWidget = view => {
   });
 
   return view[MODEL];
-};
+}
 
-class HTMLWebWidgetElement extends HTMLWebSandboxElement {
+class HTMLWebWidgetElement extends (HTMLWebSandboxElement || HTMLElement) {
   constructor() {
     super();
-
-    if (SANDBOX_AUTOLOAD_DISABLED) {
-      this[SANDBOX_AUTOLOAD_DISABLED] = true;
+    if (HTMLWebSandboxElement) {
+      this[HTMLWebSandboxElement.SANDBOX_AUTOLOAD_DISABLED] = true;
     }
   }
 
@@ -251,6 +262,31 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
 
   static get portals() {
     return rootPortalRegistry;
+  }
+
+  get name() {
+    return this.getAttribute('name') || '';
+  }
+
+  set name(value) {
+    this.setAttribute('name', value);
+  }
+
+  get src() {
+    const value = this.getAttribute('src');
+    return value === null ? '' : new URL(value, this.baseURI).href;
+  }
+
+  set src(value) {
+    this.setAttribute('src', value);
+  }
+
+  get text() {
+    return this.getAttribute('text') || '';
+  }
+
+  set text(value) {
+    this.setAttribute('text', value);
   }
 
   async load() {
@@ -319,32 +355,21 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
           // TODO 继承 baseURI
         }
 
-        if (this.sandboxed) {
-          if (typeof super.evaluate !== 'function') {
-            throw new Error(
-              `"window.HTMLWebSandboxElement" is required to run the sandbox`
-            );
-          }
-          super.lifecycleCallback(...arguments);
-        }
-
-        tryAutoLoad(this);
+        queueMicrotask(() => {
+          tryAutoLoad(this);
+        });
         break;
 
       case 'destroyed':
-        if (this.sandboxed) {
-          super.lifecycleCallback(...arguments);
-        }
-
-        tryAutoUnload(this);
+        queueMicrotask(() => {
+          tryAutoUnload(this);
+        });
         break;
 
       case 'attributeChanged':
-        if (this.sandboxed) {
-          super.lifecycleCallback(...arguments);
-        }
-
-        tryAutoLoad(this);
+        queueMicrotask(() => {
+          tryAutoLoad(this);
+        });
         break;
 
       default:
@@ -358,6 +383,7 @@ class HTMLWebWidgetElement extends HTMLWebSandboxElement {
 
 Object.assign(HTMLWebWidgetElement, { CONFIG, PARSER, MODEL }); // 内部接口
 Object.assign(HTMLWebWidgetElement, status);
+Object.assign(HTMLWebWidgetElement.prototype, lifecycleCallbacks);
 
 // 生成应用生命周期函数的 properties 字段的钩子
 HTMLWebWidgetElement.lifecycleProperties = lifecycleProperties;

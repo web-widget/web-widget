@@ -1,6 +1,6 @@
 /* global location */
 
-import { queueMicrotask } from '../../utils/queue-microtask.js';
+import { queueMicrotask } from '../../utils/queueMicrotask.js';
 import { registry } from '../applications/registry.js';
 
 const shouldBeActive = widget => {
