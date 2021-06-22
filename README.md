@@ -82,10 +82,10 @@ export default {
 ## 规范的实现
 
 * [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) WebWidget 的核心实现
-  * `application` （实验性）
+  * `application`（实验性）
   * `inactive`
-  * `importance` （尚未实现）
-  * `loading`（尚未实现）
+  * `importance`（取决于浏览器对 `fetch()` 对此特性的支持程度）
+  * `loading`
   * `name`
   * `src`
   * `text`
