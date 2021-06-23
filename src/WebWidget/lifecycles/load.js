@@ -8,7 +8,7 @@ import { ensureValidAppTimeouts } from '../applications/timeouts.js';
 import { flattenFnArray } from './lifecycle-helpers.js';
 import { toProperties } from '../properties/properties.js';
 import { formatErrorMessage } from '../applications/errors.js';
-import WebWidgetPortalDestinations from '../../WebWidgetPortalDestinations.js';
+import { WebWidgetPortalDestinations } from '../../WebWidgetPortalDestinations.js';
 
 export async function toLoadPromise(model) {
   if (model.loadPromise) {

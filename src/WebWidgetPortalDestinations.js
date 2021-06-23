@@ -1,6 +1,7 @@
+/* global window */
 const MAP = Symbol('data');
 
-export default class WebWidgetPortalDestinations {
+export class WebWidgetPortalDestinations {
   constructor() {
     this[MAP] = new Map();
   }
@@ -13,3 +14,5 @@ export default class WebWidgetPortalDestinations {
     this[MAP].set(name, factory);
   }
 }
+
+window.WebWidgetPortalDestinations = WebWidgetPortalDestinations;

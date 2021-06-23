@@ -200,7 +200,7 @@ function WebComponentsParser(source, sandbox, context = {}) {
   }))(name, win.document);
 }
 
-class HTMLWebComponentImportElement extends HTMLWebWidgetImportElement {
+export class HTMLWebComponentImportElement extends HTMLWebWidgetImportElement {
   // eslint-disable-next-line class-methods-use-this
   get [HTMLWebWidgetImportElement.PARSER]() {
     return WebComponentsParser;
@@ -209,5 +209,3 @@ class HTMLWebComponentImportElement extends HTMLWebWidgetImportElement {
 
 window.HTMLWebComponentImportElement = HTMLWebComponentImportElement;
 customElements.define('web-component.import', HTMLWebComponentImportElement);
-
-export default HTMLWebComponentImportElement;

@@ -15,7 +15,7 @@ import { toMountPromise } from './WebWidget/lifecycles/mount.js';
 import { toUnloadPromise } from './WebWidget/lifecycles/unload.js';
 import { toUnmountPromise } from './WebWidget/lifecycles/unmount.js';
 import { toUpdatePromise } from './WebWidget/lifecycles/update.js';
-import WebWidgetPortalDestinations from './WebWidgetPortalDestinations.js';
+import { WebWidgetPortalDestinations } from './WebWidgetPortalDestinations.js';
 
 const HTMLWebSandboxElement = window.HTMLWebSandboxElement || undefined;
 const rootPortalDestinations = new WebWidgetPortalDestinations();
@@ -218,7 +218,8 @@ const lazyImageObserver = new IntersectionObserver(entries => {
   });
 });
 
-class HTMLWebWidgetElement extends (HTMLWebSandboxElement || HTMLElement) {
+export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
+  HTMLElement) {
   constructor() {
     super();
     if (HTMLWebSandboxElement) {
@@ -433,5 +434,3 @@ window.WebWidget = HTMLWebWidgetElement;
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
 
 customElements.define('web-widget', HTMLWebWidgetElement);
-
-export default HTMLWebWidgetElement;
