@@ -86,6 +86,7 @@ export default {
   * `inactive`
   * `importance`（取决于浏览器 `fetch()` API 对此特性的支持程度）
   * `loading`
+    * `"lazy"`
   * `name`
   * `src`
   * `text`
@@ -100,6 +101,7 @@ export default {
   * `unload()`
   * `<fallback>`（尚未实现）
   * `<placeholder>`（尚未实现）
+  * 预加载（实验性）
 
 WebWidget 辅助工具：
 
