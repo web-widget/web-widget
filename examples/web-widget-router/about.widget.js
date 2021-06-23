@@ -12,18 +12,18 @@ define(() => {
 
       nav = document.createElement('web-widget');
       nav.src = './nav.widget.js';
-      nav.hidden = true;
+      nav.inactive = true;
       container.appendChild(nav);
       return nav.bootstrap();
     },
     async mount({ container }) {
       console.log('About mount');
-      nav.hidden = false;
+      await nav.mount();
       container.appendChild(main);
     },
     async unmount({ container }) {
       console.log('About unmount');
-      nav.hidden = true;
+      await nav.unmount();
       container.removeChild(main);
     }
   };
