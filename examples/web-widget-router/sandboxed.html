@@ -10,15 +10,8 @@
 
 <body>
 
-  <script type="json" id="environment">
-    {
-      "username": "WebWidgetRouter",
-      "about": "A javascript framework for front-end microservices"
-    }
-  </script>
-
-  <web-widget id="home" src="./index.widget.js" inactive include-data="environment" data-id="#43243242" sandboxed></web-widget>
-  <web-widget id="news" src="./news.widget.js" inactive include-data="environment" sandboxed></web-widget>
+  <web-widget id="home" src="./index.widget.js" inactive data-id="#43243242" sandboxed></web-widget>
+  <web-widget id="news" src="./news.widget.js" inactive sandboxed></web-widget>
   <web-widget id="about" src="./about.widget.js" inactive data-about="一个演示" sandboxed></web-widget>
 
   <script type="module">

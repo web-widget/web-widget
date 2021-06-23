@@ -2,12 +2,12 @@ define(() => {
   let main, nav;
   console.log('Home load');
   return {
-    async bootstrap({ data }) {
+    async bootstrap({ dataset }) {
       console.log('Home bootstrap');
       main = document.createElement('main');
       main.innerHTML = `
         <h3>Home</h3>
-        <pre>${JSON.stringify(data, null, 2)}</pre>
+        <pre>${JSON.stringify(dataset, null, 2)}</pre>
       `;
 
       nav = document.createElement('web-widget');

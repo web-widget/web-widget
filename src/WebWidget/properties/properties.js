@@ -3,7 +3,7 @@ export { createContainer } from './container.js';
 export { createContext } from './context.js';
 export { createCreatePortal } from './createPortal.js';
 export { createCustomPortals } from './customPortals.js';
-export { createData } from './data.js';
+export { createDataset } from './dataset.js';
 export { createName } from './name.js';
 export { createSandboxed } from './sandboxed.js';
 

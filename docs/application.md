@@ -55,9 +55,7 @@ document.body.removeChild(widget);
 ```js
 export async function bootstrap(properties) {
   const {
-    name,         // 应用名称
-    data,         // 应用静态数据
-    container     // 应用的 DOM 容器
+    container       // 应用的 DOM 容器
   } = properties;
 }
 ```
@@ -68,9 +66,9 @@ export async function bootstrap(properties) {
 
 注册到主文档的应用名称。
 
-### `data`
+### `dataset`
 
-应用初始化的数据。这是一个只读、可被序列化的数据结构。[参考](https://developer.mozilla.org/zh-CN/docs/Web/Guide/API/DOM/The_structured_clone_algorithm)。
+应用初始化的数据。
 
 ### `container`
 
