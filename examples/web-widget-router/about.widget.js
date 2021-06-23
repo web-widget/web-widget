@@ -2,7 +2,7 @@ define(() => {
   let main, nav;
   console.log('About load');
   return {
-    async bootstrap({ dataset }) {
+    async bootstrap({ container, dataset }) {
       console.log('About bootstrap');
       main = document.createElement('main');
       main.innerHTML = `
@@ -12,19 +12,18 @@ define(() => {
 
       nav = document.createElement('web-widget');
       nav.src = './nav.widget.js';
-      nav.inactive = true;
+      nav.hidden = true;
+      container.appendChild(nav);
+      return nav.bootstrap();
     },
     async mount({ container }) {
       console.log('About mount');
-
-      container.appendChild(nav);
-      await nav.mount();
-
+      nav.hidden = false;
       container.appendChild(main);
     },
     async unmount({ container }) {
       console.log('About unmount');
-      container.removeChild(nav);
+      nav.hidden = true;
       container.removeChild(main);
     }
   };
