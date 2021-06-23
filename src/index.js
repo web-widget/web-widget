@@ -114,7 +114,7 @@ function getChildModels(view) {
 
   if (container instanceof ShadowRoot) {
     shadowRoot = container;
-  } else if (container === sandbox.global.document) {
+  } else if (sandbox && sandbox.global.document === container) {
     shadowRoot = sandbox.toNative(model.sandbox.global.document);
   }
   const childWebWidgetElements = getChildWebWidgetElements(view);
