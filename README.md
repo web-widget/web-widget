@@ -80,7 +80,7 @@ export default {
 
 ## 规范的实现
 
-* [src/HTMLWebWidgetElement.js](src/HTMLWebWidgetElement.js) WebWidget 的核心实现
+* [src/index.js](src/index.js) WebWidget 的核心实现
   * `application`（实验性）
   * `inactive`
   * `importance`（取决于浏览器 `fetch()` API 对此特性的支持程度）
@@ -196,7 +196,7 @@ WebWidget 辅助工具：
 <web-widget id="news" src="./news.widget.js" inactive></web-widget>
 <web-widget id="about" src="./about.widget.js" inactive></web-widget>
 <script type="module">
-  import '../../src/HTMLWebWidgetElement.js';
+  import '../../src/index.js';
   import { register, start } from  '../../src/WebWidgetRouter/index.js';
 
   register(
@@ -220,26 +220,8 @@ WebWidget 辅助工具：
 
 ## WebWidget HTML 模块化导入
 
-通过继承 `HTMLWebWidgetElement` 接口如果仅仅只是重新定义标签名，那么这些需求使用标签来表达会更容易理解，就像 ECMAScript 的 `import` 语句一样。
-
 ```html
-<web-widget.import as=tagName src=widgetUrl></web-widget.import>
-```
-
-这样还有一个好处是可以避免反复定义 csp 等复杂的配置：
-
-```html
-<web-widget.import
-  as="hello-world"
-  src="./slot.widget.js"
-  sandboxed
-  csp="
-    default-src 'none';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net web-sandbox.js.org;
-    style-src 'self' 'unsafe-inline' cdn.jsdelivr.net;
-    navigate-to 'self' web-sandbox.js.org;
-  ">
-</web-widget.import>
+<web-widget.import as="hello-world" src="./slot.widget.js"></web-widget.import>
 
 <hello-world>
   <p slot="main">hello wrold</p>
@@ -250,7 +232,7 @@ WebWidget 辅助工具：
 </hello-world>
 
 <script type="module">
-  import '../../src/HTMLWebWidgetElement.js';
+  import '../../src/index.js';
   import '../../src/HTMLWebWidgetImportElement.js';
 </script>
 ```
@@ -285,7 +267,7 @@ customElements.define('my-element', MyElment);
 </slot-demo>
 
 <script type="module">
-  import '../../src/HTMLWebWidgetElement.js';
+  import '../../src/index.js';
   import '../../src/HTMLWebWidgetImportElement.js';
   import '../../src/HTMLWebComponentImportElement.js';
 </script>
