@@ -1,4 +1,4 @@
-/* global window, customElements, Event, ShadowRoot, URL, HTMLElement, IntersectionObserver */
+/* global window, document, customElements, Event, ShadowRoot, URL, HTMLElement, IntersectionObserver */
 import {
   appendSourceUrl,
   scriptSourceLoader,
@@ -200,6 +200,13 @@ function createWebWidget(view) {
   return view[MODEL];
 }
 
+function preFetch(url) {
+  const link = document.createElement('link');
+  link.rel = 'prefetch';
+  link.href = url;
+  document.head.appendChild(link);
+}
+
 const lazyImageObserver = new IntersectionObserver(entries => {
   entries.forEach(entry => {
     if (entry.intersectionRatio > 0) {
@@ -363,11 +370,21 @@ class HTMLWebWidgetElement extends (HTMLWebSandboxElement || HTMLElement) {
           // TODO 继承 baseURI
         }
 
-      // eslint-disable-next-line no-fallthrough
-      case 'attributeChanged':
         if (this.loading === 'lazy') {
           lazyImageObserver.observe(this);
         } else {
+          queueMicrotask(() => {
+            tryAutoLoad(this);
+          });
+        }
+        break;
+      case 'attributeChanged':
+        if (arguments[1] === 'src' && arguments[3]) {
+          queueMicrotask(() => {
+            preFetch(this.src);
+          });
+        }
+        if (this.loading !== 'lazy') {
           queueMicrotask(() => {
             tryAutoLoad(this);
           });
