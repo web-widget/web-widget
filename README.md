@@ -98,6 +98,8 @@ export default {
   * `update()`
   * `unmount()`
   * `unload()`
+  * `<fallback>`（尚未实现）
+  * `<placeholder>`（尚未实现）
 
 WebWidget 辅助工具：
 
