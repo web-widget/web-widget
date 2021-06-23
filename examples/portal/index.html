@@ -112,7 +112,7 @@
     document.body.appendChild(dialog);
     dialog.appendChild(widget);
 
-    WebWidget.portals.define('dialog', () => {
+    WebWidget.portalDestinations.define('dialog', () => {
       return widget;
     });
   </script>

@@ -210,7 +210,7 @@ document.body.appendChild(widget);
 
 返回值：`Promise`
 
-### `WebWidget.portals`
+### `WebWidget.portalDestinations`
 
 全局传送门注册表。这是一个静态方法。
 
@@ -222,7 +222,7 @@ document.body.appendChild(widget);
 定义传送门：
 
 ```js
-WebWidget.portals.define('dialog', () => {
+WebWidget.portalDestinations.define('dialog', () => {
   const dialogWidget = document.createElement('web-widget');
   dialogWidget.src = './dialog.widget.js';
   document.body.appendChild(dialogWidget);

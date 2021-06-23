@@ -24,7 +24,7 @@ export class Model {
       mountPromise: null,
       name,
       portalRegistry: null,
-      portals: null,
+      portalDestinations: null,
       properties,
       sandbox,
       status: NOT_LOADED,

@@ -15,10 +15,10 @@ import { toMountPromise } from './WebWidget/lifecycles/mount.js';
 import { toUnloadPromise } from './WebWidget/lifecycles/unload.js';
 import { toUnmountPromise } from './WebWidget/lifecycles/unmount.js';
 import { toUpdatePromise } from './WebWidget/lifecycles/update.js';
-import WebWidgetPortalRegistry from './WebWidgetPortalRegistry.js';
+import WebWidgetPortalDestinations from './WebWidgetPortalDestinations.js';
 
 const HTMLWebSandboxElement = window.HTMLWebSandboxElement || undefined;
-const rootPortalRegistry = new WebWidgetPortalRegistry();
+const rootPortalDestinations = new WebWidgetPortalDestinations();
 const CONFIG = Symbol('config');
 const PARSER = Symbol('parser');
 const MODEL = Symbol('model');
@@ -126,7 +126,7 @@ function getChildModels(view) {
   const childModels = childWebWidgetElements.map(
     webWidgetElement => webWidgetElement[MODEL]
   );
-  childModels.push(...model.portals);
+  childModels.push(...model.portalDestinations);
 
   return childModels;
 }
@@ -277,8 +277,8 @@ class HTMLWebWidgetElement extends (HTMLWebSandboxElement || HTMLElement) {
     return status.NOT_LOADED;
   }
 
-  static get portals() {
-    return rootPortalRegistry;
+  static get portalDestinations() {
+    return rootPortalDestinations;
   }
 
   get name() {

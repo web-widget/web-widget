@@ -16,7 +16,7 @@ export function createCreatePortal(model) {
         }
       } while (current);
 
-      return HTMLWebWidgetElement.portals.get(name);
+      return HTMLWebWidgetElement.portalDestinations.get(name);
     };
     const factory = findCustomPortal(model, name);
 
@@ -69,7 +69,7 @@ export function createCreatePortal(model) {
       }
     };
 
-    model.portals.push(portal[MODEL]);
+    model.portalDestinations.push(portal[MODEL]);
     return contextInterfaces;
   };
 }

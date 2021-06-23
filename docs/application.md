@@ -82,12 +82,12 @@ export async function bootstrap(properties) {
 
 应用的上下文 API。应用可以使用 `context.unmount()` 卸载自身。
 
-### `createPortal(widget, name)`
+### `createPortal(widget, destination)`
 
 将应用传送到容器外面挂载。
 
 * `widget` WebWidget 元素
-* `name` 挂载的位置名称
+* `destination` 目的地
 
 示例：
 
@@ -104,57 +104,17 @@ export async function mount({ createPortal }) {
 }
 ```
 
-> 挂载点必须先定义才能被使用，主文档可以通过 `WebWidget.portals.define(name, factory)` 来定义挂载点，应用也可以通过生命周期参数 `customPortals` 来定义子应用的挂载点。
+> 目的地必须先定义才能被使用，例如通过 `WebWidget.portalDestinations.define(name, factory)` 来定义目的地。
 
-### `customPortals`
+### `portalDestinations`
 
-当前应用作用域的挂载点注册中心。它有两个 API：
+当前应用作用域的目的地注册中心。它有两个 API：
 
-* `customPortals.define(name, factory)` 定义挂载点
-* `customPortals.get(name)` 获取挂载点的工厂函数
+* `portalDestinations.define(name, factory)` 定义目的地
+* `portalDestinations.get(name)` 获取目的地的工厂函数
 
-示例：一个对话框挂载点。
-
-```js
-const dialog = document.createElement('dialog');
-const widget = document.createElement('web-widget');
-widget.name = 'dialog';
-widget.inactive = true;
-widget.application =  {
-  async bootstrap({ container, context }) {
-    console.log('dialog bootstrap')
-    const dialogMain = document.createElement('slot');
-    const dialogCloseButton = document.createElement('button');
-    dialogCloseButton.innerText = '✕';
-    dialogCloseButton.onclick = () => context.unmount();
-
-    container.appendChild(dialogCloseButton);
-    container.appendChild(dialogMain);
-
-    dialog.addEventListener('close', () => {
-      context.unmount();
-    });
-  },
-  async mount() {
-    console.log('dialog mount')
-    dialog.show();
-  },
-  async unmount({ context }) {
-    console.log('dialog unmount')
-    dialog.close();
-  }
-};
-
-document.body.appendChild(dialog);
-dialog.appendChild(widget);
-
-customPortals.define('dialog', () => {
-  return widget;
-});
-```
-
-`customPortals` API 与全局的 `WebWidget.portals` 使用方式一致，区别是：`customPortals` 定义的挂载点只能在其挂载的子应用中使用。
-当应用使用 `createPortal(widget, name)` 传送子应用的时候，它会沿着 DOM 树寻找父应用的 `customPortals` 挂载点，如果没有它会寻找主文档的 `WebWidget.portals` 全局挂载点，这个过程很像 DOM 的事件冒泡机制。
+`portalDestinations` API 与全局的 `WebWidget.portalDestinations` 使用方式一致，区别是：`portalDestinations` 定义的目的地只能作用在子应用中的传送门。
+当应用使用 `createPortal(widget, destination)` 传送子应用的时候，它会沿着 DOM 树寻找父应用的 `portalDestinations` 目的地，如果一直没有找到最后去 `WebWidget.portalDestinations` 全局目的地，这个过程很像 DOM 的事件冒泡机制。
 
 ## 挂载子应用
 
@@ -186,7 +146,7 @@ export async function mount({ container }) {
 在主文档注册一个名为 `"dialog"` 的传送门：
 
 ```js
-WebWidget.portals.define('dialog', () => {
+WebWidget.portalDestinations.define('dialog', () => {
   const dialogWidget = document.createElement('web-widget');
   dialogWidget.src = './dialog.widget.js';
   document.body.appendChild(dialogWidget);

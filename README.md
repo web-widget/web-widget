@@ -91,7 +91,7 @@ export default {
   * `text`
   * `sandboxed`（需要依赖 [WebSandbox.js](https://github.com/web-sandbox-js/web-sandbox)）
   * `status`
-  * `portals`
+  * `portalDestinations`
   * `load()`
   * `bootstrap()`
   * `mount()`

@@ -1,6 +1,6 @@
 const MAP = Symbol('data');
 
-export default class WebWidgetPortalRegistry {
+export default class WebWidgetPortalDestinations {
   constructor() {
     this[MAP] = new Map();
   }
