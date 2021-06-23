@@ -1,5 +1,5 @@
 /* global require, module, process */
-const minify = require('rollup-plugin-babel-minify');
+const { terser } = require('rollup-plugin-terser');
 
 module.exports = () => {
   const isProduction = process.env.NODE_ENV === 'production';
@@ -9,15 +9,15 @@ module.exports = () => {
 
   if (isProduction) {
     plugins.push(
-      minify({
-        comments: false
+      terser({
+        keep_classnames: true
       })
     );
   }
 
   return [
     {
-      input: 'src/HTMLWebWidgetElement.js',
+      input: 'src/index.js',
       output: [
         {
           file: `dist/web-widget.umd${debug}.js`,
