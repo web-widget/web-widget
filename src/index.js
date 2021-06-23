@@ -3,9 +3,9 @@ import {
   appendSourceUrl,
   scriptSourceLoader,
   UMDParser
-} from './utils/scriptLoader.js';
-import { queueMicrotask } from './utils/queueMicrotask.js';
-import { lifecycleCallbacks } from './utils/lifecycleCallbacks.js';
+} from './WebWidget/utils/scriptLoader.js';
+import { queueMicrotask } from './WebWidget/utils/queueMicrotask.js';
+import { lifecycleCallbacks } from './WebWidget/utils/lifecycleCallbacks.js';
 import * as status from './WebWidget/applications/status.js';
 import * as properties from './WebWidget/properties/properties.js';
 import { Model } from './WebWidget/applications/models.js';
@@ -204,6 +204,7 @@ function preFetch(url) {
   if (!document.head.querySelector(`link[href="${url}"]`)) {
     const link = document.createElement('link');
     link.rel = 'prefetch';
+    link.as = 'fetch';
     link.href = url;
     document.head.appendChild(link);
   }

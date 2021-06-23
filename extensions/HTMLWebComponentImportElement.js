@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 /* global window, document, customElements, HTMLWebWidgetImportElement */
-import { evaluate } from './utils/scriptLoader.js';
+import { evaluate } from '../src/WebWidget/utils/scriptLoader.js';
 
 function createHTMLElementClassProxy(sandbox) {
   const win = sandbox ? sandbox.global : window;

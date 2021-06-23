@@ -104,12 +104,12 @@ export default {
 
 WebWidget 辅助工具：
 
-* [src/WebWidgetRouter.js](src/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现
+* [extensions/WebWidgetRouter.js](extensions/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现
   * `start()`
   * `register()`
   * `unregister()`
-* [src/HTMLWebWidgetImportElement.js](src/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现
-* [src/HTMLWebComponentImportElement.js](src/HTMLWebComponentImportElement.js) 原生 Web Components 模块适配器（实验性）
+* [extensions/HTMLWebWidgetImportElement.js](extensions/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现
+* [extensions/HTMLWebComponentImportElement.js](extensions/HTMLWebComponentImportElement.js) 原生 Web Components 模块适配器（实验性）
   * 适配 WebWidget 应用生命周期以及容器特性
   * 支持 Web Components 的 HTML 属性
 
