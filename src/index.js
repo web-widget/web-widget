@@ -201,10 +201,12 @@ function createWebWidget(view) {
 }
 
 function preFetch(url) {
-  const link = document.createElement('link');
-  link.rel = 'prefetch';
-  link.href = url;
-  document.head.appendChild(link);
+  if (!document.head.querySelector(`link[href="${url}"]`)) {
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = url;
+    document.head.appendChild(link);
+  }
 }
 
 const lazyImageObserver = new IntersectionObserver(entries => {
@@ -379,12 +381,12 @@ class HTMLWebWidgetElement extends (HTMLWebSandboxElement || HTMLElement) {
         }
         break;
       case 'attributeChanged':
-        if (arguments[1] === 'src' && arguments[3]) {
-          queueMicrotask(() => {
-            preFetch(this.src);
-          });
-        }
         if (this.loading !== 'lazy') {
+          if (arguments[1] === 'src' && arguments[3]) {
+            queueMicrotask(() => {
+              preFetch(this.src);
+            });
+          }
           queueMicrotask(() => {
             tryAutoLoad(this);
           });
