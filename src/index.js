@@ -3,7 +3,7 @@ import {
   appendSourceUrl,
   scriptSourceLoader,
   UMDParser
-} from './utils/script-loader.js';
+} from './utils/scriptLoader.js';
 import { queueMicrotask } from './utils/queueMicrotask.js';
 import { lifecycleCallbacks } from './utils/lifecycleCallbacks.js';
 import * as status from './WebWidget/applications/status.js';
