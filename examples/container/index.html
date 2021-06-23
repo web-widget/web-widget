@@ -13,7 +13,7 @@
   <web-widget src="./hello-world.widget.js" noshadow></web-widget>
 
   <script type="module">
-    import '../../src/HTMLWebWidgetElement.js';
+    import '../../src/index.js';
 
     const createContainer =  HTMLWebWidgetElement.prototype.createContainer;
     HTMLWebWidgetElement.prototype.createContainer = function() {
