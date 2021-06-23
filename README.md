@@ -166,6 +166,12 @@ WebWidget 辅助工具：
 
 更多相关信息可以参考 [AMP](https://amp.dev) 的官网。
 
+### 懒加载
+
+```html
+<web-widget src="./app.widget.js" loading="lazy"></web-widget>
+```
+
 ### SEO
 
 因为 WebWidget 是一个标准的 Web Component，因此它的 SEO 问题本质上是 JavaScript 和 Web Component 的 SEO 问题。社区中有两种实践方式：
