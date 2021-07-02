@@ -11,7 +11,7 @@ export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
   }
 
   connectedCallback() {
-    const { as, application, csp, debug, sandboxed, src, text } = this;
+    const { as, application, csp, debug, sandboxed, src, text, type } = this;
     const parser = this[HTMLWebWidgetElement.PARSER];
 
     customElements.define(
@@ -27,7 +27,8 @@ export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
             debug,
             sandboxed,
             src,
-            text
+            text,
+            type
           };
         }
       }
