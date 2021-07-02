@@ -110,7 +110,7 @@ function createHTMLElementClassProxy(sandbox) {
 
     const SHADOW_ROOT = Symbol('shadowRoot');
 
-    // 避免拦截组件的 shadowDOM 创建，让 WebWidget 可以继续使用插槽
+    // 拦截组件的 shadowDOM 创建，让 WebWidget 可以继续使用插槽
     return class HTMLElementProxy extends HTMLElement$ {
       attachShadow() {
         this[SHADOW_ROOT] = attachShadow.call(this, ...arguments);
