@@ -34,7 +34,7 @@ module.exports = () => {
       plugins
     },
     {
-      input: 'src/HTMLWebWidgetImportElement.js',
+      input: 'extensions/HTMLWebWidgetImportElement.js',
       output: [
         {
           file: `dist/web-widget-import.umd${debug}.js`,
@@ -51,7 +51,7 @@ module.exports = () => {
       plugins
     },
     {
-      input: 'src/HTMLWebComponentImportElement.js',
+      input: 'extensions/HTMLWebComponentImportElement.js',
       output: [
         {
           file: `dist/web-component-import.umd${debug}.js`,
@@ -68,7 +68,7 @@ module.exports = () => {
       plugins
     },
     {
-      input: 'src/WebWidgetRouter.js',
+      input: 'extensions/WebWidgetRouter.js',
       output: [
         {
           file: `dist/web-widget-router.umd${debug}.js`,

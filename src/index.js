@@ -3,9 +3,9 @@ import {
   appendSourceUrl,
   scriptSourceLoader,
   UMDParser
-} from './utils/scriptLoader.js';
-import { queueMicrotask } from './utils/queueMicrotask.js';
-import { lifecycleCallbacks } from './utils/lifecycleCallbacks.js';
+} from './WebWidget/utils/scriptLoader.js';
+import { queueMicrotask } from './WebWidget/utils/queueMicrotask.js';
+import { lifecycleCallbacks } from './WebWidget/utils/lifecycleCallbacks.js';
 import * as status from './WebWidget/applications/status.js';
 import * as properties from './WebWidget/properties/properties.js';
 import { Model } from './WebWidget/applications/models.js';
@@ -15,7 +15,7 @@ import { toMountPromise } from './WebWidget/lifecycles/mount.js';
 import { toUnloadPromise } from './WebWidget/lifecycles/unload.js';
 import { toUnmountPromise } from './WebWidget/lifecycles/unmount.js';
 import { toUpdatePromise } from './WebWidget/lifecycles/update.js';
-import WebWidgetPortalDestinations from './WebWidgetPortalDestinations.js';
+import { WebWidgetPortalDestinations } from './WebWidgetPortalDestinations.js';
 
 const HTMLWebSandboxElement = window.HTMLWebSandboxElement || undefined;
 const rootPortalDestinations = new WebWidgetPortalDestinations();
@@ -204,6 +204,7 @@ function preFetch(url) {
   if (!document.head.querySelector(`link[href="${url}"]`)) {
     const link = document.createElement('link');
     link.rel = 'prefetch';
+    link.as = 'fetch';
     link.href = url;
     document.head.appendChild(link);
   }
@@ -217,7 +218,8 @@ const lazyImageObserver = new IntersectionObserver(entries => {
   });
 });
 
-class HTMLWebWidgetElement extends (HTMLWebSandboxElement || HTMLElement) {
+export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
+  HTMLElement) {
   constructor() {
     super();
     if (HTMLWebSandboxElement) {
@@ -432,5 +434,3 @@ window.WebWidget = HTMLWebWidgetElement;
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
 
 customElements.define('web-widget', HTMLWebWidgetElement);
-
-export default HTMLWebWidgetElement;

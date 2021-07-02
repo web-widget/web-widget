@@ -1,7 +1,7 @@
 /* global window, customElements, HTMLWebWidgetElement */
 
 // eslint-disable-next-line max-classes-per-file
-class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
+export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
   get as() {
     return this.getAttribute('as') || '';
   }
@@ -46,5 +46,3 @@ class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
 
 window.HTMLWebWidgetImportElement = HTMLWebWidgetImportElement;
 customElements.define('web-widget.import', HTMLWebWidgetImportElement);
-
-export default HTMLWebWidgetImportElement;
