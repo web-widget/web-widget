@@ -28,6 +28,10 @@ WebWidget 是一种用于网页的小挂件，和传统的命令式的 UI Librar
 4. 所有的 NoCode/LowCode 产品，都可兼容 WebWidget
 5. 公共 CDN 可以随时加载托管在 Npm 或 Github 的 WebWidget
 
+### 非目标
+
+WebWidget 的背后是组件的服务化治理，而服务意味着更少的细节交互，因此应用事件机制、应用的对外接口并非 WebWidget 的目标。如果一个组件需要频繁的和外部交互那么它并非 WebWidget 的适用范围，这种情况更适合使用传统 npm 包进行共享；同样，WebWidget 也不能取代 `<iframe>` 标签或者 Web Component 的自定义元素标签，它们有自己核心价值。
+
 ## 标准化内容
 
 WebWidget 标准由如下三个部分组成：
