@@ -81,7 +81,7 @@ export default {
 
 ## 指引和例子
 
-以模态对话框为例，这些组件通常会管理自己的实例，以确保页面只有一个在运行。通过 `function` 生命周期格式实现单例：
+以模态对话框为例，这些组件通常会管理自己的实例，以确保页面只有一个在运行。通过工厂实现单例：
 
 ```js
 const modalDialog = {
@@ -94,9 +94,21 @@ const modalDialog = {
 export default () => modalDialog;
 ```
 
+或者使用原来 single-spa 定义的方案：
+
+```js
+export default {
+  async bootstrap(properties) {},
+  async mount(properties) {},
+  async update(properties) {},
+  async unmount(properties) {},
+  async unload(properties) {}
+}
+```
+
 ## 兼容性
 
-兼容现有 single-spa 设计的应用生命周期格式。
+兼容现有 single-spa 设计的应用生命周期格式，但 single-spa 无法兼容本次 RFC 扩展的格式。
 
 # 需要讨论的问题
 
