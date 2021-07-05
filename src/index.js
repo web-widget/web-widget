@@ -46,29 +46,32 @@ const isAutoLoad = view =>
   isBindingElementLifecycle(view) && isResourceReady(view);
 const isAutoUnload = isBindingElementLifecycle;
 
-function toLoader(target, sandbox, parser, importance) {
+function toLoader(target, sandbox, parser, importance, type) {
   let loader = target;
 
   if (typeof target === 'string') {
     const url = target;
-    const fn = () =>
-      scriptSourceLoader(url, { importance }).then(source => {
-        const config = parser(appendSourceUrl(source, url), sandbox);
-        return config;
-      });
-    fn.url = url;
-    loader = fn;
+    loader = () =>
+      type === 'module'
+        ? import(url).then(module => {
+            return module.default || module;
+          })
+        : scriptSourceLoader(url, { importance }).then(source => {
+            const module = parser(appendSourceUrl(source, url), sandbox);
+            return module;
+          });
+    loader.url = url;
   } else if (typeof target !== 'function') {
     loader = () => Promise.resolve(target);
   }
 
   return (...args) =>
-    loader(...args).then(config => {
-      if (typeof config === 'string') {
-        config = parser(config, sandbox);
+    loader(...args).then(module => {
+      if (typeof module === 'string') {
+        module = parser(module, sandbox);
       }
 
-      return config;
+      return module;
     });
 }
 
@@ -156,12 +159,13 @@ function createWebWidget(view) {
   }
 
   if (!isResourceReady(view)) {
-    throw new Error('Uninitialized');
+    throw new Error('Not initialized');
   }
 
   let sandbox;
   const src = getProperty(view, 'src');
   const text = getProperty(view, 'text');
+  const type = getProperty(view, 'type');
   const application = getProperty(view, 'application');
   const debug = getProperty(view, 'debug');
   const parser = getProperty(view, PARSER) || UMDParser;
@@ -182,7 +186,7 @@ function createWebWidget(view) {
   const properties = view.createProperties();
   const parent = () => getParentModel(view);
   const children = () => getChildModels(view);
-  const loader = toLoader(main, sandbox, parser, view.importance);
+  const loader = toLoader(main, sandbox, parser, view.importance, type);
 
   view[MODEL] = new Model({
     children,
@@ -204,7 +208,6 @@ function preFetch(url) {
   if (!document.head.querySelector(`link[href="${url}"]`)) {
     const link = document.createElement('link');
     link.rel = 'prefetch';
-    link.as = 'fetch';
     link.href = url;
     document.head.appendChild(link);
   }
@@ -270,6 +273,14 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     return v
       ? this.setAttribute('sandboxed', '')
       : this.removeAttribute('sandboxed');
+  }
+
+  get type() {
+    return this.getAttribute('type') || 'auto';
+  }
+
+  set type(value) {
+    this.setAttribute('type', value);
   }
 
   get status() {
@@ -339,7 +350,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
 
   async update(properties = {}) {
     if (!this[MODEL]) {
-      throw new Error('Uninitialized');
+      throw new Error('Not initialized');
     }
     Object.assign(this[MODEL].properties, properties);
     await toUpdatePromise(this[MODEL]);
