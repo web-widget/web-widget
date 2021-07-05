@@ -48,15 +48,13 @@ export default {
 应用导出接口的类型支持 `function`，并且作为首选的方式：
 
 ```js
-export default () => {
-  return {
-    async bootstrap(properties) {},
-    async mount(properties) {},
-    async update(properties) {},
-    async unmount(properties) {},
-    async unload(properties) {}
-  }
-}
+export default () => ({
+  async bootstrap(properties) {},
+  async mount(properties) {},
+  async update(properties) {},
+  async unmount(properties) {},
+  async unload(properties) {}
+});
 ```
 
 ## 替代方案对比
@@ -82,6 +80,21 @@ export default {
 ```
 
 值得说明的是 `context` 字段并不是本次 RFC 中新增的概念，它拥有 `mount()` 与 `unmount()` 方法，因此它的语义就是用来引用应用实例。
+
+## 指引和例子
+
+以模态对话框为例，这些组件通常会管理自己的实例，以确保页面只有一个在运行。通过 `function` 生命周期格式实现单例：
+
+```js
+const modalDialog = {
+  async bootstrap(properties) {},
+  async mount(properties) {},
+  async update(properties) {},
+  async unmount(properties) {},
+  async unload(properties) {}
+};
+export default () => modalDialog;
+```
 
 ## 兼容性
 
