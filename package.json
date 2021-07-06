@@ -9,6 +9,7 @@
     "build": "npm run web-widget:build",
     "serve": "web-dev-server --node-resolve --watch --open examples/",
     "examples:web-widget-router": "cd examples/web-widget-router && web-dev-server",
+    "examples:single-spa": "cross-env INDEX=single-spa && cd examples/web-widget-router && web-dev-server",
     "web-widget:lint": "eslint ./src ./test ./examples",
     "web-widget:prettier": "prettier --config ./.prettierrc --write ./src/**/**/*.js ./test/**/**/*.js ./examples/**/**/*.js",
     "web-widget:build": "npm run web-widget:build:dev && npm run web-widget:build:prod",

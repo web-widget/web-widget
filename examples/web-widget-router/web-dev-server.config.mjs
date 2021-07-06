@@ -3,10 +3,11 @@ import rollupReplace from '@rollup/plugin-replace';
 import { fromRollup } from '@web/dev-server-rollup';
 
 const replace = fromRollup(rollupReplace);
+const index = process.env.INDEX || 'index.html';
 
 export default {
   nodeResolve: true,
-  appIndex: 'index.html',
+  appIndex: index,
   watch: true,
   rootDir: './',
   plugins: [

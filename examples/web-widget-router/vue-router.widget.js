@@ -6,8 +6,10 @@ define(() => {
     async bootstrap({ container }) {
       console.log('Vue router bootstrap');
 
-      await import('https://unpkg.com/vue/dist/vue.js');
-      await import('https://unpkg.com/vue-router/dist/vue-router.js');
+      await import('https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js');
+      await import(
+        'https://cdn.jsdelivr.net/npm/vue-router@3.5.2/dist/vue-router.js'
+      );
       Vue = window.Vue;
       VueRouter = window.VueRouter;
       delete window.Vue;
