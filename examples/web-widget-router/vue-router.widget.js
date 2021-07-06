@@ -38,10 +38,9 @@ define(() => {
       await nav.mount();
       container.appendChild(main);
 
-      const Foo = { template: '<div>foo</div>' };
-      const Bar = { template: '<div>bar</div>' };
-
       if (!app) {
+        const Foo = { template: '<div>foo</div>' };
+        const Bar = { template: '<div>bar</div>' };
         const routes = [
           { path: '/vue-router/foo', component: Foo },
           { path: '/vue-router/bar', component: Bar }
