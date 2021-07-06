@@ -16,10 +16,11 @@
   <div id="vue-router" src="/vue-router.widget.js" inactive data-id="#367" data-vue="vue-router demo"></div>
 
   <script type="module">
+    import '../../src/index.js';
     import { registerApplication, start } from 'https://cdn.jsdelivr.net/npm/single-spa@5.9.3/lib/esm/single-spa.min.js';
 
     const register = (element, activity) => {
-      registerApplication(element.id, () => import(element.getAttribute('src')), activity, {
+      registerApplication(element.id, () => import(element.getAttribute('src')).then(module => module.default || module), activity, {
         container: element,
         dataset: element.dataset,
         attributes: element.attributes
