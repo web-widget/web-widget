@@ -27,7 +27,7 @@ define(() => {
       `;
 
       nav = document.createElement('web-widget');
-      nav.src = './nav.widget.js';
+      nav.src = '/nav.widget.js';
       nav.inactive = true;
       container.appendChild(nav);
 
@@ -41,19 +41,23 @@ define(() => {
       const Foo = { template: '<div>foo</div>' };
       const Bar = { template: '<div>bar</div>' };
 
-      const routes = [
-        { path: '/vue-router/foo', component: Foo },
-        { path: '/vue-router/bar', component: Bar }
-      ];
+      if (!app) {
+        const routes = [
+          { path: '/vue-router/foo', component: Foo },
+          { path: '/vue-router/bar', component: Bar }
+        ];
 
-      const router = new VueRouter({
-        mode: 'history',
-        routes
-      });
+        const router = new VueRouter({
+          mode: 'history',
+          routes
+        });
 
-      app = new Vue({
-        router
-      }).$mount(container.querySelector('#app'));
+        app = new Vue({
+          router
+        });
+      }
+
+      app.$mount(container.querySelector('#app'));
     },
     async unmount({ container }) {
       console.log('Vue router unmount');
