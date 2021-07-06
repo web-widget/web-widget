@@ -1,7 +1,4 @@
 /* global HTMLWebWidgetElement */
-
-import { reroute } from '../navigation/reroute.js';
-
 function validWidget(widget) {
   if (!(widget instanceof HTMLWebWidgetElement)) {
     throw new TypeError(`Validation failed: not a WebWidget`);
@@ -31,7 +28,6 @@ class Registry extends Set {
 
     this.add(widget);
     this[MAP].set(widget, activeWhen);
-    reroute();
   }
 
   unregister(widget) {
@@ -42,3 +38,5 @@ class Registry extends Set {
 }
 
 export const registry = new Registry();
+export const register = registry.register.bind(registry);
+export const unregister = registry.unregister.bind(registry);

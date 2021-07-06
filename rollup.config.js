@@ -1,11 +1,19 @@
 /* global require, module, process */
 const { terser } = require('rollup-plugin-terser');
+const replace = require('@rollup/plugin-replace');
 
 module.exports = () => {
   const isProduction = process.env.NODE_ENV === 'production';
   const debug = isProduction ? '' : '.debug';
 
-  const plugins = [];
+  const plugins = [
+    replace({
+      preventAssignment: true,
+      values: {
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || '')
+      }
+    })
+  ];
 
   if (isProduction) {
     plugins.push(
@@ -68,7 +76,7 @@ module.exports = () => {
       plugins
     },
     {
-      input: 'extensions/WebWidgetRouter.js',
+      input: 'extensions/WebWidgetRouter/index.js',
       output: [
         {
           file: `dist/web-widget-router.umd${debug}.js`,

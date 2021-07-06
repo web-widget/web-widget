@@ -1,8 +1,20 @@
+/* global process */
+import rollupReplace from '@rollup/plugin-replace';
+import { fromRollup } from '@web/dev-server-rollup';
+
+const replace = fromRollup(rollupReplace);
+
 export default {
-  open: true,
   nodeResolve: true,
   appIndex: 'index.html',
   watch: true,
-  // in a monorepo you need to set set the root dir to resolve modules
   rootDir: './',
+  plugins: [
+    replace({
+      preventAssignment: true,
+      values: {
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || '')
+      }
+    })
+  ]
 };

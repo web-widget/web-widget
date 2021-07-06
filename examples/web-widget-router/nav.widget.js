@@ -33,6 +33,10 @@ window.navigateToUrl = target => {
     // different path, host, or query params
     window.history.pushState(null, null, url);
   }
+
+  if (window.Router) {
+    window.Router.start();
+  }
 };
 
 define(() => {
@@ -52,10 +56,10 @@ define(() => {
     async mount({ container }) {
       console.log('nav mount');
       nav.innerHTML = `
-        <a href="./" onclick="navigateToUrl(event)">Home</a> |
-        <a href="./news" onclick="navigateToUrl(event)">News</a> |
-        <a href="./about" onclick="navigateToUrl(event)">About</a> |
-        <a href="./vue-router" onclick="navigateToUrl(event)">Vue router</a>
+        <a href="/" onclick="navigateToUrl(event)">Home</a> |
+        <a href="/news" onclick="navigateToUrl(event)">News</a> |
+        <a href="/about" onclick="navigateToUrl(event)">About</a> |
+        <a href="/vue-router" onclick="navigateToUrl(event)">Vue router</a>
       `;
       container.appendChild(nav);
     },

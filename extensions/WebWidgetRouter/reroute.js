@@ -1,7 +1,6 @@
 /* global location */
-
-import { queueMicrotask } from '../../../src/WebWidget/utils/queueMicrotask.js';
-import { registry } from '../applications/registry.js';
+import { registry } from './registry.js';
+import { queueMicrotask } from '../../src/WebWidget/utils/queueMicrotask.js';
 
 const shouldBeActive = widget => {
   const activeWhen = registry.get(widget);
