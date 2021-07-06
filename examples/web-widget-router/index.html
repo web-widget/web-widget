@@ -13,6 +13,7 @@
   <web-widget id="home" src="./index.widget.js" inactive data-id="#43243242"></web-widget>
   <web-widget id="news" src="./news.widget.js" inactive data-id="#ttrt"></web-widget>
   <web-widget id="about" src="./about.widget.js" inactive data-id="#367" data-about="一个演示"></web-widget>
+  <web-widget id="vue-router" src="./vue-router.widget.js" inactive data-id="#367" data-vue="vue-router demo"></web-widget>
 
   <script type="module">
     import '../../src/index.js';
@@ -31,6 +32,11 @@
     register(
       document.querySelector('#about'),
       location => location.pathname.startsWith('/about')
+    );
+
+    register(
+      document.querySelector('#vue-router'),
+      location => location.pathname.startsWith('/vue-router')
     );
 
     start();

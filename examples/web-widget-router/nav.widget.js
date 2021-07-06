@@ -54,7 +54,8 @@ define(() => {
       nav.innerHTML = `
         <a href="./" onclick="navigateToUrl(event)">Home</a> |
         <a href="./news" onclick="navigateToUrl(event)">News</a> |
-        <a href="./about" onclick="navigateToUrl(event)">About</a>
+        <a href="./about" onclick="navigateToUrl(event)">About</a> |
+        <a href="./vue-router" onclick="navigateToUrl(event)">Vue router</a>
       `;
       container.appendChild(nav);
     },
