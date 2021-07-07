@@ -1,9 +1,9 @@
 {
   "name": "@web-sandbox.js/web-widget",
-  "version": "0.0.1-alpha",
+  "version": "0.0.1-beta",
   "description": "web widget",
-  "main": "dist/web-widget.umd.js",
-  "browser": "dist/web-widget.umd.js",
+  "main": "dist/umd/web-widget.js",
+  "module": "dist/esm/web-widget.js",
   "scripts": {
     "prepare": "npm run build",
     "build": "npm run web-widget:build",
@@ -47,7 +47,10 @@
   },
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@rollup/plugin-replace": "^2.4.2",
     "@web/dev-server": "^0.1.17",
+    "@web/dev-server-rollup": "^0.3.5",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
     "cross-env": "^7.0.2",
@@ -60,9 +63,7 @@
     "rollup": "^2.50.5",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-includepaths": "^0.2.4",
-    "rollup-plugin-terser": "^7.0.2",
-    "@rollup/plugin-replace": "^2.4.2",
-    "@web/dev-server-rollup": "^0.3.5"
+    "rollup-plugin-terser": "^7.0.2"
   },
   "dependencies": {
     "history": "^5.0.0"

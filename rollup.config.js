@@ -1,6 +1,7 @@
 /* global require, module, process */
 const { terser } = require('rollup-plugin-terser');
 const replace = require('@rollup/plugin-replace');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
 
 module.exports = () => {
   const isProduction = process.env.NODE_ENV === 'production';
@@ -12,7 +13,8 @@ module.exports = () => {
       values: {
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || '')
       }
-    })
+    }),
+    nodeResolve()
   ];
 
   if (isProduction) {
@@ -28,14 +30,19 @@ module.exports = () => {
       input: 'src/index.js',
       output: [
         {
-          file: `dist/web-widget.umd${debug}.js`,
+          file: `dist/umd/web-widget${debug}.js`,
           name: 'HTMLWebWidgetElement',
           format: 'umd',
           sourcemap: true
         },
         {
-          file: `dist/web-widget.esm${debug}.js`,
+          file: `dist/esm/web-widget${debug}.js`,
           format: 'esm',
+          sourcemap: true
+        },
+        {
+          file: `dist/cjs/web-widget${debug}.js`,
+          format: 'cjs',
           sourcemap: true
         }
       ],
@@ -45,14 +52,19 @@ module.exports = () => {
       input: 'extensions/HTMLWebWidgetImportElement.js',
       output: [
         {
-          file: `dist/web-widget-import.umd${debug}.js`,
+          file: `dist/umd/web-widget-import${debug}.js`,
           name: 'HTMLWebWidgetImportElement',
           format: 'umd',
           sourcemap: true
         },
         {
-          file: `dist/web-widget-import.esm${debug}.js`,
+          file: `dist/esm/web-widget-import${debug}.js`,
           format: 'esm',
+          sourcemap: true
+        },
+        {
+          file: `dist/cjs/web-widget-import${debug}.js`,
+          format: 'cjs',
           sourcemap: true
         }
       ],
@@ -62,14 +74,19 @@ module.exports = () => {
       input: 'extensions/HTMLWebComponentImportElement.js',
       output: [
         {
-          file: `dist/web-component-import.umd${debug}.js`,
+          file: `dist/umd/web-component-import${debug}.js`,
           name: 'HTMLWebComponentImportElement',
           format: 'umd',
           sourcemap: true
         },
         {
-          file: `dist/web-component-import.esm${debug}.js`,
+          file: `dist/esm/web-component-import${debug}.js`,
           format: 'esm',
+          sourcemap: true
+        },
+        {
+          file: `dist/cjs/web-component-import${debug}.js`,
+          format: 'cjs',
           sourcemap: true
         }
       ],
@@ -79,14 +96,19 @@ module.exports = () => {
       input: 'extensions/WebWidgetRouter/index.js',
       output: [
         {
-          file: `dist/web-widget-router.umd${debug}.js`,
+          file: `dist/umd/web-widget-router${debug}.js`,
           name: 'WebWidgetRouter',
           format: 'umd',
           sourcemap: true
         },
         {
-          file: `dist/web-widget-router.esm${debug}.js`,
+          file: `dist/esm/web-widget-router${debug}.js`,
           format: 'esm',
+          sourcemap: true
+        },
+        {
+          file: `dist/cjs/web-widget-router${debug}.js`,
+          format: 'cjs',
           sourcemap: true
         }
       ],
