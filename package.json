@@ -1,6 +1,6 @@
 {
   "name": "@web-sandbox.js/web-widget",
-  "version": "0.0.1-beta",
+  "version": "0.0.2-beta",
   "description": "web widget",
   "main": "dist/umd/web-widget.js",
   "module": "dist/esm/web-widget.js",

@@ -1,11 +1,11 @@
-import history from 'history/browser';
+import { createBrowserHistory } from 'history';
 import { reroute } from './reroute.js';
 
-let initialized;
+let history;
 export function start() {
-  if (!initialized) {
+  if (!history) {
+    history = createBrowserHistory();
     history.listen(() => reroute());
-    initialized = true;
   }
   reroute();
 }
