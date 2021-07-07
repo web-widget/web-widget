@@ -11,7 +11,7 @@ define(() => {
       `;
 
       nav = document.createElement('web-widget');
-      nav.src = './nav.widget.js';
+      nav.src = '/nav.widget.js';
       nav.inactive = true;
       container.appendChild(nav);
       return nav.bootstrap();

@@ -9,6 +9,7 @@
     "build": "npm run web-widget:build",
     "serve": "web-dev-server --node-resolve --watch --open examples/",
     "examples:web-widget-router": "cd examples/web-widget-router && web-dev-server",
+    "examples:single-spa": "cd examples/single-spa && web-dev-server",
     "web-widget:lint": "eslint ./src ./test ./examples",
     "web-widget:prettier": "prettier --config ./.prettierrc --write ./src/**/**/*.js ./test/**/**/*.js ./examples/**/**/*.js",
     "web-widget:build": "npm run web-widget:build:dev && npm run web-widget:build:prod",
@@ -59,6 +60,11 @@
     "rollup": "^2.50.5",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-includepaths": "^0.2.4",
-    "rollup-plugin-terser": "^7.0.2"
+    "rollup-plugin-terser": "^7.0.2",
+    "@rollup/plugin-replace": "^2.4.2",
+    "@web/dev-server-rollup": "^0.3.5"
+  },
+  "dependencies": {
+    "history": "^5.0.0"
   }
 }

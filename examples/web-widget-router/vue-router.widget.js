@@ -6,8 +6,10 @@ define(() => {
     async bootstrap({ container }) {
       console.log('Vue router bootstrap');
 
-      await import('https://unpkg.com/vue/dist/vue.js');
-      await import('https://unpkg.com/vue-router/dist/vue-router.js');
+      await import('https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js');
+      await import(
+        'https://cdn.jsdelivr.net/npm/vue-router@3.5.2/dist/vue-router.js'
+      );
       Vue = window.Vue;
       VueRouter = window.VueRouter;
       delete window.Vue;
@@ -27,7 +29,7 @@ define(() => {
       `;
 
       nav = document.createElement('web-widget');
-      nav.src = './nav.widget.js';
+      nav.src = '/nav.widget.js';
       nav.inactive = true;
       container.appendChild(nav);
 
@@ -38,22 +40,25 @@ define(() => {
       await nav.mount();
       container.appendChild(main);
 
-      const Foo = { template: '<div>foo</div>' };
-      const Bar = { template: '<div>bar</div>' };
+      if (!app) {
+        const Foo = { template: '<div>foo</div>' };
+        const Bar = { template: '<div>bar</div>' };
+        const routes = [
+          { path: '/vue-router/foo', component: Foo },
+          { path: '/vue-router/bar', component: Bar }
+        ];
 
-      const routes = [
-        { path: '/vue-router/foo', component: Foo },
-        { path: '/vue-router/bar', component: Bar }
-      ];
+        const router = new VueRouter({
+          mode: 'history',
+          routes
+        });
 
-      const router = new VueRouter({
-        mode: 'history',
-        routes
-      });
+        app = new Vue({
+          router
+        });
+      }
 
-      app = new Vue({
-        router
-      }).$mount(container.querySelector('#app'));
+      app.$mount(container.querySelector('#app'));
     },
     async unmount({ container }) {
       console.log('Vue router unmount');
