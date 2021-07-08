@@ -113,14 +113,10 @@ export default {
 
 WebWidget 辅助工具：
 
+* [extensions/WebWidgetCollection.js](extensions/WebWidgetCollection.js) WebWidget 应用集合抽象，可以用来和历史记录库组合使用
 * [extensions/WebWidgetRouter.js](extensions/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现
-  * `start()`
-  * `register()`
-  * `unregister()`
 * [extensions/HTMLWebWidgetImportElement.js](extensions/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现
 * [extensions/HTMLWebComponentImportElement.js](extensions/HTMLWebComponentImportElement.js) 原生 Web Components 模块适配器（实验性）
-  * 适配 WebWidget 应用生命周期以及容器特性
-  * 支持 Web Components 的 HTML 属性
 
 > 辅助工具不属于本项目的内容，因此后续将从当前项目中移除，以便独立维护。
 
@@ -205,25 +201,30 @@ WebWidget 辅助工具：
 <web-widget id="news" src="./news.widget.js" inactive></web-widget>
 <web-widget id="about" src="./about.widget.js" inactive></web-widget>
 <script type="module">
-  import '../../src/index.js';
-  import { register, start } from  '../../src/WebWidgetRouter/index.js';
+  import '@web-sandbox.js/web-widget';
+  import { collection, history } from  '@web-sandbox.js/web-widget/dist/esm/extensions/web-widget-router';
 
-  register(
+  collection.add(
     document.querySelector('#home'),
     location => location.pathname === '/'
   );
 
-  register(
+  collection.add(
     document.querySelector('#news'),
     location => location.pathname.startsWith('/news')
   );
 
-  register(
+  collection.add(
     document.querySelector('#about'),
     location => location.pathname.startsWith('/about')
   );
 
-  start();
+  function reroute() {
+    collection.change(location);
+  }
+
+  history.listen(reroute);
+  reroute();
 </script>
 ```
 
@@ -241,8 +242,8 @@ WebWidget 辅助工具：
 </hello-world>
 
 <script type="module">
-  import '../../src/index.js';
-  import '../../src/HTMLWebWidgetImportElement.js';
+  import '@web-sandbox.js/web-widget';
+  import '@web-sandbox.js/web-widget/dist/esm/extensions/web-widget-import';
 </script>
 ```
 
@@ -276,9 +277,9 @@ customElements.define('my-element', MyElment);
 </slot-demo>
 
 <script type="module">
-  import '../../src/index.js';
-  import '../../src/HTMLWebWidgetImportElement.js';
-  import '../../src/HTMLWebComponentImportElement.js';
+  import '@web-sandbox.js/web-widget';
+  import '@web-sandbox.js/web-widget/dist/esm/extensions/web-widget-import';
+  import '@web-sandbox.js/web-widget/dist/esm/extensions/web-component-import';
 </script>
 ```
 
