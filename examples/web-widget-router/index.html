@@ -17,34 +17,36 @@
 
   <script type="module">
     import '../../src/index.js';
-    import { register, start } from  '../../extensions/WebWidgetRouter/index.js';
+    import { collection, navigate, history } from  '../../extensions/WebWidgetRouter.js';
 
-    register(
+    collection.add(
       document.querySelector('#home'),
       location => location.pathname === '/'
     );
 
-    register(
+    collection.add(
       document.querySelector('#news'),
       location => location.pathname.startsWith('/news')
     );
 
-    register(
+    collection.add(
       document.querySelector('#about'),
       location => location.pathname.startsWith('/about')
     );
 
-    register(
+    collection.add(
       document.querySelector('#vue-router'),
       location => location.pathname.startsWith('/vue-router')
     );
 
-    start();
+    function reroute() {
+      collection.change(location);
+    }
 
-    window.Router = {
-      register,
-      start
-    };
+    history.listen(reroute);
+    reroute();
+
+    window.navigate = navigate;
   </script>
 </body>
 

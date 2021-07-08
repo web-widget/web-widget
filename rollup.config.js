@@ -52,18 +52,18 @@ module.exports = () => {
       input: 'extensions/HTMLWebWidgetImportElement.js',
       output: [
         {
-          file: `dist/umd/web-widget-import${debug}.js`,
+          file: `dist/umd/extensions/web-widget-import${debug}.js`,
           name: 'HTMLWebWidgetImportElement',
           format: 'umd',
           sourcemap: true
         },
         {
-          file: `dist/esm/web-widget-import${debug}.js`,
+          file: `dist/esm/extensions/web-widget-import${debug}.js`,
           format: 'esm',
           sourcemap: true
         },
         {
-          file: `dist/cjs/web-widget-import${debug}.js`,
+          file: `dist/cjs/extensions/web-widget-import${debug}.js`,
           format: 'cjs',
           sourcemap: true
         }
@@ -74,18 +74,18 @@ module.exports = () => {
       input: 'extensions/HTMLWebComponentImportElement.js',
       output: [
         {
-          file: `dist/umd/web-component-import${debug}.js`,
+          file: `dist/umd/extensions/web-component-import${debug}.js`,
           name: 'HTMLWebComponentImportElement',
           format: 'umd',
           sourcemap: true
         },
         {
-          file: `dist/esm/web-component-import${debug}.js`,
+          file: `dist/esm/extensions/web-component-import${debug}.js`,
           format: 'esm',
           sourcemap: true
         },
         {
-          file: `dist/cjs/web-component-import${debug}.js`,
+          file: `dist/cjs/extensions/web-component-import${debug}.js`,
           format: 'cjs',
           sourcemap: true
         }
@@ -93,21 +93,43 @@ module.exports = () => {
       plugins
     },
     {
-      input: 'extensions/WebWidgetRouter/index.js',
+      input: 'extensions/WebWidgetCollection.js',
       output: [
         {
-          file: `dist/umd/web-widget-router${debug}.js`,
+          file: `dist/umd/extensions/web-widget-collection${debug}.js`,
+          name: 'WebWidgetCollection',
+          format: 'umd',
+          sourcemap: true
+        },
+        {
+          file: `dist/esm/extensions/web-widget-collection${debug}.js`,
+          format: 'esm',
+          sourcemap: true
+        },
+        {
+          file: `dist/cjs/extensions/web-widget-collection${debug}.js`,
+          format: 'cjs',
+          sourcemap: true
+        }
+      ],
+      plugins
+    },
+    {
+      input: 'extensions/WebWidgetRouter.js',
+      output: [
+        {
+          file: `dist/umd/extensions/web-widget-router${debug}.js`,
           name: 'WebWidgetRouter',
           format: 'umd',
           sourcemap: true
         },
         {
-          file: `dist/esm/web-widget-router${debug}.js`,
+          file: `dist/esm/extensions/web-widget-router${debug}.js`,
           format: 'esm',
           sourcemap: true
         },
         {
-          file: `dist/cjs/web-widget-router${debug}.js`,
+          file: `dist/cjs/extensions/web-widget-router${debug}.js`,
           format: 'cjs',
           sourcemap: true
         }
