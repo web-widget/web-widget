@@ -9,6 +9,7 @@ export const collection = new WebWidgetCollection();
 export function navigate(target) {
   let url;
   if (typeof target === 'string') {
+    // url
     url = target;
   } else if (this && this.href) {
     // <a>
