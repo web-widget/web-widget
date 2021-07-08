@@ -59,6 +59,12 @@ export class WebWidgetCollection extends Set {
     map.get(this).delete(widget);
   }
 
+  clear() {
+    this.forEach(widget => {
+      this.delete(widget);
+    });
+  }
+
   async preload(props) {
     return Promise.all(
       filterActive(true, this, props).map(widget =>
