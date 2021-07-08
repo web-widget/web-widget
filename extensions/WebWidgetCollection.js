@@ -1,4 +1,4 @@
-import { queueMicrotask } from '../src/WebWidget/utils/queueMicrotask.js';
+import { queueMicrotask } from '../src/utils/queueMicrotask.js';
 
 const map = new WeakMap();
 

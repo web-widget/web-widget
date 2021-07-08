@@ -3,18 +3,18 @@ import {
   appendSourceUrl,
   scriptSourceLoader,
   UMDParser
-} from './WebWidget/utils/scriptLoader.js';
-import { queueMicrotask } from './WebWidget/utils/queueMicrotask.js';
-import { lifecycleCallbacks } from './WebWidget/utils/lifecycleCallbacks.js';
-import * as status from './WebWidget/applications/status.js';
-import * as properties from './WebWidget/properties/properties.js';
-import { Model } from './WebWidget/applications/models.js';
-import { toBootstrapPromise } from './WebWidget/lifecycles/bootstrap.js';
-import { toLoadPromise } from './WebWidget/lifecycles/load.js';
-import { toMountPromise } from './WebWidget/lifecycles/mount.js';
-import { toUnloadPromise } from './WebWidget/lifecycles/unload.js';
-import { toUnmountPromise } from './WebWidget/lifecycles/unmount.js';
-import { toUpdatePromise } from './WebWidget/lifecycles/update.js';
+} from './utils/scriptLoader.js';
+import { queueMicrotask } from './utils/queueMicrotask.js';
+import { lifecycleCallbacks } from './utils/lifecycleCallbacks.js';
+import * as status from './applications/status.js';
+import * as properties from './properties/properties.js';
+import { Model } from './applications/models.js';
+import { toBootstrapPromise } from './lifecycles/bootstrap.js';
+import { toLoadPromise } from './lifecycles/load.js';
+import { toMountPromise } from './lifecycles/mount.js';
+import { toUnloadPromise } from './lifecycles/unload.js';
+import { toUnmountPromise } from './lifecycles/unmount.js';
+import { toUpdatePromise } from './lifecycles/update.js';
 import { WebWidgetPortalDestinations } from './WebWidgetPortalDestinations.js';
 
 const HTMLWebSandboxElement = window.HTMLWebSandboxElement || undefined;
