@@ -1,6 +1,6 @@
 {
   "name": "@web-sandbox.js/web-widget",
-  "version": "0.0.2-beta",
+  "version": "0.0.3-beta",
   "description": "web widget",
   "main": "dist/umd/web-widget.js",
   "module": "dist/esm/web-widget.js",
@@ -9,6 +9,7 @@
     "build": "npm run web-widget:build",
     "serve": "web-dev-server --node-resolve --watch --open examples/",
     "examples:web-widget-router": "cd examples/web-widget-router && web-dev-server",
+    "examples:web-widget-collection": "cd examples/web-widget-collection && web-dev-server",
     "examples:single-spa": "cd examples/single-spa && web-dev-server",
     "web-widget:lint": "eslint ./src ./test ./examples",
     "web-widget:prettier": "prettier --config ./.prettierrc --write ./src/**/**/*.js ./test/**/**/*.js ./examples/**/**/*.js",

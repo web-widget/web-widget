@@ -15,10 +15,10 @@ define(() => {
     async mount({ container }) {
       console.log('nav mount');
       nav.innerHTML = `
-        <a href="/" onclick="navigate(event)">Home</a> |
-        <a href="/news" onclick="navigate(event)">News</a> |
-        <a href="/about" onclick="navigate(event)">About</a> |
-        <a href="/vue-router" onclick="navigate(event)">Vue router</a>
+        <a href="/" onclick="navigateToUrl(event)">Home</a> |
+        <a href="/news" onclick="navigateToUrl(event)">News</a> |
+        <a href="/about" onclick="navigateToUrl(event)">About</a> |
+        <a href="/vue-router" onclick="navigateToUrl(event)">Vue router</a>
       `;
       container.appendChild(nav);
     },
