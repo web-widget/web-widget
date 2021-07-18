@@ -1,6 +1,6 @@
 /* global window, customElements, HTMLWebWidgetElement */
+/* eslint-disable max-classes-per-file */
 
-// eslint-disable-next-line max-classes-per-file
 export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
   get as() {
     return this.getAttribute('as') || '';
@@ -11,25 +11,29 @@ export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
   }
 
   connectedCallback() {
-    const { as, application, csp, debug, sandboxed, src, text, type } = this;
-    const parser = this[HTMLWebWidgetElement.PARSER];
-
+    const importElement = this;
     customElements.define(
-      as,
+      this.as,
       class extends HTMLWebWidgetElement {
-        constructor() {
-          super();
-
-          this[HTMLWebWidgetElement.CONFIG] = {
-            [HTMLWebWidgetElement.PARSER]: parser,
-            application,
-            csp,
-            debug,
-            sandboxed,
-            src,
-            text,
-            type
-          };
+        createConfig() {
+          return Object.defineProperties(
+            this,
+            [
+              'application',
+              'csp',
+              'debug',
+              'sandboxed',
+              'src',
+              'text',
+              'type',
+              HTMLWebWidgetElement.PARSER
+            ].reduce((accumulator, name) => {
+              accumulator[name] = {
+                value: importElement[name]
+              };
+              return accumulator;
+            }, {})
+          );
         }
       }
     );

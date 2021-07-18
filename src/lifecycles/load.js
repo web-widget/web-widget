@@ -6,7 +6,6 @@ import {
 } from '../applications/status.js';
 import { ensureValidAppTimeouts } from '../applications/timeouts.js';
 import { flattenFnArray } from './lifecycle-helpers.js';
-import { toProperties } from '../properties/properties.js';
 import { formatErrorMessage } from '../applications/errors.js';
 import { WebWidgetPortalDestinations } from '../WebWidgetPortalDestinations.js';
 
@@ -21,18 +20,22 @@ export async function toLoadPromise(model) {
 
   model.status = LOADING_SOURCE_CODE;
   model.loadPromise = model
-    .loader(toProperties(model))
-    .then((result = {}) => {
+    .loader(model.properties)
+    .then(main => {
+      if (typeof main === 'function') {
+        main = main();
+      }
+
       Object.assign(model, {
-        bootstrap: flattenFnArray(model, result, 'bootstrap'),
-        mount: flattenFnArray(model, result, 'mount'),
+        bootstrap: flattenFnArray(model, main, 'bootstrap'),
+        mount: flattenFnArray(model, main, 'mount'),
         portalRegistry: new WebWidgetPortalDestinations(),
         portalDestinations: [],
         status: NOT_BOOTSTRAPPED,
-        timeouts: ensureValidAppTimeouts(result.timeouts),
-        unload: flattenFnArray(model, result, 'unload'),
-        unmount: flattenFnArray(model, result, 'unmount'),
-        update: flattenFnArray(model, result, 'update')
+        timeouts: ensureValidAppTimeouts(main.timeouts),
+        unload: flattenFnArray(model, main, 'unload'),
+        unmount: flattenFnArray(model, main, 'unmount'),
+        update: flattenFnArray(model, main, 'update')
       });
     })
     .catch(error => {

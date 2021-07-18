@@ -1,7 +1,14 @@
 /* global setTimeout, console */
-
-import { toProperties } from '../properties/properties.js';
 import { formatErrorMessage } from './errors.js';
+
+function toProperties(model) {
+  const properties = model.properties;
+  const results = model.sandbox
+    ? model.sandbox.toVirtual(properties)
+    : properties;
+
+  return results;
+}
 
 const defaultWarningMillis = 1000;
 

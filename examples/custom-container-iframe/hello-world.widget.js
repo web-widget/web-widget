@@ -1,9 +1,9 @@
-export default () => {
+define(() => {
   let element;
   return {
-    async bootstrap({ dataset }) {
+    async bootstrap() {
       element = document.createElement('div');
-      element.innerHTML = `hello wrold: ${JSON.stringify(dataset, null, 2)}`;
+      element.innerHTML = `hello wrold`;
     },
 
     async mount({ container }) {
@@ -14,4 +14,4 @@ export default () => {
       container.removeChild(element);
     }
   };
-};
+});
