@@ -15,8 +15,9 @@ export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
     customElements.define(
       this.as,
       class extends HTMLWebWidgetElement {
-        createConfig() {
-          return Object.defineProperties(
+        constructor() {
+          super();
+          Object.defineProperties(
             this,
             [
               'application',
@@ -26,11 +27,16 @@ export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
               'src',
               'text',
               'type',
+              'loader',
               HTMLWebWidgetElement.PARSER
             ].reduce((accumulator, name) => {
-              accumulator[name] = {
-                value: importElement[name]
-              };
+              if (typeof importElement[name] !== 'undefined') {
+                accumulator[name] = {
+                  writable: false,
+                  enumerable: false,
+                  value: importElement[name]
+                };
+              }
               return accumulator;
             }, {})
           );

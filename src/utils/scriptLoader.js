@@ -34,7 +34,7 @@ export const evaluate = (source, sandbox, context) => {
   return new Function(...keys, code)(...values);
 };
 
-export function umdParser(source, sandbox, context = {}) {
+export function umdParser(source, sandbox) {
   const { define, module, exports } = evaluate(() => {
     const exports = {};
     const module = { exports };
@@ -54,14 +54,19 @@ export function umdParser(source, sandbox, context = {}) {
   evaluate(source, sandbox, {
     define,
     module,
-    exports,
-    ...context
+    exports
   });
 
   return module.exports;
 }
 
-export function moduleParser(source) {
+export function moduleParser(source, sandbox) {
+  if (sandbox) {
+    return Promise.reject(
+      new Error(`The module format does not support sandbox mode`)
+    );
+  }
+
   const blob = new Blob([source], { type: 'application/javascript' });
   const url = URL.createObjectURL(blob);
   return import(url).then(
@@ -93,13 +98,4 @@ export const scriptSourceLoader = (url, options = {}) => {
 
     return res.text();
   });
-};
-
-export const absoluteUrl = (url, baseURI) => new URL(url, baseURI).href;
-
-export const scriptLoader = (url, baseURI, sandbox, context) => {
-  url = absoluteUrl(url, baseURI);
-  return scriptSourceLoader(url).then(source =>
-    umdParser(appendSourceUrl(source, url), sandbox, context)
-  );
 };

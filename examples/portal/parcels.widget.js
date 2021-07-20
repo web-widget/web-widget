@@ -45,20 +45,16 @@ define({
 
     container.querySelector('#mount-widget').onclick = () => {
       const parent = document.createElement('web-widget');
-      parent.application = async () => {
-        return `define(${(() => {
-          return {
-            async mount({ container }) {
-              console.log('aaa mount');
-              container.innerHTML = 'hahah<slot name="main"></slot>';
-            },
-            async unmount({ container }) {
-              console.log('aaa unmount');
-              container.innerHTML = '';
-            }
-          };
-        }).toString()})`;
-      };
+      parent.application = () => ({
+        async mount({ container }) {
+          console.log('aaa mount');
+          container.innerHTML = 'hahah<slot name="main"></slot>';
+        },
+        async unmount({ container }) {
+          console.log('aaa unmount');
+          container.innerHTML = '';
+        }
+      });
       container.querySelector('#mount-parcel-container').appendChild(parent);
       const app = document.createElement('web-widget');
       app.src = './lit-element-todomvc.widget.js';

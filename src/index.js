@@ -25,12 +25,9 @@ const MODEL = Symbol('model');
 const APPLICATION = Symbol('application');
 const RESOURCE_LOADED = Symbol('resourceLoaded');
 
-const isBindingElementLifecycle = view => !view.createConfig().inactive;
+const isBindingElementLifecycle = view => !view.inactive;
 const isResourceReady = view =>
-  view.isConnected &&
-  (view.createConfig().src ||
-    view.createConfig().application ||
-    view.createConfig().text);
+  view.isConnected && (view.src || view.application || view.text);
 const isAutoLoad = view =>
   isBindingElementLifecycle(view) && isResourceReady(view);
 const isAutoUnload = isBindingElementLifecycle;
@@ -123,10 +120,9 @@ function createWebWidget(view) {
   }
 
   let sandbox;
-  const config = view.createConfig(this);
-  const { src, application, debug, sandboxed } = config;
+  const { src, application, debug, sandboxed } = view;
   if (sandboxed) {
-    sandbox = view.createSandbox(config);
+    sandbox = view.createSandbox();
   }
 
   const id = view.id;
@@ -136,7 +132,7 @@ function createWebWidget(view) {
   const properties = view.createDependencies();
   const parent = () => getParentModel(view);
   const children = () => getChildModels(view);
-  const loader = view.createLoader(config);
+  const loader = view.loader.bind(view);
 
   view[MODEL] = new Model({
     children,
@@ -185,18 +181,22 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   set application(main) {
-    this[APPLICATION] = main;
-    tryAutoLoad(this);
+    if (typeof main === 'function') {
+      this[APPLICATION] = main;
+      tryAutoLoad(this);
+    }
   }
 
   get inactive() {
     return this.getAttribute('inactive') !== null;
   }
 
-  set inactive(v) {
-    return v
-      ? this.setAttribute('inactive', '')
-      : this.removeAttribute('inactive');
+  set inactive(value) {
+    if (value) {
+      this.setAttribute('inactive', '');
+    } else {
+      this.removeAttribute('inactive');
+    }
   }
 
   get importance() {
@@ -219,10 +219,12 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     return this.getAttribute('sandboxed') !== null;
   }
 
-  set sandboxed(v) {
-    return v
-      ? this.setAttribute('sandboxed', '')
-      : this.removeAttribute('sandboxed');
+  set sandboxed(value) {
+    if (value) {
+      this.setAttribute('sandboxed', '');
+    } else {
+      this.removeAttribute('sandboxed');
+    }
   }
 
   get type() {
@@ -269,41 +271,39 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     this.setAttribute('text', value);
   }
 
-  createConfig() {
-    return this;
-  }
-
   createDependencies() {
     return new WebWidgetDependencies(this);
   }
 
-  // eslint-disable-next-line consistent-return
-  createLoader({ src, application, text, type, importance }) {
-    const view = this;
-    const parser = type === 'module' ? moduleParser : umdParser;
+  [PARSER]() {
+    const parser = this.type === 'module' ? moduleParser : umdParser;
+    return parser(...arguments);
+  }
 
-    if (typeof application === 'function') {
+  // eslint-disable-next-line consistent-return
+  async loader() {
+    const view = this;
+    const { src, application, text, type, importance } = view;
+
+    if (application) {
       return application;
     }
 
-    if (typeof src === 'string') {
-      return async () =>
-        type === 'module'
-          ? import(src).then(module => {
-              return module.default || module;
-            })
-          : scriptSourceLoader(src, { importance }).then(source => {
-              const sandbox = view[MODEL].sandbox;
-              const module = parser(appendSourceUrl(source, src), sandbox);
-              return module;
-            });
+    if (src) {
+      return type === 'module'
+        ? import(src).then(module => {
+            return module.default || module;
+          })
+        : scriptSourceLoader(src, { importance }).then(source => {
+            const sandbox = view[MODEL].sandbox;
+            const module = this[PARSER](appendSourceUrl(source, src), sandbox);
+            return module;
+          });
     }
 
-    if (typeof text === 'string') {
-      return async () => {
-        const sandbox = view[MODEL].sandbox;
-        return parser(text, sandbox);
-      };
+    if (text) {
+      const sandbox = view[MODEL].sandbox;
+      return this[PARSER](text, sandbox);
     }
   }
 

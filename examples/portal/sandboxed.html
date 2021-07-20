@@ -78,8 +78,7 @@
 
 
   <script type="module">
-    //import '../../../web-sandbox/src/index.js';
-    import '../../../web-sandbox/dist/web-sandbox.unsafe.umd.js';
+    import '../../../web-sandbox/src/index.js';
     import '../../src/index.js';
 
     customElements.define('hello-world', class HelloWorld extends HTMLWebWidgetElement {});
@@ -89,7 +88,7 @@
     const widget = document.createElement('web-widget');
     widget.name = 'dialog';
     widget.inactive = true;
-    widget.application = async () => ({
+    widget.application = () => ({
       async bootstrap({ container, context }) {
         console.log('dialog bootstrap')
         const dialogMain = document.createElement('slot');

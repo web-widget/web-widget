@@ -80,7 +80,7 @@
     const widget = document.createElement('web-widget');
     widget.name = 'dialog';
     widget.inactive = true;
-    widget.application = async () => ({
+    widget.application = () => ({
       async bootstrap({ container, context }) {
         console.log('dialog bootstrap')
         const dialogMain = document.createElement('slot');
