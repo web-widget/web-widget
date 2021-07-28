@@ -35,8 +35,6 @@ WebWidget 的本质是组件的服务化治理，而服务意味着更少的过�
 * 应用事件机制、应用的对外接口并非 WebWidget 的目标。如果一个组件需要频繁的和外部交互那么它并非 WebWidget 的适用范围，这种情况更适合使用传统 npm 包进行共享。虽然如此，我们也要需要确保 WebWidget 所提炼的功能是足够原子化的，能够允许开发者在 WebWidget 之上提供插件所要求的专属 API 或者事件机制
 * WebWidget 不能取代 `<iframe>` 标签或者 Web Component 的自定义元素标签，它们各自核心价值无法被取代
 
-> 需要讨论：事件机制是否要纳入 WebWidget。
-
 ## 标准化内容
 
 WebWidget 标准由如下三个部分组成：
@@ -250,7 +248,7 @@ WebWidget 辅助工具：
 ## Web Components HTML 模块化导入
 
 ```html
-<web-component.import as=tagName src=webComponentsUrl></web-component.import>
+<web-component.import as=tagName from=webComponentsUrl></web-component.import>
 ```
 
 它拥有和 `<web-widget.import>` 一样的属性，不同的是它只支持标准的 Web Components 模块格式。Web Components 模块无需打包成 UMD 规范，也无需遵循 WebWidget 的生命周期定义。只需要按照 Web Components 的要求实现自定义元素的构造器，并且使用 `customElements.define(name, Element)` 注册。例如：
@@ -270,7 +268,7 @@ customElements.define('my-element', MyElment);
 ```
 
 ```html
-<web-component.import as="slot-demo" src="./my-element.js"></web-component.import>
+<web-component.import as="slot-demo" from="./my-element.js"></web-component.import>
 
 <slot-demo>
   <p slot="main">Hello Wrold</p>
