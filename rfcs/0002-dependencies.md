@@ -29,7 +29,7 @@ export default () => ({
 
 # 提议内容
 
-- 增加一个全新的全局接口 `WebWidgetDependencies`，用于实现插件的 API 依赖注入
+- 增加一个全新的全局接口 `WebWidgetDependencies`，用于注入插件文件所依赖的 API
 - `HTMLWebWidgetElement` 类增加 `createDependencies` 方法，它的功能是创建 `WebWidgetDependencies` 的实例，而开发者可以覆盖它
 
 ```js
@@ -178,4 +178,5 @@ document.body.appendChild(widget);
 
 # 需要讨论的问题
 
-* 是否有比 `WebWidgetDependencies` 更符合语义的命名方式？
+* 是否有比 `WebWidgetDependencies` 更符合语义的命名方式
+* 与 TC39 Realms 提案的兼容性问题
