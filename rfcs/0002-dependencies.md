@@ -20,7 +20,7 @@ export default () => ({
 });
 ```
 
-对于容器而言，无论是管理小挂件、微应用还是插件，所依赖的能力几乎都相同，因此 WebWidget 试图成为一个可扩展的前端微服务运行容器，以便基于它接入现代工程的治理手段。通常情况下插件需要依赖宿组提供的 API 才能运行，而通生命周期参数注入是一种较好的依赖管理方式，因为它是一个纯函数没有副作用。然而目前 WebWidget 容器并没有标准的可以向应用注入依赖的接口，因此这是为什么要提出本 REC 的原因。
+对于容器而言，无论是管理小挂件、微应用还是插件，所依赖的能力几乎都相同，因此 WebWidget 试图成为一个支持运行它们并可扩展的前端微服务运行容器。通常情况下，插件需要依赖宿组提供的 API 才能运行，然而目前 WebWidget 容器并没有标准的可以向应用注入依赖的接口，因此这是为什么要提出本 REC 的原因。
 
 # 产出
 
@@ -29,8 +29,9 @@ export default () => ({
 
 # 提议内容
 
+- 明确提出使用生命周期函数的参数注入 API 依赖，而不是全局对象或者使用事件监听器传入
 - 增加一个全新的全局接口 `WebWidgetDependencies`，用于注入插件文件所依赖的 API
-- `HTMLWebWidgetElement` 类增加 `createDependencies` 方法，它的功能是创建 `WebWidgetDependencies` 的实例，而开发者可以覆盖它
+- `HTMLWebWidgetElement` 类增加 `createDependencies` 方法，它的功能是创建 `WebWidgetDependencies` 的实例，而开发者可以覆盖它的默认行为
 
 ```js
 WebWidgetDependencies.prototype.setDocumentTitle = function(title) {
