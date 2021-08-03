@@ -95,7 +95,7 @@ export default () => ({
 
 ### 提供插件专属的接口
 
-如果直接在 `WebWidgetDependencies.prototype` 进行扩展会影响所有的插件，通过继承可以实现多态。
+如果直接在 `WebWidgetDependencies.prototype` 进行扩展会影响所有的插件，而通过继承可以实现多态，进行隔离。
 
 ```js
 class PluginDependencies extends WebWidgetDependencies {
