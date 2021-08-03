@@ -38,6 +38,15 @@ WebWidgetDependencies.prototype.setDocumentTitle = function(title) {
 }
 ```
 
+```js
+// ./plugin.widget.js
+export default () => ({
+  async mount({ setDocumentTitle }) {
+    setDocumentTitle('hello wrold');
+  }
+});
+```
+
 ## 替代方案对比
 
 替代方案 1:
