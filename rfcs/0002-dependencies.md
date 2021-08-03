@@ -20,7 +20,7 @@ export default () => ({
 });
 ```
 
-插件无法独立运行，它需要依赖宿组提供的 API，而通生命周期的参数注入是一种较好的依赖管理方式，因为它没有副作用。然而目前 WebWidget 容器并没有标准的可以向应用注入依赖的接口，因此这是为什么要提出本 REC 的原因。
+通常情况下插件需要依赖宿组提供的 API 才能运行，而通生命周期参数注入是一种较好的依赖管理方式，因为它是一个纯函数没有副作用。然而目前 WebWidget 容器并没有标准的可以向应用注入依赖的接口，因此这是为什么要提出本 REC 的原因。
 
 # 产出
 
@@ -95,7 +95,7 @@ export default () => ({
 
 ### 提供插件专属的接口
 
-如果直接在 `WebWidgetDependencies.prototype` 进行扩展会影响所有的插件，而通过继承可以实现多态，进行隔离。
+如果直接在 `WebWidgetDependencies.prototype` 进行扩展会影响所有的插件，而通过继承可以实现多态进行隔离。
 
 ```js
 class PluginDependencies extends WebWidgetDependencies {
@@ -128,7 +128,7 @@ export default {
 
 ### 给所有的 WebWidget 容器增加 ShadowDOM 的开关
 
-WebWidget 应用默认工作在 Shadow DOM 中，我们可以设计成配置开关。一旦包含 `noshadow` 属性就不开启 Shadow DOM：
+由于 WebWidget 应用默认工作在 Shadow DOM 中，一些情况我们需要关闭 Shadow DOM。最好的做法是将其设计为一个可选的开关，一旦包含 `noshadow` 属性就不开启 Shadow DOM：
 
 ```js
 const containerDescriptor = Reflect.getOwnPropertyDescriptor(WebWidgetDependencies.prototype, 'container');
