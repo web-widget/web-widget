@@ -148,7 +148,7 @@ Reflect.defineProperty(WebWidgetDependencies.prototype, 'container', containerDe
 <web-widget src="./hello-world.widget.js" noshadow></web-widget>
 ```
 
-如果想通过 DOM 接口来操作 `noshadow`，这应当在扩展 `HTMLWebWidgetElement`：
+如果想通过 DOM 接口来操作 `noshadow`，这应当扩展 `HTMLWebWidgetElement`：
 
 ```js
 // 为 HTMLWebWidgetElement 拓展一个 "noshadow" properties
