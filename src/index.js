@@ -83,12 +83,13 @@ function getChildModels(view) {
     childWebWidgetElements.push(...getChildWebWidgetElements(shadowRoot));
   }
 
-  const childModels = childWebWidgetElements.map(
-    webWidgetElement => webWidgetElement[MODEL]
-  );
-  childModels.push(...model.portalDestinations);
-
-  return childModels;
+  return [
+    ...new Set(
+      [...childWebWidgetElements, ...model.portals].map(
+        webWidgetElement => webWidgetElement[MODEL]
+      )
+    )
+  ];
 }
 
 function tryAutoLoad(view) {

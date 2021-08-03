@@ -7,16 +7,15 @@ define({
     console.log('demo bootstrap');
     element = document.createElement('div');
   },
-  async mount({ container, context, createPortal }) {
+  async mount({ container, context }) {
     console.log('demo mount');
 
     element.innerHTML = `
       <div style="border: 3px dashed #acacac;">
         <button id="close-self">✕</button>
-        <button id="open-portal">Open Portal</button>
-        <button id="mount-parcel">Mount Parcel</button>
-        <button id="mount-widget">Mount Widget</button>
-        <div id="mount-parcel-container"></div>
+        <button id="load-remote-widget">Load Remote Widget</button>
+        <button id="load-local-widget">Load Local Widget</button>
+        <div id="widget-container"></div>
       <div>
     `;
 
@@ -26,36 +25,28 @@ define({
       context.unmount();
     };
 
-    container.querySelector('#open-portal').onclick = () => {
-      const app = document.createElement('web-widget');
-      app.id = '#app-portal-demo';
-      app.src = './lit-element-todomvc.widget.js';
-      createPortal(app, 'dialog')
-        .mount()
-        .then(() => {
-          console.log('dialog opened');
-        });
-    };
-
-    container.querySelector('#mount-parcel').onclick = () => {
+    container.querySelector('#load-remote-widget').onclick = () => {
       const app = document.createElement('web-widget');
       app.src = './lit-element-todomvc.widget.js';
-      container.querySelector('#mount-parcel-container').appendChild(app);
+      container.querySelector('#widget-container').appendChild(app);
     };
 
-    container.querySelector('#mount-widget').onclick = () => {
+    container.querySelector('#load-local-widget').onclick = () => {
       const parent = document.createElement('web-widget');
       parent.application = () => ({
         async mount({ container }) {
           console.log('aaa mount');
-          container.innerHTML = 'hahah<slot name="main"></slot>';
+          container.innerHTML = `
+            <h3 style="color: red">Todo</h3>
+            <p><slot name="main"></slot></p>
+          `;
         },
         async unmount({ container }) {
           console.log('aaa unmount');
           container.innerHTML = '';
         }
       });
-      container.querySelector('#mount-parcel-container').appendChild(parent);
+      container.querySelector('#widget-container').appendChild(parent);
       const app = document.createElement('web-widget');
       app.src = './lit-element-todomvc.widget.js';
       app.slot = 'main';

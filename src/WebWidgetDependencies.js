@@ -53,10 +53,10 @@ export class WebWidgetDependencies {
       const findCustomPortal = (model, name) => {
         let current = model;
         do {
-          current = current.parent;
-          if (current && current.portalRegistry.get(name)) {
-            return current.portalRegistry.get(name);
+          if (current.portalDestinations.get(name)) {
+            return current.portalDestinations.get(name);
           }
+          current = current.parent;
         } while (current);
 
         return HTMLWebWidgetElement.portalDestinations.get(name);
@@ -112,7 +112,7 @@ export class WebWidgetDependencies {
         }
       };
 
-      model.portalDestinations.push(portal[MODEL]);
+      model.portals.push(portal);
       return contextInterfaces;
     };
   }

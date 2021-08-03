@@ -39,50 +39,14 @@
 
 <body>
 
-  <!-- <web-widget
-    name="basic"
-    debug
-    sandboxed>
-    <template main>
-      <data>
-        {
-          "id": "rere"
-        }
-      </data>
-      <script>
-        define(() => ({
-          async mount({ container }) {
-            console.log('aaa mount');
-            container.innerHTML = 'hahah<slot name="main"></slot>';
-          },
-          async unmount({ container }) {
-            console.log('aaa unmount');
-            container.innerHTML = '';
-          }
-        }));
-      </script>
-    </template>
-  </web-widget> -->
-
   <web-widget
     name="parcels-demo"
-    src="./parcels.widget.js"
-    sandboxed
-    csp="
-      default-src 'none';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;
-      style-src * 'unsafe-inline' cdn.jsdelivr.net;
-      navigate-to 'self' web-sandbox.js.org;
-    ">
+    src="./index.widget.js">
   </web-widget>
 
 
   <script type="module">
-    import '../../../web-sandbox/src/index.js';
     import '../../src/index.js';
-
-    customElements.define('hello-world', class HelloWorld extends HTMLWebWidgetElement {});
-
     
     const dialog = document.createElement('dialog');
     const widget = document.createElement('web-widget');

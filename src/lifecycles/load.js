@@ -29,8 +29,8 @@ export async function toLoadPromise(model) {
       Object.assign(model, {
         bootstrap: flattenFnArray(model, main, 'bootstrap'),
         mount: flattenFnArray(model, main, 'mount'),
-        portalRegistry: new WebWidgetPortalDestinations(),
-        portalDestinations: [],
+        portalDestinations: new WebWidgetPortalDestinations(),
+        portals: [],
         status: NOT_BOOTSTRAPPED,
         timeouts: ensureValidAppTimeouts(main.timeouts),
         unload: flattenFnArray(model, main, 'unload'),

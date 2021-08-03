@@ -7,7 +7,7 @@
   "scripts": {
     "prepare": "npm run build",
     "build": "npm run web-widget:build",
-    "serve": "web-dev-server --node-resolve --watch --open examples/",
+    "serve": "web-dev-server --node-resolve --watch examples/",
     "examples:web-widget-router": "cd examples/web-widget-router && web-dev-server",
     "examples:web-widget-collection": "cd examples/web-widget-collection && web-dev-server",
     "examples:single-spa": "cd examples/single-spa && web-dev-server",
