@@ -8,7 +8,7 @@
 
 # 动机
 
-WebWidget 是一种前端容器化的技术，它除了可以通过路由驱动而实现一个微前端的应用，也可以作为插件容器。微应用本质上也是一种插件的设计模式，它们也可以使用共同的生命周期抽象：
+小挂件、微应用本质上也是一种插件的设计模式，我们可以使用相同的设计模式来描述它们的生命周期：
 
 ```js
 export default () => ({
@@ -20,17 +20,17 @@ export default () => ({
 });
 ```
 
-通常情况下插件需要依赖宿组提供的 API 才能运行，而通生命周期参数注入是一种较好的依赖管理方式，因为它是一个纯函数没有副作用。然而目前 WebWidget 容器并没有标准的可以向应用注入依赖的接口，因此这是为什么要提出本 REC 的原因。
+对于容器而言，无论是管理小挂件、微应用还是插件，所依赖的能力几乎都相同，因此 WebWidget 试图成为一个可扩展的前端微服务运行容器，以便基于它接入现代工程的治理手段。通常情况下插件需要依赖宿组提供的 API 才能运行，而通生命周期参数注入是一种较好的依赖管理方式，因为它是一个纯函数没有副作用。然而目前 WebWidget 容器并没有标准的可以向应用注入依赖的接口，因此这是为什么要提出本 REC 的原因。
 
 # 产出
 
 - 开发者可以通过 WebWidget 来构建应用的插件系统
-- 基于低级的接口设计可让 WebWidget 能够保持长远的稳定的同时应对未来的需求
+- 基于低级的接口设计可让 WebWidget 能够适应更多不可预测的需求，并且保持较长的稳定性
 
 # 提议内容
 
-- 增加一个全新的全局接口 `WebWidgetDependencies`，而生命周期的参数即等于它的实例，开发者可以随时通过它注入新的特性
-- `HTMLWebWidgetElement` 增加一个原型 `createDependencies()` 方法，它默认会创建 `WebWidgetDependencies` 的实例，而开发者可以覆盖它
+- 增加一个全新的全局接口 `WebWidgetDependencies`，用于实现插件的 API 依赖注入
+- `HTMLWebWidgetElement` 类增加 `createDependencies` 方法，它的功能是创建 `WebWidgetDependencies` 的实例，而开发者可以覆盖它
 
 ```js
 WebWidgetDependencies.prototype.setDocumentTitle = function(title) {
@@ -63,7 +63,7 @@ HTMLWebWidgetElement.prototype.setDocumentTitle = function(title) {
 此方案弊端：
 
 1. `HTMLWebWidgetElement` 是 `<web-widget>` 自定义标签的接口，它是视图的实现，而插件并不关心视图，因此用它作为插件扩展接口与职责不相符
-2. `HTMLWebWidgetElement.prototype.dependencies` 是一个数组对象，这意味通过操作实例 `dependencies` 属性的时候需要特别小心，否则它会影响所有的实例。标准的 Web 接口原型中几乎没有使用对象
+2. `HTMLWebWidgetElement.prototype.dependencies` 是一个 `array` 对象，这意味通过操作实例 `dependencies` 属性的时候需要特别小心，否则它会影响所有的实例；由于标准的 Web 接口原型中几乎没有使用对象，因此这样的设计也不符合既定的接口风格
 
 代替方案 2:
 
