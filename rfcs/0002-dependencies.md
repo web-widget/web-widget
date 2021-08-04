@@ -31,9 +31,9 @@ export default () => ({
 
 # 提议内容
 
-- 明确提出使用生命周期函数的参数注入 API 依赖，而不是全局对象或者使用事件监听器传入
+- 提出使用生命周期函数的参数注入 API 依赖，而不是全局对象或者使用事件监听器传入
 - 增加一个全新的全局接口 `WebWidgetDependencies`，用于注入插件文件所依赖的 API
-- `HTMLWebWidgetElement` 类增加 `createDependencies` 方法，它的功能是创建 `WebWidgetDependencies` 的实例，而开发者可以覆盖它的默认行为
+- `HTMLWebWidgetElement` 类增加 `createDependencies` 钩子，它默认会调用 `new WebWidgetDependencies(this)`，而开发者可以覆盖它
 
 ```js
 WebWidgetDependencies.prototype.setDocumentTitle = function(title) {
@@ -134,9 +134,11 @@ export default {
 由于 WebWidget 应用默认工作在 Shadow DOM 中，一些情况我们需要关闭 Shadow DOM。最好的做法是将其设计为一个可选的开关，一旦包含 `noshadow` 属性就不开启 Shadow DOM：
 
 ```js
+// 更改内置的 container getter 行为
 const containerDescriptor = Reflect.getOwnPropertyDescriptor(WebWidgetDependencies.prototype, 'container');
 const containerGetter = containerDescriptor.get;
 containerDescriptor.get = function get() {
+  // this.ownerElement 为容器元素的引用
   if (this.ownerElement.getAttribute('noshadow') !== null) {
     return this.ownerElement;
   }
