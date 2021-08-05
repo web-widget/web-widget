@@ -1,6 +1,6 @@
-/* global window, customElements, HTMLWebWidgetElement */
+/* global window, customElements, HTMLWebWidgetElement, URL */
+/* eslint-disable max-classes-per-file */
 
-// eslint-disable-next-line max-classes-per-file
 export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
   get as() {
     return this.getAttribute('as') || '';
@@ -10,26 +10,52 @@ export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
     this.setAttribute('as', value);
   }
 
-  connectedCallback() {
-    const { as, application, csp, debug, sandboxed, src, text, type } = this;
-    const parser = this[HTMLWebWidgetElement.PARSER];
+  get from() {
+    const value = this.getAttribute('from');
+    return value === null ? '' : new URL(value, this.baseURI).href;
+  }
 
+  set from(value) {
+    this.setAttribute('from', value);
+  }
+
+  connectedCallback() {
+    if (!this.as || !this.from) {
+      return;
+    }
+
+    const importElement = this;
+    const nameMap = {
+      src: 'from'
+    };
     customElements.define(
-      as,
+      this.as,
       class extends HTMLWebWidgetElement {
         constructor() {
           super();
-
-          this[HTMLWebWidgetElement.CONFIG] = {
-            [HTMLWebWidgetElement.PARSER]: parser,
-            application,
-            csp,
-            debug,
-            sandboxed,
-            src,
-            text,
-            type
-          };
+          Object.defineProperties(
+            this,
+            [
+              'application',
+              'csp',
+              'debug',
+              'sandboxed',
+              'src',
+              'text',
+              'type',
+              'loader',
+              HTMLWebWidgetElement.PARSER
+            ].reduce((accumulator, name) => {
+              if (typeof importElement[name] !== 'undefined') {
+                accumulator[name] = {
+                  writable: false,
+                  enumerable: false,
+                  value: importElement[nameMap[name] || name] || null
+                };
+              }
+              return accumulator;
+            }, {})
+          );
         }
       }
     );

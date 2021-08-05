@@ -10,9 +10,9 @@
 
 <body>
 
-  <web-widget type="module" src="./index.js" data-id="01"></web-widget>
-  <web-widget type="module" src="./index.js" data-id="02"></web-widget>
-  <web-widget type="module" src="./index.js" data-id="03"></web-widget>
+  <web-widget src="./slot.widget.js">
+    <h3 slot="title">你好</h3>
+  </web-widget>
 
   <script type="module">
     import '../../src/index.js';

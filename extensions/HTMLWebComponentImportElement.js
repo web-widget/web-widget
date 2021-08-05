@@ -146,7 +146,7 @@ function createCustomElementsProxy(sandbox, definedCallback) {
   return evaluate(creater, sandbox)(definedCallback, define$, get$);
 }
 
-function WebComponentsParser(source, sandbox, context = {}) {
+function webComponentsParser(source, sandbox, context = {}) {
   let name;
   const HTMLElementProxy = createHTMLElementClassProxy(sandbox);
   const defineProxy = createCustomElementsProxy(
@@ -201,9 +201,11 @@ function WebComponentsParser(source, sandbox, context = {}) {
 }
 
 export class HTMLWebComponentImportElement extends HTMLWebWidgetImportElement {
-  // eslint-disable-next-line class-methods-use-this
-  get [HTMLWebWidgetImportElement.PARSER]() {
-    return WebComponentsParser;
+  constructor() {
+    super();
+    this[HTMLWebWidgetImportElement.PARSER] = function () {
+      return webComponentsParser(...arguments);
+    };
   }
 }
 

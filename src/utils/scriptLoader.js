@@ -1,4 +1,4 @@
-/* global URL, fetch */
+/* global URL, Blob, fetch */
 export const appendSourceUrl = (source, url) => {
   const sourceURLRegEx =
     /(\/\/# sourceURL=)((https?:\/\/)?([\w-])+\.{1}([a-zA-Z]{2,63})([/\w-]*)*\/?\??([^#\n\r]*)?)/;
@@ -34,7 +34,7 @@ export const evaluate = (source, sandbox, context) => {
   return new Function(...keys, code)(...values);
 };
 
-export function UMDParser(source, sandbox, context = {}) {
+export function umdParser(source, sandbox) {
   const { define, module, exports } = evaluate(() => {
     const exports = {};
     const module = { exports };
@@ -54,11 +54,31 @@ export function UMDParser(source, sandbox, context = {}) {
   evaluate(source, sandbox, {
     define,
     module,
-    exports,
-    ...context
+    exports
   });
 
   return module.exports;
+}
+
+export function moduleParser(source, sandbox) {
+  if (sandbox) {
+    return Promise.reject(
+      new Error(`The module format does not support sandbox mode`)
+    );
+  }
+
+  const blob = new Blob([source], { type: 'application/javascript' });
+  const url = URL.createObjectURL(blob);
+  return import(url).then(
+    module => {
+      URL.revokeObjectURL(url);
+      return module.default || module;
+    },
+    error => {
+      URL.revokeObjectURL(url);
+      throw error;
+    }
+  );
 }
 
 export const scriptSourceLoader = (url, options = {}) => {
@@ -78,13 +98,4 @@ export const scriptSourceLoader = (url, options = {}) => {
 
     return res.text();
   });
-};
-
-export const absoluteUrl = (url, baseURI) => new URL(url, baseURI).href;
-
-export const scriptLoader = (url, baseURI, sandbox, context) => {
-  url = absoluteUrl(url, baseURI);
-  return scriptSourceLoader(url).then(source =>
-    UMDParser(appendSourceUrl(source, url), sandbox, context)
-  );
 };

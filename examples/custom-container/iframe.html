@@ -10,7 +10,7 @@
 
 <body>
 
-  <web-widget src="./hello-world.widget.js" noshadow></web-widget>
+  <web-widget src="./hello-world.widget.js" container="iframe"></web-widget>
 
   <script type="module">
     import '../../src/index.js';
@@ -18,23 +18,23 @@
     const containerDescriptor = Reflect.getOwnPropertyDescriptor(WebWidgetDependencies.prototype, 'container');
     const containerGetter = containerDescriptor.get;
     containerDescriptor.get = function get() {
-      if (this.ownerElement.getAttribute('noshadow') !== null) {
-        return this.ownerElement;
+      if (this.ownerElement.getAttribute('container') === 'iframe') {
+        const iframe = document.createElement('iframe');
+        this.ownerElement.appendChild(iframe);
+        return iframe.contentDocument.body;
       }
       return containerGetter.apply(this, arguments);
     };
     Reflect.defineProperty(WebWidgetDependencies.prototype, 'container', containerDescriptor);
 
     Object.defineProperties(HTMLWebWidgetElement.prototype, {
-      noshadow: {
+      container: {
         configurable: true,
         get() {
-          return this.getAttribute('noshadow') !== null;
+          return this.getAttribute('container') || 'shadow-root';
         },
-        set(v) {
-          return v
-            ? this.setAttribute('noshadow', '')
-            : this.removeAttribute('noshadow');
+        set(value) {
+          this.setAttribute('container', value)
         }
       }
     });

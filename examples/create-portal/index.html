@@ -18,9 +18,6 @@
       display: block;
     }
     dialog {
-      position: fixed;
-      left: 0;
-      top: 0;
       z-index: 9;
       border-radius: 10px;
       overflow: auto;
@@ -42,48 +39,20 @@
 
 <body>
 
-  <!-- <web-widget
-    name="basic"
-    debug
-    sandboxed>
-    <template main>
-      <data>
-        {
-          "id": "rere"
-        }
-      </data>
-      <script>
-        define(() => ({
-          async mount({ container }) {
-            console.log('aaa mount');
-            container.innerHTML = 'hahah<slot name="main"></slot>';
-          },
-          async unmount({ container }) {
-            console.log('aaa unmount');
-            container.innerHTML = '';
-          }
-        }));
-      </script>
-    </template>
-  </web-widget> -->
-
   <web-widget
     name="parcels-demo"
-    src="./parcels.widget.js">
+    src="./index.widget.js">
   </web-widget>
 
 
   <script type="module">
     import '../../src/index.js';
-
-    customElements.define('hello-world', class HelloWorld extends HTMLWebWidgetElement {});
-
     
     const dialog = document.createElement('dialog');
     const widget = document.createElement('web-widget');
     widget.name = 'dialog';
     widget.inactive = true;
-    widget.application =  {
+    widget.application = () => ({
       async bootstrap({ container, context }) {
         console.log('dialog bootstrap')
         const dialogMain = document.createElement('slot');
@@ -107,7 +76,7 @@
         console.log('dialog unmount')
         dialog.close();
       }
-    };
+    });
 
     document.body.appendChild(dialog);
     dialog.appendChild(widget);
