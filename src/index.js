@@ -284,8 +284,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
 
   // eslint-disable-next-line consistent-return
   async loader() {
-    const view = this;
-    const { src, application, text, type, importance } = view;
+    const { src, application, text, type, importance } = this;
 
     if (application) {
       return application;
@@ -297,14 +296,14 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
             return module.default || module;
           })
         : scriptSourceLoader(src, { importance }).then(source => {
-            const sandbox = view[MODEL].sandbox;
+            const sandbox = this[MODEL].sandbox;
             const module = this[PARSER](appendSourceUrl(source, src), sandbox);
             return module;
           });
     }
 
     if (text) {
-      const sandbox = view[MODEL].sandbox;
+      const sandbox = this[MODEL].sandbox;
       return this[PARSER](text, sandbox);
     }
   }
@@ -343,6 +342,10 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   async mount() {
     await this.bootstrap();
     await toMountPromise(this[MODEL]);
+    const placeholder = this.querySelector('placeholder');
+    if (placeholder && placeholder.parentNode === this) {
+      this.removeChild(placeholder);
+    }
   }
 
   async update(properties = {}) {
