@@ -162,8 +162,9 @@ function preFetch(url) {
 
 const lazyImageObserver = new IntersectionObserver(entries => {
   entries.forEach(entry => {
-    if (entry.intersectionRatio > 0) {
+    if (entry.isIntersecting) {
       tryAutoLoad(entry.target);
+      lazyImageObserver.unobserve(entry.target);
     }
   });
 });
