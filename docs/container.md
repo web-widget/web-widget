@@ -10,7 +10,7 @@ WebWidget 是一个标准的 Web Component 组件，它也是一个容器，容�
 
 ## 占位符
 
-`placeholder` 元素将充当 WebWidget 元素的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 元素的直接子级。`placeholder` 元素将始终 fill（填充）父级 WebWidget 元素。
+`placeholder` 元素将充当 WebWidget 元素的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 元素的直接子级。
 
 ```html
 <web-widget src="app.widget.js">

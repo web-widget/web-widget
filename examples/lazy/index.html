@@ -20,7 +20,12 @@
 
     let html = '';
     for (let i = 0; i < 100; i ++) {
-      html += `<li><web-widget id="widget${i}" src="./hello-world.widget.js?${i}" loading="lazy"></web-widget></li>`;
+      html += `
+      <li>
+        <web-widget id="widget${i}" src="./hello-world.widget.js?${i}" loading="lazy">
+          <placeholder>loading...</placeholder>
+        </web-widget>
+      </li>`;
     }
     let ol = document.createElement('ol');
     ol.innerHTML = html;
