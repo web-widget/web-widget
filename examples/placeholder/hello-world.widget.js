@@ -2,12 +2,12 @@ define(() => {
   let element;
   return {
     async bootstrap() {
-      element = document.createElement('div');
+      element = document.createElement('span');
       element.innerHTML = `hello wrold`;
       return new Promise(resolve => {
         setTimeout(() => {
           resolve();
-        }, 1000);
+        }, 500);
       });
     },
 

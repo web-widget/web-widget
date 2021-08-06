@@ -106,7 +106,7 @@ export default {
   * `unmount()`
   * `unload()`
   * `<fallback>`（尚未实现）
-  * `<placeholder>`（尚未实现）
+  * `<placeholder>`
   * 预加载（实验性）
 
 WebWidget 辅助工具：
@@ -122,7 +122,9 @@ WebWidget 辅助工具：
 
 本章节非规范内容，仅用于辅助说明 WebWidget 的可扩展性。
 
-### 为应用启用沙盒与专属的内容安全策略
+### 运行第三方代码
+
+开启 `sandboxed` 功能，并且设置内容安全策略。
 
 ```html
 <web-widget
@@ -170,8 +172,33 @@ WebWidget 辅助工具：
 
 ### 懒加载
 
+类似 `<img>` 标签，使用 `loading="lazy"` 属性可以让元素进入视图才加载。
+
 ```html
 <web-widget src="./app.widget.js" loading="lazy"></web-widget>
+```
+
+### 占位符
+
+`<web-widget>` 元素的直接子元素 `<placeholder>` 标签将充当占位符。
+
+```html
+<web-widget src="./app.widget.js">
+  <placeholder>
+    loading..
+  </placeholder>
+</web-widget>
+```
+
+## 插槽
+
+如果应用支持插槽，那么可以直接使用 `slot` 属性来指定插入的位置：
+
+```html
+<web-widget src="./app.widget.js">
+  <span slot="title">hello</span>
+  <span slot="content">Let's have some different text!</span>
+</web-widget>
 ```
 
 ### SEO
@@ -180,15 +207,6 @@ WebWidget 辅助工具：
 
 * 使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom) 来描述关键内容
 * 使用 [JSON-LD](https://json-ld.org/) 描述关键内容
-
-使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom)：
-
-```html
-<web-widget name="my-app" src="my-app.widget.js">
-  <h3 slot="header">Hello</h3>
-  <p slot="main">World</p>
-</web-widget>
-```
 
 ### 路由驱动
 
@@ -226,10 +244,10 @@ WebWidget 辅助工具：
 </script>
 ```
 
-## WebWidget HTML 模块化导入
+## WebWidget: HTML 模块化系统
 
 ```html
-<web-widget.import as="hello-world" src="./slot.widget.js"></web-widget.import>
+<web-widget.import as="hello-world" from="./slot.widget.js"></web-widget.import>
 
 <hello-world>
   <p slot="main">hello wrold</p>
@@ -245,7 +263,7 @@ WebWidget 辅助工具：
 </script>
 ```
 
-## Web Components HTML 模块化导入
+## Web Components: HTML 模块化系统
 
 ```html
 <web-component.import as=tagName from=webComponentsUrl></web-component.import>
@@ -287,7 +305,7 @@ customElements.define('my-element', MyElment);
 
 ### 发布 WebWidget 应用
 
-WebWidget 可以发布到任何地方，例如企业的私有 CDN，如果你想让所有人都可以使用到，推荐发布到 Npm 或者 Github，这样使用者可以通过公共 CDN 加载它。 
+WebWidget 可以发布到任何地方，例如企业的私有 CDN。如果你想让所有人都可以使用到，推荐发布到 Npm 或者 Github，这样使用者可以通过公共 CDN 加载它。 
 
 ### WebWidget 应用自动升级
 
