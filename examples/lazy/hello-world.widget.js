@@ -3,11 +3,12 @@ define(() => {
   return {
     async bootstrap() {
       element = document.createElement('div');
+      element.style = 'background: green; color: white';
       element.innerHTML = `hello wrold`;
       return new Promise(resolve => {
         setTimeout(() => {
           resolve();
-        }, 500);
+        }, 900);
       });
     },
 

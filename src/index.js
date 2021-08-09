@@ -93,22 +93,26 @@ function getChildModels(view) {
 }
 
 function tryAutoLoad(view) {
-  if (isAutoLoad(view)) {
-    view.mount();
-  }
+  queueMicrotask(() => {
+    if (isAutoLoad(view)) {
+      view.mount();
+    }
+  });
 }
 
 function tryAutoUnload(view) {
-  if (isAutoUnload(view)) {
-    view.unload().then(() => {
-      if (
-        HTMLWebSandboxElement &&
-        view[HTMLWebSandboxElement.SANDBOX_INSTANCE]
-      ) {
-        view[HTMLWebSandboxElement.SANDBOX_DESTROY]();
-      }
-    });
-  }
+  queueMicrotask(() => {
+    if (isAutoUnload(view)) {
+      view.unload().then(() => {
+        if (
+          HTMLWebSandboxElement &&
+          view[HTMLWebSandboxElement.SANDBOX_INSTANCE]
+        ) {
+          view[HTMLWebSandboxElement.SANDBOX_DESTROY]();
+        }
+      });
+    }
+  });
 }
 
 function createWebWidget(view) {
@@ -152,22 +156,29 @@ function createWebWidget(view) {
 }
 
 function preFetch(url) {
-  if (!document.head.querySelector(`link[href="${url}"]`)) {
-    const link = document.createElement('link');
-    link.rel = 'prefetch';
-    link.href = url;
-    document.head.appendChild(link);
-  }
-}
-
-const lazyImageObserver = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      tryAutoLoad(entry.target);
-      lazyImageObserver.unobserve(entry.target);
+  queueMicrotask(() => {
+    if (!document.head.querySelector(`link[href="${url}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = url;
+      document.head.appendChild(link);
     }
   });
-});
+}
+
+const lazyImageObserver = new IntersectionObserver(
+  entries => {
+    entries.forEach(({ isIntersecting, target }) => {
+      if (isIntersecting && isAutoLoad(target)) {
+        target.mount();
+        lazyImageObserver.unobserve(target);
+      }
+    });
+  },
+  {
+    rootMargin: '80%'
+  }
+);
 
 export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   HTMLElement) {
@@ -230,7 +241,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   get type() {
-    return this.getAttribute('type') || 'auto';
+    return this.getAttribute('type') || '';
   }
 
   set type(value) {
@@ -388,21 +399,15 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
         if (this.loading === 'lazy') {
           lazyImageObserver.observe(this);
         } else {
-          queueMicrotask(() => {
-            tryAutoLoad(this);
-          });
+          tryAutoLoad(this);
         }
         break;
       case 'attributeChanged':
         if (this.loading !== 'lazy') {
-          if (arguments[1] === 'src' && arguments[3]) {
-            queueMicrotask(() => {
-              preFetch(this.src);
-            });
+          if (this.inactive && arguments[1] === 'src' && arguments[3]) {
+            preFetch(this.src);
           }
-          queueMicrotask(() => {
-            tryAutoLoad(this);
-          });
+          tryAutoLoad(this);
         }
         break;
 
@@ -410,9 +415,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
         if (this.loading === 'lazy') {
           lazyImageObserver.unobserve(this);
         }
-        queueMicrotask(() => {
-          tryAutoUnload(this);
-        });
+        tryAutoUnload(this);
         break;
 
       default:
