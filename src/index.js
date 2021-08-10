@@ -382,7 +382,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     await toUnloadPromise(this[MODEL]);
   }
 
-  lifecycleCallback(type) {
+  lifecycleCallback(type, params) {
     let parentModel;
     switch (type) {
       case 'firstConnected':
@@ -404,7 +404,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
         break;
       case 'attributeChanged':
         if (this.loading !== 'lazy') {
-          if (this.inactive && arguments[1] === 'src' && arguments[3]) {
+          if (this.inactive && params[0] === 'src' && params[1]) {
             preFetch(this.src);
           }
           tryAutoLoad(this);

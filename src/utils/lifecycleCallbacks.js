@@ -28,10 +28,10 @@ export const lifecycleCallbacks = {
   },
 
   attributeChangedCallback() {
-    this.lifecycleCallback('attributeChanged', ...arguments);
+    this.lifecycleCallback('attributeChanged', arguments);
   },
 
   adoptedCallback() {
-    this.lifecycleCallback('adopted', ...arguments);
+    this.lifecycleCallback('adopted', arguments);
   }
 };
