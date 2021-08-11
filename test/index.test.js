@@ -43,7 +43,7 @@ describe('The default propertys', () => {
 it('Load the UMD module', done => {
   const widget = document.createElement('web-widget');
   widget.inactive = true;
-  widget.src = '/test/widget/hello-world.umd.widget.js';
+  widget.src = '/test/widgets/hello-world.umd.widget.js';
   document.body.appendChild(widget);
 
   widget.load().then(() => done(), done);
@@ -53,7 +53,7 @@ it('Load the ES module', done => {
   const widget = document.createElement('web-widget');
   widget.inactive = true;
   widget.type = 'module';
-  widget.src = '/test/widget/hello-world.esm.widget.js';
+  widget.src = '/test/widgets/hello-world.esm.widget.js';
   document.body.appendChild(widget);
 
   widget.load().then(() => done(), done);
