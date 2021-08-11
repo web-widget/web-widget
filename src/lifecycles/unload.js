@@ -1,12 +1,12 @@
 import {
   LOAD_ERROR,
   NOT_LOADED,
-  NOT_MOUNTED,
   UNLOADING,
   UNLOAD_ERROR
 } from '../applications/status.js';
 import { reasonableTime } from '../applications/timeouts.js';
 import { formatErrorMessage } from '../applications/errors.js';
+import { validator } from '../applications/validators.js';
 
 function resetModel(model) {
   Object.assign(model, {
@@ -28,26 +28,17 @@ function resetModel(model) {
 }
 
 export async function toUnloadPromise(model) {
-  if (model.unloadPromise) {
+  if (model && model.unloadPromise) {
     return model.unloadPromise;
   }
 
-  if (model.status === NOT_LOADED) {
-    resetModel(model);
-    return undefined;
-  }
-
-  if (model.status !== NOT_MOUNTED && model.status !== LOAD_ERROR) {
-    return undefined;
-  }
+  validator(model, 'unload');
 
   model.unloadPromise =
     model.status === LOAD_ERROR
       ? Promise.resolve()
       : reasonableTime(model, 'unload');
-
   model.status = UNLOADING;
-
   model.unloadPromise = model.unloadPromise
     .then(() => {
       resetModel(model);

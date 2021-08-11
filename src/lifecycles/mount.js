@@ -1,15 +1,14 @@
-import { NOT_MOUNTED, MOUNTED, MOUNT_ERROR } from '../applications/status.js';
-import { reasonableTime } from '../applications/timeouts.js';
+import { MOUNTED, MOUNT_ERROR } from '../applications/status.js';
 import { formatErrorMessage } from '../applications/errors.js';
+import { reasonableTime } from '../applications/timeouts.js';
+import { validator } from '../applications/validators.js';
 
 export async function toMountPromise(model) {
-  if (model.mountPromise) {
+  if (model && model.mountPromise) {
     return model.mountPromise;
   }
 
-  if (model.status !== NOT_MOUNTED) {
-    return undefined;
-  }
+  validator(model, 'mount');
 
   model.mountPromise = reasonableTime(model, 'mount')
     .then(() => {

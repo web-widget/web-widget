@@ -1,0 +1,14 @@
+{
+  "env": {
+    "amd": false,
+    "browser": true,
+    "es6": true,
+    "node": false,
+    "mocha": true
+  },
+  "globals": {},
+  "rules": {
+    "class-methods-use-this": "off",
+    "no-console": "off"
+  }
+}
