@@ -1,17 +1,12 @@
 import { UPDATING, MOUNTED, UPDAT_ERROR } from '../applications/status.js';
 import { reasonableTime } from '../applications/timeouts.js';
 import { formatErrorMessage } from '../applications/errors.js';
+import { validator } from '../applications/validators.js';
 
 export async function toUpdatePromise(model) {
-  if (model.status !== MOUNTED) {
-    throw formatErrorMessage(
-      model,
-      new Error(`Cannot update: Not mounted: ${model.name}`)
-    );
-  }
+  validator(model, 'update');
 
   model.status = UPDATING;
-
   return reasonableTime(model, 'update')
     .then(() => {
       model.status = MOUNTED;

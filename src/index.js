@@ -7,6 +7,7 @@ import {
 } from './utils/scriptLoader.js';
 import { queueMicrotask } from './utils/queueMicrotask.js';
 import { lifecycleCallbacks } from './utils/lifecycleCallbacks.js';
+import { getParentNode, getChildNodes } from './utils/nodes.js';
 import * as status from './applications/status.js';
 import { Model } from './applications/models.js';
 import { toBootstrapPromise } from './lifecycles/bootstrap.js';
@@ -33,29 +34,13 @@ const isAutoLoad = view =>
 const isAutoUnload = isBindingElementLifecycle;
 
 function getParentWebWidgetElement(view) {
-  let current = view;
-  do {
-    current = current.getRootNode().host;
-    if (current && current[MODEL]) {
-      return current;
-    }
-  } while (current);
-  return null;
+  // eslint-disable-next-line no-use-before-define
+  return getParentNode(view, HTMLWebWidgetElement);
 }
 
 function getChildWebWidgetElements(view) {
-  const nodes = [];
-  const stack = [...view.children];
-  while (stack.length) {
-    const node = stack.pop();
-    if (node[MODEL]) {
-      nodes.push(node);
-    } else {
-      // 限制：如果目标在 shadow dom 内，那么这里无法找到目标
-      stack.unshift(...node.children);
-    }
-  }
-  return nodes;
+  // eslint-disable-next-line no-use-before-define
+  return getChildNodes(view, HTMLWebWidgetElement);
 }
 
 function getParentModel(view) {
@@ -133,7 +118,7 @@ function createWebWidget(view) {
   const id = view.id;
   const name =
     view.name || (application ? application.name : view.id || view.localName);
-  const url = src || application.url; /// /
+  const url = src || null;
   const properties = view.createDependencies();
   const parent = () => getParentModel(view);
   const children = () => getChildModels(view);
@@ -360,24 +345,17 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   async update(properties = {}) {
-    if (!this[MODEL]) {
-      throw new Error('Not initialized');
+    if (this[MODEL]) {
+      Object.assign(this[MODEL].properties, properties);
     }
-    Object.assign(this[MODEL].properties, properties);
     await toUpdatePromise(this[MODEL]);
   }
 
   async unmount() {
-    if (!this[MODEL]) {
-      return;
-    }
     await toUnmountPromise(this[MODEL]);
   }
 
   async unload() {
-    if (!this[MODEL]) {
-      return;
-    }
     await this.unmount();
     await toUnloadPromise(this[MODEL]);
   }

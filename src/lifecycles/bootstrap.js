@@ -1,23 +1,20 @@
 import {
-  NOT_BOOTSTRAPPED,
   BOOTSTRAPPING,
   NOT_MOUNTED,
   BOOTSTRAPP_ERROR
 } from '../applications/status.js';
 import { formatErrorMessage } from '../applications/errors.js';
 import { reasonableTime } from '../applications/timeouts.js';
+import { validator } from '../applications/validators.js';
 
 export async function toBootstrapPromise(model) {
-  if (model.bootstrapPromise) {
+  if (model && model.bootstrapPromise) {
     return model.bootstrapPromise;
   }
 
-  if (model.status !== NOT_BOOTSTRAPPED) {
-    return undefined;
-  }
+  validator(model, 'bootstrap');
 
   model.status = BOOTSTRAPPING;
-
   model.bootstrapPromise = reasonableTime(model, 'bootstrap')
     .then(() => {
       model.status = NOT_MOUNTED;
