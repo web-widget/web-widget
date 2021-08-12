@@ -242,8 +242,3 @@ export async function mount({ container, createPortal }) {
   cardWidget.unmount();
 })
 ```
-
-## 事件
-
-* `load`
-* `error`

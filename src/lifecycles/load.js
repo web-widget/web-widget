@@ -6,15 +6,12 @@ import {
 import { ensureValidAppTimeouts } from '../applications/timeouts.js';
 import { flattenFnArray } from './lifecycle-helpers.js';
 import { formatErrorMessage } from '../applications/errors.js';
-import { validator } from '../applications/validators.js';
 import { WebWidgetPortalDestinations } from '../WebWidgetPortalDestinations.js';
 
 export async function toLoadPromise(model) {
   if (model && model.loadPromise) {
     return model.loadPromise;
   }
-
-  validator(model, 'load');
 
   model.status = LOADING_SOURCE_CODE;
   model.loadPromise = model
@@ -41,6 +38,5 @@ export async function toLoadPromise(model) {
       model.loadPromise = null;
       throw formatErrorMessage(model, error);
     });
-
   return model.loadPromise;
 }
