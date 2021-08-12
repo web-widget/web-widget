@@ -3,7 +3,6 @@ import { NOT_LOADED } from './status.js';
 export class Model {
   constructor({
     children,
-    debug,
     id,
     loader,
     name,
@@ -16,7 +15,6 @@ export class Model {
     Object.assign(this, {
       bootstrap: null,
       bootstrapPromise: null,
-      debug,
       id,
       loader,
       loadPromise: null,

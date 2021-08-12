@@ -1,4 +1,4 @@
-/* global window, document, customElements, Event, ShadowRoot, URL, HTMLElement, IntersectionObserver */
+/* global window, document, customElements, ShadowRoot, URL, HTMLElement, IntersectionObserver */
 import {
   appendSourceUrl,
   scriptSourceLoader,
@@ -24,7 +24,7 @@ const rootPortalDestinations = new WebWidgetPortalDestinations();
 const PARSER = Symbol('parser');
 const MODEL = Symbol('model');
 const APPLICATION = Symbol('application');
-const RESOURCE_LOADED = Symbol('resourceLoaded');
+const AUTO_LOADED = Symbol('autoLoaded');
 
 const isBindingElementLifecycle = view => !view.inactive;
 const isResourceReady = view =>
@@ -79,8 +79,9 @@ function getChildModels(view) {
 
 function tryAutoLoad(view) {
   queueMicrotask(() => {
-    if (isAutoLoad(view)) {
+    if (isAutoLoad(view) && !view[AUTO_LOADED]) {
       view.mount();
+      view[AUTO_LOADED] = true;
     }
   });
 }
@@ -88,29 +89,28 @@ function tryAutoLoad(view) {
 function tryAutoUnload(view) {
   queueMicrotask(() => {
     if (isAutoUnload(view)) {
-      view.unload().then(() => {
-        if (
-          HTMLWebSandboxElement &&
-          view[HTMLWebSandboxElement.SANDBOX_INSTANCE]
-        ) {
-          view[HTMLWebSandboxElement.SANDBOX_DESTROY]();
-        }
-      });
+      view.unload().then(
+        () => {
+          if (
+            HTMLWebSandboxElement &&
+            view[HTMLWebSandboxElement.SANDBOX_INSTANCE]
+          ) {
+            view[HTMLWebSandboxElement.SANDBOX_DESTROY]();
+          }
+        },
+        () => {}
+      );
     }
   });
 }
 
-function createWebWidget(view) {
-  if (view[MODEL]) {
-    return view[MODEL];
-  }
-
+function createModel(view) {
   if (!isResourceReady(view)) {
-    throw new Error('Not initialized');
+    throw new Error(`Cannot load: Not initialized`);
   }
 
   let sandbox;
-  const { src, application, debug, sandboxed } = view;
+  const { src, application, sandboxed } = view;
   if (sandboxed) {
     sandbox = view.createSandbox();
   }
@@ -124,9 +124,8 @@ function createWebWidget(view) {
   const children = () => getChildModels(view);
   const loader = view.loader.bind(view);
 
-  view[MODEL] = new Model({
+  return new Model({
     children,
-    debug,
     id,
     loader,
     name,
@@ -136,8 +135,6 @@ function createWebWidget(view) {
     url,
     view
   });
-
-  return view[MODEL];
 }
 
 function preFetch(url) {
@@ -312,52 +309,62 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   async load() {
-    createWebWidget(this);
-    const loadPromise = toLoadPromise(this[MODEL]);
-
-    if (this.src && !this[RESOURCE_LOADED]) {
-      this[RESOURCE_LOADED] = true;
-      loadPromise.then(
-        () => {
-          this.dispatchEvent(new Event('load'));
-        },
-        () => {
-          this.dispatchEvent(new Event('error'));
-        }
-      );
+    if (!this[MODEL]) {
+      this[MODEL] = createModel(this);
     }
 
-    return loadPromise;
+    await toLoadPromise(this[MODEL]);
   }
 
   async bootstrap() {
-    await this.load();
+    if (this.status !== status.NOT_BOOTSTRAPPED) {
+      await this.load();
+    }
     await toBootstrapPromise(this[MODEL]);
   }
 
   async mount() {
-    await this.bootstrap();
-    await toMountPromise(this[MODEL]);
-    const placeholder = this.querySelector('placeholder');
-    if (placeholder && placeholder.parentNode === this) {
-      this.removeChild(placeholder);
+    if (this.status !== status.NOT_MOUNTED) {
+      await this.bootstrap();
     }
+    const mountPromise = toMountPromise(this[MODEL]);
+    const placeholder = this.querySelector('placeholder');
+
+    if (placeholder) {
+      mountPromise.then(() => {
+        if (placeholder.parentNode === this) {
+          this.removeChild(placeholder);
+        }
+      });
+    }
+
+    await mountPromise;
   }
 
   async update(properties = {}) {
-    if (this[MODEL]) {
-      Object.assign(this[MODEL].properties, properties);
+    if (this.status !== status.MOUNTED) {
+      throw new Error(`Cannot update: Not initialized`);
     }
+
+    Object.assign(this[MODEL].properties, properties);
+
     await toUpdatePromise(this[MODEL]);
   }
 
   async unmount() {
-    await toUnmountPromise(this[MODEL]);
+    if (this.status === status.MOUNTED) {
+      await toUnmountPromise(this[MODEL]);
+    }
   }
 
   async unload() {
-    await this.unmount();
-    await toUnloadPromise(this[MODEL]);
+    if (this.status === status.MOUNTED) {
+      await this.unmount();
+    }
+
+    if ([status.NOT_MOUNTED, status.MOUNTED].includes(this.status)) {
+      await toUnloadPromise(this[MODEL]);
+    }
   }
 
   lifecycleCallback(type, params) {

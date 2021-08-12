@@ -7,19 +7,16 @@ import {
 import { queueMicrotask } from '../utils/queueMicrotask.js';
 import { reasonableTime } from '../applications/timeouts.js';
 import { formatErrorMessage } from '../applications/errors.js';
-import { validator } from '../applications/validators.js';
 
 export async function toUnmountPromise(model) {
   if (model.unmountPromise) {
     return model.unmountPromise;
   }
 
-  validator(model, 'unmount');
-
   model.status = UNMOUNTING;
   const children = model.children;
   const tryUnmountChildren = children.map(async model =>
-    toUnmountPromise(model).catch(error => {
+    model.view.unmount().catch(error => {
       model.status = SKIP_BECAUSE_BROKEN;
       queueMicrotask(() => {
         throw error;

@@ -6,7 +6,6 @@ import {
 } from '../applications/status.js';
 import { reasonableTime } from '../applications/timeouts.js';
 import { formatErrorMessage } from '../applications/errors.js';
-import { validator } from '../applications/validators.js';
 
 function resetModel(model) {
   Object.assign(model, {
@@ -32,14 +31,12 @@ export async function toUnloadPromise(model) {
     return model.unloadPromise;
   }
 
-  validator(model, 'unload');
-
-  model.unloadPromise =
+  model.status = UNLOADING;
+  model.unloadPromise = (
     model.status === LOAD_ERROR
       ? Promise.resolve()
-      : reasonableTime(model, 'unload');
-  model.status = UNLOADING;
-  model.unloadPromise = model.unloadPromise
+      : reasonableTime(model, 'unload')
+  )
     .then(() => {
       resetModel(model);
     })
