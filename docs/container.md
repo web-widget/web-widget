@@ -164,7 +164,7 @@ document.body.appendChild(widget);
 | `"unload-error"` | `UNLOAD_ERROR` | 应用程序的移除功能返回了被拒绝的承诺 |
 | `"skip-because-broken"` | `SKIP_BECAUSE_BROKEN` | 应用在加载，引导，安装或卸载期间抛出错误，并且由于行为不当而被跳过，因此已被隔离。其他应用将继续正常运行 |
 
- > 状态的常量名在构造函数静态属性中，例如`HTMLWebWidgetElement.INITIAL === 'not-loaded'`。
+ > 状态的常量名在构造函数静态属性中，例如`HTMLWebWidgetElement.LOAD_ERROR === 'load-error'`。
 
 ### `load()`
 
