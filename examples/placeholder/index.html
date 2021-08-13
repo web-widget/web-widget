@@ -21,7 +21,7 @@
     import '../../src/index.js';
 
     document.getElementById('web-widget').addEventListener('change', (event) => {
-      console.log(event.target.status);
+      console.log(event.target.state);
     });
     document.getElementById('load-widget').onclick = () => {
       document.getElementById('web-widget').mount();

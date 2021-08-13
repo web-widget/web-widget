@@ -7,14 +7,14 @@ export async function toMountPromise(model) {
     return model.mountPromise;
   }
 
-  model.status = MOUNTING;
+  model.state = MOUNTING;
   model.mountPromise = reasonableTime(model, 'mount')
     .then(() => {
-      model.status = MOUNTED;
+      model.state = MOUNTED;
       model.unmountPromise = null;
     })
     .catch(async error => {
-      model.status = MOUNT_ERROR;
+      model.state = MOUNT_ERROR;
       model.mountPromise = null;
       throw formatErrorMessage(model, error);
     });

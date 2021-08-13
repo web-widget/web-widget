@@ -13,11 +13,11 @@ export async function toUnmountPromise(model) {
     return model.unmountPromise;
   }
 
-  model.status = UNMOUNTING;
+  model.state = UNMOUNTING;
   const children = model.children;
   const tryUnmountChildren = children.map(async model =>
     model.view.unmount().catch(error => {
-      model.status = SKIP_BECAUSE_BROKEN;
+      model.state = SKIP_BECAUSE_BROKEN;
       queueMicrotask(() => {
         throw error;
       });
@@ -27,11 +27,11 @@ export async function toUnmountPromise(model) {
   model.unmountPromise = Promise.all(tryUnmountChildren).then(() =>
     reasonableTime(model, 'unmount')
       .then(() => {
-        model.status = BOOTSTRAPPED;
+        model.state = BOOTSTRAPPED;
         model.mountPromise = null;
       })
       .catch(error => {
-        model.status = UNMOUNT_ERROR;
+        model.state = UNMOUNT_ERROR;
         model.unmountPromise = null;
         throw formatErrorMessage(model, error);
       })

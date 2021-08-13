@@ -9,7 +9,7 @@ export async function toLoadPromise(model) {
     return model.loadPromise;
   }
 
-  model.status = LOADING;
+  model.state = LOADING;
   model.loadPromise = model
     .loader(model.properties)
     .then(main => {
@@ -22,7 +22,7 @@ export async function toLoadPromise(model) {
         mount: flattenFnArray(model, main, 'mount'),
         portalDestinations: new WebWidgetPortalDestinations(),
         portals: [],
-        status: LOADED,
+        state: LOADED,
         timeouts: ensureValidAppTimeouts(main.timeouts),
         unload: flattenFnArray(model, main, 'unload'),
         unmount: flattenFnArray(model, main, 'unmount'),
@@ -30,7 +30,7 @@ export async function toLoadPromise(model) {
       });
     })
     .catch(error => {
-      model.status = LOAD_ERROR;
+      model.state = LOAD_ERROR;
       model.loadPromise = null;
       throw formatErrorMessage(model, error);
     });

@@ -16,7 +16,7 @@ function resetModel(model) {
     mountPromise: null,
     portalDestinations: null,
     portals: null,
-    status: INITIAL,
+    state: INITIAL,
     timeouts: null,
     unload: null,
     unloadPromise: null,
@@ -31,9 +31,9 @@ export async function toUnloadPromise(model) {
     return model.unloadPromise;
   }
 
-  model.status = UNLOADING;
+  model.state = UNLOADING;
   model.unloadPromise = (
-    model.status === LOAD_ERROR
+    model.state === LOAD_ERROR
       ? Promise.resolve()
       : reasonableTime(model, 'unload')
   )
@@ -41,7 +41,7 @@ export async function toUnloadPromise(model) {
       resetModel(model);
     })
     .catch(error => {
-      model.status = UNLOAD_ERROR;
+      model.state = UNLOAD_ERROR;
       model.unloadPromise = null;
       throw formatErrorMessage(model, error);
     });

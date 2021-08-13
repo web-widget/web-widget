@@ -176,7 +176,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     super();
 
     this.addEventListener('change', () => {
-      if (this.status === HTMLWebWidgetElement.MOUNTED) {
+      if (this.state === HTMLWebWidgetElement.MOUNTED) {
         const placeholder = this.querySelector('placeholder');
         if (placeholder && placeholder.parentNode === this) {
           placeholder.hidden = true;
@@ -248,9 +248,9 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     this.setAttribute('type', value);
   }
 
-  get status() {
+  get state() {
     if (this[MODEL]) {
-      return this[MODEL].status;
+      return this[MODEL].state;
     }
     return status.INITIAL;
   }
@@ -335,21 +335,21 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   async bootstrap() {
-    if (this.status !== status.LOADED) {
+    if (this.state !== status.LOADED) {
       await this.load();
     }
     await toBootstrapPromise(this[MODEL]);
   }
 
   async mount() {
-    if (this.status !== status.BOOTSTRAPPED) {
+    if (this.state !== status.BOOTSTRAPPED) {
       await this.bootstrap();
     }
     await toMountPromise(this[MODEL]);
   }
 
   async update(properties = {}) {
-    if (this.status !== status.MOUNTED) {
+    if (this.state !== status.MOUNTED) {
       throw new Error(`Cannot update: Not initialized`);
     }
 
@@ -359,17 +359,17 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   async unmount() {
-    if (this.status === status.MOUNTED) {
+    if (this.state === status.MOUNTED) {
       await toUnmountPromise(this[MODEL]);
     }
   }
 
   async unload() {
-    if (this.status === status.MOUNTED) {
+    if (this.state === status.MOUNTED) {
       await this.unmount();
     }
 
-    if ([status.BOOTSTRAPPED, status.MOUNTED].includes(this.status)) {
+    if ([status.BOOTSTRAPPED, status.MOUNTED].includes(this.state)) {
       await toUnloadPromise(this[MODEL]);
     }
   }

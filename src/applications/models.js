@@ -13,7 +13,7 @@ export class Model {
     url,
     view
   }) {
-    let status = INITIAL;
+    let state = INITIAL;
     Object.assign(this, {
       bootstrap: null,
       bootstrapPromise: null,
@@ -48,13 +48,13 @@ export class Model {
           return parent();
         }
       },
-      status: {
+      state: {
         get() {
-          return status;
+          return state;
         },
         set(value) {
-          if (value !== status) {
-            status = value;
+          if (value !== state) {
+            state = value;
             this.view.dispatchEvent(new Event('change'));
           }
         }

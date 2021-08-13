@@ -87,7 +87,7 @@ export const scriptSourceLoader = (url, options = {}) => {
     ...options
   }).then(res => {
     if (!res.ok) {
-      throw Error([res.status, res.statusText, url].join(', '));
+      throw Error([res.state, res.statusText, url].join(', '));
     }
     const jsContentTypeRegEx = /^(text|application)\/(x-)?javascript(;|$)/;
     const contentType = res.headers.get('content-type');
