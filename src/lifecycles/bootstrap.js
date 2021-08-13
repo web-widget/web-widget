@@ -1,7 +1,7 @@
 import {
-  BOOTSTRAPP_ERROR,
+  BOOTSTRAP_ERROR,
   BOOTSTRAPPING,
-  NOT_MOUNTED
+  BOOTSTRAPPED
 } from '../applications/status.js';
 import { formatErrorMessage } from '../applications/errors.js';
 import { reasonableTime } from '../applications/timeouts.js';
@@ -14,10 +14,10 @@ export async function toBootstrapPromise(model) {
   model.status = BOOTSTRAPPING;
   model.bootstrapPromise = reasonableTime(model, 'bootstrap')
     .then(() => {
-      model.status = NOT_MOUNTED;
+      model.status = BOOTSTRAPPED;
     })
     .catch(error => {
-      model.status = BOOTSTRAPP_ERROR;
+      model.status = BOOTSTRAP_ERROR;
       model.bootstrapPromise = null;
       throw formatErrorMessage(model, error);
     });

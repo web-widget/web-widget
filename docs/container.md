@@ -111,14 +111,6 @@ document.body.appendChild(widget);
 
 内容安全策略。只有开启 `sandboxed` 属性后才有效。
 
-### `contentWindow`
-
-容器的内部 `window` 对象。只有开启 `sandboxed` 属性后才有效。
-
-### `contentDocument`
-
-容器的内部 `document` 对象。只有开启 `sandboxed` 属性后才有效。
-
 ### evaluate(string, context)
 
 在沙箱中执行代码。只有开启 `sandboxed` 属性后才有效。
@@ -148,31 +140,31 @@ document.body.appendChild(widget);
 * `"high"` 在下载时优先级较高
 * `"low"` 在下载时优先级较低
 
-### `evaluate(source, context)`
-
-运行 JavaScript 代码。开启 `sandboxed` 后，它将在沙盒环境中执行。
-
 ### `status`
 
 应用的状态。
 
- * `NOT_LOADED` 该应用程序已注册，但尚未加载
- * `LOADING_SOURCE_CODE` 正在获取应用的源代码
- * `NOT_BOOTSTRAPPED` 应用已加载但未初始化
- * `BOOTSTRAPPING` 应用正在初始化中
- * `NOT_MOUNTED` 应用已经初始化，但未挂载
- * `MOUNTING` 应用挂载中
- * `MOUNTED` 应用挂载完成
- * `UPDATING` 应用正在更新数据
- * `UNMOUNTING` 应用正在卸载中
- * `UNLOADING` 应用正在移除中
- * `LOAD_ERROR` 应用程序的加载功能返回了被拒绝的承诺
- * `BOOTSTRAPP_ERROR` 应用程序的初始化功能返回了被拒绝的承诺
- * `MOUNT_ERROR` 应用程序的挂载功能返回了被拒绝的承诺
- * `UPDAT_ERROR` 应用程序的更新功能返回了被拒绝的承诺
- * `UNMOUNT_ERROR` 应用程序的卸载功能返回了被拒绝的承诺
- * `UNLOAD_ERROR` 应用程序的移除功能返回了被拒绝的承诺
- * `SKIP_BECAUSE_BROKEN` 应用在加载，引导，安装或卸载期间抛出错误，并且由于行为不当而被跳过，因此已被隔离。其他应用将继续正常运行
+| 状态值 | 常量名 | 说明 |
+| ------------- | ------------- | ------------- |
+| `'initial'` | `INITIAL` | 应用尚未加载 |
+| `"loading"` | `LOADING` | 正在加载应用 |
+| `"loaded"` | `LOADED` | 应用已加载但未初始化 |
+| `"bootstrapping"` | `BOOTSTRAPPING` | 应用正在初始化中 |
+| `"bootstrapped"` | `BOOTSTRAPPED` | 应用已经初始化 |
+| `"mounting"` | `MOUNTING` | 应用挂载中 |
+| `"mounted"` | `MOUNTED` | 应用挂载完成 |
+| `"updating"` | `UPDATING` | 应用正在更新数据 |
+| `"unmounting"` | `UNMOUNTING` | 应用正在卸载中 |
+| `"unloading"` | `UNLOADING` | 应用正在移除中 |
+| `"load-error"` | `LOAD_ERROR` | 应用程序的加载功能返回了被拒绝的承诺 |
+| `"bootstrap-error"` | `BOOTSTRAP_ERROR` | 应用程序的初始化功能返回了被拒绝的承诺 |
+| `"mount-error"` | `MOUNT_ERROR` | 应用程序的挂载功能返回了被拒绝的承诺 |
+| `"update-error"` | `UPDATE_ERROR` | 应用程序的更新功能返回了被拒绝的承诺 |
+| `"unmount-error"` | `UNMOUNT_ERROR` | 应用程序的卸载功能返回了被拒绝的承诺 |
+| `"unload-error"` | `UNLOAD_ERROR` | 应用程序的移除功能返回了被拒绝的承诺 |
+| `"skip-because-broken"` | `SKIP_BECAUSE_BROKEN` | 应用在加载，引导，安装或卸载期间抛出错误，并且由于行为不当而被跳过，因此已被隔离。其他应用将继续正常运行 |
+
+ > 状态的常量名在构造函数静态属性中，例如`HTMLWebWidgetElement.INITIAL === 'not-loaded'`。
 
 ### `load()`
 
@@ -241,4 +233,19 @@ export async function mount({ container, createPortal }) {
   const cardWidget = createPortal(userWidget, 'dialog');
   cardWidget.unmount();
 })
+```
+
+## 事件
+
+### `change`
+
+当应用的状态变更后，每次都将触发 `change` 事件。
+
+```js
+const widget = document.createElement('web-widget');
+widget.src = "./app.widget.js";
+widget.addEventListener('change', () => {
+  console.log('Status', widget.status);
+});
+document.body.appendChild(widget);
 ```

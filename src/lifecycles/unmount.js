@@ -1,6 +1,6 @@
 import {
   UNMOUNTING,
-  NOT_MOUNTED,
+  BOOTSTRAPPED,
   SKIP_BECAUSE_BROKEN,
   UNMOUNT_ERROR
 } from '../applications/status.js';
@@ -27,7 +27,7 @@ export async function toUnmountPromise(model) {
   model.unmountPromise = Promise.all(tryUnmountChildren).then(() =>
     reasonableTime(model, 'unmount')
       .then(() => {
-        model.status = NOT_MOUNTED;
+        model.status = BOOTSTRAPPED;
         model.mountPromise = null;
       })
       .catch(error => {

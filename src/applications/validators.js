@@ -1,20 +1,20 @@
 import { formatErrorMessage } from './errors.js';
 import {
-  NOT_BOOTSTRAPPED,
-  NOT_LOADED,
+  LOADED,
+  INITIAL,
   LOAD_ERROR,
-  NOT_MOUNTED,
+  BOOTSTRAPPED,
   MOUNTED
 } from './status.js';
 
 const lifecycles = {
-  load: status => status !== NOT_LOADED && status !== LOAD_ERROR,
-  bootstrap: status => status !== NOT_BOOTSTRAPPED,
-  mount: status => status !== NOT_MOUNTED,
+  load: status => status !== INITIAL && status !== LOAD_ERROR,
+  bootstrap: status => status !== LOADED,
+  mount: status => status !== BOOTSTRAPPED,
   update: status => status !== MOUNTED,
   unmount: status => status !== MOUNTED,
   unload: status =>
-    status === NOT_LOADED || (status !== NOT_MOUNTED && status !== LOAD_ERROR)
+    status === INITIAL || (status !== BOOTSTRAPPED && status !== LOAD_ERROR)
 };
 
 export function validator(model, lifecycle) {

@@ -1,6 +1,6 @@
 import {
   LOAD_ERROR,
-  NOT_LOADED,
+  INITIAL,
   UNLOADING,
   UNLOAD_ERROR
 } from '../applications/status.js';
@@ -16,7 +16,7 @@ function resetModel(model) {
     mountPromise: null,
     portalDestinations: null,
     portals: null,
-    status: NOT_LOADED,
+    status: INITIAL,
     timeouts: null,
     unload: null,
     unloadPromise: null,

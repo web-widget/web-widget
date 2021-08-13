@@ -1,4 +1,5 @@
-import { NOT_LOADED } from './status.js';
+/* global Event */
+import { INITIAL } from './status.js';
 
 export class Model {
   constructor({
@@ -12,6 +13,7 @@ export class Model {
     url,
     view
   }) {
+    let status = INITIAL;
     Object.assign(this, {
       bootstrap: null,
       bootstrapPromise: null,
@@ -25,7 +27,6 @@ export class Model {
       portals: null,
       properties,
       sandbox,
-      status: NOT_LOADED,
       timeouts: null,
       unload: null,
       unloadPromise: null,
@@ -45,6 +46,17 @@ export class Model {
       parent: {
         get() {
           return parent();
+        }
+      },
+      status: {
+        get() {
+          return status;
+        },
+        set(value) {
+          if (value !== status) {
+            status = value;
+            this.view.dispatchEvent(new Event('change'));
+          }
         }
       }
     });
