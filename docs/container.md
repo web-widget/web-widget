@@ -172,7 +172,7 @@ document.body.appendChild(widget);
 
 | 状态值 | 常量名 | 说明 |
 | ------------- | ------------- | ------------- |
-| `'initial'` | `INITIAL` | 应用尚未加载 |
+| `"initial"` | `INITIAL` | 应用尚未加载 |
 | `"loading"` | `LOADING` | 正在加载应用 |
 | `"loaded"` | `LOADED` | 应用已加载但未初始化 |
 | `"bootstrapping"` | `BOOTSTRAPPING` | 应用正在初始化中 |
