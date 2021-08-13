@@ -80,7 +80,11 @@ function getChildModels(view) {
 function tryAutoLoad(view) {
   queueMicrotask(() => {
     if (isAutoLoad(view) && !view[AUTO_LOADED]) {
-      view.mount();
+      view.mount().catch(error => {
+        queueMicrotask(() => {
+          throw error;
+        });
+      });
       view[AUTO_LOADED] = true;
     }
   });
@@ -98,7 +102,11 @@ function tryAutoUnload(view) {
             view[HTMLWebSandboxElement.SANDBOX_DESTROY]();
           }
         },
-        () => {}
+        error => {
+          queueMicrotask(() => {
+            throw error;
+          });
+        }
       );
     }
   });
@@ -166,6 +174,16 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   HTMLElement) {
   constructor() {
     super();
+
+    this.addEventListener('change', () => {
+      if (this.status === HTMLWebWidgetElement.MOUNTED) {
+        const placeholder = this.querySelector('placeholder');
+        if (placeholder && placeholder.parentNode === this) {
+          placeholder.hidden = true;
+        }
+      }
+    });
+
     if (HTMLWebSandboxElement) {
       this[HTMLWebSandboxElement.SANDBOX_AUTOLOAD_DISABLED] = true;
     }
@@ -234,7 +252,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     if (this[MODEL]) {
       return this[MODEL].status;
     }
-    return status.NOT_LOADED;
+    return status.INITIAL;
   }
 
   static get portalDestinations() {
@@ -317,28 +335,17 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   async bootstrap() {
-    if (this.status !== status.NOT_BOOTSTRAPPED) {
+    if (this.status !== status.LOADED) {
       await this.load();
     }
     await toBootstrapPromise(this[MODEL]);
   }
 
   async mount() {
-    if (this.status !== status.NOT_MOUNTED) {
+    if (this.status !== status.BOOTSTRAPPED) {
       await this.bootstrap();
     }
-    const mountPromise = toMountPromise(this[MODEL]);
-    const placeholder = this.querySelector('placeholder');
-
-    if (placeholder) {
-      mountPromise.then(() => {
-        if (placeholder.parentNode === this) {
-          this.removeChild(placeholder);
-        }
-      });
-    }
-
-    await mountPromise;
+    await toMountPromise(this[MODEL]);
   }
 
   async update(properties = {}) {
@@ -362,7 +369,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
       await this.unmount();
     }
 
-    if ([status.NOT_MOUNTED, status.MOUNTED].includes(this.status)) {
+    if ([status.BOOTSTRAPPED, status.MOUNTED].includes(this.status)) {
       await toUnloadPromise(this[MODEL]);
     }
   }

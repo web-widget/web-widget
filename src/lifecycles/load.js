@@ -1,8 +1,4 @@
-import {
-  LOAD_ERROR,
-  NOT_BOOTSTRAPPED,
-  LOADING_SOURCE_CODE
-} from '../applications/status.js';
+import { LOAD_ERROR, LOADED, LOADING } from '../applications/status.js';
 import { ensureValidAppTimeouts } from '../applications/timeouts.js';
 import { flattenFnArray } from './lifecycle-helpers.js';
 import { formatErrorMessage } from '../applications/errors.js';
@@ -13,7 +9,7 @@ export async function toLoadPromise(model) {
     return model.loadPromise;
   }
 
-  model.status = LOADING_SOURCE_CODE;
+  model.status = LOADING;
   model.loadPromise = model
     .loader(model.properties)
     .then(main => {
@@ -26,7 +22,7 @@ export async function toLoadPromise(model) {
         mount: flattenFnArray(model, main, 'mount'),
         portalDestinations: new WebWidgetPortalDestinations(),
         portals: [],
-        status: NOT_BOOTSTRAPPED,
+        status: LOADED,
         timeouts: ensureValidAppTimeouts(main.timeouts),
         unload: flattenFnArray(model, main, 'unload'),
         unmount: flattenFnArray(model, main, 'unmount'),
