@@ -88,26 +88,6 @@ export default {
 ## 规范的实现
 
 * [src/index.js](src/index.js) WebWidget 的核心实现
-  * `application`（实验性）
-  * `inactive`
-  * `importance`（取决于浏览器 `fetch()` API 对此特性的支持程度）
-  * `loading`
-    * `"lazy"`
-  * `name`
-  * `src`
-  * `text`
-  * `sandboxed`（需要依赖 [WebSandbox.js](https://github.com/web-sandbox-js/web-sandbox)）
-  * `status`
-  * `portalDestinations`
-  * `load()`
-  * `bootstrap()`
-  * `mount()`
-  * `update()`
-  * `unmount()`
-  * `unload()`
-  * `<fallback>`（尚未实现）
-  * `<placeholder>`
-  * 预加载（实验性）
 
 WebWidget 辅助工具：
 
@@ -192,7 +172,7 @@ WebWidget 辅助工具：
 
 ## 插槽
 
-如果应用支持插槽，那么可以直接使用 `slot` 属性来指定插入的位置：
+使用 `slot` 属性可以将元素在应用指定的位置渲染（渲染的位置由应用定义）：
 
 ```html
 <web-widget src="./app.widget.js">
@@ -200,6 +180,8 @@ WebWidget 辅助工具：
   <span slot="content">Let's have some different text!</span>
 </web-widget>
 ```
+
+> 插槽是 Web Component 的标准特性。
 
 ### SEO
 
@@ -235,12 +217,8 @@ WebWidget 辅助工具：
     location => location.pathname.startsWith('/about')
   );
 
-  function reroute() {
-    collection.change(location);
-  }
-
-  history.listen(reroute);
-  reroute();
+  collection.change(location);
+  history.listen(() => collection.change(location));
 </script>
 ```
 

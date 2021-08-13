@@ -5,13 +5,13 @@
 应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，入口文件支持定义生命周期参数：
 
 ```js
-export default {
+export default () => ({
   async bootstrap(properties) {},
   async mount(properties) {},
   async update(properties) {},
   async unmount(properties) {},
   async unload(properties) {}
-}
+});
 ```
 
 ### 构建打包

@@ -36,6 +36,8 @@ WebWidget 是一个标准的 Web Component 组件，它也是一个容器，容�
 </web-widget>
 ```
 
+> web-widget.js 尚未实现此特性。
+
 ## 插槽
 
 如果 WebWidget App 支持插槽，那么可以直接使用 `slot` 属性来指定插入的位置：
@@ -83,17 +85,50 @@ WebWidget App 可以通过生命周期函数获的 `dataset` 参数获取到数�
 
 ## HTMLWebWidgetElement
 
-通过 `document.createElement('web-widget')` 会返回一个 `HTMLWebWidgetElement` 实例：
+通过 `document.createElement('web-widget')` 会返回一个 `HTMLWebWidgetElement` 实例。
+
+### `application`
+
+设置应用的工厂函数。这是一种本地应用的注册方式，通常用于测试。
 
 ```js
 const widget = document.createElement('web-widget');
-widget.src = 'app.widget.js';
+widget.application = () => ({
+  async bootstrap(properties) {},
+  async mount(properties) {},
+  async update(properties) {},
+  async unmount(properties) {},
+  async unload(properties) {}
+});
 document.body.appendChild(widget);
 ```
 
 ### `src`
 
-应用入口文件。
+设置应用入口文件。
+
+```js
+const widget = document.createElement('web-widget');
+widget.src = './app.widget.js';
+document.body.appendChild(widget);
+```
+
+### `text`
+
+设置应用的代码。这是一种本地应用的注册方式。
+
+```js
+const widget = document.createElement('web-widget');
+widget.type = 'module';
+widget.text = `export default () => ({
+  async bootstrap(properties) {},
+  async mount(properties) {},
+  async update(properties) {},
+  async unmount(properties) {},
+  async unload(properties) {}
+})`;
+document.body.appendChild(widget);
+```
 
 ### `name`
 
@@ -111,19 +146,6 @@ document.body.appendChild(widget);
 
 内容安全策略。只有开启 `sandboxed` 属性后才有效。
 
-### evaluate(string, context)
-
-在沙箱中执行代码。只有开启 `sandboxed` 属性后才有效。
-
-### 参数
-
-* `string` 一个表示 JavaScript 表达式、语句或一系列语句的字符串。表达式可以包含变量与已存在对象的属性。
-* `context` 定义在沙箱中的上下文对象。
-
-### 返回值
-
-返回字符串中代码的返回值。如果返回值为空，则返回 `undefined`。
-
 ### `loading`
 
 指示浏览器应当如何加载。允许的值：
@@ -139,6 +161,10 @@ document.body.appendChild(widget);
 * `"auto"` 不指定优先级
 * `"high"` 在下载时优先级较高
 * `"low"` 在下载时优先级较低
+
+### `type`
+
+脚本的模块类型。如果要支持 ES6 module，需要设置为 `type="module"`。
 
 ### `status`
 

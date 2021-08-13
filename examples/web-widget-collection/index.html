@@ -43,13 +43,8 @@
       location => location.pathname.startsWith('/vue-router')
     );
 
-    function reroute() {
-      collection.change(location);
-    }
-
+    collection.change(location);
     history.listen(() => collection.change(location));
-    reroute();
-
 
     // 统一跳转工具函数
     window.navigateToUrl = target => {
