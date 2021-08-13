@@ -30,5 +30,3 @@ export const UPDATE_ERROR = 'update-error';
 export const UNMOUNT_ERROR = 'unmount-error';
 // 应用程序的移除功能返回了被拒绝的承诺
 export const UNLOAD_ERROR = 'unload-error';
-// 应用在加载，引导，安装或卸载期间抛出错误，并且由于行为不当而被跳过，因此已被隔离。其他应用将继续正常运行
-export const SKIP_BECAUSE_BROKEN = 'skip-because-broken';

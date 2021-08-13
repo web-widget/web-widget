@@ -1,7 +1,6 @@
 import {
   UNMOUNTING,
   BOOTSTRAPPED,
-  SKIP_BECAUSE_BROKEN,
   UNMOUNT_ERROR
 } from '../applications/status.js';
 import { queueMicrotask } from '../utils/queueMicrotask.js';
@@ -17,7 +16,6 @@ export async function toUnmountPromise(model) {
   const children = model.children;
   const tryUnmountChildren = children.map(async model =>
     model.view.unmount().catch(error => {
-      model.state = SKIP_BECAUSE_BROKEN;
       queueMicrotask(() => {
         throw error;
       });
