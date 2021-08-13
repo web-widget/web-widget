@@ -30,7 +30,7 @@ export default () => ({
 * 如果导出的是函数数组而不是单个函数，这些函数会被依次调用，对于 `promise` 函数，会等到 resolve 之后再调用下一个函数
 * 如果应用只被预加载，各个应用会被下载，但不会被初始化、挂载或卸载
 
-> 应用生命周期来自于微前端框架 [single-spa](https://single-spa.js.org/) 的定义，这样可以确保 WebWidget 的应用能够被 [single-spa](https://single-spa.js.org/) 或其兼容的加载器加载。
+> 应用生命周期来自于微前端框架 [single-spa](https://single-spa.js.org/) 的定义，这样可以确保 WebWidget 容器可以加载 [single-spa](https://single-spa.js.org/) 的应用。
 
 WebWidget 元素会在不同的阶段主动触发这些应用生命周期：
 
@@ -115,6 +115,8 @@ export async function mount({ createPortal }) {
 
 `portalDestinations` API 与全局的 `WebWidget.portalDestinations` 使用方式一致，区别是：`portalDestinations` 定义的目的地只能作用在子应用中的传送门。
 当应用使用 `createPortal(widget, destination)` 传送子应用的时候，它会沿着 DOM 树寻找父应用的 `portalDestinations` 目的地，如果一直没有找到最后去 `WebWidget.portalDestinations` 全局目的地，这个过程很像 DOM 的事件冒泡机制。
+
+> 这是试验性特性。
 
 ## 挂载子应用
 
