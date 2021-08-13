@@ -166,7 +166,7 @@ document.body.appendChild(widget);
 
 脚本的模块类型。如果要支持 ES6 module，需要设置为 `type="module"`。
 
-### `status`
+### `state`
 
 应用的状态。
 
@@ -271,7 +271,7 @@ export async function mount({ container, createPortal }) {
 const widget = document.createElement('web-widget');
 widget.src = "./app.widget.js";
 widget.addEventListener('change', () => {
-  console.log('Status', widget.status);
+  console.log('State', widget.state);
 });
 document.body.appendChild(widget);
 ```

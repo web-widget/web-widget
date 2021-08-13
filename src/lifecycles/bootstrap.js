@@ -11,13 +11,13 @@ export async function toBootstrapPromise(model) {
     return model.bootstrapPromise;
   }
 
-  model.status = BOOTSTRAPPING;
+  model.state = BOOTSTRAPPING;
   model.bootstrapPromise = reasonableTime(model, 'bootstrap')
     .then(() => {
-      model.status = BOOTSTRAPPED;
+      model.state = BOOTSTRAPPED;
     })
     .catch(error => {
-      model.status = BOOTSTRAP_ERROR;
+      model.state = BOOTSTRAP_ERROR;
       model.bootstrapPromise = null;
       throw formatErrorMessage(model, error);
     });

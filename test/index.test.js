@@ -6,7 +6,7 @@ Object.seal(emptyWidget);
 
 const createWidget = callback => {
   const stack = [];
-  const statusStack = [];
+  const stateStack = [];
   const widget = document.createElement('web-widget');
   widget.inactive = true;
   widget.application = () => {
@@ -34,10 +34,10 @@ const createWidget = callback => {
     };
   };
   widget.addEventListener('change', () => {
-    statusStack.push(widget.status);
+    stateStack.push(widget.state);
   });
   document.body.appendChild(widget);
-  const results = { stack, statusStack, widget };
+  const results = { stack, stateStack, widget };
   return callback ? callback(results) : results;
 };
 
@@ -49,10 +49,7 @@ describe('The default propertys', () => {
     expect(emptyWidget).to.have.property('loading', 'auto');
     expect(emptyWidget).to.have.property('sandboxed', false);
     expect(emptyWidget).to.have.property('type', '');
-    expect(emptyWidget).to.have.property(
-      'status',
-      HTMLWebWidgetElement.INITIAL
-    );
+    expect(emptyWidget).to.have.property('state', HTMLWebWidgetElement.INITIAL);
     expect(emptyWidget).to.have.property('name', '');
     expect(emptyWidget).to.have.property('src', '');
     expect(emptyWidget).to.have.property('text', '');
@@ -150,9 +147,9 @@ describe('lifecycles: load', () => {
   it('load', () =>
     createWidget(({ stack, widget }) => {
       const promise = widget.load();
-      expect(widget.status).to.equal(HTMLWebWidgetElement.LOADING);
+      expect(widget.state).to.equal(HTMLWebWidgetElement.LOADING);
       return promise.then(() => {
-        expect(widget.status).to.equal(HTMLWebWidgetElement.LOADED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.LOADED);
         expect(stack).to.deep.equal(['load']);
       });
     }));
@@ -164,7 +161,7 @@ describe('lifecycles: load', () => {
         widget.load();
         widget.load();
         await widget.load();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.LOADED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.LOADED);
         expect(stack).to.deep.equal(['load']);
       })
     ));
@@ -175,9 +172,9 @@ describe('lifecycles: bootstrap', () => {
     createWidget(({ stack, widget }) =>
       widget.load().then(async () => {
         const promise = widget.bootstrap();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.BOOTSTRAPPING);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.BOOTSTRAPPING);
         await promise;
-        expect(widget.status).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
         expect(stack).to.deep.equal(['load', 'bootstrap']);
       })
     ));
@@ -185,7 +182,7 @@ describe('lifecycles: bootstrap', () => {
   it('It should load automatically before bootstraping', () =>
     createWidget(({ stack, widget }) =>
       widget.bootstrap().then(async () => {
-        expect(widget.status).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
         expect(stack).to.deep.equal(['load', 'bootstrap']);
       })
     ));
@@ -197,7 +194,7 @@ describe('lifecycles: bootstrap', () => {
         widget.bootstrap();
         widget.bootstrap();
         await widget.bootstrap();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
         expect(stack).to.deep.equal(['load', 'bootstrap']);
       })
     ));
@@ -209,9 +206,9 @@ describe('lifecycles: mount', () => {
       widget.load().then(async () => {
         await widget.bootstrap();
         const promise = widget.mount();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.MOUNTING);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.MOUNTING);
         await promise;
-        expect(widget.status).to.equal(HTMLWebWidgetElement.MOUNTED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.MOUNTED);
         await widget.mount();
         expect(stack).to.deep.equal(['load', 'bootstrap', 'mount']);
       })
@@ -220,7 +217,7 @@ describe('lifecycles: mount', () => {
   it('It should bootstrap automatically before mounting', () =>
     createWidget(({ stack, widget }) =>
       widget.mount().then(async () => {
-        expect(widget.status).to.equal(HTMLWebWidgetElement.MOUNTED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.MOUNTED);
         expect(stack).to.deep.equal(['load', 'bootstrap', 'mount']);
       })
     ));
@@ -232,7 +229,7 @@ describe('lifecycles: mount', () => {
         widget.mount();
         widget.mount();
         await widget.mount();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.MOUNTED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.MOUNTED);
         expect(stack).to.deep.equal(['load', 'bootstrap', 'mount']);
       })
     ));
@@ -245,9 +242,9 @@ describe('lifecycles: update', () => {
         await widget.bootstrap();
         await widget.mount();
         const promise = widget.update({ a: 0 });
-        expect(widget.status).to.equal(HTMLWebWidgetElement.UPDATING);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.UPDATING);
         await promise;
-        expect(widget.status).to.equal(HTMLWebWidgetElement.MOUNTED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.MOUNTED);
         expect(stack).to.deep.equal(['load', 'bootstrap', 'mount', 'update']);
       })
     ));
@@ -301,7 +298,7 @@ describe('lifecycles: update', () => {
       widget.mount().then(async () => {
         await widget.update();
         await widget.update();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.MOUNTED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.MOUNTED);
         expect(stack).to.deep.equal([
           'load',
           'bootstrap',
@@ -320,9 +317,9 @@ describe('lifecycles: unmount', () => {
         await widget.bootstrap();
         await widget.mount();
         const promise = widget.unmount();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.UNMOUNTING);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.UNMOUNTING);
         await promise;
-        expect(widget.status).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
         expect(stack).to.deep.equal(['load', 'bootstrap', 'mount', 'unmount']);
       })
     ));
@@ -330,7 +327,7 @@ describe('lifecycles: unmount', () => {
   it('If it is not loaded, it should not be unmount', () =>
     createWidget(({ stack, widget }) =>
       widget.unmount().then(() => {
-        expect(widget.status).to.equal(HTMLWebWidgetElement.INITIAL);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.INITIAL);
         expect(stack).to.deep.equal([]);
       })
     ));
@@ -339,7 +336,7 @@ describe('lifecycles: unmount', () => {
     createWidget(({ stack, widget }) =>
       widget.load().then(async () => {
         await widget.unmount();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.LOADED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.LOADED);
         expect(stack).to.deep.equal(['load']);
       })
     ));
@@ -349,7 +346,7 @@ describe('lifecycles: unmount', () => {
       widget.load().then(async () => {
         await widget.bootstrap();
         await widget.unmount();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
         expect(stack).to.deep.equal(['load', 'bootstrap']);
       })
     ));
@@ -361,7 +358,7 @@ describe('lifecycles: unmount', () => {
         widget.unmount();
         widget.unmount();
         await widget.unmount();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
         expect(stack).to.deep.equal(['load', 'bootstrap', 'mount', 'unmount']);
       })
     ));
@@ -375,9 +372,9 @@ describe('lifecycles: unload', () => {
         await widget.mount();
         await widget.unmount();
         const promise = widget.unload();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.UNLOADING);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.UNLOADING);
         await promise;
-        expect(widget.status).to.equal(HTMLWebWidgetElement.INITIAL);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.INITIAL);
         expect(stack).to.deep.equal([
           'load',
           'bootstrap',
@@ -391,7 +388,7 @@ describe('lifecycles: unload', () => {
   it('If it is not loaded, it should not be unload', () =>
     createWidget(({ stack, widget }) =>
       widget.unload().then(() => {
-        expect(widget.status).to.equal(HTMLWebWidgetElement.INITIAL);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.INITIAL);
         expect(stack).to.deep.equal([]);
       })
     ));
@@ -400,7 +397,7 @@ describe('lifecycles: unload', () => {
     createWidget(({ stack, widget }) =>
       widget.load().then(async () => {
         await widget.unload();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.LOADED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.LOADED);
         expect(stack).to.deep.equal(['load']);
       })
     ));
@@ -409,7 +406,7 @@ describe('lifecycles: unload', () => {
     createWidget(({ stack, widget }) =>
       widget.bootstrap().then(async () => {
         await widget.unload();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.INITIAL);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.INITIAL);
         expect(stack).to.deep.equal(['load', 'bootstrap', 'unload']);
       })
     ));
@@ -418,7 +415,7 @@ describe('lifecycles: unload', () => {
     createWidget(({ stack, widget }) =>
       widget.mount().then(async () => {
         await widget.unload();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.INITIAL);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.INITIAL);
         expect(stack).to.deep.equal([
           'load',
           'bootstrap',
@@ -436,7 +433,7 @@ describe('lifecycles: unload', () => {
         widget.unload();
         widget.unload();
         await widget.unload();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.INITIAL);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.INITIAL);
         expect(stack).to.deep.equal([
           'load',
           'bootstrap',
@@ -454,33 +451,33 @@ describe('lifecycles: unload', () => {
         stack.length = 0;
         let promise = widget.load();
 
-        expect(widget.status).to.equal(HTMLWebWidgetElement.LOADING);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.LOADING);
         await promise;
-        expect(widget.status).to.equal(HTMLWebWidgetElement.LOADED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.LOADED);
         expect(stack).to.deep.equal(['load']);
 
         promise = widget.bootstrap();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.BOOTSTRAPPING);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.BOOTSTRAPPING);
         await promise;
-        expect(widget.status).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
         expect(stack).to.deep.equal(['load', 'bootstrap']);
 
         promise = widget.mount();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.MOUNTING);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.MOUNTING);
         await promise;
-        expect(widget.status).to.equal(HTMLWebWidgetElement.MOUNTED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.MOUNTED);
         expect(stack).to.deep.equal(['load', 'bootstrap', 'mount']);
 
         promise = widget.update();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.UPDATING);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.UPDATING);
         await promise;
-        expect(widget.status).to.equal(HTMLWebWidgetElement.MOUNTED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.MOUNTED);
         expect(stack).to.deep.equal(['load', 'bootstrap', 'mount', 'update']);
 
         promise = widget.unmount();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.UNMOUNTING);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.UNMOUNTING);
         await promise;
-        expect(widget.status).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
         expect(stack).to.deep.equal([
           'load',
           'bootstrap',
@@ -490,9 +487,9 @@ describe('lifecycles: unload', () => {
         ]);
 
         promise = widget.unload();
-        expect(widget.status).to.equal(HTMLWebWidgetElement.UNLOADING);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.UNLOADING);
         await promise;
-        expect(widget.status).to.equal(HTMLWebWidgetElement.INITIAL);
+        expect(widget.state).to.equal(HTMLWebWidgetElement.INITIAL);
         expect(stack).to.deep.equal([
           'load',
           'bootstrap',
@@ -506,15 +503,15 @@ describe('lifecycles: unload', () => {
 });
 
 describe('Events', () => {
-  it.only('change', () =>
-    createWidget(async ({ statusStack, widget }) => {
+  it('change', () =>
+    createWidget(async ({ stateStack, widget }) => {
       await widget.load();
       await widget.bootstrap();
       await widget.mount();
       await widget.update();
       await widget.unmount();
       await widget.unload();
-      expect(statusStack).to.deep.equal([
+      expect(stateStack).to.deep.equal([
         HTMLWebWidgetElement.LOADING,
         HTMLWebWidgetElement.LOADED,
         HTMLWebWidgetElement.BOOTSTRAPPING,
