@@ -7,28 +7,34 @@ Object.seal(emptyWidget);
 const createWidget = callback => {
   const stack = [];
   const stateStack = [];
+  const properties = {};
   const widget = document.createElement('web-widget');
   widget.inactive = true;
   widget.application = () => {
     stack.push('load');
     return {
-      async bootstrap() {
+      async bootstrap(dependencies) {
+        properties.bootstrap = dependencies;
         stack.push('bootstrap');
       },
 
-      async mount() {
+      async mount(dependencies) {
+        properties.mount = dependencies;
         stack.push('mount');
       },
 
-      async update() {
+      async update(dependencies) {
+        properties.update = dependencies;
         stack.push('update');
       },
 
-      async unmount() {
+      async unmount(dependencies) {
+        properties.unmount = dependencies;
         stack.push('unmount');
       },
 
-      async unload() {
+      async unload(dependencies) {
+        properties.unload = dependencies;
         stack.push('unload');
       }
     };
@@ -37,7 +43,7 @@ const createWidget = callback => {
     stateStack.push(widget.state);
   });
   document.body.appendChild(widget);
-  const results = { stack, stateStack, widget };
+  const results = { stack, stateStack, widget, properties };
   return callback ? callback(results) : results;
 };
 
@@ -237,13 +243,15 @@ describe('lifecycles: mount', () => {
 
 describe('lifecycles: update', () => {
   it('update', () =>
-    createWidget(({ stack, widget }) =>
+    createWidget(({ stack, widget, properties }) =>
       widget.load().then(async () => {
+        const testValue = Date.now();
         await widget.bootstrap();
         await widget.mount();
-        const promise = widget.update({ a: 0 });
+        const promise = widget.update({ testValue });
         expect(widget.state).to.equal(HTMLWebWidgetElement.UPDATING);
         await promise;
+        expect(properties.update).to.have.property('testValue', testValue);
         expect(widget.state).to.equal(HTMLWebWidgetElement.MOUNTED);
         expect(stack).to.deep.equal(['load', 'bootstrap', 'mount', 'update']);
       })
@@ -385,6 +393,19 @@ describe('lifecycles: unload', () => {
       })
     ));
 
+  it('Updated data should be cleaned up', () =>
+    createWidget(({ widget, properties }) =>
+      widget.mount().then(async () => {
+        const testValue = Date.now();
+        await widget.update({ testValue });
+        expect(properties.update).to.have.property('testValue', testValue);
+        await widget.unmount();
+        expect(properties.unmount).to.have.property('testValue', testValue);
+        await widget.unload();
+        expect(properties.unmount).to.not.have.property('testValue');
+      })
+    ));
+
   it('If it is not loaded, it should not be unload', () =>
     createWidget(({ stack, widget }) =>
       widget.unload().then(() => {
@@ -445,12 +466,14 @@ describe('lifecycles: unload', () => {
     ));
 
   it('After unloading, the load should be allowed to continue', () =>
-    createWidget(({ stack, widget }) =>
+    createWidget(({ stateStack, stack, widget }) =>
       widget.mount().then(async () => {
+        let promise;
         await widget.unload();
         stack.length = 0;
-        let promise = widget.load();
+        stateStack.length = 0;
 
+        promise = widget.load();
         expect(widget.state).to.equal(HTMLWebWidgetElement.LOADING);
         await promise;
         expect(widget.state).to.equal(HTMLWebWidgetElement.LOADED);
