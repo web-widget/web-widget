@@ -1,22 +1,22 @@
-// 应用尚未加载
+// 应用未加载
 export const INITIAL = 'initial';
-// 正在加载应用
+// 应用加载中
 export const LOADING = 'loading';
 // 应用已加载但未初始化
 export const LOADED = 'loaded';
-// 应用正在初始化中
+// 应用初始化中
 export const BOOTSTRAPPING = 'bootstrapping';
-// 应用已经初始化
+// 应用已初始化但未挂载
 export const BOOTSTRAPPED = 'bootstrapped';
 // 应用挂载中
 export const MOUNTING = 'mounting';
-// 应用挂载完成
+// 应用已挂载
 export const MOUNTED = 'mounted';
-// 应用正在更新数据
+// 应用更新数据中
 export const UPDATING = 'updating';
-// 应用正在卸载中
+// 应用卸载中
 export const UNMOUNTING = 'unmounting';
-// 应用正在移除中
+// 应用移除中
 export const UNLOADING = 'unloading';
 // 应用程序的加载功能返回了被拒绝的承诺
 export const LOAD_ERROR = 'load-error';

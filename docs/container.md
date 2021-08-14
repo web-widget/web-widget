@@ -171,17 +171,17 @@ document.body.appendChild(widget);
 应用的状态。
 
 | 状态值               | 常量名             | 说明                             |
-| ------------------- | ----------------- | -------------------------------- |
-| `"initial"`         | `INITIAL`         | 应用尚未加载                       |
-| `"loading"`         | `LOADING`         | 正在加载应用                       |
+| ------------------- | ----------------- | ------------------------------- |
+| `"initial"`         | `INITIAL`         | 应用未加载                        |
+| `"loading"`         | `LOADING`         | 应用加载中                        |
 | `"loaded"`          | `LOADED`          | 应用已加载但未初始化                |
-| `"bootstrapping"`   | `BOOTSTRAPPING`   | 应用正在初始化中                    |
-| `"bootstrapped"`    | `BOOTSTRAPPED`    | 应用已经初始化                     |
-| `"mounting"`        | `MOUNTING`        | 应用挂载中                         |
-| `"mounted"`         | `MOUNTED`         | 应用挂载完成                       |
-| `"updating"`        | `UPDATING`        | 应用正在更新数据                    |
-| `"unmounting"`      | `UNMOUNTING`      | 应用正在卸载中                      |
-| `"unloading"`       | `UNLOADING`       | 应用正在移除中                      |
+| `"bootstrapping"`   | `BOOTSTRAPPING`   | 应用初始化中                      |
+| `"bootstrapped"`    | `BOOTSTRAPPED`    | 应用已初始化但未挂载                |
+| `"mounting"`        | `MOUNTING`        | 应用挂载中                        |
+| `"mounted"`         | `MOUNTED`         | 应用已挂载                        |
+| `"updating"`        | `UPDATING`        | 应用更新数据中                     |
+| `"unmounting"`      | `UNMOUNTING`      | 应用卸载中                        |
+| `"unloading"`       | `UNLOADING`       | 应用移除中                        |
 | `"load-error"`      | `LOAD_ERROR`      | 应用程序的加载功能返回了被拒绝的承诺   |
 | `"bootstrap-error"` | `BOOTSTRAP_ERROR` | 应用程序的初始化功能返回了被拒绝的承诺 |
 | `"mount-error"`     | `MOUNT_ERROR`     | 应用程序的挂载功能返回了被拒绝的承诺   |
