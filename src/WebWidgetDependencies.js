@@ -3,7 +3,11 @@ import { formatErrorMessage } from './applications/errors.js';
 
 export class WebWidgetDependencies {
   constructor(ownerElement) {
-    this.ownerElement = ownerElement;
+    Reflect.defineProperty(this, 'ownerElement', {
+      get() {
+        return ownerElement;
+      }
+    });
   }
 
   get attributes() {
