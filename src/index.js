@@ -175,9 +175,11 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
 
     this.addEventListener('change', () => {
       if (this.state === HTMLWebWidgetElement.MOUNTED) {
-        const placeholder = this.querySelector('placeholder');
-        if (placeholder && placeholder.parentNode === this) {
-          placeholder.hidden = true;
+        for (const element of this.children) {
+          if (element.localName === 'placeholder') {
+            element.hidden = true;
+            break;
+          }
         }
       }
     });
