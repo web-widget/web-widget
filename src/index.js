@@ -24,7 +24,6 @@ const rootPortalDestinations = new WebWidgetPortalDestinations();
 const PARSER = Symbol('parser');
 const MODEL = Symbol('model');
 const APPLICATION = Symbol('application');
-const AUTO_LOADED = Symbol('autoLoaded');
 
 const isBindingElementLifecycle = view => !view.inactive;
 const isResourceReady = view =>
@@ -79,13 +78,12 @@ function getChildModels(view) {
 
 function tryAutoLoad(view) {
   queueMicrotask(() => {
-    if (isAutoLoad(view) && !view[AUTO_LOADED]) {
+    if (isAutoLoad(view)) {
       view.mount().catch(error => {
         queueMicrotask(() => {
           throw error;
         });
       });
-      view[AUTO_LOADED] = true;
     }
   });
 }
@@ -193,9 +191,9 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     return this[APPLICATION] || null;
   }
 
-  set application(main) {
-    if (typeof main === 'function') {
-      this[APPLICATION] = main;
+  set application(value) {
+    if (typeof value === 'function') {
+      this[APPLICATION] = value;
       tryAutoLoad(this);
     }
   }
@@ -293,7 +291,6 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     return parser(...arguments);
   }
 
-  // eslint-disable-next-line consistent-return
   async loader() {
     const { src, application, text, type, importance } = this;
 
@@ -317,6 +314,8 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
       const sandbox = this[MODEL].sandbox;
       return this[PARSER](text, sandbox);
     }
+
+    throw Error('No target');
   }
 
   createSandbox() {
@@ -385,7 +384,6 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
           if (parentSandboxed) {
             this.sandboxed = parentSandboxed;
           }
-          // TODO 继承 baseURI
         }
 
         if (this.loading === 'lazy') {

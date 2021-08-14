@@ -24,6 +24,10 @@ function resetModel(model) {
     unmountPromise: null,
     update: null
   });
+
+  Object.getOwnPropertyNames(model.properties).forEach(key => {
+    delete model.properties[key];
+  });
 }
 
 export async function toUnloadPromise(model) {
