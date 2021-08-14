@@ -123,7 +123,8 @@ function createModel(view) {
 
   const id = view.id;
   const name =
-    view.name || (application ? application.name : view.id || view.localName);
+    view.name ||
+    (application ? application.name : view.id || view.name || view.localName);
   const url = src || null;
   const properties = view.createDependencies();
   const parent = () => getParentModel(view);
