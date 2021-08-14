@@ -26,7 +26,7 @@ function resetModel(model) {
   });
 
   Object.getOwnPropertyNames(model.properties).forEach(key => {
-    delete model.properties[key];
+    Reflect.deleteProperty(model.properties, key);
   });
 }
 
