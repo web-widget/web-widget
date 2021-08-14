@@ -550,3 +550,77 @@ describe('Events', () => {
       ]);
     }));
 });
+
+describe('Placeholder', () => {
+  it('placeholder', () =>
+    createWidget(async ({ widget }) => {
+      const placeholder = document.createElement('placeholder');
+      widget.appendChild(placeholder);
+      await widget.load();
+      expect(placeholder).to.have.property('hidden', false);
+      await widget.bootstrap();
+      expect(placeholder).to.have.property('hidden', false);
+      await widget.mount();
+      expect(placeholder).to.have.property('hidden', true);
+    }));
+
+  it('Only works on the first placeholder element', () =>
+    createWidget(async ({ widget }) => {
+      const placeholder1 = document.createElement('placeholder');
+      const placeholder2 = document.createElement('placeholder');
+      widget.appendChild(placeholder1);
+      widget.appendChild(placeholder2);
+      await widget.load();
+      expect(placeholder1).to.have.property('hidden', false);
+      expect(placeholder2).to.have.property('hidden', false);
+      await widget.bootstrap();
+      expect(placeholder1).to.have.property('hidden', false);
+      expect(placeholder2).to.have.property('hidden', false);
+      await widget.mount();
+      expect(placeholder1).to.have.property('hidden', true);
+      expect(placeholder2).to.have.property('hidden', false);
+    }));
+
+  it('The placeholder element must be a direct descendant', () =>
+    createWidget(async ({ widget }) => {
+      const child = document.createElement('div');
+      const placeholder = document.createElement('placeholder');
+      const placeholder2 = document.createElement('placeholder');
+      child.appendChild(placeholder);
+      widget.appendChild(child);
+      widget.appendChild(placeholder2);
+      await widget.load();
+      expect(placeholder).to.have.property('hidden', false);
+      expect(placeholder2).to.have.property('hidden', false);
+      await widget.bootstrap();
+      expect(placeholder).to.have.property('hidden', false);
+      expect(placeholder2).to.have.property('hidden', false);
+      await widget.mount();
+      expect(placeholder).to.have.property('hidden', false);
+      expect(placeholder2).to.have.property('hidden', true);
+    }));
+
+  it('Change visibility only once', () =>
+    createWidget(async ({ widget }) => {
+      const placeholder = document.createElement('placeholder');
+      widget.appendChild(placeholder);
+      await widget.load();
+      expect(placeholder).to.have.property('hidden', false);
+      await widget.bootstrap();
+      expect(placeholder).to.have.property('hidden', false);
+      await widget.mount();
+      expect(placeholder).to.have.property('hidden', true);
+      await widget.update();
+      expect(placeholder).to.have.property('hidden', true);
+      await widget.unmount();
+      expect(placeholder).to.have.property('hidden', true);
+      await widget.unload();
+      expect(placeholder).to.have.property('hidden', true);
+      await widget.load();
+      expect(placeholder).to.have.property('hidden', true);
+      await widget.bootstrap();
+      expect(placeholder).to.have.property('hidden', true);
+      await widget.mount();
+      expect(placeholder).to.have.property('hidden', true);
+    }));
+});
