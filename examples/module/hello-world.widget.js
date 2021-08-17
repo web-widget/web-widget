@@ -1,9 +1,9 @@
 export default () => {
   let element;
   return {
-    async bootstrap({ dataset }) {
+    async bootstrap({ data }) {
       element = document.createElement('div');
-      element.innerHTML = `hello wrold: ${JSON.stringify(dataset, null, 2)}`;
+      element.innerHTML = `hello wrold: ${JSON.stringify(data, null, 2)}`;
     },
 
     async mount({ container }) {

@@ -41,6 +41,9 @@ export class WebWidgetDependencies {
       mount() {
         return view.mount();
       },
+      update(properties) {
+        return view.update(properties);
+      },
       unmount() {
         return view.unmount();
       }
@@ -121,11 +124,19 @@ export class WebWidgetDependencies {
     };
   }
 
+  get data() {
+    const view = this.ownerElement;
+    return view.data;
+  }
+
+  set data(value) {
+    const view = this.ownerElement;
+    view.data = value;
+  }
+
   get dataset() {
     const view = this.ownerElement;
-    const data = {};
-    Object.assign(data, view.dataset);
-    return data;
+    return { ...view.dataset };
   }
 
   get name() {

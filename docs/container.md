@@ -53,18 +53,19 @@ WebWidget 是一个标准的 Web Component 组件，它也是一个容器，容�
 
 ## 配置数据
 
-通过 `data-*` 属性可以为 WebWidget App 传递静态的数据：
+通过 `data` 或 `data-*` 属性可以为 WebWidget App 传递静态的数据：
 
 ```html
 <web-widget
   src="app.widget.js"
+  data="{&quot;a&quot;:&quot;hello&quot;}"
   data-username="web-widget"
   data-email="web-widget@web-sandbox.js.org"
 >
 </web-widget>
 ```
 
-WebWidget App 可以通过生命周期函数获的 `dataset` 参数获取到数据。
+WebWidget App 可以通过生命周期函数获的 `data` 参数获取到数据。
 
 > 通过 `data-*` 只能传递 `string` 类型的值。
 
@@ -128,6 +129,20 @@ widget.text = `export default () => ({
   async unload(properties) {}
 })`;
 document.body.appendChild(widget);
+```
+
+### `data`
+
+应用的数据。应用脚本可以通过生命周期的 `properties.data` 访问到。
+
+```js
+widget.data = { a: 'hello' };
+```
+
+等价于：
+
+```html
+<web-widget data="{&quot;a&quot;:&quot;hello&quot;}" src="app.widget.js"></web-widget>
 ```
 
 ### `name`

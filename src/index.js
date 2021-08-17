@@ -23,6 +23,7 @@ const HTMLWebSandboxElement = window.HTMLWebSandboxElement || undefined;
 const rootPortalDestinations = new WebWidgetPortalDestinations();
 const PARSER = Symbol('parser');
 const MODEL = Symbol('model');
+const DATA = Symbol('data');
 const APPLICATION = Symbol('application');
 
 const isBindingElementLifecycle = view => !view.inactive;
@@ -201,6 +202,33 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     }
   }
 
+  get data() {
+    if (this[DATA] !== undefined) {
+      return this[DATA];
+    }
+
+    const dataAttr = this.getAttribute('data');
+    const datasetKeys = Object.keys(this.dataset);
+
+    if (dataAttr || datasetKeys.length) {
+      let innerData = {};
+      if (dataAttr) {
+        innerData = JSON.parse(dataAttr);
+      }
+
+      return { ...innerData, ...this.dataset };
+    }
+
+    return null;
+  }
+
+  set data(value) {
+    if (typeof value !== 'object') {
+      throw new TypeError('Not an object');
+    }
+    this[DATA] = value;
+  }
+
   get inactive() {
     return this.getAttribute('inactive') !== null;
   }
@@ -352,7 +380,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
 
   async update(properties = {}) {
     if (this.state !== status.MOUNTED) {
-      throw new Error(`Cannot update: Not initialized`);
+      throw new Error(`Cannot update: Not mounted`);
     }
 
     Object.assign(this[MODEL].properties, properties);

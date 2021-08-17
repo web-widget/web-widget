@@ -492,6 +492,44 @@ describe('Application propertie: context', () => {
     }));
 });
 
+describe('Application propertie: data', () => {
+  it('data', () =>
+    createWidget(async ({ widget, properties }) => {
+      const testValue = Date.now();
+      widget.data = { testValue };
+      await widget.mount();
+      expect(properties.mount.data).to.have.property('testValue', testValue);
+      await widget.unload();
+      expect(properties.mount.data).to.have.property('testValue', testValue);
+    }));
+
+  it('Should support "data" attribute to store JSON content', () =>
+    createWidget(async ({ widget, properties }) => {
+      const data = {
+        test: Date.now()
+      };
+      widget.setAttribute('data', JSON.stringify(data));
+      await widget.mount();
+      expect(properties.mount.data).to.deep.equal(data);
+      await widget.unload();
+      expect(properties.mount.data).to.deep.equal(data);
+    }));
+
+  it('The content of the "data" and "data-*" attributes should be used as default values', () =>
+    createWidget(async ({ widget, properties }) => {
+      const a = Date.now();
+      const b = String(Date.now());
+      widget.setAttribute('data', JSON.stringify({ a }));
+      widget.dataset.b = b;
+      await widget.mount();
+      expect(properties.mount.data).to.have.property('a', a);
+      expect(properties.mount.data).to.have.property('b', b);
+      await widget.unload();
+      expect(properties.mount.data).to.have.property('a', a);
+      expect(properties.mount.data).to.have.property('b', b);
+    }));
+});
+
 describe('Application propertie: dataset', () => {
   it('dataset', () =>
     createWidget(async ({ widget, properties }) => {
