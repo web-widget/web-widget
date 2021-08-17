@@ -33,6 +33,12 @@ const isAutoLoad = view =>
   isBindingElementLifecycle(view) && isResourceReady(view);
 const isAutoUnload = isBindingElementLifecycle;
 
+function asyncThrowError(error) {
+  queueMicrotask(() => {
+    throw error;
+  });
+}
+
 function getParentWebWidgetElement(view) {
   // eslint-disable-next-line no-use-before-define
   return getParentNode(view, HTMLWebWidgetElement);
@@ -80,11 +86,7 @@ function getChildModels(view) {
 function tryAutoLoad(view) {
   queueMicrotask(() => {
     if (isAutoLoad(view)) {
-      view.mount().catch(error => {
-        queueMicrotask(() => {
-          throw error;
-        });
-      });
+      view.mount().catch(asyncThrowError);
     }
   });
 }
@@ -92,21 +94,14 @@ function tryAutoLoad(view) {
 function tryAutoUnload(view) {
   queueMicrotask(() => {
     if (isAutoUnload(view)) {
-      view.unload().then(
-        () => {
-          if (
-            HTMLWebSandboxElement &&
-            view[HTMLWebSandboxElement.SANDBOX_INSTANCE]
-          ) {
-            view[HTMLWebSandboxElement.SANDBOX_DESTROY]();
-          }
-        },
-        error => {
-          queueMicrotask(() => {
-            throw error;
-          });
+      view.unload().then(() => {
+        if (
+          HTMLWebSandboxElement &&
+          view[HTMLWebSandboxElement.SANDBOX_INSTANCE]
+        ) {
+          view[HTMLWebSandboxElement.SANDBOX_DESTROY]();
         }
-      );
+      }, asyncThrowError);
     }
   });
 }
@@ -211,18 +206,17 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     }
 
     const dataAttr = this.getAttribute('data');
-    const datasetKeys = Object.keys(this.dataset);
 
-    if (dataAttr || datasetKeys.length) {
-      let innerData = {};
-      if (dataAttr) {
-        innerData = JSON.parse(dataAttr);
+    if (dataAttr) {
+      try {
+        this[DATA] = JSON.parse(dataAttr);
+        return this[DATA];
+      } catch (error) {
+        asyncThrowError(error);
       }
-
-      return { ...innerData, ...this.dataset };
     }
 
-    return null;
+    return this.dataset;
   }
 
   set data(value) {
@@ -427,7 +421,10 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
         }
         break;
       case 'attributeChanged':
-        if (this.loading !== 'lazy') {
+        if (params[0] === 'data') {
+          delete this[DATA];
+          break;
+        } else if (this.loading !== 'lazy') {
           if (this.inactive && params[0] === 'src' && params[1]) {
             preFetch(this.src);
           }
@@ -447,7 +444,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   static get observedAttributes() {
-    return ['src', 'text', 'inactive'];
+    return ['data', 'src', 'text', 'inactive'];
   }
 }
 
