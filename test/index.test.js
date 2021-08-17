@@ -459,7 +459,7 @@ describe('Application lifecycle: unload', () => {
     }));
 });
 
-describe('Application propertie: attributes', () => {
+describe('Application property: attributes', () => {
   it('attributes', () =>
     createWidget(async ({ widget, properties }) => {
       const value = String(Date.now());
@@ -471,7 +471,7 @@ describe('Application propertie: attributes', () => {
     }));
 });
 
-describe('Application propertie: container', () => {
+describe('Application property: container', () => {
   it('container', () =>
     createWidget(async ({ widget, properties }) => {
       await widget.mount();
@@ -481,7 +481,7 @@ describe('Application propertie: container', () => {
     }));
 });
 
-describe('Application propertie: context', () => {
+describe('Application property: context', () => {
   it('context', () =>
     createWidget(async ({ widget, properties }) => {
       await widget.mount();
@@ -492,7 +492,7 @@ describe('Application propertie: context', () => {
     }));
 });
 
-describe('Application propertie: data', () => {
+describe('Application property: data', () => {
   it('data', () =>
     createWidget(async ({ widget, properties }) => {
       const testValue = Date.now();
@@ -515,12 +515,33 @@ describe('Application propertie: data', () => {
       expect(properties.mount.data).to.deep.equal(data);
     }));
 
-  it('The content of the "data" and "data-*" attributes should be used as default values', () =>
+  it('The priority of attributes and properties should be handled correctly', () =>
     createWidget(async ({ widget, properties }) => {
-      const a = Date.now();
+      const arrtData = {
+        test: Date.now()
+      };
+      const priorityData = {
+        test: 'priority'
+      };
+
+      widget.data = priorityData;
+      widget.setAttribute('data', JSON.stringify(arrtData));
+      await widget.mount();
+      expect(properties.mount.data).to.deep.equal(arrtData);
+
+      widget.setAttribute('data', JSON.stringify(arrtData));
+      widget.data = priorityData;
+      await widget.unmount();
+      await widget.mount();
+      expect(properties.mount.data).to.deep.equal(priorityData);
+    }));
+
+  it('The content of the "data-*" attribute should be used as the default value', () =>
+    createWidget(async ({ widget, properties }) => {
+      const a = String(Date.now());
       const b = String(Date.now());
-      widget.setAttribute('data', JSON.stringify({ a }));
-      widget.dataset.b = b;
+      widget.dataset.a = a;
+      widget.setAttribute('data-b', b);
       await widget.mount();
       expect(properties.mount.data).to.have.property('a', a);
       expect(properties.mount.data).to.have.property('b', b);
@@ -530,7 +551,7 @@ describe('Application propertie: data', () => {
     }));
 });
 
-describe('Application propertie: dataset', () => {
+describe('Application property: dataset', () => {
   it('dataset', () =>
     createWidget(async ({ widget, properties }) => {
       const value = String(Date.now());
@@ -542,7 +563,7 @@ describe('Application propertie: dataset', () => {
     }));
 });
 
-describe('Application propertie: name', () => {
+describe('Application property: name', () => {
   it('name', () =>
     createWidget(async ({ widget, properties }) => {
       const value = String(Date.now());
@@ -554,7 +575,7 @@ describe('Application propertie: name', () => {
     }));
 });
 
-describe('Application propertie: sandboxed', () => {
+describe('Application property: sandboxed', () => {
   it('sandboxed', () =>
     createWidget(async ({ widget, properties }) => {
       await widget.mount();
