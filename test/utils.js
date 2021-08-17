@@ -36,7 +36,7 @@ export const createWidget = callback => {
       }
     };
   };
-  widget.addEventListener('change', () => {
+  widget.addEventListener('statechange', () => {
     stateStack.push(widget.state);
   });
   document.body.appendChild(widget);

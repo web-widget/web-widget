@@ -1,6 +1,14 @@
 /* global window */
 import { formatErrorMessage } from './applications/errors.js';
 
+function getModel(target) {
+  const view = target.ownerElement;
+  const HTMLWebWidgetElement = view.constructor;
+  const MODEL = HTMLWebWidgetElement.MODEL;
+  const model = view[MODEL];
+  return model;
+}
+
 export class WebWidgetDependencies {
   constructor(ownerElement) {
     Reflect.defineProperty(this, 'ownerElement', {
@@ -11,11 +19,13 @@ export class WebWidgetDependencies {
   }
 
   get attributes() {
-    const view = this.ownerElement;
-    return [...view.attributes].reduce((accumulator, { name, value }) => {
-      accumulator[name] = value;
-      return accumulator;
-    }, {});
+    return [...this.ownerElement.attributes].reduce(
+      (accumulator, { name, value }) => {
+        accumulator[name] = value;
+        return accumulator;
+      },
+      {}
+    );
   }
 
   get container() {
@@ -52,10 +62,8 @@ export class WebWidgetDependencies {
 
   get createPortal() {
     return (widget, name) => {
-      const view = this.ownerElement;
-      const HTMLWebWidgetElement = view.constructor;
-      const MODEL = HTMLWebWidgetElement.MODEL;
-      const model = view[MODEL];
+      const HTMLWebWidgetElement = this.ownerElement.constructor;
+      const model = getModel(this);
       let portal;
       const findCustomPortal = (model, name) => {
         let current = model;
@@ -125,33 +133,23 @@ export class WebWidgetDependencies {
   }
 
   get data() {
-    const view = this.ownerElement;
-    return view.data;
+    return { ...this.ownerElement.data };
   }
 
   set data(value) {
-    const view = this.ownerElement;
-    view.data = value;
+    this.ownerElement.data = value;
   }
 
   get dataset() {
-    const view = this.ownerElement;
-    return { ...view.dataset };
+    return { ...this.ownerElement.dataset };
   }
 
   get name() {
-    const view = this.ownerElement;
-    const HTMLWebWidgetElement = view.constructor;
-    const MODEL = HTMLWebWidgetElement.MODEL;
-    const model = view[MODEL];
-    return model.name;
+    return getModel(this).name;
   }
 
   get portalDestinations() {
-    const view = this.ownerElement;
-    const HTMLWebWidgetElement = view.constructor;
-    const MODEL = HTMLWebWidgetElement.MODEL;
-    const model = view[MODEL];
+    const model = getModel(this);
     return {
       get() {
         return model.portalDestinations.get(...arguments);
@@ -163,11 +161,7 @@ export class WebWidgetDependencies {
   }
 
   get sandboxed() {
-    const view = this.ownerElement;
-    const HTMLWebWidgetElement = view.constructor;
-    const MODEL = HTMLWebWidgetElement.MODEL;
-    const model = view[MODEL];
-    return !!model.sandbox;
+    return !!getModel(this).sandbox;
   }
 }
 

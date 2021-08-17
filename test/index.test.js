@@ -565,7 +565,7 @@ describe('Application propertie: sandboxed', () => {
 });
 
 describe('Events', () => {
-  it('change', () =>
+  it('statechange', () =>
     createWidget(async ({ stateStack, widget }) => {
       await widget.load();
       await widget.bootstrap();
