@@ -55,7 +55,7 @@ export class Model {
         set(value) {
           if (value !== state) {
             state = value;
-            this.view.dispatchEvent(new Event('change'));
+            this.view.dispatchEvent(new Event('statechange'));
           }
         }
       }

@@ -175,16 +175,19 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   constructor() {
     super();
 
-    this.addEventListener('change', () => {
+    const onstatechange = () => {
       if (this.state === HTMLWebWidgetElement.MOUNTED) {
         for (const element of this.children) {
           if (element.localName === 'placeholder') {
             element.hidden = true;
+            this.removeEventListener('statechange', onstatechange);
             break;
           }
         }
       }
-    });
+    };
+
+    this.addEventListener('statechange', onstatechange);
 
     if (HTMLWebSandboxElement) {
       this[HTMLWebSandboxElement.SANDBOX_AUTOLOAD_DISABLED] = true;
