@@ -24,7 +24,7 @@
 
     const { INITIAL, UPDATING, MOUNTED } = HTMLWebWidgetElement;
     let oldState = INITIAL;
-    document.getElementById('widget').addEventListener('change', function() {
+    document.getElementById('widget').addEventListener('statechange', function() {
       if (oldState === UPDATING && this.state === MOUNTED) {
         document.getElementById('log').innerText = JSON.stringify(this.data, null, 2)
       }

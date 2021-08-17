@@ -277,14 +277,14 @@ export async function mount({ container, createPortal }) {
 
 ## 事件
 
-### `change`
+### `statechange`
 
-当应用的状态变更后，每次都将触发 `change` 事件。
+当应用的状态变更后，每次都将触发 `statechange` 事件。
 
 ```js
 const widget = document.createElement('web-widget');
 widget.src = "./app.widget.js";
-widget.addEventListener('change', () => {
+widget.addEventListener('statechange', () => {
   console.log('State', widget.state);
 });
 document.body.appendChild(widget);
