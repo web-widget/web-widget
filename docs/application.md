@@ -66,9 +66,9 @@ export async function bootstrap(properties) {
 
 注册到主文档的应用名称。
 
-### `dataset`
+### `data`
 
-应用初始化的数据。
+应用的初始化数据。
 
 ### `container`
 
@@ -105,6 +105,8 @@ export async function mount({ createPortal }) {
 ```
 
 > 目的地必须先定义才能被使用，例如通过 `WebWidget.portalDestinations.define(name, factory)` 来定义目的地。
+>
+> 这是试验性特性。
 
 ### `portalDestinations`
 

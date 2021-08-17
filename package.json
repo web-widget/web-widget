@@ -12,7 +12,6 @@
     "test:watch": "web-test-runner --watch",
     "examples:web-widget-router": "cd examples/web-widget-router && web-dev-server",
     "examples:web-widget-collection": "cd examples/web-widget-collection && web-dev-server",
-    "examples:single-spa": "cd examples/single-spa && web-dev-server",
     "web-widget:lint": "eslint ./src ./test ./examples",
     "web-widget:prettier": "prettier --config ./.prettierrc --write ./src/**/**/*.js ./test/**/**/*.js ./examples/**/**/*.js",
     "web-widget:build": "npm run web-widget:build:dev && npm run web-widget:build:prod",
