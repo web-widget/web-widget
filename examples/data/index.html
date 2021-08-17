@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" main="IE=edge">
+  <title>WebWidget DEMO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">  
+</head>
+
+<body>
+
+  <web-widget
+    id="widget"
+    data="{&quot;id&quot;:&quot;#345&quot;,&quot;username&quot;:&quot;widget&quot;}"
+    data-id="@123"
+    src="./index.widget.js"
+  >
+  </web-widget>
+  <pre id="log"></pre>
+
+  <script type="module">
+    import '../../src/index.js';
+
+    const { INITIAL, UPDATING, MOUNTED } = HTMLWebWidgetElement;
+    let oldState = INITIAL;
+    document.getElementById('widget').addEventListener('change', function() {
+      if (oldState === UPDATING && this.state === MOUNTED) {
+        document.getElementById('log').innerText = JSON.stringify(this.data, null, 2)
+      }
+      oldState = this.state;
+    });
+  </script>
+</body>
+
+</html>
