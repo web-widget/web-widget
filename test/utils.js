@@ -1,12 +1,12 @@
 export const emptyWidget = document.createElement('web-widget');
 Object.freeze(emptyWidget);
 
-export const createWidget = callback => {
+export const createWidget = (callback, { inactive = true } = {}) => {
   const stack = [];
   const stateStack = [];
   const properties = {};
   const widget = document.createElement('web-widget');
-  widget.inactive = true;
+  widget.inactive = inactive;
   widget.application = () => {
     stack.push('load');
     return {
@@ -41,5 +41,5 @@ export const createWidget = callback => {
   });
   document.body.appendChild(widget);
   const results = { stack, stateStack, widget, properties };
-  return callback ? callback(results) : results;
+  return callback(results);
 };

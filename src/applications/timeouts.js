@@ -12,7 +12,7 @@ function toProperties(model) {
 
 const defaultWarningMillis = 1000;
 
-const globalTimeoutConfig = {
+export const globalTimeoutConfig = {
   bootstrap: {
     millis: 4000,
     dieOnTimeout: false,

@@ -1,9 +1,10 @@
 import { expect } from '@esm-bundle/chai';
 import { HTMLWebWidgetElement } from '../src/index.js';
+import { globalTimeoutConfig } from '../src/applications/timeouts.js';
 import { emptyWidget, createWidget } from './utils.js';
 
-describe('The default propertys of the element', () => {
-  it('propertys', () => {
+describe('The default properties of the element', () => {
+  it('properties', () => {
     expect(emptyWidget).to.have.property('application', null);
     expect(emptyWidget).to.have.property('inactive', false);
     expect(emptyWidget).to.have.property('importance', 'auto');
@@ -106,6 +107,110 @@ describe('Load module', () => {
   });
 });
 
+describe('Auto load', () => {
+  const src = '/test/widgets/hello-world.umd.widget.js';
+  const text = `
+    let element;
+
+    export default () => ({
+      async bootstrap() {
+        element = document.createElement('div');
+        element.innerHTML = 'hello wrold';
+      },
+    
+      async mount({ container }) {
+        container.appendChild(element);
+      },
+    
+      async unmount({ container }) {
+        container.removeChild(element);
+      }
+    });
+  `;
+  const application = element => ({
+    async bootstrap() {
+      element = document.createElement('div');
+      element.innerHTML = 'hello wrold';
+    },
+
+    async mount({ container }) {
+      container.appendChild(element);
+    },
+
+    async unmount({ container }) {
+      container.removeChild(element);
+    }
+  });
+
+  it('Connected (src)', done => {
+    const widget = document.createElement('web-widget');
+    widget.addEventListener('statechange', function () {
+      if (this.state === HTMLWebWidgetElement.MOUNTED) {
+        done();
+      }
+    });
+    widget.src = src;
+    document.body.appendChild(widget);
+  });
+
+  it('Attribute changed (src)', done => {
+    const widget = document.createElement('web-widget');
+    widget.addEventListener('statechange', function () {
+      if (this.state === HTMLWebWidgetElement.MOUNTED) {
+        done();
+      }
+    });
+    document.body.appendChild(widget);
+    widget.src = src;
+  });
+
+  it('Connected (text)', done => {
+    const widget = document.createElement('web-widget');
+    widget.type = 'module';
+    widget.text = text;
+    widget.addEventListener('statechange', function () {
+      if (this.state === HTMLWebWidgetElement.MOUNTED) {
+        done();
+      }
+    });
+    document.body.appendChild(widget);
+  });
+
+  it('Property changed (text)', done => {
+    const widget = document.createElement('web-widget');
+    widget.type = 'module';
+    widget.addEventListener('statechange', function () {
+      if (this.state === HTMLWebWidgetElement.MOUNTED) {
+        done();
+      }
+    });
+    document.body.appendChild(widget);
+    widget.text = text;
+  });
+
+  it('Connected (application)', done => {
+    const widget = document.createElement('web-widget');
+    widget.addEventListener('statechange', function () {
+      if (this.state === HTMLWebWidgetElement.MOUNTED) {
+        done();
+      }
+    });
+    widget.application = application;
+    document.body.appendChild(widget);
+  });
+
+  it('Property changed (application)', done => {
+    const widget = document.createElement('web-widget');
+    widget.addEventListener('statechange', function () {
+      if (this.state === HTMLWebWidgetElement.MOUNTED) {
+        done();
+      }
+    });
+    document.body.appendChild(widget);
+    widget.application = application;
+  });
+});
+
 describe('Application lifecycle: load', () => {
   it('load', () =>
     createWidget(async ({ stack, widget }) => {
@@ -205,48 +310,37 @@ describe('Application lifecycle: update', () => {
       expect(stack).to.deep.equal(['load', 'bootstrap', 'mount', 'update']);
     }));
 
-  it('If it is not loaded, the update should be rejected', done =>
-    createWidget(({ stack, widget }) => {
+  it('If it is not loaded, the update should be rejected', () =>
+    createWidget(({ stack, widget }) =>
       widget.update().then(
-        () => {
-          done(new Error('Not rejected'));
-        },
+        () => Promise.reject(new Error('Not rejected')),
         () => {
           expect(stack).to.deep.equal([]);
-          done();
+        }
+      )
+    ));
+
+  it('If it is not bootstraped, the update should be rejected', () =>
+    createWidget(async ({ stack, widget }) => {
+      await widget.load();
+      await widget.update().then(
+        () => Promise.reject(new Error('Not rejected')),
+        () => {
+          expect(stack).to.deep.equal(['load']);
         }
       );
     }));
 
-  it('If it is not bootstraped, the update should be rejected', done =>
-    createWidget(({ stack, widget }) => {
-      widget.load().then(async () => {
-        widget.update().then(
-          () => {
-            done(new Error('Not rejected'));
-          },
-          () => {
-            expect(stack).to.deep.equal(['load']);
-            done();
-          }
-        );
-      });
-    }));
-
-  it('If it is not mounted, the update should be rejected', done =>
-    createWidget(({ stack, widget }) => {
-      widget.load().then(async () => {
-        await widget.bootstrap();
-        widget.update().then(
-          () => {
-            done(new Error('Not rejected'));
-          },
-          () => {
-            expect(stack).to.deep.equal(['load', 'bootstrap']);
-            done();
-          }
-        );
-      });
+  it('If it is not mounted, the update should be rejected', () =>
+    createWidget(async ({ stack, widget }) => {
+      await widget.load();
+      await widget.bootstrap();
+      await widget.update().then(
+        () => Promise.reject(new Error('Not rejected')),
+        () => {
+          expect(stack).to.deep.equal(['load', 'bootstrap']);
+        }
+      );
     }));
 
   it('Continuous updates should be allowed', () =>
@@ -456,6 +550,96 @@ describe('Application lifecycle: unload', () => {
         'unmount',
         'unload'
       ]);
+    }));
+});
+
+describe('Application lifecycle: error', () => {
+  function createError(lifecycle, callback) {
+    const widget = document.createElement('web-widget');
+    widget.inactive = true;
+    widget.application = () => {
+      return {
+        [lifecycle]: async () => Promise.reject()
+      };
+    };
+    document.body.appendChild(widget);
+    return callback({ widget });
+  }
+
+  it('bootstrap', () =>
+    createError('bootstrap', async ({ widget }) => {
+      await widget.bootstrap().then(
+        () => Promise.reject(new Error('Not rejected')),
+        () => Promise.resolve()
+      );
+    }));
+
+  it('mount', () =>
+    createError('mount', async ({ widget }) => {
+      await widget.mount().then(
+        () => Promise.reject(new Error('Not rejected')),
+        () => Promise.resolve()
+      );
+    }));
+
+  it('update', () =>
+    createError('update', async ({ widget }) => {
+      await widget.mount();
+      await widget.update().then(
+        () => Promise.reject(new Error('Not rejected')),
+        () => Promise.resolve()
+      );
+    }));
+
+  it('unmount', () =>
+    createError('unmount', async ({ widget }) => {
+      await widget.mount();
+      await widget.unmount().then(
+        () => Promise.reject(new Error('Not rejected')),
+        () => Promise.resolve()
+      );
+    }));
+
+  it('unload', () =>
+    createError('unload', async ({ widget }) => {
+      await widget.mount();
+      await widget.unmount();
+      await widget.unload().then(
+        () => Promise.reject(new Error('Not rejected')),
+        () => Promise.resolve()
+      );
+    }));
+});
+
+describe('Application lifecycle: timeout', () => {
+  function createTimeoutError(lifecycle, callback) {
+    const config = globalTimeoutConfig[lifecycle];
+    config.millis = 50;
+    config.dieOnTimeout = true;
+
+    const widget = document.createElement('web-widget');
+    widget.inactive = true;
+    widget.application = () => {
+      return {
+        [lifecycle]() {
+          return new Promise(resolve => {
+            setTimeout(() => {
+              resolve();
+            }, config.millis + 16);
+          });
+        }
+      };
+    };
+    document.body.appendChild(widget);
+    return callback({ widget });
+  }
+
+  it('bootstrap', () =>
+    createTimeoutError('bootstrap', async ({ widget }) => {
+      await widget.bootstrap().then(
+        () => Promise.reject(new Error('Not rejected')),
+        () => Promise.resolve()
+      );
     }));
 });
 
