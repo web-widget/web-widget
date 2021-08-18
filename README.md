@@ -1,5 +1,7 @@
 # WebWidget
 
+![CI](https://github.com/web-sandbox-js/web-widget/actions/workflows/main.yml/badge.svg?event=push)
+
 WebWidget 是一种用于网页的小挂件，和传统的命令式的 UI Library 不同，它介于组件与应用程序形态之间，并且接口被标准化、能够适应于无代码编程与跨技术栈兼容的需要。
 
 ## 为什么要设计 WebWidget
