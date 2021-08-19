@@ -44,7 +44,7 @@ export function reasonableTime(model, lifecycle) {
   return new Promise((resolve, reject) => {
     const timeoutConfig = model.timeouts[lifecycle];
     const warningPeriod = timeoutConfig.warningMillis;
-    const errMsg = `Lifecycle function ${lifecycle} for ${model.name} lifecycle did not resolve or reject for ${timeoutConfig.millis} ms.`;
+    const errMsg = `Lifecycle function ${lifecycle} for ${model.name} lifecycle did not resolve or reject for ${timeoutConfig.millis} ms`;
 
     let finished = false;
     let errored = false;

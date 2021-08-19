@@ -6,7 +6,7 @@ import {
   moduleParser
 } from './utils/scriptLoader.js';
 import { queueMicrotask } from './utils/queueMicrotask.js';
-import { lifecycleCallbacks } from './utils/lifecycleCallbacks.js';
+import { createLifecycleCallbacks } from './utils/lifecycleCallbacks.js';
 import { getParentNode, getChildNodes } from './utils/nodes.js';
 import * as status from './applications/status.js';
 import { Model } from './applications/models.js';
@@ -25,6 +25,7 @@ const PARSER = Symbol('parser');
 const MODEL = Symbol('model');
 const DATA = Symbol('data');
 const APPLICATION = Symbol('application');
+const LIFECYCLE_CALLBACK = Symbol('lifecycleCallback');
 
 const isBindingElementLifecycle = view => !view.inactive;
 const isResourceReady = view =>
@@ -151,6 +152,18 @@ function preFetch(url) {
   });
 }
 
+function onstatechange({ currentTarget }) {
+  if (currentTarget.state === status.MOUNTED) {
+    for (const element of currentTarget.children) {
+      if (element.localName === 'placeholder') {
+        element.hidden = true;
+        currentTarget.removeEventListener('statechange', onstatechange);
+        break;
+      }
+    }
+  }
+}
+
 const lazyImageObserver = new IntersectionObserver(
   entries => {
     entries.forEach(({ isIntersecting, target }) => {
@@ -169,18 +182,6 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   HTMLElement) {
   constructor() {
     super();
-
-    const onstatechange = () => {
-      if (this.state === HTMLWebWidgetElement.MOUNTED) {
-        for (const element of this.children) {
-          if (element.localName === 'placeholder') {
-            element.hidden = true;
-            this.removeEventListener('statechange', onstatechange);
-            break;
-          }
-        }
-      }
-    };
 
     this.addEventListener('statechange', onstatechange);
 
@@ -220,10 +221,9 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   set data(value) {
-    if (typeof value !== 'object') {
-      throw new TypeError('Not an object');
+    if (typeof value === 'object') {
+      this[DATA] = value;
     }
-    this[DATA] = value;
   }
 
   get inactive() {
@@ -401,7 +401,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     }
   }
 
-  lifecycleCallback(type, params) {
+  [LIFECYCLE_CALLBACK](type, params) {
     let parentModel;
     switch (type) {
       case 'firstConnected':
@@ -450,7 +450,10 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
 
 Object.assign(HTMLWebWidgetElement, { PARSER, MODEL }); // 内部接口
 Object.assign(HTMLWebWidgetElement, status);
-Object.assign(HTMLWebWidgetElement.prototype, lifecycleCallbacks);
+Object.assign(
+  HTMLWebWidgetElement.prototype,
+  createLifecycleCallbacks(LIFECYCLE_CALLBACK)
+);
 
 window.WebWidget = HTMLWebWidgetElement;
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
