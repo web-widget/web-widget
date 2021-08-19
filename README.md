@@ -34,8 +34,8 @@ WebWidget 是一种用于网页的小挂件，和传统的命令式的 UI Librar
 
 WebWidget 的本质是组件的服务化治理，而服务意味着更少的过程式的交互。
 
-* 应用事件机制、应用的对外接口并非 WebWidget 的目标。如果一个组件需要频繁的和外部交互那么它并非 WebWidget 的适用范围，这种情况更适合使用传统 npm 包进行共享。虽然如此，我们也要需要确保 WebWidget 所提炼的功能是足够原子化的，能够允许开发者在 WebWidget 之上提供插件所要求的专属 API 或者事件机制
-* WebWidget 不能取代 `<iframe>` 标签或者 Web Component 的自定义元素标签，它们各自核心价值无法被取代
+* 应用事件机制、应用的对外接口并非 WebWidget 的目标。如果一个组件需要频繁的和外部交互那么它并非 WebWidget 的适用范围，这种情况更适合使用传统 npm 包进行共享。虽然如此，WebWidget 需要提供接口让开发者在其基础上拓展插件所要求的专属 API 或者事件机制
+* WebWidget 目的不是取代 `<iframe>` 标签或者 Web Component，它们有自己的核心价值
 
 ## 标准化内容
 
