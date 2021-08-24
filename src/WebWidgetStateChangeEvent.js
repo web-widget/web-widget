@@ -2,18 +2,21 @@
 
 const newState = Symbol('newState');
 const oldState = Symbol('oldState');
-const isContext = Symbol('fromApplication');
+const isFromApplication = Symbol('isFromApplication');
 
 export class WebWidgetStateChangeEvent extends Event {
-  constructor(type, { newState = '', oldState = '', isContext = false } = {}) {
+  constructor(
+    type,
+    { newState = '', oldState = '', isFromApplication = false } = {}
+  ) {
     super(...arguments);
     this[newState] = String(newState);
     this[oldState] = String(oldState);
-    this[isContext] = Boolean(isContext);
+    this[isFromApplication] = Boolean(isFromApplication);
   }
 
-  get isContext() {
-    return this[isContext];
+  get isFromApplication() {
+    return this[isFromApplication];
   }
 
   get newState() {
