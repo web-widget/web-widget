@@ -8,7 +8,6 @@ export function formatErrorMessage(model, error) {
     Reflect.defineProperty(error, 'message', {
       value: `${prefix}: ${error.message}`,
       writable: true,
-      enumerable: false,
       configurable: true
     });
   }
