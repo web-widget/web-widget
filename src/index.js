@@ -227,7 +227,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   get inactive() {
-    return this.getAttribute('inactive') !== null;
+    return this.hasAttribute('inactive');
   }
 
   set inactive(value) {
@@ -255,7 +255,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   get sandboxed() {
-    return this.getAttribute('sandboxed') !== null;
+    return this.hasAttribute('sandboxed');
   }
 
   set sandboxed(value) {
