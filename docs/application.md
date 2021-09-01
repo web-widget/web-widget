@@ -22,7 +22,7 @@ export default () => ({
 
 ## 应用生命周期
 
-生命周期函数是加载器在注册的应用上调用的一系列函数，加载器会在各应用的主文件中，查找对应的函数名并进行调用。
+应用容器（加载器）会依次调用应用入口文件的定义的生命周期函数。
 
 注:
 
@@ -72,7 +72,7 @@ export async function bootstrap(properties) {
 
 ### `container`
 
-应用 DOM 元素的容器。这是一个 HTMLElement 对象实例，至少拥有 `appendChild()` 、`removeChild()`、`innerHTML` 填充容器内容接口。
+应用用于渲染 DOM 的 Node 节点。这是一个 HTMLElement 对象实例，至少拥有 `appendChild()` 、`removeChild()`、`innerHTML` 填充容器内容接口。
 
 ### `sandboxed`
 
@@ -86,7 +86,7 @@ export async function bootstrap(properties) {
 
 将应用传送到容器外面挂载。
 
-* `widget` WebWidget 元素
+* `widget` WebWidget 容器
 * `destination` 目的地
 
 示例：

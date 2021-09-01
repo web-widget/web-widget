@@ -43,7 +43,7 @@ WebWidget 标准由如下三个部分组成：
 
 ### 容器
 
-它是运行 WebWidget 应用的容器，使用 HTML 标签可以立即创建一个带有沙盒的容器并且启动应用：
+它是运行 WebWidget 应用的容器，它也是一个 HTML 标签：
 
 ```html
 <web-widget name="my-app" src="my-app.widget.js" sandboxed></web-widget>
