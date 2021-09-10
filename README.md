@@ -141,7 +141,7 @@ WebWidget 辅助工具：
 
 ### 首屏载入速度优化
 
-[AMP](https://amp.dev) 通过性能优先的工程设计为 WebWidget 的诞生提供了很多灵感，其中 [AMP](https://amp.dev) 的优化策略对采用 WebWidget 的网站也同样有效，一些推荐设置：
+[AMP](https://amp.dev) 的性能优先的工程设计为 WebWidget 的诞生提供了很多灵感，它的优化策略对采用 WebWidget 的网站也同样有效，一些推荐设置：
 
 * HTML 中的布局、文本等关键元素通过服务器渲染，而 WebWidget 由客户端渲染
 * 上述标签的 CSS 样式内嵌入在页面中
