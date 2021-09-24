@@ -24,15 +24,31 @@ const rootPortalDestinations = new WebWidgetPortalDestinations();
 const PARSER = Symbol('parser');
 const MODEL = Symbol('model');
 const DATA = Symbol('data');
+const PREFETCH = Symbol('prefetch');
 const APPLICATION = Symbol('application');
 const LIFECYCLE_CALLBACK = Symbol('lifecycleCallback');
 
 const isBindingElementLifecycle = view => !view.inactive;
 const isResourceReady = view =>
   view.isConnected && (view.src || view.application || view.text);
+const isAutoPrefetch = view => view.inactive && view.src;
 const isAutoLoad = view =>
   isBindingElementLifecycle(view) && isResourceReady(view);
 const isAutoUnload = isBindingElementLifecycle;
+
+const lazyObserver = new IntersectionObserver(
+  entries => {
+    entries.forEach(({ isIntersecting, target }) => {
+      if (isIntersecting && isAutoLoad(target)) {
+        target.mount();
+        lazyObserver.unobserve(target);
+      }
+    });
+  },
+  {
+    rootMargin: '80%'
+  }
+);
 
 function asyncThrowError(error) {
   queueMicrotask(() => {
@@ -84,10 +100,22 @@ function getChildModels(view) {
   ];
 }
 
+function prefetch(url /* , importance */) {
+  if (!document.head.querySelector(`link[href="${url}"]`)) {
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    /* link.importance = importance; */
+    link.href = url;
+    document.head.appendChild(link);
+  }
+}
+
 function tryAutoLoad(view) {
   queueMicrotask(() => {
     if (isAutoLoad(view)) {
       view.mount().catch(asyncThrowError);
+    } else if (isAutoPrefetch(view)) {
+      view[PREFETCH]();
     }
   });
 }
@@ -105,6 +133,14 @@ function tryAutoUnload(view) {
       }, asyncThrowError);
     }
   });
+}
+
+function addLazyLoad(view) {
+  lazyObserver.observe(view);
+}
+
+function removeLazyLoad(view) {
+  lazyObserver.unobserve(view);
 }
 
 function createModel(view) {
@@ -141,17 +177,6 @@ function createModel(view) {
   });
 }
 
-function preFetch(url) {
-  queueMicrotask(() => {
-    if (!document.head.querySelector(`link[href="${url}"]`)) {
-      const link = document.createElement('link');
-      link.rel = 'prefetch';
-      link.href = url;
-      document.head.appendChild(link);
-    }
-  });
-}
-
 function onstatechange({ currentTarget }) {
   if (currentTarget.state === status.MOUNTED) {
     for (const element of currentTarget.children) {
@@ -163,20 +188,6 @@ function onstatechange({ currentTarget }) {
     }
   }
 }
-
-const lazyImageObserver = new IntersectionObserver(
-  entries => {
-    entries.forEach(({ isIntersecting, target }) => {
-      if (isIntersecting && isAutoLoad(target)) {
-        target.mount();
-        lazyImageObserver.unobserve(target);
-      }
-    });
-  },
-  {
-    rootMargin: '80%'
-  }
-);
 
 export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   HTMLElement) {
@@ -319,6 +330,10 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     return parser(...arguments);
   }
 
+  [PREFETCH]() {
+    prefetch(this.src, this.importance);
+  }
+
   async loader() {
     const { src, application, text, type, importance } = this;
 
@@ -415,7 +430,7 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
         }
 
         if (this.loading === 'lazy') {
-          lazyImageObserver.observe(this);
+          addLazyLoad(this);
         } else {
           tryAutoLoad(this);
         }
@@ -424,17 +439,15 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
         if (params[0] === 'data') {
           delete this[DATA];
           break;
-        } else if (this.loading !== 'lazy') {
-          if (this.inactive && params[0] === 'src' && params[1]) {
-            preFetch(this.src);
-          }
+        }
+        if (this.loading !== 'lazy') {
           tryAutoLoad(this);
         }
         break;
 
       case 'destroyed':
         if (this.loading === 'lazy') {
-          lazyImageObserver.unobserve(this);
+          removeLazyLoad(this);
         }
         tryAutoUnload(this);
         break;

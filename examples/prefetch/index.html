@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" main="IE=edge">
+  <title>WebWidgetRouter demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+  <web-widget id="home" src="./index.widget.js" inactive importance="high"></web-widget>
+  <web-widget id="news" src="./news.widget.js" inactive></web-widget>
+  <web-widget id="about" src="./about.widget.js" inactive></web-widget>
+  <web-widget id="vue-router" src="./vue-router.widget.js" inactive></web-widget>
+
+  <script type="module">
+    import '../../src/index.js';
+  </script>
+</body>
+
+</html>
