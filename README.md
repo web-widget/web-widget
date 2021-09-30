@@ -95,8 +95,8 @@ WebWidget 辅助工具：
 
 * [extensions/WebWidgetCollection.js](extensions/WebWidgetCollection.js) WebWidget 应用集合抽象，可以用来和历史记录库组合使用
 * [extensions/WebWidgetRouter.js](extensions/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现
-* [extensions/HTMLWebWidgetImportElement.js](extensions/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现
-* [extensions/HTMLWebComponentImportElement.js](extensions/HTMLWebComponentImportElement.js) 原生 Web Components 模块适配器（实验性）
+* [extensions/HTMLWebWidgetImportElement.js](extensions/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现（`<web-widget.import>`）
+* [extensions/WebWidgerUmdLoader.js](extensions/WebWidgerUmdLoader.js) UMD 模块格式支持
 
 > 辅助工具不属于本项目的内容，因此后续将从当前项目中移除，以便独立维护。
 
@@ -138,6 +138,8 @@ WebWidget 辅助工具：
     <web-widget src="./b.widget.js"></web-widget>
 </web-widget>
 ```
+
+> 由于 TC39 Realms API 发生了重大变更，因此此特性暂时无法使用。
 
 ### 首屏载入速度优化
 
@@ -241,36 +243,6 @@ WebWidget 辅助工具：
   import '@web-sandbox.js/web-widget';
   import '@web-sandbox.js/web-widget/dist/esm/extensions/web-widget-import';
 </script>
-```
-
-## Web Components: HTML 模块化系统
-
-```html
-<web-component.import as="slot-demo" from="./my-element.js"></web-component.import>
-
-<slot-demo>
-  <p slot="main">Hello Wrold</p>
-</slot-demo>
-
-<script type="module">
-  import '@web-sandbox.js/web-widget';
-  import '@web-sandbox.js/web-widget/dist/esm/extensions/web-widget-import';
-  import '@web-sandbox.js/web-widget/dist/esm/extensions/web-component-import';
-</script>
-```
-
-```js
-// my-element.js
-class MyElment extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-    this.shadowRoot = `
-      <main><slot name="main">hello wrold</slot></main>
-    `;
-  }
-}
-customElements.define('my-element', MyElment);
 ```
 
 ### 服务器渲染

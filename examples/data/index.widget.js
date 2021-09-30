@@ -1,4 +1,4 @@
-define(() => {
+export default () => {
   let element;
   return {
     async mount({ data, container, context }) {
@@ -32,4 +32,4 @@ define(() => {
       container.removeChild(element);
     }
   };
-});
+};

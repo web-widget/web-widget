@@ -39,12 +39,11 @@ export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
               'application',
               'csp',
               'debug',
-              'sandboxed',
               'src',
               'text',
               'type',
-              'loader',
-              HTMLWebWidgetElement.PARSER
+              'createDependencies',
+              'createLoader'
             ].reduce((accumulator, name) => {
               if (typeof importElement[name] !== 'undefined') {
                 accumulator[name] = {

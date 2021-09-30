@@ -1,4 +1,4 @@
-define(() => {
+export default () => {
   let main, nav;
   console.log('News load');
   return {
@@ -27,4 +27,4 @@ define(() => {
       container.removeChild(main);
     }
   };
-});
+};

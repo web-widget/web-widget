@@ -157,6 +157,8 @@ widget.data = { a: 'hello' };
 
 沙盒化应用。启用后 WebWidget 应用将使用虚拟化环境来运行 JS。虚拟化环境来自 [WebSandbox](https://web-sandbox.js.org)。
 
+> 由于 TC39 Realms API 发生了重大变更，因此此特性暂时无法使用。
+
 ### `csp`
 
 内容安全策略。只有开启 `sandboxed` 属性后才有效。
@@ -179,7 +181,7 @@ widget.data = { a: 'hello' };
 
 ### `type`
 
-脚本的模块类型。如果要支持 ES6 module，需要设置为 `type="module"`。
+脚本的模块类型，默认值为 `"module"`。
 
 ### `state`
 

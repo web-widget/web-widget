@@ -16,31 +16,33 @@ function importScript(url) {
   return loader(script);
 }
 
-let element;
 console.log('todomvc load');
-define({
-  async bootstrap() {
-    console.log('todomvc bootstrap');
+export default () => {
+  let element;
+  return {
+    async bootstrap() {
+      console.log('todomvc bootstrap');
 
-    if (customElements.get('my-todo')) {
-      return Promise.resolve();
+      if (customElements.get('my-todo')) {
+        return Promise.resolve();
+      }
+
+      return importScript('../libs/lit-element-todomvc.js');
+    },
+
+    async mount({ container }) {
+      console.log('todomvc mount');
+      element = document.createElement('my-todo');
+      container.appendChild(element);
+    },
+
+    async unmount({ container }) {
+      console.log('todomvc unmount');
+      container.removeChild(element);
+    },
+    async unload() {
+      console.log('todomvc unload');
+      element = null;
     }
-
-    return importScript('../libs/lit-element-todomvc.js');
-  },
-
-  async mount({ container }) {
-    console.log('todomvc mount');
-    element = document.createElement('my-todo');
-    container.appendChild(element);
-  },
-
-  async unmount({ container }) {
-    console.log('todomvc unmount');
-    container.removeChild(element);
-  },
-  async unload() {
-    console.log('todomvc unload');
-    element = null;
-  }
-});
+  };
+};

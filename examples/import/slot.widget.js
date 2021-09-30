@@ -1,4 +1,4 @@
-define(() => {
+export default () => {
   let element, style;
   return {
     async bootstrap() {
@@ -30,4 +30,4 @@ define(() => {
       // throw Error('我是恶魔');
     }
   };
-});
+};

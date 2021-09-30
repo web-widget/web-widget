@@ -1,6 +1,13 @@
 import { expect } from '@esm-bundle/chai';
 import { HTMLWebWidgetElement } from '../src/index.js';
 
+const shadowRoot = Symbol('shadowRoot');
+const oldAttachShadow = HTMLElement.prototype.attachShadow;
+HTMLElement.prototype.attachShadow = function attachShadow() {
+  this[shadowRoot] = oldAttachShadow.apply(this, arguments);
+  return this[shadowRoot];
+};
+
 const emptyWidget = document.createElement('web-widget');
 Object.freeze(emptyWidget);
 
@@ -60,8 +67,7 @@ describe('Element default properties', () => {
     expect(emptyWidget).to.have.property('inactive', false);
     expect(emptyWidget).to.have.property('importance', 'auto');
     expect(emptyWidget).to.have.property('loading', 'auto');
-    expect(emptyWidget).to.have.property('sandboxed', false);
-    expect(emptyWidget).to.have.property('type', '');
+    expect(emptyWidget).to.have.property('type', 'module');
     expect(emptyWidget).to.have.property('state', HTMLWebWidgetElement.INITIAL);
     expect(emptyWidget).to.have.property('name', '');
     expect(emptyWidget).to.have.property('src', '');
@@ -79,8 +85,7 @@ describe('Element default properties', () => {
 
   it('hooks', () => {
     expect(emptyWidget).to.have.property('createDependencies').is.a('function');
-    expect(emptyWidget).to.have.property('loader').is.a('function');
-    expect(emptyWidget).to.have.property('createSandbox').is.a.a('function');
+    expect(emptyWidget).to.have.property('createLoader').is.a('function');
     expect(HTMLWebWidgetElement)
       .to.have.property('portalDestinations')
       .is.a('object');
@@ -88,15 +93,6 @@ describe('Element default properties', () => {
 });
 
 describe('Load module', () => {
-  it('Load the UMD module', async () => {
-    const widget = document.createElement('web-widget');
-    widget.inactive = true;
-    widget.src = '/test/widgets/hello-world.umd.widget.js';
-    document.body.appendChild(widget);
-
-    return widget.load();
-  });
-
   it('Load the ES module', async () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
@@ -104,7 +100,11 @@ describe('Load module', () => {
     widget.src = '/test/widgets/hello-world.esm.widget.js';
     document.body.appendChild(widget);
 
-    return widget.load();
+    return widget.load().then(() => {
+      if (window.TEST_LIFECYCLE !== 'load') {
+        throw new Error('Load error');
+      }
+    });
   });
 
   it('Load the ES module: local', async () => {
@@ -159,7 +159,7 @@ describe('Load module', () => {
 });
 
 describe('Load module: error', () => {
-  it('Load the UMD module', async () => {
+  it('Load module', async () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
     widget.src = '/test/widgets/404';
@@ -173,7 +173,7 @@ describe('Load module: error', () => {
 });
 
 describe('Auto load', () => {
-  const src = '/test/widgets/hello-world.umd.widget.js';
+  const src = '/test/widgets/hello-world.esm.widget.js';
   const text = `
     let element;
 
@@ -226,6 +226,7 @@ describe('Auto load', () => {
       }
     });
     document.body.appendChild(widget);
+    widget.name = 'HelloWorld';
     widget.src = src;
   });
 
@@ -389,16 +390,6 @@ describe('Application property: name', () => {
       expect(getProperties()).to.have.property('name', value);
       await widget.unload();
       expect(getProperties()).to.have.property('name', value);
-    }));
-});
-
-describe('Application property: sandboxed', () => {
-  it('sandboxed', () =>
-    createWidget(async ({ widget, getProperties }) => {
-      await widget.mount();
-      expect(getProperties()).to.have.property('sandboxed', false);
-      await widget.unload();
-      expect(getProperties()).to.have.property('sandboxed', false);
     }));
 });
 

@@ -8,7 +8,7 @@ function smellsLikeAPromise(promise) {
   );
 }
 
-export function flattenFnArray(model, main = {}, lifecycle) {
+export function flattenFnArray(model, main, lifecycle) {
   let fns = main[lifecycle] || (async () => {});
   fns = Array.isArray(fns) ? fns : [fns];
   if (fns.length === 0) {

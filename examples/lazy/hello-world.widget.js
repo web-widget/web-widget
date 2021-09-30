@@ -1,4 +1,4 @@
-define(() => {
+export default () => {
   let element;
   return {
     async bootstrap() {
@@ -20,4 +20,4 @@ define(() => {
       container.removeChild(element);
     }
   };
-});
+};

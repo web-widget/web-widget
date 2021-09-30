@@ -2,12 +2,7 @@
 import { formatErrorMessage } from './errors.js';
 
 function toProperties(model) {
-  const properties = model.properties;
-  const results = model.sandbox
-    ? model.sandbox.toVirtual(properties)
-    : properties;
-
-  return results;
+  return model.properties;
 }
 
 const defaultWarningMillis = 1000;

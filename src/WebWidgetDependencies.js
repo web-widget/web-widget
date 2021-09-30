@@ -30,18 +30,6 @@ export class WebWidgetDependencies {
 
   get container() {
     const view = this.ownerElement;
-    const HTMLWebWidgetElement = view.constructor;
-    const SANDBOX_INSTANCE = HTMLWebWidgetElement.SANDBOX_INSTANCE;
-    const sandbox = view[SANDBOX_INSTANCE];
-
-    if (sandbox) {
-      const sandboxDoc = sandbox.global.document;
-      const style = sandboxDoc.createElement('style');
-      style.textContent = `body{margin:0}`;
-      sandboxDoc.head.appendChild(style);
-      return sandbox.global.document.body;
-    }
-
     return view.attachShadow({ mode: 'closed' });
   }
 
@@ -98,11 +86,6 @@ export class WebWidgetDependencies {
         );
       }
 
-      if (model.sandbox && !widget.isConnected) {
-        // Start the sandbox in the current scope
-        model.properties.container.appendChild(widget);
-      }
-
       if (!widget.slot) {
         widget.slot = '';
       }
@@ -133,7 +116,8 @@ export class WebWidgetDependencies {
   }
 
   get data() {
-    return { ...this.ownerElement.data };
+    const data = this.ownerElement.data;
+    return Array.isArray(data) ? [...data] : { ...data };
   }
 
   set data(value) {
@@ -145,7 +129,7 @@ export class WebWidgetDependencies {
   }
 
   get name() {
-    return getModel(this).name;
+    return this.ownerElement.name;
   }
 
   get portalDestinations() {
@@ -158,10 +142,6 @@ export class WebWidgetDependencies {
         return model.portalDestinations.define(...arguments);
       }
     };
-  }
-
-  get sandboxed() {
-    return !!getModel(this).sandbox;
   }
 }
 
@@ -185,20 +165,15 @@ function memoize(func) {
   };
 }
 
-[
-  'container',
-  'context',
-  'createPortal',
-  'name',
-  'portalDestinations',
-  'sandboxed'
-].forEach(name => {
-  const descriptor = Reflect.getOwnPropertyDescriptor(
-    WebWidgetDependencies.prototype,
-    name
-  );
-  descriptor.get = memoize(descriptor.get);
-  Reflect.defineProperty(WebWidgetDependencies.prototype, name, descriptor);
-});
+['container', 'context', 'createPortal', 'name', 'portalDestinations'].forEach(
+  name => {
+    const descriptor = Reflect.getOwnPropertyDescriptor(
+      WebWidgetDependencies.prototype,
+      name
+    );
+    descriptor.get = memoize(descriptor.get);
+    Reflect.defineProperty(WebWidgetDependencies.prototype, name, descriptor);
+  }
+);
 
 window.WebWidgetDependencies = WebWidgetDependencies;

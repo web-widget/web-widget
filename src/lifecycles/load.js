@@ -2,7 +2,7 @@ import { LOAD_ERROR, LOADED, LOADING } from '../applications/status.js';
 import { ensureValidAppTimeouts } from '../applications/timeouts.js';
 import { flattenFnArray } from './lifecycle-helpers.js';
 import { formatErrorMessage } from '../applications/errors.js';
-import { WebWidgetPortalDestinations } from '../WebWidgetPortalDestinations.js';
+import { createRegistry } from '../utils/registry.js';
 
 export async function toLoadPromise(model) {
   if (model && model.loadPromise) {
@@ -17,10 +17,12 @@ export async function toLoadPromise(model) {
         main = main();
       }
 
+      main = main || {};
+
       Object.assign(model, {
         bootstrap: flattenFnArray(model, main, 'bootstrap'),
         mount: flattenFnArray(model, main, 'mount'),
-        portalDestinations: new WebWidgetPortalDestinations(),
+        portalDestinations: createRegistry(),
         portals: [],
         state: LOADED,
         timeouts: ensureValidAppTimeouts(main.timeouts),

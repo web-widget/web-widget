@@ -2,17 +2,7 @@
 import { INITIAL } from './status.js';
 
 export class Model {
-  constructor({
-    children,
-    id,
-    loader,
-    name,
-    parent,
-    properties,
-    sandbox,
-    url,
-    view
-  }) {
+  constructor({ children, id, loader, name, parent, properties, url, view }) {
     let state = INITIAL;
     Object.assign(this, {
       bootstrap: null,
@@ -26,7 +16,6 @@ export class Model {
       portalDestinations: null,
       portals: null,
       properties,
-      sandbox,
       timeouts: null,
       unload: null,
       unloadPromise: null,

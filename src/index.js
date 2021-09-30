@@ -1,32 +1,27 @@
 /* global window, document, customElements, ShadowRoot, URL, HTMLElement, IntersectionObserver */
-import {
-  appendSourceUrl,
-  scriptSourceLoader,
-  umdParser,
-  moduleParser
-} from './utils/scriptLoader.js';
 import { queueMicrotask } from './utils/queueMicrotask.js';
+import { createRegistry } from './utils/registry.js';
 import { createLifecycleCallbacks } from './utils/lifecycleCallbacks.js';
 import { getParentNode, getChildNodes } from './utils/nodes.js';
 import * as status from './applications/status.js';
 import { Model } from './applications/models.js';
+import { moduleLoader } from './loaders/module.js';
 import { toBootstrapPromise } from './lifecycles/bootstrap.js';
 import { toLoadPromise } from './lifecycles/load.js';
 import { toMountPromise } from './lifecycles/mount.js';
 import { toUnloadPromise } from './lifecycles/unload.js';
 import { toUnmountPromise } from './lifecycles/unmount.js';
 import { toUpdatePromise } from './lifecycles/update.js';
-import { WebWidgetPortalDestinations } from './WebWidgetPortalDestinations.js';
 import { WebWidgetDependencies } from './WebWidgetDependencies.js';
 
-const HTMLWebSandboxElement = window.HTMLWebSandboxElement || undefined;
-const rootPortalDestinations = new WebWidgetPortalDestinations();
-const PARSER = Symbol('parser');
 const MODEL = Symbol('model');
 const DATA = Symbol('data');
 const PREFETCH = Symbol('prefetch');
 const APPLICATION = Symbol('application');
 const LIFECYCLE_CALLBACK = Symbol('lifecycleCallback');
+
+const rootPortalDestinations = createRegistry();
+const rootLoaders = createRegistry();
 
 const isBindingElementLifecycle = view => !view.inactive;
 const isResourceReady = view =>
@@ -77,13 +72,10 @@ function getParentModel(view) {
 function getChildModels(view) {
   let shadowRoot;
   const model = view[MODEL];
-  const sandbox = model.sandbox;
   const container = model.properties.container;
 
   if (container instanceof ShadowRoot) {
     shadowRoot = container;
-  } else if (sandbox && sandbox.global.document === container) {
-    shadowRoot = sandbox.toNative(model.sandbox.global.document);
   }
   const childWebWidgetElements = getChildWebWidgetElements(view);
 
@@ -123,14 +115,7 @@ function tryAutoLoad(view) {
 function tryAutoUnload(view) {
   queueMicrotask(() => {
     if (isAutoUnload(view)) {
-      view.unload().then(() => {
-        if (
-          HTMLWebSandboxElement &&
-          view[HTMLWebSandboxElement.SANDBOX_INSTANCE]
-        ) {
-          view[HTMLWebSandboxElement.SANDBOX_DESTROY]();
-        }
-      }, asyncThrowError);
+      view.unload().catch(asyncThrowError);
     }
   });
 }
@@ -148,21 +133,16 @@ function createModel(view) {
     throw new Error(`Cannot load: Not initialized`);
   }
 
-  let sandbox;
-  const { src, application, sandboxed } = view;
-  if (sandboxed) {
-    sandbox = view.createSandbox();
-  }
-
-  const id = view.id;
+  const { id, src, application } = view;
   const name =
-    view.name ||
-    (application ? application.name : view.id || view.name || view.localName);
+    view.name || (application ? application.name : view.name || view.localName);
   const url = src || null;
   const properties = view.createDependencies();
   const parent = () => getParentModel(view);
   const children = () => getChildModels(view);
-  const loader = view.loader.bind(view);
+  const loader = application
+    ? async () => application
+    : view.createLoader.bind(view);
 
   return new Model({
     children,
@@ -171,7 +151,6 @@ function createModel(view) {
     name,
     parent,
     properties,
-    sandbox,
     url,
     view
   });
@@ -189,16 +168,10 @@ function onstatechange({ currentTarget }) {
   }
 }
 
-export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
-  HTMLElement) {
+export class HTMLWebWidgetElement extends HTMLElement {
   constructor() {
     super();
-
     this.addEventListener('statechange', onstatechange);
-
-    if (HTMLWebSandboxElement) {
-      this[HTMLWebSandboxElement.SANDBOX_AUTOLOAD_DISABLED] = true;
-    }
   }
 
   get application() {
@@ -265,20 +238,8 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     this.setAttribute('loading', value);
   }
 
-  get sandboxed() {
-    return this.hasAttribute('sandboxed');
-  }
-
-  set sandboxed(value) {
-    if (value) {
-      this.setAttribute('sandboxed', '');
-    } else {
-      this.removeAttribute('sandboxed');
-    }
-  }
-
   get type() {
-    return this.getAttribute('type') || '';
+    return this.getAttribute('type') || 'module';
   }
 
   set type(value) {
@@ -290,10 +251,6 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
       return this[MODEL].state;
     }
     return status.INITIAL;
-  }
-
-  static get portalDestinations() {
-    return rootPortalDestinations;
   }
 
   get name() {
@@ -325,47 +282,16 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     return new WebWidgetDependencies(this);
   }
 
-  [PARSER]() {
-    const parser = this.type === 'module' ? moduleParser : umdParser;
-    return parser(...arguments);
-  }
+  // eslint-disable-next-line consistent-return
+  async createLoader() {
+    const { src, text, type, name } = this;
+    const loader = this.constructor.loaders.get(type);
 
-  [PREFETCH]() {
-    prefetch(this.src, this.importance);
-  }
-
-  async loader() {
-    const { src, application, text, type, importance } = this;
-
-    if (application) {
-      return application;
+    if (!loader) {
+      throw Error(`Loader is not defined: ${type}`);
     }
 
-    if (src) {
-      return type === 'module'
-        ? import(src).then(module => {
-            return module.default || module;
-          })
-        : scriptSourceLoader(src, { importance }).then(source => {
-            const sandbox = this[MODEL].sandbox;
-            const module = this[PARSER](appendSourceUrl(source, src), sandbox);
-            return module;
-          });
-    }
-
-    if (text) {
-      const sandbox = this[MODEL].sandbox;
-      return this[PARSER](text, sandbox);
-    }
-
-    throw Error('No target');
-  }
-
-  createSandbox() {
-    if (!HTMLWebSandboxElement) {
-      throw new Error(`"HTMLWebSandboxElement" is required to run the sandbox`);
-    }
-    return this[HTMLWebSandboxElement.SANDBOX_CREATE]();
+    return loader({ src, text, type, name });
   }
 
   async load() {
@@ -417,18 +343,8 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
   }
 
   [LIFECYCLE_CALLBACK](type, params) {
-    let parentModel;
     switch (type) {
       case 'firstConnected':
-        parentModel = getParentModel(this);
-
-        if (parentModel) {
-          const parentSandboxed = !!parentModel.sandbox;
-          if (parentSandboxed) {
-            this.sandboxed = parentSandboxed;
-          }
-        }
-
         if (this.loading === 'lazy') {
           addLazyLoad(this);
         } else {
@@ -456,12 +372,26 @@ export class HTMLWebWidgetElement extends (HTMLWebSandboxElement ||
     }
   }
 
+  [PREFETCH]() {
+    prefetch(this.src, this.importance);
+  }
+
   static get observedAttributes() {
     return ['data', 'src', 'text', 'inactive'];
   }
+
+  static get portalDestinations() {
+    return rootPortalDestinations;
+  }
+
+  static get loaders() {
+    return rootLoaders;
+  }
 }
 
-Object.assign(HTMLWebWidgetElement, { PARSER, MODEL }); // 内部接口
+rootLoaders.define('module', moduleLoader);
+
+Object.assign(HTMLWebWidgetElement, { MODEL }); // 内部接口
 Object.assign(HTMLWebWidgetElement, status);
 Object.assign(
   HTMLWebWidgetElement.prototype,
@@ -470,5 +400,4 @@ Object.assign(
 
 window.WebWidget = HTMLWebWidgetElement;
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
-
 customElements.define('web-widget', HTMLWebWidgetElement);

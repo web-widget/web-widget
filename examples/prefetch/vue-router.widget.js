@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-define(() => {
+export default () => {
   let main, nav, Vue, VueRouter, app, appRoot;
   console.log('Vue load');
   return {
@@ -76,4 +76,4 @@ define(() => {
       appRoot = null;
     }
   };
-});
+};
