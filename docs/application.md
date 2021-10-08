@@ -14,9 +14,19 @@ export default () => ({
 });
 ```
 
+或者使用单例模式：
+
+```js
+export async function bootstrap(properties) {}
+export async function mount(properties) {}
+export async function update(properties) {}
+export async function unmount(properties) {}
+export async function unload(properties) {}
+```
+
 ### 构建打包
 
-由于浏览器动态执行代码的限制，目前只能使用 UMD 格式才能被 WebWidget 的容器运行。
+入口文件首选的格式为 ES Module，为了有更好的兼容性，同时还应当提供一份 UMD 版本。
 
 >  `.widget.js` 后缀名是一个约定而非规范内容，它的目的是让开发工具能够更好识别 WebWidget 应用。
 

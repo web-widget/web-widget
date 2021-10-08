@@ -46,7 +46,7 @@ WebWidget 标准由如下三个部分组成：
 它是运行 WebWidget 应用的容器，它也是一个 HTML 标签：
 
 ```html
-<web-widget name="my-app" src="my-app.widget.js" sandboxed></web-widget>
+<web-widget name="my-app" src="my-app.widget.js"></web-widget>
 ```
 
 详情见 [容器规范文档](docs/container.md)
@@ -57,12 +57,12 @@ WebWidget 标准由如下三个部分组成：
 
 ```js
 // my-app.widget.js
-export default {
+export default () => ({
   async bootstrap: (properties) => {},
   async mount: (properties) => {},
   async unmount: (properties) => {},
   async unload: (properties) => {}
-}
+});
 ```
 
 详情见 [应用规范文档](docs/application.md)
