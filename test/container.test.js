@@ -107,25 +107,32 @@ describe('Load module', () => {
     });
   });
 
+  it('Load the ES module (single instance)', async () => {
+    const widget = document.createElement('web-widget');
+    widget.inactive = true;
+    widget.type = 'module';
+    widget.src = '/test/widgets/hello-world.single-instance.esm.widget.js';
+    document.body.appendChild(widget);
+
+    return widget.load().then(() => {
+      if (window.TEST_LIFECYCLE !== 'load') {
+        throw new Error('Load error');
+      }
+    });
+  });
+
   it('Load the ES module: local', async () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
     widget.type = 'module';
     widget.text = `
-      let element;
-
       export default () => ({
-        async bootstrap() {
-          element = document.createElement('div');
-          element.innerHTML = 'hello wrold';
-        },
-      
         async mount({ container }) {
-          container.appendChild(element);
+          container.innerHTML = 'hello wrold';
         },
       
         async unmount({ container }) {
-          container.removeChild(element);
+          container.innerHTML = '';
         }
       });
     `;
@@ -175,20 +182,13 @@ describe('Load module: error', () => {
 describe('Auto load', () => {
   const src = '/test/widgets/hello-world.esm.widget.js';
   const text = `
-    let element;
-
     export default () => ({
-      async bootstrap() {
-        element = document.createElement('div');
-        element.innerHTML = 'hello wrold';
-      },
-    
       async mount({ container }) {
-        container.appendChild(element);
+        container.innerHTML = 'hello wrold';
       },
     
       async unmount({ container }) {
-        container.removeChild(element);
+        container.innerHTML = '';
       }
     });
   `;

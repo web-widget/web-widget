@@ -1,20 +1,17 @@
-let element;
 window.TEST_LIFECYCLE = 'load';
 
 export default () => ({
   async bootstrap() {
-    TEST_LIFECYCLE = 'bootstrap';
-    element = document.createElement('div');
-    element.innerHTML = `hello wrold`;
+    window.TEST_LIFECYCLE = 'bootstrap';
   },
 
   async mount({ container }) {
-    TEST_LIFECYCLE = 'mount';
-    container.appendChild(element);
+    window.TEST_LIFECYCLE = 'mount';
+    container.innerHTML = `hello wrold`;
   },
 
   async unmount({ container }) {
-    TEST_LIFECYCLE = 'unmount';
-    container.removeChild(element);
+    window.TEST_LIFECYCLE = 'unmount';
+    container.removeChild = ``;
   }
 });

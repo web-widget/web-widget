@@ -1,19 +1,16 @@
-let element;
 window.TEST_UMD_LIFECYCLE = 'load';
 var HelloWorld = () => ({
   async bootstrap() {
-    TEST_UMD_LIFECYCLE = 'bootstrap';
-    element = document.createElement('div');
-    element.innerHTML = `hello wrold`;
+    window.TEST_UMD_LIFECYCLE = 'bootstrap';
   },
 
   async mount({ container }) {
-    TEST_UMD_LIFECYCLE = 'mount';
-    container.appendChild(element);
+    window.TEST_UMD_LIFECYCLE = 'mount';
+    container.innerHTML = `hello wrold`;
   },
 
   async unmount({ container }) {
-    TEST_UMD_LIFECYCLE = 'unmount';
-    container.removeChild(element);
+    window.TEST_UMD_LIFECYCLE = 'unmount';
+    container.innerHTML = ``;
   }
 });

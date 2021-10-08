@@ -1,5 +1,4 @@
-import { expect } from '@esm-bundle/chai';
-import { HTMLWebWidgetElement } from '../../src/index.js';
+import '../../src/index.js';
 import '../../extensions/WebWidgerUmdLoader.js';
 
 describe('Load module', () => {
