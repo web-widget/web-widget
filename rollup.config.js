@@ -71,21 +71,43 @@ module.exports = () => {
       plugins
     },
     {
-      input: 'extensions/HTMLWebComponentImportElement.js',
+      input: 'extensions/WebWidgerSystemLoader.js',
       output: [
         {
-          file: `dist/umd/extensions/web-component-import${debug}.js`,
-          name: 'HTMLWebComponentImportElement',
+          file: `dist/umd/extensions/web-widget-system-loader${debug}.js`,
+          name: 'WebWidgerSystemLoader',
           format: 'umd',
           sourcemap: true
         },
         {
-          file: `dist/esm/extensions/web-component-import${debug}.js`,
+          file: `dist/esm/extensions/web-widget-system-loader${debug}.js`,
           format: 'esm',
           sourcemap: true
         },
         {
-          file: `dist/cjs/extensions/web-component-import${debug}.js`,
+          file: `dist/cjs/extensions/web-widget-system-loader${debug}.js`,
+          format: 'cjs',
+          sourcemap: true
+        }
+      ],
+      plugins
+    },
+    {
+      input: 'extensions/WebWidgerUmdLoader.js',
+      output: [
+        {
+          file: `dist/umd/extensions/web-widget-umd-loader${debug}.js`,
+          name: 'WebWidgerUmdLoader',
+          format: 'umd',
+          sourcemap: true
+        },
+        {
+          file: `dist/esm/extensions/web-widget-umd-loader${debug}.js`,
+          format: 'esm',
+          sourcemap: true
+        },
+        {
+          file: `dist/cjs/extensions/web-widget-umd-loader${debug}.js`,
           format: 'cjs',
           sourcemap: true
         }

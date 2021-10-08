@@ -39,7 +39,7 @@ WebWidget 的本质是组件的服务化治理，而服务意味着更少的过�
 
 ## 标准化内容
 
-WebWidget 标准由如下三个部分组成：
+WebWidget 由如下三个部分组成：
 
 ### 容器
 
@@ -97,6 +97,7 @@ WebWidget 辅助工具：
 * [extensions/WebWidgetRouter.js](extensions/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现
 * [extensions/HTMLWebWidgetImportElement.js](extensions/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现（`<web-widget.import>`）
 * [extensions/WebWidgerUmdLoader.js](extensions/WebWidgerUmdLoader.js) UMD 模块格式支持
+* [extensions/WebWidgerSystemLoader.js](extensions/WebWidgerSystemLoader.js) System 模块格式支持
 
 > 辅助工具不属于本项目的内容，因此后续将从当前项目中移除，以便独立维护。
 

@@ -6,7 +6,9 @@
     "node": false,
     "mocha": true
   },
-  "globals": {},
+  "globals": {
+    "System": true
+  },
   "rules": {
     "class-methods-use-this": "off",
     "no-console": "off"

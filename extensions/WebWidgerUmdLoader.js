@@ -1,7 +1,7 @@
 /* global window, document, HTMLWebWidgetElement */
 
 const CACHE = new Map();
-export async function umdLoader({ src, text, name }) {
+export default async function loader({ src, text, name }) {
   if (!name) {
     throw Error(`Must have the name of the module`);
   }
@@ -41,4 +41,4 @@ export async function umdLoader({ src, text, name }) {
   )();
 }
 
-HTMLWebWidgetElement.loaders.define('umd', umdLoader);
+HTMLWebWidgetElement.loaders.define('umd', loader);
