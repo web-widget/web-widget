@@ -9,7 +9,20 @@
 
 # 动机
 
-在现在的方案中，WebWidget 默认的模块格式是 UMD，而 UMD 要完整的实现它的依赖管理是一个比较复杂的事情，而这些工作并不是 WebWidget 容器的核心目标。因此现在 WebWidget 容器只实现了 commonjs 的模块导出能力，因此应用一旦存在 `require()` 语句将会导致执行出错，导致类似的问题 [#24](https://github.com/web-sandbox-js/web-widget/issues/24)。
+WebWidget 目前默认的模块格式是 UMD，要完整的实现它的依赖管理是一个比较复杂的事情，而这些工作并不是 WebWidget 容器的核心目标，因此现在 WebWidget 容器只实现了 commonjs 一个子集，因此应用一旦存在 `require()` 语句将会导致执行出错，导致类似的问题 [#24](https://github.com/web-sandbox-js/web-widget/issues/24)。
+
+```js
+// umd 格式
+(function(e, t) {
+    if ("object" === typeof exports && "object" === typeof module)
+        module.exports = t(require("Vue"));
+    else if ("function" === typeof define && define.amd) define(["Vue"], t);
+    else {
+        var n = "object" === typeof exports ? t(require("Vue")) : t(e["Vue"]);
+        for (var o in n) ("object" === typeof exports ? exports : e)[o] = n[o];
+    }
+})(/* [more code]*/)
+```
 
 WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，它本质上是一个特殊的 `eval()` 语句，无法使用 ES module，因此 WebWidget 容器基于照顾沙盒的实现考虑不得不使用了 UMD 模块格式。在几个月前，Realms 走向了第三阶段，它的 API 发生了重大的变更（也更名为 ShadowRealm），它的 API 更像是一个特殊的 `import()`，完全针对 ES module 而设计，这使得我们必须考虑后续兼容性的问题。[ShadowRealm API 示范](https://github.com/leobalter/realms-polyfill/blob/main/README.md)
 
