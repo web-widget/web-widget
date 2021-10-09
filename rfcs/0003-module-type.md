@@ -29,49 +29,53 @@
 
 ## 指引和例子
 
-### 默认格式
+### 使用 ES module
 
 ```html
 <web-widget src="app.widget.js"></web-widget>
+<script type="module">
+  import '@web-sandbox.js/web-widget';
+</script>
 ```
 
 如果不指定 `type` 的属性的情况下，它将 app.widget.js 作为 ES module 处理。
 
-###  system 格式
-
-```js
-const createLoader = HTMLWebWidgetElement.prototype.createLoader;
-
-HTMLWebWidgetElement.prototype.createLoader = function() {
-  const { src, text, type } = this;
-
-  if (type !== 'system') {
-    return createLoader.apply(this, arguments);
-  }
-
-  if (src) {
-    return System.import(src);
-  }
-
-  src = URL.createObjectURL(
-    new Blob([text], { type: 'application/javascript' })
-  );
-
-  return System.import(src).then(
-    module => {
-      URL.revokeObjectURL(src);
-      return module;
-    },
-    error => {
-      URL.revokeObjectURL(src);
-      throw error;
-    }
-  );
-}
-```
+###  使用 system 格式
 
 ```html
 <web-widget src="app.widget.js" type="system"></web-widget>
+<script type="module">
+  import '@web-sandbox.js/web-widget';
+  import 'systemjs';
+
+  const createLoader = HTMLWebWidgetElement.prototype.createLoader;
+  HTMLWebWidgetElement.prototype.createLoader = function() {
+    const { src, text, type } = this;
+
+    if (type !== 'system') {
+      return createLoader.apply(this, arguments);
+    }
+
+    if (src) {
+      return System.import(src);
+    }
+
+    src = URL.createObjectURL(
+      new Blob([text], { type: 'application/javascript' })
+    );
+
+    return System.import(src).then(
+      module => {
+        URL.revokeObjectURL(src);
+        return module;
+      },
+      error => {
+        URL.revokeObjectURL(src);
+        throw error;
+      }
+    );
+  }
+</script>
 ```
 
 ## 迭代策略
