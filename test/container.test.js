@@ -11,6 +11,14 @@ HTMLElement.prototype.attachShadow = function attachShadow() {
 const emptyWidget = document.createElement('web-widget');
 Object.freeze(emptyWidget);
 
+const get = url =>
+  fetch(url).then(res => {
+    if (!res.ok) {
+      throw Error([res.status, res.statusText, url].join(', '));
+    }
+    return res.text();
+  });
+
 const createWidget = callback => {
   const lifecycleHistory = [];
   const stateHistory = [];
@@ -125,20 +133,16 @@ describe('Load module', () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
     widget.type = 'module';
-    widget.text = `
-      export default () => ({
-        async mount({ container }) {
-          container.innerHTML = 'hello wrold';
-        },
-      
-        async unmount({ container }) {
-          container.innerHTML = '';
-        }
-      });
-    `;
+    widget.text = await get(
+      '/test/widgets/hello-world.single-instance.esm.widget.js'
+    );
     document.body.appendChild(widget);
 
-    return widget.load();
+    return widget.load().then(() => {
+      if (window.TEST_LIFECYCLE !== 'load') {
+        throw new Error('Load error');
+      }
+    });
   });
 
   it('Load the function', async () => {
@@ -181,17 +185,6 @@ describe('Load module: error', () => {
 
 describe('Auto load', () => {
   const src = '/test/widgets/hello-world.esm.widget.js';
-  const text = `
-    export default () => ({
-      async mount({ container }) {
-        container.innerHTML = 'hello wrold';
-      },
-    
-      async unmount({ container }) {
-        container.innerHTML = '';
-      }
-    });
-  `;
   const application = element => ({
     async bootstrap() {
       element = document.createElement('div');
@@ -231,27 +224,31 @@ describe('Auto load', () => {
   });
 
   it('Connected (text)', done => {
-    const widget = document.createElement('web-widget');
-    widget.type = 'module';
-    widget.text = text;
-    widget.addEventListener('statechange', function () {
-      if (this.state === HTMLWebWidgetElement.MOUNTED) {
-        done();
-      }
+    get(src).then(text => {
+      const widget = document.createElement('web-widget');
+      widget.type = 'module';
+      widget.text = text;
+      widget.addEventListener('statechange', function () {
+        if (this.state === HTMLWebWidgetElement.MOUNTED) {
+          done();
+        }
+      });
+      document.body.appendChild(widget);
     });
-    document.body.appendChild(widget);
   });
 
   it('Property changed (text)', done => {
-    const widget = document.createElement('web-widget');
-    widget.type = 'module';
-    widget.addEventListener('statechange', function () {
-      if (this.state === HTMLWebWidgetElement.MOUNTED) {
-        done();
-      }
+    get(src).then(text => {
+      const widget = document.createElement('web-widget');
+      widget.type = 'module';
+      widget.addEventListener('statechange', function () {
+        if (this.state === HTMLWebWidgetElement.MOUNTED) {
+          done();
+        }
+      });
+      document.body.appendChild(widget);
+      widget.text = text;
     });
-    document.body.appendChild(widget);
-    widget.text = text;
   });
 
   it('Connected (application)', done => {

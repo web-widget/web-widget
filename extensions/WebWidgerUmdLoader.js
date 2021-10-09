@@ -12,6 +12,7 @@ export default async function loader({ src, text, name }) {
         new Promise((resolve, reject) => {
           let script = document.createElement('script');
           script.src = src;
+
           script.onload = () => {
             const module = window[name];
             if (module === undefined) {
@@ -20,10 +21,12 @@ export default async function loader({ src, text, name }) {
               resolve(module.default || module);
             }
           };
+
           script.onerror = error => {
             delete CACHE[src];
             reject(error);
           };
+
           document.head.appendChild(script);
           script = null;
         })
@@ -36,7 +39,7 @@ export default async function loader({ src, text, name }) {
   // eslint-disable-next-line no-new-func
   return new Function(
     `'use strict';
-      ${JSON.stringify(text)};
+      ${text};
       return ${name};`
   )();
 }

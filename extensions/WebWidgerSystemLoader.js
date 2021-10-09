@@ -1,32 +1,22 @@
-/* global System, HTMLWebWidgetElement */
-let index = 0;
-
-export default async function loader({ src, text, name = 'anonymous' }) {
+/* global System, HTMLWebWidgetElement, Blob, URL */
+export default async function loader({ src, text }) {
   if (src) {
     return System.import(src);
   }
 
-  let id = `${name}${index++}`;
+  src = URL.createObjectURL(
+    new Blob([text], { type: 'application/javascript' })
+  );
 
-  // eslint-disable-next-line no-new-func
-  return new Function(
-    'System',
-    'loader',
-    `'use strict';
-      ${JSON.stringify(text)};
-      return loader(});`
-  )(
-    {
-      register(...args) {
-        if (typeof args[0] === 'string') {
-          id = args[0];
-        } else {
-          args.unshift(id);
-        }
-        System.register(...args);
-      }
+  return System.import(src).then(
+    module => {
+      URL.revokeObjectURL(src);
+      return module;
     },
-    () => System.import(id)
+    error => {
+      URL.revokeObjectURL(src);
+      throw error;
+    }
   );
 }
 
