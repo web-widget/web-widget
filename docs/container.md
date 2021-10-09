@@ -1,6 +1,6 @@
 # WebWidget 容器
 
-WebWidget 是一个标准的 Web Component 组件，它也是一个容器，容器内的具体功能由 `src` 定义的脚本实现。
+WebWidget 是一个标准的 Web Component 组件，它也是一个空的容器，由 `src` 定义的脚本来渲染内容。
 
 ```html
 <web-widget src="app.widget.js"></web-widget>
@@ -35,8 +35,6 @@ WebWidget 是一个标准的 Web Component 组件，它也是一个容器，容�
   </fallback>
 </web-widget>
 ```
-
-> web-widget.js 尚未实现此特性。
 
 ## 插槽
 
@@ -246,7 +244,7 @@ widget.data = { a: 'hello' };
 
 ### `WebWidget.portalDestinations`
 
-全局传送门注册表。这是一个静态方法。
+全局传送门注册表。这是一个静态属性。
 
 它有两个方法：
 
