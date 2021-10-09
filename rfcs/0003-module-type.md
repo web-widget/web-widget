@@ -11,13 +11,13 @@
 
 在现在的方案中，WebWidget 默认的模块格式是 UMD，而 UMD 要完整的实现它的依赖管理是一个比较复杂的事情，而这些工作并不是 WebWidget 容器的核心目标。因此现在 WebWidget 容器只实现了 commonjs 的模块导出能力，因此应用一旦存在 `require()` 语句将会导致执行出错，导致类似的问题 [#24](https://github.com/web-sandbox-js/web-widget/issues/24)。
 
-WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，它本质上是一个特殊的 `eval()`，因此无法使用 ES module，因此 WebWidget 容器基于照顾沙盒的实现考虑不得不使用了 UMD 模块格式。在几个月前，Realms 走向了第三阶段，这时候它的 API 发生了重大的变更，它的 API 更像是一个特殊的 `import()`，完全与 ES module 配合使用，这使得我们必须考虑后续兼容性的问题。[ShadowRealm API 示范](https://github.com/leobalter/realms-polyfill/blob/main/README.md)
+WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，它本质上是一个特殊的 `eval()` 语句，无法使用 ES module，因此 WebWidget 容器基于照顾沙盒的实现考虑不得不使用了 UMD 模块格式。在几个月前，Realms 走向了第三阶段，它的 API 发生了重大的变更（也更名为 ShadowRealm），它的 API 更像是一个特殊的 `import()`，完全针对 ES module 而设计，这使得我们必须考虑后续兼容性的问题。[ShadowRealm API 示范](https://github.com/leobalter/realms-polyfill/blob/main/README.md)
 
 上述两个问题都指向同一个问题：我们需要重新考虑 WebWidget 容器的默认模块类型。
 
 # 产出
 
-- 通过与标准对齐，让 WebWidget 的解决方案拥有更长的生命力
+- 与标准对齐，让 WebWidget 的解决方案拥有更长的生命力
 - 能够和各种构建工具配合使用，避免干扰它们，例如 Webpack 与 Vite 等
 - 开发者可以通过加载器勾子函数完实现对第三方模块的加载，例如 System 等
 
@@ -29,7 +29,7 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
 
 ## 指引和例子
 
-### 使用 ES module
+### 使用 ES module 模块
 
 ```html
 <web-widget src="app.widget.js"></web-widget>
@@ -40,7 +40,7 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
 
 如果不指定 `type` 的属性的情况下，它将 app.widget.js 作为 ES module 处理。
 
-###  使用 system 格式
+###  使用 system 模块
 
 ```html
 <web-widget src="app.widget.js" type="system"></web-widget>
@@ -78,6 +78,66 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
 </script>
 ```
 
+### 使用 UMD 模块
+
+```html
+<web-widget src="app.widget.js" type="umd"></web-widget>
+<script type="module">
+  import '@web-sandbox.js/web-widget';
+  
+  const CACHE = new Map();
+  const createLoader = HTMLWebWidgetElement.prototype.createLoader;
+  HTMLWebWidgetElement.prototype.createLoader = function() {
+    const { src, text, type, name } = this;
+
+    if (type !== 'umd') {
+      return createLoader.apply(this, arguments);
+    }
+
+    if (!name) {
+      throw Error(`Must have the name of the module`);
+    }
+
+    if (src) {
+      if (!CACHE.has(src)) {
+        CACHE.set(
+          src,
+          new Promise((resolve, reject) => {
+            let script = document.createElement('script');
+            script.src = src;
+
+            script.onload = () => {
+              const module = window[name];
+              if (module === undefined) {
+                reject(new TypeError(`No global variable found: ${name}`));
+              } else {
+                resolve(module.default || module);
+              }
+            };
+
+            script.onerror = error => {
+              delete CACHE[src];
+              reject(error);
+            };
+
+            document.head.appendChild(script);
+            script = null;
+          })
+        );
+      }
+
+      return CACHE.get(src);
+    }
+
+    return new Function(
+      `'use strict';
+        ${text};
+        return ${name};`
+    )();
+  }
+</script>
+```
+
 ## 迭代策略
 
 - 将 UMD 的格式支持抽离到外部扩展中，同时重构 sandbox 特性
@@ -96,7 +156,3 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
   import '@web-sandbox.js/web-widget/extensions/WebWidgerUmdLoader.js';
 </script>
 ```
-
-# 需要讨论的问题
-
-如果希望从 RFC 流程中获得反馈，需要在这里列出你的开放问题。
