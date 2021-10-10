@@ -403,9 +403,9 @@ export default () => ({
 
 应用容器的上下文 API（只读）。包含如下三个 API：
 
-* [`mount()`](#mount\(\))
-* [`update()`](#update\(\))
-* [`unmount()`](#unmount\(\))
+* [`mount()`](#mount)
+* [`update()`](#update)
+* [`unmount()`](#unmount)
 
 ### createPortal()
 
