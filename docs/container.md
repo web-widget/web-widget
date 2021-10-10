@@ -10,7 +10,7 @@ WebWidget 容器是一个标准的 Web Component 组件，由 `src` 定义的脚
 
 ## 占位符
 
-`placeholder` 元素将充当 WebWidget 元素的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 元素的直接子级。
+`placeholder` 元素将充当 WebWidget 容器的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 容器的直接子级。
 
 ```html
 <web-widget src="app.widget.js">
@@ -22,7 +22,7 @@ WebWidget 容器是一个标准的 Web Component 组件，由 `src` 定义的脚
 
 ## 后备
 
-`fallback` 元素将充当 WebWidget 元素的后备占位符号，以便指明出现以下情况时采取的后备行为：
+`fallback` 元素将充当 WebWidget 容器的后备占位符号，以便指明出现以下情况时采取的后备行为：
 
 * 浏览器不支持某个元素
 * 内容未能加载（例如，推文被删除）
@@ -38,7 +38,7 @@ WebWidget 容器是一个标准的 Web Component 组件，由 `src` 定义的脚
 
 ## 插槽
 
-如果 WebWidget App 支持插槽，那么可以直接使用 `slot` 属性来指定插入的位置：
+如果 WebWidget 应用支持插槽，那么可以直接使用 `slot` 属性来指定插入的位置：
 
 ```html
 <web-widget src="app.widget.js">
@@ -51,7 +51,7 @@ WebWidget 容器是一个标准的 Web Component 组件，由 `src` 定义的脚
 
 ## 配置数据
 
-通过 `data` 或 `data-*` 属性可以为 WebWidget App 传递静态的数据：
+通过 `data` 或 `data-*` 属性可以为 WebWidget 应用传递静态的数据：
 
 ```html
 <web-widget
@@ -63,13 +63,13 @@ WebWidget 容器是一个标准的 Web Component 组件，由 `src` 定义的脚
 </web-widget>
 ```
 
-WebWidget App 可以通过生命周期函数获的 `data` 参数获取到数据。
+WebWidget 应用可以通过生命周期函数获的 `data` 参数获取到数据。
 
 > 通过 `data-*` 只能传递 `string` 类型的值。
 
 ## 沙盒
 
-给 WebWidget 增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 WebWidget App 的所有的操作限制在 `<web-widget>` 视图内，它的网络、本地存储等都将被管控，让不可信代码能够安全的运行。
+给 WebWidget 容器增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 WebWidget 应用的所有的操作限制在 `<web-widget>` 视图内，它的网络、本地存储等都将被管控，让不可信代码能够安全的运行。
 
 ```html
 <web-widget src="app.widget.js" sandboxed csp="script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;">
