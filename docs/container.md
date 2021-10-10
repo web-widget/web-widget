@@ -123,7 +123,6 @@ document.body.appendChild(widget);
 
 ```js
 const widget = document.createElement('web-widget');
-widget.type = 'module';
 widget.text = `export default () => ({
   async bootstrap(properties) {},
   async mount(properties) {},
@@ -198,7 +197,7 @@ widget.mount();
 
 ### state
 
-应用的状态。
+应用的状态（只读）。
 
 | 状态值               | 常量名             | 说明                             |
 | ------------------- | ----------------- | ------------------------------- |
@@ -261,6 +260,10 @@ HTMLWebWidgetElement.prototype.createLoader = function() {
     }
   );
 }
+```
+
+```html
+<web-widget src="app.widget.js" type="system"></web-widget>
 ```
 
 ### load()
@@ -390,7 +393,7 @@ export default () => ({
 
 ### container
 
-应用用于渲染 DOM 的 Node 节点（只读）。这是一个 HTMLElement 对象实例，至少拥有 `appendChild()` 、`removeChild()`、`innerHTML` 填充容器内容接口。
+应用用于渲染 DOM 的 Node 节点（只读）。这是一个 HTMLElement 对象实例，至少拥有 `appendChild()` 、`removeChild()`、`innerHTML` 接口。
 
 ### sandboxed
 
@@ -417,7 +420,7 @@ const context = createPortal(webWidgetElement, destination)
 * `webWidgetElement` WebWidget 容器
 * `destination` 目的地名称
 
-### 返回值
+#### 返回值
 
 一个 [`context`](#context) 对象。
 
