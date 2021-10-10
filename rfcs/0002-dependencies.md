@@ -102,7 +102,7 @@ export default () => ({
 
 ```js
 class PluginDependencies extends WebWidgetDependencies {
-  setDocumentTitle() {
+  setDocumentTitle(title) {
     document.title = title;
   }
 }

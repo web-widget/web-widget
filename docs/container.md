@@ -1,12 +1,12 @@
 # WebWidget 容器
 
-WebWidget 是一个标准的 Web Component 组件，它也是一个空的容器，由 `src` 定义的脚本来渲染内容。
+WebWidget 容器是一个标准的 Web Component 组件，由 `src` 定义的脚本来渲染内容。
 
 ```html
 <web-widget src="app.widget.js"></web-widget>
 ```
 
-为了不影响主页面的加载性能，WebWidget 的脚本是异步载入的。为了符合渐进式增强的体验，最佳做法是使用占位符与后备。
+为了不影响主页面的加载性能，WebWidget 容器的脚本是异步载入的。为了符合渐进式增强的体验，最佳做法是使用占位符与后备。
 
 ## 占位符
 
@@ -82,11 +82,16 @@ WebWidget App 可以通过生命周期函数获的 `data` 参数获取到数据�
 
 关于沙盒环境的限制可以参考 [WebSandbox.js](https://web-sandbox.org.js)。
 
+## 接口
+
+* [HTMLWebWidgetElement](#HTMLWebWidgetElement)
+* [WebWidgetDependencies](#WebWidgetDependencies)
+
 ## HTMLWebWidgetElement
 
 通过 `document.createElement('web-widget')` 会返回一个 `HTMLWebWidgetElement` 实例。
 
-### `application`
+### application
 
 设置应用的工厂函数。这是一种本地应用的注册方式，通常用于测试。
 
@@ -102,7 +107,7 @@ widget.application = () => ({
 document.body.appendChild(widget);
 ```
 
-### `src`
+### src
 
 设置应用入口文件。
 
@@ -112,7 +117,7 @@ widget.src = './app.widget.js';
 document.body.appendChild(widget);
 ```
 
-### `text`
+### text
 
 设置应用的代码。这是一种本地应用的注册方式。
 
@@ -129,7 +134,7 @@ widget.text = `export default () => ({
 document.body.appendChild(widget);
 ```
 
-### `data`
+### data
 
 应用的数据。应用脚本可以通过生命周期的 `properties.data` 访问到。
 
@@ -143,25 +148,35 @@ widget.data = { a: 'hello' };
 <web-widget data="{&quot;a&quot;:&quot;hello&quot;}" src="app.widget.js"></web-widget>
 ```
 
-### `name`
+### name
 
 应用名称。应用脚本可以通过生命周期的 `properties.name` 访问到。
 
-### `inactive`
+### inactive
 
 取消 DOM 的生命周期与应用生命周期的绑定。如果为元素包含 `inactive` 属性，元素插入 DOM 树或移除的时候都不会自动触发应用生命周期函数，应用的生命周期只能手动调用，例如外部路由管理库来调用。
 
-### `sandboxed`
+```js
+const widget = document.createElement('web-widget');
+widget.src = './app.widget.js';
+widget.inactive = true;
+document.body.appendChild(widget);
+
+// 手动挂载
+widget.mount();
+```
+
+### sandboxed
 
 沙盒化应用。启用后 WebWidget 应用将使用虚拟化环境来运行 JS。虚拟化环境来自 [WebSandbox](https://web-sandbox.js.org)。
 
 > 由于 TC39 Realms API 发生了重大变更，因此此特性暂时无法使用。
 
-### `csp`
+### csp
 
 内容安全策略。只有开启 `sandboxed` 属性后才有效。
 
-### `loading`
+### loading
 
 指示浏览器应当如何加载。允许的值：
 
@@ -169,7 +184,7 @@ widget.data = { a: 'hello' };
 * `"eager"` 立即加载，不管它是否在可视视口（visible viewport）之外
 * `"lazy"` 延迟加载，直到它和视口接近的距离
 
-### `importance`
+### importance
 
 指示下载资源时相对重要性，或者说优先级。允许的值：
 
@@ -177,11 +192,11 @@ widget.data = { a: 'hello' };
 * `"high"` 在下载时优先级较高
 * `"low"` 在下载时优先级较低
 
-### `type`
+### type
 
 脚本的模块类型，默认值为 `"module"`。
 
-### `state`
+### state
 
 应用的状态。
 
@@ -204,45 +219,87 @@ widget.data = { a: 'hello' };
 | `"unmount-error"`   | `UNMOUNT_ERROR`   | 应用程序的卸载功能返回了被拒绝的承诺   |
 | `"unload-error"`    | `UNLOAD_ERROR`    | 应用程序的移除功能返回了被拒绝的承诺   |
 
- > 可以通过构造器的静态相属性访问状态常量，例如 `"load-error"` 等价于 `HTMLWebWidgetElement.LOAD_ERROR`。
+> 可以通过构造器的静态相属性访问状态常量，例如 `"load-error"` 等价于 `HTMLWebWidgetElement.LOAD_ERROR`。
 
-### `load()`
+### createDependencies()
+
+应用的依赖注入勾子函数。它默认行为是执行 `return new WebWidgetDependencies(this)` 覆盖它可以自定义注入到应用的 API。
+
+详情见：[WebWidgetDependencies](#WebWidgetDependencies)
+
+### createLoader()
+
+应用的加载器勾子函数。它默认行为是调用 `import()` 加载 ES module，覆盖它可以加载其他格式的模块。
+
+例如支持 system 模块格式：
+
+```js
+const createLoader = HTMLWebWidgetElement.prototype.createLoader;
+HTMLWebWidgetElement.prototype.createLoader = function() {
+  const { src, text, type } = this;
+
+  if (type !== 'system') {
+    return createLoader.apply(this, arguments);
+  }
+
+  if (src) {
+    return System.import(src);
+  }
+
+  src = URL.createObjectURL(
+    new Blob([text], { type: 'application/javascript' })
+  );
+
+  return System.import(src).then(
+    module => {
+      URL.revokeObjectURL(src);
+      return module;
+    },
+    error => {
+      URL.revokeObjectURL(src);
+      throw error;
+    }
+  );
+}
+```
+
+### load()
 
 手动加载应用。
 
 返回值：`Promise`
 
-### `bootstrap()`
+### bootstrap()
 
 手动触发应用 `bootstrap` 生命周期函数。
 
 返回值：`Promise`
 
-### `mount()`
+### mount()
 
 手动触发应用 `mount` 生命周期函数。
 
 返回值：`Promise`
 
-### `update(properties)`
+### update(properties)
 
 手动触发应用 `update` 生命周期函数。
 
 返回值：`Promise`
 
-### `unmount()`
+### unmount()
 
 手动触发应用 `unmount` 生命周期函数。
 
 返回值：`Promise`
 
-### `unload()`
+### unload()
 
 手动触发应用 `unload` 生命周期函数。
 
 返回值：`Promise`
 
-### `WebWidget.portalDestinations`
+### HTMLWebWidgetElement.portalDestinations
 
 全局传送门注册表。这是一个静态属性。
 
@@ -254,7 +311,7 @@ widget.data = { a: 'hello' };
 定义传送门：
 
 ```js
-WebWidget.portalDestinations.define('dialog', () => {
+HTMLWebWidgetElement.portalDestinations.define('dialog', () => {
   const dialogWidget = document.createElement('web-widget');
   dialogWidget.src = './dialog.widget.js';
   document.body.appendChild(dialogWidget);
@@ -265,6 +322,7 @@ WebWidget.portalDestinations.define('dialog', () => {
 传送门定义好后，应用就可以使用它了：
 
 ```js
+// app.widget.js
 export async function mount({ container, createPortal }) {
   const userWidget = document.createElement('web-widget');
   userWidget.slot = 'main';
@@ -275,9 +333,9 @@ export async function mount({ container, createPortal }) {
 })
 ```
 
-## 事件
+### 事件
 
-### `statechange`
+#### statechange
 
 当应用的状态变更后，每次都将触发 `statechange` 事件。
 
@@ -289,3 +347,67 @@ widget.addEventListener('statechange', () => {
 });
 document.body.appendChild(widget);
 ```
+
+## WebWidgetDependencies
+
+WebWidgetDependencies 的实例会注入到应用的 properties 中，因此可以扩展它给应用注入 API。
+
+使用例子：
+
+```html
+<editor-plugin src="plugin.widget.js"></editor-plugin>
+<script type="module">
+  class PluginDependencies extends WebWidgetDependencies {
+    setDocumentTitle(title) {
+      document.title = title;
+    }
+  }
+  class HTMLEditorPluginElement extends HTMLWebWidgetElement {
+    createDependencies() {
+      return new PluginDependencies(this);
+    }
+  }
+  customElements.define('editor-plugin', HTMLEditorPluginElement);
+</script>
+```
+
+```js
+// plugin.widget.js
+export default () => ({
+  async mount({ setDocumentTitle }) {
+    setDocumentTitle('hello world');
+  }
+});
+```
+
+## 例子
+
+### CSS 区分元素是否定义
+
+可以通过 CSS `:defined` 伪类处理元素定义之前的样式。
+
+```css
+web-widget:not(:defined) {
+  display: none;
+}
+
+web-widget:defined {
+  display: block;
+}
+```
+
+### JS 区分元素是否定义
+
+```html
+<web-widget src="app.widget.js"></web-widget>
+
+<script type="module">
+  console.log('not defined');
+  customElements.whenDefined('web-widget').then(() => {
+    console.log('defined');
+  });
+
+  import('@web-sandbox.js/web-widget');
+</script>
+```
+
