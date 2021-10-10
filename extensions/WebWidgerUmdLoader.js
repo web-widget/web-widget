@@ -1,7 +1,7 @@
 /* global window, document, HTMLWebWidgetElement */
 
 const CACHE = new Map();
-export default async function loader({ src, text, name }) {
+function loader({ src, text, name }) {
   if (!name) {
     throw Error(`Must have the name of the module`);
   }

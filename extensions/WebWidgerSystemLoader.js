@@ -1,5 +1,5 @@
 /* global System, HTMLWebWidgetElement, Blob, URL */
-export default async function loader({ src, text }) {
+function loader({ src, text }) {
   if (src) {
     return System.import(src);
   }
