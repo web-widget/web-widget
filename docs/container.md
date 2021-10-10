@@ -380,6 +380,66 @@ export default () => ({
 });
 ```
 
+### name
+
+应用名称（只读）。
+
+### data
+
+应用的初始化数据（只读）。
+
+### container
+
+应用用于渲染 DOM 的 Node 节点（只读）。这是一个 HTMLElement 对象实例，至少拥有 `appendChild()` 、`removeChild()`、`innerHTML` 填充容器内容接口。
+
+### sandboxed
+
+应用是否处于 WebSandbox DOM 沙箱中（只读）。
+
+### context
+
+应用容器的上下文 API（只读）。包含如下三个 API：
+
+* [`mount()`](#mount\(\))
+* [`update()`](#update\(\))
+* [`unmount()`](#unmount\(\))
+
+### createPortal()
+
+将应用传送到容器外面挂载。
+
+```js
+const context = createPortal(webWidgetElement, destination)
+```
+
+#### 参数
+
+* `webWidgetElement` WebWidget 容器
+* `destination` 目的地名称
+
+### 返回值
+
+一个 [`context`](#context) 对象。
+
+示例：
+
+```js
+// app.widget.js
+export async function mount({ createPortal }) {
+  const app = document.createElement('web-widget');
+  app.src = './lit-element-todomvc.widget.js';
+  createPortal(app, 'dialog')
+    .mount()
+    .then(() => {
+      console.log('dialog is open');
+    });
+}
+```
+
+> 目的地必须先定义才能被使用，例如通过 [HTMLWebWidgetElement.portalDestinations](#HTMLWebWidgetElement.portalDestinations) 来定义目的地。
+>
+> 这是试验性特性。
+
 ## 例子
 
 ### CSS 区分元素是否定义
