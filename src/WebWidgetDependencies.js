@@ -97,15 +97,16 @@ export class WebWidgetDependencies {
       }
 
       portal.appendChild(widget);
+      portal.mount();
 
-      const mountPromise = portal.mount();
       const contextInterfaces = {
         async mount() {
-          await mountPromise;
           return portal.mount();
         },
+        async update(properties) {
+          return portal.update(properties);
+        },
         async unmount() {
-          await mountPromise;
           return portal.unmount();
         }
       };
