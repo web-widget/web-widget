@@ -284,9 +284,13 @@ HTMLWebWidgetElement.prototype.createLoader = function() {
 
 返回值：`Promise`
 
-### update(properties)
+### update()
 
 手动触发应用 `update` 生命周期函数。
+
+```js
+widget.update(properties);
+```
 
 返回值：`Promise`
 
