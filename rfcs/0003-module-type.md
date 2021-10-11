@@ -86,7 +86,7 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
 
 ## 兼容性
 
-当本 RFC 实现后，之前的 UMD 的格式应用需要在 WebWidget 容器上声明 `type="umd"` 以及 umd 的 `name` 并且引入 UMD 的模块加载器扩展。例如：
+当本 RFC 实现后，之前的 UMD 的格式应用需要在 WebWidget 容器上声明 `type="umd"` 与 `name=moduleName` 属性，并且引入 UMD 的模块加载器扩展。例如：
 
 ```html
 <web-widget type="umd" name="helloWidget" src="./app.widget.js"></web-widget>
