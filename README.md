@@ -43,20 +43,20 @@ WebWidget 由如下三个部分组成：
 
 ### 容器
 
-它是运行 WebWidget 应用的容器，它也是一个 HTML 标签：
+WebWidget 容器是一个标准的 Web Component 组件，标签名为 `<web-widget>`，其 `src` 属性为[应用](#应用)的 URL。
 
 ```html
-<web-widget name="my-app" src="my-app.widget.js"></web-widget>
+<web-widget src="app.widget.js"></web-widget>
 ```
 
 详情见 [容器规范文档](docs/container.md)
 
 ### 应用
 
-它是应用的入口文件，实现特定的生命周期接口即可被 WebWidget 容器或者其他兼容的加载器调用。入口文件示例：
+WebWidget 应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，它包含生命周期函数：
 
 ```js
-// my-app.widget.js
+// app.widget.js
 export default () => ({
   async bootstrap: (properties) => {},
   async mount: (properties) => {},
@@ -69,11 +69,11 @@ export default () => ({
 
 ### 清单
 
-应用有自己的名字、图标等信息，以便在组件系统 or 应用市场中展示。例如：
+WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、图标等信息，以便在组件系统 or 应用市场中展示。例如：
 
 ```json
 {
-  "name": "my-app",
+  "name": "app",
   "WebWidget": "1.0.0",
   "version": "0.0.1",
   "main": "dist/umd/index.widget.js",

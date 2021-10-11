@@ -388,21 +388,9 @@ export default () => ({
 });
 ```
 
-### name
-
-应用名称（只读）。
-
-### data
-
-应用的初始化数据（只读）。
-
 ### container
 
-应用用于渲染 DOM 的 Node 节点（只读）。这是一个 HTMLElement 对象实例，至少拥有 `appendChild()` 、`removeChild()`、`innerHTML` 接口。
-
-### sandboxed
-
-应用是否处于 WebSandbox DOM 沙箱中（只读）。
+应用用于渲染 DOM 的节点（只读）。它至少拥有 `appendChild()` 、`innerHTML` 接口。
 
 ### context
 
@@ -447,6 +435,18 @@ export async function mount({ createPortal }) {
 > 目的地必须先定义才能被使用，例如通过 [HTMLWebWidgetElement.portalDestinations](#HTMLWebWidgetElement.portalDestinations) 来定义目的地。
 >
 > 这是试验性特性。
+
+### name
+
+应用名称（只读）。
+
+### data
+
+应用的初始化数据（只读）。
+
+### sandboxed
+
+应用是否处于 WebSandbox DOM 沙箱中（只读）。
 
 ## 例子
 

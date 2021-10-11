@@ -2,7 +2,7 @@
 
 ## 应用入口文件
 
-应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，入口文件支持定义生命周期参数：
+应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，它包含生命周期函数：
 
 ```js
 export default () => ({
@@ -72,39 +72,41 @@ export async function bootstrap(properties) {
 
 每个生命周期函数的入参都会保证有如下参数：
 
-### name
-
-注册到主文档的应用名称。
-
-### data
-
-应用的初始化数据。
-
 ### container
 
-应用用于渲染 DOM 的 Node 节点。这是一个 HTMLElement 对象实例，至少拥有 `appendChild()` 、`removeChild()`、`innerHTML` 填充容器内容接口。
-
-### sandboxed
-
-应用是否处于 WebSandbox DOM 沙箱中。
+应用用于渲染 DOM 的节点。它至少拥有 `appendChild()` 、`innerHTML` 接口。
 
 ### context
 
-应用的上下文 API。应用可以使用 `context.unmount()` 卸载自身。
+应用容器的上下文 API。包含如下三个 API：
 
-### createPortal(widget, destination)
+* [`mount()`](#mount)
+* [`update()`](#update)
+* [`unmount()`](#unmount)
+
+### createPortal()
 
 将应用传送到容器外面挂载。
 
-* `widget` WebWidget 容器
-* `destination` 目的地
+```js
+const context = createPortal(webWidgetElement, destination)
+```
+
+#### 参数
+
+* `webWidgetElement` WebWidget [容器](application.md)
+* `destination` 目的地名称
+
+#### 返回值
+
+一个 [`context`](#context) 对象。
 
 示例：
 
 ```js
+// app.widget.js
 export async function mount({ createPortal }) {
   const app = document.createElement('web-widget');
-  app.id = 'app-portal-demo';
   app.src = './lit-element-todomvc.widget.js';
   createPortal(app, 'dialog')
     .mount()
@@ -114,9 +116,21 @@ export async function mount({ createPortal }) {
 }
 ```
 
-> 目的地必须先定义才能被使用，例如通过 `WebWidget.portalDestinations.define(name, factory)` 来定义目的地。
+> 目的地必须先定义才能被使用，例如通过 [HTMLWebWidgetElement.portalDestinations](application.md#HTMLWebWidgetElement.portalDestinations) 来定义目的地。
 >
 > 这是试验性特性。
+
+### name
+
+注册到主文档的应用名称。
+
+### data
+
+应用的初始化数据。
+
+### sandboxed
+
+应用是否处于 WebSandbox DOM 沙箱中。
 
 ## 挂载子应用
 
