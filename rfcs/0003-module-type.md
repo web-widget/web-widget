@@ -57,7 +57,7 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
     }
 
     if (src) {
-      return System.import(src);
+      return System.import(src).then(module => module.default || module);
     }
 
     src = URL.createObjectURL(
@@ -67,7 +67,7 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
     return System.import(src).then(
       module => {
         URL.revokeObjectURL(src);
-        return module;
+        return module.default || module;
       },
       error => {
         URL.revokeObjectURL(src);
