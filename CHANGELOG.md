@@ -6,4 +6,5 @@
 * UMD 格式的加载器不再内置，改用插件支持 extensions/WebWidgerUmdLoader.js
 * 通过插件支持 SystemJS 模块格式
 * 为了保持对未来 `RealmShadow` 沙箱的兼容，暂时移除现有的沙箱实现
+* 支持 `<fallback>` 特性
 

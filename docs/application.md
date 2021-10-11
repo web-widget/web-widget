@@ -244,8 +244,6 @@ export function mount(props) {
 }
 ```
 
-如果 `mount` 的 `Promise` 状态为 `reject`，那么 WebWidget 元素的子元素 `<fallback>` 将会显示。
-
 ### 更新
 
 如果两个应用相互调用、传递数据，这时候可能会触发“更新”生命周期。

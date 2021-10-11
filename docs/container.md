@@ -10,7 +10,10 @@ WebWidget 容器是一个标准的 Web Component 组件，标签名为 `<web-wid
 
 ## 占位符
 
-`placeholder` 元素将充当 WebWidget 容器的占位符号。如果指定，则 `placeholder` 元素必须是 WebWidget 容器的直接子级。
+`placeholder` 元素将充当 WebWidget 容器的占位符号。用途：
+
+* 预览图片或文本
+* 骨架占位或 loading 动画
 
 ```html
 <web-widget src="app.widget.js">
@@ -20,11 +23,9 @@ WebWidget 容器是一个标准的 Web Component 组件，标签名为 `<web-wid
 </web-widget>
 ```
 
-> `placeholder` 也可以用来实现 loading 动画占位符效果。
-
 ## 后备
 
-`fallback` 元素将充当 WebWidget 容器的后备占位符号，以便指明出现以下情况时采取的后备行为：
+`fallback` 元素将充当 WebWidget 容器的后备占位符号。用途：
 
 * 浏览器不支持某个元素
 * 内容未能加载（例如，推文被删除）
@@ -37,6 +38,12 @@ WebWidget 容器是一个标准的 Web Component 组件，标签名为 `<web-wid
   </fallback>
 </web-widget>
 ```
+
+当 WebWidget 应用变更为以下任意状态将会触发 `fallback` 元素显示：
+
+* `load-error`
+* `bootstrap-error`
+* `mount-error`
 
 ## 插槽
 

@@ -429,22 +429,22 @@ describe('Placeholder', () => {
       expect(placeholder).to.have.property('hidden', true);
     }));
 
-  it('Only works on the first placeholder element', () =>
-    createWidget(async ({ widget }) => {
-      const placeholder1 = document.createElement('placeholder');
-      const placeholder2 = document.createElement('placeholder');
-      widget.appendChild(placeholder1);
-      widget.appendChild(placeholder2);
-      await widget.load();
-      expect(placeholder1).to.have.property('hidden', false);
-      expect(placeholder2).to.have.property('hidden', false);
-      await widget.bootstrap();
-      expect(placeholder1).to.have.property('hidden', false);
-      expect(placeholder2).to.have.property('hidden', false);
-      await widget.mount();
-      expect(placeholder1).to.have.property('hidden', true);
-      expect(placeholder2).to.have.property('hidden', false);
-    }));
+  // it('Only works on the first placeholder element', () =>
+  //   createWidget(async ({ widget }) => {
+  //     const placeholder1 = document.createElement('placeholder');
+  //     const placeholder2 = document.createElement('placeholder');
+  //     widget.appendChild(placeholder1);
+  //     widget.appendChild(placeholder2);
+  //     await widget.load();
+  //     expect(placeholder1).to.have.property('hidden', false);
+  //     expect(placeholder2).to.have.property('hidden', false);
+  //     await widget.bootstrap();
+  //     expect(placeholder1).to.have.property('hidden', false);
+  //     expect(placeholder2).to.have.property('hidden', false);
+  //     await widget.mount();
+  //     expect(placeholder1).to.have.property('hidden', true);
+  //     expect(placeholder2).to.have.property('hidden', false);
+  //   }));
 
   it('The placeholder element must be a direct descendant', () =>
     createWidget(async ({ widget }) => {

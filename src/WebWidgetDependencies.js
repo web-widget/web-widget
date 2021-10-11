@@ -9,6 +9,20 @@ function getModel(target) {
   return model;
 }
 
+function createContext(view) {
+  return {
+    mount() {
+      return view.mount();
+    },
+    update(properties) {
+      return view.update(properties);
+    },
+    unmount() {
+      return view.unmount();
+    }
+  };
+}
+
 export class WebWidgetDependencies {
   constructor(ownerElement) {
     Reflect.defineProperty(this, 'ownerElement', {
@@ -35,17 +49,7 @@ export class WebWidgetDependencies {
 
   get context() {
     const view = this.ownerElement;
-    return {
-      mount() {
-        return view.mount();
-      },
-      update(properties) {
-        return view.update(properties);
-      },
-      unmount() {
-        return view.unmount();
-      }
-    };
+    return createContext(view);
   }
 
   get createPortal() {
@@ -98,21 +102,9 @@ export class WebWidgetDependencies {
 
       portal.appendChild(widget);
       portal.mount();
-
-      const contextInterfaces = {
-        async mount() {
-          return portal.mount();
-        },
-        async update(properties) {
-          return portal.update(properties);
-        },
-        async unmount() {
-          return portal.unmount();
-        }
-      };
-
       model.portals.push(portal);
-      return contextInterfaces;
+
+      return createContext(portal);
     };
   }
 

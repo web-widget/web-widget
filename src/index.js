@@ -19,6 +19,7 @@ const DATA = Symbol('data');
 const PREFETCH = Symbol('prefetch');
 const APPLICATION = Symbol('application');
 const LIFECYCLE_CALLBACK = Symbol('lifecycleCallback');
+const STATECHANGE_CALLBACK = Symbol('statechangeCallback');
 
 const rootPortalDestinations = createRegistry();
 const rootLoaders = createRegistry();
@@ -156,22 +157,10 @@ function createModel(view) {
   });
 }
 
-function onstatechange({ currentTarget }) {
-  if (currentTarget.state === status.MOUNTED) {
-    for (const element of currentTarget.children) {
-      if (element.localName === 'placeholder') {
-        element.hidden = true;
-        currentTarget.removeEventListener('statechange', onstatechange);
-        break;
-      }
-    }
-  }
-}
-
 export class HTMLWebWidgetElement extends HTMLElement {
   constructor() {
     super();
-    this.addEventListener('statechange', onstatechange);
+    this.addEventListener('statechange', this[STATECHANGE_CALLBACK]);
   }
 
   get application() {
@@ -339,6 +328,41 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
     if ([status.BOOTSTRAPPED, status.MOUNTED].includes(this.state)) {
       await toUnloadPromise(this[MODEL]);
+    }
+  }
+
+  [STATECHANGE_CALLBACK]() {
+    const state = this.state;
+    if (
+      [
+        status.MOUNTED,
+        status.LOAD_ERROR,
+        status.BOOTSTRAP_ERROR,
+        status.MOUNT_ERROR
+      ].includes(state)
+    ) {
+      let placeholder, fallback;
+      const isError = state !== status.MOUNTED;
+
+      for (const element of this.children) {
+        const localName = element.localName;
+        if (localName === 'placeholder') {
+          placeholder = element;
+        } else if (localName === 'fallback') {
+          fallback = element;
+        }
+      }
+
+      if (placeholder && fallback) {
+        placeholder.hidden = isError;
+        fallback.hidden = !isError;
+      } else if (placeholder) {
+        if (!isError) {
+          placeholder.hidden = true;
+        }
+      } else if (fallback) {
+        fallback.hidden = !isError;
+      }
     }
   }
 
