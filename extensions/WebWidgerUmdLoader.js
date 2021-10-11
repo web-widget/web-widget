@@ -1,7 +1,16 @@
 /* global window, document, HTMLWebWidgetElement */
 
 const CACHE = new Map();
-function loader({ src, text, name }) {
+
+function getModuleValue(module) {
+  return module.default || module;
+}
+
+function errorMessage(name) {
+  return new TypeError(`No global variable found: ${name}`);
+}
+
+async function loader({ src, text, name }) {
   if (!name) {
     throw Error(`Must have the name of the module`);
   }
@@ -16,9 +25,9 @@ function loader({ src, text, name }) {
           script.onload = () => {
             const module = window[name];
             if (module === undefined) {
-              reject(new TypeError(`No global variable found: ${name}`));
+              reject(errorMessage(name));
             } else {
-              resolve(module.default || module);
+              resolve(getModuleValue(module));
             }
           };
 
@@ -37,11 +46,17 @@ function loader({ src, text, name }) {
   }
 
   // eslint-disable-next-line no-new-func
-  return new Function(
+  const module = new Function(
     `'use strict';
       ${text};
       return ${name};`
   )();
+
+  if (module === undefined) {
+    throw errorMessage(name);
+  }
+
+  return getModuleValue(module);
 }
 
 HTMLWebWidgetElement.loaders.define('umd', loader);

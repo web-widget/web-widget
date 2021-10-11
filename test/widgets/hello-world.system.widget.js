@@ -3,7 +3,7 @@ System.register([], function (_export) {
     execute() {
       window.TEST_SYSTEM_LIFECYCLE = 'load';
 
-      _export('default', {
+      _export('default', () => ({
         async bootstrap() {
           window.TEST_SYSTEM_LIFECYCLE = 'bootstrap';
         },
@@ -17,7 +17,7 @@ System.register([], function (_export) {
           window.TEST_SYSTEM_LIFECYCLE = 'unmount';
           container.removeChild = ``;
         }
-      });
+      }));
     }
   };
 });

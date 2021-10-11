@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" main="IE=edge">
+  <title>WebWidget DEMO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">  
+</head>
+
+<body>
+
+  <web-widget type="system" name="helloWidget" src="./index.js" data-id="01"></web-widget>
+  <web-widget type="system" name="helloWidget" src="./index.js" data-id="02"></web-widget>
+  <web-widget type="system" name="helloWidget" src="./index.js" data-id="03"></web-widget>
+
+  <script type="module">
+    import 'https://cdn.jsdelivr.net/npm/systemjs@6.8.3/dist/s.js';
+    import '../../src/index.js';
+    import '../../extensions/WebWidgerSystemLoader.js';
+  </script>
+</body>
+
+</html>

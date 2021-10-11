@@ -1,7 +1,11 @@
 /* global System, HTMLWebWidgetElement, Blob, URL */
-function loader({ src, text }) {
+function getModuleValue(module) {
+  return module.default || module;
+}
+
+async function loader({ src, text }) {
   if (src) {
-    return System.import(src);
+    return System.import(src).then(getModuleValue);
   }
 
   src = URL.createObjectURL(
@@ -11,7 +15,7 @@ function loader({ src, text }) {
   return System.import(src).then(
     module => {
       URL.revokeObjectURL(src);
-      return module;
+      return getModuleValue(module);
     },
     error => {
       URL.revokeObjectURL(src);

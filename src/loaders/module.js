@@ -1,6 +1,6 @@
 /* global Blob, URL */
 function getModuleValue(module) {
-  return module ? module.default || module : undefined;
+  return module.default || module;
 }
 
 export async function moduleLoader({ src, text }) {

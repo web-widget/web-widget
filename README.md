@@ -81,7 +81,7 @@ export default () => ({
 }
 ```
 
-详情见 [应用描述规范文档](docs/describe.md)
+详情见 [应用清单规范文档](docs/describe.md)
 
 ## API 设计过程的探索
 

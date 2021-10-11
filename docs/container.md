@@ -1,12 +1,12 @@
 # WebWidget 容器
 
-WebWidget 容器是一个标准的 Web Component 组件，由 `src` 定义的脚本来渲染内容。
+WebWidget 容器是一个标准的 Web Component 组件，标签名为 `<web-widget>`，其 `src` 属性为[应用](application.md)的 URL。
 
 ```html
 <web-widget src="app.widget.js"></web-widget>
 ```
 
-为了不影响主页面的加载性能，WebWidget 容器的脚本是异步载入的。为了符合渐进式增强的体验，最佳做法是使用占位符与后备。
+为了不影响主页面的加载性能，WebWidget 应用是异步载入的。为了符合渐进式增强的体验，最佳做法是使用占位符与后备。
 
 ## 占位符
 
@@ -19,6 +19,8 @@ WebWidget 容器是一个标准的 Web Component 组件，由 `src` 定义的脚
   </placeholder>
 </web-widget>
 ```
+
+> `placeholder` 也可以用来实现 loading 动画占位符效果。
 
 ## 后备
 
@@ -89,7 +91,7 @@ WebWidget 应用可以通过生命周期函数获的 `data` 参数获取到数�
 
 ## HTMLWebWidgetElement
 
-通过 `document.createElement('web-widget')` 会返回一个 `HTMLWebWidgetElement` 实例。
+HTMLWebWidgetElement 是 `<web-widget>` 元素的接口。
 
 ### application
 
@@ -242,7 +244,7 @@ HTMLWebWidgetElement.prototype.createLoader = function() {
   }
 
   if (src) {
-    return System.import(src);
+    return System.import(src).then(module => module.default || module);
   }
 
   src = URL.createObjectURL(
@@ -252,7 +254,7 @@ HTMLWebWidgetElement.prototype.createLoader = function() {
   return System.import(src).then(
     module => {
       URL.revokeObjectURL(src);
-      return module;
+      return module.default || module;
     },
     error => {
       URL.revokeObjectURL(src);
@@ -315,7 +317,7 @@ widget.update(properties);
 * `get(name)`
 * `define(name, factory)`
 
-定义传送门：
+定义传送门目的地：
 
 ```js
 HTMLWebWidgetElement.portalDestinations.define('dialog', () => {
@@ -326,7 +328,7 @@ HTMLWebWidgetElement.portalDestinations.define('dialog', () => {
 });
 ```
 
-传送门定义好后，应用就可以使用它了：
+传送门定义好后，应用可以通过 [`createPortal()`](#createPortal) 将子 WevWidget 容器传送到指定的位置渲染：
 
 ```js
 // app.widget.js
@@ -336,7 +338,6 @@ export async function mount({ container, createPortal }) {
   userWidget.src = './user.widget.js';
   // 传送应用
   const cardWidget = createPortal(userWidget, 'dialog');
-  cardWidget.unmount();
 })
 ```
 
@@ -357,7 +358,7 @@ document.body.appendChild(widget);
 
 ## WebWidgetDependencies
 
-WebWidgetDependencies 的实例会注入到应用的 properties 中，因此可以扩展它给应用注入 API。
+WebWidgetDependencies 接口是应用的生命周期函数接收的参数，因此可以扩展它给应用注入 API。
 
 使用例子：
 
@@ -381,8 +382,8 @@ WebWidgetDependencies 的实例会注入到应用的 properties 中，因此可�
 ```js
 // plugin.widget.js
 export default () => ({
-  async mount({ setDocumentTitle }) {
-    setDocumentTitle('hello world');
+  async mount(properties) {
+    properties.setDocumentTitle('hello world');
   }
 });
 ```
