@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" main="IE=edge">
+  <title>WebWidgetRouter demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+  <web-widget name="home" src="/index.widget.js" inactive data-id="#43243242"></web-widget>
+  <web-widget name="news" src="/news.widget.js" inactive data-id="#ttrt"></web-widget>
+  <web-widget name="about" src="/about.widget.js" inactive data-id="#367" data-about="一个演示"></web-widget>
+  <web-widget name="vue-router" src="/vue-router.widget.js" inactive data-id="#367" data-vue="vue-router demo"></web-widget>
+
+  <script type="module">
+    import '@web-sandbox.js/web-widget';
+    import { collection, navigate, history } from  '@web-sandbox.js/router';
+
+    collection.add(
+      document.querySelector('[name=home]'),
+      location => location.pathname === '/'
+    );
+
+    collection.add(
+      document.querySelector('[name=news]'),
+      location => location.pathname.startsWith('/news')
+    );
+
+    collection.add(
+      document.querySelector('[name=about]'),
+      location => location.pathname.startsWith('/about')
+    );
+
+    collection.add(
+      document.querySelector('[name=vue-router]'),
+      location => location.pathname.startsWith('/vue-router')
+    );
+
+    function reroute() {
+      collection.change(location);
+    }
+
+    history.listen(reroute);
+    reroute();
+
+    window.navigate = navigate;
+  </script>
+</body>
+
+</html>

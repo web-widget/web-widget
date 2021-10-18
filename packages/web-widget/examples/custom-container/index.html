@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" main="IE=edge">
+  <title>WebWidget DEMO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">  
+</head>
+
+<body>
+
+  <web-widget src="./hello-world.widget.js" noshadow></web-widget>
+
+  <script type="module">
+    import '@web-sandbox.js/web-widget';
+
+    const containerDescriptor = Reflect.getOwnPropertyDescriptor(WebWidgetDependencies.prototype, 'container');
+    const containerGetter = containerDescriptor.get;
+    containerDescriptor.get = function get() {
+      if (this.ownerElement.getAttribute('noshadow') !== null) {
+        return this.ownerElement;
+      }
+      return containerGetter.apply(this, arguments);
+    };
+    Reflect.defineProperty(WebWidgetDependencies.prototype, 'container', containerDescriptor);
+
+    Object.defineProperties(HTMLWebWidgetElement.prototype, {
+      noshadow: {
+        configurable: true,
+        get() {
+          return this.getAttribute('noshadow') !== null;
+        },
+        set(v) {
+          return v
+            ? this.setAttribute('noshadow', '')
+            : this.removeAttribute('noshadow');
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

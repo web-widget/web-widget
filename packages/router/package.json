@@ -1,0 +1,39 @@
+{
+  "name": "@web-sandbox.js/router",
+  "version": "0.0.4-beta",
+  "description": "web widget router",
+  "source": "src/index.js",
+  "main": "dist/commonjs/router.js",
+  "module": "dist/esm/router.js",
+  "unpkg": "dist/umd/router.js",
+  "libraryName": "WebWidgetRouter",
+  "scripts": {
+    "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
+    "examples": "cd examples && web-dev-server --node-resolve --watch",
+    "prepare": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-sandbox-js/web-widget.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": "aui",
+  "bugs": {
+    "url": "https://github.com/web-sandbox-js/web-widget/issues"
+  },
+  "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
+  "devDependencies": {
+    "rollup": "^2.50.5",
+    "@rollup/plugin-replace": "^3.0.0",
+    "@web/dev-server-rollup": "^0.3.11",
+    "@web-sandbox.js/rollup-config": "^0.0.4-beta",
+    "@web-sandbox.js/web-widget": "^0.0.4-beta",
+    "@web-sandbox.js/router": "^0.0.4-beta",
+    "@web/dev-server": "^0.1.17"
+  },
+  "dependencies": {
+    "history": "^5.0.0"
+  }
+}

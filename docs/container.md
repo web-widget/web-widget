@@ -242,33 +242,42 @@ widget.mount();
 例如支持 system 模块格式：
 
 ```js
-const createLoader = HTMLWebWidgetElement.prototype.createLoader;
-HTMLWebWidgetElement.prototype.createLoader = function() {
-  const { src, text, type } = this;
-
-  if (type !== 'system') {
-    return createLoader.apply(this, arguments);
-  }
-
-  if (src) {
-    return System.import(src).then(module => module.default || module);
-  }
-
-  src = URL.createObjectURL(
-    new Blob([text], { type: 'application/javascript' })
-  );
-
-  return System.import(src).then(
-    module => {
-      URL.revokeObjectURL(src);
-      return module.default || module;
-    },
-    error => {
-      URL.revokeObjectURL(src);
-      throw error;
-    }
+function defineHook(target, name, callback) {
+  return Reflect.defineProperty(
+    target,
+    name,
+    callback(Reflect.getOwnPropertyDescriptor(target, name))
   );
 }
+
+defineHook(HTMLWebWidgetElement.prototype, 'createLoader', ({ value }) => ({ 
+  value() {
+    const { src, text, type } = this;
+
+    if (type !== 'system') {
+      return value.apply(this, arguments);
+    }
+
+    if (src) {
+      return System.import(src).then(module => module.default || module);
+    }
+
+    src = URL.createObjectURL(
+      new Blob([text], { type: 'application/javascript' })
+    );
+
+    return System.import(src).then(
+      module => {
+        URL.revokeObjectURL(src);
+        return module.default || module;
+      },
+      error => {
+        URL.revokeObjectURL(src);
+        throw error;
+      }
+    );
+  }
+}));
 ```
 
 ```html

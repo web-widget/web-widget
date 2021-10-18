@@ -89,15 +89,14 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 
 ## 规范的实现
 
-* [src/index.js](src/index.js) WebWidget 的核心实现
+* [@web-sandbox.js/web-widget](packages/web-widget) WebWidget 容器
 
-WebWidget 辅助工具：
+插件：
 
-* [extensions/WebWidgetCollection.js](extensions/WebWidgetCollection.js) WebWidget 应用集合抽象，可以用来和历史记录库组合使用
-* [extensions/WebWidgetRouter.js](extensions/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现
-* [extensions/HTMLWebWidgetImportElement.js](extensions/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现（`<web-widget.import>`）
-* [extensions/WebWidgerUmdLoader.js](extensions/WebWidgerUmdLoader.js) UMD 模块格式支持
-* [extensions/WebWidgerSystemLoader.js](extensions/WebWidgerSystemLoader.js) System 模块格式支持
+* [@web-sandbox.js/router](packages/router) 专门用于驱动 WebWidget 的单页面应用的路由库
+* [@web-sandbox.js/web-widget-import](packages/web-widget-import) WebWidget 应用导入标签实现（`<web-widget.import>`）
+* [@web-sandbox.js/umd-loader](packages/umd-loader) UMD 模块格式支持
+* [@web-sandbox.js/system-loader](packages/system-loader) System 模块格式支持
 
 > 辅助工具不属于本项目的内容，因此后续将从当前项目中移除，以便独立维护。
 

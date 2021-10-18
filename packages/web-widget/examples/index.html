@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Index</title>
+  <script type="module">
+    import '@web-sandbox.js/web-widget';
+  </script>
+</head>
+
+<body>
+  <web-widget id="list" src="./index.widget.js"></web-widget>
+  <script>
+    document.getElementById('list').setAttribute('data', JSON.stringify([
+      {
+        "name": "umd loader",
+        "value": "./umd/"
+      },
+      {
+        "name": "Child widget",
+        "value": "./child-widget/"
+      },
+      {
+        "name": "Create portal",
+        "value": "./create-portal/"
+      },
+      {
+        "name": "Custom container",
+        "value": "./custom-container/"
+      },
+      {
+        "name": "Data",
+        "value": "./data/"
+      },
+      {
+        "name": "Element fallback",
+        "value": "./fallback/"
+      },
+      {
+        "name": "Lazy load",
+        "value": "./lazy/"
+      },
+      {
+        "name": "ES module",
+        "value": "./module/"
+      },
+      {
+        "name": "Element placeholder",
+        "value": "./placeholder/"
+      },
+      {
+        "name": "Prefetch",
+        "value": "./prefetch/"
+      },
+      {
+        "name": "Single instance",
+        "value": "./single-instance/"
+      },
+      {
+        "name": "Slot",
+        "value": "./slot/"
+      }
+    ]));
+  </script>
+</body>
+
+</html>
