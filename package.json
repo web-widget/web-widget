@@ -7,7 +7,6 @@
     "start": "lerna run --parallel start",
     "build": "lerna run build",
     "test": "lerna run test",
-    "lint-test-v": "cat node_modules/@babel/core/package.json",
     "lint": "eslint packages/**/src packages/**/test packages/**/examples",
     "prettier": "prettier --write packages/**/*.js",
     "examples": "npm run examples:web-widget",
