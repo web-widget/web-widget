@@ -291,8 +291,3 @@ WebWidget 可以发布到任何地方，例如企业的私有 CDN。如果你想
 ```html
 <web-widget src="https://cdn.jsdelivr.net/npm/tabs-widget@2.0.0"></web-widget>
 ```
-
-## 待讨论问题
-
-* 如何通过 CSS 来控制 WebWidget 的状态？
-* WebWidget 容器是否应该默认开启 ShadowDOM 或提供选项可配置？
