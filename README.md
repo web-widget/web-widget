@@ -83,10 +83,6 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 
 详情见 [应用清单规范文档](docs/describe.md)
 
-## API 设计过程的探索
-
-详情见 [WebWidget 设计过程](docs/design.md)
-
 ## 库
 
 ### 核心
@@ -99,6 +95,10 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 * [@web-sandbox.js/web-widget-import](packages/web-widget-import) WebWidget 应用导入标签实现（`<web-widget.import>`）
 * [@web-sandbox.js/umd-loader](packages/umd-loader) UMD 模块格式支持
 * [@web-sandbox.js/system-loader](packages/system-loader) System 模块格式支持
+
+## API 设计过程的探索
+
+详情见 [WebWidget 设计过程](docs/design.md)
 
 ## 应用场景
 
