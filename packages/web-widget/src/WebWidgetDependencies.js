@@ -176,14 +176,20 @@ function memoize(func) {
   };
 }
 
+function defineHook(target, name, callback) {
+  return Reflect.defineProperty(
+    target,
+    name,
+    callback(Reflect.getOwnPropertyDescriptor(target, name))
+  );
+}
+
 ['container', 'context', 'createPortal', 'name', 'portalDestinations'].forEach(
   name => {
-    const descriptor = Reflect.getOwnPropertyDescriptor(
-      WebWidgetDependencies.prototype,
-      name
-    );
-    descriptor.get = memoize(descriptor.get);
-    Reflect.defineProperty(WebWidgetDependencies.prototype, name, descriptor);
+    defineHook(WebWidgetDependencies.prototype, name, descriptor => {
+      descriptor.get = memoize(descriptor.get);
+      return descriptor;
+    });
   }
 );
 

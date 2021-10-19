@@ -1,5 +1,7 @@
-export function formatErrorMessage({ name }, error) {
-  const prefix = `WebWidget applications[${name}]`;
+import { NAME } from './symbols.js';
+
+export function formatErrorMessage(view, error) {
+  const prefix = `WebWidget applications[${view[NAME]}]`;
   if (typeof error !== 'object') {
     error = new Error(error);
   }
