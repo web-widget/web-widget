@@ -4,12 +4,6 @@
 
 WebWidget 是一种用于网页的小挂件，和传统的命令式的 UI Library 不同，它介于组件与应用程序形态之间，并且接口被标准化、能够适应于无代码编程与跨技术栈兼容的需要。
 
-## 安装
-
-```bash
-npm install @web-sandbox.js/web-widget --save
-```
-
 ## 为什么要设计 WebWidget
 
 建设 WebWidget 规范的直接动机来自于 NoCode/LowCode 产品共同的需求驱动，因为这样的体系下需要大量、开箱即用的组件才能满足客户的需求，面对这些现实的问题这使得我们在思考如何构建一个面向服务的组件标准。
@@ -92,6 +86,10 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 ## API 设计过程的探索
 
 详情见 [WebWidget 设计过程](docs/design.md)
+
+## 核心
+
+* [@web-sandbox.js/web-widget](packages/web-widget) `<web-widget>` 元素
 
 ## 插件
 
