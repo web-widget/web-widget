@@ -10,12 +10,12 @@
 
 <body>
 
-  <web-widget type="system" name="helloWidget" src="./index.js" data-id="01"></web-widget>
-  <web-widget type="system" name="helloWidget" src="./index.js" data-id="02"></web-widget>
-  <web-widget type="system" name="helloWidget" src="./index.js" data-id="03"></web-widget>
+  <web-widget type="system" src="./index.js" data-id="01"></web-widget>
+  <web-widget type="system" src="./index.js" data-id="02"></web-widget>
+  <web-widget type="system" src="./index.js" data-id="03"></web-widget>
 
   <script type="module">
-    import 'systemjs';
+    import 'systemjs/s.js';
     import '@web-sandbox.js/web-widget';
     import '../../src/index.js';
   </script>

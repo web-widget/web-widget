@@ -100,8 +100,6 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 * [@web-sandbox.js/umd-loader](packages/umd-loader) UMD 模块格式支持
 * [@web-sandbox.js/system-loader](packages/system-loader) System 模块格式支持
 
-> 辅助工具不属于本项目的内容，因此后续将从当前项目中移除，以便独立维护。
-
 ## 应用场景
 
 本章节非规范内容，仅用于辅助说明 WebWidget 的可扩展性。
@@ -206,7 +204,7 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 <web-widget id="about" src="./about.widget.js" inactive></web-widget>
 <script type="module">
   import '@web-sandbox.js/web-widget';
-  import { collection, history } from  '@web-sandbox.js/web-widget/dist/esm/extensions/web-widget-router';
+  import { collection, history } from  '@web-sandbox.js/router';
 
   collection.add(
     document.querySelector('#home'),
@@ -243,7 +241,7 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 
 <script type="module">
   import '@web-sandbox.js/web-widget';
-  import '@web-sandbox.js/web-widget/dist/esm/extensions/web-widget-import';
+  import '@web-sandbox.js/web-widget-import';
 </script>
 ```
 

@@ -9,7 +9,7 @@
     "build": "lerna run build",
     "test": "lerna run test",
     "examples:router": "cd packages/router && npm run examples",
-    "examples:system-loader": "cd packages/umd-loader && npm run examples",
+    "examples:system-loader": "cd packages/system-loader && npm run examples",
     "examples:umd-loader": "cd packages/umd-loader && npm run examples",
     "examples:web-widget": "cd packages/web-widget && npm run examples",
     "examples:web-widget-import": "cd packages/web-widget-import && npm run examples"
