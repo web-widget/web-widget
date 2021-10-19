@@ -3,13 +3,16 @@
   "version": "0.0.5",
   "description": "web widget router",
   "source": "src/index.js",
-  "main": "dist/commonjs/router.js",
+  "main": "dist/cjs/router.js",
   "module": "dist/esm/router.js",
   "unpkg": "dist/umd/router.js",
   "libraryName": "WebWidgetRouter",
   "scripts": {
     "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
     "examples": "cd examples && web-dev-server --node-resolve --watch"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "repository": {
     "type": "git",

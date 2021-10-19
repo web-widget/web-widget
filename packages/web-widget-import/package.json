@@ -11,6 +11,9 @@
     "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
     "examples": "cd examples && web-dev-server --node-resolve --watch"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/web-sandbox-js/web-widget.git"
