@@ -14,7 +14,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
       - name: Cache node modules
         uses: actions/cache@v2
         env:
@@ -26,9 +31,15 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
+
+      - name: Info
+        run: npm -v
       
       - name: Install dependencies
         run: npm install
+
+      # - name: Lint
+      #   run: npm run lint
 
       - name: Test
         run: npm test

@@ -2,7 +2,7 @@
 
 ## 应用入口文件
 
-应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，入口文件支持定义生命周期参数：
+应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，它包含生命周期函数：
 
 ```js
 export default () => ({
@@ -14,9 +14,19 @@ export default () => ({
 });
 ```
 
+或者使用单例模式：
+
+```js
+export async function bootstrap(properties) {}
+export async function mount(properties) {}
+export async function update(properties) {}
+export async function unmount(properties) {}
+export async function unload(properties) {}
+```
+
 ### 构建打包
 
-由于浏览器动态执行代码的限制，目前只能使用 UMD 格式才能被 WebWidget 的容器运行。
+入口文件首选的格式为 ES Module，为了有更好的兼容性，同时还应当提供一份 UMD 版本。
 
 >  `.widget.js` 后缀名是一个约定而非规范内容，它的目的是让开发工具能够更好识别 WebWidget 应用。
 
@@ -62,39 +72,41 @@ export async function bootstrap(properties) {
 
 每个生命周期函数的入参都会保证有如下参数：
 
-### `name`
+### container
 
-注册到主文档的应用名称。
+应用用于渲染 DOM 的节点。它至少拥有 `appendChild()` 、`innerHTML` 接口。
 
-### `data`
+### context
 
-应用的初始化数据。
+应用容器的上下文 API。包含如下三个 API：
 
-### `container`
+* [`mount()`](#mount)
+* [`update()`](#update)
+* [`unmount()`](#unmount)
 
-应用用于渲染 DOM 的 Node 节点。这是一个 HTMLElement 对象实例，至少拥有 `appendChild()` 、`removeChild()`、`innerHTML` 填充容器内容接口。
-
-### `sandboxed`
-
-应用是否处于 WebSandbox DOM 沙箱中。
-
-### `context`
-
-应用的上下文 API。应用可以使用 `context.unmount()` 卸载自身。
-
-### `createPortal(widget, destination)`
+### createPortal()
 
 将应用传送到容器外面挂载。
 
-* `widget` WebWidget 容器
-* `destination` 目的地
+```js
+const context = createPortal(webWidgetElement, destination)
+```
+
+#### 参数
+
+* `webWidgetElement` WebWidget [容器](application.md)
+* `destination` 目的地名称
+
+#### 返回值
+
+一个 [`context`](#context) 对象。
 
 示例：
 
 ```js
+// app.widget.js
 export async function mount({ createPortal }) {
   const app = document.createElement('web-widget');
-  app.id = 'app-portal-demo';
   app.src = './lit-element-todomvc.widget.js';
   createPortal(app, 'dialog')
     .mount()
@@ -104,21 +116,21 @@ export async function mount({ createPortal }) {
 }
 ```
 
-> 目的地必须先定义才能被使用，例如通过 `WebWidget.portalDestinations.define(name, factory)` 来定义目的地。
+> 目的地必须先定义才能被使用，例如通过 [HTMLWebWidgetElement.portalDestinations](application.md#HTMLWebWidgetElement.portalDestinations) 来定义目的地。
 >
 > 这是试验性特性。
 
-### `portalDestinations`
+### name
 
-当前应用作用域的目的地注册中心。它有两个 API：
+注册到主文档的应用名称。
 
-* `portalDestinations.define(name, factory)` 定义目的地
-* `portalDestinations.get(name)` 获取目的地的工厂函数
+### data
 
-`portalDestinations` API 与全局的 `WebWidget.portalDestinations` 使用方式一致，区别是：`portalDestinations` 定义的目的地只能作用在子应用中的传送门。
-当应用使用 `createPortal(widget, destination)` 传送子应用的时候，它会沿着 DOM 树寻找父应用的 `portalDestinations` 目的地，如果一直没有找到最后去 `WebWidget.portalDestinations` 全局目的地，这个过程很像 DOM 的事件冒泡机制。
+应用的初始化数据。
 
-> 这是试验性特性。
+### sandboxed
+
+应用是否处于 WebSandbox DOM 沙箱中。
 
 ## 挂载子应用
 
@@ -231,8 +243,6 @@ export function mount(props) {
     });
 }
 ```
-
-如果 `mount` 的 `Promise` 状态为 `reject`，那么 WebWidget 元素的子元素 `<fallback>` 将会显示。
 
 ### 更新
 

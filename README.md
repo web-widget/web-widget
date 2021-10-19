@@ -4,6 +4,12 @@
 
 WebWidget 是一种用于网页的小挂件，和传统的命令式的 UI Library 不同，它介于组件与应用程序形态之间，并且接口被标准化、能够适应于无代码编程与跨技术栈兼容的需要。
 
+## 安装
+
+```bash
+npm install @web-sandbox.js/web-widget --save
+```
+
 ## 为什么要设计 WebWidget
 
 建设 WebWidget 规范的直接动机来自于 NoCode/LowCode 产品共同的需求驱动，因为这样的体系下需要大量、开箱即用的组件才能满足客户的需求，面对这些现实的问题这使得我们在思考如何构建一个面向服务的组件标准。
@@ -39,41 +45,41 @@ WebWidget 的本质是组件的服务化治理，而服务意味着更少的过�
 
 ## 标准化内容
 
-WebWidget 标准由如下三个部分组成：
+WebWidget 由如下三个部分组成：
 
 ### 容器
 
-它是运行 WebWidget 应用的容器，它也是一个 HTML 标签：
+WebWidget 容器是一个标准的 Web Component 组件，标签名为 `<web-widget>`，其 `src` 属性为[应用](#应用)的 URL。
 
 ```html
-<web-widget name="my-app" src="my-app.widget.js" sandboxed></web-widget>
+<web-widget src="app.widget.js"></web-widget>
 ```
 
 详情见 [容器规范文档](docs/container.md)
 
 ### 应用
 
-它是应用的入口文件，实现特定的生命周期接口即可被 WebWidget 容器或者其他兼容的加载器调用。入口文件示例：
+WebWidget 应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，它包含生命周期函数：
 
 ```js
-// my-app.widget.js
-export default {
+// app.widget.js
+export default () => ({
   async bootstrap: (properties) => {},
   async mount: (properties) => {},
   async unmount: (properties) => {},
   async unload: (properties) => {}
-}
+});
 ```
 
 详情见 [应用规范文档](docs/application.md)
 
-### 应用描述
+### 清单
 
-应用有自己的名字、图标等信息，以便在组件系统 or 应用市场中展示。例如：
+WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、图标等信息，以便在组件系统 or 应用市场中展示。例如：
 
 ```json
 {
-  "name": "my-app",
+  "name": "app",
   "WebWidget": "1.0.0",
   "version": "0.0.1",
   "main": "dist/umd/index.widget.js",
@@ -81,24 +87,18 @@ export default {
 }
 ```
 
-详情见 [应用描述规范文档](docs/describe.md)
+详情见 [应用清单规范文档](docs/describe.md)
 
 ## API 设计过程的探索
 
-详情见 [标准化微前端容器— WebWidget 设计过程](docs/design.md)
+详情见 [WebWidget 设计过程](docs/design.md)
 
-## 规范的实现
+## 插件
 
-* [src/index.js](src/index.js) WebWidget 的核心实现
-
-WebWidget 辅助工具：
-
-* [extensions/WebWidgetCollection.js](extensions/WebWidgetCollection.js) WebWidget 应用集合抽象，可以用来和历史记录库组合使用
-* [extensions/WebWidgetRouter.js](extensions/WebWidgetRouter.js) 专门用于驱动 WebWidget 应用的路由库实现
-* [extensions/HTMLWebWidgetImportElement.js](extensions/HTMLWebWidgetImportElement.js) WebWidget 应用导入标签实现
-* [extensions/HTMLWebComponentImportElement.js](extensions/HTMLWebComponentImportElement.js) 原生 Web Components 模块适配器（实验性）
-
-> 辅助工具不属于本项目的内容，因此后续将从当前项目中移除，以便独立维护。
+* [@web-sandbox.js/router](packages/router) 专门用于驱动 WebWidget 的单页面应用的路由库
+* [@web-sandbox.js/web-widget-import](packages/web-widget-import) WebWidget 应用导入标签实现（`<web-widget.import>`）
+* [@web-sandbox.js/umd-loader](packages/umd-loader) UMD 模块格式支持
+* [@web-sandbox.js/system-loader](packages/system-loader) System 模块格式支持
 
 ## 应用场景
 
@@ -139,6 +139,8 @@ WebWidget 辅助工具：
 </web-widget>
 ```
 
+> 由于 TC39 Realms API 发生了重大变更，因此此特性暂时无法使用。
+
 ### 首屏载入速度优化
 
 [AMP](https://amp.dev) 的性能优先的工程设计为 WebWidget 的诞生提供了很多灵感，它的优化策略对采用 WebWidget 的网站也同样有效，一些推荐设置：
@@ -172,6 +174,22 @@ WebWidget 辅助工具：
 </web-widget>
 ```
 
+### 后备
+
+`fallback` 元素将充当 WebWidget 容器的后备占位符号。用途：
+
+* 浏览器不支持某个元素
+* 内容未能加载（例如，推文被删除）
+* 图片类型不受支持（例如，并非所有浏览器都支持 WebP）
+
+```html
+<web-widget src="video.js">
+  <fallback hidden>
+    <p>This browser does not support the video element.</p>
+  </fallback>
+</web-widget>
+```
+
 ## 插槽
 
 使用 `slot` 属性可以将元素在应用指定的位置渲染（渲染的位置由应用定义）：
@@ -200,28 +218,29 @@ WebWidget 辅助工具：
 <web-widget id="home" src="./index.widget.js" inactive></web-widget>
 <web-widget id="news" src="./news.widget.js" inactive></web-widget>
 <web-widget id="about" src="./about.widget.js" inactive></web-widget>
-<script type="module">
-  import '@web-sandbox.js/web-widget';
-  import { collection, history } from  '@web-sandbox.js/web-widget/dist/esm/extensions/web-widget-router';
+```
 
-  collection.add(
-    document.querySelector('#home'),
-    location => location.pathname === '/'
-  );
+```js
+import '@web-sandbox.js/web-widget';
+import { collection, history } from  '@web-sandbox.js/router';
 
-  collection.add(
-    document.querySelector('#news'),
-    location => location.pathname.startsWith('/news')
-  );
+collection.add(
+  document.querySelector('#home'),
+  location => location.pathname === '/'
+);
 
-  collection.add(
-    document.querySelector('#about'),
-    location => location.pathname.startsWith('/about')
-  );
+collection.add(
+  document.querySelector('#news'),
+  location => location.pathname.startsWith('/news')
+);
 
-  collection.change(location);
-  history.listen(() => collection.change(location));
-</script>
+collection.add(
+  document.querySelector('#about'),
+  location => location.pathname.startsWith('/about')
+);
+
+collection.change(location);
+history.listen(() => collection.change(location));
 ```
 
 ## WebWidget: HTML 模块化系统
@@ -236,41 +255,11 @@ WebWidget 辅助工具：
 <hello-world>
   <p slot="main">hello web-widget</p>
 </hello-world>
-
-<script type="module">
-  import '@web-sandbox.js/web-widget';
-  import '@web-sandbox.js/web-widget/dist/esm/extensions/web-widget-import';
-</script>
-```
-
-## Web Components: HTML 模块化系统
-
-```html
-<web-component.import as="slot-demo" from="./my-element.js"></web-component.import>
-
-<slot-demo>
-  <p slot="main">Hello Wrold</p>
-</slot-demo>
-
-<script type="module">
-  import '@web-sandbox.js/web-widget';
-  import '@web-sandbox.js/web-widget/dist/esm/extensions/web-widget-import';
-  import '@web-sandbox.js/web-widget/dist/esm/extensions/web-component-import';
-</script>
 ```
 
 ```js
-// my-element.js
-class MyElment extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-    this.shadowRoot = `
-      <main><slot name="main">hello wrold</slot></main>
-    `;
-  }
-}
-customElements.define('my-element', MyElment);
+import '@web-sandbox.js/web-widget';
+import '@web-sandbox.js/web-widget-import';
 ```
 
 ### 服务器渲染
@@ -302,8 +291,3 @@ WebWidget 可以发布到任何地方，例如企业的私有 CDN。如果你想
 ```html
 <web-widget src="https://cdn.jsdelivr.net/npm/tabs-widget@2.0.0"></web-widget>
 ```
-
-## 待讨论问题
-
-* 如何通过 CSS 来控制 WebWidget 的状态？
-* WebWidget 容器是否应该默认开启 ShadowDOM 或提供选项可配置？

@@ -1,4 +1,4 @@
-# [WIP] WebWidget 应用描述
+# [WIP] WebWidget 清单
 
 使用 pageckage.json 来描述应用，相关的字段：
 

@@ -1,0 +1,57 @@
+{
+  "name": "@web-sandbox.js/web-widget",
+  "version": "0.0.5",
+  "description": "web widget",
+  "source": "src/index.js",
+  "main": "dist/cjs/web-widget.js",
+  "module": "dist/esm/web-widget.js",
+  "unpkg": "dist/umd/web-widget.js",
+  "libraryName": "HTMLWebWidgetElement",
+  "scripts": {
+    "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
+    "examples": "cd examples && web-dev-server --node-resolve --watch",
+    "test:watch": "web-test-runner --watch",
+    "test": "web-test-runner --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-sandbox-js/web-widget.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "microfrontends",
+    "single",
+    "page",
+    "application",
+    "framework",
+    "react",
+    "angular",
+    "vue",
+    "router",
+    "microservices",
+    "frontend",
+    "Sandbox",
+    "Realm",
+    "Shadow DOM",
+    "Web Components"
+  ],
+  "author": "aui",
+  "bugs": {
+    "url": "https://github.com/web-sandbox-js/web-widget/issues"
+  },
+  "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
+  "engines": {
+    "node": ">=16",
+    "npm": ">=7"
+  },
+  "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@web-sandbox.js/rollup-config": "^0.0.5",
+    "@web/dev-server": "^0.1.25",
+    "@web/dev-server-rollup": "^0.3.11",
+    "@web/test-runner": "^0.13.20",
+    "rollup": "^2.50.5"
+  }
+}

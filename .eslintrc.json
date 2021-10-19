@@ -1,0 +1,65 @@
+{
+  "extends": ["airbnb-base", "prettier"],
+  "root": true,
+  "env": {
+    "amd": false,
+    "browser": false,
+    "es6": true,
+    "node": false
+  },
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module",
+    "allowImportExportEverywhere": true,
+    "requireConfigFile": false
+  },
+  "plugins": [
+    "prettier"
+  ],
+  "globals": {},
+  "rules": {
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
+    "prettier/prettier": "error",
+    "import/named": "error",
+    "no-eval": "off",
+    "import/extensions": "off",
+    "import/no-cycle": "off",
+    "prefer-destructuring": "off",
+    "no-param-reassign": "off",
+    "no-cond-assign": "off",
+    "func-names": "off",
+    "no-nested-ternary": "off",
+    "no-plusplus": "off",
+    "strict": "off",
+    "no-restricted-syntax": "off",
+    "import/no-mutable-exports": "off",
+    "guard-for-in": "off",
+    "import/prefer-default-export": "off",
+    "prefer-rest-params": "off",
+    "one-var": "off",
+    "prefer-spread": "off",
+    "no-lonely-if": "off",
+    "no-prototype-builtins": "error",
+    "no-continue": "off",
+    "no-shadow": "off",
+    "no-multi-assign": "off"
+  },
+  "overrides": [{
+    "files": ["packages/**/test/**/*.js", "packages/**/examples/**/*.js"],
+    "env": {
+      "amd": false,
+      "browser": true,
+      "es6": true,
+      "node": false,
+      "mocha": true
+    },
+    "globals": {
+      "System": true
+    },
+    "rules": {
+      "class-methods-use-this": "off",
+      "no-console": "off"
+    }
+  }]
+}
