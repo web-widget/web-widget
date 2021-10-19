@@ -1,4 +1,4 @@
-/* global window, Blob, URL */
+/* global window */
 import { SANDBOX } from '../applications/symbols.js';
 
 let index = 0;
@@ -31,6 +31,7 @@ function getModuleValue(module) {
 export async function moduleLoader(view) {
   const { src, text, sandboxed } = view;
   const defaultView = sandboxed ? view[SANDBOX].window : window;
+  const { document, Blob, URL } = defaultView;
   const cache = (defaultView[CACHE_NAME] =
     defaultView[CACHE_NAME] || new Map());
 
@@ -40,7 +41,7 @@ export async function moduleLoader(view) {
 
   const promise = new Promise((resolve, reject) => {
     const callbackName = `${CACHE_NAME}Temp${index++}`;
-    let script = defaultView.document.createElement('script');
+    let script = document.createElement('script');
 
     const code = src
       ? `window[${JSON.stringify(callbackName)}] = import(${JSON.stringify(
@@ -81,7 +82,7 @@ export async function moduleLoader(view) {
       clean();
     };
 
-    defaultView.document.head.appendChild(script);
+    document.head.appendChild(script);
   }).then(module => getModuleValue(module));
 
   if (src) {

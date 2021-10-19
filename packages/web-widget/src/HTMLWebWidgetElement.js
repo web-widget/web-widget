@@ -14,7 +14,6 @@ import { WebWidgetSandbox } from './WebWidgetSandbox.js';
 import * as status from './applications/status.js';
 import {
   CHILDREN_WIDGET,
-  LIFECYCLE_CALLBACK,
   LOADER,
   NAME,
   PORTALS,
@@ -440,47 +439,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
       } else if (fallback) {
         fallback.hidden = !isError;
       }
-    }
-  }
-
-  [LIFECYCLE_CALLBACK](type, params) {
-    switch (type) {
-      case 'firstConnected':
-        // 继承 sandboxed 与 csp
-        if (this[PARENT_WIDGET]()) {
-          const { sandboxed, csp } = this[PARENT_WIDGET]();
-          if (sandboxed) {
-            this.sandboxed = sandboxed;
-          }
-          if (csp) {
-            this.csp = csp;
-          }
-        }
-
-        if (this.loading === 'lazy') {
-          addLazyLoad(this);
-        } else {
-          tryAutoLoad(this);
-        }
-        break;
-      case 'attributeChanged':
-        if (params[0] === 'data') {
-          delete this[DATA];
-          break;
-        }
-        if (this.loading !== 'lazy') {
-          tryAutoLoad(this);
-        }
-        break;
-
-      case 'destroyed':
-        if (this.loading === 'lazy') {
-          removeLazyLoad(this);
-        }
-        tryAutoUnload(this);
-        break;
-
-      default:
     }
   }
 
