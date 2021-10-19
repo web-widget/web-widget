@@ -1,6 +1,6 @@
 {
   "name": "@web-sandbox.js/umd-loader",
-  "version": "0.0.4",
+  "version": "0.0.5-alpha.0",
   "description": "WebWidget umd loader",
   "source": "src/index.js",
   "main": "dist/cjs/umd-loader.js",
@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
   "devDependencies": {
-    "@web-sandbox.js/rollup-config": "^0.0.4",
-    "@web-sandbox.js/web-widget": "^0.0.4",
+    "@web-sandbox.js/rollup-config": "^0.0.5-alpha.0",
+    "@web-sandbox.js/web-widget": "^0.0.5-alpha.0",
     "@web/dev-server": "^0.1.17",
     "rollup": "^2.50.5"
   }

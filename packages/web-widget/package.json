@@ -1,6 +1,6 @@
 {
   "name": "@web-sandbox.js/web-widget",
-  "version": "0.0.4",
+  "version": "0.0.5-alpha.0",
   "description": "web widget",
   "source": "src/index.js",
   "main": "dist/cjs/web-widget.js",
@@ -44,7 +44,7 @@
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-sandbox.js/rollup-config": "^0.0.4",
+    "@web-sandbox.js/rollup-config": "^0.0.5-alpha.0",
     "@web/dev-server": "^0.1.17",
     "@web/dev-server-rollup": "^0.3.11",
     "@web/test-runner": "^0.13.15",
