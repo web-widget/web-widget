@@ -32,7 +32,7 @@ jobs:
 
       - name: Lint
         run:
-          eslint -v
+          npm run lint-test-v
           npm run lint
 
       - name: Test

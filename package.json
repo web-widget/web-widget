@@ -7,6 +7,7 @@
     "start": "lerna run --parallel start",
     "build": "lerna run build",
     "test": "lerna run test",
+    "lint-test-v": "eslint -v",
     "lint": "eslint packages/**/src packages/**/test packages/**/examples",
     "prettier": "prettier --write packages/**/*.js",
     "examples": "npm run examples:web-widget",
