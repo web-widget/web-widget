@@ -22,12 +22,9 @@
     "url": "https://github.com/web-sandbox-js/web-widget/issues"
   },
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
-  "dependencies": {
-    "@web-sandbox.js/web-widget": "^0.0.4"
-  },
   "devDependencies": {
     "@web-sandbox.js/rollup-config": "^0.0.4",
-    "@web-sandbox.js/web-widget": "^0.0.4-beta",
+    "@web-sandbox.js/web-widget": "^0.0.4",
     "@web/dev-server": "^0.1.17",
     "rollup": "^2.50.5"
   }

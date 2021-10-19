@@ -1,6 +1,7 @@
+/* eslint-disable */
 let t, e;
 (t = this),
-  (e = function(t) {
+  (e = function (t) {
     /**
      * @license
      * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -121,7 +122,8 @@ let t, e;
       },
       h = t => t.index !== -1,
       a = () => document.createComment(''),
-      c = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+      c =
+        /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
     function d(t, e) {
       const {
           element: { content: i },
@@ -162,10 +164,12 @@ let t, e;
         return -1;
       },
       f = new WeakMap(),
-      g = t => (...e) => {
-        const i = t(...e);
-        return f.set(i, !0), i;
-      },
+      g =
+        t =>
+        (...e) => {
+          const i = t(...e);
+          return f.set(i, !0), i;
+        },
       m = t => typeof t === 'function' && f.has(t),
       b = {},
       w = {};
@@ -713,7 +717,7 @@ let t, e;
         })(t);
         const l = s.content;
         i
-          ? (function(t, e, i = null) {
+          ? (function (t, e, i = null) {
               const {
                 element: { content: s },
                 parts: o
@@ -1431,7 +1435,7 @@ let t, e;
             localStorage.getItem('todos-lit-element') || '[]'
           );
           return (
-            t.forEach(function(t, e) {
+            t.forEach((t, e) => {
               t.id = e;
             }),
             (ut.uid = t.length),
@@ -1447,14 +1451,10 @@ let t, e;
           return t;
         },
         active(t) {
-          return t.filter(function(t) {
-            return !t.completed;
-          });
+          return t.filter(t => !t.completed);
         },
         completed(t) {
-          return t.filter(function(t) {
-            return t.completed;
-          });
+          return t.filter(t => t.completed);
         },
         pluralize(t) {
           return t === 1 ? 'item' : 'items';
@@ -2007,7 +2007,7 @@ let t, e;
       }
 
       set allDone(t) {
-        this.todos.forEach(function(e) {
+        this.todos.forEach(e => {
           e.completed = t;
         });
       }

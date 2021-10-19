@@ -11,7 +11,6 @@ const App = () => {
     </div>
   `;
   return template.content;
-}
-
+};
 
 export default App;

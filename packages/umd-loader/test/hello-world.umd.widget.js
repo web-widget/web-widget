@@ -1,5 +1,5 @@
 window.TEST_UMD_LIFECYCLE = 'load';
-var HelloWorld = () => ({
+window.HelloWorld = () => ({
   async bootstrap() {
     window.TEST_UMD_LIFECYCLE = 'bootstrap';
   },

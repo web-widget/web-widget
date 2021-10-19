@@ -1,12 +1,13 @@
 // You can write your own logic here to determine the actual url
-window.app1Url = 'http://localhost:3002'
+window.app1Url = 'http://localhost:3002';
 
 export default () => {
   let element, remoteElement, React;
   return {
     async bootstrap() {
       React = await import('react');
-      remoteElement =  await import('app2/App') 
+      // eslint-disable-next-line import/no-unresolved
+      remoteElement = await import('app2/App');
     },
 
     async mount({ container }) {

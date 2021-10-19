@@ -1,23 +1,23 @@
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const path = require("path");
+/* eslint-disable no-undef */
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
 module.exports = {
-  entry: "./src/index",
-  mode: "development",
+  entry: './src/index',
+  mode: 'development',
   devServer: {
-    static: path.join(__dirname, "dist"),
-    port: 3001,
+    static: path.join(__dirname, 'dist'),
+    port: 3001
   },
   output: {
-    publicPath: "auto",
+    publicPath: 'auto'
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./public/index.html",
-    }),
+      template: './public/index.html'
+    })
   ],
   optimization: {
-    minimize: false,
-  },
+    minimize: false
+  }
 };
-

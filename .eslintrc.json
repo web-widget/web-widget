@@ -46,7 +46,7 @@
     "no-multi-assign": "off"
   },
   "overrides": [{
-    "files": ["packages/**/test/**/*.js"],
+    "files": ["packages/**/test/**/*.js", "packages/**/examples/**/*.js"],
     "env": {
       "amd": false,
       "browser": true,
