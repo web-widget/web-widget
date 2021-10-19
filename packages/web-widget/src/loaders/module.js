@@ -1,6 +1,4 @@
 /* global window */
-import { SANDBOX } from '../applications/symbols.js';
-
 let index = 0;
 const CACHE_NAME = 'WebWidgetModuleCache';
 
@@ -29,8 +27,8 @@ function getModuleValue(module) {
 // }
 
 export async function moduleLoader(view) {
-  const { src, text, sandboxed } = view;
-  const defaultView = sandboxed ? view[SANDBOX].window : window;
+  const { src, text, sandboxed, sandbox } = view;
+  const defaultView = sandboxed ? sandbox.window : window;
   const { document, Blob, URL } = defaultView;
   const cache = (defaultView[CACHE_NAME] =
     defaultView[CACHE_NAME] || new Map());

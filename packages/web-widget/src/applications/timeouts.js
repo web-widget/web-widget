@@ -4,7 +4,6 @@ import {
   BOOTSTRAP,
   MOUNT,
   NAME,
-  PROPERTIES,
   TIMEOUTS,
   UNLOAD,
   UNMOUNT,
@@ -58,7 +57,7 @@ export function reasonableTime(view, lifecycle) {
     let finished = false;
     let errored = false;
 
-    view[lifecycle](view[PROPERTIES])
+    view[lifecycle](view.dependencies)
       .then(val => {
         finished = true;
         resolve(val);

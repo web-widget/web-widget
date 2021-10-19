@@ -14,12 +14,9 @@ import { WebWidgetSandbox } from './WebWidgetSandbox.js';
 import * as status from './applications/status.js';
 import {
   CHILDREN_WIDGET,
-  LOADER,
   NAME,
   PORTALS,
   PREFETCH,
-  PROPERTIES,
-  SANDBOX,
   SET_STATE
 } from './applications/symbols.js';
 
@@ -73,7 +70,7 @@ function getParentWebWidgetElement(view, constructor) {
 
 function getChildWebWidgetElements(view, constructor) {
   let shadowRoot;
-  const container = view[PROPERTIES].container;
+  const container = view.dependencies.container;
 
   if (container instanceof ShadowRoot) {
     shadowRoot = container;
@@ -292,14 +289,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this[NAME] =
         this.name ||
         (application ? application.name : this.name || this.localName);
-      this[PROPERTIES] = this.createDependencies();
-      this[SANDBOX] = this.createSandbox();
-      this[LOADER] = application
+      this.dependencies = this.createDependencies();
+      this.sandbox = this.createSandbox();
+      this.loader = application
         ? async () => application
         : this.createLoader.bind(this);
       this[INITIALIZATION] = true;
 
-      if (this.sandboxed && !this[SANDBOX].window) {
+      if (this.sandboxed && !this.sandbox.window) {
         throw new Error(`Sandbox mode is not implemented`);
       }
     }
@@ -326,7 +323,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       throw new Error(`Cannot update: Not mounted`);
     }
 
-    Object.assign(this[PROPERTIES], properties);
+    Object.assign(this.dependencies, properties);
 
     await toUpdatePromise(this);
   }
