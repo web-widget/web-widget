@@ -278,7 +278,7 @@ collection.change(location);
 history.listen(() => collection.change(location));
 ```
 
-## WebWidget: HTML 模块化系统
+### HTML 模块化导入
 
 ```html
 <web-widget.import as="hello-world" from="./slot.widget.js"></web-widget.import>
