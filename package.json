@@ -1,7 +1,6 @@
 {
   "name": "web-widget-libs",
   "private": true,
-  "version": "0.0.4-beta",
   "description": "web widget",
   "scripts": {
     "postinstall": "lerna bootstrap",
