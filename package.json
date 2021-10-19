@@ -10,6 +10,7 @@
     "test": "lerna run test",
     "lint": "eslint packages/**/src packages/**/test packages/**/examples",
     "prettier": "prettier --write packages/**/*.js",
+    "examples": "npm run examples:web-widget",
     "examples:router": "cd packages/router && npm run examples",
     "examples:system-loader": "cd packages/system-loader && npm run examples",
     "examples:umd-loader": "cd packages/umd-loader && npm run examples",
