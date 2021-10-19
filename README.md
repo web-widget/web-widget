@@ -203,6 +203,37 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 
 > 插槽是 Web Component 的标准特性。
 
+## 主题
+
+应用通过 `:host()` 选择器可以实现主题的定义，容器可以控制切换主题。例如使用 `class` 来切换主题：
+
+```html
+<web-widget class="you-theme" src="app.widget.js"></web-widget>
+```
+
+```js
+// app.widget.js
+export default () => ({
+  async mount({ container }) {
+    container.innerHTML = `
+      <style>
+        :host(.you-theme) h3 {
+          color: #FFF;
+          background: #000;
+        }
+      </style>
+      <h3>hello world</h3>
+    `;
+  },
+
+  async unmount({ container }) {
+    container.innerHTML = '';
+  }
+});
+```
+
+> 主题是 Web Component 的标准特性。
+
 ### SEO
 
 因为 WebWidget 是一个标准的 Web Component，因此它的 SEO 问题本质上是 JavaScript 和 Web Component 的 SEO 问题。社区中有两种实践方式：

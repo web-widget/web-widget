@@ -91,6 +91,36 @@ WebWidget 应用可以通过生命周期函数获的 `data` 参数获取到数�
 
 关于沙盒环境的限制可以参考 [WebSandbox.js](https://web-sandbox.org.js)。
 
+## 主题
+
+应用通过 `:host()` 选择器可以实现主题的定义，容器可以控制切换主题。例如使用 `class` 来切换主题：
+
+```html
+<web-widget class="you-theme" src="app.widget.js"></web-widget>
+```
+
+```js
+// app.widget.js
+export default () => ({
+  async mount({ container }) {
+    container.innerHTML = `
+      <style>
+        :host(.you-theme) h3 {
+          color: #FFF;
+          background: #000;
+        }
+      </style>
+      <h3>hello world</h3>
+    `;
+  },
+
+  async unmount({ container }) {
+    container.innerHTML = '';
+  }
+});
+```
+
+
 ## 接口
 
 * [HTMLWebWidgetElement](#HTMLWebWidgetElement)
@@ -494,4 +524,3 @@ web-widget:defined {
   import('@web-sandbox.js/web-widget');
 </script>
 ```
-
