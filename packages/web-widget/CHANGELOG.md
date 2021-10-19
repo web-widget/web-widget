@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.0.5 (2021-10-19)
+
+* 使用 lerna 管理项目
+
 ## 0.0.4-beta (2021-09-30)
 
 * `<web-widget>` 的 `type` 默认值更改为 `"module"`。[#24](https://github.com/web-sandbox-js/web-widget/issues/24)
