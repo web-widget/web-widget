@@ -1,6 +1,6 @@
 {
   "name": "@web-sandbox.js/system-loader",
-  "version": "0.0.5-alpha.0",
+  "version": "0.0.5",
   "description": "WebWidget system loader",
   "source": "src/index.js",
   "main": "dist/cjs/system-loader.js",
@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
   "devDependencies": {
-    "@web-sandbox.js/rollup-config": "^0.0.5-alpha.0",
-    "@web-sandbox.js/web-widget": "^0.0.5-alpha.0",
+    "@web-sandbox.js/rollup-config": "^0.0.5",
+    "@web-sandbox.js/web-widget": "^0.0.5",
     "@web/dev-server": "^0.1.17",
     "rollup": "^2.50.5",
     "systemjs": "^6.11.0"

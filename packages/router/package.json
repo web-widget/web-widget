@@ -1,6 +1,6 @@
 {
   "name": "@web-sandbox.js/router",
-  "version": "0.0.5-alpha.0",
+  "version": "0.0.5",
   "description": "web widget router",
   "source": "src/index.js",
   "main": "dist/commonjs/router.js",
@@ -25,8 +25,8 @@
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
   "devDependencies": {
     "@rollup/plugin-replace": "^3.0.0",
-    "@web-sandbox.js/rollup-config": "^0.0.5-alpha.0",
-    "@web-sandbox.js/web-widget": "^0.0.5-alpha.0",
+    "@web-sandbox.js/rollup-config": "^0.0.5",
+    "@web-sandbox.js/web-widget": "^0.0.5",
     "@web/dev-server": "^0.1.17",
     "@web/dev-server-rollup": "^0.3.11",
     "rollup": "^2.50.5"
