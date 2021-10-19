@@ -87,11 +87,13 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 
 详情见 [WebWidget 设计过程](docs/design.md)
 
-## 核心
+## 库
+
+### 核心
 
 * [@web-sandbox.js/web-widget](packages/web-widget) `<web-widget>` 元素
 
-## 插件
+### 插件
 
 * [@web-sandbox.js/router](packages/router) 专门用于驱动 WebWidget 的单页面应用的路由库
 * [@web-sandbox.js/web-widget-import](packages/web-widget-import) WebWidget 应用导入标签实现（`<web-widget.import>`）
