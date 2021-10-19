@@ -17,6 +17,8 @@ npm install @web-sandbox.js/router --save
 <web-widget name="vue-router" src="/vue-router.widget.js" inactive data-id="#367" data-vue="vue-router demo"></web-widget>
 ```
 
+为 WebWidget 容器添加 `inactive` 属性，让其不再受 DOM 生命周期控制，以便让交给路由控制它的挂载与卸载行为。
+
 ```js
 import '@web-sandbox.js/web-widget';
 import { collection, navigate, history } from  '@web-sandbox.js/router';
@@ -165,8 +167,8 @@ navigate(target);
 
 ### 应用的二级路由如何处理？
 
-应当交给应用自己处理，例如 vue-router 等，WebWidget router 只负责管理一级路由。
+WebWidget router 只负责管理一级路由，二级路由应当有应用自己管理，例如使用 vue-router 等。
 
 ### 为什么不提供配置的形式管理路由？
 
-WebWidget router 的核心职责是提供关键功能，这样使得它能够具备更好的可扩展性，你可以基于这些关键功能来实现更多的功能。
+的确使用配置的形式有助于提高开发体验，但 WebWidget router 的核心职责是提供关键功能，这样使得它能够具备更好的可扩展性，因此你可以基于这些关键功能来实现更多的功能。
