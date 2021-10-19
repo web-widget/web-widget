@@ -11,6 +11,7 @@ function getModuleValue(module) {
 async function umdLoader(view) {
   const { src, text, sandboxed, name } = view;
   const defaultView = sandboxed ? view.sandbox.window : window;
+  const { document } = defaultView;
   const cache = (defaultView[CACHE_NAME] =
     defaultView[CACHE_NAME] || new Map());
 
@@ -25,7 +26,7 @@ async function umdLoader(view) {
   const module = (
     src
       ? new Promise((resolve, reject) => {
-          let script = defaultView.document.createElement('script');
+          let script = document.createElement('script');
           script.src = src;
 
           script.onload = () => {
@@ -37,7 +38,7 @@ async function umdLoader(view) {
             reject(error);
           };
 
-          defaultView.document.head.appendChild(script);
+          document.head.appendChild(script);
           script = null;
         })
       : Promise.resolve(

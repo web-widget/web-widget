@@ -1,12 +1,11 @@
 {
-  "name": "@web-sandbox.js/system-loader",
+  "name": "@web-sandbox.js/sandbox",
   "version": "0.0.5",
-  "description": "WebWidget system loader",
+  "description": "WebWidget sandbox",
   "source": "src/index.js",
-  "main": "dist/cjs/system-loader.js",
-  "module": "dist/esm/system-loader.js",
-  "unpkg": "dist/umd/system-loader.js",
-  "libraryName": "WebWidgetSystemLoader",
+  "main": "dist/cjs/sandbox.js",
+  "module": "dist/esm/sandbox.js",
+  "unpkg": "dist/umd/sandbox.js",
   "scripts": {
     "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
     "examples": "cd examples && web-dev-server --node-resolve --watch"
@@ -26,11 +25,14 @@
     "url": "https://github.com/web-sandbox-js/web-widget/issues"
   },
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
+  "dependencies": {
+    "@web-sandbox.js/web-sandbox": "^0.0.1-alpha6"
+  },
   "devDependencies": {
     "@web-sandbox.js/rollup-config": "^0.0.5",
     "@web-sandbox.js/web-widget": "^0.0.5",
+    "@web-sandbox.js/system-loader": "^0.0.5",
     "@web/dev-server": "^0.1.17",
-    "rollup": "^2.50.5",
-    "systemjs": "^6.11.0"
+    "rollup": "^2.50.5"
   }
 }

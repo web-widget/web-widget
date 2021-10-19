@@ -114,6 +114,9 @@ function tryAutoUnload(view) {
   queueMicrotask(() => {
     if (isAutoUnload(view)) {
       view.unload().catch(asyncThrowError);
+      if (view.sandboxed) {
+        view.sandbox.unload();
+      }
     }
   });
 }
@@ -290,7 +293,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         this.name ||
         (application ? application.name : this.name || this.localName);
       this.dependencies = this.createDependencies();
-      this.sandbox = this.createSandbox();
+      this.sandbox = this.sandboxed ? this.createSandbox() : null;
       this.loader = application
         ? async () => application
         : this.createLoader.bind(this);

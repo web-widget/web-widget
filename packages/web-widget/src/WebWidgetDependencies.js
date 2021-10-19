@@ -37,10 +37,10 @@ export class WebWidgetDependencies {
 
   get container() {
     const view = this.ownerElement;
-    const { sandboxed, snandbox } = view;
+    const { sandboxed, sandbox } = view;
 
     if (sandboxed) {
-      const sandboxDoc = snandbox.window.document;
+      const sandboxDoc = sandbox.window.document;
       const style = sandboxDoc.createElement('style');
       style.textContent = `body{margin:0}`;
       sandboxDoc.head.appendChild(style);
