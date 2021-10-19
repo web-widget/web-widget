@@ -13,7 +13,7 @@
   <web-widget src="./hello-world.widget.js" noshadow></web-widget>
 
   <script type="module">
-    import '@web-sandbox.js/web-widget';
+    import '../../src/index.js';
 
     const containerDescriptor = Reflect.getOwnPropertyDescriptor(WebWidgetDependencies.prototype, 'container');
     const containerGetter = containerDescriptor.get;

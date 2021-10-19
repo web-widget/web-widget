@@ -4,7 +4,7 @@
   "version": "0.0.4-beta",
   "description": "web widget",
   "scripts": {
-    "bootstrap": "lerna bootstrap",
+    "postinstall": "lerna bootstrap",
     "start": "lerna run --parallel start",
     "build": "lerna run build",
     "test": "lerna run test",
@@ -14,15 +14,9 @@
     "examples:web-widget": "cd packages/web-widget && npm run examples",
     "examples:web-widget-import": "cd packages/web-widget-import && npm run examples"
   },
-  "workspaces": {
-    "packages": [
-      "@web-sandbox.js/router",
-      "@web-sandbox.js/system-loader",
-      "@web-sandbox.js/umd-loader",
-      "@web-sandbox.js/web-widget",
-      "@web-sandbox.js/web-widget-import"
-    ]
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/web-sandbox-js/web-widget.git"
@@ -36,7 +30,7 @@
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
     "cross-env": "^7.0.2",
-    "eslint": "^6.4.0",
+    "eslint": "^8.0.1",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.3.0",
     "eslint-plugin-import": "^2.18.2",

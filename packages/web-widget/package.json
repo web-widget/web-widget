@@ -11,7 +11,6 @@
     "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
     "examples": "cd examples && web-dev-server --node-resolve --watch",
     "lint": "eslint ./src ./test ./examples",
-    "prepare": "npm run build",
     "prettier": "prettier --config ./.prettierrc --write ./src/**/**/*.js ./test/**/**/*.js ./examples/**/**/*.js",
     "test:watch": "web-test-runner --watch",
     "test": "web-test-runner --coverage"
@@ -49,8 +48,7 @@
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web/dev-server": "^0.1.17",
     "@web-sandbox.js/rollup-config": "^0.0.4-beta",
-    "@web-sandbox.js/web-widget": "^0.0.4-beta",
-    "@web/dev-server-rollup": "^0.3.5",
+    "@web/dev-server-rollup": "^0.3.11",
     "@web/test-runner": "^0.13.15",
     "rollup": "^2.50.5"
   }

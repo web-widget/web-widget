@@ -9,8 +9,7 @@
   "libraryName": "WebWidgetRouter",
   "scripts": {
     "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
-    "examples": "cd examples && web-dev-server --node-resolve --watch",
-    "prepare": "npm run build"
+    "examples": "cd examples && web-dev-server --node-resolve --watch"
   },
   "repository": {
     "type": "git",
@@ -30,7 +29,6 @@
     "@web/dev-server-rollup": "^0.3.11",
     "@web-sandbox.js/rollup-config": "^0.0.4-beta",
     "@web-sandbox.js/web-widget": "^0.0.4-beta",
-    "@web-sandbox.js/router": "^0.0.4-beta",
     "@web/dev-server": "^0.1.17"
   },
   "dependencies": {
