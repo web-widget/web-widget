@@ -99,7 +99,7 @@ const context = createPortal(webWidgetElement, destination)
 
 #### 返回值
 
-一个 [`context`](#context) 对象。
+一个 [`context`](#context) 对象（实验性特性）。
 
 示例：
 
@@ -117,8 +117,6 @@ export async function mount({ createPortal }) {
 ```
 
 > 目的地必须先定义才能被使用，例如通过 [HTMLWebWidgetElement.portalDestinations](application.md#HTMLWebWidgetElement.portalDestinations) 来定义目的地。
->
-> 这是试验性特性。
 
 ### name
 
@@ -130,7 +128,7 @@ export async function mount({ createPortal }) {
 
 ### sandboxed
 
-应用是否处于 WebSandbox DOM 沙箱中。
+应用是否处于 WebSandbox DOM 沙箱中（实验性特性）。
 
 ## 挂载子应用
 
@@ -157,7 +155,7 @@ export async function mount({ container }) {
 
 ## 应用外打开子应用
 
-通过 `createPortal()` 可以创建一个传送门来传输应用到指定位置。
+通过 `createPortal()` 可以创建一个传送门来传输应用到指定位置（实验性特性）。
 
 在主文档注册一个名为 `"dialog"` 的传送门：
 

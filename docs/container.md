@@ -206,13 +206,13 @@ widget.mount();
 
 ### sandboxed
 
-沙盒化应用。启用后 WebWidget 应用将使用虚拟化环境来运行 JS。虚拟化环境来自 [WebSandbox](https://web-sandbox.js.org)。
+沙盒化应用。启用后 WebWidget 应用将使用虚拟化环境来运行 JS（实验性特性）。虚拟化环境来自 [WebSandbox](https://web-sandbox.js.org)。
 
 > 由于 TC39 Realms API 发生了重大变更，因此此特性暂时无法使用。
 
 ### csp
 
-内容安全策略。只有开启 `sandboxed` 属性后才有效。
+内容安全策略。只有开启 `sandboxed` 属性后才有效（实验性特性）。
 
 ### loading
 
@@ -261,13 +261,13 @@ widget.mount();
 
 ### createDependencies()
 
-应用的依赖注入勾子函数。它默认行为是执行 `return new WebWidgetDependencies(this)` 覆盖它可以自定义注入到应用的 API。
+应用的依赖注入勾子函数（实验性特性）。它默认行为是执行 `return new WebWidgetDependencies(this)` 覆盖它可以自定义注入到应用的 API。
 
 详情见：[WebWidgetDependencies](#WebWidgetDependencies)
 
 ### createLoader()
 
-应用的加载器勾子函数。它默认行为是调用 `import()` 加载 ES module，覆盖它可以加载其他格式的模块。
+应用的加载器勾子函数（实验性特性）。它默认行为是调用 `import()` 加载 ES module，覆盖它可以加载其他格式的模块。
 
 例如支持 system 模块格式：
 
@@ -356,7 +356,7 @@ widget.update(properties);
 
 ### HTMLWebWidgetElement.portalDestinations
 
-全局传送门注册表。这是一个静态属性。
+全局传送门注册表（实验性特性）。这是一个静态属性。
 
 它有两个方法：
 
@@ -440,7 +440,7 @@ export default () => ({
 
 ### context
 
-应用容器的上下文 API（只读）。包含如下三个 API：
+应用容器的上下文 API（只读）（实验性特性）。包含如下三个 API：
 
 * [`mount()`](#mount)
 * [`update()`](#update)
