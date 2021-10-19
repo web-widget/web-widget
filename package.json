@@ -18,7 +18,8 @@
     "examples:web-widget-import": "cd packages/web-widget-import && npm run examples"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "scripts/*"
   ],
   "repository": {
     "type": "git",
