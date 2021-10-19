@@ -174,6 +174,22 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 </web-widget>
 ```
 
+### 后备
+
+`fallback` 元素将充当 WebWidget 容器的后备占位符号。用途：
+
+* 浏览器不支持某个元素
+* 内容未能加载（例如，推文被删除）
+* 图片类型不受支持（例如，并非所有浏览器都支持 WebP）
+
+```html
+<web-widget src="video.js">
+  <fallback hidden>
+    <p>This browser does not support the video element.</p>
+  </fallback>
+</web-widget>
+```
+
 ## 插槽
 
 使用 `slot` 属性可以将元素在应用指定的位置渲染（渲染的位置由应用定义）：
@@ -202,28 +218,29 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 <web-widget id="home" src="./index.widget.js" inactive></web-widget>
 <web-widget id="news" src="./news.widget.js" inactive></web-widget>
 <web-widget id="about" src="./about.widget.js" inactive></web-widget>
-<script type="module">
-  import '@web-sandbox.js/web-widget';
-  import { collection, history } from  '@web-sandbox.js/router';
+```
 
-  collection.add(
-    document.querySelector('#home'),
-    location => location.pathname === '/'
-  );
+```js
+import '@web-sandbox.js/web-widget';
+import { collection, history } from  '@web-sandbox.js/router';
 
-  collection.add(
-    document.querySelector('#news'),
-    location => location.pathname.startsWith('/news')
-  );
+collection.add(
+  document.querySelector('#home'),
+  location => location.pathname === '/'
+);
 
-  collection.add(
-    document.querySelector('#about'),
-    location => location.pathname.startsWith('/about')
-  );
+collection.add(
+  document.querySelector('#news'),
+  location => location.pathname.startsWith('/news')
+);
 
-  collection.change(location);
-  history.listen(() => collection.change(location));
-</script>
+collection.add(
+  document.querySelector('#about'),
+  location => location.pathname.startsWith('/about')
+);
+
+collection.change(location);
+history.listen(() => collection.change(location));
 ```
 
 ## WebWidget: HTML 模块化系统
@@ -238,11 +255,11 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 <hello-world>
   <p slot="main">hello web-widget</p>
 </hello-world>
+```
 
-<script type="module">
-  import '@web-sandbox.js/web-widget';
-  import '@web-sandbox.js/web-widget-import';
-</script>
+```js
+import '@web-sandbox.js/web-widget';
+import '@web-sandbox.js/web-widget-import';
 ```
 
 ### 服务器渲染
