@@ -75,8 +75,8 @@ export function createApplication(callback) {
         };
       }
     },
-    context => {
-      return callback({
+    context =>
+      callback({
         ...context,
         getLifecycleHistory() {
           return lifecycleHistory;
@@ -84,7 +84,6 @@ export function createApplication(callback) {
         getProperties() {
           return properties;
         }
-      });
-    }
+      })
   );
 }

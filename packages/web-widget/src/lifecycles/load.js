@@ -32,23 +32,24 @@ function flattenFnArray(view, main, lifecycle) {
     fns = [() => Promise.resolve()];
   }
 
-  return function (props) {
-    return fns.reduce((resultPromise, fn, index) => {
-      return resultPromise.then(() => {
-        const thisPromise = fn(props);
-        return smellsLikeAPromise(thisPromise)
-          ? thisPromise
-          : Promise.reject(
-              formatErrorMessage(
-                view,
-                new Error(
-                  `The lifecycle function at array index ${index} did not return a promise`
+  return props =>
+    fns.reduce(
+      (resultPromise, fn, index) =>
+        resultPromise.then(() => {
+          const thisPromise = fn(props);
+          return smellsLikeAPromise(thisPromise)
+            ? thisPromise
+            : Promise.reject(
+                formatErrorMessage(
+                  view,
+                  new Error(
+                    `The lifecycle function at array index ${index} did not return a promise`
+                  )
                 )
-              )
-            );
-      });
-    }, Promise.resolve());
-  };
+              );
+        }),
+      Promise.resolve()
+    );
 }
 
 export async function toLoadPromise(view) {

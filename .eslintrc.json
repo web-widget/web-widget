@@ -7,11 +7,12 @@
     "es6": true,
     "node": false
   },
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
     "ecmaVersion": 2018,
     "sourceType": "module",
-    "allowImportExportEverywhere": true
+    "allowImportExportEverywhere": true,
+    "requireConfigFile": false
   },
   "plugins": [
     "prettier"
@@ -43,5 +44,22 @@
     "no-continue": "off",
     "no-shadow": "off",
     "no-multi-assign": "off"
-  }
+  },
+  "overrides": [{
+    "files": ["packages/**/test/**/*.js"],
+    "env": {
+      "amd": false,
+      "browser": true,
+      "es6": true,
+      "node": false,
+      "mocha": true
+    },
+    "globals": {
+      "System": true
+    },
+    "rules": {
+      "class-methods-use-this": "off",
+      "no-console": "off"
+    }
+  }]
 }

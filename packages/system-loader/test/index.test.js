@@ -1,6 +1,6 @@
 import 'systemjs';
-import '../../src/index.js';
-import '../../extensions/WebWidgerSystemLoader.js';
+import '@web-sandbox.js/web-widget';
+import '../src/index.js';
 
 const get = url =>
   fetch(url).then(res => {
@@ -15,7 +15,7 @@ describe('Load module', () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
     widget.type = 'system';
-    widget.src = '/test/widgets/hello-world.system.widget.js';
+    widget.src = '/test/hello-world.system.widget.js';
     document.body.appendChild(widget);
 
     window.TEST_SYSTEM_LIFECYCLE = null;
@@ -30,7 +30,7 @@ describe('Load module', () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
     widget.type = 'system';
-    widget.text = await get('/test/widgets/hello-world.system.widget.js');
+    widget.text = await get('/test/hello-world.system.widget.js');
     document.body.appendChild(widget);
 
     window.TEST_SYSTEM_LIFECYCLE = null;

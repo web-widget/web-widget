@@ -27,7 +27,7 @@ function shouldBeActive(widget, collection, props) {
 }
 
 function filterActive(active, collection, props) {
-  return [...collection].filter(function (widget) {
+  return [...collection].filter(widget => {
     const value = shouldBeActive(widget, collection, props);
     return active ? value : !value;
   });

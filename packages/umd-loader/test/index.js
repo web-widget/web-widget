@@ -1,5 +1,5 @@
-import '../../src/index.js';
-import '../../extensions/WebWidgerUmdLoader.js';
+import '@web-sandbox.js/web-widget';
+import '../src/index.js';
 
 const get = url =>
   fetch(url).then(res => {
@@ -15,7 +15,7 @@ describe('Load module', () => {
     widget.inactive = true;
     widget.name = 'HelloWorld';
     widget.type = 'umd';
-    widget.src = '/test/widgets/hello-world.umd.widget.js';
+    widget.src = '/test/hello-world.umd.widget.js';
     document.body.appendChild(widget);
 
     window.TEST_UMD_LIFECYCLE = null;
@@ -31,7 +31,7 @@ describe('Load module', () => {
     widget.inactive = true;
     widget.name = 'HelloWorld';
     widget.type = 'umd';
-    widget.text = await get('/test/widgets/hello-world.umd.widget.js');
+    widget.text = await get('/test/hello-world.umd.widget.js');
     document.body.appendChild(widget);
 
     window.TEST_UMD_LIFECYCLE = null;

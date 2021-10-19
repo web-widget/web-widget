@@ -39,6 +39,9 @@ package.json 示例：
   "scripts": {
     "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
   },
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@web-sandbox.js/rollup-config": "^0.0.4",
     "rollup": "^2.50.5"

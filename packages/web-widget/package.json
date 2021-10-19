@@ -10,8 +10,6 @@
   "scripts": {
     "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
     "examples": "cd examples && web-dev-server --node-resolve --watch",
-    "lint": "eslint ./src ./test ./examples",
-    "prettier": "prettier --config ./.prettierrc --write ./src/**/**/*.js ./test/**/**/*.js ./examples/**/**/*.js",
     "test:watch": "web-test-runner --watch",
     "test": "web-test-runner --coverage"
   },

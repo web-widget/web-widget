@@ -1,2 +1,3 @@
 dist
-examples/module-federation
+node_modules
+examples
