@@ -38,7 +38,7 @@ WebWidget 是一种用于网页的小挂件的技术体系。
 * WebWidget 和传统的命令式的 UI Library 不同，它提供的不是接口，而是立即可用的服务，因此应用事件机制、应用的对外接口并非 WebWidget 的目标。如果一个组件需要频繁的和外部交互那么这种情况更适合使用传统 npm 包进行共享，虽然如此，WebWidget 需要提供接口让开发者在其基础上拓展插件所要求的专属 API 或者事件机制
 * WebWidget 目的不是取代 `<iframe>` 标签或者 Web Component，它们有自己的核心价值
 
-## 应用场景
+## 应用场景举例
 
 * 用于可视化编辑器中的物料系统
 * 微前端工程架构
@@ -105,7 +105,7 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 * [@web-sandbox.js/umd-loader](packages/umd-loader) UMD 模块格式支持
 * [@web-sandbox.js/system-loader](packages/system-loader) System 模块格式支持
 
-## 示范
+## 使用示范
 
 本章节非规范内容，仅用于辅助说明 WebWidget 的可扩展性。
 

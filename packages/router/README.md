@@ -45,11 +45,11 @@ collection.add(
 );
 
 function reroute() {
-  // 改变应用集合状态
+  // 通知应用集合进行状态变更
   collection.change(location);
 }
 
-// 监听历史变更
+// 监听路由变更
 history.listen(reroute);
 reroute();
 
