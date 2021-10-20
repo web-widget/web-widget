@@ -1,6 +1,6 @@
 {
   "name": "@web-sandbox.js/sandbox",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "WebWidget sandbox",
   "source": "src/index.js",
   "main": "dist/cjs/sandbox.js",
@@ -30,10 +30,10 @@
     "@web-sandbox.js/web-sandbox": "^0.0.1-alpha7"
   },
   "devDependencies": {
-    "@web-sandbox.js/rollup-config": "^0.0.6",
-    "@web-sandbox.js/system-loader": "^0.0.6",
-    "@web-sandbox.js/umd-loader": "^0.0.6",
-    "@web-sandbox.js/web-widget": "^0.0.6",
+    "@web-sandbox.js/rollup-config": "^0.0.7",
+    "@web-sandbox.js/system-loader": "^0.0.7",
+    "@web-sandbox.js/umd-loader": "^0.0.7",
+    "@web-sandbox.js/web-widget": "^0.0.7",
     "@web/dev-server": "^0.1.17",
     "rollup": "^2.50.5"
   }
