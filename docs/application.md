@@ -26,9 +26,11 @@ export async function unload(properties) {}
 
 ### 构建打包
 
-入口文件首选的格式为 ES Module，为了有更好的兼容性，同时还应当提供一份 UMD 版本。
+入口文件首选的格式为 ES Module，为了有更好的兼容性，同时还应当提供一份 system 格式版本。
 
->  `.widget.js` 后缀名是一个约定而非规范内容，它的目的是让开发工具能够更好识别 WebWidget 应用。
+> * `.widget.js` 后缀名是一个约定而非规范内容，它的目的是让开发工具能够更好识别 WebWidget 应用
+> * 受沙盒的实现影响，ES Module 格式在沙盒下暂时无法工作，因此推荐使用 system 作为沙盒模式下的模块方案
+
 
 ## 应用生命周期
 
