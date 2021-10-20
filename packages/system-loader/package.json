@@ -9,6 +9,7 @@
   "libraryName": "WebWidgetSystemLoader",
   "scripts": {
     "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
+    "build:watch": "rollup --config node:@web-sandbox.js/rollup-config --watch",
     "examples": "cd examples && web-dev-server --node-resolve --watch"
   },
   "publishConfig": {

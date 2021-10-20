@@ -29,7 +29,7 @@ function getModuleValue(module) {
 export async function moduleLoader(view) {
   const { src, text, sandboxed, sandbox } = view;
   const defaultView = sandboxed ? sandbox.window : window;
-  const { document, Blob, URL } = defaultView;
+  const { document, Blob, URL, Error } = defaultView;
   const cache = (defaultView[CACHE_NAME] =
     defaultView[CACHE_NAME] || new Map());
 
@@ -71,7 +71,16 @@ export async function moduleLoader(view) {
     script.src = url;
 
     script.onload = () => {
-      defaultView[callbackName].then(module => resolve(module), reject);
+      if (defaultView[callbackName]) {
+        defaultView[callbackName].then(module => resolve(module), reject);
+      } else {
+        reject(
+          new Error(
+            sandboxed ? `The sandbox does not support ES module` : `Load error`
+          )
+        );
+      }
+
       clean();
     };
 

@@ -27,6 +27,7 @@
       constructor(ownerElement) {
         super(ownerElement);
         const iframe = document.createElement('iframe');
+        iframe.sandbox = 'allow-same-origin allow-scripts';
         ownerElement.appendChild(iframe);
         this.iframe = iframe;
       }

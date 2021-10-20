@@ -204,7 +204,21 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 </web-widget>
 ```
 
-> 插槽是 Web Component 的标准特性。
+```js
+// app.widget.js
+export default () => ({
+  async mount({ container }) {
+    container.innerHTML = `
+      <h3><slot name="title"></slot></h3>
+      <div><slot name="content"></slot></div>
+    `;
+  },
+
+  async unmount({ container }) {
+    container.innerHTML = '';
+  }
+});
+```
 
 ### 主题
 
@@ -235,7 +249,9 @@ export default () => ({
 });
 ```
 
-> 主题是 Web Component 的标准特性。
+### 多语言
+
+> 需要完善
 
 ### SEO
 
@@ -298,7 +314,7 @@ import '@web-sandbox.js/web-widget-import';
 
 ### 服务器渲染
 
-> 文档待补充。
+> 需要完善
 
 ### 发布 WebWidget 应用
 
