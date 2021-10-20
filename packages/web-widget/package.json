@@ -1,6 +1,6 @@
 {
   "name": "@web-sandbox.js/web-widget",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "web widget",
   "source": "src/index.js",
   "main": "dist/cjs/web-widget.js",
@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-sandbox.js/rollup-config": "^0.0.5",
+    "@web-sandbox.js/rollup-config": "^0.0.6",
     "@web/dev-server": "^0.1.25",
     "@web/dev-server-rollup": "^0.3.11",
     "@web/test-runner": "^0.13.20",

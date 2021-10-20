@@ -1,6 +1,6 @@
 {
   "name": "@web-sandbox.js/web-widget-import",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "<web-widget.import> element",
   "source": "src/index.js",
   "main": "dist/cjs/web-widget-import.js",
@@ -27,8 +27,8 @@
   },
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
   "devDependencies": {
-    "@web-sandbox.js/rollup-config": "^0.0.5",
-    "@web-sandbox.js/web-widget": "^0.0.5",
+    "@web-sandbox.js/rollup-config": "^0.0.6",
+    "@web-sandbox.js/web-widget": "^0.0.6",
     "@web/dev-server": "^0.1.17",
     "rollup": "^2.50.5"
   }

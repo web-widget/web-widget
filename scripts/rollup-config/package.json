@@ -1,7 +1,7 @@
 {
   "name": "@web-sandbox.js/rollup-config",
   "private": true,
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Rollup config",
   "main": "src/index.js",
   "type": "module",
