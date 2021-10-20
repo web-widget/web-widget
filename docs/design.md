@@ -136,9 +136,9 @@ export async function mount({ container, WebWidget }) {
 })
 ```
 
-## 尝试 4：基于 Web Components 抽象
+## 尝试 4：基于 Web components 抽象
 
-`WebWidget` 接口提供了对应用生命周期的管理抽象，但它缺乏对视图的抽象，例如位置、尺寸等，而后者对可视化网页编辑器而言非常重要，因此我们尝试最重要的设计改进措施：采用  Web Components。
+`WebWidget` 接口提供了对应用生命周期的管理抽象，但它缺乏对视图的抽象，例如位置、尺寸等，而后者对可视化网页编辑器而言非常重要，因此我们尝试最重要的设计改进措施：采用  Web components。
 
 无论是主文档还是应用、子应用内，均可以使用 HTML 标签进行声明：
 
@@ -156,7 +156,7 @@ widget.csp = `script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net`;
 document.body.appendChild(widget);
 ```
 
-我们在 Web Components 的到的新能力：
+我们在 Web components 的到的新能力：
 
 * `<web-widget>` 标签可以被其他前端框架直接使用
 * DOM 的插入、删除能够自动触发 ``<web-widget>` ` 对应的生命周期
@@ -258,7 +258,7 @@ export async function mount({ container, createPortal }) {
 
 ## 可扩展性
 
-使用 Web Components 与 实现一个自定义元素只需要将使用到 `class` 语句并且注册，类似：
+使用 Web components 与 实现一个自定义元素只需要将使用到 `class` 语句并且注册，类似：
 
 ```js
 class HTMLWebWidgetElement extends HTMLElement {
@@ -328,13 +328,13 @@ customElements.define('web-widget', HTMLWebWidgetElement);
 
 基于安全的考虑，通过 `<web-widget.import>` 载入的组件被设计为不允许重定义配置，例如 `sandboxed`、`csp`、`src` 等属性。
 
-## Web Components HTML 模块化导入
+## Web components HTML 模块化导入
 
 ```html
 <web-component.import as=tagName src=webComponentsUrl></web-component.import>
 ```
 
-它拥有和 `<web-widget.import>` 一样的属性，不同的是它只支持标准的 Web Components 模块格式。Web Components 模块无需打包成 UMD 规范，也无需遵循 WebWidget 的生命周期定义，只需要按照 Web Components 的要求定义单文件组件。例如：
+它拥有和 `<web-widget.import>` 一样的属性，不同的是它只支持标准的 Web components 模块格式。Web components 模块无需打包成 UMD 规范，也无需遵循 WebWidget 的生命周期定义，只需要按照 Web components 的要求定义单文件组件。例如：
 
 ```js
 // my-element.js
@@ -414,7 +414,7 @@ customElements.define('my-element', MyElment);
 * 易于进行 SEO 优化
 * 易于进行性能优化，例如自动实施懒加载与优先加载
 * 可被组合，被扩展形成新的解决方案。例如通过配合路由库创建企业级业务微前端架构
-* 得到一个接近理想的 Web Components 模块导入方案
+* 得到一个接近理想的 Web components 模块导入方案
 
 > TODO
 >

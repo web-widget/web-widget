@@ -73,9 +73,9 @@ WebSandbox 拥有完整的 DOM 树结构，这些使用 ShadowRoot 隔离。
 
 拥有专属的本地存储空间，主文档或者父 WebSandbox 可以对它进行管理。
 
-## Web Components
+## Web components
 
-拥有完整的 Web Components 虚拟化实现，WebSandbox 内部注册的自定义元素不会影响主文档。
+拥有完整的 Web components 虚拟化实现，WebSandbox 内部注册的自定义元素不会影响主文档。
 
 ## Viewport
 
