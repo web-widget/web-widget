@@ -11,10 +11,10 @@ npm install @web-sandbox.js/router --save
 ## 使用
 
 ```html
-<web-widget name="home" src="/index.widget.js" inactive data-id="#43243242"></web-widget>
-<web-widget name="news" src="/news.widget.js" inactive data-id="#ttrt"></web-widget>
-<web-widget name="about" src="/about.widget.js" inactive data-id="#367" data-about="一个演示"></web-widget>
-<web-widget name="vue-router" src="/vue-router.widget.js" inactive data-id="#367" data-vue="vue-router demo"></web-widget>
+<web-widget name="home" src="/index.widget.js" inactive></web-widget>
+<web-widget name="news" src="/news.widget.js" inactive></web-widget>
+<web-widget name="about" src="/about.widget.js" inactive></web-widget>
+<web-widget name="vue-router" src="/vue-router.widget.js" inactive></web-widget>
 ```
 
 为 WebWidget 容器添加 `inactive` 属性，让其不再受 DOM 生命周期控制，以便让交给路由控制它的挂载与卸载行为。
@@ -23,6 +23,7 @@ npm install @web-sandbox.js/router --save
 import '@web-sandbox.js/web-widget';
 import { collection, navigate, history } from  '@web-sandbox.js/router';
 
+// 注册应用
 collection.add(
   document.querySelector('[name=home]'),
   location => location.pathname === '/'
@@ -44,12 +45,15 @@ collection.add(
 );
 
 function reroute() {
+  // 改变应用集合状态
   collection.change(location);
 }
 
+// 监听历史变更
 history.listen(reroute);
 reroute();
 
+// 提供全局导航 API（屏蔽了 hash 与 history 模式差异）
 window.navigate = navigate;
 ```
 
