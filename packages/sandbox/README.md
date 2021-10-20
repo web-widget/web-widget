@@ -111,4 +111,4 @@ npm run examples
 
 ## 兼容性披露
 
-> WebSandbox 基于 Realms Stage 2 规范实现，前一段时间 Realms 进入了 Stage 3，它有了非常大的 API 变更，这使得 WebSandbox 需要重新进行适配，进而影响 WebWidget 的沙盒。
+WebSandbox 基于 Realms Stage 2 规范实现，前一段时间 Realms 进入了 Stage 3，它有了非常大的 API 变更，这使得 WebSandbox 需要重新进行适配，进而影响 WebWidget 的沙盒。
