@@ -46,10 +46,6 @@
     "url": "https://github.com/web-sandbox-js/web-widget/issues"
   },
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
-  "engines": {
-    "node": ">=16",
-    "npm": ">=7"
-  },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web-sandbox.js/rollup-config": "^0.0.6",

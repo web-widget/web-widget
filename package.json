@@ -23,6 +23,10 @@
     "packages/*",
     "scripts/*"
   ],
+  "engines": {
+    "node": ">=16",
+    "npm": ">=7"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/web-sandbox-js/web-widget.git"
