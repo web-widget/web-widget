@@ -26,19 +26,19 @@ WebWidget 是一种用于网页的小挂件的技术体系。
 
 ### 实现目标的参考
 
-### single-spa
+#### single-spa
 
 [single-spa](https://single-spa.js.org/) 定义的生命周期格式让 Web 应用跨技术栈、标准化接口提供很好的实践范例，并且它提供了一整套的工程解决方案。
 
-### CDN
+#### CDN
 
 Npm 成为了一个托管资源庞大的前端组件的大仓库，基于它有多个开箱即用的公共 CDN 服务。受 ES module 规范的推广，越来越多的工具开始往运行时集成方向演进。
 
-### Web components
+#### Web components
 
 Web components 成为面向未来的组件标准，它提供了良好的隔离手段，并且具备较高的可用性，几乎所有流行开源框架都支持它。
 
-### Web plugins
+#### Web plugins
 
 在过去，`<embed>` 元素与 Flash 创造了 Web 辉煌的时互动时代，它可以载入远程插件以实现互动内容。
 
@@ -46,15 +46,15 @@ Web components 成为面向未来的组件标准，它提供了良好的隔离�
 <embed type="video/quicktime" src="movie.mov" width="640" height="480">
 ```
 
-### AMP
+#### AMP
 
 [AMP](https://amp.dev) 提供了极致的网页载入性能优化思路，它通过标准化的组件体系来搭建页面实现对首屏渲染巨大的提升。
 
-### WebSandbox
+#### WebSandbox
 
 [WebSandbox.js](https://web-sandbox.js.org) 将虚拟化技术推进到 Web 前端领域，使得创建安全的第三方组件运行的容器化环境成为可能。
 
-### OneBox
+#### OneBox
 
 Google 的 OneBox 与百度的框计算是被规模化应用的小挂件形态（例如在搜索引擎搜索“天气预报”，它们都能给出天气的小挂件结果），这些组件具备非常长的生命力并且可以直达用户。
 
