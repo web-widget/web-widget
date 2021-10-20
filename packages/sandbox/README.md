@@ -20,6 +20,8 @@ import '@web-sandbox.js/umd-loader';
 import '@web-sandbox.js/sandbox';
 ```
 
+> 沙盒目前无法支持 ES module 的 WebWidget 应用格式，仅支持 umd 或者 system 模块类型（需要安装对应的加载器插件）。
+
 ## 原理
 
 WebWidget 沙盒来源于 WebSandbox：WebSandbox 的目标是构建一个安全且轻量化的浏览器虚拟化容器，它采用使用 Web 标准技术来构建，它的使用场景：
@@ -112,4 +114,4 @@ npm run examples
 
 ## 兼容性披露
 
-WebSandbox 基于 Realms Stage 2 规范实现，前一段时间 Realms 进入了 Stage 3，它有了非常大的 API 变更，这使得 WebSandbox 需要重新进行适配，进而影响 WebWidget 的沙盒。
+WebSandbox 基于 Realms Stage 2 规范实现，前一段时间 Realms 进入了 Stage 3，它有了非常大的 API 变更，这使得 WebSandbox 需要重新进行适配，未来可能会影响 WebWidget 的沙盒的行为。
