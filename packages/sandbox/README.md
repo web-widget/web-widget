@@ -11,7 +11,7 @@ npm install @web-sandbox.js/sandbox --save
 ## 使用
 
 ```html
-<web-widget type="umd" name="myWidget" sandbox src="app.widget.js"></web-widget>
+<web-widget type="umd" name="myWidget" sandboxed src="app.widget.js"></web-widget>
 ```
 
 ```js
@@ -57,6 +57,7 @@ WebSandbox 拥有完整的 DOM 树结构，这些使用 ShadowRoot 隔离。
 ```html
 <web-widget
     src="app.widget.js"
+    sandboxed
     csp="
       default-src 'none';
       script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net;
