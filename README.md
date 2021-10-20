@@ -24,6 +24,11 @@ WebWidget 是一种用于网页的小挂件的技术体系。
 * 所有的 NoCode/LowCode 产品，都可兼容 WebWidget
 * 公共 CDN 可以随时加载托管在 Npm 或 Github 的 WebWidget、无副作用的运行
 
+### 目标约束
+
+* WebWidget 和传统的命令式的 UI Library 不同，它提供的不是接口，而是立即可用的服务，因此应用事件机制、应用的对外接口并非 WebWidget 的目标。如果一个组件需要频繁的和外部交互那么这种情况更适合使用传统 npm 包进行共享，虽然如此，WebWidget 需要提供接口让开发者在其基础上拓展插件所要求的专属 API 或者事件机制
+* WebWidget 目的不是取代 `<iframe>` 标签或者 Web Component，它们有自己的核心价值
+
 ### 实现目标的参考
 
 #### single-spa
@@ -57,11 +62,6 @@ Web components 成为面向未来的组件标准，它提供了良好的隔离�
 #### OneBox
 
 Google 的 OneBox 与百度的框计算是被规模化应用的小挂件形态（例如在搜索引擎搜索“天气预报”，它们都能给出天气的小挂件结果），这些组件具备非常长的生命力并且可以直达用户。
-
-### 目标约束
-
-* WebWidget 和传统的命令式的 UI Library 不同，它提供的不是接口，而是立即可用的服务，因此应用事件机制、应用的对外接口并非 WebWidget 的目标。如果一个组件需要频繁的和外部交互那么这种情况更适合使用传统 npm 包进行共享，虽然如此，WebWidget 需要提供接口让开发者在其基础上拓展插件所要求的专属 API 或者事件机制
-* WebWidget 目的不是取代 `<iframe>` 标签或者 Web Component，它们有自己的核心价值
 
 ## 应用场景举例
 
