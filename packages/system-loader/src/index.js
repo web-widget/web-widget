@@ -1,6 +1,8 @@
 /* global HTMLWebWidgetElement, window */
 
 const FALLBACK_PROMISE_NAME = '__SystemPromise__';
+const TYPE = 'systemjs-importmap';
+const SYSTEMJS_IMPORTMAP_SELECTOR = `script[type=${TYPE}]`;
 let FALLBACK_URL = 'https://cdn.jsdelivr.net/npm/systemjs@6/dist/s.min.js';
 
 function getModuleValue(module) {
@@ -26,11 +28,10 @@ function importScript(url, defaultView) {
   });
 }
 
-async function loader(view) {
-  const { src, text, sandboxed } = view;
-  const defaultView = sandboxed ? view.sandbox.window : window;
-  const { Blob, URL } = defaultView;
+async function getSystem(defaultView) {
+  const sandboxed = window !== defaultView;
 
+  // 载入远程的 SystemJS
   if (!defaultView.System) {
     if (!defaultView[FALLBACK_PROMISE_NAME]) {
       defaultView[FALLBACK_PROMISE_NAME] = importScript(
@@ -41,7 +42,34 @@ async function loader(view) {
     await defaultView[FALLBACK_PROMISE_NAME];
   }
 
-  const System = defaultView.System;
+  // 复制 import maps 配置到沙盒
+  if (
+    sandboxed &&
+    !defaultView.document.querySelector(SYSTEMJS_IMPORTMAP_SELECTOR)
+  ) {
+    const source = window.document.querySelector(SYSTEMJS_IMPORTMAP_SELECTOR);
+    if (source) {
+      const script = defaultView.document.createElement('script');
+      script.type = TYPE;
+
+      if (source.src) {
+        script.src = source.src;
+      } else {
+        script.text = source.text;
+      }
+
+      defaultView.document.head.appendChild(script);
+    }
+  }
+
+  return defaultView.System;
+}
+
+async function loader(view) {
+  const { src, text, sandboxed } = view;
+  const defaultView = sandboxed ? view.sandbox.window : window;
+  const { Blob, URL } = defaultView;
+  const System = await getSystem(defaultView);
 
   if (src) {
     return System.import(src).then(getModuleValue);

@@ -19,14 +19,14 @@ WebWidget 是一种用于网页的小挂件的技术体系。
 
 * 所有人可以使用 WebWidget 来搭建网页应用，不仅仅是开发者
 * WebWidget 可以运行在不同的前端技术框架中
-* WebWidget 能够成为一个具备长久生命力的格式
+* 能够成为一个具备长久生命力的格式
 * 所有的前端组件都可轻松转换成 WebWidget
 * 所有的 NoCode/LowCode 产品，都可兼容 WebWidget
 * 公共 CDN 可以随时加载托管在 Npm 或 Github 的 WebWidget、无副作用的运行
 
 ### 目标约束
 
-* WebWidget 和传统的命令式的 UI Library 不同，它提供的不是接口，而是立即可用的服务，因此应用事件机制、应用的对外接口并非 WebWidget 的目标。如果一个组件需要频繁的和外部交互那么这种情况更适合使用传统 npm 包进行共享，虽然如此，WebWidget 需要提供接口让开发者在其基础上拓展插件所要求的专属 API 或者事件机制
+* WebWidget 提供的是立即可用的服务，而传统的 Library 提供的是接口，因此应用事件机制、应用的对外接口并非 WebWidget 的目标。如果一个组件需要频繁的和外部交互那么这种情况更适合使用传统的代码复用方式
 * WebWidget 目的不是取代 `<iframe>` 标签或者 Web Component，它们有自己的核心价值
 
 ### 实现目标的参考
@@ -45,10 +45,10 @@ Web components 成为面向未来的组件标准，它提供了良好的隔离�
 
 #### Web plugins
 
-在过去，`<embed>` 元素与 Flash 创造了 Web 辉煌的时互动时代，它可以载入远程插件以实现互动内容。
+在过去，`<embed>` 元素开启了 Web 辉煌的时互动时代，它可以载入远程插件以实现互动内容，例如 Flash。
 
 ```html
-<embed type="video/quicktime" src="movie.mov" width="640" height="480">
+<embed src="somefilename.swf" width="550" height="400"></embed>
 ```
 
 #### AMP

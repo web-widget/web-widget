@@ -5,14 +5,21 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" main="IE=edge">
   <title>WebWidget DEMO</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="systemjs-importmap">
+    {
+      "imports": {
+        "hello": "/system/hello.js"
+      }
+    }
+  </script>
 </head>
 
 <body>
 
-  <web-widget type="system" src="./index.widget.js" data-id="01" sandboxed></web-widget>
-  <web-widget type="system" src="./index.widget.js" data-id="02" sandboxed></web-widget>
-  <web-widget type="system" src="./index.widget.js" data-id="03" sandboxed></web-widget>
+  <web-widget sandboxed type="system" src="./index.widget.js" data-id="01"></web-widget>
+  <web-widget sandboxed type="system" src="./index.widget.js" data-id="02"></web-widget>
+  <web-widget sandboxed type="system" src="./index.widget.js" data-id="03"></web-widget>
 
   <script type="module">
     import '@web-sandbox.js/web-widget';
