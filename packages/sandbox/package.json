@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
   "dependencies": {
-    "@web-sandbox.js/web-sandbox": "^0.0.1-alpha6"
+    "@web-sandbox.js/web-sandbox": "^0.0.1-alpha7"
   },
   "devDependencies": {
     "@web-sandbox.js/rollup-config": "^0.0.6",
