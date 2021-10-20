@@ -13,6 +13,7 @@
     "release": "npm run lint && npm run build && lerna publish",
     "examples": "npm run examples:web-widget",
     "examples:router": "cd packages/router && npm run examples",
+    "examples:sandbox": "cd packages/sandbox && npm run examples",
     "examples:system-loader": "cd packages/system-loader && npm run examples",
     "examples:umd-loader": "cd packages/umd-loader && npm run examples",
     "examples:web-widget": "cd packages/web-widget && npm run examples",

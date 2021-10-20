@@ -19,3 +19,9 @@ import 'systemjs/s.js';
 import '@web-sandbox.js/web-widget';
 import '@web-sandbox.js/system-loader';
 ```
+
+## 运行示例
+
+```bash
+npm run examples
+```

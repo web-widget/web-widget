@@ -19,3 +19,9 @@ import '@web-sandbox.js/web-widget';
 ```
 
 文档见 [../../README.md](../../README.md)。
+
+## 运行示例
+
+```bash
+npm run examples
+```

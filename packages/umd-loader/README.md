@@ -20,3 +20,9 @@ npm install @web-sandbox.js/umd-loader --save
 import '@web-sandbox.js/web-widget';
 import '@web-sandbox.js/umd-loader';
 ```
+
+## 运行示例
+
+```bash
+npm run examples
+```
