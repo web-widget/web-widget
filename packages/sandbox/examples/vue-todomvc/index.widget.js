@@ -19,7 +19,7 @@ function importScript(url) {
 window.vueTodomvc = () => ({
   async mount() {
     document.body.innerHTML = `<div id="app"></div>`;
-    await importScript('./vue.runtime.js');
-    await importScript('./app.js');
+    await importScript('./libs/vue.runtime.js');
+    await importScript('./libs/app.js');
   }
 });

@@ -19,7 +19,7 @@ function importScript(url) {
 window.reactTodomvc = () => ({
   async mount() {
     document.body.innerHTML = `<section class="todo-appmvc"></section>`;
-    await importScript('./react.min.js');
-    await importScript('./bundle.js');
+    await importScript('./libs/react.min.js');
+    await importScript('./libs/bundle.js');
   }
 });
