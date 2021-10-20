@@ -208,7 +208,7 @@ widget.mount();
 
 沙盒化应用。启用后 WebWidget 应用将使用虚拟化环境来运行 JS（实验性特性）。虚拟化环境来自 [WebSandbox](https://web-sandbox.js.org)。
 
-> 由于 TC39 Realms API 发生了重大变更，因此此特性暂时无法使用。
+次特性需要引入 [@web-sandbox.js/sandbox](../packages/sandbox) 才能生效。
 
 ### csp
 

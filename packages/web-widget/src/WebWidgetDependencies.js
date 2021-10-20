@@ -1,10 +1,6 @@
 /* global window */
 import { formatErrorMessage } from './applications/errors.js';
-import {
-  PORTAL_DESTINATIONS,
-  PORTALS,
-  SANDBOX
-} from './applications/symbols.js';
+import { PORTAL_DESTINATIONS, PORTALS } from './applications/symbols.js';
 
 function createContext(view) {
   return {
@@ -41,11 +37,10 @@ export class WebWidgetDependencies {
 
   get container() {
     const view = this.ownerElement;
-    const { sandboxed } = view;
-    const snandbox = view[SANDBOX];
+    const { sandboxed, sandbox } = view;
 
     if (sandboxed) {
-      const sandboxDoc = snandbox.window.document;
+      const sandboxDoc = sandbox.window.document;
       const style = sandboxDoc.createElement('style');
       style.textContent = `body{margin:0}`;
       sandboxDoc.head.appendChild(style);

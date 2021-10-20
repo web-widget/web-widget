@@ -163,6 +163,12 @@ navigate(target);
 
 * `target`: 支持 `string` 或 `HTMLAnchorElement`、`Event` 对象
 
+## 运行示例
+
+```bash
+npm run examples
+```
+
 ## 常见问题
 
 ### 应用的二级路由如何处理？

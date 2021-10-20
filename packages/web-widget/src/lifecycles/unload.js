@@ -13,7 +13,6 @@ import {
   MOUNT,
   PORTAL_DESTINATIONS,
   PORTALS,
-  PROPERTIES,
   TIMEOUTS,
   UNLOAD_PROMISE,
   UNLOAD,
@@ -44,8 +43,8 @@ function resetView(view) {
 
   view[SET_STATE](INITIAL);
 
-  Object.getOwnPropertyNames(view[PROPERTIES]).forEach(key => {
-    Reflect.deleteProperty(view[PROPERTIES], key);
+  Object.getOwnPropertyNames(view.dependencies).forEach(key => {
+    Reflect.deleteProperty(view.dependencies, key);
   });
 }
 

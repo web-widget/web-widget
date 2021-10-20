@@ -2,11 +2,9 @@ import { LOAD_ERROR, LOADED, LOADING } from '../applications/status.js';
 import {
   BOOTSTRAP,
   LOAD_PROMISE,
-  LOADER,
   MOUNT,
   PORTAL_DESTINATIONS,
   PORTALS,
-  PROPERTIES,
   SET_STATE,
   TIMEOUTS,
   UNLOAD,
@@ -58,7 +56,8 @@ export async function toLoadPromise(view) {
   }
 
   view[SET_STATE](LOADING);
-  view[LOAD_PROMISE] = view[LOADER](view[PROPERTIES])
+  view[LOAD_PROMISE] = view
+    .loader(view.dependencies)
     .then(main => {
       if (typeof main === 'function') {
         main = main();

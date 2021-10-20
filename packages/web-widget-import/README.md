@@ -26,3 +26,9 @@ npm install @web-sandbox.js/web-widget-import --save
   import '@web-sandbox.js/web-widget-import';
 </script>
 ```
+
+## 运行示例
+
+```bash
+npm run examples
+```
