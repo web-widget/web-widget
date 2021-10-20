@@ -1,5 +1,6 @@
 node_modules
 coverage
+lerna-debug.log
 dist
 debug
 .vscode
