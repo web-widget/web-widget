@@ -1,6 +1,6 @@
 # WebWidget sandbox
 
-这是 WebWidget 的沙盒特性功能。
+这是 WebWidget 的沙盒特性功能（试验性特性）。
 
 ## 安装
 
@@ -108,3 +108,7 @@ npm run examples
 * 不支持 CSS 的 `import` 语句导入样式
 
 受安全策略与项目进展的影响，浏览器的 API 以白名单的方式提供，细节请查阅 [Web API 兼容性报告](https://web-sandbox.js.org/docs/web-compat/)。
+
+## 兼容性披露
+
+> WebSandbox 基于 Realms Stage 2 规范实现，前一段时间 Realms 进入了 Stage 3，它有了非常大的 API 变更，这使得 WebSandbox 需要重新进行适配，进而影响 WebWidget 的沙盒。
