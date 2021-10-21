@@ -1,9 +1,7 @@
 /* global HTMLWebWidgetElement, window */
-
-const FALLBACK_PROMISE_NAME = '__SystemPromise__';
-const TYPE = 'systemjs-importmap';
-const SYSTEMJS_IMPORTMAP_SELECTOR = `script[type=${TYPE}]`;
-let FALLBACK_URL = 'https://cdn.jsdelivr.net/npm/systemjs@6/dist/s.min.js';
+const CONFIG = {
+  remoteSystem: 'https://cdn.jsdelivr.net/npm/systemjs@6/dist/s.min.js'
+};
 
 function getModuleValue(module) {
   return module.default || module;
@@ -28,29 +26,27 @@ function importScript(url, defaultView) {
   });
 }
 
-async function getSystem(defaultView) {
+async function getSystem(defaultView, fallbackUrl) {
   const sandboxed = window !== defaultView;
+  const type = 'systemjs-importmap';
+  const importmapSelector = `script[type=${type}]`;
 
   // 载入远程的 SystemJS
   if (!defaultView.System) {
-    if (!defaultView[FALLBACK_PROMISE_NAME]) {
-      defaultView[FALLBACK_PROMISE_NAME] = importScript(
-        FALLBACK_URL,
-        defaultView
-      );
+    const cacheKey = '@SystemPromise';
+    if (!defaultView[cacheKey]) {
+      defaultView[cacheKey] = importScript(fallbackUrl, defaultView);
     }
-    await defaultView[FALLBACK_PROMISE_NAME];
+    await defaultView[cacheKey];
+    delete defaultView[cacheKey];
   }
 
   // 复制 import maps 配置到沙盒
-  if (
-    sandboxed &&
-    !defaultView.document.querySelector(SYSTEMJS_IMPORTMAP_SELECTOR)
-  ) {
-    const source = window.document.querySelector(SYSTEMJS_IMPORTMAP_SELECTOR);
+  if (sandboxed && !defaultView.document.querySelector(importmapSelector)) {
+    const source = window.document.querySelector(importmapSelector);
     if (source) {
       const script = defaultView.document.createElement('script');
-      script.type = TYPE;
+      script.type = type;
 
       if (source.src) {
         script.src = source.src;
@@ -69,7 +65,7 @@ async function loader(view) {
   const { src, text, sandboxed } = view;
   const defaultView = sandboxed ? view.sandbox.window : window;
   const { Blob, URL } = defaultView;
-  const System = await getSystem(defaultView);
+  const System = await getSystem(defaultView, CONFIG.remoteSystem);
 
   if (src) {
     return System.import(src).then(getModuleValue);
@@ -91,8 +87,8 @@ async function loader(view) {
   );
 }
 
-export function setLoaderUrl(url) {
-  FALLBACK_URL = url;
+export function setConfig(options) {
+  Object.assign(CONFIG, options);
 }
 
 HTMLWebWidgetElement.loaders.define('system', loader);
