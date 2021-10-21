@@ -1,11 +1,15 @@
 {
-  "name": "@web-sandbox.js/rollup-config",
+  "name": "@web-sandbox.js/builder",
   "private": true,
   "version": "0.0.7",
-  "description": "Rollup config",
+  "description": "Builder",
   "main": "src/index.js",
   "type": "module",
+  "bin": {
+    "builder": "bin/builder.sh"
+  },
   "dependencies": {
+    "rollup": "^2.50.5",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@rollup/plugin-replace": "^3.0.0",
     "rollup-plugin-includepaths": "^0.2.4",

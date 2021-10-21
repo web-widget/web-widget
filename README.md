@@ -31,7 +31,7 @@ WebWidget 是一种用于网页的小挂件的技术体系。
 
 ### 实现目标的参考
 
-#### single-spa
+#### Single-spa
 
 [single-spa](https://single-spa.js.org/) 定义的生命周期格式让 Web 应用跨技术栈、标准化接口提供很好的实践范例，并且它提供了一整套的工程解决方案。
 
@@ -53,11 +53,11 @@ Web components 成为面向未来的组件标准，它提供了良好的隔离�
 
 #### AMP
 
-[AMP](https://amp.dev) 提供了极致的网页载入性能优化思路，它通过标准化的组件体系来搭建页面实现对首屏渲染巨大的提升。
+[AMP](https://amp.dev) 提供了极致的网页载入性能优化思路，它有一整套被重新设计的组件系统，这使得它能最大程度保证性能。
 
 #### WebSandbox
 
-[WebSandbox.js](https://web-sandbox.js.org) 将虚拟化技术推进到 Web 前端领域，使得创建安全的第三方组件运行的容器化环境成为可能。
+[WebSandbox.js](https://web-sandbox.js.org) 将虚拟化技术推进到 Web 前端领域，使得创建安全的第三方组件运行的容器化环境成为可能。对应的类似的技术是 [AMP](https://amp.dev) 推出的 [worker-dom](https://github.com/ampproject/worker-dom)，不过它无法使用同步的 DOM API、只能使用少量的 DOM API。
 
 #### OneBox
 

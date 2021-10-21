@@ -8,11 +8,11 @@
   "unpkg": "dist/umd/web-widget.js",
   "libraryName": "HTMLWebWidgetElement",
   "scripts": {
-    "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
-    "build:watch": "rollup --config node:@web-sandbox.js/rollup-config --watch",
+    "build": "builder --environment NODE_ENV:production",
+    "build:watch": "builder --watch",
     "examples": "cd examples && web-dev-server --node-resolve --watch",
-    "test:watch": "web-test-runner --watch",
-    "test": "web-test-runner --coverage"
+    "test": "tester --coverage",
+    "test:watch": "tester --watch"
   },
   "publishConfig": {
     "access": "public"
@@ -48,10 +48,9 @@
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-sandbox.js/rollup-config": "^0.0.7",
+    "@web-sandbox.js/builder": "^0.0.7",
     "@web/dev-server": "^0.1.25",
     "@web/dev-server-rollup": "^0.3.11",
-    "@web/test-runner": "^0.13.20",
-    "rollup": "^2.50.5"
+    "@web-sandbox.js/tester": "^0.0.7"
   }
 }

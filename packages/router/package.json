@@ -8,8 +8,8 @@
   "unpkg": "dist/umd/router.js",
   "libraryName": "WebWidgetRouter",
   "scripts": {
-    "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
-    "build:watch": "rollup --config node:@web-sandbox.js/rollup-config --watch",
+    "build": "builder --environment NODE_ENV:production",
+    "build:watch": "builder --watch",
     "examples": "cd examples && web-dev-server --node-resolve --watch"
   },
   "publishConfig": {
@@ -29,11 +29,10 @@
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
   "devDependencies": {
     "@rollup/plugin-replace": "^3.0.0",
-    "@web-sandbox.js/rollup-config": "^0.0.7",
+    "@web-sandbox.js/builder": "^0.0.7",
     "@web-sandbox.js/web-widget": "^0.0.7",
     "@web/dev-server": "^0.1.17",
-    "@web/dev-server-rollup": "^0.3.11",
-    "rollup": "^2.50.5"
+    "@web/dev-server-rollup": "^0.3.11"
   },
   "dependencies": {
     "history": "^5.0.0"
