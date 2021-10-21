@@ -1,5 +1,6 @@
 import 'systemjs';
-import '@web-sandbox.js/web-widget';
+import { HTMLWebWidgetElement } from '@web-sandbox.js/web-widget';
+import '@web-sandbox.js/sandbox';
 import '../src/index.js';
 
 const get = url =>
@@ -10,34 +11,64 @@ const get = url =>
     return res.text();
   });
 
+const dataUpdate = widget =>
+  new Promise(resolve => {
+    const { INITIAL, UPDATING, MOUNTED } = HTMLWebWidgetElement;
+    let oldState = INITIAL;
+
+    widget.addEventListener('statechange', () => {
+      if (oldState === UPDATING && widget.state === MOUNTED) {
+        resolve(widget.data);
+      }
+      oldState = widget.state;
+    });
+
+    widget.mount();
+  });
+
+const srcCase = async sandboxed => {
+  const widget = document.createElement('web-widget');
+  widget.inactive = true;
+  widget.name = 'TestWidget';
+  widget.type = 'system';
+  widget.sandboxed = sandboxed;
+  widget.src = '/test/test.widget.js';
+  document.body.appendChild(widget);
+
+  widget.mount();
+  await dataUpdate(widget);
+
+  if (widget.data.lifecycle !== 'mount') {
+    throw new Error(`Mount error`);
+  }
+};
+
+const textCase = async sandboxed => {
+  const widget = document.createElement('web-widget');
+  widget.inactive = true;
+  widget.name = 'TestWidget';
+  widget.type = 'system';
+  widget.sandboxed = sandboxed;
+  widget.text = await get('/test/test.widget.js');
+  document.body.appendChild(widget);
+
+  widget.mount();
+  await dataUpdate(widget);
+
+  if (widget.data.lifecycle !== 'mount') {
+    throw new Error(`Mount error`);
+  }
+};
+
 describe('Load module', () => {
-  it('Load the System module', async () => {
-    const widget = document.createElement('web-widget');
-    widget.inactive = true;
-    widget.type = 'system';
-    widget.src = '/test/hello-world.system.widget.js';
-    document.body.appendChild(widget);
+  it('Load the System module', async () => srcCase());
 
-    window.TEST_SYSTEM_LIFECYCLE = null;
-    return widget.load().then(() => {
-      if (window.TEST_SYSTEM_LIFECYCLE !== 'load') {
-        throw new Error('Load error');
-      }
-    });
-  });
+  it('Load the System module: local', async () => textCase());
+});
 
-  it('Load the System module: local', async () => {
-    const widget = document.createElement('web-widget');
-    widget.inactive = true;
-    widget.type = 'system';
-    widget.text = await get('/test/hello-world.system.widget.js');
-    document.body.appendChild(widget);
+describe('Sandbox mode', () => {
+  it('Load the System module', async () => srcCase(true));
 
-    window.TEST_SYSTEM_LIFECYCLE = null;
-    return widget.load().then(() => {
-      if (window.TEST_SYSTEM_LIFECYCLE !== 'load') {
-        throw new Error('Load error');
-      }
-    });
-  });
+  // 由于使用了 data: 协议，但是 WebSandbox 无法支持它
+  // it('Load the System module: local', async () => textCase(true));
 });

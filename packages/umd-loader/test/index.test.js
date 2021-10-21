@@ -1,4 +1,5 @@
-import '@web-sandbox.js/web-widget';
+import { HTMLWebWidgetElement } from '@web-sandbox.js/web-widget';
+import '@web-sandbox.js/sandbox';
 import '../src/index.js';
 
 const get = url =>
@@ -9,36 +10,110 @@ const get = url =>
     return res.text();
   });
 
+const dataUpdate = widget =>
+  new Promise(resolve => {
+    const { INITIAL, UPDATING, MOUNTED } = HTMLWebWidgetElement;
+    let oldState = INITIAL;
+
+    widget.addEventListener('statechange', () => {
+      if (oldState === UPDATING && widget.state === MOUNTED) {
+        resolve(widget.data);
+      }
+      oldState = widget.state;
+    });
+
+    widget.mount();
+  });
+
+const srcCase = async sandboxed => {
+  const widget = document.createElement('web-widget');
+  widget.inactive = true;
+  widget.name = 'TestWidget';
+  widget.type = 'umd';
+  widget.sandboxed = sandboxed;
+  widget.src = '/test/test.widget.js';
+  document.body.appendChild(widget);
+
+  widget.mount();
+  await dataUpdate(widget);
+
+  if (widget.data.lifecycle !== 'mount') {
+    throw new Error(`Mount error`);
+  }
+};
+
+const textCase = async sandboxed => {
+  const widget = document.createElement('web-widget');
+  widget.inactive = true;
+  widget.name = 'TestWidget';
+  widget.type = 'umd';
+  widget.sandboxed = sandboxed;
+  widget.text = await get('/test/test.widget.js');
+  document.body.appendChild(widget);
+
+  widget.mount();
+  await dataUpdate(widget);
+
+  if (widget.data.lifecycle !== 'mount') {
+    throw new Error(`Mount error`);
+  }
+};
+
+const noNameAttrCase = async (libraryName, sandboxed) => {
+  const widget = document.createElement('web-widget');
+  widget.inactive = true;
+  widget.type = 'umd';
+  widget.sandboxed = sandboxed;
+  widget.text = `
+      window.${libraryName} = () => ({      
+        async mount({ context }) {
+          setTimeout(() => {
+            context.update({
+              data: {
+                lifecycle: 'mount'
+              }
+            });
+          });
+        }
+      });
+    `;
+
+  document.body.appendChild(widget);
+
+  widget.mount();
+  await dataUpdate(widget);
+
+  if (widget.data.lifecycle !== 'mount') {
+    throw new Error(`Mount error`);
+  }
+};
+
 describe('Load module', () => {
-  it('Load the UMD module', async () => {
-    const widget = document.createElement('web-widget');
-    widget.inactive = true;
-    widget.name = 'HelloWorld';
-    widget.type = 'umd';
-    widget.src = '/test/hello-world.umd.widget.js';
-    document.body.appendChild(widget);
+  it('Load the UMD module', async () => srcCase());
 
-    window.TEST_UMD_LIFECYCLE = null;
-    return widget.load().then(() => {
-      if (window.TEST_UMD_LIFECYCLE !== 'load') {
-        throw new Error('Load error');
-      }
-    });
-  });
+  it('Load the UMD module: local', async () => textCase());
 
-  it('Load the UMD module: local', async () => {
-    const widget = document.createElement('web-widget');
-    widget.inactive = true;
-    widget.name = 'HelloWorld';
-    widget.type = 'umd';
-    widget.text = await get('/test/hello-world.umd.widget.js');
-    document.body.appendChild(widget);
+  it('Load module(The name attribute is not set): 0', () =>
+    noNameAttrCase('test0'));
 
-    window.TEST_UMD_LIFECYCLE = null;
-    return widget.load().then(() => {
-      if (window.TEST_UMD_LIFECYCLE !== 'load') {
-        throw new Error('Load error');
-      }
-    });
-  });
+  it('Load module(The name attribute is not set): 1', () =>
+    noNameAttrCase('test1'));
+
+  it('Load module(The name attribute is not set): 2', () =>
+    noNameAttrCase('test2'));
+});
+
+describe('Sandbox mode', () => {
+  it('Load the UMD module', async () => srcCase(true));
+
+  it('Load the UMD module: local', async () => textCase(true));
+
+  it('Load module(The name attribute is not set): 0', () =>
+    noNameAttrCase('test0', true));
+
+  it('Load module(The name attribute is not set): 1', () =>
+    noNameAttrCase('test1', true));
+
+  it('Load module(The name attribute is not set): 2', () =>
+    noNameAttrCase('test2', true));
 });

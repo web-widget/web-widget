@@ -48,23 +48,13 @@ async function importScript(url, defaultView, name) {
 }
 
 async function execScript(text, defaultView, name) {
-  const cacheKey = '@WebWidgetUmdTextCache';
-  const cache = (defaultView[cacheKey] = defaultView[cacheKey] || new Map());
-
   if (!name) {
     noteGlobalProps(defaultView);
   }
 
-  if (cache.has(text)) {
-    return cache.get(text);
-  }
-
   defaultView.eval(text);
 
-  const module = getGlobalVariable(name, defaultView);
-  cache.set(text, module);
-
-  return module;
+  return getGlobalVariable(name, defaultView);
 }
 
 async function umdLoader(view) {

@@ -34,6 +34,7 @@
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web-sandbox.js/builder": "^0.0.7",
     "@web-sandbox.js/web-widget": "^0.0.7",
+    "@web-sandbox.js/sandbox": "^0.0.7",
     "@web/dev-server": "^0.1.17",
     "@web-sandbox.js/tester": "^0.0.7",
     "systemjs": "^6.11.0"

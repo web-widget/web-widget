@@ -5,8 +5,8 @@
   "scripts": {
     "postinstall": "lerna bootstrap",
     "start": "lerna run --parallel start",
-    "build": "lerna run build",
-    "build:watch": "lerna run build:watch",
+    "build": "lerna run --parallel build",
+    "build:watch": "lerna --parallel run build:watch",
     "test": "lerna run test",
     "lint": "eslint packages/**/src packages/**/test packages/**/examples",
     "prettier": "prettier --write packages/**/*.js",
