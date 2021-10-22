@@ -1,11 +1,11 @@
 /* eslint-disable no-undef */
-const port = require('./getPort');
+// const port = require('./getPort');
 
 module.exports = {
   files: ['test/**/*.test.js'],
   nodeResolve: true,
   rootDir: './',
-  port,
+  // port,
   coverageConfig: {
     include: ['src/**/*']
   }
