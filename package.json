@@ -3,7 +3,6 @@
   "private": true,
   "description": "web widget",
   "scripts": {
-    "postinstall": "lerna bootstrap",
     "start": "lerna run --parallel start",
     "build": "lerna run build",
     "build:watch": "lerna run build:watch",
@@ -17,7 +16,12 @@
     "examples:system-loader": "cd packages/system-loader && npm run examples",
     "examples:umd-loader": "cd packages/umd-loader && npm run examples",
     "examples:web-widget": "cd packages/web-widget && npm run examples",
-    "examples:web-widget-import": "cd packages/web-widget-import && npm run examples"
+    "examples:web-widget-import": "cd packages/web-widget-import && npm run examples",
+    "setup-dev": "yarn && yarn bootstrap && yarn link-all && yarn build",
+    "bootstrap": "lerna bootstrap",
+    "link-all": "lerna exec --parallel yarn link",
+    "unlink-all": "lerna clean --yes && lerna exec --parallel --bail=false  yarn unlink ",
+    "clean": "npx rimraf -rf ./node_modules packages/**/dist/  packages/**/node_modules"
   },
   "workspaces": [
     "packages/*",
