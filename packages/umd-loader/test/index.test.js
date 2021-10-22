@@ -59,7 +59,23 @@ const textCase = async sandboxed => {
   }
 };
 
-const noNameAttrCase = async (libraryName, sandboxed) => {
+const noNameAttrAndSrcCase = async sandboxed => {
+  const widget = document.createElement('web-widget');
+  widget.inactive = true;
+  widget.type = 'umd';
+  widget.sandboxed = sandboxed;
+  widget.src = '/test/test2.widget.js';
+  document.body.appendChild(widget);
+
+  widget.mount();
+  await dataUpdate(widget);
+
+  if (widget.data.lifecycle !== 'mount') {
+    throw new Error(`Mount error`);
+  }
+};
+
+const noNameAttrAndTextCase = async (libraryName, sandboxed) => {
   const widget = document.createElement('web-widget');
   widget.inactive = true;
   widget.type = 'umd';
@@ -88,32 +104,50 @@ const noNameAttrCase = async (libraryName, sandboxed) => {
   }
 };
 
-describe('Load module', () => {
-  it('Load the UMD module', async () => srcCase());
+describe('Load umd module', () => {
+  it('Import script', async () => srcCase());
 
-  it('Load the UMD module: local', async () => textCase());
+  it('Exec script', async () => textCase());
 
-  it('Load module(The name attribute is not set): 0', () =>
-    noNameAttrCase('test0'));
+  it('Import script: The name attribute is not set: 0', () =>
+    noNameAttrAndSrcCase());
 
-  it('Load module(The name attribute is not set): 1', () =>
-    noNameAttrCase('test1'));
+  it('Import script: The name attribute is not set: 1', () =>
+    noNameAttrAndSrcCase());
 
-  it('Load module(The name attribute is not set): 2', () =>
-    noNameAttrCase('test2'));
+  it('Import script: The name attribute is not set: 2', () =>
+    noNameAttrAndSrcCase());
+
+  it('Exec script: The name attribute is not set: 0', () =>
+    noNameAttrAndTextCase('test0'));
+
+  it('Exec script: The name attribute is not set: 1', () =>
+    noNameAttrAndTextCase('test1'));
+
+  it('Exec script: The name attribute is not set: 2', () =>
+    noNameAttrAndTextCase('test2'));
 });
 
 describe('Sandbox mode', () => {
-  it('Load the UMD module', async () => srcCase(true));
+  it('Import script', async () => srcCase(true));
 
-  it('Load the UMD module: local', async () => textCase(true));
+  it('Exec script', async () => textCase(true));
 
-  it('Load module(The name attribute is not set): 0', () =>
-    noNameAttrCase('test0', true));
+  it('Import script: The name attribute is not set: 0', () =>
+    noNameAttrAndSrcCase(true));
 
-  it('Load module(The name attribute is not set): 1', () =>
-    noNameAttrCase('test1', true));
+  it('Import script: The name attribute is not set: 1', () =>
+    noNameAttrAndSrcCase(true));
 
-  it('Load module(The name attribute is not set): 2', () =>
-    noNameAttrCase('test2', true));
+  it('Import script: The name attribute is not set: 2', () =>
+    noNameAttrAndSrcCase(true));
+
+  it('Exec script: The name attribute is not set: 0', () =>
+    noNameAttrAndTextCase('test0', true));
+
+  it('Exec script: The name attribute is not set: 1', () =>
+    noNameAttrAndTextCase('test1', true));
+
+  it('Exec script: The name attribute is not set: 2', () =>
+    noNameAttrAndTextCase('test2', true));
 });
