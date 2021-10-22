@@ -58,14 +58,13 @@ WebWidget 容器是一个标准的 Web Component 组件，标签名为 `<web-wid
 
 插槽源自于 Web Component，更多插槽信息可以访问 <https://developer.mozilla.org/en-US/docs/Web/Web_Components>。
 
-## 配置数据
+## 数据
 
 通过 `data` 或 `data-*` 属性可以为 WebWidget 应用传递静态的数据：
 
 ```html
 <web-widget
   src="app.widget.js"
-  data="{&quot;a&quot;:&quot;hello&quot;}"
   data-username="web-widget"
   data-email="web-widget@web-sandbox.js.org"
 >
@@ -74,7 +73,52 @@ WebWidget 容器是一个标准的 Web Component 组件，标签名为 `<web-wid
 
 WebWidget 应用可以通过生命周期函数获的 `data` 参数获取到数据。
 
-> 通过 `data-*` 只能传递 `string` 类型的值。
+```js
+// app.widget.js
+export default () => ({
+  async mount({ data }) {
+    console.log(data);
+  }
+});
+```
+
+> 通过 `data-*` 只能传递 `string` 类型的值；使用 `data` 属性可以使用 JSON 字符串，它将自动解析成 `object`。
+
+### 更新数据
+
+通过容器更新应用的数据：
+
+```js
+webWidgetElement.update({
+  data: {/*...*/}
+});
+```
+
+应用内部自更新：
+
+```js
+// app.widget.js
+export default () => ({
+  async mount({ data, context }) {
+    element.onclick = () => {
+      context.update(data);
+    }
+  }
+});
+```
+
+### 观察数据变化
+
+```js
+const { INITIAL, UPDATING, MOUNTED } = HTMLWebWidgetElement;
+let oldState = INITIAL;
+document.getElementById('widget').addEventListener('statechange', function() {
+  if (oldState === UPDATING && this.state === MOUNTED) {
+    console.log('data update', this.data);
+  }
+  oldState = this.state;
+});
+```
 
 ## 沙盒
 
@@ -119,7 +163,6 @@ export default () => ({
   }
 });
 ```
-
 
 ## 接口
 
