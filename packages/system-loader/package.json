@@ -8,10 +8,12 @@
   "unpkg": "dist/umd/system-loader.js",
   "libraryName": "WebWidgetSystemLoader",
   "scripts": {
-    "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
-    "build:watch": "rollup --config node:@web-sandbox.js/rollup-config --watch",
+    "build": "builder --environment NODE_ENV:production",
+    "build:watch": "builder --watch",
     "buind:examples": "rollup --input examples/system/src/index.widget.js --file examples/system/index.widget.js --format system --external hello && rollup --input examples/system/src/hello.js --file examples/system/hello.js --format system",
-    "examples": "cd examples && web-dev-server --node-resolve --watch"
+    "examples": "cd examples && web-dev-server --node-resolve --watch",
+    "test": "tester --coverage",
+    "test:watch": "tester --watch"
   },
   "publishConfig": {
     "access": "public"
@@ -29,10 +31,12 @@
   },
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
   "devDependencies": {
-    "@web-sandbox.js/rollup-config": "^0.0.7",
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@web-sandbox.js/builder": "^0.0.7",
     "@web-sandbox.js/web-widget": "^0.0.7",
+    "@web-sandbox.js/sandbox": "^0.0.7",
     "@web/dev-server": "^0.1.17",
-    "rollup": "^2.50.5",
+    "@web-sandbox.js/tester": "^0.0.7",
     "systemjs": "^6.11.0"
   }
 }

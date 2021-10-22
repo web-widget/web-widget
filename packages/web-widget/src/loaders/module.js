@@ -1,6 +1,5 @@
 /* global window */
 let index = 0;
-const CACHE_NAME = 'WebWidgetModuleCache';
 
 function getModuleValue(module) {
   return module.default || module;
@@ -30,15 +29,15 @@ export async function moduleLoader(view) {
   const { src, text, sandboxed, sandbox } = view;
   const defaultView = sandboxed ? sandbox.window : window;
   const { document, Blob, URL, Error } = defaultView;
-  const cache = (defaultView[CACHE_NAME] =
-    defaultView[CACHE_NAME] || new Map());
+  const cacheKey = '@WebWidgetModuleCache';
+  const cache = (defaultView[cacheKey] = defaultView[cacheKey] || new Map());
 
   if (src && cache.has(src)) {
     return cache.get(src);
   }
 
   const promise = new Promise((resolve, reject) => {
-    const callbackName = `${CACHE_NAME}Temp${index++}`;
+    const callbackName = `${cacheKey}Temp${index++}`;
     let script = document.createElement('script');
 
     const code = src

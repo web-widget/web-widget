@@ -1,67 +1,74 @@
 /* global window, HTMLWebWidgetElement */
-const CACHE_NAME = 'WebWidgetModuleCache';
+import { getGlobalExport, noteGlobalProps } from './globalExport.js';
 
-function getModuleValue(module) {
-  if (!module) {
-    throw new Error(`No global variables exported by UMD were found`);
+const CONFIG = {
+  useFirstGlobalProperty: false
+};
+
+function getGlobalVariable(name, defaultView) {
+  if (name) {
+    return defaultView[name];
   }
-  return module.default || module;
+
+  return getGlobalExport(defaultView, CONFIG.useFirstGlobalProperty);
+}
+
+async function importScript(url, defaultView, name) {
+  const cacheKey = '@WebWidgetUmdSrcCache';
+  const cache = (defaultView[cacheKey] = defaultView[cacheKey] || new Map());
+
+  if (!name) {
+    noteGlobalProps(defaultView);
+  }
+
+  if (cache.has(url)) {
+    return cache.get(url);
+  }
+
+  const promise = new Promise((resolve, reject) => {
+    const script = defaultView.document.createElement('script');
+
+    script.onload = () => {
+      script.parentNode.removeChild(script);
+      resolve(getGlobalVariable(name, defaultView));
+    };
+
+    script.onerror = error => {
+      cache.delete(url);
+      reject(error);
+    };
+
+    script.src = url;
+
+    defaultView.document.head.appendChild(script);
+  });
+
+  cache.set(url, promise);
+  return promise;
+}
+
+async function execScript(text, defaultView, name) {
+  if (!name) {
+    noteGlobalProps(defaultView);
+  }
+
+  defaultView.eval(text);
+
+  return getGlobalVariable(name, defaultView);
 }
 
 async function umdLoader(view) {
   const { src, text, sandboxed, name } = view;
   const defaultView = sandboxed ? view.sandbox.window : window;
-  const { document } = defaultView;
-  const cache = (defaultView[CACHE_NAME] =
-    defaultView[CACHE_NAME] || new Map());
-
-  if (!name) {
-    throw new Error(`Must have the name of the module`);
-  }
-
-  if (src && cache.has(src)) {
-    return cache.get(src);
-  }
-
-  const module = (
-    src
-      ? new Promise((resolve, reject) => {
-          let script = document.createElement('script');
-          script.src = src;
-
-          script.onload = () => {
-            resolve(defaultView[name]);
-          };
-
-          script.onerror = error => {
-            cache.delete(src);
-            reject(error);
-          };
-
-          document.head.appendChild(script);
-          script = null;
-        })
-      : Promise.resolve(
-          // eslint-disable-next-line no-new-func
-          new defaultView.Function(
-            `'use strict';
-            ${text};
-          return ${name};`
-          )()
-        )
-  ).then(module => getModuleValue(module));
 
   if (src) {
-    cache.set(
-      src,
-      module.catch(error => {
-        cache.delete(src);
-        throw error;
-      })
-    );
+    return importScript(src, defaultView, name);
   }
+  return execScript(text, defaultView, name);
+}
 
-  return module;
+export function setConfig(options) {
+  Object.assign(CONFIG, options);
 }
 
 HTMLWebWidgetElement.loaders.define('umd', umdLoader);

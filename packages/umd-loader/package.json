@@ -6,10 +6,13 @@
   "main": "dist/cjs/umd-loader.js",
   "module": "dist/esm/umd-loader.js",
   "unpkg": "dist/umd/umd-loader.js",
+  "libraryName": "WebWidgetUmdLoader",
   "scripts": {
-    "build": "rollup --config node:@web-sandbox.js/rollup-config --environment NODE_ENV:production",
-    "build:watch": "rollup --config node:@web-sandbox.js/rollup-config --watch",
-    "examples": "cd examples && web-dev-server --node-resolve --watch"
+    "build": "builder --environment NODE_ENV:production",
+    "build:watch": "builder --watch",
+    "examples": "cd examples && web-dev-server --node-resolve --watch",
+    "test": "tester --coverage",
+    "test:watch": "tester --watch"
   },
   "publishConfig": {
     "access": "public"
@@ -27,9 +30,11 @@
   },
   "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
   "devDependencies": {
-    "@web-sandbox.js/rollup-config": "^0.0.7",
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@web-sandbox.js/builder": "^0.0.7",
     "@web-sandbox.js/web-widget": "^0.0.7",
     "@web/dev-server": "^0.1.17",
-    "rollup": "^2.50.5"
+    "@web-sandbox.js/tester": "^0.0.7",
+    "@web-sandbox.js/sandbox": "^0.0.7"
   }
 }

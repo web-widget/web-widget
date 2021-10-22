@@ -1,0 +1,13 @@
+{
+  "name": "@web-sandbox.js/tester",
+  "private": true,
+  "version": "0.0.7",
+  "description": "Tester",
+  "main": "src/index.js",
+  "bin": {
+    "tester": "bin/tester.sh"
+  },
+  "dependencies": {
+    "@web/test-runner": "^0.13.20"
+  }
+}
