@@ -8,8 +8,6 @@
     "tester": "bin/tester.sh"
   },
   "dependencies": {
-    "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web/test-runner": "^0.13.20",
-    "rollup": "^2.50.5"
+    "@web/test-runner": "^0.13.20"
   }
 }
