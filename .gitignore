@@ -5,3 +5,4 @@ dist
 debug
 .vscode
 .DS_Store
+.WEBWIDGET_TESTER_SERVER_PORT

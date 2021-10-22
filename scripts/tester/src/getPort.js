@@ -1,9 +1,9 @@
 /* eslint-disable no-undef */
-const os = require('os');
 const fs = require('fs');
+const path = require('path');
 
-const portFileName = 'WEBWIDGET_TESTER_SERVER_PORT';
-const file = os.tmpdir() + portFileName;
+const portFileName = '.WEBWIDGET_TESTER_SERVER_PORT';
+const file = path.join(__dirname, '..', portFileName);
 const start = 7999;
 
 let port = start;
