@@ -7,7 +7,7 @@
     "start": "lerna run --parallel start",
     "build": "lerna run build",
     "build:watch": "lerna run build:watch",
-    "test": "lerna run test",
+    "test": "lerna run test --concurrency 1",
     "lint": "eslint packages/**/src packages/**/test packages/**/examples",
     "prettier": "prettier --write packages/**/*.js",
     "release": "npm run lint && npm run build && npm test && lerna publish",
