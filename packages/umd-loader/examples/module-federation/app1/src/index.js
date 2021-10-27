@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import '@web-sandbox.js/web-widget';
+import '@web-widget/core';
 import '../../../../src/index.js';
 
 const widget = document.createElement('web-widget');

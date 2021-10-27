@@ -1,0 +1,56 @@
+{
+  "name": "@web-widget/core",
+  "version": "0.0.7",
+  "description": "web widget",
+  "source": "src/index.js",
+  "main": "dist/cjs/core.js",
+  "module": "dist/esm/core.js",
+  "unpkg": "dist/umd/core.js",
+  "libraryName": "HTMLWebWidgetElement",
+  "scripts": {
+    "build": "builder --environment NODE_ENV:production",
+    "build:watch": "builder --watch",
+    "examples": "cd examples && web-dev-server --node-resolve --watch",
+    "test": "tester --coverage",
+    "test:watch": "tester --watch"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "microfrontends",
+    "single",
+    "page",
+    "application",
+    "framework",
+    "react",
+    "angular",
+    "vue",
+    "router",
+    "microservices",
+    "frontend",
+    "Sandbox",
+    "Realm",
+    "Shadow DOM",
+    "Web components"
+  ],
+  "author": "aui",
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@web-widget/builder": "^0.0.7",
+    "@web/dev-server": "^0.1.25",
+    "@web/dev-server-rollup": "^0.3.11",
+    "@web-widget/tester": "^0.0.7"
+  }
+}

@@ -5,7 +5,7 @@
 ## 安装
 
 ```bash
-npm install @web-sandbox.js/system-loader --save
+npm install @web-widget/system-loader --save
 ```
 
 ## 使用
@@ -16,8 +16,8 @@ npm install @web-sandbox.js/system-loader --save
 
 ```js
 import 'systemjs/s.js';
-import '@web-sandbox.js/web-widget';
-import '@web-sandbox.js/system-loader';
+import '@web-widget/core';
+import '@web-widget/system-loader';
 ```
 
 ## 运行示例

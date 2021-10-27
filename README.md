@@ -1,6 +1,6 @@
 # WebWidget
 
-[![CI](https://github.com/web-sandbox-js/web-widget/actions/workflows/main.yml/badge.svg?event=push)](https://github.com/web-sandbox-js/web-widget/actions/workflows/main.yml?query=event%3Apush)
+[![CI](https://github.com/web-widget/web-widget/actions/workflows/main.yml/badge.svg?event=push)](https://github.com/web-widget/web-widget/actions/workflows/main.yml?query=event%3Apush)
 
 WebWidget 是一种用于网页的小挂件的技术体系。
 
@@ -10,10 +10,9 @@ WebWidget 是一种用于网页的小挂件的技术体系。
 
 ### 存在的问题
 
-* 开源社区大量的组件只能在特定的技术框架中才能运行，甚至一些组件依赖了特定的技术框架版本，这是一种浪费
+* 开源社区大量的组件只能在特定的技术框架中才能运行，甚至一些组件依赖了特定的技术框架版本，这使得我们无法使用
 * 开发者需要花大量的时间研究每一个命令式组件的接口，写很多胶水代码、测试胶水代码后才能完成一个应用
-* 开源组件的安全问题通常难以被察觉或者被忽视，以至于为应用隐患
-* 不断变化的技术栈降低了软件的生命力
+* 开源组件的安全问题通常难以被察，我们没有精力去注意排查，这将随时威胁应用的安全
 
 ### 目标愿景
 
@@ -121,15 +120,15 @@ WebWidget 清单使用了 NPM package.json 文件，它描述了应用名字、�
 
 ### 核心
 
-* [@web-sandbox.js/web-widget](packages/web-widget) `<web-widget>` 元素
+* [@web-widget/core](packages/core) `<web-widget>` 元素
 
 ### 插件
 
-* [@web-sandbox.js/router](packages/router) 专门用于驱动 WebWidget 的单页面应用的路由库
-* [@web-sandbox.js/sandbox](packages/sandbox) 安全沙盒插件
-* [@web-sandbox.js/web-widget-import](packages/web-widget-import) WebWidget 应用导入标签实现（`<web-widget.import>`）
-* [@web-sandbox.js/umd-loader](packages/umd-loader) UMD 模块格式支持
-* [@web-sandbox.js/system-loader](packages/system-loader) System 模块格式支持
+* [@web-widget/router](packages/router) 专门用于驱动 WebWidget 的单页面应用的路由库
+* [@web-widget/sandbox](packages/sandbox) 安全沙盒插件
+* [@web-widget/import](packages/import) WebWidget 应用导入标签实现（`<web-widget.import>`）
+* [@web-widget/umd-loader](packages/umd-loader) UMD 模块格式支持
+* [@web-widget/system-loader](packages/system-loader) System 模块格式支持
 
 ## 使用示范
 
@@ -297,8 +296,8 @@ export default () => ({
 ```
 
 ```js
-import '@web-sandbox.js/web-widget';
-import { collection, history } from  '@web-sandbox.js/router';
+import '@web-widget/core';
+import { collection, history } from  '@web-widget/router';
 
 collection.add(
   document.querySelector('#home'),
@@ -334,8 +333,8 @@ history.listen(() => collection.change(location));
 ```
 
 ```js
-import '@web-sandbox.js/web-widget';
-import '@web-sandbox.js/web-widget-import';
+import '@web-widget/core';
+import '@web-widget/import';
 ```
 
 ### 服务器渲染

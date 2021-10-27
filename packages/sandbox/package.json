@@ -1,5 +1,5 @@
 {
-  "name": "@web-sandbox.js/sandbox",
+  "name": "@web-widget/sandbox",
   "version": "0.0.7",
   "description": "WebWidget sandbox",
   "source": "src/index.js",
@@ -16,24 +16,24 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/web-sandbox-js/web-widget.git"
+    "url": "git+https://github.com/web-widget/web-widget.git"
   },
   "files": [
     "dist"
   ],
   "author": "aui",
   "bugs": {
-    "url": "https://github.com/web-sandbox-js/web-widget/issues"
+    "url": "https://github.com/web-widget/web-widget/issues"
   },
-  "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
   "dependencies": {
     "@web-sandbox.js/web-sandbox": "^0.0.1-alpha7"
   },
   "devDependencies": {
-    "@web-sandbox.js/builder": "^0.0.7",
-    "@web-sandbox.js/system-loader": "^0.0.7",
-    "@web-sandbox.js/umd-loader": "^0.0.7",
-    "@web-sandbox.js/web-widget": "^0.0.7",
+    "@web-widget/builder": "^0.0.7",
+    "@web-widget/system-loader": "^0.0.7",
+    "@web-widget/umd-loader": "^0.0.7",
+    "@web-widget/core": "^0.0.7",
     "@web/dev-server": "^0.1.17"
   }
 }

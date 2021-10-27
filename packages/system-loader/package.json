@@ -1,5 +1,5 @@
 {
-  "name": "@web-sandbox.js/system-loader",
+  "name": "@web-widget/system-loader",
   "version": "0.0.7",
   "description": "WebWidget system loader",
   "source": "src/index.js",
@@ -20,23 +20,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/web-sandbox-js/web-widget.git"
+    "url": "git+https://github.com/web-widget/web-widget.git"
   },
   "files": [
     "dist"
   ],
   "author": "aui",
   "bugs": {
-    "url": "https://github.com/web-sandbox-js/web-widget/issues"
+    "url": "https://github.com/web-widget/web-widget/issues"
   },
-  "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-sandbox.js/builder": "^0.0.7",
-    "@web-sandbox.js/web-widget": "^0.0.7",
-    "@web-sandbox.js/sandbox": "^0.0.7",
+    "@web-widget/builder": "^0.0.7",
+    "@web-widget/core": "^0.0.7",
+    "@web-widget/sandbox": "^0.0.7",
     "@web/dev-server": "^0.1.17",
-    "@web-sandbox.js/tester": "^0.0.7",
+    "@web-widget/tester": "^0.0.7",
     "systemjs": "^6.11.0"
   }
 }
