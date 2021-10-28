@@ -48,7 +48,20 @@ export async function unload(props) {}
 
 </inline-notification>
 
+## 执行顺序
+
+```
+load
+     -> bootstrap
+                  -> mount  <────────────────────────┐
+                            -> update                │
+                                      -> unmount -> ─┘
+                                                 -> unload
+```
+
 ## 下载
+
+### `load`
 
 注册的应用会被懒加载，这指的是该应用的代码会从服务器端下载并执行。在下载过程中，建议尽可能执行少的操作，可以在 `bootstrap` 生命周期之后再执行各项操作。若确实有在下载时需要执行的操作，可将代码放入子应用入口文件中，但要放在各导出函数的外部。例如：
 
@@ -60,6 +73,8 @@ export async function unmount(props) {...}
 ```
 
 ## 初始化
+
+### `bootstrap`
 
 这个生命周期函数会在应用第一次挂载前执行一次。
 
@@ -76,6 +91,8 @@ export function bootstrap(props) {
 
 ## 挂载
 
+### `mount`
+
 ```js
 export function mount(props) {
   props.container.innerHTML = 'hello wrold';
@@ -90,7 +107,9 @@ export function mount(props) {
 
 ## 更新
 
-如果两个应用相互调用、传递数据，这时候可能会触发“更新”生命周期。
+### `update`
+
+当应用挂载后，外部的容器或者其他程序可能触发“更新”生命周期来更新数据。
 
 ```js
 export function update(props) {
@@ -105,7 +124,9 @@ export function update(props) {
 
 ## 卸载
 
-卸载函数被调用时，会清理在挂载应用时被创建的 DOM 元素、事件监听、内存、全局变量和消息订阅等。
+### `unmount`
+
+卸载函数被调用时，应当清理挂载应用时被创建的 DOM 元素、事件监听、内存、全局变量和消息订阅等。
 
 ```js
 export function unmount(props) {
@@ -120,11 +141,9 @@ export function unmount(props) {
 
 ## 移除
 
-“移除”生命周期函数的实现是可选的。如果一个已注册的应用没有实现这个生命周期函数，则假设这个应用无需被移除。
+### `unload`
 
-移除的目的是各应用在移除之前执行部分逻辑，一旦应用被移除，它的状态将会变成 `initial`，下次激活时会被重新初始化。
-
-移除函数的设计动机是对所有注册的应用实现“热下载”，不过在其他场景中也非常有用，比如想要重新初始化一个应用，且在重新初始化之前执行一些逻辑操作时。
+应用被删除前将会调用。
 
 ```js
 export function unload(props) {
@@ -138,6 +157,8 @@ export function unload(props) {
 ```
 
 ## 超时
+
+### `timeouts`
 
 默认情况下，所有注册的应用遵循全局超时配置，但对于每个应用，也可以通过在主入口文件导出一个 `timeouts` 对象来重新定义超时时间。如：
 
