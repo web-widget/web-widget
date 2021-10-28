@@ -4,7 +4,7 @@
 import '@rocket/launch/inline-notification/inline-notification.js';
 ```
 
-不同于传统的组件，Web Widget 的应用是建立在明确设计模式下的，因此我们有机会通过部署统一的架构去管理、优化它们，使我们更容易的构建符合最佳的用户体验的产品。
+不同于传统的组件，Web Widget 的应用是建立在明确范式上的，因此我们有机会通过部署统一的架构去管理、优化它们，更容易的构建符合最佳的用户体验的产品。
 
 ## 安装
 
@@ -33,7 +33,7 @@ npm install --save @web-widget/core
 
 ### 容器化是手段，不是目的
 
-Web Widget 被设计为容器化的 UI 服务，它和传统的 Library 的有着明显的区别，因此应用事件机制、应用的对外接口并非 Web Widget 的要素，如果我们发现 Web Widget 应用需要频繁的与外部交互，一些解决问题的建议：
+Web Widget 被设计为容器化的 UI 服务，它和传统的 Library 的有着明显的区别，因此应用事件机制、应用的对外接口并非 Web Widget 的要素，如果我们发现 Web Widget 应用需要频繁的与外部交互，你可以尝试：
 
 * 使用传统 Library 来共享代码
 * 将需要相互交互的 Web Widget 应用合并成一个
