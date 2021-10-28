@@ -2,7 +2,7 @@
 
 ## HTMLWebWidgetElement
 
-HTMLWebWidgetElement 是 `<web-widget>` [标签](./tags.md)的接口。
+HTMLWebWidgetElement 是 `<web-widget>` [标签](./tag.md)的接口。
 
 ### application
 

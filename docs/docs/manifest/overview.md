@@ -6,11 +6,11 @@ eleventyNavigation:
   order: 1
 ---
 
-# Web Widget 清单
-
 ```js script
 import '@rocket/launch/inline-notification/inline-notification.js';
 ```
+
+# Web Widget 清单
 
 <inline-notification type="warning">
 

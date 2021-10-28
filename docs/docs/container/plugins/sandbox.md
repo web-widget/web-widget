@@ -20,7 +20,7 @@ import '@web-widget/system-loader';
 import '@web-widget/sandbox';
 ```
 
-> 沙盒目前无法支持 ES module 的 Web Widget 应用格式，仅支持 system 或 umd 模块类型（需要安装对应的加载器插件）。
+> 沙盒目前无法支持 ES module 的 Web Widget 应用格式，仅支持 `system` 或 `umd` 模块类型（需要安装对应的加载器插件）。
 
 ## 原理
 

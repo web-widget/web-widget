@@ -23,3 +23,21 @@ npm install --save @web-widget/core
 ## 模块格式
 
 默认情况下 `src` 支持的是 ES module 模块，通过[插件](./plugins/overview.md)可以支持不同类型的格式，例如 [system-loader](./plugins/system-loader.md) 与 [umd-loader](./plugins/umd-loader.md)。
+
+## 生命周期
+
+Web Widget 容器对应的 DOM 生命周期回调将异步触发应用的生命周期：
+
+```js
+const widget = document.createElement('web-widget');
+widget.src = 'app.widget.js';
+
+// load -> bootstrap -> mount
+document.body.appendChild(widget);
+
+// update
+widget.update({ name: 'demo' });
+
+// unmount -> unload
+document.body.removeChild(widget);
+```

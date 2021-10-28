@@ -4,7 +4,7 @@
 import '@rocket/launch/inline-notification/inline-notification.js';
 ```
 
-不同于传统的组件，Web Widget 的应用是建立在明确范式上的，因此我们有机会通过部署统一的架构去管理、优化它们，更容易的构建符合最佳的用户体验的产品。
+不同于传统的组件系统，Web Widget 的应用是建立在明确范式上的，因此我们有机会通过部署统一的架构去管理、优化它们，更容易的构建符合最佳的用户体验的产品。
 
 ## 安装
 
@@ -12,6 +12,12 @@ import '@rocket/launch/inline-notification/inline-notification.js';
 
 ```bash
 npm install --save @web-widget/core
+```
+
+在页面中引入运行时文件。
+
+```js
+import '@web-widget/core';
 ```
 
 ## 权衡

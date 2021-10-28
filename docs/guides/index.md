@@ -20,11 +20,11 @@ Web Widget 是一个基于现代 Web 的构建的开放式网页小挂件系统�
 
 **3. 个性化卡片信息流展示**
 
-例如 [Google OneBox](https://en.ryte.com/wiki/Google_OneBox) 与[百度框计算](https://baike.baidu.com/item/%E6%A1%86%E8%AE%A1%E7%AE%97/9541258)，让你在输入“天气”的时候，它能够直接在搜索结果中展示可互动卡片信息，而 Web Widget 应用符合动态分发的关键要素。
+例如 [Google OneBox](https://en.ryte.com/wiki/Google_OneBox) 与[百度框计算](https://baike.baidu.com/item/%E6%A1%86%E8%AE%A1%E7%AE%97/9541258)，它们可以让你在输入“天气”的时候直接在搜索结果中呈现可互动的天气卡片，而 Web Widget 应用具备这样动态分发要求的关键要素。
 
 **4. 单页应用微前端工程架构**
 
-基于 Web Widget 的容器，在 Web 工程中实施当今流行的微前端架构，屏蔽技术栈变更带来的不稳定因素，保证软件具备长远的生命力。
+基于 Web Widget 技术体系，将前端页面容器化，以便在 Web 工程中实施当今流行的微前端架构，从而屏蔽技术栈变更带来的不稳定因素、确保软件具备长久的生命。
 
 ## 学习
 
