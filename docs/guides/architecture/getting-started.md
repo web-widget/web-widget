@@ -1,4 +1,4 @@
-# 架构 >> 容器化
+# 架构 >> 入门
 
 ```js script
 import '@rocket/launch/inline-notification/inline-notification.js';
@@ -6,7 +6,15 @@ import '@rocket/launch/inline-notification/inline-notification.js';
 
 不同于传统的组件，Web Widget 的应用是建立在明确设计模式下的，因此我们有机会通过部署统一的架构去管理、优化它们，使我们更容易的构建符合最佳的用户体验的产品。
 
-## 用户体验与开发体验
+## 安装
+
+除了使用 CDN 来安装 Web Widget 运行时之外，常见做法是通过 NPM 安装到你的工程中。
+
+```bash
+npm install --save @web-widget/core
+```
+
+## 权衡
 
 ### 首屏性能优先
 
@@ -25,7 +33,7 @@ import '@rocket/launch/inline-notification/inline-notification.js';
 
 ### 容器化是手段，不是目的
 
-Web Widget 被设计为容器化的 UI 服务，它和传统的 Library 的有着明显的区别，因此应用事件机制、应用的对外接口并非 Web Widget 的要素，如果我们发现 Web Widget 应用需要频繁的与外部交互，那么可以考虑如下建议：
+Web Widget 被设计为容器化的 UI 服务，它和传统的 Library 的有着明显的区别，因此应用事件机制、应用的对外接口并非 Web Widget 的要素，如果我们发现 Web Widget 应用需要频繁的与外部交互，一些解决问题的建议：
 
 * 使用传统 Library 来共享代码
 * 将需要相互交互的 Web Widget 应用合并成一个
@@ -128,6 +136,13 @@ export default () => ({
 
 </inline-notification>
 
+## SEO
+
+因为 Web Widget 是一个标准的 Web Component，因此它的 SEO 问题本质上是 JavaScript 和 Web Component 的 SEO 问题。社区中有两种实践方式：
+
+* 使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom) 来描述关键内容
+* 使用 [JSON-LD](https://json-ld.org/) 描述关键内容
+
 ## 多语言
 
 <inline-notification type="tip">
@@ -135,13 +150,6 @@ export default () => ({
 这部分没有完成，欢迎提供帮助。
 
 </inline-notification>
-
-## SEO
-
-因为 Web Widget 是一个标准的 Web Component，因此它的 SEO 问题本质上是 JavaScript 和 Web Component 的 SEO 问题。社区中有两种实践方式：
-
-* 使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom) 来描述关键内容
-* 使用 [JSON-LD](https://json-ld.org/) 描述关键内容
 
 ## 服务器渲染
 

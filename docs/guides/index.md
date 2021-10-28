@@ -11,7 +11,7 @@ Web Widget 是一个基于现代 Web 的构建的开放式网页小挂件系统�
 
 了解[为什么要设计 Web Widget](../discover/about.md)。
 
-## 入门
+## 学习
 
-* [开发](./developing/getting-started.md)：了解如何开发 Web Widget 应用
-* [架构](./architecture/index.md)：了解如何在 Web 工程中引入 Web Widget
+* [开发入门](./developing/getting-started.md)：了解如何开发 Web Widget 应用
+* [架构入门](./architecture/getting-started.md)：了解如何在 Web 工程中引入 Web Widget

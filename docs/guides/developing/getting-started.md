@@ -34,6 +34,8 @@ export default () => ({
 
 恭喜你，你已经完成了 Web Widget 架构最关键的部分。如果你通过服务器浏览网页，你会发现它已经开始工作了！
 
+小挂件的完整格式可以参考[应用文档](../../docs/application/overview.md)。
+
 ## 安装
 
 除了使用 CDN 来安装 Web Widget 运行时之外，常见做法是通过 NPM 安装到你的工程中。
