@@ -2,10 +2,12 @@
 
 这是 WebWidget 的 umd 格式插件。
 
+[文档](https://web-widget.js.org/docs/container/plugins/umd-loader/)
+
 ## 安装
 
 ```bash
-npm install @web-sandbox.js/umd-loader --save
+npm install @web-widget/umd-loader --save
 ```
 
 ## 使用
@@ -17,8 +19,8 @@ npm install @web-sandbox.js/umd-loader --save
 ```
 
 ```js
-import '@web-sandbox.js/web-widget';
-import '@web-sandbox.js/umd-loader';
+import '@web-widget/core';
+import '@web-widget/umd-loader';
 ```
 
 ## 运行示例

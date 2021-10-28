@@ -16,7 +16,7 @@ package.json 示例：
     "dist"
   ],
   "devDependencies": {
-    "@web-sandbox.js/tester": "^0.0.4",
+    "@web-widget/tester": "^0.0.4",
     "@esm-bundle/chai": "^4.3.4-fix.0"
   }
 }

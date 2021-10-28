@@ -1,2 +1,2 @@
 #!/bin/sh
-rollup --config node:@web-sandbox.js/builder $*
+rollup --config node:@web-widget/builder $*

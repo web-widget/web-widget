@@ -1,23 +1,26 @@
 {
-  "name": "web-widget-libs",
+  "name": "web-widget-root",
   "private": true,
-  "description": "web widget",
   "scripts": {
     "postinstall": "lerna bootstrap",
-    "start": "lerna run --parallel start",
+    "start": "rocket start",
     "build": "lerna run build",
     "build:watch": "lerna run build:watch",
     "test": "lerna run test --concurrency 1",
     "lint": "eslint packages/**/src packages/**/test packages/**/examples",
     "prettier": "prettier --write packages/**/*.js",
     "release": "npm run lint && npm run build && npm test && lerna publish",
-    "examples": "npm run examples:web-widget",
+    "examples": "npm run examples:core",
     "examples:router": "cd packages/router && npm run examples",
     "examples:sandbox": "cd packages/sandbox && npm run examples",
     "examples:system-loader": "cd packages/system-loader && npm run examples",
     "examples:umd-loader": "cd packages/umd-loader && npm run examples",
-    "examples:web-widget": "cd packages/web-widget && npm run examples",
-    "examples:web-widget-import": "cd packages/web-widget-import && npm run examples"
+    "examples:core": "cd packages/core && npm run examples",
+    "examples:import": "cd packages/import && npm run examples",
+    "search": "rocket search",
+    "review-content": "alex 'docs/**/*.md'",
+    "docs": "rocket build && npm run github-pages-init",
+    "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll"
   },
   "workspaces": [
     "packages/*",
@@ -29,15 +32,24 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/web-sandbox-js/web-widget.git"
+    "url": "git+https://github.com/web-widget/web-widget.git"
   },
   "author": "aui",
   "bugs": {
-    "url": "https://github.com/web-sandbox-js/web-widget/issues"
+    "url": "https://github.com/web-widget/web-widget/issues"
   },
-  "homepage": "https://github.com/web-sandbox-js/web-widget#readme",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "dependencies": {
+    "@rocket/blog": "^0.3.0",
+    "@rocket/cli": "^0.7.0",
+    "@rocket/core": "^0.1.2",
+    "@rocket/launch": "^0.4.2",
+    "@rocket/search": "^0.3.5"
+  },
   "devDependencies": {
     "@babel/eslint-parser": "7.15.8",
+    "@web/dev-server": "^0.1.25",
+    "alex": "^10.0.0",
     "babel-loader": "^8.2.2",
     "cross-env": "^7.0.2",
     "eslint": "^8.0.1",

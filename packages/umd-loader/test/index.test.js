@@ -1,5 +1,5 @@
-import { HTMLWebWidgetElement } from '@web-sandbox.js/web-widget';
-import '@web-sandbox.js/sandbox';
+import { HTMLWebWidgetElement } from '@web-widget/core';
+import '@web-widget/sandbox';
 import '../src/index.js';
 
 const get = url =>

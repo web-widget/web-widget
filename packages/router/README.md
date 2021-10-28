@@ -2,10 +2,12 @@
 
 这是 WebWidget 的路由插件。
 
+[文档](https://web-widget.js.org/docs/container/plugins/router/)
+
 ## 安装
 
 ```bash
-npm install @web-sandbox.js/router --save
+npm install @web-widget/router --save
 ```
 
 ## 使用
@@ -20,8 +22,8 @@ npm install @web-sandbox.js/router --save
 为 WebWidget 容器添加 `inactive` 属性，让其不再受 DOM 生命周期控制，以便让交给路由控制它的挂载与卸载行为。
 
 ```js
-import '@web-sandbox.js/web-widget';
-import { collection, navigate, history } from  '@web-sandbox.js/router';
+import '@web-widget/core';
+import { collection, navigate, history } from  '@web-widget/router';
 
 // 注册应用
 collection.add(
@@ -62,7 +64,7 @@ window.navigate = navigate;
 WebWidget router 由三个领域 API 组合而成。
 
 ```js
-import { collection, navigate, history } from  '@web-sandbox.js/router';
+import { collection, navigate, history } from  '@web-widget/router';
 ```
 
 * [collection](#collection) 应用集合管理器

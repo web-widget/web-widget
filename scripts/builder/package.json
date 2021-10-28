@@ -1,5 +1,5 @@
 {
-  "name": "@web-sandbox.js/builder",
+  "name": "@web-widget/builder",
   "private": true,
   "version": "0.0.7",
   "description": "Builder",

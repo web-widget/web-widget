@@ -1,0 +1,28 @@
+# 容器 >> 插件 >> Import || 3
+
+这是 WebWidget 容器的语法糖，用于实现应用的 `import` 标签。
+
+## 安装
+
+```bash
+npm install @web-widget/import --save
+```
+
+## 使用
+
+```html
+<web-widget.import as="hello-world" from="./slot.widget.js"></web-widget.import>
+
+<hello-world>
+  <p slot="main">hello wrold</p>
+</hello-world>
+
+<hello-world>
+  <p slot="main">hello web-widget</p>
+</hello-world>
+
+<script type="module">
+  import '@web-widget/core';
+  import '@web-widget/import';
+</script>
+```

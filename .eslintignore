@@ -1,4 +1,9 @@
-dist
-node_modules
-coverage
-libs
+dist/
+node_modules/
+coverage/
+libs/
+_site/
+_site-dev
+docs/_merged_assets/
+docs/_merged_data/
+docs/_merged_includes/
