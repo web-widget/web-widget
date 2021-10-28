@@ -2,6 +2,8 @@
 
 这是 WebWidget 容器的语法糖，用于实现应用的 `import` 标签。
 
+[文档](https://web-widget.js.org/docs/container/plugins/import/)
+
 ## 安装
 
 ```bash

@@ -2,6 +2,8 @@
 
 这是 WebWidget 的路由插件。
 
+[文档](https://web-widget.js.org/docs/container/plugins/router/)
+
 ## 安装
 
 ```bash

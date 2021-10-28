@@ -2,6 +2,8 @@
 
 这是 WebWidget 的 umd 格式插件。
 
+[文档](https://web-widget.js.org/docs/container/plugins/umd-loader/)
+
 ## 安装
 
 ```bash

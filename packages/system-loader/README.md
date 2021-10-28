@@ -2,6 +2,8 @@
 
 这是 WebWidget 的 system 格式插件。
 
+[文档](https://web-widget.js.org/docs/container/plugins/system-loader/)
+
 ## 安装
 
 ```bash
