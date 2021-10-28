@@ -19,7 +19,8 @@
     "examples:import": "cd packages/import && npm run examples",
     "search": "rocket search",
     "review-content": "alex 'docs/**/*.md'",
-    "docs": "rocket build"
+    "docs": "rocket build && npm run github-pages-init",
+    "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll"
   },
   "workspaces": [
     "packages/*",
