@@ -11,6 +11,7 @@ module.exports = async function () {
       },
     ],
     gitSiteUrl: 'https://github.com//web-widget/web-widget',
+    gitBranch: 'main',
     helpUrl: 'https://github.com//web-widget/web-widget/issues',
     logoAlt: 'O with occluded right edge to appear also as a C',
     iconColorMaskIcon: '#3f93ce',
