@@ -82,7 +82,7 @@ widget.mount();
 
 沙盒化应用。启用后 Web Widget 应用将使用虚拟化环境来运行 JS（实验性特性）。虚拟化环境来自 [WebSandbox](https://web-sandbox.js.org)。
 
-次特性需要引入 [sandbox](./plugins/sandbox.md) 插件才能生效。
+此特性需要引入 [sandbox](./plugins/sandbox.md) 插件才能生效。
 
 ### csp
 
