@@ -7,12 +7,12 @@ module.exports = async function () {
     socialLinks: [
       {
         name: 'GitHub',
-        url: 'https://github.com//web-widget/web-widget',
+        url: 'https://github.com/web-widget/web-widget',
       },
     ],
-    gitSiteUrl: 'https://github.com//web-widget/web-widget',
+    gitSiteUrl: 'https://github.com/web-widget/web-widget',
     gitBranch: 'main',
-    helpUrl: 'https://github.com//web-widget/web-widget/issues',
+    helpUrl: 'https://github.com/web-widget/web-widget/issues',
     logoAlt: 'O with occluded right edge to appear also as a C',
     iconColorMaskIcon: '#3f93ce',
     iconColorMsapplicationTileColor: '#1d3557',
