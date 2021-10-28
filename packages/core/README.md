@@ -2,6 +2,8 @@
 
 这是 WebWidget 容器元素。
 
+[文档](https://web-widget.js.org/docs/container/overview/)
+
 ## 安装
 
 ```bash
@@ -17,8 +19,6 @@ npm install @web-widget/core --save
 ```js
 import '@web-widget/core';
 ```
-
-文档见 [../../README.md](../../README.md)。
 
 ## 运行示例
 
