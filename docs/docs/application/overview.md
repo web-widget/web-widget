@@ -40,23 +40,16 @@ export async function unload(props) {}
 
 * 所有生命周期函数都是可选的
 * 生命周期函数必须有返回值，可以是 `promise` 或者 `async` 函数
-* 如果导出的是函数数组而不是单个函数，这些函数会被依次调用，对于 `promise` 函数，会等到 resolve 之后再调用下一个函数
-
-<inline-notification type="tip">
-
-大多数情况下推荐使用多例格式，而单例模式似乎只适合路由驱动的模式。
-
-</inline-notification>
 
 ## 执行顺序
 
 ```
-load
-     -> bootstrap
-                  -> mount  <────────────────────────┐
-                            -> update                │
-                                      -> unmount -> ─┘
-                                                 -> unload
+load ┐            ┌ <───────────────────────────┐
+     └> bootstrap ┤                             │
+                  └> mount ┐                    │
+                           └> update ┐          │
+                                     └> unmount ┤
+                                                └> unload
 ```
 
 ## 下载
@@ -67,9 +60,10 @@ load
 
 ```js
 console.log("The registered application has been loaded!");
-export async function bootstrap(props) {...}
-export async function mount(props) {...}
-export async function unmount(props) {...}
+export default () => ({
+  async mount(props) {},
+  async unmount(props) {}
+});
 ```
 
 ## 初始化
@@ -79,14 +73,12 @@ export async function unmount(props) {...}
 这个生命周期函数会在应用第一次挂载前执行一次。
 
 ```js
-export function bootstrap(props) {
-  return Promise
-    .resolve()
-    .then(() => {
-      // One-time initialization code goes here
-      console.log('bootstrapped!')
-    });
-}
+export default () => ({
+  async bootstrap(props) {
+    // One-time initialization code goes here
+    console.log('bootstrapped!')
+  }
+});
 ```
 
 ## 挂载
@@ -94,15 +86,13 @@ export function bootstrap(props) {
 ### `mount`
 
 ```js
-export function mount(props) {
-  props.container.innerHTML = 'hello wrold';
-  return Promise
-    .resolve()
-    .then(() => {
-      // Do framework UI rendering here
-      console.log('mounted!')
-    });
-}
+export default () => ({
+  async mount({ container }) {
+    // Do framework UI rendering here
+    container.appendChild(element);
+    console.log('mounted!')
+  }
+});
 ```
 
 ## 更新
@@ -112,14 +102,12 @@ export function mount(props) {
 当应用挂载后，外部的容器或者其他程序可能触发“更新”生命周期来更新数据。
 
 ```js
-export function update(props) {
-  return Promise
-    .resolve()
-    .then(() => {
-      // Do framework UI rendering here
-      console.log('mounted!')
-    });
-}
+export default () => ({
+  async update({ data }) {
+    // Use a framework to update dom nodes
+    console.log('updated!', data)
+  }
+});
 ```
 
 ## 卸载
@@ -129,14 +117,13 @@ export function update(props) {
 卸载函数被调用时，应当清理挂载应用时被创建的 DOM 元素、事件监听、内存、全局变量和消息订阅等。
 
 ```js
-export function unmount(props) {
-  return Promise
-    .resolve()
-    .then(() => {
-      // Do framework UI unrendering here
-      console.log('unmounted!');
-    });
-}
+export default () => ({
+  async unmount({ container }) {
+    // Do framework UI unrendering here
+    container.removeChild(element);
+    console.log('updated!', data)
+  }
+});
 ```
 
 ## 移除
@@ -146,46 +133,48 @@ export function unmount(props) {
 应用被删除前将会调用。
 
 ```js
-export function unload(props) {
-  return Promise
-    .resolve()
-    .then(() => {
-      // Hot-reloading implementation goes here
-      console.log('unloaded!');
-    });
-}
+export default () => ({
+  async unload(props) {
+    // Hot-reloading implementation goes here
+    console.log('unloaded!');
+  }
+});
 ```
 
 ## 超时
 
 ### `timeouts`
 
-默认情况下，所有注册的应用遵循全局超时配置，但对于每个应用，也可以通过在主入口文件导出一个 `timeouts` 对象来重新定义超时时间。如：
+默认情况下，所有的应用遵循容器定义的超时配置，但对于每个应用也可以通过导出一个 `timeouts` 对象来重新定义超时时间。如：
 
 ```js
-export function bootstrap(props) {...}
-export function mount(props) {...}
-export function unmount(props) {...}
-export const timeouts = {
-  bootstrap: {
-    millis: 5000,
-    dieOnTimeout: true,
-    warningMillis: 2500,
-  },
-  mount: {
-    millis: 5000,
-    dieOnTimeout: false,
-    warningMillis: 2500,
-  },
-  unmount: {
-    millis: 5000,
-    dieOnTimeout: true,
-    warningMillis: 2500,
-  },
-  unload: {
-    millis: 5000,
-    dieOnTimeout: true,
-    warningMillis: 2500,
-  },
-};
+export default () => ({
+  async bootstrap(props) {},
+  async mount(props) {},
+  async update(props) {},
+  async unmount(props) {},
+  async unload(props) {},
+  timeouts: {
+    bootstrap: {
+      millis: 5000,
+      dieOnTimeout: true,
+      warningMillis: 2500,
+    },
+    mount: {
+      millis: 5000,
+      dieOnTimeout: false,
+      warningMillis: 2500,
+    },
+    unmount: {
+      millis: 5000,
+      dieOnTimeout: true,
+      warningMillis: 2500,
+    },
+    unload: {
+      millis: 5000,
+      dieOnTimeout: true,
+      warningMillis: 2500,
+    }
+  }
+});
 ```

@@ -4,7 +4,7 @@
 import '@rocket/launch/inline-notification/inline-notification.js';
 ```
 
-生命周期函数第一个参数是一个 `object`，它即属于应用的接口：
+生命周期函数第一个参数是一个 `object`，它属于应用运行的接口：
 
 ```js
 export async function bootstrap(props) {
@@ -12,11 +12,9 @@ export async function bootstrap(props) {
 }
 ```
 
-每个生命周期函数的入参都会保证有如下参数：
-
 ## container
 
-应用用于渲染 DOM 的节点。它至少拥有 `appendChild()` 、`innerHTML` 接口。
+应用用于渲染 DOM 的节点。你可以通过 `appendChild()` 、`removeChild()`、`innerHTML` 接口来操作 DOM 渲染。
 
 ## context
 
@@ -28,7 +26,7 @@ export async function bootstrap(props) {
 
 ## createPortal
 
-将应用传送到容器外面挂载。
+将应用传送到容器外面挂载（实验性特性）。
 
 ```js
 const context = createPortal(webWidgetElement, destination)
@@ -41,7 +39,7 @@ const context = createPortal(webWidgetElement, destination)
 
 ### 返回值
 
-一个 [`context`](#context) 对象（实验性特性）。
+一个 [`context`](#context) 对象。
 
 示例：
 
@@ -74,7 +72,7 @@ export async function mount({ createPortal }) {
 
 ## 示例
 
-### 挂载子应用
+### 挂载其他应用
 
 你可以在 Web Widget 应用嵌套或者在另外的地方新打开其他 Web Widget 应用。
 
