@@ -40,7 +40,7 @@ export default () => ({
 
 * [`mount()`](./html-web-widget-element.md#mount)
 * [`update()`](./html-web-widget-element.md#update)
-* [`unmount()`]./html-web-widget-element.md(#unmount)
+* [`unmount()`](./html-web-widget-element.md#unmount)
 
 ## createPortal()
 
