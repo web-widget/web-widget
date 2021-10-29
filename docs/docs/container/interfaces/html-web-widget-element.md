@@ -1,10 +1,10 @@
-# 容器 >> 接口 || 20
+# 容器 >> 接口 >> HTMLWebWidgetElement || 1
 
-## HTMLWebWidgetElement
+HTMLWebWidgetElement 是 `<web-widget>` [标签](../tag.md)的接口。
 
-HTMLWebWidgetElement 是 `<web-widget>` [标签](./tag.md)的接口。
+## application
 
-### application
+`function`
 
 设置应用的工厂函数。这是一种本地应用的注册方式，通常用于测试。
 
@@ -20,7 +20,9 @@ widget.application = () => ({
 document.body.appendChild(widget);
 ```
 
-### src
+## src
+
+`string`
 
 设置应用入口文件。
 
@@ -30,7 +32,9 @@ widget.src = './app.widget.js';
 document.body.appendChild(widget);
 ```
 
-### text
+## text
+
+`string`
 
 设置应用的代码。这是一种本地应用的注册方式。
 
@@ -46,7 +50,9 @@ widget.text = `export default () => ({
 document.body.appendChild(widget);
 ```
 
-### data
+## data
+
+`object`
 
 应用的数据。应用脚本可以通过生命周期的 `properties.data` 访问到。
 
@@ -60,11 +66,15 @@ widget.data = { a: 'hello' };
 <web-widget data="{&quot;a&quot;:&quot;hello&quot;}" src="app.widget.js"></web-widget>
 ```
 
-### name
+## name
+
+`string`
 
 应用名称。应用脚本可以通过生命周期的 `properties.name` 访问到。
 
-### inactive
+## inactive
+
+`boolean`
 
 取消 DOM 的生命周期与应用生命周期的绑定。如果为元素包含 `inactive` 属性，元素插入 DOM 树或移除的时候都不会自动触发应用生命周期函数，应用的生命周期只能手动调用，例如外部路由管理库来调用。
 
@@ -78,17 +88,23 @@ document.body.appendChild(widget);
 widget.mount();
 ```
 
-### sandboxed
+## sandboxed
+
+`boolean`
 
 沙盒化应用。启用后 Web Widget 应用将使用虚拟化环境来运行 JS（实验性特性）。虚拟化环境来自 [WebSandbox](https://web-sandbox.js.org)。
 
-此特性需要引入 [sandbox](./plugins/sandbox.md) 插件才能生效。
+此特性需要引入 [sandbox](../plugins/sandbox.md) 插件才能生效。
 
-### csp
+## csp
+
+`string`
 
 内容安全策略。只有开启 `sandboxed` 属性后才有效（实验性特性）。
 
-### loading
+## loading
+
+`string`
 
 指示浏览器应当如何加载。允许的值：
 
@@ -96,7 +112,9 @@ widget.mount();
 * `"eager"` 立即加载，不管它是否在可视视口（visible viewport）之外
 * `"lazy"` 延迟加载，直到它和视口接近的距离
 
-### importance
+## importance
+
+`string`
 
 指示下载资源时相对重要性，或者说优先级。允许的值：
 
@@ -104,11 +122,15 @@ widget.mount();
 * `"high"` 在下载时优先级较高
 * `"low"` 在下载时优先级较低
 
-### type
+## type
+
+`string`
 
 脚本的模块类型，默认值为 `"module"`。
 
-### state
+## state
+
+`string`
 
 应用的状态（只读）。
 
@@ -133,13 +155,13 @@ widget.mount();
 
 > 可以通过构造器的静态相属性访问状态常量，例如 `"load-error"` 等价于 `HTMLWebWidgetElement.LOAD_ERROR`。
 
-### createDependencies()
+## createDependencies()
 
 应用的依赖注入勾子函数（实验性特性）。它默认行为是执行 `return new WebWidgetDependencies(this)` 覆盖它可以自定义注入到应用的 API。
 
-详情见：[WebWidgetDependencies](#webwidgetdependencies)
+详情见：[WebWidgetDependencies](./web-widget-dependencies.md)
 
-### createLoader()
+## createLoader()
 
 应用的加载器勾子函数（实验性特性）。它默认行为是调用 `import()` 加载 ES module，覆盖它可以加载其他格式的模块。
 
@@ -188,25 +210,25 @@ defineHook(HTMLWebWidgetElement.prototype, 'createLoader', ({ value }) => ({
 <web-widget src="app.widget.js" type="system"></web-widget>
 ```
 
-### load()
+## load()
 
 手动加载应用。
 
 返回值：`Promise`
 
-### bootstrap()
+## bootstrap()
 
 手动触发应用 `bootstrap` 生命周期函数。
 
 返回值：`Promise`
 
-### mount()
+## mount()
 
 手动触发应用 `mount` 生命周期函数。
 
 返回值：`Promise`
 
-### update()
+## update()
 
 手动触发应用 `update` 生命周期函数。
 
@@ -216,21 +238,21 @@ widget.update(properties);
 
 返回值：`Promise`
 
-### unmount()
+## unmount()
 
 手动触发应用 `unmount` 生命周期函数。
 
 返回值：`Promise`
 
-### unload()
+## unload()
 
 手动触发应用 `unload` 生命周期函数。
 
 返回值：`Promise`
 
-### HTMLWebWidgetElement.portalDestinations
+## \#portalDestinations
 
-全局传送门注册表（实验性特性）。这是一个静态属性。
+全局传送门注册表（实验性特性）。这是一个**静态属性**。
 
 它有两个方法：
 
@@ -248,7 +270,7 @@ HTMLWebWidgetElement.portalDestinations.define('dialog', () => {
 });
 ```
 
-传送门定义好后，应用可以通过 [`createPortal()`](#createportal) 将子 WevWidget 容器传送到指定的位置渲染：
+传送门定义好后，应用可以通过 [`createPortal()`](../../application/interface.md#createportal) 将子 WevWidget 容器传送到指定的位置渲染：
 
 ```js
 // app.widget.js
@@ -261,9 +283,9 @@ export async function mount({ container, createPortal }) {
 })
 ```
 
-### 事件
+## Events
 
-#### statechange
+### statechange
 
 当应用的状态变更后，每次都将触发 `statechange` 事件。
 
@@ -275,98 +297,6 @@ widget.addEventListener('statechange', () => {
 });
 document.body.appendChild(widget);
 ```
-
-## WebWidgetDependencies
-
-WebWidgetDependencies 接口是应用的生命周期函数接收的参数，因此可以扩展它给应用注入 API。
-
-使用例子：
-
-```html
-<editor-plugin src="plugin.widget.js"></editor-plugin>
-<script type="module">
-  class PluginDependencies extends WebWidgetDependencies {
-    setDocumentTitle(title) {
-      document.title = title;
-    }
-  }
-  class HTMLEditorPluginElement extends HTMLWebWidgetElement {
-    createDependencies() {
-      return new PluginDependencies(this);
-    }
-  }
-  customElements.define('editor-plugin', HTMLEditorPluginElement);
-</script>
-```
-
-```js
-// plugin.widget.js
-export default () => ({
-  async mount(properties) {
-    properties.setDocumentTitle('hello world');
-  }
-});
-```
-
-### container
-
-应用用于渲染 DOM 的节点（只读）。它至少拥有 `appendChild()` 、`innerHTML` 接口。
-
-### context
-
-应用容器的上下文 API（只读）（实验性特性）。包含如下三个 API：
-
-* [`mount()`](#mount)
-* [`update()`](#update)
-* [`unmount()`](#unmount)
-
-### createPortal()
-
-将应用传送到容器外面挂载。
-
-```js
-const context = createPortal(webWidgetElement, destination)
-```
-
-#### 参数
-
-* `webWidgetElement` Web Widget 容器
-* `destination` 目的地名称
-
-#### 返回值
-
-一个 [`context`](#context) 对象。
-
-示例：
-
-```js
-// app.widget.js
-export async function mount({ createPortal }) {
-  const app = document.createElement('web-widget');
-  app.src = './lit-element-todomvc.widget.js';
-  createPortal(app, 'dialog')
-    .mount()
-    .then(() => {
-      console.log('dialog is open');
-    });
-}
-```
-
-> 目的地必须先定义才能被使用，例如通过 [HTMLWebWidgetElement.portalDestinations](#htmlwebwidgetelementportaldestinations) 来定义目的地。
->
-> 这是试验性特性。
-
-### name
-
-应用名称（只读）。
-
-### data
-
-应用的初始化数据（只读）。
-
-### sandboxed
-
-应用是否处于 WebSandbox DOM 沙箱中（只读）。
 
 ## 例子
 

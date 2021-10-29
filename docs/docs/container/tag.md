@@ -1,5 +1,9 @@
 # 容器 >> 标签 || 10
 
+```html
+<web-widget src="app.widget.js"></web-widget>
+```
+
 ## 占位符
 
 `<placeholder>` 元素将充当 Web Widget 容器的占位符号。用途：

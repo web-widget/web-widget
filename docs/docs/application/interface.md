@@ -14,17 +14,23 @@ export async function bootstrap(props) {
 
 ## container
 
-应用用于渲染 DOM 的节点。你可以通过 `appendChild()` 、`removeChild()`、`innerHTML` 接口来操作 DOM 渲染。
+`Node`
+
+应用用于渲染 DOM 的节点。可以通过 `appendChild()` 、`removeChild()`、`innerHTML` 接口来操作 DOM 渲染。
 
 ## context
 
+`object`
+
 应用容器的上下文 API。包含如下三个 API：
 
-* [`mount()`](../container/api.md#mount)
-* [`update()`](../container/api.md#update)
-* [`unmount()`](../container/api.md#unmount)
+* [`mount()`](../container/interfaces/html-web-widget-element.md#mount)
+* [`update()`](../container/interfaces/html-web-widget-element.md#update)
+* [`unmount()`](../container/interfaces/html-web-widget-element.md#unmount)
 
-## createPortal
+## createPortal()
+
+`function`
 
 将应用传送到容器外面挂载（实验性特性）。
 
@@ -56,19 +62,25 @@ export async function mount({ createPortal }) {
 }
 ```
 
-> 目的地必须先定义才能被使用，例如通过 [HTMLWebWidgetElement.portalDestinations](../container/api.md#htmlwebwidgetelementportaldestinations) 来定义目的地。
+> 目的地必须先定义才能被使用，例如通过 [HTMLWebWidgetElement.portalDestinations](../container/interfaces/html-web-widget-element.md#portaldestinations) 来定义目的地。
 
 ## name
+
+`string`
 
 注册到主文档的应用名称。
 
 ## data
 
-应用的初始化数据。
+`object`
+
+应用的初始化数据。它是一个可以被序列化的数据结构。
 
 ## sandboxed
 
-应用是否处于 WebSandbox DOM 沙箱中（实验性特性）。
+`boolean`
+
+应用是否处于沙盒模式中（实验性特性）。
 
 ## 示例
 

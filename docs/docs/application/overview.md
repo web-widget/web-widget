@@ -14,7 +14,7 @@ import '@rocket/launch/inline-notification/inline-notification.js';
 
 应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，它支持如下生命周期函数：
 
-## 入口
+## 格式
 
 ```js
 export default () => ({
@@ -36,27 +36,30 @@ export async function unmount(props) {}
 export async function unload(props) {}
 ```
 
-应用容器会依次调用应用入口文件的定义的生命周期函数，并且注入应用[接口](./api.md)依赖。
+## 执行
 
-* 所有生命周期函数都是可选的
-* 生命周期函数必须有返回值，可以是 `promise` 或者 `async` 函数
-
-## 执行顺序
+应用容器会依次调用应用入口文件的定义的生命周期函数。
 
 ```
 load ┐            ┌ <───────────────────────────┐
      └> bootstrap ┤                             │
-                  └> mount ┐                    │
-                           └> update ┐          │
-                                     └> unmount ┤
-                                                └> unload
+     │            └> mount ┐                    │
+     │                     └> update ┐          │
+     │                               └> unmount ┤
+     │                                          └> unload ┐
+     │                                                    │
+      <────────── [ Hot-reloading ] ──────────────────────┘
 ```
+
+* 所有生命周期函数都是可选的
+* 生命周期函数必须返回 `promise`（建议使用 `async` 函数保证这一点）
+* 生命周期函数第一个参数接收应用内置的[接口](./interface.md)
 
 ## 下载
 
 ### `load`
 
-注册的应用会被懒加载，这指的是该应用的代码会从服务器端下载并执行。在下载过程中，建议尽可能执行少的操作，可以在 `bootstrap` 生命周期之后再执行各项操作。若确实有在下载时需要执行的操作，可将代码放入子应用入口文件中，但要放在各导出函数的外部。例如：
+在下载过程中，建议尽可能执行少的操作，可以在 `bootstrap` 生命周期之后再执行各项操作。若确实有在下载时需要执行的操作，可将代码放入应用入口文件中，但要放在各导出函数的外部。例如：
 
 ```js
 console.log("The registered application has been loaded!");
@@ -70,7 +73,7 @@ export default () => ({
 
 ### `bootstrap`
 
-这个生命周期函数会在应用第一次挂载前执行一次。
+这个生命周期函数会在应用第一次挂载前执行一次，可以用来准备一些资源。
 
 ```js
 export default () => ({

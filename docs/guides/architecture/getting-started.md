@@ -144,13 +144,6 @@ export default () => ({
 
 </inline-notification>
 
-## SEO
-
-因为 Web Widget 是一个标准的 Web Component，因此它的 SEO 问题本质上是 JavaScript 和 Web Component 的 SEO 问题。社区中有两种实践方式：
-
-* 使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom) 来描述关键内容
-* 使用 [JSON-LD](https://json-ld.org/) 描述关键内容
-
 ## 多语言
 
 <inline-notification type="tip">
@@ -158,6 +151,13 @@ export default () => ({
 这部分没有完成，欢迎提供帮助。
 
 </inline-notification>
+
+## 搜索引擎优化
+
+因为 Web Widget 是一个标准的 Web Component，因此它的 SEO 问题本质上是 JavaScript 和 Web Component 的 SEO 问题。社区中有两种实践方式：
+
+* 使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom) 来描述关键内容
+* 使用 [JSON-LD](https://json-ld.org/) 描述关键内容
 
 ## 服务器渲染
 
