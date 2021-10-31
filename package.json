@@ -1,5 +1,6 @@
 {
   "name": "web-widget-root",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "postinstall": "lerna bootstrap",
@@ -7,7 +8,8 @@
     "build": "lerna run build",
     "build:watch": "lerna run build:watch",
     "test": "lerna run test --concurrency 1",
-    "lint": "eslint packages/**/src packages/**/test packages/**/examples",
+    "clean": "npx lerna clean",
+    "lint": "packages/**/src packages/**/test packages/**/examples",
     "prettier": "prettier --write packages/**/*.js",
     "release": " npm run build && npm run lint && npm test && lerna publish",
     "examples": "npm run examples:container",
@@ -47,13 +49,12 @@
     "@rocket/search": "^0.3.5"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "7.15.8",
+    "@babel/eslint-parser": "^7.16.0",
     "@web/dev-server": "^0.1.25",
     "alex": "^10.0.0",
-    "babel-loader": "^8.2.2",
-    "cross-env": "^7.0.2",
-    "eslint": "^8.0.1",
-    "eslint-config-airbnb-base": "^14.2.1",
+    "babel-loader": "^8.2.3",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-prettier": "^4.0.0",
