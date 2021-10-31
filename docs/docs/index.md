@@ -31,10 +31,10 @@ Web Widget 应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的小�
 ```js
 // app.widget.js
 export default () => ({
-  async bootstrap: (properties) => {},
-  async mount: (properties) => {},
-  async unmount: (properties) => {},
-  async unload: (properties) => {}
+  async bootstrap: (props) => {},
+  async mount: (props) => {},
+  async unmount: (props) => {},
+  async unload: (props) => {}
 });
 ```
 
@@ -42,12 +42,11 @@ export default () => ({
 
 ### 清单
 
-Web Widget 清单使用了 NPM package.json 文件，它描述了应用名字、图标等信息，以便在组件系统 or 应用市场中展示。例如：
+Web Widget 定义了应用的描述规范，它使用 NPM package.json 描述了应用名字、图标等信息，以便能够支持不同的应用市场展示。例如：
 
 ```json
 {
   "name": "app",
-  "WebWidget": "1.0.0",
   "version": "0.0.1",
   "main": "dist/umd/index.widget.js",
   "……": "……"

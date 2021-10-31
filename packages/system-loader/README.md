@@ -18,7 +18,7 @@ npm install @web-widget/system-loader --save
 
 ```js
 import 'systemjs/s.js';
-import '@web-widget/core';
+import '@web-widget/container';
 import '@web-widget/system-loader';
 ```
 

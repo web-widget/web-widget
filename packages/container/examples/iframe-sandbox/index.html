@@ -13,7 +13,7 @@
   <web-widget name="mainWidget" src="./index.widget.js" sandboxed></web-widget>
 
   <script type="module">
-    import '@web-widget/core';
+    import '@web-widget/container';
 
     function defineHook(target, name, callback) {
       return Reflect.defineProperty(

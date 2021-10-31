@@ -17,7 +17,7 @@ npm install @web-widget/sandbox --save
 ```
 
 ```js
-import '@web-widget/core';
+import '@web-widget/container';
 import '@web-widget/umd-loader';
 import '@web-widget/sandbox';
 ```

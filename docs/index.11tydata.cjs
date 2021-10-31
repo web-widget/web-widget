@@ -18,12 +18,9 @@ module.exports = async () => {
               Web Widget
             </text>
             <text x="50%" y="520" style="font-size: 30px;">
-              Guides, Tools and Libraries for developing web components
+              Guides, Tools and Libraries for developing web widget
             </text>
           </g>
-          <text x="10" y="620" style="font-size: 30px; fill: gray;">
-            A Modern Web Product
-          </text>
         </svg>
       `
   });

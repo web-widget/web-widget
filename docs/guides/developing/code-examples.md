@@ -1,11 +1,13 @@
-# 开发 >> 示例 ||50
+# 开发 >> 示例 || 50
 
-```js script
-import '@rocket/launch/inline-notification/inline-notification.js';
+克隆 [web-widget](https://github.com/web-widget/web-widget) 仓库到本地，依次执行如下命令即可打开示例：
+
+```batch
+npm install
+npm run build
+npm run examples
 ```
 
-<inline-notification type="tip">
+示例源代码：
 
-这部分没有完成，欢迎提供帮助。
-
-</inline-notification>
+[web-widget/packages/container/examples](https://github.com/web-widget/web-widget/tree/main/packages/container/examples)

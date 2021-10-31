@@ -4,12 +4,20 @@
 import '@rocket/launch/inline-notification/inline-notification.js';
 ```
 
+本文描述的是应用运行依赖的标准接口，应用容器的实现者必须实现这些标准接口。
+
+## 获取接口
+
 生命周期函数第一个参数是一个 `object`，它属于应用运行的接口：
 
 ```js
-export async function bootstrap(props) {
-  console.log('api', props);
-}
+export default () => ({
+  async bootstrap(props) {},
+  async mount(props) {},
+  async update(props) {},
+  async unmount(props) {},
+  async unload(props) {}
+});
 ```
 
 ## container
@@ -22,7 +30,7 @@ export async function bootstrap(props) {
 
 `object`
 
-应用容器的上下文 API。包含如下三个 API：
+应用容器的上下文对象。包含如下三个 API：
 
 * [`mount()`](../container/interfaces/html-web-widget-element.md#mount)
 * [`update()`](../container/interfaces/html-web-widget-element.md#update)
@@ -35,12 +43,12 @@ export async function bootstrap(props) {
 将应用传送到容器外面挂载（实验性特性）。
 
 ```js
-const context = createPortal(webWidgetElement, destination)
+const context = createPortal(appContainer, destination)
 ```
 
 ### 参数
 
-* `webWidgetElement` Web Widget [容器](../container/overview.md)
+* `appContainer` 运行应用的[容器](../container/overview.md)
 * `destination` 目的地名称
 
 ### 返回值
@@ -52,9 +60,9 @@ const context = createPortal(webWidgetElement, destination)
 ```js
 // app.widget.js
 export async function mount({ createPortal }) {
-  const app = document.createElement('web-widget');
-  app.src = './lit-element-todomvc.widget.js';
-  createPortal(app, 'dialog')
+  const appContainer = document.createElement('web-widget');
+  appContainer.src = './lit-element-todomvc.widget.js';
+  createPortal(appContainer, 'dialog')
     .mount()
     .then(() => {
       console.log('dialog is open');
@@ -83,6 +91,12 @@ export async function mount({ createPortal }) {
 应用是否处于沙盒模式中（实验性特性）。
 
 ## 示例
+
+<inline-notification type="tip">
+
+示例不是规范的一部分。
+
+</inline-notification>
 
 ### 挂载其他应用
 
@@ -126,11 +140,11 @@ HTMLWebWidgetElement.portalDestinations.define('dialog', () => {
 
 ```js
 export async function mount({ container, createPortal }) {
-  const userWidget = document.createElement('web-widget');
-  userWidget.slot = 'main';
-  userWidget.src = './user.widget.js';
+  const appContainer = document.createElement('web-widget');
+  appContainer.slot = 'main';
+  appContainer.src = './user.widget.js';
   // 传送应用
-  const cardWidget = createPortal(userWidget, 'dialog');
+  const cardWidget = createPortal(appContainer, 'dialog');
   cardWidget.unmount();
 })
 ```
@@ -150,9 +164,3 @@ export async function mount({ container, createPortal }) {
   </web-widget>
 </web-widget>
 ```
-
-<inline-notification type="tip">
-
-欢迎提供帮助：应用如果在外面打开键盘焦点管理非常重要，这里需要补充解决方案。
-
-</inline-notification>

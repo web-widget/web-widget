@@ -271,6 +271,20 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return new WebWidgetSandbox(this);
   }
 
+  createRenderRoot() {
+    const { sandboxed, sandbox } = this;
+
+    if (sandboxed) {
+      const sandboxDoc = sandbox.window.document;
+      const style = sandboxDoc.createElement('style');
+      style.textContent = `body{margin:0}`;
+      sandboxDoc.head.appendChild(style);
+      return sandboxDoc.body;
+    }
+
+    return this.attachShadow({ mode: 'closed' });
+  }
+
   async createLoader() {
     const { type } = this;
     const loader = this.constructor.loaders.get(type);
@@ -294,6 +308,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         (application ? application.name : this.name || this.localName);
       this.dependencies = this.createDependencies();
       this.sandbox = this.sandboxed ? this.createSandbox() : null;
+      this.renderRoot = null;
       this.loader = application
         ? async () => application
         : this.createLoader.bind(this);

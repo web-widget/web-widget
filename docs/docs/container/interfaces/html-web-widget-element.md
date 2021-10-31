@@ -1,5 +1,9 @@
 # 容器 >> 接口 >> HTMLWebWidgetElement || 1
 
+```js script
+import '@rocket/launch/inline-notification/inline-notification.js';
+```
+
 HTMLWebWidgetElement 是 `<web-widget>` [标签](../tag.md)的接口。
 
 ## application
@@ -210,6 +214,42 @@ defineHook(HTMLWebWidgetElement.prototype, 'createLoader', ({ value }) => ({
 <web-widget src="app.widget.js" type="system"></web-widget>
 ```
 
+## createRenderRoot()
+
+应用的挂载节点勾子函数（实验性特性）。它默认行为是创建 shadow DOM 节点，覆盖它可以重新定义此行为。
+
+```js
+function defineHook(target, name, callback) {
+  return Reflect.defineProperty(
+    target,
+    name,
+    callback(Reflect.getOwnPropertyDescriptor(target, name))
+  );
+}
+
+defineHook(HTMLWebWidgetElement.prototype, 'createRenderRoot', ({ value }) => ({ 
+  value() {
+    const { src, text, type } = this;
+
+    if (this.hasAttribute('noshadow')) {
+      return this;
+    }
+
+    return value.apply(this, arguments);
+  }
+}));
+```
+
+```html
+<web-widget src="app.widget.js" noshadow></web-widget>
+```
+
+<inline-notification type="warning">
+
+关闭 shadow DOM 后，Web Widget 容器的沙箱、插槽特性都将无法工作。
+
+</inline-notification>
+
 ## load()
 
 手动加载应用。
@@ -251,6 +291,8 @@ widget.update(properties);
 返回值：`Promise`
 
 ## \#portalDestinations
+
+`object`
 
 全局传送门注册表（实验性特性）。这是一个**静态属性**。
 
@@ -300,20 +342,6 @@ document.body.appendChild(widget);
 
 ## 例子
 
-### CSS 区分元素是否定义
-
-可以通过 CSS `:defined` 伪类处理元素定义之前的样式。
-
-```css
-web-widget:not(:defined) {
-  display: none;
-}
-
-web-widget:defined {
-  display: block;
-}
-```
-
 ### JS 区分元素是否定义
 
 ```html
@@ -325,7 +353,7 @@ web-widget:defined {
     console.log('defined');
   });
 
-  import('@web-widget/core');
+  import('@web-widget/container');
 </script>
 ```
 ### 更新数据

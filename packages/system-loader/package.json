@@ -33,7 +33,7 @@
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web-widget/builder": "^0.0.7",
-    "@web-widget/core": "^0.0.7",
+    "@web-widget/container": "^0.0.7",
     "@web-widget/sandbox": "^0.0.7",
     "@web/dev-server": "^0.1.17",
     "@web-widget/tester": "^0.0.7",

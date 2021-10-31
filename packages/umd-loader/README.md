@@ -19,7 +19,7 @@ npm install @web-widget/umd-loader --save
 ```
 
 ```js
-import '@web-widget/core';
+import '@web-widget/container';
 import '@web-widget/umd-loader';
 ```
 

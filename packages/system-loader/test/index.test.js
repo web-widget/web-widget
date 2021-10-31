@@ -1,5 +1,5 @@
 import 'systemjs';
-import { HTMLWebWidgetElement } from '@web-widget/core';
+import { HTMLWebWidgetElement } from '@web-widget/container';
 import '@web-widget/sandbox';
 import '../src/index.js';
 

@@ -37,17 +37,9 @@ export class WebWidgetDependencies {
 
   get container() {
     const view = this.ownerElement;
-    const { sandboxed, sandbox } = view;
+    view.renderRoot = view.renderRoot || view.createRenderRoot();
 
-    if (sandboxed) {
-      const sandboxDoc = sandbox.window.document;
-      const style = sandboxDoc.createElement('style');
-      style.textContent = `body{margin:0}`;
-      sandboxDoc.head.appendChild(style);
-      return sandboxDoc.body;
-    }
-
-    return view.attachShadow({ mode: 'closed' });
+    return view.renderRoot;
   }
 
   get context() {

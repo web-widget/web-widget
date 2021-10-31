@@ -35,7 +35,7 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
 ```html
 <web-widget src="app.widget.js"></web-widget>
 <script type="module">
-  import '@web-widget/core';
+  import '@web-widget/container';
 </script>
 ```
 
@@ -46,7 +46,7 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
 ```html
 <web-widget src="app.widget.js" type="system"></web-widget>
 <script type="module">
-  import '@web-widget/core';
+  import '@web-widget/container';
   import 'systemjs';
 
   const createLoader = HTMLWebWidgetElement.prototype.createLoader;
@@ -93,7 +93,7 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
 <web-widget type="umd" name="helloWidget" src="./app.widget.js"></web-widget>
 
 <script type="module">
-  import '@web-widget/core';
-  import '@web-widget/core/extensions/WebWidgerUmdLoader.js';
+  import '@web-widget/container';
+  import '@web-widget/umd-loader';
 </script>
 ```

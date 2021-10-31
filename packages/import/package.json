@@ -28,7 +28,7 @@
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
     "@web-widget/builder": "^0.0.7",
-    "@web-widget/core": "^0.0.7",
+    "@web-widget/container": "^0.0.7",
     "@web/dev-server": "^0.1.17"
   }
 }

@@ -11,11 +11,11 @@
 
 目前只有最新的 Chrome 浏览器支持 [import maps](https://github.com/WICG/import-maps)，而 Web Widget 沙盒模式也未能支持 ES module 格式，因此为了能够更好的兼容，应当额外准备一份 `system` 格式版本。
 
-`system` 格式和构建工具无关，无论是 Webpack 或者 Rollup 都很好的支持它，它可以作为全面应用 ES module 之前的过度格式，它支持了[裸模块](https://github.com/WICG/import-maps)导入，也支持 Web Widget 沙盒模式。
+`system` 格式和构建工具无关，无论是 Webpack 或者 Rollup 都很好的支持它，它可以作为全面应用 ES module 之前的过度格式。`system` 支持使用[裸模块](https://github.com/WICG/import-maps)导入，Web Widget 沙盒模式也支持它。
 
 ## 打包好所有依赖
 
-默认情况下，Web Widget 应用的使用者不应该关心依赖处理，而应该是直接可用，所以你应当尽可能的将依赖打包在一起。
+默认情况下，Web Widget 应用的使用者不应该关心依赖处理，而应该是直接可用，所以你应当尽可能的将依赖打包在一起，当然，这会要求你避免在 Web Widget 应用中引入大型依赖。
 
 ## package.json: 定义 `module` 与 `system` 字段
 
@@ -26,6 +26,8 @@
   "system": "dist/system/app.widget.js"
 }
 ```
+
+完整要求参考 Web Widget [应用清单文档](../../docs/manifest/overview.md)。
 
 ## 使用语义化版本管理
 

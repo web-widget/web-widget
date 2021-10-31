@@ -1,6 +1,6 @@
 # 容器 >> 接口 >> WebWidgetDependencies || 2
 
-WebWidgetDependencies 接口是应用的生命周期函数接收的参数，因此可以扩展它给应用注入 API。
+WebWidgetDependencies 是[应用标准接口](../../application/interface.md)实现，可以扩展它增加新的 API。
 
 使用例子：
 
@@ -32,7 +32,7 @@ export default () => ({
 
 ## container
 
-应用用于渲染 DOM 的节点（只读）。可以通过 `appendChild()` 、`removeChild()`、`innerHTML` 接口来操作 DOM 渲染。
+应用用于渲染 DOM 的节点（只读）。可以通过 `appendChild()` 、`removeChild()`、`innerHTML` 接口来操作 DOM 渲染。通过 [createRenderRoot()](./html-web-widget-element.md#createrenderroot) 勾子可以定义默认的插入点。
 
 ## context
 

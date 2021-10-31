@@ -1,23 +1,19 @@
 # 架构 >> 入门
 
-```js script
-import '@rocket/launch/inline-notification/inline-notification.js';
-```
-
 不同于传统的组件系统，Web Widget 的应用是建立在明确范式上的，因此我们有机会通过部署统一的架构去管理、优化它们，更容易的构建符合最佳的用户体验的产品。
 
 ## 安装
 
-除了使用 CDN 来安装 Web Widget 运行时之外，常见做法是通过 NPM 安装到你的工程中。
+通过 NPM 安装到你的工程中：
 
 ```bash
-npm install --save @web-widget/core
+npm install --save @web-widget/container
 ```
 
-在页面中引入运行时文件。
+在页面中引入应用容器的运行时文件：
 
 ```js
-import '@web-widget/core';
+import '@web-widget/container';
 ```
 
 ## 权衡
@@ -138,31 +134,9 @@ export default () => ({
 });
 ```
 
-<inline-notification type="tip">
-
-欢迎提供帮助：如何让可视化编辑器中够发现小挂件的支持的主题列表，以便用户能够切换。
-
-</inline-notification>
-
-## 多语言
-
-<inline-notification type="tip">
-
-这部分没有完成，欢迎提供帮助。
-
-</inline-notification>
-
 ## 搜索引擎优化
 
-因为 Web Widget 是一个标准的 Web Component，因此它的 SEO 问题本质上是 JavaScript 和 Web Component 的 SEO 问题。社区中有两种实践方式：
+因为 Web Widget 容器是一个标准的 Web Component，因此它的 SEO 问题本质上是 JavaScript 和 Web Component 的 SEO 问题。社区中有两种实践方式：
 
 * 使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom) 来描述关键内容
 * 使用 [JSON-LD](https://json-ld.org/) 描述关键内容
-
-## 服务器渲染
-
-<inline-notification type="tip">
-
-这部分没有完成，欢迎提供帮助。
-
-</inline-notification>

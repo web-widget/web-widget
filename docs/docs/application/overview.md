@@ -6,15 +6,15 @@ eleventyNavigation:
   order: 1
 ---
 
-```js script
-import '@rocket/launch/inline-notification/inline-notification.js';
-```
-
 # Web Widget 应用
 
-应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件，它支持如下生命周期函数：
+应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件。
+
+Web Widget 应用被设计为一种独立的格式，是一种和 UI 框架无关的的插件抽象，它和具体的应用容器、加载器也无关，包括 Web Widget 容器，因为我们认为通过抽象可以让软件具备更长的生命力。
 
 ## 格式
+
+入口文件支持定义如下生命周期函数：
 
 ```js
 export default () => ({
@@ -36,9 +36,13 @@ export async function unmount(props) {}
 export async function unload(props) {}
 ```
 
+* 所有生命周期函数都是可选的
+* 生命周期函数必须返回 `promise`（建议使用 `async` 函数保证这一点）
+* 生命周期函数第一个 `props` 参数接收应用内置的[接口](./interface.md)
+
 ## 执行
 
-应用容器会依次调用应用入口文件的定义的生命周期函数。
+应用容器负责执行应用，它会依次调用应用入口文件的定义的生命周期函数。
 
 ```
 load ┐            ┌ <───────────────────────────┐
@@ -51,9 +55,22 @@ load ┐            ┌ <──────────────────�
       <───────────── [ Hot-reloading ] ───────────────────┘
 ```
 
-* 所有生命周期函数都是可选的
-* 生命周期函数必须返回 `promise`（建议使用 `async` 函数保证这一点）
-* 生命周期函数第一个参数接收应用内置的[接口](./interface.md)
+## 接口
+
+应用除了可以使用 BOM 环境提供的 Web 标准接口之外，也有自己的专属接口，应用专属的接口将通过生命周期函数参数进行注入。
+
+```js
+export default () => ({
+  async mount({ name, container }) {
+    const element = document.createElement('div');
+    element.innerHTML = `The application named '${name}' has been mounted`;
+    container.appendChild(element);
+    console.log('mounted!')
+  }
+});
+```
+
+详情见[应用接口](./interface.md)。
 
 ## 下载
 
@@ -181,3 +198,17 @@ export default () => ({
   }
 });
 ```
+
+----------
+
+*感谢：*
+
+[single-spa](https://single-spa.js.org/) 是一个非常优秀的微前端解决方案，它对 Web Widget 的应用格式设计产生了关键影响：生命周期函数沿用了 [single-spa](https://single-spa.js.org/) 的设计。
+
+对 [single-spa](https://single-spa.js.org/) 应用格式主要的改进：
+
+* 支持多例的形式 `export default () => {}`，并且作为推荐的方式。因为 Web Widget 应用将允许多个实例存在
+* 定义了获取渲染目标的接口 [`container`](./interface.md#container)
+* 定义获取数据的接口 [`data`](./interface.md#data)
+* 删除了接口 `singleSpa`。应用应当作为独立的格式，和具体的容器实现无关
+* 删除了接口 `mountParcel`。Web Widget 的应用格式抽象了 [single-spa](https://single-spa.js.org/) 中 `application` 与 `parcel` 的概念，因此无须再保留 `parcel` 概念

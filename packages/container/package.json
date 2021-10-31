@@ -1,11 +1,11 @@
 {
-  "name": "@web-widget/core",
+  "name": "@web-widget/container",
   "version": "0.0.7",
   "description": "web widget",
   "source": "src/index.js",
-  "main": "dist/cjs/core.js",
-  "module": "dist/esm/core.js",
-  "unpkg": "dist/umd/core.js",
+  "main": "dist/cjs/container.js",
+  "module": "dist/esm/container.js",
+  "unpkg": "dist/umd/container.js",
   "libraryName": "HTMLWebWidgetElement",
   "scripts": {
     "build": "builder --environment NODE_ENV:production",

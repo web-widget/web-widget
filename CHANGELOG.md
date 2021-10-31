@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.0.8 (2021-10-31)
+
+* 增加 `createRenderRoot()` 勾子
+
 ## 0.0.7 (2021-10-21)
 
 * umd-loader 支持在不知道 name 的情况下获取到 umd 模块

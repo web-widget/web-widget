@@ -7,7 +7,7 @@
 ## 安装
 
 ```bash
-npm install @web-widget/core --save
+npm install @web-widget/container --save
 ```
 
 ## 使用
@@ -17,7 +17,7 @@ npm install @web-widget/core --save
 ```
 
 ```js
-import '@web-widget/core';
+import '@web-widget/container';
 ```
 
 ## 运行示例

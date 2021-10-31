@@ -20,7 +20,7 @@ npm install @web-widget/router --save
 为 Web Widget 容器添加 `inactive` 属性，让其不再受 DOM 生命周期控制，以便让交给路由控制它的挂载与卸载行为。
 
 ```js
-import '@web-widget/core';
+import '@web-widget/container';
 import { collection, navigate, history } from  '@web-widget/router';
 
 // 注册应用

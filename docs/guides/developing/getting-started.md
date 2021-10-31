@@ -12,11 +12,11 @@ Web Widget 是一个非常简单的技术，所有的一切都是建立在 Web �
 <web-widget src="./app.widget.js"></web-widget>
 ```
 
-然后，在网页底部引入 Web Widget 的运行时，以便 `<web-widget>` 标签能够成为浏览器的一部分：
+然后，在网页底部引入 Web Widget 应用容器的运行时，以便 `<web-widget>` 标签能够成为浏览器的一部分：
 
 ```html
 <script type="module">
-  import 'https://cdn.jsdelivr.net/npm/@web-widget/core/dist/esm/core.js';
+  import 'https://cdn.jsdelivr.net/npm/@web-widget/container/dist/esm/container.js';
 <script>
 ```
 
@@ -27,19 +27,14 @@ Web Widget 是一个非常简单的技术，所有的一切都是建立在 Web �
 ```js
 export default () => ({
   async mount: ({ container }) => {
-    container.innerHTML = '<h3><hello wrold/h3>';
+    container.innerHTML = `
+      <style>h3 { color: red }</style>
+      <h3><hello wrold/h3>
+    `;
   }
 });
 ```
 
-恭喜你，你已经完成了 Web Widget 架构最关键的部分。如果你通过服务器浏览网页，你会发现它已经开始工作了！
+恭喜你，你已经完成了 Web Widget 应用的开发。如果你通过服务器浏览网页，你会发现它已经开始工作了！
 
 小挂件的完整格式可以参考[应用文档](../../docs/application/overview.md)。
-
-## 安装
-
-除了使用 CDN 来安装 Web Widget 运行时之外，常见做法是通过 NPM 安装到你的工程中。
-
-```bash
-npm install --save @web-widget/core
-```

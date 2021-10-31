@@ -24,7 +24,7 @@ npm install @web-widget/import --save
 </hello-world>
 
 <script type="module">
-  import '@web-widget/core';
+  import '@web-widget/container';
   import '@web-widget/import';
 </script>
 ```

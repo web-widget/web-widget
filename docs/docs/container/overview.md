@@ -17,7 +17,13 @@ Web Widget 容器标签名为 `<web-widget>`，其 `src` 属性为[应用](../ap
 ## 安装
 
 ```bash
-npm install --save @web-widget/core
+npm install --save @web-widget/container
+```
+
+在页面中引入应用容器的运行时。
+
+```js
+import '@web-widget/container';
 ```
 
 ## 模块格式
@@ -42,8 +48,6 @@ widget.update({ name: 'demo' });
 document.body.removeChild(widget);
 ```
 
-### 手动管理
-
 在容器上设置 `inactive` 属性，即可关闭与 DOM 生命周期的绑定，这时候可以通过容器[接口](./interfaces/html-web-widget-element.md)来手动控制应用的生命周期。
 
 ```js
@@ -54,3 +58,7 @@ document.body.appendChild(widget);
 
 widget.mount();
 ```
+
+## 样式
+
+默认情况下，Web Widget 容器开启了 [shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM)，这样的好处是确保应用的 CSS 只影响自己。通过容器[接口](./interfaces/html-web-widget-element.md)可以关闭默认开启的 [shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM)。
