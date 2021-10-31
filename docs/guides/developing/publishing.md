@@ -4,7 +4,7 @@
 
 ## 提供标准 ES module 格式版本
 
-从一开始就写好标准的 EcmaScript，自然而然就会发布标准的 EcmaScrip。但是，如果你选择使用 TypeScript 或各种新兴规范或 API 编写组件，请务必在发布前将代码转换为标准 EcmaScript。如果你使用非标准语法；将其（且仅此）转译为合理的现代水平（例如 [TC39 Stage 4](https://github.com/tc39/proposals/blob/master/finished-proposals.md) 和/或可用的跨浏览器），以减少在包含你的包的页面的任何最终生产交付中包含冗长或重复代码的可能性。
+从一开始就写好标准的 ECMAScript，自然而然就会发布标准的 ECMAScript。但是，如果你选择使用 TypeScript 或各种新兴规范或 API 编写组件，请务必在发布前将代码转换为标准 ECMAScript。如果你使用非标准语法；将其（且仅此）转译为合理的现代水平（例如 [TC39 Stage 4](https://github.com/tc39/proposals/blob/master/finished-proposals.md) 和/或可用的跨浏览器），以减少在包含你的包的页面的任何最终生产交付中包含冗长或重复代码的可能性。
 
 
 ## 提供 `system` 格式版本
