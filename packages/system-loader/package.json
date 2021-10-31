@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/system-loader",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "WebWidget system loader",
   "source": "src/index.js",
   "main": "dist/cjs/system-loader.js",
@@ -32,11 +32,11 @@
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-widget/builder": "^0.0.7",
-    "@web-widget/container": "^0.0.7",
-    "@web-widget/sandbox": "^0.0.7",
+    "@web-widget/builder": "^0.0.8",
+    "@web-widget/container": "^0.0.8",
+    "@web-widget/sandbox": "^0.0.8",
+    "@web-widget/tester": "^0.0.8",
     "@web/dev-server": "^0.1.17",
-    "@web-widget/tester": "^0.0.7",
     "systemjs": "^6.11.0"
   }
 }

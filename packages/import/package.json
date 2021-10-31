@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/import",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "<web-widget.import> element",
   "source": "src/index.js",
   "main": "dist/cjs/import.js",
@@ -27,8 +27,8 @@
   },
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
-    "@web-widget/builder": "^0.0.7",
-    "@web-widget/container": "^0.0.7",
+    "@web-widget/builder": "^0.0.8",
+    "@web-widget/container": "^0.0.8",
     "@web/dev-server": "^0.1.17"
   }
 }
