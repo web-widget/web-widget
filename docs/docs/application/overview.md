@@ -76,7 +76,7 @@ export default () => ({
 
 ### `load`
 
-在下载过程中，建议尽可能执行少的操作，可以在 `bootstrap` 生命周期之后再执行各项操作。若确实有在下载时需要执行的操作，可将代码放入应用入口文件中，但要放在各导出函数的外部。例如：
+在下载过程中建议尽可能执行少的操作，可以在 `bootstrap` 生命周期之后再执行各项操作。若确实有在下载时需要执行的操作，可将代码放入应用入口文件中，但要放在各导出函数的外部。例如：
 
 ```js
 console.log("The registered application has been loaded!");
@@ -90,7 +90,7 @@ export default () => ({
 
 ### `bootstrap`
 
-这个生命周期函数会在应用第一次挂载前执行一次，可以用来准备一些资源。
+初始化生命周期函数会在应用第一次挂载前执行一次，可以用下载一些必要的资源。
 
 ```js
 export default () => ({
@@ -104,6 +104,8 @@ export default () => ({
 ## 挂载
 
 ### `mount`
+
+将自己渲染出来，通常会通过 [`container`](./interface.md#container) 接口来插入自身 DOM。
 
 ```js
 export default () => ({
@@ -119,7 +121,7 @@ export default () => ({
 
 ### `update`
 
-当应用挂载完成后，外部的容器或者其他程序可能触发“更新”生命周期来更新数据。
+当应用挂载完成后，外部的容器或者其他程序可能触发“更新”生命周期来更新数据，通常通过 [`data`](./interface.md#data) 接口获取到更新后的数据。
 
 ```js
 export default () => ({

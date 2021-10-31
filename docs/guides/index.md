@@ -1,6 +1,6 @@
 # 指南 || 10
 
-Web Widget 是一个基于现代 Web 的构建的开放式网页小挂件系统，它和传统的组件系统不一样的地方在于，它可以提供立即运行的服务。
+Web Widget 是一个基于现代 Web 的构建的开放式网页小挂件系统，它不是组件系统，它提供立即运行的 UI 服务。
 
 ```html
 <web-widget src="app.widget.js"></web-widget>

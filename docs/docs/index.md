@@ -31,10 +31,11 @@ Web Widget 应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的小�
 ```js
 // app.widget.js
 export default () => ({
-  async bootstrap: (props) => {},
-  async mount: (props) => {},
-  async unmount: (props) => {},
-  async unload: (props) => {}
+  async bootstrap(props) {},
+  async mount(props) {},
+  async update(props) {},
+  async unmount(props) {},
+  async unload(props) {}
 });
 ```
 
