@@ -207,8 +207,8 @@ export default () => ({
 
 对 [single-spa](https://single-spa.js.org/) 应用格式主要的改进：
 
-* 支持多例的形式 `export default () => {}`，并且作为推荐的方式。因为 Web Widget 应用将允许多个实例存在
-* 定义了获取渲染目标的接口 [`container`](./interface.md#container)
-* 定义获取数据的接口 [`data`](./interface.md#data)
-* 删除了接口 `singleSpa`。应用应当作为独立的格式，和具体的容器实现无关
+* 支持 `export default () => ({/* life cycle */})` 形式，并且作为推荐的方式。因为容器通常支持多实例运行
+* 明确定义了获取渲染目标的接口 [`container`](./interface.md#container)
+* 明确定义获取数据的接口 [`data`](./interface.md#data)
+* 删除了接口 `singleSpa`。应用应当作为独立的格式存在，不应该与具体的容器实现耦合
 * 删除了接口 `mountParcel`。Web Widget 的应用格式抽象了 [single-spa](https://single-spa.js.org/) 中 `application` 与 `parcel` 的概念，因此无须再保留 `parcel` 概念
