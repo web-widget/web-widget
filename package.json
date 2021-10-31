@@ -9,7 +9,7 @@
     "test": "lerna run test --concurrency 1",
     "lint": "eslint packages/**/src packages/**/test packages/**/examples",
     "prettier": "prettier --write packages/**/*.js",
-    "release": "npm run lint && npm run build && npm test && lerna publish",
+    "release": " npm run build && npm run lint && npm test && lerna publish",
     "examples": "npm run examples:container",
     "examples:router": "cd packages/router && npm run examples",
     "examples:sandbox": "cd packages/sandbox && npm run examples",
