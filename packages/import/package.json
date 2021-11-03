@@ -8,7 +8,7 @@
   "unpkg": "dist/umd/import.js",
   "libraryName": "HTMLWebWidgetImportElement",
   "scripts": {
-    "build": "builder --environment NODE_ENV:production",
+    "build": "rm -rf dist && builder --environment NODE_ENV:production",
     "examples": "cd examples && web-dev-server --node-resolve --watch"
   },
   "publishConfig": {

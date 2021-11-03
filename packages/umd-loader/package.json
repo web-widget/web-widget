@@ -8,7 +8,7 @@
   "unpkg": "dist/umd/umd-loader.js",
   "libraryName": "WebWidgetUmdLoader",
   "scripts": {
-    "build": "builder --environment NODE_ENV:production",
+    "build": "rm -rf dist && builder --environment NODE_ENV:production",
     "build:watch": "builder --watch",
     "examples": "cd examples && web-dev-server --node-resolve --watch",
     "test": "tester --coverage",

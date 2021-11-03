@@ -7,7 +7,7 @@
   "module": "dist/esm/sandbox.js",
   "unpkg": "dist/umd/sandbox.js",
   "scripts": {
-    "build": "builder --environment NODE_ENV:production",
+    "build": "rm -rf dist && builder --environment NODE_ENV:production",
     "build:watch": "builder --watch",
     "examples": "cd examples && web-dev-server --node-resolve --watch"
   },

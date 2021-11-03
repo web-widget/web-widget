@@ -1,4 +1,4 @@
-# 开发 >> 示例 || 50
+# 应用开发 >> 示例 || 50
 
 克隆 [web-widget](https://github.com/web-widget/web-widget) 仓库到本地，依次执行如下命令即可打开示例：
 

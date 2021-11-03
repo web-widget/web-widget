@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 // You can write your own logic here to determine the actual url
 window.app1Url = 'http://localhost:3002';
 

@@ -7,3 +7,4 @@ _site-dev
 docs/_merged_assets/
 docs/_merged_data/
 docs/_merged_includes/
+packages/umd-loader/examples/module-federation/

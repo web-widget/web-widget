@@ -1,4 +1,4 @@
-# 架构 >> CDN || 40
+# 容器化 >> CDN || 40
 
 Web Widget 应用推荐托管在 NPM 上，这使得可以直接使用公共 CDN 加载它。由于一些公共 CDN 提供了自动更新的机制，例如 [jsdelivr](https://www.jsdelivr.com)，你可以通过它实现 Web Widget 应用的自动升级。
 

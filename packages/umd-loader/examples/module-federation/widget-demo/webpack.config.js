@@ -1,5 +1,4 @@
-/* eslint-disable no-undef */
-// eslint-disable-next-line import/no-extraneous-dependencies
+/* eslint-disable no-undef import/no-unresolved */
 const { ModuleFederationPlugin } = require('webpack').container;
 const ExternalTemplateRemotesPlugin = require('external-remotes-plugin');
 const path = require('path');
