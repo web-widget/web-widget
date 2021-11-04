@@ -272,17 +272,26 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   createRenderRoot() {
+    let renderRoot;
     const { sandboxed, sandbox } = this;
 
-    if (sandboxed) {
-      const sandboxDoc = sandbox.window.document;
-      const style = sandboxDoc.createElement('style');
-      style.textContent = `body{margin:0}`;
-      sandboxDoc.head.appendChild(style);
-      return sandboxDoc.body;
+    if (this.attachInternals) {
+      renderRoot = this.attachInternals().shadowRoot;
     }
 
-    return this.attachShadow({ mode: 'closed' });
+    if (!renderRoot) {
+      if (sandboxed) {
+        const sandboxDoc = sandbox.window.document;
+        const style = sandboxDoc.createElement('style');
+        style.textContent = `body{margin:0}`;
+        sandboxDoc.head.appendChild(style);
+        renderRoot = sandboxDoc.body;
+      } else {
+        renderRoot = this.attachShadow({ mode: 'closed' });
+      }
+    }
+
+    return renderRoot;
   }
 
   async createLoader() {
