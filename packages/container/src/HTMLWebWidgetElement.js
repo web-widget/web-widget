@@ -1,4 +1,5 @@
-/* global window, document, customElements, ShadowRoot, HTMLElement, Event, IntersectionObserver, URL */
+/* global window, document, customElements, ShadowRoot, HTMLElement, Event, IntersectionObserver, URL, MutationObserver */
+// eslint-disable-next-line max-classes-per-file
 import { createRegistry } from './utils/registry.js';
 import { getParentNode, getChildNodes } from './utils/nodes.js';
 import { moduleLoader } from './loaders/module.js';
@@ -53,6 +54,28 @@ const lazyObserver = new IntersectionObserver(
     rootMargin: '80%'
   }
 );
+
+function updateElement(target) {
+  const newTagName = target.localName;
+  if (!customElements.get(newTagName)) {
+    // eslint-disable-next-line no-use-before-define
+    customElements.define(newTagName, class extends HTMLWebWidgetElement {});
+  }
+}
+
+function autoUpdateElement(documentOrShadowRoot) {
+  return new MutationObserver(mutationsList => {
+    for (const mutation of mutationsList) {
+      if (mutation.target.getAttribute('is') === 'web-widget') {
+        updateElement(mutation.target);
+      }
+    }
+  }).observe(documentOrShadowRoot, {
+    attributes: true,
+    subtree: true,
+    attributeFilter: ['is']
+  });
+}
 
 function asyncThrowError(error) {
   queueMicrotask(() => {
@@ -272,6 +295,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   createRenderRoot() {
+    let renderRoot;
     const { sandboxed, sandbox } = this;
 
     if (sandboxed) {
@@ -279,10 +303,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
       const style = sandboxDoc.createElement('style');
       style.textContent = `body{margin:0}`;
       sandboxDoc.head.appendChild(style);
-      return sandboxDoc.body;
+      renderRoot = sandboxDoc.body;
+    } else {
+      renderRoot = this.attachShadow({ mode: 'closed' });
     }
 
-    return this.attachShadow({ mode: 'closed' });
+    autoUpdateElement(renderRoot);
+
+    return renderRoot;
   }
 
   async createLoader() {
@@ -488,3 +516,11 @@ rootLoaders.define('module', moduleLoader);
 customElements.define('web-widget', HTMLWebWidgetElement);
 window.WebWidget = HTMLWebWidgetElement;
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    autoUpdateElement(document);
+  });
+} else {
+  document.querySelectorAll('[is=web-widget]').forEach(updateElement);
+}
