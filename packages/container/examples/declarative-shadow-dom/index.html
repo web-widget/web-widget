@@ -18,7 +18,8 @@
 <body>
 
   <button id="load-widget">Load Widget</button>
-  <web-widget id="web-widget" inactive src="./hello-world.widget.js">
+  
+  <web-widget id="web-widget" inactive src="./hello-world.widget.js" loading="lazy">
     <!--SSR content-->
     <template shadowroot="closed">
       <style>
@@ -36,7 +37,7 @@
   <script>
     /* Declarative ShadowDOM Polyfilling */
     if (!HTMLTemplateElement.prototype.hasOwnProperty('shadowRoot')) {
-      document.querySelectorAll('template[shadowroot]').forEach(template => {
+      document.querySelectorAll('web-widget > template[shadowroot]').forEach(template => {
         const mode = template.getAttribute('shadowroot');
         const hostElement = template.parentNode;
         const shadowRoot = template.parentNode.attachShadow({ mode });
