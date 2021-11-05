@@ -306,9 +306,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
       renderRoot = sandboxDoc.body;
     } else {
       renderRoot = this.attachShadow({ mode: 'closed' });
+      autoUpdateElement(renderRoot);
     }
-
-    autoUpdateElement(renderRoot);
 
     return renderRoot;
   }
