@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/tester",
   "private": true,
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Tester",
   "main": "src/index.js",
   "bin": {

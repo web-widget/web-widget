@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/router",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "web widget router",
   "source": "src/index.js",
   "main": "dist/cjs/index.js",
@@ -30,8 +30,8 @@
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
     "@rollup/plugin-replace": "^3.0.0",
-    "@web-widget/builder": "^0.0.8",
-    "@web-widget/container": "^0.0.8",
+    "@web-widget/builder": "^0.0.9",
+    "@web-widget/container": "^0.0.9",
     "@web/dev-server": "^0.1.17",
     "@web/dev-server-rollup": "^0.3.11"
   },
