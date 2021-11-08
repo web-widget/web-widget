@@ -9,7 +9,7 @@
 
   <style>
     /* Declarative ShadowDOM Polyfilling */
-    web-widget:not(:defined) > template[shadowroot] ~ *  {
+    web-widget:not(:defined)>template[shadowroot]~* {
       display: none;
     }
   </style>
@@ -18,7 +18,7 @@
 <body>
 
   <button id="load-widget">Load Widget</button>
-  
+
   <web-widget id="web-widget" inactive src="./hello-world.widget.js" loading="lazy">
     <!--SSR content-->
     <template shadowroot="closed">
@@ -39,18 +39,17 @@
     if (!HTMLTemplateElement.prototype.hasOwnProperty('shadowRoot')) {
       document.querySelectorAll('web-widget > template[shadowroot]').forEach(template => {
         const mode = template.getAttribute('shadowroot');
-        const hostElement = template.parentNode;
-        const shadowRoot = template.parentNode.attachShadow({ mode });
+        const delegatesFocus = template.hasAttribute('shadowrootdelegatesfocus');
+        const host = template.parentNode;
+        const shadowRoot = template.parentNode.attachShadow({ mode, delegatesFocus });
 
         shadowRoot.appendChild(template.content);
-        template.remove();
+        host.removeChild(template);
 
-        if (!hostElement.attachInternals) {
-          hostElement.attachInternals = function () {
-            return {
-              shadowRoot
-            };
-          };
+        if (!host.attachInternals) {
+          host.attachInternals = () => ({
+            shadowRoot
+          });
         }
       });
     }
