@@ -3,9 +3,10 @@
   "version": "0.0.8",
   "description": "WebWidget umd loader",
   "source": "src/index.js",
-  "main": "dist/cjs/umd-loader.js",
-  "module": "dist/esm/umd-loader.js",
-  "unpkg": "dist/umd/umd-loader.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "system": "dist/system/index.js",
+  "unpkg": "dist/umd/index.js",
   "libraryName": "WebWidgetUmdLoader",
   "scripts": {
     "build": "rm -rf dist && builder --environment NODE_ENV:production",

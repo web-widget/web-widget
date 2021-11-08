@@ -11,6 +11,7 @@ export default () => {
     source,
     main,
     module,
+    system,
     unpkg,
     libraryName
   } = require(`${cwd}/package.json`);
@@ -45,6 +46,11 @@ export default () => {
       {
         file: module,
         format: 'esm',
+        sourcemap: true
+      },
+      {
+        file: system,
+        format: 'system',
         sourcemap: true
       },
       {

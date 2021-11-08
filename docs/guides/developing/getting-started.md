@@ -16,7 +16,7 @@ Web Widget 是一个非常简单的技术，所有的一切都是建立在 Web �
 
 ```html
 <script type="module">
-  import 'https://cdn.jsdelivr.net/npm/@web-widget/container/dist/esm/container.js';
+  import 'https://cdn.jsdelivr.net/npm/@web-widget/container/dist/esm/index.js';
 <script>
 ```
 
