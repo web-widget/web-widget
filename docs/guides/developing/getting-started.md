@@ -17,7 +17,7 @@ Web Widget 是一个非常简单的技术，所有的一切都是建立在 Web �
 ```html
 <script type="module">
   import 'https://cdn.jsdelivr.net/npm/@web-widget/container/dist/esm/index.js';
-<script>
+</script>
 ```
 
 ### 2. 开发小挂件
@@ -26,7 +26,7 @@ Web Widget 是一个非常简单的技术，所有的一切都是建立在 Web �
 
 ```js
 export default () => ({
-  async mount: ({ container }) => {
+  async mount({ container }) {
     container.innerHTML = `
       <style>h3 { color: red }</style>
       <h3><hello wrold/h3>
