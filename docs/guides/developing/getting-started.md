@@ -29,7 +29,7 @@ export default () => ({
   async mount({ container }) {
     container.innerHTML = `
       <style>h3 { color: red }</style>
-      <h3><hello wrold/h3>
+      <h3>hello wrold</h3>
     `;
   }
 });
