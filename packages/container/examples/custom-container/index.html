@@ -13,7 +13,7 @@
   <web-widget src="./hello-world.widget.js" noshadow></web-widget>
 
   <script type="module">
-    import '../../src/index.js';
+    import '@web-widget/container';
 
     function defineHook(target, name, callback) {
       return Reflect.defineProperty(

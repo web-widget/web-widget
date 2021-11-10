@@ -13,7 +13,7 @@
   <web-widget src="./hello-world.widget.js" container="iframe"></web-widget>
 
   <script type="module">
-    import '../../src/index.js';
+    import '@web-widget/container';
 
     const containerDescriptor = Reflect.getOwnPropertyDescriptor(WebWidgetDependencies.prototype, 'container');
     const containerGetter = containerDescriptor.get;

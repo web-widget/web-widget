@@ -8,6 +8,10 @@
   "system": "dist/system/index.js",
   "unpkg": "dist/umd/index.js",
   "libraryName": "HTMLWebWidgetImportElement",
+  "exports": { 
+    "require": "./dist/cjs/index.js",
+    "import": "./src/index.js" 
+  },
   "scripts": {
     "build": "rm -rf dist && builder --environment NODE_ENV:production",
     "examples": "cd examples && web-dev-server --node-resolve --watch"

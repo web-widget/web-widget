@@ -14,7 +14,7 @@
   <web-widget src="./index.widget.js"></web-widget>
 
   <script type="module">
-    import '../../src/index.js';
+    import '@web-widget/container';
 
     [...document.querySelectorAll('button[data-theme]')].forEach(button => {
       button.onclick = () => {
