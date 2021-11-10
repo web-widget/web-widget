@@ -3,9 +3,9 @@
   "private": true,
   "version": "0.0.9",
   "description": "Tester",
-  "main": "src/index.js",
+  "main": "src/web-test-runner.config.js",
   "bin": {
-    "tester": "bin/tester.sh"
+    "tester": "bin/tester.js"
   },
   "dependencies": {
     "@web/test-runner": "^0.13.20"

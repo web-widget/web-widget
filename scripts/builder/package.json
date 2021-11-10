@@ -3,10 +3,9 @@
   "private": true,
   "version": "0.0.9",
   "description": "Builder",
-  "main": "src/index.js",
-  "type": "module",
+  "main": "src/web-dev-server.config.js",
   "bin": {
-    "builder": "bin/builder.sh"
+    "builder": "bin/builder.js"
   },
   "dependencies": {
     "@rollup/plugin-node-resolve": "^13.0.6",

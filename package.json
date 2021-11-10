@@ -41,22 +41,20 @@
     "url": "https://github.com/web-widget/web-widget/issues"
   },
   "homepage": "https://github.com/web-widget/web-widget#readme",
-  "dependencies": {
+  "devDependencies": {
     "@rocket/blog": "^0.3.0",
     "@rocket/cli": "^0.7.0",
     "@rocket/core": "^0.1.2",
     "@rocket/launch": "^0.4.2",
-    "@rocket/search": "^0.3.5"
-  },
-  "devDependencies": {
+    "@rocket/search": "^0.3.5",
     "@babel/eslint-parser": "^7.16.0",
     "@web/dev-server": "^0.1.25",
     "alex": "^10.0.0",
     "babel-loader": "^8.2.3",
     "cross-env": "^7.0.3",
     "eslint": "^7.2.0",
-    "eslint-config-prettier": "^8.3.0",
     "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-prettier": "^4.0.0",
     "lerna": "^4.0.0",
