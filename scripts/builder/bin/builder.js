@@ -3,11 +3,7 @@
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-const configPath = path.resolve(
-  __dirname,
-  '..',
-  'src/web-dev-server.config.js'
-);
+const configPath = path.resolve(__dirname, '..', 'src/rollup.config.js');
 
 const { status, signal } = spawnSync(
   'rollup',
