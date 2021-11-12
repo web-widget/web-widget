@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/system-loader",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "WebWidget system loader",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
@@ -8,9 +8,9 @@
   "system": "dist/system/main.js",
   "unpkg": "dist/umd/main.js",
   "libraryName": "WebWidgetSystemLoader",
-  "exports": { 
+  "exports": {
     "require": "./dist/cjs/main.js",
-    "import": "./src/index.js" 
+    "import": "./src/index.js"
   },
   "scripts": {
     "build": "rm -rf dist && builder --environment NODE_ENV:production",
@@ -37,10 +37,10 @@
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-widget/builder": "^0.0.9",
-    "@web-widget/container": "^0.0.9",
-    "@web-widget/sandbox": "^0.0.9",
-    "@web-widget/tester": "^0.0.9",
+    "@web-widget/builder": "^0.0.10",
+    "@web-widget/container": "^0.0.10",
+    "@web-widget/sandbox": "^0.0.10",
+    "@web-widget/tester": "^0.0.10",
     "@web/dev-server": "^0.1.17",
     "systemjs": "^6.11.0"
   }

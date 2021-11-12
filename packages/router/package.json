@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/router",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "web widget router",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
@@ -8,9 +8,9 @@
   "system": "dist/system/main.js",
   "unpkg": "dist/umd/main.js",
   "libraryName": "WebWidgetRouter",
-  "exports": { 
+  "exports": {
     "require": "./dist/cjs/main.js",
-    "import": "./src/index.js" 
+    "import": "./src/index.js"
   },
   "scripts": {
     "build": "rm -rf dist && builder --environment NODE_ENV:production",
@@ -34,8 +34,8 @@
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
     "@rollup/plugin-replace": "^3.0.0",
-    "@web-widget/builder": "^0.0.9",
-    "@web-widget/container": "^0.0.9",
+    "@web-widget/builder": "^0.0.10",
+    "@web-widget/container": "^0.0.10",
     "@web/dev-server": "^0.1.17",
     "@web/dev-server-rollup": "^0.3.11"
   },

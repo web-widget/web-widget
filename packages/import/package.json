@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/import",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "<web-widget.import> element",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
@@ -8,9 +8,9 @@
   "system": "dist/system/main.js",
   "unpkg": "dist/umd/main.js",
   "libraryName": "HTMLWebWidgetImportElement",
-  "exports": { 
+  "exports": {
     "require": "./dist/cjs/main.js",
-    "import": "./src/index.js" 
+    "import": "./src/index.js"
   },
   "scripts": {
     "build": "rm -rf dist && builder --environment NODE_ENV:production",
@@ -32,8 +32,8 @@
   },
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
-    "@web-widget/builder": "^0.0.9",
-    "@web-widget/container": "^0.0.9",
+    "@web-widget/builder": "^0.0.10",
+    "@web-widget/container": "^0.0.10",
     "@web/dev-server": "^0.1.17"
   }
 }
