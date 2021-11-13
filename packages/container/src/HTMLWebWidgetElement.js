@@ -509,11 +509,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 }
 
-Object.assign(HTMLWebWidgetElement, status);
-rootLoaders.define('module', moduleLoader);
-
-window.HTMLWebWidgetElement = HTMLWebWidgetElement;
-
 export function run(tagName = 'web-widget') {
   customElements.define(tagName, HTMLWebWidgetElement);
   if (document.readyState === 'loading') {
@@ -524,6 +519,11 @@ export function run(tagName = 'web-widget') {
     document.querySelectorAll(`[is=${tagName}]`).forEach(updateElement);
   }
 }
+
+Object.assign(HTMLWebWidgetElement, status);
+rootLoaders.define('module', moduleLoader);
+
+window.HTMLWebWidgetElement = HTMLWebWidgetElement;
 
 if (window.WEB_WIDGET_AUTO_REGISTRY !== false) {
   run();
