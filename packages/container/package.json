@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/container",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "web widget",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
@@ -53,8 +53,8 @@
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-widget/builder": "^0.0.10",
-    "@web-widget/tester": "^0.0.10",
+    "@web-widget/builder": "^0.0.11",
+    "@web-widget/tester": "^0.0.11",
     "@web/dev-server": "^0.1.25",
     "@web/dev-server-rollup": "^0.3.11"
   }
