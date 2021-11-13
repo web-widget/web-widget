@@ -17,7 +17,8 @@
     "build:watch": "builder --watch",
     "examples": "cd examples && web-dev-server --node-resolve --watch",
     "test": "tester --coverage",
-    "test:watch": "tester --watch"
+    "test:watch": "tester --watch",
+    "genPackagelock": "npm i --package-lock-only"
   },
   "publishConfig": {
     "access": "public"

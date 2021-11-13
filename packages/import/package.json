@@ -14,7 +14,8 @@
   },
   "scripts": {
     "build": "rm -rf dist && builder --environment NODE_ENV:production",
-    "examples": "cd examples && web-dev-server --node-resolve --watch"
+    "examples": "cd examples && web-dev-server --node-resolve --watch",
+    "genPackagelock": "npm i --package-lock-only"
   },
   "publishConfig": {
     "access": "public"
