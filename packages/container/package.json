@@ -7,7 +7,7 @@
   "module": "dist/esm/main.js",
   "system": "dist/system/main.js",
   "unpkg": "dist/umd/main.js",
-  "libraryName": "WebWidget",
+  "libraryName": "WebWidgetExports",
   "exports": {
     "require": "./dist/cjs/main.js",
     "import": "./src/index.js"
