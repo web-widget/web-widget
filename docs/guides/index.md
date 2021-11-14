@@ -1,6 +1,6 @@
 # 指南 || 10
 
-Web Widget 是一个基于现代 Web 的构建的开放式网页小挂件系统，它也是一种轻量的前端微服务的构建方法。
+Web Widget 是一个基于现代 Web 的构建的开放式网页小挂件系统，它也是一种前端容器化架构。
 
 ```html
 <web-widget src="app.widget.js"></web-widget>
@@ -14,7 +14,7 @@ Web Widget 是一个基于现代 Web 的构建的开放式网页小挂件系统�
 
 将 Web Widget 技术体系作为落地页的物料系统方案，使得物料开发者不需要关心编辑器的 API 即可提供内容。
 
-### Web 应用插件系统
+### Web 应用插件容器
 
 对 Web Widget 进行扩展，注入插件所需要的的 API，提供良好的插件开发体验同时管理插件的副作用。
 
@@ -32,7 +32,7 @@ Web Widget 由如下三个关键部分组成：
 
 ### 应用
 
-Web Widget 应用是前端微服务的一种具象的表达，即 `<web-widget src="app.widget.js">` 中 `src` 定义的小挂件入口文件，它和具体技术栈、微服务容器无关，你可以使用任意技术栈开发它，例如 Lit、React、Vue 等。它的格式范式：
+Web Widget 应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的小挂件入口文件，它和具体技术栈、容器无关，你可以使用任意技术栈开发它，例如 Lit、React、Vue 等。它的格式范式：
 
 ```js
 // app.widget.js
@@ -74,7 +74,7 @@ Web Widget 定义了应用的描述规范，它通常用于后端的管理系统
 
 ## 我应该采用 Web Widget 吗？
 
-当你权衡是否要采用 Web Widget 之前，你需要理解组件和服务的差别：组件的用户是开发者，通过开发者构建应用，最终为客户服务；而前端微服务是直接为客户提供服务。
+Web Widget 是建立在前端微服务的工具，当你权衡是否要采用 Web Widget 之前，你需要理解组件和微服务的差别：组件的用户是开发者，通过开发者构建应用，最终为客户服务；而前端微服务可以直接为客户提供服务。
 
 例如一个单页面可以被称为一个微服务，够独立工作的组件（例如地图小挂件）也能够被定义为一个微服务，但一个按钮通常不会被纳入微服务的概念。
 
@@ -91,3 +91,5 @@ Web Widget 定义了应用的描述规范，它通常用于后端的管理系统
 
 * [应用开发入门](./developing/getting-started.md)：了解如何开发 Web Widget 应用
 * [容器化入门](./architecture/getting-started.md)：了解如何在 Web 工程中实施容器化
+
+> Web Widget 还在筹备开源中，如果你有兴趣参与，请联系我：[tangbing@gaoding.com](mailto:tangbing@gaoding.com)

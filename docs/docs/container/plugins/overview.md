@@ -8,4 +8,4 @@ Web Widget 附带了一些开箱即用的插件。
 - [system-loader](./system-loader.md) `system` 格式支持
 - [umd-loader](./umd-loader.md) `umd` 格式支持
 
-如果你有更具体的需求，最好[编写自己的插件](../writing-plugins/overview.md)。
+由于 Web Widget 容器是立即运行的，如果异步引入插件可能导致无法正常生效，最好是将插件和 Web Widget 容器打包在一起。
