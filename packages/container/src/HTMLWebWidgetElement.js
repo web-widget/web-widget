@@ -332,6 +332,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       const { application } = this;
       this[NAME] =
         this.name ||
+        this.src ||
         (application ? application.name : this.name || this.localName);
       this.dependencies = this.createDependencies();
       this.sandbox = this.sandboxed ? this.createSandbox() : null;
@@ -509,7 +510,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 }
 
-export function run(tagName = 'web-widget') {
+export function bootstrap(tagName = 'web-widget') {
   customElements.define(tagName, HTMLWebWidgetElement);
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -525,6 +526,6 @@ rootLoaders.define('module', moduleLoader);
 
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
 
-if (window.WEB_WIDGET_AUTO_REGISTRY !== false) {
-  run();
+if (window.WEB_WIDGET_BOOTSTRAP !== false) {
+  bootstrap();
 }
