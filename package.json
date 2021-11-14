@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "genPackagelock": "lerna run --parallel genPackagelock",
     "postinstall": "lerna bootstrap",
     "start": "rocket start",
     "build": "lerna run build",
