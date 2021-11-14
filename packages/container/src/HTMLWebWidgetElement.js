@@ -63,10 +63,10 @@ function updateElement(target) {
   }
 }
 
-function autoUpdateElement(documentOrShadowRoot) {
+function autoUpdateElement(documentOrShadowRoot, localName) {
   return new MutationObserver(mutationsList => {
     for (const mutation of mutationsList) {
-      if (mutation.target.getAttribute('is') === 'web-widget') {
+      if (mutation.target.getAttribute('is') === localName) {
         updateElement(mutation.target);
       }
     }
@@ -306,7 +306,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       renderRoot = sandboxDoc.body;
     } else {
       renderRoot = this.attachShadow({ mode: 'closed' });
-      autoUpdateElement(renderRoot);
+      autoUpdateElement(renderRoot, this.localName);
     }
 
     return renderRoot;
@@ -332,6 +332,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       const { application } = this;
       this[NAME] =
         this.name ||
+        this.src ||
         (application ? application.name : this.name || this.localName);
       this.dependencies = this.createDependencies();
       this.sandbox = this.sandboxed ? this.createSandbox() : null;
@@ -509,17 +510,22 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 }
 
+export function bootstrap(tagName = 'web-widget') {
+  customElements.define(tagName, HTMLWebWidgetElement);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      autoUpdateElement(document, tagName);
+    });
+  } else {
+    document.querySelectorAll(`[is=${tagName}]`).forEach(updateElement);
+  }
+}
+
 Object.assign(HTMLWebWidgetElement, status);
 rootLoaders.define('module', moduleLoader);
 
-customElements.define('web-widget', HTMLWebWidgetElement);
-window.WebWidget = HTMLWebWidgetElement;
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    autoUpdateElement(document);
-  });
-} else {
-  document.querySelectorAll('[is=web-widget]').forEach(updateElement);
+if (window.WEB_WIDGET_BOOTSTRAP !== false) {
+  bootstrap();
 }

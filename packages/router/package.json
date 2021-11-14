@@ -1,21 +1,22 @@
 {
   "name": "@web-widget/router",
-  "version": "0.0.9",
+  "version": "0.0.11",
   "description": "web widget router",
   "source": "src/index.js",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "system": "dist/system/index.js",
-  "unpkg": "dist/umd/index.js",
+  "main": "dist/cjs/main.js",
+  "module": "dist/esm/main.js",
+  "system": "dist/system/main.js",
+  "unpkg": "dist/umd/main.js",
   "libraryName": "WebWidgetRouter",
-  "exports": { 
-    "require": "./dist/cjs/index.js",
-    "import": "./src/index.js" 
+  "exports": {
+    "require": "./dist/cjs/main.js",
+    "import": "./src/index.js"
   },
   "scripts": {
     "build": "rm -rf dist && builder --environment NODE_ENV:production",
     "build:watch": "builder --watch",
-    "examples": "cd examples && web-dev-server --node-resolve --watch"
+    "examples": "cd examples && web-dev-server --node-resolve --watch",
+    "genPackagelock": "npm i --package-lock-only"
   },
   "publishConfig": {
     "access": "public"
@@ -34,8 +35,8 @@
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
     "@rollup/plugin-replace": "^3.0.0",
-    "@web-widget/builder": "^0.0.9",
-    "@web-widget/container": "^0.0.9",
+    "@web-widget/builder": "^0.0.11",
+    "@web-widget/container": "^0.0.11",
     "@web/dev-server": "^0.1.17",
     "@web/dev-server-rollup": "^0.3.11"
   },

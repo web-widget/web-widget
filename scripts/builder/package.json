@@ -1,9 +1,9 @@
 {
   "name": "@web-widget/builder",
   "private": true,
-  "version": "0.0.9",
+  "version": "0.0.11",
   "description": "Builder",
-  "main": "src/web-dev-server.config.js",
+  "main": "src/rollup.config.js",
   "bin": {
     "builder": "bin/builder.js"
   },
