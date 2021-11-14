@@ -10,7 +10,7 @@
   "libraryName": "WebWidgetExports",
   "exports": {
     "require": "./dist/cjs/main.js",
-    "import": "./src/index.js"
+    "import": "./dist/esm/main.js"
   },
   "scripts": {
     "build": "rm -rf dist && builder --environment NODE_ENV:production",
