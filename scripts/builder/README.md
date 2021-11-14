@@ -35,7 +35,7 @@ package.json 示例：
     "dist"
   ],
   "devDependencies": {
-    "@web-widget/builder": "^0.0.4"
+    "@web-widget/builder": "^0.0.12"
   }
 }
 ```
