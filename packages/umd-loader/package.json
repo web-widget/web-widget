@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/umd-loader",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "WebWidget umd loader",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
@@ -13,12 +13,11 @@
     "import": "./dist/esm/main.js"
   },
   "scripts": {
-    "build": "rm -rf dist && builder --environment NODE_ENV:production",
+    "build": "rm -rf dist && builder",
     "build:watch": "builder --watch",
     "examples": "cd examples && web-dev-server --node-resolve --watch",
     "test": "tester --coverage",
-    "test:watch": "tester --watch",
-    "genPackagelock": "npm i --package-lock-only"
+    "test:watch": "tester --watch"
   },
   "publishConfig": {
     "access": "public"
@@ -37,10 +36,10 @@
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-widget/builder": "^0.0.12",
-    "@web-widget/container": "^0.0.12",
-    "@web-widget/sandbox": "^0.0.12",
-    "@web-widget/tester": "^0.0.12",
+    "@web-widget/builder": "^0.0.13",
+    "@web-widget/container": "^0.0.13",
+    "@web-widget/sandbox": "^0.0.13",
+    "@web-widget/tester": "^0.0.13",
     "@web/dev-server": "^0.1.17"
   }
 }

@@ -5,7 +5,7 @@ import replace from '@rollup/plugin-replace';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 export default () => {
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = process.env.NODE_ENV !== 'development';
   const cwd = process.cwd();
   const {
     source,

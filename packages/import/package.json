@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/import",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "<web-widget.import> element",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
@@ -13,9 +13,8 @@
     "import": "./dist/esm/main.js"
   },
   "scripts": {
-    "build": "rm -rf dist && builder --environment NODE_ENV:production",
-    "examples": "cd examples && web-dev-server --node-resolve --watch",
-    "genPackagelock": "npm i --package-lock-only"
+    "build": "rm -rf dist && builder",
+    "examples": "cd examples && web-dev-server --node-resolve --watch"
   },
   "publishConfig": {
     "access": "public"
@@ -33,8 +32,8 @@
   },
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
-    "@web-widget/builder": "^0.0.12",
-    "@web-widget/container": "^0.0.12",
+    "@web-widget/builder": "^0.0.13",
+    "@web-widget/container": "^0.0.13",
     "@web/dev-server": "^0.1.17"
   }
 }

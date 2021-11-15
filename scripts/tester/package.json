@@ -1,13 +1,23 @@
 {
   "name": "@web-widget/tester",
-  "private": true,
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Tester",
   "main": "src/web-test-runner.config.js",
   "bin": {
     "tester": "bin/tester.js"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@web/test-runner": "^0.13.20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git"
+  },
+  "author": "aui",
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
   }
 }

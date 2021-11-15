@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/sandbox",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "WebWidget sandbox",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
@@ -13,10 +13,9 @@
     "import": "./dist/esm/main.js"
   },
   "scripts": {
-    "build": "rm -rf dist && builder --environment NODE_ENV:production",
+    "build": "rm -rf dist && builder",
     "build:watch": "builder --watch",
-    "examples": "cd examples && web-dev-server --node-resolve --watch",
-    "genPackagelock": "npm i --package-lock-only"
+    "examples": "cd examples && web-dev-server --node-resolve --watch"
   },
   "publishConfig": {
     "access": "public"
@@ -37,10 +36,10 @@
     "@web-sandbox.js/web-sandbox": "^0.0.1-alpha7"
   },
   "devDependencies": {
-    "@web-widget/builder": "^0.0.12",
-    "@web-widget/container": "^0.0.12",
-    "@web-widget/system-loader": "^0.0.12",
-    "@web-widget/umd-loader": "^0.0.12",
+    "@web-widget/builder": "^0.0.13",
+    "@web-widget/container": "^0.0.13",
+    "@web-widget/system-loader": "^0.0.13",
+    "@web-widget/umd-loader": "^0.0.13",
     "@web/dev-server": "^0.1.17"
   }
 }
