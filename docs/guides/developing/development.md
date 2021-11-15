@@ -14,7 +14,7 @@ Web Widget CLI 是一个项目生成器，它为如下技术栈提供了可开�
 请执行如下命令启动它：
 
 ```bash
-npx @web-widget/create-web-widget
+npm init @web-widget
 ```
 
 ## 运行服务器
