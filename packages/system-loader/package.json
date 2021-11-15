@@ -13,13 +13,12 @@
     "import": "./dist/esm/main.js"
   },
   "scripts": {
-    "build": "rm -rf dist && builder --environment NODE_ENV:production",
+    "build": "rm -rf dist && builder",
     "build:watch": "builder --watch",
     "buind:examples": "rollup --input examples/system/src/index.widget.js --file examples/system/index.widget.js --format system --external hello && rollup --input examples/system/src/hello.js --file examples/system/hello.js --format system",
     "examples": "cd examples && web-dev-server --node-resolve --watch",
     "test": "tester --coverage",
-    "test:watch": "tester --watch",
-    "genPackagelock": "npm i --package-lock-only"
+    "test:watch": "tester --watch"
   },
   "publishConfig": {
     "access": "public"

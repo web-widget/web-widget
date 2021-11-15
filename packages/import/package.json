@@ -13,9 +13,8 @@
     "import": "./dist/esm/main.js"
   },
   "scripts": {
-    "build": "rm -rf dist && builder --environment NODE_ENV:production",
-    "examples": "cd examples && web-dev-server --node-resolve --watch",
-    "genPackagelock": "npm i --package-lock-only"
+    "build": "rm -rf dist && builder",
+    "examples": "cd examples && web-dev-server --node-resolve --watch"
   },
   "publishConfig": {
     "access": "public"

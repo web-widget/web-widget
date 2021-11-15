@@ -13,12 +13,11 @@
     "import": "./dist/esm/main.js"
   },
   "scripts": {
-    "build": "rm -rf dist && builder --environment NODE_ENV:production",
+    "build": "rm -rf dist && builder",
     "build:watch": "builder --watch",
     "examples": "cd examples && web-dev-server --node-resolve --watch",
     "test": "tester --coverage",
-    "test:watch": "tester --watch",
-    "genPackagelock": "npm i --package-lock-only"
+    "test:watch": "tester --watch"
   },
   "publishConfig": {
     "access": "public"
