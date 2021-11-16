@@ -1,16 +1,8 @@
 # 应用开发 >> 发布 || 60
 
-大多数情况下，我们推荐将 Web Widget 应用发布在 NPM 中，这样可以随时通过 CDN 集成。
+大多数情况下，我们推荐将 Web Widget 应用发布在 NPM 中，这样可以随时通过 CDN 集成。当你准备好将包发布到 NPM 时，请确保按照本文档提供的建议，以确保它具有适应时间变化的弹性。
 
-当你准备好将包发布到 NPM 时，请确保你已解决以下建议，以确保你发布的代码尽可能易于用户使用。你的包应该已经有演示、文档、[测试](./testing.md)等，因为每一个都在为你的工作做出最清晰的例子中发挥作用，概述将工作集成到其他项目的最简单途径，并确保包总体而言，它具有适应时间变化的弹性。
-
-## 构建
-
-[Web Widget CLI](./development.md) 会在 package.json 中增加 `build` 命令，运行它即可构建出符合要求的产物。
-
-```bash
-npm run build
-```
+你可以通过 [Web Widget CLI](./development.md) 来简化步骤，你只需要运行 `npm run build` 即可得到待发布的产物。
 
 ## 提供 esm 版本
 
@@ -18,9 +10,9 @@ npm run build
 
 ## 提供 system 版本
 
-目前只有最新的 Chrome 浏览器支持 [import maps](https://github.com/WICG/import-maps)，而 Web Widget 沙盒模式也未能支持 ES module 格式，因此为了能够更好的兼容，应当额外准备一份 `system` 格式版本。
+由于目前只有最新的 Chrome 浏览器支持 [import maps](https://github.com/WICG/import-maps)，因此为了能够为了解决兼容问题，应当额外准备一份 `system` 格式版本。
 
-`system` 格式和构建工具无关，无论是 Webpack 或者 Rollup 都很好的支持它，它可以作为全面应用 ES module 之前的过度格式。`system` 支持使用[裸模块](https://github.com/WICG/import-maps)导入，Web Widget 沙盒模式也支持它。
+`system` 格式和构建工具无关，无论是 Webpack 或者 Rollup 都内置了它，`system` 格式可以作为全面应用 ES module 之前的过度格式。`system` 支持使用[裸模块](https://github.com/WICG/import-maps)导入，并且 Web Widget 沙盒模式也支持它。
 
 ## 打包好所有依赖
 
@@ -28,19 +20,15 @@ npm run build
 
 ## 使用语义化版本管理
 
-Web Widget 应用的宿主可能采用在公共 CDN 在浏览器上自动更新版本的方案，而不需要经过构建、测试等流程，这意味着要求 Web Widget 应用开发者必须严格遵循语义化版本：应用的外观发生重大变化应当升级主版本号。
+Web Widget 应用的宿主可能会允许使用 CDN 自动更新的功能，这意味着 Web Widget 应用都应当随时处于高可用、可预期的状态，因此开发者必须严格遵循语义化版本，应用的**外观**或者功能发生重大变化应当以升级主版本号来发布，以便用户能够做出符合预期的选择。
 
 ## 可选：源映射
 
-如果你选择在 TypeScript 中工作，或者使用比上述标准更新的语法，那么包含源映射可以有助于用户更好的理解它。
+如果你选择在 TypeScript 中工作，或者使用比上述标准更新的语法，那么包含源映射可以有助于开发者更好的理解它。
 
 ## 可选：共享依赖
 
-如果 Web Widget 应用工作在特定环境下，你明确知道宿主提供公共包的名字，这样你可以通过裸模块的方式引入这些包，并且在构建工具中排除这些包，以便和宿主共享这些包。
+如果 Web Widget 应用工作在特定环境下，你明确知道宿主提供公共包的名字，这样你可以通过裸模块的方式引入这些包，并且在构建工具中排除这些包，以便和宿主共享公共依赖的浏览器缓存。
 
-```js
-import Vue from 'vue';
-```
-
-宿主如何实现共享依赖？详情请前往[依赖共享文档](../architecture/shared-dependencies.md)。
+详情请前往[依赖共享文档](../architecture/shared-dependencies.md)了解如何部署。
 

@@ -1,6 +1,6 @@
 # 指南 || 10
 
-Web Widget 是一个基于现代 Web 的构建的开放式网页小挂件系统，它也是一种前端容器化架构。
+Web Widget 是一个基于现代 Web 的构建的开放式网页小挂件系统，它也是一种属于前端的容器化架构。
 
 ```html
 <web-widget src="app.widget.js"></web-widget>
