@@ -1,11 +1,11 @@
 # 容器 >> 插件 >> Umd-loader || 5
 
-这是 WebWidget 的 UMD 格式插件。
+这是 Web Widget 的 UMD 格式插件。
 
 ## 安装
 
 ```bash
-npm install @web-widget/umd-loader --save
+npm install --save @web-widget/umd-loader
 ```
 
 ## 使用

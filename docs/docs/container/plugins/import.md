@@ -9,7 +9,7 @@ Web Widget 应用导入标签 `<web-widget.import>` 实现。
 ## 安装
 
 ```bash
-npm install @web-widget/import --save
+npm install --save @web-widget/import
 ```
 
 ## 使用
