@@ -1,4 +1,4 @@
-/* global window, customElements, HTMLWebWidgetElement, URL */
+/* global window, customElements, HTMLWebWidgetElement */
 /* eslint-disable max-classes-per-file */
 
 export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
@@ -11,8 +11,7 @@ export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
   }
 
   get from() {
-    const value = this.getAttribute('from');
-    return value === null ? '' : new URL(value, this.baseURI).href;
+    return this.getAttribute('from') || '';
   }
 
   set from(value) {
@@ -26,7 +25,8 @@ export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
 
     const importElement = this;
     const nameMap = {
-      src: 'from'
+      src: 'from',
+      import: 'from'
     };
     customElements.define(
       this.as,
@@ -37,14 +37,16 @@ export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
             this,
             [
               'application',
-              'csp',
-              'debug',
-              'src',
-              'text',
-              'type',
               'createDependencies',
               'createLoader',
-              'createSandbox'
+              'createSandbox',
+              'csp',
+              'csp',
+              'import',
+              'sandboxed',
+              'src',
+              'text',
+              'type'
             ].reduce((accumulator, name) => {
               if (typeof importElement[name] !== 'undefined') {
                 accumulator[name] = {

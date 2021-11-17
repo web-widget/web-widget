@@ -1,6 +1,6 @@
-# WebWidget system loader
+# Web Widget system loader
 
-这是 WebWidget 的 system 格式插件。
+这是 Web Widget 的 `system` 格式插件。
 
 [文档](https://web-widget.js.org/docs/container/plugins/system-loader/)
 
