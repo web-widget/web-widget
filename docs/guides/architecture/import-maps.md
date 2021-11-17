@@ -4,24 +4,6 @@
 
 ## 导入映射
 
-### Web Widget 应用内裸模块
-
-javascript 项目中的常见做法是使用所谓的“裸模块导入”。这些是 imports 语句，它仅指定包的名称或包内的文件。
-
-例如：
-
-```js
-import Vue from 'vue';
-```
-
-### Web Widget 应用自身
-
-Web Widget 应用自身也可以和“裸模块”一样，都通过导入映射来管理它，你只需要使用 `import` 属性代替 `src` 属性来加载应用。
-
-Web Widget 容器的 `import` 与 `src` 属性的不同：`import` 属性不会自动补全路径，加载器会优先读取它的原始值去加载模块。
-
-### 示例
-
 ```html
 <script type="importmap">
 {
@@ -40,7 +22,23 @@ Web Widget 容器的 `import` 与 `src` 属性的不同：`import` 属性不会�
 </script>
 ```
 
-## 在生产环境中部署
+### 应用内部裸模块
+
+javascript 项目中的常见做法是使用所谓的“裸模块导入”。这些是 imports 语句，它仅指定包的名称或包内的文件。
+
+例如：
+
+```js
+import Vue from 'vue';
+```
+
+### 应用自身裸模块
+
+Web Widget 应用自身也可以和“裸模块”一样，都通过导入映射来管理它，你只需要使用 `import` 属性代替 `src` 属性来加载应用。
+
+Web Widget 容器的 `import` 与 `src` 属性的不同：`import` 属性不会自动补全路径，加载器会优先读取它的原始值去加载模块。
+
+## 解决兼容性问题
 
 `system` 格式被设计为 `esm` 的过渡格式，它解决了 `esm` 浏览器兼容性的问题，几乎所有的构建工具都支持输出它，因此我们推荐在生产环境中使用 `system` 格式。
 
@@ -63,4 +61,4 @@ import '@web-widget/container';
 import '@web-widget/system-loader';
 ```
 
-Web Widget 提供了 [System loader](../docs/container/plugins/system-loader.md) 插件来支持 `system` 格式。
+Web Widget 提供了 [System loader](../../docs/container/plugins/system-loader.md) 插件来支持 `system` 格式。
