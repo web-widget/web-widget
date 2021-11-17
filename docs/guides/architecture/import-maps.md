@@ -53,9 +53,12 @@ Web Widget 容器的 `import` 与 `src` 属性的不同：`import` 属性不会�
 </script>
 
 <web-widget type="system" import="@org/app"></web-widget>
+
+<script src="dist/bootstrap.js"></script>
 ```
 
 ```js
+// src/bootstrap.js
 import 'systemjs/s.js';
 import '@web-widget/container';
 import '@web-widget/system-loader';
