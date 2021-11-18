@@ -25,9 +25,7 @@ import foo from 'foo';
 ```
 加载器通过 `src` 得到的是 `https://web-widget.js.org/demos/app-widget`。
 
-当 Web Widget 应用自身也能够和普通 javascript 模块一样支持[导入映射](https://github.com/WICG/import-maps)后，我们会得到诸多的好处。
-
-其中之一就是版本管理。
+当 Web Widget 应用自身也能够和普通 javascript 模块一样支持[导入映射](https://github.com/WICG/import-maps)后，我们会得到诸多的好处。其中之一就是版本管理。
 
 过去，只能通过诸如 [jsdelivr](https://www.jsdelivr.com) 一样的 NPM CDN 提供的自动更新能力或者修改 Web Widget 的 `src` 来实现版本管理，现在通过[导入映射](https://github.com/WICG/import-maps)可以将 Web Widget 应用也纳入到相同的版本管理方式中，开发者可以使用其一，或者同时使用两者。
 
