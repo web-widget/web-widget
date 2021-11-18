@@ -72,9 +72,9 @@ Web Widget 定义了应用的描述规范，它通常用于后端的管理系统
 
 详情见[清单文档](../docs/manifest/overview.md)。
 
-## 渐进式的学习
+## 指南
 
 * [应用开发入门](./developing/getting-started.md)：了解如何开发 Web Widget 应用
-* [容器化入门](./architecture/getting-started.md)：了解如何在 Web 工程中实施容器化
+* [容器化入门](./architecture/getting-started.md)：了解如何在 Web 工程中部署容器化架构
 
-> Web Widget 还在筹备开源中，如果你有兴趣参与，请联系我：[tangbing@gaoding.com](mailto:tangbing@gaoding.com)
+> Web Widget 还在高速发展阶段，尚未达到开源的标准，如果你有兴趣知晓细节或者想要参与开发，请联系我：[tangbing@gaoding.com](mailto:tangbing@gaoding.com)

@@ -30,16 +30,7 @@ async function getSystem(defaultView, fallbackUrl) {
   const sandboxed = window !== defaultView;
   const type = 'systemjs-importmap';
   const importmapSelector = `script[type=${type}]`;
-
-  // 载入远程的 SystemJS
-  if (!defaultView.System) {
-    const cacheKey = '@SystemPromise';
-    if (!defaultView[cacheKey]) {
-      defaultView[cacheKey] = importScript(fallbackUrl, defaultView);
-    }
-    await defaultView[cacheKey];
-    delete defaultView[cacheKey];
-  }
+  let importmapSystemjs;
 
   // 复制 import maps 配置到沙盒
   if (sandboxed && !defaultView.document.querySelector(importmapSelector)) {
@@ -47,6 +38,12 @@ async function getSystem(defaultView, fallbackUrl) {
     if (source) {
       const script = defaultView.document.createElement('script');
       script.type = type;
+      try {
+        const { imports } = JSON.parse(source.text);
+        importmapSystemjs = imports.systemjs;
+      } catch (e) {
+        // no error
+      }
 
       if (source.src) {
         script.src = source.src;
@@ -56,6 +53,19 @@ async function getSystem(defaultView, fallbackUrl) {
 
       defaultView.document.head.appendChild(script);
     }
+  }
+
+  // 载入远程的 SystemJS
+  if (!defaultView.System) {
+    const cacheKey = '@SystemPromise';
+    if (!defaultView[cacheKey]) {
+      defaultView[cacheKey] = importScript(
+        importmapSystemjs || fallbackUrl,
+        defaultView
+      );
+    }
+    await defaultView[cacheKey];
+    delete defaultView[cacheKey];
   }
 
   return defaultView.System;
