@@ -5,6 +5,7 @@
 ## 安装
 
 ```bash
+npm install --save @web-widget/container
 npm install --save @web-widget/router
 ```
 
