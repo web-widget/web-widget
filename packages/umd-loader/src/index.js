@@ -60,11 +60,19 @@ async function execScript(text, defaultView, name) {
 async function umdLoader(view) {
   const { src, text, sandboxed, name } = view;
   const defaultView = sandboxed ? view.sandbox.window : window;
+  const libraryName = view.library || view.getAttribute('library') || name;
+
+  if (view.import) {
+    throw Error(
+      `WebWidgetUmdLoader: Unsupported features: import="${view.import}"`
+    );
+  }
 
   if (src) {
-    return importScript(src, defaultView, name);
+    return importScript(src, defaultView, libraryName);
   }
-  return execScript(text, defaultView, name);
+
+  return execScript(text, defaultView, libraryName);
 }
 
 export function setConfig(options) {

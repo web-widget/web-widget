@@ -9,7 +9,8 @@
   <script type="systemjs-importmap">
     {
       "imports": {
-        "hello": "/system/hello.js"
+        "hello": "/system/hello.js",
+        "@main": "/system/index.widget.js"
       }
     }
   </script>
@@ -18,8 +19,8 @@
 <body>
 
   <web-widget type="system" src="./index.widget.js" data-id="01"></web-widget>
-  <web-widget type="system" src="./index.widget.js" data-id="02"></web-widget>
-  <web-widget type="system" src="./index.widget.js" data-id="03"></web-widget>
+  <web-widget type="system" import="@main" data-id="02"></web-widget>
+  <web-widget type="system" import="@main" data-id="03"></web-widget>
 
   <script type="module">
     import 'systemjs/s.js';

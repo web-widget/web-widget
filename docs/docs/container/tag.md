@@ -124,8 +124,25 @@ export default () => ({
 
 ## 懒加载
 
-类似 `<img>` 标签，使用 `loading="lazy"` 属性可以让元素进入视图才加载。
+类似 `<img>` 标签，使用 `loading="lazy"` 属性可以让用户即将看到的时候才加载，而不会占用网络请求。
 
 ```html
 <web-widget src="app.widget.js" loading="lazy"></web-widget>
 ```
+
+## 裸模块
+
+[import-maps](https://github.com/WICG/import-maps) 提供了在浏览器中载入裸模块的标准，在 Web Widget 容器使用 `import` 属性代替 `src` 即可使用它。
+
+```html
+<script type="importmap">
+{
+  "imports": {
+    "@org/app": "https://cdn.jsdelivr.net/npm/@org/app/dist/esm/main.js"
+  }
+}
+</script>
+<web-widget import="@org/app"></web-widget>
+```
+
+通过 [System loader](./plugins/system-loader.md) 插件可以解决 [import-maps](https://github.com/WICG/import-maps) 的浏览器兼容问题。

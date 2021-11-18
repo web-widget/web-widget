@@ -1,13 +1,13 @@
 # WebWidget import
 
-这是 WebWidget 容器的语法糖，用于实现应用的 `import` 标签。
+这是 WebWidget 容器标签的语法糖插件。
 
 [文档](https://web-widget.js.org/docs/container/plugins/import/)
 
 ## 安装
 
 ```bash
-npm install @web-widget/import --save
+npm install --save @web-widget/import
 ```
 
 ## 使用

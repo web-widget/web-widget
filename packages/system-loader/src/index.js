@@ -66,9 +66,10 @@ async function loader(view) {
   const defaultView = sandboxed ? view.sandbox.window : window;
   const { Blob, URL } = defaultView;
   const System = await getSystem(defaultView, CONFIG.remoteSystem);
+  const nameOrPath = view.import || src;
 
-  if (src) {
-    return System.import(src).then(getModuleValue);
+  if (nameOrPath) {
+    return System.import(nameOrPath).then(getModuleValue);
   }
 
   const url = URL.createObjectURL(

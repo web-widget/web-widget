@@ -35,8 +35,9 @@ const rootLoaders = createRegistry();
 
 const isBindingElementLifecycle = view => !view.inactive;
 const isResourceReady = view =>
-  view.isConnected && (view.src || view.application || view.text);
-const isAutoPrefetch = view => view.inactive && view.src;
+  view.isConnected &&
+  (view.import || view.src || view.application || view.text);
+const isAutoPrefetch = view => view.inactive && (view.import || view.src);
 const isAutoLoad = view =>
   isBindingElementLifecycle(view) && isResourceReady(view);
 const isAutoUnload = isBindingElementLifecycle;
@@ -278,6 +279,15 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('src', value);
   }
 
+  get import() {
+    const value = this.getAttribute('import');
+    return value === null ? '' : value;
+  }
+
+  set import(value) {
+    this.setAttribute('import', value);
+  }
+
   get text() {
     return this.getAttribute('text') || '';
   }
@@ -332,8 +342,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
       const { application } = this;
       this[NAME] =
         this.name ||
+        this.import ||
         this.src ||
-        (application ? application.name : this.name || this.localName);
+        (application ? application.name : this.localName);
       this.dependencies = this.createDependencies();
       this.sandbox = this.sandboxed ? this.createSandbox() : null;
       this.renderRoot = null;
@@ -498,7 +509,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['data', 'src', 'text', 'inactive'];
+    return ['data', 'import', 'src', 'text', 'inactive'];
   }
 
   static get portalDestinations() {
