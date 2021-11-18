@@ -97,5 +97,5 @@ import '@web-widget/system-loader';
 
 [模块联邦](https://webpack.js.org/concepts/module-federation/) 是一种和[导入映射](https://github.com/WICG/import-maps)一样，能够实现运行时依赖共享的的解决方案，它和[导入映射](https://github.com/WICG/import-maps)并不冲突，甚至可以同时使用。
 
-[模块联邦](https://webpack.js.org/concepts/module-federation/)是 Webpack5 私有格式，并且目前为止它还处于一个不稳定的状态中，并没有真正意义上成为广泛使用的解决方案，并且 Webpack5 目前为止还没有正式支持 es module 的导出，而现在众多的构建工具都朝着 es module 发展，es module 的生态将更具备清晰的未来。
+[模块联邦](https://webpack.js.org/concepts/module-federation/)是 Webpack5 私有格式，并且目前为止它还处于一个不稳定的状态中，同时 Webpack 没有正式支持 es module 的输出，这也限制了它的发展。
 
