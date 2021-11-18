@@ -73,8 +73,8 @@ import foo from 'foo';
 <script type="systemjs-importmap">
 {
   "imports": {
-    "vue": "https://cdn.jsdelivr.net/npm/vue@3.2.22/dist/vue.runtime.esm-browser.prod.js",
-    "@org/app": "https://cdn.jsdelivr.net/npm/@org/app/dist/esm/main.js"
+    "vue": "https://cdn.jsdelivr.net/npm/@org/vue@3.2.22/dist/system/vue.runtime.browser.prod.js",
+    "@org/app": "https://cdn.jsdelivr.net/npm/@org/app/dist/system/main.js"
   }
 }
 </script>
