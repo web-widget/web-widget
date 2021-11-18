@@ -1,7 +1,7 @@
 ---
 title: Web Widget
 layout: layout-home
-slogan: 基于现代 Web 的开放式网页小挂件体系
+slogan: 现代 Web 前端容器化工具
 
 callToActionItems:
   - text: 入门指南
