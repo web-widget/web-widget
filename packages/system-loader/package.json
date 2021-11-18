@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/system-loader",
   "version": "0.0.14",
-  "description": "WebWidget system loader",
+  "description": "Web Widget system loader",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
   "module": "dist/esm/main.js",

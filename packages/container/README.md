@@ -1,6 +1,6 @@
-# WebWidget element
+# Web Widget element
 
-这是 WebWidget 容器元素。
+这是 Web Widget 容器元素。
 
 [文档](https://web-widget.js.org/docs/container/overview/)
 

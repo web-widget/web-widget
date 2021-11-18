@@ -1,6 +1,6 @@
 # Builder
 
-这是 WebWidget packages 的默认构建工具。
+这是 Web Widget packages 的默认构建工具。
 
 ## 使用方式
 

@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/sandbox",
   "version": "0.0.14",
-  "description": "WebWidget sandbox",
+  "description": "Web Widget sandbox",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
   "module": "dist/esm/main.js",

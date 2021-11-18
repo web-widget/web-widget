@@ -4,7 +4,7 @@ const map = new WeakMap();
 
 function validWidget(widget) {
   if (!widget || !widget.bootstrap || !widget.unmount || !widget.mount) {
-    throw new TypeError(`Validation failed: not a WebWidget`);
+    throw new TypeError(`Validation failed: not a Web Widget`);
   }
 }
 

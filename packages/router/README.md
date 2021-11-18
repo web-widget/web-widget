@@ -1,6 +1,6 @@
-# WebWidget router
+# Web Widget router
 
-这是 WebWidget 的路由插件。
+这是 Web Widget 的路由插件。
 
 [文档](https://web-widget.js.org/docs/container/plugins/router/)
 
@@ -19,7 +19,7 @@ npm install @web-widget/router --save
 <web-widget name="vue-router" src="/vue-router.widget.js" inactive></web-widget>
 ```
 
-为 WebWidget 容器添加 `inactive` 属性，让其不再受 DOM 生命周期控制，以便让交给路由控制它的挂载与卸载行为。
+为 Web Widget 容器添加 `inactive` 属性，让其不再受 DOM 生命周期控制，以便让交给路由控制它的挂载与卸载行为。
 
 ```js
 import '@web-widget/container';
@@ -61,7 +61,7 @@ window.navigate = navigate;
 
 ## API
 
-WebWidget router 由三个领域 API 组合而成。
+Web Widget router 由三个领域 API 组合而成。
 
 ```js
 import { collection, navigate, history } from  '@web-widget/router';
@@ -179,8 +179,8 @@ npm run examples
 
 ### 应用的二级路由如何处理？
 
-WebWidget router 只负责管理一级路由，二级路由应当有应用自己管理，例如使用 vue-router 等。
+Web Widget router 只负责管理一级路由，二级路由应当有应用自己管理，例如使用 vue-router 等。
 
 ### 为什么不提供配置的形式管理路由？
 
-的确使用配置的形式有助于提高开发体验，但 WebWidget router 的核心职责是提供关键功能，这样使得它能够具备更好的可扩展性，因此你可以基于这些关键功能来实现更多的功能。
+的确使用配置的形式有助于提高开发体验，但 Web Widget router 的核心职责是提供关键功能，这样使得它能够具备更好的可扩展性，因此你可以基于这些关键功能来实现更多的功能。
