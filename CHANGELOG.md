@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.0.14 (2012-11-18)
+
+* Web Widget 应用自身也支持支持[导入映射](https://github.com/WICG/import-maps)
+
 ## 0.0.11 (2012-11-13)
 
 * 导出 `bootstrap()` 接口，可以手动的控制 `customElements.define('web-widget', HTMLWebWidgetElement)` 时机，以便解决插件可能没有在预期的时间生效的问题
