@@ -1,6 +1,6 @@
 # 容器 >> 接口 >> WebWidgetDependencies || 2
 
-WebWidgetDependencies 是[应用标准接口](../../application/interface.md)实现，可以扩展它增加新的 API。
+WebWidgetDependencies 是[应用标准接口](../../application/interface.md)实现，可以通过扩展此接口来实现应用的依赖注入。
 
 使用例子：
 
@@ -89,3 +89,7 @@ export async function mount({ createPortal }) {
 ## sandboxed
 
 应用是否处于 WebSandbox DOM 沙箱中（只读）。
+
+## ownerElement
+
+`<web-widget>` 元素实例（只读）。

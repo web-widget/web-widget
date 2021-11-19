@@ -32,15 +32,19 @@ javascript 项目中的常见做法是使用所谓的“裸模块导入”。这
 import Vue from 'vue';
 ```
 
-### 应用自身裸模块
+### 使用裸模块加载应用
 
 Web Widget 应用自身也可以和“裸模块”一样，都通过导入映射来管理它，你只需要使用 `import` 属性代替 `src` 属性来加载应用。
+
+```html
+<web-widget import="@org/app"></web-widget>
+```
 
 Web Widget 容器的 `import` 与 `src` 属性的不同：`import` 属性不会自动补全路径，加载器会优先读取它的原始值去加载模块。
 
 ## 解决兼容性问题
 
-`system` 格式被设计为 `esm` 的过渡格式，它解决了 `esm` 浏览器兼容性的问题，几乎所有的构建工具都支持输出它，因此我们推荐在生产环境中使用 `system` 格式。
+`system` 格式被设计为 `esm` 的过渡格式，它解决了 `esm` [import maps](https://github.com/WICG/import-maps) 浏览器兼容性的问题。几乎所有的构建工具都支持输出 `system` 格式，因此我们推荐在生产环境中使用它，以便未来能够无缝过渡到 Web 标准。
 
 ```html
 <script type="systemjs-importmap">
