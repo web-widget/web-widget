@@ -1,4 +1,4 @@
-/* global window, document, customElements, ShadowRoot, HTMLElement, Event, IntersectionObserver, URL, MutationObserver */
+/* global window, document, customElements, ShadowRoot, HTMLElement, Event, Node, IntersectionObserver, URL, MutationObserver */
 // eslint-disable-next-line max-classes-per-file
 import { createRegistry } from './utils/registry.js';
 import { getParentNode, getChildNodes } from './utils/nodes.js';
@@ -21,6 +21,7 @@ import {
   SET_STATE
 } from './applications/symbols.js';
 
+const LOCAL_NAME = 'web-widget';
 const APPLICATION = Symbol('application');
 const DATA = Symbol('data');
 const FIRST_CONNECTED = Symbol('firstConnect');
@@ -58,23 +59,30 @@ const lazyObserver = new IntersectionObserver(
 
 function updateElement(target) {
   const newTagName = target.localName;
-  if (!customElements.get(newTagName)) {
+  if (newTagName.includes('-') && !customElements.get(newTagName)) {
     // eslint-disable-next-line no-use-before-define
     customElements.define(newTagName, class extends HTMLWebWidgetElement {});
   }
 }
 
-function autoUpdateElement(documentOrShadowRoot, localName) {
+function autoUpdateElement(documentOrShadowRoot) {
+  const tryUpdateElement = node =>
+    node.nodeType === Node.ELEMENT_NODE &&
+    node.getAttribute('is') === LOCAL_NAME &&
+    updateElement(node);
   return new MutationObserver(mutationsList => {
-    for (const mutation of mutationsList) {
-      if (mutation.target.getAttribute('is') === localName) {
-        updateElement(mutation.target);
+    mutationsList.forEach(({ type, target, addedNodes }) => {
+      if (type === 'attributes') {
+        tryUpdateElement(target);
+      } else {
+        addedNodes.forEach(node => tryUpdateElement(node));
       }
-    }
+    });
   }).observe(documentOrShadowRoot, {
+    attributeFilter: ['is'],
     attributes: true,
-    subtree: true,
-    attributeFilter: ['is']
+    childList: true,
+    subtree: true
   });
 }
 
@@ -316,7 +324,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       renderRoot = sandboxDoc.body;
     } else {
       renderRoot = this.attachShadow({ mode: 'closed' });
-      autoUpdateElement(renderRoot, this.localName);
+      autoUpdateElement(renderRoot);
     }
 
     return renderRoot;
@@ -521,15 +529,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 }
 
-export function bootstrap(tagName = 'web-widget') {
-  customElements.define(tagName, HTMLWebWidgetElement);
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      autoUpdateElement(document, tagName);
-    });
-  } else {
-    document.querySelectorAll(`[is=${tagName}]`).forEach(updateElement);
-  }
+export function bootstrap() {
+  customElements.define(LOCAL_NAME, HTMLWebWidgetElement);
+  document.querySelectorAll(`[is=${LOCAL_NAME}]`).forEach(updateElement);
+  autoUpdateElement(document);
 }
 
 Object.assign(HTMLWebWidgetElement, status);

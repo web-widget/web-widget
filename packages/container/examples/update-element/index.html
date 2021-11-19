@@ -19,11 +19,18 @@
   </hello-world>
 
   <my-element is="web-widget" src="./slot.widget.js">
-    <p slot="main">hello web-sandbox</p>
+    <p slot="main">hello web-widget</p>
   </my-element>
 
   <script type="module">
-    import '@web-widget/container';
+    import '../../src';
+
+    const element = document.createElement('xxx-xxx');
+    element.setAttribute('is', 'web-widget');
+    element.setAttribute('src', './slot.widget.js');
+    element.innerHTML = '<p slot="main">hello web-widget</p>';
+    document.body.appendChild(element);
+    
   </script>
 </body>
 
