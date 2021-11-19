@@ -1,6 +1,6 @@
 # 指南 || 10
 
-Web Widget 是一个 Web 前端容器化工具：
+Web Widget 是一个运行 Web 前端的应用容器，它允许你将用户界面相关的逻辑以透明的方式封装起来，直接为用户提供服务。
 
 ```html
 <web-widget src="app.widget.js"></web-widget>

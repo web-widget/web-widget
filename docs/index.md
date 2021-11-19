@@ -1,7 +1,7 @@
 ---
 title: Web Widget
 layout: layout-home
-slogan: 现代 Web 前端容器化工具
+slogan: 运行 Web 前端的应用容器
 
 callToActionItems:
   - text: 入门指南
