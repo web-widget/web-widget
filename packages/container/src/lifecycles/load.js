@@ -3,7 +3,6 @@ import {
   BOOTSTRAP,
   LOAD_PROMISE,
   MOUNT,
-  PORTAL_DESTINATIONS,
   PORTALS,
   SET_STATE,
   TIMEOUTS,
@@ -13,7 +12,6 @@ import {
 } from '../applications/symbols.js';
 import { ensureValidAppTimeouts } from '../applications/timeouts.js';
 import { formatErrorMessage } from '../applications/errors.js';
-import { createRegistry } from '../utils/registry.js';
 
 function smellsLikeAPromise(promise) {
   return (
@@ -68,7 +66,6 @@ export async function toLoadPromise(view) {
       Object.assign(view, {
         [BOOTSTRAP]: flattenFnArray(view, main, 'bootstrap'),
         [MOUNT]: flattenFnArray(view, main, 'mount'),
-        [PORTAL_DESTINATIONS]: createRegistry(),
         [PORTALS]: [],
         [TIMEOUTS]: ensureValidAppTimeouts(main.timeouts),
         [UNLOAD]: flattenFnArray(view, main, 'unload'),
