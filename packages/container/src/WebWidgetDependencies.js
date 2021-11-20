@@ -1,6 +1,6 @@
 /* global window */
 import { formatErrorMessage } from './applications/errors.js';
-import { PORTAL_DESTINATIONS, PORTALS } from './applications/symbols.js';
+import { PORTALS } from './applications/symbols.js';
 
 function createContext(view) {
   return {
@@ -49,25 +49,11 @@ export class WebWidgetDependencies {
 
   get createPortal() {
     return (widget, name) => {
-      const HTMLWebWidgetElement = this.ownerElement.constructor;
       const view = this.ownerElement;
-      let portal;
-      const findCustomPortal = (view, name) => {
-        let current = view;
-        do {
-          if (current[PORTAL_DESTINATIONS].get(name)) {
-            return current[PORTAL_DESTINATIONS].get(name);
-          }
-          current = current.parent;
-        } while (current);
+      const HTMLWebWidgetElement = view.constructor;
 
-        return HTMLWebWidgetElement.portalDestinations.get(name);
-      };
-      const factory = findCustomPortal(view, name);
-
-      if (factory) {
-        portal = factory();
-      }
+      const factory = HTMLWebWidgetElement.portalDestinations.get(name);
+      const portal = factory ? factory() : null;
 
       if (!portal) {
         throw formatErrorMessage(
@@ -125,18 +111,6 @@ export class WebWidgetDependencies {
     return this.ownerElement.name;
   }
 
-  get portalDestinations() {
-    const view = this.ownerElement;
-    return {
-      get() {
-        return view[PORTAL_DESTINATIONS].get(...arguments);
-      },
-      define() {
-        return view[PORTAL_DESTINATIONS].define(...arguments);
-      }
-    };
-  }
-
   get sandboxed() {
     const { sandboxed } = this.ownerElement;
     return sandboxed;
@@ -171,13 +145,11 @@ function defineHook(target, name, callback) {
   );
 }
 
-['container', 'context', 'createPortal', 'name', 'portalDestinations'].forEach(
-  name => {
-    defineHook(WebWidgetDependencies.prototype, name, descriptor => {
-      descriptor.get = memoize(descriptor.get);
-      return descriptor;
-    });
-  }
-);
+['container', 'context', 'createPortal', 'name'].forEach(name => {
+  defineHook(WebWidgetDependencies.prototype, name, descriptor => {
+    descriptor.get = memoize(descriptor.get);
+    return descriptor;
+  });
+});
 
 window.WebWidgetDependencies = WebWidgetDependencies;

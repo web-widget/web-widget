@@ -1,7 +1,7 @@
-/* global window, document, customElements, ShadowRoot, HTMLElement, Event, Node, IntersectionObserver, URL, MutationObserver */
+/* global window, document, customElements, HTMLElement, Event, Node, IntersectionObserver, URL, MutationObserver */
 // eslint-disable-next-line max-classes-per-file
 import { createRegistry } from './utils/registry.js';
-import { getParentNode, getChildNodes } from './utils/nodes.js';
+import { getParentNode } from './utils/nodes.js';
 import { moduleLoader } from './loaders/module.js';
 import { queueMicrotask } from './utils/queueMicrotask.js';
 import { toBootstrapPromise } from './lifecycles/bootstrap.js';
@@ -13,13 +13,7 @@ import { toUpdatePromise } from './lifecycles/update.js';
 import { WebWidgetDependencies } from './WebWidgetDependencies.js';
 import { WebWidgetSandbox } from './WebWidgetSandbox.js';
 import * as status from './applications/status.js';
-import {
-  CHILDREN_WIDGET,
-  NAME,
-  PORTALS,
-  PREFETCH,
-  SET_STATE
-} from './applications/symbols.js';
+import { NAME, SET_STATE } from './applications/symbols.js';
 
 const LOCAL_NAME = 'web-widget';
 const APPLICATION = Symbol('application');
@@ -30,6 +24,7 @@ const MOVEING = Symbol('moveing');
 const PARENT_WIDGET = Symbol('parentWidget');
 const STATE = Symbol('state');
 const STATECHANGE_CALLBACK = Symbol('statechangeCallback');
+// const PREFETCH = Symbol('prefetch');
 
 const rootPortalDestinations = createRegistry();
 const rootLoaders = createRegistry();
@@ -38,7 +33,7 @@ const isBindingElementLifecycle = view => !view.inactive;
 const isResourceReady = view =>
   view.isConnected &&
   (view.import || view.src || view.application || view.text);
-const isAutoPrefetch = view => view.inactive && (view.import || view.src);
+// const isAutoPrefetch = view => view.inactive && (view.import || view.src);
 const isAutoLoad = view =>
   isBindingElementLifecycle(view) && isResourceReady(view);
 const isAutoUnload = isBindingElementLifecycle;
@@ -100,45 +95,23 @@ function getParentWebWidgetElement(view, constructor) {
   return null;
 }
 
-function getChildWebWidgetElements(view, constructor) {
-  let shadowRoot;
-  const container = view.dependencies.container;
-
-  if (container instanceof ShadowRoot) {
-    shadowRoot = container;
-  }
-  const childWebWidgetElements = getChildNodes(view, constructor);
-
-  if (shadowRoot) {
-    childWebWidgetElements.push(...getChildNodes(shadowRoot, constructor));
-  }
-
-  return [
-    ...new Set(
-      [...childWebWidgetElements, ...view[PORTALS]].map(
-        webWidgetElement => webWidgetElement
-      )
-    )
-  ];
-}
-
-function prefetch(url /* , importance */) {
-  if (!document.head.querySelector(`link[href="${url}"]`)) {
-    const link = document.createElement('link');
-    link.rel = 'prefetch';
-    /* link.importance = importance; */
-    link.href = url;
-    document.head.appendChild(link);
-  }
-}
+// function prefetch(url /* , importance */) {
+//   if (!document.head.querySelector(`link[href="${url}"]`)) {
+//     const link = document.createElement('link');
+//     link.rel = 'prefetch';
+//     /* link.importance = importance; */
+//     link.href = url;
+//     document.head.appendChild(link);
+//   }
+// }
 
 function tryAutoLoad(view) {
   queueMicrotask(() => {
     if (isAutoLoad(view)) {
       view.mount().catch(asyncThrowError);
-    } else if (isAutoPrefetch(view)) {
+    } /* else if (isAutoPrefetch(view)) {
       view[PREFETCH]();
-    }
+    } */
   });
 }
 
@@ -504,16 +477,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
-  [PREFETCH]() {
-    prefetch(this.src, this.importance);
-  }
+  // [PREFETCH]() {
+  //   prefetch(this.src, this.importance);
+  // }
 
   [PARENT_WIDGET]() {
     return getParentWebWidgetElement(this, this.constructor);
-  }
-
-  [CHILDREN_WIDGET]() {
-    return getChildWebWidgetElements(this, this.constructor);
   }
 
   static get observedAttributes() {

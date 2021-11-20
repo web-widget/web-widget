@@ -11,7 +11,6 @@ import {
   LOAD_PROMISE,
   MOUNT_PROMISE,
   MOUNT,
-  PORTAL_DESTINATIONS,
   PORTALS,
   TIMEOUTS,
   UNLOAD_PROMISE,
@@ -31,7 +30,6 @@ function resetView(view) {
     [LOAD_PROMISE]: null,
     [MOUNT]: null,
     [MOUNT_PROMISE]: null,
-    [PORTAL_DESTINATIONS]: null,
     [PORTALS]: null,
     [TIMEOUTS]: null,
     [UNLOAD]: null,
@@ -59,6 +57,7 @@ export async function toUnloadPromise(view) {
   )
     .then(() => {
       resetView(view);
+      return Promise.all(view[PORTALS].map(widget => widget.unload()));
     })
     .catch(error => {
       view[SET_STATE](UNLOAD_ERROR);

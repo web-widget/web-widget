@@ -1,16 +1,15 @@
 import {
-  UNMOUNTING,
   BOOTSTRAPPED,
-  UNMOUNT_ERROR
+  UNMOUNT_ERROR,
+  UNMOUNTING
 } from '../applications/status.js';
 import {
-  SET_STATE,
   MOUNT_PROMISE,
-  UNMOUNT_PROMISE,
-  CHILDREN_WIDGET,
-  UNMOUNT
+  PORTALS,
+  SET_STATE,
+  UNMOUNT,
+  UNMOUNT_PROMISE
 } from '../applications/symbols.js';
-import { queueMicrotask } from '../utils/queueMicrotask.js';
 import { reasonableTime } from '../applications/timeouts.js';
 import { formatErrorMessage } from '../applications/errors.js';
 
@@ -20,27 +19,17 @@ export async function toUnmountPromise(view) {
   }
 
   view[SET_STATE](UNMOUNTING);
-  const children = view[CHILDREN_WIDGET]();
-  const tryUnmountChildren = children.map(async view =>
-    view.unmount().catch(error => {
-      queueMicrotask(() => {
-        throw error;
-      });
+  view[UNMOUNT_PROMISE] = reasonableTime(view, UNMOUNT)
+    .then(() => {
+      view[SET_STATE](BOOTSTRAPPED);
+      view[MOUNT_PROMISE] = null;
+      return Promise.all(view[PORTALS].map(widget => widget.unmount()));
     })
-  );
-
-  view[UNMOUNT_PROMISE] = Promise.all(tryUnmountChildren).then(() =>
-    reasonableTime(view, UNMOUNT)
-      .then(() => {
-        view[SET_STATE](BOOTSTRAPPED);
-        view[MOUNT_PROMISE] = null;
-      })
-      .catch(error => {
-        view[SET_STATE](UNMOUNT_ERROR);
-        view[UNMOUNT_PROMISE] = null;
-        throw formatErrorMessage(view, error);
-      })
-  );
+    .catch(error => {
+      view[SET_STATE](UNMOUNT_ERROR);
+      view[UNMOUNT_PROMISE] = null;
+      throw formatErrorMessage(view, error);
+    });
 
   return view[UNMOUNT_PROMISE];
 }
