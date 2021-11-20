@@ -4,6 +4,16 @@
 <web-widget src="app.widget.js"></web-widget>
 ```
 
+## 别名
+
+`is="web-widget"` 可以让任意一个未经注册的自定义元素升级为 Web Widget（试验性）。
+
+```html
+<app-header is="web-widget" src="header.widget.js"></app-header>
+<app-main is="web-widget" src="main.widget.js"></app-main>
+<app-footer is="web-widget" src="footer.widget.js"></app-footer>
+```
+
 ## 占位符
 
 `<placeholder>` 元素将充当 Web Widget 容器的占位符号。用途：
