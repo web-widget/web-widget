@@ -13,7 +13,7 @@ import { toUpdatePromise } from './lifecycles/update.js';
 import { WebWidgetDependencies } from './WebWidgetDependencies.js';
 import { WebWidgetSandbox } from './WebWidgetSandbox.js';
 import * as status from './applications/status.js';
-import { NAME, SET_STATE } from './applications/symbols.js';
+import { PORTALS, NAME, SET_STATE } from './applications/symbols.js';
 
 const LOCAL_NAME = 'web-widget';
 const APPLICATION = Symbol('application');
@@ -368,7 +368,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   async unmount() {
     if (this.state === status.MOUNTED) {
+      const portals = this[PORTALS];
       await toUnmountPromise(this);
+      await Promise.all(portals.map(widget => widget.unmount()));
     }
   }
 
@@ -378,7 +380,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
 
     if ([status.BOOTSTRAPPED, status.MOUNTED].includes(this.state)) {
+      const portals = this[PORTALS];
       await toUnloadPromise(this);
+      await Promise.all(portals.map(widget => widget.unload()));
     }
   }
 

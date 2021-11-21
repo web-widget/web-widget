@@ -56,9 +56,7 @@ export async function toUnloadPromise(view) {
     view.state === LOAD_ERROR ? Promise.resolve() : reasonableTime(view, UNLOAD)
   )
     .then(() => {
-      const portals = view[PORTALS];
       resetView(view);
-      return Promise.all(portals.map(widget => widget.unload()));
     })
     .catch(error => {
       view[SET_STATE](UNLOAD_ERROR);
