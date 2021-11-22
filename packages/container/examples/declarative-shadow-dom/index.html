@@ -19,7 +19,7 @@
 
   <button id="load-widget">Load Widget</button>
 
-  <web-widget id="web-widget" inactive src="./hello-world.widget.js" loading="lazy">
+  <web-widget id="web-widget" src="./hello-world.widget.js">
     <!--SSR content-->
     <template shadowroot="closed">
       <style>
@@ -56,14 +56,13 @@
   </script>
 
   <script type="module">
-    import '../../src/index.js';
+    document.getElementById('load-widget').onclick = () => {
+      import('../../src/index.js');
+    };
 
     document.getElementById('web-widget').addEventListener('statechange', (event) => {
       console.log(event.target.state);
     });
-    document.getElementById('load-widget').onclick = () => {
-      document.getElementById('web-widget').mount();
-    };
   </script>
 </body>
 
