@@ -157,6 +157,10 @@ export class Application {
 
     this.setState(rule.pending);
 
+    if (!this.lifecycles[name]) {
+      this.defineLifecycle(name);
+    }
+
     this.promises[name] = this.lifecycles[name]()
       .then(() => {
         if (rule.output) {
