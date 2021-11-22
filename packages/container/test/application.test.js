@@ -12,10 +12,10 @@ import {
   UNMOUNTING,
   UPDATING
 } from '../src/applications/status.js';
-// import { globalTimeoutConfig } from '../src/applications/timeouts.js';
 import {
   createApplication,
-  createBaseContainer
+  createBaseContainer,
+  defineTimeouts
 } from './application.adapter.js';
 
 describe('Application lifecycle: load', () => {
@@ -575,61 +575,34 @@ describe('Application lifecycle: error', () => {
     ));
 });
 
-// describe('Application lifecycle: timeout', () => {
-//   const config = globalTimeoutConfig.bootstrap = 50;
-//   config.timeout = 50;
-//   config.dieOnTimeout = true;
+describe.only('Application lifecycle: timeout', () => {
+  const timeout = 50;
+  defineTimeouts({
+    bootstrap: timeout
+  });
 
-//   function delay(time) {
-//     return new Promise(resolve => {
-//       setTimeout(() => {
-//         resolve();
-//       }, time);
-//     });
-//   }
+  function delay(time) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve();
+      }, time);
+    });
+  }
 
-//   it('bootstrap', () =>
-//     createBaseContainer(
-//       {
-//         application: () => ({
-//           async bootstrap() {
-//             return delay(config.millis + 50);
-//           }
-//         })
-//       },
-//       async ({ bootstrap }) => {
-//         await bootstrap().then(
-//           () => Promise.reject(new Error('Not rejected')),
-//           () => Promise.resolve()
-//         );
-//       }
-//     ));
-// });
-
-// describe(`Application lifecycle: Return value`, () => {
-//   const history = [];
-//   it(`If an array of functions is exported (instead of just one function),
-//   the functions will be called one-after-the-other,
-//   waiting for the resolution of one function's promise before calling the next`, () =>
-//     createBaseContainer(
-//       {
-//         application: () => ({
-//           bootstrap: [
-//             async () => {
-//               history.push(0);
-//             },
-//             async () => {
-//               history.push(1);
-//             },
-//             async () => {
-//               history.push(2);
-//             }
-//           ]
-//         })
-//       },
-//       async ({ bootstrap }) => {
-//         await bootstrap();
-//         expect(history).to.deep.equal([0, 1, 2]);
-//       }
-//     ));
-// });
+  it('bootstrap', () =>
+    createBaseContainer(
+      {
+        application: () => ({
+          async bootstrap() {
+            return delay(timeout + 16);
+          }
+        })
+      },
+      async ({ bootstrap }) => {
+        await bootstrap().then(
+          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.resolve()
+        );
+      }
+    ));
+});

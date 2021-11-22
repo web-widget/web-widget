@@ -345,6 +345,23 @@ export async function mount({ container, createPortal }) {
 })
 ```
 
+## \#timeouts
+
+`object`
+
+全局超时配置（实验性特性）。这是一个**静态属性**。
+
+```js
+HTMLWebWidgetElement.timeout = {
+  load: 12000,
+  bootstrap: 4000,
+  mount: 3000,
+  update: 3000,
+  unmount: 3000,
+  unload: 3000
+}
+```
+
 ## Events
 
 ### statechange

@@ -87,8 +87,7 @@ const rules = {
 export class Application {
   constructor() {
     this.promises = Object.create(null);
-    this.fns = {};
-    this.lifecycles = {};
+    this.lifecycles = Object.create(null);
     this.state = INITIAL;
     this.dependencies = null;
   }
@@ -110,13 +109,19 @@ export class Application {
   // eslint-disable-next-line class-methods-use-this
   createDependencies() {}
 
-  setLifecycles(lifecycles) {
-    if (typeof lifecycles === 'function') {
-      lifecycles = lifecycles();
-    }
+  defineLifecycle(name, lifecycle, timeout) {
+    const fn = typeof lifecycle === 'function' ? lifecycle : async () => {};
+    const dieOnTimeout = typeof timeout === 'number';
+    const timeoutWarning = 1000;
 
-    lifecycles = lifecycles || {};
-    Object.assign(this.lifecycles, lifecycles);
+    this.lifecycles[name] = () =>
+      reasonableTime(
+        name,
+        async () => fn(this.dependencies),
+        dieOnTimeout ? timeout : rules[name].timeout,
+        dieOnTimeout,
+        timeoutWarning
+      );
   }
 
   async trigger(name) {
@@ -150,18 +155,9 @@ export class Application {
       this.dependencies = this.createDependencies();
     }
 
-    if (!this.fns[name]) {
-      const fn =
-        typeof this.lifecycles[name] === 'function'
-          ? this.lifecycles[name]
-          : async () => {};
-      this.fns[name] = () =>
-        reasonableTime(async () => fn(this.dependencies), rule.timeout);
-    }
-
     this.setState(rule.pending);
 
-    this.promises[name] = this.fns[name]()
+    this.promises[name] = this.lifecycles[name]()
       .then(() => {
         if (rule.output) {
           rule.output.forEach(name => {

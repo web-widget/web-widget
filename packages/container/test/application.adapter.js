@@ -1,4 +1,4 @@
-import '../src/index.js';
+import { HTMLWebWidgetElement } from '../src/index.js';
 
 export function createBaseContainer({ application }, callback) {
   const widget = document.createElement('web-widget');
@@ -86,4 +86,8 @@ export function createApplication(callback) {
         }
       })
   );
+}
+
+export function defineTimeouts(timeouts) {
+  Object.assign(HTMLWebWidgetElement.timeouts, timeouts);
 }

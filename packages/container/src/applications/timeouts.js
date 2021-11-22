@@ -1,13 +1,14 @@
 /* global setTimeout, console */
 
 export function reasonableTime(
+  name,
   callback,
   timeout,
-  warning = 1000,
-  dieOnTimeout = false
+  dieOnTimeout = false,
+  timeoutWarning = 1000
 ) {
   return new Promise((resolve, reject) => {
-    const errorMessage = `Lifecycle function did not complete within ${timeout} ms`;
+    const errorMessage = `Lifecycle function did not complete within ${timeout} ms: ${name}`;
 
     let finished = false;
     let errored = false;
@@ -35,17 +36,17 @@ export function reasonableTime(
           }
         } else if (!errored) {
           const numWarnings = shouldError;
-          const numMillis = numWarnings * warning;
+          const numMillis = numWarnings * timeoutWarning;
           // eslint-disable-next-line no-console
           console.warn(new Error(errorMessage));
-          if (numMillis + warning < timeout) {
-            setTimeout(() => maybeTimingOut(numWarnings + 1), warning);
+          if (numMillis + timeoutWarning < timeout) {
+            setTimeout(() => maybeTimingOut(numWarnings + 1), timeoutWarning);
           }
         }
       }
     }
 
-    setTimeout(() => maybeTimingOut(1), warning);
+    setTimeout(() => maybeTimingOut(1), timeoutWarning);
     setTimeout(() => maybeTimingOut(true), timeout);
   });
 }

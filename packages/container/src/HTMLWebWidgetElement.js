@@ -21,8 +21,9 @@ const STATECHANGE_CALLBACK = Symbol('statechangeCallback');
 const LIFECYCL_CONTROL = Symbol('lifecyclControl');
 // const PREFETCH = Symbol('prefetch');
 
-const rootPortalDestinations = createRegistry();
-const rootLoaders = createRegistry();
+const globalPortalDestinations = createRegistry();
+const globalLoaders = createRegistry();
+let globalTimeouts = Object.create(null);
 
 const isBindingElementLifecycle = view => !view.inactive;
 const isResourceReady = view =>
@@ -145,8 +146,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
       return this.dependencies;
     };
 
-    lifecyclControl.setLifecycles({
-      load: async dependencies => {
+    lifecyclControl.defineLifecycle(
+      'load',
+      async dependencies => {
         if (!isResourceReady(this)) {
           throw new Error(`Cannot load: Not initialized`);
         }
@@ -169,9 +171,22 @@ export class HTMLWebWidgetElement extends HTMLElement {
           throw new Error(`Sandbox mode is not implemented`);
         }
 
-        lifecyclControl.setLifecycles(await this.loader(dependencies));
-      }
-    });
+        let lifecycles = await this.loader(dependencies);
+
+        if (typeof lifecycles === 'function') {
+          lifecycles = lifecycles() || {};
+        }
+
+        Object.keys(lifecycles).forEach(name => {
+          lifecyclControl.defineLifecycle(
+            name,
+            lifecycles[name],
+            this.constructor.timeouts[name]
+          );
+        });
+      },
+      this.constructor.timeouts.load
+    );
   }
 
   get application() {
@@ -484,11 +499,19 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   static get portalDestinations() {
-    return rootPortalDestinations;
+    return globalPortalDestinations;
   }
 
   static get loaders() {
-    return rootLoaders;
+    return globalLoaders;
+  }
+
+  static get timeouts() {
+    return globalTimeouts;
+  }
+
+  static set timeouts(value) {
+    globalTimeouts = value;
   }
 }
 
@@ -499,7 +522,7 @@ export function bootstrap() {
 }
 
 Object.assign(HTMLWebWidgetElement, status);
-rootLoaders.define('module', moduleLoader);
+globalLoaders.define('module', moduleLoader);
 
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
 
