@@ -10,7 +10,7 @@ eleventyNavigation:
 
 应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件。
 
-Web Widget 应用被设计为一种独立的格式，是一种和 UI 框架无关的的插件抽象，它和具体的应用容器、加载器也无关，包括 Web Widget 容器，因为我们认为通过抽象可以让软件具备更长的生命力。
+Web Widget 应用被设计为一种独立的格式，它是一种和 UI 框架无关的的插件抽象、和具体的应用容器没有直接关系，你甚至可以根据此文档定义的格式来实现自己的应用容器，而不必引入 Web Widget。
 
 ## 格式
 
@@ -42,17 +42,18 @@ export async function unload(props) {}
 
 ## 执行
 
-应用容器负责执行应用，它会依次调用应用入口文件的定义的生命周期函数。
+应用容器负责执行应用，它遵循生命周期函数调用的顺序：
 
 ```
-load ┐            ┌ <───────────────────────────┐
-     └> bootstrap ┤                             │
-     │            └> mount ┐                    │
-     │                     └> update ┐          │
-     │                               └> unmount ┤
-     │                                          └> unload ┐
-     │                                                    │
-      <───────────── [ Hot-reloading ] ───────────────────┘
+                     ┌ <───────────────────────────┐
+┌> load ┐            │                             │
+│       └> bootstrap ┤        ┌ <───────┐          │
+│                    └> mount ┤         │          │
+│                             └> update ┤          │
+│                             │         └> unmount ┤
+│                             └───────> ┘          └> unload ┐
+│                                                            │
+└ <──────────────────────────────────────────────────────────┘
 ```
 
 ## 接口
@@ -163,54 +164,17 @@ export default () => ({
 });
 ```
 
-## 超时
-
-### `timeouts`
-
-默认情况下，所有的应用遵循容器定义的超时配置，但对于每个应用也可以通过导出一个 `timeouts` 对象来重新定义超时时间。如：
-
-```js
-export default () => ({
-  async bootstrap(props) {},
-  async mount(props) {},
-  async update(props) {},
-  async unmount(props) {},
-  async unload(props) {},
-  timeouts: {
-    bootstrap: {
-      millis: 5000,
-      dieOnTimeout: true,
-      warningMillis: 2500,
-    },
-    mount: {
-      millis: 5000,
-      dieOnTimeout: false,
-      warningMillis: 2500,
-    },
-    unmount: {
-      millis: 5000,
-      dieOnTimeout: true,
-      warningMillis: 2500,
-    },
-    unload: {
-      millis: 5000,
-      dieOnTimeout: true,
-      warningMillis: 2500,
-    }
-  }
-});
-```
-
 ----------
 
 *感谢：*
 
-[single-spa](https://single-spa.js.org/) 是一个非常优秀的微前端解决方案，它对 Web Widget 的应用格式设计产生了关键影响：生命周期函数沿用了 [single-spa](https://single-spa.js.org/) 的设计。
-
-对 [single-spa](https://single-spa.js.org/) 应用格式主要的改进：
+[single-spa](https://single-spa.js.org/) 是一个非常优秀的微前端解决方案，它对 Web Widget 的应用格式设计产生了关键影响。相对于 [single-spa](https://single-spa.js.org/) 应用格式的差异：
 
 * 支持 `export default () => ({/* life cycle */})` 形式，并且作为推荐的方式。因为容器通常支持多实例运行
+* 所有的生命周期函数都是可选的
 * 明确定义了获取渲染目标的接口 [`container`](./interface.md#container)
-* 明确定义获取数据的接口 [`data`](./interface.md#data)
-* 删除了接口 `singleSpa`。应用应当作为独立的格式存在，不应该与具体的容器实现耦合
-* 删除了接口 `mountParcel`。Web Widget 的应用格式抽象了 [single-spa](https://single-spa.js.org/) 中 `application` 与 `parcel` 的概念，因此无须再保留 `parcel` 概念
+* 明确定义获取数据的接口 [`data`](./interface.md#data)。以便外部能够编辑、序列化、存储应用数据
+* 没有 `singleSpa` 接口。因为它导致和具体的容器实现耦合
+* 没有 `mountParcel` 接口。Web Widget 的应用格式抽象了 [single-spa](https://single-spa.js.org/) 中 `application` 与 `parcel` 的概念，因此无须再保留 `parcel` 概念
+* 不支持 `timeouts` 配置
+* 生命周期函数不支持数组形式

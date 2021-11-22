@@ -4,12 +4,13 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" main="IE=edge">
-  <title>WebWidget DEMO</title>
+  <title>Web Widget DEMO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script type="systemjs-importmap">
     {
       "imports": {
-        "hello": "/importmap/hello.js"
+        "hello": "/system/hello.js",
+        "@main": "/system/index.widget.js"
       }
     }
   </script>
@@ -18,13 +19,13 @@
 <body>
 
   <web-widget type="system" src="./index.widget.js" data-id="01"></web-widget>
-  <web-widget type="system" src="./index.widget.js" data-id="02"></web-widget>
-  <web-widget type="system" src="./index.widget.js" data-id="03"></web-widget>
+  <web-widget type="system" import="@main" data-id="02"></web-widget>
+  <web-widget type="system" import="@main" data-id="03"></web-widget>
 
   <script type="module">
     import 'systemjs/s.js';
     import '@web-widget/container';
-    import '../../src/index.js';
+    import '@web-widget/system-loader';
   </script>
 </body>
 

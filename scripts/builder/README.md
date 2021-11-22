@@ -1,6 +1,6 @@
 # Builder
 
-这是 WebWidget packages 的默认构建工具。
+这是 Web Widget packages 的默认构建工具。
 
 ## 使用方式
 
@@ -35,7 +35,7 @@ package.json 示例：
     "dist"
   ],
   "devDependencies": {
-    "@web-widget/builder": "^0.0.4"
+    "@web-widget/builder": "^0.0.12"
   }
 }
 ```

@@ -1,14 +1,19 @@
 {
   "name": "@web-widget/container",
-  "version": "0.0.8",
+  "version": "0.0.17",
   "description": "web widget",
   "source": "src/index.js",
-  "main": "dist/cjs/container.js",
-  "module": "dist/esm/container.js",
-  "unpkg": "dist/umd/container.js",
-  "libraryName": "HTMLWebWidgetElement",
+  "main": "dist/cjs/main.js",
+  "module": "dist/esm/main.js",
+  "system": "dist/system/main.js",
+  "unpkg": "dist/umd/main.js",
+  "libraryName": "WebWidgetExports",
+  "exports": {
+    "require": "./dist/cjs/main.js",
+    "import": "./dist/esm/main.js"
+  },
   "scripts": {
-    "build": "rm -rf dist && builder --environment NODE_ENV:production",
+    "build": "rm -rf dist && builder",
     "build:watch": "builder --watch",
     "examples": "cd examples && web-dev-server --node-resolve --watch",
     "test": "tester --coverage",
@@ -48,8 +53,8 @@
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-widget/builder": "^0.0.8",
-    "@web-widget/tester": "^0.0.8",
+    "@web-widget/builder": "^0.0.17",
+    "@web-widget/tester": "^0.0.17",
     "@web/dev-server": "^0.1.25",
     "@web/dev-server-rollup": "^0.3.11"
   }

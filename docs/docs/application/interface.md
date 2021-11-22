@@ -22,7 +22,7 @@ export default () => ({
 
 ## container
 
-`Node`
+`HTMLElement`
 
 应用用于渲染 DOM 的节点。可以通过 `appendChild()` 、`removeChild()`、`innerHTML` 接口来操作 DOM 渲染。
 

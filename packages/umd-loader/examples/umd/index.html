@@ -4,19 +4,19 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" main="IE=edge">
-  <title>WebWidget DEMO</title>
+  <title>Web Widget DEMO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">  
 </head>
 
 <body>
 
-  <web-widget type="umd" name="helloWidget" src="./index.js" data-id="01"></web-widget>
-  <web-widget type="umd" name="helloWidget" src="./index.js" data-id="02"></web-widget>
-  <web-widget type="umd" name="helloWidget" src="./index.js" data-id="03"></web-widget>
+  <web-widget type="umd" library="helloWidget" src="./index.js" data-id="01"></web-widget>
+  <web-widget type="umd" library="helloWidget" src="./index.js" data-id="02"></web-widget>
+  <web-widget type="umd" library="helloWidget" src="./index.js" data-id="03"></web-widget>
 
   <script type="module">
     import '@web-widget/container';
-    import '../../src/index.js';
+    import '@web-widget/umd-loader';
   </script>
 </body>
 

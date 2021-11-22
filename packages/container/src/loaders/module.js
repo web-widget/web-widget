@@ -31,18 +31,19 @@ export async function moduleLoader(view) {
   const { document, Blob, URL, Error } = defaultView;
   const cacheKey = '@WebWidgetModuleCache';
   const cache = (defaultView[cacheKey] = defaultView[cacheKey] || new Map());
+  const nameOrPath = view.import || src;
 
-  if (src && cache.has(src)) {
-    return cache.get(src);
+  if (nameOrPath && cache.has(nameOrPath)) {
+    return cache.get(nameOrPath);
   }
 
   const promise = new Promise((resolve, reject) => {
     const callbackName = `${cacheKey}Temp${index++}`;
     let script = document.createElement('script');
 
-    const code = src
+    const code = nameOrPath
       ? `window[${JSON.stringify(callbackName)}] = import(${JSON.stringify(
-          src
+          nameOrPath
         )})`
       : `
       const url = URL.createObjectURL(new Blob(
@@ -91,11 +92,11 @@ export async function moduleLoader(view) {
     document.head.appendChild(script);
   }).then(module => getModuleValue(module));
 
-  if (src) {
+  if (nameOrPath) {
     cache.set(
-      src,
+      nameOrPath,
       promise.catch(error => {
-        cache.delete(src);
+        cache.delete(nameOrPath);
         throw error;
       })
     );
