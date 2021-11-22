@@ -1,7 +1,7 @@
 import { NAME } from './symbols.js';
 
 export function formatErrorMessage(view, error) {
-  const prefix = `Web Widget applications[${view[NAME]}]`;
+  const prefix = `Web Widget application (${view[NAME]})`;
   if (typeof error !== 'object') {
     error = new Error(error);
   }
