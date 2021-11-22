@@ -18,17 +18,17 @@ import {
 } from './status.js';
 import { reasonableTime } from './timeouts.js';
 
-/** Application Lifecycles
- *                      ┌ <───────────────────────────┐
- * ┌> load ┐            │                             │
- * │       └> bootstrap ┤        ┌ <───────┐          │
- * │                    └> mount ┤         │          │
- * │                             └> update ┤          │
- * │                             │         └> unmount ┤
- * │                             └───────> ┘          └> unload ┐
- * │                                                            │
- * └ <──────────────────────────────────────────────────────────┘
- */
+/* Application Lifecycles
+                     ┌ <───────────────────────────┐
+┌> load ┐            │                             │
+│       └> bootstrap ┤                             │
+│                    └> mount ┐                    │
+│                             └> update ┐          │
+│                             │         ├> unmount ┤
+│                             └ <───────┘          └> unload ┐
+│                                                            │
+└ <──────────────────────────────────────────────────────────┘
+*/
 const rules = {
   load: {
     timeout: 12000,
