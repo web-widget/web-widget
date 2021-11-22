@@ -43,7 +43,7 @@ export function createBaseContainer({ application }, callback) {
 export function createApplication(callback) {
   const lifecycleHistory = [];
   let properties = null;
-  createBaseContainer(
+  return createBaseContainer(
     {
       application() {
         lifecycleHistory.push('load');

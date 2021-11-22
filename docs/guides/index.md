@@ -6,7 +6,9 @@ Web Widget 是一个运行 Web 前端的应用容器，它允许你将用户界�
 <web-widget src="app.widget.js"></web-widget>
 ```
 
-容器的运行时仅 5KB（gzip），了解[设计 Web Widget 的动机](../discover/about.md)。
+部署容器仅需要一个 4KB（gzip）的运行时文件。
+
+了解[设计 Web Widget 的动机](../discover/about.md)。
 
 ## 应用场景
 
