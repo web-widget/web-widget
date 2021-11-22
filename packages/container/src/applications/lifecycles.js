@@ -84,19 +84,20 @@ const rules = {
   }
 };
 
+const SET_STATE = Symbol('setState');
 export class Application {
   constructor() {
     this.promises = Object.create(null);
     this.lifecycles = Object.create(null);
+    this.dependencies = Object.create(null);
     this.state = INITIAL;
-    this.dependencies = null;
   }
 
   getState() {
     return this.state;
   }
 
-  setState(value) {
+  [SET_STATE](value) {
     if (value !== this.state) {
       this.state = value;
       this.stateChangeCallback();
@@ -155,7 +156,7 @@ export class Application {
       this.dependencies = this.createDependencies();
     }
 
-    this.setState(rule.pending);
+    this[SET_STATE](rule.pending);
 
     if (!this.lifecycles[name]) {
       this.defineLifecycle(name);
@@ -168,11 +169,11 @@ export class Application {
             delete this.promises[name];
           });
         }
-        this.setState(rule.fulfilled);
+        this[SET_STATE](rule.fulfilled);
       })
       .catch(error => {
         delete this.promises[name];
-        this.setState(rule.rejected);
+        this[SET_STATE](rule.rejected);
         throw error;
       });
 
