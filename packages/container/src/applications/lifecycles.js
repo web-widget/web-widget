@@ -89,7 +89,7 @@ export class Application {
   constructor() {
     this.promises = Object.create(null);
     this.lifecycles = Object.create(null);
-    this.dependencies = Object.create(null);
+    this.dependencies = null;
     this.state = INITIAL;
   }
 
@@ -114,6 +114,10 @@ export class Application {
     const fn = typeof lifecycle === 'function' ? lifecycle : async () => {};
     const dieOnTimeout = typeof timeout === 'number';
     const timeoutWarning = 1000;
+
+    if (!this.dependencies) {
+      this.dependencies = this.createDependencies() || {};
+    }
 
     this.lifecycles[name] = () =>
       reasonableTime(
@@ -150,10 +154,6 @@ export class Application {
         throw new Error(`Cannot ${name}: Application state: ${this.state}`);
       }
       return undefined;
-    }
-
-    if (!this.dependencies) {
-      this.dependencies = this.createDependencies();
     }
 
     this[SET_STATE](rule.pending);

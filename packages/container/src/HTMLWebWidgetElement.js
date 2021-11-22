@@ -369,7 +369,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   async update(properties = {}) {
-    Object.assign(this.dependencies, properties);
+    const dependencies = this.dependencies || {};
+    Object.assign(dependencies, properties);
     await this[LIFECYCL_CONTROL].trigger('update');
   }
 

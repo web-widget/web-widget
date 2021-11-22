@@ -205,7 +205,7 @@ describe('Application lifecycle: update', () => {
       }
     ));
 
-  it.only('The order of updates should be guaranteed', () =>
+  it('The order of updates should be guaranteed', () =>
     createApplication(
       async ({
         getLifecycleHistory,
@@ -575,7 +575,7 @@ describe('Application lifecycle: error', () => {
     ));
 });
 
-describe.only('Application lifecycle: timeout', () => {
+describe('Application lifecycle: timeout', () => {
   const timeout = 50;
   defineTimeouts({
     bootstrap: timeout
