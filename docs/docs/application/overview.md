@@ -47,11 +47,11 @@ export async function unload(props) {}
 ```
                      ┌ <───────────────────────────┐
 ┌> load ┐            │                             │
-│       └> bootstrap ┤        ┌ <───────┐          │
-│                    └> mount ┤         │          │
-│                             └> update ┤          │
-│                             │         └> unmount ┤
-│                             └───────> ┘          └> unload ┐
+│       └> bootstrap ┤                             │
+│                    └> mount ┐                    │
+│                             └> update ┐          │
+│                             │         ├> unmount ┤
+│                             └ <───────┘          └> unload ┐
 │                                                            │
 └ <──────────────────────────────────────────────────────────┘
 ```
