@@ -1,5 +1,6 @@
 /* global window, document, customElements, HTMLElement, Event, Node, IntersectionObserver, URL, MutationObserver */
 // eslint-disable-next-line max-classes-per-file
+import { Application } from './applications/lifecycles.js';
 import { createRegistry } from './utils/registry.js';
 import { getParentNode } from './utils/nodes.js';
 import { moduleLoader } from './loaders/module.js';
@@ -7,18 +8,16 @@ import { queueMicrotask } from './utils/queueMicrotask.js';
 import { WebWidgetDependencies } from './WebWidgetDependencies.js';
 import { WebWidgetSandbox } from './WebWidgetSandbox.js';
 import * as status from './applications/status.js';
-import { PORTALS, NAME } from './applications/symbols.js';
-import { Application } from './applications/lifecycles.js';
-import { formatErrorMessage } from './applications/errors.js';
 
-const LOCAL_NAME = 'web-widget';
 const APPLICATION = Symbol('application');
 const DATA = Symbol('data');
 const FIRST_CONNECTED = Symbol('firstConnect');
+const LIFECYCL_CONTROL = Symbol('lifecyclControl');
+const LOCAL_NAME = 'web-widget';
 const MOVEING = Symbol('moveing');
+const NAME = Symbol('name');
 const PARENT_WIDGET = Symbol('parentWidget');
 const STATECHANGE_CALLBACK = Symbol('statechangeCallback');
-const LIFECYCL_CONTROL = Symbol('lifecyclControl');
 // const PREFETCH = Symbol('prefetch');
 
 const globalPortalDestinations = createRegistry();
@@ -75,6 +74,23 @@ function autoUpdateElement(documentOrShadowRoot) {
     childList: true,
     subtree: true
   });
+}
+
+function formatErrorMessage(view, error) {
+  const prefix = `Web Widget application (${view[NAME]})`;
+  if (typeof error !== 'object') {
+    error = new Error(error);
+  }
+
+  if (!error.message.includes(prefix)) {
+    Reflect.defineProperty(error, 'message', {
+      value: `${prefix}: ${error.message}`,
+      writable: true,
+      configurable: true
+    });
+  }
+
+  return error;
 }
 
 function globalWebWidgetError(error) {
@@ -165,7 +181,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         this.loader = application
           ? async () => application
           : this.createLoader.bind(this);
-        this[PORTALS] = [];
+        this.portals = [];
 
         if (this.sandboxed && !this.sandbox.window) {
           throw new Error(`Sandbox mode is not implemented`);
@@ -375,13 +391,13 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   async unmount() {
-    const portals = this[PORTALS] || [];
+    const portals = this.portals || [];
     await this[LIFECYCL_CONTROL].trigger('unmount');
     await Promise.all(portals.map(widget => widget.unmount()));
   }
 
   async unload() {
-    const portals = this[PORTALS] || [];
+    const portals = this.portals || [];
     const dependencies = this.dependencies || {};
     await this[LIFECYCL_CONTROL].trigger('unload');
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* global setTimeout, console */
 
 export function reasonableTime(
@@ -30,14 +31,11 @@ export function reasonableTime(
           if (dieOnTimeout) {
             reject(new Error(errorMessage));
           } else {
-            // eslint-disable-next-line no-console
             console.error(new Error(errorMessage));
-            // don't resolve or reject, we're waiting this one out
           }
         } else if (!errored) {
           const numWarnings = shouldError;
           const numMillis = numWarnings * timeoutWarning;
-          // eslint-disable-next-line no-console
           console.warn(new Error(errorMessage));
           if (numMillis + timeoutWarning < timeout) {
             setTimeout(() => maybeTimingOut(numWarnings + 1), timeoutWarning);
