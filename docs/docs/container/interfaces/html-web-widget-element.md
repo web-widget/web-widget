@@ -28,11 +28,31 @@ document.body.appendChild(widget);
 
 `string`
 
-设置应用入口文件。
+设置应用的 URL。
 
 ```js
 const widget = document.createElement('web-widget');
 widget.src = './app.widget.js';
+document.body.appendChild(widget);
+```
+
+## import
+
+设置应用的模块名。和 [src](#src) 的差异：它不会自动的根据 `this.baseURI` 补全路径，加载器会优先读取它的原始值去加载模块，这意味着它可以支持[裸模块](https://github.com/WICG/import-maps)的导入。
+
+```html
+<script type="importmap">
+{
+  "imports": {
+    "@org/app": "https://cdn.jsdelivr.net/npm/@org/app/dist/esm/main.js"
+  }
+}
+</script>
+```
+
+```js
+const widget = document.createElement('web-widget');
+widget.import = '@org/app';
 document.body.appendChild(widget);
 ```
 
@@ -323,6 +343,23 @@ export async function mount({ container, createPortal }) {
   // 传送应用
   const cardWidget = createPortal(userWidget, 'dialog');
 })
+```
+
+## \#timeouts
+
+`object`
+
+全局超时配置（实验性特性）。这是一个**静态属性**。
+
+```js
+HTMLWebWidgetElement.timeout = {
+  load: 12000,
+  bootstrap: 4000,
+  mount: 3000,
+  update: 3000,
+  unmount: 3000,
+  unload: 3000
+}
 ```
 
 ## Events

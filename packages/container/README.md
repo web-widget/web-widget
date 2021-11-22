@@ -1,24 +1,8 @@
-# WebWidget element
+# Web Widget element
 
-这是 WebWidget 容器元素。
+这是 Web Widget 容器元素。
 
 [文档](https://web-widget.js.org/docs/container/overview/)
-
-## 安装
-
-```bash
-npm install @web-widget/container --save
-```
-
-## 使用
-
-```html
-<web-widget src="app.widget.js"></web-widget>
-```
-
-```js
-import '@web-widget/container';
-```
 
 ## 运行示例
 

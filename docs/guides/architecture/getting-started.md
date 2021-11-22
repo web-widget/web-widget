@@ -2,6 +2,25 @@
 
 不同于传统的组件系统，Web Widget 的应用是建立在明确范式上的，因此我们有机会通过部署统一的前端容器化架构去管理、优化它们，更容易的构建符合最佳的用户体验的产品。
 
+此目录的内容都是独立的，你无需按照顺序学习。
+
+## 决策
+
+当你权衡是否要采用 Web Widget 之前，你需要理解组件和微服务的差别：组件的用户是开发者，通过开发者构建应用，最终为客户服务；而前端微服务可以直接为客户提供服务。
+
+例如一个单页面可以被称为一个微服务，够独立工作的组件（例如地图小挂件）也能够被定义为一个微服务，但一个按钮通常不会被纳入微服务的概念。
+
+对于前端开发者，我们大部分的组件是高度耦合的，我们习惯了这种编程思维，这却很容易带来错误的技术决策：当你将需要频繁交互的组件进行容器化的时候，你会发现容器化的架构会带来诸多不便，它不能像组件一样随时调用 API、通信等。事实上，这些有意为之，容器化的目的就是为了管理副作用，使得我们能够达成传统手段难以达成的业务目标，并且这些目标可能是非常令人激动的。
+
+微服务不是目的，而是解决问题的手段，如果在实施中遇到模糊地带，不妨使用如下方式改进代码：
+
+* 将需要频繁交互的组件使用 NPM 管理，并且 `import` 到服务里，这样内部可以随意的进行通信、接口调用
+* 将多个需要配合才能运行的服务合并成一个单一服务
+
+如果依然无法解决问题，决定放弃服务化也是正确的选择，而不是试图为 Web Widget 的应用注入额外的事件、接口，这样会破坏服务的好处，只会放大缺点。
+
+> Web Widget 几乎所有的文档中使用“应用”代替了“微服务”的概念，这仅仅是名字上的不同而已，本质都是属于微服务
+
 ## 安装
 
 通过 NPM 安装到你的工程中：
@@ -16,116 +35,6 @@ npm install --save @web-widget/container
 import '@web-widget/container';
 ```
 
-## 性能优先
-
-[AMP](https://amp.dev) 的性能优先的工程设计为 Web Widget 的诞生提供了很多灵感，它的优化策略对采用 Web Widget 的网站也同样有效，一些推荐设置：
-
-* HTML 中的布局、文本等关键元素通过服务器渲染，而 Web Widget 应用由浏览器渲染
-* HTML 中的布局、文本等关键元素的 CSS 样式内嵌入在页面中
-* 文本等需要支持 SEO 的内容使用插槽
-* 为 Web Widget 容器预设置尺寸，避免渲染回流
-* 为 Web Widget 容器开启懒加载
-* 为 Web Widget 容器提供占位符
-* 为 Web Widget 容器提供后备
-* 为 Web Widget 容器的运行时文件采用异步加载
-
-更多相关信息可以参考 [AMP](https://amp.dev) 的官网。
-
-## 懒加载
-
-类似 `<img>` 标签，使用 `loading="lazy"` 属性可以让元素进入视图才加载。
-
 ```html
-<web-widget src="./app.widget.js" loading="lazy"></web-widget>
+<web-widget src="./app.widget.js"></web-widget>
 ```
-
-## 占位符
-
-`<web-widget>` 元素的直接子元素 `<placeholder>` 标签将充当占位符。
-
-```html
-<web-widget src="./app.widget.js">
-  <placeholder>
-    loading..
-  </placeholder>
-</web-widget>
-```
-
-## 后备
-
-`fallback` 元素将充当 Web Widget 容器的后备占位符号。用途：
-
-* 浏览器不支持某个元素
-* 内容未能加载（例如，推文被删除）
-* 图片类型不受支持（例如，并非所有浏览器都支持 WebP）
-
-```html
-<web-widget src="video.js">
-  <fallback hidden>
-    <p>This browser does not support the video element.</p>
-  </fallback>
-</web-widget>
-```
-
-## 插槽
-
-使用 `slot` 属性可以将元素在应用指定的位置渲染（渲染的位置由应用定义）：
-
-```html
-<web-widget src="./app.widget.js">
-  <span slot="title">hello</span>
-  <span slot="content">Let's have some different text!</span>
-</web-widget>
-```
-
-```js
-// app.widget.js
-export default () => ({
-  async mount({ container }) {
-    container.innerHTML = `
-      <h3><slot name="title"></slot></h3>
-      <div><slot name="content"></slot></div>
-    `;
-  },
-
-  async unmount({ container }) {
-    container.innerHTML = '';
-  }
-});
-```
-
-## 主题
-
-应用通过 `:host()` 选择器可以实现主题的定义，容器可以控制切换主题。例如使用 `class` 来切换主题：
-
-```html
-<web-widget class="you-theme" src="app.widget.js"></web-widget>
-```
-
-```js
-// app.widget.js
-export default () => ({
-  async mount({ container }) {
-    container.innerHTML = `
-      <style>
-        :host(.you-theme) h3 {
-          color: #FFF;
-          background: #000;
-        }
-      </style>
-      <h3>hello world</h3>
-    `;
-  },
-
-  async unmount({ container }) {
-    container.innerHTML = '';
-  }
-});
-```
-
-## 搜索引擎优化
-
-因为 Web Widget 容器是一个标准的 Web Component，因此它的 SEO 问题本质上是 JavaScript 和 Web Component 的 SEO 问题。社区中有两种实践方式：
-
-* 使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom) 来描述关键内容
-* 使用 [JSON-LD](https://json-ld.org/) 描述关键内容

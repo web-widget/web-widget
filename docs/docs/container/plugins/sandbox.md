@@ -1,17 +1,22 @@
 # 容器 >> 插件 >> Sandbox || 3
 
+```js script
+import '@rocket/launch/inline-notification/inline-notification.js';
+```
+
 这是 Web Widget 的沙盒特性功能（试验性特性）。
 
 ## 安装
 
 ```bash
-npm install @web-widget/sandbox --save
+npm install --save @web-widget/container
+npm install --save @web-widget/sandbox
 ```
 
 ## 使用
 
 ```html
-<web-widget type="system" name="myWidget" sandboxed src="app.widget.js"></web-widget>
+<web-widget type="system" sandboxed src="app.widget.js"></web-widget>
 ```
 
 ```js
@@ -20,14 +25,15 @@ import '@web-widget/system-loader';
 import '@web-widget/sandbox';
 ```
 
-> 沙盒目前无法支持 ES module 的 Web Widget 应用格式，仅支持 `system` 或 `umd` 模块类型（需要安装对应的加载器插件）。
+<inline-notification>
+
+沙盒目前无法支持 ES module 的 Web Widget 应用格式，仅支持 [`system`](./system-loader.md) 或[`umd`](./umd-loader.md) 模块类型（需要安装对应的加载器插件）。
+
+</inline-notification>
 
 ## 原理
 
-Web Widget 沙盒来源于 Web Sandbox：Web Sandbox 的目标是构建一个安全且轻量化的浏览器虚拟化容器，它采用使用 Web 标准技术来构建，它的使用场景：
-
-* 作为 Web 应用的插件的安全运行环境、提供开放式的插件系统
-* 让不同的技术栈、版本的应用能够在同一个页面中运行，避免陷入重构的泥潭
+Web Widget 沙盒来源于 Web Sandbox，Web Sandbox 是属于 Web Widget 的兄弟项目，它的目标是构建一个安全且轻量化的浏览器虚拟化容器来保护 Web 应用。
 
 [https://web-sandbox.js.org/](https://web-sandbox.js.org/)
 
@@ -37,6 +43,7 @@ Web Widget 沙盒来源于 Web Sandbox：Web Sandbox 的目标是构建一个安
 * CSS 安全——Shadow DOM: Web 正式标准
 * HTML 安全——Sanitizer: 基于 W3C 草案实现
 * 内容安全策略——CSP: 基于 W3C 正式标准实现
+* 陷阱——Proxy：基于 EcmaScript 语言的 Proxy 实现
 
 ## DOM 树
 
@@ -59,6 +66,7 @@ Web Sandbox 拥有完整的 DOM 树结构，这些使用 shadow DOM 隔离。
 ```html
 <web-widget
     src="app.widget.js"
+    type="system"
     sandboxed
     csp="
       default-src 'none';
@@ -87,7 +95,24 @@ Web Sandbox 中的 CSS 无法影响主文档，包括设置了 `position: fixed`
 
 ## ChildSandbox
 
-Web Sandbox 的应用内部也可以使用 Web Sandbox，并且将继承内容安全策略。
+Web Sandbox 的应用内部也可以使用 Web Sandbox，并且将继承内容安全策略。如果父节点的 Web Widget 启用了 `sandboxed` 属性，子节点（包括 ShadowRoot）中的 Web Widget 也将继承沙盒的权限。
+
+```html
+<web-widget
+  src="./app.widget.js"
+  type="system"
+  sandboxed
+  csp="
+    default-src 'none';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net web-sandbox.js.org;
+    style-src 'self' 'unsafe-inline' cdn.jsdelivr.net;
+    navigate-to 'self' web-sandbox.js.org;
+  ">
+    #shadow-root (closed)
+      <web-widget type="system" src="./a.widget.js"></web-widget>
+    <web-widget type="system" src="./b.widget.js"></web-widget>
+</web-widget>
+```
 
 ## 限制
 

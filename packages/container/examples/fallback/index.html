@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" main="IE=edge">
-  <title>WebWidget DEMO</title>
+  <title>Web Widget DEMO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">  
 </head>
 
@@ -21,7 +21,7 @@
   </web-widget>
 
   <script type="module">
-    import '../../src/index.js';
+    import '@web-widget/container';
 
     document.getElementById('web-widget').addEventListener('statechange', (event) => {
       console.log(event.target.state);
