@@ -41,7 +41,6 @@ export class HTMLWebWidgetImportElement extends HTMLWebWidgetElement {
               'createLoader',
               'createSandbox',
               'csp',
-              'csp',
               'import',
               'sandboxed',
               'src',

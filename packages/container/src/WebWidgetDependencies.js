@@ -1,6 +1,4 @@
 /* global window */
-import { formatErrorMessage } from './applications/errors.js';
-import { PORTALS } from './applications/symbols.js';
 
 function createContext(view) {
   return {
@@ -56,18 +54,12 @@ export class WebWidgetDependencies {
       const portal = factory ? factory() : null;
 
       if (!portal) {
-        throw formatErrorMessage(
-          view,
-          new Error(`The portal cannot be found: ${name}`)
-        );
+        throw new Error(`The portal cannot be found: ${name}`);
       }
 
       if (!(portal instanceof HTMLWebWidgetElement)) {
-        throw formatErrorMessage(
-          view,
-          new Error(
-            `Portal must be an instance of "HTMLWebWidgetElement": ${name}`
-          )
+        throw new Error(
+          `Portal must be an instance of "HTMLWebWidgetElement": ${name}`
         );
       }
 
@@ -88,7 +80,7 @@ export class WebWidgetDependencies {
 
       portal.appendChild(widget);
       portal.mount();
-      view[PORTALS].push(portal);
+      view.portals.push(portal);
 
       return createContext(portal);
     };
