@@ -64,7 +64,8 @@ export async function mount({ container, parameters }) {
 
 ## 迭代策略
 
-接下来将支持使用 JSON schema 来描述 `data` 与 `parameters` 的数据结构，这些将会在 Web Widget 应用清单中出现。
+- 接下来将支持使用 JSON schema 来描述 `data` 与 `parameters` 的数据结构，这些将会在 Web Widget 应用清单中出现
+- 将可视化编辑器需要的约定字段都将使用 `parameters` 来表达
 
 ## 兼容性
 
