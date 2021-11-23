@@ -23,7 +23,7 @@ export async function mount({ sandboxed }) {
 })
 ```
 
-`sandboxed` 参数是作为内置到 Web Widget 应用标准接口中的，但我们还会为 Web Widget 应用标准化越来越多的参数，例如 `theme`，而现阶段我们却没有一个真正属于应用程序参数的获取方式，因此这是为什么要提出此 RFC 的动机。
+`sandboxed` 参数是作为内置到 Web Widget 应用标准接口中的，但我们还会为 Web Widget 应用增加越来越多的参数，以便可视化编辑器能处理它们，例如 `theme`，而现阶段我们却没有一个真正属于应用程序参数的获取方式，因此这是为什么要提出此 RFC 的动机。
 
 # 产出
 
