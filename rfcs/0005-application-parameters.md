@@ -34,9 +34,6 @@ export async function mount({ sandboxed }) {
 
 在 Web Widget 应用接口中，增加 `parameters` 字段作为应用启动参数。
 
-* 它是一个被冻结的 `object` 结构
-* 当 Web Widget 应用加载后，它就无法再变更
-
 ## 替代方案对比
 
 `data` 可以作为一种代替方案，但是它有一些不同：`data` 是被被设计为应用的数据，它可能会被反序列化后保存在服务端或者本地存储中，而应用程序参数会包含很多不需要存储的数据；由于宿主或者应用程序自己都可以调用 `update({ data })` 来更新 `data`，而应用启动参数却是只读的，这也会带来歧义。
@@ -74,7 +71,9 @@ export async function mount({ container, parameters }) {
 
 # 详细设计
 
-这个章节是可选的。列出那些对于理解当前设计很重要的信息。
+* `web-widget` 元素所有的属性，都将出现在 `parameters` 中
+* `parameters` 它是一个被冻结的 `object` 结构，确保应用无法修改它
+* 当 Web Widget 应用加载后，它就无法再变更
 
 # 需要讨论的问题
 
