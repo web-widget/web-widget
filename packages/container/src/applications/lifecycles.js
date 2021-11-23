@@ -85,7 +85,6 @@ export class Application {
   createDependencies() {}
 
   defineLifecycle(name, lifecycle, timeout) {
-    const fn = typeof lifecycle === 'function' ? lifecycle : async () => {};
     const dieOnTimeout = typeof timeout === 'number';
     const timeoutWarning = 1000;
 
@@ -93,14 +92,17 @@ export class Application {
       this.dependencies = this.createDependencies() || {};
     }
 
-    this.lifecycles[name] = () =>
-      reasonableTime(
-        name,
-        async () => fn(this.dependencies),
-        dieOnTimeout ? timeout : rules[name].timeout,
-        dieOnTimeout,
-        timeoutWarning
-      );
+    this.lifecycles[name] =
+      typeof lifecycle === 'function'
+        ? () =>
+            reasonableTime(
+              name,
+              async () => lifecycle(this.dependencies),
+              dieOnTimeout ? timeout : rules[name].timeout,
+              dieOnTimeout,
+              timeoutWarning
+            )
+        : async () => {};
   }
 
   async trigger(name) {
