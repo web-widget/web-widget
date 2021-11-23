@@ -44,7 +44,10 @@ export function reasonableTime(
       }
     }
 
-    setTimeout(() => maybeTimingOut(1), timeoutWarning);
+    if (!dieOnTimeout) {
+      setTimeout(() => maybeTimingOut(1), timeoutWarning);
+    }
+
     setTimeout(() => maybeTimingOut(true), timeout);
   });
 }
