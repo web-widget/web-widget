@@ -1,16 +1,22 @@
 import { expect } from '@esm-bundle/chai';
 
 import {
-  BOOTSTRAPPED,
-  BOOTSTRAPPING,
   INITIAL,
-  LOADED,
   LOADING,
-  MOUNTED,
+  LOADED,
+  LOAD_ERROR,
+  BOOTSTRAPPING,
+  BOOTSTRAPPED,
+  BOOTSTRAP_ERROR,
   MOUNTING,
-  UNLOADING,
+  MOUNTED,
+  MOUNT_ERROR,
+  UPDATING,
+  UPDATE_ERROR,
   UNMOUNTING,
-  UPDATING
+  UNMOUNT_ERROR,
+  UNLOADING,
+  UNLOAD_ERROR
 } from '../src/applications/status.js';
 import {
   createApplication,
@@ -41,6 +47,34 @@ describe('Application lifecycle: load', () => {
       expect(getState()).to.equal(LOADED);
       expect(getLifecycleHistory()).to.deep.equal(['load']);
     }));
+
+  it('After execution fails, retry should be allowed', () =>
+    createBaseContainer(
+      {
+        application({ context }) {
+          if (!context.test) {
+            context.test = true;
+            throw new Error('error');
+          }
+        }
+      },
+      async ({ getState, getStateHistory, load }) => {
+        await load().then(
+          () => Promise.reject(new Error('Not rejected')),
+          async () => {
+            await load();
+            expect(getState()).to.equal(LOADED);
+            expect(getStateHistory()).to.deep.equal([
+              INITIAL,
+              LOADING,
+              LOAD_ERROR,
+              LOADING,
+              LOADED
+            ]);
+          }
+        );
+      }
+    ));
 });
 
 describe('Application lifecycle: bootstrap', () => {
@@ -73,6 +107,38 @@ describe('Application lifecycle: bootstrap', () => {
         await bootstrap();
         expect(getState()).to.equal(BOOTSTRAPPED);
         expect(getLifecycleHistory()).to.deep.equal(['load', 'bootstrap']);
+      }
+    ));
+
+  it('After execution fails, retry should be allowed', () =>
+    createBaseContainer(
+      {
+        application: ({ context }) => ({
+          bootstrap() {
+            if (!context.test) {
+              context.test = true;
+              throw new Error('error');
+            }
+          }
+        })
+      },
+      async ({ getState, getStateHistory, bootstrap }) => {
+        await bootstrap().then(
+          () => Promise.reject(new Error('Not rejected')),
+          async () => {
+            await bootstrap();
+            expect(getState()).to.equal(BOOTSTRAPPED);
+            expect(getStateHistory()).to.deep.equal([
+              INITIAL,
+              LOADING,
+              LOADED,
+              BOOTSTRAPPING,
+              BOOTSTRAP_ERROR,
+              BOOTSTRAPPING,
+              BOOTSTRAPPED
+            ]);
+          }
+        );
       }
     ));
 });
@@ -121,6 +187,40 @@ describe('Application lifecycle: mount', () => {
         'mount'
       ]);
     }));
+
+  it('After execution fails, retry should be allowed', () =>
+    createBaseContainer(
+      {
+        application: ({ context }) => ({
+          mount() {
+            if (!context.test) {
+              context.test = true;
+              throw new Error('error');
+            }
+          }
+        })
+      },
+      async ({ getState, getStateHistory, mount }) => {
+        await mount().then(
+          () => Promise.reject(new Error('Not rejected')),
+          async () => {
+            await mount();
+            expect(getState()).to.equal(MOUNTED);
+            expect(getStateHistory()).to.deep.equal([
+              INITIAL,
+              LOADING,
+              LOADED,
+              BOOTSTRAPPING,
+              BOOTSTRAPPED,
+              MOUNTING,
+              MOUNT_ERROR,
+              MOUNTING,
+              MOUNTED
+            ]);
+          }
+        );
+      }
+    ));
 });
 
 describe('Application lifecycle: update', () => {
@@ -230,6 +330,43 @@ describe('Application lifecycle: update', () => {
         expect(getProperties().data.a).to.equal(3);
       }
     ));
+
+  it('After execution fails, retry should be allowed', () =>
+    createBaseContainer(
+      {
+        application: ({ context }) => ({
+          update() {
+            if (!context.test) {
+              context.test = true;
+              throw new Error('error');
+            }
+          }
+        })
+      },
+      async ({ getState, getStateHistory, mount, update }) => {
+        await mount();
+        await update().then(
+          () => Promise.reject(new Error('Not rejected')),
+          async () => {
+            await update();
+            expect(getState()).to.equal(MOUNTED);
+            expect(getStateHistory()).to.deep.equal([
+              INITIAL,
+              LOADING,
+              LOADED,
+              BOOTSTRAPPING,
+              BOOTSTRAPPED,
+              MOUNTING,
+              MOUNTED,
+              UPDATING,
+              UPDATE_ERROR,
+              UPDATING,
+              MOUNTED
+            ]);
+          }
+        );
+      }
+    ));
 });
 
 describe('Application lifecycle: unmount', () => {
@@ -302,6 +439,43 @@ describe('Application lifecycle: unmount', () => {
           'mount',
           'unmount'
         ]);
+      }
+    ));
+
+  it('After execution fails, retry should be allowed', () =>
+    createBaseContainer(
+      {
+        application: ({ context }) => ({
+          unmount() {
+            if (!context.test) {
+              context.test = true;
+              throw new Error('error');
+            }
+          }
+        })
+      },
+      async ({ getState, getStateHistory, mount, unmount }) => {
+        await mount();
+        await unmount().then(
+          () => Promise.reject(new Error('Not rejected')),
+          async () => {
+            await unmount();
+            expect(getState()).to.equal(BOOTSTRAPPED);
+            expect(getStateHistory()).to.deep.equal([
+              INITIAL,
+              LOADING,
+              LOADED,
+              BOOTSTRAPPING,
+              BOOTSTRAPPED,
+              MOUNTING,
+              MOUNTED,
+              UNMOUNTING,
+              UNMOUNT_ERROR,
+              UNMOUNTING,
+              BOOTSTRAPPED
+            ]);
+          }
+        );
       }
     ));
 });
@@ -490,6 +664,45 @@ describe('Application lifecycle: unload', () => {
           'unmount',
           'unload'
         ]);
+      }
+    ));
+
+  it('After execution fails, retry should be allowed', () =>
+    createBaseContainer(
+      {
+        application: ({ context }) => ({
+          unload() {
+            if (!context.test) {
+              context.test = true;
+              throw new Error('error');
+            }
+          }
+        })
+      },
+      async ({ getState, getStateHistory, mount, unload }) => {
+        await mount();
+        await unload().then(
+          () => Promise.reject(new Error('Not rejected')),
+          async () => {
+            await unload();
+            expect(getState()).to.equal(INITIAL);
+            expect(getStateHistory()).to.deep.equal([
+              INITIAL,
+              LOADING,
+              LOADED,
+              BOOTSTRAPPING,
+              BOOTSTRAPPED,
+              MOUNTING,
+              MOUNTED,
+              UNMOUNTING,
+              BOOTSTRAPPED,
+              UNLOADING,
+              UNLOAD_ERROR,
+              UNLOADING,
+              INITIAL
+            ]);
+          }
+        );
       }
     ));
 });

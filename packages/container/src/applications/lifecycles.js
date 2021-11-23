@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import {
   INITIAL,
   LOADING,
@@ -19,75 +20,50 @@ import {
 import { reasonableTime } from './timeouts.js';
 
 /* Application Lifecycles
-                     ┌ <───────────────────────────┐
-┌> load ┐            │                             │
-│       └> bootstrap ┤                             │
-│                    └> mount ┐                    │
-│                             └> update ┐          │
-│                             │         ├> unmount ┤
-│                             └ <───────┘          └> unload ┐
-│                                                            │
-└ <──────────────────────────────────────────────────────────┘
+                    ┌───────────────────┐
+                    │                   │
+┌> load > bootstrap ┴> mount ┬> unmount ┴> unload ┐
+│                            │                    │
+│                           ┌┴> update ┐          │
+│                           │          │          │
+│                           └──────────┘          │
+│                                                 │
+└─────────────────────────────────────────────────┘
 */
 const rules = {
   load: {
     timeout: 12000,
-    initial: INITIAL,
-    pending: LOADING,
-    fulfilled: LOADED,
-    rejected: LOAD_ERROR,
-    output: ['bootstrap']
+    status: [INITIAL, LOADING, LOADED, LOAD_ERROR]
   },
   bootstrap: {
-    await: 'load',
+    pre: 'load',
     timeout: 4000,
-    initial: LOADED,
-    pending: BOOTSTRAPPING,
-    fulfilled: BOOTSTRAPPED,
-    rejected: BOOTSTRAP_ERROR,
-    output: ['mount']
+    status: [LOADED, BOOTSTRAPPING, BOOTSTRAPPED, BOOTSTRAP_ERROR]
   },
   mount: {
-    await: 'bootstrap',
+    pre: 'bootstrap',
     timeout: 3000,
-    initial: BOOTSTRAPPED,
-    pending: MOUNTING,
-    fulfilled: MOUNTED,
-    rejected: MOUNT_ERROR,
-    output: ['update', 'unmount']
+    status: [BOOTSTRAPPED, MOUNTING, MOUNTED, MOUNT_ERROR]
   },
   update: {
     verify: true,
     timeout: 3000,
-    initial: MOUNTED,
-    pending: UPDATING,
-    fulfilled: MOUNTED,
-    rejected: UPDATE_ERROR,
-    output: ['update', 'unmount']
+    status: [MOUNTED, UPDATING, MOUNTED, UPDATE_ERROR]
   },
   unmount: {
     timeout: 3000,
-    initial: MOUNTED,
-    pending: UNMOUNTING,
-    fulfilled: BOOTSTRAPPED,
-    rejected: UNMOUNT_ERROR,
-    output: ['mount', 'unload']
+    status: [MOUNTED, UNMOUNTING, BOOTSTRAPPED, UNMOUNT_ERROR]
   },
   unload: {
-    await: 'unmount',
+    pre: 'unmount',
     timeout: 3000,
-    initial: BOOTSTRAPPED,
-    pending: UNLOADING,
-    fulfilled: INITIAL,
-    rejected: UNLOAD_ERROR,
-    output: ['load']
+    status: [BOOTSTRAPPED, UNLOADING, INITIAL, UNLOAD_ERROR]
   }
 };
 
 const SET_STATE = Symbol('setState');
 export class Application {
   constructor() {
-    this.promises = Object.create(null);
     this.lifecycles = Object.create(null);
     this.dependencies = null;
     this.state = INITIAL;
@@ -104,10 +80,8 @@ export class Application {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   stateChangeCallback() {}
 
-  // eslint-disable-next-line class-methods-use-this
   createDependencies() {}
 
   defineLifecycle(name, lifecycle, timeout) {
@@ -131,52 +105,44 @@ export class Application {
 
   async trigger(name) {
     const rule = rules[name];
+    const [initial, pending, fulfilled, rejected] = rule.status;
 
     if (!rule) {
       throw new Error(`Cannot ${name}`);
     }
 
-    if (rule.initial !== this.state && rule.await) {
-      await this.trigger(rule.await);
+    if (this.task) {
+      await this.task;
     }
 
-    if (this.promises[name]) {
-      const cycle = rule.output.includes(name);
-      if (cycle) {
-        await this.promises[name];
-      } else {
-        return this.promises[name];
-      }
+    if (initial !== this.state && rule.pre) {
+      await this.trigger(rule.pre);
     }
 
-    if (rule.initial !== this.state) {
+    if (![initial, rejected].includes(this.state)) {
       if (rule.verify) {
         throw new Error(`Cannot ${name}: Application state: ${this.state}`);
       }
       return undefined;
     }
 
-    this[SET_STATE](rule.pending);
+    this[SET_STATE](pending);
 
     if (!this.lifecycles[name]) {
       this.defineLifecycle(name);
     }
 
-    this.promises[name] = this.lifecycles[name]()
+    this.task = this.lifecycles[name]()
       .then(() => {
-        if (rule.output) {
-          rule.output.forEach(name => {
-            delete this.promises[name];
-          });
-        }
-        this[SET_STATE](rule.fulfilled);
+        this[SET_STATE](fulfilled);
+        delete this.task;
       })
       .catch(error => {
-        delete this.promises[name];
-        this[SET_STATE](rule.rejected);
+        this[SET_STATE](rejected);
+        delete this.task;
         throw error;
       });
 
-    return this.promises[name];
+    return this.task;
   }
 }

@@ -179,7 +179,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
           this.sandbox || this.sandboxed ? this.createSandbox() : null;
         this.renderRoot = null;
         this.loader = application
-          ? async () => application
+          ? async p => application(p)
           : this.createLoader.bind(this);
         this.portals = [];
 
@@ -190,7 +190,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
         let lifecycles = await this.loader(dependencies);
 
         if (typeof lifecycles === 'function') {
-          lifecycles = lifecycles() || {};
+          lifecycles = lifecycles();
+        }
+
+        if (!lifecycles) {
+          lifecycles = {};
         }
 
         Object.keys(lifecycles).forEach(name => {
