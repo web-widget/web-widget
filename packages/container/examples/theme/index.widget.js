@@ -2,7 +2,7 @@ export default () => ({
   async mount({ container }) {
     container.innerHTML = `
         <style>
-          :host(.dark) h3 {
+          :host([theme=dark]) h3 {
             color: #FFF;
             background: #000;
           }

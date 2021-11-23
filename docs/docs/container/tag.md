@@ -105,10 +105,10 @@ export default () => ({
 
 ## 主题
 
-应用通过 `:host()` 选择器可以实现主题的定义，容器可以控制切换主题。例如使用 `class` 来切换主题：
+应用通过 `:host()` 选择器可以实现主题的定义，容器可以控制切换主题。例如使用 `theme` 属性来切换主题：
 
 ```html
-<web-widget class="you-theme" src="app.widget.js"></web-widget>
+<web-widget theme="my-theme" src="app.widget.js"></web-widget>
 ```
 
 ```js
@@ -117,7 +117,7 @@ export default () => ({
   async mount({ container }) {
     container.innerHTML = `
       <style>
-        :host(.you-theme) h3 {
+        :host([theme=my-theme]) h3 {
           color: #FFF;
           background: #000;
         }

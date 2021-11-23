@@ -19,7 +19,7 @@
     [...document.querySelectorAll('button[data-theme]')].forEach(button => {
       button.onclick = () => {
         const theme = button.dataset.theme;
-        document.querySelector('web-widget').className = theme;
+        document.querySelector('web-widget').setAttribute('theme', theme);
       };
     });
   </script>
