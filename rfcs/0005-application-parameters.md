@@ -39,24 +39,38 @@ export async function mount({ sandboxed }) {
 
 ## 替代方案对比
 
-`data` 可以作为一种代替方案，但是它有一些不同：`data` 是被被设计为应用的数据，它可能会被反序列化后保存在服务端或者本地存储中，而应用程序参数会包含很多不需要存储的数据。
+`data` 可以作为一种代替方案，但是它有一些不同：`data` 是被被设计为应用的数据，它可能会被反序列化后保存在服务端或者本地存储中，而应用程序参数会包含很多不需要存储的数据；由于宿主或者应用程序自己都可以调用 `update({ data })` 来更新 `data`，而应用启动参数却是只读的，这也会带来歧义。
 
 ## 指引和例子
 
-如果方案改变了已有的设计、或者添加了新的设计，设计者需要创建一个端到端的例子来展示新能力要怎样使用，最好是一份指南。
+```html
+<web-widget sandboxed theme="my-theme" src="app.widget.js"></web-widget>
+```
 
-## 成果输出
-
-- 本次提案可以带来怎样的影响力
+```js
+export async function mount({ container, parameters }) {
+  container.innerHTML = `
+    <style>
+      :host([theme=my-theme]) h3 {
+        color: #FFF;
+        background: #000;
+      }
+    </style>
+    <h3>Theme: ${parameters.theme}</h3>
+  `;
+  if (!parameters.sandboxed) {
+    // [more code]
+  }
+})
+```
 
 ## 迭代策略
 
-- 用户接触到的部分会怎样改变？
-- 这个特性会怎么发布出去？
+接下来将支持使用 JSON schema 来描述 `data` 与 `parameters` 的数据结构，这些将会在 Web Widget 应用清单中出现。
 
 ## 兼容性
 
-- 当前设计是否符合向前兼容性和向后兼容性要求？
+- 当前实验性的 `sandboxed` 属性将会从应用接口中删除，而使用 `parameters` 来提供
 
 # 详细设计
 
@@ -64,4 +78,12 @@ export async function mount({ sandboxed }) {
 
 # 需要讨论的问题
 
-如果希望从 RFC 流程中获得反馈，需要在这里列出你的开放问题。
+目前有三种表达“参数”的单词：
+
+* parameters
+* params
+* arguments
+
+我目前通过 Google “application xxx“ 获取了使用更广泛的表达方式，是否还有更好的词来描述？
+
+
