@@ -68,7 +68,9 @@ export async function mount({ container, parameters }) {
 
 ### 变更临时状态
 
-在可视化编辑器场景中，假设要编辑一个选项卡的第 2 页，编辑器可以临时的通过修改 Web Widget 属性通知应用程序内部切换状态，而无需持久化这个临时状态。
+这个例子将更直观的展示 `parameters` 与 `data` 的区别：
+
+在可视化编辑器场景中，假设要编辑一个选项卡的第 2 页，编辑器可以临时的通过修改 Web Widget 属性通知应用程序内部切换状态，不用担心这个状态被永久的保存在数据模型中。
 
 ```html
 <web-widget data="[&quot;第一页&quot;,&quot;第二页&quot;,&quot;第三页&quot;]" activity="第二页" src="index.widget.js">
