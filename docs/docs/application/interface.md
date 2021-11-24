@@ -82,7 +82,16 @@ export async function mount({ createPortal }) {
 
 `object`
 
-应用的初始化数据。它是一个可以被序列化的数据结构。
+应用的数据。它是一个可以被序列化的数据结构，允许应用自己通过 [`context`](#context) 的 `update({ data })` 方法来更新数据。
+
+## parameters
+
+`object`
+
+应用程序的启动参数。它是一个可以被序列化的数据结构，它视作一种环境变量。和 [`data`](#data) 区别：
+
+* [`data`](#data) 被设计为应用的数据，应用开发者对其结构完全知晓；而 `parameters` 可能包含非常多宿主特有的额外环境信息，例如 `theme`、`lang` 等，应用程序可以遵循它们完成特定的一些操作，也可以完全忽视它们而不会引起故障
+* `parameters` 是只读的，应用程序自己不能修改它
 
 ## sandboxed
 

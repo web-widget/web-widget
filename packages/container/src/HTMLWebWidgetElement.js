@@ -404,12 +404,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
     const portals = this.portals || [];
     const dependencies = this.dependencies || {};
     await this[LIFECYCL_CONTROL].trigger('unload');
-
+    await Promise.all(portals.map(widget => widget.unload()));
     Object.getOwnPropertyNames(dependencies).forEach(key => {
       Reflect.deleteProperty(dependencies, key);
     });
-
-    await Promise.all(portals.map(widget => widget.unload()));
   }
 
   connectedCallback() {

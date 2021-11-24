@@ -84,7 +84,11 @@ export async function mount({ createPortal }) {
 
 ## data
 
-应用的初始化数据（只读）。
+应用的数据（只读）。
+
+## parameters
+
+应用的启动参数（只读）。它默认会返回 Web Widget 容器的所有属性的 map 结构。
 
 ## sandboxed
 
