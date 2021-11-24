@@ -66,9 +66,28 @@
 
 ## 数据
 
-通过 `data` 或 `data-*` 属性可以为 Web Widget 应用传递静态的数据：
+有 3 种方式为应用传递数据：
+
+1. `data` 属性：支持 JSON 数据结构
+2. `web-widget > script[type=data]` 元素：支持 JSON 数据结构，它适合存放较大的数据内容
+3. `data-*` 属性：只支持 `string` 类型
 
 ```html
+<web-widget
+  src="app.widget.js"
+  data="{&quot;id&quot;:&quot;#345&quot;,&quot;username&quot;:&quot;widget&quot;}"
+>
+</web-widget>
+
+<web-widget src="app.widget.js">
+  <script type="data">
+    {
+      "username": "hello",
+      "uid": "xxxx-xxxx-xxxx-xxxx"
+    }
+  </script>
+</web-widget>
+
 <web-widget
   src="app.widget.js"
   data-username="web-widget"
@@ -87,8 +106,6 @@ export default () => ({
   }
 });
 ```
-
-> 通过 `data-*` 只能传递 `string` 类型的值；使用 `data` 属性可以使用 JSON 字符串，它将自动解析成 `object`。
 
 ## 沙盒
 

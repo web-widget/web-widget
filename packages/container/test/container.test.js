@@ -330,6 +330,40 @@ describe('Application property: data', () => {
       expect(getProperties().data).to.deep.equal(data);
     }));
 
+  it('Should support "web-widget > script[type=data]" to store JSON content', () =>
+    createWidget(async ({ widget, getProperties }) => {
+      const data = {
+        test: Date.now()
+      };
+      const script = document.createElement('script');
+      script.type = 'data';
+      script.text = JSON.stringify(data);
+      widget.appendChild(script);
+
+      await widget.mount();
+      expect(getProperties().data).to.deep.equal(data);
+      await widget.unload();
+      expect(getProperties().data).to.deep.equal(data);
+    }));
+
+  it('Should only support direct child element script [type=data] to store JSON data', () =>
+    createWidget(async ({ widget, getProperties }) => {
+      const data = {
+        test: Date.now()
+      };
+      const div = document.createElement('div');
+      const script = document.createElement('script');
+      script.type = 'data';
+      script.text = JSON.stringify(data);
+      div.appendChild(script);
+      widget.appendChild(div);
+
+      await widget.mount();
+      expect(getProperties().data).to.deep.equal({});
+      await widget.unload();
+      expect(getProperties().data).to.deep.equal({});
+    }));
+
   it('The priority of attributes and properties should be handled correctly', () =>
     createWidget(async ({ widget, getProperties }) => {
       const arrtData = {
@@ -363,6 +397,26 @@ describe('Application property: data', () => {
       await widget.unload();
       expect(getProperties().data).to.have.property('a', a);
       expect(getProperties().data).to.have.property('b', b);
+    }));
+
+  it('"data" should have a higher priority than "web-widget script[type=data]"', () =>
+    createWidget(async ({ widget, getProperties }) => {
+      const arrtData = {
+        test: Date.now()
+      };
+      const scriptData = {
+        test: 'priority'
+      };
+
+      widget.setAttribute('data', JSON.stringify(arrtData));
+
+      const script = document.createElement('script');
+      script.type = 'data';
+      script.text = JSON.stringify(scriptData);
+      widget.appendChild(script);
+
+      await widget.mount();
+      expect(getProperties().data).to.deep.equal(arrtData);
     }));
 });
 

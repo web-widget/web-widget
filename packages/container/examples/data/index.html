@@ -11,24 +11,44 @@
 <body>
 
   <web-widget
-    id="widget"
-    data="{&quot;id&quot;:&quot;#345&quot;,&quot;username&quot;:&quot;widget&quot;}"
-    data-id="@123"
+    name="demo-1"
+    data-username="@web-widget"
+    data-messges="hello wrold"
     src="./index.widget.js"
   >
   </web-widget>
-  <pre id="log"></pre>
+
+  <web-widget
+    name="demo-2"
+    data="{&quot;id&quot;:&quot;#345&quot;,&quot;username&quot;:&quot;widget&quot;}"
+    src="./index.widget.js"
+  >
+  </web-widget>
+
+  <web-widget
+    name="demo-3"
+    src="./index.widget.js"
+  >
+    <script type="data">
+      {
+        "username": "hello",
+        "uid": "xxxx-xxxx-xxxx-xxxx"
+      }
+    </script>
+  </web-widget>
 
   <script type="module">
     import '@web-widget/container';
 
     const { INITIAL, UPDATING, MOUNTED } = HTMLWebWidgetElement;
     let oldState = INITIAL;
-    document.getElementById('widget').addEventListener('statechange', function() {
-      if (oldState === UPDATING && this.state === MOUNTED) {
-        document.getElementById('log').innerText = JSON.stringify(this.data, null, 2)
-      }
-      oldState = this.state;
+    document.querySelectorAll('web-widget').forEach(widget => {
+      widget.addEventListener('statechange', function() {
+        if (oldState === UPDATING && this.state === MOUNTED) {
+          console.log(this.name, JSON.stringify(this.data, null, 2));
+        }
+        oldState = this.state;
+      });
     });
   </script>
 </body>

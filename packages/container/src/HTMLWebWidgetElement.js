@@ -233,11 +233,21 @@ export class HTMLWebWidgetElement extends HTMLElement {
       return this[DATA];
     }
 
-    const dataAttr = this.getAttribute('data');
+    let rawJson = this.getAttribute('data');
 
-    if (dataAttr) {
+    if (!rawJson) {
+      for (const element of this.children) {
+        const localName = element.localName;
+        if (localName === 'script' && element.type === 'data') {
+          rawJson = element.text;
+          break;
+        }
+      }
+    }
+
+    if (rawJson) {
       try {
-        this[DATA] = JSON.parse(dataAttr);
+        this[DATA] = JSON.parse(rawJson);
         return this[DATA];
       } catch (error) {
         globalWebWidgetError.bind(this)(error);
