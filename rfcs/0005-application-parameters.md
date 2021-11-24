@@ -71,7 +71,7 @@ export async function mount({ container, parameters }) {
 在可视化编辑器场景中，假设要编辑一个选项卡的第 2 页，编辑器可以临时的通过修改 Web Widget 属性通知应用程序内部切换状态，而无需持久化的保存这个临时状态。
 
 ```html
-<web-widget activity="2" src="app.widget.js">
+<my-tabs is="web-widget" activity="2" src="app.widget.js">
   <div solt="1"></div>
 
   <div solt="2">
@@ -79,7 +79,7 @@ export async function mount({ container, parameters }) {
   </div>
 
   <div solt="3"></div>
-</web-widget>
+</my-tabs>
 ```
 
 ```js
