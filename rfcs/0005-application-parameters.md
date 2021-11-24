@@ -40,26 +40,54 @@ export async function mount({ sandboxed }) {
 
 `data` 可以作为一种代替方案，但是它有一些不同：
 
-* `data` 是被设计为应用的数据，它可能会被反序列化后保存在服务端或者本地存储中，而应用程序参数会包含很多不需要存储的数据
-* 由于宿主或者应用程序自己都可以调用 `update({ data })` 来更新 `data`，而应用启动参数预期是由宿主控制的，这会导致混淆
+* `data` 是被设计为应用的数据，应用开发者对内部完全知晓；而应用启动参数则不同，它可能包含非常多宿主特有的额外信息，例如 `theme`、`lang` 等，应用程序可以遵循它们，也可以忽略它们
+* `data` 它可能会被反序列化后保存在服务端或者本地存储中，并且应用程序自己可以调用 `update({ data })` 来更新 `data`，如果包含启动信息，会导致存储不必要的数据导致混乱
 
 ## 指引和例子
 
+### 设置主题
+
 ```html
-<web-widget sandboxed theme="my-theme" src="app.widget.js"></web-widget>
+<web-widget theme="dark" src="app.widget.js"></web-widget>
 ```
 
 ```js
+// app.widget.js
 export async function mount({ container, parameters }) {
   container.innerHTML = `
     <style>
-      :host([theme=my-theme]) h3 {
+      :host([theme=dark]) h3 {
         color: #FFF;
         background: #000;
       }
     </style>
     <h3>Theme: ${parameters.theme}</h3>
   `;
+})
+```
+
+### 变更临时状态
+
+在可视化编辑器场景中，假设要编辑一个选项卡的第 2 页，编辑器可以临时的通过修改 Web Widget 属性通知应用程序内部切换状态，而无需持久化的保存这个临时状态。
+
+```html
+<web-widget activity="tabpanel_02" import="@org/tabset">
+  <web-widget solt="tabpane_01" import="@org/tabset/tabpanel">
+  </web-widget>
+
+  <web-widget solt="tabpane_02" import="@org/tabset/tabpanel">
+    <p>hello wrold</p>
+  </web-widget>
+
+  <web-widget solt="tabpane_03" import="@org/tabset/tabpanel">
+  </web-widget>
+</web-widget>
+```
+
+```js
+// @org/tabset
+export async function update({ container, parameters }) {
+  tabsetElement.activity = parameters.activity;
 })
 ```
 
