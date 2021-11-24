@@ -34,6 +34,7 @@ export async function mount({ sandboxed }) {
 
 * `<web-widget>` 元素所有的属性，都将出现在 `parameters` 中
 * `parameters` 它是一个被冻结的 `object` 结构，类似操作系统环境变量一样，每一项的值都是 `string` 类型
+* 应用可以 `update` 生命周期函数获取到更新后的 `parameters`
 
 ## 替代方案对比
 
@@ -59,9 +60,6 @@ export async function mount({ container, parameters }) {
     </style>
     <h3>Theme: ${parameters.theme}</h3>
   `;
-  if (!parameters.sandboxed) {
-    // [more code]
-  }
 })
 ```
 
@@ -69,10 +67,6 @@ export async function mount({ container, parameters }) {
 
 - 接下来将支持使用 JSON schema 来描述 `data` 与 `parameters` 的数据结构，这些将会在 Web Widget 应用清单中出现
 - 将可视化编辑器需要的约定字段都将使用 `parameters` 来表达
-
-## 兼容性
-
-- 当前实验性的 `sandboxed` 属性将会从应用接口中删除，而使用 `parameters` 来提供
 
 # 需要讨论的问题
 
@@ -82,6 +76,6 @@ export async function mount({ container, parameters }) {
 * params
 * arguments
 
-我目前通过 Google “application xxx“ 获取了使用更广泛的表达方式，是否还有更好的词来描述？
+我目前通过 Google “application xxx“ 获取了使用更广泛的表达方式，即 `parameters`，是否还有更好的词来描述？
 
 
