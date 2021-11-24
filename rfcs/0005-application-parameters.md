@@ -32,6 +32,9 @@ export async function mount({ sandboxed }) {
 
 在 Web Widget 应用接口中，增加 `parameters` 字段作为应用启动参数。
 
+* `<web-widget>` 元素所有的属性，都将出现在 `parameters` 中
+* `parameters` 它是一个被冻结的 `object` 结构，类似操作系统环境变量一样，每一项的值都是 `string` 类型
+
 ## 替代方案对比
 
 `data` 可以作为一种代替方案，但是它有一些不同：
@@ -70,11 +73,6 @@ export async function mount({ container, parameters }) {
 ## 兼容性
 
 - 当前实验性的 `sandboxed` 属性将会从应用接口中删除，而使用 `parameters` 来提供
-
-# 详细设计
-
-* `<web-widget>` 元素所有的属性，都将出现在 `parameters` 中
-* `parameters` 它是一个被冻结的 `object` 结构，类似操作系统环境变量一样，每一项的值都是 `string` 类型
 
 # 需要讨论的问题
 
