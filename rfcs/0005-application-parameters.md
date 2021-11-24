@@ -71,23 +71,23 @@ export async function mount({ container, parameters }) {
 在可视化编辑器场景中，假设要编辑一个选项卡的第 2 页，编辑器可以临时的通过修改 Web Widget 属性通知应用程序内部切换状态，而无需持久化的保存这个临时状态。
 
 ```html
-<web-widget activity="tabpanel_02" import="@org/tabset">
-  <web-widget solt="tabpane_01" import="@org/tabset/tabpanel">
-  </web-widget>
+<web-widget activity="2" src="app.widget.js">
+  <div solt="1"></div>
 
-  <web-widget solt="tabpane_02" import="@org/tabset/tabpanel">
+  <div solt="2">
     <p>hello wrold</p>
-  </web-widget>
+  </div>
 
-  <web-widget solt="tabpane_03" import="@org/tabset/tabpanel">
-  </web-widget>
+  <div solt="3"></div>
 </web-widget>
 ```
 
 ```js
-// @org/tabset
+// app.widget.js
 export async function update({ container, parameters }) {
-  tabsetElement.activity = parameters.activity;
+  container.querySelectorAll(`slot`).forEach(slotElement => {
+    slotElement.hidden = parameters.activity !== slotElement.name;
+  });
 })
 ```
 
