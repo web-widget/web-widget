@@ -68,27 +68,44 @@ export async function mount({ container, parameters }) {
 
 ### 变更临时状态
 
-在可视化编辑器场景中，假设要编辑一个选项卡的第 2 页，编辑器可以临时的通过修改 Web Widget 属性通知应用程序内部切换状态，而无需持久化的保存这个临时状态。
+在可视化编辑器场景中，假设要编辑一个选项卡的第 2 页，编辑器可以临时的通过修改 Web Widget 属性通知应用程序内部切换状态，而无需持久化这个临时状态。
 
 ```html
 <my-tabs is="web-widget" activity="2" src="app.widget.js">
-  <div solt="1"></div>
+  <div solt="0"></div>
 
-  <div solt="2">
+  <div solt="1">
     <p>hello wrold</p>
   </div>
 
-  <div solt="3"></div>
+  <div solt="2"></div>
 </my-tabs>
 ```
 
 ```js
 // app.widget.js
-export async function update({ container, parameters }) {
-  container.querySelectorAll(`slot`).forEach(slotElement => {
-    slotElement.hidden = parameters.activity !== slotElement.name;
-  });
-})
+export default () => ({
+  async mount({ container, parameters }) {
+    container.innerHTML = ['0', '1', '2']
+      .map(
+        name =>
+          `<div class="tabpanel" data-name="${name}" ${
+            parameters.activity === name ? '' : 'hidden'
+          }><slot name="${name}"></slot></div>`
+      )
+      .join('');
+  },
+
+  async update({ container, parameters }) {
+    container.querySelectorAll(`.tabpanel`).forEach(element => {
+      element.hidden = parameters.activity !== element.dataset.name;
+    });
+  },
+
+  async unmount({ container }) {
+    container.innerHTML = '';
+  }
+});
 ```
 
 ## 迭代策略
