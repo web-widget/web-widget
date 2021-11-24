@@ -23,16 +23,6 @@ export class WebWidgetDependencies {
     });
   }
 
-  get attributes() {
-    return [...this.ownerElement.attributes].reduce(
-      (accumulator, { name, value }) => {
-        accumulator[name] = value;
-        return accumulator;
-      },
-      {}
-    );
-  }
-
   get container() {
     const view = this.ownerElement;
     view.renderRoot = view.renderRoot || view.createRenderRoot();
@@ -95,8 +85,14 @@ export class WebWidgetDependencies {
     this.ownerElement.data = value;
   }
 
-  get dataset() {
-    return { ...this.ownerElement.dataset };
+  get parameters() {
+    return [...this.ownerElement.attributes].reduce(
+      (accumulator, { name, value }) => {
+        accumulator[name] = value;
+        return accumulator;
+      },
+      {}
+    );
   }
 
   get name() {

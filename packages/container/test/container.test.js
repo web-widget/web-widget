@@ -274,15 +274,15 @@ describe('Auto load', () => {
   });
 });
 
-describe('Application property: attributes', () => {
-  it('attributes', () =>
+describe('Application property: parameters', () => {
+  it('parameters', () =>
     createWidget(async ({ widget, getProperties }) => {
       const value = String(Date.now());
       widget.setAttribute('test', value);
       await widget.mount();
-      expect(getProperties().attributes).to.have.property('test', value);
+      expect(getProperties().parameters).to.have.property('test', value);
       await widget.unload();
-      expect(getProperties().attributes).to.have.property('test', value);
+      expect(getProperties().parameters).to.have.property('test', value);
     }));
 });
 
@@ -363,18 +363,6 @@ describe('Application property: data', () => {
       await widget.unload();
       expect(getProperties().data).to.have.property('a', a);
       expect(getProperties().data).to.have.property('b', b);
-    }));
-});
-
-describe('Application property: dataset', () => {
-  it('dataset', () =>
-    createWidget(async ({ widget, getProperties }) => {
-      const value = String(Date.now());
-      widget.setAttribute('data-test', value);
-      await widget.mount();
-      expect(getProperties().dataset).to.have.property('test', value);
-      await widget.unload();
-      expect(getProperties().dataset).to.have.property('test', value);
     }));
 });
 
