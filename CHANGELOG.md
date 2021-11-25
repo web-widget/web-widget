@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.0.19 (2021-11-25)
+
+* 修复了全局错误可能会重复抛出的问题
+
 ## 0.0.18 (2021-11-24)
 
 * 增加 [Application parameters](./rfcs/0005-application-parameters.md) 特性
