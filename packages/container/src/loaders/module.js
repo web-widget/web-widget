@@ -90,16 +90,15 @@ export async function moduleLoader(view) {
     };
 
     document.head.appendChild(script);
-  }).then(module => getModuleValue(module));
+  })
+    .then(module => getModuleValue(module))
+    .catch(error => {
+      cache.delete(nameOrPath);
+      throw error;
+    });
 
   if (nameOrPath) {
-    cache.set(
-      nameOrPath,
-      promise.catch(error => {
-        cache.delete(nameOrPath);
-        throw error;
-      })
-    );
+    cache.set(nameOrPath, promise);
   }
 
   return promise;

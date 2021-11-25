@@ -32,6 +32,7 @@ import { reasonableTime } from './timeouts.js';
 */
 const rules = {
   load: {
+    creator: true,
     timeout: 12000,
     status: [INITIAL, LOADING, LOADED, LOAD_ERROR]
   },
@@ -63,10 +64,17 @@ const rules = {
 
 const SET_STATE = Symbol('setState');
 export class Application {
-  constructor() {
-    this.lifecycles = Object.create(null);
-    this.dependencies = null;
+  constructor(loader, dependencies, timeouts) {
+    this.loader = loader;
+    this.timeouts = timeouts;
     this.state = INITIAL;
+    this.lifecycles = Object.create(null);
+    this.getDependencies = () => {
+      if (typeof dependencies === 'function') {
+        dependencies = dependencies();
+      }
+      return dependencies;
+    };
   }
 
   getState() {
@@ -82,30 +90,10 @@ export class Application {
 
   stateChangeCallback() {}
 
-  createDependencies() {}
-
-  defineLifecycle(name, lifecycle, timeout) {
+  async trigger(name) {
+    const timeout = this.timeouts[name];
     const dieOnTimeout = typeof timeout === 'number';
     const timeoutWarning = 1000;
-
-    if (!this.dependencies) {
-      this.dependencies = this.createDependencies() || {};
-    }
-
-    this.lifecycles[name] =
-      typeof lifecycle === 'function'
-        ? () =>
-            reasonableTime(
-              name,
-              async () => lifecycle(this.dependencies),
-              dieOnTimeout ? timeout : rules[name].timeout,
-              dieOnTimeout,
-              timeoutWarning
-            )
-        : async () => {};
-  }
-
-  async trigger(name) {
     const rule = rules[name];
     const [initial, pending, fulfilled, rejected] = rule.status;
 
@@ -113,8 +101,24 @@ export class Application {
       throw new Error(`Cannot ${name}`);
     }
 
-    if (this.task) {
-      await this.task;
+    if (this.pending) {
+      await this.pending;
+    }
+
+    if (rule.creator && !this.lifecycles[name]) {
+      this.lifecycles[name] = async dependencies => {
+        let lifecycles = await this.loader(dependencies);
+
+        if (typeof lifecycles === 'function') {
+          lifecycles = lifecycles(dependencies);
+        }
+
+        if (!lifecycles) {
+          lifecycles = {};
+        }
+
+        Object.assign(this.lifecycles, lifecycles);
+      };
     }
 
     if (initial !== this.state && rule.pre) {
@@ -131,20 +135,27 @@ export class Application {
     this[SET_STATE](pending);
 
     if (!this.lifecycles[name]) {
-      this.defineLifecycle(name);
+      this[SET_STATE](fulfilled);
+      return undefined;
     }
 
-    this.task = this.lifecycles[name]()
+    this.pending = reasonableTime(
+      name,
+      async () => this.lifecycles[name](this.getDependencies()),
+      dieOnTimeout ? timeout : rules[name].timeout,
+      dieOnTimeout,
+      timeoutWarning
+    )
       .then(() => {
         this[SET_STATE](fulfilled);
-        delete this.task;
+        delete this.pending;
       })
       .catch(error => {
         this[SET_STATE](rejected);
-        delete this.task;
+        delete this.pending;
         throw error;
       });
 
-    return this.task;
+    return this.pending;
   }
 }
