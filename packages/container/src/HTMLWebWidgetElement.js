@@ -1,4 +1,4 @@
-/* global window, document, customElements, HTMLElement, Event, Node, IntersectionObserver, URL, MutationObserver */
+/* global window, document, customElements, HTMLElement, Event, Node, IntersectionObserver, URL, MutationObserver, setTimeout, clearTimeout */
 // eslint-disable-next-line max-classes-per-file
 import { Application } from './applications/lifecycles.js';
 import { createRegistry } from './utils/registry.js';
@@ -15,10 +15,15 @@ const FIRST_CONNECTED = Symbol('firstConnect');
 const LIFECYCL_CONTROL = Symbol('lifecyclControl');
 const LOCAL_NAME = 'web-widget';
 const MOVEING = Symbol('moveing');
-const NAME = Symbol('name');
 const PARENT_WIDGET = Symbol('parentWidget');
 const STATECHANGE_CALLBACK = Symbol('statechangeCallback');
-// const PREFETCH = Symbol('prefetch');
+const THROW_GLOBAL_ERROR = Symbol('throwGlobalError');
+const TIMEOUTS = Symbol('timeouts');
+const TRIGGER = Symbol('trigger');
+const TRY_AUTO_LOAD = Symbol('tryAutoLoad');
+const TRY_AUTO_LOAD_TIMER = Symbol('tryAutoLoadTimer');
+const TRY_AUTO_UNLOAD = Symbol('tryAutoUnload');
+const TRY_AUTO_UNLOAD_TIMER = Symbol('tryAutoUnloadTimer');
 
 const globalPortalDestinations = createRegistry();
 const globalLoaders = createRegistry();
@@ -28,7 +33,6 @@ const isBindingElementLifecycle = view => !view.inactive;
 const isResourceReady = view =>
   view.isConnected &&
   (view.import || view.src || view.application || view.text);
-// const isAutoPrefetch = view => view.inactive && (view.import || view.src);
 const isAutoLoad = view =>
   isBindingElementLifecycle(view) && isResourceReady(view);
 const isAutoUnload = isBindingElementLifecycle;
@@ -37,7 +41,7 @@ const lazyObserver = new IntersectionObserver(
   entries => {
     entries.forEach(({ isIntersecting, target }) => {
       if (isIntersecting && isAutoLoad(target)) {
-        target.mount();
+        target[TRY_AUTO_LOAD]();
         lazyObserver.unobserve(target);
       }
     });
@@ -76,68 +80,6 @@ function autoUpdateElement(documentOrShadowRoot) {
   });
 }
 
-function formatErrorMessage(view, error) {
-  const prefix = `Web Widget application (${view[NAME]})`;
-  if (typeof error !== 'object') {
-    error = new Error(error);
-  }
-
-  if (!error.message.includes(prefix)) {
-    Reflect.defineProperty(error, 'message', {
-      value: `${prefix}: ${error.message}`,
-      writable: true,
-      configurable: true
-    });
-  }
-
-  return error;
-}
-
-function globalWebWidgetError(error) {
-  queueMicrotask(() => {
-    throw formatErrorMessage(this, error);
-  });
-}
-
-function getParentWebWidgetElement(view, constructor) {
-  const parentWidgetElement = getParentNode(view, constructor);
-  if (parentWidgetElement) {
-    return parentWidgetElement;
-  }
-  return null;
-}
-
-// function prefetch(url /* , importance */) {
-//   if (!document.head.querySelector(`link[href="${url}"]`)) {
-//     const link = document.createElement('link');
-//     link.rel = 'prefetch';
-//     /* link.importance = importance; */
-//     link.href = url;
-//     document.head.appendChild(link);
-//   }
-// }
-
-function tryAutoLoad(view) {
-  queueMicrotask(() => {
-    if (isAutoLoad(view)) {
-      view.mount().catch(globalWebWidgetError.bind(view));
-    } /* else if (isAutoPrefetch(view)) {
-      view[PREFETCH]();
-    } */
-  });
-}
-
-function tryAutoUnload(view) {
-  queueMicrotask(() => {
-    if (isAutoUnload(view)) {
-      view.unload().catch(globalWebWidgetError.bind(view));
-      if (view.sandboxed) {
-        view.sandbox.unload();
-      }
-    }
-  });
-}
-
 function addLazyLoad(view) {
   lazyObserver.observe(view);
 }
@@ -150,31 +92,13 @@ export class HTMLWebWidgetElement extends HTMLElement {
   constructor() {
     super();
 
-    const lifecyclControl = (this[LIFECYCL_CONTROL] = new Application());
-
-    lifecyclControl.stateChangeCallback = () => {
-      this[STATECHANGE_CALLBACK]();
-      this.dispatchEvent(new Event('statechange'));
-    };
-
-    lifecyclControl.createDependencies = () => {
-      this.dependencies = this.createDependencies();
-      return this.dependencies;
-    };
-
-    lifecyclControl.defineLifecycle(
-      'load',
-      async dependencies => {
+    const lifecyclControl = new Application(
+      dependencies => {
         if (!isResourceReady(this)) {
           throw new Error(`Cannot load: Not initialized`);
         }
 
         const { application } = this;
-        this[NAME] =
-          this.name ||
-          this.import ||
-          this.src ||
-          (application ? application.name : this.localName);
         this.sandbox =
           this.sandbox || this.sandboxed ? this.createSandbox() : null;
         this.renderRoot = null;
@@ -187,26 +111,22 @@ export class HTMLWebWidgetElement extends HTMLElement {
           throw new Error(`Sandbox mode is not implemented`);
         }
 
-        let lifecycles = await this.loader(dependencies);
-
-        if (typeof lifecycles === 'function') {
-          lifecycles = lifecycles();
-        }
-
-        if (!lifecycles) {
-          lifecycles = {};
-        }
-
-        Object.keys(lifecycles).forEach(name => {
-          lifecyclControl.defineLifecycle(
-            name,
-            lifecycles[name],
-            this.constructor.timeouts[name]
-          );
-        });
+        return this.loader(dependencies);
       },
-      this.constructor.timeouts.load
+      () => {
+        const dependencies = this.createDependencies();
+        this.dependencies = dependencies;
+        return dependencies;
+      },
+      this.timeouts
     );
+
+    lifecyclControl.stateChangeCallback = () => {
+      this[STATECHANGE_CALLBACK]();
+      this.dispatchEvent(new Event('statechange'));
+    };
+
+    this[LIFECYCL_CONTROL] = lifecyclControl;
   }
 
   get application() {
@@ -216,7 +136,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   set application(value) {
     if (typeof value === 'function') {
       this[APPLICATION] = value;
-      tryAutoLoad(this);
+      this[TRY_AUTO_LOAD]();
     }
   }
 
@@ -240,7 +160,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         this[DATA] = JSON.parse(dataAttr);
         return this[DATA];
       } catch (error) {
-        globalWebWidgetError.bind(this)(error);
+        this[THROW_GLOBAL_ERROR](error);
       }
     }
 
@@ -339,6 +259,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('text', value);
   }
 
+  get timeouts() {
+    return this[TIMEOUTS] || this.constructor.timeouts;
+  }
+
+  set timeouts(value) {
+    this[TIMEOUTS] = value;
+  }
+
   createDependencies() {
     return new WebWidgetDependencies(this);
   }
@@ -377,33 +305,33 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   async load() {
-    await this[LIFECYCL_CONTROL].trigger('load');
+    await this[TRIGGER]('load');
   }
 
   async bootstrap() {
-    await this[LIFECYCL_CONTROL].trigger('bootstrap');
+    await this[TRIGGER]('bootstrap');
   }
 
   async mount() {
-    await this[LIFECYCL_CONTROL].trigger('mount');
+    await this[TRIGGER]('mount');
   }
 
   async update(properties = {}) {
     const dependencies = this.dependencies || {};
     Object.assign(dependencies, properties);
-    await this[LIFECYCL_CONTROL].trigger('update');
+    await this[TRIGGER]('update');
   }
 
   async unmount() {
     const portals = this.portals || [];
-    await this[LIFECYCL_CONTROL].trigger('unmount');
+    await this[TRIGGER]('unmount');
     await Promise.all(portals.map(widget => widget.unmount()));
   }
 
   async unload() {
     const portals = this.portals || [];
     const dependencies = this.dependencies || {};
-    await this[LIFECYCL_CONTROL].trigger('unload');
+    await this[TRIGGER]('unload');
     await Promise.all(portals.map(widget => widget.unload()));
     Object.getOwnPropertyNames(dependencies).forEach(key => {
       Reflect.deleteProperty(dependencies, key);
@@ -438,7 +366,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     if (this.loading === 'lazy') {
       addLazyLoad(this);
     } else {
-      tryAutoLoad(this);
+      this[TRY_AUTO_LOAD]();
     }
   }
 
@@ -456,9 +384,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
   attributeChangedCallback(name) {
     if (name === 'data') {
       delete this[DATA];
-    }
-    if (this.loading !== 'lazy') {
-      tryAutoLoad(this);
+    } else if (this.loading !== 'lazy') {
+      this[TRY_AUTO_LOAD]();
     }
   }
 
@@ -467,7 +394,32 @@ export class HTMLWebWidgetElement extends HTMLElement {
     if (this.loading === 'lazy') {
       removeLazyLoad(this);
     }
-    tryAutoUnload(this);
+    this[TRY_AUTO_UNLOAD]();
+  }
+
+  [TRY_AUTO_LOAD]() {
+    this[TRY_AUTO_LOAD_TIMER] = setTimeout(() => {
+      if (isAutoLoad(this)) {
+        this.mount().catch(this[THROW_GLOBAL_ERROR].bind(this));
+      }
+      clearTimeout(this[TRY_AUTO_LOAD_TIMER]);
+    });
+  }
+
+  [TRY_AUTO_UNLOAD]() {
+    this[TRY_AUTO_UNLOAD_TIMER] = setTimeout(() => {
+      if (isAutoUnload(this)) {
+        this.unload().catch(this[THROW_GLOBAL_ERROR].bind(this));
+        if (this.sandboxed) {
+          this.sandbox.unload();
+        }
+      }
+      clearTimeout(this[TRY_AUTO_UNLOAD_TIMER]);
+    });
+  }
+
+  [TRIGGER](name) {
+    return this[LIFECYCL_CONTROL].trigger(name, [this.dependencies]);
   }
 
   [STATECHANGE_CALLBACK]() {
@@ -505,12 +457,33 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
-  // [PREFETCH]() {
-  //   prefetch(this.src, this.importance);
-  // }
-
   [PARENT_WIDGET]() {
-    return getParentWebWidgetElement(this, this.constructor);
+    const parentWidgetElement = getParentNode(this, this.constructor);
+    if (parentWidgetElement) {
+      return parentWidgetElement;
+    }
+    return null;
+  }
+
+  [THROW_GLOBAL_ERROR](error) {
+    const applicationName =
+      this.name || this.import || this.src || this.localName;
+    const prefix = `Web Widget application (${applicationName})`;
+    if (typeof error !== 'object') {
+      error = new Error(error);
+    }
+
+    if (!error.message.includes(prefix)) {
+      Reflect.defineProperty(error, 'message', {
+        value: `${prefix}: ${error.message}`,
+        writable: true,
+        configurable: true
+      });
+    }
+
+    queueMicrotask(() => {
+      throw error;
+    });
   }
 
   static get observedAttributes() {

@@ -181,6 +181,23 @@ describe('Load module: error', () => {
       () => Promise.resolve()
     );
   });
+
+  it('Autoload failure should trigger a global error', () => {
+    const globalError = new Promise((resolve, reject) => {
+      window.onerror = error => {
+        reject(error);
+      };
+    });
+
+    const widget = document.createElement('web-widget');
+    widget.src = '/test/widgets2/404';
+    document.body.appendChild(widget);
+
+    return globalError.then(
+      () => Promise.reject(new Error('Not rejected')),
+      () => Promise.resolve()
+    );
+  });
 });
 
 describe('Auto load', () => {

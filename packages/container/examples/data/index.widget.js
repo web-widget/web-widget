@@ -15,7 +15,7 @@ export default () => {
       update.onclick = () => {
         context.update({
           data: {
-            id: data.id,
+            ...data,
             username: `@${Date.now()}`
           }
         });
@@ -23,8 +23,13 @@ export default () => {
       element.appendChild(update);
     },
 
-    async update() {
+    async update({ container, data }) {
       console.log('update');
+      container.querySelector('pre').textContent = JSON.stringify(
+        data,
+        null,
+        2
+      );
     },
 
     async unmount({ container }) {
