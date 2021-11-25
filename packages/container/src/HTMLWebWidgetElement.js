@@ -1,6 +1,6 @@
 /* global window, document, customElements, HTMLElement, Event, Node, IntersectionObserver, URL, MutationObserver, setTimeout, clearTimeout */
 // eslint-disable-next-line max-classes-per-file
-import { Application } from './applications/lifecycles.js';
+import { ApplicationService } from './applications/service.js';
 import { createRegistry } from './utils/registry.js';
 import { getParentNode } from './utils/nodes.js';
 import { moduleLoader } from './loaders/module.js';
@@ -12,7 +12,7 @@ import * as status from './applications/status.js';
 const APPLICATION = Symbol('application');
 const DATA = Symbol('data');
 const FIRST_CONNECTED = Symbol('firstConnect');
-const LIFECYCL_CONTROL = Symbol('lifecyclControl');
+const APPLICATION_SERVICE = Symbol('applicationService');
 const LOCAL_NAME = 'web-widget';
 const MOVEING = Symbol('moveing');
 const PARENT_WIDGET = Symbol('parentWidget');
@@ -92,7 +92,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   constructor() {
     super();
 
-    const lifecyclControl = new Application(
+    const applicationService = new ApplicationService(
       dependencies => {
         if (!isResourceReady(this)) {
           throw new Error(`Cannot load: Not initialized`);
@@ -121,12 +121,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this.timeouts
     );
 
-    lifecyclControl.stateChangeCallback = () => {
+    applicationService.stateChangeCallback = () => {
       this[STATECHANGE_CALLBACK]();
       this.dispatchEvent(new Event('statechange'));
     };
 
-    this[LIFECYCL_CONTROL] = lifecyclControl;
+    this[APPLICATION_SERVICE] = applicationService;
   }
 
   get application() {
@@ -210,7 +210,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   get state() {
-    return this[LIFECYCL_CONTROL].getState();
+    return this[APPLICATION_SERVICE].getState();
   }
 
   get sandboxed() {
@@ -350,9 +350,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
-  // 生命周期扩展：第一次插入文档
   firstConnectedCallback() {
-    // 继承 sandboxed 与 csp
     if (this[PARENT_WIDGET]()) {
       const { sandboxed, csp } = this[PARENT_WIDGET]();
       if (sandboxed) {
@@ -389,7 +387,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
-  // 生命周期扩展：从文档中销毁
   destroyedCallback() {
     if (this.loading === 'lazy') {
       removeLazyLoad(this);
@@ -419,7 +416,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   [TRIGGER](name) {
-    return this[LIFECYCL_CONTROL].trigger(name, [this.dependencies]);
+    return this[APPLICATION_SERVICE].trigger(name, [this.dependencies]);
   }
 
   [STATECHANGE_CALLBACK]() {
