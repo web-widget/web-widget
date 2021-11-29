@@ -72,14 +72,15 @@ const createWidget = callback => {
 describe('Element default properties', () => {
   it('properties', () => {
     expect(emptyWidget).to.have.property('application', null);
+    expect(emptyWidget).to.have.property('csp', '');
+    expect(emptyWidget).to.have.property('import', '');
     expect(emptyWidget).to.have.property('inactive', false);
-    expect(emptyWidget).to.have.property('importance', 'auto');
     expect(emptyWidget).to.have.property('loading', 'auto');
-    expect(emptyWidget).to.have.property('type', 'module');
-    expect(emptyWidget).to.have.property('state', HTMLWebWidgetElement.INITIAL);
     expect(emptyWidget).to.have.property('name', '');
     expect(emptyWidget).to.have.property('src', '');
+    expect(emptyWidget).to.have.property('state', HTMLWebWidgetElement.INITIAL);
     expect(emptyWidget).to.have.property('text', '');
+    expect(emptyWidget).to.have.property('type', 'module');
   });
 
   it('methods', () => {

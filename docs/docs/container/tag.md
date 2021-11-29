@@ -64,7 +64,7 @@
 
 插槽源自于 Web Component，更多插槽信息可以访问 <https://developer.mozilla.org/en-US/docs/Web/Web_Components>。
 
-## 数据
+## 应用数据
 
 通过 `data` 或 `data-*` 属性可以为 Web Widget 应用传递静态的数据：
 
@@ -89,6 +89,26 @@ export default () => ({
 ```
 
 > 通过 `data-*` 只能传递 `string` 类型的值；使用 `data` 属性可以使用 JSON 字符串，它将自动解析成 `object`。
+
+## 应用参数
+
+Web Widget 容器 `attributes` 将作为应用参数。
+
+```html
+<web-widget
+  src="app.widget.js"
+  theme="my-theme"
+>
+</web-widget>
+```
+
+```js
+// app.widget.js
+export default () => ({
+  async mount({ parameters }) {
+    console.log(parameters.theme); // my-theme
+  }
+});
 
 ## 沙盒
 

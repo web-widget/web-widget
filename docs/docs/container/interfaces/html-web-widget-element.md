@@ -136,16 +136,6 @@ widget.mount();
 * `"eager"` 立即加载，不管它是否在可视视口（visible viewport）之外
 * `"lazy"` 延迟加载，直到它和视口接近的距离
 
-## importance
-
-`string`
-
-指示下载资源时相对重要性，或者说优先级。允许的值：
-
-* `"auto"` 不指定优先级
-* `"high"` 在下载时优先级较高
-* `"low"` 在下载时优先级较低
-
 ## type
 
 `string`

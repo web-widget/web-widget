@@ -35,12 +35,12 @@
   },
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
+    "@babel/eslint-parser": "^7.16.0",
     "@rocket/blog": "^0.3.0",
     "@rocket/cli": "^0.7.0",
     "@rocket/core": "^0.1.2",
     "@rocket/launch": "^0.4.2",
     "@rocket/search": "^0.3.5",
-    "@babel/eslint-parser": "^7.16.0",
     "@web/dev-server": "^0.1.25",
     "alex": "^10.0.0",
     "babel-loader": "^8.2.3",
