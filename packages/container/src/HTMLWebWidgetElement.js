@@ -13,7 +13,6 @@ const APPLICATION = Symbol('application');
 const DATA = Symbol('data');
 const FIRST_CONNECTED = Symbol('firstConnect');
 const APPLICATION_SERVICE = Symbol('applicationService');
-const LOCAL_NAME = 'web-widget';
 const MOVEING = Symbol('moveing');
 const PARENT_WIDGET = Symbol('parentWidget');
 const STATECHANGE_CALLBACK = Symbol('statechangeCallback');
@@ -51,18 +50,28 @@ const lazyObserver = new IntersectionObserver(
   }
 );
 
+function addLazyLoad(view) {
+  lazyObserver.observe(view);
+}
+
+function removeLazyLoad(view) {
+  lazyObserver.unobserve(view);
+}
+
 function updateElement(target) {
-  const newTagName = target.localName;
-  if (newTagName.includes('-') && !customElements.get(newTagName)) {
+  const alias = target.localName;
+  if (alias.includes('-') && !customElements.get(alias)) {
+    // ignore analyze
+    const define = 'define';
     // eslint-disable-next-line no-use-before-define
-    customElements.define(newTagName, class extends HTMLWebWidgetElement {});
+    customElements[define](alias, class extends HTMLWebWidgetElement {});
   }
 }
 
 function autoUpdateElement(documentOrShadowRoot) {
   const tryUpdateElement = node =>
     node.nodeType === Node.ELEMENT_NODE &&
-    node.getAttribute('is') === LOCAL_NAME &&
+    node.getAttribute('is') === 'web-widget' &&
     updateElement(node);
   return new MutationObserver(mutationsList => {
     mutationsList.forEach(({ type, target, addedNodes }) => {
@@ -80,14 +89,10 @@ function autoUpdateElement(documentOrShadowRoot) {
   });
 }
 
-function addLazyLoad(view) {
-  lazyObserver.observe(view);
-}
-
-function removeLazyLoad(view) {
-  lazyObserver.unobserve(view);
-}
-
+/**
+ * @summary Web Widget Container
+ * @event {Event} statechange
+ */
 export class HTMLWebWidgetElement extends HTMLElement {
   constructor() {
     super();
@@ -102,9 +107,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         this.sandbox =
           this.sandbox || this.sandboxed ? this.createSandbox() : null;
         this.renderRoot = null;
-        this.loader = application
-          ? async p => application(p)
-          : this.createLoader.bind(this);
+        this.loader = application || this.createLoader.bind(this);
         this.portals = [];
 
         if (this.sandboxed && !this.sandbox.window) {
@@ -121,14 +124,21 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this.timeouts
     );
 
+    /** @ignore */
     applicationService.stateChangeCallback = () => {
       this[STATECHANGE_CALLBACK]();
       this.dispatchEvent(new Event('statechange'));
     };
 
+    /** @ignore */
     this[APPLICATION_SERVICE] = applicationService;
   }
 
+  /**
+   * Register a local application
+   * @type {function}
+   * @returns {Promise}
+   */
   get application() {
     return this[APPLICATION] || null;
   }
@@ -140,6 +150,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
+  /**
+   * Application content security policy
+   * @attr
+   * @reflect
+   * @type {string}
+   */
   get csp() {
     return this.getAttribute('csp') || '';
   }
@@ -148,6 +164,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('csp', value);
   }
 
+  /**
+   * Application data
+   * @attr
+   * @type {(object|array)}
+   */
   get data() {
     if (this[DATA] !== undefined) {
       return this[DATA];
@@ -173,6 +194,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
+  /**
+   * Whether the application is inactive
+   * @attr
+   * @reflect
+   * @type {boolean}
+   */
   get inactive() {
     return this.hasAttribute('inactive');
   }
@@ -185,14 +212,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
-  get importance() {
-    return this.getAttribute('importance') || 'auto';
-  }
-
-  set importance(value) {
-    this.setAttribute('importance', value);
-  }
-
+  /**
+   * Indicates how the browser should load the application
+   * @attr
+   * @reflect
+   * @type {string}
+   */
   get loading() {
     return this.getAttribute('loading') || 'auto';
   }
@@ -201,6 +226,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('loading', value);
   }
 
+  /**
+   * Application module type
+   * @attr
+   * @reflect
+   * @type {string}
+   */
   get type() {
     return this.getAttribute('type') || 'module';
   }
@@ -209,10 +240,21 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('type', value);
   }
 
+  /**
+   * Application status
+   * @readonly
+   * @type {string}
+   */
   get state() {
     return this[APPLICATION_SERVICE].getState();
   }
 
+  /**
+   * Whether to enable sandbox mode
+   * @attr
+   * @reflect
+   * @type {boolean}
+   */
   get sandboxed() {
     return this.hasAttribute('sandboxed');
   }
@@ -225,6 +267,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
+  /**
+   * Application name
+   * @attr
+   * @reflect
+   * @type {string}
+   */
   get name() {
     return this.getAttribute('name') || '';
   }
@@ -233,6 +281,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('name', value);
   }
 
+  /**
+   * Application URL
+   * @attr
+   * @reflect
+   * @type {string}
+   */
   get src() {
     const value = this.getAttribute('src');
     return value === null ? '' : new URL(value, this.baseURI).href;
@@ -242,6 +296,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('src', value);
   }
 
+  /**
+   * Application bare module name
+   * @attr
+   * @reflect
+   * @type {string}
+   */
   get import() {
     const value = this.getAttribute('import');
     return value === null ? '' : value;
@@ -251,6 +311,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('import', value);
   }
 
+  /**
+   * Application source code
+   * @attr
+   * @reflect
+   * @type {string}
+   */
   get text() {
     return this.getAttribute('text') || '';
   }
@@ -259,22 +325,36 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('text', value);
   }
 
+  /** @ignore */
   get timeouts() {
-    return this[TIMEOUTS] || this.constructor.timeouts;
+    if (!this[TIMEOUTS]) {
+      this[TIMEOUTS] = { ...this.constructor.timeouts };
+    }
+    return this[TIMEOUTS];
   }
 
+  /** @ignore */
   set timeouts(value) {
     this[TIMEOUTS] = value;
   }
 
+  /**
+   * Create application dependent objects
+   * @returns {WebWidgetDependencies}
+   */
   createDependencies() {
     return new WebWidgetDependencies(this);
   }
 
+  /** @ignore */
   createSandbox() {
     return new WebWidgetSandbox(this);
   }
 
+  /**
+   * Create the application's render node
+   * @returns {HTMLElement}
+   */
   createRenderRoot() {
     let renderRoot;
     const { sandboxed, sandbox } = this;
@@ -293,6 +373,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return renderRoot;
   }
 
+  /**
+   * Create application loader
+   * @returns {function}
+   */
   async createLoader() {
     const { type } = this;
     const loader = this.constructor.loaders.get(type);
@@ -304,30 +388,55 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return loader(this);
   }
 
+  /**
+   * Trigger the loading of the application
+   * @returns {Promise}
+   */
   async load() {
     await this[TRIGGER]('load');
   }
 
+  /**
+   * Trigger the bootstrapping of the application
+   * @returns {Promise}
+   */
   async bootstrap() {
     await this[TRIGGER]('bootstrap');
   }
 
+  /**
+   * Trigger the mounting of the application
+   * @returns {Promise}
+   */
   async mount() {
     await this[TRIGGER]('mount');
   }
 
+  /**
+   * Trigger the updating of the application
+   * @param   {object}   properties
+   * @returns {Promise}
+   */
   async update(properties = {}) {
     const dependencies = this.dependencies || {};
     Object.assign(dependencies, properties);
     await this[TRIGGER]('update');
   }
 
+  /**
+   * Trigger the unmounting of the application
+   * @returns {Promise}
+   */
   async unmount() {
     const portals = this.portals || [];
     await this[TRIGGER]('unmount');
     await Promise.all(portals.map(widget => widget.unmount()));
   }
 
+  /**
+   * Trigger the unloading of the application
+   * @returns {Promise}
+   */
   async unload() {
     const portals = this.portals || [];
     const dependencies = this.dependencies || {};
@@ -394,6 +503,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this[TRY_AUTO_UNLOAD]();
   }
 
+  /** @ignore */
   [TRY_AUTO_LOAD]() {
     this[TRY_AUTO_LOAD_TIMER] = setTimeout(() => {
       if (isAutoLoad(this)) {
@@ -403,6 +513,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     });
   }
 
+  /** @ignore */
   [TRY_AUTO_UNLOAD]() {
     this[TRY_AUTO_UNLOAD_TIMER] = setTimeout(() => {
       if (isAutoUnload(this)) {
@@ -415,10 +526,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     });
   }
 
+  /** @ignore */
   [TRIGGER](name) {
     return this[APPLICATION_SERVICE].trigger(name, [this.dependencies]);
   }
 
+  /** @ignore */
   [STATECHANGE_CALLBACK]() {
     const state = this.state;
     if (
@@ -454,6 +567,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
+  /** @ignore */
   [PARENT_WIDGET]() {
     const parentWidgetElement = getParentNode(this, this.constructor);
     if (parentWidgetElement) {
@@ -462,6 +576,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return null;
   }
 
+  /** @ignore */
   [THROW_GLOBAL_ERROR](error) {
     const applicationName =
       this.name || this.import || this.src || this.localName;
@@ -487,33 +602,42 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return ['data', 'import', 'src', 'text', 'inactive'];
   }
 
+  /**
+   * Destination registration
+   * @type {object}
+   */
   static get portalDestinations() {
     return globalPortalDestinations;
   }
 
+  /** @ignore */
   static get loaders() {
     return globalLoaders;
   }
 
+  /** @ignore */
   static get timeouts() {
     return globalTimeouts;
   }
 
+  /**
+   * Global timeout settings
+   * @type {object}
+   */
   static set timeouts(value) {
     globalTimeouts = value;
   }
 }
 
-export function bootstrap() {
-  customElements.define(LOCAL_NAME, HTMLWebWidgetElement);
-  document.querySelectorAll(`[is=${LOCAL_NAME}]`).forEach(updateElement);
-  autoUpdateElement(document);
-}
-
 Object.assign(HTMLWebWidgetElement, status);
 globalLoaders.define('module', moduleLoader);
-
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
+
+export function bootstrap() {
+  customElements.define('web-widget', HTMLWebWidgetElement);
+  document.querySelectorAll(`[is=web-widget]`).forEach(updateElement);
+  autoUpdateElement(document);
+}
 
 if (window.WEB_WIDGET_BOOTSTRAP !== false) {
   bootstrap();

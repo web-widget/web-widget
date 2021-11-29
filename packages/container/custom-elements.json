@@ -1,0 +1,511 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/HTMLWebWidgetElement.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "HTMLWebWidgetElement",
+          "members": [
+            {
+              "kind": "field",
+              "name": "application",
+              "description": "Register a local application",
+              "type": {
+                "text": "function"
+              },
+              "return": {
+                "type": {
+                  "text": "Promise"
+                }
+              }
+            },
+            {
+              "kind": "field",
+              "name": "csp",
+              "description": "Application content security policy",
+              "reflects": true,
+              "type": {
+                "text": "string"
+              },
+              "attribute": "csp"
+            },
+            {
+              "kind": "field",
+              "name": "data",
+              "description": "Application data",
+              "type": {
+                "text": "(object|array)"
+              },
+              "attribute": "data"
+            },
+            {
+              "kind": "field",
+              "name": "inactive",
+              "description": "Whether the application is inactive",
+              "reflects": true,
+              "type": {
+                "text": "boolean"
+              },
+              "attribute": "inactive"
+            },
+            {
+              "kind": "field",
+              "name": "loading",
+              "description": "Indicates how the browser should load the application",
+              "reflects": true,
+              "type": {
+                "text": "string"
+              },
+              "attribute": "loading"
+            },
+            {
+              "kind": "field",
+              "name": "type",
+              "description": "Application module type",
+              "reflects": true,
+              "type": {
+                "text": "string"
+              },
+              "attribute": "type"
+            },
+            {
+              "kind": "field",
+              "name": "state",
+              "description": "Application status",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "sandboxed",
+              "description": "Whether to enable sandbox mode",
+              "reflects": true,
+              "type": {
+                "text": "boolean"
+              },
+              "attribute": "sandboxed"
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "description": "Application name",
+              "reflects": true,
+              "type": {
+                "text": "string"
+              },
+              "attribute": "name"
+            },
+            {
+              "kind": "field",
+              "name": "src",
+              "description": "Application URL",
+              "reflects": true,
+              "type": {
+                "text": "string"
+              },
+              "attribute": "src"
+            },
+            {
+              "kind": "field",
+              "name": "import",
+              "description": "Application bare module name",
+              "reflects": true,
+              "type": {
+                "text": "string"
+              },
+              "attribute": "import"
+            },
+            {
+              "kind": "field",
+              "name": "text",
+              "description": "Application source code",
+              "reflects": true,
+              "type": {
+                "text": "string"
+              },
+              "attribute": "text"
+            },
+            {
+              "kind": "method",
+              "name": "createDependencies",
+              "description": "Create application dependent objects",
+              "return": {
+                "type": {
+                  "text": "WebWidgetDependencies"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "createRenderRoot",
+              "description": "Create the application's render node",
+              "return": {
+                "type": {
+                  "text": "HTMLElement"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "createLoader",
+              "description": "Create application loader",
+              "return": {
+                "type": {
+                  "text": "function"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "load",
+              "description": "Trigger the loading of the application",
+              "return": {
+                "type": {
+                  "text": "Promise"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "bootstrap",
+              "description": "Trigger the bootstrapping of the application",
+              "return": {
+                "type": {
+                  "text": "Promise"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "mount",
+              "description": "Trigger the mounting of the application",
+              "return": {
+                "type": {
+                  "text": "Promise"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "update",
+              "parameters": [
+                {
+                  "name": "properties",
+                  "default": "{}",
+                  "type": {
+                    "text": "object"
+                  }
+                }
+              ],
+              "description": "Trigger the updating of the application",
+              "return": {
+                "type": {
+                  "text": "Promise"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "unmount",
+              "description": "Trigger the unmounting of the application",
+              "return": {
+                "type": {
+                  "text": "Promise"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "unload",
+              "description": "Trigger the unloading of the application",
+              "return": {
+                "type": {
+                  "text": "Promise"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "firstConnectedCallback"
+            },
+            {
+              "kind": "method",
+              "name": "destroyedCallback"
+            },
+            {
+              "kind": "field",
+              "name": "portalDestinations",
+              "static": true,
+              "description": "Destination registration",
+              "type": {
+                "text": "object"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "timeouts",
+              "static": true,
+              "description": "Global timeout settings",
+              "type": {
+                "text": "object"
+              }
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "Event"
+              },
+              "name": "statechange"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "data",
+              "description": "Application data",
+              "type": {
+                "text": "(object|array)"
+              },
+              "fieldName": "data"
+            },
+            {
+              "name": "import",
+              "description": "Application bare module name",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "import"
+            },
+            {
+              "name": "src",
+              "description": "Application URL",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "src"
+            },
+            {
+              "name": "text",
+              "description": "Application source code",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "text"
+            },
+            {
+              "name": "inactive",
+              "description": "Whether the application is inactive",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "inactive"
+            },
+            {
+              "name": "csp",
+              "description": "Application content security policy",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "csp"
+            },
+            {
+              "name": "loading",
+              "description": "Indicates how the browser should load the application",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "loading"
+            },
+            {
+              "name": "type",
+              "description": "Application module type",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "type"
+            },
+            {
+              "name": "sandboxed",
+              "description": "Whether to enable sandbox mode",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "sandboxed"
+            },
+            {
+              "name": "name",
+              "description": "Application name",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "name"
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "summary": "Web Widget Container",
+          "tagName": "web-widget",
+          "customElement": true
+        },
+        {
+          "kind": "function",
+          "name": "bootstrap"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "HTMLWebWidgetElement",
+          "declaration": {
+            "name": "HTMLWebWidgetElement",
+            "module": "src/HTMLWebWidgetElement.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "bootstrap",
+          "declaration": {
+            "name": "bootstrap",
+            "module": "src/HTMLWebWidgetElement.js"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "web-widget",
+          "declaration": {
+            "name": "HTMLWebWidgetElement",
+            "module": "src/HTMLWebWidgetElement.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/WebWidgetDependencies.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "WebWidgetDependencies",
+          "members": [
+            {
+              "kind": "field",
+              "name": "container"
+            },
+            {
+              "kind": "field",
+              "name": "context"
+            },
+            {
+              "kind": "field",
+              "name": "createPortal"
+            },
+            {
+              "kind": "field",
+              "name": "data"
+            },
+            {
+              "kind": "field",
+              "name": "parameters"
+            },
+            {
+              "kind": "field",
+              "name": "name"
+            },
+            {
+              "kind": "field",
+              "name": "sandboxed"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "WebWidgetDependencies",
+          "declaration": {
+            "name": "WebWidgetDependencies",
+            "module": "src/WebWidgetDependencies.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/WebWidgetSandbox.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "WebWidgetSandbox",
+          "members": [
+            {
+              "kind": "method",
+              "name": "unload"
+            },
+            {
+              "kind": "field",
+              "name": "window"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "WebWidgetSandbox",
+          "declaration": {
+            "name": "WebWidgetSandbox",
+            "module": "src/WebWidgetSandbox.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/index.js",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "HTMLWebWidgetElement",
+          "declaration": {
+            "name": "HTMLWebWidgetElement",
+            "module": "./HTMLWebWidgetElement.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "bootstrap",
+          "declaration": {
+            "name": "bootstrap",
+            "module": "./HTMLWebWidgetElement.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "WebWidgetDependencies",
+          "declaration": {
+            "name": "WebWidgetDependencies",
+            "module": "./WebWidgetDependencies.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "WebWidgetSandbox",
+          "declaration": {
+            "name": "WebWidgetSandbox",
+            "module": "./WebWidgetSandbox.js"
+          }
+        }
+      ]
+    }
+  ]
+}
