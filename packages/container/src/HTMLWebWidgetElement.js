@@ -58,34 +58,50 @@ function removeLazyLoad(view) {
   lazyObserver.unobserve(view);
 }
 
-function updateElement(target) {
-  const alias = target.localName;
-  if (alias.includes('-') && !customElements.get(alias)) {
-    // ignore analyze
-    const define = 'define';
-    // eslint-disable-next-line no-use-before-define
-    customElements[define](alias, class extends HTMLWebWidgetElement {});
-  }
-}
-
-function autoUpdateElement(documentOrShadowRoot) {
-  const tryUpdateElement = node =>
-    node.nodeType === Node.ELEMENT_NODE &&
-    node.getAttribute('is') === 'web-widget' &&
-    updateElement(node);
-  return new MutationObserver(mutationsList => {
-    mutationsList.forEach(({ type, target, addedNodes }) => {
-      if (type === 'attributes') {
-        tryUpdateElement(target);
-      } else {
-        addedNodes.forEach(node => tryUpdateElement(node));
-      }
-    });
-  }).observe(documentOrShadowRoot, {
+function watchWebWidgetAlias(context, callback) {
+  const name = 'web-widget';
+  callback(
+    [...context.querySelectorAll(`[is=${name}]`)].filter(element =>
+      element.localName.includes('-')
+    )
+  );
+  new MutationObserver(mutationsList => {
+    callback(
+      mutationsList
+        .reduce((accumulator, { type, target, addedNodes }) => {
+          if (type === 'attributes') {
+            accumulator.push(target);
+          } else {
+            accumulator.push(...addedNodes);
+          }
+          return accumulator;
+        }, [])
+        .filter(
+          node =>
+            node.nodeType === Node.ELEMENT_NODE &&
+            node.localName.includes('-') &&
+            node.getAttribute('is') === name
+        )
+    );
+  }).observe(context, {
     attributeFilter: ['is'],
     attributes: true,
     childList: true,
     subtree: true
+  });
+}
+
+function updateElement(context) {
+  watchWebWidgetAlias(context, elements => {
+    elements.forEach(target => {
+      const alias = target.localName;
+      if (!customElements.get(alias)) {
+        // ignore analyze
+        const define = 'define';
+        // eslint-disable-next-line no-use-before-define
+        customElements[define](alias, class extends HTMLWebWidgetElement {});
+      }
+    });
   });
 }
 
@@ -367,7 +383,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       renderRoot = sandboxDoc.body;
     } else {
       renderRoot = this.attachShadow({ mode: 'closed' });
-      autoUpdateElement(renderRoot);
+      updateElement(renderRoot);
     }
 
     return renderRoot;
@@ -635,8 +651,7 @@ window.HTMLWebWidgetElement = HTMLWebWidgetElement;
 
 export function bootstrap() {
   customElements.define('web-widget', HTMLWebWidgetElement);
-  document.querySelectorAll(`[is=web-widget]`).forEach(updateElement);
-  autoUpdateElement(document);
+  updateElement(document);
 }
 
 if (window.WEB_WIDGET_BOOTSTRAP !== false) {
