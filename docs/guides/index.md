@@ -1,12 +1,12 @@
 # 指南 || 10
 
-Web Widget 是一个运行 Web 前端的应用容器，它允许你将用户界面相关的逻辑以统一的方式封装起来，随时的、用不同渠道给客户提供直接可用的服务。
+Web Widget 是一个 Web 前端的应用容器，它允许你将用户界面相关的逻辑以统一的方式封装起来，变成立即可用的服务。
 
 ```html
 <web-widget src="app.widget.js"></web-widget>
 ```
 
-部署容器仅需要一个 4KB（gzip）的运行时文件。
+让上述应用容器启动仅需要增加一个 4KB（gzip）的 JavaScript 文件。
 
 了解[设计 Web Widget 的动机](../discover/about.md)。
 
