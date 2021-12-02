@@ -113,24 +113,25 @@ export class HTMLWebWidgetElement extends HTMLElement {
   constructor() {
     super();
 
+    const view = this;
     const applicationService = new ApplicationService(
-      dependencies => {
-        if (!isResourceReady(this)) {
+      function (dependencies) {
+        if (!isResourceReady(view)) {
           throw new Error(`Cannot load: Not initialized`);
         }
 
-        const { application } = this;
-        this.sandbox =
-          this.sandbox || this.sandboxed ? this.createSandbox() : null;
-        this.renderRoot = null;
-        this.loader = application || this.createLoader.bind(this);
-        this.portals = [];
+        const { application } = view;
+        view.sandbox =
+          view.sandbox || view.sandboxed ? view.createSandbox() : null;
+        view.renderRoot = null;
+        view.loader = application || view.createLoader();
+        view.portals = [];
 
-        if (this.sandboxed && !this.sandbox.window) {
+        if (view.sandboxed && !view.sandbox.window) {
           throw new Error(`Sandbox mode is not implemented`);
         }
 
-        return this.loader(dependencies);
+        return view.loader.call(this, dependencies);
       },
       () => {
         const dependencies = this.createDependencies();
@@ -393,7 +394,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Create application loader
    * @returns {function}
    */
-  async createLoader() {
+  createLoader() {
     const { type } = this;
     const loader = this.constructor.loaders.get(type);
 
@@ -401,7 +402,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       throw Error(`Loader is not defined: ${type}`);
     }
 
-    return loader(this);
+    return () => loader(this);
   }
 
   /**

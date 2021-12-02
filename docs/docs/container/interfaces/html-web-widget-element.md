@@ -206,7 +206,7 @@ defineHook(HTMLWebWidgetElement.prototype, 'createLoader', ({ value }) => ({
       new Blob([text], { type: 'application/javascript' })
     );
 
-    return System.import(src).then(
+    return () => System.import(src).then(
       module => {
         URL.revokeObjectURL(src);
         return module.default || module;

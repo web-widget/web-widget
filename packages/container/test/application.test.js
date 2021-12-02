@@ -788,6 +788,61 @@ describe('Application lifecycle: error', () => {
     ));
 });
 
+describe('Application lifecycle: this', () => {
+  it('Lifecycle function should have `this` object', () =>
+    createBaseContainer(
+      {
+        application() {
+          let current = this;
+          const message =
+            'The context objects of life cycle functions should be the same';
+          if (!current) {
+            throw new Error('Context cannot be empty');
+          }
+          return {
+            async bootstrap() {
+              if (current !== this) {
+                throw new Error(message);
+              }
+              current = this;
+            },
+            async mount() {
+              if (current !== this) {
+                throw new Error(message);
+              }
+              current = this;
+            },
+            async update() {
+              if (current !== this) {
+                throw new Error(message);
+              }
+              current = this;
+            },
+            async unmount() {
+              if (current !== this) {
+                throw new Error(message);
+              }
+              current = this;
+            },
+            async unload() {
+              if (current !== this) {
+                throw new Error(message);
+              }
+              current = this;
+            }
+          };
+        }
+      },
+      async ({ bootstrap, mount, update, unmount, unload }) => {
+        await bootstrap();
+        await mount();
+        await update();
+        await unmount();
+        await unload();
+      }
+    ));
+});
+
 describe('Application lifecycle: timeout', () => {
   const timeout = 50;
   defineTimeouts({
