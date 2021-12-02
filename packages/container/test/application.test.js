@@ -840,6 +840,35 @@ describe('Application lifecycle: dependencies', () => {
         await unload();
       }
     ));
+
+  it('Should have members', () =>
+    createBaseContainer(
+      {
+        application() {
+          return {
+            async bootstrap(dependencies) {
+              const expected = [
+                'container',
+                'context',
+                'createPortal',
+                'data',
+                'name',
+                'parameters',
+                'sandboxed'
+              ];
+              expected.forEach(key => {
+                if (!(key in dependencies)) {
+                  throw new Error(`"${key}" not found`);
+                }
+              });
+            }
+          };
+        }
+      },
+      async ({ bootstrap }) => {
+        await bootstrap();
+      }
+    ));
 });
 
 describe('Application lifecycle: this', () => {

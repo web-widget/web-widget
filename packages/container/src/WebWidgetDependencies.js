@@ -85,6 +85,10 @@ export class WebWidgetDependencies {
     this.ownerElement.data = value;
   }
 
+  get name() {
+    return this.ownerElement.name;
+  }
+
   get parameters() {
     return [...this.ownerElement.attributes].reduce(
       (accumulator, { name, value }) => {
@@ -93,10 +97,6 @@ export class WebWidgetDependencies {
       },
       {}
     );
-  }
-
-  get name() {
-    return this.ownerElement.name;
   }
 
   get sandboxed() {
