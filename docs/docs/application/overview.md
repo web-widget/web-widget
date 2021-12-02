@@ -10,11 +10,15 @@ eleventyNavigation:
 
 应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件。
 
-Web Widget 应用被设计为一种独立的格式，它是一种和 UI 框架无关的的插件抽象、和具体的应用容器没有直接关系，你甚至可以根据此文档定义的格式来实现自己的应用容器，而不必引入 Web Widget。
+Web Widget 应用被设计为一种独立的格式，它是一种和具体 UI 框架无关的设计模式层面的抽象，这样的设计模式被流行的微前端 [single-spa](https://single-spa.js.org/) 框架在多种项目中深入的实践，它足够的稳定，经得起时间的考验。
+
+在 UI 框架无关的基础上，这份抽象做到了应用容器无关，包括 Web Widget、[single-spa](https://single-spa.js.org/)，因此你完全可以根据此抽象实现自己的应用容器而不必依赖 Web Widget 技术设施。
 
 ## 格式
 
-入口文件支持定义如下生命周期函数：
+### 入口文件
+
+入口文件导出了符合约定的生命周期函数：
 
 ```js
 export default () => ({
@@ -40,7 +44,7 @@ export async function unload(props) {}
 * 生命周期函数必须返回 `promise`（建议使用 `async` 函数保证这一点）
 * 生命周期函数第一个 `props` 参数接收应用内置的[接口](./interface.md)
 
-## 生命周期
+### 执行顺序
 
 应用容器负责执行应用，它遵循生命周期函数调用的顺序：
 
@@ -56,7 +60,7 @@ export async function unload(props) {}
 └─────────────────────────────────────────────────┘
 ```
 
-## 应用接口
+### 应用接口
 
 应用除了可以使用 BOM 环境提供的 Web 标准接口之外，也有自己的专属接口，应用专属的接口将通过生命周期函数参数进行注入。
 
@@ -91,7 +95,7 @@ export default () => ({
 
 ### `bootstrap`
 
-初始化生命周期函数会在应用第一次挂载前执行一次，可以用下载一些必要的资源。
+初始化生命周期函数会在应用第一次挂载前执行一次，可以用下载一些应用挂载之前必要的资源，例如外部 CSS 文件等。
 
 ```js
 export default () => ({
@@ -101,6 +105,8 @@ export default () => ({
   }
 });
 ```
+
+遵循 `bootstrap` 后，应用容器可以依次执行 `load` 与 `bootstrap` 来进行预加载的优化。
 
 ## 挂载
 
@@ -164,17 +170,15 @@ export default () => ({
 });
 ```
 
-----------
+---------------
 
-*感谢：*
+[single-spa](https://single-spa.js.org/) 是一个非常优秀的微前端解决方案，它对 Web Widget 的应用格式设计产生了关键影响，经过充分的思考后我们对 [single-spa](https://single-spa.js.org/) 进行了一些改进。变更差异：
 
-[single-spa](https://single-spa.js.org/) 是一个非常优秀的微前端解决方案，它对 Web Widget 的应用格式设计产生了关键影响。相对于 [single-spa](https://single-spa.js.org/) 应用格式的差异：
-
-* 支持 `export default () => ({/* life cycle */})` 形式，并且作为推荐的方式。因为容器通常支持多实例运行
-* 所有的生命周期函数都是可选的
+* 支持 `export default () => ({/* life cycle */})` 形式，并且作为推荐的方式——因为应用应当默认支持多实例运行
+* 所有的生命周期函数都是可选的——我们认为这应该交给应用容器来进行容错处理
 * 明确定义了获取渲染目标的接口 [`container`](./interface.md#container)
-* 明确定义获取数据的接口 [`data`](./interface.md#data)。以便外部能够编辑、序列化、存储应用数据
-* 没有 `singleSpa` 接口。因为它导致和具体的容器实现耦合
-* 没有 `mountParcel` 接口。Web Widget 的应用格式抽象了 [single-spa](https://single-spa.js.org/) 中 `application` 与 `parcel` 的概念，因此无须再保留 `parcel` 概念
-* 不支持 `timeouts` 配置
-* 生命周期函数不支持数组形式
+* 明确定义获取数据的接口 [`data`](./interface.md#data)——以便外部能够编辑、序列化、存储应用数据
+* 没有 `singleSpa` 接口——因为它导致和具体的容器实现耦合
+* 没有 `mountParcel` 接口——Web Widget 的应用格式抽象了 [single-spa](https://single-spa.js.org/) 中 `application` 与 `parcel` 的概念，因此无须再保留 `parcel` 概念
+* 不支持 `timeouts` 配置——这是应用容器的职责
+* 生命周期函数不支持数组形式——因为可以使用 `Promise.all()` 代替它
