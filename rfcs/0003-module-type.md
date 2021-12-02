@@ -64,7 +64,7 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
       new Blob([text], { type: 'application/javascript' })
     );
 
-    return System.import(src).then(
+    return () => System.import(src).then(
       module => {
         URL.revokeObjectURL(src);
         return module.default || module;

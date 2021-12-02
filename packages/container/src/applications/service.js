@@ -4,12 +4,13 @@ import { reasonableTime } from './timeouts.js';
 import { rules } from './flow.js';
 
 const SET_STATE = Symbol('setState');
+
 export class ApplicationService {
   constructor(loader, dependencies, timeouts) {
-    this.loader = loader;
     this.timeouts = timeouts;
     this.state = INITIAL;
     this.lifecycles = Object.create(null);
+    this.loader = loader.bind(this.lifecycles);
     this.getDependencies = () => {
       if (typeof dependencies === 'function') {
         dependencies = dependencies();
