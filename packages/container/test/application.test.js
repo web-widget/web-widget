@@ -788,16 +788,69 @@ describe('Application lifecycle: error', () => {
     ));
 });
 
+describe('Application lifecycle: dependencies', () => {
+  it('All lifecycle function injection dependencies should be the same', () =>
+    createBaseContainer(
+      {
+        application(dependencies) {
+          let current = dependencies;
+          const message = 'Not equal';
+          if (!current) {
+            throw new Error('Unexpectedly empty');
+          }
+          return {
+            async bootstrap(dependencies) {
+              if (current !== dependencies) {
+                throw new Error(message);
+              }
+              current = dependencies;
+            },
+            async mount(dependencies) {
+              if (current !== dependencies) {
+                throw new Error(message);
+              }
+              current = dependencies;
+            },
+            async update(dependencies) {
+              if (current !== dependencies) {
+                throw new Error(message);
+              }
+              current = dependencies;
+            },
+            async unmount(dependencies) {
+              if (current !== dependencies) {
+                throw new Error(message);
+              }
+              current = dependencies;
+            },
+            async unload(dependencies) {
+              if (current !== dependencies) {
+                throw new Error(message);
+              }
+              current = dependencies;
+            }
+          };
+        }
+      },
+      async ({ bootstrap, mount, update, unmount, unload }) => {
+        await bootstrap();
+        await mount();
+        await update();
+        await unmount();
+        await unload();
+      }
+    ));
+});
+
 describe('Application lifecycle: this', () => {
-  it('Lifecycle function should have `this` object', () =>
+  it('The `this` object of all lifecycle functions should be the same', () =>
     createBaseContainer(
       {
         application() {
           let current = this;
-          const message =
-            'The context objects of life cycle functions should be the same';
+          const message = 'Not equal';
           if (!current) {
-            throw new Error('Context cannot be empty');
+            throw new Error('Unexpectedly empty');
           }
           return {
             async bootstrap() {
@@ -844,21 +897,21 @@ describe('Application lifecycle: this', () => {
 });
 
 describe('Application lifecycle: timeout', () => {
-  const timeout = 50;
-  defineTimeouts({
-    bootstrap: timeout
-  });
-
-  function delay(time) {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve();
-      }, time);
+  it('Timeout should be handled correctly', () => {
+    const timeout = 50;
+    defineTimeouts({
+      bootstrap: timeout
     });
-  }
 
-  it('bootstrap', () =>
-    createBaseContainer(
+    function delay(time) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve();
+        }, time);
+      });
+    }
+
+    return createBaseContainer(
       {
         application: () => ({
           async bootstrap() {
@@ -872,5 +925,6 @@ describe('Application lifecycle: timeout', () => {
           () => Promise.resolve()
         );
       }
-    ));
+    );
+  });
 });
