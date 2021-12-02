@@ -21,7 +21,7 @@ Web Widget 应用被设计为一种独立的格式，它是一种和具体 UI �
 入口文件导出了符合约定的生命周期函数：
 
 ```js
-export default () => ({
+export default (props) => ({
   async bootstrap(props) {},
   async mount(props) {},
   async update(props) {},
@@ -46,7 +46,7 @@ export async function unload(props) {}
 
 ### 执行顺序
 
-应用容器负责执行应用，它遵循生命周期函数调用的顺序：
+应用容器负责执行应用，它严格遵循生命周期的顺序进行调用：
 
 ```
                     ┌───────────────────┐
