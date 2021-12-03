@@ -1,5 +1,8 @@
 /* global window */
 
+const CONTEXT = Symbol('context');
+const CREATE_PORTAL = Symbol('createPortal');
+
 function createContext(view) {
   return {
     mount() {
@@ -31,49 +34,56 @@ export class WebWidgetDependencies {
   }
 
   get context() {
-    const view = this.ownerElement;
-    return createContext(view);
+    if (!this[CONTEXT]) {
+      this[CONTEXT] = createContext(this.ownerElement);
+    }
+
+    return this[CONTEXT];
   }
 
   get createPortal() {
-    return (widget, name) => {
-      const view = this.ownerElement;
-      const HTMLWebWidgetElement = view.constructor;
+    if (!this[CREATE_PORTAL]) {
+      this[CREATE_PORTAL] = (widget, name) => {
+        const view = this.ownerElement;
+        const HTMLWebWidgetElement = view.constructor;
 
-      const factory = HTMLWebWidgetElement.portalDestinations.get(name);
-      const portal = factory ? factory() : null;
+        const factory = HTMLWebWidgetElement.portalDestinations.get(name);
+        const portal = factory ? factory() : null;
 
-      if (!portal) {
-        throw new Error(`The portal cannot be found: ${name}`);
-      }
+        if (!portal) {
+          throw new Error(`The portal cannot be found: ${name}`);
+        }
 
-      if (!(portal instanceof HTMLWebWidgetElement)) {
-        throw new Error(
-          `Portal must be an instance of "HTMLWebWidgetElement": ${name}`
-        );
-      }
+        if (!(portal instanceof HTMLWebWidgetElement)) {
+          throw new Error(
+            `Portal must be an instance of "HTMLWebWidgetElement": ${name}`
+          );
+        }
 
-      if (this.sandboxed && !widget.isConnected) {
-        // Start the sandbox in the current scope
-        this.container.appendChild(widget);
-      }
+        if (this.sandboxed && !widget.isConnected) {
+          // Start the sandbox in the current scope
+          this.container.appendChild(widget);
+        }
 
-      if (!widget.slot) {
-        widget.slot = '';
-      }
+        if (!widget.slot) {
+          widget.slot = '';
+        }
 
-      const oldWidget = portal.querySelector(`[slot="${widget.slot}"]`);
+        const oldWidget = portal.querySelector(`[slot="${widget.slot}"]`);
 
-      if (oldWidget) {
-        portal.removeChild(oldWidget);
-      }
+        if (oldWidget) {
+          portal.removeChild(oldWidget);
+        }
 
-      portal.appendChild(widget);
-      portal.mount();
-      view.portals.push(portal);
+        portal.appendChild(widget);
+        portal.mount();
+        view.portals.push(portal);
 
-      return createContext(portal);
-    };
+        return createContext(portal);
+      };
+    }
+
+    return this[CREATE_PORTAL];
   }
 
   get data() {
@@ -104,40 +114,5 @@ export class WebWidgetDependencies {
     return sandboxed;
   }
 }
-
-const cache = new WeakMap();
-function memoize(func) {
-  return function () {
-    let contextCache = cache.get(this);
-    if (!contextCache) {
-      contextCache = new WeakMap();
-      cache.set(this, contextCache);
-    }
-
-    if (contextCache.has(func)) {
-      return contextCache.get(func);
-    }
-
-    const result = func.apply(this, arguments);
-    contextCache.set(func, result);
-
-    return result;
-  };
-}
-
-function defineHook(target, name, callback) {
-  return Reflect.defineProperty(
-    target,
-    name,
-    callback(Reflect.getOwnPropertyDescriptor(target, name))
-  );
-}
-
-['container', 'context', 'createPortal', 'name'].forEach(name => {
-  defineHook(WebWidgetDependencies.prototype, name, descriptor => {
-    descriptor.get = memoize(descriptor.get);
-    return descriptor;
-  });
-});
 
 window.WebWidgetDependencies = WebWidgetDependencies;
