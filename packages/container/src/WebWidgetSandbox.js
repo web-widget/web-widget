@@ -1,4 +1,5 @@
 /* global window */
+/** @ignore */
 export class WebWidgetSandbox {
   constructor(ownerElement) {
     Reflect.defineProperty(this, 'ownerElement', {
