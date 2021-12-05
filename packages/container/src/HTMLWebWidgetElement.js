@@ -187,22 +187,22 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @type {(object|array)}
    */
   get data() {
-    if (this[DATA] !== undefined) {
-      return this[DATA];
-    }
+    if (!this[DATA]) {
+      const dataAttr = this.getAttribute('data');
 
-    const dataAttr = this.getAttribute('data');
-
-    if (dataAttr) {
-      try {
-        this[DATA] = JSON.parse(dataAttr);
-        return this[DATA];
-      } catch (error) {
-        this[THROW_GLOBAL_ERROR](error);
+      if (dataAttr) {
+        try {
+          this[DATA] = JSON.parse(dataAttr);
+        } catch (error) {
+          this[THROW_GLOBAL_ERROR](error);
+          this[DATA] = {};
+        }
+      } else {
+        this[DATA] = { ...this.dataset };
       }
     }
 
-    return this.dataset;
+    return this[DATA];
   }
 
   set data(value) {
