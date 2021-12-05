@@ -397,33 +397,75 @@
           "members": [
             {
               "kind": "field",
-              "name": "container"
+              "name": "container",
+              "description": "Render target",
+              "type": {
+                "text": "HTMLElement"
+              }
             },
             {
               "kind": "field",
-              "name": "context"
+              "name": "context",
+              "description": "Container context interface",
+              "type": {
+                "text": "object"
+              }
             },
             {
               "kind": "field",
-              "name": "createPortal"
+              "name": "createPortal",
+              "description": "Create a portal",
+              "parameters": [
+                {
+                  "description": "Web widget container",
+                  "name": "webWidgetElement",
+                  "type": {
+                    "text": "HTMLWebWidgetElement"
+                  }
+                },
+                {
+                  "description": "Destination name",
+                  "name": "name",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
             },
             {
               "kind": "field",
-              "name": "data"
+              "name": "data",
+              "description": "Application data",
+              "type": {
+                "text": "(object|array)"
+              }
             },
             {
               "kind": "field",
-              "name": "parameters"
+              "name": "name",
+              "description": "Application name",
+              "type": {
+                "text": "string"
+              }
             },
             {
               "kind": "field",
-              "name": "name"
+              "name": "parameters",
+              "description": "Application parameters",
+              "type": {
+                "text": "object"
+              }
             },
             {
               "kind": "field",
-              "name": "sandboxed"
+              "name": "sandboxed",
+              "description": "Sandbox mode",
+              "type": {
+                "text": "boolean"
+              }
             }
-          ]
+          ],
+          "summary": "Web Widget Dependency Injection"
         }
       ],
       "exports": [
@@ -440,33 +482,8 @@
     {
       "kind": "javascript-module",
       "path": "src/WebWidgetSandbox.js",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "WebWidgetSandbox",
-          "members": [
-            {
-              "kind": "method",
-              "name": "unload"
-            },
-            {
-              "kind": "field",
-              "name": "window"
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "WebWidgetSandbox",
-          "declaration": {
-            "name": "WebWidgetSandbox",
-            "module": "src/WebWidgetSandbox.js"
-          }
-        }
-      ]
+      "declarations": [],
+      "exports": []
     },
     {
       "kind": "javascript-module",

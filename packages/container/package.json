@@ -14,7 +14,7 @@
   },
   "scripts": {
     "analyze": "custom-elements-manifest analyze --globs src/*.js",
-    "build": "rm -rf dist && builder",
+    "build": "rm -rf dist && npm run analyze && builder",
     "build:watch": "builder --watch",
     "api-viewer": "web-dev-server --node-resolve --watch",
     "examples": "cd examples && web-dev-server --node-resolve --watch",

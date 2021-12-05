@@ -17,8 +17,16 @@ function createContext(view) {
   };
 }
 
+/**
+ * @summary Web Widget Dependency Injection
+ */
 export class WebWidgetDependencies {
   constructor(ownerElement) {
+    /**
+     * Owner element
+     * @name ownerElement
+     * @type {HTMLWebWidgetElement}
+     */
     Reflect.defineProperty(this, 'ownerElement', {
       get() {
         return ownerElement;
@@ -26,6 +34,10 @@ export class WebWidgetDependencies {
     });
   }
 
+  /**
+   * Render target
+   * @type {HTMLElement}
+   */
   get container() {
     const view = this.ownerElement;
     view.renderRoot = view.renderRoot || view.createRenderRoot();
@@ -33,6 +45,10 @@ export class WebWidgetDependencies {
     return view.renderRoot;
   }
 
+  /**
+   * Container context interface
+   * @type {object}
+   */
   get context() {
     if (!this[CONTEXT]) {
       this[CONTEXT] = createContext(this.ownerElement);
@@ -41,6 +57,12 @@ export class WebWidgetDependencies {
     return this[CONTEXT];
   }
 
+  /**
+   * Create a portal
+   * @function
+   * @param {HTMLWebWidgetElement}  webWidgetElement Web widget container
+   * @param {string}                name             Destination name
+   */
   get createPortal() {
     if (!this[CREATE_PORTAL]) {
       this[CREATE_PORTAL] = (widget, name) => {
@@ -86,6 +108,10 @@ export class WebWidgetDependencies {
     return this[CREATE_PORTAL];
   }
 
+  /**
+   * Application data
+   * @type {(object|array)}
+   */
   get data() {
     const data = this.ownerElement.data;
     return Array.isArray(data) ? [...data] : { ...data };
@@ -95,10 +121,18 @@ export class WebWidgetDependencies {
     this.ownerElement.data = value;
   }
 
+  /**
+   * Application name
+   * @type {string}
+   */
   get name() {
     return this.ownerElement.name;
   }
 
+  /**
+   * Application parameters
+   * @type {object}
+   */
   get parameters() {
     return [...this.ownerElement.attributes].reduce(
       (accumulator, { name, value }) => {
@@ -109,6 +143,10 @@ export class WebWidgetDependencies {
     );
   }
 
+  /**
+   * Sandbox mode
+   * @type {boolean}
+   */
   get sandboxed() {
     const { sandboxed } = this.ownerElement;
     return sandboxed;
