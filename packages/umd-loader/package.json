@@ -15,7 +15,7 @@
   "scripts": {
     "build": "rm -rf dist && builder",
     "build:watch": "builder --watch",
-    "examples": "cd examples && web-dev-server --node-resolve --watch",
+    "examples": "cd examples && server --watch",
     "test": "tester --coverage",
     "test:watch": "tester --watch"
   },
@@ -40,6 +40,6 @@
     "@web-widget/container": "^0.0.20",
     "@web-widget/sandbox": "^0.0.20",
     "@web-widget/tester": "^0.0.20",
-    "@web/dev-server": "^0.1.17"
+    "@web-widget/server": "^0.0.20"
   }
 }

@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && builder",
-    "examples": "cd examples && web-dev-server --node-resolve --watch"
+    "examples": "cd examples && server --watch"
   },
   "publishConfig": {
     "access": "public"
@@ -34,6 +34,6 @@
   "devDependencies": {
     "@web-widget/builder": "^0.0.20",
     "@web-widget/container": "^0.0.20",
-    "@web/dev-server": "^0.1.17"
+    "@web-widget/server": "^0.0.20"
   }
 }

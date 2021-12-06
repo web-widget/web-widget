@@ -16,8 +16,7 @@
     "analyze": "custom-elements-manifest analyze --globs src/*.js",
     "build": "rm -rf dist && npm run analyze && builder",
     "build:watch": "builder --watch",
-    "api-viewer": "web-dev-server --node-resolve --watch",
-    "examples": "cd examples && web-dev-server --node-resolve --watch",
+    "examples": "cd examples && server --watch",
     "test": "tester --coverage",
     "test:watch": "tester --watch"
   },
@@ -59,8 +58,6 @@
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web-widget/builder": "^0.0.20",
     "@web-widget/tester": "^0.0.20",
-    "@web/dev-server": "^0.1.25",
-    "@web/dev-server-rollup": "^0.3.11",
-    "api-viewer-element": "^0.5.0"
+    "@web-widget/server": "^0.0.20"
   }
 }
