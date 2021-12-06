@@ -27,7 +27,7 @@ export default () => {
         const app = document.createElement('web-widget');
         app.id = 'app-portal-demo';
         app.src = './lit-element-todomvc.widget.js';
-        createPortal(app, 'dialog')
+        createPortal(app, 'modalDialog')
           .mount()
           .then(() => {
             console.log('dialog opened');

@@ -1,10 +1,14 @@
-# 容器化 >> 优化 || 10
+# 容器化 >> 体验优化 || 10
+
+```js script
+import '@rocket/launch/inline-notification/inline-notification.js';
+```
 
 [AMP](https://amp.dev) 的性能优先的工程设计为 Web Widget 的诞生提供了很多灵感，它的优化策略对采用 Web Widget 的网站也同样有效，一些推荐设置：
 
 * HTML 中的布局、文本等关键元素通过服务器渲染，而 Web Widget 应用由浏览器渲染
 * HTML 中的布局、文本等关键元素的 CSS 样式内嵌入在页面中
-* 文本等需要支持 SEO 的内容使用插槽
+* 文本等需要支持 SEO 的内容[使用插槽](slot.md)
 * 为 Web Widget 容器预设置尺寸，避免渲染回流
 * 为 Web Widget 容器开启懒加载
 * 为 Web Widget 容器提供占位符
@@ -15,27 +19,30 @@
 
 ## 懒加载
 
-类似 `<img>` 标签，使用 `loading="lazy"` 属性可以让元素进入视图才加载。
+类似 `<img>` 标签，使用 `loading="lazy"` 属性可以让用户即将看到的时候才加载，而不会占用网络请求。
 
 ```html
-<web-widget src="./app.widget.js" loading="lazy"></web-widget>
+<web-widget src="app.widget.js" loading="lazy"></web-widget>
 ```
 
 ## 占位符
 
-`<web-widget>` 元素的直接子元素 `<placeholder>` 标签将充当占位符。
+`<placeholder>` 元素将充当 Web Widget 容器的占位符号。用途：
+
+* 预览图片或文本
+* 骨架占位或 loading 动画
 
 ```html
-<web-widget src="./app.widget.js">
+<web-widget src="app.widget.js">
   <placeholder>
-    loading..
+    <img src="preview.jpg" />
   </placeholder>
 </web-widget>
 ```
 
 ## 后备
 
-`fallback` 元素将充当 Web Widget 容器的后备占位符号。用途：
+`<fallback>` 元素将充当 Web Widget 容器的后备占位符号。用途：
 
 * 浏览器不支持某个元素
 * 内容未能加载（例如，推文被删除）
@@ -49,61 +56,11 @@
 </web-widget>
 ```
 
-## 插槽
+当 Web Widget 应用变更为以下任意状态将会触发 `fallback` 元素显示：
 
-使用 `slot` 属性可以将元素在应用指定的位置渲染（渲染的位置由应用定义）：
-
-```html
-<web-widget src="./app.widget.js">
-  <span slot="title">hello</span>
-  <span slot="content">Let's have some different text!</span>
-</web-widget>
-```
-
-```js
-// app.widget.js
-export default () => ({
-  async mount({ container }) {
-    container.innerHTML = `
-      <h3><slot name="title"></slot></h3>
-      <div><slot name="content"></slot></div>
-    `;
-  },
-
-  async unmount({ container }) {
-    container.innerHTML = '';
-  }
-});
-```
-
-## 主题
-
-应用通过 `:host()` 选择器可以实现主题的定义，容器可以控制切换主题。例如使用 `theme` 属性来切换主题：
-
-```html
-<web-widget theme="my-theme" src="app.widget.js"></web-widget>
-```
-
-```js
-// app.widget.js
-export default () => ({
-  async mount({ container }) {
-    container.innerHTML = `
-      <style>
-        :host([theme=my-theme]) h3 {
-          color: #FFF;
-          background: #000;
-        }
-      </style>
-      <h3>hello world</h3>
-    `;
-  },
-
-  async unmount({ container }) {
-    container.innerHTML = '';
-  }
-});
-```
+* `load-error`
+* `bootstrap-error`
+* `mount-error`
 
 ## 搜索引擎优化
 
@@ -111,6 +68,12 @@ export default () => ({
 
 * 使用 [Light DOM](https://developers.google.com/web/fundamentals/web-components/shadowdom#lightdom) 来描述关键内容
 * 使用 [JSON-LD](https://json-ld.org/) 描述关键内容
+
+<inline-notification type="tip">
+
+Web Widget 容器的 SSR 渲染服务即将推出。
+
+</inline-notification>
 
 ## 预加载
 

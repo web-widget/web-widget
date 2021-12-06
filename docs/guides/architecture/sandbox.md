@@ -18,12 +18,28 @@ npm install --save @web-widget/sandbox
 
 ## 使用
 
-开启 `sandboxed` 功能，并且设置[内容安全策略](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)。
+给 Web Widget 容器增加 `sandboxed` 属性即可启用沙盒。一旦沙盒被开启，能够让 Web Widget 应用的所有的操作限制在 `<web-widget>` 视图内，它的网络、本地存储等都将被管控，让不可信代码能够安全的运行。
+
+```html
+<web-widget src="app.widget.js" type="system" sandboxed>
+  <span slot="title">hello</span>
+  <span slot="content">Let's have some different text!</span>
+</web-widget>
+
+<script type="module">
+  import 'systemjs/s.js';
+  import '@web-widget/container';
+  import '@web-widget/system-loader';
+  import '@web-widget/sandbox';
+</script>
+```
+
+通过 `csp` 属性可以设置 [内容安全策略](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)，以白名单的方式允许一些功能。
 
 ```html
 <web-widget
   src="./app.widget.js"
-  type="umd"
+  type="system"
   sandboxed
   csp="
     default-src 'none';
@@ -32,12 +48,6 @@ npm install --save @web-widget/sandbox
     navigate-to 'self' web-sandbox.js.org;
   ">
 </web-widget>
-
-<script type="module">
-  import '@web-widget/container';
-  import '@web-widget/umd-loader';
-  import '@web-widget/sandbox';
-</script>
 ```
 
 更多请阅读 [Sandbox 插件文档](../../docs/container/plugins/sandbox.md)。

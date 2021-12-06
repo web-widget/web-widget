@@ -46,6 +46,8 @@ Web Widget 容器的 `import` 与 `src` 属性的不同：`import` 属性不会�
 
 `system` 格式被设计为 `esm` 的过渡格式，它解决了 `esm` [import maps](https://github.com/WICG/import-maps) 浏览器兼容性的问题。由于几乎所有的构建工具都支持输出 `system` 格式，因此我们推荐在生产环境中使用它，以便未来能够无缝过渡到 Web 标准。
 
+Web Widget 提供了 [System loader](../../docs/container/plugins/system-loader.md) 插件来支持 `system` 格式。
+
 ```html
 <script type="systemjs-importmap">
 {
@@ -67,5 +69,3 @@ import 'systemjs/s.js';
 import '@web-widget/container';
 import '@web-widget/system-loader';
 ```
-
-Web Widget 提供了 [System loader](../../docs/container/plugins/system-loader.md) 插件来支持 `system` 格式。

@@ -1,8 +1,12 @@
 # 应用开发 >> 开发 ||20
 
+```js script
+import '@rocket/launch/inline-notification/inline-notification.js';
+```
+
 浏览器在过去几年中得到了很大改进，现在可以使用浏览器的原生模块进行 Web Widget 应用开发，而无需复杂的构建工具。
 
-## Web Widget CLI
+## 项目生成器
 
 Web Widget CLI 是一个项目生成器，它为如下技术栈提供了可开箱即用的模板代码：
 
@@ -26,6 +30,16 @@ npm run dev
 ```
 
 当你编辑代码后，浏览器将自动重新加载。
+
+## 框架适配器
+
+我们提供了多种前端框架的适配器，以便将它们的组件包装成 Web Widget [应用格式](../../docs/application/overview.md)。
+
+<inline-notification type="tip">
+
+由于这部分文档尚未完工，因此我们推荐你使用项目生成器，它生成的项目直接配置好了适配器。
+
+</inline-notification>
 
 ## 裸模块导入
 

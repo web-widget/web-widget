@@ -4,13 +4,13 @@
 import '@rocket/launch/inline-notification/inline-notification.js';
 ```
 
-HTMLWebWidgetElement 是 `<web-widget>` [标签](../tag.md)的接口。
+HTMLWebWidgetElement 是 `<web-widget>` 标签的接口。
 
 ## application
 
 `function`
 
-设置应用的工厂函数。这是一种本地应用的注册方式，通常用于测试。
+设置应用的工厂函数。这是一种本地应用的注册方式。
 
 ```js
 const widget = document.createElement('web-widget');
@@ -314,10 +314,42 @@ widget.update(properties);
 定义传送门目的地：
 
 ```js
+import { HTMLWebWidgetElement } from '@web-widget/container';
+
+let dialog, dialogWidget;
 HTMLWebWidgetElement.portalDestinations.define('dialog', () => {
-  const dialogWidget = document.createElement('web-widget');
-  dialogWidget.src = './dialog.widget.js';
-  document.body.appendChild(dialogWidget);
+  // Single instance
+  if (!dialog) {
+    dialog = document.createElement('dialog');
+    dialogWidget = document.createElement('web-widget');
+
+    document.body.appendChild(dialog);
+    dialog.appendChild(dialogWidget);
+
+    dialogWidget.name = 'dialog';
+    dialogWidget.application = () => ({
+      async bootstrap({ container, context }) {
+        const dialogMain = document.createElement('slot');
+        const dialogCloseButton = document.createElement('button');
+
+        dialogCloseButton.innerText = 'close';
+        dialogCloseButton.onclick = () => context.unmount();
+
+        container.appendChild(dialogCloseButton);
+        container.appendChild(dialogMain);
+        dialog.addEventListener('close', () => {
+          context.unmount();
+        });
+      },
+      async mount() {
+        dialog.showModal();
+      },
+      async unmount() {
+        dialog.close();
+      }
+    });
+  }
+
   return dialogWidget;
 });
 ```
@@ -342,7 +374,7 @@ export async function mount({ container, createPortal }) {
 全局超时配置（实验性特性）。这是一个**静态属性**。
 
 ```js
-HTMLWebWidgetElement.timeout = {
+HTMLWebWidgetElement.timeouts = {
   load: 12000,
   bootstrap: 4000,
   mount: 3000,
@@ -367,54 +399,3 @@ widget.addEventListener('statechange', () => {
 document.body.appendChild(widget);
 ```
 
-## 例子
-
-### JS 区分元素是否定义
-
-```html
-<web-widget src="app.widget.js"></web-widget>
-
-<script type="module">
-  console.log('not defined');
-  customElements.whenDefined('web-widget').then(() => {
-    console.log('defined');
-  });
-
-  import('@web-widget/container');
-</script>
-```
-### 更新数据
-
-通过容器更新应用的数据：
-
-```js
-webWidgetElement.update({
-  data: {/*...*/}
-});
-```
-
-应用内部自更新：
-
-```js
-// app.widget.js
-export default () => ({
-  async mount({ data, context }) {
-    element.onclick = () => {
-      context.update(data);
-    }
-  }
-});
-```
-
-### 观察数据变化
-
-```js
-const { INITIAL, UPDATING, MOUNTED } = HTMLWebWidgetElement;
-let oldState = INITIAL;
-document.getElementById('widget').addEventListener('statechange', function() {
-  if (oldState === UPDATING && this.state === MOUNTED) {
-    console.log('data update', this.data);
-  }
-  oldState = this.state;
-});
-```

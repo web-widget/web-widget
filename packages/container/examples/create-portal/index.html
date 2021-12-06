@@ -47,43 +47,9 @@
 
   <script type="module">
     import '@web-widget/container';
+    import dialogPortal from './dialog-portal.js';
     
-    const dialog = document.createElement('dialog');
-    const widget = document.createElement('web-widget');
-    widget.name = 'dialog';
-    widget.inactive = true;
-    widget.application = () => ({
-      async bootstrap({ container, context }) {
-        console.log('dialog bootstrap')
-        const dialogMain = document.createElement('slot');
-        const dialogCloseButton = document.createElement('button');
-        dialogCloseButton.innerText = '✕';
-        dialogCloseButton.onclick = () => context.unmount();
-
-        container.appendChild(dialogCloseButton);
-        container.appendChild(dialogMain);
-
-        dialog.style = 'width: 800px; height: 600px';
-        dialog.addEventListener('close', () => {
-          context.unmount();
-        });
-      },
-      async mount() {
-        console.log('dialog mount')
-        dialog.show();
-      },
-      async unmount({ context }) {
-        console.log('dialog unmount')
-        dialog.close();
-      }
-    });
-
-    document.body.appendChild(dialog);
-    dialog.appendChild(widget);
-
-    HTMLWebWidgetElement.portalDestinations.define('dialog', () => {
-      return widget;
-    });
+    HTMLWebWidgetElement.portalDestinations.define('modalDialog', dialogPortal);
   </script>
 </body>
 

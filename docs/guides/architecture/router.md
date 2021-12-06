@@ -1,6 +1,16 @@
-# 容器化 >> 路由驱动 || 20
+# 容器化 >> 路由驱动 || 70
+
+```js script
+import '@rocket/launch/inline-notification/inline-notification.js';
+```
 
 引入路由后，我们可以通过 Web Widget 来架设渐进式的微前端架构。
+
+<inline-notification type="warning">
+
+Web Widget 的路由驱动的架构方案还处于试验性状态。
+
+</inline-notification>
 
 ## 安装
 
