@@ -1,4 +1,4 @@
-# 容器化 >> 子应用与传送门 || 50
+# 容器化 >> 唤起子应用 || 50
 
 ```js script
 import '@rocket/launch/inline-notification/inline-notification.js';
@@ -6,7 +6,9 @@ import '@rocket/launch/inline-notification/inline-notification.js';
 
 Web Widget 容器允许应用嵌套或者在容器外打开其他 Web Widget 应用，这些新打开的应用都称作子应用。
 
-## 挂载子应用
+Web Widget 容器在卸载或者移除之前都会检查子应用的状态，确保它们也跟随应用被卸载和移除。
+
+## 唤起子应用
 
 ```js
 export async function mount({ container }) {
@@ -27,12 +29,17 @@ export async function mount({ container }) {
 </web-widget>
 ```
 
-## 应用外打开子应用
+## 在外部唤起子应用
 
 由于每个 Web Widget 应用都具备明确的视图范围，而一些对话框组件通常需要工作在全局中，因此我们参考 React 设计了一个传送门的概念来解决这样的问题——当然，这需要得到容器宿主的允许。
 
 通过 `createPortal()` 可以创建一个传送门来传输应用到指定位置。
 
+<inline-notification type="warning">
+
+`createPortal()` 接口处于试验性状态。
+
+</inline-notification>
 
 ### 定义传送门
 
@@ -111,13 +118,3 @@ export async function mount({ container, createPortal }) {
   </web-widget>
 </web-widget>
 ```
-
-<inline-notification type="warning">
-
-`createPortal()` 接口处于试验性状态。
-
-</inline-notification>
-
-## 子应用生命周期
-
-Web Widget 容器在卸载或者移除之前都会检查子应用的状态，确保它们也跟随应用被卸载和移除。

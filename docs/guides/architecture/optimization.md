@@ -1,4 +1,4 @@
-# 容器化 >> 体验优化 || 10
+# 容器化 >> 可用性 || 10
 
 ```js script
 import '@rocket/launch/inline-notification/inline-notification.js';
