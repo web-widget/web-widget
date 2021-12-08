@@ -31,7 +31,7 @@ npm run dev
 
 当你编辑代码后，浏览器将自动重新加载。
 
-## 框架适配器
+## 使用框架适配器
 
 我们提供了多种前端框架的适配器，以便将它们的组件包装成 Web Widget [应用格式](../../docs/application/overview.md)。
 

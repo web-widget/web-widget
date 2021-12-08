@@ -12,7 +12,7 @@ import '@rocket/launch/inline-notification/inline-notification.js';
 
 # Web Widget 清单
 
-Web Widget 清单通常用于后端的管理系统获取信息或者增强可视化编辑器的能力，Web Widget 应用没有它也以工作，但有了它后可以让应用变得更强，例如可视化编辑、安全、性能等众多关键要素上！
+Web Widget 清单通常用于后端的管理系统获取信息或者增强可视化编辑器的能力，Web Widget 应用没有它也以工作，但有了它后可以让应用变得更强，例如可视化编辑、安全、性能等众多关键要素上有所突破！
 
 Github 上有一份专门用于发展此规范的[仓库](https://github.com/web-widget/web-widget-manifest)，它提供了 schema.d.ts 文件来描述此规范，而这篇文档尽量以简单的方式让你能够理解其中的关键部分。
 
@@ -211,6 +211,8 @@ Github 上有一份专门用于发展此规范的[仓库](https://github.com/web
 * 基本
   * 模板占位内容（SRG）
   * 外部共享依赖
+* 性能
+  * 重要的需要预加载的资源描述
 * 安全
   * 数据请求声明（CSP）
   * 沙盒化声明
