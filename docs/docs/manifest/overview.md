@@ -14,7 +14,7 @@ import '@rocket/launch/inline-notification/inline-notification.js';
 
 Web Widget 清单通常用于后端的管理系统获取信息或者增强可视化编辑器的能力，Web Widget 应用没有它也以工作，但有了它后可以让应用变得更强，例如可视化编辑、安全、性能等众多关键要素上有所突破！
 
-Github 上有一份专门用于发展此规范的[仓库](https://github.com/web-widget/web-widget-manifest)，它提供了 schema.d.ts 文件来描述此规范，而这篇文档尽量以简单的方式让你能够理解其中的关键部分。
+GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web-widget/web-widget-manifest)，它提供了 schema.d.ts 文件来描述此规范，而这篇文档尽量以简单的方式让你能够理解其中的关键部分。
 
 <inline-notification type="warning">
 
@@ -45,14 +45,16 @@ Github 上有一份专门用于发展此规范的[仓库](https://github.com/web
 
 ## 示例文件
 
-```json
+`web-widget.json`
+
+<pre>
 {
-  "schemaVersion": "0.0.1",
-  "name": "@gaoding-inc/demo-widget",
-  "displayName": "Web Widget Demo",
-  "version": "1.0.0",
-  "summary": "The Markdown to use for the main readme of this package.",
-  "icons": [
+  "<a href="#schemaversion">schemaVersion</a>": "0.0.1",
+  "<a href="#name">name</a>": "@gaoding-inc/demo-widget",
+  "<a href="#displayname">displayName</a>": "Web Widget Demo",
+  "<a href="#version">version</a>": "1.0.0",
+  "<a href="#summary">summary</a>": "The Markdown to use for the main readme of this package.",
+  "<a href="#icons">icons</a>": [
     {
       "src": "icon/lowres.webp",
       "sizes": "64x64",
@@ -67,46 +69,33 @@ Github 上有一份专门用于发展此规范的[仓库](https://github.com/web
       "sizes": "128x128"
     }
   ],
-  "path": "demo-widget.esm.js",
-  "fallbackPath": "demo-widget.system.js",
-  "slots": [
+  "<a href="#path">path</a>": "demo-widget.esm.js",
+  "<a href="#fallbackpath">fallbackPath</a>": "demo-widget.system.js",
+  "<a href="#slots">slots</a>": [
     {
       "name": "title",
       "summary": "Title slot"
     }
   ],
-  "cssParts": [],
-  "cssProperties": [
+  "<a href="#cssparts">cssParts</a>": [],
+  "<a href="#cssproperties">cssProperties</a>": [
     {
       "name": "--text-color",
-      "syntax": "<color>",
+      "syntax": "&lt;color&gt;",
       "default": "#ff0000",
       "summary": "Set text color"
     }
   ],
-  "data": {
-    "schema": {/* JSON Schema */},
-    "default": {
-      "checked": false,
-      "dimensions": {
-        "width": 5,
-        "height": 10
-      },
-      "id": 1,
-      "name": "A green door",
-      "price": 12.5,
-      "tags": [
-        "home",
-        "green"
-      ]
-    }
+  "<a href="#data">data</a>": {
+    "schema": {/* ..[JSON Schema] */},
+    "default": {/* ...[Default data] */}
   },
-  "dataUserInterface": {
+  "<a href="#datauserinterface">dataUserInterface</a>": {
     "path": "demo-options-ui.esm.js",
     "fallbackPath": "demo-options-ui.system.js"
   }
 }
-```
+</pre>
 
 ## 基本
 

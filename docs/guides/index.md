@@ -6,31 +6,23 @@ Web Widget 是一个 Web 前端的应用容器，它允许你将用户界面相�
 <web-widget src="app.widget.js"></web-widget>
 ```
 
-让上述应用容器启动仅需要增加一个 4KB（gzip）的 JavaScript 文件。
+运行时文件仅 4KB（gzip）。
 
-了解[设计 Web Widget 的动机](../discover/about.md)。
+* 原生支持 ES module、导入映射、Web components
+* 通过 system 插件实现 ES module 浏览器兼容
+* 支持运行 React、Vue、Lit 等组件
+* 能够工作在 React、Vue、Lit 等组件内部
+* 支持与可视化编辑器集成，编辑数据、主题、插槽
+* 能够与 Webpack 或 Vite 一起工作
+* 支持懒加载、预加载等工程优化手段
+* 支持在浏览器中自动更新、版本管理
+* 容器支持扩展新特性，以便与其他程序集成
+* 支持路由驱动
+* 支持安全运行第三方代码
 
-## 应用场景
+了解我们做这些事情的背后动机：[设计 Web Widget 的动机](../discover/about.md)。
 
-### 可视化编辑器中的物料系统
-
-将 Web Widget 技术体系作为落地页的物料系统方案，使得物料开发者不需要关心编辑器的 API 即可提供内容。
-
-### Web 应用插件系统
-
-对 Web Widget 进行扩展，注入插件所需要的的 API，提供良好的插件开发体验同时管理插件的副作用。
-
-### 个性化卡片信息流展示
-
-例如 [Google OneBox](https://en.ryte.com/wiki/Google_OneBox) 与[百度框计算](https://baike.baidu.com/item/%E6%A1%86%E8%AE%A1%E7%AE%97/9541258)，它们可以让你在输入“天气”的时候直接在搜索结果中呈现可互动的天气卡片，而 Web Widget 应用具备这样动态分发要求的关键要素。
-
-### 单页应用微前端工程架构
-
-基于 Web Widget 技术体系，将前端页面容器化，以便在 Web 工程中实施当今流行的微前端架构，从而屏蔽技术栈变更带来的不稳定因素、确保软件具备长久的生命。
-
-## 理解 Web Widget
-
-Web Widget 由如下三个关键部分组成：
+## 概念
 
 ### 应用
 
@@ -38,7 +30,7 @@ Web Widget 应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的小�
 
 ```js
 // app.widget.js
-export default () => ({
+export default (props) => ({
   async bootstrap(props) {},
   async mount(props) {},
   async update(props) {},
@@ -46,8 +38,6 @@ export default () => ({
   async unload(props) {}
 });
 ```
-
-详情见[应用文档](../docs/application/overview.md)。
 
 ### 容器
 
@@ -57,26 +47,11 @@ Web Widget 容器是一个 HTML 标签，它用来运行应用。
 <web-widget src="app.widget.js"></web-widget>
 ```
 
-详情见[容器文档](../docs/container/overview.md)。
-
-### 清单
-
-Web Widget 定义了应用的描述规范，它通常用于后端的管理系统获取信息用，和应用与容器没有直接关系。它使用 NPM package.json 描述了应用名字、图标等信息，以便能够支持不同的应用市场展示。例如：
-
-```json
-{
-  "name": "app",
-  "version": "0.0.1",
-  "main": "dist/umd/index.widget.js",
-  "……": "……"
-}
-```
-
-详情见[清单文档](../docs/manifest/overview.md)。
+容器具备多种性能、安全措施，以及可扩展性，它能够透明的管理众多的应用。
 
 ## 指南
 
 * [应用开发入门](./developing/getting-started.md)：了解如何开发 Web Widget 应用
 * [容器化入门](./architecture/getting-started.md)：了解如何在 Web 工程中部署容器化架构
 
-> Web Widget 还在高速发展阶段，尚未达到开源的标准，如果你有兴趣知晓细节或者想要参与开发，请联系我：[tangbing@gaoding.com](mailto:tangbing@gaoding.com)
+> Web Widget 还在高速发展阶段，尚未达到我们自认为的开源项目标准，如果你想知晓规划细节请联系我：[tangbing@gaoding.com](mailto:tangbing@gaoding.com)

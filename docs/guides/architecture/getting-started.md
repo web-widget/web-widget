@@ -10,7 +10,7 @@ import '@rocket/launch/inline-notification/inline-notification.js';
 
 ## 决策
 
-“微服务不是目的，而是解决问题的手段”
+### 微服务不是目的，而是解决问题的手段
 
 当你权衡是否要采用 Web Widget 之前，你需要理解组件和微服务的差别：组件的用户是开发者，通过开发者构建应用，最终为客户服务；而前端微服务可以直接为客户提供服务。
 
@@ -30,6 +30,24 @@ import '@rocket/launch/inline-notification/inline-notification.js';
 Web Widget 几乎所有的文档中使用“应用”代替了“微服务”的概念，这仅仅是名字上的不同而已，本质是微服务的具体实现。
 
 </inline-notification>
+
+### 适合的场景
+
+### 可视化编辑器中的物料系统
+
+将 Web Widget 技术体系作为落地页的物料系统方案，使得物料开发者不需要关心编辑器的 API 即可提供内容。
+
+### Web 应用插件系统
+
+对 Web Widget 进行扩展，注入插件所需要的的 API，提供良好的插件开发体验同时管理插件的副作用。
+
+### 个性化卡片信息流展示
+
+例如 [Google OneBox](https://en.ryte.com/wiki/Google_OneBox) 与[百度框计算](https://baike.baidu.com/item/%E6%A1%86%E8%AE%A1%E7%AE%97/9541258)，它们可以让你在输入“天气”的时候直接在搜索结果中呈现可互动的天气卡片，而 Web Widget 应用具备这样动态分发要求的关键要素。
+
+### 单页应用微前端工程架构
+
+基于 Web Widget 技术体系，将前端页面容器化，以便在 Web 工程中实施当今流行的微前端架构，从而屏蔽技术栈变更带来的不稳定因素、确保软件具备长久的生命。
 
 ## 安装
 
