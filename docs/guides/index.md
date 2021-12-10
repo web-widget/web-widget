@@ -47,11 +47,11 @@ Web Widget 容器是一个 HTML 标签，它用来运行应用。
 <web-widget src="app.widget.js"></web-widget>
 ```
 
-容器具备多种性能、安全措施，以及可扩展性，它能够透明的管理众多的应用。
+容器具备多种性能、安全措施，以及可扩展性，它能够对应用进行统一优化。
 
 ## 指南
 
-* [应用开发入门](./developing/getting-started.md)：了解如何开发 Web Widget 应用
-* [容器化入门](./architecture/getting-started.md)：了解如何在 Web 工程中部署容器化架构
+* [应用开发指南](./developing/getting-started.md)：了解如何开发 Web Widget 应用
+* [容器化指南](./architecture/getting-started.md)：了解如何在 Web 工程中部署前端容器化架构
 
-> Web Widget 还在高速发展阶段，尚未达到我们自认为的开源项目标准，如果你想知晓规划细节请联系我：[tangbing@gaoding.com](mailto:tangbing@gaoding.com)
+> Web Widget 还在高速发展阶段，尚未达到我们心目中的开源项目标准，如果你想知晓规划细节请联系我：[tangbing@gaoding.com](mailto:tangbing@gaoding.com)

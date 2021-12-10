@@ -14,7 +14,7 @@ import '@rocket/launch/inline-notification/inline-notification.js';
 
 Web Widget 清单通常用于后端的管理系统获取信息或者增强可视化编辑器的能力，Web Widget 应用没有它也以工作，但有了它后可以让应用变得更强，例如可视化编辑、安全、性能等众多关键要素上有所突破！
 
-GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web-widget/web-widget-manifest)，它提供了 schema.d.ts 文件来描述此规范，而这篇文档尽量以简单的方式让你能够理解其中的关键部分。
+GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web-widget/web-widget-manifest)，它提供了 [schema.d.ts](https://github.com/web-widget/web-widget-manifest/blob/master/schema.d.ts) 文件来描述此规范，而这篇文档尽量以简单的方式让你能够理解其中的关键部分。
 
 <inline-notification type="warning">
 
@@ -24,7 +24,7 @@ GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web
 
 ## 初衷
 
-* 和 Web Widget 的初衷一样，我们希望创建真正开放的格式，避免组件开发者将自己宝贵的时间花在私有且封闭的无代码、低代码平台上，而是能够掌握其中核心技术
+* 我们希望创建真正开放且透明的格式，避免组件开发者将自己宝贵的时间花在私有且封闭的无代码、低代码平台上，而是能够掌握其中核心技术
 * 组件是一种数字生产物料，它应当尽可能的被重复利用，但是平台或者技术栈的割裂会打破这一点，我们希望以开源的方式让这样的目标变得更容易达成
 * 我们希望能够做到最好，这个过程中参考了 [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest)、[Web Application Manifest](https://www.w3.org/TR/appmanifest/)、[Packaged Web Apps (Widgets)](https://www.w3.org/TR/2018/OBSL-widgets-20181011)、[Chrome Extensions: Manifest file format](https://developer.chrome.com/docs/extensions/mv3/manifest/)、[VS Code: Extension Manifest](https://code.visualstudio.com/api/references/extension-manifest) 等众多的清单格式
 
@@ -49,7 +49,7 @@ GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web
 
 <pre>
 {
-  "<a href="#schemaversion">schemaVersion</a>": "0.0.1",
+  "<a href="#schemaversion">schemaVersion</a>": "0.0.0",
   "<a href="#name">name</a>": "@gaoding-inc/demo-widget",
   "<a href="#displayname">displayName</a>": "Web Widget Demo",
   "<a href="#version">version</a>": "1.0.0",
@@ -88,11 +88,10 @@ GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web
   ],
   "<a href="#data">data</a>": {
     "schema": {/* ..[JSON Schema] */},
-    "default": {/* ...[Default data] */}
-  },
-  "<a href="#datauserinterface">dataUserInterface</a>": {
-    "path": "demo-options-ui.esm.js",
-    "fallbackPath": "demo-options-ui.system.js"
+    "userInterface": {
+      "path": "demo-options-ui.esm.js",
+      "fallbackPath": "demo-options-ui.system.js"
+    }
   }
 }
 </pre>
@@ -139,9 +138,9 @@ GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web
 
 应用的图标列表。
 
-* path: 图标路径
-* sizes: 图标尺寸规格
-* type: 图标格式类型
+* `path`: 图标路径
+* `sizes`: 图标尺寸规格
+* `type`: 图标格式类型
 
 ### description
 
@@ -153,9 +152,9 @@ GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web
 
 应用的插槽列表。
 
-* name
-* summary
-* description
+* `name`
+* `summary`
+* `description`
 
 ## 主题
 
@@ -171,11 +170,11 @@ GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web
 
 应用的 CSS 变量列表。
 
-* name
-* summary
-* description
-* syntax: The syntax must be a valid CSS [syntax string](https://developer.mozilla.org/en-US/docs/Web/CSS/@property/syntax) as defined in the CSS Properties and Values API.
-* default
+* `name`
+* `summary`
+* `description`
+* `syntax`: The syntax must be a valid CSS [syntax string](https://developer.mozilla.org/en-US/docs/Web/CSS/@property/syntax) as defined in the CSS Properties and Values API
+* `default`
 
 ## 数据
 
@@ -183,15 +182,10 @@ GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web
 
 应用的数据结构描述。可视化编辑器会基于它来自动的生成数据编辑界面。
 
-* schema: [JSON Schema](https://json-schema.org/specification.html)。你可以通过诸如 [https://www.jsonschema.net](https://www.jsonschema.net) 在线工具生成它。
-* default: 应用的默认数据
-
-### dataUserInterface
-
-应用可视化的用户界面。通常用于可视化编辑器中自定义展示 UI 面板来编辑应用数据，并且优先级高于 data.schema 的自动化 UI 生成器。
-
-* path: 用于展示数据的 Web Widget 应用文件路径，格式为 ES module
-* fallbackPath: 用于展示数据的 Web Widget 应用文件的备选格式路径
+* `schema`: 用于描述数据结构的 [JSON Schema](https://json-schema.org/specification.html) 数据。你可以通过诸如 [https://www.jsonschema.net](https://www.jsonschema.net) 在线工具生成它
+* `userInterface`: 自定义编辑数据的用户界面。可视化编辑器会根据它来展示用户界面用于数据编辑，它优先级高于 `data.schema` 的自动化 UI 生成器
+  * `path`: 用于展示数据的 Web Widget 应用文件路径，格式为 ES module
+  * `fallbackPath`: 用于展示数据的 Web Widget 应用文件的备选格式路径
 
 --------------------
 
