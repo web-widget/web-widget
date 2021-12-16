@@ -18,6 +18,6 @@ module.exports = async function () {
     iconColorMsapplicationTileColor: '#1d3557',
     iconColorThemeColor: '#1d3557',
     //analytics: 'UA-131782693-1',
-    socialMediaImage: '/_assets/social-media-image.jpg',
+    socialMediaImage: '/_assets/social-media-image.jpg'
   };
 };

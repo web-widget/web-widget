@@ -86,8 +86,8 @@ GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web
       "summary": "Set text color"
     }
   ],
-  "<a href="#data">data</a>": {
-    "schema": {/* ..[JSON Schema] */}
+  "<a href="#dataschema">dataSchema</a>": {
+    /* ..[JSON Schema] */
   },
   "<a href="#datauserinterface">dataUserInterface</a>": {
     "path": "demo-options-ui.esm.js",
@@ -178,11 +178,9 @@ GitHub 上有一份专门用于发展此规范的[仓库](https://github.com/web
 
 ## 数据
 
-### data
+### dataSchema
 
-应用的数据结构描述。可视化编辑器会基于它来自动的生成数据编辑界面。
-
-* `schema`: 用于描述数据结构的 [JSON Schema](https://json-schema.org/specification.html) 数据。你可以通过诸如 [https://www.jsonschema.net](https://www.jsonschema.net) 在线工具生成它
+应用的数据结构描述。可视化编辑器会基于它来自动的生成数据编辑界面，格式规范为 [JSON Schema](https://json-schema.org/specification.html)，你可以通过诸如 [https://www.jsonschema.net](https://www.jsonschema.net) 在线工具生成它。
 
 ### dataUserInterface
 
