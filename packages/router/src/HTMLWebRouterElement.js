@@ -44,25 +44,32 @@ export class HTMLWebRouterElement extends HTMLElement {
       return this[ROUTES];
     }
 
-    const ignore = ['path', 'element'];
-    const getRoutes = context =>
-      [...context.querySelectorAll('web-route')]
-        .filter(node => node.parentNode === this)
-        .map(node => ({
-          $pathMatch: null,
-          path: node.getAttribute('path'),
-          element: node.getAttribute('element') || 'div',
-          children: getRoutes(node),
-          attributes: [...node.attributes].reduce(
-            (accumulator, { name, value }) => {
-              if (!ignore.includes(name)) {
-                accumulator[name] = value;
-              }
-              return accumulator;
-            },
-            {}
-          )
-        }));
+    const getRoutes = context => {
+      const routes = [];
+      const ignore = ['path', 'element'];
+
+      for (const node of context.children) {
+        if (node.localName === 'web-route') {
+          routes.push({
+            $pathMatch: null,
+            path: node.getAttribute('path'),
+            element: node.getAttribute('element') || 'div',
+            children: getRoutes(node),
+            attributes: [...node.attributes].reduce(
+              (accumulator, { name, value }) => {
+                if (!ignore.includes(name)) {
+                  accumulator[name] = value;
+                }
+                return accumulator;
+              },
+              {}
+            )
+          });
+        }
+      }
+
+      return routes;
+    };
 
     this[ROUTES] = getRoutes(this);
     return this[ROUTES];
@@ -151,9 +158,14 @@ export class HTMLWebRouterElement extends HTMLElement {
   }
 
   get [INACTIVE_ELEMENTS]() {
-    return [...this.outlet.children].filter(
-      element => element.getAttribute('route') !== this.activeRoute.path
-    );
+    const inactiveElements = [...this.outlet.children];
+    const pop = inactiveElements.pop();
+
+    if (pop && pop.getAttribute('route') !== this.activeRoute.path) {
+      inactiveElements.push(pop);
+    }
+
+    return inactiveElements;
   }
 
   // eslint-disable-next-line class-methods-use-this
