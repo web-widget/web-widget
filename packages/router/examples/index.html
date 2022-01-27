@@ -10,43 +10,24 @@
 
 <body>
 
-  <web-widget name="home" src="/index.widget.js" inactive data-id="#43243242"></web-widget>
-  <web-widget name="news" src="/news.widget.js" inactive data-id="#ttrt"></web-widget>
-  <web-widget name="about" src="/about.widget.js" inactive data-id="#367" data-about="一个演示"></web-widget>
-  <web-widget name="vue-router" src="/vue-router.widget.js" inactive data-id="#367" data-vue="vue-router demo"></web-widget>
+  <web-widget src="/nav.widget.js"></web-widget>
+  <web-router>
+    <web-route path="" title="首页" element="web-widget" src="/index.widget.js" data-id="#43243242"></web-route>
+    <web-route path="news" element="web-widget" src="/news.widget.js" data-id="#ttrt"></web-route>
+    <web-route path="about" element="web-widget" title="关于" src="/about.widget.js" data-id="#367" data-about="一个演示"></web-route>
+    <web-route path="vue-router/*" element="web-widget" src="/vue-router.widget.js" data-id="#367" data-vue="vue-router demo"></web-route>
+    <web-route path="test" element="test-element">
+      <template>
+        Hello wrold
+      </template>
+    </web-route>
+    <web-route path="*" src="/404.widget.js"></web-route>
+    <web-outlet></web-outlet>
+  </web-router>
 
   <script type="module">
-    import '@web-widget/container';
-    import { collection, navigate, history } from  '@web-widget/router';
-
-    collection.add(
-      document.querySelector('[name=home]'),
-      location => location.pathname === '/'
-    );
-
-    collection.add(
-      document.querySelector('[name=news]'),
-      location => location.pathname.startsWith('/news')
-    );
-
-    collection.add(
-      document.querySelector('[name=about]'),
-      location => location.pathname.startsWith('/about')
-    );
-
-    collection.add(
-      document.querySelector('[name=vue-router]'),
-      location => location.pathname.startsWith('/vue-router')
-    );
-
-    function reroute() {
-      collection.change(location);
-    }
-
-    history.listen(reroute);
-    reroute();
-
-    window.navigate = navigate;
+    import '../../container/src/index.js';
+    import '../src/index.js';
   </script>
 </body>
 

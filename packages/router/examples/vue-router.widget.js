@@ -1,21 +1,15 @@
 /* eslint-disable import/no-unresolved */
 export default () => {
-  let main, nav, Vue, VueRouter, app, appRoot;
+  let main, Vue, VueRouter, app, appRoot;
   console.log('Vue load');
   return {
-    async bootstrap({ container }) {
+    async bootstrap() {
       console.log('Vue router bootstrap');
 
-      nav = document.createElement('web-widget');
-      nav.src = '/nav.widget.js';
-      nav.inactive = true;
-      container.appendChild(nav);
       main = document.createElement('main');
       main.innerHTML = `
         <h3>Vue router</h3>
       `;
-
-      await nav.bootstrap();
 
       // bootstrap vue app
       await import('https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js');
@@ -24,17 +18,14 @@ export default () => {
       );
       Vue = window.Vue;
       VueRouter = window.VueRouter;
-      delete window.Vue;
-      delete window.VueRouter;
     },
-    async mount({ container }) {
-      console.log('Vue router mount');
-      await nav.mount();
+    async mount({ container, route }) {
+      console.log('Vue router mount', route);
       container.appendChild(main);
 
       // mount vue app
       Vue.use(VueRouter);
-      const Foo = { template: '<div>foo</div>' };
+      const Foo = { template: '<div>foo{{Date.now()}}</div>' };
       const Bar = { template: '<div>bar</div>' };
       const routes = [
         { path: '/vue-router/foo', component: Foo },
@@ -55,6 +46,7 @@ export default () => {
         <div id="app">
           <h1>Hello App!</h1>
           <p>
+            <a is="web-link" href="/">Go to Home</a>
             <router-link to="/vue-router/foo">Go to Foo</router-link>
             <router-link to="/vue-router/bar">Go to Bar</router-link>
           </p>
@@ -66,7 +58,6 @@ export default () => {
     },
     async unmount({ container }) {
       console.log('Vue router unmount');
-      await nav.unmount();
       container.removeChild(main);
 
       // unmount vue app

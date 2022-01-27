@@ -40,6 +40,6 @@
     "@web/dev-server-rollup": "^0.3.11"
   },
   "dependencies": {
-    "history": "^5.0.0"
+    "history": "^5.2.0"
   }
 }

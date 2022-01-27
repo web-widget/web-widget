@@ -1,3 +1,12 @@
+window.$navigate = function (event) {
+  window.dispatchEvent(
+    new CustomEvent('webrouter:navigate', {
+      detail: { path: event.target.getAttribute('href') }
+    })
+  );
+  event.preventDefault();
+};
+
 export default () => {
   let nav;
   console.log('nav load');
@@ -5,20 +14,15 @@ export default () => {
     async bootstrap() {
       console.log('nav bootstrap');
       nav = document.createElement('nav');
-      // 模拟加载延迟
-      return new Promise(resolve => {
-        setTimeout(() => {
-          resolve();
-        }, 500);
-      });
     },
     async mount({ container }) {
       console.log('nav mount');
       nav.innerHTML = `
-        <a href="/" onclick="navigate(event)">Home</a> |
-        <a href="/news" onclick="navigate(event)">News</a> |
-        <a href="/about" onclick="navigate(event)">About</a> |
-        <a href="/vue-router" onclick="navigate(event)">Vue router</a>
+        <a is="web-link" href="/">Home</a> |
+        <a is="web-link" href="/news">News</a> |
+        <a is="web-link" href="/about">About</a> |
+        <a is="web-link" href="/vue-router">Vue router</a> |
+        <a is="web-link" href="/404">404</a>
       `;
       container.appendChild(nav);
     },

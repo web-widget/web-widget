@@ -1,29 +1,37 @@
+function guardian() {
+  window.addEventListener(
+    'willchangestate',
+    e => {
+      // Check if we should navigate away from this page
+      if (!confirm('You have unsafed data. Do you wish to discard it?')) {
+        e.preventDefault();
+        guardian();
+      }
+    },
+    { once: true }
+  );
+}
+
 export default () => {
-  let main, nav;
+  let main;
   console.log('News load');
   return {
-    async bootstrap({ container, data }) {
+    async bootstrap({ data }) {
       console.log('News bootstrap');
       main = document.createElement('main');
       main.innerHTML = `
         <h3>News</h3>
+        <a is="web-link" href="/news/778">details</a>
         <pre>${JSON.stringify(data, null, 2)}</pre>
       `;
-
-      nav = document.createElement('web-widget');
-      nav.src = '/nav.widget.js';
-      nav.inactive = true;
-      container.appendChild(nav);
-      return nav.bootstrap();
     },
     async mount({ container }) {
       console.log('News mount');
-      await nav.mount();
       container.appendChild(main);
+      guardian();
     },
     async unmount({ container }) {
       console.log('News unmount');
-      await nav.unmount();
       container.removeChild(main);
     }
   };
