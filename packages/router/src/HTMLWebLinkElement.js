@@ -1,14 +1,15 @@
 /* eslint-disable no-restricted-globals */
-/* global window, document, customElements, HTMLAnchorElement */
+/* global window, document, location, customElements, HTMLAnchorElement */
 import { navigate } from './navigate.js';
 
 const STATE = Symbol('state');
-const ACTIVE = Symbol('active');
+const REFLECT_ACTIVE = Symbol('reflect-active');
+const FIND_ROUTERS = Symbol('find-routers');
 
 export class HTMLWebLinkElement extends HTMLAnchorElement {
   constructor() {
     super();
-    this[ACTIVE] = this[ACTIVE].bind(this);
+    this[REFLECT_ACTIVE] = this[REFLECT_ACTIVE].bind(this);
   }
 
   get state() {
@@ -46,11 +47,7 @@ export class HTMLWebLinkElement extends HTMLAnchorElement {
   }
 
   get active() {
-    const to = this.getAttribute('href');
-    const active = [...document.querySelectorAll('web-router')].some(
-      router => router.match(to) === router.activeRoute
-    );
-    return active;
+    return this[FIND_ROUTERS](true);
   }
 
   static get observedAttributes() {
@@ -59,23 +56,31 @@ export class HTMLWebLinkElement extends HTMLAnchorElement {
 
   connectedCallback() {
     this.addEventListener('click', event => {
-      const to = this.getAttribute('href');
-      navigate(to, {
-        replace: this.replace,
-        state: this.state
-      });
-      event.preventDefault();
+      const to = this.pathname;
+      if (this[FIND_ROUTERS]()) {
+        navigate(to, {
+          replace: this.replace,
+          state: this.state
+        });
+        event.preventDefault();
+      }
     });
 
-    window.addEventListener('navigationend', this[ACTIVE]);
-    this[ACTIVE]();
+    window.addEventListener('navigationstart', this[REFLECT_ACTIVE]);
+    this[REFLECT_ACTIVE]();
   }
 
   disconnectedCallback() {
-    window.removeEventListener('navigationend', this[ACTIVE]);
+    window.removeEventListener('navigationstart', this[REFLECT_ACTIVE]);
   }
 
-  [ACTIVE]() {
+  attributeChangedCallback(name) {
+    if (name === 'state') {
+      delete this[STATE];
+    }
+  }
+
+  [REFLECT_ACTIVE]() {
     if (this.active) {
       this.setAttribute('active', '');
     } else {
@@ -83,10 +88,17 @@ export class HTMLWebLinkElement extends HTMLAnchorElement {
     }
   }
 
-  attributeChangedCallback(name) {
-    if (name === 'state') {
-      delete this[STATE];
-    }
+  [FIND_ROUTERS](equal) {
+    return (
+      this.protocol === location.protocol &&
+      this.host === location.host &&
+      this.port === location.port &&
+      [...document.querySelectorAll('web-router')].some(router =>
+        equal
+          ? router.match(this.pathname) === router.activeRoute
+          : router.match(this.pathname)
+      )
+    );
   }
 }
 
