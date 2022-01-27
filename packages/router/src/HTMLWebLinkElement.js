@@ -1,17 +1,23 @@
 /* eslint-disable no-restricted-globals */
-/* global customElements, HTMLAnchorElement */
+/* global window, document, customElements, HTMLAnchorElement */
 import { navigate } from './navigate.js';
 
 const STATE = Symbol('state');
+const ACTIVE = Symbol('active');
 
 export class HTMLWebLinkElement extends HTMLAnchorElement {
+  constructor() {
+    super();
+    this[ACTIVE] = this[ACTIVE].bind(this);
+  }
+
   get state() {
     if (!this[STATE]) {
-      const dataAttr = this.getAttribute('state');
+      const json = this.getAttribute('state');
 
-      if (dataAttr) {
+      if (json) {
         try {
-          this[STATE] = JSON.parse(dataAttr);
+          this[STATE] = JSON.parse(json);
         } catch (error) {
           this[STATE] = {};
         }
@@ -21,14 +27,14 @@ export class HTMLWebLinkElement extends HTMLAnchorElement {
     return this[STATE];
   }
 
-  get replace() {
-    return this.hasAttribute('replace');
-  }
-
   set state(value) {
     if (typeof value === 'object') {
       this[STATE] = value;
     }
+  }
+
+  get replace() {
+    return this.hasAttribute('replace');
   }
 
   set replace(value) {
@@ -37,6 +43,14 @@ export class HTMLWebLinkElement extends HTMLAnchorElement {
     } else {
       this.removeAttribute('replace');
     }
+  }
+
+  get active() {
+    const to = this.getAttribute('href');
+    const active = [...document.querySelectorAll('web-router')].some(
+      router => router.match(to) === router.activeRoute
+    );
+    return active;
   }
 
   static get observedAttributes() {
@@ -52,6 +66,21 @@ export class HTMLWebLinkElement extends HTMLAnchorElement {
       });
       event.preventDefault();
     });
+
+    window.addEventListener('navigationend', this[ACTIVE]);
+    this[ACTIVE]();
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('navigationend', this[ACTIVE]);
+  }
+
+  [ACTIVE]() {
+    if (this.active) {
+      this.setAttribute('active', '');
+    } else {
+      this.removeAttribute('active');
+    }
   }
 
   attributeChangedCallback(name) {
