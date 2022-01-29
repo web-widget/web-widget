@@ -18,12 +18,12 @@ export default () => {
     async mount({ container }) {
       console.log('nav mount');
       nav.innerHTML = `
-        <a is="web-link" href="/">Home</a> |
-        <a is="web-link" href="/news">News</a> |
-        <a is="web-link" href="/about">About</a> |
-        <a is="web-link" href="/vue-router">Vue router</a> |
+        <a is="web-link" href="/router-demo">Home</a> |
+        <a is="web-link" href="news">News</a> |
+        <a is="web-link" href="about">About</a> |
+        <a is="web-link" href="vue-router">Vue router</a> |
         <a is="web-link" href="https://google.com">Google</a> |
-        <a is="web-link" href="/404">404</a>
+        <a is="web-link" href="404">404</a>
         <style>
           a[is="web-link"][active] {
             background: #F00;

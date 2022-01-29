@@ -29,7 +29,7 @@ export default () => {
       const Bar = { template: '<div>bar</div>' };
       const routes = [
         { path: '/vue-router/foo', component: Foo },
-        { path: '/vue-router/bar', component: Bar }
+        { path: '/vue-router/bar/:id', component: Bar }
       ];
 
       const router = new VueRouter({
@@ -40,6 +40,7 @@ export default () => {
       app = new Vue({
         router
       });
+      console.log(app);
 
       appRoot = document.createElement('div');
       appRoot.innerHTML = `
@@ -48,7 +49,7 @@ export default () => {
           <p>
             <a is="web-link" href="/">Go to Home</a>
             <router-link to="/vue-router/foo">Go to Foo</router-link>
-            <router-link to="/vue-router/bar">Go to Bar</router-link>
+            <router-link to="/vue-router/bar/34355">Go to Bar</router-link>
           </p>
           <router-view></router-view>
         </div>

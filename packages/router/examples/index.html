@@ -6,6 +6,7 @@
   <meta http-equiv="X-UA-Compatible" main="IE=edge">
   <title>WebWidgetRouter demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="/router-demo/" />
 </head>
 
 <body>
@@ -26,8 +27,29 @@
   </web-router>
 
   <script type="module">
-    import '../../container/src/index.js';
-    import '../src/index.js';
+    import { HTMLWebWidgetElement } from '../../container/src/index.js';
+    import { HTMLWebRouterElement} from '../src/index.js';
+
+    function defineHook(target, name, callback) {
+      return Reflect.defineProperty(
+        target,
+        name,
+        callback(Reflect.getOwnPropertyDescriptor(target, name))
+      );
+    }
+
+    defineHook(HTMLWebWidgetElement.prototype, 'createDependencies', ({ value }) => ({
+      value() {
+        const dependencies = value.apply(this, arguments);
+        defineHook(dependencies, 'router', () => ({
+          get: () => this.router
+        }));
+        defineHook(dependencies, 'route', () => ({
+          get: () => this.route
+        }));
+        return dependencies;
+      }
+    }));
   </script>
 </body>
 

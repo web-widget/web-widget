@@ -43,7 +43,6 @@ export class HTMLWebRouterElement extends HTMLElement {
     if (this[ROUTES]) {
       return this[ROUTES];
     }
-
     const getRoutes = context => {
       const routes = [];
       const ignore = ['path', 'element'];
@@ -52,9 +51,9 @@ export class HTMLWebRouterElement extends HTMLElement {
         if (node.localName === 'web-route') {
           routes.push({
             $pathMatch: null,
-            path: node.getAttribute('path'),
-            element: node.getAttribute('element') || 'div',
-            children: getRoutes(node),
+            path: node.path,
+            element: node.element || 'div',
+            // children: getRoutes(node),
             attributes: [...node.attributes].reduce(
               (accumulator, { name, value }) => {
                 if (!ignore.includes(name)) {
@@ -84,7 +83,7 @@ export class HTMLWebRouterElement extends HTMLElement {
     const SSR =
       matchedRoute &&
       this.outlet.querySelector(
-        `${matchedRoute.element}[route="${matchedRoute.path}"]`
+        `${matchedRoute.element}[route-path="${matchedRoute.path}"]`
       );
 
     if (SSR) {
@@ -99,7 +98,9 @@ export class HTMLWebRouterElement extends HTMLElement {
   }
 
   createElement(route) {
-    const element = document.createElement(route.element);
+    const element = document.createElement(route.element, {
+      is: route.attributes.is
+    });
     const template = this.querySelector(
       `web-route[path="${route.path}"] template`
     );
@@ -108,26 +109,8 @@ export class HTMLWebRouterElement extends HTMLElement {
       element.setAttribute(key, value);
     });
 
-    element.setAttribute('route', route.path);
-
     if (template) {
       element.appendChild(template.content.cloneNode(true));
-    }
-
-    // TODO 挪到 web-widget 插件中
-    // Inject route objects
-    if (route.element === 'web-widget') {
-      const createDependencies = element.createDependencies;
-      element.createDependencies = function () {
-        const dependencies = createDependencies.apply(this, arguments);
-        const { params } = route.$pathMatch;
-        dependencies.route = {
-          params,
-          history,
-          location: history.location
-        };
-        return dependencies;
-      };
     }
 
     return element;
@@ -161,7 +144,7 @@ export class HTMLWebRouterElement extends HTMLElement {
     const inactiveElements = [...this.outlet.children];
     const pop = inactiveElements.pop();
 
-    if (pop && pop.getAttribute('route') !== this.activeRoute.path) {
+    if (pop && pop.getAttribute('route-path') !== this.activeRoute.path) {
       inactiveElements.push(pop);
     }
 
@@ -201,19 +184,34 @@ export class HTMLWebRouterElement extends HTMLElement {
       this[RENDER].trash();
     }
 
-    const element = this.createElement(route);
-    element.setAttribute('inactive', '');
-
     this.readerProgress(0);
-    this.outlet.appendChild(element);
 
     // Wait for the custom element to be registered
-    if (element.localName.includes('-') || element.getAttribute('is')) {
+    const elementName = route.attributes.is || route.element;
+    if (elementName.includes('-')) {
       await (this[RENDER] = makeTrashable(
-        reasonableTime(customElements.whenDefined(element.localName), 3000)
+        reasonableTime(customElements.whenDefined(elementName), 3000)
       ));
       this.readerProgress(0.2);
     }
+
+    // Create custom element
+    const element = this.createElement(route);
+    element.setAttribute('inactive', '');
+    element.setAttribute('route-path', route.path);
+    element.setAttribute(
+      'route-params',
+      JSON.stringify(route.$pathMatch.params)
+    );
+    element.router = {
+      history,
+      location: history.location
+    };
+    element.route = {
+      // path: route.path,
+      params: route.$pathMatch.params
+    };
+    this.outlet.appendChild(element);
 
     // Prefetch next widget file
     if (element.load) {
