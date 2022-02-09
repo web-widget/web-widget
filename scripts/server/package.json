@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/server",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "description": "Dev Server",
   "main": "src/web-dev-server-config.js",
   "bin": {
@@ -10,8 +10,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@web/dev-server-hmr": "^0.1.9",
     "@web/dev-server": "^0.1.25",
+    "@web/dev-server-hmr": "^0.1.9",
     "@web/dev-server-rollup": "^0.3.11"
   },
   "repository": {

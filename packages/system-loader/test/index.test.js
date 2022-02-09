@@ -35,7 +35,7 @@ const srcCase = async sandboxed => {
   widget.src = '/test/test.widget.js';
   document.body.appendChild(widget);
 
-  widget.mount();
+  await widget.mount();
   await dataUpdate(widget);
 
   if (widget.data.lifecycle !== 'mount') {
@@ -52,7 +52,7 @@ const textCase = async sandboxed => {
   widget.text = await get('/test/test.widget.js');
   document.body.appendChild(widget);
 
-  widget.mount();
+  await widget.mount();
   await dataUpdate(widget);
 
   if (widget.data.lifecycle !== 'mount') {
