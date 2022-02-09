@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.0.21 (2022-02-09)
+
+* 修复 ES module loader 某些情况无法工作的问题
+
 ## 0.0.20 (2021-12-02)
 
 * 修复 `createLoader()` 钩子的设计错误，它应当返回 `function` 而不是 `Promise`
