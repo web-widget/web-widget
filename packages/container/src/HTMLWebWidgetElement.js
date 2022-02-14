@@ -328,6 +328,15 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('import', value);
   }
 
+  get rendertarget() {
+    // light || shadow
+    return this.getAttribute('rendertarget') || 'shadow';
+  }
+
+  set rendertarget(value) {
+    this.setAttribute('rendertarget', value);
+  }
+
   /**
    * Application source code
    * @attr
@@ -373,7 +382,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @returns {HTMLElement}
    */
   createRenderRoot() {
-    let renderRoot;
+    let renderRoot = null;
     const { sandboxed, sandbox } = this;
 
     if (sandboxed) {
@@ -382,9 +391,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
       style.textContent = `body{margin:0}`;
       sandboxDoc.head.appendChild(style);
       renderRoot = sandboxDoc.body;
-    } else {
+    } else if (this.rendertarget === 'shadow') {
       renderRoot = this.attachShadow({ mode: 'closed' });
       updateElement(renderRoot);
+    } else if (this.rendertarget === 'light') {
+      renderRoot = this;
     }
 
     return renderRoot;
