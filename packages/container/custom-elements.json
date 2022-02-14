@@ -123,6 +123,10 @@
             },
             {
               "kind": "field",
+              "name": "rendertarget"
+            },
+            {
+              "kind": "field",
               "name": "text",
               "description": "Application source code",
               "reflects": true,

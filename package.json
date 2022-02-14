@@ -6,7 +6,6 @@
     "postinstall": "lerna bootstrap",
     "start": "rocket start",
     "build": "lerna run build",
-    "build:watch": "lerna run build:watch",
     "test": "lerna run test --concurrency 1",
     "clean": "npx lerna clean && rm -rf node_modules",
     "lint": "eslint packages/**/src packages/**/test packages/**/examples",
