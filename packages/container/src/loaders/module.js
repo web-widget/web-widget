@@ -4,6 +4,15 @@ function getModuleValue(module) {
   return module.default || module;
 }
 
+function importModule(target) {
+  // @see https://github.com/guybedford/es-module-shims
+  if (typeof importShim === 'function') {
+    // eslint-disable-next-line no-undef
+    return importShim(target);
+  }
+  return import(/* webpackIgnore: true */ target);
+}
+
 export async function moduleLoader(view) {
   const { src, text, sandboxed } = view;
   const nameOrPath = view.import || src;
@@ -13,13 +22,13 @@ export async function moduleLoader(view) {
   }
 
   if (nameOrPath) {
-    return import(/* webpackIgnore: true */ nameOrPath).then(getModuleValue);
+    return importModule(nameOrPath).then(getModuleValue);
   }
 
   const blob = new Blob([text], { type: 'application/javascript' });
   const url = URL.createObjectURL(blob);
 
-  return import(/* webpackIgnore: true */ url).then(
+  return importModule(url).then(
     module => {
       URL.revokeObjectURL(url);
       return getModuleValue(module);

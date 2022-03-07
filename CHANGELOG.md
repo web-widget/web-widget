@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.0.21 (2020-03-07)
+
+* 支持 https://github.com/guybedford/es-module-shims
+
 ## 0.0.22 (2022-02-14)
 
 * 增加 `rendertarget` 试验性特性
