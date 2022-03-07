@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.0.21 (2020-03-07)
+## 0.0.23 (2020-03-07)
 
 * 支持 https://github.com/guybedford/es-module-shims
 
