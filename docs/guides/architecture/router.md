@@ -4,54 +4,51 @@
 import '@rocket/launch/inline-notification/inline-notification.js';
 ```
 
-引入路由后，我们可以通过 Web Widget 来架设渐进式的微前端架构。
+Web Router 是一个技术栈中立的路由系统，Web Widget 能够与 Web Router 组合完成单页微前端架构：
 
-<inline-notification type="warning">
-
-Web Widget 的路由驱动的架构方案还处于试验性状态。
-
-</inline-notification>
-
-## 安装
-
-```bash
-npm install @web-widget/router --save
+```
+            Start
+              ▼
+     ┌────────┴───────┐
+     │ Backend Router │
+     └────────┬───────┘
+              ▼
+       ┌──────┴─────┐
+       │ Web Router │ 
+       └──────┬─────┘
+              ▼
+  ┌───────────┴───────────┐
+  │ Application Container │
+  │      (Web Widget)     │
+  └───────────┬───────────┘
+              ▼
+┌─────────────┴──────────────┐
+│ Front-End Framework Router │
+│ (React, Vue, Angular, ...) │
+└─────────────┬──────────────┘
+              ▼
+       ┌──────┴──────┐
+       │ Application │
+       └──────┬──────┘
+              ▼
+             End
 ```
 
 ## 使用
 
-通常情况下 Web Widget 会基于 DOM 的生命周期来触发应用的生命周期函数，如果给容器添加一个`inactive` 属性即可关闭与 DOM 生命周期的绑定，以便交给路由管理程序控制它。
-
 ```html
-<web-widget id="home" src="./index.widget.js" inactive></web-widget>
-<web-widget id="news" src="./news.widget.js" inactive></web-widget>
-<web-widget id="about" src="./about.widget.js" inactive></web-widget>
+<web-router>
+  <web-route path="/" element="web-widget" import="@examples/home"></web-route>
+  <web-route path="/news" element="web-widget" import="@examples/news"></web-route>
+  <web-route path="*" element="web-widget" import="@examples/404"></web-route>
+</web-router>
 ```
 
-```js
-import '@web-widget/container';
-import { collection, history } from  '@web-widget/router';
+<inline-notification type="warning">
 
-collection.add(
-  document.querySelector('#home'),
-  location => location.pathname === '/'
-);
+Web Router 还在发展中，这是 RFC 地址：<https://github.com/growing-web/rfcs/discussions/10>。
 
-collection.add(
-  document.querySelector('#news'),
-  location => location.pathname.startsWith('/news')
-);
-
-collection.add(
-  document.querySelector('#about'),
-  location => location.pathname.startsWith('/about')
-);
-
-collection.change(location);
-history.listen(() => collection.change(location));
-```
-
-更多请阅读 [Router 插件文档](../../docs/container/plugins/router.md)。
+</inline-notification>
 
 ## 最佳实践
 

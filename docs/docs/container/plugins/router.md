@@ -1,5 +1,15 @@
 # 容器 >> 插件 >> Router || 2
 
+```js script
+import '@rocket/launch/inline-notification/inline-notification.js';
+```
+
+<inline-notification type="warning">
+
+路由插件将会被 Web Router 取代：<https://github.com/growing-web/rfcs/discussions/10>。
+
+</inline-notification>
+
 这是 Web Widget 的路由插件。
 
 ## 安装
