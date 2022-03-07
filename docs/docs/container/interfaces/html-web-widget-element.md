@@ -142,6 +142,19 @@ widget.mount();
 
 脚本的模块类型，默认值为 `"module"`。
 
+## rendertarget
+
+渲染目标，默认值为 `"shadow"`（实验性特性）。允许的值：
+
+* `"shadow"` 使用 shadow DOM 渲染
+* `"light"` 使用 light DOM 渲染
+
+<inline-notification type="warning">
+
+关闭 light DOM 后，Web Widget 容器的沙箱、插槽特性都将无法工作。
+
+</inline-notification>
+
 ## state
 
 `string`
@@ -226,39 +239,7 @@ defineHook(HTMLWebWidgetElement.prototype, 'createLoader', ({ value }) => ({
 
 ## createRenderRoot()
 
-应用的挂载节点勾子函数（实验性特性）。它默认行为是创建 shadow DOM 节点，覆盖它可以重新定义此行为。
-
-```js
-function defineHook(target, name, callback) {
-  return Reflect.defineProperty(
-    target,
-    name,
-    callback(Reflect.getOwnPropertyDescriptor(target, name))
-  );
-}
-
-defineHook(HTMLWebWidgetElement.prototype, 'createRenderRoot', ({ value }) => ({ 
-  value() {
-    const { src, text, type } = this;
-
-    if (this.hasAttribute('noshadow')) {
-      return this;
-    }
-
-    return value.apply(this, arguments);
-  }
-}));
-```
-
-```html
-<web-widget src="app.widget.js" noshadow></web-widget>
-```
-
-<inline-notification type="warning">
-
-关闭 shadow DOM 后，Web Widget 容器的沙箱、插槽特性都将无法工作。
-
-</inline-notification>
+应用的挂载节点勾子函数（实验性特性）。它默认行为是根据 [`rendertarget`](#rendertarget) 创建应用的渲染节点，覆盖它可以重新定义此行为。
 
 ## load()
 
@@ -354,7 +335,7 @@ HTMLWebWidgetElement.portalDestinations.define('dialog', () => {
 });
 ```
 
-传送门定义好后，应用可以通过 [`createPortal()`](../../application/interface.md#createportal) 将子 WevWidget 容器传送到指定的位置渲染：
+传送门定义好后，应用可以通过 [`createPortal()`](../../application/interface.md#createportal) 将子 Web Widget 容器传送到指定的位置渲染：
 
 ```js
 // app.widget.js
