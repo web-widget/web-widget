@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/builder",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "Builder",
   "main": "src/rollup.config.js",
   "bin": {
