@@ -14,7 +14,7 @@ function importModule(target) {
     // eslint-disable-next-line no-undef
     return importShim(target);
   }
-  return import(/* webpackIgnore: true */ target);
+  return import(/* @vite-ignore */ /* webpackIgnore: true */ target);
 }
 
 export async function moduleLoader(view) {
