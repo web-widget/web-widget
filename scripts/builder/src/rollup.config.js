@@ -29,7 +29,10 @@ export default () => {
   if (isProduction) {
     plugins.push(
       terser({
-        keep_classnames: true
+        keep_classnames: true,
+        format: {
+          comments: /(vite-ignore|webpackIgnore)/
+        }
       })
     );
   }
