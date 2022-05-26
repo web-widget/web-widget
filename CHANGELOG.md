@@ -1,10 +1,14 @@
 # CHANGELOG
 
-## 0.0.24 (2020-03-15)
+## 0.0.25 (2022-05-26)
+
+* 修复 "this.movedCallback is not a function" 的错误
+
+## 0.0.24 (2022-03-15)
 
 * 优化 es-module-shims 环境下的性能
 
-## 0.0.23 (2020-03-07)
+## 0.0.23 (2022-03-07)
 
 * 支持 https://github.com/guybedford/es-module-shims
 

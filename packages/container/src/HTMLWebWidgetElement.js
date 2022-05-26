@@ -482,7 +482,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this[FIRST_CONNECTED] = true;
     } else {
       if (this[MOVEING]) {
-        this.movedCallback();
+        // this.movedCallback();
       }
     }
   }
