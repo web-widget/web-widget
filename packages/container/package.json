@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/container",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "web widget",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
@@ -56,8 +56,8 @@
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "^0.5.7",
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-widget/builder": "^0.0.25",
-    "@web-widget/server": "^0.0.25",
-    "@web-widget/tester": "^0.0.25"
+    "@web-widget/builder": "^0.0.26",
+    "@web-widget/server": "^0.0.26",
+    "@web-widget/tester": "^0.0.26"
   }
 }
