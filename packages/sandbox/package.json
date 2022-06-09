@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/sandbox",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "description": "Web Widget sandbox",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
@@ -36,10 +36,10 @@
     "@web-sandbox.js/web-sandbox": "^0.0.1-alpha7"
   },
   "devDependencies": {
-    "@web-widget/builder": "^0.0.26",
-    "@web-widget/container": "^0.0.26",
-    "@web-widget/server": "^0.0.26",
-    "@web-widget/system-loader": "^0.0.26",
-    "@web-widget/umd-loader": "^0.0.26"
+    "@web-widget/builder": "^0.0.27",
+    "@web-widget/container": "^0.0.27",
+    "@web-widget/server": "^0.0.27",
+    "@web-widget/system-loader": "^0.0.27",
+    "@web-widget/umd-loader": "^0.0.27"
   }
 }
