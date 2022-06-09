@@ -1,6 +1,10 @@
 # CHANGELOG
 
-## 0.0.25 (2022-05-26)
+## 0.0.27 (2022-06-09)
+
+* 支持 hydrateonly 属性，为 SSR 做准备
+
+## 0.0.26 (2022-05-26)
 
 * 修复 "this.movedCallback is not a function" 的错误
 

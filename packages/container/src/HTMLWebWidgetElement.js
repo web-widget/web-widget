@@ -392,7 +392,17 @@ export class HTMLWebWidgetElement extends HTMLElement {
       sandboxDoc.head.appendChild(style);
       renderRoot = sandboxDoc.body;
     } else if (this.rendertarget === 'shadow') {
-      renderRoot = this.attachShadow({ mode: 'closed' });
+      if (this.hasAttribute('hydrateonly')) {
+        if (this.attachInternals) {
+          const internals = this.attachInternals();
+          renderRoot = internals.shadowRoot;
+        }
+      }
+
+      if (!renderRoot) {
+        renderRoot = this.attachShadow({ mode: 'closed' });
+      }
+
       updateElement(renderRoot);
     } else if (this.rendertarget === 'light') {
       renderRoot = this;
@@ -562,6 +572,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /** @ignore */
   [STATECHANGE_CALLBACK]() {
     const state = this.state;
+    this.setAttribute('state', state);
     if (
       [
         status.MOUNTED,
