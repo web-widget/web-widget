@@ -1,7 +1,7 @@
 export default () => {
   let element;
   return {
-    async mount({ data, container, context }) {
+    async mount({ data, container }) {
       console.log('mount');
       element = document.createElement('div');
       container.appendChild(element);
@@ -13,7 +13,7 @@ export default () => {
       const update = document.createElement('button');
       update.innerText = 'update';
       update.onclick = () => {
-        context.update({
+        container.update({
           data: {
             ...data,
             username: `@${Date.now()}`

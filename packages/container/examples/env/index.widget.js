@@ -1,18 +1,18 @@
 export default () => ({
-  async mount({ container, data, parameters }) {
+  async mount({ container, data, env }) {
     container.innerHTML = data
       .map(
         name =>
           `<div class="tabpanel" data-name="${name}" ${
-            parameters.activity === name ? '' : 'hidden'
+            env.activity === name ? '' : 'hidden'
           }><slot name="${name}"></slot></div>`
       )
       .join('');
   },
 
-  async update({ container, parameters }) {
+  async update({ container, env }) {
     container.querySelectorAll(`.tabpanel`).forEach(element => {
-      element.hidden = parameters.activity !== element.dataset.name;
+      element.hidden = env.activity !== element.dataset.name;
     });
   },
 

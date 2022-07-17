@@ -31,13 +31,103 @@ npm run dev
 
 当你编辑代码后，浏览器将自动重新加载。
 
-## 使用框架适配器
+## 框架适配
 
-我们提供了多种前端框架的适配器，以便将它们的组件包装成 Web Widget [应用格式](../../docs/application/overview.md)。
+将不同的前端框架的组件包装成 Web Widget [应用格式](../../docs/application/overview.md)。
+
+### React
+
+```js
+import { App } from './App.tsx';
+import ReactDOM from 'react-dom';
+
+export default () => {
+  let vdom;
+  return {
+    async mount({ container, data }) {			
+      if (ReactDOM.createRoot) {
+        vdom = ReactDOM.createRoot(container);
+        vdom.render(<App />);
+      } else {
+        // React < 18
+        ReactDOM.render(<App />, container);
+      }
+    },
+
+    async unmount() {
+      if (vdom && vdom.unmount) {
+        vdom.unmount();
+      } else {
+        // React < 18
+        ReactDOM.unmountComponentAtNode(container);
+      }
+      vdom = null;
+    },
+  };
+};
+```
+
+### Vue3
+
+```js
+import { createApp } from 'vue';
+import App from './App.vue';
+
+export default () => {
+  let appWrap;
+  let app;
+
+  return {
+    async mount({ container }) {
+      appWrap = document.createElement('div');
+      container.appendChild(appWrap);
+
+      app = createApp(App);
+      app.mount(appWrap);
+    },
+    async unmount({ container }) {
+      app.unmount();
+      container.innerHTML = '';
+      appWrap = app = null;
+    }
+  };
+};
+```
+
+### Vue2
+
+```js
+import Vue from 'vue';
+import App from './App.vue';
+
+export default () => {
+  let appWrap;
+  let app;
+
+  return {
+    async mount({ container }) {
+      appWrap = document.createElement('div');
+      container.appendChild(appWrap);
+
+      app = new Vue({
+        el: appWrap,
+        render(h) {
+          return h(App);
+        }
+      });
+    },
+    async unmount({ container }) {
+      app.$destroy();
+      container.innerHTML = '';
+      appWrap = app = null;
+    }
+  };
+};
+```
 
 <inline-notification type="tip">
 
-由于这部分文档尚未完工，因此我们推荐你使用项目生成器，它生成的项目直接配置好了适配器。
+后续将会提供框架适配器简化上述样板代码的工作。
 
 </inline-notification>
 

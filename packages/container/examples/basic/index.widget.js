@@ -1,4 +1,5 @@
-export default () => {
+export default a => {
+  console.log(a.data);
   let element;
   return {
     async bootstrap() {

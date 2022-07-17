@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## 1.0.0-beta (2022-07-17)
+
+此次更新主要是对应用格式与容器进行精简，删除实验性特性，只保留核心功能。
+
+* 应用格式变更：
+  * 删除 `context` 接口，将 `context` 的  `mount`、`udate`、`unmount` 成员迁移到 `container` 
+  * `parameters` 更名为 `env`
+  * 删除 `name`
+  * 删除 `sandboxed`
+  * 删除 `createPortal`
+  * 删除 `hydrateonly`，可以使用 `env.hydrateonly === 'string'` 代替
+* 容器功能变更：
+  * 	无需插入 DOM 即可以调用 `bootstrap()` 函数，方便进行手动预加载应用
+  * 	`data` 默认值由空对象变更为 `null`
+  * 	删除容器的别名功能
+  * 	删除沙箱功能， `sandboxed`、`csp`、`createSandbox`（沙箱功能留给后续版本）
+  * 	删除运行动态字符串的功能 `text`
+  * 	删除 `name` 属性
+
 ## 0.0.27 (2022-06-09)
 
 * 支持 hydrateonly 属性，为 SSR 做准备

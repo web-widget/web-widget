@@ -1,3 +1,36 @@
+/* Application Lifecycles
+      Start
+        ▼
+    ┌───┴──┐
+    │ load │
+    └───┬──┘
+        ▼
+  ┌─────┴─────┐
+  │ bootstrap │
+  └─────┬─────┘
+┌──────►┤
+│       ▼ 
+│   ┌───┴───┐
+│   │ mount │
+│   └───┬───┘ 
+│       │   ┌───────┐
+│       │   │       ▼
+│       ▼   ▲   ┌───┴────┐
+│       ├───┤   │ update │
+│       │   ▲   └───┬────┘
+│       │   │       ▼                 
+│       │   └───────┘
+│       ▼
+│  ┌────┴────┐
+└─◄┤ unmount │
+   └────┬────┘
+        ▼ 
+   ┌────┴───┐
+   │ unload │
+   └────┬───┘ 
+        ▼
+       End
+*/
 import {
   INITIAL,
   LOADING,
@@ -16,18 +49,6 @@ import {
   UNLOADING,
   UNLOAD_ERROR
 } from './status.js';
-
-/* Application Lifecycles
-                    ┌───────────────────┐
-                    │                   │
-┌> load > bootstrap ┴> mount ┬> unmount ┴> unload ┐
-│                            │                    │
-│                           ┌┴> update ┐          │
-│                           │          │          │
-│                           └──────────┘          │
-│                                                 │
-└─────────────────────────────────────────────────┘
-*/
 
 export const rules = {
   load: {

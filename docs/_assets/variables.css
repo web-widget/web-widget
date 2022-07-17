@@ -53,6 +53,8 @@ html {
     --rocket-search-hover-background-color: #6b717a;
     --rocket-search-fill-color: #fff;
 
+    --text-color: #eee;
+
     /* Markdown */
     --markdown-octicon-link: var(--primary-text-color);
     --markdown-body: #24292e;

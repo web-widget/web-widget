@@ -13,7 +13,7 @@ Web Widget 的应用非常简单，2 分钟即可上手，让我们一起开发�
 然后，在网页底部引入 Web Widget 应用容器的运行时，以便 `<web-widget>` 标签能够成为浏览器的一部分：
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/@web-widget/container/dist/esm/main.js"></script>
+<script type="module" src="https://unpkg.com/@web-widget/container/dist/esm/web-widget.js"></script>
 ```
 
 ### 2. 开发小挂件

@@ -51,9 +51,9 @@ describe('Application lifecycle: load', () => {
   it('After execution fails, retry should be allowed', () =>
     createBaseContainer(
       {
-        application({ context }) {
-          if (!context.test) {
-            context.test = true;
+        application() {
+          if (!this.test) {
+            this.test = true;
             throw new Error('error');
           }
         }
@@ -113,10 +113,10 @@ describe('Application lifecycle: bootstrap', () => {
   it('After execution fails, retry should be allowed', () =>
     createBaseContainer(
       {
-        application: ({ context }) => ({
+        application: () => ({
           bootstrap() {
-            if (!context.test) {
-              context.test = true;
+            if (!this.test) {
+              this.test = true;
               throw new Error('error');
             }
           }
@@ -191,10 +191,10 @@ describe('Application lifecycle: mount', () => {
   it('After execution fails, retry should be allowed', () =>
     createBaseContainer(
       {
-        application: ({ context }) => ({
+        application: () => ({
           mount() {
-            if (!context.test) {
-              context.test = true;
+            if (!this.test) {
+              this.test = true;
               throw new Error('error');
             }
           }
@@ -334,10 +334,10 @@ describe('Application lifecycle: update', () => {
   it('After execution fails, retry should be allowed', () =>
     createBaseContainer(
       {
-        application: ({ context }) => ({
+        application: () => ({
           update() {
-            if (!context.test) {
-              context.test = true;
+            if (!this.test) {
+              this.test = true;
               throw new Error('error');
             }
           }
@@ -445,10 +445,10 @@ describe('Application lifecycle: unmount', () => {
   it('After execution fails, retry should be allowed', () =>
     createBaseContainer(
       {
-        application: ({ context }) => ({
+        application: () => ({
           unmount() {
-            if (!context.test) {
-              context.test = true;
+            if (!this.test) {
+              this.test = true;
               throw new Error('error');
             }
           }
@@ -670,10 +670,10 @@ describe('Application lifecycle: unload', () => {
   it('After execution fails, retry should be allowed', () =>
     createBaseContainer(
       {
-        application: ({ context }) => ({
+        application: () => ({
           unload() {
-            if (!context.test) {
-              context.test = true;
+            if (!this.test) {
+              this.test = true;
               throw new Error('error');
             }
           }
@@ -841,21 +841,71 @@ describe('Application lifecycle: dependencies', () => {
       }
     ));
 
+  it('default mode: All lifecycle function injection dependencies should be the same', () =>
+    createBaseContainer(
+      {
+        application(dependencies) {
+          let current = dependencies;
+          const message = 'Not equal';
+          if (!current) {
+            throw new Error('Unexpectedly empty');
+          }
+          return dependencies => {
+            if (current !== dependencies) {
+              throw new Error(message);
+            }
+            current = dependencies;
+            return {
+              async bootstrap(dependencies) {
+                if (current !== dependencies) {
+                  throw new Error(message);
+                }
+                current = dependencies;
+              },
+              async mount(dependencies) {
+                if (current !== dependencies) {
+                  throw new Error(message);
+                }
+                current = dependencies;
+              },
+              async update(dependencies) {
+                if (current !== dependencies) {
+                  throw new Error(message);
+                }
+                current = dependencies;
+              },
+              async unmount(dependencies) {
+                if (current !== dependencies) {
+                  throw new Error(message);
+                }
+                current = dependencies;
+              },
+              async unload(dependencies) {
+                if (current !== dependencies) {
+                  throw new Error(message);
+                }
+                current = dependencies;
+              }
+            };
+          };
+        }
+      },
+      async ({ bootstrap, mount, update, unmount, unload }) => {
+        await bootstrap();
+        await mount();
+        await update();
+        await unmount();
+        await unload();
+      }
+    ));
+
   it('Should have members', () =>
     createBaseContainer(
       {
         application() {
           return {
             async bootstrap(dependencies) {
-              const expected = [
-                'container',
-                'context',
-                'createPortal',
-                'data',
-                'name',
-                'parameters',
-                'sandboxed'
-              ];
+              const expected = ['container', 'data', 'env'];
               expected.forEach(key => {
                 if (!(key in dependencies)) {
                   throw new Error(`"${key}" not found`);
@@ -912,6 +962,60 @@ describe('Application lifecycle: this', () => {
               }
               current = this;
             }
+          };
+        }
+      },
+      async ({ bootstrap, mount, update, unmount, unload }) => {
+        await bootstrap();
+        await mount();
+        await update();
+        await unmount();
+        await unload();
+      }
+    ));
+
+  it('defaultMode: The `this` object of all lifecycle functions should be the same', () =>
+    createBaseContainer(
+      {
+        application() {
+          let current = this;
+          const message = 'Not equal';
+          if (!current) {
+            throw new Error('Unexpectedly empty');
+          }
+          return function () {
+            return {
+              async bootstrap() {
+                if (current !== this) {
+                  throw new Error(message);
+                }
+                current = this;
+              },
+              async mount() {
+                if (current !== this) {
+                  throw new Error(message);
+                }
+                current = this;
+              },
+              async update() {
+                if (current !== this) {
+                  throw new Error(message);
+                }
+                current = this;
+              },
+              async unmount() {
+                if (current !== this) {
+                  throw new Error(message);
+                }
+                current = this;
+              },
+              async unload() {
+                if (current !== this) {
+                  throw new Error(message);
+                }
+                current = this;
+              }
+            };
           };
         }
       },

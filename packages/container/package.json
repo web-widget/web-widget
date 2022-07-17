@@ -1,16 +1,16 @@
 {
   "name": "@web-widget/container",
-  "version": "0.0.27",
+  "version": "1.0.0-beta",
   "description": "web widget",
   "source": "src/index.js",
-  "main": "dist/cjs/main.js",
-  "module": "dist/esm/main.js",
-  "system": "dist/system/main.js",
-  "unpkg": "dist/umd/main.js",
+  "main": "dist/cjs/web-widget.js",
+  "module": "dist/esm/web-widget.js",
+  "system": "dist/system/web-widget.js",
+  "unpkg": "dist/umd/web-widget.js",
   "libraryName": "WebWidgetExports",
   "exports": {
-    "require": "./dist/cjs/main.js",
-    "import": "./dist/esm/main.js"
+    "require": "./dist/cjs/web-widget.js",
+    "import": "./dist/esm/web-widget.js"
   },
   "scripts": {
     "analyze": "custom-elements-manifest analyze --globs src/*.js",

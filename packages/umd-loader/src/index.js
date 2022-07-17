@@ -47,20 +47,10 @@ async function importScript(url, defaultView, name) {
   return promise;
 }
 
-async function execScript(text, defaultView, name) {
-  if (!name) {
-    noteGlobalProps(defaultView);
-  }
-
-  defaultView.eval(text);
-
-  return getGlobalVariable(name, defaultView);
-}
-
 async function umdLoader(view) {
-  const { src, text, sandboxed, name } = view;
-  const defaultView = sandboxed ? view.sandbox.window : window;
-  const libraryName = view.library || view.getAttribute('library') || name;
+  const { src } = view;
+  const libraryName =
+    view.library || view.getAttribute('library') || view.getAttribute('name');
 
   if (view.import) {
     throw Error(
@@ -68,11 +58,7 @@ async function umdLoader(view) {
     );
   }
 
-  if (src) {
-    return importScript(src, defaultView, libraryName);
-  }
-
-  return execScript(text, defaultView, libraryName);
+  return importScript(src, window, libraryName);
 }
 
 export function setConfig(options) {

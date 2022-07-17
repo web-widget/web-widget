@@ -1,7 +1,7 @@
 window.TestWidget = () => ({
-  async mount({ context }) {
+  async mount({ container }) {
     setTimeout(() => {
-      context.update({
+      container.update({
         data: {
           lifecycle: 'mount'
         }

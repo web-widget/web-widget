@@ -50,30 +50,13 @@ WebSandbox 的沙箱实现采用了 TC39 Realms 第二阶段规范实现的，�
 
   const createLoader = HTMLWebWidgetElement.prototype.createLoader;
   HTMLWebWidgetElement.prototype.createLoader = function() {
-    const { src, text, type } = this;
+    const { src, type } = this;
 
     if (type !== 'system') {
       return createLoader.apply(this, arguments);
     }
 
-    if (src) {
-      return System.import(src).then(module => module.default || module);
-    }
-
-    src = URL.createObjectURL(
-      new Blob([text], { type: 'application/javascript' })
-    );
-
-    return () => System.import(src).then(
-      module => {
-        URL.revokeObjectURL(src);
-        return module.default || module;
-      },
-      error => {
-        URL.revokeObjectURL(src);
-        throw error;
-      }
-    );
+    return System.import(src).then(module => module.default || module);
   }
 </script>
 ```

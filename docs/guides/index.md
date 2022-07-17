@@ -18,7 +18,6 @@ Web Widget 是一个 Web 前端的应用容器，它允许你将用户界面相�
 * 支持在浏览器中自动更新、版本管理
 * 容器支持扩展新特性，以便与其他程序集成
 * 支持路由驱动
-* 支持安全运行第三方代码
 
 了解我们做这些事情的背后动机：[设计 Web Widget 的动机](../discover/about.md)。
 
@@ -47,11 +46,9 @@ Web Widget 容器是一个 HTML 标签，它用来运行应用。
 <web-widget src="app.widget.js"></web-widget>
 ```
 
-容器具备多种性能、安全措施，以及可扩展性，它能够对应用进行统一优化。
-
 ## 指南
 
 * [应用开发指南](./developing/getting-started.md)：了解如何开发 Web Widget 应用
 * [容器化指南](./architecture/getting-started.md)：了解如何在 Web 工程中部署前端容器化架构
 
-> Web Widget 还在高速发展阶段，尚未达到我们心目中的开源项目标准，如果你想知晓规划细节请联系我：[tangbing@gaoding.com](mailto:tangbing@gaoding.com)
+> 2022-07-17: Web Widget 即将开源，如果你想知晓规划细节请联系我：[tangbing@gaoding.com](mailto:tangbing@gaoding.com)

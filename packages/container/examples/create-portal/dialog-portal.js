@@ -10,17 +10,17 @@ export default () => {
 
     dialogWidget.name = 'dialog';
     dialogWidget.application = () => ({
-      async bootstrap({ container, context }) {
+      async bootstrap({ container }) {
         const dialogMain = document.createElement('slot');
         const dialogCloseButton = document.createElement('button');
 
         dialogCloseButton.innerText = 'close';
-        dialogCloseButton.onclick = () => context.unmount();
+        dialogCloseButton.onclick = () => container.unmount();
 
         container.appendChild(dialogCloseButton);
         container.appendChild(dialogMain);
         dialog.addEventListener('close', () => {
-          context.unmount();
+          container.unmount();
         });
       },
       async mount() {

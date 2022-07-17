@@ -6,7 +6,7 @@ export default () => {
       console.log('demo bootstrap');
       element = document.createElement('div');
     },
-    async mount({ container, context, createPortal }) {
+    async mount({ container, createPortal }) {
       console.log('demo mount');
 
       element.innerHTML = `
@@ -19,7 +19,7 @@ export default () => {
       container.appendChild(element);
 
       container.querySelector('#close-self').onclick = () => {
-        context.unmount();
+        container.unmount();
       };
 
       container.querySelector('#open-portal').onclick = () => {

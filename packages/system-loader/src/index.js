@@ -1,6 +1,6 @@
 /* global HTMLWebWidgetElement, window */
 const CONFIG = {
-  remoteSystem: 'https://cdn.jsdelivr.net/npm/systemjs@6/dist/s.min.js'
+  remoteSystem: 'https://unpkg.com/systemjs@6.12.1/dist/s.min.js'
 };
 
 function getModuleValue(module) {
@@ -27,33 +27,7 @@ function importScript(url, defaultView) {
 }
 
 async function getSystem(defaultView, fallbackUrl) {
-  const sandboxed = window !== defaultView;
-  const type = 'systemjs-importmap';
-  const importmapSelector = `script[type=${type}]`;
   let importmapSystemjs;
-
-  // 复制 import maps 配置到沙盒
-  if (sandboxed && !defaultView.document.querySelector(importmapSelector)) {
-    const source = window.document.querySelector(importmapSelector);
-    if (source) {
-      const script = defaultView.document.createElement('script');
-      script.type = type;
-      try {
-        const { imports } = JSON.parse(source.text);
-        importmapSystemjs = imports.systemjs;
-      } catch (e) {
-        // no error
-      }
-
-      if (source.src) {
-        script.src = source.src;
-      } else {
-        script.text = source.text;
-      }
-
-      defaultView.document.head.appendChild(script);
-    }
-  }
 
   // 载入远程的 SystemJS
   if (!defaultView.System) {
@@ -72,30 +46,10 @@ async function getSystem(defaultView, fallbackUrl) {
 }
 
 async function loader(view) {
-  const { src, text, sandboxed } = view;
-  const defaultView = sandboxed ? view.sandbox.window : window;
-  const { Blob, URL } = defaultView;
-  const System = await getSystem(defaultView, CONFIG.remoteSystem);
-  const nameOrPath = view.import || src;
+  const System = await getSystem(window, CONFIG.remoteSystem);
+  const nameOrPath = view.import || view.src;
 
-  if (nameOrPath) {
-    return System.import(nameOrPath).then(getModuleValue);
-  }
-
-  const url = URL.createObjectURL(
-    new Blob([text], { type: 'application/javascript' })
-  );
-
-  return System.import(url).then(
-    module => {
-      URL.revokeObjectURL(url);
-      return getModuleValue(module);
-    },
-    error => {
-      URL.revokeObjectURL(url);
-      throw error;
-    }
-  );
+  return System.import(nameOrPath).then(getModuleValue);
 }
 
 export function setConfig(options) {
