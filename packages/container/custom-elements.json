@@ -462,6 +462,10 @@
             },
             {
               "kind": "field",
+              "name": "env"
+            },
+            {
+              "kind": "field",
               "name": "sandboxed",
               "description": "Sandbox mode",
               "type": {
