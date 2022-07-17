@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/container",
   "version": "1.0.0-beta",
-  "description": "web widget",
+  "description": "Web front-end application container",
   "source": "src/index.js",
   "main": "dist/cjs/web-widget.js",
   "module": "dist/esm/web-widget.js",
