@@ -31,7 +31,7 @@
             },
             {
               "kind": "field",
-              "name": "#firstConnect",
+              "name": "#isFirstConnect",
               "privacy": "private",
               "type": {
                 "text": "boolean"
@@ -40,7 +40,7 @@
             },
             {
               "kind": "field",
-              "name": "#moveing",
+              "name": "#isMoveing",
               "privacy": "private",
               "type": {
                 "text": "boolean"
@@ -377,18 +377,10 @@
             },
             {
               "kind": "field",
-              "name": "parameters",
-              "description": "Application parameters",
+              "name": "env",
+              "description": "Application environment variables",
               "type": {
                 "text": "object"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "hydrateonly",
-              "description": "Hydrate mode",
-              "type": {
-                "text": "boolean"
               }
             }
           ],

@@ -38,8 +38,7 @@
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web-widget/builder": "^0.0.27",
-    "@web-widget/container": "^0.0.27",
-    "@web-widget/sandbox": "^0.0.27",
+    "@web-widget/container": "^1.0.0-beta",
     "@web-widget/server": "^0.0.27",
     "@web-widget/tester": "^0.0.27",
     "systemjs": "^6.11.0"
