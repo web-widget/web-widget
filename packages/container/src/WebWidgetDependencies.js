@@ -1,5 +1,7 @@
 /* global window */
 
+import deprecated from './utils/deprecated.js';
+
 const CONTEXT = Symbol('context');
 const CREATE_PORTAL = Symbol('createPortal');
 
@@ -40,7 +42,15 @@ export class WebWidgetDependencies {
    */
   get container() {
     const view = this.ownerElement;
-    view.renderRoot = view.renderRoot || view.createRenderRoot();
+
+    if (!view.renderRoot) {
+      view.renderRoot = view.createRenderRoot();
+      ['mount', 'update', 'unmount'].forEach(name => {
+        if (!view.renderRoot[name]) {
+          view.renderRoot[name] = properties => view[name](properties);
+        }
+      });
+    }
 
     return view.renderRoot;
   }
@@ -50,6 +60,7 @@ export class WebWidgetDependencies {
    * @type {object}
    */
   get context() {
+    deprecated('context', 'Please use "container" instead');
     if (!this[CONTEXT]) {
       this[CONTEXT] = createContext(this.ownerElement);
     }
@@ -64,6 +75,7 @@ export class WebWidgetDependencies {
    * @param {string}                name             Destination name
    */
   get createPortal() {
+    deprecated('createPortal');
     if (!this[CREATE_PORTAL]) {
       this[CREATE_PORTAL] = (widget, name) => {
         const view = this.ownerElement;
@@ -126,6 +138,7 @@ export class WebWidgetDependencies {
    * @type {string}
    */
   get name() {
+    deprecated('name');
     return this.ownerElement.name;
   }
 
@@ -134,6 +147,11 @@ export class WebWidgetDependencies {
    * @type {object}
    */
   get parameters() {
+    deprecated('parameters', 'env');
+    return this.env;
+  }
+
+  get env() {
     return [...this.ownerElement.attributes].reduce(
       (accumulator, { name, value }) => {
         accumulator[name] = value;
@@ -148,6 +166,7 @@ export class WebWidgetDependencies {
    * @type {boolean}
    */
   get sandboxed() {
+    deprecated('sandboxed');
     const { sandboxed } = this.ownerElement;
     return sandboxed;
   }

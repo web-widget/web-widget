@@ -8,6 +8,7 @@ import { queueMicrotask } from './utils/queueMicrotask.js';
 import { WebWidgetDependencies } from './WebWidgetDependencies.js';
 import { WebWidgetSandbox } from './WebWidgetSandbox.js';
 import * as status from './applications/status.js';
+import deprecated from './utils/deprecated.js';
 
 const APPLICATION = Symbol('application');
 const DATA = Symbol('data');
@@ -174,10 +175,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @type {string}
    */
   get csp() {
+    deprecated('csp');
     return this.getAttribute('csp') || '';
   }
 
   set csp(value) {
+    deprecated('csp');
     this.setAttribute('csp', value);
   }
 
@@ -273,10 +276,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @type {boolean}
    */
   get sandboxed() {
+    deprecated('sandboxed');
     return this.hasAttribute('sandboxed');
   }
 
   set sandboxed(value) {
+    deprecated('sandboxed');
     if (value) {
       this.setAttribute('sandboxed', '');
     } else {
@@ -291,10 +296,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @type {string}
    */
   get name() {
+    deprecated('name');
     return this.getAttribute('name') || '';
   }
 
   set name(value) {
+    deprecated('name');
     this.setAttribute('name', value);
   }
 
@@ -344,10 +351,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @type {string}
    */
   get text() {
+    deprecated('text');
     return this.getAttribute('text') || '';
   }
 
   set text(value) {
+    deprecated('text');
     this.setAttribute('text', value);
   }
 
@@ -374,6 +383,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   /** @ignore */
   createSandbox() {
+    deprecated('createSandbox');
     return new WebWidgetSandbox(this);
   }
 
@@ -646,6 +656,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @type {object}
    */
   static get portalDestinations() {
+    deprecated('portalDestinations');
     return globalPortalDestinations;
   }
 
