@@ -10,7 +10,6 @@
   * 删除 `name`
   * 删除 `sandboxed`
   * 删除 `createPortal`
-  * 删除 `hydrateonly`，可以使用 `env.hydrateonly === 'string'` 代替
 * 容器功能变更：
   * 无需插入 DOM 即可以调用 `bootstrap()` 函数，方便进行手动预加载应用
   * `data` 默认值由空对象变更为 `null`
