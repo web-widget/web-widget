@@ -1,16 +1,16 @@
 {
   "name": "@web-widget/system-loader",
-  "version": "0.0.27",
+  "version": "1.0.0-beta",
   "description": "Web Widget system loader",
   "source": "src/index.js",
-  "main": "dist/cjs/main.js",
-  "module": "dist/esm/main.js",
-  "system": "dist/system/main.js",
-  "unpkg": "dist/umd/main.js",
+  "main": "dist/cjs/web-widget.system-loader.js",
+  "module": "dist/esm/web-widget.system-loader.js",
+  "system": "dist/system/web-widget.system-loader.js",
+  "unpkg": "dist/umd/web-widget.system-loader.js",
   "libraryName": "WebWidgetSystemLoader",
   "exports": {
-    "require": "./dist/cjs/main.js",
-    "import": "./dist/esm/main.js"
+    "require": "./dist/cjs/web-widget.system-loader.js",
+    "import": "./dist/esm/web-widget.system-loader.js"
   },
   "scripts": {
     "build": "rm -rf dist && builder",
@@ -38,8 +38,7 @@
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web-widget/builder": "^0.0.27",
-    "@web-widget/container": "^0.0.27",
-    "@web-widget/sandbox": "^0.0.27",
+    "@web-widget/container": "^1.0.0-beta",
     "@web-widget/server": "^0.0.27",
     "@web-widget/tester": "^0.0.27",
     "systemjs": "^6.11.0"

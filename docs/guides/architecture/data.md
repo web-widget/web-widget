@@ -9,7 +9,6 @@ Web Widget 应用可以自己获取数据，也可以交给容器来获取数据
 * 对于小天气挂件这样的应用，通常由应用自己去获取天气数据
 * 如果应用由可视化编辑器进行可选项设置，那么需要统一的存储这些数据，这通常交给容器来管理数据
 * 如果想通过 SSR 方式渲染应用，数据要尽可能的提前准备好，这通常应该由容器来管理数据
-* 基于安全性的考虑，你可能需要会对应用设置更加严格的 CSP（内容安全策略）禁止它们自行请求数据
 
 Web Widget 应用程序就是普通的 JavaScript 代码，因此可以使用浏览器提供的诸如 `fetch` 或者 `XMLHttpRequest` 等方法来获取应用数据，而本文重点是描述如何通过容器管理应用数据。
 
@@ -63,16 +62,18 @@ export default () => ({
 
 ## 应用内部自更新数据
 
-应用也可以自己更新数据，通过 `context.update({ data })` 更新数据，这样容器可以观察到数据的变化，进而启动一些数据处理的流程。
+应用也可以自己更新数据，通过 `container.update({ data })` 更新数据，这样容器可以观察到数据的变化，进而启动一些数据处理的流程。
 
 ```js
 // app.widget.js
 export default () => ({
-  async mount({ data, context }) {
+  async mount({ data, container }) {
     // ...
     element.onclick = () => {
-      context.update({ data });
+      container.update({ data });
     }
+
+    container.appendChild(element);
   }
 });
 ```

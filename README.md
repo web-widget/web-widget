@@ -56,10 +56,6 @@ Web components 成为面向未来的组件标准，它提供了良好的隔离�
 
 [AMP](https://amp.dev) 提供了极致的网页载入性能优化思路，它有一整套被重新设计的组件系统，这使得它能最大程度保证性能。
 
-#### WebSandbox
-
-[WebSandbox.js](https://web-sandbox.js.org) 将虚拟化技术推进到 Web 前端领域，使得创建安全的第三方组件运行的容器化环境成为可能。对应的类似的技术是 [AMP](https://amp.dev) 推出的 [worker-dom](https://github.com/ampproject/worker-dom)，不过它无法使用同步的 DOM API、只能使用少量的 DOM API。
-
 #### OneBox
 
 Google 的 OneBox 与百度的框计算是被规模化应用的小挂件形态（例如在搜索引擎搜索“天气预报”，它们都能给出天气的小挂件结果），这些组件具备非常长的生命力并且可以直达用户。

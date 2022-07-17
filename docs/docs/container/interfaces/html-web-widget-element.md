@@ -56,24 +56,6 @@ widget.import = '@org/app';
 document.body.appendChild(widget);
 ```
 
-## text
-
-`string`
-
-设置应用的代码。这是一种本地应用的注册方式。
-
-```js
-const widget = document.createElement('web-widget');
-widget.text = `export default () => ({
-  async bootstrap(properties) {},
-  async mount(properties) {},
-  async update(properties) {},
-  async unmount(properties) {},
-  async unload(properties) {}
-})`;
-document.body.appendChild(widget);
-```
-
 ## data
 
 `object`
@@ -90,12 +72,6 @@ widget.data = { a: 'hello' };
 <web-widget data="{&quot;a&quot;:&quot;hello&quot;}" src="app.widget.js"></web-widget>
 ```
 
-## name
-
-`string`
-
-应用名称。应用脚本可以通过生命周期的 `properties.name` 访问到。
-
 ## inactive
 
 `boolean`
@@ -111,20 +87,6 @@ document.body.appendChild(widget);
 // 手动挂载
 widget.mount();
 ```
-
-## sandboxed
-
-`boolean`
-
-沙盒化应用。启用后 Web Widget 应用将使用虚拟化环境来运行 JS（实验性特性）。虚拟化环境来自 [WebSandbox](https://web-sandbox.js.org)。
-
-此特性需要引入 [sandbox](../plugins/sandbox.md) 插件才能生效。
-
-## csp
-
-`string`
-
-内容安全策略。只有开启 `sandboxed` 属性后才有效（实验性特性）。
 
 ## loading
 
@@ -151,7 +113,7 @@ widget.mount();
 
 <inline-notification type="warning">
 
-关闭 light DOM 后，Web Widget 容器的沙箱、插槽特性都将无法工作。
+关闭 light DOM 后，Web Widget 容器的插槽特性将无法工作。
 
 </inline-notification>
 
@@ -280,73 +242,6 @@ widget.update(properties);
 手动触发应用 `unload` 生命周期函数。
 
 返回值：`Promise`
-
-## \#portalDestinations
-
-`object`
-
-全局传送门注册表（实验性特性）。这是一个**静态属性**。
-
-它有两个方法：
-
-* `get(name)`
-* `define(name, factory)`
-
-定义传送门目的地：
-
-```js
-import { HTMLWebWidgetElement } from '@web-widget/container';
-
-let dialog, dialogWidget;
-HTMLWebWidgetElement.portalDestinations.define('dialog', () => {
-  // Single instance
-  if (!dialog) {
-    dialog = document.createElement('dialog');
-    dialogWidget = document.createElement('web-widget');
-
-    document.body.appendChild(dialog);
-    dialog.appendChild(dialogWidget);
-
-    dialogWidget.name = 'dialog';
-    dialogWidget.application = () => ({
-      async bootstrap({ container, context }) {
-        const dialogMain = document.createElement('slot');
-        const dialogCloseButton = document.createElement('button');
-
-        dialogCloseButton.innerText = 'close';
-        dialogCloseButton.onclick = () => context.unmount();
-
-        container.appendChild(dialogCloseButton);
-        container.appendChild(dialogMain);
-        dialog.addEventListener('close', () => {
-          context.unmount();
-        });
-      },
-      async mount() {
-        dialog.showModal();
-      },
-      async unmount() {
-        dialog.close();
-      }
-    });
-  }
-
-  return dialogWidget;
-});
-```
-
-传送门定义好后，应用可以通过 [`createPortal()`](../../application/interface.md#createportal) 将子 Web Widget 容器传送到指定的位置渲染：
-
-```js
-// app.widget.js
-export async function mount({ container, createPortal }) {
-  const userWidget = document.createElement('web-widget');
-  userWidget.slot = 'main';
-  userWidget.src = './user.widget.js';
-  // 传送应用
-  const cardWidget = createPortal(userWidget, 'dialog');
-})
-```
 
 ## \#timeouts
 

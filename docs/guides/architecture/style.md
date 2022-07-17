@@ -60,37 +60,13 @@ export default () => ({
 
 ## 禁用 shadow DOM
 
-通过容器[接口](../../docs/container/interfaces/html-web-widget-element.md#createrenderroot)可以关闭默认开启的 shadow DOM，例如为 Web Widget 容器增加一个 `noshadow` 开关：
-
-```js
-function defineHook(target, name, callback) {
-  return Reflect.defineProperty(
-    target,
-    name,
-    callback(Reflect.getOwnPropertyDescriptor(target, name))
-  );
-}
-
-defineHook(HTMLWebWidgetElement.prototype, 'createRenderRoot', ({ value }) => ({ 
-  value() {
-    const { src, text, type } = this;
-
-    if (this.hasAttribute('noshadow')) {
-      return this;
-    }
-
-    return value.apply(this, arguments);
-  }
-}));
-```
-
 ```html
-<web-widget src="app.widget.js" noshadow></web-widget>
+<web-widget src="app.widget.js" rendertarget="light"></web-widget>
 ```
 
 <inline-notification type="warning">
 
-关闭 shadow DOM 后，你需要自己管理应用可能造成的样式冲突的问题，并且 Web Widget 容器的沙箱、插槽等众多高级特性都将无法工作。
+关闭 shadow DOM 后，你需要自己管理应用可能造成的样式冲突的问题，并且 Web Widget 容器的插槽等众多高级特性都将无法工作。
 
 </inline-notification>
 

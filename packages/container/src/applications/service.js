@@ -3,34 +3,32 @@ import { INITIAL } from './status.js';
 import { reasonableTime } from './timeouts.js';
 import { rules } from './flow.js';
 
-const SET_STATE = Symbol('setState');
-
 export class ApplicationService {
-  constructor(loader, dependencies, timeouts) {
+  constructor({
+    loader,
+    getDependencies,
+    stateChangeCallback,
+    context,
+    timeouts
+  }) {
     this.timeouts = timeouts;
     this.state = INITIAL;
-    this.lifecycles = Object.create(null);
+    this.lifecycles = context;
     this.loader = loader.bind(this.lifecycles);
-    this.getDependencies = () => {
-      if (typeof dependencies === 'function') {
-        dependencies = dependencies();
-      }
-      return dependencies;
-    };
+    this.getDependencies = getDependencies;
+    this.stateChangeCallback = stateChangeCallback;
   }
 
   getState() {
     return this.state;
   }
 
-  [SET_STATE](value) {
+  #setState(value) {
     if (value !== this.state) {
       this.state = value;
       this.stateChangeCallback();
     }
   }
-
-  stateChangeCallback() {}
 
   async trigger(name) {
     const timeout = this.timeouts[name];
@@ -74,26 +72,26 @@ export class ApplicationService {
       return undefined;
     }
 
-    this[SET_STATE](pending);
+    this.#setState(pending);
 
     if (!this.lifecycles[name]) {
-      this[SET_STATE](fulfilled);
+      this.#setState(fulfilled);
       return undefined;
     }
 
     this.pending = reasonableTime(
       name,
-      async () => this.lifecycles[name](this.getDependencies()),
+      async () => this.lifecycles[name](this.getDependencies(name)),
       dieOnTimeout ? timeout : rules[name].timeout,
       dieOnTimeout,
       timeoutWarning
     )
       .then(() => {
-        this[SET_STATE](fulfilled);
+        this.#setState(fulfilled);
         delete this.pending;
       })
       .catch(error => {
-        this[SET_STATE](rejected);
+        this.#setState(rejected);
         delete this.pending;
         throw error;
       });

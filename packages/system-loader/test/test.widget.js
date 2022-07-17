@@ -1,10 +1,11 @@
 /* eslint-disable no-undef */
+
 System.register([], exports => ({
   execute() {
     exports('default', () => ({
-      async mount({ context }) {
+      async mount({ container }) {
         setTimeout(() => {
-          context.update({
+          container.update({
             data: {
               lifecycle: 'mount'
             }

@@ -1,16 +1,16 @@
 {
   "name": "@web-widget/umd-loader",
-  "version": "0.0.27",
+  "version": "1.0.0-beta",
   "description": "Web Widget umd loader",
   "source": "src/index.js",
-  "main": "dist/cjs/main.js",
-  "module": "dist/esm/main.js",
-  "system": "dist/system/main.js",
-  "unpkg": "dist/umd/main.js",
+  "main": "dist/cjs/web-widget.umd-loader.js",
+  "module": "dist/esm/web-widget.umd-loader.js",
+  "system": "dist/system/web-widget.umd-loader.js",
+  "unpkg": "dist/umd/web-widget.umd-loader.js",
   "libraryName": "WebWidgetUmdLoader",
   "exports": {
-    "require": "./dist/cjs/main.js",
-    "import": "./dist/esm/main.js"
+    "require": "./dist/cjs/web-widget.umd-loader.js",
+    "import": "./dist/esm/web-widget.umd-loader.js"
   },
   "scripts": {
     "build": "rm -rf dist && builder",
@@ -37,8 +37,7 @@
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web-widget/builder": "^0.0.27",
-    "@web-widget/container": "^0.0.27",
-    "@web-widget/sandbox": "^0.0.27",
+    "@web-widget/container": "^1.0.0-beta",
     "@web-widget/server": "^0.0.27",
     "@web-widget/tester": "^0.0.27"
   }

@@ -13,6 +13,51 @@
           "members": [
             {
               "kind": "field",
+              "name": "#application",
+              "privacy": "private",
+              "type": {
+                "text": "null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#data",
+              "privacy": "private",
+              "type": {
+                "text": "null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "#isFirstConnect",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "#isMoveing",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "#timeouts",
+              "privacy": "private",
+              "type": {
+                "text": "null"
+              },
+              "default": "null"
+            },
+            {
+              "kind": "field",
               "name": "application",
               "description": "Register a local application",
               "type": {
@@ -23,16 +68,6 @@
                   "text": "Promise"
                 }
               }
-            },
-            {
-              "kind": "field",
-              "name": "csp",
-              "description": "Application content security policy",
-              "reflects": true,
-              "type": {
-                "text": "string"
-              },
-              "attribute": "csp"
             },
             {
               "kind": "field",
@@ -83,26 +118,6 @@
             },
             {
               "kind": "field",
-              "name": "sandboxed",
-              "description": "Whether to enable sandbox mode",
-              "reflects": true,
-              "type": {
-                "text": "boolean"
-              },
-              "attribute": "sandboxed"
-            },
-            {
-              "kind": "field",
-              "name": "name",
-              "description": "Application name",
-              "reflects": true,
-              "type": {
-                "text": "string"
-              },
-              "attribute": "name"
-            },
-            {
-              "kind": "field",
               "name": "src",
               "description": "Application URL",
               "reflects": true,
@@ -124,16 +139,6 @@
             {
               "kind": "field",
               "name": "rendertarget"
-            },
-            {
-              "kind": "field",
-              "name": "text",
-              "description": "Application source code",
-              "reflects": true,
-              "type": {
-                "text": "string"
-              },
-              "attribute": "text"
             },
             {
               "kind": "method",
@@ -236,20 +241,7 @@
             },
             {
               "kind": "method",
-              "name": "firstConnectedCallback"
-            },
-            {
-              "kind": "method",
               "name": "destroyedCallback"
-            },
-            {
-              "kind": "field",
-              "name": "portalDestinations",
-              "static": true,
-              "description": "Destination registration",
-              "type": {
-                "text": "object"
-              }
             },
             {
               "kind": "field",
@@ -295,28 +287,12 @@
               "fieldName": "src"
             },
             {
-              "name": "text",
-              "description": "Application source code",
-              "type": {
-                "text": "string"
-              },
-              "fieldName": "text"
-            },
-            {
               "name": "inactive",
               "description": "Whether the application is inactive",
               "type": {
                 "text": "boolean"
               },
               "fieldName": "inactive"
-            },
-            {
-              "name": "csp",
-              "description": "Application content security policy",
-              "type": {
-                "text": "string"
-              },
-              "fieldName": "csp"
             },
             {
               "name": "loading",
@@ -333,22 +309,6 @@
                 "text": "string"
               },
               "fieldName": "type"
-            },
-            {
-              "name": "sandboxed",
-              "description": "Whether to enable sandbox mode",
-              "type": {
-                "text": "boolean"
-              },
-              "fieldName": "sandboxed"
-            },
-            {
-              "name": "name",
-              "description": "Application name",
-              "type": {
-                "text": "string"
-              },
-              "fieldName": "name"
             }
           ],
           "superclass": {
@@ -409,35 +369,6 @@
             },
             {
               "kind": "field",
-              "name": "context",
-              "description": "Container context interface",
-              "type": {
-                "text": "object"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "createPortal",
-              "description": "Create a portal",
-              "parameters": [
-                {
-                  "description": "Web widget container",
-                  "name": "webWidgetElement",
-                  "type": {
-                    "text": "HTMLWebWidgetElement"
-                  }
-                },
-                {
-                  "description": "Destination name",
-                  "name": "name",
-                  "type": {
-                    "text": "string"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "field",
               "name": "data",
               "description": "Application data",
               "type": {
@@ -446,26 +377,10 @@
             },
             {
               "kind": "field",
-              "name": "name",
-              "description": "Application name",
-              "type": {
-                "text": "string"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "parameters",
-              "description": "Application parameters",
+              "name": "env",
+              "description": "Application environment variables",
               "type": {
                 "text": "object"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "sandboxed",
-              "description": "Sandbox mode",
-              "type": {
-                "text": "boolean"
               }
             }
           ],
@@ -482,12 +397,6 @@
           }
         }
       ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/WebWidgetSandbox.js",
-      "declarations": [],
-      "exports": []
     },
     {
       "kind": "javascript-module",
@@ -516,14 +425,6 @@
           "declaration": {
             "name": "WebWidgetDependencies",
             "module": "./WebWidgetDependencies.js"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "WebWidgetSandbox",
-          "declaration": {
-            "name": "WebWidgetSandbox",
-            "module": "./WebWidgetSandbox.js"
           }
         }
       ]

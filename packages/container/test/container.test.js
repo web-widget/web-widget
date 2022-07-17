@@ -11,14 +11,6 @@ HTMLElement.prototype.attachShadow = function attachShadow() {
 const emptyWidget = document.createElement('web-widget');
 Object.freeze(emptyWidget);
 
-const get = url =>
-  fetch(url).then(res => {
-    if (!res.ok) {
-      throw Error([res.status, res.statusText, url].join(', '));
-    }
-    return res.text();
-  });
-
 const createWidget = callback => {
   const lifecycleHistory = [];
   const stateHistory = [];
@@ -72,14 +64,11 @@ const createWidget = callback => {
 describe('Element default properties', () => {
   it('properties', () => {
     expect(emptyWidget).to.have.property('application', null);
-    expect(emptyWidget).to.have.property('csp', '');
     expect(emptyWidget).to.have.property('import', '');
     expect(emptyWidget).to.have.property('inactive', false);
     expect(emptyWidget).to.have.property('loading', 'auto');
-    expect(emptyWidget).to.have.property('name', '');
     expect(emptyWidget).to.have.property('src', '');
     expect(emptyWidget).to.have.property('state', HTMLWebWidgetElement.INITIAL);
-    expect(emptyWidget).to.have.property('text', '');
     expect(emptyWidget).to.have.property('type', 'module');
   });
 
@@ -95,9 +84,7 @@ describe('Element default properties', () => {
   it('hooks', () => {
     expect(emptyWidget).to.have.property('createDependencies').is.a('function');
     expect(emptyWidget).to.have.property('createLoader').is.a('function');
-    expect(HTMLWebWidgetElement)
-      .to.have.property('portalDestinations')
-      .is.a('object');
+    expect(emptyWidget).to.have.property('createRenderRoot').is.a('function');
   });
 });
 
@@ -121,22 +108,6 @@ describe('Load module', () => {
     widget.inactive = true;
     widget.type = 'module';
     widget.src = '/test/widgets/hello-world.single-instance.esm.widget.js';
-    document.body.appendChild(widget);
-
-    return widget.load().then(() => {
-      if (window.TEST_LIFECYCLE !== 'load') {
-        throw new Error('Load error');
-      }
-    });
-  });
-
-  it('Load the ES module: local', async () => {
-    const widget = document.createElement('web-widget');
-    widget.inactive = true;
-    widget.type = 'module';
-    widget.text = await get(
-      '/test/widgets/hello-world.single-instance.esm.widget.js'
-    );
     document.body.appendChild(widget);
 
     return widget.load().then(() => {
@@ -237,36 +208,7 @@ describe('Auto load', () => {
       }
     });
     document.body.appendChild(widget);
-    widget.name = 'HelloWorld';
     widget.src = src;
-  });
-
-  it('Connected (text)', done => {
-    get(src).then(text => {
-      const widget = document.createElement('web-widget');
-      widget.type = 'module';
-      widget.text = text;
-      widget.addEventListener('statechange', function () {
-        if (this.state === HTMLWebWidgetElement.MOUNTED) {
-          done();
-        }
-      });
-      document.body.appendChild(widget);
-    });
-  });
-
-  it('Property changed (text)', done => {
-    get(src).then(text => {
-      const widget = document.createElement('web-widget');
-      widget.type = 'module';
-      widget.addEventListener('statechange', function () {
-        if (this.state === HTMLWebWidgetElement.MOUNTED) {
-          done();
-        }
-      });
-      document.body.appendChild(widget);
-      widget.text = text;
-    });
   });
 
   it('Connected (application)', done => {
@@ -292,15 +234,15 @@ describe('Auto load', () => {
   });
 });
 
-describe('Application property: parameters', () => {
-  it('parameters', () =>
+describe('Application property: env', () => {
+  it('env', () =>
     createWidget(async ({ widget, getProperties }) => {
       const value = String(Date.now());
       widget.setAttribute('test', value);
       await widget.mount();
-      expect(getProperties().parameters).to.have.property('test', value);
+      expect(getProperties().env).to.have.property('test', value);
       await widget.unload();
-      expect(getProperties().parameters).to.have.property('test', value);
+      expect(getProperties().env).to.have.property('test', value);
     }));
 });
 
@@ -312,15 +254,13 @@ describe('Application property: container', () => {
       await widget.unload();
       expect(getProperties().container).to.be.an.instanceof(ShadowRoot);
     }));
-});
 
-describe('Application property: context', () => {
   it('context', () =>
     createWidget(async ({ widget, getProperties }) => {
       await widget.mount();
-      await getProperties().context.unmount();
+      await getProperties().container.unmount();
       expect(widget.state).to.equal(HTMLWebWidgetElement.BOOTSTRAPPED);
-      await getProperties().context.mount();
+      await getProperties().container.mount();
       expect(widget.state).to.equal(HTMLWebWidgetElement.MOUNTED);
     }));
 });
@@ -384,18 +324,6 @@ describe('Application property: data', () => {
     }));
 });
 
-describe('Application property: name', () => {
-  it('name', () =>
-    createWidget(async ({ widget, getProperties }) => {
-      const value = String(Date.now());
-      widget.name = value;
-      await widget.mount();
-      expect(getProperties()).to.have.property('name', value);
-      await widget.unload();
-      expect(getProperties()).to.have.property('name', value);
-    }));
-});
-
 describe('Events', () => {
   it('statechange', () =>
     createWidget(async ({ getStateHistory, widget }) => {
@@ -422,53 +350,36 @@ describe('Events', () => {
     }));
 });
 
-describe('Placeholder', () => {
+describe('Placeholder element', () => {
   it('placeholder', () =>
     createWidget(async ({ widget }) => {
       const placeholder = document.createElement('placeholder');
       widget.appendChild(placeholder);
       await widget.load();
-      expect(placeholder).to.have.property('hidden', false);
+      expect(placeholder).to.have.property('isConnected', true);
       await widget.bootstrap();
-      expect(placeholder).to.have.property('hidden', false);
+      expect(placeholder).to.have.property('isConnected', true);
       await widget.mount();
-      expect(placeholder).to.have.property('hidden', true);
+      expect(placeholder).to.have.property('isConnected', false);
     }));
-
-  // it('Only works on the first placeholder element', () =>
-  //   createWidget(async ({ widget }) => {
-  //     const placeholder1 = document.createElement('placeholder');
-  //     const placeholder2 = document.createElement('placeholder');
-  //     widget.appendChild(placeholder1);
-  //     widget.appendChild(placeholder2);
-  //     await widget.load();
-  //     expect(placeholder1).to.have.property('hidden', false);
-  //     expect(placeholder2).to.have.property('hidden', false);
-  //     await widget.bootstrap();
-  //     expect(placeholder1).to.have.property('hidden', false);
-  //     expect(placeholder2).to.have.property('hidden', false);
-  //     await widget.mount();
-  //     expect(placeholder1).to.have.property('hidden', true);
-  //     expect(placeholder2).to.have.property('hidden', false);
-  //   }));
 
   it('The placeholder element must be a direct descendant', () =>
     createWidget(async ({ widget }) => {
       const child = document.createElement('div');
+      const childPlaceholder = document.createElement('placeholder');
       const placeholder = document.createElement('placeholder');
-      const placeholder2 = document.createElement('placeholder');
-      child.appendChild(placeholder);
+      child.appendChild(childPlaceholder);
       widget.appendChild(child);
-      widget.appendChild(placeholder2);
+      widget.appendChild(placeholder);
       await widget.load();
-      expect(placeholder).to.have.property('hidden', false);
-      expect(placeholder2).to.have.property('hidden', false);
+      expect(childPlaceholder).to.have.property('isConnected', true);
+      expect(placeholder).to.have.property('isConnected', true);
       await widget.bootstrap();
-      expect(placeholder).to.have.property('hidden', false);
-      expect(placeholder2).to.have.property('hidden', false);
+      expect(childPlaceholder).to.have.property('isConnected', true);
+      expect(placeholder).to.have.property('isConnected', true);
       await widget.mount();
-      expect(placeholder).to.have.property('hidden', false);
-      expect(placeholder2).to.have.property('hidden', true);
+      expect(childPlaceholder).to.have.property('isConnected', true);
+      expect(placeholder).to.have.property('isConnected', false);
     }));
 
   it('Change visibility only once', () =>
@@ -476,22 +387,22 @@ describe('Placeholder', () => {
       const placeholder = document.createElement('placeholder');
       widget.appendChild(placeholder);
       await widget.load();
-      expect(placeholder).to.have.property('hidden', false);
+      expect(placeholder).to.have.property('isConnected', true);
       await widget.bootstrap();
-      expect(placeholder).to.have.property('hidden', false);
+      expect(placeholder).to.have.property('isConnected', true);
       await widget.mount();
-      expect(placeholder).to.have.property('hidden', true);
+      expect(placeholder).to.have.property('isConnected', false);
       await widget.update();
-      expect(placeholder).to.have.property('hidden', true);
+      expect(placeholder).to.have.property('isConnected', false);
       await widget.unmount();
-      expect(placeholder).to.have.property('hidden', true);
+      expect(placeholder).to.have.property('isConnected', false);
       await widget.unload();
-      expect(placeholder).to.have.property('hidden', true);
+      expect(placeholder).to.have.property('isConnected', false);
       await widget.load();
-      expect(placeholder).to.have.property('hidden', true);
+      expect(placeholder).to.have.property('isConnected', false);
       await widget.bootstrap();
-      expect(placeholder).to.have.property('hidden', true);
+      expect(placeholder).to.have.property('isConnected', false);
       await widget.mount();
-      expect(placeholder).to.have.property('hidden', true);
+      expect(placeholder).to.have.property('isConnected', false);
     }));
 });

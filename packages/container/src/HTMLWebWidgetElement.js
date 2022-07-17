@@ -1,154 +1,102 @@
-/* global window, document, customElements, HTMLElement, Event, Node, IntersectionObserver, URL, MutationObserver, setTimeout, clearTimeout */
+/* global window, customElements, HTMLElement, Event, URL */
 // eslint-disable-next-line max-classes-per-file
 import { ApplicationService } from './applications/service.js';
 import { createRegistry } from './utils/registry.js';
-import { getParentNode } from './utils/nodes.js';
 import { moduleLoader } from './loaders/module.js';
 import { queueMicrotask } from './utils/queueMicrotask.js';
+import { observe, unobserve } from './utils/visibleObserver.js';
 import { WebWidgetDependencies } from './WebWidgetDependencies.js';
-import { WebWidgetSandbox } from './WebWidgetSandbox.js';
 import * as status from './applications/status.js';
 
-const APPLICATION = Symbol('application');
-const DATA = Symbol('data');
-const FIRST_CONNECTED = Symbol('firstConnect');
-const APPLICATION_SERVICE = Symbol('applicationService');
-const MOVEING = Symbol('moveing');
-const PARENT_WIDGET = Symbol('parentWidget');
-const STATECHANGE_CALLBACK = Symbol('statechangeCallback');
-const THROW_GLOBAL_ERROR = Symbol('throwGlobalError');
-const TIMEOUTS = Symbol('timeouts');
-const TRIGGER = Symbol('trigger');
-const TRY_AUTO_LOAD = Symbol('tryAutoLoad');
-const TRY_AUTO_LOAD_TIMER = Symbol('tryAutoLoadTimer');
-const TRY_AUTO_UNLOAD = Symbol('tryAutoUnload');
-const TRY_AUTO_UNLOAD_TIMER = Symbol('tryAutoUnloadTimer');
-
-const globalPortalDestinations = createRegistry();
 const globalLoaders = createRegistry();
 let globalTimeouts = Object.create(null);
 
-const isBindingElementLifecycle = view => !view.inactive;
-const isResourceReady = view =>
-  view.isConnected &&
-  (view.import || view.src || view.application || view.text);
-const isAutoLoad = view =>
-  isBindingElementLifecycle(view) && isResourceReady(view);
-const isAutoUnload = isBindingElementLifecycle;
-
-const lazyObserver = new IntersectionObserver(
-  entries => {
-    entries.forEach(({ isIntersecting, target }) => {
-      if (isIntersecting && isAutoLoad(target)) {
-        target[TRY_AUTO_LOAD]();
-        lazyObserver.unobserve(target);
-      }
-    });
-  },
-  {
-    rootMargin: '80%'
+const removeElement = (element, confirm) => {
+  if (confirm) {
+    element.parentNode.removeChild(element);
   }
-);
-
-function addLazyLoad(view) {
-  lazyObserver.observe(view);
-}
-
-function removeLazyLoad(view) {
-  lazyObserver.unobserve(view);
-}
-
-function watchWebWidgetAlias(context, callback) {
-  const name = 'web-widget';
-  callback(
-    [...context.querySelectorAll(`[is=${name}]`)].filter(element =>
-      element.localName.includes('-')
-    )
-  );
-  new MutationObserver(mutationsList => {
-    callback(
-      mutationsList
-        .reduce((accumulator, { type, target, addedNodes }) => {
-          if (type === 'attributes') {
-            accumulator.push(target);
-          } else {
-            accumulator.push(...addedNodes);
-          }
-          return accumulator;
-        }, [])
-        .filter(
-          node =>
-            node.nodeType === Node.ELEMENT_NODE &&
-            node.localName.includes('-') &&
-            node.getAttribute('is') === name
-        )
-    );
-  }).observe(context, {
-    attributeFilter: ['is'],
-    attributes: true,
-    childList: true,
-    subtree: true
-  });
-}
-
-function updateElement(context) {
-  watchWebWidgetAlias(context, elements => {
-    elements.forEach(target => {
-      const alias = target.localName;
-      if (!customElements.get(alias)) {
-        // ignore analyze
-        const define = 'define';
-        // eslint-disable-next-line no-use-before-define
-        customElements[define](alias, class extends HTMLWebWidgetElement {});
-      }
-    });
-  });
-}
+};
 
 /**
  * @summary Web Widget Container
  * @event {Event} statechange
  */
 export class HTMLWebWidgetElement extends HTMLElement {
+  #application = null;
+
+  #applicationService = null;
+
+  #data = null;
+
+  #isFirstConnect = false;
+
+  #isMoveing = false;
+
+  #timeouts = null;
+
+  #ready = null;
+
   constructor() {
     super();
 
+    let done;
     const view = this;
-    const applicationService = new ApplicationService(
-      function (dependencies) {
-        if (!isResourceReady(view)) {
-          throw new Error(`Cannot load: Not initialized`);
-        }
-
+    const applicationService = new ApplicationService({
+      loader(dependencies) {
         const { application } = view;
-        view.sandbox =
-          view.sandbox || view.sandboxed ? view.createSandbox() : null;
         view.renderRoot = null;
         view.loader = application || view.createLoader();
-        view.portals = [];
-
-        if (view.sandboxed && !view.sandbox.window) {
-          throw new Error(`Sandbox mode is not implemented`);
-        }
-
         return view.loader.call(this, dependencies);
       },
-      () => {
+      getDependencies: () => {
+        if (this.dependencies) {
+          return this.dependencies;
+        }
         const dependencies = this.createDependencies();
         this.dependencies = dependencies;
         return dependencies;
       },
-      this.timeouts
-    );
+      stateChangeCallback: () => {
+        this.#stateChangeCallback();
+        this.dispatchEvent(new Event('statechange'));
+      },
+      context: Object.create(null),
+      timeouts: this.timeouts
+    });
 
     /** @ignore */
     applicationService.stateChangeCallback = () => {
-      this[STATECHANGE_CALLBACK]();
+      this.#stateChangeCallback();
       this.dispatchEvent(new Event('statechange'));
     };
 
     /** @ignore */
-    this[APPLICATION_SERVICE] = applicationService;
+    this.#applicationService = applicationService;
+
+    /** @ignore */
+    this.#ready = Object.assign(
+      new Promise(resolve => {
+        done = resolve;
+      }),
+      {
+        change: () => {
+          if (done) {
+            done();
+            done = null;
+          }
+        }
+      }
+    );
+
+    this.#ready.then(() => {
+      if (
+        !this.inactive &&
+        this.isConnected &&
+        (this.import || this.src || this.application)
+      ) {
+        this.mount().catch(this.#throwGlobalError.bind(this));
+      }
+    });
   }
 
   /**
@@ -157,28 +105,16 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @returns {Promise}
    */
   get application() {
-    return this[APPLICATION] || null;
+    return this.#application || null;
   }
 
   set application(value) {
     if (typeof value === 'function') {
-      this[APPLICATION] = value;
-      this[TRY_AUTO_LOAD]();
+      this.#application = value;
+      if (this.loading !== 'lazy') {
+        this.#ready.change();
+      }
     }
-  }
-
-  /**
-   * Application content security policy
-   * @attr
-   * @reflect
-   * @type {string}
-   */
-  get csp() {
-    return this.getAttribute('csp') || '';
-  }
-
-  set csp(value) {
-    this.setAttribute('csp', value);
   }
 
   /**
@@ -187,27 +123,27 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @type {(object|array)}
    */
   get data() {
-    if (!this[DATA]) {
+    if (!this.#data) {
       const dataAttr = this.getAttribute('data');
 
       if (dataAttr) {
         try {
-          this[DATA] = JSON.parse(dataAttr);
+          this.#data = JSON.parse(dataAttr);
         } catch (error) {
-          this[THROW_GLOBAL_ERROR](error);
-          this[DATA] = {};
+          this.#throwGlobalError(error);
+          this.#data = null;
         }
-      } else {
-        this[DATA] = { ...this.dataset };
+      } else if (Object.entries(this.dataset).length) {
+        this.#data = { ...this.dataset };
       }
     }
 
-    return this[DATA];
+    return this.#data;
   }
 
   set data(value) {
     if (typeof value === 'object') {
-      this[DATA] = value;
+      this.#data = value;
     }
   }
 
@@ -263,39 +199,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @type {string}
    */
   get state() {
-    return this[APPLICATION_SERVICE].getState();
-  }
-
-  /**
-   * Whether to enable sandbox mode
-   * @attr
-   * @reflect
-   * @type {boolean}
-   */
-  get sandboxed() {
-    return this.hasAttribute('sandboxed');
-  }
-
-  set sandboxed(value) {
-    if (value) {
-      this.setAttribute('sandboxed', '');
-    } else {
-      this.removeAttribute('sandboxed');
-    }
-  }
-
-  /**
-   * Application name
-   * @attr
-   * @reflect
-   * @type {string}
-   */
-  get name() {
-    return this.getAttribute('name') || '';
-  }
-
-  set name(value) {
-    this.setAttribute('name', value);
+    return this.#applicationService.getState();
   }
 
   /**
@@ -337,31 +241,17 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('rendertarget', value);
   }
 
-  /**
-   * Application source code
-   * @attr
-   * @reflect
-   * @type {string}
-   */
-  get text() {
-    return this.getAttribute('text') || '';
-  }
-
-  set text(value) {
-    this.setAttribute('text', value);
-  }
-
   /** @ignore */
   get timeouts() {
-    if (!this[TIMEOUTS]) {
-      this[TIMEOUTS] = { ...this.constructor.timeouts };
+    if (!this.#timeouts) {
+      this.#timeouts = { ...this.constructor.timeouts };
     }
-    return this[TIMEOUTS];
+    return this.#timeouts;
   }
 
   /** @ignore */
   set timeouts(value) {
-    this[TIMEOUTS] = value;
+    this.#timeouts = value;
   }
 
   /**
@@ -372,26 +262,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return new WebWidgetDependencies(this);
   }
 
-  /** @ignore */
-  createSandbox() {
-    return new WebWidgetSandbox(this);
-  }
-
   /**
    * Create the application's render node
    * @returns {HTMLElement}
    */
   createRenderRoot() {
     let renderRoot = null;
-    const { sandboxed, sandbox } = this;
 
-    if (sandboxed) {
-      const sandboxDoc = sandbox.window.document;
-      const style = sandboxDoc.createElement('style');
-      style.textContent = `body{margin:0}`;
-      sandboxDoc.head.appendChild(style);
-      renderRoot = sandboxDoc.body;
-    } else if (this.rendertarget === 'shadow') {
+    if (this.rendertarget === 'shadow') {
       if (this.hasAttribute('hydrateonly')) {
         if (this.attachInternals) {
           const internals = this.attachInternals();
@@ -402,8 +280,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
       if (!renderRoot) {
         renderRoot = this.attachShadow({ mode: 'closed' });
       }
-
-      updateElement(renderRoot);
     } else if (this.rendertarget === 'light') {
       renderRoot = this;
     }
@@ -431,7 +307,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @returns {Promise}
    */
   async load() {
-    await this[TRIGGER]('load');
+    await this.#trigger('load');
   }
 
   /**
@@ -439,7 +315,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @returns {Promise}
    */
   async bootstrap() {
-    await this[TRIGGER]('bootstrap');
+    await this.#trigger('bootstrap');
   }
 
   /**
@@ -447,7 +323,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @returns {Promise}
    */
   async mount() {
-    await this[TRIGGER]('mount');
+    await this.#trigger('mount');
   }
 
   /**
@@ -458,7 +334,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   async update(properties = {}) {
     const dependencies = this.dependencies || {};
     Object.assign(dependencies, properties);
-    await this[TRIGGER]('update');
+    await this.#trigger('update');
   }
 
   /**
@@ -466,9 +342,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @returns {Promise}
    */
   async unmount() {
-    const portals = this.portals || [];
-    await this[TRIGGER]('unmount');
-    await Promise.all(portals.map(widget => widget.unmount()));
+    await this.#trigger('unmount');
   }
 
   /**
@@ -476,10 +350,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @returns {Promise}
    */
   async unload() {
-    const portals = this.portals || [];
     const dependencies = this.dependencies || {};
-    await this[TRIGGER]('unload');
-    await Promise.all(portals.map(widget => widget.unload()));
+    await this.#trigger('unload');
     Object.getOwnPropertyNames(dependencies).forEach(key => {
       Reflect.deleteProperty(dependencies, key);
     });
@@ -487,40 +359,31 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   connectedCallback() {
     // connected
-    if (!this[FIRST_CONNECTED]) {
-      this.firstConnectedCallback();
-      this[FIRST_CONNECTED] = true;
+    if (!this.#isFirstConnect) {
+      this.#firstConnectedCallback();
+      this.#isFirstConnect = true;
     } else {
-      if (this[MOVEING]) {
-        // this.movedCallback();
+      if (this.#isMoveing) {
+        // this.#movedCallback();
       }
     }
   }
 
-  firstConnectedCallback() {
-    if (this[PARENT_WIDGET]()) {
-      const { sandboxed, csp } = this[PARENT_WIDGET]();
-      if (sandboxed) {
-        this.sandboxed = sandboxed;
-      }
-      if (csp) {
-        this.csp = csp;
-      }
-    }
-
+  /** @ignore */
+  #firstConnectedCallback() {
     if (this.loading === 'lazy') {
-      addLazyLoad(this);
+      observe(this, () => this.#ready.change());
     } else {
-      this[TRY_AUTO_LOAD]();
+      this.#ready.change();
     }
   }
 
   disconnectedCallback() {
-    this[MOVEING] = true;
+    this.#isMoveing = true;
     // disconnected
     queueMicrotask(() => {
       if (!this.isConnected) {
-        this[MOVEING] = false;
+        this.#isMoveing = false;
         this.destroyedCallback();
       }
     });
@@ -528,49 +391,29 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   attributeChangedCallback(name) {
     if (name === 'data') {
-      delete this[DATA];
-    } else if (this.loading !== 'lazy') {
-      this[TRY_AUTO_LOAD]();
+      this.#data = null;
+    }
+    if (this.loading !== 'lazy') {
+      this.#ready.change();
     }
   }
 
   destroyedCallback() {
     if (this.loading === 'lazy') {
-      removeLazyLoad(this);
+      unobserve(this);
     }
-    this[TRY_AUTO_UNLOAD]();
+    if (!this.inactive) {
+      this.unload().catch(this.#throwGlobalError.bind(this));
+    }
   }
 
   /** @ignore */
-  [TRY_AUTO_LOAD]() {
-    this[TRY_AUTO_LOAD_TIMER] = setTimeout(() => {
-      if (isAutoLoad(this)) {
-        this.mount().catch(this[THROW_GLOBAL_ERROR].bind(this));
-      }
-      clearTimeout(this[TRY_AUTO_LOAD_TIMER]);
-    });
+  #trigger(name) {
+    return this.#applicationService.trigger(name, [this.dependencies]);
   }
 
   /** @ignore */
-  [TRY_AUTO_UNLOAD]() {
-    this[TRY_AUTO_UNLOAD_TIMER] = setTimeout(() => {
-      if (isAutoUnload(this)) {
-        this.unload().catch(this[THROW_GLOBAL_ERROR].bind(this));
-        if (this.sandboxed) {
-          this.sandbox.unload();
-        }
-      }
-      clearTimeout(this[TRY_AUTO_UNLOAD_TIMER]);
-    });
-  }
-
-  /** @ignore */
-  [TRIGGER](name) {
-    return this[APPLICATION_SERVICE].trigger(name, [this.dependencies]);
-  }
-
-  /** @ignore */
-  [STATECHANGE_CALLBACK]() {
+  #stateChangeCallback() {
     const state = this.state;
     this.setAttribute('state', state);
     if (
@@ -594,29 +437,20 @@ export class HTMLWebWidgetElement extends HTMLElement {
       }
 
       if (placeholder && fallback) {
-        placeholder.hidden = isError;
-        fallback.hidden = !isError;
+        removeElement(placeholder, isError);
+        removeElement(fallback, !isError);
       } else if (placeholder) {
         if (!isError) {
-          placeholder.hidden = true;
+          removeElement(placeholder, true);
         }
       } else if (fallback) {
-        fallback.hidden = !isError;
+        removeElement(fallback, !isError);
       }
     }
   }
 
   /** @ignore */
-  [PARENT_WIDGET]() {
-    const parentWidgetElement = getParentNode(this, this.constructor);
-    if (parentWidgetElement) {
-      return parentWidgetElement;
-    }
-    return null;
-  }
-
-  /** @ignore */
-  [THROW_GLOBAL_ERROR](error) {
+  #throwGlobalError(error) {
     const applicationName =
       this.name || this.import || this.src || this.localName;
     const prefix = `Web Widget application (${applicationName})`;
@@ -638,15 +472,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['data', 'import', 'src', 'text', 'inactive'];
-  }
-
-  /**
-   * Destination registration
-   * @type {object}
-   */
-  static get portalDestinations() {
-    return globalPortalDestinations;
+    return ['data', 'import', 'src', 'inactive'];
   }
 
   /** @ignore */
@@ -674,7 +500,6 @@ window.HTMLWebWidgetElement = HTMLWebWidgetElement;
 
 export function bootstrap() {
   customElements.define('web-widget', HTMLWebWidgetElement);
-  updateElement(document);
 }
 
 if (window.WEB_WIDGET_BOOTSTRAP !== false) {

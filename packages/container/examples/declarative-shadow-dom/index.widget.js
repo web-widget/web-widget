@@ -1,6 +1,6 @@
 export default () => ({
-  async mount({ container, parameters }) {
-    if (typeof parameters.hydrateonly === 'undefined') {
+  async mount({ container, env }) {
+    if (typeof env.hydrateonly === 'undefined') {
       container.innerHTML = `<button>hello wrold</button>`;
     }
 

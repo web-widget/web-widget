@@ -12,21 +12,21 @@ eleventyNavigation:
 
 Web Widget 应用被设计为一种独立的格式，它是一种和具体 UI 框架无关的设计模式层面的抽象，这样的设计模式被流行的微前端 [single-spa](https://single-spa.js.org/) 框架在多种项目中深入的实践，它足够的稳定，经得起时间的考验。
 
-在 UI 框架无关的基础上，这份抽象做到了应用容器无关，包括 Web Widget、[single-spa](https://single-spa.js.org/)，因此你完全可以根据此抽象实现自己的应用容器而不必依赖 Web Widget 技术设施。
+应用格式不仅仅抽象了不同的前端框架，也不和具体的应用容器绑定，包括 Web Widget、[single-spa](https://single-spa.js.org/)，因此你完全可以根据此抽象实现自己的应用容器而不必依赖 Web Widget 的容器。
 
-## 格式
+## 格式范式
 
 ### 入口文件
 
-入口文件导出了符合约定的生命周期函数：
+JavaScript 文件作为应用的入口文件，它导出了符合约定的生命周期函数：
 
 ```js
 export default (props) => ({
-  async bootstrap(props) {},
-  async mount(props) {},
-  async update(props) {},
-  async unmount(props) {},
-  async unload(props) {}
+  async bootstrap() {},
+  async mount() {},
+  async update() {},
+  async unmount() {},
+  async unload() {}
 });
 ```
 
@@ -42,7 +42,7 @@ export async function unload(props) {}
 
 * 所有生命周期函数都是可选的
 * 生命周期函数必须返回 `promise`（建议使用 `async` 函数保证这一点）
-* 生命周期函数第一个 `props` 参数接收应用内置的[接口](./interface.md)
+* 生命周期函数第一个 `props` 是应用生命周期参数
 
 ### 执行顺序
 
@@ -82,22 +82,56 @@ export async function unload(props) {}
        End
 ```
 
-### 应用接口
+## props
 
 应用除了可以使用 BOM 环境提供的 Web 标准接口之外，也有自己的专属接口，应用专属的接口将通过生命周期函数参数进行注入。
 
 ```js
-export default () => ({
-  async mount({ name, container }) {
-    const element = document.createElement('div');
-    element.innerHTML = `The application named '${name}' has been mounted`;
-    container.appendChild(element);
-    console.log('mounted!')
-  }
+export default ({ container, data, env, ...customProps }) => ({
+  async bootstrap() {},
+  async mount() {},
+  async update() {},
+  async unmount() {},
+  async unload() {}
 });
 ```
 
-详情见[应用接口](./interface.md)。
+`container`、`data` 与 `env` 是应用容器必须实现的接口；`customProps` 是来自外部任意注入的接口。
+
+#### container
+
+`HTMLElement`
+
+应用的容器。`container` 继承自 [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) 对象，可以使用如下 DOM 接口：
+
+* [`container.appendChild()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild) 将节点插入到末尾处
+* [`container.insertBefore()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/insertBefore) 在参考节点之前插入一个拥有指定父节点的子节点
+* [`container.hasChildNodes()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/hasChildNodes) 返回一个布尔值，表明容器是否包含有子节点
+* [`container.removeChild()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild) 删除容器中某个节点
+* [`container.innerHTML`](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML) 在容器中插入 HTML 字符串
+
+除了上述 DOM 接口之外，还有如下容器相关的接口：
+
+* [`container.mount()`](./#mount) 从容器上触发应用的挂载生命周期
+* [`container.update(props)`](./#update) 从容器上触发应用的更新生命周期
+* [`container.unmount()`](./#unmount) 从容器上触发应用的卸载生命周期
+
+#### data
+
+`object|array|null`
+
+应用的数据。它是一个可以被序列化的数据结构，允许应用自己通过 `container.update({ data })` 方法来更新数据。
+
+#### env
+
+`object`
+
+应用程序的启动参数。它是一个可以被序列化的数据结构，它视作一种环境变量。和 [`data`](#data) 区别：
+
+* [`data`](#data) 被设计为应用的数据，应用开发者对其结构完全知晓；而 `env` 可能包含非常多宿主特有的额外环境信息，例如 `theme`、`lang` 等，应用程序可以遵循它们完成特定的一些操作，也可以完全忽视它们而不会引起故障
+* 应用程序可以通过 `container.update({ data })` 来更新 [`data`](#data)
+
+> `<web-widget>` 元素会将所有的属性都放在 env 中。
 
 ## 下载
 
@@ -113,11 +147,11 @@ export default () => ({
 });
 ```
 
-## 初始化
+## 引导
 
 ### `bootstrap`
 
-初始化生命周期函数会在应用第一次挂载前执行一次，可以用下载一些应用挂载之前必要的资源，例如外部 CSS 文件等。
+初始化生命周期函数会在应用第一次挂载前执行一次，可以用下载一些应用挂载之前必要的资源，例如外部 CSS 文件、重要的背景图片。
 
 ```js
 export default () => ({
@@ -128,13 +162,13 @@ export default () => ({
 });
 ```
 
-遵循 `bootstrap` 后，应用容器可以依次执行 `load` 与 `bootstrap` 来进行预加载的优化。
+应用容器可能会对应用进行预加载，预加载的时候会依次执行 load 与 bootstrap，因此恰当的使用 bootstrap 可以有助于提高用户体验。
 
 ## 挂载
 
 ### `mount`
 
-将自己渲染出来，通常会通过 [`container`](./interface.md#container) 接口来插入自身 DOM。
+将自己渲染出来，通常会通过 [`container`](#container) 接口来插入自身 DOM。
 
 ```js
 export default () => ({
@@ -150,7 +184,7 @@ export default () => ({
 
 ### `update`
 
-当应用挂载完成后，外部的容器或者其他程序可能触发“更新”生命周期来更新数据，通常通过 [`data`](./interface.md#data) 接口获取到更新后的数据。
+当应用挂载完成后，外部的容器或者其他程序可能触发“更新”生命周期来更新数据，通常通过 [`data`](#data) 接口获取到更新后的数据。
 
 ```js
 export default () => ({
@@ -198,8 +232,8 @@ export default () => ({
 
 * 支持 `export default () => ({/* life cycle */})` 形式，并且作为推荐的方式——因为应用应当默认支持多实例运行
 * 所有的生命周期函数都是可选的——我们认为这应该交给应用容器来进行容错处理
-* 明确定义了获取渲染目标的接口 [`container`](./interface.md#container)
-* 明确定义获取数据的接口 [`data`](./interface.md#data)——以便外部能够编辑、序列化、存储应用数据
+* 明确定义了获取渲染目标的接口 [`container`](#container)
+* 明确定义获取数据的接口 [`data`](#data)——以便外部能够编辑、序列化、存储应用数据
 * 没有 `singleSpa` 接口——因为它导致和具体的容器实现耦合
 * 没有 `mountParcel` 接口——Web Widget 的应用格式抽象了 [single-spa](https://single-spa.js.org/) 中 `application` 与 `parcel` 的概念，因此无须再保留 `parcel` 概念
 * 不支持 `timeouts` 配置——这是应用容器的职责
