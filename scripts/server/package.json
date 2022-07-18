@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/server",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "description": "Dev Server",
   "main": "src/web-dev-server-config.js",
   "bin": {

@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/umd-loader",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "description": "Web Widget umd loader",
   "source": "src/index.js",
   "main": "dist/cjs/main.js",
@@ -36,10 +36,10 @@
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-widget/builder": "^0.0.28",
-    "@web-widget/container": "^0.0.28",
-    "@web-widget/sandbox": "^0.0.28",
-    "@web-widget/server": "^0.0.28",
-    "@web-widget/tester": "^0.0.28"
+    "@web-widget/builder": "^0.0.29",
+    "@web-widget/container": "^0.0.29",
+    "@web-widget/sandbox": "^0.0.29",
+    "@web-widget/server": "^0.0.29",
+    "@web-widget/tester": "^0.0.29"
   }
 }

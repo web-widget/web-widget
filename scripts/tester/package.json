@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/tester",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "description": "Tester",
   "main": "src/web-test-runner.config.js",
   "bin": {
