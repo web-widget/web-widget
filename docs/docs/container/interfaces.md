@@ -1,4 +1,4 @@
-# 容器 >> 接口 >> HTMLWebWidgetElement || 1
+# 容器 >> 接口 || 1
 
 ```js script
 import '@rocket/launch/inline-notification/inline-notification.js';
@@ -15,11 +15,11 @@ HTMLWebWidgetElement 是 `<web-widget>` 标签的接口。
 ```js
 const widget = document.createElement('web-widget');
 widget.application = () => ({
-  async bootstrap(properties) {},
-  async mount(properties) {},
-  async update(properties) {},
-  async unmount(properties) {},
-  async unload(properties) {}
+  async bootstrap(props) {},
+  async mount(props) {},
+  async update(props) {},
+  async unmount(props) {},
+  async unload(props) {}
 });
 document.body.appendChild(widget);
 ```
@@ -60,7 +60,7 @@ document.body.appendChild(widget);
 
 `object`
 
-应用的数据。应用脚本可以通过生命周期的 `properties.data` 访问到。
+应用的数据。应用脚本可以通过生命周期的 `props.data` 访问到。
 
 ```js
 widget.data = { a: 'hello' };
@@ -117,6 +117,25 @@ widget.mount();
 
 </inline-notification>
 
+## customProperties
+
+自定义应用的生命周期参数成员。
+
+```js
+const widget = document.createElement('web-widget');
+widget.customProperties = {
+  a: 1,
+  b: 2
+};
+widget.application = () => {
+  async mount({ a, b }) {
+    console.log(a); // 1
+    console.log(b); // 2
+  }
+};
+document.body.appendChild(widget);
+```
+
 ## state
 
 `string`
@@ -144,65 +163,6 @@ widget.mount();
 
 > 可以通过构造器的静态相属性访问状态常量，例如 `"load-error"` 等价于 `HTMLWebWidgetElement.LOAD_ERROR`。
 
-## createDependencies()
-
-应用的依赖注入勾子函数（实验性特性）。它默认行为是执行 `return new WebWidgetDependencies(this)` 覆盖它可以自定义注入到应用的 API。
-
-详情见：[WebWidgetDependencies](./web-widget-dependencies.md)
-
-## createLoader()
-
-应用的加载器勾子函数（实验性特性）。它默认行为是调用 `import()` 加载 ES module，覆盖它可以加载其他格式的模块。
-
-例如支持 system 模块格式：
-
-```js
-function defineHook(target, name, callback) {
-  return Reflect.defineProperty(
-    target,
-    name,
-    callback(Reflect.getOwnPropertyDescriptor(target, name))
-  );
-}
-
-defineHook(HTMLWebWidgetElement.prototype, 'createLoader', ({ value }) => ({ 
-  value() {
-    const { src, text, type } = this;
-
-    if (type !== 'system') {
-      return value.apply(this, arguments);
-    }
-
-    if (src) {
-      return System.import(src).then(module => module.default || module);
-    }
-
-    src = URL.createObjectURL(
-      new Blob([text], { type: 'application/javascript' })
-    );
-
-    return () => System.import(src).then(
-      module => {
-        URL.revokeObjectURL(src);
-        return module.default || module;
-      },
-      error => {
-        URL.revokeObjectURL(src);
-        throw error;
-      }
-    );
-  }
-}));
-```
-
-```html
-<web-widget src="app.widget.js" type="system"></web-widget>
-```
-
-## createRenderRoot()
-
-应用的挂载节点勾子函数（实验性特性）。它默认行为是根据 [`rendertarget`](#rendertarget) 创建应用的渲染节点，覆盖它可以重新定义此行为。
-
 ## load()
 
 手动加载应用。
@@ -226,7 +186,7 @@ defineHook(HTMLWebWidgetElement.prototype, 'createLoader', ({ value }) => ({
 手动触发应用 `update` 生命周期函数。
 
 ```js
-widget.update(properties);
+widget.update(props);
 ```
 
 返回值：`Promise`
@@ -243,7 +203,54 @@ widget.update(properties);
 
 返回值：`Promise`
 
-## \#timeouts
+## createApplication()
+
+创建应用的加载器的勾子函数。它默认行为是调用 `import()` 加载 ES module，覆盖它可以加载其他格式的模块。
+
+例如支持 system 模块格式：
+
+```js
+function defineHook(target, name, callback) {
+  return Reflect.defineProperty(
+    target,
+    name,
+    callback(Reflect.getOwnPropertyDescriptor(target, name))
+  );
+}
+
+defineHook(HTMLWebWidgetElement.prototype, 'createApplication', ({ value }) => ({ 
+  value() {
+    if (this.type !== 'system') {
+      return value.apply(this, arguments);
+    }
+
+    return async () => System.import(this.import || this.src)
+      .then(module => module.default || module);
+  }
+}));
+```
+
+```html
+<web-widget src="app.widget.js" type="system"></web-widget>
+```
+
+## createProperties()
+
+创建应用生命周期参数的钩子函数。
+
+## createContainer()
+
+创建应用生命周期参数 `container` 成员的钩子函数。它默认行为是根据 [`rendertarget`](#rendertarget) 创建应用的渲染节点，覆盖它可以重新定义此行为。
+
+## createData()
+
+创建应用生命周期参数 `data` 成员的钩子函数。
+
+## createParameters()
+
+创建应用生命周期参数 `parameters` 成员的钩子函数。
+
+## timeouts
 
 `object`
 
@@ -259,19 +266,3 @@ HTMLWebWidgetElement.timeouts = {
   unload: 3000
 }
 ```
-
-## Events
-
-### statechange
-
-当应用的状态变更后，每次都将触发 `statechange` 事件。
-
-```js
-const widget = document.createElement('web-widget');
-widget.src = "./app.widget.js";
-widget.addEventListener('statechange', () => {
-  console.log('State', widget.state);
-});
-document.body.appendChild(widget);
-```
-

@@ -1,14 +1,11 @@
-/* global window, customElements, HTMLElement, Event, URL */
+/* global window, customElements, HTMLElement, Event, URL, HTMLScriptElement */
 // eslint-disable-next-line max-classes-per-file
 import { ApplicationService } from './applications/service.js';
-import { createRegistry } from './utils/registry.js';
-import { moduleLoader } from './loaders/module.js';
 import { queueMicrotask } from './utils/queueMicrotask.js';
 import { observe, unobserve } from './utils/visibleObserver.js';
-import { WebWidgetDependencies } from './WebWidgetDependencies.js';
 import * as status from './applications/status.js';
+import { WebWidgetUpdateEvent } from './WebWidgetUpdateEvent.js';
 
-const globalLoaders = createRegistry();
 let globalTimeouts = Object.create(null);
 
 const removeElement = (element, confirm) => {
@@ -28,6 +25,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #data = null;
 
+  #customProperties = {};
+
   #isFirstConnect = false;
 
   #isMoveing = false;
@@ -41,37 +40,28 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
     let done;
     const view = this;
-    const applicationService = new ApplicationService({
-      loader(dependencies) {
-        const { application } = view;
-        view.renderRoot = null;
-        view.loader = application || view.createLoader();
-        return view.loader.call(this, dependencies);
-      },
-      getDependencies: () => {
-        if (this.dependencies) {
-          return this.dependencies;
+
+    /** @ignore */
+    this.#applicationService = new ApplicationService({
+      getProperties: () => {
+        if (!this.properties) {
+          this.properties = this.createProperties();
         }
-        const dependencies = this.createDependencies();
-        this.dependencies = dependencies;
-        return dependencies;
+        return this.properties;
+      },
+      getApplication(properties) {
+        if (!view.application) {
+          view.application = view.createApplication();
+        }
+
+        return view.application.call(this, properties);
       },
       stateChangeCallback: () => {
         this.#stateChangeCallback();
         this.dispatchEvent(new Event('statechange'));
       },
-      context: Object.create(null),
       timeouts: this.timeouts
     });
-
-    /** @ignore */
-    applicationService.stateChangeCallback = () => {
-      this.#stateChangeCallback();
-      this.dispatchEvent(new Event('statechange'));
-    };
-
-    /** @ignore */
-    this.#applicationService = applicationService;
 
     /** @ignore */
     this.#ready = Object.assign(
@@ -114,6 +104,20 @@ export class HTMLWebWidgetElement extends HTMLElement {
       if (this.loading !== 'lazy') {
         this.#ready.change();
       }
+    }
+  }
+
+  /**
+   * Application properties
+   * @type {object}
+   */
+  get customProperties() {
+    return this.#customProperties;
+  }
+
+  set customProperties(value) {
+    if (typeof value === 'object') {
+      this.#customProperties = value;
     }
   }
 
@@ -255,51 +259,119 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Create application dependent objects
-   * @returns {WebWidgetDependencies}
+   * Create application properties
    */
-  createDependencies() {
-    return new WebWidgetDependencies(this);
+  createProperties() {
+    let container, data, parameters;
+    const view = this;
+    const customProperties = this.customProperties;
+    return Object.assign(
+      Object.create({
+        get container() {
+          if (!container) {
+            container = view.createContainer();
+          }
+          return container;
+        },
+
+        get data() {
+          if (!data) {
+            data = view.createData();
+          }
+          return data;
+        },
+
+        set data(value) {
+          data = value;
+        },
+
+        get parameters() {
+          if (!parameters) {
+            parameters = view.createParameters();
+          }
+          return parameters;
+        }
+      }),
+      customProperties
+    );
   }
 
   /**
    * Create the application's render node
    * @returns {HTMLElement}
    */
-  createRenderRoot() {
-    let renderRoot = null;
+  createContainer() {
+    let container = null;
 
     if (this.rendertarget === 'shadow') {
       if (this.hasAttribute('hydrateonly')) {
         if (this.attachInternals) {
           const internals = this.attachInternals();
-          renderRoot = internals.shadowRoot;
+          container = internals.shadowRoot;
         }
       }
 
-      if (!renderRoot) {
-        renderRoot = this.attachShadow({ mode: 'closed' });
+      if (!container) {
+        container = this.attachShadow({ mode: 'open' });
       }
     } else if (this.rendertarget === 'light') {
-      renderRoot = this;
+      container = this;
     }
 
-    return renderRoot;
+    if (container) {
+      ['mount', 'update', 'unmount'].forEach(name => {
+        if (!container[name]) {
+          Reflect.defineProperty(container, name, {
+            value: properties => this[name](properties)
+          });
+        }
+      });
+    }
+
+    return container;
+  }
+
+  createData() {
+    return this.data;
+  }
+
+  createParameters() {
+    return [...this.attributes].reduce((accumulator, { name, value }) => {
+      accumulator[name] = value;
+      return accumulator;
+    }, Object.create(null));
   }
 
   /**
-   * Create application loader
+   * Create application
    * @returns {function}
    */
-  createLoader() {
+  createApplication() {
     const { type } = this;
-    const loader = this.constructor.loaders.get(type);
 
-    if (!loader) {
-      throw Error(`Loader is not defined: ${type}`);
+    if (type !== 'module') {
+      throw Error(`The module type is not supported: ${type}`);
     }
 
-    return () => loader(this);
+    // @see https://github.com/WICG/import-maps#feature-detection
+    const supportsImportMaps =
+      HTMLScriptElement.supports && HTMLScriptElement.supports('importmap');
+
+    function getModuleValue(module) {
+      return module.default || module;
+    }
+
+    function importModule(target) {
+      if (!supportsImportMaps && typeof importShim === 'function') {
+        // @see https://github.com/guybedford/es-module-shims
+        // eslint-disable-next-line no-undef
+        return importShim(target);
+      }
+      return import(/* @vite-ignore */ /* webpackIgnore: true */ target);
+    }
+
+    const nameOrPath = this.import || this.src;
+    return () => importModule(nameOrPath).then(getModuleValue);
   }
 
   /**
@@ -332,9 +404,20 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @returns {Promise}
    */
   async update(properties = {}) {
-    const dependencies = this.dependencies || {};
-    Object.assign(dependencies, properties);
-    await this.#trigger('update');
+    if (
+      this.properties &&
+      this.dispatchEvent(
+        new WebWidgetUpdateEvent('update', {
+          value: properties,
+          cancelable: true
+        })
+      )
+    ) {
+      Object.assign(this.properties, properties);
+      await this.#trigger('update');
+    } else {
+      throw new Error(`Can't update`);
+    }
   }
 
   /**
@@ -350,10 +433,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @returns {Promise}
    */
   async unload() {
-    const dependencies = this.dependencies || {};
+    const properties = this.properties || {};
     await this.#trigger('unload');
-    Object.getOwnPropertyNames(dependencies).forEach(key => {
-      Reflect.deleteProperty(dependencies, key);
+    Object.getOwnPropertyNames(properties).forEach(key => {
+      Reflect.deleteProperty(properties, key);
     });
   }
 
@@ -409,7 +492,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   /** @ignore */
   #trigger(name) {
-    return this.#applicationService.trigger(name, [this.dependencies]);
+    return this.#applicationService.trigger(name);
   }
 
   /** @ignore */
@@ -476,11 +559,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /** @ignore */
-  static get loaders() {
-    return globalLoaders;
-  }
-
-  /** @ignore */
   static get timeouts() {
     return globalTimeouts;
   }
@@ -495,13 +573,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
 }
 
 Object.assign(HTMLWebWidgetElement, status);
-globalLoaders.define('module', moduleLoader);
 window.HTMLWebWidgetElement = HTMLWebWidgetElement;
 
-export function bootstrap() {
-  customElements.define('web-widget', HTMLWebWidgetElement);
-}
-
-if (window.WEB_WIDGET_BOOTSTRAP !== false) {
-  bootstrap();
-}
+customElements.define('web-widget', HTMLWebWidgetElement);

@@ -5,17 +5,16 @@ import { rules } from './flow.js';
 
 export class ApplicationService {
   constructor({
-    loader,
-    getDependencies,
+    getApplication,
+    getProperties,
     stateChangeCallback,
-    context,
     timeouts
   }) {
     this.timeouts = timeouts;
     this.state = INITIAL;
-    this.lifecycles = context;
-    this.loader = loader.bind(this.lifecycles);
-    this.getDependencies = getDependencies;
+    this.lifecycles = Object.create(null);
+    this.getApplication = getApplication.bind(this.lifecycles);
+    this.getProperties = getProperties;
     this.stateChangeCallback = stateChangeCallback;
   }
 
@@ -26,7 +25,7 @@ export class ApplicationService {
   #setState(value) {
     if (value !== this.state) {
       this.state = value;
-      this.stateChangeCallback();
+      this.stateChangeCallback(value);
     }
   }
 
@@ -46,11 +45,11 @@ export class ApplicationService {
     }
 
     if (rule.creator && !this.lifecycles[name]) {
-      this.lifecycles[name] = async dependencies => {
-        let lifecycles = await this.loader(dependencies);
+      this.lifecycles[name] = async properties => {
+        let lifecycles = await this.getApplication(properties);
 
         if (typeof lifecycles === 'function') {
-          lifecycles = lifecycles(dependencies);
+          lifecycles = lifecycles(properties);
         }
 
         if (!lifecycles) {
@@ -81,7 +80,7 @@ export class ApplicationService {
 
     this.pending = reasonableTime(
       name,
-      async () => this.lifecycles[name](this.getDependencies(name)),
+      async () => this.lifecycles[name](this.getProperties(name)),
       dieOnTimeout ? timeout : rules[name].timeout,
       dieOnTimeout,
       timeoutWarning

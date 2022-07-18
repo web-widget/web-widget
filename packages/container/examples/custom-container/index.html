@@ -23,7 +23,7 @@
       );
     }
 
-    defineHook(HTMLWebWidgetElement.prototype, 'createRenderRoot', ({ value }) => ({ 
+    defineHook(HTMLWebWidgetElement.prototype, 'createContainer', ({ value }) => ({ 
       value() {
         const { src, text, type } = this;
 

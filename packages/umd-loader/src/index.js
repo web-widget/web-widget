@@ -47,22 +47,39 @@ async function importScript(url, defaultView, name) {
   return promise;
 }
 
-async function umdLoader(view) {
-  const { src } = view;
-  const libraryName =
-    view.library || view.getAttribute('library') || view.getAttribute('name');
-
-  if (view.import) {
-    throw Error(
-      `WebWidgetUmdLoader: Unsupported features: import="${view.import}"`
-    );
-  }
-
-  return importScript(src, window, libraryName);
-}
-
 export function setConfig(options) {
   Object.assign(CONFIG, options);
 }
 
-HTMLWebWidgetElement.loaders.define('umd', umdLoader);
+function defineHook(target, name, callback) {
+  return Reflect.defineProperty(
+    target,
+    name,
+    callback(Reflect.getOwnPropertyDescriptor(target, name))
+  );
+}
+
+defineHook(
+  HTMLWebWidgetElement.prototype,
+  'createApplication',
+  ({ value }) => ({
+    value() {
+      if (this.type !== 'umd') {
+        return value.apply(this, arguments);
+      }
+
+      const libraryName =
+        this.library ||
+        this.getAttribute('library') ||
+        this.getAttribute('name');
+
+      if (this.import) {
+        throw Error(
+          `WebWidgetUmdLoader: Unsupported features: import="${this.import}"`
+        );
+      }
+
+      return async () => importScript(this.src, window, libraryName);
+    }
+  })
+);

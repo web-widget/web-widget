@@ -1,8 +1,23 @@
 # CHANGELOG
 
-## 1.0.0-beta (2022-07-17)
+## 1.0.0-beta.1
 
-此次更新主要是对应用格式与容器进行精简，删除实验性特性，只保留核心功能。
+重构钩子机制。
+
+* 恢复应用格式 `parameters` 成员
+* 增加 `customProperties` 用于自定义生命周期的成员
+* 删除 `WebWidgetDependencies` 类（使用 `createProperties()` 代替）
+* `createDependencies()` 更名为 `createProperties()`
+* `createRenderRoot()` 更名为 `createContainer()`
+* 增加 `createData()`
+* 增加 `createParameters()`
+* `createLoader()` 更名为 `createApplication()`
+* 增加 `update` 事件用于获取更新后的数据
+* 应用无法修改容器元素上的 `data` 属性，必须使用 `update` 事件来获取应用修改后的 `data`
+
+## 1.0.0-beta.0 (2022-07-18)
+
+对应用格式与容器进行精简，删除实验性特性，只保留核心功能。
 
 * 应用格式变更：
   * 删除 `context` 接口，将 `context` 的  `mount`、`udate`、`unmount` 成员迁移到 `container` 

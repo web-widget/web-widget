@@ -48,28 +48,28 @@ export function createApplication(callback) {
       application() {
         lifecycleHistory.push('load');
         return {
-          async bootstrap(dependencies) {
-            properties = dependencies;
+          async bootstrap(props) {
+            properties = props;
             lifecycleHistory.push('bootstrap');
           },
 
-          async mount(dependencies) {
-            properties = dependencies;
+          async mount(props) {
+            properties = props;
             lifecycleHistory.push('mount');
           },
 
-          async update(dependencies) {
-            properties = dependencies;
+          async update(props) {
+            properties = props;
             lifecycleHistory.push('update');
           },
 
-          async unmount(dependencies) {
-            properties = dependencies;
+          async unmount(props) {
+            properties = props;
             lifecycleHistory.push('unmount');
           },
 
-          async unload(dependencies) {
-            properties = dependencies;
+          async unload(props) {
+            properties = props;
             lifecycleHistory.push('unload');
           }
         };

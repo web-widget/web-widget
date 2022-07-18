@@ -13,15 +13,3 @@ Web Widget 容器标签名为 `<web-widget>`，其 `src` 属性为[应用](../ap
 ```html
 <web-widget src="app.widget.js"></web-widget>
 ```
-
-## 安装
-
-```bash
-npm install --save @web-widget/container
-```
-
-在页面中引入应用容器的运行时。
-
-```js
-import '@web-widget/container';
-```

@@ -1,8 +1,6 @@
-# 应用开发 >> 发布 || 60
+# 开发 >> 发布应用 || 30
 
 大多数情况下，我们推荐将 Web Widget 应用发布在 NPM 中，这样可以随时通过 CDN 集成。当你准备好将包发布到 NPM 时，请确保按照本文档提供的建议，以确保它具有适应时间变化的弹性。
-
-你可以通过 [Web Widget CLI](./development.md) 来简化步骤，你只需要运行 `npm run build` 即可得到待发布的产物。
 
 ## 提供 esm 版本
 
@@ -12,7 +10,7 @@
 
 由于目前只有最新的 Chrome 浏览器支持 [import maps](https://github.com/WICG/import-maps)，因此为了能够为了解决兼容问题，应当额外准备一份 `system` 格式版本。
 
-`system` 格式和构建工具无关，无论是 Webpack 或者 Rollup 都内置了它，`system` 格式可以作为全面应用 ES module 之前的过度格式。`system` 支持使用[裸模块](https://github.com/WICG/import-maps)导入，并且 Web Widget 沙盒模式也支持它。
+`system` 格式和构建工具无关，无论是 Webpack 或者 Rollup 都内置了它，`system` 格式可以作为全面应用 ES module 之前的过度格式。`system` 支持使用[裸模块](https://github.com/WICG/import-maps)导入。
 
 ## 打包好所有依赖
 

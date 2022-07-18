@@ -1,4 +1,4 @@
-# 容器化 >> 模块格式 || 20
+# 深入 >> 模块格式 || 20
 
 Web Widget 容器默认支持的 JavaScript 模块格式为 ES module：
 
@@ -18,9 +18,7 @@ import '@web-widget/system-loader';
 </script>
 ```
 
-目前我们提供了两个常用格式的加载器插件：
+我们提供了两个常用格式的加载器插件：
 
 * [system-loader](../../docs/container/plugins/system-loader.md)
 * [umd-loader](../../docs/container/plugins/umd-loader.md)
-
-如果已有的加载器插件依然无法满足你的要求，建议你[编写插件](../../docs/container/writing-plugins.md)。

@@ -27,14 +27,9 @@
   <script type="module">
     import '@web-widget/container';
 
-    const { INITIAL, UPDATING, MOUNTED } = HTMLWebWidgetElement;
-    let oldState = INITIAL;
     document.querySelectorAll('web-widget').forEach(element => {
-      element.addEventListener('statechange', function() {
-        if (oldState === UPDATING && this.state === MOUNTED) {
-          console.log(this.name, JSON.stringify(this.data, null, 2));
-        }
-        oldState = this.state;
+      element.addEventListener('update', function(event) {
+        console.log(this.getAttribute('name'), JSON.stringify(event.value, null, 2));
       });
     });
 

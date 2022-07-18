@@ -788,46 +788,46 @@ describe('Application lifecycle: error', () => {
     ));
 });
 
-describe('Application lifecycle: dependencies', () => {
-  it('All lifecycle function injection dependencies should be the same', () =>
+describe('Application lifecycle: properties', () => {
+  it('All lifecycle function injection properties should be the same', () =>
     createBaseContainer(
       {
-        application(dependencies) {
-          let current = dependencies;
+        application(properties) {
+          let current = properties;
           const message = 'Not equal';
           if (!current) {
             throw new Error('Unexpectedly empty');
           }
           return {
-            async bootstrap(dependencies) {
-              if (current !== dependencies) {
+            async bootstrap(properties) {
+              if (current !== properties) {
                 throw new Error(message);
               }
-              current = dependencies;
+              current = properties;
             },
-            async mount(dependencies) {
-              if (current !== dependencies) {
+            async mount(properties) {
+              if (current !== properties) {
                 throw new Error(message);
               }
-              current = dependencies;
+              current = properties;
             },
-            async update(dependencies) {
-              if (current !== dependencies) {
+            async update(properties) {
+              if (current !== properties) {
                 throw new Error(message);
               }
-              current = dependencies;
+              current = properties;
             },
-            async unmount(dependencies) {
-              if (current !== dependencies) {
+            async unmount(properties) {
+              if (current !== properties) {
                 throw new Error(message);
               }
-              current = dependencies;
+              current = properties;
             },
-            async unload(dependencies) {
-              if (current !== dependencies) {
+            async unload(properties) {
+              if (current !== properties) {
                 throw new Error(message);
               }
-              current = dependencies;
+              current = properties;
             }
           };
         }
@@ -841,50 +841,50 @@ describe('Application lifecycle: dependencies', () => {
       }
     ));
 
-  it('default mode: All lifecycle function injection dependencies should be the same', () =>
+  it('default mode: All lifecycle function injection properties should be the same', () =>
     createBaseContainer(
       {
-        application(dependencies) {
-          let current = dependencies;
+        application(properties) {
+          let current = properties;
           const message = 'Not equal';
           if (!current) {
             throw new Error('Unexpectedly empty');
           }
-          return dependencies => {
-            if (current !== dependencies) {
+          return properties => {
+            if (current !== properties) {
               throw new Error(message);
             }
-            current = dependencies;
+            current = properties;
             return {
-              async bootstrap(dependencies) {
-                if (current !== dependencies) {
+              async bootstrap(properties) {
+                if (current !== properties) {
                   throw new Error(message);
                 }
-                current = dependencies;
+                current = properties;
               },
-              async mount(dependencies) {
-                if (current !== dependencies) {
+              async mount(properties) {
+                if (current !== properties) {
                   throw new Error(message);
                 }
-                current = dependencies;
+                current = properties;
               },
-              async update(dependencies) {
-                if (current !== dependencies) {
+              async update(properties) {
+                if (current !== properties) {
                   throw new Error(message);
                 }
-                current = dependencies;
+                current = properties;
               },
-              async unmount(dependencies) {
-                if (current !== dependencies) {
+              async unmount(properties) {
+                if (current !== properties) {
                   throw new Error(message);
                 }
-                current = dependencies;
+                current = properties;
               },
-              async unload(dependencies) {
-                if (current !== dependencies) {
+              async unload(properties) {
+                if (current !== properties) {
                   throw new Error(message);
                 }
-                current = dependencies;
+                current = properties;
               }
             };
           };
@@ -904,10 +904,10 @@ describe('Application lifecycle: dependencies', () => {
       {
         application() {
           return {
-            async bootstrap(dependencies) {
-              const expected = ['container', 'data', 'env'];
+            async bootstrap(properties) {
+              const expected = ['container', 'data', 'parameters'];
               expected.forEach(key => {
-                if (!(key in dependencies)) {
+                if (!(key in properties)) {
                   throw new Error(`"${key}" not found`);
                 }
               });

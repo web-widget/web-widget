@@ -1,5 +1,6 @@
 window.TestWidget = () => ({
-  async mount({ container }) {
+  async mount({ container, test }) {
+    test();
     setTimeout(() => {
       container.update({
         data: {

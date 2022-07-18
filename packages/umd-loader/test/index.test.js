@@ -1,18 +1,11 @@
-import { HTMLWebWidgetElement } from '@web-widget/container';
+import '@web-widget/container';
 import '../src/index.js';
 
 const dataUpdate = widget =>
   new Promise(resolve => {
-    const { INITIAL, UPDATING, MOUNTED } = HTMLWebWidgetElement;
-    let oldState = INITIAL;
-
-    widget.addEventListener('statechange', () => {
-      if (oldState === UPDATING && widget.state === MOUNTED) {
-        resolve(widget.data);
-      }
-      oldState = widget.state;
+    widget.addEventListener('update', event => {
+      resolve(event.value.data);
     });
-
     widget.mount();
   });
 
@@ -22,28 +15,43 @@ const srcCase = async () => {
   widget.name = 'TestWidget';
   widget.type = 'umd';
   widget.src = '/test/test.widget.js';
+
+  let done = false;
+  widget.customProperties = {
+    test() {
+      done = true;
+    }
+  };
+
   document.body.appendChild(widget);
 
   widget.mount();
   await dataUpdate(widget);
 
-  if (widget.data.lifecycle !== 'mount') {
+  if (!done) {
     throw new Error(`Mount error`);
   }
 };
 
-const noNameAttrAndSrcCase = async sandboxed => {
+const noNameAttrAndSrcCase = async () => {
   const widget = document.createElement('web-widget');
   widget.inactive = true;
   widget.type = 'umd';
-  widget.sandboxed = sandboxed;
   widget.src = '/test/test2.widget.js';
+
+  let done = false;
+  widget.customProperties = {
+    test() {
+      done = true;
+    }
+  };
+
   document.body.appendChild(widget);
 
   widget.mount();
   await dataUpdate(widget);
 
-  if (widget.data.lifecycle !== 'mount') {
+  if (!done) {
     throw new Error(`Mount error`);
   }
 };

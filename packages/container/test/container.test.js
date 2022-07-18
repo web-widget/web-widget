@@ -82,9 +82,9 @@ describe('Element default properties', () => {
   });
 
   it('hooks', () => {
-    expect(emptyWidget).to.have.property('createDependencies').is.a('function');
-    expect(emptyWidget).to.have.property('createLoader').is.a('function');
-    expect(emptyWidget).to.have.property('createRenderRoot').is.a('function');
+    expect(emptyWidget).to.have.property('createProperties').is.a('function');
+    expect(emptyWidget).to.have.property('createApplication').is.a('function');
+    expect(emptyWidget).to.have.property('createContainer').is.a('function');
   });
 });
 
@@ -234,15 +234,15 @@ describe('Auto load', () => {
   });
 });
 
-describe('Application property: env', () => {
-  it('env', () =>
+describe('Application property: parameters', () => {
+  it('parameters', () =>
     createWidget(async ({ widget, getProperties }) => {
       const value = String(Date.now());
       widget.setAttribute('test', value);
       await widget.mount();
-      expect(getProperties().env).to.have.property('test', value);
+      expect(getProperties().parameters).to.have.property('test', value);
       await widget.unload();
-      expect(getProperties().env).to.have.property('test', value);
+      expect(getProperties().parameters).to.have.property('test', value);
     }));
 });
 
@@ -306,7 +306,7 @@ describe('Application property: data', () => {
       widget.data = priorityData;
       await widget.unmount();
       await widget.mount();
-      expect(getProperties().data).to.deep.equal(priorityData);
+      // expect(getProperties().data).to.deep.equal(priorityData); // v1.0.0-beta.1: widget.data 不会再更新
     }));
 
   it('The content of the "data-*" attribute should be used as the default value', () =>

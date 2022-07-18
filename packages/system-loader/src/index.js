@@ -45,15 +45,33 @@ async function getSystem(defaultView, fallbackUrl) {
   return defaultView.System;
 }
 
-async function loader(view) {
-  const System = await getSystem(window, CONFIG.remoteSystem);
-  const nameOrPath = view.import || view.src;
-
-  return System.import(nameOrPath).then(getModuleValue);
-}
-
 export function setConfig(options) {
   Object.assign(CONFIG, options);
 }
 
-HTMLWebWidgetElement.loaders.define('system', loader);
+function defineHook(target, name, callback) {
+  return Reflect.defineProperty(
+    target,
+    name,
+    callback(Reflect.getOwnPropertyDescriptor(target, name))
+  );
+}
+
+defineHook(
+  HTMLWebWidgetElement.prototype,
+  'createApplication',
+  ({ value }) => ({
+    value() {
+      if (this.type !== 'system') {
+        return value.apply(this, arguments);
+      }
+
+      const nameOrPath = this.import || this.src;
+
+      return async () => {
+        const System = await getSystem(window, CONFIG.remoteSystem);
+        return System.import(nameOrPath).then(getModuleValue);
+      };
+    }
+  })
+);

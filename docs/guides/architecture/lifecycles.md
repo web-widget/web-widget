@@ -1,4 +1,4 @@
-# 容器化 >> 管理生命周期 || 40
+# 深入 >> 管理生命周期 || 40
 
 ```js script
 import '@rocket/launch/inline-notification/inline-notification.js';
@@ -49,7 +49,7 @@ import '@rocket/launch/inline-notification/inline-notification.js';
 
 Web Widget 容器提供了接口允许你手动控制应用的生命周期，这样可以和其他程序一起来管理应用，例如结合路由管理程序使用。
 
-在容器上设置 `inactive` 属性，即可关闭与 DOM 生命周期的绑定，这时候可以通过容器[接口](../../docs/container/interfaces/html-web-widget-element.md)来手动控制应用的生命周期。
+在容器上设置 `inactive` 属性，即可关闭与 DOM 生命周期的绑定，这时候可以通过容器[接口](../../docs/container/interfaces.md)来手动控制应用的生命周期。
 
 ```html
 <web-widget src="app.widget.js" inactive></web-widget>

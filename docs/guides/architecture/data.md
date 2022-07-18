@@ -1,4 +1,4 @@
-# 容器化 >> 管理数据 || 40
+# 深入 >> 管理数据 || 40
 
 ```js script
 import '@rocket/launch/inline-notification/inline-notification.js';
@@ -81,12 +81,9 @@ export default () => ({
 ## 观察数据变化
 
 ```js
-const { INITIAL, UPDATING, MOUNTED } = HTMLWebWidgetElement;
-let oldState = INITIAL;
-webWidgetElement.addEventListener('statechange', function() {
-  if (oldState === UPDATING && this.state === MOUNTED) {
-    console.log('data update', this.data);
-  }
-  oldState = this.state;
+document.querySelectorAll('web-widget').forEach(element => {
+  element.addEventListener('update', function(event) {
+    console.log(event.value);
+  });
 });
 ```

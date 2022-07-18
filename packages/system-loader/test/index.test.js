@@ -1,17 +1,11 @@
 import 'systemjs';
-import { HTMLWebWidgetElement } from '@web-widget/container';
+import '@web-widget/container';
 import '../src/index.js';
 
 const dataUpdate = widget =>
   new Promise(resolve => {
-    const { INITIAL, UPDATING, MOUNTED } = HTMLWebWidgetElement;
-    let oldState = INITIAL;
-
-    widget.addEventListener('statechange', () => {
-      if (oldState === UPDATING && widget.state === MOUNTED) {
-        resolve(widget.data);
-      }
-      oldState = widget.state;
+    widget.addEventListener('update', event => {
+      resolve(event.value.data);
     });
 
     widget.mount();
@@ -23,12 +17,20 @@ const srcCase = async () => {
   widget.name = 'TestWidget';
   widget.type = 'system';
   widget.src = '/test/test.widget.js';
+
+  let done = false;
+  widget.customProperties = {
+    test() {
+      done = true;
+    }
+  };
+
   document.body.appendChild(widget);
 
   await widget.mount();
   await dataUpdate(widget);
 
-  if (widget.data.lifecycle !== 'mount') {
+  if (!done) {
     throw new Error(`Mount error`);
   }
 };

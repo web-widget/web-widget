@@ -1,4 +1,4 @@
-# 容器化 >> 管理样式 || 40
+# 开发 >> 管理样式 || 40
 
 ```js script
 import '@rocket/launch/inline-notification/inline-notification.js';
