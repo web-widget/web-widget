@@ -147,7 +147,6 @@ export class WebWidgetDependencies {
    * @type {object}
    */
   get parameters() {
-    deprecated('parameters', 'env');
     return this.env;
   }
 
