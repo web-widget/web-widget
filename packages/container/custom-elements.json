@@ -31,6 +31,15 @@
             },
             {
               "kind": "field",
+              "name": "#customProperties",
+              "privacy": "private",
+              "type": {
+                "text": "object"
+              },
+              "default": "{}"
+            },
+            {
+              "kind": "field",
               "name": "#isFirstConnect",
               "privacy": "private",
               "type": {
@@ -67,6 +76,14 @@
                 "type": {
                   "text": "Promise"
                 }
+              }
+            },
+            {
+              "kind": "field",
+              "name": "customProperties",
+              "description": "Application properties",
+              "type": {
+                "text": "object"
               }
             },
             {
@@ -142,17 +159,12 @@
             },
             {
               "kind": "method",
-              "name": "createDependencies",
-              "description": "Create application dependent objects",
-              "return": {
-                "type": {
-                  "text": "WebWidgetDependencies"
-                }
-              }
+              "name": "createProperties",
+              "description": "Create application properties"
             },
             {
               "kind": "method",
-              "name": "createRenderRoot",
+              "name": "createContainer",
               "description": "Create the application's render node",
               "return": {
                 "type": {
@@ -162,8 +174,16 @@
             },
             {
               "kind": "method",
-              "name": "createLoader",
-              "description": "Create application loader",
+              "name": "createData"
+            },
+            {
+              "kind": "method",
+              "name": "createParameters"
+            },
+            {
+              "kind": "method",
+              "name": "createApplication",
+              "description": "Create application",
               "return": {
                 "type": {
                   "text": "function"
@@ -255,6 +275,12 @@
           ],
           "events": [
             {
+              "name": "update",
+              "type": {
+                "text": "WebWidgetUpdateEvent"
+              }
+            },
+            {
               "type": {
                 "text": "Event"
               },
@@ -317,10 +343,6 @@
           "summary": "Web Widget Container",
           "tagName": "web-widget",
           "customElement": true
-        },
-        {
-          "kind": "function",
-          "name": "bootstrap"
         }
       ],
       "exports": [
@@ -329,14 +351,6 @@
           "name": "HTMLWebWidgetElement",
           "declaration": {
             "name": "HTMLWebWidgetElement",
-            "module": "src/HTMLWebWidgetElement.js"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "bootstrap",
-          "declaration": {
-            "name": "bootstrap",
             "module": "src/HTMLWebWidgetElement.js"
           }
         },
@@ -352,48 +366,40 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/WebWidgetDependencies.js",
+      "path": "src/WebWidgetUpdateEvent.js",
       "declarations": [
         {
           "kind": "class",
           "description": "",
-          "name": "WebWidgetDependencies",
+          "name": "WebWidgetUpdateEvent",
           "members": [
             {
               "kind": "field",
-              "name": "container",
-              "description": "Render target",
+              "name": "#value",
+              "privacy": "private",
               "type": {
-                "text": "HTMLElement"
-              }
+                "text": "null"
+              },
+              "default": "null"
             },
             {
               "kind": "field",
-              "name": "data",
-              "description": "Application data",
-              "type": {
-                "text": "(object|array)"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "env",
-              "description": "Application environment variables",
-              "type": {
-                "text": "object"
-              }
+              "name": "value"
             }
           ],
-          "summary": "Web Widget Dependency Injection"
+          "superclass": {
+            "name": "Event",
+            "module": "src/WebWidgetUpdateEvent.js"
+          }
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "WebWidgetDependencies",
+          "name": "WebWidgetUpdateEvent",
           "declaration": {
-            "name": "WebWidgetDependencies",
-            "module": "src/WebWidgetDependencies.js"
+            "name": "WebWidgetUpdateEvent",
+            "module": "src/WebWidgetUpdateEvent.js"
           }
         }
       ]
@@ -405,26 +411,18 @@
       "exports": [
         {
           "kind": "js",
-          "name": "HTMLWebWidgetElement",
+          "name": "*",
           "declaration": {
-            "name": "HTMLWebWidgetElement",
-            "module": "./HTMLWebWidgetElement.js"
+            "name": "*",
+            "package": "./HTMLWebWidgetElement.js"
           }
         },
         {
           "kind": "js",
-          "name": "bootstrap",
+          "name": "*",
           "declaration": {
-            "name": "bootstrap",
-            "module": "./HTMLWebWidgetElement.js"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "WebWidgetDependencies",
-          "declaration": {
-            "name": "WebWidgetDependencies",
-            "module": "./WebWidgetDependencies.js"
+            "name": "*",
+            "package": "./WebWidgetUpdateEvent.js"
           }
         }
       ]
