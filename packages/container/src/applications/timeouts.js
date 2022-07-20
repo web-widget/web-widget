@@ -2,19 +2,15 @@
 /* global setTimeout, console */
 
 export function reasonableTime(
-  name,
-  callback,
+  task,
   timeout,
   dieOnTimeout = false,
-  timeoutWarning = 1000
+  errorMessage
 ) {
   return new Promise((resolve, reject) => {
-    const errorMessage = `Lifecycle function did not complete within ${timeout} ms: ${name}`;
-
     let finished = false;
-    let errored = false;
 
-    callback()
+    task()
       .then(val => {
         finished = true;
         resolve(val);
@@ -24,30 +20,16 @@ export function reasonableTime(
         reject(val);
       });
 
-    function maybeTimingOut(shouldError) {
+    function maybeTimingOut() {
       if (!finished) {
-        if (shouldError === true) {
-          errored = true;
-          if (dieOnTimeout) {
-            reject(new Error(errorMessage));
-          } else {
-            console.error(new Error(errorMessage));
-          }
-        } else if (!errored) {
-          const numWarnings = shouldError;
-          const numMillis = numWarnings * timeoutWarning;
-          console.warn(new Error(errorMessage));
-          if (numMillis + timeoutWarning < timeout) {
-            setTimeout(() => maybeTimingOut(numWarnings + 1), timeoutWarning);
-          }
+        if (dieOnTimeout) {
+          reject(new Error(errorMessage()));
+        } else {
+          console.error(new Error(errorMessage()));
         }
       }
     }
 
-    if (!dieOnTimeout) {
-      setTimeout(() => maybeTimingOut(1), timeoutWarning);
-    }
-
-    setTimeout(() => maybeTimingOut(true), timeout);
+    setTimeout(() => maybeTimingOut(), timeout);
   });
 }

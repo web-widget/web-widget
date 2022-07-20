@@ -33,12 +33,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #timeouts = null;
 
-  #ready = null;
-
   constructor() {
     super();
 
-    let done;
     const view = this;
 
     /** @ignore */
@@ -56,37 +53,25 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
         return view.application.call(this, properties);
       },
-      stateChangeCallback: () => {
-        this.#stateChangeCallback();
-        this.dispatchEvent(new Event('statechange'));
-      },
       timeouts: this.timeouts
     });
 
-    /** @ignore */
-    this.#ready = Object.assign(
-      new Promise(resolve => {
-        done = resolve;
-      }),
-      {
-        change: () => {
-          if (done) {
-            done();
-            done = null;
-          }
-        }
-      }
-    );
+    this.#applicationService.stateChangeCallback = () => {
+      this.#stateChangeCallback();
+      this.dispatchEvent(new Event('statechange'));
+    };
+  }
 
-    this.#ready.then(() => {
-      if (
-        !this.inactive &&
-        this.isConnected &&
-        (this.import || this.src || this.application)
-      ) {
-        this.mount().catch(this.#throwGlobalError.bind(this));
-      }
-    });
+  /** @ignore */
+  #autoMount() {
+    if (
+      this.state === status.INITIAL &&
+      !this.inactive &&
+      this.isConnected &&
+      (this.import || this.src || this.application)
+    ) {
+      this.mount().catch(this.#throwGlobalError.bind(this));
+    }
   }
 
   /**
@@ -102,7 +87,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     if (typeof value === 'function') {
       this.#application = value;
       if (this.loading !== 'lazy') {
-        this.#ready.change();
+        this.#autoMount();
       }
     }
   }
@@ -259,7 +244,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Create application properties
+   * Hook: Create the application's properties
    */
   createProperties() {
     let container, data, parameters;
@@ -297,7 +282,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Create the application's render node
+   * Hook: Create the application's render node
    * @returns {HTMLElement}
    */
   createContainer() {
@@ -331,10 +316,18 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return container;
   }
 
+  /**
+   * Hook: Create the application's data
+   * @returns {(object|array|null)}
+   */
   createData() {
     return this.data;
   }
 
+  /**
+   * Hook: Create the application's parameters
+   * @returns {(object}
+   */
   createParameters() {
     return [...this.attributes].reduce((accumulator, { name, value }) => {
       accumulator[name] = value;
@@ -343,7 +336,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Create application
+   * Hook: Create Create the application's loader
    * @returns {function}
    */
   createApplication() {
@@ -455,9 +448,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /** @ignore */
   #firstConnectedCallback() {
     if (this.loading === 'lazy') {
-      observe(this, () => this.#ready.change());
+      observe(this, () => this.#autoMount());
     } else {
-      this.#ready.change();
+      this.#autoMount();
     }
   }
 
@@ -477,7 +470,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this.#data = null;
     }
     if (this.loading !== 'lazy') {
-      this.#ready.change();
+      this.#autoMount();
     }
   }
 

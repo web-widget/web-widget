@@ -4,18 +4,12 @@ import { reasonableTime } from './timeouts.js';
 import { rules } from './flow.js';
 
 export class ApplicationService {
-  constructor({
-    getApplication,
-    getProperties,
-    stateChangeCallback,
-    timeouts
-  }) {
+  constructor({ getApplication, getProperties, timeouts }) {
     this.timeouts = timeouts;
     this.state = INITIAL;
     this.lifecycles = Object.create(null);
     this.getApplication = getApplication.bind(this.lifecycles);
     this.getProperties = getProperties;
-    this.stateChangeCallback = stateChangeCallback;
   }
 
   getState() {
@@ -29,10 +23,11 @@ export class ApplicationService {
     }
   }
 
+  stateChangeCallback() {}
+
   async trigger(name) {
     const timeout = this.timeouts[name];
     const dieOnTimeout = typeof timeout === 'number';
-    const timeoutWarning = 1000;
     const rule = rules[name];
     const [initial, pending, fulfilled, rejected] = rule.status;
 
@@ -79,11 +74,12 @@ export class ApplicationService {
     }
 
     this.pending = reasonableTime(
-      name,
-      async () => this.lifecycles[name](this.getProperties(name)),
+      async () =>
+        this.lifecycles[name](this.getProperties.call(this.lifecycles, name)),
       dieOnTimeout ? timeout : rules[name].timeout,
       dieOnTimeout,
-      timeoutWarning
+      timeout =>
+        `Lifecycle function did not complete within ${timeout} ms: ${name}`
     )
       .then(() => {
         this.#setState(fulfilled);
