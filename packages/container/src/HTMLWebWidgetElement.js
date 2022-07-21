@@ -8,12 +8,6 @@ import { WebWidgetUpdateEvent } from './WebWidgetUpdateEvent.js';
 
 let globalTimeouts = Object.create(null);
 
-const removeElement = (element, confirm) => {
-  if (confirm) {
-    element.parentNode.removeChild(element);
-  }
-};
-
 /**
  * @summary Web Widget Container
  * @event {Event} statechange
@@ -40,11 +34,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
     /** @ignore */
     this.#applicationService = new ApplicationService({
-      getProperties: () => {
-        if (!this.properties) {
-          this.properties = this.createProperties();
+      getProperties() {
+        if (!view.properties) {
+          view.properties = view.createProperties();
         }
-        return this.properties;
+        return view.properties;
       },
       getApplication(properties) {
         if (!view.application) {
@@ -70,7 +64,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this.isConnected &&
       (this.import || this.src || this.application)
     ) {
-      this.mount().catch(this.#throwGlobalError.bind(this));
+      queueMicrotask(() =>
+        this.mount().catch(this.#throwGlobalError.bind(this))
+      );
     }
   }
 
@@ -93,7 +89,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Application properties
+   * Application custom properties
    * @type {object}
    */
   get customProperties() {
@@ -221,6 +217,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('import', value);
   }
 
+  /**
+   * Application render target
+   * @attr
+   * @reflect
+   * @type {string}
+   */
   get rendertarget() {
     // light || shadow
     return this.getAttribute('rendertarget') || 'shadow';
@@ -503,6 +505,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
       let placeholder, fallback;
       const isError = state !== status.MOUNTED;
 
+      const removeElement = (element, remove) => {
+        if (remove) {
+          element.parentNode.removeChild(element);
+        } else {
+          element.hidden = false;
+        }
+      };
+
       for (const element of this.children) {
         const localName = element.localName;
         if (localName === 'placeholder') {
@@ -515,12 +525,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
       if (placeholder && fallback) {
         removeElement(placeholder, isError);
         removeElement(fallback, !isError);
-      } else if (placeholder) {
-        if (!isError) {
-          removeElement(placeholder, true);
-        }
-      } else if (fallback) {
-        removeElement(fallback, !isError);
+      } else if (placeholder || fallback) {
+        removeElement(placeholder || fallback, !isError);
       }
     }
   }

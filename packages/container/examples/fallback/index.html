@@ -10,8 +10,9 @@
 
 <body>
 
-  <button id="load-widget">Load Widget</button>
-  <web-widget id="web-widget" inactive src="./hello-world.widget.js">
+  
+  <web-widget inactive src="./hello-world.widget.js">
+    <button onclick="this.parentNode.mount()">Load Widget</button>
     <placeholder>
       loading..
     </placeholder>
@@ -20,15 +21,22 @@
     </fallback>
   </web-widget>
 
+  <web-widget inactive src="./hello-world.widget.js">
+    <button onclick="this.parentNode.mount()">Load Widget</button>
+    <placeholder>
+      loading..
+    </placeholder>
+  </web-widget>
+
+  <web-widget inactive src="./hello-world.widget.js">
+    <button onclick="this.parentNode.mount()">Load Widget</button>
+    <fallback hidden>
+      error!
+    </fallback>
+  </web-widget>
+
   <script type="module">
     import '@web-widget/container';
-
-    document.getElementById('web-widget').addEventListener('statechange', (event) => {
-      console.log(event.target.state);
-    });
-    document.getElementById('load-widget').onclick = () => {
-      document.getElementById('web-widget').mount();
-    };
   </script>
 </body>
 

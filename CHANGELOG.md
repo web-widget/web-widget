@@ -1,5 +1,10 @@
 # CHANGELOG
 
+# 1.0.0-beta.2
+
+* 修复 `<fallback>` 元素没有按照预期工作的问题
+* 删除超时的控制台警告特性
+
 ## 1.0.0-beta.1
 
 重构钩子机制。
@@ -20,7 +25,7 @@
 对应用格式与容器进行精简，删除实验性特性，只保留核心功能。
 
 * 应用格式变更：
-  * 删除 `context` 接口，将 `context` 的  `mount`、`udate`、`unmount` 成员迁移到 `container` 
+  * 删除 `context` 接口，将 `context` 的 `mount`、`udate`、`unmount` 成员迁移到 `container` 
   * `parameters` 更名为 `env`
   * 删除 `name`
   * 删除 `sandboxed`
