@@ -81,7 +81,7 @@
             {
               "kind": "field",
               "name": "customProperties",
-              "description": "Application properties",
+              "description": "Application custom properties",
               "type": {
                 "text": "object"
               }
@@ -155,17 +155,23 @@
             },
             {
               "kind": "field",
-              "name": "rendertarget"
+              "name": "rendertarget",
+              "description": "Application render target",
+              "reflects": true,
+              "type": {
+                "text": "string"
+              },
+              "attribute": "rendertarget"
             },
             {
               "kind": "method",
               "name": "createProperties",
-              "description": "Create application properties"
+              "description": "Hook: Create the application's properties"
             },
             {
               "kind": "method",
               "name": "createContainer",
-              "description": "Create the application's render node",
+              "description": "Hook: Create the application's render node",
               "return": {
                 "type": {
                   "text": "HTMLElement"
@@ -174,16 +180,28 @@
             },
             {
               "kind": "method",
-              "name": "createData"
+              "name": "createData",
+              "description": "Hook: Create the application's data",
+              "return": {
+                "type": {
+                  "text": "(object|array|null)"
+                }
+              }
             },
             {
               "kind": "method",
-              "name": "createParameters"
+              "name": "createParameters",
+              "description": "Hook: Create the application's parameters",
+              "return": {
+                "type": {
+                  "text": "(object"
+                }
+              }
             },
             {
               "kind": "method",
               "name": "createApplication",
-              "description": "Create application",
+              "description": "Hook: Create Create the application's loader",
               "return": {
                 "type": {
                   "text": "function"
@@ -271,6 +289,10 @@
               "type": {
                 "text": "object"
               }
+            },
+            {
+              "kind": "field",
+              "name": "stateChangeCallback"
             }
           ],
           "events": [
@@ -335,6 +357,14 @@
                 "text": "string"
               },
               "fieldName": "type"
+            },
+            {
+              "name": "rendertarget",
+              "description": "Application render target",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "rendertarget"
             }
           ],
           "superclass": {
