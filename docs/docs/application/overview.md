@@ -1,20 +1,10 @@
----
-eleventyNavigation:
-  key: 应用 >> 概述
-  title: 概述
-  parent: 应用
-  order: 1
----
+# 应用格式 >> 概述
 
-# Web Widget 应用
+Web Widget 应用格式是一种和具体 UI 框架无关的设计模式层面的抽象，这样的设计模式被流行的微前端 [single-spa](https://single-spa.js.org/) 框架在多种项目中深入的实践，它足够的稳定，经得起时间的考验。
 
-应用即 `<web-widget src="app.widget.js">` 中 `src` 定义的入口文件。
+应用格式不仅仅抽象了不同的前端框架，也不和具体的应用容器绑定，包括 Web Widget、[single-spa](https://single-spa.js.org/)。
 
-Web Widget 应用被设计为一种独立的格式，它是一种和具体 UI 框架无关的设计模式层面的抽象，这样的设计模式被流行的微前端 [single-spa](https://single-spa.js.org/) 框架在多种项目中深入的实践，它足够的稳定，经得起时间的考验。
-
-应用格式不仅仅抽象了不同的前端框架，也不和具体的应用容器绑定，包括 Web Widget、[single-spa](https://single-spa.js.org/)，因此你完全可以根据此抽象实现自己的应用容器而不必依赖 Web Widget 的容器。
-
-## 格式范式
+## 格式
 
 ### 入口文件
 
@@ -42,9 +32,9 @@ export async function unload(props) {}
 
 * 所有生命周期函数都是可选的
 * 生命周期函数必须返回 `promise`（建议使用 `async` 函数保证这一点）
-* 生命周期函数第一个 [`props`](#props) 是应用生命周期参数
+* 生命周期函数第一个 `props` 是应用生命周期参数
 
-### 执行顺序
+## 生命周期
 
 应用容器负责执行应用，它严格遵循生命周期的顺序进行调用：
 
@@ -81,6 +71,66 @@ export async function unload(props) {}
         ▼
        End
 ```
+
+## 生命周期参数
+
+应用除了可以使用 BOM 环境提供的 Web 标准接口之外，也有自己的专属接口，应用专属的接口将通过生命周期函数参数进行注入。
+
+```js
+export default ({ container, data, parameters, ...customProps }) => ({
+  async bootstrap() {},
+  async mount() {},
+  async update() {},
+  async unmount() {},
+  async unload() {}
+});
+```
+
+`container`、`data` 与 `parameters` 是固定的成员；`customProps` 是来自外部任意注入的成员。
+
+#### container
+
+`HTMLElement`
+
+应用的容器。`container` 继承自 [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) 对象，可以使用如下 DOM 接口：
+
+* [`container.appendChild()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild) 将节点插入到容器末尾处
+* [`container.insertBefore()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/insertBefore) 在参考节点之前插入一个拥有指定父节点的子节点
+* [`container.hasChildNodes()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/hasChildNodes) 返回一个布尔值，表明容器是否包含有子节点
+* [`container.removeChild()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild) 删除容器中某个节点
+* [`container.innerHTML`](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML) 在容器中插入 HTML 字符串
+
+除了上述 DOM 接口之外，还有如下容器相关的接口：
+
+* [`container.update(props)`](./#update) 从容器上触发应用的更新生命周期
+
+```js
+export default ({ container, data, parameters }) => ({
+  async mount() {
+    const button = document.createElement('button');
+    button.innerHTML = 'Click me';
+    button.onclick = () => container.update({ data: { a: '1'} });
+    container.appendChild(button);
+  }
+});
+```
+
+#### data
+
+`object|array|null`
+
+应用的数据。它是一个可以被序列化的数据结构，允许应用自己通过 `props.update({ data })` 方法来更新数据。
+
+#### parameters
+
+`object`
+
+应用程序的启动参数。它是一个可以被序列化的数据结构，它视作一种环境变量。和 [`data`](#data) 区别：
+
+* [`data`](#data) 被设计为应用的数据，应用开发者对其结构完全知晓；而 `parameters` 可能包含非常多宿主特有的额外环境信息，例如 `theme`、`lang` 等，应用程序可以遵循它们完成特定的一些操作，也可以完全忽视它们而不会引起故障
+* 应用程序可以通过 `props.update({ data })` 来更新 [`data`](#data)
+
+> `<web-widget>` 元素会将所有的属性都放在 parameters 中。
 
 ## 下载
 
@@ -174,68 +224,6 @@ export default () => ({
   }
 });
 ```
-
-## props
-
-应用除了可以使用 BOM 环境提供的 Web 标准接口之外，也有自己的专属接口，应用专属的接口将通过生命周期函数参数进行注入。
-
-```js
-export default ({ container, data, parameters, ...customProps }) => ({
-  async bootstrap() {},
-  async mount() {},
-  async update() {},
-  async unmount() {},
-  async unload() {}
-});
-```
-
-`container`、`data` 与 `parameters` 是应用容器必须实现的接口；`customProps` 是来自外部任意注入的接口。
-
-#### container
-
-`HTMLElement`
-
-应用的容器。`container` 继承自 [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) 对象，可以使用如下 DOM 接口：
-
-* [`container.appendChild()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild) 将节点插入到容器末尾处
-* [`container.insertBefore()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/insertBefore) 在参考节点之前插入一个拥有指定父节点的子节点
-* [`container.hasChildNodes()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/hasChildNodes) 返回一个布尔值，表明容器是否包含有子节点
-* [`container.removeChild()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild) 删除容器中某个节点
-* [`container.innerHTML`](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML) 在容器中插入 HTML 字符串
-
-除了上述 DOM 接口之外，还有如下容器相关的接口：
-
-* [`container.mount()`](./#mount) 从容器上触发应用的挂载生命周期
-* [`container.update(props)`](./#update) 从容器上触发应用的更新生命周期
-* [`container.unmount()`](./#unmount) 从容器上触发应用的卸载生命周期
-
-```js
-export default ({ container, data, parameters }) => ({
-  async mount() {
-    const button = document.createElement('button');
-    button.innerHTML = 'Click me';
-    button.onclick = () => container.update({ data: { a: '1'} });
-    container.appendChild(button);
-  }
-});
-```
-
-#### data
-
-`object|array|null`
-
-应用的数据。它是一个可以被序列化的数据结构，允许应用自己通过 `props.update({ data })` 方法来更新数据。
-
-#### parameters
-
-`object`
-
-应用程序的启动参数。它是一个可以被序列化的数据结构，它视作一种环境变量。和 [`data`](#data) 区别：
-
-* [`data`](#data) 被设计为应用的数据，应用开发者对其结构完全知晓；而 `parameters` 可能包含非常多宿主特有的额外环境信息，例如 `theme`、`lang` 等，应用程序可以遵循它们完成特定的一些操作，也可以完全忽视它们而不会引起故障
-* 应用程序可以通过 `props.update({ data })` 来更新 [`data`](#data)
-
-> `<web-widget>` 元素会将所有的属性都放在 parameters 中。
 
 ---------------
 

@@ -1,4 +1,4 @@
-# 容器 >> 接口 || 1
+# 应用容器 >> 接口 || 1
 
 ```js script
 import '@rocket/launch/inline-notification/inline-notification.js';

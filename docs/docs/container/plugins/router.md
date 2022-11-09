@@ -1,4 +1,4 @@
-# 容器 >> 插件 >> Router || 2
+# 应用容器 >> 插件 >> Router || 2
 
 ```js script
 import '@rocket/launch/inline-notification/inline-notification.js';

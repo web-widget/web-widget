@@ -105,7 +105,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /**
    * Application data
    * @attr
-   * @type {(object|array)}
+   * @type {(object|array|null)}
    */
   get data() {
     if (!this.#data) {
@@ -305,7 +305,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
       container = this;
     }
 
-    if (container) {
+    if (container && !container.update) {
+      // TODO 移除 mount
       ['mount', 'update', 'unmount'].forEach(name => {
         if (!container[name]) {
           Reflect.defineProperty(container, name, {

@@ -1,4 +1,4 @@
-# 容器 >> 插件 >> System-loader || 4
+# 应用容器 >> 插件 >> System-loader || 4
 
 这是 Web Widget 的 `system` 格式插件。
 

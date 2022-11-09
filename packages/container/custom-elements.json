@@ -91,7 +91,7 @@
               "name": "data",
               "description": "Application data",
               "type": {
-                "text": "(object|array)"
+                "text": "(object|array|null)"
               },
               "attribute": "data"
             },
@@ -314,7 +314,7 @@
               "name": "data",
               "description": "Application data",
               "type": {
-                "text": "(object|array)"
+                "text": "(object|array|null)"
               },
               "fieldName": "data"
             },

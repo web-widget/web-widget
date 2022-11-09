@@ -1,4 +1,4 @@
-# 容器 >> 插件 >> Umd-loader || 5
+# 应用容器 >> 插件 >> Umd-loader || 5
 
 这是 Web Widget 的 `umd` 格式插件。
 

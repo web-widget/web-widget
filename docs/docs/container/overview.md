@@ -1,10 +1,4 @@
----
-eleventyNavigation:
-  key: 容器 >> 概述
-  title: 概述
-  parent: 容器
-  order: 1
----
+# 应用容器 >> 概述
 
 # Web Widget 容器
 
