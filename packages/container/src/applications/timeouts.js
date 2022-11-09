@@ -1,12 +1,7 @@
 /* eslint-disable no-console */
 /* global setTimeout, console */
 
-export function reasonableTime(
-  task,
-  timeout,
-  dieOnTimeout = false,
-  errorMessage
-) {
+export function reasonableTime(task, timeout, bail = false, errorMessage) {
   return new Promise((resolve, reject) => {
     let finished = false;
 
@@ -22,10 +17,10 @@ export function reasonableTime(
 
     function maybeTimingOut() {
       if (!finished) {
-        if (dieOnTimeout) {
-          reject(new Error(errorMessage()));
+        if (bail) {
+          reject(new Error(errorMessage));
         } else {
-          console.error(new Error(errorMessage()));
+          console.error(new Error(errorMessage));
         }
       }
     }

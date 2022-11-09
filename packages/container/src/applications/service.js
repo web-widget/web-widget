@@ -26,8 +26,8 @@ export class ApplicationService {
   stateChangeCallback() {}
 
   async trigger(name) {
-    const timeout = this.timeouts[name];
-    const dieOnTimeout = typeof timeout === 'number';
+    const bail = typeof this.timeouts[name] === 'number';
+    const timeout = bail ? this.timeouts[name] : rules[name].timeout;
     const rule = rules[name];
     const [initial, pending, fulfilled, rejected] = rule.status;
 
@@ -76,10 +76,9 @@ export class ApplicationService {
     this.pending = reasonableTime(
       async () =>
         this.lifecycles[name](this.getProperties.call(this.lifecycles, name)),
-      dieOnTimeout ? timeout : rules[name].timeout,
-      dieOnTimeout,
-      timeout =>
-        `Lifecycle function did not complete within ${timeout} ms: ${name}`
+      timeout,
+      bail,
+      `Lifecycle function did not complete within ${timeout} ms: ${name}`
     )
       .then(() => {
         this.#setState(fulfilled);
