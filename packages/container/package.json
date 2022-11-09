@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/container",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Web front-end application container",
   "source": "src/index.js",
   "main": "dist/cjs/web-widget.js",

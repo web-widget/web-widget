@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/system-loader",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Web Widget system loader",
   "source": "src/index.js",
   "main": "dist/cjs/web-widget.system-loader.js",
@@ -38,7 +38,7 @@
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web-widget/builder": "^0.0.27",
-    "@web-widget/container": "^1.0.0-alpha.2",
+    "@web-widget/container": "^1.0.0-alpha.3",
     "@web-widget/server": "^0.0.27",
     "@web-widget/tester": "^0.0.27",
     "systemjs": "^6.11.0"
