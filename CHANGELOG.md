@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.0.30 (2023-03-07)
+
+* 默认使用 `open` 的 shadow DOM
+
 ## 0.0.27 (2022-06-09)
 
 * 支持 hydrateonly 属性，为 SSR 做准备

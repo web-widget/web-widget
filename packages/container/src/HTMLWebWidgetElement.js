@@ -410,7 +410,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       }
 
       if (!renderRoot) {
-        renderRoot = this.attachShadow({ mode: 'closed' });
+        renderRoot = this.attachShadow({ mode: 'open' });
       }
 
       updateElement(renderRoot);
