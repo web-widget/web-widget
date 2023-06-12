@@ -10,7 +10,7 @@ export default function Home() {
         Welcome to widget web server. Try to update this message in the ./routes/index.tsx
         file, and refresh.
       </p>
-      <Counter name="Home" start={3} />
+      <Counter widget name="Home" start={3} />
     </div>
   );
 }

@@ -18,6 +18,7 @@
     "react-dom": "^18.2.0",
     "koa": "^2.14.2",
     "koa-connect": "^2.1.0",
+    "koa-send": "^5.0.1",
     "@web-widget/web-server": "workspace:*",
     "@web-widget/koa": "workspace:*",
     "@web-widget/react": "workspace:*",
