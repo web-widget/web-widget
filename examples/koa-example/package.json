@@ -1,5 +1,6 @@
 {
-  "name": "@web-widget/koa",
+  "name": "koa-example",
+  "private": true,
   "type": "module",
   "version": "1.0.0",
   "description": "",

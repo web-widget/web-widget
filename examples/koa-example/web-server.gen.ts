@@ -52,8 +52,3 @@ export const notFound = {
   module: $NOTFOUND,
 };
 
-
-
-//export const clientEntryUrl = './entry-client.ts';
-
-export const baseUrl = import.meta.url;
