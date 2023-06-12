@@ -17,12 +17,12 @@ const lazyObserver = new IntersectionObserver(
   }
 );
 
-export function observe(view, callback) {
+export function observe(view: Element, callback) {
   lazyObserver.observe(view);
   view[CALLBACK] = callback;
 }
 
-export function unobserve(view) {
+export function unobserve(view: Element) {
   lazyObserver.unobserve(view);
   delete view[CALLBACK];
 }

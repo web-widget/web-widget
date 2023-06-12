@@ -21,7 +21,7 @@
     "emitDeclarationOnly": true,
     "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@web-widget/web-server/runtime/react"
+    "jsxImportSource": "@web-widget/react"
   },
   "ts-node": {
     "esModuleInterop": true,

@@ -1,7 +1,7 @@
 import { ComponentType } from "react";
 import { HEAD_CONTEXT } from "./head.js";
 import { jsx } from './jsx-runtime.js';
-import { Handlers, RenderContext, RenderResult, ComponentProps, UnknownComponentProps, ErrorComponentProps } from "@web-widget/web-server/server";
+import { Handlers, RenderContext, RenderResult, ComponentProps, UnknownComponentProps, ErrorComponentProps } from "@web-widget/web-server";
 // @ts-ignore
 import * as ReactDOMServer from 'react-dom/server.browser';
 

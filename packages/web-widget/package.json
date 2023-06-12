@@ -27,6 +27,7 @@
   "files": [
     "dist"
   ],
+  "sideEffects": ["./dist/index.js", "./index.ts"],
   "keywords": [
     "microfrontends",
     "single",

@@ -2,7 +2,7 @@ import { ComponentType } from "react";
 import { HEAD_CONTEXT } from "./head.js";
 import { hydrateRoot } from "react-dom/client";
 import { jsx } from "./jsx-runtime.js";
-import { Handlers, RenderContext, ComponentProps, UnknownComponentProps, ErrorComponentProps } from "@web-widget/web-server/server";
+import { Handlers, RenderContext, ComponentProps, UnknownComponentProps, ErrorComponentProps } from "@web-widget/web-server";
 
 export type { Handlers, ComponentProps };
 
