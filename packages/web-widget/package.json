@@ -1,0 +1,58 @@
+{
+  "name": "@web-widget/web-widget",
+  "description": "Web front-end application container",
+  "type": "module",
+  "version": "1.0.0-alpha.3",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && pnpm exec tsc",
+    "build:watch": "pnpm exec tsc --watch",
+    "examples": "cd examples && server --watch",
+    "test": "tester --coverage",
+    "test:watch": "tester --watch"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/web-widget"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "microfrontends",
+    "single",
+    "page",
+    "application",
+    "framework",
+    "react",
+    "angular",
+    "vue",
+    "router",
+    "microservices",
+    "frontend",
+    "Sandbox",
+    "Realm",
+    "Shadow DOM",
+    "Web components"
+  ],
+  "author": "aui",
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "server": "workspace:*",
+    "@web-widget/tester": "workspace:*",
+    "typescript": "^5.0.4"
+  }
+}

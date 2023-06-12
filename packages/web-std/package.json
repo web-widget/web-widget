@@ -1,0 +1,46 @@
+{
+  "name": "@web-widget/web-std",
+  "type": "module",
+  "description": "Web standard APIs implemented for nodejs",
+  "version": "1.17.0",
+  "private": true,
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "sideEffects": [ 
+    "./install.js"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && pnpm exec tsc",
+    "build:watch": "pnpm exec tsc --watch"
+  },
+  "dependencies": {
+    "@types/node": "^20.2.5",
+    "@netlify/urlpattern-polyfill": "^6.0.6",
+    "@remix-run/web-fetch": "^4.3.4",
+    "@remix-run/web-file": "^3.0.2",
+    "@remix-run/web-stream": "^1.0.3",
+    "abort-controller": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "files": [
+    "dist/",
+    "globals.d.ts",
+    "install.d.ts",
+    "install.js",
+    "CHANGELOG.md",
+    "LICENSE.md",
+    "README.md"
+  ]
+}

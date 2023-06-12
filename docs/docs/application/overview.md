@@ -92,7 +92,7 @@ export default ({ container, data, parameters, ...customProps }) => ({
 
 `HTMLElement`
 
-应用的容器。`container` 继承自 [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) 对象，可以使用如下 DOM 接口：
+应用的容器。`container` 继承自 [`Node`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) 对象，可以使用如下 DOM 接口：
 
 * [`container.appendChild()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild) 将节点插入到容器末尾处
 * [`container.insertBefore()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/insertBefore) 在参考节点之前插入一个拥有指定父节点的子节点

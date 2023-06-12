@@ -12,7 +12,7 @@
     "examples": "cd examples && server",
   },
   "devDependencies": {
-    "@web-widget/server": "^0.0.12"
+    "server": "^0.0.12"
   }
 }
 ```

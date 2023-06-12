@@ -1,5 +1,5 @@
 {
-  "name": "@web-widget/server",
+  "name": "server",
   "version": "0.0.27",
   "description": "Dev Server",
   "main": "src/web-dev-server-config.js",
@@ -10,13 +10,15 @@
     "access": "public"
   },
   "dependencies": {
-    "@web/dev-server": "^0.1.25",
-    "@web/dev-server-hmr": "^0.1.9",
-    "@web/dev-server-rollup": "^0.3.11"
+    "@web/dev-server": "^0.2.1",
+    "@web/dev-server-hmr": "^0.2.1",
+    "@web/dev-server-rollup": "^0.5.0",
+    "@web/dev-server-esbuild": "^0.4.1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/web-widget/web-widget.git"
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "scripts/server"
   },
   "author": "aui",
   "bugs": {

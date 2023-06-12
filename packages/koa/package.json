@@ -1,0 +1,42 @@
+{
+  "name": "@web-widget/koa",
+  "type": "module",
+  "version": "1.17.0",
+  "private": true,
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && pnpm exec tsc",
+    "build:watch": "pnpm exec tsc --watch"
+  },
+  "dependencies": {
+    "@web-widget/web-std": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.13.6",
+    "@types/supertest": "^2.0.10",
+    "koa": "^2.14.2",
+    "node-mocks-http": "^1.10.1",
+    "supertest": "^6.1.5",
+    "typescript": "^5.0.4"
+  },
+  "peerDependencies": {
+    "koa": "^2.14.2"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md",
+    "LICENSE.md",
+    "README.md"
+  ]
+}

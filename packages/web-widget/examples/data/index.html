@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" main="IE=edge">
+  <title>Web Widget DEMO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">  
+</head>
+
+<body>
+
+  <web-widget
+    name="demo1"
+    data-id="xxxx-xxxx-xxxx-xxxx"
+    src="./index.widget.js"
+  >
+  </web-widget>
+
+  <web-widget
+    name="demo2"
+    data="{&quot;id&quot;:&quot;#345&quot;,&quot;username&quot;:&quot;widget&quot;}"
+    src="./index.widget.js"
+  >
+  </web-widget>
+
+  <script type="module">
+    import '@web-widget/web-widget';
+
+    document.querySelectorAll('web-widget').forEach(element => {
+      element.addEventListener('update', function(event) {
+        console.log(this.getAttribute('name'), JSON.stringify(event.value, null, 2));
+      });
+    });
+
+  </script>
+</body>
+
+</html>

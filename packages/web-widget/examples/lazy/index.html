@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" main="IE=edge">
+  <title>Web Widget DEMO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    li {
+      height: 200px;
+    }
+
+    web-widget {
+      position: relative;
+      display: inline-block;
+      min-width: 200px;
+      min-height: 200px;
+      border: 1px solid #CCC;
+    }
+  </style>
+</head>
+
+<body>
+  
+  <script type="module">
+    import '@web-widget/web-widget';
+
+    let html = '';
+    for (let i = 0; i < 100; i ++) {
+      html += `
+      <li>
+        <web-widget id="widget${i}" src="./hello-world.widget.js?${i}" loading="lazy">
+          <placeholder>loading...</placeholder>
+        </web-widget>
+      </li>`;
+    }
+    let ol = document.createElement('ol');
+    ol.innerHTML = html;
+    document.body.appendChild(ol);
+  </script>
+</body>
+
+</html>

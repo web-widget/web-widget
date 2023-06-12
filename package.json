@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "postinstall": "lerna bootstrap",
+    "#postinstall": "lerna bootstrap",
     "start": "rocket start",
     "build": "lerna run build",
     "test": "lerna run test --concurrency 1",
@@ -16,10 +16,6 @@
     "docs": "rocket build && npm run github-pages-init",
     "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll"
   },
-  "workspaces": [
-    "packages/*",
-    "scripts/*"
-  ],
   "engines": {
     "node": ">=16",
     "npm": ">=7"
@@ -36,9 +32,9 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
     "@rocket/cli": "^0.10.2",
+    "@rocket/core": "^0.1.2",
     "@rocket/launch": "^0.6.0",
     "@rocket/search": "^0.6.0",
-    "@rocket/core": "^0.1.2",
     "alex": "^10.0.0",
     "babel-loader": "^8.2.3",
     "cross-env": "^7.0.3",
@@ -47,7 +43,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-prettier": "^4.0.0",
-    "lerna": "^4.0.0",
     "prettier": "^2.4.1"
-  }
+  },
+  "packageManager": "pnpm@7.9.5"
 }
