@@ -1,0 +1,29 @@
+{
+  "name": "@web-widget/vue",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/server.d.ts",
+      "browser": "./dist/client.js",
+      "default": "./dist/server.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && rm -rf tsconfig.tsbuildinfo && tsc && echo 'done'",
+    "build:watch": "pnpm exec tsc --watch --incremental"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.4"
+  },
+  "dependencies": {
+    "vue": "^3.3.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "@web-widget/web-server": "workspace:*"
+  }
+}

@@ -24,12 +24,16 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "@babel/helper-plugin-utils": "^7.22.5",
-    "@babel/core": "^7.22.5",
-    "@babel/traverse": "^7.22.5",
+  "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@babel/helper-plugin-utils": "^7.22.5",
+    "@babel/core": "^7.22.5",
+    "@babel/traverse": "^7.22.5"
   },
   "devDependencies": {
     "@types/babel__helper-plugin-utils": "^7.10.0",
