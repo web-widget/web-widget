@@ -1,0 +1,26 @@
+diff --git a/esm/index.js b/esm/index.js
+index bb5a84ac08ddf9ed68e3bb8c98232d970f90d9e9..bde8ad9ad4cb96e7532ff4325ccd58eb532fd9ae 100644
+--- a/esm/index.js
++++ b/esm/index.js
+@@ -8,7 +8,7 @@ const maybeAsyncIterToStream = (x) => x instanceof ReadableStream ? x : asyncIte
+ const maybeStreamToAsyncIter = (x) => x instanceof ReadableStream ? streamToAsyncIter(x) : x;
+ // FIXME: add exception for newer versions that support streams correctly!?
+ const isCFWorkers = ((_b = (_a = globalThis.navigator) === null || _a === void 0 ? void 0 : _a.userAgent) === null || _b === void 0 ? void 0 : _b.includes('Cloudflare-Workers'))
+-    || !('TextEncoderStream' in dntShim.dntGlobalThis);
++    || !('TextEncoderStream' in dntShim.dntGlobalThis) || ('fetch' in globalThis && 'TextEncoder' in globalThis);
+ // CF Workers doesn't support non-binary Transform Streams, 
+ // so we use a version that does the byte encoding in a async iterator instead:
+ const stringStreamToByteStream = isCFWorkers
+diff --git a/src/index.ts b/src/index.ts
+index 02a75971f327589d7d33d61a9ef9e8e7d92cfa3b..2698c47ab036be058ed59a2d0e9737d09fd971e7 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -16,7 +16,7 @@ const maybeStreamToAsyncIter = <T>(x: ForAwaitable<T> | ReadableStream<T>) =>
+ 
+ // FIXME: add exception for newer versions that support streams correctly!?
+ const isCFWorkers = (<any>globalThis.navigator)?.userAgent?.includes('Cloudflare-Workers')
+-  || !('TextEncoderStream' in dntShim.dntGlobalThis)
++  || !('TextEncoderStream' in dntShim.dntGlobalThis) || ('fetch' in globalThis && 'TextEncoder' in globalThis)
+ 
+ // CF Workers doesn't support non-binary Transform Streams, 
+ // so we use a version that does the byte encoding in a async iterator instead:
