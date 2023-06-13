@@ -1,13 +1,11 @@
-
-
-import { html, HTMLResponse } from "@worker-tools/html";
-import { installGlobals } from "@web-widget/web-std";
-installGlobals();
+import "./install.js";
+import { html, HTMLResponse } from "./html.js";
 
 const template = html`<div>hello world</div>`;
 
 const res = new HTMLResponse(template);
-console.log('res', res);
+
+res.text().then(console.log)
 
 
 
