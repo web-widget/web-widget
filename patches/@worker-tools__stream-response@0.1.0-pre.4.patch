@@ -1,5 +1,5 @@
 diff --git a/esm/index.js b/esm/index.js
-index bb5a84ac08ddf9ed68e3bb8c98232d970f90d9e9..5d7d82fe8c5dfd1ea03557230ba8c508854759ae 100644
+index bb5a84ac08ddf9ed68e3bb8c98232d970f90d9e9..5aeb26d1c20c6ffca66bcb769d14663b23de7b76 100644
 --- a/esm/index.js
 +++ b/esm/index.js
 @@ -6,12 +6,13 @@ import { concatUint8Arrays } from 'typed-array-utils';
@@ -9,8 +9,7 @@ index bb5a84ac08ddf9ed68e3bb8c98232d970f90d9e9..5d7d82fe8c5dfd1ea03557230ba8c508
 +const isWWWS = '@web-widget/web-std' in globalThis;
  // FIXME: add exception for newer versions that support streams correctly!?
  const isCFWorkers = ((_b = (_a = globalThis.navigator) === null || _a === void 0 ? void 0 : _a.userAgent) === null || _b === void 0 ? void 0 : _b.includes('Cloudflare-Workers'))
--    || !('TextEncoderStream' in dntShim.dntGlobalThis);
-+    || !('TextEncoderStream' in dntShim.dntGlobalThis) || ('fetch' in globalThis && 'TextEncoder' in globalThis);
+     || !('TextEncoderStream' in dntShim.dntGlobalThis);
  // CF Workers doesn't support non-binary Transform Streams, 
  // so we use a version that does the byte encoding in a async iterator instead:
 -const stringStreamToByteStream = isCFWorkers
