@@ -29,6 +29,7 @@ export async function render(opts: RenderContext<unknown>): Promise<void> {
   };
 
   const recovering = opts.recovering;
-  const app = recovering ? createSSRApp(opts.component, props) : createApp(opts.component, props);
+  const create = recovering ? createSSRApp : createApp;
+  const app = create(opts.component, props as Record<string, any>);
   app.mount(opts.container);
 }

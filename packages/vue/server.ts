@@ -25,7 +25,7 @@ export async function render(opts: RenderContext<unknown>): Promise<RenderResult
     error: opts.error
   };
 
-  const app = createSSRApp(opts.component, props);
+  const app = createSSRApp(opts.component, props as Record<string, any>);
 
   return renderToWebStream(app);
 }
