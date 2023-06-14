@@ -43,7 +43,6 @@ export default declare((api) => {
           const name = (attributes[i] as t.JSXAttribute).name;
           if (name?.name === 'widget') {
             // TODO 保留用户原始的 props
-            console.log(t.stringLiteral(source.value));
             (attributes[i] as t.JSXAttribute).value = t.jsxExpressionContainer(t.objectExpression([
               t.objectProperty(
                 t.identifier('import'),
