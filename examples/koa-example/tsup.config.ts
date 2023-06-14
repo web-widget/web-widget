@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup';
 export default defineConfig([
   {
     entry: {
-      server: 'main.ts',
+      server: 'entry-server.ts',
     },
     // minifyIdentifiers: false,
     bundle: true,

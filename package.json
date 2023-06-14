@@ -45,5 +45,10 @@
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.4.1"
   },
-  "packageManager": "pnpm@7.9.5"
+  "packageManager": "pnpm@7.9.5",
+  "pnpm": {
+    "patchedDependencies": {
+      "@worker-tools/stream-response@0.1.0-pre.4": "patches/@worker-tools__stream-response@0.1.0-pre.4.patch"
+    }
+  }
 }

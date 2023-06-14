@@ -40,24 +40,23 @@ async function createServer(
     }
   }
 
+  let render;
+  if (!isProd) {
+    render = (await viteServer.ssrLoadModule('/entry-server.ts')).render;
+  } else {
+    render = (await import('./dist/server/entry-server.js')).render;
+  }
+
   app.use(async ctx => {
     try {
-      let render;
-      if (!isProd) {
-        render = (await viteServer.ssrLoadModule('/entry-server.ts')).render;
-      } else {
-        render = (await import('./dist/server/entry-server.js')).render;
-      }
-      
       const webRequest = createWebRequest(ctx.request, ctx.response);
-      const webResponse = render(webRequest, manifest);
+      const webResponse = await render(webRequest, manifest);
       if (!isProd) {
         const html = await webResponse.text();
         ctx.type = 'text/html';
         ctx.body = await viteServer.transformIndexHtml(ctx.path, html);
       } else {
-        // TODO webResponse -> node Response
-        // ctx.body = html;
+        // TODO webResponse -> koaResponse
       }
     } catch (e) {
       viteServer && viteServer.ssrFixStacktrace(e);
@@ -66,13 +65,13 @@ async function createServer(
     }
   });
 
-  return { app };
+  return app;
 }
 
 if (!isTest) {
   createServer().then(app => {
     app.listen(9000, () => {
-      console.log('server is listening in 9000');
+      console.log('http://localhost:9000');
     });
   });
 }
