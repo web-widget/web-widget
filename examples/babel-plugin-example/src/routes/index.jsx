@@ -1,4 +1,4 @@
-import IslandExample from './island.jsx';
+import IslandExample from '../islands/button.jsx';
 
 export default () => {
   return (<>

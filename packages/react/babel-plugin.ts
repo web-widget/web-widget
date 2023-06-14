@@ -12,6 +12,8 @@
 import { declare } from '@babel/helper-plugin-utils';
 import { type PluginPass, types as t } from '@babel/core';
 import type { Visitor } from '@babel/traverse';
+import { dirname } from 'node:path';
+import { fileURLToPath } from "node:url";
 
 export default declare((api) => {
   api.assertVersion(7);
@@ -46,27 +48,56 @@ export default declare((api) => {
             (attributes[i] as t.JSXAttribute).value = t.jsxExpressionContainer(t.objectExpression([
               t.objectProperty(
                 t.identifier('import'),
-                t.newExpression(t.identifier('URL'), [
-                  {
-                    ...t.stringLiteral(source.value),
-                    // leadingComments: [{
-                    //   "type": "CommentBlock",
-                    //   "value": "@web-widget",
-                    // }]
-                  },
-                  t.memberExpression(
-                    t.metaProperty(t.identifier('import'), t.identifier('meta')),
-                    t.identifier('url'),
-                  )
-                ]),
+                // t.newExpression(t.identifier('URL'), [
+                //   {
+                //     ...t.stringLiteral(source.value),
+                //     // leadingComments: [{
+                //     //   "type": "CommentBlock",
+                //     //   "value": "@web-widget",
+                //     // }]
+                //   },
+                //   t.memberExpression(
+                //     t.metaProperty(t.identifier('import'), t.identifier('meta')),
+                //     t.identifier('url'),
+                //   )
+                // ]),
+                t.stringLiteral(source.value),
               ),
+
+              // t.objectProperty(
+              //   t.identifier('base'),
+              //   t.memberExpression(
+              //     t.metaProperty(t.identifier('import'), t.identifier('meta')),
+              //     t.identifier('url'),
+              //   )
+              // ),
+
+              // t.objectProperty(
+              //   t.identifier('base'),
+              //   t.logicalExpression(
+              //     '??',
+              //     t.optionalMemberExpression(
+              //       t.optionalMemberExpression(
+              //         t.metaProperty(
+              //           t.identifier('import'),
+              //           t.identifier('meta')
+              //         ),
+              //         t.identifier('env'),
+              //         false,
+              //         true
+              //       ),
+              //       t.identifier('BASE_URL'),
+              //       false,
+              //       true
+              //     ),
+              //     t.stringLiteral('/')
+              //   ),
+              // ),
+
               t.objectProperty(
                 t.identifier('base'),
-                t.memberExpression(
-                  t.metaProperty(t.identifier('import'), t.identifier('meta')),
-                  t.identifier('url'),
-                ),
-              )
+                t.stringLiteral(state.filename ? dirname(state.filename.replace(state.cwd, '')) + '/' : '/')
+              ),
             ]));
           }
         }
