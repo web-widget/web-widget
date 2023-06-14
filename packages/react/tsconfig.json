@@ -11,6 +11,7 @@
     "declaration": true,
     "rootDir": "./",
     "outDir": "./dist",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true
   }
 }

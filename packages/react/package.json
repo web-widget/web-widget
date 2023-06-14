@@ -12,6 +12,10 @@
       "types": "./dist/jsx-runtime.d.ts",
       "default": "./dist/jsx-runtime.js"
     },
+    "./jsx-dev-runtime": {
+      "types": "./dist/jsx-dev-runtime.d.ts",
+      "default": "./dist/jsx-dev-runtime.js"
+    },
     "./babel-plugin": {
       "types": "./dist/babel-plugin.d.ts",
       "default": "./dist/babel-plugin.js"
@@ -25,6 +29,10 @@
     "access": "public"
   },
   "peerDependencies": {
+    "vite": "^4.3.9",
+    "magic-string": "^0.30.0",
+    "rollup": "^3.25.1",
+    "strip-literal": "^1.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

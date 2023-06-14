@@ -7,7 +7,7 @@
  *
  * becomes:
  *
- * <MyComponent widget={{ import: "../widgets/MyComponent", base: import.meta.url }} />
+ * <MyComponent widget={{ import: new URL("../widgets/MyComponent", import.meta.url), base: import.meta.url }} />
  */
 import { declare } from '@babel/helper-plugin-utils';
 import { type PluginPass, types as t } from '@babel/core';
@@ -43,10 +43,23 @@ export default declare((api) => {
           const name = (attributes[i] as t.JSXAttribute).name;
           if (name?.name === 'widget') {
             // TODO 保留用户原始的 props
+            console.log(t.stringLiteral(source.value));
             (attributes[i] as t.JSXAttribute).value = t.jsxExpressionContainer(t.objectExpression([
               t.objectProperty(
                 t.identifier('import'),
-                t.stringLiteral(source.value),
+                t.newExpression(t.identifier('URL'), [
+                  {
+                    ...t.stringLiteral(source.value),
+                    // leadingComments: [{
+                    //   "type": "CommentBlock",
+                    //   "value": "@web-widget",
+                    // }]
+                  },
+                  t.memberExpression(
+                    t.metaProperty(t.identifier('import'), t.identifier('meta')),
+                    t.identifier('url'),
+                  )
+                ]),
               ),
               t.objectProperty(
                 t.identifier('base'),
@@ -63,7 +76,7 @@ export default declare((api) => {
   };
 
   return {
-    name: 'transform-react-jsx-widget',
+    name: '@web-widget/react:transform-jsx',
     visitor
   };
 });
