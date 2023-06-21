@@ -1,10 +1,5 @@
 lockfileVersion: '6.0'
 
-patchedDependencies:
-  '@worker-tools/stream-response@0.1.0-pre.4':
-    hash: n3gymkvyxg5ndmex2qxq2uje2m
-    path: patches/@worker-tools__stream-response@0.1.0-pre.4.patch
-
 importers:
 
   .:
@@ -270,12 +265,9 @@ importers:
       '@worker-tools/html':
         specifier: ^2.0.0-pre.13
         version: 2.0.0-pre.13
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
+      whatwg-stream-to-async-iter:
+        specifier: ^0.6.2
+        version: 0.6.2
     devDependencies:
       typescript:
         specifier: ^5.0.4
@@ -3449,16 +3441,15 @@ packages:
   /@worker-tools/html@2.0.0-pre.13:
     resolution: {integrity: sha512-MkmUNNX6fE/2tRM8iWpoSZ6hbZ4srMxzecPdyNvT4cydfYs6YEmFFv0w27839ALQxwtpsDCOKlDLEkhhzbMs9Q==}
     dependencies:
-      '@worker-tools/stream-response': 0.1.0-pre.4(patch_hash=n3gymkvyxg5ndmex2qxq2uje2m)
+      '@worker-tools/stream-response': 0.1.0-pre.4
     dev: false
 
-  /@worker-tools/stream-response@0.1.0-pre.4(patch_hash=n3gymkvyxg5ndmex2qxq2uje2m):
+  /@worker-tools/stream-response@0.1.0-pre.4:
     resolution: {integrity: sha512-PHMaXNbaavvtPWuPTjslNMmbFX0Wv4iKsa9ZiL+KkcTuXwSh5okMShYxt0st0bx4C137kIK/bBQqw/JBEKlP9Q==}
     dependencies:
       typed-array-utils: 0.3.0-pre.0
       whatwg-stream-to-async-iter: 0.6.2
     dev: false
-    patched: true
 
   /@xtuc/ieee754@1.2.0:
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}

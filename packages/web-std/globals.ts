@@ -40,7 +40,4 @@ export function installGlobals() {
 
   // @ts-ignore
   global.crypto = crypto;
-
-  // @ts-ignore
-  global["@web-widget/web-std"] = true;
 }
