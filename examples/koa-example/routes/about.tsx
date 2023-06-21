@@ -1,5 +1,5 @@
 import { render, Handlers, ComponentProps } from "@web-widget/react";
-import Counter from "../islands/Counter";
+import Counter from "../islands/Counter.tsx";
 
 type AboutPageProps = {
   name: string;
@@ -11,7 +11,7 @@ export const handler: Handlers<AboutPageProps> = {
   async GET(req, ctx) {
     const resp = await ctx.render({
       data: {
-        name: 'React test<a></a>'
+        name: 'Hello world'
       },
     });
     resp.headers.set("X-Custom-Header", "Hello");

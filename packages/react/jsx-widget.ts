@@ -1,11 +1,11 @@
 // @ts-nocheck
-import { Suspense, lazy } from 'react';
+import { Suspense, Fragment, lazy } from 'react';
 export function transform(jsx, type, props, ...args) {
   if (props && Reflect.has(props, 'widget')) {
     // TODO options 的 key 转换为小写
     const options = props.widget || {};
     const id = type.name.toLowerCase();
-    // The widget prop has been transformed to component path string by babel-plugin-island
+    // The widget prop has been transformed to component path string by @web-widget/react/babel-plugin
     delete props.widget;
     return jsx(Suspense, {
       fallback: null,
@@ -15,17 +15,29 @@ export function transform(jsx, type, props, ...args) {
           const result = jsx(type, props, ...args);
 
           resolve({
-            default: jsx("web-widget", Object.assign({
-              name: id,
-              import: `#islands/${id}`,
-              context: JSON.stringify(props),
-              recovering: true,
-              loading: 'lazy',
-              rendertarget: 'light',
-            }, options, {
-              //dangerouslySetInnerHTML: { __html: html },
-              children: result,
-            }))
+            default: jsx(Fragment, {
+              children: [
+                jsx("web-widget", Object.assign({
+                  key: 'container',
+                  name: id,
+                  import: `#islands/${id}`,
+                  context: JSON.stringify(props),
+                  recovering: true,
+                  loading: 'lazy',
+                  rendertarget: 'light',
+                }, options, {
+                  //dangerouslySetInnerHTML: { __html: html },
+                  children: result
+                })),
+                jsx("script", {
+                  key: 'vite:prefetch',
+                  type: "module",
+                  dangerouslySetInnerHTML: {
+                    __html: `import /*@web-widget/react:vite-prefetch*/${JSON.stringify(options.base + options.import)}`
+                  }
+                })
+             ]
+            })
           })
         });
       })

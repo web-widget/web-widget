@@ -22,17 +22,20 @@ export async function render(opts: RenderContext<unknown>): Promise<RenderResult
     );
   }
 
-  const props: ComponentProps<any> | UnknownComponentProps | ErrorComponentProps = {
+  const isIsland = !opts.url;
+  const props = isIsland ? opts : {
     params: opts.params,
     url: opts.url,
     route: opts.route,
     data: opts.data,
     error: opts.error
-  };
+  } as ComponentProps<any> | UnknownComponentProps | ErrorComponentProps;
 
-  const vnode = jsx(HEAD_CONTEXT.Provider, {
-    children: jsx(opts.component! as ComponentType<unknown>, props),
-  });
+  // const vnode = jsx(HEAD_CONTEXT.Provider, {
+  //   children: jsx(opts.component! as ComponentType<unknown>, props),
+  // });
+
+  const vnode = jsx(opts.component! as ComponentType<unknown>, props);
 
   return ReactDOMServer.renderToReadableStream(vnode);
 }

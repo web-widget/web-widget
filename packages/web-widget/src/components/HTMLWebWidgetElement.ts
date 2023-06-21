@@ -206,7 +206,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
    */
   get import() {
     let value = this.getAttribute('import');
-    if (value && value.startsWith('./')) {
+    const relativePath = /^\.\.?\//;
+    if (value && relativePath.test(value)) {
       value = new URL(value, this.base).href;
     }
     return value === null ? '' : value;

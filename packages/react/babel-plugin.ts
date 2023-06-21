@@ -12,7 +12,7 @@
 import { declare } from '@babel/helper-plugin-utils';
 import { type PluginPass, types as t } from '@babel/core';
 import type { Visitor } from '@babel/traverse';
-import { dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from "node:url";
 
 export default declare((api) => {
@@ -96,7 +96,11 @@ export default declare((api) => {
 
               t.objectProperty(
                 t.identifier('base'),
-                t.stringLiteral(state.filename ? dirname(state.filename.replace(state.cwd, '')) + '/' : '/')
+                t.stringLiteral(join(
+                  state.filename
+                  ? dirname(state.filename.replace(state.cwd, ''))
+                  : '/',
+                '/'))
               ),
             ]));
           }

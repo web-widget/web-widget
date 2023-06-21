@@ -1,7 +1,5 @@
-import { relative } from 'node:path';
-import { fileURLToPath } from "node:url";
 import Counter from "../islands/Counter.tsx";
-import { render, Handlers, ComponentProps } from "@web-widget/react";
+import { render } from "@web-widget/react";
 
 export { render }
 
@@ -16,12 +14,3 @@ export default function Home() {
     </div>
   );
 }
-
-// const x = import.meta.url;
-// console.log(import.meta.url)
-// console.log(new URL('../islands/Counter', import.meta.url).href)
-// console.log(relative(new URL('../islands/Counter', import.meta.url).href, import.meta.url));
-console.log('dirname', relative(new URL('.', import.meta.url).href, new URL('../islands/Counter', import.meta.url).href))
-console.log(process.cwd(), '>>>', fileURLToPath(new URL('.', import.meta.url).href).replace(process.cwd(), ''));
-// console.log('MMM>>', relative(import.meta.url, new URL('../islands/Counter', x).href))
-// console.log('>>>', new URL('../islands/Counter', x).href)
