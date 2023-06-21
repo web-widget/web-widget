@@ -102,6 +102,11 @@ export default declare((api) => {
                   : '/',
                 '/'))
               ),
+
+              t.objectProperty(
+                t.identifier('src'),
+                t.stringLiteral(state.filename ? join(dirname(state.filename), source.value) : ''),
+              ),
             ]));
           }
         }

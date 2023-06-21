@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "vue": "^3.3.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "koa": "^2.14.2",
@@ -22,11 +23,12 @@
     "@web-widget/web-server": "workspace:*",
     "@web-widget/koa": "workspace:*",
     "@web-widget/react": "workspace:*",
-    "@worker-tools/html": "^2.0.0-pre.12"
+    "@web-widget/vue": "workspace:*"
   },
   "devDependencies": {
     "vite": "^4.3.9",
     "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-vue": "^4.2.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4",
     "@types/koa": "^2.13.6",
