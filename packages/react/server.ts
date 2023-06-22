@@ -23,7 +23,7 @@ export async function render(opts: RenderContext<unknown>): Promise<RenderResult
   }
 
   const isIsland = !opts.url;
-  const props = isIsland ? opts : {
+  const props = isIsland ? opts.data : {
     params: opts.params,
     url: opts.url,
     route: opts.route,

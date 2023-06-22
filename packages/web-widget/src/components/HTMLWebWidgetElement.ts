@@ -93,7 +93,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   /**
    * Application data
-   * @deprecated
    */
   get data(): Record<string, unknown> | null {
     if (!this.#data) {
@@ -262,12 +261,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
 
     const context = Object.create({
-      get request() {
-        if (!request) {
-          request = new Request(location.href);
-        }
-        return request;
-      },
+      // get request() {
+      //   if (!request) {
+      //     request = new Request(location.href);
+      //   }
+      //   return request;
+      // },
 
       get container() {
         if (!container) {
@@ -280,15 +279,15 @@ export class HTMLWebWidgetElement extends HTMLElement {
         return view.recovering;
       },
 
+      get data() {
+        return view.data;
+      },
+
       update: this.update.bind(this)
     });
 
     return Object.assign(
       context,
-      {
-        // support v0
-        data: view.data
-      },
       customContext || {}
     );
   }

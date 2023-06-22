@@ -2,11 +2,11 @@ import { ComponentType } from "react";
 import { HEAD_CONTEXT } from "./head.js";
 import { hydrateRoot } from "react-dom/client";
 import { jsx } from "./jsx-runtime.js";
-import { Handlers, RenderContext, ComponentProps, UnknownComponentProps, ErrorComponentProps } from "@web-widget/web-server";
+import { Handlers, RenderContext, RenderResult, ComponentProps, UnknownComponentProps, ErrorComponentProps } from "@web-widget/web-server";
 
 export type { Handlers, ComponentProps };
 
-export async function render(opts: RenderContext<unknown>): Promise<void> {
+export async function render(opts: RenderContext<unknown>): Promise<RenderResult> {
 
   if (opts.component === undefined) {
     throw new Error("This page does not have a component to render.");
@@ -22,11 +22,11 @@ export async function render(opts: RenderContext<unknown>): Promise<void> {
   }
 
   if (!opts.container) {
-    throw new Error(`Container required`);
+    throw new Error(`Container required.`);
   }
 
   const isIsland = !opts.url;
-  const props = isIsland ? opts : {
+  const props = isIsland ? opts.data : {
     params: opts.params,
     url: opts.url,
     route: opts.route,

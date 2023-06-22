@@ -2,6 +2,8 @@ import { createApp, createSSRApp } from "vue";
 import { renderToWebStream } from "vue/server-renderer";
 import { Handlers, RenderContext, RenderResult, ComponentProps, UnknownComponentProps, ErrorComponentProps } from "@web-widget/web-server";
 
+export type { Handlers, ComponentProps };
+
 export async function render(opts: RenderContext<unknown>): Promise<RenderResult> {
 
   if (opts.component === undefined) {
@@ -17,13 +19,14 @@ export async function render(opts: RenderContext<unknown>): Promise<RenderResult
     );
   }
 
-  const props: ComponentProps<any> | UnknownComponentProps | ErrorComponentProps = {
+  const isIsland = !opts.url;
+  const props = isIsland ? opts.data : {
     params: opts.params,
     url: opts.url,
     route: opts.route,
     data: opts.data,
     error: opts.error
-  };
+  } as ComponentProps<any> | UnknownComponentProps | ErrorComponentProps;
 
   const app = createSSRApp(opts.component, props as Record<string, any>);
 

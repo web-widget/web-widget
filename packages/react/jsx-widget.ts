@@ -32,7 +32,7 @@ export function transform(jsx, type, props, ...args) {
           let html = '';
           const result = await module.render({
             component: module.default || type,
-            ...props
+            data: props
           });
           
           if (result instanceof ReadableStream) {
@@ -49,7 +49,7 @@ export function transform(jsx, type, props, ...args) {
                 jsx("web-widget", {
                   key: 'container',
                   name: id,
-                  context: JSON.stringify(props),
+                  data: JSON.stringify(props),
                   recovering: true,
                   loading: 'lazy',
                   rendertarget: 'light',
