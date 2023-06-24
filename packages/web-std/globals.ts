@@ -6,7 +6,7 @@ import {
 import { AbortController as NodeAbortController } from "abort-controller";
 import { URLPattern as NodeURLPattern } from "@netlify/urlpattern-polyfill";
 
-import { atob, btoa } from "./base64.js";
+import { atob, btoa } from "./base64";
 import {
   Blob as NodeBlob,
   File as NodeFile,
@@ -15,7 +15,7 @@ import {
   Request as NodeRequest,
   Response as NodeResponse,
   fetch as nodeFetch,
-} from "./fetch.js";
+} from "./fetch";
 
 export function installGlobals() {
   global.atob = atob;

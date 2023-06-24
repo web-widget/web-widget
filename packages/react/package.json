@@ -5,8 +5,8 @@
   "exports": {
     ".": {
       "types": "./dist/server.d.ts",
-      "browser": "./dist/client.js",
-      "default": "./dist/server.js"
+      "browser": "./dist/react.client.js",
+      "default": "./dist/react.server.js"
     },
     "./jsx-runtime": {
       "types": "./dist/jsx-runtime.d.ts",
@@ -22,8 +22,8 @@
     }
   },
   "scripts": {
-    "build": "rm -rf dist && rm -rf tsconfig.tsbuildinfo && tsc && echo 'done'",
-    "build:watch": "pnpm exec tsc --watch --incremental"
+    "dev": "pnpm exec tsup --watch",
+    "build": "pnpm exec tsup"
   },
   "publishConfig": {
     "access": "public"
@@ -52,6 +52,6 @@
     "@types/react-dom": "^18.0.6",
     "typescript": "^5.0.4",
     "@web-widget/web-server": "workspace:*",
-    "tsup": "^6.7.0"
+    "tsup": "^7.0.0"
   }
 }

@@ -1,1 +1,1 @@
-export * from "./dist/index.js";
+export * from "./dist/web-widget.js";

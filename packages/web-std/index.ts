@@ -7,15 +7,15 @@ export type {
   RequestInfo,
   RequestInit,
   ResponseInit,
-} from "./fetch.js";
+} from "./fetch";
 
-export { fetch, FormData, Headers, Request, Response } from "./fetch.js";
+export { fetch, FormData, Headers, Request, Response } from "./fetch";
 
-export { installGlobals } from "./globals.js";
+export { installGlobals } from "./globals";
 
 export {
   createReadableStreamFromReadable,
   readableStreamToString,
   writeAsyncIterableToWritable,
   writeReadableStreamToWritable,
-} from "./stream.js";
+} from "./stream";

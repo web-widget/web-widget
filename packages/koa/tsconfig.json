@@ -1,16 +1,25 @@
 {
-  "include": ["**/*.ts"],
-  "exclude": ["dist", "__tests__", "node_modules"],
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "dist",
+    "__tests__",
+    "node_modules"
+  ],
   "compilerOptions": {
-    "target": "ESNext",
     "module": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable",
+      "WebWorker"
+    ],
     "composite": true,
     "moduleResolution": "node",
     "strict": true,
     "declaration": true,
     "rootDir": ".",
-    "outDir": "./dist",
     "skipLibCheck": true
   }
 }

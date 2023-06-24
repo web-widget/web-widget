@@ -5,13 +5,16 @@
   "version": "1.0.0-alpha.3",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/web-widget.d.ts",
+      "default": "./dist/web-widget.js"
     }
   },
+  "sideEffects": [
+    "./dist/web-widget.js"
+  ],
   "scripts": {
-    "build": "rm -rf dist && pnpm exec tsc",
-    "build:watch": "pnpm exec tsc --watch",
+    "dev": "pnpm exec tsup --watch",
+    "build": "pnpm exec tsup",
     "examples": "cd examples && server --watch",
     "test": "tester --coverage",
     "test:watch": "tester --watch"
@@ -27,7 +30,6 @@
   "files": [
     "dist"
   ],
-  "sideEffects": ["./dist/index.js", "./index.ts"],
   "keywords": [
     "microfrontends",
     "single",
@@ -54,6 +56,7 @@
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "server": "workspace:*",
     "@web-widget/tester": "workspace:*",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "tsup": "^7.0.0"
   }
 }

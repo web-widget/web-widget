@@ -1,11 +1,21 @@
 {
-  "include": ["./**/*"],
-  "exclude": ["dist", "tsup.config.ts"],
+  "include": [
+    "*.ts"
+  ],
+  "exclude": [
+    "dist",
+    "tsup.config.ts"
+  ],
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
-    "composite": true,
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable",
+      "WebWorker"
+    ],
+    "composite": false,
     "moduleResolution": "node",
     "strict": true,
     "declaration": true,

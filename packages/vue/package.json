@@ -4,14 +4,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/server.d.ts",
-      "browser": "./dist/client.js",
-      "default": "./dist/server.js"
+      "types": "./dist/vue.server.d.ts",
+      "browser": "./dist/vue.client.js",
+      "default": "./dist/vue.server.js"
     }
   },
   "scripts": {
-    "build": "rm -rf dist && rm -rf tsconfig.tsbuildinfo && tsc && echo 'done'",
-    "build:watch": "pnpm exec tsc --watch --incremental"
+    "dev": "pnpm exec tsup --watch",
+    "build": "pnpm exec tsup"
   },
   "publishConfig": {
     "access": "public"
@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "typescript": "^5.0.4",
-    "@web-widget/web-server": "workspace:*"
+    "@web-widget/web-server": "workspace:*",
+    "tsup": "^7.0.0"
   }
 }

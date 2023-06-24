@@ -1,8 +1,8 @@
 import { ComponentType } from "react";
-import { HEAD_CONTEXT } from "./head.js";
+// import { HEAD_CONTEXT } from "./head";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import { jsx } from "./jsx-runtime.js";
-import {
+import { jsx } from "./jsx-runtime";
+import type {
   RenderContext,
   RenderResult,
   Render,

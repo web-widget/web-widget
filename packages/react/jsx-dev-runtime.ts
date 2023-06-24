@@ -1,7 +1,7 @@
 // @ts-nocheck
 import * as jsxRuntime from "react/jsx-dev-runtime";
 export * from "react/jsx-dev-runtime";
-import { transform } from "./jsx-widget.js";
+import { transform } from "./jsx-widget";
 
 const originJsxDEV = jsxRuntime.jsxDEV;
 

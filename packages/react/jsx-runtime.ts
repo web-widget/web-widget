@@ -1,6 +1,6 @@
 // @ts-nocheck
 import * as jsxRuntime from "react/jsx-runtime";
-import { transform } from "./jsx-widget.js";
+import { transform } from "./jsx-widget";
 
 const originJsx = jsxRuntime.jsx;
 const originJsxs = jsxRuntime.jsxs;

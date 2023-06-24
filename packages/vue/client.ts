@@ -1,5 +1,5 @@
 import { createApp, createSSRApp } from "vue";
-import {
+import type {
   RenderContext,
   RenderResult,
   Render,

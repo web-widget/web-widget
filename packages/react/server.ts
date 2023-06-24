@@ -1,7 +1,7 @@
 import { ComponentType } from "react";
-import { HEAD_CONTEXT } from "./head.js";
-import { jsx } from "./jsx-runtime.js";
-import {
+// import { HEAD_CONTEXT } from "./head";
+import { jsx } from "./jsx-runtime";
+import type {
   Handlers,
   RenderContext,
   RenderResult,

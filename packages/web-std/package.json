@@ -2,23 +2,19 @@
   "name": "@web-widget/web-std",
   "type": "module",
   "description": "Web standard APIs implemented for nodejs",
-  "version": "1.17.0",
-  "private": true,
-  "license": "MIT",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "version": "0.0.1",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/web-std.d.ts",
+      "default": "./dist/web-std.js"
     }
   },
-  "sideEffects": [ 
-    "./install.js"
+  "sideEffects": [
+    "./dist/web-std.js"
   ],
   "scripts": {
-    "build": "rm -rf dist && pnpm exec tsc",
-    "build:watch": "pnpm exec tsc --watch"
+    "dev": "pnpm exec tsup --watch",
+    "build": "pnpm exec tsup"
   },
   "dependencies": {
     "@types/node": "^20.2.5",
@@ -29,7 +25,8 @@
     "abort-controller": "^3.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "tsup": "^7.0.0"
   },
   "engines": {
     "node": ">=14"
