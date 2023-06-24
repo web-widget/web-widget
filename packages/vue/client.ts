@@ -1,14 +1,11 @@
 import { createApp, createSSRApp } from "vue";
 import {
-  Handlers,
   RenderContext,
   RenderResult,
-  ComponentProps,
-  UnknownComponentProps,
-  ErrorComponentProps,
-} from "@web-widget/web-server";
+  Render,
+} from "@web-widget/web-server/client";
 
-export type { Handlers, ComponentProps };
+export { RenderContext, RenderResult, Render };
 
 export async function render(
   opts: RenderContext<unknown>
@@ -28,16 +25,7 @@ export async function render(
     throw new Error(`Container required.`);
   }
 
-  const isIsland = !opts.url;
-  const props = isIsland
-    ? opts.data
-    : ({
-        params: opts.params,
-        url: opts.url,
-        route: opts.route,
-        data: opts.data,
-        error: opts.error,
-      } as ComponentProps<any> | UnknownComponentProps | ErrorComponentProps);
+  const props = opts.data;
 
   const recovering = opts.recovering;
   const create = recovering ? createSSRApp : createApp;

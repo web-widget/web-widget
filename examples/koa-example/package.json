@@ -23,7 +23,8 @@
     "@web-widget/web-server": "workspace:*",
     "@web-widget/koa": "workspace:*",
     "@web-widget/react": "workspace:*",
-    "@web-widget/vue": "workspace:*"
+    "@web-widget/vue": "workspace:*",
+    "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
     "vite": "^4.3.9",

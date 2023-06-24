@@ -1,17 +1,14 @@
 import { ComponentType } from "react";
 import { HEAD_CONTEXT } from "./head.js";
-import { hydrateRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import { jsx } from "./jsx-runtime.js";
 import {
-  Handlers,
   RenderContext,
   RenderResult,
-  ComponentProps,
-  UnknownComponentProps,
-  ErrorComponentProps,
-} from "@web-widget/web-server";
+  Render,
+} from "@web-widget/web-server/client";
 
-export type { Handlers, ComponentProps };
+export { RenderContext, RenderResult, Render };
 
 export async function render(
   opts: RenderContext<unknown>
@@ -31,22 +28,13 @@ export async function render(
     throw new Error(`Container required.`);
   }
 
-  const isIsland = !opts.url;
-  const props = isIsland
-    ? opts.data
-    : ({
-        params: opts.params,
-        url: opts.url,
-        route: opts.route,
-        data: opts.data,
-        error: opts.error,
-      } as ComponentProps<any> | UnknownComponentProps | ErrorComponentProps);
+  const props = opts.data;
 
   // const vnode = jsx(HEAD_CONTEXT.Provider, {
   //   children: jsx(opts.component! as ComponentType<unknown>, props),
   // });
 
   const vnode = jsx(opts.component! as ComponentType<unknown>, props);
-
-  hydrateRoot(opts.container, vnode);
+  const create = opts.recovering ? hydrateRoot : createRoot;
+  create(opts.container, vnode);
 }

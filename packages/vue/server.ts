@@ -1,4 +1,4 @@
-import { createApp, createSSRApp } from "vue";
+import { createSSRApp } from "vue";
 import { renderToWebStream } from "vue/server-renderer";
 import {
   Handlers,
