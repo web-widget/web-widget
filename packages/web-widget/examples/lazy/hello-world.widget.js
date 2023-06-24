@@ -2,10 +2,10 @@ export default () => {
   let element;
   return {
     async bootstrap() {
-      element = document.createElement('div');
-      element.style = 'background: green; color: white';
+      element = document.createElement("div");
+      element.style = "background: green; color: white";
       element.innerHTML = `hello wrold`;
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           resolve();
         }, 900);
@@ -18,6 +18,6 @@ export default () => {
 
     async unmount({ container }) {
       container.removeChild(element);
-    }
+    },
   };
 };

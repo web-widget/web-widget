@@ -1,4 +1,4 @@
-import { expect } from '@esm-bundle/chai';
+import { expect } from "@esm-bundle/chai";
 
 import {
   INITIAL,
@@ -16,28 +16,28 @@ import {
   UNMOUNTING,
   UNMOUNT_ERROR,
   UNLOADING,
-  UNLOAD_ERROR
-} from '../src/applications/status.js';
+  UNLOAD_ERROR,
+} from "../src/applications/status.js";
 import {
   createApplication,
   createBaseContainer,
-  defineTimeouts
-} from './application.adapter.js';
+  defineTimeouts,
+} from "./application.adapter.js";
 
-describe('Application lifecycle: load', () => {
-  it('load', () =>
+describe("Application lifecycle: load", () => {
+  it("load", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, getStateHistory, load }) => {
         const promise = load();
         expect(getState()).to.equal(LOADING);
         await promise;
         expect(getState()).to.equal(LOADED);
-        expect(getLifecycleHistory()).to.deep.equal(['load']);
+        expect(getLifecycleHistory()).to.deep.equal(["load"]);
         expect(getStateHistory()).to.deep.equal([INITIAL, LOADING, LOADED]);
       }
     ));
 
-  it('Loading should not be repeated', () =>
+  it("Loading should not be repeated", () =>
     createApplication(async ({ getState, getLifecycleHistory, load }) => {
       await load();
       await load();
@@ -45,22 +45,22 @@ describe('Application lifecycle: load', () => {
       load();
       await load();
       expect(getState()).to.equal(LOADED);
-      expect(getLifecycleHistory()).to.deep.equal(['load']);
+      expect(getLifecycleHistory()).to.deep.equal(["load"]);
     }));
 
-  it('After execution fails, retry should be allowed', () =>
+  it("After execution fails, retry should be allowed", () =>
     createBaseContainer(
       {
         application() {
           if (!this.test) {
             this.test = true;
-            throw new Error('error');
+            throw new Error("error");
           }
-        }
+        },
       },
       async ({ getState, getStateHistory, load }) => {
         await load().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           async () => {
             await load();
             expect(getState()).to.equal(LOADED);
@@ -69,7 +69,7 @@ describe('Application lifecycle: load', () => {
               LOADING,
               LOAD_ERROR,
               LOADING,
-              LOADED
+              LOADED,
             ]);
           }
         );
@@ -77,8 +77,8 @@ describe('Application lifecycle: load', () => {
     ));
 });
 
-describe('Application lifecycle: bootstrap', () => {
-  it('bootstrap', () =>
+describe("Application lifecycle: bootstrap", () => {
+  it("bootstrap", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, load, bootstrap }) => {
         await load();
@@ -86,18 +86,18 @@ describe('Application lifecycle: bootstrap', () => {
         expect(getState()).to.equal(BOOTSTRAPPING);
         await promise;
         expect(getState()).to.equal(BOOTSTRAPPED);
-        expect(getLifecycleHistory()).to.deep.equal(['load', 'bootstrap']);
+        expect(getLifecycleHistory()).to.deep.equal(["load", "bootstrap"]);
       }
     ));
 
-  it('It should load automatically before bootstraping', () =>
+  it("It should load automatically before bootstraping", () =>
     createApplication(async ({ getLifecycleHistory, getState, bootstrap }) => {
       await bootstrap();
       expect(getState()).to.equal(BOOTSTRAPPED);
-      expect(getLifecycleHistory()).to.deep.equal(['load', 'bootstrap']);
+      expect(getLifecycleHistory()).to.deep.equal(["load", "bootstrap"]);
     }));
 
-  it('Mounting should not be repeated', () =>
+  it("Mounting should not be repeated", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, load, bootstrap }) => {
         await load();
@@ -106,25 +106,25 @@ describe('Application lifecycle: bootstrap', () => {
         bootstrap();
         await bootstrap();
         expect(getState()).to.equal(BOOTSTRAPPED);
-        expect(getLifecycleHistory()).to.deep.equal(['load', 'bootstrap']);
+        expect(getLifecycleHistory()).to.deep.equal(["load", "bootstrap"]);
       }
     ));
 
-  it('After execution fails, retry should be allowed', () =>
+  it("After execution fails, retry should be allowed", () =>
     createBaseContainer(
       {
         application: () => ({
           bootstrap() {
             if (!this.test) {
               this.test = true;
-              throw new Error('error');
+              throw new Error("error");
             }
-          }
-        })
+          },
+        }),
       },
       async ({ getState, getStateHistory, bootstrap }) => {
         await bootstrap().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           async () => {
             await bootstrap();
             expect(getState()).to.equal(BOOTSTRAPPED);
@@ -135,7 +135,7 @@ describe('Application lifecycle: bootstrap', () => {
               BOOTSTRAPPING,
               BOOTSTRAP_ERROR,
               BOOTSTRAPPING,
-              BOOTSTRAPPED
+              BOOTSTRAPPED,
             ]);
           }
         );
@@ -143,8 +143,8 @@ describe('Application lifecycle: bootstrap', () => {
     ));
 });
 
-describe('Application lifecycle: mount', () => {
-  it('mount', () =>
+describe("Application lifecycle: mount", () => {
+  it("mount", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, load, bootstrap, mount }) => {
         await load();
@@ -155,25 +155,25 @@ describe('Application lifecycle: mount', () => {
         expect(getState()).to.equal(MOUNTED);
         await mount();
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount'
+          "load",
+          "bootstrap",
+          "mount",
         ]);
       }
     ));
 
-  it('It should bootstrap automatically before mounting', () =>
+  it("It should bootstrap automatically before mounting", () =>
     createApplication(async ({ getLifecycleHistory, getState, mount }) => {
       await mount();
       expect(getState()).to.equal(MOUNTED);
       expect(getLifecycleHistory()).to.deep.equal([
-        'load',
-        'bootstrap',
-        'mount'
+        "load",
+        "bootstrap",
+        "mount",
       ]);
     }));
 
-  it('Mounting should not be repeated', () =>
+  it("Mounting should not be repeated", () =>
     createApplication(async ({ getLifecycleHistory, getState, mount }) => {
       await mount();
       await mount();
@@ -182,27 +182,27 @@ describe('Application lifecycle: mount', () => {
       await mount();
       expect(getState()).to.equal(MOUNTED);
       expect(getLifecycleHistory()).to.deep.equal([
-        'load',
-        'bootstrap',
-        'mount'
+        "load",
+        "bootstrap",
+        "mount",
       ]);
     }));
 
-  it('After execution fails, retry should be allowed', () =>
+  it("After execution fails, retry should be allowed", () =>
     createBaseContainer(
       {
         application: () => ({
           mount() {
             if (!this.test) {
               this.test = true;
-              throw new Error('error');
+              throw new Error("error");
             }
-          }
-        })
+          },
+        }),
       },
       async ({ getState, getStateHistory, mount }) => {
         await mount().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           async () => {
             await mount();
             expect(getState()).to.equal(MOUNTED);
@@ -215,7 +215,7 @@ describe('Application lifecycle: mount', () => {
               MOUNTING,
               MOUNT_ERROR,
               MOUNTING,
-              MOUNTED
+              MOUNTED,
             ]);
           }
         );
@@ -223,8 +223,8 @@ describe('Application lifecycle: mount', () => {
     ));
 });
 
-describe('Application lifecycle: update', () => {
-  it('update', () =>
+describe("Application lifecycle: update", () => {
+  it("update", () =>
     createApplication(
       async ({
         getLifecycleHistory,
@@ -233,7 +233,7 @@ describe('Application lifecycle: update', () => {
         load,
         bootstrap,
         mount,
-        update
+        update,
       }) => {
         const testValue = Date.now();
         await load();
@@ -242,53 +242,53 @@ describe('Application lifecycle: update', () => {
         const promise = update({ testValue });
         expect(getState()).to.equal(UPDATING);
         await promise;
-        expect(getProperties()).to.have.property('testValue', testValue);
+        expect(getProperties()).to.have.property("testValue", testValue);
         expect(getState()).to.equal(MOUNTED);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount',
-          'update'
+          "load",
+          "bootstrap",
+          "mount",
+          "update",
         ]);
       }
     ));
 
-  it('If it is not loaded, the update should be rejected', () =>
+  it("If it is not loaded, the update should be rejected", () =>
     createApplication(({ getLifecycleHistory, update }) =>
       update().then(
-        () => Promise.reject(new Error('Not rejected')),
+        () => Promise.reject(new Error("Not rejected")),
         () => {
           expect(getLifecycleHistory()).to.deep.equal([]);
         }
       )
     ));
 
-  it('If it is not bootstraped, the update should be rejected', () =>
+  it("If it is not bootstraped, the update should be rejected", () =>
     createApplication(async ({ getLifecycleHistory, load, update }) => {
       await load();
       await update().then(
-        () => Promise.reject(new Error('Not rejected')),
+        () => Promise.reject(new Error("Not rejected")),
         () => {
-          expect(getLifecycleHistory()).to.deep.equal(['load']);
+          expect(getLifecycleHistory()).to.deep.equal(["load"]);
         }
       );
     }));
 
-  it('If it is not mounted, the update should be rejected', () =>
+  it("If it is not mounted, the update should be rejected", () =>
     createApplication(
       async ({ getLifecycleHistory, load, bootstrap, update }) => {
         await load();
         await bootstrap();
         await update().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           () => {
-            expect(getLifecycleHistory()).to.deep.equal(['load', 'bootstrap']);
+            expect(getLifecycleHistory()).to.deep.equal(["load", "bootstrap"]);
           }
         );
       }
     ));
 
-  it('Continuous updates should be allowed', () =>
+  it("Continuous updates should be allowed", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, mount, update }) => {
         await mount();
@@ -296,57 +296,57 @@ describe('Application lifecycle: update', () => {
         await update();
         expect(getState()).to.equal(MOUNTED);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount',
-          'update',
-          'update'
+          "load",
+          "bootstrap",
+          "mount",
+          "update",
+          "update",
         ]);
       }
     ));
 
-  it('The order of updates should be guaranteed', () =>
+  it("The order of updates should be guaranteed", () =>
     createApplication(
       async ({
         getLifecycleHistory,
         getProperties,
         getState,
         mount,
-        update
+        update,
       }) => {
         await mount();
         await Promise.all([
           update({ data: { a: 1 } }),
-          update({ data: { a: 3 } })
+          update({ data: { a: 3 } }),
         ]);
         expect(getState()).to.equal(MOUNTED);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount',
-          'update',
-          'update'
+          "load",
+          "bootstrap",
+          "mount",
+          "update",
+          "update",
         ]);
         expect(getProperties().data.a).to.equal(3);
       }
     ));
 
-  it('After execution fails, retry should be allowed', () =>
+  it("After execution fails, retry should be allowed", () =>
     createBaseContainer(
       {
         application: () => ({
           update() {
             if (!this.test) {
               this.test = true;
-              throw new Error('error');
+              throw new Error("error");
             }
-          }
-        })
+          },
+        }),
       },
       async ({ getState, getStateHistory, mount, update }) => {
         await mount();
         await update().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           async () => {
             await update();
             expect(getState()).to.equal(MOUNTED);
@@ -361,7 +361,7 @@ describe('Application lifecycle: update', () => {
               UPDATING,
               UPDATE_ERROR,
               UPDATING,
-              MOUNTED
+              MOUNTED,
             ]);
           }
         );
@@ -369,8 +369,8 @@ describe('Application lifecycle: update', () => {
     ));
 });
 
-describe('Application lifecycle: unmount', () => {
-  it('unmount', () =>
+describe("Application lifecycle: unmount", () => {
+  it("unmount", () =>
     createApplication(
       async ({
         getLifecycleHistory,
@@ -378,7 +378,7 @@ describe('Application lifecycle: unmount', () => {
         load,
         bootstrap,
         mount,
-        unmount
+        unmount,
       }) => {
         await load();
         await bootstrap();
@@ -388,43 +388,43 @@ describe('Application lifecycle: unmount', () => {
         await promise;
         expect(getState()).to.equal(BOOTSTRAPPED);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount',
-          'unmount'
+          "load",
+          "bootstrap",
+          "mount",
+          "unmount",
         ]);
       }
     ));
 
-  it('If it is not loaded, it should not be unmount', () =>
+  it("If it is not loaded, it should not be unmount", () =>
     createApplication(async ({ getLifecycleHistory, getState, unmount }) => {
       await unmount();
       expect(getState()).to.equal(INITIAL);
       expect(getLifecycleHistory()).to.deep.equal([]);
     }));
 
-  it('If it is not bootstraped, it should not be unmount', () =>
+  it("If it is not bootstraped, it should not be unmount", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, load, unmount }) => {
         await load();
         await unmount();
         expect(getState()).to.equal(LOADED);
-        expect(getLifecycleHistory()).to.deep.equal(['load']);
+        expect(getLifecycleHistory()).to.deep.equal(["load"]);
       }
     ));
 
-  it('If it is not mounted, it should not be unmount', () =>
+  it("If it is not mounted, it should not be unmount", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, load, bootstrap, unmount }) => {
         await load();
         await bootstrap();
         await unmount();
         expect(getState()).to.equal(BOOTSTRAPPED);
-        expect(getLifecycleHistory()).to.deep.equal(['load', 'bootstrap']);
+        expect(getLifecycleHistory()).to.deep.equal(["load", "bootstrap"]);
       }
     ));
 
-  it('Unmounting should not be repeated', () =>
+  it("Unmounting should not be repeated", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, mount, unmount }) => {
         await mount();
@@ -434,30 +434,30 @@ describe('Application lifecycle: unmount', () => {
         await unmount();
         expect(getState()).to.equal(BOOTSTRAPPED);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount',
-          'unmount'
+          "load",
+          "bootstrap",
+          "mount",
+          "unmount",
         ]);
       }
     ));
 
-  it('After execution fails, retry should be allowed', () =>
+  it("After execution fails, retry should be allowed", () =>
     createBaseContainer(
       {
         application: () => ({
           unmount() {
             if (!this.test) {
               this.test = true;
-              throw new Error('error');
+              throw new Error("error");
             }
-          }
-        })
+          },
+        }),
       },
       async ({ getState, getStateHistory, mount, unmount }) => {
         await mount();
         await unmount().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           async () => {
             await unmount();
             expect(getState()).to.equal(BOOTSTRAPPED);
@@ -472,7 +472,7 @@ describe('Application lifecycle: unmount', () => {
               UNMOUNTING,
               UNMOUNT_ERROR,
               UNMOUNTING,
-              BOOTSTRAPPED
+              BOOTSTRAPPED,
             ]);
           }
         );
@@ -480,8 +480,8 @@ describe('Application lifecycle: unmount', () => {
     ));
 });
 
-describe('Application lifecycle: unload', () => {
-  it('unload', () =>
+describe("Application lifecycle: unload", () => {
+  it("unload", () =>
     createApplication(
       async ({
         getLifecycleHistory,
@@ -490,7 +490,7 @@ describe('Application lifecycle: unload', () => {
         bootstrap,
         mount,
         unmount,
-        unload
+        unload,
       }) => {
         await load();
         await bootstrap();
@@ -501,77 +501,77 @@ describe('Application lifecycle: unload', () => {
         await promise;
         expect(getState()).to.equal(INITIAL);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount',
-          'unmount',
-          'unload'
+          "load",
+          "bootstrap",
+          "mount",
+          "unmount",
+          "unload",
         ]);
       }
     ));
 
-  it('Updated data should be cleaned up', () =>
+  it("Updated data should be cleaned up", () =>
     createApplication(
       async ({ getProperties, mount, update, unmount, unload }) => {
         const testValue = Date.now();
         await mount();
         await update({ testValue });
-        expect(getProperties()).to.have.property('testValue', testValue);
+        expect(getProperties()).to.have.property("testValue", testValue);
         await unmount();
-        expect(getProperties()).to.have.property('testValue', testValue);
+        expect(getProperties()).to.have.property("testValue", testValue);
         await unload();
-        expect(getProperties()).to.not.have.property('testValue');
+        expect(getProperties()).to.not.have.property("testValue");
       }
     ));
 
-  it('If it is not loaded, it should not be unload', () =>
+  it("If it is not loaded, it should not be unload", () =>
     createApplication(async ({ getLifecycleHistory, getState, unload }) => {
       await unload();
       expect(getState()).to.equal(INITIAL);
       expect(getLifecycleHistory()).to.deep.equal([]);
     }));
 
-  it('If it is not bootstraped, it should not be unload', () =>
+  it("If it is not bootstraped, it should not be unload", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, load, unload }) => {
         await load();
         await unload();
         expect(getState()).to.equal(LOADED);
-        expect(getLifecycleHistory()).to.deep.equal(['load']);
+        expect(getLifecycleHistory()).to.deep.equal(["load"]);
       }
     ));
 
-  it('If it has been bootstraped, it should be allowed to unload', () =>
+  it("If it has been bootstraped, it should be allowed to unload", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, bootstrap, unload }) => {
         await bootstrap();
         await unload();
         expect(getState()).to.equal(INITIAL);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'unload'
+          "load",
+          "bootstrap",
+          "unload",
         ]);
       }
     ));
 
-  it('If it has been mounted, it should be unmount before being unload', () =>
+  it("If it has been mounted, it should be unmount before being unload", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, mount, unload }) => {
         await mount();
         await unload();
         expect(getState()).to.equal(INITIAL);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount',
-          'unmount',
-          'unload'
+          "load",
+          "bootstrap",
+          "mount",
+          "unmount",
+          "unload",
         ]);
       }
     ));
 
-  it('Unloading should not be repeated', () =>
+  it("Unloading should not be repeated", () =>
     createApplication(
       async ({ getLifecycleHistory, getState, mount, unload }) => {
         await mount();
@@ -581,16 +581,16 @@ describe('Application lifecycle: unload', () => {
         await unload();
         expect(getState()).to.equal(INITIAL);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount',
-          'unmount',
-          'unload'
+          "load",
+          "bootstrap",
+          "mount",
+          "unmount",
+          "unload",
         ]);
       }
     ));
 
-  it('After unloading, the load should be allowed to continue', () =>
+  it("After unloading, the load should be allowed to continue", () =>
     createApplication(
       async ({
         getLifecycleHistory,
@@ -600,7 +600,7 @@ describe('Application lifecycle: unload', () => {
         mount,
         update,
         unmount,
-        unload
+        unload,
       }) => {
         let promise;
         await mount();
@@ -611,22 +611,22 @@ describe('Application lifecycle: unload', () => {
         expect(getState()).to.equal(LOADING);
         await promise;
         expect(getState()).to.equal(LOADED);
-        expect(getLifecycleHistory()).to.deep.equal(['load']);
+        expect(getLifecycleHistory()).to.deep.equal(["load"]);
 
         promise = bootstrap();
         expect(getState()).to.equal(BOOTSTRAPPING);
         await promise;
         expect(getState()).to.equal(BOOTSTRAPPED);
-        expect(getLifecycleHistory()).to.deep.equal(['load', 'bootstrap']);
+        expect(getLifecycleHistory()).to.deep.equal(["load", "bootstrap"]);
 
         promise = mount();
         expect(getState()).to.equal(MOUNTING);
         await promise;
         expect(getState()).to.equal(MOUNTED);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount'
+          "load",
+          "bootstrap",
+          "mount",
         ]);
 
         promise = update();
@@ -634,10 +634,10 @@ describe('Application lifecycle: unload', () => {
         await promise;
         expect(getState()).to.equal(MOUNTED);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount',
-          'update'
+          "load",
+          "bootstrap",
+          "mount",
+          "update",
         ]);
 
         promise = unmount();
@@ -645,11 +645,11 @@ describe('Application lifecycle: unload', () => {
         await promise;
         expect(getState()).to.equal(BOOTSTRAPPED);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount',
-          'update',
-          'unmount'
+          "load",
+          "bootstrap",
+          "mount",
+          "update",
+          "unmount",
         ]);
 
         promise = unload();
@@ -657,32 +657,32 @@ describe('Application lifecycle: unload', () => {
         await promise;
         expect(getState()).to.equal(INITIAL);
         expect(getLifecycleHistory()).to.deep.equal([
-          'load',
-          'bootstrap',
-          'mount',
-          'update',
-          'unmount',
-          'unload'
+          "load",
+          "bootstrap",
+          "mount",
+          "update",
+          "unmount",
+          "unload",
         ]);
       }
     ));
 
-  it('After execution fails, retry should be allowed', () =>
+  it("After execution fails, retry should be allowed", () =>
     createBaseContainer(
       {
         application: () => ({
           unload() {
             if (!this.test) {
               this.test = true;
-              throw new Error('error');
+              throw new Error("error");
             }
-          }
-        })
+          },
+        }),
       },
       async ({ getState, getStateHistory, mount, unload }) => {
         await mount();
         await unload().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           async () => {
             await unload();
             expect(getState()).to.equal(INITIAL);
@@ -699,7 +699,7 @@ describe('Application lifecycle: unload', () => {
               UNLOADING,
               UNLOAD_ERROR,
               UNLOADING,
-              INITIAL
+              INITIAL,
             ]);
           }
         );
@@ -707,96 +707,96 @@ describe('Application lifecycle: unload', () => {
     ));
 });
 
-describe('Application lifecycle: error', () => {
-  it('bootstrap', () =>
+describe("Application lifecycle: error", () => {
+  it("bootstrap", () =>
     createBaseContainer(
       {
         application: () => ({
-          bootstrap: async () => Promise.reject()
-        })
+          bootstrap: async () => Promise.reject(),
+        }),
       },
       async ({ bootstrap }) => {
         await bootstrap().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           () => Promise.resolve()
         );
       }
     ));
 
-  it('mount', () =>
+  it("mount", () =>
     createBaseContainer(
       {
         application: () => ({
-          mount: async () => Promise.reject()
-        })
+          mount: async () => Promise.reject(),
+        }),
       },
       async ({ mount }) => {
         await mount().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           () => Promise.resolve()
         );
       }
     ));
 
-  it('update', () =>
+  it("update", () =>
     createBaseContainer(
       {
         application: () => ({
-          update: async () => Promise.reject()
-        })
+          update: async () => Promise.reject(),
+        }),
       },
       async ({ mount, update }) => {
         await mount();
         await update().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           () => Promise.resolve()
         );
       }
     ));
 
-  it('unmount', () =>
+  it("unmount", () =>
     createBaseContainer(
       {
         application: () => ({
-          unmount: async () => Promise.reject()
-        })
+          unmount: async () => Promise.reject(),
+        }),
       },
       async ({ mount, unmount }) => {
         await mount();
         await unmount().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           () => Promise.resolve()
         );
       }
     ));
 
-  it('unload', () =>
+  it("unload", () =>
     createBaseContainer(
       {
         application: () => ({
-          unload: async () => Promise.reject()
-        })
+          unload: async () => Promise.reject(),
+        }),
       },
       async ({ mount, unmount, unload }) => {
         await mount();
         await unmount();
         await unload().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           () => Promise.resolve()
         );
       }
     ));
 });
 
-describe('Application lifecycle: properties', () => {
-  it('All lifecycle function injection properties should be the same', () =>
+describe("Application lifecycle: properties", () => {
+  it("All lifecycle function injection properties should be the same", () =>
     createBaseContainer(
       {
         application(properties) {
           let current = properties;
-          const message = 'Not equal';
+          const message = "Not equal";
           if (!current) {
-            throw new Error('Unexpectedly empty');
+            throw new Error("Unexpectedly empty");
           }
           return {
             async bootstrap(properties) {
@@ -828,9 +828,9 @@ describe('Application lifecycle: properties', () => {
                 throw new Error(message);
               }
               current = properties;
-            }
+            },
           };
-        }
+        },
       },
       async ({ bootstrap, mount, update, unmount, unload }) => {
         await bootstrap();
@@ -841,16 +841,16 @@ describe('Application lifecycle: properties', () => {
       }
     ));
 
-  it('default mode: All lifecycle function injection properties should be the same', () =>
+  it("default mode: All lifecycle function injection properties should be the same", () =>
     createBaseContainer(
       {
         application(properties) {
           let current = properties;
-          const message = 'Not equal';
+          const message = "Not equal";
           if (!current) {
-            throw new Error('Unexpectedly empty');
+            throw new Error("Unexpectedly empty");
           }
-          return properties => {
+          return (properties) => {
             if (current !== properties) {
               throw new Error(message);
             }
@@ -885,10 +885,10 @@ describe('Application lifecycle: properties', () => {
                   throw new Error(message);
                 }
                 current = properties;
-              }
+              },
             };
           };
-        }
+        },
       },
       async ({ bootstrap, mount, update, unmount, unload }) => {
         await bootstrap();
@@ -899,21 +899,21 @@ describe('Application lifecycle: properties', () => {
       }
     ));
 
-  it('Should have members', () =>
+  it("Should have members", () =>
     createBaseContainer(
       {
         application() {
           return {
             async bootstrap(properties) {
-              const expected = ['container', 'data', 'parameters'];
-              expected.forEach(key => {
+              const expected = ["container", "data", "parameters"];
+              expected.forEach((key) => {
                 if (!(key in properties)) {
                   throw new Error(`"${key}" not found`);
                 }
               });
-            }
+            },
           };
-        }
+        },
       },
       async ({ bootstrap }) => {
         await bootstrap();
@@ -921,15 +921,15 @@ describe('Application lifecycle: properties', () => {
     ));
 });
 
-describe('Application lifecycle: this', () => {
-  it('The `this` object of all lifecycle functions should be the same', () =>
+describe("Application lifecycle: this", () => {
+  it("The `this` object of all lifecycle functions should be the same", () =>
     createBaseContainer(
       {
         application() {
           let current = this;
-          const message = 'Not equal';
+          const message = "Not equal";
           if (!current) {
-            throw new Error('Unexpectedly empty');
+            throw new Error("Unexpectedly empty");
           }
           return {
             async bootstrap() {
@@ -961,9 +961,9 @@ describe('Application lifecycle: this', () => {
                 throw new Error(message);
               }
               current = this;
-            }
+            },
           };
-        }
+        },
       },
       async ({ bootstrap, mount, update, unmount, unload }) => {
         await bootstrap();
@@ -974,14 +974,14 @@ describe('Application lifecycle: this', () => {
       }
     ));
 
-  it('defaultMode: The `this` object of all lifecycle functions should be the same', () =>
+  it("defaultMode: The `this` object of all lifecycle functions should be the same", () =>
     createBaseContainer(
       {
         application() {
           let current = this;
-          const message = 'Not equal';
+          const message = "Not equal";
           if (!current) {
-            throw new Error('Unexpectedly empty');
+            throw new Error("Unexpectedly empty");
           }
           return function () {
             return {
@@ -1014,10 +1014,10 @@ describe('Application lifecycle: this', () => {
                   throw new Error(message);
                 }
                 current = this;
-              }
+              },
             };
           };
-        }
+        },
       },
       async ({ bootstrap, mount, update, unmount, unload }) => {
         await bootstrap();
@@ -1029,15 +1029,15 @@ describe('Application lifecycle: this', () => {
     ));
 });
 
-describe('Application lifecycle: timeout', () => {
-  it('Timeout should be handled correctly', () => {
+describe("Application lifecycle: timeout", () => {
+  it("Timeout should be handled correctly", () => {
     const timeout = 50;
     defineTimeouts({
-      bootstrap: timeout
+      bootstrap: timeout,
     });
 
     function delay(time) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           resolve();
         }, time);
@@ -1049,12 +1049,12 @@ describe('Application lifecycle: timeout', () => {
         application: () => ({
           async bootstrap() {
             return delay(timeout + 16);
-          }
-        })
+          },
+        }),
       },
       async ({ bootstrap }) => {
         await bootstrap().then(
-          () => Promise.reject(new Error('Not rejected')),
+          () => Promise.reject(new Error("Not rejected")),
           () => Promise.resolve()
         );
       }

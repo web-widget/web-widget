@@ -3,11 +3,11 @@ export default () => {
   let element;
   return {
     async bootstrap() {
-      console.log('demo bootstrap');
-      element = document.createElement('div');
+      console.log("demo bootstrap");
+      element = document.createElement("div");
     },
     async mount({ container, createPortal }) {
-      console.log('demo mount');
+      console.log("demo mount");
 
       element.innerHTML = `
         <div style="border: 3px dashed #acacac;">
@@ -18,28 +18,28 @@ export default () => {
 
       container.appendChild(element);
 
-      container.querySelector('#close-self').onclick = () => {
+      container.querySelector("#close-self").onclick = () => {
         container.unmount();
       };
 
-      container.querySelector('#open-portal').onclick = () => {
-        const app = document.createElement('web-widget');
-        app.id = 'app-portal-demo';
-        app.src = './lit-element-todomvc.widget.js';
-        createPortal(app, 'modalDialog')
+      container.querySelector("#open-portal").onclick = () => {
+        const app = document.createElement("web-widget");
+        app.id = "app-portal-demo";
+        app.src = "./lit-element-todomvc.widget.js";
+        createPortal(app, "modalDialog")
           .mount()
           .then(() => {
-            console.log('dialog opened');
+            console.log("dialog opened");
           });
       };
     },
     async unmount({ container }) {
-      console.log('demo unmount');
+      console.log("demo unmount");
       container.removeChild(element);
     },
     async unload() {
-      console.log('demo unload');
+      console.log("demo unload");
       element = null;
-    }
+    },
   };
 };

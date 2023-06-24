@@ -1,5 +1,5 @@
 export default () => ({
   async bootstrap() {
-    throw new Error('test error');
-  }
+    throw new Error("test error");
+  },
 });

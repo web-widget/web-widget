@@ -2,7 +2,7 @@ export default () => {
   let element;
   return {
     async bootstrap() {
-      element = document.createElement('div');
+      element = document.createElement("div");
       element.innerHTML = `hello wrold`;
     },
 
@@ -12,10 +12,10 @@ export default () => {
 
     async unmount({ container }) {
       container.removeChild(element);
-    }
+    },
   };
 };
 
-const garbage = document.createElement('div');
-garbage.innerHTML = 'Garbage';
+const garbage = document.createElement("div");
+garbage.innerHTML = "Garbage";
 document.body.appendChild(garbage);

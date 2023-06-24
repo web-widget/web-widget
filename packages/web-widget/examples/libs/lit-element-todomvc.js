@@ -16,7 +16,7 @@ let t, e;
      * http://polymer.github.io/PATENTS.txt
      */
     const e =
-        typeof window !== 'undefined' &&
+        typeof window !== "undefined" &&
         window.customElements != null &&
         void 0 !== window.customElements.polyfillWrapFlushCallback,
       i = (t, e, i = null) => {
@@ -39,7 +39,7 @@ let t, e;
           p = 0;
         const {
           strings: u,
-          values: { length: f }
+          values: { length: f },
         } = t;
         for (; p < f; ) {
           const t = r.nextNode();
@@ -49,7 +49,7 @@ let t, e;
                 const e = t.attributes,
                   { length: i } = e;
                 let s = 0;
-                for (let t = 0; t < i; t++) l(e[t].name, '$lit$') && s++;
+                for (let t = 0; t < i; t++) l(e[t].name, "$lit$") && s++;
                 for (; s-- > 0; ) {
                   const e = u[p],
                     i = c.exec(e)[2],
@@ -58,15 +58,15 @@ let t, e;
                   t.removeAttribute(s);
                   const r = o.split(n);
                   this.parts.push({
-                    type: 'attribute',
+                    type: "attribute",
                     index: d,
                     name: i,
-                    strings: r
+                    strings: r,
                   }),
                     (p += r.length - 1);
                 }
               }
-              t.tagName === 'TEMPLATE' &&
+              t.tagName === "TEMPLATE" &&
                 (o.push(t), (r.currentNode = t.content));
             } else if (t.nodeType === 3) {
               const e = t.data;
@@ -77,22 +77,22 @@ let t, e;
                 for (let e = 0; e < r; e++) {
                   let i,
                     n = o[e];
-                  if (n === '') i = a();
+                  if (n === "") i = a();
                   else {
                     const t = c.exec(n);
                     t !== null &&
-                      l(t[2], '$lit$') &&
+                      l(t[2], "$lit$") &&
                       (n =
                         n.slice(0, t.index) +
                         t[1] +
-                        t[2].slice(0, -'$lit$'.length) +
+                        t[2].slice(0, -"$lit$".length) +
                         t[3]),
                       (i = document.createTextNode(n));
                   }
                   s.insertBefore(i, t),
-                    this.parts.push({ type: 'node', index: ++d });
+                    this.parts.push({ type: "node", index: ++d });
                 }
-                o[r] === ''
+                o[r] === ""
                   ? (s.insertBefore(a(), t), i.push(t))
                   : (t.data = o[r]),
                   (p += r);
@@ -103,13 +103,13 @@ let t, e;
                 (t.previousSibling !== null && d !== h) ||
                   (d++, e.insertBefore(a(), t)),
                   (h = d),
-                  this.parts.push({ type: 'node', index: d }),
-                  t.nextSibling === null ? (t.data = '') : (i.push(t), d--),
+                  this.parts.push({ type: "node", index: d }),
+                  t.nextSibling === null ? (t.data = "") : (i.push(t), d--),
                   p++;
               } else {
                 let e = -1;
                 for (; (e = t.data.indexOf(s, e + 1)) !== -1; )
-                  this.parts.push({ type: 'node', index: -1 }), p++;
+                  this.parts.push({ type: "node", index: -1 }), p++;
               }
           } else r.currentNode = o.pop();
         }
@@ -120,14 +120,14 @@ let t, e;
         const i = t.length - e.length;
         return i >= 0 && t.slice(i) === e;
       },
-      h = t => t.index !== -1,
-      a = () => document.createComment(''),
+      h = (t) => t.index !== -1,
+      a = () => document.createComment(""),
       c =
         /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
     function d(t, e) {
       const {
           element: { content: i },
-          parts: s
+          parts: s,
         } = t,
         o = document.createTreeWalker(i, 133, null, !1);
       let n = u(s),
@@ -148,9 +148,9 @@ let t, e;
         )
           (r.index = c !== null ? -1 : r.index - h), (n = u(s, n)), (r = s[n]);
       }
-      a.forEach(t => t.parentNode.removeChild(t));
+      a.forEach((t) => t.parentNode.removeChild(t));
     }
-    const p = t => {
+    const p = (t) => {
         let e = t.nodeType === 11 ? 0 : 1;
         const i = document.createTreeWalker(t, 133, null, !1);
         for (; i.nextNode(); ) e++;
@@ -165,12 +165,12 @@ let t, e;
       },
       f = new WeakMap(),
       g =
-        t =>
+        (t) =>
         (...e) => {
           const i = t(...e);
           return f.set(i, !0), i;
         },
-      m = t => typeof t === 'function' && f.has(t),
+      m = (t) => typeof t === "function" && f.has(t),
       b = {},
       w = {};
     /**
@@ -215,11 +215,11 @@ let t, e;
           if (((n = s[r]), h(n))) {
             for (; l < n.index; )
               l++,
-                a.nodeName === 'TEMPLATE' &&
+                a.nodeName === "TEMPLATE" &&
                   (i.push(a), (o.currentNode = a.content)),
                 (a = o.nextNode()) === null &&
                   ((o.currentNode = i.pop()), (a = o.nextNode()));
-            if (n.type === 'node') {
+            if (n.type === "node") {
               const t = this.processor.handleTextExpression(this.options);
               t.insertAfterNode(a.previousSibling), this.t.push(t);
             } else
@@ -259,12 +259,12 @@ let t, e;
 
       getHTML() {
         const t = this.strings.length - 1;
-        let e = '',
+        let e = "",
           i = !1;
         for (let n = 0; n < t; n++) {
           const t = this.strings[n],
-            r = t.lastIndexOf('\x3c!--');
-          i = (r > -1 || i) && t.indexOf('--\x3e', r + 1) === -1;
+            r = t.lastIndexOf("\x3c!--");
+          i = (r > -1 || i) && t.indexOf("--\x3e", r + 1) === -1;
           const l = c.exec(t);
           e +=
             l === null
@@ -275,7 +275,7 @@ let t, e;
       }
 
       getTemplateElement() {
-        const t = document.createElement('template');
+        const t = document.createElement("template");
         return (t.innerHTML = this.getHTML()), t;
       }
     }
@@ -291,9 +291,9 @@ let t, e;
      * Code distributed by Google as part of the polymer project is also
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
-     */ const k = t =>
-        t === null || !(typeof t === 'object' || typeof t === 'function'),
-      S = t => Array.isArray(t) || !(!t || !t[Symbol.iterator]);
+     */ const k = (t) =>
+        t === null || !(typeof t === "object" || typeof t === "function"),
+      S = (t) => Array.isArray(t) || !(!t || !t[Symbol.iterator]);
     class $ {
       constructor(t, e, i) {
         (this.dirty = !0),
@@ -312,14 +312,14 @@ let t, e;
       _getValue() {
         const t = this.strings,
           e = t.length - 1;
-        let i = '';
+        let i = "";
         for (let s = 0; s < e; s++) {
           i += t[s];
           const e = this.parts[s];
           if (void 0 !== e) {
             const t = e.value;
-            if (k(t) || !S(t)) i += typeof t === 'string' ? t : String(t);
-            else for (const e of t) i += typeof e === 'string' ? e : String(e);
+            if (k(t) || !S(t)) i += typeof t === "string" ? t : String(t);
+            else for (const e of t) i += typeof e === "string" ? e : String(e);
           }
         }
         return (i += t[e]), i;
@@ -409,7 +409,7 @@ let t, e;
 
       o(t) {
         const e = this.startNode.nextSibling,
-          i = typeof (t = t == null ? '' : t) === 'string' ? t : String(t);
+          i = typeof (t = t == null ? "" : t) === "string" ? t : String(t);
         e === this.endNode.previousSibling && e.nodeType === 3
           ? (e.data = i)
           : this.h(document.createTextNode(i)),
@@ -453,10 +453,10 @@ let t, e;
         if (
           ((this.value = void 0),
           (this.i = void 0),
-          i.length !== 2 || i[0] !== '' || i[1] !== '')
+          i.length !== 2 || i[0] !== "" || i[1] !== "")
         )
           throw new Error(
-            'Boolean attributes can only contain a single expression'
+            "Boolean attributes can only contain a single expression"
           );
         (this.element = t), (this.name = e), (this.strings = i);
       }
@@ -474,7 +474,7 @@ let t, e;
         const t = !!this.i;
         this.value !== t &&
           (t
-            ? this.element.setAttribute(this.name, '')
+            ? this.element.setAttribute(this.name, "")
             : this.element.removeAttribute(this.name),
           (this.value = t)),
           (this.i = b);
@@ -483,7 +483,7 @@ let t, e;
     class E extends $ {
       constructor(t, e, i) {
         super(t, e, i),
-          (this.single = i.length === 2 && i[0] === '' && i[1] === '');
+          (this.single = i.length === 2 && i[0] === "" && i[1] === "");
       }
 
       _createPart() {
@@ -506,10 +506,10 @@ let t, e;
         const t = {
           get capture() {
             return (D = !0), !1;
-          }
+          },
         };
-        window.addEventListener('test', t, t),
-          window.removeEventListener('test', t, t);
+        window.addEventListener("test", t, t),
+          window.removeEventListener("test", t, t);
       } catch (t) {}
     })();
     class z {
@@ -519,7 +519,7 @@ let t, e;
           (this.element = t),
           (this.eventName = e),
           (this.eventContext = i),
-          (this.u = t => this.handleEvent(t));
+          (this.u = (t) => this.handleEvent(t));
       }
 
       setValue(t) {
@@ -550,12 +550,12 @@ let t, e;
       }
 
       handleEvent(t) {
-        typeof this.value === 'function'
+        typeof this.value === "function"
           ? this.value.call(this.eventContext || this.element, t)
           : this.value.handleEvent(t);
       }
     }
-    const T = t =>
+    const T = (t) =>
       t &&
       (D
         ? { capture: t.capture, passive: t.passive, once: t.once }
@@ -606,11 +606,11 @@ let t, e;
       (class {
         handleAttributeExpressions(t, e, i, s) {
           const o = e[0];
-          return o === '.'
+          return o === "."
             ? new E(t, e.slice(1), i).parts
-            : o === '@'
+            : o === "@"
             ? [new z(t, e.slice(1), s.eventContext)]
-            : o === '?'
+            : o === "?"
             ? [new M(t, e.slice(1), i)]
             : new $(t, e, i).parts;
         }
@@ -645,9 +645,9 @@ let t, e;
      * subject to an additional IP rights grant found at
      * http://polymer.github.io/PATENTS.txt
      */
-    typeof window !== 'undefined' &&
-      (window.litHtmlVersions || (window.litHtmlVersions = [])).push('1.2.1');
-    const N = (t, ...e) => new v(t, e, 'html', U),
+    typeof window !== "undefined" &&
+      (window.litHtmlVersions || (window.litHtmlVersions = [])).push("1.2.1");
+    const N = (t, ...e) => new v(t, e, "html", U),
       /**
        * @license
        * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -666,10 +666,10 @@ let t, e;
       ? (F = !1)
       : void 0 === window.ShadyCSS.prepareTemplateDom &&
         (console.warn(
-          'Incompatible ShadyCSS version detected. Please update to at least @webcomponents/webcomponentsjs@2.0.2 and @webcomponents/shadycss@1.3.1.'
+          "Incompatible ShadyCSS version detected. Please update to at least @webcomponents/webcomponentsjs@2.0.2 and @webcomponents/shadycss@1.3.1."
         ),
         (F = !1));
-    const V = t => e => {
+    const V = (t) => (e) => {
         const i = W(e.type, t);
         let o = j.get(i);
         void 0 === o &&
@@ -686,29 +686,29 @@ let t, e;
         }
         return o.stringsArray.set(e.strings, n), n;
       },
-      q = ['html', 'svg'],
+      q = ["html", "svg"],
       L = new Set(),
       I = (t, e, i) => {
         L.add(t);
-        const s = i ? i.element : document.createElement('template'),
-          o = e.querySelectorAll('style'),
+        const s = i ? i.element : document.createElement("template"),
+          o = e.querySelectorAll("style"),
           { length: n } = o;
         if (n === 0) return void window.ShadyCSS.prepareTemplateStyles(s, t);
-        const r = document.createElement('style');
+        const r = document.createElement("style");
         for (let t = 0; t < n; t++) {
           const e = o[t];
           e.parentNode.removeChild(e), (r.textContent += e.textContent);
         }
-        (t => {
-          q.forEach(e => {
+        ((t) => {
+          q.forEach((e) => {
             const i = j.get(W(e, t));
             void 0 !== i &&
-              i.keyString.forEach(t => {
+              i.keyString.forEach((t) => {
                 const {
-                    element: { content: e }
+                    element: { content: e },
                   } = t,
                   i = new Set();
-                Array.from(e.querySelectorAll('style')).forEach(t => {
+                Array.from(e.querySelectorAll("style")).forEach((t) => {
                   i.add(t);
                 }),
                   d(t, i);
@@ -720,7 +720,7 @@ let t, e;
           ? (function (t, e, i = null) {
               const {
                 element: { content: s },
-                parts: o
+                parts: o,
               } = t;
               if (i == null) return void s.appendChild(e);
               const n = document.createTreeWalker(s, 133, null, !1);
@@ -760,7 +760,7 @@ let t, e;
             )
           : l.insertBefore(r, l.firstChild),
           window.ShadyCSS.prepareTemplateStyles(s, t);
-        const h = l.querySelector('style');
+        const h = l.querySelector("style");
         if (window.ShadyCSS.nativeShadow && h !== null)
           e.insertBefore(h.cloneNode(!0), e.firstChild);
         else if (i) {
@@ -774,7 +774,7 @@ let t, e;
         toAttribute(t, e) {
           switch (e) {
             case Boolean:
-              return t ? '' : null;
+              return t ? "" : null;
             case Object:
             case Array:
               return t == null ? t : JSON.stringify(t);
@@ -792,7 +792,7 @@ let t, e;
               return JSON.parse(t);
           }
           return t;
-        }
+        },
       },
       H = (t, e) => e !== t && (e == e || t == t),
       R = {
@@ -800,7 +800,7 @@ let t, e;
         type: String,
         converter: J,
         reflect: !1,
-        hasChanged: H
+        hasChanged: H,
       };
     class B extends HTMLElement {
       constructor() {
@@ -808,7 +808,7 @@ let t, e;
           (this._updateState = 0),
           (this._instanceProperties = void 0),
           (this._updatePromise = new Promise(
-            t => (this._enableUpdatingResolver = t)
+            (t) => (this._enableUpdatingResolver = t)
           )),
           (this._changedProperties = new Map()),
           (this._reflectingProperties = void 0),
@@ -830,7 +830,7 @@ let t, e;
       static _ensureClassProperties() {
         if (
           !this.hasOwnProperty(
-            JSCompiler_renameProperty('_classProperties', this)
+            JSCompiler_renameProperty("_classProperties", this)
           )
         ) {
           this._classProperties = new Map();
@@ -846,7 +846,7 @@ let t, e;
           e.noAccessor || this.prototype.hasOwnProperty(t))
         )
           return;
-        const i = typeof t === 'symbol' ? Symbol() : `__${t}`,
+        const i = typeof t === "symbol" ? Symbol() : `__${t}`,
           s = this.getPropertyDescriptor(t, i, e);
         void 0 !== s && Object.defineProperty(this.prototype, t, s);
       }
@@ -861,7 +861,7 @@ let t, e;
             (this[e] = i), this._requestUpdate(t, s);
           },
           configurable: !0,
-          enumerable: !0
+          enumerable: !0,
         };
       }
 
@@ -872,18 +872,18 @@ let t, e;
       static finalize() {
         const t = Object.getPrototypeOf(this);
         if (
-          (t.hasOwnProperty('finalized') || t.finalize(),
+          (t.hasOwnProperty("finalized") || t.finalize(),
           (this.finalized = !0),
           this._ensureClassProperties(),
           (this._attributeToPropertyMap = new Map()),
-          this.hasOwnProperty(JSCompiler_renameProperty('properties', this)))
+          this.hasOwnProperty(JSCompiler_renameProperty("properties", this)))
         ) {
           const t = this.properties,
             e = [
               ...Object.getOwnPropertyNames(t),
-              ...(typeof Object.getOwnPropertySymbols === 'function'
+              ...(typeof Object.getOwnPropertySymbols === "function"
                 ? Object.getOwnPropertySymbols(t)
-                : [])
+                : []),
             ];
           for (const i of e) this.createProperty(i, t[i]);
         }
@@ -893,9 +893,9 @@ let t, e;
         const i = e.attribute;
         return !1 === i
           ? void 0
-          : typeof i === 'string'
+          : typeof i === "string"
           ? i
-          : typeof t === 'string'
+          : typeof t === "string"
           ? t.toLowerCase()
           : void 0;
       }
@@ -907,7 +907,7 @@ let t, e;
       static _propertyValueFromAttribute(t, e) {
         const i = e.type,
           s = e.converter || J,
-          o = typeof s === 'function' ? s : s.fromAttribute;
+          o = typeof s === "function" ? s : s.fromAttribute;
         return o ? o(t, i) : t;
       }
 
@@ -1078,14 +1078,14 @@ let t, e;
     found at http://polymer.github.io/PATENTS.txt
     */
     const K =
-        'adoptedStyleSheets' in Document.prototype &&
-        'replace' in CSSStyleSheet.prototype,
+        "adoptedStyleSheets" in Document.prototype &&
+        "replace" in CSSStyleSheet.prototype,
       G = Symbol();
     class Q {
       constructor(t, e) {
         if (e !== G)
           throw new Error(
-            'CSSResult is not constructable. Use `unsafeCSS` or `css` instead.'
+            "CSSResult is not constructable. Use `unsafeCSS` or `css` instead."
           );
         this.cssText = t;
       }
@@ -1109,9 +1109,9 @@ let t, e;
       const i = e.reduce(
         (e, i, s) =>
           e +
-          (t => {
+          ((t) => {
             if (t instanceof Q) return t.cssText;
-            if (typeof t === 'number') return t;
+            if (typeof t === "number") return t;
             throw new Error(
               `Value passed to 'css' function must be a 'css' function result: ${t}. Use 'unsafeCSS' to pass non-literal values, but\n            take care to ensure page security.`
             );
@@ -1135,7 +1135,7 @@ let t, e;
      * http://polymer.github.io/PATENTS.txt
      */
     (window.litElementVersions || (window.litElementVersions = [])).push(
-      '2.3.1'
+      "2.3.1"
     );
     const Y = {};
     class Z extends B {
@@ -1144,7 +1144,7 @@ let t, e;
       }
 
       static _getUniqueStyles() {
-        if (this.hasOwnProperty(JSCompiler_renameProperty('_styles', this)))
+        if (this.hasOwnProperty(JSCompiler_renameProperty("_styles", this)))
           return;
         const t = this.getStyles();
         if (void 0 === t) this._styles = [];
@@ -1156,7 +1156,7 @@ let t, e;
               ),
             i = e(t, new Set()),
             s = [];
-          i.forEach(t => s.unshift(t)), (this._styles = s);
+          i.forEach((t) => s.unshift(t)), (this._styles = s);
         } else this._styles = [t];
       }
 
@@ -1170,7 +1170,7 @@ let t, e;
       }
 
       createRenderRoot() {
-        return this.attachShadow({ mode: 'open' });
+        return this.attachShadow({ mode: "open" });
       }
 
       adoptStyles() {
@@ -1178,10 +1178,12 @@ let t, e;
         t.length !== 0 &&
           (void 0 === window.ShadyCSS || window.ShadyCSS.nativeShadow
             ? K
-              ? (this.renderRoot.adoptedStyleSheets = t.map(t => t.styleSheet))
+              ? (this.renderRoot.adoptedStyleSheets = t.map(
+                  (t) => t.styleSheet
+                ))
               : (this._needsShimAdoptedStyleSheets = !0)
             : window.ShadyCSS.ScopingShim.prepareAdoptedCssText(
-                t.map(t => t.cssText),
+                t.map((t) => t.cssText),
                 this.localName
               ));
       }
@@ -1199,12 +1201,12 @@ let t, e;
           e !== Y &&
             this.constructor.render(e, this.renderRoot, {
               scopeName: this.localName,
-              eventContext: this
+              eventContext: this,
             }),
           this._needsShimAdoptedStyleSheets &&
             ((this._needsShimAdoptedStyleSheets = !1),
-            this.constructor._styles.forEach(t => {
-              const e = document.createElement('style');
+            this.constructor._styles.forEach((t) => {
+              const e = document.createElement("style");
               (e.textContent = t.cssText), this.renderRoot.appendChild(e);
             }));
       }
@@ -1215,8 +1217,8 @@ let t, e;
     }
     (Z.finalized = !0),
       (Z.render = (t, e, s) => {
-        if (!s || typeof s !== 'object' || !s.scopeName)
-          throw new Error('The `scopeName` option is required.');
+        if (!s || typeof s !== "object" || !s.scopeName)
+          throw new Error("The `scopeName` option is required.");
         const o = s.scopeName,
           n = O.has(e),
           r = F && e.nodeType === 11 && !!e.host,
@@ -1255,29 +1257,29 @@ let t, e;
      * http://polymer.github.io/PATENTS.txt
      */
     const tt = new WeakMap(),
-      et = g(t => e => {
+      et = g((t) => (e) => {
         if (
           !(e instanceof _) ||
           e instanceof A ||
-          e.committer.name !== 'style' ||
+          e.committer.name !== "style" ||
           e.committer.parts.length > 1
         )
           throw new Error(
-            'The `styleMap` directive must be used in the style attribute and must be the only part in the attribute.'
+            "The `styleMap` directive must be used in the style attribute and must be the only part in the attribute."
           );
         const { committer: i } = e,
           { style: s } = i.element;
         let o = tt.get(e);
         void 0 === o &&
-          ((s.cssText = i.strings.join(' ')), tt.set(e, (o = new Set()))),
-          o.forEach(e => {
+          ((s.cssText = i.strings.join(" ")), tt.set(e, (o = new Set()))),
+          o.forEach((e) => {
             e in t ||
               (o.delete(e),
-              e.indexOf('-') === -1 ? (s[e] = null) : s.removeProperty(e));
+              e.indexOf("-") === -1 ? (s[e] = null) : s.removeProperty(e));
           });
         for (const e in t)
           o.add(e),
-            e.indexOf('-') === -1 ? (s[e] = t[e]) : s.setProperty(e, t[e]);
+            e.indexOf("-") === -1 ? (s[e] = t[e]) : s.setProperty(e, t[e]);
       });
     /**
      * @license
@@ -1295,7 +1297,7 @@ let t, e;
     class it {
       constructor(t) {
         (this.classes = new Set()), (this.changed = !1), (this.element = t);
-        const e = (t.getAttribute('class') || '').split(/\s+/);
+        const e = (t.getAttribute("class") || "").split(/\s+/);
         for (const t of e) this.classes.add(t);
       }
 
@@ -1309,31 +1311,31 @@ let t, e;
 
       commit() {
         if (this.changed) {
-          let t = '';
-          this.classes.forEach(e => (t += `${e} `)),
-            this.element.setAttribute('class', t);
+          let t = "";
+          this.classes.forEach((e) => (t += `${e} `)),
+            this.element.setAttribute("class", t);
         }
       }
     }
     const st = new WeakMap(),
-      ot = g(t => e => {
+      ot = g((t) => (e) => {
         if (
           !(e instanceof _) ||
           e instanceof A ||
-          e.committer.name !== 'class' ||
+          e.committer.name !== "class" ||
           e.committer.parts.length > 1
         )
           throw new Error(
-            'The `classMap` directive must be used in the `class` attribute and must be the only part in the attribute.'
+            "The `classMap` directive must be used in the `class` attribute and must be the only part in the attribute."
           );
         const { committer: i } = e,
           { element: s } = i;
         let o = st.get(e);
         void 0 === o &&
-          (s.setAttribute('class', i.strings.join(' ')),
+          (s.setAttribute("class", i.strings.join(" ")),
           st.set(e, (o = new Set())));
         const n = s.classList || new it(s);
-        o.forEach(e => {
+        o.forEach((e) => {
           e in t || (n.remove(e), o.delete(e));
         });
         for (const e in t) {
@@ -1341,7 +1343,7 @@ let t, e;
           i != o.has(e) &&
             (i ? (n.add(e), o.add(e)) : (n.remove(e), o.delete(e)));
         }
-        typeof n.commit === 'function' && n.commit();
+        typeof n.commit === "function" && n.commit();
       }),
       nt = (t, e) => {
         const i = t.startNode.parentNode,
@@ -1364,7 +1366,7 @@ let t, e;
             }
           })(s, e.startNode, n, o);
       },
-      ht = t => {
+      ht = (t) => {
         i(t.startNode.parentNode, t.startNode, t.endNode.nextSibling);
       },
       at = (t, e, i) => {
@@ -1378,9 +1380,9 @@ let t, e;
         let s;
         return (
           void 0 === i ? (i = e) : void 0 !== e && (s = e),
-          e => {
+          (e) => {
             if (!(e instanceof C))
-              throw new Error('repeat can only be used in text bindings');
+              throw new Error("repeat can only be used in text bindings");
             const o = ct.get(e) || [],
               n = dt.get(e) || [],
               r = [],
@@ -1432,7 +1434,7 @@ let t, e;
       ut = {
         fetch() {
           const t = JSON.parse(
-            localStorage.getItem('todos-lit-element') || '[]'
+            localStorage.getItem("todos-lit-element") || "[]"
           );
           return (
             t.forEach((t, e) => {
@@ -1443,22 +1445,22 @@ let t, e;
           );
         },
         save(t) {
-          localStorage.setItem('todos-lit-element', JSON.stringify(t));
-        }
+          localStorage.setItem("todos-lit-element", JSON.stringify(t));
+        },
       },
       ft = {
         all(t) {
           return t;
         },
         active(t) {
-          return t.filter(t => !t.completed);
+          return t.filter((t) => !t.completed);
         },
         completed(t) {
-          return t.filter(t => t.completed);
+          return t.filter((t) => t.completed);
         },
         pluralize(t) {
-          return t === 1 ? 'item' : 'items';
-        }
+          return t === 1 ? "item" : "items";
+        },
       };
     class gt extends Z {
       static get styles() {
@@ -1842,16 +1844,16 @@ let t, e;
           todos: { type: Array },
           newTodo: { type: String },
           editedTodo: { type: Object },
-          visibility: { type: String }
+          visibility: { type: String },
         };
       }
 
       constructor() {
         super(),
           (this.todos = ut.fetch()),
-          (this.newTodo = ''),
+          (this.newTodo = ""),
           (this.editedTodo = null),
-          (this.visibility = 'all');
+          (this.visibility = "all");
       }
 
       render() {
@@ -1865,23 +1867,23 @@ let t, e;
             autocomplete="off"
             placeholder="What needs to be done?"
             .value=${this.newTodo}
-            @input=${t => {
+            @input=${(t) => {
               this.newTodo = t.target.value;
             }}
-            @keyup=${t => {
+            @keyup=${(t) => {
               t.keyCode === 13 && this.addTodo();
             }}
           >
         </header>
         <section class="main" style=${et({
-          display: this.todos.length ? '' : 'none'
+          display: this.todos.length ? "" : "none",
         })}>
           <input
             id="toggle-all"
             class="toggle-all"
             type="checkbox"
             ?checked=${this.allDone}
-            @change=${t => {
+            @change=${(t) => {
               this.toggleTodoAll(t.target.checked);
             }}
           >
@@ -1890,13 +1892,13 @@ let t, e;
 
           ${pt(
             this.filteredTodos,
-            t => t.id,
+            (t) => t.id,
             (t, e) => N`
             <li
               class="${ot({
                 todo: !0,
                 completed: t.completed,
-                editing: t == this.editedTodo
+                editing: t == this.editedTodo,
               })}"
             >
               <div class="view">
@@ -1916,13 +1918,13 @@ let t, e;
                 class="edit"
                 type="text"
                 .value=${t.title}
-                @input=${e => {
+                @input=${(e) => {
                   t.title = e.target.value;
                 }}
                 @blur=${() => {
                   this.doneEdit(t);
                 }}
-                @keyup=${e => {
+                @keyup=${(e) => {
                   e.keyCode === 13 && this.doneEdit(t),
                     e.keyCode === 27 && this.cancelEdit(t);
                 }}
@@ -1933,7 +1935,7 @@ let t, e;
           </ul>
         </section>
         <footer class="footer" style=${et({
-          display: this.todos.length ? '' : 'none'
+          display: this.todos.length ? "" : "none",
         })}>
           <span class="todo-count">
             <strong>${this.remaining}</strong> ${ft.pluralize(
@@ -1945,9 +1947,9 @@ let t, e;
               <a
                 href="#/all"
                 @click=${() => {
-                  this.visibility = 'all';
+                  this.visibility = "all";
                 }}
-                class=${ot({ selected: this.visibility == 'all' })}
+                class=${ot({ selected: this.visibility == "all" })}
               >
                 All
               </a>
@@ -1956,9 +1958,9 @@ let t, e;
               <a
                 href="#/active"
                 @click=${() => {
-                  this.visibility = 'active';
+                  this.visibility = "active";
                 }}
-                class=${ot({ selected: this.visibility == 'active' })}
+                class=${ot({ selected: this.visibility == "active" })}
               >
                 Active
               </a>
@@ -1967,9 +1969,9 @@ let t, e;
               <a
                 href="#/completed"
                 @click=${() => {
-                  this.visibility = 'completed';
+                  this.visibility = "completed";
                 }}
-                class=${ot({ selected: this.visibility == 'completed' })}
+                class=${ot({ selected: this.visibility == "completed" })}
               >
                 Completed
               </a>
@@ -1979,7 +1981,7 @@ let t, e;
             class="clear-completed"
             @click=${this.removeCompleted}
             style="${et({
-              display: this.todos.length > this.remaining ? '' : 'none'
+              display: this.todos.length > this.remaining ? "" : "none",
             })}"
           >
             Clear completed
@@ -2007,7 +2009,7 @@ let t, e;
       }
 
       set allDone(t) {
-        this.todos.forEach(e => {
+        this.todos.forEach((e) => {
           e.completed = t;
         });
       }
@@ -2028,7 +2030,7 @@ let t, e;
         const t = this.newTodo && this.newTodo.trim();
         t &&
           (this.todos.push({ id: ut.uid++, title: t, completed: !1 }),
-          (this.newTodo = ''),
+          (this.newTodo = ""),
           this.save());
       }
 
@@ -2060,12 +2062,12 @@ let t, e;
         e && t.focus();
       }
     }
-    window.customElements.define('my-todo', gt),
+    window.customElements.define("my-todo", gt),
       (t.MyTodo = gt),
-      Object.defineProperty(t, 'm', { value: !0 });
+      Object.defineProperty(t, "m", { value: !0 });
   }),
-  typeof exports === 'object' && typeof module !== 'undefined'
+  typeof exports === "object" && typeof module !== "undefined"
     ? e(exports)
-    : typeof define === 'function' && define.amd
-    ? define(['exports'], e)
+    : typeof define === "function" && define.amd
+    ? define(["exports"], e)
     : e(((t = t || self).MyTodo = {}));

@@ -6,11 +6,11 @@ export function reasonableTime(task, timeout, bail = false, errorMessage) {
     let finished = false;
 
     task()
-      .then(val => {
+      .then((val) => {
         finished = true;
         resolve(val);
       })
-      .catch(val => {
+      .catch((val) => {
         finished = true;
         reject(val);
       });

@@ -1,11 +1,11 @@
-import { HTMLWebWidgetElement } from '../src/index.js';
+import { HTMLWebWidgetElement } from "../src/index.js";
 
 export function createBaseContainer({ application }, callback) {
-  const widget = document.createElement('web-widget');
+  const widget = document.createElement("web-widget");
   const stateHistory = [widget.state];
 
   widget.inactive = true;
-  widget.addEventListener('statechange', () => {
+  widget.addEventListener("statechange", () => {
     stateHistory.push(widget.state);
   });
 
@@ -36,7 +36,7 @@ export function createBaseContainer({ application }, callback) {
     },
     async unload() {
       return widget.unload();
-    }
+    },
   });
 }
 
@@ -46,36 +46,36 @@ export function createApplication(callback) {
   return createBaseContainer(
     {
       application() {
-        lifecycleHistory.push('load');
+        lifecycleHistory.push("load");
         return {
           async bootstrap(props) {
             properties = props;
-            lifecycleHistory.push('bootstrap');
+            lifecycleHistory.push("bootstrap");
           },
 
           async mount(props) {
             properties = props;
-            lifecycleHistory.push('mount');
+            lifecycleHistory.push("mount");
           },
 
           async update(props) {
             properties = props;
-            lifecycleHistory.push('update');
+            lifecycleHistory.push("update");
           },
 
           async unmount(props) {
             properties = props;
-            lifecycleHistory.push('unmount');
+            lifecycleHistory.push("unmount");
           },
 
           async unload(props) {
             properties = props;
-            lifecycleHistory.push('unload');
-          }
+            lifecycleHistory.push("unload");
+          },
         };
-      }
+      },
     },
-    context =>
+    (context) =>
       callback({
         ...context,
         getLifecycleHistory() {
@@ -83,7 +83,7 @@ export function createApplication(callback) {
         },
         getProperties() {
           return properties;
-        }
+        },
       })
   );
 }

@@ -2,24 +2,24 @@ let dialog, dialogWidget;
 export default () => {
   // Single instance
   if (!dialog) {
-    dialog = document.createElement('dialog');
-    dialogWidget = document.createElement('web-widget');
+    dialog = document.createElement("dialog");
+    dialogWidget = document.createElement("web-widget");
 
     document.body.appendChild(dialog);
     dialog.appendChild(dialogWidget);
 
-    dialogWidget.name = 'dialog';
+    dialogWidget.name = "dialog";
     dialogWidget.application = () => ({
       async bootstrap({ container }) {
-        const dialogMain = document.createElement('slot');
-        const dialogCloseButton = document.createElement('button');
+        const dialogMain = document.createElement("slot");
+        const dialogCloseButton = document.createElement("button");
 
-        dialogCloseButton.innerText = 'close';
+        dialogCloseButton.innerText = "close";
         dialogCloseButton.onclick = () => container.unmount();
 
         container.appendChild(dialogCloseButton);
         container.appendChild(dialogMain);
-        dialog.addEventListener('close', () => {
+        dialog.addEventListener("close", () => {
           container.unmount();
         });
       },
@@ -28,7 +28,7 @@ export default () => {
       },
       async unmount() {
         dialog.close();
-      }
+      },
     });
   }
 

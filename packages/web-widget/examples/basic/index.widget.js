@@ -1,9 +1,9 @@
-export default a => {
+export default (a) => {
   console.log(a.data);
   let element;
   return {
     async bootstrap() {
-      element = document.createElement('div');
+      element = document.createElement("div");
       element.innerHTML = `hello wrold`;
     },
 
@@ -13,6 +13,6 @@ export default a => {
 
     async unmount({ container }) {
       container.removeChild(element);
-    }
+    },
   };
 };

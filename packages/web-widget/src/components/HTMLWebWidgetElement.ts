@@ -1,9 +1,12 @@
-import type { ApplicationLoader, ClientRenderContext } from '../applications/types.js';
-import { LifecycleController } from '../applications/controller.js';
-import { queueMicrotask } from '../utils/queueMicrotask.js';
-import { observe, unobserve } from '../utils/visibleObserver.js';
-import * as status from '../applications/status.js';
-import { WebWidgetUpdateEvent } from './WebWidgetUpdateEvent.js';
+import type {
+  ApplicationLoader,
+  ClientRenderContext,
+} from "../applications/types.js";
+import { LifecycleController } from "../applications/controller.js";
+import { queueMicrotask } from "../utils/queueMicrotask.js";
+import { observe, unobserve } from "../utils/visibleObserver.js";
+import * as status from "../applications/status.js";
+import { WebWidgetUpdateEvent } from "./WebWidgetUpdateEvent.js";
 
 declare const importShim: (src: string) => Promise<any>;
 let globalTimeouts = Object.create(null);
@@ -49,7 +52,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       statusChangeCallback: (status) => {
         this.#statusChangeCallback(status);
       },
-      timeouts: this.timeouts || {}
+      timeouts: this.timeouts || {},
     });
   }
 
@@ -71,9 +74,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   set loader(value) {
-    if (typeof value === 'function') {
+    if (typeof value === "function") {
       this.#loader = value;
-      if (this.loading !== 'lazy') {
+      if (this.loading !== "lazy") {
         this.#autoMount();
       }
     }
@@ -83,12 +86,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Application base
    */
   get base() {
-    const value = this.getAttribute('base');
-    return value === null ? '' : new URL(value, this.baseURI).href;
+    const value = this.getAttribute("base");
+    return value === null ? "" : new URL(value, this.baseURI).href;
   }
 
   set base(value) {
-    this.setAttribute('base', value);
+    this.setAttribute("base", value);
   }
 
   /**
@@ -96,7 +99,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    */
   get data(): Record<string, unknown> | null {
     if (!this.#data) {
-      const dataAttr = this.getAttribute('data');
+      const dataAttr = this.getAttribute("data");
 
       if (dataAttr) {
         try {
@@ -114,7 +117,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   set data(value: Record<string, unknown> | null) {
-    if (typeof value === 'object') {
+    if (typeof value === "object") {
       this.#data = value;
     }
   }
@@ -122,12 +125,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /**
    * Application context
    */
-  get context(): ClientRenderContext | Record<string, unknown>  {
+  get context(): ClientRenderContext | Record<string, unknown> {
     return this.#context;
   }
 
   set context(value: ClientRenderContext | Record<string, unknown>) {
-    if (typeof value === 'object' && value !== null) {
+    if (typeof value === "object" && value !== null) {
       this.#context = value;
     }
   }
@@ -136,26 +139,26 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Whether the application is inactive
    */
   get inactive(): boolean {
-    return this.hasAttribute('inactive');
+    return this.hasAttribute("inactive");
   }
 
   set inactive(value: boolean) {
     if (value) {
-      this.setAttribute('inactive', '');
+      this.setAttribute("inactive", "");
     } else {
-      this.removeAttribute('inactive');
+      this.removeAttribute("inactive");
     }
   }
 
   get recovering(): boolean {
-    return this.hasAttribute('recovering');
+    return this.hasAttribute("recovering");
   }
 
   set recovering(value: boolean) {
     if (value) {
-      this.setAttribute('recovering', '');
+      this.setAttribute("recovering", "");
     } else {
-      this.removeAttribute('recovering');
+      this.removeAttribute("recovering");
     }
   }
 
@@ -163,22 +166,22 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Indicates how the browser should load the application
    */
   get loading(): string {
-    return this.getAttribute('loading') || 'auto';
+    return this.getAttribute("loading") || "auto";
   }
 
   set loading(value) {
-    this.setAttribute('loading', value);
+    this.setAttribute("loading", value);
   }
 
   /**
    * Application module type
    */
   get type(): string {
-    return this.getAttribute('type') || 'module';
+    return this.getAttribute("type") || "module";
   }
 
   set type(value) {
-    this.setAttribute('type', value);
+    this.setAttribute("type", value);
   }
 
   /**
@@ -192,39 +195,39 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Application URL
    */
   get src() {
-    const value = this.getAttribute('src');
-    return value === null ? '' : new URL(value, this.baseURI).href;
+    const value = this.getAttribute("src");
+    return value === null ? "" : new URL(value, this.baseURI).href;
   }
 
   set src(value) {
-    this.setAttribute('src', value);
+    this.setAttribute("src", value);
   }
 
   /**
    * Application bare module name
    */
   get import() {
-    let value = this.getAttribute('import');
+    let value = this.getAttribute("import");
     const relativePath = /^\.\.?\//;
     if (value && relativePath.test(value)) {
       value = new URL(value, this.base).href;
     }
-    return value === null ? '' : value;
+    return value === null ? "" : value;
   }
 
   set import(value) {
-    this.setAttribute('import', value);
+    this.setAttribute("import", value);
   }
 
   /**
    * Application render target
    */
-  get renderTarget(): 'light' | 'shadow' {
-    return this.getAttribute('rendertarget') as 'light' || 'shadow';
+  get renderTarget(): "light" | "shadow" {
+    return (this.getAttribute("rendertarget") as "light") || "shadow";
   }
 
-  set renderTarget(value: 'light' | 'shadow') {
-    this.setAttribute('rendertarget', value);
+  set renderTarget(value: "light" | "shadow") {
+    this.setAttribute("rendertarget", value);
   }
 
   get timeouts() {
@@ -249,7 +252,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     const view = this;
 
     if (!customContext) {
-      const context = this.getAttribute('context');
+      const context = this.getAttribute("context");
 
       if (context) {
         try {
@@ -283,13 +286,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
         return view.data;
       },
 
-      update: this.update.bind(this)
+      update: this.update.bind(this),
     });
 
-    return Object.assign(
-      context,
-      customContext || {}
-    );
+    return Object.assign(context, customContext || {});
   }
 
   /**
@@ -298,7 +298,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   createContainer(): HTMLElement | ShadowRoot {
     let container;
 
-    if (this.renderTarget === 'shadow') {
+    if (this.renderTarget === "shadow") {
       if (this.recovering) {
         if (this.attachInternals) {
           const internals = this.attachInternals();
@@ -309,18 +309,18 @@ export class HTMLWebWidgetElement extends HTMLElement {
       }
 
       if (!container) {
-        container = this.attachShadow({ mode: 'open' });
+        container = this.attachShadow({ mode: "open" });
       }
-    } else if (this.renderTarget === 'light') {
+    } else if (this.renderTarget === "light") {
       container = this;
     }
 
     if (container && !container.update) {
       // support v0
-      ['mount', 'update', 'unmount'].forEach(name => {
+      ["mount", "update", "unmount"].forEach((name) => {
         if (!container[name]) {
           Reflect.defineProperty(container, name, {
-            value: context => this[name](context)
+            value: (context) => this[name](context),
           });
         }
       });
@@ -335,16 +335,16 @@ export class HTMLWebWidgetElement extends HTMLElement {
   createLoader(): ApplicationLoader {
     const { type } = this;
 
-    if (type !== 'module') {
+    if (type !== "module") {
       throw Error(`The module type is not supported: ${type}`);
     }
 
     // @see https://github.com/WICG/import-maps#feature-detection
     const supportsImportMaps =
-      HTMLScriptElement.supports && HTMLScriptElement.supports('importmap');
+      HTMLScriptElement.supports && HTMLScriptElement.supports("importmap");
 
     function importModule(target) {
-      if (!supportsImportMaps && typeof importShim === 'function') {
+      if (!supportsImportMaps && typeof importShim === "function") {
         // @see https://github.com/guybedford/es-module-shims
         // eslint-disable-next-line no-undef
         return importShim(target);
@@ -360,21 +360,21 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Trigger the loading of the application
    */
   async load(): Promise<void> {
-    await this.#trigger('load');
+    await this.#trigger("load");
   }
 
   /**
    * Trigger the bootstrapping of the application
    */
   async bootstrap(): Promise<void> {
-    await this.#trigger('bootstrap');
+    await this.#trigger("bootstrap");
   }
 
   /**
    * Trigger the mounting of the application
    */
   async mount(): Promise<void> {
-    await this.#trigger('mount');
+    await this.#trigger("mount");
   }
 
   /**
@@ -384,14 +384,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
     if (
       this.context &&
       this.dispatchEvent(
-        new WebWidgetUpdateEvent('update', {
+        new WebWidgetUpdateEvent("update", {
           value: context,
-          cancelable: true
+          cancelable: true,
         })
       )
     ) {
       Object.assign(this.context, context);
-      await this.#trigger('update');
+      await this.#trigger("update");
     } else {
       throw new Error(`Can't update`);
     }
@@ -401,7 +401,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Trigger the unmounting of the application
    */
   async unmount(): Promise<void> {
-    await this.#trigger('unmount');
+    await this.#trigger("unmount");
   }
 
   /**
@@ -409,8 +409,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
    */
   async unload(): Promise<void> {
     const context = this.context || {};
-    await this.#trigger('unload');
-    Object.getOwnPropertyNames(context).forEach(key => {
+    await this.#trigger("unload");
+    Object.getOwnPropertyNames(context).forEach((key) => {
       Reflect.deleteProperty(context, key);
     });
   }
@@ -428,7 +428,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   #firstConnectedCallback() {
-    if (this.loading === 'lazy') {
+    if (this.loading === "lazy") {
       observe(this, () => this.#autoMount());
     } else {
       this.#autoMount();
@@ -447,19 +447,19 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   attributeChangedCallback(name) {
-    if (name === 'data') {
+    if (name === "data") {
       this.data = null;
     }
-    if (name === 'context') {
+    if (name === "context") {
       // this.context = null;
     }
-    if (this.loading !== 'lazy') {
+    if (this.loading !== "lazy") {
       this.#autoMount();
     }
   }
 
   destroyedCallback() {
-    if (this.loading === 'lazy') {
+    if (this.loading === "lazy") {
       unobserve(this);
     }
     if (!this.inactive) {
@@ -473,10 +473,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #statusChangeCallback(value) {
     this.#status = value;
-    this.setAttribute('status', value);
+    this.setAttribute("status", value);
 
     if (value === status.MOUNTED) {
-      this.removeAttribute('recovering');
+      this.removeAttribute("recovering");
     }
 
     if (
@@ -484,7 +484,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         status.MOUNTED,
         status.LOAD_ERROR,
         status.BOOTSTRAP_ERROR,
-        status.MOUNT_ERROR
+        status.MOUNT_ERROR,
       ].includes(value)
     ) {
       let placeholder, fallback;
@@ -500,9 +500,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
       for (const element of this.children) {
         const localName = element.localName;
-        if (localName === 'placeholder') {
+        if (localName === "placeholder") {
           placeholder = element;
-        } else if (localName === 'fallback') {
+        } else if (localName === "fallback") {
           fallback = element;
         }
       }
@@ -515,22 +515,22 @@ export class HTMLWebWidgetElement extends HTMLElement {
       }
     }
 
-    this.dispatchEvent(new Event('statuschange'));
+    this.dispatchEvent(new Event("statuschange"));
   }
 
   #throwGlobalError(error: Error) {
     const applicationName =
       this.id || this.import || this.src || this.localName;
     const prefix = `Web Widget application (${applicationName})`;
-    if (typeof error !== 'object') {
+    if (typeof error !== "object") {
       error = new Error(error);
     }
 
     if (!error.message.includes(prefix)) {
-      Reflect.defineProperty(error, 'message', {
+      Reflect.defineProperty(error, "message", {
         value: `${prefix}: ${error.message}`,
         writable: true,
-        configurable: true
+        configurable: true,
       });
     }
 
@@ -540,7 +540,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['data', 'import', 'src', 'inactive'];
+    return ["data", "import", "src", "inactive"];
   }
 
   static get timeouts() {
@@ -554,8 +554,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
 Object.assign(HTMLWebWidgetElement, status);
 Object.assign(window, {
-  HTMLWebWidgetElement
+  HTMLWebWidgetElement,
 });
 
-customElements.define('web-widget', HTMLWebWidgetElement);
-
+customElements.define("web-widget", HTMLWebWidgetElement);

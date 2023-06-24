@@ -1,12 +1,12 @@
 // eslint-disable-next-line import/no-unresolved
-import { html, render } from 'https://unpkg.com/lit-html?module';
+import { html, render } from "https://unpkg.com/lit-html?module";
 
 export default () => {
   let element;
   return {
     async mount({ container, data }) {
-      element = document.createElement('div');
-      element.style = 'border: 1px solid #000';
+      element = document.createElement("div");
+      element.style = "border: 1px solid #000";
 
       const { active, length } = data;
 
@@ -28,7 +28,7 @@ export default () => {
     },
 
     async unmount({ container }) {
-      container.innerHTML = '';
-    }
+      container.innerHTML = "";
+    },
   };
 };

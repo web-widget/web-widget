@@ -1,10 +1,10 @@
 /* eslint-disable no-use-before-define */
 /* global IntersectionObserver */
 
-const CALLBACK = Symbol('callback');
+const CALLBACK = Symbol("callback");
 
 const lazyObserver = new IntersectionObserver(
-  entries => {
+  (entries) => {
     entries.forEach(({ isIntersecting, target }) => {
       if (isIntersecting) {
         target[CALLBACK]();
@@ -13,7 +13,7 @@ const lazyObserver = new IntersectionObserver(
     });
   },
   {
-    rootMargin: '80%'
+    rootMargin: "80%",
   }
 );
 

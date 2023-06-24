@@ -1,9 +1,9 @@
 function loader(element) {
   return new Promise((resolve, reject) => {
-    element.addEventListener('load', () => {
+    element.addEventListener("load", () => {
       resolve();
     });
-    element.addEventListener('error', e => {
+    element.addEventListener("error", (e) => {
       reject(e);
     });
     document.head.appendChild(element);
@@ -11,38 +11,38 @@ function loader(element) {
 }
 
 function importScript(url) {
-  const script = document.createElement('script');
+  const script = document.createElement("script");
   script.src = url;
   return loader(script);
 }
 
-console.log('todomvc load');
+console.log("todomvc load");
 export default () => {
   let element;
   return {
     async bootstrap() {
-      console.log('todomvc bootstrap');
+      console.log("todomvc bootstrap");
 
-      if (customElements.get('my-todo')) {
+      if (customElements.get("my-todo")) {
         return Promise.resolve();
       }
 
-      return importScript('../libs/lit-element-todomvc.js');
+      return importScript("../libs/lit-element-todomvc.js");
     },
 
     async mount({ container }) {
-      console.log('todomvc mount');
-      element = document.createElement('my-todo');
+      console.log("todomvc mount");
+      element = document.createElement("my-todo");
       container.appendChild(element);
     },
 
     async unmount({ container }) {
-      console.log('todomvc unmount');
+      console.log("todomvc unmount");
       container.removeChild(element);
     },
     async unload() {
-      console.log('todomvc unload');
+      console.log("todomvc unload");
       element = null;
-    }
+    },
   };
 };

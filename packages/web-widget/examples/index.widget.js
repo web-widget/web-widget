@@ -4,11 +4,11 @@ export default () => ({
       <ol>
         ${data
           .map(({ name, value }) => `<li><a href="${value}">${name}</a></li>`)
-          .join('')}
+          .join("")}
       </ol>
     `;
   },
   async unmount({ container }) {
     container.innerHTML = ``;
-  }
+  },
 });

@@ -12,6 +12,6 @@ export default () => ({
   },
 
   async unmount({ container }) {
-    container.innerHTML = '';
-  }
+    container.innerHTML = "";
+  },
 });

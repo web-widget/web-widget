@@ -1,15 +1,19 @@
 /* eslint-disable class-methods-use-this */
-import type { ClientRenderResult, ClientRenderContext, ApplicationLoader } from './types.js'
-import { render } from './render-client.js';
-import { INITIAL } from './status.js';
-import { reasonableTime } from './timeouts.js';
-import { rules } from './flow.js';
+import type {
+  ClientRenderResult,
+  ClientRenderContext,
+  ApplicationLoader,
+} from "./types.js";
+import { render } from "./render-client.js";
+import { INITIAL } from "./status.js";
+import { reasonableTime } from "./timeouts.js";
+import { rules } from "./flow.js";
 
 interface LifecycleControllerOptions {
-  applicationLoader: ApplicationLoader
-  contextLoader: (name: string) => ClientRenderContext
-  statusChangeCallback: (status: string) => void
-  timeouts: Record<string, number>
+  applicationLoader: ApplicationLoader;
+  contextLoader: (name: string) => ClientRenderContext;
+  statusChangeCallback: (status: string) => void;
+  timeouts: Record<string, number>;
 }
 
 export class LifecycleController {
@@ -22,19 +26,19 @@ export class LifecycleController {
     this.#timeouts = options.timeouts;
   }
 
-  #applicationLoader: ApplicationLoader
+  #applicationLoader: ApplicationLoader;
 
-  #contextLoader: (name: string) => ClientRenderContext
+  #contextLoader: (name: string) => ClientRenderContext;
 
-  #lifecycles: ClientRenderResult
+  #lifecycles: ClientRenderResult;
 
-  #pending?: Promise<void> | null
+  #pending?: Promise<void> | null;
 
-  #statusChangeCallback: (value: string) => void
+  #statusChangeCallback: (value: string) => void;
 
-  #timeouts: Record<string, number>
+  #timeouts: Record<string, number>;
 
-  #status: string
+  #status: string;
 
   #setStatus(value: string) {
     if (value !== this.#status) {
@@ -48,7 +52,7 @@ export class LifecycleController {
   }
 
   async run(name) {
-    const bail = typeof this.#timeouts[name] === 'number';
+    const bail = typeof this.#timeouts[name] === "number";
     const timeout = bail ? this.#timeouts[name] : rules[name].timeout;
     const rule = rules[name];
     const [initial, pending, fulfilled, rejected] = rule.status;
@@ -64,7 +68,10 @@ export class LifecycleController {
     if (rule.creator && !this.#lifecycles[name]) {
       this.#lifecycles[name] = async (context: ClientRenderContext) => {
         const application = await this.#applicationLoader();
-        const lifecycles: ClientRenderResult = await render(application, context);
+        const lifecycles: ClientRenderResult = await render(
+          application,
+          context
+        );
 
         Object.assign(this.#lifecycles, lifecycles || {});
       };
@@ -89,8 +96,7 @@ export class LifecycleController {
     }
 
     this.#pending = reasonableTime(
-      async () =>
-        this.#lifecycles[name](this.#contextLoader(name)),
+      async () => this.#lifecycles[name](this.#contextLoader(name)),
       timeout,
       bail,
       `Lifecycle function did not complete within ${timeout} ms: ${name}`
@@ -99,7 +105,7 @@ export class LifecycleController {
         this.#setStatus(fulfilled);
         this.#pending = null;
       })
-      .catch(error => {
+      .catch((error) => {
         this.#setStatus(rejected);
         this.#pending = null;
         throw error;

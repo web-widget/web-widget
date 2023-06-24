@@ -14,7 +14,7 @@ export function Head(props: HeadProps) {
     throw new Error(
       "<Head> component is not supported in the browser, or during suspense renders.",
       // @ts-ignore
-      { cause: err },
+      { cause: err }
     );
   }
   context.push(props.children);

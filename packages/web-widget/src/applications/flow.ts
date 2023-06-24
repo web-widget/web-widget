@@ -47,39 +47,45 @@ import {
   UNMOUNTING,
   UNMOUNT_ERROR,
   UNLOADING,
-  UNLOAD_ERROR
-} from './status';
+  UNLOAD_ERROR,
+} from "./status";
 
-export type LifecycleName = 'load' | 'bootstrap' | 'mount' | 'update' | 'unmount' | 'unload'
+export type LifecycleName =
+  | "load"
+  | "bootstrap"
+  | "mount"
+  | "update"
+  | "unmount"
+  | "unload";
 
 export const rules = {
   load: {
     creator: true,
     timeout: 12000,
-    status: [INITIAL, LOADING, LOADED, LOAD_ERROR]
+    status: [INITIAL, LOADING, LOADED, LOAD_ERROR],
   },
   bootstrap: {
-    pre: 'load',
+    pre: "load",
     timeout: 4000,
-    status: [LOADED, BOOTSTRAPPING, BOOTSTRAPPED, BOOTSTRAP_ERROR]
+    status: [LOADED, BOOTSTRAPPING, BOOTSTRAPPED, BOOTSTRAP_ERROR],
   },
   mount: {
-    pre: 'bootstrap',
+    pre: "bootstrap",
     timeout: 3000,
-    status: [BOOTSTRAPPED, MOUNTING, MOUNTED, MOUNT_ERROR]
+    status: [BOOTSTRAPPED, MOUNTING, MOUNTED, MOUNT_ERROR],
   },
   update: {
     verify: true,
     timeout: 3000,
-    status: [MOUNTED, UPDATING, MOUNTED, UPDATE_ERROR]
+    status: [MOUNTED, UPDATING, MOUNTED, UPDATE_ERROR],
   },
   unmount: {
     timeout: 3000,
-    status: [MOUNTED, UNMOUNTING, BOOTSTRAPPED, UNMOUNT_ERROR]
+    status: [MOUNTED, UNMOUNTING, BOOTSTRAPPED, UNMOUNT_ERROR],
   },
   unload: {
-    pre: 'unmount',
+    pre: "unmount",
     timeout: 3000,
-    status: [BOOTSTRAPPED, UNLOADING, INITIAL, UNLOAD_ERROR]
-  }
+    status: [BOOTSTRAPPED, UNLOADING, INITIAL, UNLOAD_ERROR],
+  },
 };

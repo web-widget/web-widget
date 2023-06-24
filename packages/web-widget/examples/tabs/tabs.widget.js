@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-unresolved
-import { html, render } from 'https://unpkg.com/lit-html?module';
+import { html, render } from "https://unpkg.com/lit-html?module";
 
 function tabs({ container, active, length }) {
   const template = html`
@@ -12,8 +12,7 @@ function tabs({ container, active, length }) {
               ?active=${active === index}
               @click=${() => {
                 tabs({ container, active: index, length });
-              }}
-            >
+              }}>
               <button>${index + 1}</button>
             </slot>`
         )}
@@ -23,8 +22,7 @@ function tabs({ container, active, length }) {
           (n, index) =>
             html`<slot
               ?active=${active === index}
-              name="content-${index}"
-            ></slot>`
+              name="content-${index}"></slot>`
         )}
       </div>
     </div>
@@ -54,6 +52,6 @@ export default () => ({
   },
 
   async unmount({ container }) {
-    container.innerHTML = '';
-  }
+    container.innerHTML = "";
+  },
 });

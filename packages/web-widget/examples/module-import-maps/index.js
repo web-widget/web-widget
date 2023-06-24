@@ -1,1 +1,1 @@
-export { default } from './hello-world.widget.js';
+export { default } from "./hello-world.widget.js";

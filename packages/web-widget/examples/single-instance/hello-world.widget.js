@@ -1,7 +1,7 @@
 let element;
 
 export async function bootstrap() {
-  element = document.createElement('div');
+  element = document.createElement("div");
   element.innerHTML = `hello wrold`;
 }
 

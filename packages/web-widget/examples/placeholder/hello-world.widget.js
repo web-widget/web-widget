@@ -2,9 +2,9 @@ export default () => {
   let element;
   return {
     async bootstrap() {
-      element = document.createElement('span');
+      element = document.createElement("span");
       element.innerHTML = `hello wrold`;
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           resolve();
         }, 500);
@@ -17,6 +17,6 @@ export default () => {
 
     async unmount({ container }) {
       container.removeChild(element);
-    }
+    },
   };
 };

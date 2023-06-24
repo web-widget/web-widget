@@ -2,7 +2,7 @@ export default () => {
   let element;
   return {
     async bootstrap({ data }) {
-      element = document.createElement('div');
+      element = document.createElement("div");
       element.innerHTML = `hello wrold: ${JSON.stringify(data, null, 2)}`;
     },
 
@@ -12,6 +12,6 @@ export default () => {
 
     async unmount({ container }) {
       container.removeChild(element);
-    }
+    },
   };
 };
