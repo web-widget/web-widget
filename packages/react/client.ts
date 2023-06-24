@@ -17,13 +17,6 @@ export async function render(
     throw new Error("This page does not have a component to render.");
   }
 
-  if (
-    typeof opts.component === "function" &&
-    opts.component.constructor.name === "AsyncFunction"
-  ) {
-    throw new Error("Async components are not supported.");
-  }
-
   if (!opts.container) {
     throw new Error(`Container required.`);
   }
