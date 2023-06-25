@@ -1,0 +1,32 @@
+{
+  "name": "@web-widget/vue2",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm exec tsup --watch",
+    "build": "pnpm exec tsup"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/vue2.server.d.ts",
+      "browser": "./dist/vue2.client.js",
+      "default": "./dist/vue2.server.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "vue": "^2.7.14",
+    "vue-server-renderer": "^2.7.14"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "@web-widget/web-server": "workspace:*",
+    "tsup": "^7.0.0"
+  }
+}
