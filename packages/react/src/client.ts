@@ -11,23 +11,25 @@ import type {
 export { RenderContext, RenderResult, Render };
 
 export async function render(
-  opts: RenderContext<unknown>
+  context: RenderContext<unknown>
 ): Promise<RenderResult> {
-  if (opts.component === undefined) {
+  const { component, recovering, container, data } = context;
+
+  if (component === undefined) {
     throw new Error("This page does not have a component to render.");
   }
 
-  if (!opts.container) {
+  if (!container) {
     throw new Error(`Container required.`);
   }
 
-  const props = opts.data;
+  const props = data || {};
 
   // const vnode = jsx(HEAD_CONTEXT.Provider, {
-  //   children: jsx(opts.component! as ComponentType<unknown>, props),
+  //   children: jsx(component! as ComponentType<unknown>, props),
   // });
 
-  const vnode = jsx(opts.component! as ComponentType<unknown>, props);
-  const create = opts.recovering ? hydrateRoot : createRoot;
-  create(opts.container, vnode);
+  const vnode = jsx(component! as ComponentType<unknown>, props);
+  const create = recovering ? hydrateRoot : createRoot;
+  create(container, vnode);
 }
