@@ -2,6 +2,10 @@
   "name": "@web-widget/react",
   "version": "0.0.1",
   "type": "module",
+  "scripts": {
+    "dev": "pnpm exec tsup --watch",
+    "build": "pnpm exec tsup"
+  },
   "exports": {
     ".": {
       "types": "./dist/server.d.ts",
@@ -19,12 +23,14 @@
     "./babel-plugin": {
       "types": "./dist/babel-plugin.d.ts",
       "default": "./dist/babel-plugin.js"
-    }
+    },
+    "./*.js": "./*.js"
   },
-  "scripts": {
-    "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup"
-  },
+  "files": [
+    "dist",
+    "jsx-runtime.js",
+    "jsx-dev-runtime.js"
+  ],
   "publishConfig": {
     "access": "public"
   },
