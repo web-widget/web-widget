@@ -8,20 +8,20 @@ import type {
 export { RenderContext, RenderResult, Render };
 
 export async function render(
-  opts: RenderContext<unknown>
+  context: RenderContext<unknown>
 ): Promise<RenderResult> {
-  if (opts.component === undefined) {
+  const { component, recovering, container, data } = context;
+
+  if (component === undefined) {
     throw new Error("This page does not have a component to render.");
   }
 
-  if (!opts.container) {
+  if (!container) {
     throw new Error(`Container required.`);
   }
 
-  const props = opts.data;
-
-  const recovering = opts.recovering;
+  const props = data || {};
   const create = recovering ? createSSRApp : createApp;
-  const app = create(opts.component, props as Record<string, any>);
-  app.mount(opts.container);
+  const app = create(component, props as Record<string, any>);
+  app.mount(container);
 }

@@ -1,11 +1,8 @@
 {
   "include": [
-    "./**/*"
+    "./src/**/*"
   ],
-  "exclude": [
-    "dist",
-    "tsup.config.ts"
-  ],
+  "exclude": [],
   "compilerOptions": {
     "module": "ESNext",
     "lib": [
@@ -18,7 +15,7 @@
     "moduleResolution": "node",
     "strict": true,
     "declaration": true,
-    "rootDir": "./",
+    "rootDir": "./src",
     "skipLibCheck": true
   }
 }

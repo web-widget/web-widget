@@ -2,6 +2,10 @@
   "name": "@web-widget/vue",
   "version": "0.0.1",
   "type": "module",
+  "scripts": {
+    "dev": "pnpm exec tsup --watch",
+    "build": "pnpm exec tsup"
+  },
   "exports": {
     ".": {
       "types": "./dist/vue.server.d.ts",
@@ -9,10 +13,9 @@
       "default": "./dist/vue.server.js"
     }
   },
-  "scripts": {
-    "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup"
-  },
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "access": "public"
   },

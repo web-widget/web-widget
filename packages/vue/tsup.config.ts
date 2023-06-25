@@ -1,8 +1,8 @@
 import type { Options } from "tsup";
 export const tsup: Options = {
   entry: {
-    "vue.server": "server.ts",
-    "vue.client": "client.ts",
+    "vue.server": "src/server.ts",
+    "vue.client": "src/client.ts",
   },
   dts: true,
   target: "es2017",
