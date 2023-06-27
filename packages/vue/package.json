@@ -13,6 +13,7 @@
       "default": "./dist/vue.server.js"
     }
   },
+  "types": "./dist/vue.server.d.ts",
   "files": [
     "dist"
   ],
@@ -22,9 +23,7 @@
   "peerDependencies": {
     "vue": "^3.3.4"
   },
-  "dependencies": {
-    "vue": "^3.3.4"
-  },
+  "dependencies": {},
   "devDependencies": {
     "typescript": "^5.0.4",
     "@web-widget/web-server": "workspace:*",

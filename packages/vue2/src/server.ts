@@ -45,5 +45,6 @@ export async function render(
     },
   });
 
+  // TODO renderer.renderToStream() to ReadableStream
   return renderer.renderToString(app);
 }
