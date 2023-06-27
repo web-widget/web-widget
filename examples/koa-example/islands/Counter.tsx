@@ -1,5 +1,6 @@
+import "./Counter.css";
 import { useState } from "react";
-export { render } from '@web-widget/react';
+export { render } from "@web-widget/react";
 
 interface CounterProps {
   name: string;
@@ -12,12 +13,8 @@ export default function Counter(props: CounterProps) {
     <div>
       <h3>{props.name}</h3>
       <p>{count}</p>
-      <button onClick={() => setCount(count - 1)}>
-        -1
-      </button>
-      <button onClick={() => setCount(count + 1)}>
-        +1
-      </button>
+      <button onClick={() => setCount(count - 1)}>-1</button>
+      <button onClick={() => setCount(count + 1)}>+1</button>
     </div>
   );
 }
