@@ -16,7 +16,7 @@ export function transform(jsx, isDev, type, props, ...args) {
     const options = props.widget || {};
     const fallback = props.fallback || null;
     const src = options.src;
-    const id = type.name.toLowerCase();
+    // const id = type.name.toLowerCase();
     // The widget prop has been transformed to component path string by @web-widget/react/babel-plugin
     delete props.widget;
     return jsx(Suspense, {
@@ -51,7 +51,7 @@ export function transform(jsx, isDev, type, props, ...args) {
               children: [
                 jsx("web-widget", {
                   key: "container",
-                  name: id,
+                  // name: id,
                   data: JSON.stringify(props),
                   recovering: true,
                   loading: "lazy",
