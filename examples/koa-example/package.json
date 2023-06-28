@@ -5,7 +5,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "node server.js",
+    "dev": "builder dev",
+    "koa-example": "node server.js",
     "tsup": "rm -rf dist && pnpm exec tsup --format esm --legacy-output --watch",
     "build": "rm -rf dist && pnpm exec tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -35,6 +36,7 @@
     "@types/koa": "^2.13.6",
     "@types/react": "^18.2.9",
     "@types/react-dom": "^18.0.6",
-    "tsup": "^6.7.0"
+    "tsup": "^6.7.0",
+    "@web-widget/builder": "workspace:*"
   }
 }

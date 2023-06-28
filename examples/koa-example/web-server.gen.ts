@@ -4,12 +4,9 @@
 
 import * as $ROUTE0 from "./routes/about";
 import * as $ROUTE1 from "./routes/index";
-import * as $ISLAND0 from "./islands/Counter";
 import * as $MIDDLEWARE0 from "./routes/_middleware";
 
 import * as $NOTFOUND from "./routes/_404";
-
-
 
 export const routes = [
   {
@@ -26,15 +23,6 @@ export const routes = [
   },
 ];
 
-export const islands = [
-  {
-    file: "./islands/Counter.tsx",
-    id: "counter",
-    name: "Counter",
-    module: $ISLAND0,
-  },
-];
-
 export const middlewares = [
   {
     file: "./routes/_middleware.ts",
@@ -43,12 +31,9 @@ export const middlewares = [
   },
 ];
 
-
-
 export const notFound = {
   file: "./routes/_404.tsx",
   name: "_404",
   pathname: "/_404",
   module: $NOTFOUND,
 };
-

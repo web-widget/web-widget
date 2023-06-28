@@ -14,7 +14,7 @@ export default function Home() {
         ./routes/index.tsx file, and refresh.
       </p>
       <ReactCounter widget name="React Counter" start={3} />
-      <VueCounter widget name="Vue Counter" start={1} />
+      <VueCounter widget name="Vue3 Counter" start={1} />
     </div>
   );
 }

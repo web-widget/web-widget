@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "es2020",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strict": true,
+    "declaration": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "useUnknownInCatchVariables": false,
+    "lib": [
+      "ESNext",
+      "WebWorker"
+    ],
+    "types": [
+      "node"
+    ],
+    "paths": {
+      "src/*": [
+        "src/*"
+      ],
+      "@node/*": [
+        "src/node/*"
+      ],
+      "lib/*": [
+        "src/node/*"
+      ],
+      "shared/*": [
+        "src/shared/*"
+      ],
+      "tests/*": [
+        "__tests__/*"
+      ],
+      "/@shared/*": [
+        "src/client/shared/*"
+      ],
+      "iles": [
+        "types/index.d.ts"
+      ]
+    }
+  },
+  "exclude": [
+    "src/build/**/*",
+  ],
+  "include": [
+    "src/*",
+    "tests",
+    "types"
+  ]
+}

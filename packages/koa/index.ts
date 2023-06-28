@@ -16,12 +16,12 @@ installGlobals();
 export function createWebHeaders(
   requestHeaders: koa.Request["headers"]
 ): NodeHeaders {
-  let headers = new NodeHeaders();
+  const headers = new NodeHeaders();
 
-  for (let [key, values] of Object.entries(requestHeaders)) {
+  for (const [key, values] of Object.entries(requestHeaders)) {
     if (values) {
       if (Array.isArray(values)) {
-        for (let value of values) {
+        for (const value of values) {
           headers.append(key, value);
         }
       } else {
@@ -37,13 +37,13 @@ export function createWebRequest(
   req: koa.Request,
   res: koa.Response
 ): NodeRequest {
-  let url = new URL(`${req.protocol}://${req.get("host")}${req.url}`);
+  const url = new URL(`${req.protocol}://${req.get("host")}${req.url}`);
 
   // Abort action/loaders once we can no longer write a response
-  let controller = new NodeAbortController();
+  const controller = new NodeAbortController();
   res.res.on("close", () => controller.abort());
 
-  let init: NodeRequestInit = {
+  const init: NodeRequestInit = {
     method: req.method,
     headers: createWebHeaders(req.headers),
     // Cast until reason/throwIfAborted added
@@ -65,8 +65,8 @@ export async function sendWebResponse(
   res.message = nodeResponse.statusText;
   res.status = nodeResponse.status;
 
-  for (let [key, values] of Object.entries(nodeResponse.headers.raw())) {
-    for (let value of values) {
+  for (const [key, values] of Object.entries(nodeResponse.headers.raw())) {
+    for (const value of values) {
       res.append(key, value);
     }
   }
