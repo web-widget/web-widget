@@ -39,6 +39,10 @@ export async function handleRequest(
             textContent: children,
           });
         });
+        assets.links.forEach(({ props, children }) => {
+          // @ts-ignore
+          ctx.links.push(props)
+        });
       }
 
       await render();
