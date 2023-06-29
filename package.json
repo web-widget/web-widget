@@ -6,6 +6,7 @@
     "#postinstall": "lerna bootstrap",
     "start": "rocket start",
     "build": "lerna run build",
+    "build:lib": "turbo run build --filter=./packages/*",
     "test": "lerna run test --concurrency 1",
     "clean": "npx lerna clean && rm -rf node_modules",
     "lint": "eslint packages/**/src packages/**/test packages/**/examples",
