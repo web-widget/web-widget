@@ -8,8 +8,8 @@
 ## code coverage folders
 coverage/
 
-##lerna
-lerna-debug.log
+## turbo
+.turbo/
 
 ## npm
 node_modules/
