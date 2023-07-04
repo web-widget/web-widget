@@ -4,6 +4,7 @@
 
 import * as $ROUTE0 from "./routes/about";
 import * as $ROUTE1 from "./routes/index";
+import * as $ROUTE2 from "./routes/news";
 import * as $MIDDLEWARE0 from "./routes/_middleware";
 
 import * as $NOTFOUND from "./routes/_404";
@@ -20,6 +21,12 @@ export const routes = [
     name: "index",
     pathname: "/",
     module: $ROUTE1,
+  },
+  {
+    file: "./routes/news.tsx",
+    name: "news",
+    pathname: "/news",
+    module: $ROUTE2,
   },
 ];
 

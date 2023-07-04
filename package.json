@@ -37,7 +37,8 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "^2.4.1"
+    "prettier": "^2.4.1",
+    "turbo": "^1.10.7"
   },
   "packageManager": "pnpm@7.9.5",
   "pnpm": {
