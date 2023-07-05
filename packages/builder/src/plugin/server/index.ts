@@ -12,7 +12,7 @@ export default function createVitePluginServer(): Plugin {
     async configureServer(viteServer) {
       const loader = createViteLoader(viteServer);
       let manifest: Manifest | void;
-      let pendingReload: DeferredPromise<Manifest> | void;
+      let pendingRebuild: DeferredPromise<Manifest> | void;
 
       /** rebuild the route cache + manifest, as needed. */
       async function rebuildManifest(
@@ -20,10 +20,10 @@ export default function createVitePluginServer(): Plugin {
         _file: string
       ) {
         if (needsManifestRebuild) {
-          pendingReload = new DeferredPromise<Manifest>()
+          pendingRebuild = new DeferredPromise<Manifest>()
           manifest = await getManifest(loader);
-          pendingReload.complete(manifest)
-          pendingReload = undefined;
+          pendingRebuild.complete(manifest)
+          pendingRebuild = undefined;
         }
       }
       // Rebuild route manifest on file change, if needed.
@@ -37,7 +37,7 @@ export default function createVitePluginServer(): Plugin {
           req,
           res
         ) {
-          if (pendingReload) await pendingReload.p;
+          if (pendingRebuild) await pendingRebuild.p;
           manifest = manifest || (await getManifest(loader));
           return handleRequest(manifest, viteServer, loader, req, res);
         });
