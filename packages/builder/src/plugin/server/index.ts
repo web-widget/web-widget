@@ -12,6 +12,7 @@ export default function createVitePluginServer(): Plugin {
     async configureServer(viteServer) {
       const loader = createViteLoader(viteServer);
       let manifest: Manifest | void;
+      let pendingRebuild: DeferredPromise<Manifest> | void;
 
       /** rebuild the route cache + manifest, as needed. */
       async function rebuildManifest(
@@ -19,13 +20,16 @@ export default function createVitePluginServer(): Plugin {
         _file: string
       ) {
         if (needsManifestRebuild) {
+          pendingRebuild = new DeferredPromise<Manifest>()
           manifest = await getManifest(loader);
+          pendingRebuild.complete(manifest)
+          pendingRebuild = undefined;
         }
       }
       // Rebuild route manifest on file change, if needed.
       viteServer.watcher.on("add", rebuildManifest.bind(null, true));
       viteServer.watcher.on("unlink", rebuildManifest.bind(null, true));
-      viteServer.watcher.on("change", rebuildManifest.bind(null, false));
+      viteServer.watcher.on("change", rebuildManifest.bind(null, true));
 
       return async () => {
         // Note that this function has a name so other middleware can find it.
@@ -33,10 +37,32 @@ export default function createVitePluginServer(): Plugin {
           req,
           res
         ) {
+          if (pendingRebuild) await pendingRebuild.p;
           manifest = manifest || (await getManifest(loader));
           return handleRequest(manifest, viteServer, loader, req, res);
         });
       };
     },
   };
+}
+
+export type ValueCallback<T = unknown> = (value: T | Promise<T>) => void;
+
+export class DeferredPromise<T> {
+  private completeCallback!: ValueCallback<T>;
+
+  public readonly p: Promise<T>;
+
+  constructor() {
+    this.p = new Promise<T>((c) => {
+      this.completeCallback = c;
+    });
+  }
+
+  public complete(value: T) {
+    return new Promise<void>(resolve => {
+      this.completeCallback(value);
+      resolve();
+    });
+  }
 }
