@@ -3,6 +3,8 @@ export const tsup: Options = {
   entry: {
     builder: "src/index.ts",
     cli: "src/cli.ts",
+    "entry.server": "src/entry/server.ts",
+    context: "src/context.ts",
   },
   dts: true,
   target: "node14",
@@ -11,5 +13,5 @@ export const tsup: Options = {
   format: ["esm"],
   outDir: "dist",
   clean: true,
-  external: [],
+  external: ["virtual:@web-widget/server:user-manifest"],
 };

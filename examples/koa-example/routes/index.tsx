@@ -13,8 +13,8 @@ export default function Home() {
         Welcome to widget web server. Try to update this message in the
         ./routes/index.tsx file, and refresh.
       </p>
-      <ReactCounter widget name="React Counter" start={3} />
-      <VueCounter widget name="Vue3 Counter" start={1} />
+      <ReactCounter client name="React Counter" start={3} />
+      <VueCounter client name="Vue3 Counter" start={1} />
     </div>
   );
 }

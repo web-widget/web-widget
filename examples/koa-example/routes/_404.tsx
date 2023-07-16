@@ -1,6 +1,6 @@
 export { render } from '@web-widget/react';
 
-export default function AboutPage() {
+export default function Page404() {
   return (
     <main>
       <h1>404</h1>

@@ -8,9 +8,19 @@
   },
   "exports": {
     ".": {
+      "types": "./dist/builder.d.ts",
       "import": "./dist/builder.js"
+    },
+    "./entry-server": {
+      "types": "./dist/entry.server.d.ts",
+      "import": "./dist/entry.server.js"
+    },
+    "./context": {
+      "types": "./dist/context.d.ts",
+      "import": "./dist/context.js"
     }
   },
+  "types": "./dist/builder.d.ts",
   "bin": {
     "builder": "bin/builder.js"
   },
@@ -45,6 +55,7 @@
     "picocolors": "^1.0.0",
     "unist-util-visit": "^4.1.0",
     "slash": "^5.1.0",
+    "zod": "^3.21.4",
     "@web-widget/web-server": "workspace:*",
     "@web-widget/express": "workspace:*"
   },

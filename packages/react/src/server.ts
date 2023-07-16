@@ -1,6 +1,5 @@
-import { ComponentType } from "react";
+import { ComponentType, createElement } from "react";
 // import { HEAD_CONTEXT } from "./head";
-import { jsx } from "./jsx-runtime";
 import type {
   Handlers,
   RenderContext,
@@ -11,6 +10,8 @@ import type {
 } from "@web-widget/web-server";
 // @ts-ignore
 import * as ReactDOMServer from "react-dom/server.browser";
+export * from "./web-widget";
+export { WebWidget as default } from "./web-widget";
 
 export type { Handlers, ComponentProps };
 
@@ -41,11 +42,11 @@ export async function render(
         error: error,
       } as ComponentProps<any> | UnknownComponentProps | ErrorComponentProps);
 
-  // const vnode = jsx(HEAD_CONTEXT.Provider, {
-  //   children: jsx(component! as ComponentType<unknown>, props),
+  // const vnode = createElement(HEAD_CONTEXT.Provider, {
+  //   children: createElement(component! as ComponentType<unknown>, props),
   // });
 
-  const vnode = jsx(component! as ComponentType<unknown>, props);
+  const vnode = createElement(component! as ComponentType<unknown>, props);
 
   return ReactDOMServer.renderToReadableStream(vnode);
 }

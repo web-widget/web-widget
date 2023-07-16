@@ -3,10 +3,10 @@ import { pathToFileURL } from "node:url";
 import { join } from "node:path";
 import type { Connect, ViteDevServer } from "vite";
 import webServer from "@web-widget/web-server";
-import { getAssets } from "../../core/render";
+import { getAssets } from "../core/render";
 import type { Manifest } from "@web-widget/web-server";
 import { createWebRequest } from "@web-widget/express";
-import type { ModuleLoader } from "../../core/loader/index";
+import type { ModuleLoader } from "../core/loader/index";
 
 export async function handleRequest(
   manifest: Manifest,

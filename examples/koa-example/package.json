@@ -6,9 +6,8 @@
   "description": "",
   "scripts": {
     "dev": "builder dev",
+    "build": "builder build",
     "koa-example": "node server.js",
-    "tsup": "rm -rf dist && pnpm exec tsup --format esm --legacy-output --watch",
-    "build": "rm -rf dist && pnpm exec tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
