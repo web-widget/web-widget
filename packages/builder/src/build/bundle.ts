@@ -35,6 +35,14 @@ async function bundleWithVite(
   chunkFileNamesCache: Map<string, string>
 ) {
   const viteConfig = mergeViteConfig(config.viteOptions, {
+    base: config.base,
+    cacheDir: fileURLToPath(config.cacheDir),
+    publicDir: fileURLToPath(config.publicDir),
+    root: fileURLToPath(config.root),
+    define: {
+      "import.meta.env.WEB_WIDGET_BASE_URL": JSON.stringify(config.base),
+      "import.meta.env?.WEB_WIDGET_BASE_URL": JSON.stringify(config.base),
+    },
     logLevel: config.viteOptions.logLevel ?? "warn",
     ssr: {
       external: [],
@@ -50,6 +58,7 @@ async function bundleWithVite(
       cssCodeSplit: false,
       minify: isServer ? false : "esbuild",
       emptyOutDir: true,
+      ssrEmitAssets: false,
       outDir: fileURLToPath(
         isServer ? config.output.server : config.output.client
       ),
@@ -63,6 +72,10 @@ async function bundleWithVite(
           assetFileNames: `${config.output.asset}/[name]-[hash][extname]`,
           chunkFileNames: `${config.output.asset}/[name]-[hash].js`,
         },
+      },
+      server: {
+        host: config.server.host,
+        port: config.server.port,
       },
     },
   } as ViteUserConfig);

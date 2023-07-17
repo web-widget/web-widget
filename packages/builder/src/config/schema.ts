@@ -6,7 +6,6 @@ const BUILDER_CONFIG_DEFAULTS: BuilderUserConfig & any = {
   base: "/",
   cacheDir: "./node_modules/.web-widget",
   publicDir: "./public",
-  tempDir: "./dist/.temp",
   root: ".",
   input: {
     routes: [],
@@ -37,11 +36,6 @@ export const BuilderConfigSchema = z.object({
     .string()
     .optional()
     .default(BUILDER_CONFIG_DEFAULTS.publicDir)
-    .transform((val) => new URL(val)),
-  tempDir: z
-    .string()
-    .optional()
-    .default(BUILDER_CONFIG_DEFAULTS.tempDir)
     .transform((val) => new URL(val)),
   root: z
     .string()
@@ -160,11 +154,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
     publicDir: z
       .string()
       .default(BUILDER_CONFIG_DEFAULTS.publicDir)
-      .transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
-    tempDir: z
-      .string()
-      .optional()
-      .default(BUILDER_CONFIG_DEFAULTS.tempDir)
       .transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
     root: z
       .string()

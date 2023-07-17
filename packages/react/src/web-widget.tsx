@@ -1,11 +1,13 @@
-import type { ReactElement, Component, ReactNode, ComponentProps } from "react";
-import { Suspense, Fragment, lazy, createElement } from "react";
+import type { ReactNode } from "react";
+import { Suspense, lazy, createElement } from "react";
 //import { resolve } from "import-meta-resolve";
 
 // @ts-expect-error
 const DEV = import.meta?.env?.DEV;
 // @ts-expect-error
-const BASE_URL = import.meta?.env?.BASE_URL;
+const BASE_URL = import.meta.env?.BASE_URL || "/";
+// @ts-expect-error
+const WEB_WIDGET_BASE_URL = import.meta.env?.WEB_WIDGET_BASE_URL || BASE_URL;
 
 const RELATIVE_PATH_REG = /^\.\.?\//;
 
@@ -78,6 +80,10 @@ export function WebWidget({
   recovering,
   children,
 }: WebWidgetProps) {
+  if (!base) {
+    throw new Error(`Missing base`);
+  }
+
   const src = RELATIVE_PATH_REG.test(url) ? base + url : url;
 
   if (children) {
@@ -153,7 +159,7 @@ export function defineWebWidget(
   loader: () => Promise<any>,
   importer: string,
   {
-    base = BASE_URL || "/",
+    base = WEB_WIDGET_BASE_URL,
     loading,
     name,
     recovering = true,
