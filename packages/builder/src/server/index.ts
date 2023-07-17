@@ -5,10 +5,12 @@ import type { BuilderConfig } from "../types";
 import { createServer as createViteServer, mergeConfig } from "vite";
 import { createViteLoader, ModuleLoader } from "../core/loader/index";
 import { handleRequest } from "./request";
-import { openConfig } from "../config"
+import { openConfig } from "../config";
 
-
-async function resolveManifest(devManifest: BuilderConfig["input"], loader: ModuleLoader) {
+async function resolveManifest(
+  devManifest: BuilderConfig["input"],
+  loader: ModuleLoader
+) {
   const manifest: Manifest = {
     routes: [],
     middlewares: [],
@@ -18,20 +20,18 @@ async function resolveManifest(devManifest: BuilderConfig["input"], loader: Modu
     Array.isArray(object)
       ? Promise.all(
           object.map(({ module: file, ...values }) =>
-            loader
-              .import(fileURLToPath(file))
-              .then((module) => ({
-                ...values,
-                module,
-              }))
+            loader.import(fileURLToPath(file)).then((module) => ({
+              ...values,
+              module,
+              $devFile: file,
+            }))
           )
         )
-      : loader
-          .import(fileURLToPath(object.module))
-          .then((module) => ({
-            ...object,
-            module,
-          }));
+      : loader.import(fileURLToPath(object.module)).then((module) => ({
+          ...object,
+          module,
+          $devFile: object.module,
+        }));
 
   for (const [key, value] of Object.entries(devManifest)) {
     // TODO fix type error
@@ -41,7 +41,6 @@ async function resolveManifest(devManifest: BuilderConfig["input"], loader: Modu
 
   return manifest;
 }
-
 
 function createVitePluginServer(config: BuilderConfig): Plugin {
   return {

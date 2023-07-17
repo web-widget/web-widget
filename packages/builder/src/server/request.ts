@@ -25,7 +25,7 @@ export async function handleRequest(
 
       if (route) {
         const dir = pathToFileURL(join(viteServer.config.root, "/"));
-        const routeFile = new URL(route?.file as string, dir);
+        const routeFile = new URL(route?.$devFile as string, dir);
         const assets = await getAssets(
           routeFile,
           loader,
