@@ -1,5 +1,5 @@
 type _IntrinsicAttributes = IntrinsicAttributes;
-type loading = boolean | "visible";
+type loading = boolean | "lazy";
 
 declare namespace JSX {
   interface IntrinsicAttributes extends _IntrinsicAttributes {

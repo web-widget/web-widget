@@ -3,6 +3,7 @@ export const tsup: Options = {
   entry: {
     "react.server": "src/server.ts",
     "react.client": "src/client.ts",
+    "babel-plugin": "src/babel-plugin.ts",
     "vite-plugin": "src/vite-plugin.ts",
   },
   dts: true,

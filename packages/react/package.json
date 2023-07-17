@@ -17,6 +17,10 @@
         "default": "./dist/react.server.js"
       }
     },
+    "./babel-plugin": {
+      "types": "./dist/babel-plugin.d.ts",
+      "default": "./dist/babel-plugin.js"
+    },
     "./vite-plugin": {
       "types": "./dist/vite-plugin.d.ts",
       "default": "./dist/vite-plugin.js"
