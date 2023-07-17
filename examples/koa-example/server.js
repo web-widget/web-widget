@@ -16,8 +16,10 @@ app.use(async (ctx, next) => {
     await koaSend(ctx, ctx.path, { root: clientRoot });
     return;
   }
-  await middleware(ctx, next);
+  await next();
 });
+
+app.use(middleware);
 
 app.listen(9000, () => {
   console.log("http://localhost:9000");

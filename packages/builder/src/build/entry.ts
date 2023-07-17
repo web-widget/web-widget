@@ -105,6 +105,7 @@ export default async (ctx, next) => {
   const webResponse = await router.handler(webRequest);
 
   await sendWebResponse(ctx.response, webResponse);
+  await next();
 };`.trim();
 
   await fs.writeFile(
