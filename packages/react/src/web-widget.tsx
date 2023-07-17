@@ -61,14 +61,23 @@ export function WebWidgetClient({
   name,
   recovering,
 }: WebWidgetClientProps) {
-  return createElement("web-widget", {
+  const attrs = {
     base,
     data: JSON.stringify(data),
     import: url,
     loading,
     name,
-    recovering,
     rendertarget: "light",
+  };
+
+  if (recovering) {
+    Object.assign(attrs, {
+      recovering: "",
+    });
+  }
+
+  return createElement("web-widget", {
+    ...attrs,
     dangerouslySetInnerHTML: { __html: innerHTML },
   });
 }
