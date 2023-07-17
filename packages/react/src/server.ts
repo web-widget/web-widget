@@ -1,4 +1,6 @@
 import { ComponentType, createElement } from "react";
+// @ts-ignore
+import * as ReactDOMServer from "react-dom/server.browser";
 // import { HEAD_CONTEXT } from "./head";
 import type {
   Handlers,
@@ -8,12 +10,13 @@ import type {
   UnknownComponentProps,
   ErrorComponentProps,
 } from "@web-widget/web-server";
-// @ts-ignore
-import * as ReactDOMServer from "react-dom/server.browser";
+import { __ENV__ } from "./web-widget";
+
 export * from "./web-widget";
 export { WebWidget as default } from "./web-widget";
-
 export type { Handlers, ComponentProps };
+
+__ENV__.server = true;
 
 export async function render(
   context: RenderContext<unknown>

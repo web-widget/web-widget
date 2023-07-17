@@ -6,10 +6,13 @@ import type {
   RenderResult,
   Render,
 } from "@web-widget/web-server/client";
+import { __ENV__ } from "./web-widget";
+
 export * from "./web-widget";
 export { WebWidget as default } from "./web-widget";
-
 export { RenderContext, RenderResult, Render };
+
+__ENV__.server = false;
 
 export async function render(
   context: RenderContext<unknown>

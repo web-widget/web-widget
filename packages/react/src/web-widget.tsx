@@ -2,10 +2,14 @@ import type { ReactNode } from "react";
 import { Suspense, lazy, createElement } from "react";
 import type { RenderContext, RenderResult } from "@web-widget/web-server";
 
+export const __ENV__ = {
+  server: true,
+};
+
 const MODULE_REG =
   /\b(?:import|__vite_ssr_dynamic_import__)\(["']([^"']*?)["']\)/;
 
-function getFilename(loader: () => Promise<any>) {
+function getFilename(loader: Loader) {
   const match = String(loader).match(MODULE_REG);
   const id = match?.[1];
   if (!id) {
@@ -32,6 +36,11 @@ type JSONValue =
   | Array<JSONValue>;
 
 type JSONProps = { [x: string]: JSONValue };
+
+type Loader = () => Promise<{
+  render: (context: RenderContext<JSONValue>) => Promise<RenderResult>;
+  default?: any;
+}>;
 
 export interface WebWidgetClientProps {
   base: string;
@@ -64,13 +73,33 @@ export function WebWidgetClient({
   });
 }
 
+export async function renderServerWebWidget(loader: Loader, data: any) {
+  const module = await loader();
+  if (typeof module.render !== "function") {
+    const url = getFilename(loader);
+    throw new Error(`The module does not export a 'render' method: ${url}`);
+  }
+
+  const component = module.default;
+  const result = await module.render({
+    component,
+    data,
+  } as RenderContext<JSONValue>);
+
+  if (result instanceof ReadableStream) {
+    return await streamToString(result);
+  } else if (typeof result === "string") {
+    return result;
+  } else {
+    const url = getFilename(loader);
+    throw new Error(`Render results in an unknown format: ${url}`);
+  }
+}
+
 export interface WebWidgetProps extends WebWidgetClientProps {
   fallback?: ReactNode;
   children?: ReactNode | undefined;
-  loader?: () => Promise<{
-    render: (context: RenderContext<JSONValue>) => Promise<RenderResult>;
-    default?: any;
-  }>;
+  loader?: Loader;
 }
 
 export function WebWidget({
@@ -99,26 +128,8 @@ export function WebWidget({
   const WebWidgetClientFactory = lazy<any>(async () => {
     let innerHTML = "";
 
-    if (recovering && loader) {
-      const module = await loader();
-      if (typeof module.render !== "function") {
-        throw new Error(`The module does not export a 'render' method: ${url}`);
-      }
-
-      const component = module.default;
-      name = name || component?.name;
-      const result = await module.render({
-        component,
-        data,
-      } as RenderContext<JSONValue>);
-
-      if (result instanceof ReadableStream) {
-        innerHTML = await streamToString(result);
-      } else if (typeof result === "string") {
-        innerHTML = result;
-      } else {
-        throw new Error(`Render results in an unknown format: ${url}`);
-      }
+    if (__ENV__.server && recovering && loader) {
+      innerHTML = await renderServerWebWidget(loader, data);
     }
 
     return {
@@ -160,7 +171,7 @@ export interface DefineWebWidgetOptions {
 
 export function defineWebWidget(
   // TODO 使用 loader 的返回类型
-  loader: () => Promise<any>,
+  loader: Loader,
   base: string,
   { loading, name, recovering = true }: DefineWebWidgetOptions = {}
 ) {
@@ -194,7 +205,7 @@ export interface ClientOptions {
 }
 
 export function defineClient(
-  loader: () => Promise<any>,
+  loader: Loader,
   base: string,
   { loading, name }: ClientOptions = {}
 ) {
@@ -206,7 +217,7 @@ export function defineClient(
 }
 
 export function defineClientOnly(
-  loader: () => Promise<any>,
+  loader: Loader,
   base: string,
   { loading, name }: ClientOptions = {}
 ) {
