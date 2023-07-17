@@ -19,7 +19,7 @@ export async function build(root: string) {
   );
 
   await withSpinner(
-    "generate manifest",
+    "generate web-server manifest",
     async () => await entry(builderConfig, serverResult)
   );
 

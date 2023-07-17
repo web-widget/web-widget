@@ -79,47 +79,8 @@ export async function entry(config: BuilderConfig, output: RollupOutput) {
     "};",
   ].join("\n");
 
-  const expressMiddleware = `
-import webServer from "@web-widget/web-server";
-import { createWebRequest, sendWebResponse } from "@web-widget/express";
-import manifest from "./manifest.js";
-
-const router = webServer(manifest);
-
-export default async (req, res, callback) => {
-  const webRequest = createWebRequest(req, res);
-  const webResponse = await router.handler(webRequest);
-
-  await sendWebResponse(res, webResponse);
-};`.trim();
-
-  const koaMiddleware = `
-import webServer from "@web-widget/web-server";
-import { createWebRequest, sendWebResponse } from "@web-widget/koa";
-import manifest from "./manifest.js";
-
-const router = webServer(manifest);
-
-export default async (ctx, next) => {
-  const webRequest = createWebRequest(ctx.request, ctx.response);
-  const webResponse = await router.handler(webRequest);
-
-  await sendWebResponse(ctx.response, webResponse);
-  await next();
-};`.trim();
-
   await fs.writeFile(
     join(fileURLToPath(config.output.server), "manifest.js"),
     manifest
-  );
-
-  await fs.writeFile(
-    join(fileURLToPath(config.output.server), "express-middleware.js"),
-    expressMiddleware
-  );
-
-  await fs.writeFile(
-    join(fileURLToPath(config.output.server), "koa-middleware.js"),
-    koaMiddleware
   );
 }
