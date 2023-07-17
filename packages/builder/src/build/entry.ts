@@ -25,7 +25,6 @@ export async function generateManifest(
   config: BuilderConfig,
   output: RollupOutput
 ) {
-  let code = "export const manifest = {\n";
   function valueToString(value: any) {
     const type = getType(value);
     switch (type) {
@@ -42,32 +41,46 @@ export async function generateManifest(
     }
     throw new TypeError(`Unsupported value: ${value}`);
   }
-  for (const [key, value] of Object.entries(config.input)) {
-    code += `  ${key}:`;
-    if (Array.isArray(value)) {
-      code += " [\n";
-      code += value
-        .map(
-          (item) =>
-            `    {\n` +
-            Array.from(Object.entries(item))
-              .map(([name, value]) => `      ${name}: ` + valueToString(value))
-              .join(",\n") +
-            `\n    },`
-        )
-        .join("\n");
-      code += "\n  ],\n";
-    } else {
-      code +=
-        ` {\n` +
-        Array.from(Object.entries(value))
-          .map(([name, value]) => `    ${name}: ` + valueToString(value))
-          .join(",\n") +
-        `\n  },\n`;
-    }
-  }
 
-  code += "};\n";
+  const code = [
+    "export const manifest = {",
+    Array.from(Object.entries(config.input))
+      .map(
+        ([key, value]) =>
+          `  ${key}:` +
+          (Array.isArray(value)
+            ? [
+                " [",
+                value
+                  .map((item) =>
+                    [
+                      "    {",
+                      Array.from(Object.entries(item))
+                        .map(
+                          ([name, value]) =>
+                            `      ${name}: ` + valueToString(value) + ","
+                        )
+                        .join("\n"),
+                      "    },",
+                    ].join("\n")
+                  )
+                  .join("\n"),
+                "  ],",
+              ].join("\n")
+            : [
+                " {",
+                Array.from(Object.entries(value))
+                  .map(
+                    ([name, value]) =>
+                      `    ${name}: ` + valueToString(value) + ","
+                  )
+                  .join("\n"),
+                "  },",
+              ].join("\n"))
+      )
+      .join("\n"),
+    "};",
+  ].join("\n");
 
   await fs.writeFile(
     join(fileURLToPath(config.output.server), "manifest.js"),
