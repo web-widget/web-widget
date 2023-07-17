@@ -10,49 +10,29 @@
  * becomes:
  *
  * import { defineWebWidget } from "@web-widget/react/web-widget";
- * const MyComponent = defineWebWidget(() => import("../widgets/my-component.jsx"), import.meta.url, {
- *   base: "/",
+ * const MyComponent = defineWebWidget(() => import("../widgets/my-component.jsx"), "/routes/", {
  *   name: "MyComponent",
  *   recovering: true
  * });
  * ...
  * <MyComponent title="My component" />
  */
+import { relative, dirname, join } from "node:path";
 import { declare } from "@babel/helper-plugin-utils";
 import { addNamed } from "@babel/helper-module-imports";
 import { types as t } from "@babel/core";
 import type { PluginPass } from "@babel/core";
 import type { Visitor } from "@babel/traverse";
-import { relative } from "node:path";
 import type { Plugin, PluginOption, ResolvedConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import type { Options } from "@vitejs/plugin-react";
-import { widgets } from "@web-widget/builder/context";
-import { resolve } from "import-meta-resolve";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import type { DefineWebWidgetOptions } from "./web-widget";
-
-let id = 0;
-function createWidgetId() {
-  return `${id++}`;
-}
-
-function createPlaceholder(file: string, importerFile: string) {
-  const id = createWidgetId();
-  const placeholder = `#WIDGET_PLACEHOLDER_${id}`;
-  widgets.push({
-    id,
-    placeholder,
-    file,
-    importerFile,
-  });
-  return placeholder;
-}
 
 function createWebWidgetVariableDeclaration(
   definer: string,
   component: string,
   source: string,
+  base: string,
   options: Record<string, any>
 ) {
   const getType = (object: any) =>
@@ -65,10 +45,7 @@ function createWebWidgetVariableDeclaration(
           [],
           t.callExpression(t.import(), [t.stringLiteral(source)])
         ),
-        t.memberExpression(
-          t.metaProperty(t.identifier("import"), t.identifier("meta")),
-          t.identifier("url")
-        ),
+        t.stringLiteral(base),
         t.objectExpression(
           Object.keys(options).map((key) => {
             const value = options[key];
@@ -153,25 +130,12 @@ function createBabelPlugin(config: { base: string; root: string }) {
             return;
           }
 
-          const importDeclaration = binding.path.parent;
-          const root = config.root || state.cwd;
-          const currentFilename = state.filename;
-          const source = importDeclaration.source.value;
-          const file = resolve(source, pathToFileURL(currentFilename).href);
-          const relativeFile = relative(root, fileURLToPath(file));
-          const importValue = /*config.build.ssr
-            ? createPlaceholder(fileURLToPath(file), currentFilename)
-            :*/ /^\.\.?\//.test(relativeFile)
-            ? relativeFile
-            : "./" + relativeFile;
-
           container.openingElement.attributes =
             container.openingElement.attributes.filter(
               (attr) => attr !== clientAttr
             );
 
           const options: DefineWebWidgetOptions = {
-            base: config.base,
             name: container.openingElement.name.name,
             recovering: clientAttr.name.name !== "clientOnly",
           };
@@ -180,17 +144,23 @@ function createBabelPlugin(config: { base: string; root: string }) {
             options.loading = clientAttr.value.value;
           }
 
+          const importDeclaration = binding.path.parent;
+          const source = importDeclaration.source.value;
           const importName = addNamed(
             path,
             "defineWebWidget",
             "@web-widget/react"
           );
+          const base =
+            config.base +
+            join(relative(config.root, dirname(state.filename)), "/");
 
           binding.path.parentPath?.replaceWith(
             createWebWidgetVariableDeclaration(
               importName.name,
               container.openingElement.name.name,
               source,
+              base,
               options
             )
           );

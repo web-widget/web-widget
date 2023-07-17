@@ -42,8 +42,7 @@
     "@babel/helper-plugin-utils": "^7.22.5",
     "@babel/helper-module-imports": "^7.22.5",
     "@babel/core": "^7.22.5",
-    "@babel/traverse": "^7.22.5",
-    "import-meta-resolve": "^3.0.0"
+    "@babel/traverse": "^7.22.5"
   },
   "devDependencies": {
     "@types/node": "^20.3.1",

@@ -1,19 +1,18 @@
 import type { ReactNode } from "react";
 import { Suspense, lazy, createElement } from "react";
-//import { resolve } from "import-meta-resolve";
+import type { RenderContext, RenderResult } from "@web-widget/web-server";
 
-// @ts-expect-error
-const DEV = import.meta?.env?.DEV;
-// @ts-expect-error
-const BASE_URL = import.meta.env?.BASE_URL || "/";
-// @ts-expect-error
-const WEB_WIDGET_BASE_URL = import.meta.env?.WEB_WIDGET_BASE_URL || BASE_URL;
-
-const RELATIVE_PATH_REG = /^\.\.?\//;
-
-// __vite_ssr_dynamic_import__: https://github.com/vitejs/vite/blob/45c6f3b7601afcb8fccf25864703ee6b50a10da8/packages/vite/src/node/ssr/ssrTransform.ts#L33
 const MODULE_REG =
   /\b(?:import|__vite_ssr_dynamic_import__)\(["']([^"']*?)["']\)/;
+
+function getFilename(loader: () => Promise<any>) {
+  const match = String(loader).match(MODULE_REG);
+  const id = match?.[1];
+  if (!id) {
+    throw new Error(`The url for the module was not found: ${loader}`);
+  }
+  return id;
+}
 
 async function streamToString(stream: ReadableStream): Promise<string> {
   const chunks: Array<any> = [];
@@ -68,51 +67,57 @@ export function WebWidgetClient({
 export interface WebWidgetProps extends WebWidgetClientProps {
   fallback?: ReactNode;
   children?: ReactNode | undefined;
+  loader?: () => Promise<{
+    render: (context: RenderContext<JSONValue>) => Promise<RenderResult>;
+    default?: any;
+  }>;
 }
 
 export function WebWidget({
   base,
+  children,
   data,
   fallback,
   import: url,
+  loader,
   loading,
   name,
   recovering,
-  children,
 }: WebWidgetProps) {
   if (!base) {
     throw new Error(`Missing base`);
   }
 
-  const src = RELATIVE_PATH_REG.test(url) ? base + url : url;
-
   if (children) {
     throw new Error(`No support for 'children'`);
+  }
+
+  if (recovering && !loader) {
+    throw new Error(`Missing loader`);
   }
 
   const WebWidgetClientFactory = lazy<any>(async () => {
     let innerHTML = "";
 
-    if (recovering) {
-      const module = await import(/* @vite-ignore */ src);
-
+    if (recovering && loader) {
+      const module = await loader();
       if (typeof module.render !== "function") {
-        throw new Error(`The module does not export a 'render' method: ${src}`);
+        throw new Error(`The module does not export a 'render' method: ${url}`);
       }
 
       const component = module.default;
       name = name || component?.name;
       const result = await module.render({
         component,
-        data: data,
-      });
+        data,
+      } as RenderContext<JSONValue>);
 
       if (result instanceof ReadableStream) {
         innerHTML = await streamToString(result);
       } else if (typeof result === "string") {
         innerHTML = result;
       } else {
-        throw new Error(`Render results in an unknown format: ${src}`);
+        throw new Error(`Render results in an unknown format: ${url}`);
       }
     }
 
@@ -148,7 +153,6 @@ type WebWidgetFactoryProps = JSONProps & {
 };
 
 export interface DefineWebWidgetOptions {
-  base?: string;
   loading?: string;
   name?: string;
   recovering?: boolean;
@@ -157,23 +161,10 @@ export interface DefineWebWidgetOptions {
 export function defineWebWidget(
   // TODO 使用 loader 的返回类型
   loader: () => Promise<any>,
-  importer: string,
-  {
-    base = WEB_WIDGET_BASE_URL,
-    loading,
-    name,
-    recovering = true,
-  }: DefineWebWidgetOptions = {}
+  base: string,
+  { loading, name, recovering = true }: DefineWebWidgetOptions = {}
 ) {
-  const match = String(loader).match(MODULE_REG);
-  const id = match?.[1];
-
-  if (!id) {
-    throw new Error(`The url for the module was not found: ${loader}`);
-  }
-
-  const url = RELATIVE_PATH_REG.test(id) ? new URL(id, importer).href : id;
-
+  const url = getFilename(loader);
   return function WebWidgetFactory({
     children,
     fallback,
@@ -186,6 +177,7 @@ export function defineWebWidget(
           data,
           fallback,
           import: url,
+          loader,
           loading,
           name,
           recovering,
@@ -197,18 +189,16 @@ export function defineWebWidget(
 }
 
 export interface ClientOptions {
-  base?: string;
   loading?: "lazy";
   name?: string;
 }
 
 export function defineClient(
   loader: () => Promise<any>,
-  importer: string,
-  { base, loading, name }: ClientOptions = {}
+  base: string,
+  { loading, name }: ClientOptions = {}
 ) {
-  return defineWebWidget(loader, importer, {
-    base,
+  return defineWebWidget(loader, base, {
     loading,
     name,
     recovering: true,
@@ -217,11 +207,10 @@ export function defineClient(
 
 export function defineClientOnly(
   loader: () => Promise<any>,
-  importer: string,
-  { base, loading, name }: ClientOptions = {}
+  base: string,
+  { loading, name }: ClientOptions = {}
 ) {
-  return defineWebWidget(loader, importer, {
-    base,
+  return defineWebWidget(loader, base, {
     loading,
     name,
     recovering: false,

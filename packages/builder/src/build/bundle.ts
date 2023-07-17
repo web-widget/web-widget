@@ -39,10 +39,7 @@ async function bundleWithVite(
     cacheDir: fileURLToPath(config.cacheDir),
     publicDir: fileURLToPath(config.publicDir),
     root: fileURLToPath(config.root),
-    define: {
-      "import.meta.env.WEB_WIDGET_BASE_URL": JSON.stringify(config.base),
-      "import.meta.env?.WEB_WIDGET_BASE_URL": JSON.stringify(config.base),
-    },
+    define: {},
     logLevel: config.viteOptions.logLevel ?? "warn",
     ssr: {
       external: [],
