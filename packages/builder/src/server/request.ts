@@ -2,7 +2,7 @@ import type { ServerResponse } from "node:http";
 import { pathToFileURL } from "node:url";
 import { join } from "node:path";
 import type { Connect, ViteDevServer } from "vite";
-import webServer from "@web-widget/web-server";
+import WebServer from "@web-widget/web-server";
 import { getAssets } from "../core/render";
 import type { Manifest } from "@web-widget/web-server";
 import { createWebRequest } from "@web-widget/express";
@@ -17,7 +17,7 @@ export async function handleRequest(
 ) {
   const url = req.url || "";
 
-  const router = webServer(manifest, {
+  const router = new WebServer(manifest, {
     async render(ctx, render) {
       const route = manifest.routes.find(
         (route) => route.pathname === ctx.route
@@ -41,7 +41,7 @@ export async function handleRequest(
         });
         assets.links.forEach(({ props, children }) => {
           // @ts-ignore
-          ctx.links.push(props)
+          ctx.links.push(props);
         });
       }
 
