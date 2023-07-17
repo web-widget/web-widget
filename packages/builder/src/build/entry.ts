@@ -21,10 +21,7 @@ function getModule(output: RollupOutput, url: URL) {
 const getType = (object: any) =>
   Object.prototype.toString.call(object).slice(8, -1).toLocaleLowerCase();
 
-export async function generateManifest(
-  config: BuilderConfig,
-  output: RollupOutput
-) {
+export async function entry(config: BuilderConfig, output: RollupOutput) {
   function valueToString(value: any) {
     const type = getType(value);
     switch (type) {
@@ -42,8 +39,8 @@ export async function generateManifest(
     throw new TypeError(`Unsupported value: ${value}`);
   }
 
-  const code = [
-    "export const manifest = {",
+  const manifest = [
+    "export default {",
     Array.from(Object.entries(config.input))
       .map(
         ([key, value]) =>
@@ -82,10 +79,46 @@ export async function generateManifest(
     "};",
   ].join("\n");
 
+  const expressMiddleware = `
+import webServer from "@web-widget/web-server";
+import { createWebRequest, sendWebResponse } from "@web-widget/express";
+import manifest from "./manifest.js";
+
+const router = webServer(manifest);
+
+export default async (req, res, callback) => {
+  const webRequest = createWebRequest(req, res);
+  const webResponse = await router.handler(webRequest);
+
+  await sendWebResponse(res, webResponse);
+};`.trim();
+
+  const koaMiddleware = `
+import webServer from "@web-widget/web-server";
+import { createWebRequest, sendWebResponse } from "@web-widget/koa";
+import manifest from "./manifest.js";
+
+const router = webServer(manifest);
+
+export default async (ctx, next) => {
+  const webRequest = createWebRequest(ctx.request, ctx.response);
+  const webResponse = await router.handler(webRequest);
+
+  await sendWebResponse(ctx.response, webResponse);
+};`.trim();
+
   await fs.writeFile(
     join(fileURLToPath(config.output.server), "manifest.js"),
-    code
+    manifest
   );
 
-  return code;
+  await fs.writeFile(
+    join(fileURLToPath(config.output.server), "express-middleware.js"),
+    expressMiddleware
+  );
+
+  await fs.writeFile(
+    join(fileURLToPath(config.output.server), "koa-middleware.js"),
+    koaMiddleware
+  );
 }

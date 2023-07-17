@@ -1,7 +1,9 @@
-type ReactJSXIntrinsicAttributes = JSX.IntrinsicAttributes;
+type _IntrinsicAttributes = IntrinsicAttributes;
+type loading = boolean | "lazy";
 
 declare namespace JSX {
-  interface IntrinsicAttributes {
-    client?: boolean | "only" | "visible";
+  interface IntrinsicAttributes extends _IntrinsicAttributes {
+    client?: loading;
+    clientOnly?: loading;
   }
 }

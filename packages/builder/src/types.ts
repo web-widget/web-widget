@@ -55,11 +55,3 @@ export interface BuilderUserConfig {
 }
 
 export interface BuilderConfig extends z.output<typeof BuilderConfigSchema> {}
-
-export interface WidgetDefinition {
-  id: string;
-  placeholder: string;
-  file: string;
-  importerFile: string;
-  entryFilename?: string;
-}

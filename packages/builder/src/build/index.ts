@@ -1,7 +1,7 @@
 import { openConfig } from "../config";
 import { bundle } from "./bundle";
 import { withSpinner, rm } from "./utils";
-import { generateManifest } from "./entry";
+import { entry } from "./entry";
 
 export async function build(root: string) {
   const start = Date.now();
@@ -20,7 +20,7 @@ export async function build(root: string) {
 
   await withSpinner(
     "generate manifest",
-    async () => await generateManifest(builderConfig, serverResult)
+    async () => await entry(builderConfig, serverResult)
   );
 
   // TODO

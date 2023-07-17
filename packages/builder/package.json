@@ -10,14 +10,6 @@
     ".": {
       "types": "./dist/builder.d.ts",
       "import": "./dist/builder.js"
-    },
-    "./entry-server": {
-      "types": "./dist/entry.server.d.ts",
-      "import": "./dist/entry.server.js"
-    },
-    "./context": {
-      "types": "./dist/context.d.ts",
-      "import": "./dist/context.js"
     }
   },
   "types": "./dist/builder.d.ts",
