@@ -31,7 +31,7 @@ export default function ReactWebWidgetVitePlugin(
                 return config.root;
               },
               get isServer() {
-                return !!config.build.ssr;
+                return !!config.build.ssr || config.command === "serve";
               },
             },
           ],
