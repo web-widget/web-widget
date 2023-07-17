@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { RollupOutput } from "rollup";
-import { join, extname } from "pathe";
+import { join, extname } from "node:path";
 import {
   build,
   Plugin,

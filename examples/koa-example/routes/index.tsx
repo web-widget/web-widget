@@ -10,7 +10,7 @@ export default function Home() {
     <div>
       <h1 className={styles.title}>Home</h1>
       <p>
-        Welcome to widget web server. Try to update this message in the
+        Welcome to @web-widget/web-server. Try to update this message in the
         ./routes/index.tsx file, and refresh.
       </p>
       <ReactCounter client name="React Counter" start={3} />

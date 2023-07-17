@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { RollupOutput } from "rollup";
-import { join } from "pathe";
+import { join } from "node:path";
 import { BuilderConfig } from "../types";
 
 function getModule(output: RollupOutput, url: URL) {
