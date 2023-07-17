@@ -1,4 +1,4 @@
-import type { BuilderUserConfig, ViteOptions } from "../types";
+import type { BuilderUserConfig, ViteConfig } from "../types";
 import type { OutgoingHttpHeaders } from "node:http";
 import { z } from "zod";
 
@@ -22,7 +22,7 @@ const BUILDER_CONFIG_DEFAULTS: BuilderUserConfig & any = {
     host: false,
     port: 3000,
   },
-  viteOptions: {},
+  viteConfig: {},
 };
 
 export const BuilderConfigSchema = z.object({
@@ -124,11 +124,11 @@ export const BuilderConfigSchema = z.object({
       .optional()
       .default({})
   ),
-  viteOptions: z
-    .custom<ViteOptions>(
+  viteConfig: z
+    .custom<ViteConfig>(
       (data: any) => data instanceof Object && !Array.isArray(data)
     )
-    .default(BUILDER_CONFIG_DEFAULTS.viteOptions),
+    .default(BUILDER_CONFIG_DEFAULTS.viteConfig),
 });
 
 function appendForwardSlash(path: string) {

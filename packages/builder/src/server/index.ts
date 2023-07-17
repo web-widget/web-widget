@@ -87,7 +87,7 @@ export async function createServer(
     cmd: "server",
     // mode: 'dev'
   });
-  const viteConfig = mergeConfig(builderConfig.viteOptions, {
+  const viteConfig = mergeConfig(builderConfig.viteConfig, {
     root,
     appType: "custom",
     plugins: [createVitePluginServer(builderConfig)],

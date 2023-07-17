@@ -34,13 +34,13 @@ async function bundleWithVite(
   isServer: boolean,
   chunkFileNamesCache: Map<string, string>
 ) {
-  const viteConfig = mergeViteConfig(config.viteOptions, {
+  const viteConfig = mergeViteConfig(config.viteConfig, {
     base: config.base,
     cacheDir: fileURLToPath(config.cacheDir),
     publicDir: fileURLToPath(config.publicDir),
     root: fileURLToPath(config.root),
     define: {},
-    logLevel: config.viteOptions.logLevel ?? "warn",
+    logLevel: config.viteConfig.logLevel ?? "warn",
     ssr: {
       external: [],
       noExternal: [],

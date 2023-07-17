@@ -1,4 +1,4 @@
-import type { UserConfig as ViteOptions } from "vite";
+import type { UserConfig as ViteConfig } from "vite";
 import type { z } from "zod";
 import type { OutgoingHttpHeaders } from "node:http";
 import { BuilderConfigSchema } from "./config/schema";
@@ -40,7 +40,7 @@ export interface Server {
   headers?: OutgoingHttpHeaders;
 }
 
-export { ViteOptions };
+export { ViteConfig };
 
 export interface BuilderUserConfig {
   base?: string;
@@ -51,7 +51,7 @@ export interface BuilderUserConfig {
   input?: Input;
   output?: Output;
   server?: Server | ((options: { command: "dev" | "preview" }) => Server);
-  viteOptions?: ViteOptions;
+  viteConfig?: ViteConfig;
 }
 
 export interface BuilderConfig extends z.output<typeof BuilderConfigSchema> {}
