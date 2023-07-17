@@ -11,5 +11,5 @@ export const tsup: Options = {
   format: ["esm"],
   outDir: "dist",
   clean: true,
-  external: ["virtual:@web-widget/server:user-manifest"],
+  external: [],
 };
