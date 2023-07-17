@@ -34,8 +34,8 @@ export async function render(
     throw new Error("Async components are not supported.");
   }
 
-  const isIsland = !url;
-  const props = isIsland
+  const isWidget = !url;
+  const props = isWidget
     ? data || {}
     : ({
         params: params,

@@ -12,7 +12,7 @@
       "WebWorker"
     ],
     "composite": false,
-    "moduleResolution": "Bundler",
+    "moduleResolution": "Node16",
     "strict": true,
     "declaration": true,
     "rootDir": "./src",

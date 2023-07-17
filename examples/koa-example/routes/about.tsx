@@ -6,7 +6,7 @@ import {
 } from "@web-widget/react";
 
 const Counter = defineClient(
-  () => import("../islands/Counter.tsx"),
+  () => import("../widgets/Counter.tsx"),
   import.meta.url
 );
 

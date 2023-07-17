@@ -1,5 +1,5 @@
-import ReactCounter from "../islands/Counter.tsx";
-import VueCounter from "../islands/CounterVue.ts";
+import ReactCounter from "../widgets/Counter.tsx";
+import VueCounter from "../widgets/CounterVue.ts";
 import { render } from "@web-widget/react";
 import styles from "./index.module.css";
 

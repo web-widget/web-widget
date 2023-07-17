@@ -12,7 +12,7 @@ import { BuilderConfig } from "../types";
 
 type Entrypoints = Record<string, string>;
 
-// Internal: Bundles the Islands app for both client and server.
+// Internal: Bundles the widgets app for both client and server.
 //
 // Multi-entry build: every page is considered an entry chunk.
 export async function bundle(config: BuilderConfig) {

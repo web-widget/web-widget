@@ -13,7 +13,7 @@
       "WebWorker"
     ],
     "composite": false,
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "declaration": true,
