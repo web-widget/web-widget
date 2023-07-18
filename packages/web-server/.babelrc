@@ -1,0 +1,20 @@
+{
+  "plugins": [
+    [
+      "template-html-minifier",
+      {
+        "modules": {
+          "@worker-tools/html": ["html", "unsafeHTML"]
+        },
+        "strictCSS": false,
+        "htmlMinifier": {
+          "collapseWhitespace": true,
+          "conservativeCollapse": true,
+          "removeComments": true,
+          "caseSensitive": true,
+          "minifyCSS": false
+        }
+      }
+    ]
+  ]
+}

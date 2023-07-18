@@ -22,7 +22,7 @@ __ENV__.server = true;
 export async function render(
   context: RenderContext<unknown>
 ): Promise<RenderResult> {
-  const { component, url, params, route, error, data, meta } = context;
+  const { component, url, params, route, error, data } = context;
 
   if (component === undefined) {
     throw new Error("This page does not have a component to render.");

@@ -1,0 +1,47 @@
+{
+  "name": "@web-widget/web-server",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm exec tsup --watch",
+    "build": "pnpm exec tsup && pnpm run html-minifier",
+    "html-minifier": "babel dist/* --out-dir dist"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    }
+  },
+  "types": "./dist/server.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "src",
+    "index.ts",
+    "client.ts"
+  ],
+  "peerDependencies": {
+    "@web-widget/web-widget": "workspace:*"
+  },
+  "dependencies": {
+    "@web-widget/web-widget": "workspace:*",
+    "@worker-tools/html": "^2.0.0-pre.13",
+    "whatwg-stream-to-async-iter": "^0.6.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.22.9",
+    "@babel/core": "^7.22.5",
+    "@babel/preset-env": "^7.22.9",
+    "babel-plugin-template-html-minifier": "^4.1.0",
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.4",
+    "urlpattern-polyfill": "^9.0.0"
+  }
+}
