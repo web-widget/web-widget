@@ -2,6 +2,7 @@ import {
   render,
   defineClient,
   Handlers,
+  Meta,
   ComponentProps,
 } from "@web-widget/react";
 
@@ -16,8 +17,16 @@ type AboutPageProps = {
 
 export { render };
 
+export const meta: Meta[] = [
+  {
+    title: "Hello, Web widget.",
+  },
+];
+
 export const handler: Handlers<AboutPageProps> = {
   async GET(req, ctx) {
+    console.log(ctx.meta);
+
     const resp = await ctx.render({
       data: {
         name: "Hello world",
