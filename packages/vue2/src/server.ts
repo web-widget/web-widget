@@ -40,9 +40,7 @@ export async function render(
       } as ComponentProps<any> | UnknownComponentProps | ErrorComponentProps);
 
   const renderer = createRenderer();
-  // @ts-expect-error
   const app = new Vue({
-    // @ts-expect-error
     render(h) {
       return h(component, props as Record<string, any>);
     },
