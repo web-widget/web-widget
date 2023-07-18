@@ -1,14 +1,18 @@
-import { ComponentType } from "react";
+import { ComponentType, createElement } from "react";
 // import { HEAD_CONTEXT } from "./head";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import { jsx } from "./jsx-runtime";
 import type {
   RenderContext,
   RenderResult,
   Render,
 } from "@web-widget/web-server/client";
+import { __ENV__ } from "./web-widget";
 
+export * from "./web-widget";
+export { WebWidget as default } from "./web-widget";
 export { RenderContext, RenderResult, Render };
+
+__ENV__.server = false;
 
 export async function render(
   context: RenderContext<unknown>
@@ -25,11 +29,14 @@ export async function render(
 
   const props = data || {};
 
-  // const vnode = jsx(HEAD_CONTEXT.Provider, {
-  //   children: jsx(component! as ComponentType<unknown>, props),
+  // const vnode = createElement(HEAD_CONTEXT.Provider, {
+  //   children: createElement(component! as ComponentType<unknown>, props),
   // });
 
-  const vnode = jsx(component! as ComponentType<unknown>, props);
-  const create = recovering ? hydrateRoot : createRoot;
-  create(container, vnode);
+  const vnode = createElement(component! as ComponentType<unknown>, props);
+  if (recovering) {
+    hydrateRoot(container, vnode);
+  } else {
+    createRoot(container).render(vnode);
+  }
 }

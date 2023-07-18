@@ -32,7 +32,11 @@ async function executeCommand(command: string) {
         process.exit(1);
       });
   } else if (command === "build") {
-    throw new Error("Not yet supported");
+    const { build } = await import("./build");
+    build(root).catch((err: any) => {
+      console.error(pc.red("build error:\n"), err);
+      process.exit(1);
+    });
   } else if (command === "preview") {
     throw new Error("Not yet supported");
   } else {

@@ -1,23 +1,28 @@
-import { ComponentType } from "react";
-// import { HEAD_CONTEXT } from "./head";
-import { jsx } from "./jsx-runtime";
-import type {
-  Handlers,
-  RenderContext,
-  RenderResult,
-  ComponentProps,
-  UnknownComponentProps,
-  ErrorComponentProps,
-} from "@web-widget/web-server";
+import { ComponentType, createElement } from "react";
 // @ts-ignore
 import * as ReactDOMServer from "react-dom/server.browser";
+// import { HEAD_CONTEXT } from "./head";
+import type {
+  ComponentProps,
+  ErrorComponentProps,
+  Handlers,
+  Meta,
+  RenderContext,
+  RenderResult,
+  UnknownComponentProps,
+} from "@web-widget/web-server";
+import { __ENV__ } from "./web-widget";
 
-export type { Handlers, ComponentProps };
+export * from "./web-widget";
+export { WebWidget as default } from "./web-widget";
+export type { ComponentProps, Handlers, Meta };
+
+__ENV__.server = true;
 
 export async function render(
   context: RenderContext<unknown>
 ): Promise<RenderResult> {
-  const { component, url, params, route, error, data } = context;
+  const { component, url, params, route, error, data, meta } = context;
 
   if (component === undefined) {
     throw new Error("This page does not have a component to render.");
@@ -30,22 +35,22 @@ export async function render(
     throw new Error("Async components are not supported.");
   }
 
-  const isIsland = !url;
-  const props = isIsland
+  const isWidget = !url;
+  const props = isWidget
     ? data || {}
     : ({
-        params: params,
-        url: url,
-        route: route,
-        data: data,
+        data,
         error: error,
+        params: params,
+        route: route,
+        url: url,
       } as ComponentProps<any> | UnknownComponentProps | ErrorComponentProps);
 
-  // const vnode = jsx(HEAD_CONTEXT.Provider, {
-  //   children: jsx(component! as ComponentType<unknown>, props),
+  // const vnode = createElement(HEAD_CONTEXT.Provider, {
+  //   children: createElement(component! as ComponentType<unknown>, props),
   // });
 
-  const vnode = jsx(component! as ComponentType<unknown>, props);
+  const vnode = createElement(component! as ComponentType<unknown>, props);
 
   return ReactDOMServer.renderToReadableStream(vnode);
 }

@@ -8,23 +8,23 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/react.server.d.ts",
-      "browser": "./dist/react.client.js",
-      "default": "./dist/react.server.js"
-    },
-    "./jsx-runtime": {
-      "types": "./dist/jsx-runtime.d.ts",
-      "default": "./dist/jsx-runtime.js"
-    },
-    "./jsx-dev-runtime": {
-      "types": "./dist/jsx-dev-runtime.d.ts",
-      "default": "./dist/jsx-dev-runtime.js"
+      "browser": {
+        "types": "./dist/react.client.d.ts",
+        "default": "./dist/react.client.js"
+      },
+      "default": {
+        "types": "./dist/react.server.d.ts",
+        "default": "./dist/react.server.js"
+      }
     },
     "./babel-plugin": {
       "types": "./dist/babel-plugin.d.ts",
       "default": "./dist/babel-plugin.js"
     },
-    "./*.js": "./*.js"
+    "./vite-plugin": {
+      "types": "./dist/vite-plugin.d.ts",
+      "default": "./dist/vite-plugin.js"
+    }
   },
   "types": "./dist/react.server.d.ts",
   "files": [
@@ -37,16 +37,21 @@
   },
   "peerDependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "vite": "^4.3.9",
+    "@vitejs/plugin-react": "^4.0.2",
+    "@web-widget/builder": "workspace:*"
   },
   "dependencies": {
     "@babel/helper-plugin-utils": "^7.22.5",
+    "@babel/helper-module-imports": "^7.22.5",
     "@babel/core": "^7.22.5",
     "@babel/traverse": "^7.22.5"
   },
   "devDependencies": {
     "@types/node": "^20.3.1",
     "@types/babel__helper-plugin-utils": "^7.10.0",
+    "@types/babel__helper-module-imports": "^7.18.0",
     "@types/babel__core": "^7.20.1",
     "@types/babel__traverse": "^7.20.1",
     "@types/react": "^18.2.9",

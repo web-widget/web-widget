@@ -1,25 +1,102 @@
 /**
- * This adds component source path to JSX tags.
+ * This adds web-widget source path to JSX tags.
  *
  * == JSX Literals ==
  *
- * <MyComponent widget />
+ * import MyComponent from "../widgets/my-component.jsx";
+ * ...
+ * <MyComponent client title="My component" />
  *
  * becomes:
  *
- * <MyComponent widget={{ import: new URL("../widgets/MyComponent", import.meta.url), base: import.meta.url }} />
+ * import { defineWebWidget } from "@web-widget/react/web-widget";
+ * const MyComponent = defineWebWidget(() => import("../widgets/my-component.jsx"), "/routes/", {
+ *   name: "MyComponent",
+ *   recovering: true
+ * });
+ * ...
+ * <MyComponent title="My component" />
  */
-import { declare } from '@babel/helper-plugin-utils';
-import { type PluginPass, types as t } from '@babel/core';
-import type { Visitor } from '@babel/traverse';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from "node:url";
+import { relative, dirname, join } from "node:path";
+import { declare } from "@babel/helper-plugin-utils";
+import { addNamed } from "@babel/helper-module-imports";
+import { types as t } from "@babel/core";
+import type { PluginPass } from "@babel/core";
+import type { Visitor } from "@babel/traverse";
+import type { DefineWebWidgetOptions } from "./web-widget";
+
+function createWebWidgetVariableDeclaration(
+  definer: string,
+  component: string,
+  source: string,
+  base: string,
+  options: Record<string, any>
+) {
+  const getType = (object: any) =>
+    Object.prototype.toString.call(object).slice(8, -1).toLocaleLowerCase();
+  return t.variableDeclaration("const", [
+    t.variableDeclarator(
+      t.identifier(component),
+      t.callExpression(t.identifier(definer), [
+        t.arrowFunctionExpression(
+          [],
+          t.callExpression(t.import(), [t.stringLiteral(source)])
+        ),
+        t.stringLiteral(base),
+        t.objectExpression(
+          Object.keys(options).map((key) => {
+            const value = options[key];
+            const type = getType(value);
+
+            switch (type) {
+              case "string":
+                return t.objectProperty(
+                  t.identifier(key),
+                  t.stringLiteral(value)
+                );
+              case "number":
+                return t.objectProperty(
+                  t.identifier(key),
+                  t.numericLiteral(value)
+                );
+              case "boolean":
+                return t.objectProperty(
+                  t.identifier(key),
+                  t.booleanLiteral(value)
+                );
+              case "null":
+                return t.objectProperty(t.identifier(key), t.nullLiteral());
+            }
+
+            throw new Error(`Type not supported: ${key}=${value}`);
+          })
+        ),
+      ])
+    ),
+  ]);
+}
+
+export type Config = {
+  base: string;
+  root: string;
+  isServer: boolean;
+};
 
 export default declare((api) => {
   api.assertVersion(7);
 
+  let config: Config;
   const visitor: Visitor<PluginPass> = {
+    Program: {
+      enter(path, { opts }) {
+        config = opts as Config;
+      },
+    },
     JSXOpeningElement(path, state) {
+      if (!state.filename) {
+        return;
+      }
+
       const name = path.node.name;
       let bindingName: string;
       if (t.isJSXIdentifier(name)) {
@@ -37,85 +114,70 @@ export default declare((api) => {
       }
 
       const binding = path.scope.getBinding(bindingName);
-      if (binding?.path.parent.type === 'ImportDeclaration') {
-        const source = (binding?.path.parent as t.ImportDeclaration).source;
-        const attributes = (path.container as t.JSXElement).openingElement
-          .attributes;
-        for (let i = 0; i < attributes.length; i++) {
-          const name = (attributes[i] as t.JSXAttribute).name;
-          if (name?.name === 'widget') {
-            // TODO 保留用户原始的 props
-            (attributes[i] as t.JSXAttribute).value = t.jsxExpressionContainer(t.objectExpression([
-              t.objectProperty(
-                t.identifier('import'),
-                // t.newExpression(t.identifier('URL'), [
-                //   {
-                //     ...t.stringLiteral(source.value),
-                //     // leadingComments: [{
-                //     //   "type": "CommentBlock",
-                //     //   "value": "@web-widget",
-                //     // }]
-                //   },
-                //   t.memberExpression(
-                //     t.metaProperty(t.identifier('import'), t.identifier('meta')),
-                //     t.identifier('url'),
-                //   )
-                // ]),
-                t.stringLiteral(source.value),
-              ),
 
-              // t.objectProperty(
-              //   t.identifier('base'),
-              //   t.memberExpression(
-              //     t.metaProperty(t.identifier('import'), t.identifier('meta')),
-              //     t.identifier('url'),
-              //   )
-              // ),
+      if (binding && t.isImportDeclaration(binding.path.parent)) {
+        // TODO Remove: `as t.JSXElement`
+        const container = path.container as t.JSXElement;
 
-              // t.objectProperty(
-              //   t.identifier('base'),
-              //   t.logicalExpression(
-              //     '??',
-              //     t.optionalMemberExpression(
-              //       t.optionalMemberExpression(
-              //         t.metaProperty(
-              //           t.identifier('import'),
-              //           t.identifier('meta')
-              //         ),
-              //         t.identifier('env'),
-              //         false,
-              //         true
-              //       ),
-              //       t.identifier('BASE_URL'),
-              //       false,
-              //       true
-              //     ),
-              //     t.stringLiteral('/')
-              //   ),
-              // ),
-
-              t.objectProperty(
-                t.identifier('base'),
-                t.stringLiteral(join(
-                  state.filename
-                  ? dirname(state.filename.replace(state.cwd, ''))
-                  : '/',
-                '/'))
-              ),
-
-              t.objectProperty(
-                t.identifier('src'),
-                t.stringLiteral(state.filename ? join(dirname(state.filename), source.value) : ''),
-              ),
-            ]));
-          }
+        if (!t.isJSXElement(container)) {
+          return;
         }
+
+        if (!t.isJSXIdentifier(container.openingElement.name)) {
+          return;
+        }
+
+        const attributes = container.openingElement.attributes;
+        const clientAttr = attributes.find(
+          (attr) =>
+            t.isJSXAttribute(attr) &&
+            (attr.name.name === "client" || attr.name.name === "clientOnly")
+        ) as t.JSXAttribute;
+
+        if (!clientAttr) {
+          return;
+        }
+
+        container.openingElement.attributes =
+          container.openingElement.attributes.filter(
+            (attr) => attr !== clientAttr
+          );
+
+        const options: DefineWebWidgetOptions = {
+          name: container.openingElement.name.name,
+          recovering: config.isServer && clientAttr.name.name !== "clientOnly",
+        };
+
+        if (t.isStringLiteral(clientAttr.value) && clientAttr.value.value) {
+          options.loading = clientAttr.value.value;
+        }
+
+        const importDeclaration = binding.path.parent;
+        const source = importDeclaration.source.value;
+        const importName = addNamed(
+          path,
+          "defineWebWidget",
+          "@web-widget/react"
+        );
+        const base =
+          config.base +
+          join(relative(config.root, dirname(state.filename)), "/");
+
+        binding.path.parentPath?.replaceWith(
+          createWebWidgetVariableDeclaration(
+            importName.name,
+            container.openingElement.name.name,
+            source,
+            base,
+            options
+          )
+        );
       }
-    }
+    },
   };
 
   return {
-    name: '@web-widget/react:transform-jsx',
-    visitor
+    name: "@web-widget/react:web-widget",
+    visitor,
   };
 });

@@ -1,77 +1,34 @@
-import { createWebRequest } from "@web-widget/koa";
-import { fileURLToPath } from "url";
-import fs from "node:fs";
 import Koa from "koa";
-import koaConnect from "koa-connect";
 import koaSend from "koa-send";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import WebServer from "@web-widget/web-server";
+import { createWebRequest, sendWebResponse } from "@web-widget/koa";
+import manifest from "./dist/server/manifest.js";
 
-const isTest = process.env.VITEST;
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const resolve = (p) => path.resolve(__dirname, p);
 const clientRoot = resolve("dist/client");
 
-async function createServer(
-  root = process.cwd(),
-  isProd = process.env.NODE_ENV === "production"
-) {
-  let viteServer;
-  const app = new Koa();
-  const manifest = isProd
-    ? JSON.parse(
-        fs.readFileSync(resolve("dist/client/ssr-manifest.json"), "utf-8")
-      )
-    : {};
+const app = new Koa();
 
-  if (!isProd) {
-    const { createServer } = await import("vite");
-    viteServer = await createServer({
-      root,
-      logLevel: isTest ? "error" : "info",
-      server: { middlewareMode: true },
-      appType: "custom",
-    });
-
-    app.use(koaConnect(viteServer.middlewares));
-  } else {
-    if (ctx.path.startsWith("/assets")) {
-      await koaSend(ctx, ctx.path, { root: clientRoot });
-      return;
-    }
+app.use(async (ctx, next) => {
+  if (ctx.path.startsWith("/assets")) {
+    await koaSend(ctx, ctx.path, { root: clientRoot });
+    return;
   }
+  await next();
+});
 
-  let render;
-  if (!isProd) {
-    render = (await viteServer.ssrLoadModule("/entry-server.ts")).render;
-  } else {
-    render = (await import("./dist/server/entry-server.js")).render;
-  }
+const webServer = new WebServer(manifest);
+app.use(async (ctx, next) => {
+  const webRequest = createWebRequest(ctx.request, ctx.response);
+  const webResponse = await webServer.handler(webRequest);
 
-  app.use(async (ctx) => {
-    try {
-      const webRequest = createWebRequest(ctx.request, ctx.response);
-      const webResponse = await render(webRequest, manifest);
-      if (!isProd) {
-        const html = await webResponse.text();
-        ctx.type = "text/html";
-        ctx.body = await viteServer.transformIndexHtml(ctx.path, html);
-      } else {
-        // TODO webResponse -> koaResponse
-      }
-    } catch (e) {
-      viteServer && viteServer.ssrFixStacktrace(e);
-      console.log(e.stack);
-      ctx.throw(500, e.stack);
-    }
-  });
+  await sendWebResponse(ctx.response, webResponse);
+  await next();
+});
 
-  return app;
-}
-
-if (!isTest) {
-  createServer().then((app) => {
-    app.listen(9000, () => {
-      console.log("http://localhost:9000");
-    });
-  });
-}
+app.listen(9000, () => {
+  console.log("http://localhost:9000");
+});

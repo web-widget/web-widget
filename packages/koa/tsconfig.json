@@ -16,7 +16,7 @@
       "WebWorker"
     ],
     "composite": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "strict": true,
     "declaration": true,
     "rootDir": ".",

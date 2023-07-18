@@ -13,12 +13,13 @@
       "WebWorker"
     ],
     "composite": false,
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "strict": true,
     "declaration": true,
     "rootDir": "./src",
     "outDir": "./dist",
     "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx"
   }
 }
