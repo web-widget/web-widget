@@ -42,7 +42,8 @@ export function htmlEscapeJsonString(str: string): string {
 }
 
 export const unsafeAttributeName = (value: string) =>
-  value.replace(/([A-Z])/g, "-$1").toLowerCase();
+  value /*.replace(/([A-Z])/g, "-$1")*/
+    .toLowerCase();
 export const unsafeAttributeValue = (value: string) =>
   value.replace(/"/g, "&quot;");
 

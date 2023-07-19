@@ -13,20 +13,16 @@ import { Meta, DocumentLink } from "@web-widget/web-server";
 import { parse, init } from "es-module-lexer";
 
 type Entrypoints = Record<string, string>;
+type FileNamesCache = [Map<string, string>, Map<string, string>];
 
 // Internal: Bundles the widgets app for both client and server.
 //
 // Multi-entry build: every page is considered an entry chunk.
 export async function bundle(config: BuilderConfig) {
-  const chunkFileNamesCache = new Map();
+  const cache = [new Map(), new Map()] as FileNamesCache;
   const entrypoints = resolveEntrypoints(config);
 
-  const clientResult = await bundleWithVite(
-    config,
-    entrypoints,
-    false,
-    chunkFileNamesCache
-  );
+  const clientResult = await bundleWithVite(config, entrypoints, false, cache);
 
   const meta = getMeta(clientResult);
 
@@ -34,7 +30,7 @@ export async function bundle(config: BuilderConfig) {
     config,
     entrypoints,
     true,
-    chunkFileNamesCache,
+    cache,
     meta
   );
 
@@ -47,7 +43,7 @@ async function bundleWithVite(
   config: BuilderConfig,
   entrypoints: string[] | Entrypoints,
   isServer: boolean,
-  chunkFileNamesCache: Map<string, string>,
+  cache: FileNamesCache,
   meta?: Meta
 ) {
   const vite = mergeViteConfig(config.vite, {
@@ -65,7 +61,7 @@ async function bundleWithVite(
       !isServer && removeEntryPlugin(),
       isServer && injectionMetaPlugin(meta),
       isServer && addESMPackagePlugin(config),
-      chunkFileNamesPlugin(chunkFileNamesCache),
+      chunkFileNamesPlugin(cache),
     ],
     build: {
       ssr: isServer,
@@ -120,43 +116,70 @@ function resolveEntrypoints(config: BuilderConfig): Entrypoints {
 }
 
 // NOTE: Keep the relative paths of assets on the client and server consistent.
-function chunkFileNamesPlugin(
-  chunkFileNamesCache: Map<string, string>
-): Plugin {
-  return {
-    name: "builder:filename",
-    generateBundle(options, bundle) {
-      Object.keys(bundle).forEach((filename) => {
-        const chunk = bundle[filename];
-        const type = chunk.type;
+function chunkFileNamesPlugin([
+  oldFileNameCache,
+  renamed,
+]: FileNamesCache): Plugin[] {
+  return [
+    {
+      name: "builder:fileNames:rename-chunks",
+      enforce: "pre",
+      generateBundle(options, bundle) {
+        Object.keys(bundle).forEach((fileName) => {
+          const chunk = bundle[fileName];
+          const type = chunk.type;
 
-        if (type === "chunk" && chunk.facadeModuleId) {
-          if (chunkFileNamesCache.has(chunk.facadeModuleId)) {
-            const fixedname = chunkFileNamesCache.get(
-              chunk.facadeModuleId
-            ) as string;
-            chunk.fileName = fixedname;
-            bundle[fixedname] = chunk;
-            delete bundle[filename];
-          } else {
-            chunkFileNamesCache.set(chunk.facadeModuleId, filename);
+          if (type === "chunk" && chunk.facadeModuleId) {
+            if (oldFileNameCache.has(chunk.facadeModuleId)) {
+              const oldFileName = chunk.fileName;
+              const newFileName = oldFileNameCache.get(
+                chunk.facadeModuleId
+              ) as string;
+
+              renamed.set(oldFileName, newFileName);
+              chunk.fileName = newFileName;
+              bundle[newFileName] = chunk;
+              delete bundle[oldFileName];
+            } else {
+              oldFileNameCache.set(chunk.facadeModuleId, fileName);
+            }
           }
-        }
-      });
+        });
+      },
     },
-  };
+    {
+      name: "builder:fileNames:rename-imports",
+      enforce: "post",
+      generateBundle(options, bundle) {
+        const rename = (fileName: string) => renamed.get(fileName) || fileName;
+
+        Object.keys(bundle).forEach((fileName) => {
+          const chunk = bundle[fileName];
+          const type = chunk.type;
+          if (type === "chunk") {
+            chunk.imports = chunk.imports.map(rename);
+            chunk.dynamicImports = chunk.dynamicImports.map(rename);
+            for (const [oldFileName, newFileName] of renamed) {
+              const newCode = chunk.code.replaceAll(oldFileName, newFileName);
+              chunk.code = newCode;
+            }
+          }
+        });
+      },
+    },
+  ];
 }
 
 function removeEntryPlugin(): Plugin {
   return {
-    name: "builder:client-js-removal",
+    name: "builder:remove-entry",
     generateBundle(options, bundle) {
-      Object.keys(bundle).forEach((filename) => {
-        const chunk = bundle[filename];
+      Object.keys(bundle).forEach((fileName) => {
+        const chunk = bundle[fileName];
         const type = chunk.type;
 
         if (type === "chunk" && chunk.isEntry) {
-          delete bundle[filename];
+          delete bundle[fileName];
         }
       });
     },
@@ -169,8 +192,8 @@ function injectionMetaPlugin(meta: Meta): Plugin {
     async generateBundle(options, bundle) {
       await init;
 
-      Object.keys(bundle).forEach((filename) => {
-        const chunk = bundle[filename];
+      Object.keys(bundle).forEach((fileName) => {
+        const chunk = bundle[fileName];
         const type = chunk.type;
 
         if (type !== "chunk" || !chunk.isEntry) {
@@ -182,11 +205,11 @@ function injectionMetaPlugin(meta: Meta): Plugin {
         if (exports.find(({ s, e }) => chunk.code.slice(s, e) === "meta")) {
           chunk.code += `
 try {
-  const link = ${JSON.stringify(meta.link)};
+  const assets = ${JSON.stringify(meta.link)};
   if (meta.link) {
-    meta.link = meta.link.push(...link);
+    meta.link = Array.isArray(meta.link) ? meta.link.push(...assets) : [assets];
   } else {
-    meta.link = link;
+    meta.link = assets;
   }
 } catch(e) {
   throw new Error("Builder: No meta variable found.", e);
@@ -206,7 +229,7 @@ export const meta = {
 // Internal: Add a `package.json` file specifying the type of files as MJS.
 function addESMPackagePlugin(config: BuilderConfig) {
   return {
-    name: "builder:add-common-js-package-plugin",
+    name: "builder:add-esm-package",
     async writeBundle() {
       await fs.writeFile(
         join(fileURLToPath(config.output.server), "package.json"),
@@ -222,7 +245,7 @@ function getMeta(clientResult: RollupOutput): Meta {
   };
 
   for (const chunk of clientResult.output.values()) {
-    const fileName = "./" + chunk.fileName;
+    const fileName = chunk.fileName;
     const type = chunk.type;
     const asset = type === "asset";
 
