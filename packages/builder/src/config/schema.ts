@@ -22,7 +22,7 @@ const BUILDER_CONFIG_DEFAULTS: BuilderUserConfig & any = {
     host: false,
     port: 3000,
   },
-  viteConfig: {},
+  vite: {},
 };
 
 export const BuilderConfigSchema = z.object({
@@ -124,11 +124,11 @@ export const BuilderConfigSchema = z.object({
       .optional()
       .default({})
   ),
-  viteConfig: z
+  vite: z
     .custom<ViteConfig>(
       (data: any) => data instanceof Object && !Array.isArray(data)
     )
-    .default(BUILDER_CONFIG_DEFAULTS.viteConfig),
+    .default(BUILDER_CONFIG_DEFAULTS.vite),
 });
 
 function appendForwardSlash(path: string) {

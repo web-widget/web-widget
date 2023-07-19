@@ -210,7 +210,7 @@ function mergeConfigRecursively(
     }
 
     // fields that require special handling:
-    if (key === "viteConfig" && rootPath === "") {
+    if (key === "vite" && rootPath === "") {
       merged[key] = mergeViteConfig(existing, value);
       continue;
     }

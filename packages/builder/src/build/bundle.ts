@@ -34,13 +34,13 @@ async function bundleWithVite(
   isServer: boolean,
   chunkFileNamesCache: Map<string, string>
 ) {
-  const viteConfig = mergeViteConfig(config.viteConfig, {
+  const vite = mergeViteConfig(config.vite, {
     base: config.base,
     cacheDir: fileURLToPath(config.cacheDir),
     publicDir: fileURLToPath(config.publicDir),
     root: fileURLToPath(config.root),
     define: {},
-    logLevel: config.viteConfig.logLevel ?? "warn",
+    logLevel: config.vite.logLevel ?? "warn",
     ssr: {
       external: [],
       noExternal: [],
@@ -76,7 +76,7 @@ async function bundleWithVite(
       },
     },
   } as ViteUserConfig);
-  return (await build(viteConfig)) as RollupOutput;
+  return (await build(vite)) as RollupOutput;
 }
 
 function resolveEntrypoints(config: BuilderConfig): Entrypoints {

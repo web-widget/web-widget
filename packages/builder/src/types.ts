@@ -51,7 +51,7 @@ export interface BuilderUserConfig {
   input?: Input;
   output?: Output;
   server?: Server | ((options: { command: "dev" | "preview" }) => Server);
-  viteConfig?: ViteConfig;
+  vite?: ViteConfig;
 }
 
 export interface BuilderConfig extends z.output<typeof BuilderConfigSchema> {}

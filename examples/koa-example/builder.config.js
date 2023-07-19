@@ -33,7 +33,7 @@ export default defineConfig({
       module: "./routes/_404.tsx",
     },
   },
-  viteConfig: {
+  vite: {
     plugins: [react(), vue()],
   },
 });
