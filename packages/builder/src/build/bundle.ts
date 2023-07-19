@@ -182,19 +182,19 @@ function injectionMetaPlugin(meta: Meta): Plugin {
         if (exports.find(({ s, e }) => chunk.code.slice(s, e) === "meta")) {
           chunk.code += `
 try {
-var link = ${JSON.stringify(meta.link)};
-if (meta.link) {
-  meta.link = meta.link.push(...link);
-} else {
-  meta.link = link;
-}
+  const link = ${JSON.stringify(meta.link)};
+  if (meta.link) {
+    meta.link = meta.link.push(...link);
+  } else {
+    meta.link = link;
+  }
 } catch(e) {
   throw new Error("Builder: No meta variable found.", e);
 }`;
         } else {
           chunk.code += `
 export const meta = {
-link: ${JSON.stringify(meta.link)}
+  link: ${JSON.stringify(meta.link)}
 };
 `;
         }
