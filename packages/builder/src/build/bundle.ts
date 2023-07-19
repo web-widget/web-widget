@@ -9,6 +9,8 @@ import {
   UserConfig as ViteUserConfig,
 } from "vite";
 import { BuilderConfig } from "../types";
+import { Meta, DocumentLink } from "@web-widget/web-server";
+import { parse, init } from "es-module-lexer";
 
 type Entrypoints = Record<string, string>;
 
@@ -18,10 +20,23 @@ type Entrypoints = Record<string, string>;
 export async function bundle(config: BuilderConfig) {
   const chunkFileNamesCache = new Map();
   const entrypoints = resolveEntrypoints(config);
-  const [clientResult, serverResult] = await Promise.all([
-    bundleWithVite(config, entrypoints, false, chunkFileNamesCache),
-    bundleWithVite(config, entrypoints, true, chunkFileNamesCache),
-  ]);
+
+  const clientResult = await bundleWithVite(
+    config,
+    entrypoints,
+    false,
+    chunkFileNamesCache
+  );
+
+  const meta = getMeta(clientResult);
+
+  const serverResult = await bundleWithVite(
+    config,
+    entrypoints,
+    true,
+    chunkFileNamesCache,
+    meta
+  );
 
   return { clientResult, serverResult };
 }
@@ -32,7 +47,8 @@ async function bundleWithVite(
   config: BuilderConfig,
   entrypoints: string[] | Entrypoints,
   isServer: boolean,
-  chunkFileNamesCache: Map<string, string>
+  chunkFileNamesCache: Map<string, string>,
+  meta?: Meta
 ) {
   const vite = mergeViteConfig(config.vite, {
     base: config.base,
@@ -47,6 +63,7 @@ async function bundleWithVite(
     },
     plugins: [
       !isServer && removeEntryPlugin(),
+      isServer && injectionMetaPlugin(meta),
       isServer && addESMPackagePlugin(config),
       chunkFileNamesPlugin(chunkFileNamesCache),
     ],
@@ -121,9 +138,9 @@ function chunkFileNamesPlugin(
             chunk.fileName = fixedname;
             bundle[fixedname] = chunk;
             delete bundle[filename];
+          } else {
+            chunkFileNamesCache.set(chunk.facadeModuleId, filename);
           }
-
-          chunkFileNamesCache.set(chunk.facadeModuleId, filename);
         }
       });
     },
@@ -146,6 +163,46 @@ function removeEntryPlugin(): Plugin {
   };
 }
 
+function injectionMetaPlugin(meta: Meta): Plugin {
+  return {
+    name: "builder:injection-meta",
+    async generateBundle(options, bundle) {
+      await init;
+
+      Object.keys(bundle).forEach((filename) => {
+        const chunk = bundle[filename];
+        const type = chunk.type;
+
+        if (type !== "chunk" || !chunk.isEntry) {
+          return;
+        }
+
+        const [_, exports] = parse(chunk.code);
+
+        if (exports.find(({ s, e }) => chunk.code.slice(s, e) === "meta")) {
+          chunk.code += `
+try {
+var link = ${JSON.stringify(meta.link)};
+if (meta.link) {
+  meta.link = meta.link.push(...link);
+} else {
+  meta.link = link;
+}
+} catch(e) {
+  throw new Error("Builder: No meta variable found.", e);
+}`;
+        } else {
+          chunk.code += `
+export const meta = {
+link: ${JSON.stringify(meta.link)}
+};
+`;
+        }
+      });
+    },
+  };
+}
+
 // Internal: Add a `package.json` file specifying the type of files as MJS.
 function addESMPackagePlugin(config: BuilderConfig) {
   return {
@@ -157,4 +214,71 @@ function addESMPackagePlugin(config: BuilderConfig) {
       );
     },
   };
+}
+
+function getMeta(clientResult: RollupOutput): Meta {
+  const meta = {
+    link: [] as DocumentLink[],
+  };
+
+  for (const chunk of clientResult.output.values()) {
+    const fileName = "./" + chunk.fileName;
+    const type = chunk.type;
+    const asset = type === "asset";
+
+    if (fileName.endsWith(".js")) {
+      meta.link!.push({
+        crossOrigin: true,
+        href: fileName,
+        rel: "modulepreload",
+      });
+    } else if (asset && fileName.endsWith(".css")) {
+      meta.link!.push({
+        href: fileName,
+        rel: "stylesheet",
+      });
+    } else if (asset && fileName.endsWith(".woff")) {
+      meta.link!.push({
+        as: "font",
+        crossOrigin: true,
+        href: fileName,
+        rel: "preload",
+        type: "font/woff",
+      });
+    } else if (asset && fileName.endsWith(".woff2")) {
+      meta.link!.push({
+        as: "font",
+        crossOrigin: true,
+        href: fileName,
+        rel: "preload",
+        type: "font/woff2",
+      });
+    } else if (asset && fileName.endsWith(".gif")) {
+      meta.link!.push({
+        as: "image",
+        href: fileName,
+        rel: "preload",
+        type: "image/gif",
+      });
+    } else if (
+      asset &&
+      (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg"))
+    ) {
+      meta.link!.push({
+        as: "image",
+        href: fileName,
+        rel: "preload",
+        type: "image/jpeg",
+      });
+    } else if (asset && fileName.endsWith(".png")) {
+      meta.link!.push({
+        as: "image",
+        href: fileName,
+        rel: "preload",
+        type: "image/png",
+      });
+    }
+  }
+
+  return meta;
 }

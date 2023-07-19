@@ -10,100 +10,76 @@ import { Meta, RenderResult, ComponentProps } from "./types";
 
 export { render } from "./html";
 
-function isValidMetaTag(tagName: unknown): tagName is "meta" | "link" {
-  return typeof tagName === "string" && /^(meta|link)$/.test(tagName);
-}
+const relativePath = /^\.\.?\//;
+function renderDocumentMetaData(meta: Meta, base: string) {
+  return Array.from(Object.entries(meta))
+    .map(([tagName, value]) => {
+      const elements = Array.isArray(value) ? value : [value];
 
-function AppMeta(meta: Meta[]) {
-  return meta.flat().map((metaProps) => {
-    if (!metaProps) {
-      return null;
-    }
-
-    if ("tagName" in metaProps) {
-      let tagName = metaProps.tagName;
-      delete metaProps.tagName;
-      if (!isValidMetaTag(tagName)) {
-        console.warn(
-          `A meta object uses an invalid tagName: ${tagName}. Expected either 'link' or 'meta'`
-        );
-        return null;
+      if (tagName === "base") {
+        return html`<base ${attributes(value)} />`;
       }
-      return unsafeHTML(`<${tagName} ${attributes(metaProps)} />`);
-    }
 
-    if ("title" in metaProps) {
-      return html`<title>${metaProps.title}</title>`;
-    }
+      if (tagName === "title") {
+        return html`<title>${value}</title>`;
+      }
 
-    if ("charset" in metaProps) {
-      metaProps.charSet ??= metaProps.charset;
-      delete metaProps.charset;
-    }
+      if (tagName === "meta") {
+        return elements.map((props) => html`<meta ${attributes(props)} />`);
+      }
 
-    if ("charSet" in metaProps && metaProps.charSet != null) {
-      return typeof metaProps.charSet === "string"
-        ? html`<meta charset="${metaProps.charSet}" />`
-        : null;
-    }
+      if (tagName === "link") {
+        return elements.map(
+          (props) =>
+            html`<link
+              ${attributes(
+                props.map((link) => {
+                  return {
+                    href: relativePath.test(link.href)
+                      ? base + link.href
+                      : link.href,
+                    ...props,
+                  };
+                })
+              )} />`
+        );
+      }
 
-    if ("script:ld+json" in metaProps) {
-      let json: string | null = null;
-      try {
-        json = JSON.stringify(metaProps["script:ld+json"]);
-      } catch (err) {}
-      return (
-        json != null &&
-        html`<script type="application/ld+json">
-          ${jsonContent(metaProps["script:ld+json"] as any)}
-        </script>`
-      );
-    }
+      if (tagName === "style") {
+        return elements.map(
+          ({ style, ...props }) => html`<style ${attributes(props)}>
+            ${style}
+          </style>`
+        );
+      }
 
-    return html`<meta ${attributes(metaProps)} />`;
-  });
+      if (tagName === "script") {
+        return elements.map(
+          ({ script, ...props }) => html`<script ${attributes(props)}>
+            ${typeof script === "string" ? script : jsonContent(script)};
+          </script>`
+        );
+      }
+    })
+    .flat();
 }
 
 export interface LayoutData {
-  meta: Meta[];
+  base: string;
   clientEntry: string;
   esModulePolyfillUrl?: string;
-  importmap: Record<string, any>;
-  lang: string;
+  meta: Meta;
   outlet: RenderResult;
-  styles: string[] | Record<string, string>[];
-  links: string[] | Record<string, string>[];
 }
 
 export default function Layout(props: ComponentProps<LayoutData>): HTML {
   const data = props.data;
   return html`<!DOCTYPE html>
-    <html lang="${data.lang}">
+    <html lang="${data.meta?.lang || "en"}" renderer="@web-widget/web-server">
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        ${AppMeta(data.meta)}
-        <script type="importmap">
-          ${jsonContent(data.importmap)}
-        </script>
-        ${data.links.map((props) => {
-          if (typeof props === "string") {
-            return html`<link href="${props}" />`;
-          }
-          const { textContent, ...attrs } = props;
-          return html`<link ${attributes(attrs)} />`;
-        })}
-        ${data.styles.map((props) => {
-          if (typeof props === "string") {
-            return html`<style>
-              ${props}
-            </style>`;
-          }
-          const { textContent, ...attrs } = props;
-          return html`<style ${attributes(attrs)}>
-            ${textContent || ""}
-          </style>`;
-        })}
+        ${renderDocumentMetaData(data.meta, data.base || "/")}
       </head>
       <body>
         ${typeof data.outlet === "string"

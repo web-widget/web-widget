@@ -20,7 +20,11 @@ app.use(async (ctx, next) => {
   await next();
 });
 
-const webServer = new WebServer(manifest);
+const webServer = new WebServer(manifest, {
+  client: {
+    base: "/",
+  },
+});
 app.use(async (ctx, next) => {
   const webRequest = createWebRequest(ctx.request, ctx.response);
   const webResponse = await webServer.handler(webRequest);

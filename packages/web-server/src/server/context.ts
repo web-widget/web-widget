@@ -76,7 +76,7 @@ export class ServerContext {
         config = {},
         default: component,
         handler = {},
-        meta = [],
+        meta = {},
         render,
       } = module as RouteModule;
       if (typeof handler === "object" && handler.GET === undefined) {
@@ -123,7 +123,7 @@ export class ServerContext {
         default: component,
         render,
         config = {},
-        meta = [],
+        meta = {},
       } = module as UnknownPageModule;
       let { handler } = module as UnknownPageModule;
       if (component && handler === undefined) {
@@ -145,7 +145,7 @@ export class ServerContext {
       const {
         config = {},
         default: component,
-        meta = [],
+        meta = {},
         render,
       } = module as ErrorPageModule;
       let { handler } = module as ErrorPageModule;
@@ -295,10 +295,10 @@ export class ServerContext {
         return async (
           {
             data,
-            meta = [],
+            meta = {},
           }: {
             data?: any;
-            meta?: Meta[];
+            meta?: Meta;
           } = {},
           options?: ResponseInit
         ) => {
@@ -425,7 +425,7 @@ const DEFAULT_ROUTER_OPTIONS: RouterOptions = {
 const DEFAULT_NOT_FOUND: UnknownPage = {
   csp: false,
   handler: (req) => router.defaultOtherHandler(req),
-  meta: [],
+  meta: {},
   name: "_404",
   pathname: "",
   render: DefaultRender,
@@ -434,8 +434,8 @@ const DEFAULT_NOT_FOUND: UnknownPage = {
 const DEFAULT_ERROR: ErrorPage = {
   component: DefaultErrorComponent,
   csp: false,
-  handler: (_req, ctx) => ctx.render({ meta: [] }),
-  meta: [],
+  handler: (_req, ctx) => ctx.render({ meta: {} }),
+  meta: {},
   name: "_500",
   pathname: "",
   render: DefaultRender,

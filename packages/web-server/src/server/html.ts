@@ -49,11 +49,15 @@ export const unsafeAttributeValue = (value: string) =>
 export const attributes = (attrs: Record<string, string | unknown>) =>
   unsafeHTML(
     Object.entries(attrs)
+      .filter(
+        ([attrName, attrValue]) =>
+          attrValue !== false && attrValue !== undefined
+      )
       .map(
         ([attrName, attrValue]) =>
-          `${unsafeAttributeName(attrName)}="${unsafeAttributeValue(
-            String(attrValue)
-          )}"`
+          `${unsafeAttributeName(attrName)}="${
+            attrValue === true ? "" : unsafeAttributeValue(String(attrValue))
+          }"`
       )
       .join(" ")
   );

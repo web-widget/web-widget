@@ -4,11 +4,9 @@ import { html } from "./html";
 
 export { render } from "./html";
 
-export const meta: Meta[] = [
-  {
-    title: "Error",
-  },
-];
+export const meta: Meta = {
+  title: "Error",
+};
 
 function style(style: Record<string, string | number>) {
   return Object.entries(style)

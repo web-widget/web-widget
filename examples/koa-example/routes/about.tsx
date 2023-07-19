@@ -17,11 +17,9 @@ type AboutPageProps = {
 
 export { render };
 
-export const meta: Meta[] = [
-  {
-    title: "Hello, Web widget.",
-  },
-];
+export const meta: Meta = {
+  title: "Hello, Web widget.",
+};
 
 export const handler: Handlers<AboutPageProps> = {
   async GET(req, ctx) {
