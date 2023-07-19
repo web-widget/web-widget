@@ -6,10 +6,7 @@ import {
   ComponentProps,
 } from "@web-widget/react";
 
-const Counter = defineClient(
-  () => import("../widgets/Counter.tsx"),
-  import.meta.url
-);
+import Counter from "../widgets/Counter.tsx";
 
 type AboutPageProps = {
   name: string;
@@ -44,7 +41,7 @@ export default function AboutPage(props: ComponentProps<AboutPageProps>) {
       <h1>About</h1>
       <p>This is the about page</p>
       <p>{name}</p>
-      <Counter name={name} start={3} />
+      <Counter client name={name} start={3} />
     </main>
   );
 }

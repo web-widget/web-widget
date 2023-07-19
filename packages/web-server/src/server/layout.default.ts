@@ -44,17 +44,16 @@ function renderDocumentMetaData(meta: Meta, base: string) {
 
       if (tagName === "style") {
         return elements.map(
-          ({ style, ...props }) => html`<style ${attributes(props)}>
-            ${style}
-          </style>`
+          // prettier-ignore
+          ({ style, ...props }) => html`<style ${attributes(props)}>${style}</style>`
         );
       }
 
       if (tagName === "script") {
         return elements.map(
-          ({ script, ...props }) => html`<script ${attributes(props)}>
-            ${typeof script === "string" ? script : jsonContent(script)};
-          </script>`
+          ({ script, ...props }) =>
+            // prettier-ignore
+            html`<script ${attributes(props)}>${typeof script === "string" ? script : jsonContent(script)}</script>`
         );
       }
     })
@@ -72,7 +71,7 @@ export interface LayoutData {
 export default function Layout(props: ComponentProps<LayoutData>): HTML {
   const data = props.data;
   return html`<!DOCTYPE html>
-    <html lang="${data.meta?.lang || "en"}" renderer="@web-widget/web-server">
+    <html lang="${data.meta?.lang || "en"}">
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />

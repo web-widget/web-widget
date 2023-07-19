@@ -9,8 +9,11 @@ import {
   UserConfig as ViteUserConfig,
 } from "vite";
 import { BuilderConfig } from "../types";
-import { Meta, DocumentLink } from "@web-widget/web-server";
+import { Meta, DocumentLink, DocumentScript } from "@web-widget/web-server";
 import { parse, init } from "es-module-lexer";
+import { resolve } from "import-meta-resolve";
+
+let CLIENT_ENTRY: string;
 
 type Entrypoints = Record<string, string>;
 type FileNamesCache = [Map<string, string>, Map<string, string>];
@@ -22,9 +25,31 @@ export async function bundle(config: BuilderConfig) {
   const cache = [new Map(), new Map()] as FileNamesCache;
   const entrypoints = resolveEntrypoints(config);
 
-  const clientResult = await bundleWithVite(config, entrypoints, false, cache);
+  CLIENT_ENTRY = fileURLToPath(
+    resolve("@web-widget/web-server/client", import.meta.url)
+  );
 
-  const meta = getMeta(clientResult);
+  const clientResult = await bundleWithVite(
+    config,
+    {
+      ...entrypoints,
+      [`${config.output.asset}/entry-client`]: CLIENT_ENTRY,
+    },
+    false,
+    cache
+  );
+
+  const meta = getMeta(clientResult, {
+    imports: {
+      "@web-widget/web-server/client":
+        // TODO 不应该在构建产物中处理 base，此处应该交给 @web-widget/web-server 处理
+        config.base +
+        clientResult.output.find(
+          (chunk) =>
+            chunk.type === "chunk" && chunk.facadeModuleId === CLIENT_ENTRY
+        )?.fileName,
+    },
+  });
 
   const serverResult = await bundleWithVite(
     config,
@@ -58,7 +83,7 @@ async function bundleWithVite(
       noExternal: [],
     },
     plugins: [
-      !isServer && removeEntryPlugin(),
+      !isServer && removeEntryPlugin([CLIENT_ENTRY]),
       isServer && injectionMetaPlugin(meta),
       isServer && addESMPackagePlugin(config),
       chunkFileNamesPlugin(cache),
@@ -170,7 +195,7 @@ function chunkFileNamesPlugin([
   ];
 }
 
-function removeEntryPlugin(): Plugin {
+function removeEntryPlugin(exclude: string[]): Plugin {
   return {
     name: "builder:remove-entry",
     generateBundle(options, bundle) {
@@ -178,7 +203,11 @@ function removeEntryPlugin(): Plugin {
         const chunk = bundle[fileName];
         const type = chunk.type;
 
-        if (type === "chunk" && chunk.isEntry) {
+        if (
+          type === "chunk" &&
+          chunk.isEntry &&
+          !exclude.includes(chunk.facadeModuleId as string)
+        ) {
           delete bundle[fileName];
         }
       });
@@ -205,19 +234,18 @@ function injectionMetaPlugin(meta: Meta): Plugin {
         if (exports.find(({ s, e }) => chunk.code.slice(s, e) === "meta")) {
           chunk.code += `
 try {
-  const assets = ${JSON.stringify(meta.link)};
-  if (meta.link) {
-    meta.link = Array.isArray(meta.link) ? meta.link.push(...assets) : [assets];
-  } else {
-    meta.link = assets;
-  }
+  const link = ${JSON.stringify(meta.link)};
+  const script = ${JSON.stringify(meta.script)};
+  meta.link = meta.link ? (Array.isArray(meta.link) ? meta.link.push(...link) : [link]) : link;
+  meta.script = meta.script ? (Array.isArray(meta.script) ? meta.script.push(...script) : [script]) : script;
 } catch(e) {
   throw new Error("Builder: No meta variable found.", e);
 }`;
         } else {
           chunk.code += `
 export const meta = {
-  link: ${JSON.stringify(meta.link)}
+  link: ${JSON.stringify(meta.link)},
+  script: ${JSON.stringify(meta.script)}
 };
 `;
         }
@@ -239,8 +267,14 @@ function addESMPackagePlugin(config: BuilderConfig) {
   };
 }
 
-function getMeta(clientResult: RollupOutput): Meta {
+function getMeta(clientResult: RollupOutput, importmap: any): Meta {
   const meta = {
+    script: [
+      {
+        type: "importmap",
+        script: importmap,
+      },
+    ] as DocumentScript[],
     link: [] as DocumentLink[],
   };
 
@@ -249,13 +283,13 @@ function getMeta(clientResult: RollupOutput): Meta {
     const type = chunk.type;
     const asset = type === "asset";
 
-    if (fileName.endsWith(".js")) {
+    /*if (fileName.endsWith(".js")) {
       meta.link!.push({
         crossOrigin: true,
         href: fileName,
         rel: "modulepreload",
       });
-    } else if (asset && fileName.endsWith(".css")) {
+    } else */ if (asset && fileName.endsWith(".css")) {
       meta.link!.push({
         href: fileName,
         rel: "stylesheet",
