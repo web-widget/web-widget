@@ -16,7 +16,7 @@ const BUILDER_CONFIG_DEFAULTS: BuilderUserConfig & any = {
     client: "client",
     server: "server",
     asset: "assets",
-    entry: "entry.js",
+    manifest: "manifest.js",
   },
   server: {
     host: false,
@@ -97,10 +97,10 @@ export const BuilderConfigSchema = z.object({
         .optional()
         .default(BUILDER_CONFIG_DEFAULTS.output.asset),
       assetsPrefix: z.string().optional(),
-      entry: z
+      manifest: z
         .string()
         .optional()
-        .default(BUILDER_CONFIG_DEFAULTS.output.entry),
+        .default(BUILDER_CONFIG_DEFAULTS.output.manifest),
     })
     .optional()
     .default({}),
@@ -224,10 +224,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
           .optional()
           .default(BUILDER_CONFIG_DEFAULTS.output.asset),
         assetsPrefix: z.string().optional(),
-        entry: z
+        manifest: z
           .string()
           .optional()
-          .default(BUILDER_CONFIG_DEFAULTS.output.entry),
+          .default(BUILDER_CONFIG_DEFAULTS.output.manifest),
       })
       .optional()
       .default({}),

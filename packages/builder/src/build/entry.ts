@@ -80,7 +80,7 @@ export async function entry(config: BuilderConfig, output: RollupOutput) {
   ].join("\n");
 
   await fs.writeFile(
-    join(fileURLToPath(config.output.server), "manifest.js"),
+    join(fileURLToPath(config.output.server), config.output.manifest),
     manifest
   );
 }
