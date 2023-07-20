@@ -18,9 +18,6 @@ let CLIENT_ENTRY: string;
 type Entrypoints = Record<string, string>;
 type FileNamesCache = [Map<string, string>, Map<string, string>];
 
-// Internal: Bundles the widgets app for both client and server.
-//
-// Multi-entry build: every page is considered an entry chunk.
 export async function bundle(config: BuilderConfig) {
   const cache = [new Map(), new Map()] as FileNamesCache;
   const entrypoints = resolveEntrypoints(config);
@@ -41,13 +38,10 @@ export async function bundle(config: BuilderConfig) {
 
   const meta = getMeta(clientResult, {
     imports: {
-      "@web-widget/web-server/client":
-        // TODO 不应该在构建产物中处理 base，此处应该交给 @web-widget/web-server 处理
-        config.base +
-        clientResult.output.find(
-          (chunk) =>
-            chunk.type === "chunk" && chunk.facadeModuleId === CLIENT_ENTRY
-        )?.fileName,
+      "@web-widget/web-server/client": clientResult.output.find(
+        (chunk) =>
+          chunk.type === "chunk" && chunk.facadeModuleId === CLIENT_ENTRY
+      )?.fileName,
     },
   });
 

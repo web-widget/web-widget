@@ -13,15 +13,15 @@ type JSONValue =
 // --- APPLICATION CONFIGURATION ---
 
 export type StartOptions = WebServerOptions & {
-  client?: {
-    base?: string;
-  };
   dev?: boolean;
 };
 
 export interface WebServerOptions {
   render?: RenderPage;
   router?: RouterOptions;
+  client?: {
+    base?: string;
+  };
 }
 
 export interface RouterOptions {

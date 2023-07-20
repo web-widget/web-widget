@@ -10,8 +10,6 @@ import { Meta, RenderResult, ComponentProps } from "./types";
 
 export { render } from "./html";
 
-const RESOLVE_URL_REG = /^(?:\w+:)?\//;
-
 function renderDocumentMetaData(meta: Meta, base: string) {
   return Array.from(Object.entries(meta))
     .map(([tagName, value]) => {
@@ -30,16 +28,7 @@ function renderDocumentMetaData(meta: Meta, base: string) {
       }
 
       if (tagName === "link") {
-        return elements.map((props) => {
-          if (props.href && !RESOLVE_URL_REG.test(props.href)) {
-            const rebaseHrefLink = {
-              ...props,
-              href: base + props.href,
-            };
-            return html`<link ${attributes(rebaseHrefLink)} />`;
-          }
-          return html`<link ${attributes(props)} />`;
-        });
+        return elements.map((props) => html`<link ${attributes(props)} />`);
       }
 
       if (tagName === "style") {
