@@ -42,23 +42,19 @@ export function htmlEscapeJsonString(str: string): string {
 }
 
 export const unsafeAttributeName = (value: string) =>
-  value /*.replace(/([A-Z])/g, "-$1")*/
+  String(value) /*.replace(/([A-Z])/g, "-$1")*/
     .toLowerCase();
 export const unsafeAttributeValue = (value: string) =>
-  value.replace(/"/g, "&quot;");
+  String(value).replace(/"/g, "&quot;");
 
-export const attributes = (attrs: Record<string, string | unknown>) =>
+export const attributes = (attrs: Record<string, string>) =>
   unsafeHTML(
     Object.entries(attrs)
-      .filter(
-        ([attrName, attrValue]) =>
-          attrValue !== false && attrValue !== undefined
-      )
       .map(
         ([attrName, attrValue]) =>
-          `${unsafeAttributeName(attrName)}="${
-            attrValue === true ? "" : unsafeAttributeValue(String(attrValue))
-          }"`
+          `${unsafeAttributeName(attrName)}="${unsafeAttributeValue(
+            attrValue
+          )}"`
       )
       .join(" ")
   );

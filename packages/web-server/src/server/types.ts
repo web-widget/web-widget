@@ -347,24 +347,11 @@ export interface Manifest {
  * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
  */
 export interface Meta {
-  readonly lang?: DocumentLang;
-  /**
-   * Arbitrary object containing custom data. When the document head is created from
-   * markdown files, the frontmatter attributes that are not recognized as a well-known
-   * meta names (such as title, description, author, etc...), are stored in this property.
-   */
-  // readonly frontmatter?: Readonly<Record<string, any>>;
+  readonly title?: string;
+  readonly description?: string;
+  readonly keywords?: string;
+  readonly lang?: string;
 
-  // --------------------------------------------------------------------------
-
-  /**
-   * The Document Base URL element.
-   */
-  readonly base?: DocumentBase;
-  /**
-   * Sets `document.title`.
-   */
-  readonly title?: DocumentTitle;
   /**
    * Used to manually set meta tags in the head. Additionally, the `data`
    * property could be used to set arbitrary data which the `<head>` component
@@ -385,46 +372,35 @@ export interface Meta {
   readonly script?: readonly DocumentScript[] | DocumentScript;
 }
 
-export type DocumentLang = string;
-
-export type DocumentBase = {
-  /** Gets or sets the baseline URL on which relative links are based. */
-  readonly href?: string;
-  /** Sets or retrieves the window or frame at which to target content. */
-  readonly target?: string;
-};
-
-export type DocumentTitle = string;
-
 export interface DocumentMeta {
   /** This attribute declares the document's character encoding. */
   readonly charset?: string;
   /** Gets or sets meta-information to associate with httpEquiv or name. */
   readonly content?: string;
   /** Gets or sets information used to bind the value of a content attribute of a meta element to an HTTP response header. */
-  readonly httpEquiv?: string;
+  readonly "http-equiv"?: string;
   readonly media?: string;
   /** Sets or retrieves the value specified in the content attribute of the meta object. */
   readonly name?: string;
 
-  /** NOTE: FaceBook OpenGraph */
+  /** NOTE: OpenGraph */
   readonly property?: string;
 }
 
 export interface DocumentLink {
   readonly as?: string;
-  readonly crossOrigin?: string | null | boolean;
-  readonly disabled?: boolean;
+  readonly crossorigin?: string;
+  readonly disabled?: string;
   /** Sets or retrieves a destination URL or an anchor point. */
   readonly href?: string;
   /** Sets or retrieves the language code of the object. */
   readonly hreflang?: string;
-  readonly imageSizes?: string;
-  readonly imageSrcset?: string;
+  readonly imagesizes?: string;
+  readonly imagesrcset?: string;
   readonly integrity?: string;
   /** Sets or retrieves the media type. */
   readonly media?: string;
-  readonly referrerPolicy?: string;
+  readonly referrerpolicy?: string;
   /** Sets or retrieves the relationship between the object and the destination of the link. */
   readonly rel?: string;
   // readonly relList: DOMTokenList;
@@ -435,20 +411,20 @@ export interface DocumentLink {
 export interface DocumentStyle {
   readonly style?: string;
   /** Enables or disables the style sheet. */
-  readonly disabled?: boolean;
+  readonly disabled?: string;
   /** Sets or retrieves the media type. */
   readonly media?: string;
 }
 
 export interface DocumentScript {
   readonly script?: string | JSONValue;
-  readonly async?: boolean;
-  readonly crossOrigin?: string | null;
+  readonly async?: string;
+  readonly crossorigin?: string;
   /** Sets or retrieves the status of the script. */
-  readonly defer?: boolean;
+  readonly defer?: string;
   readonly integrity?: string;
-  readonly noModule?: boolean;
-  readonly referrerPolicy?: string;
+  readonly nomodule?: string;
+  readonly referrerpolicy?: string;
   /** Retrieves the URL to an external file that contains the source code or data. */
   readonly src?: string;
   /** Retrieves or sets the text of the object as a string. */

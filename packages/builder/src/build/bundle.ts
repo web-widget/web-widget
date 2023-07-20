@@ -277,7 +277,7 @@ function getLinks(clientResult: RollupOutput): DocumentLink[] {
 
     /*if (fileName.endsWith(".js")) {
       links.push({
-        crossOrigin: true,
+        crossorigin: "",
         href: fileName,
         rel: "modulepreload",
       });
@@ -289,7 +289,7 @@ function getLinks(clientResult: RollupOutput): DocumentLink[] {
     } else if (asset && fileName.endsWith(".woff")) {
       links.push({
         as: "font",
-        crossOrigin: true,
+        crossorigin: "",
         href: fileName,
         rel: "preload",
         type: "font/woff",
@@ -297,7 +297,7 @@ function getLinks(clientResult: RollupOutput): DocumentLink[] {
     } else if (asset && fileName.endsWith(".woff2")) {
       links.push({
         as: "font",
-        crossOrigin: true,
+        crossorigin: "",
         href: fileName,
         rel: "preload",
         type: "font/woff2",

@@ -15,12 +15,12 @@ function renderDocumentMetaData(meta: Meta, base: string) {
     .map(([tagName, value]) => {
       const elements = Array.isArray(value) ? value : [value];
 
-      if (tagName === "base") {
-        return html`<base ${attributes(value)} />`;
-      }
-
       if (tagName === "title") {
         return html`<title>${value}</title>`;
+      }
+
+      if (tagName === "description" || tagName === "keywords") {
+        return html`<meta name="${tagName}" content="${value}" />`;
       }
 
       if (tagName === "meta") {
@@ -62,7 +62,7 @@ export default function Layout(props: ComponentProps<LayoutData>): HTML {
   return html`<!DOCTYPE html>
     <html lang="${data.meta?.lang || "en"}">
       <head>
-        <meta charset="UTF-8" />
+        <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         ${renderDocumentMetaData(data.meta, data.base || "/")}
       </head>
