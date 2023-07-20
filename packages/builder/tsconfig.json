@@ -3,7 +3,7 @@
     "baseUrl": ".",
     "module": "es2020",
     "target": "es2020",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
     "strict": true,
     "declaration": true,
@@ -17,7 +17,8 @@
     ],
     "types": [
       "node"
-    ]
+    ],
+    "paths": {}
   },
   "include": [
     "src/**/*"

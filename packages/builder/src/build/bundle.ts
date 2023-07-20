@@ -275,13 +275,13 @@ function getLinks(clientResult: RollupOutput): DocumentLink[] {
     const type = chunk.type;
     const asset = type === "asset";
 
-    /*if (fileName.endsWith(".js")) {
+    if (fileName.endsWith(".js")) {
       links.push({
         crossorigin: "",
         href: fileName,
         rel: "modulepreload",
       });
-    } else */ if (asset && fileName.endsWith(".css")) {
+    } else if (asset && fileName.endsWith(".css")) {
       links.push({
         href: fileName,
         rel: "stylesheet",

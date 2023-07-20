@@ -1,6 +1,6 @@
 import { openConfig } from "../config";
 import { bundle } from "./bundle";
-import { withSpinner, rm } from "./utils";
+import { withSpinner } from "./utils";
 import { entry } from "./entry";
 
 export async function build(root: string) {
@@ -13,7 +13,7 @@ export async function build(root: string) {
     // mode: 'production'
   });
 
-  const { clientResult, serverResult } = await withSpinner(
+  const { serverResult } = await withSpinner(
     "building client + server bundles",
     async () => await bundle(builderConfig)
   );

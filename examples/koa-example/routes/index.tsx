@@ -5,6 +5,10 @@ import styles from "./index.module.css";
 
 export { render };
 
+export const meta = {
+  title: "Hello, Web Widget",
+};
+
 export default function Home() {
   return (
     <>

@@ -1,10 +1,4 @@
-import {
-  render,
-  defineClient,
-  Handlers,
-  Meta,
-  ComponentProps,
-} from "@web-widget/react";
+import { render, Handlers, Meta, ComponentProps } from "@web-widget/react";
 
 import Counter from "../widgets/Counter.tsx";
 

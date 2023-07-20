@@ -11,42 +11,48 @@ import { Meta, RenderResult, ComponentProps } from "./types";
 export { render } from "./html";
 
 function renderDocumentMetaData(meta: Meta, base: string) {
-  return Array.from(Object.entries(meta))
-    .map(([tagName, value]) => {
-      const elements = Array.isArray(value) ? value : [value];
+  const priority: HTML[][] = [[], [], [], [], []];
+  Array.from(Object.entries(meta)).forEach(([tagName, value]) => {
+    const elements = Array.isArray(value) ? value : [value];
 
-      if (tagName === "title") {
-        return html`<title>${value}</title>`;
-      }
+    if (tagName === "title") {
+      return priority[0].push(html`<title>${value}</title>`);
+    }
 
-      if (tagName === "description" || tagName === "keywords") {
-        return html`<meta name="${tagName}" content="${value}" />`;
-      }
+    if (tagName === "description" || tagName === "keywords") {
+      return priority[1].push(
+        html`<meta name="${tagName}" content="${value}" />`
+      );
+    }
 
-      if (tagName === "meta") {
-        return elements.map((props) => html`<meta ${attributes(props)} />`);
-      }
+    if (tagName === "meta") {
+      return elements.forEach((props) =>
+        priority[2].push(html`<meta ${attributes(props)} />`)
+      );
+    }
 
-      if (tagName === "link") {
-        return elements.map((props) => html`<link ${attributes(props)} />`);
-      }
+    if (tagName === "link") {
+      return elements.forEach((props) =>
+        priority[4].push(html`<link ${attributes(props)} />`)
+      );
+    }
 
-      if (tagName === "style") {
-        return elements.map(
-          // prettier-ignore
-          ({ style, ...props }) => html`<style ${attributes(props)}>${style}</style>`
-        );
-      }
+    if (tagName === "style") {
+      return elements.forEach(
+        // prettier-ignore
+        ({ style, ...props }) => priority[4].push(html`<style ${attributes(props)}>${style}</style>`)
+      );
+    }
 
-      if (tagName === "script") {
-        return elements.map(
-          ({ script, ...props }) =>
-            // prettier-ignore
-            html`<script ${attributes(props)}>${typeof script === "string" ? script : jsonContent(script)}</script>`
-        );
-      }
-    })
-    .flat();
+    if (tagName === "script") {
+      return elements.forEach(({ script, ...props }) =>
+        // prettier-ignore
+        priority[props?.type === "importmap" ? 3 : 4].push(html`<script ${attributes(props)}>${typeof script === "string" ? script : jsonContent(script)}</script>`)
+      );
+    }
+  });
+
+  return priority.flat();
 }
 
 export interface LayoutData {
