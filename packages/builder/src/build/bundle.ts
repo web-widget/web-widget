@@ -13,7 +13,8 @@ import { Meta, DocumentLink, DocumentScript } from "@web-widget/web-server";
 import { parse, init } from "es-module-lexer";
 import { resolve } from "import-meta-resolve";
 
-let CLIENT_ENTRY: string;
+const clientModuleName = "@web-widget/web-server/client";
+const CLIENT_ENTRY = fileURLToPath(resolve(clientModuleName, import.meta.url));
 
 type Entrypoints = Record<string, string>;
 type FileNamesCache = [Map<string, string>, Map<string, string>];
@@ -21,10 +22,6 @@ type FileNamesCache = [Map<string, string>, Map<string, string>];
 export async function bundle(config: BuilderConfig) {
   const cache = [new Map(), new Map()] as FileNamesCache;
   const entrypoints = resolveEntrypoints(config);
-
-  CLIENT_ENTRY = fileURLToPath(
-    resolve("@web-widget/web-server/client", import.meta.url)
-  );
 
   const clientResult = await bundleWithVite(
     config,
@@ -36,14 +33,22 @@ export async function bundle(config: BuilderConfig) {
     cache
   );
 
-  const meta = getMeta(clientResult, {
-    imports: {
-      "@web-widget/web-server/client": clientResult.output.find(
-        (chunk) =>
-          chunk.type === "chunk" && chunk.facadeModuleId === CLIENT_ENTRY
-      )?.fileName,
-    },
-  });
+  const meta: Meta = {
+    script: [
+      {
+        type: "importmap",
+        script: {
+          imports: {
+            [clientModuleName]: clientResult.output.find(
+              (chunk) =>
+                chunk.type === "chunk" && chunk.facadeModuleId === CLIENT_ENTRY
+            )?.fileName,
+          },
+        },
+      },
+    ] as DocumentScript[],
+    link: getLinks(clientResult),
+  };
 
   const serverResult = await bundleWithVite(
     config,
@@ -78,7 +83,7 @@ async function bundleWithVite(
     },
     plugins: [
       !isServer && removeEntryPlugin([CLIENT_ENTRY]),
-      isServer && injectionMetaPlugin(meta),
+      isServer && injectionMetaPlugin(meta || {}),
       isServer && addESMPackagePlugin(config),
       chunkFileNamesPlugin(cache),
     ],
@@ -136,12 +141,12 @@ function resolveEntrypoints(config: BuilderConfig): Entrypoints {
 
 // NOTE: Keep the relative paths of assets on the client and server consistent.
 function chunkFileNamesPlugin([
-  oldFileNameCache,
-  renamed,
+  outputNamesCache,
+  inputNamesCache,
 ]: FileNamesCache): Plugin[] {
   return [
     {
-      name: "builder:fileNames:rename-chunks",
+      name: "builder:rename-output-filenames",
       enforce: "pre",
       generateBundle(options, bundle) {
         Object.keys(bundle).forEach((fileName) => {
@@ -149,28 +154,29 @@ function chunkFileNamesPlugin([
           const type = chunk.type;
 
           if (type === "chunk" && chunk.facadeModuleId) {
-            if (oldFileNameCache.has(chunk.facadeModuleId)) {
+            if (outputNamesCache.has(chunk.facadeModuleId)) {
               const oldFileName = chunk.fileName;
-              const newFileName = oldFileNameCache.get(
+              const newFileName = outputNamesCache.get(
                 chunk.facadeModuleId
               ) as string;
 
-              renamed.set(oldFileName, newFileName);
+              inputNamesCache.set(oldFileName, newFileName);
               chunk.fileName = newFileName;
               bundle[newFileName] = chunk;
               delete bundle[oldFileName];
             } else {
-              oldFileNameCache.set(chunk.facadeModuleId, fileName);
+              outputNamesCache.set(chunk.facadeModuleId, fileName);
             }
           }
         });
       },
     },
     {
-      name: "builder:fileNames:rename-imports",
+      name: "builder:rename-input-filenames",
       enforce: "post",
       generateBundle(options, bundle) {
-        const rename = (fileName: string) => renamed.get(fileName) || fileName;
+        const rename = (fileName: string) =>
+          inputNamesCache.get(fileName) || fileName;
 
         Object.keys(bundle).forEach((fileName) => {
           const chunk = bundle[fileName];
@@ -178,7 +184,7 @@ function chunkFileNamesPlugin([
           if (type === "chunk") {
             chunk.imports = chunk.imports.map(rename);
             chunk.dynamicImports = chunk.dynamicImports.map(rename);
-            for (const [oldFileName, newFileName] of renamed) {
+            for (const [oldFileName, newFileName] of inputNamesCache) {
               const newCode = chunk.code.replaceAll(oldFileName, newFileName);
               chunk.code = newCode;
             }
@@ -261,16 +267,8 @@ function addESMPackagePlugin(config: BuilderConfig) {
   };
 }
 
-function getMeta(clientResult: RollupOutput, importmap: any): Meta {
-  const meta = {
-    script: [
-      {
-        type: "importmap",
-        script: importmap,
-      },
-    ] as DocumentScript[],
-    link: [] as DocumentLink[],
-  };
+function getLinks(clientResult: RollupOutput): DocumentLink[] {
+  const links: DocumentLink[] = [];
 
   for (const chunk of clientResult.output.values()) {
     const fileName = chunk.fileName;
@@ -278,18 +276,18 @@ function getMeta(clientResult: RollupOutput, importmap: any): Meta {
     const asset = type === "asset";
 
     /*if (fileName.endsWith(".js")) {
-      meta.link!.push({
+      links.push({
         crossOrigin: true,
         href: fileName,
         rel: "modulepreload",
       });
     } else */ if (asset && fileName.endsWith(".css")) {
-      meta.link!.push({
+      links.push({
         href: fileName,
         rel: "stylesheet",
       });
     } else if (asset && fileName.endsWith(".woff")) {
-      meta.link!.push({
+      links.push({
         as: "font",
         crossOrigin: true,
         href: fileName,
@@ -297,7 +295,7 @@ function getMeta(clientResult: RollupOutput, importmap: any): Meta {
         type: "font/woff",
       });
     } else if (asset && fileName.endsWith(".woff2")) {
-      meta.link!.push({
+      links.push({
         as: "font",
         crossOrigin: true,
         href: fileName,
@@ -305,7 +303,7 @@ function getMeta(clientResult: RollupOutput, importmap: any): Meta {
         type: "font/woff2",
       });
     } else if (asset && fileName.endsWith(".gif")) {
-      meta.link!.push({
+      links.push({
         as: "image",
         href: fileName,
         rel: "preload",
@@ -315,14 +313,14 @@ function getMeta(clientResult: RollupOutput, importmap: any): Meta {
       asset &&
       (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg"))
     ) {
-      meta.link!.push({
+      links.push({
         as: "image",
         href: fileName,
         rel: "preload",
         type: "image/jpeg",
       });
     } else if (asset && fileName.endsWith(".png")) {
-      meta.link!.push({
+      links.push({
         as: "image",
         href: fileName,
         rel: "preload",
@@ -331,5 +329,5 @@ function getMeta(clientResult: RollupOutput, importmap: any): Meta {
     }
   }
 
-  return meta;
+  return links;
 }
