@@ -22,7 +22,7 @@ export default function NewsPage(props: ComponentProps<NewsPageProps>) {
     data: { list },
   } = props;
   return (
-    <main>
+    <>
       <h1>News</h1>
       <ul>
         {list.map((item, index) => {
@@ -33,6 +33,6 @@ export default function NewsPage(props: ComponentProps<NewsPageProps>) {
           );
         })}
       </ul>
-    </main>
+    </>
   );
 }

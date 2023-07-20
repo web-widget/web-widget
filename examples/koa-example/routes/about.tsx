@@ -37,11 +37,11 @@ export default function AboutPage(props: ComponentProps<AboutPageProps>) {
     data: { name },
   } = props;
   return (
-    <main>
+    <>
       <h1>About</h1>
       <p>This is the about page</p>
       <p>{name}</p>
       <Counter client name={name} start={3} />
-    </main>
+    </>
   );
 }
