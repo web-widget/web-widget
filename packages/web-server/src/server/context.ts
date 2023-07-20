@@ -76,11 +76,12 @@ export class ServerContext {
         config = {},
         default: component,
         handler = {},
-        meta = [],
+        meta = {},
         render,
       } = module as RouteModule;
+      const rebasedMeta = rebaseMeta(meta, opts?.client?.base || "/");
       if (typeof handler === "object" && handler.GET === undefined) {
-        handler.GET = (_req, { render }) => render({ meta });
+        handler.GET = (_req, { render }) => render({ meta: rebasedMeta });
       }
       if (
         typeof handler === "object" &&
@@ -102,7 +103,7 @@ export class ServerContext {
         component,
         csp: Boolean(config.csp ?? false),
         handler,
-        meta,
+        meta: rebasedMeta,
         name,
         pathname: config.routeOverride
           ? String(config.routeOverride)
@@ -123,11 +124,12 @@ export class ServerContext {
         default: component,
         render,
         config = {},
-        meta = [],
+        meta = {},
       } = module as UnknownPageModule;
+      const rebasedMeta = rebaseMeta(meta, opts?.client?.base || "/");
       let { handler } = module as UnknownPageModule;
       if (component && handler === undefined) {
-        handler = (_req, { render }) => render({ meta });
+        handler = (_req, { render }) => render({ meta: rebasedMeta });
       }
 
       notFound = {
@@ -135,7 +137,7 @@ export class ServerContext {
         name,
         component,
         handler: handler ?? ((req) => router.defaultOtherHandler(req)),
-        meta,
+        meta: rebasedMeta,
         render,
         csp: Boolean(config.csp ?? false),
       };
@@ -145,12 +147,13 @@ export class ServerContext {
       const {
         config = {},
         default: component,
-        meta = [],
+        meta = {},
         render,
       } = module as ErrorPageModule;
+      const rebasedMeta = rebaseMeta(meta, opts?.client?.base || "/");
       let { handler } = module as ErrorPageModule;
       if (component && handler === undefined) {
-        handler = (_req, { render }) => render({ meta });
+        handler = (_req, { render }) => render({ meta: rebasedMeta });
       }
 
       error = {
@@ -159,7 +162,7 @@ export class ServerContext {
         handler:
           handler ??
           ((req, ctx) => router.defaultErrorHandler(req, ctx, ctx.error)),
-        meta,
+        meta: rebasedMeta,
         name,
         pathname,
         render,
@@ -295,10 +298,10 @@ export class ServerContext {
         return async (
           {
             data,
-            meta = [],
+            meta = {},
           }: {
             data?: any;
-            meta?: Meta[];
+            meta?: Meta;
           } = {},
           options?: ResponseInit
         ) => {
@@ -425,7 +428,7 @@ const DEFAULT_ROUTER_OPTIONS: RouterOptions = {
 const DEFAULT_NOT_FOUND: UnknownPage = {
   csp: false,
   handler: (req) => router.defaultOtherHandler(req),
-  meta: [],
+  meta: {},
   name: "_404",
   pathname: "",
   render: DefaultRender,
@@ -434,8 +437,8 @@ const DEFAULT_NOT_FOUND: UnknownPage = {
 const DEFAULT_ERROR: ErrorPage = {
   component: DefaultErrorComponent,
   csp: false,
-  handler: (_req, ctx) => ctx.render({ meta: [] }),
-  meta: [],
+  handler: (_req, ctx) => ctx.render({ meta: {} }),
+  meta: {},
   name: "_500",
   pathname: "",
   render: DefaultRender,
@@ -491,4 +494,77 @@ function deepFreeze(object: any) {
   }
 
   return object;
+}
+
+function rebaseMeta(meta: Meta, base: string): Meta {
+  const RESOLVE_URL_REG = /^(?:\w+:)?\//;
+  const toArray = (value: unknown) => (Array.isArray(value) ? value : [value]);
+  return {
+    ...meta,
+
+    link: toArray(meta.link || []).map((props) => {
+      if (props.href && !RESOLVE_URL_REG.test(props.href)) {
+        return {
+          ...props,
+          href: base + props.href,
+        };
+      }
+      return { ...props };
+    }),
+
+    script: toArray(meta.script || []).map((props) => {
+      type Imports = Record<string, string>;
+      type Scopes = Record<string, Imports>;
+      type Importmap = {
+        imports?: Imports;
+        scopes?: Scopes;
+      };
+
+      if (
+        props.type === "importmap" &&
+        props.script &&
+        (props.script.imports || props.script.scopes)
+      ) {
+        const importmap = props.script as Importmap;
+        const rebaseImports = (imports: Imports) =>
+          Object.entries(imports).reduce((previousValue, [name, url]) => {
+            if (!RESOLVE_URL_REG.test(url)) {
+              previousValue[name] = base + url;
+            } else {
+              previousValue[name] = url;
+            }
+            return previousValue;
+          }, {} as Imports);
+
+        return {
+          ...props,
+          script: {
+            imports: importmap.imports ? rebaseImports(importmap.imports) : {},
+            scopes: importmap.scopes
+              ? Object.entries(importmap.scopes).reduce(
+                  (previousValue, [scope, imports]) => {
+                    if (!RESOLVE_URL_REG.test(scope)) {
+                      previousValue[base + scope] = rebaseImports(imports);
+                    } else {
+                      previousValue[scope] = {};
+                    }
+                    return previousValue;
+                  },
+                  {} as Scopes
+                )
+              : {},
+          } as Importmap,
+        };
+      }
+
+      if (typeof props.href === "string" && !RESOLVE_URL_REG.test(props.href)) {
+        return {
+          ...props,
+          href: base + props.href,
+        };
+      }
+
+      return { ...props };
+    }),
+  };
 }

@@ -4,11 +4,9 @@ import { html } from "./html";
 
 export { render } from "./html";
 
-export const meta: Meta[] = [
-  {
-    title: "Error",
-  },
-];
+export const meta: Meta = {
+  title: "Error",
+};
 
 function style(style: Record<string, string | number>) {
   return Object.entries(style)
@@ -56,7 +54,8 @@ export default function DefaultErrorPage(props: ErrorComponentProps) {
         An error occurred during route handling or page rendering.
       </p>
       ${message
-        ? html`<pre
+        ? // prettier-ignore
+          html`<pre
             style="${style({
               margin: 0,
               fontSize: "12pt",
@@ -64,9 +63,7 @@ export default function DefaultErrorPage(props: ErrorComponentProps) {
               padding: 16,
               paddingTop: 0,
               fontFamily: "monospace",
-            })}">
-${message}</pre
-          >`
+            })}">${message}</pre>`
         : ``}
     </div>
   </div>`;

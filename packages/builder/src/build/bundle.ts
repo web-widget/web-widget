@@ -9,19 +9,49 @@ import {
   UserConfig as ViteUserConfig,
 } from "vite";
 import { BuilderConfig } from "../types";
+import { Meta, DocumentLink, DocumentScript } from "@web-widget/web-server";
+import { parse, init } from "es-module-lexer";
+import { resolve } from "import-meta-resolve";
+
+let CLIENT_ENTRY: string;
 
 type Entrypoints = Record<string, string>;
+type FileNamesCache = [Map<string, string>, Map<string, string>];
 
-// Internal: Bundles the widgets app for both client and server.
-//
-// Multi-entry build: every page is considered an entry chunk.
 export async function bundle(config: BuilderConfig) {
-  const chunkFileNamesCache = new Map();
+  const cache = [new Map(), new Map()] as FileNamesCache;
   const entrypoints = resolveEntrypoints(config);
-  const [clientResult, serverResult] = await Promise.all([
-    bundleWithVite(config, entrypoints, false, chunkFileNamesCache),
-    bundleWithVite(config, entrypoints, true, chunkFileNamesCache),
-  ]);
+
+  CLIENT_ENTRY = fileURLToPath(
+    resolve("@web-widget/web-server/client", import.meta.url)
+  );
+
+  const clientResult = await bundleWithVite(
+    config,
+    {
+      ...entrypoints,
+      [`${config.output.asset}/entry-client`]: CLIENT_ENTRY,
+    },
+    false,
+    cache
+  );
+
+  const meta = getMeta(clientResult, {
+    imports: {
+      "@web-widget/web-server/client": clientResult.output.find(
+        (chunk) =>
+          chunk.type === "chunk" && chunk.facadeModuleId === CLIENT_ENTRY
+      )?.fileName,
+    },
+  });
+
+  const serverResult = await bundleWithVite(
+    config,
+    entrypoints,
+    true,
+    cache,
+    meta
+  );
 
   return { clientResult, serverResult };
 }
@@ -32,7 +62,8 @@ async function bundleWithVite(
   config: BuilderConfig,
   entrypoints: string[] | Entrypoints,
   isServer: boolean,
-  chunkFileNamesCache: Map<string, string>
+  cache: FileNamesCache,
+  meta?: Meta
 ) {
   const vite = mergeViteConfig(config.vite, {
     base: config.base,
@@ -46,9 +77,10 @@ async function bundleWithVite(
       noExternal: [],
     },
     plugins: [
-      !isServer && removeEntryPlugin(),
+      !isServer && removeEntryPlugin([CLIENT_ENTRY]),
+      isServer && injectionMetaPlugin(meta),
       isServer && addESMPackagePlugin(config),
-      chunkFileNamesPlugin(chunkFileNamesCache),
+      chunkFileNamesPlugin(cache),
     ],
     build: {
       ssr: isServer,
@@ -103,43 +135,113 @@ function resolveEntrypoints(config: BuilderConfig): Entrypoints {
 }
 
 // NOTE: Keep the relative paths of assets on the client and server consistent.
-function chunkFileNamesPlugin(
-  chunkFileNamesCache: Map<string, string>
-): Plugin {
+function chunkFileNamesPlugin([
+  oldFileNameCache,
+  renamed,
+]: FileNamesCache): Plugin[] {
+  return [
+    {
+      name: "builder:fileNames:rename-chunks",
+      enforce: "pre",
+      generateBundle(options, bundle) {
+        Object.keys(bundle).forEach((fileName) => {
+          const chunk = bundle[fileName];
+          const type = chunk.type;
+
+          if (type === "chunk" && chunk.facadeModuleId) {
+            if (oldFileNameCache.has(chunk.facadeModuleId)) {
+              const oldFileName = chunk.fileName;
+              const newFileName = oldFileNameCache.get(
+                chunk.facadeModuleId
+              ) as string;
+
+              renamed.set(oldFileName, newFileName);
+              chunk.fileName = newFileName;
+              bundle[newFileName] = chunk;
+              delete bundle[oldFileName];
+            } else {
+              oldFileNameCache.set(chunk.facadeModuleId, fileName);
+            }
+          }
+        });
+      },
+    },
+    {
+      name: "builder:fileNames:rename-imports",
+      enforce: "post",
+      generateBundle(options, bundle) {
+        const rename = (fileName: string) => renamed.get(fileName) || fileName;
+
+        Object.keys(bundle).forEach((fileName) => {
+          const chunk = bundle[fileName];
+          const type = chunk.type;
+          if (type === "chunk") {
+            chunk.imports = chunk.imports.map(rename);
+            chunk.dynamicImports = chunk.dynamicImports.map(rename);
+            for (const [oldFileName, newFileName] of renamed) {
+              const newCode = chunk.code.replaceAll(oldFileName, newFileName);
+              chunk.code = newCode;
+            }
+          }
+        });
+      },
+    },
+  ];
+}
+
+function removeEntryPlugin(exclude: string[]): Plugin {
   return {
-    name: "builder:filename",
+    name: "builder:remove-entry",
     generateBundle(options, bundle) {
-      Object.keys(bundle).forEach((filename) => {
-        const chunk = bundle[filename];
+      Object.keys(bundle).forEach((fileName) => {
+        const chunk = bundle[fileName];
         const type = chunk.type;
 
-        if (type === "chunk" && chunk.facadeModuleId) {
-          if (chunkFileNamesCache.has(chunk.facadeModuleId)) {
-            const fixedname = chunkFileNamesCache.get(
-              chunk.facadeModuleId
-            ) as string;
-            chunk.fileName = fixedname;
-            bundle[fixedname] = chunk;
-            delete bundle[filename];
-          }
-
-          chunkFileNamesCache.set(chunk.facadeModuleId, filename);
+        if (
+          type === "chunk" &&
+          chunk.isEntry &&
+          !exclude.includes(chunk.facadeModuleId as string)
+        ) {
+          delete bundle[fileName];
         }
       });
     },
   };
 }
 
-function removeEntryPlugin(): Plugin {
+function injectionMetaPlugin(meta: Meta): Plugin {
   return {
-    name: "builder:client-js-removal",
-    generateBundle(options, bundle) {
-      Object.keys(bundle).forEach((filename) => {
-        const chunk = bundle[filename];
+    name: "builder:injection-meta",
+    async generateBundle(options, bundle) {
+      await init;
+
+      Object.keys(bundle).forEach((fileName) => {
+        const chunk = bundle[fileName];
         const type = chunk.type;
 
-        if (type === "chunk" && chunk.isEntry) {
-          delete bundle[filename];
+        if (type !== "chunk" || !chunk.isEntry) {
+          return;
+        }
+
+        const [_, exports] = parse(chunk.code);
+
+        if (exports.find(({ s, e }) => chunk.code.slice(s, e) === "meta")) {
+          chunk.code += `
+try {
+  const link = ${JSON.stringify(meta.link)};
+  const script = ${JSON.stringify(meta.script)};
+  meta.link = meta.link ? (Array.isArray(meta.link) ? meta.link.push(...link) : [link]) : link;
+  meta.script = meta.script ? (Array.isArray(meta.script) ? meta.script.push(...script) : [script]) : script;
+} catch(e) {
+  throw new Error("Builder: No meta variable found.", e);
+}`;
+        } else {
+          chunk.code += `
+export const meta = {
+  link: ${JSON.stringify(meta.link)},
+  script: ${JSON.stringify(meta.script)}
+};
+`;
         }
       });
     },
@@ -149,7 +251,7 @@ function removeEntryPlugin(): Plugin {
 // Internal: Add a `package.json` file specifying the type of files as MJS.
 function addESMPackagePlugin(config: BuilderConfig) {
   return {
-    name: "builder:add-common-js-package-plugin",
+    name: "builder:add-esm-package",
     async writeBundle() {
       await fs.writeFile(
         join(fileURLToPath(config.output.server), "package.json"),
@@ -157,4 +259,77 @@ function addESMPackagePlugin(config: BuilderConfig) {
       );
     },
   };
+}
+
+function getMeta(clientResult: RollupOutput, importmap: any): Meta {
+  const meta = {
+    script: [
+      {
+        type: "importmap",
+        script: importmap,
+      },
+    ] as DocumentScript[],
+    link: [] as DocumentLink[],
+  };
+
+  for (const chunk of clientResult.output.values()) {
+    const fileName = chunk.fileName;
+    const type = chunk.type;
+    const asset = type === "asset";
+
+    /*if (fileName.endsWith(".js")) {
+      meta.link!.push({
+        crossOrigin: true,
+        href: fileName,
+        rel: "modulepreload",
+      });
+    } else */ if (asset && fileName.endsWith(".css")) {
+      meta.link!.push({
+        href: fileName,
+        rel: "stylesheet",
+      });
+    } else if (asset && fileName.endsWith(".woff")) {
+      meta.link!.push({
+        as: "font",
+        crossOrigin: true,
+        href: fileName,
+        rel: "preload",
+        type: "font/woff",
+      });
+    } else if (asset && fileName.endsWith(".woff2")) {
+      meta.link!.push({
+        as: "font",
+        crossOrigin: true,
+        href: fileName,
+        rel: "preload",
+        type: "font/woff2",
+      });
+    } else if (asset && fileName.endsWith(".gif")) {
+      meta.link!.push({
+        as: "image",
+        href: fileName,
+        rel: "preload",
+        type: "image/gif",
+      });
+    } else if (
+      asset &&
+      (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg"))
+    ) {
+      meta.link!.push({
+        as: "image",
+        href: fileName,
+        rel: "preload",
+        type: "image/jpeg",
+      });
+    } else if (asset && fileName.endsWith(".png")) {
+      meta.link!.push({
+        as: "image",
+        href: fileName,
+        rel: "preload",
+        type: "image/png",
+      });
+    }
+  }
+
+  return meta;
 }

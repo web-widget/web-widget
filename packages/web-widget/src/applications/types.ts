@@ -35,7 +35,7 @@ export type Route = {
 
 interface BaseRenderContext {
   data?: Data;
-  meta?: Meta[];
+  meta?: Meta;
   request: Request;
   route?: Route;
   component?: component;
@@ -49,7 +49,7 @@ export interface ServerRenderErrorContext extends ServerRenderContext {
 export interface ClientRenderContext extends BaseRenderContext {
   container: HTMLElement;
   recovering: boolean; // isHydration
-  update: (context: { data?: Data; meta?: Meta[] }) => Promise<void>;
+  update: (context: { data?: Data; meta?: Meta }) => Promise<void>;
 }
 
 export interface ClientRenderErrorContext extends ClientRenderContext {
@@ -62,13 +62,13 @@ export interface HandlerContext {
 }
 
 export interface ServerHandlerContext extends HandlerContext {
-  render: (context: { data?: Data; meta?: Meta[] }) => Promise<Response>;
+  render: (context: { data?: Data; meta?: Meta }) => Promise<Response>;
 }
 
 export interface ClientHandlerContext extends HandlerContext {
   render: (context: {
     data?: Data;
-    meta?: Meta[];
+    meta?: Meta;
   }) => Promise<ClientRenderResult>;
 }
 

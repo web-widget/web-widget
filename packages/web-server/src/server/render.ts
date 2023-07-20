@@ -15,7 +15,7 @@ export interface InnerRenderOptions<Data> {
   error?: unknown;
   imports: string[];
   lang?: string;
-  meta: Meta[];
+  meta: Meta;
   params: Record<string, string>;
   route: Route<Data> | UnknownPage | ErrorPage;
   url: URL;
@@ -25,22 +25,22 @@ export type InnerRenderFunction = () => Promise<RenderResult>;
 
 export class InnerRenderContext {
   #id: string;
-  #importmap: Record<string, any> = {};
-  #lang: string;
-  #links: string[] | Record<string, string>[] = [];
-  #meta: Meta[] = [];
+  #meta: Meta = {};
   #route: string;
   #state: Map<string, unknown> = new Map();
-  #styles: string[] | Record<string, string>[] = [];
   #url: URL;
 
-  constructor(id: string, url: URL, route: string, lang: string, meta: Meta[]) {
+  constructor(id: string, meta: Meta, route: string, url: URL) {
     this.#id = id;
-    this.#url = url;
+    this.#meta = meta;
     this.#route = route;
-    this.#lang = lang;
-    this.#meta.push(...meta);
+    this.#url = url;
   }
+
+  clientEntry = "@web-widget/web-server/client";
+
+  esModulePolyfillUrl =
+    "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js";
 
   /** A unique ID for this logical JIT render. */
   get id(): string {
@@ -56,21 +56,7 @@ export class InnerRenderContext {
     return this.#state;
   }
 
-  /**
-   * All of the CSS style rules that should be inlined into the document.
-   * Adding to this list across multiple renders is supported (even across
-   * suspense!). The CSS rules will always be inserted on the client in the
-   * order specified here.
-   */
-  get styles(): string[] | Record<string, string>[] {
-    return this.#styles;
-  }
-
-  get links(): string[] | Record<string, string>[] {
-    return this.#links;
-  }
-
-  get meta(): Meta[] {
+  get meta(): Meta {
     return this.#meta;
   }
 
@@ -83,18 +69,6 @@ export class InnerRenderContext {
    * to be rendered. */
   get route(): string {
     return this.#route;
-  }
-
-  /** The language of the page being rendered. Defaults to "en". */
-  get lang(): string {
-    return this.#lang;
-  }
-  set lang(lang: string) {
-    this.#lang = lang;
-  }
-
-  get importmap() {
-    return this.#importmap;
   }
 }
 
@@ -119,10 +93,9 @@ export async function internalRender<Data>(
 
   const ctx = new InnerRenderContext(
     crypto.randomUUID(),
-    opts.url,
+    opts.meta,
     opts.route.pathname,
-    opts.lang ?? "en",
-    opts.meta
+    opts.url
   );
 
   if (csp) {
@@ -154,7 +127,6 @@ export async function internalRender<Data>(
   }
 
   // const moduleScripts: [string, string][] = [];
-
   // for (const url of opts.imports) {
   //   const randomNonce = crypto.randomUUID().replace(/-/g, "");
   //   if (csp) {
@@ -167,15 +139,11 @@ export async function internalRender<Data>(
   // }
 
   const data = {
+    base: "/", // TODO 使用用户配置
+    clientEntry: ctx.clientEntry,
+    esModulePolyfillUrl: ctx.esModulePolyfillUrl,
     meta: ctx.meta,
     outlet,
-    clientEntry: "@web-widget/web-server/client",
-    esModulePolyfillUrl:
-      "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js",
-    importmap: ctx.importmap,
-    styles: ctx.styles,
-    links: ctx.links,
-    lang: ctx.lang,
   };
   const layoutContext: RenderContext = {
     component: layout.default,

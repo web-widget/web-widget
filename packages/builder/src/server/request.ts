@@ -23,25 +23,37 @@ export async function handleRequest(
         (route) => route.pathname === ctx.route
       );
 
-      if (route) {
+      if (route && route.$devFile) {
         const dir = pathToFileURL(join(viteServer.config.root, "/"));
-        const routeFile = new URL(route?.$devFile as string, dir);
+        const routeFile = new URL(route.$devFile as string, dir);
         const assets = await getAssets(
           routeFile,
           loader,
           pathToFileURL(viteServer.config.root),
           "development"
         );
+
+        ctx.meta.style = [];
+        ctx.meta.link = [];
+        ctx.meta.script = [];
+
         assets.styles.forEach(({ props, children }) => {
           // @ts-ignore
-          ctx.styles.push({
+          ctx.meta.style.push({
             ...props,
-            textContent: children,
+            style: children,
           });
         });
         assets.links.forEach(({ props, children }) => {
           // @ts-ignore
-          ctx.links.push(props);
+          ctx.meta.link.push(props);
+        });
+        assets.scripts.forEach(({ props, children }) => {
+          // @ts-ignore
+          ctx.meta.script.push({
+            ...props,
+            script: children,
+          });
         });
       }
 
