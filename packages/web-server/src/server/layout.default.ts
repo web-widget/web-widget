@@ -1,81 +1,28 @@
-import {
-  html,
-  attributes,
-  unsafeHTML,
-  HTML,
-  streamToHTML,
-  jsonContent,
-} from "./html";
-import { Meta, RenderResult, ComponentProps } from "./types";
+import { html, HTML, streamToHTML, unsafeHTML } from "./html";
+import { RenderResult, ComponentProps, Meta } from "./types";
+import { renderMetaToString } from "./helpers";
 
 export { render } from "./html";
 
-function renderDocumentMetaData(meta: Meta, base: string) {
-  const priority: HTML[][] = [[], [], [], [], []];
-  Array.from(Object.entries(meta)).forEach(([tagName, value]) => {
-    const elements = Array.isArray(value) ? value : [value];
-
-    if (tagName === "title") {
-      return priority[0].push(html`<title>${value}</title>`);
-    }
-
-    if (tagName === "description" || tagName === "keywords") {
-      return priority[1].push(
-        html`<meta name="${tagName}" content="${value}" />`
-      );
-    }
-
-    if (tagName === "meta") {
-      return elements.forEach((props) =>
-        priority[2].push(html`<meta ${attributes(props)} />`)
-      );
-    }
-
-    if (tagName === "link") {
-      return elements.forEach((props) =>
-        priority[4].push(html`<link ${attributes(props)} />`)
-      );
-    }
-
-    if (tagName === "style") {
-      return elements.forEach(
-        // prettier-ignore
-        ({ style, ...props }) => priority[4].push(html`<style ${attributes(props)}>${style}</style>`)
-      );
-    }
-
-    if (tagName === "script") {
-      return elements.forEach(({ script, ...props }) =>
-        // prettier-ignore
-        priority[props?.type === "importmap" ? 3 : 4].push(html`<script ${attributes(props)}>${typeof script === "string" ? script : jsonContent(script)}</script>`)
-      );
-    }
-  });
-
-  return priority.flat();
-}
-
 export interface LayoutData {
-  base: string;
   clientEntry: string;
   esModulePolyfillUrl?: string;
   meta: Meta;
   outlet: RenderResult;
 }
 
-export default function Layout(props: ComponentProps<LayoutData>): HTML {
-  const data = props.data;
+export default function Layout({
+  data: { clientEntry, esModulePolyfillUrl, meta, outlet },
+}: ComponentProps<LayoutData>): HTML {
   return html`<!DOCTYPE html>
-    <html lang="${data.meta?.lang || "en"}">
+    <html lang="${meta.lang}">
       <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        ${renderDocumentMetaData(data.meta, data.base || "/")}
+        ${unsafeHTML(renderMetaToString(meta))}
       </head>
       <body>
-        ${typeof data.outlet === "string"
-          ? data.outlet
-          : streamToHTML(data.outlet as ReadableStream<string>)}
+        ${typeof outlet === "string"
+          ? outlet
+          : streamToHTML(outlet as ReadableStream<string>)}
         <script>
           /* Polyfill: Declarative Shadow DOM */
           (function attachShadowRoots(root) {
@@ -138,13 +85,13 @@ export default function Layout(props: ComponentProps<LayoutData>): HTML {
               return function importShimProxy() {
                 return promise.then((importShim) => importShim(...arguments));
               };
-            })(${unsafeHTML(JSON.stringify(data.esModulePolyfillUrl))});
+            })(${unsafeHTML(JSON.stringify(esModulePolyfillUrl))});
           }
         </script>
-        ${data.clientEntry
+        ${clientEntry
           ? html`<script type="module">
               const loader = () =>
-                import(${unsafeHTML(JSON.stringify(data.clientEntry))});
+                import(${unsafeHTML(JSON.stringify(clientEntry))});
               typeof importShim === "function"
                 ? importShim(
                     loader.toString().match(/\\bimport\\("([^"]*?)"\\)/)[1]

@@ -79,7 +79,10 @@ export class ServerContext {
         meta = {},
         render,
       } = module as RouteModule;
-      const rebasedMeta = rebaseMeta(meta, opts?.client?.base || "/");
+      const rebasedMeta = rebaseMeta(
+        addDefaultMeta(meta),
+        opts?.client?.base || "/"
+      );
       if (typeof handler === "object" && handler.GET === undefined) {
         handler.GET = (_req, { render }) => render({ meta: rebasedMeta });
       }
@@ -126,7 +129,10 @@ export class ServerContext {
         config = {},
         meta = {},
       } = module as UnknownPageModule;
-      const rebasedMeta = rebaseMeta(meta, opts?.client?.base || "/");
+      const rebasedMeta = rebaseMeta(
+        addDefaultMeta(meta),
+        opts?.client?.base || "/"
+      );
       let { handler } = module as UnknownPageModule;
       if (component && handler === undefined) {
         handler = (_req, { render }) => render({ meta: rebasedMeta });
@@ -150,7 +156,10 @@ export class ServerContext {
         meta = {},
         render,
       } = module as ErrorPageModule;
-      const rebasedMeta = rebaseMeta(meta, opts?.client?.base || "/");
+      const rebasedMeta = rebaseMeta(
+        addDefaultMeta(meta),
+        opts?.client?.base || "/"
+      );
       let { handler } = module as ErrorPageModule;
       if (component && handler === undefined) {
         handler = (_req, { render }) => render({ meta: rebasedMeta });
@@ -566,5 +575,35 @@ function rebaseMeta(meta: Meta, base: string): Meta {
 
       return { ...props };
     }),
+  };
+}
+
+function addDefaultMeta(meta: Meta) {
+  const toArray = (value: unknown) => (Array.isArray(value) ? value : [value]);
+  const list = toArray(meta.meta || []);
+  const hasCharset = !list.find((props) => props.charset);
+  const hasViewport = !list.find((props) => props.name === "viewport");
+
+  return {
+    lang: "en",
+    ...meta,
+    meta: [
+      list,
+      hasCharset
+        ? []
+        : [
+            {
+              charset: "utf-8",
+            },
+          ],
+      hasViewport
+        ? []
+        : [
+            {
+              name: "viewport",
+              content: "width=device-width, initial-scale=1.0",
+            },
+          ],
+    ].flat(),
   };
 }

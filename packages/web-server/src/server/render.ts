@@ -139,7 +139,6 @@ export async function internalRender<Data>(
   // }
 
   const data = {
-    base: "/", // TODO 使用用户配置
     clientEntry: ctx.clientEntry,
     esModulePolyfillUrl: ctx.esModulePolyfillUrl,
     meta: ctx.meta,

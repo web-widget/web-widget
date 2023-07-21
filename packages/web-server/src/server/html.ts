@@ -25,43 +25,6 @@ export const streamToHTML = (stream: ReadableStream<string>) =>
     }
   };
 
-// This utility is based on https://github.com/zertosh/htmlescape
-// License: https://github.com/zertosh/htmlescape/blob/0527ca7156a524d256101bb310a9f970f63078ad/LICENSE
-
-const ESCAPE_LOOKUP: { [match: string]: string } = {
-  ">": "\\u003e",
-  "<": "\\u003c",
-  "\u2028": "\\u2028",
-  "\u2029": "\\u2029",
-};
-
-const ESCAPE_REGEX = /[><\u2028\u2029]/g;
-
-export function htmlEscapeJsonString(str: string): string {
-  return str.replace(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match]);
-}
-
-export const unsafeAttributeName = (value: string) =>
-  String(value) /*.replace(/([A-Z])/g, "-$1")*/
-    .toLowerCase();
-export const unsafeAttributeValue = (value: string) =>
-  String(value).replace(/"/g, "&quot;");
-
-export const attributes = (attrs: Record<string, string>) =>
-  unsafeHTML(
-    Object.entries(attrs)
-      .map(
-        ([attrName, attrValue]) =>
-          `${unsafeAttributeName(attrName)}="${unsafeAttributeValue(
-            attrValue
-          )}"`
-      )
-      .join(" ")
-  );
-
-export const jsonContent = (json: Record<string, any>) =>
-  unsafeHTML(htmlEscapeJsonString(JSON.stringify(json)));
-
 type ForAwaitable<T> = Iterable<T> | AsyncIterable<T>;
 type Awaitable<T> = T | Promise<T>;
 
