@@ -24,7 +24,11 @@
     "removeComments": false,
     "emitDeclarationOnly": true,
     "allowImportingTsExtensions": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": [
+      "vite/client",
+      "@web-widget/react/globals"
+    ]
   },
   "include": [
     "**/*"

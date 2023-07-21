@@ -357,19 +357,19 @@ export interface Meta {
    * property could be used to set arbitrary data which the `<head>` component
    * could later use to generate `<meta>` tags.
    */
-  readonly meta?: readonly DocumentMeta[] | DocumentMeta;
+  readonly meta?: readonly DocumentMeta[];
   /**
    * Used to manually append `<link>` elements to the `<head>`.
    */
-  readonly link?: readonly DocumentLink[] | DocumentLink;
+  readonly link?: readonly DocumentLink[];
   /**
    * Used to manually append `<style>` elements to the `<head>`.
    */
-  readonly style?: readonly DocumentStyle[] | DocumentStyle;
+  readonly style?: readonly DocumentStyle[];
   /**
    * Used to manually append `<script>` elements to the `<head>`.
    */
-  readonly script?: readonly DocumentScript[] | DocumentScript;
+  readonly script?: readonly DocumentScript[];
 }
 
 export interface DocumentMeta {

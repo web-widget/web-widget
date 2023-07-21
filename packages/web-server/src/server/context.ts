@@ -307,14 +307,13 @@ export class ServerContext {
         return async (
           {
             data,
-            meta = {},
+            meta = route.meta,
           }: {
             data?: any;
             meta?: Meta;
           } = {},
           options?: ResponseInit
         ) => {
-          // const preloads: string[] = [];
           const [body, csp] = await internalRender(
             {
               data,

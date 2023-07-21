@@ -1,4 +1,10 @@
-import { Meta } from "./types";
+import {
+  Meta,
+  DocumentMeta,
+  DocumentLink,
+  DocumentStyle,
+  DocumentScript,
+} from "./types";
 
 type EscapeLookupKey = "&" | ">" | "<" | "\u2028" | "\u2029";
 const ESCAPE_LOOKUP = {
@@ -45,19 +51,20 @@ const safeAttributeName = (value: string) =>
   safeHTML(String(value)).toLowerCase();
 const safeAttributeValue = (value: string) => safeHTML(String(value));
 
-const createAttributes = (attrs: Record<string, string>) =>
+const createAttributes = (attrs: Record<string, string | undefined>) =>
   Object.entries(attrs)
-    .map(
-      ([attrName, attrValue]) =>
-        `${safeAttributeName(attrName)}${
-          attrValue ? '="' + safeAttributeValue(attrValue) + '"' : ""
-        }`
+    .map(([attrName, attrValue]) =>
+      typeof attrValue === "string"
+        ? `${safeAttributeName(attrName)}${
+            attrValue === "" ? "" : '="' + safeAttributeValue(attrValue) + '"'
+          }`
+        : ""
     )
     .join(" ");
 
 function createElement(
   name: string,
-  attributes: Record<string, string>,
+  attributes: Record<string, string | undefined>,
   children?: string
 ): string {
   return typeof children === "string"
@@ -70,44 +77,44 @@ function createText(data: string) {
 }
 
 export function renderMetaToString(meta: Meta): string {
-  const priority: string[][] = [[], [], [], [], []];
+  const priority: string[][] = [[], [], []];
   Array.from(Object.entries(meta)).forEach(([tagName, value]) => {
-    const elements = Array.isArray(value) ? value : [value];
-
     if (tagName === "title") {
       return priority[0].push(createElement("title", {}, createText(value)));
     }
 
     if (tagName === "description" || tagName === "keywords") {
-      return priority[1].push(createElement(tagName, { content: value }));
+      return priority[0].push(createElement(tagName, { content: value }));
     }
 
     if (tagName === "meta") {
-      return elements.forEach((props) =>
-        priority[2].push(createElement("meta", props))
+      return (value as DocumentMeta[]).forEach((props) =>
+        priority[0].push(createElement("meta", props as Record<string, string>))
       );
     }
 
     if (tagName === "link") {
-      return elements.forEach((props) =>
-        priority[4].push(createElement("link", props))
+      return (value as DocumentLink[]).forEach((props) =>
+        priority[2].push(createElement("link", props as Record<string, string>))
       );
     }
 
     if (tagName === "style") {
-      return elements.forEach(({ style = "", ...props }) =>
-        priority[4].push(createElement("style", props, createText(style)))
+      return (value as DocumentStyle[]).forEach(({ style = "", ...props }) =>
+        priority[2].push(createElement("style", props, createText(style)))
       );
     }
 
     if (tagName === "script") {
-      return elements.forEach(({ script = "", ...props }) => {
-        const text =
-          typeof script === "string" ? createText(script) : safeJSON(script);
-        priority[props?.type === "importmap" ? 3 : 4].push(
-          createElement("script", props, text)
-        );
-      });
+      return (value as DocumentScript[]).forEach(
+        ({ script = "", ...props }) => {
+          const text =
+            typeof script === "string" ? createText(script) : safeJSON(script);
+          priority[props?.type === "importmap" ? 1 : 2].push(
+            createElement("script", props, text)
+          );
+        }
+      );
     }
   });
 

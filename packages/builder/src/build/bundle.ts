@@ -236,8 +236,8 @@ function injectionMetaPlugin(meta: Meta): Plugin {
 try {
   const link = ${JSON.stringify(meta.link)};
   const script = ${JSON.stringify(meta.script)};
-  meta.link = meta.link ? (Array.isArray(meta.link) ? meta.link.push(...link) : [link]) : link;
-  meta.script = meta.script ? (Array.isArray(meta.script) ? meta.script.push(...script) : [script]) : script;
+  meta.link = meta.link ? meta.link.push(...link) : link;
+  meta.script = meta.script ? meta.script.push(...script) : script;
 } catch(e) {
   throw new Error("Builder: No meta variable found.", e);
 }`;
