@@ -24,13 +24,13 @@
     "./vite-plugin": {
       "types": "./dist/vite-plugin.d.ts",
       "default": "./dist/vite-plugin.js"
-    }
+    },
+    "./globals": "./globals.d.ts"
   },
   "types": "./dist/react.server.d.ts",
   "files": [
     "dist",
-    "jsx-runtime.js",
-    "jsx-dev-runtime.js"
+    "globals.d.ts"
   ],
   "publishConfig": {
     "access": "public"

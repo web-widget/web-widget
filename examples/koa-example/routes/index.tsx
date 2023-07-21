@@ -1,7 +1,7 @@
 import ReactCounter from "../widgets/Counter.tsx";
 import VueCounter from "../widgets/CounterVue.ts";
 import { render } from "@web-widget/react";
-import styles from "./index.module.css";
+import styles from "../css/index.module.css";
 
 export { render };
 

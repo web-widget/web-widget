@@ -67,7 +67,7 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
 
       /** rebuild the route cache + manifest, as needed. */
       async function rebuildManifest(file: string) {
-        if (file === configPath || manifest.devFiles.includes(file)) {
+        if (file === configPath || manifest?.devFiles.includes(file)) {
           viteServer.config.logger.info(
             pc.green(
               `${relative(
