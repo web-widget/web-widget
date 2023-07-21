@@ -1,4 +1,3 @@
-import { DEBUG } from "./constants";
 import type { ErrorComponentProps, Meta } from "./types";
 import { html } from "./html";
 
@@ -16,6 +15,8 @@ function style(style: Record<string, string | number>) {
     )
     .join(";");
 }
+
+const DEBUG = false;
 
 export default function DefaultErrorPage(props: ErrorComponentProps) {
   const { error } = props;
