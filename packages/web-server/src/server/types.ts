@@ -1,5 +1,3 @@
-/// <reference types="urlpattern-polyfill" />
-
 import * as router from "./router";
 import { InnerRenderFunction, InnerRenderContext } from "./render";
 

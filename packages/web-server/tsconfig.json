@@ -22,5 +22,8 @@
     "declaration": true,
     "rootDir": "./src",
     "skipLibCheck": true,
+    "types": [
+      "urlpattern-polyfill"
+    ]
   }
 }

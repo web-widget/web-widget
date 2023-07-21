@@ -1,5 +1,3 @@
-/// <reference types="urlpattern-polyfill" />
-
 import { Status } from "./status";
 import * as router from "./router";
 import { Manifest, ServerHandler, ServerConnInfo, Meta } from "./types";

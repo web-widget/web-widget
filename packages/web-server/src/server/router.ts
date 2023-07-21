@@ -1,5 +1,3 @@
-/// <reference types="urlpattern-polyfill" />
-
 import type { ServerConnInfo } from "./types";
 
 type HandlerContext<T = unknown> = T & ServerConnInfo;
