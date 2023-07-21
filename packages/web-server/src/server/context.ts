@@ -506,11 +506,10 @@ function deepFreeze(object: any) {
 
 function rebaseMeta(meta: Meta, base: string): Meta {
   const RESOLVE_URL_REG = /^(?:\w+:)?\//;
-  const toArray = (value: unknown) => (Array.isArray(value) ? value : [value]);
   return {
     ...meta,
 
-    link: toArray(meta.link || []).map((props) => {
+    link: (meta.link || []).map((props) => {
       if (props.href && !RESOLVE_URL_REG.test(props.href)) {
         return {
           ...props,
@@ -520,7 +519,7 @@ function rebaseMeta(meta: Meta, base: string): Meta {
       return { ...props };
     }),
 
-    script: toArray(meta.script || []).map((props) => {
+    script: (meta.script || []).map((props) => {
       type Imports = Record<string, string>;
       type Scopes = Record<string, Imports>;
       type Importmap = {
@@ -531,7 +530,7 @@ function rebaseMeta(meta: Meta, base: string): Meta {
       if (
         props.type === "importmap" &&
         props.script &&
-        (props.script.imports || props.script.scopes)
+        typeof props.script === "object"
       ) {
         const importmap = props.script as Importmap;
         const rebaseImports = (imports: Imports) =>
@@ -565,10 +564,10 @@ function rebaseMeta(meta: Meta, base: string): Meta {
         };
       }
 
-      if (typeof props.href === "string" && !RESOLVE_URL_REG.test(props.href)) {
+      if (typeof props.src === "string" && !RESOLVE_URL_REG.test(props.src)) {
         return {
           ...props,
-          href: base + props.href,
+          src: base + props.src,
         };
       }
 
@@ -578,16 +577,15 @@ function rebaseMeta(meta: Meta, base: string): Meta {
 }
 
 function addDefaultMeta(meta: Meta) {
-  const toArray = (value: unknown) => (Array.isArray(value) ? value : [value]);
-  const list = toArray(meta.meta || []);
-  const hasCharset = !list.find((props) => props.charset);
-  const hasViewport = !list.find((props) => props.name === "viewport");
+  const metadata = meta.meta || [];
+  const hasCharset = metadata.find((props) => props.charset);
+  const hasViewport = metadata.find((props) => props.name === "viewport");
 
   return {
     lang: "en",
     ...meta,
     meta: [
-      list,
+      metadata,
       hasCharset
         ? []
         : [
