@@ -289,6 +289,12 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4
 
+  packages/schema:
+    dependencies:
+      typescript:
+        specifier: ^5.0.4
+        version: 5.0.4
+
   packages/vue:
     dependencies:
       vue:
@@ -11812,7 +11818,6 @@ packages:
     resolution: {integrity: sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==}
     engines: {node: '>=12.20'}
     hasBin: true
-    dev: true
 
   /typical@4.0.0:
     resolution: {integrity: sha512-VAH4IvQ7BDFYglMd7BPRDfLgxZZX4O4TFcRDA6EN5X7erNJJq+McIEp8np9aVtxrCJ6qx4GTYVfOWNjcqwZgRw==}
