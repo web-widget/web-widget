@@ -1,0 +1,8 @@
+{
+  "name": "@web-widget/schema",
+  "type": "module",
+  "exports": "./schema.d.ts",
+  "dependencies": {
+    "typescript": "^5.0.4"
+  }
+}
