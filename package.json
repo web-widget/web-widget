@@ -11,7 +11,7 @@
     "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll"
   },
   "engines": {
-    "node": ">=16",
+    "node": ">=18",
     "npm": ">=7"
   },
   "repository": {
@@ -42,6 +42,10 @@
   },
   "packageManager": "pnpm@7.9.5",
   "pnpm": {
-    "patchedDependencies": {}
+    "patchedDependencies": {},
+    "overrides": {
+      "typescript": "^5.0.4",
+      "tsup": "^7.0.0"
+    }
   }
 }

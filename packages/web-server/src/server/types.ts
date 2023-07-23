@@ -35,7 +35,7 @@ export type RenderPage = (
   render: InnerRenderFunction
 ) => void | Promise<void>;
 
-/// --- ROUTES & WIDGETS ---
+// --- ROUTES & WIDGETS ---
 
 export interface ComponentProps<Data> {
   /** The URL of the request that resulted in this page being rendered. */

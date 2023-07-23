@@ -10,7 +10,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@web-widget/web-std": "workspace:*",
     "@worker-tools/html": "^2.0.0-pre.12"
