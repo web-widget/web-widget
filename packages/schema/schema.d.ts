@@ -1,6 +1,4 @@
-export type Module =
-  | WidgetModule<Record<string, any>>
-  | RouteModule<Record<string, any>>;
+export type Module<Data> = WidgetModule<Data> | RouteModule<Data>;
 
 // --- WIDGET ---
 
@@ -11,60 +9,78 @@ export interface WidgetModule<Data> {
 }
 
 export interface WidgetMeta {
-  title?: string;
   description?: string;
   keywords?: string;
   lang?: string;
-  /**
-   * Used to manually append `<link>` elements to the `<head>`.
-   */
   link?: LinkDescriptor[];
-  /**
-   * Used to manually append `<style>` elements to the `<head>`.
-   */
+  meta?: MetaDescriptor[];
   style?: StyleDescriptor[];
+  title?: string;
 }
 
 export type WidgetRenderContext<Data> =
   | ServerWidgetRenderContext<Data>
-  | ChientWidgetRenderContext<Data>;
+  | ClientWidgetRenderContext<Data>;
 
 export interface ServerWidgetRenderContext<Data> {
   /**
+   * Components defined by the UI framework.
+   */
+  component?: WidgetComponent<Data> | any;
+
+  /**
    * Props of a component.
    */
   data: Data;
 
   /**
-   * This is a component of the UI framework.
+   * Metadata for widget.
    */
-  component?: WidgetComponent<Data> | any;
+  meta?: WidgetMeta;
 }
 
-export interface ChientWidgetRenderContext<Data> {
+export interface ClientWidgetRenderContext<Data> {
   /**
-   * Props of a component.
-   */
-  data: Data;
-
-  /**
-   * This is a component of the UI framework.
+   * Components defined by the UI framework.
    */
   component?: WidgetComponent<Data> | any;
 
   /**
-   * This is a render container element that exists only on the client side.
+   * The target element for component rendering.
    */
   container: Element;
 
   /**
-   * This is the flag for client hydration mode.
+   * Props of a component.
+   */
+  data: Data;
+
+  /**
+   * Metadata for widget.
+   */
+  meta?: WidgetMeta;
+
+  /**
+   * The widget has been rendered by the server, the client should continue to render.
    */
   recovering: boolean;
 }
 
+export type WidgetRenderResult =
+  | ServerWidgetRenderResult
+  | ClientWidgetRenderResult;
+
+export type ServerWidgetRenderResult = string | ReadableStream;
+
+export type ClientWidgetRenderResult = void | {
+  mount?: () => void | Promise<void>;
+  unmount?: () => void | Promise<void>;
+  /**@experimental*/
+  update?: ({ data }: { data: Record<string, any> }) => void | Promise<void>;
+};
+
 export interface WidgetRender<Data> {
-  (renderContext: WidgetRenderContext<Data>): Promise<RenderResult>;
+  (renderContext: WidgetRenderContext<Data>): Promise<WidgetRenderResult>;
 }
 
 export interface WidgetComponent<Data> {
@@ -74,7 +90,7 @@ export interface WidgetComponent<Data> {
 // --- WIDGET: ERROR---
 
 export interface WidgetErrorModule<Error> extends WidgetModule<null> {
-  default?: ErrorWidgetComponent<Error> | any;
+  default?: WidgetErrorComponent<Error> | any;
 }
 
 export interface WidgetErrorComponentProps<Error> {
@@ -82,7 +98,7 @@ export interface WidgetErrorComponentProps<Error> {
   error: Error;
 }
 
-export interface ErrorWidgetComponent<Error>
+export interface WidgetErrorComponent<Error>
   extends WidgetComponent<WidgetErrorComponentProps<Error>> {}
 
 // --- ROUTE ---
@@ -98,12 +114,11 @@ export interface RouteModule<Data> extends WidgetModule<Data> {
 export interface RouteConfig extends Record<string, any> {}
 
 export interface RouteComponentProps<Data, Params = Record<string, string>> {
-  /** The URL of the request that resulted in this page being rendered. */
-  url: URL;
-
-  /** The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered. */
-  route: string;
+  /**
+   * Additional data passed into `RouteHandlerContext.render`. Defaults to
+   * `undefined`.
+   */
+  data: Data;
 
   /**
    * The parameters that were matched from the route.
@@ -115,11 +130,12 @@ export interface RouteComponentProps<Data, Params = Record<string, string>> {
    */
   params: Params;
 
-  /**
-   * Additional data passed into `HandlerContext.render`. Defaults to
-   * `undefined`.
-   */
-  data: Data;
+  /** The route matcher (e.g. /blog/:id) that the request matched for this page
+   * to be rendered. */
+  route: string;
+
+  /** The URL of the request that resulted in this page being rendered. */
+  url: URL;
 }
 
 export interface RouteComponent<Data, Params = Record<string, string>>
@@ -130,20 +146,32 @@ export interface RouteComponent<Data, Params = Record<string, string>>
 export interface RouteHandlerContext<Data, State = Record<string, unknown>> {
   meta: RouteMeta;
   params: Record<string, string>;
-  render: (
-    userRenderContext: {
+  render: RouteHandlerContextRender<Data>;
+  state: State;
+}
+
+export interface RouteHandlerContextRender<Data> {
+  (
+    props: {
       data?: Data;
       meta?: RouteMeta;
     },
     options?: ResponseInit
-  ) => Response | Promise<Response>;
-  state: State;
+  ): RouteHandlerContextRenderResult | Promise<RouteHandlerContextRenderResult>;
 }
+
+export type RouteHandlerContextRenderResult =
+  | ServerRouteHandlerContextRenderResult
+  | ClientRouteHandlerContextRenderResult;
+
+export type ServerRouteHandlerContextRenderResult = Response;
+
+export type ClientRouteHandlerContextRenderResult = void;
 
 export interface RouteHandler<Data, State = Record<string, unknown>> {
   (req: Request, ctx: RouteHandlerContext<Data, State>):
-    | Response
-    | Promise<Response>;
+    | RouteHandlerContextRenderResult
+    | Promise<RouteHandlerContextRenderResult>;
 }
 
 export type RouteHandlers<Data, State = Record<string, unknown>> = {
@@ -159,35 +187,26 @@ export type RouteHandlers<Data, State = Record<string, unknown>> = {
 
 export interface RouteMeta extends WidgetMeta {
   base?: string;
-
-  /**
-   * Used to manually set meta tags in the head. Additionally, the `data`
-   * property could be used to set arbitrary data which the `<head>` component
-   * could later use to generate `<meta>` tags.
-   */
-  meta?: MetaDescriptor[];
-  /**
-   * Used to manually append `<link>` elements to the `<head>`.
-   */
-  link?: LinkDescriptor[];
-  /**
-   * Used to manually append `<style>` elements to the `<head>`.
-   */
-  style?: StyleDescriptor[];
-  /**
-   * Used to manually append `<script>` elements to the `<head>`.
-   */
   script?: ScriptDescriptor[];
 }
 
 export interface RouteRenderContext<Data, Params = Record<string, string>>
   extends WidgetRender<Data> {
-  /** The URL of the request that resulted in this page being rendered. */
-  url: URL;
+  /**
+   * Components defined by the UI framework.
+   */
+  component?: RouteComponent<Data, Params> | any;
 
-  /** The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered. */
-  route: string;
+  /**
+   * Additional data passed into `RouteHandlerContext.render`. Defaults to
+   * `undefined`.
+   */
+  data: Data;
+
+  /**
+   * Add tags such as meta to the page. Defaults to `{}`.
+   */
+  meta: RouteMeta;
 
   /**
    * The parameters that were matched from the route.
@@ -199,31 +218,28 @@ export interface RouteRenderContext<Data, Params = Record<string, string>>
    */
   params: Params;
 
-  /**
-   * Additional data passed into `HandlerContext.render`. Defaults to
-   * `undefined`.
-   */
-  data: Data;
+  /** The route matcher (e.g. /blog/:id) that the request matched for this page
+   * to be rendered. */
+  route: string;
 
-  /**
-   * Add tags such as meta to the page. Defaults to `[]`.
-   */
-  meta: RouteMeta;
-
-  /**
-   * This is a component of the UI framework.
-   */
-  component?: RouteComponent<Data, Params> | any;
+  /** The URL of the request that resulted in this page being rendered. */
+  url: URL;
 }
 
+export type RouteRenderResult = WidgetRenderResult;
+
+export type ServerRouteRenderResult = ServerWidgetRenderResult;
+
+export type ClientRouteRenderResult = ClientWidgetRenderResult;
+
 export interface RouteRender<Data> extends WidgetRender<Data> {
-  (renderContext: RouteRenderContext<Data>): Promise<RenderResult>;
+  (renderContext: RouteRenderContext<Data>): Promise<RouteRenderResult>;
 }
 
 // --- ROUTE: ERROR---
 
 export interface RouteErrorModule<Error> extends RouteModule<null> {
-  default?: ErrorRouteComponent<Error> | any;
+  default?: RouteErrorComponent<Error> | any;
   handler?: ErrorRouteHandler<Error>;
 }
 
@@ -233,7 +249,7 @@ export interface RouteErrorComponentProps<Error>
   error: Error;
 }
 
-export interface ErrorRouteComponent<Error>
+export interface RouteErrorComponent<Error>
   extends RouteComponent<RouteErrorComponentProps<Error>> {}
 
 export interface RouteErrorHandlerContext<Error = unknown>
@@ -247,7 +263,7 @@ export interface ErrorRouteHandler<Error> extends RouteHandler<null> {
     | Promise<Response>;
 }
 
-// --- BASIC ---
+// --- META ---
 
 export interface MetaDescriptor {
   /** This attribute declares the document's character encoding. */
@@ -280,7 +296,6 @@ export interface LinkDescriptor {
   referrerpolicy?: string;
   /** Sets or retrieves the relationship between the object and the destination of the link. */
   rel?: string;
-  //  relList: DOMTokenList;
   /** Sets or retrieves the MIME type of the object. */
   type?: string;
 }
@@ -311,14 +326,3 @@ export interface ScriptDescriptor {
   /** Sets or retrieves the MIME type for the associated scripting engine. */
   type?: string;
 }
-
-export type RenderResult = ServerRenderResult | ClientRenderResult;
-
-export type ServerRenderResult = string | ReadableStream;
-
-export type ClientRenderResult = void | {
-  mount?: () => void | Promise<void>;
-  /**@experimental*/
-  update?: ({ data }: { data: Record<string, any> }) => void | Promise<void>;
-  unmount?: () => void | Promise<void>;
-};
