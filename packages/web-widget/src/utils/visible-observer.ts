@@ -1,6 +1,3 @@
-/* eslint-disable no-use-before-define */
-/* global IntersectionObserver */
-
 const CALLBACK = Symbol("callback");
 
 const lazyObserver = new IntersectionObserver(

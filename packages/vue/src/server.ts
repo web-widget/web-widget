@@ -1,45 +1,13 @@
 import { createSSRApp } from "vue";
 import { renderToWebStream } from "vue/server-renderer";
 import type {
-  ComponentProps,
-  ErrorComponentProps,
-  Handlers,
-  Meta,
-  RenderContext,
-  RenderResult,
-  UnknownComponentProps,
-} from "@web-widget/web-server";
+  RouteRenderContext,
+  WidgetRenderContext,
+} from "@web-widget/schema/server";
+import { defineRender } from "@web-widget/schema/server";
 
-export type { ComponentProps, Handlers, Meta };
-
-export async function render(
-  context: RenderContext<unknown>
-): Promise<RenderResult> {
-  const { component, url, params, route, error, data } = context;
-
-  if (component === undefined) {
-    throw new Error("This page does not have a component to render.");
-  }
-
-  if (
-    typeof component === "function" &&
-    component.constructor.name === "AsyncFunction"
-  ) {
-    throw new Error("Async components are not supported.");
-  }
-
-  const isWidget = !url;
-  const props = isWidget
-    ? data || {}
-    : ({
-        data,
-        error: error,
-        params: params,
-        route: route,
-        url: url,
-      } as ComponentProps<any> | UnknownComponentProps | ErrorComponentProps);
-
+export type * from "@web-widget/schema/server";
+export const render = defineRender((component, props) => async () => {
   const app = createSSRApp(component, props as Record<string, any>);
-
   return renderToWebStream(app);
-}
+});

@@ -3,17 +3,14 @@ import {
   asyncIterToStream,
   streamToAsyncIter,
 } from "whatwg-stream-to-async-iter";
-import {
-  ComponentProps,
-  ErrorComponentProps,
-  Handlers,
-  Meta,
-  RenderContext,
-  RenderResult,
-  UnknownComponentProps,
-} from "./types";
+import { defineRender } from "@web-widget/schema/server";
+import type {
+  RouteRenderContext,
+  WidgetRenderContext,
+} from "@web-widget/schema/server";
 
-export type { ComponentProps, Handlers, Meta };
+export * from "@web-widget/schema/server";
+
 export { unsafeHTML, fallback, html, HTML, Fallback };
 
 export const streamToHTML = (stream: ReadableStream<string>) =>
@@ -43,7 +40,7 @@ const maybeStreamToAsyncIter = <T>(x: ForAwaitable<T> | ReadableStream<T>) =>
 
 const supportNonBinaryTransformStreams = async () => {
   try {
-    await maybeAsyncIterToStream(html`<test />`);
+    maybeAsyncIterToStream(html`<test />`);
     return true;
   } catch (e) {
     return false;
@@ -61,34 +58,6 @@ export const stringStreamToByteStream: (
     }
   : (body) => maybeAsyncIterToStream(body).pipeThrough(new TextEncoderStream());
 
-export async function render(
-  opts: RenderContext<unknown>
-): Promise<RenderResult> {
-  if (opts.component === undefined) {
-    throw new Error("This page does not have a component to render.");
-  }
-
-  if (
-    typeof opts.component === "function" &&
-    opts.component.constructor.name === "AsyncFunction"
-  ) {
-    throw new Error("Async components are not supported.");
-  }
-
-  if (Reflect.has(opts, "container") || Reflect.has(opts, "recovering")) {
-    throw new Error("Client rendering is not supported.");
-  }
-
-  const isWidget = !opts.url;
-  const props = isWidget
-    ? opts.data
-    : ({
-        data: opts.data,
-        error: opts.error,
-        params: opts.params,
-        route: opts.route,
-        url: opts.url,
-      } as ComponentProps<any> | UnknownComponentProps | ErrorComponentProps);
-
-  return stringStreamToByteStream(opts.component(props));
-}
+export const render = defineRender(
+  (component, props) => async () => stringStreamToByteStream(component(props))
+);

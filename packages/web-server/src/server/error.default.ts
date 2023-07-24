@@ -1,4 +1,7 @@
-import type { ErrorComponentProps, Meta } from "./types";
+import type {
+  Meta,
+  RouteFallbackComponentProps,
+} from "@web-widget/schema/server";
 import { html } from "./html";
 
 export { render } from "./html";
@@ -16,19 +19,9 @@ function style(style: Record<string, string | number>) {
     .join(";");
 }
 
-const DEBUG = false;
-
-export default function DefaultErrorPage(props: ErrorComponentProps) {
-  const { error } = props;
-
-  let message = undefined;
-  if (DEBUG) {
-    if (error instanceof Error) {
-      message = error.stack;
-    } else {
-      message = String(error);
-    }
-  }
+export default function DefaultErrorPage(error: RouteFallbackComponentProps) {
+  // @ts-ignore
+  const message = error.stack || error.message || error.statusText;
 
   return html`<div
     style="${style({
@@ -41,15 +34,15 @@ export default function DefaultErrorPage(props: ErrorComponentProps) {
         border: "#f3f4f6 2px solid",
         borderTop: "red 4px solid",
         background: "#f9fafb",
-        margin: 16,
+        margin: "16px",
         minWidth: "300px",
         width: "50%",
       })}">
       <p
         style="${style({
-          margin: 0,
+          margin: "0",
           fontSize: "12pt",
-          padding: 16,
+          padding: "16px",
           fontFamily: "sans-serif",
         })}">
         An error occurred during route handling or page rendering.
@@ -58,11 +51,11 @@ export default function DefaultErrorPage(props: ErrorComponentProps) {
         ? // prettier-ignore
           html`<pre
             style="${style({
-              margin: 0,
+              margin: '0',
               fontSize: "12pt",
               overflowY: "auto",
-              padding: 16,
-              paddingTop: 0,
+              padding: '16px',
+              paddingTop: '0',
               fontFamily: "monospace",
             })}">${message}</pre>`
         : ``}

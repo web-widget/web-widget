@@ -1,26 +1,29 @@
 import { Status } from "./status";
 import * as router from "./router";
-import { Manifest, ServerHandler, ServerConnInfo, Meta } from "./types";
 import {
   default as DefaultErrorComponent,
   render as DefaultRender,
 } from "./error.default";
-import {
-  ErrorPage,
-  ErrorPageModule,
-  WebServerOptions,
-  Handler,
+import type {
+  Manifest,
   Middleware,
   MiddlewareHandlerContext,
   MiddlewareModule,
   MiddlewareRoute,
+  Page,
   RenderPage,
-  Route,
-  RouteModule,
-  UnknownPage,
-  UnknownPageModule,
   RouterOptions,
+  ServerConnInfo,
+  ServerHandler,
+  WebServerOptions,
 } from "./types";
+import type {
+  Meta,
+  RouteError,
+  RouteHandler,
+  RouteModule,
+  RouteRender,
+} from "@web-widget/schema/server";
 import { internalRender } from "./render";
 import { ContentSecurityPolicyDirectives, SELF } from "./csp";
 interface RouterState {
@@ -29,19 +32,19 @@ interface RouterState {
 
 export class ServerContext {
   #dev: boolean;
-  #routes: Route[];
+  #routes: Page[];
   #renderPage: RenderPage;
   #middlewares: MiddlewareRoute[];
-  #notFound: UnknownPage;
-  #error: ErrorPage;
+  #notFound: Page;
+  #error: Page;
   #routerOptions: RouterOptions;
 
   constructor(
-    routes: Route[],
+    routes: Page[],
     renderPage: RenderPage,
     middlewares: MiddlewareRoute[],
-    notFound: UnknownPage,
-    error: ErrorPage,
+    notFound: Page,
+    error: Page,
     routerOptions: RouterOptions,
     dev: boolean
   ) {
@@ -65,32 +68,32 @@ export class ServerContext {
     dev: boolean
   ): ServerContext {
     // Extract all routes, and prepare them into the `Page` structure.
-    const routes: Route[] = [];
+    const routes: Page[] = [];
     const middlewares: MiddlewareRoute[] = [];
-    let notFound: UnknownPage = DEFAULT_NOT_FOUND;
-    let error: ErrorPage = DEFAULT_ERROR;
+    let notFound: Page = DEFAULT_NOT_FOUND;
+    let error: Page = DEFAULT_ERROR;
     for (const { pathname, name, module } of manifest.routes) {
       const {
         config = {},
-        default: component,
         handler = {},
         meta = {},
         render,
       } = module as RouteModule;
       const rebasedMeta = rebaseMeta(
         addDefaultMeta(meta),
-        opts?.client?.base || "/"
+        opts?.client?.base ?? "/"
       );
       if (typeof handler === "object" && handler.GET === undefined) {
-        handler.GET = (_req, { render }) => render({ meta: rebasedMeta });
+        handler.GET = ((_req, { render }) =>
+          render({ meta: rebasedMeta })) as RouteHandler;
       }
       if (
         typeof handler === "object" &&
         handler.GET !== undefined &&
         handler.HEAD === undefined
       ) {
-        const GET = handler.GET;
-        handler.HEAD = async (req, ctx) => {
+        const GET = handler.GET as RouteHandler;
+        handler.HEAD = (async (req, ctx) => {
           const resp = await GET(req, ctx);
           resp.body?.cancel();
           return new Response(null, {
@@ -98,18 +101,19 @@ export class ServerContext {
             status: resp.status,
             statusText: resp.statusText,
           });
-        };
+        }) as RouteHandler;
       }
       routes.push({
-        component,
+        config,
         csp: Boolean(config.csp ?? false),
-        handler,
+        handler: handler as RouteHandler,
         meta: rebasedMeta,
+        module,
         name,
         pathname: config.routeOverride
           ? String(config.routeOverride)
           : pathname,
-        render,
+        render: render as RouteRender<unknown>,
       });
     }
     for (const { pathname, module } of manifest.middlewares) {
@@ -123,48 +127,72 @@ export class ServerContext {
       const { pathname, name, module } = manifest.notFound;
       const {
         default: component,
+        fallback,
         render,
         config = {},
         meta = {},
-      } = module as UnknownPageModule;
+      } = module;
+      let { handler } = module;
+
+      if (handler !== null && typeof handler === "object") {
+        throw new Error(`manifest.notFound.handler: Must be a function.`);
+      }
+
+      if (typeof render !== "function") {
+        throw new Error(`manifest.notFound.render: Must be a function.`);
+      }
+
       const rebasedMeta = rebaseMeta(
         addDefaultMeta(meta),
-        opts?.client?.base || "/"
+        opts?.client?.base ?? "/"
       );
-      let { handler } = module as UnknownPageModule;
-      if (component && handler === undefined) {
-        handler = (_req, { render }) => render({ meta: rebasedMeta });
+
+      if ((component || fallback) && handler === undefined) {
+        handler = (_req, { render }) =>
+          render({
+            meta: rebasedMeta,
+          });
       }
 
       notFound = {
-        pathname,
-        name,
-        component,
+        module,
+        config,
+        csp: Boolean(config.csp ?? false),
         handler: handler ?? ((req) => router.defaultOtherHandler(req)),
         meta: rebasedMeta,
+        name,
+        pathname,
         render,
-        csp: Boolean(config.csp ?? false),
       };
     }
     if (manifest.error) {
       const { pathname, name, module } = manifest.error;
-      const {
-        config = {},
-        default: component,
-        meta = {},
-        render,
-      } = module as ErrorPageModule;
+      const { config = {}, default: component, meta = {}, render } = module;
+      let { handler } = module;
+
+      if (handler !== null && typeof handler === "object") {
+        throw new Error(`manifest.error.handler: Must be a function.`);
+      }
+
+      if (typeof render !== "function") {
+        throw new Error(`manifest.error.render: Must be a function.`);
+      }
+
       const rebasedMeta = rebaseMeta(
         addDefaultMeta(meta),
-        opts?.client?.base || "/"
+        opts?.client?.base ?? "/"
       );
-      let { handler } = module as ErrorPageModule;
+
       if (component && handler === undefined) {
-        handler = (_req, { render }) => render({ meta: rebasedMeta });
+        handler = (_req, { render }) =>
+          render({
+            meta: rebasedMeta,
+          });
       }
 
       error = {
-        component,
+        module,
+        config,
         csp: Boolean(config.csp ?? false),
         handler:
           handler ??
@@ -292,31 +320,25 @@ export class ServerContext {
     const internalRoutes: router.Routes<RouterState> = {};
     const routes: router.Routes<RouterState> = {};
 
-    const genRender = <Data = undefined>(
-      route: Route<Data> | UnknownPage | ErrorPage,
-      status: number
-    ) => {
-      const imports: string[] = [];
+    const genRender = (route: Page, status: number) => {
       return (
         req: Request,
         params: Record<string, string>,
-        error?: unknown
+        routeError?: unknown
       ) => {
         return async (
-          {
-            data,
-            meta = route.meta,
-          }: {
+          renderProps: {
             data?: any;
+            error?: RouteError;
             meta?: Meta;
           } = {},
           options?: ResponseInit
         ) => {
+          const { data, error = routeError, meta = route.meta } = renderProps;
           const [body, csp] = await internalRender(
             {
               data,
               error,
-              imports,
               meta,
               params,
               route,
@@ -363,12 +385,12 @@ export class ServerContext {
       if (typeof route.handler === "function") {
         routes[route.pathname] = {
           default: (req, ctx, params) =>
-            (route.handler as Handler)(req, {
+            (route.handler as RouteHandler)(req, {
               ...ctx,
               meta,
               params,
               render: createRender(req, params),
-              renderNotFound: createUnknownRender(req, {}),
+              // renderNotFound: createUnknownRender(req, {}),
             }),
         };
       } else {
@@ -384,15 +406,20 @@ export class ServerContext {
               meta,
               params,
               render: createRender(req, params),
-              renderNotFound: createUnknownRender(req, {}),
+              //renderNotFound: createUnknownRender(req, {}),
             });
         }
       }
     }
 
     const otherHandler: router.Handler<RouterState> = (req, ctx) =>
-      this.#notFound.handler(req, {
+      (this.#notFound.handler as RouteHandler)(req, {
         ...ctx,
+        params: {},
+        error: new Response(null, {
+          status: 404,
+          statusText: "Not Found",
+        }),
         meta: this.#notFound.meta,
         render: createUnknownRender(req, {}),
       });
@@ -411,9 +438,10 @@ export class ServerContext {
         "color:red",
         error
       );
-      return this.#error.handler(req, {
+      return (this.#error.handler as RouteHandler)(req, {
         ...ctx,
-        error,
+        error: error as Error,
+        params: {},
         meta: this.#error.meta,
         render: errorHandlerRender(req, {}, error),
       });
@@ -431,23 +459,26 @@ const DEFAULT_ROUTER_OPTIONS: RouterOptions = {
   trailingSlash: false,
 };
 
-const DEFAULT_NOT_FOUND: UnknownPage = {
+const DEFAULT_NOT_FOUND: Page = {
+  config: {},
   csp: false,
   handler: (req) => router.defaultOtherHandler(req),
   meta: {},
+  module: {},
   name: "_404",
   pathname: "",
-  render: DefaultRender,
+  render: DefaultRender as RouteRender,
 };
 
-const DEFAULT_ERROR: ErrorPage = {
-  component: DefaultErrorComponent,
+const DEFAULT_ERROR: Page = {
+  config: {},
   csp: false,
   handler: (_req, ctx) => ctx.render({ meta: {} }),
   meta: {},
+  module: { default: DefaultErrorComponent, fallback: DefaultErrorComponent },
   name: "_500",
   pathname: "",
-  render: DefaultRender,
+  render: DefaultRender as RouteRender,
 };
 
 /**
@@ -507,7 +538,7 @@ function rebaseMeta(meta: Meta, base: string): Meta {
   return {
     ...meta,
 
-    link: (meta.link || []).map((props) => {
+    link: (meta.link ?? []).map((props) => {
       if (props.href && !RESOLVE_URL_REG.test(props.href)) {
         return {
           ...props,
@@ -517,7 +548,7 @@ function rebaseMeta(meta: Meta, base: string): Meta {
       return { ...props };
     }),
 
-    script: (meta.script || []).map((props) => {
+    script: (meta.script ?? []).map((props) => {
       type Imports = Record<string, string>;
       type Scopes = Record<string, Imports>;
       type Importmap = {
@@ -525,12 +556,8 @@ function rebaseMeta(meta: Meta, base: string): Meta {
         scopes?: Scopes;
       };
 
-      if (
-        props.type === "importmap" &&
-        props.script &&
-        typeof props.script === "object"
-      ) {
-        const importmap = props.script as Importmap;
+      if (props.type === "importmap" && typeof props.content === "string") {
+        const importmap = JSON.parse(props.content) as Importmap;
         const rebaseImports = (imports: Imports) =>
           Object.entries(imports).reduce((previousValue, [name, url]) => {
             if (!RESOLVE_URL_REG.test(url)) {
@@ -543,7 +570,7 @@ function rebaseMeta(meta: Meta, base: string): Meta {
 
         return {
           ...props,
-          script: {
+          content: JSON.stringify({
             imports: importmap.imports ? rebaseImports(importmap.imports) : {},
             scopes: importmap.scopes
               ? Object.entries(importmap.scopes).reduce(
@@ -558,7 +585,7 @@ function rebaseMeta(meta: Meta, base: string): Meta {
                   {} as Scopes
                 )
               : {},
-          } as Importmap,
+          } as Importmap),
         };
       }
 
@@ -575,7 +602,7 @@ function rebaseMeta(meta: Meta, base: string): Meta {
 }
 
 function addDefaultMeta(meta: Meta) {
-  const metadata = meta.meta || [];
+  const metadata = meta.meta ?? [];
   const hasCharset = metadata.find((props) => props.charset);
   const hasViewport = metadata.find((props) => props.name === "viewport");
 

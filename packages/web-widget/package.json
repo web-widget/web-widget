@@ -14,10 +14,7 @@
   ],
   "scripts": {
     "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup",
-    "examples": "cd examples && server --watch",
-    "test": "tester --coverage",
-    "test:watch": "tester --watch"
+    "build": "pnpm exec tsup"
   },
   "publishConfig": {
     "access": "public"
@@ -31,31 +28,21 @@
     "dist"
   ],
   "keywords": [
-    "microfrontends",
-    "single",
-    "page",
-    "application",
-    "framework",
-    "react",
-    "angular",
-    "vue",
-    "router",
-    "microservices",
-    "frontend",
-    "Sandbox",
-    "Realm",
-    "Shadow DOM",
-    "Web components"
+    "island",
+    "widget",
+    "shadow dom",
+    "web components"
   ],
   "author": "aui",
   "bugs": {
     "url": "https://github.com/web-widget/web-widget/issues"
   },
   "homepage": "https://github.com/web-widget/web-widget#readme",
+  "dependencies": {
+    "@web-widget/schema": "workspace:*"
+  },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "server": "workspace:*",
-    "@web-widget/tester": "workspace:*",
     "typescript": "^5.0.4",
     "tsup": "^7.0.0"
   }

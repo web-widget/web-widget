@@ -14,14 +14,14 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "./",
-    "rootDir": "./src/",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "sourceMap": true,
     "strict": true,
-    "target": "es2017",
+    "target": "es2020",
   },
   "include": [
-    "schema.d.ts"
+    "src/**/*"
   ],
   "exclude": []
 }

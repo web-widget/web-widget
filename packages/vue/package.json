@@ -27,6 +27,7 @@
   "devDependencies": {
     "typescript": "^5.0.4",
     "@web-widget/web-server": "workspace:*",
+    "@web-widget/schema": "workspace:*",
     "tsup": "^7.0.0"
   }
 }

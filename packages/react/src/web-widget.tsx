@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Suspense, lazy, createElement } from "react";
-import type { RenderContext, RenderResult } from "@web-widget/web-server";
+import type { WidgetModule } from "@web-widget/schema";
 
 export const __ENV__ = {
   server: true,
@@ -37,10 +37,7 @@ type JSONValue =
 
 type JSONProps = { [x: string]: JSONValue };
 
-type Loader = () => Promise<{
-  render: (context: RenderContext<JSONValue>) => Promise<RenderResult>;
-  default?: any;
-}>;
+type Loader = () => Promise<WidgetModule>;
 
 export interface WebWidgetClientProps {
   base: string;
@@ -49,7 +46,7 @@ export interface WebWidgetClientProps {
   innerHTML?: string;
   loading?: string;
   name?: string;
-  recovering: boolean;
+  recovering: boolean | "fallback";
 }
 
 export function WebWidgetClient({
@@ -70,7 +67,7 @@ export function WebWidgetClient({
     rendertarget: "light",
   };
 
-  if (recovering) {
+  if (recovering && typeof recovering !== "string") {
     Object.assign(attrs, {
       recovering: "",
     });
@@ -89,11 +86,11 @@ export async function renderServerWebWidget(loader: Loader, data: any) {
     throw new Error(`The module does not export a 'render' method: ${url}`);
   }
 
-  const component = module.default;
   const result = await module.render({
-    component,
+    meta: {}, // TODO
+    module,
     data,
-  } as RenderContext<JSONValue>);
+  });
 
   if (result instanceof ReadableStream) {
     return await streamToString(result);

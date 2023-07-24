@@ -1,42 +1,42 @@
-import { ComponentType, createElement } from "react";
-// import { HEAD_CONTEXT } from "./head";
+import { __ENV__ } from "./web-widget";
+import { type Attributes, createElement } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import type {
-  RenderContext,
-  RenderResult,
-  Render,
-} from "@web-widget/web-server/client";
-import { __ENV__ } from "./web-widget";
+  RouteRenderContext,
+  WidgetRenderContext,
+} from "@web-widget/schema/client";
+import { defineRender } from "@web-widget/schema/client";
 
+export type * from "@web-widget/schema/client";
 export * from "./web-widget";
 export { WebWidget as default } from "./web-widget";
-export { RenderContext, RenderResult, Render };
 
-__ENV__.server = false;
+Reflect.defineProperty(__ENV__, "server", {
+  value: false
+});
 
-export async function render(
-  context: RenderContext<unknown>
-): Promise<RenderResult> {
-  const { component, recovering, container, data } = context;
+export const render = defineRender(
+  (component, props) => async (opts) => {
+    const { recovering, container } = opts;
 
-  if (component === undefined) {
-    throw new Error("This page does not have a component to render.");
+    if (!container) {
+      throw new Error(`Container required.`);
+    }
+  
+    if (
+      typeof component === "function" &&
+      component.constructor.name === "AsyncFunction"
+    ) {
+      throw new Error("Async components are not supported.");
+    }
+
+    const vnode = createElement(component, props as Attributes);
+
+    if (recovering) {
+      hydrateRoot(container, vnode);
+    } else {
+      createRoot(container).render(vnode);
+    }
   }
+);
 
-  if (!container) {
-    throw new Error(`Container required.`);
-  }
-
-  const props = data || {};
-
-  // const vnode = createElement(HEAD_CONTEXT.Provider, {
-  //   children: createElement(component! as ComponentType<unknown>, props),
-  // });
-
-  const vnode = createElement(component! as ComponentType<unknown>, props);
-  if (recovering) {
-    hydrateRoot(container, vnode);
-  } else {
-    createRoot(container).render(vnode);
-  }
-}

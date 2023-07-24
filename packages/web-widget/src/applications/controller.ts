@@ -1,24 +1,23 @@
-/* eslint-disable class-methods-use-this */
 import type {
-  ClientRenderResult,
-  ClientRenderContext,
-  ApplicationLoader,
-} from "./types.js";
-import { render } from "./render-client.js";
-import { INITIAL } from "./status.js";
-import { reasonableTime } from "./timeouts.js";
-import { rules } from "./flow.js";
+  WidgetRenderResult,
+  WidgetRenderContext,
+  WidgetModuleLoader,
+} from "./types";
+import { render } from "./render";
+import { INITIAL } from "./status";
+import { reasonableTime } from "./timeouts";
+import { rules } from "./flow";
 
 interface LifecycleControllerOptions {
-  applicationLoader: ApplicationLoader;
-  contextLoader: (name: string) => ClientRenderContext;
+  moduleLoader: WidgetModuleLoader;
+  contextLoader: (name: string) => WidgetRenderContext;
   statusChangeCallback: (status: string) => void;
   timeouts: Record<string, number>;
 }
 
 export class LifecycleController {
   constructor(options: LifecycleControllerOptions) {
-    this.#applicationLoader = options.applicationLoader;
+    this.#moduleLoader = options.moduleLoader;
     this.#contextLoader = options.contextLoader;
     this.#lifecycles = Object.create(null);
     this.#status = INITIAL;
@@ -26,11 +25,11 @@ export class LifecycleController {
     this.#timeouts = options.timeouts;
   }
 
-  #applicationLoader: ApplicationLoader;
+  #moduleLoader: WidgetModuleLoader;
 
-  #contextLoader: (name: string) => ClientRenderContext;
+  #contextLoader: (name: string) => WidgetRenderContext;
 
-  #lifecycles: ClientRenderResult;
+  #lifecycles: WidgetRenderResult;
 
   #pending?: Promise<void> | null;
 
@@ -66,13 +65,14 @@ export class LifecycleController {
     }
 
     if (rule.creator && !this.#lifecycles[name]) {
-      this.#lifecycles[name] = async (context: ClientRenderContext) => {
-        const application = await this.#applicationLoader();
-        const lifecycles: ClientRenderResult = await render(
+      this.#lifecycles[name] = async (context: WidgetRenderContext) => {
+        const application = await this.#moduleLoader();
+        const lifecycles: WidgetRenderResult = await render(
           application,
           context
         );
 
+        // @ts-ignore
         Object.assign(this.#lifecycles, lifecycles || {});
       };
     }
@@ -83,7 +83,7 @@ export class LifecycleController {
 
     if (![initial, rejected].includes(this.#status)) {
       if (rule.verify) {
-        throw new Error(`Cannot ${name}: Application status: ${this.#status}`);
+        throw new Error(`Cannot ${name}: WidgetModule status: ${this.#status}`);
       }
       return undefined;
     }
@@ -96,7 +96,12 @@ export class LifecycleController {
     }
 
     this.#pending = reasonableTime(
-      async () => this.#lifecycles[name](this.#contextLoader(name)),
+      async () => {
+        const renderContext = Object.assign(this.#contextLoader(name), {
+          module: await this.#moduleLoader(),
+        });
+        return this.#lifecycles[name](renderContext);
+      },
       timeout,
       bail,
       `Lifecycle function did not complete within ${timeout} ms: ${name}`

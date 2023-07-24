@@ -1,3 +1,3 @@
-export * from "./components/HTMLWebWidgetElement.js";
-export * from "./components/WebWidgetUpdateEvent.js";
-export type * from "./applications/types.js";
+export * from "./element";
+export * from "./event";
+export type * from "./applications/types";

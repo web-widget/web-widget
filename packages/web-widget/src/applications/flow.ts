@@ -1,4 +1,4 @@
-/* Application Lifecycles
+/* WidgetModule Lifecycles
       Start
         ▼
     ┌───┴──┐

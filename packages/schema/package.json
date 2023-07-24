@@ -1,8 +1,39 @@
 {
   "name": "@web-widget/schema",
+  "version": "0.0.1",
   "type": "module",
-  "exports": "./schema.d.ts",
-  "dependencies": {
-    "typescript": "^5.0.4"
+  "scripts": {
+    "dev": "pnpm exec tsup --watch",
+    "build": "pnpm exec tsup"
+  },
+  "exports": {
+    ".": {
+      "browser": {
+        "types": "./dist/client.d.ts",
+        "default": "./dist/client.js"
+      },
+      "default": {
+        "types": "./dist/server.d.ts",
+        "default": "./dist/server.js"
+      }
+    },
+    "./schema": {
+      "types": "./src/schema.d.ts"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    }
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "tsup": "^7.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -1,28 +1,22 @@
 import { html, HTML, streamToHTML, unsafeHTML } from "./html";
-import { RenderResult, ComponentProps, Meta } from "./types";
-import { renderMetaToString } from "./helpers";
+import type { PageLayoutData } from "./types";
+import type { RouteComponentProps } from "@web-widget/schema/server";
+import { renderMetaToString } from "@web-widget/schema/server";
 
 export { render } from "./html";
 
-export interface LayoutData {
-  clientEntry: string;
-  esModulePolyfillUrl?: string;
-  meta: Meta;
-  outlet: RenderResult;
-}
-
 export default function Layout({
-  data: { clientEntry, esModulePolyfillUrl, meta, outlet },
-}: ComponentProps<LayoutData>): HTML {
+  data: { clientEntry, esModulePolyfillUrl, meta, children },
+}: RouteComponentProps<PageLayoutData>): HTML {
   return html`<!DOCTYPE html>
     <html lang="${meta.lang}">
       <head>
         ${unsafeHTML(renderMetaToString(meta))}
       </head>
       <body>
-        ${typeof outlet === "string"
-          ? outlet
-          : streamToHTML(outlet as ReadableStream<string>)}
+        ${typeof children === "string"
+          ? children
+          : streamToHTML(children as ReadableStream<string>)}
         <script>
           /* Polyfill: Declarative Shadow DOM */
           (function attachShadowRoots(root) {

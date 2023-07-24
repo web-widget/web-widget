@@ -1,5 +1,5 @@
 {
-  "name": "web-std-example",
+  "name": "@examples/web-std",
   "private": true,
   "type": "module",
   "version": "1.0.0",
@@ -10,7 +10,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@web-widget/web-std": "workspace:*",
     "@worker-tools/html": "^2.0.0-pre.12"
