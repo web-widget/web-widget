@@ -47,6 +47,7 @@
     "@types/minimist": "^1.2.2",
     "rollup": "^3.3.0",
     "tsup": "6.1.2",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "@web-widget/schema": "workspace:*"
   }
 }

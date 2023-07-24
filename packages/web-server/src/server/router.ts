@@ -1,6 +1,4 @@
-import type { ServerConnInfo } from "./types";
-
-type HandlerContext<T = unknown> = T & ServerConnInfo;
+type HandlerContext<T = unknown> = T;
 
 export type Handler<T = unknown> = (
   req: Request,

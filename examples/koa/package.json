@@ -1,5 +1,5 @@
 {
-  "name": "koa-example",
+  "name": "@examples/koa",
   "private": true,
   "type": "module",
   "version": "1.0.0",

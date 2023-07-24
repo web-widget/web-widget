@@ -1,5 +1,3 @@
-/* global window, setTimeout */
-
 let promise;
 export const queueMicrotask =
   typeof window.queueMicrotask === "function"

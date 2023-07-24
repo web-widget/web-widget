@@ -1,12 +1,14 @@
 import * as router from "./router";
 import { InnerRenderFunction, InnerRenderContext } from "./render";
-
-type JSONValue =
-  | string
-  | number
-  | boolean
-  | { [x: string]: JSONValue }
-  | Array<JSONValue>;
+import type {
+  Meta,
+  RouteHandler,
+  RouteHandlers,
+  RouteModule,
+  RouteRender,
+  RouteConfig as BaseRouterConfig,
+} from "@web-widget/schema/server";
+export * from "@web-widget/schema/server";
 
 // --- APPLICATION CONFIGURATION ---
 
@@ -35,34 +37,9 @@ export type RenderPage = (
   render: InnerRenderFunction
 ) => void | Promise<void>;
 
-// --- ROUTES & WIDGETS ---
+// --- PAGE ---
 
-export interface ComponentProps<Data> {
-  /** The URL of the request that resulted in this page being rendered. */
-  url: URL;
-
-  /** The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered. */
-  route: string;
-
-  /**
-   * The parameters that were matched from the route.
-   *
-   * For the `/foo/:bar` route with url `/foo/123`, `params` would be
-   * `{ bar: '123' }`. For a route with no matchers, `params` would be `{}`. For
-   * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
-   * be `{ path: 'bar/baz' }`.
-   */
-  params: Record<string, string>;
-
-  /**
-   * Additional data passed into `HandlerContext.render`. Defaults to
-   * `undefined`.
-   */
-  data: Data;
-}
-
-export interface RouteConfig {
+export interface RouteConfig extends BaseRouterConfig {
   /**
    * A route override for the page. This is useful for pages where the route
    * can not be expressed through the filesystem routing capabilities.
@@ -77,208 +54,22 @@ export interface RouteConfig {
   csp?: boolean;
 }
 
-export interface HandlerContext<Data = unknown, State = Record<string, unknown>>
-  extends ServerConnInfo {
-  meta: Meta;
-  params: Record<string, string>;
-  render: (
-    userRenderContext: {
-      data?: Data;
-      meta?: Meta;
-    },
-    options?: ResponseInit
-  ) => Response | Promise<Response>;
-  renderNotFound: () => Response | Promise<Response>;
-  state: State;
-}
-
-export type Handler<Data = any, State = Record<string, unknown>> = (
-  req: Request,
-  ctx: HandlerContext<Data, State>
-) => Response | Promise<Response>;
-
-export type Handlers<Data = any, State = Record<string, unknown>> = {
-  [K in router.KnownMethod]?: Handler<Data, State>;
-};
-
-export interface RouteRenderContext<Data = any> {
-  /** The URL of the request that resulted in this page being rendered. */
-  url: URL;
-
-  /** The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered. */
-  route: string;
-
-  /**
-   * The parameters that were matched from the route.
-   *
-   * For the `/foo/:bar` route with url `/foo/123`, `params` would be
-   * `{ bar: '123' }`. For a route with no matchers, `params` would be `{}`. For
-   * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
-   * be `{ path: 'bar/baz' }`.
-   */
-  params: Record<string, string>;
-
-  /**
-   * Additional data passed into `HandlerContext.render`. Defaults to
-   * `undefined`.
-   */
-  data: Data;
-
-  /**
-   * Add tags such as meta to the page. Defaults to `[]`.
-   */
-  meta: Meta;
-
-  /**
-   * The error that caused the error page to be loaded.
-   */
-  error: unknown;
-
-  /**
-   * This is a component of the UI framework.
-   */
-  component?: any;
-}
-
-export interface WidgetRenderContext<Data = JSONValue> {
-  /**
-   * Props of a component.
-   */
-  data: Data;
-
-  /**
-   * The error that caused the error page to be loaded.
-   */
-  error: unknown;
-
-  /**
-   * This is a component of the UI framework.
-   */
-  component?: any;
-}
-
-export interface RenderContext<Data = any>
-  extends RouteRenderContext<Data>,
-    WidgetRenderContext<Data> {}
-
-export type Render<Data = unknown> = (
-  renderContext: RenderContext<Data>
-) => Promise<RenderResult>;
-
-export type RenderResult = string | ReadableStream;
-
-export interface RouteModule {
-  config?: RouteConfig;
-  default?: any;
-  handler?: Handler<unknown> | Handlers<unknown>;
-  meta?: Meta;
-  render: Render<unknown>;
-}
-
-export interface Route<Data = any> {
-  component?: any;
+export interface Page {
+  config: RouteConfig;
   csp: boolean;
-  handler: Handler<Data> | Handlers<Data>;
+  handler: RouteHandler | RouteHandlers;
   meta: Meta;
   name: string;
   pathname: string;
-  render: Render<Data>;
+  render: RouteRender;
+  module: RouteModule;
 }
 
-// --- UNKNOWN PAGE ---
-
-export interface UnknownComponentProps {
-  /** The URL of the request that resulted in this page being rendered. */
-  url: URL;
-
-  /** The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered. */
-  route: string;
-}
-
-export interface UnknownHandlerContext<State = Record<string, unknown>>
-  extends ServerConnInfo {
+export interface PageLayoutData {
+  clientEntry: string;
+  esModulePolyfillUrl: string;
   meta: Meta;
-  render: (
-    userRenderContext: {
-      meta?: Meta;
-    },
-    options?: ResponseInit
-  ) => Response | Promise<Response>;
-  state: State;
-}
-
-export type UnknownHandler = (
-  req: Request,
-  ctx: UnknownHandlerContext
-) => Response | Promise<Response>;
-
-export interface UnknownPageModule {
-  config?: RouteConfig;
-  default?: any;
-  handler?: UnknownHandler;
-  meta?: Meta;
-  render: Render;
-}
-
-export interface UnknownPage {
-  component?: any;
-  csp: boolean;
-  handler: UnknownHandler;
-  meta: Meta;
-  name: string;
-  pathname: string;
-  render: Render;
-}
-
-// --- ERROR PAGE ---
-
-export interface ErrorComponentProps {
-  /** The URL of the request that resulted in this page being rendered. */
-  url: URL;
-
-  /** The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered. */
-  pathname: string;
-
-  /** The error that caused the error page to be loaded. */
-  error: unknown;
-}
-
-export interface ErrorHandlerContext<State = Record<string, unknown>>
-  extends ServerConnInfo {
-  meta: Meta;
-  error: unknown;
-  render: (
-    userRenderContext: {
-      meta?: Meta;
-    },
-    options?: ResponseInit
-  ) => Response | Promise<Response>;
-  state: State;
-}
-export type ErrorHandler = (
-  req: Request,
-  ctx: ErrorHandlerContext
-) => Response | Promise<Response>;
-
-export interface ErrorPageModule {
-  config?: RouteConfig;
-  default?: any;
-  handler?: ErrorHandler;
-  meta?: Meta;
-  render: Render;
-}
-
-export interface ErrorPage {
-  component?: any;
-  csp: boolean;
-  handler: ErrorHandler;
-  meta: Meta;
-  name: string;
-  pathname: string;
-  render: Render;
+  children: string | ReadableStream;
 }
 
 // --- MIDDLEWARES ---
@@ -329,106 +120,13 @@ export interface Manifest {
   notFound?: {
     name: string;
     pathname: string;
-    module: UnknownPageModule;
+    module: RouteModule;
   };
   error?: {
     name: string;
     pathname: string;
-    module: ErrorPageModule;
+    module: RouteModule;
   };
-}
-
-// --- META ---
-
-/**
- * HTML Metadata
- * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta
- */
-export interface Meta {
-  readonly title?: string;
-  readonly description?: string;
-  readonly keywords?: string;
-  readonly lang?: string;
-
-  /**
-   * Used to manually set meta tags in the head. Additionally, the `data`
-   * property could be used to set arbitrary data which the `<head>` component
-   * could later use to generate `<meta>` tags.
-   */
-  readonly meta?: readonly DocumentMeta[];
-  /**
-   * Used to manually append `<link>` elements to the `<head>`.
-   */
-  readonly link?: readonly DocumentLink[];
-  /**
-   * Used to manually append `<style>` elements to the `<head>`.
-   */
-  readonly style?: readonly DocumentStyle[];
-  /**
-   * Used to manually append `<script>` elements to the `<head>`.
-   */
-  readonly script?: readonly DocumentScript[];
-}
-
-export interface DocumentMeta {
-  /** This attribute declares the document's character encoding. */
-  readonly charset?: string;
-  /** Gets or sets meta-information to associate with httpEquiv or name. */
-  readonly content?: string;
-  /** Gets or sets information used to bind the value of a content attribute of a meta element to an HTTP response header. */
-  readonly "http-equiv"?: string;
-  readonly media?: string;
-  /** Sets or retrieves the value specified in the content attribute of the meta object. */
-  readonly name?: string;
-
-  /** NOTE: OpenGraph */
-  readonly property?: string;
-}
-
-export interface DocumentLink {
-  readonly as?: string;
-  readonly crossorigin?: string;
-  readonly disabled?: string;
-  /** Sets or retrieves a destination URL or an anchor point. */
-  readonly href?: string;
-  /** Sets or retrieves the language code of the object. */
-  readonly hreflang?: string;
-  readonly imagesizes?: string;
-  readonly imagesrcset?: string;
-  readonly integrity?: string;
-  /** Sets or retrieves the media type. */
-  readonly media?: string;
-  readonly referrerpolicy?: string;
-  /** Sets or retrieves the relationship between the object and the destination of the link. */
-  readonly rel?: string;
-  // readonly relList: DOMTokenList;
-  /** Sets or retrieves the MIME type of the object. */
-  readonly type?: string;
-}
-
-export interface DocumentStyle {
-  readonly style?: string;
-  /** Enables or disables the style sheet. */
-  readonly disabled?: string;
-  /** Sets or retrieves the media type. */
-  readonly media?: string;
-}
-
-export interface DocumentScript {
-  readonly script?: string | JSONValue;
-  readonly async?: string;
-  readonly crossorigin?: string;
-  /** Sets or retrieves the status of the script. */
-  readonly defer?: string;
-  readonly integrity?: string;
-  readonly nomodule?: string;
-  readonly referrerpolicy?: string;
-  /** Retrieves the URL to an external file that contains the source code or data. */
-  readonly src?: string;
-  /** Retrieves or sets the text of the object as a string. */
-  // readonly text: string;
-  /** Sets or retrieves the MIME type for the associated scripting engine. */
-  readonly type?: string;
 }
 
 // --- SERVERS ---

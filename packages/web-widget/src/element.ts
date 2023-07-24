@@ -1,12 +1,12 @@
 import type {
-  ApplicationLoader,
-  ClientRenderContext,
-} from "../applications/types.js";
-import { LifecycleController } from "../applications/controller.js";
-import { queueMicrotask } from "../utils/queueMicrotask.js";
-import { observe, unobserve } from "../utils/visibleObserver.js";
-import * as status from "../applications/status.js";
-import { WebWidgetUpdateEvent } from "./WebWidgetUpdateEvent.js";
+  WidgetModuleLoader,
+  WidgetRenderContext,
+} from "./applications/types";
+import { LifecycleController } from "./applications/controller";
+import { queueMicrotask } from "./utils/queue-microtask";
+import { observe, unobserve } from "./utils/visible-observer";
+import * as status from "./applications/status";
+import { WebWidgetUpdateEvent } from "./event";
 
 declare const importShim: (src: string) => Promise<any>;
 let globalTimeouts = Object.create(null);
@@ -17,13 +17,13 @@ let globalTimeouts = Object.create(null);
  * @event {WebWidgetUpdateEvent} update
  */
 export class HTMLWebWidgetElement extends HTMLElement {
-  #loader: ApplicationLoader | null;
+  #loader: WidgetModuleLoader | null;
 
   #lifecycleController: LifecycleController;
 
   #data: Record<string, unknown> | null;
 
-  #context: ClientRenderContext | Record<string, unknown>;
+  #context: WidgetRenderContext | Record<string, unknown>;
 
   #isFirstConnect = false;
 
@@ -41,9 +41,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
         if (!this.context) {
           this.context = this.createContext();
         }
-        return this.context as ClientRenderContext;
+        return this.context as WidgetRenderContext;
       },
-      applicationLoader: () => {
+      moduleLoader: () => {
         if (!this.loader) {
           this.loader = this.createLoader();
         }
@@ -83,7 +83,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Application base
+   * WidgetModule base
    */
   get base() {
     const value = this.getAttribute("base");
@@ -95,7 +95,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Application data
+   * WidgetModule data
    */
   get data(): Record<string, unknown> | null {
     if (!this.#data) {
@@ -123,13 +123,13 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Application context
+   * WidgetModule context
    */
-  get context(): ClientRenderContext | Record<string, unknown> {
+  get context(): WidgetRenderContext | Record<string, unknown> {
     return this.#context;
   }
 
-  set context(value: ClientRenderContext | Record<string, unknown>) {
+  set context(value: WidgetRenderContext | Record<string, unknown>) {
     if (typeof value === "object" && value !== null) {
       this.#context = value;
     }
@@ -174,7 +174,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Application module type
+   * WidgetModule module type
    */
   get type(): string {
     return this.getAttribute("type") || "module";
@@ -185,14 +185,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Application status
+   * WidgetModule status
    */
   get status(): string {
     return this.#status;
   }
 
   /**
-   * Application URL
+   * WidgetModule URL
    */
   get src() {
     const value = this.getAttribute("src");
@@ -204,7 +204,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Application bare module name
+   * WidgetModule bare module name
    */
   get import() {
     let value = this.getAttribute("import");
@@ -220,7 +220,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Application render target
+   * WidgetModule render target
    */
   get renderTarget(): "light" | "shadow" {
     return (this.getAttribute("rendertarget") as "light") || "shadow";
@@ -244,10 +244,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /**
    * Hook: Create the application's context
    */
-  createContext(): ClientRenderContext {
+  createContext(): WidgetRenderContext {
     let container: HTMLElement | ShadowRoot;
-    let request: Request;
-    let url: URL;
     let customContext = this.context;
     const view = this;
 
@@ -264,13 +262,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
 
     const context = Object.create({
-      // get request() {
-      //   if (!request) {
-      //     request = new Request(location.href);
-      //   }
-      //   return request;
-      // },
-
       get container() {
         if (!container) {
           container = view.createContainer();
@@ -332,7 +323,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /**
    * Hook: Create Create the application's loader
    */
-  createLoader(): ApplicationLoader {
+  createLoader(): WidgetModuleLoader {
     const { type } = this;
 
     if (type !== "module") {

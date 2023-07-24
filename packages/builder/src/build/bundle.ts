@@ -9,7 +9,7 @@ import {
   UserConfig as ViteUserConfig,
 } from "vite";
 import { BuilderConfig } from "../types";
-import { Meta, DocumentLink, DocumentScript } from "@web-widget/web-server";
+import { Meta, LinkDescriptor, ScriptDescriptor } from "@web-widget/schema";
 import { parse, init } from "es-module-lexer";
 import { resolve } from "import-meta-resolve";
 
@@ -37,16 +37,16 @@ export async function bundle(config: BuilderConfig) {
     script: [
       {
         type: "importmap",
-        script: {
+        content: JSON.stringify({
           imports: {
             [clientModuleName]: clientResult.output.find(
               (chunk) =>
                 chunk.type === "chunk" && chunk.facadeModuleId === CLIENT_ENTRY
             )?.fileName,
           },
-        },
+        }),
       },
-    ] as DocumentScript[],
+    ] as ScriptDescriptor[],
     link: getLinks(clientResult),
   };
 
@@ -267,8 +267,8 @@ function addESMPackagePlugin(config: BuilderConfig) {
   };
 }
 
-function getLinks(clientResult: RollupOutput): DocumentLink[] {
-  const links: DocumentLink[] = [];
+function getLinks(clientResult: RollupOutput): LinkDescriptor[] {
+  const links: LinkDescriptor[] = [];
 
   for (const chunk of clientResult.output.values()) {
     const fileName = chunk.fileName;

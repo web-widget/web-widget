@@ -1,27 +1,22 @@
 import * as layout from "./layout.default";
+import type { Page, PageLayoutData, RenderPage } from "./types";
 import type {
-  ErrorPage,
   Meta,
-  RenderContext,
-  RenderPage,
-  RenderResult,
-  Route,
-  UnknownPage,
-} from "./types";
+  RouteRenderResult,
+  RouteError,
+} from "@web-widget/schema/server";
 import { nonce, NONE, UNSAFE_INLINE, ContentSecurityPolicy } from "./csp";
 
 export interface InnerRenderOptions<Data> {
   data?: Data;
   error?: unknown;
-  imports: string[];
-  lang?: string;
   meta: Meta;
   params: Record<string, string>;
-  route: Route<Data> | UnknownPage | ErrorPage;
+  route: Page;
   url: URL;
 }
 
-export type InnerRenderFunction = () => Promise<RenderResult>;
+export type InnerRenderFunction = () => Promise<RouteRenderResult>;
 
 export class InnerRenderContext {
   #id: string;
@@ -86,7 +81,7 @@ function defaultCsp() {
 export async function internalRender<Data>(
   opts: InnerRenderOptions<Data>,
   renderPage: RenderPage
-): Promise<[RenderResult, ContentSecurityPolicy | undefined]> {
+): Promise<[RouteRenderResult, ContentSecurityPolicy | undefined]> {
   const csp: ContentSecurityPolicy | undefined = opts.route.csp
     ? defaultCsp()
     : undefined;
@@ -105,22 +100,23 @@ export async function internalRender<Data>(
     csp.reportOnly = newCsp.reportOnly;
   }
 
-  let outlet: RenderResult | null = null;
+  let children;
   await renderPage(ctx, async () => {
-    const renderContext: RenderContext = {
-      component: opts.route.component,
-      data: opts.data,
-      error: opts.error,
+    const route = opts.route as Page;
+    const renderContext = {
+      data: opts.data as Data,
+      error: opts.error as RouteError,
       meta: ctx.meta,
+      module: route.module,
       params: opts.params,
-      route: opts.route.pathname,
+      route: route.pathname,
       url: opts.url,
     };
-    outlet = await opts.route.render(renderContext);
-    return outlet;
+    children = (await route.render(renderContext)) as RouteRenderResult;
+    return children;
   });
 
-  if (!outlet) {
+  if (!children) {
     throw new Error(
       `The 'render' function was not called by route's render hook.`
     );
@@ -138,17 +134,18 @@ export async function internalRender<Data>(
   //   moduleScripts.push([url, randomNonce]);
   // }
 
-  const data = {
+  const data: PageLayoutData = {
     clientEntry: ctx.clientEntry,
     esModulePolyfillUrl: ctx.esModulePolyfillUrl,
     meta: ctx.meta,
-    outlet,
+    children,
   };
-  const layoutContext: RenderContext = {
-    component: layout.default,
+  const layoutContext = {
     data,
-    error: null,
     meta: ctx.meta,
+    module: {
+      default: layout.default,
+    },
     params: opts.params,
     route: opts.route.pathname,
     url: opts.url,
