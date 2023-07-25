@@ -3,7 +3,7 @@ import { type Attributes, createElement } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { defineRender } from "@web-widget/schema/client";
 
-export type * from "@web-widget/schema/client";
+export * from "@web-widget/schema/client";
 export * from "./web-widget";
 export { WebWidget as default } from "./web-widget";
 
