@@ -7,7 +7,6 @@ export const tsup: Options = {
   target: "es2017",
   splitting: false,
   sourcemap: true,
-  minify: true,
   format: ["esm"],
   outDir: "dist",
   clean: true,

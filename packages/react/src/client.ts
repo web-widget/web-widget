@@ -1,10 +1,6 @@
 import { __ENV__ } from "./web-widget";
 import { type Attributes, createElement } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import type {
-  RouteRenderContext,
-  WidgetRenderContext,
-} from "@web-widget/schema/client";
 import { defineRender } from "@web-widget/schema/client";
 
 export type * from "@web-widget/schema/client";
@@ -16,9 +12,7 @@ Reflect.defineProperty(__ENV__, "server", {
 });
 
 export const render = defineRender(
-  (component, props) => async (opts) => {
-    const { recovering, container } = opts;
-
+  async ( { recovering, container }, component, props) => {
     if (!container) {
       throw new Error(`Container required.`);
     }

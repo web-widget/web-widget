@@ -1,7 +1,5 @@
-import type {
-  Meta,
-  RouteFallbackComponentProps,
-} from "@web-widget/schema/server";
+import type { Meta, RouteFallbackComponentProps } from "#schema";
+import { isLikeHttpError } from "#schema";
 import { html } from "./html";
 
 export { render } from "./html";
@@ -20,8 +18,9 @@ function style(style: Record<string, string | number>) {
 }
 
 export default function DefaultErrorPage(error: RouteFallbackComponentProps) {
-  // @ts-ignore
-  const message = error.stack || error.message || error.statusText;
+  const message = isLikeHttpError(error)
+    ? error.message
+    : (error as Error).stack || error.message;
 
   return html`<div
     style="${style({

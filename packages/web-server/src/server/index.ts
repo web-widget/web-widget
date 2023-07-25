@@ -1,5 +1,4 @@
 import { ServerContext } from "./context";
-export { Status } from "./status";
 import type { StartOptions, Manifest, ServerHandler } from "./types";
 export type * from "./types";
 

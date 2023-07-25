@@ -56,7 +56,7 @@ export interface ServerWidgetRenderContext<Data = unknown> {
 
 export interface ClientWidgetRenderContext<Data = unknown> {
   data?: Data;
-  error?: any;
+  error?: WidgetError;
   meta: Meta;
   module: ClientWidgetModule;
 
@@ -153,7 +153,8 @@ export interface RouteComponent<
 
 export type RouteFallbackComponentProps =
   | {
-      name: "RouteError";
+      name: string;
+      message: string;
       status: number;
       statusText: string;
     }
@@ -167,7 +168,7 @@ export interface RouteFallbackComponent {
   (props: RouteFallbackComponentProps): any;
 }
 
-export type RouteError = Response | Error;
+export type RouteError = Error | HttpError;
 
 export type RouteHandlers<Data = unknown, State = Record<string, unknown>> =
   | ServerRouteHandlers<Data, State>
@@ -478,3 +479,10 @@ export type ServerRender<Data = unknown> =
 export type ClientRender<Data = unknown> =
   | ClientWidgetRender<Data>
   | ClientRouteRender<Data>;
+
+export type HttpError = {
+  name: string;
+  message: string;
+  status: number;
+  statusText: string;
+};

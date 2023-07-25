@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
 import { Suspense, lazy, createElement } from "react";
-import type { WidgetModule } from "@web-widget/schema";
+import type {
+  WidgetModule,
+  ServerWidgetModule,
+  Meta,
+} from "@web-widget/schema";
 
 export const __ENV__ = {
   server: true,
@@ -79,15 +83,15 @@ export function WebWidgetClient({
   });
 }
 
-export async function renderServerWebWidget(loader: Loader, data: any) {
-  const module = await loader();
+export async function renderServerWidget(loader: Loader, data: any) {
+  const module = (await loader()) as ServerWidgetModule;
   if (typeof module.render !== "function") {
     const url = getFilename(loader);
     throw new Error(`The module does not export a 'render' method: ${url}`);
   }
 
   const result = await module.render({
-    meta: {}, // TODO
+    meta: module.meta ?? ({} as Meta), // TODO 处理 Meta 中的相对路径资产
     module,
     data,
   });
@@ -135,7 +139,7 @@ export function WebWidget({
     let innerHTML = "";
 
     if (__ENV__.server && recovering && loader) {
-      innerHTML = await renderServerWebWidget(loader, data);
+      innerHTML = await renderServerWidget(loader, data);
     }
 
     return {

@@ -1,19 +1,3 @@
-import type {
-  ClientRouteRenderContext as RouteRenderContext,
-  ClientRouteRenderResult as RouteRenderResult,
-  ClientWidgetRenderContext as WidgetRenderContext,
-  ClientWidgetRenderResult as WidgetRenderResult,
-  RouteComponent,
-  RouteComponentProps,
-  RouteFallbackComponentProps,
-  WidgetComponent,
-  WidgetComponentProps,
-  WidgetFallbackComponentProps,
-} from "./schema";
-
-import { getComponent, getComponentProps } from "./helpers";
-
-export * from "./helpers";
 export type {
   // WIDGET
   ClientWidgetModule as WidgetModule,
@@ -54,26 +38,14 @@ export type {
   Component,
   Meta,
   ClientRender as Render,
-} from "./schema";
+  HttpError,
+} from "./types";
 
-export { getComponent, getComponentProps };
-
-export function defineRender(
-  factory: (
-    component: WidgetComponent | RouteComponent | any,
-    props:
-      | RouteFallbackComponentProps
-      | RouteComponentProps
-      | WidgetFallbackComponentProps
-      | WidgetComponentProps
-  ) => (
-    options: WidgetRenderContext | RouteRenderContext
-  ) => Promise<WidgetRenderResult | RouteRenderResult>
-) {
-  return function render(opts: WidgetRenderContext | RouteRenderContext) {
-    const component = getComponent(opts);
-    const props = getComponentProps(opts);
-
-    return factory(component, props)(opts);
-  };
-}
+export { defineClientRender as defineRender } from "./helpers/define";
+export { getComponent, getComponentProps } from "./helpers/context";
+export { createHttpError, isLikeHttpError } from "./helpers/http-error";
+export {
+  Status as HttpStatus,
+  STATUS_TEXT as HTTP_STATUS_TEXT,
+} from "./helpers/http-status";
+export { renderMetaToString, rebaseMeta } from "./helpers/meta";

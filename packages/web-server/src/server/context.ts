@@ -1,4 +1,4 @@
-import { Status } from "./status";
+import { HttpStatus, rebaseMeta } from "#schema";
 import * as router from "./router";
 import {
   default as DefaultErrorComponent,
@@ -23,7 +23,7 @@ import type {
   RouteHandler,
   RouteModule,
   RouteRender,
-} from "@web-widget/schema/server";
+} from "#schema";
 import { internalRender } from "./render";
 import { ContentSecurityPolicyDirectives, SELF } from "./csp";
 interface RouterState {
@@ -244,11 +244,11 @@ export class ServerContext {
         const path = url.pathname.replace(/\/+$/, "");
         const location = `${path}${url.search}`;
         return new Response(null, {
-          status: Status.TemporaryRedirect,
+          status: HttpStatus.TemporaryRedirect,
           headers: { location },
         });
       } else if (trailingSlashEnabled && !url.pathname.endsWith("/")) {
-        return Response.redirect(url.href + "/", Status.PermanentRedirect);
+        return Response.redirect(url.href + "/", HttpStatus.PermanentRedirect);
       }
 
       return await withMiddlewares(req, connInfo, inner);
@@ -377,11 +377,11 @@ export class ServerContext {
       };
     };
 
-    const createUnknownRender = genRender(this.#notFound, Status.NotFound);
+    const createUnknownRender = genRender(this.#notFound, HttpStatus.NotFound);
 
     for (const route of this.#routes) {
       const meta = route.meta;
-      const createRender = genRender(route, Status.OK);
+      const createRender = genRender(route, HttpStatus.OK);
       if (typeof route.handler === "function") {
         routes[route.pathname] = {
           default: (req, ctx, params) =>
@@ -426,7 +426,7 @@ export class ServerContext {
 
     const errorHandlerRender = genRender(
       this.#error,
-      Status.InternalServerError
+      HttpStatus.InternalServerError
     );
     const errorHandler: router.ErrorHandler<RouterState> = (
       req,
@@ -531,74 +531,6 @@ function deepFreeze(object: any) {
   }
 
   return object;
-}
-
-function rebaseMeta(meta: Meta, base: string): Meta {
-  const RESOLVE_URL_REG = /^(?:\w+:)?\//;
-  return {
-    ...meta,
-
-    link: (meta.link ?? []).map((props) => {
-      if (props.href && !RESOLVE_URL_REG.test(props.href)) {
-        return {
-          ...props,
-          href: base + props.href,
-        };
-      }
-      return { ...props };
-    }),
-
-    script: (meta.script ?? []).map((props) => {
-      type Imports = Record<string, string>;
-      type Scopes = Record<string, Imports>;
-      type Importmap = {
-        imports?: Imports;
-        scopes?: Scopes;
-      };
-
-      if (props.type === "importmap" && typeof props.content === "string") {
-        const importmap = JSON.parse(props.content) as Importmap;
-        const rebaseImports = (imports: Imports) =>
-          Object.entries(imports).reduce((previousValue, [name, url]) => {
-            if (!RESOLVE_URL_REG.test(url)) {
-              previousValue[name] = base + url;
-            } else {
-              previousValue[name] = url;
-            }
-            return previousValue;
-          }, {} as Imports);
-
-        return {
-          ...props,
-          content: JSON.stringify({
-            imports: importmap.imports ? rebaseImports(importmap.imports) : {},
-            scopes: importmap.scopes
-              ? Object.entries(importmap.scopes).reduce(
-                  (previousValue, [scope, imports]) => {
-                    if (!RESOLVE_URL_REG.test(scope)) {
-                      previousValue[base + scope] = rebaseImports(imports);
-                    } else {
-                      previousValue[scope] = {};
-                    }
-                    return previousValue;
-                  },
-                  {} as Scopes
-                )
-              : {},
-          } as Importmap),
-        };
-      }
-
-      if (typeof props.src === "string" && !RESOLVE_URL_REG.test(props.src)) {
-        return {
-          ...props,
-          src: base + props.src,
-        };
-      }
-
-      return { ...props };
-    }),
-  };
 }
 
 function addDefaultMeta(meta: Meta) {
