@@ -1,11 +1,16 @@
 import {
+  ClientRouteHandler,
+  ClientRouteHandlers,
   ClientRouteRenderContext,
   ClientRouteRenderResult,
   ClientWidgetRenderContext,
   ClientWidgetRenderResult,
+  Meta,
   RouteComponent,
   RouteComponentProps,
   RouteFallbackComponentProps,
+  ServerRouteHandler,
+  ServerRouteHandlers,
   ServerRouteRenderContext,
   ServerRouteRenderResult,
   ServerWidgetRenderContext,
@@ -18,6 +23,10 @@ import { getComponent, getComponentProps } from "./context";
 
 // @ts-ignore
 const DEV: boolean = import.meta.env?.DEV ?? false;
+
+export function defineMeta(meta: Meta) {
+  return meta;
+}
 
 export function defineServerRender(
   factory: (
@@ -67,4 +76,23 @@ export function defineClientRender(
 
     return factory(context, component, props);
   };
+}
+
+export function defineRouteComponent<
+  Data = unknown,
+  Params = Record<string, string>
+>(component: RouteComponent<Data, Params>) {
+  return component;
+}
+
+export function defineServerRouteHandler<Data = unknown>(
+  handler: ServerRouteHandler<Data> | ServerRouteHandlers<Data>
+) {
+  return handler;
+}
+
+export function defineClientRouteHandler<Data = unknown>(
+  handler: ClientRouteHandler<Data> | ClientRouteHandlers<Data>
+) {
+  return handler;
 }

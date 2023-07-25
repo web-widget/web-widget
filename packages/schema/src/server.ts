@@ -41,7 +41,12 @@ export type {
   HttpError,
 } from "./types";
 
-export { defineServerRender as defineRender } from "./helpers/define";
+export {
+  defineMeta,
+  defineServerRender as defineRender,
+  defineRouteComponent,
+  defineServerRouteHandler as defineRouteHandler,
+} from "./helpers/define";
 export { getComponent, getComponentProps } from "./helpers/context";
 export { createHttpError, isLikeHttpError } from "./helpers/http-error";
 export {

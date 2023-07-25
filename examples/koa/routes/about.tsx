@@ -1,4 +1,9 @@
-import { render, Handlers, Meta, RouteComponentProps } from "@web-widget/react";
+import {
+  render,
+  defineMeta,
+  defineRouteComponent,
+  defineRouteHandler,
+} from "@web-widget/react";
 
 import Counter from "../widgets/Counter.tsx";
 
@@ -8,11 +13,11 @@ type AboutPageProps = {
 
 export { render };
 
-export const meta: Meta = {
+export const meta = defineMeta({
   title: "Hello, Web widget.",
-};
+});
 
-export const handler: Handlers<AboutPageProps> = {
+export const handler = defineRouteHandler<AboutPageProps>({
   async GET(req, ctx) {
     console.log(ctx.meta);
 
@@ -24,9 +29,9 @@ export const handler: Handlers<AboutPageProps> = {
     resp.headers.set("X-Custom-Header", "Hello");
     return resp;
   },
-};
+});
 
-export default function AboutPage(props: RouteComponentProps<AboutPageProps>) {
+export default defineRouteComponent<AboutPageProps>(function AboutPage(props) {
   const {
     data: { name },
   } = props;
@@ -38,4 +43,4 @@ export default function AboutPage(props: RouteComponentProps<AboutPageProps>) {
       <Counter client name={name} start={3} />
     </>
   );
-}
+});
