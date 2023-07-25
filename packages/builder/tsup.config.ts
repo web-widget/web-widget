@@ -5,7 +5,7 @@ export const tsup: Options = {
     cli: "src/cli.ts",
   },
   dts: true,
-  target: "node14",
+  target: "node18",
   splitting: true,
   sourcemap: false,
   format: ["esm"],
