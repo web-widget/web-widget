@@ -32,8 +32,8 @@ export type {
   // ROOT
   ClientModule as Module,
   Config,
-  Handlers,
-  Handler,
+  ServerRouteHandlers as Handlers,
+  ServerRouteHandlers as Handler,
   ComponentProps,
   Component,
   Meta,

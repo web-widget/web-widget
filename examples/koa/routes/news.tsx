@@ -1,4 +1,4 @@
-import type { Handlers, ComponentProps } from "@web-widget/react";
+import type { Handlers, RouteComponentProps } from "@web-widget/react";
 export { render } from "@web-widget/react";
 
 type NewsPageProps = {
@@ -17,7 +17,7 @@ export const handler: Handlers<NewsPageProps> = {
   },
 };
 
-export default function NewsPage(props: ComponentProps<NewsPageProps>) {
+export default function NewsPage(props: RouteComponentProps<NewsPageProps>) {
   const {
     data: { list },
   } = props;

@@ -1,4 +1,4 @@
-import { render, Handlers, Meta, ComponentProps } from "@web-widget/react";
+import { render, Handlers, Meta, RouteComponentProps } from "@web-widget/react";
 
 import Counter from "../widgets/Counter.tsx";
 
@@ -26,7 +26,7 @@ export const handler: Handlers<AboutPageProps> = {
   },
 };
 
-export default function AboutPage(props: ComponentProps<AboutPageProps>) {
+export default function AboutPage(props: RouteComponentProps<AboutPageProps>) {
   const {
     data: { name },
   } = props;
