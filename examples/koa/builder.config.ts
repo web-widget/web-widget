@@ -20,6 +20,11 @@ export default defineConfig({
         pathname: "/news",
         module: "./routes/news.tsx",
       },
+      {
+        name: "fallback",
+        pathname: "/fallback",
+        module: "./routes/fallback.tsx",
+      },
     ],
     middlewares: [
       {

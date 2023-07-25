@@ -5,7 +5,7 @@ import { nonce, NONE, UNSAFE_INLINE, ContentSecurityPolicy } from "./csp";
 
 export interface InnerRenderOptions<Data> {
   data?: Data;
-  error?: unknown;
+  error?: RouteError;
   meta: Meta;
   params: Record<string, string>;
   route: Page;
@@ -101,7 +101,7 @@ export async function internalRender<Data>(
     const route = opts.route as Page;
     const renderContext = {
       data: opts.data as Data,
-      error: opts.error as RouteError,
+      error: opts.error,
       meta: ctx.meta,
       module: route.module,
       params: opts.params,

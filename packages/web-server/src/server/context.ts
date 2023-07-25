@@ -1,4 +1,9 @@
-import { HttpStatus, rebaseMeta } from "#schema";
+import {
+  HttpStatus,
+  rebaseMeta,
+  createHttpError,
+  isLikeHttpError,
+} from "#schema";
 import * as router from "./router";
 import {
   default as DefaultErrorComponent,
@@ -18,6 +23,7 @@ import type {
   WebServerOptions,
 } from "./types";
 import type {
+  HttpError,
   Meta,
   RouteError,
   RouteHandler,
@@ -324,7 +330,7 @@ export class ServerContext {
       return (
         req: Request,
         params: Record<string, string>,
-        routeError?: unknown
+        routeError?: RouteError
       ) => {
         return async (
           renderProps: {
@@ -335,7 +341,8 @@ export class ServerContext {
           options?: ResponseInit
         ) => {
           const { data, error = routeError, meta = route.meta } = renderProps;
-          const [body, csp] = await internalRender(
+          const isHttpError = isLikeHttpError(error);
+          const [html, csp] = await internalRender(
             {
               data,
               error,
@@ -366,9 +373,13 @@ export class ServerContext {
             }
           }
 
-          return new Response(body, {
-            status: options?.status ?? status,
-            statusText: options?.statusText,
+          return new Response(html, {
+            status:
+              options?.status ??
+              (isHttpError ? (error as HttpError).status : status),
+            statusText:
+              options?.statusText ??
+              (isHttpError ? (error as HttpError).statusText : undefined),
             headers: options?.headers
               ? { ...headers, ...options.headers }
               : headers,
@@ -416,10 +427,7 @@ export class ServerContext {
       (this.#notFound.handler as RouteHandler)(req, {
         ...ctx,
         params: {},
-        error: new Response(null, {
-          status: 404,
-          statusText: "Not Found",
-        }),
+        error: createHttpError(404),
         meta: this.#notFound.meta,
         render: createUnknownRender(req, {}),
       });
@@ -443,7 +451,7 @@ export class ServerContext {
         error: error as Error,
         params: {},
         meta: this.#error.meta,
-        render: errorHandlerRender(req, {}, error),
+        render: errorHandlerRender(req, {}, error as Error),
       });
     };
 
