@@ -8,25 +8,25 @@
   },
   "exports": {
     ".": {
+      "types": "./src/module.d.ts"
+    },
+    "./helpers": {
       "browser": {
-        "types": "./dist/client.d.ts",
-        "default": "./dist/client.js"
+        "types": "./dist/helpers.client.d.ts",
+        "default": "./dist/helpers.client.js"
       },
       "default": {
-        "types": "./dist/server.d.ts",
-        "default": "./dist/server.js"
+        "types": "./dist/helpers.server.d.ts",
+        "default": "./dist/helpers.server.js"
       }
     },
-    "./schema": {
-      "types": "./src/schema.d.ts"
-    },
     "./server": {
-      "types": "./dist/server.d.ts",
-      "default": "./dist/server.js"
+      "types": "./dist/helpers.erver.d.ts",
+      "default": "./dist/helpers.server.js"
     },
     "./client": {
-      "types": "./dist/client.d.ts",
-      "default": "./dist/client.js"
+      "types": "./dist/helpers.client.d.ts",
+      "default": "./dist/helpers.client.js"
     }
   },
   "devDependencies": {

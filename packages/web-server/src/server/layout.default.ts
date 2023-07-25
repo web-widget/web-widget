@@ -1,7 +1,7 @@
 import { html, HTML, streamToHTML, unsafeHTML } from "./html";
 import type { PageLayoutData } from "./types";
-import type { RouteComponentProps } from "@web-widget/schema/server";
-import { renderMetaToString } from "@web-widget/schema/server";
+import type { RouteComponentProps } from "#schema";
+import { renderMetaToString } from "#schema";
 
 export { render } from "./html";
 

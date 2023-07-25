@@ -1,6 +1,3 @@
-// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
-// This module is browser compatible.
-
 /**
  * Contains the enum {@linkcode Status} which enumerates standard HTTP status
  * codes and provides several type guards for handling status codes with type
@@ -11,14 +8,14 @@
  * import {
  *   Status,
  *   STATUS_TEXT,
- * } from "https://deno.land/std@$STD_VERSION/http/http_status.ts";
+ * } from "@web-widget/schema/helpers";
  *
  * console.log(Status.NotFound); //=> 404
  * console.log(STATUS_TEXT[Status.NotFound]); //=> "Not Found"
  * ```
  *
  * ```ts
- * import { isErrorStatus } from "https://deno.land/std@$STD_VERSION/http/http_status.ts";
+ * import { isErrorStatus } from "@web-widget/schema/helpers";
  *
  * const res = await fetch("https://example.com/");
  *

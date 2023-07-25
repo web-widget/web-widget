@@ -1,4 +1,4 @@
-import { Status } from "./status";
+import { Status } from "#schema";
 import * as router from "./router";
 import {
   default as DefaultErrorComponent,
@@ -23,7 +23,7 @@ import type {
   RouteHandler,
   RouteModule,
   RouteRender,
-} from "@web-widget/schema/server";
+} from "#schema";
 import { internalRender } from "./render";
 import { ContentSecurityPolicyDirectives, SELF } from "./csp";
 interface RouterState {

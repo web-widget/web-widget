@@ -7,6 +7,9 @@
     "build": "pnpm exec tsup && pnpm run html-minifier",
     "html-minifier": "babel dist/* --out-dir dist"
   },
+  "imports": {
+    "#schema": "@web-widget/schema/server"
+  },
   "exports": {
     ".": {
       "types": "./dist/server.d.ts",

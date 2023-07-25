@@ -7,8 +7,8 @@ import type {
   RouteModule,
   RouteRender,
   RouteConfig as BaseRouterConfig,
-} from "@web-widget/schema/server";
-export * from "@web-widget/schema/server";
+} from "#schema";
+export * from "#schema";
 
 // --- APPLICATION CONFIGURATION ---
 

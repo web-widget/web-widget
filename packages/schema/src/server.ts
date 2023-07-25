@@ -1,17 +1,6 @@
-import {
-  RouteComponent,
-  RouteComponentProps,
-  RouteFallbackComponentProps,
-  ServerRouteRenderContext as RouteRenderContext,
-  ServerRouteRenderResult as RouteRenderResult,
-  ServerWidgetRenderContext as WidgetRenderContext,
-  ServerWidgetRenderResult as WidgetRenderResult,
-  WidgetComponent,
-  WidgetComponentProps,
-  WidgetFallbackComponentProps,
-} from "./schema";
-import { getComponent, getComponentProps } from "./helpers";
+import { defineServerRender as defineRender } from "./helpers";
 
+export { defineRender };
 export * from "./helpers";
 export type {
   // WIDGET
@@ -53,24 +42,5 @@ export type {
   Component,
   Meta,
   ServerRender as Render,
-} from "./schema";
-
-export function defineRender(
-  factory: (
-    component: WidgetComponent | RouteComponent | any,
-    props:
-      | RouteFallbackComponentProps
-      | RouteComponentProps
-      | WidgetFallbackComponentProps
-      | WidgetComponentProps
-  ) => (
-    options: WidgetRenderContext | RouteRenderContext
-  ) => Promise<WidgetRenderResult | RouteRenderResult>
-) {
-  return function render(opts: WidgetRenderContext | RouteRenderContext) {
-    const component = getComponent(opts);
-    const props = getComponentProps(opts);
-
-    return factory(component, props)(opts);
-  };
-}
+  HttpError,
+} from "./module";

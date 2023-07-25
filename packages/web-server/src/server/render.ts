@@ -1,10 +1,6 @@
 import * as layout from "./layout.default";
 import type { Page, PageLayoutData, RenderPage } from "./types";
-import type {
-  Meta,
-  RouteRenderResult,
-  RouteError,
-} from "@web-widget/schema/server";
+import type { Meta, RouteRenderResult, RouteError } from "#schema";
 import { nonce, NONE, UNSAFE_INLINE, ContentSecurityPolicy } from "./csp";
 
 export interface InnerRenderOptions<Data> {
