@@ -7,7 +7,7 @@ import {
 
 import Counter from "../widgets/Counter.tsx";
 
-type AboutPageProps = {
+type AboutPageData = {
   name: string;
 };
 
@@ -17,7 +17,7 @@ export const meta = defineMeta({
   title: "Hello, Web widget.",
 });
 
-export const handler = defineRouteHandler<AboutPageProps>({
+export const handler = defineRouteHandler<AboutPageData>({
   async GET(req, ctx) {
     console.log(ctx.meta);
 
@@ -31,10 +31,9 @@ export const handler = defineRouteHandler<AboutPageProps>({
   },
 });
 
-export default defineRouteComponent<AboutPageProps>(function AboutPage(props) {
-  const {
-    data: { name },
-  } = props;
+export default defineRouteComponent<AboutPageData>(function AboutPage({
+  data: { name },
+}) {
   return (
     <>
       <h1>About</h1>
