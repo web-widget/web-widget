@@ -4,7 +4,7 @@
       "template-html-minifier",
       {
         "modules": {
-          "@worker-tools/html": ["html", "unsafeHTML"]
+          "@web-widget/html": ["html", "unsafeHTML"]
         },
         "strictCSS": false,
         "htmlMinifier": {
