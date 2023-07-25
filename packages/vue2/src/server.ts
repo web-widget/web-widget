@@ -1,13 +1,9 @@
 import Vue from "vue";
 import { createRenderer } from "vue-server-renderer";
-import type {
-  RouteRenderContext,
-  WidgetRenderContext,
-} from "@web-widget/schema/server";
 import { defineRender } from "@web-widget/schema/server";
 
 export type * from "@web-widget/schema/server";
-export const render = defineRender((component, props) => async (opts) => {
+export const render = defineRender(async (context, component, props) => {
   const renderer = createRenderer();
   const app = new Vue({
     render(h) {

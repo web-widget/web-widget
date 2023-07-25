@@ -13,49 +13,58 @@ import {
   WidgetComponent,
   WidgetComponentProps,
   WidgetFallbackComponentProps,
-} from "../module";
-import { getComponent, getComponentProps } from "./get-context";
+} from "../types";
+import { getComponent, getComponentProps } from "./context";
+
+// @ts-ignore
+const DEV: boolean = import.meta.env?.DEV ?? false;
 
 export function defineServerRender(
   factory: (
+    context: ServerWidgetRenderContext | ServerRouteRenderContext,
     component: WidgetComponent | RouteComponent | any,
     props:
       | RouteFallbackComponentProps
       | RouteComponentProps
       | WidgetFallbackComponentProps
       | WidgetComponentProps
-  ) => (
-    options: ServerWidgetRenderContext | ServerRouteRenderContext
-  ) => Promise<ServerWidgetRenderResult | ServerRouteRenderResult>
+  ) => Promise<ServerWidgetRenderResult | ServerRouteRenderResult>,
+  options: {
+    dev?: boolean;
+  } = {}
 ) {
   return function render(
-    opts: ServerWidgetRenderContext | ServerRouteRenderContext
+    context: ServerWidgetRenderContext | ServerRouteRenderContext
   ) {
-    const component = getComponent(opts);
-    const props = getComponentProps(opts);
+    const component = getComponent(context);
+    const props = getComponentProps(context, options);
 
-    return factory(component, props)(opts);
+    return factory(context, component, props);
   };
 }
 
 export function defineClientRender(
   factory: (
+    context: ClientWidgetRenderContext | ClientRouteRenderContext,
     component: WidgetComponent | RouteComponent | any,
     props:
       | RouteFallbackComponentProps
       | RouteComponentProps
       | WidgetFallbackComponentProps
       | WidgetComponentProps
-  ) => (
-    options: ClientWidgetRenderContext | ClientRouteRenderContext
-  ) => Promise<ClientWidgetRenderResult | ClientRouteRenderResult>
+  ) => Promise<ClientWidgetRenderResult | ClientRouteRenderResult>,
+  options: {
+    dev?: boolean;
+  } = {}
 ) {
   return function render(
-    opts: ClientWidgetRenderContext | ClientRouteRenderContext
+    context: ClientWidgetRenderContext | ClientRouteRenderContext
   ) {
-    const component = getComponent(opts);
-    const props = getComponentProps(opts);
+    const component = getComponent(context);
+    const props = getComponentProps(context, {
+      dev: options.dev ?? DEV,
+    });
 
-    return factory(component, props)(opts);
+    return factory(context, component, props);
   };
 }

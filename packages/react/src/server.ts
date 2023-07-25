@@ -2,10 +2,6 @@ import { __ENV__ } from "./web-widget";
 import { type Attributes, createElement } from "react";
 // @ts-ignore
 import * as ReactDOMServer from "react-dom/server.browser";
-import type {
-  RouteRenderContext,
-  WidgetRenderContext,
-} from "@web-widget/schema/server";
 import { defineRender } from "@web-widget/schema/server";
 
 export type * from "@web-widget/schema/server";
@@ -17,7 +13,7 @@ Reflect.defineProperty(__ENV__, "server", {
 });
 
 export const render = defineRender(
-  (component, props) => async () => {
+  async (context, component, props) => {
     if (
       typeof component === "function" &&
       component.constructor.name === "AsyncFunction"

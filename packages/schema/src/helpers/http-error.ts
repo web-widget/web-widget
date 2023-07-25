@@ -72,17 +72,17 @@ export interface IError extends Error {
  * @public
  */
 
-export function createError(
+export function createHttpError(
   status: number,
   message?: string,
   props?: HttpErrorProperties
 ): HttpError;
-export function createError(
+export function createHttpError(
   status: number,
   err: Error,
   props?: HttpErrorProperties
 ): IError;
-export function createError(
+export function createHttpError(
   status: any,
   message?: any,
   props?: HttpErrorProperties
@@ -93,7 +93,7 @@ export function createError(
 
     // support Node.js
     if (Reflect.has(Error, "captureStackTrace")) {
-      (Error as any).captureStackTrace(err, createError);
+      (Error as any).captureStackTrace(err, createHttpError);
     }
   } else if (message instanceof Error) {
     err = message as IError;
@@ -114,7 +114,7 @@ export function createError(
 
     // support Node.js
     if (Reflect.has(Error, "captureStackTrace")) {
-      (Error as any).captureStackTrace(err, createError);
+      (Error as any).captureStackTrace(err, createHttpError);
     }
   }
 

@@ -4,7 +4,7 @@ import type {
   MetaDescriptor,
   ScriptDescriptor,
   StyleDescriptor,
-} from "../module";
+} from "../types";
 
 // type EscapeLookupKey = "&" | ">" | "<" | "\u2028" | "\u2029";
 // const ESCAPE_LOOKUP = {
@@ -131,4 +131,72 @@ export function renderMetaToString(meta: Meta): string {
   });
 
   return priority.flat().join("");
+}
+
+export function rebaseMeta(meta: Meta, base: string): Meta {
+  const RESOLVE_URL_REG = /^(?:\w+:)?\//;
+  return {
+    ...meta,
+
+    link: (meta.link ?? []).map((props) => {
+      if (props.href && !RESOLVE_URL_REG.test(props.href)) {
+        return {
+          ...props,
+          href: base + props.href,
+        };
+      }
+      return { ...props };
+    }),
+
+    script: (meta.script ?? []).map((props) => {
+      type Imports = Record<string, string>;
+      type Scopes = Record<string, Imports>;
+      type Importmap = {
+        imports?: Imports;
+        scopes?: Scopes;
+      };
+
+      if (props.type === "importmap" && typeof props.content === "string") {
+        const importmap = JSON.parse(props.content) as Importmap;
+        const rebaseImports = (imports: Imports) =>
+          Object.entries(imports).reduce((previousValue, [name, url]) => {
+            if (!RESOLVE_URL_REG.test(url)) {
+              previousValue[name] = base + url;
+            } else {
+              previousValue[name] = url;
+            }
+            return previousValue;
+          }, {} as Imports);
+
+        return {
+          ...props,
+          content: JSON.stringify({
+            imports: importmap.imports ? rebaseImports(importmap.imports) : {},
+            scopes: importmap.scopes
+              ? Object.entries(importmap.scopes).reduce(
+                  (previousValue, [scope, imports]) => {
+                    if (!RESOLVE_URL_REG.test(scope)) {
+                      previousValue[base + scope] = rebaseImports(imports);
+                    } else {
+                      previousValue[scope] = {};
+                    }
+                    return previousValue;
+                  },
+                  {} as Scopes
+                )
+              : {},
+          } as Importmap),
+        };
+      }
+
+      if (typeof props.src === "string" && !RESOLVE_URL_REG.test(props.src)) {
+        return {
+          ...props,
+          src: base + props.src,
+        };
+      }
+
+      return { ...props };
+    }),
+  };
 }

@@ -4,7 +4,6 @@ import {
   streamToAsyncIter,
 } from "whatwg-stream-to-async-iter";
 import { defineRender } from "#schema";
-import type { RouteRenderContext, WidgetRenderContext } from "#schema";
 
 export * from "#schema";
 
@@ -55,6 +54,6 @@ export const stringStreamToByteStream: (
     }
   : (body) => maybeAsyncIterToStream(body).pipeThrough(new TextEncoderStream());
 
-export const render = defineRender(
-  (component, props) => async () => stringStreamToByteStream(component(props))
+export const render = defineRender(async (context, component, props) =>
+  stringStreamToByteStream(component(props))
 );

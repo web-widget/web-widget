@@ -1,4 +1,5 @@
 import type {
+  HttpError,
   RouteComponent,
   RouteComponentProps,
   RouteFallbackComponent,
@@ -9,22 +10,19 @@ import type {
   WidgetFallbackComponent,
   WidgetFallbackComponentProps,
   WidgetRenderContext,
-} from "../module";
+} from "../types";
 
 import { isLikeHttpError } from "./http-error";
 
-// @ts-ignore
-const DEV = import.meta.env?.DEV;
-
 export function getComponent(
-  opts: WidgetRenderContext | RouteRenderContext
+  context: WidgetRenderContext | RouteRenderContext
 ):
   | RouteFallbackComponent
   | RouteComponent
   | WidgetFallbackComponent
   | WidgetComponent {
-  if (opts?.error) {
-    const component = opts.module?.fallback;
+  if (context?.error) {
+    const component = context.module?.fallback;
 
     if (component === undefined) {
       throw new Error(`No renderable fallback-component.`);
@@ -32,7 +30,7 @@ export function getComponent(
 
     return component;
   } else {
-    const component = opts?.module?.default;
+    const component = context?.module?.default;
     if (component === undefined) {
       throw new Error("No renderable component.");
     }
@@ -42,34 +40,38 @@ export function getComponent(
 }
 
 export function getComponentProps(
-  opts: WidgetRenderContext | RouteRenderContext
+  context: WidgetRenderContext | RouteRenderContext,
+  options: {
+    dev?: boolean;
+  } = {}
 ) {
   let props:
     | RouteFallbackComponentProps
     | RouteComponentProps
     | WidgetFallbackComponentProps
     | WidgetComponentProps;
-  const isRoute = Reflect.has(opts, "route");
-  const error = opts.error;
+  const isRoute = Reflect.has(context, "route");
+  const error = context.error;
 
   if (isRoute) {
-    const { data, params, route, url } = opts as RouteRenderContext;
+    const { data, params, route, url } = context as RouteRenderContext;
 
     if (error) {
       const isHttpError = isLikeHttpError(error);
-      props = (
-        isHttpError
-          ? {
-              name: error.name,
-              status: (error as Response).status,
-              statusText: (error as Response).statusText,
-            }
-          : {
-              name: (error as Error).name,
-              message: (error as Error).message,
-              stack: DEV ? (error as Error).stack : undefined,
-            }
-      ) as RouteFallbackComponentProps;
+      if (isHttpError) {
+        props = {
+          name: error.name,
+          message: error.message,
+          status: (error as HttpError).status,
+          statusText: (error as HttpError).statusText,
+        } as RouteFallbackComponentProps;
+      } else {
+        props = {
+          name: (error as Error).name,
+          message: (error as Error).message,
+          stack: options.dev ? (error as Error).stack : undefined,
+        } as RouteFallbackComponentProps;
+      }
     } else {
       props = {
         data,
@@ -81,12 +83,12 @@ export function getComponentProps(
   } else {
     if (error) {
       props = {
-        name: (error as Error).name,
-        message: (error as Error).message,
+        name: error.name,
+        message: error.message,
         stack: (error as Error).stack,
       } as WidgetFallbackComponentProps;
     } else {
-      props = opts.data as WidgetComponentProps;
+      props = context.data as WidgetComponentProps;
     }
   }
 

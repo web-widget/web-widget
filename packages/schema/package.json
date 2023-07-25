@@ -8,7 +8,8 @@
   },
   "exports": {
     ".": {
-      "types": "./src/module.d.ts"
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
     },
     "./helpers": {
       "browser": {

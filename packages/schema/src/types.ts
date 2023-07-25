@@ -56,7 +56,7 @@ export interface ServerWidgetRenderContext<Data = unknown> {
 
 export interface ClientWidgetRenderContext<Data = unknown> {
   data?: Data;
-  error?: any;
+  error?: WidgetError;
   meta: Meta;
   module: ClientWidgetModule;
 
@@ -168,7 +168,7 @@ export interface RouteFallbackComponent {
   (props: RouteFallbackComponentProps): any;
 }
 
-export type RouteError = Response | Error | HttpError;
+export type RouteError = Error | HttpError;
 
 export type RouteHandlers<Data = unknown, State = Record<string, unknown>> =
   | ServerRouteHandlers<Data, State>
