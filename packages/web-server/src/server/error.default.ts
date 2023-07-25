@@ -1,8 +1,8 @@
 import type { Meta, RouteFallbackComponentProps } from "#schema";
 import { isLikeHttpError } from "#schema";
-import { html } from "./html";
+import { html, render } from "@web-widget/html";
 
-export { render } from "./html";
+export { render };
 
 export const meta: Meta = {
   title: "Error",

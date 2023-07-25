@@ -1,9 +1,9 @@
-import { html, HTML, streamToHTML, unsafeHTML } from "./html";
+import { render, html, HTML, streamToHTML, unsafeHTML } from "@web-widget/html";
 import type { PageLayoutData } from "./types";
 import type { RouteComponentProps } from "#schema";
 import { renderMetaToString } from "#schema";
 
-export { render } from "./html";
+export { render };
 
 export default function Layout({
   data: { clientEntry, esModulePolyfillUrl, meta, children },

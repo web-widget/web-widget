@@ -3,10 +3,9 @@ import {
   asyncIterToStream,
   streamToAsyncIter,
 } from "whatwg-stream-to-async-iter";
-import { defineRender } from "#schema";
+import { defineRender } from "@web-widget/schema/server";
 
-export * from "#schema";
-
+export type * from "@web-widget/schema/server";
 export { unsafeHTML, fallback, html, HTML, Fallback };
 
 export const streamToHTML = (stream: ReadableStream<string>) =>
@@ -43,16 +42,16 @@ const supportNonBinaryTransformStreams = async () => {
   }
 };
 
-export const stringStreamToByteStream: (
-  body: HTML
-) => ReadableStream<Uint8Array> = (await supportNonBinaryTransformStreams())
-  ? (body) => {
-      const encoder = new TextEncoder();
-      return asyncIterToStream(
-        aMap(maybeStreamToAsyncIter(body), (x: string) => encoder.encode(x))
-      );
-    }
-  : (body) => maybeAsyncIterToStream(body).pipeThrough(new TextEncoderStream());
+const stringStreamToByteStream: (body: HTML) => ReadableStream<Uint8Array> =
+  (await supportNonBinaryTransformStreams())
+    ? (body) => {
+        const encoder = new TextEncoder();
+        return asyncIterToStream(
+          aMap(maybeStreamToAsyncIter(body), (x: string) => encoder.encode(x))
+        );
+      }
+    : (body) =>
+        maybeAsyncIterToStream(body).pipeThrough(new TextEncoderStream());
 
 export const render = defineRender(async (context, component, props) =>
   stringStreamToByteStream(component(props))

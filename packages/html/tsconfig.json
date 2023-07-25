@@ -1,0 +1,26 @@
+{
+  "include": [
+    "src/**/*",
+    "globals.d.ts"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable",
+      "WebWorker"
+    ],
+    "composite": false,
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "declaration": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx"
+  }
+}
