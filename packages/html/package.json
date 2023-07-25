@@ -1,5 +1,5 @@
 {
-  "name": "@web-widget/vue",
+  "name": "@web-widget/html",
   "version": "0.0.1",
   "type": "module",
   "scripts": {
@@ -8,22 +8,26 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/vue.server.d.ts",
-      "browser": "./dist/vue.client.js",
-      "default": "./dist/vue.server.js"
+      "browser": {
+        "types": "./dist/html.client.d.ts",
+        "default": "./dist/html.client.js"
+      },
+      "default": {
+        "types": "./dist/html.server.d.ts",
+        "default": "./dist/html.server.js"
+      }
     }
   },
-  "types": "./dist/vue.server.d.ts",
   "files": [
     "dist"
   ],
   "publishConfig": {
     "access": "public"
   },
-  "peerDependencies": {
-    "vue": "^3.3.4"
+  "dependencies": {
+    "@worker-tools/html": "^2.0.0-pre.13",
+    "whatwg-stream-to-async-iter": "^0.6.2"
   },
-  "dependencies": {},
   "devDependencies": {
     "typescript": "^5.0.4",
     "@web-widget/schema": "workspace:*",

@@ -2,7 +2,7 @@ import Vue from "vue";
 import { createRenderer } from "vue-server-renderer";
 import { defineRender } from "@web-widget/schema/server";
 
-export type * from "@web-widget/schema/server";
+export * from "@web-widget/schema/server";
 export const render = defineRender(async (context, component, props) => {
   const renderer = createRenderer();
   const app = new Vue({

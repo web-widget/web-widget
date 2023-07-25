@@ -4,7 +4,7 @@ import { type Attributes, createElement } from "react";
 import * as ReactDOMServer from "react-dom/server.browser";
 import { defineRender } from "@web-widget/schema/server";
 
-export type * from "@web-widget/schema/server";
+export * from "@web-widget/schema/server";
 export * from "./web-widget";
 export { WebWidget as default } from "./web-widget";
 

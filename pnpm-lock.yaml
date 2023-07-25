@@ -207,6 +207,25 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4
 
+  packages/html:
+    dependencies:
+      '@worker-tools/html':
+        specifier: ^2.0.0-pre.13
+        version: 2.0.0-pre.13
+      whatwg-stream-to-async-iter:
+        specifier: ^0.6.2
+        version: 0.6.2
+    devDependencies:
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../schema
+      tsup:
+        specifier: ^7.0.0
+        version: 7.0.0(typescript@5.0.4)
+      typescript:
+        specifier: ^5.0.4
+        version: 5.0.4
+
   packages/koa:
     dependencies:
       '@web-widget/web-std':
@@ -252,18 +271,12 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.0.2
         version: 4.0.2(vite@4.3.9)
-      '@web-widget/builder':
-        specifier: workspace:*
-        version: link:../builder
       react:
         specifier: ^18.2.0
         version: 18.2.0
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
-      vite:
-        specifier: ^4.3.9
-        version: 4.3.9(@types/node@20.3.1)
     devDependencies:
       '@types/babel__core':
         specifier: ^7.20.1
@@ -289,15 +302,15 @@ importers:
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
-      '@web-widget/web-server':
-        specifier: workspace:*
-        version: link:../web-server
       tsup:
         specifier: ^7.0.0
         version: 7.0.0(typescript@5.0.4)
       typescript:
         specifier: ^5.0.4
         version: 5.0.4
+      vite:
+        specifier: ^4.3.9
+        version: 4.3.9(@types/node@20.3.1)
 
   packages/schema:
     devDependencies:
@@ -317,9 +330,6 @@ importers:
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
-      '@web-widget/web-server':
-        specifier: workspace:*
-        version: link:../web-server
       tsup:
         specifier: ^7.0.0
         version: 7.0.0(typescript@5.0.4)
@@ -339,9 +349,6 @@ importers:
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
-      '@web-widget/web-server':
-        specifier: workspace:*
-        version: link:../web-server
       tsup:
         specifier: ^7.0.0
         version: 7.0.0(typescript@5.0.4)
@@ -351,18 +358,15 @@ importers:
 
   packages/web-server:
     dependencies:
+      '@web-widget/html':
+        specifier: workspace:*
+        version: link:../html
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
       '@web-widget/web-widget':
         specifier: workspace:*
         version: link:../web-widget
-      '@worker-tools/html':
-        specifier: ^2.0.0-pre.13
-        version: 2.0.0-pre.13
-      whatwg-stream-to-async-iter:
-        specifier: ^0.6.2
-        version: 0.6.2
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.9
