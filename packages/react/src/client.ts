@@ -17,14 +17,16 @@ export const render = defineRender(
       throw new Error(`Container required.`);
     }
   
+    let vnode;
     if (
       typeof component === "function" &&
       component.constructor.name === "AsyncFunction"
     ) {
-      throw new Error("Async components are not supported.");
+      // Experimental
+      vnode = await component(props);
+    } else {
+      vnode = createElement(component, props as Attributes);
     }
-
-    const vnode = createElement(component, props as Attributes);
 
     if (recovering) {
       hydrateRoot(container, vnode);

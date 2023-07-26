@@ -25,6 +25,11 @@ export default defineConfig({
         pathname: "/fallback",
         module: "./routes/fallback.tsx",
       },
+      {
+        name: "experimental-async-component",
+        pathname: "/experimental-async-component",
+        module: "./routes/experimental-async-component.tsx",
+      },
     ],
     middlewares: [
       {
