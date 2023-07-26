@@ -2,7 +2,7 @@ import { __ENV__ } from "./web-widget";
 import { type Attributes, createElement } from "react";
 // @ts-ignore
 import * as ReactDOMServer from "react-dom/server.browser";
-import { defineRender, isRouteContext } from "@web-widget/schema/server";
+import { defineRender, isRouteRenderContext } from "@web-widget/schema/server";
 
 export * from "@web-widget/schema/server";
 export * from "./web-widget";
@@ -20,7 +20,7 @@ export const render = defineRender(
       component.constructor.name === "AsyncFunction"
     ) {
 
-      if (isRouteContext(context)) {
+      if (isRouteRenderContext(context)) {
         // experimental
         vnode = await component(props);
       } else {

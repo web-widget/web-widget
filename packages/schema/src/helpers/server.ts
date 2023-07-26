@@ -47,7 +47,11 @@ export {
   defineRouteComponent,
   defineServerRouteHandler as defineRouteHandler,
 } from "./define";
-export { getComponent, getComponentProps, isRouteContext } from "./context";
+export {
+  getComponent,
+  getComponentProps,
+  isRouteRenderContext,
+} from "./context";
 export { createHttpError, isLikeHttpError } from "./http-error";
 export {
   Status as HttpStatus,

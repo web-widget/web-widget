@@ -1,7 +1,7 @@
 import { __ENV__ } from "./web-widget";
 import { type Attributes, createElement } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import { defineRender, isRouteContext } from "@web-widget/schema/client";
+import { defineRender, isRouteRenderContext } from "@web-widget/schema/client";
 
 export * from "@web-widget/schema/client";
 export * from "./web-widget";
@@ -24,7 +24,7 @@ export const render = defineRender(
       typeof component === "function" &&
       component.constructor.name === "AsyncFunction"
     ) {
-      if (isRouteContext(context)) {
+      if (isRouteRenderContext(context)) {
         // experimental
         vnode = await component(props);
       } else {
