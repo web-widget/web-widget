@@ -52,7 +52,7 @@ export function getComponentProps(
     | WidgetComponentProps;
   const error = context.error;
 
-  if (isRouteContext(context)) {
+  if (isRouteRenderContext(context)) {
     const { data, params, route, url } = context as RouteRenderContext;
 
     if (error) {
@@ -94,7 +94,7 @@ export function getComponentProps(
   return props;
 }
 
-export function isRouteContext(
+export function isRouteRenderContext(
   context: WidgetRenderContext | RouteRenderContext
 ) {
   return Reflect.has(context, "route");
