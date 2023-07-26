@@ -230,6 +230,7 @@ export interface ServerRouteHandlerContext<
 > {
   error?: RouteError;
   meta: Meta;
+  module: ServerRouteModule;
   params: Record<string, string>;
   render(
     renderProps?: {
@@ -248,6 +249,7 @@ export interface ClientRouteHandlerContext<
 > {
   error?: RouteError;
   meta: Meta;
+  module: ClientRouteModule;
   params: Record<string, string>;
   render(
     renderProps?: {
@@ -335,7 +337,6 @@ export type ServerRouteRenderResult = string | ReadableStream;
 export type ClientRouteRenderResult = void | {
   mount?: () => void | Promise<void>;
   unmount?: () => void | Promise<void>;
-  /**@experimental*/
   update?: ({ data }: { data: Record<string, any> }) => void | Promise<void>;
 };
 

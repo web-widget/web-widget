@@ -392,6 +392,7 @@ export class ServerContext {
 
     for (const route of this.#routes) {
       const meta = route.meta;
+      const module = route.module;
       const createRender = genRender(route, HttpStatus.OK);
       if (typeof route.handler === "function") {
         routes[route.pathname] = {
@@ -399,6 +400,7 @@ export class ServerContext {
             (route.handler as RouteHandler)(req, {
               ...ctx,
               meta,
+              module,
               params,
               render: createRender(req, params),
               // renderNotFound: createUnknownRender(req, {}),
@@ -415,6 +417,7 @@ export class ServerContext {
             handler(req, {
               ...ctx,
               meta,
+              module,
               params,
               render: createRender(req, params),
               //renderNotFound: createUnknownRender(req, {}),
@@ -429,6 +432,7 @@ export class ServerContext {
         params: {},
         error: createHttpError(404),
         meta: this.#notFound.meta,
+        module: this.#notFound,
         render: createUnknownRender(req, {}),
       });
 
@@ -451,6 +455,7 @@ export class ServerContext {
         error: error as Error,
         params: {},
         meta: this.#error.meta,
+        module: this.#error,
         render: errorHandlerRender(req, {}, error as Error),
       });
     };
