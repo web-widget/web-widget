@@ -23,8 +23,12 @@ export const handler = defineRouteHandler({
       });
     }
 
-    if (url.searchParams.has("globa")) {
-      throw new Error("⚠️ 内部错误");
+    if (url.searchParams.has("globa-500")) {
+      throw new Error("⚠️ 全局错误捕获 500");
+    }
+
+    if (url.searchParams.has("globa-404")) {
+      throw createHttpError(404, "⚠️ 全局错误捕获 404");
     }
 
     return ctx.render();
@@ -45,7 +49,8 @@ export default function () {
     <>
       <p>
         <a href="?404">Show 404 error</a> | <a href="?500">Show 500 error</a> |{" "}
-        <a href="?globa">Show globa error</a>
+        <a href="?globa-404">Show globa 404 error</a> |{" "}
+        <a href="?globa-500">Show globa 500 error</a>
       </p>
     </>
   );
