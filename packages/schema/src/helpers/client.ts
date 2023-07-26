@@ -39,18 +39,18 @@ export type {
   Meta,
   ClientRender as Render,
   HttpError,
-} from "./types";
+} from "../types";
 
 export {
   defineMeta,
   defineClientRender as defineRender,
   defineRouteComponent,
   defineClientRouteHandler as defineRouteHandler,
-} from "./helpers/define";
-export { getComponent, getComponentProps } from "./helpers/context";
-export { createHttpError, isLikeHttpError } from "./helpers/http-error";
+} from "./define";
+export { getComponent, getComponentProps } from "./context";
+export { createHttpError, isLikeHttpError } from "./http-error";
 export {
   Status as HttpStatus,
   STATUS_TEXT as HTTP_STATUS_TEXT,
-} from "./helpers/http-status";
-export { renderMetaToString, rebaseMeta } from "./helpers/meta";
+} from "./http-status";
+export { renderMetaToString, rebaseMeta } from "./meta";
