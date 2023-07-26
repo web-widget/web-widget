@@ -50,10 +50,9 @@ export function getComponentProps(
     | RouteComponentProps
     | WidgetFallbackComponentProps
     | WidgetComponentProps;
-  const isRoute = Reflect.has(context, "route");
   const error = context.error;
 
-  if (isRoute) {
+  if (isRouteContext(context)) {
     const { data, params, route, url } = context as RouteRenderContext;
 
     if (error) {
@@ -93,4 +92,10 @@ export function getComponentProps(
   }
 
   return props;
+}
+
+export function isRouteContext(
+  context: WidgetRenderContext | RouteRenderContext
+) {
+  return Reflect.has(context, "route");
 }

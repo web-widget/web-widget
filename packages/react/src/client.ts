@@ -1,7 +1,7 @@
 import { __ENV__ } from "./web-widget";
 import { type Attributes, createElement } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import { defineRender } from "@web-widget/schema/client";
+import { defineRender, isRouteContext } from "@web-widget/schema/client";
 
 export * from "@web-widget/schema/client";
 export * from "./web-widget";
@@ -12,7 +12,9 @@ Reflect.defineProperty(__ENV__, "server", {
 });
 
 export const render = defineRender(
-  async ( { recovering, container }, component, props) => {
+  async ( context, component, props) => {
+    const { recovering, container } = context;
+    
     if (!container) {
       throw new Error(`Container required.`);
     }
@@ -22,8 +24,12 @@ export const render = defineRender(
       typeof component === "function" &&
       component.constructor.name === "AsyncFunction"
     ) {
-      // Experimental
-      vnode = await component(props);
+      if (isRouteContext(context)) {
+        // experimental
+        vnode = await component(props);
+      } else {
+        throw new Error("Async widget components are not supported.");
+      }
     } else {
       vnode = createElement(component, props as Attributes);
     }
