@@ -33,6 +33,7 @@ import type {
 import { internalRender } from "./render";
 import { ContentSecurityPolicyDirectives, SELF } from "./csp";
 interface RouterState {
+  request: Request;
   state: Record<string, unknown>;
 }
 
@@ -90,7 +91,7 @@ export class ServerContext {
         opts?.client?.base ?? "/"
       );
       if (typeof handler === "object" && handler.GET === undefined) {
-        handler.GET = ((_req, { render }) =>
+        handler.GET = (({ render }) =>
           render({ meta: rebasedMeta })) as RouteHandler;
       }
       if (
@@ -99,8 +100,8 @@ export class ServerContext {
         handler.HEAD === undefined
       ) {
         const GET = handler.GET as RouteHandler;
-        handler.HEAD = (async (req, ctx) => {
-          const resp = await GET(req, ctx);
+        handler.HEAD = (async (ctx) => {
+          const resp = await GET(ctx);
           resp.body?.cancel();
           return new Response(null, {
             headers: resp.headers,
@@ -154,7 +155,7 @@ export class ServerContext {
       );
 
       if ((component || fallback) && handler === undefined) {
-        handler = (_req, { render }) =>
+        handler = ({ render }) =>
           render({
             meta: rebasedMeta,
           });
@@ -164,7 +165,7 @@ export class ServerContext {
         module,
         config,
         csp: Boolean(config.csp ?? false),
-        handler: handler ?? ((req) => router.defaultOtherHandler(req)),
+        handler: handler ?? ((ctx) => router.defaultOtherHandler(ctx)),
         meta: rebasedMeta,
         name,
         pathname,
@@ -190,7 +191,7 @@ export class ServerContext {
       );
 
       if (component && handler === undefined) {
-        handler = (_req, { render }) =>
+        handler = ({ render }) =>
           render({
             meta: rebasedMeta,
           });
@@ -201,8 +202,7 @@ export class ServerContext {
         config,
         csp: Boolean(config.csp ?? false),
         handler:
-          handler ??
-          ((req, ctx) => router.defaultErrorHandler(req, ctx, ctx.error)),
+          handler ?? ((ctx) => router.defaultErrorHandler(ctx, ctx.error)),
         meta: rebasedMeta,
         name,
         pathname,
@@ -286,29 +286,31 @@ export class ServerContext {
           return Promise.resolve(handler());
         },
         ...connInfo,
-        state: {},
         destination: "route",
+        request: req,
+        state: {},
       };
 
       for (const mw of mws) {
         if (mw.handler instanceof Array) {
           for (const handler of mw.handler) {
-            handlers.push(() => handler(req, middlewareCtx));
+            handlers.push(() => handler(middlewareCtx));
           }
         } else {
           const handler = mw.handler;
-          handlers.push(() => handler(req, middlewareCtx));
+          handlers.push(() => handler(middlewareCtx));
         }
       }
 
       const ctx = {
         ...connInfo,
+        request: req,
         state: middlewareCtx.state,
       };
-      const { destination, handler } = inner(req, ctx);
+      const { destination, handler } = inner(ctx);
       handlers.push(handler);
       middlewareCtx.destination = destination;
-      return middlewareCtx.next().catch((e) => errorHandler(req, ctx, e));
+      return middlewareCtx.next().catch((e) => errorHandler(ctx, e));
     };
   }
 
@@ -396,67 +398,62 @@ export class ServerContext {
       const createRender = genRender(route, HttpStatus.OK);
       if (typeof route.handler === "function") {
         routes[route.pathname] = {
-          default: (req, ctx, params) =>
-            (route.handler as RouteHandler)(req, {
+          default: (ctx, params) =>
+            (route.handler as RouteHandler)({
               ...ctx,
               meta,
               module,
               params,
-              render: createRender(req, params),
-              // renderNotFound: createUnknownRender(req, {}),
+              render: createRender(ctx.request, params),
+              request: ctx.request,
             }),
         };
       } else {
         routes[route.pathname] = {};
         for (const [method, handler] of Object.entries(route.handler)) {
           routes[route.pathname][method as router.KnownMethod] = (
-            req,
             ctx,
             params
           ) =>
-            handler(req, {
+            handler({
               ...ctx,
               meta,
               module,
               params,
-              render: createRender(req, params),
-              //renderNotFound: createUnknownRender(req, {}),
+              render: createRender(ctx.request, params),
+              request: ctx.request,
             });
         }
       }
     }
 
-    const otherHandler: router.Handler<RouterState> = (req, ctx) =>
-      (this.#notFound.handler as RouteHandler)(req, {
+    const otherHandler: router.Handler<RouterState> = (ctx) =>
+      (this.#notFound.handler as RouteHandler)({
         ...ctx,
         params: {},
         error: createHttpError(404),
         meta: this.#notFound.meta,
         module: this.#notFound,
-        render: createUnknownRender(req, {}),
+        render: createUnknownRender(ctx.request, {}),
       });
 
     const errorHandlerRender = genRender(
       this.#error,
       HttpStatus.InternalServerError
     );
-    const errorHandler: router.ErrorHandler<RouterState> = (
-      req,
-      ctx,
-      error
-    ) => {
+    const errorHandler: router.ErrorHandler<RouterState> = (ctx, error) => {
       console.error(
         "%cAn error occurred during route handling or page rendering.",
         "color:red",
         error
       );
-      return (this.#error.handler as RouteHandler)(req, {
+      return (this.#error.handler as RouteHandler)({
         ...ctx,
         error: error as Error,
         params: {},
         meta: this.#error.meta,
         module: this.#error,
-        render: errorHandlerRender(req, {}, error as Error),
+        render: errorHandlerRender(ctx.request, {}, error as Error),
       });
     };
 
@@ -486,7 +483,7 @@ const DEFAULT_NOT_FOUND: Page = {
 const DEFAULT_ERROR: Page = {
   config: {},
   csp: false,
-  handler: (_req, ctx) => ctx.render({ meta: {} }),
+  handler: (ctx) => ctx.render({ meta: {} }),
   meta: {},
   module: { default: DefaultErrorComponent, fallback: DefaultErrorComponent },
   name: "_500",

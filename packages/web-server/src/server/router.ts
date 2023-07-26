@@ -1,32 +1,27 @@
-type HandlerContext<T = unknown> = T;
+type HandlerContext<T = unknown> = T & {
+  request: Request;
+};
 
 export type Handler<T = unknown> = (
-  req: Request,
   ctx: HandlerContext<T>
 ) => Response | Promise<Response>;
 
-export type FinalHandler<T = unknown> = (
-  req: Request,
-  ctx: HandlerContext<T>
-) => {
+export type FinalHandler<T = unknown> = (ctx: HandlerContext<T>) => {
   destination: DestinationKind;
   handler: () => Response | Promise<Response>;
 };
 
 export type ErrorHandler<T = unknown> = (
-  req: Request,
   ctx: HandlerContext<T>,
   err: unknown
 ) => Response | Promise<Response>;
 
 type UnknownMethodHandler<T = unknown> = (
-  req: Request,
   ctx: HandlerContext<T>,
   knownMethods: KnownMethod[]
 ) => Response | Promise<Response>;
 
 export type MatchHandler<T = unknown> = (
-  req: Request,
   ctx: HandlerContext<T>,
   match: Record<string, string>
 ) => Response | Promise<Response>;
@@ -64,14 +59,13 @@ export const knownMethods = [
   "PATCH",
 ] as const;
 
-export function defaultOtherHandler(_req: Request): Response {
+export function defaultOtherHandler(_ctx: HandlerContext): Response {
   return new Response(null, {
     status: 404,
   });
 }
 
 export function defaultErrorHandler(
-  _req: Request,
   _ctx: HandlerContext,
   err: unknown
 ): Response {
@@ -83,7 +77,6 @@ export function defaultErrorHandler(
 }
 
 export function defaultUnknownMethodHandler(
-  _req: Request,
   _ctx: HandlerContext,
   knownMethods: KnownMethod[]
 ): Response {
@@ -132,7 +125,8 @@ export function router<T = unknown>({
   processRoutes(processedRoutes, internalRoutes, "internal");
   processRoutes(processedRoutes, routes, "route");
 
-  return (req, ctx) => {
+  return (ctx) => {
+    let req = ctx.request;
     for (const route of processedRoutes) {
       const res = route.pathname.exec(req.url);
 
@@ -157,7 +151,7 @@ export function router<T = unknown>({
           if (req.method === method) {
             return {
               destination: route.destination,
-              handler: () => handler(req, ctx, groups),
+              handler: () => handler(ctx, groups),
             };
           }
         }
@@ -165,14 +159,13 @@ export function router<T = unknown>({
         if (route.default) {
           return {
             destination: route.destination,
-            handler: () => route.default!(req, ctx, groups),
+            handler: () => route.default!(ctx, groups),
           };
         } else {
           return {
             destination: route.destination,
             handler: () =>
               unknownMethodHandler!(
-                req,
                 ctx,
                 Object.keys(route.methods) as KnownMethod[]
               ),
@@ -183,7 +176,7 @@ export function router<T = unknown>({
 
     return {
       destination: "notFound",
-      handler: () => otherHandler!(req, ctx),
+      handler: () => otherHandler!(ctx),
     };
   };
 }

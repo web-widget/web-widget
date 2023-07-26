@@ -8,8 +8,8 @@ import {
 export { render };
 
 export const handler = defineRouteHandler({
-  async GET(req, ctx) {
-    const url = new URL(req.url);
+  async GET(ctx) {
+    const url = new URL(ctx.request.url);
 
     if (url.searchParams.has("404")) {
       return ctx.render({

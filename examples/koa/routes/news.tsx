@@ -9,7 +9,7 @@ type NewsPageData = {
 };
 
 export const handler: Handlers<NewsPageData> = {
-  async GET(req, ctx) {
+  async GET(ctx) {
     const data = await fetch(new URL("../public/data.json", import.meta.url));
     return ctx.render({
       data: await data.json(),

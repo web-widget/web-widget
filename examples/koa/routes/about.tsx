@@ -18,7 +18,7 @@ export const meta = defineMeta({
 });
 
 export const handler = defineRouteHandler<AboutPageData>({
-  async GET(req, ctx) {
+  async GET(ctx) {
     console.log(ctx.meta);
 
     const resp = await ctx.render({
