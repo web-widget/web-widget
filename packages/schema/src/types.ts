@@ -203,7 +203,7 @@ export interface ServerRouteHandler<
   Data = unknown,
   State = Record<string, unknown>
 > {
-  (req: Request, ctx: ServerRouteHandlerContext<Data, State>):
+  (ctx: ServerRouteHandlerContext<Data, State>):
     | ServerRouteHandlerResult
     | Promise<ServerRouteHandlerResult>;
 }
@@ -212,7 +212,7 @@ export interface ClientRouteHandler<
   Data = unknown,
   State = Record<string, unknown>
 > {
-  (req: Request, ctx: ClientRouteHandlerContext<Data, State>):
+  (ctx: ClientRouteHandlerContext<Data, State>):
     | ClientRouteHandlerResult
     | Promise<ClientRouteHandlerResult>;
 }
@@ -240,6 +240,7 @@ export interface ServerRouteHandlerContext<
     },
     options?: ResponseInit
   ): ServerRouteHandlerResult | Promise<ServerRouteHandlerResult>;
+  request: Request;
   state: State;
 }
 
@@ -259,6 +260,7 @@ export interface ClientRouteHandlerContext<
     },
     options?: ResponseInit
   ): ClientRouteHandlerResult | Promise<ClientRouteHandlerResult>;
+  request: Request;
   state: State;
 }
 

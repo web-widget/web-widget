@@ -76,9 +76,10 @@ export interface PageLayoutData {
 
 export interface MiddlewareHandlerContext<State = Record<string, unknown>>
   extends ServerConnInfo {
-  next: () => Promise<Response>;
-  state: State;
   destination: router.DestinationKind;
+  next: () => Promise<Response>;
+  request: Request;
+  state: State;
 }
 
 export interface MiddlewareRoute extends Middleware {
@@ -93,7 +94,6 @@ export interface MiddlewareRoute extends Middleware {
 }
 
 export type MiddlewareHandler<State = Record<string, unknown>> = (
-  req: Request,
   ctx: MiddlewareHandlerContext<State>
 ) => Response | Promise<Response>;
 
