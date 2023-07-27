@@ -14,10 +14,6 @@
     ".": {
       "types": "./dist/server.d.ts",
       "default": "./dist/server.js"
-    },
-    "./client": {
-      "types": "./dist/client.d.ts",
-      "default": "./dist/client.js"
     }
   },
   "types": "./dist/server.d.ts",
@@ -25,14 +21,8 @@
     "access": "public"
   },
   "files": [
-    "dist",
-    "src",
-    "index.ts",
-    "client.ts"
+    "dist"
   ],
-  "peerDependencies": {
-    "@web-widget/web-widget": "workspace:*"
-  },
   "dependencies": {
     "@web-widget/schema": "workspace:*",
     "@web-widget/html": "workspace:*"
