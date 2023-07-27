@@ -19,6 +19,7 @@ export type StartOptions = WebServerOptions & {
 export interface WebServerOptions {
   render?: RenderPage;
   router?: RouterOptions;
+  loader?: (module: string) => Promise<any>;
   client?: {
     base?: string;
   };
@@ -59,10 +60,11 @@ export interface Page {
   csp: boolean;
   handler: RouteHandler | RouteHandlers;
   meta: Meta;
+  module: RouteModule;
   name: string;
   pathname: string;
   render: RouteRender;
-  module: RouteModule;
+  source: string;
 }
 
 export interface PageLayoutData {
@@ -109,23 +111,24 @@ export interface Middleware<State = Record<string, unknown>> {
 
 export interface Manifest {
   routes: {
-    name: string;
+    name?: string;
     pathname: string;
-    module: RouteModule;
+    module: string;
   }[];
   middlewares: {
+    name?: string;
     pathname: string;
-    module: MiddlewareModule;
+    module: string;
   }[];
   notFound?: {
-    name: string;
+    name?: string;
     pathname: string;
-    module: RouteModule;
+    module: string;
   };
   error?: {
-    name: string;
+    name?: string;
     pathname: string;
-    module: RouteModule;
+    module: string;
   };
 }
 

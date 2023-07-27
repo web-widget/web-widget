@@ -69,30 +69,58 @@ export class ServerContext {
   /**
    * Process the manifest into individual components and pages.
    */
-  static fromManifest(
-    manifest: Manifest,
+  static async fromManifest(
+    manifestUrl: string,
     opts: WebServerOptions,
     dev: boolean
-  ): ServerContext {
+  ): Promise<ServerContext> {
+    if (typeof manifestUrl !== "string") {
+      throw TypeError(`The manifestUrl parameter must be a string.`);
+    }
+
+    const root = fileUrlDirname(manifestUrl);
+    const base = opts?.client?.base ?? "/";
+    const loader = opts?.loader ?? ((module) => import(module));
+    const manifest: Manifest =
+      manifestUrl.endsWith(".json") && !opts?.loader
+        ? await (await fetch(manifestUrl)).json()
+        : await loader(manifestUrl);
+
     // Extract all routes, and prepare them into the `Page` structure.
     const routes: Page[] = [];
     const middlewares: MiddlewareRoute[] = [];
     let notFound: Page = DEFAULT_NOT_FOUND;
     let error: Page = DEFAULT_ERROR;
-    for (const { pathname, name, module } of manifest.routes) {
-      const {
-        config = {},
-        handler = {},
-        meta = {},
-        render,
-      } = module as RouteModule;
-      const rebasedMeta = rebaseMeta(
-        addDefaultMeta(meta),
-        opts?.client?.base ?? "/"
-      );
+
+    const resolveRouteModule = async (file: string) => {
+      const url = fileUrlJoin(root, file);
+      const dirname = fileUrlDirname(url).replace(root, "");
+      const module = (await loader(url)) as RouteModule;
+      const { meta = {} } = module;
+      const rebasedMeta = rebaseMeta(addDefaultMeta(meta), base + dirname);
+      return {
+        ...module,
+        file,
+        meta: rebasedMeta,
+      };
+    };
+
+    const resolveMiddlewareModule = async (file: string) => {
+      const module = (await loader(
+        fileUrlJoin(root, file)
+      )) as MiddlewareModule;
+      return {
+        ...module,
+        file,
+      };
+    };
+
+    for (const { pathname, name, module: file } of manifest.routes) {
+      const module = await resolveRouteModule(file);
+      const { config = {}, handler = {}, meta = {}, render } = module;
+
       if (typeof handler === "object" && handler.GET === undefined) {
-        handler.GET = (({ render }) =>
-          render({ meta: rebasedMeta })) as RouteHandler;
+        handler.GET = (({ render }) => render({ meta })) as RouteHandler;
       }
       if (
         typeof handler === "object" &&
@@ -114,24 +142,27 @@ export class ServerContext {
         config,
         csp: Boolean(config.csp ?? false),
         handler: handler as RouteHandler,
-        meta: rebasedMeta,
+        meta,
         module,
-        name,
+        name: name ?? pathname,
         pathname: config.routeOverride
           ? String(config.routeOverride)
           : pathname,
         render: render as RouteRender<unknown>,
+        source: file,
       });
     }
-    for (const { pathname, module } of manifest.middlewares) {
+    for (const { pathname, module: file } of manifest.middlewares) {
+      const module = await resolveMiddlewareModule(file);
       middlewares.push({
         pathname,
         compiledPattern: new URLPattern({ pathname }),
-        ...(module as MiddlewareModule),
+        ...module,
       });
     }
     if (manifest.notFound) {
-      const { pathname, name, module } = manifest.notFound;
+      const { pathname, name, module: file } = manifest.notFound;
+      const module = await resolveRouteModule(file);
       const {
         default: component,
         fallback,
@@ -149,31 +180,29 @@ export class ServerContext {
         throw new Error(`manifest.notFound.render: Must be a function.`);
       }
 
-      const rebasedMeta = rebaseMeta(
-        addDefaultMeta(meta),
-        opts?.client?.base ?? "/"
-      );
-
       if ((component || fallback) && handler === undefined) {
         handler = ({ render }) =>
           render({
-            meta: rebasedMeta,
+            meta,
           });
       }
 
       notFound = {
-        module,
         config,
         csp: Boolean(config.csp ?? false),
         handler: handler ?? ((ctx) => router.defaultOtherHandler(ctx)),
-        meta: rebasedMeta,
-        name,
+        meta,
+        module,
+        name: name ?? pathname,
         pathname,
         render,
+        source: file,
       };
     }
     if (manifest.error) {
-      const { pathname, name, module } = manifest.error;
+      const { pathname, name, module: file } = manifest.error;
+      const module = await resolveRouteModule(file);
+
       const { config = {}, default: component, meta = {}, render } = module;
       let { handler } = module;
 
@@ -185,28 +214,24 @@ export class ServerContext {
         throw new Error(`manifest.error.render: Must be a function.`);
       }
 
-      const rebasedMeta = rebaseMeta(
-        addDefaultMeta(meta),
-        opts?.client?.base ?? "/"
-      );
-
       if (component && handler === undefined) {
         handler = ({ render }) =>
           render({
-            meta: rebasedMeta,
+            meta,
           });
       }
 
       error = {
-        module,
         config,
         csp: Boolean(config.csp ?? false),
         handler:
           handler ?? ((ctx) => router.defaultErrorHandler(ctx, ctx.error)),
-        meta: rebasedMeta,
-        name,
+        meta,
+        module,
+        name: name ?? pathname,
         pathname,
         render,
+        source: file,
       };
     }
 
@@ -352,6 +377,7 @@ export class ServerContext {
               params,
               route,
               url: new URL(req.url),
+              source: route.source,
             },
             this.#renderPage
           );
@@ -478,6 +504,7 @@ const DEFAULT_NOT_FOUND: Page = {
   name: "_404",
   pathname: "",
   render: DefaultRender as RouteRender,
+  source: "",
 };
 
 const DEFAULT_ERROR: Page = {
@@ -489,6 +516,7 @@ const DEFAULT_ERROR: Page = {
   name: "_500",
   pathname: "",
   render: DefaultRender as RouteRender,
+  source: "",
 };
 
 /**
@@ -570,4 +598,18 @@ function addDefaultMeta(meta: Meta) {
           ],
     ].flat(),
   };
+}
+
+function fileUrlDirname(file: string) {
+  return file.startsWith("/")
+    ? file.slice(0, file.lastIndexOf("/") + 1)
+    : new URL("./", file).href;
+}
+
+const URL_REG = /^\w+:\/\//;
+
+function fileUrlJoin(base: string, file: string) {
+  const protocol = "file://";
+  const href = new URL(file, URL_REG.test(base) ? base : protocol + base).href;
+  return URL_REG.test(base) ? href : href.replace(protocol, "");
 }

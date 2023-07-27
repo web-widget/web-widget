@@ -1,4 +1,4 @@
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import type { ViteDevServer, ModuleNode } from "vite";
 import type { ModuleLoader } from "./loader";
 

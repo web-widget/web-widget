@@ -1,57 +1,33 @@
-import { fileURLToPath } from "node:url";
-import fs from "node:fs";
-import { relative } from "node:path";
-import pc from "picocolors";
-import type { Manifest } from "@web-widget/web-server";
-import type { Plugin, ServerOptions, UserConfig as ViteUserConfig } from "vite";
-import type { BuilderConfig } from "../types";
 import { createServer as createViteServer, mergeConfig } from "vite";
 import { createViteLoader, ModuleLoader } from "../core/loader/index";
+import { fileURLToPath } from "node:url";
 import { handleRequest } from "./request";
+import { join, relative } from "node:path";
 import { openConfig, resolveConfigPath } from "../config";
+import fs from "node:fs";
+import pc from "picocolors";
+import type { BuilderConfig } from "../types";
+import type { Manifest } from "@web-widget/web-server";
+import type { Plugin, ServerOptions, UserConfig as ViteUserConfig } from "vite";
 
-async function resolveManifest(
-  devManifest: BuilderConfig["input"],
-  loader: ModuleLoader
-) {
-  const devFiles: string[] = [];
-  const moduleToFile = (module: URL) => {
-    const file = fileURLToPath(module);
-    devFiles.push(file);
-    return file;
-  };
-  const manifest: Manifest = {
-    routes: [],
-    middlewares: [],
-  };
+async function getModuleFiles(config: BuilderConfig, loader: ModuleLoader) {
+  const modules: string[] = [];
+  const json = await loader.import(
+    config.base +
+      relative(fileURLToPath(config.root), fileURLToPath(config.input))
+  );
+  const manifest: Manifest = json.default;
 
-  const resolveModule = (object: { module: URL }[] | { module: URL }) =>
-    Array.isArray(object)
-      ? Promise.all(
-          object.map(({ module: file, ...values }) =>
-            loader.import(moduleToFile(file)).then((module) => ({
-              ...values,
-              module,
-              $devFile: file,
-            }))
-          )
-        )
-      : loader.import(moduleToFile(object.module)).then((module) => ({
-          ...object,
-          module,
-          $devFile: object.module,
-        }));
-
-  for (const [key, value] of Object.entries(devManifest)) {
-    // TODO fix type error
-    // @ts-ignore
-    manifest[key] = await resolveModule(value);
-  }
-
-  return {
-    devFiles,
-    manifest,
-  };
+  Array.from(Object.entries(manifest)).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach(({ module }) => {
+        modules.push(join(fileURLToPath(config.root), module));
+      });
+    } else {
+      modules.push(join(fileURLToPath(config.root), value.module));
+    }
+  });
+  return modules;
 }
 
 function createVitePluginServer(config: BuilderConfig): Plugin {
@@ -63,11 +39,15 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
         fs,
       })) as string;
       const loader = createViteLoader(viteServer);
-      let manifest: { manifest: Manifest; devFiles: string[] };
+      let modules: string[];
 
       /** rebuild the route cache + manifest, as needed. */
       async function rebuildManifest(file: string) {
-        if (file === configPath || manifest?.devFiles.includes(file)) {
+        if (
+          file === configPath ||
+          file === fileURLToPath(config.input.href) ||
+          modules?.includes(file)
+        ) {
           viteServer.config.logger.info(
             pc.green(
               `${relative(
@@ -80,7 +60,7 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
           await viteServer.close();
           // @ts-ignore
           global.__vite_start_time = Date.now();
-          manifest = await resolveManifest(config.input, loader);
+          modules = await getModuleFiles(config, loader);
           const { viteServer: newServer } = await createServer(
             viteServer.config.root,
             viteServer.config.server
@@ -91,7 +71,6 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
       // Rebuild route manifest on file change, if needed.
       viteServer.watcher.on("add", rebuildManifest);
       viteServer.watcher.on("change", rebuildManifest);
-      // viteServer.watcher.add(configPath);
 
       return async () => {
         // Note that this function has a name so other middleware can find it.
@@ -99,8 +78,15 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
           req,
           res
         ) {
-          manifest = manifest || (await resolveManifest(config.input, loader));
-          return handleRequest(manifest.manifest, viteServer, loader, req, res);
+          modules = modules || (await getModuleFiles(config, loader));
+          return handleRequest(
+            config.base +
+              relative(fileURLToPath(config.root), fileURLToPath(config.input)),
+            viteServer,
+            loader,
+            req,
+            res
+          );
         });
       };
     },
