@@ -1,8 +1,8 @@
 import {
-  HttpStatus,
-  rebaseMeta,
   createHttpError,
+  HttpStatus,
   isLikeHttpError,
+  rebaseMeta,
 } from "#schema";
 import * as router from "./router";
 import {
@@ -39,30 +39,26 @@ interface RouterState {
 
 export class ServerContext {
   #dev: boolean;
-  #routes: Page[];
-  #renderPage: RenderPage;
+  #fallbacks: Page[];
   #middlewares: MiddlewareRoute[];
-  #notFound: Page;
-  #error: Page;
+  #renderPage: RenderPage;
   #routerOptions: RouterOptions;
+  #routes: Page[];
 
   constructor(
-    routes: Page[],
-    renderPage: RenderPage,
+    dev: boolean,
+    fallbacks: Page[],
     middlewares: MiddlewareRoute[],
-    notFound: Page,
-    error: Page,
+    renderPage: RenderPage,
     routerOptions: RouterOptions,
-    dev: boolean
+    routes: Page[]
   ) {
-    this.#routes = routes;
-    this.#renderPage = renderPage;
-    this.#middlewares = middlewares;
-    this.#notFound = notFound;
-    this.#error = error;
-    this.#routerOptions = routerOptions;
     this.#dev = dev;
-
+    this.#fallbacks = fallbacks;
+    this.#middlewares = middlewares;
+    this.#renderPage = renderPage;
+    this.#routerOptions = routerOptions;
+    this.#routes = routes;
     deepFreeze(this);
   }
 
@@ -89,8 +85,7 @@ export class ServerContext {
     // Extract all routes, and prepare them into the `Page` structure.
     const routes: Page[] = [];
     const middlewares: MiddlewareRoute[] = [];
-    let notFound: Page = DEFAULT_NOT_FOUND;
-    let error: Page = DEFAULT_ERROR;
+    const fallbacks: Page[] = [];
 
     const resolveRouteModule = async (file: string) => {
       const url = fileUrlJoin(root, file);
@@ -115,7 +110,7 @@ export class ServerContext {
       };
     };
 
-    for (const { pathname, name, module: file } of manifest.routes) {
+    for (const { pathname, name, module: file } of manifest.routes ?? []) {
       const module = await resolveRouteModule(file);
       const { config = {}, handler = {}, meta = {}, render } = module;
 
@@ -152,32 +147,25 @@ export class ServerContext {
         source: file,
       });
     }
-    for (const { pathname, module: file } of manifest.middlewares) {
-      const module = await resolveMiddlewareModule(file);
-      middlewares.push({
-        pathname,
-        compiledPattern: new URLPattern({ pathname }),
-        ...module,
-      });
-    }
-    if (manifest.notFound) {
-      const { pathname, name, module: file } = manifest.notFound;
+
+    for (const { pathname, name, module: file } of manifest.fallbacks ?? []) {
       const module = await resolveRouteModule(file);
       const {
         default: component,
         fallback,
-        render,
         config = {},
         meta = {},
+        render,
       } = module;
+
       let { handler } = module;
 
       if (handler !== null && typeof handler === "object") {
-        throw new Error(`manifest.notFound.handler: Must be a function.`);
+        throw new Error(`manifest.fallbacks[].handler: Must be a function.`);
       }
 
       if (typeof render !== "function") {
-        throw new Error(`manifest.notFound.render: Must be a function.`);
+        throw new Error(`manifest.fallbacks[].render: Must be a function.`);
       }
 
       if ((component || fallback) && handler === undefined) {
@@ -187,62 +175,46 @@ export class ServerContext {
           });
       }
 
-      notFound = {
-        config,
-        csp: Boolean(config.csp ?? false),
-        handler: handler ?? ((ctx) => router.defaultOtherHandler(ctx)),
-        meta,
-        module,
-        name: name ?? pathname,
-        pathname,
-        render,
-        source: file,
-      };
-    }
-    if (manifest.error) {
-      const { pathname, name, module: file } = manifest.error;
-      const module = await resolveRouteModule(file);
-
-      const { config = {}, default: component, meta = {}, render } = module;
-      let { handler } = module;
-
-      if (handler !== null && typeof handler === "object") {
-        throw new Error(`manifest.error.handler: Must be a function.`);
-      }
-
-      if (typeof render !== "function") {
-        throw new Error(`manifest.error.render: Must be a function.`);
-      }
-
-      if (component && handler === undefined) {
-        handler = ({ render }) =>
-          render({
-            meta,
-          });
-      }
-
-      error = {
+      fallbacks.push({
         config,
         csp: Boolean(config.csp ?? false),
         handler:
-          handler ?? ((ctx) => router.defaultErrorHandler(ctx, ctx.error)),
+          handler ?? name === HttpStatus[404]
+            ? (ctx) => router.defaultOtherHandler(ctx)
+            : (ctx) => router.defaultErrorHandler(ctx, ctx.error),
         meta,
         module,
         name: name ?? pathname,
         pathname,
         render,
         source: file,
-      };
+      });
+    }
+
+    if (!fallbacks.some((page) => page.name === HttpStatus[404])) {
+      fallbacks.push(DEFAULT_NOT_FOUND);
+    }
+
+    if (!fallbacks.some((page) => page.name === HttpStatus[500])) {
+      fallbacks.push(DEFAULT_ERROR);
+    }
+
+    for (const { pathname, module: file } of manifest.middlewares ?? []) {
+      const module = await resolveMiddlewareModule(file);
+      middlewares.push({
+        pathname,
+        compiledPattern: new URLPattern({ pathname }),
+        ...module,
+      });
     }
 
     return new ServerContext(
-      routes,
-      opts.render ?? DEFAULT_RENDER_FN,
+      dev,
+      fallbacks,
       middlewares,
-      notFound,
-      error,
+      opts.render ?? DEFAULT_RENDER_FN,
       opts.router ?? DEFAULT_ROUTER_OPTIONS,
-      dev
+      routes
     );
   }
 
@@ -352,6 +324,12 @@ export class ServerContext {
   } {
     const internalRoutes: router.Routes<RouterState> = {};
     const routes: router.Routes<RouterState> = {};
+    const notFoundPage = this.#fallbacks.find(
+      (page) => page.name === HttpStatus[404]
+    ) as Page;
+    const errorPage = this.#fallbacks.find(
+      (page) => page.name === HttpStatus[500]
+    ) as Page;
 
     const genRender = (route: Page, status: number) => {
       return (
@@ -416,7 +394,7 @@ export class ServerContext {
       };
     };
 
-    const createUnknownRender = genRender(this.#notFound, HttpStatus.NotFound);
+    const createUnknownRender = genRender(notFoundPage, HttpStatus.NotFound);
 
     for (const route of this.#routes) {
       const meta = route.meta;
@@ -454,17 +432,17 @@ export class ServerContext {
     }
 
     const otherHandler: router.Handler<RouterState> = (ctx) =>
-      (this.#notFound.handler as RouteHandler)({
+      (errorPage.handler as RouteHandler)({
         ...ctx,
         params: {},
         error: createHttpError(404),
-        meta: this.#notFound.meta,
-        module: this.#notFound,
+        meta: errorPage.meta,
+        module: errorPage,
         render: createUnknownRender(ctx.request, {}),
       });
 
     const errorHandlerRender = genRender(
-      this.#error,
+      errorPage,
       HttpStatus.InternalServerError
     );
     const errorHandler: router.ErrorHandler<RouterState> = (ctx, error) => {
@@ -473,12 +451,12 @@ export class ServerContext {
         "color:red",
         error
       );
-      return (this.#error.handler as RouteHandler)({
+      return (errorPage.handler as RouteHandler)({
         ...ctx,
         error: error as Error,
         params: {},
-        meta: this.#error.meta,
-        module: this.#error,
+        meta: errorPage.meta,
+        module: errorPage,
         render: errorHandlerRender(ctx.request, {}, error as Error),
       });
     };
@@ -501,7 +479,7 @@ const DEFAULT_NOT_FOUND: Page = {
   handler: (req) => router.defaultOtherHandler(req),
   meta: {},
   module: {},
-  name: "_404",
+  name: "NotFound",
   pathname: "",
   render: DefaultRender as RouteRender,
   source: "",
@@ -513,7 +491,7 @@ const DEFAULT_ERROR: Page = {
   handler: (ctx) => ctx.render({ meta: {} }),
   meta: {},
   module: { default: DefaultErrorComponent, fallback: DefaultErrorComponent },
-  name: "_500",
+  name: "InternalServerError",
   pathname: "",
   render: DefaultRender as RouteRender,
   source: "",

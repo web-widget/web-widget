@@ -3,28 +3,6 @@ import type { z } from "zod";
 import type { OutgoingHttpHeaders } from "node:http";
 import { BuilderConfigSchema } from "./config/schema";
 
-export interface Input {
-  routes?: {
-    name: string;
-    pathname: string;
-    module: string;
-  }[];
-  middlewares?: {
-    pathname: string;
-    module: string;
-  }[];
-  notFound?: {
-    name: string;
-    pathname: string;
-    module: string;
-  };
-  error?: {
-    name: string;
-    pathname: string;
-    module: string;
-  };
-}
-
 export interface Output {
   dir?: string;
   client?: string;
@@ -48,7 +26,7 @@ export interface BuilderUserConfig {
   publicDir?: string;
   tempDir?: string;
   root?: string;
-  input?: Input;
+  input?: string;
   output?: Output;
   server?: Server | ((options: { command: "dev" | "preview" }) => Server);
   vite?: ViteConfig;
