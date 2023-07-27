@@ -18,7 +18,7 @@ import { resolve } from "import-meta-resolve";
 import { openConfig } from "../config";
 import { withSpinner } from "./utils";
 
-const CLIENT_MODUL_ENAME = "@web-widget/web-server/client";
+const CLIENT_MODUL_ENAME = "@web-widget/web-widget";
 const CLIENT_ENTRY = fileURLToPath(
   resolve(CLIENT_MODUL_ENAME, import.meta.url)
 );
@@ -54,7 +54,7 @@ async function bundle(config: BuilderConfig) {
         config,
         {
           ...entrypoints,
-          [`${config.output.asset}/entry-client`]: CLIENT_ENTRY,
+          [`${config.output.asset}/web-widget`]: CLIENT_ENTRY,
         },
         false,
         cache

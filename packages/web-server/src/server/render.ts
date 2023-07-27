@@ -1,9 +1,16 @@
 import * as layout from "./layout.default";
-import type { Page, PageLayoutData, RenderPage } from "./types";
-import type { Meta, RouteRenderResult, RouteError } from "#schema";
+import type { Page, LayoutComponentProps, RenderPage } from "./types";
+import type {
+  Meta,
+  RouteError,
+  RouteRenderResult,
+  ScriptDescriptor,
+  WidgetRenderContext,
+} from "#schema";
 import { nonce, NONE, UNSAFE_INLINE, ContentSecurityPolicy } from "./csp";
 
 export interface InnerRenderOptions<Data> {
+  bootstrap: ScriptDescriptor[];
   data?: Data;
   error?: RouteError;
   meta: Meta;
@@ -16,14 +23,23 @@ export interface InnerRenderOptions<Data> {
 export type InnerRenderFunction = () => Promise<RouteRenderResult>;
 
 export class InnerRenderContext {
+  #bootstrap: ScriptDescriptor[];
   #id: string;
   #meta: Meta = {};
   #route: string;
+  #source: string;
   #state: Map<string, unknown> = new Map();
   #url: URL;
-  #source: string;
 
-  constructor(id: string, meta: Meta, route: string, url: URL, source: string) {
+  constructor(
+    bootstrap: ScriptDescriptor[],
+    id: string,
+    meta: Meta,
+    route: string,
+    url: URL,
+    source: string
+  ) {
+    this.#bootstrap = bootstrap;
     this.#id = id;
     this.#meta = meta;
     this.#route = route;
@@ -31,10 +47,9 @@ export class InnerRenderContext {
     this.#source = source;
   }
 
-  clientEntry = "@web-widget/web-server/client";
-
-  esModulePolyfillUrl =
-    "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js";
+  get bootstrap(): ScriptDescriptor[] {
+    return this.#bootstrap;
+  }
 
   /** A unique ID for this logical JIT render. */
   get id(): string {
@@ -90,6 +105,7 @@ export async function internalRender<Data>(
     : undefined;
 
   const ctx = new InnerRenderContext(
+    opts.bootstrap,
     crypto.randomUUID(),
     opts.meta,
     opts.route.pathname,
@@ -137,22 +153,17 @@ export async function internalRender<Data>(
   //   }
   //   moduleScripts.push([url, randomNonce]);
   // }
-
-  const data: PageLayoutData = {
-    clientEntry: ctx.clientEntry,
-    esModulePolyfillUrl: ctx.esModulePolyfillUrl,
+  const props: LayoutComponentProps = {
+    bootstrap: ctx.bootstrap,
     meta: ctx.meta,
     children,
   };
-  const layoutContext = {
-    data,
+  const layoutContext: WidgetRenderContext = {
+    data: props,
     meta: ctx.meta,
     module: {
       default: layout.default,
     },
-    params: opts.params,
-    route: opts.route.pathname,
-    url: opts.url,
   };
   const html = await layout.render(layoutContext);
 

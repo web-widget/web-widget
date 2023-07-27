@@ -1,13 +1,14 @@
 import { render, html, HTML, streamToHTML, unsafeHTML } from "@web-widget/html";
-import type { PageLayoutData } from "./types";
-import type { RouteComponentProps } from "#schema";
+import type { LayoutComponentProps } from "./types";
 import { renderMetaToString } from "#schema";
 
 export { render };
 
-export default function Layout({
-  data: { clientEntry, esModulePolyfillUrl, meta, children },
-}: RouteComponentProps<PageLayoutData>): HTML {
+export default function RootLayout({
+  meta,
+  children,
+  bootstrap,
+}: LayoutComponentProps): HTML {
   return html`<!DOCTYPE html>
     <html lang="${meta.lang}">
       <head>
@@ -56,18 +57,22 @@ export default function Layout({
             !HTMLScriptElement.supports ||
             !HTMLScriptElement.supports("importmap")
           ) {
-            window.importShim = (function (src) {
+            window.importShim = (function () {
+              const esModuleShims =
+                "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js";
               const promise = new Promise((resolve, reject) => {
                 document.head.appendChild(
                   Object.assign(document.createElement("script"), {
-                    src,
+                    esModuleShims,
                     crossorigin: "anonymous",
                     async: true,
                     onload() {
                       if (importShim !== importShimProxy) {
                         resolve(importShim);
                       } else {
-                        reject(new Error("No self.importShim found:" + src));
+                        reject(
+                          new Error("No self.importShim found:" + esModuleShims)
+                        );
                       }
                     },
                     onerror(error) {
@@ -79,20 +84,14 @@ export default function Layout({
               return function importShimProxy() {
                 return promise.then((importShim) => importShim(...arguments));
               };
-            })(${unsafeHTML(JSON.stringify(esModulePolyfillUrl))});
+            })();
           }
         </script>
-        ${clientEntry
-          ? html`<script type="module">
-              const loader = () =>
-                import(${unsafeHTML(JSON.stringify(clientEntry))});
-              typeof importShim === "function"
-                ? importShim(
-                    loader.toString().match(/\\bimport\\("([^"]*?)"\\)/)[1]
-                  )
-                : loader();
-            </script>`
-          : ``}
+        ${unsafeHTML(
+          renderMetaToString({
+            script: bootstrap,
+          })
+        )}
       </body>
     </html>`;
 }
