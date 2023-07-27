@@ -49,6 +49,7 @@ export type WidgetRenderContext<Data = unknown> =
 
 export interface ServerWidgetRenderContext<Data = unknown> {
   data?: Data;
+  children?: ServerWidgetRenderResult;
   error?: WidgetError;
   meta: Meta;
   module: ServerWidgetModule;
@@ -56,6 +57,7 @@ export interface ServerWidgetRenderContext<Data = unknown> {
 
 export interface ClientWidgetRenderContext<Data = unknown> {
   data?: Data;
+  children?: ClientWidgetRenderResult;
   error?: WidgetError;
   meta: Meta;
   module: ClientWidgetModule;
@@ -273,6 +275,7 @@ export interface ServerRouteRenderContext<
   Params = Record<string, string>
 > {
   data?: Data;
+  children?: ServerRouteRenderResult;
   error?: RouteError;
   meta: Meta;
   module: ServerRouteModule;
@@ -300,6 +303,7 @@ export interface ClientRouteRenderContext<
   Params = Record<string, string>
 > {
   data?: Data;
+  children?: ClientRouteRenderResult;
   error?: RouteError;
   meta: Meta;
   module: ClientRouteModule;
@@ -366,14 +370,19 @@ export interface ClientRouteRender<Data = unknown> {
 }
 
 // --- META: DESCRIPTOR ---
-// export interface BaseDescriptor {
-//   /** Gets or sets the baseline URL on which relative links are based. */
-//   href?: string;
-//   /** Sets or retrieves the window or frame at which to target content. */
-//   target?: string;
-// }
 
-export interface LinkDescriptor {
+export interface ElementDescriptor {
+  id?: string;
+}
+
+export interface BaseDescriptor extends ElementDescriptor {
+  /** Gets or sets the baseline URL on which relative links are based. */
+  href?: string;
+  /** Sets or retrieves the window or frame at which to target content. */
+  target?: string;
+}
+
+export interface LinkDescriptor extends ElementDescriptor {
   as?: string;
   crossorigin?: string;
   disabled?: string;
@@ -393,7 +402,7 @@ export interface LinkDescriptor {
   type?: string;
 }
 
-export interface MetaDescriptor {
+export interface MetaDescriptor extends ElementDescriptor {
   /** This attribute declares the document's character encoding. */
   charset?: string;
   /** Gets or sets meta-information to associate with httpEquiv or name. */
@@ -408,7 +417,7 @@ export interface MetaDescriptor {
   property?: string;
 }
 
-export interface ScriptDescriptor {
+export interface ScriptDescriptor extends ElementDescriptor {
   /** Sets or retrieves the `script.textContent`. */
   content?: string;
   async?: string;
@@ -426,7 +435,7 @@ export interface ScriptDescriptor {
   type?: string;
 }
 
-export interface StyleDescriptor {
+export interface StyleDescriptor extends ElementDescriptor {
   /** Sets or retrieves the `style.textContent`. */
   content?: string;
   /** Enables or disables the style sheet. */
@@ -462,7 +471,7 @@ export type Component<Data = unknown> =
   | RouteComponent<Data>;
 
 export interface Meta {
-  base?: string;
+  base?: BaseDescriptor;
   description?: string;
   keywords?: string;
   lang?: string;

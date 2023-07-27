@@ -4,6 +4,14 @@ import {
   isLikeHttpError,
   rebaseMeta,
 } from "#schema";
+import type {
+  HttpError,
+  Meta,
+  RouteError,
+  RouteHandler,
+  RouteModule,
+  RouteRender,
+} from "#schema";
 import * as router from "./router";
 import {
   default as DefaultErrorComponent,
@@ -22,16 +30,10 @@ import type {
   ServerHandler,
   WebServerOptions,
 } from "./types";
-import type {
-  HttpError,
-  Meta,
-  RouteError,
-  RouteHandler,
-  RouteModule,
-  RouteRender,
-} from "#schema";
+
 import { internalRender } from "./render";
 import { ContentSecurityPolicyDirectives, SELF } from "./csp";
+
 interface RouterState {
   request: Request;
   state: Record<string, unknown>;
@@ -134,6 +136,7 @@ export class ServerContext {
         }) as RouteHandler;
       }
       routes.push({
+        bootstrap: [],
         config,
         csp: Boolean(config.csp ?? false),
         handler: handler as RouteHandler,
@@ -176,6 +179,7 @@ export class ServerContext {
       }
 
       fallbacks.push({
+        bootstrap: [],
         config,
         csp: Boolean(config.csp ?? false),
         handler:
@@ -349,6 +353,7 @@ export class ServerContext {
           const isHttpError = isLikeHttpError(error);
           const [html, csp] = await internalRender(
             {
+              bootstrap: DEFAULT_BOOTSTRAP,
               data,
               error,
               meta,
@@ -473,7 +478,19 @@ const DEFAULT_ROUTER_OPTIONS: RouterOptions = {
   trailingSlash: false,
 };
 
+const DEFAULT_BOOTSTRAP = [
+  {
+    id: "web-widget:bootstrap",
+    type: "module",
+    content: [
+      `const loader = () => import("@web-widget/web-widget")`,
+      `typeof importShim === "function" ? importShim(String(loader).match(/\\bimport\\("([^"]*?)"\\)/)[1]): loader()`,
+    ].join("\n"),
+  },
+];
+
 const DEFAULT_NOT_FOUND: Page = {
+  bootstrap: DEFAULT_BOOTSTRAP,
   config: {},
   csp: false,
   handler: (req) => router.defaultOtherHandler(req),
@@ -486,6 +503,7 @@ const DEFAULT_NOT_FOUND: Page = {
 };
 
 const DEFAULT_ERROR: Page = {
+  bootstrap: DEFAULT_BOOTSTRAP,
   config: {},
   csp: false,
   handler: (ctx) => ctx.render({ meta: {} }),

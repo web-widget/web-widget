@@ -1,7 +1,6 @@
 import { defineConfig } from "@web-widget/builder";
 import vue from "@vitejs/plugin-vue";
 import react from "@web-widget/react/vite-plugin";
-import routemap from "./routemap.json";
 
 export default defineConfig({
   input: "./routemap.json",

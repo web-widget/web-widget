@@ -82,11 +82,7 @@ export function renderMetaToString(meta: Meta): string {
     if (key === "base") {
       // NOTE: this element must come before other elements with attribute values of URLs,
       // such as <link>'s href attribute.
-      return priority[0].push(
-        createElement(key, {
-          href: value,
-        })
-      );
+      return priority[0].push(createElement(key, value));
     }
 
     if (key === "title") {

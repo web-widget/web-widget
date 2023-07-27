@@ -2,11 +2,13 @@ import * as router from "./router";
 import { InnerRenderFunction, InnerRenderContext } from "./render";
 import type {
   Meta,
+  RouteConfig as BaseRouterConfig,
   RouteHandler,
   RouteHandlers,
   RouteModule,
   RouteRender,
-  RouteConfig as BaseRouterConfig,
+  RouteRenderResult,
+  ScriptDescriptor,
 } from "#schema";
 export * from "#schema";
 
@@ -22,6 +24,7 @@ export interface WebServerOptions {
   loader?: (module: string) => Promise<any>;
   client?: {
     base?: string;
+    // bootstrap: ScriptDescriptor[];
   };
 }
 
@@ -56,6 +59,7 @@ export interface RouteConfig extends BaseRouterConfig {
 }
 
 export interface Page {
+  bootstrap: ScriptDescriptor[];
   config: RouteConfig;
   csp: boolean;
   handler: RouteHandler | RouteHandlers;
@@ -67,11 +71,10 @@ export interface Page {
   source: string;
 }
 
-export interface PageLayoutData {
-  clientEntry: string;
-  esModulePolyfillUrl: string;
+export interface LayoutComponentProps {
+  children: RouteRenderResult;
+  bootstrap: ScriptDescriptor[];
   meta: Meta;
-  children: string | ReadableStream;
 }
 
 // --- MIDDLEWARES ---
@@ -122,10 +125,15 @@ export interface Manifest {
     module: string;
   }[];
   fallbacks?: {
-    name?: string;
+    name: string;
     pathname: string;
     module: string;
   }[];
+  // layouts?: {
+  //   name: string;
+  //   pathname: string;
+  //   module: string;
+  // }[];
 }
 
 // --- SERVERS ---
