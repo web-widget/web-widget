@@ -1,10 +1,5 @@
 import { ServerContext } from "./context";
-import type {
-  StartOptions,
-  Manifest,
-  ServerHandler,
-  ServerConnInfo,
-} from "./types";
+import type { StartOptions, ServerHandler, ServerConnInfo } from "./types";
 export type * from "./types";
 
 export default class WebServer {

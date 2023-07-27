@@ -110,26 +110,22 @@ export interface Middleware<State = Record<string, unknown>> {
 // --- MANIFEST ---
 
 export interface Manifest {
-  routes: {
+  $schema?: string;
+  routes?: {
     name?: string;
     pathname: string;
     module: string;
   }[];
-  middlewares: {
+  middlewares?: {
     name?: string;
     pathname: string;
     module: string;
   }[];
-  notFound?: {
+  fallbacks?: {
     name?: string;
     pathname: string;
     module: string;
-  };
-  error?: {
-    name?: string;
-    pathname: string;
-    module: string;
-  };
+  }[];
 }
 
 // --- SERVERS ---
