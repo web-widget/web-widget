@@ -7,7 +7,7 @@ export const tsup: Options = {
   dts: true,
   target: "es2022",
   splitting: true,
-  sourcemap: true,
+  sourcemap: false,
   format: ["esm"],
   outDir: "dist",
   clean: true,

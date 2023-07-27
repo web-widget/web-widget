@@ -4,7 +4,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import WebServer from "@web-widget/web-server";
 import { createWebRequest, sendWebResponse } from "@web-widget/koa";
-import manifest from "./dist/server/manifest.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const resolve = (p) => path.resolve(__dirname, p);
@@ -20,11 +19,15 @@ app.use(async (ctx, next) => {
   await next();
 });
 
-const webServer = new WebServer(manifest, {
-  client: {
-    base: "/",
-  },
-});
+const webServer = new WebServer(
+  new URL("./dist/server/routemap.json", import.meta.url).href,
+  {
+    client: {
+      base: "/",
+    },
+  }
+);
+
 app.use(async (ctx, next) => {
   const webRequest = createWebRequest(ctx.request, ctx.response);
   const webResponse = await webServer.handler(webRequest);

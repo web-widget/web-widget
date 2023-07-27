@@ -1,6 +1,12 @@
 import * as layout from "./layout.default";
 import type { Page, PageLayoutData, RenderPage } from "./types";
-import type { Meta, RouteRenderResult, RouteError } from "#schema";
+import type {
+  Meta,
+  RouteRenderResult,
+  RouteError,
+  RouteModule,
+  Module,
+} from "#schema";
 import { nonce, NONE, UNSAFE_INLINE, ContentSecurityPolicy } from "./csp";
 
 export interface InnerRenderOptions<Data> {
@@ -10,6 +16,7 @@ export interface InnerRenderOptions<Data> {
   params: Record<string, string>;
   route: Page;
   url: URL;
+  source: string;
 }
 
 export type InnerRenderFunction = () => Promise<RouteRenderResult>;
@@ -20,12 +27,14 @@ export class InnerRenderContext {
   #route: string;
   #state: Map<string, unknown> = new Map();
   #url: URL;
+  #source: string;
 
-  constructor(id: string, meta: Meta, route: string, url: URL) {
+  constructor(id: string, meta: Meta, route: string, url: URL, source: string) {
     this.#id = id;
     this.#meta = meta;
     this.#route = route;
     this.#url = url;
+    this.#source = source;
   }
 
   clientEntry = "@web-widget/web-server/client";
@@ -61,6 +70,10 @@ export class InnerRenderContext {
   get route(): string {
     return this.#route;
   }
+
+  get source(): string {
+    return this.#source;
+  }
 }
 
 function defaultCsp() {
@@ -86,7 +99,8 @@ export async function internalRender<Data>(
     crypto.randomUUID(),
     opts.meta,
     opts.route.pathname,
-    opts.url
+    opts.url,
+    opts.source
   );
 
   if (csp) {

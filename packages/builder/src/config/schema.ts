@@ -4,13 +4,10 @@ import { z } from "zod";
 
 const BUILDER_CONFIG_DEFAULTS: BuilderUserConfig & any = {
   base: "/",
-  cacheDir: "./node_modules/.web-widget",
+  cacheDir: "./node_modules/.builder",
   publicDir: "./public",
   root: ".",
-  input: {
-    routes: [],
-    middlewares: [],
-  },
+  input: "./routemap.json",
   output: {
     dir: "./dist",
     client: "client",
@@ -42,39 +39,11 @@ export const BuilderConfigSchema = z.object({
     .optional()
     .default(BUILDER_CONFIG_DEFAULTS.root)
     .transform((val) => new URL(val)),
-  input: z.object({
-    routes: z
-      .object({
-        name: z.string(),
-        pathname: z.string(),
-        module: z.string().transform((val) => new URL(val)),
-      })
-      .array()
-      .optional()
-      .default(BUILDER_CONFIG_DEFAULTS.input.routes),
-    middlewares: z
-      .object({
-        pathname: z.string(),
-        module: z.string().transform((val) => new URL(val)),
-      })
-      .array()
-      .optional()
-      .default(BUILDER_CONFIG_DEFAULTS.input.middleware),
-    notFound: z
-      .object({
-        name: z.string(),
-        pathname: z.string(),
-        module: z.string().transform((val) => new URL(val)),
-      })
-      .optional(),
-    error: z
-      .object({
-        name: z.string(),
-        pathname: z.string(),
-        module: z.string().transform((val) => new URL(val)),
-      })
-      .optional(),
-  }),
+  input: z
+    .string()
+    .optional()
+    .default(BUILDER_CONFIG_DEFAULTS.input)
+    .transform((val) => new URL(val)),
   output: z
     .object({
       dir: z
@@ -159,39 +128,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
       .string()
       .default(BUILDER_CONFIG_DEFAULTS.root)
       .transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
-    input: z.object({
-      routes: z
-        .object({
-          name: z.string(),
-          pathname: z.string(),
-          module: z.string().transform((val) => new URL(val, fileProtocolRoot)),
-        })
-        .array()
-        .optional()
-        .default(BUILDER_CONFIG_DEFAULTS.input.routes),
-      middlewares: z
-        .object({
-          pathname: z.string(),
-          module: z.string().transform((val) => new URL(val, fileProtocolRoot)),
-        })
-        .array()
-        .optional()
-        .default(BUILDER_CONFIG_DEFAULTS.input.middlewares),
-      notFound: z
-        .object({
-          name: z.string(),
-          pathname: z.string(),
-          module: z.string().transform((val) => new URL(val, fileProtocolRoot)),
-        })
-        .optional(),
-      error: z
-        .object({
-          name: z.string(),
-          pathname: z.string(),
-          module: z.string().transform((val) => new URL(val, fileProtocolRoot)),
-        })
-        .optional(),
-    }),
+    input: z
+      .string()
+      .default(BUILDER_CONFIG_DEFAULTS.input)
+      .transform((val) => new URL(val, fileProtocolRoot)),
     output: z
       .object({
         dir: z

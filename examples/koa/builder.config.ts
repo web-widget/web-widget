@@ -1,48 +1,10 @@
 import { defineConfig } from "@web-widget/builder";
 import vue from "@vitejs/plugin-vue";
 import react from "@web-widget/react/vite-plugin";
+import routemap from "./routemap.json";
 
 export default defineConfig({
-  input: {
-    routes: [
-      {
-        name: "index",
-        pathname: "/",
-        module: "./routes/index.tsx",
-      },
-      {
-        name: "about",
-        pathname: "/about",
-        module: "./routes/about.tsx",
-      },
-      {
-        name: "news",
-        pathname: "/news",
-        module: "./routes/news.tsx",
-      },
-      {
-        name: "fallback",
-        pathname: "/fallback",
-        module: "./routes/fallback.tsx",
-      },
-      {
-        name: "experimental-async-component",
-        pathname: "/experimental-async-component",
-        module: "./routes/experimental-async-component.tsx",
-      },
-    ],
-    middlewares: [
-      {
-        pathname: "{/*}?",
-        module: "./routes/_middleware.ts",
-      },
-    ],
-    notFound: {
-      name: "_404",
-      pathname: "/_404",
-      module: "./routes/_404.tsx",
-    },
-  },
+  input: "./routemap.json",
   vite: {
     plugins: [react(), vue()],
   },
