@@ -360,12 +360,24 @@ export class ServerContext {
           options?: ResponseInit
         ) => {
           const { data, error = routeError, meta = route.meta } = renderProps;
-          const isHttpError = isLikeHttpError(error);
+          const isHttpError = error && isLikeHttpError(error);
+          const errorProxy = error
+            ? this.#dev
+              ? error
+              : new Proxy(error, {
+                  get(target, key) {
+                    if (key === "stack") {
+                      return "";
+                    }
+                    return Reflect.get(target, key);
+                  },
+                })
+            : undefined;
           const [html, csp] = await internalRender(
             {
               bootstrap: DEFAULT_BOOTSTRAP,
               data,
-              error,
+              error: errorProxy,
               meta,
               params,
               route,
@@ -517,7 +529,7 @@ const DEFAULT_NOT_FOUND: Page = {
   config: {},
   csp: false,
   handler: (req) => router.defaultOtherHandler(req),
-  meta: {},
+  meta: DEFAULT_META,
   module: {},
   name: "NotFound",
   pathname: "",
@@ -529,8 +541,8 @@ const DEFAULT_ERROR: Page = {
   bootstrap: DEFAULT_BOOTSTRAP,
   config: {},
   csp: false,
-  handler: (ctx) => ctx.render({ meta: {} }),
-  meta: {},
+  handler: (ctx) => ctx.render({ meta: DEFAULT_META }),
+  meta: DEFAULT_META,
   module: { default: DefaultErrorComponent, fallback: DefaultErrorComponent },
   name: "InternalServerError",
   pathname: "",

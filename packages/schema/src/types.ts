@@ -31,6 +31,7 @@ export type WidgetFallbackComponentProps =
       name: string;
       message: string;
       status: number;
+      stack?: string;
       statusText: string;
     }
   | {
@@ -159,6 +160,7 @@ export type RouteFallbackComponentProps =
   | {
       name: string;
       message: string;
+      stack?: string;
       status: number;
       statusText: string;
     }

@@ -137,5 +137,5 @@ export function createHttpError(
 
 export function isLikeHttpError(error: any) {
   const keys = ["name", "message", "status", "statusText"];
-  return error && keys.some((key) => !Reflect.get(error, key));
+  return error && !keys.some((key) => !Reflect.has(error, key));
 }

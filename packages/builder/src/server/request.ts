@@ -17,6 +17,7 @@ export async function handleRequest(
   const url = req.url || "";
 
   const router = new WebServer(manifestUrl, {
+    dev: true,
     loader: loader.import,
     async render(ctx, render) {
       const dir = pathToFileURL(join(viteServer.config.root, "/"));
