@@ -83,7 +83,9 @@ export class ServerContext {
 
     const root = fileUrlDirname(manifestUrl);
     const base = opts?.client?.base ?? "/";
-    const loader = opts?.loader ?? ((module) => import(module));
+    const loader =
+      opts?.loader ??
+      ((module) => import(/* @vite-ignore */ /* webpackIgnore: true */ module));
     const manifest: Manifest =
       manifestUrl.endsWith(".json") && !opts?.loader
         ? await (await fetch(manifestUrl)).json()
