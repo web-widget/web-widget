@@ -15,9 +15,5 @@ export const render = defineRender(
     });
 
     app.$mount(container);
-  },
-  {
-    // @ts-ignore
-    dev: import.meta.env?.DEV,
   }
 );

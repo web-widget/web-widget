@@ -40,10 +40,7 @@ export function getComponent(
 }
 
 export function getComponentProps(
-  context: WidgetRenderContext | RouteRenderContext,
-  options: {
-    dev?: boolean;
-  } = {}
+  context: WidgetRenderContext | RouteRenderContext
 ) {
   let props:
     | RouteFallbackComponentProps
@@ -68,7 +65,7 @@ export function getComponentProps(
         props = {
           name: (error as Error).name,
           message: (error as Error).message,
-          stack: options.dev ? (error as Error).stack : undefined,
+          stack: (error as Error).stack,
         } as RouteFallbackComponentProps;
       }
     } else {

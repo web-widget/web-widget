@@ -21,9 +21,6 @@ import {
 } from "../types";
 import { getComponent, getComponentProps } from "./context";
 
-// @ts-ignore
-const DEV: boolean = import.meta.env?.DEV ?? false;
-
 export function defineMeta(meta: Meta) {
   return meta;
 }
@@ -37,16 +34,13 @@ export function defineServerRender(
       | RouteComponentProps
       | WidgetFallbackComponentProps
       | WidgetComponentProps
-  ) => Promise<ServerWidgetRenderResult | ServerRouteRenderResult>,
-  options: {
-    dev?: boolean;
-  } = {}
+  ) => Promise<ServerWidgetRenderResult | ServerRouteRenderResult>
 ) {
   return function render(
     context: ServerWidgetRenderContext | ServerRouteRenderContext
   ) {
     const component = getComponent(context);
-    const props = getComponentProps(context, options);
+    const props = getComponentProps(context);
 
     return factory(context, component, props);
   };
@@ -61,18 +55,13 @@ export function defineClientRender(
       | RouteComponentProps
       | WidgetFallbackComponentProps
       | WidgetComponentProps
-  ) => Promise<ClientWidgetRenderResult | ClientRouteRenderResult>,
-  options: {
-    dev?: boolean;
-  } = {}
+  ) => Promise<ClientWidgetRenderResult | ClientRouteRenderResult>
 ) {
   return function render(
     context: ClientWidgetRenderContext | ClientRouteRenderContext
   ) {
     const component = getComponent(context);
-    const props = getComponentProps(context, {
-      dev: options.dev ?? DEV,
-    });
+    const props = getComponentProps(context);
 
     return factory(context, component, props);
   };
