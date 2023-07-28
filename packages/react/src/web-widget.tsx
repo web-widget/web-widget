@@ -50,7 +50,7 @@ export interface WebWidgetClientProps {
   innerHTML?: string;
   loading?: string;
   name?: string;
-  recovering: boolean | "fallback";
+  recovering: boolean;
 }
 
 export function WebWidgetClient({
