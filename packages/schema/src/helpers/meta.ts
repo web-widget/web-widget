@@ -196,3 +196,44 @@ export function rebaseMeta(meta: Meta, base: string): Meta {
     }),
   };
 }
+
+export function mergeMeta(defaults: Meta, overrides: Meta): Meta {
+  const meta: Record<string, string | Record<string, string>[]> = {};
+
+  Object.entries(defaults).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      meta[key] = value.map((value) => ({ ...value }));
+    } else {
+      meta[key] = value;
+    }
+  });
+
+  Object.entries(overrides).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      if (!Array.isArray(meta[key])) {
+        meta[key] = value;
+        return;
+      }
+      const targetValue = meta[key] as Record<string, string>[];
+      const targetKeys = targetValue.map((value) => Object.keys(value));
+
+      value.forEach((value) => {
+        const keys = Object.keys(value);
+        const index = targetKeys.findIndex(
+          (targetKeys) =>
+            targetKeys.length === keys.length &&
+            !targetKeys.some((t) => keys.includes(t))
+        );
+        if (index > -1) {
+          targetValue.splice(index, 1, value);
+        } else {
+          targetValue.push(value);
+        }
+      });
+    } else {
+      meta[key] = value;
+    }
+  });
+
+  return meta;
+}
