@@ -6,50 +6,57 @@ import type {
   StyleDescriptor,
 } from "../types";
 
-// type EscapeLookupKey = "&" | ">" | "<" | "\u2028" | "\u2029";
-// const ESCAPE_LOOKUP = {
-//   "&": "\\u0026",
-//   ">": "\\u003e",
-//   "<": "\\u003c",
-//   "\u2028": "\\u2028",
-//   "\u2029": "\\u2029",
-// };
+const ESCAPE_REG = /["&'<>]/;
 
-// const ESCAPE_REGEX = /[&><\u2028\u2029]/g;
+// This utility is based on https://github.com/aui/art-template/blob/master/src/compile/runtime.js
+function xmlEscape(content: string) {
+  const html = String(content);
+  const regexResult = ESCAPE_REG.exec(html);
+  if (!regexResult) {
+    return content;
+  }
 
-type TerminatorsLookupKey = "\u2028" | "\u2029";
-const TERMINATORS_LOOKUP = {
-  "\u2028": "\\u2028",
-  "\u2029": "\\u2029",
-};
+  let result = "";
+  let i, lastIndex, char;
+  for (i = regexResult.index, lastIndex = 0; i < html.length; i++) {
+    switch (html.charCodeAt(i)) {
+      case 34:
+        char = "&#34;";
+        break;
+      case 38:
+        char = "&#38;";
+        break;
+      case 39:
+        char = "&#39;";
+        break;
+      case 60:
+        char = "&#60;";
+        break;
+      case 62:
+        char = "&#62;";
+        break;
+      default:
+        continue;
+    }
 
-const TERMINATORS_REGEX = /[\u2028\u2029]/g;
+    if (lastIndex !== i) {
+      result += html.substring(lastIndex, i);
+    }
 
-// function escaper(match: EscapeLookupKey) {
-//   return ESCAPE_LOOKUP[match];
-// }
+    lastIndex = i + 1;
+    result += char;
+  }
 
-// This utility is based on https://github.com/zertosh/htmlescape
-// License: https://github.com/zertosh/htmlescape/blob/0527ca7156a524d256101bb310a9f970f63078ad/LICENSE
-/**
- * Properly escape JSON for usage as an object literal inside of a `<script>` tag.
- * JS implementation of http://golang.org/pkg/encoding/json/#HTMLEscape
- * More info: http://timelessrepo.com/json-isnt-a-javascript-subset
- * https://github.com/zertosh/htmlescape/blob/master/htmlescape.js
- */
-// function safeJSON(obj: any): string {
-//   return JSON.stringify(obj).replace(ESCAPE_REGEX, escaper as () => string);
-// }
-
-function safeHTML(str: string): string {
-  return str.replace(TERMINATORS_REGEX, function sanitizer(match) {
-    return TERMINATORS_LOOKUP[match as TerminatorsLookupKey];
-  });
+  if (lastIndex !== i) {
+    return result + html.substring(lastIndex, i);
+  } else {
+    return result;
+  }
 }
 
 const safeAttributeName = (value: string) =>
-  safeHTML(String(value)).toLowerCase();
-const safeAttributeValue = (value: string) => safeHTML(String(value));
+  xmlEscape(String(value)).toLowerCase();
+const safeAttributeValue = (value: string) => xmlEscape(String(value));
 
 const createAttributes = (attrs: Record<string, string | undefined>) =>
   Object.entries(attrs)
@@ -73,7 +80,11 @@ function createElement(
 }
 
 function createText(data: string) {
-  return safeHTML(data);
+  return xmlEscape(data);
+}
+
+function createHtml(data: string) {
+  return data;
 }
 
 export function renderMetaToString(meta: Meta): string {
@@ -112,7 +123,7 @@ export function renderMetaToString(meta: Meta): string {
         ({ content = "", ...props }) => {
           // NOTE: Importmap must precede link[rel=modulepreload] elements
           priority[props?.type === "importmap" ? 1 : 2].push(
-            createElement(key, props, createText(content))
+            createElement(key, props, createHtml(content))
           );
         }
       );
@@ -198,42 +209,38 @@ export function rebaseMeta(meta: Meta, base: string): Meta {
 }
 
 export function mergeMeta(defaults: Meta, overrides: Meta): Meta {
-  const meta: Record<string, string | Record<string, string>[]> = {};
+  const newDefaults = Object.entries(defaults).reduce((meta, [key, value]) => {
+    meta[key] = Array.isArray(value) ? [...value] : value;
+    return meta;
+  }, {} as Record<string, string | Record<string, string>[]>);
 
-  Object.entries(defaults).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      meta[key] = value.map((value) => ({ ...value }));
-    } else {
-      meta[key] = value;
-    }
-  });
+  const newOverrides = Object.entries(overrides).reduce(
+    (meta, [key, value]) => {
+      if (Array.isArray(value)) {
+        meta[key] = meta[key] ?? [];
+        const targetValue = meta[key] as Record<string, string>[];
+        const targetKeys = targetValue.map((value) => Object.keys(value));
 
-  Object.entries(overrides).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      if (!Array.isArray(meta[key])) {
+        value.forEach((value) => {
+          const keys = Object.keys(value);
+          const index = targetKeys.findIndex(
+            (targetKeys) =>
+              targetKeys.length === keys.length &&
+              !targetKeys.some((t) => keys.includes(t))
+          );
+          if (index > -1) {
+            targetValue.splice(index, 1, value);
+          } else {
+            targetValue.push(value);
+          }
+        });
+      } else {
         meta[key] = value;
-        return;
       }
-      const targetValue = meta[key] as Record<string, string>[];
-      const targetKeys = targetValue.map((value) => Object.keys(value));
+      return meta;
+    },
+    newDefaults
+  );
 
-      value.forEach((value) => {
-        const keys = Object.keys(value);
-        const index = targetKeys.findIndex(
-          (targetKeys) =>
-            targetKeys.length === keys.length &&
-            !targetKeys.some((t) => keys.includes(t))
-        );
-        if (index > -1) {
-          targetValue.splice(index, 1, value);
-        } else {
-          targetValue.push(value);
-        }
-      });
-    } else {
-      meta[key] = value;
-    }
-  });
-
-  return meta;
+  return newOverrides;
 }
