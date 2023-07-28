@@ -431,6 +431,13 @@ function getLink(fileName: string): LinkDescriptor | null {
       rel: "preload",
       type: "image/png",
     };
+  } else if (fileName.endsWith(".svg")) {
+    return {
+      as: "image",
+      href: fileName,
+      rel: "preload",
+      type: "image/svg+xml",
+    };
   }
 
   return null;
