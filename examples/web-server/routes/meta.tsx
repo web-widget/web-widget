@@ -24,6 +24,11 @@ export const handler: Handlers<MetaPageData> = {
   },
 };
 
+function MetaHtmlCode(meta: Meta) {
+  // prettier-ignore
+  return (<pre>{renderMetaToString(meta).replace(/(\/(\w+)?>)/g, "$1\n")}</pre>)
+}
+
 export default function Page(props: RouteComponentProps<MetaPageData>) {
   const {
     data: { allMetadata },
@@ -34,9 +39,7 @@ export default function Page(props: RouteComponentProps<MetaPageData>) {
       <h2>JSON:</h2>
       <pre>{JSON.stringify(allMetadata, null, 2)}</pre>
       <h2>HTML:</h2>
-      <pre>
-        {renderMetaToString(allMetadata).replace(/(\/(\w+)?>)/g, "$1\n")}
-      </pre>
+      <MetaHtmlCode {...allMetadata} />
       <div>
         <img src={icon} />
       </div>
