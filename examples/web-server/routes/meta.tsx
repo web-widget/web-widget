@@ -1,5 +1,5 @@
 import type { Handlers, RouteComponentProps, Meta } from "@web-widget/react";
-import { renderMetaToString } from "@web-widget/react";
+import { renderMetaToString, mergeMeta } from "@web-widget/react";
 export { render } from "@web-widget/react";
 
 import "../css/style.css";
@@ -16,9 +16,13 @@ export const meta: Meta = {
 
 export const handler: Handlers<MetaPageData> = {
   async GET(ctx) {
+    const newMeta = mergeMeta(ctx.meta, {
+      title: "😄New title!",
+    });
     return ctx.render({
+      meta: newMeta,
       data: {
-        allMetadata: ctx.meta,
+        allMetadata: newMeta,
       },
     });
   },
