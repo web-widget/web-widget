@@ -17,12 +17,15 @@ let globalTimeouts = Object.create(null);
  * @event {WebWidgetUpdateEvent} update
  */
 export class HTMLWebWidgetElement extends HTMLElement {
+  // @ts-ignore
   #loader: WidgetModuleLoader | null;
 
   #lifecycleController: LifecycleController;
 
+  // @ts-ignore
   #data: Record<string, unknown> | null;
 
+  // @ts-ignore
   #context: WidgetRenderContext | Record<string, unknown>;
 
   #isFirstConnect = false;
@@ -105,7 +108,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         try {
           this.#data = JSON.parse(dataAttr);
         } catch (error) {
-          this.#throwGlobalError(error);
+          this.#throwGlobalError(error as TypeError);
           this.#data = null;
         }
       } else if (Object.entries(this.dataset).length) {
@@ -256,7 +259,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         try {
           customContext = JSON.parse(context);
         } catch (error) {
-          this.#throwGlobalError(error);
+          this.#throwGlobalError(error as TypeError);
         }
       }
     }
@@ -287,7 +290,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Hook: Create the application's render node
    */
   createContainer(): HTMLElement | ShadowRoot {
-    let container;
+    let container: HTMLElement | ShadowRoot | null = null;
 
     if (this.renderTarget === "shadow") {
       if (this.recovering) {
@@ -306,18 +309,20 @@ export class HTMLWebWidgetElement extends HTMLElement {
       container = this;
     }
 
-    if (container && !container.update) {
+    if (container && !Reflect.has(container, "update")) {
       // support v0
       ["mount", "update", "unmount"].forEach((name) => {
+        // @ts-ignore
         if (!container[name]) {
-          Reflect.defineProperty(container, name, {
+          Reflect.defineProperty(container as Node, name, {
+            // @ts-ignore
             value: (context) => this[name](context),
           });
         }
       });
     }
 
-    return container;
+    return container as HTMLElement | ShadowRoot;
   }
 
   /**
@@ -334,7 +339,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     const supportsImportMaps =
       HTMLScriptElement.supports && HTMLScriptElement.supports("importmap");
 
-    function importModule(target) {
+    function importModule(target: string) {
       if (!supportsImportMaps && typeof importShim === "function") {
         // @see https://github.com/guybedford/es-module-shims
         // eslint-disable-next-line no-undef
@@ -437,7 +442,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     });
   }
 
-  attributeChangedCallback(name) {
+  attributeChangedCallback(name: string) {
     if (name === "data") {
       this.data = null;
     }
@@ -462,48 +467,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return this.#lifecycleController.run(name);
   }
 
-  #statusChangeCallback(value) {
+  #statusChangeCallback(value: string) {
     this.#status = value;
     this.setAttribute("status", value);
 
     if (value === status.MOUNTED) {
       this.removeAttribute("recovering");
-    }
-
-    if (
-      [
-        status.MOUNTED,
-        status.LOAD_ERROR,
-        status.BOOTSTRAP_ERROR,
-        status.MOUNT_ERROR,
-      ].includes(value)
-    ) {
-      let placeholder, fallback;
-      const isError = value !== status.MOUNTED;
-
-      const removeElement = (element: HTMLElement, remove: boolean) => {
-        if (remove) {
-          element.parentNode?.removeChild(element);
-        } else {
-          element.hidden = false;
-        }
-      };
-
-      for (const element of this.children) {
-        const localName = element.localName;
-        if (localName === "placeholder") {
-          placeholder = element;
-        } else if (localName === "fallback") {
-          fallback = element;
-        }
-      }
-
-      if (placeholder && fallback) {
-        removeElement(placeholder, isError);
-        removeElement(fallback, !isError);
-      } else if (placeholder || fallback) {
-        removeElement(placeholder || fallback, !isError);
-      }
     }
 
     this.dispatchEvent(new Event("statuschange"));

@@ -50,10 +50,12 @@ export class LifecycleController {
     return this.#status;
   }
 
-  async run(name) {
+  async run(name: string) {
     const bail = typeof this.#timeouts[name] === "number";
-    const timeout = bail ? this.#timeouts[name] : rules[name].timeout;
+    // @ts-ignore
     const rule = rules[name];
+    const timeout = bail ? this.#timeouts[name] : rule.timeout;
+
     const [initial, pending, fulfilled, rejected] = rule.status;
 
     if (!rule) {
@@ -64,7 +66,9 @@ export class LifecycleController {
       await this.#pending;
     }
 
+    // @ts-ignore
     if (rule.creator && !this.#lifecycles[name]) {
+      //@ts-ignore
       this.#lifecycles[name] = async (context: WidgetRenderContext) => {
         const application = await this.#moduleLoader();
         const lifecycles: WidgetRenderResult = await render(
@@ -90,6 +94,7 @@ export class LifecycleController {
 
     this.#setStatus(pending);
 
+    //@ts-ignore
     if (!this.#lifecycles[name]) {
       this.#setStatus(fulfilled);
       return undefined;
@@ -100,6 +105,7 @@ export class LifecycleController {
         const renderContext = Object.assign(this.#contextLoader(name), {
           module: await this.#moduleLoader(),
         });
+        //@ts-ignore
         return this.#lifecycles[name](renderContext);
       },
       timeout,

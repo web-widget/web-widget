@@ -28,6 +28,8 @@ export interface WidgetComponent<Data = unknown> {
 
 export type WidgetFallbackComponentProps =
   | {
+      name: string;
+      message: string;
       status: number;
       statusText: string;
     }
@@ -67,7 +69,7 @@ export interface ClientWidgetRenderContext<Data = unknown> {
   container: Element;
 
   /** The component resumes running on the client side. */
-  recovering: boolean | "fallback";
+  recovering: boolean;
 }
 
 export type WidgetRenderResult =
@@ -228,12 +230,13 @@ export type RouteHandlerContext<
 
 export interface ServerRouteHandlerContext<
   Data = undefined,
+  Params = Record<string, string>,
   State = Record<string, unknown>
 > {
   error?: RouteError;
   meta: Meta;
   module: ServerRouteModule;
-  params: Record<string, string>;
+  params: Params;
   render(
     renderProps?: {
       data?: Data;
@@ -248,12 +251,13 @@ export interface ServerRouteHandlerContext<
 
 export interface ClientRouteHandlerContext<
   Data = undefined,
+  Params = Record<string, string>,
   State = Record<string, unknown>
 > {
   error?: RouteError;
   meta: Meta;
   module: ClientRouteModule;
-  params: Record<string, string>;
+  params: Params;
   render(
     renderProps?: {
       data?: Data;
@@ -331,7 +335,7 @@ export interface ClientRouteRenderContext<
   container: Element;
 
   /** The component resumes running on the client side. */
-  recovering: boolean | "fallback";
+  recovering: boolean;
 }
 
 export type RouteRenderResult =

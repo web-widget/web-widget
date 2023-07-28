@@ -1,7 +1,12 @@
 /* eslint-disable no-console */
 /* global setTimeout, console */
 
-export function reasonableTime(task, timeout, bail = false, errorMessage) {
+export function reasonableTime(
+  task: () => Promise<any>,
+  timeout: number,
+  bail = false,
+  errorMessage: string
+) {
   return new Promise((resolve, reject) => {
     let finished = false;
 
