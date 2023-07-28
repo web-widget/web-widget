@@ -5,7 +5,7 @@ import {
 } from "whatwg-stream-to-async-iter";
 import { defineRender } from "@web-widget/schema/server";
 
-export type * from "@web-widget/schema/server";
+export * from "@web-widget/schema/server";
 export { unsafeHTML, fallback, html, HTML, Fallback };
 
 export const streamToHTML = (stream: ReadableStream<string>) =>

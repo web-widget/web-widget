@@ -8,6 +8,10 @@
   },
   "exports": {
     ".": {
+      "worker": {
+        "types": "./dist/react.server.d.ts",
+        "default": "./dist/react.server.js"
+      },
       "browser": {
         "types": "./dist/react.client.d.ts",
         "default": "./dist/react.client.js"
@@ -41,6 +45,7 @@
     "@vitejs/plugin-react": "^4.0.2"
   },
   "dependencies": {
+    "@web-widget/schema": "workspace:*",
     "@babel/helper-plugin-utils": "^7.22.5",
     "@babel/helper-module-imports": "^7.22.5",
     "@babel/core": "^7.22.5",
@@ -56,7 +61,6 @@
     "@types/react-dom": "^18.0.6",
     "typescript": "^5.0.4",
     "vite": "^4.3.9",
-    "@web-widget/schema": "workspace:*",
     "tsup": "^7.0.0"
   }
 }

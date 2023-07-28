@@ -12,6 +12,10 @@
       "default": "./dist/types.js"
     },
     "./helpers": {
+      "worker": {
+        "types": "./dist/helpers.server.d.ts",
+        "default": "./dist/helpers.server.js"
+      },
       "browser": {
         "types": "./dist/helpers.client.d.ts",
         "default": "./dist/helpers.client.js"

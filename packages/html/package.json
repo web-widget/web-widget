@@ -25,12 +25,12 @@
     "access": "public"
   },
   "dependencies": {
+    "@web-widget/schema": "workspace:*",
     "@worker-tools/html": "^2.0.0-pre.13",
     "whatwg-stream-to-async-iter": "^0.6.2"
   },
   "devDependencies": {
     "typescript": "^5.0.4",
-    "@web-widget/schema": "workspace:*",
     "tsup": "^7.0.0"
   }
 }

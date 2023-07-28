@@ -2,17 +2,20 @@ import { promises as fs } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { RollupOutput } from "rollup";
 import { join, extname, relative, dirname, basename } from "node:path";
-import {
-  build as viteBuild,
+import { build as viteBuild, mergeConfig as mergeViteConfig } from "vite";
+import type {
   Plugin as VitePlugin,
-  mergeConfig as mergeViteConfig,
   UserConfig as ViteUserConfig,
   // ResolvedConfig as ViteResolvedConfig,
   Manifest as ViteManifest,
 } from "vite";
-import { BuilderConfig } from "../types";
-import { Meta, LinkDescriptor, ScriptDescriptor } from "@web-widget/schema";
-import { Manifest } from "@web-widget/web-server";
+import type { BuilderConfig } from "../types";
+import type {
+  Meta,
+  LinkDescriptor,
+  ScriptDescriptor,
+} from "@web-widget/schema";
+import type { Manifest } from "@web-widget/web-server";
 import { parse, init } from "es-module-lexer";
 import { resolve } from "import-meta-resolve";
 import { openConfig } from "../config";
@@ -101,6 +104,7 @@ async function bundleWithVite(
     define: {},
     logLevel: config.vite.logLevel ?? "warn",
     ssr: {
+      // target: "webworker",
       external: [],
       noExternal: [],
     },

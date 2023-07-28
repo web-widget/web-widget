@@ -8,9 +8,18 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/vue.server.d.ts",
-      "browser": "./dist/vue.client.js",
-      "default": "./dist/vue.server.js"
+      "worker": {
+        "types": "./dist/vue.server.d.ts",
+        "default": "./dist/vue.server.js"
+      },
+      "browser": {
+        "types": "./dist/vue.client.d.ts",
+        "default": "./dist/vue.client.js"
+      },
+      "default": {
+        "types": "./dist/vue.server.d.ts",
+        "default": "./dist/vue.server.js"
+      }
     }
   },
   "types": "./dist/vue.server.d.ts",
@@ -23,10 +32,11 @@
   "peerDependencies": {
     "vue": "^3.3.4"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@web-widget/schema": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.0.4",
-    "@web-widget/schema": "workspace:*",
     "tsup": "^7.0.0"
   }
 }
