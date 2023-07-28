@@ -368,7 +368,9 @@ function getLinks(
     return [
       ...(manifest[srcFileName].assets ?? []),
       ...(manifest[srcFileName].css ?? []),
-      ...(manifest[srcFileName].dynamicImports ?? []),
+      ...(manifest[srcFileName].dynamicImports ?? []).map(
+        (srcFileName) => manifest[srcFileName].file
+      ),
       ...(manifest[srcFileName].imports ?? []).map(
         (srcFileName) => manifest[srcFileName].file
       ),
