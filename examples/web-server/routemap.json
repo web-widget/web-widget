@@ -63,11 +63,5 @@
       "pathname": "/_404",
       "module": "./routes/_404.tsx"
     }
-  ],
-  "middlewares": [
-    {
-      "pathname": "{/*}?",
-      "module": "./routes/_middleware.ts"
-    }
   ]
 }

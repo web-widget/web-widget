@@ -11,8 +11,7 @@ type NewsData = {
 
 async function getNewsData() {
   const data = await fetch(new URL("../public/data.json", import.meta.url));
-  const json = (await data.json()) as NewsData;
-  return json;
+  return (await data.json()) as NewsData;
 }
 
 export default async function Page() {
