@@ -1,5 +1,5 @@
 {
-  "name": "@examples/koa",
+  "name": "@examples/web-server",
   "private": true,
   "type": "module",
   "version": "1.0.0",

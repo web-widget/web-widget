@@ -1,7 +1,6 @@
-import ReactCounter from "../widgets/Counter.tsx";
-import VueCounter from "../widgets/CounterVue.ts";
 import { render } from "@web-widget/react";
 import styles from "../css/index.module.css";
+import Menu from "../components/Menu";
 
 export { render };
 
@@ -17,8 +16,8 @@ export default function Home() {
         Welcome to @web-widget/web-server. Try to update this message in the
         ./routes/index.tsx file, and refresh.
       </p>
-      <ReactCounter client name="React Counter" start={3} />
-      <VueCounter client name="Vue3 Counter" start={1} />
+      <h2>Examples:</h2>
+      <Menu />
     </>
   );
 }

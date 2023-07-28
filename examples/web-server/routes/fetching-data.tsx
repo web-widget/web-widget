@@ -1,14 +1,14 @@
 import type { Handlers, RouteComponentProps } from "@web-widget/react";
 export { render } from "@web-widget/react";
 
-type NewsPageData = {
+type FetchingPageData = {
   list: {
     title: string;
     url: string;
   }[];
 };
 
-export const handler: Handlers<NewsPageData> = {
+export const handler: Handlers<FetchingPageData> = {
   async GET(ctx) {
     const data = await fetch(new URL("../public/data.json", import.meta.url));
     return ctx.render({
@@ -17,13 +17,13 @@ export const handler: Handlers<NewsPageData> = {
   },
 };
 
-export default function NewsPage(props: RouteComponentProps<NewsPageData>) {
+export default function Page(props: RouteComponentProps<FetchingPageData>) {
   const {
     data: { list },
   } = props;
   return (
     <>
-      <h1>News</h1>
+      <h1>Fetching data</h1>
       <ul>
         {list.map((item, index) => {
           return (

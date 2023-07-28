@@ -1,0 +1,73 @@
+{
+  "routes": [
+    {
+      "pathname": "/",
+      "module": "./routes/index.tsx"
+    },
+    {
+      "pathname": "/hello-world",
+      "module": "./routes/hello-world.tsx"
+    },
+    {
+      "pathname": "/adding-interactivity",
+      "module": "./routes/adding-interactivity.tsx"
+    },
+    {
+      "pathname": "/client-only-component",
+      "module": "./routes/client-only-component.tsx"
+    },
+    {
+      "pathname": "/react-and-vue",
+      "module": "./routes/react-and-vue.tsx"
+    },
+    {
+      "pathname": "/fetching-data",
+      "module": "./routes/fetching-data.tsx"
+    },
+    {
+      "pathname": "/style",
+      "module": "./routes/style.tsx"
+    },
+    {
+      "pathname": "/meta",
+      "module": "./routes/meta.tsx"
+    },
+    {
+      "pathname": "/dynamic-routes/:name",
+      "module": "./routes/dynamic-routes.tsx"
+    },
+    {
+      "pathname": "/custom-handlers",
+      "module": "./routes/custom-handlers.tsx"
+    },
+    {
+      "pathname": "/form",
+      "module": "./routes/form.tsx"
+    },
+    {
+      "pathname": "/fallback",
+      "module": "./routes/fallback.tsx"
+    },
+    {
+      "pathname": "/experimental-async-component",
+      "module": "./routes/experimental-async-component.tsx"
+    },
+    {
+      "pathname": "/style",
+      "module": "./routes/style.tsx"
+    }
+  ],
+  "fallbacks": [
+    {
+      "name": "NotFound",
+      "pathname": "/_404",
+      "module": "./routes/_404.tsx"
+    }
+  ],
+  "middlewares": [
+    {
+      "pathname": "{/*}?",
+      "module": "./routes/_middleware.ts"
+    }
+  ]
+}

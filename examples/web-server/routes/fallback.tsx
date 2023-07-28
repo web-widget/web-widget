@@ -44,14 +44,24 @@ export function fallback(error: RouteFallbackComponentProps) {
   );
 }
 
-export default function () {
+export default function Page() {
   return (
     <>
-      <p>
-        <a href="?404">Show 404 error</a> | <a href="?500">Show 500 error</a> |{" "}
-        <a href="?globa-404">Show globa 404 error</a> |{" "}
-        <a href="?globa-500">Show globa 500 error</a>
-      </p>
+      <h1>Error handling</h1>
+      <ul>
+        <li>
+          <a href="?404">Show 404 error</a>
+        </li>
+        <li>
+          <a href="?500">Show 500 error</a>
+        </li>
+        <li>
+          <a href="?globa-404">Show globa 404 error</a>
+        </li>
+        <li>
+          <a href="?globa-500">Show globa 500 error</a>
+        </li>
+      </ul>
     </>
   );
 }

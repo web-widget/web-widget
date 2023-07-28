@@ -15,11 +15,11 @@ async function getNewsData() {
   return json;
 }
 
-export default async function () {
+export default async function Page() {
   const { list } = await getNewsData();
   return (
     <>
-      <h1>News</h1>
+      <h1>Async component(experimental)</h1>
       <ul>
         {list.map((item, index) => {
           return (
