@@ -1,9 +1,10 @@
 import type { Handlers, RouteComponentProps, Meta } from "@web-widget/react";
 import { renderMetaToString, mergeMeta } from "@web-widget/react";
-export { render } from "@web-widget/react";
-
+import ReactCounter from "../widgets/Counter.tsx";
 import "../css/style.css";
 import icon from "../public/favicon.svg";
+
+export { render } from "@web-widget/react";
 
 type MetaPageData = {
   allMetadata: Meta;
@@ -44,6 +45,8 @@ export default function Page(props: RouteComponentProps<MetaPageData>) {
       <pre>{JSON.stringify(allMetadata, null, 2)}</pre>
       <h2>HTML:</h2>
       <MetaHtmlCode {...allMetadata} />
+      <hr />
+      <ReactCounter client name="React Counter" start={3} />
       <div>
         <img src={icon} />
       </div>
