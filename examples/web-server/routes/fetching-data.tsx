@@ -1,6 +1,8 @@
 import type { Handlers, RouteComponentProps } from "@web-widget/react";
 export { render } from "@web-widget/react";
 
+import demoDataUrl from "../public/data.json?url";
+
 type FetchingPageData = {
   list: {
     title: string;
@@ -10,7 +12,7 @@ type FetchingPageData = {
 
 export const handler: Handlers<FetchingPageData> = {
   async GET(ctx) {
-    const data = await fetch(new URL("../public/data.json", import.meta.url));
+    const data = await fetch(demoDataUrl);
     return ctx.render({
       data: await data.json(),
     });

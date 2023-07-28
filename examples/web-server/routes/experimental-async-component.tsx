@@ -1,4 +1,5 @@
 import { render } from "@web-widget/react";
+import demoDataUrl from "../public/data.json?url";
 
 export { render };
 
@@ -10,7 +11,7 @@ type NewsData = {
 };
 
 async function getNewsData() {
-  const data = await fetch(new URL("../public/data.json", import.meta.url));
+  const data = await fetch(demoDataUrl);
   return (await data.json()) as NewsData;
 }
 
