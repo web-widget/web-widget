@@ -4,6 +4,7 @@ const lazyObserver = new IntersectionObserver(
   (entries) => {
     entries.forEach(({ isIntersecting, target }) => {
       if (isIntersecting) {
+        // @ts-ignore
         target[CALLBACK]();
         unobserve(target);
       }
@@ -14,12 +15,14 @@ const lazyObserver = new IntersectionObserver(
   }
 );
 
-export function observe(view: Element, callback) {
+export function observe(view: Element, callback: () => void) {
   lazyObserver.observe(view);
+  // @ts-ignore
   view[CALLBACK] = callback;
 }
 
 export function unobserve(view: Element) {
   lazyObserver.unobserve(view);
+  // @ts-ignore
   delete view[CALLBACK];
 }

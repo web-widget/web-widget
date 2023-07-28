@@ -5,7 +5,7 @@ interface Options extends EventInit {
 export class WebWidgetUpdateEvent extends Event {
   #value;
 
-  constructor(type, init: Options = { value: null }) {
+  constructor(type: string, init: Options = { value: null }) {
     super(type, init);
     this.#value = init.value;
   }

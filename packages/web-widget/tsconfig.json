@@ -10,7 +10,7 @@
     ],
     "esModuleInterop": true,
     "allowJs": false,
-    "strict": false,
+    "strict": true,
     "strictNullChecks": true,
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
