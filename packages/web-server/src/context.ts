@@ -69,10 +69,14 @@ export class ServerContext {
    * Process the manifest into individual components and pages.
    */
   static async fromManifest(
-    manifestUrl: string,
+    manifestUrl: string | URL,
     opts: WebServerOptions,
     dev: boolean
   ): Promise<ServerContext> {
+    if (manifestUrl instanceof URL) {
+      manifestUrl = manifestUrl.href;
+    }
+
     if (typeof manifestUrl !== "string") {
       throw TypeError(`The manifestUrl parameter must be a string.`);
     }

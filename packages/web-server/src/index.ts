@@ -5,7 +5,7 @@ export type * from "./types";
 export default class WebServer {
   #handler: ServerHandler;
 
-  constructor(manifestUrl: string, opts: StartOptions = {}) {
+  constructor(manifestUrl: string | URL, opts: StartOptions = {}) {
     const promise = ServerContext.fromManifest(
       manifestUrl,
       opts,
