@@ -20,7 +20,7 @@ app.use(async (ctx, next) => {
 });
 
 const webServer = new WebServer(
-  new URL("./dist/server/routemap.json", import.meta.url).href,
+  new URL("./dist/server/routemap.json", import.meta.url),
   {
     client: {
       base: "/",
