@@ -217,6 +217,7 @@ export function mergeMeta(defaults: Meta, overrides: Meta): Meta {
   const newOverrides = Object.entries(overrides).reduce(
     (meta, [key, value]) => {
       if (Array.isArray(value)) {
+        meta[key] = meta[key] ?? [];
         const targetValue = meta[key] as Record<string, string>[];
         const targetKeys = targetValue.map((value) => Object.keys(value));
 
