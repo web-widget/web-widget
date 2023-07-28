@@ -1,16 +1,13 @@
 import { render } from "@web-widget/react";
 import "../css/style.css";
-import icon from "../public/favicon.svg";
 
 export { render };
 
-export default function StylePage() {
+export default function Page() {
   return (
     <>
+      <h1>Styling</h1>
       <div className="box"></div>
-      <div>
-        <a href={icon}>link</a>
-      </div>
     </>
   );
 }
