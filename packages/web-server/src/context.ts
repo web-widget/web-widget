@@ -2,6 +2,7 @@ import {
   createHttpError,
   HttpStatus,
   isLikeHttpError,
+  mergeMeta,
   rebaseMeta,
 } from "#schema";
 import type {
@@ -94,7 +95,10 @@ export class ServerContext {
       const dirname = fileUrlDirname(url).replace(root, "");
       const module = (await loader(url)) as RouteModule;
       const { meta = {} } = module;
-      const rebasedMeta = rebaseMeta(addDefaultMeta(meta), base + dirname);
+      const rebasedMeta = rebaseMeta(
+        mergeMeta(DEFAULT_META, meta),
+        base + dirname
+      );
       return {
         ...module,
         file,
@@ -478,6 +482,19 @@ const DEFAULT_ROUTER_OPTIONS: RouterOptions = {
   trailingSlash: false,
 };
 
+const DEFAULT_META: Meta = {
+  lang: "en",
+  meta: [
+    {
+      charset: "utf-8",
+    },
+    {
+      name: "viewport",
+      content: "width=device-width, initial-scale=1.0",
+    },
+  ],
+};
+
 const DEFAULT_BOOTSTRAP = [
   {
     id: "web-widget:bootstrap",
@@ -565,35 +582,6 @@ function deepFreeze(object: any) {
   }
 
   return object;
-}
-
-function addDefaultMeta(meta: Meta) {
-  const metadata = meta.meta ?? [];
-  const hasCharset = metadata.find((props) => props.charset);
-  const hasViewport = metadata.find((props) => props.name === "viewport");
-
-  return {
-    lang: "en",
-    ...meta,
-    meta: [
-      metadata,
-      hasCharset
-        ? []
-        : [
-            {
-              charset: "utf-8",
-            },
-          ],
-      hasViewport
-        ? []
-        : [
-            {
-              name: "viewport",
-              content: "width=device-width, initial-scale=1.0",
-            },
-          ],
-    ].flat(),
-  };
 }
 
 function fileUrlDirname(file: string) {

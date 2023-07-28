@@ -57,4 +57,4 @@ export {
   Status as HttpStatus,
   STATUS_TEXT as HTTP_STATUS_TEXT,
 } from "./http-status";
-export { renderMetaToString, rebaseMeta } from "./meta";
+export { renderMetaToString, rebaseMeta, mergeMeta } from "./meta";
