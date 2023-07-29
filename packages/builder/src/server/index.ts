@@ -7,7 +7,7 @@ import { openConfig, resolveConfigPath } from "../config";
 import fs from "node:fs";
 import pc from "picocolors";
 import type { BuilderConfig } from "../types";
-import type { Manifest } from "@web-widget/web-server";
+import type { Manifest } from "@web-widget/web-router";
 import type { Plugin, ServerOptions, UserConfig as ViteUserConfig } from "vite";
 
 async function getModuleFiles(config: BuilderConfig, loader: ModuleLoader) {

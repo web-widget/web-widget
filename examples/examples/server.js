@@ -2,7 +2,7 @@ import Koa from "koa";
 import koaSend from "koa-send";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import WebServer from "@web-widget/web-server";
+import WebRouter from "@web-widget/web-router";
 import { createWebRequest, sendWebResponse } from "@web-widget/koa";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -19,7 +19,7 @@ app.use(async (ctx, next) => {
   await next();
 });
 
-const webServer = new WebServer(
+const webRouter = new WebRouter(
   new URL("./dist/server/routemap.json", import.meta.url),
   {
     client: {
@@ -30,7 +30,7 @@ const webServer = new WebServer(
 
 app.use(async (ctx, next) => {
   const webRequest = createWebRequest(ctx.request, ctx.response);
-  const webResponse = await webServer.handler(webRequest);
+  const webResponse = await webRouter.handler(webRequest);
 
   await sendWebResponse(ctx.response, webResponse);
   await next();

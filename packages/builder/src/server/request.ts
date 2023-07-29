@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 import type { Connect, ViteDevServer } from "vite";
 import type { ModuleLoader } from "../core/loader/index";
 import type { ServerResponse } from "node:http";
-import WebServer from "@web-widget/web-server";
+import WebRouter from "@web-widget/web-router";
 
 export async function handleRequest(
   manifestUrl: string,
@@ -16,7 +16,7 @@ export async function handleRequest(
 ) {
   const url = req.url || "";
 
-  const router = new WebServer(manifestUrl, {
+  const router = new WebRouter(manifestUrl, {
     dev: true,
     loader: loader.import,
     async render(ctx, render) {

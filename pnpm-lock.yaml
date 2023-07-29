@@ -57,7 +57,7 @@ importers:
         specifier: ^1.10.7
         version: 1.10.7
 
-  examples/web-server:
+  examples/examples:
     dependencies:
       '@web-widget/koa':
         specifier: workspace:*
@@ -68,9 +68,9 @@ importers:
       '@web-widget/vue':
         specifier: workspace:*
         version: link:../../packages/vue
-      '@web-widget/web-server':
+      '@web-widget/web-router':
         specifier: workspace:*
-        version: link:../../packages/web-server
+        version: link:../../packages/web-router
       '@web-widget/web-widget':
         specifier: workspace:*
         version: link:../../packages/web-widget
@@ -138,9 +138,9 @@ importers:
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
-      '@web-widget/web-server':
+      '@web-widget/web-router':
         specifier: workspace:*
-        version: link:../web-server
+        version: link:../web-router
       '@web-widget/web-widget':
         specifier: workspace:*
         version: link:../web-widget
@@ -362,7 +362,7 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4
 
-  packages/web-server:
+  packages/web-router:
     dependencies:
       '@web-widget/html':
         specifier: workspace:*

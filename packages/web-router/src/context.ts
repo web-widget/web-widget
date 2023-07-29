@@ -28,7 +28,7 @@ import type {
   RouterOptions,
   ServerConnInfo,
   ServerHandler,
-  WebServerOptions,
+  WebRouterOptions,
 } from "./types";
 
 import { internalRender } from "./render";
@@ -69,7 +69,7 @@ export class ServerContext {
    */
   static async fromManifest(
     manifestUrl: string | URL,
-    opts: WebServerOptions,
+    opts: WebRouterOptions,
     dev: boolean
   ): Promise<ServerContext> {
     if (manifestUrl instanceof URL) {

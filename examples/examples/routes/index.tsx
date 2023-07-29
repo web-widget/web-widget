@@ -13,7 +13,7 @@ export default function Home() {
     <>
       <h1 className={styles.title}>Home</h1>
       <p>
-        Welcome to @web-widget/web-server. Try to update this message in the
+        Welcome to @web-widget/web-router. Try to update this message in the
         ./routes/index.tsx file, and refresh.
       </p>
       <h2>Examples:</h2>
