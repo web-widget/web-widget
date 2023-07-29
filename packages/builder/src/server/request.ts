@@ -1,4 +1,4 @@
-import { createWebRequest } from "@web-widget/express";
+import { createWebRequest, sendWebResponse } from "@web-widget/express";
 import { getAssets } from "../core/render";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -70,6 +70,12 @@ export async function handleRequest(
 
   const webRequest = createWebRequest(nodeRequest, res);
   const webResponse = await router.handler(webRequest);
+
+  if (!webResponse.headers.get("content-type")?.startsWith("text/html;")) {
+    sendWebResponse(res, webResponse);
+    return;
+  }
+
   const html = await webResponse.text();
   const viteHtml = await viteServer.transformIndexHtml(
     url,

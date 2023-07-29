@@ -130,10 +130,6 @@ export class ServerContext {
       const module = await resolveRouteModule(file);
       const { config = {}, handler = {}, meta = {}, render } = module;
 
-      if (typeof render !== "function") {
-        throw new TypeError(`manifest.routes[].render: Must be a function.`);
-      }
-
       if (typeof handler === "object" && handler.GET === undefined) {
         handler.GET = (({ render }) => render({ meta })) as RouteHandler;
       }
@@ -185,10 +181,6 @@ export class ServerContext {
         throw new TypeError(
           `manifest.fallbacks[].handler: Must be a function.`
         );
-      }
-
-      if (typeof render !== "function") {
-        throw new TypeError(`manifest.fallbacks[].render: Must be a function.`);
       }
 
       if ((component || fallback) && handler === undefined) {

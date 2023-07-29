@@ -60,19 +60,26 @@ export function createWebRequest(
 
 export async function sendWebResponse(
   res: koa.Response,
-  nodeResponse: NodeResponse
+  webResponse: Response | NodeResponse
 ): Promise<void> {
-  res.message = nodeResponse.statusText;
-  res.status = nodeResponse.status;
+  res.message = webResponse.statusText;
+  res.status = webResponse.status;
 
-  for (const [key, values] of Object.entries(nodeResponse.headers.raw())) {
-    for (const value of values) {
-      res.append(key, value);
+  if (Reflect.has(webResponse.headers, "raw")) {
+    const nodeResponse = webResponse as NodeResponse;
+    for (const [key, values] of Object.entries(nodeResponse.headers.raw())) {
+      for (const value of values) {
+        res.append(key, value);
+      }
     }
+  } else {
+    webResponse.headers.forEach((value, key) => {
+      res.append(key, value);
+    });
   }
 
-  if (nodeResponse.body) {
-    await writeReadableStreamToWritable(nodeResponse.body, res.res);
+  if (webResponse.body) {
+    await writeReadableStreamToWritable(webResponse.body, res.res);
   } else {
     res.res.end();
   }

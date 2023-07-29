@@ -78,17 +78,26 @@ export function createWebRequest(
 
 export async function sendWebResponse(
   res: express.Response | ServerResponse,
-  nodeResponse: NodeResponse
+  webResponse: Response | NodeResponse
 ): Promise<void> {
-  res.statusMessage = nodeResponse.statusText;
-  res.statusCode = nodeResponse.status;
+  res.statusMessage = webResponse.statusText;
+  res.statusCode = webResponse.status;
 
-  nodeResponse.headers.forEach((value, key) => {
-    res.setHeader(key, value);
-  });
+  if (Reflect.has(webResponse.headers, "raw")) {
+    const nodeResponse = webResponse as NodeResponse;
+    for (const [key, values] of Object.entries(nodeResponse.headers.raw())) {
+      for (const value of values) {
+        res.setHeader(key, value);
+      }
+    }
+  } else {
+    webResponse.headers.forEach((value, key) => {
+      res.setHeader(key, value);
+    });
+  }
 
-  if (nodeResponse.body) {
-    await writeReadableStreamToWritable(nodeResponse.body, res);
+  if (webResponse.body) {
+    await writeReadableStreamToWritable(webResponse.body, res);
   } else {
     res.end();
   }

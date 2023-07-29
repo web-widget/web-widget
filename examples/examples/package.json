@@ -1,43 +1,45 @@
 {
   "name": "@examples/examples",
-  "private": true,
-  "type": "module",
   "version": "1.0.0",
+  "private": true,
   "description": "",
+  "keywords": [],
+  "license": "MIT",
+  "author": "",
+  "type": "module",
   "scripts": {
-    "dev": "builder dev",
     "build": "builder build",
+    "dev": "builder dev",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18"
-  },
   "dependencies": {
-    "vue": "^3.3.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "koa": "^2.14.2",
-    "koa-connect": "^2.1.0",
-    "koa-send": "^5.0.1",
-    "@web-widget/web-router": "workspace:*",
+    "@web-widget/html": "workspace:*",
     "@web-widget/koa": "workspace:*",
     "@web-widget/react": "workspace:*",
     "@web-widget/vue": "workspace:*",
-    "@web-widget/web-widget": "workspace:*"
+    "@web-widget/web-router": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
+    "@web-widget/schema": "workspace:*",
+    "koa": "^2.14.2",
+    "koa-connect": "^2.1.0",
+    "koa-send": "^5.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vue": "^3.3.4"
   },
   "devDependencies": {
-    "vite": "^4.3.9",
-    "@vitejs/plugin-react": "^4.0.0",
-    "@vitejs/plugin-vue": "^4.2.3",
-    "typescript": "^5.0.4",
     "@types/koa": "^2.13.6",
     "@types/react": "^18.2.9",
     "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "@web-widget/builder": "workspace:*",
     "tsup": "^6.7.0",
-    "@web-widget/builder": "workspace:*"
+    "typescript": "^5.0.4",
+    "vite": "^4.3.9"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

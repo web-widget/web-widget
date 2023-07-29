@@ -4,6 +4,10 @@
   "type": "module",
   "exports": {
     ".": {
+      "worker": {
+        "types": "./dist/html.server.d.ts",
+        "default": "./dist/html.server.js"
+      },
       "browser": {
         "types": "./dist/html.client.d.ts",
         "default": "./dist/html.client.js"

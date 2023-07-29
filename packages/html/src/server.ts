@@ -1,12 +1,14 @@
-import { unsafeHTML, fallback, html, HTML, Fallback } from "@worker-tools/html";
+import { unsafeHTML, fallback, html } from "@worker-tools/html";
+import type { HTML, Fallback } from "@worker-tools/html";
 import {
   asyncIterToStream,
   streamToAsyncIter,
 } from "whatwg-stream-to-async-iter";
-import { defineRender } from "@web-widget/schema/server";
+import { defineRender, isRouteRenderContext } from "@web-widget/schema/server";
 
 export * from "@web-widget/schema/server";
-export { unsafeHTML, fallback, html, HTML, Fallback };
+export { unsafeHTML, fallback, html };
+export type { HTML, Fallback };
 
 export const streamToHTML = (stream: ReadableStream<string>) =>
   async function* () {
@@ -33,26 +35,42 @@ const maybeAsyncIterToStream = <T>(x: ForAwaitable<T> | ReadableStream<T>) =>
 const maybeStreamToAsyncIter = <T>(x: ForAwaitable<T> | ReadableStream<T>) =>
   x instanceof ReadableStream ? streamToAsyncIter(x) : x;
 
+let supportNonBinaryTransformStreamsCache: boolean;
 const supportNonBinaryTransformStreams = async () => {
+  if (supportNonBinaryTransformStreamsCache) {
+    return true;
+  }
   try {
     maybeAsyncIterToStream(html`<test />`);
+    supportNonBinaryTransformStreamsCache = true;
     return true;
   } catch (e) {
     return false;
   }
 };
 
-const stringStreamToByteStream: (body: HTML) => ReadableStream<Uint8Array> =
-  (await supportNonBinaryTransformStreams())
-    ? (body) => {
-        const encoder = new TextEncoder();
-        return asyncIterToStream(
-          aMap(maybeStreamToAsyncIter(body), (x: string) => encoder.encode(x))
-        );
-      }
-    : (body) =>
-        maybeAsyncIterToStream(body).pipeThrough(new TextEncoderStream());
+export const render = defineRender(async (context, component, props) => {
+  let content: HTML;
+  if (
+    typeof component === "function" &&
+    component.constructor.name === "AsyncFunction"
+  ) {
+    if (isRouteRenderContext(context)) {
+      // experimental
+      content = await component(props);
+    } else {
+      throw new Error("Async widget components are not supported.");
+    }
+  } else {
+    content = component(props);
+  }
 
-export const render = defineRender(async (context, component, props) =>
-  stringStreamToByteStream(component(props))
-);
+  // stringStreamToByteStream
+  return (await supportNonBinaryTransformStreams())
+    ? asyncIterToStream(
+        aMap(maybeStreamToAsyncIter(content), (x: string) =>
+          new TextEncoder().encode(x)
+        )
+      )
+    : maybeAsyncIterToStream(content).pipeThrough(new TextEncoderStream());
+});
