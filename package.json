@@ -7,6 +7,7 @@
     "build": "turbo run build --filter=./packages/*",
     "dev": "turbo run dev --filter=./packages/*",
     "prettier": "prettier --write packages/**/*.js",
+    "prettier-package-json": "prettier-package-json --write packages/**/package.json",
     "docs": "rocket build && npm run github-pages-init",
     "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll"
   },
@@ -38,7 +39,8 @@
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.4.1",
-    "turbo": "^1.10.7"
+    "turbo": "^1.10.7",
+    "prettier-package-json": "^2.8.0"
   },
   "packageManager": "pnpm@7.9.5",
   "pnpm": {

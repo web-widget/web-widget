@@ -2,10 +2,6 @@
   "name": "@web-widget/html",
   "version": "0.0.1",
   "type": "module",
-  "scripts": {
-    "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup"
-  },
   "exports": {
     ".": {
       "browser": {
@@ -21,8 +17,9 @@
   "files": [
     "dist"
   ],
-  "publishConfig": {
-    "access": "public"
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch"
   },
   "dependencies": {
     "@web-widget/schema": "workspace:*",
@@ -30,7 +27,10 @@
     "whatwg-stream-to-async-iter": "^0.6.2"
   },
   "devDependencies": {
-    "typescript": "^5.0.4",
-    "tsup": "^7.0.0"
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

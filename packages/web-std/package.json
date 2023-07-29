@@ -1,43 +1,43 @@
 {
   "name": "@web-widget/web-std",
-  "type": "module",
-  "description": "Web standard APIs implemented for nodejs",
   "version": "0.0.1",
+  "description": "Web standard APIs implemented for nodejs",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/web-std.d.ts",
       "default": "./dist/web-std.js"
     }
   },
-  "sideEffects": [
-    "./dist/web-std.js"
-  ],
-  "scripts": {
-    "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup"
-  },
-  "dependencies": {
-    "@types/node": "^20.2.5",
-    "@netlify/urlpattern-polyfill": "^6.0.6",
-    "@remix-run/web-fetch": "^4.3.4",
-    "@remix-run/web-file": "^3.0.2",
-    "@remix-run/web-stream": "^1.0.3",
-    "abort-controller": "^3.0.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.0.4",
-    "tsup": "^7.0.0"
-  },
-  "engines": {
-    "node": ">=14"
-  },
   "files": [
     "dist/",
     "globals.d.ts",
     "install.d.ts",
-    "install.js",
-    "CHANGELOG.md",
-    "LICENSE.md",
-    "README.md"
-  ]
+    "install.js"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch"
+  },
+  "sideEffects": [
+    "./dist/web-std.js"
+  ],
+  "dependencies": {
+    "@netlify/urlpattern-polyfill": "^6.0.6",
+    "@remix-run/web-fetch": "^4.3.4",
+    "@remix-run/web-file": "^3.0.2",
+    "@remix-run/web-stream": "^1.0.3",
+    "@types/node": "^20.2.5",
+    "abort-controller": "^3.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

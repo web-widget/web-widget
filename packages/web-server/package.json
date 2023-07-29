@@ -2,30 +2,23 @@
   "name": "@web-widget/web-server",
   "version": "0.0.1",
   "type": "module",
-  "scripts": {
-    "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup && pnpm run html-minifier",
-    "html-minifier": "babel dist/* --out-dir dist"
-  },
-  "imports": {
-    "#schema": "@web-widget/schema/server"
-  },
   "exports": {
     ".": {
       "types": "./dist/server.d.ts",
       "default": "./dist/server.js"
     }
   },
-  "types": "./dist/server.d.ts",
-  "publishConfig": {
-    "access": "public"
-  },
   "files": [
     "dist"
   ],
+  "scripts": {
+    "build": "pnpm exec tsup && pnpm run html-minifier",
+    "dev": "pnpm exec tsup --watch",
+    "html-minifier": "babel dist/* --out-dir dist"
+  },
   "dependencies": {
-    "@web-widget/schema": "workspace:*",
-    "@web-widget/html": "workspace:*"
+    "@web-widget/html": "workspace:*",
+    "@web-widget/schema": "workspace:*"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.9",
@@ -35,5 +28,11 @@
     "tsup": "^7.0.0",
     "typescript": "^5.0.4",
     "urlpattern-polyfill": "^9.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "imports": {
+    "#schema": "@web-widget/schema/server"
   }
 }

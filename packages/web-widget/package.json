@@ -1,49 +1,49 @@
 {
   "name": "@web-widget/web-widget",
-  "description": "Web front-end application container",
-  "type": "module",
   "version": "1.0.0-alpha.3",
+  "description": "Web front-end application container",
+  "author": "aui",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/web-widget"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/web-widget.d.ts",
       "default": "./dist/web-widget.js"
     }
   },
-  "sideEffects": [
-    "./dist/web-widget.js"
-  ],
-  "scripts": {
-    "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/web-widget/web-widget.git",
-    "directory": "packages/web-widget"
-  },
   "files": [
     "dist"
   ],
-  "keywords": [
-    "island",
-    "widget",
-    "shadow dom",
-    "web components"
-  ],
-  "author": "aui",
-  "bugs": {
-    "url": "https://github.com/web-widget/web-widget/issues"
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch"
   },
-  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "sideEffects": [
+    "./dist/web-widget.js"
+  ],
   "dependencies": {
     "@web-widget/schema": "workspace:*"
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "typescript": "^5.0.4",
-    "tsup": "^7.0.0"
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.4"
+  },
+  "keywords": [
+    "island",
+    "shadow dom",
+    "web components",
+    "widget"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

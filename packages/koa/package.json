@@ -1,19 +1,25 @@
 {
   "name": "@web-widget/koa",
-  "type": "module",
   "version": "0.0.1",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/koa.d.ts",
       "default": "./dist/koa.js"
     }
   },
+  "files": [
+    "dist/"
+  ],
   "scripts": {
-    "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup"
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch"
   },
   "dependencies": {
     "@web-widget/web-std": "workspace:*"
+  },
+  "peerDependencies": {
+    "koa": "^2.14.2"
   },
   "devDependencies": {
     "@types/koa": "^2.13.6",
@@ -21,19 +27,13 @@
     "koa": "^2.14.2",
     "node-mocks-http": "^1.10.1",
     "supertest": "^6.1.5",
-    "typescript": "^5.0.4",
-    "tsup": "^7.0.0"
-  },
-  "peerDependencies": {
-    "koa": "^2.14.2"
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.4"
   },
   "engines": {
     "node": ">=14"
   },
-  "files": [
-    "dist/",
-    "CHANGELOG.md",
-    "LICENSE.md",
-    "README.md"
-  ]
+  "publishConfig": {
+    "access": "public"
+  }
 }

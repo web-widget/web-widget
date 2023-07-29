@@ -2,10 +2,6 @@
   "name": "@web-widget/vue2",
   "version": "0.0.1",
   "type": "module",
-  "scripts": {
-    "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup"
-  },
   "exports": {
     ".": {
       "worker": {
@@ -22,22 +18,25 @@
       }
     }
   },
-  "types": "./dist/vue2.server.d.ts",
   "files": [
     "dist"
   ],
-  "publishConfig": {
-    "access": "public"
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch"
+  },
+  "dependencies": {
+    "@web-widget/schema": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^2.7.14",
     "vue-server-renderer": "^2.7.14"
   },
-  "dependencies": {
-    "@web-widget/schema": "workspace:*"
-  },
   "devDependencies": {
-    "typescript": "^5.0.4",
-    "tsup": "^7.0.0"
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

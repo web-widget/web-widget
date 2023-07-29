@@ -2,10 +2,6 @@
   "name": "@web-widget/schema",
   "version": "0.0.1",
   "type": "module",
-  "scripts": {
-    "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup"
-  },
   "exports": {
     ".": {
       "types": "./dist/types.d.ts",
@@ -26,7 +22,7 @@
       }
     },
     "./server": {
-      "types": "./dist/helpers.erver.d.ts",
+      "types": "./dist/helpers.server.d.ts",
       "default": "./dist/helpers.server.js"
     },
     "./client": {
@@ -34,9 +30,13 @@
       "default": "./dist/helpers.client.js"
     }
   },
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch"
+  },
   "devDependencies": {
-    "typescript": "^5.0.4",
-    "tsup": "^7.0.0"
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.4"
   },
   "publishConfig": {
     "access": "public"

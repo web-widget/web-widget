@@ -1,19 +1,25 @@
 {
   "name": "@web-widget/express",
-  "type": "module",
   "version": "0.0.1",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/express.d.ts",
       "default": "./dist/express.js"
     }
   },
+  "files": [
+    "dist/"
+  ],
   "scripts": {
-    "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup"
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch"
   },
   "dependencies": {
     "@web-widget/web-std": "workspace:*"
+  },
+  "peerDependencies": {
+    "express": "^4.17.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.9",
@@ -21,19 +27,13 @@
     "express": "^4.17.1",
     "node-mocks-http": "^1.10.1",
     "supertest": "^6.1.5",
-    "typescript": "^5.0.4",
-    "tsup": "^7.0.0"
-  },
-  "peerDependencies": {
-    "express": "^4.17.1"
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.4"
   },
   "engines": {
     "node": ">=14"
   },
-  "files": [
-    "dist/",
-    "CHANGELOG.md",
-    "LICENSE.md",
-    "README.md"
-  ]
+  "publishConfig": {
+    "access": "public"
+  }
 }

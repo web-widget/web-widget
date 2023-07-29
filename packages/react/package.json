@@ -2,10 +2,6 @@
   "name": "@web-widget/react",
   "version": "0.0.1",
   "type": "module",
-  "scripts": {
-    "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup"
-  },
   "exports": {
     ".": {
       "worker": {
@@ -31,36 +27,39 @@
     },
     "./globals": "./globals.d.ts"
   },
-  "types": "./dist/react.server.d.ts",
   "files": [
     "dist",
     "globals.d.ts"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@vitejs/plugin-react": "^4.0.2"
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch"
   },
   "dependencies": {
-    "@web-widget/schema": "workspace:*",
-    "@babel/helper-plugin-utils": "^7.22.5",
-    "@babel/helper-module-imports": "^7.22.5",
     "@babel/core": "^7.22.5",
-    "@babel/traverse": "^7.22.5"
+    "@babel/helper-module-imports": "^7.22.5",
+    "@babel/helper-plugin-utils": "^7.22.5",
+    "@babel/traverse": "^7.22.5",
+    "@web-widget/schema": "workspace:*"
+  },
+  "peerDependencies": {
+    "@vitejs/plugin-react": "^4.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^20.3.1",
-    "@types/babel__helper-plugin-utils": "^7.10.0",
-    "@types/babel__helper-module-imports": "^7.18.0",
     "@types/babel__core": "^7.20.1",
+    "@types/babel__helper-module-imports": "^7.18.0",
+    "@types/babel__helper-plugin-utils": "^7.10.0",
     "@types/babel__traverse": "^7.20.1",
+    "@types/node": "^20.3.1",
     "@types/react": "^18.2.9",
     "@types/react-dom": "^18.0.6",
+    "tsup": "^7.0.0",
     "typescript": "^5.0.4",
-    "vite": "^4.3.9",
-    "tsup": "^7.0.0"
+    "vite": "^4.3.9"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
