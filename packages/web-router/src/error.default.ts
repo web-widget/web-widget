@@ -46,7 +46,7 @@ export default function DefaultErrorPage(error: RouteFallbackComponentProps) {
         borderTop: "red 4px solid",
         background: "#f9fafb",
         margin: "16px",
-        minWidth: "300px",
+        minWidth: "550px",
       })}">
       <p
         style="${style({

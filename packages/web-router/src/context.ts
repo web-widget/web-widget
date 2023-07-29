@@ -11,11 +11,12 @@ import type {
   RouteHandler,
   RouteModule,
   RouteRender,
+  RouteRenderResult,
 } from "@web-widget/schema/server";
 import * as router from "./router";
 import {
-  default as DefaultErrorComponent,
-  render as DefaultRender,
+  default as defaultErrorComponent,
+  render as defaultRender,
 } from "./error.default";
 import type {
   Manifest,
@@ -32,7 +33,11 @@ import type {
 } from "./types";
 
 import { internalRender } from "./render";
-import { ContentSecurityPolicyDirectives, SELF } from "./csp";
+import {
+  type ContentSecurityPolicy,
+  type ContentSecurityPolicyDirectives,
+  SELF,
+} from "./csp";
 
 interface RouterState {
   request: Request;
@@ -366,7 +371,7 @@ export class ServerContext {
         ) => {
           const { data, error = routeError, meta = route.meta } = renderProps;
           const errorProxy = error
-            ? this.#dev || Reflect.get(error, "expose")
+            ? this.#dev
               ? error
               : new Proxy(error, {
                   get(target, key) {
@@ -377,7 +382,7 @@ export class ServerContext {
                   },
                 })
             : undefined;
-          const [html, csp] = await internalRender(
+          const [body, csp] = await internalRender(
             {
               bootstrap: DEFAULT_BOOTSTRAP,
               data,
@@ -391,33 +396,14 @@ export class ServerContext {
             this.#renderPage
           );
 
-          const headers: Record<string, string> = {
-            "content-type": "text/html; charset=utf-8",
-          };
-
-          if (csp) {
-            if (this.#dev) {
-              csp.directives.connectSrc = [
-                ...(csp.directives.connectSrc ?? []),
-                SELF,
-              ];
-            }
-            const directive = serializeCSPDirectives(csp.directives);
-            if (csp.reportOnly) {
-              headers["content-security-policy-report-only"] = directive;
-            } else {
-              headers["content-security-policy"] = directive;
-            }
-          }
-
-          return new Response(html, {
+          return sendResponse(body, {
             status:
               options?.status ??
               (error
                 ? Reflect.has(error, "status")
                   ? (error as HttpError).status
-                  : status
-                : 500),
+                  : 500
+                : status),
             statusText:
               options?.statusText ??
               (error
@@ -425,9 +411,9 @@ export class ServerContext {
                   ? (error as HttpError).statusText
                   : HttpStatus[500]
                 : undefined),
-            headers: options?.headers
-              ? { ...headers, ...options.headers }
-              : headers,
+            headers: options?.headers,
+            csp: csp,
+            isDev: this.#dev
           });
         };
       };
@@ -545,7 +531,7 @@ const DEFAULT_NOT_FOUND: Page = {
   module: {},
   name: "NotFound",
   pathname: "",
-  render: DefaultRender as RouteRender,
+  render: defaultRender as RouteRender,
   source: "",
 };
 
@@ -555,10 +541,10 @@ const DEFAULT_ERROR: Page = {
   csp: false,
   handler: (ctx) => ctx.render({ meta: DEFAULT_META }),
   meta: DEFAULT_META,
-  module: { default: DefaultErrorComponent, fallback: DefaultErrorComponent },
+  module: { default: defaultErrorComponent, fallback: defaultErrorComponent },
   name: "InternalServerError",
   pathname: "",
-  render: DefaultRender as RouteRender,
+  render: defaultRender as RouteRender,
   source: "",
 };
 
@@ -626,4 +612,37 @@ function fileUrlJoin(base: string, file: string) {
   const protocol = "file://";
   const href = new URL(file, URL_REG.test(base) ? base : protocol + base).href;
   return URL_REG.test(base) ? href : href.replace(protocol, "");
+}
+
+function sendResponse(
+  body: RouteRenderResult,
+  options: {
+    status: number;
+    statusText: string | undefined;
+    headers?: HeadersInit;
+    isDev: boolean;
+    csp?: ContentSecurityPolicy
+  }
+) {
+  const headers: Record<string, string> = {
+    "content-type": "text/html; charset=utf-8",
+  };
+
+  const { csp } = options;
+  if (csp) {
+    if (options.isDev) {
+      csp.directives.connectSrc = [...(csp.directives.connectSrc ?? []), SELF];
+    }
+    const directive = serializeCSPDirectives(csp.directives);
+    if (csp.reportOnly) {
+      headers["content-security-policy-report-only"] = directive;
+    } else {
+      headers["content-security-policy"] = directive;
+    }
+  }
+  return new Response(body, {
+    status: options.status,
+    statusText: options.statusText,
+    headers: options.headers ? { ...headers, ...options.headers } : headers,
+  });
 }
