@@ -7,7 +7,7 @@ const count = ref(props.start);
 </script>
 
 <template>
-  <div>
+  <div class="box">
     <h3>{{ name }}</h3>
       <p>{{ count }}</p>
       <button @click="count--">
@@ -18,3 +18,10 @@ const count = ref(props.start);
       </button>
   </div>
 </template>
+
+<style scoped>
+  .box {
+    display: inline-block;
+    border:1px solid cadetblue;
+  }
+</style>
