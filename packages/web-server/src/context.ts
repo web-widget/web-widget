@@ -362,7 +362,7 @@ export class ServerContext {
           const { data, error = routeError, meta = route.meta } = renderProps;
           const isHttpError = error && isLikeHttpError(error);
           const errorProxy = error
-            ? this.#dev
+            ? this.#dev || Reflect.get(error, "expose")
               ? error
               : new Proxy(error, {
                   get(target, key) {

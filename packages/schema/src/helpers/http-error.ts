@@ -7,6 +7,7 @@ export abstract class HttpError extends Error {
   name: string;
   message: string;
   status: number;
+  statusText: string;
   expose: boolean = false;
   [key: string]: any;
   constructor(code: number, message?: string, options?: ErrorOptions) {
@@ -27,9 +28,10 @@ export abstract class HttpError extends Error {
     if (!className.endsWith("Error")) {
       className += "Error";
     }
-    const msg = message != null ? message : STATUS_TEXT[code as Status]!;
+    const msg = message != null ? message : STATUS_TEXT[code as Status];
     this.message = msg;
     this.status = code;
+    this.statusText = STATUS_TEXT[code as Status];
     this.name = className;
 
     // support Node.js
@@ -48,6 +50,7 @@ export abstract class HttpError extends Error {
     return {
       name: this.name,
       status: this.status,
+      statusText: this.statusText,
       message: this.message,
     };
   }
