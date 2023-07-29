@@ -1,5 +1,5 @@
 {
-  "name": "@examples/web-server",
+  "name": "@examples/examples",
   "private": true,
   "type": "module",
   "version": "1.0.0",
@@ -23,7 +23,7 @@
     "koa": "^2.14.2",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",
-    "@web-widget/web-server": "workspace:*",
+    "@web-widget/web-router": "workspace:*",
     "@web-widget/koa": "workspace:*",
     "@web-widget/react": "workspace:*",
     "@web-widget/vue": "workspace:*",

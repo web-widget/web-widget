@@ -15,7 +15,7 @@ import type {
   LinkDescriptor,
   ScriptDescriptor,
 } from "@web-widget/schema";
-import type { Manifest } from "@web-widget/web-server";
+import type { Manifest } from "@web-widget/web-router";
 import { parse, init } from "es-module-lexer";
 import { resolve } from "import-meta-resolve";
 import { openConfig } from "../config";

@@ -14,11 +14,11 @@ export * from "@web-widget/schema/server";
 
 // --- APPLICATION CONFIGURATION ---
 
-export type StartOptions = WebServerOptions & {
+export type StartOptions = WebRouterOptions & {
   dev?: boolean;
 };
 
-export interface WebServerOptions {
+export interface WebRouterOptions {
   render?: RenderPage;
   router?: RouterOptions;
   loader?: (module: string) => Promise<any>;

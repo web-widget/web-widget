@@ -2,7 +2,7 @@ import { ServerContext } from "./context";
 import type { StartOptions, ServerHandler, ServerConnInfo } from "./types";
 export type * from "./types";
 
-export default class WebServer {
+export default class WebRouter {
   #handler: ServerHandler;
 
   constructor(manifestUrl: string | URL, opts: StartOptions = {}) {
@@ -27,7 +27,7 @@ export default class WebServer {
 
   /**
    * Implements the (ancient) event listener object interface to allow passing to fetch event directly,
-   * e.g. `self.addEventListener('fetch', new WebServer(manifest, options))`.
+   * e.g. `self.addEventListener('fetch', new WebRouter(manifest, options))`.
    */
   handleEvent(event: FetchEvent) {
     event.respondWith(this.handler(event.request, {}));
