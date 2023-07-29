@@ -1,5 +1,7 @@
-import type { Meta, RouteFallbackComponentProps } from "#schema";
-import { isLikeHttpError } from "#schema";
+import type {
+  Meta,
+  RouteFallbackComponentProps,
+} from "@web-widget/schema/server";
 import { html, render } from "@web-widget/html";
 
 export { render };
@@ -17,11 +19,21 @@ function style(style: Record<string, string | number>) {
     .join(";");
 }
 
-export default function DefaultErrorPage(error: RouteFallbackComponentProps) {
-  const message = isLikeHttpError(error)
-    ? error.message
-    : (error as Error).stack || error.message;
+const Code = (code: string = "") =>
+  code
+    ? // prettier-ignore
+      html`<pre
+          style="${style({
+            margin: "0",
+            fontSize: "12pt",
+            overflowY: "auto",
+            padding: "16px",
+            paddingTop: "0",
+            fontFamily: "monospace",
+          })}">${code}</pre>`
+    : "";
 
+export default function DefaultErrorPage(error: RouteFallbackComponentProps) {
   return html`<div
     style="${style({
       display: "flex",
@@ -35,7 +47,6 @@ export default function DefaultErrorPage(error: RouteFallbackComponentProps) {
         background: "#f9fafb",
         margin: "16px",
         minWidth: "300px",
-        width: "50%",
       })}">
       <p
         style="${style({
@@ -46,18 +57,7 @@ export default function DefaultErrorPage(error: RouteFallbackComponentProps) {
         })}">
         An error occurred during route handling or page rendering.
       </p>
-      ${message
-        ? // prettier-ignore
-          html`<pre
-            style="${style({
-              margin: '0',
-              fontSize: "12pt",
-              overflowY: "auto",
-              padding: '16px',
-              paddingTop: '0',
-              fontFamily: "monospace",
-            })}">${message}</pre>`
-        : ``}
+      ${Code(error.stack || error.message)}
     </div>
   </div>`;
 }

@@ -1,6 +1,6 @@
 import { render, html, HTML, streamToHTML, unsafeHTML } from "@web-widget/html";
 import type { LayoutComponentProps } from "./types";
-import { renderMetaToString } from "#schema";
+import { renderMetaToString } from "@web-widget/schema/server";
 
 export { render };
 

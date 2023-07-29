@@ -12,8 +12,6 @@ import type {
   WidgetRenderContext,
 } from "../types";
 
-import { isLikeHttpError } from "./http-error";
-
 export function getComponent(
   context: WidgetRenderContext | RouteRenderContext
 ):
@@ -53,21 +51,13 @@ export function getComponentProps(
     const { data, params, route, url } = context as RouteRenderContext;
 
     if (error) {
-      const isHttpError = isLikeHttpError(error);
-      if (isHttpError) {
-        props = {
-          name: error.name,
-          message: error.message,
-          status: (error as HttpError).status,
-          statusText: (error as HttpError).statusText,
-        } as RouteFallbackComponentProps;
-      } else {
-        props = {
-          name: (error as Error).name,
-          message: (error as Error).message,
-          stack: (error as Error).stack,
-        } as RouteFallbackComponentProps;
-      }
+      props = {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        status: (error as HttpError).status,
+        statusText: (error as HttpError).statusText,
+      } as RouteFallbackComponentProps;
     } else {
       props = {
         data,
@@ -81,7 +71,7 @@ export function getComponentProps(
       props = {
         name: error.name,
         message: error.message,
-        stack: (error as Error).stack,
+        stack: error.stack,
       } as WidgetFallbackComponentProps;
     } else {
       props = context.data as WidgetComponentProps;

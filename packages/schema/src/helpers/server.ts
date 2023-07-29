@@ -52,7 +52,7 @@ export {
   getComponentProps,
   isRouteRenderContext,
 } from "./context";
-export { createHttpError, isLikeHttpError } from "./http-error";
+export { createHttpError } from "./http-error";
 export {
   Status as HttpStatus,
   STATUS_TEXT as HTTP_STATUS_TEXT,

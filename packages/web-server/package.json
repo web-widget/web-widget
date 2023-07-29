@@ -31,8 +31,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "imports": {
-    "#schema": "@web-widget/schema/server"
   }
 }

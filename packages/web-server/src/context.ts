@@ -1,10 +1,9 @@
 import {
   createHttpError,
   HttpStatus,
-  isLikeHttpError,
   mergeMeta,
   rebaseMeta,
-} from "#schema";
+} from "@web-widget/schema/server";
 import type {
   HttpError,
   Meta,
@@ -12,7 +11,7 @@ import type {
   RouteHandler,
   RouteModule,
   RouteRender,
-} from "#schema";
+} from "@web-widget/schema/server";
 import * as router from "./router";
 import {
   default as DefaultErrorComponent,
@@ -78,7 +77,7 @@ export class ServerContext {
     }
 
     if (typeof manifestUrl !== "string") {
-      throw TypeError(`The manifestUrl parameter must be a string.`);
+      throw TypeError(`Manifest is not a valid URL.`);
     }
 
     const root = fileUrlDirname(manifestUrl);
@@ -125,6 +124,10 @@ export class ServerContext {
     for (const { pathname, name, module: file } of manifest.routes ?? []) {
       const module = await resolveRouteModule(file);
       const { config = {}, handler = {}, meta = {}, render } = module;
+
+      if (typeof render !== "function") {
+        throw new TypeError(`manifest.routes[].render: Must be a function.`);
+      }
 
       if (typeof handler === "object" && handler.GET === undefined) {
         handler.GET = (({ render }) => render({ meta })) as RouteHandler;
@@ -174,11 +177,13 @@ export class ServerContext {
       let { handler } = module;
 
       if (handler !== null && typeof handler === "object") {
-        throw new Error(`manifest.fallbacks[].handler: Must be a function.`);
+        throw new TypeError(
+          `manifest.fallbacks[].handler: Must be a function.`
+        );
       }
 
       if (typeof render !== "function") {
-        throw new Error(`manifest.fallbacks[].render: Must be a function.`);
+        throw new TypeError(`manifest.fallbacks[].render: Must be a function.`);
       }
 
       if ((component || fallback) && handler === undefined) {
@@ -360,7 +365,6 @@ export class ServerContext {
           options?: ResponseInit
         ) => {
           const { data, error = routeError, meta = route.meta } = renderProps;
-          const isHttpError = error && isLikeHttpError(error);
           const errorProxy = error
             ? this.#dev || Reflect.get(error, "expose")
               ? error
@@ -409,10 +413,18 @@ export class ServerContext {
           return new Response(html, {
             status:
               options?.status ??
-              (isHttpError ? (error as HttpError).status : status),
+              (error
+                ? Reflect.has(error, "status")
+                  ? (error as HttpError).status
+                  : status
+                : 500),
             statusText:
               options?.statusText ??
-              (isHttpError ? (error as HttpError).statusText : undefined),
+              (error
+                ? Reflect.has(error, "statusText")
+                  ? (error as HttpError).statusText
+                  : HttpStatus[500]
+                : undefined),
             headers: options?.headers
               ? { ...headers, ...options.headers }
               : headers,
