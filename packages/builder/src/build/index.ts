@@ -67,7 +67,7 @@ async function bundle(config: BuilderConfig) {
   const viteManifest = await parseViteManifest(
     fileURLToPath(config.output.client)
   );
-  const metaMap = await getMetaMap(
+  const metaMap = getMetaMap(
     viteManifest,
     clientResult,
     fileURLToPath(config.root)
@@ -347,7 +347,7 @@ function getMetaMap(
             } as ScriptDescriptor,
           ]
         : [],
-      link: (srcFileName ? getLinks(manifest, srcFileName) : []).map(
+      link: (srcFileName ? getLinks(manifest, srcFileName, false) : []).map(
         ({ href, ...arrts }) => {
           if (href) {
             return {
@@ -366,26 +366,43 @@ function getMetaMap(
 
 function getLinks(
   manifest: ViteManifest,
-  srcFileName: string
+  srcFileName: string,
+  containSelf: boolean
 ): LinkDescriptor[] {
-  if (manifest[srcFileName]) {
-    return [
-      ...(manifest[srcFileName].assets ?? []),
-      ...(manifest[srcFileName].css ?? []),
-      ...(manifest[srcFileName].dynamicImports ?? []).map(
-        (srcFileName) => manifest[srcFileName].file
-      ),
-      ...(manifest[srcFileName].imports ?? []).map(
-        (srcFileName) => manifest[srcFileName].file
-      ),
-    ]
-      .map((srcFileName) => {
-        const link = getLink(srcFileName);
-        return link || [];
-      })
-      .flat();
+  const links: LinkDescriptor[] = [];
+  const item = manifest[srcFileName];
+  const push = (srcFileName: string) => {
+    const ld = getLink(srcFileName);
+    if (ld) {
+      links.push(ld);
+    }
+  };
+
+  if (containSelf) {
+    push(item.file);
   }
-  return [];
+
+  if (Array.isArray(item.assets)) {
+    item.assets.forEach(push);
+  }
+
+  if (Array.isArray(item.css)) {
+    item.css.forEach(push);
+  }
+
+  if (Array.isArray(item.imports)) {
+    item.imports?.forEach((srcFileName) => {
+      links.push(...getLinks(manifest, srcFileName, true));
+    });
+  }
+
+  if (Array.isArray(item.dynamicImports)) {
+    item.dynamicImports?.forEach((srcFileName) => {
+      links.push(...getLinks(manifest, srcFileName, true));
+    });
+  }
+
+  return links;
 }
 
 function getLink(fileName: string): LinkDescriptor | null {
