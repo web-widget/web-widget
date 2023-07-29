@@ -26,19 +26,11 @@ export interface WidgetComponent<Data = unknown> {
   (data: WidgetComponentProps<Data>): any;
 }
 
-export type WidgetFallbackComponentProps =
-  | {
-      name: string;
-      message: string;
-      status: number;
-      stack?: string;
-      statusText: string;
-    }
-  | {
-      name: string;
-      message: string;
-      stack?: string;
-    };
+export type WidgetFallbackComponentProps = {
+  name: string;
+  message: string;
+  stack?: string;
+};
 
 export interface WidgetFallbackComponent {
   (props: WidgetFallbackComponentProps): any;
@@ -156,19 +148,13 @@ export interface RouteComponent<
   (props: RouteComponentProps<Data, Params>): any;
 }
 
-export type RouteFallbackComponentProps =
-  | {
-      name: string;
-      message: string;
-      stack?: string;
-      status: number;
-      statusText: string;
-    }
-  | {
-      name: string;
-      message: string;
-      stack?: string;
-    };
+export type RouteFallbackComponentProps = {
+  name: string;
+  message: string;
+  stack?: string;
+  status?: number;
+  statusText?: string;
+};
 
 export interface RouteFallbackComponent {
   (props: RouteFallbackComponentProps): any;
@@ -501,6 +487,7 @@ export type ClientRender<Data = unknown> =
 export type HttpError = {
   name: string;
   message: string;
+  stack?: string;
   status: number;
   statusText: string;
 };

@@ -54,6 +54,11 @@ export abstract class HttpError extends Error {
       message: this.message,
     };
   }
+
+  static isHttpError(error: any) {
+    const keys = ["name", "message", "status", "statusText"];
+    return error && !keys.some((key) => !Reflect.has(error, key));
+  }
 }
 
 class HttpErrorImpl extends HttpError {}
@@ -136,9 +141,4 @@ export function createHttpError(
   }
 
   return err;
-}
-
-export function isLikeHttpError(error: any) {
-  const keys = ["name", "message", "status", "statusText"];
-  return error && !keys.some((key) => !Reflect.has(error, key));
 }

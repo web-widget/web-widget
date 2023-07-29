@@ -9,8 +9,8 @@ import type {
   RouteRender,
   RouteRenderResult,
   ScriptDescriptor,
-} from "#schema";
-export * from "#schema";
+} from "@web-widget/schema/server";
+export * from "@web-widget/schema/server";
 
 // --- APPLICATION CONFIGURATION ---
 

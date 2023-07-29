@@ -6,7 +6,7 @@ import type {
   RouteRenderResult,
   ScriptDescriptor,
   WidgetRenderContext,
-} from "#schema";
+} from "@web-widget/schema/server";
 import { nonce, NONE, UNSAFE_INLINE, ContentSecurityPolicy } from "./csp";
 
 export interface InnerRenderOptions<Data> {
