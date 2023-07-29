@@ -53,8 +53,16 @@
       "module": "./routes/experimental-async-component.tsx"
     },
     {
+      "pathname": "/lit-html-template",
+      "module": "./routes/lit-html-template.ts"
+    },
+    {
       "pathname": "/style",
       "module": "./routes/style.tsx"
+    },
+    {
+      "pathname": "/api/hello-world",
+      "module": "./routes/api/hello-world.ts"
     }
   ],
   "fallbacks": [

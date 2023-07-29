@@ -1,33 +1,28 @@
 import type { Handlers, RouteComponentProps } from "@web-widget/react";
+import type { HelloData } from "./api/hello-world";
+
 export { render } from "@web-widget/react";
 
-import demoDataUrl from "../public/data.json?url";
+async function fetchData(url: URL) {
+  const data = await fetch(`${url.origin}/api/hello-world`);
+  return (await data.json()) as HelloData;
+}
 
-type FetchingPageData = {
-  list: {
-    title: string;
-    url: string;
-  }[];
-};
-
-export const handler: Handlers<FetchingPageData> = {
+export const handler: Handlers<HelloData> = {
   async GET(ctx) {
-    const data = await fetch(demoDataUrl);
+    const data = await fetchData(new URL(ctx.request.url));
     return ctx.render({
-      data: await data.json(),
+      data,
     });
   },
 };
 
-export default function Page(props: RouteComponentProps<FetchingPageData>) {
-  const {
-    data: { list },
-  } = props;
+export default function Page({ data }: RouteComponentProps<HelloData>) {
   return (
     <>
       <h1>Fetching data</h1>
       <ul>
-        {list.map((item, index) => {
+        {data.map((item, index) => {
           return (
             <li key={index}>
               <a href={item.url}>{item.title}</a>

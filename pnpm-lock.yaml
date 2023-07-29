@@ -59,12 +59,18 @@ importers:
 
   examples/examples:
     dependencies:
+      '@web-widget/html':
+        specifier: workspace:*
+        version: link:../../packages/html
       '@web-widget/koa':
         specifier: workspace:*
         version: link:../../packages/koa
       '@web-widget/react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
       '@web-widget/vue':
         specifier: workspace:*
         version: link:../../packages/vue
