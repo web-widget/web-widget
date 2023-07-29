@@ -128,7 +128,7 @@ async function bundleWithVite(
       rollupOptions: {
         input: entrypoints,
         preserveEntrySignatures: "allow-extension",
-        treeshake: false,
+        treeshake: true,
         output: {
           entryFileNames: `[name]-[hash].js`,
           assetFileNames: `${config.output.asset}/[name]-[hash][extname]`,
