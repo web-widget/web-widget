@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import type { RollupOutput } from "rollup";
 import { join, extname, relative, dirname, basename } from "node:path";
 import { build as viteBuild, mergeConfig as mergeViteConfig } from "vite";
+import mime from "mime-types";
 import type {
   Plugin as VitePlugin,
   UserConfig as ViteUserConfig,
@@ -417,49 +418,19 @@ function getLink(fileName: string): LinkDescriptor | null {
       href: fileName,
       rel: "stylesheet",
     };
-  } else if (fileName.endsWith(".woff")) {
+  }
+
+  const ext = extname(fileName);
+  const type = mime.lookup(ext);
+
+  if (type === "image" || type === "font") {
+    const as = type.split("/")[0];
     return {
-      as: "font",
-      crossorigin: "",
+      as,
+      ...(type === "font" ? { crossorigin: "" } : {}),
       href: fileName,
       rel: "preload",
-      type: "font/woff",
-    };
-  } else if (fileName.endsWith(".woff2")) {
-    return {
-      as: "font",
-      crossorigin: "",
-      href: fileName,
-      rel: "preload",
-      type: "font/woff2",
-    };
-  } else if (fileName.endsWith(".gif")) {
-    return {
-      as: "image",
-      href: fileName,
-      rel: "preload",
-      type: "image/gif",
-    };
-  } else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
-    return {
-      as: "image",
-      href: fileName,
-      rel: "preload",
-      type: "image/jpeg",
-    };
-  } else if (fileName.endsWith(".png")) {
-    return {
-      as: "image",
-      href: fileName,
-      rel: "preload",
-      type: "image/png",
-    };
-  } else if (fileName.endsWith(".svg")) {
-    return {
-      as: "image",
-      href: fileName,
-      rel: "preload",
-      type: "image/svg+xml",
+      type,
     };
   }
 
