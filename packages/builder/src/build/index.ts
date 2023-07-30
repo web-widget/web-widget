@@ -108,7 +108,7 @@ async function bundleWithVite(
       ? {
           target: "webworker",
           format: "esm",
-          external: ["@web-server/web-router"],
+          //external: ["@web-server/web-router"],
           noExternal: true,
         }
       : undefined,

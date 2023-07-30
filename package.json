@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "rocket start",
-    "build": "turbo run build --filter=./packages/*",
-    "dev": "turbo run dev --filter=./packages/*",
+    "build": "turbo run build --filter=./packages/* --filter=./examples/*",
+    "dev": "turbo run dev --filter=./packages/* --filter=./examples/*",
     "prettier": "prettier --write packages/**/*.js",
     "prettier-package-json": "prettier-package-json --write packages/**/package.json",
     "docs": "rocket build && npm run github-pages-init",
