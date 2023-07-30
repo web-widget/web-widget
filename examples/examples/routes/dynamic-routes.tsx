@@ -1,10 +1,11 @@
 import type { RouteComponentProps } from "@web-widget/react";
 export { render } from "@web-widget/react";
+import BaseLayout from "../components/BaseLayout";
 
 export default function Page(props: RouteComponentProps) {
   const { name } = props.params;
   return (
-    <>
+    <BaseLayout>
       <h1>Dynamic routes</h1>
       <p>Greetings to you, {JSON.stringify(name)}!</p>
       <ul>
@@ -24,6 +25,6 @@ export default function Page(props: RouteComponentProps) {
           <a href="/dynamic-routes/html">html</a>
         </li>
       </ul>
-    </>
+    </BaseLayout>
   );
 }

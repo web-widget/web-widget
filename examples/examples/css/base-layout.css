@@ -1,0 +1,23 @@
+.container {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.container::after {
+}
+
+.container aside {
+}
+
+.container main {
+  padding-left: 40px;
+  padding-right: 40px;
+  display: flex;
+  flex-direction: column;
+  order: 2;
+  flex: 1 1 0px;
+  -webkit-box-flex: 1;
+  min-width: 1px;
+  margin-right: auto;
+}

@@ -18,39 +18,43 @@ export default function RootLayout({
         ${typeof children === "string"
           ? children
           : streamToHTML(children as ReadableStream<string>)}
-        <script>
-          /* Polyfill: Declarative Shadow DOM */
-          (function attachShadowRoots(root) {
-            root
-              .querySelectorAll("template[shadowroot]")
-              .forEach((template) => {
-                const mode = template.getAttribute("shadowroot");
-                const host = template.parentNode;
-                const shadowRoot = template.parentNode.attachShadow({ mode });
-                const attachInternals = host.attachInternals;
-                const attachShadow = host.attachShadow;
-
-                Object.assign(host, {
-                  attachShadow() {
-                    shadowRoot.innerHTML = "";
-                    return shadowRoot;
-                  },
-                  attachInternals() {
-                    const ei = attachInternals
-                      ? attachInternals.call(this, arguments)
-                      : {};
-                    return Object.create(ei, {
-                      shadowRoot: { value: shadowRoot },
+        ${false
+          ? html`<script>
+              /* Polyfill: Declarative Shadow DOM */
+              (function attachShadowRoots(root) {
+                root
+                  .querySelectorAll("template[shadowroot]")
+                  .forEach((template) => {
+                    const mode = template.getAttribute("shadowroot");
+                    const host = template.parentNode;
+                    const shadowRoot = template.parentNode.attachShadow({
+                      mode,
                     });
-                  },
-                });
+                    const attachInternals = host.attachInternals;
+                    const attachShadow = host.attachShadow;
 
-                shadowRoot.appendChild(template.content);
-                template.remove();
-                attachShadowRoots(shadowRoot);
-              });
-          })(document);
-        </script>
+                    Object.assign(host, {
+                      attachShadow() {
+                        shadowRoot.innerHTML = "";
+                        return shadowRoot;
+                      },
+                      attachInternals() {
+                        const ei = attachInternals
+                          ? attachInternals.call(this, arguments)
+                          : {};
+                        return Object.create(ei, {
+                          shadowRoot: { value: shadowRoot },
+                        });
+                      },
+                    });
+
+                    shadowRoot.appendChild(template.content);
+                    template.remove();
+                    attachShadowRoots(shadowRoot);
+                  });
+              })(document);
+            </script>`
+          : ""}
         <script>
           /* Polyfill: ES Module */
           if (

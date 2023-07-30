@@ -3,6 +3,7 @@ import { renderMetaToString, mergeMeta } from "@web-widget/react";
 import ReactCounter from "../widgets/Counter.tsx";
 import "../css/style.css";
 import icon from "../public/favicon.svg";
+import BaseLayout from "../components/BaseLayout";
 
 export { render } from "@web-widget/react";
 
@@ -39,7 +40,7 @@ export default function Page(props: RouteComponentProps<MetaPageData>) {
     data: { allMetadata },
   } = props;
   return (
-    <>
+    <BaseLayout>
       <h1>Meta</h1>
       <h2>JSON:</h2>
       <pre>{JSON.stringify(allMetadata, null, 2)}</pre>
@@ -50,6 +51,6 @@ export default function Page(props: RouteComponentProps<MetaPageData>) {
       <div>
         <img src={icon} />
       </div>
-    </>
+    </BaseLayout>
   );
 }

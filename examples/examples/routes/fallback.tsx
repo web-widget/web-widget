@@ -4,6 +4,7 @@ import {
   createHttpError,
   RouteFallbackComponentProps,
 } from "@web-widget/react";
+import BaseLayout from "../components/BaseLayout";
 
 export { render };
 
@@ -37,16 +38,16 @@ export const handler = defineRouteHandler({
 
 export function fallback(error: RouteFallbackComponentProps) {
   return (
-    <>
+    <BaseLayout>
       <h1>❌{error.name}</h1>
       <h2>{error.message}</h2>
-    </>
+    </BaseLayout>
   );
 }
 
 export default function Page() {
   return (
-    <>
+    <BaseLayout>
       <h1>Error handling</h1>
       <ul>
         <li>
@@ -62,6 +63,6 @@ export default function Page() {
           <a href="?global-500">Show global 500 error</a>
         </li>
       </ul>
-    </>
+    </BaseLayout>
   );
 }

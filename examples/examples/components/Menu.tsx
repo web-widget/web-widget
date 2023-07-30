@@ -3,6 +3,9 @@ export default function Menu() {
     <>
       <ul>
         <li>
+          <a href="/">🏠</a>
+        </li>
+        <li>
           <a href="/hello-world">Hello wrold</a>
         </li>
         <li>

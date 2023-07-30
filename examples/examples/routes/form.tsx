@@ -1,5 +1,6 @@
 import type { Handlers } from "@web-widget/react";
 export { render } from "@web-widget/react";
+import BaseLayout from "../components/BaseLayout";
 
 export const handler: Handlers = {
   async GET(ctx) {
@@ -24,12 +25,12 @@ export const handler: Handlers = {
 
 export default function Page() {
   return (
-    <>
+    <BaseLayout>
       <h1>Form submissions</h1>
       <form method="post">
         <input type="email" name="email" value="" />
         <button type="submit">Subscribe</button>
       </form>
-    </>
+    </BaseLayout>
   );
 }

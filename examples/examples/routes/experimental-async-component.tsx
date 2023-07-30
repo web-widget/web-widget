@@ -1,5 +1,6 @@
 import { type RouteComponentProps } from "@web-widget/react";
 import type { HelloData } from "./api/hello-world";
+import BaseLayout from "../components/BaseLayout";
 
 export { render } from "@web-widget/react";
 
@@ -11,7 +12,7 @@ async function fetchData(url: URL) {
 export default async function Page({ url }: RouteComponentProps) {
   const data = await fetchData(url);
   return (
-    <>
+    <BaseLayout>
       <h1>Async component(experimental)</h1>
       <ul>
         {data.map((item, index) => {
@@ -22,6 +23,6 @@ export default async function Page({ url }: RouteComponentProps) {
           );
         })}
       </ul>
-    </>
+    </BaseLayout>
   );
 }

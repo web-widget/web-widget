@@ -1,5 +1,6 @@
 import type { Handlers, RouteComponentProps } from "@web-widget/react";
 import type { HelloData } from "./api/hello-world";
+import BaseLayout from "../components/BaseLayout";
 
 export { render } from "@web-widget/react";
 
@@ -19,7 +20,7 @@ export const handler: Handlers<HelloData> = {
 
 export default function Page({ data }: RouteComponentProps<HelloData>) {
   return (
-    <>
+    <BaseLayout>
       <h1>Fetching data</h1>
       <ul>
         {data.map((item, index) => {
@@ -30,6 +31,6 @@ export default function Page({ data }: RouteComponentProps<HelloData>) {
           );
         })}
       </ul>
-    </>
+    </BaseLayout>
   );
 }
