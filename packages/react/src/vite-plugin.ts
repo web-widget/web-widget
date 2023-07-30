@@ -10,6 +10,23 @@ export default function ReactWebWidgetVitePlugin(
     {
       name: "@web-widget/react:get-config",
       enforce: "pre",
+      config(config) {
+        config.resolve ||= {};
+        config.resolve.alias ||= {};
+
+        const aliases = [
+          { find: "react-dom/server", replacement: "react-dom/server.browser" },
+        ];
+
+        if (Array.isArray(config.resolve.alias)) {
+          config.resolve.alias = [...config.resolve.alias, ...aliases];
+        } else {
+          for (const alias of aliases) {
+            (config.resolve.alias as Record<string, string>)[alias.find] =
+              alias.replacement;
+          }
+        }
+      },
       configResolved(resolvedConfig) {
         config = resolvedConfig;
       },
