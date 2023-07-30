@@ -169,7 +169,7 @@ function resolveEntrypoints(
     return [name.replace(fileURLToPath(config.root), ""), modulePath];
   };
 
-  for (const [key, value] of Object.entries(manifest)) {
+  for (const [_key, value] of Object.entries(manifest)) {
     if (Array.isArray(value)) {
       for (const mod of value) {
         const [name, file] = getEntrypoint(mod.module);
@@ -432,12 +432,12 @@ function getLink(fileName: string): LinkDescriptor | null {
 
   const ext = extname(fileName);
   const type = mime.lookup(ext);
+  const asValue = type ? type.split("/")[0] : "";
 
-  if (type === "image" || type === "font") {
-    const as = type.split("/")[0];
+  if (type && ["image", "font"].includes(asValue)) {
     return {
-      as,
-      ...(type === "font" ? { crossorigin: "" } : {}),
+      as: asValue,
+      ...(asValue === "font" ? { crossorigin: "" } : {}),
       href: fileName,
       rel: "preload",
       type,

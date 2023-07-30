@@ -108,9 +108,9 @@ function trimSlashes(path: string) {
   return path.replace(/^\/|\/$/g, "");
 }
 
-function prependForwardSlash(path: string) {
-  return path[0] === "/" ? path : "/" + path;
-}
+// function prependForwardSlash(path: string) {
+//   return path[0] === "/" ? path : "/" + path;
+// }
 
 export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
   // We need to extend the global schema to add transforms that are relative to root.
@@ -203,7 +203,8 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
     const trimmedBase = trimSlashes(config.base);
     config.output.server = new URL(config.output.server, config.output.dir);
     config.output.client = new URL(config.output.client, config.output.dir);
-    config.base = prependForwardSlash(appendForwardSlash(trimmedBase));
+    // config.base = prependForwardSlash(appendForwardSlash(trimmedBase));
+    config.base = appendForwardSlash(trimmedBase);
 
     return config;
   });
