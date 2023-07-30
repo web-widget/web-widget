@@ -19,13 +19,14 @@ export type StartOptions = WebRouterOptions & {
 };
 
 export interface WebRouterOptions {
-  render?: RenderPage;
-  router?: RouterOptions;
-  loader?: (module: string) => Promise<any>;
   client?: {
     base?: string;
     // bootstrap: ScriptDescriptor[];
   };
+  loader?: (module: string) => Promise<any>;
+  render?: RenderPage;
+  root?: string;
+  router?: RouterOptions;
 }
 
 export interface RouterOptions {
@@ -115,24 +116,29 @@ export interface Middleware<State = Record<string, unknown>> {
 export interface Manifest {
   $schema?: string;
   routes?: {
+    module: string | RouteModule;
     name?: string;
     pathname: string;
-    module: string;
+    source?: string;
   }[];
   middlewares?: {
+    module: string | MiddlewareModule;
     name?: string;
     pathname: string;
-    module: string;
+    source?: string;
   }[];
   fallbacks?: {
+    module: string | RouteModule;
     name: string;
     pathname: string;
-    module: string;
+    source?: string;
   }[];
+
   // layouts?: {
+  //   module: string | RouteModule;
   //   name: string;
   //   pathname: string;
-  //   module: string;
+  //   source?: string;
   // }[];
 }
 

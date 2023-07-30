@@ -9,25 +9,25 @@
     },
     "./helpers": {
       "worker": {
-        "types": "./dist/helpers.server.d.ts",
-        "default": "./dist/helpers.server.js"
+        "types": "./dist/schema-helpers.server.d.ts",
+        "default": "./dist/schema-helpers.server.js"
       },
       "browser": {
-        "types": "./dist/helpers.client.d.ts",
-        "default": "./dist/helpers.client.js"
+        "types": "./dist/schema-helpers.client.d.ts",
+        "default": "./dist/schema-helpers.client.js"
       },
       "default": {
-        "types": "./dist/helpers.server.d.ts",
-        "default": "./dist/helpers.server.js"
+        "types": "./dist/schema-helpers.server.d.ts",
+        "default": "./dist/schema-helpers.server.js"
       }
     },
     "./server": {
-      "types": "./dist/helpers.server.d.ts",
-      "default": "./dist/helpers.server.js"
+      "types": "./dist/schema-helpers.server.d.ts",
+      "default": "./dist/schema-helpers.server.js"
     },
     "./client": {
-      "types": "./dist/helpers.client.d.ts",
-      "default": "./dist/helpers.client.js"
+      "types": "./dist/schema-helpers.client.d.ts",
+      "default": "./dist/schema-helpers.client.js"
     }
   },
   "scripts": {
