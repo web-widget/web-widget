@@ -104,11 +104,21 @@ async function bundleWithVite(
     root: fileURLToPath(config.root),
     define: {},
     logLevel: config.vite.logLevel ?? "warn",
-    ssr: {
-      // target: "webworker",
-      external: [],
-      noExternal: [],
-    },
+    ssr: isServer
+      ? {
+          target: "webworker",
+          format: "esm",
+          external: ["@web-server/web-router"],
+          noExternal: true,
+        }
+      : undefined,
+    resolve: isServer
+      ? {
+          // https://github.com/vitejs/vite/issues/6401
+          // https://webpack.js.org/guides/package-exports/
+          conditions: ["import", "module", "worklet", "worker", "default"],
+        }
+      : undefined,
     plugins: [
       //!isServer && removeEntryPlugin([CLIENT_ENTRY]),
       isServer && metaMap && injectionMetaPlugin(metaMap),
