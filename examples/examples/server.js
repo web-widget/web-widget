@@ -1,19 +1,16 @@
 import Koa from "koa";
 import koaSend from "koa-send";
-import path from "node:path";
 import { fileURLToPath } from "node:url";
 import WebRouter from "@web-widget/web-router";
 import { createWebRequest, sendWebResponse } from "@web-widget/koa";
-
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const resolve = (p) => path.resolve(__dirname, p);
-const clientRoot = resolve("dist/client");
 
 const app = new Koa();
 
 app.use(async (ctx, next) => {
   if (ctx.path.startsWith("/assets")) {
-    await koaSend(ctx, ctx.path, { root: clientRoot });
+    await koaSend(ctx, ctx.path, {
+      root: fileURLToPath(new URL("./dist/client", import.meta.url)),
+    });
     return;
   }
   await next();

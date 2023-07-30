@@ -4,8 +4,8 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/server.d.ts",
-      "default": "./dist/server.js"
+      "types": "./dist/web-router.server.d.ts",
+      "default": "./dist/web-router.server.js"
     }
   },
   "files": [

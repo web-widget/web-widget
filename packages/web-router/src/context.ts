@@ -73,27 +73,34 @@ export class ServerContext {
    * Process the manifest into individual components and pages.
    */
   static async fromManifest(
-    manifestUrl: string | URL,
+    routemap: string | URL | Manifest,
     opts: WebRouterOptions,
     dev: boolean
   ): Promise<ServerContext> {
-    if (manifestUrl instanceof URL) {
-      manifestUrl = manifestUrl.href;
-    }
-
-    if (typeof manifestUrl !== "string") {
-      throw TypeError(`Manifest is not a valid URL.`);
-    }
-
-    const root = fileUrlDirname(manifestUrl);
+    let manifest: Manifest;
+    let root: string;
     const base = opts?.client?.base ?? "/";
     const loader =
       opts?.loader ??
       ((module) => import(/* @vite-ignore */ /* webpackIgnore: true */ module));
-    const manifest: Manifest =
-      manifestUrl.endsWith(".json") && !opts?.loader
-        ? await (await fetch(manifestUrl)).json()
-        : await loader(manifestUrl);
+
+    if (routemap instanceof URL) {
+      routemap = routemap.href;
+    }
+    
+    if (typeof routemap === "string") {
+      root = fileUrlDirname(routemap)
+      manifest  =
+      routemap.endsWith(".json") && !opts?.loader
+        ? await (await fetch(routemap)).json()
+        : await loader(routemap);
+    } else {
+      if (typeof opts.root !== 'string') {
+        throw new TypeError(`options.root: Must be a string.`);
+      }
+      root = opts.root;
+      manifest = routemap;
+    }
 
     // Extract all routes, and prepare them into the `Page` structure.
     const routes: Page[] = [];
@@ -126,9 +133,14 @@ export class ServerContext {
       };
     };
 
-    for (const { pathname, name, module: file } of manifest.routes ?? []) {
-      const module = await resolveRouteModule(file);
-      const { config = {}, handler = {}, meta = {}, render } = module;
+    const emptyRender = async () => {
+      throw createHttpError(500, `Module does not export render function.`)
+    };
+
+    for (const { pathname, name, module: mod, source: file } of manifest.routes ?? []) {
+      const source = typeof mod === "string" ? mod : file as string;
+      const module = typeof mod === 'string' ? await resolveRouteModule(mod) : mod as RouteModule;
+      const { config = {}, handler = {}, meta = {}, render = emptyRender } = module;
 
       if (typeof handler === "object" && handler.GET === undefined) {
         handler.GET = (({ render }) => render({ meta })) as RouteHandler;
@@ -160,19 +172,20 @@ export class ServerContext {
         pathname: config.routeOverride
           ? String(config.routeOverride)
           : pathname,
-        render: render as RouteRender<unknown>,
-        source: file,
+        render,
+        source,
       });
     }
 
-    for (const { pathname, name, module: file } of manifest.fallbacks ?? []) {
-      const module = await resolveRouteModule(file);
+    for (const { pathname, name, module: mod, source: file } of manifest.fallbacks ?? []) {
+      const source = typeof mod === "string" ? mod : file as string;
+      const module = typeof mod === 'string' ? await resolveRouteModule(mod) : mod as RouteModule;
       const {
         default: component,
         fallback,
         config = {},
         meta = {},
-        render,
+        render = emptyRender,
       } = module;
 
       let { handler } = module;
@@ -203,7 +216,7 @@ export class ServerContext {
         name: name ?? pathname,
         pathname,
         render,
-        source: file,
+        source,
       });
     }
 
@@ -215,8 +228,9 @@ export class ServerContext {
       fallbacks.push(DEFAULT_ERROR);
     }
 
-    for (const { pathname, module: file } of manifest.middlewares ?? []) {
-      const module = await resolveMiddlewareModule(file);
+    for (const { pathname, module: mod, source: file } of manifest.middlewares ?? []) {
+      const source = typeof mod === "string" ? mod : file as string;
+      const module = typeof mod === 'string' ? await resolveMiddlewareModule(source) : mod as MiddlewareModule;
       middlewares.push({
         pathname,
         compiledPattern: new URLPattern({ pathname }),

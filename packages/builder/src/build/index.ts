@@ -22,10 +22,9 @@ import { resolve } from "import-meta-resolve";
 import { openConfig } from "../config";
 import { withSpinner } from "./utils";
 
-const CLIENT_MODUL_ENAME = "@web-widget/web-widget";
-const CLIENT_ENTRY = fileURLToPath(
-  resolve(CLIENT_MODUL_ENAME, import.meta.url)
-);
+const VITE_MANIFEST_NAME = "manifest.json";
+const CLIENT_MODUL_NAME = "@web-widget/web-widget";
+const CLIENT_ENTRY = fileURLToPath(resolve(CLIENT_MODUL_NAME, import.meta.url));
 
 type Entrypoints = Record<string, string>;
 type FileNamesCache = [Map<string, string>, Map<string, string>];
@@ -100,7 +99,7 @@ async function bundleWithVite(
   const vite = mergeViteConfig(config.vite, {
     base: config.base,
     cacheDir: fileURLToPath(config.cacheDir),
-    publicDir: fileURLToPath(config.publicDir),
+    publicDir: isServer ? false : fileURLToPath(config.publicDir),
     root: fileURLToPath(config.root),
     define: {},
     logLevel: config.vite.logLevel ?? "warn",
@@ -135,7 +134,7 @@ async function bundleWithVite(
         isServer ? config.output.server : config.output.client
       ),
       sourcemap: false,
-      manifest: !isServer,
+      manifest: isServer ? false : VITE_MANIFEST_NAME,
       rollupOptions: {
         input: entrypoints,
         preserveEntrySignatures: "allow-extension",
@@ -291,22 +290,23 @@ function injectionMetaPlugin(metaMap: Map<string, Meta>): VitePlugin {
         const [_, exports] = parse(chunk.code);
 
         if (exports.find(({ s, e }) => chunk.code.slice(s, e) === "meta")) {
-          chunk.code += `
-try {
-  const link = ${JSON.stringify(meta.link)};
-  const script = ${JSON.stringify(meta.script)};
-  meta.link = meta.link ? meta.link.push(...link) : link;
-  meta.script = meta.script ? meta.script.push(...script) : script;
-} catch(e) {
-  throw new Error("Builder: No meta variable found.", e);
-}`;
+          chunk.code += [
+            `try {`,
+            `  const link = ${JSON.stringify(meta.link)};`,
+            `  const script = ${JSON.stringify(meta.script)};`,
+            `  meta.link = meta.link ? meta.link.push(...link) : link;`,
+            `  meta.script = meta.script ? meta.script.push(...script) : script;`,
+            `} catch(e) {`,
+            `  throw new Error("@web-widget/builder: Failed to attach meta.", e);`,
+            `}`,
+          ].join("\n");
         } else {
-          chunk.code += `
-export const meta = {
-  link: ${JSON.stringify(meta.link)},
-  script: ${JSON.stringify(meta.script)}
-};
-`;
+          chunk.code += [
+            `export const meta = {`,
+            `  link: ${JSON.stringify(meta.link)},`,
+            `  script: ${JSON.stringify(meta.script)},`,
+            `};`,
+          ].join("\n");
         }
       });
     },
@@ -349,7 +349,7 @@ function getMetaMap(
               type: "importmap",
               content: JSON.stringify({
                 imports: {
-                  [CLIENT_MODUL_ENAME]: rebase(
+                  [CLIENT_MODUL_NAME]: rebase(
                     clientModuleFileName,
                     chunk.fileName
                   ),
@@ -452,17 +452,21 @@ export async function buildRoutemap(
   config: BuilderConfig,
   output: RollupOutput
 ) {
-  function getModule(module: string) {
-    const file = join(dirname(fileURLToPath(config.input)), module);
+  const imports: string[] = [];
+  function importModule(module: string) {
+    const fileId = join(dirname(fileURLToPath(config.input)), module);
     const chunk = output.output.find(
-      (chunk) => chunk.type === "chunk" && chunk.facadeModuleId === file
+      (chunk) => chunk.type === "chunk" && chunk.facadeModuleId === fileId
     );
 
     if (!chunk) {
       throw new Error(`Module not found`);
     }
 
-    return "./" + chunk.fileName;
+    const source = "./" + chunk.fileName;
+    imports.push(source);
+
+    return source;
   }
 
   const json = Object.entries(manifest).reduce((manifest, [key, value]) => {
@@ -473,30 +477,53 @@ export async function buildRoutemap(
         // @ts-ignore
         manifest[key].push({
           ...mod,
-          module: getModule(mod.module),
+          module: importModule(mod.module),
         });
       });
     } else {
       // @ts-ignore
       manifest[key] = {
         ...value,
-        module: getModule(value.module),
+        module: importModule(value.module),
       };
     }
     return manifest;
   }, {});
 
+  const input = fileURLToPath(config.input);
+  const jsonCode = JSON.stringify(json, null, 2);
+  const jsCode =
+    imports
+      .map((module, index) => `import * as $${index} from "${module}";`)
+      .join("\n") +
+    "\n\n" +
+    `export default ${imports.reduce((jsonCode, source, index) => {
+      jsonCode = jsonCode.replace(
+        `"module": "${source}"`,
+        `"source": "${source}",\n      "module": $${index}`
+      );
+      return jsonCode;
+    }, jsonCode)}`;
+
   await fs.writeFile(
     join(
       fileURLToPath(config.output.server),
-      basename(fileURLToPath(config.input))
+      basename(input.replace(extname(input), ".json"))
     ),
-    JSON.stringify(json, null, 2)
+    jsonCode
+  );
+
+  await fs.writeFile(
+    join(
+      fileURLToPath(config.output.server),
+      basename(input.replace(extname(input), ".js"))
+    ),
+    jsCode
   );
 }
 
 async function parseViteManifest(outDir: string): Promise<ViteManifest> {
-  const manifestPath = join(outDir, "manifest.json");
+  const manifestPath = join(outDir, VITE_MANIFEST_NAME);
   return JSON.parse(await fs.readFile(manifestPath, "utf-8"));
 }
 
