@@ -10,10 +10,9 @@ interface CounterProps {
 export default function Counter(props: CounterProps) {
   const [count, setCount] = useState(props.start);
   return (
-    <div>
-      <h3>{props.name}</h3>
-      <p>{count}</p>
+    <div className="counter" title={props.name}>
       <button onClick={() => setCount(count - 1)}>-1</button>
+      <button className="count">{count}</button>
       <button onClick={() => setCount(count + 1)}>+1</button>
     </div>
   );

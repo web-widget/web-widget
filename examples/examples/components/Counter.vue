@@ -7,21 +7,20 @@ const count = ref(props.start);
 </script>
 
 <template>
-  <div class="box">
-    <h3>{{ name }}</h3>
-      <p>{{ count }}</p>
-      <button @click="count--">
-        -1
-      </button>
-      <button @click="count++">
-        +1
-      </button>
+  <div v-bind:title="name">
+    <button @click="count--">-1</button>
+    <button class="count">{{ count }}</button>
+    <button @click="count++">+1</button>
   </div>
 </template>
 
 <style scoped>
-  .box {
-    display: inline-block;
-    border:1px solid cadetblue;
+  .count {
+    padding-left: 10px;
+    padding-right: 10px;
+    font-weight: bold;
+    color: cadetblue;
+    border: 1px solid transparent;
+    background: transparent;
   }
 </style>
