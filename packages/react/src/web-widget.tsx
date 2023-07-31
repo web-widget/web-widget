@@ -24,50 +24,37 @@ function getFilename(loader: Loader) {
 }
 
 // async function readableStreamToString(
-//   readableStream: ReadableStream<Uint8Array>
+//   readableStream: ReadableStream
 // ) {
 //   let result = "";
 //   const textDecoder = new TextDecoder();
 
-//   // @ts-ignore
 //   for await (const chunk of readableStream) {
-//     result += textDecoder.decode(chunk);
+//     result += textDecoder.decode(chunk, { stream: true });
 //   }
 
 //   return result;
 // }
 
-// https://github.com/passiv/snaptrade-sdks/blob/46b3cac3155f16be9f739068973c6a18802bd50f/sdks/typescript/error.ts#L76
 async function readableStreamToString(stream: ReadableStream) {
-  // Step 1: Create a new TextDecoder
   const decoder = new TextDecoder();
-
-  // Step 2: Create a new ReadableStreamDefaultReader
   const reader = stream.getReader();
-
-  // Step 3: Initialize an empty string to hold the result
   let result = "";
 
   try {
     while (true) {
-      // Step 4: Read data from the stream
       const { done, value } = await reader.read();
 
-      // If there is no more data to read, break the loop
       if (done) break;
 
-      // Convert the chunk of data to a string using the TextDecoder
       const chunk = decoder.decode(value, { stream: true });
 
-      // Concatenate the chunk to the result
       result += chunk;
     }
   } finally {
-    // Step 5: Release the ReadableStreamDefaultReader when done or in case of an error
     reader.releaseLock();
   }
 
-  // Return the final result as a string
   return result;
 }
 
