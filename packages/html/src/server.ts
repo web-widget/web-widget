@@ -1,10 +1,10 @@
-import { unsafeHTML, fallback, html } from "@worker-tools/html";
-import type { HTML, Fallback } from "@worker-tools/html";
+import type { Fallback, HTML } from "@worker-tools/html";
 import {
   asyncIterToStream,
   streamToAsyncIter,
 } from "whatwg-stream-to-async-iter";
 import { defineRender, isRouteRenderContext } from "@web-widget/schema/server";
+import { fallback, html, unsafeHTML } from "@worker-tools/html";
 
 export * from "@web-widget/schema/server";
 export { unsafeHTML, fallback, html };
@@ -12,10 +12,11 @@ export type { HTML, Fallback };
 
 export const streamToHTML = (stream: ReadableStream<string>) =>
   async function* () {
+    const textDecoder = new TextDecoder();
     // TODO 这样处理流是否正确？
     // @ts-ignore
     for await (const part of stream) {
-      yield unsafeHTML(new TextDecoder().decode(part));
+      yield unsafeHTML(textDecoder.decode(part));
     }
   };
 
