@@ -11,7 +11,8 @@
     "build": "builder build",
     "dev": "builder dev",
     "start": "node server.js",
-    "start:deno": "cd deno && pnpm run build && pnpm run start",
+    "build:deno": "pnpm run build && pnpm exec build-worker --entry deno/web-router.ts --out deno/dist/web-router.js --debug",
+    "start:deno": "cd deno && deno task start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -22,7 +23,6 @@
     "@web-widget/vue": "workspace:*",
     "@web-widget/web-router": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "build-worker": "^0.2.2",
     "koa": "^2.14.2",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",
@@ -37,6 +37,7 @@
     "@vitejs/plugin-react": "^4.0.0",
     "@vitejs/plugin-vue": "^4.2.3",
     "@web-widget/builder": "workspace:*",
+    "build-worker": "^0.2.2",
     "tsup": "^6.7.0",
     "typescript": "^5.0.4",
     "vite": "^4.3.9"

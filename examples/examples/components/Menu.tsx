@@ -36,16 +36,20 @@ export default function Menu() {
           <a href="/form">Form submissions</a>
         </li>
         <li>
-          <a href="/api/hello-world">Api route</a>
-        </li>
-        <li>
           <a href="/fallback">Error handling</a>
         </li>
         <li>
           <a href="/experimental-async-component">Async component</a>
         </li>
         <li>
-          <a href="/lit-html-template">Lit html template</a>
+          <a target="_blank" href="/lit-html-template">
+            Lit html template
+          </a>
+        </li>
+        <li>
+          <a target="_blank" href="/api/hello-world">
+            Api route
+          </a>
         </li>
       </ul>
     </>
