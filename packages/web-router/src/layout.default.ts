@@ -1,4 +1,11 @@
-import { render, html, HTML, streamToHTML, unsafeHTML } from "@web-widget/html";
+import {
+  HTML,
+  html,
+  render,
+  unsafeHTML,
+  unsafeStreamToHTML,
+} from "@web-widget/html";
+
 import type { LayoutComponentProps } from "./types";
 import { renderMetaToString } from "@web-widget/schema/server";
 
@@ -17,7 +24,7 @@ export default function RootLayout({
       <body>
         ${typeof children === "string"
           ? children
-          : streamToHTML(children as ReadableStream<string>)}
+          : unsafeStreamToHTML(children as ReadableStream)}
         ${false
           ? html`<script>
               /* Polyfill: Declarative Shadow DOM */

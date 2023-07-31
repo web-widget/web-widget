@@ -10,15 +10,19 @@ export * from "@web-widget/schema/server";
 export { unsafeHTML, fallback, html };
 export type { HTML, Fallback };
 
-export const streamToHTML = (stream: ReadableStream<string>) =>
-  async function* () {
-    const textDecoder = new TextDecoder();
-    // TODO 这样处理流是否正确？
-    // @ts-ignore
-    for await (const part of stream) {
-      yield unsafeHTML(textDecoder.decode(part));
-    }
-  };
+export const unsafeStreamToHTML = (stream: ReadableStream) => {
+  const textDecoder = new TextDecoder();
+  return aMap(maybeStreamToAsyncIter(stream), (part) =>
+    unsafeHTML(textDecoder.decode(part, { stream: true }))
+  );
+};
+
+export const streamToHTML = (stream: ReadableStream) => {
+  const textDecoder = new TextDecoder();
+  return aMap(maybeStreamToAsyncIter(stream), (part) =>
+    textDecoder.decode(part, { stream: true })
+  );
+};
 
 type ForAwaitable<T> = Iterable<T> | AsyncIterable<T>;
 type Awaitable<T> = T | Promise<T>;
@@ -67,10 +71,11 @@ export const render = defineRender(async (context, component, props) => {
   }
 
   // stringStreamToByteStream
+  const textEncoder = new TextEncoder();
   return (await supportNonBinaryTransformStreams())
     ? asyncIterToStream(
         aMap(maybeStreamToAsyncIter(content), (x: string) =>
-          new TextEncoder().encode(x)
+          textEncoder.encode(x)
         )
       )
     : maybeAsyncIterToStream(content).pipeThrough(new TextEncoderStream());

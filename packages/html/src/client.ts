@@ -8,5 +8,6 @@ const notImplemented = (name: string) => () => {
 export const unsafeHTML = notImplemented("unsafeHTML");
 export const fallback = notImplemented("fallback");
 export const html = notImplemented("html");
+export const unsafeStreamToHTML = notImplemented("unsafeStreamToHTML");
 export const streamToHTML = notImplemented("streamToHTML");
 export const render = notImplemented("render");
