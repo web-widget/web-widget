@@ -7,9 +7,9 @@
     "build": "turbo run build --filter=./packages/* --filter=./examples/*",
     "dev": "turbo run dev --filter=./packages/* --filter=./examples/*",
     "prettier": "prettier --write packages/**/*.js",
-    "prettier-package-json": "prettier-package-json --write packages/**/package.json",
     "docs": "rocket build && npm run github-pages-init",
-    "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll"
+    "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll",
+    "postinstall": "turbo run stub"
   },
   "engines": {
     "node": ">=18",
@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
-    "@babel/eslint-parser": "^7.16.0",
+    "@web-widget/eslint-config": "workspace:*",
     "@rocket/cli": "^0.10.2",
     "@rocket/core": "^0.1.2",
     "@rocket/launch": "^0.6.0",
@@ -33,14 +33,9 @@
     "alex": "^10.0.0",
     "babel-loader": "^8.2.3",
     "cross-env": "^7.0.3",
-    "eslint": "^7.2.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.25.2",
-    "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "^2.4.1",
+    "prettier": "^2.8.8",
     "turbo": "^1.10.7",
-    "prettier-package-json": "^2.8.0"
+    "unbuild": "^1.2.1"
   },
   "packageManager": "pnpm@7.9.5",
   "pnpm": {

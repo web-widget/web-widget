@@ -5,8 +5,4 @@ const template = html`<div>hello world</div>`;
 
 const res = new HTMLResponse(template);
 
-res.text().then(console.log)
-
-
-
-
+res.text().then(console.log);
