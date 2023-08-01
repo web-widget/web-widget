@@ -17,13 +17,14 @@
  * ...
  * <MyComponent title="My component" />
  */
-import { relative, dirname, join } from "node:path";
-import { declare } from "@babel/helper-plugin-utils";
-import { addNamed } from "@babel/helper-module-imports";
-import { types as t } from "@babel/core";
+import { dirname, join, relative } from "node:path";
+
+import type { DefineWebWidgetOptions } from "./web-widget";
 import type { PluginPass } from "@babel/core";
 import type { Visitor } from "@babel/traverse";
-import type { DefineWebWidgetOptions } from "./web-widget";
+import { addNamed } from "@babel/helper-module-imports";
+import { declare } from "@babel/helper-plugin-utils";
+import { types as t } from "@babel/core";
 
 function createWebWidgetVariableDeclaration(
   definer: string,
@@ -159,9 +160,10 @@ export default declare((api) => {
           "defineWebWidget",
           "@web-widget/react"
         );
-        const base =
-          config.base +
-          join(relative(config.root, dirname(state.filename)), "/");
+        // const base =
+        //   config.base +
+        //   join(relative(config.root, dirname(state.filename)), "/");
+        const base = config.base;
 
         binding.path.parentPath?.replaceWith(
           createWebWidgetVariableDeclaration(
