@@ -1,6 +1,7 @@
 import type { Plugin, PluginOption, ResolvedConfig } from "vite";
-import react from "@vitejs/plugin-react";
+
 import type { Options } from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react";
 
 export default function ReactWebWidgetVitePlugin(
   options: Options = {}
@@ -42,7 +43,10 @@ export default function ReactWebWidgetVitePlugin(
             "@web-widget/react/babel-plugin",
             {
               get base() {
-                return config.base;
+                const isServer = !!config.build.ssr;
+                return isServer
+                  ? config.base + config.build.assetsDir + "/"
+                  : config.base;
               },
               get root() {
                 return config.root;
