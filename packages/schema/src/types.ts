@@ -116,7 +116,7 @@ export type RouteConfig = Record<string, any>;
 
 export type RouteComponentProps<
   Data = unknown,
-  Params = Record<string, string>
+  Params = Record<string, string>,
 > = {
   /**
    * Additional data passed into `RouteHandlerContext.render`. Defaults to
@@ -143,7 +143,7 @@ export type RouteComponentProps<
 
 export interface RouteComponent<
   Data = unknown,
-  Params = Record<string, string>
+  Params = Record<string, string>,
 > {
   (props: RouteComponentProps<Data, Params>): any;
 }
@@ -168,7 +168,7 @@ export type RouteHandlers<Data = unknown, State = Record<string, unknown>> =
 
 export type ServerRouteHandlers<
   Data = unknown,
-  State = Record<string, unknown>
+  State = Record<string, unknown>,
 > = {
   [K in
     | "GET"
@@ -182,7 +182,7 @@ export type ServerRouteHandlers<
 
 export type ClientRouteHandlers<
   Data = unknown,
-  State = Record<string, unknown>
+  State = Record<string, unknown>,
 > = {
   [K in "GET"]?: ClientRouteHandler<Data, State>;
 };
@@ -193,25 +193,25 @@ export type RouteHandler<Data = unknown, State = Record<string, unknown>> =
 
 export interface ServerRouteHandler<
   Data = unknown,
-  State = Record<string, unknown>
+  State = Record<string, unknown>,
 > {
-  (ctx: ServerRouteHandlerContext<Data, State>):
-    | ServerRouteHandlerResult
-    | Promise<ServerRouteHandlerResult>;
+  (
+    ctx: ServerRouteHandlerContext<Data, State>
+  ): ServerRouteHandlerResult | Promise<ServerRouteHandlerResult>;
 }
 
 export interface ClientRouteHandler<
   Data = unknown,
-  State = Record<string, unknown>
+  State = Record<string, unknown>,
 > {
-  (ctx: ClientRouteHandlerContext<Data, State>):
-    | ClientRouteHandlerResult
-    | Promise<ClientRouteHandlerResult>;
+  (
+    ctx: ClientRouteHandlerContext<Data, State>
+  ): ClientRouteHandlerResult | Promise<ClientRouteHandlerResult>;
 }
 
 export type RouteHandlerContext<
   Data = undefined,
-  State = Record<string, unknown>
+  State = Record<string, unknown>,
 > =
   | ServerRouteHandlerContext<Data, State>
   | ClientRouteHandlerContext<Data, State>;
@@ -219,7 +219,7 @@ export type RouteHandlerContext<
 export interface ServerRouteHandlerContext<
   Data = undefined,
   Params = Record<string, string>,
-  State = Record<string, unknown>
+  State = Record<string, unknown>,
 > {
   error?: RouteError;
   meta: Meta;
@@ -240,7 +240,7 @@ export interface ServerRouteHandlerContext<
 export interface ClientRouteHandlerContext<
   Data = undefined,
   Params = Record<string, string>,
-  State = Record<string, unknown>
+  State = Record<string, unknown>,
 > {
   error?: RouteError;
   meta: Meta;
@@ -264,7 +264,7 @@ export type RouteRenderContext<Data = unknown> =
 
 export interface ServerRouteRenderContext<
   Data = unknown,
-  Params = Record<string, string>
+  Params = Record<string, string>,
 > {
   data?: Data;
   children?: ServerRouteRenderResult;
@@ -292,7 +292,7 @@ export interface ServerRouteRenderContext<
 
 export interface ClientRouteRenderContext<
   Data = unknown,
-  Params = Record<string, string>
+  Params = Record<string, string>,
 > {
   data?: Data;
   children?: ClientRouteRenderResult;
