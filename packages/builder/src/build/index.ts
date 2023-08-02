@@ -170,7 +170,7 @@ function resolveEntrypoints(
     return [name, modulePath];
   };
 
-  for (const [_key, value] of Object.entries(manifest)) {
+  for (const value of Object.values(manifest)) {
     if (Array.isArray(value)) {
       for (const mod of value) {
         const [name, file] = getEntrypoint(mod.module);
@@ -235,7 +235,7 @@ function chunkFileNamesPlugin(chunkMap: Map<string, string>): VitePlugin[] {
 
           const [imports] = esModuleLexer.parse(chunk.code, chunk.fileName);
 
-          for (const { n: module, s: _start, e: _end } of imports) {
+          for (const { n: module /*,s: _start, e: _end*/ } of imports) {
             if (module && !bareImportRE.test(module)) {
               const fileName = join(dirname(chunk.fileName), module);
               // chunk.code =
@@ -254,10 +254,13 @@ function chunkFileNamesPlugin(chunkMap: Map<string, string>): VitePlugin[] {
           chunk.dynamicImports = chunk.dynamicImports.map(getNewFileName);
           chunk.importedBindings = Object.entries(
             chunk.importedBindings
-          ).reduce((map, [key, value]) => {
-            map[key] = value;
-            return map;
-          }, {} as { [imported: string]: string[] });
+          ).reduce(
+            (map, [key, value]) => {
+              map[key] = value;
+              return map;
+            },
+            {} as { [imported: string]: string[] }
+          );
           chunk.implicitlyLoadedBefore =
             chunk.implicitlyLoadedBefore.map(getNewFileName);
 
@@ -271,25 +274,25 @@ function chunkFileNamesPlugin(chunkMap: Map<string, string>): VitePlugin[] {
   ];
 }
 
-function removeEntryPlugin(exclude: string[]): VitePlugin {
-  return {
-    name: "builder:remove-entry",
-    generateBundle(options, bundle) {
-      Object.keys(bundle).forEach((fileName) => {
-        const chunk = bundle[fileName];
-        const type = chunk.type;
+// function removeEntryPlugin(exclude: string[]): VitePlugin {
+//   return {
+//     name: "builder:remove-entry",
+//     generateBundle(options, bundle) {
+//       Object.keys(bundle).forEach((fileName) => {
+//         const chunk = bundle[fileName];
+//         const type = chunk.type;
 
-        if (
-          type === "chunk" &&
-          chunk.isEntry &&
-          !exclude.includes(chunk.facadeModuleId as string)
-        ) {
-          delete bundle[fileName];
-        }
-      });
-    },
-  };
-}
+//         if (
+//           type === "chunk" &&
+//           chunk.isEntry &&
+//           !exclude.includes(chunk.facadeModuleId as string)
+//         ) {
+//           delete bundle[fileName];
+//         }
+//       });
+//     },
+//   };
+// }
 
 function injectionMetaPlugin(metaMap: Map<string, Meta>): VitePlugin {
   // let config: ViteResolvedConfig;
@@ -320,7 +323,7 @@ function injectionMetaPlugin(metaMap: Map<string, Meta>): VitePlugin {
           return;
         }
 
-        const [_, exports] = esModuleLexer.parse(chunk.code, chunk.fileName);
+        const [, exports] = esModuleLexer.parse(chunk.code, chunk.fileName);
 
         if (exports.some(({ n }) => n === "meta")) {
           chunk.code += [
