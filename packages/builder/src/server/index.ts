@@ -1,14 +1,16 @@
+import { ModuleLoader, createViteLoader } from "../core/loader/index";
+import type { Plugin, ServerOptions, UserConfig as ViteUserConfig } from "vite";
 import { createServer as createViteServer, mergeConfig } from "vite";
-import { createViteLoader, ModuleLoader } from "../core/loader/index";
-import { fileURLToPath } from "node:url";
-import { handleRequest } from "./request";
 import { join, relative } from "node:path";
 import { openConfig, resolveConfigPath } from "../config";
-import fs from "node:fs";
-import pc from "picocolors";
+
 import type { BuilderConfig } from "../types";
 import type { Manifest } from "@web-widget/web-router";
-import type { Plugin, ServerOptions, UserConfig as ViteUserConfig } from "vite";
+import { fileURLToPath } from "node:url";
+import fs from "node:fs";
+import { handleRequest } from "./request";
+import pc from "picocolors";
+import stripAnsi from "strip-ansi";
 
 async function getModuleFiles(config: BuilderConfig, loader: ModuleLoader) {
   const modules: string[] = [];
@@ -86,7 +88,29 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
             loader,
             req,
             res
-          );
+          ).catch((e) => {
+            viteServer.ssrFixStacktrace(e);
+            console.error(e.stack);
+
+            res.statusCode = 500;
+            res.setHeader("content-type", "text/html; charset=utf-8");
+            res.end(`<!DOCTYPE html>
+            <html>
+              <head>
+                <title>Error</title>
+              </head>
+              <body>
+                <div style="display:flex;justify-content:center;align-items:center">
+                  <div style="border:#f3f4f6 2px solid;border-top:red 4px solid;background:#f9fafb;margin:16px;min-width:550px">
+                    <p style="margin:0;font-size:12pt;padding:16px;font-family:sans-serif"> An error occurred during route handling or page rendering. </p>
+                    <pre style="margin:0;font-size:12pt;overflow-y:auto;padding:16px;padding-top:0;font-family:monospace">${stripAnsi(
+                      e.stack
+                    )}</pre>
+                  </div>
+                </div>
+              <body>
+            </html>`);
+          });
         });
       };
     },
@@ -105,6 +129,7 @@ export async function createServer(
   const viteConfig = mergeConfig(builderConfig.vite, {
     root,
     appType: "custom",
+    logLevel: "info",
     plugins: [createVitePluginServer(builderConfig)],
     server: serverOptions,
   } as ViteUserConfig);
