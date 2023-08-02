@@ -1,8 +1,8 @@
+import { fileURLToPath } from "node:url";
 import fs from "node:fs";
+import { normalizePath } from "vite";
 import path from "node:path";
 import slash from "slash";
-import { fileURLToPath } from "node:url";
-import { normalizePath } from "vite";
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {

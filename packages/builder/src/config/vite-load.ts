@@ -1,6 +1,6 @@
-import { pathToFileURL } from "url";
 import type { ViteDevServer } from "vite";
 import { createServer } from "vite";
+import { pathToFileURL } from "url";
 
 async function createViteServer() {
   const viteServer = await createServer({

@@ -8,37 +8,34 @@ export * from "./web-widget";
 export { WebWidget as default } from "./web-widget";
 
 Reflect.defineProperty(__ENV__, "server", {
-  value: false
+  value: false,
 });
 
-export const render = defineRender(
-  async ( context, component, props) => {
-    const { recovering, container } = context;
-    
-    if (!container) {
-      throw new Error(`Container required.`);
-    }
-  
-    let vnode;
-    if (
-      typeof component === "function" &&
-      component.constructor.name === "AsyncFunction"
-    ) {
-      if (isRouteRenderContext(context)) {
-        // experimental
-        vnode = await component(props);
-      } else {
-        throw new Error("Async widget components are not supported.");
-      }
-    } else {
-      vnode = createElement(component, props as Attributes);
-    }
+export const render = defineRender(async (context, component, props) => {
+  const { recovering, container } = context;
 
-    if (recovering) {
-      hydrateRoot(container, vnode);
-    } else {
-      createRoot(container).render(vnode);
-    }
+  if (!container) {
+    throw new Error(`Container required.`);
   }
-);
 
+  let vnode;
+  if (
+    typeof component === "function" &&
+    component.constructor.name === "AsyncFunction"
+  ) {
+    if (isRouteRenderContext(context)) {
+      // experimental
+      vnode = await component(props);
+    } else {
+      throw new Error("Async widget components are not supported.");
+    }
+  } else {
+    vnode = createElement(component, props as Attributes);
+  }
+
+  if (recovering) {
+    hydrateRoot(container, vnode);
+  } else {
+    createRoot(container).render(vnode);
+  }
+});

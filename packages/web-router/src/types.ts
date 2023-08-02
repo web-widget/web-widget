@@ -1,8 +1,8 @@
-import * as router from "./router";
-import { InnerRenderFunction, InnerRenderContext } from "./render";
+import type * as router from "./router";
+
 import type {
-  Meta,
   RouteConfig as BaseRouterConfig,
+  Meta,
   RouteHandler,
   RouteHandlers,
   RouteModule,
@@ -10,6 +10,8 @@ import type {
   RouteRenderResult,
   ScriptDescriptor,
 } from "@web-widget/schema/server";
+import type { InnerRenderContext, InnerRenderFunction } from "./render";
+
 export * from "@web-widget/schema/server";
 
 // --- APPLICATION CONFIGURATION ---

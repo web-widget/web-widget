@@ -87,15 +87,15 @@ export class ServerContext {
     if (routemap instanceof URL) {
       routemap = routemap.href;
     }
-    
+
     if (typeof routemap === "string") {
-      root = fileUrlDirname(routemap)
-      manifest  =
-      routemap.endsWith(".json") && !opts?.loader
-        ? await (await fetch(routemap)).json()
-        : await loader(routemap);
+      root = fileUrlDirname(routemap);
+      manifest =
+        routemap.endsWith(".json") && !opts?.loader
+          ? await (await fetch(routemap)).json()
+          : await loader(routemap);
     } else {
-      if (typeof opts.root !== 'string') {
+      if (typeof opts.root !== "string") {
         throw new TypeError(`options.root: Must be a string.`);
       }
       root = opts.root;
@@ -134,13 +134,26 @@ export class ServerContext {
     };
 
     const emptyRender = async () => {
-      throw createHttpError(500, `Module does not export render function.`)
+      throw createHttpError(500, `Module does not export render function.`);
     };
 
-    for (const { pathname, name, module: mod, source: file } of manifest.routes ?? []) {
-      const source = typeof mod === "string" ? mod : file as string;
-      const module = typeof mod === 'string' ? await resolveRouteModule(mod) : mod as RouteModule;
-      const { config = {}, handler = {}, meta = {}, render = emptyRender } = module;
+    for (const {
+      pathname,
+      name,
+      module: mod,
+      source: file,
+    } of manifest.routes ?? []) {
+      const source = typeof mod === "string" ? mod : (file as string);
+      const module =
+        typeof mod === "string"
+          ? await resolveRouteModule(mod)
+          : (mod as RouteModule);
+      const {
+        config = {},
+        handler = {},
+        meta = {},
+        render = emptyRender,
+      } = module;
 
       if (typeof handler === "object" && handler.GET === undefined) {
         handler.GET = (({ render }) => render({ meta })) as RouteHandler;
@@ -177,9 +190,17 @@ export class ServerContext {
       });
     }
 
-    for (const { pathname, name, module: mod, source: file } of manifest.fallbacks ?? []) {
-      const source = typeof mod === "string" ? mod : file as string;
-      const module = typeof mod === 'string' ? await resolveRouteModule(mod) : mod as RouteModule;
+    for (const {
+      pathname,
+      name,
+      module: mod,
+      source: file,
+    } of manifest.fallbacks ?? []) {
+      const source = typeof mod === "string" ? mod : (file as string);
+      const module =
+        typeof mod === "string"
+          ? await resolveRouteModule(mod)
+          : (mod as RouteModule);
       const {
         default: component,
         fallback,
@@ -228,9 +249,16 @@ export class ServerContext {
       fallbacks.push(DEFAULT_ERROR);
     }
 
-    for (const { pathname, module: mod, source: file } of manifest.middlewares ?? []) {
-      const source = typeof mod === "string" ? mod : file as string;
-      const module = typeof mod === 'string' ? await resolveMiddlewareModule(source) : mod as MiddlewareModule;
+    for (const {
+      pathname,
+      module: mod,
+      source: file,
+    } of manifest.middlewares ?? []) {
+      const source = typeof mod === "string" ? mod : (file as string);
+      const module =
+        typeof mod === "string"
+          ? await resolveMiddlewareModule(source)
+          : (mod as MiddlewareModule);
       middlewares.push({
         pathname,
         compiledPattern: new URLPattern({ pathname }),
@@ -419,7 +447,7 @@ export class ServerContext {
                 : undefined),
             headers: options?.headers,
             csp: csp,
-            isDev: this.#dev
+            isDev: this.#dev,
           });
         };
       };
@@ -627,7 +655,7 @@ function sendResponse(
     statusText: string | undefined;
     headers?: HeadersInit;
     isDev: boolean;
-    csp?: ContentSecurityPolicy
+    csp?: ContentSecurityPolicy;
   }
 ) {
   const headers: Record<string, string> = {

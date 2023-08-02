@@ -1,4 +1,5 @@
-import { ModuleLoader, createViteLoader } from "../core/loader/index";
+import type { ModuleLoader } from "../core/loader/index";
+import { createViteLoader } from "../core/loader/index";
 import type { Plugin, ServerOptions, UserConfig as ViteUserConfig } from "vite";
 import { createServer as createViteServer, mergeConfig } from "vite";
 import { join, relative } from "node:path";

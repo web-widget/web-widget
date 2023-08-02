@@ -1,14 +1,15 @@
 import type * as koa from "koa";
-import type {
-  RequestInit as NodeRequestInit,
-  Response as NodeResponse,
-} from "@web-widget/web-std";
+
 import {
-  installGlobals,
   AbortController as NodeAbortController,
   Headers as NodeHeaders,
   Request as NodeRequest,
+  installGlobals,
   writeReadableStreamToWritable,
+} from "@web-widget/web-std";
+import type {
+  RequestInit as NodeRequestInit,
+  Response as NodeResponse,
 } from "@web-widget/web-std";
 
 installGlobals();

@@ -1,10 +1,11 @@
-import type { Readable } from "stream";
 import {
-  fetch as webFetch,
   Headers as WebHeaders,
   Request as WebRequest,
   Response as WebResponse,
+  fetch as webFetch,
 } from "@remix-run/web-fetch";
+
+import type { Readable } from "stream";
 export { FormData } from "@remix-run/web-fetch";
 export { File, Blob } from "@remix-run/web-file";
 

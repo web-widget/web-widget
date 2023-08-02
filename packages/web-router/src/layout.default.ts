@@ -1,13 +1,8 @@
-import {
-  HTML,
-  html,
-  render,
-  unsafeHTML,
-  unsafeStreamToHTML,
-} from "@web-widget/html";
+import { html, render, unsafeHTML, unsafeStreamToHTML } from "@web-widget/html";
 
-import { renderMetaToString } from "@web-widget/schema/server";
+import type { HTML } from "@web-widget/html";
 import type { LayoutComponentProps } from "./types";
+import { renderMetaToString } from "@web-widget/schema/server";
 
 export { render };
 

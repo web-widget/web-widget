@@ -1,9 +1,9 @@
 import type {
   WidgetModule,
   WidgetModuleV0,
+  WidgetRender,
   WidgetRenderContext,
   WidgetRenderResult,
-  WidgetRender,
 } from "./types";
 
 export const render = async (

@@ -1,5 +1,6 @@
 import * as layout from "./layout.default";
-import type { Page, LayoutComponentProps, RenderPage } from "./types";
+
+import type { LayoutComponentProps, Page, RenderPage } from "./types";
 import type {
   Meta,
   RouteError,
@@ -7,7 +8,9 @@ import type {
   ScriptDescriptor,
   WidgetRenderContext,
 } from "@web-widget/schema/server";
-import { nonce, NONE, UNSAFE_INLINE, ContentSecurityPolicy } from "./csp";
+import { NONE, UNSAFE_INLINE } from "./csp";
+
+import type { ContentSecurityPolicy } from "./csp";
 
 export interface InnerRenderOptions<Data> {
   bootstrap: ScriptDescriptor[];

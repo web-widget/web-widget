@@ -1,12 +1,14 @@
+import * as status from "./applications/status";
+
 import type {
   WidgetModuleLoader,
   WidgetRenderContext,
 } from "./applications/types";
-import { LifecycleController } from "./applications/controller";
-import { queueMicrotask } from "./utils/queue-microtask";
 import { observe, unobserve } from "./utils/visible-observer";
-import * as status from "./applications/status";
+
+import { LifecycleController } from "./applications/controller";
 import { WebWidgetUpdateEvent } from "./event";
+import { queueMicrotask } from "./utils/queue-microtask";
 
 declare const importShim: (src: string) => Promise<any>;
 let globalTimeouts = Object.create(null);

@@ -1,6 +1,6 @@
+import { fileURLToPath } from "node:url";
 import { isCSSRequest } from "vite";
 import slash from "slash";
-import { fileURLToPath } from "node:url";
 
 const rawRE = /(?:\?|&)raw(?:&|$)/;
 const inlineRE = /(?:\?|&)inline\b/;

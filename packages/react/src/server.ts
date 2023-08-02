@@ -9,28 +9,24 @@ export * from "./web-widget";
 export { WebWidget as default } from "./web-widget";
 
 Reflect.defineProperty(__ENV__, "server", {
-  value: true
+  value: true,
 });
 
-export const render = defineRender(
-  async (context, component, props) => {
-    let vnode;
-    if (
-      typeof component === "function" &&
-      component.constructor.name === "AsyncFunction"
-    ) {
-
-      if (isRouteRenderContext(context)) {
-        // experimental
-        vnode = await component(props);
-      } else {
-        throw new Error("Async widget components are not supported.");
-      }
-
+export const render = defineRender(async (context, component, props) => {
+  let vnode;
+  if (
+    typeof component === "function" &&
+    component.constructor.name === "AsyncFunction"
+  ) {
+    if (isRouteRenderContext(context)) {
+      // experimental
+      vnode = await component(props);
     } else {
-      vnode = createElement(component, props as Attributes);
+      throw new Error("Async widget components are not supported.");
     }
-    
-    return ReactDOMServer.renderToReadableStream(vnode);
+  } else {
+    vnode = createElement(component, props as Attributes);
   }
-);
+
+  return ReactDOMServer.renderToReadableStream(vnode);
+});

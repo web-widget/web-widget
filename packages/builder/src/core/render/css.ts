@@ -1,5 +1,6 @@
-import type { ModuleLoader } from "../loader/index";
 import { isBuildableCSSRequest, viteID } from "./util";
+
+import type { ModuleLoader } from "../loader/index";
 import { crawlGraph } from "./vite";
 
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
