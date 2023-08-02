@@ -1,12 +1,15 @@
-import * as layout from "./layout.default";
-
-import type { LayoutComponentProps, Page, RenderPage } from "./types";
+import type {
+  Layout,
+  LayoutRenderContext,
+  Page,
+  RenderPage,
+  RootLayoutComponentProps,
+} from "./types";
 import type {
   Meta,
   RouteError,
   RouteRenderResult,
   ScriptDescriptor,
-  WidgetRenderContext,
 } from "@web-widget/schema/server";
 import { NONE, UNSAFE_INLINE } from "./csp";
 
@@ -19,8 +22,8 @@ export interface InnerRenderOptions<Data> {
   meta: Meta;
   params: Record<string, string>;
   route: Page;
-  url: URL;
   source: string;
+  url: URL;
 }
 
 export type InnerRenderFunction = () => Promise<RouteRenderResult>;
@@ -39,8 +42,8 @@ export class InnerRenderContext {
     id: string,
     meta: Meta,
     route: string,
-    url: URL,
-    source: string
+    source: string,
+    url: URL
   ) {
     this.#bootstrap = bootstrap;
     this.#id = id;
@@ -101,7 +104,8 @@ function defaultCsp() {
  */
 export async function internalRender<Data>(
   opts: InnerRenderOptions<Data>,
-  renderPage: RenderPage
+  renderPage: RenderPage,
+  layout: Layout
 ): Promise<[RouteRenderResult, ContentSecurityPolicy | undefined]> {
   const csp: ContentSecurityPolicy | undefined = opts.route.csp
     ? defaultCsp()
@@ -112,8 +116,8 @@ export async function internalRender<Data>(
     crypto.randomUUID(),
     opts.meta,
     opts.route.pathname,
-    opts.url,
-    opts.source
+    opts.source,
+    opts.url
   );
 
   if (csp) {
@@ -156,17 +160,15 @@ export async function internalRender<Data>(
   //   }
   //   moduleScripts.push([url, randomNonce]);
   // }
-  const props: LayoutComponentProps = {
+  const props: RootLayoutComponentProps = {
     bootstrap: ctx.bootstrap,
     meta: ctx.meta,
     children,
   };
-  const layoutContext: WidgetRenderContext = {
+  const layoutContext: LayoutRenderContext = {
     data: props,
     meta: ctx.meta,
-    module: {
-      default: layout.default,
-    },
+    module: layout.module,
   };
   const html = await layout.render(layoutContext);
 

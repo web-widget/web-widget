@@ -9,6 +9,12 @@ import type {
   RouteRender,
   RouteRenderResult,
   ScriptDescriptor,
+  WidgetComponent,
+  WidgetComponentProps,
+  WidgetModule,
+  WidgetRender,
+  WidgetRenderContext,
+  WidgetRenderResult,
 } from "@web-widget/schema/server";
 import type { InnerRenderContext, InnerRenderFunction } from "./render";
 
@@ -74,13 +80,7 @@ export interface Page {
   source: string;
 }
 
-export interface LayoutComponentProps {
-  children: RouteRenderResult;
-  bootstrap: ScriptDescriptor[];
-  meta: Meta;
-}
-
-// --- MIDDLEWARES ---
+// --- MIDDLEWARE ---
 
 export interface MiddlewareHandlerContext<State = Record<string, unknown>>
   extends ServerConnInfo {
@@ -113,6 +113,30 @@ export interface Middleware<State = Record<string, unknown>> {
   handler: MiddlewareHandler<State> | MiddlewareHandler<State>[];
 }
 
+// --- LAYOUT ---
+
+export interface LayoutModule extends WidgetModule {}
+export type LayoutComponentProps = WidgetComponentProps;
+export interface LayoutComponent extends WidgetComponent {}
+export interface LayoutRenderContext extends WidgetRenderContext {}
+export type LayoutRenderResult = WidgetRenderResult;
+export interface LayouRender extends WidgetRender {}
+
+export interface Layout {
+  bootstrap: ScriptDescriptor[];
+  meta: Meta;
+  module: LayoutModule;
+  name: string;
+  render: WidgetRender;
+  source: string;
+}
+
+export interface RootLayoutComponentProps {
+  children: RouteRenderResult;
+  bootstrap: ScriptDescriptor[];
+  meta: Meta;
+}
+
 // --- MANIFEST ---
 
 export interface Manifest {
@@ -135,13 +159,11 @@ export interface Manifest {
     pathname: string;
     source?: string;
   }[];
-
-  // layouts?: {
-  //   module: string | RouteModule;
-  //   name: string;
-  //   pathname: string;
-  //   source?: string;
-  // }[];
+  layouts?: {
+    module: string | LayoutModule;
+    name: string;
+    source?: string;
+  }[];
 }
 
 // --- SERVERS ---

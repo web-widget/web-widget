@@ -71,5 +71,11 @@
       "pathname": "/_404",
       "module": "./routes/_404.tsx"
     }
+  ],
+  "layouts": [
+    {
+      "name": "Root",
+      "module": "./routes/_root.ts"
+    }
   ]
 }
