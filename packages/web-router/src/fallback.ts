@@ -33,7 +33,9 @@ const Code = (code: string = "") =>
           })}">${code}</pre>`
     : "";
 
-export default function DefaultErrorPage(error: RouteFallbackComponentProps) {
+export const fallback = function DefaultRootErrorPage(
+  error: RouteFallbackComponentProps
+) {
   return html`<div
     style="${style({
       display: "flex",
@@ -60,4 +62,4 @@ export default function DefaultErrorPage(error: RouteFallbackComponentProps) {
       ${Code(error.stack || error.message)}
     </div>
   </div>`;
-}
+};
