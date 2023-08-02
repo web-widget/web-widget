@@ -6,8 +6,8 @@ import {
   unsafeStreamToHTML,
 } from "@web-widget/html";
 
-import type { LayoutComponentProps } from "./types";
 import { renderMetaToString } from "@web-widget/schema/server";
+import type { LayoutComponentProps } from "./types";
 
 export { render };
 
@@ -68,17 +68,17 @@ export default function RootLayout({
             !HTMLScriptElement.supports ||
             !HTMLScriptElement.supports("importmap")
           ) {
-            window.importShim = (function () {
+            function importShim() {
               const esModuleShims =
                 "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js";
               const promise = new Promise((resolve, reject) => {
                 document.head.appendChild(
                   Object.assign(document.createElement("script"), {
-                    esModuleShims,
+                    src: esModuleShims,
                     crossorigin: "anonymous",
                     async: true,
                     onload() {
-                      if (importShim !== importShimProxy) {
+                      if (!importShim.$proxy) {
                         resolve(importShim);
                       } else {
                         reject(
@@ -92,10 +92,9 @@ export default function RootLayout({
                   })
                 );
               });
-              return function importShimProxy() {
-                return promise.then((importShim) => importShim(...arguments));
-              };
-            })();
+              importShim.$proxy = true;
+              return promise.then((importShim) => importShim(...arguments));
+            }
           }
         </script>
         ${unsafeHTML(
