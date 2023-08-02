@@ -1,9 +1,14 @@
 {
   "root": true,
-  "extends": ["@web-widget"],
+  "extends": [
+    "@web-widget"
+  ],
   "overrides": [
     {
-      "files": ["packages/**/test/**/*.js", "packages/**/examples/**/*.js"],
+      "files": [
+        "packages/**/test/**/*.js",
+        "packages/**/examples/**/*.js"
+      ],
       "env": {
         "amd": false,
         "browser": true,
@@ -11,11 +16,7 @@
         "node": false,
         "mocha": true
       },
-      "globals": {
-        "System": true
-      },
       "rules": {
-        "class-methods-use-this": "off",
         "no-console": "off"
       }
     }

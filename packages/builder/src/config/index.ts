@@ -1,11 +1,11 @@
-import type { BuilderUserConfig, BuilderConfig } from "../types";
-
-import fs from "node:fs";
-import path from "node:path";
+import type { BuilderConfig, BuilderUserConfig } from "../types";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { mergeConfig as mergeViteConfig } from "vite";
+
 import { createRelativeSchema } from "./schema";
+import fs from "node:fs";
 import { loadConfigWithVite } from "./vite-load";
+import { mergeConfig as mergeViteConfig } from "vite";
+import path from "node:path";
 
 /** Wraps an object in an array. If an array is passed, ignore it. */
 function arraify<T>(target: T | T[]): T[] {

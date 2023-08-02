@@ -1,6 +1,6 @@
 import fs from "node:fs";
-import { performance } from "perf_hooks";
 import newSpinner from "mico-spinner";
+import { performance } from "perf_hooks";
 
 export const warnMark = "\x1B[33m⚠\x1B[0m";
 

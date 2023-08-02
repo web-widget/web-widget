@@ -1,12 +1,3 @@
-import crypto from "node:crypto";
-import {
-  ReadableStream as NodeReadableStream,
-  WritableStream as NodeWritableStream,
-} from "@remix-run/web-stream";
-import { AbortController as NodeAbortController } from "abort-controller";
-import { URLPattern as NodeURLPattern } from "@netlify/urlpattern-polyfill";
-
-import { atob, btoa } from "./base64";
 import {
   Blob as NodeBlob,
   File as NodeFile,
@@ -16,6 +7,15 @@ import {
   Response as NodeResponse,
   fetch as nodeFetch,
 } from "./fetch";
+import {
+  ReadableStream as NodeReadableStream,
+  WritableStream as NodeWritableStream,
+} from "@remix-run/web-stream";
+import { atob, btoa } from "./base64";
+
+import { AbortController as NodeAbortController } from "abort-controller";
+import { URLPattern as NodeURLPattern } from "@netlify/urlpattern-polyfill";
+import crypto from "node:crypto";
 
 export function installGlobals() {
   global.atob = atob;

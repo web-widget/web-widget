@@ -47,7 +47,7 @@ export interface RouterOptions<T> {
   unknownMethodHandler?: UnknownMethodHandler<T>;
 }
 
-export type KnownMethod = typeof knownMethods[number];
+export type KnownMethod = (typeof knownMethods)[number];
 
 export const knownMethods = [
   "GET",

@@ -1,4 +1,5 @@
 import { createApp, createSSRApp } from "vue";
+
 import { defineRender } from "@web-widget/schema/client";
 
 export * from "@web-widget/schema/client";

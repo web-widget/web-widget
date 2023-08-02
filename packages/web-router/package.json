@@ -14,7 +14,8 @@
   "scripts": {
     "build": "pnpm exec tsup && pnpm run html-minifier",
     "dev": "pnpm exec tsup --watch",
-    "html-minifier": "babel dist/* --out-dir dist"
+    "html-minifier": "babel dist/* --out-dir dist",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@web-widget/html": "workspace:*",
@@ -24,6 +25,7 @@
     "@babel/cli": "^7.22.9",
     "@babel/core": "^7.22.5",
     "@babel/preset-env": "^7.22.9",
+    "@web-widget/eslint-config": "workspace:*",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "tsup": "^7.0.0",
     "typescript": "^5.0.4",

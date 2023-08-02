@@ -1,6 +1,6 @@
 import { createSSRApp } from "vue";
-import { renderToWebStream } from "vue/server-renderer";
 import { defineRender } from "@web-widget/schema/server";
+import { renderToWebStream } from "vue/server-renderer";
 
 export * from "@web-widget/schema/server";
 export const render = defineRender(async (context, component, props) => {

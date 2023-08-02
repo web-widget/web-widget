@@ -12,7 +12,7 @@ export const __ENV__ = {
 };
 
 const MODULE_REG =
-  /\b(?:import|__vite_ssr_dynamic_import__)\(["']([^"']*?)["']\)/;
+  /\b(?:import|__vite_ssr_dynamic_import__)\(["']([^"']*)["']\)/;
 
 function getFilename(loader: Loader) {
   const match = String(loader).match(MODULE_REG);

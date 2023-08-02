@@ -1,11 +1,12 @@
 import type {
-  WidgetRenderResult,
-  WidgetRenderContext,
   WidgetModuleLoader,
+  WidgetRenderContext,
+  WidgetRenderResult,
 } from "./types";
-import { render } from "./render";
+
 import { INITIAL } from "./status";
 import { reasonableTime } from "./timeouts";
+import { render } from "./render";
 import { rules } from "./flow";
 
 interface LifecycleControllerOptions {

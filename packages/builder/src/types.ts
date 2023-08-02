@@ -1,7 +1,7 @@
+import type { BuilderConfigSchema } from "./config/schema";
+import type { OutgoingHttpHeaders } from "node:http";
 import type { UserConfig as ViteConfig } from "vite";
 import type { z } from "zod";
-import type { OutgoingHttpHeaders } from "node:http";
-import { BuilderConfigSchema } from "./config/schema";
 
 export interface Output {
   dir?: string;

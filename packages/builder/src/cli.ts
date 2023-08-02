@@ -1,5 +1,5 @@
-import pc from "picocolors";
 import minimist from "minimist";
+import pc from "picocolors";
 
 const argv: any = minimist(process.argv.slice(2));
 

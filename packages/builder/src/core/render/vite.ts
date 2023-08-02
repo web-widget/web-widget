@@ -1,6 +1,7 @@
 import type { ModuleLoader, ModuleNode } from "../loader/index";
-import npath from "node:path";
 import { isCSSRequest, unwrapId } from "./util";
+
+import npath from "node:path";
 
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time

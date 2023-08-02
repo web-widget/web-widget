@@ -1,11 +1,12 @@
-import { createWebRequest, sendWebResponse } from "@web-widget/express";
-import { getAssets } from "../core/render";
-import { join } from "node:path";
-import { pathToFileURL } from "node:url";
 import type { Connect, ViteDevServer } from "vite";
+import { createWebRequest, sendWebResponse } from "@web-widget/express";
+
 import type { ModuleLoader } from "../core/loader/index";
 import type { ServerResponse } from "node:http";
 import WebRouter from "@web-widget/web-router";
+import { getAssets } from "../core/render";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 export async function handleRequest(
   manifestUrl: string,
