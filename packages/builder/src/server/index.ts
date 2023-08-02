@@ -1,5 +1,5 @@
-import type { ModuleLoader } from "../core/loader/index";
-import { createViteLoader } from "../core/loader/index";
+import type { ModuleLoader } from "./loader/index";
+import { createViteLoader } from "./loader/index";
 import type { Plugin, ServerOptions, UserConfig as ViteUserConfig } from "vite";
 import { createServer as createViteServer, mergeConfig } from "vite";
 import { join, relative } from "node:path";
@@ -77,25 +77,26 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
 
       return async () => {
         // Note that this function has a name so other middleware can find it.
-        viteServer.middlewares.use(async function widgetServerDevHandler(
-          req,
-          res
-        ) {
-          modules = modules || (await getModuleFiles(config, loader));
-          return handleRequest(
-            config.base +
-              relative(fileURLToPath(config.root), fileURLToPath(config.input)),
-            viteServer,
-            loader,
-            req,
-            res
-          ).catch((e) => {
-            viteServer.ssrFixStacktrace(e);
-            console.error(e.stack);
+        viteServer.middlewares.use(
+          async function widgetServerDevHandler(req, res) {
+            modules = modules || (await getModuleFiles(config, loader));
+            return handleRequest(
+              config.base +
+                relative(
+                  fileURLToPath(config.root),
+                  fileURLToPath(config.input)
+                ),
+              viteServer,
+              loader,
+              req,
+              res
+            ).catch((e) => {
+              viteServer.ssrFixStacktrace(e);
+              console.error(e.stack);
 
-            res.statusCode = 500;
-            res.setHeader("content-type", "text/html; charset=utf-8");
-            res.end(`<!DOCTYPE html>
+              res.statusCode = 500;
+              res.setHeader("content-type", "text/html; charset=utf-8");
+              res.end(`<!DOCTYPE html>
             <html>
               <head>
                 <title>Error</title>
@@ -111,8 +112,9 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
                 </div>
               <body>
             </html>`);
-          });
-        });
+            });
+          }
+        );
       };
     },
   };
