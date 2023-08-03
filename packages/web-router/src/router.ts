@@ -59,7 +59,10 @@ export const knownMethods = [
   "PATCH",
 ] as const;
 
-export function defaultOtherHandler(_ctx: HandlerContext): Response {
+export function defaultOtherHandler(
+  _ctx: HandlerContext,
+  _err: unknown
+): Response {
   return new Response(null, {
     status: 404,
   });

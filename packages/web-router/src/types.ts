@@ -141,29 +141,56 @@ export interface RootLayoutComponentProps {
 
 export interface Manifest {
   $schema?: string;
-  routes?: {
-    module: string | RouteModule;
-    name?: string;
-    pathname: string;
-    source?: string;
-  }[];
-  middlewares?: {
-    module: string | MiddlewareModule;
-    name?: string;
-    pathname: string;
-    source?: string;
-  }[];
-  fallbacks?: {
-    module: string | RouteModule;
-    name: string;
-    pathname: string;
-    source?: string;
-  }[];
-  layouts?: {
-    module: string | LayoutModule;
-    name: string;
-    source?: string;
-  }[];
+  routes?: (
+    | {
+        module: string;
+        name?: string;
+        pathname: string;
+      }
+    | {
+        module: RouteModule;
+        name?: string;
+        pathname: string;
+        source: string;
+      }
+  )[];
+  middlewares?: (
+    | {
+        module: string;
+        name?: string;
+        pathname: string;
+      }
+    | {
+        module: MiddlewareModule;
+        name?: string;
+        pathname: string;
+        source: string;
+      }
+  )[];
+  fallbacks?: (
+    | {
+        module: string;
+        name: string;
+        pathname: string;
+      }
+    | {
+        module: RouteModule;
+        name: string;
+        pathname: string;
+        source: string;
+      }
+  )[];
+  layouts?: (
+    | {
+        module: string;
+        name: string;
+      }
+    | {
+        module: LayoutModule;
+        name: string;
+        source: string;
+      }
+  )[];
 }
 
 // --- SERVERS ---
