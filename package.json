@@ -2,34 +2,31 @@
   "name": "root",
   "version": "0.0.0",
   "private": true,
-  "scripts": {
-    "start": "rocket start",
-    "build": "turbo run build --filter=./packages/* --filter=./examples/*",
-    "dev": "turbo run dev --filter=./packages/* --filter=./examples/*",
-    "prettier": "prettier --write packages/**/*.js",
-    "docs": "rocket build && npm run github-pages-init",
-    "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll",
-    "postinstall": "turbo run stub"
-  },
-  "engines": {
-    "node": ">=18",
-    "npm": ">=7"
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/web-widget/web-widget.git"
   },
   "author": "aui",
-  "bugs": {
-    "url": "https://github.com/web-widget/web-widget/issues"
+  "scripts": {
+    "build": "turbo run build --filter=./packages/* --filter=./examples/*",
+    "dev": "turbo run dev --filter=./packages/* --filter=./examples/*",
+    "docs": "rocket build && npm run github-pages-init",
+    "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll",
+    "postinstall": "turbo run stub",
+    "prettier": "prettier --write packages/**/*.js",
+    "publish": "pnpm publish -r",
+    "start": "rocket start"
   },
-  "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
-    "@web-widget/eslint-config": "workspace:*",
     "@rocket/cli": "^0.10.2",
     "@rocket/core": "^0.1.2",
     "@rocket/launch": "^0.6.0",
     "@rocket/search": "^0.6.0",
+    "@web-widget/eslint-config": "workspace:*",
     "alex": "^10.0.0",
     "babel-loader": "^8.2.3",
     "cross-env": "^7.0.3",
@@ -38,6 +35,10 @@
     "unbuild": "^1.2.1"
   },
   "packageManager": "pnpm@7.9.5",
+  "engines": {
+    "node": ">=18",
+    "npm": ">=7"
+  },
   "pnpm": {
     "patchedDependencies": {},
     "overrides": {

@@ -27,14 +27,15 @@ export type StartOptions = WebRouterOptions & {
 };
 
 export interface WebRouterOptions {
-  client?: {
-    base?: string;
-    // bootstrap: ScriptDescriptor[];
+  base?: string;
+  bootstrap?: ScriptDescriptor[];
+  meta?: Meta;
+  experimental?: {
+    loader?: (module: string) => Promise<any>;
+    render?: RenderPage;
+    root?: string;
+    router?: RouterOptions;
   };
-  loader?: (module: string) => Promise<any>;
-  render?: RenderPage;
-  root?: string;
-  router?: RouterOptions;
 }
 
 export interface RouterOptions {
@@ -180,17 +181,16 @@ export interface Manifest {
         source: string;
       }
   )[];
-  layouts?: (
+  layout?:
     | {
         module: string;
-        name: string;
+        name?: string;
       }
     | {
         module: LayoutModule;
-        name: string;
         source: string;
-      }
-  )[];
+        name?: string;
+      };
 }
 
 // --- SERVERS ---

@@ -1,15 +1,16 @@
-// @ts-nocheck
-import { ConnInfo, Server } from "https://deno.land/std@0.196.0/http/mod.ts";
+// @ts-ignore
+import type { ConnInfo } from "https://deno.land/std@0.196.0/http/mod.ts";
+// @ts-ignore
+import { Server } from "https://deno.land/std@0.196.0/http/mod.ts";
+// @ts-ignore
+import staticFiles from "https://deno.land/x/static_files@1.1.6/mod.ts";
 
 import WebRouter from "./dist/web-router.js";
-import staticFiles from "https://deno.land/x/static_files@1.1.6/mod.ts";
 
 const webRouter = new WebRouter(
   new URL("../dist/server/routemap.json", import.meta.url),
   {
-    client: {
-      base: "/",
-    },
+    base: "/",
   }
 );
 

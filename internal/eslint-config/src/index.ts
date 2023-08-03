@@ -52,6 +52,12 @@ export default defineConfig({
   overrides: [
     {
       files: ["**/*.ts?(x)"],
+      rules: {
+        "n/no-missing-import": OFF,
+      },
+    },
+    {
+      files: ["**/*.ts?(x)"],
       extends: [
         "plugin:import/typescript",
         "plugin:@typescript-eslint/recommended",

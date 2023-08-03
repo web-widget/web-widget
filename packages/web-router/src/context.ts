@@ -28,6 +28,7 @@ import type {
   Page,
   RenderPage,
   RouterOptions,
+  ScriptDescriptor,
   ServerConnInfo,
   ServerHandler,
   WebRouterOptions,
@@ -46,26 +47,29 @@ interface RouterState {
 }
 
 export class ServerContext {
+  #bootstrap: ScriptDescriptor[];
   #dev: boolean;
   #fallbacks: Page[];
-  #layouts: Layout[];
+  #layout: Layout;
   #middlewares: MiddlewareRoute[];
   #renderPage: RenderPage;
   #routerOptions: RouterOptions;
   #routes: Page[];
 
   constructor(
+    bootstrap: ScriptDescriptor[],
     dev: boolean,
     fallbacks: Page[],
-    layouts: Layout[],
+    layout: Layout,
     middlewares: MiddlewareRoute[],
     renderPage: RenderPage,
     routerOptions: RouterOptions,
     routes: Page[]
   ) {
+    this.#bootstrap = bootstrap;
     this.#dev = dev;
     this.#fallbacks = fallbacks;
-    this.#layouts = layouts;
+    this.#layout = layout;
     this.#middlewares = middlewares;
     this.#renderPage = renderPage;
     this.#routerOptions = routerOptions;
@@ -83,10 +87,19 @@ export class ServerContext {
   ): Promise<ServerContext> {
     let manifest: Manifest;
     let root: string;
-    const base = opts?.client?.base ?? "/";
-    const loader =
-      opts?.loader ??
-      ((module) => import(/* @vite-ignore */ /* webpackIgnore: true */ module));
+
+    const resolvedOpts = {
+      base: opts.base ?? "/",
+      bootstrap: opts.bootstrap ?? DEFAULT_BOOTSTRAP,
+      loader:
+        opts.experimental?.loader ??
+        ((module) =>
+          import(/* @vite-ignore */ /* webpackIgnore: true */ module)),
+      meta: opts.meta ?? DEFAULT_META,
+      render: opts.experimental?.render ?? DEFAULT_RENDER_FN,
+      root: opts.experimental?.root,
+      router: opts.experimental?.router ?? DEFAULT_ROUTER_OPTIONS,
+    };
 
     if (routemap instanceof URL) {
       routemap = routemap.href;
@@ -95,14 +108,14 @@ export class ServerContext {
     if (typeof routemap === "string") {
       root = fileUrlDirname(routemap);
       manifest =
-        routemap.endsWith(".json") && !opts?.loader
+        routemap.endsWith(".json") && !opts.experimental?.loader
           ? await (await fetch(routemap)).json()
-          : await loader(routemap);
+          : await resolvedOpts.loader(routemap);
     } else {
-      if (typeof opts.root !== "string") {
-        throw new TypeError(`options.root: Must be a string.`);
+      if (typeof resolvedOpts.root !== "string") {
+        throw new TypeError(`options.experimental.root: Must be a string.`);
       }
-      root = opts.root;
+      root = resolvedOpts.root;
       manifest = routemap;
     }
 
@@ -110,17 +123,20 @@ export class ServerContext {
     const routes: Page[] = [];
     const middlewares: MiddlewareRoute[] = [];
     const fallbacks: Page[] = [];
-    const layouts: Layout[] = [];
+    let layout = DEFAULT_ROOT_LAYOUT;
 
     const resolveModule = async <T>(mod: string | T) =>
       (typeof mod === "string"
-        ? await loader(fileUrlJoin(root, mod))
+        ? await resolvedOpts.loader(fileUrlJoin(root, mod))
         : mod) as T;
 
     const resolveMeta = (meta: Meta, source: string) => {
       const url = fileUrlJoin(root, source);
       const dirname = fileUrlDirname(url).replace(root, "");
-      return rebaseMeta(mergeMeta(DEFAULT_META, meta), base + dirname);
+      return rebaseMeta(
+        mergeMeta(resolvedOpts.meta, meta),
+        resolvedOpts.base + dirname
+      );
     };
 
     const emptyRender = async () => {
@@ -155,7 +171,7 @@ export class ServerContext {
         }) as RouteHandler;
       }
       routes.push({
-        bootstrap: [],
+        bootstrap: resolvedOpts.bootstrap,
         config,
         csp: Boolean(config.csp ?? false),
         handler: handler as RouteHandler,
@@ -191,7 +207,7 @@ export class ServerContext {
       }
 
       fallbacks.push({
-        bootstrap: [],
+        bootstrap: resolvedOpts.bootstrap,
         config,
         csp: Boolean(config.csp ?? false),
         handler:
@@ -208,34 +224,24 @@ export class ServerContext {
       });
     }
 
-    for (const item of manifest.layouts ?? []) {
-      const { name, module: mod } = item;
+    if (manifest.layout) {
+      const { name, module: mod } = manifest.layout;
       const source =
-        typeof mod === "string" ? mod : (item as { source: string }).source;
+        typeof mod === "string"
+          ? mod
+          : (manifest.layout as { source: string }).source;
       const module = await resolveModule<LayoutModule>(mod);
       const { render = emptyRender } = module;
       const meta = resolveMeta(module.meta || {}, source);
 
-      layouts.push({
-        bootstrap: [],
+      layout = {
+        bootstrap: resolvedOpts.bootstrap,
         meta,
+        name: name ?? "Root",
         module,
-        name,
         render,
         source,
-      });
-    }
-
-    if (!fallbacks.some((page) => page.name === HttpStatus[404])) {
-      fallbacks.push(DEFAULT_NOT_FOUND_ERROR_PAGE);
-    }
-
-    if (!fallbacks.some((page) => page.name === HttpStatus[500])) {
-      fallbacks.push(DEFAULT_INTERNAL_SERVER_ERROR_PAGE);
-    }
-
-    if (!layouts.some((page) => page.name === "Root")) {
-      layouts.push(DEFAULT_ROOT_LAYOUT);
+      };
     }
 
     for (const item of manifest.middlewares ?? []) {
@@ -248,13 +254,22 @@ export class ServerContext {
       });
     }
 
+    if (!fallbacks.some((page) => page.name === HttpStatus[404])) {
+      fallbacks.push(DEFAULT_NOT_FOUND_ERROR_PAGE);
+    }
+
+    if (!fallbacks.some((page) => page.name === HttpStatus[500])) {
+      fallbacks.push(DEFAULT_INTERNAL_SERVER_ERROR_PAGE);
+    }
+
     return new ServerContext(
+      resolvedOpts.bootstrap,
       dev,
       fallbacks,
-      layouts,
+      layout,
       middlewares,
-      opts.render ?? DEFAULT_RENDER_FN,
-      opts.router ?? DEFAULT_ROUTER_OPTIONS,
+      resolvedOpts.render,
+      resolvedOpts.router,
       routes
     );
   }
@@ -363,6 +378,7 @@ export class ServerContext {
     otherHandler: router.Handler<RouterState>;
     errorHandler: router.ErrorHandler<RouterState>;
   } {
+    const bootstrap = this.#bootstrap;
     const internalRoutes: router.Routes<RouterState> = {};
     const routes: router.Routes<RouterState> = {};
     const notFoundPage = this.#fallbacks.find(
@@ -371,9 +387,7 @@ export class ServerContext {
     const internalServerErrorPage = this.#fallbacks.find(
       (page) => page.name === HttpStatus[500]
     ) as Page;
-    const rootLayout = this.#layouts.find(
-      (page) => page.name === "Root"
-    ) as Layout;
+    const layout = this.#layout as Layout;
 
     const genRender = (route: Page, status: number) => {
       return (
@@ -404,7 +418,7 @@ export class ServerContext {
             : undefined;
           const [body, csp] = await internalRender(
             {
-              bootstrap: DEFAULT_BOOTSTRAP,
+              bootstrap,
               data,
               error: errorProxy,
               meta,
@@ -414,7 +428,7 @@ export class ServerContext {
               source: route.source,
             },
             this.#renderPage,
-            rootLayout
+            layout
           );
 
           return sendResponse(body, {
