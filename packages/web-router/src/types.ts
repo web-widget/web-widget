@@ -180,17 +180,16 @@ export interface Manifest {
         source: string;
       }
   )[];
-  layouts?: (
+  layout?:
     | {
         module: string;
-        name: string;
+        name?: string;
       }
     | {
         module: LayoutModule;
-        name: string;
         source: string;
-      }
-  )[];
+        name?: string;
+      };
 }
 
 // --- SERVERS ---

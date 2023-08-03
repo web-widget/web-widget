@@ -48,7 +48,7 @@ interface RouterState {
 export class ServerContext {
   #dev: boolean;
   #fallbacks: Page[];
-  #layouts: Layout[];
+  #layout: Layout;
   #middlewares: MiddlewareRoute[];
   #renderPage: RenderPage;
   #routerOptions: RouterOptions;
@@ -57,7 +57,7 @@ export class ServerContext {
   constructor(
     dev: boolean,
     fallbacks: Page[],
-    layouts: Layout[],
+    layout: Layout,
     middlewares: MiddlewareRoute[],
     renderPage: RenderPage,
     routerOptions: RouterOptions,
@@ -65,7 +65,7 @@ export class ServerContext {
   ) {
     this.#dev = dev;
     this.#fallbacks = fallbacks;
-    this.#layouts = layouts;
+    this.#layout = layout;
     this.#middlewares = middlewares;
     this.#renderPage = renderPage;
     this.#routerOptions = routerOptions;
@@ -110,7 +110,7 @@ export class ServerContext {
     const routes: Page[] = [];
     const middlewares: MiddlewareRoute[] = [];
     const fallbacks: Page[] = [];
-    const layouts: Layout[] = [];
+    let layout;
 
     const resolveModule = async <T>(mod: string | T) =>
       (typeof mod === "string"
@@ -208,34 +208,24 @@ export class ServerContext {
       });
     }
 
-    for (const item of manifest.layouts ?? []) {
-      const { name, module: mod } = item;
+    if (manifest.layout) {
+      const { name, module: mod } = manifest.layout;
       const source =
-        typeof mod === "string" ? mod : (item as { source: string }).source;
+        typeof mod === "string"
+          ? mod
+          : (manifest.layout as { source: string }).source;
       const module = await resolveModule<LayoutModule>(mod);
       const { render = emptyRender } = module;
       const meta = resolveMeta(module.meta || {}, source);
 
-      layouts.push({
+      layout = {
         bootstrap: [],
         meta,
+        name: name ?? "Root",
         module,
-        name,
         render,
         source,
-      });
-    }
-
-    if (!fallbacks.some((page) => page.name === HttpStatus[404])) {
-      fallbacks.push(DEFAULT_NOT_FOUND_ERROR_PAGE);
-    }
-
-    if (!fallbacks.some((page) => page.name === HttpStatus[500])) {
-      fallbacks.push(DEFAULT_INTERNAL_SERVER_ERROR_PAGE);
-    }
-
-    if (!layouts.some((page) => page.name === "Root")) {
-      layouts.push(DEFAULT_ROOT_LAYOUT);
+      };
     }
 
     for (const item of manifest.middlewares ?? []) {
@@ -248,10 +238,18 @@ export class ServerContext {
       });
     }
 
+    if (!fallbacks.some((page) => page.name === HttpStatus[404])) {
+      fallbacks.push(DEFAULT_NOT_FOUND_ERROR_PAGE);
+    }
+
+    if (!fallbacks.some((page) => page.name === HttpStatus[500])) {
+      fallbacks.push(DEFAULT_INTERNAL_SERVER_ERROR_PAGE);
+    }
+
     return new ServerContext(
       dev,
       fallbacks,
-      layouts,
+      layout ?? DEFAULT_ROOT_LAYOUT,
       middlewares,
       opts.render ?? DEFAULT_RENDER_FN,
       opts.router ?? DEFAULT_ROUTER_OPTIONS,
@@ -371,9 +369,7 @@ export class ServerContext {
     const internalServerErrorPage = this.#fallbacks.find(
       (page) => page.name === HttpStatus[500]
     ) as Page;
-    const rootLayout = this.#layouts.find(
-      (page) => page.name === "Root"
-    ) as Layout;
+    const layout = this.#layout as Layout;
 
     const genRender = (route: Page, status: number) => {
       return (
@@ -414,7 +410,7 @@ export class ServerContext {
               source: route.source,
             },
             this.#renderPage,
-            rootLayout
+            layout
           );
 
           return sendResponse(body, {
