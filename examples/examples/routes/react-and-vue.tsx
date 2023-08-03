@@ -23,7 +23,7 @@ export default function Page() {
       <VueCounter client name="Vue3 Counter" start={3} />
 
       <h2>Vanilla component:</h2>
-      <ReactCounter client name="React Counter" start={3} />
+      <ReactCounter client name="Vanilla Counter" start={3} />
     </BaseLayout>
   );
 }

@@ -65,9 +65,10 @@ const importShimLoader = html`<script id="shim:es-module">
           })
         );
       });
-      importShim.$proxy = true;
+      
       return promise.then((importShim) => importShim(...arguments));
     }
+    importShim.$proxy = true;
   }
 </script>`;
 
@@ -77,20 +78,15 @@ export default function DefaultRootLayout({
   bootstrap,
 }: RootLayoutComponentProps): HTML {
   // eslint-disable-next-line prettier/prettier
-  return html`<!DOCTYPE html>
+  return html`<!doctype html>
     <html lang="${meta.lang}">
       <head>
         ${unsafeHTML(renderMetaToString(meta))}
+        ${importShimLoader}
       </head>
       <body>
-        ${typeof children === "string"
-          ? children
-          : unsafeStreamToHTML(children as ReadableStream)}
-        ${importShimLoader}
-        ${unsafeHTML(
-          renderMetaToString({
-            script: bootstrap,
-          })
+        ${children instanceof ReadableStream ? unsafeStreamToHTML(children) : children}
+        ${unsafeHTML(renderMetaToString({ script: bootstrap })
         )}
       </body>
     </html>`;
