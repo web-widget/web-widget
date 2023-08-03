@@ -209,10 +209,13 @@ export function rebaseMeta(meta: Meta, base: string): Meta {
 }
 
 export function mergeMeta(defaults: Meta, overrides: Meta): Meta {
-  const newDefaults = Object.entries(defaults).reduce((meta, [key, value]) => {
-    meta[key] = Array.isArray(value) ? [...value] : value;
-    return meta;
-  }, {} as Record<string, string | Record<string, string>[]>);
+  const newDefaults = Object.entries(defaults).reduce(
+    (meta, [key, value]) => {
+      meta[key] = Array.isArray(value) ? [...value] : value;
+      return meta;
+    },
+    {} as Record<string, string | Record<string, string>[]>
+  );
 
   const newOverrides = Object.entries(overrides).reduce(
     (meta, [key, value]) => {

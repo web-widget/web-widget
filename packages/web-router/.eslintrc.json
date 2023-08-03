@@ -1,5 +1,3 @@
 {
-  "extends": [
-    "@web-widget"
-  ]
+  "extends": ["@web-widget"]
 }

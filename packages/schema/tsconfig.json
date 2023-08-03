@@ -2,12 +2,7 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable",
-      "WebWorker"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
     "module": "esnext",
     "moduleResolution": "Bundler",
     "noFallthroughCasesInSwitch": true,
@@ -18,10 +13,8 @@
     "rootDir": "./src",
     "sourceMap": true,
     "strict": true,
-    "target": "es2020",
+    "target": "es2020"
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": []
 }

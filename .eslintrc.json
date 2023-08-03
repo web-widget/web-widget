@@ -1,14 +1,9 @@
 {
   "root": true,
-  "extends": [
-    "@web-widget"
-  ],
+  "extends": ["@web-widget"],
   "overrides": [
     {
-      "files": [
-        "packages/**/test/**/*.js",
-        "packages/**/examples/**/*.js"
-      ],
+      "files": ["packages/**/test/**/*.js", "packages/**/examples/**/*.js"],
       "env": {
         "amd": false,
         "browser": true,

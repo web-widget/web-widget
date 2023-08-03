@@ -257,10 +257,13 @@ function chunkFileNamesPlugin(chunkMap: Map<string, string>): VitePlugin[] {
           chunk.dynamicImports = chunk.dynamicImports.map(getNewFileName);
           chunk.importedBindings = Object.entries(
             chunk.importedBindings
-          ).reduce((map, [key, value]) => {
-            map[key] = value;
-            return map;
-          }, {} as { [imported: string]: string[] });
+          ).reduce(
+            (map, [key, value]) => {
+              map[key] = value;
+              return map;
+            },
+            {} as { [imported: string]: string[] }
+          );
           chunk.implicitlyLoadedBefore =
             chunk.implicitlyLoadedBefore.map(getNewFileName);
 

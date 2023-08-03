@@ -1,17 +1,8 @@
 {
-  "include": [
-    "**/*.ts"
-  ],
-  "exclude": [
-    "dist",
-    "__tests__",
-    "node_modules"
-  ],
+  "include": ["**/*.ts"],
+  "exclude": ["dist", "__tests__", "node_modules"],
   "compilerOptions": {
-    "lib": [
-      "ES2019",
-      "WebWorker"
-    ],
+    "lib": ["ES2019", "WebWorker"],
     "composite": false,
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
