@@ -1,5 +1,5 @@
-export { render } from "@web-widget/react";
 import BaseLayout from "../components/BaseLayout";
+export { render } from "@web-widget/react";
 
 export default function Page() {
   return (

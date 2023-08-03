@@ -3,25 +3,26 @@ import { defineConfig } from "eslint-define-config";
 import importRules from "./import";
 import reactRules from "./react";
 import typescriptRules from "./typescript";
+import nodeRules from "./node";
 
 const OFF = 0;
 // const WARN = 1;
 // const ERROR = 2;
 
 export default defineConfig({
-  parser: "@babel/eslint-parser",
+  parser: "@typescript-eslint/parser",
   parserOptions: {
     sourceType: "module",
     requireConfigFile: false,
     ecmaVersion: "latest",
-    babelOptions: {
-      presets: ["@babel/preset-react"],
+    ecmaFeatures: {
+      jsx: true,
     },
   },
   env: {
     browser: true,
     commonjs: false,
-    node: false,
+    node: true,
     es6: true,
   },
   settings: {
@@ -45,6 +46,8 @@ export default defineConfig({
     ...coreRules.rules,
     ...importRules.rules,
     ...reactRules.rules,
+    ...reactRules.rules,
+    ...nodeRules.rules,
   },
   overrides: [
     {

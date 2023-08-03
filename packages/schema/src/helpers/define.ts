@@ -69,7 +69,7 @@ export function defineClientRender(
 
 export function defineRouteComponent<
   Data = unknown,
-  Params = Record<string, string>
+  Params = Record<string, string>,
 >(component: RouteComponent<Data, Params>) {
   return component;
 }

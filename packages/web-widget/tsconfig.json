@@ -3,11 +3,7 @@
     "outDir": "./dist",
     "target": "ES2015",
     "module": "ES2020",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "esModuleInterop": true,
     "allowJs": false,
     "strict": true,
@@ -23,8 +19,6 @@
     "forceConsistentCasingInFileNames": true,
     "removeComments": false
   },
-  "include": [
-    "./src"
-  ],
+  "include": ["./src"],
   "exclude": []
 }

@@ -11,18 +11,9 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "useUnknownInCatchVariables": false,
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable",
-      "WebWorker"
-    ],
-    "types": [
-      "node"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
+    "types": ["node"],
     "paths": {}
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"]
 }

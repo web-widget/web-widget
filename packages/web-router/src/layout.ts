@@ -76,7 +76,8 @@ export default function DefaultRootLayout({
   children,
   bootstrap,
 }: RootLayoutComponentProps): HTML {
-  return html`<!doctype html>
+  // eslint-disable-next-line prettier/prettier
+  return html`<!DOCTYPE html>
     <html lang="${meta.lang}">
       <head>
         ${unsafeHTML(renderMetaToString(meta))}
