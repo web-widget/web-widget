@@ -19,9 +19,23 @@ app.use(async (ctx, next) => {
 const webRouter = new WebRouter(
   new URL("./dist/server/routemap.json", import.meta.url),
   {
-    client: {
-      base: "/",
-    },
+    base: "/",
+    meta: {
+      lang: "en",
+      meta: [
+        {
+          charset: "utf-8",
+        },
+        {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1.0",
+        },
+        {
+          "http-equiv": "X-Powered-By",
+          content: "@web-widget/web-router"
+        }
+      ],
+    }
   }
 );
 

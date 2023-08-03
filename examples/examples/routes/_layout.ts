@@ -46,13 +46,12 @@ export default function RootLayout({
   return html`<!doctype html>
     <html lang="${meta.lang}">
       <head>
-        ${unsafeHTML(renderMetaToString(meta))}
+        ${unsafeHTML(renderMetaToString(meta))} ${importShimLoader}
       </head>
       <body>
         ${typeof children === "string"
           ? children
           : unsafeStreamToHTML(children as ReadableStream)}
-        ${importShimLoader}
         ${unsafeHTML(
           renderMetaToString({
             script: bootstrap,

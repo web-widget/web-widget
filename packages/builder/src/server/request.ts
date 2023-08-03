@@ -19,41 +19,43 @@ export async function handleRequest(
 
   const router = new WebRouter(manifestUrl, {
     dev: true,
-    loader: loader.import,
-    async render(ctx, render) {
-      const dir = pathToFileURL(join(viteServer.config.root, "/"));
-      const routeFile = new URL(ctx.source, dir);
-      const assets = await getAssets(
-        routeFile,
-        loader,
-        pathToFileURL(viteServer.config.root),
-        "development"
-      );
+    experimental: {
+      loader: loader.import,
+      async render(ctx, render) {
+        const dir = pathToFileURL(join(viteServer.config.root, "/"));
+        const routeFile = new URL(ctx.source, dir);
+        const assets = await getAssets(
+          routeFile,
+          loader,
+          pathToFileURL(viteServer.config.root),
+          "development"
+        );
 
-      ctx.meta.style = [];
-      ctx.meta.link = [];
-      ctx.meta.script = [];
+        ctx.meta.style = [];
+        ctx.meta.link = [];
+        ctx.meta.script = [];
 
-      assets.styles.forEach(({ props, children }) => {
-        // @ts-ignore
-        ctx.meta.style.push({
-          ...props,
-          content: children,
+        assets.styles.forEach(({ props, children }) => {
+          // @ts-ignore
+          ctx.meta.style.push({
+            ...props,
+            content: children,
+          });
         });
-      });
-      assets.links.forEach(({ props, children }) => {
-        // @ts-ignore
-        ctx.meta.link.push(props);
-      });
-      assets.scripts.forEach(({ props, children }) => {
-        // @ts-ignore
-        ctx.meta.script.push({
-          ...props,
-          content: children,
+        assets.links.forEach(({ props, children }) => {
+          // @ts-ignore
+          ctx.meta.link.push(props);
         });
-      });
+        assets.scripts.forEach(({ props, children }) => {
+          // @ts-ignore
+          ctx.meta.script.push({
+            ...props,
+            content: children,
+          });
+        });
 
-      await render();
+        await render();
+      },
     },
   });
   const nodeRequest =
