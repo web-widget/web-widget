@@ -22,6 +22,7 @@ import mime from "mime-types";
 import { openConfig } from "../config";
 import { resolve } from "import-meta-resolve";
 import { withSpinner } from "./utils";
+import builtins from "builtin-modules";
 
 const VITE_MANIFEST_NAME = "manifest.json";
 const CLIENT_MODUL_NAME = "@web-widget/web-widget";
@@ -145,6 +146,7 @@ async function bundleWithVite(
           assetFileNames: `${config.output.asset}/[name]-[hash][extname]`,
           chunkFileNames: `${config.output.asset}/[name]-[hash].js`,
         },
+        external: builtins as string[],
       },
       server: {
         host: config.server.host,
@@ -255,13 +257,10 @@ function chunkFileNamesPlugin(chunkMap: Map<string, string>): VitePlugin[] {
           chunk.dynamicImports = chunk.dynamicImports.map(getNewFileName);
           chunk.importedBindings = Object.entries(
             chunk.importedBindings
-          ).reduce(
-            (map, [key, value]) => {
-              map[key] = value;
-              return map;
-            },
-            {} as { [imported: string]: string[] }
-          );
+          ).reduce((map, [key, value]) => {
+            map[key] = value;
+            return map;
+          }, {} as { [imported: string]: string[] });
           chunk.implicitlyLoadedBefore =
             chunk.implicitlyLoadedBefore.map(getNewFileName);
 
