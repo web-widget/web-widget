@@ -25,6 +25,7 @@ import { withSpinner } from "./utils";
 
 const VITE_MANIFEST_NAME = "manifest.json";
 const CLIENT_MODUL_NAME = "@web-widget/web-widget";
+const CLIENT_NAME = "web-widget";
 const CLIENT_ENTRY = fileURLToPath(resolve(CLIENT_MODUL_NAME, import.meta.url));
 
 type Entrypoints = Record<string, string>;
@@ -57,7 +58,7 @@ async function bundle(config: BuilderConfig) {
         config,
         {
           ...entrypoints,
-          [`${config.output.asset}/web-widget`]: CLIENT_ENTRY,
+          [CLIENT_NAME]: CLIENT_ENTRY,
         },
         false,
         chunkMap
@@ -367,9 +368,11 @@ function getMetaMap(
   clientResult: RollupOutput,
   rootDir: string
 ): Map<string, Meta> {
-  const clientModuleFileName = clientResult.output.find(
+  const webWidgetFileName = clientResult.output.find(
     (chunk) => chunk.type === "chunk" && chunk.facadeModuleId === CLIENT_ENTRY
   )?.fileName;
+  const webWidgetSrcName = relative(rootDir, CLIENT_ENTRY);
+
   const rebase = (src: string, importer: string) =>
     relative(dirname(importer), src);
 
@@ -378,15 +381,16 @@ function getMetaMap(
       chunk.type === "chunk" &&
       chunk.facadeModuleId &&
       relative(rootDir, chunk.facadeModuleId);
+
     map.set(chunk.fileName, {
-      script: clientModuleFileName
+      script: webWidgetFileName
         ? [
             {
               type: "importmap",
               content: JSON.stringify({
                 imports: {
                   [CLIENT_MODUL_NAME]: rebase(
-                    clientModuleFileName,
+                    webWidgetFileName,
                     chunk.fileName
                   ),
                 },
@@ -394,18 +398,22 @@ function getMetaMap(
             } as ScriptDescriptor,
           ]
         : [],
-      link: (srcFileName ? getLinks(manifest, srcFileName, false) : []).map(
-        ({ href, ...arrts }) => {
-          if (href) {
-            return {
-              ...arrts,
-              href: rebase(href, chunk.fileName),
-            };
-          } else {
-            return arrts;
-          }
+      link: (srcFileName
+        ? [
+            ...getLinks(manifest, webWidgetSrcName, true),
+            ...getLinks(manifest, srcFileName, false),
+          ]
+        : []
+      ).map(({ href, ...arrts }) => {
+        if (href) {
+          return {
+            ...arrts,
+            href: rebase(href, chunk.fileName),
+          };
+        } else {
+          return arrts;
         }
-      ),
+      }),
     });
     return map;
   }, new Map());
