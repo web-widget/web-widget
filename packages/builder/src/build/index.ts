@@ -122,7 +122,7 @@ async function bundleWithVite(
     plugins: [
       //!isServer && removeEntryPlugin([CLIENT_ENTRY]),
       isServer && addESMPackagePlugin(config),
-      chunkFileNamesPlugin(chunkMap),
+      chunkFileNamesPlugin(config, chunkMap),
       isServer && metaMap && injectionMetaPlugin(metaMap),
     ],
     build: {
@@ -140,11 +140,6 @@ async function bundleWithVite(
         input: entrypoints,
         preserveEntrySignatures: "allow-extension",
         treeshake: true,
-        output: {
-          entryFileNames: `${config.output.asset}/[name]-[hash].js`,
-          assetFileNames: `${config.output.asset}/[name]-[hash][extname]`,
-          chunkFileNames: `${config.output.asset}/[name]-[hash].js`,
-        },
         external: builtins as string[],
       },
       server: {
@@ -188,33 +183,58 @@ function resolveEntrypoints(
 }
 
 // NOTE: Keep the relative paths of assets on the client and server consistent.
-function chunkFileNamesPlugin(chunkMap: Map<string, string>): VitePlugin[] {
+function chunkFileNamesPlugin(
+  config: BuilderConfig,
+  chunkMap: Map<string, string>
+): VitePlugin[] {
   let isServer = false;
   const inputFileNamesCache = new Map();
   const bareImportRE = /^(?![a-zA-Z]:)[\w@](?!.*:\/\/)/;
+  const chunkNameCache = new Set();
   return [
     {
       name: "builder:rename-output-filenames",
-      configResolved(resolvedConfig) {
-        isServer = !!resolvedConfig.build.ssr;
+      config(userConfig) {
+        isServer = !!userConfig?.build?.ssr;
+        return {
+          build: {
+            rollupOptions: {
+              output: {
+                entryFileNames: `${config.output.asset}/[name]-[hash].js`,
+                assetFileNames: `${config.output.asset}/[name]-[hash][extname]`,
+                chunkFileNames: `${config.output.asset}/[name]-[hash].js`,
+              },
+            },
+          },
+        };
       },
       generateBundle(options, bundle) {
         Object.keys(bundle).forEach((fileName) => {
           const chunk = bundle[fileName];
-          const facadeModuleId =
-            chunk.type === "chunk" ? chunk.facadeModuleId : null;
+          let id = chunk.type === "chunk" ? chunk.facadeModuleId : null;
 
-          if (facadeModuleId === null) {
-            return;
+          if (!id) {
+            if (!chunk.name) {
+              return;
+            }
+
+            if (chunkNameCache.has(chunk.name)) {
+              throw new Error(
+                `chunk.name conflict, please try renaming the file name.`
+              );
+            }
+
+            id = chunk.name;
+            chunkNameCache.add(chunk.name);
           }
 
           if (isServer) {
-            const newFileName = chunkMap.get(facadeModuleId);
+            const newFileName = chunkMap.get(id);
             if (typeof newFileName === "string") {
               inputFileNamesCache.set(chunk.fileName, newFileName);
             }
           } else {
-            chunkMap.set(facadeModuleId, fileName);
+            chunkMap.set(id, fileName);
           }
         });
       },
@@ -352,7 +372,7 @@ function injectionMetaPlugin(metaMap: Map<string, Meta>): VitePlugin {
 }
 
 // Internal: Add a `package.json` file specifying the type of files as MJS.
-function addESMPackagePlugin(config: BuilderConfig) {
+function addESMPackagePlugin(config: BuilderConfig): VitePlugin {
   return {
     name: "builder:add-esm-package",
     async writeBundle() {
@@ -426,7 +446,6 @@ function getLinks(
   containSelf: boolean,
   cache = new Map()
 ): LinkDescriptor[] {
-
   if (cache.has(srcFileName)) {
     return [];
   }
