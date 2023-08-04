@@ -11,8 +11,6 @@
     "build": "builder build",
     "dev": "builder dev",
     "start": "node server.js",
-    "build:deno": "pnpm run build && pnpm exec build-worker --entry deno/web-router.ts --out deno/dist/web-router.js --debug",
-    "start:deno": "cd deno && deno task start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -37,7 +35,6 @@
     "@vitejs/plugin-react": "^4.0.0",
     "@vitejs/plugin-vue2": "^2.2.0",
     "@web-widget/builder": "workspace:*",
-    "build-worker": "^0.2.2",
     "tsup": "^6.7.0",
     "typescript": "^5.0.4",
     "vite": "^4.3.9"
