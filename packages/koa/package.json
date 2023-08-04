@@ -13,7 +13,8 @@
   ],
   "scripts": {
     "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch"
+    "dev": "pnpm exec tsup --watch",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "@web-widget/web-std": "workspace:*"

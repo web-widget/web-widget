@@ -33,7 +33,8 @@
   ],
   "scripts": {
     "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch"
+    "dev": "pnpm exec tsup --watch",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "@babel/core": "^7.22.5",
