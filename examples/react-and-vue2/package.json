@@ -1,0 +1,48 @@
+{
+  "name": "@examples/react-and-vue2",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "keywords": [],
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "scripts": {
+    "build": "builder build",
+    "dev": "builder dev",
+    "start": "node server.js",
+    "build:deno": "pnpm run build && pnpm exec build-worker --entry deno/web-router.ts --out deno/dist/web-router.js --debug",
+    "start:deno": "cd deno && deno task start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@web-widget/html": "workspace:*",
+    "@web-widget/koa": "workspace:*",
+    "@web-widget/react": "workspace:*",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/vue2": "workspace:*",
+    "@web-widget/web-router": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
+    "koa": "^2.14.2",
+    "koa-connect": "^2.1.0",
+    "koa-send": "^5.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vue": "^2.7.14"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.13.6",
+    "@types/react": "^18.2.9",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-vue2": "^2.2.0",
+    "@web-widget/builder": "workspace:*",
+    "build-worker": "^0.2.2",
+    "tsup": "^6.7.0",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.9"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
