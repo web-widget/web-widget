@@ -13,5 +13,6 @@ export const render = defineRender(async (context, component, props) => {
   });
 
   // TODO renderer.renderToStream() to ReadableStream
-  return renderer.renderToString(app);
+  const content = await renderer.renderToString(app);
+  return `<div data-vue2-shell>` + content + "</div>";
 });
