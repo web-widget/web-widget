@@ -175,9 +175,6 @@ importers:
       '@web-widget/builder':
         specifier: workspace:*
         version: link:../../packages/builder
-      build-worker:
-        specifier: ^0.2.2
-        version: 0.2.2
       tsup:
         specifier: ^7.0.0
         version: 7.0.0(typescript@5.1.6)
