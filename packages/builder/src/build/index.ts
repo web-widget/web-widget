@@ -107,7 +107,6 @@ async function bundleWithVite(
     logLevel: config.vite.logLevel ?? "warn",
     ssr: isServer
       ? {
-          target: "webworker",
           format: "esm",
           //external: ["@web-server/web-router"],
           noExternal: true,
@@ -117,7 +116,7 @@ async function bundleWithVite(
       ? {
           // https://github.com/vitejs/vite/issues/6401
           // https://webpack.js.org/guides/package-exports/
-          conditions: ["import", "module", "worklet", "worker", "default"],
+          conditions: ["worklet", "worker", "import", "module", "default"],
         }
       : undefined,
     plugins: [
