@@ -424,8 +424,16 @@ function getMetaMap(
 function getLinks(
   manifest: ViteManifest,
   srcFileName: string,
-  containSelf: boolean
+  containSelf: boolean,
+  cache = new Map()
 ): LinkDescriptor[] {
+
+  if (cache.has(srcFileName)) {
+    return [];
+  }
+
+  cache.set(srcFileName, true);
+
   const links: LinkDescriptor[] = [];
   const item = manifest[srcFileName];
   const push = (srcFileName: string) => {
@@ -450,7 +458,7 @@ function getLinks(
   if (Array.isArray(item.imports)) {
     item.imports?.forEach((srcFileName) => {
       links.push(
-        ...getLinks(manifest, srcFileName, true)
+        ...getLinks(manifest, srcFileName, true, cache)
           // Note: In the web router, all client components are loaded asynchronously.
           .filter((link) => link.rel !== "modulepreload")
       );
@@ -459,7 +467,7 @@ function getLinks(
 
   if (Array.isArray(item.dynamicImports)) {
     item.dynamicImports?.forEach((srcFileName) => {
-      links.push(...getLinks(manifest, srcFileName, true));
+      links.push(...getLinks(manifest, srcFileName, true, cache));
     });
   }
 
