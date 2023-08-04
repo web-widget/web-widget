@@ -1,0 +1,22 @@
+{
+  "routes": [
+    {
+      "pathname": "/client-only-component",
+      "module": "./routes/client-only-component.tsx"
+    },
+    {
+      "pathname": "/",
+      "module": "./routes/react-and-vue.tsx"
+    }
+  ],
+  "fallbacks": [
+    {
+      "name": "NotFound",
+      "pathname": "/_404",
+      "module": "./routes/_404.tsx"
+    }
+  ],
+  "layout": {
+    "module": "./routes/_layout.ts"
+  }
+}

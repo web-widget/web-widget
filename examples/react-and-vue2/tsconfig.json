@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "ES2015",
+    "module": "ES2020",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "esModuleInterop": true,
+    "allowJs": false,
+    "strict": true,
+    "strictNullChecks": true,
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "declaration": true,
+    "declarationMap": false,
+    "stripInternal": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "removeComments": false,
+    "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
+    "types": ["vite/client", "@web-widget/react/globals"]
+  },
+  "include": ["**/*"],
+  "exclude": []
+}
