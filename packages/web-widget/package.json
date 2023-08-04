@@ -24,7 +24,8 @@
   ],
   "scripts": {
     "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch"
+    "dev": "pnpm exec tsup --watch",
+    "prepublishOnly": "pnpm run build"
   },
   "sideEffects": [
     "./dist/web-widget.js"

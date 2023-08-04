@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/builder",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "module",
   "exports": {
     ".": {
@@ -13,7 +13,8 @@
   },
   "scripts": {
     "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch"
+    "dev": "pnpm exec tsup --watch",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "@web-widget/express": "workspace:*",

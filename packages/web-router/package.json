@@ -15,7 +15,7 @@
     "build": "pnpm exec tsup && pnpm run html-minifier",
     "dev": "pnpm exec tsup --watch",
     "html-minifier": "babel dist/* --out-dir dist",
-    "lint": "eslint ."
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "@web-widget/html": "workspace:*",
