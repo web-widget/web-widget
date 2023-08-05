@@ -65,6 +65,10 @@
       "module": "./routes/api/hello-world.ts"
     }
   ],
+  "middlewares": [{
+    "pathname": "*",
+    "module": "./routes/_middleware.ts"
+  }],
   "fallbacks": [
     {
       "name": "NotFound",

@@ -86,7 +86,6 @@ export interface Page {
 export interface MiddlewareHandlerContext<State = Record<string, unknown>>
   extends ServerConnInfo {
   destination: router.DestinationKind;
-  next: () => Promise<Response>;
   request: Request;
   state: State;
 }
@@ -103,7 +102,8 @@ export interface MiddlewareRoute extends Middleware {
 }
 
 export type MiddlewareHandler<State = Record<string, unknown>> = (
-  ctx: MiddlewareHandlerContext<State>
+  ctx: MiddlewareHandlerContext<State>,
+  next: () => Promise<Response>
 ) => Response | Promise<Response>;
 
 export interface MiddlewareModule<State = any> {
