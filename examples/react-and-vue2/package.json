@@ -15,12 +15,12 @@
   },
   "dependencies": {
     "@web-widget/html": "workspace:*",
-    "@web-widget/koa": "workspace:*",
     "@web-widget/react": "workspace:*",
     "@web-widget/schema": "workspace:*",
     "@web-widget/vue2": "workspace:*",
     "@web-widget/web-router": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
+    "@web-widget/node": "workspace:*",
     "koa": "^2.14.2",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",

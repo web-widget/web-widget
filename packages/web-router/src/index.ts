@@ -1,14 +1,14 @@
 import { ServerContext } from "./context";
 import type {
   StartOptions,
-  ServerHandler,
-  ServerConnInfo,
+  RouterHandler,
+  ConnectionInfo,
   Manifest,
 } from "./types";
 export type * from "./types";
 
 export default class WebRouter {
-  #handler: ServerHandler;
+  #handler: RouterHandler;
 
   constructor(routemap: string | URL | Manifest, opts: StartOptions = {}) {
     const promise = ServerContext.fromManifest(routemap, opts, !!opts.dev).then(
@@ -18,13 +18,13 @@ export default class WebRouter {
       }
     );
 
-    this.#handler = async (req: Request, connInfo: ServerConnInfo = {}) => {
+    this.#handler = async (req: Request, info?: ConnectionInfo) => {
       const serverContext = await promise;
-      return serverContext.handler()(req, connInfo);
+      return serverContext.handler()(req, info);
     };
   }
 
-  get handler(): ServerHandler {
+  get handler(): RouterHandler {
     return this.#handler;
   }
 
@@ -32,7 +32,7 @@ export default class WebRouter {
    * Implements the (ancient) event listener object interface to allow passing to fetch event directly,
    * e.g. `self.addEventListener('fetch', new WebRouter(manifest, options))`.
    */
-  handleEvent(event: FetchEvent) {
-    event.respondWith(this.handler(event.request, {}));
+  handleEvent(fetchEvent: FetchEvent) {
+    fetchEvent.respondWith(this.handler(fetchEvent.request, fetchEvent));
   }
 }

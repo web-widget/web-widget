@@ -83,8 +83,8 @@ export interface Page {
 
 // --- MIDDLEWARE ---
 
-export interface MiddlewareHandlerContext<State = Record<string, unknown>>
-  extends ServerConnInfo {
+export interface MiddlewareHandlerContext<State = Record<string, unknown>> {
+  _connInfo?: ConnectionInfo;
   destination: router.DestinationKind;
   request: Request;
   state: State;
@@ -193,29 +193,12 @@ export interface Manifest {
       };
 }
 
-// --- SERVERS ---
+// --- ROUTER ---
 
-/**
- * A handler for HTTP requests. Consumes a request and connection information
- * and returns a response.
- *
- * If a handler throws, the server calling the handler will assume the impact
- * of the error is isolated to the individual request. It will catch the error
- * and close the underlying connection.
- * @see https://deno.land/std@0.178.0/http/server.ts?s=Handler
- */
-export type ServerHandler = (
+export type RouterHandler = (
   request: Request,
-  connInfo?: ServerConnInfo
+  connInfo?: ConnectionInfo
 ) => Response | Promise<Response>;
 
-/**
- * Information about the connection a request arrived on.
- * @see https://deno.land/std@0.178.0/http/server.ts?s=ConnInfo
- */
-export interface ServerConnInfo {
-  /** The local address of the connection. */
-  readonly localAddr?: unknown;
-  /** The remote address of the connection. */
-  readonly remoteAddr?: unknown;
-}
+// Information about the connection a request arrived on.
+export type ConnectionInfo = FetchEvent | unknown;

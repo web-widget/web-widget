@@ -29,8 +29,8 @@ import type {
   RenderPage,
   RouterOptions,
   ScriptDescriptor,
-  ServerConnInfo,
-  ServerHandler,
+  ConnectionInfo,
+  RouterHandler,
   WebRouterOptions,
 } from "./types";
 
@@ -278,7 +278,7 @@ export class ServerContext {
    * This functions returns a request handler that handles all routes required
    * by web server.
    */
-  handler(): ServerHandler {
+  handler(): RouterHandler {
     const handlers = this.#handlers();
     const inner = router.router<RouterState>(handlers);
     const withMiddlewares = this.#composeMiddlewares(
@@ -288,7 +288,7 @@ export class ServerContext {
     const trailingSlashEnabled = this.#routerOptions?.trailingSlash;
     return async function handler(
       req: Request,
-      connInfo: ServerConnInfo = {}
+      _connInfo?: ConnectionInfo
     ): Promise<Response> {
       // Redirect requests that end with a trailing slash to their non-trailing
       // slash counterpart.
@@ -310,7 +310,7 @@ export class ServerContext {
         return Response.redirect(url.href + "/", HttpStatus.PermanentRedirect);
       }
 
-      return await withMiddlewares(req, connInfo, inner);
+      return await withMiddlewares(req, inner, _connInfo);
     };
   }
 
@@ -324,8 +324,8 @@ export class ServerContext {
   ) {
     return (
       req: Request,
-      connInfo: ServerConnInfo,
-      inner: router.FinalHandler<RouterState>
+      inner: router.FinalHandler<RouterState>,
+      _connInfo?: ConnectionInfo
     ) => {
       // identify middlewares to apply, if any.
       // middlewares should be already sorted from deepest to shallow layer
@@ -334,7 +334,7 @@ export class ServerContext {
       const handlers: (() => Response | Promise<Response>)[] = [];
 
       const middlewareCtx: MiddlewareHandlerContext = {
-        ...connInfo,
+        _connInfo,
         destination: "route",
         request: req,
         state: {},
@@ -356,7 +356,7 @@ export class ServerContext {
       }
 
       const ctx = {
-        ...connInfo,
+        _connInfo,
         request: req,
         state: middlewareCtx.state,
       };
