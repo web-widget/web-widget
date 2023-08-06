@@ -1,8 +1,8 @@
 import type { Options } from "tsup";
 export const tsup: Options = {
-  entry: { "web-std": "index.ts" },
+  entry: { node: "src/index.ts" },
   dts: true,
-  target: "es2017",
+  target: "node18",
   splitting: false,
   sourcemap: false,
   format: ["esm"],

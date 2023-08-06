@@ -1,17 +1,27 @@
 import type { ModuleLoader } from "./loader/index";
 import { createViteLoader } from "./loader/index";
-import type { Plugin, ServerOptions, UserConfig as ViteUserConfig } from "vite";
+import type {
+  Plugin,
+  ServerOptions,
+  UserConfig as ViteUserConfig,
+  ViteDevServer,
+} from "vite";
 import { createServer as createViteServer, mergeConfig } from "vite";
 import { join, relative } from "node:path";
 import { openConfig, resolveConfigPath } from "../config";
 
 import type { BuilderConfig } from "../types";
 import type { Manifest } from "@web-widget/web-router";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import fs from "node:fs";
-import { handleRequest } from "./request";
 import pc from "picocolors";
 import stripAnsi from "strip-ansi";
+
+import type { Middlware } from "@web-widget/node";
+import NodeAdapter from "@web-widget/node";
+
+import WebRouter from "@web-widget/web-router";
+import { getAssets } from "./render";
 
 async function getModuleFiles(config: BuilderConfig, loader: ModuleLoader) {
   const modules: string[] = [];
@@ -42,14 +52,14 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
         fs,
       })) as string;
       const loader = createViteLoader(viteServer);
-      let modules: string[];
+      let watchFiles: string[] = await getModuleFiles(config, loader);
 
       /** rebuild the route cache + manifest, as needed. */
       async function rebuildManifest(file: string) {
         if (
           file === configPath ||
           file === fileURLToPath(config.input.href) ||
-          modules?.includes(file)
+          watchFiles.includes(file)
         ) {
           viteServer.config.logger.info(
             pc.green(
@@ -63,7 +73,7 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
           await viteServer.close();
           // @ts-ignore
           global.__vite_start_time = Date.now();
-          modules = await getModuleFiles(config, loader);
+          watchFiles = await getModuleFiles(config, loader);
           const { viteServer: newServer } = await createServer(
             viteServer.config.root,
             viteServer.config.server
@@ -75,46 +85,15 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
       viteServer.watcher.on("add", rebuildManifest);
       viteServer.watcher.on("change", rebuildManifest);
 
-      return async () => {
-        // Note that this function has a name so other middleware can find it.
-        viteServer.middlewares.use(
-          async function widgetServerDevHandler(req, res) {
-            modules = modules || (await getModuleFiles(config, loader));
-            return handleRequest(
-              config.base +
-                relative(
-                  fileURLToPath(config.root),
-                  fileURLToPath(config.input)
-                ),
-              viteServer,
-              loader,
-              req,
-              res
-            ).catch((e) => {
-              viteServer.ssrFixStacktrace(e);
-              console.error(e.stack);
+      const webRouterDevMiddlware = toWebRouterDevMiddlware(
+        config.base +
+          relative(fileURLToPath(config.root), fileURLToPath(config.input)),
+        viteServer,
+        loader
+      );
 
-              res.statusCode = 500;
-              res.setHeader("content-type", "text/html; charset=utf-8");
-              res.end(`<!DOCTYPE html>
-            <html>
-              <head>
-                <title>Error</title>
-              </head>
-              <body>
-                <div style="display:flex;justify-content:center;align-items:center">
-                  <div style="border:#f3f4f6 2px solid;border-top:red 4px solid;background:#f9fafb;margin:16px;min-width:550px">
-                    <p style="margin:0;font-size:12pt;padding:16px;font-family:sans-serif"> An error occurred during route handling or page rendering. </p>
-                    <pre style="margin:0;font-size:12pt;overflow-y:auto;padding:16px;padding-top:0;font-family:monospace">${stripAnsi(
-                      e.stack
-                    )}</pre>
-                  </div>
-                </div>
-              <body>
-            </html>`);
-            });
-          }
-        );
+      return () => {
+        viteServer.middlewares.use(webRouterDevMiddlware);
       };
     },
   };
@@ -142,4 +121,108 @@ export async function createServer(
     viteConfig,
     viteServer: await createViteServer(viteConfig),
   };
+}
+
+function toWebRouterDevMiddlware(
+  manifestUrl: string,
+  viteServer: ViteDevServer,
+  loader: ModuleLoader
+): Middlware {
+  const webRouter = new WebRouter(manifestUrl, {
+    dev: true,
+    experimental: {
+      loader: loader.import,
+      async render(ctx, render) {
+        const dir = pathToFileURL(join(viteServer.config.root, "/"));
+        const routeFile = new URL(ctx.source, dir);
+        const assets = await getAssets(
+          routeFile,
+          loader,
+          pathToFileURL(viteServer.config.root),
+          "development"
+        );
+
+        ctx.meta.style = [];
+        ctx.meta.link = [];
+        ctx.meta.script = [];
+
+        assets.styles.forEach(({ props, children }) => {
+          // @ts-ignore
+          ctx.meta.style.push({
+            ...props,
+            content: children,
+          });
+        });
+        assets.links.forEach(({ props, children }) => {
+          // @ts-ignore
+          ctx.meta.link.push(props);
+        });
+        assets.scripts.forEach(({ props, children }) => {
+          // @ts-ignore
+          ctx.meta.script.push({
+            ...props,
+            content: children,
+          });
+        });
+
+        await render();
+      },
+    },
+  });
+
+  const nodeAdapter = new NodeAdapter({
+    async handler(request, fetchEvent) {
+      try {
+        const webResponse = await webRouter.handler(request, fetchEvent);
+
+        if (
+          !webResponse.headers.get("content-type")?.startsWith("text/html;")
+        ) {
+          return webResponse;
+        }
+
+        const html = await webResponse.text();
+        const viteHtml = await viteServer.transformIndexHtml(
+          new URL(request.url).pathname,
+          html
+        );
+
+        return new Response(viteHtml, {
+          status: webResponse.status,
+          statusText: webResponse.statusText,
+          headers: webResponse.headers,
+        });
+      } catch (error) {
+        viteServer.ssrFixStacktrace(error);
+        console.error(error.stack);
+
+        return new Response(errorTemplate(stripAnsi(error.stack)), {
+          status: 500,
+          statusText: "",
+          headers: {
+            "content-type": "text/html; charset=utf-8",
+          },
+        });
+      }
+    },
+  });
+
+  return nodeAdapter.middlware;
+}
+
+function errorTemplate(message: string) {
+  return `<!DOCTYPE html>
+  <html>
+    <head>
+      <title>Error</title>
+    </head>
+    <body>
+      <div style="display:flex;justify-content:center;align-items:center">
+        <div style="border:#f3f4f6 2px solid;border-top:red 4px solid;background:#f9fafb;margin:16px;min-width:550px">
+          <p style="margin:0;font-size:12pt;padding:16px;font-family:sans-serif"> An error occurred during route handling or page rendering. </p>
+          <pre style="margin:0;font-size:12pt;overflow-y:auto;padding:16px;padding-top:0;font-family:monospace">${message}</pre>
+        </div>
+      </div>
+    <body>
+  </html>`;
 }

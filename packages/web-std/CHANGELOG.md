@@ -1,2 +1,0 @@
-# `@web-widget/web-std`
-
