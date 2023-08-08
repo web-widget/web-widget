@@ -62,7 +62,7 @@ export type RouterHandler = (
 // Information about the connection a request arrived on.
 export type ConnectionInfo = FetchEvent | unknown;
 
-// --- MANIFEST ---
+// --- MIDDLEWARE ---
 
 export type Manifest = ManifestResolved | ManifestJSON;
 

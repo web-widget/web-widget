@@ -17,7 +17,7 @@ import fs from "node:fs";
 import pc from "picocolors";
 import stripAnsi from "strip-ansi";
 
-import type { Middlware } from "@web-widget/node";
+import type { Middleware } from "@web-widget/node";
 import NodeAdapter from "@web-widget/node";
 
 import WebRouter from "@web-widget/web-router";
@@ -93,7 +93,7 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
       viteServer.watcher.on("add", restart);
       viteServer.watcher.on("change", restart);
 
-      const webRouterDevMiddlware = toWebRouterDevMiddlware(
+      const webRouterDevMiddleware = toWebRouterDevMiddleware(
         config,
         manifest,
         viteServer,
@@ -101,7 +101,7 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
       );
 
       return () => {
-        viteServer.middlewares.use(webRouterDevMiddlware);
+        viteServer.middlewares.use(webRouterDevMiddleware);
       };
     },
   };
@@ -131,12 +131,12 @@ export async function createServer(
   };
 }
 
-function toWebRouterDevMiddlware(
+function toWebRouterDevMiddleware(
   config: BuilderConfig,
   manifest: ManifestJSON,
   viteServer: ViteDevServer,
   loader: ModuleLoader
-): Middlware {
+): Middleware {
   const webRouter = new WebRouter(manifest, {
     dev: true,
     baseAsset:
@@ -227,7 +227,7 @@ function toWebRouterDevMiddlware(
     },
   });
 
-  return nodeAdapter.middlware;
+  return nodeAdapter.middleware;
 }
 
 function errorTemplate(message: string) {
