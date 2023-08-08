@@ -11,6 +11,9 @@
   "bin": {
     "builder": "bin/builder.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "pnpm exec tsup",
     "dev": "pnpm exec tsup --watch",
