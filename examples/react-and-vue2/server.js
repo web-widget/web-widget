@@ -21,7 +21,7 @@ app.use(async (ctx, next) => {
 const webRouter = new WebRouter(routemap, {
   baseAsset: "http://localhost:9000/",
   baseModule: new URL("./dist/server/", import.meta.url),
-  meta: {
+  defaultMeta: {
     lang: "en",
     meta: [
       {
@@ -30,10 +30,6 @@ const webRouter = new WebRouter(routemap, {
       {
         name: "viewport",
         content: "width=device-width, initial-scale=1.0",
-      },
-      {
-        "http-equiv": "X-Powered-By",
-        content: "@web-widget/web-router",
       },
     ],
   },

@@ -13,6 +13,18 @@ import routemap from "../dist/server/routemap.js";
 const webRouter = new WebRouter(routemap, {
   baseAsset: "http://localhost:4505/",
   baseModule: new URL("../dist/server/", import.meta.url),
+  defaultMeta: {
+    lang: "en",
+    meta: [
+      {
+        charset: "utf-8",
+      },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1.0",
+      },
+    ],
+  },
 });
 
 const serveFiles = (req: Request) =>
