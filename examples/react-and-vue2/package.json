@@ -1,12 +1,12 @@
 {
   "name": "@examples/react-and-vue2",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "description": "",
   "keywords": [],
   "license": "MIT",
-  "author": "",
-  "type": "module",
+  "author": "", 
   "scripts": {
     "build": "builder build",
     "dev": "builder dev",
