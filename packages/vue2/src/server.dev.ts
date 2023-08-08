@@ -1,6 +1,6 @@
 import Vue from "vue";
-//@ts-ignore
-import { createRenderer } from "@web-widget/vue-server-renderer";
+// @ts-ignore
+import { createRenderer } from "@web-widget/vue-server-renderer/build.dev.js";
 import { defineRender } from "@web-widget/schema/server";
 
 export * from "@web-widget/schema/server";

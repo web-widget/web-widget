@@ -440,12 +440,9 @@ importers:
         specifier: workspace:*
         version: link:../schema
       '@web-widget/vue-server-renderer':
-        specifier: ^0.0.6
-        version: 0.0.6
+        specifier: ^0.0.7
+        version: 0.0.7
       vue:
-        specifier: ^2.7.14
-        version: 2.7.14
-      vue-server-renderer:
         specifier: ^2.7.14
         version: 2.7.14
     devDependencies:
@@ -3622,15 +3619,15 @@ packages:
   /@vue/shared@3.3.4:
     resolution: {integrity: sha512-7OjdcV8vQ74eiz1TZLzZP4JwqM5fA94K6yntPS5Z25r9HDuGNzaGdgvwKYq6S+MxwF0TFRwe50fIR/MYnakdkQ==}
 
-  /@web-widget/vue-server-renderer@0.0.6:
-    resolution: {integrity: sha512-Jv6th2Qo+1ybvrSQ/7WvVnmX4ybZ07F2lrYUxgc16ABiprnI78PAR9FnA3Pv2NXCPvzm94uxS8JgqjcItIzqag==}
+  /@web-widget/vue-server-renderer@0.0.7:
+    resolution: {integrity: sha512-rHjcowW64Uf7kK5YKNGKtQQaPY9zXKi1ixbP3bRDyn81KD1UBHPwHcm2B5ANIDkVE/fPcIux9lOAR+xZV/XpZQ==}
     dependencies:
       chalk: 4.1.2
       hash-sum: 2.0.0
       he: 1.2.0
       lodash.template: 4.5.0
       lodash.uniq: 4.5.0
-      resolve: 1.22.2
+      resolve: 1.22.3
       serialize-javascript: 6.0.1
       source-map: 0.5.6
     dev: false
@@ -12528,19 +12525,6 @@ packages:
       semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  /vue-server-renderer@2.7.14:
-    resolution: {integrity: sha512-NlGFn24tnUrj7Sqb8njhIhWREuCJcM3140aMunLNcx951BHG8j3XOrPP7psSCaFA8z6L4IWEjudztdwTp1CBVw==}
-    dependencies:
-      chalk: 4.1.2
-      hash-sum: 2.0.0
-      he: 1.2.0
-      lodash.template: 4.5.0
-      lodash.uniq: 4.5.0
-      resolve: 1.22.3
-      serialize-javascript: 6.0.1
-      source-map: 0.5.6
     dev: false
 
   /vue@2.7.14:
