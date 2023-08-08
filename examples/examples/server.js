@@ -35,9 +35,9 @@ const webRouter = new WebRouter(routemap, {
   },
 });
 
-const webRouterMiddlware = new NodeAdapter(webRouter).middlware;
+const webRouterMiddleware = new NodeAdapter(webRouter).middleware;
 
-app.use(connectToKoa(webRouterMiddlware));
+app.use(connectToKoa(webRouterMiddleware));
 
 app.listen(9000, () => {
   console.log("http://localhost:9000");

@@ -54,23 +54,23 @@ const dependencies: BuildDependencies = {
 };
 
 export interface NodeAdapterOptions extends RequestOptions {}
-export interface Middlware {
+export interface Middleware {
   (req: IncomingMessage, res: ServerResponse, next: Function): void;
 }
 
 export default class NodeAdapter {
   #handler: NodeHandler;
-  #middlware: Middlware;
+  #middleware: Middleware;
 
   constructor(
     webRouter: {
       handler: WebHandler;
-      options: {
+      options?: {
         origin?: string;
       };
     },
     options: NodeAdapterOptions = {
-      defaultOrigin: webRouter.options.origin ?? "https://web-widget.js.org",
+      defaultOrigin: webRouter?.options?.origin ?? "https://web-widget.js.org",
     }
   ) {
     this.#handler = buildToNodeHandler(
@@ -78,11 +78,11 @@ export default class NodeAdapter {
       options
     )(webRouter.handler);
 
-    this.#middlware = toMiddlware(webRouter.handler, options);
+    this.#middleware = toMiddleware(webRouter.handler, options);
   }
 
-  get middlware() {
-    return this.#middlware;
+  get middleware() {
+    return this.#middleware;
   }
 
   get handler() {
@@ -134,13 +134,13 @@ async function toServerResponse(
   });
 }
 
-function toMiddlware(
+function toMiddleware(
   webHandler: WebHandler,
   options: RequestOptions
-): Middlware {
+): Middleware {
   const toRequest = buildToRequest(dependencies);
   const toFetchEvent = buildToFetchEvent(dependencies);
-  return async function middlware(incomingMessage, serverResponse, next) {
+  return async function middleware(incomingMessage, serverResponse, next) {
     const request = toRequest(incomingMessage, options);
     const webResponse = await webHandler(request, toFetchEvent(request));
     await toServerResponse(webResponse, serverResponse);
