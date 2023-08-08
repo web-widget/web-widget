@@ -5,25 +5,9 @@ import react from "@web-widget/react/vite-plugin";
 export default defineConfig({
   input: "./routemap.json",
   vite: {
-    plugins: [
-      {
-        name: "config",
-        config(_userConfig, { ssrBuild }) {
-          if (ssrBuild) {
-            return {
-              build: {
-                rollupOptions: {
-                  external: [/^node:/, "@web-widget/vue2"],
-                },
-              },
-            };
-          }
-        },
-      },
-      react(),
-      vue(),
-    ],
+    plugins: [react(), vue()],
     ssr: {
+      // NOTE: Vue2 does not support webworker
       target: "node",
     },
   },
