@@ -9,6 +9,7 @@ export type * from "./types";
 
 export default class WebRouter {
   #handler: RouterHandler;
+  #options: StartOptions;
 
   constructor(manifest: Manifest, opts: StartOptions) {
     const promise = ServerContext.fromManifest(manifest, opts, !!opts.dev).then(
@@ -22,10 +23,15 @@ export default class WebRouter {
       const serverContext = await promise;
       return serverContext.handler()(req, info);
     };
+    this.#options = opts;
   }
 
   get handler(): RouterHandler {
     return this.#handler;
+  }
+
+  get options(): StartOptions {
+    return this.#options;
   }
 
   /**

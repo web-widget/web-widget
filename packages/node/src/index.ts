@@ -63,9 +63,14 @@ export default class NodeAdapter {
   #middlware: Middlware;
 
   constructor(
-    webRouter: { handler: WebHandler },
+    webRouter: {
+      handler: WebHandler;
+      options: {
+        origin?: string;
+      };
+    },
     options: NodeAdapterOptions = {
-      defaultOrigin: "https://web-widget.js.org",
+      defaultOrigin: webRouter.options.origin ?? "https://web-widget.js.org",
     }
   ) {
     this.#handler = buildToNodeHandler(

@@ -33,6 +33,7 @@ export interface WebRouterOptions {
   baseModule: URL | string;
   defaultBootstrap?: ScriptDescriptor[];
   defaultMeta?: Meta;
+  origin?: string;
   experimental?: {
     loader?: (module: string, importer?: string) => Promise<unknown>;
     render?: RenderPage;
