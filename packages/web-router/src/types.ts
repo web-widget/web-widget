@@ -31,8 +31,8 @@ export type StartOptions = WebRouterOptions & {
 export interface WebRouterOptions {
   baseAsset: URL | string;
   baseModule: URL | string;
-  bootstrap?: ScriptDescriptor[];
-  meta?: Meta;
+  defaultBootstrap?: ScriptDescriptor[];
+  defaultMeta?: Meta;
   experimental?: {
     loader?: (module: string, importer?: string) => Promise<unknown>;
     render?: RenderPage;

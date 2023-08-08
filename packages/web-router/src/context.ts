@@ -106,14 +106,14 @@ export class ServerContext {
     const resolvedOpts = {
       baseAsset: isDevBaseAsset ? opts.baseAsset : new URL(opts.baseAsset).href,
       baseModule: new URL(opts.baseModule).href,
-      bootstrap: opts.bootstrap ?? DEFAULT_BOOTSTRAP,
+      bootstrap: opts.defaultBootstrap ?? DEFAULT_BOOTSTRAP,
       loader:
         opts.experimental?.loader ??
         ((module: string, importer?: string) => {
           const url = new URL(module, importer).href;
           return import(/* @vite-ignore */ /* webpackIgnore: true */ url);
         }),
-      meta: opts.meta ?? DEFAULT_META,
+      meta: opts.defaultMeta ?? DEFAULT_META,
       render: opts.experimental?.render ?? DEFAULT_RENDER_FN,
       router: opts.experimental?.router ?? DEFAULT_ROUTER_OPTIONS,
     };
