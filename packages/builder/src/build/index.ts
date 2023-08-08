@@ -107,9 +107,9 @@ async function bundleWithVite(
     logLevel: config.vite.logLevel ?? "warn",
     ssr: isServer
       ? {
-          format: "esm",
-          //external: ["@web-server/web-router"],
-          noExternal: true,
+          noExternal:
+            config.vite.ssr?.noExternal ??
+            (config.vite.ssr?.target === "node" ? false : true),
           target: config.vite.ssr?.target ?? "webworker",
         }
       : undefined,
