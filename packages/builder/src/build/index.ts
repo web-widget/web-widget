@@ -14,7 +14,7 @@ import { basename, dirname, extname, join, relative } from "node:path";
 import { mergeConfig as mergeViteConfig, build as viteBuild } from "vite";
 
 import type { BuilderConfig } from "../types";
-import type { Manifest } from "@web-widget/web-router";
+import type { ManifestJSON } from "@web-widget/web-router";
 import type { RollupOutput } from "rollup";
 import { fileURLToPath } from "node:url";
 import { promises as fs } from "node:fs";
@@ -110,6 +110,7 @@ async function bundleWithVite(
           format: "esm",
           //external: ["@web-server/web-router"],
           noExternal: true,
+          // target: "webworker",
         }
       : undefined,
     resolve: isServer
@@ -152,7 +153,7 @@ async function bundleWithVite(
 }
 
 function resolveEntrypoints(
-  manifest: Manifest,
+  manifest: ManifestJSON,
   config: BuilderConfig
 ): Entrypoints {
   const entrypoints: Entrypoints = {};
@@ -524,7 +525,7 @@ function getLink(fileName: string): LinkDescriptor | null {
 }
 
 export async function buildRoutemap(
-  manifest: Manifest,
+  manifest: ManifestJSON,
   config: BuilderConfig,
   output: RollupOutput
 ) {
@@ -545,57 +546,77 @@ export async function buildRoutemap(
     return source;
   }
 
-  const json = Object.entries(manifest).reduce((manifest, [key, value]) => {
-    if (Array.isArray(value)) {
-      // @ts-ignore
-      manifest[key] = [];
-      value.forEach((mod) => {
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#escaping
+  function escapeRegExp(value: string) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+  }
+
+  // eslint-disable-next-line no-template-curly-in-string
+  // const basePlaceholder = "${workspace}";
+
+  const json = Object.entries(manifest).reduce(
+    (manifest, [key, value]) => {
+      if (Array.isArray(value)) {
         // @ts-ignore
-        manifest[key].push({
-          ...mod,
-          module: importModule(mod.module),
+        manifest[key] = [];
+        value.forEach((mod) => {
+          // @ts-ignore
+          manifest[key].push({
+            ...mod,
+            module: importModule(mod.module),
+          });
         });
-      });
-    } else {
-      // @ts-ignore
-      manifest[key] = {
-        ...value,
-        module: importModule(value.module),
-      };
-    }
-    return manifest;
-  }, {});
+      } else if (value.module) {
+        // @ts-ignore
+        manifest[key] = {
+          ...value,
+          module: importModule(value.module),
+        };
+      } else {
+        // @ts-ignore
+        manifest[key] = value;
+      }
+      return manifest;
+    },
+    {
+      //  base: basePlaceholder,
+    } as ManifestJSON
+  );
 
   const input = fileURLToPath(config.input);
   const jsonCode = JSON.stringify(json, null, 2);
   const jsCode =
     imports
-      .map((module, index) => `import * as $${index} from "${module}";`)
+      .map((module, index) => `import * as _${index} from "${module}";`)
       .join("\n") +
     "\n\n" +
     `export default ${imports.reduce((jsonCode, source, index) => {
-      jsonCode = jsonCode.replace(
-        `"module": "${source}"`,
-        `"source": "${source}",\n      "module": $${index}`
+      jsonCode = jsonCode.replaceAll(
+        new RegExp(`(\\s*)${escapeRegExp(`"module": "${source}"`)}`, "g"),
+        `$1"source": "${source}",$1"module": _${index}`
       );
       return jsonCode;
-    }, jsonCode)}`;
+    }, jsonCode)}`; /*.replace(
+      JSON.stringify(basePlaceholder),
+      `new URL("./", import.meta.url).href`
+    )*/
 
-  await fs.writeFile(
-    join(
-      fileURLToPath(config.output.server),
-      basename(input.replace(extname(input), ".json"))
+  await Promise.all([
+    fs.writeFile(
+      join(
+        fileURLToPath(config.output.server),
+        basename(input.replace(extname(input), ".json"))
+      ),
+      jsonCode
     ),
-    jsonCode
-  );
-
-  await fs.writeFile(
-    join(
-      fileURLToPath(config.output.server),
-      basename(input.replace(extname(input), ".js"))
+    fs.writeFile(
+      join(
+        fileURLToPath(config.output.server),
+        basename(input.replace(extname(input), ".js"))
+      ),
+      jsCode
     ),
-    jsCode
-  );
+  ]);
 }
 
 async function parseViteManifest(outDir: string): Promise<ViteManifest> {
@@ -603,7 +624,7 @@ async function parseViteManifest(outDir: string): Promise<ViteManifest> {
   return JSON.parse(await fs.readFile(manifestPath, "utf-8"));
 }
 
-async function parseManifest(config: BuilderConfig): Promise<Manifest> {
+async function parseManifest(config: BuilderConfig): Promise<ManifestJSON> {
   const manifestPath = fileURLToPath(config.input);
   return JSON.parse(await fs.readFile(manifestPath, "utf-8"));
 }

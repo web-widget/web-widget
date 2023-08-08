@@ -11,8 +11,8 @@ import { join, relative } from "node:path";
 import { openConfig, resolveConfigPath } from "../config";
 
 import type { BuilderConfig } from "../types";
-import type { Manifest } from "@web-widget/web-router";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import type { ManifestJSON } from "@web-widget/web-router";
+import { fileURLToPath } from "node:url";
 import fs from "node:fs";
 import pc from "picocolors";
 import stripAnsi from "strip-ansi";
@@ -23,23 +23,32 @@ import NodeAdapter from "@web-widget/node";
 import WebRouter from "@web-widget/web-router";
 import { getAssets } from "./render";
 
-async function getModuleFiles(config: BuilderConfig, loader: ModuleLoader) {
-  const modules: string[] = [];
+async function loadManifest(
+  config: BuilderConfig,
+  loader: ModuleLoader
+): Promise<ManifestJSON> {
   const json = await loader.import(
-    config.base +
+    join(
+      config.base,
       relative(fileURLToPath(config.root), fileURLToPath(config.input))
+    )
   );
-  const manifest: Manifest = json.default;
+  return json.default as ManifestJSON;
+}
+
+function getWatchFiles(config: BuilderConfig, manifest: ManifestJSON) {
+  const modules: string[] = [];
 
   Array.from(Object.entries(manifest)).forEach(([key, value]) => {
     if (Array.isArray(value)) {
       value.forEach(({ module }) => {
         modules.push(join(fileURLToPath(config.root), module));
       });
-    } else {
+    } else if (value.module) {
       modules.push(join(fileURLToPath(config.root), value.module));
     }
   });
+
   return modules;
 }
 
@@ -52,10 +61,10 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
         fs,
       })) as string;
       const loader = createViteLoader(viteServer);
-      let watchFiles: string[] = await getModuleFiles(config, loader);
+      const manifest = await loadManifest(config, loader);
+      const watchFiles: string[] = getWatchFiles(config, manifest);
 
-      /** rebuild the route cache + manifest, as needed. */
-      async function rebuildManifest(file: string) {
+      async function restart(file: string) {
         if (
           file === configPath ||
           file === fileURLToPath(config.input.href) ||
@@ -73,7 +82,6 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
           await viteServer.close();
           // @ts-ignore
           global.__vite_start_time = Date.now();
-          watchFiles = await getModuleFiles(config, loader);
           const { viteServer: newServer } = await createServer(
             viteServer.config.root,
             viteServer.config.server
@@ -82,12 +90,12 @@ function createVitePluginServer(config: BuilderConfig): Plugin {
         }
       }
       // Rebuild route manifest on file change, if needed.
-      viteServer.watcher.on("add", rebuildManifest);
-      viteServer.watcher.on("change", rebuildManifest);
+      viteServer.watcher.on("add", restart);
+      viteServer.watcher.on("change", restart);
 
       const webRouterDevMiddlware = toWebRouterDevMiddlware(
-        config.base +
-          relative(fileURLToPath(config.root), fileURLToPath(config.input)),
+        config,
+        manifest,
         viteServer,
         loader
       );
@@ -124,21 +132,33 @@ export async function createServer(
 }
 
 function toWebRouterDevMiddlware(
-  manifestUrl: string,
+  config: BuilderConfig,
+  manifest: ManifestJSON,
   viteServer: ViteDevServer,
   loader: ModuleLoader
 ): Middlware {
-  const webRouter = new WebRouter(manifestUrl, {
+  const webRouter = new WebRouter(manifest, {
     dev: true,
+    baseAsset:
+      (viteServer.resolvedUrls?.network ||
+        viteServer.resolvedUrls?.local)?.[0] ?? config.base,
+    baseModule: config.root,
     experimental: {
-      loader: loader.import,
+      loader: (module, importer) =>
+        loader.import(
+          join(
+            config.base,
+            relative(
+              fileURLToPath(config.root),
+              fileURLToPath(new URL(module, importer))
+            )
+          )
+        ),
       async render(ctx, render) {
-        const dir = pathToFileURL(join(viteServer.config.root, "/"));
-        const routeFile = new URL(ctx.source, dir);
         const assets = await getAssets(
-          routeFile,
+          ctx.source,
           loader,
-          pathToFileURL(viteServer.config.root),
+          config.root,
           "development"
         );
 
@@ -198,7 +218,7 @@ function toWebRouterDevMiddlware(
 
         return new Response(errorTemplate(stripAnsi(error.stack)), {
           status: 500,
-          statusText: "",
+          statusText: "Internal Server Error",
           headers: {
             "content-type": "text/html; charset=utf-8",
           },
@@ -211,10 +231,11 @@ function toWebRouterDevMiddlware(
 }
 
 function errorTemplate(message: string) {
-  return `<!DOCTYPE html>
-  <html>
+  return `<!doctype html>
+  <html lang="en">
     <head>
       <title>Error</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
       <div style="display:flex;justify-content:center;align-items:center">

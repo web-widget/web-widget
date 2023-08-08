@@ -22,7 +22,7 @@ export interface InnerRenderOptions<Data> {
   meta: Meta;
   params: Record<string, string>;
   route: Page;
-  source: string;
+  source: URL;
   url: URL;
 }
 
@@ -33,7 +33,7 @@ export class InnerRenderContext {
   #id: string;
   #meta: Meta = {};
   #route: string;
-  #source: string;
+  #source: URL;
   #state: Map<string, unknown> = new Map();
   #url: URL;
 
@@ -42,7 +42,7 @@ export class InnerRenderContext {
     id: string,
     meta: Meta,
     route: string,
-    source: string,
+    source: URL,
     url: URL
   ) {
     this.#bootstrap = bootstrap;
@@ -86,7 +86,7 @@ export class InnerRenderContext {
     return this.#route;
   }
 
-  get source(): string {
+  get source(): URL {
     return this.#source;
   }
 }

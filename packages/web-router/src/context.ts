@@ -17,6 +17,7 @@ import * as router from "./router";
 import * as defaultRootFallbackModule from "./fallback";
 import * as defaultRootLayoutModule from "./layout";
 import type {
+  ConnectionInfo,
   LayouRender,
   Layout,
   LayoutModule,
@@ -27,10 +28,9 @@ import type {
   MiddlewareRoute,
   Page,
   RenderPage,
+  RouterHandler,
   RouterOptions,
   ScriptDescriptor,
-  ConnectionInfo,
-  RouterHandler,
   WebRouterOptions,
 } from "./types";
 
@@ -81,43 +81,42 @@ export class ServerContext {
    * Process the manifest into individual components and pages.
    */
   static async fromManifest(
-    routemap: string | URL | Manifest,
+    manifest: Manifest,
     opts: WebRouterOptions,
     dev: boolean
   ): Promise<ServerContext> {
-    let manifest: Manifest;
-    let root: string;
+    if (!opts) {
+      throw TypeError(`Missing parameter option: baseAsset, baseModule.`);
+    }
+
+    if (!opts.baseAsset) {
+      throw TypeError(`Missing parameter option: baseAsset.`);
+    }
+
+    if (!opts.baseModule) {
+      throw TypeError(`Missing parameter option: baseModule.`);
+    }
+
+    const RESOLVE_URL_REG = /^(?:\w+:)?\//;
+    const isDevBaseAsset =
+      dev &&
+      typeof opts.baseAsset === "string" &&
+      RESOLVE_URL_REG.test(opts.baseAsset);
 
     const resolvedOpts = {
-      base: opts.base ?? "/",
+      baseAsset: isDevBaseAsset ? opts.baseAsset : new URL(opts.baseAsset).href,
+      baseModule: new URL(opts.baseModule).href,
       bootstrap: opts.bootstrap ?? DEFAULT_BOOTSTRAP,
       loader:
         opts.experimental?.loader ??
-        ((module) =>
-          import(/* @vite-ignore */ /* webpackIgnore: true */ module)),
+        ((module: string, importer?: string) => {
+          const url = new URL(module, importer).href;
+          return import(/* @vite-ignore */ /* webpackIgnore: true */ url);
+        }),
       meta: opts.meta ?? DEFAULT_META,
       render: opts.experimental?.render ?? DEFAULT_RENDER_FN,
-      root: opts.experimental?.root,
       router: opts.experimental?.router ?? DEFAULT_ROUTER_OPTIONS,
     };
-
-    if (routemap instanceof URL) {
-      routemap = routemap.href;
-    }
-
-    if (typeof routemap === "string") {
-      root = fileUrlDirname(routemap);
-      manifest =
-        routemap.endsWith(".json") && !opts.experimental?.loader
-          ? await (await fetch(routemap)).json()
-          : await resolvedOpts.loader(routemap);
-    } else {
-      if (typeof resolvedOpts.root !== "string") {
-        throw new TypeError(`options.experimental.root: Must be a string.`);
-      }
-      root = resolvedOpts.root;
-      manifest = routemap;
-    }
 
     // Extract all routes, and prepare them into the `Page` structure.
     const routes: Page[] = [];
@@ -125,18 +124,30 @@ export class ServerContext {
     const fallbacks: Page[] = [];
     let layout = DEFAULT_ROOT_LAYOUT;
 
-    const resolveModule = async <T>(mod: string | T) =>
-      (typeof mod === "string"
-        ? await resolvedOpts.loader(fileUrlJoin(root, mod))
-        : mod) as T;
-
-    const resolveMeta = (meta: Meta, source: string) => {
-      const url = fileUrlJoin(root, source);
-      const dirname = fileUrlDirname(url).replace(root, "");
-      return rebaseMeta(
-        mergeMeta(resolvedOpts.meta, meta),
-        resolvedOpts.base + dirname
+    type ResolvedModule = { source: string };
+    type JSONModule = { module: string };
+    const resolveSource = (module: ResolvedModule | JSONModule) =>
+      new URL(
+        typeof Reflect.get(module, "module") === "string"
+          ? (module as JSONModule).module
+          : (module as ResolvedModule).source,
+        resolvedOpts.baseModule
       );
+
+    const resolveModule = async <T>(mod: string | T, importer: string) => {
+      if (typeof mod === "string") {
+        return (await resolvedOpts.loader(mod, importer)) as T;
+      } else {
+        return mod as T;
+      }
+    };
+
+    const resolveMeta = (meta: Meta, importer: string): Meta => {
+      const fileName = importer.replace(resolvedOpts.baseModule, "");
+      const httpImporter = isDevBaseAsset
+        ? resolvedOpts.baseAsset + fileName
+        : new URL(fileName, resolvedOpts.baseAsset).href;
+      return rebaseMeta(mergeMeta(resolvedOpts.meta, meta), httpImporter);
     };
 
     const emptyRender = async () => {
@@ -144,12 +155,14 @@ export class ServerContext {
     };
 
     for (const item of manifest.routes ?? []) {
-      const { pathname, name, module: mod } = item;
-      const source =
-        typeof mod === "string" ? mod : (item as { source: string }).source;
-      const module = await resolveModule<RouteModule>(mod);
+      const { pathname, name } = item;
+      const source = resolveSource(item);
+      const module = await resolveModule<RouteModule>(
+        item.module,
+        resolvedOpts.baseModule
+      );
       const { config = {}, handler = {}, render = emptyRender } = module;
-      const meta = resolveMeta(module.meta || {}, source);
+      const meta = resolveMeta(module.meta || {}, source.href);
 
       if (typeof handler === "object" && handler.GET === undefined) {
         handler.GET = (({ render }) => render({ meta })) as RouteHandler;
@@ -187,12 +200,14 @@ export class ServerContext {
     }
 
     for (const item of manifest.fallbacks ?? []) {
-      const { pathname, name, module: mod } = item;
-      const source =
-        typeof mod === "string" ? mod : (item as { source: string }).source;
-      const module = await resolveModule<RouteModule>(mod);
+      const { pathname, name } = item;
+      const source = resolveSource(item);
+      const module = await resolveModule<RouteModule>(
+        item.module,
+        resolvedOpts.baseModule
+      );
       const { config = {}, render } = module;
-      const meta = resolveMeta(module.meta || {}, source);
+      const meta = resolveMeta(module.meta || {}, source.href);
 
       let { handler } = module;
 
@@ -225,14 +240,18 @@ export class ServerContext {
     }
 
     if (manifest.layout) {
-      const { name, module: mod } = manifest.layout;
-      const source =
-        typeof mod === "string"
-          ? mod
-          : (manifest.layout as { source: string }).source;
-      const module = await resolveModule<LayoutModule>(mod);
+      const item = manifest.layout;
+      const { name } = manifest.layout;
+      const source = resolveSource(item);
+      const module = await resolveModule<LayoutModule>(
+        item.module,
+        resolvedOpts.baseModule
+      );
       const { render = emptyRender } = module;
-      const meta = resolveMeta(module.meta || {}, source);
+      const meta = resolveMeta(
+        module.meta || {},
+        new URL(source, resolvedOpts.baseModule).href
+      );
 
       layout = {
         bootstrap: resolvedOpts.bootstrap,
@@ -245,8 +264,11 @@ export class ServerContext {
     }
 
     for (const item of manifest.middlewares ?? []) {
-      const { pathname, module: mod } = item;
-      const module = await resolveModule<MiddlewareModule>(mod);
+      const { pathname } = item;
+      const module = await resolveModule<MiddlewareModule>(
+        item.module,
+        resolvedOpts.baseModule
+      );
       middlewares.push({
         pathname,
         compiledPattern: new URLPattern({ pathname }),
@@ -574,7 +596,7 @@ const DEFAULT_NOT_FOUND_ERROR_PAGE: Page = {
   name: "NotFound",
   pathname: "",
   render: defaultRootFallbackModule.render as RouteRender,
-  source: "",
+  source: new URL(import.meta.url),
 };
 
 const DEFAULT_INTERNAL_SERVER_ERROR_PAGE: Page = {
@@ -587,7 +609,7 @@ const DEFAULT_INTERNAL_SERVER_ERROR_PAGE: Page = {
   name: "InternalServerError",
   pathname: "",
   render: defaultRootFallbackModule.render as RouteRender,
-  source: "",
+  source: new URL(import.meta.url),
 };
 
 const DEFAULT_ROOT_LAYOUT: Layout = {
@@ -596,7 +618,7 @@ const DEFAULT_ROOT_LAYOUT: Layout = {
   module: defaultRootLayoutModule as LayoutModule,
   name: "Root",
   render: defaultRootLayoutModule.render as LayouRender,
-  source: "",
+  source: new URL(import.meta.url),
 };
 
 /**
@@ -649,20 +671,6 @@ function deepFreeze(object: any) {
   }
 
   return object;
-}
-
-function fileUrlDirname(file: string) {
-  return file.startsWith("/")
-    ? file.slice(0, file.lastIndexOf("/") + 1)
-    : new URL("./", file).href;
-}
-
-const URL_REG = /^\w+:\/\//;
-
-function fileUrlJoin(base: string, file: string) {
-  const protocol = "file://";
-  const href = new URL(file, URL_REG.test(base) ? base : protocol + base).href;
-  return URL_REG.test(base) ? href : href.replace(protocol, "");
 }
 
 function sendResponse(

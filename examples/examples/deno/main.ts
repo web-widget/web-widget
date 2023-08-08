@@ -5,14 +5,15 @@ import { Server } from "https://deno.land/std@0.196.0/http/mod.ts";
 // @ts-ignore
 import staticFiles from "https://deno.land/x/static_files@1.1.6/mod.ts";
 
+// @ts-ignore
 import WebRouter from "./dist/web-router.js";
+// @ts-ignore
+import routemap from "../dist/server/routemap.js";
 
-const webRouter = new WebRouter(
-  new URL("../dist/server/routemap.json", import.meta.url),
-  {
-    base: "/",
-  }
-);
+const webRouter = new WebRouter(routemap, {
+  baseAsset: "http://localhost:4505/",
+  baseModule: new URL("../dist/server/", import.meta.url),
+});
 
 const serveFiles = (req: Request) =>
   staticFiles("../dist/client")({
