@@ -110,7 +110,7 @@ async function bundleWithVite(
           format: "esm",
           //external: ["@web-server/web-router"],
           noExternal: true,
-          // target: "webworker",
+          target: config.vite.ssr?.target ?? "webworker",
         }
       : undefined,
     resolve: isServer
