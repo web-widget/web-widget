@@ -445,6 +445,9 @@ importers:
       vue:
         specifier: ^2.7.14
         version: 2.7.14
+      vue-server-renderer:
+        specifier: ^2.7.14
+        version: 2.7.14
     devDependencies:
       tsup:
         specifier: ^7.0.0
@@ -795,7 +798,7 @@ packages:
       '@babel/helper-plugin-utils': 7.22.5
       debug: 4.3.4
       lodash.debounce: 4.0.8
-      resolve: 1.22.2
+      resolve: 1.22.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -2848,7 +2851,7 @@ packages:
       builtin-modules: 3.3.0
       deepmerge: 4.3.1
       is-module: 1.0.0
-      resolve: 1.22.2
+      resolve: 1.22.3
       rollup: 2.79.1
     dev: true
 
@@ -2863,7 +2866,7 @@ packages:
       deepmerge: 4.3.1
       is-builtin-module: 3.2.1
       is-module: 1.0.0
-      resolve: 1.22.2
+      resolve: 1.22.3
       rollup: 2.79.1
     dev: true
 
@@ -2881,7 +2884,7 @@ packages:
       deepmerge: 4.3.1
       is-builtin-module: 3.2.1
       is-module: 1.0.0
-      resolve: 1.22.2
+      resolve: 1.22.3
       rollup: 3.25.1
     dev: true
 
@@ -5965,7 +5968,7 @@ packages:
     dependencies:
       debug: 3.2.7
       is-core-module: 2.12.1
-      resolve: 1.22.2
+      resolve: 1.22.3
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -10038,7 +10041,7 @@ packages:
       jstransformer: 1.0.0
       pug-error: 1.3.3
       pug-walk: 1.1.8
-      resolve: 1.22.2
+      resolve: 1.22.3
       uglify-js: 2.8.29
     dev: true
 
@@ -10601,6 +10604,7 @@ packages:
       is-core-module: 2.12.1
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
+    dev: false
 
   /resolve@1.22.3:
     resolution: {integrity: sha512-P8ur/gp/AmbEzjr729bZnLjXK5Z+4P0zhIJgBgzqRih7hL7BOukHGtSTA3ACMY467GRFz3duQsi0bDZdR7DKdw==}
@@ -10609,7 +10613,6 @@ packages:
       is-core-module: 2.12.1
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
-    dev: false
 
   /resolve@2.0.0-next.4:
     resolution: {integrity: sha512-iMDbmAWtfU+MHpxt/I5iWI7cY6YVEZUQ3MBgPQ++XD1PELuJHIl82xBmObyP2KyQmkNB2dsqF7seoQQiAn5yDQ==}
@@ -12525,6 +12528,19 @@ packages:
       semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /vue-server-renderer@2.7.14:
+    resolution: {integrity: sha512-NlGFn24tnUrj7Sqb8njhIhWREuCJcM3140aMunLNcx951BHG8j3XOrPP7psSCaFA8z6L4IWEjudztdwTp1CBVw==}
+    dependencies:
+      chalk: 4.1.2
+      hash-sum: 2.0.0
+      he: 1.2.0
+      lodash.template: 4.5.0
+      lodash.uniq: 4.5.0
+      resolve: 1.22.3
+      serialize-javascript: 6.0.1
+      source-map: 0.5.6
     dev: false
 
   /vue@2.7.14:

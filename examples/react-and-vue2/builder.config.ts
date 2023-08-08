@@ -6,5 +6,8 @@ export default defineConfig({
   input: "./routemap.json",
   vite: {
     plugins: [react(), vue()],
+    ssr: {
+      target: "node",
+    },
   },
 });

@@ -1,19 +1,16 @@
 {
   "name": "@web-widget/vue2",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "exports": {
     ".": {
-      "worker": {
-        "types": "./dist/vue2.server.d.ts",
-        "default": "./dist/vue2.server.js"
-      },
       "browser": {
         "types": "./dist/vue2.client.d.ts",
         "default": "./dist/vue2.client.js"
       },
       "default": {
         "types": "./dist/vue2.server.d.ts",
+        "development": "./dist/vue2.server.dev.js",
         "default": "./dist/vue2.server.js"
       }
     }
@@ -28,7 +25,8 @@
   },
   "dependencies": {
     "@web-widget/schema": "workspace:*",
-    "@web-widget/vue-server-renderer": "^0.0.6"
+    "@web-widget/vue-server-renderer": "^0.0.6",
+    "vue-server-renderer": "^2.7.14"
   },
   "peerDependencies": {
     "vue": "^2.7.14"
