@@ -140,7 +140,7 @@ export function renderMetaToString(meta: Meta): string {
   return priority.flat().join("");
 }
 
-export function rebaseMeta(meta: Meta, base: string): Meta {
+export function rebaseMeta(meta: Meta, importer: string): Meta {
   const RESOLVE_URL_REG = /^(?:\w+:)?\//;
   return {
     ...meta,
@@ -149,7 +149,7 @@ export function rebaseMeta(meta: Meta, base: string): Meta {
       if (props.href && !RESOLVE_URL_REG.test(props.href)) {
         return {
           ...props,
-          href: base + props.href,
+          href: new URL(props.href, importer).href,
         };
       }
       return { ...props };
@@ -168,7 +168,7 @@ export function rebaseMeta(meta: Meta, base: string): Meta {
         const rebaseImports = (imports: Imports) =>
           Object.entries(imports).reduce((previousValue, [name, url]) => {
             if (!RESOLVE_URL_REG.test(url)) {
-              previousValue[name] = base + url;
+              previousValue[name] = new URL(url, importer).href;
             } else {
               previousValue[name] = url;
             }
@@ -183,7 +183,8 @@ export function rebaseMeta(meta: Meta, base: string): Meta {
               ? Object.entries(importmap.scopes).reduce(
                   (previousValue, [scope, imports]) => {
                     if (!RESOLVE_URL_REG.test(scope)) {
-                      previousValue[base + scope] = rebaseImports(imports);
+                      previousValue[new URL(scope, importer).href] =
+                        rebaseImports(imports);
                     } else {
                       previousValue[scope] = {};
                     }
@@ -199,7 +200,7 @@ export function rebaseMeta(meta: Meta, base: string): Meta {
       if (typeof props.src === "string" && !RESOLVE_URL_REG.test(props.src)) {
         return {
           ...props,
-          src: base + props.src,
+          src: new URL(props.src, importer).href,
         };
       }
 

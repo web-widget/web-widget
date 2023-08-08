@@ -20,9 +20,10 @@ export default defineConfig({
     },
   },
   env: {
-    browser: true,
+    browser: false,
+    worker: true,
     commonjs: false,
-    node: true,
+    node: false,
     es6: true,
   },
   settings: {

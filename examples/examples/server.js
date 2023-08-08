@@ -19,7 +19,8 @@ app.use(async (ctx, next) => {
 });
 
 const webRouter = new WebRouter(routemap, {
-  base: "/",
+  baseAsset: "http://localhost:9000/",
+  baseModule: new URL("./dist/server/", import.meta.url),
   meta: {
     lang: "en",
     meta: [
@@ -35,9 +36,6 @@ const webRouter = new WebRouter(routemap, {
         content: "@web-widget/web-router",
       },
     ],
-  },
-  experimental: {
-    root: fileURLToPath(new URL("./", import.meta.url)),
   },
 });
 

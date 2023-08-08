@@ -10,8 +10,8 @@ export type * from "./types";
 export default class WebRouter {
   #handler: RouterHandler;
 
-  constructor(routemap: string | URL | Manifest, opts: StartOptions = {}) {
-    const promise = ServerContext.fromManifest(routemap, opts, !!opts.dev).then(
+  constructor(manifest: Manifest, opts: StartOptions) {
+    const promise = ServerContext.fromManifest(manifest, opts, !!opts.dev).then(
       (serverContext) => {
         this.#handler = serverContext.handler();
         return serverContext;
@@ -33,6 +33,6 @@ export default class WebRouter {
    * e.g. `self.addEventListener('fetch', new WebRouter(manifest, options))`.
    */
   handleEvent(fetchEvent: FetchEvent) {
-    fetchEvent.respondWith(this.handler(fetchEvent.request, fetchEvent));
+    fetchEvent.respondWith(this.#handler(fetchEvent.request, fetchEvent));
   }
 }

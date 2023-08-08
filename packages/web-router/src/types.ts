@@ -18,6 +18,8 @@ import type {
 } from "@web-widget/schema/server";
 import type { InnerRenderContext, InnerRenderFunction } from "./render";
 
+// --- MODULE ---
+
 export * from "@web-widget/schema/server";
 
 // --- APPLICATION CONFIGURATION ---
@@ -27,13 +29,13 @@ export type StartOptions = WebRouterOptions & {
 };
 
 export interface WebRouterOptions {
-  base?: string;
+  baseAsset: URL | string;
+  baseModule: URL | string;
   bootstrap?: ScriptDescriptor[];
   meta?: Meta;
   experimental?: {
-    loader?: (module: string) => Promise<any>;
+    loader?: (module: string, importer?: string) => Promise<unknown>;
     render?: RenderPage;
-    root?: string;
     router?: RouterOptions;
   };
 }
@@ -50,6 +52,67 @@ export type RenderPage = (
   ctx: InnerRenderContext,
   render: InnerRenderFunction
 ) => void | Promise<void>;
+
+export type RouterHandler = (
+  request: Request,
+  connInfo?: ConnectionInfo
+) => Response | Promise<Response>;
+
+// Information about the connection a request arrived on.
+export type ConnectionInfo = FetchEvent | unknown;
+
+// --- MANIFEST ---
+
+export type Manifest = ManifestResolved | ManifestJSON;
+
+export interface ManifestResolved {
+  routes?: {
+    module: RouteModule;
+    name?: string;
+    pathname: string;
+    source: string;
+  }[];
+  middlewares?: {
+    module: MiddlewareModule;
+    name?: string;
+    pathname: string;
+    source: string;
+  }[];
+  fallbacks?: {
+    module: RouteModule;
+    name: string;
+    pathname: string;
+    source: string;
+  }[];
+  layout?: {
+    module: LayoutModule;
+    source: string;
+    name?: string;
+  };
+}
+
+export interface ManifestJSON {
+  $schema?: string;
+  routes?: {
+    module: string;
+    name?: string;
+    pathname: string;
+  }[];
+  middlewares?: {
+    module: string;
+    name?: string;
+    pathname: string;
+  }[];
+  fallbacks?: {
+    module: string;
+    name: string;
+    pathname: string;
+  }[];
+  layout?: {
+    module: string;
+    name?: string;
+  };
+}
 
 // --- PAGE ---
 
@@ -78,7 +141,7 @@ export interface Page {
   name: string;
   pathname: string;
   render: RouteRender;
-  source: string;
+  source: URL;
 }
 
 // --- MIDDLEWARE ---
@@ -129,7 +192,7 @@ export interface Layout {
   module: LayoutModule;
   name: string;
   render: WidgetRender;
-  source: string;
+  source: URL;
 }
 
 export interface RootLayoutComponentProps {
@@ -137,68 +200,3 @@ export interface RootLayoutComponentProps {
   bootstrap: ScriptDescriptor[];
   meta: Meta;
 }
-
-// --- MANIFEST ---
-
-export interface Manifest {
-  $schema?: string;
-  routes?: (
-    | {
-        module: string;
-        name?: string;
-        pathname: string;
-      }
-    | {
-        module: RouteModule;
-        name?: string;
-        pathname: string;
-        source: string;
-      }
-  )[];
-  middlewares?: (
-    | {
-        module: string;
-        name?: string;
-        pathname: string;
-      }
-    | {
-        module: MiddlewareModule;
-        name?: string;
-        pathname: string;
-        source: string;
-      }
-  )[];
-  fallbacks?: (
-    | {
-        module: string;
-        name: string;
-        pathname: string;
-      }
-    | {
-        module: RouteModule;
-        name: string;
-        pathname: string;
-        source: string;
-      }
-  )[];
-  layout?:
-    | {
-        module: string;
-        name?: string;
-      }
-    | {
-        module: LayoutModule;
-        source: string;
-        name?: string;
-      };
-}
-
-// --- ROUTER ---
-
-export type RouterHandler = (
-  request: Request,
-  connInfo?: ConnectionInfo
-) => Response | Promise<Response>;
-
-// Information about the connection a request arrived on.
-export type ConnectionInfo = FetchEvent | unknown;
