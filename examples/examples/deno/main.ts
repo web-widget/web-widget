@@ -36,12 +36,12 @@ const serveFiles = (req: Request) =>
 const port = 4505;
 const server = new Server({
   port,
-  handler: async (request: Request, connInfo: ConnInfo) => {
+  handler: async (request: Request, requester: ConnInfo) => {
     if (new URL(request.url).pathname.startsWith("/assets")) {
       return serveFiles(request);
     }
 
-    return webRouter.handler(request, connInfo);
+    return webRouter.handler(request, requester);
   },
 });
 

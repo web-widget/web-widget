@@ -17,16 +17,16 @@ import * as router from "./router";
 import * as defaultRootFallbackModule from "./fallback";
 import * as defaultRootLayoutModule from "./layout";
 import type {
-  ConnectionInfo,
-  LayoutRender,
   Layout,
   LayoutModule,
+  LayoutRender,
   Manifest,
   Middleware,
   MiddlewareHandlerContext,
   MiddlewareModule,
   Page,
   RenderPage,
+  Requester,
   RouterHandler,
   RouterOptions,
   ScriptDescriptor,
@@ -309,7 +309,7 @@ export class ServerContext {
     const trailingSlashEnabled = this.#routerOptions?.trailingSlash;
     return async function handler(
       req: Request,
-      _connInfo?: ConnectionInfo
+      requester?: Requester
     ): Promise<Response> {
       // Redirect requests that end with a trailing slash to their non-trailing
       // slash counterpart.
@@ -331,7 +331,7 @@ export class ServerContext {
         return Response.redirect(url.href + "/", HttpStatus.PermanentRedirect);
       }
 
-      return await withMiddlewares(req, inner, _connInfo);
+      return await withMiddlewares(req, inner, requester);
     };
   }
 
@@ -346,7 +346,7 @@ export class ServerContext {
     return (
       req: Request,
       inner: router.FinalHandler<RouterState>,
-      _connInfo?: ConnectionInfo
+      requester?: Requester
     ) => {
       // identify middlewares to apply, if any.
       // middlewares should be already sorted from deepest to shallow layer
@@ -355,7 +355,7 @@ export class ServerContext {
       const handlers: (() => Response | Promise<Response>)[] = [];
 
       const middlewareCtx: MiddlewareHandlerContext = {
-        _connInfo,
+        requester,
         destination: "route",
         request: req,
         state: {},
@@ -377,7 +377,7 @@ export class ServerContext {
       }
 
       const ctx = {
-        _connInfo,
+        requester,
         request: req,
         state: middlewareCtx.state,
       };
