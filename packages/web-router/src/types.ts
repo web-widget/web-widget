@@ -147,6 +147,15 @@ export interface Page {
 
 // --- MIDDLEWARE ---
 
+export interface MiddlewareModule<State = any> {
+  handler: MiddlewareHandler<State> | MiddlewareHandler<State>[];
+}
+
+export type MiddlewareHandler<State = Record<string, unknown>> = (
+  ctx: MiddlewareHandlerContext<State>,
+  next: () => Promise<Response>
+) => Response | Promise<Response>;
+
 export interface MiddlewareHandlerContext<State = Record<string, unknown>> {
   _connInfo?: ConnectionInfo;
   destination: router.DestinationKind;
@@ -154,7 +163,8 @@ export interface MiddlewareHandlerContext<State = Record<string, unknown>> {
   state: State;
 }
 
-export interface MiddlewareRoute extends Middleware {
+export interface Middleware<State = Record<string, unknown>> {
+  handler: MiddlewareHandler<State> | MiddlewareHandler<State>[];
   /**
    * path-to-regexp style url path
    */
@@ -165,19 +175,6 @@ export interface MiddlewareRoute extends Middleware {
   compiledPattern: URLPattern;
 }
 
-export type MiddlewareHandler<State = Record<string, unknown>> = (
-  ctx: MiddlewareHandlerContext<State>,
-  next: () => Promise<Response>
-) => Response | Promise<Response>;
-
-export interface MiddlewareModule<State = any> {
-  handler: MiddlewareHandler<State> | MiddlewareHandler<State>[];
-}
-
-export interface Middleware<State = Record<string, unknown>> {
-  handler: MiddlewareHandler<State> | MiddlewareHandler<State>[];
-}
-
 // --- LAYOUT ---
 
 export interface LayoutModule extends WidgetModule {}
@@ -185,7 +182,7 @@ export type LayoutComponentProps = WidgetComponentProps;
 export interface LayoutComponent extends WidgetComponent {}
 export interface LayoutRenderContext extends WidgetRenderContext {}
 export type LayoutRenderResult = WidgetRenderResult;
-export interface LayouRender extends WidgetRender {}
+export interface LayoutRender extends WidgetRender {}
 
 export interface Layout {
   bootstrap: ScriptDescriptor[];
