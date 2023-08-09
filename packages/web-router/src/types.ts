@@ -15,12 +15,12 @@ import type {
   WidgetRender,
   WidgetRenderContext,
   WidgetRenderResult,
-} from "@web-widget/schema/server";
+} from "@web-widget/schema/server-helpers";
 import type { InnerRenderContext, InnerRenderFunction } from "./render";
 
-// --- MODULE ---
+// --- MODULE STANDARDS---
 
-export * from "@web-widget/schema/server";
+export * from "@web-widget/schema/server-helpers";
 
 // --- APPLICATION CONFIGURATION ---
 
@@ -62,7 +62,7 @@ export type RouterHandler = (
 // Information about the connection a request arrived on.
 export type ConnectionInfo = FetchEvent | unknown;
 
-// --- MIDDLEWARE ---
+// --- MANIFEST ---
 
 export type Manifest = ManifestResolved | ManifestJSON;
 
@@ -147,8 +147,8 @@ export interface Page {
 
 // --- MIDDLEWARE ---
 
-export interface MiddlewareModule<State = any> {
-  handler: MiddlewareHandler<State> | MiddlewareHandler<State>[];
+export interface MiddlewareModule {
+  handler: MiddlewareHandler | MiddlewareHandler[];
 }
 
 export type MiddlewareHandler<State = Record<string, unknown>> = (
@@ -163,8 +163,8 @@ export interface MiddlewareHandlerContext<State = Record<string, unknown>> {
   state: State;
 }
 
-export interface Middleware<State = Record<string, unknown>> {
-  handler: MiddlewareHandler<State> | MiddlewareHandler<State>[];
+export interface Middleware {
+  handler: MiddlewareHandler | MiddlewareHandler[];
   /**
    * path-to-regexp style url path
    */

@@ -1,9 +1,9 @@
 import { __ENV__ } from "./web-widget";
 import { type Attributes, createElement } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import { defineRender, isRouteRenderContext } from "@web-widget/schema/client";
+import { defineRender, isRouteRenderContext } from "@web-widget/schema/client-helpers";
 
-export * from "@web-widget/schema/client";
+export * from "@web-widget/schema/client-helpers";
 export * from "./web-widget";
 export { WebWidget as default } from "./web-widget";
 

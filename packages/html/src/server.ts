@@ -3,10 +3,10 @@ import {
   asyncIterToStream,
   streamToAsyncIter,
 } from "whatwg-stream-to-async-iter";
-import { defineRender, isRouteRenderContext } from "@web-widget/schema/server";
+import { defineRender, isRouteRenderContext } from "@web-widget/schema/server-helpers";
 import { fallback, html, unsafeHTML } from "@worker-tools/html";
 
-export * from "@web-widget/schema/server";
+export * from "@web-widget/schema/server-helpers";
 export { unsafeHTML, fallback, html };
 export type { HTML, Fallback };
 

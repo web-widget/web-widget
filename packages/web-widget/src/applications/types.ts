@@ -1,8 +1,8 @@
 import type {
   WidgetModule,
   WidgetRenderContext,
-} from "@web-widget/schema/client";
-export * from "@web-widget/schema/client";
+} from "@web-widget/schema/client-helpers";
+export * from "@web-widget/schema/client-helpers";
 
 type LifecycleV0<Context> = {
   bootstrap?: (context: Context) => Promise<void>;
