@@ -56,11 +56,11 @@ export type RenderPage = (
 
 export type RouterHandler = (
   request: Request,
-  connInfo?: ConnectionInfo
+  requester?: Requester
 ) => Response | Promise<Response>;
 
 // Information about the connection a request arrived on.
-export type ConnectionInfo = FetchEvent | unknown;
+export type Requester = FetchEvent | unknown;
 
 // --- MANIFEST ---
 
@@ -157,9 +157,9 @@ export type MiddlewareHandler<State = Record<string, unknown>> = (
 ) => Response | Promise<Response>;
 
 export interface MiddlewareHandlerContext<State = Record<string, unknown>> {
-  _connInfo?: ConnectionInfo;
   destination: router.DestinationKind;
   request: Request;
+  requester?: Requester;
   state: State;
 }
 

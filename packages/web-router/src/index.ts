@@ -1,10 +1,5 @@
 import { ServerContext } from "./context";
-import type {
-  StartOptions,
-  RouterHandler,
-  ConnectionInfo,
-  Manifest,
-} from "./types";
+import type { Manifest, Requester, RouterHandler, StartOptions } from "./types";
 export type * from "./types";
 
 export default class WebRouter {
@@ -19,9 +14,9 @@ export default class WebRouter {
       }
     );
 
-    this.#handler = async (req: Request, info?: ConnectionInfo) => {
+    this.#handler = async (req: Request, requester?: Requester) => {
       const serverContext = await promise;
-      return serverContext.handler()(req, info);
+      return serverContext.handler()(req, requester);
     };
     this.#options = opts;
   }
