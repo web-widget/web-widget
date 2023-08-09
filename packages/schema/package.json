@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/schema",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "exports": {
     ".": {
@@ -21,11 +21,11 @@
         "default": "./dist/schema-helpers.server.js"
       }
     },
-    "./server": {
+    "./server-helpers": {
       "types": "./dist/schema-helpers.server.d.ts",
       "default": "./dist/schema-helpers.server.js"
     },
-    "./client": {
+    "./client-helpers": {
       "types": "./dist/schema-helpers.client.d.ts",
       "default": "./dist/schema-helpers.client.js"
     }

@@ -1,7 +1,7 @@
 import type {
   Meta,
   RouteFallbackComponentProps,
-} from "@web-widget/schema/server";
+} from "@web-widget/schema/server-helpers";
 import { html, render } from "@web-widget/html";
 
 export { render };

@@ -3,7 +3,7 @@ import {
   HttpStatus,
   mergeMeta,
   rebaseMeta,
-} from "@web-widget/schema/server";
+} from "@web-widget/schema/server-helpers";
 import type {
   HttpError,
   Meta,
@@ -12,7 +12,7 @@ import type {
   RouteModule,
   RouteRender,
   RouteRenderResult,
-} from "@web-widget/schema/server";
+} from "@web-widget/schema/server-helpers";
 import * as router from "./router";
 import * as defaultRootFallbackModule from "./fallback";
 import * as defaultRootLayoutModule from "./layout";

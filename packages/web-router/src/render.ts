@@ -10,7 +10,7 @@ import type {
   RouteError,
   RouteRenderResult,
   ScriptDescriptor,
-} from "@web-widget/schema/server";
+} from "@web-widget/schema/server-helpers";
 import { NONE, UNSAFE_INLINE } from "./csp";
 
 import type { ContentSecurityPolicy } from "./csp";

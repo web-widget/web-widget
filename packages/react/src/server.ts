@@ -2,9 +2,9 @@ import { __ENV__ } from "./web-widget";
 import { type Attributes, createElement } from "react";
 // @ts-ignore
 import * as ReactDOMServer from "react-dom/server.browser";
-import { defineRender, isRouteRenderContext } from "@web-widget/schema/server";
+import { defineRender, isRouteRenderContext } from "@web-widget/schema/server-helpers";
 
-export * from "@web-widget/schema/server";
+export * from "@web-widget/schema/server-helpers";
 export * from "./web-widget";
 export { WebWidget as default } from "./web-widget";
 
