@@ -18,14 +18,13 @@ import * as defaultRootFallbackModule from "./fallback";
 import * as defaultRootLayoutModule from "./layout";
 import type {
   ConnectionInfo,
-  LayouRender,
+  LayoutRender,
   Layout,
   LayoutModule,
   Manifest,
   Middleware,
   MiddlewareHandlerContext,
   MiddlewareModule,
-  MiddlewareRoute,
   Page,
   RenderPage,
   RouterHandler,
@@ -51,7 +50,7 @@ export class ServerContext {
   #dev: boolean;
   #fallbacks: Page[];
   #layout: Layout;
-  #middlewares: MiddlewareRoute[];
+  #middlewares: Middleware[];
   #renderPage: RenderPage;
   #routerOptions: RouterOptions;
   #routes: Page[];
@@ -61,7 +60,7 @@ export class ServerContext {
     dev: boolean,
     fallbacks: Page[],
     layout: Layout,
-    middlewares: MiddlewareRoute[],
+    middlewares: Middleware[],
     renderPage: RenderPage,
     routerOptions: RouterOptions,
     routes: Page[]
@@ -120,7 +119,7 @@ export class ServerContext {
 
     // Extract all routes, and prepare them into the `Page` structure.
     const routes: Page[] = [];
-    const middlewares: MiddlewareRoute[] = [];
+    const middlewares: Middleware[] = [];
     const fallbacks: Page[] = [];
     let layout = DEFAULT_ROOT_LAYOUT;
 
@@ -341,7 +340,7 @@ export class ServerContext {
    * chain them and return a handler response
    */
   #composeMiddlewares(
-    middlewares: MiddlewareRoute[],
+    middlewares: Middleware[],
     errorHandler: router.ErrorHandler<RouterState>
   ) {
     return (
@@ -617,7 +616,7 @@ const DEFAULT_ROOT_LAYOUT: Layout = {
   meta: DEFAULT_META,
   module: defaultRootLayoutModule as LayoutModule,
   name: "Root",
-  render: defaultRootLayoutModule.render as LayouRender,
+  render: defaultRootLayoutModule.render as LayoutRender,
   source: new URL(import.meta.url),
 };
 
@@ -626,14 +625,14 @@ const DEFAULT_ROOT_LAYOUT: Layout = {
  * @param url the request url
  * @param middlewares Array of middlewares handlers and their routes as path-to-regexp style
  */
-export function selectMiddlewares(url: string, middlewares: MiddlewareRoute[]) {
+export function selectMiddlewares(url: string, middlewares: Middleware[]) {
   const selectedMws: Middleware[] = [];
   const reqURL = new URL(url);
 
-  for (const { compiledPattern, handler } of middlewares) {
-    const res = compiledPattern.exec(reqURL);
+  for (const middleware of middlewares) {
+    const res = middleware.compiledPattern.exec(reqURL);
     if (res) {
-      selectedMws.push({ handler });
+      selectedMws.push(middleware);
     }
   }
 
