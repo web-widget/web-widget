@@ -1,9 +1,8 @@
 type _IntrinsicAttributes = IntrinsicAttributes;
-type loading = boolean | "lazy";
 
 declare namespace JSX {
   interface IntrinsicAttributes extends _IntrinsicAttributes {
-    client?: loading;
-    clientOnly?: loading;
+    as?: "web-widget" | "web-widget:server" | "web-widget:client" | any;
+    loading?: "lazy" | any;
   }
 }

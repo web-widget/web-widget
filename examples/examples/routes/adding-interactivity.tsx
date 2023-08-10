@@ -8,7 +8,7 @@ export default function Page() {
   return (
     <BaseLayout>
       <h1>Adding interactivity</h1>
-      <ReactCounter client name="React Counter" start={3} />
+      <ReactCounter as="web-widget" name="React Counter" start={3} />
     </BaseLayout>
   );
 }

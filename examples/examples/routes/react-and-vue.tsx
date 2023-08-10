@@ -17,13 +17,13 @@ export default function Page() {
       <h1>Using react and vue together</h1>
 
       <h2>React component:</h2>
-      <CounterVanilla client name="Vanilla Counter" start={3} />
+      <CounterVanilla as="web-widget" name="Vanilla Counter" start={3} />
 
       <h2>Vue component:</h2>
-      <VueCounter client name="Vue3 Counter" start={3} />
+      <VueCounter as="web-widget" name="Vue3 Counter" start={3} />
 
       <h2>Vanilla component:</h2>
-      <ReactCounter client name="Vanilla Counter" start={3} />
+      <ReactCounter as="web-widget" name="Vanilla Counter" start={3} />
     </BaseLayout>
   );
 }

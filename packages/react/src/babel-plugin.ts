@@ -5,7 +5,7 @@
  *
  * import MyComponent from "../widgets/my-component.jsx";
  * ...
- * <MyComponent client title="My component" />
+ * <MyComponent as="web-widget" title="My component" />
  *
  * becomes:
  *
@@ -17,7 +17,7 @@
  * ...
  * <MyComponent title="My component" />
  */
-import { dirname, join, relative } from "node:path";
+// import { dirname, join, relative } from "node:path";
 
 import type { DefineWebWidgetOptions } from "./web-widget";
 import type { PluginPass } from "@babel/core";
@@ -25,6 +25,8 @@ import type { Visitor } from "@babel/traverse";
 import { addNamed } from "@babel/helper-module-imports";
 import { declare } from "@babel/helper-plugin-utils";
 import { types as t } from "@babel/core";
+
+const TAGNAME = "web-widget";
 
 function createWebWidgetVariableDeclaration(
   definer: string,
@@ -129,28 +131,43 @@ export default declare((api) => {
         }
 
         const attributes = container.openingElement.attributes;
-        const clientAttr = attributes.find(
+        const widgetAttr = attributes.find(
           (attr) =>
             t.isJSXAttribute(attr) &&
-            (attr.name.name === "client" || attr.name.name === "clientOnly")
+            attr.name.name === "as" &&
+            t.isStringLiteral(attr.value) &&
+            attr.value.value.startsWith(TAGNAME)
         ) as t.JSXAttribute;
 
-        if (!clientAttr) {
+        if (!widgetAttr) {
           return;
         }
 
+        const mode = t.isStringLiteral(widgetAttr.value)
+          ? widgetAttr.value.value.replace(TAGNAME + ":", "")
+          : "";
+        const loadingAttr =
+          (attributes.find(
+            (attr) => t.isJSXAttribute(attr) && attr.name.name === "loading"
+          ) as t.JSXAttribute) || undefined;
+
+        // Remove [as="web-widget"]
         container.openingElement.attributes =
           container.openingElement.attributes.filter(
-            (attr) => attr !== clientAttr
+            (attr) => attr !== widgetAttr && attr !== loadingAttr
           );
 
         const options: DefineWebWidgetOptions = {
           name: container.openingElement.name.name,
-          recovering: config.isServer && clientAttr.name.name !== "clientOnly",
+          recovering: config.isServer && mode !== "client",
         };
 
-        if (t.isStringLiteral(clientAttr.value) && clientAttr.value.value) {
-          options.loading = clientAttr.value.value;
+        if (
+          loadingAttr &&
+          loadingAttr.value &&
+          t.isStringLiteral(loadingAttr.value)
+        ) {
+          options.loading = loadingAttr.value.value;
         }
 
         const importDeclaration = binding.path.parent;
