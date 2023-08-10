@@ -9,7 +9,7 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
     <>
       <div className="container">
         <aside>
-          <Menu client />
+          <Menu as="web-widget" />
         </aside>
         <main>{children}</main>
       </div>

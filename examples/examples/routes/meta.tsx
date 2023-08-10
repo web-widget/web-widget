@@ -47,7 +47,7 @@ export default function Page(props: RouteComponentProps<MetaPageData>) {
       <h2>HTML:</h2>
       <MetaHtmlCode {...allMetadata} />
       <hr />
-      <ReactCounter client name="React Counter" start={3} />
+      <ReactCounter as="web-widget" name="React Counter" start={3} />
       <div>
         <img src={icon} />
       </div>
