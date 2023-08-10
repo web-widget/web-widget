@@ -46,7 +46,7 @@ interface RouterState {
 }
 
 export class ServerContext {
-  #bootstrap: ScriptDescriptor[];
+  #bootstraps: ScriptDescriptor[];
   #dev: boolean;
   #fallbacks: Page[];
   #layout: Layout;
@@ -56,7 +56,7 @@ export class ServerContext {
   #routes: Page[];
 
   constructor(
-    bootstrap: ScriptDescriptor[],
+    bootstraps: ScriptDescriptor[],
     dev: boolean,
     fallbacks: Page[],
     layout: Layout,
@@ -65,7 +65,7 @@ export class ServerContext {
     routerOptions: RouterOptions,
     routes: Page[]
   ) {
-    this.#bootstrap = bootstrap;
+    this.#bootstraps = bootstraps;
     this.#dev = dev;
     this.#fallbacks = fallbacks;
     this.#layout = layout;
@@ -399,7 +399,7 @@ export class ServerContext {
     otherHandler: router.Handler<RouterState>;
     errorHandler: router.ErrorHandler<RouterState>;
   } {
-    const bootstrap = this.#bootstrap;
+    const bootstrap = this.#bootstraps;
     const internalRoutes: router.Routes<RouterState> = {};
     const routes: router.Routes<RouterState> = {};
     const notFoundPage = this.#fallbacks.find(
