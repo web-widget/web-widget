@@ -32,6 +32,16 @@ const webRouter = new WebRouter(routemap, {
         content: "width=device-width, initial-scale=1.0",
       },
     ],
+    // script: [
+    //   {
+    //     type: "importmap",
+    //     content: JSON.stringify({
+    //       imports: {
+    //         "@test/test": "https://google.com/test.js",
+    //       },
+    //     }),
+    //   },
+    // ],
   },
 });
 
