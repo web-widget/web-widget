@@ -14,6 +14,12 @@ type MetaPageData = {
 export const meta: Meta = {
   title: "Meta",
   description: "HTML Meta Data Example",
+  link: [
+    {
+      type: "application/json",
+      href: "https://google.com/test.json",
+    },
+  ],
 };
 
 export const handler: Handlers<MetaPageData> = {
