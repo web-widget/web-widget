@@ -8,18 +8,27 @@ export const render = defineRender(
       throw new Error(`Container required.`);
     }
 
-    const shell =
-      (recovering ? container.querySelector("[data-vue2-shell]") : null) ||
-      document.createElement("div");
+    let app: Vue | null;
+    return {
+      async mount() {
+        const shell =
+          (recovering ? container.querySelector("[data-vue2-shell]") : null) ||
+          container.appendChild(document.createElement("div"));
 
-    container.appendChild(shell);
+        app = new Vue({
+          render(h) {
+            return h(component, props as Record<string, any>);
+          },
+        });
 
-    const app = new Vue({
-      render(h) {
-        return h(component, props as Record<string, any>);
+        app.$mount(shell);
       },
-    });
 
-    app.$mount(shell);
+      async unmount() {
+        app?.$destroy();
+        container.innerHTML = "";
+        app = null;
+      },
+    };
   }
 );
