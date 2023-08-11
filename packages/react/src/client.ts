@@ -1,7 +1,12 @@
 import { __ENV__ } from "./web-widget";
-import { type Attributes, createElement } from "react";
+import { createElement } from "react";
+import type { Attributes, ReactNode } from "react";
+import type { Root } from "react-dom/client";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import { defineRender, isRouteRenderContext } from "@web-widget/schema/client-helpers";
+import {
+  defineRender,
+  isRouteRenderContext,
+} from "@web-widget/schema/client-helpers";
 
 export * from "@web-widget/schema/client-helpers";
 export * from "./web-widget";
@@ -18,24 +23,34 @@ export const render = defineRender(async (context, component, props) => {
     throw new Error(`Container required.`);
   }
 
-  let vnode;
-  if (
-    typeof component === "function" &&
-    component.constructor.name === "AsyncFunction"
-  ) {
-    if (isRouteRenderContext(context)) {
-      // experimental
-      vnode = await component(props);
-    } else {
-      throw new Error("Async widget components are not supported.");
-    }
-  } else {
-    vnode = createElement(component, props as Attributes);
-  }
+  let root: Root | null;
+  return {
+    async mount() {
+      let vnode: ReactNode;
+      if (
+        typeof component === "function" &&
+        component.constructor.name === "AsyncFunction"
+      ) {
+        if (isRouteRenderContext(context)) {
+          // experimental
+          vnode = (await component(props)) as ReactNode;
+        } else {
+          throw new Error("Async widget components are not supported.");
+        }
+      } else {
+        vnode = createElement(component, props as Attributes) as ReactNode;
+      }
+      if (recovering) {
+        root = hydrateRoot(container, vnode);
+      } else {
+        root = createRoot(container);
+        root.render(vnode);
+      }
+    },
 
-  if (recovering) {
-    hydrateRoot(container, vnode);
-  } else {
-    createRoot(container).render(vnode);
-  }
+    async unmount() {
+      root?.unmount();
+      root = null;
+    },
+  };
 });

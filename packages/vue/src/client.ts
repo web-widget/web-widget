@@ -1,3 +1,4 @@
+import type { App } from "vue";
 import { createApp, createSSRApp } from "vue";
 
 import { defineRender } from "@web-widget/schema/client-helpers";
@@ -9,10 +10,21 @@ export const render = defineRender(
       throw new Error(`Container required.`);
     }
 
-    if (recovering) {
-      createSSRApp(component, props as Record<string, any>).mount(container);
-    } else {
-      createApp(component, props as Record<string, any>).mount(container);
-    }
+    let app: App | null;
+    return {
+      async mount() {
+        if (recovering) {
+          app = createSSRApp(component, props as Record<string, any>);
+        } else {
+          app = createApp(component, props as Record<string, any>);
+        }
+        app.mount(container);
+      },
+
+      async unmount() {
+        app?.unmount();
+        app = null;
+      },
+    };
   }
 );
