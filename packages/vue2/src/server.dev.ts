@@ -4,15 +4,29 @@ import { createRenderer } from "@web-widget/vue-server-renderer/build.dev.js";
 import { defineRender } from "@web-widget/schema/server-helpers";
 
 export * from "@web-widget/schema/server-helpers";
-export const render = defineRender(async (context, component, props) => {
-  const renderer = createRenderer();
-  const app = new Vue({
-    render(h) {
-      return h(component, props as Record<string, any>);
-    },
-  });
+export interface DefineVueRenderOptions {
+  onBeforeCreateApp?: () => any;
+  onCreatedApp?: (app: Vue) => void;
+}
 
-  // TODO renderer.renderToStream() to ReadableStream
-  const content = await renderer.renderToString(app);
-  return `<div data-vue2-shell>` + content + "</div>";
-});
+export const defineVueRender = ({
+  onBeforeCreateApp = () => ({}),
+  onCreatedApp = () => {},
+}: DefineVueRenderOptions = {}) => {
+  return defineRender(async (context, component, props) => {
+    const renderer = createRenderer();
+    const app = new Vue({
+      ...onBeforeCreateApp(),
+      render(h) {
+        return h(component, props as Record<string, any>);
+      },
+    });
+
+    onCreatedApp(app);
+
+    const content = await renderer.renderToString(app);
+    return `<div data-vue2-shell>` + content + "</div>";
+  });
+};
+
+export const render = defineVueRender();
