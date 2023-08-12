@@ -39,6 +39,9 @@ export default function Menu() {
           <a href="/fallback">Error handling</a>
         </li>
         <li>
+          <a href="/streaming">Streaming</a>
+        </li>
+        <li>
           <a href="/experimental-async-component">Async component</a>
         </li>
         <li>

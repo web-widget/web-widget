@@ -53,6 +53,10 @@
       "module": "./routes/experimental-async-component.tsx"
     },
     {
+      "pathname": "/streaming",
+      "module": "./routes/streaming.tsx"
+    },
+    {
       "pathname": "/lit-html-template",
       "module": "./routes/lit-html-template.ts"
     },
