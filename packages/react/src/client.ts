@@ -3,10 +3,7 @@ import { createElement } from "react";
 import type { Attributes, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import {
-  defineRender,
-  isRouteRenderContext,
-} from "@web-widget/schema/client-helpers";
+import { defineRender } from "@web-widget/schema/client-helpers";
 
 export * from "@web-widget/schema/client-helpers";
 export * from "./web-widget";
@@ -31,12 +28,8 @@ export const render = defineRender(async (context, component, props) => {
         typeof component === "function" &&
         component.constructor.name === "AsyncFunction"
       ) {
-        if (isRouteRenderContext(context)) {
-          // experimental
-          vnode = (await component(props)) as ReactNode;
-        } else {
-          throw new Error("Async widget components are not supported.");
-        }
+        // experimental
+        vnode = (await component(props)) as ReactNode;
       } else {
         vnode = createElement(component, props as Attributes) as ReactNode;
       }
