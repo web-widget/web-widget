@@ -21,7 +21,8 @@ import type { Middleware } from "@web-widget/node";
 import NodeAdapter from "@web-widget/node";
 
 import WebRouter from "@web-widget/web-router";
-import { getAssets } from "./render";
+import { getMeta } from "./render";
+import type { RouteModule } from "@web-widget/schema";
 
 async function loadManifest(
   config: BuilderConfig,
@@ -144,48 +145,31 @@ function toWebRouterDevMiddleware(
         viteServer.resolvedUrls?.local)?.[0] ?? config.base,
     baseModule: config.root,
     experimental: {
-      loader: (module, importer) =>
-        loader.import(
-          join(
-            config.base,
-            relative(
-              fileURLToPath(config.root),
-              fileURLToPath(new URL(module, importer))
+      loader: async (id, importer) => {
+        const source = new URL(id, importer);
+        const module = {
+          meta: {},
+          ...((await loader.import(
+            join(
+              config.base,
+              relative(fileURLToPath(config.root), fileURLToPath(source))
             )
-          )
-        ),
-      async render(ctx, render) {
-        const assets = await getAssets(
-          ctx.source,
-          loader,
-          config.root,
-          "development"
-        );
+          )) as RouteModule),
+        };
 
-        ctx.meta.style = [];
-        ctx.meta.link = [];
-        ctx.meta.script = [];
-
-        assets.styles.forEach(({ props, children }) => {
+        const meta = await getMeta(source, loader, config.root, "development");
+        Object.entries(meta).forEach(([key, value]) => {
           // @ts-ignore
-          ctx.meta.style.push({
-            ...props,
-            content: children,
-          });
-        });
-        assets.links.forEach(({ props, children }) => {
-          // @ts-ignore
-          ctx.meta.link.push(props);
-        });
-        assets.scripts.forEach(({ props, children }) => {
-          // @ts-ignore
-          ctx.meta.script.push({
-            ...props,
-            content: children,
-          });
+          if (module.meta[key]) {
+            // @ts-ignore
+            module.meta[key].push(...value);
+          } else {
+            // @ts-ignore
+            module.meta[key] = value;
+          }
         });
 
-        await render();
+        return module;
       },
     },
   });
