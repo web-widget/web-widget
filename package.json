@@ -14,9 +14,10 @@
   "scripts": {
     "build": "turbo run build --filter=./packages/* --filter=./examples/*",
     "dev": "turbo run dev --filter=./packages/* --filter=./examples/*",
+    "test": "turbo run test --filter=./packages/*",
     "docs": "rocket build && npm run github-pages-init",
     "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll",
-    "postinstall": "turbo run stub",
+    "//postinstall": "turbo run stub",
     "prettier": "prettier --write packages/**/*.js",
     "publish": "pnpm publish -r",
     "start": "rocket start"
