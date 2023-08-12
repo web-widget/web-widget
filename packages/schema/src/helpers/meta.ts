@@ -6,6 +6,13 @@ import type {
   StyleDescriptor,
 } from "../types";
 
+type Imports = Record<string, string>;
+type Scopes = Record<string, Imports>;
+type ImportMap = {
+  imports?: Imports;
+  scopes?: Scopes;
+};
+
 const ESCAPE_REG = /["&'<>]/;
 
 // This utility is based on https://github.com/aui/art-template/blob/master/src/compile/runtime.js
@@ -121,7 +128,7 @@ export function renderMetaToString(meta: Meta): string {
     if (key === "script") {
       return (value as ScriptDescriptor[]).forEach(
         ({ content = "", ...props }) => {
-          // NOTE: Importmap must precede link[rel=modulepreload] elements
+          // NOTE: ImportMap must precede link[rel=modulepreload] elements
           priority[props?.type === "importmap" ? 1 : 2].push(
             createElement(key, props, createHtml(content))
           );
@@ -156,15 +163,8 @@ export function rebaseMeta(meta: Meta, importer: string): Meta {
     }),
 
     script: (meta.script ?? []).map((props) => {
-      type Imports = Record<string, string>;
-      type Scopes = Record<string, Imports>;
-      type Importmap = {
-        imports?: Imports;
-        scopes?: Scopes;
-      };
-
       if (props.type === "importmap" && typeof props.content === "string") {
-        const importmap = JSON.parse(props.content) as Importmap;
+        const importmap = JSON.parse(props.content) as ImportMap;
         const rebaseImports = (imports: Imports) =>
           Object.entries(imports).reduce((previousValue, [name, url]) => {
             if (!RESOLVE_URL_REG.test(url)) {
@@ -193,7 +193,7 @@ export function rebaseMeta(meta: Meta, importer: string): Meta {
                   {} as Scopes
                 )
               : {},
-          } as Importmap),
+          } as ImportMap),
         };
       }
 
@@ -219,29 +219,67 @@ export function mergeMeta(defaults: Meta, overrides: Meta): Meta {
   );
 
   const newOverrides = Object.entries(overrides).reduce(
-    (meta, [key, value]) => {
-      if (Array.isArray(value)) {
-        meta[key] = meta[key] ?? [];
-        const targetValue = meta[key] as Record<string, string>[];
-        const targetKeys = targetValue.map((value) => Object.keys(value));
+    (mergedMeta, [overrideKey, overrideValue]) => {
+      if (Array.isArray(overrideValue)) {
+        mergedMeta[overrideKey] = mergedMeta[overrideKey] ?? [];
+        const mergedDescriptors = mergedMeta[overrideKey] as Record<
+          string,
+          string
+        >[];
 
-        value.forEach((value) => {
-          const keys = Object.keys(value);
-          const index = targetKeys.findIndex(
-            (targetKeys) =>
-              targetKeys.length === keys.length &&
-              !targetKeys.some((t) => keys.includes(t))
-          );
-          if (index > -1) {
-            targetValue.splice(index, 1, value);
+        overrideValue.forEach((overrideDescriptor) => {
+          let replaceIndex = -1;
+          if (overrideKey === "meta") {
+            replaceIndex = mergedDescriptors.findIndex(
+              ({ name }) => name === overrideDescriptor.name
+            );
+          } else if (
+            overrideKey === "script" &&
+            overrideDescriptor.type === "importmap" &&
+            typeof overrideDescriptor.content === "string"
+          ) {
+            replaceIndex = mergedDescriptors.findIndex(
+              ({ type }) => type === overrideDescriptor.type
+            );
+            const mergedDescriptor = mergedDescriptors[replaceIndex];
+
+            if (
+              mergedDescriptor &&
+              typeof mergedDescriptor.content === "string"
+            ) {
+              const mergedImportMap = JSON.parse(
+                mergedDescriptor.content
+              ) as ImportMap;
+              const overrideImportMap = JSON.parse(
+                overrideDescriptor.content
+              ) as ImportMap;
+
+              overrideDescriptor = {
+                ...overrideDescriptor,
+                content: JSON.stringify({
+                  imports: {
+                    ...mergedImportMap.imports,
+                    ...overrideImportMap.imports,
+                  },
+                  scopes: {
+                    ...mergedImportMap.scopes,
+                    ...overrideImportMap.scopes,
+                  },
+                } as ImportMap),
+              };
+            }
+          }
+
+          if (replaceIndex > -1) {
+            mergedDescriptors.splice(replaceIndex, 1, overrideDescriptor);
           } else {
-            targetValue.push(value);
+            mergedDescriptors.push(overrideDescriptor);
           }
         });
       } else {
-        meta[key] = value;
+        mergedMeta[overrideKey] = overrideValue;
       }
-      return meta;
+      return mergedMeta;
     },
     newDefaults
   );

@@ -7,6 +7,6 @@
     "build": {
       "dependsOn": ["^build"]
     },
-    "stub": {}
+    "test": {}
   }
 }
