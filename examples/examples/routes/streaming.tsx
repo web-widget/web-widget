@@ -1,14 +1,16 @@
 import BaseLayout from "../components/BaseLayout";
-import Wait from "../widgets/Wait";
+import WaitDemo from "../widgets/Wait";
 
 export { render } from "@web-widget/react";
 
-const Loading = <div>Loading..</div>;
+const Loading = (
+  <div style={{ background: "#f3f3f3", padding: "20px" }}>Loading..</div>
+);
 
 export default async function Page() {
   const tips = import.meta.env.DEV ? (
     <p style={{ background: "yellow" }}>
-      💡 This instance needs to run `pnpm start`
+      💡 This example needs to run `pnpm start`
     </p>
   ) : (
     <></>
@@ -17,9 +19,15 @@ export default async function Page() {
     <BaseLayout>
       <h1>Streaming</h1>
       {tips}
-      <Wait as="web-widget" fallback={Loading} timeout={1000} />
-      <Wait as="web-widget" fallback={Loading} timeout={2000} />
-      <Wait as="web-widget" fallback={Loading} timeout={3000} />
+      <WaitDemo as="web-widget" fallback={Loading} id="demo:0" />
+      <hr />
+      <WaitDemo as="web-widget" fallback={Loading} id="demo:1" />
+      <hr />
+      <WaitDemo as="web-widget" fallback={Loading} id="demo:2" />
+      <footer>
+        <hr />
+        <p>Footer</p>
+      </footer>
     </BaseLayout>
   );
 }
