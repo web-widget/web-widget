@@ -601,6 +601,8 @@ export async function buildRoutemap(
       `new URL("./", import.meta.url).href`
     )*/
 
+  const definitionCode = `import type { Manifest } from '@web-widget/web-router';\nexport default {} as Manifest`;
+
   await Promise.all([
     fs.writeFile(
       join(
@@ -615,6 +617,13 @@ export async function buildRoutemap(
         basename(input.replace(extname(input), ".js"))
       ),
       jsCode
+    ),
+    fs.writeFile(
+      join(
+        fileURLToPath(config.output.server),
+        basename(input.replace(extname(input), ".d.ts"))
+      ),
+      definitionCode
     ),
   ]);
 }
