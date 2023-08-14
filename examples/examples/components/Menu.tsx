@@ -24,7 +24,7 @@ export default function Menu() {
           <a href="/client-only-component">Client only component</a>
         </li>
         <li>
-          <a href="/fetching-data">Retching data</a>
+          <a href="/fetching-data">Fetching data</a>
         </li>
         <li>
           <a href="/style">Styling</a>
