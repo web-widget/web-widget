@@ -1,4 +1,4 @@
-import "./Counter.css";
+import "./counter-common.css";
 import type { WidgetRenderContext } from "@web-widget/schema";
 
 export const render = (context: WidgetRenderContext) => {
