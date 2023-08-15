@@ -212,22 +212,25 @@ function chunkFileNamesPlugin(
       generateBundle(options, bundle) {
         Object.keys(bundle).forEach((fileName) => {
           const chunk = bundle[fileName];
-          let id = chunk.type === "chunk" ? chunk.facadeModuleId : null;
+          // NOTE: chunk.facadeModuleId often does not exist.
+          // chunk.name usually exists, but may be duplicated.
+          let id = chunk.name;
 
           if (!id) {
-            if (!chunk.name) {
-              return;
-            }
-
-            if (chunkNameCache.has(chunk.name)) {
-              throw new Error(
-                `chunk.name conflict, please try renaming the file name.`
-              );
-            }
-
-            id = chunk.name;
-            chunkNameCache.add(chunk.name);
+            return;
           }
+
+          if (chunkNameCache.has(id)) {
+            throw new Error(
+              `chunk.name conflict, please try renaming the filename: ${
+                chunk.type === "chunk" && chunk.facadeModuleId
+                  ? chunk.facadeModuleId
+                  : chunk.name
+              }`
+            );
+          }
+
+          chunkNameCache.add(id);
 
           if (isServer) {
             const newFileName = chunkMap.get(id);
