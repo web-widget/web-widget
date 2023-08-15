@@ -37,6 +37,7 @@ export type {
   ComponentProps,
   Component,
   Meta,
+  ServerRenderContext as RenderContext,
   ServerRender as Render,
   HttpError,
 } from "../types";

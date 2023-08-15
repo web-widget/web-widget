@@ -1,31 +1,41 @@
-import type { App } from "vue";
+import type { App, Component } from "vue";
 import { createApp, createSSRApp } from "vue";
-
+import type {
+  ComponentProps,
+  RenderContext,
+} from "@web-widget/schema/client-helpers";
 import { defineRender } from "@web-widget/schema/client-helpers";
 
 export * from "@web-widget/schema/client-helpers";
 export interface DefineVueRenderOptions {
-  onCreatedApp?: (app: App) => void;
+  onCreatedApp?: (
+    app: App,
+    context: RenderContext,
+    component: Component,
+    props: ComponentProps
+  ) => void;
 }
 
 export const defineVueRender = ({
   onCreatedApp = () => {},
 }: DefineVueRenderOptions = {}) => {
-  return defineRender(async ({ recovering, container }, component, props) => {
-    if (!container) {
+  return defineRender(async (context, component, props) => {
+    if (!context.container) {
       throw new Error(`Container required.`);
     }
 
     let app: App | null;
+
     return {
       async mount() {
-        if (recovering) {
-          app = createSSRApp(component, props as Record<string, any>);
+        const rootProps = props as Record<string, any>;
+        if (context.recovering) {
+          app = createSSRApp(component, rootProps);
         } else {
-          app = createApp(component, props as Record<string, any>);
+          app = createApp(component, rootProps);
         }
-        onCreatedApp(app);
-        app.mount(container);
+        onCreatedApp(app, context, component, props);
+        app.mount(context.container);
       },
 
       async unmount() {

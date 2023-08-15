@@ -474,6 +474,18 @@ export interface Meta {
   title?: string;
 }
 
+export type RenderContext<Data = unknown> =
+  | ServerRenderContext<Data>
+  | ClientRenderContext<Data>;
+
+export type ServerRenderContext<Data = unknown> =
+  | ServerWidgetRenderContext<Data>
+  | ServerRouteRenderContext<Data>;
+
+export type ClientRenderContext<Data = unknown> =
+  | ClientWidgetRenderContext<Data>
+  | ClientRouteRenderContext<Data>;
+
 export type Render<Data = unknown> = ServerRender<Data> | ClientRender<Data>;
 
 export type ServerRender<Data = unknown> =
