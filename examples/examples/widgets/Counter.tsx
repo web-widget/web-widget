@@ -1,4 +1,4 @@
-import "./Counter.css";
+import "./counter-common.css";
 import { useState } from "react";
 export { render } from "@web-widget/react";
 
