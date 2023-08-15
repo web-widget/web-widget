@@ -1,50 +1,65 @@
 import Vue from "vue";
+import type {
+  ComponentProps,
+  RenderContext,
+} from "@web-widget/schema/client-helpers";
 import { defineRender as defineRenderHelper } from "@web-widget/schema/client-helpers";
 
 export * from "@web-widget/schema/client-helpers";
 export interface DefineVueRenderOptions {
-  onBeforeCreateApp?: () => any;
-  onCreatedApp?: (app: Vue) => void;
+  onBeforeCreateApp?: (
+    context: RenderContext,
+    component: Vue.Component,
+    props: ComponentProps
+  ) => any;
+  onCreatedApp?: (
+    app: Vue,
+    context: RenderContext,
+    component: Vue.Component,
+    props: ComponentProps
+  ) => void;
 }
 
 export const defineVueRender = ({
   onBeforeCreateApp = () => ({}),
   onCreatedApp = () => {},
 }: DefineVueRenderOptions = {}) => {
-  return defineRenderHelper(
-    async ({ recovering, container }, component, props) => {
-      if (!container) {
-        throw new Error(`Container required.`);
-      }
-
-      let app: Vue | null;
-      return {
-        async mount() {
-          const shell =
-            (recovering
-              ? container.querySelector("[data-vue2-shell]")
-              : null) || container.appendChild(document.createElement("div"));
-
-          app = new Vue({
-            ...onBeforeCreateApp(),
-            render(h) {
-              return h(component, props as Record<string, any>);
-            },
-          });
-
-          onCreatedApp(app);
-
-          app.$mount(shell);
-        },
-
-        async unmount() {
-          app?.$destroy();
-          container.innerHTML = "";
-          app = null;
-        },
-      };
+  return defineRenderHelper(async (context, component, props) => {
+    if (!context.container) {
+      throw new Error(`Container required.`);
     }
-  );
+
+    let app: Vue | null;
+    const vNodeData: Vue.VNodeData = {
+      props: props as Record<string, any>,
+    };
+    return {
+      async mount() {
+        const shell =
+          (context.recovering
+            ? context.container.querySelector("[data-vue2-shell]")
+            : null) ||
+          context.container.appendChild(document.createElement("div"));
+
+        app = new Vue({
+          render(h) {
+            return h(component, vNodeData);
+          },
+          ...onBeforeCreateApp(context, component, props),
+        });
+
+        onCreatedApp(app, context, component, props);
+
+        app.$mount(shell);
+      },
+
+      async unmount() {
+        app?.$destroy();
+        context.container.innerHTML = "";
+        app = null;
+      },
+    };
+  });
 };
 
 export const render = defineVueRender();

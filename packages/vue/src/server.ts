@@ -1,19 +1,29 @@
-import type { App } from "vue";
+import type { App, Component } from "vue";
 import { createSSRApp } from "vue";
+import type {
+  ComponentProps,
+  RenderContext,
+} from "@web-widget/schema/server-helpers";
 import { defineRender } from "@web-widget/schema/server-helpers";
 import { renderToWebStream } from "vue/server-renderer";
 
 export * from "@web-widget/schema/server-helpers";
 export interface DefineVueRenderOptions {
-  onCreatedApp?: (app: App) => void;
+  onCreatedApp?: (
+    app: App,
+    context: RenderContext,
+    component: Component,
+    props: ComponentProps
+  ) => void;
 }
 
 export const defineVueRender = ({
   onCreatedApp = () => {},
 }: DefineVueRenderOptions = {}) => {
   return defineRender(async (context, component, props) => {
-    const app = createSSRApp(component, props as Record<string, any>);
-    onCreatedApp(app);
+    const rootProps = props as Record<string, any>;
+    const app = createSSRApp(component, rootProps);
+    onCreatedApp(app, context, component, props);
     return renderToWebStream(app);
   });
 };
