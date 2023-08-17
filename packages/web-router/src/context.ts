@@ -535,8 +535,7 @@ export class ServerContext {
 
     const errorHandler: router.ErrorHandler<RouterState> = (ctx, error) => {
       console.error(
-        "%cAn error occurred during route handling or page rendering.",
-        "color:red",
+        "An error occurred during route handling or page rendering.",
         error
       );
       return (internalServerErrorPage.handler as RouteHandler)({
