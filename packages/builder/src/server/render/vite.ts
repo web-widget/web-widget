@@ -1,7 +1,7 @@
 import type { ModuleLoader, ModuleNode } from "../loader/index";
 import { isCSSRequest, unwrapId } from "./util";
 
-import npath from "node:path";
+import path from "node:path";
 
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time
@@ -28,7 +28,7 @@ export async function* crawlGraph(
       // Needed for slower CSS preprocessing like Tailwind
       loader.getModulesByFile(id) ?? new Set()
     : // For non-root files, we're safe to pull from "getModuleById" based on testing.
-      // TODO: Find better invalidation strat to use "getModuleById" in all cases!
+      // TODO: Find better invalidation start to use "getModuleById" in all cases!
       new Set([loader.getModuleById(id)]);
 
   // Collect all imported modules for the module(s).
@@ -65,7 +65,7 @@ export async function* crawlGraph(
             continue;
           }
           const isFileTypeNeedingSSR = fileExtensionsToSSR.has(
-            npath.extname(importedModulePathname)
+            path.extname(importedModulePathname)
           );
           isPropagationStoppingPoint = PROPAGATED_ASSET_REGEX.test(
             importedModule.id
