@@ -16,7 +16,7 @@ import type {
   WidgetRenderContext,
   WidgetRenderResult,
 } from "@web-widget/schema/server-helpers";
-import type { InnerRenderContext, InnerRenderFunction } from "./render";
+import type { RootRenderContext } from "./render";
 
 // --- MODULE STANDARDS---
 
@@ -36,7 +36,7 @@ export interface WebRouterOptions {
   origin?: string;
   experimental?: {
     loader?: (module: string, importer?: string) => Promise<unknown>;
-    render?: RenderPage;
+    render?: RootRender;
     router?: RouterOptions;
   };
 }
@@ -49,9 +49,13 @@ export interface RouterOptions {
   trailingSlash?: boolean;
 }
 
-export type RenderPage = (
-  ctx: InnerRenderContext,
-  render: InnerRenderFunction
+export type { RootRenderContext };
+
+export type ChildrenRender = () => Promise<RouteRenderResult>;
+
+export type RootRender = (
+  ctx: RootRenderContext,
+  render: ChildrenRender
 ) => void | Promise<void>;
 
 export type RouterHandler = (

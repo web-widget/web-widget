@@ -25,7 +25,7 @@ import type {
   MiddlewareHandlerContext,
   MiddlewareModule,
   Page,
-  RenderPage,
+  RootRender,
   Requester,
   RouterHandler,
   RouterOptions,
@@ -51,7 +51,7 @@ export class ServerContext {
   #fallbacks: Page[];
   #layout: Layout;
   #middlewares: Middleware[];
-  #renderPage: RenderPage;
+  #rootRender: RootRender;
   #routerOptions: RouterOptions;
   #routes: Page[];
 
@@ -61,7 +61,7 @@ export class ServerContext {
     fallbacks: Page[],
     layout: Layout,
     middlewares: Middleware[],
-    renderPage: RenderPage,
+    rootRender: RootRender,
     routerOptions: RouterOptions,
     routes: Page[]
   ) {
@@ -70,7 +70,7 @@ export class ServerContext {
     this.#fallbacks = fallbacks;
     this.#layout = layout;
     this.#middlewares = middlewares;
-    this.#renderPage = renderPage;
+    this.#rootRender = rootRender;
     this.#routerOptions = routerOptions;
     this.#routes = routes;
     deepFreeze(this);
@@ -448,7 +448,7 @@ export class ServerContext {
               url: new URL(req.url),
               source: route.source,
             },
-            this.#renderPage,
+            this.#rootRender,
             layout
           );
 
@@ -553,7 +553,7 @@ export class ServerContext {
   }
 }
 
-const DEFAULT_RENDER_FN: RenderPage = async (_ctx, render) => {
+const DEFAULT_RENDER_FN: RootRender = async (_ctx, render) => {
   await render();
 };
 
