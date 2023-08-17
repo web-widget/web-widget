@@ -15,9 +15,10 @@ import { mergeConfig as mergeViteConfig, build as viteBuild } from "vite";
 
 import type { BuilderConfig } from "../types";
 import type { ManifestJSON } from "@web-widget/web-router";
-import type { RollupOutput } from "rollup";
+import type { OutputChunk, RollupOutput } from "rollup";
 import { fileURLToPath } from "node:url";
 import { promises as fs } from "node:fs";
+import { createHash } from "node:crypto";
 import mime from "mime-types";
 import { openConfig } from "../config";
 import { resolve } from "import-meta-resolve";
@@ -212,9 +213,12 @@ function chunkFileNamesPlugin(
       generateBundle(options, bundle) {
         Object.keys(bundle).forEach((fileName) => {
           const chunk = bundle[fileName];
+          if (chunk.type === "asset") {
+            return;
+          }
           // NOTE: chunk.facadeModuleId often does not exist.
           // chunk.name usually exists, but may be duplicated.
-          let id = chunk.name;
+          let id = createChunkHash(chunk);
 
           if (!id) {
             return;
@@ -298,6 +302,14 @@ function chunkFileNamesPlugin(
       },
     },
   ];
+}
+
+function createChunkHash(chunk: OutputChunk) {
+  const content = `${chunk.name}-${chunk.moduleIds.toString()}-${
+    chunk.dynamicImports.length
+  }-${chunk.exports.toString()}`;
+
+  return createHash("md5").update(content).digest("hex");
 }
 
 // function removeEntryPlugin(exclude: string[]): VitePlugin {
