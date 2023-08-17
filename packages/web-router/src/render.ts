@@ -2,7 +2,7 @@ import type {
   Layout,
   LayoutRenderContext,
   Page,
-  RenderPage,
+  RootRender,
   RootLayoutComponentProps,
 } from "./types";
 import type {
@@ -15,20 +15,7 @@ import { NONE, UNSAFE_INLINE } from "./csp";
 
 import type { ContentSecurityPolicy } from "./csp";
 
-export interface InnerRenderOptions<Data> {
-  bootstrap: ScriptDescriptor[];
-  data?: Data;
-  error?: RouteError;
-  meta: Meta;
-  params: Record<string, string>;
-  route: Page;
-  source: URL;
-  url: URL;
-}
-
-export type InnerRenderFunction = () => Promise<RouteRenderResult>;
-
-export class InnerRenderContext {
+export class RootRenderContext {
   #bootstrap: ScriptDescriptor[];
   #id: string;
   #meta: Meta = {};
@@ -62,11 +49,6 @@ export class InnerRenderContext {
     return this.#id;
   }
 
-  /**
-   * State that is persisted between multiple renders with the same render
-   * context. This is useful because one logical JIT render could have multiple
-   * preact render passes due to suspense.
-   */
   get state(): Map<string, unknown> {
     return this.#state;
   }
@@ -98,20 +80,31 @@ function defaultCsp() {
   };
 }
 
+interface InnerRenderOptions<Data> {
+  bootstrap: ScriptDescriptor[];
+  data?: Data;
+  error?: RouteError;
+  meta: Meta;
+  params: Record<string, string>;
+  route: Page;
+  source: URL;
+  url: URL;
+}
+
 /**
  * This function renders out a page. Rendering is synchronous and non streaming.
  * Suspense boundaries are not supported.
  */
 export async function internalRender<Data>(
   opts: InnerRenderOptions<Data>,
-  renderPage: RenderPage,
+  rootRender: RootRender,
   layout: Layout
 ): Promise<[RouteRenderResult, ContentSecurityPolicy | undefined]> {
   const csp: ContentSecurityPolicy | undefined = opts.route.csp
     ? defaultCsp()
     : undefined;
 
-  const ctx = new InnerRenderContext(
+  const ctx = new RootRenderContext(
     opts.bootstrap,
     crypto.randomUUID(),
     opts.meta,
@@ -128,7 +121,7 @@ export async function internalRender<Data>(
   }
 
   let children;
-  await renderPage(ctx, async () => {
+  await rootRender(ctx, async () => {
     const route = opts.route as Page;
     const renderContext = {
       data: opts.data as Data,

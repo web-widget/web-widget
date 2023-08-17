@@ -162,12 +162,17 @@ export interface RouteFallbackComponent {
 
 export type RouteError = Error | HttpError;
 
-export type RouteHandlers<Data = unknown, State = Record<string, unknown>> =
-  | ServerRouteHandlers<Data, State>
-  | ClientRouteHandlers<Data, State>;
+export type RouteHandlers<
+  Data = unknown,
+  Params = Record<string, string>,
+  State = Record<string, unknown>,
+> =
+  | ServerRouteHandlers<Data, Params, State>
+  | ClientRouteHandlers<Data, Params, State>;
 
 export type ServerRouteHandlers<
   Data = unknown,
+  Params = Record<string, string>,
   State = Record<string, unknown>,
 > = {
   [K in
@@ -177,44 +182,52 @@ export type ServerRouteHandlers<
     | "PUT"
     | "DELETE"
     | "OPTIONS"
-    | "PATCH"]?: ServerRouteHandler<Data, State>;
+    | "PATCH"]?: ServerRouteHandler<Data, Params, State>;
 };
 
 export type ClientRouteHandlers<
   Data = unknown,
+  Params = Record<string, string>,
   State = Record<string, unknown>,
 > = {
-  [K in "GET"]?: ClientRouteHandler<Data, State>;
+  [K in "GET"]?: ClientRouteHandler<Data, Params, State>;
 };
 
-export type RouteHandler<Data = unknown, State = Record<string, unknown>> =
-  | ServerRouteHandler<Data, State>
-  | ClientRouteHandler<Data, State>;
+export type RouteHandler<
+  Data = unknown,
+  Params = Record<string, string>,
+  State = Record<string, unknown>,
+> =
+  | ServerRouteHandler<Data, Params, State>
+  | ClientRouteHandler<Data, Params, State>;
 
 export interface ServerRouteHandler<
   Data = unknown,
+  Params = Record<string, string>,
   State = Record<string, unknown>,
 > {
   (
-    ctx: ServerRouteHandlerContext<Data, State>
+    ctx: ServerRouteHandlerContext<Data, Params, State>
   ): ServerRouteHandlerResult | Promise<ServerRouteHandlerResult>;
 }
 
 export interface ClientRouteHandler<
   Data = unknown,
+  Params = Record<string, string>,
   State = Record<string, unknown>,
 > {
   (
-    ctx: ClientRouteHandlerContext<Data, State>
+    ctx: ClientRouteHandlerContext<Data, Params, State>
   ): ClientRouteHandlerResult | Promise<ClientRouteHandlerResult>;
 }
 
 export type RouteHandlerContext<
   Data = undefined,
+  Params = Record<string, string>,
   State = Record<string, unknown>,
 > =
-  | ServerRouteHandlerContext<Data, State>
-  | ClientRouteHandlerContext<Data, State>;
+  | ServerRouteHandlerContext<Data, Params, State>
+  | ClientRouteHandlerContext<Data, Params, State>;
 
 export interface ServerRouteHandlerContext<
   Data = undefined,
@@ -258,9 +271,12 @@ export interface ClientRouteHandlerContext<
   state: State;
 }
 
-export type RouteRenderContext<Data = unknown> =
-  | ServerRouteRenderContext<Data>
-  | ClientRouteRenderContext<Data>;
+export type RouteRenderContext<
+  Data = unknown,
+  Params = Record<string, string>,
+> =
+  | ServerRouteRenderContext<Data, Params>
+  | ClientRouteRenderContext<Data, Params>;
 
 export interface ServerRouteRenderContext<
   Data = unknown,
@@ -349,16 +365,26 @@ export type ClientRouteHandlerResult = void | {
   unmount?: () => void | Promise<void>;
 };
 
-export type RouteRender<Data = unknown> =
-  | ServerRouteRender<Data>
-  | ClientRouteRender<Data>;
+export type RouteRender<Data = unknown, Params = Record<string, string>> =
+  | ServerRouteRender<Data, Params>
+  | ClientRouteRender<Data, Params>;
 
-export interface ServerRouteRender<Data = unknown> {
-  (renderContext: RouteRenderContext<Data>): Promise<ServerRouteRenderResult>;
+export interface ServerRouteRender<
+  Data = unknown,
+  Params = Record<string, string>,
+> {
+  (
+    renderContext: RouteRenderContext<Data, Params>
+  ): Promise<ServerRouteRenderResult>;
 }
 
-export interface ClientRouteRender<Data = unknown> {
-  (renderContext: RouteRenderContext<Data>): Promise<ClientRouteRenderResult>;
+export interface ClientRouteRender<
+  Data = unknown,
+  Params = Record<string, string>,
+> {
+  (
+    renderContext: RouteRenderContext<Data, Params>
+  ): Promise<ClientRouteRenderResult>;
 }
 
 // --- META: DESCRIPTOR ---
@@ -450,17 +476,23 @@ export type ClientModule = ClientWidgetModule | ClientRouteModule;
 
 export type Config = WidgetConfig | RouteConfig;
 
-export type Handlers<Data> = RouteHandlers<Data>;
+export type Handlers<
+  Data = unknown,
+  Params = Record<string, string>,
+> = RouteHandlers<Data, Params>;
 
-export type Handler<Data> = RouteHandler<Data>;
+export type Handler<
+  Data = unknown,
+  Params = Record<string, string>,
+> = RouteHandler<Data, Params>;
 
 export type ComponentProps<Data = unknown, Params = Record<string, string>> =
   | WidgetComponentProps<Data>
   | RouteComponentProps<Data, Params>;
 
-export type Component<Data = unknown> =
+export type Component<Data = unknown, Params = Record<string, string>> =
   | WidgetComponent<Data>
-  | RouteComponent<Data>;
+  | RouteComponent<Data, Params>;
 
 export interface Meta {
   base?: BaseDescriptor;
@@ -474,27 +506,31 @@ export interface Meta {
   title?: string;
 }
 
-export type RenderContext<Data = unknown> =
-  | ServerRenderContext<Data>
-  | ClientRenderContext<Data>;
+export type RenderContext<Data = unknown, Params = Record<string, string>> =
+  | ServerRenderContext<Data, Params>
+  | ClientRenderContext<Data, Params>;
 
-export type ServerRenderContext<Data = unknown> =
-  | ServerWidgetRenderContext<Data>
-  | ServerRouteRenderContext<Data>;
+export type ServerRenderContext<
+  Data = unknown,
+  Params = Record<string, string>,
+> = ServerWidgetRenderContext<Data> | ServerRouteRenderContext<Data, Params>;
 
-export type ClientRenderContext<Data = unknown> =
-  | ClientWidgetRenderContext<Data>
-  | ClientRouteRenderContext<Data>;
+export type ClientRenderContext<
+  Data = unknown,
+  Params = Record<string, string>,
+> = ClientWidgetRenderContext<Data> | ClientRouteRenderContext<Data, Params>;
 
-export type Render<Data = unknown> = ServerRender<Data> | ClientRender<Data>;
+export type Render<Data = unknown, Params = Record<string, string>> =
+  | ServerRender<Data, Params>
+  | ClientRender<Data, Params>;
 
-export type ServerRender<Data = unknown> =
+export type ServerRender<Data = unknown, Params = Record<string, string>> =
   | ServerWidgetRender<Data>
-  | ServerRouteRender<Data>;
+  | ServerRouteRender<Data, Params>;
 
-export type ClientRender<Data = unknown> =
+export type ClientRender<Data = unknown, Params = Record<string, string>> =
   | ClientWidgetRender<Data>
-  | ClientRouteRender<Data>;
+  | ClientRouteRender<Data, Params>;
 
 export type HttpError = {
   name: string;
