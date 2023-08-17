@@ -17,7 +17,7 @@ import type {
 } from "@edge-runtime/node-utils";
 
 if (!Reflect.get(global, "DISABLE_INSTALL_MCA_SHIMS")) {
-  Object.assign(global, primitives);
+  Object.assign(global, primitives, { console });
 }
 
 class FetchEvent {
