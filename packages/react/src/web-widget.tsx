@@ -71,7 +71,7 @@ type JSONProps = { [x: string]: JSONValue };
 type Loader = () => Promise<WidgetModule>;
 
 export interface WebWidgetClientProps {
-  base: string;
+  base?: string;
   data: JSONProps;
   import: string;
   innerHTML?: string;
@@ -150,10 +150,6 @@ export function WebWidget({
   name,
   recovering,
 }: WebWidgetProps) {
-  if (!base) {
-    throw new Error(`Missing base`);
-  }
-
   if (children) {
     throw new Error(`No support for 'children'`);
   }
@@ -201,18 +197,28 @@ type WebWidgetFactoryProps = JSONProps & {
 };
 
 export interface DefineWebWidgetOptions {
+  base?: string;
+  import?: string;
   loading?: string;
   name?: string;
   recovering?: boolean;
 }
 
+export const ASSET_PLACEHOLDER = "asset://";
+
 export function defineWebWidget(
   // TODO 使用 loader 的返回类型
   loader: Loader,
-  base: string,
-  { loading, name, recovering = true }: DefineWebWidgetOptions = {}
+  {
+    base,
+    import: url,
+    loading,
+    name,
+    recovering = true,
+  }: DefineWebWidgetOptions
 ) {
-  const url = getFilename(loader);
+  const clientImport =
+    url && !url.startsWith(ASSET_PLACEHOLDER) ? url : getFilename(loader);
   return function WebWidgetFactory({
     children,
     fallback,
@@ -224,7 +230,7 @@ export function defineWebWidget(
           base,
           data,
           fallback,
-          import: url,
+          import: clientImport,
           loader,
           loading,
           name,
@@ -237,16 +243,17 @@ export function defineWebWidget(
 }
 
 export interface ClientOptions {
+  base?: string;
   loading?: "lazy";
   name?: string;
 }
 
 export function defineClient(
   loader: Loader,
-  base: string,
-  { loading, name }: ClientOptions = {}
+  { base, loading, name }: ClientOptions = {}
 ) {
-  return defineWebWidget(loader, base, {
+  return defineWebWidget(loader, {
+    base,
     loading,
     name,
     recovering: true,
@@ -255,10 +262,10 @@ export function defineClient(
 
 export function defineClientOnly(
   loader: Loader,
-  base: string,
-  { loading, name }: ClientOptions = {}
+  { base, loading, name }: ClientOptions = {}
 ) {
-  return defineWebWidget(loader, base, {
+  return defineWebWidget(loader, {
+    base,
     loading,
     name,
     recovering: false,

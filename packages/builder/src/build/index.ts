@@ -8,6 +8,7 @@ import type {
 import type {
   Manifest as ViteManifest,
   Plugin as VitePlugin,
+  ResolvedConfig as ViteResolvedConfig,
   UserConfig as ViteUserConfig,
 } from "vite";
 import { basename, dirname, extname, join, relative } from "node:path";
@@ -25,11 +26,13 @@ import { withSpinner } from "./utils";
 import builtins from "builtin-modules";
 
 const VITE_MANIFEST_NAME = "manifest.json";
-const CLIENT_MODUL_NAME = "@web-widget/web-widget";
+const CLIENT_MODULE_NAME = "@web-widget/web-widget";
 const CLIENT_NAME = "web-widget";
-const CLIENT_ENTRY = fileURLToPath(resolve(CLIENT_MODUL_NAME, import.meta.url));
+const CLIENT_ENTRY = fileURLToPath(
+  resolve(CLIENT_MODULE_NAME, import.meta.url)
+);
 
-type Entrypoints = Record<string, string>;
+type EntryPoints = Record<string, string>;
 
 export async function build(root: string) {
   const start = Date.now();
@@ -49,20 +52,18 @@ export async function build(root: string) {
 }
 
 async function bundle(config: BuilderConfig) {
-  const chunkMap = new Map();
   const manifest = await parseManifest(config);
-  const entrypoints = resolveEntrypoints(manifest, config);
+  const entryPoints = resolveEntryPoints(manifest, config);
   const clientResult = await withSpinner(
     "building client bundles",
     async () =>
       await bundleWithVite(
         config,
         {
-          ...entrypoints,
+          ...entryPoints,
           [CLIENT_NAME]: CLIENT_ENTRY,
         },
-        false,
-        chunkMap
+        false
       )
   );
 
@@ -78,12 +79,16 @@ async function bundle(config: BuilderConfig) {
   const serverResult = await withSpinner(
     "building server bundles",
     async () =>
-      await bundleWithVite(config, entrypoints, true, chunkMap, metaMap).then(
-        async (serverResult) => {
-          await buildRoutemap(manifest, config, serverResult);
-          return serverResult;
-        }
-      )
+      await bundleWithVite(
+        config,
+        entryPoints,
+        true,
+        metaMap,
+        viteManifest
+      ).then(async (serverResult) => {
+        await buildRouteMap(manifest, config, serverResult);
+        return serverResult;
+      })
   );
 
   return { clientResult, serverResult };
@@ -93,10 +98,10 @@ async function bundle(config: BuilderConfig) {
 // NOTE: The client bundle is used only to obtain styles, JS entry is discarded.
 async function bundleWithVite(
   config: BuilderConfig,
-  entrypoints: string[] | Entrypoints,
+  entryPoints: string[] | EntryPoints,
   isServer: boolean,
-  chunkMap: Map<string, string>,
-  metaMap?: Map<string, Meta>
+  metaMap?: Map<string, Meta>,
+  viteManifest?: ViteManifest
 ) {
   const vite = mergeViteConfig(config.vite, {
     base: config.base,
@@ -123,8 +128,10 @@ async function bundleWithVite(
     plugins: [
       //!isServer && removeEntryPlugin([CLIENT_ENTRY]),
       isServer && addESMPackagePlugin(config),
-      chunkFileNamesPlugin(config, chunkMap),
       isServer && metaMap && injectionMetaPlugin(metaMap),
+      isServer &&
+        viteManifest &&
+        replaceAssetPlaceholderPlugin(viteManifest, config.base),
     ],
     build: {
       ssr: isServer,
@@ -138,10 +145,21 @@ async function bundleWithVite(
       sourcemap: false,
       manifest: isServer ? false : VITE_MANIFEST_NAME,
       rollupOptions: {
-        input: entrypoints,
+        input: entryPoints,
         preserveEntrySignatures: "allow-extension",
         treeshake: true,
         external: builtins as string[],
+        output: isServer
+          ? {
+              entryFileNames: `${config.output.asset}/[name].js`,
+              assetFileNames: `${config.output.asset}/[name][extname]`,
+              chunkFileNames: `${config.output.asset}/[name].js`,
+            }
+          : {
+              entryFileNames: `${config.output.asset}/[name]-[hash].js`,
+              assetFileNames: `${config.output.asset}/[name]-[hash][extname]`,
+              chunkFileNames: `${config.output.asset}/[name]-[hash].js`,
+            },
       },
       server: {
         host: config.server.host,
@@ -152,11 +170,11 @@ async function bundleWithVite(
   return (await viteBuild(vite)) as RollupOutput;
 }
 
-function resolveEntrypoints(
+function resolveEntryPoints(
   manifest: ManifestJSON,
   config: BuilderConfig
-): Entrypoints {
-  const entrypoints: Entrypoints = {};
+): EntryPoints {
+  const entryPoints: EntryPoints = {};
   const getEntrypoint = (file: string) => {
     const modulePath = join(dirname(fileURLToPath(config.input)), file);
     const name = modulePath
@@ -172,132 +190,58 @@ function resolveEntrypoints(
     if (Array.isArray(value)) {
       for (const mod of value) {
         const [name, file] = getEntrypoint(mod.module);
-        entrypoints[name] = file;
+        entryPoints[name] = file;
       }
     } else {
       const [name, file] = getEntrypoint(value.module);
-      entrypoints[name] = file;
+      entryPoints[name] = file;
     }
   }
 
-  return entrypoints;
+  return entryPoints;
 }
 
-// NOTE: Keep the relative paths of assets on the client and server consistent.
-function chunkFileNamesPlugin(
-  config: BuilderConfig,
-  chunkMap: Map<string, string>
-): VitePlugin[] {
-  let isServer = false;
-  const inputFileNamesCache = new Map();
-  const bareImportRE = /^(?![a-zA-Z]:)[\w@](?!.*:\/\/)/;
-  const chunkNameCache = new Set();
-  return [
-    {
-      name: "builder:rename-output-filenames",
-      config(userConfig) {
-        isServer = !!userConfig?.build?.ssr;
-        return {
-          build: {
-            rollupOptions: {
-              output: {
-                entryFileNames: `${config.output.asset}/[name]-[hash].js`,
-                assetFileNames: `${config.output.asset}/[name]-[hash][extname]`,
-                chunkFileNames: `${config.output.asset}/[name]-[hash].js`,
-              },
-            },
-          },
-        };
-      },
-      generateBundle(options, bundle) {
-        Object.keys(bundle).forEach((fileName) => {
-          const chunk = bundle[fileName];
-          // NOTE: chunk.facadeModuleId often does not exist.
-          // chunk.name usually exists, but may be duplicated.
-          let id = chunk.name;
-
-          if (!id) {
-            return;
-          }
-
-          if (chunkNameCache.has(id)) {
-            throw new Error(
-              `chunk.name conflict, please try renaming the filename: ${
-                chunk.type === "chunk" && chunk.facadeModuleId
-                  ? chunk.facadeModuleId
-                  : chunk.name
-              }`
-            );
-          }
-
-          chunkNameCache.add(id);
-
-          if (isServer) {
-            const newFileName = chunkMap.get(id);
-            if (typeof newFileName === "string") {
-              inputFileNamesCache.set(chunk.fileName, newFileName);
-            }
-          } else {
-            chunkMap.set(id, fileName);
-          }
-        });
-      },
+function replaceAssetPlaceholderPlugin(
+  viteManifest: ViteManifest,
+  base: string
+): VitePlugin {
+  const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
+  let extensions: string[] = [];
+  return {
+    name: "builder:replace-asset-placeholder",
+    enforce: "post",
+    configResolved(resolvedConfig) {
+      extensions = resolvedConfig.resolve.extensions;
     },
-    {
-      name: "builder:rename-input-filenames",
-      async generateBundle(_options, bundle) {
-        if (!isServer) {
-          return;
+    async transform(code, id) {
+      // const normalize = (file: string) => {
+      //   return !/^\.+\//.test(file) ? "./" + file : file;
+      // };
+      code = code.replace(ASSET_PLACEHOLDER_REG, (match, $1, $2) => {
+        if (!$2) {
+          return match;
         }
 
-        await esModuleLexer.init;
-        const getNewFileName = (fileName: string) =>
-          inputFileNamesCache.get(fileName) || fileName;
+        let asset = viteManifest[$2];
 
-        for (const chunk of Object.values(bundle)) {
-          if (chunk.type !== "chunk") {
-            continue;
-          }
-
-          const [imports] = esModuleLexer.parse(chunk.code, chunk.fileName);
-
-          for (const { n: module /*,s: _start, e: _end*/ } of imports) {
-            if (module && !bareImportRE.test(module)) {
-              const fileName = join(dirname(chunk.fileName), module);
-              // chunk.code =
-              //   chunk.code.slice(0, start) +
-              //   getNewFileName(fileName) +
-              //   chunk.code.slice(chunk.code.length - end);
-              chunk.code = chunk.code.replace(
-                module,
-                "./" +
-                  relative(dirname(chunk.fileName), getNewFileName(fileName))
-              );
-            }
-          }
-
-          chunk.imports = chunk.imports.map(getNewFileName);
-          chunk.dynamicImports = chunk.dynamicImports.map(getNewFileName);
-          chunk.importedBindings = Object.entries(
-            chunk.importedBindings
-          ).reduce(
-            (map, [key, value]) => {
-              map[key] = value;
-              return map;
-            },
-            {} as { [imported: string]: string[] }
+        if (!asset) {
+          const extension = extensions.find(
+            (extension) => viteManifest[$2 + extension]
           );
-          chunk.implicitlyLoadedBefore =
-            chunk.implicitlyLoadedBefore.map(getNewFileName);
-
-          const newFileName = getNewFileName(chunk.fileName);
-          delete bundle[chunk.fileName];
-          chunk.fileName = newFileName;
-          bundle[newFileName] = chunk;
+          if (extension) {
+            asset = viteManifest[$2 + extension];
+          }
         }
-      },
+
+        if (!asset) {
+          throw new Error(`Asset not found: "${$2}". From: ${id}`);
+        }
+
+        return asset ? $1 + base + asset.file + $1 : match;
+      });
+      return { code };
     },
-  ];
+  };
 }
 
 // function removeEntryPlugin(exclude: string[]): VitePlugin {
@@ -321,56 +265,45 @@ function chunkFileNamesPlugin(
 // }
 
 function injectionMetaPlugin(metaMap: Map<string, Meta>): VitePlugin {
-  // let config: ViteResolvedConfig;
+  let config: ViteResolvedConfig;
   return {
     name: "builder:injection-meta",
-    // configResolved(resolvedConfig) {
-    //   config = resolvedConfig;
-    // },
     enforce: "post",
-    async generateBundle(_options, bundle) {
+    configResolved(resolvedConfig) {
+      config = resolvedConfig;
+    },
+    async transform(code, id) {
+      const fileName = relative(config.root, id);
+      const meta = metaMap.get(fileName);
+
+      if (!meta) {
+        return;
+      }
+
       await esModuleLexer.init;
+      const [, exports] = esModuleLexer.parse(code, fileName);
 
-      Object.keys(bundle).forEach((fileName) => {
-        const chunk = bundle[fileName];
-        const type = chunk.type;
-        // const srcFileName =
-        //   type === "chunk" &&
-        //   chunk.facadeModuleId &&
-        //   relative(config.root, chunk.facadeModuleId);
-        const meta = metaMap.get(fileName);
+      if (exports.some(({ n }) => n === "meta")) {
+        code += [
+          `try {`,
+          `  const link = ${JSON.stringify(meta.link)};`,
+          `  const script = ${JSON.stringify(meta.script)};`,
+          `  meta.link ? meta.link.push(...link) : (meta.link = link);`,
+          `  meta.script ? meta.script.push(...script) : (meta.script = script);`,
+          `} catch(e) {`,
+          `  throw new Error("@web-widget/builder: Failed to attach meta.", e);`,
+          `}`,
+        ].join("\n");
+      } else {
+        code += [
+          `export const meta = {`,
+          `  link: ${JSON.stringify(meta.link)},`,
+          `  script: ${JSON.stringify(meta.script)},`,
+          `};`,
+        ].join("\n");
+      }
 
-        if (
-          type !== "chunk" ||
-          !chunk.isEntry ||
-          chunk.facadeModuleId === CLIENT_ENTRY ||
-          !meta
-        ) {
-          return;
-        }
-
-        const [, exports] = esModuleLexer.parse(chunk.code, chunk.fileName);
-
-        if (exports.some(({ n }) => n === "meta")) {
-          chunk.code += [
-            `try {`,
-            `  const link = ${JSON.stringify(meta.link)};`,
-            `  const script = ${JSON.stringify(meta.script)};`,
-            `  meta.link ? meta.link.push(...link) : (meta.link = link);`,
-            `  meta.script ? meta.script.push(...script) : (meta.script = script);`,
-            `} catch(e) {`,
-            `  throw new Error("@web-widget/builder: Failed to attach meta.", e);`,
-            `}`,
-          ].join("\n");
-        } else {
-          chunk.code += [
-            `export const meta = {`,
-            `  link: ${JSON.stringify(meta.link)},`,
-            `  script: ${JSON.stringify(meta.script)},`,
-            `};`,
-          ].join("\n");
-        }
-      });
+      return { code };
     },
   };
 }
@@ -407,14 +340,14 @@ function getMetaMap(
       chunk.facadeModuleId &&
       relative(rootDir, chunk.facadeModuleId);
 
-    map.set(chunk.fileName, {
+    map.set(srcFileName, {
       script: webWidgetFileName
         ? [
             {
               type: "importmap",
               content: JSON.stringify({
                 imports: {
-                  [CLIENT_MODUL_NAME]: rebase(
+                  [CLIENT_MODULE_NAME]: rebase(
                     webWidgetFileName,
                     chunk.fileName
                   ),
@@ -429,14 +362,14 @@ function getMetaMap(
             ...getLinks(manifest, srcFileName, false),
           ]
         : []
-      ).map(({ href, ...arrts }) => {
+      ).map(({ href, ...attrs }) => {
         if (href) {
           return {
-            ...arrts,
+            ...attrs,
             href: rebase(href, chunk.fileName),
           };
         } else {
-          return arrts;
+          return attrs;
         }
       }),
     });
@@ -527,7 +460,7 @@ function getLink(fileName: string): LinkDescriptor | null {
   return null;
 }
 
-export async function buildRoutemap(
+export async function buildRouteMap(
   manifest: ManifestJSON,
   config: BuilderConfig,
   output: RollupOutput
