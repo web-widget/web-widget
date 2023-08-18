@@ -92,7 +92,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    */
   get base() {
     const value = this.getAttribute("base");
-    return value === null ? "" : new URL(value, this.baseURI).href;
+    return value === null ? this.baseURI : new URL(value, this.baseURI).href;
   }
 
   set base(value) {
@@ -252,6 +252,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   createContext(): WidgetRenderContext {
     let container: HTMLElement | ShadowRoot;
     let customContext = this.context;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const view = this;
 
     if (!customContext) {
@@ -308,6 +309,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         container = this.attachShadow({ mode: "open" });
       }
     } else if (this.renderTarget === "light") {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       container = this;
     }
 

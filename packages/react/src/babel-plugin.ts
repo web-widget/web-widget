@@ -10,18 +10,20 @@
  * becomes:
  *
  * import { defineWebWidget } from "@web-widget/react/web-widget";
- * const MyComponent = defineWebWidget(() => import("../widgets/my-component.jsx"), "/routes/", {
+ * const MyComponent = defineWebWidget(() => import("../widgets/my-component.jsx"), {
+ *   base: "/routes/",
+ *   import: "asset://widgets/my-component.jsx",
  *   name: "MyComponent",
  *   recovering: true
  * });
  * ...
  * <MyComponent title="My component" />
  */
-// import { dirname, join, relative } from "node:path";
-
+import { dirname, join, relative } from "node:path";
 import type { DefineWebWidgetOptions } from "./web-widget";
 import type { PluginPass } from "@babel/core";
 import type { Visitor } from "@babel/traverse";
+import { ASSET_PLACEHOLDER } from "./web-widget";
 import { addNamed } from "@babel/helper-module-imports";
 import { declare } from "@babel/helper-plugin-utils";
 import { types as t } from "@babel/core";
@@ -32,7 +34,6 @@ function createWebWidgetVariableDeclaration(
   definer: string,
   component: string,
   source: string,
-  base: string,
   options: Record<string, any>
 ) {
   const getType = (object: any) =>
@@ -45,7 +46,6 @@ function createWebWidgetVariableDeclaration(
           [],
           t.callExpression(t.import(), [t.stringLiteral(source)])
         ),
-        t.stringLiteral(base),
         t.objectExpression(
           Object.keys(options).map((key) => {
             const value = options[key];
@@ -157,7 +157,21 @@ export default declare((api) => {
             (attr) => attr !== widgetAttr && attr !== loadingAttr
           );
 
+        // const base =
+        //   config.base +
+        //   join(relative(config.root, dirname(state.filename)), "/");
+        const importDeclaration = binding.path.parent;
+        const source = importDeclaration.source.value;
+        const importName = addNamed(
+          path,
+          "defineWebWidget",
+          "@web-widget/react"
+        );
         const options: DefineWebWidgetOptions = {
+          // base: config.base,
+          import:
+            ASSET_PLACEHOLDER +
+            relative(config.root, join(dirname(state.filename), source)),
           name: container.openingElement.name.name,
           recovering: config.isServer && mode !== "client",
         };
@@ -170,24 +184,11 @@ export default declare((api) => {
           options.loading = loadingAttr.value.value;
         }
 
-        const importDeclaration = binding.path.parent;
-        const source = importDeclaration.source.value;
-        const importName = addNamed(
-          path,
-          "defineWebWidget",
-          "@web-widget/react"
-        );
-        // const base =
-        //   config.base +
-        //   join(relative(config.root, dirname(state.filename)), "/");
-        const base = config.base;
-
         binding.path.parentPath?.replaceWith(
           createWebWidgetVariableDeclaration(
             importName.name,
             container.openingElement.name.name,
             source,
-            base,
             options
           )
         );
