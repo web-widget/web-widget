@@ -1,17 +1,9 @@
-import * as esModuleLexer from "es-module-lexer";
-
-import type {
-  LinkDescriptor,
-  Meta,
-  ScriptDescriptor,
-} from "@web-widget/schema";
 import type {
   Manifest as ViteManifest,
   Plugin as VitePlugin,
-  ResolvedConfig as ViteResolvedConfig,
   UserConfig as ViteUserConfig,
 } from "vite";
-import { basename, dirname, extname, join, relative } from "node:path";
+import { basename, dirname, extname, join } from "node:path";
 import { mergeConfig as mergeViteConfig, build as viteBuild } from "vite";
 
 import type { BuilderConfig } from "../types";
@@ -19,11 +11,12 @@ import type { ManifestJSON } from "@web-widget/web-router";
 import type { RollupOutput } from "rollup";
 import { fileURLToPath } from "node:url";
 import { promises as fs } from "node:fs";
-import mime from "mime-types";
 import { openConfig } from "../config";
 import { resolve } from "import-meta-resolve";
 import { withSpinner } from "./utils";
 import builtins from "builtin-modules";
+import injectionMetaPlugin from "./injection-meta";
+import replaceAssetPlugin from "./replace-asset";
 
 const VITE_MANIFEST_NAME = "manifest.json";
 const CLIENT_MODULE_NAME = "@web-widget/web-widget";
@@ -56,39 +49,22 @@ async function bundle(config: BuilderConfig) {
   const entryPoints = resolveEntryPoints(manifest, config);
   const clientResult = await withSpinner(
     "building client bundles",
-    async () =>
-      await bundleWithVite(
-        config,
-        {
-          ...entryPoints,
-          [CLIENT_NAME]: CLIENT_ENTRY,
-        },
-        false
-      )
+    async () => await bundleWithVite(config, entryPoints, false)
   );
 
   const viteManifest = await parseViteManifest(
     fileURLToPath(config.output.client)
   );
-  const metaMap = getMetaMap(
-    viteManifest,
-    clientResult,
-    fileURLToPath(config.root)
-  );
 
   const serverResult = await withSpinner(
     "building server bundles",
     async () =>
-      await bundleWithVite(
-        config,
-        entryPoints,
-        true,
-        metaMap,
-        viteManifest
-      ).then(async (serverResult) => {
-        await buildRouteMap(manifest, config, serverResult);
-        return serverResult;
-      })
+      await bundleWithVite(config, entryPoints, true, viteManifest).then(
+        async (serverResult) => {
+          await buildRouteMap(manifest, config, serverResult);
+          return serverResult;
+        }
+      )
   );
 
   return { clientResult, serverResult };
@@ -100,7 +76,6 @@ async function bundleWithVite(
   config: BuilderConfig,
   entryPoints: string[] | EntryPoints,
   isServer: boolean,
-  metaMap?: Map<string, Meta>,
   viteManifest?: ViteManifest
 ) {
   const vite = mergeViteConfig(config.vite, {
@@ -128,10 +103,15 @@ async function bundleWithVite(
     plugins: [
       //!isServer && removeEntryPlugin([CLIENT_ENTRY]),
       isServer && addESMPackagePlugin(config),
-      isServer && metaMap && injectionMetaPlugin(metaMap),
       isServer &&
         viteManifest &&
-        replaceAssetPlaceholderPlugin(viteManifest, config.base),
+        injectionMetaPlugin({
+          manifest: viteManifest,
+          include: [...Object.values(entryPoints)],
+        }),
+      isServer &&
+        viteManifest &&
+        replaceAssetPlugin({ manifest: viteManifest }),
     ],
     build: {
       ssr: isServer,
@@ -145,7 +125,10 @@ async function bundleWithVite(
       sourcemap: false,
       manifest: isServer ? false : VITE_MANIFEST_NAME,
       rollupOptions: {
-        input: entryPoints,
+        input: {
+          ...entryPoints,
+          [CLIENT_NAME]: CLIENT_ENTRY,
+        },
         preserveEntrySignatures: "allow-extension",
         treeshake: true,
         external: builtins as string[],
@@ -201,49 +184,6 @@ function resolveEntryPoints(
   return entryPoints;
 }
 
-function replaceAssetPlaceholderPlugin(
-  viteManifest: ViteManifest,
-  base: string
-): VitePlugin {
-  const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
-  let extensions: string[] = [];
-  return {
-    name: "builder:replace-asset-placeholder",
-    enforce: "post",
-    configResolved(resolvedConfig) {
-      extensions = resolvedConfig.resolve.extensions;
-    },
-    async transform(code, id) {
-      // const normalize = (file: string) => {
-      //   return !/^\.+\//.test(file) ? "./" + file : file;
-      // };
-      code = code.replace(ASSET_PLACEHOLDER_REG, (match, $1, $2) => {
-        if (!$2) {
-          return match;
-        }
-
-        let asset = viteManifest[$2];
-
-        if (!asset) {
-          const extension = extensions.find(
-            (extension) => viteManifest[$2 + extension]
-          );
-          if (extension) {
-            asset = viteManifest[$2 + extension];
-          }
-        }
-
-        if (!asset) {
-          throw new Error(`Asset not found: "${$2}". From: ${id}`);
-        }
-
-        return asset ? $1 + base + asset.file + $1 : match;
-      });
-      return { code };
-    },
-  };
-}
-
 // function removeEntryPlugin(exclude: string[]): VitePlugin {
 //   return {
 //     name: "builder:remove-entry",
@@ -264,50 +204,6 @@ function replaceAssetPlaceholderPlugin(
 //   };
 // }
 
-function injectionMetaPlugin(metaMap: Map<string, Meta>): VitePlugin {
-  let config: ViteResolvedConfig;
-  return {
-    name: "builder:injection-meta",
-    enforce: "post",
-    configResolved(resolvedConfig) {
-      config = resolvedConfig;
-    },
-    async transform(code, id) {
-      const fileName = relative(config.root, id);
-      const meta = metaMap.get(fileName);
-
-      if (!meta) {
-        return;
-      }
-
-      await esModuleLexer.init;
-      const [, exports] = esModuleLexer.parse(code, fileName);
-
-      if (exports.some(({ n }) => n === "meta")) {
-        code += [
-          `try {`,
-          `  const link = ${JSON.stringify(meta.link)};`,
-          `  const script = ${JSON.stringify(meta.script)};`,
-          `  meta.link ? meta.link.push(...link) : (meta.link = link);`,
-          `  meta.script ? meta.script.push(...script) : (meta.script = script);`,
-          `} catch(e) {`,
-          `  throw new Error("@web-widget/builder: Failed to attach meta.", e);`,
-          `}`,
-        ].join("\n");
-      } else {
-        code += [
-          `export const meta = {`,
-          `  link: ${JSON.stringify(meta.link)},`,
-          `  script: ${JSON.stringify(meta.script)},`,
-          `};`,
-        ].join("\n");
-      }
-
-      return { code };
-    },
-  };
-}
-
 // Internal: Add a `package.json` file specifying the type of files as MJS.
 function addESMPackagePlugin(config: BuilderConfig): VitePlugin {
   return {
@@ -319,145 +215,6 @@ function addESMPackagePlugin(config: BuilderConfig): VitePlugin {
       );
     },
   };
-}
-
-function getMetaMap(
-  manifest: ViteManifest,
-  clientResult: RollupOutput,
-  rootDir: string
-): Map<string, Meta> {
-  const webWidgetFileName = clientResult.output.find(
-    (chunk) => chunk.type === "chunk" && chunk.facadeModuleId === CLIENT_ENTRY
-  )?.fileName;
-  const webWidgetSrcName = relative(rootDir, CLIENT_ENTRY);
-
-  const rebase = (src: string, importer: string) =>
-    relative(dirname(importer), src);
-
-  return clientResult.output.reduce((map, chunk) => {
-    const srcFileName =
-      chunk.type === "chunk" &&
-      chunk.facadeModuleId &&
-      relative(rootDir, chunk.facadeModuleId);
-
-    map.set(srcFileName, {
-      script: webWidgetFileName
-        ? [
-            {
-              type: "importmap",
-              content: JSON.stringify({
-                imports: {
-                  [CLIENT_MODULE_NAME]: rebase(
-                    webWidgetFileName,
-                    chunk.fileName
-                  ),
-                },
-              }),
-            } as ScriptDescriptor,
-          ]
-        : [],
-      link: (srcFileName
-        ? [
-            ...getLinks(manifest, webWidgetSrcName, true),
-            ...getLinks(manifest, srcFileName, false),
-          ]
-        : []
-      ).map(({ href, ...attrs }) => {
-        if (href) {
-          return {
-            ...attrs,
-            href: rebase(href, chunk.fileName),
-          };
-        } else {
-          return attrs;
-        }
-      }),
-    });
-    return map;
-  }, new Map());
-}
-
-function getLinks(
-  manifest: ViteManifest,
-  srcFileName: string,
-  containSelf: boolean,
-  cache = new Map()
-): LinkDescriptor[] {
-  if (cache.has(srcFileName)) {
-    return [];
-  }
-
-  cache.set(srcFileName, true);
-
-  const links: LinkDescriptor[] = [];
-  const item = manifest[srcFileName];
-  const push = (srcFileName: string) => {
-    const ld = getLink(srcFileName);
-    if (ld) {
-      links.push(ld);
-    }
-  };
-
-  if (containSelf) {
-    push(item.file);
-  }
-
-  if (Array.isArray(item.assets)) {
-    item.assets.forEach(push);
-  }
-
-  if (Array.isArray(item.css)) {
-    item.css.forEach(push);
-  }
-
-  if (Array.isArray(item.imports)) {
-    item.imports?.forEach((srcFileName) => {
-      links.push(
-        ...getLinks(manifest, srcFileName, true, cache)
-          // Note: In the web router, all client components are loaded asynchronously.
-          .filter((link) => link.rel !== "modulepreload")
-      );
-    });
-  }
-
-  if (Array.isArray(item.dynamicImports)) {
-    item.dynamicImports?.forEach((srcFileName) => {
-      links.push(...getLinks(manifest, srcFileName, true, cache));
-    });
-  }
-
-  return links;
-}
-
-function getLink(fileName: string): LinkDescriptor | null {
-  if (fileName.endsWith(".js")) {
-    return {
-      crossorigin: "",
-      href: fileName,
-      rel: "modulepreload",
-    };
-  } else if (fileName.endsWith(".css")) {
-    return {
-      href: fileName,
-      rel: "stylesheet",
-    };
-  }
-
-  const ext = extname(fileName);
-  const type = mime.lookup(ext);
-  const asValue = type ? type.split("/")[0] : "";
-
-  if (type && ["image", "font"].includes(asValue)) {
-    return {
-      as: asValue,
-      ...(asValue === "font" ? { crossorigin: "" } : {}),
-      href: fileName,
-      rel: "preload",
-      type,
-    };
-  }
-
-  return null;
 }
 
 export async function buildRouteMap(
