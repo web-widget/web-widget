@@ -8,7 +8,10 @@ export type ReplaceAssetPluginOptions = {
   exclude?: FilterPattern;
 };
 
-export default function replaceAssetPlugin({
+/**
+ * Replace the asset's placeholder with the asset's path.
+ */
+export function replaceAssetPlugin({
   manifest,
   include,
   exclude,
@@ -34,33 +37,39 @@ export default function replaceAssetPlugin({
 
       const magicString = new MagicString(code);
 
-      magicString.replace(
-        ASSET_PLACEHOLDER_REG,
-        (match, quotation, fileName) => {
-          if (!fileName) {
-            return match;
-          }
-
-          let asset = manifest[fileName];
-
-          if (!asset) {
-            const extension = extensions.find(
-              (extension) => manifest[fileName + extension]
-            );
-            if (extension) {
-              asset = manifest[fileName + extension];
+      try {
+        magicString.replace(
+          ASSET_PLACEHOLDER_REG,
+          (match, quotation, fileName) => {
+            if (!fileName) {
+              return match;
             }
-          }
 
-          if (!asset) {
-            throw new Error(
-              `Asset not found in client build manifest: "${fileName}". From: ${id}`
-            );
-          }
+            let asset = manifest[fileName];
 
-          return quotation + base + asset.file + quotation;
-        }
-      );
+            if (!asset) {
+              const extension = extensions.find(
+                (extension) => manifest[fileName + extension]
+              );
+              if (extension) {
+                asset = manifest[fileName + extension];
+              }
+            }
+
+            if (!asset) {
+              return this.error(
+                new TypeError(
+                  `Asset not found in client build manifest: ${fileName}`
+                )
+              );
+            }
+
+            return quotation + base + asset.file + quotation;
+          }
+        );
+      } catch (error) {
+        return this.error(error);
+      }
 
       return { code: magicString.toString(), map: magicString.generateMap() };
     },

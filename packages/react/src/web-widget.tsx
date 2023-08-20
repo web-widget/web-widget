@@ -191,10 +191,11 @@ export function WebWidget({
   );
 }
 
-type WebWidgetFactoryProps = JSONProps & {
+type WebWidgetFactoryProps = {
   children?: ReactNode;
+  clientOnly?: boolean;
   fallback?: ReactNode;
-};
+} & JSONProps;
 
 export interface DefineWebWidgetOptions {
   base?: string;
@@ -207,7 +208,6 @@ export interface DefineWebWidgetOptions {
 export const ASSET_PLACEHOLDER = "asset://";
 
 export function defineWebWidget(
-  // TODO 使用 loader 的返回类型
   loader: Loader,
   {
     base,
@@ -221,6 +221,7 @@ export function defineWebWidget(
     url && !url.startsWith(ASSET_PLACEHOLDER) ? url : getFilename(loader);
   return function WebWidgetFactory({
     children,
+    clientOnly = !recovering,
     fallback,
     ...data
   }: WebWidgetFactoryProps) {
@@ -234,40 +235,10 @@ export function defineWebWidget(
           loader,
           loading,
           name,
-          recovering,
+          recovering: !clientOnly,
         }}>
         {children}
       </WebWidget>
     );
   };
-}
-
-export interface ClientOptions {
-  base?: string;
-  loading?: "lazy";
-  name?: string;
-}
-
-export function defineClient(
-  loader: Loader,
-  { base, loading, name }: ClientOptions = {}
-) {
-  return defineWebWidget(loader, {
-    base,
-    loading,
-    name,
-    recovering: true,
-  });
-}
-
-export function defineClientOnly(
-  loader: Loader,
-  { base, loading, name }: ClientOptions = {}
-) {
-  return defineWebWidget(loader, {
-    base,
-    loading,
-    name,
-    recovering: false,
-  });
 }

@@ -11,7 +11,6 @@
  *
  * import { defineWebWidget } from "@web-widget/react/web-widget";
  * const MyComponent = defineWebWidget(() => import("../widgets/my-component.jsx"), {
- *   base: "/routes/",
  *   import: "asset://widgets/my-component.jsx",
  *   name: "MyComponent",
  *   recovering: true

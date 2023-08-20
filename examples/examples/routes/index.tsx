@@ -1,8 +1,5 @@
-import { render } from "@web-widget/react";
 import styles from "../css/index.module.css";
 import BaseLayout from "../components/BaseLayout";
-
-export { render };
 
 export const meta = {
   title: "Hello, Web Widget",

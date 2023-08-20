@@ -1,14 +1,11 @@
-import VueCounter from "../widgets/CounterVue.ts";
-import { render } from "@web-widget/react";
+import VueCounter from "../widgets/Counter.vue";
 import BaseLayout from "../components/BaseLayout.tsx";
-
-export { render };
 
 export default function Page() {
   return (
     <BaseLayout>
       <h1>Client only component</h1>
-      <VueCounter as="web-widget:client" name="React Counter" start={3} />
+      <VueCounter clientOnly name="React Counter" start={3} />
     </BaseLayout>
   );
 }

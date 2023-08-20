@@ -6,6 +6,7 @@ import type {
 } from "@web-widget/schema/client-helpers";
 import { defineRender } from "@web-widget/schema/client-helpers";
 
+export * from "./web-widget";
 export * from "@web-widget/schema/client-helpers";
 export interface DefineVueRenderOptions {
   onCreatedApp?: (

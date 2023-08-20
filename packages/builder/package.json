@@ -1,10 +1,11 @@
 {
   "name": "@web-widget/builder",
-  "version": "0.2.10",
+  "version": "0.3.0",
   "type": "module",
   "exports": {
     ".": {
       "types": "./dist/builder.d.ts",
+      "development": "./src/index.ts",
       "default": "./dist/builder.js"
     }
   },
@@ -46,12 +47,18 @@
     "@web-widget/schema": "workspace:*",
     "@web-widget/web-router": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "vite": "^4.3.9"
+    "vite": "^4.4.9"
   },
   "engines": {
     "node": "^14.18 || >= 16.0.0"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/builder.d.ts",
+        "default": "./dist/builder.js"
+      }
+    }
   }
 }

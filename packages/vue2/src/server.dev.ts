@@ -7,6 +7,7 @@ import type {
 } from "@web-widget/schema/server-helpers";
 import { defineRender } from "@web-widget/schema/server-helpers";
 
+export * from "./web-widget";
 export * from "@web-widget/schema/server-helpers";
 export interface DefineVueRenderOptions {
   onBeforeCreateApp?: (

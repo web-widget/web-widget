@@ -1,6 +1,5 @@
 import type { Handlers } from "@web-widget/react";
 import BaseLayout from "../components/BaseLayout";
-export { render } from "@web-widget/react";
 
 export const handler: Handlers = {
   async GET(ctx) {

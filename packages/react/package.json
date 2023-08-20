@@ -6,23 +6,28 @@
     ".": {
       "worker": {
         "types": "./dist/react.server.d.ts",
+        "development": "./src/server.ts",
         "default": "./dist/react.server.js"
       },
       "browser": {
         "types": "./dist/react.client.d.ts",
+        "development": "./src/client.ts",
         "default": "./dist/react.client.js"
       },
       "default": {
         "types": "./dist/react.server.d.ts",
+        "development": "./src/server.ts",
         "default": "./dist/react.server.js"
       }
     },
     "./babel-plugin": {
       "types": "./dist/babel-plugin.d.ts",
+      "development": "./src/babel-plugin.ts",
       "default": "./dist/babel-plugin.js"
     },
     "./vite-plugin": {
       "types": "./dist/vite-plugin.d.ts",
+      "development": "./src/vite-plugin.ts",
       "default": "./dist/vite-plugin.js"
     },
     "./globals": "./globals.d.ts"
@@ -58,9 +63,34 @@
     "@types/react-dom": "^18.0.6",
     "tsup": "^7.0.0",
     "typescript": "^5.0.4",
-    "vite": "^4.3.9"
+    "vite": "^4.4.9"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "worker": {
+          "types": "./dist/react.server.d.ts",
+          "default": "./dist/react.server.js"
+        },
+        "browser": {
+          "types": "./dist/react.client.d.ts",
+          "default": "./dist/react.client.js"
+        },
+        "default": {
+          "types": "./dist/react.server.d.ts",
+          "default": "./dist/react.server.js"
+        }
+      },
+      "./babel-plugin": {
+        "types": "./dist/babel-plugin.d.ts",
+        "default": "./dist/babel-plugin.js"
+      },
+      "./vite-plugin": {
+        "types": "./dist/vite-plugin.d.ts",
+        "default": "./dist/vite-plugin.js"
+      },
+      "./globals": "./globals.d.ts"
+    }
   }
 }

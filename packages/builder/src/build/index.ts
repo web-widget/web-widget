@@ -15,8 +15,8 @@ import { openConfig } from "../config";
 import { resolve } from "import-meta-resolve";
 import { withSpinner } from "./utils";
 import builtins from "builtin-modules";
-import injectionMetaPlugin from "./injection-meta";
-import replaceAssetPlugin from "./replace-asset";
+import { appendWidgetMetaPlugin } from "./append-widget-meta";
+import { replaceAssetPlugin } from "./replace-asset";
 
 const VITE_MANIFEST_NAME = "manifest.json";
 const CLIENT_MODULE_NAME = "@web-widget/web-widget";
@@ -105,7 +105,7 @@ async function bundleWithVite(
       isServer && addESMPackagePlugin(config),
       isServer &&
         viteManifest &&
-        injectionMetaPlugin({
+        appendWidgetMetaPlugin({
           manifest: viteManifest,
           include: [...Object.values(entryPoints)],
         }),

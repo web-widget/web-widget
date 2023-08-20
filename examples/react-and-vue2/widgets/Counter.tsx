@@ -1,6 +1,5 @@
 import "./counter-common.css";
 import { useState } from "react";
-export { render } from "@web-widget/react";
 
 interface CounterProps {
   name: string;

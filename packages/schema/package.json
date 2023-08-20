@@ -5,28 +5,34 @@
   "exports": {
     ".": {
       "types": "./dist/types.d.ts",
+      "development": "./src/types.ts",
       "default": "./dist/types.js"
     },
     "./helpers": {
       "worker": {
         "types": "./dist/schema-helpers.server.d.ts",
+        "development": "./src/helpers/server.ts",
         "default": "./dist/schema-helpers.server.js"
       },
       "browser": {
         "types": "./dist/schema-helpers.client.d.ts",
+        "development": "./src/helpers/client.ts",
         "default": "./dist/schema-helpers.client.js"
       },
       "default": {
         "types": "./dist/schema-helpers.server.d.ts",
+        "development": "./src/helpers/server.ts",
         "default": "./dist/schema-helpers.server.js"
       }
     },
     "./server-helpers": {
       "types": "./dist/schema-helpers.server.d.ts",
+      "development": "./src/helpers/server.ts",
       "default": "./dist/schema-helpers.server.js"
     },
     "./client-helpers": {
       "types": "./dist/schema-helpers.client.d.ts",
+      "development": "./src/helpers/client.ts",
       "default": "./dist/schema-helpers.client.js"
     }
   },
@@ -48,6 +54,34 @@
     "typescript": "^5.0.4"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/types.d.ts",
+        "default": "./dist/types.js"
+      },
+      "./helpers": {
+        "worker": {
+          "types": "./dist/schema-helpers.server.d.ts",
+          "default": "./dist/schema-helpers.server.js"
+        },
+        "browser": {
+          "types": "./dist/schema-helpers.client.d.ts",
+          "default": "./dist/schema-helpers.client.js"
+        },
+        "default": {
+          "types": "./dist/schema-helpers.server.d.ts",
+          "default": "./dist/schema-helpers.server.js"
+        }
+      },
+      "./server-helpers": {
+        "types": "./dist/schema-helpers.server.d.ts",
+        "default": "./dist/schema-helpers.server.js"
+      },
+      "./client-helpers": {
+        "types": "./dist/schema-helpers.client.d.ts",
+        "default": "./dist/schema-helpers.client.js"
+      }
+    }
   }
 }
