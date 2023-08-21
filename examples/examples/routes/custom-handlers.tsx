@@ -5,6 +5,7 @@ export const handler: Handlers = {
   async GET(ctx) {
     const resp = await ctx.render();
     resp.headers.set("X-Custom-Header", "Hello");
+    resp.headers.set("X-Route-name", ctx.name);
     return resp;
   },
 };
