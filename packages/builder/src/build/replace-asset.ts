@@ -1,9 +1,9 @@
-import type { Manifest as ViteManifest, Plugin as VitePlugin } from "vite";
+import type { Plugin as VitePlugin } from "vite";
 import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import MagicString from "magic-string";
 
 export type ReplaceAssetPluginOptions = {
-  manifest: ViteManifest;
+  manifest: Record<string, string[]>;
   include?: FilterPattern;
   exclude?: FilterPattern;
 };
@@ -41,24 +41,31 @@ export default function replaceAssetPlugin({
             return match;
           }
 
-          let asset = manifest[fileName];
+          let assets = manifest[fileName];
 
-          if (!asset) {
+          if (!assets) {
             const extension = extensions.find(
               (extension) => manifest[fileName + extension]
             );
             if (extension) {
-              asset = manifest[fileName + extension];
+              assets = manifest[fileName + extension];
             }
           }
 
-          if (!asset) {
+          if (!assets) {
             throw new Error(
               `Asset not found in client build manifest: "${fileName}". From: ${id}`
             );
           }
 
-          return quotation + base + asset.file + quotation;
+          let assetFile = assets.find((item) => item.endsWith(".js"));
+          if (!assetFile) {
+            return this.error(
+              `Asset not found in client build manifest: "${fileName}". From: ${id}`
+            );
+          }
+          assetFile = assetFile.replace(/^\//, "");
+          return quotation + base + assetFile + quotation;
         }
       );
 
