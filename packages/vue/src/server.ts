@@ -7,6 +7,7 @@ import type {
 import { defineRender } from "@web-widget/schema/server-helpers";
 import { renderToWebStream } from "vue/server-renderer";
 
+export * from "./web-widget";
 export * from "@web-widget/schema/server-helpers";
 export interface DefineVueRenderOptions {
   onCreatedApp?: (

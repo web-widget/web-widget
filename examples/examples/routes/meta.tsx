@@ -2,10 +2,9 @@ import type { Handlers, RouteComponentProps, Meta } from "@web-widget/react";
 import { renderMetaToString, mergeMeta } from "@web-widget/react";
 import ReactCounter from "../widgets/Counter.tsx";
 import "../css/style.css";
+// eslint-disable-next-line import/no-unresolved
 import icon from "../public/favicon.svg";
 import BaseLayout from "../components/BaseLayout";
-
-export { render } from "@web-widget/react";
 
 type MetaPageData = {
   allMetadata: Meta;
@@ -53,7 +52,7 @@ export default function Page(props: RouteComponentProps<MetaPageData>) {
       <h2>HTML:</h2>
       <MetaHtmlCode {...allMetadata} />
       <hr />
-      <ReactCounter as="web-widget" name="React Counter" start={3} />
+      <ReactCounter name="React Counter" start={3} />
       <div>
         <img src={icon} />
       </div>

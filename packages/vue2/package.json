@@ -6,11 +6,12 @@
     ".": {
       "browser": {
         "types": "./dist/vue2.client.d.ts",
+        "development": "./src/client.ts",
         "default": "./dist/vue2.client.js"
       },
       "default": {
         "types": "./dist/vue2.server.d.ts",
-        "development": "./dist/vue2.server.dev.js",
+        "development": "./src/server.dev.ts",
         "default": "./dist/vue2.server.js"
       }
     }
@@ -35,6 +36,19 @@
     "typescript": "^5.0.4"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "browser": {
+          "types": "./dist/vue2.client.d.ts",
+          "default": "./dist/vue2.client.js"
+        },
+        "default": {
+          "types": "./dist/vue2.server.d.ts",
+          "development": "./dist/vue2.server.dev.js",
+          "default": "./dist/vue2.server.js"
+        }
+      }
+    }
   }
 }

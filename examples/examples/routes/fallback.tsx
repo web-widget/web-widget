@@ -1,8 +1,6 @@
 import type { RouteFallbackComponentProps } from "@web-widget/react";
-import { render, defineRouteHandler, createHttpError } from "@web-widget/react";
+import { defineRouteHandler, createHttpError } from "@web-widget/react";
 import BaseLayout from "../components/BaseLayout";
-
-export { render };
 
 export const handler = defineRouteHandler({
   async GET(ctx) {

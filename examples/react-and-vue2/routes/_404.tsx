@@ -1,5 +1,3 @@
-export { render } from "@web-widget/react";
-
 export const fallback = function Page404() {
   return (
     <main>

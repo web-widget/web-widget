@@ -1,5 +1,3 @@
-export { render } from "@web-widget/react";
-
 const random = (max: number, min: number) =>
   Math.floor(Math.random() * (max - min + 1) + min);
 const fetchData = async (timeout = random(900, 2900)) =>

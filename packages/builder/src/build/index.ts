@@ -15,11 +15,11 @@ import { openConfig } from "../config";
 import { resolve } from "import-meta-resolve";
 import { withSpinner } from "./utils";
 import builtins from "builtin-modules";
-import injectionMetaPlugin from "./injection-meta";
-import replaceAssetPlugin from "./replace-asset";
+import { appendWidgetMetaPlugin } from "./append-widget-meta";
+import { replaceAssetPlugin } from "./replace-asset";
 
 const VITE_MANIFEST_NAME = "manifest.json";
-const VITE_CLIENT_MANIFEST_NAME = "client-manifest.json";
+const VITE_SSR_MANIFEST_NAME = "ssr-manifest.json";
 const CLIENT_MODULE_NAME = "@web-widget/web-widget";
 const CLIENT_NAME = "web-widget";
 const CLIENT_ENTRY = fileURLToPath(
@@ -57,7 +57,7 @@ async function bundle(config: BuilderConfig) {
     fileURLToPath(config.output.client)
   );
 
-  const viteClientManifest = await parseViteClientManifest(
+  const viteClientManifest = await parseViteSdrManifest(
     fileURLToPath(config.output.client)
   );
 
@@ -115,7 +115,7 @@ async function bundleWithVite(
       isServer && addESMPackagePlugin(config),
       isServer &&
         viteManifest &&
-        injectionMetaPlugin({
+        appendWidgetMetaPlugin({
           manifest: viteManifest,
           include: [...Object.values(entryPoints)],
         }),
@@ -134,7 +134,7 @@ async function bundleWithVite(
       ),
       sourcemap: false,
       manifest: isServer ? false : VITE_MANIFEST_NAME,
-      ssrManifest: isServer ? false : VITE_CLIENT_MANIFEST_NAME,
+      ssrManifest: isServer ? false : VITE_SSR_MANIFEST_NAME,
       rollupOptions: {
         input: {
           ...entryPoints,
@@ -337,10 +337,10 @@ async function parseViteManifest(outDir: string): Promise<ViteManifest> {
   return JSON.parse(await fs.readFile(manifestPath, "utf-8"));
 }
 
-async function parseViteClientManifest(
+async function parseViteSdrManifest(
   outDir: string
 ): Promise<Record<string, string[]>> {
-  const manifestPath = join(outDir, VITE_CLIENT_MANIFEST_NAME);
+  const manifestPath = join(outDir, VITE_SSR_MANIFEST_NAME);
   return JSON.parse(await fs.readFile(manifestPath, "utf-8"));
 }
 

@@ -16,6 +16,7 @@
   "exports": {
     ".": {
       "types": "./dist/web-widget.d.ts",
+      "development": "./src/index.ts",
       "default": "./dist/web-widget.js"
     }
   },
@@ -45,6 +46,12 @@
     "widget"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/web-widget.d.ts",
+        "default": "./dist/web-widget.js"
+      }
+    }
   }
 }

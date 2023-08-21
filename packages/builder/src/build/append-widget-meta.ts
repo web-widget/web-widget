@@ -1,10 +1,6 @@
 import type { LinkDescriptor, ScriptDescriptor } from "@web-widget/schema";
 import * as esModuleLexer from "es-module-lexer";
-import type {
-  Manifest as ViteManifest,
-  Plugin as VitePlugin,
-  ResolvedConfig as ViteResolvedConfig,
-} from "vite";
+import type { Manifest as ViteManifest, Plugin as VitePlugin } from "vite";
 import { extname, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import mime from "mime-types";
@@ -12,31 +8,33 @@ import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import MagicString from "magic-string";
 import { resolve } from "import-meta-resolve";
 
-export type InjectionMetaPluginOptions = {
+export type AppendWidgetMetaPluginOptions = {
   manifest: ViteManifest;
   include?: FilterPattern;
   exclude?: FilterPattern;
 };
 
-export default function injectionMetaPlugin({
+export function appendWidgetMetaPlugin({
   manifest,
   include,
   exclude,
-}: InjectionMetaPluginOptions): VitePlugin {
-  let config: ViteResolvedConfig;
+}: AppendWidgetMetaPluginOptions): VitePlugin {
+  let root: string;
+  let base: string;
   const CLIENT_MODULE_NAME = "@web-widget/web-widget";
   const RESOLVE_URL_REG = /^(?:\w+:)?\//;
   const filter = createFilter(include, exclude);
   const rebase = (src: string, importer: string) => {
     //return relative(dirname(importer), src);
-    return RESOLVE_URL_REG.test(src) ? src : config.base + src;
+    return RESOLVE_URL_REG.test(src) ? src : base + src;
   };
 
   return {
-    name: "builder:injection-meta",
+    name: "builder:append-widget-meta",
     enforce: "post",
     configResolved(resolvedConfig) {
-      config = resolvedConfig;
+      root = resolvedConfig.root;
+      base = resolvedConfig.base;
     },
     async transform(code, id) {
       if (!filter(id)) {
@@ -47,10 +45,10 @@ export default function injectionMetaPlugin({
         resolve(CLIENT_MODULE_NAME, pathToFileURL(id).href)
       );
       const webWidgetFileName = webWidgetResolvedId
-        ? relative(config.root, webWidgetResolvedId)
+        ? relative(root, webWidgetResolvedId)
         : null;
       const magicString = new MagicString(code);
-      const fileName = relative(config.root, id);
+      const fileName = relative(root, id);
       const meta = {
         script: webWidgetResolvedId
           ? [
@@ -85,19 +83,20 @@ export default function injectionMetaPlugin({
       };
 
       await esModuleLexer.init;
-      const [, exports] = esModuleLexer.parse(code, fileName);
-
-      if (exports.some(({ n }) => n === "meta")) {
+      const [, exports] = esModuleLexer.parse(code, id);
+      const metaExport = exports.find(({ n: name }) => name === "meta");
+      if (metaExport) {
+        const { n: name, ln: localName } = metaExport;
+        const metaExportName = localName ?? name;
         magicString.append(
           [
-            `try {`,
+            ``,
+            `;((meta) => {`,
             `  const link = ${JSON.stringify(meta.link, null, 2)};`,
             `  const script = ${JSON.stringify(meta.script, null, 2)};`,
             `  meta.link ? meta.link.push(...link) : (meta.link = link);`,
             `  meta.script ? meta.script.push(...script) : (meta.script = script);`,
-            `} catch(e) {`,
-            `  throw new Error("@web-widget/builder: Failed to attach meta.", e);`,
-            `}`,
+            `})(${metaExportName});`,
           ].join("\n")
         );
       } else {

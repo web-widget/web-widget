@@ -1,15 +1,14 @@
 import "../css/base-layout.css";
 
 import type { ComponentProps } from "react";
-// import Menu from "./Menu";
-import Menu from "../widgets/Menu";
+import Menu from "../widgets/Menu.vue";
 
 export default function BaseLayout({ children }: ComponentProps<any>) {
   return (
     <>
       <div className="container">
         <aside>
-          <Menu as="web-widget" />
+          <Menu />
         </aside>
         <main>{children}</main>
       </div>

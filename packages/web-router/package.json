@@ -5,6 +5,7 @@
   "exports": {
     ".": {
       "types": "./dist/web-router.server.d.ts",
+      "development": "./src/index.ts",
       "default": "./dist/web-router.server.js"
     }
   },
@@ -32,6 +33,12 @@
     "urlpattern-polyfill": "^9.0.0"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/web-router.server.d.ts",
+        "default": "./dist/web-router.server.js"
+      }
+    }
   }
 }
