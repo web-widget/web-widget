@@ -64,7 +64,7 @@ export function componentToWidgetPlugin({
         );
 
         injects.forEach((exportName) => {
-          if (!exports.some(({ n }) => n === exportName)) {
+          if (!exports.some(({ n: name }) => name === exportName)) {
             magicString.prepend(
               `import { ${exportName} as ${alias(
                 exportName
@@ -88,7 +88,7 @@ export function componentToWidgetPlugin({
         });
       } else {
         injects.forEach((exportName) => {
-          if (!exports.some(({ n }) => n === exportName)) {
+          if (!exports.some(({ n: name }) => name === exportName)) {
             magicString.prepend(
               `export { ${exportName} } from ${JSON.stringify(provide)};\n`
             );
