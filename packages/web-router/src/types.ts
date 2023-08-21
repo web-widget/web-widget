@@ -143,7 +143,7 @@ export interface Page {
   handler: RouteHandler | RouteHandlers;
   meta: Meta;
   module: RouteModule;
-  name: string;
+  name?: string;
   pathname: string;
   render: RouteRender;
   source: URL;

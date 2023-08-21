@@ -189,7 +189,7 @@ export class ServerContext {
         handler: handler as RouteHandler,
         meta,
         module,
-        name: name ?? pathname,
+        name,
         pathname: config.routeOverride
           ? String(config.routeOverride)
           : pathname,
@@ -231,7 +231,7 @@ export class ServerContext {
             : (ctx) => router.defaultErrorHandler(ctx, ctx.error)),
         meta,
         module,
-        name: name ?? pathname,
+        name,
         pathname,
         render: render ?? emptyRender,
         source,
@@ -269,8 +269,8 @@ export class ServerContext {
         resolvedOpts.baseModule
       );
       middlewares.push({
-        pathname,
         compiledPattern: new URLPattern({ pathname }),
+        pathname,
         ...module,
       });
     }
@@ -478,6 +478,7 @@ export class ServerContext {
     for (const route of this.#routes) {
       const meta = route.meta;
       const module = route.module;
+      const name = route.name;
       const createRender = genRender(route, HttpStatus.OK);
       if (typeof route.handler === "function") {
         routes[route.pathname] = {
@@ -486,6 +487,7 @@ export class ServerContext {
               ...ctx,
               meta,
               module,
+              name,
               params,
               render: createRender(ctx.request, params),
               request: ctx.request,
@@ -502,6 +504,7 @@ export class ServerContext {
               ...ctx,
               meta,
               module,
+              name,
               params,
               render: createRender(ctx.request, params),
               request: ctx.request,
@@ -524,6 +527,7 @@ export class ServerContext {
         error,
         meta: notFoundPage.meta,
         module: notFoundPage.module,
+        name: notFoundPage.name,
         params: {},
         render: createUnknownHandlerRender(ctx.request, {}, error),
       });
@@ -543,6 +547,7 @@ export class ServerContext {
         error: error as Error,
         meta: internalServerErrorPage.meta,
         module: internalServerErrorPage.module,
+        name: internalServerErrorPage.name,
         params: {},
         render: createErrorHandlerRender(ctx.request, {}, error as Error),
       });

@@ -123,6 +123,7 @@ export type RouteComponentProps<
    * `undefined`.
    */
   data: Data;
+
   /**
    * The parameters that were matched from the route.
    *
@@ -237,6 +238,7 @@ export interface ServerRouteHandlerContext<
   error?: RouteError;
   meta: Meta;
   module: ServerRouteModule;
+  name?: string;
   params: Params;
   render(
     renderProps?: {
@@ -258,6 +260,7 @@ export interface ClientRouteHandlerContext<
   error?: RouteError;
   meta: Meta;
   module: ClientRouteModule;
+  name?: string;
   params: Params;
   render(
     renderProps?: {

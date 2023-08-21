@@ -38,6 +38,7 @@
     },
     {
       "pathname": "/custom-handlers",
+      "name": "@custom-handlers",
       "module": "./routes/custom-handlers.tsx"
     },
     {
