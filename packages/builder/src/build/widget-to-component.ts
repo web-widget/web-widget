@@ -12,7 +12,7 @@ const alias = (name: string) => `__$${name}${index++}$__`;
 export type WidgetToComponentPluginOptions = {
   provide: string;
   inject?: string;
-  host?:
+  component?:
     | FilterPattern
     | {
         include?: FilterPattern;
@@ -42,7 +42,7 @@ export type WidgetToComponentPluginOptions = {
 export function widgetToComponentPlugin({
   provide,
   inject = "defineWebWidget",
-  host,
+  component,
   include = /\.(widget|route)\.[^.]*$/,
   exclude,
 }: WidgetToComponentPluginOptions): VitePlugin {
@@ -50,14 +50,16 @@ export function widgetToComponentPlugin({
   let root: string;
   let base: string;
   const filter = createFilter(include, exclude);
-  const hostFilterPatterns =
-    host !== null && typeof host === "object" && Reflect.has(host, "include")
-      ? [Reflect.get(host, "include"), Reflect.get(host, "exclude")]
-      : [host];
-  const hostFilter = createFilter(...hostFilterPatterns);
+  const componentFilterPatterns =
+    component !== null &&
+    typeof component === "object" &&
+    Reflect.has(component, "include")
+      ? [Reflect.get(component, "include"), Reflect.get(component, "exclude")]
+      : [component];
+  const componentFilter = createFilter(...componentFilterPatterns);
   const parseComponentName = (code: string) =>
     code.match(/import\s+([a-zA-Z$_]\w*)\s+/)?.[1];
-  const importers: Set<string> = new Set();
+  const importedWidgetComponents = new Set();
 
   return {
     name: "builder:web-widget-to-component",
@@ -72,12 +74,12 @@ export function widgetToComponentPlugin({
           skipSelf: true,
         });
         if (resolution && filter(resolution.id)) {
-          importers.add(importer);
+          importedWidgetComponents.add(importer);
         }
       }
     },
     async transform(code, id, { ssr } = {}) {
-      if (!importers.has(id) && !hostFilter(id)) {
+      if (!importedWidgetComponents.has(id) && !componentFilter(id)) {
         return;
       }
 

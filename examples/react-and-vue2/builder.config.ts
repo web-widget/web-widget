@@ -23,7 +23,7 @@ export default defineConfig({
       widgetToComponentPlugin({
         include: ["widgets/**/*"],
         provide: "@web-widget/react",
-        host: ["**/*.tsx"],
+        component: ["**/*.tsx"],
       }),
       // ----- Vue2 -----
       vue(),
