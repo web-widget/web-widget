@@ -1,9 +1,10 @@
-import type { Manifest as ViteManifest, Plugin as VitePlugin } from "vite";
+import type { Plugin as VitePlugin } from "vite";
 import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import MagicString from "magic-string";
 
 export type ReplaceAssetPluginOptions = {
-  manifest: ViteManifest;
+  /** SSR Manifest */
+  manifest: Record<string, string[]>;
   include?: FilterPattern;
   exclude?: FilterPattern;
 };
@@ -35,40 +36,41 @@ export function replaceAssetPlugin({
       //   return !/^\.+\//.test(file) ? "./" + file : file;
       // };
 
+      let pos: number = 0;
       const magicString = new MagicString(code);
 
       try {
         magicString.replace(
           ASSET_PLACEHOLDER_REG,
-          (match, quotation, fileName) => {
+          (match, quotation, fileName, start) => {
             if (!fileName) {
               return match;
             }
 
-            let asset = manifest[fileName];
+            let assets = manifest[fileName];
 
-            if (!asset) {
+            if (!assets) {
               const extension = extensions.find(
                 (extension) => manifest[fileName + extension]
               );
               if (extension) {
-                asset = manifest[fileName + extension];
+                assets = manifest[fileName + extension];
               }
             }
 
-            if (!asset) {
-              return this.error(
-                new TypeError(
-                  `Asset not found in client build manifest: ${fileName}`
-                )
+            let assetFile = assets?.find((item) => item.endsWith(".js"));
+            if (!assetFile) {
+              pos = start;
+              throw new TypeError(
+                `Asset not found in client build manifest: "${fileName}".`
               );
             }
-
-            return quotation + base + asset.file + quotation;
+            assetFile = assetFile.replace(/^\//, "");
+            return quotation + base + assetFile + quotation;
           }
         );
       } catch (error) {
-        return this.error(error);
+        return this.error(error, pos);
       }
 
       return { code: magicString.toString(), map: magicString.generateMap() };

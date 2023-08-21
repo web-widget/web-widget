@@ -19,6 +19,7 @@ import { appendWidgetMetaPlugin } from "./append-widget-meta";
 import { replaceAssetPlugin } from "./replace-asset";
 
 const VITE_MANIFEST_NAME = "manifest.json";
+const VITE_SSR_MANIFEST_NAME = "ssr-manifest.json";
 const CLIENT_MODULE_NAME = "@web-widget/web-widget";
 const CLIENT_NAME = "web-widget";
 const CLIENT_ENTRY = fileURLToPath(
@@ -56,15 +57,23 @@ async function bundle(config: BuilderConfig) {
     fileURLToPath(config.output.client)
   );
 
+  const viteClientManifest = await parseViteSdrManifest(
+    fileURLToPath(config.output.client)
+  );
+
   const serverResult = await withSpinner(
     "building server bundles",
     async () =>
-      await bundleWithVite(config, entryPoints, true, viteManifest).then(
-        async (serverResult) => {
-          await buildRouteMap(manifest, config, serverResult);
-          return serverResult;
-        }
-      )
+      await bundleWithVite(
+        config,
+        entryPoints,
+        true,
+        viteManifest,
+        viteClientManifest
+      ).then(async (serverResult) => {
+        await buildRouteMap(manifest, config, serverResult);
+        return serverResult;
+      })
   );
 
   return { clientResult, serverResult };
@@ -76,7 +85,8 @@ async function bundleWithVite(
   config: BuilderConfig,
   entryPoints: string[] | EntryPoints,
   isServer: boolean,
-  viteManifest?: ViteManifest
+  viteManifest?: ViteManifest,
+  viteClientManifest?: Record<string, string[]>
 ) {
   const vite = mergeViteConfig(config.vite, {
     base: config.base,
@@ -111,7 +121,7 @@ async function bundleWithVite(
         }),
       isServer &&
         viteManifest &&
-        replaceAssetPlugin({ manifest: viteManifest }),
+        replaceAssetPlugin({ manifest: viteClientManifest! }),
     ],
     build: {
       ssr: isServer,
@@ -124,6 +134,7 @@ async function bundleWithVite(
       ),
       sourcemap: false,
       manifest: isServer ? false : VITE_MANIFEST_NAME,
+      ssrManifest: isServer ? false : VITE_SSR_MANIFEST_NAME,
       rollupOptions: {
         input: {
           ...entryPoints,
@@ -131,7 +142,7 @@ async function bundleWithVite(
         },
         preserveEntrySignatures: "allow-extension",
         treeshake: true,
-        external: builtins as string[],
+        external: isServer ? (builtins as string[]) : [],
         output: isServer
           ? {
               entryFileNames: `${config.output.asset}/[name].js`,
@@ -323,6 +334,13 @@ export async function buildRouteMap(
 
 async function parseViteManifest(outDir: string): Promise<ViteManifest> {
   const manifestPath = join(outDir, VITE_MANIFEST_NAME);
+  return JSON.parse(await fs.readFile(manifestPath, "utf-8"));
+}
+
+async function parseViteSdrManifest(
+  outDir: string
+): Promise<Record<string, string[]>> {
+  const manifestPath = join(outDir, VITE_SSR_MANIFEST_NAME);
   return JSON.parse(await fs.readFile(manifestPath, "utf-8"));
 }
 
