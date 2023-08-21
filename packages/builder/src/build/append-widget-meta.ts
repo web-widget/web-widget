@@ -84,19 +84,19 @@ export function appendWidgetMetaPlugin({
 
       await esModuleLexer.init;
       const [, exports] = esModuleLexer.parse(code, id);
-
-      if (exports.some(({ n }) => n === "meta")) {
+      const metaExport = exports.find(({ n: name }) => name === "meta");
+      if (metaExport) {
+        const { n: name, ln: localName } = metaExport;
+        const metaExportName = localName ?? name;
         magicString.append(
           [
             ``,
-            `try {`,
+            `;((meta) => {`,
             `  const link = ${JSON.stringify(meta.link, null, 2)};`,
             `  const script = ${JSON.stringify(meta.script, null, 2)};`,
             `  meta.link ? meta.link.push(...link) : (meta.link = link);`,
             `  meta.script ? meta.script.push(...script) : (meta.script = script);`,
-            `} catch(e) {`,
-            `  throw new Error("@web-widget/builder: Failed to attach meta.", e);`,
-            `}`,
+            `})(${metaExportName});`,
           ].join("\n")
         );
       } else {
