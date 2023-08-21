@@ -8,17 +8,17 @@ import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import MagicString from "magic-string";
 import { resolve } from "import-meta-resolve";
 
-export type AppendWidgetMetaPluginOptions = {
+export type AppendWebWidgetMetaPluginOptions = {
   manifest: ViteManifest;
   include?: FilterPattern;
   exclude?: FilterPattern;
 };
 
-export function appendWidgetMetaPlugin({
+export function appendWebWidgetMetaPlugin({
   manifest,
   include,
   exclude,
-}: AppendWidgetMetaPluginOptions): VitePlugin {
+}: AppendWebWidgetMetaPluginOptions): VitePlugin {
   let root: string;
   let base: string;
   const CLIENT_MODULE_NAME = "@web-widget/web-widget";
@@ -30,7 +30,7 @@ export function appendWidgetMetaPlugin({
   };
 
   return {
-    name: "builder:append-widget-meta",
+    name: "builder:append-web-widget-meta",
     enforce: "post",
     configResolved(resolvedConfig) {
       root = resolvedConfig.root;

@@ -3,7 +3,7 @@ import type { Plugin as VitePlugin } from "vite";
 import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import MagicString from "magic-string";
 
-export type ComponentToWidgetPluginOptions = {
+export interface ComponentToWebWidgetPluginOptions {
   provide: string;
   inject?: string | string[];
   destructuringExportDefault?:
@@ -13,20 +13,24 @@ export type ComponentToWidgetPluginOptions = {
       };
   include?: FilterPattern;
   exclude?: FilterPattern;
-};
+}
 
-export function componentToWidgetPlugin({
+export function componentToWebWidgetPlugin({
   provide,
   inject = ["render"],
   destructuringExportDefault,
   include = /\.(widget|route)\.[^.]*$/,
   exclude,
-}: ComponentToWidgetPluginOptions): VitePlugin {
+}: ComponentToWebWidgetPluginOptions): VitePlugin {
+  if (typeof provide !== "string") {
+    throw new TypeError(`options.provide: must be a string type.`);
+  }
+
   const injects = Array.isArray(inject) ? inject : [inject];
   const filter = createFilter(include, exclude);
   const alias = (name: string) => `__$${name}$__`;
   return {
-    name: "builder:component-to-widget",
+    name: "builder:component-to-web-widget",
     async transform(code, id) {
       if (!filter(id)) {
         return null;
