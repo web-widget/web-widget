@@ -1,8 +1,4 @@
-import {
-  defineConfig,
-  componentToWidgetPlugin,
-  widgetToComponentPlugin,
-} from "@web-widget/builder";
+import { defineConfig, webWidgetPlugin } from "@web-widget/builder";
 import vue from "@vitejs/plugin-vue2";
 import react from "@vitejs/plugin-react";
 
@@ -16,20 +12,23 @@ export default defineConfig({
     plugins: [
       // ----- React -----
       react(),
-      componentToWidgetPlugin({
-        include: ["routes/**/*.tsx", "widgets/**/*.tsx"],
+      webWidgetPlugin({
         provide: "@web-widget/react",
+        toWebWidgets: {
+          include: ["routes/**/*.tsx", "widgets/**/*.tsx"],
+        },
+        toComponents: {
+          include: ["widgets/**/*"],
+          component: ["**/*.tsx"],
+        },
       }),
-      widgetToComponentPlugin({
-        include: ["widgets/**/*"],
-        provide: "@web-widget/react",
-        component: ["**/*.tsx"],
-      }),
-      // ----- Vue2 -----
+      // ----- Vue -----
       vue(),
-      componentToWidgetPlugin({
-        include: ["routes/**/*.vue", "widgets/**/*.vue"],
-        provide: "@web-widget/vue2",
+      webWidgetPlugin({
+        provide: "@web-widget/vue",
+        toWebWidgets: {
+          include: ["routes/**/*.vue", "widgets/**/*.vue"],
+        },
       }),
     ],
   },

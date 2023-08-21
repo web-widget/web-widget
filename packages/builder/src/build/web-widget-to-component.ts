@@ -9,7 +9,7 @@ export const ASSET_PLACEHOLDER = "asset://";
 let index = 0;
 const alias = (name: string) => `__$${name}${index++}$__`;
 
-export type WidgetToComponentPluginOptions = {
+export interface WebWidgetToComponentPluginOptions {
   provide: string;
   inject?: string;
   component?:
@@ -20,7 +20,7 @@ export type WidgetToComponentPluginOptions = {
       };
   include?: FilterPattern;
   exclude?: FilterPattern;
-};
+}
 
 /**
  * Input:
@@ -31,7 +31,7 @@ export type WidgetToComponentPluginOptions = {
  *
  * Becomes:
  *
- * import { defineWebWidget } from "@web-widget/react/web-widget";
+ * import { defineWebWidget } from "@web-widget/react";
  * const MyComponent = defineWebWidget(() => import("../widgets/my-component.widget.jsx"), {
  *   import: "asset://widgets/my-component.widget.jsx",
  *   recovering: true
@@ -39,13 +39,17 @@ export type WidgetToComponentPluginOptions = {
  * ...
  * <MyComponent title="My component" />
  */
-export function widgetToComponentPlugin({
+export function webWidgetToComponentPlugin({
   provide,
   inject = "defineWebWidget",
   component,
   include = /\.(widget|route)\.[^.]*$/,
   exclude,
-}: WidgetToComponentPluginOptions): VitePlugin {
+}: WebWidgetToComponentPluginOptions): VitePlugin {
+  if (typeof provide !== "string") {
+    throw new TypeError(`options.provide: must be a string type.`);
+  }
+
   let dev = false;
   let root: string;
   let base: string;
