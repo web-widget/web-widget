@@ -8,8 +8,8 @@ export { render };
 
 // const declarativeShadowDomShim = html`<script id="shim:declarative-shadow-dom">
 //   (function attachShadowRoots(root) {
-//     root.querySelectorAll("template[shadowroot]").forEach((template) => {
-//       const mode = template.getAttribute("shadowroot");
+//     root.querySelectorAll("template[shadowrootmode]").forEach((template) => {
+//       const mode = template.getAttribute("shadowrootmode");
 //       const host = template.parentNode;
 //       const shadowRoot = template.parentNode.attachShadow({
 //         mode,
@@ -65,7 +65,7 @@ const importShimLoader = html`<script id="shim:es-module">
           })
         );
       });
-      
+
       return promise.then((importShim) => importShim(...arguments));
     }
     importShim.$proxy = true;
@@ -81,13 +81,13 @@ export default function DefaultRootLayout({
   return html`<!doctype html>
     <html lang="${meta.lang}">
       <head>
-        ${unsafeHTML(renderMetaToString(meta))}
-        ${importShimLoader}
+        ${unsafeHTML(renderMetaToString(meta))} ${importShimLoader}
       </head>
       <body>
-        ${children instanceof ReadableStream ? unsafeStreamToHTML(children) : children}
-        ${unsafeHTML(renderMetaToString({ script: bootstrap })
-        )}
+        ${children instanceof ReadableStream
+          ? unsafeStreamToHTML(children)
+          : children}
+        ${unsafeHTML(renderMetaToString({ script: bootstrap }))}
       </body>
     </html>`;
 }

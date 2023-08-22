@@ -1,7 +1,8 @@
 import type { Options } from "tsup";
 export const tsup: Options = {
   entry: {
-    "web-widget": "src/index.ts",
+    "web-widget.server": "src/server.ts",
+    "web-widget.client": "src/client.ts",
   },
   dts: true,
   target: "es2017",

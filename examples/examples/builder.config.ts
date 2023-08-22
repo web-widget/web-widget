@@ -25,6 +25,10 @@ export default defineConfig({
         toWebWidgets: {
           include: ["routes/**/*.vue", "widgets/**/*.vue"],
         },
+        toComponents: {
+          include: ["widgets/**/*"],
+          component: ["**/*.vue"],
+        },
       }),
     ],
   },

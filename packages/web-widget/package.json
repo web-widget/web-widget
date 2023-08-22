@@ -15,9 +15,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/web-widget.d.ts",
-      "development": "./src/index.ts",
-      "default": "./dist/web-widget.js"
+      "types": "./dist/web-widget.client.d.ts",
+      "development": "./src/client.ts",
+      "default": "./dist/web-widget.client.js"
+    },
+    "./server": {
+      "types": "./dist/web-widget.server.d.ts",
+      "development": "./src/server.ts",
+      "default": "./dist/web-widget.server.js"
     }
   },
   "files": [
@@ -29,7 +34,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "sideEffects": [
-    "./dist/web-widget.js"
+    "./dist/web-widget.client.js"
   ],
   "dependencies": {
     "@web-widget/schema": "workspace:*"
@@ -49,8 +54,12 @@
     "access": "public",
     "exports": {
       ".": {
-        "types": "./dist/web-widget.d.ts",
-        "default": "./dist/web-widget.js"
+        "types": "./dist/web-widget.client.d.ts",
+        "default": "./dist/web-widget.client.js"
+      },
+      "./server": {
+        "types": "./dist/web-widget.server.d.ts",
+        "default": "./dist/web-widget.server.js"
       }
     }
   }

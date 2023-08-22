@@ -380,6 +380,9 @@ importers:
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../web-widget
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -444,8 +447,11 @@ importers:
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../web-widget
       vue:
-        specifier: ^3.3.4
+        specifier: '>3.3.3'
         version: 3.3.4
     devDependencies:
       tsup:
@@ -2047,7 +2053,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/code-frame': 7.22.5
-      '@babel/parser': 7.22.5
+      '@babel/parser': 7.22.7
       '@babel/types': 7.22.5
 
   /@babel/traverse@7.22.5:
@@ -2060,7 +2066,7 @@ packages:
       '@babel/helper-function-name': 7.22.5
       '@babel/helper-hoist-variables': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
-      '@babel/parser': 7.22.5
+      '@babel/parser': 7.22.7
       '@babel/types': 7.22.5
       debug: 4.3.4
       globals: 11.12.0
@@ -3427,7 +3433,7 @@ packages:
   /@types/babel__template@7.4.1:
     resolution: {integrity: sha512-azBFKemX6kMg5Io+/rdGT0dkGreboUVR0Cdm3fz9QJWpaQGJRQXl7C+6hOTCZcMll7KFyEQpgbYI2lHdsS4U7g==}
     dependencies:
-      '@babel/parser': 7.22.5
+      '@babel/parser': 7.22.7
       '@babel/types': 7.22.5
     dev: true
 
@@ -4037,7 +4043,7 @@ packages:
   /@vue/reactivity-transform@3.3.4:
     resolution: {integrity: sha512-MXgwjako4nu5WFLAjpBnCj/ieqcjE2aJBINUNQzkZQfzIZA4xn+0fV1tIYBJvvva3N3OvKGofRLvQIwEQPpaXw==}
     dependencies:
-      '@babel/parser': 7.22.5
+      '@babel/parser': 7.22.7
       '@vue/compiler-core': 3.3.4
       '@vue/shared': 3.3.4
       estree-walker: 2.0.2
