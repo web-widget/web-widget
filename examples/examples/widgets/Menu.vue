@@ -4,10 +4,10 @@
       <a href="/">🏠</a>
     </li>
     <li>
-      <a href="/react-hello-world">React: Server component</a>
+      <a href="/react-server-component">React: Server component</a>
     </li>
     <li>
-      <a href="/vue-hello-world">Vue: Server component</a>
+      <a href="/vue-server-component">Vue: Server component</a>
     </li>
     <li>
       <a href="/dynamic-routes/@web-widget">Dynamic routes</a>

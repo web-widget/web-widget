@@ -1,6 +1,6 @@
-import type { Loader, RenderOptions } from "@web-widget/web-widget/server";
-import { renderToJson } from "@web-widget/web-widget/server";
-import { Suspense, createElement, lazy, useRef } from "react";
+import type { Loader, WebWidgetContainerProps } from "@web-widget/web-widget";
+import { parse } from "@web-widget/web-widget";
+import { Suspense, createElement, lazy } from "react";
 import type { ReactNode } from "react";
 
 export const __ENV__ = {
@@ -8,18 +8,22 @@ export const __ENV__ = {
 };
 
 export interface WebWidgetProps {
-  base?: RenderOptions["base"];
+  base?: WebWidgetContainerProps["base"];
   children /**/?: ReactNode;
-  data?: RenderOptions["data"];
-  import?: RenderOptions["import"];
+  data?: WebWidgetContainerProps["data"];
+  import?: WebWidgetContainerProps["import"];
   loader /**/ : Loader;
-  loading?: RenderOptions["loading"];
-  name?: RenderOptions["name"];
-  recovering: RenderOptions["recovering"];
-  renderTarget?: RenderOptions["renderTarget"];
+  loading?: WebWidgetContainerProps["loading"];
+  name?: WebWidgetContainerProps["name"];
+  recovering: WebWidgetContainerProps["recovering"];
+  renderTarget?: WebWidgetContainerProps["renderTarget"];
 }
 
-export function WebWidget({ children, loader, ...props }: WebWidgetProps) {
+export /*#__PURE__*/ function WebWidget({
+  children,
+  loader,
+  ...props
+}: WebWidgetProps) {
   if (props.recovering && !loader) {
     throw new TypeError(`Missing loader.`);
   }
@@ -28,60 +32,43 @@ export function WebWidget({ children, loader, ...props }: WebWidgetProps) {
     throw new TypeError(`No support children.`);
   }
 
-  if (__ENV__.server) {
-    return createElement(
-      lazy<any>(async () => {
-        const [tag, attrs, innerHTML] = await renderToJson(loader, {
-          ...props,
-          // TODO Render children
-          children: "",
-        });
-        return {
-          default: function WebWidgetContainer() {
-            return createElement(tag, {
-              ...attrs,
-              dangerouslySetInnerHTML: {
-                __html: innerHTML,
-              },
-            });
-          },
-        };
-      })
-    );
-  } else {
-    console.warn(`Client components are experimental.`);
-    return createElement(
-      lazy<any>(async () => {
-        await customElements.whenDefined("web-widget");
-        const element = Object.assign(
-          document.createElement("web-widget"),
-          props
-        );
+  return /*#__PURE__*/ createElement(
+    lazy<any>(async () => {
+      const [tag, attrs, innerHTML] = await parse(loader, {
+        ...props,
+        // TODO Render children
+        children: "",
+      });
+
+      if (!__ENV__.server) {
+        console.warn(`Client components are experimental.`);
+        await customElements.whenDefined(tag);
+        const element = Object.assign(document.createElement(tag), props);
         // @ts-ignore
         await element.bootstrap();
+      }
 
-        return {
-          default: function WebWidgetContainer() {
-            const element = useRef(null);
-            return createElement("web-widget", {
-              ...props, // TODO 检查 React 是否正确处理了 Boolean 类型
-              ref: element,
-              dangerouslySetInnerHTML: { __html: "" },
-            });
-          },
-        };
-      })
-    );
-  }
+      return {
+        default: /*#__PURE__*/ function WebWidgetContainer() {
+          return createElement(tag, {
+            ...attrs,
+            dangerouslySetInnerHTML: {
+              __html: innerHTML,
+            },
+          });
+        },
+      };
+    })
+  );
 }
 
 export interface DefineWebWidgetOptions {
-  base?: string;
-  import?: string;
-  loading?: string;
-  name?: string;
-  recovering?: boolean;
-  renderTarget?: "light" | "shadow";
+  base?: WebWidgetContainerProps["base"];
+  import?: WebWidgetContainerProps["import"];
+  loading?: WebWidgetContainerProps["loading"];
+  name?: WebWidgetContainerProps["name"];
+  recovering?: WebWidgetContainerProps["recovering"];
+  renderTarget?: WebWidgetContainerProps["renderTarget"];
 }
 
 export interface WebWidgetSuspenseProps {
@@ -90,7 +77,7 @@ export interface WebWidgetSuspenseProps {
   fallback?: ReactNode;
 }
 
-export function defineWebWidget(
+export /*#__PURE__*/ function defineWebWidget(
   loader: Loader,
   options: DefineWebWidgetOptions
 ) {

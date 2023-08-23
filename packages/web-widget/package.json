@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/web-widget",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-alpha.6",
   "description": "Web front-end application container",
   "author": "aui",
   "homepage": "https://github.com/web-widget/web-widget#readme",
@@ -15,6 +15,23 @@
   "type": "module",
   "exports": {
     ".": {
+      "worker": {
+        "types": "./dist/web-widget.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/web-widget.server.js"
+      },
+      "browser": {
+        "types": "./dist/web-widget.client.d.ts",
+        "development": "./src/client.ts",
+        "default": "./dist/web-widget.client.js"
+      },
+      "default": {
+        "types": "./dist/web-widget.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/web-widget.server.js"
+      }
+    },
+    "./client": {
       "types": "./dist/web-widget.client.d.ts",
       "development": "./src/client.ts",
       "default": "./dist/web-widget.client.js"
@@ -54,6 +71,20 @@
     "access": "public",
     "exports": {
       ".": {
+        "worker": {
+          "types": "./dist/web-widget.server.d.ts",
+          "default": "./dist/web-widget.server.js"
+        },
+        "browser": {
+          "types": "./dist/web-widget.client.d.ts",
+          "default": "./dist/web-widget.client.js"
+        },
+        "default": {
+          "types": "./dist/web-widget.server.d.ts",
+          "default": "./dist/web-widget.server.js"
+        }
+      },
+      "./client": {
         "types": "./dist/web-widget.client.d.ts",
         "default": "./dist/web-widget.client.js"
       },

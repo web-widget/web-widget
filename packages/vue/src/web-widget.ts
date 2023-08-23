@@ -1,5 +1,5 @@
-import type { Loader, RenderOptions } from "@web-widget/web-widget/server";
-import { renderToJson } from "@web-widget/web-widget/server";
+import type { Loader, WebWidgetContainerProps } from "@web-widget/web-widget";
+import { parse } from "@web-widget/web-widget";
 import { h, defineComponent, Suspense } from "vue";
 import type { VNode, PropType } from "vue";
 
@@ -11,30 +11,30 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
   name: "WebWidget",
   props: {
     base: {
-      type: String,
+      type: String as PropType<WebWidgetContainerProps["base"]>,
     },
     data: {
-      type: Object as PropType<RenderOptions["data"]>,
+      type: Object as PropType<WebWidgetContainerProps["data"]>,
       default: {},
     },
     import: {
-      type: String,
+      type: String as PropType<WebWidgetContainerProps["import"]>,
     },
     loader /**/: {
       type: Function as PropType<Loader>,
       required: true,
     },
     loading: {
-      type: String,
+      type: String as PropType<WebWidgetContainerProps["loading"]>,
     },
     name: {
-      type: String,
+      type: String as PropType<WebWidgetContainerProps["name"]>,
     },
     recovering: {
-      type: Boolean,
+      type: Boolean as PropType<WebWidgetContainerProps["recovering"]>,
     },
     renderTarget: {
-      type: String as PropType<"light" | "shadow">,
+      type: String as PropType<WebWidgetContainerProps["renderTarget"]>,
       default: "light",
     },
   },
@@ -50,46 +50,37 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
     // TODO Render slot.default
     const children = "";
 
-    if (__ENV__.server) {
-      const [tag, attrs, innerHTML] = await renderToJson(loader as Loader, {
-        ...props,
-        children,
-      });
-      return () =>
-        h(tag, {
-          ...attrs,
-          innerHTML,
-        });
-    } else {
-      console.warn(`Client components are experimental.`);
+    const [tag, attrs, innerHTML] = await parse(loader as Loader, {
+      ...props,
+      children,
+    });
 
-      await customElements.whenDefined("web-widget");
-      const element = Object.assign(
-        document.createElement("web-widget"),
-        props
-      );
+    if (!__ENV__.server) {
+      console.warn(`Client components are experimental.`);
+      await customElements.whenDefined(tag);
+      const element = Object.assign(document.createElement(tag), props);
       // @ts-ignore
       await element.bootstrap();
-
-      return () =>
-        h("web-widget", {
-          ...props, // TODO 检查 Vue 是否正确处理了 Boolean 类型
-          innerHTML: children,
-        });
     }
+
+    return () =>
+      h(tag, {
+        ...attrs,
+        innerHTML,
+      });
   },
 });
 
 export interface DefineWebWidgetOptions {
-  base?: string;
-  import?: string;
-  loading?: string;
-  name?: string;
-  recovering?: boolean;
-  renderTarget?: "light" | "shadow";
+  base?: WebWidgetContainerProps["base"];
+  import?: WebWidgetContainerProps["import"];
+  loading?: WebWidgetContainerProps["loading"];
+  name?: WebWidgetContainerProps["name"];
+  recovering?: WebWidgetContainerProps["recovering"];
+  renderTarget?: WebWidgetContainerProps["renderTarget"];
 }
 
-export function defineWebWidget(
+export /*#__PURE__*/ function defineWebWidget(
   loader: Loader,
   options: DefineWebWidgetOptions
 ) {
@@ -117,7 +108,7 @@ export function defineWebWidget(
               {
                 ...options,
                 loader,
-                data: data as RenderOptions["data"],
+                data: data as WebWidgetContainerProps["data"],
                 recovering: !clientOnly,
               },
               slots

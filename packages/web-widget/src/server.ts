@@ -1,42 +1,24 @@
 import type {
   ServerWidgetModule,
-  WidgetModule,
   WidgetRenderContext,
 } from "@web-widget/schema";
+import type { Loader, WebWidgetContainerProps } from "./types";
 import { rebaseMeta } from "@web-widget/schema/helpers";
-
-type JSONValue =
-  | string
-  | number
-  | boolean
-  | { [x: string]: JSONValue }
-  | Array<JSONValue>;
-
-type JSONProps = { [x: string]: JSONValue };
-
-const ASSET_PLACEHOLDER = "asset://";
-const MODULE_REG =
-  /\b(?:import|__vite_ssr_dynamic_import__)\(["']([^"']*)["']\)/;
-
-function getFilename(loader: Loader) {
-  const match = String(loader).match(MODULE_REG);
-  const id = match?.[1];
-  if (!id) {
-    throw new Error(`The url for the module was not found: ${loader}`);
-  }
-  return id;
-}
+import {
+  getClientModuleId,
+  getDisplayModuleId,
+  unsafePropsToAttrs,
+} from "./utils/render";
+export type * from "./types";
 
 // async function readableStreamToString(
 //   readableStream: ReadableStream
 // ) {
 //   let result = "";
 //   const textDecoder = new TextDecoder();
-
 //   for await (const chunk of readableStream) {
 //     result += textDecoder.decode(chunk, { stream: true });
 //   }
-
 //   return result;
 // }
 
@@ -72,82 +54,52 @@ function unsafeAttrsToHtml(attrs: Record<string, string>) {
     .join(" ");
 }
 
-function unsafePropsToAttrs(props: any) {
-  return Object.entries(props).reduce(
-    (attrs, [key, value]) => {
-      if (typeof value === "string") {
-        attrs[key.toLowerCase()] = value;
-      } else if (typeof value === "number") {
-        attrs[key.toLowerCase()] = String(value);
-      } else if (value === true) {
-        attrs[key.toLowerCase()] = "";
-      }
-      return attrs;
-    },
-    {} as Record<string, string>
-  );
-}
-
-export type Loader = () => Promise<WidgetModule>;
-
-export interface RenderOptions {
-  base?: string;
-  children /**/?: string;
-  data?: JSONProps;
-  import?: string;
-  loading?: string;
-  name?: string;
-  recovering?: boolean;
-  renderTarget?: "light" | "shadow";
-}
-
-// export async function renderToReadableStream() {}
-
-export async function renderToJson(
+export /*#__PURE__*/ async function parse(
   loader: Loader,
-  { children = "", ...props }: RenderOptions
+  { children = "", ...props }: WebWidgetContainerProps
 ): Promise<[tag: string, attrs: Record<string, string>, children: string]> {
-  const module = (await loader()) as ServerWidgetModule;
-  const clientImport =
-    props.import && !props.import.startsWith(ASSET_PLACEHOLDER)
-      ? props.import
-      : getFilename(loader);
-
-  if (typeof module.render !== "function") {
-    const url = getFilename(loader);
-    throw new Error(`The module does not export a 'render' method: ${url}`);
-  }
-
   if (children && props.renderTarget !== "shadow") {
     throw new Error(
-      `"options.children" require "options.renderTarget = 'shadow'".`
+      `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
     );
   }
 
-  const meta = rebaseMeta(module.meta ?? {}, clientImport);
-  const context: WidgetRenderContext = {
-    // children, /* NOTE: has been consumed.*/
-    data: props.data,
-    meta,
-    module,
-  };
-  const rawResult = await module.render(context);
   let result = "";
+  const clientImport = getClientModuleId(loader, props);
 
-  if (rawResult instanceof ReadableStream) {
-    result = await readableStreamToString(rawResult);
-  } else if (typeof rawResult === "string") {
-    result = rawResult;
-  } else {
-    const url = getFilename(loader);
-    throw new Error(`Render results in an unknown format: ${url}`);
+  if (props.recovering) {
+    const module = (await loader()) as ServerWidgetModule;
+    if (typeof module.render !== "function") {
+      throw new TypeError(
+        `The module does not export a "render" method: ${getDisplayModuleId(
+          loader,
+          props
+        )}`
+      );
+    }
+
+    const meta = rebaseMeta(module.meta ?? {}, clientImport);
+    const context: WidgetRenderContext = {
+      // children, /* NOTE: has been consumed.*/
+      data: props.data,
+      meta,
+      module,
+    };
+    const rawResult = await module.render(context);
+
+    if (rawResult instanceof ReadableStream) {
+      result = await readableStreamToString(rawResult);
+    } else if (typeof rawResult === "string") {
+      result = rawResult;
+    } else {
+      throw new TypeError(
+        `Render results in an unknown format: ${getDisplayModuleId(
+          loader,
+          props
+        )}`
+      );
+    }
   }
-
-  const attrs = unsafePropsToAttrs({
-    ...props,
-    data: JSON.stringify(props.data),
-    import: clientImport,
-  });
 
   if (props.renderTarget === "shadow") {
     /* @stringify >>> */
@@ -167,11 +119,23 @@ export async function renderToJson(
       `<script>${shimCode}</script>`;
   }
 
+  const attrs = unsafePropsToAttrs({
+    ...props,
+    base: props.base?.startsWith("file://") ? undefined : props.base,
+    data: JSON.stringify(props.data),
+    import: clientImport,
+  });
+
   return ["web-widget", attrs, result];
 }
 
-export async function renderToString(loader: Loader, options: RenderOptions) {
-  const [tag, attrs, children] = await renderToJson(loader, options);
+export /*#__PURE__*/ async function renderToString(
+  loader: Loader,
+  options: WebWidgetContainerProps
+) {
+  const [tag, attrs, children] = await parse(loader, options);
 
-  return `<${tag} ${unsafeAttrsToHtml(attrs)}>${children}</tag>`;
+  return `<${tag} ${unsafeAttrsToHtml(attrs)}>${children}</${tag}>`;
 }
+
+// TODO export async function renderToReadableStream() {}

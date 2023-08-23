@@ -28,13 +28,23 @@ interface CounterProps {
   start: number;
 }
 
+function compressHTML(html: string) {
+  // 去除注释
+  html = html.replace(/<!--[\s\S]*?-->/g, "");
+  // 去除多余空白
+  html = html.replace(/\s+/g, " ");
+  // 去除标签之间空格
+  html = html.replace(/>\s+</g, "><");
+  return html.trim();
+}
+
 export default function CounterVanilla(props: CounterProps) {
   if (import.meta.env.SSR) {
-    return `
+    return compressHTML(`
     <div class="counter" data-root title="${props.name}">
       <button data-action="-">-1</button>
       <button class="count" data-count>${props.start}</button>
       <button data-action="+">+1</button>
-    </div>`;
+    </div>`);
   }
 }
