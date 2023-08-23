@@ -6,39 +6,6 @@ import { renderMetaToString } from "@web-widget/schema/server-helpers";
 
 export { render };
 
-// const declarativeShadowDomShim = html`<script id="shim:declarative-shadow-dom">
-//   (function attachShadowRoots(root) {
-//     root.querySelectorAll("template[shadowroot]").forEach((template) => {
-//       const mode = template.getAttribute("shadowroot");
-//       const host = template.parentNode;
-//       const shadowRoot = template.parentNode.attachShadow({
-//         mode,
-//       });
-//       const attachInternals = host.attachInternals;
-//       const attachShadow = host.attachShadow;
-
-//       Object.assign(host, {
-//         attachShadow() {
-//           shadowRoot.innerHTML = "";
-//           return shadowRoot;
-//         },
-//         attachInternals() {
-//           const ei = attachInternals
-//             ? attachInternals.call(this, arguments)
-//             : {};
-//           return Object.create(ei, {
-//             shadowRoot: { value: shadowRoot },
-//           });
-//         },
-//       });
-
-//       shadowRoot.appendChild(template.content);
-//       template.remove();
-//       attachShadowRoots(shadowRoot);
-//     });
-//   })(document);
-// </script>`;
-
 const importShimLoader = html`<script id="shim:es-module">
   if (!HTMLScriptElement.supports || !HTMLScriptElement.supports("importmap")) {
     function importShim() {
@@ -65,7 +32,7 @@ const importShimLoader = html`<script id="shim:es-module">
           })
         );
       });
-      
+
       return promise.then((importShim) => importShim(...arguments));
     }
     importShim.$proxy = true;
@@ -81,13 +48,13 @@ export default function DefaultRootLayout({
   return html`<!doctype html>
     <html lang="${meta.lang}">
       <head>
-        ${unsafeHTML(renderMetaToString(meta))}
-        ${importShimLoader}
+        ${unsafeHTML(renderMetaToString(meta))} ${importShimLoader}
       </head>
       <body>
-        ${children instanceof ReadableStream ? unsafeStreamToHTML(children) : children}
-        ${unsafeHTML(renderMetaToString({ script: bootstrap })
-        )}
+        ${children instanceof ReadableStream
+          ? unsafeStreamToHTML(children)
+          : children}
+        ${unsafeHTML(renderMetaToString({ script: bootstrap }))}
       </body>
     </html>`;
 }

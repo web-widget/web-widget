@@ -2,11 +2,17 @@ import type { LinkDescriptor, ScriptDescriptor } from "@web-widget/schema";
 import * as esModuleLexer from "es-module-lexer";
 import type { Manifest as ViteManifest, Plugin as VitePlugin } from "vite";
 import { extname, relative } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import mime from "mime-types";
 import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import MagicString from "magic-string";
 import { resolve } from "import-meta-resolve";
+
+const WEB_WIDGET = "@web-widget/web-widget";
+const WEB_WIDGET_CLIENT = "@web-widget/web-widget/client";
+const WEB_WIDGET_CLIENT_MODULE_ID = fileURLToPath(
+  resolve(WEB_WIDGET_CLIENT, import.meta.url)
+);
 
 export type AppendWebWidgetMetaPluginOptions = {
   manifest: ViteManifest;
@@ -21,7 +27,6 @@ export function appendWebWidgetMetaPlugin({
 }: AppendWebWidgetMetaPluginOptions): VitePlugin {
   let root: string;
   let base: string;
-  const CLIENT_MODULE_NAME = "@web-widget/web-widget";
   const RESOLVE_URL_REG = /^(?:\w+:)?\//;
   const filter = createFilter(include, exclude);
   const rebase = (src: string, importer: string) => {
@@ -41,32 +46,24 @@ export function appendWebWidgetMetaPlugin({
         return null;
       }
 
-      const webWidgetResolvedId = fileURLToPath(
-        resolve(CLIENT_MODULE_NAME, pathToFileURL(id).href)
-      );
-      const webWidgetFileName = webWidgetResolvedId
-        ? relative(root, webWidgetResolvedId)
-        : null;
+      const webWidgetFileName = relative(root, WEB_WIDGET_CLIENT_MODULE_ID);
       const magicString = new MagicString(code);
       const fileName = relative(root, id);
       const meta = {
-        script: webWidgetResolvedId
+        script: manifest[webWidgetFileName]
           ? [
               {
                 type: "importmap",
                 content: JSON.stringify({
                   imports: {
-                    [CLIENT_MODULE_NAME]: rebase(
-                      manifest[webWidgetFileName as string].file,
-                      id
-                    ),
+                    [WEB_WIDGET]: rebase(manifest[webWidgetFileName].file, id),
                   },
                 }),
               } as ScriptDescriptor,
             ]
           : [],
         link: [
-          ...(webWidgetResolvedId
+          ...(webWidgetFileName
             ? getLinks(manifest, webWidgetFileName as string, true)
             : []),
           ...getLinks(manifest, fileName, false),

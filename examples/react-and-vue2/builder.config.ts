@@ -25,9 +25,9 @@ export default defineConfig({
       // ----- Vue -----
       vue(),
       webWidgetPlugin({
-        provide: "@web-widget/vue",
+        provide: "@web-widget/vue2",
         toWebWidgets: {
-          include: ["routes/**/*.vue", "widgets/**/*.vue"],
+          include: /\/(routes|widgets)\/.*\.vue(\?.*\.(ts|js))?$/,
         },
       }),
     ],

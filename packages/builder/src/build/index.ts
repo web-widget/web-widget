@@ -20,10 +20,10 @@ import { replaceAssetPlugin } from "./replace-asset";
 
 const VITE_MANIFEST_NAME = "manifest.json";
 const VITE_SSR_MANIFEST_NAME = "ssr-manifest.json";
-const CLIENT_MODULE_NAME = "@web-widget/web-widget";
-const CLIENT_NAME = "web-widget";
-const CLIENT_ENTRY = fileURLToPath(
-  resolve(CLIENT_MODULE_NAME, import.meta.url)
+const WEB_WIDGET_FILE_NAME = "web-widget";
+const WEB_WIDGET_CLIENT = "@web-widget/web-widget/client";
+const WEB_WIDGET_CLIENT_MODULE_ID = fileURLToPath(
+  resolve(WEB_WIDGET_CLIENT, import.meta.url)
 );
 
 type EntryPoints = Record<string, string>;
@@ -57,7 +57,7 @@ async function bundle(config: BuilderConfig) {
     fileURLToPath(config.output.client)
   );
 
-  const viteClientManifest = await parseViteSdrManifest(
+  const viteSsrManifest = await parseViteSdrManifest(
     fileURLToPath(config.output.client)
   );
 
@@ -69,7 +69,7 @@ async function bundle(config: BuilderConfig) {
         entryPoints,
         true,
         viteManifest,
-        viteClientManifest
+        viteSsrManifest
       ).then(async (serverResult) => {
         await buildRouteMap(manifest, config, serverResult);
         return serverResult;
@@ -86,7 +86,7 @@ async function bundleWithVite(
   entryPoints: string[] | EntryPoints,
   isServer: boolean,
   viteManifest?: ViteManifest,
-  viteClientManifest?: Record<string, string[]>
+  viteSsrManifest?: Record<string, string[]>
 ) {
   const vite = mergeViteConfig(config.vite, {
     base: config.base,
@@ -111,7 +111,7 @@ async function bundleWithVite(
         }
       : undefined,
     plugins: [
-      //!isServer && removeEntryPlugin([CLIENT_ENTRY]),
+      //!isServer && removeEntryPlugin([WEB_WIDGET_CLIENT_MODULE_ID]),
       isServer && addESMPackagePlugin(config),
       isServer &&
         viteManifest &&
@@ -121,7 +121,7 @@ async function bundleWithVite(
         }),
       isServer &&
         viteManifest &&
-        replaceAssetPlugin({ manifest: viteClientManifest! }),
+        replaceAssetPlugin({ manifest: [viteSsrManifest!, viteManifest!] }),
     ],
     build: {
       ssr: isServer,
@@ -138,7 +138,7 @@ async function bundleWithVite(
       rollupOptions: {
         input: {
           ...entryPoints,
-          [CLIENT_NAME]: CLIENT_ENTRY,
+          [WEB_WIDGET_FILE_NAME]: WEB_WIDGET_CLIENT_MODULE_ID,
         },
         preserveEntrySignatures: "allow-extension",
         treeshake: true,
@@ -234,14 +234,18 @@ export async function buildRouteMap(
   output: RollupOutput
 ) {
   const imports: string[] = [];
-  function importModule(module: string) {
-    const fileId = join(dirname(fileURLToPath(config.input)), module);
+  function getImportModule(module: string) {
+    const moduleId = join(dirname(fileURLToPath(config.input)), module);
     const chunk = output.output.find(
-      (chunk) => chunk.type === "chunk" && chunk.facadeModuleId === fileId
+      (chunk) => chunk.type === "chunk" && chunk.facadeModuleId === moduleId
     );
 
     if (!chunk) {
-      throw new Error(`Module not found`);
+      throw new Error(
+        `Unable to build routemap.` +
+          ` Since "${module}" is not found in Rollup's output,` +
+          ` it is recommended to try renaming the file: ${moduleId}`
+      );
     }
 
     const source = "./" + chunk.fileName;
@@ -267,14 +271,14 @@ export async function buildRouteMap(
           // @ts-ignore
           manifest[key].push({
             ...mod,
-            module: importModule(mod.module),
+            module: getImportModule(mod.module),
           });
         });
       } else if (value.module) {
         // @ts-ignore
         manifest[key] = {
           ...value,
-          module: importModule(value.module),
+          module: getImportModule(value.module),
         };
       } else {
         // @ts-ignore

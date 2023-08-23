@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/web-widget",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-alpha.6",
   "description": "Web front-end application container",
   "author": "aui",
   "homepage": "https://github.com/web-widget/web-widget#readme",
@@ -15,9 +15,31 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/web-widget.d.ts",
-      "development": "./src/index.ts",
-      "default": "./dist/web-widget.js"
+      "worker": {
+        "types": "./dist/web-widget.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/web-widget.server.js"
+      },
+      "browser": {
+        "types": "./dist/web-widget.client.d.ts",
+        "development": "./src/client.ts",
+        "default": "./dist/web-widget.client.js"
+      },
+      "default": {
+        "types": "./dist/web-widget.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/web-widget.server.js"
+      }
+    },
+    "./client": {
+      "types": "./dist/web-widget.client.d.ts",
+      "development": "./src/client.ts",
+      "default": "./dist/web-widget.client.js"
+    },
+    "./server": {
+      "types": "./dist/web-widget.server.d.ts",
+      "development": "./src/server.ts",
+      "default": "./dist/web-widget.server.js"
     }
   },
   "files": [
@@ -29,7 +51,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "sideEffects": [
-    "./dist/web-widget.js"
+    "./dist/web-widget.client.js"
   ],
   "dependencies": {
     "@web-widget/schema": "workspace:*"
@@ -49,8 +71,26 @@
     "access": "public",
     "exports": {
       ".": {
-        "types": "./dist/web-widget.d.ts",
-        "default": "./dist/web-widget.js"
+        "worker": {
+          "types": "./dist/web-widget.server.d.ts",
+          "default": "./dist/web-widget.server.js"
+        },
+        "browser": {
+          "types": "./dist/web-widget.client.d.ts",
+          "default": "./dist/web-widget.client.js"
+        },
+        "default": {
+          "types": "./dist/web-widget.server.d.ts",
+          "default": "./dist/web-widget.server.js"
+        }
+      },
+      "./client": {
+        "types": "./dist/web-widget.client.d.ts",
+        "default": "./dist/web-widget.client.js"
+      },
+      "./server": {
+        "types": "./dist/web-widget.server.d.ts",
+        "default": "./dist/web-widget.server.js"
       }
     }
   }

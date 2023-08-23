@@ -23,7 +23,12 @@ export default defineConfig({
       webWidgetPlugin({
         provide: "@web-widget/vue",
         toWebWidgets: {
-          include: ["routes/**/*.vue", "widgets/**/*.vue"],
+          include: /\/(routes|widgets)\/.*\.vue(\?.*\.(ts|js))?$/,
+        },
+        toComponents: {
+          include: ["widgets/**/*"],
+          exclude: /.vue\?.*$/,
+          component: /.*\.vue(\?.*\.(ts|js))?$/,
         },
       }),
     ],

@@ -1,10 +1,16 @@
-import type { Plugin as VitePlugin } from "vite";
+import type { Plugin as VitePlugin, Manifest as ViteManifest } from "vite";
 import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import MagicString from "magic-string";
 
+type ViteSsrManifest = Record<string, string[]>;
+
 export type ReplaceAssetPluginOptions = {
   /** SSR Manifest */
-  manifest: Record<string, string[]>;
+  manifest:
+    | ViteManifest
+    | ViteSsrManifest
+    | [ViteManifest, ViteSsrManifest]
+    | [ViteSsrManifest, ViteManifest];
   include?: FilterPattern;
   exclude?: FilterPattern;
 };
@@ -21,6 +27,23 @@ export function replaceAssetPlugin({
   let base: string;
   const filter = createFilter(include, exclude);
   const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
+
+  const manifests = Array.isArray(manifest) ? manifest : [manifest];
+  const map: Map<string, string> = new Map();
+
+  manifests.forEach((manifest) => {
+    Object.entries(manifest).forEach(([fileName, value]) => {
+      if (value.file) {
+        map.set(fileName, value.file);
+      } else if (Array.isArray(value)) {
+        const file = value.find((item) => item.endsWith(".js"));
+        if (file) {
+          map.set(fileName, file.replace(/^\//, ""));
+        }
+      }
+    });
+  });
+
   return {
     name: "builder:replace-asset-placeholder",
     enforce: "post",
@@ -47,26 +70,22 @@ export function replaceAssetPlugin({
               return match;
             }
 
-            let assets = manifest[fileName];
+            let asset = map.get(fileName);
 
-            if (!assets) {
-              const extension = extensions.find(
-                (extension) => manifest[fileName + extension]
+            if (!asset) {
+              asset = extensions.find((extension) =>
+                map.get(fileName + extension)
               );
-              if (extension) {
-                assets = manifest[fileName + extension];
-              }
             }
 
-            let assetFile = assets?.find((item) => item.endsWith(".js"));
-            if (!assetFile) {
+            if (!asset) {
               pos = start;
               throw new TypeError(
                 `Asset not found in client build manifest: "${fileName}".`
               );
             }
-            assetFile = assetFile.replace(/^\//, "");
-            return quotation + base + assetFile + quotation;
+
+            return quotation + base + asset + quotation;
           }
         );
       } catch (error) {

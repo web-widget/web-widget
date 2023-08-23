@@ -5,8 +5,12 @@
       "module": "./routes/index.tsx"
     },
     {
-      "pathname": "/hello-world",
-      "module": "./routes/hello-world.tsx"
+      "pathname": "/react-server-component",
+      "module": "./routes/react-server-component.tsx"
+    },
+    {
+      "pathname": "/vue-server-component",
+      "module": "./routes/vue-server-component.vue"
     },
     {
       "pathname": "/adding-interactivity",

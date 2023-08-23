@@ -1,3 +1,4 @@
+import { __ENV__ } from "./web-widget";
 import type { App, Component } from "vue";
 import { createApp, createSSRApp } from "vue";
 import type {
@@ -16,6 +17,10 @@ export interface DefineVueRenderOptions {
     props: ComponentProps
   ) => void;
 }
+
+Reflect.defineProperty(__ENV__, "server", {
+  value: false,
+});
 
 export const defineVueRender = ({
   onCreatedApp = () => {},
