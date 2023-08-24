@@ -4,9 +4,7 @@ type _IntrinsicAttributes = IntrinsicAttributes;
 
 declare namespace JSX {
   interface IntrinsicAttributes extends _IntrinsicAttributes {
-    as?: "web-widget" | "web-widget:server" | "web-widget:client" | any;
-    clientOnly?: boolean;
-    loading?: "lazy" | any;
+    renderStage?: "server" | "client";
     fallback?: ReactNode;
   }
 }
@@ -14,7 +12,7 @@ declare namespace JSX {
 interface ReactWidgetComponent extends ComponentProps<any> {
   (props: {
     children?: ReactNode;
-    clientOnly?: boolean;
+    renderStage?: "server" | "client";
     fallback?: ReactNode;
   }): ReactNode;
 }

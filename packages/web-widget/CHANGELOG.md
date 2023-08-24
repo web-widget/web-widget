@@ -14,6 +14,7 @@
 - 删除 `fallback` 元素
 - 删除 `placeholder` 元素
 - 增加 `base` 设置，用于确定相对路径的 `import`
+- 删除 `type`
 
 # 1.0.0-beta.3
 

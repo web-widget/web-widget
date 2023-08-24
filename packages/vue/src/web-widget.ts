@@ -20,6 +20,9 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
     import: {
       type: String as PropType<WebWidgetContainerProps["import"]>,
     },
+    inactive: {
+      type: Boolean as PropType<WebWidgetContainerProps["inactive"]>,
+    },
     loader /**/: {
       type: Function as PropType<Loader>,
       required: true,
@@ -30,8 +33,8 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
     name: {
       type: String as PropType<WebWidgetContainerProps["name"]>,
     },
-    recovering: {
-      type: Boolean as PropType<WebWidgetContainerProps["recovering"]>,
+    renderStage: {
+      type: String as PropType<WebWidgetContainerProps["renderStage"]>,
     },
     renderTarget: {
       type: String as PropType<WebWidgetContainerProps["renderTarget"]>,
@@ -39,7 +42,7 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
     },
   },
   async setup({ loader, ...props }, { slots }) {
-    if (props.recovering && !loader) {
+    if (!loader) {
       throw new TypeError(`Missing loader.`);
     }
 
@@ -76,7 +79,7 @@ export interface DefineWebWidgetOptions {
   import?: WebWidgetContainerProps["import"];
   loading?: WebWidgetContainerProps["loading"];
   name?: WebWidgetContainerProps["name"];
-  recovering?: WebWidgetContainerProps["recovering"];
+  renderStage?: WebWidgetContainerProps["renderStage"];
   renderTarget?: WebWidgetContainerProps["renderTarget"];
 }
 
@@ -88,16 +91,15 @@ export /*#__PURE__*/ function defineWebWidget(
   return /*#__PURE__*/ defineComponent({
     name: "WebWidgetSuspense",
     props: {
-      clientOnly: {
-        type: Boolean,
-        default: !options.recovering,
+      renderStage: {
+        type: String as PropType<WebWidgetContainerProps["renderStage"]>,
+        default: options.renderStage,
       },
       fallback: {
-        type: Object,
-        required: false,
+        type: Object as PropType<VNode>,
       },
     },
-    setup({ clientOnly, fallback, ...data }, { slots }) {
+    setup({ renderStage, fallback, ...data }, { slots }) {
       return () =>
         h(
           Suspense,
@@ -107,13 +109,13 @@ export /*#__PURE__*/ function defineWebWidget(
               WebWidget,
               {
                 ...options,
-                loader,
                 data: data as WebWidgetContainerProps["data"],
-                recovering: !clientOnly,
+                loader,
+                renderStage,
               },
               slots
             ),
-            fallback: fallback as VNode,
+            fallback,
           }
         );
     },

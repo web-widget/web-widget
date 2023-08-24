@@ -7,17 +7,17 @@ export * from "./event";
 
 export /*#__PURE__*/ async function parse(
   loader: Loader,
-  { children = "", ...props }: WebWidgetContainerProps
+  { children = "", renderStage, ...props }: WebWidgetContainerProps
 ): Promise<[tag: string, attrs: Record<string, string>, children: string]> {
   if (children && props.renderTarget !== "shadow") {
     throw new Error(
-      `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
+      `Rendering content in a slot requires "renderTarget: 'shadow'".`
     );
   }
 
-  if (props.recovering) {
+  if (renderStage === "server") {
     console.warn(
-      `"options.recovering" usually comes from server-side rendering,` +
+      `"renderStage: 'server'" usually comes from server-side rendering,` +
         ` it doesn't make sense to enable it on the client side.`
     );
   }
@@ -30,6 +30,7 @@ export /*#__PURE__*/ async function parse(
     base: props.base?.startsWith("file://") ? undefined : props.base,
     data: JSON.stringify(props.data),
     import: clientImport,
+    recovering: false,
   });
 
   return ["web-widget", attrs, result];

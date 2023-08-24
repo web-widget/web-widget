@@ -35,8 +35,8 @@ export interface WebWidgetToComponentPluginOptions {
  *
  * import { defineWebWidget } from "@web-widget/react";
  * const MyComponent = defineWebWidget(() => import("../widgets/my-component.widget.jsx"), {
- *   import: "asset://widgets/my-component.widget.jsx",
- *   recovering: true
+ *   base: import.meta.url,
+ *   import: "asset://widgets/my-component.widget.jsx"
  * });
  * ...
  * <MyComponent title="My component" />
@@ -153,8 +153,6 @@ export function webWidgetToComponentPlugin({
             : `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
           const clientContainerOptions = {
             // import: dev ? base + asset : ASSET_PLACEHOLDER + asset,
-            recovering: ssr ? true : false,
-            renderTarget: "light",
           };
 
           const definerName = alias(inject);
@@ -164,7 +162,7 @@ export function webWidgetToComponentPlugin({
             )};\n` +
             `const ${componentName} = ${definerName}(() => import(${JSON.stringify(
               moduleName
-            )}), { base:import.meta.url,import: ${clientModuleExpression}, ${JSON.stringify(
+            )}), { base: import.meta.url, import: ${clientModuleExpression}, ${JSON.stringify(
               clientContainerOptions
             ).replaceAll(/^\{|\}$/g, "")} });\n`;
 

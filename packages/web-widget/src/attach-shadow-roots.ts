@@ -1,3 +1,4 @@
+/* @stringify >>> */
 export default `(${function attachShadowRoots(
   root: DocumentFragment | Document = document
 ) {
@@ -33,3 +34,4 @@ export default `(${function attachShadowRoots(
     attachShadowRoots(shadowRoot);
   });
 }})()`;
+/* @stringify <<< */

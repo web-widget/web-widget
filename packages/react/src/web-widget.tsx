@@ -12,10 +12,11 @@ export interface WebWidgetProps {
   children /**/?: ReactNode;
   data?: WebWidgetContainerProps["data"];
   import?: WebWidgetContainerProps["import"];
+  inactive?: WebWidgetContainerProps["inactive"];
   loader /**/ : Loader;
   loading?: WebWidgetContainerProps["loading"];
   name?: WebWidgetContainerProps["name"];
-  recovering: WebWidgetContainerProps["recovering"];
+  renderStage?: WebWidgetContainerProps["renderStage"];
   renderTarget?: WebWidgetContainerProps["renderTarget"];
 }
 
@@ -24,7 +25,7 @@ export /*#__PURE__*/ function WebWidget({
   loader,
   ...props
 }: WebWidgetProps) {
-  if (props.recovering && !loader) {
+  if (!loader) {
     throw new TypeError(`Missing loader.`);
   }
 
@@ -67,14 +68,14 @@ export interface DefineWebWidgetOptions {
   import?: WebWidgetContainerProps["import"];
   loading?: WebWidgetContainerProps["loading"];
   name?: WebWidgetContainerProps["name"];
-  recovering?: WebWidgetContainerProps["recovering"];
+  renderStage?: WebWidgetContainerProps["renderStage"];
   renderTarget?: WebWidgetContainerProps["renderTarget"];
 }
 
 export interface WebWidgetSuspenseProps {
   children?: ReactNode;
-  clientOnly?: boolean;
   fallback?: ReactNode;
+  renderStage?: WebWidgetContainerProps["renderStage"];
 }
 
 export /*#__PURE__*/ function defineWebWidget(
@@ -84,8 +85,8 @@ export /*#__PURE__*/ function defineWebWidget(
   options.renderTarget = "light"; // TODO shadow
   return function WebWidgetSuspense({
     children,
-    clientOnly = !options.recovering,
     fallback,
+    renderStage = options.renderStage,
     ...data
   }: WebWidgetSuspenseProps) {
     return createElement(Suspense, {
@@ -95,7 +96,7 @@ export /*#__PURE__*/ function defineWebWidget(
         children,
         data,
         loader,
-        recovering: !clientOnly,
+        renderStage,
       }),
     });
   };

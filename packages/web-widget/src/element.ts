@@ -32,8 +32,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #isFirstConnect = false;
 
-  #isMoveing = false;
-
   #timeouts = null;
 
   #status: string = status.INITIAL;
@@ -141,7 +139,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Whether the application is inactive
+   * Whether the module is inactive
    */
   get inactive(): boolean {
     return this.hasAttribute("inactive");
@@ -168,7 +166,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Indicates how the browser should load the application
+   * Indicates how the browser should load the module
    */
   get loading(): string {
     return this.getAttribute("loading") || "auto";
@@ -176,17 +174,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   set loading(value) {
     this.setAttribute("loading", value);
-  }
-
-  /**
-   * WidgetModule module type
-   */
-  get type(): string {
-    return this.getAttribute("type") || "module";
-  }
-
-  set type(value) {
-    this.setAttribute("type", value);
   }
 
   /**
@@ -247,7 +234,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Hook: Create the application's context
+   * Hook: Create the module's context
    */
   createContext(): WidgetRenderContext {
     let container: HTMLElement | ShadowRoot;
@@ -290,7 +277,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Hook: Create the application's render node
+   * Hook: Create the module's render node
    */
   createContainer(): HTMLElement | ShadowRoot {
     let container: HTMLElement | ShadowRoot | null = null;
@@ -330,15 +317,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Hook: Create Create the application's loader
+   * Hook: Create Create the module's loader
    */
   createLoader(): WidgetModuleLoader {
-    const { type } = this;
-
-    if (type !== "module") {
-      throw Error(`The module type is not supported: ${type}`);
-    }
-
     // @see https://github.com/WICG/import-maps#feature-detection
     const supportsImportMaps =
       HTMLScriptElement.supports && HTMLScriptElement.supports("importmap");
@@ -357,28 +338,28 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Trigger the loading of the application
+   * Trigger the loading of the module
    */
   async load(): Promise<void> {
     await this.#trigger("load");
   }
 
   /**
-   * Trigger the bootstrapping of the application
+   * Trigger the bootstrapping of the module
    */
   async bootstrap(): Promise<void> {
     await this.#trigger("bootstrap");
   }
 
   /**
-   * Trigger the mounting of the application
+   * Trigger the mounting of the module
    */
   async mount(): Promise<void> {
     await this.#trigger("mount");
   }
 
   /**
-   * Trigger the updating of the application
+   * Trigger the updating of the module
    */
   async update(context: object = {}): Promise<void> {
     if (
@@ -398,14 +379,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Trigger the unmounting of the application
+   * Trigger the unmounting of the module
    */
   async unmount(): Promise<void> {
     await this.#trigger("unmount");
   }
 
   /**
-   * Trigger the unloading of the application
+   * Trigger the unloading of the module
    */
   async unload(): Promise<void> {
     const context = this.context || {};
@@ -420,10 +401,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
     if (!this.#isFirstConnect) {
       this.#firstConnectedCallback();
       this.#isFirstConnect = true;
-    } else {
-      if (this.#isMoveing) {
-        // this.#movedCallback();
-      }
     }
   }
 
@@ -436,11 +413,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.#isMoveing = true;
     // disconnected
     queueMicrotask(() => {
       if (!this.isConnected) {
-        this.#isMoveing = false;
         this.destroyedCallback();
       }
     });
@@ -485,7 +460,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   #throwGlobalError(error: Error) {
     const applicationName =
       this.id || this.import || this.src || this.localName;
-    const prefix = `Web Widget application (${applicationName})`;
+    const prefix = `Web Widget module (${applicationName})`;
     if (typeof error !== "object") {
       error = new Error(error);
     }

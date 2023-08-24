@@ -56,7 +56,7 @@ function unsafeAttrsToHtml(attrs: Record<string, string>) {
 
 export /*#__PURE__*/ async function parse(
   loader: Loader,
-  { children = "", ...props }: WebWidgetContainerProps
+  { children = "", renderStage, ...props }: WebWidgetContainerProps
 ): Promise<[tag: string, attrs: Record<string, string>, children: string]> {
   if (children && props.renderTarget !== "shadow") {
     throw new Error(
@@ -67,7 +67,7 @@ export /*#__PURE__*/ async function parse(
   let result = "";
   const clientImport = getClientModuleId(loader, props);
 
-  if (props.recovering) {
+  if (renderStage !== "client") {
     const module = (await loader()) as ServerWidgetModule;
     if (typeof module.render !== "function") {
       throw new TypeError(
@@ -80,7 +80,7 @@ export /*#__PURE__*/ async function parse(
 
     const meta = rebaseMeta(module.meta ?? {}, clientImport);
     const context: WidgetRenderContext = {
-      // children, /* NOTE: has been consumed.*/
+      children: props.renderTarget === "light" ? children : undefined,
       data: props.data,
       meta,
       module,
@@ -109,14 +109,15 @@ export /*#__PURE__*/ async function parse(
       p = c && c.parentElement,
       _ = c && c.remove()
     ) => a && p && a(p)})(window.attachShadowRoots)`.replace(/\s/g, "");
-    /* <<< @stringify */
+    /* @stringify <<< */
 
     // NOTE: Declarative Shadow DOM
     // @see https://developer.chrome.com/articles/declarative-shadow-dom/
-    result =
-      `<template shadowrootmode="open">${result}</template>` +
-      children +
-      `<script>${shimCode}</script>`;
+    result = [
+      `<template shadowrootmode="open">${result}</template>`,
+      children,
+      `<script>${shimCode}</script>`,
+    ].join("");
   }
 
   const attrs = unsafePropsToAttrs({
@@ -124,6 +125,8 @@ export /*#__PURE__*/ async function parse(
     base: props.base?.startsWith("file://") ? undefined : props.base,
     data: JSON.stringify(props.data),
     import: clientImport,
+    inactive: props.inactive ?? renderStage === "server",
+    recovering: renderStage !== "client",
   });
 
   return ["web-widget", attrs, result];

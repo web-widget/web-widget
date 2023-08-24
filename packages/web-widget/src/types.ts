@@ -18,8 +18,9 @@ export interface WebWidgetContainerProps {
   children /**/?: string;
   data?: JSONProps;
   import?: string;
+  inactive?: boolean;
   loading?: string;
   name?: string;
-  recovering?: boolean;
+  renderStage /**/?: "server" | "client";
   renderTarget?: "light" | "shadow";
 }
