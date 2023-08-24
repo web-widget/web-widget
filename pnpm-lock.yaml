@@ -466,6 +466,9 @@ importers:
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../web-widget
       vue:
         specifier: ^2.7.14
         version: 2.7.14

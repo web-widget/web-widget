@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vue2",
-  "version": "0.0.8",
+  "version": "0.0.8-beta.0",
   "type": "module",
   "exports": {
     ".": {
@@ -25,7 +25,8 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@web-widget/schema": "workspace:*"
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/web-widget": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^2.7.14",
