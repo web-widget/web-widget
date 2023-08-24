@@ -1,4 +1,4 @@
-/* WidgetModule Lifecycles
+/* Client WidgetModule Lifecycle
       Start
         ▼
     ┌───┴──┐

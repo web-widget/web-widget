@@ -59,7 +59,7 @@ export interface ClientWidgetRenderContext<Data = unknown> {
 
   // -----------------------------------------------------
   /** The target element for component rendering. */
-  container: Element;
+  container: Element | DocumentFragment;
 
   /** The component resumes running on the client side. */
   recovering: boolean;
@@ -339,7 +339,7 @@ export interface ClientRouteRenderContext<
   // ... Client only ...
 
   /** The target element for component rendering. */
-  container: Element;
+  container: Element | DocumentFragment;
 
   /** The component resumes running on the client side. */
   recovering: boolean;

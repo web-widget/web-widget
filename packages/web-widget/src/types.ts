@@ -1,6 +1,5 @@
-import type { WidgetModule } from "@web-widget/schema";
-
-export type * from "./modules/types";
+import type { WidgetModule, Meta } from "@web-widget/schema/client-helpers";
+export * from "@web-widget/schema/client-helpers";
 
 type JSONValue =
   | string
@@ -13,13 +12,14 @@ type JSONProps = { [x: string]: JSONValue };
 
 export type Loader = () => Promise<WidgetModule>;
 
-export interface WebWidgetContainerProps {
+export interface WebWidgetContainerOptions {
   base?: string;
   children /**/?: string;
   data?: JSONProps;
   import?: string;
   inactive?: boolean;
   loading?: string;
+  meta?: Meta;
   name?: string;
   renderStage /**/?: "server" | "client";
   renderTarget?: "light" | "shadow";

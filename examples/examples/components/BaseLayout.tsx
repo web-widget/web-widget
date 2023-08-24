@@ -8,7 +8,7 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
     <>
       <div className="container">
         <aside>
-          <Menu />
+          <Menu renderStage="server" />
         </aside>
         <main>{children}</main>
       </div>

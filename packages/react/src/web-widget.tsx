@@ -1,4 +1,4 @@
-import type { Loader, WebWidgetContainerProps } from "@web-widget/web-widget";
+import type { Loader, WebWidgetContainerOptions } from "@web-widget/web-widget";
 import { parse } from "@web-widget/web-widget";
 import { Suspense, createElement, lazy } from "react";
 import type { ReactNode } from "react";
@@ -8,16 +8,17 @@ export const __ENV__ = {
 };
 
 export interface WebWidgetProps {
-  base?: WebWidgetContainerProps["base"];
+  base?: WebWidgetContainerOptions["base"];
   children /**/?: ReactNode;
-  data?: WebWidgetContainerProps["data"];
-  import?: WebWidgetContainerProps["import"];
-  inactive?: WebWidgetContainerProps["inactive"];
+  data?: WebWidgetContainerOptions["data"];
+  import?: WebWidgetContainerOptions["import"];
+  inactive?: WebWidgetContainerOptions["inactive"];
   loader /**/ : Loader;
-  loading?: WebWidgetContainerProps["loading"];
-  name?: WebWidgetContainerProps["name"];
-  renderStage?: WebWidgetContainerProps["renderStage"];
-  renderTarget?: WebWidgetContainerProps["renderTarget"];
+  meta?: WebWidgetContainerOptions["meta"];
+  loading?: WebWidgetContainerOptions["loading"];
+  name?: WebWidgetContainerOptions["name"];
+  renderStage?: WebWidgetContainerOptions["renderStage"];
+  renderTarget?: WebWidgetContainerOptions["renderTarget"];
 }
 
 export /*#__PURE__*/ function WebWidget({
@@ -64,18 +65,18 @@ export /*#__PURE__*/ function WebWidget({
 }
 
 export interface DefineWebWidgetOptions {
-  base?: WebWidgetContainerProps["base"];
-  import?: WebWidgetContainerProps["import"];
-  loading?: WebWidgetContainerProps["loading"];
-  name?: WebWidgetContainerProps["name"];
-  renderStage?: WebWidgetContainerProps["renderStage"];
-  renderTarget?: WebWidgetContainerProps["renderTarget"];
+  base?: WebWidgetContainerOptions["base"];
+  import?: WebWidgetContainerOptions["import"];
+  loading?: WebWidgetContainerOptions["loading"];
+  name?: WebWidgetContainerOptions["name"];
+  renderStage?: WebWidgetContainerOptions["renderStage"];
+  renderTarget?: WebWidgetContainerOptions["renderTarget"];
 }
 
 export interface WebWidgetSuspenseProps {
   children?: ReactNode;
   fallback?: ReactNode;
-  renderStage?: WebWidgetContainerProps["renderStage"];
+  renderStage?: WebWidgetContainerOptions["renderStage"];
 }
 
 export /*#__PURE__*/ function defineWebWidget(

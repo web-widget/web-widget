@@ -2,8 +2,12 @@ import type {
   ServerWidgetModule,
   WidgetRenderContext,
 } from "@web-widget/schema";
-import type { Loader, WebWidgetContainerProps } from "./types";
-import { rebaseMeta } from "@web-widget/schema/helpers";
+import type { Loader, WebWidgetContainerOptions } from "./types";
+import {
+  rebaseMeta,
+  mergeMeta,
+  renderMetaToString,
+} from "@web-widget/schema/helpers";
 import {
   getClientModuleId,
   getDisplayModuleId,
@@ -56,16 +60,16 @@ function unsafeAttrsToHtml(attrs: Record<string, string>) {
 
 export /*#__PURE__*/ async function parse(
   loader: Loader,
-  { children = "", renderStage, ...props }: WebWidgetContainerProps
+  { children = "", renderStage, ...options }: WebWidgetContainerOptions
 ): Promise<[tag: string, attrs: Record<string, string>, children: string]> {
-  if (children && props.renderTarget !== "shadow") {
+  if (children && options.renderTarget !== "shadow") {
     throw new Error(
       `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
     );
   }
 
   let result = "";
-  const clientImport = getClientModuleId(loader, props);
+  const clientImport = getClientModuleId(loader, options);
 
   if (renderStage !== "client") {
     const module = (await loader()) as ServerWidgetModule;
@@ -73,15 +77,29 @@ export /*#__PURE__*/ async function parse(
       throw new TypeError(
         `The module does not export a "render" method: ${getDisplayModuleId(
           loader,
-          props
+          options
         )}`
       );
     }
 
-    const meta = rebaseMeta(module.meta ?? {}, clientImport);
+    const meta = rebaseMeta(
+      mergeMeta(module.meta ?? {}, options.meta ?? {}),
+      clientImport
+    );
+
+    if (meta.script?.length) {
+      console.warn(`Script tags in meta will be ignored.`);
+    }
+
+    const styleLinks = meta.link
+      ? meta.link.filter(({ rel }) => rel === "stylesheet")
+      : [];
+    const styles = meta.style || [];
+    const hasStyle = styleLinks.length || styles.length;
+
     const context: WidgetRenderContext = {
-      children: props.renderTarget === "light" ? children : undefined,
-      data: props.data,
+      children: options.renderTarget === "light" ? children : undefined,
+      data: options.data,
       meta,
       module,
     };
@@ -95,13 +113,23 @@ export /*#__PURE__*/ async function parse(
       throw new TypeError(
         `Render results in an unknown format: ${getDisplayModuleId(
           loader,
-          props
+          options
         )}`
       );
     }
+
+    if (hasStyle) {
+      result = [
+        renderMetaToString({
+          link: styleLinks,
+          style: styles,
+        }),
+        `<web-widget:body>${result}</web-widget:body>`,
+      ].join("");
+    }
   }
 
-  if (props.renderTarget === "shadow") {
+  if (options.renderTarget === "shadow") {
     /* @stringify >>> */
     const shimCode = `(${(
       a: (target: Element) => void,
@@ -120,12 +148,21 @@ export /*#__PURE__*/ async function parse(
     ].join("");
   }
 
+  if (renderStage === "server") {
+    return [
+      "web-widget",
+      unsafePropsToAttrs({
+        name: options.name,
+      }),
+      result,
+    ];
+  }
+
   const attrs = unsafePropsToAttrs({
-    ...props,
-    base: props.base?.startsWith("file://") ? undefined : props.base,
-    data: JSON.stringify(props.data),
+    ...options,
+    base: options.base?.startsWith("file://") ? undefined : options.base,
+    data: JSON.stringify(options.data),
     import: clientImport,
-    inactive: props.inactive ?? renderStage === "server",
     recovering: renderStage !== "client",
   });
 
@@ -134,7 +171,7 @@ export /*#__PURE__*/ async function parse(
 
 export /*#__PURE__*/ async function renderToString(
   loader: Loader,
-  options: WebWidgetContainerProps
+  options: WebWidgetContainerOptions
 ) {
   const [tag, attrs, children] = await parse(loader, options);
 

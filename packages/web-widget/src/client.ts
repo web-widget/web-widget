@@ -1,4 +1,4 @@
-import type { Loader, WebWidgetContainerProps } from "./types";
+import type { Loader, WebWidgetContainerOptions } from "./types";
 import { getClientModuleId, unsafePropsToAttrs } from "./utils/render";
 
 export type * from "./types";
@@ -7,9 +7,9 @@ export * from "./event";
 
 export /*#__PURE__*/ async function parse(
   loader: Loader,
-  { children = "", renderStage, ...props }: WebWidgetContainerProps
+  { children = "", renderStage, ...options }: WebWidgetContainerOptions
 ): Promise<[tag: string, attrs: Record<string, string>, children: string]> {
-  if (children && props.renderTarget !== "shadow") {
+  if (children && options.renderTarget !== "shadow") {
     throw new Error(
       `Rendering content in a slot requires "renderTarget: 'shadow'".`
     );
@@ -23,12 +23,12 @@ export /*#__PURE__*/ async function parse(
   }
 
   let result = "";
-  const clientImport = getClientModuleId(loader, props);
+  const clientImport = getClientModuleId(loader, options);
 
   const attrs = unsafePropsToAttrs({
-    ...props,
-    base: props.base?.startsWith("file://") ? undefined : props.base,
-    data: JSON.stringify(props.data),
+    ...options,
+    base: options.base?.startsWith("file://") ? undefined : options.base,
+    data: JSON.stringify(options.data),
     import: clientImport,
     recovering: false,
   });

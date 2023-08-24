@@ -2,6 +2,9 @@
 
 # 当前
 
+此版本为破坏性升级。
+
+- 采用 [WidgetModule](https://github.com/web-widget/web-widget/tree/dev/packages/schema) 格式
 - `rendertarget` 更名为 `renderTarget`
 - `application` 更名为 `loader`
 - `properties` 更名为 `context`
@@ -15,6 +18,7 @@
 - 删除 `placeholder` 元素
 - 增加 `base` 设置，用于确定相对路径的 `import`
 - 删除 `type`
+- 删除 `src`
 
 # 1.0.0-beta.3
 

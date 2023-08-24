@@ -56,7 +56,9 @@ export const defineVueRender = ({
 
       async unmount() {
         app?.$destroy();
-        context.container.innerHTML = "";
+        if (context.container instanceof Element) {
+          context.container.innerHTML = "";
+        }
         app = null;
       },
     };
