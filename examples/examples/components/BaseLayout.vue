@@ -5,7 +5,7 @@ import Menu from "../widgets/Menu.vue";
 <template>
     <div class="container">
     <aside>
-      <Menu />
+      <Menu renderStage="server" />
     </aside>
     <main><slot></slot></main>
   </div>

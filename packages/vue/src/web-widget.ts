@@ -1,4 +1,4 @@
-import type { Loader, WebWidgetContainerProps } from "@web-widget/web-widget";
+import type { Loader, WebWidgetContainerOptions } from "@web-widget/web-widget";
 import { parse } from "@web-widget/web-widget";
 import { h, defineComponent, Suspense } from "vue";
 import type { VNode, PropType } from "vue";
@@ -11,35 +11,43 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
   name: "WebWidget",
   props: {
     base: {
-      type: String as PropType<WebWidgetContainerProps["base"]>,
+      type: String as PropType<WebWidgetContainerOptions["base"]>,
     },
     data: {
-      type: Object as PropType<WebWidgetContainerProps["data"]>,
+      type: Object as PropType<WebWidgetContainerOptions["data"]>,
       default: {},
     },
     import: {
-      type: String as PropType<WebWidgetContainerProps["import"]>,
+      type: String as PropType<WebWidgetContainerOptions["import"]>,
+    },
+    inactive: {
+      type: Boolean as PropType<WebWidgetContainerOptions["inactive"]>,
+      // NOTE: If the default value is not set, it will be false here.
+      default: undefined,
     },
     loader /**/: {
       type: Function as PropType<Loader>,
       required: true,
     },
     loading: {
-      type: String as PropType<WebWidgetContainerProps["loading"]>,
+      type: String as PropType<WebWidgetContainerOptions["loading"]>,
+    },
+    meta: {
+      type: Object as PropType<WebWidgetContainerOptions["meta"]>,
     },
     name: {
-      type: String as PropType<WebWidgetContainerProps["name"]>,
+      type: String as PropType<WebWidgetContainerOptions["name"]>,
     },
-    recovering: {
-      type: Boolean as PropType<WebWidgetContainerProps["recovering"]>,
+    renderStage: {
+      type: String as PropType<WebWidgetContainerOptions["renderStage"]>,
     },
     renderTarget: {
-      type: String as PropType<WebWidgetContainerProps["renderTarget"]>,
+      type: String as PropType<WebWidgetContainerOptions["renderTarget"]>,
       default: "light",
     },
   },
   async setup({ loader, ...props }, { slots }) {
-    if (props.recovering && !loader) {
+    if (!loader) {
       throw new TypeError(`Missing loader.`);
     }
 
@@ -72,12 +80,12 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
 });
 
 export interface DefineWebWidgetOptions {
-  base?: WebWidgetContainerProps["base"];
-  import?: WebWidgetContainerProps["import"];
-  loading?: WebWidgetContainerProps["loading"];
-  name?: WebWidgetContainerProps["name"];
-  recovering?: WebWidgetContainerProps["recovering"];
-  renderTarget?: WebWidgetContainerProps["renderTarget"];
+  base?: WebWidgetContainerOptions["base"];
+  import?: WebWidgetContainerOptions["import"];
+  loading?: WebWidgetContainerOptions["loading"];
+  name?: WebWidgetContainerOptions["name"];
+  renderStage?: WebWidgetContainerOptions["renderStage"];
+  renderTarget?: WebWidgetContainerOptions["renderTarget"];
 }
 
 export /*#__PURE__*/ function defineWebWidget(
@@ -88,16 +96,15 @@ export /*#__PURE__*/ function defineWebWidget(
   return /*#__PURE__*/ defineComponent({
     name: "WebWidgetSuspense",
     props: {
-      clientOnly: {
-        type: Boolean,
-        default: !options.recovering,
+      renderStage: {
+        type: String as PropType<WebWidgetContainerOptions["renderStage"]>,
+        default: options.renderStage,
       },
       fallback: {
-        type: Object,
-        required: false,
+        type: Object as PropType<VNode>,
       },
     },
-    setup({ clientOnly, fallback, ...data }, { slots }) {
+    setup({ fallback, renderStage, ...data }, { slots }) {
       return () =>
         h(
           Suspense,
@@ -107,13 +114,13 @@ export /*#__PURE__*/ function defineWebWidget(
               WebWidget,
               {
                 ...options,
+                data: data as WebWidgetContainerOptions["data"],
                 loader,
-                data: data as WebWidgetContainerProps["data"],
-                recovering: !clientOnly,
+                renderStage,
               },
               slots
             ),
-            fallback: fallback as VNode,
+            fallback,
           }
         );
     },

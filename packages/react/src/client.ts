@@ -34,7 +34,7 @@ export const render = defineRender(async (context, component, props) => {
         vnode = createElement(component, props as Attributes) as ReactNode;
       }
       if (recovering) {
-        root = hydrateRoot(container, vnode);
+        root = hydrateRoot(container as Element, vnode);
       } else {
         root = createRoot(container);
         root.render(vnode);

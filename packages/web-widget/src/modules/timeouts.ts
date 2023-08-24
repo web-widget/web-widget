@@ -1,6 +1,3 @@
-/* eslint-disable no-console */
-/* global setTimeout, console */
-
 export function reasonableTime(
   task: () => Promise<any>,
   timeout: number,
