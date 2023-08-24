@@ -114,6 +114,8 @@ export /*#__PURE__*/ function defineWebWidget(
   loader: Loader,
   options: DefineWebWidgetOptions
 ) {
+  console.warn(`defineWebWidget of vue2 is an experimental feature.`);
+
   options.renderTarget = "light"; // TODO shadow
   return /*#__PURE__*/ defineComponent({
     name: "WebWidgetSuspense",
