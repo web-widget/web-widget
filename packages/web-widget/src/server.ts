@@ -143,8 +143,8 @@ export /*#__PURE__*/ async function parse(
     // @see https://developer.chrome.com/articles/declarative-shadow-dom/
     result = [
       `<template shadowrootmode="open">${result}</template>`,
-      children,
       `<script>${shimCode}</script>`,
+      children,
     ].join("");
   }
 
