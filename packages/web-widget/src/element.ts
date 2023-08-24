@@ -1,12 +1,12 @@
-import * as status from "./applications/status";
+import * as status from "./modules/status";
 
 import type {
   WidgetModuleLoader,
   WidgetRenderContext,
-} from "./applications/types";
+} from "./modules/types";
 import { observe, unobserve } from "./utils/visible-observer";
 
-import { LifecycleController } from "./applications/controller";
+import { LifecycleController } from "./modules/controller";
 import { WebWidgetUpdateEvent } from "./event";
 import { queueMicrotask } from "./utils/queue-microtask";
 

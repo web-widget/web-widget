@@ -1,6 +1,6 @@
 import type { WidgetModule } from "@web-widget/schema";
 
-export type * from "./applications/types";
+export type * from "./modules/types";
 
 type JSONValue =
   | string
