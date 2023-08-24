@@ -20,7 +20,7 @@ export class LifecycleController {
   constructor(options: LifecycleControllerOptions) {
     this.#moduleLoader = options.moduleLoader;
     this.#contextLoader = options.contextLoader;
-    this.#lifecycles = Object.create(null);
+    this.#lifecycle = Object.create(null);
     this.#status = INITIAL;
     this.#statusChangeCallback = options.statusChangeCallback;
     this.#timeouts = options.timeouts;
@@ -30,7 +30,7 @@ export class LifecycleController {
 
   #contextLoader: (name: string) => WidgetRenderContext;
 
-  #lifecycles: WidgetRenderResult;
+  #lifecycle: WidgetRenderResult;
 
   #pending?: Promise<void> | null;
 
@@ -68,17 +68,17 @@ export class LifecycleController {
     }
 
     // @ts-ignore
-    if (rule.creator && !this.#lifecycles[name]) {
+    if (rule.creator && !this.#lifecycle[name]) {
       //@ts-ignore
-      this.#lifecycles[name] = async (context: WidgetRenderContext) => {
+      this.#lifecycle[name] = async (context: WidgetRenderContext) => {
         const application = await this.#moduleLoader();
-        const lifecycles: WidgetRenderResult = await render(
+        const lifecycle: WidgetRenderResult = await render(
           application,
           context
         );
 
         // @ts-ignore
-        Object.assign(this.#lifecycles, lifecycles || {});
+        Object.assign(this.#lifecycle, lifecycle || {});
       };
     }
 
@@ -96,7 +96,7 @@ export class LifecycleController {
     this.#setStatus(pending);
 
     //@ts-ignore
-    if (!this.#lifecycles[name]) {
+    if (!this.#lifecycle[name]) {
       this.#setStatus(fulfilled);
       return undefined;
     }
@@ -107,7 +107,7 @@ export class LifecycleController {
           module: await this.#moduleLoader(),
         });
         //@ts-ignore
-        return this.#lifecycles[name](renderContext);
+        return this.#lifecycle[name](renderContext);
       },
       timeout,
       bail,
