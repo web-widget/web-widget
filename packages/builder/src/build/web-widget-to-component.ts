@@ -147,13 +147,13 @@ export function webWidgetToComponentPlugin({
             : this.emitFile({
                 type: "chunk",
                 id: moduleId,
+                preserveSignature: "strict",
+                importer: id,
               });
           const clientModuleExpression = ssr
             ? JSON.stringify(clientModuleId)
             : `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
-          const clientContainerOptions = {
-            // import: dev ? base + asset : ASSET_PLACEHOLDER + asset,
-          };
+          const clientContainerOptions = {}; // TODO
 
           const definerName = alias(inject);
           const content =
