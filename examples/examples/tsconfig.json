@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "target": "ES2015",
-    "module": "ES2020",
+    "target": "ES2020",
+    "module": "esnext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "esModuleInterop": true,
     "allowJs": false,

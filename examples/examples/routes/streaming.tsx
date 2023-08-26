@@ -1,5 +1,6 @@
 import BaseLayout from "../components/BaseLayout";
-import WaitDemo from "../widgets/Wait";
+import ReactWaitDemo from "../widgets/Wait.jsx";
+import VueWaitDemo from "../widgets/Wait.vue";
 
 const Loading = (
   <div style={{ background: "#f3f3f3", padding: "20px" }}>Loading..</div>
@@ -17,15 +18,17 @@ export default async function Page() {
     <BaseLayout>
       <h1>Streaming</h1>
       {tips}
-      <WaitDemo fallback={Loading} id="demo:0" />
+      <VueWaitDemo fallback={Loading} id="demo:0" />
       <hr />
-      <WaitDemo fallback={Loading} id="demo:1" />
+      <VueWaitDemo fallback={Loading} id="demo:1" />
       <hr />
-      <WaitDemo fallback={Loading} id="demo:2" />
-      <footer>
-        <hr />
-        <p>Footer</p>
-      </footer>
+      <VueWaitDemo fallback={Loading} id="demo:2" />
+      <hr />
+      <ReactWaitDemo fallback={Loading} id="demo:3" />
+      <hr />
+      <ReactWaitDemo fallback={Loading} id="demo:4" />
+      <hr />
+      <ReactWaitDemo fallback={Loading} id="demo:5" />
     </BaseLayout>
   );
 }

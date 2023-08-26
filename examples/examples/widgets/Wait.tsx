@@ -8,8 +8,13 @@ const fetchData = async (timeout = random(900, 2900)) =>
 export default (async function Wait({ id }: { id: string }) {
   const data = (await fetchData()) as string;
   return (
-    <div style={{ background: "#f3f3f3", padding: "20px" }}>
-      {id}: {data}
+    <div
+      style={{
+        background: "linear-gradient(315deg,#42d392 25%,#0074a6)",
+        color: "#FFF",
+        padding: "20px",
+      }}>
+      React {id}: {data}
     </div>
   );
 } as unknown as React.FunctionComponent<any>);
