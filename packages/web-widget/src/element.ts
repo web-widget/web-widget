@@ -511,3 +511,12 @@ Object.assign(window, {
 });
 
 customElements.define("web-widget", HTMLWebWidgetElement);
+
+declare global {
+  interface Window {
+    HTMLWebWidgetElement: typeof HTMLWebWidgetElement;
+  }
+  interface HTMLElementTagNameMap {
+    "web-widget": HTMLWebWidgetElement;
+  }
+}
