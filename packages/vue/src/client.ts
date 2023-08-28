@@ -4,7 +4,7 @@ import { createApp, createSSRApp } from "vue";
 import { defineRender } from "@web-widget/schema/client-helpers";
 import type { DefineVueRenderOptions } from "./types";
 
-export * from "@web-widget/schema/server-helpers";
+export * from "@web-widget/schema/client-helpers";
 export * from "./web-widget";
 
 Reflect.defineProperty(__ENV__, "server", {
