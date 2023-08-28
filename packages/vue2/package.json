@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vue2",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "type": "module",
   "exports": {
     ".": {
@@ -11,7 +11,7 @@
       },
       "default": {
         "types": "./dist/vue2.server.d.ts",
-        "development": "./src/server.dev.ts",
+        "development": "./src/server.ts",
         "default": "./dist/vue2.server.js"
       }
     }
@@ -45,7 +45,6 @@
         },
         "default": {
           "types": "./dist/vue2.server.d.ts",
-          "development": "./dist/vue2.server.dev.js",
           "default": "./dist/vue2.server.js"
         }
       }

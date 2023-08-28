@@ -377,6 +377,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.0.2
         version: 4.0.2(vite@4.4.9)
+      '@web-widget/html':
+        specifier: workspace:*
+        version: link:../html
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
@@ -444,6 +447,9 @@ importers:
 
   packages/vue:
     dependencies:
+      '@web-widget/html':
+        specifier: workspace:*
+        version: link:../html
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema

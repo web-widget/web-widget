@@ -1,29 +1,14 @@
 import Vue from "vue";
-import type {
-  ComponentProps,
-  RenderContext,
-} from "@web-widget/schema/client-helpers";
 import { defineRender as defineRenderHelper } from "@web-widget/schema/client-helpers";
+import type { DefineVueRenderOptions } from "./types";
 
-export * from "./web-widget";
 export * from "@web-widget/schema/client-helpers";
-export interface DefineVueRenderOptions {
-  onBeforeCreateApp?: (
-    context: RenderContext,
-    component: Vue.Component,
-    props: ComponentProps
-  ) => any;
-  onCreatedApp?: (
-    app: Vue,
-    context: RenderContext,
-    component: Vue.Component,
-    props: ComponentProps
-  ) => void;
-}
+export * from "./web-widget";
 
 export const defineVueRender = ({
   onBeforeCreateApp = () => ({}),
   onCreatedApp = () => {},
+  onPrefetchData,
 }: DefineVueRenderOptions = {}) => {
   return defineRenderHelper(async (context, component, props) => {
     if (!context.container) {
@@ -31,25 +16,40 @@ export const defineVueRender = ({
     }
 
     let app: Vue | null;
-    const vNodeData: Vue.VNodeData = {
-      props: props as Record<string, any>,
-    };
+
     return {
       async mount() {
         const shell =
-          (context.recovering
-            ? context.container.querySelector("[data-vue2-shell]")
-            : null) ||
+          (context.recovering &&
+            context.container.querySelector("[webwidgetshell]")) ||
           context.container.appendChild(document.createElement("div"));
+        const state = context.recovering
+          ? (context.container.querySelector(
+              "[webwidgetstate]"
+            ) as HTMLScriptElement)
+          : null;
+        const stateContent =
+          context.recovering && state
+            ? JSON.parse(state.textContent as string)
+            : onPrefetchData
+            ? await onPrefetchData(context, component, props)
+            : undefined;
+        const mergedProps = stateContent
+          ? Object.assign({}, stateContent, props)
+          : props;
+
+        const vNodeData: Vue.VNodeData = {
+          props: mergedProps as Record<string, any>,
+        };
 
         app = new Vue({
           render(h) {
             return h(component, vNodeData);
           },
-          ...onBeforeCreateApp(context, component, props),
+          ...onBeforeCreateApp(context, component, mergedProps),
         });
 
-        onCreatedApp(app, context, component, props);
+        onCreatedApp(app, context, component, mergedProps);
 
         app.$mount(shell);
       },

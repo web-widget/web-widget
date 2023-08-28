@@ -1,4 +1,4 @@
-import type { Fallback, HTML } from "@worker-tools/html";
+import type { Fallback, HTML, UnsafeHTML } from "@worker-tools/html";
 import {
   asyncIterToStream,
   streamToAsyncIter,
@@ -14,18 +14,33 @@ export * from "./web-widget";
 export { unsafeHTML, fallback, html };
 export type { HTML, Fallback };
 
-export const unsafeStreamToHTML = (stream: ReadableStream) => {
+export const unsafeStreamToHTML = (
+  stream: ReadableStream
+): AsyncIterableIterator<UnsafeHTML> => {
   const textDecoder = new TextDecoder();
   return aMap(maybeStreamToAsyncIter(stream), (part) =>
     unsafeHTML(textDecoder.decode(part, { stream: true }))
   );
 };
 
-export const streamToHTML = (stream: ReadableStream) => {
+export const streamToHTML = (
+  stream: ReadableStream
+): AsyncIterableIterator<string> => {
   const textDecoder = new TextDecoder();
   return aMap(maybeStreamToAsyncIter(stream), (part) =>
     textDecoder.decode(part, { stream: true })
   );
+};
+
+export const HTMLToStream = (html: HTML): ReadableStream => {
+  if (supportNonBinaryTransformStreamsCache) {
+    const textEncoder = new TextEncoder();
+    return asyncIterToStream(
+      aMap(maybeStreamToAsyncIter(html), (x: string) => textEncoder.encode(x))
+    );
+  } else {
+    return maybeAsyncIterToStream(html).pipeThrough(new TextEncoderStream());
+  }
 };
 
 type ForAwaitable<T> = Iterable<T> | AsyncIterable<T>;
@@ -57,6 +72,7 @@ const supportNonBinaryTransformStreams = async () => {
     return false;
   }
 };
+supportNonBinaryTransformStreams();
 
 export const render = defineRender(async (context, component, props) => {
   let content: HTML;
@@ -74,13 +90,6 @@ export const render = defineRender(async (context, component, props) => {
     content = component(props);
   }
 
-  // stringStreamToByteStream
-  const textEncoder = new TextEncoder();
-  return (await supportNonBinaryTransformStreams())
-    ? asyncIterToStream(
-        aMap(maybeStreamToAsyncIter(content), (x: string) =>
-          textEncoder.encode(x)
-        )
-      )
-    : maybeAsyncIterToStream(content).pipeThrough(new TextEncoderStream());
+  await supportNonBinaryTransformStreams();
+  return HTMLToStream(content);
 });
