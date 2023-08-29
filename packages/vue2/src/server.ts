@@ -51,9 +51,9 @@ export const defineVueRender = ({
       ? htmlEscapeJsonString(JSON.stringify(state))
       : undefined;
     return [
-      `<div webwidgetshell>${content}</div>`,
+      `<web-widget.shell>${content}</web-widget.shell>`,
       stateStringify
-        ? `<script webwidgetstate type="application/json">${stateStringify}</script>`
+        ? `<script as="state" type="application/json">${stateStringify}</script>`
         : "",
     ].join("");
   });

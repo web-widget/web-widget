@@ -103,15 +103,14 @@ export class LifecycleController {
         const renderContext: WidgetRenderContext = Object.freeze({
           children: undefined, // TODO
           get container() {
+            const tag = "web-widget.body";
             return (
               body ??
               (body = hasStyle
                 ? context.recovering
-                  ? context.container.querySelector("web-widget:body") ??
+                  ? context.container.querySelector(tag.replace(".", "\\.")) ??
                     context.container
-                  : context.container.appendChild(
-                      document.createElement("web-widget:body")
-                    )
+                  : context.container.appendChild(document.createElement(tag))
                 : context.container)
             );
           },

@@ -24,13 +24,9 @@ export const defineVueRender = ({
 
     return {
       async mount() {
-        const shell =
-          (context.recovering &&
-            context.container.querySelector("[webwidgetshell]")) ||
-          context.container;
         const state = context.recovering
           ? (context.container.querySelector(
-              "[webwidgetstate]"
+              "script[as=state]"
             ) as HTMLScriptElement)
           : null;
         const stateContent =
@@ -39,6 +35,8 @@ export const defineVueRender = ({
             : onPrefetchData
             ? await onPrefetchData(context, component, props)
             : undefined;
+        state?.remove();
+
         const mergedProps = stateContent
           ? Object.assign({}, stateContent, props)
           : props;
@@ -50,7 +48,7 @@ export const defineVueRender = ({
         }
         onCreatedApp(app, context, component, mergedProps);
 
-        app.mount(shell);
+        app.mount(context.container);
       },
 
       async unmount() {
