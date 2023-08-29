@@ -39,7 +39,7 @@ export const defineVueRender = ({
         state?.remove();
 
         const mergedProps = stateContent
-          ? Object.assign({}, stateContent, props)
+          ? Object.assign(stateContent, props)
           : props;
 
         const vNodeData: Vue.VNodeData = {

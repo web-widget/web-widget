@@ -30,7 +30,7 @@ export const defineVueRender = ({
     const state = onPrefetchData
       ? await onPrefetchData(context, component, props)
       : undefined;
-    const mergedProps = state ? Object.assign({}, state, props) : props;
+    const mergedProps = state ? Object.assign(state, props) : props;
 
     const vNodeData: Vue.VNodeData = {
       props: mergedProps as Record<string, any>,
