@@ -26,10 +26,6 @@ export const defineReactRender = ({
     let root: Root | null;
     return {
       async mount() {
-        const shell =
-          (context.recovering &&
-            context.container.querySelector("[webwidgetshell]")) ||
-          context.container;
         const state = context.recovering
           ? (context.container.querySelector(
               "[webwidgetstate]"
@@ -41,6 +37,8 @@ export const defineReactRender = ({
             : onPrefetchData
             ? await onPrefetchData(context, component, props)
             : undefined;
+        state?.remove();
+
         const mergedProps = stateContent
           ? Object.assign({}, stateContent, props)
           : props;
@@ -60,9 +58,9 @@ export const defineReactRender = ({
         }
 
         if (recovering) {
-          root = hydrateRoot(shell as Element, vNode);
+          root = hydrateRoot(context.container as Element, vNode);
         } else {
-          root = createRoot(shell);
+          root = createRoot(context.container);
           root.render(vNode);
         }
       },

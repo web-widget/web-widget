@@ -51,7 +51,7 @@ export const defineReactRender = ({
     if (state) {
       return ReactDOMServer.renderToReadableStream(
         createElement(Fragment, null, [
-          createElement("div", { webwidgetshell: "" }, vNode),
+          vNode,
           createElement("script", {
             webwidgetstate: "",
             type: "application/json",
