@@ -107,10 +107,10 @@ export class LifecycleController {
               body ??
               (body = hasStyle
                 ? context.recovering
-                  ? context.container.querySelector("web-widget:body") ??
+                  ? context.container.querySelector("web-widget.body") ??
                     context.container
                   : context.container.appendChild(
-                      document.createElement("web-widget:body")
+                      document.createElement("web-widget.body")
                     )
                 : context.container)
             );

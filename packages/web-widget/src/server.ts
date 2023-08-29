@@ -124,7 +124,7 @@ export /*#__PURE__*/ async function parse(
           link: styleLinks,
           style: styles,
         }),
-        `<web-widget:body>${result}</web-widget:body>`,
+        `<web-widget.body>${result}</web-widget.body>`,
       ].join("");
     }
   }
