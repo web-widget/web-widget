@@ -22,7 +22,8 @@ export const defineVueRender = ({
         const shellTag = "web-widget.shell";
         // NOTE: The "$mount" method of vue2 will replace the container element.
         const shell =
-          (context.recovering && context.container.querySelector(shellTag)) ||
+          (context.recovering &&
+            context.container.querySelector(shellTag.replace(".", "\\."))) ||
           context.container.appendChild(document.createElement(shellTag));
         const state = context.recovering
           ? (context.container.querySelector(
