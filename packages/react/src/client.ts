@@ -40,7 +40,7 @@ export const defineReactRender = ({
         state?.remove();
 
         const mergedProps = stateContent
-          ? Object.assign({}, stateContent, props)
+          ? Object.assign(stateContent, props)
           : props;
 
         let vNode: ReactNode;
