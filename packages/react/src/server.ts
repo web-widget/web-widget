@@ -53,7 +53,7 @@ export const defineReactRender = ({
         createElement(Fragment, null, [
           vNode,
           createElement("script", {
-            webwidgetstate: "",
+            as: "state",
             type: "application/json",
             dangerouslySetInnerHTML: {
               __html: htmlEscapeJsonString(JSON.stringify(state)),

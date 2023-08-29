@@ -26,7 +26,7 @@ export const defineVueRender = ({
       async mount() {
         const state = context.recovering
           ? (context.container.querySelector(
-              "[webwidgetstate]"
+              "script[as=state]"
             ) as HTMLScriptElement)
           : null;
         const stateContent =

@@ -41,7 +41,7 @@ export const defineVueRender = ({
       const vNode = h(Fragment, null, [
         h(component, mergedProps as Record<string, any>),
         h("script", {
-          webwidgetstate: "",
+          as: "state",
           type: "application/json",
           innerHTML: stateStringify,
         }),

@@ -27,7 +27,7 @@ export const defineVueRender = ({
           context.container.appendChild(document.createElement(shellTag));
         const state = context.recovering
           ? (context.container.querySelector(
-              "[webwidgetstate]"
+              "script[as=state]"
             ) as HTMLScriptElement)
           : null;
         const stateContent =

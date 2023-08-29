@@ -53,7 +53,7 @@ export const defineVueRender = ({
     return [
       `<web-widget.shell>${content}</web-widget.shell>`,
       stateStringify
-        ? `<script webwidgetstate type="application/json">${stateStringify}</script>`
+        ? `<script as="state" type="application/json">${stateStringify}</script>`
         : "",
     ].join("");
   });
