@@ -149,12 +149,7 @@ function toWebRouterDevMiddleware(
         const source = new URL(id, importer);
         const module = {
           meta: {},
-          ...((await loader.import(
-            join(
-              config.base,
-              relative(fileURLToPath(config.root), fileURLToPath(source))
-            )
-          )) as RouteModule),
+          ...((await loader.import(fileURLToPath(source))) as RouteModule),
         };
 
         const meta = await getMeta(source, loader, config.root, "development");
