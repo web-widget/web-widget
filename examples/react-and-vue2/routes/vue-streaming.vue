@@ -12,7 +12,7 @@ const Loading = defineComponent({
 
 <template>
   <BaseLayout>
-    <h1>Vue: Streaming</h1>
+    <h1>Vue Route: Streaming</h1>
     <p v-if="dev" style="background: yellow">
       💡 This example needs to run `pnpm start`
     </p>
