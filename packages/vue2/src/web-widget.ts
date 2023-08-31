@@ -49,6 +49,8 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
     // -----
     fallback: {
       type: Object as PropType<Component>,
+      // NOTE: If the default value is not set, it will be false here.
+      default: undefined,
     },
   },
   setup({ fallback, loader, ...props }, { slots }) {
@@ -77,19 +79,16 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
           // @ts-ignore
           await element.bootstrap();
         }
-        return {
-          default: defineComponent({
-            //functional: true,
-            render(h) {
-              h(tag, {
-                attrs: attrs,
-                domProps: {
-                  innerHTML,
-                },
-              });
-            },
-          }),
-        };
+        return defineComponent({
+          render(h) {
+            return h(tag, {
+              attrs: attrs,
+              domProps: {
+                innerHTML,
+              },
+            });
+          },
+        });
       },
       delay: 200,
       timeout: 3000,
