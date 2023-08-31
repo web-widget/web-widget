@@ -11,10 +11,15 @@ export default defineConfig({
       webWidgetPlugin({
         provide: "@web-widget/react",
         toWebWidgets: {
-          include: ["routes/**/*.tsx", "widgets/**/*.tsx"],
+          include: [
+            "routes/**/*.tsx",
+            "widgets/**/*.tsx",
+            "**/*.route.tsx",
+            "**/*.widget.tsx",
+          ],
         },
         toComponents: {
-          include: ["widgets/**/*"],
+          include: ["widgets/**/*", "*.widget.*"],
           component: ["**/*.tsx"],
         },
       }),
@@ -23,10 +28,13 @@ export default defineConfig({
       webWidgetPlugin({
         provide: "@web-widget/vue",
         toWebWidgets: {
-          include: /\/(routes|widgets)\/.*\.vue(\?.*\.(ts|js))?$/,
+          include: [
+            /\b(routes|widgets).*\.vue(\?.*\.(ts|js))?$/,
+            /(\.route|widget).*\.vue(\?.*\.(ts|js))?$/,
+          ],
         },
         toComponents: {
-          include: ["widgets/**/*"],
+          include: ["widgets/**/*", "**/*.widget.*"],
           exclude: /.vue\?.*$/,
           component: /.*\.vue(\?.*\.(ts|js))?$/,
         },

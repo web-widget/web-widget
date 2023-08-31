@@ -140,7 +140,7 @@ async function bundleWithVite(
           ...entryPoints,
           [WEB_WIDGET_FILE_NAME]: WEB_WIDGET_CLIENT_MODULE_ID,
         },
-        preserveEntrySignatures: "allow-extension",
+        preserveEntrySignatures: "strict",
         treeshake: true,
         external: isServer ? (builtins as string[]) : [],
         output: isServer

@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vue",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "type": "module",
   "exports": {
     ".": {
@@ -30,6 +30,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
+    "@web-widget/html": "workspace:*",
     "@web-widget/schema": "workspace:*",
     "@web-widget/web-widget": "workspace:*"
   },

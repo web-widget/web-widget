@@ -1,11 +1,12 @@
 import type { ReactNode, ComponentProps } from "react";
 
-type _IntrinsicAttributes = IntrinsicAttributes;
-
-declare namespace JSX {
-  interface IntrinsicAttributes extends _IntrinsicAttributes {
-    renderStage?: "server" | "client";
-    fallback?: ReactNode;
+declare global {
+  declare namespace JSX {
+    interface IntrinsicAttributes {
+      key?: Key | null | undefined;
+      renderStage?: "server" | "client";
+      fallback?: ReactNode;
+    }
   }
 }
 
@@ -22,7 +23,7 @@ declare module "*.widget.jsx" {
   export default reactWidgetComponent;
 }
 
-declare module "*.widget.tsx" {
+declare module "*.route.tsx" {
   const reactWidgetComponent: ReactWidgetComponent;
   export default reactWidgetComponent;
 }

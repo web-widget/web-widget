@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/react",
-  "version": "0.0.7",
+  "version": "0.0.10",
   "type": "module",
   "exports": {
     ".": {
@@ -36,13 +36,9 @@
     "@babel/helper-module-imports": "^7.22.5",
     "@babel/helper-plugin-utils": "^7.22.5",
     "@babel/traverse": "^7.22.5",
+    "@web-widget/html": "workspace:*",
     "@web-widget/schema": "workspace:*",
     "@web-widget/web-widget": "workspace:*"
-  },
-  "peerDependencies": {
-    "@vitejs/plugin-react": "^4.0.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.1",
@@ -55,6 +51,11 @@
     "tsup": "^7.0.0",
     "typescript": "^5.0.4",
     "vite": "^4.4.9"
+  },
+  "peerDependencies": {
+    "@vitejs/plugin-react": "^4.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "publishConfig": {
     "access": "public",

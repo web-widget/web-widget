@@ -55,9 +55,3 @@
     </li>
   </ul>
 </template>
-
-<style scoped>
-  .menu {
-    color: cadetblue;
-  }
-</style>

@@ -1,22 +1,11 @@
 import { __ENV__ } from "./web-widget";
-import type { App, Component } from "vue";
+import type { App } from "vue";
 import { createApp, createSSRApp } from "vue";
-import type {
-  ComponentProps,
-  RenderContext,
-} from "@web-widget/schema/client-helpers";
 import { defineRender } from "@web-widget/schema/client-helpers";
+import type { DefineVueRenderOptions } from "./types";
 
-export * from "./web-widget";
 export * from "@web-widget/schema/client-helpers";
-export interface DefineVueRenderOptions {
-  onCreatedApp?: (
-    app: App,
-    context: RenderContext,
-    component: Component,
-    props: ComponentProps
-  ) => void;
-}
+export * from "./web-widget";
 
 Reflect.defineProperty(__ENV__, "server", {
   value: false,
@@ -24,6 +13,7 @@ Reflect.defineProperty(__ENV__, "server", {
 
 export const defineVueRender = ({
   onCreatedApp = () => {},
+  onPrefetchData,
 }: DefineVueRenderOptions = {}) => {
   return defineRender(async (context, component, props) => {
     if (!context.container) {
@@ -34,13 +24,30 @@ export const defineVueRender = ({
 
     return {
       async mount() {
-        const rootProps = props as Record<string, any>;
+        const state = context.recovering
+          ? (context.container.querySelector(
+              "script[as=state]"
+            ) as HTMLScriptElement)
+          : null;
+        const stateContent =
+          context.recovering && state
+            ? JSON.parse(state.textContent as string)
+            : onPrefetchData
+            ? await onPrefetchData(context, component, props)
+            : undefined;
+        state?.remove();
+
+        const mergedProps = stateContent
+          ? Object.assign(stateContent, props)
+          : props;
+
         if (context.recovering) {
-          app = createSSRApp(component, rootProps);
+          app = createSSRApp(component, mergedProps);
         } else {
-          app = createApp(component, rootProps);
+          app = createApp(component, mergedProps);
         }
-        onCreatedApp(app, context, component, props);
+        onCreatedApp(app, context, component, mergedProps);
+
         app.mount(context.container);
       },
 
