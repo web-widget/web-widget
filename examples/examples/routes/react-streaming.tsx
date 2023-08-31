@@ -16,7 +16,7 @@ export default async function Page() {
   );
   return (
     <BaseLayout>
-      <h1>Streaming</h1>
+      <h1>React: Streaming</h1>
       {tips}
       <VueWaitDemo fallback={Loading} id="demo:0" />
       <hr />

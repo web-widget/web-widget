@@ -11,7 +11,7 @@ export default function Counter(props: CounterProps) {
   return (
     <div className="counter" title={props.name}>
       <button onClick={() => setCount(count - 1)}>-1</button>
-      <button className="count">{count}</button>
+      <span className="count">{count}</span>
       <button onClick={() => setCount(count + 1)}>+1</button>
     </div>
   );

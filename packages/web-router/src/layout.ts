@@ -44,7 +44,6 @@ export default function DefaultRootLayout({
   children,
   bootstrap,
 }: RootLayoutComponentProps): HTML {
-  // eslint-disable-next-line prettier/prettier
   return html`<!doctype html>
     <html lang="${meta.lang}">
       <head>
@@ -53,7 +52,7 @@ export default function DefaultRootLayout({
       <body>
         ${children instanceof ReadableStream
           ? unsafeStreamToHTML(children)
-          : children}
+          : unsafeHTML(children)}
         ${unsafeHTML(renderMetaToString({ script: bootstrap }))}
       </body>
     </html>`;

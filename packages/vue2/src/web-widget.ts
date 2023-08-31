@@ -48,7 +48,7 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
 
     // -----
     fallback: {
-      type: Function as PropType<Component>,
+      type: Object as PropType<Component>,
     },
   },
   setup({ fallback, loader, ...props }, { slots }) {
@@ -79,7 +79,7 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
         }
         return {
           default: defineComponent({
-            functional: true,
+            //functional: true,
             render(h) {
               h(tag, {
                 attrs: attrs,
