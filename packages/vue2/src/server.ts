@@ -49,7 +49,6 @@ export const defineVueRender = ({
     if (state) {
       const stateStringify = htmlEscapeJsonString(JSON.stringify(state));
       render = (h) =>
-        // remove: data-server-rendered
         h(shellTag, shellTagVNodeData, [
           h(component, vNodeData),
           h(
@@ -74,10 +73,9 @@ export const defineVueRender = ({
 
     onCreatedApp(app, context, component, mergedProps);
 
-    // NOTE: Node.js Readable.toWeb doesn't seem to be implemented correctly.
     return Readable.toWeb
       ? Readable.toWeb(renderer.renderToStream(app))
-      : await renderer.renderToString(app);
+      : renderer.renderToString(app);
   });
 };
 
