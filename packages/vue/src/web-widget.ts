@@ -1,6 +1,6 @@
 import type { Loader, WebWidgetContainerOptions } from "@web-widget/web-widget";
 import { parse } from "@web-widget/web-widget";
-import { h, defineComponent, Suspense } from "vue";
+import { h, defineComponent, Suspense, useAttrs } from "vue";
 import type { VNode, PropType } from "vue";
 
 export const __ENV__ = {
@@ -104,7 +104,9 @@ export /*#__PURE__*/ function defineWebWidget(
         type: Object as PropType<VNode>,
       },
     },
-    setup({ fallback, renderStage, ...data }, { slots }) {
+    setup({ fallback, renderStage }, { slots }) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const data = useAttrs() as WebWidgetContainerOptions["data"];
       return () =>
         h(
           Suspense,
@@ -114,7 +116,7 @@ export /*#__PURE__*/ function defineWebWidget(
               WebWidget,
               {
                 ...options,
-                data: data as WebWidgetContainerOptions["data"],
+                data,
                 loader,
                 renderStage,
               },
