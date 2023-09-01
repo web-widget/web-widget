@@ -1,6 +1,8 @@
+import { defineRender } from "@web-widget/schema/server-helpers";
+import { Readable } from "node:stream";
+import type { CreateElement, VNode } from "vue";
 import Vue from "vue";
 import { createRenderer } from "vue-server-renderer";
-import { defineRender } from "@web-widget/schema/server-helpers";
 import type { DefineVueRenderOptions } from "./types";
 
 export * from "@web-widget/schema/server-helpers";
@@ -27,35 +29,53 @@ export const defineVueRender = ({
   onPrefetchData,
 }: DefineVueRenderOptions = {}) => {
   return defineRender(async (context, component, props) => {
+    const shellTag = "web-widget.shell";
     const state = onPrefetchData
       ? await onPrefetchData(context, component, props)
       : undefined;
     const mergedProps = state ? Object.assign(state, props) : props;
 
+    const renderer = createRenderer();
     const vNodeData: Vue.VNodeData = {
+      attrs: {
+        "data-vue2root": "true",
+      },
       props: mergedProps as Record<string, any>,
     };
-    const renderer = createRenderer();
+    const shellTagVNodeData = {};
+
+    let render: (h: CreateElement) => VNode;
+
+    if (state) {
+      const stateStringify = htmlEscapeJsonString(JSON.stringify(state));
+      render = (h) =>
+        h(shellTag, shellTagVNodeData, [
+          h(component, vNodeData),
+          h(
+            "script",
+            {
+              attrs: {
+                as: "state",
+                type: "application/json",
+              },
+            },
+            stateStringify
+          ),
+        ]);
+    } else {
+      render = (h) => h(shellTag, shellTagVNodeData, [h(component, vNodeData)]);
+    }
 
     const app = new Vue({
-      render(h) {
-        return h(component, vNodeData);
-      },
+      render,
       ...onBeforeCreateApp(context, component, mergedProps),
     });
 
     onCreatedApp(app, context, component, mergedProps);
 
-    const content = await renderer.renderToString(app);
-    const stateStringify = state
-      ? htmlEscapeJsonString(JSON.stringify(state))
-      : undefined;
-    return [
-      `<web-widget.shell>${content}</web-widget.shell>`,
-      stateStringify
-        ? `<script as="state" type="application/json">${stateStringify}</script>`
-        : "",
-    ].join("");
+    return Readable.toWeb
+      ? Readable.toWeb(renderer.renderToStream(app))
+      : renderer.renderToString(app);
   });
 };
 

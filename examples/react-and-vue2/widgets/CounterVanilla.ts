@@ -43,7 +43,7 @@ export default function CounterVanilla(props: CounterProps) {
     return compressHTML(`
     <div class="counter" data-root title="${props.name}">
       <button data-action="-">-1</button>
-      <button class="count" data-count>${props.start}</button>
+      <span class="count" data-count>${props.start}</span>
       <button data-action="+">+1</button>
     </div>`);
   }

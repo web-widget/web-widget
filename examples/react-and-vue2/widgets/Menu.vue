@@ -6,6 +6,11 @@
     <li>
       <a href="/client-only-component">Client only component</a>
     </li>
+    <li>
+      <a href="/vue-server-component">Vue: Server component</a>
+    </li>
+    <li><a href="/react-streaming">React: Streaming</a></li>
+    <li><a href="/vue-streaming">Vue: Streaming</a></li>
   </ul>
 </template>
 
