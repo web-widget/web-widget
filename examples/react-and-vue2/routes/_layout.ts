@@ -51,7 +51,7 @@ export default function RootLayout({
         ${importShimLoader}
       </head>
       <body>
-        ${children instanceof ReadableStream ? unsafeStreamToHTML(children) : unsafeHTML(children)}
+        ${typeof children === 'string' ? unsafeHTML(children) : unsafeStreamToHTML(children)}
         ${unsafeHTML(renderMetaToString({ script: bootstrap })
         )}
       </body>

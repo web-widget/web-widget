@@ -26,17 +26,18 @@
   },
   "dependencies": {
     "@web-widget/schema": "workspace:*",
-    "@web-widget/web-widget": "workspace:*"
+    "@web-widget/web-widget": "workspace:*",
+    "vue": "^2.7.14",
+    "vue-server-renderer": "^2.7.14"
   },
   "peerDependencies": {
     "vue": "^2.7.14",
     "vue-server-renderer": "^2.7.14"
   },
   "devDependencies": {
+    "@types/node": "^20.5.7",
     "tsup": "^7.0.0",
-    "typescript": "^5.0.4",
-    "vue": "^2.7.14",
-    "vue-server-renderer": "^2.7.14"
+    "typescript": "^5.0.4"
   },
   "publishConfig": {
     "access": "public",
