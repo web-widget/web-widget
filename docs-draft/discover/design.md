@@ -354,7 +354,7 @@ customElements.define('my-element', MyElment);
 <web-component.import as="slot-demo" src="./my-element.js"></web-component.import>
 
 <slot-demo>
-  <p slot="main">Hello Wrold</p>
+  <p slot="main">Hello World</p>
 </slot-demo>
 
 <script type="module">

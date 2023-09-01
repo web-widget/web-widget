@@ -1,14 +1,19 @@
 <script setup lang="ts">
+import { onServerPrefetch, ref } from "vue";
 defineProps(['id']);
 
 const random = (max: number, min: number) =>
   Math.floor(Math.random() * (max - min + 1) + min);
-const fetchData = async (timeout = random(900, 2900)) =>
+const fetchData = async (timeout = random(900, 2900)): Promise<string> =>
   await new Promise((resolve) =>
-    setTimeout(() => resolve(`Hello Wrold`), timeout)
+    setTimeout(() => resolve(`Hello World`), timeout)
   );
-// const data = (await fetchData()) as string;
-const data = fetchData();
+
+const data = ref('Hello World');
+onServerPrefetch(async () => {
+  data.value = await fetchData()
+});
+
 </script>
 
 <template>
