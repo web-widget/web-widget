@@ -1,43 +1,16 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import react from "@vitejs/plugin-react";
-import { webWidgetPlugin, webRouterPlugin } from "@web-widget/builder";
+import { webRouterPlugin } from "@web-widget/builder";
+import reactWebWidgetPlugin from "@web-widget/react/vite";
+import vueWebWidgetPlugin from "@web-widget/vue/vite";
 
 export default defineConfig({
   plugins: [
     webRouterPlugin(),
-    // ----- React -----
     react(),
-    webWidgetPlugin({
-      provide: "@web-widget/react",
-      toWebWidgets: {
-        include: [
-          "routes/**/*.tsx",
-          "widgets/**/*.tsx",
-          "**/*.route.tsx",
-          "**/*.widget.tsx",
-        ],
-      },
-      toComponents: {
-        include: ["widgets/**/*", "*.widget.*"],
-        component: ["**/*.tsx"],
-      },
-    }),
-    // ----- Vue -----
+    reactWebWidgetPlugin(),
     vue(),
-    webWidgetPlugin({
-      provide: "@web-widget/vue",
-      toWebWidgets: {
-        include: [
-          /\b(routes|widgets).*\.vue(\?.*\.(ts|js))?$/,
-          /(\.route|widget).*\.vue(\?.*\.(ts|js))?$/,
-        ],
-      },
-      toComponents: {
-        include: ["widgets/**/*", "**/*.widget.*"],
-        exclude: /.vue\?.*$/,
-        component: /.*\.vue(\?.*\.(ts|js))?$/,
-      },
-    }),
+    vueWebWidgetPlugin(),
   ],
 });

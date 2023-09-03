@@ -14,6 +14,11 @@
         "development": "./src/server.ts",
         "default": "./dist/vue2.server.js"
       }
+    },
+    "./vite": {
+      "types": "./dist/vite.d.ts",
+      "development": "./src/vite.ts",
+      "default": "./dist/vite.js"
     }
   },
   "files": [
@@ -25,19 +30,21 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
+    "@web-widget/builder": "workspace:*",
     "@web-widget/schema": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "vue": "^2.7.14",
-    "vue-server-renderer": "^2.7.14"
-  },
-  "peerDependencies": {
     "vue": "^2.7.14",
     "vue-server-renderer": "^2.7.14"
   },
   "devDependencies": {
     "@types/node": "^20.5.7",
     "tsup": "^7.0.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "vite": "^4.4.9"
+  },
+  "peerDependencies": {
+    "vue": "^2.7.14",
+    "vue-server-renderer": "^2.7.14"
   },
   "publishConfig": {
     "access": "public",
@@ -51,6 +58,10 @@
           "types": "./dist/vue2.server.d.ts",
           "default": "./dist/vue2.server.js"
         }
+      },
+      "./vite": {
+        "types": "./dist/vite.d.ts",
+        "default": "./dist/vite.js"
       }
     }
   }

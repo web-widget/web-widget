@@ -4,6 +4,7 @@ export const tsup: Options[] = [
   {
     entry: {
       "react.server": "src/server.ts",
+      vite: "src/vite.ts",
     },
     esbuildOptions(options) {
       options.conditions = ["worklet", "worker", "import", "module", "default"];

@@ -47,13 +47,12 @@ export default function RootLayout({
   return html`<!doctype html>
     <html lang="${meta.lang}">
       <head>
-        ${unsafeHTML(renderMetaToString(meta))}
         ${importShimLoader}
+        ${unsafeHTML(renderMetaToString(meta))}
       </head>
       <body>
-        ${typeof children === 'string' ? unsafeHTML(children) : unsafeStreamToHTML(children)}
-        ${unsafeHTML(renderMetaToString({ script: bootstrap })
-        )}
+        ${children instanceof ReadableStream ? unsafeStreamToHTML(children) : unsafeHTML(children)}
+        ${unsafeHTML(renderMetaToString({ script: bootstrap }))}
       </body>
     </html>`;
 }

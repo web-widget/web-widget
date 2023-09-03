@@ -28,28 +28,7 @@ export interface ResolvedBuilderConfig {
   output: Output;
 }
 
-export type BuilderUserConfig = Partial<
-  ResolvedBuilderConfig & {
-    autoFullBuild?: boolean;
-    input?: {
-      client?: {
-        entry?: string;
-        importmap?: string;
-      };
-      server?: {
-        entry?: string;
-        routemap?: string;
-      };
-    };
-    output?: {
-      client?: string;
-      dir?: string;
-      manifest?: string;
-      server?: string;
-      ssrManifest?: string;
-    };
-  }
->;
+export type BuilderUserConfig = Partial<ResolvedBuilderConfig>;
 
 export interface BuilderConfig extends z.output<typeof BuilderConfigSchema> {}
 

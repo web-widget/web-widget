@@ -19,8 +19,8 @@ export interface WebWidgetToComponentPluginOptions {
   cache?: Set<string>;
   /** @deprecated */
   component?: FilterPattern;
-  importerExclude?: FilterPattern;
-  importerInclude?: FilterPattern;
+  excludeImporter?: FilterPattern;
+  includeImporter?: FilterPattern;
   exclude?: FilterPattern;
   include?: FilterPattern;
   inject?: string;
@@ -66,8 +66,8 @@ export function webWidgetToComponentPlugin(
         const {
           component,
           exclude,
-          importerExclude,
-          importerInclude = component,
+          excludeImporter,
+          includeImporter = component,
           include = /\.(widget|route)\.[^.]*$/,
           manifest,
           provide,
@@ -77,7 +77,7 @@ export function webWidgetToComponentPlugin(
         dev = command === "serve";
         root = userConfig.root ?? process.cwd();
         filter = createFilter(include, exclude);
-        componentFilter = createFilter(importerInclude, importerExclude);
+        componentFilter = createFilter(includeImporter, excludeImporter);
 
         if (typeof provide !== "string") {
           throw new TypeError(`options.provide must be a string type.`);
@@ -88,8 +88,8 @@ export function webWidgetToComponentPlugin(
         }
 
         setResolveAssetProtocolOptions({
-          exclude: importerExclude,
-          include: importerInclude,
+          exclude: excludeImporter,
+          include: includeImporter,
           manifest: manifest || {},
         });
       },
