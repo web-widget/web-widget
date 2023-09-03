@@ -1,9 +1,10 @@
 import Koa from "koa";
 import koaSend from "koa-send";
 import { fileURLToPath } from "node:url";
-import WebRouter from "@web-widget/web-router";
 import NodeAdapter from "@web-widget/node";
 import connectToKoa from "koa-connect";
+import start from "./dist/server/entry.js";
+
 import routemap from "./dist/server/routemap.js";
 
 const app = new Koa();
@@ -18,31 +19,9 @@ app.use(async (ctx, next) => {
   await next();
 });
 
-const webRouter = new WebRouter(routemap, {
+const webRouter = start(routemap, {
   baseAsset: "http://localhost:9000/",
   baseModule: new URL("./dist/server/", import.meta.url),
-  defaultMeta: {
-    lang: "en",
-    meta: [
-      {
-        charset: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1.0",
-      },
-    ],
-    // script: [
-    //   {
-    //     type: "importmap",
-    //     content: JSON.stringify({
-    //       imports: {
-    //         "@test/test": "https://google.com/test.js",
-    //       },
-    //     }),
-    //   },
-    // ],
-  },
 });
 
 const webRouterMiddleware = new NodeAdapter(webRouter).middleware;

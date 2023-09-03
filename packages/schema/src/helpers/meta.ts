@@ -163,39 +163,40 @@ export function rebaseMeta(meta: Meta, importer: string): Meta {
     }),
 
     script: (meta.script ?? []).map((props) => {
-      if (props.type === "importmap" && typeof props.content === "string") {
-        const importmap = JSON.parse(props.content) as ImportMap;
-        const rebaseImports = (imports: Imports) =>
-          Object.entries(imports).reduce((previousValue, [name, url]) => {
-            if (!RESOLVE_URL_REG.test(url)) {
-              previousValue[name] = new URL(url, importer).href;
-            } else {
-              previousValue[name] = url;
-            }
-            return previousValue;
-          }, {} as Imports);
+      // if (props.type === "importmap" && typeof props.content === "string") {
+      //   const importmap = JSON.parse(props.content) as ImportMap;
+      //   const rebaseImports = (imports: Imports) =>
+      //     Object.entries(imports).reduce((previousValue, [name, url]) => {
+      //       if (!RESOLVE_URL_REG.test(url)) {
+      //         previousValue[name] = new URL(url, importer).href;
+      //       } else {
+      //         previousValue[name] = url;
+      //       }
+      //       return previousValue;
+      //     }, {} as Imports);
 
-        return {
-          ...props,
-          content: JSON.stringify({
-            imports: importmap.imports ? rebaseImports(importmap.imports) : {},
-            scopes: importmap.scopes
-              ? Object.entries(importmap.scopes).reduce(
-                  (previousValue, [scope, imports]) => {
-                    if (!RESOLVE_URL_REG.test(scope)) {
-                      previousValue[new URL(scope, importer).href] =
-                        rebaseImports(imports);
-                    } else {
-                      previousValue[scope] = {};
-                    }
-                    return previousValue;
-                  },
-                  {} as Scopes
-                )
-              : {},
-          } as ImportMap),
-        };
-      }
+      //   return {
+      //     ...props,
+      //     content: JSON.stringify({
+      //       imports: importmap.imports ? rebaseImports(importmap.imports) : {},
+      //       scopes: importmap.scopes
+      //         ? // TODO
+      //           Object.entries(importmap.scopes).reduce(
+      //             (previousValue, [scope, imports]) => {
+      //               if (!RESOLVE_URL_REG.test(scope)) {
+      //                 previousValue[new URL(scope, importer).href] =
+      //                   rebaseImports(imports);
+      //               } else {
+      //                 previousValue[scope] = {};
+      //               }
+      //               return previousValue;
+      //             },
+      //             {} as Scopes
+      //           )
+      //         : {},
+      //     } as ImportMap),
+      //   };
+      // }
 
       if (typeof props.src === "string" && !RESOLVE_URL_REG.test(props.src)) {
         return {

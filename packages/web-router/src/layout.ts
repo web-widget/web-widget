@@ -44,15 +44,17 @@ export default function DefaultRootLayout({
   children,
   bootstrap,
 }: RootLayoutComponentProps): HTML {
+  /* eslint-disable prettier/prettier */
   return html`<!doctype html>
     <html lang="${meta.lang}">
       <head>
-        ${unsafeHTML(renderMetaToString(meta))} ${importShimLoader}
+        ${importShimLoader}
+        ${unsafeHTML(renderMetaToString(meta))} 
       </head>
       <body>
-        ${children instanceof ReadableStream
-          ? unsafeStreamToHTML(children)
-          : unsafeHTML(children)}
+        ${typeof children === 'string'
+          ? unsafeHTML(children)
+          : unsafeStreamToHTML(children)}
         ${unsafeHTML(renderMetaToString({ script: bootstrap }))}
       </body>
     </html>`;

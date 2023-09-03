@@ -35,7 +35,17 @@ export function getClientModuleId(
     base?: string;
   }
 ) {
-  return options.import && !options.import.startsWith(ASSET_PLACEHOLDER)
+  const isAssetPlaceholder = options.import?.startsWith(ASSET_PLACEHOLDER);
+
+  if (isAssetPlaceholder) {
+    console.warn(
+      `The ${JSON.stringify(
+        options.import
+      )} protocol is not recognized, please check if the module is built correctly.`
+    );
+  }
+
+  return options.import && !isAssetPlaceholder
     ? options.import
     : options.base && !options.base.startsWith("file://")
     ? options.base + parseModuleId(loader)

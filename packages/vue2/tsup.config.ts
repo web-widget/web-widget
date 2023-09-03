@@ -4,6 +4,7 @@ export const tsup: Options[] = [
     entry: {
       "vue2.server": "src/server.ts",
       "vue2.client": "src/client.ts",
+      vite: "src/vite.ts",
     },
     dts: true,
     target: "es2017",

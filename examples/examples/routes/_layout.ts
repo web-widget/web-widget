@@ -47,8 +47,8 @@ export default function RootLayout({
   return html`<!doctype html>
     <html lang="${meta.lang}">
       <head>
-        ${unsafeHTML(renderMetaToString(meta))}
         ${importShimLoader}
+        ${unsafeHTML(renderMetaToString(meta))}
       </head>
       <body>
         ${children instanceof ReadableStream ? unsafeStreamToHTML(children) : unsafeHTML(children)}

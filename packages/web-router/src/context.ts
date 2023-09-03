@@ -578,16 +578,7 @@ const DEFAULT_META: Meta = {
   ],
 };
 
-const DEFAULT_BOOTSTRAP = [
-  {
-    id: "web-widget:bootstrap",
-    type: "module",
-    content: [
-      `const loader = () => import("@web-widget/web-widget")`,
-      `typeof importShim === "function" ? importShim(String(loader).match(/\\bimport\\("([^"]*?)"\\)/)[1]): loader()`,
-    ].join("\n"),
-  },
-];
+const DEFAULT_BOOTSTRAP: ScriptDescriptor[] = [];
 
 const DEFAULT_NOT_FOUND_ERROR_PAGE: Page = {
   bootstrap: DEFAULT_BOOTSTRAP,

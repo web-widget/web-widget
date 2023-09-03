@@ -8,9 +8,9 @@
   "author": "",
   "type": "module",
   "scripts": {
-    "build": "builder build",
+    "build": "vite build",
     "build:deno": "pnpm run build && pnpm exec build-worker --entry deno/web-router.ts --out deno/dist/web-router.js --debug",
-    "dev": "builder dev",
+    "dev": "vite",
     "start": "node server.js",
     "start:deno": "cd deno && deno task start",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -37,7 +37,7 @@
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^4.0.0",
     "@vitejs/plugin-vue": "^4.2.3",
-    "@web-widget/builder": "workspace:*",
+    "@web-widget/vite": "workspace:*",
     "build-worker": "^0.2.2",
     "typescript": "^5.0.4",
     "vite": "^4.4.9"
