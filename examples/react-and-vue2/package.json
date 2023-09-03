@@ -8,8 +8,8 @@
   "license": "MIT",
   "author": "", 
   "scripts": {
-    "build": "builder build",
-    "dev": "builder dev",
+    "build": "vite build",
+    "dev": "vite dev",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

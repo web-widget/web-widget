@@ -1,16 +1,23 @@
-import type { Plugin as VitePlugin, Manifest as ViteManifest } from "vite";
 import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import MagicString from "magic-string";
+import Module from "node:module";
+import type { Plugin, Manifest as ViteManifest } from "vite";
+
+const require = Module.createRequire(import.meta.url);
 
 type ViteSsrManifest = Record<string, string[]>;
 
-export type ReplaceAssetPluginOptions = {
-  /** SSR Manifest */
+export const ASSET_PROTOCOL = "asset:";
+const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
+
+export type ResolveAssetProtocolPluginOptions = {
   manifest:
     | ViteManifest
     | ViteSsrManifest
+    | string
     | [ViteManifest, ViteSsrManifest]
-    | [ViteSsrManifest, ViteManifest];
+    | [ViteSsrManifest, ViteManifest]
+    | [string, string];
   include?: FilterPattern;
   exclude?: FilterPattern;
 };
@@ -18,38 +25,43 @@ export type ReplaceAssetPluginOptions = {
 /**
  * Replace the asset's placeholder with the asset's path.
  */
-export function replaceAssetPlugin({
-  manifest,
-  include,
-  exclude,
-}: ReplaceAssetPluginOptions): VitePlugin {
+export function resolveAssetProtocol(
+  options: ResolveAssetProtocolPluginOptions
+): Plugin {
   let extensions: string[] = [];
   let base: string;
-  const filter = createFilter(include, exclude);
-  const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
-
-  const manifests = Array.isArray(manifest) ? manifest : [manifest];
-  const map: Map<string, string> = new Map();
-
-  manifests.forEach((manifest) => {
-    Object.entries(manifest).forEach(([fileName, value]) => {
-      if (value.file) {
-        map.set(fileName, value.file);
-      } else if (Array.isArray(value)) {
-        const file = value.find((item) => item.endsWith(".js"));
-        if (file) {
-          map.set(fileName, file.replace(/^\//, ""));
-        }
-      }
-    });
-  });
+  let filter: (id: string | unknown) => boolean;
+  const assetMap: Map<string, string> = new Map();
 
   return {
-    name: "builder:replace-asset-placeholder",
+    name: "builder:resolve-asset-protocol",
     enforce: "post",
-    configResolved(resolvedConfig) {
+    async configResolved(resolvedConfig) {
+      const { manifest, include, exclude } = options;
+
       base = resolvedConfig.base;
       extensions = resolvedConfig.resolve.extensions;
+      filter = createFilter(include, exclude);
+
+      const manifests = (Array.isArray(manifest) ? manifest : [manifest]).map(
+        (manifest) =>
+          typeof manifest === "string"
+            ? (require(manifest) as ViteManifest | ViteSsrManifest)
+            : manifest
+      );
+
+      manifests.forEach((manifest) => {
+        Object.entries(manifest).forEach(([fileName, value]) => {
+          if (value.file) {
+            assetMap.set(fileName, value.file);
+          } else if (Array.isArray(value)) {
+            const file = value.find((item) => item.endsWith(".js"));
+            if (file) {
+              assetMap.set(fileName, file.replace(/^\//, ""));
+            }
+          }
+        });
+      });
     },
     async transform(code, id) {
       if (!filter(id)) {
@@ -70,11 +82,11 @@ export function replaceAssetPlugin({
               return match;
             }
 
-            let asset = map.get(fileName);
+            let asset = assetMap.get(fileName);
 
             if (!asset) {
               asset = extensions.find((extension) =>
-                map.get(fileName + extension)
+                assetMap.get(fileName + extension)
               );
             }
 

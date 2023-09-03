@@ -43,12 +43,12 @@ export default function RootLayout({
   children,
   bootstrap,
 }: RootLayoutComponentProps): HTML {
-  // eslint-disable-next-line prettier/prettier
+  /* eslint-disable prettier/prettier */
   return html`<!doctype html>
     <html lang="${meta.lang}">
       <head>
-        ${unsafeHTML(renderMetaToString(meta))}
         ${importShimLoader}
+        ${unsafeHTML(renderMetaToString(meta))}
       </head>
       <body>
         ${children instanceof ReadableStream ? unsafeStreamToHTML(children) : children}

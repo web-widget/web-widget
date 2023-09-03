@@ -15,6 +15,8 @@ import {
 } from "./utils/render";
 export type * from "./types";
 
+const __FEATURE_INJECTING_STYLES__ = false;
+
 // async function readableStreamToString(
 //   readableStream: ReadableStream
 // ) {
@@ -118,7 +120,7 @@ export /*#__PURE__*/ async function parse(
       );
     }
 
-    if (hasStyle) {
+    if (hasStyle && __FEATURE_INJECTING_STYLES__) {
       result = [
         renderMetaToString({
           link: styleLinks,

@@ -1,56 +1,93 @@
-import type { Plugin as VitePlugin } from "vite";
-import { appendWebWidgetMetaPlugin } from "./build/append-web-widget-meta";
-import { componentToWebWidgetPlugin } from "./build/component-to-web-widget";
-import { type ComponentToWebWidgetPluginOptions } from "./build/component-to-web-widget";
-import { replaceAssetPlugin } from "./build/replace-asset";
-import { webWidgetToComponentPlugin } from "./build/web-widget-to-component";
-import { type WebWidgetToComponentPluginOptions } from "./build/web-widget-to-component";
-
-export {
-  appendWebWidgetMetaPlugin,
+import path from "node:path";
+import type { Plugin, UserConfig } from "vite";
+import {
   componentToWebWidgetPlugin,
-  replaceAssetPlugin,
+  type ComponentToWebWidgetPluginOptions,
+} from "./build/component-to-web-widget";
+import {
   webWidgetToComponentPlugin,
-};
+  type WebWidgetToComponentPluginOptions,
+} from "./build/web-widget-to-component";
+import { getGlobalOptions, pluginContainer } from "./container";
+import type { ResolvedBuilderConfig } from "./types";
 
 export interface WebWidgetPluginOptions {
   provide?: string;
+  manifest?: ComponentToWebWidgetPluginOptions["manifest"];
   toWebWidgets?: Partial<
     ComponentToWebWidgetPluginOptions & {
-      provide?: string;
+      manifest?: ComponentToWebWidgetPluginOptions["manifest"];
+      provide?: ComponentToWebWidgetPluginOptions["provide"];
     }
   >;
   toComponents?: Partial<
     WebWidgetToComponentPluginOptions & {
-      provide?: string;
+      manifest?: WebWidgetToComponentPluginOptions["manifest"];
+      provide?: WebWidgetToComponentPluginOptions["provide"];
     }
   >;
 }
 
 export function webWidgetPlugin({
+  manifest,
   provide,
-  toWebWidgets,
   toComponents,
-}: WebWidgetPluginOptions): VitePlugin[] {
-  const plugins = [];
+  toWebWidgets,
+}: WebWidgetPluginOptions): Plugin[] {
+  const plugins: Plugin[] = [];
 
   if (toWebWidgets) {
     plugins.push(
-      componentToWebWidgetPlugin({
-        ...toWebWidgets,
-        provide: (toWebWidgets.provide ?? provide) as string,
-      })
+      pluginContainer<ComponentToWebWidgetPluginOptions>(
+        componentToWebWidgetPlugin,
+        (userConfig) => {
+          if (!manifest) {
+            manifest = getManifest(userConfig);
+          }
+
+          return {
+            ...toWebWidgets,
+            provide: (toWebWidgets.provide ?? provide) as string,
+            manifest: manifest,
+          };
+        }
+      ) as unknown as Plugin
     );
   }
 
   if (toWebWidgets) {
     plugins.push(
-      webWidgetToComponentPlugin({
-        ...toComponents,
-        provide: (toWebWidgets.provide ?? provide) as string,
-      })
+      pluginContainer<WebWidgetToComponentPluginOptions>(
+        webWidgetToComponentPlugin,
+        (userConfig) => {
+          if (!manifest) {
+            manifest = getManifest(userConfig);
+          }
+          return {
+            ...toComponents,
+            provide: (toWebWidgets.provide ?? provide) as string,
+            manifest,
+          };
+        }
+      ) as unknown as Plugin
     );
   }
 
   return plugins;
+}
+
+function getManifest(userConfig: UserConfig) {
+  const { root = process.cwd() } = userConfig;
+  const resolvedBuilderConfig =
+    getGlobalOptions<ResolvedBuilderConfig>(userConfig);
+
+  if (resolvedBuilderConfig) {
+    const viteManifest = path.resolve(
+      root,
+      resolvedBuilderConfig.output.dir,
+      resolvedBuilderConfig.output.client,
+      resolvedBuilderConfig.output.manifest
+    );
+    return viteManifest;
+  }
 }

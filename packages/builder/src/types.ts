@@ -1,35 +1,60 @@
-import type { BuilderConfigSchema } from "./config/schema";
-import type { OutgoingHttpHeaders } from "node:http";
-import type { UserConfig as ViteConfig } from "vite";
+import type WebRouter from "@web-widget/web-router";
+import type { Manifest, StartOptions } from "@web-widget/web-router";
 import type { z } from "zod";
+import type { BuilderConfigSchema } from "./config";
+
+export interface Input {
+  client: {
+    entry: string;
+    importmap: string;
+  };
+  server: {
+    entry: string;
+    routemap: string;
+  };
+}
 
 export interface Output {
-  dir?: string;
-  client?: string;
-  server?: string;
-  assets?: string;
-  assetsPrefix?: string;
-  serverEntry?: string;
+  client: string;
+  dir: string;
+  manifest: string;
+  server: string;
+  ssrManifest: string;
 }
 
-export interface Server {
-  host?: string | boolean;
-  port?: number;
-  headers?: OutgoingHttpHeaders;
+export interface ResolvedBuilderConfig {
+  autoFullBuild: boolean;
+  input: Input;
+  output: Output;
 }
 
-export { ViteConfig };
-
-export interface BuilderUserConfig {
-  base?: string;
-  cacheDir?: string;
-  publicDir?: string;
-  tempDir?: string;
-  root?: string;
-  input?: string;
-  output?: Output;
-  server?: Server | ((options: { command: "dev" | "preview" }) => Server);
-  vite?: ViteConfig;
-}
+export type BuilderUserConfig = Partial<
+  ResolvedBuilderConfig & {
+    autoFullBuild?: boolean;
+    input?: {
+      client?: {
+        entry?: string;
+        importmap?: string;
+      };
+      server?: {
+        entry?: string;
+        routemap?: string;
+      };
+    };
+    output?: {
+      client?: string;
+      dir?: string;
+      manifest?: string;
+      server?: string;
+      ssrManifest?: string;
+    };
+  }
+>;
 
 export interface BuilderConfig extends z.output<typeof BuilderConfigSchema> {}
+
+export interface ServerEntryModule {
+  default: (manifest: Manifest, options: StartOptions) => WebRouter;
+}
+
+export interface ClientEntryModule {}

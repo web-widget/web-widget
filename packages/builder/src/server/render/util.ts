@@ -1,6 +1,6 @@
-import { fileURLToPath } from "node:url";
-import { isCSSRequest } from "vite";
+import url from "node:url";
 import slash from "slash";
+import { isCSSRequest } from "vite";
 
 const rawRE = /(?:\?|&)raw(?:&|$)/;
 const inlineRE = /(?:\?|&)inline\b/;
@@ -17,7 +17,10 @@ export const isBuildableCSSRequest = (request: string): boolean =>
  *   Windows:    C:/Users/vue/code/my-project/src/pages/index.vue
  */
 export function viteID(filePath: URL): string {
-  return slash(fileURLToPath(filePath) + filePath.search).replace(/\\/g, "/");
+  return slash(url.fileURLToPath(filePath) + filePath.search).replace(
+    /\\/g,
+    "/"
+  );
 }
 
 export const VALID_ID_PREFIX = `/@id/`;

@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 overrides:
   typescript: ^5.1.6
   tsup: ^7.0.0
@@ -278,18 +282,9 @@ importers:
       magic-string:
         specifier: ^0.30.2
         version: 0.30.2
-      mico-spinner:
-        specifier: ^1.4.0
-        version: 1.4.0
       mime-types:
         specifier: ^2.1.35
         version: 2.1.35
-      minimist:
-        specifier: ^1.2.5
-        version: 1.2.8
-      picocolors:
-        specifier: ^1.0.0
-        version: 1.0.0
       slash:
         specifier: ^5.1.0
         version: 5.1.0
@@ -306,9 +301,6 @@ importers:
       '@types/mime-types':
         specifier: ^2.1.1
         version: 2.1.1
-      '@types/minimist':
-        specifier: ^1.2.2
-        version: 1.2.2
       '@types/node':
         specifier: ^20.4.8
         version: 20.4.8
@@ -9788,12 +9780,6 @@ packages:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
 
-  /mico-spinner@1.4.0:
-    resolution: {integrity: sha512-6fuiQX9qRMJACVlCX6pkbV3KnjSbobr10RLB+0CNk2Z+uKPulL7wMKZSoZEiLCOvzTQc0vghjKXKVGpiMIOABw==}
-    dependencies:
-      picocolors: 0.2.1
-    dev: false
-
   /micromark-core-commonmark@1.0.6:
     resolution: {integrity: sha512-K+PkJTxqjFfSNkfAhp4GB+cZPfQd6dxtTXnf+RjZOV7T4EEXnvgzOcnp+eSTmpGk9d1S9sL6/lqrgSNn/s0HZA==}
     dependencies:
@@ -10287,7 +10273,7 @@ packages:
     hasBin: true
     peerDependencies:
       sass: ^1.63.6
-      typescript: '>=5.1.6'
+      typescript: ^5.1.6
     peerDependenciesMeta:
       sass:
         optional: true
@@ -10925,10 +10911,6 @@ packages:
     dependencies:
       through: 2.3.8
     dev: true
-
-  /picocolors@0.2.1:
-    resolution: {integrity: sha512-cMlDqaLEqfSaW8Z7N5Jw+lyIW869EzT73/F5lhtY9cLGoVxSXznfgfXMO0Z5K0o0Q2TkTXq+0KFsdnSe3jDViA==}
-    dev: false
 
   /picocolors@1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
@@ -11888,7 +11870,7 @@ packages:
     engines: {node: '>=v14'}
     peerDependencies:
       rollup: ^3.0.0
-      typescript: ^4.1 || ^5.0
+      typescript: ^5.1.6
     dependencies:
       magic-string: 0.30.2
       rollup: 3.25.1
@@ -12917,7 +12899,7 @@ packages:
     resolution: {integrity: sha512-lC/RGlPmwdrIBFTX59wwNzqh7aR2otPNPR/5brHZm/XKFYKsfqxihXUe9pU3JI+3vGkl+vyCoNNnPhJn3aLK1A==}
     engines: {node: '>=16.13.0'}
     peerDependencies:
-      typescript: '>=4.2.0'
+      typescript: ^5.1.6
     dependencies:
       typescript: 5.1.6
     dev: false
@@ -12936,7 +12918,7 @@ packages:
       babel-jest: ^29.0.0
       esbuild: '*'
       jest: ^29.0.0
-      typescript: '>=4.3 <6'
+      typescript: ^5.1.6
     peerDependenciesMeta:
       '@babel/core':
         optional: true
@@ -12988,7 +12970,7 @@ packages:
     peerDependencies:
       '@swc/core': ^1
       postcss: ^8.4.12
-      typescript: '>=4.1.0'
+      typescript: ^5.1.6
     peerDependenciesMeta:
       '@swc/core':
         optional: true

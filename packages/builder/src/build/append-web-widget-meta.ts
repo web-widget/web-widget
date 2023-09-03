@@ -1,82 +1,65 @@
-import type { LinkDescriptor, ScriptDescriptor } from "@web-widget/schema";
-import * as esModuleLexer from "es-module-lexer";
-import type { Manifest as ViteManifest, Plugin as VitePlugin } from "vite";
-import { extname, relative } from "node:path";
-import { fileURLToPath } from "node:url";
-import mime from "mime-types";
 import { createFilter, type FilterPattern } from "@rollup/pluginutils";
+import type { LinkDescriptor } from "@web-widget/schema";
+import * as esModuleLexer from "es-module-lexer";
 import MagicString from "magic-string";
-import { resolve } from "import-meta-resolve";
+import mime from "mime-types";
+import Module from "node:module";
+import path from "node:path";
+import type { Plugin, Manifest as ViteManifest } from "vite";
 
-const WEB_WIDGET = "@web-widget/web-widget";
-const WEB_WIDGET_CLIENT = "@web-widget/web-widget/client";
-const WEB_WIDGET_CLIENT_MODULE_ID = fileURLToPath(
-  resolve(WEB_WIDGET_CLIENT, import.meta.url)
-);
+const require = Module.createRequire(import.meta.url);
+const RESOLVE_URL_REG = /^(?:\w+:)?\//;
+const rebase = (src: string, base: string) => {
+  return RESOLVE_URL_REG.test(src) ? src : base + src;
+};
 
 export type AppendWebWidgetMetaPluginOptions = {
-  manifest: ViteManifest;
+  manifest: ViteManifest | string;
   include?: FilterPattern;
   exclude?: FilterPattern;
 };
 
-export function appendWebWidgetMetaPlugin({
-  manifest,
-  include,
-  exclude,
-}: AppendWebWidgetMetaPluginOptions): VitePlugin {
+export function appendWebWidgetMetaPlugin(
+  options: AppendWebWidgetMetaPluginOptions
+): Plugin {
   let root: string;
   let base: string;
-  const RESOLVE_URL_REG = /^(?:\w+:)?\//;
-  const filter = createFilter(include, exclude);
-  const rebase = (src: string, importer: string) => {
-    //return relative(dirname(importer), src);
-    return RESOLVE_URL_REG.test(src) ? src : base + src;
-  };
+  let viteManifest: ViteManifest;
+  let filter: (id: string | unknown) => boolean;
 
   return {
     name: "builder:append-web-widget-meta",
     enforce: "post",
-    configResolved(resolvedConfig) {
+    async configResolved(resolvedConfig) {
+      const { manifest, include, exclude } = options;
       root = resolvedConfig.root;
       base = resolvedConfig.base;
+      viteManifest =
+        typeof manifest === "string"
+          ? (require(manifest) as ViteManifest)
+          : manifest;
+      filter = createFilter(include, exclude);
     },
     async transform(code, id) {
       if (!filter(id)) {
         return null;
       }
 
-      const webWidgetFileName = relative(root, WEB_WIDGET_CLIENT_MODULE_ID);
       const magicString = new MagicString(code);
-      const fileName = relative(root, id);
+      const fileName = path.relative(root, id);
       const meta = {
-        script: manifest[webWidgetFileName]
-          ? [
-              {
-                type: "importmap",
-                content: JSON.stringify({
-                  imports: {
-                    [WEB_WIDGET]: rebase(manifest[webWidgetFileName].file, id),
-                  },
-                }),
-              } as ScriptDescriptor,
-            ]
-          : [],
-        link: [
-          ...(webWidgetFileName
-            ? getLinks(manifest, webWidgetFileName as string, true)
-            : []),
-          ...getLinks(manifest, fileName, false),
-        ].map(({ href, ...attrs }) => {
-          if (href) {
-            return {
-              ...attrs,
-              href: rebase(href, id),
-            };
-          } else {
-            return attrs;
+        link: getLinks(viteManifest, fileName, false).map(
+          ({ href, ...attrs }) => {
+            if (href) {
+              return {
+                ...attrs,
+                href: rebase(href, base),
+              };
+            } else {
+              return attrs;
+            }
           }
-        }),
+        ),
       };
 
       await esModuleLexer.init;
@@ -90,9 +73,7 @@ export function appendWebWidgetMetaPlugin({
             ``,
             `;((meta) => {`,
             `  const link = ${JSON.stringify(meta.link, null, 2)};`,
-            `  const script = ${JSON.stringify(meta.script, null, 2)};`,
             `  meta.link ? meta.link.push(...link) : (meta.link = link);`,
-            `  meta.script ? meta.script.push(...script) : (meta.script = script);`,
             `})(${metaExportName});`,
           ].join("\n")
         );
@@ -102,7 +83,6 @@ export function appendWebWidgetMetaPlugin({
             ``,
             `export const meta = {`,
             `  link: ${JSON.stringify(meta.link)},`,
-            `  script: ${JSON.stringify(meta.script)},`,
             `};`,
           ].join("\n")
         );
@@ -117,13 +97,13 @@ function getLinks(
   manifest: ViteManifest,
   srcFileName: string,
   containSelf: boolean,
-  cache = new Map()
+  cache = new Set()
 ): LinkDescriptor[] {
   if (cache.has(srcFileName)) {
     return [];
   }
 
-  cache.set(srcFileName, true);
+  cache.add(srcFileName);
 
   const links: LinkDescriptor[] = [];
   const item = manifest[srcFileName];
@@ -134,8 +114,9 @@ function getLinks(
 
   const push = (srcFileName: string) => {
     const ld = getLink(srcFileName);
-    if (ld) {
+    if (ld && !cache.has(ld.href)) {
       links.push(ld);
+      cache.add(ld.href);
     }
   };
 
@@ -184,7 +165,7 @@ function getLink(fileName: string): LinkDescriptor | null {
     };
   }
 
-  const ext = extname(fileName);
+  const ext = path.extname(fileName);
   const type = mime.lookup(ext);
   const asValue = type ? type.split("/")[0] : "";
 

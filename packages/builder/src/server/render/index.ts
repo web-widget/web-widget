@@ -1,9 +1,9 @@
-import type { ModuleLoader } from "../loader/index";
 import type {
   LinkDescriptor,
-  StyleDescriptor,
   ScriptDescriptor,
+  StyleDescriptor,
 } from "@web-widget/schema";
+import type { ModuleLoader } from "../loader/index";
 import { getStylesForURL } from "./css";
 import { viteID } from "./util";
 

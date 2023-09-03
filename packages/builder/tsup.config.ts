@@ -2,7 +2,6 @@ import type { Options } from "tsup";
 export const tsup: Options = {
   entry: {
     builder: "src/index.ts",
-    cli: "src/cli.ts",
   },
   dts: true,
   target: "node18",

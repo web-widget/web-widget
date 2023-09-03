@@ -8,9 +8,9 @@
   "author": "",
   "type": "module",
   "scripts": {
-    "build": "builder build",
+    "build": "vite build",
     "build:deno": "pnpm run build && pnpm exec build-worker --entry deno/web-router.ts --out deno/dist/web-router.js --debug",
-    "dev": "builder dev",
+    "dev": "vite",
     "start": "node server.js",
     "start:deno": "cd deno && deno task start",
     "test": "echo \"Error: no test specified\" && exit 1"
