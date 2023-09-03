@@ -1,12 +1,12 @@
 {
-  "name": "@web-widget/builder",
+  "name": "@web-widget/vite",
   "version": "0.5.0",
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/builder.d.ts",
+      "types": "./dist/vite.d.ts",
       "development": "./src/index.ts",
-      "default": "./dist/builder.js"
+      "default": "./dist/vite.js"
     }
   },
   "files": [
@@ -49,8 +49,8 @@
     "access": "public",
     "exports": {
       ".": {
-        "types": "./dist/builder.d.ts",
-        "default": "./dist/builder.js"
+        "types": "./dist/vite.d.ts",
+        "default": "./dist/vite.js"
       }
     }
   }

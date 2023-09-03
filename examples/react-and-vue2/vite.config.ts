@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue2";
 import react from "@vitejs/plugin-react";
-import { webRouterPlugin } from "@web-widget/builder";
+import { webRouterPlugin } from "@web-widget/vite";
 import reactWebWidgetPlugin from "@web-widget/react/vite";
 import vue2WebWidgetPlugin from "@web-widget/vue2/vite";
 

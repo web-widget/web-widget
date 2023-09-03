@@ -1,6 +1,6 @@
 import type { Plugin } from "vite";
-import { webWidgetPlugin } from "@web-widget/builder";
-import type { WebWidgetPluginOptions } from "@web-widget/builder";
+import { webWidgetPlugin } from "@web-widget/vite";
+import type { WebWidgetPluginOptions } from "@web-widget/vite";
 
 export interface VueWebWidgetPluginOptions extends WebWidgetPluginOptions {}
 
