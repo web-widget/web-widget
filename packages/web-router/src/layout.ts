@@ -52,9 +52,9 @@ export default function DefaultRootLayout({
         ${unsafeHTML(renderMetaToString(meta))} 
       </head>
       <body>
-        ${children instanceof ReadableStream
-          ? unsafeStreamToHTML(children)
-          : children}
+        ${typeof children === 'string'
+          ? unsafeHTML(children)
+          : unsafeStreamToHTML(children)}
         ${unsafeHTML(renderMetaToString({ script: bootstrap }))}
       </body>
     </html>`;

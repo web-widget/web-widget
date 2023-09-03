@@ -1,12 +1,24 @@
 {
   "routes": [
     {
+      "pathname": "/",
+      "module": "./routes/react-and-vue.tsx"
+    },
+    {
       "pathname": "/client-only-component",
       "module": "./routes/client-only-component.tsx"
     },
     {
-      "pathname": "/",
-      "module": "./routes/react-and-vue.tsx"
+      "pathname": "/react-streaming",
+      "module": "./routes/react-streaming.tsx"
+    },
+    {
+      "pathname": "/vue-streaming",
+      "module": "./routes/vue-streaming.vue"
+    },
+    {
+      "pathname": "/vue-server-component",
+      "module": "./routes/vue-server-component.vue"
     }
   ],
   "fallbacks": [

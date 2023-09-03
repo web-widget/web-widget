@@ -51,9 +51,8 @@ export default function RootLayout({
         ${unsafeHTML(renderMetaToString(meta))}
       </head>
       <body>
-        ${children instanceof ReadableStream ? unsafeStreamToHTML(children) : children}
-        ${unsafeHTML(renderMetaToString({ script: bootstrap })
-        )}
+        ${children instanceof ReadableStream ? unsafeStreamToHTML(children) : unsafeHTML(children)}
+        ${unsafeHTML(renderMetaToString({ script: bootstrap }))}
       </body>
     </html>`;
 }

@@ -58,8 +58,12 @@
       "module": "./routes/experimental-async-component.tsx"
     },
     {
-      "pathname": "/streaming",
-      "module": "./routes/streaming.tsx"
+      "pathname": "/react-streaming",
+      "module": "./routes/react-streaming.tsx"
+    },
+    {
+      "pathname": "/vue-streaming",
+      "module": "./routes/vue-streaming.vue"
     },
     {
       "pathname": "/lit-html-template",

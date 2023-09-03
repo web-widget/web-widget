@@ -20,11 +20,16 @@ export const defineVueRender = ({
     return {
       async mount() {
         const shellTag = "web-widget.shell";
+        const vue2rootAttr = "data-vue2root";
+        const vue2ssrAttr = "data-server-rendered";
         // NOTE: The "$mount" method of vue2 will replace the container element.
         const shell =
           (context.recovering &&
             context.container.querySelector(shellTag.replace(".", "\\."))) ||
           context.container.appendChild(document.createElement(shellTag));
+        const componentRoot = context.recovering
+          ? shell.querySelector(`[${vue2rootAttr}]`)
+          : null;
         const state = context.recovering
           ? (context.container.querySelector(
               "script[as=state]"
@@ -36,7 +41,11 @@ export const defineVueRender = ({
             : onPrefetchData
             ? await onPrefetchData(context, component, props)
             : undefined;
+
         state?.remove();
+        shell.removeAttribute(vue2ssrAttr);
+        componentRoot?.removeAttribute(vue2rootAttr);
+        componentRoot?.setAttribute(vue2ssrAttr, "true");
 
         const mergedProps = stateContent
           ? Object.assign(stateContent, props)

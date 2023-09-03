@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vue2",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "type": "module",
   "exports": {
     ".": {
@@ -25,13 +25,17 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@web-widget/schema": "workspace:*"
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
+    "vue": "^2.7.14",
+    "vue-server-renderer": "^2.7.14"
   },
   "peerDependencies": {
     "vue": "^2.7.14",
     "vue-server-renderer": "^2.7.14"
   },
   "devDependencies": {
+    "@types/node": "^20.5.7",
     "tsup": "^7.0.0",
     "typescript": "^5.0.4"
   },

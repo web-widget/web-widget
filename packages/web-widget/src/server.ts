@@ -28,6 +28,8 @@ const __FEATURE_INJECTING_STYLES__ = false;
 //   return result;
 // }
 
+const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
+
 async function readableStreamToString(stream: ReadableStream) {
   const decoder = new TextDecoder();
   const reader = stream.getReader();
@@ -107,8 +109,8 @@ export /*#__PURE__*/ async function parse(
     };
     const rawResult = await module.render(context);
 
-    if (rawResult instanceof ReadableStream) {
-      result = await readableStreamToString(rawResult);
+    if (getType(rawResult) === "ReadableStream") {
+      result = await readableStreamToString(rawResult as ReadableStream);
     } else if (typeof rawResult === "string") {
       result = rawResult;
     } else {
