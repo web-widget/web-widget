@@ -4,7 +4,6 @@ import type { Plugin } from "vite";
 import { buildWebWidgetEntryPlugin } from "./build/build-web-widget-entry";
 import { parseConfig } from "./config";
 import { pluginContainer } from "./container";
-import type { WebRouterDevServerPluginOptions } from "./server/dev-server";
 import { webRouterDevServerPlugin } from "./server/dev-server";
 import type { BuilderUserConfig, ResolvedBuilderConfig } from "./types";
 
@@ -43,11 +42,8 @@ export function webRouterPlugin(config: BuilderUserConfig = {}): Plugin[] {
       true
     ),
 
-    ...pluginContainer<WebRouterDevServerPluginOptions>(
-      webRouterDevServerPlugin,
-      () => {
-        return builderConfig.input.server;
-      }
-    ),
+    ...pluginContainer<ResolvedBuilderConfig>(webRouterDevServerPlugin, () => {
+      return builderConfig;
+    }),
   ];
 }

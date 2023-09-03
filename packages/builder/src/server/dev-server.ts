@@ -6,17 +6,12 @@ import path from "node:path";
 import url from "node:url";
 import stripAnsi from "strip-ansi";
 import type { Plugin, ViteDevServer } from "vite";
-import type { ServerEntryModule } from "../types";
+import type { ServerEntryModule, ResolvedBuilderConfig } from "../types";
 import { createViteLoader } from "./loader/index";
 import { getMeta } from "./render";
 
-export interface WebRouterDevServerPluginOptions {
-  entry: string;
-  routemap: string;
-}
-
 export function webRouterDevServerPlugin(
-  options: WebRouterDevServerPluginOptions
+  builderConfig: ResolvedBuilderConfig
 ): Plugin {
   return {
     name: "builder:web-router-dev-server",
@@ -35,15 +30,19 @@ export function webRouterDevServerPlugin(
     },
     async configureServer(viteServer) {
       const loader = createViteLoader(viteServer);
-      const manifest = (await loader.import(options.routemap))
-        .default as ManifestJSON;
+      const manifest = (
+        await loader.import(builderConfig.input.server.routemap)
+      ).default as ManifestJSON;
       const watchFiles: string[] = getWatchFiles(
         manifest,
         viteServer.config.root
       );
 
       async function restart(file: string) {
-        if (file === options.routemap || watchFiles.includes(file)) {
+        if (
+          file === builderConfig.input.server.routemap ||
+          watchFiles.includes(file)
+        ) {
           // TODO: This may cause the client to lose connection.
           await viteServer.restart();
         }
@@ -55,7 +54,7 @@ export function webRouterDevServerPlugin(
 
       return async () => {
         viteServer.middlewares.use(
-          await createWebRouterDevMiddleware(options, viteServer)
+          await createWebRouterDevMiddleware(builderConfig, viteServer)
         );
       };
     },
@@ -79,17 +78,19 @@ function getWatchFiles(manifest: ManifestJSON, root: string) {
 }
 
 async function createWebRouterDevMiddleware(
-  options: WebRouterDevServerPluginOptions,
+  builderConfig: ResolvedBuilderConfig,
   viteServer: ViteDevServer
 ): Promise<Middleware> {
   const baseModulePath = path.join(viteServer.config.root, path.sep);
   const baseModuleUrl = url.pathToFileURL(baseModulePath);
   const loader = createViteLoader(viteServer);
 
-  const manifest = (await loader.import(options.routemap)).default as Manifest;
+  const manifest = (await loader.import(builderConfig.input.server.routemap))
+    .default as Manifest;
 
-  const start = ((await loader.import(options.entry)) as ServerEntryModule)
-    .default;
+  const start = (
+    (await loader.import(builderConfig.input.server.entry)) as ServerEntryModule
+  ).default;
 
   const webRouter = start(manifest, {
     dev: true,
@@ -101,7 +102,7 @@ async function createWebRouterDevMiddleware(
       loader: async (id, importer) => {
         const source = new URL(id, importer);
         const modulePath = url.fileURLToPath(source);
-        const module = {
+        const routeModule = {
           meta: {},
           ...((await loader.import(modulePath)) as RouteModule),
         };
@@ -114,16 +115,27 @@ async function createWebRouterDevMiddleware(
         );
         Object.entries(meta).forEach(([key, value]) => {
           // @ts-ignore
-          if (module.meta[key]) {
+          if (routeModule.meta[key]) {
             // @ts-ignore
-            module.meta[key].push(...value);
+            routeModule.meta[key].push(...value);
           } else {
             // @ts-ignore
-            module.meta[key] = value;
+            routeModule.meta[key] = value;
           }
         });
 
-        return module;
+        routeModule.meta.script?.push({
+          type: "module",
+          id: "entry.client",
+          src:
+            viteServer.config.base +
+            path.relative(
+              viteServer.config.root,
+              builderConfig.input.client.entry
+            ),
+        });
+
+        return routeModule;
       },
     },
   });
