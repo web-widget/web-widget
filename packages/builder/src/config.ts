@@ -6,7 +6,7 @@ export const BUILDER_CONFIG_DEFAULTS: ResolvedBuilderConfig = {
   input: {
     client: {
       entry: "entry.client",
-      importmap: "importmap.client",
+      importmap: "importmap.client.json",
     },
     server: {
       entry: "entry.server",

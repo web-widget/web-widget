@@ -62,6 +62,11 @@ test("The content of script[type='importmap'] that should be merged", () => {
     imports: {
       "#pkg": "/assets/pkg.js",
     },
+    scopes: {
+      "https://cdn.io/": {
+        lib: "https://cdn.io/:npm/lib/index.js",
+      },
+    },
   };
   const defaults = {
     script: [
@@ -74,6 +79,11 @@ test("The content of script[type='importmap'] that should be merged", () => {
   const overrideImportMap = {
     imports: {
       "#ui": "/assets/ui.js",
+    },
+    scopes: {
+      "https://cdn.io/": {
+        lib2: "https://cdn.io/:npm/lib2/index.js",
+      },
     },
   };
   const overrides = {
@@ -94,7 +104,10 @@ test("The content of script[type='importmap'] that should be merged", () => {
             ...defaultsImportMap.imports,
             ...overrideImportMap.imports,
           },
-          scopes: {},
+          scopes: {
+            ...defaultsImportMap.scopes,
+            ...overrideImportMap.scopes,
+          },
         }),
       },
     ],

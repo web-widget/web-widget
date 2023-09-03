@@ -26,14 +26,22 @@ function runSsrBuild(inlineConfig?: InlineConfig) {
   });
 }
 
+type Imports = Record<string, string>;
+type Scopes = Record<string, Imports>;
+type ImportMap = {
+  imports?: Imports;
+  scopes?: Scopes;
+};
+
 export function buildWebWidgetEntryPlugin(
   builderConfig: ResolvedBuilderConfig
 ): Plugin {
+  let clientImportmap: ImportMap;
+  let resolvedConfig: ResolvedConfig;
   let serverRoutemap: ManifestJSON;
   let serverRoutemapEntryPoints: EntryPoints;
   let ssrBuild: boolean;
   let userConfig: UserConfig;
-  let resolvedConfig: ResolvedConfig;
 
   function createConfig(config: UserConfig, ssr?: boolean): UserConfig {
     ssrBuild = !!(config.build?.ssr ?? ssr);
@@ -41,6 +49,8 @@ export function buildWebWidgetEntryPlugin(
     const assetsDir = config.build?.assetsDir ?? "assets";
     const serverRoutemapPath = builderConfig.input.server.routemap;
 
+    clientImportmap = require(builderConfig.input.client
+      .importmap) as ImportMap;
     serverRoutemap = require(serverRoutemapPath) as ManifestJSON;
     serverRoutemapEntryPoints = resolveRoutemapEntryPoints(
       serverRoutemap,
@@ -95,7 +105,9 @@ export function buildWebWidgetEntryPlugin(
               },
           preserveEntrySignatures: "allow-extension", // "strict",
           treeshake: config.build?.rollupOptions?.treeshake ?? true,
-          external: ssrBuild ? (builtins as string[]) : undefined,
+          external: ssrBuild
+            ? (builtins as string[])
+            : Object.keys(clientImportmap?.imports ?? []),
           output: ssrBuild
             ? {
                 entryFileNames: `${assetsDir}/[name].js`,
@@ -138,6 +150,7 @@ export function buildWebWidgetEntryPlugin(
 
         try {
           generateServerRoutemap(
+            clientImportmap,
             serverRoutemap,
             viteManifest,
             builderConfig,
@@ -224,6 +237,7 @@ function resolveRoutemapEntryPoints(
 }
 
 function generateServerRoutemap(
+  clientImportmap: ImportMap,
   manifest: ManifestJSON,
   viteManifest: ViteManifest,
   builderConfig: ResolvedBuilderConfig,
@@ -348,6 +362,7 @@ function generateServerRoutemap(
 
   const entryFileName = path.relative(root, builderConfig.input.server.entry);
   const entryModuleName = "./" + routeModuleMap.get(entryFileName).fileName;
+  const clientImportmapCode = JSON.stringify(clientImportmap);
   const entryJsCode = [
     `import { mergeMeta } from "@web-widget/schema/server-helpers";`,
     `import entry from ${JSON.stringify(entryModuleName)};`,
@@ -357,6 +372,9 @@ function generateServerRoutemap(
     `    ...options,`,
     `    defaultMeta: mergeMeta(options.defaultMeta || {}, {`,
     `      script: [{`,
+    `        type: "importmap",`,
+    `        content: JSON.stringify(${clientImportmapCode})`,
+    `      }, {`,
     `        id: "entry.client",`,
     `        type: "module",`,
     `        content: [`,
