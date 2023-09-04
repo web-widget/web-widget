@@ -94,9 +94,7 @@ async function createWebRouterDevMiddleware(
 
   const webRouter = start(manifest, {
     dev: true,
-    baseAsset:
-      (viteServer.resolvedUrls?.network ||
-        viteServer.resolvedUrls?.local)?.[0] ?? viteServer.config.base,
+    baseAsset: viteServer.config.base,
     baseModule: baseModuleUrl,
     experimental: {
       loader: async (id, importer) => {
@@ -128,7 +126,7 @@ async function createWebRouterDevMiddleware(
           type: "module",
           id: "entry.client",
           src:
-            viteServer.config.base +
+            "/" +
             path.relative(
               viteServer.config.root,
               builderConfig.input.client.entry
