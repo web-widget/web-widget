@@ -19,6 +19,7 @@
 - 增加 `base` 设置，用于确定相对路径的 `import`
 - 删除 `type`
 - 删除 `src`
+- `loading` 默认值变更为 `eager`
 
 # 1.0.0-beta.3
 

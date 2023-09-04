@@ -18,7 +18,7 @@ export interface WebWidgetContainerOptions {
   data?: JSONProps;
   import?: string;
   inactive?: boolean;
-  loading?: string;
+  loading?: "lazy" | "eager";
   meta?: Meta;
   name?: string;
   renderStage /**/?: "server" | "client";
