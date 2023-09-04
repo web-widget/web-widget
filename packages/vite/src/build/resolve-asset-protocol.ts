@@ -1,9 +1,6 @@
 import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import MagicString from "magic-string";
-import Module from "node:module";
 import type { Plugin, Manifest as ViteManifest } from "vite";
-
-const require = Module.createRequire(import.meta.url);
 
 type ViteSsrManifest = Record<string, string[]>;
 
@@ -43,11 +40,19 @@ export function resolveAssetProtocol(
       extensions = resolvedConfig.resolve.extensions;
       filter = createFilter(include, exclude);
 
-      const manifests = (Array.isArray(manifest) ? manifest : [manifest]).map(
-        (manifest) =>
-          typeof manifest === "string"
-            ? (require(manifest) as ViteManifest | ViteSsrManifest)
-            : manifest
+      const manifests = await Promise.all(
+        (Array.isArray(manifest) ? manifest : [manifest]).map(
+          async (manifest) =>
+            typeof manifest === "string"
+              ? ((
+                  await import(manifest, {
+                    assert: {
+                      type: "json",
+                    },
+                  })
+                ).default as ViteManifest | ViteSsrManifest)
+              : manifest
+        )
       );
 
       manifests.forEach((manifest) => {

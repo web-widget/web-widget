@@ -1,6 +1,5 @@
 import type { ManifestJSON } from "@web-widget/web-router";
 import builtins from "builtin-modules";
-import Module from "node:module";
 import path from "node:path";
 import type { EmittedFile, OutputBundle, OutputChunk } from "rollup";
 import type {
@@ -14,7 +13,6 @@ import { build, normalizePath } from "vite";
 import type { ResolvedBuilderConfig } from "../types";
 
 let stage = 0;
-const require = Module.createRequire(import.meta.url);
 
 function runSsrBuild(inlineConfig?: InlineConfig) {
   process.nextTick(() => {
@@ -43,15 +41,31 @@ export function buildWebWidgetEntryPlugin(
   let ssrBuild: boolean;
   let userConfig: UserConfig;
 
-  function createConfig(config: UserConfig, ssr?: boolean): UserConfig {
+  async function createConfig(
+    config: UserConfig,
+    ssr?: boolean
+  ): Promise<UserConfig> {
     ssrBuild = !!(config.build?.ssr ?? ssr);
     const root = config.root || process.cwd();
     const assetsDir = config.build?.assetsDir ?? "assets";
     const serverRoutemapPath = builderConfig.input.server.routemap;
 
-    clientImportmap = require(builderConfig.input.client
-      .importmap) as ImportMap;
-    serverRoutemap = require(serverRoutemapPath) as ManifestJSON;
+    clientImportmap = (
+      await import(builderConfig.input.client.importmap, {
+        assert: {
+          type: "json",
+        },
+      })
+    ).default as ImportMap;
+
+    serverRoutemap = (
+      await import(serverRoutemapPath, {
+        assert: {
+          type: "json",
+        },
+      })
+    ).default as ManifestJSON;
+
     serverRoutemapEntryPoints = resolveRoutemapEntryPoints(
       serverRoutemap,
       serverRoutemapPath,
@@ -139,14 +153,23 @@ export function buildWebWidgetEntryPlugin(
 
     async generateBundle(_options, bundle) {
       if (ssrBuild) {
-        const viteManifest = require(path.resolve(
-          resolvedConfig.root,
-          path.join(
-            builderConfig.output.dir,
-            builderConfig.output.client,
-            builderConfig.output.manifest
+        const viteManifest = (
+          await import(
+            path.resolve(
+              resolvedConfig.root,
+              path.join(
+                builderConfig.output.dir,
+                builderConfig.output.client,
+                builderConfig.output.manifest
+              )
+            ),
+            {
+              assert: {
+                type: "json",
+              },
+            }
           )
-        )) as ViteManifest;
+        ).default as ViteManifest;
 
         try {
           generateServerRoutemap(
@@ -187,7 +210,7 @@ export function buildWebWidgetEntryPlugin(
     async writeBundle() {
       stage++;
       if (!ssrBuild && builderConfig.autoFullBuild) {
-        runSsrBuild(createConfig(userConfig, true));
+        runSsrBuild(await createConfig(userConfig, true));
         return;
       }
 
