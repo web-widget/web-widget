@@ -1,5 +1,11 @@
 # @web-widget/react
 
+## 0.1.1
+
+### Patch Changes
+
+- fix: Merge options correctly.
+
 ## 0.1.0
 
 ### Minor Changes
