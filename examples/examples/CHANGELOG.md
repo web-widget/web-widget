@@ -1,5 +1,13 @@
 # @examples/examples
 
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/react@0.1.1
+  - @web-widget/vue@0.2.1
+
 ## 1.0.3
 
 ### Patch Changes

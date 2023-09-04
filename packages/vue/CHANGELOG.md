@@ -1,5 +1,11 @@
 # @web-widget/vue
 
+## 0.2.1
+
+### Patch Changes
+
+- fix: Merge options correctly.
+
 ## 0.2.0
 
 ### Minor Changes
