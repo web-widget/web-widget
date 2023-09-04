@@ -199,7 +199,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Indicates how the browser should load the module
    */
   get loading(): string {
-    return this.getAttribute("loading") || "auto";
+    return this.getAttribute("loading") || "eager";
   }
 
   set loading(value) {
