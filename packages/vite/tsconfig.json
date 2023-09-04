@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "module": "es2020",
-    "target": "es2020",
+    "module": "ESNext",
+    "target": "ESNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "strict": true,
@@ -11,7 +11,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "useUnknownInCatchVariables": false,
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
+    "lib": ["ESNext"],
     "types": ["node"],
     "paths": {}
   },

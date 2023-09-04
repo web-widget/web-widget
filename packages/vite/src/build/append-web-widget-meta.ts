@@ -3,11 +3,9 @@ import type { LinkDescriptor } from "@web-widget/schema";
 import * as esModuleLexer from "es-module-lexer";
 import MagicString from "magic-string";
 import mime from "mime-types";
-import Module from "node:module";
 import path from "node:path";
 import type { Plugin, Manifest as ViteManifest } from "vite";
 
-const require = Module.createRequire(import.meta.url);
 const RESOLVE_URL_REG = /^(?:\w+:)?\//;
 const rebase = (src: string, base: string) => {
   return RESOLVE_URL_REG.test(src) ? src : base + src;
@@ -36,7 +34,13 @@ export function appendWebWidgetMetaPlugin(
       base = resolvedConfig.base;
       viteManifest =
         typeof manifest === "string"
-          ? (require(manifest) as ViteManifest)
+          ? ((
+              await import(manifest, {
+                assert: {
+                  type: "json",
+                },
+              })
+            ).default as ViteManifest)
           : manifest;
       filter = createFilter(include, exclude);
     },
