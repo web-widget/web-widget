@@ -1,5 +1,11 @@
 # @web-widget/react
 
+## 0.2.0
+
+### Minor Changes
+
+- refactor: Reduce the size of `onPrefetchData` serialization.
+
 ## 0.1.1
 
 ### Patch Changes

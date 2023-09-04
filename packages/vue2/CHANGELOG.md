@@ -1,5 +1,11 @@
 # @web-widget/vue2
 
+## 0.2.0
+
+### Minor Changes
+
+- refactor: Reduce the size of `onPrefetchData` serialization.
+
 ## 0.1.2
 
 ### Patch Changes

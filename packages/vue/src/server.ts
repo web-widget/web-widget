@@ -34,7 +34,7 @@ export const defineVueRender = ({
     const state = onPrefetchData
       ? await onPrefetchData(context, component, props)
       : undefined;
-    const mergedProps = state ? Object.assign(state, props) : props;
+    const mergedProps = state ? Object.assign({}, state, props) : props;
 
     if (state) {
       const stateStringify = htmlEscapeJsonString(JSON.stringify(state));
