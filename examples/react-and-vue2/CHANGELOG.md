@@ -1,5 +1,12 @@
 # @examples/react-and-vue2
 
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/vue2@0.1.2
+
 ## 1.0.4
 
 ### Patch Changes

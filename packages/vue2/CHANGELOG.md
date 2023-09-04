@@ -1,5 +1,11 @@
 # @web-widget/vue2
 
+## 0.1.2
+
+### Patch Changes
+
+- fix: JSON is not serialized correctly.
+
 ## 0.1.1
 
 ### Patch Changes

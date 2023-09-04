@@ -51,16 +51,15 @@ export const defineVueRender = ({
       render = (h) =>
         h(shellTag, shellTagVNodeData, [
           h(component, vNodeData),
-          h(
-            "script",
-            {
-              attrs: {
-                as: "state",
-                type: "application/json",
-              },
+          h("script", {
+            attrs: {
+              as: "state",
+              type: "application/json",
             },
-            stateStringify
-          ),
+            domProps: {
+              innerHTML: stateStringify,
+            },
+          }),
         ]);
     } else {
       render = (h) => h(shellTag, shellTagVNodeData, [h(component, vNodeData)]);
