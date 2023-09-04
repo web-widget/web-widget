@@ -1,10 +1,12 @@
 {
   "name": "@web-widget/node",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "type": "module",
   "exports": {
     ".": {
       "types": "./dist/node.d.ts",
+      "development": "./src/index.ts",
+      "require": "./dist/node.cjs",
       "default": "./dist/node.js"
     }
   },
@@ -18,7 +20,7 @@
   },
   "dependencies": {
     "@edge-runtime/node-utils": "^2.1.2",
-    "@edge-runtime/primitives": "^3.0.4" 
+    "@edge-runtime/primitives": "^3.0.4"
   },
   "devDependencies": {
     "@types/node": "^17.0.42",
@@ -29,6 +31,13 @@
     "node": ">=18"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/node.d.ts",
+        "require": "./dist/node.cjs",
+        "default": "./dist/node.js"
+      }
+    }
   }
 }

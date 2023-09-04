@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vue2",
-  "version": "0.0.16",
+  "version": "0.1.0",
   "type": "module",
   "exports": {
     ".": {
@@ -12,12 +12,14 @@
       "default": {
         "types": "./dist/vue2.server.d.ts",
         "development": "./src/server.ts",
+        "require": "./dist/vue2.server.cjs",
         "default": "./dist/vue2.server.js"
       }
     },
     "./vite": {
       "types": "./dist/vite.d.ts",
       "development": "./src/vite.ts",
+      "require": "./dist/vite.cjs",
       "default": "./dist/vite.js"
     }
   },
@@ -56,11 +58,13 @@
         },
         "default": {
           "types": "./dist/vue2.server.d.ts",
+          "require": "./dist/vue2.server.cjs",
           "default": "./dist/vue2.server.js"
         }
       },
       "./vite": {
         "types": "./dist/vite.d.ts",
+        "require": "./dist/vite.cjs",
         "default": "./dist/vite.js"
       }
     }
