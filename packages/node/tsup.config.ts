@@ -5,7 +5,7 @@ export const tsup: Options = {
   target: "node18",
   splitting: false,
   sourcemap: false,
-  format: ["esm"],
+  format: ["esm", "cjs"],
   outDir: "dist",
   clean: true,
   external: [],

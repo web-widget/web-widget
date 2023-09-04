@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vue",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "type": "module",
   "exports": {
     ".": {
@@ -23,6 +23,7 @@
     "./vite": {
       "types": "./dist/vite.d.ts",
       "development": "./src/vite.ts",
+      "require": "./dist/vite.cjs",
       "default": "./dist/vite.js"
     }
   },
@@ -67,6 +68,7 @@
       },
       "./vite": {
         "types": "./dist/vite.d.ts",
+        "require": "./dist/vite.cjs",
         "default": "./dist/vite.js"
       }
     }
