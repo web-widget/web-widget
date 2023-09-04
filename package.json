@@ -19,10 +19,11 @@
     "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll",
     "//postinstall": "turbo run stub",
     "prettier": "prettier --write packages/**/*.js",
-    "publish": "pnpm publish -r",
+    "ci:publish": "pnpm publish -r",
     "start": "rocket start"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
     "@rocket/cli": "^0.10.2",
     "@rocket/core": "^0.1.2",
     "@rocket/launch": "^0.6.0",
