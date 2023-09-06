@@ -1,12 +1,14 @@
 import { defineRender } from "@web-widget/schema/server-helpers";
 import { Readable } from "node:stream";
-import type { CreateElement, VNode } from "vue";
+import { TransformStream } from "node:stream/web";
 import Vue from "vue";
 import { createRenderer } from "vue-server-renderer";
 import type { DefineVueRenderOptions } from "./types";
 
 export * from "@web-widget/schema/server-helpers";
 export * from "./web-widget";
+
+const __FEATURE_STREAM__ = false;
 
 const ESCAPE_LOOKUP: { [match: string]: string } = {
   ">": "\\u003e",
@@ -23,6 +25,21 @@ function htmlEscapeJsonString(str: string): string {
   return str.replace(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match]);
 }
 
+function appendStringToReadableStream(
+  stream: ReadableStream,
+  text: string
+): ReadableStream {
+  const encoder = new TextEncoder();
+  const uint8Array = encoder.encode(text);
+  return stream.pipeThrough(
+    new TransformStream({
+      flush(controller) {
+        controller.enqueue(uint8Array);
+      },
+    })
+  );
+}
+
 export const defineVueRender = ({
   onBeforeCreateApp = () => ({}),
   onCreatedApp = () => {},
@@ -36,45 +53,36 @@ export const defineVueRender = ({
     const mergedProps = state ? Object.assign({}, state, props) : props;
 
     const renderer = createRenderer();
-    const vNodeData: Vue.VNodeData = {
-      attrs: {
-        "data-vue2root": "true",
-      },
-      props: mergedProps as Record<string, any>,
-    };
-    const shellTagVNodeData = {};
-
-    let render: (h: CreateElement) => VNode;
-
-    if (state) {
-      const stateStringify = htmlEscapeJsonString(JSON.stringify(state));
-      render = (h) =>
-        h(shellTag, shellTagVNodeData, [
-          h(component, vNodeData),
-          h("script", {
-            attrs: {
-              as: "state",
-              type: "application/json",
-            },
-            domProps: {
-              innerHTML: stateStringify,
-            },
-          }),
-        ]);
-    } else {
-      render = (h) => h(shellTag, shellTagVNodeData, [h(component, vNodeData)]);
-    }
 
     const app = new Vue({
-      render,
+      render: (h) =>
+        h(shellTag, {}, [
+          h(component, {
+            attrs: {
+              "data-vue2root": "true",
+            },
+            props: mergedProps as Record<string, any>,
+          }),
+        ]),
       ...onBeforeCreateApp(context, component, mergedProps),
     });
 
     onCreatedApp(app, context, component, mergedProps);
 
-    return Readable.toWeb
-      ? Readable.toWeb(renderer.renderToStream(app))
-      : renderer.renderToString(app);
+    const result =
+      __FEATURE_STREAM__ && Readable.toWeb
+        ? Readable.toWeb(renderer.renderToStream(app))
+        : await renderer.renderToString(app);
+
+    if (state) {
+      const json = htmlEscapeJsonString(JSON.stringify(state));
+      const script = `<script as="state" type="application/json">${json}</script>`;
+      return typeof result === "string"
+        ? result + script
+        : appendStringToReadableStream(result, script);
+    } else {
+      return result;
+    }
   });
 };
 

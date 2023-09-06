@@ -2,6 +2,12 @@
 
 ## 0.2.0
 
+### Patch Changes
+
+- feat: Disable stream rendering.
+
+## 0.2.0
+
 ### Minor Changes
 
 - refactor: Reduce the size of `onPrefetchData` serialization.
