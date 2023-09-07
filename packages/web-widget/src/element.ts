@@ -510,7 +510,9 @@ Object.assign(window, {
   HTMLWebWidgetElement,
 });
 
-customElements.define("web-widget", HTMLWebWidgetElement);
+queueMicrotask(() => {
+  customElements.define("web-widget", HTMLWebWidgetElement);
+});
 
 declare global {
   interface Window {

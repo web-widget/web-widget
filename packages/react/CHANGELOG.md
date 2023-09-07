@@ -1,5 +1,13 @@
 # @web-widget/react
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.0.0-alpha.11
+  - @web-widget/vite@1.1.1
+
 ## 0.2.0
 
 ### Minor Changes

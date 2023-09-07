@@ -1,6 +1,12 @@
 # CHANGELOG
 
-# 当前
+## 1.0.0-alpha.11
+
+### Patch Changes
+
+- refactor: Lazy registration of definition elements so users can override lifecycle functions.
+
+## 1.0.0-beta.3 - 1.0.0-beta.10
 
 此版本为破坏性升级。
 
@@ -21,11 +27,11 @@
 - 删除 `src`
 - `loading` 默认值变更为 `eager`
 
-# 1.0.0-beta.3
+## 1.0.0-beta.3
 
 - 修复超时错误消息没有正确显示的问题
 
-# 1.0.0-beta.2
+## 1.0.0-beta.2
 
 - 修复 `<fallback>` 元素没有按照预期工作的问题
 - 删除超时的控制台警告特性
