@@ -1,5 +1,12 @@
 # @web-widget/vite
 
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.0.0-alpha.11
+
 ## 1.1.0
 
 ### Minor Changes
