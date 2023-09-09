@@ -1,5 +1,11 @@
 # @web-widget/vite
 
+## 1.1.2
+
+### Patch Changes
+
+- fix: Some files are not refreshed after changes.
+
 ## 1.1.1
 
 ### Patch Changes
