@@ -1,10 +1,6 @@
-# @examples/examples
+# @examples/vue2
 
-## 1.0.7
-
-### Major Changes
-
-- feat: Support setting rendering options for front-end frameworks.
+## 1.0.9
 
 ### Patch Changes
 
@@ -13,25 +9,39 @@
   - @web-widget/schema@0.1.0
   - @web-widget/react@0.3.0
   - @web-widget/html@0.1.0
-  - @web-widget/vue@0.4.0
+  - @web-widget/vue2@0.2.0
   - @web-widget/web-widget@1.0.0
 
-## 1.0.6
+## 1.0.8
 
 ### Patch Changes
 
 - Updated dependencies
   - @web-widget/web-widget@1.0.0-alpha.11
   - @web-widget/react@0.2.1
-  - @web-widget/vue@0.3.1
+  - @web-widget/vue2@0.2.0
+
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/vue2@0.2.0-beta1
+
+## 1.0.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/react@0.2.0
+  - @web-widget/vue2@0.2.0
 
 ## 1.0.5
 
 ### Patch Changes
 
 - Updated dependencies
-  - @web-widget/react@0.2.0
-  - @web-widget/vue@0.3.0
+  - @web-widget/vue2@0.1.2
 
 ## 1.0.4
 
@@ -39,7 +49,7 @@
 
 - Updated dependencies
   - @web-widget/react@0.1.1
-  - @web-widget/vue@0.2.1
+  - @web-widget/vue2@0.1.1
 
 ## 1.0.3
 
@@ -48,7 +58,7 @@
 - Updated dependencies
   - @web-widget/react@0.1.0
   - @web-widget/node@0.1.0
-  - @web-widget/vue@0.2.0
+  - @web-widget/vue2@0.1.0
 
 ## 1.0.2
 
@@ -57,11 +67,11 @@
 - Updated dependencies
   - @web-widget/web-router@0.3.0
   - @web-widget/react@0.0.14
-  - @web-widget/vue@0.1.9
+  - @web-widget/vue2@0.0.16
 
 ## 1.0.1
 
 ### Patch Changes
 
 - @web-widget/react@0.0.13
-- @web-widget/vue@0.1.8
+- @web-widget/vue2@0.0.15
