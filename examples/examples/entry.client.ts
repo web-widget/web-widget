@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { HTMLWebWidgetElement } from "@web-widget/web-widget";
 
-function countAllElementsOnPage(target) {
+function countNodes(target) {
   let nodes = [target];
   /** 总节点数 */
   let totalElementsCount = 0;
@@ -50,10 +50,7 @@ defineHook(
       const print = () => {
         const label = `web-widget[import="${this.import}"]`;
         console.groupCollapsed(label);
-        console.table({
-          ...data,
-          ...countAllElementsOnPage(this),
-        });
+        console.table(data);
         console.info(this);
         console.groupEnd(label);
       };
@@ -69,7 +66,7 @@ defineHook(
           ] = now - time;
 
           if (this.status === MOUNTED) {
-            Object.assign(data, countAllElementsOnPage(this));
+            Object.assign(data, countNodes(this));
             print();
           }
         }
