@@ -19,9 +19,15 @@ export default (manifest: Manifest, options: StartOptions) => {
       ...options.defaultMeta,
     },
     async experimental_render(context, render) {
-      const url = new URL(context.request.url);
-      const isCrawler = url.searchParams.has("debug-await-all-ready");
-      if (isCrawler) {
+      const isSpider = /spider|bot/i.test(
+        String(context.request.headers.get("User-Agent"))
+      );
+      const isDebugSpider = new URL(context.request.url).searchParams.has(
+        "debug-spider"
+      );
+
+      if (isSpider || isDebugSpider) {
+        console.log("spider..");
         const reactRenderOptions: ReactRenderOptions = {
           react: {
             awaitAllReady: true,
