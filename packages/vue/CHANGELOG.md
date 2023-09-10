@@ -1,5 +1,16 @@
 # @web-widget/vue
 
+## 0.4.0
+
+### Patch Changes
+
+- feat: Support setting rendering options.
+- Updated dependencies
+  - @web-widget/schema@0.1.0
+  - @web-widget/html@0.1.0
+  - @web-widget/vite@2.0.0
+  - @web-widget/web-widget@1.0.0-alpha.12
+
 ## 0.3.1
 
 ### Patch Changes

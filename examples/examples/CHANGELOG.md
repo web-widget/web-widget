@@ -1,5 +1,21 @@
 # @examples/examples
 
+## 1.0.7
+
+### Major Changes
+
+- feat: Support setting rendering options for front-end frameworks.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-router@0.4.0
+  - @web-widget/schema@0.1.0
+  - @web-widget/react@0.3.0
+  - @web-widget/html@0.1.0
+  - @web-widget/vue@0.4.0
+  - @web-widget/web-widget@1.0.0
+
 ## 1.0.6
 
 ### Patch Changes

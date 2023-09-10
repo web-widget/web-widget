@@ -48,7 +48,7 @@ export function getComponentProps(
   const error = context.error;
 
   if (isRouteRenderContext(context)) {
-    const { data, params, route, url } = context as RouteRenderContext;
+    const { data, params, pathname, request } = context as RouteRenderContext;
 
     if (error) {
       props = {
@@ -62,8 +62,8 @@ export function getComponentProps(
       props = {
         data,
         params,
-        route,
-        url,
+        pathname,
+        request,
       } as RouteComponentProps;
     }
   } else {
@@ -84,5 +84,27 @@ export function getComponentProps(
 export function isRouteRenderContext(
   context: WidgetRenderContext | RouteRenderContext
 ) {
-  return Reflect.has(context, "route");
+  return Reflect.has(context, "request");
+}
+
+export interface ComponentDescriptor {
+  component:
+    | RouteFallbackComponent
+    | RouteComponent
+    | WidgetFallbackComponent
+    | WidgetComponent;
+  props:
+    | RouteFallbackComponentProps
+    | RouteComponentProps
+    | WidgetFallbackComponentProps
+    | WidgetComponentProps;
+}
+
+export function getComponentDescriptor(
+  context: WidgetRenderContext | RouteRenderContext
+): ComponentDescriptor {
+  return {
+    component: getComponent(context),
+    props: getComponentProps(context),
+  };
 }

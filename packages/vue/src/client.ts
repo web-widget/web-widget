@@ -1,8 +1,11 @@
-import { __ENV__ } from "./web-widget";
+import {
+  defineRender,
+  getComponentDescriptor,
+} from "@web-widget/schema/client-helpers";
 import type { App } from "vue";
 import { createApp, createSSRApp } from "vue";
-import { defineRender } from "@web-widget/schema/client-helpers";
 import type { DefineVueRenderOptions } from "./types";
+import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/client-helpers";
 export * from "./web-widget";
@@ -15,7 +18,9 @@ export const defineVueRender = ({
   onCreatedApp = () => {},
   onPrefetchData,
 }: DefineVueRenderOptions = {}) => {
-  return defineRender(async (context, component, props) => {
+  return defineRender(async (context) => {
+    const componentDescriptor = getComponentDescriptor(context);
+    const { component, props } = componentDescriptor;
     if (!context.container) {
       throw new Error(`Container required.`);
     }

@@ -1,8 +1,11 @@
-import { __ENV__ } from "./web-widget";
-import { createSSRApp, h, Fragment } from "vue";
-import { defineRender } from "@web-widget/schema/server-helpers";
-import { renderToWebStream } from "vue/server-renderer";
+import {
+  defineRender,
+  getComponentDescriptor,
+} from "@web-widget/schema/server-helpers";
+import { Fragment, createSSRApp, h } from "vue";
+import { renderToWebStream, type SSRContext } from "vue/server-renderer";
 import type { DefineVueRenderOptions } from "./types";
+import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/server-helpers";
 export * from "./web-widget";
@@ -26,37 +29,47 @@ function htmlEscapeJsonString(str: string): string {
   return str.replace(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match]);
 }
 
+export interface VueRenderOptions {
+  vue?: SSRContext;
+}
+
 export const defineVueRender = ({
   onCreatedApp = () => {},
   onPrefetchData,
 }: DefineVueRenderOptions = {}) => {
-  return defineRender(async (context, component, props) => {
-    const state = onPrefetchData
-      ? await onPrefetchData(context, component, props)
-      : undefined;
-    const mergedProps = state ? Object.assign({}, state, props) : props;
+  return defineRender<VueRenderOptions>(
+    async (context, { vue: ssrContext } = {}) => {
+      const componentDescriptor = getComponentDescriptor(context);
+      const { component, props } = componentDescriptor;
+      const state = onPrefetchData
+        ? await onPrefetchData(context, component, props)
+        : undefined;
+      const mergedProps = (
+        state ? Object.assign({}, state, props) : props
+      ) as Record<string, any>;
 
-    if (state) {
-      const stateStringify = htmlEscapeJsonString(JSON.stringify(state));
-      const vNode = h(Fragment, null, [
-        h(component, mergedProps as Record<string, any>),
-        h("script", {
-          as: "state",
-          type: "application/json",
-          innerHTML: stateStringify,
-        }),
-      ]);
+      if (state) {
+        const stateStringify = htmlEscapeJsonString(JSON.stringify(state));
+        const vNode = h(Fragment, null, [
+          h(component, mergedProps),
+          h("script", {
+            as: "state",
+            type: "application/json",
+            innerHTML: stateStringify,
+          }),
+        ]);
 
-      const app = createSSRApp(vNode);
-      onCreatedApp(app, context, component, props);
+        const app = createSSRApp(vNode);
+        onCreatedApp(app, context, component, mergedProps);
 
-      return renderToWebStream(app);
-    } else {
-      const app = createSSRApp(component, mergedProps as Record<string, any>);
-      onCreatedApp(app, context, component, props);
-      return renderToWebStream(app);
+        return renderToWebStream(app, ssrContext);
+      } else {
+        const app = createSSRApp(component, mergedProps);
+        onCreatedApp(app, context, component, mergedProps);
+        return renderToWebStream(app, ssrContext);
+      }
     }
-  });
+  );
 };
 
 export const render = defineVueRender();

@@ -8,6 +8,7 @@ export type {
   WidgetError,
   ClientWidgetRenderContext as WidgetRenderContext,
   ClientWidgetRenderResult as WidgetRenderResult,
+  WidgetRenderOptions,
   ClientWidgetRender as WidgetRender,
   // ROUTE
   ClientRouteModule as RouteModule,
@@ -22,6 +23,7 @@ export type {
   ClientRouteHandlerContext as RouteHandlerContext,
   ClientRouteRenderContext as RouteRenderContext,
   ClientRouteRenderResult as RouteRenderResult,
+  RouteRenderOptions,
   ClientRouteHandlerResult as RouteHandlerResult,
   ClientRouteRender as RouteRender,
   // META: DESCRIPTOR
@@ -49,7 +51,9 @@ export {
   defineClientRouteHandler as defineRouteHandler,
 } from "./define";
 export {
+  type ComponentDescriptor,
   getComponent,
+  getComponentDescriptor,
   getComponentProps,
   isRouteRenderContext,
 } from "./context";

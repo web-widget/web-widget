@@ -1,8 +1,8 @@
 import type * as router from "./router";
 
 import type {
-  RouteConfig as BaseRouterConfig,
   Meta,
+  RouteConfig as BaseRouteConfig,
   RouteHandler,
   RouteHandlers,
   RouteModule,
@@ -34,28 +34,39 @@ export interface WebRouterOptions {
   defaultBootstrap?: ScriptDescriptor[];
   defaultMeta?: Meta;
   origin?: string;
-  experimental?: {
-    loader?: (module: string, importer?: string) => Promise<unknown>;
-    render?: RootRender;
-    router?: RouterOptions;
-  };
-}
+  experimental_loader?: (
+    module: string,
+    importer?: string
+  ) => RouteModule | Promise<RouteModule>;
+  experimental_render?: RootRender;
 
-export interface RouterOptions {
   /**
-   *  Controls whether Fresh will append a trailing slash to the URL.
+   *  Controls whether web router will append a trailing slash to the URL.
    *  @default {false}
    */
-  trailingSlash?: boolean;
+  experimental_trailingSlash?: boolean;
 }
+
+export type RouteConfig = {
+  /**
+   * If Content-Security-Policy should be enabled for this page.
+   */
+  csp?: boolean;
+
+  /**
+   * A route override for the page. This is useful for pages where the route
+   * can not be expressed through the filesystem routing capabilities.
+   *
+   * The route override must be a path-to-regexp compatible route matcher.
+   */
+  routeOverride?: string;
+} & BaseRouteConfig;
 
 export type { RootRenderContext };
 
-export type ChildrenRender = () => Promise<RouteRenderResult>;
-
 export type RootRender = (
   ctx: RootRenderContext,
-  render: ChildrenRender
+  render: () => RouteRenderResult | Promise<RouteRenderResult>
 ) => void | Promise<void>;
 
 export type RouterHandler = (
@@ -121,24 +132,8 @@ export interface ManifestJSON {
 
 // --- PAGE ---
 
-export interface RouteConfig extends BaseRouterConfig {
-  /**
-   * A route override for the page. This is useful for pages where the route
-   * can not be expressed through the filesystem routing capabilities.
-   *
-   * The route override must be a path-to-regexp compatible route matcher.
-   */
-  routeOverride?: string;
-
-  /**
-   * If Content-Security-Policy should be enabled for this page.
-   */
-  csp?: boolean;
-}
-
 export interface Page {
   bootstrap: ScriptDescriptor[];
-  config: RouteConfig;
   csp: boolean;
   handler: RouteHandler | RouteHandlers;
   meta: Meta;
@@ -176,7 +171,7 @@ export interface Middleware {
   /**
    * URLPattern of the route
    */
-  compiledPattern: URLPattern;
+  pattern: URLPattern;
 }
 
 // --- LAYOUT ---

@@ -7,64 +7,34 @@ import type {
   ClientWidgetRenderResult,
   Meta,
   RouteComponent,
-  RouteComponentProps,
-  RouteFallbackComponentProps,
   ServerRouteHandler,
   ServerRouteHandlers,
   ServerRouteRenderContext,
   ServerRouteRenderResult,
   ServerWidgetRenderContext,
   ServerWidgetRenderResult,
-  WidgetComponent,
-  WidgetComponentProps,
-  WidgetFallbackComponentProps,
 } from "../types";
-import { getComponent, getComponentProps } from "./context";
 
 export function defineMeta(meta: Meta) {
   return meta;
 }
 
-export function defineServerRender(
-  factory: (
+export function defineServerRender<T = any>(
+  render: (
     context: ServerWidgetRenderContext | ServerRouteRenderContext,
-    component: WidgetComponent | RouteComponent | any,
-    props:
-      | RouteFallbackComponentProps
-      | RouteComponentProps
-      | WidgetFallbackComponentProps
-      | WidgetComponentProps
+    renderOptions: ResponseInit & T
   ) => Promise<ServerWidgetRenderResult | ServerRouteRenderResult>
 ) {
-  return function render(
-    context: ServerWidgetRenderContext | ServerRouteRenderContext
-  ) {
-    const component = getComponent(context);
-    const props = getComponentProps(context);
-
-    return factory(context, component, props);
-  };
+  return render;
 }
 
-export function defineClientRender(
-  factory: (
+export function defineClientRender<T = any>(
+  render: (
     context: ClientWidgetRenderContext | ClientRouteRenderContext,
-    component: WidgetComponent | RouteComponent | any,
-    props:
-      | RouteFallbackComponentProps
-      | RouteComponentProps
-      | WidgetFallbackComponentProps
-      | WidgetComponentProps
+    renderOptions: ResponseInit & T
   ) => Promise<ClientWidgetRenderResult | ClientRouteRenderResult>
 ) {
-  return function render(
-    context: ClientWidgetRenderContext | ClientRouteRenderContext
-  ) {
-    const component = getComponent(context);
-    const props = getComponentProps(context);
-
-    return factory(context, component, props);
-  };
+  return render;
 }
 
 export function defineRouteComponent<

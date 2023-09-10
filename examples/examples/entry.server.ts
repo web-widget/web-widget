@@ -1,5 +1,6 @@
 import WebRouter from "@web-widget/web-router";
 import type { Manifest, StartOptions } from "@web-widget/web-router";
+import type { ReactRenderOptions } from "@web-widget/react";
 
 export default (manifest: Manifest, options: StartOptions) => {
   return new WebRouter(manifest, {
@@ -16,6 +17,25 @@ export default (manifest: Manifest, options: StartOptions) => {
         },
       ],
       ...options.defaultMeta,
+    },
+    async experimental_render(context, render) {
+      const isSpider = /spider|bot/i.test(
+        String(context.request.headers.get("User-Agent"))
+      );
+      const isDebugSpider = new URL(context.request.url).searchParams.has(
+        "debug-spider"
+      );
+
+      if (isSpider || isDebugSpider) {
+        console.log("spider..");
+        const reactRenderOptions: ReactRenderOptions = {
+          react: {
+            awaitAllReady: true,
+          },
+        };
+        Object.assign(context.renderOptions, reactRenderOptions);
+      }
+      await render();
     },
   });
 };

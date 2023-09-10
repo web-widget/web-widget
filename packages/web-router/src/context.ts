@@ -11,6 +11,8 @@ import type {
   RouteHandler,
   RouteModule,
   RouteRender,
+  RouteRenderContext,
+  RouteRenderOptions,
   RouteRenderResult,
 } from "@web-widget/schema/server-helpers";
 import * as router from "./router";
@@ -25,10 +27,10 @@ import type {
   MiddlewareHandlerContext,
   MiddlewareModule,
   Page,
-  RootRender,
   Requester,
+  RootRender,
   RouterHandler,
-  RouterOptions,
+  RouteConfig,
   ScriptDescriptor,
   WebRouterOptions,
 } from "./types";
@@ -45,33 +47,42 @@ interface RouterState {
   state: Record<string, unknown>;
 }
 
+type ResolvedWebRouterOptions = {
+  baseAsset: string;
+  baseModule: string;
+  defaultBootstrap: ScriptDescriptor[];
+  defaultMeta: Meta;
+  experimental_render: RootRender;
+  experimental_loader: (
+    module: string,
+    importer?: string
+  ) => RouteModule | Promise<RouteModule>;
+} & WebRouterOptions;
+
 export class ServerContext {
-  #bootstraps: ScriptDescriptor[];
   #dev: boolean;
   #fallbacks: Page[];
   #layout: Layout;
   #middlewares: Middleware[];
+  #options: ResolvedWebRouterOptions;
   #rootRender: RootRender;
-  #routerOptions: RouterOptions;
   #routes: Page[];
 
   constructor(
-    bootstraps: ScriptDescriptor[],
     dev: boolean,
     fallbacks: Page[],
     layout: Layout,
     middlewares: Middleware[],
+    options: ResolvedWebRouterOptions,
     rootRender: RootRender,
-    routerOptions: RouterOptions,
     routes: Page[]
   ) {
-    this.#bootstraps = bootstraps;
     this.#dev = dev;
     this.#fallbacks = fallbacks;
     this.#layout = layout;
     this.#middlewares = middlewares;
+    this.#options = options;
     this.#rootRender = rootRender;
-    this.#routerOptions = routerOptions;
     this.#routes = routes;
     deepFreeze(this);
   }
@@ -102,19 +113,21 @@ export class ServerContext {
       typeof opts.baseAsset === "string" &&
       RESOLVE_URL_REG.test(opts.baseAsset);
 
-    const resolvedOpts = {
-      baseAsset: isDevBaseAsset ? opts.baseAsset : new URL(opts.baseAsset).href,
+    const resolvedOpts: ResolvedWebRouterOptions = {
+      baseAsset: isDevBaseAsset
+        ? (opts.baseAsset as string)
+        : new URL(opts.baseAsset).href,
       baseModule: new URL(opts.baseModule).href,
-      bootstrap: opts.defaultBootstrap ?? DEFAULT_BOOTSTRAP,
-      loader:
-        opts.experimental?.loader ??
+      defaultBootstrap: opts.defaultBootstrap ?? DEFAULT_BOOTSTRAP,
+      experimental_loader:
+        opts.experimental_loader ??
         ((module: string, importer?: string) => {
           const url = new URL(module, importer).href;
           return import(/* @vite-ignore */ /* webpackIgnore: true */ url);
         }),
-      meta: opts.defaultMeta ?? DEFAULT_META,
-      render: opts.experimental?.render ?? DEFAULT_RENDER_FN,
-      router: opts.experimental?.router ?? DEFAULT_ROUTER_OPTIONS,
+      defaultMeta: opts.defaultMeta ?? DEFAULT_META,
+      experimental_render: opts.experimental_render ?? DEFAULT_RENDER_FN,
+      experimental_trailingSlash: opts.experimental_trailingSlash ?? false,
     };
 
     // Extract all routes, and prepare them into the `Page` structure.
@@ -135,18 +148,23 @@ export class ServerContext {
 
     const resolveModule = async <T>(mod: string | T, importer: string) => {
       if (typeof mod === "string") {
-        return (await resolvedOpts.loader(mod, importer)) as T;
+        return (await resolvedOpts.experimental_loader(mod, importer)) as T;
       } else {
         return mod as T;
       }
     };
+
+    const resolveConfig = (config: RouteConfig) => config;
 
     const resolveMeta = (meta: Meta, importer: string): Meta => {
       const fileName = importer.replace(resolvedOpts.baseModule, "");
       const httpImporter = isDevBaseAsset
         ? resolvedOpts.baseAsset + fileName
         : new URL(fileName, resolvedOpts.baseAsset).href;
-      return rebaseMeta(mergeMeta(resolvedOpts.meta, meta), httpImporter);
+      return rebaseMeta(
+        mergeMeta(resolvedOpts.defaultMeta, meta),
+        httpImporter
+      );
     };
 
     const emptyRender = async () => {
@@ -160,7 +178,8 @@ export class ServerContext {
         item.module,
         resolvedOpts.baseModule
       );
-      const { config = {}, handler = {}, render = emptyRender } = module;
+      const { handler = {}, render = emptyRender } = module;
+      const config = resolveConfig(module.config || {});
       const meta = resolveMeta(module.meta || {}, source.href);
 
       if (typeof handler === "object" && handler.GET === undefined) {
@@ -183,8 +202,7 @@ export class ServerContext {
         }) as RouteHandler;
       }
       routes.push({
-        bootstrap: resolvedOpts.bootstrap,
-        config,
+        bootstrap: resolvedOpts.defaultBootstrap,
         csp: Boolean(config.csp ?? false),
         handler: handler as RouteHandler,
         meta,
@@ -205,7 +223,8 @@ export class ServerContext {
         item.module,
         resolvedOpts.baseModule
       );
-      const { config = {}, render } = module;
+      const { render } = module;
+      const config = resolveConfig(module.config || {});
       const meta = resolveMeta(module.meta || {}, source.href);
 
       let { handler } = module;
@@ -221,8 +240,7 @@ export class ServerContext {
       }
 
       fallbacks.push({
-        bootstrap: resolvedOpts.bootstrap,
-        config,
+        bootstrap: resolvedOpts.defaultBootstrap,
         csp: Boolean(config.csp ?? false),
         handler:
           handler ??
@@ -253,7 +271,7 @@ export class ServerContext {
       );
 
       layout = {
-        bootstrap: resolvedOpts.bootstrap,
+        bootstrap: resolvedOpts.defaultBootstrap,
         meta,
         name: name ?? "Root",
         module,
@@ -269,8 +287,8 @@ export class ServerContext {
         resolvedOpts.baseModule
       );
       middlewares.push({
-        compiledPattern: new URLPattern({ pathname }),
         pathname,
+        pattern: new URLPattern({ pathname: pathname }),
         ...module,
       });
     }
@@ -284,20 +302,19 @@ export class ServerContext {
     }
 
     return new ServerContext(
-      resolvedOpts.bootstrap,
       dev,
       fallbacks,
       layout,
       middlewares,
-      resolvedOpts.render,
-      resolvedOpts.router,
+      resolvedOpts,
+      resolvedOpts.experimental_render,
       routes
     );
   }
 
   /**
    * This functions returns a request handler that handles all routes required
-   * by web server.
+   * by web router.
    */
   handler(): RouterHandler {
     const handlers = this.#handlers();
@@ -306,7 +323,7 @@ export class ServerContext {
       this.#middlewares,
       handlers.errorHandler
     );
-    const trailingSlashEnabled = this.#routerOptions?.trailingSlash;
+    const trailingSlashEnabled = this.#options.experimental_trailingSlash;
     return async function handler(
       req: Request,
       requester?: Requester
@@ -399,7 +416,6 @@ export class ServerContext {
     otherHandler: router.Handler<RouterState>;
     errorHandler: router.ErrorHandler<RouterState>;
   } {
-    const bootstrap = this.#bootstraps;
     const internalRoutes: router.Routes<RouterState> = {};
     const routes: router.Routes<RouterState> = {};
     const notFoundPage = this.#fallbacks.find(
@@ -410,9 +426,12 @@ export class ServerContext {
     ) as Page;
     const layout = this.#layout as Layout;
 
-    const genRender = (route: Page, status: number) => {
+    const genRender = (
+      page: Page,
+      defaultRenderOptions: RouteRenderOptions
+    ) => {
       return (
-        req: Request,
+        request: Request,
         params: Record<string, string>,
         routeError?: RouteError
       ) => {
@@ -422,9 +441,9 @@ export class ServerContext {
             error?: RouteError;
             meta?: Meta;
           } = {},
-          options?: ResponseInit
+          renderOptions?: RouteRenderOptions
         ) => {
-          const { data, error = routeError, meta = route.meta } = renderProps;
+          const { data, error = routeError, meta = page.meta } = renderProps;
           const errorProxy = error
             ? this.#dev
               ? error
@@ -437,38 +456,46 @@ export class ServerContext {
                   },
                 })
             : undefined;
+
+          const renderContext: RouteRenderContext = {
+            // children?
+            data,
+            error: errorProxy,
+            meta,
+            module: page.module,
+            params,
+            pathname: page.pathname,
+            request,
+          };
+
           const [body, csp] = await internalRender(
+            renderContext,
             {
-              bootstrap,
-              data,
-              error: errorProxy,
-              meta,
-              params,
-              route,
-              url: new URL(req.url),
-              source: route.source,
+              ...defaultRenderOptions,
+              ...renderOptions,
             },
+            page,
             this.#rootRender,
             layout
           );
 
           return sendResponse(body, {
             status:
-              options?.status ??
+              renderOptions?.status ??
               (error
                 ? Reflect.has(error, "status")
                   ? (error as HttpError).status
                   : 500
-                : status),
+                : defaultRenderOptions.status),
             statusText:
-              options?.statusText ??
+              renderOptions?.statusText ??
               (error
                 ? Reflect.has(error, "statusText")
                   ? (error as HttpError).statusText
                   : HttpStatus[500]
                 : undefined),
-            headers: options?.headers,
-            csp: csp,
+            headers: renderOptions?.headers,
+            csp,
             isDev: this.#dev,
           });
         };
@@ -479,7 +506,9 @@ export class ServerContext {
       const meta = route.meta;
       const module = route.module;
       const name = route.name;
-      const createRender = genRender(route, HttpStatus.OK);
+      const createRender = genRender(route, {
+        status: HttpStatus.OK,
+      });
       if (typeof route.handler === "function") {
         routes[route.pathname] = {
           default: (ctx, params) =>
@@ -489,6 +518,7 @@ export class ServerContext {
               module,
               name,
               params,
+              pathname: route.pathname,
               render: createRender(ctx.request, params),
               request: ctx.request,
             }),
@@ -496,6 +526,7 @@ export class ServerContext {
       } else {
         routes[route.pathname] = {};
         for (const [method, handler] of Object.entries(route.handler)) {
+          // eslint-disable-next-line no-loop-func
           routes[route.pathname][method as router.KnownMethod] = (
             ctx,
             params
@@ -506,6 +537,7 @@ export class ServerContext {
               module,
               name,
               params,
+              pathname: route.pathname,
               render: createRender(ctx.request, params),
               request: ctx.request,
             });
@@ -513,10 +545,9 @@ export class ServerContext {
       }
     }
 
-    const createUnknownHandlerRender = genRender(
-      notFoundPage,
-      HttpStatus.NotFound
-    );
+    const createUnknownHandlerRender = genRender(notFoundPage, {
+      status: HttpStatus.NotFound,
+    });
 
     const otherHandler: router.Handler<RouterState> = (
       ctx,
@@ -529,13 +560,14 @@ export class ServerContext {
         module: notFoundPage.module,
         name: notFoundPage.name,
         params: {},
+        pathname: "*",
         render: createUnknownHandlerRender(ctx.request, {}, error),
+        request: ctx.request,
       });
 
-    const createErrorHandlerRender = genRender(
-      internalServerErrorPage,
-      HttpStatus.InternalServerError
-    );
+    const createErrorHandlerRender = genRender(internalServerErrorPage, {
+      status: HttpStatus.InternalServerError,
+    });
 
     const errorHandler: router.ErrorHandler<RouterState> = (ctx, error) => {
       console.error(
@@ -549,7 +581,9 @@ export class ServerContext {
         module: internalServerErrorPage.module,
         name: internalServerErrorPage.name,
         params: {},
+        pathname: "*",
         render: createErrorHandlerRender(ctx.request, {}, error as Error),
+        request: ctx.request,
       });
     };
 
@@ -559,10 +593,6 @@ export class ServerContext {
 
 const DEFAULT_RENDER_FN: RootRender = async (_ctx, render) => {
   await render();
-};
-
-const DEFAULT_ROUTER_OPTIONS: RouterOptions = {
-  trailingSlash: false,
 };
 
 const DEFAULT_META: Meta = {
@@ -582,26 +612,24 @@ const DEFAULT_BOOTSTRAP: ScriptDescriptor[] = [];
 
 const DEFAULT_NOT_FOUND_ERROR_PAGE: Page = {
   bootstrap: DEFAULT_BOOTSTRAP,
-  config: {},
   csp: false,
   handler: (ctx) => ctx.render({ error: ctx.error }),
   meta: DEFAULT_META,
   module: defaultRootFallbackModule as RouteModule,
   name: "NotFound",
-  pathname: "",
+  pathname: "*",
   render: defaultRootFallbackModule.render as RouteRender,
   source: new URL(import.meta.url),
 };
 
 const DEFAULT_INTERNAL_SERVER_ERROR_PAGE: Page = {
   bootstrap: DEFAULT_BOOTSTRAP,
-  config: {},
   csp: false,
   handler: (ctx) => ctx.render({ error: ctx.error }),
   meta: DEFAULT_META,
   module: defaultRootFallbackModule as RouteModule,
   name: "InternalServerError",
-  pathname: "",
+  pathname: "*",
   render: defaultRootFallbackModule.render as RouteRender,
   source: new URL(import.meta.url),
 };
@@ -625,7 +653,7 @@ export function selectMiddlewares(url: string, middlewares: Middleware[]) {
   const reqURL = new URL(url);
 
   for (const middleware of middlewares) {
-    const res = middleware.compiledPattern.exec(reqURL);
+    const res = middleware.pattern.exec(reqURL);
     if (res) {
       selectedMws.push(middleware);
     }
@@ -670,11 +698,11 @@ function deepFreeze(object: any) {
 function sendResponse(
   body: RouteRenderResult,
   options: {
-    status: number;
-    statusText: string | undefined;
+    csp?: ContentSecurityPolicy;
     headers?: HeadersInit;
     isDev: boolean;
-    csp?: ContentSecurityPolicy;
+    status: number;
+    statusText: string | undefined;
   }
 ) {
   const headers: Record<string, string> = {
@@ -694,8 +722,8 @@ function sendResponse(
     }
   }
   return new Response(body, {
+    headers: options.headers ? { ...headers, ...options.headers } : headers,
     status: options.status,
     statusText: options.statusText,
-    headers: options.headers ? { ...headers, ...options.headers } : headers,
   });
 }

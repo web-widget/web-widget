@@ -1,18 +1,20 @@
+import {
+  defineRender,
+  getComponentDescriptor,
+  type ComponentProps,
+} from "@web-widget/schema/server-helpers";
 import type { Fallback, HTML, UnsafeHTML } from "@worker-tools/html";
+import { fallback, html, unsafeHTML } from "@worker-tools/html";
 import {
   asyncIterToStream,
   streamToAsyncIter,
 } from "whatwg-stream-to-async-iter";
-import {
-  defineRender,
-  isRouteRenderContext,
-} from "@web-widget/schema/server-helpers";
-import { fallback, html, unsafeHTML } from "@worker-tools/html";
+import type { DefineHtmlRenderOptions } from "./types";
 
 export * from "@web-widget/schema/server-helpers";
 export * from "./web-widget";
-export { unsafeHTML, fallback, html };
-export type { HTML, Fallback };
+export { fallback, html, unsafeHTML };
+export type { Fallback, HTML };
 
 export const unsafeStreamToHTML = (
   stream: ReadableStream
@@ -74,22 +76,33 @@ const supportNonBinaryTransformStreams = async () => {
 };
 supportNonBinaryTransformStreams();
 
-export const render = defineRender(async (context, component, props) => {
-  let content: HTML;
-  if (
-    typeof component === "function" &&
-    component.constructor.name === "AsyncFunction"
-  ) {
-    if (isRouteRenderContext(context)) {
-      // experimental
-      content = await component(props);
-    } else {
-      throw new Error("Async widget components are not supported.");
-    }
-  } else {
-    content = component(props);
-  }
+export const defineHtmlRender = ({
+  onPrefetchData,
+}: DefineHtmlRenderOptions = {}) => {
+  return defineRender(async (context) => {
+    const componentDescriptor = getComponentDescriptor(context);
+    const { component, props } = componentDescriptor;
+    const state = onPrefetchData
+      ? await onPrefetchData(context, component, props)
+      : undefined;
+    const mergedProps = (
+      state ? Object.assign({}, state, props) : props
+    ) as ComponentProps<any>;
 
-  await supportNonBinaryTransformStreams();
-  return HTMLToStream(content);
-});
+    let content: HTML;
+    if (
+      typeof component === "function" &&
+      component.constructor.name === "AsyncFunction"
+    ) {
+      // experimental
+      content = await component(mergedProps);
+    } else {
+      content = component(mergedProps);
+    }
+
+    await supportNonBinaryTransformStreams();
+    return HTMLToStream(content);
+  });
+};
+
+export const render = defineHtmlRender();
