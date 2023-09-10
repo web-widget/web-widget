@@ -33,10 +33,10 @@ export interface Routes<T = {}> {
 export type DestinationKind = "internal" | "route" | "notFound";
 
 export type InternalRoute<T = {}> = {
-  pathname: URLPattern;
-  methods: { [K in KnownMethod]?: MatchHandler<T> };
   default?: MatchHandler<T>;
   destination: DestinationKind;
+  methods: { [K in KnownMethod]?: MatchHandler<T> };
+  pattern: URLPattern;
 };
 
 export interface RouterOptions<T> {
@@ -98,10 +98,10 @@ function processRoutes<T>(
 ) {
   for (const [path, methods] of Object.entries(routes)) {
     const entry: InternalRoute<T> = {
-      pathname: new URLPattern({ pathname: path }),
-      methods: {},
       default: undefined,
       destination,
+      methods: {},
+      pattern: new URLPattern({ pathname: path }),
     };
 
     for (const [method, handler] of Object.entries(methods)) {
@@ -131,7 +131,7 @@ export function router<T = unknown>({
   return (ctx) => {
     let req = ctx.request;
     for (const route of processedRoutes) {
-      const res = route.pathname.exec(req.url);
+      const res = route.pattern.exec(req.url);
 
       if (res !== null) {
         const groups: Record<string, string> = {};

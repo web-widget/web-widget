@@ -1,10 +1,13 @@
-import { __ENV__ } from "./web-widget";
+import {
+  defineRender,
+  getComponentDescriptor,
+  type ComponentProps,
+} from "@web-widget/schema/client-helpers";
 import { createElement } from "react";
-import type { Attributes, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import { defineRender } from "@web-widget/schema/client-helpers";
-import type { DefineVueRenderOptions } from "./types";
+import type { DefineReactRenderOptions } from "./types";
+import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/client-helpers";
 export * from "./web-widget";
@@ -15,9 +18,11 @@ Reflect.defineProperty(__ENV__, "server", {
 
 export const defineReactRender = ({
   onPrefetchData,
-}: DefineVueRenderOptions = {}) => {
-  return defineRender(async (context, component, props) => {
+}: DefineReactRenderOptions = {}) => {
+  return defineRender(async (context) => {
     const { recovering, container } = context;
+    const componentDescriptor = getComponentDescriptor(context);
+    const { component, props } = componentDescriptor;
 
     if (!container) {
       throw new Error(`Container required.`);
@@ -39,22 +44,19 @@ export const defineReactRender = ({
             : undefined;
         state?.remove();
 
-        const mergedProps = stateContent
-          ? Object.assign(stateContent, props)
-          : props;
+        const mergedProps = (
+          stateContent ? Object.assign(stateContent, props) : props
+        ) as ComponentProps<any>;
 
-        let vNode: ReactNode;
+        let vNode;
         if (
           typeof component === "function" &&
           component.constructor.name === "AsyncFunction"
         ) {
           // experimental
-          vNode = (await component(mergedProps)) as ReactNode;
+          vNode = await component(mergedProps);
         } else {
-          vNode = createElement(
-            component,
-            mergedProps as Attributes
-          ) as ReactNode;
+          vNode = createElement(component, mergedProps);
         }
 
         if (recovering) {

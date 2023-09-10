@@ -2,12 +2,13 @@ import type {
   Layout,
   LayoutRenderContext,
   Page,
-  RootRender,
   RootLayoutComponentProps,
+  RootRender,
 } from "./types";
 import type {
   Meta,
-  RouteError,
+  RouteRenderContext,
+  RouteRenderOptions,
   RouteRenderResult,
   ScriptDescriptor,
 } from "@web-widget/schema/server-helpers";
@@ -19,24 +20,27 @@ export class RootRenderContext {
   #bootstrap: ScriptDescriptor[];
   #id: string;
   #meta: Meta = {};
-  #route: string;
+  #pathname: string;
+  #renderOptions: RouteRenderOptions = {};
+  #request: Request;
   #source: URL;
   #state: Map<string, unknown> = new Map();
-  #url: URL;
 
   constructor(
     bootstrap: ScriptDescriptor[],
     id: string,
     meta: Meta,
-    route: string,
-    source: URL,
-    url: URL
+    pathname: string,
+    renderOptions: RouteRenderOptions,
+    request: Request,
+    source: URL
   ) {
     this.#bootstrap = bootstrap;
     this.#id = id;
     this.#meta = meta;
-    this.#route = route;
-    this.#url = url;
+    this.#pathname = pathname;
+    this.#renderOptions = renderOptions;
+    this.#request = request;
     this.#source = source;
   }
 
@@ -44,7 +48,6 @@ export class RootRenderContext {
     return this.#bootstrap;
   }
 
-  /** A unique ID for this logical JIT render. */
   get id(): string {
     return this.#id;
   }
@@ -57,15 +60,18 @@ export class RootRenderContext {
     return this.#meta;
   }
 
-  /** The URL of the page being rendered. */
-  get url(): URL {
-    return this.#url;
+  get renderOptions(): RouteRenderOptions {
+    return this.#renderOptions;
+  }
+
+  get request(): Request {
+    return this.#request;
   }
 
   /** The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered. */
-  get route(): string {
-    return this.#route;
+  get pathname(): string {
+    return this.#pathname;
   }
 
   get source(): URL {
@@ -80,37 +86,29 @@ function defaultCsp() {
   };
 }
 
-interface InnerRenderOptions<Data> {
-  bootstrap: ScriptDescriptor[];
-  data?: Data;
-  error?: RouteError;
-  meta: Meta;
-  params: Record<string, string>;
-  route: Page;
-  source: URL;
-  url: URL;
-}
-
 /**
  * This function renders out a page. Rendering is synchronous and non streaming.
  * Suspense boundaries are not supported.
  */
-export async function internalRender<Data>(
-  opts: InnerRenderOptions<Data>,
+export async function internalRender(
+  renderContext: RouteRenderContext,
+  renderOptions: RouteRenderOptions,
+  page: Page,
   rootRender: RootRender,
-  layout: Layout
+  rootLayout: Layout
 ): Promise<[RouteRenderResult, ContentSecurityPolicy | undefined]> {
-  const csp: ContentSecurityPolicy | undefined = opts.route.csp
+  const csp: ContentSecurityPolicy | undefined = page.csp
     ? defaultCsp()
     : undefined;
 
-  const ctx = new RootRenderContext(
-    opts.bootstrap,
+  const rootRenderCtx = new RootRenderContext(
+    page.bootstrap,
     crypto.randomUUID(),
-    opts.meta,
-    opts.route.pathname,
-    opts.source,
-    opts.url
+    renderContext.meta,
+    page.pathname,
+    renderOptions,
+    renderContext.request,
+    page.source
   );
 
   if (csp) {
@@ -121,18 +119,9 @@ export async function internalRender<Data>(
   }
 
   let children;
-  await rootRender(ctx, async () => {
-    const route = opts.route as Page;
-    const renderContext = {
-      data: opts.data as Data,
-      error: opts.error,
-      meta: ctx.meta,
-      module: route.module,
-      params: opts.params,
-      route: route.pathname,
-      url: opts.url,
-    };
-    children = (await route.render(renderContext)) as RouteRenderResult;
+  await rootRender(rootRenderCtx, async () => {
+    children = await page.render(renderContext, rootRenderCtx.renderOptions);
+
     return children;
   });
 
@@ -154,16 +143,19 @@ export async function internalRender<Data>(
   //   moduleScripts.push([url, randomNonce]);
   // }
   const props: RootLayoutComponentProps = {
-    bootstrap: ctx.bootstrap,
-    meta: ctx.meta,
+    bootstrap: rootRenderCtx.bootstrap,
+    meta: rootRenderCtx.meta,
     children,
   };
   const layoutContext: LayoutRenderContext = {
     data: props,
-    meta: ctx.meta,
-    module: layout.module,
+    meta: rootRenderCtx.meta,
+    module: rootLayout.module,
   };
-  const html = await layout.render(layoutContext);
+  const html = await rootLayout.render(
+    layoutContext,
+    rootRenderCtx.renderOptions
+  );
 
   return [html, csp];
 }

@@ -1,4 +1,7 @@
-import { defineRender } from "@web-widget/schema/server-helpers";
+import {
+  defineRender,
+  getComponentDescriptor,
+} from "@web-widget/schema/server-helpers";
 import { Readable } from "node:stream";
 import { TransformStream } from "node:stream/web";
 import Vue from "vue";
@@ -45,7 +48,9 @@ export const defineVueRender = ({
   onCreatedApp = () => {},
   onPrefetchData,
 }: DefineVueRenderOptions = {}) => {
-  return defineRender(async (context, component, props) => {
+  return defineRender(async (context) => {
+    const componentDescriptor = getComponentDescriptor(context);
+    const { component, props } = componentDescriptor;
     const shellTag = "web-widget.shell";
     const state = onPrefetchData
       ? await onPrefetchData(context, component, props)

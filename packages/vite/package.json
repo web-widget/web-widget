@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vite",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "type": "module",
   "exports": {
     ".": {
@@ -40,7 +40,6 @@
   "peerDependencies": {
     "@web-widget/schema": "workspace:*",
     "@web-widget/web-router": "workspace:*",
-    "@web-widget/web-widget": "workspace:*",
     "vite": "^4.4.9"
   },
   "engines": {

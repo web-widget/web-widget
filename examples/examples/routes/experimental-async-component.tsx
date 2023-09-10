@@ -7,8 +7,8 @@ async function fetchData(url: URL) {
   return (await data.json()) as HelloData;
 }
 
-export default async function Page({ url }: RouteComponentProps) {
-  const data = await fetchData(url);
+export default async function Page({ request }: RouteComponentProps) {
+  const data = await fetchData(new URL(request.url));
   return (
     <BaseLayout>
       <h1>Async component(experimental)</h1>

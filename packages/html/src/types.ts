@@ -1,5 +1,8 @@
-import type { Component } from "react";
-import type { ComponentProps, RenderContext } from "@web-widget/schema";
+import type {
+  Component,
+  ComponentProps,
+  RenderContext,
+} from "@web-widget/schema";
 
 export * from "./web-widget";
 
@@ -12,7 +15,7 @@ type JSONValue =
 
 type JSONProps = { [x: string]: JSONValue };
 
-export interface DefineReactRenderOptions {
+export interface DefineHtmlRenderOptions {
   onPrefetchData?: (
     context: RenderContext,
     component: Component,

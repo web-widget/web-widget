@@ -96,45 +96,38 @@ async function createWebRouterDevMiddleware(
     dev: true,
     baseAsset: viteServer.config.base,
     baseModule: baseModuleUrl,
-    experimental: {
-      loader: async (id, importer) => {
-        const source = new URL(id, importer);
-        const modulePath = url.fileURLToPath(source);
-        const routeModule = {
-          meta: {},
-          ...((await loader.import(modulePath)) as RouteModule),
-        };
+    experimental_loader: async (id, importer) => {
+      const source = new URL(id, importer);
+      const modulePath = url.fileURLToPath(source);
+      const routeModule = {
+        meta: {},
+        ...((await loader.import(modulePath)) as RouteModule),
+      };
 
-        const meta = await getMeta(
-          source,
-          loader,
-          baseModuleUrl,
-          "development"
-        );
-        Object.entries(meta).forEach(([key, value]) => {
+      const meta = await getMeta(source, loader, baseModuleUrl, "development");
+      Object.entries(meta).forEach(([key, value]) => {
+        // @ts-ignore
+        if (routeModule.meta[key]) {
           // @ts-ignore
-          if (routeModule.meta[key]) {
-            // @ts-ignore
-            routeModule.meta[key].push(...value);
-          } else {
-            // @ts-ignore
-            routeModule.meta[key] = value;
-          }
-        });
+          routeModule.meta[key].push(...value);
+        } else {
+          // @ts-ignore
+          routeModule.meta[key] = value;
+        }
+      });
 
-        routeModule.meta.script?.push({
-          type: "module",
-          id: "entry.client",
-          src:
-            "/" +
-            path.relative(
-              viteServer.config.root,
-              builderConfig.input.client.entry
-            ),
-        });
+      routeModule.meta.script?.push({
+        type: "module",
+        id: "entry.client",
+        src:
+          "/" +
+          path.relative(
+            viteServer.config.root,
+            builderConfig.input.client.entry
+          ),
+      });
 
-        return routeModule;
-      },
+      return routeModule;
     },
   });
 

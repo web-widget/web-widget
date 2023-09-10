@@ -3,28 +3,30 @@
 export type WidgetModule = ServerWidgetModule | ClientWidgetModule;
 
 export interface ServerWidgetModule {
-  default?: WidgetComponent | any;
+  default?: WidgetComponent;
   config?: WidgetConfig;
-  fallback?: WidgetFallbackComponent | any;
+  fallback?: WidgetFallbackComponent;
   meta?: Meta;
   render?: ServerWidgetRender;
 }
 
 export interface ClientWidgetModule {
-  default?: WidgetComponent | any;
+  default?: WidgetComponent;
   config?: WidgetConfig;
-  fallback?: WidgetFallbackComponent | any;
+  fallback?: WidgetFallbackComponent;
   meta?: Meta;
   render?: ClientWidgetRender;
 }
 
-export type WidgetConfig = Record<string, any>;
+export type WidgetConfig = {
+  renderOptions?: WidgetRenderOptions;
+} & Record<string, any>;
 
 export type WidgetComponentProps<Data = unknown> = Data;
 
-export interface WidgetComponent<Data = unknown> {
-  (data: WidgetComponentProps<Data>): any;
-}
+export type WidgetComponent<Data = unknown> =
+  | ((data: WidgetComponentProps<Data>) => any)
+  | any;
 
 export type WidgetFallbackComponentProps = {
   name: string;
@@ -32,9 +34,9 @@ export type WidgetFallbackComponentProps = {
   stack?: string;
 };
 
-export interface WidgetFallbackComponent {
-  (props: WidgetFallbackComponentProps): any;
-}
+export type WidgetFallbackComponent =
+  | ((props: WidgetFallbackComponentProps) => any)
+  | any;
 
 export type WidgetError = Error;
 
@@ -78,16 +80,24 @@ export type ClientWidgetRenderResult = void | {
   update?: ({ data }: { data: Record<string, any> }) => void | Promise<void>;
 };
 
+export type WidgetRenderOptions = any;
+
 export type WidgetRender<Data = unknown> =
   | ServerWidgetRender<Data>
   | ClientWidgetRender<Data>;
 
 export interface ServerWidgetRender<Data = unknown> {
-  (renderContext: WidgetRenderContext<Data>): Promise<ServerWidgetRenderResult>;
+  (
+    renderContext: WidgetRenderContext<Data>,
+    renderOptions?: WidgetRenderOptions
+  ): ServerWidgetRenderResult | Promise<ServerWidgetRenderResult>;
 }
 
 export interface ClientWidgetRender<Data = unknown> {
-  (renderContext: WidgetRenderContext<Data>): Promise<ClientWidgetRenderResult>;
+  (
+    renderContext: WidgetRenderContext<Data>,
+    renderOptions?: WidgetRenderOptions
+  ): ClientWidgetRenderResult | Promise<ClientWidgetRenderResult>;
 }
 
 // --- ROUTE ---
@@ -96,8 +106,8 @@ export type RouteModule = ServerRouteModule | ClientRouteModule;
 
 export interface ServerRouteModule {
   config?: RouteConfig;
-  default?: RouteComponent | any;
-  fallback?: RouteFallbackComponent | any;
+  default?: RouteComponent;
+  fallback?: RouteFallbackComponent;
   handler?: ServerRouteHandler | ServerRouteHandlers;
   meta?: Meta;
   render?: ServerRouteRender;
@@ -105,8 +115,8 @@ export interface ServerRouteModule {
 
 export interface ClientRouteModule {
   config?: RouteConfig;
-  default?: RouteComponent | any;
-  fallback?: RouteFallbackComponent | any;
+  default?: RouteComponent;
+  fallback?: RouteFallbackComponent;
   handler?: ClientRouteHandler | ClientRouteHandlers;
   meta?: Meta;
   render?: ClientRouteRender;
@@ -134,20 +144,16 @@ export type RouteComponentProps<
    */
   params: Params;
 
+  request: Request;
+
   /** The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered. */
-  route: string;
-
-  /** The URL of the request that resulted in this page being rendered. */
-  url: URL;
+  pathname: string;
 };
 
-export interface RouteComponent<
-  Data = unknown,
-  Params = Record<string, string>,
-> {
-  (props: RouteComponentProps<Data, Params>): any;
-}
+export type RouteComponent<Data = unknown, Params = Record<string, string>> =
+  | ((props: RouteComponentProps<Data, Params>) => any)
+  | any;
 
 export type RouteFallbackComponentProps = {
   name: string;
@@ -157,9 +163,9 @@ export type RouteFallbackComponentProps = {
   statusText?: string;
 };
 
-export interface RouteFallbackComponent {
-  (props: RouteFallbackComponentProps): any;
-}
+export type RouteFallbackComponent =
+  | ((props: RouteFallbackComponentProps) => any)
+  | any;
 
 export type RouteError = Error | HttpError;
 
@@ -240,13 +246,14 @@ export interface ServerRouteHandlerContext<
   module: ServerRouteModule;
   name?: string;
   params: Params;
+  pathname: string;
   render(
     renderProps?: {
       data?: Data;
       error?: RouteError;
       meta?: Meta;
     },
-    options?: ResponseInit
+    renderOptions?: RouteRenderOptions
   ): ServerRouteHandlerResult | Promise<ServerRouteHandlerResult>;
   request: Request;
   state: State;
@@ -262,13 +269,14 @@ export interface ClientRouteHandlerContext<
   module: ClientRouteModule;
   name?: string;
   params: Params;
+  pathname: string;
   render(
     renderProps?: {
       data?: Data;
       error?: RouteError;
       meta?: Meta;
     },
-    options?: ResponseInit
+    renderOptions?: RouteRenderOptions
   ): ClientRouteHandlerResult | Promise<ClientRouteHandlerResult>;
   request: Request;
   state: State;
@@ -286,7 +294,6 @@ export interface ServerRouteRenderContext<
   Params = Record<string, string>,
 > {
   data?: Data;
-  children?: ServerRouteRenderResult;
   error?: RouteError;
   meta: Meta;
   module: ServerRouteModule;
@@ -303,10 +310,9 @@ export interface ServerRouteRenderContext<
 
   /** The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered. */
-  route: string;
+  pathname: string;
 
-  /** The URL of the request that resulted in this page being rendered. */
-  url: URL;
+  request: Request;
 }
 
 export interface ClientRouteRenderContext<
@@ -314,7 +320,6 @@ export interface ClientRouteRenderContext<
   Params = Record<string, string>,
 > {
   data?: Data;
-  children?: ClientRouteRenderResult;
   error?: RouteError;
   meta: Meta;
   module: ClientRouteModule;
@@ -331,10 +336,9 @@ export interface ClientRouteRenderContext<
 
   /** The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered. */
-  route: string;
+  pathname: string;
 
-  /** The URL of the request that resulted in this page being rendered. */
-  url: URL;
+  request: Request;
 
   // ... Client only ...
 
@@ -344,6 +348,8 @@ export interface ClientRouteRenderContext<
   /** The component resumes running on the client side. */
   recovering: boolean;
 }
+
+export type RouteRenderOptions = ResponseInit & any;
 
 export type RouteRenderResult =
   | ServerRouteRenderResult
@@ -377,8 +383,9 @@ export interface ServerRouteRender<
   Params = Record<string, string>,
 > {
   (
-    renderContext: RouteRenderContext<Data, Params>
-  ): Promise<ServerRouteRenderResult>;
+    renderContext: RouteRenderContext<Data, Params>,
+    renderOptions?: RouteRenderOptions
+  ): ServerRouteRenderResult | Promise<ServerRouteRenderResult>;
 }
 
 export interface ClientRouteRender<
@@ -386,8 +393,9 @@ export interface ClientRouteRender<
   Params = Record<string, string>,
 > {
   (
-    renderContext: RouteRenderContext<Data, Params>
-  ): Promise<ClientRouteRenderResult>;
+    renderContext: RouteRenderContext<Data, Params>,
+    renderOptions?: RouteRenderOptions
+  ): ClientRouteRenderResult | Promise<ClientRouteRenderResult>;
 }
 
 // --- META: DESCRIPTOR ---

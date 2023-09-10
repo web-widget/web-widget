@@ -10,7 +10,7 @@ async function fetchData(url: URL) {
 }
 
 export default async function Page(ctx: RouteComponentProps<HelloData>) {
-  const list = await fetchData(ctx.url);
+  const list = await fetchData(new URL(ctx.request.url));
   return html`<h1>Lit html template</h1>
     <ul>
       ${list.map((item, index) => {

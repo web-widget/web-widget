@@ -1,5 +1,8 @@
+import {
+  defineRender,
+  getComponentDescriptor,
+} from "@web-widget/schema/client-helpers";
 import Vue from "vue";
-import { defineRender as defineRenderHelper } from "@web-widget/schema/client-helpers";
 import type { DefineVueRenderOptions } from "./types";
 
 export * from "@web-widget/schema/client-helpers";
@@ -10,7 +13,10 @@ export const defineVueRender = ({
   onCreatedApp = () => {},
   onPrefetchData,
 }: DefineVueRenderOptions = {}) => {
-  return defineRenderHelper(async (context, component, props) => {
+  return defineRender(async (context) => {
+    const componentDescriptor = getComponentDescriptor(context);
+    const { component, props } = componentDescriptor;
+
     if (!context.container) {
       throw new Error(`Container required.`);
     }
