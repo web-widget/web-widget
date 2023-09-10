@@ -1,6 +1,33 @@
 // @ts-nocheck
 import { HTMLWebWidgetElement } from "@web-widget/web-widget";
 
+function countAllElementsOnPage(target) {
+  let nodes = [target];
+  /** 总节点数 */
+  let totalElementsCount = 0;
+  /** 最大节点深度 */
+  let maxDOMTreeDepth = 0;
+  /** 最大子节点数 */
+  let maxChildrenCount = 0;
+
+  while (nodes.length) {
+    maxDOMTreeDepth++;
+    const childs = [];
+    for (let node of nodes) {
+      totalElementsCount++;
+      childs.push(...node.children);
+      maxChildrenCount = Math.max(maxChildrenCount, node.children.length);
+    }
+    nodes = childs;
+  }
+
+  return {
+    maxDOMTreeDepth,
+    maxChildrenCount,
+    totalElementsCount,
+  };
+}
+
 function defineHook(target, name, callback) {
   return Reflect.defineProperty(
     target,
@@ -19,26 +46,31 @@ defineHook(
     value() {
       let time = Date.now();
       const data = {};
-
+      const { LOADED, BOOTSTRAPPED, MOUNTED } = HTMLWebWidgetElement;
+      const print = () => {
+        const label = `web-widget[import="${this.import}"]`;
+        console.groupCollapsed(label);
+        console.table({
+          ...data,
+          ...countAllElementsOnPage(this),
+        });
+        console.info(this);
+        console.groupEnd(label);
+      };
       this.addEventListener("statuschange", () => {
         const now = Date.now();
-        if (
-          [
-            HTMLWebWidgetElement.LOADED,
-            HTMLWebWidgetElement.BOOTSTRAPPED,
-            HTMLWebWidgetElement.MOUNTED,
-          ].includes(this.status)
-        ) {
-          data[this.status] = `${now - time}ms`;
-          if (this.status === HTMLWebWidgetElement.MOUNTED) {
-            const label = `web-widget[import="${this.import}"] ${HTMLWebWidgetElement.MOUNTED}`;
-            console.groupCollapsed(label);
-            console.table({
-              ...data,
-              dom_tree: this.querySelectorAll("*").length,
-            });
-            console.info(this);
-            console.groupEnd(label);
+        if ([LOADED, BOOTSTRAPPED, MOUNTED].includes(this.status)) {
+          data[
+            {
+              [LOADED]: "loadTime",
+              [BOOTSTRAPPED]: "bootstrapTime",
+              [MOUNTED]: "mountTime",
+            }[this.status]
+          ] = now - time;
+
+          if (this.status === MOUNTED) {
+            Object.assign(data, countAllElementsOnPage(this));
+            print();
           }
         }
         time = now;

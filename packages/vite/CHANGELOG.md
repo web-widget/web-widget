@@ -8,6 +8,12 @@
   - @web-widget/web-router@0.4.0
   - @web-widget/schema@0.1.0
 
+## 1.1.2
+
+### Patch Changes
+
+- fix: Some files are not refreshed after changes.
+
 ## 1.1.1
 
 ### Patch Changes

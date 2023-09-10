@@ -1,12 +1,12 @@
 import type { Middleware } from "@web-widget/node";
 import NodeAdapter from "@web-widget/node";
 import type { RouteModule } from "@web-widget/schema";
-import type { Manifest, ManifestJSON } from "@web-widget/web-router";
+import type { Manifest } from "@web-widget/web-router";
 import path from "node:path";
 import url from "node:url";
 import stripAnsi from "strip-ansi";
 import type { Plugin, ViteDevServer } from "vite";
-import type { ServerEntryModule, ResolvedBuilderConfig } from "../types";
+import type { ResolvedBuilderConfig, ServerEntryModule } from "../types";
 import { createViteLoader } from "./loader/index";
 import { getMeta } from "./render";
 
@@ -29,28 +29,7 @@ export function webRouterDevServerPlugin(
       };
     },
     async configureServer(viteServer) {
-      const loader = createViteLoader(viteServer);
-      const manifest = (
-        await loader.import(builderConfig.input.server.routemap)
-      ).default as ManifestJSON;
-      const watchFiles: string[] = getWatchFiles(
-        manifest,
-        viteServer.config.root
-      );
-
-      async function restart(file: string) {
-        if (
-          file === builderConfig.input.server.routemap ||
-          watchFiles.includes(file)
-        ) {
-          // TODO: This may cause the client to lose connection.
-          await viteServer.restart();
-        }
-      }
-
-      // Rebuild route manifest on file change, if needed.
-      viteServer.watcher.on("add", restart);
-      viteServer.watcher.on("change", restart);
+      autoRestartServer(viteServer);
 
       return async () => {
         viteServer.middlewares.use(
@@ -61,20 +40,19 @@ export function webRouterDevServerPlugin(
   };
 }
 
-function getWatchFiles(manifest: ManifestJSON, root: string) {
-  const modules: string[] = [];
-
-  Array.from(Object.values(manifest)).forEach((value) => {
-    if (Array.isArray(value)) {
-      value.forEach(({ module }) => {
-        modules.push(path.resolve(root, module));
+function autoRestartServer(viteServer: ViteDevServer) {
+  const send = viteServer.ws.send;
+  viteServer.ws.send = function () {
+    // @see https://github.com/vitejs/vite/blob/b361ffa6724d9191fc6a581acfeab5bc3ebbd931/packages/vite/src/node/server/hmr.ts#L194
+    if (arguments[0]?.type === "full-reload") {
+      return viteServer.restart().then(() => {
+        // @ts-ignore
+        send.apply(this, arguments);
       });
-    } else if (value.module) {
-      modules.push(path.resolve(root, value.module));
     }
-  });
-
-  return modules;
+    // @ts-ignore
+    send.apply(this, arguments);
+  };
 }
 
 async function createWebRouterDevMiddleware(
