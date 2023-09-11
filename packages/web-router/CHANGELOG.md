@@ -1,5 +1,14 @@
 # @web-widget/web-router
 
+## 0.4.1
+
+### Patch Changes
+
+- feat: The `baseAsset` option supports the use of `"/"`.
+- Updated dependencies
+  - @web-widget/schema@0.1.1
+  - @web-widget/html@0.1.1
+
 ## 0.4.0
 
 ### Major Changes

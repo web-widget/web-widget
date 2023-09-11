@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 0.1.1
+
+### Patch Changes
+
+- feat: The second parameter of the `rebaseMeta` method supports passing in `"/"`.
+
 ## 0.1.0
 
 ### Major Changes

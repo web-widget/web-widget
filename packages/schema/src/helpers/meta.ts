@@ -149,62 +149,37 @@ export function renderMetaToString(meta: Meta): string {
 
 export function rebaseMeta(meta: Meta, importer: string): Meta {
   const RESOLVE_URL_REG = /^(?:\w+:)?\//;
+  const rebase = (url: string) => {
+    if (RESOLVE_URL_REG.test(url)) {
+      return url;
+    } else if (importer.startsWith("/")) {
+      const placeholder = "placeholder:";
+      return new URL(url, placeholder + importer).href.replace(placeholder, "");
+    } else {
+      return new URL(url, importer).href;
+    }
+  };
+
   return {
     ...meta,
 
     link: (meta.link ?? []).map((props) => {
-      if (props.href && !RESOLVE_URL_REG.test(props.href)) {
+      if (props.href) {
         return {
           ...props,
-          href: new URL(props.href, importer).href,
+          href: rebase(props.href),
         };
       }
       return { ...props };
     }),
 
     script: (meta.script ?? []).map((props) => {
-      // if (props.type === "importmap" && typeof props.content === "string") {
-      //   const importmap = JSON.parse(props.content) as ImportMap;
-      //   const rebaseImports = (imports: Imports) =>
-      //     Object.entries(imports).reduce((previousValue, [name, url]) => {
-      //       if (!RESOLVE_URL_REG.test(url)) {
-      //         previousValue[name] = new URL(url, importer).href;
-      //       } else {
-      //         previousValue[name] = url;
-      //       }
-      //       return previousValue;
-      //     }, {} as Imports);
-
-      //   return {
-      //     ...props,
-      //     content: JSON.stringify({
-      //       imports: importmap.imports ? rebaseImports(importmap.imports) : {},
-      //       scopes: importmap.scopes
-      //         ? // TODO
-      //           Object.entries(importmap.scopes).reduce(
-      //             (previousValue, [scope, imports]) => {
-      //               if (!RESOLVE_URL_REG.test(scope)) {
-      //                 previousValue[new URL(scope, importer).href] =
-      //                   rebaseImports(imports);
-      //               } else {
-      //                 previousValue[scope] = {};
-      //               }
-      //               return previousValue;
-      //             },
-      //             {} as Scopes
-      //           )
-      //         : {},
-      //     } as ImportMap),
-      //   };
-      // }
-
-      if (typeof props.src === "string" && !RESOLVE_URL_REG.test(props.src)) {
+      if (props.src) {
         return {
           ...props,
-          src: new URL(props.src, importer).href,
+          src: rebase(props.src),
         };
       }
-
       return { ...props };
     }),
   };
