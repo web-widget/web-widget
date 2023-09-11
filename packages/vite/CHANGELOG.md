@@ -1,5 +1,14 @@
 # @web-widget/vite
 
+## 2.0.1
+
+### Patch Changes
+
+- feat: Automatically set Web Router's `baseAsset` and `baseModule` options.
+- Updated dependencies
+  - @web-widget/schema@0.1.1
+  - @web-widget/web-router@0.4.1
+
 ## 2.0.0
 
 ### Patch Changes

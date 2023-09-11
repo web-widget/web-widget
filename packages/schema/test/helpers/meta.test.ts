@@ -1,6 +1,6 @@
 import { expect, test } from "@jest/globals";
 
-import { mergeMeta } from "../../src/helpers/meta";
+import { mergeMeta, rebaseMeta } from "../../src/helpers/meta";
 
 test("Should return the new object", () => {
   const defaults = {};
@@ -110,6 +110,53 @@ test("The content of script[type='importmap'] that should be merged", () => {
           },
         }),
       },
+    ],
+  });
+});
+
+test("Relative paths should be converted to absolute paths", () => {
+  const meta = {
+    link: [
+      { href: "a.css" },
+      { href: "./b.css" },
+      { href: "../c.css" },
+      { href: "/d.css" },
+    ],
+    script: [
+      { src: "a.js" },
+      { src: "./b.js" },
+      { src: "../c.js" },
+      { src: "/d.js" },
+    ],
+  };
+
+  expect(rebaseMeta(meta, "https://cdn.com/assets/")).toEqual({
+    link: [
+      { href: "https://cdn.com/assets/a.css" },
+      { href: "https://cdn.com/assets/b.css" },
+      { href: "https://cdn.com/c.css" },
+      { href: "/d.css" },
+    ],
+    script: [
+      { src: "https://cdn.com/assets/a.js" },
+      { src: "https://cdn.com/assets/b.js" },
+      { src: "https://cdn.com/c.js" },
+      { src: "/d.js" },
+    ],
+  });
+
+  expect(rebaseMeta(meta, "/assets/")).toEqual({
+    link: [
+      { href: "/assets/a.css" },
+      { href: "/assets/b.css" },
+      { href: "/c.css" },
+      { href: "/d.css" },
+    ],
+    script: [
+      { src: "/assets/a.js" },
+      { src: "/assets/b.js" },
+      { src: "/c.js" },
+      { src: "/d.js" },
     ],
   });
 });

@@ -116,7 +116,9 @@ export class ServerContext {
     const resolvedOpts: ResolvedWebRouterOptions = {
       baseAsset: isDevBaseAsset
         ? (opts.baseAsset as string)
-        : new URL(opts.baseAsset).href,
+        : opts.baseAsset instanceof URL
+        ? opts.baseAsset.href
+        : opts.baseAsset,
       baseModule: new URL(opts.baseModule).href,
       defaultBootstrap: opts.defaultBootstrap ?? DEFAULT_BOOTSTRAP,
       experimental_loader:
@@ -157,14 +159,7 @@ export class ServerContext {
     const resolveConfig = (config: RouteConfig) => config;
 
     const resolveMeta = (meta: Meta, importer: string): Meta => {
-      const fileName = importer.replace(resolvedOpts.baseModule, "");
-      const httpImporter = isDevBaseAsset
-        ? resolvedOpts.baseAsset + fileName
-        : new URL(fileName, resolvedOpts.baseAsset).href;
-      return rebaseMeta(
-        mergeMeta(resolvedOpts.defaultMeta, meta),
-        httpImporter
-      );
+      return rebaseMeta(mergeMeta(resolvedOpts.defaultMeta, meta), importer);
     };
 
     const emptyRender = async () => {

@@ -1,5 +1,15 @@
 # @web-widget/vue
 
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/schema@0.1.1
+  - @web-widget/vite@2.0.1
+  - @web-widget/html@0.1.1
+  - @web-widget/web-widget@1.0.0
+
 ## 0.4.0
 
 ### Patch Changes

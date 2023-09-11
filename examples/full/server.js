@@ -20,8 +20,7 @@ app.use(async (ctx, next) => {
 });
 
 const webRouter = start(routemap, {
-  baseAsset: "http://localhost:9000/",
-  baseModule: new URL("./dist/server/", import.meta.url),
+  origin: "http://localhost",
 });
 
 const webRouterMiddleware = new NodeAdapter(webRouter).middleware;
