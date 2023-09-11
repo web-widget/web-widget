@@ -3,22 +3,19 @@ import { HTMLWebWidgetElement } from "@web-widget/web-widget";
 
 function countNodes(target) {
   let nodes = [target];
-  /** 总节点数 */
   let totalElementsCount = 0;
-  /** 最大节点深度 */
   let maxDOMTreeDepth = 0;
-  /** 最大子节点数 */
   let maxChildrenCount = 0;
 
   while (nodes.length) {
     maxDOMTreeDepth++;
-    const childs = [];
+    const children = [];
     for (let node of nodes) {
       totalElementsCount++;
-      childs.push(...node.children);
+      children.push(...node.children);
       maxChildrenCount = Math.max(maxChildrenCount, node.children.length);
     }
-    nodes = childs;
+    nodes = children;
   }
 
   return {
@@ -26,6 +23,19 @@ function countNodes(target) {
     maxChildrenCount,
     totalElementsCount,
   };
+}
+
+async function getContentLength(src) {
+  return fetch(src, { method: "HEAD" }).then((response) => {
+    if (response.ok) {
+      const length = response.headers.get("Content-Length");
+      return typeof length === "string"
+        ? Number(length)
+        : Promise.reject(`Missing Content-Length.`);
+    } else {
+      Promise.reject(response.statusText);
+    }
+  });
 }
 
 function defineHook(target, name, callback) {
@@ -54,7 +64,7 @@ defineHook(
         console.info(this);
         console.groupEnd(label);
       };
-      this.addEventListener("statuschange", () => {
+      this.addEventListener("statuschange", async () => {
         const now = Date.now();
         if ([LOADED, BOOTSTRAPPED, MOUNTED].includes(this.status)) {
           data[
@@ -63,9 +73,16 @@ defineHook(
               [BOOTSTRAPPED]: "bootstrapTime",
               [MOUNTED]: "mountTime",
             }[this.status]
-          ] = now - time;
+          ] = `${now - time}ms`;
 
           if (this.status === MOUNTED) {
+            if (import.meta.env.DEV) {
+              Object.assign(data, {
+                moduleSize: `${(
+                  (await getContentLength(this.import)) / 1024
+                ).toFixed(2)}kb`,
+              });
+            }
             Object.assign(data, countNodes(this));
             print();
           }
