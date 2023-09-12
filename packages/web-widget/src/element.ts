@@ -5,6 +5,7 @@ import { observe, unobserve } from "./utils/visible-observer";
 import { LifecycleController } from "./modules/controller";
 import { WebWidgetUpdateEvent } from "./event";
 import { queueMicrotask } from "./utils/queue-microtask";
+import { triggerModulePreload } from "./utils/module-preload";
 
 declare const importShim: (src: string) => Promise<any>;
 let globalTimeouts = Object.create(null);
@@ -214,12 +215,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * WidgetModule bare module name
+   * WidgetModule module name
    */
   get import() {
     let value = this.getAttribute("import");
-    const relativePath = /^\.\.?\//;
-    if (value && relativePath.test(value)) {
+    const bareImportRE = /^(?![a-zA-Z]:)[\w@](?!.*:\/\/)/;
+    if (value && !bareImportRE.test(value)) {
       value = new URL(value, this.base).href;
     }
     return value === null ? "" : value;
@@ -418,6 +419,18 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   #firstConnectedCallback() {
+    const options: AddEventListenerOptions = {
+      once: true,
+      passive: true,
+    };
+    const preload = () => {
+      if (this.import) {
+        triggerModulePreload(this.import);
+      }
+    };
+    this.addEventListener("mouseenter", preload, options);
+    this.addEventListener("touchstart", preload, options);
+
     if (this.loading === "lazy") {
       observe(this, () => this.#autoMount());
     } else {

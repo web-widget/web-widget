@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.2.0
+
+### Minor Changes
+
+- feat: Support [`fetchPriority`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement/fetchPriority).
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/schema@0.2.0
+
 ## 1.1.0
 
 ### Minor Changes

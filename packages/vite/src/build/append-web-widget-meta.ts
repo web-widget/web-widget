@@ -101,7 +101,8 @@ function getLinks(
   manifest: ViteManifest,
   srcFileName: string,
   containSelf: boolean,
-  cache = new Set()
+  cache = new Set(),
+  fetchpriority: "low" | "high" | "auto" = "auto"
 ): LinkDescriptor[] {
   if (cache.has(srcFileName)) {
     return [];
@@ -117,7 +118,7 @@ function getLinks(
   }
 
   const push = (srcFileName: string) => {
-    const ld = getLink(srcFileName);
+    const ld = getLink(srcFileName, fetchpriority);
     if (ld && !cache.has(ld.href)) {
       links.push(ld);
       cache.add(ld.href);
@@ -148,17 +149,20 @@ function getLinks(
 
   if (Array.isArray(item.dynamicImports)) {
     item.dynamicImports?.forEach((srcFileName) => {
-      links.push(...getLinks(manifest, srcFileName, true, cache));
+      links.push(...getLinks(manifest, srcFileName, true, cache, "low"));
     });
   }
 
   return links;
 }
 
-function getLink(fileName: string): LinkDescriptor | null {
+function getLink(
+  fileName: string,
+  fetchpriority: "low" | "high" | "auto"
+): LinkDescriptor | null {
   if (fileName.endsWith(".js")) {
     return {
-      crossorigin: "",
+      fetchpriority,
       href: fileName,
       rel: "modulepreload",
     };
