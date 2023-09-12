@@ -415,6 +415,8 @@ export interface LinkDescriptor extends ElementDescriptor {
   as?: string;
   crossorigin?: string;
   disabled?: string;
+  /** A string representing the priority hint. */
+  fetchpriority?: "high" | "low" | "auto";
   /** Sets or retrieves a destination URL or an anchor point. */
   href?: string;
   /** Sets or retrieves the language code of the object. */
@@ -447,12 +449,14 @@ export interface MetaDescriptor extends ElementDescriptor {
 }
 
 export interface ScriptDescriptor extends ElementDescriptor {
+  async?: string;
   /** Sets or retrieves the `script.textContent`. */
   content?: string;
-  async?: string;
   crossorigin?: string;
   /** Sets or retrieves the status of the script. */
   defer?: string;
+  /** A string representing the priority hint. */
+  fetchpriority?: "high" | "low" | "auto";
   integrity?: string;
   nomodule?: string;
   referrerpolicy?: string;

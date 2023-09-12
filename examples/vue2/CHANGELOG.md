@@ -1,5 +1,17 @@
 # @examples/vue2
 
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.2.0
+  - @web-widget/schema@0.2.0
+  - @web-widget/react@0.4.3
+  - @web-widget/vue2@0.3.2
+  - @web-widget/html@0.1.3
+  - @web-widget/web-router@0.4.3
+
 ## 1.1.0
 
 ### Minor Changes
