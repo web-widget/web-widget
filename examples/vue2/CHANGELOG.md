@@ -1,5 +1,18 @@
 # @examples/vue2
 
+## 1.1.0
+
+### Minor Changes
+
+- feat: Display the name of the component.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.1.0
+  - @web-widget/react@0.4.2
+  - @web-widget/vue2@0.3.1
+
 ## 1.0.12
 
 ### Patch Changes

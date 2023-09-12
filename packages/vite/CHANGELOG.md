@@ -1,5 +1,11 @@
 # @web-widget/vite
 
+## 2.1.0
+
+### Minor Changes
+
+- feat: Display the name of the component.
+
 ## 2.0.2
 
 ### Patch Changes

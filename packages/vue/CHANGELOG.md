@@ -1,5 +1,13 @@
 # @web-widget/vue
 
+## 0.5.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.1.0
+  - @web-widget/vite@2.1.0
+
 ## 0.5.0
 
 ### Minor Changes

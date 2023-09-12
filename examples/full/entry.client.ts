@@ -58,7 +58,9 @@ defineHook(
       const data = {};
       const { LOADED, BOOTSTRAPPED, MOUNTED } = HTMLWebWidgetElement;
       const print = () => {
-        const label = `web-widget[import="${this.import}"]`;
+        const label = `web-widget[name=${JSON.stringify(
+          this.getAttribute("name")
+        )}]`;
         console.groupCollapsed(label);
         console.table(data);
         console.info(this);
