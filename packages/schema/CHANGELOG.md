@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 0.1.2
+
+### Patch Changes
+
+- fix: The content of the style tag was unexpectedly escaped.
+
 ## 0.1.1
 
 ### Patch Changes

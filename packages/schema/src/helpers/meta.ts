@@ -5,6 +5,7 @@ import type {
   ScriptDescriptor,
   StyleDescriptor,
 } from "../types";
+import { escapeHtml } from "./utils";
 
 type Imports = Record<string, string>;
 type Scopes = Record<string, Imports>;
@@ -13,57 +14,9 @@ type ImportMap = {
   scopes?: Scopes;
 };
 
-const ESCAPE_REG = /["&'<>]/;
-
-// This utility is based on https://github.com/aui/art-template/blob/master/src/compile/runtime.js
-function xmlEscape(content: string) {
-  const html = String(content);
-  const regexResult = ESCAPE_REG.exec(html);
-  if (!regexResult) {
-    return content;
-  }
-
-  let result = "";
-  let i, lastIndex, char;
-  for (i = regexResult.index, lastIndex = 0; i < html.length; i++) {
-    switch (html.charCodeAt(i)) {
-      case 34:
-        char = "&#34;";
-        break;
-      case 38:
-        char = "&#38;";
-        break;
-      case 39:
-        char = "&#39;";
-        break;
-      case 60:
-        char = "&#60;";
-        break;
-      case 62:
-        char = "&#62;";
-        break;
-      default:
-        continue;
-    }
-
-    if (lastIndex !== i) {
-      result += html.substring(lastIndex, i);
-    }
-
-    lastIndex = i + 1;
-    result += char;
-  }
-
-  if (lastIndex !== i) {
-    return result + html.substring(lastIndex, i);
-  } else {
-    return result;
-  }
-}
-
 const safeAttributeName = (value: string) =>
-  xmlEscape(String(value)).toLowerCase();
-const safeAttributeValue = (value: string) => xmlEscape(String(value));
+  escapeHtml(String(value)).toLowerCase();
+const safeAttributeValue = (value: string) => escapeHtml(String(value));
 
 const createAttributes = (attrs: Record<string, string | undefined>) =>
   Object.entries(attrs)
@@ -87,10 +40,10 @@ function createElement(
 }
 
 function createText(data: string) {
-  return xmlEscape(data);
+  return escapeHtml(data);
 }
 
-function createHtml(data: string) {
+function createRawText(data: string) {
   return data;
 }
 
@@ -130,7 +83,7 @@ export function renderMetaToString(meta: Meta): string {
         ({ content = "", ...props }) => {
           // NOTE: ImportMap must precede link[rel=modulepreload] elements
           priority[props?.type === "importmap" ? 1 : 2].push(
-            createElement(key, props, createHtml(content))
+            createElement(key, props, createRawText(content))
           );
         }
       );
@@ -139,7 +92,7 @@ export function renderMetaToString(meta: Meta): string {
     if (key === "style") {
       return (value as StyleDescriptor[]).forEach(
         ({ content = "", ...props }) =>
-          priority[2].push(createElement(key, props, createText(content)))
+          priority[2].push(createElement(key, props, createRawText(content)))
       );
     }
   });
