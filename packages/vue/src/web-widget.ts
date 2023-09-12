@@ -92,20 +92,26 @@ export /*#__PURE__*/ function defineWebWidget(
   loader: Loader,
   options: DefineWebWidgetOptions
 ) {
-  options.renderTarget = "light"; // TODO shadow
-  options.loading = "lazy";
-  return /*#__PURE__*/ defineComponent({
+  return defineComponent({
     name: "WebWidgetSuspense",
     props: {
+      fallback: {
+        type: Object as PropType<VNode>,
+      },
+      loading: {
+        type: String as PropType<WebWidgetContainerOptions["loading"]>,
+        default: options.loading ?? "lazy",
+      },
       renderStage: {
         type: String as PropType<WebWidgetContainerOptions["renderStage"]>,
         default: options.renderStage,
       },
-      fallback: {
-        type: Object as PropType<VNode>,
+      renderTarget: {
+        type: String as PropType<WebWidgetContainerOptions["renderTarget"]>,
+        default: options.renderTarget ?? "light",
       },
     },
-    setup({ fallback, renderStage }, { slots }) {
+    setup({ fallback, loading, renderStage, renderTarget }, { slots }) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const data = useAttrs() as WebWidgetContainerOptions["data"];
       return () =>
@@ -119,7 +125,9 @@ export /*#__PURE__*/ function defineWebWidget(
                 ...options,
                 data,
                 loader,
+                loading,
                 renderStage,
+                renderTarget,
               },
               slots
             ),
