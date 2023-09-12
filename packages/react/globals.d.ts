@@ -2,9 +2,9 @@ import type { ReactNode, ComponentProps } from "react";
 
 interface WebWidgetSuspenseProps {
   fallback?: ReactNode;
-  loading?: "lazy" | "eager";
+  experimental_loading?: "lazy" | "eager";
   renderStage?: "server" | "client";
-  renderTarget?: "light" | "shadow";
+  experimental_renderTarget?: "light" | "shadow";
 }
 
 declare global {

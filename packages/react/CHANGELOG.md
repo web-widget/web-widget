@@ -1,5 +1,11 @@
 # @web-widget/react
 
+## 0.4.1
+
+### Patch Changes
+
+- fix: type error.
+
 ## 0.4.0
 
 ### Minor Changes
