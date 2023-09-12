@@ -1,6 +1,10 @@
 import { expect, test } from "@jest/globals";
 
-import { mergeMeta, rebaseMeta } from "../../src/helpers/meta";
+import {
+  mergeMeta,
+  rebaseMeta,
+  renderMetaToString,
+} from "../../src/helpers/meta";
 
 test("Should return the new object", () => {
   const defaults = {};
@@ -159,4 +163,41 @@ test("Relative paths should be converted to absolute paths", () => {
       { src: "/d.js" },
     ],
   });
+});
+
+test("Content should be escaped", () => {
+  const meta = {
+    title: `"'&<>`,
+    meta: [
+      {
+        name: "test",
+        content: `"'&<>`,
+      },
+      {
+        [`"'&<>`]: `"'&<>`,
+      },
+    ],
+  };
+  expect(renderMetaToString(meta)).toEqual(
+    `<title >&quot;&#39;&amp;&lt;&gt;</title><meta name="test" content="&quot;&#39;&amp;&lt;&gt;" />` +
+      `<meta &quot;&#39;&amp;&lt;&gt;="&quot;&#39;&amp;&lt;&gt;" />`
+  );
+});
+
+test("Raw text should be processed correctly", () => {
+  const meta = {
+    style: [
+      {
+        content: `/*"'&<>*/`,
+      },
+    ],
+    script: [
+      {
+        content: `/*"'&<>*/`,
+      },
+    ],
+  };
+  expect(renderMetaToString(meta)).toEqual(
+    `<style >/*"'&<>*/</style><script >/*"'&<>*/</script>`
+  );
 });

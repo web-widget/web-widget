@@ -15,7 +15,7 @@ header {
   border-bottom: rgba(60, 60, 60, 0.12) solid 1px;
 }
 
-header h1 {
+header > h1 {
   padding-left: 40px;
   padding-right: 40px;
 }
