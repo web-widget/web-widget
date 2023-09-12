@@ -76,9 +76,9 @@ export interface DefineWebWidgetOptions {
 export interface WebWidgetSuspenseProps {
   children?: ReactNode;
   fallback?: ReactNode;
-  loading?: WebWidgetContainerOptions["loading"];
+  experimental_loading?: WebWidgetContainerOptions["loading"];
   renderStage?: WebWidgetContainerOptions["renderStage"];
-  renderTarget?: WebWidgetContainerOptions["renderTarget"];
+  experimental_renderTarget?: WebWidgetContainerOptions["renderTarget"];
 }
 
 export /*#__PURE__*/ function defineWebWidget(
@@ -88,9 +88,9 @@ export /*#__PURE__*/ function defineWebWidget(
   return function WebWidgetSuspense({
     children,
     fallback,
-    loading = options.loading ?? "lazy",
+    experimental_loading = options.loading ?? "lazy",
     renderStage = options.renderStage,
-    renderTarget = options.renderTarget ?? "light",
+    experimental_renderTarget = options.renderTarget ?? "light",
     ...data
   }: WebWidgetSuspenseProps) {
     return createElement(Suspense, {
@@ -100,9 +100,9 @@ export /*#__PURE__*/ function defineWebWidget(
         children,
         data,
         loader,
-        loading,
+        loading: experimental_loading,
         renderStage,
-        renderTarget,
+        renderTarget: experimental_renderTarget,
       }),
     });
   };

@@ -98,7 +98,7 @@ export /*#__PURE__*/ function defineWebWidget(
       fallback: {
         type: Object as PropType<VNode>,
       },
-      loading: {
+      experimental_loading: {
         type: String as PropType<WebWidgetContainerOptions["loading"]>,
         default: options.loading ?? "lazy",
       },
@@ -106,12 +106,20 @@ export /*#__PURE__*/ function defineWebWidget(
         type: String as PropType<WebWidgetContainerOptions["renderStage"]>,
         default: options.renderStage,
       },
-      renderTarget: {
+      experimental_renderTarget: {
         type: String as PropType<WebWidgetContainerOptions["renderTarget"]>,
         default: options.renderTarget ?? "light",
       },
     },
-    setup({ fallback, loading, renderStage, renderTarget }, { slots }) {
+    setup(
+      {
+        fallback,
+        experimental_loading,
+        renderStage,
+        experimental_renderTarget,
+      },
+      { slots }
+    ) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const data = useAttrs() as WebWidgetContainerOptions["data"];
       return () =>
@@ -125,9 +133,9 @@ export /*#__PURE__*/ function defineWebWidget(
                 ...options,
                 data,
                 loader,
-                loading,
+                loading: experimental_loading,
                 renderStage,
-                renderTarget,
+                renderTarget: experimental_renderTarget,
               },
               slots
             ),
