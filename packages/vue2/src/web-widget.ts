@@ -114,21 +114,34 @@ export /*#__PURE__*/ function defineWebWidget(
   options: DefineWebWidgetOptions
 ) {
   console.warn(`defineWebWidget of vue2 is an experimental feature.`);
-
-  options.renderTarget = "light"; // TODO shadow
-  options.loading = "lazy";
-  return /*#__PURE__*/ defineComponent({
+  return defineComponent({
     name: "WebWidgetSuspense",
     props: {
+      fallback: {
+        type: Object as PropType<Component>,
+      },
+      experimental_loading: {
+        type: String as PropType<WebWidgetContainerOptions["loading"]>,
+        default: options.loading ?? "lazy",
+      },
       renderStage: {
         type: String as PropType<WebWidgetContainerOptions["renderStage"]>,
         default: options.renderStage,
       },
-      fallback: {
-        type: Object as PropType<Component>,
+      experimental_renderTarget: {
+        type: String as PropType<WebWidgetContainerOptions["renderTarget"]>,
+        default: options.renderTarget ?? "light",
       },
     },
-    setup({ fallback, renderStage }, { slots }) {
+    setup(
+      {
+        fallback,
+        experimental_loading,
+        renderStage,
+        experimental_renderTarget,
+      },
+      { slots }
+    ) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const data = useAttrs() as WebWidgetContainerOptions["data"];
 
@@ -138,7 +151,9 @@ export /*#__PURE__*/ function defineWebWidget(
             ...options,
             data,
             loader,
+            loading: experimental_loading,
             renderStage,
+            renderTarget: experimental_renderTarget,
 
             // -----
             fallback,

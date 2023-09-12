@@ -1,5 +1,11 @@
 # @web-widget/vue
 
+## 0.5.0
+
+### Minor Changes
+
+- feat: Support setting the loading method of widgets on the client.
+
 ## 0.4.2
 
 ### Patch Changes

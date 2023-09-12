@@ -1,5 +1,11 @@
 # @web-widget/react
 
+## 0.4.0
+
+### Minor Changes
+
+- feat: Support setting the loading method of widgets on the client.
+
 ## 0.3.2
 
 ### Patch Changes

@@ -1,21 +1,26 @@
 import type { ReactNode, ComponentProps } from "react";
 
+interface WebWidgetSuspenseProps {
+  fallback?: ReactNode;
+  loading?: "lazy" | "eager";
+  renderStage?: "server" | "client";
+  renderTarget?: "light" | "shadow";
+}
+
 declare global {
   declare namespace JSX {
-    interface IntrinsicAttributes {
+    interface IntrinsicAttributes extends WebWidgetSuspenseProps {
       key?: Key | null | undefined;
-      renderStage?: "server" | "client";
-      fallback?: ReactNode;
     }
   }
 }
 
 interface ReactWidgetComponent extends ComponentProps<any> {
-  (props: {
-    children?: ReactNode;
-    renderStage?: "server" | "client";
-    fallback?: ReactNode;
-  }): ReactNode;
+  (
+    props: {
+      children?: ReactNode;
+    } & WebWidgetSuspenseProps
+  ): ReactNode;
 }
 
 declare module "*.widget.jsx" {

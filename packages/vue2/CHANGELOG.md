@@ -1,5 +1,11 @@
 # @web-widget/vue2
 
+## 0.3.0
+
+### Minor Changes
+
+- feat: Support setting the loading method of widgets on the client.
+
 ## 0.2.2
 
 ### Patch Changes
