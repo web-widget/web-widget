@@ -473,7 +473,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   #throwGlobalError(error: Error) {
-    const moduleName = this.id || this.import || this.localName;
+    const moduleName =
+      this.id || this.getAttribute("name") || this.import || this.localName;
     const prefix = `Web Widget module (${moduleName})`;
     if (typeof error !== "object") {
       error = new Error(error);

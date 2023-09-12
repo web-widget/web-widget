@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.1.0
+
+### Minor Changes
+
+- feat: Display the name of the component.
+
 ## 1.0.1
 
 ### Patch Changes
