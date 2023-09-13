@@ -9,7 +9,7 @@ import type { Plugin, ViteDevServer } from "vite";
 import type { ResolvedBuilderConfig, ServerEntryModule } from "../types";
 import { createViteLoader } from "./loader/index";
 import { getMeta } from "./render";
-import clickToComponent from "./click-to-component";
+import clickToComponent from "./click-to-source";
 
 export function webRouterDevServerPlugin(
   builderConfig: ResolvedBuilderConfig
