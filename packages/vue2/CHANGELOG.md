@@ -1,5 +1,12 @@
 # @web-widget/vue2
 
+## 0.3.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.3.0
+
 ## 0.3.3
 
 ### Patch Changes
