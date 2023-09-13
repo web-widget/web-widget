@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.3.0
+
+### Minor Changes
+
+- refactor: Optimize preloading trigger conditions.
+
 ## 1.2.0
 
 ### Minor Changes

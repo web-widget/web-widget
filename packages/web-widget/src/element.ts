@@ -428,8 +428,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
         triggerModulePreload(this.import);
       }
     };
-    this.addEventListener("mouseenter", preload, options);
-    this.addEventListener("touchstart", preload, options);
+    ["mousemove", "touchstart"].forEach((type) =>
+      this.addEventListener(type, preload, options)
+    );
 
     if (this.loading === "lazy") {
       observe(this, () => this.#autoMount());

@@ -1,5 +1,12 @@
 # @web-widget/react
 
+## 0.4.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.3.0
+
 ## 0.4.4
 
 ### Patch Changes
