@@ -1,5 +1,11 @@
 # @web-widget/vite
 
+## 2.2.1
+
+### Patch Changes
+
+- fix: The problem of global configuration cache loss.
+
 ## 2.2.0
 
 ### Minor Changes
