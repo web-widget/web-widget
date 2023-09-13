@@ -1,5 +1,11 @@
 # @web-widget/vite
 
+## 2.3.0
+
+### Minor Changes
+
+- Add "Click-To-Source" feature.
+
 ## 2.2.1
 
 ### Patch Changes
