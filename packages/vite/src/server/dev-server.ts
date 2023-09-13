@@ -9,10 +9,12 @@ import type { Plugin, ViteDevServer } from "vite";
 import type { ResolvedBuilderConfig, ServerEntryModule } from "../types";
 import { createViteLoader } from "./loader/index";
 import { getMeta } from "./render";
+import clickToComponent from "./click-to-component";
 
 export function webRouterDevServerPlugin(
   builderConfig: ResolvedBuilderConfig
 ): Plugin {
+  let root: string;
   return {
     name: "builder:web-router-dev-server",
     enforce: "pre",
@@ -28,6 +30,9 @@ export function webRouterDevServerPlugin(
         },
       };
     },
+    async configResolved(config) {
+      root = config.root;
+    },
     async configureServer(viteServer) {
       autoRestartServer(viteServer);
 
@@ -36,6 +41,17 @@ export function webRouterDevServerPlugin(
           await createWebRouterDevMiddleware(builderConfig, viteServer)
         );
       };
+    },
+    async transformIndexHtml() {
+      return [
+        {
+          tag: "web-widget-inspector",
+          children: clickToComponent({
+            srcDir: root,
+          }),
+          injectTo: "body",
+        },
+      ];
     },
   };
 }
@@ -74,6 +90,7 @@ async function createWebRouterDevMiddleware(
     dev: true,
     baseAsset: viteServer.config.base,
     baseModule: baseModuleUrl,
+    // @ts-ignore
     experimental_loader: async (id, importer) => {
       const source = new URL(id, importer);
       const modulePath = url.fileURLToPath(source);
