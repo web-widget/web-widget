@@ -4,11 +4,11 @@ import { HTMLWebWidgetElement } from "@web-widget/web-widget";
 function countNodes(target) {
   let nodes = [target];
   let totalElementsCount = 0;
-  let maxDOMTreeDepth = 0;
+  let maxNodesTreeDepth = 0;
   let maxChildrenCount = 0;
 
   while (nodes.length) {
-    maxDOMTreeDepth++;
+    maxNodesTreeDepth++;
     const children = [];
     for (let node of nodes) {
       totalElementsCount++;
@@ -19,7 +19,7 @@ function countNodes(target) {
   }
 
   return {
-    maxDOMTreeDepth,
+    maxNodesTreeDepth,
     maxChildrenCount,
     totalElementsCount,
   };
@@ -80,12 +80,16 @@ defineHook(
           if (this.status === MOUNTED) {
             if (import.meta.env.DEV) {
               Object.assign(data, {
-                moduleSize: `${(
+                moduleEntrySize: `${(
                   (await getContentLength(this.import)) / 1024
                 ).toFixed(2)}kb`,
               });
             }
             Object.assign(data, countNodes(this));
+
+            // NOTE: Provide data for web-widget-inspector
+            this.performance = data;
+
             print();
           }
         }

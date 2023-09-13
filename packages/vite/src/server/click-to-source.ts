@@ -11,7 +11,7 @@ function html(strings: TemplateStringsArray, ...args: any) {
 // This utility is based on https://github.com/BuilderIO/qwik/
 // License: https://github.com/BuilderIO/qwik/blob/5f1c80372dc95b7d1de4b909baed3c08d5eeac2c/LICENSE
 export default ({
-  hotKeys = ["Alt"],
+  hotKeys = ["Shift"],
   srcDir,
 }: {
   hotKeys?: string[];
@@ -23,7 +23,7 @@ export default ({
         background: rgba(24, 182, 246, 0.27);
         pointer-events: none;
         box-sizing: border-box;
-        border: 2px solid rgba(172, 126, 244, 0.46);
+        border: 1px solid rgba(24, 182, 246, 0.46);
         border-radius: 4px;
         contain: strict;
         cursor: pointer;
@@ -77,152 +77,182 @@ export default ({
     <div id="web-widget-inspector-info-popup" aria-hidden="true">
       Click-to-Source
     </div>
-    <script>
-      (function () {
-        const inspectAttribute = "data-web-widget-inspector";
-        const hotKeys = ${JSON.stringify(hotKeys)};
-        const srcDir = ${JSON.stringify(srcDir)};
-        document.querySelector("#web-widget-inspector-info-popup").textContent =
-          "Click-to-Source: " + hotKeys.join(" + ");
-        console.debug(
-          "%c ⇱ Web Widget Click-To-Source ",
-          "background: linear-gradient(315deg,#afd760 25%,#0074a6); color: white; padding: 2px 3px; border-radius: 2px; font-size: 0.8em;",
-          "Hold-press the " +
-            hotKeys.join(" + ") +
-            " key" +
-            ((hotKeys.length > 1 && "s") || "") +
-            " and click a component to jump directly to the source code in your IDE!"
-        );
-        const inspectorState = {
-          pressedKeys: new Set(),
-        };
-        const origin = location.origin;
-        const body = document.body;
-        const overlay = document.createElement("div");
-        overlay.id = "web-widget-inspector-overlay";
-        overlay.setAttribute("aria-hidden", "true");
-        body.appendChild(overlay);
+    <script type="module">
+      const inspectAttribute = "data-web-widget-inspector";
+      const hotKeys = ${JSON.stringify(hotKeys)};
+      const srcDir = ${JSON.stringify(srcDir)};
+      const infoPopup = document.querySelector(
+        "#web-widget-inspector-info-popup"
+      );
+      infoPopup.textContent = "Click-to-Source: " + hotKeys.join(" + ");
+      console.debug(
+        "%c ⇱ Web Widget Click-To-Source ",
+        "background: linear-gradient(315deg,#afd760 25%,#0074a6); color: white; padding: 2px 3px; border-radius: 2px; font-size: 0.8em;",
+        "Hold-press the " +
+          hotKeys.join(" + ") +
+          " key" +
+          ((hotKeys.length > 1 && "s") || "") +
+          " and click a component to jump directly to the source code in your IDE!"
+      );
+      const inspectorState = {
+        pressedKeys: new Set(),
+      };
+      const origin = location.origin;
+      const body = document.body;
+      const overlay = document.createElement("div");
+      overlay.id = "web-widget-inspector-overlay";
+      overlay.setAttribute("aria-hidden", "true");
+      body.appendChild(overlay);
 
-        function findContainer(el) {
-          if (el && el instanceof Element) {
-            return el.closest("web-widget[import]");
-          }
-          return null;
+      function findContainer(el) {
+        if (el && el instanceof Element) {
+          return el.closest("web-widget[import]");
         }
+        return null;
+      }
 
-        document.addEventListener(
-          "keydown",
-          (event) => {
-            inspectorState.pressedKeys.add(event.code);
-            updateOverlay();
-          },
-          { capture: true }
-        );
+      document.addEventListener(
+        "keydown",
+        (event) => {
+          inspectorState.pressedKeys.add(event.code);
+          updateOverlay();
+        },
+        { capture: true }
+      );
 
-        document.addEventListener(
-          "keyup",
-          (event) => {
-            inspectorState.pressedKeys.delete(event.code);
-            updateOverlay();
-          },
-          { capture: true }
-        );
+      document.addEventListener(
+        "keyup",
+        (event) => {
+          inspectorState.pressedKeys.delete(event.code);
+          updateOverlay();
+        },
+        { capture: true }
+      );
 
-        window.addEventListener(
-          "blur",
-          (event) => {
+      window.addEventListener(
+        "blur",
+        (event) => {
+          inspectorState.pressedKeys.clear();
+          updateOverlay();
+        },
+        { capture: true }
+      );
+
+      document.addEventListener(
+        "mouseover",
+        (event) => {
+          const target = findContainer(event.target);
+          if (target) {
+            inspectorState.hoveredElement = target;
+          } else {
+            inspectorState.hoveredElement = undefined;
+          }
+          updateOverlay();
+        },
+        { capture: true }
+      );
+
+      document.addEventListener(
+        "click",
+        (event) => {
+          if (isActive()) {
             inspectorState.pressedKeys.clear();
-            updateOverlay();
-          },
-          { capture: true }
-        );
-
-        document.addEventListener(
-          "mouseover",
-          (event) => {
             const target = findContainer(event.target);
             if (target) {
-              inspectorState.hoveredElement = target;
-            } else {
-              inspectorState.hoveredElement = undefined;
+              event.preventDefault();
+              const inspectUrl = target.getAttribute("import");
+              body.style.setProperty("cursor", "progress");
+              openInEditor(inspectUrl);
             }
-            updateOverlay();
-          },
-          { capture: true }
-        );
-
-        document.addEventListener(
-          "click",
-          (event) => {
-            if (isActive()) {
-              inspectorState.pressedKeys.clear();
-              const target = findContainer(event.target);
-              if (target) {
-                event.preventDefault();
-                const inspectUrl = target.getAttribute("import");
-                body.style.setProperty("cursor", "progress");
-                openInEditor(inspectUrl);
-              }
-            }
-          },
-          { capture: true }
-        );
-
-        function openInEditor(path) {
-          const resolvedURL = new URL(path, document.baseURI);
-          if (resolvedURL.origin === origin) {
-            const params = new URLSearchParams();
-            params.set("file", srcDir + resolvedURL.pathname);
-            fetch("/__open-in-editor?" + params.toString());
-          } else {
-            location.href = resolvedURL.href;
           }
-        }
+        },
+        { capture: true }
+      );
 
-        document.addEventListener(
-          "contextmenu",
-          (event) => {
-            if (isActive()) {
-              inspectorState.pressedKeys.clear();
-              const target = findContainer(event.target);
-              if (target) {
-                event.preventDefault();
-              }
+      function openInEditor(path) {
+        const resolvedURL = new URL(path, document.baseURI);
+        if (resolvedURL.origin === origin) {
+          const params = new URLSearchParams();
+          params.set("file", srcDir + resolvedURL.pathname);
+          fetch("/__open-in-editor?" + params.toString());
+        } else {
+          location.href = resolvedURL.href;
+        }
+      }
+
+      document.addEventListener(
+        "contextmenu",
+        (event) => {
+          if (isActive()) {
+            inspectorState.pressedKeys.clear();
+            const target = findContainer(event.target);
+            if (target) {
+              event.preventDefault();
             }
-          },
-          { capture: true }
-        );
-
-        function updateOverlay() {
-          const hoverElement = inspectorState.hoveredElement;
-          if (hoverElement && isActive()) {
-            const rect = hoverElement.getBoundingClientRect();
-            overlay.style.setProperty("height", rect.height + "px");
-            overlay.style.setProperty("width", rect.width + "px");
-            overlay.style.setProperty("top", rect.top + "px");
-            overlay.style.setProperty("left", rect.left + "px");
-            overlay.style.setProperty("visibility", "visible");
-            body.style.setProperty("cursor", "pointer");
-          } else {
-            overlay.style.setProperty("height", "0px");
-            overlay.style.setProperty("width", "0px");
-            overlay.style.setProperty("visibility", "hidden");
-            body.style.removeProperty("cursor");
           }
-        }
+        },
+        { capture: true }
+      );
 
-        function checkKeysArePressed() {
-          const activeKeys = Array.from(inspectorState.pressedKeys).map(
-            (key) => (key ? key.replace(/(Left|Right)$/g, "") : undefined)
+      function getDebugInfo(element) {
+        let log = "web-widget[name=" + element.getAttribute("name") + "]";
+
+        if (element.performance) {
+          const labels = Object.keys(element.performance).map((key) =>
+            key.replace(/([A-Z])/g, " $1").toLowerCase()
           );
-          return hotKeys.every((key) => activeKeys.includes(key));
+          const titleMaxLength = Math.max(...labels.map((key) => key.length));
+          const debugInfo = Object.values(element.performance).reduce(
+            (log, value, index) => {
+              log =
+                log +
+                "\\n" +
+                labels[index].padEnd(titleMaxLength + 4, "\\u2002") +
+                ": " +
+                value;
+              return log;
+            },
+            ""
+          );
+          log += "\\n" + debugInfo;
         }
 
-        function isActive() {
-          return checkKeysArePressed();
-        }
+        return log;
+      }
 
-        window.addEventListener("resize", updateOverlay);
-        document.addEventListener("scroll", updateOverlay);
-      })();
+      function updateOverlay() {
+        const hoverElement = inspectorState.hoveredElement;
+        if (hoverElement && isActive()) {
+          const rect = hoverElement.getBoundingClientRect();
+          overlay.style.setProperty("height", rect.height + "px");
+          overlay.style.setProperty("width", rect.width + "px");
+          overlay.style.setProperty("top", rect.top + "px");
+          overlay.style.setProperty("left", rect.left + "px");
+          overlay.style.setProperty("visibility", "visible");
+          body.style.setProperty("cursor", "pointer");
+
+          hoverElement.title = getDebugInfo(hoverElement);
+        } else {
+          overlay.style.setProperty("height", "0px");
+          overlay.style.setProperty("width", "0px");
+          overlay.style.setProperty("visibility", "hidden");
+          body.style.removeProperty("cursor");
+
+          hoverElement && (hoverElement.title = "");
+        }
+      }
+
+      function checkKeysArePressed() {
+        const activeKeys = Array.from(inspectorState.pressedKeys).map((key) =>
+          key ? key.replace(/(Left|Right)$/g, "") : undefined
+        );
+        return hotKeys.every((key) => activeKeys.includes(key));
+      }
+
+      function isActive() {
+        return checkKeysArePressed();
+      }
+
+      window.addEventListener("resize", updateOverlay);
+      document.addEventListener("scroll", updateOverlay);
     </script>`;
