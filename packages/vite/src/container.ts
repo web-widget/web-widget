@@ -1,6 +1,6 @@
 import type { Plugin, UserConfig } from "vite";
 
-const GLOBAL_OPTIONS = Symbol("GLOBAL_OPTIONS");
+const GLOBAL_CONFIG = Symbol.for("GLOBAL_CONFIG");
 
 export function defineAsyncOptions<T>(
   initialOptions: any = {}
@@ -47,7 +47,7 @@ export function pluginContainer<T>(
     async config(userConfig) {
       setOptions(pluginOptionsFactory(userConfig));
       if (isGlobalOptions) {
-        Reflect.set(userConfig, GLOBAL_OPTIONS, options);
+        Reflect.set(userConfig, GLOBAL_CONFIG, options);
       }
     },
   } as Plugin);
@@ -55,6 +55,6 @@ export function pluginContainer<T>(
   return plugins;
 }
 
-export function getGlobalOptions<T>(userConfig: UserConfig): T | undefined {
-  return Reflect.get(userConfig, GLOBAL_OPTIONS);
+export function getGlobalConfig<T>(userConfig: UserConfig): T | undefined {
+  return Reflect.get(userConfig, GLOBAL_CONFIG);
 }

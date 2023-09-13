@@ -8,7 +8,7 @@ import {
   webWidgetToComponentPlugin,
   type WebWidgetToComponentPluginOptions,
 } from "./build/web-widget-to-component";
-import { getGlobalOptions, pluginContainer } from "./container";
+import { getGlobalConfig, pluginContainer } from "./container";
 import type { ResolvedBuilderConfig } from "./types";
 
 export interface WebWidgetPluginOptions {
@@ -79,7 +79,7 @@ export function webWidgetPlugin({
 function getManifest(userConfig: UserConfig) {
   const { root = process.cwd() } = userConfig;
   const resolvedBuilderConfig =
-    getGlobalOptions<ResolvedBuilderConfig>(userConfig);
+    getGlobalConfig<ResolvedBuilderConfig>(userConfig);
 
   if (resolvedBuilderConfig) {
     const viteManifest = path.resolve(
