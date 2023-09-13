@@ -7,7 +7,7 @@ const count = ref(props.start);
 </script>
 
 <template>
-  <div class="counter" v-bind:title="name">
+  <div class="counter">
     <button @click="count--">−</button>
     <span class="count">{{ count }}</span>
     <button @click="count++">+</button>

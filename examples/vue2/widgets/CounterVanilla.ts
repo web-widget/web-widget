@@ -41,7 +41,7 @@ function compressHTML(html: string) {
 export default function CounterVanilla(props: CounterProps) {
   if (import.meta.env.SSR) {
     return compressHTML(`
-    <div class="counter" data-root title="${props.name}">
+    <div class="counter" data-root>
       <button data-action="-">-1</button>
       <span class="count" data-count>${props.start}</span>
       <button data-action="+">+1</button>
