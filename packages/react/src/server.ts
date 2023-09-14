@@ -4,7 +4,7 @@ import {
   type ComponentProps,
 } from "@web-widget/schema/server-helpers";
 import type { ReactNode } from "react";
-import { Fragment, createElement } from "react";
+import { createElement, StrictMode } from "react";
 import { __ENV__ } from "./web-widget";
 
 import type {
@@ -77,7 +77,7 @@ export const defineReactRender = ({
 
       const stream = state
         ? await renderToReadableStream(
-            createElement(Fragment, null, [
+            createElement(StrictMode, null, [
               vNode,
               createElement("script", {
                 as: "state",
