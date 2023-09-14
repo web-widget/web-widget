@@ -3,7 +3,7 @@ import {
   getComponentDescriptor,
   type ComponentProps,
 } from "@web-widget/schema/client-helpers";
-import { createElement } from "react";
+import { createElement, StrictMode } from "react";
 import type { Root } from "react-dom/client";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import type { DefineReactRenderOptions } from "./types";
@@ -58,6 +58,8 @@ export const defineReactRender = ({
         } else {
           vNode = createElement(component, mergedProps);
         }
+
+        vNode = createElement(StrictMode, null, vNode);
 
         if (recovering) {
           root = hydrateRoot(context.container as Element, vNode);

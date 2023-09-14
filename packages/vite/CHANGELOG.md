@@ -1,10 +1,16 @@
 # @web-widget/vite
 
+## 2.4.0
+
+### Minor Changes
+
+- refactor: click to source.
+
 ## 2.3.0
 
 ### Minor Changes
 
-- Add "Click-To-Source" feature.
+- feat: Add "Click-To-Source" feature.
 
 ## 2.2.1
 

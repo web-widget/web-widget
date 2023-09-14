@@ -1,5 +1,16 @@
 # @web-widget/react
 
+## 0.5.0
+
+### Minor Changes
+
+- feat: Enable react strict mode.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/vite@2.4.0
+
 ## 0.4.6
 
 ### Patch Changes
