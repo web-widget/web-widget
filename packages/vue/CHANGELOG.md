@@ -1,5 +1,11 @@
 # @web-widget/vue
 
+## 0.5.7
+
+### Patch Changes
+
+- @web-widget/vite@2.4.1
+
 ## 0.5.6
 
 ### Patch Changes

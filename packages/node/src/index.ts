@@ -1,20 +1,20 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
-import primitives from "@edge-runtime/primitives";
 import {
+  buildToFetchEvent,
   buildToNodeHandler,
   buildToRequest,
-  buildToFetchEvent,
   mergeIntoServerResponse,
-  toToReadable,
   toOutgoingHeaders,
 } from "@edge-runtime/node-utils";
+import primitives from "@edge-runtime/primitives";
+import type { IncomingMessage, ServerResponse } from "node:http";
 
 import type {
   BuildDependencies,
-  RequestOptions,
   NodeHandler,
+  RequestOptions,
   WebHandler,
 } from "@edge-runtime/node-utils";
+import type { Writable } from "node:stream";
 
 if (!Reflect.get(global, "DISABLE_INSTALL_MCA_SHIMS")) {
   Object.assign(global, primitives, { console });
@@ -78,6 +78,12 @@ export default class NodeAdapter {
       options
     )(webRouter.handler);
 
+    // this.#middleware = (req, res, next) => {
+    //   res.on("finish", () => {
+    //     next();
+    //   });
+    //   this.#handler(req, res);
+    // };
     this.#middleware = toMiddleware(webRouter.handler, options);
   }
 
@@ -110,28 +116,57 @@ async function toServerResponse(
   webResponse: Response | null | undefined,
   serverResponse: ServerResponse
 ) {
-  return new Promise((resolve, reject) => {
-    if (!webResponse) {
-      serverResponse.end();
-      return;
-    }
-    mergeIntoServerResponse(
-      // @ts-ignore getAll() is not standard https://fetch.spec.whatwg.org/#headers-class
-      toOutgoingHeaders(webResponse.headers),
-      serverResponse
-    );
+  if (!webResponse) {
+    serverResponse.end();
+    return;
+  }
+  mergeIntoServerResponse(
+    // @ts-ignore getAll() is not standard https://fetch.spec.whatwg.org/#headers-class
+    toOutgoingHeaders(webResponse.headers),
+    serverResponse
+  );
 
-    serverResponse.statusCode = webResponse.status;
-    serverResponse.statusMessage = webResponse.statusText;
-    if (!webResponse.body) {
-      serverResponse.end();
+  serverResponse.statusCode = webResponse.status;
+  serverResponse.statusMessage = webResponse.statusText;
+  if (!webResponse.body) {
+    serverResponse.end();
+    return;
+  }
+
+  await writeReadableStreamToWritable(webResponse.body, serverResponse);
+}
+
+async function writeReadableStreamToWritable(
+  stream: ReadableStream,
+  writable: Writable
+) {
+  let reader = stream.getReader();
+
+  async function read() {
+    let { done, value } = await reader.read();
+
+    if (done) {
+      writable.end();
       return;
     }
-    toToReadable(webResponse.body)
-      .pipe(serverResponse)
-      .on("finish", () => resolve(undefined))
-      .on("error", reject);
-  });
+
+    writable.write(value);
+
+    // If the stream is flushable, flush it to allow streaming to continue.
+    let flushable = writable as { flush?: Function };
+    if (typeof flushable.flush === "function") {
+      flushable.flush();
+    }
+
+    await read();
+  }
+
+  try {
+    await read();
+  } catch (error: any) {
+    writable.destroy(error);
+    throw error;
+  }
 }
 
 function toMiddleware(
