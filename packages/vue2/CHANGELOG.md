@@ -1,5 +1,11 @@
 # @web-widget/vue2
 
+## 0.3.8
+
+### Patch Changes
+
+- fix: Memory leak.
+
 ## 0.3.7
 
 ### Patch Changes
