@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/node",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "type": "module",
   "exports": {
     ".": {
@@ -8,6 +8,12 @@
       "development": "./src/index.ts",
       "require": "./dist/node.cjs",
       "default": "./dist/node.js"
+    },
+    "./koa": {
+      "types": "./dist/koa.d.ts",
+      "development": "./src/koa.ts",
+      "require": "./dist/koa.cjs",
+      "default": "./dist/koa.js"
     }
   },
   "files": [
@@ -24,6 +30,7 @@
   },
   "devDependencies": {
     "@types/node": "^17.0.42",
+    "@types/koa": "^2.13.9",
     "tsup": "^7.0.0",
     "typescript": "^5.0.4"
   },
@@ -37,6 +44,11 @@
         "types": "./dist/node.d.ts",
         "require": "./dist/node.cjs",
         "default": "./dist/node.js"
+      },
+      "./koa": {
+        "types": "./dist/koa.d.ts",
+        "require": "./dist/koa.cjs",
+        "default": "./dist/koa.js"
       }
     }
   }

@@ -1,5 +1,11 @@
 # @web-widget/node
 
+## 0.2.0
+
+### Minor Changes
+
+- feat: Add koa middleware entry.
+
 ## 0.1.2
 
 ### Patch Changes

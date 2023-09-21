@@ -280,6 +280,9 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4
     devDependencies:
+      '@types/koa':
+        specifier: ^2.13.9
+        version: 2.13.9
       '@types/node':
         specifier: ^17.0.42
         version: 17.0.45
@@ -3781,7 +3784,7 @@ packages:
   /@types/koa-compose@3.2.5:
     resolution: {integrity: sha512-B8nG/OoE1ORZqCkBVsup/AKcvjdgoHnfi4pZMn5UwAPCbhk/96xyv284eBYW8JlQbQ7zDmnpFr68I/40mFoIBQ==}
     dependencies:
-      '@types/koa': 2.13.6
+      '@types/koa': 2.13.9
     dev: true
 
   /@types/koa-send@4.1.3:
@@ -3792,6 +3795,19 @@ packages:
 
   /@types/koa@2.13.6:
     resolution: {integrity: sha512-diYUfp/GqfWBAiwxHtYJ/FQYIXhlEhlyaU7lB/bWQrx4Il9lCET5UwpFy3StOAohfsxxvEQ11qIJgT1j2tfBvw==}
+    dependencies:
+      '@types/accepts': 1.3.5
+      '@types/content-disposition': 0.5.5
+      '@types/cookies': 0.7.7
+      '@types/http-assert': 1.5.3
+      '@types/http-errors': 2.0.1
+      '@types/keygrip': 1.0.2
+      '@types/koa-compose': 3.2.5
+      '@types/node': 20.5.7
+    dev: true
+
+  /@types/koa@2.13.9:
+    resolution: {integrity: sha512-tPX3cN1dGrMn+sjCDEiQqXH2AqlPoPd594S/8zxwUm/ZbPsQXKqHPUypr2gjCPhHUc+nDJLduhh5lXI/1olnGQ==}
     dependencies:
       '@types/accepts': 1.3.5
       '@types/content-disposition': 0.5.5
@@ -4225,7 +4241,7 @@ packages:
     resolution: {integrity: sha512-Q/Xt4RMVebLWvALofz1C0KvP8qHbzU1EmdIA2Y1WMPJwiFJFhPxdr75p9YxK32P2t0hGs6aqqS5zE0HW9wYzYA==}
     engines: {node: '>=10.0.0'}
     dependencies:
-      '@types/koa': 2.13.6
+      '@types/koa': 2.13.9
       '@types/ws': 7.4.7
       '@web/parse5-utils': 1.3.1
       chokidar: 3.5.3
@@ -4253,7 +4269,7 @@ packages:
     resolution: {integrity: sha512-KdYwejXZwIZvb6tYMCqU7yBiEOPfKLQ3V9ezqqEz8DA9V9R3oQWaowckvCpFB9IxxPfS/P8/59OkdzGKQjcIUw==}
     engines: {node: '>=10.0.0'}
     dependencies:
-      '@types/koa': 2.13.6
+      '@types/koa': 2.13.9
       '@types/ws': 7.4.7
       '@web/parse5-utils': 1.3.1
       chokidar: 3.5.3
