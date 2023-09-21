@@ -180,6 +180,6 @@ function toMiddleware(
     const webResponse = await webHandler(request, toFetchEvent(request));
     await toServerResponse(webResponse, serverResponse);
 
-    next();
+    await next();
   };
 }
