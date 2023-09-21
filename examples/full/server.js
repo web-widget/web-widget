@@ -1,8 +1,7 @@
 import Koa from "koa";
 import koaSend from "koa-send";
 import { fileURLToPath } from "node:url";
-import NodeAdapter from "@web-widget/node";
-import connectToKoa from "koa-connect";
+import NodeAdapter from "@web-widget/node/koa";
 import start from "./dist/server/entry.js";
 
 import routemap from "./dist/server/routemap.js";
@@ -25,7 +24,7 @@ const webRouter = start(routemap, {
 
 const webRouterMiddleware = new NodeAdapter(webRouter).middleware;
 
-app.use(connectToKoa(webRouterMiddleware));
+app.use(webRouterMiddleware);
 
 app.listen(9000, () => {
   console.log("http://localhost:9000");
