@@ -1,5 +1,14 @@
 # @examples/vue2
 
+## 1.1.9
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/node@0.2.0
+  - @web-widget/react@0.5.3
+  - @web-widget/vue2@0.3.10
+
 ## 1.1.8
 
 ### Patch Changes

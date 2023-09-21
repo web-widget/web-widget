@@ -1,5 +1,12 @@
 # @web-widget/vite
 
+## 2.4.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/node@0.2.0
+
 ## 2.4.2
 
 ### Patch Changes
