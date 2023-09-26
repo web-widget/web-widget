@@ -274,17 +274,14 @@ importers:
   packages/node:
     dependencies:
       '@edge-runtime/node-utils':
-        specifier: ^2.1.2
-        version: 2.1.2
+        specifier: ^2.2.2
+        version: 2.2.2
       '@edge-runtime/primitives':
-        specifier: ^3.0.4
-        version: 3.0.4
+        specifier: ^3.1.1
+        version: 3.1.1
     devDependencies:
-      '@types/koa':
-        specifier: ^2.13.9
-        version: 2.13.9
       '@types/node':
-        specifier: ^17.0.42
+        specifier: ^17.0.45
         version: 17.0.45
       tsup:
         specifier: ^7.0.0
@@ -2262,21 +2259,14 @@ packages:
       prettier: 2.8.8
     dev: true
 
-  /@edge-runtime/cookies@3.2.3:
-    resolution: {integrity: sha512-xe8hUIsNe3+4ExjykueCMHknJ5tccme6HQgxhGcem7TepZMD8JYRY/XNI+SfMZLArzu1kO+7prOK2OHMPGe3zg==}
-    engines: {node: '>=14'}
+  /@edge-runtime/node-utils@2.2.2:
+    resolution: {integrity: sha512-2fSdYNAo4Pp46JGjV4vQV8N8uHZmww6nBLi80uuwUYHE2+44uE9CUeWGzE8JaV8Za4COLVoxD9AzVgjTb4bfhQ==}
+    engines: {node: '>=16'}
     dev: false
 
-  /@edge-runtime/node-utils@2.1.2:
-    resolution: {integrity: sha512-LRWqgKh09gD2U+t3Rzln0U4zqiAVDQgnnLNIqZwA8Q3J8BwEWEOd378R0vyT2WChteoXUGWXlQd9vU69r7uu6Q==}
-    engines: {node: '>=14'}
-    dependencies:
-      '@edge-runtime/cookies': 3.2.3
-    dev: false
-
-  /@edge-runtime/primitives@3.0.4:
-    resolution: {integrity: sha512-ZisWDavCpjroNbXZ1FZ2qHqlNfTXjIcQx+7aRdC+n6DVsTShUW7S+urGj2Wags5CH0oICWRoksYX5GngW7SZzw==}
-    engines: {node: '>=14'}
+  /@edge-runtime/primitives@3.1.1:
+    resolution: {integrity: sha512-ROO22py+KdAfzqWZu6CtVMC4qV6mS0W1jPI51jGXE+uenyBUN7cQTWB9ReQc8Bm4cnjqmhajvpqEx3j7Y9iSOg==}
+    engines: {node: '>=16'}
     dev: false
 
   /@esbuild-plugins/node-modules-polyfill@0.1.4(esbuild@0.14.54):
