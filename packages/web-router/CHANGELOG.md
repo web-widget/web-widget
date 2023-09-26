@@ -1,5 +1,11 @@
 # @web-widget/web-router
 
+## 0.4.4
+
+### Patch Changes
+
+- fix: Browser compatibility issues.
+
 ## 0.4.3
 
 ### Patch Changes

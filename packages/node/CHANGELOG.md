@@ -1,5 +1,12 @@
 # @web-widget/node
 
+## 0.3.0
+
+### Minor Changes
+
+- refactor: Add protective logic.
+  refactor: Remove koa middleware entry.
+
 ## 0.2.0
 
 ### Minor Changes

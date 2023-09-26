@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.3.1
+
+### Patch Changes
+
+- fix: Browser compatibility issues.
+  refactor: readableStreamToString.
+
 ## 1.3.0
 
 ### Minor Changes
