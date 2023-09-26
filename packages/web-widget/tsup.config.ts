@@ -5,7 +5,7 @@ export const tsup: Options = {
     "web-widget.client": "src/client.ts",
   },
   dts: true,
-  target: "es2017",
+  target: ["es2017", "chrome67"],
   splitting: false,
   sourcemap: true,
   format: ["esm"],

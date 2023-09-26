@@ -8,34 +8,39 @@ export { render };
 
 const importShimLoader = html`<script id="shim:es-module">
   if (!HTMLScriptElement.supports || !HTMLScriptElement.supports("importmap")) {
-    function importShim() {
-      const esModuleShimUrl =
-        "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js";
-      const promise = new Promise((resolve, reject) => {
-        document.head.appendChild(
-          Object.assign(document.createElement("script"), {
-            src: esModuleShimUrl,
-            crossorigin: "anonymous",
-            async: true,
-            onload() {
-              if (!importShim.$proxy) {
-                resolve(importShim);
-              } else {
-                reject(
-                  new Error("No globalThis.importShim found:" + esModuleShimUrl)
-                );
-              }
-            },
-            onerror(error) {
-              reject(error);
-            },
-          })
-        );
-      });
-
-      return promise.then((importShim) => importShim(...arguments));
-    }
-    importShim.$proxy = true;
+    self.importShim = Object.assign(
+      function importShimProxy() {
+        const esModuleShimUrl =
+          "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js";
+        const promise = new Promise((resolve, reject) => {
+          document.head.appendChild(
+            Object.assign(document.createElement("script"), {
+              src: esModuleShimUrl,
+              crossorigin: "anonymous",
+              async: true,
+              onload() {
+                if (!importShim.$proxy) {
+                  resolve(importShim);
+                } else {
+                  reject(
+                    new Error(
+                      "No globalThis.importShim found:" + esModuleShimUrl
+                    )
+                  );
+                }
+              },
+              onerror(error) {
+                reject(error);
+              },
+            })
+          );
+        });
+        return promise.then((importShim) => importShim(...arguments));
+      },
+      {
+        $proxy: true,
+      }
+    );
   }
 </script>`;
 
