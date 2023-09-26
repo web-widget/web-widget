@@ -3,7 +3,7 @@
     "outDir": "./dist",
     "target": "ES2015",
     "module": "ES2020",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "ESNext.AsyncIterable"],
     "esModuleInterop": true,
     "allowJs": false,
     "strict": true,
