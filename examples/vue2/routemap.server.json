@@ -19,6 +19,10 @@
     {
       "pathname": "/vue-server-component",
       "module": "./routes/vue-server-component.vue"
+    },
+    {
+      "pathname": "/github/:username",
+      "module": "./routes/github.tsx"
     }
   ],
   "fallbacks": [

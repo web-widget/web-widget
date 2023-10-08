@@ -11,6 +11,7 @@
     </li>
     <li><a href="/react-streaming">React: Streaming</a></li>
     <li><a href="/vue-streaming">Vue: Streaming</a></li>
+    <li><a href="/github/aui">Github: Fetching data</a></li>
   </ul>
 </template>
 
