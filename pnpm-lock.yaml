@@ -356,9 +356,6 @@ importers:
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
-      '@web-widget/web-router':
-        specifier: workspace:*
-        version: link:../web-router
       builtin-modules:
         specifier: ^3.3.0
         version: 3.3.0
@@ -393,6 +390,9 @@ importers:
       '@types/node':
         specifier: ^20.4.8
         version: 20.5.7
+      '@web-widget/web-router':
+        specifier: workspace:*
+        version: link:../web-router
       rollup:
         specifier: ^3.3.0
         version: 3.28.0
