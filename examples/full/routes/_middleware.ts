@@ -1,13 +1,30 @@
-import type { MiddlewareHandlerContext } from "@web-widget/web-router";
+import type { Meta, ReactRenderOptions } from "@web-widget/react";
+import type { Context } from "@web-widget/web-router";
 
-interface State {
-  data: string;
-}
+export async function handler(ctx: Context, next: () => Promise<Response>) {
+  const isSpider = /spider|bot/i.test(
+    String(ctx.request.headers.get("User-Agent"))
+  );
+  const isDebugSpider = new URL(ctx.request.url).searchParams.has(
+    "debug-spider"
+  );
 
-export async function handler(
-  ctx: MiddlewareHandlerContext<State>,
-  next: () => Promise<Response>
-) {
+  if (isSpider || isDebugSpider) {
+    console.log("spider..");
+    ctx.state.renderOptions = {
+      react: {
+        awaitAllReady: true,
+      },
+    } as ReactRenderOptions;
+  }
+  ctx.state.meta = {
+    meta: [
+      {
+        name: "server",
+        content: "@web-widget/web-router",
+      },
+    ],
+  } as Meta;
   const resp = await next();
   resp.headers.set("X-Powered-By", "@web-widget/web-router");
   return resp;
