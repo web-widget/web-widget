@@ -2323,9 +2323,9 @@ packages:
     resolution: {integrity: sha512-TkcZkntUTOcvJ4vgmwpNfLTclpMbmbClZCe62B25/VTukmyv91joRa4eKzSjzCZUXTbFHNmVdOpmGaaJU2U3+A==}
     dev: true
 
-  /@edge-runtime/cookies@3.2.3:
-    resolution: {integrity: sha512-xe8hUIsNe3+4ExjykueCMHknJ5tccme6HQgxhGcem7TepZMD8JYRY/XNI+SfMZLArzu1kO+7prOK2OHMPGe3zg==}
-    engines: {node: '>=14'}
+  /@edge-runtime/node-utils@2.2.2:
+    resolution: {integrity: sha512-2fSdYNAo4Pp46JGjV4vQV8N8uHZmww6nBLi80uuwUYHE2+44uE9CUeWGzE8JaV8Za4COLVoxD9AzVgjTb4bfhQ==}
+    engines: {node: '>=16'}
     dev: false
 
   /@edge-runtime/primitives@3.1.1:
