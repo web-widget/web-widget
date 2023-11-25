@@ -146,7 +146,7 @@ class Application<
 
     const strict = options.strict ?? true;
     delete options.strict;
-    Object.assign(this, options);
+    // Object.assign(this, options);
     this.getPath = strict ? options.getPath ?? getPath : getPathNoStrict;
     this.router = options.router ?? new URLPatternRouter();
   }
