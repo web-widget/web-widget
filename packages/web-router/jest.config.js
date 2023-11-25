@@ -4,5 +4,12 @@ export default {
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest",
   },
+  transformIgnorePatterns: ["/node_modules/"],
   testEnvironment: "miniflare",
+  extensionsToTreatAsEsm: [".ts"],
+  globals: {
+    "ts-jest": {
+      useESM: true,
+    },
+  },
 };

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { Context, ExecutionContext } from "./context";
 import { Application } from "./application";
 import type { Handler, MiddlewareHandler, Next } from "./types";
