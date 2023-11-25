@@ -323,7 +323,7 @@ export function createFallbackHandler(
     handler ??= composeHandler(module.handler);
 
     const status = Reflect.get(error, "status") ?? 500;
-    if (status > 500) {
+    if (status >= 500) {
       console.error(
         "An error occurred during route handling or page rendering.",
         error
