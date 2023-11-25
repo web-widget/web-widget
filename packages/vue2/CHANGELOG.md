@@ -1,5 +1,37 @@
 # @web-widget/vue2
 
+## 0.3.11
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.3.1
+  - @web-widget/vite@2.4.4
+
+## 0.3.10
+
+### Patch Changes
+
+- @web-widget/vite@2.4.3
+
+## 0.3.9
+
+### Patch Changes
+
+- @web-widget/vite@2.4.2
+
+## 0.3.8
+
+### Patch Changes
+
+- fix: Memory leak.
+
+## 0.3.7
+
+### Patch Changes
+
+- @web-widget/vite@2.4.1
+
 ## 0.3.6
 
 ### Patch Changes

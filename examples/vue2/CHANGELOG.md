@@ -1,5 +1,52 @@
 # @examples/vue2
 
+## 1.1.10
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @web-widget/node@0.3.0
+  - @web-widget/web-router@0.4.4
+  - @web-widget/web-widget@1.3.1
+  - @web-widget/react@0.5.4
+  - @web-widget/vue2@0.3.11
+
+## 1.1.9
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/node@0.2.0
+  - @web-widget/react@0.5.3
+  - @web-widget/vue2@0.3.10
+
+## 1.1.8
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/node@0.1.2
+  - @web-widget/react@0.5.2
+  - @web-widget/vue2@0.3.9
+
+## 1.1.7
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/vue2@0.3.8
+
+## 1.1.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/node@0.1.1
+  - @web-widget/react@0.5.1
+  - @web-widget/vue2@0.3.7
+
 ## 1.1.5
 
 ### Patch Changes

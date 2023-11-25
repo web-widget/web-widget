@@ -79,6 +79,8 @@ export const defineVueRender = ({
         ? Readable.toWeb(renderer.renderToStream(app))
         : await renderer.renderToString(app);
 
+    app.$destroy();
+
     if (state) {
       const json = htmlEscapeJsonString(JSON.stringify(state));
       const script = `<script as="state" type="application/json">${json}</script>`;

@@ -1,20 +1,19 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
-import primitives from "@edge-runtime/primitives";
-import {
-  buildToNodeHandler,
-  buildToRequest,
-  buildToFetchEvent,
-  mergeIntoServerResponse,
-  toToReadable,
-  toOutgoingHeaders,
-} from "@edge-runtime/node-utils";
-
 import type {
   BuildDependencies,
-  RequestOptions,
   NodeHandler,
+  RequestOptions,
   WebHandler,
 } from "@edge-runtime/node-utils";
+import {
+  buildToFetchEvent,
+  buildToNodeHandler,
+  buildToRequest,
+  mergeIntoServerResponse,
+  toOutgoingHeaders,
+} from "@edge-runtime/node-utils";
+import primitives from "@edge-runtime/primitives";
+import type { IncomingMessage, ServerResponse } from "node:http";
+import type { Writable } from "node:stream";
 
 if (!Reflect.get(global, "DISABLE_INSTALL_MCA_SHIMS")) {
   Object.assign(global, primitives, { console });
@@ -43,7 +42,6 @@ class FetchEvent {
 const dependencies: BuildDependencies = {
   Headers,
   ReadableStream,
-  // @ts-ignore
   Request: class extends Request {
     constructor(input: RequestInfo | URL, init?: RequestInit | undefined) {
       super(input, addDuplexToInit(init));
@@ -76,6 +74,12 @@ export default class NodeAdapter {
       options
     )(webRouter.handler);
 
+    // this.#middleware = (req, res, next) => {
+    //   res.on("finish", () => {
+    //     next();
+    //   });
+    //   this.#handler(req, res);
+    // };
     this.#middleware = toMiddleware(webRouter.handler, options);
   }
 
@@ -104,34 +108,6 @@ function addDuplexToInit(init: RequestInit | undefined) {
   return init;
 }
 
-async function toServerResponse(
-  webResponse: Response | null | undefined,
-  serverResponse: ServerResponse
-) {
-  return new Promise((resolve, reject) => {
-    if (!webResponse) {
-      serverResponse.end();
-      return;
-    }
-    mergeIntoServerResponse(
-      // @ts-ignore getAll() is not standard https://fetch.spec.whatwg.org/#headers-class
-      toOutgoingHeaders(webResponse.headers),
-      serverResponse
-    );
-
-    serverResponse.statusCode = webResponse.status;
-    serverResponse.statusMessage = webResponse.statusText;
-    if (!webResponse.body) {
-      serverResponse.end();
-      return;
-    }
-    toToReadable(webResponse.body)
-      .pipe(serverResponse)
-      .on("finish", () => resolve(undefined))
-      .on("error", reject);
-  });
-}
-
 function toMiddleware(
   webHandler: WebHandler,
   options: RequestOptions
@@ -142,7 +118,84 @@ function toMiddleware(
     const request = toRequest(incomingMessage, options);
     const webResponse = await webHandler(request, toFetchEvent(request));
     await toServerResponse(webResponse, serverResponse);
-
-    next();
+    await next();
   };
+}
+
+async function toServerResponse(
+  webResponse: Response | null | undefined,
+  serverResponse: ServerResponse
+) {
+  if (!checkWritable(serverResponse)) {
+    return;
+  }
+
+  if (!webResponse) {
+    serverResponse.end();
+    return;
+  }
+
+  if (!serverResponse.headersSent) {
+    mergeIntoServerResponse(
+      toOutgoingHeaders(webResponse.headers),
+      serverResponse
+    );
+  }
+
+  serverResponse.statusCode = webResponse.status;
+  serverResponse.statusMessage = webResponse.statusText;
+  if (!webResponse.body) {
+    serverResponse.end();
+    return;
+  }
+
+  await writeReadableStreamToWritable(webResponse.body, serverResponse);
+}
+
+async function writeReadableStreamToWritable(
+  stream: ReadableStream,
+  writable: Writable
+) {
+  let reader = stream.getReader();
+  let flushable = writable as { flush?: Function };
+
+  try {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      let { done, value } = await reader.read();
+
+      if (done) {
+        writable.end();
+        break;
+      }
+
+      writable.write(value);
+      if (typeof flushable.flush === "function") {
+        flushable.flush();
+      }
+    }
+  } catch (error: unknown) {
+    writable.destroy(error as Error);
+    throw error;
+  }
+}
+
+/**
+ * Checks if the request is writable.
+ * Tests for the existence of the socket
+ * as node sometimes does not set it.
+ */
+function checkWritable(serverResponse: ServerResponse) {
+  // can't write any more after response finished
+  // response.writableEnded is available since Node > 12.9
+  // https://nodejs.org/api/http.html#http_response_writableended
+  // response.finished is undocumented feature of previous Node versions
+  // https://stackoverflow.com/questions/16254385/undocumented-response-finished-in-node-js
+  if (serverResponse.writableEnded || serverResponse.finished) return false;
+
+  const socket = serverResponse.socket;
+  // There are already pending outgoing res, but still writable
+  // https://github.com/nodejs/node/blob/v4.4.7/lib/_http_server.js#L486
+  if (!socket) return true;
+  return socket.writable;
 }

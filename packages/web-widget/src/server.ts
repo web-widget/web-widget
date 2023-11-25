@@ -17,41 +17,22 @@ export type * from "./types";
 
 const __FEATURE_INJECTING_STYLES__ = false;
 
-// async function readableStreamToString(
-//   readableStream: ReadableStream
-// ) {
-//   let result = "";
-//   const textDecoder = new TextDecoder();
-//   for await (const chunk of readableStream) {
-//     result += textDecoder.decode(chunk, { stream: true });
-//   }
-//   return result;
-// }
-
-const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
-
-async function readableStreamToString(stream: ReadableStream) {
-  const decoder = new TextDecoder();
-  const reader = stream.getReader();
-  let result = "";
-
-  try {
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const { done, value } = await reader.read();
-
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-
-      result += chunk;
-    }
-  } finally {
-    reader.releaseLock();
+declare global {
+  interface ReadableStream {
+    [Symbol.asyncIterator](): AsyncIterator<ArrayBuffer | ArrayBufferView>;
   }
+}
 
+async function readableStreamToString(readableStream: ReadableStream) {
+  let result = "";
+  const textDecoder = new TextDecoder();
+  for await (const chunk of readableStream) {
+    result += textDecoder.decode(chunk, { stream: true });
+  }
   return result;
 }
+
+const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
 
 function unsafeAttrsToHtml(attrs: Record<string, string>) {
   return Object.entries(attrs)

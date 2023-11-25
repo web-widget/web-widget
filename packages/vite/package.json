@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vite",
-  "version": "2.4.0",
+  "version": "2.4.4",
   "type": "module",
   "exports": {
     ".": {
@@ -31,6 +31,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@web-widget/web-router": "workspace:*",
     "@types/mime-types": "^2.1.1",
     "@types/node": "^20.4.8",
     "rollup": "^3.3.0",
