@@ -1,185 +1,84 @@
-type HandlerContext<T = unknown> = T & {
-  request: Request;
-};
-
-export type Handler<T = unknown> = (
-  ctx: HandlerContext<T>
-) => Response | Promise<Response>;
-
-export type FinalHandler<T = unknown> = (ctx: HandlerContext<T>) => {
-  destination: DestinationKind;
-  handler: () => Response | Promise<Response>;
-};
-
-export type ErrorHandler<T = unknown> = (
-  ctx: HandlerContext<T>,
-  err: unknown
-) => Response | Promise<Response>;
-
-type UnknownMethodHandler<T = unknown> = (
-  ctx: HandlerContext<T>,
-  knownMethods: KnownMethod[]
-) => Response | Promise<Response>;
-
-export type MatchHandler<T = unknown> = (
-  ctx: HandlerContext<T>,
-  match: Record<string, string>
-) => Response | Promise<Response>;
-
-export interface Routes<T = {}> {
-  [key: string]: { [K in KnownMethod | "default"]?: MatchHandler<T> };
-}
-
-export type DestinationKind = "internal" | "route" | "notFound";
-
-export type InternalRoute<T = {}> = {
-  default?: MatchHandler<T>;
-  destination: DestinationKind;
-  methods: { [K in KnownMethod]?: MatchHandler<T> };
-  pattern: URLPattern;
-};
-
-export interface RouterOptions<T> {
-  internalRoutes: Routes<T>;
-  routes: Routes<T>;
-  otherHandler: Handler<T>;
-  errorHandler: ErrorHandler<T>;
-  unknownMethodHandler?: UnknownMethodHandler<T>;
-}
-
-export type KnownMethod = (typeof knownMethods)[number];
-
-export const knownMethods = [
-  "GET",
-  "HEAD",
-  "POST",
-  "PUT",
-  "DELETE",
-  "OPTIONS",
-  "PATCH",
+export const METHOD_NAME_ALL = "ALL" as const;
+export const METHOD_NAME_ALL_LOWERCASE = "all" as const;
+export const METHODS = [
+  "get",
+  "post",
+  "put",
+  "delete",
+  "options",
+  "patch",
 ] as const;
 
-export function defaultOtherHandler(
-  _ctx: HandlerContext,
-  _err: unknown
-): Response {
-  return new Response(null, {
-    status: 404,
-  });
+export interface Router<T> {
+  add(method: string, pathname: string, handler: T): void;
+  match(method: string, pathname: string): Result<T>;
 }
 
-export function defaultErrorHandler(
-  _ctx: HandlerContext,
-  err: unknown
-): Response {
-  console.error(err);
+export type Params = Record<string, string>;
+export type Pathname = string;
+export type Result<T> = [[T, Params, Pathname][]];
+/*
+The router returns the result of `match` in either format.
 
-  return new Response(null, {
-    status: 500,
-  });
-}
+[[handler, paramIndexMap][], paramArray]
+e.g.
+[
+  [
+    [middlewareA, {}],                     // '*'
+    [funcA,       {'id': 0}],              // '/user/:id/*'
+    [funcB,       {'id': 0, 'action': 1}], // '/user/:id/:action'
+  ],
+  ['123', 'abc']
+]
 
-export function defaultUnknownMethodHandler(
-  _ctx: HandlerContext,
-  knownMethods: KnownMethod[]
-): Response {
-  return new Response(null, {
-    status: 405,
-    headers: {
-      Accept: knownMethods.join(", "),
-    },
-  });
-}
+[[handler, params][]]
+e.g.
+[
+  [
+    [middlewareA, {}],                             // '*'
+    [funcA,       {'id': '123'}],                  // '/user/:id/*'
+    [funcB,       {'id': '123', 'action': 'abc'}], // '/user/:id/:action'
+  ]
+]
+*/
 
-function processRoutes<T>(
-  processedRoutes: InternalRoute<T>[],
-  routes: Routes<T>,
-  destination: DestinationKind
-) {
-  for (const [path, methods] of Object.entries(routes)) {
-    const entry: InternalRoute<T> = {
-      default: undefined,
-      destination,
-      methods: {},
-      pattern: new URLPattern({ pathname: path }),
-    };
+export class UnsupportedPathError extends Error {}
 
-    for (const [method, handler] of Object.entries(methods)) {
-      if (method === "default") {
-        entry.default = handler;
-      } else if (knownMethods.includes(method as KnownMethod)) {
-        entry.methods[method as KnownMethod] = handler;
-      }
+type Route<T> = [URLPattern, string, T]; // [pattern, method, handler, pathname]
+
+export class URLPatternRouter<T> implements Router<T> {
+  #routes: Route<T>[] = [];
+
+  add(method: string, pathname: string, handler: T) {
+    let pattern;
+    try {
+      pattern = new URLPattern({ pathname });
+    } catch (e) {
+      throw new UnsupportedPathError();
     }
-
-    processedRoutes.push(entry);
+    this.#routes.push([pattern, method, handler]);
   }
-}
 
-export function router<T = unknown>({
-  internalRoutes,
-  routes,
-  otherHandler,
-  unknownMethodHandler,
-}: RouterOptions<T>): FinalHandler<T> {
-  unknownMethodHandler ??= defaultUnknownMethodHandler;
+  match(method: string, pathname: string): Result<T> {
+    const handlers: [T, Params, string][] = [];
 
-  const processedRoutes: InternalRoute<T>[] = [];
-  processRoutes(processedRoutes, internalRoutes, "internal");
-  processRoutes(processedRoutes, routes, "route");
+    for (const [pattern, routeMethod, handler] of this.#routes) {
+      if (routeMethod === METHOD_NAME_ALL || routeMethod === method) {
+        const match = pattern.exec({ pathname });
+        if (match) {
+          const params = Object.create(null) as Params;
+          for (const key in match.pathname.groups) {
+            const value = match.pathname.groups[key];
 
-  return (ctx) => {
-    let req = ctx.request;
-    for (const route of processedRoutes) {
-      const res = route.pattern.exec(req.url);
-
-      if (res !== null) {
-        const groups: Record<string, string> = {};
-        const matched = res?.pathname.groups;
-
-        for (const key in matched) {
-          const value = matched[key];
-
-          if (value !== undefined) {
-            groups[key] = decodeURIComponent(value);
+            if (value !== undefined) {
+              params[key] = decodeURIComponent(value);
+            }
           }
-        }
-
-        // If not overridden, HEAD requests should be handled as GET requests but without the body.
-        if (req.method === "HEAD" && !route.methods["HEAD"]) {
-          req = new Request(req.url, { method: "GET", headers: req.headers });
-        }
-
-        for (const [method, handler] of Object.entries(route.methods)) {
-          if (req.method === method) {
-            return {
-              destination: route.destination,
-              handler: () => handler(ctx, groups),
-            };
-          }
-        }
-
-        if (route.default) {
-          return {
-            destination: route.destination,
-            handler: () => route.default!(ctx, groups),
-          };
-        } else {
-          return {
-            destination: route.destination,
-            handler: () =>
-              unknownMethodHandler!(
-                ctx,
-                Object.keys(route.methods) as KnownMethod[]
-              ),
-          };
+          handlers.push([handler, params, pathname]);
         }
       }
     }
 
-    return {
-      destination: "notFound",
-      handler: () => otherHandler!(ctx),
-    };
-  };
+    return [handlers];
+  }
 }

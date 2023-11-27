@@ -393,7 +393,7 @@ function generateServerRoutemap(
     `export default function start(manifest, options) {`,
     `  return entry(manifest, {`,
     `    baseAsset: ${JSON.stringify(base)},`,
-    `    baseModule: new URL("./", import.meta.url),`,
+    `    baseModule: new URL("./", import.meta.url).href,`,
     `    ...options,`,
     `    defaultMeta: mergeMeta(options.defaultMeta || {}, {`,
     `      script: [{`,

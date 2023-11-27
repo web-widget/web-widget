@@ -255,6 +255,7 @@ export interface ServerRouteHandlerContext<
     },
     renderOptions?: RouteRenderOptions
   ): ServerRouteHandlerResult | Promise<ServerRouteHandlerResult>;
+  renderOptions: RouteRenderOptions;
   request: Request;
   state: State;
 }
@@ -278,6 +279,7 @@ export interface ClientRouteHandlerContext<
     },
     renderOptions?: RouteRenderOptions
   ): ClientRouteHandlerResult | Promise<ClientRouteHandlerResult>;
+  renderOptions: RouteRenderOptions;
   request: Request;
   state: State;
 }

@@ -47,7 +47,6 @@ const importShimLoader = html`<script id="shim:es-module">
 export default function DefaultRootLayout({
   meta,
   children,
-  bootstrap,
 }: RootLayoutComponentProps): HTML {
   /* eslint-disable prettier/prettier */
   return html`<!doctype html>
@@ -60,7 +59,6 @@ export default function DefaultRootLayout({
         ${typeof children === 'string'
           ? unsafeHTML(children)
           : unsafeStreamToHTML(children)}
-        ${unsafeHTML(renderMetaToString({ script: bootstrap }))}
       </body>
     </html>`;
 }

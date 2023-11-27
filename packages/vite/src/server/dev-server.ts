@@ -1,7 +1,7 @@
 import type { Middleware } from "@web-widget/node";
 import NodeAdapter from "@web-widget/node";
 import type { RouteModule } from "@web-widget/schema";
-import type { Manifest } from "@web-widget/web-router";
+import type { ManifestJSON, ManifestResolved } from "@web-widget/web-router";
 import path from "node:path";
 import url from "node:url";
 import stripAnsi from "strip-ansi";
@@ -79,22 +79,17 @@ async function createWebRouterDevMiddleware(
   const baseModuleUrl = url.pathToFileURL(baseModulePath);
   const loader = createViteLoader(viteServer);
 
-  const manifest = (await loader.import(builderConfig.input.server.routemap))
-    .default as Manifest;
+  function createRouteLoader(id: string) {
+    let routeModule: RouteModule;
+    return async () => {
+      if (routeModule) {
+        return routeModule;
+      }
 
-  const start = (
-    (await loader.import(builderConfig.input.server.entry)) as ServerEntryModule
-  ).default;
-
-  const webRouter = start(manifest, {
-    dev: true,
-    baseAsset: viteServer.config.base,
-    baseModule: baseModuleUrl,
-    // @ts-ignore
-    experimental_loader: async (id, importer) => {
-      const source = new URL(id, importer);
+      const source = new URL(id, baseModuleUrl);
       const modulePath = url.fileURLToPath(source);
-      const routeModule = {
+
+      routeModule = {
         meta: {},
         ...((await loader.import(modulePath)) as RouteModule),
       };
@@ -111,7 +106,7 @@ async function createWebRouterDevMiddleware(
         }
       });
 
-      routeModule.meta.script?.push({
+      routeModule.meta?.script?.push({
         type: "module",
         id: "entry.client",
         src:
@@ -123,7 +118,47 @@ async function createWebRouterDevMiddleware(
       });
 
       return routeModule;
+    };
+  }
+
+  const manifestJson = (
+    await loader.import(builderConfig.input.server.routemap)
+  ).default as ManifestJSON;
+  const manifest = Object.entries(manifestJson).reduce(
+    (manifest, [key, value]) => {
+      if (Array.isArray(value)) {
+        // @ts-ignore
+        manifest[key] = [];
+        value.forEach((mod) => {
+          // @ts-ignore
+          manifest[key].push({
+            ...mod,
+            module: createRouteLoader(mod.module),
+          });
+        });
+      } else if (value.module) {
+        // @ts-ignore
+        manifest[key] = {
+          ...value,
+          module: createRouteLoader(value.module),
+        };
+      } else {
+        // @ts-ignore
+        manifest[key] = value;
+      }
+      return manifest;
     },
+    {} as ManifestResolved
+  );
+
+  const start = (
+    (await loader.import(builderConfig.input.server.entry)) as ServerEntryModule
+  ).default;
+
+  const webRouter = start(manifest, {
+    dev: true,
+    baseAsset: viteServer.config.base,
+    baseModule: baseModuleUrl,
   });
 
   const nodeAdapter = new NodeAdapter({
@@ -170,7 +205,7 @@ function errorTemplate(message: string) {
   return `<!doctype html>
   <html lang="en">
     <head>
-      <title>Error</title>
+      <title>Error: @web-widget/vite</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>

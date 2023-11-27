@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/.backup/utils"],
   "exclude": [".backup/**/*", "tsup.config.ts", "node_modules"],
   "compilerOptions": {
     "target": "ESNext",
@@ -11,6 +11,9 @@
     "declaration": true,
     "rootDir": "./src",
     "skipLibCheck": true,
-    "types": ["urlpattern-polyfill"]
+    "types": [
+      "jest",
+      "urlpattern-polyfill"
+    ]
   }
 }
