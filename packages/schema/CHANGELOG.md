@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 0.3.0
+
+### Minor Changes
+
+- Update types definition.
+
 ## 0.2.0
 
 ### Minor Changes

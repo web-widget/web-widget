@@ -1,11 +1,17 @@
 # @web-widget/node
 
+## 0.4.0
+
+### Minor Changes
+
+- Adaptation @web-widget/web-router@0.5.0
+
 ## 0.3.0
 
 ### Minor Changes
 
 - refactor: Add protective logic.
-  refactor: Remove koa middleware entry.
+- refactor: Remove koa middleware entry.
 
 ## 0.2.0
 

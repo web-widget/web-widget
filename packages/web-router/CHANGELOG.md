@@ -1,5 +1,23 @@
 # @web-widget/web-router
 
+## 0.5.0
+
+### Minor Changes
+
+- Middleware has been enhanced. They are not only used to control HTTP, but also to control the rendering of the page, including access to meta, module, renderOptions, render
+- Deployed the jset test framework and miniflare's Worker test environment in the project
+- Test cases added, coverage now 72%
+- Removed defaultBootstrap option as it can be replaced by meta concept or user-defined layout
+- Removed the experimental_loader option because it is only for adapting to the dev server and is no longer needed.
+- Removed experimental_render option as it has been replaced by middleware
+- Removed csp feature support because it's not ready yet
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/schema@0.3.0
+  - @web-widget/html@0.1.4
+
 ## 0.4.4
 
 ### Patch Changes
