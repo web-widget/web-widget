@@ -6,6 +6,7 @@ import type {
   Manifest,
   Meta,
   RouteModule,
+  RouteRenderOptions,
   Schema,
 } from "./types";
 import {
@@ -16,9 +17,10 @@ import {
 import * as defaultFallbackModule from "./fallback";
 import * as defaultLayoutModule from "./layout";
 import {
-  middlewareModule,
-  renderModule,
   createFallbackHandler,
+  createPageContext,
+  renderRouteModule,
+  callMiddlewareModule,
 } from "./modules";
 import type { PageContext } from "./modules";
 export type * from "./types";
@@ -27,6 +29,7 @@ export type StartOptions<E extends Env = {}> = {
   baseAsset?: string;
   baseModule?: string;
   defaultMeta?: Meta;
+  defaultRenderOptions?: RouteRenderOptions;
   dev?: boolean;
   origin?: string;
 } & ApplicationOptions<E>;
@@ -68,23 +71,27 @@ export default class WebRouter<
       },
       defaultBaseAsset
     );
-
-    middlewares.forEach((item) => {
-      this.all(item.pathname, middlewareModule(item.module));
-    });
+    const defaultRenderOptions = options.defaultRenderOptions ?? {};
 
     routes.forEach((item) => {
       this.all(
         item.pathname,
-        renderModule(
+        createPageContext(
           item.module,
           layout.module,
           defaultMeta,
           defaultBaseAsset,
+          defaultRenderOptions,
           options.dev
         )
       );
     });
+
+    middlewares.forEach((item) => {
+      this.all(item.pathname, callMiddlewareModule(item.module));
+    });
+
+    routes.forEach((item) => this.all(item.pathname, renderRouteModule()));
 
     const fallback404 = fallbacks.find(
       (page) => page.name === HttpStatus[404]
@@ -99,6 +106,7 @@ export default class WebRouter<
       layout.module,
       defaultMeta,
       defaultBaseAsset,
+      defaultRenderOptions,
       options.dev
     );
 
@@ -119,10 +127,18 @@ export default class WebRouter<
       layout.module,
       defaultMeta,
       defaultBaseAsset,
+      defaultRenderOptions,
       options.dev
     );
 
-    this.onError(errorHandler);
+    this.onError(async (error, context) => {
+      const status = Reflect.get(error, "status");
+      if (status === 404) {
+        return notFoundHandler(error, context);
+      } else {
+        return errorHandler(error, context);
+      }
+    });
     this.#origin = options.origin;
   }
 

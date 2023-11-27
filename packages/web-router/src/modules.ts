@@ -21,19 +21,13 @@ import {
 } from "@web-widget/schema/server-helpers";
 
 export type PageContext = {
-  meta: Meta;
-  module: RouteModule;
-  render: RouteHandlerContext["render"];
-  renderOptions: RouteRenderOptions;
+  meta?: Meta;
+  module?: RouteModule;
+  render?: RouteHandlerContext["render"];
+  renderOptions?: RouteRenderOptions;
 } & Context;
 
-function composeHandler(
-  handler: RouteHandler | RouteHandlers = {
-    GET({ render }) {
-      return render();
-    },
-  }
-) {
+function composeHandler(handler: RouteHandler | RouteHandlers): RouteHandler {
   if (typeof handler === "function") {
     return handler;
   }
@@ -103,7 +97,7 @@ function composeRender(
     {
       data = context.state,
       error: rawError = context.error,
-      meta = context.meta,
+      meta = context.meta as Meta,
     } = {},
     renderOptions = context.renderOptions
   ) {
@@ -194,84 +188,122 @@ async function getModule<T>(module: any) {
   return (typeof module === "function" ? module() : module) as T;
 }
 
-function createPageContext(
-  context: Context,
-  options: {
-    error?: PageContext["error"];
-    meta: PageContext["meta"];
-    module: PageContext["module"];
-    renderOptions: PageContext["renderOptions"];
-  },
-  layoutModule: LayoutModule,
-  dev?: boolean
-): PageContext {
-  let render;
-  const pageContext = Object.create(context, {
-    render: {
-      configurable: true,
-      enumerable: true,
-      get() {
-        render ??= composeRender(this, layoutModule, dev);
-        return render;
-      },
-    },
-  });
-  return Object.assign(pageContext, options);
-}
-
-export function middlewareModule(
+export function callMiddlewareModule(
   middleware: MiddlewareModule | (() => Promise<MiddlewareModule>)
 ) {
   let module;
+  let handler;
   return async (context: Context, next: Next) => {
     module ??= await getModule<MiddlewareModule>(middleware);
-    const handler = module.handler;
 
-    if (typeof handler !== "function") {
+    if (!module.handler) {
       throw new TypeError(
         `Middleware module does not export "handler" function.`
       );
     }
 
+    handler ??= composeHandler(module.handler);
+
     return handler(context, next);
   };
 }
 
-export function renderModule(
+export function createPageContext(
   route: RouteModule | (() => Promise<RouteModule>),
   layout: LayoutModule | (() => Promise<LayoutModule>),
   defaultMeta: Meta,
   defaultBaseAsset: string,
+  defaultRenderOptions: RouteRenderOptions,
+  dev?: boolean
+) {
+  let layoutModule;
+  let meta;
+  let module;
+  let renderOptions;
+  return async (context: Context, next: Next) => {
+    layoutModule ??= await getModule<LayoutModule>(layout);
+    module ??= await getModule<RouteModule>(route);
+    meta ??= mergeMeta(
+      defaultMeta,
+      rebaseMeta(module.meta ?? {}, defaultBaseAsset)
+    );
+    renderOptions ??= Object.assign({}, defaultRenderOptions);
+
+    const pageContext = context as PageContext;
+    pageContext.meta = meta;
+    pageContext.module = module;
+    pageContext.render = composeRender(pageContext, layoutModule, dev);
+    pageContext.renderOptions = renderOptions;
+
+    return next();
+  };
+}
+
+export function createFallbackHandler(
+  route: RouteModule | (() => Promise<RouteModule>),
+  layout: LayoutModule | (() => Promise<LayoutModule>),
+  defaultMeta: Meta,
+  defaultBaseAsset: string,
+  defaultRenderOptions: RouteRenderOptions,
   dev?: boolean
 ) {
   let handler;
-  let module;
   let layoutModule;
-  return async (context: Context) => {
+  let meta;
+  let module;
+  let renderOptions;
+  return async (error: Error, context: Context) => {
     layoutModule ??= await getModule<LayoutModule>(layout);
     module ??= await getModule<RouteModule>(route);
-    handler ??= composeHandler(module.handler);
-
-    const pageContext = createPageContext(
-      context,
-      {
-        renderOptions: context.state.renderOptions ?? {},
-        module,
-        meta: mergeMeta(
-          context.state.meta
-            ? mergeMeta(defaultMeta, context.state.meta)
-            : defaultMeta,
-          rebaseMeta(module.meta ?? {}, defaultBaseAsset)
-        ),
-      },
-      layoutModule,
-      dev
+    meta ??= mergeMeta(
+      defaultMeta,
+      rebaseMeta(module.meta ?? {}, defaultBaseAsset)
     );
+    handler ??= composeHandler(
+      module.handler ?? {
+        GET({ render }) {
+          return render();
+        },
+      }
+    );
+    renderOptions ??= Object.assign({}, defaultRenderOptions);
 
-    delete context.state.meta;
-    delete context.state.renderOptions;
+    const status = Reflect.get(error, "status") ?? 500;
+    if (status >= 500) {
+      console.error(
+        "An error occurred during route handling or page rendering.",
+        error
+      );
+    }
+
+    const pageContext = Object.create(context) as PageContext;
+    pageContext.error = error;
+    pageContext.meta = meta;
+    pageContext.module = module;
+    pageContext.render = composeRender(pageContext, layoutModule, dev);
+    pageContext.renderOptions = renderOptions;
 
     return handler(pageContext);
+  };
+}
+
+export function renderRouteModule() {
+  let handler;
+  return async (context: Context, next: Next) => {
+    const isPageContext =
+      Reflect.has(context, "module") && Reflect.has(context, "render");
+    if (isPageContext) {
+      handler ??= composeHandler(
+        (context as PageContext)?.module?.handler ?? {
+          GET({ render }) {
+            return render();
+          },
+        }
+      );
+      return handler(context);
+    } else {
+      return next();
+    }
   };
 }
 
@@ -304,52 +336,5 @@ export function trailingSlash(trailingSlashEnabled: boolean) {
     }
 
     return next();
-  };
-}
-
-export function createFallbackHandler(
-  route: RouteModule | (() => Promise<RouteModule>),
-  layout: LayoutModule | (() => Promise<LayoutModule>),
-  defaultMeta: Meta,
-  defaultBaseAsset: string,
-  dev?: boolean
-) {
-  let handler;
-  let module;
-  let layoutModule;
-  return async (error: Error, context: Context) => {
-    layoutModule ??= await getModule<LayoutModule>(layout);
-    module ??= await getModule<RouteModule>(route);
-    handler ??= composeHandler(module.handler);
-
-    const status = Reflect.get(error, "status") ?? 500;
-    if (status >= 500) {
-      console.error(
-        "An error occurred during route handling or page rendering.",
-        error
-      );
-    }
-
-    const pageContext = createPageContext(
-      context,
-      {
-        error,
-        renderOptions: context.state.renderOptions ?? {},
-        module,
-        meta: mergeMeta(
-          context.state.meta
-            ? mergeMeta(defaultMeta, context.state.meta)
-            : defaultMeta,
-          rebaseMeta(module.meta ?? {}, defaultBaseAsset)
-        ),
-      },
-      layoutModule,
-      dev
-    );
-
-    delete context.state.meta;
-    delete context.state.renderOptions;
-
-    return handler(pageContext);
   };
 }
