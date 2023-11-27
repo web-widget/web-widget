@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.3.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/schema@0.3.0
+
 ## 1.3.1
 
 ### Patch Changes

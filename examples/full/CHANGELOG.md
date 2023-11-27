@@ -1,5 +1,18 @@
 # @examples/full
 
+## 1.1.10
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-router@0.5.0
+  - @web-widget/schema@0.3.0
+  - @web-widget/node@0.4.0
+  - @web-widget/html@0.1.4
+  - @web-widget/react@0.5.5
+  - @web-widget/vue@0.5.11
+  - @web-widget/web-widget@1.3.2
+
 ## 1.1.9
 
 ### Patch Changes
