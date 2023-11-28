@@ -2,11 +2,9 @@ import type {
   BuildDependencies,
   NodeHandler,
   RequestOptions,
-  WebHandler,
 } from "@edge-runtime/node-utils";
 import {
   buildToFetchEvent,
-  buildToNodeHandler,
   buildToRequest,
   mergeIntoServerResponse,
   toOutgoingHeaders,
@@ -18,6 +16,12 @@ import type { Writable } from "node:stream";
 if (!Reflect.get(global, "DISABLE_INSTALL_MCA_SHIMS")) {
   Object.assign(global, primitives, { console });
 }
+
+type WebHandler = (
+  req: Request,
+  env: Record<string, unknown>,
+  event: FetchEvent
+) => Promise<Response> | Response | null | undefined;
 
 class FetchEvent {
   public request: Request;
@@ -116,7 +120,11 @@ function toMiddleware(
   const toFetchEvent = buildToFetchEvent(dependencies);
   return async function middleware(incomingMessage, serverResponse, next) {
     const request = toRequest(incomingMessage, options);
-    const webResponse = await webHandler(request, toFetchEvent(request));
+    const webResponse = await webHandler(
+      request,
+      process.env,
+      toFetchEvent(request)
+    );
     await toServerResponse(webResponse, serverResponse);
     await next();
   };
@@ -198,4 +206,32 @@ function checkWritable(serverResponse: ServerResponse) {
   // https://github.com/nodejs/node/blob/v4.4.7/lib/_http_server.js#L486
   if (!socket) return true;
   return socket.writable;
+}
+
+function buildToNodeHandler(
+  dependencies: BuildDependencies,
+  options: RequestOptions
+) {
+  const toRequest = buildToRequest(dependencies);
+  const toFetchEvent = buildToFetchEvent(dependencies);
+  return function toNodeHandler(webHandler: WebHandler): NodeHandler {
+    return (
+      incomingMessage: IncomingMessage,
+      serverResponse: ServerResponse
+    ) => {
+      const request = toRequest(incomingMessage, options);
+      const maybePromise = webHandler(
+        request,
+        process.env,
+        toFetchEvent(request)
+      );
+      if (maybePromise instanceof Promise) {
+        maybePromise.then((response) =>
+          toServerResponse(response, serverResponse)
+        );
+      } else {
+        toServerResponse(maybePromise, serverResponse);
+      }
+    };
+  };
 }
