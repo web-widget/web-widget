@@ -244,18 +244,18 @@ class Application<
     throw err;
   }
 
-  #dispatch(
+  handler(
     request: Request,
-    requester: ExecutionContext | FetchEventLike | undefined,
     env: E["Bindings"] | undefined = Object.create(null),
-    method: string
+    executionContext?: ExecutionContext | FetchEventLike,
+    method: string = request.method
   ): Response | Promise<Response> {
     // Handle HEAD method
     if (method === "HEAD") {
       return (async () =>
         new Response(
           null,
-          await this.#dispatch(request, requester, env, "GET")
+          await this.handler(request, env, executionContext, "GET")
         ))();
     }
 
@@ -264,7 +264,7 @@ class Application<
 
     const c = new Context(request, {
       env,
-      requester,
+      executionContext,
     });
 
     const composed = compose<Context>(
@@ -289,20 +289,7 @@ class Application<
   }
 
   handleEvent = (event: FetchEventLike) => {
-    return this.#dispatch(
-      event.request,
-      event,
-      undefined,
-      event.request.method
-    );
-  };
-
-  handler = (
-    request: Request,
-    requester?: ExecutionContext,
-    Env?: E["Bindings"] | {}
-  ) => {
-    return this.#dispatch(request, requester, Env, request.method);
+    return this.handler(event.request, undefined, event);
   };
 
   /**
@@ -311,21 +298,21 @@ class Application<
   request = (
     input: RequestInfo | URL,
     requestInit?: RequestInit,
-    requester?: ExecutionContext,
-    Env?: E["Bindings"] | {}
+    Env?: E["Bindings"] | {},
+    executionContext?: ExecutionContext
   ) => {
     if (input instanceof Request) {
       if (requestInit !== undefined) {
         input = new Request(input, requestInit);
       }
-      return this.handler(input, requester, Env);
+      return this.handler(input, Env, executionContext);
     }
     input = input.toString();
     const path = /^https?:\/\//.test(input)
       ? input
       : `http://localhost${mergePath("/", input)}`;
     const req = new Request(path, requestInit);
-    return this.handler(req, requester, Env);
+    return this.handler(req, Env, executionContext);
   };
 }
 

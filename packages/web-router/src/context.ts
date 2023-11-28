@@ -10,7 +10,7 @@ export interface ContextVariableMap {}
 
 type ContextOptions<E extends Env> = {
   env: E["Bindings"];
-  requester?: FetchEventLike | ExecutionContext;
+  executionContext?: FetchEventLike | ExecutionContext;
 };
 
 export class Context<E extends Env = any> {
@@ -18,21 +18,21 @@ export class Context<E extends Env = any> {
   /**
    * @experimental
    */
-  env: E["Bindings"] = Object.create(null);
-  error: Error | undefined = undefined;
+  // env: E["Bindings"] = Object.create(null);
+  error?: Error;
   params: Params = Object.create(null);
   pathname: string = "*";
   request: Request;
   /**
    * @experimental
    */
-  requester: FetchEventLike | ExecutionContext | undefined;
+  // executionContext: FetchEventLike | ExecutionContext | undefined;
 
   constructor(request: Request, options?: ContextOptions<E>) {
     this.request = request;
-    if (options) {
-      this.env = options.env;
-      this.requester = options.requester;
-    }
+    // if (options) {
+    //   this.env = options.env;
+    //   this.executionContext = options.executionContext;
+    // }
   }
 }
