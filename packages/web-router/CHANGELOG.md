@@ -1,5 +1,11 @@
 # @web-widget/web-router
 
+## 0.5.1
+
+### Patch Changes
+
+- - Clean up unfinished features.
+
 ## 0.5.0
 
 ### Minor Changes

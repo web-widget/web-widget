@@ -1,5 +1,11 @@
 # @web-widget/node
 
+## 0.4.1
+
+### Patch Changes
+
+- - Clean up unfinished features.
+
 ## 0.4.0
 
 ### Minor Changes
