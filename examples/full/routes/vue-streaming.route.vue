@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, h } from "vue"
 import BaseLayout from "../components/BaseLayout.vue";
-import ReactWaitDemo from "../widgets/Wait.jsx";
-import VueWaitDemo from "../widgets/Wait.vue";
+import ReactWaitDemo from "../widgets/Wait.widget.jsx";
+import VueWaitDemo from "../widgets/Wait.widget.vue";
 const dev = import.meta.env.DEV;
-const Loading = defineComponent({
-  template: `<div style="background: #f3f3f3; padding: 20px">Loading..</div>`
-});
+// const Loading = defineComponent({
+//   template: `<div style="background: #f3f3f3; padding: 20px">Loading..</div>`
+// });
+const Loading = h("div", { style: "background: #f3f3f3; padding: 20px" }, "Loading...");
 
 </script>
 

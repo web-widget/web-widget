@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BaseLayout from "../components/BaseLayout.vue"
-import ReactCounter from "../widgets/Counter";
+import ReactCounter from "../widgets/Counter.widget";
 </script>
 
 <template>
