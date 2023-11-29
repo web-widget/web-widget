@@ -1,5 +1,5 @@
 import type { Handlers, Meta, RouteComponentProps } from "@web-widget/react";
-import VueCounter from "../widgets/Counter.vue";
+import VueCounter from "../widgets/Counter.widget.vue";
 import BaseLayout from "../components/BaseLayout.tsx";
 
 interface GitHubResponse {

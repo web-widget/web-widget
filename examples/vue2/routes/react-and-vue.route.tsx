@@ -1,6 +1,6 @@
-import ReactCounter from "../widgets/Counter.tsx";
-import VueCounter from "../widgets/Counter.vue";
-import VanillaCounter from "../widgets/CounterVanilla.ts";
+import ReactCounter from "../widgets/Counter.widget.tsx";
+import VueCounter from "../widgets/Counter.widget.vue";
+import VanillaCounter from "../widgets/CounterVanilla.widget.ts";
 import type { Meta } from "@web-widget/react";
 import BaseLayout from "../components/BaseLayout.tsx";
 

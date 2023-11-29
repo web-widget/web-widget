@@ -1,5 +1,5 @@
 import type { Handlers, RouteComponentProps } from "@web-widget/react";
-import type { HelloData } from "./api/hello-world";
+import type { HelloData } from "./api/hello-world.route";
 import BaseLayout from "../components/BaseLayout";
 
 async function fetchData(url: URL) {

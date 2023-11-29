@@ -1,6 +1,6 @@
 import BaseLayout from "../components/BaseLayout";
-import ReactWaitDemo from "../widgets/Wait.jsx";
-import VueWaitDemo from "../widgets/Wait.vue";
+import ReactWaitDemo from "../widgets/Wait.widget.jsx";
+import VueWaitDemo from "../widgets/Wait.widget.vue";
 
 const Loading = (
   <div style={{ background: "#f3f3f3", padding: "20px" }}>Loading..</div>
