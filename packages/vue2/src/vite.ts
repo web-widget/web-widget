@@ -5,21 +5,18 @@ import type { WebWidgetPluginOptions } from "@web-widget/vite";
 export interface Vue2WebWidgetPluginOptions extends WebWidgetPluginOptions {}
 
 export default function vue2WebWidgetPlugin({
-  provide,
+  provide = "@web-widget/vue2",
   toWebWidgets = {},
   toComponents = {},
 }: Vue2WebWidgetPluginOptions = {}): Plugin[] {
   return webWidgetPlugin({
-    provide: provide ?? "@web-widget/vue2",
+    provide,
     toWebWidgets: {
-      include: [
-        /\b(routes|widgets).*\.vue(\?.*\.(ts|js))?$/,
-        /(\.route|widget).*\.vue(\?.*\.(ts|js))?$/,
-      ],
+      include: [/(\.route|widget).*\.vue(\?.*\.(ts|js))?$/],
       ...toWebWidgets,
     },
     toComponents: {
-      include: ["widgets/**/*", "**/*.widget.*"],
+      include: /\.(widget)\.[^.]*$/,
       exclude: /.vue\?.*$/,
       includeImporter: /.*\.vue(\?.*\.(ts|js))?$/,
       ...toComponents,

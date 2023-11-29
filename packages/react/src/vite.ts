@@ -10,18 +10,13 @@ export default function reactWebWidgetPlugin({
   toComponents = {},
 }: ReactWebWidgetPluginOptions = {}): Plugin[] {
   return webWidgetPlugin({
-    provide: provide ?? provide,
+    provide,
     toWebWidgets: {
-      include: [
-        "routes/**/*.tsx",
-        "widgets/**/*.tsx",
-        "**/*.route.tsx",
-        "**/*.widget.tsx",
-      ],
+      include: ["**/*.route.tsx", "**/*.widget.tsx"],
       ...toWebWidgets,
     },
     toComponents: {
-      include: ["widgets/**/*", "*.widget.*"],
+      include: /\.(widget)\.[^.]*$/,
       includeImporter: ["**/*.tsx"],
       ...toComponents,
     },
