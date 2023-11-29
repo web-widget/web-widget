@@ -1,5 +1,11 @@
 # @web-widget/node
 
+## 0.4.2
+
+### Patch Changes
+
+- Fix the issue where `this` is `undefined`.
+
 ## 0.4.1
 
 ### Patch Changes

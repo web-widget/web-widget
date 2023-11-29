@@ -1,5 +1,12 @@
 # @web-widget/vue
 
+## 0.5.13
+
+### Patch Changes
+
+- Modify the default value of vite plugin.
+  - @web-widget/vite@2.5.2
+
 ## 0.5.12
 
 ### Patch Changes

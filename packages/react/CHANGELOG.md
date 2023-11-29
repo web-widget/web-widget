@@ -1,5 +1,12 @@
 # @web-widget/react
 
+## 0.5.7
+
+### Patch Changes
+
+- Modify the default value of vite plugin.
+  - @web-widget/vite@2.5.2
+
 ## 0.5.6
 
 ### Patch Changes
