@@ -73,10 +73,8 @@ export default class NodeAdapter {
       defaultOrigin: webRouter?.origin ?? "https://web-widget.js.org",
     }
   ) {
-    this.#handler = buildToNodeHandler(
-      dependencies,
-      options
-    )(webRouter.handler);
+    const handler = webRouter.handler.bind(webRouter);
+    this.#handler = buildToNodeHandler(dependencies, options)(handler);
 
     // this.#middleware = (req, res, next) => {
     //   res.on("finish", () => {
@@ -84,7 +82,7 @@ export default class NodeAdapter {
     //   });
     //   this.#handler(req, res);
     // };
-    this.#middleware = toMiddleware(webRouter.handler, options);
+    this.#middleware = toMiddleware(handler, options);
   }
 
   get middleware() {
