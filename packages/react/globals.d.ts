@@ -1,4 +1,4 @@
-import type { ReactNode, ComponentProps } from "react";
+/// <reference types="react" />
 
 interface WebWidgetSuspenseProps {
   fallback?: ReactNode;
@@ -7,20 +7,19 @@ interface WebWidgetSuspenseProps {
   experimental_renderTarget?: "light" | "shadow";
 }
 
-declare global {
-  declare namespace JSX {
-    interface IntrinsicAttributes extends WebWidgetSuspenseProps {
-      key?: Key | null | undefined;
-    }
-  }
-}
-
-interface ReactWidgetComponent extends ComponentProps<any> {
+interface ReactWidgetComponent<T = unknown> extends ComponentProps<any> {
   (
     props: {
       children?: ReactNode;
-    } & WebWidgetSuspenseProps
+    } & WebWidgetSuspenseProps &
+      T
   ): ReactNode;
+}
+
+declare namespace JSX {
+  interface IntrinsicAttributes extends WebWidgetSuspenseProps {
+    key?: Key | null | undefined;
+  }
 }
 
 declare module "*.widget.jsx" {
@@ -28,7 +27,17 @@ declare module "*.widget.jsx" {
   export default reactWidgetComponent;
 }
 
-declare module "*.route.tsx" {
+declare module "*.widget.tsx" {
   const reactWidgetComponent: ReactWidgetComponent;
+  export default reactWidgetComponent;
+}
+
+declare module "*?as=jsx" {
+  const reactWidgetComponent: ReactWidgetComponent<any>;
+  export default reactWidgetComponent;
+}
+
+declare module "*?as=tsx" {
+  const reactWidgetComponent: ReactWidgetComponent<any>;
   export default reactWidgetComponent;
 }
