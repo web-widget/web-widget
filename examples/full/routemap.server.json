@@ -76,6 +76,10 @@
     {
       "pathname": "/api/hello-world",
       "module": "./routes/api/hello-world.route.ts"
+    },
+    {
+      "pathname": "/vue-router/:all?",
+      "module": "./routes/vue-router/index.route.tsx"
     }
   ],
   "middlewares": [{

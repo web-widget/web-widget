@@ -45,6 +45,9 @@
       <a href="/experimental-async-component">Async component</a>
     </li>
     <li>
+      <a href="/vue-router">Using vue router</a>
+    </li>
+    <li>
       <a target="_blank" href="/lit-html-template">
         Lit html template
       </a>
