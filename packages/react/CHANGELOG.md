@@ -1,5 +1,11 @@
 # @web-widget/react
 
+## 0.6.0
+
+### Minor Changes
+
+- Provides a way to import .vue files into .jsx files without generating type errors.
+
 ## 0.5.7
 
 ### Patch Changes

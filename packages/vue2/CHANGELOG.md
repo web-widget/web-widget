@@ -1,5 +1,11 @@
 # @web-widget/vue2
 
+## 0.4.0
+
+### Minor Changes
+
+- Provides a way to import .vue files into .jsx files without generating type errors.
+
 ## 0.3.14
 
 ### Patch Changes
