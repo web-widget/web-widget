@@ -1,5 +1,11 @@
 # @web-widget/vue
 
+## 0.7.0
+
+### Minor Changes
+
+- onCreatedApp supports asynchronous functions.
+
 ## 0.6.0
 
 ### Minor Changes
