@@ -72,7 +72,7 @@ export const defineVueRender = ({
       ...onBeforeCreateApp(context, component, mergedProps),
     });
 
-    onCreatedApp(app, context, component, mergedProps);
+    await onCreatedApp(app, context, component, mergedProps);
 
     const result =
       __FEATURE_STREAM__ && Readable.toWeb
