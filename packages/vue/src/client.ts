@@ -51,7 +51,7 @@ export const defineVueRender = ({
         } else {
           app = createApp(component, mergedProps);
         }
-        onCreatedApp(app, context, component, mergedProps);
+        await onCreatedApp(app, context, component, mergedProps);
 
         app.mount(context.container);
       },

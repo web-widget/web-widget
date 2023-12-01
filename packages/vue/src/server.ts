@@ -65,7 +65,7 @@ export const defineVueRender = ({
         return renderToWebStream(app, ssrContext);
       } else {
         const app = createSSRApp(component, mergedProps);
-        onCreatedApp(app, context, component, mergedProps);
+        await onCreatedApp(app, context, component, mergedProps);
         return renderToWebStream(app, ssrContext);
       }
     }
