@@ -53,8 +53,10 @@ export class URLPatternRouter<T> implements Router<T> {
     let pattern;
     try {
       pattern = new URLPattern({ pathname });
-    } catch (e) {
-      throw new UnsupportedPathError();
+    } catch (error) {
+      throw new UnsupportedPathError((error as Error).message, {
+        cause: error,
+      });
     }
     this.#routes.push([pattern, method, handler]);
   }
