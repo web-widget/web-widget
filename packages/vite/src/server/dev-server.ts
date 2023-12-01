@@ -37,9 +37,14 @@ export function webRouterDevServerPlugin(
       autoRestartServer(viteServer);
 
       return async () => {
-        viteServer.middlewares.use(
-          await createWebRouterDevMiddleware(builderConfig, viteServer)
-        );
+        try {
+          viteServer.middlewares.use(
+            await createWebRouterDevMiddleware(builderConfig, viteServer)
+          );
+        } catch (error) {
+          viteServer.ssrFixStacktrace(error);
+          console.error(`Service startup failed: ${error.stack}`);
+        }
       };
     },
     async transformIndexHtml() {
@@ -162,6 +167,7 @@ async function createWebRouterDevMiddleware(
   });
 
   const nodeAdapter = new NodeAdapter({
+    origin: webRouter.origin,
     async handler(request, fetchEvent) {
       try {
         const webResponse = await webRouter.handler(request, fetchEvent);
