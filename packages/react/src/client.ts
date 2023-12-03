@@ -6,7 +6,7 @@ import {
 import { createElement, StrictMode } from "react";
 import type { Root } from "react-dom/client";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import type { DefineReactRenderOptions } from "./types";
+import type { CreateReactRenderOptions } from "./types";
 import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/client-helpers";
@@ -16,9 +16,9 @@ Reflect.defineProperty(__ENV__, "server", {
   value: false,
 });
 
-export const defineReactRender = ({
+export const createReactRender = ({
   onPrefetchData,
-}: DefineReactRenderOptions = {}) => {
+}: CreateReactRenderOptions = {}) => {
   return defineRender(async (context) => {
     const { recovering, container } = context;
     const componentDescriptor = getComponentDescriptor(context);
@@ -77,4 +77,7 @@ export const defineReactRender = ({
   });
 };
 
-export const render = defineReactRender();
+/**@deprecated Please use `createReactRender` instead.*/
+export const defineReactRender = createReactRender;
+
+export const render = createReactRender();

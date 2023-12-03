@@ -13,7 +13,7 @@ import type {
 } from "react-dom/server";
 // @ts-ignore
 import * as ReactDOMServer from "react-dom/server.browser";
-import type { DefineReactRenderOptions } from "./types";
+import type { CreateReactRenderOptions } from "./types";
 
 export * from "@web-widget/schema/server-helpers";
 export * from "./web-widget";
@@ -50,9 +50,9 @@ export interface ReactRenderOptions {
   } & RenderToReadableStreamOptions;
 }
 
-export const defineReactRender = ({
+export const createReactRender = ({
   onPrefetchData,
-}: DefineReactRenderOptions = {}) => {
+}: CreateReactRenderOptions = {}) => {
   return defineRender<ReactRenderOptions>(
     async (context, { react: reactRenderOptions } = {}) => {
       const componentDescriptor = getComponentDescriptor(context);
@@ -100,4 +100,7 @@ export const defineReactRender = ({
   );
 };
 
-export const render = defineReactRender();
+/**@deprecated Please use `createReactRender` instead.*/
+export const defineReactRender = createReactRender;
+
+export const render = createReactRender();
