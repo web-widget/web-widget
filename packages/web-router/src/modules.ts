@@ -4,6 +4,7 @@ import type {
   LayoutModule,
   LayoutRenderContext,
   Meta,
+  MiddlewareHandler,
   MiddlewareModule,
   Next,
   RootLayoutComponentProps,
@@ -215,12 +216,12 @@ export function createPageContext(
   defaultBaseAsset: string,
   defaultRenderOptions: RouteRenderOptions,
   dev?: boolean
-) {
+): MiddlewareHandler {
   let layoutModule;
   let meta;
   let module;
   let renderOptions;
-  return async (context: Context, next: Next) => {
+  return async (context: PageContext, next) => {
     layoutModule ??= await getModule<LayoutModule>(layout);
     module ??= await getModule<RouteModule>(route);
     meta ??= mergeMeta(
@@ -229,11 +230,13 @@ export function createPageContext(
     );
     renderOptions ??= Object.assign({}, defaultRenderOptions);
 
-    const pageContext = context as PageContext;
-    pageContext.meta = meta;
-    pageContext.module = module;
-    pageContext.render = composeRender(pageContext, layoutModule, dev);
-    pageContext.renderOptions = renderOptions;
+    // If multiple routes match here, only the first one is valid.
+    if (!context.module) {
+      context.meta = meta;
+      context.module = module;
+      context.render = composeRender(context, layoutModule, dev);
+      context.renderOptions = renderOptions;
+    }
 
     return next();
   };
@@ -287,14 +290,14 @@ export function createFallbackHandler(
   };
 }
 
-export function renderRouteModule() {
+export function renderRouteModule(): MiddlewareHandler {
   let handler;
-  return async (context: Context, next: Next) => {
+  return async (context: PageContext, next) => {
     const isPageContext =
       Reflect.has(context, "module") && Reflect.has(context, "render");
     if (isPageContext) {
       handler ??= composeHandler(
-        (context as PageContext)?.module?.handler ?? {
+        context?.module?.handler ?? {
           GET({ render }) {
             return render();
           },

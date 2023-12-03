@@ -1,5 +1,11 @@
 # @web-widget/vue
 
+## 0.8.1
+
+### Patch Changes
+
+- @web-widget/vite@2.5.4
+
 ## 0.8.0
 
 ### Minor Changes

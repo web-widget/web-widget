@@ -1,5 +1,11 @@
 # @web-widget/web-router
 
+## 0.5.2
+
+### Patch Changes
+
+- Fixed an issue where only the first page was not rendered as expected after multiple route hits.
+
 ## 0.5.1
 
 ### Patch Changes
