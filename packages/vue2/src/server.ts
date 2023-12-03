@@ -6,7 +6,7 @@ import { Readable } from "node:stream";
 import { TransformStream } from "node:stream/web";
 import Vue from "vue";
 import { createRenderer } from "vue-server-renderer";
-import type { DefineVueRenderOptions } from "./types";
+import type { CreateVueRenderOptions } from "./types";
 
 export * from "@web-widget/schema/server-helpers";
 export * from "./web-widget";
@@ -43,11 +43,11 @@ function appendStringToReadableStream(
   );
 }
 
-export const defineVueRender = ({
+export const createVueRender = ({
   onBeforeCreateApp = () => ({}),
   onCreatedApp = () => {},
   onPrefetchData,
-}: DefineVueRenderOptions = {}) => {
+}: CreateVueRenderOptions = {}) => {
   return defineRender(async (context) => {
     const componentDescriptor = getComponentDescriptor(context);
     const { component, props } = componentDescriptor;
@@ -93,4 +93,7 @@ export const defineVueRender = ({
   });
 };
 
-export const render = defineVueRender();
+/**@deprecated Please use `createVueRender` instead.*/
+export const defineVueRender = createVueRender;
+
+export const render = createVueRender();

@@ -1,4 +1,4 @@
-import { defineVueRender } from "@web-widget/vue";
+import { createVueRender } from "@web-widget/vue";
 import App from "./App.vue";
 import createRouter from "./router";
 import type { ClientWidgetRenderContext } from "@web-widget/schema";
@@ -8,7 +8,7 @@ type ServerRoute = {
   route?: RouteLocationRaw;
 } & any;
 
-export const render = defineVueRender({
+export const render = createVueRender({
   async onCreatedApp(app, context) {
     const container = (context as ClientWidgetRenderContext).container;
     const router = createRouter(container);
