@@ -4,7 +4,9 @@ import {
   createMemoryHistory,
 } from "vue-router";
 
-export default function createRouter() {
+export default function createRouter(
+  scrollingElement?: Element | DocumentFragment
+) {
   return router({
     history: import.meta.env.SSR ? createMemoryHistory() : createWebHistory(),
     routes: [
@@ -19,5 +21,12 @@ export default function createRouter() {
         component: () => import("../views/AboutView.vue"),
       },
     ],
+    scrollBehavior(_to, _from, savedPosition) {
+      if (savedPosition) {
+        return savedPosition;
+      } else {
+        return { top: 0 /*el: scrollingElement*/ };
+      }
+    },
   });
 }

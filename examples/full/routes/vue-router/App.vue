@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
-const startUrl = defineProps(['startUrl']);
 </script>
 
 <template>
