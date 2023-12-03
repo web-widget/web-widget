@@ -1,6 +1,7 @@
 import type WebRouter from "@web-widget/web-router";
 import type { z } from "zod";
 import type { BuilderConfigSchema } from "./config";
+import type { Manifest, StartOptions } from "@web-widget/web-router";
 
 export interface Input {
   client: {
@@ -32,7 +33,7 @@ export type BuilderUserConfig = Partial<ResolvedBuilderConfig>;
 export interface BuilderConfig extends z.output<typeof BuilderConfigSchema> {}
 
 export interface ServerEntryModule {
-  default: WebRouter;
+  default: (manifest: Manifest, options: StartOptions) => WebRouter;
 }
 
 export interface ClientEntryModule {}
