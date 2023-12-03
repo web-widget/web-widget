@@ -4,7 +4,7 @@ import {
 } from "@web-widget/schema/client-helpers";
 import type { App } from "vue";
 import { createApp, createSSRApp } from "vue";
-import type { DefineVueRenderOptions } from "./types";
+import type { CreateVueRenderOptions } from "./types";
 import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/client-helpers";
@@ -14,10 +14,10 @@ Reflect.defineProperty(__ENV__, "server", {
   value: false,
 });
 
-export const defineVueRender = ({
+export const createVueRender = ({
   onCreatedApp = () => {},
   onPrefetchData,
-}: DefineVueRenderOptions = {}) => {
+}: CreateVueRenderOptions = {}) => {
   return defineRender(async (context) => {
     const componentDescriptor = getComponentDescriptor(context);
     const { component, props } = componentDescriptor;
@@ -64,4 +64,7 @@ export const defineVueRender = ({
   });
 };
 
-export const render = defineVueRender();
+/**@deprecated Please use `createVueRender` instead.*/
+export const defineVueRender = createVueRender;
+
+export const render = createVueRender();

@@ -4,7 +4,7 @@ import {
 } from "@web-widget/schema/server-helpers";
 import { Fragment, createSSRApp, h } from "vue";
 import { renderToWebStream, type SSRContext } from "vue/server-renderer";
-import type { DefineVueRenderOptions } from "./types";
+import type { CreateVueRenderOptions } from "./types";
 import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/server-helpers";
@@ -33,10 +33,10 @@ export interface VueRenderOptions {
   vue?: SSRContext;
 }
 
-export const defineVueRender = ({
+export const createVueRender = ({
   onCreatedApp = () => {},
   onPrefetchData,
-}: DefineVueRenderOptions = {}) => {
+}: CreateVueRenderOptions = {}) => {
   return defineRender<VueRenderOptions>(
     async (context, { vue: ssrContext } = {}) => {
       const componentDescriptor = getComponentDescriptor(context);
@@ -72,4 +72,7 @@ export const defineVueRender = ({
   );
 };
 
-export const render = defineVueRender();
+/**@deprecated Please use `createVueRender` instead.*/
+export const defineVueRender = createVueRender;
+
+export const render = createVueRender();

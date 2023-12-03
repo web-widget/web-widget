@@ -3,16 +3,16 @@ import {
   getComponentDescriptor,
 } from "@web-widget/schema/client-helpers";
 import Vue from "vue";
-import type { DefineVueRenderOptions } from "./types";
+import type { CreateVueRenderOptions } from "./types";
 
 export * from "@web-widget/schema/client-helpers";
 export * from "./web-widget";
 
-export const defineVueRender = ({
+export const createVueRender = ({
   onBeforeCreateApp = () => ({}),
   onCreatedApp = () => {},
   onPrefetchData,
-}: DefineVueRenderOptions = {}) => {
+}: CreateVueRenderOptions = {}) => {
   return defineRender(async (context) => {
     const componentDescriptor = getComponentDescriptor(context);
     const { component, props } = componentDescriptor;
@@ -84,4 +84,7 @@ export const defineVueRender = ({
   });
 };
 
-export const render = defineVueRender();
+/**@deprecated Please use `createVueRender` instead.*/
+export const defineVueRender = createVueRender;
+
+export const render = createVueRender();

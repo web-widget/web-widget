@@ -12,7 +12,7 @@ type JSONValue =
 
 type JSONProps = { [x: string]: JSONValue };
 
-export interface DefineVueRenderOptions {
+export interface CreateVueRenderOptions {
   onCreatedApp?: (
     app: App<Element>,
     context: RenderContext,
