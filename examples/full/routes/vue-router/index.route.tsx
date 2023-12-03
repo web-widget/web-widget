@@ -9,11 +9,11 @@ export const meta = {
 export default function Page(props: RouteComponentProps) {
   const request = props.request;
   const url = new URL(request.url);
-  const path = `${url.pathname}${url.search}`;
+  const fullPath = `${url.pathname}${url.search}`;
   return (
     <BaseLayout>
       <h1>Vue router</h1>
-      <App startUrl={path} />
+      <App route={fullPath} />
     </BaseLayout>
   );
 }
