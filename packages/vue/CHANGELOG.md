@@ -1,5 +1,16 @@
 # @web-widget/vue
 
+## 0.8.0
+
+### Minor Changes
+
+- `defineVueRender` renamed to `createVueRender`.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/vite@2.5.3
+
 ## 0.7.0
 
 ### Minor Changes
