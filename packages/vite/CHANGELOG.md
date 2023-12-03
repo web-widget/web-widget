@@ -1,5 +1,11 @@
 # @web-widget/vite
 
+## 2.5.3
+
+### Patch Changes
+
+- Collect the CSS to be injected to the HTML to avoid FLOUC.
+
 ## 2.5.2
 
 ### Patch Changes

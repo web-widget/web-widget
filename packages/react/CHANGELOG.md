@@ -1,5 +1,16 @@
 # @web-widget/react
 
+## 0.7.0
+
+### Minor Changes
+
+- `defineReactRender` renamed to `createReactRender`.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/vite@2.5.3
+
 ## 0.6.0
 
 ### Minor Changes
