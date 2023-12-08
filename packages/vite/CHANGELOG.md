@@ -1,5 +1,11 @@
 # @web-widget/vite
 
+## 2.5.5
+
+### Patch Changes
+
+- Avoid accidental loss of render method after rollup build.
+
 ## 2.5.4
 
 ### Patch Changes

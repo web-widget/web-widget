@@ -1,5 +1,12 @@
 # @web-widget/react
 
+## 0.7.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/vite@2.5.5
+
 ## 0.7.1
 
 ### Patch Changes

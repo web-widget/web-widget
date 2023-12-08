@@ -124,7 +124,12 @@ export function componentToWebWidgetPlugin(
           injects.forEach((exportName) => {
             if (!exports.some(({ n: name }) => name === exportName)) {
               magicString.prepend(
-                `export { ${exportName} } from ${JSON.stringify(provide)};\n`
+                // Note: Do not use the `export { render } from "xxx"`
+                // form because it may be accidentally deleted by rollup
+                `import { ${exportName} as ${alias(
+                  exportName
+                )} } from ${JSON.stringify(provide)};\n` +
+                  `export const ${exportName} = ${alias(exportName)};\n`
               );
             }
           });
