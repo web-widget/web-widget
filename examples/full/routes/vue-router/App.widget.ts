@@ -4,7 +4,7 @@ import createRouter from "./router";
 import type { ClientWidgetRenderContext } from "@web-widget/schema";
 import type { RouteLocationRaw } from "vue-router";
 
-type ServerRoute = {
+type Props = {
   route?: RouteLocationRaw;
 } & any;
 
@@ -16,7 +16,7 @@ export const render = createVueRender({
     app.use(router);
 
     if (import.meta.env.SSR) {
-      const data = context.data as ServerRoute;
+      const data = context.data as Props;
       const route = data.route;
 
       if (!route) {
