@@ -94,6 +94,7 @@ async function createViteWebRouterMiddleware(
     viteServer
   );
 
+  manifest.middlewares ??= [];
   manifest.middlewares.push({
     pathname: "*",
     name: "vite:DevTransformHtmlMiddleware",
