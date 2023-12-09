@@ -34,7 +34,7 @@ export interface VueRenderOptions {
 }
 
 export const createVueRender = ({
-  onCreatedApp = () => {},
+  onCreatedApp = async () => {},
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
   return defineRender<VueRenderOptions>(
@@ -60,7 +60,7 @@ export const createVueRender = ({
         ]);
 
         const app = createSSRApp(vNode);
-        onCreatedApp(app, context, component, mergedProps);
+        await onCreatedApp(app, context, component, mergedProps);
 
         return renderToWebStream(app, ssrContext);
       } else {

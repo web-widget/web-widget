@@ -18,7 +18,7 @@ export interface CreateVueRenderOptions {
     context: RenderContext,
     component: Component,
     props: ComponentProps
-  ) => void;
+  ) => Promise<void>;
   onPrefetchData?: (
     context: RenderContext,
     component: Component,
