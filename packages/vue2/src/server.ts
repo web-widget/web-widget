@@ -44,8 +44,8 @@ function appendStringToReadableStream(
 }
 
 export const createVueRender = ({
-  onBeforeCreateApp = () => ({}),
-  onCreatedApp = () => {},
+  onBeforeCreateApp = async () => ({}),
+  onCreatedApp = async () => {},
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
   return defineRender(async (context) => {
@@ -69,7 +69,7 @@ export const createVueRender = ({
             props: mergedProps as Record<string, any>,
           }),
         ]),
-      ...onBeforeCreateApp(context, component, mergedProps),
+      ...(await onBeforeCreateApp(context, component, mergedProps)),
     });
 
     await onCreatedApp(app, context, component, mergedProps);

@@ -9,8 +9,8 @@ export * from "@web-widget/schema/client-helpers";
 export * from "./web-widget";
 
 export const createVueRender = ({
-  onBeforeCreateApp = () => ({}),
-  onCreatedApp = () => {},
+  onBeforeCreateApp = async () => ({}),
+  onCreatedApp = async () => {},
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
   return defineRender(async (context) => {
@@ -65,7 +65,7 @@ export const createVueRender = ({
           render(h) {
             return h(component, vNodeData);
           },
-          ...onBeforeCreateApp(context, component, mergedProps),
+          ...(await onBeforeCreateApp(context, component, mergedProps)),
         });
 
         await onCreatedApp(app, context, component, mergedProps);

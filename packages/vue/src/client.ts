@@ -15,7 +15,7 @@ Reflect.defineProperty(__ENV__, "server", {
 });
 
 export const createVueRender = ({
-  onCreatedApp = () => {},
+  onCreatedApp = async () => {},
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
   return defineRender(async (context) => {
