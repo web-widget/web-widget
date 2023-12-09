@@ -1,5 +1,19 @@
 # @examples/vue2
 
+## 1.2.0
+
+### Minor Changes
+
+- Support async `onBeforeCreateApp` hook.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-router@0.6.0
+  - @web-widget/web-widget@1.4.0
+  - @web-widget/react@0.7.3
+  - @web-widget/vue2@0.7.0
+
 ## 1.1.18
 
 ### Patch Changes

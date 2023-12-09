@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.4.0
+
+### Minor Changes
+
+- Support style `display: contents`.
+
 ## 1.3.2
 
 ### Patch Changes

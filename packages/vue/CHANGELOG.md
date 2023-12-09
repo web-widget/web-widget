@@ -1,5 +1,17 @@
 # @web-widget/vue
 
+## 0.9.0
+
+### Minor Changes
+
+- Support async `onBeforeCreateApp` hook.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.4.0
+  - @web-widget/vite@2.6.0
+
 ## 0.8.2
 
 ### Patch Changes

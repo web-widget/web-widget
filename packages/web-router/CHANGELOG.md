@@ -1,5 +1,11 @@
 # @web-widget/web-router
 
+## 0.6.0
+
+### Minor Changes
+
+- Support style `display: contents`.
+
 ## 0.5.2
 
 ### Patch Changes
