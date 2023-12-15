@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.5.0
+
+### Minor Changes
+
+- Add `useWidgetState` hooks.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/schema@0.4.0
+
 ## 1.4.0
 
 ### Minor Changes

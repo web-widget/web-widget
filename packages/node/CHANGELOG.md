@@ -1,5 +1,11 @@
 # @web-widget/node
 
+## 0.5.0
+
+### Minor Changes
+
+- Add `useWidgetState` hooks.
+
 ## 0.4.2
 
 ### Patch Changes

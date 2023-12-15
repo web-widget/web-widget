@@ -1,5 +1,17 @@
 # @web-widget/web-router
 
+## 0.7.0
+
+### Minor Changes
+
+- Add `useWidgetState` hooks.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/schema@0.4.0
+  - @web-widget/html@0.1.5
+
 ## 0.6.0
 
 ### Minor Changes

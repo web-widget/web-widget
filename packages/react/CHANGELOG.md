@@ -1,5 +1,18 @@
 # @web-widget/react
 
+## 0.8.0
+
+### Minor Changes
+
+- Add `useWidgetState` hooks.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.5.0
+  - @web-widget/schema@0.4.0
+  - @web-widget/vite@3.0.0
+
 ## 0.7.3
 
 ### Patch Changes

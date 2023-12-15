@@ -1,5 +1,19 @@
 # @web-widget/vue
 
+## 0.10.0
+
+### Minor Changes
+
+- Add `useWidgetState` hooks.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.5.0
+  - @web-widget/schema@0.4.0
+  - @web-widget/vite@3.0.0
+  - @web-widget/html@0.1.5
+
 ## 0.9.0
 
 ### Minor Changes
