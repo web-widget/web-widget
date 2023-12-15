@@ -6,6 +6,7 @@ import { LifecycleController } from "./modules/controller";
 import { WebWidgetUpdateEvent } from "./event";
 import { queueMicrotask } from "./utils/queue-microtask";
 import { triggerModulePreload } from "./utils/module-preload";
+import { callContext, useAllState } from "@web-widget/schema/helpers";
 
 declare const importShim: (src: string) => Promise<any>;
 let globalTimeouts = Object.create(null);
@@ -273,6 +274,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       }
     }
 
+    const recovering = view.recovering;
     const context = Object.create({
       get container() {
         if (!container) {
@@ -283,10 +285,22 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
       data: view.data,
       meta: view.meta,
-      recovering: view.recovering,
+      recovering,
       /**@deprecated*/
       update: this.update.bind(this),
     });
+
+    const stateElement = recovering
+      ? (context.container.querySelector(
+          "script[name=state\\:web-widget]"
+        ) as HTMLScriptElement)
+      : null;
+    const state =
+      recovering && stateElement
+        ? JSON.parse(stateElement.textContent as string)
+        : {};
+    stateElement?.remove();
+    Object.assign(useAllState(), state);
 
     return Object.assign(context, customContext || {});
   }
@@ -526,7 +540,15 @@ Object.assign(window, {
 });
 
 queueMicrotask(() => {
-  customElements.define("web-widget", HTMLWebWidgetElement);
+  const stateElement = document.querySelector(
+    `script[name="state\\:web-route"]`
+  ) as HTMLScriptElement;
+  const state = stateElement
+    ? JSON.parse(stateElement.textContent as string)
+    : {};
+  callContext(state, () => {
+    customElements.define("web-widget", HTMLWebWidgetElement);
+  });
 });
 
 declare global {

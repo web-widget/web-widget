@@ -13,6 +13,7 @@ type JSONValue =
 type JSONProps = { [x: string]: JSONValue };
 
 export interface CreateReactRenderOptions {
+  /**@deprecated*/
   onPrefetchData?: (
     context: RenderContext,
     component: Component,

@@ -12,10 +12,16 @@ import {
 import primitives from "@edge-runtime/primitives";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Writable } from "node:stream";
+import { AsyncLocalStorage } from "node:async_hooks";
 
 if (!Reflect.get(global, "DISABLE_INSTALL_MCA_SHIMS")) {
   Object.assign(global, primitives, { console });
 }
+
+// @see https://github.com/unjs/unctx
+Object.assign(global, {
+  AsyncLocalStorage,
+});
 
 type WebHandler = (
   req: Request,

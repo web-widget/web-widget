@@ -4,9 +4,10 @@ import type {
 } from "@web-widget/schema";
 import type { Loader, WebWidgetContainerOptions } from "./types";
 import {
-  rebaseMeta,
   mergeMeta,
+  rebaseMeta,
   renderMetaToString,
+  useAllState,
 } from "@web-widget/schema/helpers";
 import {
   getClientModuleId,
@@ -21,6 +22,21 @@ declare global {
   interface ReadableStream {
     [Symbol.asyncIterator](): AsyncIterator<ArrayBuffer | ArrayBufferView>;
   }
+}
+
+const ESCAPE_LOOKUP: { [match: string]: string } = {
+  ">": "\\u003e",
+  "<": "\\u003c",
+  "\u2028": "\\u2028",
+  "\u2029": "\\u2029",
+};
+
+const ESCAPE_REGEX = /[><\u2028\u2029]/g;
+
+// This utility is based on https://github.com/zertosh/htmlescape
+// License: https://github.com/zertosh/htmlescape/blob/0527ca7156a524d256101bb310a9f970f63078ad/LICENSE
+function htmlEscapeJsonString(str: string): string {
+  return str.replace(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match]);
 }
 
 async function readableStreamToString(readableStream: ReadableStream) {
@@ -55,6 +71,8 @@ export /*#__PURE__*/ async function parse(
 
   let result = "";
   const clientImport = getClientModuleId(loader, options);
+  const state = useAllState();
+  const keys = Object.keys(state);
 
   if (renderStage !== "client") {
     const module = (await loader()) as ServerWidgetModule;
@@ -131,6 +149,21 @@ export /*#__PURE__*/ async function parse(
       `<script>${shimCode}</script>`,
       children,
     ].join("");
+  }
+
+  let isEmpty = true;
+  const local = Object.keys(state)
+    .filter((key) => !keys.includes(key))
+    .reduce((previousValue, currentValue) => {
+      isEmpty = false;
+      previousValue[currentValue] = state[currentValue];
+      return previousValue;
+    }, {} as any);
+
+  if (!isEmpty) {
+    result += `<script name="state:web-widget" type="application/json">${htmlEscapeJsonString(
+      JSON.stringify(local)
+    )}</script>`;
   }
 
   if (renderStage === "server") {
