@@ -1,4 +1,5 @@
-import { createNamespace, withAsyncContext } from "unctx";
+import { createNamespace } from "unctx";
+import { IS_BROWSER } from "./env";
 
 export interface WebWidgetContext {
   pathname?: string;
@@ -6,9 +7,8 @@ export interface WebWidgetContext {
   body: Record<string, any>;
 }
 
-const isServer = typeof window === "undefined";
 const ctx = /*@__PURE__*/ createNamespace<WebWidgetContext>({
-  asyncContext: isServer && Reflect.has(globalThis, "AsyncLocalStorage"),
+  asyncContext: !IS_BROWSER && Reflect.has(globalThis, "AsyncLocalStorage"),
 }).get("@web-widget");
 
 export function createContext(
@@ -30,15 +30,13 @@ export function callContext<T extends (...args: any[]) => any>(
 ) {
   const fn: () => ReturnType<T> = () =>
     args ? setup(...(args as Parameters<T>)) : setup();
-  if (isServer) {
+  if (!IS_BROWSER) {
     return ctx.call(data, fn);
   } else {
     ctx.set(data);
     return fn();
   }
 }
-
-export { withAsyncContext };
 
 export function useContext() {
   return ctx.tryUse();
