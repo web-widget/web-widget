@@ -19,6 +19,10 @@ Reflect.defineProperty(__ENV__, "server", {
 export const createReactRender = ({
   onPrefetchData,
 }: CreateReactRenderOptions = {}) => {
+  if (onPrefetchData) {
+    throw new Error(`"onPrefetchData" is not supported.`);
+  }
+
   return defineRender(async (context) => {
     const { recovering, container } = context;
     const componentDescriptor = getComponentDescriptor(context);
@@ -31,32 +35,15 @@ export const createReactRender = ({
     let root: Root | null;
     return {
       async mount() {
-        const state = context.recovering
-          ? (context.container.querySelector(
-              "script[as=state]"
-            ) as HTMLScriptElement)
-          : null;
-        const stateContent =
-          context.recovering && state
-            ? JSON.parse(state.textContent as string)
-            : onPrefetchData
-            ? await onPrefetchData(context, component, props)
-            : undefined;
-        state?.remove();
-
-        const mergedProps = (
-          stateContent ? Object.assign(stateContent, props) : props
-        ) as ComponentProps<any>;
-
         let vNode;
         if (
           typeof component === "function" &&
           component.constructor.name === "AsyncFunction"
         ) {
           // experimental
-          vNode = await component(mergedProps);
+          vNode = await component(props as ComponentProps<any>);
         } else {
-          vNode = createElement(component, mergedProps);
+          vNode = createElement(component, props as ComponentProps<any>);
         }
 
         vNode = createElement(StrictMode, null, vNode);

@@ -3,7 +3,7 @@ import {
   getComponentDescriptor,
 } from "@web-widget/schema/client-helpers";
 import type { App } from "vue";
-import { createApp, createSSRApp } from "vue";
+import { Suspense, createApp, createSSRApp, h } from "vue";
 import type { CreateVueRenderOptions } from "./types";
 import { __ENV__ } from "./web-widget";
 
@@ -18,6 +18,10 @@ export const createVueRender = ({
   onCreatedApp = async () => {},
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
+  if (onPrefetchData) {
+    throw new Error(`"onPrefetchData" is not supported.`);
+  }
+
   return defineRender(async (context) => {
     const componentDescriptor = getComponentDescriptor(context);
     const { component, props } = componentDescriptor;
@@ -26,34 +30,21 @@ export const createVueRender = ({
     }
 
     let app: App | null;
+    const WrapSuspense = (props: any) =>
+      h(Suspense, null, [h(component, props)]);
 
     return {
       async mount() {
-        const state = context.recovering
-          ? (context.container.querySelector(
-              "script[as=state]"
-            ) as HTMLScriptElement)
-          : null;
-        const stateContent =
-          context.recovering && state
-            ? JSON.parse(state.textContent as string)
-            : onPrefetchData
-            ? await onPrefetchData(context, component, props)
-            : undefined;
-        state?.remove();
-
-        const mergedProps = stateContent
-          ? Object.assign(stateContent, props)
-          : props;
-
         if (context.recovering) {
-          app = createSSRApp(component, mergedProps);
+          app = createSSRApp(WrapSuspense, props as any);
         } else {
-          app = createApp(component, mergedProps);
+          app = createApp(WrapSuspense, props as any);
         }
-        await onCreatedApp(app, context, component, mergedProps);
+        await onCreatedApp(app, context, component, props);
 
-        app.mount(context.container);
+        app.runWithContext(() => {
+          app!.mount(context.container);
+        });
       },
 
       async unmount() {

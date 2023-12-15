@@ -16,6 +16,8 @@ import type {
   RouteRenderOptions,
 } from "./types";
 import {
+  callContext,
+  createContext,
   HttpStatus,
   mergeMeta,
   rebaseMeta,
@@ -308,6 +310,33 @@ export function renderRouteModule(): MiddlewareHandler {
       return next();
     }
   };
+}
+
+export function callAsyncContext(
+  context: PageContext,
+  next: Next
+): Promise<Response> {
+  const route = createContext({
+    params: context.params,
+    pathname: context.pathname,
+  });
+
+  if (context.meta) {
+    context.meta.script ??= [];
+    context.meta.script.push({
+      // @ts-ignore
+      name: "state:web-router",
+      type: "application/json",
+      // TODO htmlEscapeJsonString
+      content: JSON.stringify(route),
+    });
+  }
+
+  return new Promise((resolve) => {
+    callContext(route, () => {
+      resolve(next());
+    });
+  });
 }
 
 export function trailingSlash(trailingSlashEnabled: boolean) {

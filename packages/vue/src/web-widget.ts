@@ -1,7 +1,15 @@
 import type { Loader, WebWidgetContainerOptions } from "@web-widget/web-widget";
 import { parse } from "@web-widget/web-widget";
-import { h, defineComponent, Suspense, useAttrs } from "vue";
+import {
+  h,
+  defineComponent,
+  Suspense,
+  useAttrs,
+  // onServerPrefetch,
+  // getCurrentInstance,
+} from "vue";
 import type { VNode, PropType } from "vue";
+// import { useWidgetState } from "@web-widget/schema/helpers";
 
 export const __ENV__ = {
   server: true,
@@ -145,3 +153,19 @@ export /*#__PURE__*/ function defineWebWidget(
     },
   });
 }
+
+// export function useState<T>(key: string, handler: () => T): T;
+// export function useState<T>(key: string, handler: () => Promise<T>): Promise<T>;
+// export function useState<T>(key: string, handler: () => T | Promise<T>) {
+//   return useWidgetState(key, function callback() {
+//     if (__ENV__.server) {
+//       const promise = handler();
+//       if (getCurrentInstance()) {
+//         onServerPrefetch(() => promise);
+//       }
+//       return promise;
+//     } else {
+//       return handler();
+//     }
+//   });
+// }

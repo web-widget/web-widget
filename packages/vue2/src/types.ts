@@ -24,6 +24,7 @@ export interface CreateVueRenderOptions {
     component: Component,
     props: ComponentProps
   ) => Promise<void>;
+  /**@deprecated*/
   onPrefetchData?: (
     context: RenderContext,
     component: Component,
