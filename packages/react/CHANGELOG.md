@@ -1,5 +1,11 @@
 # @web-widget/react
 
+## 0.8.1
+
+### Patch Changes
+
+- @web-widget/vite@2.7.1
+
 ## 0.8.0
 
 ### Minor Changes
