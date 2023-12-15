@@ -322,13 +322,16 @@ export function callAsyncContext(
   });
 
   if (context.meta) {
-    context.meta.script ??= [];
-    context.meta.script.push({
-      // @ts-ignore
-      name: "state:web-router",
-      type: "application/json",
-      // TODO htmlEscapeJsonString
-      content: JSON.stringify(route),
+    context.meta = mergeMeta(context.meta, {
+      script: [
+        {
+          // @ts-ignore
+          name: "state:web-router",
+          type: "application/json",
+          // TODO htmlEscapeJsonString
+          content: JSON.stringify(route),
+        },
+      ],
     });
   }
 
