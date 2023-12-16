@@ -1,20 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useWidgetState } from "@web-widget/vue";
-
-const data = await useWidgetState('test', async () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log('fetch..');
-        resolve({
-          say: "hello world",
-          time: Date.now()
-        });
-      }, 100);
-    })
-  });
-console.log('data', data);
-
 const props = defineProps(['name', 'start']);
 
 const name = props.name;
@@ -22,7 +7,7 @@ const count = ref(props.start);
 </script>
 
 <template>
-  <div class="counter" .title="data.time">
+  <div class="counter">
     <button @click="count--">−</button>
     <span class="count">{{ count }}</span>
     <button @click="count++">+</button>
