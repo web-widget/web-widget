@@ -9,11 +9,12 @@ import type {
   MiddlewareHandler,
 } from "@web-widget/web-router";
 import path from "node:path";
+import url from "node:url";
 import stripAnsi from "strip-ansi";
 import type { Plugin, ViteDevServer } from "vite";
 import type { ResolvedBuilderConfig, ServerEntryModule } from "../types";
 import { getMeta } from "./meta";
-import clickToComponent from "./click-to-source";
+import { resolve } from "import-meta-resolve";
 
 type DevModule = RouteModule & {
   $source: string;
@@ -56,12 +57,24 @@ export function webRouterDevServerPlugin(
       };
     },
     async transformIndexHtml() {
+      const id = resolve("@web-widget/web-widget/inspector", import.meta.url);
+      const wc = "/@fs" + url.fileURLToPath(id);
       return [
         {
           tag: "web-widget-inspector",
-          children: clickToComponent({
-            srcDir: root,
-          }),
+          attrs: {
+            dir: root,
+            keys: `[&quot;Shift&quot;]`,
+          },
+          children: [
+            {
+              tag: "script",
+              attrs: {
+                type: "module",
+              },
+              children: `import "${wc}"`,
+            },
+          ],
           injectTo: "body",
         },
       ];

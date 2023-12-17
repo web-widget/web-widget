@@ -300,6 +300,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         ? JSON.parse(stateElement.textContent as string)
         : {};
     stateElement?.remove();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     Object.assign(useAllState(), state);
 
     return Object.assign(context, customContext || {});

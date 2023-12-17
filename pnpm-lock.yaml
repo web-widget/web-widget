@@ -363,6 +363,9 @@ importers:
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../web-widget
       builtin-modules:
         specifier: ^3.3.0
         version: 3.3.0

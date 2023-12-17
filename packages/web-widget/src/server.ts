@@ -71,6 +71,7 @@ export /*#__PURE__*/ async function parse(
 
   let result = "";
   const clientImport = getClientModuleId(loader, options);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const state = useAllState();
   const keys = Object.keys(state);
 
