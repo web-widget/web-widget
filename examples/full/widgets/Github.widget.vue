@@ -8,7 +8,7 @@ const props = defineProps({
 });
 
 const url = `https://api.github.com/users/${props.username}`;
-const cacheKey = url;
+const cacheKey = url + '@vue';
 const data = await useWidgetState(cacheKey, async () => {
     const resp = await fetch(url);
     if (!resp.ok) {

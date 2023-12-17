@@ -40,6 +40,11 @@
       "types": "./dist/web-widget.server.d.ts",
       "development": "./src/server.ts",
       "default": "./dist/web-widget.server.js"
+    },
+    "./inspector": {
+      "types": "./dist/inspector.d.ts",
+      "development": "./src/inspector.ts",
+      "default": "./dist/inspector.js"
     }
   },
   "files": [
@@ -91,6 +96,10 @@
       "./server": {
         "types": "./dist/web-widget.server.d.ts",
         "default": "./dist/web-widget.server.js"
+      },
+      "./inspector": {
+        "types": "./dist/inspector.d.ts",
+        "default": "./dist/inspector.js"
       }
     }
   }
