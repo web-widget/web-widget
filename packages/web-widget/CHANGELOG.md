@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.6.0
+
+### Minor Changes
+
+- Refactor web-widget-inspector using web components.
+
 ## 1.5.0
 
 ### Minor Changes

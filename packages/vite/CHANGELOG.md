@@ -1,5 +1,16 @@
 # @web-widget/vite
 
+## 2.8.0
+
+### Minor Changes
+
+- Refactor web-widget-inspector using web components.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.6.0
+
 ## 2.7.1
 
 ### Patch Changes
