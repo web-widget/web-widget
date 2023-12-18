@@ -69,11 +69,6 @@ export default class WebRouter<
             content: "width=device-width, initial-scale=1.0",
           },
         ],
-        style: [
-          {
-            content: "web-widget{display:contents}",
-          },
-        ],
       },
       defaultBaseAsset
     );

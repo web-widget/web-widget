@@ -61,14 +61,22 @@ export const createVueRender = ({
 
     const app = new Vue({
       render: (h) =>
-        h(shellTag, {}, [
-          h(component, {
-            attrs: {
-              "data-vue2root": "true",
+        h(
+          shellTag,
+          {
+            style: {
+              display: "contents",
             },
-            props: mergedProps as Record<string, any>,
-          }),
-        ]),
+          },
+          [
+            h(component, {
+              attrs: {
+                "data-vue2root": "true",
+              },
+              props: mergedProps as Record<string, any>,
+            }),
+          ]
+        ),
       ...(await onBeforeCreateApp(context, component, mergedProps)),
     });
 

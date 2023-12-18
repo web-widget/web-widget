@@ -1,15 +1,9 @@
 import { createFilter, type FilterPattern } from "@rollup/pluginutils";
-import type { LinkDescriptor } from "@web-widget/schema";
 import * as esModuleLexer from "es-module-lexer";
 import MagicString from "magic-string";
-import mime from "mime-types";
 import path from "node:path";
 import type { Plugin, Manifest as ViteManifest } from "vite";
-
-const RESOLVE_URL_REG = /^(?:\w+:)?\//;
-const rebase = (src: string, base: string) => {
-  return RESOLVE_URL_REG.test(src) ? src : base + src;
-};
+import { getLinks } from "./utils";
 
 export type AppendWebWidgetMetaPluginOptions = {
   manifest: ViteManifest | string;
@@ -52,18 +46,7 @@ export function appendWebWidgetMetaPlugin(
       const magicString = new MagicString(code);
       const fileName = path.relative(root, id);
       const meta = {
-        link: getLinks(viteManifest, fileName, false).map(
-          ({ href, ...attrs }) => {
-            if (href) {
-              return {
-                ...attrs,
-                href: rebase(href, base),
-              };
-            } else {
-              return attrs;
-            }
-          }
-        ),
+        link: getLinks(viteManifest, fileName, base, false),
       };
 
       await esModuleLexer.init;
@@ -95,97 +78,4 @@ export function appendWebWidgetMetaPlugin(
       return { code: magicString.toString(), map: magicString.generateMap() };
     },
   };
-}
-
-function getLinks(
-  manifest: ViteManifest,
-  srcFileName: string,
-  containSelf: boolean,
-  cache = new Set(),
-  fetchpriority: "low" | "high" | "auto" = "auto"
-): LinkDescriptor[] {
-  if (cache.has(srcFileName)) {
-    return [];
-  }
-
-  cache.add(srcFileName);
-
-  const links: LinkDescriptor[] = [];
-  const item = manifest[srcFileName];
-
-  if (!item) {
-    return [];
-  }
-
-  const push = (srcFileName: string) => {
-    const ld = getLink(srcFileName, fetchpriority);
-    if (ld && !cache.has(ld.href)) {
-      links.push(ld);
-      cache.add(ld.href);
-    }
-  };
-
-  if (containSelf) {
-    push(item.file);
-  }
-
-  if (Array.isArray(item.assets)) {
-    item.assets.forEach(push);
-  }
-
-  if (Array.isArray(item.css)) {
-    item.css.forEach(push);
-  }
-
-  if (Array.isArray(item.imports)) {
-    item.imports?.forEach((srcFileName) => {
-      links.push(
-        ...getLinks(manifest, srcFileName, true, cache)
-          // Note: In the web router, all client components are loaded asynchronously.
-          .filter((link) => link.rel !== "modulepreload")
-      );
-    });
-  }
-
-  if (Array.isArray(item.dynamicImports)) {
-    item.dynamicImports?.forEach((srcFileName) => {
-      links.push(...getLinks(manifest, srcFileName, true, cache, "low"));
-    });
-  }
-
-  return links;
-}
-
-function getLink(
-  fileName: string,
-  fetchpriority: "low" | "high" | "auto"
-): LinkDescriptor | null {
-  if (fileName.endsWith(".js")) {
-    return {
-      fetchpriority,
-      href: fileName,
-      rel: "modulepreload",
-    };
-  } else if (fileName.endsWith(".css")) {
-    return {
-      href: fileName,
-      rel: "stylesheet",
-    };
-  }
-
-  const ext = path.extname(fileName);
-  const type = mime.lookup(ext);
-  const asValue = type ? type.split("/")[0] : "";
-
-  if (type && ["image", "font"].includes(asValue)) {
-    return {
-      as: asValue,
-      ...(asValue === "font" ? { crossorigin: "" } : {}),
-      href: fileName,
-      rel: "preload",
-      type,
-    };
-  }
-
-  return null;
 }
