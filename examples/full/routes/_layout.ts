@@ -54,7 +54,6 @@ export default function RootLayout({
       <head>
         ${importShimLoader}
         ${unsafeHTML(renderMetaToString(meta))}
-        <style>web-widget{display:contents}</style>
       </head>
       <body>
         ${children instanceof ReadableStream ? unsafeStreamToHTML(children) : unsafeHTML(children)}

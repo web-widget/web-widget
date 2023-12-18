@@ -11,6 +11,7 @@ import type {
 } from "vite";
 import { build, normalizePath } from "vite";
 import type { ResolvedBuilderConfig } from "../types";
+import { getLinks } from "./utils";
 
 let stage = 0;
 
@@ -291,7 +292,7 @@ function generateServerRoutemap(
       throw new Error(`No client entry found.`);
     }
 
-    return base + asset.file;
+    return asset;
   }
 
   function getBasename(file: string) {
@@ -386,6 +387,12 @@ function generateServerRoutemap(
   const entryFileName = path.relative(root, builderConfig.input.server.entry);
   const entryModuleName = "./" + routeModuleMap.get(entryFileName).fileName;
   const clientImportmapCode = JSON.stringify(clientImportmap);
+  const clientEntryModuleName = base + getClientEntryAssent().file;
+  const clientEntryLink = getLinks(
+    viteManifest,
+    path.relative(root, builderConfig.input.client.entry),
+    base
+  );
   const entryJsCode = [
     `import { mergeMeta } from "@web-widget/schema/server-helpers";`,
     `import entry from ${JSON.stringify(entryModuleName)};`,
@@ -396,14 +403,17 @@ function generateServerRoutemap(
     `    baseModule: new URL("./", import.meta.url).href,`,
     `    ...options,`,
     `    defaultMeta: mergeMeta(options.defaultMeta || {}, {`,
+    `      link: ${JSON.stringify(clientEntryLink)},`,
+    `      style: [{`,
+    `        content: "web-widget{display:contents}"`,
+    `      }],`,
     `      script: [{`,
     `        type: "importmap",`,
     `        content: JSON.stringify(${clientImportmapCode})`,
     `      }, {`,
-    `        id: "entry.client",`,
     `        type: "module",`,
     `        content: [`,
-    `          'const modules = [${JSON.stringify(getClientEntryAssent())}];',`,
+    `          'const modules = [${JSON.stringify(clientEntryModuleName)}];',`,
     `          'typeof importShim === "function"',`,
     `            '? modules.map(moduleName => importShim(moduleName))',`,
     `            ': modules.map(moduleName => import(moduleName))'`,

@@ -61,6 +61,10 @@ export function webRouterDevServerPlugin(
       const wc = "/@fs" + url.fileURLToPath(id);
       return [
         {
+          tag: "style",
+          children: "web-widget{display:contents}",
+        },
+        {
           tag: "web-widget-inspector",
           attrs: {
             dir: root,

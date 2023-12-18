@@ -54,7 +54,6 @@ export default function DefaultRootLayout({
       <head>
         ${importShimLoader}
         ${unsafeHTML(renderMetaToString(meta))}
-        <style>web-widget{display:contents}</style>
       </head>
       <body>
         ${typeof children === 'string'
