@@ -191,20 +191,18 @@ export function buildWebWidgetEntryPlugin(
           code: JSON.stringify({ type: "module" }, null, 2),
         });
       } else {
-        // TODO Remove client route
-        // Object.keys(bundle).forEach((fileName) => {
-        //   const chunk = bundle[fileName];
-        //   const type = chunk.type;
-        //   // NOTE: server-side routing only
-        //   if (
-        //     type === "chunk" &&
-        //     chunk.isEntry &&
-        //     Reflect.has(serverRoutemapEntryPoints, chunk.name) &&
-        //     serverRoutemapEntryPoints[chunk.name] === chunk.facadeModuleId
-        //   ) {
-        //     delete bundle[fileName];
-        //   }
-        // });
+        Object.keys(bundle).forEach((fileName) => {
+          const chunk = bundle[fileName];
+          const type = chunk.type;
+          if (
+            type === "chunk" &&
+            chunk.isEntry &&
+            Reflect.has(serverRoutemapEntryPoints, chunk.name) &&
+            serverRoutemapEntryPoints[chunk.name] === chunk.facadeModuleId
+          ) {
+            chunk.code = "throw new Error(`Only works on the server side.`);";
+          }
+        });
       }
     },
 
