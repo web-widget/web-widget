@@ -25,13 +25,7 @@
       "module": "./routes/github.route.tsx"
     }
   ],
-  "fallbacks": [
-    {
-      "name": "NotFound",
-      "pathname": "/_404",
-      "module": "./routes/_404.route.tsx"
-    }
-  ],
+  "fallbacks": [],
   "layout": {
     "module": "./routes/_layout.ts"
   }

@@ -21,7 +21,6 @@ import {
   createPageContext,
   renderRouteModule,
   callMiddlewareModule,
-  callAsyncContext,
 } from "./modules";
 import type { PageContext } from "./modules";
 export type * from "./types";
@@ -93,12 +92,11 @@ export default class WebRouter<
     });
 
     routes.forEach((item) => {
-      this.all(item.pathname, callAsyncContext);
       this.all(item.pathname, renderRouteModule());
     });
 
     const fallback404 = fallbacks.find(
-      (page) => page.name === HttpStatus[404]
+      (page) => page.status === 404 || page.name === HttpStatus[404]
     ) ?? {
       module: async () => defaultFallbackModule as RouteModule,
       name: HttpStatus[404],
@@ -119,7 +117,7 @@ export default class WebRouter<
     );
 
     const fallback500 = fallbacks.find(
-      (page) => page.name === HttpStatus[500]
+      (page) => page.status === 500 || page.name === HttpStatus[500]
     ) ?? {
       module: async () => defaultFallbackModule as RouteModule,
       name: HttpStatus[500],

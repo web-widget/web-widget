@@ -1,7 +1,7 @@
 import type { Middleware } from "@web-widget/node";
 import NodeAdapter from "@web-widget/node";
 import type { RouteModule } from "@web-widget/schema";
-import { mergeMeta, renderMetaToString } from "@web-widget/schema/helpers";
+import { renderMetaToString } from "@web-widget/schema/helpers";
 import type {
   PageContext,
   ManifestJSON,
@@ -56,15 +56,30 @@ export function webRouterDevServerPlugin(
         }
       };
     },
-    async transformIndexHtml() {
+    async transformIndexHtml(html, { server }) {
       const id = resolve("@web-widget/web-widget/inspector", import.meta.url);
       const wc = "/@fs" + url.fileURLToPath(id);
       return [
         {
+          injectTo: "head",
+          tag: "script",
+          attrs: {
+            type: "module",
+            src:
+              "/" +
+              path.relative(
+                (server as ViteDevServer).config.root,
+                builderConfig.input.client.entry
+              ),
+          },
+        },
+        {
+          injectTo: "head",
           tag: "style",
           children: "web-widget{display:contents}",
         },
         {
+          injectTo: "body",
           tag: "web-widget-inspector",
           attrs: {
             dir: root,
@@ -79,7 +94,6 @@ export function webRouterDevServerPlugin(
               children: `import "${wc}"`,
             },
           ],
-          injectTo: "body",
         },
       ];
     },
@@ -116,10 +130,7 @@ async function createViteWebRouterMiddleware(
     pathname: "*",
     name: "vite:DevTransformHtmlMiddleware",
     module: {
-      handler: createTransformHtmlMiddleware(
-        builderConfig.input.client.entry,
-        viteServer
-      ),
+      handler: createTransformHtmlMiddleware(manifest, viteServer),
     },
   });
 
@@ -206,7 +217,7 @@ async function loadManifest(routemap: string, viteServer: ViteDevServer) {
 }
 
 function createTransformHtmlMiddleware(
-  clientEntry: string,
+  manifest: ManifestResolved,
   viteServer: ViteDevServer
 ): MiddlewareHandler {
   return async (context: PageContext, next) => {
@@ -216,17 +227,25 @@ function createTransformHtmlMiddleware(
       return res;
     }
 
-    if (context.meta && context.module) {
-      const source = (context.module as DevModule).$source;
-      const meta = mergeMeta(await getMeta(source, viteServer), {
-        script: [
-          {
-            type: "module",
-            id: "entry.client",
-            src: "/" + path.relative(viteServer.config.root, clientEntry),
-          },
-        ],
-      });
+    let source;
+
+    if (context.module) {
+      source = (context.module as DevModule).$source;
+    } else if (!res.ok) {
+      const status = res.status;
+      const name = res.statusText.replace(/\s+/g, "");
+      const fallbackModule = manifest.fallbacks.find(
+        (module) => module.status === status || module.name === name
+      );
+
+      if (fallbackModule && typeof fallbackModule.module === "function") {
+        const module = (await fallbackModule.module()) as DevModule;
+        source = module.$source;
+      }
+    }
+
+    if (source) {
+      const meta = await getMeta(source, viteServer);
 
       const url = new URL(context.request.url);
       const html = (await res.text()).replace(
