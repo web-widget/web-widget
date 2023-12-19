@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.6.1
+
+### Patch Changes
+
+- Refactor web-widget-inspector.
+
 ## 1.6.0
 
 ### Minor Changes

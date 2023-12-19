@@ -1,5 +1,11 @@
 # @web-widget/web-router
 
+## 0.7.2
+
+### Patch Changes
+
+- Fix the css loss problem of fallbacks module.
+
 ## 0.7.1
 
 ### Patch Changes
