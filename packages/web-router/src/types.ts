@@ -613,8 +613,9 @@ export interface ManifestResolved {
   }[];
   fallbacks: {
     module: RouteModule | (() => Promise<RouteModule>);
-    name: string;
+    name?: string;
     pathname: string;
+    status: number;
   }[];
   layout: {
     module: LayoutModule | (() => Promise<LayoutModule>);
@@ -635,8 +636,9 @@ export interface ManifestJSON {
   }[];
   fallbacks?: {
     module: string;
-    name: string;
+    name?: string;
     pathname: string;
+    status: number;
   }[];
   layout?: {
     module: string;

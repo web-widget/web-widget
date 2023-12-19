@@ -30,6 +30,33 @@ export type PageContext = {
   renderOptions?: RouteRenderOptions;
 } & Context;
 
+function callAsyncContext<T extends (...args: any[]) => any>(
+  context: PageContext,
+  setup: T,
+  args?: Parameters<T>
+): Promise<Response> {
+  const data = createContext({
+    params: context.params,
+    pathname: context.pathname,
+  });
+
+  if (context.meta) {
+    context.meta = mergeMeta(context.meta, {
+      script: [
+        {
+          // @ts-ignore
+          name: "state:web-router",
+          type: "application/json",
+          // TODO htmlEscapeJsonString
+          content: JSON.stringify(data),
+        },
+      ],
+    });
+  }
+
+  return callContext(data, setup, args);
+}
+
 function composeHandler(handler: RouteHandler | RouteHandlers): RouteHandler {
   if (typeof handler === "function") {
     return handler;
@@ -288,7 +315,7 @@ export function createFallbackHandler(
     pageContext.render = composeRender(pageContext, layoutModule, dev);
     pageContext.renderOptions = renderOptions;
 
-    return handler(pageContext);
+    return callAsyncContext(pageContext, handler, [pageContext]);
   };
 }
 
@@ -305,41 +332,11 @@ export function renderRouteModule(): MiddlewareHandler {
           },
         }
       );
-      return handler(context);
+      return callAsyncContext(context, handler, [context]);
     } else {
-      return next();
+      return callAsyncContext(context, next);
     }
   };
-}
-
-export function callAsyncContext(
-  context: PageContext,
-  next: Next
-): Promise<Response> {
-  const route = createContext({
-    params: context.params,
-    pathname: context.pathname,
-  });
-
-  if (context.meta) {
-    context.meta = mergeMeta(context.meta, {
-      script: [
-        {
-          // @ts-ignore
-          name: "state:web-router",
-          type: "application/json",
-          // TODO htmlEscapeJsonString
-          content: JSON.stringify(route),
-        },
-      ],
-    });
-  }
-
-  return new Promise((resolve) => {
-    callContext(route, () => {
-      resolve(next());
-    });
-  });
 }
 
 export function trailingSlash(trailingSlashEnabled: boolean) {

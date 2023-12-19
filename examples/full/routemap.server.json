@@ -88,7 +88,7 @@
   }],
   "fallbacks": [
     {
-      "name": "NotFound",
+      "status": 404,
       "pathname": "/_404",
       "module": "./routes/_404.route.tsx"
     }

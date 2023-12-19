@@ -542,7 +542,7 @@ Object.assign(window, {
 
 queueMicrotask(() => {
   const stateElement = document.querySelector(
-    `script[name="state\\:web-route"]`
+    `script[name="state\\:web-router"]`
   ) as HTMLScriptElement;
   const state = stateElement
     ? JSON.parse(stateElement.textContent as string)

@@ -76,7 +76,7 @@ export class URLPatternRouter<T> implements Router<T> {
               params[key] = decodeURIComponent(value);
             }
           }
-          handlers.push([handler, params, pathname]);
+          handlers.push([handler, params, pattern.pathname]);
         }
       }
     }
