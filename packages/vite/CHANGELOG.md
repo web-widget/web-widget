@@ -1,5 +1,15 @@
 # @web-widget/vite
 
+## 2.8.1
+
+### Patch Changes
+
+- Prevent server-side files from being exposed to clients.
+- Fix the css loss problem of fallbacks module.
+- Updated dependencies
+  - @web-widget/web-router@0.7.2
+  - @web-widget/web-widget@1.6.1
+
 ## 2.8.0
 
 ### Minor Changes
