@@ -7,13 +7,6 @@ import type {
 } from "../types";
 import { escapeHtml } from "./utils";
 
-type Imports = Record<string, string>;
-type Scopes = Record<string, Imports>;
-type ImportMap = {
-  imports?: Imports;
-  scopes?: Scopes;
-};
-
 const safeAttributeName = (value: string) =>
   escapeHtml(String(value)).toLowerCase();
 const safeAttributeValue = (value: string) => escapeHtml(String(value));
@@ -138,80 +131,44 @@ export function rebaseMeta(meta: Meta, importer: string): Meta {
   };
 }
 
-export function mergeMeta(defaults: Meta, overrides: Meta): Meta {
-  const newDefaults = Object.entries(defaults).reduce(
+export const mergeMeta = (defaults: Meta, overrides: Meta): Meta => {
+  const mergedMeta = Object.entries(defaults).reduce(
     (meta, [key, value]) => {
-      meta[key] = Array.isArray(value) ? [...value] : value;
+      meta[key] = Array.isArray(value)
+        ? [...value.map((item) => ({ ...item }))]
+        : value;
       return meta;
     },
     {} as Record<string, string | Record<string, string>[]>
   );
 
-  const newOverrides = Object.entries(overrides).reduce(
-    (mergedMeta, [overrideKey, overrideValue]) => {
-      if (Array.isArray(overrideValue)) {
-        mergedMeta[overrideKey] = mergedMeta[overrideKey] ?? [];
-        const mergedDescriptors = mergedMeta[overrideKey] as Record<
-          string,
-          string
-        >[];
-
-        overrideValue.forEach((overrideDescriptor) => {
-          let replaceIndex = -1;
-          if (overrideKey === "meta") {
-            replaceIndex = mergedDescriptors.findIndex(
-              ({ name }) => name === overrideDescriptor.name
-            );
-          } else if (
-            overrideKey === "script" &&
-            overrideDescriptor.type === "importmap" &&
-            typeof overrideDescriptor.content === "string"
-          ) {
-            replaceIndex = mergedDescriptors.findIndex(
-              ({ type }) => type === overrideDescriptor.type
-            );
-            const mergedDescriptor = mergedDescriptors[replaceIndex];
-
-            if (
-              mergedDescriptor &&
-              typeof mergedDescriptor.content === "string"
-            ) {
-              const mergedImportMap = JSON.parse(
-                mergedDescriptor.content
-              ) as ImportMap;
-              const overrideImportMap = JSON.parse(
-                overrideDescriptor.content
-              ) as ImportMap;
-
-              overrideDescriptor = {
-                ...overrideDescriptor,
-                content: JSON.stringify({
-                  imports: {
-                    ...mergedImportMap.imports,
-                    ...overrideImportMap.imports,
-                  },
-                  scopes: {
-                    ...mergedImportMap.scopes,
-                    ...overrideImportMap.scopes,
-                  },
-                } as ImportMap),
-              };
-            }
-          }
-
-          if (replaceIndex > -1) {
-            mergedDescriptors.splice(replaceIndex, 1, overrideDescriptor);
-          } else {
-            mergedDescriptors.push(overrideDescriptor);
-          }
-        });
-      } else {
-        mergedMeta[overrideKey] = overrideValue;
+  for (const [key, value] of Object.entries(overrides)) {
+    if (Array.isArray(value)) {
+      const target = (mergedMeta[key] ??= []) as Record<string, string>[];
+      for (const override of value) {
+        const index =
+          key === "meta"
+            ? target.findIndex(
+                (meta) =>
+                  ("name" in meta &&
+                    "name" in override &&
+                    meta.name === override.name) ||
+                  ("property" in meta &&
+                    "property" in override &&
+                    meta.property === override.property)
+                // ("key" in meta && "key" in override)
+              )
+            : -1;
+        if (index > -1) {
+          target.splice(index, 1, override);
+        } else {
+          target.push(override);
+        }
       }
-      return mergedMeta;
-    },
-    newDefaults
-  );
+    } else {
+      mergedMeta[key] = value;
+    }
+  }
 
-  return newOverrides;
-}
+  return mergedMeta;
+};
