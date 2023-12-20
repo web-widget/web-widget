@@ -1,5 +1,14 @@
 # @web-widget/web-router
 
+## 0.7.3
+
+### Patch Changes
+
+- Fix the problem of css not taking effect on page 500.
+- Updated dependencies
+  - @web-widget/schema@0.4.1
+  - @web-widget/html@0.1.6
+
 ## 0.7.2
 
 ### Patch Changes
