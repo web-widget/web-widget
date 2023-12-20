@@ -1,10 +1,10 @@
 import "./_error.css";
 import VueCounter from "../widgets/Counter.widget.vue?as=jsx";
 
-export const fallback = function Page404() {
+export const fallback = function Page500() {
   return (
     <main>
-      <h1>⚠️ 404 NotFound</h1>
+      <h1>⚠️ 500</h1>
       <VueCounter name="Vue3 Counter" start={3} />
     </main>
   );
