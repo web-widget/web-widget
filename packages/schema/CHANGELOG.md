@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 0.4.1
+
+### Patch Changes
+
+- Fix the problem of accidentally losing meta content.
+
 ## 0.4.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @web-widget/vite
 
+## 2.8.2
+
+### Patch Changes
+
+- Fix the problem of css not taking effect on page 500.
+- Updated dependencies
+- Updated dependencies
+  - @web-widget/web-router@0.7.3
+  - @web-widget/schema@0.4.1
+  - @web-widget/web-widget@1.6.2
+
 ## 2.8.1
 
 ### Patch Changes
