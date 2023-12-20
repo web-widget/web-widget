@@ -19,12 +19,44 @@ export const meta: Meta = {
       href: "https://google.com/test.json",
     },
   ],
+  meta: [
+    {
+      name: "keywords",
+      content: "a, b",
+    },
+    {
+      property: "og:title",
+      content: "New Site",
+    },
+    {
+      property: "og:url",
+      content: "http://newsblog.org/news/136756249803614",
+    },
+  ],
 };
 
 export const handler: Handlers<MetaPageData> = {
   async GET(ctx) {
     const newMeta = mergeMeta(ctx.meta, {
       title: "😄New title!",
+      meta: [
+        {
+          name: "keywords",
+          content: "c, d",
+        },
+        {
+          property: "og:title",
+          content: "New Site",
+        },
+        {
+          name: "hello",
+          content: "world",
+        },
+        {
+          property: "og:url",
+          content: "http://newsblog.org/news/136756249803614",
+        },
+      ],
     });
     return ctx.render({
       meta: newMeta,

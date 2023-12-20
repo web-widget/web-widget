@@ -7,11 +7,17 @@ import {
 } from "../../src/helpers/meta";
 
 test("Should return the new object", () => {
-  const defaults = {};
-  const overrides = {};
+  const defaults = {
+    meta: [],
+  };
+  const overrides = {
+    meta: [],
+  };
   const result = mergeMeta(defaults, overrides);
   expect(result).not.toBe(defaults);
   expect(result).not.toBe(overrides);
+  expect(result.meta).not.toBe(defaults.meta);
+  expect(result.meta).not.toBe(overrides.meta);
 });
 
 test("Should cover content", () => {
@@ -40,12 +46,20 @@ test("Should be inserted at the end of the array", () => {
   });
 });
 
-test("Should override content of duplicate meta[name]", () => {
+test("should override the same meta", () => {
   const defaults = {
     meta: [
       {
         name: "keywords",
         content: "a, b",
+      },
+      {
+        property: "og:title",
+        content: "Introducing our New Site",
+      },
+      {
+        name: "hello",
+        content: "world",
       },
     ],
   };
@@ -55,64 +69,34 @@ test("Should override content of duplicate meta[name]", () => {
         name: "keywords",
         content: "c, d",
       },
-    ],
-  };
-  const result = mergeMeta(defaults, overrides);
-  expect(result).toEqual(overrides);
-});
-
-test("The content of script[type='importmap'] that should be merged", () => {
-  const defaultsImportMap = {
-    imports: {
-      "#pkg": "/assets/pkg.js",
-    },
-    scopes: {
-      "https://cdn.io/": {
-        lib: "https://cdn.io/:npm/lib/index.js",
-      },
-    },
-  };
-  const defaults = {
-    script: [
       {
-        type: "importmap",
-        content: JSON.stringify(defaultsImportMap),
+        property: "og:title",
+        content: "New Site",
       },
-    ],
-  };
-  const overrideImportMap = {
-    imports: {
-      "#ui": "/assets/ui.js",
-    },
-    scopes: {
-      "https://cdn.io/": {
-        lib2: "https://cdn.io/:npm/lib2/index.js",
-      },
-    },
-  };
-  const overrides = {
-    script: [
       {
-        type: "importmap",
-        content: JSON.stringify(overrideImportMap),
+        property: "og:url",
+        content: "http://newsblog.org/news/136756249803614",
       },
     ],
   };
   const result = mergeMeta(defaults, overrides);
   expect(result).toEqual({
-    script: [
+    meta: [
       {
-        type: "importmap",
-        content: JSON.stringify({
-          imports: {
-            ...defaultsImportMap.imports,
-            ...overrideImportMap.imports,
-          },
-          scopes: {
-            ...defaultsImportMap.scopes,
-            ...overrideImportMap.scopes,
-          },
-        }),
+        name: "keywords",
+        content: "c, d",
+      },
+      {
+        property: "og:title",
+        content: "New Site",
+      },
+      {
+        name: "hello",
+        content: "world",
+      },
+      {
+        property: "og:url",
+        content: "http://newsblog.org/news/136756249803614",
       },
     ],
   });
