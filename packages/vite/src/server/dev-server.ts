@@ -128,9 +128,9 @@ async function createViteWebRouterMiddleware(
   manifest.middlewares ??= [];
   manifest.middlewares.push({
     pathname: "*",
-    name: "vite:DevTransformHtmlMiddleware",
+    name: "@web-widget/vite:meta",
     module: {
-      handler: createTransformHtmlMiddleware(manifest, viteServer),
+      handler: renderStyles(manifest, viteServer),
     },
   });
 
@@ -216,7 +216,7 @@ async function loadManifest(routemap: string, viteServer: ViteDevServer) {
   }, {} as ManifestResolved);
 }
 
-function createTransformHtmlMiddleware(
+function renderStyles(
   manifest: ManifestResolved,
   viteServer: ViteDevServer
 ): MiddlewareHandler {
@@ -227,24 +227,8 @@ function createTransformHtmlMiddleware(
       return res;
     }
 
-    let source;
-
     if (context.module) {
-      source = (context.module as DevModule).$source;
-    } else if (!res.ok) {
-      const status = res.status;
-      const name = res.statusText.replace(/\s+/g, "");
-      const fallbackModule = manifest.fallbacks.find(
-        (module) => module.status === status || module.name === name
-      );
-
-      if (fallbackModule && typeof fallbackModule.module === "function") {
-        const module = (await fallbackModule.module()) as DevModule;
-        source = module.$source;
-      }
-    }
-
-    if (source) {
+      const source = (context.module as DevModule).$source;
       const meta = await getMeta(source, viteServer);
 
       const url = new URL(context.request.url);

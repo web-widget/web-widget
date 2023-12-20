@@ -91,6 +91,11 @@
       "status": 404,
       "pathname": "/_404",
       "module": "./routes/_404.route.tsx"
+    },
+    {
+      "status": 500,
+      "pathname": "/_500",
+      "module": "./routes/_500.route.tsx"
     }
   ],
   "layout": {

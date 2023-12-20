@@ -308,7 +308,7 @@ export function createFallbackHandler(
       );
     }
 
-    const pageContext = Object.create(context) as PageContext;
+    const pageContext = context as PageContext;
     pageContext.error = error;
     pageContext.meta = meta;
     pageContext.module = module;
