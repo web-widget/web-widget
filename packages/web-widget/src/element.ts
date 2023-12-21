@@ -1,6 +1,7 @@
 import * as status from "./modules/status";
 import type { Loader, WidgetRenderContext, Meta } from "./types";
-import { observe, unobserve } from "./utils/visible-observer";
+import { createIdleObserver } from "./utils/idle";
+import { createVisibleObserver } from "./utils/lazy";
 
 import { LifecycleController } from "./modules/controller";
 import { WebWidgetUpdateEvent } from "./event";
@@ -24,6 +25,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   // @ts-ignore
   #data: WidgetRenderContext["data"] | null;
+
+  #disconnectObserver?: () => void;
 
   // @ts-ignore
   #meta: Meta | null;
@@ -85,7 +88,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   set loader(value) {
     if (typeof value === "function") {
       this.#loader = value;
-      if (this.loading !== "lazy") {
+      if (this.loading === "eager") {
         this.#autoMount();
       }
     }
@@ -199,12 +202,13 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   /**
    * Indicates how the browser should load the module
+   * @default "eager"
    */
   get loading(): string {
     return this.getAttribute("loading") || "eager";
   }
 
-  set loading(value) {
+  set loading(value: "eager" | "lazy" | "idle") {
     this.setAttribute("loading", value);
   }
 
@@ -447,10 +451,16 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this.addEventListener(type, preload, options)
     );
 
-    if (this.loading === "lazy") {
-      observe(this, () => this.#autoMount());
-    } else {
+    if (this.loading === "eager") {
       this.#autoMount();
+    } else if (this.loading === "lazy") {
+      this.#disconnectObserver = createVisibleObserver(this, () =>
+        this.#autoMount()
+      );
+    } else if (this.loading === "idle") {
+      this.#disconnectObserver = createIdleObserver(this, () =>
+        this.#autoMount()
+      );
     }
   }
 
@@ -472,14 +482,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
       // NOTE: Clear cache
       this.#meta = null;
     }
-    if (this.loading !== "lazy") {
+    if (this.loading === "eager") {
       this.#autoMount();
     }
   }
 
   destroyedCallback() {
-    if (this.loading === "lazy") {
-      unobserve(this);
+    if (this.#disconnectObserver) {
+      this.#disconnectObserver();
     }
     if (!this.inactive) {
       this.unload().catch(this.#throwGlobalError.bind(this));
@@ -523,7 +533,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["data", "meta", "import", "src", "inactive"];
+    return ["data", "inactive", "loading", "import", "meta"];
   }
 
   static get timeouts() {
