@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.7.0
+
+### Minor Changes
+
+- Support loading="idle" attribute to load widgets during the browser's idle time.
+  Fixed an issue where loading="lazy" may not work in some cases.
+
 ## 1.6.2
 
 ### Patch Changes
