@@ -8,6 +8,7 @@ import type { CreateVueRenderOptions } from "./types";
 import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/client-helpers";
+export { useWidgetAsyncState as useWidgetState } from "@web-widget/schema/client-helpers";
 export * from "./web-widget";
 
 Reflect.defineProperty(__ENV__, "server", {
@@ -30,21 +31,19 @@ export const createVueRender = ({
     }
 
     let app: App | null;
-    const WrapSuspense = (props: any) =>
+    const WidgetSuspense = (props: any) =>
       h(Suspense, null, [h(component, props)]);
 
     return {
       async mount() {
         if (context.recovering) {
-          app = createSSRApp(WrapSuspense, props as any);
+          app = createSSRApp(WidgetSuspense, props as any);
         } else {
-          app = createApp(WrapSuspense, props as any);
+          app = createApp(WidgetSuspense, props as any);
         }
         await onCreatedApp(app, context, component, props);
 
-        app.runWithContext(() => {
-          app!.mount(context.container);
-        });
+        app.mount(context.container);
       },
 
       async unmount() {

@@ -4,7 +4,7 @@ import { IS_BROWSER } from "./env";
 export interface WebWidgetContext {
   pathname?: string;
   params?: Record<string, string>;
-  body: Record<string, any>;
+  body: Record<string | symbol, any>;
 }
 
 const ctx = /*@__PURE__*/ createNamespace<WebWidgetContext>({

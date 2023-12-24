@@ -16,6 +16,7 @@ import * as ReactDOMServer from "react-dom/server.browser";
 import type { CreateReactRenderOptions } from "./types";
 
 export * from "@web-widget/schema/server-helpers";
+export { useWidgetSyncState as useWidgetState } from "@web-widget/schema/server-helpers";
 export * from "./web-widget";
 
 Reflect.defineProperty(__ENV__, "server", {
@@ -27,6 +28,22 @@ function renderToReadableStream(
   renderOptions?: RenderToReadableStreamOptions
 ): Promise<ReactDOMServerReadableStream> {
   return ReactDOMServer.renderToReadableStream(vNode, renderOptions);
+}
+
+function createTimeoutSignal(ms: number): [AbortSignal, () => void] {
+  const controller = new AbortController();
+  const timer = setTimeout(() => {
+    controller.abort(
+      new Error(`Component did not finish rendering within ${ms}ms.`)
+    );
+  }, ms);
+
+  return [
+    controller.signal,
+    function disconnect() {
+      clearTimeout(timer);
+    },
+  ];
 }
 
 export interface ReactRenderOptions {
@@ -43,9 +60,26 @@ export const createReactRender = ({
   }
 
   return defineRender<ReactRenderOptions>(
-    async (context, { react: reactRenderOptions } = {}) => {
+    async (context, { react: reactRenderOptions = {} } = {}) => {
+      let error, signal, disconnect;
       const componentDescriptor = getComponentDescriptor(context);
       const { component, props } = componentDescriptor;
+      const onError = reactRenderOptions.onError;
+      const awaitAllReady = reactRenderOptions.awaitAllReady;
+
+      if (!reactRenderOptions.signal) {
+        [signal, disconnect] = createTimeoutSignal(1000 * 10);
+        reactRenderOptions.signal = signal;
+      }
+
+      reactRenderOptions.onError = (e) => {
+        error = e;
+        if (onError) {
+          onError(e);
+        } else if (!awaitAllReady) {
+          console.error(`[@web-widget/react]`, e);
+        }
+      };
 
       let vNode;
       if (
@@ -60,8 +94,16 @@ export const createReactRender = ({
 
       const stream = await renderToReadableStream(vNode, reactRenderOptions);
 
-      if (reactRenderOptions?.awaitAllReady) {
+      if (awaitAllReady) {
         await stream.allReady;
+      }
+
+      if (disconnect) {
+        disconnect();
+      }
+
+      if (error) {
+        throw error;
       }
 
       return stream;

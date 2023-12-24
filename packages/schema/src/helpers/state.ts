@@ -1,36 +1,74 @@
 import { useContext } from "./context";
 
-export function useWidgetState<T>(key: string, handler: () => T): T;
-export function useWidgetState<T>(
+const ERROR = Symbol.for("error");
+type PromiseState<T> = Promise<T> & {
+  [ERROR]: T | Error;
+};
+
+export async function useWidgetAsyncState<T>(
   key: string,
-  handler: () => Promise<T>
-): Promise<T>;
-export function useWidgetState<T>(key: string, handler: () => T | Promise<T>) {
-  const store = useAllState();
-  let state = store[key];
+  handler: () => T | Promise<T>
+): Promise<T> {
+  const cache = useAllWidgetState();
+
+  let state = cache[key];
 
   if (state) {
-    return state as T;
+    return state;
   }
 
-  state = handler();
+  state = cache[key] = handler();
 
   if (state instanceof Promise) {
-    return state.then((state) => {
-      store[key] = state;
-      return state as T;
+    return state.then((result) => {
+      cache[key] = result;
+      return result;
     });
-  } else {
-    store[key] = state;
-    return state as T;
   }
+
+  return state;
 }
 
-export const useAllState = () => {
+export function useWidgetSyncState<T>(
+  key: string,
+  handler: () => T | Promise<T>
+): T | Promise<T> {
+  const cache = useAllWidgetState();
+  let state = cache[key];
+
+  if (state) {
+    if (state instanceof Promise) {
+      const error = (state as PromiseState<T>)[ERROR];
+      if (error) {
+        throw error;
+      } else {
+        throw state;
+      }
+    }
+    return state;
+  }
+
+  state = cache[key] = handler();
+
+  if (state instanceof Promise) {
+    throw state.then(
+      (result) => {
+        cache[key] = result;
+      },
+      (error) => {
+        state[ERROR] = error;
+      }
+    );
+  }
+
+  return state;
+}
+
+export const useAllWidgetState = () => {
   const ctx = useContext();
 
   if (!ctx) {
-    throw new Error(`Instance unavailable.`);
+    throw new Error(`[@web-widget/schema] Instance unavailable.`);
   }
 
   return (ctx.body ??= {});
