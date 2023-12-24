@@ -32,7 +32,7 @@ export async function useWidgetAsyncState<T>(
 export function useWidgetSyncState<T>(
   key: string,
   handler: () => T | Promise<T>
-): T | Promise<T> {
+): T {
   const cache = useAllWidgetState();
   let state = cache[key];
 
