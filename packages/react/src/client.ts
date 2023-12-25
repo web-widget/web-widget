@@ -10,6 +10,7 @@ import type { CreateReactRenderOptions } from "./types";
 import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/client-helpers";
+export { useWidgetSyncState as useWidgetState } from "@web-widget/schema/client-helpers";
 export * from "./web-widget";
 
 Reflect.defineProperty(__ENV__, "server", {

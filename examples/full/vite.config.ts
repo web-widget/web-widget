@@ -13,4 +13,7 @@ export default defineConfig({
     vue(),
     vueWebWidgetPlugin(),
   ],
+  build: {
+    target: ["chrome76"],
+  },
 });

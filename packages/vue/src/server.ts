@@ -8,6 +8,7 @@ import type { CreateVueRenderOptions } from "./types";
 import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/server-helpers";
+export { useWidgetAsyncState as useWidgetState } from "@web-widget/schema/server-helpers";
 export * from "./web-widget";
 
 Reflect.defineProperty(__ENV__, "server", {
@@ -31,11 +32,24 @@ export const createVueRender = ({
       const componentDescriptor = getComponentDescriptor(context);
       const { component, props } = componentDescriptor;
 
-      const WrapSuspense = (props: any) =>
+      const WidgetSuspense = (props: any) =>
         h(Suspense, null, [h(component, props)]);
-      const app = createSSRApp(WrapSuspense, props as any);
+      const app = createSSRApp(WidgetSuspense, props as any);
+
+      /**
+       * The thrown promise is not necessarily a real error,
+       * it will be handled by the web widget container.
+       * @see ../../web-widget/src/server.ts#suspense
+       */
+      app.config.errorHandler = (err, instance, info) => {
+        if (err instanceof Promise) {
+          return;
+        }
+        throw err;
+      };
+
       await onCreatedApp(app, context, component, props);
-      return app.runWithContext(() => renderToWebStream(app, ssrContext));
+      return renderToWebStream(app, ssrContext);
     }
   );
 };

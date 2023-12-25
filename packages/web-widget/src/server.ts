@@ -7,7 +7,7 @@ import {
   mergeMeta,
   rebaseMeta,
   renderMetaToString,
-  useAllState,
+  useAllWidgetState,
 } from "@web-widget/schema/helpers";
 import {
   getClientModuleId,
@@ -59,6 +59,21 @@ function unsafeAttrsToHtml(attrs: Record<string, string>) {
     .join(" ");
 }
 
+async function suspense<T>(handler: () => T) {
+  let result;
+  try {
+    result = await handler();
+  } catch (error) {
+    if (error instanceof Promise) {
+      await error;
+      result = await handler();
+    } else {
+      throw error;
+    }
+  }
+  return result;
+}
+
 export /*#__PURE__*/ async function parse(
   loader: Loader,
   { children = "", renderStage, ...options }: WebWidgetContainerOptions
@@ -72,8 +87,9 @@ export /*#__PURE__*/ async function parse(
   let result = "";
   const clientImport = getClientModuleId(loader, options);
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const state = useAllState();
-  const keys = Object.keys(state);
+  const allState = useAllWidgetState();
+  const allStateKeys = Object.keys(allState);
+  const used: Set<string> = (allState[Symbol.for("used")] ??= new Set());
 
   if (renderStage !== "client") {
     const module = (await loader()) as ServerWidgetModule;
@@ -107,7 +123,7 @@ export /*#__PURE__*/ async function parse(
       meta,
       module,
     };
-    const rawResult = await module.render(context);
+    const rawResult = await suspense(() => module.render!(context));
 
     if (getType(rawResult) === "ReadableStream") {
       result = await readableStreamToString(rawResult as ReadableStream);
@@ -123,13 +139,11 @@ export /*#__PURE__*/ async function parse(
     }
 
     if (hasStyle && __FEATURE_INJECTING_STYLES__) {
-      result = [
-        renderMetaToString({
-          link: styleLinks,
-          style: styles,
-        }),
-        `<web-widget.body>${result}</web-widget.body>`,
-      ].join("");
+      result += renderMetaToString({
+        link: styleLinks,
+        style: styles,
+      });
+      result += `<web-widget.body>${result}</web-widget.body>`;
     }
   }
 
@@ -145,26 +159,36 @@ export /*#__PURE__*/ async function parse(
 
     // NOTE: Declarative Shadow DOM
     // @see https://developer.chrome.com/articles/declarative-shadow-dom/
-    result = [
-      `<template shadowrootmode="open">${result}</template>`,
-      `<script>${shimCode}</script>`,
-      children,
-    ].join("");
+    result += `<template shadowrootmode="open">${result}</template>`;
+    result += `<script>${shimCode}</script>`;
+    result += children;
   }
 
-  let isEmpty = true;
-  const local = Object.keys(state)
-    .filter((key) => !keys.includes(key))
-    .reduce((previousValue, currentValue) => {
-      isEmpty = false;
-      previousValue[currentValue] = state[currentValue];
-      return previousValue;
-    }, {} as any);
+  const dependenciesKeys = Object.keys(allState).filter((key) => {
+    if (
+      !used.has(key) &&
+      !allStateKeys.includes(key) &&
+      !(allState[key] instanceof Promise)
+    ) {
+      used.add(key);
+      return true;
+    }
+    return false;
+  });
 
-  if (!isEmpty) {
-    result += `<script name="state:web-widget" type="application/json">${htmlEscapeJsonString(
-      JSON.stringify(local)
-    )}</script>`;
+  const dependencies = dependenciesKeys.reduce(
+    (previousValue, currentValue) => {
+      previousValue[currentValue] = allState[currentValue];
+      return previousValue;
+    },
+    {} as any
+  );
+
+  if (dependenciesKeys.length) {
+    result += `<script>`;
+    result += `(self.stateLayer=self.stateLayer||[]).push`;
+    result += `(${htmlEscapeJsonString(JSON.stringify(dependencies))})`;
+    result += `</script>`;
   }
 
   if (renderStage === "server") {

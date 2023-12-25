@@ -3,11 +3,11 @@ import type { Loader, WidgetRenderContext, Meta } from "./types";
 import { createIdleObserver } from "./utils/idle";
 import { createVisibleObserver } from "./utils/lazy";
 
+import { installStateLayer } from "./state-layer";
 import { LifecycleController } from "./modules/controller";
 import { WebWidgetUpdateEvent } from "./event";
 import { queueMicrotask } from "./utils/queue-microtask";
 import { triggerModulePreload } from "./utils/module-preload";
-import { callContext, useAllState } from "@web-widget/schema/helpers";
 
 declare const importShim: (src: string) => Promise<any>;
 let globalTimeouts = Object.create(null);
@@ -278,7 +278,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
       }
     }
 
-    const recovering = view.recovering;
     const context = Object.create({
       get container() {
         if (!container) {
@@ -289,23 +288,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
       data: view.data,
       meta: view.meta,
-      recovering,
+      recovering: view.recovering,
       /**@deprecated*/
       update: this.update.bind(this),
     });
-
-    const stateElement = recovering
-      ? (context.container.querySelector(
-          "script[name=state\\:web-widget]"
-        ) as HTMLScriptElement)
-      : null;
-    const state =
-      recovering && stateElement
-        ? JSON.parse(stateElement.textContent as string)
-        : {};
-    stateElement?.remove();
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    Object.assign(useAllState(), state);
 
     return Object.assign(context, customContext || {});
   }
@@ -550,14 +536,8 @@ Object.assign(window, {
   HTMLWebWidgetElement,
 });
 
-queueMicrotask(() => {
-  const stateElement = document.querySelector(
-    `script[name="state\\:web-router"]`
-  ) as HTMLScriptElement;
-  const state = stateElement
-    ? JSON.parse(stateElement.textContent as string)
-    : {};
-  callContext(state, () => {
+installStateLayer(() => {
+  queueMicrotask(() => {
     customElements.define("web-widget", HTMLWebWidgetElement);
   });
 });

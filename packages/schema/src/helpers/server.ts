@@ -62,4 +62,8 @@ export {
 } from "./http-status";
 export { renderMetaToString, rebaseMeta, mergeMeta } from "./meta";
 export { callContext, createContext, useContext } from "./context";
-export { useAllState, useWidgetState } from "./state";
+export {
+  useAllWidgetState,
+  useWidgetAsyncState,
+  useWidgetSyncState,
+} from "./state";

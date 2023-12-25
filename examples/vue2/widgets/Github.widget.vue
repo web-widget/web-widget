@@ -1,6 +1,6 @@
 <script setup lang="ts">
 console.log("vue", Date.now());
-import { useWidgetState } from '@web-widget/vue';
+import { useWidgetSyncState } from "@web-widget/schema/helpers";
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -10,7 +10,7 @@ const props = defineProps({
 const url = `https://api.github.com/users/${props.username}`;
 const cacheKey = url + '@vue';
 
-const data = await useWidgetState(cacheKey, async () => {
+const data = useWidgetSyncState(cacheKey, async () => {
     console.log("[github]", "fetch..");
     const resp = await fetch(url);
     if (!resp.ok) {

@@ -11,6 +11,18 @@ import type { CreateVueRenderOptions } from "./types";
 export * from "@web-widget/schema/server-helpers";
 export * from "./web-widget";
 
+/**
+ * The thrown promise is not necessarily a real error,
+ * it will be handled by the web widget container.
+ * @see ../../web-widget/src/server.ts#suspense
+ */
+Vue.config.warnHandler = (msg, vm, trace) => {
+  if (msg === `Error in setup: "[object Promise]"`) {
+    return;
+  }
+  console.error("[Vue warn]: ".concat(msg).concat(trace));
+};
+
 const __FEATURE_STREAM__ = false;
 
 const ESCAPE_LOOKUP: { [match: string]: string } = {

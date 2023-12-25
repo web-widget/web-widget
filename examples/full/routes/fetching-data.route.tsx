@@ -2,7 +2,8 @@ import type { Handlers, RouteComponentProps } from "@web-widget/react";
 import type { HelloData } from "./api/hello-world.route";
 import BaseLayout from "../components/BaseLayout";
 import VueGithub from "../widgets/Github.widget.vue?as=jsx";
-import ReactGithub from "../widgets/Github.widget";
+import ReactGithub from "../widgets/Github.widget.tsx";
+import VanillaGithub from "../widgets/Github.widget.ts";
 
 async function fetchData(url: URL) {
   const data = await fetch(`${url.origin}/api/hello-world`);
@@ -34,6 +35,8 @@ export default function Page({ data }: RouteComponentProps<HelloData>) {
       <hr />
       <VueGithub username="aui" />
       <ReactGithub username="aui" />
+      <VueGithub username="guybedford" />
+      <VanillaGithub username="aui" />
     </BaseLayout>
   );
 }

@@ -1,5 +1,5 @@
 import type { Handlers, Meta, RouteComponentProps } from "@web-widget/react";
-import VueCounter from "../widgets/Counter.widget.vue";
+import Github from "../widgets/Github.widget.vue?as=tsx";
 import BaseLayout from "../components/BaseLayout.tsx";
 
 interface GitHubResponse {
@@ -19,7 +19,9 @@ export const handler: Handlers<GitHubResponse> = {
     );
 
     if (!resp.ok) {
-      throw new Error(`An Error occurred`);
+      throw new Error(
+        `An Error occurred: ${JSON.stringify(await resp.json())}`
+      );
     }
 
     return ctx.render({
@@ -38,7 +40,7 @@ export default function Page({ data }: RouteComponentProps<GitHubResponse>) {
       <p>{login}</p>
       <div>
         <h2>Vue component:</h2>
-        <VueCounter name="Vue3 Counter" start={3} />
+        <Github username="aui" />
       </div>
     </BaseLayout>
   );
