@@ -1,6 +1,6 @@
 const placeholder = Symbol();
-const isDisplayContents = (element: Element) =>
-  getComputedStyle(element).display === "contents";
+const isBox = (element: Element) =>
+  ["contents", "none"].includes(getComputedStyle(element).display);
 
 type PlaceholderElement = Element & {
   [placeholder]?: boolean;
@@ -46,9 +46,12 @@ export const createVisibleObserver = (
     }
   };
 
-  if (isDisplayContents(element)) {
-    if (element.children.length) {
-      for (const child of element.children) {
+  if (isBox(element)) {
+    const children = Array.from(element.children).filter(
+      (node) => !isBox(node)
+    );
+    if (children.length) {
+      for (const child of children) {
         observer.observe(child);
       }
     } else {
