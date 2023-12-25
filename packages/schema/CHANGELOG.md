@@ -1,5 +1,12 @@
 # @web-widget/schema
 
+## 0.4.2
+
+### Patch Changes
+
+- Fixed an issue where status data serialized to the client may be duplicated.
+- Also supports state serialization of react, vue3, and vue2.
+
 ## 0.4.1
 
 ### Patch Changes

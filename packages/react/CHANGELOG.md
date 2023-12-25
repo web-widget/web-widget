@@ -1,5 +1,16 @@
 # @web-widget/react
 
+## 0.8.6
+
+### Patch Changes
+
+- Also supports state serialization of react, vue3, and vue2.
+- On the server side, add a timeout limit of up to 10 seconds for the react stream.
+- Updated dependencies
+  - @web-widget/web-widget@1.7.1
+  - @web-widget/schema@0.4.2
+  - @web-widget/vite@2.8.4
+
 ## 0.8.5
 
 ### Patch Changes

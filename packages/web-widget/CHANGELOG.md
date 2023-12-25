@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.7.1
+
+### Patch Changes
+
+- Avoid child elements without boxes, causing lazy loading to fail to start.
+- Fixed an issue where status data serialized to the client may be duplicated.
+- Also supports state serialization of react, vue3, and vue2.
+- Updated dependencies
+  - @web-widget/schema@0.4.2
+
 ## 1.7.0
 
 ### Minor Changes
