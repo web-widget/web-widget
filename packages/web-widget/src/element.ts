@@ -3,12 +3,11 @@ import type { Loader, WidgetRenderContext, Meta } from "./types";
 import { createIdleObserver } from "./utils/idle";
 import { createVisibleObserver } from "./utils/lazy";
 
-import { StateLayer } from "./state-layer";
+import { installStateLayer } from "./state-layer";
 import { LifecycleController } from "./modules/controller";
 import { WebWidgetUpdateEvent } from "./event";
 import { queueMicrotask } from "./utils/queue-microtask";
 import { triggerModulePreload } from "./utils/module-preload";
-import { callContext, useAllWidgetState } from "@web-widget/schema/helpers";
 
 declare const importShim: (src: string) => Promise<any>;
 let globalTimeouts = Object.create(null);
@@ -537,23 +536,8 @@ Object.assign(window, {
   HTMLWebWidgetElement,
 });
 
-queueMicrotask(() => {
-  const stateElement = document.querySelector(
-    `script[name="state\\:web-router"]`
-  ) as HTMLScriptElement;
-  const state = stateElement
-    ? JSON.parse(stateElement.textContent as string)
-    : {};
-
-  callContext(state, () => {
-    const currentState = self.stateLayer as unknown as undefined | any[];
-    const allState = useAllWidgetState();
-    self.stateLayer = new StateLayer((item) => Object.assign(allState, item));
-
-    if (currentState) {
-      self.stateLayer.push(...currentState);
-    }
-
+installStateLayer(() => {
+  queueMicrotask(() => {
     customElements.define("web-widget", HTMLWebWidgetElement);
   });
 });
@@ -561,7 +545,6 @@ queueMicrotask(() => {
 declare global {
   interface Window {
     HTMLWebWidgetElement: typeof HTMLWebWidgetElement;
-    stateLayer: StateLayer;
   }
   interface HTMLElementTagNameMap {
     "web-widget": HTMLWebWidgetElement;
