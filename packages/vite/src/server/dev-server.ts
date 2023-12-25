@@ -17,7 +17,7 @@ import { getMeta } from "./meta";
 import { resolve } from "import-meta-resolve";
 
 type DevModule = RouteModule & {
-  $source: string;
+  $source?: string;
 };
 
 export function webRouterDevServerPlugin(
@@ -227,10 +227,9 @@ function renderStyles(
       return res;
     }
 
-    if (context.module) {
-      const source = (context.module as DevModule).$source;
+    const source = (context?.module as DevModule).$source;
+    if (source) {
       const meta = await getMeta(source, viteServer);
-
       const url = new URL(context.request.url);
       const html = (await res.text()).replace(
         /(<\/head>)/,
