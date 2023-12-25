@@ -3,6 +3,7 @@ import type { Loader, WidgetRenderContext, Meta } from "./types";
 import { createIdleObserver } from "./utils/idle";
 import { createVisibleObserver } from "./utils/lazy";
 
+import { StateLayer } from "./state-layer";
 import { LifecycleController } from "./modules/controller";
 import { WebWidgetUpdateEvent } from "./event";
 import { queueMicrotask } from "./utils/queue-microtask";
@@ -545,18 +546,12 @@ queueMicrotask(() => {
     : {};
 
   callContext(state, () => {
-    const data = self.stateLayer;
+    const currentState = self.stateLayer as unknown as undefined | any[];
     const allState = useAllWidgetState();
+    self.stateLayer = new StateLayer((item) => Object.assign(allState, item));
 
-    self.stateLayer = Object.assign([] as any[], {
-      push: function pushState(...list: any[]) {
-        list.forEach((item) => Object.assign(allState, item));
-        return Array.prototype.push.apply(self.stateLayer, list);
-      },
-    });
-
-    if (data) {
-      self.stateLayer.push(...data);
+    if (currentState) {
+      self.stateLayer.push(...currentState);
     }
 
     customElements.define("web-widget", HTMLWebWidgetElement);
@@ -566,7 +561,7 @@ queueMicrotask(() => {
 declare global {
   interface Window {
     HTMLWebWidgetElement: typeof HTMLWebWidgetElement;
-    stateLayer: any[] & { push: (...items: any[]) => number };
+    stateLayer: StateLayer;
   }
   interface HTMLElementTagNameMap {
     "web-widget": HTMLWebWidgetElement;
