@@ -1,5 +1,15 @@
 # @web-widget/vite
 
+## 2.8.4
+
+### Patch Changes
+
+- Fix the error that $source may be undefined in dev mode.
+- Updated dependencies
+  - @web-widget/web-widget@1.7.1
+  - @web-widget/schema@0.4.2
+  - @web-widget/web-router@0.7.4
+
 ## 2.8.3
 
 ### Patch Changes

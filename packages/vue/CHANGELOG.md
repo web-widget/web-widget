@@ -1,5 +1,16 @@
 # @web-widget/vue
 
+## 0.10.6
+
+### Patch Changes
+
+- Also supports state serialization of react, vue3, and vue2.
+- Updated dependencies
+  - @web-widget/web-widget@1.7.1
+  - @web-widget/schema@0.4.2
+  - @web-widget/vite@2.8.4
+  - @web-widget/html@0.1.7
+
 ## 0.10.5
 
 ### Patch Changes
