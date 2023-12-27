@@ -23,6 +23,10 @@
     {
       "pathname": "/github/:username",
       "module": "./routes/github.route.tsx"
+    },
+    {
+      "pathname": "/vue-router/:all?",
+      "module": "./routes/vue-router/index.route.tsx"
     }
   ],
   "fallbacks": [],

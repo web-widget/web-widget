@@ -27,7 +27,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "vue": "^2.7.14",
-    "vue-server-renderer": "^2.7.14"
+    "vue-server-renderer": "^2.7.14",
+    "vue-router": "^3.6.5"
   },
   "devDependencies": {
     "@types/koa": "^2.13.6",

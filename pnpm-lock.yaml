@@ -162,6 +162,9 @@ importers:
       vue:
         specifier: ^2.7.14
         version: 2.7.14
+      vue-router:
+        specifier: ^3.6.5
+        version: 3.6.5(vue@2.7.14)
       vue-server-renderer:
         specifier: ^2.7.14
         version: 2.7.14
@@ -14725,6 +14728,14 @@ packages:
       semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /vue-router@3.6.5(vue@2.7.14):
+    resolution: {integrity: sha512-VYXZQLtjuvKxxcshuRAwjHnciqZVoXAjTjcqBTz4rKc8qih9g9pI3hbDjmqXaHdgL3v8pV6P8Z335XvHzESxLQ==}
+    peerDependencies:
+      vue: ^2
+    dependencies:
+      vue: 2.7.14
     dev: false
 
   /vue-router@4.2.5(vue@3.3.4):
