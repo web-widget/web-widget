@@ -2,10 +2,7 @@ import type { Loader, WebWidgetContainerOptions } from "@web-widget/web-widget";
 import { parse } from "@web-widget/web-widget";
 import { h, defineComponent, defineAsyncComponent, useAttrs } from "vue";
 import type { Component, PropType } from "vue";
-
-export const __ENV__ = {
-  server: true,
-};
+import { IS_BROWSER } from "@web-widget/schema/helpers";
 
 export const WebWidget = /*#__PURE__*/ defineComponent({
   name: "WebWidget",
@@ -72,7 +69,7 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
           children,
         });
 
-        if (!__ENV__.server) {
+        if (IS_BROWSER) {
           console.warn(`Client components are experimental.`);
           await customElements.whenDefined(tag);
           const element = Object.assign(document.createElement(tag), props);

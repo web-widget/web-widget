@@ -5,15 +5,10 @@ import {
 import { Suspense, createSSRApp, h } from "vue";
 import { renderToWebStream, type SSRContext } from "vue/server-renderer";
 import type { CreateVueRenderOptions } from "./types";
-import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/server-helpers";
 export { useWidgetAsyncState as useWidgetState } from "@web-widget/schema/server-helpers";
-export * from "./web-widget";
-
-Reflect.defineProperty(__ENV__, "server", {
-  value: true,
-});
+export * from "./components";
 
 export interface VueRenderOptions {
   vue?: SSRContext;

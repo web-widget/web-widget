@@ -5,7 +5,6 @@ import {
 } from "@web-widget/schema/server-helpers";
 import type { ReactNode } from "react";
 import { createElement } from "react";
-import { __ENV__ } from "./web-widget";
 
 import type {
   ReactDOMServerReadableStream,
@@ -17,11 +16,7 @@ import type { CreateReactRenderOptions } from "./types";
 
 export * from "@web-widget/schema/server-helpers";
 export { useWidgetSyncState as useWidgetState } from "@web-widget/schema/server-helpers";
-export * from "./web-widget";
-
-Reflect.defineProperty(__ENV__, "server", {
-  value: true,
-});
+export * from "./components";
 
 function renderToReadableStream(
   vNode: ReactNode,

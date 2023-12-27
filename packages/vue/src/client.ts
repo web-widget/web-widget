@@ -5,15 +5,10 @@ import {
 import type { App } from "vue";
 import { Suspense, createApp, createSSRApp, h } from "vue";
 import type { CreateVueRenderOptions } from "./types";
-import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/client-helpers";
 export { useWidgetAsyncState as useWidgetState } from "@web-widget/schema/client-helpers";
-export * from "./web-widget";
-
-Reflect.defineProperty(__ENV__, "server", {
-  value: false,
-});
+export * from "./components";
 
 export const createVueRender = ({
   onCreatedApp = async () => {},

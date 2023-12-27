@@ -2,7 +2,7 @@
 
 interface WebWidgetSuspenseProps {
   fallback?: ReactNode;
-  experimental_loading?: "lazy" | "eager";
+  experimental_loading?: "lazy" | "eager" | "idle";
   renderStage?: "server" | "client";
   experimental_renderTarget?: "light" | "shadow";
 }

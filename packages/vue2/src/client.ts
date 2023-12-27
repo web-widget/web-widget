@@ -6,7 +6,7 @@ import Vue from "vue";
 import type { CreateVueRenderOptions } from "./types";
 
 export * from "@web-widget/schema/client-helpers";
-export * from "./web-widget";
+export * from "./components";
 
 export const createVueRender = ({
   onBeforeCreateApp = async () => ({}),
