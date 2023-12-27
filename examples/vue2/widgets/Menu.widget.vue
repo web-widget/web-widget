@@ -12,6 +12,9 @@
     <li><a href="/react-streaming">React: Streaming</a></li>
     <li><a href="/vue-streaming">Vue: Streaming</a></li>
     <li><a href="/github/aui">Github: Fetching data</a></li>
+    <li>
+      <a href="/vue-router">Using vue router</a>
+    </li>
   </ul>
 </template>
 
