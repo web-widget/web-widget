@@ -1,6 +1,0 @@
-{
-  "imports": {
-    "react": "https://ga.jspm.io/npm:react@18.2.0/index.js"
-  },
-  "scopes": {}
-}

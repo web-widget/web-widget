@@ -1,4 +1,5 @@
 packages:
-  - "examples/*"
+  - "examples"
+  - "examples/routes/*"
   - "packages/*"
   - "internal/*"

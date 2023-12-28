@@ -1,0 +1,116 @@
+{
+  "routes": [
+    {
+      "pathname": "/",
+      "module": "./routes/index.route.tsx"
+    },
+    {
+      "pathname": "/react-server-component",
+      "module": "./routes/react-server-component.route.tsx"
+    },
+    {
+      "pathname": "/vue3-server-component",
+      "module": "./routes/(vue3)/vue-server-component.route.vue"
+    },
+    {
+      "pathname": "/vue2-server-component",
+      "module": "./routes/(vue2)/vue-server-component.route.vue"
+    },
+    {
+      "pathname": "/adding-interactivity",
+      "module": "./routes/adding-interactivity.route.tsx"
+    },
+    {
+      "pathname": "/client-only-component",
+      "module": "./routes/client-only-component.route.tsx"
+    },
+    {
+      "pathname": "/react-and-vue",
+      "module": "./routes/react-and-vue.route.tsx"
+    },
+    {
+      "pathname": "/fetching-data",
+      "module": "./routes/fetching-data.route.tsx"
+    },
+    {
+      "pathname": "/style",
+      "module": "./routes/style.route.tsx"
+    },
+    {
+      "pathname": "/meta",
+      "module": "./routes/meta.route.tsx"
+    },
+    {
+      "pathname": "/dynamic-routes/:name",
+      "module": "./routes/dynamic-routes.route.tsx"
+    },
+    {
+      "pathname": "/custom-handlers",
+      "name": "@custom-handlers",
+      "module": "./routes/custom-handlers.route.tsx"
+    },
+    {
+      "pathname": "/form",
+      "module": "./routes/form.route.tsx"
+    },
+    {
+      "pathname": "/fallback",
+      "module": "./routes/fallback.route.tsx"
+    },
+    {
+      "pathname": "/experimental-async-component",
+      "module": "./routes/experimental-async-component.route.tsx"
+    },
+    {
+      "pathname": "/react-streaming",
+      "module": "./routes/react-streaming.route.tsx"
+    },
+    {
+      "pathname": "/vue3-streaming",
+      "module": "./routes/(vue3)/vue-streaming.route.vue"
+    },
+    {
+      "pathname": "/vue2-streaming",
+      "module": "./routes/(vue2)/vue-streaming.route.vue"
+    },
+    {
+      "pathname": "/lit-html-template",
+      "module": "./routes/lit-html-template.route.ts"
+    },
+    {
+      "pathname": "/style",
+      "module": "./routes/style.route.tsx"
+    },
+    {
+      "pathname": "/api/hello-world",
+      "module": "./routes/api/hello-world.route.ts"
+    },
+    {
+      "pathname": "/vue3-router/:all?",
+      "module": "./routes/(vue3)/vue3-router/index.route.tsx"
+    },
+    {
+      "pathname": "/vue2-router/:all?",
+      "module": "./routes/(vue2)/vue2-router/index.route.tsx"
+    }
+  ],
+  "middlewares": [{
+    "pathname": "*",
+    "module": "./routes/_middleware.route.ts"
+  }],
+  "fallbacks": [
+    {
+      "status": 404,
+      "pathname": "/_404",
+      "module": "./routes/_404.route.tsx"
+    },
+    {
+      "status": 500,
+      "pathname": "/_500",
+      "module": "./routes/_500.route.tsx"
+    }
+  ],
+  "layout": {
+    "module": "./routes/_layout.ts"
+  }
+}
