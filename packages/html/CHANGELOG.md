@@ -1,5 +1,12 @@
 # @web-widget/html
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/schema@0.4.3
+
 ## 0.1.7
 
 ### Patch Changes

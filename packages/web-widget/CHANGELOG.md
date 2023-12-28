@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.7.2
+
+### Patch Changes
+
+- Fix the issue where loading="lazy" does not work in certain situations.
+- Updated dependencies
+  - @web-widget/schema@0.4.3
+
 ## 1.7.1
 
 ### Patch Changes

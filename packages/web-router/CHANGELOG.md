@@ -1,5 +1,13 @@
 # @web-widget/web-router
 
+## 0.7.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/schema@0.4.3
+  - @web-widget/html@0.1.8
+
 ## 0.7.4
 
 ### Patch Changes
