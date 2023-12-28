@@ -1,7 +1,7 @@
 import "./base-layout.css";
 
 import type { ComponentProps } from "react";
-import Menu from "@examples/vue3/Menu.widget.d.vue?as=jsx.js";
+import Menu from "@examples/vue3/Menu.widget.vue?as=jsx";
 
 export default function BaseLayout({ children }: ComponentProps<any>) {
   return (
