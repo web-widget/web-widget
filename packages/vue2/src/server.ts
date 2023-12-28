@@ -9,7 +9,7 @@ import { createRenderer } from "vue-server-renderer";
 import type { CreateVueRenderOptions } from "./types";
 
 export * from "@web-widget/schema/server-helpers";
-export * from "./web-widget";
+export * from "./components";
 
 /**
  * The thrown promise is not necessarily a real error,

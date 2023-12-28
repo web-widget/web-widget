@@ -2,10 +2,7 @@ import type { Loader, WebWidgetContainerOptions } from "@web-widget/web-widget";
 import { parse } from "@web-widget/web-widget";
 import { Suspense, createElement, lazy } from "react";
 import type { ReactNode } from "react";
-
-export const __ENV__ = {
-  server: true,
-};
+import { IS_BROWSER } from "@web-widget/schema/helpers";
 
 export interface WebWidgetProps {
   base?: WebWidgetContainerOptions["base"];
@@ -42,7 +39,7 @@ export /*#__PURE__*/ function WebWidget({
         children: "",
       });
 
-      if (!__ENV__.server) {
+      if (IS_BROWSER) {
         console.warn(`Client components are experimental.`);
         await customElements.whenDefined(tag);
         const element = Object.assign(document.createElement(tag), props);

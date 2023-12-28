@@ -44,6 +44,7 @@ export type {
   HttpError,
 } from "../types";
 
+export { IS_BROWSER } from "./env";
 export {
   type ComponentDescriptor,
   defineMeta,

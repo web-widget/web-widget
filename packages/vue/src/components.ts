@@ -9,11 +9,7 @@ import {
   // getCurrentInstance,
 } from "vue";
 import type { VNode, PropType } from "vue";
-// import { useWidgetState } from "@web-widget/schema/helpers";
-
-export const __ENV__ = {
-  server: true,
-};
+import { IS_BROWSER } from "@web-widget/schema/helpers";
 
 export const WebWidget = /*#__PURE__*/ defineComponent({
   name: "WebWidget",
@@ -71,7 +67,7 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
       children,
     });
 
-    if (!__ENV__.server) {
+    if (IS_BROWSER) {
       console.warn(`Client components are experimental.`);
       await customElements.whenDefined(tag);
       const element = Object.assign(document.createElement(tag), props);
@@ -153,19 +149,3 @@ export /*#__PURE__*/ function defineWebWidget(
     },
   });
 }
-
-// export function useState<T>(key: string, handler: () => T): T;
-// export function useState<T>(key: string, handler: () => Promise<T>): Promise<T>;
-// export function useState<T>(key: string, handler: () => T | Promise<T>) {
-//   return useWidgetState(key, function callback() {
-//     if (__ENV__.server) {
-//       const promise = handler();
-//       if (getCurrentInstance()) {
-//         onServerPrefetch(() => promise);
-//       }
-//       return promise;
-//     } else {
-//       return handler();
-//     }
-//   });
-// }

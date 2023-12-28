@@ -56,7 +56,12 @@ export const createVisibleObserver = (
       }
     } else {
       const placeholderElement = createPlaceholderElement();
-      observer.observe(element.appendChild(placeholderElement));
+
+      element.firstChild
+        ? element.insertBefore(placeholderElement, element.firstChild)
+        : element.appendChild(placeholderElement);
+
+      observer.observe(placeholderElement);
     }
   } else {
     observer.observe(element);

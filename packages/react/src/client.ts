@@ -7,15 +7,10 @@ import { createElement, StrictMode } from "react";
 import type { Root } from "react-dom/client";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import type { CreateReactRenderOptions } from "./types";
-import { __ENV__ } from "./web-widget";
 
 export * from "@web-widget/schema/client-helpers";
 export { useWidgetSyncState as useWidgetState } from "@web-widget/schema/client-helpers";
-export * from "./web-widget";
-
-Reflect.defineProperty(__ENV__, "server", {
-  value: false,
-});
+export * from "./components";
 
 export const createReactRender = ({
   onPrefetchData,
