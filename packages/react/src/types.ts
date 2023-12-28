@@ -1,7 +1,7 @@
 import type { Component } from "react";
 import type { ComponentProps, RenderContext } from "@web-widget/schema";
 
-export * from "./web-widget";
+export * from "./components";
 
 type JSONValue =
   | string
