@@ -2,9 +2,9 @@ import * as compiler from "vue/compiler-sfc";
 import vue2 from "@vitejs/plugin-vue2";
 // import type { Options } from "@vitejs/plugin-vue2";
 // import type { Plugin } from "vite";
-export { default as vue2WebWidgetPlugin } from "@web-widget/vue2/vite";
+import { default as _vue2WebWidgetPlugin } from "@web-widget/vue2/vite";
 
-export function vue2Plugin(options = {}) {
+export function vue2Plugin() {
   return [
     // {
     //   name: "#recover",
@@ -22,7 +22,16 @@ export function vue2Plugin(options = {}) {
     // },
     vue2({
       compiler,
-      ...options,
+      include: /\(vue2\)\/.*\.vue$/,
     }),
   ];
+}
+
+export function vue2WebWidgetPlugin() {
+  return _vue2WebWidgetPlugin({
+    toWebWidgets: {
+      include:
+        /\(vue2\)\/.*\.(route|widget).*\.vue(\?as=[^&]*|\?.*\.(ts|js))?$/,
+    },
+  });
 }

@@ -1,6 +1,19 @@
 import { default as vue3Plugin } from "@vitejs/plugin-vue";
-export { default as vueWebWidgetPlugin } from "@web-widget/vue/vite";
+import { default as vue3WebWidgetPlugin } from "@web-widget/vue/vite";
 
-export function vuePlugin(options) {
-  return [vue3Plugin(options)];
+export function vuePlugin() {
+  return [
+    vue3Plugin({
+      include: /\(vue3\)\/.*\.vue$/,
+    }),
+  ];
+}
+
+export function vueWebWidgetPlugin() {
+  return vue3WebWidgetPlugin({
+    toWebWidgets: {
+      include:
+        /\(vue3\)\/.*\.(route|widget).*\.vue(\?as=[^&]*|\?.*\.(ts|js))?$/,
+    },
+  });
 }
