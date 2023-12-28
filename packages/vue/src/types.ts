@@ -1,7 +1,7 @@
 import type { Component, App } from "vue";
 import type { ComponentProps, RenderContext } from "@web-widget/schema";
 
-export * from "./web-widget";
+export * from "./components";
 
 type JSONValue =
   | string

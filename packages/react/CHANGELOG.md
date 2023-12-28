@@ -1,5 +1,15 @@
 # @web-widget/react
 
+## 0.8.7
+
+### Patch Changes
+
+- Refactor components.
+- Updated dependencies
+  - @web-widget/web-widget@1.7.2
+  - @web-widget/schema@0.4.3
+  - @web-widget/vite@2.8.5
+
 ## 0.8.6
 
 ### Patch Changes

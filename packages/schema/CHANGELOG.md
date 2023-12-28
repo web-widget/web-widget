@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 0.4.3
+
+### Patch Changes
+
+- Refactor components.
+
 ## 0.4.2
 
 ### Patch Changes
