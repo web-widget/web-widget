@@ -17,7 +17,7 @@
     "build": "pnpm exec tsup && pnpm run html-minifier",
     "dev": "pnpm exec tsup --watch",
     "html-minifier": "babel dist/* --out-dir dist",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run test && pnpm run build"
   },
   "dependencies": {
     "@web-widget/html": "workspace:*",
