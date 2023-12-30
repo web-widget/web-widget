@@ -13,11 +13,11 @@ export default function vueWebWidgetPlugin({
     provide,
     toWebWidgets: {
       include: /\.(route|widget).*\.vue(\?.*)?$/,
+      exclude: /\?.*\.css$/,
       ...toWebWidgets,
     },
     toComponents: {
       include: /\.(widget)\.[^.]*$/,
-      // exclude: /.vue\?.*$/,
       includeImporter: /.*\.vue(\?.*\.(ts|js))?$/,
       ...toComponents,
     },
