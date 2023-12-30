@@ -1,5 +1,6 @@
 {
   "recommendations": [
-    "orta.vscode-jest"
+    "orta.vscode-jest",
+    "bierner.lit-html"
   ]
 }
