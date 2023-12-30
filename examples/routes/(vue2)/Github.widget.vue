@@ -1,6 +1,6 @@
 <script setup lang="ts">
-console.log("vue", Date.now());
-import { useWidgetSyncState } from "@web-widget/schema/helpers";
+console.log("vue2", Date.now());
+import { useWidgetState } from "@web-widget/vue2";
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -8,16 +8,16 @@ const props = defineProps({
 });
 
 const url = `https://api.github.com/users/${props.username}`;
-const cacheKey = url + '@vue';
+const cacheKey = url + '@vue2';
 
-const data = useWidgetSyncState(cacheKey, async () => {
+const data = useWidgetState(cacheKey, async () => {
     console.log("[github]", "fetch..");
     const resp = await fetch(url);
     if (!resp.ok) {
         throw new Error(`[github] ${JSON.stringify(await resp.json())}`);
     }
     const { name, location, avatar_url } = await resp.json();
-    return { name, location, avatar_url, ["vue@</" + "script>"]: (Date.now()) };
+    return { name, location, avatar_url, ["vue2@</" + "script>"]: (Date.now()) };
 });
 
 const show = ref(false);

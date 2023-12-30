@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.0",
-    "@web-widget/vue": "workspace:*",
     "vite": "^4.4.9"
   }
 }

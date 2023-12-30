@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import BaseLayout from "./BaseLayout.vue"
-import ReactCounter from "../_components/Counter.widget";
 </script>
 
 <template>
   <BaseLayout>
-    <h1>Vue: Server component</h1>
-    <p>This is the server component of vue.</p>
-    <div><ReactCounter name="Vanilla Counter" :start="3" /></div>
+    <h1>Vue2: Server component</h1>
+    <p>This is the server component of vue2.</p>
   </BaseLayout>
 </template>

@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue2": "^2.3.1",
-    "@web-widget/vue": "workspace:*",
-    "vite": "^4.4.9"
+    "vite": "^4.4.9",
+    "import-meta-resolve": "^4.0.0"
   }
 }

@@ -1,37 +1,20 @@
 import * as compiler from "vue/compiler-sfc";
-import vue2 from "@vitejs/plugin-vue2";
-// import type { Options } from "@vitejs/plugin-vue2";
-// import type { Plugin } from "vite";
-import { default as _vue2WebWidgetPlugin } from "@web-widget/vue2/vite";
+import vue2Plugin from "@vitejs/plugin-vue2";
+import vue2WebWidgetPlugin from "@web-widget/vue2/vite";
 
-export function vue2Plugin() {
+export function vue2PresetsPlugin() {
   return [
-    // {
-    //   name: "#recover",
-    //   async config() {
-    //     return {
-    //       resolve: {
-    //         alias: [
-    //           // 避免 @vitejs/plugin-vue2 覆盖配置
-    //           // https://github.com/vitejs/vite-plugin-vue2/blob/main/src/index.ts#L103
-    //           { find: "vue", replacement: "vue" },
-    //         ],
-    //       },
-    //     };
-    //   },
-    // },
-    vue2({
+    vue2Plugin({
       compiler,
-      include: /\(vue2\)\/.*\.vue$/,
+      include: /\(vue2\)\/.*\.vue(\?.*)?$/,
+    }),
+    vue2WebWidgetPlugin({
+      toWebWidgets: {
+        include: /\(vue2\)\/.*\.(route|widget).*\.vue(\?.*)?$/,
+      },
+      toComponents: {
+        includeImporter: /\(vue2\)\/.*\.vue(\?.*\.(ts|js))?$/,
+      },
     }),
   ];
-}
-
-export function vue2WebWidgetPlugin() {
-  return _vue2WebWidgetPlugin({
-    toWebWidgets: {
-      include:
-        /\(vue2\)\/.*\.(route|widget).*\.vue(\?as=[^&]*|\?.*\.(ts|js))?$/,
-    },
-  });
 }

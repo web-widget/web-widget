@@ -2,6 +2,7 @@ import type { Handlers, RouteComponentProps } from "@web-widget/react";
 import type { HelloData } from "./api/hello-world.route.ts";
 import BaseLayout from "./_components/BaseLayout.tsx";
 import VueGithub from "@examples/vue3/Github.widget.vue?as=jsx";
+import Vue2Github from "@examples/vue2/Github.widget.vue?as=jsx";
 import ReactGithub from "./_components/Github.widget.tsx";
 import VanillaGithub from "./_components/Github.widget.ts";
 
@@ -34,8 +35,8 @@ export default function Page({ data }: RouteComponentProps<HelloData>) {
       </ul>
       <hr />
       <VueGithub username="aui" />
+      <Vue2Github username="guybedford" />
       <ReactGithub username="aui" />
-      <VueGithub username="guybedford" />
       <VanillaGithub username="aui" />
     </BaseLayout>
   );
