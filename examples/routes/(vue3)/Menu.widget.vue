@@ -10,13 +10,7 @@
       <a href="/vue3-server-component">Vue3: Server component</a>
     </li>
     <li>
-      <a href="/vue2-server-component">Vue2: Server component</a>
-    </li>
-    <li>
       <a href="/dynamic-routes/@web-widget">Dynamic routes</a>
-    </li>
-    <li>
-      <a href="/adding-interactivity">Adding interactivity</a>
     </li>
     <li>
       <a href="/react-and-vue">Using react and vue together</a>
@@ -53,6 +47,9 @@
     </li>
     <li>
       <a href="/vue2-router">Using vue2 router</a>
+    </li>
+    <li>
+      <a target="_blank" href="/vue2-server-component">Vue2: Server component</a>
     </li>
     <li>
       <a target="_blank" href="/lit-html-template">

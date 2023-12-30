@@ -17,10 +17,6 @@
       "module": "./routes/(vue2)/vue-server-component.route.vue"
     },
     {
-      "pathname": "/adding-interactivity",
-      "module": "./routes/adding-interactivity.route.tsx"
-    },
-    {
       "pathname": "/client-only-component",
       "module": "./routes/client-only-component.route.tsx"
     },
