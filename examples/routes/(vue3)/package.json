@@ -1,0 +1,28 @@
+{
+  "name": "@examples/vue3",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "exports": {
+    "./*": "./*"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@web-widget/react": "workspace:*",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/vue": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "vite": "^4.4.9"
+  }
+}

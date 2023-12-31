@@ -110,7 +110,6 @@ export /*#__PURE__*/ function defineWebWidget(
   loader: Loader,
   options: DefineWebWidgetOptions
 ) {
-  console.warn(`defineWebWidget of vue2 is an experimental feature.`);
   return defineComponent({
     name: "WebWidgetSuspense",
     props: {
