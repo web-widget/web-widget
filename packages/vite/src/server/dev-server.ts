@@ -16,6 +16,8 @@ import type { ResolvedBuilderConfig, ServerEntryModule } from "../types";
 import { getMeta } from "./meta";
 import { resolve } from "import-meta-resolve";
 
+const WEB_ROUTER = "@web-widget/web-router";
+
 type DevModule = RouteModule & {
   $source?: string;
 };
@@ -32,10 +34,10 @@ export function webRouterDevServerPlugin(
       return {
         appType: "custom",
         optimizeDeps: {
-          exclude: [],
+          exclude: [WEB_ROUTER],
         },
         ssr: {
-          noExternal: [],
+          noExternal: [WEB_ROUTER],
         },
       };
     },
@@ -43,12 +45,12 @@ export function webRouterDevServerPlugin(
       root = config.root;
     },
     async configureServer(viteServer) {
-      autoRestartServer(viteServer);
-
       return async () => {
         try {
           viteServer.middlewares.use(
-            await createViteWebRouterMiddleware(builderConfig, viteServer)
+            autoRestartMiddleware(viteServer, () =>
+              createViteWebRouterMiddleware(builderConfig, viteServer)
+            )
           );
         } catch (error) {
           viteServer.ssrFixStacktrace(error);
@@ -100,19 +102,26 @@ export function webRouterDevServerPlugin(
   };
 }
 
-function autoRestartServer(viteServer: ViteDevServer) {
+function autoRestartMiddleware(
+  viteServer: ViteDevServer,
+  callback: () => Promise<Middleware>
+) {
+  let middleware;
   const send = viteServer.ws.send;
+
   viteServer.ws.send = function () {
     // @see https://github.com/vitejs/vite/blob/b361ffa6724d9191fc6a581acfeab5bc3ebbd931/packages/vite/src/node/server/hmr.ts#L194
     if (arguments[0]?.type === "full-reload") {
-      return viteServer.restart().then(() => {
-        // @ts-ignore
-        send.apply(this, arguments);
-      });
+      middleware = undefined;
     }
     // @ts-ignore
     send.apply(this, arguments);
   };
+
+  return async function autoRestartMiddleware(...args) {
+    middleware ??= await callback();
+    return middleware(...args);
+  } as Middleware;
 }
 
 async function createViteWebRouterMiddleware(
@@ -130,7 +139,7 @@ async function createViteWebRouterMiddleware(
     pathname: "*",
     name: "@web-widget/vite:meta",
     module: {
-      handler: renderStyles(manifest, viteServer),
+      handler: renderStyles(viteServer),
     },
   });
 
@@ -144,6 +153,11 @@ async function createViteWebRouterMiddleware(
     dev: true,
     baseAsset: viteServer.config.base,
     baseModule: baseModulePath,
+    defaultRenderOptions: {
+      react: {
+        awaitAllReady: true,
+      },
+    },
   });
 
   const nodeAdapter = new NodeAdapter({
@@ -216,12 +230,9 @@ async function loadManifest(routemap: string, viteServer: ViteDevServer) {
   }, {} as ManifestResolved);
 }
 
-function renderStyles(
-  manifest: ManifestResolved,
-  viteServer: ViteDevServer
-): MiddlewareHandler {
+function renderStyles(viteServer: ViteDevServer): MiddlewareHandler {
   return async (context: PageContext, next) => {
-    const res = await next();
+    let res = await next();
 
     if (!res.headers.get("content-type")?.startsWith("text/html;")) {
       return res;
@@ -240,7 +251,7 @@ function renderStyles(
         html
       );
 
-      return new Response(viteHtml, {
+      res = new Response(viteHtml, {
         status: res.status,
         statusText: res.statusText,
         headers: res.headers,
