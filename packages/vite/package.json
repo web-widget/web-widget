@@ -16,7 +16,8 @@
   "scripts": {
     "build": "pnpm exec tsup",
     "dev": "pnpm exec tsup --watch",
-    "prepublishOnly": "pnpm run build"
+    "test": "vitest src",
+    "prepublishOnly": "pnpm run test && pnpm run build"
   },
   "dependencies": {
     "@rollup/pluginutils": "^5.0.3",
@@ -36,7 +37,8 @@
     "@types/node": "^20.4.8",
     "rollup": "^3.3.0",
     "tsup": "6.1.2",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "vitest": "^1.1.1"
   },
   "peerDependencies": {
     "@web-widget/schema": "workspace:*",

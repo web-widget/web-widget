@@ -12,7 +12,7 @@ export default function Page(props: RouteComponentProps) {
   const fullPath = `${url.pathname}${url.search}`;
   return (
     <BaseLayout>
-      <h1>Vue router</h1>
+      <h1>Vue2 router</h1>
       <App route={fullPath} />
     </BaseLayout>
   );

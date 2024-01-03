@@ -68,7 +68,7 @@ export function webWidgetToComponentPlugin(
           exclude,
           excludeImporter,
           includeImporter = component,
-          include = /\.(widget|route)\.[^.]*$/,
+          include = /(?:\.|@)(?:widget|route)\.[^.]*$/,
           manifest,
           provide,
         } = options;

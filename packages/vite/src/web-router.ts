@@ -33,7 +33,8 @@ export function webRouterPlugin(config: BuilderUserConfig = {}): Plugin[] {
       ({ root = process.cwd(), resolve: { extensions } = {} }) => {
         Object.values(builderConfig.input).forEach((value) => {
           Object.entries(value).forEach(([k, v]) => {
-            value[k] = resolveRealFile(v as string, root, extensions);
+            value[k] =
+              typeof v === "string" ? resolveRealFile(v, root, extensions) : v;
           });
         });
 

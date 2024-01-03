@@ -42,7 +42,9 @@ function patchVuePluginConfig(): Plugin {
 export default defineConfig({
   plugins: [
     patchVuePluginConfig(),
-    webRouterPlugin(),
+    webRouterPlugin({
+      filesystemRouting: true,
+    }),
     reactPresetsPlugin(),
     vuePresetsPlugin(),
     vue2PresetsPlugin(),

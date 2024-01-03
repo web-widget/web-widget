@@ -12,11 +12,11 @@ export default function reactWebWidgetPlugin({
   return webWidgetPlugin({
     provide,
     toWebWidgets: {
-      include: ["**/*.route.tsx", "**/*.widget.tsx"],
+      include: /(?:\.|@)(?:route|widget).*\.tsx(\?.*)?$/,
       ...toWebWidgets,
     },
     toComponents: {
-      include: /\.(widget)\.[^.]*$/,
+      include: /(?:\.|@)widget\.[^.]*$/,
       includeImporter: ["**/*.tsx"],
       ...toComponents,
     },

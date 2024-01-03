@@ -3,6 +3,7 @@ import type { BuilderUserConfig, ResolvedBuilderConfig } from "./types";
 
 export const BUILDER_CONFIG_DEFAULTS: ResolvedBuilderConfig = {
   autoFullBuild: true,
+  filesystemRouting: false,
   input: {
     client: {
       entry: "entry.client",
@@ -11,6 +12,11 @@ export const BUILDER_CONFIG_DEFAULTS: ResolvedBuilderConfig = {
     server: {
       entry: "entry.server",
       routemap: "routemap.server",
+    },
+    routes: {
+      dir: "routes",
+      basePathname: "/",
+      trailingSlash: false,
     },
   },
   output: {
@@ -27,6 +33,10 @@ export const BuilderConfigSchema = z.object({
     .boolean()
     .optional()
     .default(BUILDER_CONFIG_DEFAULTS.autoFullBuild),
+  filesystemRouting: z
+    .boolean()
+    .optional()
+    .default(BUILDER_CONFIG_DEFAULTS.filesystemRouting),
   input: z
     .object({
       client: z
@@ -52,6 +62,15 @@ export const BuilderConfigSchema = z.object({
             .string()
             .optional()
             .default(BUILDER_CONFIG_DEFAULTS.input.server.routemap),
+        })
+        .optional()
+        .default({}),
+      routes: z
+        .object({
+          dir: z
+            .string()
+            .optional()
+            .default(BUILDER_CONFIG_DEFAULTS.input.routes.dir),
         })
         .optional()
         .default({}),
