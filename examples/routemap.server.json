@@ -1,19 +1,9 @@
 {
   "routes": [
     {
-      "name": "Vue2Vue2routerRoute",
-      "pathname": "/vue2-router",
-      "module": "routes/(vue2)/vue2-router/index@route.tsx"
-    },
-    {
       "name": "Vue2Vue2servercomponentRoute",
       "pathname": "/vue2-server-component",
       "module": "routes/(vue2)/vue2-server-component@route.vue"
-    },
-    {
-      "name": "Vue3Vue3routerRoute",
-      "pathname": "/vue3-router",
-      "module": "routes/(vue3)/vue3-router/index@route.tsx"
     },
     {
       "name": "Vue3Vue3servercomponentRoute",
@@ -94,6 +84,11 @@
       "name": "DynamicroutesNameRoute",
       "pathname": "/dynamic-routes/:name",
       "module": "routes/dynamic-routes/[name]@route.tsx"
+    },
+    {
+      "name": "Vue3Vue3router$0Route",
+      "pathname": "/vue3-router/:all*",
+      "module": "routes/(vue3)/vue3-router/[...all]@route.tsx"
     },
     {
       "name": "ApiHelloworldRoute",
