@@ -1,4 +1,4 @@
-import BaseLayout from "./_components/BaseLayout";
+import BaseLayout from "./(components)/BaseLayout";
 
 export default function Page() {
   return (

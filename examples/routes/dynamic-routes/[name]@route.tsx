@@ -1,5 +1,5 @@
 import type { RouteComponentProps } from "@web-widget/react";
-import BaseLayout from "../_components/BaseLayout";
+import BaseLayout from "../(components)/BaseLayout";
 
 export default function Page(props: RouteComponentProps) {
   const { name } = props.params;

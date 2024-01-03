@@ -1,10 +1,10 @@
 import type { Handlers, RouteComponentProps, Meta } from "@web-widget/react";
 import { renderMetaToString, mergeMeta } from "@web-widget/react";
-import ReactCounter from "./_components/Counter@widget.tsx";
-import "./_css/style.css";
+import ReactCounter from "./(components)/Counter@widget.tsx";
+import "./(css)/style.css";
 // eslint-disable-next-line import/no-unresolved
 import icon from "../public/favicon.svg";
-import BaseLayout from "./_components/BaseLayout.tsx";
+import BaseLayout from "./(components)/BaseLayout.tsx";
 
 type MetaPageData = {
   allMetadata: Meta;

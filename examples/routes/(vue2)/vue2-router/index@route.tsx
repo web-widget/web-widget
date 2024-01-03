@@ -1,5 +1,5 @@
 import type { RouteComponentProps } from "@web-widget/react";
-import BaseLayout from "../../_components/BaseLayout";
+import BaseLayout from "../../(components)/BaseLayout";
 import App from "./App@widget?as=jsx";
 
 export const meta = {

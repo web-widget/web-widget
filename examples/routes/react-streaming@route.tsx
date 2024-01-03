@@ -1,5 +1,5 @@
-import BaseLayout from "./_components/BaseLayout.js";
-import ReactWaitDemo from "./_components/Wait@widget.js";
+import BaseLayout from "./(components)/BaseLayout.js";
+import ReactWaitDemo from "./(components)/Wait@widget.js";
 import VueWaitDemo from "@examples/vue3/Wait@widget.vue?as=tsx";
 
 const Loading = (

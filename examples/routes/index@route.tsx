@@ -1,5 +1,5 @@
-import styles from "./_css/index.module.css";
-import BaseLayout from "./_components/BaseLayout";
+import styles from "./(css)/index.module.css";
+import BaseLayout from "./(components)/BaseLayout";
 
 export const meta = {
   title: "Hello, Web Widget",

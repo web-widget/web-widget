@@ -1,6 +1,6 @@
 import { type RouteComponentProps } from "@web-widget/react";
 import type { HelloData } from "./api/hello-world@route.ts";
-import BaseLayout from "./_components/BaseLayout.tsx";
+import BaseLayout from "./(components)/BaseLayout.tsx";
 
 async function fetchData(url: URL) {
   const data = await fetch(`${url.origin}/api/hello-world`);
