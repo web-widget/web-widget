@@ -16,7 +16,7 @@
   "scripts": {
     "build": "pnpm exec tsup",
     "dev": "pnpm exec tsup --watch",
-    "test": "vitest src",
+    "test": "vitest run src",
     "prepublishOnly": "pnpm run test && pnpm run build"
   },
   "dependencies": {
