@@ -135,7 +135,9 @@ async function createViteWebRouterMiddleware(
     await rewriteRoutemap(
       builderConfig.input.server.routemap,
       builderConfig.input.routes.dir,
-      viteServer.config.root
+      viteServer.config.root,
+      builderConfig.input.routes.basePathname,
+      builderConfig.input.routes.trailingSlash
     );
   }
 

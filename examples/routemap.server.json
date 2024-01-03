@@ -36,14 +36,14 @@
       "module": "routes/index.route.tsx"
     },
     {
-      "name": "LithtmltemplateRoute",
-      "pathname": "/lit-html-template",
-      "module": "routes/lit-html-template.route.ts"
-    },
-    {
       "name": "MetaRoute",
       "pathname": "/meta",
       "module": "routes/meta.route.tsx"
+    },
+    {
+      "name": "LithtmltemplateRoute",
+      "pathname": "/lit-html-template",
+      "module": "routes/lit-html-template.route.ts"
     },
     {
       "name": "ReactandvueRoute",

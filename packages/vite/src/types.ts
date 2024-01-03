@@ -4,12 +4,6 @@ import type { BuilderConfigSchema } from "./config";
 import type { Manifest, StartOptions } from "@web-widget/web-router";
 
 export interface Input {
-  routes: {
-    // enabled: boolean;
-    dir: string;
-    basePathname: string;
-    trailingSlash: boolean;
-  };
   client: {
     entry: string;
     importmap: string;
@@ -17,6 +11,12 @@ export interface Input {
   server: {
     entry: string;
     routemap: string;
+  };
+  routes: {
+    // enabled: boolean;
+    dir: string;
+    basePathname: string;
+    trailingSlash: boolean;
   };
 }
 
