@@ -10,7 +10,7 @@ export async function walkRoutes(
 ) {
   const sourceFiles: RouteSourceFile[] = [];
   await walkRouteDir(sourceFiles, exclude, normalizePath(routesDir));
-  return sourceFiles;
+  return sourceFiles.sort((a, b) => a.path.localeCompare(b.path, "en"));
 }
 
 async function walkRouteDir(
