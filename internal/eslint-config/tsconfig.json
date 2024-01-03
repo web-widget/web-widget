@@ -1,14 +1,22 @@
 {
-  "include": ["*.ts"],
-  "exclude": ["dist", "node_modules"],
   "compilerOptions": {
-    "lib": ["ES2019", "WebWorker"],
-    "composite": false,
-    "moduleResolution": "Bundler",
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "composite": false,
     "declaration": true,
+    "lib": [
+      "ES2019",
+      "WebWorker"
+    ],
+    "moduleResolution": "Bundler",
     "rootDir": ".",
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "exclude": [
+    "dist",
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*"
+  ]
 }

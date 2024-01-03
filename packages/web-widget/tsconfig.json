@@ -1,24 +1,33 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
-    "target": "ES2015",
-    "module": "ES2020",
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "ESNext.AsyncIterable"],
-    "esModuleInterop": true,
     "allowJs": false,
-    "strict": true,
-    "strictNullChecks": true,
+    "allowSyntheticDefaultImports": false,
+    "declaration": true,
+    "declarationMap": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable",
+      "ESNext.AsyncIterable"
+    ],
+    "module": "ES2020",
     "moduleResolution": "Bundler",
+    "outDir": "./dist",
+    "removeComments": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": false,
-    "declaration": true,
-    "declarationMap": false,
+    "strict": true,
+    "strictNullChecks": true,
     "stripInternal": true,
-    "allowSyntheticDefaultImports": false,
-    "forceConsistentCasingInFileNames": true,
-    "removeComments": false
+    "target": "ES2015"
   },
-  "include": ["./src"],
-  "exclude": []
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "./src/**/*"
+  ]
 }

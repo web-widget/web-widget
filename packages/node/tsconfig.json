@@ -1,18 +1,26 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "module": "es2020",
-    "target": "es2020",
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "strict": true,
     "declaration": true,
-    "noUnusedLocals": true,
-    "skipLibCheck": true,
     "esModuleInterop": true,
-    "useUnknownInCatchVariables": false,
-    "lib": ["ESNext", "WebWorker"],
-    "paths": {}
+    "lib": [
+      "ESNext",
+      "WebWorker"
+    ],
+    "module": "es2020",
+    "moduleResolution": "Bundler",
+    "noUnusedLocals": true,
+    "paths": {},
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2020",
+    "useUnknownInCatchVariables": false
   },
-  "include": ["src/**/*"]
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*"
+  ]
 }

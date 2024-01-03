@@ -1,28 +1,40 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
-    "target": "ES2020",
-    "module": "esnext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
     "allowJs": false,
-    "strict": true,
-    "strictNullChecks": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationMap": false,
+    "emitDeclarationOnly": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "esnext",
     "moduleResolution": "Bundler",
+    "removeComments": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": false,
-    "declaration": true,
-    "declarationMap": false,
+    "strict": true,
+    "strictNullChecks": true,
     "stripInternal": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "removeComments": false,
-    "emitDeclarationOnly": true,
-    "allowImportingTsExtensions": true,
-    "jsx": "react-jsx",
-    "types": ["vite/client", "@web-widget/react/globals"]
+    "target": "ES2020",
+    "types": [
+      "vite/client",
+      "@web-widget/react/globals"
+    ]
   },
-  "include": ["**/*"],
-  "exclude": [".backup/**/*", "tsup.config.ts", "node_modules"],
+  "exclude": [
+    ".backup/**/*",
+    "tsup.config.ts",
+    "node_modules"
+  ],
+  "include": [
+    "**/*"
+  ]
 }

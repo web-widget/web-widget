@@ -1,14 +1,23 @@
 {
-  "include": ["./src/**/*"],
-  "exclude": [],
   "compilerOptions": {
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
     "composite": false,
-    "moduleResolution": "Bundler",
-    "strict": true,
     "declaration": true,
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable",
+      "WebWorker"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "rootDir": "./src",
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "./src/**/*"
+  ]
 }
