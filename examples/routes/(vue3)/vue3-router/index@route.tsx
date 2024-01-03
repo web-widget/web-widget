@@ -1,6 +1,6 @@
 import type { RouteComponentProps } from "@web-widget/react";
 import BaseLayout from "../../_components/BaseLayout";
-import App from "./App.widget?as=jsx";
+import App from "./App@widget?as=jsx";
 
 export const meta = {
   title: "Hello, Vue Router",

@@ -1,6 +1,6 @@
 import { render, html } from "@web-widget/html";
 import type { RouteComponentProps } from "@web-widget/html";
-import type { HelloData } from "./api/hello-world.route";
+import type { HelloData } from "./api/hello-world@route";
 
 export { render };
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { defineComponent, h } from "vue"
 import BaseLayout from "./BaseLayout.vue";
-import ReactWaitDemo from "../_components/Wait.widget.jsx";
-import VueWaitDemo from "./Wait.widget.vue";
+import ReactWaitDemo from "../_components/Wait@widget.jsx";
+import VueWaitDemo from "./Wait@widget.vue";
 const dev = import.meta.env.DEV;
 // const Loading = defineComponent({
 //   template: `<div style="background: #f3f3f3; padding: 20px">Loading..</div>`
@@ -30,4 +30,4 @@ const Loading = h("div", { style: "background: #f3f3f3; padding: 20px" }, "Loadi
     <ReactWaitDemo :fallback="Loading" id="demo:5" />
   </BaseLayout>
 </template>
-../_components/Wait.widget.js
+../_components/Wait@widget.js

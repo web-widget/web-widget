@@ -12,7 +12,7 @@ export default function vue2WebWidgetPlugin({
   return webWidgetPlugin({
     provide,
     toWebWidgets: {
-      include: /(?:\.|@)(route|widget).*\.vue(\?.*)?$/,
+      include: /(?:\.|@)(route|widget).*\.vue(?:\?.*)?$/,
       exclude: /\?.*\.css$/,
       ...toWebWidgets,
     },

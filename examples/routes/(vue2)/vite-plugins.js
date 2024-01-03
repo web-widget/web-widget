@@ -10,10 +10,10 @@ export function vue2PresetsPlugin() {
     }),
     vue2WebWidgetPlugin({
       toWebWidgets: {
-        include: /\(vue2\)\/.*\.(route|widget).*\.vue(\?.*)?$/,
+        include: /\(vue2\)\/.*(?:\.|@)(route|widget).*\.vue(?:\?.*)?$/,
       },
       toComponents: {
-        includeImporter: /\(vue2\)\/.*\.vue(\?.*\.(ts|js))?$/,
+        includeImporter: /\(vue2\)\/.*\.vue(\?.*\.(?:ts|js))?$/,
       },
     }),
   ];

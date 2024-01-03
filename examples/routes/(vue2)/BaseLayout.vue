@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import "../_css/base-layout.css";
-import Menu from "./Menu.widget.vue";
+import Menu from "./Menu@widget.vue";
 </script>
 <template>
     <div>
