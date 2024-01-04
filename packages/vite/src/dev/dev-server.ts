@@ -15,7 +15,7 @@ import type { Plugin, ViteDevServer } from "vite";
 import type { ResolvedBuilderConfig, ServerEntryModule } from "../types";
 import { getMeta } from "./meta";
 import { resolve } from "import-meta-resolve";
-import { rewriteRoutemap } from "./routing";
+import { fileSystemRouteGenerator } from "./routing";
 
 const WEB_ROUTER = "@web-widget/web-router";
 
@@ -46,13 +46,34 @@ export function webRouterDevServerPlugin(
       root = config.root;
     },
     async configureServer(viteServer) {
+      const [webRouter, restartWebRouter] = autoRestartMiddleware(
+        viteServer,
+        () => viteWebRouterMiddleware(builderConfig, viteServer)
+      );
+
+      if (builderConfig.filesystemRouting) {
+        const {
+          dir: routesPath,
+          basePathname,
+          trailingSlash,
+        } = builderConfig.input.routes;
+        const { routemap: routemapPath } = builderConfig.input.server;
+        fileSystemRouteGenerator({
+          basePathname,
+          root,
+          routemapPath,
+          routesPath,
+          trailingSlash,
+          update(padding) {
+            restartWebRouter(padding);
+          },
+          watcher: viteServer.watcher,
+        });
+      }
+
       return async () => {
         try {
-          viteServer.middlewares.use(
-            autoRestartMiddleware(viteServer, () =>
-              createViteWebRouterMiddleware(builderConfig, viteServer)
-            )
-          );
+          viteServer.middlewares.use(webRouter);
         } catch (error) {
           viteServer.ssrFixStacktrace(error);
           console.error(`Service startup failed: ${error.stack}`);
@@ -108,6 +129,7 @@ function autoRestartMiddleware(
   callback: () => Promise<Middleware>
 ) {
   let middleware;
+  let promise = Promise.resolve();
   const send = viteServer.ws.send;
 
   viteServer.ws.send = function () {
@@ -119,27 +141,25 @@ function autoRestartMiddleware(
     send.apply(this, arguments);
   };
 
-  return async function autoRestartMiddleware(...args) {
+  async function autoRestartMiddleware(...args: any[]) {
+    await promise;
     middleware ??= await callback();
     return middleware(...args);
-  } as Middleware;
+  }
+
+  function restart(padding: Promise<any>) {
+    promise = padding;
+    middleware = undefined;
+  }
+
+  return [autoRestartMiddleware, restart];
 }
 
-async function createViteWebRouterMiddleware(
+async function viteWebRouterMiddleware(
   builderConfig: ResolvedBuilderConfig,
   viteServer: ViteDevServer
 ): Promise<Middleware> {
   const baseModulePath = path.join(viteServer.config.root, path.sep);
-
-  if (builderConfig.filesystemRouting) {
-    await rewriteRoutemap(
-      builderConfig.input.server.routemap,
-      builderConfig.input.routes.dir,
-      viteServer.config.root,
-      builderConfig.input.routes.basePathname,
-      builderConfig.input.routes.trailingSlash
-    );
-  }
 
   const manifest = await loadManifest(
     builderConfig.input.server.routemap,
@@ -147,7 +167,7 @@ async function createViteWebRouterMiddleware(
   );
 
   manifest.middlewares ??= [];
-  manifest.middlewares.push({
+  manifest.middlewares.unshift({
     pathname: "*",
     name: "@web-widget/vite:meta",
     module: {
