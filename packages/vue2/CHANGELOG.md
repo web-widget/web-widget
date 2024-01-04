@@ -1,5 +1,18 @@
 # @web-widget/vue2
 
+## 0.9.0
+
+### Minor Changes
+
+- Add file system routing feature.
+- Let vue2 and vue3 run at the same time.
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @web-widget/vite@2.9.0
+
 ## 0.8.7
 
 ### Patch Changes
