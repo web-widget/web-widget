@@ -1,5 +1,12 @@
 # @web-widget/vite
 
+## 2.9.0
+
+### Minor Changes
+
+- Add file system routing feature.
+- Improve vite performance.
+
 ## 2.8.5
 
 ### Patch Changes
