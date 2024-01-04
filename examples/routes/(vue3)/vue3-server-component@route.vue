@@ -4,7 +4,7 @@ import BaseLayout from "./BaseLayout.vue"
 
 <template>
   <BaseLayout>
-    <h1>Vue: Server component</h1>
+    <h1>Vue3: Server component</h1>
     <p>This is the server component of vue.</p>
   </BaseLayout>
 </template>

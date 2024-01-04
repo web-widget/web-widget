@@ -12,6 +12,12 @@ export interface Input {
     entry: string;
     routemap: string;
   };
+  routes: {
+    // enabled: boolean;
+    dir: string;
+    basePathname: string;
+    trailingSlash: boolean;
+  };
 }
 
 export interface Output {
@@ -24,6 +30,7 @@ export interface Output {
 
 export interface ResolvedBuilderConfig {
   autoFullBuild: boolean;
+  filesystemRouting: boolean;
   input: Input;
   output: Output;
 }

@@ -1,9 +1,9 @@
-import ReactCounter from "./_components/Counter.widget.tsx";
-import VueCounter from "@examples/vue3/Counter.widget.vue?as=jsx";
-import Vue2Counter from "@examples/vue2/Counter.widget.vue?as=jsx";
-import VanillaCounter from "./_components/CounterVanilla.widget.ts";
+import ReactCounter from "./(components)/Counter@widget.tsx";
+import VueCounter from "@examples/vue3/Counter@widget.vue?as=jsx";
+import Vue2Counter from "@examples/vue2/Counter@widget.vue?as=jsx";
+import VanillaCounter from "./(components)/CounterVanilla@widget.ts";
 import type { Meta } from "@web-widget/react";
-import BaseLayout from "./_components/BaseLayout.tsx";
+import BaseLayout from "./(components)/BaseLayout.tsx";
 
 export const meta: Meta = {
   title: "Hello, Web Widget",

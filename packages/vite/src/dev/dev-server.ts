@@ -15,6 +15,7 @@ import type { Plugin, ViteDevServer } from "vite";
 import type { ResolvedBuilderConfig, ServerEntryModule } from "../types";
 import { getMeta } from "./meta";
 import { resolve } from "import-meta-resolve";
+import { rewriteRoutemap } from "./routing";
 
 const WEB_ROUTER = "@web-widget/web-router";
 
@@ -129,6 +130,17 @@ async function createViteWebRouterMiddleware(
   viteServer: ViteDevServer
 ): Promise<Middleware> {
   const baseModulePath = path.join(viteServer.config.root, path.sep);
+
+  if (builderConfig.filesystemRouting) {
+    await rewriteRoutemap(
+      builderConfig.input.server.routemap,
+      builderConfig.input.routes.dir,
+      viteServer.config.root,
+      builderConfig.input.routes.basePathname,
+      builderConfig.input.routes.trailingSlash
+    );
+  }
+
   const manifest = await loadManifest(
     builderConfig.input.server.routemap,
     viteServer
