@@ -1,120 +1,118 @@
 {
   "routes": [
     {
-      "name": "Vue2Vue2servercomponentRoute",
-      "pathname": "/vue2-server-component",
-      "module": "routes/(vue2)/vue2-server-component@route.vue"
-    },
-    {
-      "name": "Vue3Vue3servercomponentRoute",
-      "pathname": "/vue3-server-component",
-      "module": "routes/(vue3)/vue3-server-component@route.vue"
-    },
-    {
-      "name": "Vue3Vue3streamingRoute",
-      "pathname": "/vue3-streaming",
-      "module": "routes/(vue3)/vue3-streaming@route.vue"
-    },
-    {
-      "name": "ClientonlycomponentRoute",
       "pathname": "/client-only-component",
+      "name": "$1ClientonlycomponentRoute",
       "module": "routes/client-only-component@route.tsx"
     },
     {
-      "name": "CustomhandlersRoute",
       "pathname": "/custom-handlers",
+      "name": "$1CustomhandlersRoute",
       "module": "routes/custom-handlers@route.tsx"
     },
     {
-      "name": "ExperimentalasynccomponentRoute",
       "pathname": "/experimental-async-component",
+      "name": "$1ExperimentalasynccomponentRoute",
       "module": "routes/experimental-async-component@route.tsx"
     },
     {
-      "name": "FallbackRoute",
       "pathname": "/fallback",
+      "name": "$1FallbackRoute",
       "module": "routes/fallback@route.tsx"
     },
     {
-      "name": "FetchingdataRoute",
       "pathname": "/fetching-data",
+      "name": "$1FetchingdataRoute",
       "module": "routes/fetching-data@route.tsx"
     },
     {
-      "name": "FormRoute",
       "pathname": "/form",
+      "name": "$1FormRoute",
       "module": "routes/form@route.tsx"
     },
     {
-      "name": "IndexRoute",
       "pathname": "/",
+      "name": "$1$0Route",
       "module": "routes/index@route.tsx"
     },
     {
-      "name": "LithtmltemplateRoute",
       "pathname": "/lit-html-template",
+      "name": "$1LithtmltemplateRoute",
       "module": "routes/lit-html-template@route.ts"
     },
     {
-      "name": "MetaRoute",
       "pathname": "/meta",
+      "name": "$1MetaRoute",
       "module": "routes/meta@route.tsx"
     },
     {
-      "name": "ReactandvueRoute",
       "pathname": "/react-and-vue",
+      "name": "$1ReactandvueRoute",
       "module": "routes/react-and-vue@route.tsx"
     },
     {
-      "name": "ReactservercomponentRoute",
       "pathname": "/react-server-component",
+      "name": "$1ReactservercomponentRoute",
       "module": "routes/react-server-component@route.tsx"
     },
     {
-      "name": "ReactstreamingRoute",
       "pathname": "/react-streaming",
+      "name": "$1ReactstreamingRoute",
       "module": "routes/react-streaming@route.tsx"
     },
     {
-      "name": "StyleRoute",
       "pathname": "/style",
+      "name": "$1StyleRoute",
       "module": "routes/style@route.tsx"
     },
     {
-      "name": "DynamicroutesNameRoute",
       "pathname": "/dynamic-routes/:name",
+      "name": "$2DynamicroutesNameRoute",
       "module": "routes/dynamic-routes/[name]@route.tsx"
     },
     {
-      "name": "Vue3Vue3router$0Route",
+      "pathname": "/vue2-server-component",
+      "name": "$1Vue2servercomponentRoute",
+      "module": "routes/(vue2)/vue2-server-component@route.vue"
+    },
+    {
+      "pathname": "/vue3-server-component",
+      "name": "$1Vue3servercomponentRoute",
+      "module": "routes/(vue3)/vue3-server-component@route.vue"
+    },
+    {
+      "pathname": "/vue3-streaming",
+      "name": "$1Vue3streamingRoute",
+      "module": "routes/(vue3)/vue3-streaming@route.vue"
+    },
+    {
       "pathname": "/vue3-router/:all*",
+      "name": "$2Vue3routerAllRoute",
       "module": "routes/(vue3)/vue3-router/[...all]@route.tsx"
     },
     {
-      "name": "ApiHelloworldRoute",
       "pathname": "/api/hello-world",
+      "name": "$2ApiHelloworldRoute",
       "module": "routes/api/hello-world@route.ts"
     }
   ],
   "middlewares": [
     {
-      "name": "Middlewares$0Middleware",
       "pathname": "/:all*",
+      "name": "$1AllMiddleware",
       "module": "routes/(middlewares)/[...all]@middleware.ts"
     }
   ],
   "fallbacks": [
     {
       "name": "$404Fallback",
-      "status": 404,
-      "pathname": "/_404",
-      "module": "routes/_404@route.tsx"
+      "module": "routes/_404@route.tsx",
+      "status": 404
     },
     {
       "name": "$500Fallback",
-      "status": 500,
-      "pathname": "/_500",
-      "module": "routes/_500@route.tsx"
+      "module": "routes/_500@route.tsx",
+      "status": 500
     }
   ],
   "layout": {

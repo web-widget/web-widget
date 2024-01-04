@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import type { RouteSourceFile } from "./types";
 import { normalizePath } from "./fs";
 import { getSourceFile } from "./source-file";
@@ -9,14 +9,20 @@ export async function walkRoutes(
   exclude: string[] = ["node_modules"]
 ) {
   const sourceFiles: RouteSourceFile[] = [];
-  await walkRouteDir(sourceFiles, exclude, normalizePath(routesDir));
-  return sourceFiles.sort((a, b) => a.path.localeCompare(b.path, "en"));
+  await walkRouteDir(
+    sourceFiles,
+    exclude,
+    normalizePath(routesDir),
+    normalizePath(routesDir)
+  );
+  return sourceFiles.sort((a, b) => a.pathname.localeCompare(b.pathname, "en"));
 }
 
 async function walkRouteDir(
   sourceFiles: RouteSourceFile[],
   exclude: string[],
-  dir: string
+  dir: string,
+  root: string
 ) {
   const dirItemNames = await fs.promises.readdir(dir);
 
@@ -25,24 +31,23 @@ async function walkRouteDir(
       .filter((itemName) => !exclude.includes(itemName))
       .map(async (itemName) => {
         let stat;
-        const path = normalizePath(join(dir, itemName));
+        const source = normalizePath(join(dir, itemName));
 
         try {
-          stat = await fs.promises.stat(path);
+          stat = await fs.promises.stat(source);
         } catch (e) {
           return;
         }
 
         if (stat.isDirectory()) {
-          await walkRouteDir(sourceFiles, exclude, path);
+          await walkRouteDir(sourceFiles, exclude, source, root);
         } else {
           const sourceFileName = getSourceFile(itemName);
           if (sourceFileName !== null) {
             sourceFiles.push({
               ...sourceFileName,
-              base: itemName,
-              path,
-              dir,
+              pathname: join(relative(root, dir), sourceFileName.name),
+              source,
             });
           }
         }

@@ -1,7 +1,6 @@
 export interface RouteSourceFile extends RouteSourceFileName {
-  dir: string;
-  path: string;
-  base: string;
+  pathname: string;
+  source: string;
 }
 
 export interface RouteSourceFileName {
