@@ -69,6 +69,10 @@
       "module": "routes/(vue3)/vue3-streaming@route.vue"
     },
     {
+      "pathname": "/vue2-router/:all*",
+      "module": "routes/(vue2)/vue2-router/[...all]@route.tsx"
+    },
+    {
       "pathname": "/vue3-router/:all*",
       "module": "routes/(vue3)/vue3-router/[...all]@route.tsx"
     },
