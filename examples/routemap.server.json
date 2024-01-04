@@ -2,121 +2,98 @@
   "routes": [
     {
       "pathname": "/client-only-component",
-      "name": "$1ClientonlycomponentRoute",
       "module": "routes/client-only-component@route.tsx"
     },
     {
       "pathname": "/custom-handlers",
-      "name": "$1CustomhandlersRoute",
       "module": "routes/custom-handlers@route.tsx"
     },
     {
       "pathname": "/experimental-async-component",
-      "name": "$1ExperimentalasynccomponentRoute",
       "module": "routes/experimental-async-component@route.tsx"
     },
     {
       "pathname": "/fallback",
-      "name": "$1FallbackRoute",
       "module": "routes/fallback@route.tsx"
     },
     {
       "pathname": "/fetching-data",
-      "name": "$1FetchingdataRoute",
       "module": "routes/fetching-data@route.tsx"
     },
     {
       "pathname": "/form",
-      "name": "$1FormRoute",
       "module": "routes/form@route.tsx"
     },
     {
       "pathname": "/",
-      "name": "$1$0Route",
       "module": "routes/index@route.tsx"
     },
     {
       "pathname": "/lit-html-template",
-      "name": "$1LithtmltemplateRoute",
       "module": "routes/lit-html-template@route.ts"
     },
     {
       "pathname": "/meta",
-      "name": "$1MetaRoute",
       "module": "routes/meta@route.tsx"
     },
     {
       "pathname": "/react-and-vue",
-      "name": "$1ReactandvueRoute",
       "module": "routes/react-and-vue@route.tsx"
     },
     {
       "pathname": "/react-server-component",
-      "name": "$1ReactservercomponentRoute",
       "module": "routes/react-server-component@route.tsx"
     },
     {
       "pathname": "/react-streaming",
-      "name": "$1ReactstreamingRoute",
       "module": "routes/react-streaming@route.tsx"
     },
     {
       "pathname": "/style",
-      "name": "$1StyleRoute",
       "module": "routes/style@route.tsx"
     },
     {
       "pathname": "/dynamic-routes/:name",
-      "name": "$2DynamicroutesNameRoute",
       "module": "routes/dynamic-routes/[name]@route.tsx"
     },
     {
       "pathname": "/vue2-server-component",
-      "name": "$1Vue2servercomponentRoute",
       "module": "routes/(vue2)/vue2-server-component@route.vue"
     },
     {
       "pathname": "/vue3-server-component",
-      "name": "$1Vue3servercomponentRoute",
       "module": "routes/(vue3)/vue3-server-component@route.vue"
     },
     {
       "pathname": "/vue3-streaming",
-      "name": "$1Vue3streamingRoute",
       "module": "routes/(vue3)/vue3-streaming@route.vue"
     },
     {
       "pathname": "/vue3-router/:all*",
-      "name": "$2Vue3routerAllRoute",
       "module": "routes/(vue3)/vue3-router/[...all]@route.tsx"
     },
     {
       "pathname": "/api/hello-world",
-      "name": "$2ApiHelloworldRoute",
       "module": "routes/api/hello-world@route.ts"
     }
   ],
   "middlewares": [
     {
       "pathname": "/:all*",
-      "name": "$1AllMiddleware",
       "module": "routes/(middlewares)/[...all]@middleware.ts"
     }
   ],
   "fallbacks": [
     {
-      "name": "$404Fallback",
       "module": "routes/_404@route.tsx",
       "status": 404
     },
     {
-      "name": "$500Fallback",
       "module": "routes/_500@route.tsx",
       "status": 500
     }
   ],
   "layout": {
-    "name": "RootLayout",
     "module": "routes/_root@layout.ts"
   }
 }

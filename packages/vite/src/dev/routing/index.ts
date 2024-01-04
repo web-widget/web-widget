@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import { walkRoutes } from "./walk-routes-dir";
 import { pathToPattern, sortRoutePaths } from "./extract";
 import type { ManifestJSON } from "@web-widget/web-router";
-import { createFileId, getPathnameFromDirPath, normalizePath } from "./fs";
+import { /*createFileId,*/ getPathnameFromDirPath, normalizePath } from "./fs";
 import type { RouteSourceFile } from "./types";
 
 export async function rewriteRoutemap(
@@ -34,7 +34,7 @@ export async function rewriteRoutemap(
             ).slice(1)
           )
         : undefined;
-    const name = createFileId(pathname ?? item.name, item.type);
+    //const name = createFileId(pathname ?? item.name, item.type);
     const module = normalizePath(path.relative(root, item.source));
     const status =
       item.type === "fallback"
@@ -43,7 +43,7 @@ export async function rewriteRoutemap(
 
     return {
       pathname,
-      name,
+      //name,
       module,
       status,
     };
