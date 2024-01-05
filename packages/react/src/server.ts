@@ -67,10 +67,10 @@ export const createReactRender = ({
         reactRenderOptions.signal = signal;
       }
 
-      reactRenderOptions.onError = (e) => {
+      reactRenderOptions.onError = (e, i) => {
         error = e;
         if (onError) {
-          onError(e);
+          onError(e, i);
         } else if (!awaitAllReady) {
           console.error(`[@web-widget/react]`, e);
         }
