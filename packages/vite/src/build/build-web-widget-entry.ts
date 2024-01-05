@@ -415,7 +415,7 @@ function generateServerRoutemap(
     `          'typeof importShim === "function"',`,
     `            '? modules.map(moduleName => importShim(moduleName))',`,
     `            ': modules.map(moduleName => import(moduleName))'`,
-    `        ].join("\\n")`,
+    `        ].join("")`,
     `      }]`,
     `    })`,
     `  });`,
