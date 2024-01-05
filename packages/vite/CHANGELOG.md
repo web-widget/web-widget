@@ -1,5 +1,11 @@
 # @web-widget/vite
 
+## 2.10.0
+
+### Minor Changes
+
+- Eliminate whitespace characters in page script tags.
+
 ## 2.9.0
 
 ### Minor Changes
