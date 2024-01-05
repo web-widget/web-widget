@@ -15,26 +15,32 @@ function reactPresetsPlugin() {
 function patchVuePluginConfig(): Plugin {
   return {
     name: "patchVuePluginConfig",
-    async config(config) {
-      const dedupe = config?.resolve?.dedupe;
+    enforce: "post",
+    async config() {
+      return {
+        optimizeDeps: {
+          // Avoid version conflicts caused by `optimizeDeps`.
+          exclude: ["vue", "vue-router"],
+        },
+      };
+    },
+    async configResolved(config) {
+      const alias = config.resolve.alias;
+      const dedupe = config.resolve.dedupe;
+
       if (dedupe) {
         // Patch vue3 plugin config.
         // @see https://github.com/vitejs/vite-plugin-vue/blob/main/packages/plugin-vue/src/index.ts#L147
         dedupe.splice(dedupe.indexOf("vue"), 1);
       }
 
-      return {
-        optimizeDeps: {
-          // Avoid version conflicts caused by `optimizeDeps`.
-          exclude: ["vue", "vue-router"],
-        },
-        resolve: {
-          dedupe,
-          // Patch vue2 plugin config.
-          // @see https://github.com/vitejs/vite-plugin-vue2/blob/main/src/index.ts#L103
-          alias: { find: "vue", replacement: "vue" },
-        },
-      };
+      if (alias) {
+        // Patch vue2 plugin config.
+        // @see https://github.com/vitejs/vite-plugin-vue2/blob/main/src/index.ts#L103
+        if (Array.isArray(alias)) {
+          alias.splice(alias.findIndex(({ find }) => find === "vue"));
+        }
+      }
     },
   };
 }
