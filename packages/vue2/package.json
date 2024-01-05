@@ -40,17 +40,17 @@
     "@web-widget/vite": "workspace:*",
     "@web-widget/schema": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "vue": "^2.7.14",
+    "vue": "^2.7.16",
     "vue-server-renderer": "^2.7.14"
   },
   "devDependencies": {
     "@types/node": "^20.5.7",
     "tsup": "^7.0.0",
     "typescript": "^5.0.4",
-    "vite": "^4.4.9"
+    "vite": "^5.0.11"
   },
   "peerDependencies": {
-    "vue": "^2.7.14",
+    "vue": "^2.7.16",
     "vue-server-renderer": "^2.7.14"
   },
   "publishConfig": {
