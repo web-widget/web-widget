@@ -176,9 +176,10 @@ export function webWidgetToComponentPlugin(
                   importer: id,
                 });
 
-            const clientModuleExpression = ssr
-              ? JSON.stringify(clientModuleId)
-              : `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
+            const clientModuleExpression =
+              ssr || dev
+                ? JSON.stringify(clientModuleId)
+                : `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
             const clientContainerOptions = {
               name: componentName,
             };
