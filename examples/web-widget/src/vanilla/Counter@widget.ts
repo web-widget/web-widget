@@ -4,8 +4,13 @@ import type { WidgetRenderContext } from "@web-widget/schema";
 export const render = (context: WidgetRenderContext) => {
   if (import.meta.env.SSR) {
     return context.module.default(context.data);
-  } else if (Reflect.get(context, "recovering")) {
+  } else {
     const container = Reflect.get(context, "container") as HTMLElement;
+
+    if (!Reflect.get(context, "recovering")) {
+      container.innerHTML = context.module.default(context.data);
+    }
+
     const root = container.querySelector("[data-root]") as HTMLElement;
     const count = container.querySelector("[data-count]") as HTMLElement;
 
@@ -39,12 +44,10 @@ function compressHTML(html: string) {
 }
 
 export default function CounterVanilla(props: CounterProps) {
-  if (import.meta.env.SSR) {
-    return compressHTML(`
-    <div class="counter" data-root>
-      <button data-action="-">-1</button>
-      <span class="count" data-count>${props.start}</span>
-      <button data-action="+">+1</button>
-    </div>`);
-  }
+  return compressHTML(`
+  <div class="counter" data-root>
+    <button data-action="-">-1</button>
+    <span class="count" data-count>${props.start}</span>
+    <button data-action="+">+1</button>
+  </div>`);
 }

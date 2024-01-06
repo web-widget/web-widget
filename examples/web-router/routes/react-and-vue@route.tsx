@@ -1,7 +1,7 @@
 import ReactCounter from "./(components)/Counter@widget.tsx";
 import VueCounter from "@examples/vue3/Counter@widget.vue?as=jsx";
 import Vue2Counter from "@examples/vue2/Counter@widget.vue?as=jsx";
-import VanillaCounter from "./(components)/CounterVanilla@widget.ts";
+import VanillaCounter from "./(components)/Counter@widget.ts?as=jsx";
 import type { Meta } from "@web-widget/react";
 import BaseLayout from "./(components)/BaseLayout.tsx";
 
@@ -15,7 +15,7 @@ export default function Page() {
       <h1>Using react and vue together</h1>
 
       <h2>React component:</h2>
-      <ReactCounter name="Vanilla Counter" start={3} />
+      <ReactCounter name="React Counter" start={3} />
 
       <h2>Vue3 component:</h2>
       <VueCounter name="Vue3 Counter" start={3} />

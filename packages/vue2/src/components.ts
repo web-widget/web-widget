@@ -70,11 +70,9 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
         });
 
         if (IS_BROWSER) {
-          console.warn(`Client components are experimental.`);
-          await customElements.whenDefined(tag);
-          const element = Object.assign(document.createElement(tag), props);
-          // @ts-ignore
-          await element.bootstrap();
+          throw new Error(
+            `Loading WebWidget in vue2 client component is not supported.`
+          );
         }
         return defineComponent({
           render(h) {

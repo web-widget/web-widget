@@ -4,8 +4,8 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 
 import ReactCounter from "./Counter@widget.tsx";
-import VueCounter from "./Counter@widget.vue?as=jsx";
-import VanillaCounter from "./CounterVanilla@widget.ts";
+import VueCounter from "../vue/Counter@widget.vue?as=jsx";
+import VanillaCounter from "../vanilla/Counter@widget.ts";
 
 const l = lazy<any>(async () => {
   console.log(999);
@@ -36,15 +36,14 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div>
-        {/* <h2>React component:</h2>
+        <h2>React component:</h2>
         <ReactCounter name="React Counter" start={3} />
 
         <h2>Vue3 component:</h2>
         <VueCounter name="Vue3 Counter" start={3} />
 
         <h2>Vanilla component:</h2>
-        <VanillaCounter name="Vanilla Counter" start={3} /> */}
-        <Lazy name="React Counter" start={3} />
+        <VanillaCounter name="Vanilla Counter" start={3} />
       </div>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>

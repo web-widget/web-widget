@@ -68,16 +68,21 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
     });
 
     if (IS_BROWSER) {
-      console.warn(`Client components are experimental.`);
       await customElements.whenDefined(tag);
-      const element = Object.assign(document.createElement(tag), props);
+      let element = document.createElement(tag);
+      Object.entries(attrs).forEach(([name, value]) => {
+        element.setAttribute(name, value);
+      });
       // @ts-ignore
       await element.bootstrap();
+      // @ts-ignore
+      element = null;
     }
 
     return () =>
       h(tag, {
         ...attrs,
+        data: props.data,
         innerHTML,
       });
   },
@@ -98,6 +103,7 @@ export /*#__PURE__*/ function defineWebWidget(
 ) {
   return defineComponent({
     name: "WebWidgetSuspense",
+    inheritAttrs: false,
     props: {
       fallback: {
         type: Object as PropType<VNode>,

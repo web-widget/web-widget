@@ -8,7 +8,6 @@ export const render = (context: WidgetRenderContext) => {
     const container = Reflect.get(context, "container") as HTMLElement;
 
     if (!Reflect.get(context, "recovering")) {
-      console.log(context.data);
       container.innerHTML = context.module.default(context.data);
     }
 
