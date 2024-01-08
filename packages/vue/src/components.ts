@@ -82,7 +82,7 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
     return () =>
       h(tag, {
         ...attrs,
-        data: props.data,
+        data: IS_BROWSER ? props.data : attrs.data,
         innerHTML,
       });
   },

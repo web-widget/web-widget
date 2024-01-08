@@ -12,13 +12,14 @@ export default function vue2WebWidgetPlugin({
   return webWidgetPlugin({
     provide,
     toWebWidgets: {
-      include: /(?:\.|@)(route|widget).*\.vue(?:\?.*)?$/,
-      exclude: /\?.*\.css$/,
+      include: /(?:\.|@)(?:route|widget)\.vue(?:\?.*)?$/,
+      exclude: /vue\?.*&lang\.(?:css|js|ts)$/,
       ...toWebWidgets,
     },
     toComponents: {
-      include: /(?:\.|@)widget\.[^.]*$/,
-      includeImporter: /.*\.vue(\?.*\.(?:ts|js))?$/,
+      include: /(?:\.|@)widget\..*$/,
+      exclude: /vue\?.*&lang\.(?:css|js|ts)$/,
+      includeImporter: /.*\.vue(?:\?.*)?$/,
       ...toComponents,
     },
   });

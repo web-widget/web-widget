@@ -4,7 +4,7 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 
 import ReactCounter from "./Counter@widget.tsx";
-import VueCounter from "../vue/Counter@widget.vue?as=jsx";
+import VueCounter from "../vue3/Counter@widget.vue?as=jsx";
 import VanillaCounter from "../vanilla/Counter@widget.ts";
 
 const l = lazy<any>(async () => {

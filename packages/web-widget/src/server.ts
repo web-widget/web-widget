@@ -209,6 +209,10 @@ export /*#__PURE__*/ async function parse(
     recovering: renderStage !== "client",
   });
 
+  if (attrs.data === "{}") {
+    delete attrs.data;
+  }
+
   return ["web-widget", attrs, result];
 }
 

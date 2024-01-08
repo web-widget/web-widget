@@ -6,14 +6,14 @@ export function vue2PresetsPlugin() {
   return [
     vue2Plugin({
       compiler,
-      include: /\(vue2\)\/.*\.vue(\?.*)?$/,
+      include: /\/\(vue2\)\/.*\.vue(?:\?.*)?$/,
     }),
     vue2WebWidgetPlugin({
       toWebWidgets: {
-        include: /\(vue2\)\/.*(?:\.|@)(route|widget).*\.vue(?:\?.*)?$/,
+        include: /\/\(vue2\)\/.*(?:\.|@)(route|widget)\.vue(?:\?.*)?$/,
       },
       toComponents: {
-        includeImporter: /\(vue2\)\/.*\.vue(\?.*\.(?:ts|js))?$/,
+        includeImporter: /\/\(vue2\)\/.*\.vue(?:\?.*)?$/,
       },
     }),
   ];
