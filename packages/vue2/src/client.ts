@@ -22,6 +22,10 @@ export const createVueRender = ({
       throw new Error(`Container required.`);
     }
 
+    if (component.__name) {
+      component.__name = component.__name.replace("@", "-");
+    }
+
     let app: Vue | null;
 
     return {

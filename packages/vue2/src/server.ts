@@ -64,6 +64,11 @@ export const createVueRender = ({
   return defineRender(async (context) => {
     const componentDescriptor = getComponentDescriptor(context);
     const { component, props } = componentDescriptor;
+
+    if (component.__name) {
+      component.__name = component.__name.replace("@", "-");
+    }
+
     const shellTag = "web-widget.shell";
     const state = onPrefetchData
       ? await onPrefetchData(context, component, props)

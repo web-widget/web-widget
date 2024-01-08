@@ -70,10 +70,22 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
         });
 
         if (IS_BROWSER) {
-          throw new Error(
-            `Loading WebWidget in vue2 client component is not supported.`
+          console.warn(
+            new Error(
+              `Loading WebWidget in vue2 client component is not supported.`
+            )
           );
+          await customElements.whenDefined(tag);
+          let element = document.createElement(tag);
+          Object.entries(attrs).forEach(([name, value]) => {
+            element.setAttribute(name, value);
+          });
+          // @ts-ignore
+          await element.bootstrap();
+          // @ts-ignore
+          element = null;
         }
+
         return defineComponent({
           render(h) {
             return h(tag, {
@@ -110,6 +122,7 @@ export /*#__PURE__*/ function defineWebWidget(
 ) {
   return defineComponent({
     name: "WebWidgetSuspense",
+    inheritAttrs: false,
     props: {
       fallback: {
         type: Object as PropType<Component>,

@@ -1,4 +1,5 @@
 <script  lang="ts">
+console.log('vue2 counter');
 export default {
   props:["name", "start"],
   data(){

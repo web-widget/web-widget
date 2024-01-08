@@ -51,6 +51,9 @@
       <a href="/vue3-import-widgets">Vue3: import widgets</a>
     </li>
     <li>
+      <a href="/vue2-import-widgets">Vue2: import widgets</a>
+    </li>
+    <li>
       <a target="_blank" href="/vue2-server-component">Vue2: Server component</a>
     </li>
     <li>

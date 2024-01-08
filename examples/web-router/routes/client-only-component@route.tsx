@@ -1,4 +1,4 @@
-import ReactCounter from "./(components)/Counter@widget.tsx";
+import ReactCounter from "./(components)/Counter@widget";
 import BaseLayout from "./(components)/BaseLayout.tsx";
 
 export default function Page() {

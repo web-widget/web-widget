@@ -6,21 +6,21 @@ export interface VueWebWidgetPluginOptions extends WebWidgetPluginOptions {}
 
 export default function vueWebWidgetPlugin({
   provide = "@web-widget/vue",
-  toWebWidgets = {},
-  toComponents = {},
+  export: exportWidget = {},
+  import: importWidget = {},
 }: VueWebWidgetPluginOptions = {}): Plugin[] {
   return webWidgetPlugin({
     provide,
-    toWebWidgets: {
+    export: {
       include: /(?:\.|@)(?:route|widget)\.vue(?:\?.*)?$/,
       exclude: /vue\?.*&lang\.(?:css|js|ts)$/,
-      ...toWebWidgets,
+      ...exportWidget,
     },
-    toComponents: {
+    import: {
       include: /(?:\.|@)widget\..*$/,
       exclude: /vue\?.*&lang\.(?:css|js|ts)$/,
       includeImporter: /.*\.vue(?:\?.*)?$/,
-      ...toComponents,
+      ...importWidget,
     },
   });
 }

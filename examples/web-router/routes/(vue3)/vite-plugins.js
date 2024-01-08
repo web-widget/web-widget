@@ -7,10 +7,10 @@ export function vuePresetsPlugin() {
       include: /\/\(vue3\)\/.*\.vue(?:\?.*)?$/,
     }),
     vue3WebWidgetPlugin({
-      toWebWidgets: {
-        include: /\/\(vue3\)\/.*(?:\.|@)(route|widget)\.vue(?:\?.*)?$/,
+      export: {
+        include: /\/\(vue3\)\/.*@(route|widget)\.vue(?:\?.*)?$/,
       },
-      toComponents: {
+      import: {
         includeImporter: /\/\(vue3\)\/.*\.vue(?:\?.*)?$/,
       },
     }),

@@ -3,9 +3,9 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 
-import ReactCounter from "./Counter@widget.tsx";
+import ReactCounter from "./Counter@widget";
 import VueCounter from "../vue3/Counter@widget.vue?as=jsx";
-import VanillaCounter from "../vanilla/Counter@widget.ts";
+import VanillaCounter from "../vanilla/Counter@widget";
 
 const l = lazy<any>(async () => {
   console.log(999);

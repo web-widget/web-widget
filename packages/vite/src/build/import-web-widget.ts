@@ -15,7 +15,7 @@ const globalCache: Set<string> = new Set();
 const parseComponentName = (code: string) =>
   code.match(/import\s+([a-zA-Z$_]\w*)\s+/)?.[1];
 
-export interface WebWidgetToComponentPluginOptions {
+export interface ImportWebWidgetPluginOptions {
   cache?: Set<string>;
   /** @deprecated */
   component?: FilterPattern;
@@ -45,8 +45,8 @@ export interface WebWidgetToComponentPluginOptions {
  * ...
  * <MyComponent title="My component" />
  */
-export function webWidgetToComponentPlugin(
-  options: WebWidgetToComponentPluginOptions
+export function importWebWidgetPlugin(
+  options: ImportWebWidgetPluginOptions
 ): Plugin[] {
   let dev = false;
   let root: string;
@@ -60,7 +60,7 @@ export function webWidgetToComponentPlugin(
 
   return [
     {
-      name: "builder:web-widget-to-component",
+      name: "builder:import-web-widget",
       async config(userConfig, { command }) {
         const ssrBuild = !!userConfig.build?.ssr;
         const {
@@ -68,7 +68,7 @@ export function webWidgetToComponentPlugin(
           exclude,
           excludeImporter,
           includeImporter = component,
-          include = /(?:\.|@)(?:widget|route)\.[^.]*$/,
+          include = /(?:\.|@)(?:widget|route)\..*$/,
           manifest,
           provide,
         } = options;

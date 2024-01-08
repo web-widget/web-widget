@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import ReactCounter from "../react/Counter@widget.tsx";
+import ReactCounter from "../react/Counter@widget";
 import VueCounter from "./Counter@widget.vue?as=jsx";
-import VanillaCounter from "../vanilla/Counter@widget.ts";
+import VanillaCounter from "../vanilla/Counter@widget";
 </script>
 
 <template>

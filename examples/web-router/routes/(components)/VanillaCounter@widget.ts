@@ -44,6 +44,7 @@ function compressHTML(html: string) {
 }
 
 export default function CounterVanilla(props: CounterProps) {
+  console.log("vanilla counter");
   return compressHTML(`
   <div class="counter" data-root>
     <button data-action="-">-1</button>

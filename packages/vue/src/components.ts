@@ -132,6 +132,7 @@ export /*#__PURE__*/ function defineWebWidget(
     ) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const data = useAttrs() as WebWidgetContainerOptions["data"];
+
       return () =>
         h(
           Suspense,
