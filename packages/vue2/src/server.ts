@@ -69,7 +69,6 @@ export const createVueRender = ({
       component.__name = component.__name.replace("@", "-");
     }
 
-    const shellTag = "web-widget.shell";
     const state = onPrefetchData
       ? await onPrefetchData(context, component, props)
       : undefined;
@@ -79,22 +78,9 @@ export const createVueRender = ({
 
     const app = new Vue({
       render: (h) =>
-        h(
-          shellTag,
-          {
-            style: {
-              display: "contents",
-            },
-          },
-          [
-            h(component, {
-              attrs: {
-                "data-vue2root": "true",
-              },
-              props: mergedProps as Record<string, any>,
-            }),
-          ]
-        ),
+        h(component, {
+          props: mergedProps as Record<string, any>,
+        }),
       ...(await onBeforeCreateApp(context, component, mergedProps)),
     });
 
