@@ -32,7 +32,7 @@ export function exportWebWidgetPlugin(
         const ssrBuild = !!userConfig.build?.ssr;
         const {
           exclude,
-          include = /\.(widget|route)\.[^.]*$/,
+          include, // = /(?:\.|@)(?:widget|route)\..*$/,
           manifest,
           provide,
         } = options;

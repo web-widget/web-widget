@@ -1,3 +1,4 @@
+export const IS_BROWSER = false;
 export type {
   // WIDGET
   ServerWidgetModule as WidgetModule,
@@ -44,7 +45,6 @@ export type {
   HttpError,
 } from "../types";
 
-export { IS_BROWSER } from "./env";
 export {
   type ComponentDescriptor,
   defineMeta,

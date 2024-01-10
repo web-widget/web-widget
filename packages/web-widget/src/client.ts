@@ -50,7 +50,7 @@ export class WebWidgetRenderer {
 
     const attrs = unsafePropsToAttrs({
       ...options,
-      base: options.base?.startsWith("file://") ? undefined : options.base,
+      // base: options.base?.startsWith("file://") ? undefined : options.base,
       data: JSON.stringify(options.data),
       import: clientImport,
       recovering: false,

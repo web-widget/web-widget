@@ -68,7 +68,7 @@ export function importWebWidgetPlugin(
           exclude,
           excludeImporter,
           includeImporter = component,
-          include = /(?:\.|@)(?:widget|route)\..*$/,
+          include, // = /(?:\.|@)widget\..*$/,
           manifest,
           provide,
         } = options;
@@ -191,7 +191,7 @@ export function importWebWidgetPlugin(
               )};\n` +
               `const ${componentName} = ${definerName}(() => import(${JSON.stringify(
                 moduleName
-              )}), { base: import.meta.url, import: ${clientModuleExpression}, ${JSON.stringify(
+              )}), { /*base: import.meta.url,*/ import: ${clientModuleExpression}, ${JSON.stringify(
                 clientContainerOptions
               ).replaceAll(/^\{|\}$/g, "")} });\n`;
 

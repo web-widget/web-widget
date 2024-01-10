@@ -71,13 +71,9 @@ export /*#__PURE__*/ function defineWebWidget(
       const widget = new WebWidgetRenderer(loader as Loader, {
         ...options,
         data,
-        loader,
         loading: experimental_loading,
         renderStage,
         renderTarget: experimental_renderTarget,
-
-        // -----
-        fallback,
       });
       const instance = getCurrentInstance()!;
       (instance.proxy as any).$widget = widget;
