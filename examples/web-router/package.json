@@ -26,8 +26,8 @@
     "koa": "^2.14.2",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "canary",
+    "react-dom": "canary"
   },
   "devDependencies": {
     "@types/koa": "^2.13.6",

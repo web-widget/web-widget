@@ -1,5 +1,4 @@
 <script setup lang="ts">
-console.log('vue3 counter');
 import { ref } from 'vue';
 const props = defineProps(['name', 'start']);
 

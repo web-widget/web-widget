@@ -48,6 +48,9 @@
       <a href="/vue2-router">Using vue2 router</a>
     </li>
     <li>
+      <a href="/react-import-widgets">React: import widgets</a>
+    </li>
+    <li>
       <a href="/vue3-import-widgets">Vue3: import widgets</a>
     </li>
     <li>

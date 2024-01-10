@@ -17,8 +17,8 @@
     "@web-widget/react": "workspace:*",
     "@web-widget/schema": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "canary",
+    "react-dom": "canary",
     "vue": "^3.4.5"
   },
   "devDependencies": {

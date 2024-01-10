@@ -1,6 +1,6 @@
 import type { Loader, WebWidgetRendererOptions } from "@web-widget/web-widget";
 import { WebWidgetRenderer } from "@web-widget/web-widget";
-import { Suspense, createElement, lazy } from "react";
+import { Suspense, createElement, use } from "react";
 import type { ReactNode } from "react";
 import { IS_BROWSER } from "@web-widget/schema/helpers";
 
@@ -18,11 +18,17 @@ export interface WebWidgetProps {
   renderTarget?: WebWidgetRendererOptions["renderTarget"];
 }
 
-export /*#__PURE__*/ function WebWidget({
+type WebWidgetElement = {
+  localName: string;
+  attributes: Record<string, string>;
+  innerHTML: Promise<string>;
+};
+
+const renderWebWidget = function ({
   children,
   loader,
   ...props
-}: WebWidgetProps) {
+}: WebWidgetProps): WebWidgetElement {
   if (!loader) {
     throw new TypeError(`Missing loader.`);
   }
@@ -31,35 +37,32 @@ export /*#__PURE__*/ function WebWidget({
     throw new TypeError(`No support children.`);
   }
 
-  return /*#__PURE__*/ createElement(
-    lazy<any>(async () => {
-      const widget = new WebWidgetRenderer(loader as Loader, {
-        ...props,
-        // TODO children
-        children: "",
-      });
-      const tag = widget.localName;
-      const attrs = widget.attributes;
-      const innerHTML = await widget.renderInnerHTMLToString();
+  const widget = new WebWidgetRenderer(loader as Loader, {
+    ...props,
+    // TODO children
+    children: "",
+  });
+  const localName = widget.localName;
+  const attributes = widget.attributes;
+  const innerHTML = widget.renderInnerHTMLToString();
 
-      if (IS_BROWSER) {
-        throw new Error(
-          `Loading WebWidget in react client component is not supported.`
-        );
-      }
+  return {
+    localName,
+    attributes,
+    innerHTML,
+  };
+};
 
-      return {
-        default: /*#__PURE__*/ function WebWidgetContainer() {
-          return createElement(tag, {
-            ...attrs,
-            dangerouslySetInnerHTML: {
-              __html: innerHTML,
-            },
-          });
-        },
-      };
-    })
-  );
+function WebWidget({ localName, attributes, innerHTML }: WebWidgetElement) {
+  if (IS_BROWSER) {
+    // TODO Warning: Prop `dangerouslySetInnerHTML` did not match. Server"
+  }
+  return createElement(localName, {
+    ...attributes,
+    dangerouslySetInnerHTML: {
+      __html: use(innerHTML),
+    },
+  });
 }
 
 export interface DefineWebWidgetOptions {
@@ -93,15 +96,18 @@ export /*#__PURE__*/ function defineWebWidget(
   }: WebWidgetSuspenseProps) {
     return createElement(Suspense, {
       fallback,
-      children: createElement(WebWidget, {
-        ...options,
-        children,
-        data,
-        loader,
-        loading: experimental_loading,
-        renderStage,
-        renderTarget: experimental_renderTarget,
-      }),
+      children: createElement(
+        WebWidget,
+        renderWebWidget({
+          ...options,
+          children,
+          data,
+          loader,
+          loading: experimental_loading,
+          renderStage,
+          renderTarget: experimental_renderTarget,
+        })
+      ),
     });
   };
 }

@@ -53,6 +53,10 @@
       "module": "routes/style@route.tsx"
     },
     {
+      "pathname": "/react-import-widgets",
+      "module": "routes/react-import-widgets/index.route.tsx"
+    },
+    {
       "pathname": "/dynamic-routes/:name",
       "module": "routes/dynamic-routes/[name]@route.tsx"
     },
