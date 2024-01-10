@@ -1,119 +1,17 @@
-import type { Loader, WebWidgetContainerOptions } from "@web-widget/web-widget";
-import { parse } from "@web-widget/web-widget";
-import { h, defineComponent, defineAsyncComponent, useAttrs } from "vue";
+/* eslint-disable react-hooks/rules-of-hooks */
+import type { Loader, WebWidgetRendererOptions } from "@web-widget/web-widget";
+import { WebWidgetRenderer } from "@web-widget/web-widget";
+import { h, defineComponent, useAttrs, getCurrentInstance } from "vue";
 import type { Component, PropType } from "vue";
 import { IS_BROWSER } from "@web-widget/schema/helpers";
 
-export const WebWidget = /*#__PURE__*/ defineComponent({
-  name: "WebWidget",
-  props: {
-    base: {
-      type: String as PropType<WebWidgetContainerOptions["base"]>,
-    },
-    data: {
-      type: Object as PropType<WebWidgetContainerOptions["data"]>,
-      default: {},
-    },
-    import: {
-      type: String as PropType<WebWidgetContainerOptions["import"]>,
-    },
-    inactive: {
-      type: Boolean as PropType<WebWidgetContainerOptions["inactive"]>,
-      // NOTE: If the default value is not set, it will be false here.
-      default: undefined,
-    },
-    loader /**/: {
-      type: Function as PropType<Loader>,
-      required: true,
-    },
-    loading: {
-      type: String as PropType<WebWidgetContainerOptions["loading"]>,
-    },
-    meta: {
-      type: Object as PropType<WebWidgetContainerOptions["meta"]>,
-    },
-    name: {
-      type: String as PropType<WebWidgetContainerOptions["name"]>,
-    },
-    renderStage: {
-      type: String as PropType<WebWidgetContainerOptions["renderStage"]>,
-    },
-    renderTarget: {
-      type: String as PropType<WebWidgetContainerOptions["renderTarget"]>,
-      default: "light",
-    },
-
-    // -----
-    fallback: {
-      type: Object as PropType<Component>,
-      // NOTE: If the default value is not set, it will be false here.
-      default: undefined,
-    },
-  },
-  setup({ fallback, loader, ...props }, { slots }) {
-    if (!loader) {
-      throw new TypeError(`Missing loader.`);
-    }
-
-    if (Object.keys(slots).length > 0) {
-      throw new TypeError(`No support slot.`);
-    }
-
-    const AsyncComponent = defineAsyncComponent({
-      loader: async () => {
-        // TODO Render slot.default
-        const children = "";
-
-        const [tag, attrs, innerHTML] = await parse(loader as Loader, {
-          ...props,
-          children,
-        });
-
-        if (IS_BROWSER) {
-          console.warn(
-            new Error(
-              `Loading WebWidget in vue2 client component is not supported.`
-            )
-          );
-          await customElements.whenDefined(tag);
-          let element = document.createElement(tag);
-          Object.entries(attrs).forEach(([name, value]) => {
-            element.setAttribute(name, value);
-          });
-          // @ts-ignore
-          await element.bootstrap();
-          // @ts-ignore
-          element = null;
-        }
-
-        return defineComponent({
-          render(h) {
-            return h(tag, {
-              attrs: attrs,
-              domProps: {
-                innerHTML,
-              },
-            });
-          },
-        });
-      },
-      delay: 200,
-      timeout: 3000,
-      errorComponent: fallback,
-      loadingComponent: fallback,
-    });
-
-    return () => h(AsyncComponent);
-  },
-});
-
 export interface DefineWebWidgetOptions {
-  base?: WebWidgetContainerOptions["base"];
-  import?: WebWidgetContainerOptions["import"];
-  loading?: WebWidgetContainerOptions["loading"];
-  name?: WebWidgetContainerOptions["name"];
-  renderStage?: WebWidgetContainerOptions["renderStage"];
-  renderTarget?: WebWidgetContainerOptions["renderTarget"];
+  base?: WebWidgetRendererOptions["base"];
+  import?: WebWidgetRendererOptions["import"];
+  loading?: WebWidgetRendererOptions["loading"];
+  name?: WebWidgetRendererOptions["name"];
+  renderStage?: WebWidgetRendererOptions["renderStage"];
+  renderTarget?: WebWidgetRendererOptions["renderTarget"];
 }
 
 export /*#__PURE__*/ function defineWebWidget(
@@ -121,25 +19,37 @@ export /*#__PURE__*/ function defineWebWidget(
   options: DefineWebWidgetOptions
 ) {
   return defineComponent({
-    name: "WebWidgetSuspense",
+    name: "WebWidgetRoot",
     inheritAttrs: false,
     props: {
       fallback: {
         type: Object as PropType<Component>,
       },
       experimental_loading: {
-        type: String as PropType<WebWidgetContainerOptions["loading"]>,
+        type: String as PropType<WebWidgetRendererOptions["loading"]>,
         default: options.loading ?? "lazy",
       },
       renderStage: {
-        type: String as PropType<WebWidgetContainerOptions["renderStage"]>,
+        type: String as PropType<WebWidgetRendererOptions["renderStage"]>,
         default: options.renderStage,
       },
       experimental_renderTarget: {
-        type: String as PropType<WebWidgetContainerOptions["renderTarget"]>,
+        type: String as PropType<WebWidgetRendererOptions["renderTarget"]>,
         default: options.renderTarget ?? "light",
       },
     },
+    async serverPrefetch() {
+      const widget = (this as any).$widget as WebWidgetRenderer;
+      const innerHTML = await widget.renderInnerHTMLToString();
+      (this as any).$innerHTML = innerHTML;
+    },
+    // async mounted() {
+    //   if (!(this as any).$innerHTML) {
+    //     const widget = (this as any).$widget as WebWidgetRenderer;
+    //     const innerHTML = await widget.renderInnerHTMLToString();
+    //     (this as any).$innerHTML = innerHTML;
+    //   }
+    // },
     setup(
       {
         fallback,
@@ -149,24 +59,50 @@ export /*#__PURE__*/ function defineWebWidget(
       },
       { slots }
     ) {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const data = useAttrs() as WebWidgetContainerOptions["data"];
+      if (!loader) {
+        throw new TypeError(`Missing loader.`);
+      }
 
-      return () =>
-        h(WebWidget, {
-          props: {
-            ...options,
-            data,
-            loader,
-            loading: experimental_loading,
-            renderStage,
-            renderTarget: experimental_renderTarget,
+      if (Object.keys(slots).length > 0) {
+        throw new TypeError(`No support slot.`);
+      }
 
-            // -----
-            fallback,
+      const data = useAttrs() as WebWidgetRendererOptions["data"];
+      const widget = new WebWidgetRenderer(loader as Loader, {
+        ...options,
+        data,
+        loader,
+        loading: experimental_loading,
+        renderStage,
+        renderTarget: experimental_renderTarget,
+
+        // -----
+        fallback,
+      });
+      const instance = getCurrentInstance()!;
+      (instance.proxy as any).$widget = widget;
+
+      if (IS_BROWSER) {
+        // await customElements.whenDefined(tag);
+        // let element = document.createElement(tag);
+        // Object.entries(attrs).forEach(([name, value]) => {
+        //   element.setAttribute(name, value);
+        // });
+        // // @ts-ignore
+        // await element.bootstrap();
+        // // @ts-ignore
+        // element = null;
+      }
+
+      return () => {
+        const innerHTML = (instance.proxy as any).$innerHTML;
+        return h(widget.localName, {
+          attrs: widget.attributes,
+          domProps: {
+            innerHTML,
           },
-          scopedSlots: slots,
         });
+      };
     },
   });
 }

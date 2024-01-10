@@ -15,6 +15,8 @@ function reactPresetsPlugin() {
 export default defineConfig({
   plugins: [reactPresetsPlugin(), vuePresetsPlugin()],
   build: {
+    minify: false,
+    manifest: true,
     target: ["chrome76"],
   },
 });

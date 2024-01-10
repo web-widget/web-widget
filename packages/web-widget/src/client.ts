@@ -1,37 +1,76 @@
-import type { Loader, WebWidgetContainerOptions } from "./types";
+import type {
+  Loader,
+  WebWidgetRendererOptions,
+  WebWidgetElementProps,
+} from "./types";
 import { getClientModuleId, unsafePropsToAttrs } from "./utils/render";
 
 export type * from "./types";
 export * from "./element";
 export * from "./event";
 
-export /*#__PURE__*/ async function parse(
-  loader: Loader,
-  { children = "", renderStage, ...options }: WebWidgetContainerOptions
-): Promise<[tag: string, attrs: Record<string, string>, children: string]> {
-  if (children && options.renderTarget !== "shadow") {
-    throw new Error(
-      `Rendering content in a slot requires "renderTarget: 'shadow'".`
-    );
+function unsafeAttrsToHtml(attrs: Record<string, string>) {
+  return Object.entries(attrs)
+    .map(
+      ([attrName, attrValue]) =>
+        `${attrName}${attrValue === "" ? "" : '="' + attrValue + '"'}`
+    )
+    .join(" ");
+}
+
+export class WebWidgetRenderer {
+  #clientImport: string;
+  #options: WebWidgetElementProps;
+  localName = "web-widget";
+
+  constructor(
+    loader: Loader,
+    { children = "", renderStage, ...options }: WebWidgetRendererOptions
+  ) {
+    if (children && options.renderTarget !== "shadow") {
+      throw new Error(
+        `Rendering content in a slot requires "renderTarget: 'shadow'".`
+      );
+    }
+
+    if (renderStage === "server") {
+      throw new Error(
+        `"renderStage: 'server'" usually comes from server-side rendering,` +
+          ` it doesn't make sense to enable it on the client side.`
+      );
+    }
+
+    this.#clientImport = getClientModuleId(loader, options);
+    this.#options = options;
   }
 
-  if (renderStage === "server") {
-    console.warn(
-      `"renderStage: 'server'" usually comes from server-side rendering,` +
-        ` it doesn't make sense to enable it on the client side.`
-    );
+  get attributes(): Record<string, string> {
+    const clientImport = this.#clientImport;
+    const options = this.#options;
+
+    const attrs = unsafePropsToAttrs({
+      ...options,
+      base: options.base?.startsWith("file://") ? undefined : options.base,
+      data: JSON.stringify(options.data),
+      import: clientImport,
+      recovering: false,
+    });
+
+    if (attrs.data === "{}") {
+      delete attrs.data;
+    }
+
+    return attrs;
   }
 
-  let result = "";
-  const clientImport = getClientModuleId(loader, options);
+  async renderInnerHTMLToString() {
+    return "";
+  }
 
-  const attrs = unsafePropsToAttrs({
-    ...options,
-    base: options.base?.startsWith("file://") ? undefined : options.base,
-    data: JSON.stringify(options.data),
-    import: clientImport,
-    recovering: false,
-  });
-
-  return ["web-widget", attrs, result];
+  async renderOuterHTMLToString() {
+    const tag = this.localName;
+    const attributes = this.attributes;
+    const children = await this.renderInnerHTMLToString();
+    return `<${tag} ${unsafeAttrsToHtml(attributes)}>${children}</${tag}>`;
+  }
 }

@@ -2,7 +2,11 @@ import type {
   ServerWidgetModule,
   WidgetRenderContext,
 } from "@web-widget/schema";
-import type { Loader, WebWidgetContainerOptions } from "./types";
+import type {
+  Loader,
+  WebWidgetRendererOptions,
+  WebWidgetElementProps,
+} from "./types";
 import {
   mergeMeta,
   rebaseMeta,
@@ -74,24 +78,75 @@ async function suspense<T>(handler: () => T) {
   return result;
 }
 
-export /*#__PURE__*/ async function parse(
-  loader: Loader,
-  { children = "", renderStage, ...options }: WebWidgetContainerOptions
-): Promise<[tag: string, attrs: Record<string, string>, children: string]> {
-  if (children && options.renderTarget !== "shadow") {
-    throw new Error(
-      `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
-    );
+export class WebWidgetRenderer {
+  #children: string;
+  #clientImport: string;
+  #loader: Loader;
+  #options: WebWidgetElementProps;
+  #renderStage?: string;
+  localName = "web-widget";
+
+  constructor(
+    loader: Loader,
+    { children = "", renderStage, ...options }: WebWidgetRendererOptions
+  ) {
+    if (children && options.renderTarget !== "shadow") {
+      throw new Error(
+        `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
+      );
+    }
+
+    this.#children = children;
+    this.#clientImport = getClientModuleId(loader, options);
+    this.#loader = loader;
+    this.#options = options;
+    this.#renderStage = renderStage;
   }
 
-  let result = "";
-  const clientImport = getClientModuleId(loader, options);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const allState = useAllWidgetState();
-  const allStateKeys = Object.keys(allState);
-  const used: Set<string> = (allState[Symbol.for("used")] ??= new Set());
+  get attributes(): Record<string, string> {
+    const clientImport = this.#clientImport;
+    const options = this.#options;
+    const renderStage = this.#renderStage;
 
-  if (renderStage !== "client") {
+    if (renderStage === "server") {
+      return unsafePropsToAttrs({
+        name: options.name,
+      });
+    }
+
+    const attrs = unsafePropsToAttrs({
+      ...options,
+      base: options.base?.startsWith("file://") ? undefined : options.base,
+      data: JSON.stringify(options.data),
+      import: clientImport,
+      recovering: renderStage !== "client",
+    });
+
+    if (attrs.data === "{}") {
+      delete attrs.data;
+    }
+
+    return attrs;
+  }
+
+  async renderInnerHTMLToString() {
+    const children = this.#children;
+    const clientImport = this.#clientImport;
+    const loader = this.#loader;
+    const options = this.#options;
+    const renderStage = this.#renderStage;
+
+    let result = "";
+
+    if (renderStage === "client") {
+      return result;
+    }
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const allState = useAllWidgetState();
+    const allStateKeys = Object.keys(allState);
+    const used: Set<string> = (allState[Symbol.for("used")] ??= new Set());
+
     const module = (await loader()) as ServerWidgetModule;
     if (typeof module.render !== "function") {
       throw new TypeError(
@@ -145,84 +200,58 @@ export /*#__PURE__*/ async function parse(
       });
       result += `<web-widget.body>${result}</web-widget.body>`;
     }
-  }
 
-  if (options.renderTarget === "shadow") {
-    /* @stringify >>> */
-    const shimCode = `(${(
-      a: (target: Element) => void,
-      c = document.currentScript,
-      p = c && c.parentElement,
-      _ = c && c.remove()
-    ) => a && p && a(p)})(window.attachShadowRoots)`.replace(/\s/g, "");
-    /* @stringify <<< */
+    if (options.renderTarget === "shadow") {
+      /* @stringify >>> */
+      const shimCode = `(${(
+        a: (target: Element) => void,
+        c = document.currentScript,
+        p = c && c.parentElement,
+        _ = c && c.remove()
+      ) => a && p && a(p)})(window.attachShadowRoots)`.replace(/\s/g, "");
+      /* @stringify <<< */
 
-    // NOTE: Declarative Shadow DOM
-    // @see https://developer.chrome.com/articles/declarative-shadow-dom/
-    result += `<template shadowrootmode="open">${result}</template>`;
-    result += `<script>${shimCode}</script>`;
-    result += children;
-  }
-
-  const dependenciesKeys = Object.keys(allState).filter((key) => {
-    if (
-      !used.has(key) &&
-      !allStateKeys.includes(key) &&
-      !(allState[key] instanceof Promise)
-    ) {
-      used.add(key);
-      return true;
+      // NOTE: Declarative Shadow DOM
+      // @see https://developer.chrome.com/articles/declarative-shadow-dom/
+      result += `<template shadowrootmode="open">${result}</template>`;
+      result += `<script>${shimCode}</script>`;
+      result += children;
     }
-    return false;
-  });
 
-  const dependencies = dependenciesKeys.reduce(
-    (previousValue, currentValue) => {
-      previousValue[currentValue] = allState[currentValue];
-      return previousValue;
-    },
-    {} as any
-  );
+    const dependenciesKeys = Object.keys(allState).filter((key) => {
+      if (
+        !used.has(key) &&
+        !allStateKeys.includes(key) &&
+        !(allState[key] instanceof Promise)
+      ) {
+        used.add(key);
+        return true;
+      }
+      return false;
+    });
 
-  if (dependenciesKeys.length) {
-    result += `<script>`;
-    result += `(self.stateLayer=self.stateLayer||[]).push`;
-    result += `(${htmlEscapeJsonString(JSON.stringify(dependencies))})`;
-    result += `</script>`;
+    const dependencies = dependenciesKeys.reduce(
+      (previousValue, currentValue) => {
+        previousValue[currentValue] = allState[currentValue];
+        return previousValue;
+      },
+      {} as any
+    );
+
+    if (dependenciesKeys.length) {
+      result += `<script>`;
+      result += `(self.stateLayer=self.stateLayer||[]).push`;
+      result += `(${htmlEscapeJsonString(JSON.stringify(dependencies))})`;
+      result += `</script>`;
+    }
+
+    return result;
   }
 
-  if (renderStage === "server") {
-    return [
-      "web-widget",
-      unsafePropsToAttrs({
-        name: options.name,
-      }),
-      result,
-    ];
+  async renderOuterHTMLToString() {
+    const tag = this.localName;
+    const attributes = this.attributes;
+    const children = await this.renderInnerHTMLToString();
+    return `<${tag} ${unsafeAttrsToHtml(attributes)}>${children}</${tag}>`;
   }
-
-  const attrs = unsafePropsToAttrs({
-    ...options,
-    base: options.base?.startsWith("file://") ? undefined : options.base,
-    data: JSON.stringify(options.data),
-    import: clientImport,
-    recovering: renderStage !== "client",
-  });
-
-  if (attrs.data === "{}") {
-    delete attrs.data;
-  }
-
-  return ["web-widget", attrs, result];
 }
-
-export /*#__PURE__*/ async function renderToString(
-  loader: Loader,
-  options: WebWidgetContainerOptions
-) {
-  const [tag, attrs, children] = await parse(loader, options);
-
-  return `<${tag} ${unsafeAttrsToHtml(attrs)}>${children}</${tag}>`;
-}
-
-// TODO export async function renderToReadableStream() {}
