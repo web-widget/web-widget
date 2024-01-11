@@ -2,6 +2,12 @@ import type { Plugin } from "vite";
 import { webWidgetPlugin } from "@web-widget/vite";
 import type { WebWidgetPluginOptions } from "@web-widget/vite";
 
+const EXCLUDE = /vue\?.*&lang\.(?:css|js|ts)$/;
+
+function toArray(value: any) {
+  return Array.isArray(value) ? value : value ? [value] : [];
+}
+
 export interface Vue2WebWidgetPluginOptions extends WebWidgetPluginOptions {}
 
 export default function vue2WebWidgetPlugin({
@@ -13,14 +19,14 @@ export default function vue2WebWidgetPlugin({
     provide,
     export: {
       include: /(?:\.|@)(?:route|widget)\.vue(?:\?.*)?$/,
-      exclude: /vue\?.*&lang\.(?:css|js|ts)$/,
       ...exportWidget,
+      exclude: [...toArray(exportWidget.exclude), EXCLUDE],
     },
     import: {
       include: /(?:\.|@)widget\..*$/,
-      exclude: /vue\?.*&lang\.(?:css|js|ts)$/,
       includeImporter: /.*\.vue(?:\?.*)?$/,
       ...importWidget,
+      exclude: [...toArray(importWidget.exclude), EXCLUDE],
     },
   });
 }

@@ -1,9 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import reactWebWidgetPlugin from "@web-widget/react/vite";
-// @ts-ignore
 import { vuePresetsPlugin } from "./packages/vue3/vite-plugins";
-// @ts-ignore
 import { vue2PresetsPlugin } from "./packages/vue2/vite-plugins";
 
 function reactPresetsPlugin() {
