@@ -72,7 +72,12 @@ export const createVueRender = ({
 
         await onCreatedApp(app, context, component, mergedProps);
 
-        app.$mount(element, context.recovering);
+        if (context.recovering) {
+          app.$mount(element, context.recovering);
+        } else {
+          container.appendChild(app.$mount().$el);
+        }
+        
       },
 
       async unmount() {
