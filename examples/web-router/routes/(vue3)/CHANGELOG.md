@@ -1,4 +1,4 @@
-# @examples/vue3
+# @examples/web-router-vue3
 
 ## 1.0.2
 

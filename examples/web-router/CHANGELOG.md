@@ -5,8 +5,8 @@
 ### Patch Changes
 
 - @web-widget/react@0.9.1
-- @examples/vue2@1.0.2
-- @examples/vue3@1.0.2
+- @examples/web-router-vue2@1.0.2
+- @examples/web-router-vue3@1.0.2
 
 ## 1.1.27
 
@@ -14,8 +14,8 @@
 
 - Updated dependencies
   - @web-widget/react@0.9.0
-  - @examples/vue2@1.0.1
-  - @examples/vue3@1.0.1
+  - @examples/web-router-vue2@1.0.1
+  - @examples/web-router-vue3@1.0.1
 
 ## 1.1.26
 

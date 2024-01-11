@@ -15,8 +15,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@examples/vue2": "workspace:*",
-    "@examples/vue3": "workspace:*",
+    "@examples/web-router-vue2": "workspace:*",
+    "@examples/web-router-vue3": "workspace:*",
     "@web-widget/html": "workspace:*",
     "@web-widget/node": "workspace:*",
     "@web-widget/react": "workspace:*",
@@ -36,7 +36,7 @@
     "@types/react-dom": "^18.2.18",
     "@vitejs/plugin-react": "^4.1.1",
     "@web-widget/vite": "workspace:*",
-    "typescript": "^5.0.4",
+    "typescript": "^5.3.3",
     "vite": "^5.0.11"
   },
   "engines": {

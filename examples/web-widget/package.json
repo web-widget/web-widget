@@ -13,21 +13,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@web-widget/vue": "workspace:*",
+    "@examples/web-widget-vue2": "workspace:*",
+    "@examples/web-widget-vue3": "workspace:*",
     "@web-widget/react": "workspace:*",
     "@web-widget/schema": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "react": "canary",
     "react-dom": "canary",
-    "vue": "^3.4.5"
+    "@web-widget/vue": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
     "@vitejs/plugin-react": "^4.2.1",
-    "@vitejs/plugin-vue": "^5.0.0",
     "@web-widget/vite": "workspace:*",
-    "typescript": "^5.0.4",
+    "typescript": "^5.3.3",
     "vite": "^5.0.0"
   },
   "engines": {

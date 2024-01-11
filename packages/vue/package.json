@@ -41,8 +41,8 @@
     "@web-widget/schema": "workspace:*"
   },
   "devDependencies": {
-    "tsup": "^7.0.0",
-    "typescript": "^5.0.4",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
     "vite": "^5.0.11"
   },
   "peerDependencies": {
