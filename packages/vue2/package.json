@@ -4,15 +4,15 @@
   "type": "module",
   "exports": {
     ".": {
-      "browser": {
-        "types": "./dist/vue2.client.d.ts",
-        "development": "./src/client.ts",
-        "default": "./dist/vue2.client.js"
-      },
       "worker": {
         "default": "./dist/vue2.server.js",
         "development": "./src/server.ts",
         "types": "./dist/vue2.server.d.ts"
+      },
+      "browser": {
+        "types": "./dist/vue2.client.d.ts",
+        "development": "./src/client.ts",
+        "default": "./dist/vue2.client.js"
       },
       "default": {
         "types": "./dist/vue2.server.d.ts",
@@ -59,13 +59,13 @@
     "access": "public",
     "exports": {
       ".": {
-        "browser": {
-          "types": "./dist/vue2.client.d.ts",
-          "default": "./dist/vue2.client.js"
-        },
         "worker": {
           "default": "./dist/vue2.server.js",
           "types": "./dist/vue2.server.d.ts"
+        },
+        "browser": {
+          "types": "./dist/vue2.client.d.ts",
+          "default": "./dist/vue2.client.js"
         },
         "default": {
           "types": "./dist/vue2.server.d.ts",
