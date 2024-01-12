@@ -4,10 +4,10 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/vite.d.ts",
+      "default": "./dist/vite.js",
       "development": "./src/index.ts",
       "require": "./dist/vite.cjs",
-      "default": "./dist/vite.js"
+      "types": "./dist/vite.d.ts"
     }
   },
   "files": [
@@ -54,9 +54,9 @@
     "access": "public",
     "exports": {
       ".": {
-        "types": "./dist/vite.d.ts",
+        "default": "./dist/vite.js",
         "require": "./dist/vite.cjs",
-        "default": "./dist/vite.js"
+        "types": "./dist/vite.d.ts"
       }
     }
   }
