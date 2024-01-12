@@ -26,12 +26,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
-    "@rocket/cli": "^0.10.2",
-    "@rocket/core": "^0.1.2",
-    "@rocket/launch": "^0.6.0",
-    "@rocket/search": "^0.6.0",
     "@web-widget/eslint-config": "workspace:*",
-    "alex": "^10.0.0",
     "babel-loader": "^8.2.3",
     "cross-env": "^7.0.3",
     "prettier": "3.0.1",

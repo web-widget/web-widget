@@ -16,13 +16,12 @@
   "scripts": {
     "build": "pnpm exec tsup",
     "dev": "pnpm exec tsup --watch",
-    "test": "vitest run src",
-    "prepublishOnly": "pnpm run test && pnpm run build"
+    "prepublishOnly": "pnpm run test && pnpm run build",
+    "test": "vitest run src"
   },
   "dependencies": {
     "@rollup/pluginutils": "^5.1.0",
     "@web-widget/node": "workspace:*",
-    "@web-widget/web-widget": "workspace:*",
     "builtin-modules": "^3.3.0",
     "es-module-lexer": "^1.3.0 ",
     "magic-string": "^0.30.5",
@@ -31,17 +30,21 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@web-widget/web-router": "workspace:*",
     "@types/mime-types": "^2.1.1",
     "@types/node": "^20.4.8",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/web-router": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
     "rollup": "^4.9.3",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
+    "vite": "^5.0.11",
     "vitest": "^1.1.1"
   },
   "peerDependencies": {
     "@web-widget/schema": "workspace:*",
     "@web-widget/web-router": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
     "vite": "^5.0.11"
   },
   "engines": {
