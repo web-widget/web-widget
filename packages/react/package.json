@@ -4,30 +4,30 @@
   "type": "module",
   "exports": {
     ".": {
-      "worker": {
-        "types": "./dist/react.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/react.server.js"
-      },
       "browser": {
-        "types": "./dist/react.client.d.ts",
+        "default": "./dist/react.client.js",
         "development": "./src/client.ts",
-        "default": "./dist/react.client.js"
+        "types": "./dist/react.client.d.ts"
       },
       "default": {
-        "types": "./dist/react.server.d.ts",
+        "default": "./dist/react.server.js",
         "development": "./src/server.ts",
-        "default": "./dist/react.server.js"
+        "types": "./dist/react.server.d.ts"
+      },
+      "worker": {
+        "default": "./dist/react.server.js",
+        "development": "./src/server.ts",
+        "types": "./dist/react.server.d.ts"
       }
-    },
-    "./vite": {
-      "types": "./dist/vite.d.ts",
-      "development": "./src/vite.ts",
-      "require": "./dist/vite.cjs",
-      "default": "./dist/vite.js"
     },
     "./globals": {
       "types": "./globals.d.ts"
+    },
+    "./vite": {
+      "default": "./dist/vite.js",
+      "development": "./src/vite.ts",
+      "require": "./dist/vite.cjs",
+      "types": "./dist/vite.d.ts"
     }
   },
   "files": [
@@ -39,19 +39,23 @@
     "dev": "pnpm exec tsup --watch",
     "prepublishOnly": "pnpm run build"
   },
-  "dependencies": {
-    "@web-widget/vite": "workspace:*",
-    "@web-widget/schema": "workspace:*",
-    "@web-widget/web-widget": "workspace:*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/vite": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
+    "react": "canary",
+    "react-dom": "canary",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.11"
   },
   "peerDependencies": {
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/vite": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
     "react": "canary",
     "react-dom": "canary"
   },
@@ -59,26 +63,26 @@
     "access": "public",
     "exports": {
       ".": {
-        "worker": {
-          "types": "./dist/react.server.d.ts",
-          "default": "./dist/react.server.js"
-        },
         "browser": {
-          "types": "./dist/react.client.d.ts",
-          "default": "./dist/react.client.js"
+          "default": "./dist/react.client.js",
+          "types": "./dist/react.client.d.ts"
         },
         "default": {
-          "types": "./dist/react.server.d.ts",
-          "default": "./dist/react.server.js"
+          "default": "./dist/react.server.js",
+          "types": "./dist/react.server.d.ts"
+        },
+        "worker": {
+          "default": "./dist/react.server.js",
+          "types": "./dist/react.server.d.ts"
         }
-      },
-      "./vite": {
-        "types": "./dist/vite.d.ts",
-        "require": "./dist/vite.cjs",
-        "default": "./dist/vite.js"
       },
       "./globals": {
         "types": "./globals.d.ts"
+      },
+      "./vite": {
+        "default": "./dist/vite.js",
+        "require": "./dist/vite.cjs",
+        "types": "./dist/vite.d.ts"
       }
     }
   }
