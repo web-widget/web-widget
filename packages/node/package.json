@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^17.0.45",
-    "tsup": "^7.2.0",
+    "tsup": "^8.0.1",
     "typescript": "^5.3.3"
   },
   "engines": {
