@@ -3,8 +3,8 @@ import * as esModuleLexer from "es-module-lexer";
 import MagicString from "magic-string";
 import path from "node:path";
 import url from "node:url";
+import { createRequire } from "node:module";
 import type { IndexHtmlTransformResult, Plugin } from "vite";
-import { resolve } from "import-meta-resolve";
 import { defineAsyncOptions } from "../container";
 import type { ResolveAssetProtocolPluginOptions } from "./resolve-asset-protocol";
 import { ASSET_PROTOCOL, resolveAssetProtocol } from "./resolve-asset-protocol";
@@ -14,6 +14,7 @@ const ASSET_PLACEHOLDER = `${ASSET_PROTOCOL}//`;
 let index = 0;
 const alias = (name: string) => `__$${name}${index++}$__`;
 const globalCache: Set<string> = new Set();
+const require = createRequire(import.meta.url);
 const parseComponentName = (code: string) =>
   code.match(/import\s+([a-zA-Z$_]\w*)\s+/)?.[1];
 
@@ -115,10 +116,7 @@ export function importWebWidgetPlugin(
         }
 
         if (dev && !html.includes(`name="${inspectorId}"`)) {
-          const id = resolve(
-            "@web-widget/web-widget/inspector",
-            import.meta.url
-          );
+          const id = require.resolve("@web-widget/web-widget/inspector");
           const src = "/@fs" + url.fileURLToPath(id);
           result.push({
             injectTo: "body",
