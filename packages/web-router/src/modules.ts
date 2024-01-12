@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import type { Context } from "./context";
 import type {
   HttpError,
@@ -18,6 +19,7 @@ import type {
 import {
   callContext,
   createContext,
+  useContext,
   HttpStatus,
   mergeMeta,
   rebaseMeta,
@@ -35,6 +37,11 @@ function callAsyncContext<T extends (...args: any[]) => any>(
   setup: T,
   args?: Parameters<T>
 ): Promise<Response> {
+  const ctx = useContext();
+  if (ctx) {
+    return args ? setup(...args) : setup();
+  }
+
   const data = createContext({
     params: context.params,
     pathname: context.pathname,

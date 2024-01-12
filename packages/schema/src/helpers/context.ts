@@ -7,9 +7,12 @@ export interface WebWidgetContext {
   body: Record<string | symbol, any>;
 }
 
-const ctx = /*@__PURE__*/ createNamespace<WebWidgetContext>({
-  asyncContext: !IS_BROWSER && Reflect.has(globalThis, "AsyncLocalStorage"),
-}).get("@web-widget");
+let ctx;
+function tryGetAsyncLocalStorage() {
+  return (ctx ??= createNamespace<WebWidgetContext>({
+    asyncContext: !IS_BROWSER && Reflect.has(globalThis, "AsyncLocalStorage"),
+  }).get("@web-widget"));
+}
 
 export function createContext(
   options: WebWidgetContext & any
@@ -28,6 +31,7 @@ export function callContext<T extends (...args: any[]) => any>(
   setup: T,
   args?: Parameters<T>
 ) {
+  const ctx = tryGetAsyncLocalStorage();
   const fn: () => ReturnType<T> = () =>
     args ? setup(...(args as Parameters<T>)) : setup();
   if (!IS_BROWSER) {
@@ -39,5 +43,6 @@ export function callContext<T extends (...args: any[]) => any>(
 }
 
 export function useContext() {
+  const ctx = tryGetAsyncLocalStorage();
   return ctx.tryUse();
 }
