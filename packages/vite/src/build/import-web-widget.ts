@@ -2,7 +2,9 @@ import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import * as esModuleLexer from "es-module-lexer";
 import MagicString from "magic-string";
 import path from "node:path";
-import type { Plugin } from "vite";
+import url from "node:url";
+import type { IndexHtmlTransformResult, Plugin } from "vite";
+import { resolve } from "import-meta-resolve";
 import { defineAsyncOptions } from "../container";
 import type { ResolveAssetProtocolPluginOptions } from "./resolve-asset-protocol";
 import { ASSET_PROTOCOL, resolveAssetProtocol } from "./resolve-asset-protocol";
@@ -95,6 +97,50 @@ export function importWebWidgetPlugin(
       },
       async configResolved(config) {
         base = config.base;
+      },
+      async transformIndexHtml(html, { server: dev }) {
+        const styleId = "web-widget:style";
+        const inspectorId = "web-widget:inspector";
+        const result: IndexHtmlTransformResult = [];
+
+        if (!html.includes(`name="${styleId}"`)) {
+          result.push({
+            injectTo: "head",
+            tag: "style",
+            attrs: {
+              name: styleId,
+            },
+            children: "web-widget{display:contents}",
+          });
+        }
+
+        if (dev && !html.includes(`name="${inspectorId}"`)) {
+          const id = resolve(
+            "@web-widget/web-widget/inspector",
+            import.meta.url
+          );
+          const src = "/@fs" + url.fileURLToPath(id);
+          result.push({
+            injectTo: "body",
+            tag: "web-widget-inspector",
+            attrs: {
+              name: inspectorId,
+              dir: root,
+              keys: `[&quot;Shift&quot;]`,
+            },
+            children: [
+              {
+                tag: "script",
+                attrs: {
+                  type: "module",
+                  src,
+                },
+              },
+            ],
+          });
+        }
+
+        return result;
       },
       async resolveId(source, importer) {
         if (importer) {
@@ -189,7 +235,7 @@ export function importWebWidgetPlugin(
               `import { ${inject} as ${definerName} } from ${JSON.stringify(
                 provide
               )};\n` +
-              `const ${componentName} = ${definerName}(() => import(${JSON.stringify(
+              `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
                 moduleName
               )}), { /*base: import.meta.url,*/ import: ${clientModuleExpression}, ${JSON.stringify(
                 clientContainerOptions
