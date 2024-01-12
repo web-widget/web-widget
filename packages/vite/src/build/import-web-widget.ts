@@ -2,7 +2,6 @@ import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import * as esModuleLexer from "es-module-lexer";
 import MagicString from "magic-string";
 import path from "node:path";
-import url from "node:url";
 import { createRequire } from "node:module";
 import type { IndexHtmlTransformResult, Plugin } from "vite";
 import { defineAsyncOptions } from "../container";
@@ -117,7 +116,7 @@ export function importWebWidgetPlugin(
 
         if (dev && !html.includes(`name="${inspectorId}"`)) {
           const id = require.resolve("@web-widget/web-widget/inspector");
-          const src = "/@fs" + url.fileURLToPath(id);
+          const src = `/@fs${id}`;
           result.push({
             injectTo: "body",
             tag: "web-widget-inspector",
