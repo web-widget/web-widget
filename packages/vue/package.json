@@ -5,26 +5,26 @@
   "exports": {
     ".": {
       "browser": {
-        "default": "./dist/vue.client.js",
+        "types": "./dist/vue.client.d.ts",
         "development": "./src/client.ts",
-        "types": "./dist/vue.client.d.ts"
+        "default": "./dist/vue.client.js" 
       },
       "default": {
-        "default": "./dist/vue.server.js",
+        "types": "./dist/vue.server.d.ts",
         "development": "./src/server.ts",
-        "types": "./dist/vue.server.d.ts"
+        "default": "./dist/vue.server.js"
       },
       "worker": {
-        "default": "./dist/vue.server.js",
+        "types": "./dist/vue.server.d.ts",
         "development": "./src/server.ts",
-        "types": "./dist/vue.server.d.ts"
+        "default": "./dist/vue.server.js"
       }
     },
     "./vite": {
-      "default": "./dist/vite.js",
+      "types": "./dist/vite.d.ts",
       "development": "./src/vite.ts",
       "require": "./dist/vite.cjs",
-      "types": "./dist/vite.d.ts"
+      "default": "./dist/vite.js"
     }
   },
   "files": [
@@ -57,22 +57,22 @@
     "exports": {
       ".": {
         "browser": {
-          "default": "./dist/vue.client.js",
-          "types": "./dist/vue.client.d.ts"
+          "types": "./dist/vue.client.d.ts",
+          "default": "./dist/vue.client.js" 
         },
         "default": {
-          "default": "./dist/vue.server.js",
-          "types": "./dist/vue.server.d.ts"
+          "types": "./dist/vue.server.d.ts",
+          "default": "./dist/vue.server.js"
         },
         "worker": {
-          "default": "./dist/vue.server.js",
-          "types": "./dist/vue.server.d.ts"
+          "types": "./dist/vue.server.d.ts",
+          "default": "./dist/vue.server.js"
         }
       },
       "./vite": {
-        "default": "./dist/vite.js",
+        "types": "./dist/vite.d.ts",
         "require": "./dist/vite.cjs",
-        "types": "./dist/vite.d.ts"
+        "default": "./dist/vite.js"
       }
     }
   }

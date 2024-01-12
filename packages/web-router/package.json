@@ -4,9 +4,9 @@
   "type": "module",
   "exports": {
     ".": {
-      "default": "./dist/web-router.server.js",
+      "types": "./dist/web-router.server.d.ts",
       "development": "./src/index.ts",
-      "types": "./dist/web-router.server.d.ts"
+      "default": "./dist/web-router.server.js"
     }
   },
   "files": [
@@ -45,8 +45,8 @@
     "access": "public",
     "exports": {
       ".": {
-        "default": "./dist/web-router.server.js",
-        "types": "./dist/web-router.server.d.ts"
+        "types": "./dist/web-router.server.d.ts",
+        "default": "./dist/web-router.server.js"
       }
     }
   }

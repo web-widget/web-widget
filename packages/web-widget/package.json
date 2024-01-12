@@ -25,35 +25,35 @@
   "exports": {
     ".": {
       "browser": {
-        "default": "./dist/web-widget.client.js",
+        "types": "./dist/web-widget.client.d.ts",
         "development": "./src/client.ts",
-        "types": "./dist/web-widget.client.d.ts"
-      },
-      "default": {
-        "default": "./dist/web-widget.server.js",
-        "development": "./src/server.ts",
-        "types": "./dist/web-widget.server.d.ts"
+        "default": "./dist/web-widget.client.js"
       },
       "worker": {
-        "default": "./dist/web-widget.server.js",
+        "types": "./dist/web-widget.server.d.ts",
         "development": "./src/server.ts",
-        "types": "./dist/web-widget.server.d.ts"
+        "default": "./dist/web-widget.server.js"
+      },
+      "default": {
+        "types": "./dist/web-widget.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/web-widget.server.js"
       }
     },
     "./client": {
-      "default": "./dist/web-widget.client.js",
+      "types": "./dist/web-widget.client.d.ts",
       "development": "./src/client.ts",
-      "types": "./dist/web-widget.client.d.ts"
+      "default": "./dist/web-widget.client.js"
     },
     "./inspector": {
-      "default": "./dist/inspector.js",
+      "types": "./dist/inspector.d.ts",
       "development": "./src/inspector.ts",
-      "types": "./dist/inspector.d.ts"
+      "default": "./dist/inspector.js"
     },
     "./server": {
-      "default": "./dist/web-widget.server.js",
+      "types": "./dist/web-widget.server.d.ts",
       "development": "./src/server.ts",
-      "types": "./dist/web-widget.server.d.ts"
+      "default": "./dist/web-widget.server.js"
     }
   },
   "files": [
@@ -79,29 +79,29 @@
     "exports": {
       ".": {
         "browser": {
-          "default": "./dist/web-widget.client.js",
-          "types": "./dist/web-widget.client.d.ts"
-        },
-        "default": {
-          "default": "./dist/web-widget.server.js",
-          "types": "./dist/web-widget.server.d.ts"
+          "types": "./dist/web-widget.client.d.ts",
+          "default": "./dist/web-widget.client.js"
         },
         "worker": {
-          "default": "./dist/web-widget.server.js",
-          "types": "./dist/web-widget.server.d.ts"
+          "types": "./dist/web-widget.server.d.ts",
+          "default": "./dist/web-widget.server.js"
+        },
+        "default": {
+          "types": "./dist/web-widget.server.d.ts",
+          "default": "./dist/web-widget.server.js"
         }
       },
       "./client": {
-        "default": "./dist/web-widget.client.js",
-        "types": "./dist/web-widget.client.d.ts"
+        "types": "./dist/web-widget.client.d.ts",
+        "default": "./dist/web-widget.client.js"
       },
       "./inspector": {
-        "default": "./dist/inspector.js",
-        "types": "./dist/inspector.d.ts"
+        "types": "./dist/inspector.d.ts",
+        "default": "./dist/inspector.js"
       },
       "./server": {
-        "default": "./dist/web-widget.server.js",
-        "types": "./dist/web-widget.server.d.ts"
+        "types": "./dist/web-widget.server.d.ts",
+        "default": "./dist/web-widget.server.js"
       }
     }
   }

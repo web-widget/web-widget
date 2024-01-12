@@ -5,27 +5,27 @@
   "exports": {
     ".": {
       "browser": {
-        "default": "./dist/vue2.client.js",
+        "types": "./dist/vue2.client.d.ts",
         "development": "./src/client.ts",
-        "types": "./dist/vue2.client.d.ts"
-      },
-      "default": {
-        "default": "./dist/vue2.server.js",
-        "development": "./src/server.ts",
-        "require": "./dist/vue2.server.cjs",
-        "types": "./dist/vue2.server.d.ts"
+        "default": "./dist/vue2.client.js"
       },
       "worker": {
         "default": "./dist/vue2.server.js",
         "development": "./src/server.ts",
         "types": "./dist/vue2.server.d.ts"
+      },
+      "default": {
+        "types": "./dist/vue2.server.d.ts",
+        "development": "./src/server.ts",
+        "require": "./dist/vue2.server.cjs",
+        "default": "./dist/vue2.server.js"
       }
     },
     "./vite": {
-      "default": "./dist/vite.js",
+      "types": "./dist/vite.d.ts",
       "development": "./src/vite.ts",
       "require": "./dist/vite.cjs",
-      "types": "./dist/vite.d.ts"
+      "default": "./dist/vite.js"
     }
   },
   "files": [
@@ -60,23 +60,23 @@
     "exports": {
       ".": {
         "browser": {
-          "default": "./dist/vue2.client.js",
-          "types": "./dist/vue2.client.d.ts"
-        },
-        "default": {
-          "default": "./dist/vue2.server.js",
-          "require": "./dist/vue2.server.cjs",
-          "types": "./dist/vue2.server.d.ts"
+          "types": "./dist/vue2.client.d.ts",
+          "default": "./dist/vue2.client.js"
         },
         "worker": {
           "default": "./dist/vue2.server.js",
           "types": "./dist/vue2.server.d.ts"
+        },
+        "default": {
+          "types": "./dist/vue2.server.d.ts",
+          "require": "./dist/vue2.server.cjs",
+          "default": "./dist/vue2.server.js"
         }
       },
       "./vite": {
-        "default": "./dist/vite.js",
+        "types": "./dist/vite.d.ts",
         "require": "./dist/vite.cjs",
-        "types": "./dist/vite.d.ts"
+        "default": "./dist/vite.js"
       }
     }
   }
