@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BaseLayout from "./BaseLayout.vue";
 import type { RouteComponentProps, RouteModule } from "@web-widget/vue";
-import {  mergeMeta } from "@web-widget/vue";
+import { mergeMeta } from "@web-widget/vue";
 
 type PageData = {
   message: string

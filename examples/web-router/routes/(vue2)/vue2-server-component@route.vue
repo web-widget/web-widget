@@ -1,6 +1,6 @@
 <script lang="ts">
 import BaseLayout from "./BaseLayout.vue";
-import {  mergeMeta } from "@web-widget/vue2";
+import { mergeMeta } from "@web-widget/vue2";
 import type { RouteModule } from "@web-widget/vue2";
 
 type PageData = {
