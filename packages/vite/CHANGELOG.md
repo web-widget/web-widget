@@ -1,5 +1,21 @@
 # @web-widget/vite
 
+## 2.11.0
+
+### Minor Changes
+
+- Fix package.json peer dependency bug.
+- The value of `IS_BROWSER` will be statically analyzed by build tools.
+- Supports importing components in the `@widget` format file in the client.
+- Make `webWidgetPlugin` configuration easier to understand: use `import` and `export` instead of `toComponents` and `toWebWidgets` respectively.
+- Fix package.json peer dependency bug.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-router@0.7.6
+  - @web-widget/web-widget@1.8.0
+
 ## 2.10.0
 
 ### Minor Changes

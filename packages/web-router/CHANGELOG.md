@@ -1,5 +1,14 @@
 # @web-widget/web-router
 
+## 0.7.6
+
+### Patch Changes
+
+- Fix package.json peer dependency bug.
+- Fix "Instance unavailable." Error.
+- Updated dependencies
+  - @web-widget/html@0.1.9
+
 ## 0.7.5
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @web-widget/react
 
+## 0.10.0
+
+### Minor Changes
+
+- Support react components to import `@widget` format files as components in the client.
+- Update react dependencies to the latest canary version.
+- Add support for jsx suffix.
+- Fix package.json peer dependency bug.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.8.0
+  - @web-widget/vite@2.11.0
+
 ## 0.9.1
 
 ### Patch Changes

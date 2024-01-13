@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 1.8.0
+
+### Minor Changes
+
+- Use `WebWidgetRenderer` instead of `parse`.
+- `data` and `meta` support attribute reflection.
+- Refactor inspector.
+- Fix package.json peer dependency bug.
+
 ## 1.7.2
 
 ### Patch Changes

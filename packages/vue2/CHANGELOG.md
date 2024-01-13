@@ -1,5 +1,19 @@
 # @web-widget/vue2
 
+## 0.10.0
+
+### Minor Changes
+
+- Support vue2 components to import `@widget` format files as components in the client.
+- Optimize rendering results (remove redundant `<web-widget.shell>` tags).
+- Fix package.json peer dependency bug.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.8.0
+  - @web-widget/vite@2.11.0
+
 ## 0.9.1
 
 ### Patch Changes

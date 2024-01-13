@@ -1,5 +1,11 @@
 # @web-widget/html
 
+## 0.1.9
+
+### Patch Changes
+
+- Fix package.json peer dependency bug.
+
 ## 0.1.8
 
 ### Patch Changes
