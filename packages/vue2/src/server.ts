@@ -113,6 +113,8 @@ export const defineVueRender = createVueRender;
 
 export const render = createVueRender();
 
+export const meta = {};
+
 export const handler: Handlers = {
   GET(ctx) {
     return ctx.render();
