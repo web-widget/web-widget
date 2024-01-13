@@ -130,7 +130,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   set data(value: WidgetRenderContext["data"]) {
     if (typeof value === "object") {
-      this.#data = value;
+      this.setAttribute("data", JSON.stringify(value));
     }
   }
 
@@ -156,7 +156,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   set meta(value: Meta) {
     if (typeof value === "object") {
-      this.#meta = value || {};
+      this.setAttribute("meta", JSON.stringify(value));
     }
   }
 

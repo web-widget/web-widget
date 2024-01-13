@@ -48,6 +48,15 @@
       <a href="/vue2-router">Using vue2 router</a>
     </li>
     <li>
+      <a href="/react-import-widgets">React: Import vue2 and vue3</a>
+    </li>
+    <li>
+      <a href="/vue3-import-widgets">Vue3: Import react and vue2</a>
+    </li>
+    <li>
+      <a href="/vue2-import-widgets">Vue2: Import react and vue3</a>
+    </li>
+    <li>
       <a target="_blank" href="/vue2-server-component">Vue2: Server component</a>
     </li>
     <li>

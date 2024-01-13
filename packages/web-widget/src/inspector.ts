@@ -133,10 +133,6 @@ export class HTMLWebWidgetInspectorElement extends HTMLElement {
   connectedCallback() {
     const hotKeys = this.keys;
 
-    if (!document.querySelectorAll("web-widget[import]").length) {
-      return;
-    }
-
     this.#showInfo();
 
     this.appendChild(

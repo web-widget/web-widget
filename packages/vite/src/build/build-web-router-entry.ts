@@ -32,7 +32,7 @@ type ImportMap = {
   scopes?: Scopes;
 };
 
-export function buildWebWidgetEntryPlugin(
+export function buildWebRouterEntryPlugin(
   builderConfig: ResolvedBuilderConfig
 ): Plugin {
   let clientImportmap: ImportMap;
@@ -140,7 +140,7 @@ export function buildWebWidgetEntryPlugin(
   }
 
   return {
-    name: "builder:build-web-widget-entry",
+    name: "builder:build-web-router-entry",
     apply: "build",
     enforce: "pre",
     async config(_userConfig) {

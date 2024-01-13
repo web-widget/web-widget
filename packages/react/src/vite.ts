@@ -6,19 +6,19 @@ export interface ReactWebWidgetPluginOptions extends WebWidgetPluginOptions {}
 
 export default function reactWebWidgetPlugin({
   provide = "@web-widget/react",
-  toWebWidgets = {},
-  toComponents = {},
+  export: exportWidget = {},
+  import: importWidget = {},
 }: ReactWebWidgetPluginOptions = {}): Plugin[] {
   return webWidgetPlugin({
     provide,
-    toWebWidgets: {
-      include: /(?:\.|@)(?:route|widget).*\.tsx(\?.*)?$/,
-      ...toWebWidgets,
+    export: {
+      include: /(?:\.|@)(?:route|widget)\.(?:tsx|jsx)(?:\?.*)?$/,
+      ...exportWidget,
     },
-    toComponents: {
-      include: /(?:\.|@)widget\.[^.]*$/,
-      includeImporter: ["**/*.tsx"],
-      ...toComponents,
+    import: {
+      include: /(?:\.|@)widget\..*$/,
+      includeImporter: /.*\.(?:tsx|jsx)(?:\?.*)?$/,
+      ...importWidget,
     },
   });
 }

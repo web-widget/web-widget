@@ -1,5 +1,5 @@
 {
-  "name": "@examples/vue3",
+  "name": "@examples/web-router-vue3",
   "version": "1.0.2",
   "private": true,
   "description": "",
@@ -18,11 +18,10 @@
     "@web-widget/vue": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "vue": "^3.3.4",
+    "vue": "^3.4.8",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.0",
-    "vite": "^5.0.11"
+    "@vitejs/plugin-vue": "^5.0.0"
   }
 }

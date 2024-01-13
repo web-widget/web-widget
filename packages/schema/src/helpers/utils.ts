@@ -1,4 +1,4 @@
-/*!
+/**
  * escape-html
  * https://github.com/component/escape-html/blob/master/index.js
  * Copyright(c) 2012-2013 TJ Holowaychuk

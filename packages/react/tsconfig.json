@@ -16,7 +16,8 @@
     "rootDir": "./src",
     "skipLibCheck": true,
     "strict": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "types": ["@types/react/canary"]
   },
   "exclude": [
     "node_modules"

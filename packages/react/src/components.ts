@@ -1,28 +1,34 @@
-import type { Loader, WebWidgetContainerOptions } from "@web-widget/web-widget";
-import { parse } from "@web-widget/web-widget";
-import { Suspense, createElement, lazy } from "react";
+import type { Loader, WebWidgetRendererOptions } from "@web-widget/web-widget";
+import { WebWidgetRenderer } from "@web-widget/web-widget";
+import { Suspense, createElement, use } from "react";
 import type { ReactNode } from "react";
 import { IS_BROWSER } from "@web-widget/schema/helpers";
 
 export interface WebWidgetProps {
-  base?: WebWidgetContainerOptions["base"];
+  base?: WebWidgetRendererOptions["base"];
   children /**/?: ReactNode;
-  data?: WebWidgetContainerOptions["data"];
-  import?: WebWidgetContainerOptions["import"];
-  inactive?: WebWidgetContainerOptions["inactive"];
+  data?: WebWidgetRendererOptions["data"];
+  import?: WebWidgetRendererOptions["import"];
+  inactive?: WebWidgetRendererOptions["inactive"];
   loader /**/ : Loader;
-  meta?: WebWidgetContainerOptions["meta"];
-  loading?: WebWidgetContainerOptions["loading"];
-  name?: WebWidgetContainerOptions["name"];
-  renderStage?: WebWidgetContainerOptions["renderStage"];
-  renderTarget?: WebWidgetContainerOptions["renderTarget"];
+  meta?: WebWidgetRendererOptions["meta"];
+  loading?: WebWidgetRendererOptions["loading"];
+  name?: WebWidgetRendererOptions["name"];
+  renderStage?: WebWidgetRendererOptions["renderStage"];
+  renderTarget?: WebWidgetRendererOptions["renderTarget"];
 }
 
-export /*#__PURE__*/ function WebWidget({
+type WebWidgetElement = {
+  localName: string;
+  attributes: Record<string, string>;
+  innerHTML: Promise<string>;
+};
+
+const renderWebWidget = function ({
   children,
   loader,
   ...props
-}: WebWidgetProps) {
+}: WebWidgetProps): WebWidgetElement {
   if (!loader) {
     throw new TypeError(`Missing loader.`);
   }
@@ -31,51 +37,49 @@ export /*#__PURE__*/ function WebWidget({
     throw new TypeError(`No support children.`);
   }
 
-  return /*#__PURE__*/ createElement(
-    lazy<any>(async () => {
-      const [tag, attrs, innerHTML] = await parse(loader, {
-        ...props,
-        // TODO Render children
-        children: "",
-      });
+  const widget = new WebWidgetRenderer(loader as Loader, {
+    ...props,
+    // TODO children
+    children: "",
+  });
+  const localName = widget.localName;
+  const attributes = widget.attributes;
+  const innerHTML = widget.renderInnerHTMLToString();
 
-      if (IS_BROWSER) {
-        console.warn(`Client components are experimental.`);
-        await customElements.whenDefined(tag);
-        const element = Object.assign(document.createElement(tag), props);
-        // @ts-ignore
-        await element.bootstrap();
-      }
+  return {
+    localName,
+    attributes,
+    innerHTML,
+  };
+};
 
-      return {
-        default: /*#__PURE__*/ function WebWidgetContainer() {
-          return createElement(tag, {
-            ...attrs,
-            dangerouslySetInnerHTML: {
-              __html: innerHTML,
-            },
-          });
-        },
-      };
-    })
-  );
+function WebWidget({ localName, attributes, innerHTML }: WebWidgetElement) {
+  if (IS_BROWSER) {
+    // TODO Warning: Prop `dangerouslySetInnerHTML` did not match. Server"
+  }
+  return createElement(localName, {
+    ...attributes,
+    dangerouslySetInnerHTML: {
+      __html: use(innerHTML),
+    },
+  });
 }
 
 export interface DefineWebWidgetOptions {
-  base?: WebWidgetContainerOptions["base"];
-  import?: WebWidgetContainerOptions["import"];
-  loading?: WebWidgetContainerOptions["loading"];
-  name?: WebWidgetContainerOptions["name"];
-  renderStage?: WebWidgetContainerOptions["renderStage"];
-  renderTarget?: WebWidgetContainerOptions["renderTarget"];
+  base?: WebWidgetRendererOptions["base"];
+  import?: WebWidgetRendererOptions["import"];
+  loading?: WebWidgetRendererOptions["loading"];
+  name?: WebWidgetRendererOptions["name"];
+  renderStage?: WebWidgetRendererOptions["renderStage"];
+  renderTarget?: WebWidgetRendererOptions["renderTarget"];
 }
 
 export interface WebWidgetSuspenseProps {
   children?: ReactNode;
   fallback?: ReactNode;
-  experimental_loading?: WebWidgetContainerOptions["loading"];
-  renderStage?: WebWidgetContainerOptions["renderStage"];
-  experimental_renderTarget?: WebWidgetContainerOptions["renderTarget"];
+  experimental_loading?: WebWidgetRendererOptions["loading"];
+  renderStage?: WebWidgetRendererOptions["renderStage"];
+  experimental_renderTarget?: WebWidgetRendererOptions["renderTarget"];
 }
 
 export /*#__PURE__*/ function defineWebWidget(
@@ -92,15 +96,18 @@ export /*#__PURE__*/ function defineWebWidget(
   }: WebWidgetSuspenseProps) {
     return createElement(Suspense, {
       fallback,
-      children: createElement(WebWidget, {
-        ...options,
-        children,
-        data,
-        loader,
-        loading: experimental_loading,
-        renderStage,
-        renderTarget: experimental_renderTarget,
-      }),
+      children: createElement(
+        WebWidget,
+        renderWebWidget({
+          ...options,
+          children,
+          data,
+          loader,
+          loading: experimental_loading,
+          renderStage,
+          renderTarget: experimental_renderTarget,
+        })
+      ),
     });
   };
 }

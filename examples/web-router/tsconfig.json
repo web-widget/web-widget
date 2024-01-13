@@ -27,7 +27,7 @@
     ]
   },
   "include": [
-    "routes/**.*",
+    "routes/**/*",
     "*.ts"
   ]
 }

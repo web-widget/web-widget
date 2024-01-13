@@ -9,12 +9,10 @@ import type {
   MiddlewareHandler,
 } from "@web-widget/web-router";
 import path from "node:path";
-import url from "node:url";
 import stripAnsi from "strip-ansi";
 import type { Plugin, ViteDevServer } from "vite";
 import type { ResolvedBuilderConfig, ServerEntryModule } from "../types";
 import { getMeta } from "./meta";
-import { resolve } from "import-meta-resolve";
 import { fileSystemRouteGenerator } from "./routing";
 
 const WEB_ROUTER = "@web-widget/web-router";
@@ -80,44 +78,15 @@ export function webRouterDevServerPlugin(
         }
       };
     },
-    async transformIndexHtml(html, { server }) {
-      const id = resolve("@web-widget/web-widget/inspector", import.meta.url);
-      const wc = "/@fs" + url.fileURLToPath(id);
+    async transformIndexHtml() {
       return [
         {
           injectTo: "head",
           tag: "script",
           attrs: {
             type: "module",
-            src:
-              "/" +
-              path.relative(
-                (server as ViteDevServer).config.root,
-                builderConfig.input.client.entry
-              ),
+            src: "/" + path.relative(root, builderConfig.input.client.entry),
           },
-        },
-        {
-          injectTo: "head",
-          tag: "style",
-          children: "web-widget{display:contents}",
-        },
-        {
-          injectTo: "body",
-          tag: "web-widget-inspector",
-          attrs: {
-            dir: root,
-            keys: `[&quot;Shift&quot;]`,
-          },
-          children: [
-            {
-              tag: "script",
-              attrs: {
-                type: "module",
-              },
-              children: `import "${wc}"`,
-            },
-          ],
         },
       ];
     },

@@ -2,7 +2,8 @@ import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import * as esModuleLexer from "es-module-lexer";
 import MagicString from "magic-string";
 import path from "node:path";
-import type { Plugin } from "vite";
+import { createRequire } from "node:module";
+import type { IndexHtmlTransformResult, Plugin } from "vite";
 import { defineAsyncOptions } from "../container";
 import type { ResolveAssetProtocolPluginOptions } from "./resolve-asset-protocol";
 import { ASSET_PROTOCOL, resolveAssetProtocol } from "./resolve-asset-protocol";
@@ -12,10 +13,11 @@ const ASSET_PLACEHOLDER = `${ASSET_PROTOCOL}//`;
 let index = 0;
 const alias = (name: string) => `__$${name}${index++}$__`;
 const globalCache: Set<string> = new Set();
+const require = createRequire(import.meta.url);
 const parseComponentName = (code: string) =>
   code.match(/import\s+([a-zA-Z$_]\w*)\s+/)?.[1];
 
-export interface WebWidgetToComponentPluginOptions {
+export interface ImportWebWidgetPluginOptions {
   cache?: Set<string>;
   /** @deprecated */
   component?: FilterPattern;
@@ -45,8 +47,8 @@ export interface WebWidgetToComponentPluginOptions {
  * ...
  * <MyComponent title="My component" />
  */
-export function webWidgetToComponentPlugin(
-  options: WebWidgetToComponentPluginOptions
+export function importWebWidgetPlugin(
+  options: ImportWebWidgetPluginOptions
 ): Plugin[] {
   let dev = false;
   let root: string;
@@ -60,7 +62,7 @@ export function webWidgetToComponentPlugin(
 
   return [
     {
-      name: "builder:web-widget-to-component",
+      name: "builder:import-web-widget",
       async config(userConfig, { command }) {
         const ssrBuild = !!userConfig.build?.ssr;
         const {
@@ -68,7 +70,7 @@ export function webWidgetToComponentPlugin(
           exclude,
           excludeImporter,
           includeImporter = component,
-          include = /(?:\.|@)(?:widget|route)\.[^.]*$/,
+          include, // = /(?:\.|@)widget\..*$/,
           manifest,
           provide,
         } = options;
@@ -95,6 +97,47 @@ export function webWidgetToComponentPlugin(
       },
       async configResolved(config) {
         base = config.base;
+      },
+      async transformIndexHtml(html, { server: dev }) {
+        const styleId = "web-widget:style";
+        const inspectorId = "web-widget:inspector";
+        const result: IndexHtmlTransformResult = [];
+
+        if (!html.includes(`name="${styleId}"`)) {
+          result.push({
+            injectTo: "head",
+            tag: "style",
+            attrs: {
+              name: styleId,
+            },
+            children: "web-widget{display:contents}",
+          });
+        }
+
+        if (dev && !html.includes(`name="${inspectorId}"`)) {
+          const id = require.resolve("@web-widget/web-widget/inspector");
+          const src = `/@fs${id}`;
+          result.push({
+            injectTo: "body",
+            tag: "web-widget-inspector",
+            attrs: {
+              name: inspectorId,
+              dir: root,
+              keys: `[&quot;Shift&quot;]`,
+            },
+            children: [
+              {
+                tag: "script",
+                attrs: {
+                  type: "module",
+                  src,
+                },
+              },
+            ],
+          });
+        }
+
+        return result;
       },
       async resolveId(source, importer) {
         if (importer) {
@@ -176,9 +219,10 @@ export function webWidgetToComponentPlugin(
                   importer: id,
                 });
 
-            const clientModuleExpression = ssr
-              ? JSON.stringify(clientModuleId)
-              : `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
+            const clientModuleExpression =
+              ssr || dev
+                ? JSON.stringify(clientModuleId)
+                : `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
             const clientContainerOptions = {
               name: componentName,
             };
@@ -188,9 +232,9 @@ export function webWidgetToComponentPlugin(
               `import { ${inject} as ${definerName} } from ${JSON.stringify(
                 provide
               )};\n` +
-              `const ${componentName} = ${definerName}(() => import(${JSON.stringify(
+              `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
                 moduleName
-              )}), { base: import.meta.url, import: ${clientModuleExpression}, ${JSON.stringify(
+              )}), { /*base: import.meta.url,*/ import: ${clientModuleExpression}, ${JSON.stringify(
                 clientContainerOptions
               ).replaceAll(/^\{|\}$/g, "")} });\n`;
 

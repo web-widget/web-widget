@@ -1,8 +1,8 @@
 import type { Handlers, RouteComponentProps } from "@web-widget/react";
 import type { HelloData } from "./api/hello-world@route.ts";
 import BaseLayout from "./(components)/BaseLayout.tsx";
-import VueGithub from "@examples/vue3/Github@widget.vue?as=jsx";
-import Vue2Github from "@examples/vue2/Github@widget.vue?as=jsx";
+import VueGithub from "@examples/web-router-vue3/Github@widget.vue?as=jsx";
+import Vue2Github from "@examples/web-router-vue2/Github@widget.vue?as=jsx";
 import ReactGithub from "./(components)/Github@widget.tsx";
 import VanillaGithub from "./(components)/Github@widget.ts";
 

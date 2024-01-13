@@ -53,6 +53,10 @@
       "module": "routes/style@route.tsx"
     },
     {
+      "pathname": "/react-import-widgets",
+      "module": "routes/react-import-widgets/index.route.tsx"
+    },
+    {
       "pathname": "/dynamic-routes/:name",
       "module": "routes/dynamic-routes/[name]@route.tsx"
     },
@@ -67,6 +71,14 @@
     {
       "pathname": "/vue3-streaming",
       "module": "routes/(vue3)/vue3-streaming@route.vue"
+    },
+    {
+      "pathname": "/vue2-import-widgets",
+      "module": "routes/(vue2)/vue2-import-widgets/index@route.tsx"
+    },
+    {
+      "pathname": "/vue3-import-widgets",
+      "module": "routes/(vue3)/vue3-import-widgets/index@route.tsx"
     },
     {
       "pathname": "/vue2-router/:all*",

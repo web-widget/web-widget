@@ -1,4 +1,4 @@
-# @examples/vue2
+# @examples/web-router-vue2
 
 ## 1.0.2
 

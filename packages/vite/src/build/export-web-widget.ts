@@ -8,7 +8,7 @@ import { appendWebWidgetMetaPlugin } from "./append-web-widget-meta";
 
 const alias = (name: string) => `__$${name}$__`;
 
-export interface ComponentToWebWidgetPluginOptions {
+export interface ExportWidgetPluginOptions {
   destructuringExportDefault?: boolean | { exclude: string[] };
   exclude?: FilterPattern;
   include?: FilterPattern;
@@ -17,8 +17,8 @@ export interface ComponentToWebWidgetPluginOptions {
   provide: string;
 }
 
-export function componentToWebWidgetPlugin(
-  options: ComponentToWebWidgetPluginOptions
+export function exportWebWidgetPlugin(
+  options: ExportWidgetPluginOptions
 ): Plugin[] {
   let filter: (id: string | unknown) => boolean;
   const [
@@ -27,12 +27,12 @@ export function componentToWebWidgetPlugin(
   ] = defineAsyncOptions<AppendWebWidgetMetaPluginOptions>({});
   return [
     {
-      name: "builder:component-to-web-widget",
+      name: "builder:export-web-widget",
       async config(userConfig) {
         const ssrBuild = !!userConfig.build?.ssr;
         const {
           exclude,
-          include = /\.(widget|route)\.[^.]*$/,
+          include, // = /(?:\.|@)(?:widget|route)\..*$/,
           manifest,
           provide,
         } = options;

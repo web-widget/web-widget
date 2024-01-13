@@ -2,16 +2,25 @@
   "name": "@web-widget/web-widget",
   "version": "1.7.2",
   "description": "Web front-end application container",
-  "author": "aui",
+  "keywords": [
+    "island",
+    "shadow dom",
+    "web components",
+    "widget"
+  ],
   "homepage": "https://github.com/web-widget/web-widget#readme",
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/web-widget/web-widget.git",
     "directory": "packages/web-widget"
   },
-  "bugs": {
-    "url": "https://github.com/web-widget/web-widget/issues"
-  },
+  "author": "aui",
+  "sideEffects": [
+    "./dist/web-widget.client.js"
+  ],
   "type": "module",
   "exports": {
     ".": {
@@ -36,15 +45,15 @@
       "development": "./src/client.ts",
       "default": "./dist/web-widget.client.js"
     },
-    "./server": {
-      "types": "./dist/web-widget.server.d.ts",
-      "development": "./src/server.ts",
-      "default": "./dist/web-widget.server.js"
-    },
     "./inspector": {
       "types": "./dist/inspector.d.ts",
       "development": "./src/inspector.ts",
       "default": "./dist/inspector.js"
+    },
+    "./server": {
+      "types": "./dist/web-widget.server.d.ts",
+      "development": "./src/server.ts",
+      "default": "./dist/web-widget.server.js"
     }
   },
   "files": [
@@ -55,23 +64,16 @@
     "dev": "pnpm exec tsup --watch",
     "prepublishOnly": "pnpm run build"
   },
-  "sideEffects": [
-    "./dist/web-widget.client.js"
-  ],
-  "dependencies": {
-    "@web-widget/schema": "workspace:*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "tsup": "^7.0.0",
-    "typescript": "^5.0.4"
+    "@web-widget/schema": "workspace:*",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
   },
-  "keywords": [
-    "island",
-    "shadow dom",
-    "web components",
-    "widget"
-  ],
+  "peerDependencies": {
+    "@web-widget/schema": "workspace:*"
+  },
   "publishConfig": {
     "access": "public",
     "exports": {
@@ -93,13 +95,13 @@
         "types": "./dist/web-widget.client.d.ts",
         "default": "./dist/web-widget.client.js"
       },
-      "./server": {
-        "types": "./dist/web-widget.server.d.ts",
-        "default": "./dist/web-widget.server.js"
-      },
       "./inspector": {
         "types": "./dist/inspector.d.ts",
         "default": "./dist/inspector.js"
+      },
+      "./server": {
+        "types": "./dist/web-widget.server.d.ts",
+        "default": "./dist/web-widget.server.js"
       }
     }
   }

@@ -1,5 +1,6 @@
 import { createNamespace } from "unctx";
-import { IS_BROWSER } from "./env";
+
+const IS_BROWSER = typeof document !== "undefined";
 
 export interface WebWidgetContext {
   pathname?: string;

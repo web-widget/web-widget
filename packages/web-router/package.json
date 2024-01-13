@@ -13,30 +13,33 @@
     "dist"
   ],
   "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage",
     "build": "pnpm exec tsup && pnpm run html-minifier",
     "dev": "pnpm exec tsup --watch",
     "html-minifier": "babel dist/* --out-dir dist",
-    "prepublishOnly": "pnpm run test && pnpm run build"
+    "prepublishOnly": "pnpm run test && pnpm run build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage"
   },
-  "dependencies": {
-    "@web-widget/html": "workspace:*",
-    "@web-widget/schema": "workspace:*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/cli": "^7.22.9",
     "@babel/core": "^7.22.5",
     "@babel/preset-env": "^7.22.9",
-    "@web-widget/eslint-config": "workspace:*",
-    "babel-plugin-template-html-minifier": "^4.1.0",
-    "tsup": "^7.0.0",
-    "typescript": "^5.0.4",
-    "urlpattern-polyfill": "^9.0.0",
     "@types/jest": "^29.5.3",
+    "@web-widget/eslint-config": "workspace:*",
+    "@web-widget/html": "workspace:*",
+    "@web-widget/schema": "workspace:*",
+    "babel-plugin-template-html-minifier": "^4.1.0",
     "jest": "^29.6.2",
-    "ts-jest": "^29.1.1",
+    "jest-environment-miniflare": "^2.14.1",
     "miniflare": "^3.20231030.0",
-    "jest-environment-miniflare": "^2.14.1"
+    "ts-jest": "^29.1.1",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "urlpattern-polyfill": "^9.0.0"
+  },
+  "peerDependencies": {
+    "@web-widget/html": "workspace:*",
+    "@web-widget/schema": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

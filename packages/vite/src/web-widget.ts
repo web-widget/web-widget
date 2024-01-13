@@ -1,53 +1,65 @@
 import path from "node:path";
 import type { Plugin, UserConfig } from "vite";
 import {
-  componentToWebWidgetPlugin,
-  type ComponentToWebWidgetPluginOptions,
-} from "./build/component-to-web-widget";
+  exportWebWidgetPlugin,
+  type ExportWidgetPluginOptions,
+} from "./build/export-web-widget";
 import {
-  webWidgetToComponentPlugin,
-  type WebWidgetToComponentPluginOptions,
-} from "./build/web-widget-to-component";
+  importWebWidgetPlugin,
+  type ImportWebWidgetPluginOptions,
+} from "./build/import-web-widget";
 import { getGlobalConfig, pluginContainer } from "./container";
 import type { ResolvedBuilderConfig } from "./types";
 
 export interface WebWidgetPluginOptions {
   provide?: string;
-  manifest?: ComponentToWebWidgetPluginOptions["manifest"];
+  manifest?: ExportWidgetPluginOptions["manifest"];
+  /**@deprecated Please use `export` instead. */
   toWebWidgets?: Partial<
-    ComponentToWebWidgetPluginOptions & {
-      manifest?: ComponentToWebWidgetPluginOptions["manifest"];
-      provide?: ComponentToWebWidgetPluginOptions["provide"];
+    ExportWidgetPluginOptions & {
+      manifest?: ExportWidgetPluginOptions["manifest"];
+      provide?: ExportWidgetPluginOptions["provide"];
     }
   >;
+  export?: Partial<
+    ExportWidgetPluginOptions & {
+      manifest?: ExportWidgetPluginOptions["manifest"];
+      provide?: ExportWidgetPluginOptions["provide"];
+    }
+  >;
+  /**@deprecated Please use `import` instead. */
   toComponents?: Partial<
-    WebWidgetToComponentPluginOptions & {
-      manifest?: WebWidgetToComponentPluginOptions["manifest"];
-      provide?: WebWidgetToComponentPluginOptions["provide"];
+    ImportWebWidgetPluginOptions & {
+      manifest?: ImportWebWidgetPluginOptions["manifest"];
+      provide?: ImportWebWidgetPluginOptions["provide"];
+    }
+  >;
+  import?: Partial<
+    ImportWebWidgetPluginOptions & {
+      manifest?: ImportWebWidgetPluginOptions["manifest"];
+      provide?: ImportWebWidgetPluginOptions["provide"];
     }
   >;
 }
 
-export function webWidgetPlugin({
-  manifest,
-  provide,
-  toComponents,
-  toWebWidgets,
-}: WebWidgetPluginOptions): Plugin[] {
+export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
+  let { manifest, provide } = options;
+  const importWidget = options.import ?? options.toComponents;
+  const exportWidget = options.export ?? options.toWebWidgets;
   const plugins: Plugin[] = [];
 
-  if (toWebWidgets) {
+  if (exportWidget) {
     plugins.push(
-      pluginContainer<ComponentToWebWidgetPluginOptions>(
-        componentToWebWidgetPlugin,
+      pluginContainer<ExportWidgetPluginOptions>(
+        exportWebWidgetPlugin,
         (userConfig) => {
           if (!manifest) {
             manifest = getManifest(userConfig);
           }
 
           return {
-            ...toWebWidgets,
-            provide: (toWebWidgets.provide ?? provide) as string,
+            ...exportWidget,
+            provide: (exportWidget.provide ?? provide) as string,
             manifest: manifest,
           };
         }
@@ -55,17 +67,17 @@ export function webWidgetPlugin({
     );
   }
 
-  if (toWebWidgets) {
+  if (importWidget) {
     plugins.push(
-      pluginContainer<WebWidgetToComponentPluginOptions>(
-        webWidgetToComponentPlugin,
+      pluginContainer<ImportWebWidgetPluginOptions>(
+        importWebWidgetPlugin,
         (userConfig) => {
           if (!manifest) {
             manifest = getManifest(userConfig);
           }
           return {
-            ...toComponents,
-            provide: (toWebWidgets.provide ?? provide) as string,
+            ...importWidget,
+            provide: (importWidget.provide ?? provide) as string,
             manifest,
           };
         }

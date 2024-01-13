@@ -17,61 +17,67 @@ export const createVueRender = ({
   return defineRender(async (context) => {
     const componentDescriptor = getComponentDescriptor(context);
     const { component, props } = componentDescriptor;
+    const container = context.container as Element;
 
-    if (!context.container) {
+    if (!container) {
       throw new Error(`Container required.`);
+    }
+
+    if (component.__name) {
+      // NOTE: Avoid vue warnings: `[Vue warn]: Invalid component name ...`
+      component.__name = component.__name.replace("@", ".");
     }
 
     let app: Vue | null;
 
     return {
       async mount() {
-        const shellTag = "web-widget.shell";
-        const vue2rootAttr = "data-vue2root";
-        const vue2ssrAttr = "data-server-rendered";
-        // NOTE: The "$mount" method of vue2 will replace the container element.
-        const shell =
-          (context.recovering &&
-            context.container.querySelector(shellTag.replace(".", "\\."))) ||
-          context.container.appendChild(document.createElement(shellTag));
-        const componentRoot = context.recovering
-          ? shell.querySelector(`[${vue2rootAttr}]`)
-          : null;
-        const state = context.recovering
-          ? (context.container.querySelector(
-              "script[as=state]"
-            ) as HTMLScriptElement)
-          : null;
-        const stateContent =
-          context.recovering && state
+        let element: Element = container;
+        let mergedProps: Record<string, any> = props as any;
+
+        if (context.recovering) {
+          const vue2ssrAttrSelector = `[data-server-rendered="true"]`;
+          const ssrRoot =
+            container.querySelector(vue2ssrAttrSelector) ||
+            container.firstElementChild;
+          const state = container.querySelector(
+            "script[as=state]"
+          ) as HTMLScriptElement;
+          const stateContent = state
             ? JSON.parse(state.textContent as string)
             : onPrefetchData
             ? await onPrefetchData(context, component, props)
             : undefined;
 
-        state?.remove();
-        shell.removeAttribute(vue2ssrAttr);
-        componentRoot?.removeAttribute(vue2rootAttr);
-        componentRoot?.setAttribute(vue2ssrAttr, "true");
+          if (!ssrRoot) {
+            throw new Error(
+              `No element found for hydration: ${vue2ssrAttrSelector}`
+            );
+          }
 
-        const mergedProps = stateContent
-          ? Object.assign(stateContent, props)
-          : props;
-
-        const vNodeData: Vue.VNodeData = {
-          props: mergedProps as Record<string, any>,
-        };
+          element = ssrRoot;
+          mergedProps = stateContent
+            ? Object.assign(stateContent, props)
+            : props;
+        }
 
         app = new Vue({
           render(h) {
-            return h(component, vNodeData);
+            return h(component, {
+              props: mergedProps,
+            });
           },
           ...(await onBeforeCreateApp(context, component, mergedProps)),
         });
 
         await onCreatedApp(app, context, component, mergedProps);
 
-        app.$mount(shell);
+        if (context.recovering) {
+          app.$mount(element, context.recovering);
+        } else {
+          container.appendChild(app.$mount().$el);
+        }
+        
       },
 
       async unmount() {

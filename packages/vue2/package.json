@@ -36,22 +36,24 @@
     "dev": "pnpm exec tsup --watch",
     "prepublishOnly": "pnpm run build"
   },
-  "dependencies": {
-    "@web-widget/vite": "workspace:*",
-    "@web-widget/schema": "workspace:*",
-    "@web-widget/web-widget": "workspace:*",
-    "vue": "^2.7.16",
-    "vue-server-renderer": "^2.7.14"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^20.5.7",
-    "tsup": "^7.0.0",
-    "typescript": "^5.0.4",
-    "vite": "^5.0.11"
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/vite": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11",
+    "vue": "^2.7.16",
+    "vue-server-renderer": "^2.7.16"
   },
   "peerDependencies": {
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/vite": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
     "vue": "^2.7.16",
-    "vue-server-renderer": "^2.7.14"
+    "vue-server-renderer": "^2.7.16"
   },
   "publishConfig": {
     "access": "public",

@@ -2,24 +2,31 @@ import type { Plugin } from "vite";
 import { webWidgetPlugin } from "@web-widget/vite";
 import type { WebWidgetPluginOptions } from "@web-widget/vite";
 
+const EXCLUDE = /vue\?.*&lang\.(?:css|js|ts)$/;
+
+function toArray(value: any) {
+  return Array.isArray(value) ? value : value ? [value] : [];
+}
+
 export interface VueWebWidgetPluginOptions extends WebWidgetPluginOptions {}
 
 export default function vueWebWidgetPlugin({
   provide = "@web-widget/vue",
-  toWebWidgets = {},
-  toComponents = {},
+  export: exportWidget = {},
+  import: importWidget = {},
 }: VueWebWidgetPluginOptions = {}): Plugin[] {
   return webWidgetPlugin({
     provide,
-    toWebWidgets: {
-      include: /(?:\.|@)(?:route|widget).*\.vue(\?.*)?$/,
-      exclude: /\?.*\.css$/,
-      ...toWebWidgets,
+    export: {
+      include: /(?:\.|@)(?:route|widget)\.vue(?:\?.*)?$/,
+      ...exportWidget,
+      exclude: [...toArray(exportWidget.exclude), EXCLUDE],
     },
-    toComponents: {
-      include: /(?:\.|@)widget\.[^.]*$/,
-      includeImporter: /.*\.vue(\?.*\.(?:ts|js))?$/,
-      ...toComponents,
+    import: {
+      include: /(?:\.|@)widget\..*$/,
+      includeImporter: /.*\.vue(?:\?.*)?$/,
+      ...importWidget,
+      exclude: [...toArray(importWidget.exclude), EXCLUDE],
     },
   });
 }

@@ -1,5 +1,5 @@
 import type { Plugin } from "vite";
-import { buildWebWidgetEntryPlugin } from "./build/build-web-widget-entry";
+import { buildWebRouterEntryPlugin } from "./build/build-web-router-entry";
 import { parseConfig } from "./config";
 import { pluginContainer } from "./container";
 import { webRouterDevServerPlugin } from "./dev/dev-server";
@@ -9,7 +9,7 @@ export function webRouterPlugin(config: BuilderUserConfig = {}): Plugin[] {
   let builderConfig: ResolvedBuilderConfig;
   return [
     ...pluginContainer<ResolvedBuilderConfig>(
-      buildWebWidgetEntryPlugin,
+      buildWebRouterEntryPlugin,
       ({ root = process.cwd(), resolve: { extensions } = {} }) => {
         builderConfig = parseConfig(config || {}, root, extensions);
         return builderConfig;

@@ -12,15 +12,19 @@ type JSONProps = { [x: string]: JSONValue };
 
 export type Loader = () => Promise<WidgetModule>;
 
-export interface WebWidgetContainerOptions {
+export interface WebWidgetElementProps {
   base?: string;
-  children /**/?: string;
   data?: JSONProps;
   import?: string;
   inactive?: boolean;
   loading?: "lazy" | "eager" | "idle";
   meta?: Meta;
   name?: string;
-  renderStage /**/?: "server" | "client";
+  // recovering?: boolean;
   renderTarget?: "light" | "shadow";
+}
+
+export interface WebWidgetRendererOptions extends WebWidgetElementProps {
+  children?: string;
+  renderStage?: "server" | "client";
 }

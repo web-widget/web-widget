@@ -1,6 +1,6 @@
 import type { Handlers, RouteComponentProps, Meta } from "@web-widget/react";
 import { renderMetaToString, mergeMeta } from "@web-widget/react";
-import ReactCounter from "./(components)/Counter@widget.tsx";
+import ReactCounter from "./(components)/Counter@widget";
 import "./(css)/style.css";
 // eslint-disable-next-line import/no-unresolved
 import icon from "../public/favicon.svg";
