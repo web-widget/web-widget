@@ -107,19 +107,19 @@ export function exportWebWidgetPlugin(
 
               if (!excludeDestructuringExportDefault?.includes(exportName)) {
                 magicString.append(
-                  `export const { ${exportName} = ${alias(
+                  `\nexport const { ${exportName} = ${alias(
                     exportName
-                  )} } = ${alias("default")};\n`
+                  )} } = ${alias("default")};`
                 );
               } else {
                 magicString.append(
-                  `export const ${exportName} = ${alias(exportName)};\n`
+                  `\nexport const ${exportName} = ${alias(exportName)};`
                 );
               }
-
-              magicString.append(`export default ${alias("default")};\n`);
             }
           });
+
+          magicString.append(`\nexport default ${alias("default")};`);
         } else {
           injects.forEach((exportName) => {
             if (!exports.some(({ n: name }) => name === exportName)) {
