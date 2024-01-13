@@ -1,5 +1,19 @@
 # @web-widget/vue
 
+## 0.12.0
+
+### Minor Changes
+
+- Supports importing `@widget` format files as components in the vue3 component client.
+- Fix package.json peer dependency bug.
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-widget@1.8.0
+  - @web-widget/html@0.1.9
+  - @web-widget/vite@2.11.0
+
 ## 0.11.1
 
 ### Patch Changes
