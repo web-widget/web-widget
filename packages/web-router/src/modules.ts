@@ -37,31 +37,41 @@ function callAsyncContext<T extends (...args: any[]) => any>(
   setup: T,
   args?: Parameters<T>
 ): Promise<Response> {
-  const ctx = useContext();
-  if (ctx) {
-    return args ? setup(...args) : setup();
-  }
-
+  const hasCtx = !!useContext();
   const data = createContext({
     params: context.params,
     pathname: context.pathname,
   });
 
   if (context.meta) {
-    context.meta = mergeMeta(context.meta, {
-      script: [
-        {
-          // @ts-ignore
-          name: "state:web-router",
-          type: "application/json",
-          // TODO htmlEscapeJsonString
-          content: JSON.stringify(data),
-        },
-      ],
+    const name = "state:web-router";
+    const meta = mergeMeta(context.meta, {});
+    const script = (meta.script ??= []);
+    const index = script.findIndex(
+      // @ts-ignore
+      (script) => script.name === name
+    );
+
+    if (typeof index === "number") {
+      script.splice(index, 1);
+    }
+
+    script.push({
+      // @ts-ignore
+      name,
+      type: "application/json",
+      // TODO htmlEscapeJsonString
+      content: JSON.stringify(data),
     });
+
+    context.meta = meta;
   }
 
-  return callContext(data, setup, args);
+  if (hasCtx) {
+    return args ? setup(...args) : setup();
+  } else {
+    return callContext(data, setup, args);
+  }
 }
 
 function composeHandler(handler: RouteHandler | RouteHandlers): RouteHandler {
