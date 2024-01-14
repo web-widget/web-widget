@@ -26,18 +26,20 @@ function patchVuePluginConfig(): Plugin {
       const alias = config.resolve.alias;
       const dedupe = config.resolve.dedupe;
 
-      if (dedupe) {
+      if (Array.isArray(dedupe)) {
         // Patch vue3 plugin config.
         // @see https://github.com/vitejs/vite-plugin-vue/blob/main/packages/plugin-vue/src/index.ts#L147
-        dedupe.splice(dedupe.indexOf("vue"), 1);
+        dedupe.forEach((value, index) => {
+          if (value === "vue") {
+            dedupe.splice(index, 1);
+          }
+        });
       }
 
-      if (alias) {
+      if (Array.isArray(alias)) {
         // Patch vue2 plugin config.
         // @see https://github.com/vitejs/vite-plugin-vue2/blob/main/src/index.ts#L103
-        if (Array.isArray(alias)) {
-          alias.splice(alias.findIndex(({ find }) => find === "vue"));
-        }
+        alias.splice(alias.findIndex(({ find }) => find === "vue"));
       }
     },
   };
