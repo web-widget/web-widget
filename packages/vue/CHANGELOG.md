@@ -1,5 +1,12 @@
 # @web-widget/vue
 
+## 0.12.1
+
+### Patch Changes
+
+- Fix less language causing failure to build.
+  - @web-widget/vite@2.11.1
+
 ## 0.12.0
 
 ### Minor Changes
