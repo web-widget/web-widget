@@ -1,5 +1,11 @@
 # @examples/web-router
 
+## 1.1.32
+
+### Patch Changes
+
+- @examples/web-router-vue2@1.0.6
+
 ## 1.1.31
 
 ### Patch Changes
