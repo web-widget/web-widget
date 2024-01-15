@@ -1,5 +1,11 @@
 # @examples/web-widget
 
+## 0.0.5
+
+### Patch Changes
+
+- @examples/web-widget-vue2@1.0.7
+
 ## 0.0.4
 
 ### Patch Changes
