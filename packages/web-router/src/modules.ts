@@ -52,7 +52,7 @@ function callAsyncContext<T extends (...args: any[]) => any>(
       (script) => script.name === name
     );
 
-    if (typeof index === "number") {
+    if (index > -1) {
       script.splice(index, 1);
     }
 
