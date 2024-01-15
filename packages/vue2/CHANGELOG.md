@@ -1,5 +1,11 @@
 # @web-widget/vue2
 
+## 0.10.3
+
+### Patch Changes
+
+- Fix vue2 hydrate error.
+
 ## 0.10.2
 
 ### Patch Changes
