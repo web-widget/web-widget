@@ -1,5 +1,12 @@
 # @examples/web-router-vue2
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/vue2@0.10.4
+
 ## 1.0.6
 
 ### Patch Changes
