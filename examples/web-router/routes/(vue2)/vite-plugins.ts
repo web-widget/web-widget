@@ -21,10 +21,10 @@ export function vue2PresetsPlugin() {
     }),
     vue2WebWidgetPlugin({
       export: {
-        include: subFile("@(route|widget).vue"),
+        include: subFile("@(?:route|widget)\\.vue"),
       },
       import: {
-        includeImporter: subFile(".vue"),
+        includeImporter: subFile("\\.vue"),
       },
     }),
   ];

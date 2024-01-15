@@ -2,6 +2,11 @@ import type { Plugin } from "vite";
 import { webWidgetPlugin } from "@web-widget/vite";
 import type { WebWidgetPluginOptions } from "@web-widget/vite";
 
+// Examples:
+// .vue?vue&type=script&setup=true&lang.tsx
+// .vue?vue&type=script&setup=true&lang.jsx
+const VUE_INTERNAL_REQUEST = /.*\.vue\?vue\b.*$/;
+
 export interface ReactWebWidgetPluginOptions extends WebWidgetPluginOptions {}
 
 export default function reactWebWidgetPlugin({
@@ -19,6 +24,14 @@ export default function reactWebWidgetPlugin({
       include: /(?:\.|@)widget\..*$/,
       includeImporter: /.*\.(?:tsx|jsx)(?:\?.*)?$/,
       ...importWidget,
+      excludeImporter: [
+        ...toArray(importWidget.excludeImporter),
+        VUE_INTERNAL_REQUEST,
+      ],
     },
   });
+}
+
+function toArray(value: any) {
+  return Array.isArray(value) ? value : value ? [value] : [];
 }
