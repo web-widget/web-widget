@@ -1,5 +1,11 @@
 # @web-widget/web-router
 
+## 0.7.7
+
+### Patch Changes
+
+- Refactor `callAsyncContext`.
+
 ## 0.7.6
 
 ### Patch Changes
