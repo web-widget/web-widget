@@ -40,9 +40,10 @@ export const createVueRender = ({
           const ssrRoot =
             container.querySelector(vue2ssrAttrSelector) ||
             container.firstElementChild;
-          const state = container.querySelector(
-            "script[as=state]"
-          ) as HTMLScriptElement;
+          const state =
+            (container.querySelector(
+              "script[as=state]"
+            ) as HTMLScriptElement) || null;
           const stateContent = state
             ? JSON.parse(state.textContent as string)
             : onPrefetchData
@@ -59,6 +60,8 @@ export const createVueRender = ({
           mergedProps = stateContent
             ? Object.assign(stateContent, props)
             : props;
+
+          state?.remove();
         }
 
         app = new Vue({
@@ -77,7 +80,6 @@ export const createVueRender = ({
         } else {
           container.appendChild(app.$mount().$el);
         }
-        
       },
 
       async unmount() {
