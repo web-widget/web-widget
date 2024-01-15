@@ -1,5 +1,11 @@
 # @web-widget/react
 
+## 0.10.2
+
+### Patch Changes
+
+- Fix jsx conflict between react and vue.
+
 ## 0.10.1
 
 ### Patch Changes
