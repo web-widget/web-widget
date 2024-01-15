@@ -32,18 +32,17 @@ export const createVueRender = ({
 
     return {
       async mount() {
-        let element: Element = container;
+        let element: Element | Node = container;
         let mergedProps: Record<string, any> = props as any;
 
         if (context.recovering) {
           const vue2ssrAttrSelector = `[data-server-rendered="true"]`;
           const ssrRoot =
             container.querySelector(vue2ssrAttrSelector) ||
-            container.firstElementChild;
-          const state =
-            (container.querySelector(
-              "script[as=state]"
-            ) as HTMLScriptElement) || null;
+            container.firstChild;
+          const state = container.querySelector(
+            "script[as=state]"
+          ) as HTMLScriptElement | null;
           const stateContent = state
             ? JSON.parse(state.textContent as string)
             : onPrefetchData
@@ -76,7 +75,7 @@ export const createVueRender = ({
         await onCreatedApp(app, context, component, mergedProps);
 
         if (context.recovering) {
-          app.$mount(element, context.recovering);
+          app.$mount(element as Element, context.recovering);
         } else {
           container.appendChild(app.$mount().$el);
         }
