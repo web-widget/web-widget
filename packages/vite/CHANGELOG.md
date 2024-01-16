@@ -1,5 +1,11 @@
 # @web-widget/vite
 
+## 2.11.3
+
+### Patch Changes
+
+- Fix `trailingSlash` configuration not working correctly.
+
 ## 2.11.2
 
 ### Patch Changes
