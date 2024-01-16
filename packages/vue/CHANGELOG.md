@@ -1,5 +1,11 @@
 # @web-widget/vue
 
+## 0.12.3
+
+### Patch Changes
+
+- Fix ssr has redundant `^data` attribute.
+
 ## 0.12.2
 
 ### Patch Changes

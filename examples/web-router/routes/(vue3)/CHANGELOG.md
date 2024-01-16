@@ -1,5 +1,12 @@
 # @examples/web-router-vue3
 
+## 1.0.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/vue@0.12.3
+
 ## 1.0.5
 
 ### Patch Changes
