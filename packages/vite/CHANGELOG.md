@@ -1,5 +1,12 @@
 # @web-widget/vite
 
+## 2.11.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/web-router@0.8.0
+
 ## 2.11.1
 
 ### Patch Changes
