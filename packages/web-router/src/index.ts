@@ -1,6 +1,7 @@
 import { Application } from "./application";
 import type { ApplicationOptions } from "./application";
 import type {
+  Context,
   Env,
   LayoutModule,
   Manifest,
@@ -32,6 +33,7 @@ export type StartOptions<E extends Env = {}> = {
   defaultRenderOptions?: RouteRenderOptions;
   dev?: boolean;
   origin?: string;
+  onError?: (error: Error, context?: Context) => void;
 } & ApplicationOptions<E>;
 
 export { PageContext };
@@ -72,6 +74,17 @@ export default class WebRouter<
       defaultBaseAsset
     );
     const defaultRenderOptions = options.defaultRenderOptions ?? {};
+    const onError =
+      options.onError ??
+      ((error) => {
+        const status = Reflect.get(error, "status") ?? 500;
+        if (status >= 500) {
+          console.error(
+            "An error occurred during route handling or page rendering.",
+            error
+          );
+        }
+      });
 
     routes.forEach((item) => {
       this.all(
@@ -134,7 +147,9 @@ export default class WebRouter<
     );
 
     this.onError(async (error, context) => {
+      onError(error, context);
       const status = Reflect.get(error, "status");
+
       if (status === 404) {
         return notFoundHandler(error, context);
       } else {

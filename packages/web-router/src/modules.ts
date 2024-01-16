@@ -317,14 +317,6 @@ export function createFallbackHandler(
     );
     renderOptions ??= Object.assign({}, defaultRenderOptions);
 
-    const status = Reflect.get(error, "status") ?? 500;
-    if (status >= 500) {
-      console.error(
-        "An error occurred during route handling or page rendering.",
-        error
-      );
-    }
-
     const pageContext = context as PageContext;
     pageContext.error = error;
     pageContext.meta = meta;
