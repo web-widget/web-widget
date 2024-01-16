@@ -3,9 +3,10 @@ import fs from "node:fs/promises";
 import { walkRoutes } from "./walk-routes-dir";
 import { pathToPattern, sortRoutePaths } from "./extract";
 import type { ManifestJSON } from "@web-widget/web-router";
-import { /*createFileId,*/ getPathnameFromDirPath, normalizePath } from "./fs";
+import /*createFileId,*/ "./fs";
 import type { RouteSourceFile } from "./types";
 import type { FSWatcher } from "vite";
+import { normalizePath } from "@rollup/pluginutils";
 
 export type FileSystemRouteGeneratorOptions = {
   basePathname: string;
@@ -107,16 +108,21 @@ export async function getRoutemap(
     .sort((a, b) => sortRoutePaths(a.pathname, b.pathname));
 
   const toValue = (item: RouteSourceFile) => {
-    const pathname =
-      item.type === "route" || item.type === "middleware"
-        ? pathToPattern(
-            getPathnameFromDirPath(
-              item.pathname,
-              basePathname,
-              trailingSlash
-            ).slice(1)
-          )
-        : undefined;
+    let pathname;
+
+    if (item.type === "route" || item.type === "middleware") {
+      pathname = normalizePath(basePathname + item.pathname);
+
+      if (pathname.startsWith("/")) {
+        pathname = pathname.substring(1);
+      }
+
+      pathname = pathToPattern(pathname);
+      if (trailingSlash && !pathname.endsWith("/")) {
+        pathname = pathname + "/";
+      }
+    }
+
     //const name = createFileId(pathname ?? item.name, item.type);
     const module = normalizePath(path.relative(root, item.source));
     const status =
