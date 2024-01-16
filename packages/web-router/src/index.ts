@@ -78,11 +78,11 @@ export default class WebRouter<
       options.onError ??
       ((error) => {
         const status = Reflect.get(error, "status") ?? 500;
-        if (status >= 500) {
-          console.error(
-            "An error occurred during route handling or page rendering.",
-            error
-          );
+        const expose = Reflect.get(error, "expose");
+
+        if (status >= 500 && !expose) {
+          const msg = error.stack || error.toString();
+          console.error(`\n${msg.replace(/^/gm, "  ")}\n`);
         }
       });
 
