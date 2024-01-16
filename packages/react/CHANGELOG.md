@@ -1,5 +1,11 @@
 # @web-widget/react
 
+## 0.10.3
+
+### Patch Changes
+
+- @web-widget/vite@2.11.2
+
 ## 0.10.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @web-widget/web-router
 
+## 0.8.0
+
+### Minor Changes
+
+- Add `onError` option.
+
 ## 0.7.7
 
 ### Patch Changes
