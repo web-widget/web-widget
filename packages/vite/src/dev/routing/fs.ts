@@ -12,69 +12,6 @@ function toTitleCase(str: string) {
   });
 }
 
-export function getPathnameFromDirPath(
-  path: string,
-  basePathname: string,
-  trailingSlash: boolean
-) {
-  // ensure file system path uses / (POSIX) instead of \\ (windows)
-  let pathname = normalizePath(path);
-
-  pathname = normalizePathname(pathname, basePathname, trailingSlash)!
-    .split("/")
-    .join("/");
-
-  return pathname;
-}
-
-function normalizePathname(
-  pathname: string | undefined | null,
-  basePathname: string,
-  trailingSlash: boolean
-) {
-  if (typeof pathname === "string") {
-    pathname = pathname.trim();
-
-    if (pathname !== "") {
-      try {
-        // remove duplicate forward slashes
-        pathname = pathname.replace(/\/+/g, "/");
-
-        if (pathname.startsWith("/")) {
-          pathname = pathname.slice(1);
-        }
-
-        // normalize the basePath and pathname together
-        // origin doesn't matter here
-        pathname = new URL(basePathname + pathname, `https://web-widget.js.org`)
-          .pathname;
-
-        if (pathname !== basePathname) {
-          if (trailingSlash) {
-            if (!pathname.endsWith("/")) {
-              const segments = pathname.split("/");
-              const lastSegment = segments[segments.length - 1];
-
-              if (!lastSegment.includes(".")) {
-                pathname += "/";
-              }
-            }
-          } else {
-            if (pathname.endsWith("/")) {
-              pathname = pathname.slice(0, pathname.length - 1);
-            }
-          }
-        }
-
-        return pathname;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }
-  return null;
-}
-
 export function getExtension(fileName: string) {
   if (typeof fileName === "string") {
     const parts = fileName.trim().toLowerCase().split(".");
