@@ -1,5 +1,13 @@
 # @examples/web-widget
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @web-widget/vue@0.12.3
+  - @examples/web-widget-vue3@1.0.6
+
 ## 0.0.5
 
 ### Patch Changes
