@@ -69,7 +69,7 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
     const innerHTML = await widget.renderInnerHTMLToString();
 
     if (IS_BROWSER) {
-      // await customElements.whenDefined(tag);
+      await customElements.whenDefined(tag);
       // let element = document.createElement(tag);
       // Object.entries(attrs).forEach(([name, value]) => {
       //   element.setAttribute(name, value);
@@ -80,11 +80,14 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
       // element = null;
     }
 
+    const data = attrs.data;
+    delete attrs.data;
+
     return () =>
       h(tag, {
         ...attrs,
         // NOTE: Use attr instead of props.
-        "^data": attrs.data,
+        ...(IS_BROWSER ? { "^data": data } : { data }),
         innerHTML,
       });
   },
