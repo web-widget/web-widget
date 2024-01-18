@@ -17,7 +17,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped>
   .counter {
     display: inline-block;
     line-height: 1em;

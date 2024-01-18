@@ -36,7 +36,6 @@
     "@types/react-dom": "^18.2.18",
     "@vitejs/plugin-react": "^4.1.1",
     "@web-widget/vite": "workspace:*",
-    "less": "^4.2.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.11"
   },

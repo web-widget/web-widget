@@ -14,7 +14,7 @@ const count = ref(props.start);
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped>
   .counter {
     display: inline-block;
     line-height: 1em;
