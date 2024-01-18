@@ -15,18 +15,22 @@ export default function vueWebWidgetPlugin({
   export: exportWidget = {},
   import: importWidget = {},
 }: VueWebWidgetPluginOptions = {}): Plugin[] {
+  const route = /(?:\.|@)route\.vue(?:\?.*)?$/;
+  const widget = /(?:\.|@)widget\.vue(?:\?.*)?$/;
   return webWidgetPlugin({
     provide,
     export: {
-      include: /(?:\.|@)(?:route|widget)\.vue(?:\?.*)?$/,
+      include: [route, widget],
       extractFromExportDefault: [
         {
           name: "handler",
           default: "{GET({render}){return render()}}",
+          include: route,
         },
         {
           name: "meta",
           default: "{}",
+          include: route,
         },
       ],
       ...exportWidget,

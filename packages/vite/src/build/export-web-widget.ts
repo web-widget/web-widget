@@ -12,6 +12,8 @@ export interface ExportWidgetPluginOptions {
   extractFromExportDefault?: {
     name: string;
     default: string;
+    exclude?: FilterPattern;
+    include?: FilterPattern;
   }[];
   exclude?: FilterPattern;
   include?: FilterPattern;
@@ -110,7 +112,11 @@ export function exportWebWidgetPlugin(
           );
 
           extractFromExportDefault.forEach((item) => {
-            if (!exports.some(({ n: name }) => name === item.name)) {
+            const filter = createFilter(item.include, item.exclude);
+            if (
+              !exports.some(({ n: name }) => name === item.name) &&
+              filter(id)
+            ) {
               magicString.append(
                 `\nexport const { ${item.name} = ${item.default} } = ${alias(
                   "default"
