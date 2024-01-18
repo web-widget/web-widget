@@ -19,10 +19,16 @@ export default function vueWebWidgetPlugin({
     provide,
     export: {
       include: /(?:\.|@)(?:route|widget)\.vue(?:\?.*)?$/,
-      inject: ["render", "handler", "meta"],
-      destructuringExportDefault: {
-        exclude: ["render"],
-      },
+      extractFromExportDefault: [
+        {
+          name: "handler",
+          default: "{GET({render}){return render()}}",
+        },
+        {
+          name: "meta",
+          default: "{}",
+        },
+      ],
       ...exportWidget,
       exclude: [...toArray(exportWidget.exclude), EXCLUDE],
     },

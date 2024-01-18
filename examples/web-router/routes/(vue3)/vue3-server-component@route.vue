@@ -31,6 +31,10 @@ const { data } = defineProps<RouteComponentProps<PageData>>();
 <template>
   <BaseLayout>
     <h1>Vue3: Server component</h1>
-    <p>{{ data }}</p>
+    <p class="data">{{ data }}</p>
   </BaseLayout>
 </template>
+
+<style>
+.data { color: cadetblue; }
+</style>

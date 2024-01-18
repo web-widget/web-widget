@@ -53,11 +53,3 @@ export const createVueRender = ({
 export const defineVueRender = createVueRender;
 
 export const render = createVueRender();
-
-export const meta = {};
-
-export const handler = {
-  GET() {
-    throw new Error(`Server-side only.`);
-  },
-};

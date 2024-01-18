@@ -37,6 +37,10 @@ const props = defineProps({
 <template>
   <BaseLayout>
     <h1>Vue2: Server component</h1>
-    <p>{{ props }}</p>
+    <p class="data">{{ props.data }}</p>
   </BaseLayout>
 </template>
+
+<style>
+.data { color: cadetblue; }
+</style>
