@@ -32,6 +32,8 @@ export type PageContext = {
   renderOptions?: RouteRenderOptions;
 } & Context;
 
+export type OnFallback = (error: Error, context?: Context) => void;
+
 function callAsyncContext<T extends (...args: any[]) => any>(
   context: PageContext,
   setup: T,
@@ -138,6 +140,7 @@ function composeHandler(handler: RouteHandler | RouteHandlers): RouteHandler {
 function composeRender(
   context: PageContext,
   layoutModule: LayoutModule,
+  onFallback: OnFallback,
   dev?: boolean
 ) {
   return async function render(
@@ -158,6 +161,10 @@ function composeRender(
 
     if (typeof context.module.render !== "function") {
       throw new TypeError(`Module does not export "render" function.`);
+    }
+
+    if (rawError) {
+      onFallback(rawError, context);
     }
 
     const error = rawError
@@ -261,6 +268,7 @@ export function createPageContext(
   defaultMeta: Meta,
   defaultBaseAsset: string,
   defaultRenderOptions: RouteRenderOptions,
+  onFallback: OnFallback,
   dev?: boolean
 ): MiddlewareHandler {
   let layoutModule;
@@ -280,7 +288,7 @@ export function createPageContext(
     if (!context.module) {
       context.meta = meta;
       context.module = module;
-      context.render = composeRender(context, layoutModule, dev);
+      context.render = composeRender(context, layoutModule, onFallback, dev);
       context.renderOptions = renderOptions;
     }
 
@@ -294,6 +302,7 @@ export function createFallbackHandler(
   defaultMeta: Meta,
   defaultBaseAsset: string,
   defaultRenderOptions: RouteRenderOptions,
+  onFallback: OnFallback,
   dev?: boolean
 ) {
   let handler;
@@ -321,7 +330,12 @@ export function createFallbackHandler(
     pageContext.error = error;
     pageContext.meta = meta;
     pageContext.module = module;
-    pageContext.render = composeRender(pageContext, layoutModule, dev);
+    pageContext.render = composeRender(
+      pageContext,
+      layoutModule,
+      onFallback,
+      dev
+    );
     pageContext.renderOptions = renderOptions;
 
     return callAsyncContext(pageContext, handler, [pageContext]);

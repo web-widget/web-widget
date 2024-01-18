@@ -1,7 +1,6 @@
 import { Application } from "./application";
 import type { ApplicationOptions } from "./application";
 import type {
-  Context,
   Env,
   LayoutModule,
   Manifest,
@@ -23,7 +22,7 @@ import {
   renderRouteModule,
   callMiddlewareModule,
 } from "./modules";
-import type { PageContext } from "./modules";
+import type { OnFallback, PageContext } from "./modules";
 export type * from "./types";
 
 export type StartOptions<E extends Env = {}> = {
@@ -33,7 +32,7 @@ export type StartOptions<E extends Env = {}> = {
   defaultRenderOptions?: RouteRenderOptions;
   dev?: boolean;
   origin?: string;
-  onError?: (error: Error, context?: Context) => void;
+  onFallback?: OnFallback;
 } & ApplicationOptions<E>;
 
 export { PageContext };
@@ -74,8 +73,8 @@ export default class WebRouter<
       defaultBaseAsset
     );
     const defaultRenderOptions = options.defaultRenderOptions ?? {};
-    const onError =
-      options.onError ??
+    const onFallback =
+      options.onFallback ??
       ((error) => {
         const status = Reflect.get(error, "status") ?? 500;
         const expose = Reflect.get(error, "expose");
@@ -95,6 +94,7 @@ export default class WebRouter<
           defaultMeta,
           defaultBaseAsset,
           defaultRenderOptions,
+          onFallback,
           options.dev
         )
       );
@@ -122,6 +122,7 @@ export default class WebRouter<
       defaultMeta,
       defaultBaseAsset,
       defaultRenderOptions,
+      onFallback,
       options.dev
     );
 
@@ -143,11 +144,11 @@ export default class WebRouter<
       defaultMeta,
       defaultBaseAsset,
       defaultRenderOptions,
+      onFallback,
       options.dev
     );
 
     this.onError(async (error, context) => {
-      onError(error, context);
       const status = Reflect.get(error, "status");
 
       if (status === 404) {
