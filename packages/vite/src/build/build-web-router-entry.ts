@@ -207,6 +207,7 @@ export function buildWebRouterEntryPlugin(
     },
 
     async writeBundle() {
+      // TODO Watch module
       stage++;
       if (!ssrBuild && builderConfig.autoFullBuild) {
         runSsrBuild(await createConfig(userConfig, true));

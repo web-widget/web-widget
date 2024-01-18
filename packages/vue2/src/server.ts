@@ -1,6 +1,7 @@
 import {
   defineRender,
   getComponentDescriptor,
+  type Handlers,
 } from "@web-widget/schema/server-helpers";
 // import { Readable } from "node:stream";
 // import { TransformStream } from "node:stream/web";

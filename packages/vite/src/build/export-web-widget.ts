@@ -9,7 +9,12 @@ import { appendWebWidgetMetaPlugin } from "./append-web-widget-meta";
 const alias = (name: string) => `__$${name}$__`;
 
 export interface ExportWidgetPluginOptions {
-  destructuringExportDefault?: boolean | { exclude: string[] };
+  extractFromExportDefault?: {
+    name: string;
+    default: string;
+    exclude?: FilterPattern;
+    include?: FilterPattern;
+  }[];
   exclude?: FilterPattern;
   include?: FilterPattern;
   inject?: string | string[];
@@ -59,7 +64,7 @@ export function exportWebWidgetPlugin(
 
         const {
           inject = ["render"],
-          destructuringExportDefault,
+          extractFromExportDefault,
           provide,
         } = options;
         const injects = Array.isArray(inject) ? inject : [inject];
@@ -68,11 +73,20 @@ export function exportWebWidgetPlugin(
         const [, exports] = esModuleLexer.parse(code, id);
         const magicString = new MagicString(code);
 
-        if (destructuringExportDefault) {
-          const excludeDestructuringExportDefault =
-            typeof destructuringExportDefault === "object"
-              ? destructuringExportDefault.exclude
-              : [];
+        injects.forEach((exportName) => {
+          if (!exports.some(({ n: name }) => name === exportName)) {
+            magicString.prepend(
+              // Note: Do not use the `export { render } from "xxx"`
+              // form because it may be accidentally deleted by rollup
+              `import { ${exportName} as ${alias(
+                exportName
+              )} } from ${JSON.stringify(provide)};\n` +
+                `export const ${exportName} = ${alias(exportName)};\n`
+            );
+          }
+        });
+
+        if (extractFromExportDefault) {
           const defaultExportSpecifier = exports.find(
             ({ n }) => n === "default"
           );
@@ -97,42 +111,21 @@ export function exportWebWidgetPlugin(
             `const ${alias("default")} =`
           );
 
-          injects.forEach((exportName) => {
-            if (!exports.some(({ n: name }) => name === exportName)) {
-              magicString.prepend(
-                `import { ${exportName} as ${alias(
-                  exportName
-                )} } from ${JSON.stringify(provide)};\n`
-              );
-
-              if (!excludeDestructuringExportDefault?.includes(exportName)) {
-                magicString.append(
-                  `export const { ${exportName} = ${alias(
-                    exportName
-                  )} } = ${alias("default")};\n`
-                );
-              } else {
-                magicString.append(
-                  `export const ${exportName} = ${alias(exportName)};\n`
-                );
-              }
-
-              magicString.append(`export default ${alias("default")};\n`);
-            }
-          });
-        } else {
-          injects.forEach((exportName) => {
-            if (!exports.some(({ n: name }) => name === exportName)) {
-              magicString.prepend(
-                // Note: Do not use the `export { render } from "xxx"`
-                // form because it may be accidentally deleted by rollup
-                `import { ${exportName} as ${alias(
-                  exportName
-                )} } from ${JSON.stringify(provide)};\n` +
-                  `export const ${exportName} = ${alias(exportName)};\n`
+          extractFromExportDefault.forEach((item) => {
+            const filter = createFilter(item.include, item.exclude);
+            if (
+              !exports.some(({ n: name }) => name === item.name) &&
+              filter(id)
+            ) {
+              magicString.append(
+                `\nexport const { ${item.name} = ${item.default} } = ${alias(
+                  "default"
+                )};`
               );
             }
           });
+
+          magicString.append(`\nexport default ${alias("default")};`);
         }
 
         return {

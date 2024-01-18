@@ -1,8 +1,9 @@
 import {
   defineRender,
   getComponentDescriptor,
+  type Handlers,
 } from "@web-widget/schema/server-helpers";
-import { Suspense, createSSRApp, h } from "vue";
+import { createSSRApp, h, Suspense } from "vue";
 import { renderToWebStream, type SSRContext } from "vue/server-renderer";
 import type { CreateVueRenderOptions } from "./types";
 
