@@ -20,5 +20,11 @@ export default (manifest: Manifest, options: StartOptions) => {
       },
       options.defaultMeta || {}
     ),
+    onFallback(error) {
+      console.error(
+        "An error occurred during route handling or page rendering.",
+        error
+      );
+    },
   });
 };
