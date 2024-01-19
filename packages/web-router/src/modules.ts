@@ -151,6 +151,10 @@ function composeRender(
     } = {},
     renderOptions = context.renderOptions
   ) {
+    if (rawError) {
+      onFallback(rawError, context);
+    }
+
     if (typeof layoutModule.render !== "function") {
       throw new TypeError(`Layout module does not export "render" function.`);
     }
@@ -161,10 +165,6 @@ function composeRender(
 
     if (typeof context.module.render !== "function") {
       throw new TypeError(`Module does not export "render" function.`);
-    }
-
-    if (rawError) {
-      onFallback(rawError, context);
     }
 
     const error = rawError
