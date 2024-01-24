@@ -46,9 +46,6 @@ importers:
       '@web-widget/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@web-widget/schema':
-        specifier: workspace:*
-        version: link:../../packages/schema
       '@web-widget/web-router':
         specifier: workspace:*
         version: link:../../packages/web-router
@@ -169,9 +166,6 @@ importers:
       '@web-widget/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@web-widget/schema':
-        specifier: workspace:*
-        version: link:../../packages/schema
       '@web-widget/vue':
         specifier: workspace:*
         version: link:../../packages/vue
@@ -344,11 +338,11 @@ importers:
   packages/node:
     dependencies:
       '@edge-runtime/node-utils':
-        specifier: ^2.2.2
-        version: 2.2.2
+        specifier: ^2.2.3
+        version: 2.2.3
       '@edge-runtime/primitives':
-        specifier: ^3.1.1
-        version: 3.1.1
+        specifier: ^4.0.6
+        version: 4.0.6
     devDependencies:
       '@types/node':
         specifier: ^17.0.45
@@ -2442,13 +2436,13 @@ packages:
     resolution: {integrity: sha512-TkcZkntUTOcvJ4vgmwpNfLTclpMbmbClZCe62B25/VTukmyv91joRa4eKzSjzCZUXTbFHNmVdOpmGaaJU2U3+A==}
     dev: true
 
-  /@edge-runtime/node-utils@2.2.2:
-    resolution: {integrity: sha512-2fSdYNAo4Pp46JGjV4vQV8N8uHZmww6nBLi80uuwUYHE2+44uE9CUeWGzE8JaV8Za4COLVoxD9AzVgjTb4bfhQ==}
+  /@edge-runtime/node-utils@2.2.3:
+    resolution: {integrity: sha512-nirFFbLY9SKM8/ypJOBFroGn5z7ZTBwwkSRT933gpR8S5O4MqSfGhuzQUwZL7JQ9lHHfufQYfTOShvN67wCQQA==}
     engines: {node: '>=16'}
     dev: false
 
-  /@edge-runtime/primitives@3.1.1:
-    resolution: {integrity: sha512-ROO22py+KdAfzqWZu6CtVMC4qV6mS0W1jPI51jGXE+uenyBUN7cQTWB9ReQc8Bm4cnjqmhajvpqEx3j7Y9iSOg==}
+  /@edge-runtime/primitives@4.0.6:
+    resolution: {integrity: sha512-Ahv7SdVJiFryuauSmubY4bVYvVWsf2h/n67TRRT5ERs6eK90xyeCB3hmn1ExTqaZtxO0Q9QTbEUXVxz6o4iSzw==}
     engines: {node: '>=16'}
     dev: false
 
