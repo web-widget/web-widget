@@ -41,23 +41,24 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
-    "@web-widget/schema": "workspace:*",
+    "@types/react": "^18.2.47",
+    "@web-widget/helpers": "workspace:*",
     "@web-widget/vite": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "react": "canary",
     "react-dom": "canary",
+    "react": "canary",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.11"
   },
   "peerDependencies": {
-    "@web-widget/schema": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
     "@web-widget/vite": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
+    "react-dom": "canary",
     "react": "canary",
-    "react-dom": "canary"
+    "vite": "^5.0.11"
   },
   "publishConfig": {
     "access": "public",

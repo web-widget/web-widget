@@ -32,7 +32,7 @@
   "devDependencies": {
     "@types/mime-types": "^2.1.1",
     "@types/node": "^20.4.8",
-    "@web-widget/schema": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
     "@web-widget/web-router": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "rollup": "^4.9.3",
@@ -42,7 +42,7 @@
     "vitest": "^1.1.1"
   },
   "peerDependencies": {
-    "@web-widget/schema": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
     "@web-widget/web-router": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "vite": "^5.0.11"

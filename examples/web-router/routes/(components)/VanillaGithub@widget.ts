@@ -1,5 +1,5 @@
-import { useWidgetSyncState } from "@web-widget/schema/helpers";
-import type { WidgetRenderContext } from "@web-widget/schema";
+import { IS_SERVER, defineWidgetRender } from "@web-widget/helpers";
+import { useWidgetSyncState } from "@web-widget/helpers/context";
 
 interface GitHubUserData {
   name: string;
@@ -40,9 +40,9 @@ export default ({ username }: Props) => {
     </div>`;
 };
 
-export const render = async (context: WidgetRenderContext) => {
-  if (import.meta.env.SSR) {
-    return context.module.default(context.data);
+export const render = defineWidgetRender(async (context) => {
+  if (IS_SERVER) {
+    return context.module.default!(context.data);
   } else if (Reflect.get(context, "recovering")) {
     const container = Reflect.get(context, "container") as HTMLElement;
     const button = container.querySelector("button[show]") as HTMLElement;
@@ -52,4 +52,4 @@ export const render = async (context: WidgetRenderContext) => {
       pre.hidden = false;
     };
   }
-};
+});

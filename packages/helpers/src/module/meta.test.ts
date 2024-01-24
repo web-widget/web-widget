@@ -1,10 +1,5 @@
 import { expect, test } from "@jest/globals";
-
-import {
-  mergeMeta,
-  rebaseMeta,
-  renderMetaToString,
-} from "../../src/helpers/meta";
+import { mergeMeta, rebaseMeta, renderMetaToString } from "./meta";
 
 test("Should return the new object", () => {
   const defaults = {

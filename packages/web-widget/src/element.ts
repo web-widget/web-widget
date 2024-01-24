@@ -1,5 +1,6 @@
+import type { ClientWidgetRenderContext, Meta } from "@web-widget/helpers";
 import * as status from "./modules/status";
-import type { Loader, WidgetRenderContext, Meta } from "./types";
+import type { Loader } from "./types";
 import { createIdleObserver } from "./utils/idle";
 import { createVisibleObserver } from "./utils/lazy";
 
@@ -24,7 +25,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   #lifecycleController: LifecycleController;
 
   // @ts-ignore
-  #data: WidgetRenderContext["data"] | null;
+  #data: ClientWidgetRenderContext["data"] | null;
 
   #disconnectObserver?: () => void;
 
@@ -32,7 +33,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   #meta: Meta | null;
 
   // @ts-ignore
-  #context: WidgetRenderContext | Record<string, unknown>;
+  #context: ClientWidgetRenderContext | Record<string, unknown>;
 
   #isFirstConnect = false;
 
@@ -57,7 +58,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
           }
           return {
             importer: this.import,
-            context: this.context as WidgetRenderContext,
+            context: this.context as ClientWidgetRenderContext,
           };
         },
         statusChangeCallback: (status) => {
@@ -109,7 +110,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /**
    * WidgetModule data
    */
-  get data(): WidgetRenderContext["data"] {
+  get data(): ClientWidgetRenderContext["data"] {
     if (!this.#data) {
       const dataAttr = this.getAttribute("data");
 
@@ -128,7 +129,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return this.#data;
   }
 
-  set data(value: WidgetRenderContext["data"]) {
+  set data(value: ClientWidgetRenderContext["data"]) {
     if (typeof value === "object") {
       this.setAttribute("data", JSON.stringify(value));
     }
@@ -163,11 +164,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /**
    * WidgetModule context
    */
-  get context(): WidgetRenderContext | Record<string, unknown> {
+  get context(): ClientWidgetRenderContext | Record<string, unknown> {
     return this.#context;
   }
 
-  set context(value: WidgetRenderContext | Record<string, unknown>) {
+  set context(value: ClientWidgetRenderContext | Record<string, unknown>) {
     if (typeof value === "object" && value !== null) {
       this.#context = value;
     }
@@ -260,7 +261,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /**
    * Hook: Create the module's context
    */
-  createContext(): WidgetRenderContext {
+  createContext(): ClientWidgetRenderContext {
     let container: Element | DocumentFragment;
     let customContext = this.context;
     // eslint-disable-next-line @typescript-eslint/no-this-alias

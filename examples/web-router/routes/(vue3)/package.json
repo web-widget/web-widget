@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@web-widget/react": "workspace:*",
-    "@web-widget/schema": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
     "@web-widget/vue": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -1,8 +1,8 @@
 import { createVueRender } from "@web-widget/vue2";
+import type { ClientWidgetRenderContext } from "@web-widget/helpers";
+import type { RawLocation } from "vue-router";
 import App from "./App.vue";
 import createRouter from "./router";
-import type { ClientWidgetRenderContext } from "@web-widget/schema";
-import type { RawLocation } from "vue-router";
 
 type Props = {
   route?: RawLocation;

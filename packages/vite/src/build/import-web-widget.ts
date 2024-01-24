@@ -1,8 +1,8 @@
+import path from "node:path";
+import { createRequire } from "node:module";
 import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import * as esModuleLexer from "es-module-lexer";
 import MagicString from "magic-string";
-import path from "node:path";
-import { createRequire } from "node:module";
 import type { IndexHtmlTransformResult, Plugin } from "vite";
 import { defineAsyncOptions } from "../container";
 import type { ResolveAssetProtocolPluginOptions } from "./resolve-asset-protocol";
@@ -103,25 +103,25 @@ export function importWebWidgetPlugin(
         const inspectorId = "web-widget:inspector";
         const result: IndexHtmlTransformResult = [];
 
-        if (!html.includes(`name="${styleId}"`)) {
+        if (!html.includes(`id="${styleId}"`)) {
           result.push({
             injectTo: "head",
             tag: "style",
             attrs: {
-              name: styleId,
+              id: styleId,
             },
             children: "web-widget{display:contents}",
           });
         }
 
-        if (dev && !html.includes(`name="${inspectorId}"`)) {
+        if (dev && !html.includes(`id="${inspectorId}"`)) {
           const id = require.resolve("@web-widget/web-widget/inspector");
           const src = `/@fs${id}`;
           result.push({
             injectTo: "body",
             tag: "web-widget-inspector",
             attrs: {
-              name: inspectorId,
+              id: inspectorId,
               dir: root,
               keys: `[&quot;Shift&quot;]`,
             },

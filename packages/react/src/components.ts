@@ -2,7 +2,7 @@ import type { Loader, WebWidgetRendererOptions } from "@web-widget/web-widget";
 import { WebWidgetRenderer } from "@web-widget/web-widget";
 import { Suspense, createElement, use } from "react";
 import type { ReactNode } from "react";
-import { IS_BROWSER } from "@web-widget/schema/helpers";
+import { IS_CLIENT } from "@web-widget/helpers";
 
 export interface WebWidgetProps {
   base?: WebWidgetRendererOptions["base"];
@@ -54,7 +54,7 @@ const renderWebWidget = function ({
 };
 
 function WebWidget({ localName, attributes, innerHTML }: WebWidgetElement) {
-  if (IS_BROWSER) {
+  if (IS_CLIENT) {
     // TODO Warning: Prop `dangerouslySetInnerHTML` did not match. Server"
   }
   return createElement(localName, {

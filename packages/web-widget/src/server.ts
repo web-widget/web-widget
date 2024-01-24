@@ -1,18 +1,14 @@
 import type {
   ServerWidgetModule,
-  WidgetRenderContext,
-} from "@web-widget/schema";
+  ServerWidgetRenderContext,
+} from "@web-widget/helpers";
+import { mergeMeta, rebaseMeta, renderMetaToString } from "@web-widget/helpers";
+import { useAllWidgetState } from "@web-widget/helpers/context";
 import type {
   Loader,
   WebWidgetRendererOptions,
   WebWidgetElementProps,
 } from "./types";
-import {
-  mergeMeta,
-  rebaseMeta,
-  renderMetaToString,
-  useAllWidgetState,
-} from "@web-widget/schema/helpers";
 import {
   getClientModuleId,
   getDisplayModuleId,
@@ -172,7 +168,7 @@ export class WebWidgetRenderer {
     const styles = meta.style || [];
     const hasStyle = styleLinks.length || styles.length;
 
-    const context: WidgetRenderContext = {
+    const context: ServerWidgetRenderContext = {
       children: options.renderTarget === "light" ? children : undefined,
       data: options.data,
       meta,

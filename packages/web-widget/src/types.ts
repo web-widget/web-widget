@@ -1,5 +1,5 @@
-import type { WidgetModule, Meta } from "@web-widget/schema/helpers";
-export type * from "@web-widget/schema/helpers";
+import type { WidgetModule, Meta } from "@web-widget/helpers";
+export type * from "@web-widget/helpers";
 
 type JSONValue =
   | string

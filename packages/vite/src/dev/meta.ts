@@ -1,14 +1,14 @@
 // Based on the code in the MIT licensed `astro` package.
 
+import path from "node:path";
 import type {
   LinkDescriptor,
   ScriptDescriptor,
   StyleDescriptor,
-} from "@web-widget/schema";
+} from "@web-widget/helpers";
 
 import type { ViteDevServer, ModuleNode } from "vite";
 import { isCSSRequest } from "vite";
-import path from "node:path";
 
 export async function getMeta(
   filePath: string,

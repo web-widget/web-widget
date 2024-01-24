@@ -9,7 +9,7 @@ import {
   // getCurrentInstance,
 } from "vue";
 import type { VNode, PropType } from "vue";
-import { IS_BROWSER } from "@web-widget/schema/helpers";
+import { IS_CLIENT } from "@web-widget/helpers";
 
 export const WebWidget = /*#__PURE__*/ defineComponent({
   name: "WebWidgetRoot",
@@ -68,7 +68,7 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
     const attrs = widget.attributes;
     const innerHTML = await widget.renderInnerHTMLToString();
 
-    if (IS_BROWSER) {
+    if (IS_CLIENT) {
       await customElements.whenDefined(tag);
       // let element = document.createElement(tag);
       // Object.entries(attrs).forEach(([name, value]) => {
@@ -87,7 +87,7 @@ export const WebWidget = /*#__PURE__*/ defineComponent({
       h(tag, {
         ...attrs,
         // NOTE: Use attr instead of props.
-        ...(IS_BROWSER ? { "^data": data } : { data }),
+        ...(IS_CLIENT ? { "^data": data } : { data }),
         innerHTML,
       });
   },

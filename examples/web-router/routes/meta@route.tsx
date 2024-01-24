@@ -1,16 +1,21 @@
-import type { Handlers, RouteComponentProps, Meta } from "@web-widget/react";
-import { renderMetaToString, mergeMeta } from "@web-widget/react";
-import ReactCounter from "./(components)/Counter@widget";
-import "./(css)/style.css";
-// eslint-disable-next-line import/no-unresolved
+import type { Meta } from "@web-widget/react";
+import {
+  defineMeta,
+  defineRouteComponent,
+  defineRouteHandler,
+  mergeMeta,
+  renderMetaToString,
+} from "@web-widget/react";
 import icon from "../public/favicon.svg";
 import BaseLayout from "./(components)/BaseLayout.tsx";
+import ReactCounter from "./(components)/Counter@widget";
+import "./(css)/style.css";
 
 type MetaPageData = {
   allMetadata: Meta;
 };
 
-export const meta: Meta = {
+export const meta = defineMeta({
   title: "Meta",
   description: "HTML Meta Data Example",
   link: [
@@ -33,9 +38,9 @@ export const meta: Meta = {
       content: "http://newsblog.org/news/136756249803614",
     },
   ],
-};
+});
 
-export const handler: Handlers<MetaPageData> = {
+export const handler = defineRouteHandler<MetaPageData>({
   async GET(ctx) {
     const newMeta = mergeMeta(ctx.meta, {
       title: "😄New title!",
@@ -65,14 +70,14 @@ export const handler: Handlers<MetaPageData> = {
       },
     });
   },
-};
+});
 
 function MetaHtmlCode(meta: Meta) {
   // prettier-ignore
   return (<pre>{renderMetaToString(meta).replace(/(\/(\w+)?>)/g, "$1\n")}</pre>)
 }
 
-export default function Page(props: RouteComponentProps<MetaPageData>) {
+export default defineRouteComponent<MetaPageData>(function Page(props) {
   const {
     data: { allMetadata },
   } = props;
@@ -90,4 +95,4 @@ export default function Page(props: RouteComponentProps<MetaPageData>) {
       </div>
     </BaseLayout>
   );
-}
+});

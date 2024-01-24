@@ -1,7 +1,7 @@
 import { defineConfig } from "eslint-define-config";
 
 // const OFF = 0;
-// const WARN = 1;
+const WARN = 1;
 const ERROR = 2;
 
 export default defineConfig({
@@ -10,5 +10,6 @@ export default defineConfig({
     "import/no-amd": ERROR,
     "import/no-duplicates": ERROR,
     "import/no-webpack-loader-syntax": ERROR,
+    "import/order": WARN,
   },
 });

@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import BaseLayout from "./BaseLayout.vue";
-import type { RouteComponentProps, RouteModule } from "@web-widget/vue";
-import { mergeMeta } from "@web-widget/vue";
+import type { RouteComponentProps, } from "@web-widget/vue";
+import { mergeMeta, defineMeta, defineRouteHandler } from "@web-widget/vue";
 
 type PageData = {
   message: string
 };
 
 defineOptions({
-  meta: {
+  meta: defineMeta({
     title: "Vue3: Server component"
-  },
-  handler: {
+  }),
+  handler: defineRouteHandler<PageData>({
     async GET(ctx) {
       return ctx.render({
         data: {
@@ -22,8 +22,8 @@ defineOptions({
         })
       });
     }
-  }
-} as RouteModule);
+  })
+});
 
 const { data } = defineProps<RouteComponentProps<PageData>>();
 </script>

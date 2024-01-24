@@ -2,8 +2,8 @@ import {
   defineRender,
   getComponentDescriptor,
   type ComponentProps,
-} from "@web-widget/schema/server-helpers";
-import type { ReactNode } from "react";
+} from "@web-widget/helpers";
+import type { FunctionComponent, ReactNode } from "react";
 import { createElement } from "react";
 
 import type {
@@ -14,8 +14,8 @@ import type {
 import * as ReactDOMServer from "react-dom/server.browser";
 import type { CreateReactRenderOptions } from "./types";
 
-export * from "@web-widget/schema/server-helpers";
-export { useWidgetSyncState as useWidgetState } from "@web-widget/schema/server-helpers";
+export * from "@web-widget/helpers";
+export { useWidgetSyncState as useWidgetState } from "@web-widget/helpers/context";
 export * from "./components";
 
 function renderToReadableStream(
@@ -54,7 +54,7 @@ export const createReactRender = ({
     throw new Error(`"onPrefetchData" is not supported.`);
   }
 
-  return defineRender<ReactRenderOptions>(
+  return defineRender<unknown, Record<string, string>, ReactRenderOptions>(
     async (context, { react: reactRenderOptions = {} } = {}) => {
       let error, signal, disconnect;
       const componentDescriptor = getComponentDescriptor(context);
@@ -84,7 +84,10 @@ export const createReactRender = ({
         // experimental
         vNode = await component(props as ComponentProps<any>);
       } else {
-        vNode = createElement(component, props as ComponentProps<any>);
+        vNode = createElement(
+          component as FunctionComponent,
+          props as ComponentProps<any>
+        );
       }
 
       const stream = await renderToReadableStream(vNode, reactRenderOptions);

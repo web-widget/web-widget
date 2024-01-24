@@ -1,5 +1,5 @@
 import type { Component, default as Vue } from "vue";
-import type { ComponentProps, RenderContext } from "@web-widget/schema";
+import type { ComponentProps, RenderContext } from "@web-widget/helpers";
 
 export * from "./components";
 

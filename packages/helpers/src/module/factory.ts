@@ -1,67 +1,87 @@
 import type {
   HttpError,
+  Meta,
+  MiddlewareHandler,
+  MiddlewareHandlers,
   RouteComponent,
   RouteComponentProps,
   RouteFallbackComponent,
   RouteFallbackComponentProps,
+  RouteHandler,
+  RouteHandlers,
+  RouteRender,
   RouteRenderContext,
+  RouteRenderOptions,
+  RouteRenderResult,
   WidgetComponent,
   WidgetComponentProps,
   WidgetFallbackComponent,
   WidgetFallbackComponentProps,
+  WidgetRender,
   WidgetRenderContext,
-  ClientRouteHandler,
-  ClientRouteHandlers,
-  ClientRouteRenderContext,
-  ClientRouteRenderResult,
-  ClientWidgetRenderContext,
-  ClientWidgetRenderResult,
-  Meta,
-  ServerRouteHandler,
-  ServerRouteHandlers,
-  ServerRouteRenderContext,
-  ServerRouteRenderResult,
-  ServerWidgetRenderContext,
-  ServerWidgetRenderResult,
-} from "../types";
+  WidgetRenderOptions,
+  WidgetRenderResult,
+} from "@web-widget/schema";
 
-export function defineMeta(meta: Meta) {
+export /*#__PURE__*/ function defineMeta(meta: Meta) {
   return meta;
 }
 
-export function defineServerRender<T = any>(
+export /*#__PURE__*/ function defineRender<
+  Data = unknown,
+  Params = Record<string, string>,
+  Options = unknown,
+>(
   render: (
-    context: ServerWidgetRenderContext | ServerRouteRenderContext,
-    renderOptions: ResponseInit & T
-  ) => Promise<ServerWidgetRenderResult | ServerRouteRenderResult>
+    context: WidgetRenderContext<Data> | RouteRenderContext<Data, Params>,
+    renderOptions: WidgetRenderOptions<Options> | RouteRenderOptions<Options>
+  ) => Promise<WidgetRenderResult | RouteRenderResult>
 ) {
   return render;
 }
 
-export function defineClientRender<T = any>(
-  render: (
-    context: ClientWidgetRenderContext | ClientRouteRenderContext,
-    renderOptions: ResponseInit & T
-  ) => Promise<ClientWidgetRenderResult | ClientRouteRenderResult>
-) {
+export /*#__PURE__*/ function defineWidgetRender<
+  Data = unknown,
+  Options = unknown,
+>(render: WidgetRender<Data, Options>) {
   return render;
 }
 
-export function defineRouteComponent<
+export /*#__PURE__*/ function defineRouteRender<
+  Data = unknown,
+  Params = Record<string, string>,
+  Options = unknown,
+>(render: RouteRender<Data, Params, Options>) {
+  return render;
+}
+
+export /*#__PURE__*/ function defineRouteComponent<
   Data = unknown,
   Params = Record<string, string>,
 >(component: RouteComponent<Data, Params>) {
   return component;
 }
 
-export function defineServerRouteHandler<Data = unknown>(
-  handler: ServerRouteHandler<Data> | ServerRouteHandlers<Data>
+export /*#__PURE__*/ function defineRouteFallbackComponent(
+  component: RouteFallbackComponent
+) {
+  return component;
+}
+
+export /*#__PURE__*/ function defineRouteHandler<
+  Data = unknown,
+  Params = Record<string, string>,
+  State = Record<string, unknown>,
+>(
+  handler:
+    | RouteHandler<Data, Params, State>
+    | RouteHandlers<Data, Params, State>
 ) {
   return handler;
 }
 
-export function defineClientRouteHandler<Data = unknown>(
-  handler: ClientRouteHandler<Data> | ClientRouteHandlers<Data>
+export /*#__PURE__*/ function defineMiddlewareHandler(
+  handler: MiddlewareHandler | MiddlewareHandlers
 ) {
   return handler;
 }

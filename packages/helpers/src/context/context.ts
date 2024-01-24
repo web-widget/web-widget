@@ -1,6 +1,6 @@
 import { createNamespace } from "unctx";
 
-const IS_BROWSER = typeof document !== "undefined";
+const IS_SERVER = typeof document === "undefined";
 
 export interface WebWidgetContext {
   pathname?: string;
@@ -11,7 +11,7 @@ export interface WebWidgetContext {
 let ctx;
 function tryGetAsyncLocalStorage() {
   return (ctx ??= createNamespace<WebWidgetContext>({
-    asyncContext: !IS_BROWSER && Reflect.has(globalThis, "AsyncLocalStorage"),
+    asyncContext: IS_SERVER && Reflect.has(globalThis, "AsyncLocalStorage"),
   }).get("@web-widget"));
 }
 
@@ -35,7 +35,7 @@ export function callContext<T extends (...args: any[]) => any>(
   const ctx = tryGetAsyncLocalStorage();
   const fn: () => ReturnType<T> = () =>
     args ? setup(...(args as Parameters<T>)) : setup();
-  if (!IS_BROWSER) {
+  if (IS_SERVER) {
     return ctx.call(data, fn);
   } else {
     ctx.set(data);

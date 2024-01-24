@@ -2,7 +2,7 @@ import {
   callContext,
   createContext,
   useAllWidgetState,
-} from "@web-widget/schema/client-helpers";
+} from "@web-widget/helpers/context";
 
 export type StateLayerHandler = (
   value: any,
@@ -28,7 +28,7 @@ export class StateLayer implements ArrayLike<any> {
 
 export function installStateLayer(callback: () => void) {
   const stateElement = document.querySelector(
-    `script[name="state\\:web-router"]`
+    `script[id="state\\:web-router"]`
   ) as HTMLScriptElement;
   const context = stateElement
     ? JSON.parse(stateElement.textContent as string)

@@ -1,3 +1,5 @@
+import { rebaseMeta } from "@web-widget/helpers";
+import { createHttpError } from "@web-widget/helpers/http";
 import { Application } from "./application";
 import type { ApplicationOptions } from "./application";
 import type {
@@ -7,22 +9,16 @@ import type {
   Meta,
   RouteModule,
   RouteRenderOptions,
-  Schema,
 } from "./types";
-import {
-  HttpStatus,
-  createHttpError,
-  rebaseMeta,
-} from "@web-widget/schema/server-helpers";
 import * as defaultFallbackModule from "./fallback";
 import * as defaultLayoutModule from "./layout";
 import {
   createFallbackHandler,
-  createPageContext,
+  createRouteContext,
   renderRouteModule,
   callMiddlewareModule,
 } from "./modules";
-import type { OnFallback, PageContext } from "./modules";
+import type { OnFallback } from "./modules";
 export type * from "./types";
 
 export type StartOptions<E extends Env = {}> = {
@@ -35,13 +31,10 @@ export type StartOptions<E extends Env = {}> = {
   onFallback?: OnFallback;
 } & ApplicationOptions<E>;
 
-export { PageContext };
-
 export default class WebRouter<
   E extends Env = Env,
-  S extends Schema = {},
   BasePath extends string = "/",
-> extends Application<E, S, BasePath> {
+> extends Application<E, BasePath> {
   #origin?: string;
   constructor(manifest: Manifest, options: StartOptions<E> = {}) {
     super(options);
@@ -88,7 +81,7 @@ export default class WebRouter<
     routes.forEach((item) => {
       this.all(
         item.pathname,
-        createPageContext(
+        createRouteContext(
           item.module,
           layout.module,
           defaultMeta,
@@ -109,10 +102,9 @@ export default class WebRouter<
     });
 
     const fallback404 = fallbacks.find(
-      (page) => page.status === 404 || page.name === HttpStatus[404]
+      (page) => page.status === 404 || page.name === "NotFound"
     ) ?? {
       module: async () => defaultFallbackModule as RouteModule,
-      name: HttpStatus[404],
       pathname: "*",
     };
 
@@ -131,10 +123,9 @@ export default class WebRouter<
     );
 
     const fallback500 = fallbacks.find(
-      (page) => page.status === 500 || page.name === HttpStatus[500]
+      (page) => page.status === 500 || page.name === "InternalServerError"
     ) ?? {
       module: async () => defaultFallbackModule as RouteModule,
-      name: HttpStatus[500],
       pathname: "*",
     };
 

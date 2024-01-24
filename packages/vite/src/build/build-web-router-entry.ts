@@ -1,6 +1,6 @@
+import path from "node:path";
 import type { ManifestJSON } from "@web-widget/web-router";
 import builtins from "builtin-modules";
-import path from "node:path";
 import type { EmittedFile, OutputBundle, OutputChunk } from "rollup";
 import type {
   InlineConfig,
@@ -393,7 +393,7 @@ function generateServerRoutemap(
     base
   );
   const entryJsCode = [
-    `import { mergeMeta } from "@web-widget/schema/server-helpers";`,
+    `import { mergeMeta } from "@web-widget/helpers";`,
     `import entry from ${JSON.stringify(entryModuleName)};`,
     `export * from ${JSON.stringify(entryModuleName)};`,
     `export default function start(manifest, options) {`,

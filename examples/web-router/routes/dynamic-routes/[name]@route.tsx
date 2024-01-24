@@ -1,7 +1,7 @@
-import type { RouteComponentProps } from "@web-widget/react";
+import { defineRouteComponent } from "@web-widget/react";
 import BaseLayout from "../(components)/BaseLayout";
 
-export default function Page(props: RouteComponentProps) {
+export default defineRouteComponent(function Page(props) {
   const { name } = props.params;
   return (
     <BaseLayout>
@@ -26,4 +26,4 @@ export default function Page(props: RouteComponentProps) {
       </ul>
     </BaseLayout>
   );
-}
+});
