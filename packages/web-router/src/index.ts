@@ -31,18 +31,22 @@ export type StartOptions<E extends Env = {}> = {
   onFallback?: OnFallback;
 } & ApplicationOptions<E>;
 
-export default class WebRouter<
-  E extends Env = Env,
-  BasePath extends string = "/",
-> extends Application<E, BasePath> {
+export default class WebRouter<E extends Env = Env> extends Application<E> {
   #origin?: string;
-  constructor(manifest: Manifest, options: StartOptions<E> = {}) {
+  constructor(options: StartOptions<E> = {}) {
     super(options);
+    this.#origin = options.origin;
+  }
 
-    notSupport(options, "experimental_render");
-    notSupport(options, "defaultBootstrap");
-    notSupport(options, "experimental_loader");
+  get origin() {
+    return this.#origin;
+  }
 
+  static fromManifest<E extends Env = Env>(
+    manifest: Manifest,
+    options: StartOptions<E> = {}
+  ) {
+    const router = new WebRouter<E>(options);
     const middlewares = manifest.middlewares ?? [];
     const routes = manifest.routes ?? [];
     const layout = manifest.layout ?? {
@@ -79,7 +83,7 @@ export default class WebRouter<
       });
 
     routes.forEach((item) => {
-      this.all(
+      router.use(
         item.pathname,
         createRouteContext(
           item.module,
@@ -94,11 +98,11 @@ export default class WebRouter<
     });
 
     middlewares.forEach((item) => {
-      this.all(item.pathname, callMiddlewareModule(item.module));
+      router.use(item.pathname, callMiddlewareModule(item.module));
     });
 
     routes.forEach((item) => {
-      this.all(item.pathname, renderRouteModule());
+      router.use(item.pathname, renderRouteModule());
     });
 
     const fallback404 = fallbacks.find(
@@ -118,7 +122,7 @@ export default class WebRouter<
       options.dev
     );
 
-    this.notFound(async (context) =>
+    router.notFound(async (context) =>
       notFoundHandler(createHttpError(404), context)
     );
 
@@ -139,7 +143,7 @@ export default class WebRouter<
       options.dev
     );
 
-    this.onError(async (error, context) => {
+    router.onError(async (error, context) => {
       const status = Reflect.get(error, "status");
 
       if (status === 404) {
@@ -148,16 +152,7 @@ export default class WebRouter<
         return errorHandler(error, context);
       }
     });
-    this.#origin = options.origin;
-  }
 
-  get origin() {
-    return this.#origin;
-  }
-}
-
-function notSupport(options: any, key: string) {
-  if (Reflect.has(options, key)) {
-    throw new TypeError(`"${key}" has been removed`);
+    return router;
   }
 }

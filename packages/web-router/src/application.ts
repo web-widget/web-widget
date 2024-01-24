@@ -2,12 +2,7 @@ import { compose } from "./compose";
 import { Context } from "./context";
 import type { ExecutionContext } from "./context";
 import type { Router } from "./router";
-import {
-  METHOD_NAME_ALL,
-  METHOD_NAME_ALL_LOWERCASE,
-  METHODS,
-  URLPatternRouter,
-} from "./router";
+import { METHOD_NAME_ALL, METHODS, URLPatternRouter } from "./router";
 import type {
   Env,
   ErrorHandler,
@@ -17,7 +12,7 @@ import type {
 } from "./types";
 import { getPath, getPathNoStrict, mergePath } from "./url";
 
-type Methods = (typeof METHODS)[number] | typeof METHOD_NAME_ALL_LOWERCASE;
+type Methods = (typeof METHODS)[number];
 
 type MergePath<A extends string, B extends string> = A extends ""
   ? B
@@ -100,8 +95,7 @@ class Application<
     super();
 
     // Implementation of app.get(path, ...handlers[])
-    const allMethods = [...METHODS, METHOD_NAME_ALL_LOWERCASE];
-    allMethods.forEach((method) => {
+    METHODS.forEach((method) => {
       this[method] = (path: string, ...args: MiddlewareHandler[]) => {
         args.forEach((handler) => {
           this.#addRoute(method, path, handler);

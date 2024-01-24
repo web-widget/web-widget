@@ -1,9 +1,9 @@
+import * as defaultLayoutModule from "./layout";
 import type { LayoutModule } from ".";
 import WebRouter from ".";
-import * as defaultLayoutModule from "./layout";
 
 describe("Basic", () => {
-  const app = new WebRouter({
+  const app = WebRouter.fromManifest({
     routes: [
       {
         pathname: "/hello",
@@ -44,7 +44,7 @@ describe("Basic", () => {
 });
 
 describe("Multiple identical routes", () => {
-  const app = new WebRouter({
+  const app = WebRouter.fromManifest({
     routes: [
       {
         pathname: "/:lang?/",

@@ -153,7 +153,7 @@ async function viteWebRouterMiddleware(
       react: {
         awaitAllReady: true,
       },
-    },
+    } as any,
   });
 
   const nodeAdapter = new NodeAdapter({
