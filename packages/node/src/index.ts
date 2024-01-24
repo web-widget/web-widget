@@ -15,7 +15,11 @@ import {
 import primitives from "@edge-runtime/primitives";
 
 if (!Reflect.get(global, "DISABLE_INSTALL_MCA_SHIMS")) {
-  Object.assign(global, primitives, { console });
+  for (const [key, value] of Object.entries(primitives)) {
+    if (!(key in global)) {
+      (global as any)[key] = value;
+    }
+  }
 }
 
 // @see https://github.com/unjs/unctx
