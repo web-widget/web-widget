@@ -1,5 +1,10 @@
-import type { RouteFallbackComponentProps } from "@web-widget/react";
-import { defineRouteHandler, createHttpError } from "@web-widget/react";
+import {
+  defineRouteHandler,
+  defineRouteComponent,
+  defineRouteFallbackComponent,
+  type RouteFallbackComponentProps,
+} from "@web-widget/helpers";
+import { createHttpError } from "@web-widget/helpers/http";
 import BaseLayout from "./(components)/BaseLayout";
 
 export const handler = defineRouteHandler({
@@ -30,16 +35,18 @@ export const handler = defineRouteHandler({
   },
 });
 
-export function fallback(error: RouteFallbackComponentProps) {
+export const fallback = defineRouteFallbackComponent(function (
+  error: RouteFallbackComponentProps
+) {
   return (
     <BaseLayout>
       <h1>❌{error.name}</h1>
       <h2>{error.message}</h2>
     </BaseLayout>
   );
-}
+});
 
-export default function Page() {
+export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
       <h1>Error handling</h1>
@@ -59,4 +66,4 @@ export default function Page() {
       </ul>
     </BaseLayout>
   );
-}
+});

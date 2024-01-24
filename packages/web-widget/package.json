@@ -67,12 +67,12 @@
   "dependencies": {},
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web-widget/schema": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3"
   },
   "peerDependencies": {
-    "@web-widget/schema": "workspace:*"
+    "@web-widget/helpers": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

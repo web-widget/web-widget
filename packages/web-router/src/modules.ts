@@ -1,13 +1,18 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import type { Context } from "./context";
+import { mergeMeta, rebaseMeta } from "@web-widget/helpers/module";
+import {
+  callContext,
+  createContext,
+  useContext,
+} from "@web-widget/helpers/context";
 import type {
   HttpError,
   LayoutModule,
   LayoutRenderContext,
   Meta,
+  MiddlewareContext,
   MiddlewareHandler,
+  MiddlewareHandlers,
   MiddlewareModule,
-  Next,
   RootLayoutComponentProps,
   RouteHandler,
   RouteHandlerContext,
@@ -16,29 +21,15 @@ import type {
   RouteRenderContext,
   RouteRenderOptions,
 } from "./types";
-import {
-  callContext,
-  createContext,
-  useContext,
-  HttpStatus,
-  mergeMeta,
-  rebaseMeta,
-} from "@web-widget/schema/server-helpers";
 
-export type PageContext = {
-  meta?: Meta;
-  module?: RouteModule;
-  render?: RouteHandlerContext["render"];
-  renderOptions?: RouteRenderOptions;
-} & Context;
-
-export type OnFallback = (error: Error, context?: Context) => void;
+export type OnFallback = (error: Error, context?: MiddlewareContext) => void;
 
 function callAsyncContext<T extends (...args: any[]) => any>(
-  context: PageContext,
+  context: MiddlewareContext,
   setup: T,
   args?: Parameters<T>
 ): Promise<Response> {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const hasCtx = !!useContext();
   const data = createContext({
     params: context.params,
@@ -46,21 +37,17 @@ function callAsyncContext<T extends (...args: any[]) => any>(
   });
 
   if (context.meta) {
-    const name = "state:web-router";
+    const id = "state:web-router";
     const meta = mergeMeta(context.meta, {});
     const script = (meta.script ??= []);
-    const index = script.findIndex(
-      // @ts-ignore
-      (script) => script.name === name
-    );
+    const index = script.findIndex((script) => script.id === id);
 
     if (index > -1) {
       script.splice(index, 1);
     }
 
     script.push({
-      // @ts-ignore
-      name,
+      id,
       type: "application/json",
       // TODO htmlEscapeJsonString
       content: JSON.stringify(data),
@@ -76,21 +63,24 @@ function callAsyncContext<T extends (...args: any[]) => any>(
   }
 }
 
-function composeHandler(handler: RouteHandler | RouteHandlers): RouteHandler {
+const knownMethods = [
+  "GET",
+  "HEAD",
+  "POST",
+  "PUT",
+  "DELETE",
+  "OPTIONS",
+  "PATCH",
+] as const;
+
+function composeHandler(
+  handler: RouteHandler | RouteHandlers | MiddlewareHandler | MiddlewareHandlers
+): RouteHandler | MiddlewareHandler {
   if (typeof handler === "function") {
     return handler;
   }
 
-  const methods: RouteHandlers = { ...handler };
-  const knownMethods = [
-    "GET",
-    "HEAD",
-    "POST",
-    "PUT",
-    "DELETE",
-    "OPTIONS",
-    "PATCH",
-  ] as const;
+  const methods: RouteHandlers | MiddlewareHandlers = { ...handler };
 
   for (const methodName of knownMethods) {
     if (methodName === "HEAD") {
@@ -112,7 +102,7 @@ function composeHandler(handler: RouteHandler | RouteHandlers): RouteHandler {
     methods[methodName] ??= handler[methodName];
   }
 
-  return (context: RouteHandlerContext) => {
+  return (context: RouteHandlerContext | MiddlewareContext) => {
     let request = context.request;
 
     // If not overridden, HEAD requests should be handled as GET requests but without the body.
@@ -138,14 +128,14 @@ function composeHandler(handler: RouteHandler | RouteHandlers): RouteHandler {
 }
 
 function composeRender(
-  context: PageContext,
+  context: MiddlewareContext,
   layoutModule: LayoutModule,
   onFallback: OnFallback,
   dev?: boolean
 ) {
   return async function render(
     {
-      data = context.state,
+      data = context.data,
       error: rawError = context.error,
       meta = context.meta as Meta,
     } = {},
@@ -212,8 +202,8 @@ function composeRender(
       (error
         ? Reflect.has(error, "statusText")
           ? (error as HttpError).statusText
-          : HttpStatus[500]
-        : HttpStatus[200]);
+          : "Internal Server Error"
+        : "OK");
     const headers = {
       "content-type": "text/html; charset=utf-8",
       ...renderOptions?.headers,
@@ -244,10 +234,10 @@ async function getModule<T>(module: any) {
 
 export function callMiddlewareModule(
   middleware: MiddlewareModule | (() => Promise<MiddlewareModule>)
-) {
-  let module;
-  let handler;
-  return async (context: Context, next: Next) => {
+): MiddlewareHandler {
+  let module: MiddlewareModule;
+  let handler: MiddlewareHandler;
+  return async (context, next) => {
     module ??= await getModule<MiddlewareModule>(middleware);
 
     if (!module.handler) {
@@ -256,13 +246,13 @@ export function callMiddlewareModule(
       );
     }
 
-    handler ??= composeHandler(module.handler);
+    handler ??= composeHandler(module.handler) as MiddlewareHandler;
 
     return handler(context, next);
   };
 }
 
-export function createPageContext(
+export function createRouteContext(
   route: RouteModule | (() => Promise<RouteModule>),
   layout: LayoutModule | (() => Promise<LayoutModule>),
   defaultMeta: Meta,
@@ -271,11 +261,11 @@ export function createPageContext(
   onFallback: OnFallback,
   dev?: boolean
 ): MiddlewareHandler {
-  let layoutModule;
-  let meta;
-  let module;
-  let renderOptions;
-  return async (context: PageContext, next) => {
+  let layoutModule: LayoutModule;
+  let meta: Meta;
+  let module: RouteModule;
+  let renderOptions: RouteRenderOptions;
+  return async (context, next) => {
     layoutModule ??= await getModule<LayoutModule>(layout);
     module ??= await getModule<RouteModule>(route);
     meta ??= mergeMeta(
@@ -305,12 +295,12 @@ export function createFallbackHandler(
   onFallback: OnFallback,
   dev?: boolean
 ) {
-  let handler;
-  let layoutModule;
-  let meta;
-  let module;
-  let renderOptions;
-  return async (error: Error, context: Context) => {
+  let handler: RouteHandler;
+  let layoutModule: LayoutModule;
+  let meta: Meta;
+  let module: RouteModule;
+  let renderOptions: RouteRenderOptions;
+  return async (error: Error, context: MiddlewareContext) => {
     layoutModule ??= await getModule<LayoutModule>(layout);
     module ??= await getModule<RouteModule>(route);
     meta ??= mergeMeta(
@@ -318,52 +308,52 @@ export function createFallbackHandler(
       rebaseMeta(module.meta ?? {}, defaultBaseAsset)
     );
     handler ??= composeHandler(
-      module.handler ?? {
-        GET({ render }) {
-          return render();
-        },
-      }
-    );
+      module.handler ??
+        ({
+          GET({ render }) {
+            return render();
+          },
+        } as RouteHandlers)
+    ) as RouteHandler;
     renderOptions ??= Object.assign({}, defaultRenderOptions);
 
-    const pageContext = context as PageContext;
-    pageContext.error = error;
-    pageContext.meta = meta;
-    pageContext.module = module;
-    pageContext.render = composeRender(
-      pageContext,
-      layoutModule,
-      onFallback,
-      dev
-    );
-    pageContext.renderOptions = renderOptions;
+    context.error = error;
+    context.meta = meta;
+    context.module = module;
+    context.render = composeRender(context, layoutModule, onFallback, dev);
+    context.renderOptions = renderOptions;
 
-    return callAsyncContext(pageContext, handler, [pageContext]);
+    return callAsyncContext(context, handler, [context as RouteHandlerContext]);
   };
 }
 
 export function renderRouteModule(): MiddlewareHandler {
-  let handler;
-  return async (context: PageContext, next) => {
-    const isPageContext =
+  let handler: RouteHandler;
+  return async (context, next) => {
+    const isRouteContext =
       Reflect.has(context, "module") && Reflect.has(context, "render");
-    if (isPageContext) {
+    if (isRouteContext) {
       handler ??= composeHandler(
-        context?.module?.handler ?? {
-          GET({ render }) {
-            return render();
-          },
-        }
-      );
-      return callAsyncContext(context, handler, [context]);
+        context?.module?.handler ??
+          ({
+            GET({ render }) {
+              return render();
+            },
+          } as RouteHandlers)
+      ) as RouteHandler;
+      return callAsyncContext(context, handler, [
+        context as RouteHandlerContext,
+      ]);
     } else {
       return callAsyncContext(context, next);
     }
   };
 }
 
-export function trailingSlash(trailingSlashEnabled: boolean) {
-  return async ({ request }: Context, next: Next) => {
+export function trailingSlash(
+  trailingSlashEnabled: boolean
+): MiddlewareHandler {
+  return async ({ request }, next) => {
     // Redirect requests that end with a trailing slash to their non-trailing
     // slash counterpart.
     // Ex: /about/ -> /about
@@ -377,7 +367,7 @@ export function trailingSlash(trailingSlashEnabled: boolean) {
       const path = url.pathname.replace(/\/+$/, "");
       const location = `${path}${url.search}`;
       return new Response(null, {
-        status: HttpStatus.TemporaryRedirect,
+        status: 307,
         headers: { location },
       });
     } else if (trailingSlashEnabled && !url.pathname.endsWith("/")) {
@@ -386,7 +376,7 @@ export function trailingSlash(trailingSlashEnabled: boolean) {
 
       if (!isFile) {
         url.pathname += "/";
-        return Response.redirect(url, HttpStatus.PermanentRedirect);
+        return Response.redirect(url, 308);
       }
     }
 

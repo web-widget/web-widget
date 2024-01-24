@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineComponent, h } from "vue"
+import { h } from "vue"
 import BaseLayout from "./BaseLayout.vue";
 import ReactWaitDemo from "../(components)/Wait@widget.jsx";
 import VueWaitDemo from "./Wait@widget.vue";

@@ -7,6 +7,7 @@
       "ES2019",
       "WebWorker"
     ],
+    "module": "es2015",
     "moduleResolution": "Bundler",
     "rootDir": ".",
     "skipLibCheck": true,

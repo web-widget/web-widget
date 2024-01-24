@@ -1,4 +1,4 @@
-import { type RouteComponentProps } from "@web-widget/react";
+import { defineRouteComponent } from "@web-widget/react";
 import type { HelloData } from "./api/hello-world@route.ts";
 import BaseLayout from "./(components)/BaseLayout.tsx";
 
@@ -7,7 +7,7 @@ async function fetchData(url: URL) {
   return (await data.json()) as HelloData;
 }
 
-export default async function Page({ request }: RouteComponentProps) {
+export default defineRouteComponent(async function Page({ request }) {
   const data = await fetchData(new URL(request.url));
   return (
     <BaseLayout>
@@ -23,4 +23,4 @@ export default async function Page({ request }: RouteComponentProps) {
       </ul>
     </BaseLayout>
   );
-}
+});

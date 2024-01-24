@@ -1,8 +1,4 @@
-import {
-  defineRender,
-  getComponentDescriptor,
-  type ComponentProps,
-} from "@web-widget/schema/server-helpers";
+import { defineRender, getComponentDescriptor } from "@web-widget/helpers";
 import type { Fallback, HTML, UnsafeHTML } from "@worker-tools/html";
 import { fallback, html, unsafeHTML } from "@worker-tools/html";
 import {
@@ -11,7 +7,7 @@ import {
 } from "whatwg-stream-to-async-iter";
 import type { DefineHtmlRenderOptions } from "./types";
 
-export * from "@web-widget/schema/server-helpers";
+export * from "@web-widget/helpers";
 export * from "./web-widget";
 export { fallback, html, unsafeHTML };
 export type { Fallback, HTML };
@@ -79,15 +75,12 @@ supportNonBinaryTransformStreams();
 export const defineHtmlRender = ({
   onPrefetchData,
 }: DefineHtmlRenderOptions = {}) => {
+  if (onPrefetchData) {
+    throw new Error(`"onPrefetchData" is not supported.`);
+  }
   return defineRender(async (context) => {
     const componentDescriptor = getComponentDescriptor(context);
     const { component, props } = componentDescriptor;
-    const state = onPrefetchData
-      ? await onPrefetchData(context, component, props)
-      : undefined;
-    const mergedProps = (
-      state ? Object.assign({}, state, props) : props
-    ) as ComponentProps<any>;
 
     let content: HTML;
     if (
@@ -95,9 +88,9 @@ export const defineHtmlRender = ({
       component.constructor.name === "AsyncFunction"
     ) {
       // experimental
-      content = await component(mergedProps);
+      content = await component(props as any);
     } else {
-      content = component(mergedProps);
+      content = component(props as any);
     }
 
     await supportNonBinaryTransformStreams();

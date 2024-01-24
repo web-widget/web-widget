@@ -1,5 +1,4 @@
-import { render, html } from "@web-widget/html";
-import type { RouteComponentProps } from "@web-widget/html";
+import { render, html, defineRouteComponent } from "@web-widget/html";
 import type { HelloData } from "./api/hello-world@route";
 
 export { render };
@@ -9,7 +8,7 @@ async function fetchData(url: URL) {
   return (await data.json()) as HelloData;
 }
 
-export default async function Page(ctx: RouteComponentProps<HelloData>) {
+export default defineRouteComponent<HelloData>(async function Page(ctx) {
   const list = await fetchData(new URL(ctx.request.url));
   return html`<h1>Lit html template</h1>
     <ul>
@@ -19,4 +18,4 @@ export default async function Page(ctx: RouteComponentProps<HelloData>) {
         </li>`;
       })}
     </ul>`;
-}
+});

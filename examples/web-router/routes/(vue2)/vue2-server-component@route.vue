@@ -1,30 +1,29 @@
 <script lang="ts">
 import BaseLayout from "./BaseLayout.vue";
-import { mergeMeta } from "@web-widget/vue2";
-import type { RouteModule } from "@web-widget/vue2";
+import { mergeMeta, defineMeta, defineRouteHandler } from "@web-widget/vue2";
 
 type PageData = {
-  message: string
+  message: string,
 };
 
 export default {
   ...({
-    meta: {
+    meta: defineMeta({
       title: "Vue2: Server component"
-    },
-    handler: {
+    }),
+    handler: defineRouteHandler<PageData>({
       async GET(ctx) {
         return ctx.render({
           data: {
             message: "This is the server component of vue."
-          } as PageData,
+          },
           meta: mergeMeta(ctx.meta, {
             description: "vue2 examples"
           })
         });
       }
-    }
-  } as RouteModule),
+    })
+  }),
 }
 </script>
 

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { Context, ExecutionContext } from "./context";
 import { Application } from "./application";
-import type { Handler, MiddlewareHandler, Next } from "./types";
+import type { MiddlewareHandler } from "./types";
 import { getPath } from "./url";
 
 // https://stackoverflow.com/a/65666402
@@ -142,7 +141,7 @@ describe("Register handlers without a path", () => {
   describe("No basePath", () => {
     const app = new Application();
 
-    app.get((c) => {
+    app.get("/*", (c) => {
       return text("Hello");
     });
 
@@ -162,7 +161,7 @@ describe("Register handlers without a path", () => {
   describe("With specifying basePath", () => {
     const app = new Application().basePath("/about");
 
-    app.get((c) => {
+    app.get("/*", (c) => {
       return text("About");
     });
 
@@ -181,9 +180,13 @@ describe("Register handlers without a path", () => {
   describe("With chaining", () => {
     const app = new Application();
 
-    app.post("/books").get((c) => {
-      return text("Books");
-    });
+    app
+      .post("/books", () => {
+        return text("OK");
+      })
+      .get("/books", (c) => {
+        return text("Books");
+      });
 
     it("GET http://localhost/books is ok", async () => {
       const res = await app.request("/books");
@@ -366,232 +369,6 @@ describe("Routing", () => {
     expect(await res.text()).toBe("get /add-path-after-route-call");
   });
 
-  it("Nested route - subApp with basePath", async () => {
-    const app = new Application();
-    const book = new Application().basePath("/book");
-    book.get("/", (c) => text("get /book"));
-    app.route("/api", book);
-
-    const res = await app.request("http://localhost/api/book", {
-      method: "GET",
-    });
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("get /book");
-  });
-
-  it("Multiple route", async () => {
-    const app = new Application();
-
-    const book = new Application();
-    book.get("/hello", (c) => text("get /book/hello"));
-
-    const user = new Application();
-    user.get("/hello", (c) => text("get /user/hello"));
-
-    app.route("/book", book).route("/user", user);
-
-    let res = await app.request("http://localhost/book/hello", {
-      method: "GET",
-    });
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("get /book/hello");
-
-    res = await app.request("http://localhost/user/hello", { method: "GET" });
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("get /user/hello");
-  });
-
-  describe("Nested route with middleware", () => {
-    const api = new Application();
-    const api2 = api.use("*", async (_c, next) => await next());
-
-    it("Should mount routes with no type errors", () => {
-      const app = new Application().route("/api", api2);
-    });
-  });
-
-  describe("Grouped route", () => {
-    let one: Application, two: Application, three: Application;
-
-    beforeEach(() => {
-      one = new Application();
-      two = new Application();
-      three = new Application();
-    });
-
-    it("only works with correct order", async () => {
-      three.get("/hi", (c) => text("hi"));
-      two.route("/three", three);
-      one.route("/two", two);
-
-      const { status } = await one.request("http://localhost/two/three/hi", {
-        method: "GET",
-      });
-      expect(status).toBe(200);
-    });
-
-    it("fails with incorrect order 1", async () => {
-      three.get("/hi", (c) => text("hi"));
-      one.route("/two", two);
-      two.route("/three", three);
-
-      const { status } = await one.request("http://localhost/two/three/hi", {
-        method: "GET",
-      });
-      expect(status).toBe(404);
-    });
-
-    it("fails with incorrect order 2", async () => {
-      two.route("/three", three);
-      three.get("/hi", (c) => text("hi"));
-      one.route("/two", two);
-
-      const { status } = await one.request("http://localhost/two/three/hi", {
-        method: "GET",
-      });
-      expect(status).toBe(404);
-    });
-
-    it("fails with incorrect order 3", async () => {
-      two.route("/three", three);
-      one.route("/two", two);
-      three.get("/hi", (c) => text("hi"));
-
-      const { status } = await one.request("http://localhost/two/three/hi", {
-        method: "GET",
-      });
-      expect(status).toBe(404);
-    });
-
-    it("fails with incorrect order 4", async () => {
-      one.route("/two", two);
-      three.get("/hi", (c) => text("hi"));
-      two.route("/three", three);
-
-      const { status } = await one.request("http://localhost/two/three/hi", {
-        method: "GET",
-      });
-      expect(status).toBe(404);
-    });
-
-    it("fails with incorrect order 5", async () => {
-      one.route("/two", two);
-      two.route("/three", three);
-      three.get("/hi", (c) => text("hi"));
-
-      const { status } = await one.request("http://localhost/two/three/hi", {
-        method: "GET",
-      });
-      expect(status).toBe(404);
-    });
-  });
-
-  it("routing with hostname", async () => {
-    const app = new Application({
-      getPath: (req) => req.url.replace(/^https?:\/(.+)$/, "$1"),
-    });
-
-    const sub = new Application();
-    sub.get("/", (c) => text("hello sub"));
-    sub.get("/foo", (c) => text("hello sub foo"));
-
-    app.get("/www1.example.com/hello", () => new Response("hello www1"));
-    app.get("/www2.example.com/hello", () => new Response("hello www2"));
-
-    app.get("/www1.example.com/", (c) => text("hello www1 root"));
-    app.route("/www1.example.com/sub", sub);
-
-    let res = await app.request("http://www1.example.com/hello");
-    expect(res).not.toBeNull();
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("hello www1");
-
-    res = await app.request("http://www2.example.com/hello");
-    expect(res).not.toBeNull();
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("hello www2");
-
-    res = await app.request("http://www1.example.com/");
-    expect(res).not.toBeNull();
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("hello www1 root");
-
-    res = await app.request("http://www1.example.com/sub");
-    expect(res).not.toBeNull();
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("hello sub");
-
-    res = await app.request("http://www1.example.com/sub/foo");
-    expect(res).not.toBeNull();
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("hello sub foo");
-  });
-
-  it("routing with request header", async () => {
-    const app = new Application({
-      getPath: (req) =>
-        "/" +
-        req.headers.get("host") +
-        req.url.replace(/^https?:\/\/[^/]+(\/[^?]*)/, "$1"),
-    });
-
-    const sub = new Application();
-    sub.get("/", (c) => text("hello sub"));
-    sub.get("/foo", (c) => text("hello sub foo"));
-
-    app.get("/www1.example.com/hello", () => new Response("hello www1"));
-    app.get("/www2.example.com/hello", () => new Response("hello www2"));
-
-    app.get("/www1.example.com/", (c) => text("hello www1 root"));
-    app.route("/www1.example.com/sub", sub);
-
-    let res = await app.request("http://www1.example.com/hello", {
-      headers: {
-        host: "www1.example.com",
-      },
-    });
-    expect(res).not.toBeNull();
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("hello www1");
-
-    res = await app.request("http://www2.example.com/hello", {
-      headers: {
-        host: "www2.example.com",
-      },
-    });
-    expect(res).not.toBeNull();
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("hello www2");
-
-    res = await app.request("http://www1.example.com/", {
-      headers: {
-        host: "www1.example.com",
-      },
-    });
-    expect(res).not.toBeNull();
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("hello www1 root");
-
-    res = await app.request("http://www1.example.com/sub", {
-      headers: {
-        host: "www1.example.com",
-      },
-    });
-    expect(res).not.toBeNull();
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("hello sub");
-
-    res = await app.request("http://www1.example.com/sub/foo", {
-      headers: {
-        host: "www1.example.com",
-      },
-    });
-    expect(res).not.toBeNull();
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("hello sub foo");
-    expect(res.status).toBe(200);
-  });
-
   describe("routing with the bindings value", () => {
     const app = new Application<{ Bindings: { host: string } }>({
       getPath: (req, options) => {
@@ -622,15 +399,14 @@ describe("Routing", () => {
   describe("Chained route", () => {
     const app = new Application();
 
-    app
-      .get("/chained/:abc", (c) => {
-        const abc = c.params["abc"];
-        return text(`GET for ${abc}`);
-      })
-      .post((c) => {
-        const abc = c.params["abc"];
-        return text(`POST for ${abc}`);
-      });
+    app.get("/chained/:abc", (c) => {
+      const abc = c.params["abc"];
+      return text(`GET for ${abc}`);
+    });
+    app.post("/chained/:abc", (c) => {
+      const abc = c.params["abc"];
+      return text(`POST for ${abc}`);
+    });
     it("Should return 200 response from GET request", async () => {
       const res = await app.request("http://localhost/chained/abc", {
         method: "GET",
@@ -1132,378 +908,6 @@ describe("Error handling in middleware", () => {
   });
 });
 
-describe("Application with `app.route`", () => {
-  describe("Basic", () => {
-    const app = new Application();
-    const api = new Application();
-    const middleware = new Application();
-
-    api.use("*", async (c, next) => {
-      const res = await next();
-      res.headers.append("x-custom-a", "a");
-      return res;
-    });
-
-    api.get("/posts", (c) => text("List"));
-    api.post("/posts", (c) => text("Create"));
-    api.get("/posts/:id", (c) => text(`GET ${c.params["id"]}`));
-
-    middleware.use("*", async (c, next) => {
-      const res = await next();
-      res.headers.append("x-custom-b", "b");
-      return res;
-    });
-
-    app.route("/api", middleware);
-    app.route("/api", api);
-
-    app.get("/foo", (c) => text("bar"));
-
-    it("Should return not found response", async () => {
-      const res = await app.request("http://localhost/");
-      expect(res.status).toBe(404);
-    });
-
-    it("Should return not found response", async () => {
-      const res = await app.request("http://localhost/posts");
-      expect(res.status).toBe(404);
-    });
-
-    test("GET /api/posts", async () => {
-      const res = await app.request("http://localhost/api/posts");
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe("List");
-    });
-
-    test("Custom header by middleware", async () => {
-      const res = await app.request("http://localhost/api/posts");
-      expect(res.status).toBe(200);
-      expect(res.headers.get("x-custom-a")).toBe("a");
-      expect(res.headers.get("x-custom-b")).toBe("b");
-    });
-
-    test("POST /api/posts", async () => {
-      const res = await app.request("http://localhost/api/posts", {
-        method: "POST",
-      });
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe("Create");
-    });
-
-    test("GET /api/posts/123", async () => {
-      const res = await app.request("http://localhost/api/posts/123");
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe("GET 123");
-    });
-
-    test("GET /foo", async () => {
-      const res = await app.request("http://localhost/foo");
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe("bar");
-    });
-
-    describe("With app.get(...handler)", () => {
-      const app = new Application();
-      const about = new Application();
-      about.get((c) => text("me"));
-      const subApp = new Application();
-      subApp.route("/about", about);
-      app.route("/", subApp);
-
-      it("Should return 200 response - /about", async () => {
-        const res = await app.request("/about");
-        expect(res.status).toBe(200);
-        expect(await res.text()).toBe("me");
-      });
-
-      test("Should return 404 response /about/foo", async () => {
-        const res = await app.request("/about/foo");
-        expect(res.status).toBe(404);
-      });
-    });
-
-    describe("With app.get(...handler) and app.basePath()", () => {
-      const app = new Application();
-      const about = new Application().basePath("/about");
-      about.get((c) => text("me"));
-      app.route("/", about);
-
-      it("Should return 200 response - /about", async () => {
-        const res = await app.request("/about");
-        expect(res.status).toBe(200);
-        expect(await res.text()).toBe("me");
-      });
-
-      test("Should return 404 response /about/foo", async () => {
-        const res = await app.request("/about/foo");
-        expect(res.status).toBe(404);
-      });
-    });
-  });
-
-  describe("Chaining", () => {
-    const app = new Application();
-    const route = new Application();
-    route
-      .get("/post", (c) => text("GET /POST v2"))
-      .post((c) => text("POST /POST v2"));
-    app.route("/v2", route);
-
-    it("Should return 200 response - GET /v2/post", async () => {
-      const res = await app.request("http://localhost/v2/post");
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe("GET /POST v2");
-    });
-
-    it("Should return 200 response - POST /v2/post", async () => {
-      const res = await app.request("http://localhost/v2/post", {
-        method: "POST",
-      });
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe("POST /POST v2");
-    });
-
-    it("Should return 404 response - DELETE /v2/post", async () => {
-      const res = await app.request("http://localhost/v2/post", {
-        method: "DELETE",
-      });
-      expect(res.status).toBe(404);
-    });
-  });
-
-  describe("Nested", () => {
-    const app = new Application();
-    const api = new Application();
-    const book = new Application();
-
-    book.get("/", (c) => text("list books"));
-    book.get("/:id", (c) => text(`book ${c.params["id"]}`));
-
-    api.get("/", (c) => text("this is API"));
-    api.route("/book", book);
-
-    app.get("/", (c) => text("root"));
-    app.route("/v2", api);
-
-    it("Should return 200 response - GET /", async () => {
-      const res = await app.request("http://localhost/");
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe("root");
-    });
-
-    it("Should return 200 response - GET /v2", async () => {
-      const res = await app.request("http://localhost/v2");
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe("this is API");
-    });
-
-    it("Should return 200 response - GET /v2/book", async () => {
-      const res = await app.request("http://localhost/v2/book");
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe("list books");
-    });
-
-    it("Should return 200 response - GET /v2/book/123", async () => {
-      const res = await app.request("http://localhost/v2/book/123");
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe("book 123");
-    });
-  });
-
-  describe("onError", () => {
-    const app = new Application();
-    const sub = new Application();
-
-    app.use("*", async (c, next) => {
-      const res = await next();
-      if (query(c.request, "app-error")) {
-        throw new Error("This is Error");
-      }
-      return res;
-    });
-
-    app.onError((err, c) => {
-      return text("onError by app", { status: 500 });
-    });
-
-    sub.get("/posts/:id", async (c, next) => {
-      const res = await next();
-      res.headers.append("handler-chain", "1");
-      return res;
-    });
-
-    sub.get("/posts/:id", (c) => {
-      return text(`post: ${c.params["id"]}`);
-    });
-
-    sub.get("/error", () => {
-      throw new Error("This is Error");
-    });
-
-    sub.onError((err, c) => {
-      return text("onError by sub", {
-        status: 500,
-      });
-    });
-
-    app.route("/sub", sub);
-
-    it("GET /posts/123 for sub", async () => {
-      const res = await app.request("https://example.com/sub/posts/123");
-      expect(res.status).toBe(200);
-      expect(res.headers.get("handler-chain")).toBe("1");
-      expect(await res.text()).toBe("post: 123");
-    });
-
-    it("should be handled by app", async () => {
-      const res = await app.request("https://example.com/sub/ok?app-error=1");
-      expect(res.status).toBe(500);
-      expect(await res.text()).toBe("onError by app");
-    });
-
-    it("should be handled by sub", async () => {
-      const res = await app.request("https://example.com/sub/error");
-      expect(res.status).toBe(500);
-      expect(await res.text()).toBe("onError by sub");
-    });
-  });
-
-  describe("onError for a single handler", () => {
-    const app = new Application();
-    const sub = new Application();
-
-    sub.get("/ok", (c) => text("OK"));
-
-    sub.get("/error", () => {
-      throw new Error("This is Error");
-    });
-
-    sub.onError((err, c) => {
-      return text("onError by sub", {
-        status: 500,
-      });
-    });
-
-    app.route("/sub", sub);
-
-    it("ok", async () => {
-      const res = await app.request("https://example.com/sub/ok");
-      expect(res.status).toBe(200);
-    });
-
-    it("error", async () => {
-      const res = await app.request("https://example.com/sub/error");
-      expect(res.status).toBe(500);
-      expect(await res.text()).toBe("onError by sub");
-    });
-  });
-
-  describe("notFound", () => {
-    const app = new Application();
-    const sub = new Application();
-
-    app.get("/explicit-404", async (c, next) => {
-      const res = await next();
-      res.headers.append("explicit", "1");
-      return res;
-    });
-
-    app.notFound((c) => {
-      return text("404 Not Found by app", {
-        status: 404,
-      });
-    });
-
-    sub.get("/ok", (c) => {
-      return text("ok");
-    });
-
-    sub.get("/explicit-404", async (c, next) => {
-      const res = await next();
-      res.headers.append("explicit", "1");
-      return res;
-    });
-
-    sub.notFound((c) => {
-      return text("404 Not Found by sub", {
-        status: 404,
-      });
-    });
-
-    app.route("/sub", sub);
-
-    it("/explicit-404 should be handled on app", async () => {
-      const res = await app.request("https://example.com/explicit-404");
-      expect(res.status).toBe(404);
-      expect(res.headers.get("explicit")).toBe("1");
-      expect(await res.text()).toBe("404 Not Found by app");
-    });
-
-    it("/sub/explicit-404 should be handled on app", async () => {
-      const res = await app.request("https://example.com/sub/explicit-404");
-      expect(res.status).toBe(404);
-      expect(res.headers.get("explicit")).toBe("1");
-      expect(await res.text()).toBe("404 Not Found by app");
-    });
-
-    it("/implicit-404 should be handled by app", async () => {
-      const res = await app.request("https://example.com/implicit-404");
-      expect(res.status).toBe(404);
-      expect(res.headers.get("explicit")).toBe(null);
-      expect(await res.text()).toBe("404 Not Found by app");
-    });
-
-    it("/sub/implicit-404 should be handled by sub", async () => {
-      const res = await app.request("https://example.com/sub/implicit-404");
-      expect(res.status).toBe(404);
-      expect(res.headers.get("explicit")).toBe(null);
-      expect(await res.text()).toBe("404 Not Found by app");
-    });
-  });
-});
-
-describe("Multiple methods with `app.on`", () => {
-  const app = new Application();
-  app.on(["PUT", "DELETE"], "/posts/:id", (c) => {
-    return json({
-      postId: c.params["id"],
-      method: c.request.method,
-    });
-  });
-
-  it("Should return 200 with PUT", async () => {
-    const req = new Request("http://localhost/posts/123", {
-      method: "PUT",
-    });
-    const res = await app.request(req);
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({
-      postId: "123",
-      method: "PUT",
-    });
-  });
-
-  it("Should return 200 with DELETE", async () => {
-    const req = new Request("http://localhost/posts/123", {
-      method: "DELETE",
-    });
-    const res = await app.request(req);
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({
-      postId: "123",
-      method: "DELETE",
-    });
-  });
-
-  it("Should return 404 with POST", async () => {
-    const req = new Request("http://localhost/posts/123", {
-      method: "POST",
-    });
-    const res = await app.request(req);
-    expect(res.status).toBe(404);
-  });
-});
-
 describe("Multiple handler", () => {
   describe("handler + handler", () => {
     const app = new Application();
@@ -1663,7 +1067,7 @@ describe("Handler as variables", () => {
   const app = new Application();
 
   it("Should be typed correctly", async () => {
-    const handler: Handler = (c) => {
+    const handler: MiddlewareHandler = (c) => {
       const id = c.params["id"];
       return text(`Post id is ${id}`);
     };

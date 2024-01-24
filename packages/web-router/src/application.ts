@@ -2,54 +2,52 @@ import { compose } from "./compose";
 import { Context } from "./context";
 import type { ExecutionContext } from "./context";
 import type { Router } from "./router";
-import {
-  METHOD_NAME_ALL_LOWERCASE,
-  METHOD_NAME_ALL,
-  METHODS,
-  URLPatternRouter,
-} from "./router";
+import { METHOD_NAME_ALL, METHODS, URLPatternRouter } from "./router";
 import type {
   Env,
   ErrorHandler,
   FetchEventLike,
-  H,
-  HandlerInterface,
-  MergePath,
-  MergeSchemaPath,
   MiddlewareHandler,
-  MiddlewareHandlerInterface,
-  Next,
   NotFoundHandler,
-  OnHandlerInterface,
-  Schema,
 } from "./types";
 import { getPath, getPathNoStrict, mergePath } from "./url";
 
-type Methods = (typeof METHODS)[number] | typeof METHOD_NAME_ALL_LOWERCASE;
+type Methods = (typeof METHODS)[number];
+
+type MergePath<A extends string, B extends string> = A extends ""
+  ? B
+  : A extends "/"
+  ? B
+  : A extends `${infer P}/`
+  ? B extends `/${infer Q}`
+    ? `${P}/${Q}`
+    : `${P}/${B}`
+  : B extends `/${infer Q}`
+  ? Q extends ""
+    ? A
+    : `${A}/${Q}`
+  : `${A}/${B}`;
 
 interface RouterRoute {
   path: string;
   method: string;
-  handler: H;
+  handler: MiddlewareHandler;
 }
 
 function defineDynamicClass(): {
-  new <
-    E extends Env = Env,
-    S extends Schema = {},
-    BasePath extends string = "/",
-  >(): {
-    [M in Methods]: HandlerInterface<E, M, S, BasePath>;
+  new <E extends Env = Env, BasePath extends string = "/">(): {
+    /**
+     * @experimental
+     */
+    [M in Methods]: (
+      path: string,
+      handler: MiddlewareHandler
+    ) => Application<E, BasePath>;
   } & {
     /**
      * @experimental
      */
-    on: OnHandlerInterface<E, S, BasePath>;
-  } & {
-    /**
-     * @experimental
-     */
-    use: MiddlewareHandlerInterface<E, S, BasePath>;
+    use: (path: string, handler: MiddlewareHandler) => Application<E, BasePath>;
   };
 } {
   return class {} as never;
@@ -76,70 +74,40 @@ type GetPath<E extends Env> = (
 
 export type ApplicationOptions<E extends Env> = {
   strict?: boolean;
-  router?: Router<H>;
+  router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
 };
 
 class Application<
   E extends Env = Env,
-  S extends Schema = {},
   BasePath extends string = "/",
-> extends defineDynamicClass()<E, S, BasePath> {
+> extends defineDynamicClass()<E, BasePath> {
   /*
     This class is like an abstract class and does not have a router.
     To use it, inherit the class and implement router in the constructor.
   */
-  router!: Router<H>;
+  router!: Router<MiddlewareHandler>;
   readonly getPath: GetPath<E>;
   #basePath: string = "/";
-  #path: string = "/";
   routes: RouterRoute[] = [];
 
   constructor(options: ApplicationOptions<E> = {}) {
     super();
 
-    // Implementation of app.get(...handlers[]) or app.get(path, ...handlers[])
-    const allMethods = [...METHODS, METHOD_NAME_ALL_LOWERCASE];
-    allMethods.forEach((method) => {
-      this[method] = (args1: string | H, ...args: H[]) => {
-        if (typeof args1 === "string") {
-          this.#path = args1;
-        } else {
-          this.#addRoute(method, this.#path, args1);
-        }
+    // Implementation of app.get(path, ...handlers[])
+    METHODS.forEach((method) => {
+      this[method] = (path: string, ...args: MiddlewareHandler[]) => {
         args.forEach((handler) => {
-          if (typeof handler !== "string") {
-            this.#addRoute(method, this.#path, handler);
-          }
+          this.#addRoute(method, path, handler);
         });
         return this;
       };
     });
 
-    // Implementation of app.on(method, path, ...handlers[])
-    this.on = (method: string | string[], path: string, ...handlers: H[]) => {
-      if (!method) return this;
-      this.#path = path;
-      for (const m of [method].flat()) {
-        handlers.forEach((handler) => {
-          this.#addRoute(m.toUpperCase(), this.#path, handler);
-        });
-      }
-      return this;
-    };
-
-    // Implementation of app.use(...handlers[]) or app.get(path, ...handlers[])
-    this.use = (
-      arg1: string | MiddlewareHandler<any>,
-      ...handlers: MiddlewareHandler<any>[]
-    ) => {
-      if (typeof arg1 === "string") {
-        this.#path = arg1;
-      } else {
-        handlers.unshift(arg1);
-      }
+    // Implementation of app.get(path, ...handlers[])
+    this.use = (path: string, ...handlers: MiddlewareHandler[]) => {
       handlers.forEach((handler) => {
-        this.#addRoute(METHOD_NAME_ALL, this.#path, handler);
+        this.#addRoute(METHOD_NAME_ALL, path, handler);
       });
       return this;
     };
@@ -151,8 +119,8 @@ class Application<
     this.router = options.router ?? new URLPatternRouter();
   }
 
-  #clone(): Application<E, S, BasePath> {
-    const clone = new Application<E, S, BasePath>({
+  #clone(): Application<E, BasePath> {
+    const clone = new Application<E, BasePath>({
       router: this.router,
       getPath: this.getPath,
     });
@@ -166,44 +134,9 @@ class Application<
   /**
    * @experimental
    */
-  route<
-    SubPath extends string,
-    SubEnv extends Env,
-    SubSchema extends Schema,
-    SubBasePath extends string,
-  >(
-    path: SubPath,
-    app?: Application<SubEnv, SubSchema, SubBasePath>
-  ): Application<
-    E,
-    MergeSchemaPath<SubSchema, MergePath<BasePath, SubPath>> & S,
-    BasePath
-  > {
-    const subApp = this.basePath(path);
-
-    if (!app) {
-      return subApp;
-    }
-
-    app.routes.forEach((r) => {
-      const handler =
-        app.#errorHandler === errorHandler
-          ? r.handler
-          : async (c: Context, next: Next) =>
-              await compose<Context>([], app.#errorHandler)(c, () =>
-                r.handler(c, next)
-              );
-      subApp.#addRoute(r.method, r.path, handler);
-    });
-    return this;
-  }
-
-  /**
-   * @experimental
-   */
   basePath<SubPath extends string>(
     path: SubPath
-  ): Application<E, S, MergePath<BasePath, SubPath>> {
+  ): Application<E, MergePath<BasePath, SubPath>> {
     const subApp = this.#clone();
     subApp.#basePath = mergePath(this.#basePath, path);
     return subApp;
@@ -225,7 +158,7 @@ class Application<
     return this;
   }
 
-  #addRoute(method: string, path: string, handler: H) {
+  #addRoute(method: string, path: string, handler: MiddlewareHandler) {
     method = method.toUpperCase();
     path = mergePath(this.#basePath, path);
     this.router.add(method, path, handler);

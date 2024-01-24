@@ -3,7 +3,7 @@ import type { Manifest, StartOptions } from "@web-widget/web-router";
 import WebRouter from "@web-widget/web-router";
 
 export default (manifest: Manifest, options: StartOptions) => {
-  return new WebRouter(manifest, {
+  return WebRouter.fromManifest(manifest, {
     ...options,
     defaultMeta: mergeMeta(
       {
@@ -20,11 +20,8 @@ export default (manifest: Manifest, options: StartOptions) => {
       },
       options.defaultMeta || {}
     ),
-    onFallback(error) {
-      console.error(
-        "An error occurred during route handling or page rendering.",
-        error
-      );
+    onFallback(error, context) {
+      console.error(context?.request.url ?? "", error);
     },
   });
 };

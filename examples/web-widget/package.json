@@ -16,7 +16,7 @@
     "@examples/web-widget-vue2": "workspace:*",
     "@examples/web-widget-vue3": "workspace:*",
     "@web-widget/react": "workspace:*",
-    "@web-widget/schema": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "react": "canary",
     "react-dom": "canary",

@@ -1,6 +1,6 @@
-import type { LinkDescriptor } from "@web-widget/schema";
-import mime from "mime-types";
 import path from "node:path";
+import type { LinkDescriptor } from "@web-widget/helpers";
+import mime from "mime-types";
 import type { Manifest as ViteManifest } from "vite";
 
 export function getLinks(

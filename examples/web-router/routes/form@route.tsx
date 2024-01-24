@@ -1,7 +1,7 @@
-import type { Handlers } from "@web-widget/react";
+import { defineRouteComponent, defineRouteHandler } from "@web-widget/react";
 import BaseLayout from "./(components)/BaseLayout";
 
-export const handler: Handlers = {
+export const handler = defineRouteHandler({
   async GET(ctx) {
     return await ctx.render();
   },
@@ -20,9 +20,9 @@ export const handler: Handlers = {
       headers,
     });
   },
-};
+});
 
-export default function Page() {
+export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
       <h1>Form submissions</h1>
@@ -32,4 +32,4 @@ export default function Page() {
       </form>
     </BaseLayout>
   );
-}
+});

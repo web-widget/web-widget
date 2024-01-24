@@ -1,12 +1,12 @@
-import type { RouteComponentProps } from "@web-widget/react";
+import { defineMeta, defineRouteComponent } from "@web-widget/react";
 import BaseLayout from "../../(components)/BaseLayout";
 import App from "./App@widget?as=jsx";
 
-export const meta = {
+export const meta = defineMeta({
   title: "Hello, Vue Router",
-};
+});
 
-export default function Page(props: RouteComponentProps) {
+export default defineRouteComponent(function Page(props) {
   const request = props.request;
   const url = new URL(request.url);
   const fullPath = `${url.pathname}${url.search}`;
@@ -16,4 +16,4 @@ export default function Page(props: RouteComponentProps) {
       <App route={fullPath} />
     </BaseLayout>
   );
-}
+});

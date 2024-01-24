@@ -11,13 +11,8 @@ const matchHtmlRegExp = /["'&<>]/;
 
 /**
  * Escape special characters in the given string of text.
- *
- * @param  {string} string The string to escape for inserting into HTML
- * @return {string}
- * @public
  */
-
-export function escapeHtml(string: string) {
+export function escapeHtml(string: string): string {
   const str = "" + string;
   const match = matchHtmlRegExp.exec(str);
 

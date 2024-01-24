@@ -2,7 +2,7 @@ import { html, render, unsafeHTML, unsafeStreamToHTML } from "@web-widget/html";
 
 import type { HTML } from "@web-widget/html";
 import type { RootLayoutComponentProps } from "@web-widget/web-router";
-import { renderMetaToString } from "@web-widget/schema/server-helpers";
+import { renderMetaToString } from "@web-widget/helpers";
 
 export { render };
 

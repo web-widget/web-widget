@@ -1,11 +1,11 @@
-import type { RouteHandlers } from "@web-widget/schema";
+import { defineRouteHandler } from "@web-widget/helpers";
 
 export type HelloData = {
   title: string;
   url: string;
 }[];
 
-export const handler: RouteHandlers = {
+export const handler = defineRouteHandler({
   async GET() {
     const data: HelloData = [
       {
@@ -40,4 +40,4 @@ export const handler: RouteHandlers = {
       },
     });
   },
-};
+});

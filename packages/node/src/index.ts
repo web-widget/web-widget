@@ -1,3 +1,6 @@
+import type { IncomingMessage, ServerResponse } from "node:http";
+import type { Writable } from "node:stream";
+import { AsyncLocalStorage } from "node:async_hooks";
 import type {
   BuildDependencies,
   NodeHandler,
@@ -10,9 +13,6 @@ import {
   toOutgoingHeaders,
 } from "@edge-runtime/node-utils";
 import primitives from "@edge-runtime/primitives";
-import type { IncomingMessage, ServerResponse } from "node:http";
-import type { Writable } from "node:stream";
-import { AsyncLocalStorage } from "node:async_hooks";
 
 if (!Reflect.get(global, "DISABLE_INSTALL_MCA_SHIMS")) {
   Object.assign(global, primitives, { console });

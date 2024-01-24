@@ -1,9 +1,8 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import type { Loader, WebWidgetRendererOptions } from "@web-widget/web-widget";
 import { WebWidgetRenderer } from "@web-widget/web-widget";
 import { h, defineComponent, useAttrs, getCurrentInstance } from "vue";
 import type { Component, PropType } from "vue";
-import { IS_BROWSER } from "@web-widget/schema/helpers";
+import { IS_CLIENT } from "@web-widget/helpers";
 
 export interface DefineWebWidgetOptions {
   base?: WebWidgetRendererOptions["base"];
@@ -78,7 +77,7 @@ export /*#__PURE__*/ function defineWebWidget(
       const instance = getCurrentInstance()!;
       (instance.proxy as any).$widget = widget;
 
-      if (IS_BROWSER) {
+      if (IS_CLIENT) {
         // await customElements.whenDefined(tag);
         // let element = document.createElement(tag);
         // Object.entries(attrs).forEach(([name, value]) => {

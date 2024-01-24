@@ -4,7 +4,7 @@ import type {
   MetaDescriptor,
   ScriptDescriptor,
   StyleDescriptor,
-} from "../types";
+} from "@web-widget/schema";
 import { escapeHtml } from "./utils";
 
 const safeAttributeName = (value: string) =>

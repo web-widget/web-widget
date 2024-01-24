@@ -68,7 +68,7 @@ export const useAllWidgetState = () => {
   const ctx = useContext();
 
   if (!ctx) {
-    throw new Error(`[@web-widget/schema] Instance unavailable.`);
+    throw new Error(`[@web-widget/helpers/context] Instance unavailable.`);
   }
 
   return (ctx.body ??= {});

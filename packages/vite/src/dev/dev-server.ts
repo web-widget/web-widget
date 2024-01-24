@@ -1,14 +1,9 @@
+import path from "node:path";
 import type { Middleware } from "@web-widget/node";
 import NodeAdapter from "@web-widget/node";
-import type { RouteModule } from "@web-widget/schema";
-import { renderMetaToString } from "@web-widget/schema/helpers";
-import type {
-  PageContext,
-  ManifestJSON,
-  ManifestResolved,
-  MiddlewareHandler,
-} from "@web-widget/web-router";
-import path from "node:path";
+import type { RouteModule, MiddlewareHandler } from "@web-widget/helpers";
+import { renderMetaToString } from "@web-widget/helpers";
+import type { ManifestJSON, ManifestResolved } from "@web-widget/web-router";
 import stripAnsi from "strip-ansi";
 import type { Plugin, ViteDevServer } from "vite";
 import type { ResolvedBuilderConfig, ServerEntryModule } from "../types";
@@ -158,7 +153,7 @@ async function viteWebRouterMiddleware(
       react: {
         awaitAllReady: true,
       },
-    },
+    } as any,
   });
 
   const nodeAdapter = new NodeAdapter({
@@ -232,7 +227,7 @@ async function loadManifest(routemap: string, viteServer: ViteDevServer) {
 }
 
 function renderStyles(viteServer: ViteDevServer): MiddlewareHandler {
-  return async (context: PageContext, next) => {
+  return async (context, next) => {
     let res = await next();
 
     if (!res.headers.get("content-type")?.startsWith("text/html;")) {

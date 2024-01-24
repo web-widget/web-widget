@@ -1,15 +1,16 @@
-import {
-  defineRender,
-  getComponentDescriptor,
-  type ComponentProps,
-} from "@web-widget/schema/client-helpers";
+import { defineRender, getComponentDescriptor } from "@web-widget/helpers";
+import type {
+  ClientWidgetRenderContext,
+  ComponentProps,
+} from "@web-widget/helpers";
+import type { FunctionComponent } from "react";
 import { createElement, StrictMode } from "react";
 import type { Root } from "react-dom/client";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import type { CreateReactRenderOptions } from "./types";
 
-export * from "@web-widget/schema/client-helpers";
-export { useWidgetSyncState as useWidgetState } from "@web-widget/schema/client-helpers";
+export * from "@web-widget/helpers";
+export { useWidgetSyncState as useWidgetState } from "@web-widget/helpers/context";
 export * from "./components";
 
 export const createReactRender = ({
@@ -20,7 +21,7 @@ export const createReactRender = ({
   }
 
   return defineRender(async (context) => {
-    const { recovering, container } = context;
+    const { recovering, container } = context as ClientWidgetRenderContext;
     const componentDescriptor = getComponentDescriptor(context);
     const { component, props } = componentDescriptor;
 
@@ -39,15 +40,18 @@ export const createReactRender = ({
           // experimental
           vNode = await component(props as ComponentProps<any>);
         } else {
-          vNode = createElement(component, props as ComponentProps<any>);
+          vNode = createElement(
+            component as FunctionComponent,
+            props as ComponentProps<any>
+          );
         }
 
         vNode = createElement(StrictMode, null, vNode);
 
         if (recovering) {
-          root = hydrateRoot(context.container as Element, vNode);
+          root = hydrateRoot(container as Element, vNode);
         } else {
-          root = createRoot(context.container);
+          root = createRoot(container);
           root.render(vNode);
         }
       },

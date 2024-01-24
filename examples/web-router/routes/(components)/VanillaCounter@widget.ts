@@ -1,14 +1,14 @@
 import "./counter-common.css";
-import type { WidgetRenderContext } from "@web-widget/schema";
+import { IS_SERVER, defineWidgetRender } from "@web-widget/helpers";
 
-export const render = (context: WidgetRenderContext) => {
-  if (import.meta.env.SSR) {
-    return context.module.default(context.data);
+export const render = defineWidgetRender((context) => {
+  if (IS_SERVER) {
+    return context.module.default!(context.data);
   } else {
     const container = Reflect.get(context, "container") as HTMLElement;
 
     if (!Reflect.get(context, "recovering")) {
-      container.innerHTML = context.module.default(context.data);
+      container.innerHTML = context.module.default!(context.data);
     }
 
     const root = container.querySelector("[data-root]") as HTMLElement;
@@ -26,7 +26,7 @@ export const render = (context: WidgetRenderContext) => {
       }
     };
   }
-};
+});
 
 interface CounterProps {
   name: string;

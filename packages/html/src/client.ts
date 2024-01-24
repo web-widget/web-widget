@@ -1,5 +1,5 @@
 export type { HTML, Fallback } from "@worker-tools/html";
-export * from "@web-widget/schema/server-helpers";
+export * from "@web-widget/helpers";
 export * from "./web-widget";
 
 const notImplemented = (name: string) => () => {

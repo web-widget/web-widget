@@ -1,5 +1,4 @@
 export const METHOD_NAME_ALL = "ALL" as const;
-export const METHOD_NAME_ALL_LOWERCASE = "all" as const;
 export const METHODS = [
   "get",
   "post",

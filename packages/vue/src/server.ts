@@ -1,14 +1,10 @@
-import {
-  defineRender,
-  getComponentDescriptor,
-  type Handlers,
-} from "@web-widget/schema/server-helpers";
+import { defineRender, getComponentDescriptor } from "@web-widget/helpers";
 import { createSSRApp, h, Suspense } from "vue";
 import { renderToWebStream, type SSRContext } from "vue/server-renderer";
 import type { CreateVueRenderOptions } from "./types";
 
-export * from "@web-widget/schema/server-helpers";
-export { useWidgetAsyncState as useWidgetState } from "@web-widget/schema/server-helpers";
+export * from "@web-widget/helpers";
+export { useWidgetAsyncState as useWidgetState } from "@web-widget/helpers/context";
 export * from "./components";
 
 export interface VueRenderOptions {
@@ -23,7 +19,7 @@ export const createVueRender = ({
     throw new Error(`"onPrefetchData" is not supported.`);
   }
 
-  return defineRender<VueRenderOptions>(
+  return defineRender<unknown, Record<string, string>, VueRenderOptions>(
     async (context, { vue: ssrContext } = {}) => {
       const componentDescriptor = getComponentDescriptor(context);
       const { component, props } = componentDescriptor;

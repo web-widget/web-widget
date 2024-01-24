@@ -1,5 +1,5 @@
 import type { Component, App } from "vue";
-import type { ComponentProps, RenderContext } from "@web-widget/schema";
+import type { ComponentProps, RenderContext } from "@web-widget/helpers";
 
 export * from "./components";
 

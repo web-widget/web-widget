@@ -20,7 +20,7 @@
     "@web-widget/html": "workspace:*",
     "@web-widget/node": "workspace:*",
     "@web-widget/react": "workspace:*",
-    "@web-widget/schema": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
     "@web-widget/web-router": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "koa": "^2.14.2",

@@ -1,13 +1,11 @@
-import {
-  defineRender,
-  getComponentDescriptor,
-} from "@web-widget/schema/client-helpers";
+import type { ClientWidgetRenderContext } from "@web-widget/helpers";
+import { defineRender, getComponentDescriptor } from "@web-widget/helpers";
 import type { App } from "vue";
 import { Suspense, createApp, createSSRApp, h } from "vue";
 import type { CreateVueRenderOptions } from "./types";
 
-export * from "@web-widget/schema/client-helpers";
-export { useWidgetAsyncState as useWidgetState } from "@web-widget/schema/client-helpers";
+export * from "@web-widget/helpers";
+export { useWidgetAsyncState as useWidgetState } from "@web-widget/helpers/context";
 export * from "./components";
 
 export const createVueRender = ({
@@ -19,9 +17,10 @@ export const createVueRender = ({
   }
 
   return defineRender(async (context) => {
+    const { recovering, container } = context as ClientWidgetRenderContext;
     const componentDescriptor = getComponentDescriptor(context);
     const { component, props } = componentDescriptor;
-    if (!context.container) {
+    if (!container) {
       throw new Error(`Container required.`);
     }
 
@@ -31,14 +30,14 @@ export const createVueRender = ({
 
     return {
       async mount() {
-        if (context.recovering) {
+        if (recovering) {
           app = createSSRApp(WidgetSuspense, props as any);
         } else {
           app = createApp(WidgetSuspense, props as any);
         }
         await onCreatedApp(app, context, component, props);
 
-        app.mount(context.container);
+        app.mount(container);
       },
 
       async unmount() {

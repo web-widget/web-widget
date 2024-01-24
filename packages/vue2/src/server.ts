@@ -1,16 +1,13 @@
-import {
-  defineRender,
-  getComponentDescriptor,
-  type Handlers,
-} from "@web-widget/schema/server-helpers";
+import { defineRender, getComponentDescriptor } from "@web-widget/helpers";
 // import { Readable } from "node:stream";
 // import { TransformStream } from "node:stream/web";
+import type { Component } from "vue";
 import Vue from "vue";
 import { createRenderer } from "vue-server-renderer";
 import type { CreateVueRenderOptions } from "./types";
 
-export * from "@web-widget/schema/server-helpers";
-export { useWidgetSyncState as useWidgetState } from "@web-widget/schema/server-helpers";
+export * from "@web-widget/helpers";
+export { useWidgetSyncState as useWidgetState } from "@web-widget/helpers/context";
 export * from "./components";
 
 /**
@@ -64,7 +61,10 @@ export const createVueRender = ({
 }: CreateVueRenderOptions = {}) => {
   return defineRender(async (context) => {
     const componentDescriptor = getComponentDescriptor(context);
-    const { component, props } = componentDescriptor;
+    const component = componentDescriptor.component as Component & {
+      __name?: string;
+    };
+    const props = componentDescriptor.props;
 
     if (component.__name) {
       component.__name = component.__name.replace("@", "-");

@@ -1,14 +1,14 @@
 import type {
-  Loader,
-  WidgetModule,
-  WidgetRenderContext,
-  WidgetRenderResult,
-} from "../types";
+  ClientWidgetRenderContext as WidgetRenderContext,
+  ClientWidgetRenderResult as WidgetRenderResult,
+  ClientWidgetModule as WidgetModule,
+} from "@web-widget/helpers";
+import { rebaseMeta, mergeMeta } from "@web-widget/helpers";
+import type { Loader } from "../types";
 
 import { INITIAL } from "./status";
 import { reasonableTime } from "./timeouts";
 import { rules } from "./flow";
-import { rebaseMeta, mergeMeta } from "@web-widget/schema/client-helpers";
 
 interface LifecycleControllerOptions {
   handler: () => {
@@ -75,8 +75,8 @@ export class LifecycleController {
     if (rule.creator && !this.#lifecycle[name]) {
       //@ts-ignore
       this.#lifecycle[name] = async (context: WidgetRenderContext) => {
-        const widgetModule = await this.#moduleLoader();
-        const { render } = widgetModule;
+        const widgetModule = (await this.#moduleLoader()) as WidgetModule;
+        const render = widgetModule.render;
 
         if (!render) {
           throw new Error(`Module does not export render function.`);

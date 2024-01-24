@@ -1,26 +1,26 @@
-import type { Handlers, RouteComponentProps } from "@web-widget/react";
+import { defineRouteComponent, defineRouteHandler } from "@web-widget/react";
 import type { HelloData } from "./api/hello-world@route.ts";
 import BaseLayout from "./(components)/BaseLayout.tsx";
+import ReactGithub from "./(components)/Github@widget.tsx";
+import VanillaGithub from "./(components)/VanillaGithub@widget";
 import VueGithub from "@examples/web-router-vue3/Github@widget.vue?as=jsx";
 import Vue2Github from "@examples/web-router-vue2/Github@widget.vue?as=jsx";
-import ReactGithub from "./(components)/Github@widget.tsx";
-import VanillaGithub from "./(components)/Github@widget.ts";
 
 async function fetchData(url: URL) {
   const data = await fetch(`${url.origin}/api/hello-world`);
   return (await data.json()) as HelloData;
 }
 
-export const handler: Handlers<HelloData> = {
+export const handler = defineRouteHandler<HelloData>({
   async GET(ctx) {
     const data = await fetchData(new URL(ctx.request.url));
     return ctx.render({
       data,
     });
   },
-};
+});
 
-export default function Page({ data }: RouteComponentProps<HelloData>) {
+export default defineRouteComponent<HelloData>(function Page({ data }) {
   return (
     <BaseLayout>
       <h1>Fetching data</h1>
@@ -40,4 +40,4 @@ export default function Page({ data }: RouteComponentProps<HelloData>) {
       <VanillaGithub username="aui" />
     </BaseLayout>
   );
-}
+});

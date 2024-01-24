@@ -6,7 +6,7 @@ export interface ExecutionContext {
   passThroughOnException(): void;
 }
 
-export interface ContextVariableMap {}
+// export interface ContextVariableMap {}
 
 type ContextOptions<E extends Env> = {
   env: E["Bindings"];
@@ -15,17 +15,17 @@ type ContextOptions<E extends Env> = {
 
 export class Context<E extends Env = any> {
   state: Record<string, unknown> = Object.create(null);
-  /**
-   * @experimental
-   */
+  // /**
+  //  * @experimental
+  //  */
   // env: E["Bindings"] = Object.create(null);
   error?: Error;
   params: Params = Object.create(null);
   pathname: string = "*";
   request: Request;
-  /**
-   * @experimental
-   */
+  // /**
+  //  * @experimental
+  //  */
   // executionContext: FetchEventLike | ExecutionContext | undefined;
 
   constructor(request: Request, options?: ContextOptions<E>) {

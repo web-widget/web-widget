@@ -1,12 +1,11 @@
-import {
-  defineRender,
-  getComponentDescriptor,
-} from "@web-widget/schema/client-helpers";
+import type { ClientWidgetRenderContext } from "@web-widget/helpers";
+import { defineRender, getComponentDescriptor } from "@web-widget/helpers";
+import type { Component } from "vue";
 import Vue from "vue";
 import type { CreateVueRenderOptions } from "./types";
 
-export * from "@web-widget/schema/client-helpers";
-export { useWidgetSyncState as useWidgetState } from "@web-widget/schema/client-helpers";
+export * from "@web-widget/helpers";
+export { useWidgetSyncState as useWidgetState } from "@web-widget/helpers/context";
 export * from "./components";
 
 export const createVueRender = ({
@@ -15,9 +14,12 @@ export const createVueRender = ({
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
   return defineRender(async (context) => {
+    const { recovering, container } = context as ClientWidgetRenderContext;
     const componentDescriptor = getComponentDescriptor(context);
-    const { component, props } = componentDescriptor;
-    const container = context.container as Element;
+    const component = componentDescriptor.component as Component & {
+      __name?: string;
+    };
+    const props = componentDescriptor.props;
 
     if (!container) {
       throw new Error(`Container required.`);
@@ -35,7 +37,7 @@ export const createVueRender = ({
         let element: Element | Node = container;
         let mergedProps: Record<string, any> = props as any;
 
-        if (context.recovering) {
+        if (recovering) {
           const vue2ssrAttrSelector = `[data-server-rendered="true"]`;
           const ssrRoot =
             container.querySelector(vue2ssrAttrSelector) ||
@@ -74,8 +76,8 @@ export const createVueRender = ({
 
         await onCreatedApp(app, context, component, mergedProps);
 
-        if (context.recovering) {
-          app.$mount(element as Element, context.recovering);
+        if (recovering) {
+          app.$mount(element as Element, recovering);
         } else {
           container.appendChild(app.$mount().$el);
         }
@@ -83,8 +85,8 @@ export const createVueRender = ({
 
       async unmount() {
         app?.$destroy();
-        if (context.container instanceof Element) {
-          context.container.innerHTML = "";
+        if ("innerHTML" in container) {
+          container.innerHTML = "";
         }
         app = null;
       },
