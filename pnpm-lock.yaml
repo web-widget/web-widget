@@ -338,8 +338,8 @@ importers:
   packages/node:
     dependencies:
       '@edge-runtime/node-utils':
-        specifier: ^2.2.3
-        version: 2.2.3
+        specifier: ^2.2.4
+        version: 2.2.4
       '@edge-runtime/primitives':
         specifier: ^4.0.6
         version: 4.0.6
@@ -2436,8 +2436,8 @@ packages:
     resolution: {integrity: sha512-TkcZkntUTOcvJ4vgmwpNfLTclpMbmbClZCe62B25/VTukmyv91joRa4eKzSjzCZUXTbFHNmVdOpmGaaJU2U3+A==}
     dev: true
 
-  /@edge-runtime/node-utils@2.2.3:
-    resolution: {integrity: sha512-nirFFbLY9SKM8/ypJOBFroGn5z7ZTBwwkSRT933gpR8S5O4MqSfGhuzQUwZL7JQ9lHHfufQYfTOShvN67wCQQA==}
+  /@edge-runtime/node-utils@2.2.4:
+    resolution: {integrity: sha512-yDcuf9msVQzrSPJLCMHb+Mqs3c3XNIfyrBfrhhA6EM+J3SUyTZikqQVczCjcRgly4dnSmgjFxLkTh2lid/awdw==}
     engines: {node: '>=16'}
     dev: false
 

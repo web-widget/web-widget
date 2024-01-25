@@ -19,7 +19,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@edge-runtime/node-utils": "^2.2.3",
+    "@edge-runtime/node-utils": "^2.2.4",
     "@edge-runtime/primitives": "^4.0.6"
   },
   "devDependencies": {
