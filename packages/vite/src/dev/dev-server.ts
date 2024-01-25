@@ -10,8 +10,6 @@ import type { ResolvedBuilderConfig, ServerEntryModule } from "../types";
 import { getMeta } from "./meta";
 import { fileSystemRouteGenerator } from "./routing";
 
-const WEB_ROUTER = "@web-widget/web-router";
-
 type DevModule = RouteModule & {
   $source?: string;
 };
@@ -21,18 +19,14 @@ export function webRouterDevServerPlugin(
 ): Plugin {
   let root: string;
   return {
-    name: "builder:web-router-dev-server",
+    name: "@widget:web-router-dev-server",
     enforce: "pre",
     apply: "serve",
     async config() {
       return {
         appType: "custom",
-        optimizeDeps: {
-          exclude: [WEB_ROUTER],
-        },
-        ssr: {
-          noExternal: [WEB_ROUTER],
-        },
+        optimizeDeps: {},
+        ssr: {},
       };
     },
     async configResolved(config) {

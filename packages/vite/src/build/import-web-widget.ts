@@ -62,7 +62,7 @@ export function importWebWidgetPlugin(
 
   return [
     {
-      name: "builder:import-web-widget",
+      name: "@widget:import-web-widget",
       async config(userConfig, { command }) {
         const ssrBuild = !!userConfig.build?.ssr;
         const {
