@@ -140,7 +140,7 @@ export function buildWebRouterEntryPlugin(
   }
 
   return {
-    name: "builder:build-web-router-entry",
+    name: "@widget:build-web-router-entry",
     apply: "build",
     enforce: "pre",
     async config(_userConfig) {

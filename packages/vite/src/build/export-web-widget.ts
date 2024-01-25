@@ -32,7 +32,7 @@ export function exportWebWidgetPlugin(
   ] = defineAsyncOptions<AppendWebWidgetMetaPluginOptions>({});
   return [
     {
-      name: "builder:export-web-widget",
+      name: "@widget:export-web-widget",
       async config(userConfig) {
         const ssrBuild = !!userConfig.build?.ssr;
         const {

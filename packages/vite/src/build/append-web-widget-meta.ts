@@ -1,7 +1,7 @@
+import path from "node:path";
 import { createFilter, type FilterPattern } from "@rollup/pluginutils";
 import * as esModuleLexer from "es-module-lexer";
 import MagicString from "magic-string";
-import path from "node:path";
 import type { Plugin, Manifest as ViteManifest } from "vite";
 import { getLinks } from "./utils";
 
@@ -20,7 +20,7 @@ export function appendWebWidgetMetaPlugin(
   let filter: (id: string | unknown) => boolean;
 
   return {
-    name: "builder:append-web-widget-meta",
+    name: "@widget:append-web-widget-meta",
     enforce: "post",
     async configResolved(resolvedConfig) {
       const { manifest, include, exclude } = options;

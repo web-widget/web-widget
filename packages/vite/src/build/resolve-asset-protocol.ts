@@ -31,7 +31,7 @@ export function resolveAssetProtocol(
   const assetMap: Map<string, string> = new Map();
 
   return {
-    name: "builder:resolve-asset-protocol",
+    name: "@widget:resolve-asset-protocol",
     enforce: "post",
     async configResolved(resolvedConfig) {
       const { manifest, include, exclude } = options;
