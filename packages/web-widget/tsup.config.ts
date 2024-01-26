@@ -4,6 +4,7 @@ export const tsup: Options = {
     "web-widget.server": "src/server.ts",
     "web-widget.client": "src/client.ts",
     inspector: "src/inspector.ts",
+    vite: "src/vite.ts",
   },
   dts: true,
   target: ["es2017", "chrome67"],

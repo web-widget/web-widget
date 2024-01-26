@@ -83,9 +83,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.1.1
         version: 4.2.1(vite@5.0.11)
-      '@web-widget/vite':
-        specifier: workspace:*
-        version: link:../../packages/vite
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -188,9 +185,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.2.1
         version: 4.2.1(vite@5.0.11)
-      '@web-widget/vite':
-        specifier: workspace:*
-        version: link:../../packages/vite
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -506,6 +500,10 @@ importers:
         version: 2.7.16
 
   packages/web-router:
+    dependencies:
+      '@web-widget/vite':
+        specifier: workspace:*
+        version: link:../vite
     devDependencies:
       '@babel/cli':
         specifier: ^7.22.9
@@ -554,6 +552,10 @@ importers:
         version: 9.0.0
 
   packages/web-widget:
+    dependencies:
+      '@web-widget/vite':
+        specifier: workspace:*
+        version: link:../vite
     devDependencies:
       '@esm-bundle/chai':
         specifier: ^4.3.4-fix.0

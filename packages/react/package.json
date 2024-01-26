@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/react",
-  "version": "0.10.5",
+  "version": "1.9.0",
   "type": "module",
   "exports": {
     ".": {
@@ -39,12 +39,13 @@
     "dev": "pnpm exec tsup --watch",
     "prepublishOnly": "pnpm run build"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@web-widget/vite": "workspace:*"
+  },
   "devDependencies": {
     "@types/react-dom": "^18.2.18",
     "@types/react": "^18.2.47",
     "@web-widget/helpers": "workspace:*",
-    "@web-widget/vite": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "react-dom": "canary",
     "react": "canary",
@@ -54,7 +55,6 @@
   },
   "peerDependencies": {
     "@web-widget/helpers": "workspace:*",
-    "@web-widget/vite": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "react-dom": "canary",
     "react": "canary",

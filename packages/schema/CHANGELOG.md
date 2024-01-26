@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.9.0
+
+### Minor Changes
+
+- Follow the version number of the monorepo.
+
 ## 0.4.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @web-widget/react
 
+## 1.9.0
+
+### Minor Changes
+
+- Follow the version number of the monorepo.
+
 ## 0.10.5
 
 ### Patch Changes

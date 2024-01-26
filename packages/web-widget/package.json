@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/web-widget",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Web front-end application container",
   "keywords": [
     "island",
@@ -54,6 +54,11 @@
       "types": "./dist/web-widget.server.d.ts",
       "development": "./src/server.ts",
       "default": "./dist/web-widget.server.js"
+    },
+    "./vite": {
+      "types": "./dist/vite.d.ts",
+      "development": "./src/vite.ts",
+      "default": "./dist/vite.js"
     }
   },
   "files": [
@@ -64,7 +69,9 @@
     "dev": "pnpm exec tsup --watch",
     "prepublishOnly": "pnpm run build"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@web-widget/vite": "workspace:*"
+  },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web-widget/helpers": "workspace:*",
@@ -102,6 +109,10 @@
       "./server": {
         "types": "./dist/web-widget.server.d.ts",
         "default": "./dist/web-widget.server.js"
+      },
+      "./vite": {
+        "types": "./dist/vite.d.ts",
+        "default": "./dist/vite.js"
       }
     }
   }

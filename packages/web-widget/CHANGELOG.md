@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.9.0
+
+### Minor Changes
+
+- Follow the version number of the monorepo.
+
 ## 1.8.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vue",
-  "version": "0.12.6",
+  "version": "1.9.0",
   "type": "module",
   "exports": {
     ".": {
@@ -35,10 +35,11 @@
     "dev": "pnpm exec tsup --watch",
     "prepublishOnly": "pnpm run build"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@web-widget/vite": "workspace:*"
+  },
   "devDependencies": {
     "@web-widget/helpers": "workspace:*",
-    "@web-widget/vite": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
@@ -47,7 +48,6 @@
   },
   "peerDependencies": {
     "@web-widget/helpers": "workspace:*",
-    "@web-widget/vite": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "vite": "^5.0.11",
     "vue": ">3.3.3"
