@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.8.1
+
+### Patch Changes
+
+- Updated dependencies [81f33f8]
+  - @web-widget/helpers@0.4.4
+
 ## 1.8.0
 
 ### Minor Changes
