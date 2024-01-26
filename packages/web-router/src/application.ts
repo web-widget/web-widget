@@ -14,20 +14,6 @@ import { getPath, getPathNoStrict, mergePath } from "./url";
 
 type Methods = (typeof METHODS)[number];
 
-type MergePath<A extends string, B extends string> = A extends ""
-  ? B
-  : A extends "/"
-  ? B
-  : A extends `${infer P}/`
-  ? B extends `/${infer Q}`
-    ? `${P}/${Q}`
-    : `${P}/${B}`
-  : B extends `/${infer Q}`
-  ? Q extends ""
-    ? A
-    : `${A}/${Q}`
-  : `${A}/${B}`;
-
 interface RouterRoute {
   path: string;
   method: string;
@@ -88,7 +74,6 @@ class Application<
   */
   router!: Router<MiddlewareHandler>;
   readonly getPath: GetPath<E>;
-  #basePath: string = "/";
   routes: RouterRoute[] = [];
 
   constructor(options: ApplicationOptions<E> = {}) {
@@ -119,28 +104,8 @@ class Application<
     this.router = options.router ?? new URLPatternRouter();
   }
 
-  #clone(): Application<E, BasePath> {
-    const clone = new Application<E, BasePath>({
-      router: this.router,
-      getPath: this.getPath,
-    });
-    clone.routes = this.routes;
-    return clone;
-  }
-
   #notFoundHandler: NotFoundHandler = notFoundHandler;
   #errorHandler: ErrorHandler = errorHandler;
-
-  /**
-   * @experimental
-   */
-  basePath<SubPath extends string>(
-    path: SubPath
-  ): Application<E, MergePath<BasePath, SubPath>> {
-    const subApp = this.#clone();
-    subApp.#basePath = mergePath(this.#basePath, path);
-    return subApp;
-  }
 
   /**
    * @experimental
@@ -160,7 +125,6 @@ class Application<
 
   #addRoute(method: string, path: string, handler: MiddlewareHandler) {
     method = method.toUpperCase();
-    path = mergePath(this.#basePath, path);
     this.router.add(method, path, handler);
     const r: RouterRoute = { path: path, method: method, handler: handler };
     this.routes.push(r);
