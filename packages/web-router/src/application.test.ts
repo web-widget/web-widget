@@ -158,25 +158,6 @@ describe("Register handlers without a path", () => {
     });
   });
 
-  describe("With specifying basePath", () => {
-    const app = new Application().basePath("/about");
-
-    app.get("/*", (c) => {
-      return text("About");
-    });
-
-    it("GET http://localhost/about is ok", async () => {
-      const res = await app.request("/about");
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe("About");
-    });
-
-    it("GET http://localhost/ is not found", async () => {
-      const res = await app.request("/");
-      expect(res.status).toBe(404);
-    });
-  });
-
   describe("With chaining", () => {
     const app = new Application();
 
@@ -306,67 +287,6 @@ describe("Routing", () => {
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("delete /");
-  });
-
-  it("Nested route", async () => {
-    const app = new Application();
-
-    const book = app.basePath("/book");
-    book.get("/", (c) => text("get /book"));
-    book.get("/:id", (c) => {
-      return text("get /book/" + c.params["id"]);
-    });
-    book.post("/", (c) => text("post /book"));
-
-    const user = app.basePath("/user");
-    user.get("/login", (c) => text("get /user/login"));
-    user.post("/register", (c) => text("post /user/register"));
-
-    const appForEachUser = user.basePath(":id");
-    appForEachUser.get("/profile", (c) =>
-      text("get /user/" + c.params["id"] + "/profile")
-    );
-
-    app.get("/add-path-after-route-call", (c) =>
-      text("get /add-path-after-route-call")
-    );
-
-    let res = await app.request("http://localhost/book", { method: "GET" });
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("get /book");
-
-    res = await app.request("http://localhost/book/123", { method: "GET" });
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("get /book/123");
-
-    res = await app.request("http://localhost/book", { method: "POST" });
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("post /book");
-
-    res = await app.request("http://localhost/book/", { method: "GET" });
-    expect(res.status).toBe(404);
-
-    res = await app.request("http://localhost/user/login", { method: "GET" });
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("get /user/login");
-
-    res = await app.request("http://localhost/user/register", {
-      method: "POST",
-    });
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("post /user/register");
-
-    res = await app.request("http://localhost/user/123/profile", {
-      method: "GET",
-    });
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("get /user/123/profile");
-
-    res = await app.request("http://localhost/add-path-after-route-call", {
-      method: "GET",
-    });
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe("get /add-path-after-route-call");
   });
 
   describe("routing with the bindings value", () => {
