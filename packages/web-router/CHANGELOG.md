@@ -1,15 +1,13 @@
 # @web-widget/web-router
 
-## 0.8.2
+## 0.13.0
 
-### Patch Changes
+### Minor Changes
 
+- Follow the version number of the monorepo.
 - f84a9a9: `WebRouter.fromManifest()` becomes the main way to use `@web-widget/web-router`.
 - fa8dc46: Remove basePath.
 - 81f33f8: Refactor route error handling.
-- Updated dependencies [81f33f8]
-  - @web-widget/helpers@0.4.4
-  - @web-widget/html@0.1.10
 
 ## 0.8.1
 

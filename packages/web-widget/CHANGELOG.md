@@ -1,11 +1,10 @@
 # CHANGELOG
 
-## 1.8.1
+## 1.9.0
 
-### Patch Changes
+### Minor Changes
 
-- Updated dependencies [81f33f8]
-  - @web-widget/helpers@0.4.4
+- Follow the version number of the monorepo.
 
 ## 1.8.0
 

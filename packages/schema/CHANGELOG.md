@@ -1,9 +1,10 @@
 # @web-widget/schema
 
-## 0.4.4
+## 0.13.0
 
-### Patch Changes
+### Minor Changes
 
+- Follow the version number of the monorepo.
 - f84a9a9: Move helper methods into `@web-widget/helpers` package.
   Refactored module type definitions.
 - 81f33f8: Refactor route error handling.

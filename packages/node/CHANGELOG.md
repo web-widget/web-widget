@@ -1,10 +1,11 @@
 # @web-widget/node
 
-## 0.5.1
+## 0.13.0
 
-### Patch Changes
+### Minor Changes
 
-- e881684: Fix the problem of error reporting in Node.js v20 version.
+- Follow the version number of the monorepo.
+- Fix the problem of error reporting in Node.js v20 version.
 
 ## 0.5.0
 

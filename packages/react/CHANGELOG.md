@@ -1,13 +1,10 @@
 # @web-widget/react
 
-## 0.10.6
+## 0.13.0
 
-### Patch Changes
+### Minor Changes
 
-- Updated dependencies [81f33f8]
-  - @web-widget/helpers@0.4.4
-  - @web-widget/vite@2.11.5
-  - @web-widget/web-widget@1.8.1
+- Follow the version number of the monorepo.
 
 ## 0.10.5
 

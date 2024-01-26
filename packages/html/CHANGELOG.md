@@ -1,11 +1,10 @@
 # @web-widget/html
 
-## 0.1.10
+## 0.13.0
 
-### Patch Changes
+### Minor Changes
 
-- Updated dependencies [81f33f8]
-  - @web-widget/helpers@0.4.4
+- Follow the version number of the monorepo.
 
 ## 0.1.9
 

@@ -188,9 +188,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.2.1
         version: 4.2.1(vite@5.0.11)
-      '@web-widget/vite':
-        specifier: workspace:*
-        version: link:../../packages/vite
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -355,6 +352,10 @@ importers:
         version: 5.3.3
 
   packages/react:
+    dependencies:
+      '@web-widget/vite':
+        specifier: workspace:*
+        version: link:../vite
     devDependencies:
       '@types/react':
         specifier: ^18.2.47
@@ -365,9 +366,6 @@ importers:
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
-      '@web-widget/vite':
-        specifier: workspace:*
-        version: link:../vite
       '@web-widget/web-widget':
         specifier: workspace:*
         version: link:../web-widget
@@ -452,13 +450,14 @@ importers:
         version: 1.1.1(@types/node@20.5.7)
 
   packages/vue:
+    dependencies:
+      '@web-widget/vite':
+        specifier: workspace:*
+        version: link:../vite
     devDependencies:
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
-      '@web-widget/vite':
-        specifier: workspace:*
-        version: link:../vite
       '@web-widget/web-widget':
         specifier: workspace:*
         version: link:../web-widget
@@ -476,6 +475,10 @@ importers:
         version: 3.4.8(typescript@5.3.3)
 
   packages/vue2:
+    dependencies:
+      '@web-widget/vite':
+        specifier: workspace:*
+        version: link:../vite
     devDependencies:
       '@types/node':
         specifier: ^20.5.7
@@ -483,9 +486,6 @@ importers:
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
-      '@web-widget/vite':
-        specifier: workspace:*
-        version: link:../vite
       '@web-widget/web-widget':
         specifier: workspace:*
         version: link:../web-widget

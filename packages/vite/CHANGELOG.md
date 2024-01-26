@@ -2,17 +2,9 @@
 
 ## 2.11.5
 
-### Patch Changes
+### Minor Changes
 
-- 81f33f8: Refactor route error handling.
-- Updated dependencies [f84a9a9]
-- Updated dependencies [fa8dc46]
-- Updated dependencies [e881684]
-- Updated dependencies [81f33f8]
-  - @web-widget/web-router@0.8.2
-  - @web-widget/node@0.5.1
-  - @web-widget/helpers@0.4.4
-  - @web-widget/web-widget@1.8.1
+- Follow the version number of the monorepo.
 
 ## 2.11.4
 
