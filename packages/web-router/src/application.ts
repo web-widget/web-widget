@@ -59,8 +59,8 @@ const notFoundHandler = () => {
   });
 };
 
-const errorHandler = (err: Error) => {
-  console.error(err);
+const errorHandler = (error: unknown) => {
+  console.error(error);
   const message = "Internal Server Error";
   return new Response(message, {
     status: 500,
@@ -170,11 +170,8 @@ class Application<
     return this.router.match(method, path);
   }
 
-  #handleError(err: unknown, c: Context<E>) {
-    if (err instanceof Error) {
-      return this.#errorHandler(err, c);
-    }
-    throw err;
+  #handleError(error: unknown, c: Context<E>) {
+    return this.#errorHandler(error, c);
   }
 
   handler(
@@ -215,8 +212,8 @@ class Application<
           );
         }
         return res;
-      } catch (err) {
-        return this.#handleError(err, c);
+      } catch (error) {
+        return this.#handleError(error, c);
       }
     })();
   }

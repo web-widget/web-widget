@@ -150,15 +150,11 @@ export type RouteFallbackComponent = (
   props: RouteFallbackComponentProps
 ) => any;
 
-export type RouteError = Error | HttpError;
-
-export type HttpError = {
-  name: string;
-  message: string;
-  stack?: string;
-  status: number;
-  statusText: string;
-};
+export type RouteError = {
+  expose?: boolean;
+  status?: number;
+  statusText?: string;
+} & Error;
 
 export type RouteHandlers<
   Data = unknown,

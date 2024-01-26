@@ -19,7 +19,7 @@ export class Context<E extends Env = any> {
   //  * @experimental
   //  */
   // env: E["Bindings"] = Object.create(null);
-  error?: Error;
+  error?: unknown;
   params: Params = Object.create(null);
   pathname: string = "*";
   request: Request;

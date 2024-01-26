@@ -1,7 +1,7 @@
 import { html, render, unsafeHTML, unsafeStreamToHTML } from "@web-widget/html";
 
 import type { HTML } from "@web-widget/html";
-import type { RootLayoutComponentProps } from "@web-widget/web-router";
+import type { LayoutComponentProps } from "@web-widget/web-router";
 import { renderMetaToString } from "@web-widget/helpers";
 
 export { render };
@@ -47,7 +47,7 @@ const importShimLoader = html`<script id="shim:es-module">
 export default function RootLayout({
   meta,
   children,
-}: RootLayoutComponentProps): HTML {
+}: LayoutComponentProps): HTML {
   /* eslint-disable prettier/prettier */
   return html`<!doctype html>
     <html lang="${meta.lang}">

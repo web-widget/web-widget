@@ -4,8 +4,8 @@ import {
   createContext,
   useContext,
 } from "@web-widget/helpers/context";
+import { createHttpError } from "@web-widget/helpers/http";
 import type {
-  HttpError,
   LayoutModule,
   LayoutRenderContext,
   Meta,
@@ -13,7 +13,8 @@ import type {
   MiddlewareHandler,
   MiddlewareHandlers,
   MiddlewareModule,
-  RootLayoutComponentProps,
+  MiddlewareNext,
+  RouteError,
   RouteHandler,
   RouteHandlerContext,
   RouteHandlers,
@@ -21,8 +22,12 @@ import type {
   RouteRenderContext,
   RouteRenderOptions,
 } from "./types";
+import type { Context } from "./context";
 
-export type OnFallback = (error: Error, context?: MiddlewareContext) => void;
+export type OnFallback = (
+  error: RouteError,
+  context?: MiddlewareContext
+) => void;
 
 function callAsyncContext<T extends (...args: any[]) => any>(
   context: MiddlewareContext,
@@ -128,7 +133,7 @@ function composeHandler(
 }
 
 function composeRender(
-  context: MiddlewareContext,
+  context: RouteHandlerContext,
   layoutModule: LayoutModule,
   onFallback: OnFallback,
   dev?: boolean
@@ -136,13 +141,13 @@ function composeRender(
   return async function render(
     {
       data = context.data,
-      error: rawError = context.error,
-      meta = context.meta as Meta,
+      error: unsafeError = context.error,
+      meta = context.meta,
     } = {},
     renderOptions = context.renderOptions
   ) {
-    if (rawError) {
-      onFallback(rawError, context);
+    if (unsafeError) {
+      onFallback(unsafeError, context);
     }
 
     if (typeof layoutModule.render !== "function") {
@@ -150,17 +155,17 @@ function composeRender(
     }
 
     if (!context.module) {
-      throw new TypeError(`"module" does not exist in context.`);
+      throw new TypeError(`Missing "module".`);
     }
 
     if (typeof context.module.render !== "function") {
       throw new TypeError(`Module does not export "render" function.`);
     }
 
-    const error = rawError
+    const error = unsafeError
       ? dev
-        ? rawError
-        : createSafeError(rawError)
+        ? unsafeError
+        : createSafeError(unsafeError)
       : undefined;
 
     const renderContext: RouteRenderContext = {
@@ -181,10 +186,7 @@ function composeRender(
         params: context.params,
         pathname: context.pathname,
         request: context.request,
-        get bootstrap() {
-          throw new Error(`"bootstrap" has been removed.`);
-        },
-      } as RootLayoutComponentProps,
+      },
       meta,
       module: layoutModule,
     };
@@ -192,16 +194,12 @@ function composeRender(
     const html = await layoutModule.render(layoutContext, renderOptions);
     const status =
       renderOptions?.status ??
-      (error
-        ? Reflect.has(error, "status")
-          ? (error as HttpError).status
-          : 500
-        : 200);
+      (error ? (error.status ? error.status : 500) : 200);
     const statusText =
       renderOptions?.statusText ??
       (error
-        ? Reflect.has(error, "statusText")
-          ? (error as HttpError).statusText
+        ? error.statusText
+          ? error.statusText
           : "Internal Server Error"
         : "OK");
     const headers = {
@@ -217,7 +215,7 @@ function composeRender(
   };
 }
 
-function createSafeError(error: Error) {
+function createSafeError(error: RouteError): RouteError {
   return new Proxy(error, {
     get(target, key) {
       if (key === "stack") {
@@ -226,6 +224,21 @@ function createSafeError(error: Error) {
       return Reflect.get(target, key);
     },
   });
+}
+
+async function transformRouteError(error: any): Promise<RouteError> {
+  if (error instanceof Error) {
+    return error;
+  }
+
+  if (error instanceof Response) {
+    return createHttpError(
+      error.status,
+      (await error.text()) || error.statusText
+    );
+  }
+
+  return createHttpError(500, String(error));
 }
 
 async function getModule<T>(module: any) {
@@ -260,12 +273,12 @@ export function createRouteContext(
   defaultRenderOptions: RouteRenderOptions,
   onFallback: OnFallback,
   dev?: boolean
-): MiddlewareHandler {
+) {
   let layoutModule: LayoutModule;
   let meta: Meta;
   let module: RouteModule;
   let renderOptions: RouteRenderOptions;
-  return async (context, next) => {
+  return async (context: Context, next: MiddlewareNext) => {
     layoutModule ??= await getModule<LayoutModule>(layout);
     module ??= await getModule<RouteModule>(route);
     meta ??= mergeMeta(
@@ -275,11 +288,17 @@ export function createRouteContext(
     renderOptions ??= Object.assign({}, defaultRenderOptions);
 
     // If multiple routes match here, only the first one is valid.
-    if (!context.module) {
-      context.meta = meta;
-      context.module = module;
-      context.render = composeRender(context, layoutModule, onFallback, dev);
-      context.renderOptions = renderOptions;
+    if (!("module" in context)) {
+      const routeContext = context as RouteHandlerContext;
+      routeContext.meta = meta;
+      routeContext.module = module;
+      routeContext.render = composeRender(
+        routeContext,
+        layoutModule,
+        onFallback,
+        dev
+      );
+      routeContext.renderOptions = renderOptions;
     }
 
     return next();
@@ -300,7 +319,7 @@ export function createFallbackHandler(
   let meta: Meta;
   let module: RouteModule;
   let renderOptions: RouteRenderOptions;
-  return async (error: Error, context: MiddlewareContext) => {
+  return async (error: unknown, context: Context) => {
     layoutModule ??= await getModule<LayoutModule>(layout);
     module ??= await getModule<RouteModule>(route);
     meta ??= mergeMeta(
@@ -317,13 +336,19 @@ export function createFallbackHandler(
     ) as RouteHandler;
     renderOptions ??= Object.assign({}, defaultRenderOptions);
 
-    context.error = error;
-    context.meta = meta;
-    context.module = module;
-    context.render = composeRender(context, layoutModule, onFallback, dev);
-    context.renderOptions = renderOptions;
+    const routeContext = context as RouteHandlerContext;
+    routeContext.error = await transformRouteError(error);
+    routeContext.meta = meta;
+    routeContext.module = module;
+    routeContext.render = composeRender(
+      routeContext,
+      layoutModule,
+      onFallback,
+      dev
+    );
+    routeContext.renderOptions = renderOptions;
 
-    return callAsyncContext(context, handler, [context as RouteHandlerContext]);
+    return callAsyncContext(routeContext, handler, [routeContext]);
   };
 }
 

@@ -144,9 +144,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     );
 
     router.onError(async (error, context) => {
-      const status = Reflect.get(error, "status");
-
-      if (status === 404) {
+      if (error?.status === 404) {
         return notFoundHandler(error, context);
       } else {
         return errorHandler(error, context);
