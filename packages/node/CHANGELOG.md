@@ -5,6 +5,7 @@
 ### Minor Changes
 
 - Follow the version number of the monorepo.
+- Fix the problem of error reporting in Node.js v20 version.
 
 ## 0.5.0
 
