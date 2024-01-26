@@ -1,5 +1,11 @@
 # @web-widget/node
 
+## 0.5.1
+
+### Patch Changes
+
+- e881684: Fix the problem of error reporting in Node.js v20 version.
+
 ## 0.5.0
 
 ### Minor Changes
