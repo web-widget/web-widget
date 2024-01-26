@@ -1,6 +1,6 @@
 # @web-widget/vite
 
-## 1.9.0
+## 2.11.5
 
 ### Minor Changes
 

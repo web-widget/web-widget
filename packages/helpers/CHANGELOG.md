@@ -1,6 +1,6 @@
 # @web-widget/helpers
 
-## 1.9.0
+## 0.13.0
 
 ### Minor Changes
 
