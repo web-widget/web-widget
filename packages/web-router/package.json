@@ -7,11 +7,6 @@
       "types": "./dist/web-router.server.d.ts",
       "development": "./src/index.ts",
       "default": "./dist/web-router.server.js"
-    },
-    "./vite": {
-      "types": "./dist/vite.d.ts",
-      "development": "./src/vite.ts",
-      "default": "./dist/vite.js"
     }
   },
   "files": [
@@ -24,9 +19,7 @@
     "prepublishOnly": "pnpm run test && pnpm run build",
     "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage"
   },
-  "dependencies": {
-    "@web-widget/vite": "workspace:*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/cli": "^7.22.9",
     "@babel/core": "^7.22.5",
@@ -54,10 +47,6 @@
       ".": {
         "types": "./dist/web-router.server.d.ts",
         "default": "./dist/web-router.server.js"
-      },
-      "./vite": {
-        "types": "./dist/vite.d.ts",
-        "default": "./dist/vite.js"
       }
     }
   }

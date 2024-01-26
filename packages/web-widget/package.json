@@ -54,11 +54,6 @@
       "types": "./dist/web-widget.server.d.ts",
       "development": "./src/server.ts",
       "default": "./dist/web-widget.server.js"
-    },
-    "./vite": {
-      "types": "./dist/vite.d.ts",
-      "development": "./src/vite.ts",
-      "default": "./dist/vite.js"
     }
   },
   "files": [
@@ -69,9 +64,7 @@
     "dev": "pnpm exec tsup --watch",
     "prepublishOnly": "pnpm run build"
   },
-  "dependencies": {
-    "@web-widget/vite": "workspace:*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web-widget/helpers": "workspace:*",
@@ -109,10 +102,6 @@
       "./server": {
         "types": "./dist/web-widget.server.d.ts",
         "default": "./dist/web-widget.server.js"
-      },
-      "./vite": {
-        "types": "./dist/vite.d.ts",
-        "default": "./dist/vite.js"
       }
     }
   }

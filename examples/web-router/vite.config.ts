@@ -1,7 +1,7 @@
 import type { Plugin } from "vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { webRouterPlugin } from "@web-widget/web-router/vite";
+import { webRouterPlugin } from "@web-widget/vite";
 import reactWebWidgetPlugin from "@web-widget/react/vite";
 import { vue2PresetsPlugin } from "./routes/(vue2)/vite-plugins";
 import { vuePresetsPlugin } from "./routes/(vue3)/vite-plugins";
