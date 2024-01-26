@@ -21,7 +21,9 @@ export default (manifest: Manifest, options: StartOptions) => {
       options.defaultMeta || {}
     ),
     onFallback(error, context) {
-      console.error(context?.request.url ?? "", error);
+      if (error?.status !== 404) {
+        console.error(context?.request.url ?? "", error.message);
+      }
     },
   });
 };

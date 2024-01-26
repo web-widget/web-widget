@@ -1,5 +1,6 @@
 import * as defaultLayoutModule from "./layout";
-import type { LayoutModule } from ".";
+import type { OnFallback } from "./modules";
+import type { LayoutModule, RouteError, RouteModule } from ".";
 import WebRouter from ".";
 
 describe("Basic", () => {
@@ -91,5 +92,127 @@ describe("Multiple identical routes", () => {
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("Home");
+  });
+});
+
+describe("Error handling", () => {
+  const createTestRoute = (
+    routeModule: RouteModule,
+    onFallback: OnFallback
+  ) => {
+    const app = WebRouter.fromManifest(
+      {
+        routes: [
+          {
+            pathname: "/test",
+            module: routeModule,
+          },
+        ],
+        layout: {
+          module: defaultLayoutModule as LayoutModule,
+        },
+        middlewares: [],
+        fallbacks: [],
+      },
+      {
+        onFallback,
+      }
+    );
+
+    return app.request("http://localhost/test");
+  };
+
+  it("Exceptions should be caught", (done) => {
+    let error: RouteError;
+    const message = `Error:500`;
+    const status = 500;
+    const statusText = "Internal Server Error";
+    Promise.resolve(
+      createTestRoute(
+        {
+          handler() {
+            throw new Error(message);
+          },
+        },
+        (e, context) => {
+          error = e;
+        }
+      )
+    ).then(async (res) => {
+      if (!error) {
+        done(new Error(`Error handler not working.`));
+      }
+
+      expect(error.message).toBe(message);
+      expect(res.status).toBe(status);
+      expect(res.statusText).toBe(statusText);
+      done();
+    });
+  });
+
+  it("Throws a `Response` as an HTTP error", (done) => {
+    let error: RouteError;
+    const message = `Error:404`;
+    const status = 404;
+    const statusText = "Not Found";
+    Promise.resolve(
+      createTestRoute(
+        {
+          handler() {
+            throw new Response(message, {
+              status,
+              statusText,
+            });
+          },
+        },
+        (e, context) => {
+          error = e;
+        }
+      )
+    ).then(async (res) => {
+      if (!error) {
+        done(new Error(`Error handler not working.`));
+      }
+
+      const text = await res.text();
+      expect(error.message).toBe(message);
+      expect(error.status).toBe(status);
+      expect(error.statusText).toBe(statusText);
+      expect(res.status).toBe(status);
+      expect(res.statusText).toBe(statusText);
+      expect(text).toEqual(expect.stringContaining(message));
+      done();
+    });
+  });
+
+  it("Malformed errors converted to strings as HTTP error messages", (done) => {
+    let error: RouteError;
+    const message = `Error:500`;
+    const status = 500;
+    const statusText = "Internal Server Error";
+    Promise.resolve(
+      createTestRoute(
+        {
+          handler() {
+            throw message;
+          },
+        },
+        (e, context) => {
+          error = e;
+        }
+      )
+    ).then(async (res) => {
+      if (!error) {
+        done(new Error(`Error handler not working.`));
+      }
+
+      const text = await res.text();
+      expect(error.message).toBe(message);
+      expect(error.status).toBe(status);
+      expect(res.status).toBe(status);
+      expect(res.statusText).toBe(statusText);
+      expect(text).toEqual(expect.stringContaining(message));
+      done();
+    });
   });
 });

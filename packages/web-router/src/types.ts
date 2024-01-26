@@ -40,7 +40,7 @@ export type NotFoundHandler<E extends Env = any> = (
 ) => Response | Promise<Response>;
 
 export type ErrorHandler<E extends Env = any> = (
-  error: Error,
+  error: any,
   context: Context<E>
 ) => Response | Promise<Response>;
 
@@ -118,11 +118,25 @@ export interface ManifestJSON {
 ////////////////////////////////////////
 
 export interface LayoutModule extends ServerWidgetModule {}
-export type LayoutComponentProps = WidgetComponentProps;
-export interface LayoutComponent extends WidgetComponent {}
-export interface LayoutRenderContext extends ServerWidgetRenderContext {}
+
+export type LayoutComponentProps = WidgetComponentProps<{
+  children: RouteRenderResult;
+  meta: Meta;
+  params: Record<string, string>;
+  pathname: string;
+  request: Request;
+}>;
+
+export interface LayoutComponent
+  extends WidgetComponent<LayoutComponentProps> {}
+
+export interface LayoutRenderContext
+  extends ServerWidgetRenderContext<LayoutComponentProps> {}
+
 export type LayoutRenderResult = ServerWidgetRenderResult;
-export interface LayoutRender extends ServerWidgetRender {}
+
+export interface LayoutRender
+  extends ServerWidgetRender<LayoutComponentProps> {}
 
 export interface LayoutModuleDescriptor {
   module: LayoutModule;
@@ -130,10 +144,5 @@ export interface LayoutModuleDescriptor {
   render: LayoutRender;
 }
 
-export interface RootLayoutComponentProps {
-  children: RouteRenderResult;
-  meta: Meta;
-  params: Record<string, string>;
-  pathname: string;
-  request: Request;
-}
+/** @deprecated */
+export type RootLayoutComponentProps = LayoutComponentProps;

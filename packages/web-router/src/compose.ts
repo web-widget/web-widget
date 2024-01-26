@@ -18,7 +18,7 @@ export const compose = <C extends ComposeContext, E extends Env = Env>(
 
     async function dispatch(i: number): Promise<Response> {
       if (i <= index) {
-        throw new Error("next() called multiple times");
+        throw new Error("next() called multiple times.");
       }
       index = i;
 
@@ -45,7 +45,7 @@ export const compose = <C extends ComposeContext, E extends Env = Env>(
             return dispatch(i + 1);
           });
         } catch (err) {
-          if (err instanceof Error && context instanceof Context && onError) {
+          if (context instanceof Context && onError) {
             context.error = err;
             res = onError(err, context);
           } else {

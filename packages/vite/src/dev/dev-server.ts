@@ -158,10 +158,17 @@ async function viteWebRouterMiddleware(
 
         return webResponse;
       } catch (error) {
-        viteServer.ssrFixStacktrace(error);
-        console.error(error.stack);
+        let message: string;
+        if (error instanceof Error) {
+          viteServer.ssrFixStacktrace(error);
+          message = stripAnsi(error.stack ?? error.message);
+          console.error(error.stack);
+        } else {
+          message = String(error);
+          console.error(error);
+        }
 
-        return new Response(errorTemplate(stripAnsi(error.stack)), {
+        return new Response(errorTemplate(message), {
           status: 500,
           statusText: "Internal Server Error",
           headers: {

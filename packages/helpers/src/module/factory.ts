@@ -1,10 +1,10 @@
 import type {
-  HttpError,
   Meta,
   MiddlewareHandler,
   MiddlewareHandlers,
   RouteComponent,
   RouteComponentProps,
+  RouteError,
   RouteFallbackComponent,
   RouteFallbackComponentProps,
   RouteHandler,
@@ -119,18 +119,18 @@ export function getComponentProps(
     | RouteComponentProps
     | WidgetFallbackComponentProps
     | WidgetComponentProps;
-  const error = context.error;
 
   if (isRouteRenderContext(context)) {
-    const { data, params, pathname, request } = context as RouteRenderContext;
+    const { data, error, params, pathname, request } =
+      context as RouteRenderContext;
 
     if (error) {
       props = {
         name: error.name,
         message: error.message,
         stack: error.stack,
-        status: (error as HttpError).status,
-        statusText: (error as HttpError).statusText,
+        status: (error as RouteError).status,
+        statusText: (error as RouteError).statusText,
       } as RouteFallbackComponentProps;
     } else {
       props = {
@@ -141,6 +141,7 @@ export function getComponentProps(
       } as RouteComponentProps;
     }
   } else {
+    const { error } = context as WidgetRenderContext;
     if (error) {
       props = {
         name: error.name,
