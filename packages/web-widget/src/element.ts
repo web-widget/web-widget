@@ -1,6 +1,6 @@
 import type { ClientWidgetRenderContext, Meta } from "@web-widget/helpers";
 import * as status from "./modules/status";
-import type { Loader } from "./types";
+import type { JSONProps, Loader } from "./types";
 import { createIdleObserver } from "./utils/idle";
 import { createVisibleObserver } from "./utils/lazy";
 
@@ -25,7 +25,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   #lifecycleController: LifecycleController;
 
   // @ts-ignore
-  #data: ClientWidgetRenderContext["data"] | null;
+  #data: JSONProps | null;
 
   #disconnectObserver?: () => void;
 
@@ -110,7 +110,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /**
    * WidgetModule data
    */
-  get data(): ClientWidgetRenderContext["data"] {
+  get data(): JSONProps | null {
     if (!this.#data) {
       const dataAttr = this.getAttribute("data");
 
@@ -122,14 +122,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
           this.#data = {};
         }
       } else if (Object.entries(this.dataset).length) {
-        this.#data = { ...this.dataset };
+        this.#data = { ...(this.dataset as JSONProps) };
       }
     }
 
     return this.#data;
   }
 
-  set data(value: ClientWidgetRenderContext["data"]) {
+  set data(value: JSONProps) {
     if (typeof value === "object") {
       this.setAttribute("data", JSON.stringify(value));
     }
@@ -138,7 +138,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /**
    * WidgetModule meta
    */
-  get meta(): Meta {
+  get meta(): Meta | null {
     if (!this.#meta) {
       const dataAttr = this.getAttribute("meta");
 
@@ -152,7 +152,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       }
     }
 
-    return this.#meta as Meta;
+    return this.#meta;
   }
 
   set meta(value: Meta) {
@@ -287,8 +287,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
         return container;
       },
 
-      data: view.data,
-      meta: view.meta,
+      data: view.data ?? {},
+      meta: view.meta ?? {},
       recovering: view.recovering,
       /**@deprecated*/
       update: this.update.bind(this),

@@ -1,6 +1,11 @@
 import * as defaultLayoutModule from "./layout";
 import type { OnFallback } from "./modules";
-import type { LayoutModule, RouteError, RouteModule } from ".";
+import type {
+  LayoutModule,
+  RouteError,
+  RouteModule,
+  RouteHandlerContext,
+} from ".";
 import WebRouter from ".";
 
 describe("Basic", () => {
@@ -92,6 +97,61 @@ describe("Multiple identical routes", () => {
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("Home");
+  });
+});
+
+describe("Create route context", () => {
+  const createTestRoute = (
+    callback: (context: RouteHandlerContext) => void
+  ) => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: "/test",
+          module: {
+            render: () => "Hello",
+          },
+        },
+      ],
+      layout: {
+        module: defaultLayoutModule as LayoutModule,
+      },
+      middlewares: [
+        {
+          pathname: "/test",
+          module: {
+            handler(context, next) {
+              callback(context as RouteHandlerContext);
+              return next();
+            },
+          },
+        },
+      ],
+      fallbacks: [],
+    });
+
+    return app.request("http://localhost/test");
+  };
+
+  it("Generate default context", (done) => {
+    let context: RouteHandlerContext;
+    Promise.resolve(
+      createTestRoute((ctx) => {
+        context = ctx;
+      })
+    ).then(() => {
+      expect(context.data).toEqual({});
+      expect(context.error).toBe(undefined);
+      expect(context.meta).toBeDefined();
+      expect(context.module).toBeDefined();
+      expect(context.params).toEqual({});
+      expect(context.pathname).toBe("/test");
+      expect(context.render).toBeDefined();
+      expect(context.renderOptions).toBeDefined();
+      expect(context.request).toBeDefined();
+      expect(context.state).toBeDefined();
+      done();
+    });
   });
 });
 

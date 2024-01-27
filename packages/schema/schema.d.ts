@@ -23,7 +23,7 @@ export interface ClientWidgetModule {
 export type WidgetComponentProps<Data = unknown> = Data;
 
 export type WidgetComponent<Data = unknown> = (
-  data: WidgetComponentProps<Data>
+  props: WidgetComponentProps<Data>
 ) => any;
 
 export type WidgetFallbackComponentProps = {
@@ -43,7 +43,7 @@ export type WidgetRenderContext<Data = unknown> =
   | ClientWidgetRenderContext<Data>;
 
 export interface ServerWidgetRenderContext<Data = unknown> {
-  data?: Data;
+  data: Data;
   children?: ServerWidgetRenderResult;
   error?: WidgetError;
   meta: Meta;
@@ -51,7 +51,7 @@ export interface ServerWidgetRenderContext<Data = unknown> {
 }
 
 export interface ClientWidgetRenderContext<Data = unknown> {
-  data?: Data;
+  data: Data;
   children?: ClientWidgetRenderResult;
   error?: WidgetError;
   meta: Meta;
@@ -114,8 +114,7 @@ export type RouteComponentProps<
   Params = Record<string, string>,
 > = {
   /**
-   * Additional data passed into `RouteHandlerContext.render`. Defaults to
-   * `undefined`.
+   * Additional data passed into `RouteHandlerContext.render`.
    */
   data: Data;
 
@@ -184,13 +183,13 @@ export interface RouteHandler<
 }
 
 export interface RouteHandlerContext<
-  Data = undefined,
+  Data = unknown,
   Params = Record<string, string>,
   State = Record<string, unknown>,
   Options = unknown,
 > {
   error?: RouteError;
-  data?: Data;
+  data: Data;
   meta: Meta;
   module: RouteModule;
   name?: string;
@@ -213,7 +212,7 @@ export interface RouteRenderContext<
   Data = unknown,
   Params = Record<string, string>,
 > {
-  data?: Data;
+  data: Data;
   error?: RouteError;
   meta: Meta;
   module: RouteModule;
