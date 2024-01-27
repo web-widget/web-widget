@@ -289,16 +289,20 @@ export function createRouteContext(
 
     // If multiple routes match here, only the first one is valid.
     if (!("module" in context)) {
-      const routeContext = context as RouteHandlerContext;
-      routeContext.meta = meta;
-      routeContext.module = module;
-      routeContext.render = composeRender(
-        routeContext,
-        layoutModule,
-        onFallback,
-        dev
-      );
-      routeContext.renderOptions = renderOptions;
+      Object.assign<Context, RouteHandlerContext>(context, {
+        ...context,
+        data: {},
+        error: undefined,
+        meta,
+        module,
+        render: composeRender(
+          context as RouteHandlerContext,
+          layoutModule,
+          onFallback,
+          dev
+        ),
+        renderOptions,
+      });
     }
 
     return next();
@@ -336,17 +340,20 @@ export function createFallbackHandler(
     ) as RouteHandler;
     renderOptions ??= Object.assign({}, defaultRenderOptions);
 
-    const routeContext = context as RouteHandlerContext;
-    routeContext.error = await transformRouteError(error);
-    routeContext.meta = meta;
-    routeContext.module = module;
-    routeContext.render = composeRender(
-      routeContext,
-      layoutModule,
-      onFallback,
-      dev
-    );
-    routeContext.renderOptions = renderOptions;
+    const routeContext = Object.assign<Context, RouteHandlerContext>(context, {
+      ...context,
+      data: {},
+      error: await transformRouteError(error),
+      meta,
+      module,
+      render: composeRender(
+        context as RouteHandlerContext,
+        layoutModule,
+        onFallback,
+        dev
+      ),
+      renderOptions,
+    });
 
     return callAsyncContext(routeContext, handler, [routeContext]);
   };

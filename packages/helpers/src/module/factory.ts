@@ -114,46 +114,42 @@ export function getComponent(
 export function getComponentProps(
   context: WidgetRenderContext | RouteRenderContext
 ) {
-  let props:
-    | RouteFallbackComponentProps
-    | RouteComponentProps
-    | WidgetFallbackComponentProps
-    | WidgetComponentProps;
-
   if (isRouteRenderContext(context)) {
     const { data, error, params, pathname, request } =
       context as RouteRenderContext;
 
     if (error) {
-      props = {
+      const props: RouteFallbackComponentProps = {
         name: error.name,
         message: error.message,
         stack: error.stack,
         status: (error as RouteError).status,
         statusText: (error as RouteError).statusText,
-      } as RouteFallbackComponentProps;
+      };
+      return props;
     } else {
-      props = {
+      const props: RouteComponentProps = {
         data,
         params,
         pathname,
         request,
-      } as RouteComponentProps;
+      };
+      return props;
     }
   } else {
     const { error } = context as WidgetRenderContext;
     if (error) {
-      props = {
+      const props: WidgetFallbackComponentProps = {
         name: error.name,
         message: error.message,
         stack: error.stack,
-      } as WidgetFallbackComponentProps;
+      };
+      return props;
     } else {
-      props = context.data as WidgetComponentProps;
+      const props: WidgetComponentProps = context.data;
+      return props;
     }
   }
-
-  return props;
 }
 
 export function isRouteRenderContext(

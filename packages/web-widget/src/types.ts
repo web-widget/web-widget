@@ -8,7 +8,7 @@ type JSONValue =
   | { [x: string]: JSONValue }
   | Array<JSONValue>;
 
-type JSONProps = { [x: string]: JSONValue };
+export type JSONProps = { [x: string]: JSONValue };
 
 export type Loader = () => Promise<WidgetModule>;
 
