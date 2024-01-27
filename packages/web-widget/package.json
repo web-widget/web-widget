@@ -61,8 +61,7 @@
   ],
   "scripts": {
     "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch",
-    "prepublishOnly": "pnpm run build"
+    "dev": "pnpm exec tsup --watch"
   },
   "dependencies": {},
   "devDependencies": {

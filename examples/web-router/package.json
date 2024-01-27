@@ -10,9 +10,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "start": "node server.js",
-    "start:deno": "cd deno && deno task start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "dependencies": {
     "@examples/web-router-vue2": "workspace:*",
