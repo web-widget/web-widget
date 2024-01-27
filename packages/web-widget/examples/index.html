@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Index</title>
+  <script type="module">
+    import '../dist/index.js';
+  </script>
+</head>
+
+<body>
+  <web-widget id="list" src="./index.widget.js"></web-widget>
+  <script>
+    document.getElementById('list').setAttribute('context', JSON.stringify({
+      data: [
+        {
+          "name": "Basic",
+          "value": "./basic/"
+        },
+        {
+          "name": "Child widget",
+          "value": "./child-widget/"
+        },
+        {
+          "name": "Custom container",
+          "value": "./custom-container/"
+        },
+        {
+          "name": "Data",
+          "value": "./data/"
+        },
+        {
+          "name": "Hydrate only",
+          "value": "/declarative-shadow-dom/"
+        },
+        {
+          "name": "Debug error",
+          "value": "./error/"
+        },
+        {
+          "name": "Element fallback",
+          "value": "./fallback/"
+        },
+        {
+          "name": "Lazy load",
+          "value": "./lazy/"
+        },
+        {
+          "name": "ES module",
+          "value": "./module/"
+        },
+        {
+          "name": "ES module import-maps",
+          "value": "./module-import-maps/"
+        },
+        {
+          "name": "Application parameters",
+          "value": "./parameters/"
+        },
+        {
+          "name": "Element placeholder",
+          "value": "./placeholder/"
+        },
+        {
+          "name": "Single instance",
+          "value": "./single-instance/"
+        },
+        {
+          "name": "Slot",
+          "value": "./slot/"
+        },
+        {
+          "name": "CSS theme",
+          "value": "./theme/"
+        }
+      ]
+    }));
+  </script>
+</body>
+
+</html>

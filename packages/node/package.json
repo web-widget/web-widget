@@ -1,0 +1,42 @@
+{
+  "name": "@web-widget/node",
+  "version": "0.13.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/node.d.ts",
+      "development": "./src/index.ts",
+      "require": "./dist/node.cjs",
+      "default": "./dist/node.js"
+    }
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch"
+  },
+  "dependencies": {
+    "@edge-runtime/node-utils": "^2.2.4",
+    "@edge-runtime/primitives": "^4.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.45",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/node.d.ts",
+        "require": "./dist/node.cjs",
+        "default": "./dist/node.js"
+      }
+    }
+  }
+}

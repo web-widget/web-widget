@@ -1,0 +1,90 @@
+{
+  "name": "@web-widget/helpers",
+  "version": "0.13.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "worker": {
+        "types": "./dist/helpers.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/helpers.server.js"
+      },
+      "browser": {
+        "types": "./dist/helpers.client.d.ts",
+        "development": "./src/client.ts",
+        "default": "./dist/helpers.client.js"
+      },
+      "default": {
+        "types": "./dist/helpers.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/helpers.server.js"
+      }
+    },
+    "./context": {
+      "types": "./dist/context.d.ts",
+      "development": "./src/context/index.ts",
+      "default": "./dist/context.js"
+    },
+    "./module": {
+      "types": "./dist/module.d.ts",
+      "development": "./src/module/index.ts",
+      "default": "./dist/module.js"
+    },
+    "./http": {
+      "types": "./dist/http.d.ts",
+      "development": "./src/http/index.ts",
+      "default": "./dist/http.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch",
+    "test": "jest"
+  },
+  "dependencies": {
+    "unctx": "^2.3.1",
+    "@web-widget/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.6.2",
+    "@types/jest": "^29.5.3",
+    "jest": "^29.6.2",
+    "ts-jest": "^29.1.1",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "worker": {
+          "types": "./dist/helpers.server.d.ts",
+          "default": "./dist/helpers.server.js"
+        },
+        "browser": {
+          "types": "./dist/helpers.client.d.ts",
+          "default": "./dist/helpers.client.js"
+        },
+        "default": {
+          "types": "./dist/helpers.server.d.ts",
+          "default": "./dist/helpers.server.js"
+        },
+        "./context": {
+          "types": "./dist/context.d.ts",
+          "default": "./dist/context.js"
+        },
+        "./module": {
+          "types": "./dist/module.d.ts",
+          "default": "./dist/module.js"
+        },
+        "./http": {
+          "types": "./dist/http.d.ts",
+          "default": "./dist/http.js"
+        }
+      }
+    }
+  }
+}

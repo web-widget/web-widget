@@ -1,53 +1,39 @@
 {
-  "name": "web-widget-root",
+  "name": "root",
   "version": "0.0.0",
   "private": true,
-  "scripts": {
-    "postinstall": "lerna bootstrap",
-    "start": "rocket start",
-    "build": "lerna run build",
-    "test": "lerna run test --concurrency 1",
-    "clean": "npx lerna clean && rm -rf node_modules",
-    "lint": "eslint packages/**/src packages/**/test packages/**/examples",
-    "prettier": "prettier --write packages/**/*.js",
-    "release": " npm run build && npm run lint && npm test && lerna publish",
-    "search": "rocket search",
-    "review-content": "alex 'docs/**/*.md'",
-    "docs": "rocket build && npm run github-pages-init",
-    "github-pages-init": "echo 'web-widget.js.org'>_site/CNAME && echo ''>_site/.nojekyll"
-  },
-  "workspaces": [
-    "packages/*",
-    "scripts/*"
-  ],
-  "engines": {
-    "node": ">=16",
-    "npm": ">=7"
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/web-widget/web-widget.git"
   },
   "author": "aui",
-  "bugs": {
-    "url": "https://github.com/web-widget/web-widget/issues"
+  "scripts": {
+    "build": "turbo run build --filter=./packages/* --filter=./examples/*",
+    "dev": "turbo run dev --filter=./packages/* --filter=./examples/*",
+    "test": "turbo run test --filter=./packages/*",
+    "prettier": "prettier --write packages/**/*.js",
+    "changeset": "changeset",
+    "publish-packages": "pnpm run build && pnpm run test && changeset version && changeset publish"
   },
-  "homepage": "https://github.com/web-widget/web-widget#readme",
   "devDependencies": {
-    "@babel/eslint-parser": "^7.16.0",
-    "@rocket/cli": "^0.10.2",
-    "@rocket/launch": "^0.6.0",
-    "@rocket/search": "^0.6.0",
-    "@rocket/core": "^0.1.2",
-    "alex": "^10.0.0",
+    "@changesets/cli": "^2.27.1",
+    "@web-widget/eslint-config": "workspace:*",
     "babel-loader": "^8.2.3",
     "cross-env": "^7.0.3",
-    "eslint": "^7.2.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.25.2",
-    "eslint-plugin-prettier": "^4.0.0",
-    "lerna": "^4.0.0",
-    "prettier": "^2.4.1"
+    "prettier": "3.0.1",
+    "turbo": "^1.10.7",
+    "unbuild": "^1.2.1"
+  },
+  "packageManager": "pnpm@7.9.5",
+  "engines": {
+    "node": ">=18",
+    "npm": ">=7"
+  },
+  "pnpm": {
+    "patchedDependencies": {}
   }
 }

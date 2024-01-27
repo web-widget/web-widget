@@ -1,6 +1,5 @@
 ## editors
 .idea/
-.vscode/
 
 ## system files
 .DS_Store
@@ -8,8 +7,8 @@
 ## code coverage folders
 coverage/
 
-##lerna
-lerna-debug.log
+## turbo
+.turbo/
 
 ## npm
 node_modules/
@@ -30,3 +29,9 @@ docs/_merged_data/
 docs/_merged_assets/
 docs/_merged_includes/
 
+## Backup
+.backup/
+
+## Turbo
+.turbo/
+turbo-build.log

@@ -1,0 +1,63 @@
+{
+  "name": "@web-widget/html",
+  "version": "0.13.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "worker": {
+        "types": "./dist/html.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/html.server.js"
+      },
+      "browser": {
+        "types": "./dist/html.client.d.ts",
+        "development": "./src/client.ts",
+        "default": "./dist/html.client.js"
+      },
+      "default": {
+        "types": "./dist/html.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/html.server.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch"
+  },
+  "dependencies": {
+    "whatwg-stream-to-async-iter": "^0.6.2"
+  },
+  "devDependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@worker-tools/html": "^2.0.0-pre.13",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@worker-tools/html": "^2.0.0-pre.13"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "worker": {
+          "types": "./dist/html.server.d.ts",
+          "default": "./dist/html.server.js"
+        },
+        "browser": {
+          "types": "./dist/html.client.d.ts",
+          "default": "./dist/html.client.js"
+        },
+        "default": {
+          "types": "./dist/html.server.d.ts",
+          "default": "./dist/html.server.js"
+        }
+      }
+    }
+  }
+}

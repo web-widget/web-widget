@@ -1,0 +1,6 @@
+packages:
+  - "examples/*"
+  - "examples/web-router/routes/*"
+  - "examples/web-widget/packages/*"
+  - "packages/*"
+  - "internal/*"

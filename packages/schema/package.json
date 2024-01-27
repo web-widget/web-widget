@@ -1,0 +1,28 @@
+{
+  "name": "@web-widget/schema",
+  "version": "0.13.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./schema.d.ts",
+      "default": "./schema.d.ts"
+    }
+  },
+  "files": [
+    "schema.d.ts"
+  ],
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./schema.d.ts",
+        "default": "./schema.d.ts"
+      }
+    }
+  }
+}

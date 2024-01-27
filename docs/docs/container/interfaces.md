@@ -104,7 +104,7 @@ widget.mount();
 
 脚本的模块类型，默认值为 `"module"`。
 
-## rendertarget
+## renderTarget
 
 渲染目标，默认值为 `"shadow"`（实验性特性）。允许的值：
 
@@ -240,7 +240,7 @@ defineHook(HTMLWebWidgetElement.prototype, 'createApplication', ({ value }) => (
 
 ## createContainer()
 
-创建应用生命周期参数 `container` 成员的钩子函数。它默认行为是根据 [`rendertarget`](#rendertarget) 创建应用的渲染节点，覆盖它可以重新定义此行为。
+创建应用生命周期参数 `container` 成员的钩子函数。它默认行为是根据 [`renderTarget`](#renderTarget) 创建应用的渲染节点，覆盖它可以重新定义此行为。
 
 ## createData()
 

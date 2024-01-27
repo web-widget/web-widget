@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "composite": false,
+    "declaration": true,
+    "lib": [
+      "ES2019",
+      "WebWorker"
+    ],
+    "module": "es2015",
+    "moduleResolution": "Bundler",
+    "rootDir": ".",
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "exclude": [
+    "dist",
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@examples/web-widget-vue2",
+  "version": "0.0.0",
+  "private": true,
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "exports": {
+    "./*": "./*"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@web-widget/vue2": "workspace:*",
+    "vue": "^2.7.16",
+    "vue-server-renderer": "^2.7.16"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue2": "^2.3.1"
+  }
+}

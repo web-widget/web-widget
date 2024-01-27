@@ -1,0 +1,35 @@
+{
+  "name": "@examples/web-widget",
+  "version": "0.0.0",
+  "private": true,
+  "description": "",
+  "keywords": [],
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@examples/web-widget-vue2": "workspace:*",
+    "@examples/web-widget-vue3": "workspace:*",
+    "@web-widget/react": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
+    "react": "canary",
+    "react-dom": "canary",
+    "@web-widget/vue": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.47",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

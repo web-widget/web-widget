@@ -1,0 +1,82 @@
+{
+  "name": "@web-widget/vue2",
+  "version": "0.13.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "worker": {
+        "types": "./dist/vue2.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/vue2.server.js"
+      },
+      "browser": {
+        "types": "./dist/vue2.client.d.ts",
+        "development": "./src/client.ts",
+        "default": "./dist/vue2.client.js"
+      },
+      "default": {
+        "types": "./dist/vue2.server.d.ts",
+        "development": "./src/server.ts",
+        "require": "./dist/vue2.server.cjs",
+        "default": "./dist/vue2.server.js"
+      }
+    },
+    "./vite": {
+      "types": "./dist/vite.d.ts",
+      "development": "./src/vite.ts",
+      "require": "./dist/vite.cjs",
+      "default": "./dist/vite.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch"
+  },
+  "dependencies": {
+    "@web-widget/vite": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.7",
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11",
+    "vue-server-renderer": "^2.7.16",
+    "vue": "^2.7.16"
+  },
+  "peerDependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
+    "vue-server-renderer": "^2.7.16",
+    "vue": "^2.7.16"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "worker": {
+          "types": "./dist/vue2.server.d.ts",
+          "default": "./dist/vue2.server.js"
+        },
+        "browser": {
+          "types": "./dist/vue2.client.d.ts",
+          "default": "./dist/vue2.client.js"
+        },
+        "default": {
+          "types": "./dist/vue2.server.d.ts",
+          "require": "./dist/vue2.server.cjs",
+          "default": "./dist/vue2.server.js"
+        }
+      },
+      "./vite": {
+        "types": "./dist/vite.d.ts",
+        "require": "./dist/vite.cjs",
+        "default": "./dist/vite.js"
+      }
+    }
+  }
+}
