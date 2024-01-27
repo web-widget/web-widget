@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.9.1
+
+### Patch Changes
+
+- Updated dependencies [1f53f6e]
+  - @web-widget/helpers@0.13.1
+
 ## 1.9.0
 
 ### Minor Changes

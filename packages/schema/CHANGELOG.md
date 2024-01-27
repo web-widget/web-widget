@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 0.13.1
+
+### Patch Changes
+
+- 1f53f6e: Add default value `{}` for props.
+
 ## 0.13.0
 
 ### Minor Changes
