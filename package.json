@@ -16,11 +16,11 @@
     "dev": "turbo run dev --filter=./packages/* --filter=./examples/*",
     "test": "turbo run test --filter=./packages/*",
     "prettier": "prettier --write packages/**/*.js",
-    "changeset": "pnpm exec changeset",
+    "changeset": "changeset",
     "publish-packages": "pnpm run build && pnpm run test && changeset version && changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.26.2",
+    "@changesets/cli": "^2.27.1",
     "@web-widget/eslint-config": "workspace:*",
     "babel-loader": "^8.2.3",
     "cross-env": "^7.0.3",
