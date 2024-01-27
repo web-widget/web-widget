@@ -17,7 +17,7 @@
     "test": "turbo run test --filter=./packages/*",
     "prettier": "prettier --write packages/**/*.js",
     "changeset": "pnpm exec changeset",
-    "publish-packages": "turbo run build test && changeset version && changeset publish"
+    "publish-packages": "pnpm run build && pnpm run test && changeset version && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",

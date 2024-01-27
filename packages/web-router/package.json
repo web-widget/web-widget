@@ -16,7 +16,6 @@
     "build": "pnpm exec tsup && pnpm run html-minifier",
     "dev": "pnpm exec tsup --watch",
     "html-minifier": "babel dist/* --out-dir dist",
-    "prepublishOnly": "pnpm run test && pnpm run build",
     "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage"
   },
   "dependencies": {},
