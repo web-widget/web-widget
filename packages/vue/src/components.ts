@@ -11,7 +11,7 @@ import {
 import type { VNode, PropType } from "vue";
 import { IS_CLIENT } from "@web-widget/helpers";
 
-export const WebWidget = /*#__PURE__*/ defineComponent({
+const WebWidget = /*#__PURE__*/ defineComponent({
   name: "WebWidgetRoot",
   props: {
     base: {
