@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vite",
-  "version": "2.11.6",
+  "version": "2.11.7",
   "type": "module",
   "exports": {
     ".": {

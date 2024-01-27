@@ -1,5 +1,7 @@
 # @web-widget/node
 
+## 0.13.2
+
 ## 0.13.1
 
 ### Patch Changes

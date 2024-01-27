@@ -1,5 +1,12 @@
 # @web-widget/helpers
 
+## 0.13.2
+
+### Patch Changes
+
+- b1e8655: fix: exports error
+  - @web-widget/schema@0.13.2
+
 ## 0.13.1
 
 ### Patch Changes
