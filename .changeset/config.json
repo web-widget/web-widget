@@ -19,7 +19,6 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@examples/*",
-    "@web-widget/eslint-config"
+    "@examples/*"
   ]
 }
