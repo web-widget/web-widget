@@ -71,19 +71,19 @@
         "default": {
           "types": "./dist/helpers.server.d.ts",
           "default": "./dist/helpers.server.js"
-        },
-        "./context": {
-          "types": "./dist/context.d.ts",
-          "default": "./dist/context.js"
-        },
-        "./module": {
-          "types": "./dist/module.d.ts",
-          "default": "./dist/module.js"
-        },
-        "./http": {
-          "types": "./dist/http.d.ts",
-          "default": "./dist/http.js"
         }
+      },
+      "./context": {
+        "types": "./dist/context.d.ts",
+        "default": "./dist/context.js"
+      },
+      "./module": {
+        "types": "./dist/module.d.ts",
+        "default": "./dist/module.js"
+      },
+      "./http": {
+        "types": "./dist/http.d.ts",
+        "default": "./dist/http.js"
       }
     }
   }
