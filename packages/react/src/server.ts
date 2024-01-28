@@ -2,21 +2,21 @@ import {
   defineRender,
   getComponentDescriptor,
   type ComponentProps,
-} from "@web-widget/helpers";
-import type { FunctionComponent, ReactNode } from "react";
-import { createElement } from "react";
+} from '@web-widget/helpers';
+import type { FunctionComponent, ReactNode } from 'react';
+import { createElement } from 'react';
 
 import type {
   ReactDOMServerReadableStream,
   RenderToReadableStreamOptions,
-} from "react-dom/server";
+} from 'react-dom/server';
 // @ts-ignore
-import * as ReactDOMServer from "react-dom/server.browser";
-import type { CreateReactRenderOptions } from "./types";
+import * as ReactDOMServer from 'react-dom/server.browser';
+import type { CreateReactRenderOptions } from './types';
 
-export * from "@web-widget/helpers";
-export { useWidgetSyncState as useWidgetState } from "@web-widget/helpers/context";
-export * from "./components";
+export * from '@web-widget/helpers';
+export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/context';
+export * from './components';
 
 function renderToReadableStream(
   vNode: ReactNode,
@@ -78,8 +78,8 @@ export const createReactRender = ({
 
       let vNode;
       if (
-        typeof component === "function" &&
-        component.constructor.name === "AsyncFunction"
+        typeof component === 'function' &&
+        component.constructor.name === 'AsyncFunction'
       ) {
         // experimental
         vNode = await component(props as ComponentProps<any>);

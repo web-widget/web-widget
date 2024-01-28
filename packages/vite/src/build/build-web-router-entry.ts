@@ -1,17 +1,17 @@
-import path from "node:path";
-import type { ManifestJSON } from "@web-widget/web-router";
-import builtins from "builtin-modules";
-import type { EmittedFile, OutputBundle, OutputChunk } from "rollup";
+import path from 'node:path';
+import type { ManifestJSON } from '@web-widget/web-router';
+import builtins from 'builtin-modules';
+import type { EmittedFile, OutputBundle, OutputChunk } from 'rollup';
 import type {
   InlineConfig,
   Plugin,
   ResolvedConfig,
   UserConfig,
   Manifest as ViteManifest,
-} from "vite";
-import { build, normalizePath } from "vite";
-import type { ResolvedBuilderConfig } from "../types";
-import { getLinks } from "./utils";
+} from 'vite';
+import { build, normalizePath } from 'vite';
+import type { ResolvedBuilderConfig } from '../types';
+import { getLinks } from './utils';
 
 let stage = 0;
 
@@ -48,13 +48,13 @@ export function buildWebRouterEntryPlugin(
   ): Promise<UserConfig> {
     ssrBuild = !!(config.build?.ssr ?? ssr);
     const root = config.root || process.cwd();
-    const assetsDir = config.build?.assetsDir ?? "assets";
+    const assetsDir = config.build?.assetsDir ?? 'assets';
     const serverRoutemapPath = builderConfig.input.server.routemap;
 
     clientImportmap = (
       await import(builderConfig.input.client.importmap, {
         assert: {
-          type: "json",
+          type: 'json',
         },
       })
     ).default as ImportMap;
@@ -62,7 +62,7 @@ export function buildWebRouterEntryPlugin(
     serverRoutemap = (
       await import(serverRoutemapPath, {
         assert: {
-          type: "json",
+          type: 'json',
         },
       })
     ).default as ManifestJSON;
@@ -75,14 +75,14 @@ export function buildWebRouterEntryPlugin(
 
     return {
       root,
-      appType: "custom",
+      appType: 'custom',
       publicDir: ssrBuild ? config.publicDir ?? false : undefined,
       ssr: ssrBuild
         ? {
             noExternal:
               config.ssr?.noExternal ??
-              (config.ssr?.target === "node" ? undefined : true),
-            target: config.ssr?.target ?? "webworker",
+              (config.ssr?.target === 'node' ? undefined : true),
+            target: config.ssr?.target ?? 'webworker',
           }
         : undefined,
       resolve: ssrBuild
@@ -91,9 +91,9 @@ export function buildWebRouterEntryPlugin(
             // https://webpack.js.org/guides/package-exports/
             conditions:
               config.resolve?.conditions ??
-              (config.ssr?.target === "node"
+              (config.ssr?.target === 'node'
                 ? undefined
-                : ["worklet", "worker", "import", "module", "default"]),
+                : ['worklet', 'worker', 'import', 'module', 'default']),
           }
         : undefined,
       build: {
@@ -104,7 +104,7 @@ export function buildWebRouterEntryPlugin(
         emptyOutDir: true,
         cssCodeSplit: true,
         manifest: ssrBuild ? undefined : builderConfig.output.manifest,
-        minify: ssrBuild ? false : config.build?.minify ?? "esbuild",
+        minify: ssrBuild ? false : config.build?.minify ?? 'esbuild',
         ssr: ssrBuild,
         ssrEmitAssets: config.build?.ssrEmitAssets ?? false,
         ssrManifest: ssrBuild ? undefined : builderConfig.output.ssrManifest,
@@ -118,7 +118,7 @@ export function buildWebRouterEntryPlugin(
                 ...serverRoutemapEntryPoints,
                 entry: builderConfig.input.client.entry,
               },
-          preserveEntrySignatures: "allow-extension", // "strict",
+          preserveEntrySignatures: 'allow-extension', // "strict",
           treeshake: config.build?.rollupOptions?.treeshake ?? true,
           external: ssrBuild
             ? (builtins as string[])
@@ -140,9 +140,9 @@ export function buildWebRouterEntryPlugin(
   }
 
   return {
-    name: "@widget:build-web-router-entry",
-    apply: "build",
-    enforce: "pre",
+    name: '@widget:build-web-router-entry',
+    apply: 'build',
+    enforce: 'pre',
     async config(_userConfig) {
       userConfig = _userConfig;
       return createConfig(userConfig);
@@ -166,7 +166,7 @@ export function buildWebRouterEntryPlugin(
             ),
             {
               assert: {
-                type: "json",
+                type: 'json',
               },
             }
           )
@@ -186,21 +186,21 @@ export function buildWebRouterEntryPlugin(
         }
 
         this.emitFile({
-          type: "prebuilt-chunk",
-          fileName: "package.json",
-          code: JSON.stringify({ type: "module" }, null, 2),
+          type: 'prebuilt-chunk',
+          fileName: 'package.json',
+          code: JSON.stringify({ type: 'module' }, null, 2),
         });
       } else {
         Object.keys(bundle).forEach((fileName) => {
           const chunk = bundle[fileName];
           const type = chunk.type;
           if (
-            type === "chunk" &&
+            type === 'chunk' &&
             chunk.isEntry &&
             Reflect.has(serverRoutemapEntryPoints, chunk.name) &&
             serverRoutemapEntryPoints[chunk.name] === chunk.facadeModuleId
           ) {
-            chunk.code = "throw new Error(`Only works on the server side.`);";
+            chunk.code = 'throw new Error(`Only works on the server side.`);';
           }
         });
       }
@@ -238,9 +238,9 @@ function resolveRoutemapEntryPoints(
         root,
         modulePath.slice(0, modulePath.length - path.extname(modulePath).length)
       )
-      .replace(/^(src|app)[/\\]/, "")
+      .replace(/^(src|app)[/\\]/, '')
       .split(path.sep)
-      .join("-");
+      .join('-');
     return [basename, modulePath];
   };
 
@@ -270,14 +270,14 @@ function generateServerRoutemap(
   function getChunkName(chunk: OutputChunk) {
     if (chunk.facadeModuleId) {
       let name = normalizePath(path.relative(root, chunk.facadeModuleId));
-      return name.replace(/\0/g, "");
+      return name.replace(/\0/g, '');
     } else {
       return `_` + path.basename(chunk.fileName);
     }
   }
 
   const routeModuleMap = Object.values(bundle).reduce((map, chunk) => {
-    if (chunk.type === "chunk") {
+    if (chunk.type === 'chunk') {
       map.set(getChunkName(chunk), chunk);
     }
     return map;
@@ -297,8 +297,8 @@ function generateServerRoutemap(
   function getBasename(file: string) {
     return path
       .basename(file, path.extname(file))
-      .replace(".server", "")
-      .replace(".client", "");
+      .replace('.server', '')
+      .replace('.client', '');
   }
 
   const imports: string[] = [];
@@ -310,7 +310,7 @@ function generateServerRoutemap(
     const fileName = path.relative(root, moduleId);
     const chunk = routeModuleMap.get(fileName);
 
-    if (!chunk || chunk.type !== "chunk" || !chunk.isEntry) {
+    if (!chunk || chunk.type !== 'chunk' || !chunk.isEntry) {
       throw new Error(
         `Unable to build routemap.` +
           ` Since "${moduleName}" is not found in Rollup's output,` +
@@ -318,7 +318,7 @@ function generateServerRoutemap(
       );
     }
 
-    const source = "./" + chunk.fileName;
+    const source = './' + chunk.fileName;
     imports.push(source);
 
     return source;
@@ -326,7 +326,7 @@ function generateServerRoutemap(
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#escaping
   function escapeRegExp(value: string) {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
   }
 
   // eslint-disable-next-line no-template-curly-in-string
@@ -365,11 +365,11 @@ function generateServerRoutemap(
   const routemapJsCode =
     imports
       .map((module, index) => `import * as _${index} from "${module}";`)
-      .join("\n") +
-    "\n\n" +
+      .join('\n') +
+    '\n\n' +
     `export default ${imports.reduce((routemapJsonCode, source, index) => {
       routemapJsonCode = routemapJsonCode.replaceAll(
-        new RegExp(`(\\s*)${escapeRegExp(`"module": "${source}"`)}`, "g"),
+        new RegExp(`(\\s*)${escapeRegExp(`"module": "${source}"`)}`, 'g'),
         `$1"source": "${source}",$1"module": _${index}`
       );
       return routemapJsonCode;
@@ -381,10 +381,10 @@ function generateServerRoutemap(
   const routemapDtsCode = [
     `import type { Manifest } from '@web-widget/web-router';`,
     `export default {} as Manifest;`,
-  ].join("\n");
+  ].join('\n');
 
   const entryFileName = path.relative(root, builderConfig.input.server.entry);
-  const entryModuleName = "./" + routeModuleMap.get(entryFileName).fileName;
+  const entryModuleName = './' + routeModuleMap.get(entryFileName).fileName;
   const clientImportmapCode = JSON.stringify(clientImportmap);
   const clientEntryModuleName = base + getClientEntryAssent().file;
   const clientEntryLink = getLinks(
@@ -421,11 +421,11 @@ function generateServerRoutemap(
     `    })`,
     `  });`,
     `}`,
-  ].join("\n");
+  ].join('\n');
   const entryDtsCode = [
     `import type { Manifest, StartOptions } from '@web-widget/web-router';`,
     `export default {} as (manifest: Manifest, options: StartOptions) => WebRouter;`,
-  ].join("\n");
+  ].join('\n');
 
   const routemapBasename = getBasename(builderConfig.input.server.routemap);
   const entryBasename = getBasename(builderConfig.input.server.entry);
@@ -437,23 +437,23 @@ function generateServerRoutemap(
     //   code: routemapJsonCode,
     // },
     {
-      type: "prebuilt-chunk",
-      fileName: routemapBasename + ".js",
+      type: 'prebuilt-chunk',
+      fileName: routemapBasename + '.js',
       code: routemapJsCode,
     },
     {
-      type: "prebuilt-chunk",
-      fileName: routemapBasename + ".d.ts",
+      type: 'prebuilt-chunk',
+      fileName: routemapBasename + '.d.ts',
       code: routemapDtsCode,
     },
     {
-      type: "prebuilt-chunk",
-      fileName: entryBasename + ".js",
+      type: 'prebuilt-chunk',
+      fileName: entryBasename + '.js',
       code: entryJsCode,
     },
     {
-      type: "prebuilt-chunk",
-      fileName: entryBasename + ".d.ts",
+      type: 'prebuilt-chunk',
+      fileName: entryBasename + '.d.ts',
       code: entryDtsCode,
     },
   ];

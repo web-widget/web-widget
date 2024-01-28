@@ -1,15 +1,15 @@
-import { defineRouteComponent } from "@web-widget/react";
-import BaseLayout from "./(components)/BaseLayout.js";
-import ReactWaitDemo from "./(components)/Wait@widget.js";
-import VueWaitDemo from "@examples/web-router-vue3/Wait@widget.vue?as=tsx";
+import { defineRouteComponent } from '@web-widget/react';
+import BaseLayout from './(components)/BaseLayout.js';
+import ReactWaitDemo from './(components)/Wait@widget.js';
+import VueWaitDemo from '@examples/web-router-vue3/Wait@widget.vue?as=tsx';
 
 const Loading = (
-  <div style={{ background: "#f3f3f3", padding: "20px" }}>Loading..</div>
+  <div style={{ background: '#f3f3f3', padding: '20px' }}>Loading..</div>
 );
 
 export default defineRouteComponent(async function Page() {
   const tips = import.meta.env.DEV ? (
-    <p style={{ background: "yellow" }}>
+    <p style={{ background: 'yellow' }}>
       💡 This example needs to run `pnpm start`
     </p>
   ) : (

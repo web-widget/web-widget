@@ -1,43 +1,43 @@
-import path from "node:path";
-import type { Plugin, UserConfig } from "vite";
+import path from 'node:path';
+import type { Plugin, UserConfig } from 'vite';
 import {
   exportWebWidgetPlugin,
   type ExportWidgetPluginOptions,
-} from "./build/export-web-widget";
+} from './build/export-web-widget';
 import {
   importWebWidgetPlugin,
   type ImportWebWidgetPluginOptions,
-} from "./build/import-web-widget";
-import { getGlobalConfig, pluginContainer } from "./container";
-import type { ResolvedBuilderConfig } from "./types";
+} from './build/import-web-widget';
+import { getGlobalConfig, pluginContainer } from './container';
+import type { ResolvedBuilderConfig } from './types';
 
 export interface WebWidgetPluginOptions {
   provide?: string;
-  manifest?: ExportWidgetPluginOptions["manifest"];
+  manifest?: ExportWidgetPluginOptions['manifest'];
   /**@deprecated Please use `export` instead. */
   toWebWidgets?: Partial<
     ExportWidgetPluginOptions & {
-      manifest?: ExportWidgetPluginOptions["manifest"];
-      provide?: ExportWidgetPluginOptions["provide"];
+      manifest?: ExportWidgetPluginOptions['manifest'];
+      provide?: ExportWidgetPluginOptions['provide'];
     }
   >;
   export?: Partial<
     ExportWidgetPluginOptions & {
-      manifest?: ExportWidgetPluginOptions["manifest"];
-      provide?: ExportWidgetPluginOptions["provide"];
+      manifest?: ExportWidgetPluginOptions['manifest'];
+      provide?: ExportWidgetPluginOptions['provide'];
     }
   >;
   /**@deprecated Please use `import` instead. */
   toComponents?: Partial<
     ImportWebWidgetPluginOptions & {
-      manifest?: ImportWebWidgetPluginOptions["manifest"];
-      provide?: ImportWebWidgetPluginOptions["provide"];
+      manifest?: ImportWebWidgetPluginOptions['manifest'];
+      provide?: ImportWebWidgetPluginOptions['provide'];
     }
   >;
   import?: Partial<
     ImportWebWidgetPluginOptions & {
-      manifest?: ImportWebWidgetPluginOptions["manifest"];
-      provide?: ImportWebWidgetPluginOptions["provide"];
+      manifest?: ImportWebWidgetPluginOptions['manifest'];
+      provide?: ImportWebWidgetPluginOptions['provide'];
     }
   >;
 }

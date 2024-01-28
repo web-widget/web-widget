@@ -3,32 +3,32 @@ import {
   defineRouteComponent,
   defineRouteFallbackComponent,
   type RouteFallbackComponentProps,
-} from "@web-widget/helpers";
-import { createHttpError } from "@web-widget/helpers/http";
-import BaseLayout from "./(components)/BaseLayout";
+} from '@web-widget/helpers';
+import { createHttpError } from '@web-widget/helpers/http';
+import BaseLayout from './(components)/BaseLayout';
 
 export const handler = defineRouteHandler({
   async GET(ctx) {
     const url = new URL(ctx.request.url);
 
-    if (url.searchParams.has("404")) {
+    if (url.searchParams.has('404')) {
       return ctx.render({
-        error: createHttpError(404, "😔 页面找不到了"),
+        error: createHttpError(404, '😔 页面找不到了'),
       });
     }
 
-    if (url.searchParams.has("500")) {
+    if (url.searchParams.has('500')) {
       return ctx.render({
         error: createHttpError(500),
       });
     }
 
-    if (url.searchParams.has("global-500")) {
-      throw new Error("⚠️ 全局错误捕获 500");
+    if (url.searchParams.has('global-500')) {
+      throw new Error('⚠️ 全局错误捕获 500');
     }
 
-    if (url.searchParams.has("global-404")) {
-      throw createHttpError(404, "⚠️ 全局错误捕获 404");
+    if (url.searchParams.has('global-404')) {
+      throw createHttpError(404, '⚠️ 全局错误捕获 404');
     }
 
     return ctx.render();

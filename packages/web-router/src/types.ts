@@ -9,10 +9,10 @@ import type {
   ServerWidgetRenderContext,
   ServerWidgetRenderResult,
   MiddlewareModule,
-} from "@web-widget/helpers";
+} from '@web-widget/helpers';
 
-import type { Context } from "./context";
-export * from "@web-widget/helpers";
+import type { Context } from './context';
+export * from '@web-widget/helpers';
 
 ////////////////////////////////////////
 //////                            //////

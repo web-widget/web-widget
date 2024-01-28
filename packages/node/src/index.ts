@@ -1,20 +1,20 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
-import type { Writable } from "node:stream";
-import { AsyncLocalStorage } from "node:async_hooks";
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { Writable } from 'node:stream';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import type {
   BuildDependencies,
   NodeHandler,
   RequestOptions,
-} from "@edge-runtime/node-utils";
+} from '@edge-runtime/node-utils';
 import {
   buildToFetchEvent,
   buildToRequest,
   mergeIntoServerResponse,
   toOutgoingHeaders,
-} from "@edge-runtime/node-utils";
-import primitives from "@edge-runtime/primitives";
+} from '@edge-runtime/node-utils';
+import primitives from '@edge-runtime/primitives';
 
-if (!Reflect.get(global, "DISABLE_INSTALL_MCA_SHIMS")) {
+if (!Reflect.get(global, 'DISABLE_INSTALL_MCA_SHIMS')) {
   for (const [key, value] of Object.entries(primitives)) {
     if (!(key in global)) {
       (global as any)[key] = value;
@@ -49,7 +49,7 @@ class FetchEvent {
   }
 
   waitUntil() {
-    throw new Error("waitUntil is not implemented yet for Node.js");
+    throw new Error('waitUntil is not implemented yet for Node.js');
   }
 }
 
@@ -80,7 +80,7 @@ export default class NodeAdapter {
       origin?: string;
     },
     options: NodeAdapterOptions = {
-      defaultOrigin: webRouter?.origin ?? "https://web-widget.js.org",
+      defaultOrigin: webRouter?.origin ?? 'https://web-widget.js.org',
     }
   ) {
     const handler = webRouter.handler.bind(webRouter);
@@ -114,8 +114,8 @@ export default class NodeAdapter {
  * https://developer.chrome.com/articles/fetch-streaming-requests/#streaming-request-bodies
  */
 function addDuplexToInit(init: RequestInit | undefined) {
-  if (typeof init === "undefined" || typeof init === "object") {
-    return { duplex: "half", ...init };
+  if (typeof init === 'undefined' || typeof init === 'object') {
+    return { duplex: 'half', ...init };
   }
   return init;
 }
@@ -186,7 +186,7 @@ async function writeReadableStreamToWritable(
       }
 
       writable.write(value);
-      if (typeof flushable.flush === "function") {
+      if (typeof flushable.flush === 'function') {
         flushable.flush();
       }
     }

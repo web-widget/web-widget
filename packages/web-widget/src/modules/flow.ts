@@ -48,15 +48,15 @@ import {
   UNMOUNT_ERROR,
   UPDATE_ERROR,
   UPDATING,
-} from "./status";
+} from './status';
 
 export type LifecycleName =
-  | "load"
-  | "bootstrap"
-  | "mount"
-  | "update"
-  | "unmount"
-  | "unload";
+  | 'load'
+  | 'bootstrap'
+  | 'mount'
+  | 'update'
+  | 'unmount'
+  | 'unload';
 
 export const rules = {
   load: {
@@ -65,12 +65,12 @@ export const rules = {
     status: [INITIAL, LOADING, LOADED, LOAD_ERROR],
   },
   bootstrap: {
-    pre: "load",
+    pre: 'load',
     timeout: 4000,
     status: [LOADED, BOOTSTRAPPING, BOOTSTRAPPED, BOOTSTRAP_ERROR],
   },
   mount: {
-    pre: "bootstrap",
+    pre: 'bootstrap',
     timeout: 3000,
     status: [BOOTSTRAPPED, MOUNTING, MOUNTED, MOUNT_ERROR],
   },
@@ -84,7 +84,7 @@ export const rules = {
     status: [MOUNTED, UNMOUNTING, BOOTSTRAPPED, UNMOUNT_ERROR],
   },
   unload: {
-    pre: "unmount",
+    pre: 'unmount',
     timeout: 3000,
     status: [BOOTSTRAPPED, UNLOADING, INITIAL, UNLOAD_ERROR],
   },

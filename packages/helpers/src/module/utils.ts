@@ -13,7 +13,7 @@ const matchHtmlRegExp = /["'&<>]/;
  * Escape special characters in the given string of text.
  */
 export function escapeHtml(string: string): string {
-  const str = "" + string;
+  const str = '' + string;
   const match = matchHtmlRegExp.exec(str);
 
   if (!match) {
@@ -21,26 +21,26 @@ export function escapeHtml(string: string): string {
   }
 
   let escape;
-  let html = "";
+  let html = '';
   let index = 0;
   let lastIndex = 0;
 
   for (index = match.index; index < str.length; index++) {
     switch (str.charCodeAt(index)) {
       case 34: // "
-        escape = "&quot;";
+        escape = '&quot;';
         break;
       case 38: // &
-        escape = "&amp;";
+        escape = '&amp;';
         break;
       case 39: // '
-        escape = "&#39;";
+        escape = '&#39;';
         break;
       case 60: // <
-        escape = "&lt;";
+        escape = '&lt;';
         break;
       case 62: // >
-        escape = "&gt;";
+        escape = '&gt;';
         break;
       default:
         continue;

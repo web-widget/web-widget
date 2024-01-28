@@ -1,16 +1,16 @@
-import { compose } from "./compose";
-import { Context } from "./context";
-import type { ExecutionContext } from "./context";
-import type { Router } from "./router";
-import { METHOD_NAME_ALL, METHODS, URLPatternRouter } from "./router";
+import { compose } from './compose';
+import { Context } from './context';
+import type { ExecutionContext } from './context';
+import type { Router } from './router';
+import { METHOD_NAME_ALL, METHODS, URLPatternRouter } from './router';
 import type {
   Env,
   ErrorHandler,
   FetchEventLike,
   MiddlewareHandler,
   NotFoundHandler,
-} from "./types";
-import { getPath, getPathNoStrict, mergePath } from "./url";
+} from './types';
+import { getPath, getPathNoStrict, mergePath } from './url';
 
 type Methods = (typeof METHODS)[number];
 
@@ -21,7 +21,7 @@ interface RouterRoute {
 }
 
 function defineDynamicClass(): {
-  new <E extends Env = Env, BasePath extends string = "/">(): {
+  new <E extends Env = Env, BasePath extends string = '/'>(): {
     /**
      * @experimental
      */
@@ -40,14 +40,14 @@ function defineDynamicClass(): {
 }
 
 const notFoundHandler = () => {
-  return new Response("404 Not Found", {
+  return new Response('404 Not Found', {
     status: 404,
   });
 };
 
 const errorHandler = (error: unknown) => {
   console.error(error);
-  const message = "Internal Server Error";
+  const message = 'Internal Server Error';
   return new Response(message, {
     status: 500,
   });
@@ -55,7 +55,7 @@ const errorHandler = (error: unknown) => {
 
 type GetPath<E extends Env> = (
   request: Request,
-  options?: { env?: E["Bindings"] }
+  options?: { env?: E['Bindings'] }
 ) => string;
 
 export type ApplicationOptions<E extends Env> = {
@@ -66,7 +66,7 @@ export type ApplicationOptions<E extends Env> = {
 
 class Application<
   E extends Env = Env,
-  BasePath extends string = "/",
+  BasePath extends string = '/',
 > extends defineDynamicClass()<E, BasePath> {
   /*
     This class is like an abstract class and does not have a router.
@@ -140,16 +140,16 @@ class Application<
 
   handler(
     request: Request,
-    env: E["Bindings"] | undefined = Object.create(null),
+    env: E['Bindings'] | undefined = Object.create(null),
     executionContext?: ExecutionContext | FetchEventLike,
     method: string = request.method
   ): Response | Promise<Response> {
     // Handle HEAD method
-    if (method === "HEAD") {
+    if (method === 'HEAD') {
       return (async () =>
         new Response(
           null,
-          await this.handler(request, env, executionContext, "GET")
+          await this.handler(request, env, executionContext, 'GET')
         ))();
     }
 
@@ -172,7 +172,7 @@ class Application<
         const res = await composed(c);
         if (!res) {
           throw new Error(
-            "Response is not finalized. You may forget returning Response object or `return next()`"
+            'Response is not finalized. You may forget returning Response object or `return next()`'
           );
         }
         return res;
@@ -192,7 +192,7 @@ class Application<
   request = (
     input: RequestInfo | URL,
     requestInit?: RequestInit,
-    Env?: E["Bindings"] | {},
+    Env?: E['Bindings'] | {},
     executionContext?: ExecutionContext
   ) => {
     if (input instanceof Request) {
@@ -204,7 +204,7 @@ class Application<
     input = input.toString();
     const path = /^https?:\/\//.test(input)
       ? input
-      : `http://localhost${mergePath("/", input)}`;
+      : `http://localhost${mergePath('/', input)}`;
     const req = new Request(path, requestInit);
     return this.handler(req, Env, executionContext);
   };

@@ -1,7 +1,7 @@
-import { rebaseMeta } from "@web-widget/helpers";
-import { createHttpError } from "@web-widget/helpers/http";
-import { Application } from "./application";
-import type { ApplicationOptions } from "./application";
+import { rebaseMeta } from '@web-widget/helpers';
+import { createHttpError } from '@web-widget/helpers/http';
+import { Application } from './application';
+import type { ApplicationOptions } from './application';
 import type {
   Env,
   LayoutModule,
@@ -9,17 +9,17 @@ import type {
   Meta,
   RouteModule,
   RouteRenderOptions,
-} from "./types";
-import * as defaultFallbackModule from "./fallback";
-import * as defaultLayoutModule from "./layout";
+} from './types';
+import * as defaultFallbackModule from './fallback';
+import * as defaultLayoutModule from './layout';
 import {
   createFallbackHandler,
   createRouteContext,
   renderRouteModule,
   callMiddlewareModule,
-} from "./modules";
-import type { OnFallback } from "./modules";
-export type * from "./types";
+} from './modules';
+import type { OnFallback } from './modules';
+export type * from './types';
 
 export type StartOptions<E extends Env = {}> = {
   baseAsset?: string;
@@ -53,17 +53,17 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       module: () => defaultLayoutModule as LayoutModule,
     };
     const fallbacks = manifest.fallbacks ?? [];
-    const defaultBaseAsset = options.baseAsset ?? "/";
+    const defaultBaseAsset = options.baseAsset ?? '/';
     const defaultMeta = rebaseMeta(
       options.defaultMeta ?? {
-        lang: "en",
+        lang: 'en',
         meta: [
           {
-            charset: "utf-8",
+            charset: 'utf-8',
           },
           {
-            name: "viewport",
-            content: "width=device-width, initial-scale=1.0",
+            name: 'viewport',
+            content: 'width=device-width, initial-scale=1.0',
           },
         ],
       },
@@ -73,12 +73,12 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     const onFallback =
       options.onFallback ??
       ((error) => {
-        const status = Reflect.get(error, "status") ?? 500;
-        const expose = Reflect.get(error, "expose");
+        const status = Reflect.get(error, 'status') ?? 500;
+        const expose = Reflect.get(error, 'expose');
 
         if (status >= 500 && !expose) {
           const msg = error.stack || error.toString();
-          console.error(`\n${msg.replace(/^/gm, "  ")}\n`);
+          console.error(`\n${msg.replace(/^/gm, '  ')}\n`);
         }
       });
 
@@ -106,10 +106,10 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     });
 
     const fallback404 = fallbacks.find(
-      (page) => page.status === 404 || page.name === "NotFound"
+      (page) => page.status === 404 || page.name === 'NotFound'
     ) ?? {
       module: async () => defaultFallbackModule as RouteModule,
-      pathname: "*",
+      pathname: '*',
     };
 
     const notFoundHandler = createFallbackHandler(
@@ -127,10 +127,10 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     );
 
     const fallback500 = fallbacks.find(
-      (page) => page.status === 500 || page.name === "InternalServerError"
+      (page) => page.status === 500 || page.name === 'InternalServerError'
     ) ?? {
       module: async () => defaultFallbackModule as RouteModule,
-      pathname: "*",
+      pathname: '*',
     };
 
     const errorHandler = createFallbackHandler(

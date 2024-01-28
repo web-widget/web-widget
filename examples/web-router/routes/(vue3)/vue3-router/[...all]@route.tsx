@@ -1,9 +1,9 @@
-import { defineMeta, defineRouteComponent } from "@web-widget/react";
-import BaseLayout from "../../(components)/BaseLayout";
-import App from "./App@widget?as=jsx";
+import { defineMeta, defineRouteComponent } from '@web-widget/react';
+import BaseLayout from '../../(components)/BaseLayout';
+import App from './App@widget?as=jsx';
 
 export const meta = defineMeta({
-  title: "Hello, Vue Router",
+  title: 'Hello, Vue Router',
 });
 
 export default defineRouteComponent(function Page(props) {

@@ -1,10 +1,10 @@
-import { mergeMeta, rebaseMeta } from "@web-widget/helpers/module";
+import { mergeMeta, rebaseMeta } from '@web-widget/helpers/module';
 import {
   callContext,
   createContext,
   useContext,
-} from "@web-widget/helpers/context";
-import { createHttpError } from "@web-widget/helpers/http";
+} from '@web-widget/helpers/context';
+import { createHttpError } from '@web-widget/helpers/http';
 import type {
   LayoutModule,
   LayoutRenderContext,
@@ -21,8 +21,8 @@ import type {
   RouteModule,
   RouteRenderContext,
   RouteRenderOptions,
-} from "./types";
-import type { Context } from "./context";
+} from './types';
+import type { Context } from './context';
 
 export type OnFallback = (
   error: RouteError,
@@ -42,7 +42,7 @@ function callAsyncContext<T extends (...args: any[]) => any>(
   });
 
   if (context.meta) {
-    const id = "state:web-router";
+    const id = 'state:web-router';
     const meta = mergeMeta(context.meta, {});
     const script = (meta.script ??= []);
     const index = script.findIndex((script) => script.id === id);
@@ -53,7 +53,7 @@ function callAsyncContext<T extends (...args: any[]) => any>(
 
     script.push({
       id,
-      type: "application/json",
+      type: 'application/json',
       // TODO htmlEscapeJsonString
       content: JSON.stringify(data),
     });
@@ -69,26 +69,26 @@ function callAsyncContext<T extends (...args: any[]) => any>(
 }
 
 const knownMethods = [
-  "GET",
-  "HEAD",
-  "POST",
-  "PUT",
-  "DELETE",
-  "OPTIONS",
-  "PATCH",
+  'GET',
+  'HEAD',
+  'POST',
+  'PUT',
+  'DELETE',
+  'OPTIONS',
+  'PATCH',
 ] as const;
 
 function composeHandler(
   handler: RouteHandler | RouteHandlers | MiddlewareHandler | MiddlewareHandlers
 ): RouteHandler | MiddlewareHandler {
-  if (typeof handler === "function") {
+  if (typeof handler === 'function') {
     return handler;
   }
 
   const methods: RouteHandlers | MiddlewareHandlers = { ...handler };
 
   for (const methodName of knownMethods) {
-    if (methodName === "HEAD") {
+    if (methodName === 'HEAD') {
       const GET = methods.GET;
       methods[methodName] =
         handler[methodName] || GET
@@ -111,9 +111,9 @@ function composeHandler(
     let request = context.request;
 
     // If not overridden, HEAD requests should be handled as GET requests but without the body.
-    if (request.method === "HEAD" && !methods["HEAD"]) {
+    if (request.method === 'HEAD' && !methods['HEAD']) {
       request = new Request(request.url, {
-        method: "GET",
+        method: 'GET',
         headers: request.headers,
       });
     }
@@ -124,7 +124,7 @@ function composeHandler(
         new Response(null, {
           status: 405,
           headers: {
-            Accept: knownMethods.join(", "),
+            Accept: knownMethods.join(', '),
           },
         }));
 
@@ -150,7 +150,7 @@ function composeRender(
       onFallback(unsafeError, context);
     }
 
-    if (typeof layoutModule.render !== "function") {
+    if (typeof layoutModule.render !== 'function') {
       throw new TypeError(`Layout module does not export "render" function.`);
     }
 
@@ -158,7 +158,7 @@ function composeRender(
       throw new TypeError(`Missing "module".`);
     }
 
-    if (typeof context.module.render !== "function") {
+    if (typeof context.module.render !== 'function') {
       throw new TypeError(`Module does not export "render" function.`);
     }
 
@@ -200,10 +200,10 @@ function composeRender(
       (error
         ? error.statusText
           ? error.statusText
-          : "Internal Server Error"
-        : "OK");
+          : 'Internal Server Error'
+        : 'OK');
     const headers = {
-      "content-type": "text/html; charset=utf-8",
+      'content-type': 'text/html; charset=utf-8',
       ...renderOptions?.headers,
     };
 
@@ -218,8 +218,8 @@ function composeRender(
 function createSafeError(error: RouteError): RouteError {
   return new Proxy(error, {
     get(target, key) {
-      if (key === "stack") {
-        return "";
+      if (key === 'stack') {
+        return '';
       }
       return Reflect.get(target, key);
     },
@@ -242,7 +242,7 @@ async function transformRouteError(error: any): Promise<RouteError> {
 }
 
 async function getModule<T>(module: any) {
-  return (typeof module === "function" ? module() : module) as T;
+  return (typeof module === 'function' ? module() : module) as T;
 }
 
 export function callMiddlewareModule(
@@ -288,7 +288,7 @@ export function createRouteContext(
     renderOptions ??= Object.assign({}, defaultRenderOptions);
 
     // If multiple routes match here, only the first one is valid.
-    if (!("module" in context)) {
+    if (!('module' in context)) {
       Object.assign<Context, RouteHandlerContext>(context, {
         ...context,
         data: {},
@@ -363,7 +363,7 @@ export function renderRouteModule(): MiddlewareHandler {
   let handler: RouteHandler;
   return async (context, next) => {
     const isRouteContext =
-      Reflect.has(context, "module") && Reflect.has(context, "render");
+      Reflect.has(context, 'module') && Reflect.has(context, 'render');
     if (isRouteContext) {
       handler ??= composeHandler(
         context?.module?.handler ??
@@ -392,22 +392,22 @@ export function trailingSlash(
     const url = new URL(request.url);
     if (
       url.pathname.length > 1 &&
-      url.pathname.endsWith("/") &&
+      url.pathname.endsWith('/') &&
       !trailingSlashEnabled
     ) {
       // Remove trailing slashes
-      const path = url.pathname.replace(/\/+$/, "");
+      const path = url.pathname.replace(/\/+$/, '');
       const location = `${path}${url.search}`;
       return new Response(null, {
         status: 307,
         headers: { location },
       });
-    } else if (trailingSlashEnabled && !url.pathname.endsWith("/")) {
+    } else if (trailingSlashEnabled && !url.pathname.endsWith('/')) {
       // If the last element of the path has a "." it's a file
-      const isFile = url.pathname.split("/").at(-1)?.includes(".");
+      const isFile = url.pathname.split('/').at(-1)?.includes('.');
 
       if (!isFile) {
-        url.pathname += "/";
+        url.pathname += '/';
         return Response.redirect(url, 308);
       }
     }

@@ -1,12 +1,12 @@
-import path from "node:path";
-import { createRequire } from "node:module";
-import { createFilter, type FilterPattern } from "@rollup/pluginutils";
-import * as esModuleLexer from "es-module-lexer";
-import MagicString from "magic-string";
-import type { IndexHtmlTransformResult, Plugin } from "vite";
-import { defineAsyncOptions } from "../container";
-import type { ResolveAssetProtocolPluginOptions } from "./resolve-asset-protocol";
-import { ASSET_PROTOCOL, resolveAssetProtocol } from "./resolve-asset-protocol";
+import path from 'node:path';
+import { createRequire } from 'node:module';
+import { createFilter, type FilterPattern } from '@rollup/pluginutils';
+import * as esModuleLexer from 'es-module-lexer';
+import MagicString from 'magic-string';
+import type { IndexHtmlTransformResult, Plugin } from 'vite';
+import { defineAsyncOptions } from '../container';
+import type { ResolveAssetProtocolPluginOptions } from './resolve-asset-protocol';
+import { ASSET_PROTOCOL, resolveAssetProtocol } from './resolve-asset-protocol';
 
 const ASSET_PLACEHOLDER = `${ASSET_PROTOCOL}//`;
 
@@ -26,7 +26,7 @@ export interface ImportWebWidgetPluginOptions {
   exclude?: FilterPattern;
   include?: FilterPattern;
   inject?: string;
-  manifest?: ResolveAssetProtocolPluginOptions["manifest"];
+  manifest?: ResolveAssetProtocolPluginOptions['manifest'];
   provide: string;
 }
 
@@ -62,7 +62,7 @@ export function importWebWidgetPlugin(
 
   return [
     {
-      name: "@widget:import-web-widget",
+      name: '@widget:import-web-widget',
       async config(userConfig, { command }) {
         const ssrBuild = !!userConfig.build?.ssr;
         const {
@@ -76,12 +76,12 @@ export function importWebWidgetPlugin(
         } = options;
 
         cache = options.cache ?? globalCache;
-        dev = command === "serve";
+        dev = command === 'serve';
         root = userConfig.root ?? process.cwd();
         filter = createFilter(include, exclude);
         componentFilter = createFilter(includeImporter, excludeImporter);
 
-        if (typeof provide !== "string") {
+        if (typeof provide !== 'string') {
           throw new TypeError(`options.provide must be a string type.`);
         }
 
@@ -99,27 +99,27 @@ export function importWebWidgetPlugin(
         base = config.base;
       },
       async transformIndexHtml(html, { server: dev }) {
-        const styleId = "web-widget:style";
-        const inspectorId = "web-widget:inspector";
+        const styleId = 'web-widget:style';
+        const inspectorId = 'web-widget:inspector';
         const result: IndexHtmlTransformResult = [];
 
         if (!html.includes(`id="${styleId}"`)) {
           result.push({
-            injectTo: "head",
-            tag: "style",
+            injectTo: 'head',
+            tag: 'style',
             attrs: {
               id: styleId,
             },
-            children: "web-widget{display:contents}",
+            children: 'web-widget{display:contents}',
           });
         }
 
         if (dev && !html.includes(`id="${inspectorId}"`)) {
-          const id = require.resolve("@web-widget/web-widget/inspector");
+          const id = require.resolve('@web-widget/web-widget/inspector');
           const src = `/@fs${id}`;
           result.push({
-            injectTo: "body",
-            tag: "web-widget-inspector",
+            injectTo: 'body',
+            tag: 'web-widget-inspector',
             attrs: {
               id: inspectorId,
               dir: root,
@@ -127,9 +127,9 @@ export function importWebWidgetPlugin(
             },
             children: [
               {
-                tag: "script",
+                tag: 'script',
                 attrs: {
-                  type: "module",
+                  type: 'module',
                   src,
                 },
               },
@@ -154,7 +154,7 @@ export function importWebWidgetPlugin(
           return null;
         }
 
-        const { provide, inject = "defineWebWidget" } = options;
+        const { provide, inject = 'defineWebWidget' } = options;
 
         await esModuleLexer.init;
         const [imports] = esModuleLexer.parse(code, id);
@@ -177,7 +177,7 @@ export function importWebWidgetPlugin(
             : undefined;
 
           if (importModule && dynamicImport === -1 && filter(importModule)) {
-            const cacheKey = [id, importModule].join(",");
+            const cacheKey = [id, importModule].join(',');
             if (!cache.has(cacheKey)) {
               widgetModules.push({
                 moduleId: importModule,
@@ -211,13 +211,13 @@ export function importWebWidgetPlugin(
             const clientModuleId = dev
               ? base + asset
               : ssr
-              ? ASSET_PLACEHOLDER + asset
-              : this.emitFile({
-                  type: "chunk",
-                  id: moduleId,
-                  preserveSignature: "allow-extension", // "strict",
-                  importer: id,
-                });
+                ? ASSET_PLACEHOLDER + asset
+                : this.emitFile({
+                    type: 'chunk',
+                    id: moduleId,
+                    preserveSignature: 'allow-extension', // "strict",
+                    importer: id,
+                  });
 
             const clientModuleExpression =
               ssr || dev
@@ -236,7 +236,7 @@ export function importWebWidgetPlugin(
                 moduleName
               )}), { /*base: import.meta.url,*/ import: ${clientModuleExpression}, ${JSON.stringify(
                 clientContainerOptions
-              ).replaceAll(/^\{|\}$/g, "")} });\n`;
+              ).replaceAll(/^\{|\}$/g, '')} });\n`;
 
             magicString.update(statementStart, statementEnd, content);
           }
@@ -251,7 +251,7 @@ export function importWebWidgetPlugin(
     {
       ...resolveAssetProtocol(resolveAssetProtocolOptions),
       apply: (userConfig, { command }) => {
-        return command === "build" && !!userConfig.build?.ssr;
+        return command === 'build' && !!userConfig.build?.ssr;
       },
     },
   ];

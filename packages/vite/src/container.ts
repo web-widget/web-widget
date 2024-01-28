@@ -1,6 +1,6 @@
-import type { Plugin, UserConfig } from "vite";
+import type { Plugin, UserConfig } from 'vite';
 
-const GLOBAL_CONFIG = Symbol.for("GLOBAL_CONFIG");
+const GLOBAL_CONFIG = Symbol.for('GLOBAL_CONFIG');
 
 export function defineAsyncOptions<T>(
   initialOptions: any = {}
@@ -43,7 +43,7 @@ export function pluginContainer<T>(
 
   plugins.unshift({
     name: `${plugins[0].name}:resolve-config`,
-    enforce: "pre",
+    enforce: 'pre',
     async config(userConfig) {
       setOptions(pluginOptionsFactory(userConfig));
       if (isGlobalOptions) {

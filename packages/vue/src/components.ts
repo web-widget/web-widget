@@ -1,5 +1,5 @@
-import type { Loader, WebWidgetRendererOptions } from "@web-widget/web-widget";
-import { WebWidgetRenderer } from "@web-widget/web-widget";
+import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
+import { WebWidgetRenderer } from '@web-widget/web-widget';
 import {
   h,
   defineComponent,
@@ -7,25 +7,25 @@ import {
   useAttrs,
   // onServerPrefetch,
   // getCurrentInstance,
-} from "vue";
-import type { VNode, PropType } from "vue";
-import { IS_CLIENT } from "@web-widget/helpers";
+} from 'vue';
+import type { VNode, PropType } from 'vue';
+import { IS_CLIENT } from '@web-widget/helpers';
 
 const WebWidget = /*#__PURE__*/ defineComponent({
-  name: "WebWidgetRoot",
+  name: 'WebWidgetRoot',
   props: {
     base: {
-      type: String as PropType<WebWidgetRendererOptions["base"]>,
+      type: String as PropType<WebWidgetRendererOptions['base']>,
     },
     data: {
-      type: Object as PropType<WebWidgetRendererOptions["data"]>,
+      type: Object as PropType<WebWidgetRendererOptions['data']>,
       default: {},
     },
     import: {
-      type: String as PropType<WebWidgetRendererOptions["import"]>,
+      type: String as PropType<WebWidgetRendererOptions['import']>,
     },
     inactive: {
-      type: Boolean as PropType<WebWidgetRendererOptions["inactive"]>,
+      type: Boolean as PropType<WebWidgetRendererOptions['inactive']>,
       // NOTE: If the default value is not set, it will be false here.
       default: undefined,
     },
@@ -34,20 +34,20 @@ const WebWidget = /*#__PURE__*/ defineComponent({
       required: true,
     },
     loading: {
-      type: String as PropType<WebWidgetRendererOptions["loading"]>,
+      type: String as PropType<WebWidgetRendererOptions['loading']>,
     },
     meta: {
-      type: Object as PropType<WebWidgetRendererOptions["meta"]>,
+      type: Object as PropType<WebWidgetRendererOptions['meta']>,
     },
     name: {
-      type: String as PropType<WebWidgetRendererOptions["name"]>,
+      type: String as PropType<WebWidgetRendererOptions['name']>,
     },
     renderStage: {
-      type: String as PropType<WebWidgetRendererOptions["renderStage"]>,
+      type: String as PropType<WebWidgetRendererOptions['renderStage']>,
     },
     renderTarget: {
-      type: String as PropType<WebWidgetRendererOptions["renderTarget"]>,
-      default: "light",
+      type: String as PropType<WebWidgetRendererOptions['renderTarget']>,
+      default: 'light',
     },
   },
   async setup({ loader, ...props }, { slots }) {
@@ -62,7 +62,7 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     const widget = new WebWidgetRenderer(loader as Loader, {
       ...props,
       // TODO slots.default
-      children: "",
+      children: '',
     });
     const tag = widget.localName;
     const attrs = widget.attributes;
@@ -87,19 +87,19 @@ const WebWidget = /*#__PURE__*/ defineComponent({
       h(tag, {
         ...attrs,
         // NOTE: Use attr instead of props.
-        ...(IS_CLIENT ? { "^data": data } : { data }),
+        ...(IS_CLIENT ? { '^data': data } : { data }),
         innerHTML,
       });
   },
 });
 
 export interface DefineWebWidgetOptions {
-  base?: WebWidgetRendererOptions["base"];
-  import?: WebWidgetRendererOptions["import"];
-  loading?: WebWidgetRendererOptions["loading"];
-  name?: WebWidgetRendererOptions["name"];
-  renderStage?: WebWidgetRendererOptions["renderStage"];
-  renderTarget?: WebWidgetRendererOptions["renderTarget"];
+  base?: WebWidgetRendererOptions['base'];
+  import?: WebWidgetRendererOptions['import'];
+  loading?: WebWidgetRendererOptions['loading'];
+  name?: WebWidgetRendererOptions['name'];
+  renderStage?: WebWidgetRendererOptions['renderStage'];
+  renderTarget?: WebWidgetRendererOptions['renderTarget'];
 }
 
 export /*#__PURE__*/ function defineWebWidget(
@@ -107,23 +107,23 @@ export /*#__PURE__*/ function defineWebWidget(
   options: DefineWebWidgetOptions
 ) {
   return defineComponent({
-    name: "WebWidgetSuspense",
+    name: 'WebWidgetSuspense',
     inheritAttrs: false,
     props: {
       fallback: {
         type: Object as PropType<VNode>,
       },
       experimental_loading: {
-        type: String as PropType<WebWidgetRendererOptions["loading"]>,
-        default: options.loading ?? "lazy",
+        type: String as PropType<WebWidgetRendererOptions['loading']>,
+        default: options.loading ?? 'lazy',
       },
       renderStage: {
-        type: String as PropType<WebWidgetRendererOptions["renderStage"]>,
+        type: String as PropType<WebWidgetRendererOptions['renderStage']>,
         default: options.renderStage,
       },
       experimental_renderTarget: {
-        type: String as PropType<WebWidgetRendererOptions["renderTarget"]>,
-        default: options.renderTarget ?? "light",
+        type: String as PropType<WebWidgetRendererOptions['renderTarget']>,
+        default: options.renderTarget ?? 'light',
       },
     },
     setup(
@@ -136,7 +136,7 @@ export /*#__PURE__*/ function defineWebWidget(
       { slots }
     ) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      const data = useAttrs() as WebWidgetRendererOptions["data"];
+      const data = useAttrs() as WebWidgetRendererOptions['data'];
 
       return () =>
         h(

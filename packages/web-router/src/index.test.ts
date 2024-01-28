@@ -1,25 +1,25 @@
-import * as defaultLayoutModule from "./layout";
-import type { OnFallback } from "./modules";
+import * as defaultLayoutModule from './layout';
+import type { OnFallback } from './modules';
 import type {
   LayoutModule,
   RouteError,
   RouteModule,
   RouteHandlerContext,
-} from ".";
-import WebRouter from ".";
+} from '.';
+import WebRouter from '.';
 
-describe("Basic", () => {
+describe('Basic', () => {
   const app = WebRouter.fromManifest({
     routes: [
       {
-        pathname: "/hello",
+        pathname: '/hello',
         module: {
           handler: {
             GET() {
-              return new Response("get hello");
+              return new Response('get hello');
             },
             POST() {
-              return new Response("post hello");
+              return new Response('post hello');
             },
           },
         },
@@ -32,42 +32,42 @@ describe("Basic", () => {
     fallbacks: [],
   });
 
-  it("GET http://localhost/hello is ok", async () => {
-    const res = await app.request("http://localhost/hello");
+  it('GET http://localhost/hello is ok', async () => {
+    const res = await app.request('http://localhost/hello');
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
-    expect(await res.text()).toBe("get hello");
+    expect(await res.text()).toBe('get hello');
   });
 
-  it("POST http://localhost/hello is ok", async () => {
-    const res = await app.request("http://localhost/hello", {
-      method: "POST",
+  it('POST http://localhost/hello is ok', async () => {
+    const res = await app.request('http://localhost/hello', {
+      method: 'POST',
     });
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
-    expect(await res.text()).toBe("post hello");
+    expect(await res.text()).toBe('post hello');
   });
 });
 
-describe("Multiple identical routes", () => {
+describe('Multiple identical routes', () => {
   const app = WebRouter.fromManifest({
     routes: [
       {
-        pathname: "/:lang?/",
+        pathname: '/:lang?/',
         module: {
-          handler: () => new Response("Home"),
+          handler: () => new Response('Home'),
         },
       },
       {
-        pathname: "/:lang?/a/",
+        pathname: '/:lang?/a/',
         module: {
-          handler: () => new Response("a"),
+          handler: () => new Response('a'),
         },
       },
       {
-        pathname: "/:lang?/b/",
+        pathname: '/:lang?/b/',
         module: {
-          handler: () => new Response("b"),
+          handler: () => new Response('b'),
         },
       },
     ],
@@ -78,38 +78,38 @@ describe("Multiple identical routes", () => {
     fallbacks: [],
   });
 
-  it("GET http://localhost/ is ok", async () => {
-    const res = await app.request("http://localhost/");
+  it('GET http://localhost/ is ok', async () => {
+    const res = await app.request('http://localhost/');
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
-    expect(await res.text()).toBe("Home");
+    expect(await res.text()).toBe('Home');
   });
 
-  it("POST http://localhost/a/ is ok", async () => {
-    const res = await app.request("http://localhost/a/");
+  it('POST http://localhost/a/ is ok', async () => {
+    const res = await app.request('http://localhost/a/');
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
-    expect(await res.text()).toBe("Home");
+    expect(await res.text()).toBe('Home');
   });
 
-  it("POST http://localhost/b/ is ok", async () => {
-    const res = await app.request("http://localhost/b/");
+  it('POST http://localhost/b/ is ok', async () => {
+    const res = await app.request('http://localhost/b/');
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
-    expect(await res.text()).toBe("Home");
+    expect(await res.text()).toBe('Home');
   });
 });
 
-describe("Create route context", () => {
+describe('Create route context', () => {
   const createTestRoute = (
     callback: (context: RouteHandlerContext) => void
   ) => {
     const app = WebRouter.fromManifest({
       routes: [
         {
-          pathname: "/test",
+          pathname: '/test',
           module: {
-            render: () => "Hello",
+            render: () => 'Hello',
           },
         },
       ],
@@ -118,7 +118,7 @@ describe("Create route context", () => {
       },
       middlewares: [
         {
-          pathname: "/test",
+          pathname: '/test',
           module: {
             handler(context, next) {
               callback(context as RouteHandlerContext);
@@ -130,10 +130,10 @@ describe("Create route context", () => {
       fallbacks: [],
     });
 
-    return app.request("http://localhost/test");
+    return app.request('http://localhost/test');
   };
 
-  it("Generate default context", (done) => {
+  it('Generate default context', (done) => {
     let context: RouteHandlerContext;
     Promise.resolve(
       createTestRoute((ctx) => {
@@ -145,7 +145,7 @@ describe("Create route context", () => {
       expect(context.meta).toBeDefined();
       expect(context.module).toBeDefined();
       expect(context.params).toEqual({});
-      expect(context.pathname).toBe("/test");
+      expect(context.pathname).toBe('/test');
       expect(context.render).toBeDefined();
       expect(context.renderOptions).toBeDefined();
       expect(context.request).toBeDefined();
@@ -155,7 +155,7 @@ describe("Create route context", () => {
   });
 });
 
-describe("Error handling", () => {
+describe('Error handling', () => {
   const createTestRoute = (
     routeModule: RouteModule,
     onFallback: OnFallback
@@ -164,7 +164,7 @@ describe("Error handling", () => {
       {
         routes: [
           {
-            pathname: "/test",
+            pathname: '/test',
             module: routeModule,
           },
         ],
@@ -179,14 +179,14 @@ describe("Error handling", () => {
       }
     );
 
-    return app.request("http://localhost/test");
+    return app.request('http://localhost/test');
   };
 
-  it("Exceptions should be caught", (done) => {
+  it('Exceptions should be caught', (done) => {
     let error: RouteError;
     const message = `Error:500`;
     const status = 500;
-    const statusText = "Internal Server Error";
+    const statusText = 'Internal Server Error';
     Promise.resolve(
       createTestRoute(
         {
@@ -210,11 +210,11 @@ describe("Error handling", () => {
     });
   });
 
-  it("Throws a `Response` as an HTTP error", (done) => {
+  it('Throws a `Response` as an HTTP error', (done) => {
     let error: RouteError;
     const message = `Error:404`;
     const status = 404;
-    const statusText = "Not Found";
+    const statusText = 'Not Found';
     Promise.resolve(
       createTestRoute(
         {
@@ -245,11 +245,11 @@ describe("Error handling", () => {
     });
   });
 
-  it("Malformed errors converted to strings as HTTP error messages", (done) => {
+  it('Malformed errors converted to strings as HTTP error messages', (done) => {
     let error: RouteError;
     const message = `Error:500`;
     const status = 500;
-    const statusText = "Internal Server Error";
+    const statusText = 'Internal Server Error';
     Promise.resolve(
       createTestRoute(
         {

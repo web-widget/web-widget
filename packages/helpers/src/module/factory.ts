@@ -21,7 +21,7 @@ import type {
   WidgetRenderContext,
   WidgetRenderOptions,
   WidgetRenderResult,
-} from "@web-widget/schema";
+} from '@web-widget/schema';
 
 export /*#__PURE__*/ function defineMeta(meta: Meta) {
   return meta;
@@ -104,7 +104,7 @@ export function getComponent(
   } else {
     const component = context?.module?.default;
     if (component === undefined) {
-      throw new Error("No renderable component.");
+      throw new Error('No renderable component.');
     }
 
     return component;
@@ -155,7 +155,7 @@ export function getComponentProps(
 export function isRouteRenderContext(
   context: WidgetRenderContext | RouteRenderContext
 ) {
-  return Reflect.has(context, "request");
+  return Reflect.has(context, 'request');
 }
 
 export interface ComponentDescriptor {

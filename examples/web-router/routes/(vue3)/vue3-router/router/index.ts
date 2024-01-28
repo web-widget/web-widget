@@ -2,7 +2,7 @@ import {
   createRouter as router,
   createWebHistory,
   createMemoryHistory,
-} from "vue-router";
+} from 'vue-router';
 
 export default function createRouter(
   scrollingElement?: Element | DocumentFragment
@@ -11,14 +11,14 @@ export default function createRouter(
     history: import.meta.env.SSR ? createMemoryHistory() : createWebHistory(),
     routes: [
       {
-        path: "/vue3-router",
-        name: "home",
-        component: () => import("../views/HomeView.vue"),
+        path: '/vue3-router',
+        name: 'home',
+        component: () => import('../views/HomeView.vue'),
       },
       {
-        path: "/vue3-router/about",
-        name: "about",
-        component: () => import("../views/AboutView.vue"),
+        path: '/vue3-router/about',
+        name: 'about',
+        component: () => import('../views/AboutView.vue'),
       },
     ],
     scrollBehavior(_to, _from, savedPosition) {

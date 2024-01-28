@@ -1,12 +1,12 @@
-import type { ClientWidgetRenderContext } from "@web-widget/helpers";
-import { defineRender, getComponentDescriptor } from "@web-widget/helpers";
-import type { App } from "vue";
-import { Suspense, createApp, createSSRApp, h } from "vue";
-import type { CreateVueRenderOptions } from "./types";
+import type { ClientWidgetRenderContext } from '@web-widget/helpers';
+import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
+import type { App } from 'vue';
+import { Suspense, createApp, createSSRApp, h } from 'vue';
+import type { CreateVueRenderOptions } from './types';
 
-export * from "@web-widget/helpers";
-export { useWidgetAsyncState as useWidgetState } from "@web-widget/helpers/context";
-export * from "./components";
+export * from '@web-widget/helpers';
+export { useWidgetAsyncState as useWidgetState } from '@web-widget/helpers/context';
+export * from './components';
 
 export const createVueRender = ({
   onCreatedApp = async () => {},

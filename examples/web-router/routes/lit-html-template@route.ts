@@ -1,5 +1,5 @@
-import { render, html, defineRouteComponent } from "@web-widget/html";
-import type { HelloData } from "./api/hello-world@route";
+import { render, html, defineRouteComponent } from '@web-widget/html';
+import type { HelloData } from './api/hello-world@route';
 
 export { render };
 

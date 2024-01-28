@@ -1,7 +1,7 @@
-import path from "node:path";
-import type { LinkDescriptor } from "@web-widget/helpers";
-import mime from "mime-types";
-import type { Manifest as ViteManifest } from "vite";
+import path from 'node:path';
+import type { LinkDescriptor } from '@web-widget/helpers';
+import mime from 'mime-types';
+import type { Manifest as ViteManifest } from 'vite';
 
 export function getLinks(
   manifest: ViteManifest,
@@ -9,7 +9,7 @@ export function getLinks(
   base: string,
   containSelf: boolean = false,
   cache = new Set(),
-  fetchpriority: "low" | "high" | "auto" = "auto"
+  fetchpriority: 'low' | 'high' | 'auto' = 'auto'
 ): LinkDescriptor[] {
   if (cache.has(srcFileName)) {
     return [];
@@ -49,14 +49,14 @@ export function getLinks(
       links.push(
         ...getLinks(manifest, srcFileName, base, true, cache)
           // Note: In the web router, all client components are loaded asynchronously.
-          .filter((link) => link.rel !== "modulepreload")
+          .filter((link) => link.rel !== 'modulepreload')
       );
     });
   }
 
   if (Array.isArray(item.dynamicImports)) {
     item.dynamicImports?.forEach((srcFileName) => {
-      links.push(...getLinks(manifest, srcFileName, base, true, cache, "low"));
+      links.push(...getLinks(manifest, srcFileName, base, true, cache, 'low'));
     });
   }
 
@@ -71,31 +71,31 @@ const rebase = (src: string, base: string) => {
 function getLink(
   fileName: string,
   base: string,
-  fetchpriority: "low" | "high" | "auto"
+  fetchpriority: 'low' | 'high' | 'auto'
 ): LinkDescriptor | null {
-  if (fileName.endsWith(".js")) {
+  if (fileName.endsWith('.js')) {
     return {
       fetchpriority,
       href: rebase(fileName, base),
-      rel: "modulepreload",
+      rel: 'modulepreload',
     };
-  } else if (fileName.endsWith(".css")) {
+  } else if (fileName.endsWith('.css')) {
     return {
       href: rebase(fileName, base),
-      rel: "stylesheet",
+      rel: 'stylesheet',
     };
   }
 
   const ext = path.extname(fileName);
   const type = mime.lookup(ext);
-  const asValue = type ? type.split("/")[0] : "";
+  const asValue = type ? type.split('/')[0] : '';
 
-  if (type && ["image", "font"].includes(asValue)) {
+  if (type && ['image', 'font'].includes(asValue)) {
     return {
       as: asValue,
-      ...(asValue === "font" ? { crossorigin: "" } : {}),
+      ...(asValue === 'font' ? { crossorigin: '' } : {}),
       href: rebase(fileName, base),
-      rel: "preload",
+      rel: 'preload',
       type,
     };
   }

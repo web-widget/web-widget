@@ -1,20 +1,20 @@
-import coreRules from "./core";
-import { defineConfig } from "eslint-define-config";
-import importRules from "./import";
-import reactRules from "./react";
-import typescriptRules from "./typescript";
-import nodeRules from "./node";
+import coreRules from './core';
+import { defineConfig } from 'eslint-define-config';
+import importRules from './import';
+import reactRules from './react';
+import typescriptRules from './typescript';
+import nodeRules from './node';
 
 const OFF = 0;
 // const WARN = 1;
 // const ERROR = 2;
 
 export default defineConfig({
-  parser: "@typescript-eslint/parser",
+  parser: '@typescript-eslint/parser',
   parserOptions: {
-    sourceType: "module",
+    sourceType: 'module',
     requireConfigFile: false,
-    ecmaVersion: "latest",
+    ecmaVersion: 'latest',
     ecmaFeatures: {
       jsx: true,
     },
@@ -27,21 +27,21 @@ export default defineConfig({
     es6: true,
   },
   settings: {
-    "import/resolver": {
+    'import/resolver': {
       typescript: true,
       node: true,
     },
   },
-  plugins: ["import", "react", "react-hooks"],
+  plugins: ['import', 'react', 'react-hooks'],
   extends: [
-    "plugin:import/typescript",
-    "plugin:@typescript-eslint/recommended",
-    "eslint:recommended",
-    "plugin:jsonc/recommended-with-jsonc",
-    "plugin:prettier/recommended",
-    "plugin:n/recommended",
-    "plugin:import/recommended",
-    "plugin:regexp/recommended",
+    'plugin:import/typescript',
+    'plugin:@typescript-eslint/recommended',
+    'eslint:recommended',
+    'plugin:jsonc/recommended-with-jsonc',
+    'plugin:prettier/recommended',
+    'plugin:n/recommended',
+    'plugin:import/recommended',
+    'plugin:regexp/recommended',
   ],
   rules: {
     ...coreRules.rules,
@@ -52,23 +52,23 @@ export default defineConfig({
   },
   overrides: [
     {
-      files: ["**/*.ts?(x)"],
+      files: ['**/*.ts?(x)'],
       rules: {
-        "n/no-missing-import": OFF,
+        'n/no-missing-import': OFF,
       },
     },
     {
-      files: ["**/*.ts?(x)"],
+      files: ['**/*.ts?(x)'],
       extends: [
-        "plugin:import/typescript",
-        "plugin:@typescript-eslint/recommended",
+        'plugin:import/typescript',
+        'plugin:@typescript-eslint/recommended',
       ],
-      parser: "@typescript-eslint/parser",
+      parser: '@typescript-eslint/parser',
       parserOptions: {
-        sourceType: "module",
+        sourceType: 'module',
         ecmaVersion: 2019,
       },
-      plugins: ["@typescript-eslint"],
+      plugins: ['@typescript-eslint'],
       rules: {
         ...typescriptRules.rules,
       },
@@ -76,36 +76,36 @@ export default defineConfig({
 
     {
       files: [
-        "**/routes/**/*.js?(x)",
-        "**/routes/**/*.tsx",
-        "app/root.js?(x)",
-        "app/root.tsx",
+        '**/routes/**/*.js?(x)',
+        '**/routes/**/*.tsx',
+        'app/root.js?(x)',
+        'app/root.tsx',
       ],
       rules: {
         // Routes may use default exports without a name. At the route level
         // identifying components for debugging purposes is less of an issue, as
         // the route boundary is more easily identifiable.
-        "react/display-name": OFF,
+        'react/display-name': OFF,
       },
     },
 
     {
-      files: ["*.json", "*.json5", "*.jsonc"],
-      parser: "jsonc-eslint-parser",
+      files: ['*.json', '*.json5', '*.jsonc'],
+      parser: 'jsonc-eslint-parser',
     },
     {
-      files: ["**.test.ts"],
+      files: ['**.test.ts'],
       rules: {
-        "no-console": "off",
+        'no-console': 'off',
       },
     },
     {
-      files: ["package.json"],
-      parser: "jsonc-eslint-parser",
+      files: ['package.json'],
+      parser: 'jsonc-eslint-parser',
       rules: {
-        "jsonc/sort-keys": "off",
+        'jsonc/sort-keys': 'off',
       },
     },
   ],
-  ignorePatterns: ["**/vendor/**", "**/dist/**", "**/node_modules/**"],
+  ignorePatterns: ['**/vendor/**', '**/dist/**', '**/node_modules/**'],
 });

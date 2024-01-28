@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ImportWidgets from "./ImportWidgets@widget.vue";
+import ImportWidgets from './ImportWidgets@widget.vue';
 </script>
 
 <template>
@@ -7,4 +7,3 @@ import ImportWidgets from "./ImportWidgets@widget.vue";
     <ImportWidgets />
   </div>
 </template>
-

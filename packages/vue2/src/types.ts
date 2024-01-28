@@ -1,7 +1,7 @@
-import type { Component, default as Vue } from "vue";
-import type { ComponentProps, RenderContext } from "@web-widget/helpers";
+import type { Component, default as Vue } from 'vue';
+import type { ComponentProps, RenderContext } from '@web-widget/helpers';
 
-export * from "./components";
+export * from './components';
 
 type JSONValue =
   | string

@@ -1,14 +1,14 @@
 export default {
-  roots: ["<rootDir>/src"],
-  testMatch: ["**/src/**/(*.)+(spec|test).+(ts|tsx|js)"],
+  roots: ['<rootDir>/src'],
+  testMatch: ['**/src/**/(*.)+(spec|test).+(ts|tsx|js)'],
   transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
+    '^.+\\.(ts|tsx)$': 'ts-jest',
   },
-  transformIgnorePatterns: ["/node_modules/"],
-  testEnvironment: "miniflare",
-  extensionsToTreatAsEsm: [".ts"],
+  transformIgnorePatterns: ['/node_modules/'],
+  testEnvironment: 'miniflare',
+  extensionsToTreatAsEsm: ['.ts'],
   globals: {
-    "ts-jest": {
+    'ts-jest': {
       useESM: true,
     },
   },

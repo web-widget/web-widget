@@ -1,14 +1,14 @@
 // Based on the code in the MIT licensed `astro` package.
 
-import path from "node:path";
+import path from 'node:path';
 import type {
   LinkDescriptor,
   ScriptDescriptor,
   StyleDescriptor,
-} from "@web-widget/helpers";
+} from '@web-widget/helpers';
 
-import type { ViteDevServer, ModuleNode } from "vite";
-import { isCSSRequest } from "vite";
+import type { ViteDevServer, ModuleNode } from 'vite';
+import { isCSSRequest } from 'vite';
 
 export async function getMeta(
   filePath: string,
@@ -27,20 +27,20 @@ export async function getMeta(
     viteDevServer
   );
   let link: LinkDescriptor[] = styleUrls.map((href) => ({
-    rel: "stylesheet",
+    rel: 'stylesheet',
     href,
   }));
 
   let style: StyleDescriptor[] = styles.map(({ id, url, content }) => {
     // Vite handles HMR for styles injected as scripts
     script.push({
-      type: "module",
+      type: 'module',
       src: url,
     });
     // But we still want to inject the styles to avoid FOUC. The style tags
     // should emulate what Vite injects so further HMR works as expected.
     return {
-      "data-vite-dev-id": id,
+      'data-vite-dev-id': id,
       content,
     };
   });
@@ -81,7 +81,7 @@ async function getStylesForURL(
         continue;
       }
       if (
-        typeof ssrModule?.default === "string" // ignore JS module styles
+        typeof ssrModule?.default === 'string' // ignore JS module styles
       ) {
         importedStylesMap.set(importedModule.url, {
           id: importedModule.id ?? importedModule.url,
@@ -165,7 +165,7 @@ async function* crawlGraph(
         // For example, `virtual:image-loader` if you don't have the plugin installed.
         const importedModulePathname = importedModule.id.replace(
           STRIP_QUERY_PARAMS_REGEX,
-          ""
+          ''
         );
         // If the entry is a style, skip any modules that are not also styles.
         // Tools like Tailwind might add HMR dependencies as `importedModules`

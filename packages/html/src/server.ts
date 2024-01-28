@@ -1,14 +1,14 @@
-import { defineRender, getComponentDescriptor } from "@web-widget/helpers";
-import type { Fallback, HTML, UnsafeHTML } from "@worker-tools/html";
-import { fallback, html, unsafeHTML } from "@worker-tools/html";
+import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
+import type { Fallback, HTML, UnsafeHTML } from '@worker-tools/html';
+import { fallback, html, unsafeHTML } from '@worker-tools/html';
 import {
   asyncIterToStream,
   streamToAsyncIter,
-} from "whatwg-stream-to-async-iter";
-import type { DefineHtmlRenderOptions } from "./types";
+} from 'whatwg-stream-to-async-iter';
+import type { DefineHtmlRenderOptions } from './types';
 
-export * from "@web-widget/helpers";
-export * from "./web-widget";
+export * from '@web-widget/helpers';
+export * from './web-widget';
 export { fallback, html, unsafeHTML };
 export type { Fallback, HTML };
 
@@ -84,8 +84,8 @@ export const defineHtmlRender = ({
 
     let content: HTML;
     if (
-      typeof component === "function" &&
-      component.constructor.name === "AsyncFunction"
+      typeof component === 'function' &&
+      component.constructor.name === 'AsyncFunction'
     ) {
       // experimental
       content = await component(props as any);

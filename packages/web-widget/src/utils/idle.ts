@@ -1,4 +1,4 @@
-const supportRequestIdleCallback = "requestIdleCallback" in window;
+const supportRequestIdleCallback = 'requestIdleCallback' in window;
 
 export const createIdleObserver = (
   element: Element,

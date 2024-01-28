@@ -1,6 +1,6 @@
-import { useContext } from "./context";
+import { useContext } from './context';
 
-const ERROR = Symbol.for("error");
+const ERROR = Symbol.for('error');
 type PromiseState<T> = Promise<T> & {
   [ERROR]: T | Error;
 };

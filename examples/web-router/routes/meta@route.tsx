@@ -1,41 +1,41 @@
-import type { Meta } from "@web-widget/react";
+import type { Meta } from '@web-widget/react';
 import {
   defineMeta,
   defineRouteComponent,
   defineRouteHandler,
   mergeMeta,
   renderMetaToString,
-} from "@web-widget/react";
-import icon from "../public/favicon.svg";
-import BaseLayout from "./(components)/BaseLayout.tsx";
-import ReactCounter from "./(components)/Counter@widget";
-import "./(css)/style.css";
+} from '@web-widget/react';
+import icon from '../public/favicon.svg';
+import BaseLayout from './(components)/BaseLayout.tsx';
+import ReactCounter from './(components)/Counter@widget';
+import './(css)/style.css';
 
 type MetaPageData = {
   allMetadata: Meta;
 };
 
 export const meta = defineMeta({
-  title: "Meta",
-  description: "HTML Meta Data Example",
+  title: 'Meta',
+  description: 'HTML Meta Data Example',
   link: [
     {
-      type: "application/json",
-      href: "https://google.com/test.json",
+      type: 'application/json',
+      href: 'https://google.com/test.json',
     },
   ],
   meta: [
     {
-      name: "keywords",
-      content: "a, b",
+      name: 'keywords',
+      content: 'a, b',
     },
     {
-      property: "og:title",
-      content: "New Site",
+      property: 'og:title',
+      content: 'New Site',
     },
     {
-      property: "og:url",
-      content: "http://newsblog.org/news/136756249803614",
+      property: 'og:url',
+      content: 'http://newsblog.org/news/136756249803614',
     },
   ],
 });
@@ -43,23 +43,23 @@ export const meta = defineMeta({
 export const handler = defineRouteHandler<MetaPageData>({
   async GET(ctx) {
     const newMeta = mergeMeta(ctx.meta, {
-      title: "😄New title!",
+      title: '😄New title!',
       meta: [
         {
-          name: "keywords",
-          content: "c, d",
+          name: 'keywords',
+          content: 'c, d',
         },
         {
-          property: "og:title",
-          content: "New Site",
+          property: 'og:title',
+          content: 'New Site',
         },
         {
-          name: "hello",
-          content: "world",
+          name: 'hello',
+          content: 'world',
         },
         {
-          property: "og:url",
-          content: "http://newsblog.org/news/136756249803614",
+          property: 'og:url',
+          content: 'http://newsblog.org/news/136756249803614',
         },
       ],
     });

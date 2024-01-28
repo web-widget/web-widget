@@ -1,6 +1,6 @@
-import { createNamespace } from "unctx";
+import { createNamespace } from 'unctx';
 
-const IS_SERVER = typeof document === "undefined";
+const IS_SERVER = typeof document === 'undefined';
 
 export interface WebWidgetContext {
   pathname?: string;
@@ -11,15 +11,15 @@ export interface WebWidgetContext {
 let ctx;
 function tryGetAsyncLocalStorage() {
   return (ctx ??= createNamespace<WebWidgetContext>({
-    asyncContext: IS_SERVER && Reflect.has(globalThis, "AsyncLocalStorage"),
-  }).get("@web-widget"));
+    asyncContext: IS_SERVER && Reflect.has(globalThis, 'AsyncLocalStorage'),
+  }).get('@web-widget'));
 }
 
 export function createContext(
   options: WebWidgetContext & any
 ): WebWidgetContext {
   const ctx: WebWidgetContext = {
-    pathname: "",
+    pathname: '',
     params: Object.create(null),
     body: Object.create(null),
     ...options,

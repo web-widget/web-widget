@@ -1,10 +1,10 @@
-import type { Meta, RouteFallbackComponentProps } from "@web-widget/helpers";
-import { html, render } from "@web-widget/html";
+import type { Meta, RouteFallbackComponentProps } from '@web-widget/helpers';
+import { html, render } from '@web-widget/html';
 
 export { render };
 
 export const meta: Meta = {
-  title: "Error",
+  title: 'Error',
 };
 
 function style(style: Record<string, string | number>) {
@@ -13,10 +13,10 @@ function style(style: Record<string, string | number>) {
       ([k, v]) =>
         `${k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)}:${v}`
     )
-    .join(";");
+    .join(';');
 }
 
-const Code = (code: string = "") =>
+const Code = (code: string = '') =>
   code
     ? // prettier-ignore
       html`<pre
@@ -28,31 +28,31 @@ const Code = (code: string = "") =>
             paddingTop: "0",
             fontFamily: "monospace",
           })}">${code}</pre>`
-    : "";
+    : '';
 
 export const fallback = function DefaultRootErrorPage(
   error: RouteFallbackComponentProps
 ) {
   return html`<div
     style="${style({
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
     })}">
     <div
       style="${style({
-        border: "#f3f4f6 2px solid",
-        borderTop: "red 4px solid",
-        background: "#f9fafb",
-        margin: "16px",
-        minWidth: "550px",
+        border: '#f3f4f6 2px solid',
+        borderTop: 'red 4px solid',
+        background: '#f9fafb',
+        margin: '16px',
+        minWidth: '550px',
       })}">
       <p
         style="${style({
-          margin: "0",
-          fontSize: "12pt",
-          padding: "16px",
-          fontFamily: "sans-serif",
+          margin: '0',
+          fontSize: '12pt',
+          padding: '16px',
+          fontFamily: 'sans-serif',
         })}">
         An error occurred during route handling or page rendering.
       </p>

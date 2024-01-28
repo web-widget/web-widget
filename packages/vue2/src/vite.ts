@@ -1,6 +1,6 @@
-import type { Plugin } from "vite";
-import { webWidgetPlugin } from "@web-widget/vite";
-import type { WebWidgetPluginOptions } from "@web-widget/vite";
+import type { Plugin } from 'vite';
+import { webWidgetPlugin } from '@web-widget/vite';
+import type { WebWidgetPluginOptions } from '@web-widget/vite';
 
 // Examples:
 // .vue?vue&type=script&setup=true&lang.ts
@@ -10,7 +10,7 @@ const VUE_INTERNAL_REQUEST = /.*\.vue\?vue\b.*$/;
 export interface Vue2WebWidgetPluginOptions extends WebWidgetPluginOptions {}
 
 export default function vue2WebWidgetPlugin({
-  provide = "@web-widget/vue2",
+  provide = '@web-widget/vue2',
   export: exportWidget = {},
   import: importWidget = {},
 }: Vue2WebWidgetPluginOptions = {}): Plugin[] {
@@ -22,13 +22,13 @@ export default function vue2WebWidgetPlugin({
       include: [route, widget],
       extractFromExportDefault: [
         {
-          name: "handler",
-          default: "{GET({render}){return render()}}",
+          name: 'handler',
+          default: '{GET({render}){return render()}}',
           include: route,
         },
         {
-          name: "meta",
-          default: "{}",
+          name: 'meta',
+          default: '{}',
           include: route,
         },
       ],

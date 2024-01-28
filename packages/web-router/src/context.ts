@@ -1,5 +1,5 @@
-import type { Params } from "./router";
-import type { Env, FetchEventLike } from "./types";
+import type { Params } from './router';
+import type { Env, FetchEventLike } from './types';
 
 export interface ExecutionContext {
   waitUntil(promise: Promise<unknown>): void;
@@ -9,7 +9,7 @@ export interface ExecutionContext {
 // export interface ContextVariableMap {}
 
 type ContextOptions<E extends Env> = {
-  env: E["Bindings"];
+  env: E['Bindings'];
   executionContext?: FetchEventLike | ExecutionContext;
 };
 
@@ -21,7 +21,7 @@ export class Context<E extends Env = any> {
   // env: E["Bindings"] = Object.create(null);
   error?: unknown;
   params: Params = Object.create(null);
-  pathname: string = "*";
+  pathname: string = '*';
   request: Request;
   // /**
   //  * @experimental

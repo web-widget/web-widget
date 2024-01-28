@@ -1,12 +1,12 @@
-import fs from "node:fs";
-import { join, relative } from "node:path";
-import type { RouteSourceFile } from "./types";
-import { normalizePath } from "./fs";
-import { getSourceFile } from "./source-file";
+import fs from 'node:fs';
+import { join, relative } from 'node:path';
+import type { RouteSourceFile } from './types';
+import { normalizePath } from './fs';
+import { getSourceFile } from './source-file';
 
 export async function walkRoutes(
   routesDir: string,
-  exclude: string[] = ["node_modules"]
+  exclude: string[] = ['node_modules']
 ) {
   const sourceFiles: RouteSourceFile[] = [];
   await walkRouteDir(
@@ -15,7 +15,7 @@ export async function walkRoutes(
     normalizePath(routesDir),
     normalizePath(routesDir)
   );
-  return sourceFiles.sort((a, b) => a.pathname.localeCompare(b.pathname, "en"));
+  return sourceFiles.sort((a, b) => a.pathname.localeCompare(b.pathname, 'en'));
 }
 
 async function walkRouteDir(

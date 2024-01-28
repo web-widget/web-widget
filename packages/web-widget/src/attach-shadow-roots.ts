@@ -4,10 +4,10 @@ export default `(${function attachShadowRoots(
 ) {
   (
     root.querySelectorAll(
-      "template[shadowrootmode]"
+      'template[shadowrootmode]'
     ) as NodeListOf<HTMLTemplateElement>
   ).forEach((template) => {
-    const mode = template.getAttribute("shadowrootmode") as "closed" | "open";
+    const mode = template.getAttribute('shadowrootmode') as 'closed' | 'open';
     const host = template.parentNode as Element & {
       attachInternals: Function;
     };
@@ -18,7 +18,7 @@ export default `(${function attachShadowRoots(
 
     Object.assign(host, {
       attachShadow() {
-        shadowRoot.innerHTML = "";
+        shadowRoot.innerHTML = '';
         return shadowRoot;
       },
       attachInternals() {

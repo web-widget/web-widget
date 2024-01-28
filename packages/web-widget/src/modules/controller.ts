@@ -2,13 +2,13 @@ import type {
   ClientWidgetRenderContext as WidgetRenderContext,
   ClientWidgetRenderResult as WidgetRenderResult,
   ClientWidgetModule as WidgetModule,
-} from "@web-widget/helpers";
-import { rebaseMeta, mergeMeta } from "@web-widget/helpers";
-import type { Loader } from "../types";
+} from '@web-widget/helpers';
+import { rebaseMeta, mergeMeta } from '@web-widget/helpers';
+import type { Loader } from '../types';
 
-import { INITIAL } from "./status";
-import { reasonableTime } from "./timeouts";
-import { rules } from "./flow";
+import { INITIAL } from './status';
+import { reasonableTime } from './timeouts';
+import { rules } from './flow';
 
 interface LifecycleControllerOptions {
   handler: () => {
@@ -56,7 +56,7 @@ export class LifecycleController {
 
   async run(name: string) {
     let importer: string;
-    const bail = typeof this.#timeouts[name] === "number";
+    const bail = typeof this.#timeouts[name] === 'number';
     // @ts-ignore
     const rule = rules[name];
     const timeout = bail ? this.#timeouts[name] : rule.timeout;
@@ -96,19 +96,19 @@ export class LifecycleController {
 
         let body: Element | DocumentFragment;
         const styleLinks = meta.link
-          ? meta.link.filter(({ rel }) => rel === "stylesheet")
+          ? meta.link.filter(({ rel }) => rel === 'stylesheet')
           : [];
         const styles = meta.style ?? [];
         const hasStyle = styleLinks.length ?? styles.length;
         const renderContext: WidgetRenderContext = Object.freeze({
           children: undefined, // TODO
           get container() {
-            const tag = "web-widget.body";
+            const tag = 'web-widget.body';
             return (
               body ??
               (body = hasStyle
                 ? context.recovering
-                  ? context.container.querySelector(tag.replace(".", "\\.")) ??
+                  ? context.container.querySelector(tag.replace('.', '\\.')) ??
                     context.container
                   : context.container.appendChild(document.createElement(tag))
                 : context.container)
@@ -119,7 +119,7 @@ export class LifecycleController {
           module: widgetModule,
           recovering: context.recovering,
           /**@deprecated*/
-          update: Reflect.get(context, "update"),
+          update: Reflect.get(context, 'update'),
         });
 
         const lifecycle: WidgetRenderResult = await render(renderContext);
@@ -137,11 +137,11 @@ export class LifecycleController {
               const loading = styleLinks.map(
                 (attrs) =>
                   new Promise((resolve, reject) => {
-                    const element = document.createElement("link");
-                    element.addEventListener("load", resolve, {
+                    const element = document.createElement('link');
+                    element.addEventListener('load', resolve, {
                       once: true,
                     });
-                    element.addEventListener("error", reject, {
+                    element.addEventListener('error', reject, {
                       once: true,
                     });
                     Object.entries(attrs).forEach(([name, value]) => {
@@ -152,8 +152,8 @@ export class LifecycleController {
               );
 
               styles.forEach((attrs) => {
-                const element = document.createElement("style");
-                element.textContent = attrs.content ?? "";
+                const element = document.createElement('style');
+                element.textContent = attrs.content ?? '';
                 Object.entries(attrs).forEach(([name, value]) => {
                   element.setAttribute(name, value);
                 });

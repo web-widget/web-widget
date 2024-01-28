@@ -1,20 +1,20 @@
-import { mergeMeta } from "@web-widget/react";
-import type { Manifest, StartOptions } from "@web-widget/web-router";
-import WebRouter from "@web-widget/web-router";
+import { mergeMeta } from '@web-widget/react';
+import type { Manifest, StartOptions } from '@web-widget/web-router';
+import WebRouter from '@web-widget/web-router';
 
 export default (manifest: Manifest, options: StartOptions) => {
   return WebRouter.fromManifest(manifest, {
     ...options,
     defaultMeta: mergeMeta(
       {
-        lang: "en",
+        lang: 'en',
         meta: [
           {
-            charset: "utf-8",
+            charset: 'utf-8',
           },
           {
-            name: "viewport",
-            content: "width=device-width, initial-scale=1.0",
+            name: 'viewport',
+            content: 'width=device-width, initial-scale=1.0',
           },
         ],
       },
@@ -22,7 +22,7 @@ export default (manifest: Manifest, options: StartOptions) => {
     ),
     onFallback(error, context) {
       if (error?.status !== 404) {
-        console.error(context?.request.url ?? "", error.message);
+        console.error(context?.request.url ?? '', error.message);
       }
     },
   });

@@ -1,7 +1,7 @@
 // This utility is based on https://github.com/ako-deno/http_errors
 // License: https://raw.githubusercontent.com/ako-deno/http_errors/master/LICENSE
 
-import { STATUS_TEXT, Status } from "./status";
+import { STATUS_TEXT, Status } from './status';
 
 export abstract class HttpError extends Error {
   name: string;
@@ -25,8 +25,8 @@ export abstract class HttpError extends Error {
     }
 
     let className = Status[code];
-    if (!className.endsWith("Error")) {
-      className += "Error";
+    if (!className.endsWith('Error')) {
+      className += 'Error';
     }
     const msg = message != null ? message : STATUS_TEXT[code as Status];
     this.message = msg;
@@ -35,7 +35,7 @@ export abstract class HttpError extends Error {
     this.name = className;
 
     // support Node.js
-    if (Reflect.has(Error, "captureStackTrace")) {
+    if (Reflect.has(Error, 'captureStackTrace')) {
       (Error as any).captureStackTrace(this, this.constructor);
     }
 
@@ -56,7 +56,7 @@ export abstract class HttpError extends Error {
   }
 
   static isHttpError(error: any) {
-    const keys = ["name", "message", "status", "statusText"];
+    const keys = ['name', 'message', 'status', 'statusText'];
     return error && !keys.some((key) => !Reflect.has(error, key));
   }
 }
@@ -96,11 +96,11 @@ export function createHttpError(
   props?: HttpErrorProperties
 ): HttpError | Error {
   let err, errOptions;
-  if (typeof message === "string") {
+  if (typeof message === 'string') {
     err = new HttpErrorImpl(status, message);
 
     // support Node.js
-    if (Reflect.has(Error, "captureStackTrace")) {
+    if (Reflect.has(Error, 'captureStackTrace')) {
       (Error as any).captureStackTrace(err, createHttpError);
     }
   } else if (message instanceof Error) {
@@ -110,7 +110,7 @@ export function createHttpError(
     status = err.status;
 
     if (
-      typeof status !== "number" ||
+      typeof status !== 'number' ||
       (!Status[status] && (status < 400 || status >= 600))
     ) {
       status = 500;
@@ -121,7 +121,7 @@ export function createHttpError(
     err = new HttpErrorImpl(status);
 
     // support Node.js
-    if (Reflect.has(Error, "captureStackTrace")) {
+    if (Reflect.has(Error, 'captureStackTrace')) {
       (Error as any).captureStackTrace(err, createHttpError);
     }
   }
@@ -134,7 +134,7 @@ export function createHttpError(
 
   if (props) {
     for (let key in props) {
-      if (key !== "status") {
+      if (key !== 'status') {
         err[key] = props[key];
       }
     }

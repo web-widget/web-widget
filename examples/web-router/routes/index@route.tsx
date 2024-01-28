@@ -1,9 +1,9 @@
-import { defineRouteComponent, defineMeta } from "@web-widget/react";
-import styles from "./(css)/index.module.css";
-import BaseLayout from "./(components)/BaseLayout";
+import { defineRouteComponent, defineMeta } from '@web-widget/react';
+import styles from './(css)/index.module.css';
+import BaseLayout from './(components)/BaseLayout';
 
 export const meta = defineMeta({
-  title: "Hello, Web Widget",
+  title: 'Hello, Web Widget',
 });
 
 export default defineRouteComponent(function Home() {

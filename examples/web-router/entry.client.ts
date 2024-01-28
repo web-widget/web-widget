@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { HTMLWebWidgetElement } from "@web-widget/web-widget";
+import { HTMLWebWidgetElement } from '@web-widget/web-widget';
 
 function countNodes(target) {
   let nodes = [target];
@@ -26,10 +26,10 @@ function countNodes(target) {
 }
 
 async function getContentLength(src) {
-  return fetch(src, { method: "HEAD" }).then((response) => {
+  return fetch(src, { method: 'HEAD' }).then((response) => {
     if (response.ok) {
-      const length = response.headers.get("Content-Length");
-      return typeof length === "string"
+      const length = response.headers.get('Content-Length');
+      return typeof length === 'string'
         ? Number(length)
         : Promise.reject(`Missing Content-Length.`);
     } else {
@@ -51,7 +51,7 @@ function defineHook(target, name, callback) {
  */
 defineHook(
   HTMLWebWidgetElement.prototype,
-  "connectedCallback",
+  'connectedCallback',
   ({ value }) => ({
     value() {
       let time = Date.now();
@@ -59,21 +59,21 @@ defineHook(
       const { LOADED, BOOTSTRAPPED, MOUNTED } = HTMLWebWidgetElement;
       const print = () => {
         const label = `web-widget[name=${JSON.stringify(
-          this.getAttribute("name")
+          this.getAttribute('name')
         )}]`;
         console.groupCollapsed(label);
         console.table(data);
         console.info(this);
         console.groupEnd(label);
       };
-      this.addEventListener("statuschange", async () => {
+      this.addEventListener('statuschange', async () => {
         const now = Date.now();
         if ([LOADED, BOOTSTRAPPED, MOUNTED].includes(this.status)) {
           data[
             {
-              [LOADED]: "loadTime",
-              [BOOTSTRAPPED]: "bootstrapTime",
-              [MOUNTED]: "mountTime",
+              [LOADED]: 'loadTime',
+              [BOOTSTRAPPED]: 'bootstrapTime',
+              [MOUNTED]: 'mountTime',
             }[this.status]
           ] = `${now - time}ms`;
 

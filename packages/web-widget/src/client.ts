@@ -2,38 +2,38 @@ import type {
   Loader,
   WebWidgetRendererOptions,
   WebWidgetElementProps,
-} from "./types";
-import { getClientModuleId, unsafePropsToAttrs } from "./utils/render";
+} from './types';
+import { getClientModuleId, unsafePropsToAttrs } from './utils/render';
 
-export type * from "./types";
-export * from "./element";
-export * from "./event";
+export type * from './types';
+export * from './element';
+export * from './event';
 
 function unsafeAttrsToHtml(attrs: Record<string, string>) {
   return Object.entries(attrs)
     .map(
       ([attrName, attrValue]) =>
-        `${attrName}${attrValue === "" ? "" : '="' + attrValue + '"'}`
+        `${attrName}${attrValue === '' ? '' : '="' + attrValue + '"'}`
     )
-    .join(" ");
+    .join(' ');
 }
 
 export class WebWidgetRenderer {
   #clientImport: string;
   #options: WebWidgetElementProps;
-  localName = "web-widget";
+  localName = 'web-widget';
 
   constructor(
     loader: Loader,
-    { children = "", renderStage, ...options }: WebWidgetRendererOptions
+    { children = '', renderStage, ...options }: WebWidgetRendererOptions
   ) {
-    if (children && options.renderTarget !== "shadow") {
+    if (children && options.renderTarget !== 'shadow') {
       throw new Error(
         `Rendering content in a slot requires "renderTarget: 'shadow'".`
       );
     }
 
-    if (renderStage === "server") {
+    if (renderStage === 'server') {
       throw new Error(
         `"renderStage: 'server'" usually comes from server-side rendering,` +
           ` it doesn't make sense to enable it on the client side.`
@@ -56,7 +56,7 @@ export class WebWidgetRenderer {
       recovering: false,
     });
 
-    if (attrs.data === "{}") {
+    if (attrs.data === '{}') {
       delete attrs.data;
     }
 
@@ -64,7 +64,7 @@ export class WebWidgetRenderer {
   }
 
   async renderInnerHTMLToString() {
-    return "";
+    return '';
   }
 
   async renderOuterHTMLToString() {

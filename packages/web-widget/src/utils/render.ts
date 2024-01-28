@@ -1,5 +1,5 @@
-import type { Loader } from "../types";
-const ASSET_PLACEHOLDER = "asset://";
+import type { Loader } from '../types';
+const ASSET_PLACEHOLDER = 'asset://';
 const MODULE_REG =
   /\b(?:import|__vite_ssr_dynamic_import__)\(["']([^"']*)["']\)/;
 
@@ -15,12 +15,12 @@ export function parseModuleId(loader: Loader) {
 export function unsafePropsToAttrs(props: any) {
   return Object.entries(props).reduce(
     (attrs, [key, value]) => {
-      if (typeof value === "string") {
+      if (typeof value === 'string') {
         attrs[key.toLowerCase()] = value;
-      } else if (typeof value === "number") {
+      } else if (typeof value === 'number') {
         attrs[key.toLowerCase()] = String(value);
       } else if (value === true) {
-        attrs[key.toLowerCase()] = "";
+        attrs[key.toLowerCase()] = '';
       }
       return attrs;
     },
@@ -47,9 +47,9 @@ export function getClientModuleId(
 
   return options.import && !isAssetPlaceholder
     ? options.import
-    : options.base && !options.base.startsWith("file://")
-    ? options.base + parseModuleId(loader)
-    : parseModuleId(loader);
+    : options.base && !options.base.startsWith('file://')
+      ? options.base + parseModuleId(loader)
+      : parseModuleId(loader);
 }
 
 export function getDisplayModuleId(
@@ -58,7 +58,7 @@ export function getDisplayModuleId(
     base?: string;
   }
 ) {
-  return options.base?.startsWith("file://")
+  return options.base?.startsWith('file://')
     ? new URL(parseModuleId(loader), options.base).href
     : parseModuleId(loader);
 }
