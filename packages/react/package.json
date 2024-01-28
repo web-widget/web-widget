@@ -53,14 +53,14 @@
     "react": "canary",
     "tsup": "^8.0.1",
     "typescript": "latest",
-    "vite": "^5.0.11"
+    "vite": "^5.0.12"
   },
   "peerDependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "react-dom": "canary",
     "react": "canary",
-    "vite": "^5.0.11"
+    "vite": "^5.0.12"
   },
   "publishConfig": {
     "access": "public",
