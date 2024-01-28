@@ -114,7 +114,7 @@ export type RouteComponentProps<
   Params = Record<string, string>,
 > = {
   /**
-   * Additional data passed into `RouteHandlerContext.render`.
+   * Render data for the route component.
    */
   data: Data;
 
@@ -128,12 +128,14 @@ export type RouteComponentProps<
    */
   params: Params;
 
-  /** The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered. */
+  /**
+   * The route matcher (e.g. /blog/:id) that the request matched for this page
+   * to be rendered.
+   */
   pathname: string;
 
   /**
-   * Web request api.
+   * This Fetch API interface represents a resource request.
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
    */
   request: Request;
@@ -188,13 +190,48 @@ export interface RouteHandlerContext<
   State = Record<string, unknown>,
   Options = unknown,
 > {
+  /**
+   * Errors in the current route.
+   */
   error?: RouteError;
+
+  /**
+   * This is the default data given to the `render()` method.
+   */
   data: Data;
+
+  /**
+   * This is the default meta given to the `render()` method.
+   */
   meta: Meta;
+
+  /**
+   * JavaScript module that handles the current route.
+   */
   module: RouteModule;
+
+  /** @deprecated */
   name?: string;
+
+  /**
+   * The parameters that were matched from the route.
+   *
+   * For the `/foo/:bar` route with url `/foo/123`, `params` would be
+   * `{ bar: '123' }`. For a route with no matchers, `params` would be `{}`. For
+   * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
+   * be `{ path: 'bar/baz' }`.
+   */
   params: Params;
+
+  /**
+   * The route matcher (e.g. /blog/:id) that the request matched for this page
+   * to be rendered.
+   */
   pathname: string;
+
+  /**
+   * Render current route.
+   */
   render(
     renderProps?: {
       data?: Data;
@@ -203,8 +240,21 @@ export interface RouteHandlerContext<
     },
     renderOptions?: RouteRenderOptions<Options>
   ): RouteHandlerResult | Promise<RouteHandlerResult>;
+
+  /**
+   * This is the default option for the `render()` method.
+   */
   renderOptions: RouteRenderOptions<Options>;
+
+  /**
+   * This Fetch API interface represents a resource request.
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
+   */
   request: Request;
+
+  /**
+   * The state of the application, the content comes from the middleware.
+   */
   state: State;
 }
 
@@ -212,9 +262,24 @@ export interface RouteRenderContext<
   Data = unknown,
   Params = Record<string, string>,
 > {
+  /**
+   * Render data for the route component.
+   */
   data: Data;
+
+  /**
+   * Errors in the current route.
+   */
   error?: RouteError;
+
+  /**
+   * Metadata for the current route.
+   */
   meta: Meta;
+
+  /**
+   * JavaScript module that handles the current route.
+   */
   module: RouteModule;
 
   /**
@@ -227,12 +292,14 @@ export interface RouteRenderContext<
    */
   params: Params;
 
-  /** The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered. */
+  /**
+   * The route matcher (e.g. /blog/:id) that the request matched for this page
+   * to be rendered.
+   */
   pathname: string;
 
   /**
-   * Web request api.
+   * This Fetch API interface represents a resource request.
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
    */
   request: Request;
@@ -284,9 +351,31 @@ export type MiddlewareHandlers = {
 };
 
 export interface MiddlewareContext extends Partial<RouteHandlerContext> {
+  /**
+   * The parameters that were matched from the route.
+   *
+   * For the `/foo/:bar` route with url `/foo/123`, `params` would be
+   * `{ bar: '123' }`. For a route with no matchers, `params` would be `{}`. For
+   * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
+   * be `{ path: 'bar/baz' }`.
+   */
   params: Record<string, string>;
+
+  /**
+   * The route matcher (e.g. /blog/:id) that the request matched for this page
+   * to be rendered.
+   */
   pathname: string;
+
+  /**
+   * This Fetch API interface represents a resource request.
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
+   */
   request: Request;
+
+  /**
+   * The state of the application.
+   */
   state: Record<string, unknown>;
 }
 
@@ -303,14 +392,31 @@ export type MiddlewareResult = Response;
 ////////////////////////////////////////
 
 export interface Meta {
+  /** The base URL of the document. */
   base?: BaseDescriptor;
+
+  /** Description of the document. */
   description?: string;
+
+  /** Document Keywords. */
   keywords?: string;
+
+  /** Document language. */
   lang?: string;
+
+  /** Document links. */
   link?: LinkDescriptor[];
+
+  /** Document metadata. */
   meta?: MetaDescriptor[];
+
+  /** Document scripts. */
   script?: ScriptDescriptor[];
+
+  /** Document styles. */
   style?: StyleDescriptor[];
+
+  /** Document title. */
   title?: string;
 }
 
@@ -321,28 +427,41 @@ export interface ElementDescriptor {
 export interface BaseDescriptor extends ElementDescriptor {
   /** Gets or sets the baseline URL on which relative links are based. */
   href?: string;
+
   /** Sets or retrieves the window or frame at which to target content. */
   target?: string;
 }
 
 export interface LinkDescriptor extends ElementDescriptor {
   as?: string;
+
   crossorigin?: string;
+
   disabled?: string;
+
   /** A string representing the priority hint. */
   fetchpriority?: 'high' | 'low' | 'auto';
+
   /** Sets or retrieves a destination URL or an anchor point. */
   href?: string;
+
   /** Sets or retrieves the language code of the object. */
   hreflang?: string;
+
   imagesizes?: string;
+
   imagesrcset?: string;
+
   integrity?: string;
+
   /** Sets or retrieves the media type. */
   media?: string;
+
   referrerpolicy?: string;
+
   /** Sets or retrieves the relationship between the object and the destination of the link. */
   rel?: string;
+
   /** Sets or retrieves the MIME type of the object. */
   type?: string;
 }
@@ -350,11 +469,15 @@ export interface LinkDescriptor extends ElementDescriptor {
 export interface MetaDescriptor extends ElementDescriptor {
   /** This attribute declares the document's character encoding. */
   charset?: string;
+
   /** Gets or sets meta-information to associate with httpEquiv or name. */
   content?: string;
+
   /** Gets or sets information used to bind the value of a content attribute of a meta element to an HTTP response header. */
   'http-equiv'?: string;
+
   media?: string;
+
   /** Sets or retrieves the value specified in the content attribute of the meta object. */
   name?: string;
 
@@ -364,20 +487,30 @@ export interface MetaDescriptor extends ElementDescriptor {
 
 export interface ScriptDescriptor extends ElementDescriptor {
   async?: string;
+
   /** Sets or retrieves the `script.textContent`. */
   content?: string;
+
   crossorigin?: string;
+
   /** Sets or retrieves the status of the script. */
   defer?: string;
+
   /** A string representing the priority hint. */
   fetchpriority?: 'high' | 'low' | 'auto';
+
   integrity?: string;
+
   nomodule?: string;
+
   referrerpolicy?: string;
+
   /** Retrieves the URL to an external file that contains the source code or data. */
   src?: string;
+
   /** Retrieves or sets the text of the object as a string. */
   //  text: string;
+
   /** Sets or retrieves the MIME type for the associated scripting engine. */
   type?: string;
 }
@@ -385,8 +518,10 @@ export interface ScriptDescriptor extends ElementDescriptor {
 export interface StyleDescriptor extends ElementDescriptor {
   /** Sets or retrieves the `style.textContent`. */
   content?: string;
+
   /** Enables or disables the style sheet. */
   disabled?: string;
+
   /** Sets or retrieves the media type. */
   media?: string;
 }
