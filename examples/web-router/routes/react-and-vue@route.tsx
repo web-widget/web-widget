@@ -1,12 +1,12 @@
-import { defineRouteComponent, defineMeta } from "@web-widget/react";
-import ReactCounter from "./(components)/Counter@widget";
-import VanillaCounter from "./(components)/VanillaCounter@widget?as=jsx";
-import BaseLayout from "./(components)/BaseLayout.tsx";
-import VueCounter from "@examples/web-router-vue3/Counter@widget.vue?as=jsx";
-import Vue2Counter from "@examples/web-router-vue2/Counter@widget.vue?as=jsx";
+import { defineRouteComponent, defineMeta } from '@web-widget/react';
+import ReactCounter from './(components)/Counter@widget';
+import VanillaCounter from './(components)/VanillaCounter@widget?as=jsx';
+import BaseLayout from './(components)/BaseLayout.tsx';
+import VueCounter from '@examples/web-router-vue3/Counter@widget.vue?as=jsx';
+import Vue2Counter from '@examples/web-router-vue2/Counter@widget.vue?as=jsx';
 
 export const meta = defineMeta({
-  title: "Hello, Web Widget",
+  title: 'Hello, Web Widget',
 });
 
 export default defineRouteComponent(function Page() {

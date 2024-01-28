@@ -1,5 +1,5 @@
-import BaseLayout from "../(components)/BaseLayout.tsx";
-import ImportWidgetsWidget from "./ImportWidgets@widget.tsx";
+import BaseLayout from '../(components)/BaseLayout.tsx';
+import ImportWidgetsWidget from './ImportWidgets@widget.tsx';
 
 export default function Page() {
   return (

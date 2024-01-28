@@ -1,11 +1,11 @@
-export const METHOD_NAME_ALL = "ALL" as const;
+export const METHOD_NAME_ALL = 'ALL' as const;
 export const METHODS = [
-  "get",
-  "post",
-  "put",
-  "delete",
-  "options",
-  "patch",
+  'get',
+  'post',
+  'put',
+  'delete',
+  'options',
+  'patch',
 ] as const;
 
 export interface Router<T> {

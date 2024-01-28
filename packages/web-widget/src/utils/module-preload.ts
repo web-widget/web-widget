@@ -1,6 +1,6 @@
 export function triggerModulePreload(
   href: string,
-  { fetchPriority = "high", rel = "modulepreload" } = {}
+  { fetchPriority = 'high', rel = 'modulepreload' } = {}
 ) {
   const link = (
     Array.from(
@@ -12,7 +12,7 @@ export function triggerModulePreload(
     Object.assign(link, { fetchPriority });
   } else {
     document.head.appendChild(
-      Object.assign(document.createElement("link"), {
+      Object.assign(document.createElement('link'), {
         href,
         rel,
         fetchPriority,

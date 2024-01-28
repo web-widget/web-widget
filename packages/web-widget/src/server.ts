@@ -1,20 +1,20 @@
 import type {
   ServerWidgetModule,
   ServerWidgetRenderContext,
-} from "@web-widget/helpers";
-import { mergeMeta, rebaseMeta, renderMetaToString } from "@web-widget/helpers";
-import { useAllWidgetState } from "@web-widget/helpers/context";
+} from '@web-widget/helpers';
+import { mergeMeta, rebaseMeta, renderMetaToString } from '@web-widget/helpers';
+import { useAllWidgetState } from '@web-widget/helpers/context';
 import type {
   Loader,
   WebWidgetRendererOptions,
   WebWidgetElementProps,
-} from "./types";
+} from './types';
 import {
   getClientModuleId,
   getDisplayModuleId,
   unsafePropsToAttrs,
-} from "./utils/render";
-export type * from "./types";
+} from './utils/render';
+export type * from './types';
 
 const __FEATURE_INJECTING_STYLES__ = false;
 
@@ -25,10 +25,10 @@ declare global {
 }
 
 const ESCAPE_LOOKUP: { [match: string]: string } = {
-  ">": "\\u003e",
-  "<": "\\u003c",
-  "\u2028": "\\u2028",
-  "\u2029": "\\u2029",
+  '>': '\\u003e',
+  '<': '\\u003c',
+  '\u2028': '\\u2028',
+  '\u2029': '\\u2029',
 };
 
 const ESCAPE_REGEX = /[><\u2028\u2029]/g;
@@ -40,7 +40,7 @@ function htmlEscapeJsonString(str: string): string {
 }
 
 async function readableStreamToString(readableStream: ReadableStream) {
-  let result = "";
+  let result = '';
   const textDecoder = new TextDecoder();
   for await (const chunk of readableStream) {
     result += textDecoder.decode(chunk, { stream: true });
@@ -54,9 +54,9 @@ function unsafeAttrsToHtml(attrs: Record<string, string>) {
   return Object.entries(attrs)
     .map(
       ([attrName, attrValue]) =>
-        `${attrName}${attrValue === "" ? "" : '="' + attrValue + '"'}`
+        `${attrName}${attrValue === '' ? '' : '="' + attrValue + '"'}`
     )
-    .join(" ");
+    .join(' ');
 }
 
 async function suspense<T>(handler: () => T) {
@@ -80,13 +80,13 @@ export class WebWidgetRenderer {
   #loader: Loader;
   #options: WebWidgetElementProps;
   #renderStage?: string;
-  localName = "web-widget";
+  localName = 'web-widget';
 
   constructor(
     loader: Loader,
-    { children = "", renderStage, ...options }: WebWidgetRendererOptions
+    { children = '', renderStage, ...options }: WebWidgetRendererOptions
   ) {
-    if (children && options.renderTarget !== "shadow") {
+    if (children && options.renderTarget !== 'shadow') {
       throw new Error(
         `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
       );
@@ -104,7 +104,7 @@ export class WebWidgetRenderer {
     const options = this.#options;
     const renderStage = this.#renderStage;
 
-    if (renderStage === "server") {
+    if (renderStage === 'server') {
       return unsafePropsToAttrs({
         name: options.name,
       });
@@ -115,10 +115,10 @@ export class WebWidgetRenderer {
       // base: options.base?.startsWith("file://") ? undefined : options.base,
       data: JSON.stringify(options.data),
       import: clientImport,
-      recovering: renderStage !== "client",
+      recovering: renderStage !== 'client',
     });
 
-    if (attrs.data === "{}") {
+    if (attrs.data === '{}') {
       delete attrs.data;
     }
 
@@ -132,19 +132,19 @@ export class WebWidgetRenderer {
     const options = this.#options;
     const renderStage = this.#renderStage;
 
-    let result = "";
+    let result = '';
 
-    if (renderStage === "client") {
+    if (renderStage === 'client') {
       return result;
     }
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const allState = useAllWidgetState();
     const allStateKeys = Object.keys(allState);
-    const used: Set<string> = (allState[Symbol.for("used")] ??= new Set());
+    const used: Set<string> = (allState[Symbol.for('used')] ??= new Set());
 
     const module = (await loader()) as ServerWidgetModule;
-    if (typeof module.render !== "function") {
+    if (typeof module.render !== 'function') {
       throw new TypeError(
         `The module does not export a "render" method: ${getDisplayModuleId(
           loader,
@@ -163,22 +163,22 @@ export class WebWidgetRenderer {
     }
 
     const styleLinks = meta.link
-      ? meta.link.filter(({ rel }) => rel === "stylesheet")
+      ? meta.link.filter(({ rel }) => rel === 'stylesheet')
       : [];
     const styles = meta.style || [];
     const hasStyle = styleLinks.length || styles.length;
 
     const context: ServerWidgetRenderContext = {
-      children: options.renderTarget === "light" ? children : undefined,
+      children: options.renderTarget === 'light' ? children : undefined,
       data: options.data,
       meta,
       module,
     };
     const rawResult = await suspense(() => module.render!(context));
 
-    if (getType(rawResult) === "ReadableStream") {
+    if (getType(rawResult) === 'ReadableStream') {
       result = await readableStreamToString(rawResult as ReadableStream);
-    } else if (typeof rawResult === "string") {
+    } else if (typeof rawResult === 'string') {
       result = rawResult;
     } else {
       throw new TypeError(
@@ -197,14 +197,14 @@ export class WebWidgetRenderer {
       result += `<web-widget.body>${result}</web-widget.body>`;
     }
 
-    if (options.renderTarget === "shadow") {
+    if (options.renderTarget === 'shadow') {
       /* @stringify >>> */
       const shimCode = `(${(
         a: (target: Element) => void,
         c = document.currentScript,
         p = c && c.parentElement,
         _ = c && c.remove()
-      ) => a && p && a(p)})(window.attachShadowRoots)`.replace(/\s/g, "");
+      ) => a && p && a(p)})(window.attachShadowRoots)`.replace(/\s/g, '');
       /* @stringify <<< */
 
       // NOTE: Declarative Shadow DOM

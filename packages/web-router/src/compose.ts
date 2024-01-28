@@ -1,6 +1,6 @@
-import { Context } from "./context";
-import type { Params, Pathname } from "./router";
-import type { Env, NotFoundHandler, ErrorHandler } from "./types";
+import { Context } from './context';
+import type { Params, Pathname } from './router';
+import type { Env, NotFoundHandler, ErrorHandler } from './types';
 
 interface ComposeContext {
   error?: unknown;
@@ -18,7 +18,7 @@ export const compose = <C extends ComposeContext, E extends Env = Env>(
 
     async function dispatch(i: number): Promise<Response> {
       if (i <= index) {
-        throw new Error("next() called multiple times.");
+        throw new Error('next() called multiple times.');
       }
       index = i;
 

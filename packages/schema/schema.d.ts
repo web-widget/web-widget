@@ -162,13 +162,13 @@ export type RouteHandlers<
   Options = unknown,
 > = {
   [K in
-    | "GET"
-    | "HEAD"
-    | "POST"
-    | "PUT"
-    | "DELETE"
-    | "OPTIONS"
-    | "PATCH"]?: RouteHandler<Data, Params, State, Options>;
+    | 'GET'
+    | 'HEAD'
+    | 'POST'
+    | 'PUT'
+    | 'DELETE'
+    | 'OPTIONS'
+    | 'PATCH']?: RouteHandler<Data, Params, State, Options>;
 };
 
 export interface RouteHandler<
@@ -274,13 +274,13 @@ export interface MiddlewareHandler {
 
 export type MiddlewareHandlers = {
   [K in
-    | "GET"
-    | "HEAD"
-    | "POST"
-    | "PUT"
-    | "DELETE"
-    | "OPTIONS"
-    | "PATCH"]?: MiddlewareHandler;
+    | 'GET'
+    | 'HEAD'
+    | 'POST'
+    | 'PUT'
+    | 'DELETE'
+    | 'OPTIONS'
+    | 'PATCH']?: MiddlewareHandler;
 };
 
 export interface MiddlewareContext extends Partial<RouteHandlerContext> {
@@ -330,7 +330,7 @@ export interface LinkDescriptor extends ElementDescriptor {
   crossorigin?: string;
   disabled?: string;
   /** A string representing the priority hint. */
-  fetchpriority?: "high" | "low" | "auto";
+  fetchpriority?: 'high' | 'low' | 'auto';
   /** Sets or retrieves a destination URL or an anchor point. */
   href?: string;
   /** Sets or retrieves the language code of the object. */
@@ -353,7 +353,7 @@ export interface MetaDescriptor extends ElementDescriptor {
   /** Gets or sets meta-information to associate with httpEquiv or name. */
   content?: string;
   /** Gets or sets information used to bind the value of a content attribute of a meta element to an HTTP response header. */
-  "http-equiv"?: string;
+  'http-equiv'?: string;
   media?: string;
   /** Sets or retrieves the value specified in the content attribute of the meta object. */
   name?: string;
@@ -370,7 +370,7 @@ export interface ScriptDescriptor extends ElementDescriptor {
   /** Sets or retrieves the status of the script. */
   defer?: string;
   /** A string representing the priority hint. */
-  fetchpriority?: "high" | "low" | "auto";
+  fetchpriority?: 'high' | 'low' | 'auto';
   integrity?: string;
   nomodule?: string;
   referrerpolicy?: string;

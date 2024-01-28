@@ -1,6 +1,6 @@
-import "./(css)/style.css";
-import { defineRouteComponent } from "@web-widget/react";
-import BaseLayout from "./(components)/BaseLayout";
+import './(css)/style.css';
+import { defineRouteComponent } from '@web-widget/react';
+import BaseLayout from './(components)/BaseLayout';
 
 export default defineRouteComponent(function Page() {
   return (

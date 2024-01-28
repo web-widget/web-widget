@@ -10,9 +10,9 @@ export default (async function Wait({ id }: { id: string }) {
   return (
     <div
       style={{
-        background: "linear-gradient(315deg,#42d392 25%,#0074a6)",
-        color: "#FFF",
-        padding: "20px",
+        background: 'linear-gradient(315deg,#42d392 25%,#0074a6)',
+        color: '#FFF',
+        padding: '20px',
       }}>
       React {id}: {data}
     </div>

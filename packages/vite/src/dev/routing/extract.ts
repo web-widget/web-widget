@@ -11,15 +11,15 @@ export function sortRoutePaths(a: string, b: string) {
   for (let i = 0; i < maxLen; i++) {
     const charA = a.charAt(i);
     const charB = b.charAt(i);
-    const nextA = i + 1 < aLen ? a.charAt(i + 1) : "";
-    const nextB = i + 1 < bLen ? b.charAt(i + 1) : "";
+    const nextA = i + 1 < aLen ? a.charAt(i + 1) : '';
+    const nextB = i + 1 < bLen ? b.charAt(i + 1) : '';
 
-    if (charA === "/" || charB === "/") {
+    if (charA === '/' || charB === '/') {
       segmentIdx = i;
       // If the other path doesn't close the segment
       // then we don't need to continue
-      if (charA !== "/") return -1;
-      if (charB !== "/") return 1;
+      if (charA !== '/') return -1;
+      if (charB !== '/') return 1;
       continue;
     }
 
@@ -40,11 +40,11 @@ export function sortRoutePaths(a: string, b: string) {
  * and `[` or `[...` last respectively.
  */
 function getRoutePathScore(char: string, nextChar: string): number {
-  if (char === "_") {
-    if (nextChar === "m") return 4;
+  if (char === '_') {
+    if (nextChar === 'm') return 4;
     return 3;
-  } else if (char === "[") {
-    if (nextChar === ".") {
+  } else if (char === '[') {
+    if (nextChar === '.') {
       return 0;
     }
     return 1;
@@ -55,21 +55,21 @@ function getRoutePathScore(char: string, nextChar: string): number {
 /**
  * Transform a filesystem URL path to a `path-to-regex` style matcher. */
 export function pathToPattern(path: string): string {
-  const parts = path.split("/");
-  if (parts[parts.length - 1] === "index") {
+  const parts = path.split('/');
+  if (parts[parts.length - 1] === 'index') {
     if (parts.length === 1) {
-      return "/";
+      return '/';
     }
     parts.pop();
   }
 
-  let route = "";
+  let route = '';
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
 
     // Case: /[...foo].tsx
-    if (part.startsWith("[...") && part.endsWith("]")) {
+    if (part.startsWith('[...') && part.endsWith(']')) {
       route += `/:${part.slice(4, part.length - 1)}*`;
       continue;
     }
@@ -79,13 +79,13 @@ export function pathToPattern(path: string): string {
     // Case: /foo/(bar) -> /foo
     // Case: /foo/(bar)/bob -> /foo/bob
     // Case: /(foo)/bar -> /bar
-    if (part.startsWith("(") && part.endsWith(")")) {
+    if (part.startsWith('(') && part.endsWith(')')) {
       continue;
     }
 
     // Disallow neighbouring params like `/[id][bar].tsx` because
     // it's ambiguous where the `id` param ends and `bar` begins.
-    if (part.includes("][")) {
+    if (part.includes('][')) {
       throw new SyntaxError(
         `Invalid route pattern: "${path}". A parameter cannot be followed by another parameter without any characters in between.`
       );
@@ -97,36 +97,36 @@ export function pathToPattern(path: string): string {
     // Case: /[id]-asdf.tsx
     // Case: /[id]-asdf[bar].tsx
     // Case: /asdf[bar].tsx
-    let pattern = "";
+    let pattern = '';
     let groupOpen = 0;
     let optional = false;
     for (let j = 0; j < part.length; j++) {
       const char = part[j];
-      if (char === "[") {
-        if (part[j + 1] === "[") {
+      if (char === '[') {
+        if (part[j + 1] === '[') {
           // Disallow optional dynamic params like `foo-[[bar]]`
-          if (part[j - 1] !== "/" && !!part[j - 1]) {
+          if (part[j - 1] !== '/' && !!part[j - 1]) {
             throw new SyntaxError(
               `Invalid route pattern: "${path}". An optional parameter needs to be a full segment.`
             );
           }
           groupOpen++;
           optional = true;
-          pattern += "{/";
+          pattern += '{/';
           j++;
         }
-        pattern += ":";
+        pattern += ':';
         groupOpen++;
-      } else if (char === "]") {
-        if (part[j + 1] === "]") {
+      } else if (char === ']') {
+        if (part[j + 1] === ']') {
           // Disallow optional dynamic params like `[[foo]]-bar`
-          if (part[j + 2] !== "/" && !!part[j + 2]) {
+          if (part[j + 2] !== '/' && !!part[j + 2]) {
             throw new SyntaxError(
               `Invalid route pattern: "${path}". An optional parameter needs to be a full segment.`
             );
           }
           groupOpen--;
-          pattern += "}?";
+          pattern += '}?';
           j++;
         }
         if (--groupOpen < 0) {
@@ -137,12 +137,12 @@ export function pathToPattern(path: string): string {
       }
     }
 
-    route += (optional ? "" : "/") + pattern;
+    route += (optional ? '' : '/') + pattern;
   }
 
   // Case: /(group)/index.tsx
-  if (route === "") {
-    route = "/";
+  if (route === '') {
+    route = '/';
   }
 
   return route;

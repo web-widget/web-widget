@@ -7,7 +7,7 @@
 </template>
 
 <style scoped>
-  .menu {
-    color: cadetblue;
-  }
+.menu {
+  color: cadetblue;
+}
 </style>

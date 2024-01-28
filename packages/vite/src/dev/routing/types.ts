@@ -9,4 +9,4 @@ export interface RouteSourceFileName {
   ext: string;
 }
 
-export type RouteSourceType = "route" | "fallback" | "layout" | "middleware";
+export type RouteSourceType = 'route' | 'fallback' | 'layout' | 'middleware';

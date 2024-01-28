@@ -1,9 +1,9 @@
-import type { Plugin } from "vite";
-import { buildWebRouterEntryPlugin } from "./build/build-web-router-entry";
-import { parseConfig } from "./config";
-import { pluginContainer } from "./container";
-import { webRouterDevServerPlugin } from "./dev/dev-server";
-import type { BuilderUserConfig, ResolvedBuilderConfig } from "./types";
+import type { Plugin } from 'vite';
+import { buildWebRouterEntryPlugin } from './build/build-web-router-entry';
+import { parseConfig } from './config';
+import { pluginContainer } from './container';
+import { webRouterDevServerPlugin } from './dev/dev-server';
+import type { BuilderUserConfig, ResolvedBuilderConfig } from './types';
 
 export function webRouterPlugin(config: BuilderUserConfig = {}): Plugin[] {
   let builderConfig: ResolvedBuilderConfig;

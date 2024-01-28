@@ -2,9 +2,9 @@
 
 interface WebWidgetSuspenseProps {
   fallback?: ReactNode;
-  experimental_loading?: "lazy" | "eager" | "idle";
-  renderStage?: "server" | "client";
-  experimental_renderTarget?: "light" | "shadow";
+  experimental_loading?: 'lazy' | 'eager' | 'idle';
+  renderStage?: 'server' | 'client';
+  experimental_renderTarget?: 'light' | 'shadow';
 }
 
 interface ReactWidgetComponent<T = unknown> extends ComponentProps<any> {
@@ -22,22 +22,22 @@ declare namespace JSX {
   }
 }
 
-declare module "*.widget.jsx" {
+declare module '*.widget.jsx' {
   const reactWidgetComponent: ReactWidgetComponent;
   export default reactWidgetComponent;
 }
 
-declare module "*.widget.tsx" {
+declare module '*.widget.tsx' {
   const reactWidgetComponent: ReactWidgetComponent;
   export default reactWidgetComponent;
 }
 
-declare module "*?as=jsx" {
+declare module '*?as=jsx' {
   const reactWidgetComponent: ReactWidgetComponent<any>;
   export default reactWidgetComponent;
 }
 
-declare module "*?as=tsx" {
+declare module '*?as=tsx' {
   const reactWidgetComponent: ReactWidgetComponent<any>;
   export default reactWidgetComponent;
 }

@@ -1,5 +1,5 @@
-import { defineRouteComponent } from "@web-widget/react";
-import BaseLayout from "../(components)/BaseLayout";
+import { defineRouteComponent } from '@web-widget/react';
+import BaseLayout from '../(components)/BaseLayout';
 
 export default defineRouteComponent(function Page(props) {
   const { name } = props.params;

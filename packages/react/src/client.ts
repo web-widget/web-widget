@@ -1,17 +1,17 @@
-import { defineRender, getComponentDescriptor } from "@web-widget/helpers";
+import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
 import type {
   ClientWidgetRenderContext,
   ComponentProps,
-} from "@web-widget/helpers";
-import type { FunctionComponent } from "react";
-import { createElement, StrictMode } from "react";
-import type { Root } from "react-dom/client";
-import { createRoot, hydrateRoot } from "react-dom/client";
-import type { CreateReactRenderOptions } from "./types";
+} from '@web-widget/helpers';
+import type { FunctionComponent } from 'react';
+import { createElement, StrictMode } from 'react';
+import type { Root } from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import type { CreateReactRenderOptions } from './types';
 
-export * from "@web-widget/helpers";
-export { useWidgetSyncState as useWidgetState } from "@web-widget/helpers/context";
-export * from "./components";
+export * from '@web-widget/helpers';
+export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/context';
+export * from './components';
 
 export const createReactRender = ({
   onPrefetchData,
@@ -34,8 +34,8 @@ export const createReactRender = ({
       async mount() {
         let vNode;
         if (
-          typeof component === "function" &&
-          component.constructor.name === "AsyncFunction"
+          typeof component === 'function' &&
+          component.constructor.name === 'AsyncFunction'
         ) {
           // experimental
           vNode = await component(props as ComponentProps<any>);

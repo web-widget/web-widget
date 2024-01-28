@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import BaseLayout from "./BaseLayout.vue";
-import type { RouteComponentProps, } from "@web-widget/vue";
-import { mergeMeta, defineMeta, defineRouteHandler } from "@web-widget/vue";
+import BaseLayout from './BaseLayout.vue';
+import type { RouteComponentProps } from '@web-widget/vue';
+import { mergeMeta, defineMeta, defineRouteHandler } from '@web-widget/vue';
 
 type PageData = {
-  message: string
+  message: string;
 };
 
 defineOptions({
   meta: defineMeta({
-    title: "Vue3: Server component"
+    title: 'Vue3: Server component',
   }),
   handler: defineRouteHandler<PageData>({
     async GET(ctx) {
       return ctx.render({
         data: {
-          message: "This is the server component of vue."
+          message: 'This is the server component of vue.',
         } as PageData,
         meta: mergeMeta(ctx.meta, {
-          description: "vue3 examples"
-        })
+          description: 'vue3 examples',
+        }),
       });
-    }
-  })
+    },
+  }),
 });
 
 const { data } = defineProps<RouteComponentProps<PageData>>();
@@ -36,5 +36,7 @@ const { data } = defineProps<RouteComponentProps<PageData>>();
 </template>
 
 <style>
-.data { color: cadetblue; }
+.data {
+  color: cadetblue;
+}
 </style>

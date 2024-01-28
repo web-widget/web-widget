@@ -1,7 +1,7 @@
-import type WebRouter from "@web-widget/web-router";
-import type { z } from "zod";
-import type { BuilderConfigSchema } from "./config";
-import type { Manifest, StartOptions } from "@web-widget/web-router";
+import type WebRouter from '@web-widget/web-router';
+import type { z } from 'zod';
+import type { BuilderConfigSchema } from './config';
+import type { Manifest, StartOptions } from '@web-widget/web-router';
 
 export interface Input {
   client: {

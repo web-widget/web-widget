@@ -1,13 +1,13 @@
 const placeholder = Symbol();
 const isBox = (element: Element) =>
-  ["contents", "none"].includes(getComputedStyle(element).display);
+  ['contents', 'none'].includes(getComputedStyle(element).display);
 
 type PlaceholderElement = Element & {
   [placeholder]?: boolean;
 };
 
 const createPlaceholderElement = () =>
-  Object.assign(document.createElement("span"), {
+  Object.assign(document.createElement('span'), {
     [placeholder]: true,
   }) as PlaceholderElement;
 
@@ -34,7 +34,7 @@ export const createVisibleObserver = (
       }
     },
     {
-      rootMargin: "80%",
+      rootMargin: '80%',
       ...options,
     }
   );

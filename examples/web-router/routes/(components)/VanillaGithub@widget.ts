@@ -1,5 +1,5 @@
-import { IS_SERVER, defineWidgetRender } from "@web-widget/helpers";
-import { useWidgetSyncState } from "@web-widget/helpers/context";
+import { IS_SERVER, defineWidgetRender } from '@web-widget/helpers';
+import { useWidgetSyncState } from '@web-widget/helpers/context';
 
 interface GitHubUserData {
   name: string;
@@ -13,22 +13,22 @@ interface Props {
 
 const useFetchGithub = (username: string): GitHubUserData => {
   const url = `https://api.github.com/users/${username}`;
-  const cacheKey = url + "@vanilla";
+  const cacheKey = url + '@vanilla';
   const data = useWidgetSyncState(cacheKey, async () => {
-    console.log("[github]", "fetch..");
+    console.log('[github]', 'fetch..');
     const resp = await fetch(url);
     if (!resp.ok) {
       throw new Error(`[github] ${JSON.stringify(await resp.json())}`);
     }
     const { name, location, avatar_url } = await resp.json();
-    return { name, location, avatar_url, "vanilla@</script>": Date.now() };
+    return { name, location, avatar_url, 'vanilla@</script>': Date.now() };
   });
 
   return data;
 };
 
 export default ({ username }: Props) => {
-  console.log("vanilla", Date.now());
+  console.log('vanilla', Date.now());
   const data = useFetchGithub(username);
 
   return `
@@ -43,10 +43,10 @@ export default ({ username }: Props) => {
 export const render = defineWidgetRender(async (context) => {
   if (IS_SERVER) {
     return context.module.default!(context.data);
-  } else if (Reflect.get(context, "recovering")) {
-    const container = Reflect.get(context, "container") as HTMLElement;
-    const button = container.querySelector("button[show]") as HTMLElement;
-    const pre = container.querySelector("pre[hidden]") as HTMLElement;
+  } else if (Reflect.get(context, 'recovering')) {
+    const container = Reflect.get(context, 'container') as HTMLElement;
+    const button = container.querySelector('button[show]') as HTMLElement;
+    const pre = container.querySelector('pre[hidden]') as HTMLElement;
 
     button.onclick = () => {
       pre.hidden = false;

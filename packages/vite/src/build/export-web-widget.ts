@@ -1,10 +1,10 @@
-import { createFilter, type FilterPattern } from "@rollup/pluginutils";
-import * as esModuleLexer from "es-module-lexer";
-import MagicString from "magic-string";
-import type { Plugin } from "vite";
-import { defineAsyncOptions } from "../container";
-import type { AppendWebWidgetMetaPluginOptions } from "./append-web-widget-meta";
-import { appendWebWidgetMetaPlugin } from "./append-web-widget-meta";
+import { createFilter, type FilterPattern } from '@rollup/pluginutils';
+import * as esModuleLexer from 'es-module-lexer';
+import MagicString from 'magic-string';
+import type { Plugin } from 'vite';
+import { defineAsyncOptions } from '../container';
+import type { AppendWebWidgetMetaPluginOptions } from './append-web-widget-meta';
+import { appendWebWidgetMetaPlugin } from './append-web-widget-meta';
 
 const alias = (name: string) => `__$${name}$__`;
 
@@ -18,7 +18,7 @@ export interface ExportWidgetPluginOptions {
   exclude?: FilterPattern;
   include?: FilterPattern;
   inject?: string | string[];
-  manifest?: AppendWebWidgetMetaPluginOptions["manifest"];
+  manifest?: AppendWebWidgetMetaPluginOptions['manifest'];
   provide: string;
 }
 
@@ -32,7 +32,7 @@ export function exportWebWidgetPlugin(
   ] = defineAsyncOptions<AppendWebWidgetMetaPluginOptions>({});
   return [
     {
-      name: "@widget:export-web-widget",
+      name: '@widget:export-web-widget',
       async config(userConfig) {
         const ssrBuild = !!userConfig.build?.ssr;
         const {
@@ -43,7 +43,7 @@ export function exportWebWidgetPlugin(
         } = options;
         filter = createFilter(include, exclude);
 
-        if (typeof provide !== "string") {
+        if (typeof provide !== 'string') {
           throw new TypeError(`options.provide must be a string type.`);
         }
 
@@ -63,7 +63,7 @@ export function exportWebWidgetPlugin(
         }
 
         const {
-          inject = ["render"],
+          inject = ['render'],
           extractFromExportDefault,
           provide,
         } = options;
@@ -88,7 +88,7 @@ export function exportWebWidgetPlugin(
 
         if (extractFromExportDefault) {
           const defaultExportSpecifier = exports.find(
-            ({ n }) => n === "default"
+            ({ n }) => n === 'default'
           );
 
           if (!defaultExportSpecifier) {
@@ -108,7 +108,7 @@ export function exportWebWidgetPlugin(
           magicString.update(
             defaultExportSpecifier.s,
             defaultExportSpecifier.e,
-            `const ${alias("default")} =`
+            `const ${alias('default')} =`
           );
 
           extractFromExportDefault.forEach((item) => {
@@ -119,13 +119,13 @@ export function exportWebWidgetPlugin(
             ) {
               magicString.append(
                 `\nexport const { ${item.name} = ${item.default} } = ${alias(
-                  "default"
+                  'default'
                 )};`
               );
             }
           });
 
-          magicString.append(`\nexport default ${alias("default")};`);
+          magicString.append(`\nexport default ${alias('default')};`);
         }
 
         return {
@@ -137,7 +137,7 @@ export function exportWebWidgetPlugin(
     {
       ...appendWebWidgetMetaPlugin(appendWebWidgetMetaPluginOptions),
       apply: (userConfig, { command }) => {
-        return command === "build" && !!userConfig.build?.ssr;
+        return command === 'build' && !!userConfig.build?.ssr;
       },
     },
   ];

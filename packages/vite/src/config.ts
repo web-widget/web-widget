@@ -1,32 +1,32 @@
-import { z } from "zod";
-import fs from "node:fs";
-import path from "node:path";
-import type { BuilderUserConfig, ResolvedBuilderConfig } from "./types";
+import { z } from 'zod';
+import fs from 'node:fs';
+import path from 'node:path';
+import type { BuilderUserConfig, ResolvedBuilderConfig } from './types';
 
 export const BUILDER_CONFIG_DEFAULTS: ResolvedBuilderConfig = {
   autoFullBuild: true,
   filesystemRouting: false,
   input: {
     client: {
-      entry: "entry.client",
-      importmap: "importmap.client",
+      entry: 'entry.client',
+      importmap: 'importmap.client',
     },
     server: {
-      entry: "entry.server",
-      routemap: "routemap.server",
+      entry: 'entry.server',
+      routemap: 'routemap.server',
     },
     routes: {
-      basePathname: "/",
-      dir: "routes",
+      basePathname: '/',
+      dir: 'routes',
       trailingSlash: false,
     },
   },
   output: {
-    client: "client",
-    dir: "dist",
-    manifest: "manifest.json",
-    server: "server",
-    ssrManifest: "ssr-manifest.json",
+    client: 'client',
+    dir: 'dist',
+    manifest: 'manifest.json',
+    server: 'server',
+    ssrManifest: 'ssr-manifest.json',
   },
 };
 
@@ -126,12 +126,12 @@ export function parseConfig(
     userConfig
   ) as ResolvedBuilderConfig;
   const rules = {
-    client: ["entry", "importmap"],
-    server: ["entry", "routemap"],
-    routes: ["dir"],
+    client: ['entry', 'importmap'],
+    server: ['entry', 'routemap'],
+    routes: ['dir'],
   };
 
-  Object.entries(builderConfig["input"]).forEach(([key, value]) => {
+  Object.entries(builderConfig['input']).forEach(([key, value]) => {
     Object.entries(value as string[]).forEach(([k, v]) => {
       // @ts-ignore
       if (rules[key].includes(k)) {
@@ -154,9 +154,9 @@ export function getConfig(): Promise<ResolvedBuilderConfig> {
 function resolveRealFile(
   fileName: string,
   root: string,
-  extensions: string[] = [".mjs", ".js", ".mts", ".ts", ".jsx", ".tsx", ".json"]
+  extensions: string[] = ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json']
 ): string {
-  const paths = ["", ...extensions].map((extension) =>
+  const paths = ['', ...extensions].map((extension) =>
     path.resolve(root, `${fileName}${extension}`)
   );
 
@@ -166,5 +166,5 @@ function resolveRealFile(
     }
   }
 
-  throw new Error(`File not found: ${paths.join(", ")}`);
+  throw new Error(`File not found: ${paths.join(', ')}`);
 }

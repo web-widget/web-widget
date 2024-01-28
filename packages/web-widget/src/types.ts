@@ -1,5 +1,5 @@
-import type { WidgetModule, Meta } from "@web-widget/helpers";
-export type * from "@web-widget/helpers";
+import type { WidgetModule, Meta } from '@web-widget/helpers';
+export type * from '@web-widget/helpers';
 
 type JSONValue =
   | string
@@ -17,14 +17,14 @@ export interface WebWidgetElementProps {
   data?: JSONProps;
   import?: string;
   inactive?: boolean;
-  loading?: "lazy" | "eager" | "idle";
+  loading?: 'lazy' | 'eager' | 'idle';
   meta?: Meta;
   name?: string;
   // recovering?: boolean;
-  renderTarget?: "light" | "shadow";
+  renderTarget?: 'light' | 'shadow';
 }
 
 export interface WebWidgetRendererOptions extends WebWidgetElementProps {
   children?: string;
-  renderStage?: "server" | "client";
+  renderStage?: 'server' | 'client';
 }

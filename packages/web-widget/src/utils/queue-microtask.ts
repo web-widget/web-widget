@@ -1,6 +1,6 @@
 let promise: Promise<any>;
 export const queueMicrotask =
-  typeof window.queueMicrotask === "function"
+  typeof window.queueMicrotask === 'function'
     ? window.queueMicrotask.bind(window)
     : (callback: () => void) =>
         (promise || (promise = Promise.resolve()))

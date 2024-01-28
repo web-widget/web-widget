@@ -1,14 +1,14 @@
-import path from "node:path";
-import type { Middleware } from "@web-widget/node";
-import NodeAdapter from "@web-widget/node";
-import type { RouteModule, MiddlewareHandler } from "@web-widget/helpers";
-import { renderMetaToString } from "@web-widget/helpers";
-import type { ManifestJSON, ManifestResolved } from "@web-widget/web-router";
-import stripAnsi from "strip-ansi";
-import type { Plugin, ViteDevServer } from "vite";
-import type { ResolvedBuilderConfig, ServerEntryModule } from "../types";
-import { getMeta } from "./meta";
-import { fileSystemRouteGenerator } from "./routing";
+import path from 'node:path';
+import type { Middleware } from '@web-widget/node';
+import NodeAdapter from '@web-widget/node';
+import type { RouteModule, MiddlewareHandler } from '@web-widget/helpers';
+import { renderMetaToString } from '@web-widget/helpers';
+import type { ManifestJSON, ManifestResolved } from '@web-widget/web-router';
+import stripAnsi from 'strip-ansi';
+import type { Plugin, ViteDevServer } from 'vite';
+import type { ResolvedBuilderConfig, ServerEntryModule } from '../types';
+import { getMeta } from './meta';
+import { fileSystemRouteGenerator } from './routing';
 
 type DevModule = RouteModule & {
   $source?: string;
@@ -19,12 +19,12 @@ export function webRouterDevServerPlugin(
 ): Plugin {
   let root: string;
   return {
-    name: "@widget:web-router-dev-server",
-    enforce: "pre",
-    apply: "serve",
+    name: '@widget:web-router-dev-server',
+    enforce: 'pre',
+    apply: 'serve',
     async config() {
       return {
-        appType: "custom",
+        appType: 'custom',
         optimizeDeps: {},
         ssr: {},
       };
@@ -70,11 +70,11 @@ export function webRouterDevServerPlugin(
     async transformIndexHtml() {
       return [
         {
-          injectTo: "head",
-          tag: "script",
+          injectTo: 'head',
+          tag: 'script',
           attrs: {
-            type: "module",
-            src: "/" + path.relative(root, builderConfig.input.client.entry),
+            type: 'module',
+            src: '/' + path.relative(root, builderConfig.input.client.entry),
           },
         },
       ];
@@ -92,7 +92,7 @@ function autoRestartMiddleware(
 
   viteServer.ws.send = function () {
     // @see https://github.com/vitejs/vite/blob/b361ffa6724d9191fc6a581acfeab5bc3ebbd931/packages/vite/src/node/server/hmr.ts#L194
-    if (arguments[0]?.type === "full-reload") {
+    if (arguments[0]?.type === 'full-reload') {
       middleware = undefined;
     }
     // @ts-ignore
@@ -126,8 +126,8 @@ async function viteWebRouterMiddleware(
 
   manifest.middlewares ??= [];
   manifest.middlewares.unshift({
-    pathname: "*",
-    name: "@web-widget/vite:meta",
+    pathname: '*',
+    name: '@web-widget/vite:meta',
     module: {
       handler: renderStyles(viteServer),
     },
@@ -170,9 +170,9 @@ async function viteWebRouterMiddleware(
 
         return new Response(errorTemplate(message), {
           status: 500,
-          statusText: "Internal Server Error",
+          statusText: 'Internal Server Error',
           headers: {
-            "content-type": "text/html; charset=utf-8",
+            'content-type': 'text/html; charset=utf-8',
           },
         });
       }
@@ -231,7 +231,7 @@ function renderStyles(viteServer: ViteDevServer): MiddlewareHandler {
   return async (context, next) => {
     let res = await next();
 
-    if (!res.headers.get("content-type")?.startsWith("text/html;")) {
+    if (!res.headers.get('content-type')?.startsWith('text/html;')) {
       return res;
     }
 
@@ -241,7 +241,7 @@ function renderStyles(viteServer: ViteDevServer): MiddlewareHandler {
       const url = new URL(context.request.url);
       const html = (await res.text()).replace(
         /(<\/head>)/,
-        renderMetaToString(meta) + "$1"
+        renderMetaToString(meta) + '$1'
       );
       const viteHtml = await viteServer.transformIndexHtml(
         url.pathname + url.search,

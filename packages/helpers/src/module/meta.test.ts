@@ -1,7 +1,7 @@
-import { expect, test } from "@jest/globals";
-import { mergeMeta, rebaseMeta, renderMetaToString } from "./meta";
+import { expect, test } from '@jest/globals';
+import { mergeMeta, rebaseMeta, renderMetaToString } from './meta';
 
-test("Should return the new object", () => {
+test('Should return the new object', () => {
   const defaults = {
     meta: [],
   };
@@ -15,25 +15,25 @@ test("Should return the new object", () => {
   expect(result.meta).not.toBe(overrides.meta);
 });
 
-test("Should cover content", () => {
+test('Should cover content', () => {
   const defaults = {
-    title: "a",
+    title: 'a',
   };
   const overrides = {
-    title: "b",
+    title: 'b',
   };
   const result = mergeMeta(defaults, overrides);
   expect(result).toEqual({
-    title: "b",
+    title: 'b',
   });
 });
 
-test("Should be inserted at the end of the array", () => {
+test('Should be inserted at the end of the array', () => {
   const defaults = {
-    link: [{ rel: "a", href: "/a" }],
+    link: [{ rel: 'a', href: '/a' }],
   };
   const overrides = {
-    link: [{ rel: "b", href: "/b" }],
+    link: [{ rel: 'b', href: '/b' }],
   };
   const result = mergeMeta(defaults, overrides);
   expect(result).toEqual({
@@ -41,36 +41,36 @@ test("Should be inserted at the end of the array", () => {
   });
 });
 
-test("should override the same meta", () => {
+test('should override the same meta', () => {
   const defaults = {
     meta: [
       {
-        name: "keywords",
-        content: "a, b",
+        name: 'keywords',
+        content: 'a, b',
       },
       {
-        property: "og:title",
-        content: "Introducing our New Site",
+        property: 'og:title',
+        content: 'Introducing our New Site',
       },
       {
-        name: "hello",
-        content: "world",
+        name: 'hello',
+        content: 'world',
       },
     ],
   };
   const overrides = {
     meta: [
       {
-        name: "keywords",
-        content: "c, d",
+        name: 'keywords',
+        content: 'c, d',
       },
       {
-        property: "og:title",
-        content: "New Site",
+        property: 'og:title',
+        content: 'New Site',
       },
       {
-        property: "og:url",
-        content: "http://newsblog.org/news/136756249803614",
+        property: 'og:url',
+        content: 'http://newsblog.org/news/136756249803614',
       },
     ],
   };
@@ -78,78 +78,78 @@ test("should override the same meta", () => {
   expect(result).toEqual({
     meta: [
       {
-        name: "keywords",
-        content: "c, d",
+        name: 'keywords',
+        content: 'c, d',
       },
       {
-        property: "og:title",
-        content: "New Site",
+        property: 'og:title',
+        content: 'New Site',
       },
       {
-        name: "hello",
-        content: "world",
+        name: 'hello',
+        content: 'world',
       },
       {
-        property: "og:url",
-        content: "http://newsblog.org/news/136756249803614",
+        property: 'og:url',
+        content: 'http://newsblog.org/news/136756249803614',
       },
     ],
   });
 });
 
-test("Relative paths should be converted to absolute paths", () => {
+test('Relative paths should be converted to absolute paths', () => {
   const meta = {
     link: [
-      { href: "a.css" },
-      { href: "./b.css" },
-      { href: "../c.css" },
-      { href: "/d.css" },
+      { href: 'a.css' },
+      { href: './b.css' },
+      { href: '../c.css' },
+      { href: '/d.css' },
     ],
     script: [
-      { src: "a.js" },
-      { src: "./b.js" },
-      { src: "../c.js" },
-      { src: "/d.js" },
+      { src: 'a.js' },
+      { src: './b.js' },
+      { src: '../c.js' },
+      { src: '/d.js' },
     ],
   };
 
-  expect(rebaseMeta(meta, "https://cdn.com/assets/")).toEqual({
+  expect(rebaseMeta(meta, 'https://cdn.com/assets/')).toEqual({
     link: [
-      { href: "https://cdn.com/assets/a.css" },
-      { href: "https://cdn.com/assets/b.css" },
-      { href: "https://cdn.com/c.css" },
-      { href: "/d.css" },
+      { href: 'https://cdn.com/assets/a.css' },
+      { href: 'https://cdn.com/assets/b.css' },
+      { href: 'https://cdn.com/c.css' },
+      { href: '/d.css' },
     ],
     script: [
-      { src: "https://cdn.com/assets/a.js" },
-      { src: "https://cdn.com/assets/b.js" },
-      { src: "https://cdn.com/c.js" },
-      { src: "/d.js" },
+      { src: 'https://cdn.com/assets/a.js' },
+      { src: 'https://cdn.com/assets/b.js' },
+      { src: 'https://cdn.com/c.js' },
+      { src: '/d.js' },
     ],
   });
 
-  expect(rebaseMeta(meta, "/assets/")).toEqual({
+  expect(rebaseMeta(meta, '/assets/')).toEqual({
     link: [
-      { href: "/assets/a.css" },
-      { href: "/assets/b.css" },
-      { href: "/c.css" },
-      { href: "/d.css" },
+      { href: '/assets/a.css' },
+      { href: '/assets/b.css' },
+      { href: '/c.css' },
+      { href: '/d.css' },
     ],
     script: [
-      { src: "/assets/a.js" },
-      { src: "/assets/b.js" },
-      { src: "/c.js" },
-      { src: "/d.js" },
+      { src: '/assets/a.js' },
+      { src: '/assets/b.js' },
+      { src: '/c.js' },
+      { src: '/d.js' },
     ],
   });
 });
 
-test("Content should be escaped", () => {
+test('Content should be escaped', () => {
   const meta = {
     title: `"'&<>`,
     meta: [
       {
-        name: "test",
+        name: 'test',
         content: `"'&<>`,
       },
       {
@@ -163,7 +163,7 @@ test("Content should be escaped", () => {
   );
 });
 
-test("Raw text should be processed correctly", () => {
+test('Raw text should be processed correctly', () => {
   const meta = {
     style: [
       {

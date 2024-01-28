@@ -2,9 +2,9 @@ import type {
   Component,
   ComponentProps,
   RenderContext,
-} from "@web-widget/helpers";
+} from '@web-widget/helpers';
 
-export * from "./web-widget";
+export * from './web-widget';
 
 type JSONValue =
   | string

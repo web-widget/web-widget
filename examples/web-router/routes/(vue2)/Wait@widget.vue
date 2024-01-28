@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onServerPrefetch, ref } from "vue";
+import { onServerPrefetch, ref } from 'vue';
 defineProps(['id']);
 
 const random = (max: number, min: number) =>
@@ -11,21 +11,18 @@ const fetchData = async (timeout = random(900, 2900)): Promise<string> =>
 
 const data = ref('Hello World');
 onServerPrefetch(async () => {
-  data.value = await fetchData()
+  data.value = await fetchData();
 });
-
 </script>
 
 <template>
-  <div class="box">
-    Vue {{id}}: {{data}}
-  </div>
+  <div class="box">Vue {{ id }}: {{ data }}</div>
 </template>
 
 <style scoped>
-  .box {
-    background: linear-gradient(315deg,#42d392 25%,#647eff);
-    color: #FFF;
-    padding: 20px;
-  }
+.box {
+  background: linear-gradient(315deg, #42d392 25%, #647eff);
+  color: #fff;
+  padding: 20px;
+}
 </style>

@@ -1,14 +1,14 @@
-import { defineRender, getComponentDescriptor } from "@web-widget/helpers";
+import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
 // import { Readable } from "node:stream";
 // import { TransformStream } from "node:stream/web";
-import type { Component } from "vue";
-import Vue from "vue";
-import { createRenderer } from "vue-server-renderer";
-import type { CreateVueRenderOptions } from "./types";
+import type { Component } from 'vue';
+import Vue from 'vue';
+import { createRenderer } from 'vue-server-renderer';
+import type { CreateVueRenderOptions } from './types';
 
-export * from "@web-widget/helpers";
-export { useWidgetSyncState as useWidgetState } from "@web-widget/helpers/context";
-export * from "./components";
+export * from '@web-widget/helpers';
+export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/context';
+export * from './components';
 
 /**
  * The thrown promise is not necessarily a real error,
@@ -19,16 +19,16 @@ Vue.config.warnHandler = (msg, vm, trace) => {
   if (msg === `Error in setup: "[object Promise]"`) {
     return;
   }
-  console.error("[Vue warn]: ".concat(msg).concat(trace));
+  console.error('[Vue warn]: '.concat(msg).concat(trace));
 };
 
 // const __FEATURE_STREAM__ = false;
 
 const ESCAPE_LOOKUP: { [match: string]: string } = {
-  ">": "\\u003e",
-  "<": "\\u003c",
-  "\u2028": "\\u2028",
-  "\u2029": "\\u2029",
+  '>': '\\u003e',
+  '<': '\\u003c',
+  '\u2028': '\\u2028',
+  '\u2029': '\\u2029',
 };
 
 const ESCAPE_REGEX = /[><\u2028\u2029]/g;
@@ -67,7 +67,7 @@ export const createVueRender = ({
     const props = componentDescriptor.props;
 
     if (component.__name) {
-      component.__name = component.__name.replace("@", "-");
+      component.__name = component.__name.replace('@', '-');
     }
 
     const state = onPrefetchData

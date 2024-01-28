@@ -1,2 +1,2 @@
-export * from "./factory";
-export * from "./meta";
+export * from './factory';
+export * from './meta';

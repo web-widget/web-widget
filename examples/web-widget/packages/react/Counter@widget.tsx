@@ -1,5 +1,5 @@
-import "./counter-common.css";
-import { useState } from "react";
+import './counter-common.css';
+import { useState } from 'react';
 
 interface CounterProps {
   name: string;

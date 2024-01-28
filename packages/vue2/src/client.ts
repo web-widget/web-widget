@@ -1,12 +1,12 @@
-import type { ClientWidgetRenderContext } from "@web-widget/helpers";
-import { defineRender, getComponentDescriptor } from "@web-widget/helpers";
-import type { Component } from "vue";
-import Vue from "vue";
-import type { CreateVueRenderOptions } from "./types";
+import type { ClientWidgetRenderContext } from '@web-widget/helpers';
+import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
+import type { Component } from 'vue';
+import Vue from 'vue';
+import type { CreateVueRenderOptions } from './types';
 
-export * from "@web-widget/helpers";
-export { useWidgetSyncState as useWidgetState } from "@web-widget/helpers/context";
-export * from "./components";
+export * from '@web-widget/helpers';
+export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/context';
+export * from './components';
 
 export const createVueRender = ({
   onBeforeCreateApp = async () => ({}),
@@ -27,7 +27,7 @@ export const createVueRender = ({
 
     if (component.__name) {
       // NOTE: Avoid vue warnings: `[Vue warn]: Invalid component name ...`
-      component.__name = component.__name.replace("@", ".");
+      component.__name = component.__name.replace('@', '.');
     }
 
     let app: Vue | null;
@@ -43,13 +43,13 @@ export const createVueRender = ({
             container.querySelector(vue2ssrAttrSelector) ||
             container.firstChild;
           const state = container.querySelector(
-            "script[as=state]"
+            'script[as=state]'
           ) as HTMLScriptElement | null;
           const stateContent = state
             ? JSON.parse(state.textContent as string)
             : onPrefetchData
-            ? await onPrefetchData(context, component, props)
-            : undefined;
+              ? await onPrefetchData(context, component, props)
+              : undefined;
 
           if (!ssrRoot) {
             throw new Error(
@@ -85,8 +85,8 @@ export const createVueRender = ({
 
       async unmount() {
         app?.$destroy();
-        if ("innerHTML" in container) {
-          container.innerHTML = "";
+        if ('innerHTML' in container) {
+          container.innerHTML = '';
         }
         app = null;
       },

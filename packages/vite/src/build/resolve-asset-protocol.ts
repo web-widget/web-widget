@@ -1,10 +1,10 @@
-import { createFilter, type FilterPattern } from "@rollup/pluginutils";
-import MagicString from "magic-string";
-import type { Plugin, Manifest as ViteManifest } from "vite";
+import { createFilter, type FilterPattern } from '@rollup/pluginutils';
+import MagicString from 'magic-string';
+import type { Plugin, Manifest as ViteManifest } from 'vite';
 
 type ViteSsrManifest = Record<string, string[]>;
 
-export const ASSET_PROTOCOL = "asset:";
+export const ASSET_PROTOCOL = 'asset:';
 const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
 
 export type ResolveAssetProtocolPluginOptions = {
@@ -31,8 +31,8 @@ export function resolveAssetProtocol(
   const assetMap: Map<string, string> = new Map();
 
   return {
-    name: "@widget:resolve-asset-protocol",
-    enforce: "post",
+    name: '@widget:resolve-asset-protocol',
+    enforce: 'post',
     async configResolved(resolvedConfig) {
       const { manifest, include, exclude } = options;
 
@@ -43,11 +43,11 @@ export function resolveAssetProtocol(
       const manifests = await Promise.all(
         (Array.isArray(manifest) ? manifest : [manifest]).map(
           async (manifest) =>
-            typeof manifest === "string"
+            typeof manifest === 'string'
               ? ((
                   await import(manifest, {
                     assert: {
-                      type: "json",
+                      type: 'json',
                     },
                   })
                 ).default as ViteManifest | ViteSsrManifest)
@@ -60,9 +60,9 @@ export function resolveAssetProtocol(
           if (value.file) {
             assetMap.set(fileName, value.file);
           } else if (Array.isArray(value)) {
-            const file = value.find((item) => item.endsWith(".js"));
+            const file = value.find((item) => item.endsWith('.js'));
             if (file) {
-              assetMap.set(fileName, file.replace(/^\//, ""));
+              assetMap.set(fileName, file.replace(/^\//, ''));
             }
           }
         });

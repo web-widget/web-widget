@@ -2,12 +2,12 @@
 // License: https://github.com/BuilderIO/qwik/blob/5f1c80372dc95b7d1de4b909baed3c08d5eeac2c/LICENSE
 
 function findContainer(el: HTMLElement | null): HTMLElement | null {
-  return el?.closest("web-widget[import]") as HTMLElement;
+  return el?.closest('web-widget[import]') as HTMLElement;
 }
 
 function findBox(el: HTMLElement) {
   const display = getComputedStyle(el).display;
-  const isDisplayContents = display === "contents";
+  const isDisplayContents = display === 'contents';
   return isDisplayContents ? (el.firstElementChild as HTMLElement) : el;
 }
 
@@ -15,8 +15,8 @@ function openInEditor(path: string, srcDir: string) {
   const resolvedURL = new URL(path, document.baseURI);
   if (resolvedURL.origin === location.origin) {
     const params = new URLSearchParams();
-    params.set("file", srcDir + resolvedURL.pathname);
-    fetch("/__open-in-editor?" + params.toString());
+    params.set('file', srcDir + resolvedURL.pathname);
+    fetch('/__open-in-editor?' + params.toString());
   } else {
     location.href = resolvedURL.href;
   }
@@ -24,19 +24,19 @@ function openInEditor(path: string, srcDir: string) {
 
 export class HTMLWebWidgetInspectorElement extends HTMLElement {
   get dir() {
-    return this.getAttribute("dir") || "";
+    return this.getAttribute('dir') || '';
   }
 
   set dir(value: string) {
-    this.setAttribute("dir", value);
+    this.setAttribute('dir', value);
   }
 
   get keys() {
-    return JSON.parse(this.getAttribute("keys") || "[]");
+    return JSON.parse(this.getAttribute('keys') || '[]');
   }
 
   set keys(value: string[]) {
-    this.setAttribute("keys", JSON.stringify(value));
+    this.setAttribute('keys', JSON.stringify(value));
   }
 
   #pressedKeys: Set<string> = new Set();
@@ -71,10 +71,10 @@ export class HTMLWebWidgetInspectorElement extends HTMLElement {
     if (this.#isActive()) {
       this.#pressedKeys.clear();
       const target = findContainer(event.target as HTMLElement);
-      const inspectUrl = target?.getAttribute("import");
+      const inspectUrl = target?.getAttribute('import');
       if (inspectUrl) {
         event.preventDefault();
-        document.body.style.setProperty("cursor", "progress");
+        document.body.style.setProperty('cursor', 'progress');
         openInEditor(inspectUrl, this.dir);
       }
     }
@@ -86,47 +86,47 @@ export class HTMLWebWidgetInspectorElement extends HTMLElement {
 
   #isActive() {
     const activeKeys = Array.from(this.#pressedKeys).map((key) =>
-      key ? key.replace(/(Left|Right)$/g, "") : undefined
+      key ? key.replace(/(Left|Right)$/g, '') : undefined
     );
     return this.keys.every((key) => activeKeys.includes(key));
   }
 
   #updateOverlay() {
     let overlay = this.querySelector(
-      "web-widget-inspector-overlay"
+      'web-widget-inspector-overlay'
     ) as HTMLElement;
 
     if (!overlay) {
-      overlay = document.createElement("web-widget-inspector-overlay");
-      overlay.setAttribute("aria-hidden", "true");
+      overlay = document.createElement('web-widget-inspector-overlay');
+      overlay.setAttribute('aria-hidden', 'true');
       this.appendChild(overlay);
     }
 
     if (this.#hoveredElement && this.#isActive()) {
       const rect = findBox(this.#hoveredElement).getBoundingClientRect();
-      overlay.style.setProperty("height", rect.height + "px");
-      overlay.style.setProperty("width", rect.width + "px");
-      overlay.style.setProperty("top", rect.top + "px");
-      overlay.style.setProperty("left", rect.left + "px");
-      overlay.style.setProperty("visibility", "visible");
-      document.body.style.setProperty("cursor", "pointer");
+      overlay.style.setProperty('height', rect.height + 'px');
+      overlay.style.setProperty('width', rect.width + 'px');
+      overlay.style.setProperty('top', rect.top + 'px');
+      overlay.style.setProperty('left', rect.left + 'px');
+      overlay.style.setProperty('visibility', 'visible');
+      document.body.style.setProperty('cursor', 'pointer');
     } else {
-      overlay.style.setProperty("height", "0px");
-      overlay.style.setProperty("width", "0px");
-      overlay.style.setProperty("visibility", "hidden");
-      document.body.style.removeProperty("cursor");
+      overlay.style.setProperty('height', '0px');
+      overlay.style.setProperty('width', '0px');
+      overlay.style.setProperty('visibility', 'hidden');
+      document.body.style.removeProperty('cursor');
     }
   }
 
   #showInfo() {
     console.debug(
-      "%c ⇱ Web Widget Click-To-Source ",
-      "background: linear-gradient(315deg,#afd760 25%,#0074a6); color: white; padding: 2px 3px; border-radius: 2px; font-size: 0.8em;",
-      "Hold-press the " +
-        this.keys.join(" + ") +
-        " key" +
-        ((this.keys.length > 1 && "s") || "") +
-        " and click a component to jump directly to the source code in your IDE!"
+      '%c ⇱ Web Widget Click-To-Source ',
+      'background: linear-gradient(315deg,#afd760 25%,#0074a6); color: white; padding: 2px 3px; border-radius: 2px; font-size: 0.8em;',
+      'Hold-press the ' +
+        this.keys.join(' + ') +
+        ' key' +
+        ((this.keys.length > 1 && 's') || '') +
+        ' and click a component to jump directly to the source code in your IDE!'
     );
   }
 
@@ -136,49 +136,49 @@ export class HTMLWebWidgetInspectorElement extends HTMLElement {
     this.#showInfo();
 
     this.appendChild(
-      Object.assign(document.createElement("style"), {
+      Object.assign(document.createElement('style'), {
         textContent: this.styles,
       })
     );
 
     this.appendChild(
-      Object.assign(document.createElement("web-widget-inspector-info"), {
-        textContent: "Click-to-Source: " + hotKeys.join(" + "),
+      Object.assign(document.createElement('web-widget-inspector-info'), {
+        textContent: 'Click-to-Source: ' + hotKeys.join(' + '),
       })
     );
 
-    document.addEventListener("keydown", this.#addKeysHandleEvent.bind(this), {
+    document.addEventListener('keydown', this.#addKeysHandleEvent.bind(this), {
       capture: true,
     });
 
-    document.addEventListener("keyup", this.#deleteKeysHandleEvent.bind(this), {
+    document.addEventListener('keyup', this.#deleteKeysHandleEvent.bind(this), {
       capture: true,
     });
 
-    window.addEventListener("blur", this.#clearKeysHandleEvent.bind(this), {
+    window.addEventListener('blur', this.#clearKeysHandleEvent.bind(this), {
       capture: true,
     });
 
     document.addEventListener(
-      "mouseover",
+      'mouseover',
       this.#hoveredHandleEvent.bind(this),
       { capture: true }
     );
 
-    document.addEventListener("click", this.#clickHandEvent.bind(this), {
+    document.addEventListener('click', this.#clickHandEvent.bind(this), {
       capture: true,
     });
 
     document.addEventListener(
-      "contextmenu",
+      'contextmenu',
       this.#clearKeysHandleEvent.bind(this),
       { capture: true }
     );
 
-    window.addEventListener("resize", this.#updateOverlayHandEvent.bind(this));
+    window.addEventListener('resize', this.#updateOverlayHandEvent.bind(this));
 
     document.addEventListener(
-      "scroll",
+      'scroll',
       this.#updateOverlayHandEvent.bind(this)
     );
   }
@@ -235,4 +235,4 @@ export class HTMLWebWidgetInspectorElement extends HTMLElement {
   }`;
 }
 
-customElements.define("web-widget-inspector", HTMLWebWidgetInspectorElement);
+customElements.define('web-widget-inspector', HTMLWebWidgetInspectorElement);

@@ -1,11 +1,11 @@
-import { defineRouteComponent, defineRouteHandler } from "@web-widget/react";
-import BaseLayout from "./(components)/BaseLayout";
+import { defineRouteComponent, defineRouteHandler } from '@web-widget/react';
+import BaseLayout from './(components)/BaseLayout';
 
 export const handler = defineRouteHandler({
   async GET(ctx) {
     const resp = await ctx.render();
-    resp.headers.set("X-Custom-Header", "Hello");
-    resp.headers.set("X-Route-name", ctx.name || "");
+    resp.headers.set('X-Custom-Header', 'Hello');
+    resp.headers.set('X-Route-name', ctx.name || '');
     return resp;
   },
 });

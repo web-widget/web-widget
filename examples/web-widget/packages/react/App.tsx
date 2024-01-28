@@ -1,12 +1,12 @@
-import { useState, Suspense } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import { useState, Suspense } from 'react';
+import reactLogo from './assets/react.svg';
+import viteLogo from '/vite.svg';
+import './App.css';
 
-import ReactCounter from "./Counter@widget";
-import VueCounter from "../vue3/Counter@widget.vue?as=jsx";
-import Vue2Counter from "../vue2/Counter@widget.vue?as=jsx";
-import VanillaCounter from "../vanilla/Counter@widget";
+import VueCounter from '../vue3/Counter@widget.vue?as=jsx';
+import Vue2Counter from '../vue2/Counter@widget.vue?as=jsx';
+import VanillaCounter from '../vanilla/Counter@widget';
+import ReactCounter from './Counter@widget';
 
 function App() {
   const [count, setCount] = useState(0);

@@ -1,16 +1,16 @@
-import type { Loader, WebWidgetRendererOptions } from "@web-widget/web-widget";
-import { WebWidgetRenderer } from "@web-widget/web-widget";
-import { h, defineComponent, useAttrs, getCurrentInstance } from "vue";
-import type { Component, PropType } from "vue";
-import { IS_CLIENT } from "@web-widget/helpers";
+import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
+import { WebWidgetRenderer } from '@web-widget/web-widget';
+import { h, defineComponent, useAttrs, getCurrentInstance } from 'vue';
+import type { Component, PropType } from 'vue';
+import { IS_CLIENT } from '@web-widget/helpers';
 
 export interface DefineWebWidgetOptions {
-  base?: WebWidgetRendererOptions["base"];
-  import?: WebWidgetRendererOptions["import"];
-  loading?: WebWidgetRendererOptions["loading"];
-  name?: WebWidgetRendererOptions["name"];
-  renderStage?: WebWidgetRendererOptions["renderStage"];
-  renderTarget?: WebWidgetRendererOptions["renderTarget"];
+  base?: WebWidgetRendererOptions['base'];
+  import?: WebWidgetRendererOptions['import'];
+  loading?: WebWidgetRendererOptions['loading'];
+  name?: WebWidgetRendererOptions['name'];
+  renderStage?: WebWidgetRendererOptions['renderStage'];
+  renderTarget?: WebWidgetRendererOptions['renderTarget'];
 }
 
 export /*#__PURE__*/ function defineWebWidget(
@@ -18,23 +18,23 @@ export /*#__PURE__*/ function defineWebWidget(
   options: DefineWebWidgetOptions
 ) {
   return defineComponent({
-    name: "WebWidgetRoot",
+    name: 'WebWidgetRoot',
     inheritAttrs: false,
     props: {
       fallback: {
         type: Object as PropType<Component>,
       },
       experimental_loading: {
-        type: String as PropType<WebWidgetRendererOptions["loading"]>,
-        default: options.loading ?? "lazy",
+        type: String as PropType<WebWidgetRendererOptions['loading']>,
+        default: options.loading ?? 'lazy',
       },
       renderStage: {
-        type: String as PropType<WebWidgetRendererOptions["renderStage"]>,
+        type: String as PropType<WebWidgetRendererOptions['renderStage']>,
         default: options.renderStage,
       },
       experimental_renderTarget: {
-        type: String as PropType<WebWidgetRendererOptions["renderTarget"]>,
-        default: options.renderTarget ?? "light",
+        type: String as PropType<WebWidgetRendererOptions['renderTarget']>,
+        default: options.renderTarget ?? 'light',
       },
     },
     async serverPrefetch() {
@@ -66,7 +66,7 @@ export /*#__PURE__*/ function defineWebWidget(
         throw new TypeError(`No support slot.`);
       }
 
-      const data = useAttrs() as WebWidgetRendererOptions["data"];
+      const data = useAttrs() as WebWidgetRendererOptions['data'];
       const widget = new WebWidgetRenderer(loader as Loader, {
         ...options,
         data,

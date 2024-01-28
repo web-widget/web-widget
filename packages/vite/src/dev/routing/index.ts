@@ -1,12 +1,12 @@
-import path from "node:path";
-import fs from "node:fs/promises";
-import { walkRoutes } from "./walk-routes-dir";
-import { pathToPattern, sortRoutePaths } from "./extract";
-import type { ManifestJSON } from "@web-widget/web-router";
-import /*createFileId,*/ "./fs";
-import type { RouteSourceFile } from "./types";
-import type { FSWatcher } from "vite";
-import { normalizePath } from "@rollup/pluginutils";
+import path from 'node:path';
+import fs from 'node:fs/promises';
+import { walkRoutes } from './walk-routes-dir';
+import { pathToPattern, sortRoutePaths } from './extract';
+import type { ManifestJSON } from '@web-widget/web-router';
+import /*createFileId,*/ './fs';
+import type { RouteSourceFile } from './types';
+import type { FSWatcher } from 'vite';
+import { normalizePath } from '@rollup/pluginutils';
 
 export type FileSystemRouteGeneratorOptions = {
   basePathname: string;
@@ -48,8 +48,8 @@ export async function fileSystemRouteGenerator({
       )
     );
   }, 40);
-  watcher.on("all", (event, path) => {
-    if (path.startsWith(routesPath) && event !== "change") {
+  watcher.on('all', (event, path) => {
+    if (path.startsWith(routesPath) && event !== 'change') {
       updateFileSystemRouteing();
     }
   });
@@ -76,7 +76,7 @@ async function generateRoutemapFile(
   routemapPath: string,
   cache: any
 ) {
-  const key = Symbol.for("routemap");
+  const key = Symbol.for('routemap');
   const routemap = await getRoutemap(
     root,
     routesPath,
@@ -86,7 +86,7 @@ async function generateRoutemapFile(
   const newJson = JSON.stringify(routemap, null, 2);
 
   if (newJson !== cache[key]) {
-    await fs.writeFile(routemapPath, JSON.stringify(routemap, null, 2), "utf8");
+    await fs.writeFile(routemapPath, JSON.stringify(routemap, null, 2), 'utf8');
     cache[key] = newJson;
   }
 }
@@ -98,36 +98,36 @@ export async function getRoutemap(
   trailingSlash: boolean
 ): Promise<ManifestJSON> {
   const sourceFiles = await walkRoutes(routesPath);
-  const fallbacks = sourceFiles.filter((s) => s.type === "fallback");
-  const layouts = sourceFiles.filter((s) => s.type === "layout");
+  const fallbacks = sourceFiles.filter((s) => s.type === 'fallback');
+  const layouts = sourceFiles.filter((s) => s.type === 'layout');
   const middlewares = sourceFiles
-    .filter((s) => s.type === "middleware")
+    .filter((s) => s.type === 'middleware')
     .sort((a, b) => sortRoutePaths(a.pathname, b.pathname));
   const routes = sourceFiles
-    .filter((s) => s.type === "route")
+    .filter((s) => s.type === 'route')
     .sort((a, b) => sortRoutePaths(a.pathname, b.pathname));
 
   const toValue = (item: RouteSourceFile) => {
     let pathname;
 
-    if (item.type === "route" || item.type === "middleware") {
+    if (item.type === 'route' || item.type === 'middleware') {
       pathname = normalizePath(basePathname + item.pathname);
 
-      if (pathname.startsWith("/")) {
+      if (pathname.startsWith('/')) {
         pathname = pathname.substring(1);
       }
 
       pathname = pathToPattern(pathname);
-      if (trailingSlash && !pathname.endsWith("/")) {
-        pathname = pathname + "/";
+      if (trailingSlash && !pathname.endsWith('/')) {
+        pathname = pathname + '/';
       }
     }
 
     //const name = createFileId(pathname ?? item.name, item.type);
     const module = normalizePath(path.relative(root, item.source));
     const status =
-      item.type === "fallback"
-        ? parseInt(item.name.replaceAll(/\D/g, ""))
+      item.type === 'fallback'
+        ? parseInt(item.name.replaceAll(/\D/g, ''))
         : undefined;
 
     return {
@@ -139,11 +139,11 @@ export async function getRoutemap(
   };
 
   return {
-    routes: routes.map(toValue) as ManifestJSON["routes"],
-    middlewares: middlewares.map(toValue) as ManifestJSON["middlewares"],
-    fallbacks: fallbacks.map(toValue) as ManifestJSON["fallbacks"],
+    routes: routes.map(toValue) as ManifestJSON['routes'],
+    middlewares: middlewares.map(toValue) as ManifestJSON['middlewares'],
+    fallbacks: fallbacks.map(toValue) as ManifestJSON['fallbacks'],
     layout: (layouts[0]
       ? toValue(layouts[0])
-      : undefined) as ManifestJSON["layout"],
+      : undefined) as ManifestJSON['layout'],
   };
 }
