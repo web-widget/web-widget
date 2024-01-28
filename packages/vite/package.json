@@ -16,7 +16,10 @@
   "scripts": {
     "build": "pnpm exec tsup",
     "dev": "pnpm exec tsup --watch",
-    "test": "vitest run src"
+    "test": "vitest run src",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "prebuild": "pnpm run clean:build"
   },
   "dependencies": {
     "@rollup/pluginutils": "^5.1.0",
@@ -36,7 +39,7 @@
     "@web-widget/web-widget": "workspace:*",
     "rollup": "^4.9.3",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3",
+    "typescript": "latest",
     "vite": "^5.0.11",
     "vitest": "^1.1.1"
   },
