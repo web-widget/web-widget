@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.9.2
+
+### Patch Changes
+
+- Updated dependencies [b1e8655]
+  - @web-widget/helpers@0.13.2
+
 ## 1.9.1
 
 ### Patch Changes

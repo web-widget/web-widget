@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/html",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "type": "module",
   "exports": {
     ".": {
@@ -26,7 +26,10 @@
   ],
   "scripts": {
     "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch"
+    "dev": "pnpm exec tsup --watch",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "prebuild": "pnpm run clean:build"
   },
   "dependencies": {
     "whatwg-stream-to-async-iter": "^0.6.2"
@@ -35,7 +38,7 @@
     "@web-widget/helpers": "workspace:*",
     "@worker-tools/html": "^2.0.0-pre.13",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "typescript": "latest"
   },
   "peerDependencies": {
     "@web-widget/helpers": "workspace:*",
