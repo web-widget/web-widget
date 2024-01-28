@@ -33,7 +33,10 @@
   ],
   "scripts": {
     "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch"
+    "dev": "pnpm exec tsup --watch",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "prebuild": "pnpm run clean:build"
   },
   "dependencies": {
     "@web-widget/vite": "workspace:*"
@@ -43,7 +46,7 @@
     "@web-widget/helpers": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3",
+    "typescript": "latest",
     "vite": "^5.0.11",
     "vue-server-renderer": "^2.7.16",
     "vue": "^2.7.16"

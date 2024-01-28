@@ -16,7 +16,10 @@
     "build": "pnpm exec tsup && pnpm run html-minifier",
     "dev": "pnpm exec tsup --watch",
     "html-minifier": "babel dist/* --out-dir dist",
-    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage"
+    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "prebuild": "pnpm run clean:build"
   },
   "dependencies": {},
   "devDependencies": {
@@ -33,7 +36,7 @@
     "miniflare": "^3.20231030.0",
     "ts-jest": "^29.1.1",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3",
+    "typescript": "latest",
     "urlpattern-polyfill": "^9.0.0"
   },
   "peerDependencies": {

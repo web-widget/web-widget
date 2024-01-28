@@ -9,9 +9,7 @@
   "exports": {
     "./*": "./*"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "dependencies": {
     "@web-widget/vue": "workspace:*",
     "vue": "^3.4.8"
