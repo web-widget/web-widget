@@ -1,6 +1,10 @@
-import type { ClientWidgetRenderContext, Meta } from '@web-widget/helpers';
-import * as status from './modules/status';
-import type { JSONProps, Loader } from './types';
+import type {
+  ClientWidgetModule,
+  ClientWidgetRenderContext,
+  Meta,
+} from '@web-widget/helpers';
+import { status } from './modules/status';
+import type { JSONProps } from './types';
 import { createIdleObserver } from './utils/idle';
 import { createVisibleObserver } from './utils/lazy';
 
@@ -10,8 +14,9 @@ import { WebWidgetUpdateEvent } from './event';
 import { queueMicrotask } from './utils/queue-microtask';
 import { triggerModulePreload } from './utils/module-preload';
 
-declare const importShim: (src: string) => Promise<any>;
-let globalTimeouts = Object.create(null);
+declare const importShim: <T>(src: string) => Promise<T>;
+type Timeouts = Record<string, number>;
+let globalTimeouts: Timeouts = Object.create(null);
 
 /**
  * Web Widget Container
@@ -19,25 +24,21 @@ let globalTimeouts = Object.create(null);
  * @event {WebWidgetUpdateEvent} update
  */
 export class HTMLWebWidgetElement extends HTMLElement {
-  // @ts-ignore
-  #loader: Loader | null;
+  #loader: (() => Promise<ClientWidgetModule>) | null = null;
 
   #lifecycleController: LifecycleController;
 
-  // @ts-ignore
-  #data: JSONProps | null;
+  #data: JSONProps | null = null;
 
   #disconnectObserver?: () => void;
 
-  // @ts-ignore
-  #meta: Meta | null;
+  #meta: Meta | null = null;
 
-  // @ts-ignore
-  #context: ClientWidgetRenderContext | Record<string, unknown>;
+  #context: ClientWidgetRenderContext | Record<string, unknown> | null = null;
 
   #isFirstConnect = false;
 
-  #timeouts = null;
+  #timeouts: Timeouts | null = null;
 
   #status: string = status.INITIAL;
 
@@ -82,6 +83,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
+  /**
+   * WidgetModule loader.
+   * @default null
+   */
   get loader() {
     return this.#loader || null;
   }
@@ -96,7 +101,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * WidgetModule base
+   * WidgetModule base.
    */
   get base() {
     const value = this.getAttribute('base');
@@ -108,7 +113,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * WidgetModule data
+   * WidgetModule data.
    */
   get data(): JSONProps | null {
     if (!this.#data) {
@@ -136,7 +141,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * WidgetModule meta
+   * WidgetModule meta.
    */
   get meta(): Meta | null {
     if (!this.#meta) {
@@ -162,9 +167,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * WidgetModule context
+   * WidgetModule context.
    */
-  get context(): ClientWidgetRenderContext | Record<string, unknown> {
+  get context(): ClientWidgetRenderContext | Record<string, unknown> | null {
     return this.#context;
   }
 
@@ -175,7 +180,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Whether the module is inactive
+   * Whether the module is inactive.
    */
   get inactive(): boolean {
     return this.hasAttribute('inactive');
@@ -189,6 +194,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
+  /**
+   * Hydration mode.
+   * @default false
+   */
   get recovering(): boolean {
     return this.hasAttribute('recovering');
   }
@@ -202,7 +211,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Indicates how the browser should load the module
+   * Indicates how the browser should load the module.
    * @default "eager"
    */
   get loading(): string {
@@ -214,14 +223,16 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * WidgetModule status
+   * WidgetModule container status.
+   * @default "initial"
    */
   get status(): string {
     return this.#status;
   }
 
   /**
-   * WidgetModule module name
+   * WidgetModule module url.
+   * @default ""
    */
   get import() {
     let value = this.getAttribute('import');
@@ -237,7 +248,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * WidgetModule render target
+   * WidgetModule render target.
+   * @default "shadow"
    */
   get renderTarget(): 'light' | 'shadow' {
     return (this.getAttribute('rendertarget') as 'light') || 'shadow';
@@ -247,6 +259,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.setAttribute('rendertarget', value);
   }
 
+  /**
+   * WidgetModule timeouts.
+   */
   get timeouts() {
     if (!this.#timeouts) {
       this.#timeouts = { ...HTMLWebWidgetElement.timeouts };
@@ -259,7 +274,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Hook: Create the module's context
+   * Hook: Create the module's context.
    */
   createContext(): ClientWidgetRenderContext {
     let container: Element | DocumentFragment;
@@ -298,7 +313,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Hook: Create the module's render node
+   * Hook: Create the module's render node.
    */
   createContainer(): Element | DocumentFragment {
     let container: Element | DocumentFragment | null = null;
@@ -338,9 +353,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Hook: Create Create the module's loader
+   * Hook: Create Create the module's loader.
    */
-  createLoader(): Loader {
+  createLoader(): () => Promise<ClientWidgetModule> {
     // @see https://github.com/WICG/import-maps#feature-detection
     const supportsImportMaps =
       HTMLScriptElement.supports && HTMLScriptElement.supports('importmap');
@@ -349,37 +364,39 @@ export class HTMLWebWidgetElement extends HTMLElement {
       if (!supportsImportMaps && typeof importShim === 'function') {
         // @see https://github.com/guybedford/es-module-shims
         // eslint-disable-next-line no-undef
-        return importShim(target);
+        return importShim<ClientWidgetModule>(target);
       }
-      return import(/* @vite-ignore */ /* webpackIgnore: true */ target);
+      return import(
+        /* @vite-ignore */ /* webpackIgnore: true */ target
+      ) as Promise<ClientWidgetModule>;
     }
 
     return () => importModule(this.import);
   }
 
   /**
-   * Trigger the loading of the module
+   * Trigger the loading of the module.
    */
   async load(): Promise<void> {
     await this.#trigger('load');
   }
 
   /**
-   * Trigger the bootstrapping of the module
+   * Trigger the bootstrapping of the module.
    */
   async bootstrap(): Promise<void> {
     await this.#trigger('bootstrap');
   }
 
   /**
-   * Trigger the mounting of the module
+   * Trigger the mounting of the module.
    */
   async mount(): Promise<void> {
     await this.#trigger('mount');
   }
 
   /**
-   * Trigger the updating of the module
+   * Trigger the updating of the module.
    */
   async update(context: object = {}): Promise<void> {
     if (
@@ -399,14 +416,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Trigger the unmounting of the module
+   * Trigger the unmounting of the module.
    */
   async unmount(): Promise<void> {
     await this.#trigger('unmount');
   }
 
   /**
-   * Trigger the unloading of the module
+   * Trigger the unloading of the module.
    */
   async unload(): Promise<void> {
     const context = this.context || {};
@@ -530,6 +547,23 @@ export class HTMLWebWidgetElement extends HTMLElement {
   static set timeouts(value) {
     globalTimeouts = value;
   }
+
+  static INITIAL: string;
+  static LOADING: string;
+  static LOADED: string;
+  static BOOTSTRAPPING: string;
+  static BOOTSTRAPPED: string;
+  static MOUNTING: string;
+  static MOUNTED: string;
+  static UPDATING: string;
+  static UNMOUNTING: string;
+  static UNLOADING: string;
+  static LOAD_ERROR: string;
+  static BOOTSTRAP_ERROR: string;
+  static MOUNT_ERROR: string;
+  static UPDATE_ERROR: string;
+  static UNMOUNT_ERROR: string;
+  static UNLOAD_ERROR: string;
 }
 
 Object.assign(HTMLWebWidgetElement, status);

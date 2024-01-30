@@ -6,7 +6,7 @@ import type {
 import { rebaseMeta, mergeMeta } from '@web-widget/helpers';
 import type { Loader } from '../types';
 
-import { INITIAL } from './status';
+import { status } from './status';
 import { reasonableTime } from './timeouts';
 import { rules } from './flow';
 
@@ -24,7 +24,7 @@ export class LifecycleController {
     this.#moduleLoader = moduleLoader;
     this.#handler = options.handler;
     this.#lifecycle = Object.create(null);
-    this.#status = INITIAL;
+    this.#status = status.INITIAL;
     this.#statusChangeCallback = options.statusChangeCallback;
     this.#timeouts = options.timeouts;
   }

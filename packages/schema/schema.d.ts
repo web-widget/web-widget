@@ -69,10 +69,12 @@ export type WidgetRenderResult =
 export type ServerWidgetRenderResult = string | ReadableStream;
 
 export type ClientWidgetRenderResult = void | {
+  bootstrap?: () => void | Promise<void>;
   mount?: () => void | Promise<void>;
-  unmount?: () => void | Promise<void>;
-  /**@experimental*/
+  /** @experimental */
   update?: ({ data }: { data: Record<string, any> }) => void | Promise<void>;
+  unmount?: () => void | Promise<void>;
+  unload?: () => void | Promise<void>;
 };
 
 export type WidgetRenderOptions<Options = unknown> = Options;
@@ -83,14 +85,14 @@ export type WidgetRender<Data = unknown, Options = unknown> =
 
 export interface ServerWidgetRender<Data = unknown, Options = unknown> {
   (
-    renderContext: WidgetRenderContext<Data>,
+    renderContext: ServerWidgetRenderContext<Data>,
     renderOptions?: WidgetRenderOptions<Options>
   ): ServerWidgetRenderResult | Promise<ServerWidgetRenderResult>;
 }
 
 export interface ClientWidgetRender<Data = unknown, Options = unknown> {
   (
-    renderContext: WidgetRenderContext<Data>,
+    renderContext: ClientWidgetRenderContext<Data>,
     renderOptions?: WidgetRenderOptions<Options>
   ): ClientWidgetRenderResult | Promise<ClientWidgetRenderResult>;
 }

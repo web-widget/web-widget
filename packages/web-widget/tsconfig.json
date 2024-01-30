@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": false,
-    "allowSyntheticDefaultImports": false,
+    "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": false,
     "esModuleInterop": true,
@@ -22,12 +22,14 @@
     "strict": true,
     "strictNullChecks": true,
     "stripInternal": true,
-    "target": "ES2015"
+    "target": "ES2015",
+    "types": ["mocha"]
   },
   "exclude": [
     "node_modules"
   ],
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "./test/**/*"
   ]
 }

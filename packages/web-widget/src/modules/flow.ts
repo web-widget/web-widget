@@ -31,7 +31,9 @@
         ▼
        End
 */
-import {
+import { status } from './status';
+
+const {
   BOOTSTRAPPED,
   BOOTSTRAPPING,
   BOOTSTRAP_ERROR,
@@ -48,7 +50,7 @@ import {
   UNMOUNT_ERROR,
   UPDATE_ERROR,
   UPDATING,
-} from './status';
+} = status;
 
 export type LifecycleName =
   | 'load'
