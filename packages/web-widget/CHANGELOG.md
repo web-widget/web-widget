@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.9.3
+
+### Patch Changes
+
+- f700f18: Fix test cases for @web-widget/web-widget.
+  - @web-widget/helpers@0.13.3
+
 ## 1.9.2
 
 ### Patch Changes
