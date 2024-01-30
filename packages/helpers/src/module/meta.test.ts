@@ -263,6 +263,9 @@ describe('renderMetaToString', () => {
           content: 'world',
         },
       ],
+      base: {
+        href: 'https://google.com/',
+      },
       link: [
         {
           type: 'application/json',
@@ -275,6 +278,10 @@ describe('renderMetaToString', () => {
           type: 'application/json',
           content: '{"pathname":"/meta","params":{},"body":{}}',
         },
+        {
+          type: 'importmap',
+          content: '{}',
+        },
       ],
       style: [
         {
@@ -285,7 +292,7 @@ describe('renderMetaToString', () => {
       description: 'HTML Meta Data Example',
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >😄New title!</title><meta name="description" content="HTML Meta Data Example" /><meta name="keywords" content="c, d" /><meta property="og:title" content="New Site" /><meta property="og:url" content="http://newsblog.org/news/136756249803614" /><meta name="server" content="@web-widget/web-router" /><meta name="hello" content="world" /><link type="application/json" href="https://google.com/test.json" /><style >a {}</style><script id="state:web-router" type="application/json">{"pathname":"/meta","params":{},"body":{}}</script>`
+      `<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><base href="https://google.com/" /><title >😄New title!</title><meta name="description" content="HTML Meta Data Example" /><meta name="keywords" content="c, d" /><meta property="og:title" content="New Site" /><meta property="og:url" content="http://newsblog.org/news/136756249803614" /><meta name="server" content="@web-widget/web-router" /><meta name="hello" content="world" /><script type="importmap">{}</script><link type="application/json" href="https://google.com/test.json" /><style >a {}</style><script id="state:web-router" type="application/json">{"pathname":"/meta","params":{},"body":{}}</script>`
     );
   });
 
