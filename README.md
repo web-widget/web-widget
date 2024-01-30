@@ -1,5 +1,7 @@
 # Web Widget
 
+> 文档已经过期，待更新。[最新示例](https://github.com/web-widget/web-widget/tree/main/examples/web-router)
+
 [![CI](https://github.com/web-widget/web-widget/actions/workflows/main.yml/badge.svg?event=push)](https://github.com/web-widget/web-widget/actions/workflows/main.yml?query=event%3Apush)
 
 基于现代 Web 的开放式网页小挂件体系。
