@@ -1,16 +1,18 @@
-export const INITIAL = 'initial';
-export const LOADING = 'loading';
-export const LOADED = 'loaded';
-export const BOOTSTRAPPING = 'bootstrapping';
-export const BOOTSTRAPPED = 'bootstrapped';
-export const MOUNTING = 'mounting';
-export const MOUNTED = 'mounted';
-export const UPDATING = 'updating';
-export const UNMOUNTING = 'unmounting';
-export const UNLOADING = 'unloading';
-export const LOAD_ERROR = 'load-error';
-export const BOOTSTRAP_ERROR = 'bootstrap-error';
-export const MOUNT_ERROR = 'mount-error';
-export const UPDATE_ERROR = 'update-error';
-export const UNMOUNT_ERROR = 'unmount-error';
-export const UNLOAD_ERROR = 'unload-error';
+export const status = {
+  INITIAL: 'initial',
+  LOADING: 'loading',
+  LOADED: 'loaded',
+  BOOTSTRAPPING: 'bootstrapping',
+  BOOTSTRAPPED: 'bootstrapped',
+  MOUNTING: 'mounting',
+  MOUNTED: 'mounted',
+  UPDATING: 'updating',
+  UNMOUNTING: 'unmounting',
+  UNLOADING: 'unloading',
+  LOAD_ERROR: 'load-error',
+  BOOTSTRAP_ERROR: 'bootstrap-error',
+  MOUNT_ERROR: 'mount-error',
+  UPDATE_ERROR: 'update-error',
+  UNMOUNT_ERROR: 'unmount-error',
+  UNLOAD_ERROR: 'unload-error',
+};
