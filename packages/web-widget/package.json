@@ -62,8 +62,9 @@
   "scripts": {
     "build": "pnpm exec tsup",
     "dev": "pnpm exec tsup --watch",
-    "test": "web-test-runner test/**/*.test.ts --node-resolve",
-    "test:watch": "web-test-runner test/**/*.test.ts --node-resolve --watch",
+    "test": "web-test-runner test/**/*.test.ts",
+    "test:watch": "web-test-runner test/**/*.test.ts --watch",
+    "test:coverage": "web-test-runner test/**/*.test.ts --coverage",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
     "prebuild": "pnpm run clean:build"
