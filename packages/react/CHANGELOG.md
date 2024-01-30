@@ -1,5 +1,14 @@
 # @web-widget/react
 
+## 0.13.3
+
+### Patch Changes
+
+- Updated dependencies [f700f18]
+  - @web-widget/web-widget@1.9.3
+  - @web-widget/vite@2.11.8
+  - @web-widget/helpers@0.13.3
+
 ## 0.13.2
 
 ### Patch Changes

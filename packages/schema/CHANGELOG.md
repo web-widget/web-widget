@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 0.13.3
+
+### Patch Changes
+
+- f700f18: Fix test cases for @web-widget/web-widget.
+
 ## 0.13.2
 
 ## 0.13.1
