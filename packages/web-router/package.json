@@ -17,6 +17,7 @@
     "dev": "pnpm exec tsup --watch",
     "html-minifier": "babel dist/* --out-dir dist",
     "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
     "prebuild": "pnpm run clean:build"

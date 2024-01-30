@@ -2,6 +2,9 @@ import { expect } from '@esm-bundle/chai';
 import type { ClientWidgetRenderContext } from '@web-widget/helpers';
 import { HTMLWebWidgetElement } from '../src/element.js';
 
+const TEST_WIDGET_FILE =
+  '/packages/web-widget/test/widgets/hello-world@widget.js';
+
 declare global {
   interface Window {
     TEST_LIFECYCLE: string;
@@ -122,7 +125,7 @@ describe('Load module', () => {
   it('Load the ES module', async () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
-    widget.import = '/test/widgets/hello-world@widget.js';
+    widget.import = TEST_WIDGET_FILE;
     document.body.appendChild(widget);
 
     return widget.load().then(() => {
@@ -191,7 +194,7 @@ describe('Load module: error', () => {
 });
 
 describe('Auto load', () => {
-  const src = '/test/widgets/hello-world@widget.js';
+  const src = TEST_WIDGET_FILE;
 
   it('Connected (import)', (done) => {
     const widget = document.createElement('web-widget');
