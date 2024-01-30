@@ -1,10 +1,4 @@
-import type {
-  LinkDescriptor,
-  Meta,
-  MetaDescriptor,
-  ScriptDescriptor,
-  StyleDescriptor,
-} from '@web-widget/schema';
+import type { Meta } from '@web-widget/schema';
 import { escapeHtml } from './utils';
 
 const safeAttributeName = (value: string) =>
@@ -41,56 +35,92 @@ function createRawText(data: string) {
 }
 
 export function renderMetaToString(meta: Meta): string {
-  const priority: string[][] = [[], [], []];
-  Array.from(Object.entries(meta)).forEach(([key, value]) => {
-    if (key === 'base') {
-      // NOTE: this element must come before other elements with attribute values of URLs,
-      // such as <link>'s href attribute.
-      return priority[0].push(createElement(key, value));
-    }
+  const systemTags: string[] = [];
+  const basicTags: string[] = [];
+  const metaTags: string[] = [];
+  const importmapTags: string[] = [];
+  const linkTags: string[] = [];
+  const styleTags: string[] = [];
+  const scriptTags: string[] = [];
 
-    if (key === 'title') {
-      return priority[0].push(createElement(key, {}, createText(value)));
-    }
-
-    if (key === 'description' || key === 'keywords') {
-      return priority[0].push(
-        createElement('meta', { name: key, content: value })
-      );
-    }
-
-    if (key === 'link') {
-      return (value as LinkDescriptor[]).forEach((props) =>
-        priority[2].push(createElement(key, props as Record<string, string>))
-      );
-    }
-
-    if (key === 'meta') {
-      return (value as MetaDescriptor[]).forEach((props) =>
-        priority[0].push(createElement(key, props as Record<string, string>))
-      );
-    }
-
-    if (key === 'script') {
-      return (value as ScriptDescriptor[]).forEach(
-        ({ content = '', ...props }) => {
-          // NOTE: ImportMap must precede link[rel=modulepreload] elements
-          priority[props?.type === 'importmap' ? 1 : 2].push(
-            createElement(key, props, createRawText(content))
-          );
+  for (const [name, content] of Object.entries(meta)) {
+    switch (name) {
+      case 'title': {
+        basicTags.push(createElement(name, {}, createText(content)));
+        break;
+      }
+      case 'description': {
+        basicTags.push(createElement('meta', { name, content }));
+        break;
+      }
+      case 'keywords': {
+        basicTags.push(createElement('meta', { name, content }));
+        break;
+      }
+      case 'base': {
+        // NOTE: this element must come before other elements with attribute values of URLs,
+        // such as <link>'s href attribute.
+        basicTags.push(createElement(name, content as Record<string, string>));
+        break;
+      }
+      case 'meta': {
+        for (const attributes of content as Record<string, string>[]) {
+          if (attributes.name === 'viewport' || attributes.charset) {
+            systemTags.push(createElement(name, attributes));
+          } else {
+            metaTags.push(createElement(name, attributes));
+          }
         }
-      );
+        break;
+      }
+      case 'link': {
+        for (const attributes of content as Record<string, string>[]) {
+          linkTags.push(createElement(name, attributes));
+        }
+        break;
+      }
+      case 'style': {
+        for (const { content: text = '', ...attributes } of content as Record<
+          string,
+          string
+        >[]) {
+          styleTags.push(createElement(name, attributes, createRawText(text)));
+        }
+        break;
+      }
+      case 'script': {
+        for (const { content: text = '', ...attributes } of content as Record<
+          string,
+          string
+        >[]) {
+          const script = createElement(name, attributes, createRawText(text));
+          if (attributes?.type === 'importmap') {
+            // NOTE: ImportMap must precede link[rel=modulepreload] elements
+            importmapTags.push(script);
+          } else {
+            scriptTags.push(script);
+          }
+        }
+        break;
+      }
+      case 'lang': {
+        break;
+      }
+      default: {
+        throw new Error(`Unknown meta type: ${name}`);
+      }
     }
+  }
 
-    if (key === 'style') {
-      return (value as StyleDescriptor[]).forEach(
-        ({ content = '', ...props }) =>
-          priority[2].push(createElement(key, props, createRawText(content)))
-      );
-    }
-  });
-
-  return priority.flat().join('');
+  return (
+    systemTags.join('') +
+    basicTags.join('') +
+    metaTags.join('') +
+    importmapTags.join('') +
+    linkTags.join('') +
+    styleTags.join('') +
+    scriptTags.join('')
+  );
 }
 
 export function rebaseMeta(meta: Meta, importer: string): Meta {
