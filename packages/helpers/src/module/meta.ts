@@ -34,92 +34,110 @@ function createRawText(data: string) {
   return data;
 }
 
-export function renderMetaToString(meta: Meta): string {
-  const systemTags: string[] = [];
-  const basicTags: string[] = [];
-  const metaTags: string[] = [];
-  const importmapTags: string[] = [];
-  const linkTags: string[] = [];
-  const styleTags: string[] = [];
-  const scriptTags: string[] = [];
+export function renderMetaToString(metadata: Meta): string {
+  const {
+    title,
+    description,
+    keywords,
+    base,
+    meta,
+    link,
+    style,
+    script,
+    lang,
+    ...unknownTags
+  } = metadata;
 
-  for (const [name, content] of Object.entries(meta)) {
-    switch (name) {
-      case 'title': {
-        basicTags.push(createElement(name, {}, createText(content)));
-        break;
+  for (const tag of Object.keys(unknownTags)) {
+    throw new Error(`Unknown tag: ${tag}`);
+  }
+
+  let systemTags = '';
+  let basicTags = '';
+  let baseTags = '';
+  let metaTags = '';
+  let importmapTags = '';
+  let linkTags = '';
+  let styleTags = '';
+  let scriptTags = '';
+
+  if (title) {
+    basicTags += createElement('title', {}, createText(title));
+  }
+
+  if (description) {
+    basicTags += createElement('meta', {
+      name: 'description',
+      content: description,
+    });
+  }
+
+  if (keywords) {
+    basicTags += createElement('meta', { name: 'keywords', content: keywords });
+  }
+
+  if (meta) {
+    for (const attributes of meta as Record<string, string>[]) {
+      if (attributes.name === 'viewport' || attributes.charset) {
+        systemTags += createElement('meta', attributes);
+      } else if (
+        attributes.name === 'description' ||
+        attributes.name === 'keywords'
+      ) {
+        basicTags += createElement('meta', attributes);
+      } else {
+        metaTags += createElement('meta', attributes);
       }
-      case 'description': {
-        basicTags.push(createElement('meta', { name, content }));
-        break;
-      }
-      case 'keywords': {
-        basicTags.push(createElement('meta', { name, content }));
-        break;
-      }
-      case 'base': {
-        // NOTE: this element must come before other elements with attribute values of URLs,
-        // such as <link>'s href attribute.
-        basicTags.push(createElement(name, content as Record<string, string>));
-        break;
-      }
-      case 'meta': {
-        for (const attributes of content as Record<string, string>[]) {
-          if (attributes.name === 'viewport' || attributes.charset) {
-            systemTags.push(createElement(name, attributes));
-          } else {
-            metaTags.push(createElement(name, attributes));
-          }
-        }
-        break;
-      }
-      case 'link': {
-        for (const attributes of content as Record<string, string>[]) {
-          linkTags.push(createElement(name, attributes));
-        }
-        break;
-      }
-      case 'style': {
-        for (const { content: text = '', ...attributes } of content as Record<
-          string,
-          string
-        >[]) {
-          styleTags.push(createElement(name, attributes, createRawText(text)));
-        }
-        break;
-      }
-      case 'script': {
-        for (const { content: text = '', ...attributes } of content as Record<
-          string,
-          string
-        >[]) {
-          const script = createElement(name, attributes, createRawText(text));
-          if (attributes?.type === 'importmap') {
-            // NOTE: ImportMap must precede link[rel=modulepreload] elements
-            importmapTags.push(script);
-          } else {
-            scriptTags.push(script);
-          }
-        }
-        break;
-      }
-      case 'lang': {
-        break;
-      }
-      default: {
-        throw new Error(`Unknown meta type: ${name}`);
+    }
+  }
+
+  if (base) {
+    baseTags += createElement('base', base as Record<string, string>);
+  }
+
+  if (link) {
+    for (const attributes of link as Record<string, string>[]) {
+      linkTags += createElement('link', attributes);
+    }
+  }
+
+  if (style) {
+    for (const { content = '', ...attributes } of style as Record<
+      string,
+      string
+    >[]) {
+      styleTags += createElement('style', attributes, createRawText(content));
+    }
+  }
+
+  if (script) {
+    for (const { content = '', ...attributes } of script as Record<
+      string,
+      string
+    >[]) {
+      const script = createElement(
+        'script',
+        attributes,
+        createRawText(content)
+      );
+      if (attributes?.type === 'importmap') {
+        // NOTE: ImportMap must precede link[rel=modulepreload] elements
+        importmapTags += script;
+      } else {
+        scriptTags += script;
       }
     }
   }
 
   return (
-    systemTags.join('') +
-    basicTags.join('') +
-    metaTags.join('') +
-    importmapTags.join('') +
-    linkTags.join('') +
-    styleTags.join('') +
-    scriptTags.join('')
+    systemTags +
+    basicTags +
+    metaTags +
+    baseTags +
+    importmapTags +
+    linkTags +
+    styleTags +
+    scriptTags
   );
 }
 

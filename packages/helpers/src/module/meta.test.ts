@@ -1,4 +1,5 @@
 import { expect, test } from '@jest/globals';
+import type { Meta } from '@web-widget/schema';
 import { mergeMeta, rebaseMeta, renderMetaToString } from './meta';
 
 describe('mergeMeta', () => {
@@ -292,7 +293,20 @@ describe('renderMetaToString', () => {
       description: 'HTML Meta Data Example',
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><base href="https://google.com/" /><title >😄New title!</title><meta name="description" content="HTML Meta Data Example" /><meta name="keywords" content="c, d" /><meta property="og:title" content="New Site" /><meta property="og:url" content="http://newsblog.org/news/136756249803614" /><meta name="server" content="@web-widget/web-router" /><meta name="hello" content="world" /><script type="importmap">{}</script><link type="application/json" href="https://google.com/test.json" /><style >a {}</style><script id="state:web-router" type="application/json">{"pathname":"/meta","params":{},"body":{}}</script>`
+      `<meta charset="utf-8" />` +
+        `<meta name="viewport" content="width=device-width, initial-scale=1.0" />` +
+        `<title >😄New title!</title>` +
+        `<meta name="description" content="HTML Meta Data Example" />` +
+        `<meta name="keywords" content="c, d" />` +
+        `<meta property="og:title" content="New Site" />` +
+        `<meta property="og:url" content="http://newsblog.org/news/136756249803614" />` +
+        `<meta name="server" content="@web-widget/web-router" />` +
+        `<meta name="hello" content="world" />` +
+        `<base href="https://google.com/" />` +
+        `<script type="importmap">{}</script>` +
+        `<link type="application/json" href="https://google.com/test.json" />` +
+        `<style >a {}</style>` +
+        `<script id="state:web-router" type="application/json">{"pathname":"/meta","params":{},"body":{}}</script>`
     );
   });
 
@@ -331,5 +345,23 @@ describe('renderMetaToString', () => {
     expect(renderMetaToString(meta)).toEqual(
       `<style >/*"'&<>*/</style><script >/*"'&<>*/</script>`
     );
+  });
+
+  test('Should be able to render empty meta', () => {
+    expect(renderMetaToString({})).toEqual('');
+  });
+
+  test('Rendering unknown tags should throw an exception', () => {
+    expect(() => {
+      renderMetaToString({
+        div: {},
+      } as Meta);
+    }).toThrowErrorMatchingInlineSnapshot(`"Unknown tag: div"`);
+
+    expect(() => {
+      renderMetaToString({
+        [`"`]: `"` as any,
+      } as Meta);
+    }).toThrowErrorMatchingInlineSnapshot(`"Unknown tag: ""`);
   });
 });
