@@ -1,10 +1,4 @@
-import type {
-  LinkDescriptor,
-  Meta,
-  MetaDescriptor,
-  ScriptDescriptor,
-  StyleDescriptor,
-} from '@web-widget/schema';
+import type { Meta } from '@web-widget/schema';
 import { escapeHtml } from './utils';
 
 const safeAttributeName = (value: string) =>
@@ -40,57 +34,111 @@ function createRawText(data: string) {
   return data;
 }
 
-export function renderMetaToString(meta: Meta): string {
-  const priority: string[][] = [[], [], []];
-  Array.from(Object.entries(meta)).forEach(([key, value]) => {
-    if (key === 'base') {
-      // NOTE: this element must come before other elements with attribute values of URLs,
-      // such as <link>'s href attribute.
-      return priority[0].push(createElement(key, value));
-    }
+export function renderMetaToString(metadata: Meta): string {
+  const {
+    title,
+    description,
+    keywords,
+    base,
+    meta,
+    link,
+    style,
+    script,
+    lang,
+    ...unknownTags
+  } = metadata;
 
-    if (key === 'title') {
-      return priority[0].push(createElement(key, {}, createText(value)));
-    }
+  for (const tag of Object.keys(unknownTags)) {
+    throw new Error(`Unknown tag: ${tag}`);
+  }
 
-    if (key === 'description' || key === 'keywords') {
-      return priority[0].push(
-        createElement('meta', { name: key, content: value })
+  let systemTags = '';
+  let basicTags = '';
+  let baseTags = '';
+  let metaTags = '';
+  let importmapTags = '';
+  let linkTags = '';
+  let styleTags = '';
+  let scriptTags = '';
+
+  if (title) {
+    basicTags += createElement('title', {}, createText(title));
+  }
+
+  if (description) {
+    basicTags += createElement('meta', {
+      name: 'description',
+      content: description,
+    });
+  }
+
+  if (keywords) {
+    basicTags += createElement('meta', { name: 'keywords', content: keywords });
+  }
+
+  if (meta) {
+    for (const attributes of meta as Record<string, string>[]) {
+      if (attributes.name === 'viewport' || attributes.charset) {
+        systemTags += createElement('meta', attributes);
+      } else if (
+        attributes.name === 'description' ||
+        attributes.name === 'keywords'
+      ) {
+        basicTags += createElement('meta', attributes);
+      } else {
+        metaTags += createElement('meta', attributes);
+      }
+    }
+  }
+
+  if (base) {
+    baseTags += createElement('base', base as Record<string, string>);
+  }
+
+  if (link) {
+    for (const attributes of link as Record<string, string>[]) {
+      linkTags += createElement('link', attributes);
+    }
+  }
+
+  if (style) {
+    for (const { content = '', ...attributes } of style as Record<
+      string,
+      string
+    >[]) {
+      styleTags += createElement('style', attributes, createRawText(content));
+    }
+  }
+
+  if (script) {
+    for (const { content = '', ...attributes } of script as Record<
+      string,
+      string
+    >[]) {
+      const script = createElement(
+        'script',
+        attributes,
+        createRawText(content)
       );
+      if (attributes?.type === 'importmap') {
+        // NOTE: ImportMap must precede link[rel=modulepreload] elements
+        importmapTags += script;
+      } else {
+        scriptTags += script;
+      }
     }
+  }
 
-    if (key === 'link') {
-      return (value as LinkDescriptor[]).forEach((props) =>
-        priority[2].push(createElement(key, props as Record<string, string>))
-      );
-    }
-
-    if (key === 'meta') {
-      return (value as MetaDescriptor[]).forEach((props) =>
-        priority[0].push(createElement(key, props as Record<string, string>))
-      );
-    }
-
-    if (key === 'script') {
-      return (value as ScriptDescriptor[]).forEach(
-        ({ content = '', ...props }) => {
-          // NOTE: ImportMap must precede link[rel=modulepreload] elements
-          priority[props?.type === 'importmap' ? 1 : 2].push(
-            createElement(key, props, createRawText(content))
-          );
-        }
-      );
-    }
-
-    if (key === 'style') {
-      return (value as StyleDescriptor[]).forEach(
-        ({ content = '', ...props }) =>
-          priority[2].push(createElement(key, props, createRawText(content)))
-      );
-    }
-  });
-
-  return priority.flat().join('');
+  return (
+    systemTags +
+    basicTags +
+    metaTags +
+    baseTags +
+    importmapTags +
+    linkTags +
+    styleTags +
+    scriptTags
+  );
 }
 
 export function rebaseMeta(meta: Meta, importer: string): Meta {
