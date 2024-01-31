@@ -237,13 +237,6 @@ describe('renderMetaToString', () => {
       lang: 'en',
       meta: [
         {
-          charset: 'utf-8',
-        },
-        {
-          name: 'viewport',
-          content: 'width=device-width, initial-scale=1.0',
-        },
-        {
           name: 'keywords',
           content: 'c, d',
         },
@@ -262,6 +255,13 @@ describe('renderMetaToString', () => {
         {
           name: 'hello',
           content: 'world',
+        },
+        {
+          charset: 'utf-8',
+        },
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1.0',
         },
       ],
       base: {
