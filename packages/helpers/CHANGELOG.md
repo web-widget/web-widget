@@ -1,5 +1,12 @@
 # @web-widget/helpers
 
+## 0.13.4
+
+### Patch Changes
+
+- 96978b3: Optimize the tag order of `renderMetaToString` output.
+  - @web-widget/schema@0.13.4
+
 ## 0.13.3
 
 ### Patch Changes

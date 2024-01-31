@@ -1,5 +1,15 @@
 # @web-widget/vite
 
+## 2.11.9
+
+### Patch Changes
+
+- Updated dependencies [96978b3]
+  - @web-widget/helpers@0.13.4
+  - @web-widget/web-router@0.13.4
+  - @web-widget/web-widget@1.9.4
+  - @web-widget/node@0.13.4
+
 ## 2.11.8
 
 ### Patch Changes
