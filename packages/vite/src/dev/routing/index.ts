@@ -1,12 +1,12 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { walkRoutes } from './walk-routes-dir';
-import { pathToPattern, sortRoutePaths } from './extract';
 import type { ManifestJSON } from '@web-widget/web-router';
-import /*createFileId,*/ './fs';
-import type { RouteSourceFile } from './types';
 import type { FSWatcher } from 'vite';
 import { normalizePath } from '@rollup/pluginutils';
+import { walkRoutes } from './walk-routes-dir';
+import { pathToPattern, sortRoutePaths } from './extract';
+import { /*createFileId,*/ addTrailingSlash } from './utils';
+import type { RouteSourceFile } from './types';
 
 export type FileSystemRouteGeneratorOptions = {
   basePathname: string;
@@ -118,8 +118,8 @@ export async function getRoutemap(
       }
 
       pathname = pathToPattern(pathname);
-      if (trailingSlash && !pathname.endsWith('/')) {
-        pathname = pathname + '/';
+      if (trailingSlash) {
+        pathname = addTrailingSlash(pathname);
       }
     }
 
