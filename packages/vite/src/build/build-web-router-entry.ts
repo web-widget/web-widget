@@ -231,28 +231,33 @@ function resolveRoutemapEntryPoints(
   root: string
 ): EntryPoints {
   const entryPoints: EntryPoints = {};
-  const getEntrypoint = (file: string) => {
+  const setEntrypoint = (file: string) => {
     const modulePath = path.resolve(path.dirname(routemapPath), file);
     const basename = path
       .relative(
         root,
         modulePath.slice(0, modulePath.length - path.extname(modulePath).length)
       )
-      .replace(/^(src|app)[/\\]/, '')
+      .replace(/^(routes|pages|src|app)[/\\]/g, '')
+      // NOTE: Rollup's OutputChunk["name"] object will replace `[` and `]`.
+      .replace(/\[|\]/g, '_')
       .split(path.sep)
       .join('-');
-    return [basename, modulePath];
+
+    if (entryPoints[basename]) {
+      throw new Error('Duplicate entry point: ' + basename);
+    }
+
+    entryPoints[basename] = modulePath;
   };
 
   for (const value of Object.values(manifest)) {
     if (Array.isArray(value)) {
       for (const mod of value) {
-        const [name, file] = getEntrypoint(mod.module);
-        entryPoints[name] = file;
+        setEntrypoint(mod.module);
       }
     } else {
-      const [name, file] = getEntrypoint(value.module);
-      entryPoints[name] = file;
+      setEntrypoint(value.module);
     }
   }
 
