@@ -1,5 +1,5 @@
 import type { RouteSourceFileName, RouteSourceType } from './types';
-import { getExtension, removeExtension } from './fs';
+import { getExtension, removeExtension } from './utils';
 
 // eslint-disable-next-line regexp/no-super-linear-backtracking
 const NAME_REG = /^(?<name>.*)(?:\.|@)(?<type>.*)$/;
