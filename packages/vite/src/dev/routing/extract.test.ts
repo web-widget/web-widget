@@ -1,35 +1,33 @@
-import { assert, expect, test } from 'vitest';
 import { pathToPattern, sortRoutePaths } from './extract';
 
 test('creates pattern', () => {
-  assert(pathToPattern('foo/bar'), '/foo/bar');
+  expect(pathToPattern('foo/bar')).toBe('/foo/bar');
 });
 
 test('parses index routes', () => {
-  assert(pathToPattern('foo/index'), '/foo');
+  expect(pathToPattern('foo/index')).toBe('/foo');
 });
 
 test('parses parameters', () => {
-  assert(pathToPattern('foo/[name]'), '/foo/:name');
-  assert(pathToPattern('foo/[name]/bar/[bob]'), '/foo/:name/bar/:bob');
+  expect(pathToPattern('foo/[name]')).toBe('/foo/:name');
+  expect(pathToPattern('foo/[name]/bar/[bob]')).toBe('/foo/:name/bar/:bob');
 });
 
 test('parses catchall', () => {
-  assert(pathToPattern('foo/[...name]'), '/foo/:name*');
+  expect(pathToPattern('foo/[...name]')).toBe('/foo/:name*');
 });
 
 test('parses multiple params in same part', () => {
-  assert(pathToPattern('foo/[mod]@[version]'), '/foo/:mod@:version');
-  assert(pathToPattern('foo/[bar].json'), '/foo/:bar.json');
-  assert(pathToPattern('foo/foo[bar]'), '/foo/foo:bar');
+  expect(pathToPattern('foo/[mod]@[version]')).toBe('/foo/:mod@:version');
+  expect(pathToPattern('foo/[bar].json')).toBe('/foo/:bar.json');
+  expect(pathToPattern('foo/foo[bar]')).toBe('/foo/foo:bar');
 });
 
 test('parses optional params', () => {
-  assert(pathToPattern('foo/[[name]]'), '/foo{/:name}?');
-  assert(pathToPattern('foo/[name]/[[bob]]'), '/foo/:name{/:bob}?');
-  assert(pathToPattern('foo/[[name]]/bar'), '/foo{/:name}?/bar');
-  assert(
-    pathToPattern('foo/[[name]]/bar/[[bob]]'),
+  expect(pathToPattern('foo/[[name]]')).toBe('/foo{/:name}?');
+  expect(pathToPattern('foo/[name]/[[bob]]')).toBe('/foo/:name{/:bob}?');
+  expect(pathToPattern('foo/[[name]]/bar')).toBe('/foo{/:name}?/bar');
+  expect(pathToPattern('foo/[[name]]/bar/[[bob]]')).toBe(
     '/foo{/:name}?/bar{/:bob}?'
   );
 });
@@ -73,5 +71,5 @@ test('sortRoutePaths', () => {
     '/foo/[...slug]',
   ];
   routes.sort(sortRoutePaths);
-  assert.deepEqual(routes, sorted);
+  expect(routes).toEqual(sorted);
 });
