@@ -1,5 +1,16 @@
 # @web-widget/vite
 
+## 2.11.10
+
+### Patch Changes
+
+- 7a81e41: Do not add slashes to file or wildcard paths.
+- 905685b: Fixed an issue where server-side modules containing `[` or `]` were exposed in client-side build products.
+  - @web-widget/helpers@0.13.5
+  - @web-widget/node@0.13.5
+  - @web-widget/web-router@0.13.5
+  - @web-widget/web-widget@1.9.5
+
 ## 2.11.9
 
 ### Patch Changes
