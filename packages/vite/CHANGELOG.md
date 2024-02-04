@@ -1,5 +1,14 @@
 # @web-widget/vite
 
+## 2.11.12
+
+### Patch Changes
+
+- @web-widget/helpers@0.13.7
+- @web-widget/web-router@0.13.7
+- @web-widget/web-widget@1.9.7
+- @web-widget/node@0.13.7
+
 ## 2.11.11
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @web-widget/helpers
 
+## 0.13.7
+
+### Patch Changes
+
+- Updated dependencies [82bb030]
+  - @web-widget/schema@0.13.7
+
 ## 0.13.6
 
 ### Patch Changes
