@@ -17,12 +17,6 @@
     "typescript": "latest"
   },
   "publishConfig": {
-    "access": "public",
-    "exports": {
-      ".": {
-        "types": "./schema.d.ts",
-        "default": "./schema.d.ts"
-      }
-    }
+    "access": "public"
   }
 }
