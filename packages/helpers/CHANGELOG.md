@@ -1,5 +1,11 @@
 # @web-widget/helpers
 
+## 0.13.5
+
+### Patch Changes
+
+- @web-widget/schema@0.13.5
+
 ## 0.13.4
 
 ### Patch Changes
