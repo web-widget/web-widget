@@ -16,7 +16,8 @@
     "strict": true,
     "target": "ESNext",
     "types": [
-      "node"
+      "node",
+      "jest"
     ],
     "useUnknownInCatchVariables": false
   },
