@@ -1,4 +1,3 @@
-import { expect, test } from '@jest/globals';
 import type { Meta } from '@web-widget/schema';
 import { mergeMeta, rebaseMeta, renderMetaToString } from './meta';
 
