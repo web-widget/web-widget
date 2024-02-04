@@ -1,5 +1,14 @@
 # @web-widget/vue
 
+## 0.13.6
+
+### Patch Changes
+
+- Updated dependencies [402b16b]
+  - @web-widget/vite@2.11.11
+  - @web-widget/helpers@0.13.6
+  - @web-widget/web-widget@1.9.6
+
 ## 0.13.5
 
 ### Patch Changes
