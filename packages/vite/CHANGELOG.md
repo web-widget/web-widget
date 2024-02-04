@@ -1,5 +1,15 @@
 # @web-widget/vite
 
+## 2.11.11
+
+### Patch Changes
+
+- 402b16b: Add a slash at the end without repeating.
+  - @web-widget/helpers@0.13.6
+  - @web-widget/node@0.13.6
+  - @web-widget/web-router@0.13.6
+  - @web-widget/web-widget@1.9.6
+
 ## 2.11.10
 
 ### Patch Changes

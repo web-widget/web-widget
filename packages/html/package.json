@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/html",
-  "version": "0.13.5",
+  "version": "0.13.6",
   "type": "module",
   "exports": {
     ".": {
