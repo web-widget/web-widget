@@ -50,6 +50,11 @@ export default defineConfig({
     patchVuePluginConfig(),
     webRouterPlugin({
       filesystemRouting: true,
+      input: {
+        routes: {
+          trailingSlash: true,
+        },
+      },
     }),
     reactPresetsPlugin(),
     vuePresetsPlugin(),

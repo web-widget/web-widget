@@ -1,9 +1,9 @@
-import { assert, test } from 'vitest';
 import { addTrailingSlash } from './utils';
 
 test('addTrailingSlash', () => {
-  assert(addTrailingSlash('foo/bar'), '/foo/bar/');
-  assert(addTrailingSlash('foo/:bar'), '/foo/:bar/');
-  assert(addTrailingSlash('foo/bar.html'), '/foo/bar.html');
-  assert(addTrailingSlash('foo/:all*'), '/foo/:all*');
+  expect(addTrailingSlash('/foo/bar')).toBe('/foo/bar/');
+  expect(addTrailingSlash('/foo/:bar')).toBe('/foo/:bar/');
+  expect(addTrailingSlash('/')).toBe('/');
+  expect(addTrailingSlash('/foo/bar.html')).toBe('/foo/bar.html');
+  expect(addTrailingSlash('/foo/:all*')).toBe('/foo/:all*');
 });
