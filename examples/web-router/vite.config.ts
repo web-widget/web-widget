@@ -49,7 +49,9 @@ export default defineConfig({
   plugins: [
     patchVuePluginConfig(),
     webRouterPlugin({
-      filesystemRouting: true,
+      filesystemRouting: {
+        enabled: true,
+      },
     }),
     reactPresetsPlugin(),
     vuePresetsPlugin(),

@@ -38,19 +38,19 @@ export function webRouterDevServerPlugin(
         () => viteWebRouterMiddleware(builderConfig, viteServer)
       );
 
-      if (builderConfig.filesystemRouting) {
+      if (builderConfig.filesystemRouting.enabled) {
         const {
           dir: routesPath,
           basePathname,
-          trailingSlash,
-        } = builderConfig.input.routes;
+          overridePathname,
+        } = builderConfig.filesystemRouting;
         const { routemap: routemapPath } = builderConfig.input.server;
         fileSystemRouteGenerator({
           basePathname,
           root,
           routemapPath,
           routesPath,
-          trailingSlash,
+          overridePathname,
           update(padding) {
             restartWebRouter(padding);
           },

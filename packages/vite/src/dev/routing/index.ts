@@ -5,15 +5,14 @@ import type { FSWatcher } from 'vite';
 import { normalizePath } from '@rollup/pluginutils';
 import { walkRoutes } from './walk-routes-dir';
 import { pathToPattern, sortRoutePaths } from './extract';
-import { /*createFileId,*/ addTrailingSlash } from './utils';
-import type { RouteSourceFile } from './types';
+import type { RouteSourceFile, OverridePathname } from './types';
 
 export type FileSystemRouteGeneratorOptions = {
   basePathname: string;
   root: string;
   routemapPath: string;
   routesPath: string;
-  trailingSlash: boolean;
+  overridePathname?: OverridePathname;
   update: (padding: Promise<void>) => void;
   watcher: FSWatcher;
 };
@@ -23,7 +22,7 @@ export async function fileSystemRouteGenerator({
   root,
   routemapPath,
   routesPath,
-  trailingSlash,
+  overridePathname,
   update,
   watcher,
 }: FileSystemRouteGeneratorOptions) {
@@ -32,7 +31,7 @@ export async function fileSystemRouteGenerator({
     root,
     routesPath,
     basePathname,
-    trailingSlash,
+    overridePathname,
     routemapPath,
     cache
   );
@@ -42,7 +41,7 @@ export async function fileSystemRouteGenerator({
         root,
         routesPath,
         basePathname,
-        trailingSlash,
+        overridePathname,
         routemapPath,
         cache
       )
@@ -72,7 +71,7 @@ async function generateRoutemapFile(
   root: string,
   routesPath: string,
   basePathname: string,
-  trailingSlash: boolean,
+  overridePathname: OverridePathname | undefined,
   routemapPath: string,
   cache: any
 ) {
@@ -81,7 +80,7 @@ async function generateRoutemapFile(
     root,
     routesPath,
     basePathname,
-    trailingSlash
+    overridePathname
   );
   const newJson = JSON.stringify(routemap, null, 2);
 
@@ -95,7 +94,7 @@ export async function getRoutemap(
   root: string,
   routesPath: string,
   basePathname: string,
-  trailingSlash: boolean
+  overridePathname: OverridePathname | undefined
 ): Promise<ManifestJSON> {
   const sourceFiles = await walkRoutes(routesPath);
   const fallbacks = sourceFiles.filter((s) => s.type === 'fallback');
@@ -107,27 +106,27 @@ export async function getRoutemap(
     .filter((s) => s.type === 'route')
     .sort((a, b) => sortRoutePaths(a.pathname, b.pathname));
 
-  const toValue = (item: RouteSourceFile) => {
+  const toValue = (source: RouteSourceFile) => {
     let pathname;
 
-    if (item.type === 'route' || item.type === 'middleware') {
-      pathname = normalizePath(basePathname + item.pathname);
+    if (source.type === 'route' || source.type === 'middleware') {
+      pathname = normalizePath(basePathname + source.pathname);
 
       if (pathname.startsWith('/')) {
         pathname = pathname.substring(1);
       }
 
       pathname = pathToPattern(pathname);
-      if (trailingSlash) {
-        pathname = addTrailingSlash(pathname);
+      if (overridePathname) {
+        pathname = overridePathname(pathname, source);
       }
     }
 
-    //const name = createFileId(pathname ?? item.name, item.type);
-    const module = normalizePath(path.relative(root, item.source));
+    //const name = createFileId(pathname ?? source.name, source.type);
+    const module = normalizePath(path.relative(root, source.source));
     const status =
-      item.type === 'fallback'
-        ? parseInt(item.name.replaceAll(/\D/g, ''))
+      source.type === 'fallback'
+        ? parseInt(source.name.replaceAll(/\D/g, ''))
         : undefined;
 
     return {

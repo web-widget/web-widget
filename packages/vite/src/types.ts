@@ -1,7 +1,8 @@
 import type WebRouter from '@web-widget/web-router';
 import type { z } from 'zod';
-import type { BuilderConfigSchema } from './config';
 import type { Manifest, StartOptions } from '@web-widget/web-router';
+import type { BuilderConfigSchema } from './config';
+import type { RouteSourceFile } from './dev/routing/types';
 
 export interface Input {
   client: {
@@ -11,12 +12,6 @@ export interface Input {
   server: {
     entry: string;
     routemap: string;
-  };
-  routes: {
-    // enabled: boolean;
-    dir: string;
-    basePathname: string;
-    trailingSlash: boolean;
   };
 }
 
@@ -30,12 +25,18 @@ export interface Output {
 
 export interface ResolvedBuilderConfig {
   autoFullBuild: boolean;
-  filesystemRouting: boolean;
+  filesystemRouting: {
+    basePathname: string;
+    dir: string;
+    enabled: boolean;
+    overridePathname: (pathname: string, source: RouteSourceFile) => string;
+  };
   input: Input;
   output: Output;
 }
 
-export type BuilderUserConfig = Partial<ResolvedBuilderConfig>;
+export interface BuilderUserConfig
+  extends z.input<typeof BuilderConfigSchema> {}
 
 export interface BuilderConfig extends z.output<typeof BuilderConfigSchema> {}
 

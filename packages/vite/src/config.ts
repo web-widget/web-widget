@@ -1,11 +1,16 @@
-import { z } from 'zod';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { BuilderUserConfig, ResolvedBuilderConfig } from './types';
+import { z } from 'zod';
+import type { ResolvedBuilderConfig, BuilderUserConfig } from './types';
 
 export const BUILDER_CONFIG_DEFAULTS: ResolvedBuilderConfig = {
   autoFullBuild: true,
-  filesystemRouting: false,
+  filesystemRouting: {
+    basePathname: '/',
+    dir: 'routes',
+    enabled: false,
+    overridePathname: (pathname) => pathname,
+  },
   input: {
     client: {
       entry: 'entry.client',
@@ -14,11 +19,6 @@ export const BUILDER_CONFIG_DEFAULTS: ResolvedBuilderConfig = {
     server: {
       entry: 'entry.server',
       routemap: 'routemap.server',
-    },
-    routes: {
-      basePathname: '/',
-      dir: 'routes',
-      trailingSlash: false,
     },
   },
   output: {
@@ -36,9 +36,42 @@ export const BuilderConfigSchema = z.object({
     .optional()
     .default(BUILDER_CONFIG_DEFAULTS.autoFullBuild),
   filesystemRouting: z
-    .boolean()
+    .object({
+      basePathname: z
+        .string()
+        .optional()
+        .default(BUILDER_CONFIG_DEFAULTS.filesystemRouting.basePathname),
+      dir: z
+        .string()
+        .optional()
+        .default(BUILDER_CONFIG_DEFAULTS.filesystemRouting.dir),
+      enabled: z
+        .boolean()
+        .optional()
+        .default(BUILDER_CONFIG_DEFAULTS.filesystemRouting.enabled),
+      overridePathname: z
+        .function()
+        .args(
+          z.string(),
+          z.object({
+            pathname: z.string(),
+            source: z.string(),
+            name: z.string(),
+            type: z.union([
+              z.literal('route'),
+              z.literal('fallback'),
+              z.literal('layout'),
+              z.literal('middleware'),
+            ]),
+            ext: z.string(),
+          })
+        )
+        .returns(z.string())
+        .optional()
+        .default(BUILDER_CONFIG_DEFAULTS.filesystemRouting.overridePathname),
+    })
     .optional()
-    .default(BUILDER_CONFIG_DEFAULTS.filesystemRouting),
+    .default({}),
   input: z
     .object({
       client: z
@@ -64,23 +97,6 @@ export const BuilderConfigSchema = z.object({
             .string()
             .optional()
             .default(BUILDER_CONFIG_DEFAULTS.input.server.routemap),
-        })
-        .optional()
-        .default({}),
-      routes: z
-        .object({
-          basePathname: z
-            .string()
-            .optional()
-            .default(BUILDER_CONFIG_DEFAULTS.input.routes.basePathname),
-          dir: z
-            .string()
-            .optional()
-            .default(BUILDER_CONFIG_DEFAULTS.input.routes.dir),
-          trailingSlash: z
-            .boolean()
-            .optional()
-            .default(BUILDER_CONFIG_DEFAULTS.input.routes.trailingSlash),
         })
         .optional()
         .default({}),
@@ -125,20 +141,14 @@ export function parseConfig(
   const builderConfig = BuilderConfigSchema.parse(
     userConfig
   ) as ResolvedBuilderConfig;
-  const rules = {
-    client: ['entry', 'importmap'],
-    server: ['entry', 'routemap'],
-    routes: ['dir'],
-  };
+  const setRealPath = (ctx: any, key: string) =>
+    (ctx[key] = resolveRealFile(ctx[key], root, extensions));
 
-  Object.entries(builderConfig['input']).forEach(([key, value]) => {
-    Object.entries(value as string[]).forEach(([k, v]) => {
-      // @ts-ignore
-      if (rules[key].includes(k)) {
-        value[k] = resolveRealFile(v, root, extensions);
-      }
-    });
-  });
+  setRealPath(builderConfig.filesystemRouting, 'dir');
+  setRealPath(builderConfig.input.client, 'entry');
+  setRealPath(builderConfig.input.client, 'importmap');
+  setRealPath(builderConfig.input.server, 'entry');
+  setRealPath(builderConfig.input.server, 'routemap');
 
   return builderConfig;
 }
