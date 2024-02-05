@@ -15,6 +15,7 @@ test('parses parameters', () => {
 
 test('parses catchall', () => {
   expect(pathToPattern('foo/[...name]')).toBe('/foo/:name*');
+  expect(pathToPattern('foo/[...]')).toBe('/foo/(.*)');
 });
 
 test('parses multiple params in same part', () => {

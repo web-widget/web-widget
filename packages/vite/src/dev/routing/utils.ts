@@ -88,14 +88,3 @@ export function createFileId(pathname: string, explicitFileType?: string) {
     .join('')
     .concat(toTitleCase(explicitFileType || ''));
 }
-
-export function addTrailingSlash(pathname: string) {
-  if (!pathname.endsWith('/')) {
-    const isMatchAll = pathname.endsWith('*');
-    const isFile = pathname.split('/').at(-1)?.includes('.');
-    if (!isMatchAll && !isFile) {
-      pathname = pathname + '/';
-    }
-  }
-  return pathname;
-}

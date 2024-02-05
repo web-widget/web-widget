@@ -69,8 +69,10 @@ export function pathToPattern(path: string): string {
     const part = parts[i];
 
     // Case: /[...foo].tsx
+    // Case: /[...].tsx
     if (part.startsWith('[...') && part.endsWith(']')) {
-      route += `/:${part.slice(4, part.length - 1)}*`;
+      const param = part.slice(4, part.length - 1);
+      route += param ? `/:${param}*` : `/(.*)`;
       continue;
     }
 
