@@ -1,5 +1,15 @@
 # @web-widget/vite
 
+## 2.11.13
+
+### Patch Changes
+
+- 964414a: Change `filesystemRouting` configuration.
+  - @web-widget/helpers@0.13.8
+  - @web-widget/node@0.13.8
+  - @web-widget/web-router@0.13.8
+  - @web-widget/web-widget@1.9.8
+
 ## 2.11.12
 
 ### Patch Changes
