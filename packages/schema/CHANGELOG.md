@@ -1,5 +1,7 @@
 # @web-widget/schema
 
+## 0.13.8
+
 ## 0.13.7
 
 ### Patch Changes

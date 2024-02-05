@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.9.8
+
+### Patch Changes
+
+- @web-widget/helpers@0.13.8
+
 ## 1.9.7
 
 ### Patch Changes
