@@ -148,6 +148,12 @@ async function viteWebRouterMiddleware(
         awaitAllReady: true,
       },
     } as any,
+    onFallback(error, context) {
+      viteServer.ssrFixStacktrace(error);
+      if (error?.status !== 404) {
+        console.error(context?.request.url ?? '', error);
+      }
+    },
   });
 
   const nodeAdapter = new NodeAdapter({

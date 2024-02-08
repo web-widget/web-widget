@@ -57,7 +57,9 @@
   },
   "packageManager": "pnpm@8.4.0",
   "pnpm": {
-    "patchedDependencies": {}
+    "patchedDependencies": {
+      "@miniflare/core@2.14.2": "patches/@miniflare__core@2.14.2.patch"
+    }
   },
   "simple-git-hooks": {
     "pre-commit": "./node_modules/.bin/nano-staged"

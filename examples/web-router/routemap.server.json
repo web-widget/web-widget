@@ -95,8 +95,8 @@
   ],
   "middlewares": [
     {
-      "pathname": "/:all*",
-      "module": "routes/(middlewares)/[...all]@middleware.ts"
+      "pathname": "/(.*)",
+      "module": "routes/(middlewares)/[...]@middleware.ts"
     }
   ],
   "fallbacks": [
