@@ -21,14 +21,13 @@ const useFetchGithub = (username: string): GitHubUserData => {
       throw new Error(`[github] ${JSON.stringify(await resp.json())}`);
     }
     const { name, location, avatar_url } = await resp.json();
-    return { name, location, avatar_url, 'vanilla@</script>': Date.now() };
+    return { name, location, avatar_url, 'vanilla@</script>': 1 };
   });
 
   return data;
 };
 
 export default ({ username }: Props) => {
-  console.log('vanilla', Date.now());
   const data = useFetchGithub(username);
 
   return `

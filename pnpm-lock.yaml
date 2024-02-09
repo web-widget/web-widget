@@ -82,6 +82,12 @@ importers:
         specifier: canary
         version: 18.3.0-canary-60a927d04-20240113(react@18.3.0-canary-60a927d04-20240113)
     devDependencies:
+      '@jest/globals':
+        specifier: ^29.6.2
+        version: 29.6.2
+      '@types/jest':
+        specifier: ^29.5.3
+        version: 29.5.3
       '@types/koa':
         specifier: ^2.13.6
         version: 2.13.9
@@ -100,6 +106,12 @@ importers:
       '@web-widget/vite':
         specifier: workspace:*
         version: link:../../packages/vite
+      jest:
+        specifier: ^29.6.2
+        version: 29.6.2(@types/node@20.5.7)
+      ts-jest:
+        specifier: ^29.1.1
+        version: 29.1.1(@babel/core@7.22.5)(esbuild@0.19.11)(jest@29.6.2)(typescript@5.3.3)
       typescript:
         specifier: latest
         version: 5.3.3

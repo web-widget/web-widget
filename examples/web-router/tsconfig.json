@@ -23,11 +23,13 @@
     "useDefineForClassFields": true,
     "types": [
       "vite/client",
-      "@web-widget/react/globals"
+      "@web-widget/react/globals",
+      "jest",
     ]
   },
   "include": [
+    "*.ts",
     "routes/**/*",
-    "*"
+    "test/**/*"
   ]
 }

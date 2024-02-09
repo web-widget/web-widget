@@ -22,14 +22,13 @@ const useFetchGithub = (username: string): GitHubUserData => {
       throw new Error(`[github] ${JSON.stringify(await resp.json())}`);
     }
     const { name, location, avatar_url } = await resp.json();
-    return { name, location, avatar_url, 'react@</script>': Date.now() };
+    return { name, location, avatar_url, 'react@</script>': 1 };
   });
 
   return data;
 };
 
 const WidgetComponent: React.FC<Props> = ({ username }: Props) => {
-  console.log('react', Date.now());
   const data = useFetchGithub(username);
   const [show, setShow] = useState(false);
 
