@@ -4,23 +4,74 @@ import type {
   MiddlewareHandler,
   MiddlewareHandlers,
   MiddlewareNext,
-  MiddlewareResult,
   RouteHandler,
   RouteHandlers,
 } from '@web-widget/schema';
 
-type ComposedHandler = (
-  context: MiddlewareContext,
-  next?: MiddlewareNext
-) => Promise<MiddlewareResult>;
+type ComposedHandler<Content, Next, Result> = (
+  context: Content,
+  next?: Next
+) => Promise<Result>;
 
-/**
- * Compose `middleware` returning a fully valid middleware comprised
- * of all those which are passed.
- */
+// Based on the code in the MIT licensed `koa-compose` package.
+export function compose<
+  Handler = Function,
+  Context = any,
+  Next = Function,
+  Result = Response,
+>(
+  middlewares: Handler[],
+  each?: (value: Handler, index: number, array: Handler[]) => Function
+): ComposedHandler<Context, Next, Result> {
+  if (!Array.isArray(middlewares)) {
+    throw new TypeError('Middleware stack must be an array.');
+  }
+
+  if (!each) {
+    for (const fn of middlewares) {
+      if (typeof fn !== 'function') {
+        throw new TypeError('Middleware must be composed of functions.');
+      }
+    }
+  }
+
+  return (context, next) => {
+    let index = -1;
+    return dispatch(0);
+
+    async function dispatch(i: number): Promise<Result> {
+      if (i <= index) {
+        throw new Error('next() called multiple times.');
+      }
+      index = i;
+      let handler;
+
+      if (middlewares[i]) {
+        handler = each ? each(middlewares[i], i, middlewares) : middlewares[i];
+      } else if (i === middlewares.length) {
+        handler = next;
+      }
+
+      if (handler) {
+        return (handler as Function)(context, () => {
+          return dispatch(i + 1);
+        });
+      } else {
+        return new Response(null, {
+          status: 404,
+          statusText: 'Not Found',
+        }) as Result;
+      }
+    }
+  };
+}
+
 export function composeMiddleware(
   middlewares: (MiddlewareHandler | MiddlewareHandlers)[]
-): ComposedHandler {
+) {
+  if (!Array.isArray(middlewares)) {
+    throw new TypeError('Middleware stack must be an array.');
+  }
   const fns: MiddlewareHandler[] = middlewares.map((fn) => {
     const type = typeof fn;
     if (type === 'function') {
@@ -31,35 +82,7 @@ export function composeMiddleware(
     throw new TypeError('Middleware must be composed of functions.');
   });
 
-  return function (context, next) {
-    let index = -1;
-    return dispatch(0);
-
-    async function dispatch(i: number): Promise<MiddlewareResult> {
-      if (i <= index) {
-        throw new Error('next() called multiple times.');
-      }
-      index = i;
-      let handler: MiddlewareHandler | undefined;
-
-      if (fns[i]) {
-        handler = fns[i];
-      } else if (i === fns.length) {
-        handler = next;
-      }
-
-      if (handler) {
-        return handler(context, () => {
-          return dispatch(i + 1);
-        });
-      } else {
-        return new Response(null, {
-          status: 404,
-          statusText: 'Not Found',
-        });
-      }
-    }
-  };
+  return compose<MiddlewareHandler, MiddlewareContext, MiddlewareNext>(fns);
 }
 
 export function methodsToHandler<T extends RouteHandlers>(

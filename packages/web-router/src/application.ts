@@ -1,4 +1,4 @@
-import { compose } from './compose';
+import { compose } from '@web-widget/helpers';
 import { Context } from './context';
 import type { ExecutionContext } from './context';
 import type { Router } from './router';

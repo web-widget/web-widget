@@ -1,5 +1,83 @@
 import type { MiddlewareHandlers } from '@web-widget/schema';
-import { methodsToHandler, composeMiddleware } from './compose';
+import { compose, methodsToHandler, composeMiddleware } from './compose';
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms || 1));
+}
+
+type Handler<
+  Content = unknown,
+  Next = () => Promise<Response>,
+  Result = Response,
+> = (context: Content, next: Next) => Promise<Result>;
+
+describe('compose: Extended functionality on koa-compose', () => {
+  test('Reset context for each middleware', async () => {
+    type Context = { pathname: string };
+    const array: number[] = [];
+    const stack: [handler: Handler<Context>, pathname: string][] = [];
+    const pathnames: string[] = [];
+
+    stack.push([
+      async (context, next) => {
+        pathnames.push(context.pathname);
+        array.push(1);
+        await wait(1);
+        const res = await next();
+        await wait(1);
+        array.push(6);
+        return res;
+      },
+      '/a',
+    ]);
+
+    stack.push([
+      async (context, next) => {
+        pathnames.push(context.pathname);
+        array.push(2);
+        await wait(1);
+        const res = await next();
+        await wait(1);
+        array.push(5);
+        return res;
+      },
+      '/b',
+    ]);
+
+    stack.push([
+      async (context, next) => {
+        pathnames.push(context.pathname);
+        array.push(3);
+        await wait(1);
+        const res = await next();
+        await wait(1);
+        array.push(4);
+        return res;
+      },
+      '/c',
+    ]);
+
+    const ctx = {
+      params: {},
+      pathname: '/',
+    };
+    await compose(stack, (item) => {
+      ctx.pathname = item[1];
+      return item[0];
+    })(ctx);
+
+    expect(array).toEqual(expect.arrayContaining([1, 2, 3, 4, 5, 6]));
+    expect(pathnames).toEqual(expect.arrayContaining(['/a', '/b', '/c']));
+  });
+
+  test('Response 404', async () => {
+    const stack: Handler[] = [];
+    const ctx = {};
+    const res = await compose(stack)(ctx);
+    expect(res.status).toBe(404);
+    expect(res.statusText).toBe('Not Found');
+  });
+});
 
 describe('methodsToHandler', () => {
   const handler = methodsToHandler<MiddlewareHandlers>({
