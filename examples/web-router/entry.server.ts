@@ -4,6 +4,11 @@ import WebRouter from '@web-widget/web-router';
 
 export default (manifest: Manifest, options: StartOptions) => {
   return WebRouter.fromManifest(manifest, {
+    onFallback(error, context) {
+      if (error?.status !== 404) {
+        console.error(context?.request.url ?? '', error);
+      }
+    },
     ...options,
     defaultMeta: mergeMeta(
       {
@@ -20,10 +25,5 @@ export default (manifest: Manifest, options: StartOptions) => {
       },
       options.defaultMeta || {}
     ),
-    onFallback(error, context) {
-      if (error?.status !== 404) {
-        console.error(context?.request.url ?? '', error.message);
-      }
-    },
   });
 };

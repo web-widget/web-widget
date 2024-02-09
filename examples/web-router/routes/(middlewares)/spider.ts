@@ -1,8 +1,5 @@
-import {
-  mergeMeta,
-  defineMiddlewareHandler,
-  type ReactRenderOptions,
-} from '@web-widget/react';
+import { type ReactRenderOptions } from '@web-widget/react';
+import { defineMiddlewareHandler } from '@web-widget/helpers';
 
 export const handler = defineMiddlewareHandler(
   async function handler(ctx, next) {
@@ -24,19 +21,6 @@ export const handler = defineMiddlewareHandler(
       }
     }
 
-    if (ctx.meta) {
-      ctx.meta = mergeMeta(ctx.meta, {
-        meta: [
-          {
-            name: 'server',
-            content: '@web-widget/web-router',
-          },
-        ],
-      });
-    }
-
-    const resp = await next();
-    resp.headers.set('X-Powered-By', '@web-widget/web-router');
-    return resp;
+    return next();
   }
 );

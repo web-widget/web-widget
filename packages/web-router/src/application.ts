@@ -1,4 +1,4 @@
-import { compose } from './compose';
+import { compose } from '@web-widget/helpers';
 import { Context } from './context';
 import type { ExecutionContext } from './context';
 import type { Router } from './router';
@@ -134,10 +134,6 @@ class Application<
     return this.router.match(method, path);
   }
 
-  #handleError(error: unknown, c: Context<E>) {
-    return this.#errorHandler(error, c);
-  }
-
   handler(
     request: Request,
     env: E['Bindings'] | undefined = Object.create(null),
@@ -156,28 +152,31 @@ class Application<
     const path = this.getPath(request, { env });
     const [handlers] = this.#matchRoute(method, path);
 
-    const c = new Context(request, {
+    const context = new Context(request, {
       env,
       executionContext,
     });
 
-    const composed = compose<Context>(
+    const composed = compose<(typeof handlers)[0], Context>(
       handlers,
-      this.#errorHandler,
-      this.#notFoundHandler
+      (handler) => {
+        context.params = handler[1];
+        context.pathname = handler[2];
+        return handler[0];
+      }
     );
 
     return (async () => {
       try {
-        const res = await composed(c);
+        const res = await composed(context, this.#notFoundHandler);
         if (!res) {
           throw new Error(
-            'Response is not finalized. You may forget returning Response object or `return next()`'
+            'Response is not finalized. You may forget returning Response object or `return next()`.'
           );
         }
         return res;
       } catch (error) {
-        return this.#handleError(error, c);
+        return this.#errorHandler(error, context);
       }
     })();
   }

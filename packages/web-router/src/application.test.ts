@@ -751,29 +751,35 @@ describe('Error handling in middleware', () => {
 
   // @ts-expect-error
   app.get('/handle-error-in-middleware', async (c, next) => {
-    await next();
-    if (c.error) {
-      const message = c.error.message;
-      return text(
-        `Handle the error in middleware, original message is ${message}`,
-        {
-          status: 500,
-        }
-      );
+    try {
+      await next();
+    } catch (error) {
+      if (error instanceof Error) {
+        const message = error.message;
+        return text(
+          `Handle the error in middleware, original message is ${message}`,
+          {
+            status: 500,
+          }
+        );
+      }
     }
   });
 
   // @ts-expect-error
   app.get('/handle-error-in-middleware-async', async (c, next) => {
-    await next();
-    if (c.error) {
-      const message = c.error.message;
-      return text(
-        `Handle the error in middleware with async, original message is ${message}`,
-        {
-          status: 500,
-        }
-      );
+    try {
+      await next();
+    } catch (error) {
+      if (error instanceof Error) {
+        const message = error.message;
+        return text(
+          `Handle the error in middleware with async, original message is ${message}`,
+          {
+            status: 500,
+          }
+        );
+      }
     }
   });
 

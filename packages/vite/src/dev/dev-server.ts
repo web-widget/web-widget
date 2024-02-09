@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { Middleware } from '@web-widget/node';
 import NodeAdapter from '@web-widget/node';
-import type { RouteModule, MiddlewareHandler } from '@web-widget/helpers';
+import type { RouteModule } from '@web-widget/helpers';
 import { renderMetaToString } from '@web-widget/helpers';
 import type { ManifestJSON, ManifestResolved } from '@web-widget/web-router';
 import stripAnsi from 'strip-ansi';
@@ -119,6 +119,7 @@ async function viteWebRouterMiddleware(
 ): Promise<Middleware> {
   const baseModulePath = path.join(viteServer.config.root, path.sep);
 
+  let currentModule: string | undefined;
   const manifest = await loadManifest(
     builderConfig.input.server.routemap,
     viteServer
@@ -126,10 +127,15 @@ async function viteWebRouterMiddleware(
 
   manifest.middlewares ??= [];
   manifest.middlewares.unshift({
-    pathname: '*',
-    name: '@web-widget/vite:meta',
+    pathname: '(.*)',
     module: {
-      handler: renderStyles(viteServer),
+      async handler(context, next) {
+        try {
+          return await next();
+        } finally {
+          currentModule = (context.module as DevModule)?.$source;
+        }
+      },
     },
   });
 
@@ -148,15 +154,42 @@ async function viteWebRouterMiddleware(
         awaitAllReady: true,
       },
     } as any,
+    onFallback(error, context) {
+      currentModule = (context?.module as DevModule)?.$source;
+      viteServer.ssrFixStacktrace(error);
+      if (error?.status !== 404) {
+        console.error(context?.request.url ?? '', error);
+      }
+    },
   });
 
   const nodeAdapter = new NodeAdapter({
     origin: webRouter.origin,
     async handler(request, fetchEvent) {
       try {
-        const webResponse = await webRouter.handler(request, fetchEvent);
+        let res = await webRouter.handler(request, fetchEvent);
 
-        return webResponse;
+        if (!res.headers.get('content-type')?.startsWith('text/html;')) {
+          return res;
+        }
+
+        if (currentModule) {
+          let html = await res.text();
+          const meta = await getMeta(currentModule, viteServer);
+          const url = new URL(request.url);
+          const viteHtml = await viteServer.transformIndexHtml(
+            url.pathname + url.search,
+            html.replace(/(<\/head>)/, renderMetaToString(meta) + '$1')
+          );
+
+          res = new Response(viteHtml, {
+            status: res.status,
+            statusText: res.statusText,
+            headers: res.headers,
+          });
+        }
+
+        return res;
       } catch (error) {
         let message: string;
         if (error instanceof Error) {
@@ -225,38 +258,6 @@ async function loadManifest(routemap: string, viteServer: ViteDevServer) {
     }
     return manifest;
   }, {} as ManifestResolved);
-}
-
-function renderStyles(viteServer: ViteDevServer): MiddlewareHandler {
-  return async (context, next) => {
-    let res = await next();
-
-    if (!res.headers.get('content-type')?.startsWith('text/html;')) {
-      return res;
-    }
-
-    const source = (context?.module as DevModule).$source;
-    if (source) {
-      const meta = await getMeta(source, viteServer);
-      const url = new URL(context.request.url);
-      const html = (await res.text()).replace(
-        /(<\/head>)/,
-        renderMetaToString(meta) + '$1'
-      );
-      const viteHtml = await viteServer.transformIndexHtml(
-        url.pathname + url.search,
-        html
-      );
-
-      res = new Response(viteHtml, {
-        status: res.status,
-        statusText: res.statusText,
-        headers: res.headers,
-      });
-    }
-
-    return res;
-  };
 }
 
 function errorTemplate(message: string) {

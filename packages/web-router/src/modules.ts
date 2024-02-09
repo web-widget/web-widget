@@ -1,4 +1,8 @@
-import { mergeMeta, rebaseMeta } from '@web-widget/helpers/module';
+import {
+  methodsToHandler,
+  mergeMeta,
+  rebaseMeta,
+} from '@web-widget/helpers/module';
 import {
   callContext,
   createContext,
@@ -11,7 +15,6 @@ import type {
   Meta,
   MiddlewareContext,
   MiddlewareHandler,
-  MiddlewareHandlers,
   MiddlewareModule,
   MiddlewareNext,
   RouteError,
@@ -66,70 +69,6 @@ function callAsyncContext<T extends (...args: any[]) => any>(
   } else {
     return callContext(data, setup, args);
   }
-}
-
-const knownMethods = [
-  'GET',
-  'HEAD',
-  'POST',
-  'PUT',
-  'DELETE',
-  'OPTIONS',
-  'PATCH',
-] as const;
-
-function composeHandler(
-  handler: RouteHandler | RouteHandlers | MiddlewareHandler | MiddlewareHandlers
-): RouteHandler | MiddlewareHandler {
-  if (typeof handler === 'function') {
-    return handler;
-  }
-
-  const methods: RouteHandlers | MiddlewareHandlers = { ...handler };
-
-  for (const methodName of knownMethods) {
-    if (methodName === 'HEAD') {
-      const GET = methods.GET;
-      methods[methodName] =
-        handler[methodName] || GET
-          ? ((async (ctx) => {
-              const resp = await (GET as RouteHandler)(ctx);
-              resp.body?.cancel();
-              return new Response(null, {
-                headers: resp.headers,
-                status: resp.status,
-                statusText: resp.statusText,
-              });
-            }) as RouteHandler)
-          : undefined;
-    }
-
-    methods[methodName] ??= handler[methodName];
-  }
-
-  return (context: RouteHandlerContext | MiddlewareContext) => {
-    let request = context.request;
-
-    // If not overridden, HEAD requests should be handled as GET requests but without the body.
-    if (request.method === 'HEAD' && !methods['HEAD']) {
-      request = new Request(request.url, {
-        method: 'GET',
-        headers: request.headers,
-      });
-    }
-
-    const handler =
-      Reflect.get(methods, request.method) ??
-      (() =>
-        new Response(null, {
-          status: 405,
-          headers: {
-            Accept: knownMethods.join(', '),
-          },
-        }));
-
-    return handler(context);
-  };
 }
 
 function composeRender(
@@ -259,7 +198,10 @@ export function callMiddlewareModule(
       );
     }
 
-    handler ??= composeHandler(module.handler) as MiddlewareHandler;
+    handler ??=
+      typeof module.handler === 'function'
+        ? module.handler
+        : (methodsToHandler(module.handler) as MiddlewareHandler);
 
     return handler(context, next);
   };
@@ -330,14 +272,17 @@ export function createFallbackHandler(
       defaultMeta,
       rebaseMeta(module.meta ?? {}, defaultBaseAsset)
     );
-    handler ??= composeHandler(
-      module.handler ??
-        ({
-          GET({ render }) {
-            return render();
-          },
-        } as RouteHandlers)
-    ) as RouteHandler;
+    handler ??=
+      typeof module.handler === 'function'
+        ? module.handler
+        : (methodsToHandler(
+            module.handler ??
+              ({
+                GET({ render }) {
+                  return render();
+                },
+              } as RouteHandlers)
+          ) as RouteHandler);
     renderOptions ??= Object.assign({}, defaultRenderOptions);
 
     const routeContext = Object.assign<Context, RouteHandlerContext>(context, {
@@ -365,14 +310,18 @@ export function renderRouteModule(): MiddlewareHandler {
     const isRouteContext =
       Reflect.has(context, 'module') && Reflect.has(context, 'render');
     if (isRouteContext) {
-      handler ??= composeHandler(
-        context?.module?.handler ??
-          ({
-            GET({ render }) {
-              return render();
-            },
-          } as RouteHandlers)
-      ) as RouteHandler;
+      const module = context.module!;
+      handler ??=
+        typeof module.handler === 'function'
+          ? module.handler
+          : (methodsToHandler(
+              module.handler ??
+                ({
+                  GET({ render }) {
+                    return render();
+                  },
+                } as RouteHandlers)
+            ) as RouteHandler);
       return callAsyncContext(context, handler, [
         context as RouteHandlerContext,
       ]);
