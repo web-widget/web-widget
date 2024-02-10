@@ -157,8 +157,17 @@ async function viteWebRouterMiddleware(
     onFallback(error, context) {
       currentModule = (context?.module as DevModule)?.$source;
       viteServer.ssrFixStacktrace(error);
-      if (error?.status !== 404) {
-        console.error(context?.request.url ?? '', error);
+      const status = Reflect.get(error, 'status') ?? 500;
+      const expose = Reflect.get(error, 'expose');
+      if (status >= 500 && !expose) {
+        const message = (error.stack || error.toString()).replace(/^/gm, '  ');
+        if (context) {
+          console.error(
+            `${context.request.method} ${context.request.url}\n${message}\n`
+          );
+        } else {
+          console.error(`\n${message}\n`);
+        }
       }
     },
   });

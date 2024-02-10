@@ -72,13 +72,22 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     const defaultRenderOptions = options.defaultRenderOptions ?? {};
     const onFallback =
       options.onFallback ??
-      ((error) => {
+      ((error, context) => {
         const status = Reflect.get(error, 'status') ?? 500;
         const expose = Reflect.get(error, 'expose');
 
         if (status >= 500 && !expose) {
-          const msg = error.stack || error.toString();
-          console.error(`\n${msg.replace(/^/gm, '  ')}\n`);
+          const message = (error.stack || error.toString()).replace(
+            /^/gm,
+            '  '
+          );
+          if (context) {
+            console.error(
+              `${context.request.method} ${context.request.url}\n${message}\n`
+            );
+          } else {
+            console.error(`\n${message}\n`);
+          }
         }
       });
 
