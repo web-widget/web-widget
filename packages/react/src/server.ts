@@ -25,10 +25,12 @@ function renderToReadableStream(
   return ReactDOMServer.renderToReadableStream(vNode, renderOptions);
 }
 
+type StreamOptions = {
+  awaitAllReady?: boolean;
+} & RenderToReadableStreamOptions;
+
 export interface ReactRenderOptions {
-  react?: {
-    awaitAllReady?: boolean;
-  } & RenderToReadableStreamOptions;
+  react?: StreamOptions;
 }
 
 export const createReactRender = ({
@@ -39,7 +41,9 @@ export const createReactRender = ({
   }
 
   return defineRender<unknown, Record<string, string>, ReactRenderOptions>(
-    async (context, { react: reactRenderOptions = {} } = {}) => {
+    async (context, { react: options } = {}) => {
+      const reactRenderOptions: StreamOptions = Object.create(options ?? null);
+
       let error;
       const componentDescriptor = getComponentDescriptor(context);
       const { component, props } = componentDescriptor;
@@ -55,7 +59,7 @@ export const createReactRender = ({
         if (onError) {
           onError(e, i);
         } else if (!awaitAllReady) {
-          console.error(`[@web-widget/react]`, e);
+          console.error(e);
         }
       };
 
