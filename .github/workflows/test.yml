@@ -45,9 +45,9 @@ jobs:
 
       - run: pnpm install --recursive --loglevel=error
 
-      - run: pnpm build --filter='!@examples/*'
+      - run: pnpm build
 
-      - run: pnpm run test --filter='!@examples/*'
+      - run: pnpm run test
 
       - name: Generate coverage
         run: pnpm coverage

@@ -19,15 +19,17 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES2020",
+    "target": "ESNext",
     "useDefineForClassFields": true,
     "types": [
       "vite/client",
-      "@web-widget/react/globals"
+      "@web-widget/react/globals",
+      "jest",
     ]
   },
   "include": [
+    "*.ts",
     "routes/**/*",
-    "*"
+    "test/**/*"
   ]
 }

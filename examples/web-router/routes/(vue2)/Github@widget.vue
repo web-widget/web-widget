@@ -1,5 +1,4 @@
 <script setup lang="ts">
-console.log('vue2', Date.now());
 import { useWidgetState } from '@web-widget/vue2';
 import { ref } from 'vue';
 
@@ -17,7 +16,7 @@ const data = useWidgetState(cacheKey, async () => {
     throw new Error(`[github] ${JSON.stringify(await resp.json())}`);
   }
   const { name, location, avatar_url } = await resp.json();
-  return { name, location, avatar_url, ['vue2@</' + 'script>']: Date.now() };
+  return { name, location, avatar_url, ['vue2@</' + 'script>']: 1 };
 });
 
 const show = ref(false);
