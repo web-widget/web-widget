@@ -98,5 +98,6 @@ export default defineConfig({
     'require-yield': WARN,
     'use-isnan': WARN,
     'valid-typeof': WARN,
+    'no-param-reassign': [ERROR, { props: true }],
   },
 });
