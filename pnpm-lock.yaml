@@ -77,10 +77,10 @@ importers:
         version: 5.0.1
       react:
         specifier: canary
-        version: 18.3.0-canary-60a927d04-20240113
+        version: 18.3.0-canary-03d6f7cf0-20240209
       react-dom:
         specifier: canary
-        version: 18.3.0-canary-60a927d04-20240113(react@18.3.0-canary-60a927d04-20240113)
+        version: 18.3.0-canary-03d6f7cf0-20240209(react@18.3.0-canary-03d6f7cf0-20240209)
     devDependencies:
       '@jest/globals':
         specifier: ^29.6.2
@@ -200,10 +200,10 @@ importers:
         version: link:../../packages/web-widget
       react:
         specifier: canary
-        version: 18.3.0-canary-60a927d04-20240113
+        version: 18.3.0-canary-03d6f7cf0-20240209
       react-dom:
         specifier: canary
-        version: 18.3.0-canary-60a927d04-20240113(react@18.3.0-canary-60a927d04-20240113)
+        version: 18.3.0-canary-03d6f7cf0-20240209(react@18.3.0-canary-03d6f7cf0-20240209)
     devDependencies:
       '@types/react':
         specifier: ^18.2.47
@@ -403,10 +403,10 @@ importers:
         version: link:../web-widget
       react:
         specifier: canary
-        version: 18.3.0-canary-60a927d04-20240113
+        version: 18.3.0-canary-03d6f7cf0-20240209
       react-dom:
         specifier: canary
-        version: 18.3.0-canary-60a927d04-20240113(react@18.3.0-canary-60a927d04-20240113)
+        version: 18.3.0-canary-03d6f7cf0-20240209(react@18.3.0-canary-03d6f7cf0-20240209)
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(typescript@5.3.3)
@@ -9500,14 +9500,14 @@ packages:
       scheduler: 0.23.0
     dev: false
 
-  /react-dom@18.3.0-canary-60a927d04-20240113(react@18.3.0-canary-60a927d04-20240113):
-    resolution: {integrity: sha512-l/weUXejD8QJwuRDKgZ4NWWtLL5fYxE+UHc+zwA4tmt+czbvIKMWCM39hshNG6CFNYSYF4hV3h6AtCkR9LiMxQ==}
+  /react-dom@18.3.0-canary-03d6f7cf0-20240209(react@18.3.0-canary-03d6f7cf0-20240209):
+    resolution: {integrity: sha512-Dg3WFLuV1+5S43eANryeRa3PEGjbP0YDpewD19a4tJkGDDvV9r4QFFxhP/c8PIawjb3bYNFysE35eF6UCFfhJA==}
     peerDependencies:
-      react: 18.3.0-canary-60a927d04-20240113
+      react: 18.3.0-canary-03d6f7cf0-20240209
     dependencies:
       loose-envify: 1.4.0
-      react: 18.3.0-canary-60a927d04-20240113
-      scheduler: 0.24.0-canary-60a927d04-20240113
+      react: 18.3.0-canary-03d6f7cf0-20240209
+      scheduler: 0.24.0-canary-03d6f7cf0-20240209
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -9529,8 +9529,8 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
-  /react@18.3.0-canary-60a927d04-20240113:
-    resolution: {integrity: sha512-ehS+psOGXcSqob/sX6Aty7J6y37uR9iV4/Co37E2XyiFUsgBTXY1wuivgTc06VMewi3t1HhHO5IJi/D+qk5Viw==}
+  /react@18.3.0-canary-03d6f7cf0-20240209:
+    resolution: {integrity: sha512-SKgo4INQTwrPLaae6vqbEEL9VT2Cwz7aucEKKwodr6bsQjBZK1UuumAgb8nBH1fV23+P80MvbOyNAPXKBvwGqA==}
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
@@ -9831,8 +9831,8 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
-  /scheduler@0.24.0-canary-60a927d04-20240113:
-    resolution: {integrity: sha512-nZnKdZXaqoLyiFtfbN/BoGZTINy/0aQXZ6AeUHPJILG5Jyro4lPQLlt63EV3VxNlqPGYScMk6ZlTnZMs8EZr3A==}
+  /scheduler@0.24.0-canary-03d6f7cf0-20240209:
+    resolution: {integrity: sha512-zez6fgfdLtx4xV5e61FkMwwDmpCAwZxgrsmKjzQH4NgHilteY5wyIu7evB/THrR/VQ9X7I8qHUSi5PNRgmx4dw==}
     dependencies:
       loose-envify: 1.4.0
 

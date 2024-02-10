@@ -10,8 +10,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "test": "NODE_OPTIONS='--experimental-vm-modules' pnpm exec jest --detectOpenHandles",
-    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' pnpm exec jest --detectOpenHandles --coverage",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' pnpm exec jest",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' pnpm exec jest --coverage",
     "start": "node server.js"
   },
   "dependencies": {
