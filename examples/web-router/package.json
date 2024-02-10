@@ -10,9 +10,11 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "dev:inspect": "NODE_OPTIONS='--inspect' vite",
     "test": "NODE_OPTIONS='--experimental-vm-modules' pnpm exec jest",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' pnpm exec jest --coverage",
-    "start": "node server.js"
+    "start": "node server.js",
+    "start:inspect": "node --inspect server.js"
   },
   "dependencies": {
     "@examples/web-router-vue2": "workspace:*",
