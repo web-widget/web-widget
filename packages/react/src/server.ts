@@ -25,22 +25,6 @@ function renderToReadableStream(
   return ReactDOMServer.renderToReadableStream(vNode, renderOptions);
 }
 
-function createTimeoutSignal(ms: number): [AbortSignal, () => void] {
-  const controller = new AbortController();
-  const timer = setTimeout(() => {
-    controller.abort(
-      new Error(`Component did not finish rendering within ${ms}ms.`)
-    );
-  }, ms);
-
-  return [
-    controller.signal,
-    function disconnect() {
-      clearTimeout(timer);
-    },
-  ];
-}
-
 export interface ReactRenderOptions {
   react?: {
     awaitAllReady?: boolean;
@@ -56,15 +40,14 @@ export const createReactRender = ({
 
   return defineRender<unknown, Record<string, string>, ReactRenderOptions>(
     async (context, { react: reactRenderOptions = {} } = {}) => {
-      let error, signal, disconnect;
+      let error;
       const componentDescriptor = getComponentDescriptor(context);
       const { component, props } = componentDescriptor;
       const onError = reactRenderOptions.onError;
       const awaitAllReady = reactRenderOptions.awaitAllReady;
 
       if (!reactRenderOptions.signal) {
-        [signal, disconnect] = createTimeoutSignal(1000 * 10);
-        reactRenderOptions.signal = signal;
+        reactRenderOptions.signal = AbortSignal.timeout(1000 * 10);
       }
 
       reactRenderOptions.onError = (e, i) => {
@@ -94,10 +77,6 @@ export const createReactRender = ({
 
       if (awaitAllReady) {
         await stream.allReady;
-      }
-
-      if (disconnect) {
-        disconnect();
       }
 
       if (error) {
