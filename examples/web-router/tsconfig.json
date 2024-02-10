@@ -19,7 +19,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES2020",
+    "target": "ESNext",
     "useDefineForClassFields": true,
     "types": [
       "vite/client",
