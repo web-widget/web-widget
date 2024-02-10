@@ -1,6 +1,7 @@
 import { createTestServer, type Server } from './server';
 
-let close: Server['close'], request: Server['request'];
+let close: Server['close'];
+let request: Server['request'];
 
 beforeAll(async () => {
   const server = await createTestServer();
@@ -51,8 +52,8 @@ describe('Should match snapshot', () => {
     expect(result.status).toBe(status);
     expect(
       Array.from(result.headers.entries()).filter(([key]) => key !== 'date')
-    ).toMatchSnapshot('headers' + pathname);
-    expect(await result.text()).toMatchSnapshot('body' + pathname);
+    ).toMatchSnapshot(`${pathname}@headers`);
+    expect(await result.text()).toMatchSnapshot(`${pathname}@body`);
   });
 
   test.each([['/fetching-data'], ['/react-streaming']])(
@@ -60,6 +61,9 @@ describe('Should match snapshot', () => {
     async (pathname, status = 200) => {
       const result = await request(`${pathname}`);
       expect(result.status).toBe(status);
+      expect(
+        Array.from(result.headers.entries()).filter(([key]) => key !== 'date')
+      ).toMatchSnapshot(`${pathname}@headers`);
     }
   );
 });
