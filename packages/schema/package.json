@@ -11,9 +11,7 @@
   "files": [
     "schema.d.ts"
   ],
-  "scripts": {
-    "lint": "eslint ."
-  },
+  "scripts": {},
   "dependencies": {},
   "devDependencies": {
     "typescript": "latest"
