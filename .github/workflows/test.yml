@@ -45,6 +45,8 @@ jobs:
 
       - run: pnpm install --recursive --loglevel=error
 
+      - run: pnpm run lint
+
       - run: pnpm build
 
       - run: pnpm run test

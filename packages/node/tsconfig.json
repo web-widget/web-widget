@@ -3,10 +3,7 @@
     "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
-    "lib": [
-      "ESNext",
-      "WebWorker"
-    ],
+    "lib": ["ESNext", "WebWorker"],
     "module": "es2020",
     "moduleResolution": "Bundler",
     "noUnusedLocals": true,
@@ -17,10 +14,6 @@
     "target": "es2020",
     "useUnknownInCatchVariables": false
   },
-  "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    "src/**/*"
-  ]
+  "exclude": ["node_modules"],
+  "include": ["src/**/*"]
 }

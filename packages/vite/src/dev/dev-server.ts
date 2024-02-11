@@ -90,6 +90,7 @@ function autoRestartMiddleware(
   let promise = Promise.resolve();
   const send = viteServer.ws.send;
 
+  // eslint-disable-next-line no-param-reassign
   viteServer.ws.send = function () {
     // @see https://github.com/vitejs/vite/blob/b361ffa6724d9191fc6a581acfeab5bc3ebbd931/packages/vite/src/node/server/hmr.ts#L194
     if (arguments[0]?.type === 'full-reload') {
@@ -247,6 +248,7 @@ async function loadManifest(routemap: string, viteServer: ViteDevServer) {
   return Object.entries(manifestJson).reduce((manifest, [key, value]) => {
     if (Array.isArray(value)) {
       // @ts-ignore
+      // eslint-disable-next-line no-param-reassign
       manifest[key] = [];
       value.forEach((mod) => {
         // @ts-ignore
@@ -257,12 +259,14 @@ async function loadManifest(routemap: string, viteServer: ViteDevServer) {
       });
     } else if (value.module) {
       // @ts-ignore
+      // eslint-disable-next-line no-param-reassign
       manifest[key] = {
         ...value,
         module: createRouteLoader(value.module),
       };
     } else {
       // @ts-ignore
+      // eslint-disable-next-line no-param-reassign
       manifest[key] = value;
     }
     return manifest;

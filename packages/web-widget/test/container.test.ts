@@ -239,6 +239,7 @@ describe('Application property: data', () => {
   it('data', () =>
     createWidget(async ({ getElement, getContext }) => {
       const testValue = Date.now();
+      // eslint-disable-next-line no-param-reassign
       getElement().data = { testValue };
       await getElement().mount();
       expect(getContext().data).to.have.property('testValue', testValue);
@@ -267,12 +268,14 @@ describe('Application property: data', () => {
         test: 'priority',
       };
 
+      // eslint-disable-next-line no-param-reassign
       getElement().data = priorityData;
       getElement().setAttribute('data', JSON.stringify(arrtData));
       await getElement().mount();
       expect(getContext().data).to.deep.equal(arrtData);
 
       getElement().setAttribute('data', JSON.stringify(arrtData));
+      // eslint-disable-next-line no-param-reassign
       getElement().data = priorityData;
       await getElement().unmount();
       await getElement().mount();
@@ -283,6 +286,7 @@ describe('Application property: data', () => {
     createWidget(async ({ getElement, getContext }) => {
       const a = String(Date.now());
       const b = String(Date.now());
+      // eslint-disable-next-line no-param-reassign
       getElement().dataset.a = a;
       getElement().setAttribute('data-b', b);
       await getElement().mount();

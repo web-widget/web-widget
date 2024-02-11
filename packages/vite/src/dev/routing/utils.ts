@@ -28,6 +28,7 @@ export function getExtension(fileName: string) {
 
 export function removeExtension(fileName: string) {
   if (typeof fileName === 'string') {
+    // eslint-disable-next-line no-param-reassign
     fileName = fileName.trim();
     const ext = getExtension(fileName);
     return fileName.slice(0, fileName.length - ext.length);
@@ -49,8 +50,10 @@ export function normalizePathSlash(path: string) {
     return path;
   }
 
+  // eslint-disable-next-line no-param-reassign
   path = path.replace(/\\/g, '/');
   if (path.endsWith('/')) {
+    // eslint-disable-next-line no-param-reassign
     path = path.slice(0, path.length - 1);
   }
   return path;

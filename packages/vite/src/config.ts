@@ -142,6 +142,7 @@ export function parseConfig(
     userConfig
   ) as ResolvedBuilderConfig;
   const setRealPath = (ctx: any, key: string) =>
+    // eslint-disable-next-line no-param-reassign
     (ctx[key] = resolveRealFile(ctx[key], root, extensions));
 
   setRealPath(builderConfig.filesystemRouting, 'dir');

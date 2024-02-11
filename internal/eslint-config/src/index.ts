@@ -1,5 +1,5 @@
-import coreRules from './core';
 import { defineConfig } from 'eslint-define-config';
+import coreRules from './core';
 import importRules from './import';
 import reactRules from './react';
 import typescriptRules from './typescript';

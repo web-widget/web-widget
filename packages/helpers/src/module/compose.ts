@@ -106,9 +106,10 @@ export function methodsToHandler(
     }
   }
 
-  if (methods.GET && !methods.HEAD) {
-    const GET = methods.GET;
-    methods.HEAD = async function HEAD() {
+  const mergedMethods = { ...methods };
+  if (mergedMethods.GET && !mergedMethods.HEAD) {
+    const GET = mergedMethods.GET;
+    mergedMethods.HEAD = async function HEAD() {
       const [context, next] = arguments;
       const resp = await GET(context, next);
 
@@ -128,7 +129,8 @@ export function methodsToHandler(
     let request = context.request;
 
     // If not overridden, HEAD requests should be handled as GET requests but without the body.
-    if (request.method === 'HEAD' && !methods['HEAD']) {
+    if (request.method === 'HEAD' && !mergedMethods['HEAD']) {
+      // eslint-disable-next-line no-param-reassign
       context.request = new Request(request.url, {
         method: 'GET',
         headers: request.headers,
@@ -136,13 +138,13 @@ export function methodsToHandler(
     }
 
     const handler =
-      Reflect.get(methods, request.method) ??
+      Reflect.get(mergedMethods, request.method) ??
       (() =>
         new Response(null, {
           status: 405,
           statusText: 'Method Not Allowed',
           headers: {
-            Accept: Object.keys(methods).join(', '),
+            Accept: Object.keys(mergedMethods).join(', '),
           },
         }));
 
