@@ -18,7 +18,8 @@
     "dev": "pnpm exec tsup --watch",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build"
+    "prebuild": "pnpm run clean:build",
+    "lint": "eslint src"
   },
   "dependencies": {
     "@edge-runtime/node-utils": "^2.2.4",

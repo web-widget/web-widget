@@ -98,6 +98,7 @@ class Application<
     };
 
     const strict = options.strict ?? true;
+    // eslint-disable-next-line no-param-reassign
     delete options.strict;
     // Object.assign(this, options);
     this.getPath = strict ? options.getPath ?? getPath : getPathNoStrict;
@@ -124,9 +125,10 @@ class Application<
   }
 
   #addRoute(method: string, path: string, handler: MiddlewareHandler) {
+    // eslint-disable-next-line no-param-reassign
     method = method.toUpperCase();
     this.router.add(method, path, handler);
-    const r: RouterRoute = { path: path, method: method, handler: handler };
+    const r: RouterRoute = { path: path, method, handler };
     this.routes.push(r);
   }
 
@@ -196,10 +198,12 @@ class Application<
   ) => {
     if (input instanceof Request) {
       if (requestInit !== undefined) {
+        // eslint-disable-next-line no-param-reassign
         input = new Request(input, requestInit);
       }
       return this.handler(input, Env, executionContext);
     }
+    // eslint-disable-next-line no-param-reassign
     input = input.toString();
     const path = /^https?:\/\//.test(input)
       ? input

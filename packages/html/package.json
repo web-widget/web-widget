@@ -29,7 +29,8 @@
     "dev": "pnpm exec tsup --watch",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build"
+    "prebuild": "pnpm run clean:build",
+    "lint": "eslint src"
   },
   "dependencies": {
     "whatwg-stream-to-async-iter": "^0.6.2"

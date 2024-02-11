@@ -61,6 +61,7 @@ function callAsyncContext<T extends (...args: any[]) => any>(
       content: JSON.stringify(data),
     });
 
+    // eslint-disable-next-line no-param-reassign
     context.meta = meta;
   }
 

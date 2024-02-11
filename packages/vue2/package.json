@@ -36,7 +36,8 @@
     "dev": "pnpm exec tsup --watch",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build"
+    "prebuild": "pnpm run clean:build",
+    "lint": "eslint src"
   },
   "dependencies": {
     "@web-widget/vite": "workspace:*"

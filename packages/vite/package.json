@@ -19,7 +19,8 @@
     "test": "jest",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build"
+    "prebuild": "pnpm run clean:build",
+    "lint": "eslint src"
   },
   "dependencies": {
     "@rollup/pluginutils": "^5.1.0",

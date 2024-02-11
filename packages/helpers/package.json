@@ -5,30 +5,42 @@
   "exports": {
     ".": {
       "worker": {
-        "types": "./dist/helpers.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/helpers.server.js"
+        "types": "./dist/module.server.d.ts",
+        "development": "./src/module/server.ts",
+        "default": "./dist/module.server.js"
       },
       "browser": {
-        "types": "./dist/helpers.client.d.ts",
-        "development": "./src/client.ts",
-        "default": "./dist/helpers.client.js"
+        "types": "./dist/module.client.d.ts",
+        "development": "./src/module/client.ts",
+        "default": "./dist/module.client.js"
       },
       "default": {
-        "types": "./dist/helpers.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/helpers.server.js"
+        "types": "./dist/module.server.d.ts",
+        "development": "./src/module/server.ts",
+        "default": "./dist/module.server.js"
+      }
+    },
+    "./module": {
+      "worker": {
+        "types": "./dist/module.server.d.ts",
+        "development": "./src/module/server.ts",
+        "default": "./dist/module.server.js"
+      },
+      "browser": {
+        "types": "./dist/module.client.d.ts",
+        "development": "./src/module/client.ts",
+        "default": "./dist/module.client.js"
+      },
+      "default": {
+        "types": "./dist/module.server.d.ts",
+        "development": "./src/module/server.ts",
+        "default": "./dist/module.server.js"
       }
     },
     "./context": {
       "types": "./dist/context.d.ts",
       "development": "./src/context/index.ts",
       "default": "./dist/context.js"
-    },
-    "./module": {
-      "types": "./dist/module.d.ts",
-      "development": "./src/module/index.ts",
-      "default": "./dist/module.js"
     },
     "./http": {
       "types": "./dist/http.d.ts",
@@ -46,7 +58,8 @@
     "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build"
+    "prebuild": "pnpm run clean:build",
+    "lint": "eslint src"
   },
   "dependencies": {
     "unctx": "^2.3.1",
@@ -67,25 +80,35 @@
     "exports": {
       ".": {
         "worker": {
-          "types": "./dist/helpers.server.d.ts",
-          "default": "./dist/helpers.server.js"
+          "types": "./dist/module.server.d.ts",
+          "default": "./dist/module.server.js"
         },
         "browser": {
-          "types": "./dist/helpers.client.d.ts",
-          "default": "./dist/helpers.client.js"
+          "types": "./dist/module.client.d.ts",
+          "default": "./dist/module.client.js"
         },
         "default": {
-          "types": "./dist/helpers.server.d.ts",
-          "default": "./dist/helpers.server.js"
+          "types": "./dist/module.server.d.ts",
+          "default": "./dist/module.server.js"
+        }
+      },
+      "./module": {
+        "worker": {
+          "types": "./dist/module.server.d.ts",
+          "default": "./dist/module.server.js"
+        },
+        "browser": {
+          "types": "./dist/module.client.d.ts",
+          "default": "./dist/module.client.js"
+        },
+        "default": {
+          "types": "./dist/module.server.d.ts",
+          "default": "./dist/module.server.js"
         }
       },
       "./context": {
         "types": "./dist/context.d.ts",
         "default": "./dist/context.js"
-      },
-      "./module": {
-        "types": "./dist/module.d.ts",
-        "default": "./dist/module.js"
       },
       "./http": {
         "types": "./dist/http.d.ts",

@@ -613,6 +613,7 @@ describe('Application lifecycle: unload', () => {
         let promise;
         await mount();
         await unload();
+        // eslint-disable-next-line no-param-reassign
         getLifecycleHistory().length = 0;
 
         promise = load();

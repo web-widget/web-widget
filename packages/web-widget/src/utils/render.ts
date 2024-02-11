@@ -16,10 +16,13 @@ export function unsafePropsToAttrs(props: any) {
   return Object.entries(props).reduce(
     (attrs, [key, value]) => {
       if (typeof value === 'string') {
+        // eslint-disable-next-line no-param-reassign
         attrs[key.toLowerCase()] = value;
       } else if (typeof value === 'number') {
+        // eslint-disable-next-line no-param-reassign
         attrs[key.toLowerCase()] = String(value);
       } else if (value === true) {
+        // eslint-disable-next-line no-param-reassign
         attrs[key.toLowerCase()] = '';
       }
       return attrs;

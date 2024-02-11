@@ -2,29 +2,15 @@
   "compilerOptions": {
     "composite": false,
     "declaration": true,
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable",
-      "WebWorker"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "rootDir": "./src",
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
-    "types": [
-      "jest",
-      "urlpattern-polyfill"
-    ]
+    "types": ["jest", "urlpattern-polyfill"]
   },
-  "exclude": [
-    ".backup/**/*",
-    "tsup.config.ts",
-    "node_modules"
-  ],
-  "include": [
-    "src/**/*"
-  ]
+  "exclude": [".backup/**/*", "tsup.config.ts", "node_modules"],
+  "include": ["src/**/*"]
 }

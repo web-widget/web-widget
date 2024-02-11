@@ -6,6 +6,7 @@ const ERROR = 2;
 
 export default defineConfig({
   rules: {
+    'no-param-reassign': [ERROR, { props: true }],
     'array-callback-return': WARN,
     'getter-return': WARN,
     'new-parens': WARN,
@@ -98,6 +99,5 @@ export default defineConfig({
     'require-yield': WARN,
     'use-isnan': WARN,
     'valid-typeof': WARN,
-    'no-param-reassign': [ERROR, { props: true }],
   },
 });

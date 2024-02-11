@@ -36,6 +36,7 @@
     "clean:node": "pnpm -r run clean:node",
     "contributors": "git-authors-cli && finepack",
     "coverage": "c8 report",
+    "lint": "turbo run lint",
     "lockfile": "pnpm install --lockfile && git add pnpm-lock.yaml && git commit -m \"build: regenerate lock\"",
     "postinstall": "./node_modules/.bin/simple-git-hooks",
     "prebuild": "pnpm -r run clean:build",

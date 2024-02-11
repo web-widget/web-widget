@@ -344,6 +344,7 @@ describe('`koa-compose` test cases', () => {
       next: number;
     }>[] = [
       (ctx, next) => {
+        // eslint-disable-next-line no-param-reassign
         ctx.middleware++;
         return next();
       },
@@ -354,6 +355,7 @@ describe('`koa-compose` test cases', () => {
     };
 
     return compose(middleware)(ctx, ((ctx, next) => {
+      // eslint-disable-next-line no-param-reassign
       ctx.next++;
       return next();
     }) as Handler<{

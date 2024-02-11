@@ -8,7 +8,7 @@ export function isFilePathname(pathname: string) {
 export function addTrailingSlash(pathname: string) {
   if (!pathname.endsWith('/')) {
     if (!isFilePathname(pathname)) {
-      pathname = pathname + '/';
+      return pathname + '/';
     }
   }
   return pathname;

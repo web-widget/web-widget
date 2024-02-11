@@ -20,7 +20,8 @@
     "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build"
+    "prebuild": "pnpm run clean:build",
+    "lint": "eslint src"
   },
   "dependencies": {},
   "devDependencies": {
@@ -28,7 +29,6 @@
     "@babel/core": "^7.22.5",
     "@babel/preset-env": "^7.22.9",
     "@types/jest": "^29.5.3",
-    "@web-widget/eslint-config": "workspace:*",
     "@web-widget/helpers": "workspace:*",
     "@web-widget/html": "workspace:*",
     "babel-plugin-template-html-minifier": "^4.1.0",

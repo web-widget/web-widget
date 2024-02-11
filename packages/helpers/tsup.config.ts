@@ -1,10 +1,9 @@
 import type { Options } from 'tsup';
 export const tsup: Options = {
   entry: {
-    'helpers.client': 'src/client.ts',
-    'helpers.server': 'src/server.ts',
+    'module.client': 'src/module/client.ts',
+    'module.server': 'src/module/server.ts',
     context: 'src/context/index.ts',
-    module: 'src/module/index.ts',
     http: 'src/http/index.ts',
   },
   dts: true,

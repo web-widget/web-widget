@@ -182,6 +182,7 @@ export function rebaseMeta(meta: Meta, importer: string): Meta {
 export const mergeMeta = (defaults: Meta, overrides: Meta): Meta => {
   const mergedMeta = Object.entries(defaults).reduce(
     (meta, [key, value]) => {
+      // eslint-disable-next-line no-param-reassign
       meta[key] = Array.isArray(value)
         ? [...value.map((item) => ({ ...item }))]
         : value;
