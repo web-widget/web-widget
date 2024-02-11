@@ -123,64 +123,88 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/" should match snapshot: /@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/" should match snapshot: /@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/api/hello-world" should match snapshot: /api/hello-world@body 1`] = `"[{"title":"👋🌍","url":"#id0"},{"title":"你好世界","url":"#id1"},{"title":"Hello world","url":"#id2"},{"title":"こんにちは世界","url":"#id3"},{"title":"مرحبا بالعالم","url":"#id4"},{"title":"헬로월드","url":"#id5"}]"`;
 
 exports[`Should match snapshot Request "/api/hello-world" should match snapshot: /api/hello-world@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "application/json; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "application/json; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/api/hello-world" should match snapshot: /api/hello-world@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/client-only-component" should match snapshot: /client-only-component@body 1`] = `
 "<!doctype html>
@@ -305,33 +329,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/client-only-component" should match snapshot: /client-only-component@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/client-only-component" should match snapshot: /client-only-component@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/custom-handlers" should match snapshot: /custom-handlers@body 1`] = `
 "<!doctype html>
@@ -456,41 +492,53 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/custom-handlers" should match snapshot: /custom-handlers@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-custom-header",
-    "Hello",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-  [
-    "x-route-name",
-    "",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-custom-header" => {
+        "name": "x-custom-header",
+        "value": "Hello",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+      "x-route-name" => {
+        "name": "x-route-name",
+        "value": "",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/custom-handlers" should match snapshot: /custom-handlers@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/dynamic-routes" should match snapshot: /dynamic-routes@body 1`] = `
 "<!doctype html>
@@ -591,33 +639,45 @@ window.__vite_plugin_react_preamble_installed__ = true
 `;
 
 exports[`Should match snapshot Request "/dynamic-routes" should match snapshot: /dynamic-routes@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/dynamic-routes" should match snapshot: /dynamic-routes@statusText 1`] = `"Not Found"`;
 
 exports[`Should match snapshot Request "/dynamic-routes/1" should match snapshot: /dynamic-routes/1@body 1`] = `
 "<!doctype html>
@@ -742,33 +802,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/dynamic-routes/1" should match snapshot: /dynamic-routes/1@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/dynamic-routes/1" should match snapshot: /dynamic-routes/1@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/experimental-async-component" should match snapshot: /experimental-async-component@body 1`] = `
 "<!doctype html>
@@ -893,33 +965,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/experimental-async-component" should match snapshot: /experimental-async-component@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/experimental-async-component" should match snapshot: /experimental-async-component@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/fallback" should match snapshot: /fallback@body 1`] = `
 "<!doctype html>
@@ -1044,33 +1128,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/fallback" should match snapshot: /fallback@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/fallback" should match snapshot: /fallback@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/fallback?404" should match snapshot: /fallback?404@body 1`] = `
 "<!doctype html>
@@ -1195,33 +1291,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/fallback?404" should match snapshot: /fallback?404@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/fallback?404" should match snapshot: /fallback?404@statusText 1`] = `"Not Found"`;
 
 exports[`Should match snapshot Request "/fallback?500" should match snapshot: /fallback?500@body 1`] = `
 "<!doctype html>
@@ -1346,33 +1454,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/fallback?500" should match snapshot: /fallback?500@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/fallback?500" should match snapshot: /fallback?500@statusText 1`] = `"Internal Server Error"`;
 
 exports[`Should match snapshot Request "/fallback?global-404" should match snapshot: /fallback?global-404@body 1`] = `
 "<!doctype html>
@@ -1473,29 +1593,41 @@ window.__vite_plugin_react_preamble_installed__ = true
 `;
 
 exports[`Should match snapshot Request "/fallback?global-404" should match snapshot: /fallback?global-404@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/fallback?global-404" should match snapshot: /fallback?global-404@statusText 1`] = `"Not Found"`;
 
 exports[`Should match snapshot Request "/fallback?global-500" should match snapshot: /fallback?global-500@body 1`] = `
 "<!doctype html>
@@ -1596,58 +1728,82 @@ window.__vite_plugin_react_preamble_installed__ = true
 `;
 
 exports[`Should match snapshot Request "/fallback?global-500" should match snapshot: /fallback?global-500@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
 
+exports[`Should match snapshot Request "/fallback?global-500" should match snapshot: /fallback?global-500@statusText 1`] = `"Internal Server Error"`;
+
 exports[`Should match snapshot Request "/fetching-data" should match status: /fetching-data@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/fetching-data" should match status: /fetching-data@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/form" should match snapshot: /form@body 1`] = `
 "<!doctype html>
@@ -1772,33 +1928,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/form" should match snapshot: /form@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/form" should match snapshot: /form@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/lit-html-template" should match snapshot: /lit-html-template@body 1`] = `
 "<!doctype html>
@@ -1878,33 +2046,45 @@ window.__vite_plugin_react_preamble_installed__ = true
 `;
 
 exports[`Should match snapshot Request "/lit-html-template" should match snapshot: /lit-html-template@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/lit-html-template" should match snapshot: /lit-html-template@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/meta" should match snapshot: /meta@body 1`] = `
 "<!doctype html>
@@ -2120,33 +2300,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/meta" should match snapshot: /meta@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/meta" should match snapshot: /meta@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/react-and-vue" should match snapshot: /react-and-vue@body 1`] = `
 "<!doctype html>
@@ -2377,33 +2569,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/react-and-vue" should match snapshot: /react-and-vue@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/react-and-vue" should match snapshot: /react-and-vue@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/react-import-widgets" should match snapshot: /react-import-widgets@body 1`] = `
 "<!doctype html>
@@ -2634,33 +2838,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/react-import-widgets" should match snapshot: /react-import-widgets@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/react-import-widgets" should match snapshot: /react-import-widgets@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/react-server-component" should match snapshot: /react-server-component@body 1`] = `
 "<!doctype html>
@@ -2785,62 +3001,86 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/react-server-component" should match snapshot: /react-server-component@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
 
+exports[`Should match snapshot Request "/react-server-component" should match snapshot: /react-server-component@statusText 1`] = `"OK"`;
+
 exports[`Should match snapshot Request "/react-streaming" should match status: /react-streaming@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/react-streaming" should match status: /react-streaming@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/style" should match snapshot: /style@body 1`] = `
 "<!doctype html>
@@ -2970,33 +3210,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/style" should match snapshot: /style@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/style" should match snapshot: /style@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/vue2-import-widgets" should match snapshot: /vue2-import-widgets@body 1`] = `
 "<!doctype html>
@@ -3227,33 +3479,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/vue2-import-widgets" should match snapshot: /vue2-import-widgets@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/vue2-import-widgets" should match snapshot: /vue2-import-widgets@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/vue2-router" should match snapshot: /vue2-router@body 1`] = `
 "<!doctype html>
@@ -3513,33 +3777,45 @@ i[data-v-b93a357b][data-v-b93a357b] {
 `;
 
 exports[`Should match snapshot Request "/vue2-router" should match snapshot: /vue2-router@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/vue2-router" should match snapshot: /vue2-router@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/vue2-router/about" should match snapshot: /vue2-router/about@body 1`] = `
 "<!doctype html>
@@ -3806,33 +4082,45 @@ i[data-v-b93a357b][data-v-b93a357b] {
 `;
 
 exports[`Should match snapshot Request "/vue2-router/about" should match snapshot: /vue2-router/about@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/vue2-router/about" should match snapshot: /vue2-router/about@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/vue2-server-component" should match snapshot: /vue2-server-component@body 1`] = `
 "<!doctype html>
@@ -3967,33 +4255,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/vue2-server-component" should match snapshot: /vue2-server-component@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/vue2-server-component" should match snapshot: /vue2-server-component@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/vue3-import-widgets" should match snapshot: /vue3-import-widgets@body 1`] = `
 "<!doctype html>
@@ -4224,33 +4524,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/vue3-import-widgets" should match snapshot: /vue3-import-widgets@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/vue3-import-widgets" should match snapshot: /vue3-import-widgets@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/vue3-router" should match snapshot: /vue3-router@body 1`] = `
 "<!doctype html>
@@ -4510,33 +4822,45 @@ i[data-v-b559faf1][data-v-b559faf1] {
 `;
 
 exports[`Should match snapshot Request "/vue3-router" should match snapshot: /vue3-router@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/vue3-router" should match snapshot: /vue3-router@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/vue3-router/about" should match snapshot: /vue3-router/about@body 1`] = `
 "<!doctype html>
@@ -4803,33 +5127,45 @@ i[data-v-b559faf1][data-v-b559faf1] {
 `;
 
 exports[`Should match snapshot Request "/vue3-router/about" should match snapshot: /vue3-router/about@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/vue3-router/about" should match snapshot: /vue3-router/about@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/vue3-server-component" should match snapshot: /vue3-server-component@body 1`] = `
 "<!doctype html>
@@ -4960,33 +5296,45 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/vue3-server-component" should match snapshot: /vue3-server-component@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/vue3-server-component" should match snapshot: /vue3-server-component@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/vue3-streaming" should match snapshot: /vue3-streaming@body 1`] = `
 "<!doctype html>
@@ -5117,30 +5465,42 @@ footer {
 `;
 
 exports[`Should match snapshot Request "/vue3-streaming" should match snapshot: /vue3-streaming@headers 1`] = `
-[
-  [
-    "access-control-allow-origin",
-    "*",
-  ],
-  [
-    "connection",
-    "keep-alive",
-  ],
-  [
-    "content-type",
-    "text/html; charset=utf-8",
-  ],
-  [
-    "keep-alive",
-    "timeout=5",
-  ],
-  [
-    "transfer-encoding",
-    "chunked",
-  ],
-  [
-    "x-powered-by",
-    "@web-widget/web-router",
-  ],
-]
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+      "x-powered-by" => {
+        "name": "x-powered-by",
+        "value": "@web-widget/web-router",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
 `;
+
+exports[`Should match snapshot Request "/vue3-streaming" should match snapshot: /vue3-streaming@statusText 1`] = `"OK"`;
