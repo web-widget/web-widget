@@ -5,7 +5,7 @@ const MONOREPO_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 
 export type Server = {
   close: () => Promise<void>;
-  request: (pathname: string, options?: RequestInit) => Promise<Response>;
+  fetch: (pathname: string, options?: RequestInit) => Promise<Response>;
 };
 
 export async function createTestServer(): Promise<Server> {
@@ -21,21 +21,29 @@ export async function createTestServer(): Promise<Server> {
   viteDevServer.printUrls();
   viteDevServer.bindCLIShortcuts({ print: true });
 
-  const close = () => viteDevServer.close();
-  const request = (pathname: string, options?: RequestInit) => {
-    const res = fetch(`http://localhost:${port}${pathname}`, options).then(
-      (res) => {
-        const text = res.text;
-        res.text = async () => {
-          const t = await text.call(res);
-          // NOTE: Replace monorepo root with a placeholder to make the snapshot stable.
-          return t.replaceAll(MONOREPO_ROOT, '#TEST_MONOREPO_ROOT#');
-        };
-        return res;
-      }
-    );
-    return res;
-  };
+  return {
+    close() {
+      return viteDevServer.close();
+    },
 
-  return { close, request };
+    async fetch(pathname: string, options?: RequestInit) {
+      const response = await fetch(
+        `http://localhost:${port}${pathname}`,
+        options
+      );
+
+      const res = new Response(response.body, response);
+      const text = res.text;
+
+      // NOTE: Remove date to make the snapshot stable.
+      res.headers.delete('date');
+      res.text = async () => {
+        const t = await text.call(res);
+        // NOTE: Replace monorepo root with a placeholder to make the snapshot stable.
+        return t.replaceAll(MONOREPO_ROOT, '#TEST_MONOREPO_ROOT#');
+      };
+
+      return res;
+    },
+  };
 }

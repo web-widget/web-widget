@@ -1,16 +1,13 @@
 import { createTestServer, type Server } from './server';
 
-let close: Server['close'];
-let request: Server['request'];
+let server: Server;
 
 beforeAll(async () => {
-  const server = await createTestServer();
-  close = server.close;
-  request = server.request;
+  server = await createTestServer();
 });
 
 afterAll(async () => {
-  await close();
+  await server.close();
 });
 
 describe('Should match snapshot', () => {
@@ -48,22 +45,20 @@ describe('Should match snapshot', () => {
     /**/ ['/vue3-router/about'],
     ['/api/hello-world'],
   ])('Request "%s" should match snapshot', async (pathname, status = 200) => {
-    const result = await request(`${pathname}`);
+    const result = await server.fetch(`${pathname}`);
     expect(result.status).toBe(status);
-    expect(
-      Array.from(result.headers.entries()).filter(([key]) => key !== 'date')
-    ).toMatchSnapshot(`${pathname}@headers`);
+    expect(result.statusText).toMatchSnapshot(`${pathname}@statusText`);
+    expect(result.headers).toMatchSnapshot(`${pathname}@headers`);
     expect(await result.text()).toMatchSnapshot(`${pathname}@body`);
   });
 
   test.each([['/fetching-data'], ['/react-streaming']])(
     'Request "%s" should match status',
     async (pathname, status = 200) => {
-      const result = await request(`${pathname}`);
+      const result = await server.fetch(`${pathname}`);
       expect(result.status).toBe(status);
-      expect(
-        Array.from(result.headers.entries()).filter(([key]) => key !== 'date')
-      ).toMatchSnapshot(`${pathname}@headers`);
+      expect(result.statusText).toMatchSnapshot(`${pathname}@statusText`);
+      expect(result.headers).toMatchSnapshot(`${pathname}@headers`);
     }
   );
 });
