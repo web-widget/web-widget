@@ -4,7 +4,7 @@ import BaseLayout from './(components)/BaseLayout.tsx';
 import VueCounter from './(components)/Counter@widget.vue?as=jsx';
 
 export const meta = defineMeta({
-  title: 'Hello, Web Widget',
+  title: 'Home - Web Widget',
 });
 
 export default defineRouteComponent(function Page() {

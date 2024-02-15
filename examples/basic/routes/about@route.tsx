@@ -2,7 +2,7 @@ import { defineRouteComponent, defineMeta } from '@web-widget/react';
 import BaseLayout from './(components)/BaseLayout.tsx';
 
 export const meta = defineMeta({
-  title: 'Hello, Web Widget',
+  title: 'About - Web Widget',
 });
 
 export default defineRouteComponent(function Page() {
