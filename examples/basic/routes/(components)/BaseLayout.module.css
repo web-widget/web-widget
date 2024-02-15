@@ -1,0 +1,46 @@
+a {
+  color: rgba(60, 60, 60, 0.7);
+  text-decoration: none;
+}
+a:hover {
+  color: rgb(33, 53, 71);
+}
+a[target="_blank"]::after {
+  content: "⇱";
+  display: inline-block;
+  transform: rotateY(180deg);
+}
+
+.header {
+  max-width: 750px;
+  margin: auto;
+  border-bottom: rgba(60, 60, 60, 0.12) solid 1px;
+  text-align: center;
+}
+
+.header nav ul {
+  padding: 0;
+  text-align: center;
+}
+
+.header nav li {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+.main {
+  max-width: 750px;
+  margin: auto;
+  text-align: center;
+  padding-left: 40px;
+  padding-right: 40px;
+  padding-bottom: 40px;
+}
+
+.footer {
+  max-width: 750px;
+  margin: auto;
+  text-align: center;
+  border-top: rgba(60, 60, 60, 0.12) solid 1px;
+  color: rgba(60, 60, 60, 0.7);
+}
