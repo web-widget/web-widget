@@ -9,7 +9,7 @@ export type Server = {
 };
 
 export async function createTestServer(): Promise<Server> {
-  const port = 51204;
+  const port = 51205;
   const viteDevServer = await createServer({
     server: {
       port,
