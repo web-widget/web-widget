@@ -2,7 +2,6 @@
 import { ref } from 'vue';
 const props = defineProps(['name', 'start']);
 
-const name = props.name;
 const count = ref(props.start);
 </script>
 
@@ -18,10 +17,10 @@ const count = ref(props.start);
 .counter {
   display: inline-block;
   line-height: 1em;
-  padding: 20px;
+  padding: 15px;
   border-radius: 30px;
   font-size: 16px;
-  background: linear-gradient(315deg, #42d392 25%, #647eff);
+  border: 2px solid #42b883;
 }
 .counter button {
   width: 2em;
@@ -32,22 +31,21 @@ const count = ref(props.start);
   font-size: 1em;
   border: 0 none;
   outline: #fff solid 5px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #42b883;
   color: #fff;
   font-weight: bold;
   cursor: pointer;
 }
 .counter .count {
   display: inline-block;
-  min-width: 1.5em;
+  min-width: 1.2em;
   text-align: center;
   padding-left: 10px;
   padding-right: 10px;
   font-weight: bold;
   font-size: 1em;
-  color: cadetblue;
+  color: #42b883;
   border: 1px solid transparent;
-  color: #fff;
   background: transparent;
 }
 </style>

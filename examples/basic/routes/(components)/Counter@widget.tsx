@@ -10,9 +10,9 @@ export default function Counter(props: CounterProps) {
   const [count, setCount] = useState(props.start);
   return (
     <div className={styles.counter}>
-      <button onClick={() => setCount(count - 1)}>-1</button>
+      <button onClick={() => setCount(count - 1)}>−</button>
       <span className={styles.count}>{count}</span>
-      <button onClick={() => setCount(count + 1)}>+1</button>
+      <button onClick={() => setCount(count + 1)}>+</button>
     </div>
   );
 }
