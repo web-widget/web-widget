@@ -103,6 +103,10 @@ export function importWebWidgetPlugin(
         const inspectorId = 'web-widget:inspector';
         const result: IndexHtmlTransformResult = [];
 
+        if (!html.includes(`</web-widget>`)) {
+          return result;
+        }
+
         if (!html.includes(`id="${styleId}"`)) {
           result.push({
             injectTo: 'head',
