@@ -2020,7 +2020,6 @@ window.__vite_plugin_react_preamble_installed__ = true
   }
 </script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/lit-html-template","params":{},"body":{}}</script>
         <script type="module" src="/entry.client.ts"></script>
-        <style id="web-widget:style">web-widget{display:contents}</style>
       </head>
       <body>
         <h1>Lit html template</h1>
@@ -2039,8 +2038,6 @@ window.__vite_plugin_react_preamble_installed__ = true
           <a href="#id5">헬로월드</a>
         </li>
     </ul>
-        <web-widget-inspector id="web-widget:inspector" dir="#TEST_MONOREPO_ROOT#examples/web-router" keys="[&quot;Shift&quot;]">          <script type="module" src="/@fs#TEST_MONOREPO_ROOT#packages/web-widget/dist/inspector.js"></script>
-</web-widget-inspector>
       </body>
     </html>"
 `;

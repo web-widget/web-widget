@@ -189,12 +189,9 @@ window.__vite_plugin_react_preamble_installed__ = true
   }
 </script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >About - Web Widget</title><script id="state:web-router" type="application/json">{"pathname":"/about","params":{},"body":{}}</script>
       <link rel="stylesheet" href="/routes/(components)/BaseLayout.module.css" />  <script type="module" src="/entry.client.ts"></script>
-  <style id="web-widget:style">web-widget{display:contents}</style>
 </head>
       <body>
         <header class="_header_15e0o_14"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li></ul></nav></header><main class="_main_15e0o_31"><h1>About</h1><p>The page you&#x27;re looking at is purely static HTML, with no client-side interactivity needed. Because of that, we don&#x27;t need to load any JavaScript. Try viewing the page&#x27;s source, or opening the devtools network panel and reloading.</p></main><footer class="_footer_15e0o_40"><p>This is a footer</p></footer>
-        <web-widget-inspector id="web-widget:inspector" dir="#TEST_WORKSPACE_DIR#/examples/basic" keys="[&quot;Shift&quot;]">          <script type="module" src="/@fs#TEST_WORKSPACE_DIR#/packages/web-widget/dist/inspector.js"></script>
-</web-widget-inspector>
       </body>
     </html>"
 `;
