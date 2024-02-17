@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "react": "https://ga.jspm.io/npm:react@18.3.0-canary-31603f19d-20240109/index.js"
+  },
+  "scopes": {}
+}

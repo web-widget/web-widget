@@ -1,0 +1,239 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Should match snapshot Request "/" should match snapshot: /@body 1`] = `
+"<!doctype html>
+    <html lang="en">
+      <head>
+        <script type="module">
+import RefreshRuntime from "/@react-refresh"
+RefreshRuntime.injectIntoGlobalHook(window)
+window.$RefreshReg$ = () => {}
+window.$RefreshSig$ = () => (type) => type
+window.__vite_plugin_react_preamble_installed__ = true
+</script>
+
+        <script type="module" src="/@vite/client"></script>
+
+        <script id="shim:es-module">
+  if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
+    self.importShim = Object.assign(
+      function importShimProxy() {
+        const esModuleShimUrl =
+          'https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js';
+        const promise = new Promise((resolve, reject) => {
+          document.head.appendChild(
+            Object.assign(document.createElement('script'), {
+              src: esModuleShimUrl,
+              crossorigin: 'anonymous',
+              async: true,
+              onload() {
+                if (!importShim.$proxy) {
+                  resolve(importShim);
+                } else {
+                  reject(
+                    new Error(
+                      'No globalThis.importShim found:' + esModuleShimUrl
+                    )
+                  );
+                }
+              },
+              onerror(error) {
+                reject(error);
+              },
+            })
+          );
+        });
+        return promise.then((importShim) => importShim(...arguments));
+      },
+      {
+        $proxy: true,
+      }
+    );
+  }
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Home - Web Widget</title><script id="state:web-router" type="application/json">{"pathname":"/","params":{},"body":{}}</script>
+      <link rel="stylesheet" href="/routes/(components)/Counter.module.css" /><link rel="stylesheet" href="/routes/(components)/BaseLayout.module.css" /><style data-vite-dev-id="#TEST_WORKSPACE_DIR#/examples/basic/routes/(components)/Counter@widget.vue?vue&amp;type=style&amp;index=0&amp;scoped=a67ee2b2&amp;lang.css">
+.counter[data-v-a67ee2b2] {
+  display: inline-block;
+  line-height: 1em;
+  padding: 20px;
+  border-radius: 30px;
+  font-size: 16px;
+  background: linear-gradient(315deg, #42d392 25%, #647eff);
+}
+.counter button[data-v-a67ee2b2] {
+  width: 2em;
+  height: 2em;
+  line-height: 2em;
+  text-align: center;
+  border-radius: 100%;
+  font-size: 1em;
+  border: 0 none;
+  outline: #fff solid 5px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+.counter .count[data-v-a67ee2b2] {
+  display: inline-block;
+  min-width: 1.5em;
+  text-align: center;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-weight: bold;
+  font-size: 1em;
+  color: cadetblue;
+  border: 1px solid transparent;
+  color: #fff;
+  background: transparent;
+}
+</style><script type="module" src="/routes/(components)/Counter@widget.vue?vue&amp;type=style&amp;index=0&amp;scoped=a67ee2b2&amp;lang.css"></script>  <script type="module" src="/entry.client.ts"></script>
+  <style id="web-widget:style">web-widget{display:contents}</style>
+</head>
+      <body>
+        <header class="_header_15e0o_14"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li></ul></nav></header><main class="_main_15e0o_31"><h1>Welcome to Web Widget.</h1><p>Try to update this message in the ./routes/index@route.tsx file.</p><h2>React</h2><!--$--><web-widget import="/routes/(components)/Counter@widget.tsx" name="ReactCounter" data="{&quot;name&quot;:&quot;React Counter&quot;,&quot;start&quot;:0}" loading="lazy" rendertarget="light" recovering=""><div class="_counter_1jcvq_1"><button>-1</button><span class="_count_1jcvq_1">0</span><button>+1</button></div></web-widget><!--/$--><h2>Vue</h2><!--$--><web-widget import="/routes/(components)/Counter@widget.vue?as=jsx" name="VueCounter" data="{&quot;name&quot;:&quot;Vue3 Counter&quot;,&quot;start&quot;:0}" loading="lazy" rendertarget="light" recovering=""><div class="counter" data-v-a67ee2b2><button data-v-a67ee2b2>−</button><span class="count" data-v-a67ee2b2>0</span><button data-v-a67ee2b2>+</button></div></web-widget><!--/$--></main><footer class="_footer_15e0o_40"><p>This is a footer</p></footer>
+        <web-widget-inspector id="web-widget:inspector" dir="#TEST_WORKSPACE_DIR#/examples/basic" keys="[&quot;Shift&quot;]">          <script type="module" src="/@fs#TEST_WORKSPACE_DIR#/packages/web-widget/dist/inspector.js"></script>
+</web-widget-inspector>
+      </body>
+    </html>"
+`;
+
+exports[`Should match snapshot Request "/" should match snapshot: /@headers 1`] = `
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
+`;
+
+exports[`Should match snapshot Request "/" should match snapshot: /@status 1`] = `200`;
+
+exports[`Should match snapshot Request "/" should match snapshot: /@statusText 1`] = `"OK"`;
+
+exports[`Should match snapshot Request "/about" should match snapshot: /about@body 1`] = `
+"<!doctype html>
+    <html lang="en">
+      <head>
+        <script type="module">
+import RefreshRuntime from "/@react-refresh"
+RefreshRuntime.injectIntoGlobalHook(window)
+window.$RefreshReg$ = () => {}
+window.$RefreshSig$ = () => (type) => type
+window.__vite_plugin_react_preamble_installed__ = true
+</script>
+
+        <script type="module" src="/@vite/client"></script>
+
+        <script id="shim:es-module">
+  if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
+    self.importShim = Object.assign(
+      function importShimProxy() {
+        const esModuleShimUrl =
+          'https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js';
+        const promise = new Promise((resolve, reject) => {
+          document.head.appendChild(
+            Object.assign(document.createElement('script'), {
+              src: esModuleShimUrl,
+              crossorigin: 'anonymous',
+              async: true,
+              onload() {
+                if (!importShim.$proxy) {
+                  resolve(importShim);
+                } else {
+                  reject(
+                    new Error(
+                      'No globalThis.importShim found:' + esModuleShimUrl
+                    )
+                  );
+                }
+              },
+              onerror(error) {
+                reject(error);
+              },
+            })
+          );
+        });
+        return promise.then((importShim) => importShim(...arguments));
+      },
+      {
+        $proxy: true,
+      }
+    );
+  }
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >About - Web Widget</title><script id="state:web-router" type="application/json">{"pathname":"/about","params":{},"body":{}}</script>
+      <link rel="stylesheet" href="/routes/(components)/BaseLayout.module.css" />  <script type="module" src="/entry.client.ts"></script>
+  <style id="web-widget:style">web-widget{display:contents}</style>
+</head>
+      <body>
+        <header class="_header_15e0o_14"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li></ul></nav></header><main class="_main_15e0o_31"><h1>About</h1><p>The page you&#x27;re looking at is purely static HTML, with no client-side interactivity needed. Because of that, we don&#x27;t need to load any JavaScript. Try viewing the page&#x27;s source, or opening the devtools network panel and reloading.</p></main><footer class="_footer_15e0o_40"><p>This is a footer</p></footer>
+        <web-widget-inspector id="web-widget:inspector" dir="#TEST_WORKSPACE_DIR#/examples/basic" keys="[&quot;Shift&quot;]">          <script type="module" src="/@fs#TEST_WORKSPACE_DIR#/packages/web-widget/dist/inspector.js"></script>
+</web-widget-inspector>
+      </body>
+    </html>"
+`;
+
+exports[`Should match snapshot Request "/about" should match snapshot: /about@headers 1`] = `
+Headers {
+  Symbol(headers list): HeadersList {
+    "cookies": null,
+    Symbol(headers map): Map {
+      "access-control-allow-origin" => {
+        "name": "access-control-allow-origin",
+        "value": "*",
+      },
+      "connection" => {
+        "name": "connection",
+        "value": "keep-alive",
+      },
+      "content-type" => {
+        "name": "content-type",
+        "value": "text/html; charset=utf-8",
+      },
+      "keep-alive" => {
+        "name": "keep-alive",
+        "value": "timeout=5",
+      },
+      "transfer-encoding" => {
+        "name": "transfer-encoding",
+        "value": "chunked",
+      },
+    },
+    Symbol(headers map sorted): null,
+  },
+  Symbol(guard): "response",
+  Symbol(realm): {
+    "settingsObject": {},
+  },
+}
+`;
+
+exports[`Should match snapshot Request "/about" should match snapshot: /about@status 1`] = `200`;
+
+exports[`Should match snapshot Request "/about" should match snapshot: /about@statusText 1`] = `"OK"`;

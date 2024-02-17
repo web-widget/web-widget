@@ -1,7 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
-
-const MONOREPO_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+import { findWorkspaceDir } from '@pnpm/find-workspace-dir';
 
 export type Server = {
   close: () => Promise<void>;
@@ -9,7 +8,10 @@ export type Server = {
 };
 
 export async function createTestServer(): Promise<Server> {
-  const port = 51205;
+  const workspaceDir =
+    (await findWorkspaceDir(process.cwd())) ||
+    fileURLToPath(new URL('../', import.meta.url));
+  const port = 51204;
   const viteDevServer = await createServer({
     server: {
       port,
@@ -40,7 +42,7 @@ export async function createTestServer(): Promise<Server> {
       res.text = async () => {
         const t = await text.call(res);
         // NOTE: Replace monorepo root with a placeholder to make the snapshot stable.
-        return t.replaceAll(MONOREPO_ROOT, '#TEST_MONOREPO_ROOT#');
+        return t.replaceAll(workspaceDir, '#TEST_WORKSPACE_DIR#');
       };
 
       return res;
