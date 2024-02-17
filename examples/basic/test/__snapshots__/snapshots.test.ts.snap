@@ -133,6 +133,8 @@ Headers {
 }
 `;
 
+exports[`Should match snapshot Request "/" should match snapshot: /@status 1`] = `200`;
+
 exports[`Should match snapshot Request "/" should match snapshot: /@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot Request "/about" should match snapshot: /about@body 1`] = `
@@ -231,5 +233,7 @@ Headers {
   },
 }
 `;
+
+exports[`Should match snapshot Request "/about" should match snapshot: /about@status 1`] = `200`;
 
 exports[`Should match snapshot Request "/about" should match snapshot: /about@statusText 1`] = `"OK"`;
