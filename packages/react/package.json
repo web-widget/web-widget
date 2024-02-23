@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/react",
-  "version": "0.13.8",
+  "version": "1.10.0",
   "type": "module",
   "exports": {
     ".": {
@@ -43,7 +43,7 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@web-widget/vite": "workspace:*"
+    "@web-widget/vite-plugin": "workspace:*"
   },
   "devDependencies": {
     "@types/react-dom": "^18.2.18",

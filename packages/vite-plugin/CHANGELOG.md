@@ -1,4 +1,4 @@
-# @web-widget/vite
+# @web-widget/vite-plugin
 
 ## 2.11.13
 

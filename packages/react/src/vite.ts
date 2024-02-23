@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite';
-import { webWidgetPlugin } from '@web-widget/vite';
-import type { WebWidgetPluginOptions } from '@web-widget/vite';
+import { webWidgetPlugin } from '@web-widget/vite-plugin';
+import type { WebWidgetPluginOptions } from '@web-widget/vite-plugin';
 
 // Examples:
 // .vue?vue&type=script&setup=true&lang.tsx
