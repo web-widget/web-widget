@@ -1,5 +1,19 @@
 # @web-widget/vue2
 
+## 1.10.1
+
+### Patch Changes
+
+- a399dc5: Rename `@web-widget/vite` to `@web-widget/vite-plugin`.
+  Fixed Packages.
+- Updated dependencies [c5d458e]
+- Updated dependencies [59aa4bb]
+- Updated dependencies [a399dc5]
+- Updated dependencies [feb1924]
+  - @web-widget/helpers@1.10.1
+  - @web-widget/vite-plugin@1.10.1
+  - @web-widget/web-widget@1.10.1
+
 ## 0.13.8
 
 ### Patch Changes

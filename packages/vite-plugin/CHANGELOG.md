@@ -1,5 +1,21 @@
 # @web-widget/vite-plugin
 
+## 1.10.1
+
+### Patch Changes
+
+- 59aa4bb: Add url for error log.
+- a399dc5: Rename `@web-widget/vite` to `@web-widget/vite-plugin`.
+  Fixed Packages.
+- feb1924: Do not show the inspector for pages without the web-widget tag.
+- Updated dependencies [c5d458e]
+- Updated dependencies [59aa4bb]
+- Updated dependencies [a399dc5]
+  - @web-widget/helpers@1.10.1
+  - @web-widget/web-router@1.10.1
+  - @web-widget/web-widget@1.10.1
+  - @web-widget/node@1.10.1
+
 ## 2.11.13
 
 ### Patch Changes
