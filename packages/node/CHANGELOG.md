@@ -1,5 +1,12 @@
 # @web-widget/node
 
+## 1.10.1
+
+### Patch Changes
+
+- a399dc5: Rename `@web-widget/vite` to `@web-widget/vite-plugin`.
+  Fixed Packages.
+
 ## 0.13.8
 
 ## 0.13.7

@@ -1,5 +1,21 @@
 # @web-widget/react
 
+## 1.10.1
+
+### Patch Changes
+
+- 3976800: Use `AbortSignal.timeout` to create a timeout signal.
+- 1734a28: Fixed the risk of memory leaks in the default configuration of the renderer.
+- a399dc5: Rename `@web-widget/vite` to `@web-widget/vite-plugin`.
+  Fixed Packages.
+- Updated dependencies [c5d458e]
+- Updated dependencies [59aa4bb]
+- Updated dependencies [a399dc5]
+- Updated dependencies [feb1924]
+  - @web-widget/helpers@1.10.1
+  - @web-widget/vite-plugin@1.10.1
+  - @web-widget/web-widget@1.10.1
+
 ## 0.13.8
 
 ### Patch Changes

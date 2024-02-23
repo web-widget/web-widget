@@ -1,5 +1,15 @@
 # @web-widget/helpers
 
+## 1.10.1
+
+### Patch Changes
+
+- c5d458e: Add `composeMiddleware` helper method.
+- a399dc5: Rename `@web-widget/vite` to `@web-widget/vite-plugin`.
+  Fixed Packages.
+- Updated dependencies [a399dc5]
+  - @web-widget/schema@1.10.1
+
 ## 0.13.8
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.10.1
+
+### Patch Changes
+
+- a399dc5: Rename `@web-widget/vite` to `@web-widget/vite-plugin`.
+  Fixed Packages.
+- Updated dependencies [c5d458e]
+- Updated dependencies [a399dc5]
+  - @web-widget/helpers@1.10.1
+
 ## 1.9.8
 
 ### Patch Changes

@@ -1,8 +1,10 @@
 {
   "name": "@web-widget/vite-plugin",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "type": "module",
-  "keywords": ["vite-plugin"],
+  "keywords": [
+    "vite-plugin"
+  ],
   "exports": {
     ".": {
       "types": "./dist/vite.d.ts",
