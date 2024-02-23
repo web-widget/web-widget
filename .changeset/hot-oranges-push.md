@@ -1,5 +1,5 @@
 ---
-'@web-widget/helpers': minor
+'@web-widget/helpers': patch
 ---
 
 Add `composeMiddleware` helper method.
