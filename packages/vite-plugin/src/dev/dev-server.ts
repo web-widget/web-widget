@@ -277,7 +277,7 @@ function errorTemplate(message: string) {
   return `<!doctype html>
   <html lang="en">
     <head>
-      <title>Error: @web-widget/vite</title>
+      <title>Error: @web-widget/vite-plugin</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>

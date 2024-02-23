@@ -4,14 +4,7 @@
   "commit": false,
   "fixed": [
     [
-      "@web-widget/helpers",
-      "@web-widget/html",
-      "@web-widget/node",
-      "@web-widget/react",
-      "@web-widget/schema",
-      "@web-widget/vue",
-      "@web-widget/vue2",
-      "@web-widget/web-router"
+      "@web-widget/*"
     ]
   ],
   "linked": [],
