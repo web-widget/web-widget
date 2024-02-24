@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.10.3
+
+### Patch Changes
+
+- f10d835: Optimize performance using `optimizeDeps`.
+  - @web-widget/helpers@1.10.3
+  - @web-widget/node@1.10.3
+  - @web-widget/web-router@1.10.3
+  - @web-widget/web-widget@1.10.3
+
 ## 1.10.2
 
 ### Patch Changes
