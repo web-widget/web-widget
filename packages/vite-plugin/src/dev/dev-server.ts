@@ -157,7 +157,6 @@ async function viteWebRouterMiddleware(
     } as any,
     onFallback(error, context) {
       currentModule = (context?.module as DevModule)?.$source;
-      viteServer.ssrFixStacktrace(error);
       const status = Reflect.get(error, 'status') ?? 500;
       const expose = Reflect.get(error, 'expose');
       if (status >= 500 && !expose) {
