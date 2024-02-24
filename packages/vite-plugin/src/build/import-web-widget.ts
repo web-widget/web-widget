@@ -94,6 +94,12 @@ export function importWebWidgetPlugin(
           include: includeImporter,
           manifest: manifest || {},
         });
+
+        return {
+          optimizeDeps: {
+            include: [provide],
+          },
+        };
       },
       async configResolved(config) {
         base = config.base;
