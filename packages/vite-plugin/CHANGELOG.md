@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.10.2
+
+### Patch Changes
+
+- 026b184: Fix `viteServer.ssrFixStacktrace` error in stackblitz.
+  - @web-widget/helpers@1.10.2
+  - @web-widget/node@1.10.2
+  - @web-widget/web-router@1.10.2
+  - @web-widget/web-widget@1.10.2
+
 ## 1.10.1
 
 ### Patch Changes
