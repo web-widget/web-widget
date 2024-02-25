@@ -1,5 +1,15 @@
 # @web-widget/react
 
+## 1.10.4
+
+### Patch Changes
+
+- a12d0bb: Refactor vite plugin.
+- Updated dependencies [a12d0bb]
+  - @web-widget/vite-plugin@1.10.4
+  - @web-widget/helpers@1.10.4
+  - @web-widget/web-widget@1.10.4
+
 ## 1.10.3
 
 ### Patch Changes
