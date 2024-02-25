@@ -11,7 +11,7 @@ export async function createTestServer(): Promise<Server> {
   const workspaceDir =
     (await findWorkspaceDir(process.cwd())) ||
     fileURLToPath(new URL('../', import.meta.url));
-  const port = 51205;
+  const port = 51204;
   const viteDevServer = await createServer({
     server: {
       port,
