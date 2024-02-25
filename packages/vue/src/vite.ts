@@ -5,7 +5,11 @@ import type { WebWidgetPluginOptions } from '@web-widget/vite-plugin';
 // Examples:
 // .vue?vue&type=script&setup=true&lang.ts
 // .vue?vue&type=style&index=0&scoped=7b8d5933&lang.less
-const VUE_INTERNAL_REQUEST = /.*\.vue\?vue\b.*$/;
+const VUE_INTERNAL_REQUEST = /\.vue\?vue\b.*$/;
+
+// Examples:
+// .vue?vue&type=script&setup=true&lang.ts
+const VUE_INTERNAL_SCRIPT_REQUEST = /\.vue\?vue&type=script\b.*$/;
 
 export interface VueWebWidgetPluginOptions extends WebWidgetPluginOptions {}
 
@@ -20,6 +24,7 @@ export default function vueWebWidgetPlugin({
     provide,
     export: {
       include: [route, widget],
+      exclude: VUE_INTERNAL_REQUEST,
       extractFromExportDefault: [
         {
           name: 'handler',
@@ -33,21 +38,17 @@ export default function vueWebWidgetPlugin({
         },
       ],
       ...exportWidget,
-      exclude: [...toArray(exportWidget.exclude), VUE_INTERNAL_REQUEST],
     },
     import: {
       include: /(?:\.|@)widget\..*$/,
-      includeImporter: /.*\.vue(?:\?.*)?$/,
-      ...importWidget,
-      exclude: [...toArray(importWidget.exclude), VUE_INTERNAL_REQUEST],
-      excludeImporter: [
-        ...toArray(importWidget.excludeImporter),
-        VUE_INTERNAL_REQUEST,
+      exclude: VUE_INTERNAL_REQUEST,
+      includeImporter: [
+        // vite: dev mode
+        /\.vue$/,
+        // vite: build mode
+        VUE_INTERNAL_SCRIPT_REQUEST,
       ],
+      ...importWidget,
     },
   });
-}
-
-function toArray(value: any) {
-  return Array.isArray(value) ? value : value ? [value] : [];
 }

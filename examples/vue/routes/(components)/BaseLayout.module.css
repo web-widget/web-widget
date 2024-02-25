@@ -1,0 +1,53 @@
+a {
+  color: rgba(60, 60, 60, 0.7);
+  text-decoration: none;
+}
+a:hover {
+  color: rgb(33, 53, 71);
+}
+a[target="_blank"]::after {
+  content: "⇱";
+  display: inline-block;
+  transform: rotateY(180deg);
+}
+
+.header {
+  max-width: 750px;
+  margin: auto;
+  border-bottom: rgba(60, 60, 60, 0.12) solid 1px;
+  text-align: center;
+}
+
+.header nav ul {
+  padding: 0;
+  text-align: center;
+}
+
+.header nav li {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+.main {
+  max-width: 750px;
+  margin: auto;
+  text-align: center;
+  padding: 20px 40px 40px 40px;
+}
+
+.main code {
+  padding: .2em .4em;
+  margin: 0;
+  font-size: 85%;
+  white-space: break-spaces;
+  background-color: rgba(175,184,193,0.2);
+  border-radius: 6px;
+}
+
+.footer {
+  max-width: 750px;
+  margin: auto;
+  text-align: center;
+  border-top: rgba(60, 60, 60, 0.12) solid 1px;
+  color: rgba(60, 60, 60, 0.7);
+}
