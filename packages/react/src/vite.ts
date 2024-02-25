@@ -5,7 +5,7 @@ import type { WebWidgetPluginOptions } from '@web-widget/vite-plugin';
 // Examples:
 // .vue?vue&type=script&setup=true&lang.tsx
 // .vue?vue&type=script&setup=true&lang.jsx
-const VUE_INTERNAL_REQUEST = /.*\.vue\?vue\b.*$/;
+const VUE_INTERNAL_REQUEST = /\.vue\?vue\b.*$/;
 
 export interface ReactWebWidgetPluginOptions extends WebWidgetPluginOptions {}
 
@@ -22,7 +22,7 @@ export default function reactWebWidgetPlugin({
     },
     import: {
       include: /(?:\.|@)widget\..*$/,
-      includeImporter: /.*\.(?:tsx|jsx)(?:\?.*)?$/,
+      includeImporter: /\.(?:tsx|jsx)(?:\?.*)?$/,
       ...importWidget,
       excludeImporter: [
         ...toArray(importWidget.excludeImporter),

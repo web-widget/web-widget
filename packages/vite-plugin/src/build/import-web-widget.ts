@@ -21,10 +21,10 @@ export interface ImportWebWidgetPluginOptions {
   cache?: Set<string>;
   /** @deprecated */
   component?: FilterPattern;
-  excludeImporter?: FilterPattern;
-  includeImporter?: FilterPattern;
   exclude?: FilterPattern;
+  excludeImporter?: FilterPattern;
   include?: FilterPattern;
+  includeImporter?: FilterPattern;
   inject?: string;
   manifest?: ResolveAssetProtocolPluginOptions['manifest'];
   provide: string;
@@ -53,8 +53,7 @@ export function importWebWidgetPlugin(
   let dev = false;
   let root: string;
   let filter: (id: string | unknown) => boolean;
-  let componentFilter: (id: string | unknown) => boolean;
-  const importedWidgetComponents = new Set();
+  let importerFilter: (id: string | unknown) => boolean;
   let cache: Set<string>;
   let base: string;
   const [resolveAssetProtocolOptions, setResolveAssetProtocolOptions] =
@@ -63,7 +62,7 @@ export function importWebWidgetPlugin(
   return [
     {
       name: '@widget:import-web-widget',
-      async config(userConfig, { command }) {
+      async config(userConfig) {
         const ssrBuild = !!userConfig.build?.ssr;
         const {
           component,
@@ -76,10 +75,8 @@ export function importWebWidgetPlugin(
         } = options;
 
         cache = options.cache ?? globalCache;
-        dev = command === 'serve';
-        root = userConfig.root ?? process.cwd();
         filter = createFilter(include, exclude);
-        componentFilter = createFilter(includeImporter, excludeImporter);
+        importerFilter = createFilter(includeImporter, excludeImporter);
 
         if (typeof provide !== 'string') {
           throw new TypeError(`options.provide must be a string type.`);
@@ -102,6 +99,8 @@ export function importWebWidgetPlugin(
         };
       },
       async configResolved(config) {
+        dev = config.command === 'serve';
+        root = config.root;
         base = config.base;
       },
       async transformIndexHtml(html, { server: dev }) {
@@ -149,18 +148,8 @@ export function importWebWidgetPlugin(
 
         return result;
       },
-      async resolveId(source, importer) {
-        if (importer) {
-          const resolution = await this.resolve(source, importer, {
-            skipSelf: true,
-          });
-          if (resolution && filter(resolution.id)) {
-            importedWidgetComponents.add(importer);
-          }
-        }
-      },
       async transform(code, id, { ssr } = {}) {
-        if (!importedWidgetComponents.has(id) && !componentFilter(id)) {
+        if (!importerFilter(id)) {
           return null;
         }
 
