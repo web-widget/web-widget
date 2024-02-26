@@ -25,10 +25,6 @@ export function webRouterDevServerPlugin(
     async config() {
       return {
         appType: 'custom',
-        optimizeDeps: {
-          include: ['@web-widget/web-widget', '@web-widget/helpers'],
-        },
-        ssr: {},
       };
     },
     async configResolved(config) {
