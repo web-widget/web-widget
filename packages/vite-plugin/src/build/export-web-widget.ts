@@ -56,12 +56,6 @@ export function exportWebWidgetPlugin(
           include,
           manifest: manifest || {},
         });
-
-        return {
-          optimizeDeps: {
-            include: [provide],
-          },
-        };
       },
       async transform(code, id) {
         if (!filter(id)) {
