@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.10.5
+
+### Patch Changes
+
+- 3b6d034: Fix Error: [@web-widget/helpers/context] Instance unavailable.
+  - @web-widget/helpers@1.10.5
+  - @web-widget/node@1.10.5
+  - @web-widget/web-router@1.10.5
+  - @web-widget/web-widget@1.10.5
+
 ## 1.10.4
 
 ### Patch Changes

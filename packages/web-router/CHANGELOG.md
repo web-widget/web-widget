@@ -1,5 +1,12 @@
 # @web-widget/web-router
 
+## 1.10.5
+
+### Patch Changes
+
+- @web-widget/helpers@1.10.5
+- @web-widget/html@1.10.5
+
 ## 1.10.4
 
 ### Patch Changes

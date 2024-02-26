@@ -1,5 +1,15 @@
 # @web-widget/vue
 
+## 1.10.5
+
+### Patch Changes
+
+- 43216a2: Fix the problem that vue route module cannot correctly introduce web widgets.
+- Updated dependencies [3b6d034]
+  - @web-widget/vite-plugin@1.10.5
+  - @web-widget/helpers@1.10.5
+  - @web-widget/web-widget@1.10.5
+
 ## 1.10.4
 
 ### Patch Changes
