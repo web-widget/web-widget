@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.10.7
+
+### Patch Changes
+
+- Updated dependencies [1dbb15b]
+  - @web-widget/helpers@1.10.7
+
 ## 1.10.6
 
 ### Patch Changes

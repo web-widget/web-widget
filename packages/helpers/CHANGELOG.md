@@ -1,5 +1,12 @@
 # @web-widget/helpers
 
+## 1.10.7
+
+### Patch Changes
+
+- 1dbb15b: Export `@edge-runtime/cookies` and `@edge-runtime/user-agent` as helper methods.
+  - @web-widget/schema@1.10.7
+
 ## 1.10.6
 
 ### Patch Changes
