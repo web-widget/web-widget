@@ -1,6 +1,6 @@
 # Web Widget
 
-> 文档已经过期，待更新。[最新示例](https://github.com/web-widget/web-widget/tree/main/examples/web-router)
+> README 与文档已经过期，待更新。[Web Widget 元框架最新示例](https://github.com/web-widget/web-widget/tree/main/examples/web-router)
 
 [![CI](https://github.com/web-widget/web-widget/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/web-widget/web-widget/actions/workflows/test.yml?query=event%3Apush)
 
