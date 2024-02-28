@@ -1,1 +1,5 @@
-export * from '@edge-runtime/user-agent';
+export {
+  isBot,
+  userAgent,
+  userAgentFromString,
+} from '@edge-runtime/user-agent';

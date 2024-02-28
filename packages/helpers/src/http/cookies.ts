@@ -1,1 +1,7 @@
-export * from '@edge-runtime/cookies';
+export {
+  RequestCookies,
+  ResponseCookies,
+  parseCookie,
+  parseSetCookie,
+  stringifyCookie,
+} from '@edge-runtime/cookies';
