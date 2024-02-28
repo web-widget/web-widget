@@ -34,7 +34,7 @@ const renderWebWidget = function ({
   }
 
   if (children) {
-    throw new TypeError(`No support children.`);
+    throw new TypeError(`Children not supported.`);
   }
 
   const widget = new WebWidgetRenderer(loader as Loader, {

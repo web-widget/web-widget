@@ -63,7 +63,7 @@ export /*#__PURE__*/ function defineWebWidget(
       }
 
       if (Object.keys(slots).length > 0) {
-        throw new TypeError(`No support slot.`);
+        throw new TypeError(`Slot not supported.`);
       }
 
       // eslint-disable-next-line react-hooks/rules-of-hooks

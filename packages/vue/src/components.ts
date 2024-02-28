@@ -56,7 +56,7 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     }
 
     if (Object.keys(slots).length > 0) {
-      throw new TypeError(`No support slot.`);
+      throw new TypeError(`Slot not supported.`);
     }
 
     const widget = new WebWidgetRenderer(loader as Loader, {
