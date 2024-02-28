@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/eslint-config",
-  "version": "1.10.5",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "exports": {
