@@ -1,5 +1,12 @@
 # @web-widget/html
 
+## 1.10.8
+
+### Patch Changes
+
+- Updated dependencies [6f37c0b]
+  - @web-widget/helpers@1.10.8
+
 ## 1.10.7
 
 ### Patch Changes
