@@ -1,5 +1,12 @@
 # @web-widget/helpers
 
+## 1.10.8
+
+### Patch Changes
+
+- 6f37c0b: Fix the problem that the previous version was not released correctly.
+  - @web-widget/schema@1.10.8
+
 ## 1.10.7
 
 ### Patch Changes
