@@ -1,5 +1,5 @@
 ---
-'@web-widget/helpers': minor
+'@web-widget/helpers': patch
 ---
 
 Added `cookie` and `redirect` helper methods.
