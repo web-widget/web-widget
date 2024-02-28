@@ -1,5 +1,12 @@
 # @web-widget/helpers
 
+## 1.10.6
+
+### Patch Changes
+
+- 145bda0: Added `cookie` and `redirect` helper methods.
+  - @web-widget/schema@1.10.6
+
 ## 1.10.5
 
 ### Patch Changes
