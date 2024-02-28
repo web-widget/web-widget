@@ -1,5 +1,6 @@
 // export * from './accepts';
-export * from './cookie';
+export * from './cookies';
 export * from './error';
 export * from './redirect';
 export * from './status';
+export * from './user-agent';

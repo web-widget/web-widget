@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 patchedDependencies:
   '@miniflare/core@2.14.2':
     hash: vylcvxdvkobd5p5nb74earctsq
@@ -490,6 +486,12 @@ importers:
 
   packages/helpers:
     dependencies:
+      '@edge-runtime/cookies':
+        specifier: ^4.0.3
+        version: 4.0.3
+      '@edge-runtime/user-agent':
+        specifier: ^1.4.1
+        version: 1.4.1
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
@@ -2413,6 +2415,11 @@ packages:
       '@jridgewell/trace-mapping': 0.3.9
     dev: true
 
+  /@edge-runtime/cookies@4.0.3:
+    resolution: {integrity: sha512-DzMJ3gp2EKpFwcU/7C7oVswijvB4HBjBk/VUXNCrN3LqLg6Z/UD6zfyYZscvbk8aJ0hqIpeia5u629Qaxx5Lkw==}
+    engines: {node: '>=16'}
+    dev: false
+
   /@edge-runtime/node-utils@2.2.4:
     resolution: {integrity: sha512-yDcuf9msVQzrSPJLCMHb+Mqs3c3XNIfyrBfrhhA6EM+J3SUyTZikqQVczCjcRgly4dnSmgjFxLkTh2lid/awdw==}
     engines: {node: '>=16'}
@@ -2420,6 +2427,11 @@ packages:
 
   /@edge-runtime/primitives@4.0.6:
     resolution: {integrity: sha512-Ahv7SdVJiFryuauSmubY4bVYvVWsf2h/n67TRRT5ERs6eK90xyeCB3hmn1ExTqaZtxO0Q9QTbEUXVxz6o4iSzw==}
+    engines: {node: '>=16'}
+    dev: false
+
+  /@edge-runtime/user-agent@1.4.1:
+    resolution: {integrity: sha512-BW3jik9l4bftpx+ViP12sAAuqy0Lgw/82Az8xC2CEp/B7VEKzdvDe2ZLCgJ6dATfHkjleOlSlyuwrHpMjPBeUA==}
     engines: {node: '>=16'}
     dev: false
 
@@ -10872,7 +10884,7 @@ packages:
     dependencies:
       '@babel/core': 7.23.9
       '@babel/standalone': 7.22.9
-      '@babel/types': 7.23.6
+      '@babel/types': 7.23.9
       defu: 6.1.2
       jiti: 1.21.0
       mri: 1.2.0
@@ -11364,3 +11376,7 @@ packages:
 
   /zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
