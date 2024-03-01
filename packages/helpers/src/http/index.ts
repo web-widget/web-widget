@@ -1,6 +1,5 @@
-// export * from './accepts';
-export * from './cookies';
-export * from './error';
-export * from './redirect';
-export * from './status';
-export * from './user-agent';
+console.warn(
+  'DEPRECATED: use @web-widget/helpers/error instead of @web-widget/helpers/http'
+);
+export * from '../error';
+export * from '../status';

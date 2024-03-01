@@ -1,4 +1,4 @@
-import { useContext } from './context';
+import { useContext } from '../context';
 
 const ERROR = Symbol.for('error');
 type PromiseState<T> = Promise<T> & {
@@ -9,7 +9,7 @@ export async function useWidgetAsyncState<T>(
   key: string,
   handler: () => T | Promise<T>
 ): Promise<T> {
-  const cache = useAllWidgetState();
+  const cache = useWidgetState();
 
   let state = cache[key];
 
@@ -33,7 +33,7 @@ export function useWidgetSyncState<T>(
   key: string,
   handler: () => T | Promise<T>
 ): T {
-  const cache = useAllWidgetState();
+  const cache = useWidgetState();
   let state = cache[key];
 
   if (state) {
@@ -64,12 +64,13 @@ export function useWidgetSyncState<T>(
   return state;
 }
 
-export const useAllWidgetState = () => {
+export const useWidgetState = () => {
   const ctx = useContext();
 
-  if (!ctx) {
-    throw new Error(`[@web-widget/helpers/context] Instance unavailable.`);
-  }
-
-  return (ctx.body ??= {});
+  return ctx.widgetState;
 };
+
+/**
+ * @deprecated use `useWidgetState` instead of `useAllWidgetState'
+ */
+export const useAllWidgetState = useWidgetState;

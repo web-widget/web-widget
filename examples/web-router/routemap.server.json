@@ -61,6 +61,10 @@
       "module": "routes/dynamic-routes/[name]@route.tsx"
     },
     {
+      "pathname": "/context{/:id}?",
+      "module": "routes/context/[[id]]@route.tsx"
+    },
+    {
       "pathname": "/vue2-server-component",
       "module": "routes/(vue2)/vue2-server-component@route.vue"
     },

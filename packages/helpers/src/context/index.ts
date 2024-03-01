@@ -1,2 +1,2 @@
 export * from './context';
-export * from './widget-state';
+export * from './state';

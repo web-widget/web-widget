@@ -20,6 +20,26 @@
         "default": "./dist/module.server.js"
       }
     },
+    "./context": {
+      "types": "./dist/context.d.ts",
+      "development": "./src/context/index.ts",
+      "default": "./dist/context.js"
+    },
+    "./error": {
+      "types": "./dist/error.d.ts",
+      "development": "./src/error/index.ts",
+      "default": "./dist/error.js"
+    },
+    "./headers": {
+      "types": "./dist/headers.d.ts",
+      "development": "./src/headers/index.ts",
+      "default": "./dist/headers.js"
+    },
+    "./http": {
+      "types": "./dist/http.d.ts",
+      "development": "./src/http/index.ts",
+      "default": "./dist/http.js"
+    },
     "./module": {
       "worker": {
         "types": "./dist/module.server.d.ts",
@@ -37,15 +57,20 @@
         "default": "./dist/module.server.js"
       }
     },
-    "./context": {
-      "types": "./dist/context.d.ts",
-      "development": "./src/context/index.ts",
-      "default": "./dist/context.js"
+    "./navigation": {
+      "types": "./dist/navigation.d.ts",
+      "development": "./src/navigation/index.ts",
+      "default": "./dist/navigation.js"
     },
-    "./http": {
-      "types": "./dist/http.d.ts",
-      "development": "./src/http/index.ts",
-      "default": "./dist/http.js"
+    "./state": {
+      "types": "./dist/state.d.ts",
+      "development": "./src/state/index.ts",
+      "default": "./dist/state.js"
+    },
+    "./status": {
+      "types": "./dist/status.d.ts",
+      "development": "./src/status/index.ts",
+      "default": "./dist/status.js"
     }
   },
   "files": [
@@ -94,6 +119,22 @@
           "default": "./dist/module.server.js"
         }
       },
+      "./context": {
+        "types": "./dist/context.d.ts",
+        "default": "./dist/context.js"
+      },
+      "./error": {
+        "types": "./dist/error.d.ts",
+        "default": "./dist/error.js"
+      },
+      "./headers": {
+        "types": "./dist/headers.d.ts",
+        "default": "./dist/headers.js"
+      },
+      "./http": {
+        "types": "./dist/http.d.ts",
+        "default": "./dist/http.js"
+      },
       "./module": {
         "worker": {
           "types": "./dist/module.server.d.ts",
@@ -108,13 +149,17 @@
           "default": "./dist/module.server.js"
         }
       },
-      "./context": {
-        "types": "./dist/context.d.ts",
-        "default": "./dist/context.js"
+      "./navigation": {
+        "types": "./dist/navigation.d.ts",
+        "default": "./dist/navigation.js"
       },
-      "./http": {
-        "types": "./dist/http.d.ts",
-        "default": "./dist/http.js"
+      "./state": {
+        "types": "./dist/state.d.ts",
+        "default": "./dist/state.js"
+      },
+      "./status": {
+        "types": "./dist/status.d.ts",
+        "default": "./dist/status.js"
       }
     }
   }

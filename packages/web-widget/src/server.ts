@@ -3,7 +3,7 @@ import type {
   ServerWidgetRenderContext,
 } from '@web-widget/helpers';
 import { mergeMeta, rebaseMeta, renderMetaToString } from '@web-widget/helpers';
-import { useAllWidgetState } from '@web-widget/helpers/context';
+import { useWidgetState } from '@web-widget/helpers/state';
 import type {
   Loader,
   WebWidgetRendererOptions,
@@ -139,7 +139,7 @@ export class WebWidgetRenderer {
     }
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const allState = useAllWidgetState();
+    const allState = useWidgetState();
     const allStateKeys = Object.keys(allState);
     const used: Set<string> = (allState[Symbol.for('used')] ??= new Set());
 

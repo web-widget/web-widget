@@ -5,7 +5,7 @@ import { Suspense, createApp, createSSRApp, h } from 'vue';
 import type { CreateVueRenderOptions } from './types';
 
 export * from '@web-widget/helpers';
-export { useWidgetAsyncState as useWidgetState } from '@web-widget/helpers/context';
+export { useWidgetAsyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
 export const createVueRender = ({
