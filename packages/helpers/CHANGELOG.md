@@ -1,5 +1,16 @@
 # @web-widget/helpers
 
+## 1.10.9
+
+### Patch Changes
+
+- ea2a37f: - Added `./error` module.
+  - Added `./headers` module.
+  - Added `./navigation` module.
+  - Added `./state` module.
+  - Added `./status` module.
+  - @web-widget/schema@1.10.9
+
 ## 1.10.8
 
 ### Patch Changes
