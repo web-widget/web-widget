@@ -1,5 +1,13 @@
 # @web-widget/web-router
 
+## 1.10.9
+
+### Patch Changes
+
+- Updated dependencies [ea2a37f]
+  - @web-widget/helpers@1.10.9
+  - @web-widget/html@1.10.9
+
 ## 1.10.8
 
 ### Patch Changes
