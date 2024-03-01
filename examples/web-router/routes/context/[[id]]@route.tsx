@@ -1,11 +1,9 @@
 import { defineRouteComponent, defineRouteHandler } from '@web-widget/react';
-import { useLocation } from '@web-widget/helpers/navigation';
-import type { HelloData } from './api/hello-world@route.ts';
-import BaseLayout from './(components)/BaseLayout.tsx';
-import ReactGithub from './(components)/Github@widget.tsx';
-import VanillaGithub from './(components)/VanillaGithub@widget';
-import VueGithub from '@examples/web-router-vue3/Github@widget.vue?as=jsx';
-import Vue2Github from '@examples/web-router-vue2/Github@widget.vue?as=jsx';
+import { useRouteState } from '@web-widget/helpers/state';
+import { useParams } from '@web-widget/helpers/navigation';
+import type { HelloData } from '../api/hello-world@route.ts';
+import BaseLayout from '../(components)/BaseLayout.tsx';
+import Counter from '../(components)/Counter@widget.tsx';
 
 async function fetchData(url: URL) {
   const data = await fetch(`${url.origin}/api/hello-world`);
@@ -14,7 +12,7 @@ async function fetchData(url: URL) {
 
 export const handler = defineRouteHandler<HelloData>({
   async GET(ctx) {
-    const data = await fetchData(useLocation());
+    const data = await fetchData(new URL(ctx.request.url));
     return ctx.render({
       data,
     });
@@ -22,9 +20,11 @@ export const handler = defineRouteHandler<HelloData>({
 });
 
 export default defineRouteComponent<HelloData>(function Page({ data }) {
+  console.log('useParams', useParams());
+  console.log('useRouteState', useRouteState());
   return (
     <BaseLayout>
-      <h1>Fetching data</h1>
+      <h1>Context</h1>
       <ul>
         {data.map((item, index) => {
           return (
@@ -35,10 +35,7 @@ export default defineRouteComponent<HelloData>(function Page({ data }) {
         })}
       </ul>
       <hr />
-      <VueGithub username="aui" />
-      <Vue2Github username="guybedford" />
-      <ReactGithub username="aui" />
-      <VanillaGithub username="aui" />
+      <Counter name="Counter" start={3} />
     </BaseLayout>
   );
 });

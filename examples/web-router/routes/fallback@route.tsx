@@ -4,7 +4,7 @@ import {
   defineRouteFallbackComponent,
   type RouteFallbackComponentProps,
 } from '@web-widget/helpers';
-import { createHttpError } from '@web-widget/helpers/http';
+import { createHttpError } from '@web-widget/helpers/error';
 import BaseLayout from './(components)/BaseLayout';
 
 export const handler = defineRouteHandler({

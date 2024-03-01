@@ -1,5 +1,5 @@
-import { createHttpError, HttpError } from './error';
-import { STATUS_TEXT, Status } from './status';
+import { STATUS_TEXT, Status } from '../status';
+import { createHttpError, HttpError } from './index';
 
 function randomStr(): string {
   return (

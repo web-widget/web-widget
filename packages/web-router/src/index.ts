@@ -1,5 +1,5 @@
 import { rebaseMeta } from '@web-widget/helpers';
-import { createHttpError } from '@web-widget/helpers/http';
+import { createHttpError } from '@web-widget/helpers/error';
 import { Application } from './application';
 import type { ApplicationOptions } from './application';
 import type {

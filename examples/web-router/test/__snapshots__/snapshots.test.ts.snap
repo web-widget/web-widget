@@ -50,7 +50,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Web Widget</title><script id="state:web-router" type="application/json">{"pathname":"/","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Web Widget</title><script id="state:web-router" type="application/json">{"pathname":"/","params":{},"state":{"test":"hello wrold"}}</script>
       <link rel="stylesheet" href="/routes/(css)/index.module.css" /><style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -256,7 +256,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/client-only-component","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/client-only-component","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -419,7 +419,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/custom-handlers","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/custom-handlers","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -590,7 +590,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/*","params":{"0":"dynamic-routes"},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/*","params":{"0":"dynamic-routes"},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(css)/error.css">body { color: red ;}</style><style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(vue3)/Counter@widget.vue?vue&amp;type=style&amp;index=0&amp;scoped=a3e69a9a&amp;lang.css">
 .counter[data-v-a3e69a9a][data-v-a3e69a9a] {
   display: inline-block;
@@ -729,7 +729,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/dynamic-routes/:name","params":{"name":"1"},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/dynamic-routes/:name","params":{"name":"1"},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -892,7 +892,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/experimental-async-component","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/experimental-async-component","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -1055,7 +1055,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/fallback","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/fallback","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -1218,7 +1218,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/fallback","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/fallback","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -1381,7 +1381,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/fallback","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/fallback","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -1544,7 +1544,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/fallback","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/fallback","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(css)/error.css">body { color: red ;}</style><style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(vue3)/Counter@widget.vue?vue&amp;type=style&amp;index=0&amp;scoped=a3e69a9a&amp;lang.css">
 .counter[data-v-a3e69a9a][data-v-a3e69a9a] {
   display: inline-block;
@@ -1679,7 +1679,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/fallback","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/fallback","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(css)/error.css">body { color: red ;}</style><style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(vue3)/Counter@widget.vue?vue&amp;type=style&amp;index=0&amp;scoped=a3e69a9a&amp;lang.css">
 .counter[data-v-a3e69a9a][data-v-a3e69a9a] {
   display: inline-block;
@@ -1855,7 +1855,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/form","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/form","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -2018,7 +2018,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/lit-html-template","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/lit-html-template","params":{},"state":{"test":"hello wrold"}}</script>
         <script type="module" src="/entry.client.ts"></script>
       </head>
       <body>
@@ -2133,7 +2133,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >😄New title!</title><meta name="description" content="HTML Meta Data Example" /><meta name="keywords" content="c, d" /><meta property="og:title" content="New Site" /><meta property="og:url" content="http://newsblog.org/news/136756249803614" /><meta name="hello" content="world" /><link type="application/json" href="https://google.com/test.json" /><script id="state:web-router" type="application/json">{"pathname":"/meta","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >😄New title!</title><meta name="description" content="HTML Meta Data Example" /><meta name="keywords" content="c, d" /><meta property="og:title" content="New Site" /><meta property="og:url" content="http://newsblog.org/news/136756249803614" /><meta name="hello" content="world" /><link type="application/json" href="https://google.com/test.json" /><script id="state:web-router" type="application/json">{"pathname":"/meta","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -2274,7 +2274,7 @@ footer {
     {
       &quot;id&quot;: &quot;state:web-router&quot;,
       &quot;type&quot;: &quot;application/json&quot;,
-      &quot;content&quot;: &quot;{\\&quot;pathname\\&quot;:\\&quot;/meta\\&quot;,\\&quot;params\\&quot;:{},\\&quot;body\\&quot;:{}}&quot;
+      &quot;content&quot;: &quot;{\\&quot;pathname\\&quot;:\\&quot;/meta\\&quot;,\\&quot;params\\&quot;:{},\\&quot;state\\&quot;:{\\&quot;test\\&quot;:\\&quot;hello wrold\\&quot;}}&quot;
     }
   ],
   &quot;title&quot;: &quot;😄New title!&quot;,
@@ -2288,7 +2288,7 @@ footer {
 &lt;meta property=&quot;og:url&quot; content=&quot;http://newsblog.org/news/136756249803614&quot; /&gt;
 &lt;meta name=&quot;hello&quot; content=&quot;world&quot; /&gt;
 &lt;link type=&quot;application/json&quot; href=&quot;https://google.com/test.json&quot; /&gt;
-&lt;script id=&quot;state:web-router&quot; type=&quot;application/json&quot;&gt;{&quot;pathname&quot;:&quot;/meta&quot;,&quot;params&quot;:{},&quot;body&quot;:{}}&lt;/script&gt;
+&lt;script id=&quot;state:web-router&quot; type=&quot;application/json&quot;&gt;{&quot;pathname&quot;:&quot;/meta&quot;,&quot;params&quot;:{},&quot;state&quot;:{&quot;test&quot;:&quot;hello wrold&quot;}}&lt;/script&gt;
 </pre><hr/><!--$--><web-widget import="/routes/(components)/Counter@widget.tsx" name="ReactCounter" data="{&quot;name&quot;:&quot;React Counter&quot;,&quot;start&quot;:3}" loading="lazy" rendertarget="light" recovering=""><div class="counter"><button>-1</button><span class="count">3</span><button>+1</button></div></web-widget><!--/$--><div><img src="/public/favicon.svg"/></div></main></div><footer><p>This is a footer</p></footer>
         <web-widget-inspector id="web-widget:inspector" dir="#TEST_MONOREPO_ROOT#examples/web-router" keys="[&quot;Shift&quot;]">          <script type="module" src="/@fs#TEST_MONOREPO_ROOT#packages/web-widget/dist/inspector.js"></script>
 </web-widget-inspector>
@@ -2387,7 +2387,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Web Widget</title><script id="state:web-router" type="application/json">{"pathname":"/react-and-vue","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Web Widget</title><script id="state:web-router" type="application/json">{"pathname":"/react-and-vue","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/counter-common.css">.counter {
   display: inline-block;
   line-height: 1em;
@@ -2656,7 +2656,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/react-import-widgets","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/react-import-widgets","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -2925,7 +2925,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/react-server-component","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/react-server-component","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -3129,7 +3129,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/style","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/style","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(css)/style.css">.box {
   width: 128px;
   height: 128px;
@@ -3297,7 +3297,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/vue2-import-widgets","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/vue2-import-widgets","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -3566,7 +3566,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Vue Router</title><script id="state:web-router" type="application/json">{"pathname":"/vue2-router/:all*","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Vue Router</title><script id="state:web-router" type="application/json">{"pathname":"/vue2-router/:all*","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -3864,7 +3864,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Vue Router</title><script id="state:web-router" type="application/json">{"pathname":"/vue2-router/:all*","params":{"all":"about"},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Vue Router</title><script id="state:web-router" type="application/json">{"pathname":"/vue2-router/:all*","params":{"all":"about"},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -4169,7 +4169,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Vue2: Server component</title><meta name="description" content="vue2 examples" /><script id="state:web-router" type="application/json">{"pathname":"/vue2-server-component","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Vue2: Server component</title><meta name="description" content="vue2 examples" /><script id="state:web-router" type="application/json">{"pathname":"/vue2-server-component","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(css)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -4342,7 +4342,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/vue3-import-widgets","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/vue3-import-widgets","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -4611,7 +4611,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Vue Router</title><script id="state:web-router" type="application/json">{"pathname":"/vue3-router/:all*","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Vue Router</title><script id="state:web-router" type="application/json">{"pathname":"/vue3-router/:all*","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -4909,7 +4909,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Vue Router</title><script id="state:web-router" type="application/json">{"pathname":"/vue3-router/:all*","params":{"all":"about"},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Vue Router</title><script id="state:web-router" type="application/json">{"pathname":"/vue3-router/:all*","params":{"all":"about"},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(components)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -5214,7 +5214,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Vue3: Server component</title><meta name="description" content="vue3 examples" /><script id="state:web-router" type="application/json">{"pathname":"/vue3-server-component","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Vue3: Server component</title><meta name="description" content="vue3 examples" /><script id="state:web-router" type="application/json">{"pathname":"/vue3-server-component","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(css)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;
@@ -5383,7 +5383,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/vue3-streaming","params":{},"body":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><script id="state:web-router" type="application/json">{"pathname":"/vue3-streaming","params":{},"state":{"test":"hello wrold"}}</script>
       <style data-vite-dev-id="#TEST_MONOREPO_ROOT#examples/web-router/routes/(css)/base-layout.css">a {
   color: rgba(60, 60, 60, 0.7);
   text-decoration: none;

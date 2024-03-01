@@ -10,7 +10,7 @@ import { createRoot, hydrateRoot } from 'react-dom/client';
 import type { CreateReactRenderOptions } from './types';
 
 export * from '@web-widget/helpers';
-export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/context';
+export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
 export const createReactRender = ({

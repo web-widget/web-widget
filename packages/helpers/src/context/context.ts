@@ -1,34 +1,76 @@
 import { createNamespace } from 'unctx';
+import type { MiddlewareContext } from '@web-widget/schema';
 
 const IS_SERVER = typeof document === 'undefined';
+export const exposedToClient = Symbol.for('exposedToClient');
 
-export interface WebWidgetContext {
-  pathname?: string;
-  params?: Record<string, string>;
-  body: Record<string | symbol, any>;
+function toJSON(this: any) {
+  const exposed = this[exposedToClient];
+  if (exposed) {
+    return pick(this, exposed);
+  }
+  return {};
+}
+
+export function allowExposedToClient(
+  object: any,
+  allow: string[],
+  replace?: boolean
+) {
+  if (replace) {
+    // eslint-disable-next-line no-param-reassign
+    object[exposedToClient] = allow;
+  } else {
+    // eslint-disable-next-line no-param-reassign
+    object[exposedToClient] = [...(object[exposedToClient] ?? []), ...allow];
+  }
+}
+
+export interface Context extends Partial<MiddlewareContext> {
+  pathname: string;
+  params: Record<string, string>;
+  state: Record<string | symbol, any>;
+  widgetState: Record<string | symbol, any>;
+  [exposedToClient]?: string[];
+  toJSON?: () => any;
 }
 
 let ctx;
 function tryGetAsyncLocalStorage() {
-  return (ctx ??= createNamespace<WebWidgetContext>({
+  return (ctx ??= createNamespace<Context>({
     asyncContext: IS_SERVER && Reflect.has(globalThis, 'AsyncLocalStorage'),
   }).get('@web-widget'));
 }
 
-export function createContext(
-  options: WebWidgetContext & any
-): WebWidgetContext {
-  const ctx: WebWidgetContext = {
+export function createContext(options: Partial<MiddlewareContext>): Context {
+  const ctx: Context = {
     pathname: '',
     params: Object.create(null),
-    body: Object.create(null),
+    widgetState: Object.create(null),
+    [exposedToClient]: ['pathname', 'params', 'state'],
+    ...(IS_SERVER ? { toJSON } : {}),
     ...options,
+    state: IS_SERVER
+      ? {
+          ...options.state,
+          toJSON,
+        }
+      : options.state ?? {},
   };
+
   return ctx;
 }
 
+function pick(object: Record<string, any>, keys: string[]): any {
+  const newObject = {};
+  for (const key of keys) {
+    (newObject as any)[key] = object[key];
+  }
+  return newObject;
+}
+
 export function callContext<T extends (...args: any[]) => any>(
-  data: WebWidgetContext,
+  data: Context,
   setup: T,
   args?: Parameters<T>
 ) {
@@ -43,7 +85,12 @@ export function callContext<T extends (...args: any[]) => any>(
   }
 }
 
+export function useTryContext() {
+  const ctx = tryGetAsyncLocalStorage();
+  return ctx.tryUse() as Context | undefined;
+}
+
 export function useContext() {
   const ctx = tryGetAsyncLocalStorage();
-  return ctx.tryUse();
+  return ctx.use() as Context;
 }

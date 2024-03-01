@@ -1,8 +1,5 @@
-import {
-  callContext,
-  createContext,
-  useAllWidgetState,
-} from '@web-widget/helpers/context';
+import { callContext, createContext } from '@web-widget/helpers/context';
+import { useWidgetState } from '@web-widget/helpers/state';
 
 export type StateLayerHandler = (
   value: any,
@@ -36,7 +33,7 @@ export function installStateLayer(callback: () => void) {
 
   callContext(createContext(context), () => {
     const currentState = self.stateLayer as unknown as undefined | any[];
-    const allState = useAllWidgetState();
+    const allState = useWidgetState();
     self.stateLayer = new StateLayer((item) => Object.assign(allState, item));
 
     if (currentState) {

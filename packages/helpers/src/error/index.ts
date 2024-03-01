@@ -1,7 +1,7 @@
 // This utility is based on https://github.com/ako-deno/http_errors
 // License: https://raw.githubusercontent.com/ako-deno/http_errors/master/LICENSE
 
-import { STATUS_TEXT, Status } from './status';
+import { STATUS_TEXT, Status } from '../status';
 
 export abstract class HttpError extends Error {
   name: string;

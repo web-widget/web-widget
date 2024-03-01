@@ -6,9 +6,9 @@ import {
 import {
   callContext,
   createContext,
-  useContext,
+  useTryContext,
 } from '@web-widget/helpers/context';
-import { createHttpError } from '@web-widget/helpers/http';
+import { createHttpError } from '@web-widget/helpers/error';
 import type {
   LayoutModule,
   LayoutRenderContext,
@@ -38,12 +38,12 @@ function callAsyncContext<T extends (...args: any[]) => any>(
   args?: Parameters<T>
 ): Promise<Response> {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const hasCtx = !!useContext();
-  const data = createContext({
-    params: context.params,
-    pathname: context.pathname,
-  });
+  let appContext = useTryContext();
+  const isInit = !!appContext;
 
+  appContext ??= createContext(context);
+
+  // Exposed to client
   if (context.meta) {
     const id = 'state:web-router';
     const meta = mergeMeta(context.meta, {});
@@ -58,17 +58,17 @@ function callAsyncContext<T extends (...args: any[]) => any>(
       id,
       type: 'application/json',
       // TODO htmlEscapeJsonString
-      content: JSON.stringify(data),
+      content: JSON.stringify(appContext),
     });
 
     // eslint-disable-next-line no-param-reassign
     context.meta = meta;
   }
 
-  if (hasCtx) {
+  if (isInit) {
     return args ? setup(...args) : setup();
   } else {
-    return callContext(data, setup, args);
+    return callContext(appContext!, setup, args);
   }
 }
 
