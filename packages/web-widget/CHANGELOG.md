@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.10.10
+
+### Patch Changes
+
+- 3279cdb: Optimize performance of async context.
+- Updated dependencies [3279cdb]
+  - @web-widget/helpers@1.10.10
+
 ## 1.10.9
 
 ### Patch Changes
