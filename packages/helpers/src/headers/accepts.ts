@@ -59,8 +59,8 @@ export const defaultMatch = (accepts: Accept[], config: acceptsConfig) => {
  *   default: 'en',
  * });
  */
-export const accepts = (request: Request, options: acceptsOptions) => {
-  const acceptHeader = request.headers.get(options.header);
+export const accepts = (headers: Headers, options: acceptsOptions) => {
+  const acceptHeader = headers.get(options.header);
   if (!acceptHeader) {
     return options.default;
   }

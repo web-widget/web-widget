@@ -43,11 +43,9 @@ describe('accepts', () => {
       default: 'application/json',
     };
     const result = accepts(
-      new Request('http://localhost', {
-        headers: {
-          Accept:
-            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        },
+      new Headers({
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
       }),
       options
     );
@@ -61,11 +59,9 @@ describe('accepts', () => {
       default: 'text/html',
     };
     const result = accepts(
-      new Request('http://localhost', {
-        headers: {
-          Accept:
-            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        },
+      new Headers({
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
       }),
       options
     );
@@ -78,12 +74,7 @@ describe('accepts', () => {
       supports: ['application/json'],
       default: 'text/html',
     };
-    const result = accepts(
-      new Request('http://localhost', {
-        headers: {},
-      }),
-      options
-    );
+    const result = accepts(new Headers(), options);
     expect(result).toBe('text/html');
   });
 
@@ -103,11 +94,9 @@ describe('accepts', () => {
       match,
     };
     const result = accepts(
-      new Request('http://localhost', {
-        headers: {
-          Accept:
-            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        },
+      new Headers({
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
       }),
       options
     );
@@ -118,7 +107,7 @@ describe('accepts', () => {
 describe('Usage', () => {
   test('decide compression by Accept-Encoding header', async () => {
     const app = async (req: Request) => {
-      const encoding = accepts(req, {
+      const encoding = accepts(req.headers, {
         header: 'Accept-Encoding',
         supports: ['gzip', 'deflate'],
         default: 'identity',
@@ -166,7 +155,7 @@ describe('Usage', () => {
     const SUPPORTED_LANGS = ['en', 'ja', 'zh'];
 
     const app = async (req: Request) => {
-      const lang = accepts(req, {
+      const lang = accepts(req.headers, {
         header: 'Accept-Language',
         supports: SUPPORTED_LANGS,
         default: 'en',
