@@ -1,5 +1,12 @@
 # @web-widget/helpers
 
+## 1.10.11
+
+### Patch Changes
+
+- 973c1a9: Avoid asynchronous context conflicts caused by repeated packaging by users.
+  - @web-widget/schema@1.10.11
+
 ## 1.10.10
 
 ### Patch Changes
