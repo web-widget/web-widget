@@ -1,4 +1,4 @@
-import { createNamespace } from 'unctx';
+import { getContext } from 'unctx';
 import type { MiddlewareContext, ScriptDescriptor } from '@web-widget/schema';
 
 const NAMESPACE = '@web-widget';
@@ -38,11 +38,10 @@ export interface Context extends Partial<MiddlewareContext> {
   toJSON?: () => any;
 }
 
-let ctx;
 function tryGetAsyncLocalStorage() {
-  return (ctx ??= createNamespace<Context>({
+  return getContext<Context>(NAMESPACE, {
     asyncContext: IS_SERVER && Reflect.has(globalThis, 'AsyncLocalStorage'),
-  }).get(NAMESPACE));
+  });
 }
 
 export function createContext(options: Partial<MiddlewareContext>): Context {
