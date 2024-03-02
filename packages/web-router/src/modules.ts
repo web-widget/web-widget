@@ -5,6 +5,7 @@ import {
 } from '@web-widget/helpers/module';
 import {
   callContext,
+  contextToScriptDescriptor,
   createContext,
   useTryContext,
 } from '@web-widget/helpers/context';
@@ -38,37 +39,22 @@ function callAsyncContext<T extends (...args: any[]) => any>(
   args?: Parameters<T>
 ): Promise<Response> {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  let appContext = useTryContext();
-  const isInit = !!appContext;
+  let asyncContext = useTryContext();
 
-  appContext ??= createContext(context);
-
-  // Exposed to client
-  if (context.meta) {
-    const id = 'state:web-router';
-    const meta = mergeMeta(context.meta, {});
-    const script = (meta.script ??= []);
-    const index = script.findIndex((script) => script.id === id);
-
-    if (index > -1) {
-      script.splice(index, 1);
-    }
-
-    script.push({
-      id,
-      type: 'application/json',
-      // TODO htmlEscapeJsonString
-      content: JSON.stringify(appContext),
-    });
-
-    // eslint-disable-next-line no-param-reassign
-    context.meta = meta;
-  }
-
-  if (isInit) {
+  if (asyncContext) {
     return args ? setup(...args) : setup();
   } else {
-    return callContext(appContext!, setup, args);
+    asyncContext = createContext(context);
+
+    // Exposed to client
+    if (context.meta) {
+      // eslint-disable-next-line no-param-reassign
+      context.meta = mergeMeta(context.meta, {
+        script: [contextToScriptDescriptor(asyncContext)],
+      });
+    }
+
+    return callContext(asyncContext, setup, args);
   }
 }
 

@@ -1,4 +1,7 @@
-import { callContext, createContext } from '@web-widget/helpers/context';
+import {
+  callContext,
+  getRecoverableContext,
+} from '@web-widget/helpers/context';
 import { useWidgetState } from '@web-widget/helpers/state';
 
 export type StateLayerHandler = (
@@ -24,14 +27,7 @@ export class StateLayer implements ArrayLike<any> {
 }
 
 export function installStateLayer(callback: () => void) {
-  const stateElement = document.querySelector(
-    `script[id="state\\:web-router"]`
-  ) as HTMLScriptElement;
-  const context = stateElement
-    ? JSON.parse(stateElement.textContent as string)
-    : {};
-
-  callContext(createContext(context), () => {
+  callContext(getRecoverableContext(), () => {
     const currentState = self.stateLayer as unknown as undefined | any[];
     const allState = useWidgetState();
     self.stateLayer = new StateLayer((item) => Object.assign(allState, item));
