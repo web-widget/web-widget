@@ -1,7 +1,10 @@
 import { createNamespace } from 'unctx';
-import type { MiddlewareContext } from '@web-widget/schema';
+import type { MiddlewareContext, ScriptDescriptor } from '@web-widget/schema';
 
+const NAMESPACE = '@web-widget';
 const IS_SERVER = typeof document === 'undefined';
+const SCRIPT_ID = 'state:web-router';
+
 export const exposedToClient = Symbol.for('exposedToClient');
 
 function toJSON(this: any) {
@@ -39,7 +42,7 @@ let ctx;
 function tryGetAsyncLocalStorage() {
   return (ctx ??= createNamespace<Context>({
     asyncContext: IS_SERVER && Reflect.has(globalThis, 'AsyncLocalStorage'),
-  }).get('@web-widget'));
+  }).get(NAMESPACE));
 }
 
 export function createContext(options: Partial<MiddlewareContext>): Context {
@@ -59,6 +62,23 @@ export function createContext(options: Partial<MiddlewareContext>): Context {
   };
 
   return ctx;
+}
+
+export function contextToScriptDescriptor(context: Context): ScriptDescriptor {
+  return {
+    id: SCRIPT_ID,
+    type: 'application/json',
+    // TODO htmlEscapeJsonString
+    content: JSON.stringify(context),
+  };
+}
+
+export function getRecoverableContext() {
+  const stateElement = document.getElementById(SCRIPT_ID);
+  const context = stateElement
+    ? JSON.parse(stateElement.textContent as string)
+    : {};
+  return createContext(context);
 }
 
 function pick(object: Record<string, any>, keys: string[]): any {
