@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/react",
-  "version": "1.10.10",
+  "version": "1.10.11",
   "type": "module",
   "exports": {
     ".": {
