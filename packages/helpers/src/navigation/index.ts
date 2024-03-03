@@ -1,4 +1,4 @@
-import { useContext } from '@web-widget/context/client';
+import { useContext } from '@web-widget/context';
 import type { Status } from '../status';
 
 export function useParams<T extends Record<string, string>>(): T {
