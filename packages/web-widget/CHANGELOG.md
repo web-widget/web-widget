@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 1.10.12
+
+### Patch Changes
+
+- 4c88f05: Use `@web-widget/context` to manage async context.
+- Updated dependencies [4c88f05]
+  - @web-widget/helpers@1.10.12
+  - @web-widget/context@1.10.12
+
 ## 1.10.11
 
 ### Patch Changes
