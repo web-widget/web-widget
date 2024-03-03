@@ -1,4 +1,4 @@
-import { useContext } from '../context';
+import { useContext } from '@web-widget/context';
 
 export function useRouteState<T extends Record<string, any>>(): T {
   const ctx = useContext();

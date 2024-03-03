@@ -1,7 +1,7 @@
 import {
   callContext,
-  getRecoverableContext,
-} from '@web-widget/helpers/context';
+  getSafeSerializableContext,
+} from '@web-widget/context/client';
 import { useWidgetState } from '@web-widget/helpers/state';
 
 export type StateLayerHandler = (
@@ -27,7 +27,7 @@ export class StateLayer implements ArrayLike<any> {
 }
 
 export function installStateLayer(callback: () => void) {
-  callContext(getRecoverableContext(), () => {
+  callContext(getSafeSerializableContext(), () => {
     const currentState = self.stateLayer as unknown as undefined | any[];
     const allState = useWidgetState();
     self.stateLayer = new StateLayer((item) => Object.assign(allState, item));

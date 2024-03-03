@@ -1,7 +1,8 @@
 import type { Options } from 'tsup';
 export const tsup: Options = {
   entry: {
-    context: 'src/context/index.ts',
+    'context.client': 'src/context/client.ts',
+    'context.server': 'src/context/server.ts',
     error: 'src/error/index.ts',
     headers: 'src/headers/index.ts',
     http: 'src/http/index.ts',

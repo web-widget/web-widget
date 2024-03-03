@@ -1,4 +1,4 @@
-import { useContext } from '../context';
+import { useContext } from '@web-widget/context';
 import type { Status } from '../status';
 
 export function useParams<T extends Record<string, string>>(): T {
@@ -24,12 +24,8 @@ export function redirect(location: string, status: Status = 307): Response {
 }
 
 export function useLocation(): URL {
-  if (typeof location === 'object') {
-    return new URL(location.href);
-  } else {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const ctx = useContext();
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const ctx = useContext();
 
-    return new URL(ctx.request!.url);
-  }
+  return new URL(ctx.request.url);
 }
