@@ -6,9 +6,9 @@ import {
 import {
   callContext,
   contextToScriptDescriptor,
-  createContext,
-  useTryContext,
-} from '@web-widget/helpers/context';
+  createSerializableContext,
+  useContext,
+} from '@web-widget/context/server';
 import { createHttpError } from '@web-widget/helpers/error';
 import type {
   LayoutModule,
@@ -28,6 +28,13 @@ import type {
 } from './types';
 import type { Context } from './context';
 
+function tryGetSerializableContext() {
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useContext();
+  } catch (e) {}
+}
+
 export type OnFallback = (
   error: RouteError,
   context?: MiddlewareContext
@@ -38,13 +45,12 @@ function callAsyncContext<T extends (...args: any[]) => any>(
   setup: T,
   args?: Parameters<T>
 ): Promise<Response> {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  let asyncContext = useTryContext();
+  let asyncContext = tryGetSerializableContext();
 
   if (asyncContext) {
     return args ? setup(...args) : setup();
   } else {
-    asyncContext = createContext(context);
+    asyncContext = createSerializableContext(context);
 
     // Exposed to client
     if (context.meta) {

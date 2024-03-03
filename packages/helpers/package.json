@@ -21,9 +21,21 @@
       }
     },
     "./context": {
-      "types": "./dist/context.d.ts",
-      "development": "./src/context/index.ts",
-      "default": "./dist/context.js"
+      "worker": {
+        "types": "./dist/context.server.d.ts",
+        "development": "./src/context/server.ts",
+        "default": "./dist/context.server.js"
+      },
+      "browser": {
+        "types": "./dist/context.client.d.ts",
+        "development": "./src/context/client.ts",
+        "default": "./dist/context.client.js"
+      },
+      "default": {
+        "types": "./dist/context.server.d.ts",
+        "development": "./src/context/server.ts",
+        "default": "./dist/context.server.js"
+      }
     },
     "./error": {
       "types": "./dist/error.d.ts",
@@ -87,10 +99,8 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "unctx": "^2.3.1",
     "@edge-runtime/cookies": "^4.0.3",
-    "@edge-runtime/user-agent": "^1.4.1",
-    "@web-widget/schema": "workspace:*"
+    "@edge-runtime/user-agent": "^1.4.1"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.2",
@@ -100,7 +110,12 @@
     "jest-environment-miniflare": "^2.14.2",
     "ts-jest": "^29.1.1",
     "tsup": "^8.0.1",
-    "typescript": "latest"
+    "typescript": "latest",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/context": "workspace:*"
+  },
+  "peerDependencies": {
+    "@web-widget/context": "workspace:*"
   },
   "publishConfig": {
     "access": "public",
@@ -120,8 +135,18 @@
         }
       },
       "./context": {
-        "types": "./dist/context.d.ts",
-        "default": "./dist/context.js"
+        "worker": {
+          "types": "./dist/context.server.d.ts",
+          "default": "./dist/context.server.js"
+        },
+        "browser": {
+          "types": "./dist/context.client.d.ts",
+          "default": "./dist/context.client.js"
+        },
+        "default": {
+          "types": "./dist/context.server.d.ts",
+          "default": "./dist/context.server.js"
+        }
       },
       "./error": {
         "types": "./dist/error.d.ts",

@@ -1,0 +1,88 @@
+{
+  "name": "@web-widget/context",
+  "version": "1.10.11",
+  "type": "module",
+  "exports": {
+    ".": {
+      "worker": {
+        "types": "./dist/universal.server.d.ts",
+        "development": "./src/universal.server.ts",
+        "default": "./dist/universal.server.js"
+      },
+      "browser": {
+        "types": "./dist/universal.client.d.ts",
+        "development": "./src/universal.client.ts",
+        "default": "./dist/universal.client.js"
+      },
+      "default": {
+        "types": "./dist/universal.server.d.ts",
+        "development": "./src/universal.server.ts",
+        "default": "./dist/universal.server.js"
+      }
+    },
+    "./client": {
+      "types": "./dist/context.client.d.ts",
+      "development": "./src/client.ts",
+      "default": "./dist/context.client.js"
+    },
+    "./server": {
+      "types": "./dist/context.server.d.ts",
+      "development": "./src/server.ts",
+      "default": "./dist/context.server.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch",
+    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "prebuild": "pnpm run clean:build",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "unctx": "^2.3.1"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.6.2",
+    "@types/jest": "^29.5.3",
+    "jest": "^29.6.2",
+    "miniflare": "^3.20240129.1",
+    "jest-environment-miniflare": "^2.14.2",
+    "ts-jest": "^29.1.1",
+    "tsup": "^8.0.1",
+    "typescript": "latest",
+    "@web-widget/schema": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "worker": {
+          "types": "./dist/universal.server.d.ts",
+          "default": "./dist/universal.server.js"
+        },
+        "browser": {
+          "types": "./dist/universal.client.d.ts",
+          "default": "./dist/universal.client.js"
+        },
+        "default": {
+          "types": "./dist/universal.server.d.ts",
+          "default": "./dist/universal.server.js"
+        }
+      },
+      "./client": {
+        "types": "./dist/context.client.d.ts",
+        "default": "./dist/context.client.js"
+      },
+      "./server": {
+        "types": "./dist/context.server.d.ts",
+        "default": "./dist/context.server.js"
+      }
+    }
+  }
+}

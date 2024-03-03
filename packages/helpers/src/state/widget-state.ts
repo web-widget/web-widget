@@ -1,4 +1,4 @@
-import { useContext } from '../context';
+import { useContext } from '@web-widget/context';
 
 const ERROR = Symbol.for('error');
 type PromiseState<T> = Promise<T> & {

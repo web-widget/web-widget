@@ -41,6 +41,7 @@
     "urlpattern-polyfill": "^9.0.0"
   },
   "peerDependencies": {
+    "@web-widget/context": "workspace:*",
     "@web-widget/helpers": "workspace:*",
     "@web-widget/html": "workspace:*"
   },
