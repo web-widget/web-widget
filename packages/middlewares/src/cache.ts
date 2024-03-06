@@ -178,7 +178,7 @@ export const cache = function (options: CacheOptions) {
     const cacheValue: CacheValue = {
       body: await res.clone().text(),
       contentType: res.headers.get('Content-Type'),
-      lastModified: res.headers.get('last-modified'),
+      lastModified: res.headers.get('Last-Modified'),
       etag: res.headers.get('etag'),
     };
 
