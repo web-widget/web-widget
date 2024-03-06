@@ -43,14 +43,14 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
   }
 
   static fromManifest<E extends Env = Env>(
-    manifest: Manifest,
+    manifest: Partial<Manifest> = {},
     options: StartOptions<E> = {}
   ) {
     const router = new WebRouter<E>(options);
     const middlewares = manifest.middlewares ?? [];
     const routes = manifest.routes ?? [];
     const layout = manifest.layout ?? {
-      module: () => defaultLayoutModule as LayoutModule,
+      module: async () => defaultLayoutModule as LayoutModule,
     };
     const fallbacks = manifest.fallbacks ?? [];
     const defaultBaseAsset = options.baseAsset ?? '/';
