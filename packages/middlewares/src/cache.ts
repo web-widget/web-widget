@@ -5,21 +5,6 @@ import {
 } from '@web-widget/helpers';
 import { fresh } from '@web-widget/helpers/headers';
 
-function isFresh(req: Request, res: Response) {
-  const method = req.method;
-
-  // GET or HEAD for weak freshness validation only
-  if (method !== 'GET' && method !== 'HEAD') return false;
-
-  const status = res.status;
-  // 2xx or 304 as per rfc2616 14.26
-  if ((status >= 200 && status < 300) || status === 304) {
-    return fresh(req.headers, res.headers);
-  }
-
-  return false;
-}
-
 // methods we cache
 const defaultMethods = {
   HEAD: true,
@@ -133,7 +118,7 @@ async function getCache(
 }
 
 export const cache = function (options: CacheOptions) {
-  const methods = Object.assign(defaultMethods, options.methods);
+  const methods = Object.assign({}, defaultMethods, options.methods);
 
   const { get } = options;
   const { set } = options;
@@ -141,7 +126,7 @@ export const cache = function (options: CacheOptions) {
   if (!get) throw new Error('.get not defined');
   if (!set) throw new Error('.set not defined');
 
-  return defineMiddlewareHandler(async function middleware(ctx, next) {
+  return defineMiddlewareHandler(async function cacheMiddleware(ctx, next) {
     if (!ctx.module || !ctx.module.$cache) {
       return next();
     }
@@ -215,3 +200,18 @@ export const cache = function (options: CacheOptions) {
     }
   });
 };
+
+function isFresh(req: Request, res: Response) {
+  const method = req.method;
+
+  // GET or HEAD for weak freshness validation only
+  if (method !== 'GET' && method !== 'HEAD') return false;
+
+  const status = res.status;
+  // 2xx or 304 as per rfc2616 14.26
+  if ((status >= 200 && status < 300) || status === 304) {
+    return fresh(req.headers, res.headers);
+  }
+
+  return false;
+}
