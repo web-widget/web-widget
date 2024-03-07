@@ -48,7 +48,7 @@ const createApp = function (
   return app;
 };
 
-test('should pass the maxAge through $cache.maxAge', async () => {
+test('should pass the maxAge through config.cache.maxAge', async () => {
   let set = false;
 
   const store = new LRUCache<string, CacheValue>({ max: 1024 });
@@ -97,12 +97,6 @@ test('when body is a string it should cache the response', async () => {
   expect(res.status).toBe(200);
   expect(cached?.body).toBe('lol');
 });
-
-// TODO test('when the body is a buffer it should cache the response', async () => {});
-
-// TODO test('when the body is JSON it should cache the response', async () => {});
-
-// TODO test('when the body is a stream it should cache the response', async () => {});
 
 test('when the method is HEAD it should cache the response', async () => {
   const store = new LRUCache<string, CacheValue>({ max: 1024 });
