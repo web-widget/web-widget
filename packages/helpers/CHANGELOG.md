@@ -1,5 +1,14 @@
 # @web-widget/helpers
 
+## 1.10.13
+
+### Patch Changes
+
+- 3cbfa1d: Refactoring type definitions.
+- 4e38c8c: Added `fresh`, `vary`, `defineConfig` and `cacheControl` helper methods.
+- 3cbfa1d: Add `./env` module.
+  - @web-widget/context@1.10.13
+
 ## 1.10.12
 
 ### Patch Changes

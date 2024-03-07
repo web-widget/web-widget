@@ -1,5 +1,17 @@
 # @web-widget/vue2
 
+## 1.10.13
+
+### Patch Changes
+
+- 3cbfa1d: Refactoring type definitions.
+- Updated dependencies [3cbfa1d]
+- Updated dependencies [4e38c8c]
+- Updated dependencies [3cbfa1d]
+  - @web-widget/helpers@1.10.13
+  - @web-widget/vite-plugin@1.10.13
+  - @web-widget/web-widget@1.10.13
+
 ## 1.10.12
 
 ### Patch Changes

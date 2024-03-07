@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/middlewares",
-  "version": "1.10.12",
+  "version": "1.10.13",
   "type": "module",
   "exports": {
     "./cache": {
@@ -37,8 +37,7 @@
     "prebuild": "pnpm run clean:build",
     "lint": "eslint src"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "@jest/globals": "^29.6.2",
     "@types/jest": "^29.5.3",
