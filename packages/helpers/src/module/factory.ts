@@ -1,5 +1,6 @@
 import type {
   Meta,
+  RouteConfig,
   MiddlewareHandler,
   MiddlewareHandlers,
   RouteComponent,
@@ -22,6 +23,10 @@ import type {
   WidgetRenderOptions,
   WidgetRenderResult,
 } from '@web-widget/schema';
+
+export /*#__PURE__*/ function defineConfig(config: RouteConfig) {
+  return config;
+}
 
 export /*#__PURE__*/ function defineMeta(meta: Meta) {
   return meta;

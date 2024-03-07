@@ -1,4 +1,4 @@
-export function setCacheControl(headers: Headers, cacheControl: string) {
+export function cacheControl(headers: Headers, cacheControl: string) {
   const directives = cacheControl
     ?.split(',')
     .map((directive) => directive.toLowerCase());

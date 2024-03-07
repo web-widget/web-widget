@@ -2,4 +2,4 @@
 '@web-widget/helpers': patch
 ---
 
-Added `fresh` and `vary` helper methods.
+Added `fresh`, `vary`, `defineConfig` and `cacheControl` helper methods.
