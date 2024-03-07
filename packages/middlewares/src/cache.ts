@@ -5,22 +5,9 @@ import {
 } from '@web-widget/helpers';
 import { fresh } from '@web-widget/helpers/headers';
 
-// methods we cache
-const defaultMethods = {
-  HEAD: true,
-  GET: true,
-};
-
-type CacheValue = {
-  body: string | null;
-  contentType: string | null;
-  lastModified: string | null;
-  etag: string | null;
-};
-
-declare module '@web-widget/helpers' {
-  interface RouteModule {
-    $cache?: Partial<CacheOptions>;
+declare module '@web-widget/schema' {
+  export interface RouteConfig {
+    cache?: Partial<CacheOptions> | boolean;
   }
 }
 
@@ -56,6 +43,19 @@ export interface CacheOptions {
    */
   set: (key: string, value: any, maxAge?: number) => Promise<void>;
 }
+
+// methods we cache
+const defaultMethods = {
+  HEAD: true,
+  GET: true,
+};
+
+type CacheValue = {
+  body: string | null;
+  contentType: string | null;
+  lastModified: string | null;
+  etag: string | null;
+};
 
 async function getCache(
   ctx: MiddlewareContext,
@@ -127,10 +127,12 @@ export const cache = function (options: CacheOptions) {
   if (!set) throw new Error('.set not defined');
 
   return defineMiddlewareHandler(async function cacheMiddleware(ctx, next) {
-    if (!ctx.module || !ctx.module.$cache) {
+    if (!ctx.module || !ctx.module?.config?.cache) {
       return next();
     }
 
+    const routeConfig = ctx.module.config.cache;
+    const routeOptions = routeConfig === true ? {} : routeConfig;
     const cacheOptions = {
       methods,
       maxAge: 0,
@@ -138,7 +140,7 @@ export const cache = function (options: CacheOptions) {
         return ctx.request.url;
       },
       ...options,
-      ...ctx.module.$cache,
+      ...routeOptions,
     };
     const cache = await getCache(ctx, cacheOptions);
 

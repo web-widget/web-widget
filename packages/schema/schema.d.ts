@@ -7,6 +7,7 @@
 export type WidgetModule = ServerWidgetModule | ClientWidgetModule;
 
 export interface ServerWidgetModule {
+  config?: WidgetConfig;
   default?: WidgetComponent;
   fallback?: WidgetFallbackComponent;
   meta?: Meta;
@@ -14,11 +15,14 @@ export interface ServerWidgetModule {
 }
 
 export interface ClientWidgetModule {
+  config?: WidgetConfig;
   default?: WidgetComponent;
   fallback?: WidgetFallbackComponent;
   meta?: Meta;
   render?: ClientWidgetRender;
 }
+
+export interface WidgetConfig {}
 
 export type WidgetComponentProps<Data = unknown> = Data;
 
@@ -104,12 +108,15 @@ export interface ClientWidgetRender<Data = unknown, Options = unknown> {
 ////////////////////////////////////////
 
 export interface RouteModule {
+  config?: RouteConfig;
   default?: RouteComponent;
   fallback?: RouteFallbackComponent;
   handler?: RouteHandler | RouteHandlers;
   meta?: Meta;
   render?: RouteRender;
 }
+
+export interface RouteConfig {}
 
 export type RouteComponentProps<
   Data = unknown,

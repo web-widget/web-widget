@@ -20,7 +20,7 @@ const createApp = function (
         handler: async () => {
           return new Response('lol');
         },
-        $cache: {},
+        config: { cache: true },
       },
     },
   ]
@@ -68,8 +68,10 @@ test('should pass the maxAge through $cache.maxAge', async () => {
       {
         pathname: '*',
         module: {
-          $cache: {
-            maxAge: 300,
+          config: {
+            cache: {
+              maxAge: 300,
+            },
           },
           handler: async () => {
             return new Response('lol');
@@ -166,7 +168,7 @@ test('when etag and last-modified headers are set it should cache those values',
             },
           });
         },
-        $cache: {},
+        config: { cache: true },
       },
     },
   ]);
@@ -197,7 +199,7 @@ test('when the response is fresh it should return a 304 and cache the response',
             },
           });
         },
-        $cache: {},
+        config: { cache: true },
       },
     },
   ]);

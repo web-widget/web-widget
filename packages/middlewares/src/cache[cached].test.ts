@@ -31,7 +31,7 @@ const createApp = function (
             },
           });
         },
-        $cache: {},
+        config: { cache: true },
       },
     },
   ]
