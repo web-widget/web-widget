@@ -5,8 +5,23 @@
   "exports": {
     "./cache": {
       "types": "./dist/cache.d.ts",
-      "development": "./src/cache/index.ts",
+      "development": "./src/cache.ts",
       "default": "./dist/cache.js"
+    },
+    "./inline-styles": {
+      "types": "./dist/inline-styles.d.ts",
+      "development": "./src/inline-styles.ts",
+      "default": "./dist/inline-styles.js"
+    },
+    "./powered-by": {
+      "types": "./dist/powered-by.d.ts",
+      "development": "./src/powered-by.ts",
+      "default": "./dist/powered-by.js"
+    },
+    "./trailing-slash": {
+      "types": "./dist/trailing-slash.d.ts",
+      "development": "./src/trailing-slash.ts",
+      "default": "./dist/trailing-slash.js"
     }
   },
   "files": [
@@ -47,6 +62,18 @@
       "./cache": {
         "types": "./dist/cache.d.ts",
         "default": "./dist/cache.js"
+      },
+      "./inline-styles": {
+        "types": "./dist/inline-styles.d.ts",
+        "default": "./dist/inline-styles.js"
+      },
+      "./powered-by": {
+        "types": "./dist/powered-by.d.ts",
+        "default": "./dist/powered-by.js"
+      },
+      "./trailing-slash": {
+        "types": "./dist/trailing-slash.d.ts",
+        "default": "./dist/trailing-slash.js"
       }
     }
   }

@@ -117,7 +117,7 @@ async function getCache(
   }
 }
 
-export const cache = function (options: CacheOptions) {
+export function cache(options: CacheOptions) {
   const methods = Object.assign({}, defaultMethods, options.methods);
 
   const { get } = options;
@@ -201,7 +201,7 @@ export const cache = function (options: CacheOptions) {
       return res;
     }
   });
-};
+}
 
 function isFresh(req: Request, res: Response) {
   const method = req.method;
