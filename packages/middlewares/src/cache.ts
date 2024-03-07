@@ -6,8 +6,13 @@ import {
 import { fresh } from '@web-widget/helpers/headers';
 
 declare module '@web-widget/schema' {
-  export interface RouteConfig {
+  interface RouteConfig {
     cache?: Partial<CacheOptions> | boolean;
+  }
+  interface RouteState {
+    $cache?: {
+      maxAge: number;
+    };
   }
 }
 
@@ -188,7 +193,6 @@ export function cache(options: CacheOptions) {
     await set(
       cacheKey,
       cacheValue,
-      // @ts-expect-error
       ctx.state.$cache?.maxAge ?? cacheOptions.maxAge
     );
 

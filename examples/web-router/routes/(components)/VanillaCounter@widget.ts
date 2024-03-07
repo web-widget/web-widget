@@ -1,5 +1,6 @@
 import './counter-common.css';
-import { IS_SERVER, defineWidgetRender } from '@web-widget/helpers';
+import { defineWidgetRender } from '@web-widget/helpers';
+import { IS_SERVER } from '@web-widget/helpers/env';
 
 export const render = defineWidgetRender((context) => {
   if (IS_SERVER) {

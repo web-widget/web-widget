@@ -9,7 +9,7 @@ import {
   // getCurrentInstance,
 } from 'vue';
 import type { VNode, PropType } from 'vue';
-import { IS_CLIENT } from '@web-widget/helpers';
+import { IS_CLIENT } from '@web-widget/helpers/env';
 
 const WebWidget = /*#__PURE__*/ defineComponent({
   name: 'WebWidgetRoot',

@@ -56,7 +56,7 @@ export function useWidgetSyncState<T>(
         cache[key] = result;
       },
       (error) => {
-        state[ERROR] = error;
+        (state as PromiseState<T>)[ERROR] = error;
       }
     );
   }

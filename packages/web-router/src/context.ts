@@ -14,7 +14,7 @@ type ContextOptions<E extends Env> = {
 };
 
 export class Context<E extends Env = any> {
-  state: Record<string, unknown> = Object.create(null);
+  state = Object.create(null);
   // /**
   //  * @experimental
   //  */

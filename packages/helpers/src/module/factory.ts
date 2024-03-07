@@ -35,28 +35,25 @@ export /*#__PURE__*/ function defineMeta(meta: Meta) {
 export /*#__PURE__*/ function defineRender<
   Data = unknown,
   Params = Record<string, string>,
-  Options = unknown,
 >(
   render: (
     context: WidgetRenderContext<Data> | RouteRenderContext<Data, Params>,
-    renderOptions: WidgetRenderOptions<Options> | RouteRenderOptions<Options>
+    renderOptions: WidgetRenderOptions | RouteRenderOptions
   ) => Promise<WidgetRenderResult | RouteRenderResult>
 ) {
   return render;
 }
 
-export /*#__PURE__*/ function defineWidgetRender<
-  Data = unknown,
-  Options = unknown,
->(render: WidgetRender<Data, Options>) {
+export /*#__PURE__*/ function defineWidgetRender<Data = unknown>(
+  render: WidgetRender<Data>
+) {
   return render;
 }
 
 export /*#__PURE__*/ function defineRouteRender<
   Data = unknown,
   Params = Record<string, string>,
-  Options = unknown,
->(render: RouteRender<Data, Params, Options>) {
+>(render: RouteRender<Data, Params>) {
   return render;
 }
 
@@ -76,12 +73,7 @@ export /*#__PURE__*/ function defineRouteFallbackComponent(
 export /*#__PURE__*/ function defineRouteHandler<
   Data = unknown,
   Params = Record<string, string>,
-  State = Record<string, unknown>,
->(
-  handler:
-    | RouteHandler<Data, Params, State>
-    | RouteHandlers<Data, Params, State>
-) {
+>(handler: RouteHandler<Data, Params> | RouteHandlers<Data, Params>) {
   return handler;
 }
 

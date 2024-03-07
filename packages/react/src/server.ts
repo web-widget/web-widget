@@ -14,6 +14,15 @@ import type {
 import * as ReactDOMServer from 'react-dom/server.browser';
 import type { CreateReactRenderOptions } from './types';
 
+declare module '@web-widget/schema' {
+  interface WidgetRenderOptions {
+    react?: {};
+  }
+  interface RouteRenderOptions {
+    react?: StreamOptions;
+  }
+}
+
 export * from '@web-widget/helpers';
 export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
@@ -40,7 +49,7 @@ export const createReactRender = ({
     throw new Error(`"onPrefetchData" is not supported.`);
   }
 
-  return defineRender<unknown, Record<string, string>, ReactRenderOptions>(
+  return defineRender<unknown, Record<string, string>>(
     async (context, { react: options } = {}) => {
       const reactRenderOptions: StreamOptions = Object.create(options ?? null);
 
