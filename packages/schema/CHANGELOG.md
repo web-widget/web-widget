@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.10.13
+
+### Patch Changes
+
+- 3cbfa1d: Refactoring type definitions.
+
 ## 1.10.12
 
 ## 1.10.11
