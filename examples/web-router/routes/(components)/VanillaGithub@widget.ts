@@ -1,4 +1,5 @@
-import { IS_SERVER, defineWidgetRender } from '@web-widget/helpers';
+import { defineWidgetRender } from '@web-widget/helpers';
+import { IS_SERVER } from '@web-widget/helpers/env';
 import { useWidgetSyncState } from '@web-widget/helpers/state';
 
 interface GitHubUserData {

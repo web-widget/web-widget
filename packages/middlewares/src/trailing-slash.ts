@@ -4,7 +4,7 @@ import { Status } from '@web-widget/helpers/status';
 import { redirect } from '@web-widget/helpers/navigation';
 
 declare module '@web-widget/schema' {
-  export interface RouteConfig {
+  interface RouteConfig {
     trailingSlash?: boolean;
   }
 }

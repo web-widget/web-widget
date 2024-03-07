@@ -6,7 +6,7 @@ import {
 } from '@web-widget/helpers';
 
 declare module '@web-widget/schema' {
-  export interface RouteConfig {
+  interface RouteConfig {
     inlineStyles?: boolean;
   }
 }

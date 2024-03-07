@@ -2,7 +2,7 @@ import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import { h, defineComponent, useAttrs, getCurrentInstance } from 'vue';
 import type { Component, PropType } from 'vue';
-import { IS_CLIENT } from '@web-widget/helpers';
+import { IS_CLIENT } from '@web-widget/helpers/env';
 
 export interface DefineWebWidgetOptions {
   base?: WebWidgetRendererOptions['base'];

@@ -42,6 +42,7 @@
     "@web-widget/vite-plugin": "workspace:*"
   },
   "devDependencies": {
+    "@web-widget/schema": "workspace:*",
     "@web-widget/helpers": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "tsup": "^8.0.1",

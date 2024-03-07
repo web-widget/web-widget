@@ -2,7 +2,7 @@ import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import { Suspense, createElement, use } from 'react';
 import type { ReactNode } from 'react';
-import { IS_CLIENT } from '@web-widget/helpers';
+import { IS_CLIENT } from '@web-widget/helpers/env';
 
 export interface WebWidgetProps {
   base?: WebWidgetRendererOptions['base'];

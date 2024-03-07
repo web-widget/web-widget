@@ -81,23 +81,23 @@ export type ClientWidgetRenderResult = void | {
   unload?: () => void | Promise<void>;
 };
 
-export type WidgetRenderOptions<Options = unknown> = Options;
+export interface WidgetRenderOptions {}
 
-export type WidgetRender<Data = unknown, Options = unknown> =
-  | ServerWidgetRender<Data, Options>
-  | ClientWidgetRender<Data, Options>;
+export type WidgetRender<Data = unknown> =
+  | ServerWidgetRender<Data>
+  | ClientWidgetRender<Data>;
 
-export interface ServerWidgetRender<Data = unknown, Options = unknown> {
+export interface ServerWidgetRender<Data = unknown> {
   (
     renderContext: ServerWidgetRenderContext<Data>,
-    renderOptions?: WidgetRenderOptions<Options>
+    renderOptions?: WidgetRenderOptions
   ): ServerWidgetRenderResult | Promise<ServerWidgetRenderResult>;
 }
 
-export interface ClientWidgetRender<Data = unknown, Options = unknown> {
+export interface ClientWidgetRender<Data = unknown> {
   (
     renderContext: ClientWidgetRenderContext<Data>,
-    renderOptions?: WidgetRenderOptions<Options>
+    renderOptions?: WidgetRenderOptions
   ): ClientWidgetRenderResult | Promise<ClientWidgetRenderResult>;
 }
 
@@ -166,38 +166,30 @@ export type RouteError = {
   statusText?: string;
 } & Error;
 
-export type RouteHandlers<
-  Data = unknown,
-  Params = Record<string, string>,
-  State = Record<string, unknown>,
-  Options = unknown,
-> = {
-  [K in
-    | 'GET'
-    | 'HEAD'
-    | 'POST'
-    | 'PUT'
-    | 'DELETE'
-    | 'OPTIONS'
-    | 'PATCH']?: RouteHandler<Data, Params, State, Options>;
+export interface RouteState {}
+
+export type RouteKnownMethods =
+  | 'GET'
+  | 'HEAD'
+  | 'POST'
+  | 'PUT'
+  | 'DELETE'
+  | 'OPTIONS'
+  | 'PATCH';
+
+export type RouteHandlers<Data = unknown, Params = Record<string, string>> = {
+  [K in RouteKnownMethods]?: RouteHandler<Data, Params>;
 };
 
-export interface RouteHandler<
-  Data = unknown,
-  Params = Record<string, string>,
-  State = Record<string, unknown>,
-  Options = unknown,
-> {
+export interface RouteHandler<Data = unknown, Params = Record<string, string>> {
   (
-    context: RouteHandlerContext<Data, Params, State, Options>
+    context: RouteHandlerContext<Data, Params>
   ): RouteHandlerResult | Promise<RouteHandlerResult>;
 }
 
 export interface RouteHandlerContext<
   Data = unknown,
   Params = Record<string, string>,
-  State = Record<string, unknown>,
-  Options = unknown,
 > {
   /**
    * Errors in the current route.
@@ -247,13 +239,13 @@ export interface RouteHandlerContext<
       error?: RouteError;
       meta?: Meta;
     },
-    renderOptions?: RouteRenderOptions<Options>
+    renderOptions?: RouteRenderOptions
   ): RouteHandlerResult | Promise<RouteHandlerResult>;
 
   /**
    * This is the default option for the `render()` method.
    */
-  renderOptions: RouteRenderOptions<Options>;
+  renderOptions: RouteRenderOptions;
 
   /**
    * This Fetch API interface represents a resource request.
@@ -264,7 +256,7 @@ export interface RouteHandlerContext<
   /**
    * The state of the application, the content comes from the middleware.
    */
-  state: State;
+  state: RouteState;
 }
 
 export interface RouteRenderContext<
@@ -314,20 +306,16 @@ export interface RouteRenderContext<
   request: Request;
 }
 
-export type RouteRenderOptions<Options = unknown> = Options & ResponseInit;
+export interface RouteRenderOptions extends ResponseInit {}
 
 export type RouteRenderResult = string | ReadableStream;
 
 export type RouteHandlerResult = Response;
 
-export interface RouteRender<
-  Data = unknown,
-  Params = Record<string, string>,
-  Options = unknown,
-> {
+export interface RouteRender<Data = unknown, Params = Record<string, string>> {
   (
     renderContext: RouteRenderContext<Data, Params>,
-    renderOptions?: RouteRenderOptions<Options>
+    renderOptions?: RouteRenderOptions
   ): RouteRenderResult | Promise<RouteRenderResult>;
 }
 
@@ -349,44 +337,14 @@ export interface MiddlewareHandler {
 }
 
 export type MiddlewareHandlers = {
-  [K in
-    | 'GET'
-    | 'HEAD'
-    | 'POST'
-    | 'PUT'
-    | 'DELETE'
-    | 'OPTIONS'
-    | 'PATCH']?: MiddlewareHandler;
+  [K in RouteKnownMethods]?: MiddlewareHandler;
 };
 
-export interface MiddlewareContext extends Partial<RouteHandlerContext> {
-  /**
-   * The parameters that were matched from the route.
-   *
-   * For the `/foo/:bar` route with url `/foo/123`, `params` would be
-   * `{ bar: '123' }`. For a route with no matchers, `params` would be `{}`. For
-   * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
-   * be `{ path: 'bar/baz' }`.
-   */
-  params: Record<string, string>;
-
-  /**
-   * The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered.
-   */
-  pathname: string;
-
-  /**
-   * This Fetch API interface represents a resource request.
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
-   */
-  request: Request;
-
-  /**
-   * The state of the application.
-   */
-  state: Record<string, unknown>;
-}
+export type MiddlewareContext = Pick<
+  RouteHandlerContext,
+  'params' | 'pathname' | 'request' | 'state'
+> &
+  Partial<RouteHandlerContext>;
 
 export interface MiddlewareNext {
   (): MiddlewareResult | Promise<MiddlewareResult>;
@@ -551,19 +509,13 @@ export type ServerModule = ServerWidgetModule | RouteModule | MiddlewareModule;
 
 export type ClientModule = ClientWidgetModule | RouteModule;
 
-export type Handlers<
-  Data = unknown,
-  Params = Record<string, string>,
-  State = Record<string, unknown>,
-  Options = unknown,
-> = RouteHandlers<Data, Params, State, Options> | MiddlewareHandlers;
+export type Handlers<Data = unknown, Params = Record<string, string>> =
+  | RouteHandlers<Data, Params>
+  | MiddlewareHandlers;
 
-export type Handler<
-  Data = unknown,
-  Params = Record<string, string>,
-  State = Record<string, unknown>,
-  Options = unknown,
-> = RouteHandler<Data, Params, State, Options> | MiddlewareHandler;
+export type Handler<Data = unknown, Params = Record<string, string>> =
+  | RouteHandler<Data, Params>
+  | MiddlewareHandler;
 
 export type ComponentProps<Data = unknown, Params = Record<string, string>> =
   | WidgetComponentProps<Data>
@@ -577,20 +529,14 @@ export type RenderContext<Data = unknown, Params = Record<string, string>> =
   | RouteRenderContext<Data, Params>
   | WidgetRenderContext<Data>;
 
-export type Render<
-  Data = unknown,
-  Params = Record<string, string>,
-  Options = unknown,
-> = ServerRender<Data, Params, Options> | ClientRender<Data, Params, Options>;
+export type Render<Data = unknown, Params = Record<string, string>> =
+  | ServerRender<Data, Params>
+  | ClientRender<Data, Params>;
 
-export type ServerRender<
-  Data = unknown,
-  Params = Record<string, string>,
-  Options = unknown,
-> = ServerWidgetRender<Data, Options> | RouteRender<Data, Params, Options>;
+export type ServerRender<Data = unknown, Params = Record<string, string>> =
+  | ServerWidgetRender<Data>
+  | RouteRender<Data, Params>;
 
-export type ClientRender<
-  Data = unknown,
-  Params = Record<string, string>,
-  Options = unknown,
-> = ClientWidgetRender<Data, Options> | RouteRender<Data, Params, Options>;
+export type ClientRender<Data = unknown, Params = Record<string, string>> =
+  | ClientWidgetRender<Data>
+  | RouteRender<Data, Params>;

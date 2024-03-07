@@ -37,6 +37,23 @@
         "default": "./dist/context.server.js"
       }
     },
+    "./env": {
+      "worker": {
+        "types": "./dist/env.server.d.ts",
+        "development": "./src/env/server.ts",
+        "default": "./dist/env.server.js"
+      },
+      "browser": {
+        "types": "./dist/env.client.d.ts",
+        "development": "./src/env/client.ts",
+        "default": "./dist/env.client.js"
+      },
+      "default": {
+        "types": "./dist/env.server.d.ts",
+        "development": "./src/env/server.ts",
+        "default": "./dist/env.server.js"
+      }
+    },
     "./error": {
       "types": "./dist/error.d.ts",
       "development": "./src/error/index.ts",
@@ -146,6 +163,20 @@
         "default": {
           "types": "./dist/context.server.d.ts",
           "default": "./dist/context.server.js"
+        }
+      },
+      "./env": {
+        "worker": {
+          "types": "./dist/env.server.d.ts",
+          "default": "./dist/env.server.js"
+        },
+        "browser": {
+          "types": "./dist/env.client.d.ts",
+          "default": "./dist/env.client.js"
+        },
+        "default": {
+          "types": "./dist/env.server.d.ts",
+          "default": "./dist/env.server.js"
         }
       },
       "./error": {
