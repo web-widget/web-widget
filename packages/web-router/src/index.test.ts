@@ -1,11 +1,5 @@
-import * as defaultLayoutModule from './layout';
 import type { OnFallback } from './modules';
-import type {
-  LayoutModule,
-  RouteError,
-  RouteModule,
-  RouteHandlerContext,
-} from '.';
+import type { RouteError, RouteModule, RouteHandlerContext } from '.';
 import WebRouter from '.';
 
 describe('Basic', () => {
@@ -25,11 +19,6 @@ describe('Basic', () => {
         },
       },
     ],
-    layout: {
-      module: defaultLayoutModule as LayoutModule,
-    },
-    middlewares: [],
-    fallbacks: [],
   });
 
   it('GET http://localhost/hello is ok', async () => {
@@ -71,11 +60,6 @@ describe('Multiple identical routes', () => {
         },
       },
     ],
-    layout: {
-      module: defaultLayoutModule as LayoutModule,
-    },
-    middlewares: [],
-    fallbacks: [],
   });
 
   it('GET http://localhost/ is ok', async () => {
@@ -113,9 +97,6 @@ describe('Create route context', () => {
           },
         },
       ],
-      layout: {
-        module: defaultLayoutModule as LayoutModule,
-      },
       middlewares: [
         {
           pathname: '/test',
@@ -127,7 +108,6 @@ describe('Create route context', () => {
           },
         },
       ],
-      fallbacks: [],
     });
 
     return app.request('http://localhost/test');
@@ -168,11 +148,6 @@ describe('Error handling', () => {
             module: routeModule,
           },
         ],
-        layout: {
-          module: defaultLayoutModule as LayoutModule,
-        },
-        middlewares: [],
-        fallbacks: [],
       },
       {
         onFallback,

@@ -1,0 +1,80 @@
+{
+  "name": "@web-widget/middlewares",
+  "version": "1.10.12",
+  "type": "module",
+  "exports": {
+    "./cache": {
+      "types": "./dist/cache.d.ts",
+      "development": "./src/cache.ts",
+      "default": "./dist/cache.js"
+    },
+    "./inline-styles": {
+      "types": "./dist/inline-styles.d.ts",
+      "development": "./src/inline-styles.ts",
+      "default": "./dist/inline-styles.js"
+    },
+    "./powered-by": {
+      "types": "./dist/powered-by.d.ts",
+      "development": "./src/powered-by.ts",
+      "default": "./dist/powered-by.js"
+    },
+    "./trailing-slash": {
+      "types": "./dist/trailing-slash.d.ts",
+      "development": "./src/trailing-slash.ts",
+      "default": "./dist/trailing-slash.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch",
+    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "prebuild": "pnpm run clean:build",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.6.2",
+    "@types/jest": "^29.5.3",
+    "jest": "^29.6.2",
+    "miniflare": "^3.20240129.1",
+    "jest-environment-miniflare": "^2.14.2",
+    "ts-jest": "^29.1.1",
+    "tsup": "^8.0.1",
+    "typescript": "latest",
+    "lru-cache": "^10.2.0",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/web-router": "workspace:*"
+  },
+  "peerDependencies": {
+    "@web-widget/helpers": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      "./cache": {
+        "types": "./dist/cache.d.ts",
+        "default": "./dist/cache.js"
+      },
+      "./inline-styles": {
+        "types": "./dist/inline-styles.d.ts",
+        "default": "./dist/inline-styles.js"
+      },
+      "./powered-by": {
+        "types": "./dist/powered-by.d.ts",
+        "default": "./dist/powered-by.js"
+      },
+      "./trailing-slash": {
+        "types": "./dist/trailing-slash.d.ts",
+        "default": "./dist/trailing-slash.js"
+      }
+    }
+  }
+}
