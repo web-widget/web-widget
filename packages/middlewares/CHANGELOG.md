@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.10.15
+
+### Patch Changes
+
+- 3d04412: Added `etag` and `conditional-get` middleware.
+- Updated dependencies [3d04412]
+  - @web-widget/helpers@1.10.15
+
 ## 1.10.14
 
 ### Patch Changes

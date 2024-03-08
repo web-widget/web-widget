@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/middlewares",
-  "version": "1.10.14",
+  "version": "1.10.15",
   "type": "module",
   "exports": {
     "./cache": {
