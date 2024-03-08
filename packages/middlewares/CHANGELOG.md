@@ -1,5 +1,12 @@
 # @web-widget/middlewares
 
+## 1.10.14
+
+### Patch Changes
+
+- bdee8f6: Options for refactoring middleware.
+  - @web-widget/helpers@1.10.14
+
 ## 1.10.13
 
 ### Patch Changes
