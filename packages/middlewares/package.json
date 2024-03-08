@@ -8,6 +8,16 @@
       "development": "./src/cache.ts",
       "default": "./dist/cache.js"
     },
+    "./conditional-get": {
+      "types": "./dist/conditional-get.d.ts",
+      "development": "./src/conditional-get.ts",
+      "default": "./dist/conditional-get.js"
+    },
+    "./etag": {
+      "types": "./dist/etag.d.ts",
+      "development": "./src/etag.ts",
+      "default": "./dist/etag.js"
+    },
     "./inline-styles": {
       "types": "./dist/inline-styles.d.ts",
       "development": "./src/inline-styles.ts",
@@ -61,6 +71,14 @@
       "./cache": {
         "types": "./dist/cache.d.ts",
         "default": "./dist/cache.js"
+      },
+      "./conditional-get": {
+        "types": "./dist/conditional-get.d.ts",
+        "default": "./dist/conditional-get.js"
+      },
+      "./etag": {
+        "types": "./dist/etag.d.ts",
+        "default": "./dist/etag.js"
       },
       "./inline-styles": {
         "types": "./dist/inline-styles.d.ts",

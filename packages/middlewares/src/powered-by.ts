@@ -1,6 +1,6 @@
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 
-export function poweredBy() {
+export default function poweredBy() {
   return defineMiddlewareHandler(
     async function poweredByMiddleware(_ctx, next) {
       const res = await next();

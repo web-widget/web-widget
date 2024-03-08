@@ -1,7 +1,7 @@
 import { LRUCache } from 'lru-cache';
 import type { Manifest } from '@web-widget/web-router';
 import WebRouter from '@web-widget/web-router';
-import { cache, type CacheOptions } from './cache';
+import cache, { type CacheOptions } from './cache';
 
 type CacheValue = {
   body: string | null;

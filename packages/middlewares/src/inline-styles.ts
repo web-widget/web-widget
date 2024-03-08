@@ -15,7 +15,7 @@ export type InlineStylesOptions = {
   filter?: (href: string) => boolean;
 };
 
-export function inlineStyles(options: InlineStylesOptions = {}) {
+export default function inlineStyles(options: InlineStylesOptions = {}) {
   return defineMiddlewareHandler(
     async function inlineStylesMiddleware(context, next) {
       const inlineStyles = context.module?.config?.inlineStyles ?? true;

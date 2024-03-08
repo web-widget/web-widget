@@ -6,7 +6,7 @@ export type TrailingSlashOptions = {
   trailingSlash?: boolean;
 };
 
-export const trailingSlash = (options: TrailingSlashOptions = {}) => {
+export default function trailingSlash(options: TrailingSlashOptions = {}) {
   const trailingSlash = options.trailingSlash ?? false;
   return defineMiddlewareHandler(
     async function trailingSlashMiddleware(context, next) {
@@ -33,4 +33,4 @@ export const trailingSlash = (options: TrailingSlashOptions = {}) => {
       return next();
     }
   );
-};
+}
