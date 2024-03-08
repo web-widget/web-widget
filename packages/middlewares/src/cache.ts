@@ -3,7 +3,7 @@ import {
   defineMiddlewareHandler,
   type MiddlewareContext,
 } from '@web-widget/helpers';
-import { fresh } from '@web-widget/helpers/headers';
+import { isFresh } from './utils/is-fresh';
 
 declare module '@web-widget/schema' {
   interface RouteConfig {
@@ -122,7 +122,7 @@ async function getCache(
   }
 }
 
-export function cache(options: CacheOptions) {
+export default function cache(options: CacheOptions) {
   const methods = Object.assign({}, defaultMethods, options.methods);
 
   const { get } = options;
@@ -204,19 +204,4 @@ export function cache(options: CacheOptions) {
       return res;
     }
   });
-}
-
-function isFresh(req: Request, res: Response) {
-  const method = req.method;
-
-  // GET or HEAD for weak freshness validation only
-  if (method !== 'GET' && method !== 'HEAD') return false;
-
-  const status = res.status;
-  // 2xx or 304 as per rfc2616 14.26
-  if ((status >= 200 && status < 300) || status === 304) {
-    return fresh(req.headers, res.headers);
-  }
-
-  return false;
 }
