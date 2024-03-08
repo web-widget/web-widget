@@ -1,5 +1,12 @@
 # @web-widget/helpers
 
+## 1.10.15
+
+### Patch Changes
+
+- 3d04412: Add `etag` helper method.
+  - @web-widget/context@1.10.15
+
 ## 1.10.14
 
 ### Patch Changes
