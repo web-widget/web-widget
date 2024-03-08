@@ -137,17 +137,16 @@ export function cache(options: CacheOptions) {
     }
 
     const routeConfig = ctx.module.config.cache;
-    const routeOptions = routeConfig === true ? {} : routeConfig;
-    const cacheOptions = {
+    const resolveOptions = {
       methods,
       maxAge: 0,
       hash(ctx: MiddlewareContext) {
         return ctx.request.url;
       },
       ...options,
-      ...routeOptions,
+      ...(routeConfig === true ? {} : routeConfig),
     };
-    const cache = await getCache(ctx, cacheOptions);
+    const cache = await getCache(ctx, resolveOptions);
 
     if (cache) {
       return cache;
@@ -189,11 +188,11 @@ export function cache(options: CacheOptions) {
       etag: res.headers.get('etag'),
     };
 
-    const cacheKey = cacheOptions.hash(ctx);
+    const cacheKey = resolveOptions.hash(ctx);
     await set(
       cacheKey,
       cacheValue,
-      ctx.state.$cache?.maxAge ?? cacheOptions.maxAge
+      ctx.state.$cache?.maxAge ?? resolveOptions.maxAge
     );
 
     if (isFresh(ctx.request, res)) {
