@@ -1,3 +1,4 @@
+import type { RouteHandlerContext } from '@web-widget/helpers';
 import { rebaseMeta } from '@web-widget/helpers';
 import { createHttpError } from '@web-widget/helpers/error';
 import { Application } from './application';
@@ -132,7 +133,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     );
 
     router.notFound(async (context) =>
-      notFoundHandler(createHttpError(404), context)
+      notFoundHandler(createHttpError(404), context as RouteHandlerContext)
     );
 
     const fallback500 = fallbacks.find(
@@ -154,9 +155,9 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
 
     router.onError(async (error, context) => {
       if (error?.status === 404) {
-        return notFoundHandler(error, context);
+        return notFoundHandler(error, context as RouteHandlerContext);
       } else {
-        return errorHandler(error, context);
+        return errorHandler(error, context as RouteHandlerContext);
       }
     });
 

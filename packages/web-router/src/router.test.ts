@@ -6,7 +6,7 @@ describe('Basic', () => {
   router.add('POST', '/hello', 'post hello');
   router.add('PURGE', '/hello', 'purge hello');
 
-  it('get, post, purge hello', async () => {
+  test('get, post, purge hello', async () => {
     let [res] = router.match('GET', '/hello');
     expect(res.length).toBe(1);
     expect(res[0][0]).toEqual('get hello');
@@ -26,7 +26,7 @@ describe('Basic', () => {
 describe('Complex', () => {
   const router = new URLPatternRouter<string>();
 
-  it('Named Param', async () => {
+  test('Named Param', async () => {
     router.add('GET', '/entry/:id', 'get entry');
     const [res] = router.match('GET', '/entry/123');
     expect(res.length).toBe(1);
@@ -34,7 +34,7 @@ describe('Complex', () => {
     expect(res[0][1]['id']).toBe('123');
   });
 
-  it('Named param with trailing wildcard', async () => {
+  test('Named param with trailing wildcard', async () => {
     router.add('GET', '/article/:id/*', 'get article with wildcard');
     let [res] = router.match('GET', '/article/123');
     // expect(res.length).toBe(1);
@@ -46,14 +46,14 @@ describe('Complex', () => {
     expect(res[0][1]['id']).toBe('123');
   });
 
-  it('Wildcard', async () => {
+  test('Wildcard', async () => {
     router.add('GET', '/wild/*/card', 'get wildcard');
     const [res] = router.match('GET', '/wild/xxx/card');
     expect(res.length).toBe(1);
     expect(res[0][0]).toEqual('get wildcard');
   });
 
-  it('Default', async () => {
+  test('Default', async () => {
     router.add('GET', '/api/*', 'fallback');
     router.add('GET', '/api/abc', 'get api');
     let [res] = router.match('GET', '/api/abc');
@@ -65,7 +65,7 @@ describe('Complex', () => {
     expect(res[0][0]).toEqual('fallback');
   });
 
-  it('Regexp', async () => {
+  test('Regexp', async () => {
     router.add('GET', '/post/:date([0-9]+)/:title([a-z]+)', 'get post');
     let [res] = router.match('GET', '/post/20210101/hello');
     expect(res.length).toBe(1);
@@ -90,13 +90,13 @@ describe('Multi match', () => {
     router.add('POST', '/entry', 'post entry');
     router.add('GET', '/entry/:id', 'get entry');
     router.add('GET', '/entry/:id/comment/:comment_id', 'get comment');
-    it('GET /', async () => {
+    test('GET /', async () => {
       const [res] = router.match('GET', '/');
       expect(res.length).toBe(2);
       expect(res[0][0]).toEqual('middleware a');
       expect(res[1][0]).toEqual('middleware b');
     });
-    it('GET /entry/123', async () => {
+    test('GET /entry/123', async () => {
       const [res] = router.match('GET', '/entry/123');
       expect(res.length).toBe(3);
       expect(res[0][0]).toEqual('middleware a');
@@ -106,7 +106,7 @@ describe('Multi match', () => {
       expect(res[2][0]).toEqual('get entry');
       expect(res[2][1]['id']).toBe('123');
     });
-    it('GET /entry/123/comment/456', async () => {
+    test('GET /entry/123/comment/456', async () => {
       const [res] = router.match('GET', '/entry/123/comment/456');
       expect(res.length).toBe(3);
       expect(res[0][0]).toEqual('middleware a');
@@ -117,14 +117,14 @@ describe('Multi match', () => {
       expect(res[2][1]['id']).toBe('123');
       expect(res[2][1]['comment_id']).toBe('456');
     });
-    it('POST /entry', async () => {
+    test('POST /entry', async () => {
       const [res] = router.match('POST', '/entry');
       // expect(res.length).toBe(3);
       expect(res[0][0]).toEqual('middleware a');
       // expect(res[1][0]).toEqual("middleware c");
       //  expect(res[2][0]).toEqual("post entry");
     });
-    it('DELETE /entry', async () => {
+    test('DELETE /entry', async () => {
       const [res] = router.match('DELETE', '/entry');
       expect(res.length).toBe(1);
       expect(res[0][0]).toEqual('middleware a');
@@ -137,7 +137,7 @@ describe('Fallback', () => {
   router.add('POST', '/entry', 'post entry');
   router.add('POST', '/entry/*', 'fallback');
   router.add('GET', '/entry/:id', 'get entry');
-  it('POST /entry', async () => {
+  test('POST /entry', async () => {
     const [res] = router.match('POST', '/entry');
     expect(res.length).toBe(1);
     expect(res[0][0]).toEqual('post entry');
@@ -148,7 +148,7 @@ describe('page', () => {
   const router = new URLPatternRouter<string>();
   router.add('GET', '/page', 'page');
   router.add('ALL', '*', 'fallback'); // or '*'
-  it('GET /page', async () => {
+  test('GET /page', async () => {
     const [res] = router.match('GET', '/page');
     expect(res.length).toBe(2);
     expect(res[0][0]).toEqual('page');
@@ -159,12 +159,12 @@ describe('page', () => {
 describe('Optional route', () => {
   const router = new URLPatternRouter<string>();
   router.add('GET', '/api/animals/:type?', 'animals');
-  it('GET /api/animals/dog', async () => {
+  test('GET /api/animals/dog', async () => {
     const [res] = router.match('GET', '/api/animals/dog');
     expect(res[0][0]).toEqual('animals');
     expect(res[0][1]['type']).toBe('dog');
   });
-  it('GET /api/animals', async () => {
+  test('GET /api/animals', async () => {
     const [res] = router.match('GET', '/api/animals');
     expect(res[0][0]).toEqual('animals');
     expect(res[0][1]['type']).toBeUndefined();
@@ -176,19 +176,19 @@ describe('routing order with named parameters', () => {
   router.add('GET', '/book/a', 'no-slug');
   router.add('GET', '/book/:slug', 'slug');
   router.add('GET', '/book/b', 'no-slug-b');
-  it('GET /book/a', async () => {
+  test('GET /book/a', async () => {
     const [res] = router.match('GET', '/book/a');
     expect(res[0][0]).toEqual('no-slug');
     expect(res[0][1]).toEqual({});
     expect(res[1][0]).toEqual('slug');
     expect(res[1][1]['slug']).toBe('a');
   });
-  it('GET /book/foo', async () => {
+  test('GET /book/foo', async () => {
     const [res] = router.match('GET', '/book/foo');
     expect(res[0][0]).toEqual('slug');
     expect(res[0][1]['slug']).toBe('foo');
   });
-  it('GET /book/b', async () => {
+  test('GET /book/b', async () => {
     const [res] = router.match('GET', '/book/b');
     expect(res.length).toBe(2);
     expect(res[0][0]).toEqual('slug');
@@ -202,12 +202,12 @@ describe('Trailing slash', () => {
   const router = new URLPatternRouter<string>();
   router.add('GET', '/book', 'GET /book');
   router.add('GET', '/book/:id', 'GET /book/:id');
-  it('GET /book', () => {
+  test('GET /book', () => {
     const [res] = router.match('GET', '/book');
     expect(res.length).toBe(1);
     expect(res[0][0]).toEqual('GET /book');
   });
-  it('GET /book/', () => {
+  test('GET /book/', () => {
     const [res] = router.match('GET', '/book/');
     expect(res.length).toBe(0);
   });
@@ -217,7 +217,7 @@ describe('Same path', () => {
   const router = new URLPatternRouter<string>();
   router.add('GET', '/hey', 'Middleware A');
   router.add('GET', '/hey', 'Middleware B');
-  it('GET /hey', () => {
+  test('GET /hey', () => {
     const [res] = router.match('GET', '/hey');
     expect(res.length).toBe(2);
     expect(res[0][0]).toEqual('Middleware A');
@@ -230,7 +230,7 @@ describe('Including slashes', () => {
   router.add('GET', '/js/:filename([a-z0-9/]+.js)', 'any file');
   router.add('GET', '/js/main.js', 'main.js');
 
-  it('GET /js/main.js', () => {
+  test('GET /js/main.js', () => {
     const [res] = router.match('GET', '/js/main.js');
     expect(res[0][0]).toEqual('any file');
     expect(res[0][1]).toEqual({ filename: 'main.js' });
@@ -238,13 +238,13 @@ describe('Including slashes', () => {
     expect(res[1][1]).toEqual({});
   });
 
-  it('get /js/chunk/123.js', () => {
+  test('get /js/chunk/123.js', () => {
     const [res] = router.match('GET', '/js/chunk/123.js');
     expect(res[0][0]).toEqual('any file');
     expect(res[0][1]).toEqual({ filename: 'chunk/123.js' });
   });
 
-  it('get /js/chunk/nest/123.js', () => {
+  test('get /js/chunk/nest/123.js', () => {
     const [res] = router.match('GET', '/js/chunk/nest/123.js');
     expect(res[0][0]).toEqual('any file');
     expect(res[0][1]).toEqual({ filename: 'chunk/nest/123.js' });
@@ -256,13 +256,13 @@ describe('REST API', () => {
   router.add('GET', '/users/:username([a-z]+)', 'profile');
   router.add('GET', '/users/:username([a-z]+)/posts', 'posts');
 
-  it('GET /users/aui', () => {
+  test('GET /users/aui', () => {
     const [res] = router.match('GET', '/users/aui');
     expect(res.length).toBe(1);
     expect(res[0][0]).toEqual('profile');
   });
 
-  it('GET /users/aui/posts', () => {
+  test('GET /users/aui/posts', () => {
     const [res] = router.match('GET', '/users/aui/posts');
     expect(res.length).toBe(1);
     expect(res[0][0]).toEqual('posts');
@@ -270,14 +270,14 @@ describe('REST API', () => {
 });
 
 describe('Duplicate param name', () => {
-  it('self', () => {
+  test('self', () => {
     const router = new URLPatternRouter<string>();
     expect(() => {
       router.add('GET', '/:id/:id', 'foo');
     }).toThrowError(UnsupportedPathError);
   });
 
-  it('parent', () => {
+  test('parent', () => {
     const router = new URLPatternRouter<string>();
     router.add('GET', '/:id/:action', 'foo');
     router.add('GET', '/posts/:id', 'bar');
@@ -290,7 +290,7 @@ describe('Duplicate param name', () => {
     expect(res[1][1]['id']).toBe('get');
   });
 
-  it('child', () => {
+  test('child', () => {
     const router = new URLPatternRouter<string>();
     router.add('GET', '/posts/:id', 'foo');
     router.add('GET', '/:id/:action', 'bar');
@@ -303,7 +303,7 @@ describe('Duplicate param name', () => {
     expect(res[1][1]['action']).toBe('get');
   });
 
-  it('hierarchy', () => {
+  test('hierarchy', () => {
     const router = new URLPatternRouter<string>();
     router.add('get', '/posts/:id/comments/:comment_id', 'foo');
     expect(() => {
@@ -311,7 +311,7 @@ describe('Duplicate param name', () => {
     }).not.toThrowError();
   });
 
-  it('regular expression', () => {
+  test('regular expression', () => {
     const router = new URLPatternRouter<string>();
     router.add('get', '/:id/:action{create|update}', 'foo');
     expect(() => {
@@ -327,7 +327,7 @@ describe('Sort Order', () => {
     router.add('get', '/page', '/page');
     router.add('get', '/:slug', '/:slug');
 
-    it('get /page', () => {
+    test('get /page', () => {
       const [res] = router.match('get', '/page');
       expect(res.length).toBe(3);
       expect(res[0][0]).toEqual('a');
@@ -342,7 +342,7 @@ describe('Sort Order', () => {
     router.add('get', '/posts/:id', '/posts/:id');
     router.add('get', '/:type/:id', '/:type/:id');
 
-    it('get /posts/123', () => {
+    test('get /posts/123', () => {
       const [res] = router.match('get', '/posts/123');
       expect(res.length).toBe(3);
       expect(res[0][0]).toEqual('a');
@@ -358,7 +358,7 @@ describe('Sort Order', () => {
     router.add('get', '/api/posts/:id', '3rd');
     router.add('get', '/api/*', '4th');
 
-    it('get /api/posts/123', () => {
+    test('get /api/posts/123', () => {
       const [res] = router.match('get', '/api/posts/123');
       expect(res.length).toBe(4);
       expect(res[0][0]).toEqual('1st');
@@ -374,7 +374,7 @@ describe('Sort Order', () => {
     router.add('get', '/posts/*', '/posts/*'); // 1.2
     router.add('get', '/posts/:id', '/posts/:id'); // 2.3
 
-    it('get /posts', () => {
+    test('get /posts', () => {
       const [res] = router.match('get', '/posts');
 
       expect(res.length).toBe(1);
@@ -395,7 +395,7 @@ describe('Sort Order', () => {
     router.add('get', '*', 'i'); // match
     router.add('get', '*', 'j'); // match
 
-    it('get /api/posts/123', () => {
+    test('get /api/posts/123', () => {
       const [res] = router.match('get', '/api/posts/123');
       expect(res.length).toBe(7);
       expect(res[0][0]).toEqual('b');
@@ -414,7 +414,7 @@ describe('Sort Order', () => {
     router.add('get', '/abc/*', 'GET /abc/*'); // 1.2
     router.add('get', '/abc/edf', 'GET /abc/edf'); // 2.3
     router.add('get', '/abc/*/ghi/jkl', 'GET /abc/*/ghi/jkl'); // 4.4
-    it('get /abc/edf', () => {
+    test('get /abc/edf', () => {
       const [res] = router.match('get', '/abc/edf');
       expect(res.length).toBe(3);
       expect(res[0][0]).toEqual('GET *');
@@ -430,7 +430,7 @@ describe('Sort Order', () => {
     router.add('get', '/api/entry', 'entry'); // 2.2
     router.add('ALL', '/api/*', 'b'); // 2.3 for /api/entry
 
-    it('get /api/entry', async () => {
+    test('get /api/entry', async () => {
       const [res] = router.match('get', '/api/entry');
       expect(res.length).toBe(3);
       expect(res[0][0]).toEqual('a');
@@ -445,7 +445,7 @@ describe('Sort Order', () => {
       router.add('post', '/entry', 'post entry'); // 1.1
       router.add('post', '/entry/*', 'fallback'); // 1.2
       router.add('get', '/entry/:id', 'get entry'); // 2.3
-      it('post /entry', async () => {
+      test('post /entry', async () => {
         const [res] = router.match('post', '/entry');
         expect(res.length).toBe(1);
         expect(res[0][0]).toEqual('post entry');
@@ -456,7 +456,7 @@ describe('Sort Order', () => {
     const router = new URLPatternRouter<string>();
     router.add('get', '/page', 'page'); // 1.1
     router.add('ALL', '/*', 'fallback'); // 1.2
-    it('get /page', async () => {
+    test('get /page', async () => {
       const [res] = router.match('get', '/page');
       expect(res.length).toBe(2);
       expect(res[0][0]).toEqual('page');
@@ -474,7 +474,7 @@ describe('star', () => {
   router.add('get', '/x', '/x');
   router.add('get', '/x/*', '/x/*');
 
-  it('top', async () => {
+  test('top', async () => {
     const [res] = router.match('get', '/');
     expect(res.length).toBe(3);
     expect(res[0][0]).toEqual('/');
@@ -482,7 +482,7 @@ describe('star', () => {
     expect(res[2][0]).toEqual('*');
   });
 
-  it('Under a certain path', async () => {
+  test('Under a certain path', async () => {
     const [res] = router.match('get', '/x');
     expect(res.length).toBe(3);
     expect(res[0][0]).toEqual('/*');
@@ -497,7 +497,7 @@ describe('Routing order With named parameters', () => {
   router.add('get', '/book/a', 'no-slug');
   router.add('get', '/book/:slug', 'slug');
   router.add('get', '/book/b', 'no-slug-b');
-  it('/book/a', () => {
+  test('/book/a', () => {
     const [res] = router.match('get', '/book/a');
     expect(res.length).toBe(2);
     expect(res[0][0]).toEqual('no-slug');
@@ -506,13 +506,13 @@ describe('Routing order With named parameters', () => {
     expect(res[1][1]['slug']).toBe('a');
   });
 
-  it('/book/foo', () => {
+  test('/book/foo', () => {
     const [res] = router.match('get', '/book/foo');
     expect(res.length).toBe(1);
     expect(res[0][0]).toEqual('slug');
     expect(res[0][1]['slug']).toBe('foo');
   });
-  it('/book/b', () => {
+  test('/book/b', () => {
     const [res] = router.match('get', '/book/b');
     expect(res.length).toBe(2);
     expect(res[0][0]).toEqual('slug');
@@ -526,17 +526,17 @@ describe('Routing with a hostname', () => {
   const router = new URLPatternRouter<string>();
   router.add('get', 'www1.example.com/hello', 'www1');
   router.add('get', 'www2.example.com/hello', 'www2');
-  it('GET www1.example.com/hello', () => {
+  test('GET www1.example.com/hello', () => {
     const [res] = router.match('get', 'www1.example.com/hello');
     expect(res.length).toBe(1);
     expect(res[0][0]).toEqual('www1');
   });
-  it('GET www2.example.com/hello', () => {
+  test('GET www2.example.com/hello', () => {
     const [res] = router.match('get', 'www2.example.com/hello');
     expect(res.length).toBe(1);
     expect(res[0][0]).toEqual('www2');
   });
-  it('GET /hello', () => {
+  test('GET /hello', () => {
     const [res] = router.match('get', '/hello');
     expect(res.length).toBe(0);
   });
