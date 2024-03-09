@@ -215,9 +215,10 @@ export function createRouteContext(
     layoutModule ??= await getModule<LayoutModule>(layout);
 
     // If multiple routes match here, only the first one is valid.
-    if (!('module' in context)) {
+    if (!context.module) {
       context.module ??= module;
 
+      // If the route has a render function, it's a route module.
       if (module.render) {
         context.data ??= Object.create(null);
         context.error ??= undefined;
