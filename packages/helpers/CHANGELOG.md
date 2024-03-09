@@ -1,5 +1,12 @@
 # @web-widget/helpers
 
+## 1.10.17
+
+### Patch Changes
+
+- 6f9e4f1: Add `statusText`.
+  - @web-widget/context@1.10.17
+
 ## 1.10.16
 
 ### Patch Changes
