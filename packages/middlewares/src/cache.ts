@@ -32,19 +32,19 @@ export interface CacheOptions {
 
   /**
    * A hashing function. By default, it's:
-   * function hash(ctx) {
-   *   return ctx.request.url;
+   * function hash(req) {
+   *   return req.url;
    * }
    */
-  hash?: (ctx: MiddlewareContext) => string;
+  hash?: (req: Request) => string;
 
   /**
    * Whether to disable cache middleware running. By default, it's:
-   * function disable(ctx) {
+   * function disable(req) {
    *   return false;
    * }
    */
-  disable?: (ctx: MiddlewareContext) => boolean;
+  disable?: (req: Request) => boolean;
 
   /**
    * Get a value from a store. Must return a Promise, which returns the cache's value, if any.
@@ -78,8 +78,8 @@ async function getCache(
     get,
     methods = defaultMethods,
     setCachedHeader,
-    hash = function (ctx) {
-      return ctx.request.url;
+    hash = function (req: Request) {
+      return req.url;
     },
   }: CacheOptions
 ) {
@@ -87,7 +87,7 @@ async function getCache(
     return null;
   }
 
-  const cacheKey = hash(ctx);
+  const cacheKey = hash(ctx.request);
   const cacheValue: CacheValue | undefined = await get(cacheKey, maxAge);
 
   const body = cacheValue?.body;
@@ -152,15 +152,15 @@ export default function cache(options: CacheOptions) {
       (typeof routeConfig === 'object' && routeConfig.disable) ??
       options.disable;
 
-    if (disable && disable(ctx)) {
+    if (disable && disable(ctx.request)) {
       return next();
     }
 
     const resolveOptions = {
       methods,
       maxAge: 0,
-      hash(ctx: MiddlewareContext) {
-        return ctx.request.url;
+      hash(req: Request) {
+        return req.url;
       },
       ...options,
       ...(routeConfig === true ? {} : routeConfig),
@@ -208,7 +208,7 @@ export default function cache(options: CacheOptions) {
       etag: res.headers.get('etag'),
     };
 
-    const cacheKey = resolveOptions.hash(ctx);
+    const cacheKey = resolveOptions.hash(ctx.request);
     await set(
       cacheKey,
       cacheValue,
