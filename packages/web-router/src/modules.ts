@@ -26,7 +26,6 @@ import type {
   RouteRenderContext,
   RouteRenderOptions,
 } from './types';
-import type { Context } from './context';
 
 function tryGetSerializableContext() {
   try {
@@ -210,34 +209,37 @@ export function createRouteContext(
   dev?: boolean
 ) {
   let layoutModule: LayoutModule;
-  let meta: Meta;
   let module: RouteModule;
-  let renderOptions: RouteRenderOptions;
-  return async (context: Context, next: MiddlewareNext) => {
-    layoutModule ??= await getModule<LayoutModule>(layout);
+  return async (context: MiddlewareContext, next: MiddlewareNext) => {
     module ??= await getModule<RouteModule>(route);
-    meta ??= mergeMeta(
-      defaultMeta,
-      rebaseMeta(module.meta ?? {}, defaultBaseAsset)
-    );
-    renderOptions ??= Object.assign({}, defaultRenderOptions);
+    layoutModule ??= await getModule<LayoutModule>(layout);
 
     // If multiple routes match here, only the first one is valid.
     if (!('module' in context)) {
-      Object.assign<Context, RouteHandlerContext>(context, {
-        ...context,
-        data: {},
-        error: undefined,
-        meta,
-        module,
-        render: composeRender(
+      // eslint-disable-next-line no-param-reassign
+      context.module ??= module;
+
+      if (module.render) {
+        // eslint-disable-next-line no-param-reassign
+        context.data ??= Object.create(null);
+        // eslint-disable-next-line no-param-reassign
+        context.error ??= undefined;
+        // eslint-disable-next-line no-param-reassign
+        context.meta ??= mergeMeta(
+          defaultMeta,
+          rebaseMeta(module.meta ?? {}, defaultBaseAsset)
+        );
+        // eslint-disable-next-line no-param-reassign
+        context.render ??= composeRender(
           context as RouteHandlerContext,
           layoutModule,
           onFallback,
           dev
-        ),
-        renderOptions,
-      });
+        );
+        // TODO: Deep merging
+        // eslint-disable-next-line no-param-reassign
+        context.renderOptions ??= Object.assign({}, defaultRenderOptions);
+      }
     }
 
     return next();
@@ -255,16 +257,10 @@ export function createFallbackHandler(
 ) {
   let handler: RouteHandler;
   let layoutModule: LayoutModule;
-  let meta: Meta;
   let module: RouteModule;
-  let renderOptions: RouteRenderOptions;
-  return async (error: unknown, context: Context) => {
+  return async (error: unknown, context: MiddlewareContext) => {
     layoutModule ??= await getModule<LayoutModule>(layout);
     module ??= await getModule<RouteModule>(route);
-    meta ??= mergeMeta(
-      defaultMeta,
-      rebaseMeta(module.meta ?? {}, defaultBaseAsset)
-    );
     handler ??=
       typeof module.handler === 'function'
         ? module.handler
@@ -276,34 +272,38 @@ export function createFallbackHandler(
                 },
               } as RouteHandlers)
           ) as RouteHandler);
-    renderOptions ??= Object.assign({}, defaultRenderOptions);
 
-    const routeContext = Object.assign<Context, RouteHandlerContext>(context, {
-      ...context,
-      data: {},
-      error: await transformRouteError(error),
-      meta,
-      module,
-      render: composeRender(
-        context as RouteHandlerContext,
-        layoutModule,
-        onFallback,
-        dev
-      ),
-      renderOptions,
-    });
+    // eslint-disable-next-line no-param-reassign
+    context.data = Object.create(null);
+    // eslint-disable-next-line no-param-reassign
+    context.error = await transformRouteError(error);
+    // eslint-disable-next-line no-param-reassign
+    context.meta = mergeMeta(
+      defaultMeta,
+      rebaseMeta(module.meta ?? {}, defaultBaseAsset)
+    );
+    // eslint-disable-next-line no-param-reassign
+    context.module = module;
+    // eslint-disable-next-line no-param-reassign
+    context.render = composeRender(
+      context as RouteHandlerContext,
+      layoutModule,
+      onFallback,
+      dev
+    );
+    // TODO: Deep merging
+    // eslint-disable-next-line no-param-reassign
+    context.renderOptions = Object.assign({}, defaultRenderOptions);
 
-    return callAsyncContext(routeContext, handler, [routeContext]);
+    return callAsyncContext(context, handler, [context as RouteHandlerContext]);
   };
 }
 
 export function renderRouteModule(): MiddlewareHandler {
   let handler: RouteHandler;
   return async (context, next) => {
-    const isRouteContext =
-      Reflect.has(context, 'module') && Reflect.has(context, 'render');
-    if (isRouteContext) {
-      const module = context.module!;
+    if (context.module) {
+      const module = context.module;
       handler ??=
         typeof module.handler === 'function'
           ? module.handler
@@ -321,39 +321,5 @@ export function renderRouteModule(): MiddlewareHandler {
     } else {
       return callAsyncContext(context, next);
     }
-  };
-}
-
-export function trailingSlash(
-  trailingSlashEnabled: boolean
-): MiddlewareHandler {
-  return async ({ request }, next) => {
-    // Redirect requests that end with a trailing slash to their non-trailing
-    // slash counterpart.
-    // Ex: /about/ -> /about
-    const url = new URL(request.url);
-    if (
-      url.pathname.length > 1 &&
-      url.pathname.endsWith('/') &&
-      !trailingSlashEnabled
-    ) {
-      // Remove trailing slashes
-      const path = url.pathname.replace(/\/+$/, '');
-      const location = `${path}${url.search}`;
-      return new Response(null, {
-        status: 307,
-        headers: { location },
-      });
-    } else if (trailingSlashEnabled && !url.pathname.endsWith('/')) {
-      // If the last element of the path has a "." it's a file
-      const isFile = url.pathname.split('/').at(-1)?.includes('.');
-
-      if (!isFile) {
-        url.pathname += '/';
-        return Response.redirect(url, 308);
-      }
-    }
-
-    return next();
   };
 }

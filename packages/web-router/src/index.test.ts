@@ -21,14 +21,14 @@ describe('Basic', () => {
     ],
   });
 
-  it('GET http://localhost/hello is ok', async () => {
+  test('GET http://localhost/hello is ok', async () => {
     const res = await app.request('http://localhost/hello');
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('get hello');
   });
 
-  it('POST http://localhost/hello is ok', async () => {
+  test('POST http://localhost/hello is ok', async () => {
     const res = await app.request('http://localhost/hello', {
       method: 'POST',
     });
@@ -62,21 +62,21 @@ describe('Multiple identical routes', () => {
     ],
   });
 
-  it('GET http://localhost/ is ok', async () => {
+  test('GET http://localhost/ is ok', async () => {
     const res = await app.request('http://localhost/');
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('Home');
   });
 
-  it('POST http://localhost/a/ is ok', async () => {
+  test('POST http://localhost/a/ is ok', async () => {
     const res = await app.request('http://localhost/a/');
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('Home');
   });
 
-  it('POST http://localhost/b/ is ok', async () => {
+  test('POST http://localhost/b/ is ok', async () => {
     const res = await app.request('http://localhost/b/');
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
@@ -85,35 +85,35 @@ describe('Multiple identical routes', () => {
 });
 
 describe('Create route context', () => {
-  const createTestRoute = (
-    callback: (context: RouteHandlerContext) => void
-  ) => {
-    const app = WebRouter.fromManifest({
-      routes: [
-        {
-          pathname: '/test',
-          module: {
-            render: () => 'Hello',
-          },
-        },
-      ],
-      middlewares: [
-        {
-          pathname: '/test',
-          module: {
-            handler(context, next) {
-              callback(context as RouteHandlerContext);
-              return next();
+  test('Generate default context', (done) => {
+    const createTestRoute = (
+      callback: (context: RouteHandlerContext) => void
+    ) => {
+      const app = WebRouter.fromManifest({
+        routes: [
+          {
+            pathname: '/test',
+            module: {
+              render: () => 'Hello',
             },
           },
-        },
-      ],
-    });
+        ],
+        middlewares: [
+          {
+            pathname: '/test',
+            module: {
+              handler(context, next) {
+                callback(context as RouteHandlerContext);
+                return next();
+              },
+            },
+          },
+        ],
+      });
 
-    return app.request('http://localhost/test');
-  };
+      return app.request('http://localhost/test');
+    };
 
-  it('Generate default context', (done) => {
     let context: RouteHandlerContext;
     Promise.resolve(
       createTestRoute((ctx) => {
@@ -121,13 +121,63 @@ describe('Create route context', () => {
       })
     ).then(() => {
       expect(context.data).toEqual({});
-      expect(context.error).toBe(undefined);
+      expect(context.error).toBeUndefined();
       expect(context.meta).toBeDefined();
       expect(context.module).toBeDefined();
       expect(context.params).toEqual({});
       expect(context.pathname).toBe('/test');
       expect(context.render).toBeDefined();
       expect(context.renderOptions).toBeDefined();
+      expect(context.request).toBeDefined();
+      expect(context.state).toBeDefined();
+      done();
+    });
+  });
+
+  test('Modules that do not export `render` should not generate full context', (done) => {
+    const createTestRoute = (
+      callback: (context: RouteHandlerContext) => void
+    ) => {
+      const app = WebRouter.fromManifest({
+        routes: [
+          {
+            pathname: '/test',
+            module: {
+              handler: () => new Response('Hello'),
+            },
+          },
+        ],
+        middlewares: [
+          {
+            pathname: '/test',
+            module: {
+              handler(context, next) {
+                callback(context as RouteHandlerContext);
+                return next();
+              },
+            },
+          },
+        ],
+      });
+
+      return app.request('http://localhost/test');
+    };
+
+    let context: RouteHandlerContext;
+    Promise.resolve(
+      createTestRoute((ctx) => {
+        context = ctx;
+      })
+    ).then(() => {
+      expect(context.data).toBeUndefined();
+      expect(context.error).toBeUndefined();
+      expect(context.meta).toBeUndefined();
+      expect(context.render).toBeUndefined();
+      expect(context.renderOptions).toBeUndefined();
+
+      expect(context.module).toBeDefined();
+      expect(context.params).toEqual({});
+      expect(context.pathname).toBe('/test');
       expect(context.request).toBeDefined();
       expect(context.state).toBeDefined();
       done();
@@ -157,7 +207,7 @@ describe('Error handling', () => {
     return app.request('http://localhost/test');
   };
 
-  it('Exceptions should be caught', (done) => {
+  test('Exceptions should be caught', (done) => {
     let error: RouteError;
     const message = `Error:500`;
     const status = 500;
@@ -185,7 +235,7 @@ describe('Error handling', () => {
     });
   });
 
-  it('Throws a `Response` as an HTTP error', (done) => {
+  test('Throws a `Response` as an HTTP error', (done) => {
     let error: RouteError;
     const message = `Error:404`;
     const status = 404;
@@ -220,7 +270,7 @@ describe('Error handling', () => {
     });
   });
 
-  it('Malformed errors converted to strings as HTTP error messages', (done) => {
+  test('Malformed errors converted to strings as HTTP error messages', (done) => {
     let error: RouteError;
     const message = `Error:500`;
     const status = 500;

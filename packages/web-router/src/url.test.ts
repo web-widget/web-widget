@@ -2,7 +2,7 @@ import { getPath, getPathNoStrict, mergePath, getQueryStrings } from './url';
 
 describe('url', () => {
   describe('getPath', () => {
-    it('getPath - no trailing slash', () => {
+    test('getPath - no trailing slash', () => {
       let path = getPath(new Request('https://example.com/'));
       expect(path).toBe('/');
       path = getPath(new Request('https://example.com/hello'));
@@ -17,7 +17,7 @@ describe('url', () => {
       expect(path).toBe('/hello/hey');
     });
 
-    it('getPath - with trailing slash', () => {
+    test('getPath - with trailing slash', () => {
       let path = getPath(new Request('https://example.com/hello/'));
       expect(path).toBe('/hello/');
       path = getPath(new Request('https://example.com/hello/hey/'));
@@ -26,7 +26,7 @@ describe('url', () => {
   });
 
   describe('getQueryStrings', () => {
-    it('getQueryStrings', () => {
+    test('getQueryStrings', () => {
       let qs = getQueryStrings(
         'https://example.com/hello?name=foo&name=bar&age=20'
       );
@@ -44,21 +44,21 @@ describe('url', () => {
   });
 
   describe('getPathNoStrict', () => {
-    it('getPathNoStrict - no strict is false', () => {
+    test('getPathNoStrict - no strict is false', () => {
       let path = getPathNoStrict(new Request('https://example.com/hello/'));
       expect(path).toBe('/hello');
       path = getPathNoStrict(new Request('https://example.com/hello/hey/'));
       expect(path).toBe('/hello/hey');
     });
 
-    it('getPathNoStrict - return `/` even if strict is false', () => {
+    test('getPathNoStrict - return `/` even if strict is false', () => {
       const path = getPathNoStrict(new Request('https://example.com/'));
       expect(path).toBe('/');
     });
   });
 
   describe('mergePath', () => {
-    it('mergePath', () => {
+    test('mergePath', () => {
       expect(mergePath('/book', '/')).toBe('/book');
       expect(mergePath('/book/', '/')).toBe('/book/');
       expect(mergePath('/book', '/hey')).toBe('/book/hey');
@@ -75,13 +75,13 @@ describe('url', () => {
       expect(mergePath('book', 'hey')).toBe('/book/hey');
       expect(mergePath('book', 'hey/')).toBe('/book/hey/');
     });
-    it('Should be `/book`', () => {
+    test('Should be `/book`', () => {
       expect(mergePath('/', 'book')).toBe('/book');
     });
-    it('Should be `/book`', () => {
+    test('Should be `/book`', () => {
       expect(mergePath('/', '/book')).toBe('/book');
     });
-    it('Should be `/`', () => {
+    test('Should be `/`', () => {
       expect(mergePath('/', '/')).toBe('/');
     });
   });

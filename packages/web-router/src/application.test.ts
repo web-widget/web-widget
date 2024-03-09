@@ -84,7 +84,7 @@ describe('GET Request', () => {
   //   return json(c.env);
   // });
 
-  it('GET http://localhost/hello is ok', async () => {
+  test('GET http://localhost/hello is ok', async () => {
     const res = await app.request('http://localhost/hello');
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
@@ -92,12 +92,12 @@ describe('GET Request', () => {
     expect(await res.text()).toBe('hello');
   });
 
-  it('GET httphello is ng', async () => {
+  test('GET httphello is ng', async () => {
     const res = await app.request('httphello');
     expect(res.status).toBe(404);
   });
 
-  it('GET /hello is ok', async () => {
+  test('GET /hello is ok', async () => {
     const res = await app.request('/hello');
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
@@ -105,7 +105,7 @@ describe('GET Request', () => {
     expect(await res.text()).toBe('hello');
   });
 
-  it('GET hello is ok', async () => {
+  test('GET hello is ok', async () => {
     const res = await app.request('hello');
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
@@ -113,7 +113,7 @@ describe('GET Request', () => {
     expect(await res.text()).toBe('hello');
   });
 
-  it('GET /hello-with-shortcuts is ok', async () => {
+  test('GET /hello-with-shortcuts is ok', async () => {
     const res = await app.request('http://localhost/hello-with-shortcuts');
     expect(res).not.toBeNull();
     expect(res.status).toBe(201);
@@ -122,13 +122,13 @@ describe('GET Request', () => {
     expect(await res.text()).toBe('<h1>Application!!!</h1>');
   });
 
-  it('GET / is not found', async () => {
+  test('GET / is not found', async () => {
     const res = await app.request('http://localhost/');
     expect(res).not.toBeNull();
     expect(res.status).toBe(404);
   });
 
-  // it("GET /hello-env is ok", async () => {
+  // test("GET /hello-env is ok", async () => {
   //   const res = await app.request("/hello-env", undefined, {
   //     HELLO: "world",
   //   });
@@ -145,13 +145,13 @@ describe('Register handlers without a path', () => {
       return text('Hello');
     });
 
-    it('GET http://localhost/ is ok', async () => {
+    test('GET http://localhost/ is ok', async () => {
       const res = await app.request('/');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('Hello');
     });
 
-    it('GET http://localhost/anything is ok', async () => {
+    test('GET http://localhost/anything is ok', async () => {
       const res = await app.request('/');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('Hello');
@@ -169,13 +169,13 @@ describe('Register handlers without a path', () => {
         return text('Books');
       });
 
-    it('GET http://localhost/books is ok', async () => {
+    test('GET http://localhost/books is ok', async () => {
       const res = await app.request('/books');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('Books');
     });
 
-    it('GET http://localhost/ is not found', async () => {
+    test('GET http://localhost/ is not found', async () => {
       const res = await app.request('/');
       expect(res.status).toBe(404);
     });
@@ -190,7 +190,7 @@ describe('strict parameter', () => {
       return text('/hello');
     });
 
-    it('/hello/ is not found', async () => {
+    test('/hello/ is not found', async () => {
       let res = await app.request('http://localhost/hello');
       expect(res).not.toBeNull();
       expect(res.status).toBe(200);
@@ -207,7 +207,7 @@ describe('strict parameter', () => {
       return text('/hello/');
     });
 
-    it('/hello is not found', async () => {
+    test('/hello is not found', async () => {
       let res = await app.request('http://localhost/hello/');
       expect(res).not.toBeNull();
       expect(res.status).toBe(200);
@@ -224,7 +224,7 @@ describe('strict parameter', () => {
       return text('/hello');
     });
 
-    it('/hello and /hello/ are treated as the same', async () => {
+    test('/hello and /hello/ are treated as the same', async () => {
       let res = await app.request('http://localhost/hello');
       expect(res).not.toBeNull();
       expect(res.status).toBe(200);
@@ -244,7 +244,7 @@ describe('strict parameter', () => {
       return text('/hello');
     });
 
-    it('/hello and /hello/ are treated as the same', async () => {
+    test('/hello and /hello/ are treated as the same', async () => {
       let res = await app.request('http://localhost/hello');
       expect(res).not.toBeNull();
       expect(res.status).toBe(200);
@@ -256,13 +256,13 @@ describe('strict parameter', () => {
 });
 
 // describe("Destruct functions in context", () => {
-//   it("Should return 200 response - text", async () => {
+//   test("Should return 200 response - text", async () => {
 //     const app = new Application();
 //     app.get("/text", ({ text }) => text("foo"));
 //     const res = await app.request("http://localhost/text");
 //     expect(res.status).toBe(200);
 //   });
-//   it("Should return 200 response - json", async () => {
+//   test("Should return 200 response - json", async () => {
 //     const app = new Application();
 //     app.get("/json", ({ json }) => json({ foo: "bar" }));
 //     const res = await app.request("http://localhost/json");
@@ -271,7 +271,7 @@ describe('strict parameter', () => {
 // });
 
 describe('Routing', () => {
-  it('Return it self', async () => {
+  test('Return it self', async () => {
     const app = new Application();
 
     const app2 = app.get('/', () => new Response('get /'));
@@ -302,13 +302,13 @@ describe('Routing', () => {
     app.get('/about', (c) => text('About root'));
     app.get('/FOO/about', (c) => text('About FOO'));
 
-    it('Should return 200 without specifying a hostname', async () => {
+    test('Should return 200 without specifying a hostname', async () => {
       const res = await app.request('/about');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('About root');
     });
 
-    it('Should return 200 with specifying the hostname in env', async () => {
+    test('Should return 200 with specifying the hostname in env', async () => {
       const req = new Request('http://foo.localhost/about');
       const res = await app.handler(req, { host: 'foo.localhost' });
       expect(res.status).toBe(200);
@@ -327,21 +327,21 @@ describe('Routing', () => {
       const abc = c.params['abc'];
       return text(`POST for ${abc}`);
     });
-    it('Should return 200 response from GET request', async () => {
+    test('Should return 200 response from GET request', async () => {
       const res = await app.request('http://localhost/chained/abc', {
         method: 'GET',
       });
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('GET for abc');
     });
-    it('Should return 200 response from POST request', async () => {
+    test('Should return 200 response from POST request', async () => {
       const res = await app.request('http://localhost/chained/abc', {
         method: 'POST',
       });
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('POST for abc');
     });
-    it('Should return 404 response from PUT request', async () => {
+    test('Should return 404 response from PUT request', async () => {
       const res = await app.request('http://localhost/chained/abc', {
         method: 'PUT',
       });
@@ -399,19 +399,19 @@ describe('param and query', () => {
   describe.each(Object.keys(apps))('%s', (name) => {
     const app = apps[name];
 
-    it('param of /entry/:id is found', async () => {
+    test('param of /entry/:id is found', async () => {
       const res = await app.request('http://localhost/entry/123');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('id is 123');
     });
 
-    it('param of /entry/:id is found, even for Array object method names', async () => {
+    test('param of /entry/:id is found, even for Array object method names', async () => {
       const res = await app.request('http://localhost/entry/key');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('id is key');
     });
 
-    it('param of /entry/:id is decoded', async () => {
+    test('param of /entry/:id is decoded', async () => {
       const res = await app.request(
         'http://localhost/entry/%C3%A7awa%20y%C3%AE%3F'
       );
@@ -419,19 +419,19 @@ describe('param and query', () => {
       expect(await res.text()).toBe('id is çawa yî?');
     });
 
-    it('param of /date/:date is found', async () => {
+    test('param of /date/:date is found', async () => {
       const res = await app.request('http://localhost/date/0401');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('date is 0401');
     });
 
-    it('query of /search?name=sam is found', async () => {
+    test('query of /search?name=sam is found', async () => {
       const res = await app.request('http://localhost/search?name=sam');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('name is sam');
     });
 
-    it('query of /search?name=sam&name=tom is found', async () => {
+    test('query of /search?name=sam&name=tom is found', async () => {
       const res = await app.request(
         'http://localhost/search?name=sam&name=tom'
       );
@@ -439,7 +439,7 @@ describe('param and query', () => {
       expect(await res.text()).toBe('name is sam');
     });
 
-    it('query of /multiple-values?q=foo&q=bar&limit=10 is found', async () => {
+    test('query of /multiple-values?q=foo&q=bar&limit=10 is found', async () => {
       const res = await app.request(
         'http://localhost/multiple-values?q=foo&q=bar&limit=10'
       );
@@ -447,7 +447,7 @@ describe('param and query', () => {
       expect(await res.text()).toBe('q is foo and bar, limit is 10');
     });
 
-    it('/add-header header - X-Foo is Bar', async () => {
+    test('/add-header header - X-Foo is Bar', async () => {
       const req = new Request('http://localhost/add-header');
       req.headers.append('X-Foo', 'Bar');
       const res = await app.request(req);
@@ -462,7 +462,7 @@ describe('param and query', () => {
       const bar = c.params['bar'];
       return json({ foo: bar });
     });
-    it('param of /foo/foo should return undefined not "undefined"', async () => {
+    test('param of /foo/foo should return undefined not "undefined"', async () => {
       const res = await app.request('http://localhost/foo/foo');
       expect(res.status).toBe(200);
       expect(await res.json()).toEqual({ foo: undefined });
@@ -538,7 +538,7 @@ describe('Middleware', () => {
       });
     });
 
-    it('logging and custom header', async () => {
+    test('logging and custom header', async () => {
       const res = await app.request('http://localhost/hello');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('hello');
@@ -547,7 +547,7 @@ describe('Middleware', () => {
       expect(res.headers.get('x-message-2')).toBe('custom-header-2');
     });
 
-    it('logging and custom header with named param', async () => {
+    test('logging and custom header with named param', async () => {
       const res = await app.request('http://localhost/hello/message');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('message');
@@ -555,19 +555,19 @@ describe('Middleware', () => {
       expect(res.headers.get('x-message-2')).toBe('custom-header-2');
     });
 
-    it('should return correct the content-type header', async () => {
+    test('should return correct the content-type header', async () => {
       const res = await app.request('http://localhost/json');
       expect(res.status).toBe(200);
       expect(res.headers.get('content-type')).toMatch(/^application\/json/);
     });
 
-    it('not found', async () => {
+    test('not found', async () => {
       const res = await app.request('http://localhost/foo');
       expect(res.status).toBe(404);
       expect(await res.text()).toBe('Not Found Foo');
     });
 
-    it('internal server error', async () => {
+    test('internal server error', async () => {
       const res = await app.request('http://localhost/error');
       expect(res.status).toBe(500);
       console.log(await res.text());
@@ -594,12 +594,12 @@ describe('Middleware', () => {
       });
     });
 
-    it('Should have the custom header', async () => {
+    test('Should have the custom header', async () => {
       const res = await app.request('/normal');
       expect(res.headers.get('x-custom')).toBe('foo');
     });
 
-    it('Should not have the custom header', async () => {
+    test('Should not have the custom header', async () => {
       const res = await app.request('/overwrite');
       expect(res.headers.get('x-custom')).toBe(null);
     });
@@ -616,12 +616,12 @@ describe('Builtin Middleware', () => {
   app.get('/abc', () => new Response());
   app.get('/def', () => new Response());
 
-  it('"powered-by" middleware', async () => {
+  test('"powered-by" middleware', async () => {
     const res = await app.request('http://localhost/abc');
     expect(res.headers.get('x-powered-by')).toBe('@web-widget/web-router');
   });
 
-  it('"powered-by" middleware in a handler', async () => {
+  test('"powered-by" middleware in a handler', async () => {
     const res = await app.request('http://localhost/def');
     expect(res.headers.get('x-powered-by')).toBe('@web-widget/web-router');
   });
@@ -640,7 +640,7 @@ describe('Not Found', () => {
     return text('hello');
   });
 
-  it('Custom 404 Not Found', async () => {
+  test('Custom 404 Not Found', async () => {
     let res = await app.request('http://localhost/hello');
     expect(res.status).toBe(200);
     res = await app.request('http://localhost/foo');
@@ -664,7 +664,7 @@ describe('Redirect', () => {
     }
   });
 
-  it('Absolute URL', async () => {
+  test('Absolute URL', async () => {
     const res = await app.request('https://example.com/redirect');
     expect(await res.text()).toBe('');
     expect(res.status).toBe(302);
@@ -693,7 +693,7 @@ describe('Error handle', () => {
       });
     });
 
-    it('Custom Error Message', async () => {
+    test('Custom Error Message', async () => {
       let res = await app.request('https://example.com/error');
       expect(res.status).toBe(500);
       expect(await res.text()).toBe('Custom Error Message');
@@ -732,7 +732,7 @@ describe('Error handle', () => {
       });
     });
 
-    it('Custom Error Message', async () => {
+    test('Custom Error Message', async () => {
       let res = await app.request('https://example.com/error');
       expect(res.status).toBe(500);
       expect(await res.text()).toBe('Custom Error Message with Promised');
@@ -791,7 +791,7 @@ describe('Error handling in middleware', () => {
     throw new Error('Error message');
   });
 
-  it('Should handle the error in middleware', async () => {
+  test('Should handle the error in middleware', async () => {
     const res = await app.request(
       'https://example.com/handle-error-in-middleware'
     );
@@ -801,7 +801,7 @@ describe('Error handling in middleware', () => {
     );
   });
 
-  it('Should handle the error in middleware - async', async () => {
+  test('Should handle the error in middleware - async', async () => {
     const res = await app.request(
       'https://example.com/handle-error-in-middleware-async'
     );
@@ -826,7 +826,7 @@ describe('Error handling in middleware', () => {
       });
     });
 
-    it('Should handle the error thrown in `notFound()``', async () => {
+    test('Should handle the error thrown in `notFound()``', async () => {
       const res = await app.request('http://localhost/');
       expect(res.status).toBe(400);
       expect(await res.text()).toBe('@@@Error in Not Found');
@@ -855,7 +855,7 @@ describe('Multiple handler', () => {
         },
       });
     });
-    it('Should return response from `specialized` route', async () => {
+    test('Should return response from `specialized` route', async () => {
       const res = await app.request('http://localhost/posts/123');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('id is 123');
@@ -874,13 +874,13 @@ describe('Multiple handler', () => {
         return text(`foo type: ${c.params['type']}, url: ${c.params['url']}`);
       });
 
-      it('Should return a correct param - GET /car/good-car', async () => {
+      test('Should return a correct param - GET /car/good-car', async () => {
         const res = await app.request('/car/good-car');
         expect(res.ok).toBe(true);
         expect(await res.text()).toBe('type: car, url: good-car');
       });
 
-      it('Should return a correct param - GET /foo/food/good-food', async () => {
+      test('Should return a correct param - GET /foo/food/good-food', async () => {
         const res = await app.request('/foo/food/good-food');
         expect(res.ok).toBe(true);
         expect(await res.text()).toBe('foo type: food, url: good-food');
@@ -897,12 +897,12 @@ describe('Multiple handler', () => {
       app.get('/posts/:id', (c) => {
         return text(`post: ${c.params['id']}`);
       });
-      it('Should return a correct param - GET /posts/123/comments/456', async () => {
+      test('Should return a correct param - GET /posts/123/comments/456', async () => {
         const res = await app.request('/posts/123/comments/456');
         expect(res.status).toBe(200);
         expect(await res.text()).toBe('post: 123, comment: 456');
       });
-      it('Should return a correct param - GET /posts/789', async () => {
+      test('Should return a correct param - GET /posts/789', async () => {
         const res = await app.request('/posts/789');
         expect(res.status).toBe(200);
         expect(await res.text()).toBe('post: 789');
@@ -918,17 +918,17 @@ describe('Multiple handler', () => {
         return text(`id: ${c.params['id']}, action: ${c.params['action']}`);
       });
 
-      it('Should return a correct param - GET /123/create', async () => {
+      test('Should return a correct param - GET /123/create', async () => {
         const res = await app.request('/123/create');
         expect(res.status).toBe(200);
         expect(await res.text()).toBe('id: 123, action: create');
       });
-      it('Should return a correct param - GET /456/update', async () => {
+      test('Should return a correct param - GET /456/update', async () => {
         const res = await app.request('/467/update');
         expect(res.status).toBe(200);
         expect(await res.text()).toBe('id: 467, action: update');
       });
-      it('Should return a correct param - GET /789/delete', async () => {
+      test('Should return a correct param - GET /789/delete', async () => {
         const res = await app.request('/789/delete');
         expect(res.status).toBe(200);
         expect(await res.text()).toBe('id: 789, action: delete');
@@ -938,7 +938,7 @@ describe('Multiple handler', () => {
 });
 
 describe('Context is not finalized', () => {
-  it('should throw error - lack `await next()`', async () => {
+  test('should throw error - lack `await next()`', async () => {
     const app = new Application();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -954,7 +954,7 @@ describe('Context is not finalized', () => {
     expect(await res.text()).toMatch(/^Response is not finalized/);
   });
 
-  it('should throw error - lack `returning Response`', async () => {
+  test('should throw error - lack `returning Response`', async () => {
     const app = new Application();
     app.use('*', async (_c, next) => {
       return next();
@@ -972,7 +972,7 @@ describe('Context is not finalized', () => {
 });
 
 describe('Both two middleware returning response', () => {
-  it('Should return correct Content-Type`', async () => {
+  test('Should return correct Content-Type`', async () => {
     const app = new Application();
     app.use('*', async (c, next) => {
       const res = await next();
@@ -992,7 +992,7 @@ describe('Both two middleware returning response', () => {
 describe('Handler as variables', () => {
   const app = new Application();
 
-  it('Should be typed correctly', async () => {
+  test('Should be typed correctly', async () => {
     const handler: MiddlewareHandler = (c) => {
       const id = c.params['id'];
       return text(`Post id is ${id}`);
@@ -1213,7 +1213,7 @@ declare module './context' {
 //     );
 //   });
 
-//   it("Should return the correct response - no-path", async () => {
+//   test("Should return the correct response - no-path", async () => {
 //     let res = await app.request("/no-path/1");
 //     expect(res.status).toBe(200);
 //     expect(await res.text()).toBe("hello");
@@ -1235,7 +1235,7 @@ declare module './context' {
 //     expect(await res.text()).toBe("hellohello2hello3hello4hello5");
 //   });
 
-//   it("Should return the correct response - path", async () => {
+//   test("Should return the correct response - path", async () => {
 //     let res = await app.request("/path/1");
 //     expect(res.status).toBe(200);
 //     expect(await res.text()).toBe("hello");
@@ -1257,7 +1257,7 @@ declare module './context' {
 //     expect(await res.text()).toBe("hellohello2hello3hello4hello5");
 //   });
 
-//   it("Should return the correct response - on", async () => {
+//   test("Should return the correct response - on", async () => {
 //     let res = await app.request("/on/1");
 //     expect(res.status).toBe(200);
 //     expect(await res.text()).toBe("hello");
@@ -1279,7 +1279,7 @@ declare module './context' {
 //     expect(await res.text()).toBe("hellohello2hello3hello4hello5");
 //   });
 
-//   it("Should not throw type errors", () => {
+//   test("Should not throw type errors", () => {
 //     const app = new Application<{
 //       Variables: {
 //         hello: () => string;
