@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/context",
-  "version": "1.10.16",
+  "version": "1.10.17",
   "type": "module",
   "exports": {
     ".": {

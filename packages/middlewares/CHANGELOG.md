@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.10.17
+
+### Patch Changes
+
+- 6f9e4f1: `cache` middleware supports `disable` option.
+- Updated dependencies [6f9e4f1]
+  - @web-widget/helpers@1.10.17
+
 ## 1.10.16
 
 ### Patch Changes
