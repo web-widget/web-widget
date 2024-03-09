@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.10.19
+
+### Patch Changes
+
+- @web-widget/context@1.10.19
+- @web-widget/helpers@1.10.19
+
 ## 1.10.18
 
 ### Patch Changes
