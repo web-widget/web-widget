@@ -88,6 +88,45 @@ test('should pass the maxAge through config.cache.maxAge', async () => {
   expect(cached?.body).toBe('lol');
 });
 
+test('disabling caching middleware should be allowed', async () => {
+  let set = false;
+
+  const store = new LRUCache<string, CacheValue>({ max: 1024 });
+  const app = createApp(
+    store,
+    {
+      async get(key) {
+        return store.get(key);
+      },
+      async set(key, value, maxAge) {
+        set = true;
+        expect(maxAge).toBe(300);
+        store.set(key, value);
+      },
+    },
+    [
+      {
+        pathname: '*',
+        module: {
+          config: {
+            cache: {
+              maxAge: 300,
+              disable: () => true,
+            },
+          },
+          handler: async () => {
+            return new Response('lol');
+          },
+        },
+      },
+    ]
+  );
+  const res = await app.request('http://localhost/');
+
+  expect(set).toBe(false);
+  expect(res.status).toBe(200);
+});
+
 test('when body is a string it should cache the response', async () => {
   const store = new LRUCache<string, CacheValue>({ max: 1024 });
   const app = createApp(store);

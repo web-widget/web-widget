@@ -8,14 +8,14 @@
  * import {
  *   Status,
  *   STATUS_TEXT,
- * } from "@web-widget/schema/helpers";
+ * } from "@web-widget/helpers/status";
  *
  * console.log(Status.NotFound); //=> 404
  * console.log(STATUS_TEXT[Status.NotFound]); //=> "Not Found"
  * ```
  *
  * ```ts
- * import { isErrorStatus } from "@web-widget/schema/helpers";
+ * import { isErrorStatus } from "@web-widget/helpers/status";
  *
  * const res = await fetch("https://example.com/");
  *
