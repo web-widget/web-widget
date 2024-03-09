@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import {
   methodsToHandler,
   mergeMeta,
@@ -53,7 +54,6 @@ function callAsyncContext<T extends (...args: any[]) => any>(
 
     // Exposed to client
     if (context.meta) {
-      // eslint-disable-next-line no-param-reassign
       context.meta = mergeMeta(context.meta, {
         script: [contextToScriptDescriptor(asyncContext)],
       });
@@ -216,20 +216,15 @@ export function createRouteContext(
 
     // If multiple routes match here, only the first one is valid.
     if (!('module' in context)) {
-      // eslint-disable-next-line no-param-reassign
       context.module ??= module;
 
       if (module.render) {
-        // eslint-disable-next-line no-param-reassign
         context.data ??= Object.create(null);
-        // eslint-disable-next-line no-param-reassign
         context.error ??= undefined;
-        // eslint-disable-next-line no-param-reassign
         context.meta ??= mergeMeta(
           defaultMeta,
           rebaseMeta(module.meta ?? {}, defaultBaseAsset)
         );
-        // eslint-disable-next-line no-param-reassign
         context.render ??= composeRender(
           context as RouteHandlerContext,
           layoutModule,
@@ -237,7 +232,6 @@ export function createRouteContext(
           dev
         );
         // TODO: Deep merging
-        // eslint-disable-next-line no-param-reassign
         context.renderOptions ??= Object.assign({}, defaultRenderOptions);
       }
     }
@@ -273,18 +267,13 @@ export function createFallbackHandler(
               } as RouteHandlers)
           ) as RouteHandler);
 
-    // eslint-disable-next-line no-param-reassign
     context.data = Object.create(null);
-    // eslint-disable-next-line no-param-reassign
     context.error = await transformRouteError(error);
-    // eslint-disable-next-line no-param-reassign
     context.meta = mergeMeta(
       defaultMeta,
       rebaseMeta(module.meta ?? {}, defaultBaseAsset)
     );
-    // eslint-disable-next-line no-param-reassign
     context.module = module;
-    // eslint-disable-next-line no-param-reassign
     context.render = composeRender(
       context as RouteHandlerContext,
       layoutModule,
@@ -292,7 +281,6 @@ export function createFallbackHandler(
       dev
     );
     // TODO: Deep merging
-    // eslint-disable-next-line no-param-reassign
     context.renderOptions = Object.assign({}, defaultRenderOptions);
 
     return callAsyncContext(context, handler, [context as RouteHandlerContext]);
