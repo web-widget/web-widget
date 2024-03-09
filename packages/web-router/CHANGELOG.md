@@ -1,5 +1,14 @@
 # @web-widget/web-router
 
+## 1.10.16
+
+### Patch Changes
+
+- 58dcf0a: The optimization module does not export `render` performance.
+  - @web-widget/context@1.10.16
+  - @web-widget/helpers@1.10.16
+  - @web-widget/html@1.10.16
+
 ## 1.10.15
 
 ### Patch Changes
