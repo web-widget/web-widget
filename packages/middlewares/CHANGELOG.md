@@ -1,5 +1,12 @@
 # @web-widget/middlewares
 
+## 1.10.18
+
+### Patch Changes
+
+- b640111: The first parameter of `hash` of `cache` middleware is changed to `Request`.
+  - @web-widget/helpers@1.10.18
+
 ## 1.10.17
 
 ### Patch Changes
