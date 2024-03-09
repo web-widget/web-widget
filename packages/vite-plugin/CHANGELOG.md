@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.10.19
+
+### Patch Changes
+
+- e7987ce: Fixed an issue where development server 304 status codes were not supported.
+  - @web-widget/helpers@1.10.19
+  - @web-widget/node@1.10.19
+  - @web-widget/web-router@1.10.19
+  - @web-widget/web-widget@1.10.19
+
 ## 1.10.18
 
 ### Patch Changes
