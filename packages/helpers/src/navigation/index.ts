@@ -1,5 +1,5 @@
 import { useContext } from '@web-widget/context';
-import type { Status } from '../status';
+import { Status, STATUS_TEXT } from '../status';
 
 export function useParams<T extends Record<string, string>>(): T {
   const ctx = useContext();
@@ -14,9 +14,13 @@ export function useParams<T extends Record<string, string>>(): T {
  * redirect('/', 301)
  * ```
  */
-export function redirect(location: string, status: Status = 307): Response {
+export function redirect(
+  location: string,
+  status: Status = Status.TemporaryRedirect
+): Response {
   return new Response(null, {
     status,
+    statusText: STATUS_TEXT[status],
     headers: {
       Location: location,
     },

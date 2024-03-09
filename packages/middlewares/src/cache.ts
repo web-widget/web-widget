@@ -3,6 +3,7 @@ import {
   defineMiddlewareHandler,
   type MiddlewareContext,
 } from '@web-widget/helpers';
+import { Status, STATUS_TEXT } from '@web-widget/helpers/status';
 import { isFresh } from './utils/is-fresh';
 
 declare module '@web-widget/schema' {
@@ -36,6 +37,14 @@ export interface CacheOptions {
    * }
    */
   hash?: (ctx: MiddlewareContext) => string;
+
+  /**
+   * Whether to disable cache middleware running. By default, it's:
+   * function disable(ctx) {
+   *   return false;
+   * }
+   */
+  disable?: (ctx: MiddlewareContext) => boolean;
 
   /**
    * Get a value from a store. Must return a Promise, which returns the cache's value, if any.
@@ -108,13 +117,15 @@ async function getCache(
   }
 
   const cachedResponse = new Response(body, {
-    status: 200,
+    status: Status.OK,
+    statusText: STATUS_TEXT[Status.OK],
     headers: cachedHeaders,
   });
 
   if (isFresh(ctx.request, cachedResponse)) {
     return new Response(null, {
-      status: 304,
+      status: Status.NotModified,
+      statusText: STATUS_TEXT[Status.NotModified],
       headers: cachedHeaders,
     });
   } else {
@@ -137,6 +148,14 @@ export default function cache(options: CacheOptions) {
     }
 
     const routeConfig = ctx.module.config.cache;
+    const disable =
+      (typeof routeConfig === 'object' && routeConfig.disable) ??
+      options.disable;
+
+    if (disable && disable(ctx)) {
+      return next();
+    }
+
     const resolveOptions = {
       methods,
       maxAge: 0,
@@ -159,7 +178,8 @@ export default function cache(options: CacheOptions) {
     if (!ctx.state.$cache) {
       if (isFresh(ctx.request, res)) {
         return new Response(null, {
-          status: 304,
+          status: Status.NotModified,
+          statusText: STATUS_TEXT[Status.NotModified],
           headers: res.headers,
         });
       }
@@ -169,7 +189,7 @@ export default function cache(options: CacheOptions) {
     // cache the response
 
     // only cache GET/HEAD 200s
-    if (res.status !== 200) {
+    if (res.status !== Status.OK) {
       return res;
     }
 
@@ -197,7 +217,8 @@ export default function cache(options: CacheOptions) {
 
     if (isFresh(ctx.request, res)) {
       return new Response(null, {
-        status: 304,
+        status: Status.NotModified,
+        statusText: STATUS_TEXT[Status.NotModified],
         headers: res.headers,
       });
     } else {
