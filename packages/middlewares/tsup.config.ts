@@ -4,6 +4,7 @@ export const tsup: Options = {
     cache: 'src/cache.ts',
     'conditional-get': 'src/conditional-get.ts',
     etag: 'src/etag.ts',
+    index: 'src/index.ts',
     'inline-styles': 'src/inline-styles.ts',
     'powered-by': 'src/powered-by.ts',
     'trailing-slash': 'src/trailing-slash.ts',

@@ -3,6 +3,11 @@
   "version": "1.10.19",
   "type": "module",
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
     "./cache": {
       "types": "./dist/cache.d.ts",
       "development": "./src/cache.ts",
@@ -68,6 +73,10 @@
   "publishConfig": {
     "access": "public",
     "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
       "./cache": {
         "types": "./dist/cache.d.ts",
         "default": "./dist/cache.js"
