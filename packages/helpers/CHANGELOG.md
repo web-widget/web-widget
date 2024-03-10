@@ -1,5 +1,11 @@
 # @web-widget/helpers
 
+## 1.10.20
+
+### Patch Changes
+
+- @web-widget/context@1.10.20
+
 ## 1.10.19
 
 ### Patch Changes
