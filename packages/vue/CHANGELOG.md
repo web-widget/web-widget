@@ -1,5 +1,13 @@
 # @web-widget/vue
 
+## 1.10.20
+
+### Patch Changes
+
+- @web-widget/helpers@1.10.20
+- @web-widget/vite-plugin@1.10.20
+- @web-widget/web-widget@1.10.20
+
 ## 1.10.19
 
 ### Patch Changes
