@@ -205,7 +205,7 @@ export default function cache(options: CacheOptions) {
       body: await res.clone().text(),
       contentType: res.headers.get('Content-Type'),
       lastModified: res.headers.get('Last-Modified'),
-      etag: res.headers.get('etag'),
+      etag: res.headers.get('ETag'),
     };
 
     const cacheKey = resolveOptions.hash(ctx.request);
