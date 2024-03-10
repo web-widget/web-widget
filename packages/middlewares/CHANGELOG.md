@@ -1,5 +1,18 @@
 # @web-widget/middlewares
 
+## 1.10.20
+
+### Patch Changes
+
+- 4e29cbb: Export default path, compatible with some build tools.
+  - @web-widget/helpers@1.10.20
+
+## 1.10.19
+
+### Patch Changes
+
+- @web-widget/helpers@1.10.19
+
 ## 1.10.18
 
 ### Patch Changes

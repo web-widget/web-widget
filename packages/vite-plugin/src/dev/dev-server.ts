@@ -175,8 +175,16 @@ async function viteWebRouterMiddleware(
     async handler(request, fetchEvent) {
       try {
         let res = await webRouter.handler(request, fetchEvent);
+        const isEmptyStatus =
+          ((res.status / 100) | 0) === 1 ||
+          res.status === 204 ||
+          res.status === 205 ||
+          res.status === 304;
 
-        if (!res.headers.get('content-type')?.startsWith('text/html;')) {
+        if (
+          isEmptyStatus ||
+          !res.headers.get('content-type')?.startsWith('text/html;')
+        ) {
           return res;
         }
 

@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vue",
-  "version": "1.10.18",
+  "version": "1.10.20",
   "type": "module",
   "exports": {
     ".": {
