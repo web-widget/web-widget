@@ -16,7 +16,7 @@ export default function etag(options?: EtagOptions) {
       return res;
     }
 
-    const entity = await res.clone().text();
+    const entity = res.clone().body || '';
 
     if (entity) {
       const tag = await calculate(entity, options);
