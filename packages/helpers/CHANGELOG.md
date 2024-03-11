@@ -1,5 +1,13 @@
 # @web-widget/helpers
 
+## 1.10.22
+
+### Patch Changes
+
+- 6954431: Adjust dependencies.
+  - @web-widget/context@1.10.22
+  - @web-widget/schema@1.10.22
+
 ## 1.10.21
 
 ### Patch Changes
