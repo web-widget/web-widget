@@ -1,5 +1,14 @@
 # @web-widget/middlewares
 
+## 1.10.21
+
+### Patch Changes
+
+- 646fe4e: Refactor `etag` generation method.
+- f00cd98: Export default path, compatible with some build tools.
+- Updated dependencies [646fe4e]
+  - @web-widget/helpers@1.10.21
+
 ## 1.10.20
 
 ### Patch Changes

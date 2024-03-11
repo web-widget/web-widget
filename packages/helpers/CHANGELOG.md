@@ -1,5 +1,12 @@
 # @web-widget/helpers
 
+## 1.10.21
+
+### Patch Changes
+
+- 646fe4e: Refactor `etag` generation method.
+  - @web-widget/context@1.10.21
+
 ## 1.10.20
 
 ### Patch Changes
