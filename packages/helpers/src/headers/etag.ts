@@ -1,28 +1,68 @@
-// Based on the code in the MIT licensed `etag` package.
-async function entityTag(entity: string) {
-  if (entity.length === 0) {
-    // fast-path empty
-    return '"0-2jmj7l5rSw0yVb/vlWAYkK/YBwk"';
+type Algorithm = {
+  name: string;
+  alias: string;
+};
+
+type Data =
+  | string
+  | boolean
+  | number
+  | object
+  | ArrayBufferView
+  | ArrayBuffer
+  | ReadableStream;
+
+const sha1 = async (data: Data) => {
+  const algorithm: Algorithm = { name: 'SHA-1', alias: 'sha1' };
+  const hash = await createHash(data, algorithm);
+  return hash;
+};
+
+const createHash = async (
+  data: Data,
+  algorithm: Algorithm
+): Promise<string | null> => {
+  let sourceBuffer: ArrayBufferView | ArrayBuffer;
+
+  if (data instanceof ReadableStream) {
+    let body = '';
+    const reader = data.getReader();
+    await reader?.read().then(async (chuck) => {
+      const value = await createHash(chuck.value || '', algorithm);
+      body += value;
+    });
+    return body;
+  }
+  if (ArrayBuffer.isView(data) || data instanceof ArrayBuffer) {
+    sourceBuffer = data;
+  } else {
+    if (typeof data === 'object') {
+      // eslint-disable-next-line no-param-reassign
+      data = JSON.stringify(data);
+    }
+    sourceBuffer = new TextEncoder().encode(String(data));
   }
 
-  // compute hash of entity
-  const encoder = new TextEncoder();
-  const data = encoder.encode(entity);
-  const hashBuffer = await crypto.subtle.digest('SHA-1', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hash = btoa(String.fromCharCode(...hashArray)).substring(0, 27);
+  if (crypto && crypto.subtle) {
+    const buffer = await crypto.subtle.digest(
+      {
+        name: algorithm.name,
+      },
+      sourceBuffer as ArrayBuffer
+    );
+    const hash = Array.prototype.map
+      .call(new Uint8Array(buffer), (x) => ('00' + x.toString(16)).slice(-2))
+      .join('');
+    return hash;
+  }
+  return null;
+};
 
-  // compute length of entity
-  const len = data.length;
-
-  return '"' + len.toString(16) + '-' + hash + '"';
-}
-
-export async function etag(entity: string, options: { weak?: boolean } = {}) {
+export async function etag(entity: Data, options: { weak?: boolean } = {}) {
   if (entity == null) {
     throw new TypeError('argument entity is required');
   }
 
-  const tag = await entityTag(entity);
-  return options.weak ? `W/${tag}` : tag;
+  const hash = await sha1(entity);
+  return options.weak ? `W/"${hash}"` : `"${hash}"`;
 }

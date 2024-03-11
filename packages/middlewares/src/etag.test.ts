@@ -86,7 +86,9 @@ describe('etag()', function () {
       });
       const res = await app.request('http://localhost/');
 
-      expect(res.headers.get('ETag')).toBe('"b-Ck1VqNd45QIvq3AZd8XYQLvEhtA"');
+      expect(res.headers.get('ETag')).toBe(
+        '"0a4d55a8d778e5022fab701977c5d840bbc486d0"'
+      );
     });
   });
 
@@ -115,7 +117,9 @@ describe('etag()', function () {
       });
       const res = await app.request('http://localhost/');
 
-      expect(res.headers.get('ETag')).toBe('W/"b-Ck1VqNd45QIvq3AZd8XYQLvEhtA"');
+      expect(res.headers.get('ETag')).toBe(
+        'W/"0a4d55a8d778e5022fab701977c5d840bbc486d0"'
+      );
     });
   });
 });
