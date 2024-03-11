@@ -52,7 +52,10 @@
     "prebuild": "pnpm run clean:build",
     "lint": "eslint src"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/schema": "workspace:*"
+  },
   "devDependencies": {
     "@jest/globals": "^29.6.2",
     "@types/jest": "^29.5.3",
@@ -63,13 +66,9 @@
     "tsup": "^8.0.1",
     "typescript": "latest",
     "lru-cache": "^10.2.0",
-    "@web-widget/schema": "workspace:*",
-    "@web-widget/helpers": "workspace:*",
     "@web-widget/web-router": "workspace:*"
   },
-  "peerDependencies": {
-    "@web-widget/helpers": "workspace:*"
-  },
+  "peerDependencies": {},
   "publishConfig": {
     "access": "public",
     "exports": {

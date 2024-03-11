@@ -116,6 +116,8 @@
     "lint": "eslint src"
   },
   "dependencies": {
+    "@web-widget/context": "workspace:*",
+    "@web-widget/schema": "workspace:*",
     "@edge-runtime/cookies": "^4.0.3",
     "@edge-runtime/user-agent": "^1.4.1"
   },
@@ -127,13 +129,9 @@
     "jest-environment-miniflare": "^2.14.2",
     "ts-jest": "^29.1.1",
     "tsup": "^8.0.1",
-    "typescript": "latest",
-    "@web-widget/schema": "workspace:*",
-    "@web-widget/context": "workspace:*"
+    "typescript": "latest"
   },
-  "peerDependencies": {
-    "@web-widget/context": "workspace:*"
-  },
+  "peerDependencies": {},
   "publishConfig": {
     "access": "public",
     "exports": {
