@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.10.23
+
+### Patch Changes
+
+- 74e5738: `conditional-get` adds `retainedHeaders` option.
+  - @web-widget/helpers@1.10.23
+  - @web-widget/schema@1.10.23
+
 ## 1.10.22
 
 ### Patch Changes
