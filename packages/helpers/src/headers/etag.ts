@@ -3,14 +3,7 @@ type Algorithm = {
   alias: string;
 };
 
-type Data =
-  | string
-  | boolean
-  | number
-  | object
-  | ArrayBufferView
-  | ArrayBuffer
-  | ReadableStream;
+type Data = string | ArrayBufferView | ArrayBuffer | ReadableStream;
 
 const sha1 = async (data: Data) => {
   const algorithm: Algorithm = { name: 'SHA-1', alias: 'sha1' };
@@ -18,29 +11,47 @@ const sha1 = async (data: Data) => {
   return hash;
 };
 
+function concatArrayBuffers(chunks: Uint8Array[]): Uint8Array {
+  const result = new Uint8Array(chunks.reduce((a, c) => a + c.length, 0));
+  let offset = 0;
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return result;
+}
+
+async function streamToArrayBuffer(
+  stream: ReadableStream<Uint8Array>
+): Promise<Uint8Array> {
+  const chunks: Uint8Array[] = [];
+  const reader = stream.getReader();
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    } else {
+      chunks.push(value);
+    }
+  }
+  return concatArrayBuffers(chunks);
+}
+
 const createHash = async (
   data: Data,
   algorithm: Algorithm
 ): Promise<string | null> => {
   let sourceBuffer: ArrayBufferView | ArrayBuffer;
 
-  if (data instanceof ReadableStream) {
-    let body = '';
-    const reader = data.getReader();
-    await reader?.read().then(async (chuck) => {
-      const value = await createHash(chuck.value || '', algorithm);
-      body += value;
-    });
-    return body;
-  }
   if (ArrayBuffer.isView(data) || data instanceof ArrayBuffer) {
     sourceBuffer = data;
-  } else {
-    if (typeof data === 'object') {
-      // eslint-disable-next-line no-param-reassign
-      data = JSON.stringify(data);
-    }
+  } else if (typeof data === 'string') {
     sourceBuffer = new TextEncoder().encode(String(data));
+  } else if (data instanceof ReadableStream) {
+    sourceBuffer = await streamToArrayBuffer(data);
+  } else {
+    throw new TypeError('argument data is invalid');
   }
 
   if (crypto && crypto.subtle) {
