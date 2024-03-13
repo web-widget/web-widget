@@ -6,6 +6,9 @@ export default {
   },
   transformIgnorePatterns: ['/node_modules/'],
   testEnvironment: 'miniflare',
+  testEnvironmentOptions: {
+    compatibilityFlags: ['streams_enable_constructors'],
+  },
   extensionsToTreatAsEsm: ['.ts'],
   globals: {
     'ts-jest': {
