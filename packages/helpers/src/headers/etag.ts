@@ -51,7 +51,7 @@ const createHash = async (
   } else if (data instanceof ReadableStream) {
     sourceBuffer = await streamToArrayBuffer(data);
   } else {
-    throw new TypeError('argument data is invalid');
+    throw new TypeError('Argument data is invalid.');
   }
 
   if (crypto && crypto.subtle) {
@@ -71,7 +71,7 @@ const createHash = async (
 
 export async function etag(entity: Data, options: { weak?: boolean } = {}) {
   if (entity == null) {
-    throw new TypeError('argument entity is required');
+    throw new TypeError('Argument entity is required.');
   }
 
   const hash = await sha1(entity);
