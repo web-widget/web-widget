@@ -1,5 +1,13 @@
 # @web-widget/helpers
 
+## 1.10.24
+
+### Patch Changes
+
+- 068ee0e: Fix the problem that `etag` will be repeated if `ReadableStream` is calculated differently.
+  - @web-widget/context@1.10.24
+  - @web-widget/schema@1.10.24
+
 ## 1.10.23
 
 ### Patch Changes
