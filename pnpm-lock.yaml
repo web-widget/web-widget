@@ -17,7 +17,7 @@ importers:
         version: link:internal/eslint-config
       c8:
         specifier: latest
-        version: 9.1.0
+        version: 8.0.1
       finepack:
         specifier: latest
         version: 2.12.2
@@ -32,10 +32,10 @@ importers:
         version: 3.2.5
       simple-git-hooks:
         specifier: latest
-        version: 2.10.0
+        version: 2.9.0
       turbo:
         specifier: latest
-        version: 1.12.5
+        version: 1.10.7
       unbuild:
         specifier: ^1.2.1
         version: 1.2.1
@@ -74,10 +74,10 @@ importers:
         version: 5.0.1
       react:
         specifier: canary
-        version: 18.3.0-canary-338dddc08-20240307
+        version: 18.3.0-canary-03d6f7cf0-20240209
       react-dom:
         specifier: canary
-        version: 18.3.0-canary-338dddc08-20240307(react@18.3.0-canary-338dddc08-20240307)
+        version: 18.3.0-canary-03d6f7cf0-20240209(react@18.3.0-canary-03d6f7cf0-20240209)
       vue:
         specifier: ^3.4.8
         version: 3.4.8(typescript@5.4.2)
@@ -159,10 +159,10 @@ importers:
         version: 5.0.1
       react:
         specifier: canary
-        version: 18.3.0-canary-338dddc08-20240307
+        version: 18.3.0-canary-03d6f7cf0-20240209
       react-dom:
         specifier: canary
-        version: 18.3.0-canary-338dddc08-20240307(react@18.3.0-canary-338dddc08-20240307)
+        version: 18.3.0-canary-03d6f7cf0-20240209(react@18.3.0-canary-03d6f7cf0-20240209)
       vue:
         specifier: ^3.4.8
         version: 3.4.8(typescript@5.4.2)
@@ -247,10 +247,10 @@ importers:
         version: 5.0.1
       react:
         specifier: canary
-        version: 18.3.0-canary-338dddc08-20240307
+        version: 18.3.0-canary-03d6f7cf0-20240209
       react-dom:
         specifier: canary
-        version: 18.3.0-canary-338dddc08-20240307(react@18.3.0-canary-338dddc08-20240307)
+        version: 18.3.0-canary-03d6f7cf0-20240209(react@18.3.0-canary-03d6f7cf0-20240209)
     devDependencies:
       '@jest/globals':
         specifier: ^29.6.2
@@ -370,10 +370,10 @@ importers:
         version: link:../../packages/web-widget
       react:
         specifier: canary
-        version: 18.3.0-canary-338dddc08-20240307
+        version: 18.3.0-canary-03d6f7cf0-20240209
       react-dom:
         specifier: canary
-        version: 18.3.0-canary-338dddc08-20240307(react@18.3.0-canary-338dddc08-20240307)
+        version: 18.3.0-canary-03d6f7cf0-20240209(react@18.3.0-canary-03d6f7cf0-20240209)
     devDependencies:
       '@types/react':
         specifier: ^18.2.47
@@ -620,11 +620,11 @@ importers:
   packages/node:
     dependencies:
       '@edge-runtime/node-utils':
-        specifier: ^2.2.4
-        version: 2.2.4
+        specifier: ^2.3.0
+        version: 2.3.0
       '@edge-runtime/primitives':
-        specifier: ^4.0.6
-        version: 4.0.6
+        specifier: ^4.1.0
+        version: 4.1.0
     devDependencies:
       '@types/node':
         specifier: ^17.0.45
@@ -659,10 +659,10 @@ importers:
         version: link:../web-widget
       react:
         specifier: canary
-        version: 18.3.0-canary-338dddc08-20240307
+        version: 18.3.0-canary-03d6f7cf0-20240209
       react-dom:
         specifier: canary
-        version: 18.3.0-canary-338dddc08-20240307(react@18.3.0-canary-338dddc08-20240307)
+        version: 18.3.0-canary-03d6f7cf0-20240209(react@18.3.0-canary-03d6f7cf0-20240209)
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(typescript@5.4.2)
@@ -2488,13 +2488,13 @@ packages:
     engines: {node: '>=16'}
     dev: false
 
-  /@edge-runtime/node-utils@2.2.4:
-    resolution: {integrity: sha512-yDcuf9msVQzrSPJLCMHb+Mqs3c3XNIfyrBfrhhA6EM+J3SUyTZikqQVczCjcRgly4dnSmgjFxLkTh2lid/awdw==}
+  /@edge-runtime/node-utils@2.3.0:
+    resolution: {integrity: sha512-uUtx8BFoO1hNxtHjp3eqVPC/mWImGb2exOfGjMLUoipuWgjej+f4o/VP4bUI8U40gu7Teogd5VTeZUkGvJSPOQ==}
     engines: {node: '>=16'}
     dev: false
 
-  /@edge-runtime/primitives@4.0.6:
-    resolution: {integrity: sha512-Ahv7SdVJiFryuauSmubY4bVYvVWsf2h/n67TRRT5ERs6eK90xyeCB3hmn1ExTqaZtxO0Q9QTbEUXVxz6o4iSzw==}
+  /@edge-runtime/primitives@4.1.0:
+    resolution: {integrity: sha512-Vw0lbJ2lvRUqc7/soqygUX216Xb8T3WBZ987oywz6aJqRxcwSVWwr9e+Nqo2m9bxobA9mdbWNNoRY6S9eko1EQ==}
     engines: {node: '>=16'}
     dev: false
 
@@ -5327,18 +5327,19 @@ packages:
     engines: {node: '>= 0.8'}
     dev: true
 
-  /c8@9.1.0:
-    resolution: {integrity: sha512-mBWcT5iqNir1zIkzSPyI3NCR9EZCVI3WUD+AVO17MVWTSFNyUueXE82qTeampNtTr+ilN/5Ua3j24LgbCKjDVg==}
-    engines: {node: '>=14.14.0'}
+  /c8@8.0.1:
+    resolution: {integrity: sha512-EINpopxZNH1mETuI0DzRA4MZpAUH+IFiRhnmFD3vFr3vdrgxqi3VfE3KL0AIL+zDq8rC9bZqwM/VDmmoe04y7w==}
+    engines: {node: '>=12'}
     hasBin: true
     dependencies:
       '@bcoe/v8-coverage': 0.2.3
       '@istanbuljs/schema': 0.1.3
       find-up: 5.0.0
-      foreground-child: 3.1.1
+      foreground-child: 2.0.0
       istanbul-lib-coverage: 3.2.0
       istanbul-lib-report: 3.0.1
       istanbul-reports: 3.1.6
+      rimraf: 3.0.2
       test-exclude: 6.0.0
       v8-to-istanbul: 9.1.0
       yargs: 17.7.2
@@ -6877,12 +6878,12 @@ packages:
     dependencies:
       is-callable: 1.2.7
 
-  /foreground-child@3.1.1:
-    resolution: {integrity: sha512-TMKDUnIte6bfb5nWv7V/caI169OHgvwjb7V4WkeUvbQQdjr5rWKqHFiKWb/fcOwB+CzBT+qbWjvj+DVwRskpIg==}
-    engines: {node: '>=14'}
+  /foreground-child@2.0.0:
+    resolution: {integrity: sha512-dCIq9FpEcyQyXKCkyzmlPTFNgrCzPudOe+mhvJU5zAtlBnGVy2yKxtfsxK2tQBThwq225jcvBjpw1Gr40uzZCA==}
+    engines: {node: '>=8.0.0'}
     dependencies:
       cross-spawn: 7.0.3
-      signal-exit: 4.1.0
+      signal-exit: 3.0.7
     dev: true
 
   /fresh@0.5.2:
@@ -8511,7 +8512,6 @@ packages:
     hasBin: true
     dependencies:
       js-tokens: 4.0.0
-    dev: false
 
   /loud-rejection@1.6.0:
     resolution: {integrity: sha512-RPNliZOFkqFumDhvYqOaNY4Uz9oJM2K9tC6JWsJJsNdhuONW4LQHRBpb0qf4pJApVffI5N39SwzWZJuEhfd7eQ==}
@@ -9548,13 +9548,14 @@ packages:
       scheduler: 0.23.0
     dev: false
 
-  /react-dom@18.3.0-canary-338dddc08-20240307(react@18.3.0-canary-338dddc08-20240307):
-    resolution: {integrity: sha512-qxL8uAYrVb/lFX8t8mXmnGoXCsR0ngaw0R74Y4uDfdiVhk0t7GQedayebpm7gn8a0wAKrDeZXmEp14xdHT65zw==}
+  /react-dom@18.3.0-canary-03d6f7cf0-20240209(react@18.3.0-canary-03d6f7cf0-20240209):
+    resolution: {integrity: sha512-Dg3WFLuV1+5S43eANryeRa3PEGjbP0YDpewD19a4tJkGDDvV9r4QFFxhP/c8PIawjb3bYNFysE35eF6UCFfhJA==}
     peerDependencies:
-      react: 18.3.0-canary-338dddc08-20240307
+      react: 18.3.0-canary-03d6f7cf0-20240209
     dependencies:
-      react: 18.3.0-canary-338dddc08-20240307
-      scheduler: 0.24.0-canary-338dddc08-20240307
+      loose-envify: 1.4.0
+      react: 18.3.0-canary-03d6f7cf0-20240209
+      scheduler: 0.24.0-canary-03d6f7cf0-20240209
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -9576,9 +9577,11 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
-  /react@18.3.0-canary-338dddc08-20240307:
-    resolution: {integrity: sha512-7TGNqIchK1fCbjO6DoprqP/QIgU43GroXofsq3DH9m3GLxWFRPCWF/hP/pmXBDGU33bpmFzO7/9Lls7956GjfQ==}
+  /react@18.3.0-canary-03d6f7cf0-20240209:
+    resolution: {integrity: sha512-SKgo4INQTwrPLaae6vqbEEL9VT2Cwz7aucEKKwodr6bsQjBZK1UuumAgb8nBH1fV23+P80MvbOyNAPXKBvwGqA==}
     engines: {node: '>=0.10.0'}
+    dependencies:
+      loose-envify: 1.4.0
 
   /read-pkg-up@1.0.1:
     resolution: {integrity: sha512-WD9MTlNtI55IwYUS27iHh9tK3YoIVhxis8yKhLpTqWtml739uXc9NWTpxoHkfZf3+DkCCsXox94/VWZniuZm6A==}
@@ -9799,7 +9802,6 @@ packages:
     hasBin: true
     dependencies:
       glob: 7.2.3
-    dev: false
 
   /rollup-plugin-dts@5.3.0(rollup@3.29.4)(typescript@5.4.2):
     resolution: {integrity: sha512-8FXp0ZkyZj1iU5klkIJYLjIq/YZSwBoERu33QBDxm/1yw5UU4txrEtcmMkrq+ZiKu3Q4qvPCNqc3ovX6rjqzbQ==}
@@ -9891,8 +9893,10 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
-  /scheduler@0.24.0-canary-338dddc08-20240307:
-    resolution: {integrity: sha512-8tNqtiHarRNdiICBY443emt+MbPwiYCpeH+qYhtKPA1R6Pt2E/rM/apn+mKpXcPPImWkJlwbHN4hJqGwpYlu1g==}
+  /scheduler@0.24.0-canary-03d6f7cf0-20240209:
+    resolution: {integrity: sha512-zez6fgfdLtx4xV5e61FkMwwDmpCAwZxgrsmKjzQH4NgHilteY5wyIu7evB/THrR/VQ9X7I8qHUSi5PNRgmx4dw==}
+    dependencies:
+      loose-envify: 1.4.0
 
   /scslre@0.2.0:
     resolution: {integrity: sha512-4hc49fUMmX3jM0XdFUAPBrs1xwEcdHa0KyjEsjFs+Zfc66mpFpq5YmRgDtl+Ffo6AtJIilfei+yKw8fUn3N88w==}
@@ -9973,13 +9977,8 @@ packages:
   /signal-exit@3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
 
-  /signal-exit@4.1.0:
-    resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
-    engines: {node: '>=14'}
-    dev: true
-
-  /simple-git-hooks@2.10.0:
-    resolution: {integrity: sha512-TtCytVYfV77pILCkzVxpOSgYKHQyaO7fBI/iwG5bLGb0dIo/v/K1Y1IZ5DN40RQu6WNNJiN0gkuRvSYjxOhFog==}
+  /simple-git-hooks@2.9.0:
+    resolution: {integrity: sha512-waSQ5paUQtyGC0ZxlHmcMmD9I1rRXauikBwX31bX58l5vTOhCEcBC5Bi+ZDkPXTjDnZAF8TbCqKBY+9+sVPScw==}
     hasBin: true
     requiresBuild: true
     dev: true
@@ -10632,64 +10631,65 @@ packages:
       yargs: 17.7.2
     dev: true
 
-  /turbo-darwin-64@1.12.5:
-    resolution: {integrity: sha512-0GZ8reftwNQgIQLHkHjHEXTc/Z1NJm+YjsrBP+qhM/7yIZ3TEy9gJhuogDt2U0xIWwFgisTyzbtU7xNaQydtoA==}
+  /turbo-darwin-64@1.10.7:
+    resolution: {integrity: sha512-N2MNuhwrl6g7vGuz4y3fFG2aR1oCs0UZ5HKl8KSTn/VC2y2YIuLGedQ3OVbo0TfEvygAlF3QGAAKKtOCmGPNKA==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-darwin-arm64@1.12.5:
-    resolution: {integrity: sha512-8WpOLNNzvH6kohQOjihD+gaWL+ZFNfjvBwhOF0rjEzvW+YR3Pa7KjhulrjWyeN2yMFqAPubTbZIGOz1EVXLuQA==}
+  /turbo-darwin-arm64@1.10.7:
+    resolution: {integrity: sha512-WbJkvjU+6qkngp7K4EsswOriO3xrNQag7YEGRtfLoDdMTk4O4QTeU6sfg2dKfDsBpTidTvEDwgIYJhYVGzrz9Q==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-64@1.12.5:
-    resolution: {integrity: sha512-INit73+bNUpwqGZCxgXCR3I+cQsdkQ3/LkfkgSOibkpg+oGqxJRzeXw3sp990d7SCoE8QOcs3iw+PtiFX/LDAA==}
+  /turbo-linux-64@1.10.7:
+    resolution: {integrity: sha512-x1CF2CDP1pDz/J8/B2T0hnmmOQI2+y11JGIzNP0KtwxDM7rmeg3DDTtDM/9PwGqfPotN9iVGgMiMvBuMFbsLhg==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-arm64@1.12.5:
-    resolution: {integrity: sha512-6lkRBvxtI/GQdGtaAec9LvVQUoRw6nXFp0kM+Eu+5PbZqq7yn6cMkgDJLI08zdeui36yXhone8XGI8pHg8bpUQ==}
+  /turbo-linux-arm64@1.10.7:
+    resolution: {integrity: sha512-JtnBmaBSYbs7peJPkXzXxsRGSGBmBEIb6/kC8RRmyvPAMyqF8wIex0pttsI+9plghREiGPtRWv/lfQEPRlXnNQ==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-64@1.12.5:
-    resolution: {integrity: sha512-gQYbOhZg5Ww0bQ/bC0w/4W6yQRwBumUUnkB+QPo15VznwxZe2a7bo6JM+9Xy9dKLa/kn+p7zTqme4OEp6M3/Yg==}
+  /turbo-windows-64@1.10.7:
+    resolution: {integrity: sha512-7A/4CByoHdolWS8dg3DPm99owfu1aY/W0V0+KxFd0o2JQMTQtoBgIMSvZesXaWM57z3OLsietFivDLQPuzE75w==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-arm64@1.12.5:
-    resolution: {integrity: sha512-auvhZ9FrhnvQ4mgBlY9O68MT4dIfprYGvd2uPICba/mHUZZvVy5SGgbHJ0KbMwaJfnnFoPgLJO6M+3N2gDprKw==}
+  /turbo-windows-arm64@1.10.7:
+    resolution: {integrity: sha512-D36K/3b6+hqm9IBAymnuVgyePktwQ+F0lSXr2B9JfAdFPBktSqGmp50JNC7pahxhnuCLj0Vdpe9RqfnJw5zATA==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo@1.12.5:
-    resolution: {integrity: sha512-FATU5EnhrYG8RvQJYFJnDd18DpccDjyvd53hggw9T9JEg9BhWtIEoeaKtBjYbpXwOVrJQMDdXcIB4f2nD3QPPg==}
+  /turbo@1.10.7:
+    resolution: {integrity: sha512-xm0MPM28TWx1e6TNC3wokfE5eaDqlfi0G24kmeHupDUZt5Wd0OzHFENEHMPqEaNKJ0I+AMObL6nbSZonZBV2HA==}
     hasBin: true
+    requiresBuild: true
     optionalDependencies:
-      turbo-darwin-64: 1.12.5
-      turbo-darwin-arm64: 1.12.5
-      turbo-linux-64: 1.12.5
-      turbo-linux-arm64: 1.12.5
-      turbo-windows-64: 1.12.5
-      turbo-windows-arm64: 1.12.5
+      turbo-darwin-64: 1.10.7
+      turbo-darwin-arm64: 1.10.7
+      turbo-linux-64: 1.10.7
+      turbo-linux-arm64: 1.10.7
+      turbo-windows-64: 1.10.7
+      turbo-windows-arm64: 1.10.7
     dev: true
 
   /type-check@0.4.0:

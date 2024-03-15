@@ -22,8 +22,8 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@edge-runtime/node-utils": "^2.2.4",
-    "@edge-runtime/primitives": "^4.0.6"
+    "@edge-runtime/node-utils": "^2.3.0",
+    "@edge-runtime/primitives": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.45",
