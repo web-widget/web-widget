@@ -28,19 +28,12 @@ export type StartOptions<E extends Env = {}> = {
   defaultMeta?: Meta;
   defaultRenderOptions?: RouteRenderOptions;
   dev?: boolean;
-  origin?: string;
   onFallback?: OnFallback;
 } & ApplicationOptions<E>;
 
 export default class WebRouter<E extends Env = Env> extends Application<E> {
-  #origin?: string;
   constructor(options: StartOptions<E> = {}) {
     super(options);
-    this.#origin = options.origin;
-  }
-
-  get origin() {
-    return this.#origin;
   }
 
   static fromManifest<E extends Env = Env>(

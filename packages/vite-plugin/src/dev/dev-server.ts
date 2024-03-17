@@ -117,6 +117,10 @@ async function viteWebRouterMiddleware(
   viteServer: ViteDevServer
 ): Promise<Middleware> {
   const baseModulePath = path.join(viteServer.config.root, path.sep);
+  const protocol = viteServer.config.server.https ? 'https' : 'http';
+  const host = viteServer.config.server.host || 'localhost';
+  const port = viteServer.config.server.port || 8080;
+  const origin = `${protocol}://${host}:${port}`;
 
   let currentModule: string | undefined;
   const manifest = await loadManifest(
@@ -170,62 +174,66 @@ async function viteWebRouterMiddleware(
     },
   });
 
-  const nodeAdapter = new NodeAdapter({
-    origin: webRouter.origin,
-    async handler(request, fetchEvent) {
-      try {
-        let res = await webRouter.handler(request, fetchEvent);
-        const isEmptyStatus =
-          ((res.status / 100) | 0) === 1 ||
-          res.status === 204 ||
-          res.status === 205 ||
-          res.status === 304;
+  const nodeAdapter = new NodeAdapter(
+    {
+      async handler(request, fetchEvent) {
+        try {
+          let res = await webRouter.handler(request, fetchEvent);
+          const isEmptyStatus =
+            ((res.status / 100) | 0) === 1 ||
+            res.status === 204 ||
+            res.status === 205 ||
+            res.status === 304;
 
-        if (
-          isEmptyStatus ||
-          !res.headers.get('content-type')?.startsWith('text/html;')
-        ) {
+          if (
+            isEmptyStatus ||
+            !res.headers.get('content-type')?.startsWith('text/html;')
+          ) {
+            return res;
+          }
+
+          if (currentModule) {
+            let html = await res.text();
+            const meta = await getMeta(currentModule, viteServer);
+            const url = new URL(request.url);
+            const viteHtml = await viteServer.transformIndexHtml(
+              url.pathname + url.search,
+              html.replace(/(<\/head>)/, renderMetaToString(meta) + '$1')
+            );
+
+            res = new Response(viteHtml, {
+              status: res.status,
+              statusText: res.statusText,
+              headers: res.headers,
+            });
+          }
+
           return res;
-        }
+        } catch (error) {
+          let message: string;
+          if (error instanceof Error) {
+            viteServer.ssrFixStacktrace(error);
+            message = stripAnsi(error.stack ?? error.message);
+            console.error(error.stack);
+          } else {
+            message = String(error);
+            console.error(error);
+          }
 
-        if (currentModule) {
-          let html = await res.text();
-          const meta = await getMeta(currentModule, viteServer);
-          const url = new URL(request.url);
-          const viteHtml = await viteServer.transformIndexHtml(
-            url.pathname + url.search,
-            html.replace(/(<\/head>)/, renderMetaToString(meta) + '$1')
-          );
-
-          res = new Response(viteHtml, {
-            status: res.status,
-            statusText: res.statusText,
-            headers: res.headers,
+          return new Response(errorTemplate(message), {
+            status: 500,
+            statusText: 'Internal Server Error',
+            headers: {
+              'content-type': 'text/html; charset=utf-8',
+            },
           });
         }
-
-        return res;
-      } catch (error) {
-        let message: string;
-        if (error instanceof Error) {
-          viteServer.ssrFixStacktrace(error);
-          message = stripAnsi(error.stack ?? error.message);
-          console.error(error.stack);
-        } else {
-          message = String(error);
-          console.error(error);
-        }
-
-        return new Response(errorTemplate(message), {
-          status: 500,
-          statusText: 'Internal Server Error',
-          headers: {
-            'content-type': 'text/html; charset=utf-8',
-          },
-        });
-      }
+      },
     },
-  });
+    {
+      defaultOrigin: origin,
+    }
+  );
 
   return nodeAdapter.middleware;
 }
