@@ -1,5 +1,16 @@
 # @web-widget/vite-plugin
 
+## 1.10.25
+
+### Patch Changes
+
+- 3683b32: Moved `origin` option into Node.js adapter.
+- Updated dependencies [3683b32]
+  - @web-widget/web-router@1.10.25
+  - @web-widget/node@1.10.25
+  - @web-widget/helpers@1.10.25
+  - @web-widget/web-widget@1.10.25
+
 ## 1.10.24
 
 ### Patch Changes

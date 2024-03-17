@@ -1,5 +1,14 @@
 # @web-widget/web-router
 
+## 1.10.25
+
+### Patch Changes
+
+- 3683b32: Moved `origin` option into Node.js adapter.
+  - @web-widget/context@1.10.25
+  - @web-widget/helpers@1.10.25
+  - @web-widget/html@1.10.25
+
 ## 1.10.24
 
 ### Patch Changes

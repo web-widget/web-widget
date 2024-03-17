@@ -1,5 +1,11 @@
 # @web-widget/node
 
+## 1.10.25
+
+### Patch Changes
+
+- 3683b32: Moved `origin` option into Node.js adapter.
+
 ## 1.10.24
 
 ## 1.10.23
