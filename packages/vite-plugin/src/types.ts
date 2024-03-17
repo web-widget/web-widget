@@ -45,3 +45,27 @@ export interface ServerEntryModule {
 }
 
 export interface ClientEntryModule {}
+
+export interface ManifestJSON {
+  $schema?: string;
+  routes?: {
+    module: string;
+    name?: string;
+    pathname: string;
+  }[];
+  middlewares?: {
+    module: string;
+    name?: string;
+    pathname: string;
+  }[];
+  fallbacks?: {
+    module: string;
+    name?: string;
+    pathname: string;
+    status: number;
+  }[];
+  layout?: {
+    module: string;
+    name?: string;
+  };
+}

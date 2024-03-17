@@ -18,6 +18,7 @@ export interface SerializableContext extends MiddlewareContext {
 
 export interface SafeSerializableContext extends Partial<MiddlewareContext> {
   params: Record<string, string>;
+  /** @deprecated */
   pathname: string;
   request: Request;
   state: JSONObject;

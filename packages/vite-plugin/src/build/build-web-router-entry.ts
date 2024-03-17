@@ -1,5 +1,4 @@
 import path from 'node:path';
-import type { ManifestJSON } from '@web-widget/web-router';
 import builtins from 'builtin-modules';
 import type { EmittedFile, OutputBundle, OutputChunk } from 'rollup';
 import type {
@@ -10,7 +9,7 @@ import type {
   Manifest as ViteManifest,
 } from 'vite';
 import { build, normalizePath } from 'vite';
-import type { ResolvedBuilderConfig } from '../types';
+import type { ResolvedBuilderConfig, ManifestJSON } from '../types';
 import { getLinks } from './utils';
 
 let stage = 0;

@@ -140,6 +140,7 @@ export type RouteComponentProps<
   /**
    * The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered.
+   * @deprecated
    */
   pathname: string;
 
@@ -227,6 +228,7 @@ export interface RouteHandlerContext<
   /**
    * The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered.
+   * @deprecated
    */
   pathname: string;
 
@@ -296,6 +298,7 @@ export interface RouteRenderContext<
   /**
    * The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered.
+   * @deprecated
    */
   pathname: string;
 
