@@ -63,9 +63,7 @@ export abstract class FetchEventLike {
 //////                            //////
 ////////////////////////////////////////
 
-export type Manifest = ManifestResolved;
-
-export interface ManifestResolved {
+export interface Manifest {
   routes: {
     module: RouteModule | (() => Promise<RouteModule>);
     name?: string;
@@ -87,30 +85,6 @@ export interface ManifestResolved {
   };
 }
 
-export interface ManifestJSON {
-  $schema?: string;
-  routes?: {
-    module: string;
-    name?: string;
-    pathname: string;
-  }[];
-  middlewares?: {
-    module: string;
-    name?: string;
-    pathname: string;
-  }[];
-  fallbacks?: {
-    module: string;
-    name?: string;
-    pathname: string;
-    status: number;
-  }[];
-  layout?: {
-    module: string;
-    name?: string;
-  };
-}
-
 ////////////////////////////////////////
 //////                            //////
 //////       Layout Modules       //////
@@ -123,6 +97,7 @@ export type LayoutComponentProps = WidgetComponentProps<{
   children: RouteRenderResult;
   meta: Meta;
   params: Record<string, string>;
+  /** @deprecated */
   pathname: string;
   request: Request;
 }>;

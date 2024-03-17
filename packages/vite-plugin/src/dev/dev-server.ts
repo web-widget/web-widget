@@ -3,10 +3,14 @@ import type { Middleware } from '@web-widget/node';
 import NodeAdapter from '@web-widget/node';
 import type { RouteModule } from '@web-widget/helpers';
 import { renderMetaToString } from '@web-widget/helpers';
-import type { ManifestJSON, ManifestResolved } from '@web-widget/web-router';
+import type { Manifest } from '@web-widget/web-router';
 import stripAnsi from 'strip-ansi';
 import type { Plugin, ViteDevServer } from 'vite';
-import type { ResolvedBuilderConfig, ServerEntryModule } from '../types';
+import type {
+  ManifestJSON,
+  ResolvedBuilderConfig,
+  ServerEntryModule,
+} from '../types';
 import { getMeta } from './meta';
 import { fileSystemRouteGenerator } from './routing';
 
@@ -283,7 +287,7 @@ async function loadManifest(routemap: string, viteServer: ViteDevServer) {
       manifest[key] = value;
     }
     return manifest;
-  }, {} as ManifestResolved);
+  }, {} as Manifest);
 }
 
 function errorTemplate(message: string) {

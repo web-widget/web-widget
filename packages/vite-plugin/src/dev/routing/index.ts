@@ -1,8 +1,8 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { ManifestJSON } from '@web-widget/web-router';
 import type { FSWatcher } from 'vite';
 import { normalizePath } from '@rollup/pluginutils';
+import type { ManifestJSON } from '../../types';
 import { walkRoutes } from './walk-routes-dir';
 import { pathToPattern, sortRoutePaths } from './extract';
 import type { RouteSourceFile, OverridePathname } from './types';
