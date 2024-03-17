@@ -1,5 +1,16 @@
 # @web-widget/web-router
 
+## 1.10.26
+
+### Patch Changes
+
+- 58f7229: Mark `context.pathname` as `deprecated`.
+- 58f7229: Remove exported `ManifestJSON` and `ManifestResolved` types.
+- Updated dependencies [58f7229]
+  - @web-widget/context@1.10.26
+  - @web-widget/helpers@1.10.26
+  - @web-widget/html@1.10.26
+
 ## 1.10.25
 
 ### Patch Changes

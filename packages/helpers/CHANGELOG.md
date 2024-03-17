@@ -1,5 +1,13 @@
 # @web-widget/helpers
 
+## 1.10.26
+
+### Patch Changes
+
+- Updated dependencies [58f7229]
+  - @web-widget/context@1.10.26
+  - @web-widget/schema@1.10.26
+
 ## 1.10.25
 
 ### Patch Changes
