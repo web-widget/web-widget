@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.10.26
+
+### Patch Changes
+
+- 58f7229: Mark `context.pathname` as `deprecated`.
+
 ## 1.10.25
 
 ## 1.10.24
