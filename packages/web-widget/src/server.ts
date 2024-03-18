@@ -228,7 +228,6 @@ export class WebWidgetRenderer {
 
     const dependencies = dependenciesKeys.reduce(
       (previousValue, currentValue) => {
-        // eslint-disable-next-line no-param-reassign
         previousValue[currentValue] = allState[currentValue];
         return previousValue;
       },

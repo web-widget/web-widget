@@ -86,7 +86,6 @@ async function generateRoutemapFile(
 
   if (newJson !== cache[key]) {
     await fs.writeFile(routemapPath, JSON.stringify(routemap, null, 2), 'utf8');
-    // eslint-disable-next-line no-param-reassign
     cache[key] = newJson;
   }
 }

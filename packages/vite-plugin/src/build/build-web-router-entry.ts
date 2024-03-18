@@ -340,7 +340,6 @@ function generateServerRoutemap(
     (manifest, [key, value]) => {
       if (Array.isArray(value)) {
         // @ts-ignore
-        // eslint-disable-next-line no-param-reassign
         manifest[key] = [];
         value.forEach((mod) => {
           // @ts-ignore
@@ -351,14 +350,12 @@ function generateServerRoutemap(
         });
       } else if (value.module) {
         // @ts-ignore
-        // eslint-disable-next-line no-param-reassign
         manifest[key] = {
           ...value,
           module: getImportModule(value.module),
         };
       } else {
         // @ts-ignore
-        // eslint-disable-next-line no-param-reassign
         manifest[key] = value;
       }
       return manifest;
@@ -375,7 +372,6 @@ function generateServerRoutemap(
       .join('\n') +
     '\n\n' +
     `export default ${imports.reduce((routemapJsonCode, source, index) => {
-      // eslint-disable-next-line no-param-reassign
       routemapJsonCode = routemapJsonCode.replaceAll(
         new RegExp(`(\\s*)${escapeRegExp(`"module": "${source}"`)}`, 'g'),
         `$1"source": "${source}",$1"module": _${index}`

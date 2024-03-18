@@ -520,7 +520,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this.id || this.getAttribute('name') || this.import || this.localName;
     const prefix = `Web Widget module (${moduleName})`;
     if (typeof error !== 'object') {
-      // eslint-disable-next-line no-param-reassign
       error = new Error(error);
     }
 

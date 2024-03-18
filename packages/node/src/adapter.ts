@@ -144,9 +144,7 @@ async function toServerResponse(
     );
   }
 
-  // eslint-disable-next-line no-param-reassign
   serverResponse.statusCode = webResponse.status;
-  // eslint-disable-next-line no-param-reassign
   serverResponse.statusMessage = webResponse.statusText;
   if (!webResponse.body) {
     serverResponse.end();

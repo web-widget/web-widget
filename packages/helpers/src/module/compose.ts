@@ -130,7 +130,6 @@ export function methodsToHandler(
 
     // If not overridden, HEAD requests should be handled as GET requests but without the body.
     if (request.method === 'HEAD' && !mergedMethods['HEAD']) {
-      // eslint-disable-next-line no-param-reassign
       context.request = new Request(request.url, {
         method: 'GET',
         headers: request.headers,

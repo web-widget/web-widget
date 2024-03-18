@@ -9,7 +9,6 @@ export const handler = defineMiddlewareHandler({
 
     if (isSpider) {
       if (ctx.renderOptions) {
-        // eslint-disable-next-line no-param-reassign
         ctx.renderOptions = Object.assign(ctx.renderOptions, {
           react: {
             awaitAllReady: true,

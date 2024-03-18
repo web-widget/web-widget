@@ -18,10 +18,8 @@ export function allowExposedToClient(
   replace?: boolean
 ) {
   if (replace) {
-    // eslint-disable-next-line no-param-reassign
     object[exposedToClient] = allow;
   } else {
-    // eslint-disable-next-line no-param-reassign
     object[exposedToClient] = [...(object[exposedToClient] ?? []), ...allow];
   }
 }
