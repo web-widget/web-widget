@@ -6,7 +6,7 @@ const ERROR = 2;
 
 export default defineConfig({
   rules: {
-    'no-param-reassign': [ERROR, { props: true }],
+    'no-param-reassign': [WARN, { props: true }],
     'array-callback-return': WARN,
     'getter-return': WARN,
     'new-parens': WARN,

@@ -18,7 +18,6 @@ export const tsup: Options[] = [
       'vue.server': 'src/server.ts',
     },
     esbuildOptions(options) {
-      // eslint-disable-next-line no-param-reassign
       options.conditions = ['worklet', 'worker', 'import', 'module', 'default'];
     },
   },
@@ -28,7 +27,6 @@ export const tsup: Options[] = [
       'vue.client': 'src/client.ts',
     },
     esbuildOptions(options) {
-      // eslint-disable-next-line no-param-reassign
       options.conditions = ['import', 'module', 'browser', 'default'];
     },
   },

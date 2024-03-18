@@ -105,17 +105,14 @@ export function createHttpError(
     }
   } else if (message instanceof Error) {
     err = message as IError;
-    // eslint-disable-next-line no-param-reassign
     message = err.message;
     errOptions = { cause: err };
-    // eslint-disable-next-line no-param-reassign
     status = err.status;
 
     if (
       typeof status !== 'number' ||
       (!Status[status] && (status < 400 || status >= 600))
     ) {
-      // eslint-disable-next-line no-param-reassign
       status = 500;
     }
 

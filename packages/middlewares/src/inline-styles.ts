@@ -58,7 +58,6 @@ export default function inlineStyles(options: InlineStylesOptions = {}) {
       );
       meta.style ??= [];
       meta.style.push(...styles);
-      // eslint-disable-next-line no-param-reassign
       context.meta = meta;
 
       return next();

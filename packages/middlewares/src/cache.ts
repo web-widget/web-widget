@@ -93,7 +93,6 @@ async function getCache(
   const body = cacheValue?.body;
   if (!body) {
     // tell the upstream middleware to cache this response
-    // eslint-disable-next-line no-param-reassign
     ctx.state.$cache = {
       maxAge,
     };
