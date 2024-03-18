@@ -46,6 +46,7 @@ test('throws on invalid patterns', () => {
 
 test('sortRoutePaths', () => {
   const routes = [
+    '/(group)/[...all]',
     '/foo/[id]',
     '/foo/[...slug]',
     '/foo/bar',
@@ -70,6 +71,7 @@ test('sortRoutePaths', () => {
     '/foo/bar/[...foo]',
     '/foo/[id]',
     '/foo/[...slug]',
+    '/(group)/[...all]',
   ];
   routes.sort(sortRoutePaths);
   expect(routes).toEqual(sorted);

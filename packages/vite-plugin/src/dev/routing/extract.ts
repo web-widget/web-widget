@@ -1,9 +1,14 @@
+const GROUPS = /\([^)]*\)/g;
 /**
  * Adopted from Fresh
  *
  * https://github.com/denoland/fresh/blob/main/LICENSE
  */
 export function sortRoutePaths(a: string, b: string) {
+  // eslint-disable-next-line no-param-reassign
+  a = a.replace(GROUPS, '');
+  // eslint-disable-next-line no-param-reassign
+  b = b.replace(GROUPS, '');
   let segmentIdx = 0;
   const aLen = a.length;
   const bLen = b.length;
