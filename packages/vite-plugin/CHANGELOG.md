@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.10.27
+
+### Patch Changes
+
+- 74404b1: Fixed an issue where correct sorting may not occur when files are grouped.
+  - @web-widget/helpers@1.10.27
+  - @web-widget/node@1.10.27
+  - @web-widget/web-router@1.10.27
+  - @web-widget/web-widget@1.10.27
+
 ## 1.10.26
 
 ### Patch Changes
