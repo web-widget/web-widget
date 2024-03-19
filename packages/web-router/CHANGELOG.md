@@ -1,5 +1,13 @@
 # @web-widget/web-router
 
+## 1.10.28
+
+### Patch Changes
+
+- @web-widget/context@1.10.28
+- @web-widget/helpers@1.10.28
+- @web-widget/html@1.10.28
+
 ## 1.10.27
 
 ### Patch Changes
