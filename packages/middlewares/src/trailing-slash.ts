@@ -25,8 +25,9 @@ export default function trailingSlash(options: TrailingSlashOptions = {}) {
         // If the last element of the path has a "." it's a file
         const isFile = pathname.split('/').at(-1)?.includes('.');
         if (!isFile) {
-          url.pathname += '/';
-          return redirect(url.href, Status.PermanentRedirect);
+          const path = pathname + '/';
+          const location = `${path}${search}`;
+          return redirect(location, Status.PermanentRedirect);
         }
       }
 
