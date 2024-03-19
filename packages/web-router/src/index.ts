@@ -37,7 +37,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
   }
 
   static fromManifest<E extends Env = Env>(
-    manifest: Partial<Manifest> = {},
+    manifest: Partial<Manifest>,
     options: StartOptions<E> = {}
   ) {
     const router = new WebRouter<E>(options);

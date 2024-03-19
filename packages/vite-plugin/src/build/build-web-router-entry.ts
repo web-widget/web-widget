@@ -400,7 +400,7 @@ function generateServerRoutemap(
     `import { mergeMeta } from "@web-widget/helpers";`,
     `import entry from ${JSON.stringify(entryModuleName)};`,
     `export * from ${JSON.stringify(entryModuleName)};`,
-    `export default function start(manifest, options) {`,
+    `export default function start(manifest, options = {}) {`,
     `  return entry(manifest, {`,
     `    baseAsset: ${JSON.stringify(base)},`,
     `    baseModule: new URL("./", import.meta.url).href,`,
@@ -428,7 +428,7 @@ function generateServerRoutemap(
   ].join('\n');
   const entryDtsCode = [
     `import type { Manifest, StartOptions } from '@web-widget/web-router';`,
-    `export default {} as (manifest: Manifest, options: StartOptions) => WebRouter;`,
+    `export default {} as (manifest: Manifest, options?: StartOptions) => WebRouter;`,
   ].join('\n');
 
   const routemapBasename = getBasename(builderConfig.input.server.routemap);
