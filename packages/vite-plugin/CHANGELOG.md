@@ -1,5 +1,16 @@
 # @web-widget/vite-plugin
 
+## 1.10.29
+
+### Patch Changes
+
+- d7796f5: Set options of web-router to optional.
+- Updated dependencies [d7796f5]
+  - @web-widget/web-router@1.10.29
+  - @web-widget/helpers@1.10.29
+  - @web-widget/node@1.10.29
+  - @web-widget/web-widget@1.10.29
+
 ## 1.10.28
 
 ### Patch Changes

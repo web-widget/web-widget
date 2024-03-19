@@ -1,5 +1,14 @@
 # @web-widget/web-router
 
+## 1.10.29
+
+### Patch Changes
+
+- d7796f5: Set options of web-router to optional.
+  - @web-widget/context@1.10.29
+  - @web-widget/helpers@1.10.29
+  - @web-widget/html@1.10.29
+
 ## 1.10.28
 
 ### Patch Changes
