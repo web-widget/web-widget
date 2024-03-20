@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.10.30
+
+### Patch Changes
+
+- 7413828: `cache`: Add caching strategies.
+  - @web-widget/helpers@1.10.30
+  - @web-widget/schema@1.10.30
+
 ## 1.10.29
 
 ### Patch Changes
