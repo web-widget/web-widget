@@ -2,6 +2,7 @@ import { LRUCache } from 'lru-cache';
 import type { Manifest } from '@web-widget/web-router';
 import WebRouter from '@web-widget/web-router';
 import cache, { type CacheOptions } from './cache';
+import conditional from './conditional-get';
 
 type CacheValue = {
   body: string | null;
@@ -39,6 +40,12 @@ const createApp = function (
   const app = WebRouter.fromManifest({
     routes,
     middlewares: [
+      {
+        pathname: '*',
+        module: {
+          handler: conditional(),
+        },
+      },
       {
         pathname: '*',
         module: {
