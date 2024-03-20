@@ -1,50 +1,42 @@
 // Based on the code in the MIT licensed `koa-cash` package.
-import {
-  defineMiddlewareHandler,
-  type MiddlewareContext,
-} from '@web-widget/helpers';
+import type { MiddlewareNext } from '@web-widget/helpers';
+import { defineMiddlewareHandler } from '@web-widget/helpers';
 import { Status, STATUS_TEXT } from '@web-widget/helpers/status';
-import { isFresh } from './utils/is-fresh';
 
 declare module '@web-widget/schema' {
   interface RouteConfig {
     cache?: Partial<CacheOptions> | boolean;
   }
-  interface RouteState {
-    $cache?: {
-      maxAge: number;
-    };
-  }
 }
 
 export interface CacheOptions {
-  /** Default max age (in milliseconds) for the cache if not set via await ctx.cashed(maxAge). */
+  /** The maximum age of the cache in milliseconds. This value is 0 by default. */
   maxAge?: number;
 
-  /** If a truthy value is passed, then X-Cached-Response header will be set as HIT when response is served from the cache. This value is false by default. */
+  /**
+   * If a truthy value is passed, then X-Cached-Response header will be set as HIT when response is served from the cache.
+   * This value is false by default.
+   */
   setCachedHeader?: boolean;
 
   /**
-   * If an object is passed, then add extra HTTP method caching. This value is empty by default. But GET and HEAD are enabled.
+   * If an object is passed, then add extra HTTP method caching. This value is empty by default.
+   * But GET and HEAD are enabled.
    * Eg: `{ POST: true }`
    */
   methods?: Record<string, boolean>;
 
   /**
    * A hashing function. By default, it's:
-   * function hash(req) {
-   *   return req.url;
-   * }
+   * (req) => req.url
    */
   hash?: (req: Request) => string;
 
   /**
-   * Whether to disable cache middleware running. By default, it's:
-   * function disable(req) {
-   *   return false;
-   * }
+   * Strategies to use for caching. By default, it's:
+   * (req) => 'stale-while-revalidate'
    */
-  disable?: (req: Request) => boolean;
+  strategies?: (req: Request) => Strategies;
 
   /**
    * Get a value from a store. Must return a Promise, which returns the cache's value, if any.
@@ -58,44 +50,56 @@ export interface CacheOptions {
   set: (key: string, value: any, maxAge?: number) => Promise<void>;
 }
 
-// methods we cache
-const defaultMethods = {
+type Strategies =
+  | 'stale-while-revalidate'
+  | 'cache-first'
+  | 'uncached-first'
+  | 'uncached-only'
+  | 'cache-only';
+
+export const STALE_WHILE_REVALIDATE: Strategies = 'stale-while-revalidate';
+export const CACHE_FIRST: Strategies = 'cache-first';
+export const UNCACHED_FIRST: Strategies = 'uncached-first';
+export const UNCACHED_ONLY: Strategies = 'uncached-only';
+export const CACHE_ONLY: Strategies = 'cache-only';
+
+const DEFAULT_STRATEGIES: Strategies = STALE_WHILE_REVALIDATE;
+const EXPIRE_KEY = ':expire';
+const DEFAULT_METHODS: Record<string, boolean> = {
   HEAD: true,
   GET: true,
 };
 
-type CacheValue = {
+export type CacheValue = {
   body: string | null;
   contentType: string | null;
   lastModified: string | null;
   etag: string | null;
 };
 
-async function getCache(
-  ctx: MiddlewareContext,
-  {
-    maxAge = 0,
-    get,
-    methods = defaultMethods,
-    setCachedHeader,
-    hash = function (req: Request) {
-      return req.url;
-    },
-  }: CacheOptions
+export async function isExpireCache(
+  key: string,
+  { get }: Required<Pick<CacheOptions, 'get'>>
 ) {
-  if (!methods[ctx.request.method]) {
-    return null;
+  const expire: number = (await get(key + EXPIRE_KEY)) ?? 0;
+
+  if (!expire) {
+    return true;
   }
 
-  const cacheKey = hash(ctx.request);
-  const cacheValue: CacheValue | undefined = await get(cacheKey, maxAge);
+  return expire < new Date().getTime();
+}
 
-  const body = cacheValue?.body;
-  if (!body) {
-    // tell the upstream middleware to cache this response
-    ctx.state.$cache = {
-      maxAge,
-    };
+async function getCache(
+  key: string,
+  {
+    get,
+    setCachedHeader,
+  }: Required<Pick<CacheOptions, 'get' | 'setCachedHeader'>>
+) {
+  const cacheValue: CacheValue | undefined = await get(key);
+
+  if (!cacheValue) {
     return null;
   }
 
@@ -115,26 +119,51 @@ async function getCache(
     cachedHeaders.set('X-Cached-Response', 'HIT');
   }
 
-  const cachedResponse = new Response(body, {
+  const cachedResponse = new Response(cacheValue.body, {
     status: Status.OK,
     statusText: STATUS_TEXT[Status.OK],
     headers: cachedHeaders,
   });
 
-  if (isFresh(ctx.request, cachedResponse)) {
-    return new Response(null, {
-      status: Status.NotModified,
-      statusText: STATUS_TEXT[Status.NotModified],
-      headers: cachedHeaders,
-    });
-  } else {
-    return cachedResponse;
+  return cachedResponse;
+}
+
+async function setCache(
+  key: string,
+  res: Response,
+  { maxAge, set }: Required<Pick<CacheOptions, 'maxAge' | 'set'>>
+) {
+  // only cache GET/HEAD 200s
+  if (res.status !== Status.OK) {
+    return;
   }
+  const cacheValue: CacheValue = {
+    body: await res.clone().text(),
+    contentType: res.headers.get('Content-Type'),
+    lastModified: res.headers.get('Last-Modified'),
+    etag: res.headers.get('ETag'),
+  };
+
+  await set(key, cacheValue);
+  await set(key + EXPIRE_KEY, new Date().getTime() + maxAge, maxAge);
+}
+
+async function callNextAndSetCache(
+  key: string,
+  next: MiddlewareNext,
+  { maxAge, set }: Required<Pick<CacheOptions, 'maxAge' | 'set'>>
+) {
+  const res = await next();
+
+  await setCache(key, res, {
+    maxAge,
+    set,
+  });
+
+  return res;
 }
 
 export default function cache(options: CacheOptions) {
-  const methods = Object.assign({}, defaultMethods, options.methods);
-
   const { get } = options;
   const { set } = options;
 
@@ -146,82 +175,105 @@ export default function cache(options: CacheOptions) {
       return next();
     }
 
-    const routeConfig = ctx.module.config.cache;
-    const disable =
-      (typeof routeConfig === 'object' && routeConfig.disable) ??
-      options.disable;
+    const rawConfig = ctx.module.config.cache;
+    const userConfig: Partial<CacheOptions> = !rawConfig
+      ? {
+          strategies: () => UNCACHED_ONLY,
+        }
+      : rawConfig === true
+        ? {}
+        : rawConfig;
+    const methods = options.methods ?? DEFAULT_METHODS;
+    const maxAge = userConfig.maxAge ?? 0;
+    const get = userConfig.get ?? options.get;
+    const set = userConfig.set ?? options.set;
+    const setCachedHeader =
+      userConfig.setCachedHeader ?? options.setCachedHeader ?? false;
+    const hash = userConfig.hash ?? ((req: Request) => req.url);
+    const strategies = !methods[ctx.request.method]
+      ? UNCACHED_ONLY
+      : typeof userConfig.strategies === 'function'
+        ? userConfig.strategies(ctx.request)
+        : DEFAULT_STRATEGIES;
 
-    if (disable && disable(ctx.request)) {
-      return next();
-    }
+    switch (strategies) {
+      case UNCACHED_ONLY: {
+        return next();
+      }
 
-    const resolveOptions = {
-      methods,
-      maxAge: 0,
-      hash(req: Request) {
-        return req.url;
-      },
-      ...options,
-      ...(routeConfig === true ? {} : routeConfig),
-    };
-    const cache = await getCache(ctx, resolveOptions);
+      case CACHE_ONLY: {
+        const cache = await getCache(hash(ctx.request), {
+          get,
+          setCachedHeader,
+        });
 
-    if (cache) {
-      return cache;
-    }
+        if (!cache) {
+          throw new Error('No response.');
+        }
 
-    const res = await next();
-    // vary(res.headers, 'Accept-Encoding');
+        return cache;
+      }
 
-    // check for HTTP caching just in case
-    if (!ctx.state.$cache) {
-      if (isFresh(ctx.request, res)) {
-        return new Response(null, {
-          status: Status.NotModified,
-          statusText: STATUS_TEXT[Status.NotModified],
-          headers: res.headers,
+      case CACHE_FIRST: {
+        const cache = await getCache(hash(ctx.request), {
+          get,
+          setCachedHeader,
+        });
+
+        if (cache) {
+          return cache;
+        }
+
+        return next();
+      }
+
+      case UNCACHED_FIRST: {
+        try {
+          // TODO: Timeout
+          return next();
+        } catch (error) {
+          const cache = await getCache(hash(ctx.request), {
+            get,
+            setCachedHeader,
+          });
+
+          if (cache) {
+            return cache;
+          } else {
+            throw error;
+          }
+        }
+      }
+
+      case STALE_WHILE_REVALIDATE: {
+        const key = hash(ctx.request);
+        const cache = await getCache(key, {
+          get,
+          setCachedHeader,
+        });
+
+        if (cache) {
+          if (await isExpireCache(key, { get })) {
+            // Update cache in the background
+            // TODO: Use waitUntil
+            callNextAndSetCache(hash(ctx.request), next, {
+              maxAge,
+              set,
+            }).catch(() => {});
+          }
+
+          return cache;
+        }
+
+        return callNextAndSetCache(hash(ctx.request), next, {
+          maxAge,
+          set,
         });
       }
-      return res;
-    }
 
-    // cache the response
-
-    // only cache GET/HEAD 200s
-    if (res.status !== Status.OK) {
-      return res;
-    }
-
-    if (!methods[ctx.request.method]) {
-      return res;
-    }
-
-    if (!res.body) {
-      return res;
-    }
-
-    const cacheValue: CacheValue = {
-      body: await res.clone().text(),
-      contentType: res.headers.get('Content-Type'),
-      lastModified: res.headers.get('Last-Modified'),
-      etag: res.headers.get('ETag'),
-    };
-
-    const cacheKey = resolveOptions.hash(ctx.request);
-    await set(
-      cacheKey,
-      cacheValue,
-      ctx.state.$cache?.maxAge ?? resolveOptions.maxAge
-    );
-
-    if (isFresh(ctx.request, res)) {
-      return new Response(null, {
-        status: Status.NotModified,
-        statusText: STATUS_TEXT[Status.NotModified],
-        headers: res.headers,
-      });
-    } else {
-      return res;
+      default: {
+        throw new Error(`Not implemented: ${strategies}`);
+      }
     }
   });
 }

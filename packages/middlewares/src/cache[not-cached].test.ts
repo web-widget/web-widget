@@ -1,14 +1,13 @@
 import { LRUCache } from 'lru-cache';
 import type { Manifest } from '@web-widget/web-router';
 import WebRouter from '@web-widget/web-router';
-import cache, { type CacheOptions } from './cache';
-
-type CacheValue = {
-  body: string | null;
-  contentType: string | null;
-  lastModified: string | null;
-  etag: string | null;
-};
+import cache, {
+  isExpireCache,
+  UNCACHED_ONLY,
+  type CacheOptions,
+  type CacheValue,
+} from './cache';
+import conditional from './conditional-get';
 
 const createApp = function (
   store: LRUCache<any, any>,
@@ -28,6 +27,12 @@ const createApp = function (
   const app = WebRouter.fromManifest({
     routes: routes,
     middlewares: [
+      {
+        pathname: '*',
+        module: {
+          handler: conditional(),
+        },
+      },
       {
         pathname: '*',
         module: {
@@ -60,7 +65,9 @@ test('should pass the maxAge through config.cache.maxAge', async () => {
       },
       async set(key, value, maxAge) {
         set = true;
-        expect(maxAge).toBe(300);
+        if (maxAge) {
+          expect(maxAge).toBe(300);
+        }
         store.set(key, value);
       },
     },
@@ -86,6 +93,13 @@ test('should pass the maxAge through config.cache.maxAge', async () => {
   expect(set).toBe(true);
   expect(res.status).toBe(200);
   expect(cached?.body).toBe('lol');
+  expect(
+    await isExpireCache('http://localhost/', {
+      async get(key) {
+        return store.get(key);
+      },
+    })
+  ).toBe(false);
 });
 
 test('disabling caching middleware should be allowed', async () => {
@@ -111,7 +125,7 @@ test('disabling caching middleware should be allowed', async () => {
           config: {
             cache: {
               maxAge: 300,
-              disable: () => true,
+              strategies: () => UNCACHED_ONLY,
             },
           },
           handler: async () => {
@@ -250,4 +264,8 @@ test('when the response is fresh it should return a 304 and cache the response',
   expect(cached?.etag).toBe('lol');
   expect(cached?.contentType).toBe('text/lol; charset=utf-8');
   expect(cached?.lastModified).toBe(new Date(date * 1000).toUTCString());
+});
+
+describe('cache strategies', () => {
+  // TODO: add tests for strategies
 });

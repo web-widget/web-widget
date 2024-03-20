@@ -1,7 +1,22 @@
 // Based on the code in the MIT licensed `koa-conditional-get` package.
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import { Status, STATUS_TEXT } from '@web-widget/helpers/status';
-import { isFresh } from './utils/is-fresh';
+import { fresh } from '@web-widget/helpers/headers';
+
+function isFresh(req: Request, res: Response) {
+  const method = req.method;
+
+  // GET or HEAD for weak freshness validation only
+  if (method !== 'GET' && method !== 'HEAD') return false;
+
+  const status = res.status;
+  // 2xx or 304 as per rfc2616 14.26
+  if ((status >= 200 && status < 300) || status === 304) {
+    return fresh(req.headers, res.headers);
+  }
+
+  return false;
+}
 
 /**
  * Default headers to pass through on 304 responses. From the spec:
