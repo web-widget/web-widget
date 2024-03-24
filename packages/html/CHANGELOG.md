@@ -1,5 +1,11 @@
 # @web-widget/html
 
+## 1.10.31
+
+### Patch Changes
+
+- @web-widget/helpers@1.10.31
+
 ## 1.10.30
 
 ### Patch Changes

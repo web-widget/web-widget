@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 1.10.31
+
+### Patch Changes
+
+- c5911a4: - `cache`: Same concept using [service worker caching strategies](https://developer.chrome.com/docs/workbox/caching-strategies-overview).
+  - `cache`: Add cache refresh feature.
+  - `cache`: Add the feature of adding `CacheControl` headers.
+  - `cache`: Add the feature of adding `Age` headers.
+  - @web-widget/helpers@1.10.31
+  - @web-widget/schema@1.10.31
+
 ## 1.10.30
 
 ### Patch Changes
