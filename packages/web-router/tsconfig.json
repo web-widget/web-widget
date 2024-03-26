@@ -9,7 +9,8 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
-    "types": ["jest", "urlpattern-polyfill"]
+    "types": ["jest", "urlpattern-polyfill"],
+    "esModuleInterop": true,
   },
   "exclude": [".backup/**/*", "tsup.config.ts", "node_modules"],
   "include": ["src/**/*"]

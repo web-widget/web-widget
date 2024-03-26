@@ -232,8 +232,7 @@ export function createRouteContext(
           onFallback,
           dev
         );
-        // TODO: Deep merging
-        context.renderOptions ??= Object.assign({}, defaultRenderOptions);
+        context.renderOptions ??= structuredClone(defaultRenderOptions);
       }
     }
 
@@ -281,8 +280,7 @@ export function createFallbackHandler(
       onFallback,
       dev
     );
-    // TODO: Deep merging
-    context.renderOptions = Object.assign({}, defaultRenderOptions);
+    context.renderOptions = structuredClone(defaultRenderOptions);
 
     return callAsyncContext(context, handler, [context as RouteHandlerContext]);
   };
