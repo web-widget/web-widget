@@ -1,5 +1,14 @@
 # @web-widget/web-router
 
+## 1.10.32
+
+### Patch Changes
+
+- 09f650a: Fix the problem that `defaultRenderOptions` will be overwritten.
+  - @web-widget/context@1.10.32
+  - @web-widget/helpers@1.10.32
+  - @web-widget/html@1.10.32
+
 ## 1.10.31
 
 ### Patch Changes
