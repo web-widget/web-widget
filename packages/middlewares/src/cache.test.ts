@@ -5,7 +5,7 @@ import conditional from './conditional-get';
 import cache, {
   CACHE_FIRST,
   CACHE_ONLY,
-  isRefreshable,
+  isStale,
   NETWORK_FIRST,
   NETWORK_ONLY,
   setCache,
@@ -27,7 +27,7 @@ const createStore = (): Store => {
       return store.get(key);
     },
     async set(key: string, value: CacheValue, maxAge?: number) {
-      store.set(key, value, { ttl: maxAge });
+      store.set(key, value, { ttl: maxAge ? maxAge * 1000 : undefined });
     },
   };
 };
@@ -143,8 +143,8 @@ describe('basic', () => {
     expect(await res.text()).toBe('lol');
   });
 
-  test('when setCachedHeader is true, serve from cache should set appropriate header', async () => {
-    const app = createApp(store, { setCachedHeader: true });
+  test('when setCachedResponseHeader is true, serve from cache should set appropriate header', async () => {
+    const app = createApp(store, { setCachedResponseHeader: true });
     const res = await app.request('http://localhost/');
 
     expect(res.status).toBe(200);
@@ -241,9 +241,7 @@ test('should pass the maxAge through config.cache.maxAge', async () => {
       },
       async set(key, value, maxAge) {
         set = true;
-        if (key === 'http://localhost/') {
-          expect(maxAge).toBe(300);
-        }
+        expect(maxAge).toBe(3);
         store.set(key, value, maxAge);
       },
     },
@@ -253,7 +251,7 @@ test('should pass the maxAge through config.cache.maxAge', async () => {
         module: {
           config: {
             cache: {
-              maxAge: 300,
+              maxAge: 3,
             },
           },
           handler: async () => {
@@ -270,7 +268,7 @@ test('should pass the maxAge through config.cache.maxAge', async () => {
   expect(res.status).toBe(200);
   expect(cached?.body).toBe('lol');
   expect(
-    await isRefreshable('http://localhost/', {
+    await isStale('http://localhost/', {
       ...store,
     })
   ).toBe(false);
@@ -440,64 +438,48 @@ test('when the response is fresh it should return a 304 and cache the response',
   expect(cached?.lastModified).toBe(new Date(date * 1000).toUTCString());
 });
 
-test('it should be possible to determine that the cache exceeds the update time', async () => {
+test('determine whether the content has expired', async () => {
   const store = createStore();
   await setCache('http://localhost/', new Response('lol'), {
-    maxAge: 16,
-    refresh: 2,
+    maxAge: 1,
+    sMaxAge: 1,
+    staleIfError: 0,
+    staleWhileRevalidate: 3,
+    status: { 200: true },
     ...store,
-    setCacheControlHeader: false,
   });
 
   expect(
-    await isRefreshable('http://localhost/', {
+    await isStale('http://localhost/', {
       ...store,
     })
   ).toBe(false);
 
-  await timeout(8);
+  await timeout(1000);
 
   expect(
-    await isRefreshable('http://localhost/', {
+    await isStale('http://localhost/', {
       ...store,
     })
   ).toBe(true);
 });
 
-test('if the cache expiration time is not set, the cache control header will not be added', async () => {
-  const store = createStore();
-  const app = createApp(store, { setCacheControlHeader: true });
-  const res = await app.request('http://localhost/');
-  const cached = await store.get('http://localhost/');
-
-  expect(res.status).toBe(200);
-  expect(res.headers.get('Cache-Control')).toBe(null);
-  expect(cached?.body).toBe('lol');
-});
-
-test('should be able to set the cache control header with a custom max-age', async () => {
-  const store = createStore();
-  const app = createApp(store, { setCacheControlHeader: true, maxAge: 1000 });
-  const res = await app.request('http://localhost/');
-  const cached = await store.get('http://localhost/');
-
-  expect(res.status).toBe(200);
-  expect(res.headers.get('Cache-Control')).toBe('max-age=1');
-  expect(cached?.body).toBe('lol');
-});
-
-test('cache control should prioritize refresh time', async () => {
+test('cache control should be added', async () => {
   const store = createStore();
   const app = createApp(store, {
     setCacheControlHeader: true,
-    maxAge: 2000,
-    refresh: 1000,
+    maxAge: 2,
+    sMaxAge: 3,
+    staleIfError: 4,
+    staleWhileRevalidate: 5,
   });
   const res = await app.request('http://localhost/');
   const cached = await store.get('http://localhost/');
 
   expect(res.status).toBe(200);
-  expect(res.headers.get('Cache-Control')).toBe('max-age=1');
+  expect(res.headers.get('Cache-Control')).toBe(
+    'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5'
+  );
   expect(cached?.body).toBe('lol');
 });
 
@@ -505,18 +487,20 @@ test('should be able to set the cache control header with a custom max-age and r
   const store = createStore();
   const app = createApp(store, {
     setCacheControlHeader: true,
-    maxAge: 3000,
-    refresh: 2000,
+    maxAge: 2,
+    staleWhileRevalidate: 1,
   });
   const res = await app.request('http://localhost/');
   const cached = await store.get('http://localhost/');
 
   expect(res.status).toBe(200);
-  expect(res.headers.get('Cache-Control')).toBe('max-age=2');
+  expect(res.headers.get('Cache-Control')).toBe(
+    'max-age=2, s-maxage=2, stale-if-error=0, stale-while-revalidate=1'
+  );
   expect(cached?.body).toBe('lol');
 
   expect(
-    await isRefreshable('http://localhost/', {
+    await isStale('http://localhost/', {
       ...store,
     })
   ).toBe(false);
@@ -525,7 +509,7 @@ test('should be able to set the cache control header with a custom max-age and r
   await timeout(1000);
 
   expect(
-    await isRefreshable('http://localhost/', {
+    await isStale('http://localhost/', {
       ...store,
     })
   ).toBe(false);
@@ -534,55 +518,68 @@ test('should be able to set the cache control header with a custom max-age and r
   await timeout(1000);
 
   expect(
-    await isRefreshable('http://localhost/', {
+    await isStale('http://localhost/', {
       ...store,
     })
   ).toBe(true);
   expect(cached?.body).toBe('lol');
 });
 
-test('`CacheControl` and `Age` headers should change based on cache age', async () => {
+test('`Age` should change based on cache time', async () => {
   const store = createStore();
   const app = createApp(store, {
     setCacheControlHeader: true,
-    setCachedHeader: true,
+    setCachedResponseHeader: true,
     backgroundRefresh: false,
-    maxAge: 4000,
-    refresh: 3000,
+    maxAge: 3,
+    sMaxAge: 2,
+    staleWhileRevalidate: 2,
   });
   let res = await app.request('http://localhost/');
   expect(res.headers.get('X-Cached-Response')).toBe(null);
-  expect(res.headers.get('Cache-Control')).toBe('max-age=3');
+  expect(res.headers.get('Cache-Control')).toBe(
+    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
+  );
   expect(res.headers.get('Age')).toBe(null);
 
   res = await app.request('http://localhost/');
   expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-  expect(res.headers.get('Cache-Control')).toBe('max-age=3');
+  expect(res.headers.get('Cache-Control')).toBe(
+    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
+  );
   expect(res.headers.get('Age')).toBe('0');
 
   await timeout(1000);
   res = await app.request('http://localhost/');
   expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-  expect(res.headers.get('Cache-Control')).toBe('max-age=2');
+  expect(res.headers.get('Cache-Control')).toBe(
+    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
+  );
   expect(res.headers.get('Age')).toBe('1');
 
-  await timeout(1000);
+  await timeout(999);
   res = await app.request('http://localhost/');
   expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-  expect(res.headers.get('Cache-Control')).toBe('max-age=1');
+  expect(res.headers.get('Cache-Control')).toBe(
+    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
+  );
   expect(res.headers.get('Age')).toBe('2');
 
   await timeout(1000);
   res = await app.request('http://localhost/');
   expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-  expect(res.headers.get('Cache-Control')).toBe(null);
-  expect(res.headers.get('Age')).toBe('3');
+  expect(res.headers.get('Cache-Control')).toBe(
+    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
+  );
+  expect(res.headers.get('Age')).toBe('1');
 
   await timeout(1000);
   res = await app.request('http://localhost/');
   expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-  expect(res.headers.get('Cache-Control')).toBe('max-age=2');
-  expect(res.headers.get('Age')).toBe('1');
+  expect(res.headers.get('Cache-Control')).toBe(
+    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
+  );
+  expect(res.headers.get('Age')).toBe('2');
 });
 
 describe('stale-while-revalidate', () => {
@@ -592,7 +589,9 @@ describe('stale-while-revalidate', () => {
     store,
     {
       strategies: () => STALE_WHILE_REVALIDATE,
-      setCachedHeader: true,
+      setCachedResponseHeader: true,
+      maxAge: 0,
+      staleWhileRevalidate: 10,
     },
     [
       {
@@ -650,15 +649,17 @@ describe('network-only', () => {
   test('network-only policy should be followed even if the cache is set', async () => {
     const store = createStore();
     const app = createApp(store, {
-      maxAge: 3000,
-      setCachedHeader: true,
+      maxAge: 3,
+      setCachedResponseHeader: true,
       strategies: () => NETWORK_ONLY,
     });
     await setCache('http://localhost/', new Response('cached'), {
-      maxAge: 1000,
-      refresh: 1000,
+      maxAge: 1,
+      sMaxAge: 1,
+      staleIfError: 0,
+      staleWhileRevalidate: 1,
+      status: { 200: true },
       ...store,
-      setCacheControlHeader: false,
     });
     const res = await app.request('http://localhost/');
     const cached = await store.get('http://localhost/');
@@ -674,15 +675,17 @@ describe('cache-only', () => {
   test('cache-only policy should be followed even if the network is available', async () => {
     const store = createStore();
     const app = createApp(store, {
-      maxAge: 3000,
-      setCachedHeader: true,
+      maxAge: 3,
+      setCachedResponseHeader: true,
       strategies: () => CACHE_ONLY,
     });
     await setCache('http://localhost/', new Response('cached'), {
-      maxAge: 1000,
-      refresh: 1000,
+      maxAge: 1,
+      sMaxAge: 1,
+      staleIfError: 0,
+      staleWhileRevalidate: 1,
+      status: { 200: true },
       ...store,
-      setCacheControlHeader: false,
     });
     const res = await app.request('http://localhost/');
     const cached = await store.get('http://localhost/');
@@ -699,13 +702,15 @@ describe('cache-first', () => {
     const store = createStore();
     const app = createApp(store, {
       strategies: () => CACHE_FIRST,
-      setCachedHeader: true,
+      setCachedResponseHeader: true,
     });
     await setCache('http://localhost/', new Response('cached'), {
-      maxAge: 1000,
-      refresh: 1000,
+      maxAge: 1,
+      sMaxAge: 1,
+      staleIfError: 0,
+      staleWhileRevalidate: 1,
+      status: { 200: true },
       ...store,
-      setCacheControlHeader: false,
     });
 
     expect((await store.get('http://localhost/'))?.body).toBe('cached');
@@ -723,7 +728,7 @@ describe('cache-first', () => {
     const store = createStore();
     const app = createApp(store, {
       strategies: () => CACHE_FIRST,
-      setCachedHeader: true,
+      setCachedResponseHeader: true,
     });
 
     expect(await store.get('http://localhost/')).toBeUndefined();
@@ -739,7 +744,7 @@ describe('cache-first', () => {
     const store = createStore();
     const app = createApp(store, {
       strategies: () => CACHE_FIRST,
-      setCachedHeader: true,
+      setCachedResponseHeader: true,
     });
 
     expect(await store.get('http://localhost/')).toBeUndefined();
@@ -758,13 +763,15 @@ describe('network-first', () => {
     const store = createStore();
     const app = createApp(store, {
       strategies: () => NETWORK_FIRST,
-      setCachedHeader: true,
+      setCachedResponseHeader: true,
     });
     await setCache('http://localhost/', new Response('cached'), {
-      maxAge: 1000,
-      refresh: 1000,
+      maxAge: 1,
+      sMaxAge: 1,
+      staleIfError: 0,
+      staleWhileRevalidate: 1,
+      status: { 200: true },
       ...store,
-      setCacheControlHeader: false,
     });
     expect((await store.get('http://localhost/'))?.body).toBe('cached');
 
@@ -783,7 +790,7 @@ describe('network-first', () => {
       store,
       {
         strategies: () => NETWORK_FIRST,
-        setCachedHeader: true,
+        setCachedResponseHeader: true,
       },
       [
         {
@@ -798,10 +805,12 @@ describe('network-first', () => {
       ]
     );
     await setCache('http://localhost/', new Response('lol'), {
-      maxAge: 1000,
-      refresh: 1000,
+      maxAge: 1,
+      sMaxAge: 1,
+      staleIfError: 0,
+      staleWhileRevalidate: 1,
+      status: { 200: true },
       ...store,
-      setCacheControlHeader: false,
     });
     const res = await app.request('http://localhost/');
 
