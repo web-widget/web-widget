@@ -11,30 +11,53 @@ declare module '@web-widget/schema' {
 }
 
 export interface CacheOptions {
-  /** The maximum age of the cache in milliseconds. This value is 0 by default. */
+  /**
+   * maxAge:
+   * The `max-age=N` response directive indicates that the response
+   * remains fresh until N seconds after the response is generated.
+   */
   maxAge?: number;
 
   /**
-   * The time in milliseconds to refresh the cache.
-   * This value should not be greater than `maxAge`.
-   * If a truthy value is passed, then the cache will be refreshed after the specified time.
+   * sMaxAge:
+   * The `s-maxage` response directive indicates how long the response
+   * remains fresh in a shared cache. The s-maxage directive is ignored
+   * by private caches, and overrides the value specified by the max-age
+   * directive or the Expires header for shared caches, if they are present.
    */
-  refresh?: number;
+  sMaxAge?: number;
 
   /**
+   * staleIfError:
+   * The `stale-if-error` response directive indicates that the cache can
+   * reuse a stale response when an upstream server generates an error,
+   * or when the error is generated locally. Here, an error is considered
+   * any response with a status code of 500, 502, 503, or 504.
+   */
+  staleIfError?: number;
+
+  /**
+   * staleWhileRevalidate:
+   * The `stale-while-revalidate` response directive indicates that the cache
+   * could reuse a stale response while it revalidates it to a cache.
+   */
+  staleWhileRevalidate?: number;
+
+  /**
+   * WARN: This option is only used for unit testing.
    * If a truthy value is passed, then the cache will be refreshed in the background.
    * This value defaults to true.
    */
   backgroundRefresh?: boolean;
 
   /**
-   * If a truthy value is passed, the "X-Cached-Response" and "Age" headers are set.
+   * If a truthy value is passed, the "X-Cached-Response" header is set.
    * This value defaults to false.
    */
-  setCachedHeader?: boolean;
+  setCachedResponseHeader?: boolean;
 
   /**
-   * If a truthy value is passed, then the "Cache-Control" header is set.
+   * If a truthy value is passed, then the "Cache-Control" ans "Age" header are set.
    * This value defaults to false.
    */
   setCacheControlHeader?: boolean;
@@ -45,6 +68,11 @@ export interface CacheOptions {
    * Eg: `{ POST: true }`
    */
   methods?: Record<string, boolean>;
+
+  /**
+   * Status codes that allow caching of responses.
+   */
+  status?: Record<number, boolean>;
 
   /**
    * A hashing function. By default, it's:
@@ -60,7 +88,7 @@ export interface CacheOptions {
 
   /**
    * Get a value from a store. Must return a Promise, which returns the cache's value, if any.
-   * Note that all the maxAge stuff must be handled by you. This module makes no opinion about it.
+   * Note that all maxAge stuff must be handled by you, it is in seconds. This module does not express any opinion on this.
    */
   get: (key: string, maxAge?: number) => Promise<any>;
 
@@ -84,28 +112,52 @@ export const NETWORK_ONLY: Strategies = 'network-only';
 export const CACHE_ONLY: Strategies = 'cache-only';
 
 const DEFAULT_STRATEGIES: Strategies = STALE_WHILE_REVALIDATE;
-const REFRESH_KEY = ':refresh';
-const CREATION_KEY = ':creation';
 const DEFAULT_METHODS: Record<string, boolean> = {
   HEAD: true,
   GET: true,
 };
 
+// fastly: 200, 203, 300, 301, 302, 404, or 410
+// fastly: https://www.fastly.com/documentation/guides/concepts/edge-state/cache/cache-freshness/
+//
+// cloudflare: 200, 206, 301, 302, 303, 404, or 410
+// cloudflare: https://developers.cloudflare.com/cache/how-to/configure-cache-status-code/#edge-ttl
+const DEFAULT_STATUS: Record<number, boolean> = {
+  200: true,
+  206: true,
+  301: true,
+  302: true,
+  303: true,
+  404: true,
+  410: true,
+};
+
 export type CacheValue = {
   body: string | null;
   contentType: string | null;
-  lastModified: string | null;
   etag: string | null;
+  lastModified: string | null;
+
+  creationTime: number;
+  maxAge?: number;
+  sMaxAge?: number;
+  staleIfError?: number;
+  staleWhileRevalidate?: number;
 };
 
-export async function isRefreshable(
+export async function isStale(
   key: string,
   { get }: Required<Pick<CacheOptions, 'get'>>
 ) {
-  const expire: number = await get(key + REFRESH_KEY);
+  const cacheValue: CacheValue | undefined = await get(key);
 
-  if (typeof expire === 'number') {
-    return expire < Date.now();
+  if (!cacheValue) {
+    return true;
+  }
+
+  const sMaxAge = cacheValue.sMaxAge ?? cacheValue.maxAge;
+  if (sMaxAge !== undefined) {
+    return cacheValue.creationTime + sMaxAge < Date.now();
   } else {
     return true;
   }
@@ -116,9 +168,12 @@ export async function getCache(
   {
     get,
     setCacheControlHeader,
-    setCachedHeader,
+    setCachedResponseHeader,
   }: Required<
-    Pick<CacheOptions, 'get' | 'setCacheControlHeader' | 'setCachedHeader'>
+    Pick<
+      CacheOptions,
+      'get' | 'setCacheControlHeader' | 'setCachedResponseHeader'
+    >
   >
 ) {
   const cacheValue: CacheValue | undefined = await get(key);
@@ -139,21 +194,43 @@ export async function getCache(
     cachedHeaders.set('ETag', cacheValue.etag);
   }
 
-  if (setCachedHeader) {
+  if (setCachedResponseHeader) {
     cachedHeaders.set('X-Cached-Response', 'HIT');
   }
 
   if (setCacheControlHeader) {
-    const creationTime = await get(key + CREATION_KEY);
     const now = Date.now();
-    const age = Math.round((now - creationTime) / 1000);
-    cachedHeaders.set('Age', String(age));
+    const {
+      creationTime,
+      maxAge,
+      sMaxAge,
+      staleIfError,
+      staleWhileRevalidate,
+    } = cacheValue;
 
-    const expiryTime = await get(key + REFRESH_KEY);
-    if (expiryTime) {
-      const maxAge = Math.round((expiryTime - now) / 1000);
-      cacheControl(cachedHeaders, `max-age=${maxAge}`);
+    cachedHeaders.set('Age', String(Math.round((now - creationTime) / 1000)));
+
+    const control: string[] = [];
+
+    if (maxAge !== undefined) {
+      control.push(`max-age=${Math.round(Math.max(0, maxAge / 1000))}`);
     }
+
+    if (sMaxAge !== undefined) {
+      control.push(`s-maxage=${Math.round(Math.max(0, sMaxAge / 1000))}`);
+    }
+
+    if (staleIfError !== undefined) {
+      control.push(`stale-if-error=${Math.round(staleIfError / 1000)}`);
+    }
+
+    if (staleWhileRevalidate !== undefined) {
+      control.push(
+        `stale-while-revalidate=${Math.round(staleWhileRevalidate / 1000)}`
+      );
+    }
+
+    cacheControl(cachedHeaders, control.join(', '));
   }
 
   const cachedResponse = new Response(cacheValue.body, {
@@ -170,34 +247,42 @@ export async function setCache(
   res: Response,
   {
     maxAge,
-    refresh,
     set,
-    setCacheControlHeader,
+    sMaxAge,
+    staleIfError,
+    staleWhileRevalidate,
+    status,
   }: Required<
-    Pick<CacheOptions, 'maxAge' | 'refresh' | 'set' | 'setCacheControlHeader'>
+    Pick<
+      CacheOptions,
+      | 'maxAge'
+      | 'set'
+      | 'sMaxAge'
+      | 'staleIfError'
+      | 'staleWhileRevalidate'
+      | 'status'
+    >
   >
 ) {
-  // only cache GET/HEAD 200s
-  if (res.status !== Status.OK) {
+  if (!status[res.status]) {
     return false;
   }
+
+  const creationTime = Date.now();
   const cacheValue: CacheValue = {
     body: await res.clone().text(),
     contentType: res.headers.get('Content-Type'),
     lastModified: res.headers.get('Last-Modified'),
     etag: res.headers.get('ETag'),
+
+    creationTime,
+    maxAge: maxAge * 1000,
+    sMaxAge: sMaxAge * 1000,
+    staleIfError: staleIfError * 1000,
+    staleWhileRevalidate: staleWhileRevalidate * 1000,
   };
 
-  await set(key, cacheValue, maxAge);
-  const now = Date.now();
-
-  if (refresh) {
-    await set(key + REFRESH_KEY, now + refresh, refresh);
-  }
-
-  if (setCacheControlHeader) {
-    await set(key + CREATION_KEY, now, maxAge);
-  }
+  await set(key, cacheValue, (sMaxAge ?? maxAge) + (staleWhileRevalidate ?? 0));
 
   return true;
 }
@@ -207,27 +292,56 @@ async function callNextAndSetCache(
   next: MiddlewareNext,
   {
     maxAge,
-    refresh,
     set,
     setCacheControlHeader,
+    sMaxAge,
+    staleIfError,
+    staleWhileRevalidate,
+    status,
   }: Required<
-    Pick<CacheOptions, 'maxAge' | 'refresh' | 'set' | 'setCacheControlHeader'>
+    Pick<
+      CacheOptions,
+      | 'maxAge'
+      | 'set'
+      | 'setCacheControlHeader'
+      | 'sMaxAge'
+      | 'staleIfError'
+      | 'staleWhileRevalidate'
+      | 'status'
+    >
   >
 ) {
   const res = await next();
 
   const ok = await setCache(key, res, {
     maxAge,
-    refresh,
     set,
-    setCacheControlHeader,
+    sMaxAge,
+    staleIfError,
+    staleWhileRevalidate,
+    status,
   });
 
-  if (ok && setCacheControlHeader && (refresh || maxAge)) {
-    cacheControl(
-      res.headers,
-      `max-age=${Math.round((refresh || maxAge) / 1000)}`
-    );
+  if (ok && setCacheControlHeader) {
+    const control: string[] = [];
+
+    if (maxAge !== undefined) {
+      control.push(`max-age=${maxAge}`);
+    }
+
+    if (sMaxAge !== undefined) {
+      control.push(`s-maxage=${sMaxAge}`);
+    }
+
+    if (staleIfError !== undefined) {
+      control.push(`stale-if-error=${staleIfError}`);
+    }
+
+    if (staleWhileRevalidate !== undefined) {
+      control.push(`stale-while-revalidate=${staleWhileRevalidate}`);
+    }
+
+    cacheControl(res.headers, control.join(', '));
   }
 
   return res;
@@ -244,9 +358,12 @@ export default function cache(options: CacheOptions) {
     backgroundRefresh: true,
     hash: (req: Request) => req.url,
     maxAge: 0,
+    staleWhileRevalidate: 0,
+    staleIfError: 0,
     methods: DEFAULT_METHODS,
+    status: DEFAULT_STATUS,
     setCacheControlHeader: false,
-    setCachedHeader: false,
+    setCachedResponseHeader: false,
     strategies: () => DEFAULT_STRATEGIES,
     ...options,
   };
@@ -260,7 +377,7 @@ export default function cache(options: CacheOptions) {
     const routeConfig: Partial<CacheOptions> =
       rawConfig === true ? {} : rawConfig;
     const resolveOptions = {
-      refresh: routeConfig.maxAge ?? defaultOptions.maxAge,
+      sMaxAge: routeConfig.maxAge ?? defaultOptions.maxAge,
       ...defaultOptions,
       ...routeConfig,
     };
@@ -277,7 +394,7 @@ export default function cache(options: CacheOptions) {
         const cache = await getCache(key, resolveOptions);
 
         if (cache) {
-          if (await isRefreshable(key, { get })) {
+          if (await isStale(key, { get })) {
             if (resolveOptions.backgroundRefresh) {
               // Update cache in the background
               // TODO: Use waitUntil
