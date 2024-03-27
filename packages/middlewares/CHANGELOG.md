@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 1.10.33
+
+### Patch Changes
+
+- 584571e: - `cache`: Add powerful cache control features.
+  - Use seconds as the unit, consistent with the HTTP specification.
+  - `setCachedHeader` renamed to `setCacheControlHeader`.
+  - The status codes that allow caching are changed to: 200, 206, 301, 302, 303, 404 and 410.
+  - @web-widget/helpers@1.10.33
+  - @web-widget/schema@1.10.33
+
 ## 1.10.32
 
 ### Patch Changes
