@@ -1,4 +1,3 @@
-// Based on the code in the MIT licensed `koa-cash` package.
 import type { MiddlewareNext } from '@web-widget/helpers';
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import { Status, STATUS_TEXT } from '@web-widget/helpers/status';
