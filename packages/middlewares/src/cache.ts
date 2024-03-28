@@ -63,22 +63,22 @@ export interface CacheOptions {
   setCacheControlHeader?: boolean;
 
   /**
-   * If an object is passed, then add extra HTTP method caching. This value is empty by default.
-   * But GET and HEAD are enabled.
-   * Eg: `{ POST: true }`
+   * If an object is passed, then add extra HTTP method caching.
+   * This value defaults to `[ 'GET', 'HEAD' ]`.
    */
-  methods?: Record<string, boolean>;
+  allowMethods?: string[];
 
   /**
    * Status codes that allow caching of responses.
+   * This value defaults to `[ 200, 206, 301, 302, 303, 404, 410 ]`.
    */
-  status?: Record<number, boolean>;
+  allowStatus?: number[];
 
   /**
    * A hashing function. By default, it's:
    * (req) => req.url
    */
-  hash?: (req: Request) => string;
+  key?: (req: Request) => string;
 
   /**
    * Strategies to use for caching. By default, it's:
@@ -112,25 +112,14 @@ export const NETWORK_ONLY: Strategies = 'network-only';
 export const CACHE_ONLY: Strategies = 'cache-only';
 
 const DEFAULT_STRATEGIES: Strategies = STALE_WHILE_REVALIDATE;
-const DEFAULT_METHODS: Record<string, boolean> = {
-  HEAD: true,
-  GET: true,
-};
+const DEFAULT_ALLOW_METHODS: string[] = ['GET', 'HEAD'];
 
 // fastly: 200, 203, 300, 301, 302, 404, or 410
 // fastly: https://www.fastly.com/documentation/guides/concepts/edge-state/cache/cache-freshness/
 //
 // cloudflare: 200, 206, 301, 302, 303, 404, or 410
 // cloudflare: https://developers.cloudflare.com/cache/how-to/configure-cache-status-code/#edge-ttl
-const DEFAULT_STATUS: Record<number, boolean> = {
-  200: true,
-  206: true,
-  301: true,
-  302: true,
-  303: true,
-  404: true,
-  410: true,
-};
+const DEFAULT_ALLOW_STATUS: number[] = [200, 206, 301, 302, 303, 404, 410];
 
 export type CacheValue = {
   body: string | null;
@@ -251,7 +240,7 @@ export async function setCache(
     sMaxAge,
     staleIfError,
     staleWhileRevalidate,
-    status,
+    allowStatus,
   }: Required<
     Pick<
       CacheOptions,
@@ -260,11 +249,11 @@ export async function setCache(
       | 'sMaxAge'
       | 'staleIfError'
       | 'staleWhileRevalidate'
-      | 'status'
+      | 'allowStatus'
     >
   >
 ) {
-  if (!status[res.status]) {
+  if (!allowStatus.includes(res.status)) {
     return false;
   }
 
@@ -297,7 +286,7 @@ async function callNextAndSetCache(
     sMaxAge,
     staleIfError,
     staleWhileRevalidate,
-    status,
+    allowStatus,
   }: Required<
     Pick<
       CacheOptions,
@@ -307,7 +296,7 @@ async function callNextAndSetCache(
       | 'sMaxAge'
       | 'staleIfError'
       | 'staleWhileRevalidate'
-      | 'status'
+      | 'allowStatus'
     >
   >
 ) {
@@ -319,7 +308,7 @@ async function callNextAndSetCache(
     sMaxAge,
     staleIfError,
     staleWhileRevalidate,
-    status,
+    allowStatus,
   });
 
   if (ok && setCacheControlHeader) {
@@ -356,12 +345,12 @@ export default function cache(options: CacheOptions) {
 
   const defaultOptions = {
     backgroundRefresh: true,
-    hash: (req: Request) => req.url,
+    key: (req: Request) => req.url,
     maxAge: 0,
     staleWhileRevalidate: 0,
     staleIfError: 0,
-    methods: DEFAULT_METHODS,
-    status: DEFAULT_STATUS,
+    allowMethods: DEFAULT_ALLOW_METHODS,
+    allowStatus: DEFAULT_ALLOW_STATUS,
     setCacheControlHeader: false,
     setCachedResponseHeader: false,
     strategies: () => DEFAULT_STRATEGIES,
@@ -382,11 +371,11 @@ export default function cache(options: CacheOptions) {
       ...routeConfig,
     };
 
-    if (!resolveOptions.methods[ctx.request.method]) {
+    if (!resolveOptions.allowMethods.includes(ctx.request.method)) {
       return next();
     }
 
-    const key = resolveOptions.hash(ctx.request);
+    const key = resolveOptions.key(ctx.request);
     const strategiesName = resolveOptions.strategies(ctx.request);
 
     switch (strategiesName) {

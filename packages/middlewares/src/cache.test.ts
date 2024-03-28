@@ -164,7 +164,7 @@ describe('basic', () => {
   });
 
   test('when cached and the method is POST and POST is enabled it should serve from cache', async () => {
-    const app = createApp(store, { methods: { POST: true } });
+    const app = createApp(store, { allowMethods: ['POST'] });
     const res = await app.request('http://localhost/', {
       method: 'POST',
     });
@@ -445,7 +445,7 @@ test('determine whether the content has expired', async () => {
     sMaxAge: 1,
     staleIfError: 0,
     staleWhileRevalidate: 3,
-    status: { 200: true },
+    allowStatus: [200],
     ...store,
   });
 
@@ -658,7 +658,7 @@ describe('network-only', () => {
       sMaxAge: 1,
       staleIfError: 0,
       staleWhileRevalidate: 1,
-      status: { 200: true },
+      allowStatus: [200],
       ...store,
     });
     const res = await app.request('http://localhost/');
@@ -684,7 +684,7 @@ describe('cache-only', () => {
       sMaxAge: 1,
       staleIfError: 0,
       staleWhileRevalidate: 1,
-      status: { 200: true },
+      allowStatus: [200],
       ...store,
     });
     const res = await app.request('http://localhost/');
@@ -709,7 +709,7 @@ describe('cache-first', () => {
       sMaxAge: 1,
       staleIfError: 0,
       staleWhileRevalidate: 1,
-      status: { 200: true },
+      allowStatus: [200],
       ...store,
     });
 
@@ -770,7 +770,7 @@ describe('network-first', () => {
       sMaxAge: 1,
       staleIfError: 0,
       staleWhileRevalidate: 1,
-      status: { 200: true },
+      allowStatus: [200],
       ...store,
     });
     expect((await store.get('http://localhost/'))?.body).toBe('cached');
@@ -809,7 +809,7 @@ describe('network-first', () => {
       sMaxAge: 1,
       staleIfError: 0,
       staleWhileRevalidate: 1,
-      status: { 200: true },
+      allowStatus: [200],
       ...store,
     });
     const res = await app.request('http://localhost/');
