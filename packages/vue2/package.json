@@ -48,7 +48,7 @@
     "@web-widget/web-widget": "workspace:*",
     "tsup": "^8.0.1",
     "typescript": "latest",
-    "vite": "^5.0.12",
+    "vite": "^5.0.13",
     "vue-server-renderer": "^2.7.16",
     "vue": "^2.7.16"
   },
