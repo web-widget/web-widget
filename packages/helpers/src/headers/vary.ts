@@ -21,7 +21,7 @@ const FIELD_NAME_REGEXP = /^[!#$%&'*+\-.^\w`|~]+$/;
 /**
  * Append a field to a vary header.
  */
-export function append(header: string, field: string | string[]) {
+function append(header: string, field: string | string[]) {
   if (typeof header !== 'string') {
     throw new TypeError('header argument is required');
   }

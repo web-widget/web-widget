@@ -1,7 +1,12 @@
-import type { MiddlewareNext } from '@web-widget/helpers';
 import { defineMiddlewareHandler } from '@web-widget/helpers';
-import { Status, STATUS_TEXT } from '@web-widget/helpers/status';
-import { cacheControl } from '@web-widget/helpers/headers';
+import { sha1 } from '@web-widget/helpers/crypto';
+import {
+  cacheControl as setCacheControl,
+  vary as setVary,
+  deviceType as getDeviceType,
+} from '@web-widget/helpers/headers';
+import type { CachePolicyObject } from '@web-widget/http-cache-semantics';
+import CachePolicy from '@web-widget/http-cache-semantics';
 
 declare module '@web-widget/schema' {
   interface RouteConfig {
@@ -11,353 +16,127 @@ declare module '@web-widget/schema' {
 
 export interface CacheOptions {
   /**
-   * maxAge:
-   * The `max-age=N` response directive indicates that the response
-   * remains fresh until N seconds after the response is generated.
+   * Override HTTP `Cache-Control` header.
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
    */
-  maxAge?: number;
+  control?: (req: Request) => string;
 
   /**
-   * sMaxAge:
-   * The `s-maxage` response directive indicates how long the response
-   * remains fresh in a shared cache. The s-maxage directive is ignored
-   * by private caches, and overrides the value specified by the max-age
-   * directive or the Expires header for shared caches, if they are present.
+   * Override HTTP `Vary` header.
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
    */
-  sMaxAge?: number;
+  vary?: (req: Request) => string;
 
   /**
-   * staleIfError:
-   * The `stale-if-error` response directive indicates that the cache can
-   * reuse a stale response when an upstream server generates an error,
-   * or when the error is generated locally. Here, an error is considered
-   * any response with a status code of 500, 502, 503, or 504.
+   * A boolean value that specifies whether to ignore the query string
+   * in the URL. For example, if set to true the ?value=bar part of
+   * http://foo.com/?value=bar would be ignored when performing a match.
+   * It defaults to false.
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache/match#ignoresearch
    */
-  staleIfError?: number;
+  ignoreSearch?: boolean;
 
   /**
-   * staleWhileRevalidate:
-   * The `stale-while-revalidate` response directive indicates that the cache
-   * could reuse a stale response while it revalidates it to a cache.
+   * A boolean value that, when set to true, prevents matching operations
+   * from validating the Request http method (normally only GET and HEAD
+   * are allowed.) It defaults to false.
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache/match#ignoremethod
    */
-  staleWhileRevalidate?: number;
+  ignoreMethod?: boolean;
 
   /**
-   * WARN: This option is only used for unit testing.
-   * If a truthy value is passed, then the cache will be refreshed in the background.
-   * This value defaults to true.
+   * A boolean value that when set to true tells the matching operation
+   * not to perform VARY header matching — i.e. if the URL matches you
+   * will get a match regardless of whether the Response object has a
+   * VARY header. It defaults to false.
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache/match#ignorevary
    */
-  backgroundRefresh?: boolean;
+  ignoreVary?: boolean;
 
   /**
-   * If a truthy value is passed, the "X-Cached-Response" header is set.
-   * This value defaults to false.
+   * A boolean value that specifies whether to ignore the device type.
+   * It defaults to false.
+   *
+   * Cache middleware evaluates the User-Agent header in the HTTP request to
+   * identify the device type and identifies each device type with a case
+   * insensitive match to the regex below:
+   *
+   * - Mobile: `(?:phone|windows\s+phone|ipod|blackberry|(?:android|bb\d+|meego|silk|googlebot) .+? mobile|palm|windows\s+ce|opera\ mini|avantgo|mobilesafari|docomo|KAIOS)`
+   * - Tablet: `(?:ipad|playbook|(?:android|bb\d+|meego|silk)(?! .+? mobile))`
+   * - Desktop: Everything else not matched above.
    */
-  setCachedResponseHeader?: boolean;
+  ignoreDevice?: boolean;
 
   /**
-   * If a truthy value is passed, then the "Cache-Control" ans "Age" header are set.
-   * This value defaults to false.
+   * If `true`, then the response is evaluated from a perspective of a
+   * shared cache (i.e. `private` is not cacheable and `s-maxage` is respected).
+   * If `false`, then the response is evaluated from a perspective of a
+   * single-user cache (i.e. `private` is cacheable and `s-maxage` is ignored).
+   * `true` is recommended for HTTP clients.
    */
-  setCacheControlHeader?: boolean;
+  shared?: (req: Request) => boolean;
 
   /**
-   * If an object is passed, then add extra HTTP method caching.
-   * This value defaults to `[ 'GET', 'HEAD' ]`.
+   * Create custom cache keys.
    */
-  allowMethods?: string[];
+  key?: typeof getKey;
 
   /**
-   * Status codes that allow caching of responses.
-   * This value defaults to `[ 200, 206, 301, 302, 303, 404, 410 ]`.
+   * A method to get the device type from the User-Agent header.
    */
-  allowStatus?: number[];
+  deviceType?: typeof getDeviceType;
 
   /**
-   * A hashing function. By default, it's:
-   * (req) => req.url
+   * This is a method for unit testing.
+   *
+   * If the value is `true`, then the cache will be updated in the background
+   * after the response is sent.
+   *
+   * If the value is `false`, then the cache will be updated before the
+   * response is sent.
    */
-  key?: (req: Request) => string;
+  _backgroundUpdate?: boolean;
 
   /**
-   * Strategies to use for caching. By default, it's:
-   * (req) => 'stale-while-revalidate'
+   * A method to get a cache value by key.
    */
-  strategies?: (req: Request) => Strategies;
+  get: (key: string) => Promise<any>;
 
   /**
-   * Get a value from a store. Must return a Promise, which returns the cache's value, if any.
-   * Note that all maxAge stuff must be handled by you, it is in seconds. This module does not express any opinion on this.
+   * A method to set a cache value by key.
+   * If `ttl` is provided, then it's the time-to-live in milliseconds.
    */
-  get: (key: string, maxAge?: number) => Promise<any>;
-
-  /**
-   * Set a value to a store. Must return a Promise.
-   */
-  set: (key: string, value: any, maxAge?: number) => Promise<void>;
+  set: (key: string, value: any, ttl?: number) => Promise<void>;
 }
-
-type Strategies =
-  | 'stale-while-revalidate'
-  | 'cache-first'
-  | 'network-first'
-  | 'network-only'
-  | 'cache-only';
-
-export const STALE_WHILE_REVALIDATE: Strategies = 'stale-while-revalidate';
-export const CACHE_FIRST: Strategies = 'cache-first';
-export const NETWORK_FIRST: Strategies = 'network-first';
-export const NETWORK_ONLY: Strategies = 'network-only';
-export const CACHE_ONLY: Strategies = 'cache-only';
-
-const DEFAULT_STRATEGIES: Strategies = STALE_WHILE_REVALIDATE;
-const DEFAULT_ALLOW_METHODS: string[] = ['GET', 'HEAD'];
-
-// fastly: 200, 203, 300, 301, 302, 404, or 410
-// fastly: https://www.fastly.com/documentation/guides/concepts/edge-state/cache/cache-freshness/
-//
-// cloudflare: 200, 206, 301, 302, 303, 404, or 410
-// cloudflare: https://developers.cloudflare.com/cache/how-to/configure-cache-status-code/#edge-ttl
-const DEFAULT_ALLOW_STATUS: number[] = [200, 206, 301, 302, 303, 404, 410];
 
 export type CacheValue = {
-  body: string | null;
-  contentType: string | null;
-  etag: string | null;
-  lastModified: string | null;
-
-  creationTime: number;
-  maxAge?: number;
-  sMaxAge?: number;
-  staleIfError?: number;
-  staleWhileRevalidate?: number;
+  response: {
+    body: string;
+    status: number;
+    statusText: string;
+  };
+  policy: CachePolicyObject;
 };
 
-export async function isStale(
-  key: string,
-  { get }: Required<Pick<CacheOptions, 'get'>>
-) {
-  const cacheValue: CacheValue | undefined = await get(key);
-
-  if (!cacheValue) {
-    return true;
-  }
-
-  const sMaxAge = cacheValue.sMaxAge ?? cacheValue.maxAge;
-  if (sMaxAge !== undefined) {
-    return cacheValue.creationTime + sMaxAge < Date.now();
-  } else {
-    return true;
-  }
-}
-
-export async function getCache(
-  key: string,
-  {
-    get,
-    setCacheControlHeader,
-    setCachedResponseHeader,
-  }: Required<
-    Pick<
-      CacheOptions,
-      'get' | 'setCacheControlHeader' | 'setCachedResponseHeader'
-    >
-  >
-) {
-  const cacheValue: CacheValue | undefined = await get(key);
-
-  if (!cacheValue) {
-    return null;
-  }
-
-  const cachedHeaders = new Headers({
-    'Content-Type': cacheValue.contentType ?? '',
-  });
-
-  if (cacheValue.lastModified) {
-    cachedHeaders.set('Last-Modified', cacheValue.lastModified);
-  }
-
-  if (cacheValue.etag) {
-    cachedHeaders.set('ETag', cacheValue.etag);
-  }
-
-  if (setCachedResponseHeader) {
-    cachedHeaders.set('X-Cached-Response', 'HIT');
-  }
-
-  if (setCacheControlHeader) {
-    const now = Date.now();
-    const {
-      creationTime,
-      maxAge,
-      sMaxAge,
-      staleIfError,
-      staleWhileRevalidate,
-    } = cacheValue;
-
-    cachedHeaders.set('Age', String(Math.round((now - creationTime) / 1000)));
-
-    const control: string[] = [];
-
-    if (maxAge !== undefined) {
-      control.push(`max-age=${Math.round(Math.max(0, maxAge / 1000))}`);
-    }
-
-    if (sMaxAge !== undefined) {
-      control.push(`s-maxage=${Math.round(Math.max(0, sMaxAge / 1000))}`);
-    }
-
-    if (staleIfError !== undefined) {
-      control.push(`stale-if-error=${Math.round(staleIfError / 1000)}`);
-    }
-
-    if (staleWhileRevalidate !== undefined) {
-      control.push(
-        `stale-while-revalidate=${Math.round(staleWhileRevalidate / 1000)}`
-      );
-    }
-
-    cacheControl(cachedHeaders, control.join(', '));
-  }
-
-  const cachedResponse = new Response(cacheValue.body, {
-    status: Status.OK,
-    statusText: STATUS_TEXT[Status.OK],
-    headers: cachedHeaders,
-  });
-
-  return cachedResponse;
-}
-
-export async function setCache(
-  key: string,
-  res: Response,
-  {
-    maxAge,
-    set,
-    sMaxAge,
-    staleIfError,
-    staleWhileRevalidate,
-    allowStatus,
-  }: Required<
-    Pick<
-      CacheOptions,
-      | 'maxAge'
-      | 'set'
-      | 'sMaxAge'
-      | 'staleIfError'
-      | 'staleWhileRevalidate'
-      | 'allowStatus'
-    >
-  >
-) {
-  if (!allowStatus.includes(res.status)) {
-    return false;
-  }
-
-  const creationTime = Date.now();
-  const cacheValue: CacheValue = {
-    body: await res.clone().text(),
-    contentType: res.headers.get('Content-Type'),
-    lastModified: res.headers.get('Last-Modified'),
-    etag: res.headers.get('ETag'),
-
-    creationTime,
-    maxAge: maxAge * 1000,
-    sMaxAge: sMaxAge * 1000,
-    staleIfError: staleIfError * 1000,
-    staleWhileRevalidate: staleWhileRevalidate * 1000,
-  };
-
-  await set(key, cacheValue, (sMaxAge ?? maxAge) + (staleWhileRevalidate ?? 0));
-
-  return true;
-}
-
-async function callNextAndSetCache(
-  key: string,
-  next: MiddlewareNext,
-  {
-    maxAge,
-    set,
-    setCacheControlHeader,
-    sMaxAge,
-    staleIfError,
-    staleWhileRevalidate,
-    allowStatus,
-  }: Required<
-    Pick<
-      CacheOptions,
-      | 'maxAge'
-      | 'set'
-      | 'setCacheControlHeader'
-      | 'sMaxAge'
-      | 'staleIfError'
-      | 'staleWhileRevalidate'
-      | 'allowStatus'
-    >
-  >
-) {
-  const res = await next();
-
-  const ok = await setCache(key, res, {
-    maxAge,
-    set,
-    sMaxAge,
-    staleIfError,
-    staleWhileRevalidate,
-    allowStatus,
-  });
-
-  if (ok && setCacheControlHeader) {
-    const control: string[] = [];
-
-    if (maxAge !== undefined) {
-      control.push(`max-age=${maxAge}`);
-    }
-
-    if (sMaxAge !== undefined) {
-      control.push(`s-maxage=${sMaxAge}`);
-    }
-
-    if (staleIfError !== undefined) {
-      control.push(`stale-if-error=${staleIfError}`);
-    }
-
-    if (staleWhileRevalidate !== undefined) {
-      control.push(`stale-while-revalidate=${staleWhileRevalidate}`);
-    }
-
-    cacheControl(res.headers, control.join(', '));
-  }
-
-  return res;
-}
-
 export default function cache(options: CacheOptions) {
-  const { get } = options;
-  const { set } = options;
+  const { get, set } = options;
 
   if (!get) throw new Error('.get not defined');
   if (!set) throw new Error('.set not defined');
 
   const defaultOptions = {
-    backgroundRefresh: true,
-    key: (req: Request) => req.url,
-    maxAge: 0,
-    staleWhileRevalidate: 0,
-    staleIfError: 0,
-    allowMethods: DEFAULT_ALLOW_METHODS,
-    allowStatus: DEFAULT_ALLOW_STATUS,
-    setCacheControlHeader: false,
-    setCachedResponseHeader: false,
-    strategies: () => DEFAULT_STRATEGIES,
+    _backgroundUpdate: true,
+    ignoreMethod: false,
+    ignoreSearch: false,
+    ignoreVary: false,
+    key: getKey,
+    deviceType: getDeviceType,
+    shared: () => true,
     ...options,
   };
 
   return defineMiddlewareHandler(async function cacheMiddleware(ctx, next) {
-    if (!ctx.module || !ctx.module?.config?.cache) {
+    if (!ctx.module?.config?.cache) {
       return next();
     }
 
@@ -365,82 +144,281 @@ export default function cache(options: CacheOptions) {
     const routeConfig: Partial<CacheOptions> =
       rawConfig === true ? {} : rawConfig;
     const resolveOptions = {
-      sMaxAge: routeConfig.maxAge ?? defaultOptions.maxAge,
       ...defaultOptions,
       ...routeConfig,
     };
 
-    if (!resolveOptions.allowMethods.includes(ctx.request.method)) {
+    const req = ctx.request;
+    const control = resolveOptions.control
+      ? resolveOptions.control(req)
+      : undefined;
+
+    if (control?.includes('no-store')) {
       return next();
     }
 
-    const key = resolveOptions.key(ctx.request);
-    const strategiesName = resolveOptions.strategies(ctx.request);
+    // NOTE: Error: Failed to get the 'cache' property on 'Request': the property is not implemented.
+    // @see https://github.com/cloudflare/miniflare/blob/c2ed3afdc1fed9f78d5cb6c50edc793a9a43a850/packages/core/src/standards/http.ts#L532
+    // if (req.cache === 'no-store') {
+    //   return next();
+    // }
 
-    switch (strategiesName) {
-      case STALE_WHILE_REVALIDATE: {
-        const cache = await getCache(key, resolveOptions);
+    if (
+      req.method !== 'GET' &&
+      req.method !== 'HEAD' &&
+      !resolveOptions.ignoreMethod
+    ) {
+      return next();
+    }
 
-        if (cache) {
-          if (await isStale(key, { get })) {
-            if (resolveOptions.backgroundRefresh) {
-              // Update cache in the background
-              // TODO: Use waitUntil
-              callNextAndSetCache(key, next, resolveOptions).catch(() => {});
-            } else {
-              await callNextAndSetCache(key, next, resolveOptions);
-            }
-          }
+    const { ignoreSearch, ignoreMethod, ignoreVary, ignoreDevice } =
+      resolveOptions;
+    const vary = resolveOptions.vary ? resolveOptions.vary(req) : undefined;
+    const deviceType = ignoreDevice
+      ? undefined
+      : resolveOptions.deviceType(req.headers);
 
-          return cache;
-        }
+    const shared = resolveOptions.shared(req);
+    const key = await resolveOptions.key(req, {
+      vary,
+      deviceType,
+      ignoreSearch,
+      ignoreMethod,
+      ignoreVary,
+      ignoreDevice,
+    });
 
-        return callNextAndSetCache(key, next, resolveOptions);
+    if (!key) {
+      throw new Error('Cache key is not defined.');
+    }
+
+    const backgroundUpdate = resolveOptions._backgroundUpdate;
+    const getResponse = async (req: Request) => {
+      ctx.request = req;
+      const res = await next();
+
+      if (control) {
+        setCacheControl(res.headers, control);
       }
 
-      case NETWORK_ONLY: {
-        // TODO: networkTimeout
-        return next();
+      if (vary) {
+        setVary(res.headers, vary);
       }
 
-      case CACHE_ONLY: {
-        const cache = await getCache(key, resolveOptions);
-
-        if (!cache) {
-          throw new Error('No response.');
-        }
-
-        return cache;
+      if (!ignoreDevice) {
+        res.headers.set(
+          'X-Device-Type',
+          resolveOptions.deviceType(req.headers)
+        );
       }
 
-      case CACHE_FIRST: {
-        const cache = await getCache(key, resolveOptions);
+      return res;
+    };
 
-        if (cache) {
-          return cache;
-        }
+    let cache = await getCache(get, key);
+    if (cache) {
+      const policy = cache.policy;
+      let response = cache.response;
 
-        return callNextAndSetCache(key, next, resolveOptions);
-      }
-
-      case NETWORK_FIRST: {
-        try {
-          // TODO: networkTimeout
-          return await callNextAndSetCache(key, next, resolveOptions);
-        } catch (error) {
-          const cache = await getCache(key, resolveOptions);
-
-          if (cache) {
-            return cache;
+      if (!policy.satisfiesWithoutRevalidation(req)) {
+        // Cache does not satisfy request. Need to revalidate.
+        if (policy.useStaleWhileRevalidate()) {
+          // Well actually, in this case it's fine to return the stale response.
+          // But we'll update the cache in the background.
+          // TODO: Use waitUntil
+          if (backgroundUpdate) {
+            revalidate(getResponse, req, set, key, cache).then(() => {});
           } else {
-            throw error;
+            await revalidate(getResponse, req, set, key, cache);
           }
+        } else {
+          response = await revalidate(getResponse, req, set, key, cache);
         }
       }
 
-      default: {
-        throw new Error(`Not implemented: ${strategiesName}`);
+      return response;
+    }
+
+    const res = await getResponse(req);
+
+    await setCache(set, key, {
+      response: res,
+      policy: new CachePolicy(req, res, {
+        shared,
+      }),
+    });
+
+    return res;
+  });
+}
+
+async function getCache(
+  get: (key: string) => Promise<CacheValue | undefined>,
+  key: string
+) {
+  const cacheValue = await get(key);
+
+  if (cacheValue) {
+    const { body, status, statusText } = cacheValue.response;
+    const policy = CachePolicy.fromObject(cacheValue.policy);
+    const headers = policy.responseHeaders();
+
+    headers.set('X-Cached-Response', 'HIT');
+    const response = new Response(body, {
+      status,
+      statusText,
+      headers,
+    });
+    return {
+      response,
+      policy,
+    };
+  }
+
+  return cacheValue;
+}
+
+async function setCache(
+  set: (key: string, value: any, ttl?: number) => Promise<void>,
+  key: string,
+  value: {
+    response: Response;
+    policy: CachePolicy;
+  }
+) {
+  const ttl = value.policy.timeToLive();
+
+  if (value.response.status === 206) {
+    throw new TypeError(
+      'Cannot cache response to a range request (206 Partial Content).'
+    );
+  }
+
+  if (value.response.headers.get('Vary') === '*') {
+    throw new TypeError("Cannot cache response with 'Vary: *' header.");
+  }
+
+  if (value.policy.storable() && ttl > 0) {
+    const newCacheValue: CacheValue = {
+      policy: value.policy.toObject(),
+      response: {
+        body: await value.response.clone().text(),
+        status: value.response.status,
+        statusText: value.response.statusText,
+      },
+    };
+    await set(key, newCacheValue, ttl);
+    return true;
+  }
+  return false;
+}
+
+async function revalidate(
+  fetch: (request: Request) => Promise<Response>,
+  request: Request,
+  set: (key: string, value: any, ttl?: number) => Promise<void>,
+  key: string,
+  cache: {
+    response: Response;
+    policy: CachePolicy;
+  }
+): Promise<Response> {
+  const revalidationRequest = new Request(request, {
+    headers: cache.policy.revalidationHeaders(request),
+  });
+  let revalidationResponse: Response;
+
+  try {
+    revalidationResponse = await fetch(revalidationRequest);
+  } catch (error) {
+    if (cache.policy.useStaleIfError()) {
+      return cache.response;
+    } else {
+      throw error;
+    }
+  }
+
+  const { modified, policy: revalidatedPolicy } =
+    cache.policy.revalidatedPolicy(revalidationRequest, revalidationResponse);
+  const res = modified ? revalidationResponse : cache.response;
+
+  await setCache(set, key, {
+    response: res,
+    policy: revalidatedPolicy,
+  });
+
+  return new Response(res.body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers: revalidatedPolicy.responseHeaders(),
+  });
+}
+
+async function shortHash(data: Parameters<typeof sha1>[0]) {
+  return (await sha1(data))?.slice(0, 6);
+}
+
+/**
+ * Generate a cache key for a request.
+ */
+export async function getKey(
+  request: Request,
+  options?: {
+    vary?: string;
+    deviceType?: string;
+    ignoreSearch?: CacheOptions['ignoreSearch'];
+    ignoreMethod?: CacheOptions['ignoreMethod'];
+    ignoreVary?: CacheOptions['ignoreVary'];
+    ignoreDevice?: CacheOptions['ignoreDevice'];
+  }
+): Promise<string> {
+  const url = new URL(request.url);
+  let key = url.origin + url.pathname;
+
+  if (!options?.ignoreSearch) {
+    url.searchParams.sort();
+    key += url.search;
+  }
+
+  if (!options?.ignoreMethod) {
+    key += `:${request.method}`;
+    if (['POST', 'PATCH', 'PUT'].includes(request.method)) {
+      const contentType = request.headers.get('Content-Type')?.toLowerCase();
+
+      if (contentType?.includes('multipart/form-data')) {
+        const hash = await shortHash(
+          JSON.stringify(Array.from((await request.formData()).entries()))
+        );
+        key += `:${hash}`;
+      } else if (request.body) {
+        const hash = await shortHash(request.body);
+        key += `:${hash}`;
       }
     }
-  });
+  }
+
+  if (!options?.ignoreDevice && options?.deviceType) {
+    key += `:${options.deviceType}`;
+  }
+
+  if (!options?.ignoreVary && options?.vary) {
+    const headers = Object.fromEntries(request.headers.entries());
+    if (options?.vary === '*') {
+      key += `:${await sha1(JSON.stringify(headers))}`;
+    } else {
+      let varies: Record<string, string> = {};
+      for (const varyKey of options.vary
+        .split(',')
+        .map((v: string) => v.trim().toLowerCase())) {
+        if (headers[varyKey]) {
+          varies[varyKey] = headers[varyKey];
+        }
+      }
+      if (Object.keys(varies).length > 0) {
+        key += `:${await sha1(JSON.stringify(varies))}`;
+      }
+    }
+  }
+
+  return key;
 }
