@@ -18,7 +18,8 @@ const TABLET_REGEX =
  */
 export function deviceType(headers: Headers) {
   const userAgent = headers.get('User-Agent') || '';
-  if (MOBILE_REGEX.test(userAgent)) {
+  const isChMobile = headers.get('Sec-CH-UA-Mobile') === '?1';
+  if (isChMobile || MOBILE_REGEX.test(userAgent)) {
     return 'mobile';
   } else if (TABLET_REGEX.test(userAgent)) {
     return 'tablet';
