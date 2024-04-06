@@ -11,6 +11,9 @@ const TABLET_REGEX =
 
 /**
  * Determine the device type based on the User-Agent header.
+ * - Mobile: `(?:phone|windows\s+phone|ipod|blackberry|(?:android|bb\d+|meego|silk|googlebot) .+? mobile|palm|windows\s+ce|opera\ mini|avantgo|mobilesafari|docomo|KAIOS)`
+ * - Tablet: `(?:ipad|playbook|(?:android|bb\d+|meego|silk)(?! .+? mobile))`
+ * - Desktop: Everything else not matched above.
  * @see https://developers.cloudflare.com/cache/how-to/edge-browser-cache-ttl/create-page-rules/#cache-by-device-type-enterprise-only
  */
 export function deviceType(headers: Headers) {

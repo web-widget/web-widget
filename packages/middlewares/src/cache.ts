@@ -31,7 +31,7 @@ export interface CacheOptions {
    * A boolean value that specifies whether to ignore the query string
    * in the URL. For example, if set to true the ?value=bar part of
    * http://foo.com/?value=bar would be ignored when performing a match.
-   * It defaults to false.
+   * It defaults to `false`.
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache/match#ignoresearch
    */
   ignoreSearch?: boolean;
@@ -39,7 +39,7 @@ export interface CacheOptions {
   /**
    * A boolean value that, when set to true, prevents matching operations
    * from validating the Request http method (normally only GET and HEAD
-   * are allowed.) It defaults to false.
+   * are allowed.) It defaults to `false`.
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache/match#ignoremethod
    */
   ignoreMethod?: boolean;
@@ -48,24 +48,16 @@ export interface CacheOptions {
    * A boolean value that when set to true tells the matching operation
    * not to perform VARY header matching — i.e. if the URL matches you
    * will get a match regardless of whether the Response object has a
-   * VARY header. It defaults to false.
+   * VARY header. It defaults to `false`.
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache/match#ignorevary
    */
   ignoreVary?: boolean;
 
   /**
    * A boolean value that specifies whether to ignore the device type.
-   * It defaults to false.
-   *
-   * Cache middleware evaluates the User-Agent header in the HTTP request to
-   * identify the device type and identifies each device type with a case
-   * insensitive match to the regex below:
-   *
-   * - Mobile: `(?:phone|windows\s+phone|ipod|blackberry|(?:android|bb\d+|meego|silk|googlebot) .+? mobile|palm|windows\s+ce|opera\ mini|avantgo|mobilesafari|docomo|KAIOS)`
-   * - Tablet: `(?:ipad|playbook|(?:android|bb\d+|meego|silk)(?! .+? mobile))`
-   * - Desktop: Everything else not matched above.
+   * It defaults to `false`.
    */
-  ignoreDevice?: boolean;
+  ignoreDeviceType?: boolean;
 
   /**
    * If `true`, then the response is evaluated from a perspective of a
@@ -171,10 +163,10 @@ export default function cache(options: CacheOptions) {
       return next();
     }
 
-    const { ignoreSearch, ignoreMethod, ignoreVary, ignoreDevice } =
+    const { ignoreSearch, ignoreMethod, ignoreVary, ignoreDeviceType } =
       resolveOptions;
     const vary = resolveOptions.vary ? resolveOptions.vary(req) : undefined;
-    const deviceType = ignoreDevice
+    const deviceType = ignoreDeviceType
       ? undefined
       : resolveOptions.deviceType(req.headers);
 
@@ -185,7 +177,7 @@ export default function cache(options: CacheOptions) {
       ignoreSearch,
       ignoreMethod,
       ignoreVary,
-      ignoreDevice,
+      ignoreDeviceType,
     });
 
     if (!key) {
@@ -205,7 +197,7 @@ export default function cache(options: CacheOptions) {
         setVary(res.headers, vary);
       }
 
-      if (!ignoreDevice) {
+      if (!ignoreDeviceType) {
         res.headers.set(
           'X-Device-Type',
           resolveOptions.deviceType(req.headers)
@@ -364,12 +356,14 @@ async function shortHash(data: Parameters<typeof sha1>[0]) {
 export async function getKey(
   request: Request,
   options?: {
+    /** @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary */
     vary?: string;
+    /** @see https://developers.cloudflare.com/cache/how-to/edge-browser-cache-ttl/create-page-rules/#cache-by-device-type-enterprise-only */
     deviceType?: string;
     ignoreSearch?: CacheOptions['ignoreSearch'];
     ignoreMethod?: CacheOptions['ignoreMethod'];
     ignoreVary?: CacheOptions['ignoreVary'];
-    ignoreDevice?: CacheOptions['ignoreDevice'];
+    ignoreDeviceType?: CacheOptions['ignoreDeviceType'];
   }
 ): Promise<string> {
   const url = new URL(request.url);
@@ -397,7 +391,7 @@ export async function getKey(
     }
   }
 
-  if (!options?.ignoreDevice && options?.deviceType) {
+  if (!options?.ignoreDeviceType && options?.deviceType) {
     key += `:${options.deviceType}`;
   }
 
