@@ -32,7 +32,7 @@ type KeyRules = {
   [key: string]: FilterOptions | boolean | undefined;
 };
 
-type KeyPartDefiners = {
+type PartDefiners = {
   [key: string]: PartDefiner | undefined;
 };
 
@@ -50,13 +50,6 @@ export type CacheOptions = {
   vary?: (req: Request) => string;
 
   /**
-   * Create custom cache keys.
-   */
-  keyRules?: KeyRules;
-
-  keyPartDefiners?: KeyPartDefiners;
-
-  /**
    * If `true`, then the response is evaluated from a perspective of a
    * shared cache (i.e. `private` is not cacheable and `s-maxage` is respected).
    * If `false`, then the response is evaluated from a perspective of a
@@ -67,8 +60,21 @@ export type CacheOptions = {
 
   /**
    * Create custom cache keys.
+   * @default
+   * ```json
+   * {
+   *   method: {
+   *     include: ['GET', 'HEAD'],
+   *   },
+   *   pathname: true,
+   *   host: true,
+   *   search: true
+   * }
+   * ```
    */
-  key?: typeof getKey;
+  key?: KeyRules | ((req: Request) => Promise<string>);
+
+  partDefiners?: PartDefiners;
 
   /**
    * This is a method for unit testing.
@@ -103,8 +109,7 @@ export type CacheValue = {
 };
 
 const DEFAULT_OPTIONS = Object.freeze({
-  key: getKey,
-  keyRules: Object.freeze({
+  key: Object.freeze({
     method: Object.freeze({
       include: ['GET', 'HEAD'],
     }),
@@ -125,7 +130,7 @@ export default function cache(options: CacheOptions) {
 
   const defaultOptions = {
     _backgroundUpdate: true,
-    keyPartDefiners: {},
+    partDefiners: {},
     ...DEFAULT_OPTIONS,
     ...options,
   };
@@ -154,11 +159,11 @@ export default function cache(options: CacheOptions) {
 
     const { shared } = resolveOptions;
     const vary = resolveOptions.vary ? resolveOptions.vary(req) : undefined;
-    const key = await resolveOptions.key(
-      req,
-      resolveOptions.keyRules,
-      resolveOptions.keyPartDefiners
-    );
+    const createKey =
+      typeof resolveOptions.key === 'function'
+        ? resolveOptions.key
+        : createKeyDefiner(resolveOptions.key, resolveOptions.partDefiners);
+    const key = await createKey(req);
 
     if (!key) {
       throw new Error('Cache key is not defined.');
@@ -323,45 +328,41 @@ async function shortHash(data: Parameters<typeof sha1>[0]) {
   return (await sha1(data))?.slice(0, 6);
 }
 
-/**
- * Generate a cache key for a request.
- */
-async function getKey(
-  request: Request,
-  keyRules: KeyRules,
-  keyPartDefiners: KeyPartDefiners
-): Promise<string> {
+function createKeyDefiner(keyRules: KeyRules, partDefiners: PartDefiners) {
   const excludeAll: FilterOptions = {
     exclude: ['*'],
   };
   const includeAll = undefined;
-  const url = new URL(request.url);
   const toOptions = (options: any) =>
     typeof options === 'object' ? options : options ? includeAll : excludeAll;
 
-  const keys: string[] = await Promise.all(
-    Object.keys(keyRules)
-      .sort()
-      .map((name) => {
-        const urlPartDefiner = BUILT_IN_URL_PART_DEFINERS[name];
-        if (urlPartDefiner) {
-          return urlPartDefiner(url, toOptions(keyRules[name]));
-        }
+  return async function keyDefiner(request: Request): Promise<string> {
+    const url = new URL(request.url);
 
-        const expandedPartDefiners =
-          BUILT_IN_EXPANDED_PART_DEFINERS[name] ?? keyPartDefiners[name];
+    const keys: string[] = await Promise.all(
+      Object.keys(keyRules)
+        .sort()
+        .map((name) => {
+          const urlPartDefiner = BUILT_IN_URL_PART_DEFINERS[name];
+          if (urlPartDefiner) {
+            return urlPartDefiner(url, toOptions(keyRules[name]));
+          }
 
-        if (expandedPartDefiners) {
-          return expandedPartDefiners(request, toOptions(keyRules[name]));
-        }
+          const expandedPartDefiners =
+            BUILT_IN_EXPANDED_PART_DEFINERS[name] ?? partDefiners[name];
 
-        throw TypeError(
-          `Unknown key rule: ${name}. Please add handler in options.keyPartDefiners.`
-        );
-      })
-  );
+          if (expandedPartDefiners) {
+            return expandedPartDefiners(request, toOptions(keyRules[name]));
+          }
 
-  return keys.join('');
+          throw TypeError(
+            `Unknown key rule: ${name}. Please add handler in options.partDefiners.`
+          );
+        })
+    );
+
+    return keys.join('');
+  };
 }
 
 function filter(
@@ -482,7 +483,7 @@ const BUILT_IN_URL_PART_DEFINERS: {
   search,
 };
 
-const BUILT_IN_EXPANDED_PART_DEFINERS: KeyPartDefiners = {
+const BUILT_IN_EXPANDED_PART_DEFINERS: PartDefiners = {
   cookie,
   device,
   header,
