@@ -1,5 +1,5 @@
 import type { Accept, acceptsConfig, acceptsOptions } from './accepts';
-import { parseAccept, defaultMatch, accepts } from './accepts';
+import { parseAccept, defaultMatchAccept, matchAccepts } from './accepts';
 
 describe('parseAccept', () => {
   test('should parse accept header', () => {
@@ -7,42 +7,46 @@ describe('parseAccept', () => {
       'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8;level=1;foo=bar';
     const accepts = parseAccept(acceptHeader);
     expect(accepts).toEqual([
-      { type: 'text/html', params: {}, q: 1 },
-      { type: 'application/xhtml+xml', params: {}, q: 1 },
-      { type: 'application/xml', params: { q: '0.9' }, q: 0.9 },
-      { type: 'image/webp', params: {}, q: 1 },
-      { type: '*/*', params: { q: '0.8', level: '1', foo: 'bar' }, q: 0.8 },
+      { type: 'text/html', params: {}, quality: 1 },
+      { type: 'application/xhtml+xml', params: {}, quality: 1 },
+      { type: 'application/xml', params: { quality: '0.9' }, quality: 0.9 },
+      { type: 'image/webp', params: {}, quality: 1 },
+      {
+        type: '*/*',
+        params: { quality: '0.8', level: '1', foo: 'bar' },
+        quality: 0.8,
+      },
     ]);
   });
 });
 
-describe('defaultMatch', () => {
+describe('defaultMatchAccept', () => {
   test('should return default support', () => {
     const accepts: Accept[] = [
-      { type: 'text/html', params: {}, q: 1 },
-      { type: 'application/xhtml+xml', params: {}, q: 1 },
-      { type: 'application/xml', params: { q: '0.9' }, q: 0.9 },
-      { type: 'image/webp', params: {}, q: 1 },
-      { type: '*/*', params: { q: '0.8' }, q: 0.8 },
+      { type: 'text/html', params: {}, quality: 1 },
+      { type: 'application/xhtml+xml', params: {}, quality: 1 },
+      { type: 'application/xml', params: { quality: '0.9' }, quality: 0.9 },
+      { type: 'image/webp', params: {}, quality: 1 },
+      { type: '*/*', params: { quality: '0.8' }, quality: 0.8 },
     ];
     const config: acceptsConfig = {
       header: 'Accept',
       supports: ['text/html'],
       default: 'text/html',
     };
-    const result = defaultMatch(accepts, config);
+    const result = defaultMatchAccept(accepts, config);
     expect(result).toBe('text/html');
   });
 });
 
-describe('accepts', () => {
+describe('matchAccepts', () => {
   test('should return matched support', () => {
     const options: acceptsConfig = {
       header: 'Accept',
       supports: ['application/xml', 'text/html'],
       default: 'application/json',
     };
-    const result = accepts(
+    const result = matchAccepts(
       new Headers({
         Accept:
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -58,7 +62,7 @@ describe('accepts', () => {
       supports: ['application/json'],
       default: 'text/html',
     };
-    const result = accepts(
+    const result = matchAccepts(
       new Headers({
         Accept:
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -74,7 +78,7 @@ describe('accepts', () => {
       supports: ['application/json'],
       default: 'text/html',
     };
-    const result = accepts(new Headers(), options);
+    const result = matchAccepts(new Headers(), options);
     expect(result).toBe('text/html');
   });
 
@@ -83,7 +87,7 @@ describe('accepts', () => {
     const match = (accepts: Accept[], config: acceptsConfig) => {
       const { supports, default: defaultSupport } = config;
       const accept = accepts
-        .sort((a, b) => a.q - b.q)
+        .sort((a, b) => a.quality - b.quality)
         .find((accept) => supports.includes(accept.type));
       return accept ? accept.type : defaultSupport;
     };
@@ -93,7 +97,7 @@ describe('accepts', () => {
       default: 'application/json',
       match,
     };
-    const result = accepts(
+    const result = matchAccepts(
       new Headers({
         Accept:
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -107,7 +111,7 @@ describe('accepts', () => {
 describe('Usage', () => {
   test('decide compression by Accept-Encoding header', async () => {
     const app = async (req: Request) => {
-      const encoding = accepts(req.headers, {
+      const encoding = matchAccepts(req.headers, {
         header: 'Accept-Encoding',
         supports: ['gzip', 'deflate'],
         default: 'identity',
@@ -155,7 +159,7 @@ describe('Usage', () => {
     const SUPPORTED_LANGS = ['en', 'ja', 'zh'];
 
     const app = async (req: Request) => {
-      const lang = accepts(req.headers, {
+      const lang = matchAccepts(req.headers, {
         header: 'Accept-Language',
         supports: SUPPORTED_LANGS,
         default: 'en',

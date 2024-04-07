@@ -4,6 +4,7 @@ import {
   cacheControl as setCacheControl,
   vary as setVary,
   deviceType as getDeviceType,
+  RequestCookies,
 } from '@web-widget/helpers/headers';
 import type { CachePolicyObject } from '@web-widget/http-cache-semantics';
 import CachePolicy from '@web-widget/http-cache-semantics';
@@ -14,7 +15,28 @@ declare module '@web-widget/schema' {
   }
 }
 
-export interface CacheOptions {
+type FilterOptions = {
+  include?: string[];
+  exclude?: string[];
+};
+
+type PartDefiner = (req: Request, options?: FilterOptions) => Promise<string>;
+
+type KeyRules = {
+  cookie?: FilterOptions | boolean | undefined;
+  device?: FilterOptions | boolean | undefined;
+  header?: FilterOptions | boolean | undefined;
+  host?: FilterOptions | boolean | undefined;
+  method?: FilterOptions | boolean | undefined;
+  search?: FilterOptions | boolean | undefined;
+  [key: string]: FilterOptions | boolean | undefined;
+};
+
+type KeyPartDefiners = {
+  [key: string]: PartDefiner | undefined;
+};
+
+export type CacheOptions = {
   /**
    * Override HTTP `Cache-Control` header.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
@@ -28,36 +50,11 @@ export interface CacheOptions {
   vary?: (req: Request) => string;
 
   /**
-   * A boolean value that specifies whether to ignore the query string
-   * in the URL. For example, if set to true the ?value=bar part of
-   * http://foo.com/?value=bar would be ignored when performing a match.
-   * It defaults to `false`.
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache/match#ignoresearch
+   * Create custom cache keys.
    */
-  ignoreSearch?: boolean;
+  keyRules?: KeyRules;
 
-  /**
-   * A boolean value that, when set to true, prevents matching operations
-   * from validating the Request http method (normally only GET and HEAD
-   * are allowed.) It defaults to `false`.
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache/match#ignoremethod
-   */
-  ignoreMethod?: boolean;
-
-  /**
-   * A boolean value that when set to true tells the matching operation
-   * not to perform VARY header matching — i.e. if the URL matches you
-   * will get a match regardless of whether the Response object has a
-   * VARY header. It defaults to `false`.
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Cache/match#ignorevary
-   */
-  ignoreVary?: boolean;
-
-  /**
-   * A boolean value that specifies whether to ignore the device type.
-   * It defaults to `false`.
-   */
-  ignoreDeviceType?: boolean;
+  keyPartDefiners?: KeyPartDefiners;
 
   /**
    * If `true`, then the response is evaluated from a perspective of a
@@ -66,17 +63,12 @@ export interface CacheOptions {
    * single-user cache (i.e. `private` is cacheable and `s-maxage` is ignored).
    * `true` is recommended for HTTP clients.
    */
-  shared?: (req: Request) => boolean;
+  shared?: boolean;
 
   /**
    * Create custom cache keys.
    */
   key?: typeof getKey;
-
-  /**
-   * A method to get the device type from the User-Agent header.
-   */
-  deviceType?: typeof getDeviceType;
 
   /**
    * This is a method for unit testing.
@@ -99,7 +91,7 @@ export interface CacheOptions {
    * If `ttl` is provided, then it's the time-to-live in milliseconds.
    */
   set: (key: string, value: any, ttl?: number) => Promise<void>;
-}
+};
 
 export type CacheValue = {
   response: {
@@ -110,6 +102,21 @@ export type CacheValue = {
   policy: CachePolicyObject;
 };
 
+const DEFAULT_OPTIONS = Object.freeze({
+  key: getKey,
+  keyRules: Object.freeze({
+    method: Object.freeze({
+      include: ['GET', 'HEAD'],
+    }),
+    pathname: true,
+    host: true,
+    search: true,
+  }),
+  shared: true,
+});
+
+export { DEFAULT_OPTIONS as defaultOptions };
+
 export default function cache(options: CacheOptions) {
   const { get, set } = options;
 
@@ -118,12 +125,8 @@ export default function cache(options: CacheOptions) {
 
   const defaultOptions = {
     _backgroundUpdate: true,
-    ignoreMethod: false,
-    ignoreSearch: false,
-    ignoreVary: false,
-    key: getKey,
-    deviceType: getDeviceType,
-    shared: () => true,
+    keyPartDefiners: {},
+    ...DEFAULT_OPTIONS,
     ...options,
   };
 
@@ -149,36 +152,13 @@ export default function cache(options: CacheOptions) {
       return next();
     }
 
-    // NOTE: Error: Failed to get the 'cache' property on 'Request': the property is not implemented.
-    // @see https://github.com/cloudflare/miniflare/blob/c2ed3afdc1fed9f78d5cb6c50edc793a9a43a850/packages/core/src/standards/http.ts#L532
-    // if (req.cache === 'no-store') {
-    //   return next();
-    // }
-
-    if (
-      req.method !== 'GET' &&
-      req.method !== 'HEAD' &&
-      !resolveOptions.ignoreMethod
-    ) {
-      return next();
-    }
-
-    const { ignoreSearch, ignoreMethod, ignoreVary, ignoreDeviceType } =
-      resolveOptions;
+    const { shared } = resolveOptions;
     const vary = resolveOptions.vary ? resolveOptions.vary(req) : undefined;
-    const deviceType = ignoreDeviceType
-      ? undefined
-      : resolveOptions.deviceType(req.headers);
-
-    const shared = resolveOptions.shared(req);
-    const key = await resolveOptions.key(req, {
-      vary,
-      deviceType,
-      ignoreSearch,
-      ignoreMethod,
-      ignoreVary,
-      ignoreDeviceType,
-    });
+    const key = await resolveOptions.key(
+      req,
+      resolveOptions.keyRules,
+      resolveOptions.keyPartDefiners
+    );
 
     if (!key) {
       throw new Error('Cache key is not defined.');
@@ -195,13 +175,6 @@ export default function cache(options: CacheOptions) {
 
       if (vary) {
         setVary(res.headers, vary);
-      }
-
-      if (!ignoreDeviceType) {
-        res.headers.set(
-          'X-Device-Type',
-          resolveOptions.deviceType(req.headers)
-        );
       }
 
       return res;
@@ -353,66 +326,165 @@ async function shortHash(data: Parameters<typeof sha1>[0]) {
 /**
  * Generate a cache key for a request.
  */
-export async function getKey(
+async function getKey(
   request: Request,
-  options?: {
-    /** @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary */
-    vary?: string;
-    /** @see https://developers.cloudflare.com/cache/how-to/edge-browser-cache-ttl/create-page-rules/#cache-by-device-type-enterprise-only */
-    deviceType?: string;
-    ignoreSearch?: CacheOptions['ignoreSearch'];
-    ignoreMethod?: CacheOptions['ignoreMethod'];
-    ignoreVary?: CacheOptions['ignoreVary'];
-    ignoreDeviceType?: CacheOptions['ignoreDeviceType'];
-  }
+  keyRules: KeyRules,
+  keyPartDefiners: KeyPartDefiners
 ): Promise<string> {
+  const excludeAll: FilterOptions = {
+    exclude: ['*'],
+  };
+  const includeAll = undefined;
   const url = new URL(request.url);
-  let key = url.origin + url.pathname;
+  const toOptions = (options: any) =>
+    typeof options === 'object' ? options : options ? includeAll : excludeAll;
 
-  if (!options?.ignoreSearch) {
-    url.searchParams.sort();
-    key += url.search;
-  }
-
-  if (!options?.ignoreMethod) {
-    key += `:${request.method}`;
-    if (['POST', 'PATCH', 'PUT'].includes(request.method)) {
-      const contentType = request.headers.get('Content-Type')?.toLowerCase();
-
-      if (contentType?.includes('multipart/form-data')) {
-        const hash = await shortHash(
-          JSON.stringify(Array.from((await request.formData()).entries()))
-        );
-        key += `:${hash}`;
-      } else if (request.body) {
-        const hash = await shortHash(request.body);
-        key += `:${hash}`;
-      }
-    }
-  }
-
-  if (!options?.ignoreDeviceType && options?.deviceType) {
-    key += `:${options.deviceType}`;
-  }
-
-  if (!options?.ignoreVary && options?.vary) {
-    const headers = Object.fromEntries(request.headers.entries());
-    if (options?.vary === '*') {
-      key += `:${await sha1(JSON.stringify(headers))}`;
-    } else {
-      let varies: Record<string, string> = {};
-      for (const varyKey of options.vary
-        .split(',')
-        .map((v: string) => v.trim().toLowerCase())) {
-        if (headers[varyKey]) {
-          varies[varyKey] = headers[varyKey];
+  const keys: string[] = await Promise.all(
+    Object.keys(keyRules)
+      .sort()
+      .map((name) => {
+        const urlPartDefiner = BUILT_IN_URL_PART_DEFINERS[name];
+        if (urlPartDefiner) {
+          return urlPartDefiner(url, toOptions(keyRules[name]));
         }
-      }
-      if (Object.keys(varies).length > 0) {
-        key += `:${await sha1(JSON.stringify(varies))}`;
-      }
+
+        const expandedPartDefiners =
+          BUILT_IN_EXPANDED_PART_DEFINERS[name] ?? keyPartDefiners[name];
+
+        if (expandedPartDefiners) {
+          return expandedPartDefiners(request, toOptions(keyRules[name]));
+        }
+
+        throw TypeError(
+          `Unknown key rule: ${name}. Please add handler in options.keyPartDefiners.`
+        );
+      })
+  );
+
+  return keys.join('');
+}
+
+function filter(
+  array: [key: string, value: string][],
+  options?: FilterOptions
+) {
+  let result = array;
+  const exclude = options?.exclude;
+  const include = options?.include;
+
+  if (exclude?.length) {
+    const excludeAll = exclude.includes('*');
+    if (excludeAll) {
+      return [];
+    }
+
+    result = result.filter(([key]) => !exclude.includes(key));
+  }
+
+  if (include?.length) {
+    const includeAll = include.includes('*');
+    if (!includeAll) {
+      result = result.filter(([key]) => include.includes(key));
     }
   }
 
-  return key;
+  return result;
 }
+
+function search(url: URL, options?: FilterOptions) {
+  const { searchParams } = url;
+  searchParams.sort();
+
+  if (!options) {
+    return searchParams.toString();
+  }
+
+  const entries = Array.from(searchParams.entries());
+  return filter(entries, options)
+    .map(([key, value]) => `${key}=${value}`)
+    .join('&');
+}
+
+function host(url: URL, options?: FilterOptions) {
+  const host = url.host;
+  return filter([[host, '']], options)
+    .map(([key]) => key)
+    .join('');
+}
+
+function pathname(url: URL, options?: FilterOptions) {
+  const pathname = url.pathname;
+  return filter([[pathname, '']], options)
+    .map(([key]) => key)
+    .join('');
+}
+
+async function method(request: Request, options?: FilterOptions) {
+  if (!options) {
+    return request.method;
+  }
+
+  const hasBody =
+    ['POST', 'PATCH', 'PUT'].includes(request.method) && request.body;
+  return (
+    await Promise.all(
+      filter([[request.method, '']], options).map(async ([key]) => {
+        if (hasBody) {
+          const hash = await shortHash(request.body);
+          return `${key}:${hash}`;
+        }
+        return key;
+      })
+    )
+  ).join('');
+}
+
+async function header(request: Request, options?: FilterOptions) {
+  const entries = Array.from(request.headers.entries());
+  return (
+    await Promise.all(
+      filter(entries, options).map(
+        async ([key, value]) =>
+          `${key}=${await shortHash(value.trim().toLowerCase())}`
+      )
+    )
+  ).join('&');
+}
+
+async function device(request: Request, options?: FilterOptions) {
+  const device = getDeviceType(request.headers);
+  return filter([[device, '']], options)
+    .map(([key]) => key)
+    .join('');
+}
+
+async function cookie(request: Request, options?: FilterOptions) {
+  const cookie = new RequestCookies(request.headers);
+  const entries: [string, string][] = cookie
+    .getAll()
+    .map(({ name, value }) => [name, value]);
+
+  return (
+    await Promise.all(
+      filter(entries, options).map(
+        async ([key, value]) =>
+          `${key}=${await shortHash(value.trim().toLowerCase())}`
+      )
+    )
+  ).join('&');
+}
+
+const BUILT_IN_URL_PART_DEFINERS: {
+  [key: string]: (url: URL, options: FilterOptions) => string;
+} = {
+  host,
+  pathname,
+  search,
+};
+
+const BUILT_IN_EXPANDED_PART_DEFINERS: KeyPartDefiners = {
+  cookie,
+  device,
+  header,
+  method,
+};
