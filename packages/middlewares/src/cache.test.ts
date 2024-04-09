@@ -43,9 +43,6 @@ const createApp = function (
         handler: async () => {
           return new Response('lol');
         },
-        config: {
-          cache: true,
-        },
       },
     },
   ]
@@ -278,7 +275,6 @@ test('when body is a string it should cache the response', async () => {
   const res = await app.request(req);
   const key = await defaultKeyGenerator(req);
   const cached = await store.get(key);
-  console.log('>>>>', key, cached);
 
   expect(res.status).toBe(200);
   expect(cached?.response.body).toBe('lol');
@@ -525,9 +521,6 @@ describe('stale-while-revalidate', () => {
           handler: async () => {
             return new Response(`Hello ${count++}`);
           },
-          config: {
-            cache: true,
-          },
         },
       },
     ]
@@ -583,7 +576,7 @@ describe('stale-while-revalidate', () => {
   });
 });
 
-describe('custom key', () => {
+describe('custom cache key', () => {
   test('base: host + pathname + search', async () => {
     const customKey = createKeyGenerator({
       host: true,

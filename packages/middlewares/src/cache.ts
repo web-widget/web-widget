@@ -21,8 +21,6 @@ type FilterOptions = {
   checkPresence?: string[];
 };
 
-type PartDefiner = (req: Request, options?: FilterOptions) => Promise<string>;
-
 type KeyRules = {
   /** Use cookie as part of cache key. */
   cookie?: FilterOptions | boolean | undefined;
@@ -36,12 +34,25 @@ type KeyRules = {
   method?: FilterOptions | boolean | undefined;
   /** Use search as part of cache key. */
   search?: FilterOptions | boolean | undefined;
+  /** Use vary as part of cache key. */
+  very?: FilterOptions | boolean | undefined;
   /** Use custom variables as part of cache key. */
   [customKey: string]: FilterOptions | boolean | undefined;
 };
 
+type PartDefiner = (req: Request, options?: FilterOptions) => Promise<string>;
+type BuiltInExpandedPartDefiner = (
+  req: Request,
+  options?: FilterOptions,
+  very?: string
+) => Promise<string>;
+
 type PartDefiners = {
   [customKey: string]: PartDefiner | undefined;
+};
+
+type BuiltInExpandedPartDefiners = {
+  [customKey: string]: BuiltInExpandedPartDefiner | undefined;
 };
 
 export type CacheOptions = {
@@ -73,6 +84,7 @@ export type CacheOptions = {
    *   pathname: true,
    *   host: true,
    *   search: true,
+   *   very: true,
    *   method: {
    *     include: ['GET', 'HEAD']
    *   }
@@ -123,6 +135,7 @@ const DEFAULT_OPTIONS = Object.freeze({
     pathname: true,
     host: true,
     search: true,
+    very: true,
     method: {
       include: ['GET', 'HEAD'],
     },
@@ -146,13 +159,13 @@ export default function cache(options: CacheOptions) {
   };
 
   return defineMiddlewareHandler(async function cacheMiddleware(ctx, next) {
-    if (!ctx.module?.config?.cache) {
+    const rawConfig = ctx?.module?.config?.cache;
+    if (rawConfig === false) {
       return next();
     }
 
-    const rawConfig = ctx.module.config.cache;
     const routeConfig: Partial<CacheOptions> =
-      rawConfig === true ? {} : rawConfig;
+      rawConfig === true ? {} : rawConfig ?? {};
     const resolveOptions = {
       ...defaultOptions,
       ...routeConfig,
@@ -172,7 +185,7 @@ export default function cache(options: CacheOptions) {
     const createKey =
       typeof resolveOptions.key === 'function'
         ? resolveOptions.key
-        : createKeyGenerator(resolveOptions.key, resolveOptions.parts);
+        : createKeyGenerator(resolveOptions.key, resolveOptions.parts, vary);
     const key = await createKey(req);
 
     if (!key) {
@@ -338,7 +351,11 @@ async function shortHash(data: Parameters<typeof sha1>[0]) {
   return (await sha1(data))?.slice(0, 6);
 }
 
-export function createKeyGenerator(keyRules: KeyRules, parts?: PartDefiners) {
+export function createKeyGenerator(
+  keyRules: KeyRules,
+  parts?: PartDefiners,
+  vary?: string
+) {
   const excludeAll: FilterOptions = {
     exclude: ['*'],
   };
@@ -366,7 +383,11 @@ export function createKeyGenerator(keyRules: KeyRules, parts?: PartDefiners) {
             BUILT_IN_EXPANDED_PART_DEFINERS[name] ?? parts?.[name];
 
           if (expandedPartDefiners) {
-            return expandedPartDefiners(request, toOptions(keyRules[name]));
+            return expandedPartDefiners(
+              request,
+              toOptions(keyRules[name]),
+              vary
+            );
           }
 
           throw TypeError(
@@ -456,6 +477,23 @@ async function method(request: Request, options?: FilterOptions) {
   ).join('');
 }
 
+async function very(request: Request, options?: FilterOptions, vary?: string) {
+  if (!vary) {
+    return '';
+  }
+  const include = vary.split(',').map((field) => field.trim());
+  const entries = Array.from(request.headers.entries()).filter(([key]) =>
+    include.includes(key)
+  );
+  return (
+    await Promise.all(
+      filter(entries, options).map(
+        async ([key, value]) => `${key}=${await shortHash(value)}`
+      )
+    )
+  ).join('&');
+}
+
 async function header(request: Request, options?: FilterOptions) {
   const entries = Array.from(request.headers.entries());
   return (
@@ -497,9 +535,10 @@ const BUILT_IN_URL_PART_DEFINERS: {
   search,
 };
 
-const BUILT_IN_EXPANDED_PART_DEFINERS: PartDefiners = {
+const BUILT_IN_EXPANDED_PART_DEFINERS: BuiltInExpandedPartDefiners = {
   cookie,
   device,
   header,
   method,
+  very,
 };
