@@ -582,3 +582,86 @@ describe('stale-while-revalidate', () => {
     expect(res.headers.get('X-Cached-Response')).toBe(null);
   });
 });
+
+describe('custom key', () => {
+  test('base: host + pathname + search', async () => {
+    const customKey = createKeyGenerator({
+      host: true,
+      pathname: true,
+      search: true,
+    });
+    const key = await customKey(new Request('http://localhost/?a=1'));
+    expect(key).toBe('localhost/?a=1');
+  });
+
+  test('should support built-in rules', async () => {
+    const customKey = createKeyGenerator({
+      host: true,
+      pathname: true,
+      search: true,
+      method: true,
+      device: true,
+      cookie: true,
+      header: true,
+    });
+    const key = await customKey(
+      new Request('http://localhost/?a=1', {
+        headers: { 'X-ID': 'abc' },
+      })
+    );
+    expect(key).toBe('localhost/?a=1#:desktop:x-id=a9993e:GET');
+  });
+
+  test('the query should be sorted', async () => {
+    const customKey = createKeyGenerator({
+      search: true,
+    });
+    const key = await customKey(new Request('http://localhost/?b=2&a=1'));
+    expect(key).toBe('?a=1&b=2');
+  });
+
+  test('header key should ignore case', async () => {
+    const customKey = createKeyGenerator({
+      header: true,
+    });
+    const key = await customKey(
+      new Request('http://localhost/', {
+        headers: {
+          Accept: 'application/json',
+          'X-ID': 'abc',
+        },
+      })
+    );
+    expect(key).toBe('#accept=ca9fd0&x-id=a9993e');
+  });
+
+  test('should support filtering', async () => {
+    const customKey = createKeyGenerator({
+      host: {
+        include: ['localhost'],
+      },
+      pathname: true,
+      search: { include: ['a'] },
+      header: { include: ['x-id'] },
+    });
+    const key = await customKey(
+      new Request('http://localhost/?a=1&b=2', {
+        headers: {
+          accept: 'application/json',
+          'x-id': 'abc',
+        },
+      })
+    );
+    expect(key).toBe('localhost/?a=1#x-id=a9993e');
+  });
+
+  test('should support presence or absence without including its actual value', async () => {
+    const customKey = createKeyGenerator({
+      host: true,
+      pathname: true,
+      search: { include: ['a', 'b'], checkPresence: ['a'] },
+    });
+    const key = await customKey(new Request('http://localhost/?a=1&b=2'));
+    expect(key).toBe('localhost/?a=&b=2');
+  });
+});

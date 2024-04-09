@@ -18,17 +18,25 @@ declare module '@web-widget/schema' {
 type FilterOptions = {
   include?: string[];
   exclude?: string[];
+  checkPresence?: string[];
 };
 
 type PartDefiner = (req: Request, options?: FilterOptions) => Promise<string>;
 
 type KeyRules = {
+  /** Use cookie as part of cache key. */
   cookie?: FilterOptions | boolean | undefined;
+  /** Use device type as part of cache key. */
   device?: FilterOptions | boolean | undefined;
+  /** Use header as part of cache key. */
   header?: FilterOptions | boolean | undefined;
+  /** Use host as part of cache key. */
   host?: FilterOptions | boolean | undefined;
+  /** Use method as part of cache key. */
   method?: FilterOptions | boolean | undefined;
+  /** Use search as part of cache key. */
   search?: FilterOptions | boolean | undefined;
+  /** Use custom variables as part of cache key. */
   [customKey: string]: FilterOptions | boolean | undefined;
 };
 
@@ -380,6 +388,7 @@ function filter(
   let result = array;
   const exclude = options?.exclude;
   const include = options?.include;
+  const checkPresence = options?.checkPresence;
 
   if (exclude?.length) {
     const excludeAll = exclude.includes('*');
@@ -397,6 +406,12 @@ function filter(
     }
   }
 
+  if (checkPresence?.length) {
+    result = result.map((item) =>
+      checkPresence.includes(item[0]) ? [item[0], ''] : item
+    );
+  }
+
   return result;
 }
 
@@ -404,14 +419,11 @@ function search(url: URL, options?: FilterOptions) {
   const { searchParams } = url;
   searchParams.sort();
 
-  if (!options) {
-    return searchParams.toString();
-  }
-
   const entries = Array.from(searchParams.entries());
-  return filter(entries, options)
+  const search = filter(entries, options)
     .map(([key, value]) => `${key}=${value}`)
     .join('&');
+  return search ? `?${search}` : '';
 }
 
 function host(url: URL, options?: FilterOptions) {
@@ -449,8 +461,7 @@ async function header(request: Request, options?: FilterOptions) {
   return (
     await Promise.all(
       filter(entries, options).map(
-        async ([key, value]) =>
-          `${key}=${await shortHash(value.trim().toLowerCase())}`
+        async ([key, value]) => `${key}=${await shortHash(value)}`
       )
     )
   ).join('&');
@@ -472,8 +483,7 @@ async function cookie(request: Request, options?: FilterOptions) {
   return (
     await Promise.all(
       filter(entries, options).map(
-        async ([key, value]) =>
-          `${key}=${await shortHash(value.trim().toLowerCase())}`
+        async ([key, value]) => `${key}=${await shortHash(value)}`
       )
     )
   ).join('&');
