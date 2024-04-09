@@ -256,7 +256,7 @@ async function getCache(
     const policy = CachePolicy.fromObject(cacheValue.policy);
     const headers = policy.responseHeaders();
 
-    headers.set('X-Cached-Response', 'HIT');
+    headers.set('x-cached-response', 'HIT');
     const response = new Response(body, {
       status,
       statusText,
@@ -494,13 +494,43 @@ async function very(request: Request, options?: FilterOptions, vary?: string) {
   ).join('&');
 }
 
+const CANNOT_INCLUDE_HEADERS = [
+  // Headers that have high cardinality and risk sharding the cache
+  'accept',
+  'accept-charset',
+  'accept-encoding',
+  'accept-datetime',
+  'accept-language',
+  'referer',
+  'user-agent',
+  // Headers that re-implement cache or proxy features
+  'connection',
+  'content-length',
+  'cache-control',
+  'if-match',
+  'if-modified-since',
+  'if-none-match',
+  'if-unmodified-since',
+  'range',
+  'upgrade',
+  // Headers that are covered by other Cache Key features
+  'cookie',
+  'host',
+  'vary',
+  // Headers that cache middleware status
+  'x-cached-response',
+];
+
 async function header(request: Request, options?: FilterOptions) {
   const entries = Array.from(request.headers.entries());
   return (
     await Promise.all(
-      filter(entries, options).map(
-        async ([key, value]) => `${key}=${await shortHash(value)}`
-      )
+      filter(entries, options).map(async ([key, value]) => {
+        if (CANNOT_INCLUDE_HEADERS.includes(key)) {
+          throw new TypeError(`Cannot include header: ${key}`);
+        }
+        return `${key}=${await shortHash(value)}`;
+      })
     )
   ).join('&');
 }
