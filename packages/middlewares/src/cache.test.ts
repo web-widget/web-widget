@@ -3,7 +3,14 @@ import type { Manifest } from '@web-widget/web-router';
 import WebRouter from '@web-widget/web-router';
 import { buildCacheControl } from '@web-widget/helpers/headers';
 import conditional from './conditional-get';
-import cache, { type CacheOptions, type CacheValue } from './cache';
+import cache, {
+  createKeyGenerator,
+  defaultOptions,
+  type CacheOptions,
+  type CacheValue,
+} from './cache';
+
+const defaultKeyGenerator = createKeyGenerator(defaultOptions.key);
 
 type Store = {
   get: (key: string) => Promise<CacheValue | undefined>;
@@ -36,7 +43,9 @@ const createApp = function (
         handler: async () => {
           return new Response('lol');
         },
-        config: { cache: true },
+        config: {
+          cache: true,
+        },
       },
     },
   ]
@@ -54,6 +63,9 @@ const createApp = function (
         pathname: '*',
         module: {
           handler: cache({
+            control() {
+              return buildCacheControl({ maxAge: 10 });
+            },
             async get(key) {
               return store.get(key);
             },
@@ -84,13 +96,19 @@ describe('multiple duplicate requests', () => {
           handler: async () => {
             return new Response('lol', {
               headers: {
-                ETag: 'lol',
+                ETag: '"v1"',
                 'Content-Type': 'text/lol; charset=utf-8',
                 'Last-Modified': new Date(date * 1000).toUTCString(),
               },
             });
           },
-          config: { cache: true },
+          config: {
+            cache: {
+              control() {
+                return buildCacheControl({ maxAge: 300 });
+              },
+            },
+          },
         },
       },
     ]
@@ -130,7 +148,8 @@ describe('multiple duplicate requests', () => {
 
     expect(res.status).toBe(200);
     expect(res.headers.get('Content-Type')).toBe('text/lol; charset=utf-8');
-    expect(res.headers.get('ETag')).toBe('lol');
+    expect(res.headers.get('ETag')).toBe('"v1"');
+    expect(res.headers.get('X-Cached-Response')).toBe(null);
     expect(await res.text()).toBe('lol');
   });
 
@@ -138,11 +157,11 @@ describe('multiple duplicate requests', () => {
     const app = createApp(store);
     const res = await app.request('http://localhost/');
 
-    expect(res.status).toBe(304);
+    expect(res.status).toBe(200);
     expect(res.headers.get('Content-Type')).toBe('text/lol; charset=utf-8');
     expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-    expect(res.headers.get('ETag')).toBe('lol');
-    expect(await res.text()).toBe('');
+    expect(res.headers.get('ETag')).toBe('"v1"');
+    expect(await res.text()).toBe('lol');
   });
 
   test('POST method should not be cached', async () => {
@@ -154,7 +173,7 @@ describe('multiple duplicate requests', () => {
     expect(res.status).toBe(200);
     expect(res.headers.get('Content-Type')).toBe('text/lol; charset=utf-8');
     expect(res.headers.get('X-Cached-Response')).toBe(null);
-    expect(res.headers.get('ETag')).toBe('lol');
+    expect(res.headers.get('ETag')).toBe('"v1"');
     expect(await res.text()).toBe('lol');
   });
 
@@ -162,7 +181,7 @@ describe('multiple duplicate requests', () => {
     const app = createApp(store);
     const res = await app.request('http://localhost/', {
       headers: {
-        'If-None-Match': 'lol',
+        'If-None-Match': '"v1"',
       },
     });
 
@@ -171,47 +190,48 @@ describe('multiple duplicate requests', () => {
   });
 
   test('when cached when the method is GET it should serve from cache until cleared', async () => {
-    let isCache = false;
     const app = createApp(store, {}, [
       {
         pathname: '*',
         module: {
           handler: async () => {
-            if (!isCache) {
-              isCache = true;
-              return new Response('lol', {
-                headers: {
-                  ETag: 'lol',
-                  'Content-Type': 'text/lol; charset=utf-8',
-                  'Last-Modified': new Date(date * 1000).toUTCString(),
-                },
-              });
-            } else {
-              return new Response('no lols', {
-                headers: {
-                  'Content-Type': 'text/plain',
-                },
-              });
-            }
+            return new Response('new content', {
+              headers: {
+                ETag: '"v2"',
+                'Content-Type': 'text/lol; charset=utf-8',
+                'Last-Modified': new Date(date * 1000).toUTCString(),
+              },
+            });
+          },
+          config: {
+            cache: {
+              control() {
+                return buildCacheControl({ maxAge: 300 });
+              },
+            },
           },
         },
       },
     ]);
 
-    const res1 = await app.request('http://localhost/');
-    expect(res1.status).toBe(200);
-    expect(res1.headers.get('Content-Type')).toBe('text/lol; charset=utf-8');
-    expect(res1.headers.get('X-Cached-Response')).toBe('HIT');
-    expect(res1.headers.get('ETag')).toBe('lol');
-    expect(await res1.text()).toBe('lol');
+    const req = new Request('http://localhost/');
+    const key = await defaultKeyGenerator(req);
 
-    store.set('http://localhost/', null as unknown as CacheValue);
+    const res = await app.request(req);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Type')).toBe('text/lol; charset=utf-8');
+    expect(res.headers.get('X-Cached-Response')).toBe('HIT');
+    expect(res.headers.get('ETag')).toBe('"v1"');
+    expect(await res.text()).toBe('lol');
 
-    const res2 = await app.request('http://localhost/');
-    expect(res2.status).toBe(200);
-    expect(res2.headers.get('Content-Type')).toBe('text/plain');
-    expect(res1.headers.get('X-Cached-Response')).toBe('HIT');
-    expect(await res2.text()).toBe('no lols');
+    // clear cache
+    await store.set(key, null as unknown as CacheValue);
+
+    const newRes = await app.request(req);
+    expect(newRes.status).toBe(200);
+    expect(newRes.headers.get('Content-Type')).toBe('text/lol; charset=utf-8');
+    expect(newRes.headers.get('X-Cached-Response')).toBe(null);
+    expect(await newRes.text()).toBe('new content');
   });
 });
 
@@ -254,8 +274,11 @@ test('disabling caching middleware should be allowed', async () => {
 test('when body is a string it should cache the response', async () => {
   const store = createStore();
   const app = createApp(store);
-  const res = await app.request('http://localhost/');
-  const cached = await store.get('http://localhost/');
+  const req = new Request('http://localhost/');
+  const res = await app.request(req);
+  const key = await defaultKeyGenerator(req);
+  const cached = await store.get(key);
+  console.log('>>>>', key, cached);
 
   expect(res.status).toBe(200);
   expect(cached?.response.body).toBe('lol');
@@ -264,10 +287,12 @@ test('when body is a string it should cache the response', async () => {
 test('when the method is HEAD it should cache the response', async () => {
   const store = createStore();
   const app = createApp(store);
-  const res = await app.request('http://localhost/', {
+  const req = new Request('http://localhost/', {
     method: 'HEAD',
   });
-  const cached = await store.get('http://localhost/');
+  const res = await app.request(req);
+  const key = await defaultKeyGenerator(req);
+  const cached = await store.get(key);
 
   expect(res.status).toBe(200);
   expect(cached?.response.body).toBe('lol');
@@ -327,12 +352,20 @@ test('when etag and last-modified headers are set it should cache those values',
             },
           });
         },
-        config: { cache: true },
+        config: {
+          cache: {
+            control() {
+              return buildCacheControl({ maxAge: 1 });
+            },
+          },
+        },
       },
     },
   ]);
-  const res = await app.request('http://localhost/');
-  const cached = await store.get('http://localhost/');
+  const req = new Request('http://localhost/');
+  const key = await defaultKeyGenerator(req);
+  const res = await app.request(req);
+  const cached = await store.get(key);
 
   expect(res.status).toBe(200);
   expect(cached).toBeTruthy();
@@ -360,16 +393,24 @@ test('when the response is fresh it should return a 304 and cache the response',
             },
           });
         },
-        config: { cache: true },
+        config: {
+          cache: {
+            control() {
+              return buildCacheControl({ maxAge: 1 });
+            },
+          },
+        },
       },
     },
   ]);
-  const res = await app.request('http://localhost/', {
+  const req = new Request('http://localhost/', {
     headers: {
       'If-None-Match': 'lol',
     },
   });
-  const cached = await store.get('http://localhost/');
+  const key = await defaultKeyGenerator(req);
+  const res = await app.request(req);
+  const cached = await store.get(key);
 
   expect(await res.text()).toBe('');
   expect(res.status).toBe(304);
@@ -394,8 +435,10 @@ test('cache control should be added', async () => {
       });
     },
   });
-  const res = await app.request('http://localhost/');
-  const cached = await store.get('http://localhost/');
+  const req = new Request('http://localhost/');
+  const res = await app.request(req);
+  const key = await defaultKeyGenerator(req);
+  const cached = await store.get(key);
 
   expect(res.status).toBe(200);
   expect(res.headers.get('Cache-Control')).toBe(
@@ -466,7 +509,7 @@ test('`Age` should change based on cache time', async () => {
 
 describe('stale-while-revalidate', () => {
   const STALE_WHILE_REVALIDATE = () =>
-    buildCacheControl({ maxAge: 0, staleWhileRevalidate: 10 });
+    buildCacheControl({ maxAge: 0, staleWhileRevalidate: 2 });
 
   let count = 0;
   const store = createStore();
@@ -482,15 +525,19 @@ describe('stale-while-revalidate', () => {
           handler: async () => {
             return new Response(`Hello ${count++}`);
           },
-          config: { cache: true },
+          config: {
+            cache: true,
+          },
         },
       },
     ]
   );
 
   test('on the first request for an asset, fetch it from the network, place it in the cache, and return the network response', async () => {
-    const res = await app.request('http://localhost/');
-    const cached = await store.get('http://localhost/');
+    const req = new Request('http://localhost/');
+    const res = await app.request(req);
+    const key = await defaultKeyGenerator(req);
+    const cached = await store.get(key);
 
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('Hello 0');
@@ -499,7 +546,9 @@ describe('stale-while-revalidate', () => {
   });
 
   test('on subsequent requests, serve the asset from the cache first, then "in the background," re-request it from the network and update the asset\'s cache entry', async () => {
-    const res = await app.request('http://localhost/');
+    const req = new Request('http://localhost/');
+    const res = await app.request(req);
+    const key = await defaultKeyGenerator(req);
 
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('Hello 0');
@@ -507,22 +556,29 @@ describe('stale-while-revalidate', () => {
 
     await timeout(8);
 
-    const cached = await store.get('http://localhost/');
+    const cached = await store.get(key);
     expect(cached?.response.body).toBe('Hello 1');
   });
 
   test("for requests after that, you'll receive the latest version fetched from the network that was placed in the cache in the prior step", async () => {
-    let res = await app.request('http://localhost/');
+    const req = new Request('http://localhost/');
+    let res = await app.request(req);
 
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('Hello 1');
     expect(res.headers.get('X-Cached-Response')).toBe('HIT');
 
     await timeout(8);
-    res = await app.request('http://localhost/');
+    res = await app.request(req);
 
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('Hello 2');
     expect(res.headers.get('X-Cached-Response')).toBe('HIT');
+
+    await timeout(2000);
+    res = await app.request(req);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('X-Cached-Response')).toBe(null);
   });
 });

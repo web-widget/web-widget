@@ -29,11 +29,11 @@ type KeyRules = {
   host?: FilterOptions | boolean | undefined;
   method?: FilterOptions | boolean | undefined;
   search?: FilterOptions | boolean | undefined;
-  [key: string]: FilterOptions | boolean | undefined;
+  [customKey: string]: FilterOptions | boolean | undefined;
 };
 
 type PartDefiners = {
-  [key: string]: PartDefiner | undefined;
+  [customKey: string]: PartDefiner | undefined;
 };
 
 export type CacheOptions = {
@@ -54,7 +54,6 @@ export type CacheOptions = {
    * shared cache (i.e. `private` is not cacheable and `s-maxage` is respected).
    * If `false`, then the response is evaluated from a perspective of a
    * single-user cache (i.e. `private` is cacheable and `s-maxage` is ignored).
-   * `true` is recommended for HTTP clients.
    */
   shared?: boolean;
 
@@ -63,18 +62,21 @@ export type CacheOptions = {
    * @default
    * ```json
    * {
-   *   method: {
-   *     include: ['GET', 'HEAD'],
-   *   },
    *   pathname: true,
    *   host: true,
-   *   search: true
+   *   search: true,
+   *   method: {
+   *     include: ['GET', 'HEAD']
+   *   }
    * }
    * ```
    */
   key?: KeyRules | ((req: Request) => Promise<string>);
 
-  partDefiners?: PartDefiners;
+  /**
+   * Define custom parts for cache keys.
+   */
+  parts?: PartDefiners;
 
   /**
    * This is a method for unit testing.
@@ -110,12 +112,12 @@ export type CacheValue = {
 
 const DEFAULT_OPTIONS = Object.freeze({
   key: Object.freeze({
-    method: Object.freeze({
-      include: ['GET', 'HEAD'],
-    }),
     pathname: true,
     host: true,
     search: true,
+    method: {
+      include: ['GET', 'HEAD'],
+    },
   }),
   shared: true,
 });
@@ -130,7 +132,7 @@ export default function cache(options: CacheOptions) {
 
   const defaultOptions = {
     _backgroundUpdate: true,
-    partDefiners: {},
+    parts: {},
     ...DEFAULT_OPTIONS,
     ...options,
   };
@@ -157,12 +159,12 @@ export default function cache(options: CacheOptions) {
       return next();
     }
 
-    const { shared } = resolveOptions;
+    const shared = !!resolveOptions.shared;
     const vary = resolveOptions.vary ? resolveOptions.vary(req) : undefined;
     const createKey =
       typeof resolveOptions.key === 'function'
         ? resolveOptions.key
-        : createKeyDefiner(resolveOptions.key, resolveOptions.partDefiners);
+        : createKeyGenerator(resolveOptions.key, resolveOptions.parts);
     const key = await createKey(req);
 
     if (!key) {
@@ -328,7 +330,7 @@ async function shortHash(data: Parameters<typeof sha1>[0]) {
   return (await sha1(data))?.slice(0, 6);
 }
 
-function createKeyDefiner(keyRules: KeyRules, partDefiners: PartDefiners) {
+export function createKeyGenerator(keyRules: KeyRules, parts?: PartDefiners) {
   const excludeAll: FilterOptions = {
     exclude: ['*'],
   };
@@ -336,32 +338,38 @@ function createKeyDefiner(keyRules: KeyRules, partDefiners: PartDefiners) {
   const toOptions = (options: any) =>
     typeof options === 'object' ? options : options ? includeAll : excludeAll;
 
+  const { host, pathname, search, ...fragmentRules } = keyRules;
+  const urlRules: KeyRules = { host, pathname, search };
+
   return async function keyDefiner(request: Request): Promise<string> {
     const url = new URL(request.url);
+    const urlPart: string[] = ['host', 'pathname', 'search']
+      .filter((name) => urlRules[name])
+      .map((name) => {
+        const urlPartDefiner = BUILT_IN_URL_PART_DEFINERS[name];
+        return urlPartDefiner(url, toOptions(keyRules[name]));
+      });
 
-    const keys: string[] = await Promise.all(
-      Object.keys(keyRules)
+    const fragmentPart: string[] = await Promise.all(
+      Object.keys(fragmentRules)
         .sort()
         .map((name) => {
-          const urlPartDefiner = BUILT_IN_URL_PART_DEFINERS[name];
-          if (urlPartDefiner) {
-            return urlPartDefiner(url, toOptions(keyRules[name]));
-          }
-
           const expandedPartDefiners =
-            BUILT_IN_EXPANDED_PART_DEFINERS[name] ?? partDefiners[name];
+            BUILT_IN_EXPANDED_PART_DEFINERS[name] ?? parts?.[name];
 
           if (expandedPartDefiners) {
             return expandedPartDefiners(request, toOptions(keyRules[name]));
           }
 
           throw TypeError(
-            `Unknown key rule: ${name}. Please add handler in options.partDefiners.`
+            `Unknown key rule: "${name}": "${name}" needs to be defined in "options.parts".`
           );
         })
     );
 
-    return keys.join('');
+    return fragmentPart.length
+      ? `${urlPart.join('')}#${fragmentPart.join(':')}`
+      : urlPart.join('');
   };
 }
 
@@ -421,18 +429,14 @@ function pathname(url: URL, options?: FilterOptions) {
 }
 
 async function method(request: Request, options?: FilterOptions) {
-  if (!options) {
-    return request.method;
-  }
-
   const hasBody =
-    ['POST', 'PATCH', 'PUT'].includes(request.method) && request.body;
+    request.body && ['POST', 'PATCH', 'PUT'].includes(request.method);
   return (
     await Promise.all(
       filter([[request.method, '']], options).map(async ([key]) => {
         if (hasBody) {
           const hash = await shortHash(request.body);
-          return `${key}:${hash}`;
+          return `${key}=${hash}`;
         }
         return key;
       })
