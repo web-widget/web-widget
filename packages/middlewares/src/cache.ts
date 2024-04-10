@@ -23,19 +23,21 @@ type FilterOptions = {
 
 type KeyRules = {
   /** Use cookie as part of cache key. */
-  cookie?: FilterOptions | boolean | undefined;
+  cookie?: FilterOptions | boolean;
   /** Use device type as part of cache key. */
-  device?: FilterOptions | boolean | undefined;
+  device?: FilterOptions | boolean;
   /** Use header as part of cache key. */
-  header?: FilterOptions | boolean | undefined;
+  header?: FilterOptions | boolean;
   /** Use host as part of cache key. */
-  host?: FilterOptions | boolean | undefined;
+  host?: FilterOptions | boolean;
   /** Use method as part of cache key. */
-  method?: FilterOptions | boolean | undefined;
+  method?: FilterOptions | boolean;
+  /** Use pathname as part of cache key. */
+  pathname?: FilterOptions | boolean;
   /** Use search as part of cache key. */
-  search?: FilterOptions | boolean | undefined;
+  search?: FilterOptions | boolean;
   /** Use vary as part of cache key. */
-  very?: FilterOptions | boolean | undefined;
+  very?: FilterOptions | boolean;
   /** Use custom variables as part of cache key. */
   [customKey: string]: FilterOptions | boolean | undefined;
 };
@@ -44,7 +46,7 @@ type PartDefiner = (req: Request, options?: FilterOptions) => Promise<string>;
 type BuiltInExpandedPartDefiner = (
   req: Request,
   options?: FilterOptions,
-  very?: string
+  very?: string[]
 ) => Promise<string>;
 
 type PartDefiners = {
@@ -81,13 +83,11 @@ export type CacheOptions = {
    * @default
    * ```json
    * {
-   *   pathname: true,
    *   host: true,
+   *   method: { include: ['GET', 'HEAD'] },
+   *   pathname: true,
    *   search: true,
-   *   very: true,
-   *   method: {
-   *     include: ['GET', 'HEAD']
-   *   }
+   *   very: true
    * }
    * ```
    */
@@ -132,13 +132,11 @@ export type CacheValue = {
 
 const DEFAULT_OPTIONS = Object.freeze({
   key: Object.freeze({
-    pathname: true,
     host: true,
+    method: { include: ['GET', 'HEAD'] },
+    pathname: true,
     search: true,
     very: true,
-    method: {
-      include: ['GET', 'HEAD'],
-    },
   }),
   shared: true,
 });
@@ -185,7 +183,11 @@ export default function cache(options: CacheOptions) {
     const createKey =
       typeof resolveOptions.key === 'function'
         ? resolveOptions.key
-        : createKeyGenerator(resolveOptions.key, resolveOptions.parts, vary);
+        : createKeyGenerator(
+            resolveOptions.key,
+            resolveOptions.parts,
+            vary?.split(',').map((field) => field.trim())
+          );
     const key = await createKey(req);
 
     if (!key) {
@@ -354,7 +356,7 @@ async function shortHash(data: Parameters<typeof sha1>[0]) {
 export function createKeyGenerator(
   keyRules: KeyRules,
   parts?: PartDefiners,
-  vary?: string
+  vary?: string[]
 ) {
   const excludeAll: FilterOptions = {
     exclude: ['*'],
@@ -436,6 +438,10 @@ function filter(
   return result;
 }
 
+function sort(array: [key: string, value: string][]) {
+  return array.sort((a, b) => a[0].localeCompare(b[0]));
+}
+
 function search(url: URL, options?: FilterOptions) {
   const { searchParams } = url;
   searchParams.sort();
@@ -477,17 +483,21 @@ async function method(request: Request, options?: FilterOptions) {
   ).join('');
 }
 
-async function very(request: Request, options?: FilterOptions, vary?: string) {
+async function very(
+  request: Request,
+  options?: FilterOptions,
+  vary?: string[]
+) {
   if (!vary) {
     return '';
   }
-  const include = vary.split(',').map((field) => field.trim());
+  const include = vary;
   const entries = Array.from(request.headers.entries()).filter(([key]) =>
     include.includes(key)
   );
   return (
     await Promise.all(
-      filter(entries, options).map(
+      sort(filter(entries, options)).map(
         async ([key, value]) => `${key}=${await shortHash(value)}`
       )
     )
@@ -521,13 +531,22 @@ const CANNOT_INCLUDE_HEADERS = [
   'x-cached-response',
 ];
 
-async function header(request: Request, options?: FilterOptions) {
+async function header(
+  request: Request,
+  options?: FilterOptions,
+  very?: string[]
+) {
   const entries = Array.from(request.headers.entries());
   return (
     await Promise.all(
-      filter(entries, options).map(async ([key, value]) => {
+      sort(filter(entries, options)).map(async ([key, value]) => {
         if (CANNOT_INCLUDE_HEADERS.includes(key)) {
           throw new TypeError(`Cannot include header: ${key}`);
+        }
+        if (very?.includes(key)) {
+          throw new TypeError(
+            `Cannot include header: ${key}. Use \`very: { include: [${JSON.stringify(key)}] }\` instead.`
+          );
         }
         return `${key}=${await shortHash(value)}`;
       })
@@ -550,7 +569,7 @@ async function cookie(request: Request, options?: FilterOptions) {
 
   return (
     await Promise.all(
-      filter(entries, options).map(
+      sort(filter(entries, options)).map(
         async ([key, value]) => `${key}=${await shortHash(value)}`
       )
     )

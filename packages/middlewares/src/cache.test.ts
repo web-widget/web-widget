@@ -588,21 +588,36 @@ describe('custom cache key', () => {
   });
 
   test('should support built-in rules', async () => {
-    const customKey = createKeyGenerator({
-      host: true,
-      pathname: true,
-      search: true,
-      method: true,
-      device: true,
-      cookie: true,
-      header: true,
-    });
+    const customKey = createKeyGenerator(
+      {
+        cookie: true,
+        device: true,
+        header: {
+          include: ['x-id'],
+        },
+        host: true,
+        method: true,
+        pathname: true,
+        search: true,
+        very: true,
+      },
+      {},
+      ['x-a', 'x-b']
+    );
     const key = await customKey(
       new Request('http://localhost/?a=1', {
-        headers: { 'X-ID': 'abc' },
+        method: 'GET',
+        headers: {
+          cookie: 'a=1',
+          'X-ID': 'abc',
+          'x-a': 'a',
+          'x-b': 'b',
+        },
       })
     );
-    expect(key).toBe('localhost/?a=1#:desktop:x-id=a9993e:GET');
+    expect(key).toBe(
+      'localhost/?a=1#a=356a19:desktop:x-id=a9993e:GET:x-a=86f7e4&x-b=e9d71f'
+    );
   });
 
   test('the query should be sorted', async () => {
@@ -620,12 +635,12 @@ describe('custom cache key', () => {
     const key = await customKey(
       new Request('http://localhost/', {
         headers: {
-          Accept: 'application/json',
+          a: 'application/json',
           'X-ID': 'abc',
         },
       })
     );
-    expect(key).toBe('#accept=ca9fd0&x-id=a9993e');
+    expect(key).toBe('#a=ca9fd0&x-id=a9993e');
   });
 
   test('should support filtering', async () => {
