@@ -98,41 +98,13 @@ window.__vite_plugin_react_preamble_installed__ = true
 `;
 
 exports[`Should match snapshot Request "/" should match snapshot: /@headers 1`] = `
-Headers {
-  Symbol(headers list): HeadersList {
-    "cookies": null,
-    Symbol(headers map): Map {
-      "access-control-allow-origin" => {
-        "name": "access-control-allow-origin",
-        "value": "*",
-      },
-      "connection" => {
-        "name": "connection",
-        "value": "keep-alive",
-      },
-      "content-type" => {
-        "name": "content-type",
-        "value": "text/html; charset=utf-8",
-      },
-      "keep-alive" => {
-        "name": "keep-alive",
-        "value": "timeout=5",
-      },
-      "transfer-encoding" => {
-        "name": "transfer-encoding",
-        "value": "chunked",
-      },
-      "x-powered-by" => {
-        "name": "x-powered-by",
-        "value": "@web-widget/web-router",
-      },
-    },
-    Symbol(headers map sorted): null,
-  },
-  Symbol(guard): "response",
-  Symbol(realm): {
-    "settingsObject": {},
-  },
+{
+  "access-control-allow-origin": "*",
+  "connection": "keep-alive",
+  "content-type": "text/html; charset=utf-8",
+  "keep-alive": "timeout=5",
+  "transfer-encoding": "chunked",
+  "x-powered-by": "@web-widget/web-router",
 }
 `;
 
@@ -200,41 +172,13 @@ window.__vite_plugin_react_preamble_installed__ = true
 `;
 
 exports[`Should match snapshot Request "/about" should match snapshot: /about@headers 1`] = `
-Headers {
-  Symbol(headers list): HeadersList {
-    "cookies": null,
-    Symbol(headers map): Map {
-      "access-control-allow-origin" => {
-        "name": "access-control-allow-origin",
-        "value": "*",
-      },
-      "connection" => {
-        "name": "connection",
-        "value": "keep-alive",
-      },
-      "content-type" => {
-        "name": "content-type",
-        "value": "text/html; charset=utf-8",
-      },
-      "keep-alive" => {
-        "name": "keep-alive",
-        "value": "timeout=5",
-      },
-      "transfer-encoding" => {
-        "name": "transfer-encoding",
-        "value": "chunked",
-      },
-      "x-powered-by" => {
-        "name": "x-powered-by",
-        "value": "@web-widget/web-router",
-      },
-    },
-    Symbol(headers map sorted): null,
-  },
-  Symbol(guard): "response",
-  Symbol(realm): {
-    "settingsObject": {},
-  },
+{
+  "access-control-allow-origin": "*",
+  "connection": "keep-alive",
+  "content-type": "text/html; charset=utf-8",
+  "keep-alive": "timeout=5",
+  "transfer-encoding": "chunked",
+  "x-powered-by": "@web-widget/web-router",
 }
 `;
 
