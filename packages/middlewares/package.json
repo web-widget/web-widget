@@ -55,7 +55,7 @@
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/schema": "workspace:*",
-    "@web-widget/http-cache-semantics": "^0.0.4"
+    "@web-widget/http-cache-semantics": "^1.0.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.2",

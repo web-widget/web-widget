@@ -583,8 +583,8 @@ importers:
         specifier: workspace:*
         version: link:../helpers
       '@web-widget/http-cache-semantics':
-        specifier: ^0.0.4
-        version: 0.0.4
+        specifier: ^1.0.0
+        version: 1.0.0
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
@@ -5057,9 +5057,8 @@ packages:
   /@vue/shared@3.4.8:
     resolution: {integrity: sha512-ChLCWzXiJboQ009oVkemhEoUdrxHme7v3ip+Kh+/kDDeF1WtHWGt0knRLGm1Y4YqCRTSs9QxsZIY8paJj5Szrw==}
 
-  /@web-widget/http-cache-semantics@0.0.4:
-    resolution: {integrity: sha512-s+M6vX3xthzUd1wrbgJKtT2KAHISk/e8XmvcVqetDh6DJ4r42lbH+tKF3zXTpTpCsRKEvopKJ384nJzpxxPsHw==}
-    requiresBuild: true
+  /@web-widget/http-cache-semantics@1.0.0:
+    resolution: {integrity: sha512-VWFtljVjjWgyR0STdU9dMVBNRyteJ7CjK+XU9uxYOS5IdSSrfcJzp/fdH27h1rgXSW30QK82HN251vF86oGpqw==}
     dev: false
 
   /@web/browser-logs@0.4.0:
