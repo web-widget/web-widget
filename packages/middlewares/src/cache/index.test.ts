@@ -2,13 +2,13 @@ import { LRUCache } from 'lru-cache';
 import type { Manifest } from '@web-widget/web-router';
 import WebRouter from '@web-widget/web-router';
 import { buildCacheControl } from '@web-widget/helpers/headers';
-import conditional from './conditional-get';
+import conditional from '../conditional-get';
 import cache, {
   createKeyGenerator,
   defaultOptions,
   type CacheOptions,
   type CacheValue,
-} from './cache';
+} from './index';
 
 const defaultKeyGenerator = createKeyGenerator(defaultOptions.key);
 
