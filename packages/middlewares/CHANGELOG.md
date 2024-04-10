@@ -1,5 +1,15 @@
 # @web-widget/middlewares
 
+## 1.10.34
+
+### Patch Changes
+
+- 07dbcf5: - `cache`: `methods` option renamed to `allowMethods`.
+  - `cache`: `status` option renamed to `allowStatus`.
+  - `hash`: `methods` option renamed to `key`.
+  - @web-widget/helpers@1.10.34
+  - @web-widget/schema@1.10.34
+
 ## 1.10.33
 
 ### Patch Changes
