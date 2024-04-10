@@ -4,38 +4,41 @@ import {
   RequestCookies,
 } from '@web-widget/helpers/headers';
 
-export type FilterOptions = {
-  include?: string[];
-  exclude?: string[];
-  checkPresence?: string[];
-};
+export type FilterOptions =
+  | {
+      include?: string[];
+      exclude?: string[];
+      checkPresence?: string[];
+    }
+  | boolean;
 
 export type KeyRules = {
   /** Use cookie as part of cache key. */
-  cookie?: FilterOptions | boolean;
+  cookie?: FilterOptions;
   /** Use device type as part of cache key. */
-  device?: FilterOptions | boolean;
+  device?: FilterOptions;
   /** Use header as part of cache key. */
-  header?: FilterOptions | boolean;
+  header?: FilterOptions;
   /** Use host as part of cache key. */
-  host?: FilterOptions | boolean;
+  host?: FilterOptions;
   /** Use method as part of cache key. */
-  method?: FilterOptions | boolean;
+  method?: FilterOptions;
   /** Use pathname as part of cache key. */
-  pathname?: FilterOptions | boolean;
+  pathname?: FilterOptions;
   /** Use search as part of cache key. */
-  search?: FilterOptions | boolean;
+  search?: FilterOptions;
   /** Use vary as part of cache key. */
-  very?: FilterOptions | boolean;
+  very?: FilterOptions;
   /** Use custom variables as part of cache key. */
-  [customKey: string]: FilterOptions | boolean | undefined;
+  [customKey: string]: FilterOptions | undefined;
 };
 
 export type PartDefiner = (
   req: Request,
   options?: FilterOptions
 ) => Promise<string>;
-type BuiltInExpandedPartDefiner = (
+
+export type BuiltInExpandedPartDefiner = (
   req: Request,
   options?: FilterOptions,
   very?: string[]
@@ -55,27 +58,23 @@ export async function shortHash(data: Parameters<typeof sha1>[0]) {
 
 export function filter(
   array: [key: string, value: string][],
-  options?: FilterOptions
+  options?: FilterOptions | boolean
 ) {
+  if (typeof options === 'boolean') {
+    return options ? array : [];
+  }
+
   let result = array;
   const exclude = options?.exclude;
   const include = options?.include;
   const checkPresence = options?.checkPresence;
 
   if (exclude?.length) {
-    const excludeAll = exclude.includes('*');
-    if (excludeAll) {
-      return [];
-    }
-
     result = result.filter(([key]) => !exclude.includes(key));
   }
 
   if (include?.length) {
-    const includeAll = include.includes('*');
-    if (!includeAll) {
-      result = result.filter(([key]) => include.includes(key));
-    }
+    result = result.filter(([key]) => include.includes(key));
   }
 
   if (checkPresence?.length) {
@@ -224,7 +223,7 @@ export async function header(
 }
 
 const BUILT_IN_URL_PART_DEFINERS: {
-  [key: string]: (url: URL, options: FilterOptions) => string;
+  [key: string]: (url: URL, options?: FilterOptions) => string;
 } = {
   host,
   pathname,
@@ -244,13 +243,6 @@ export function createKeyGenerator(
   parts?: PartDefiners,
   vary?: string[]
 ) {
-  const excludeAll: FilterOptions = {
-    exclude: ['*'],
-  };
-  const includeAll = undefined;
-  const toOptions = (options: any) =>
-    typeof options === 'object' ? options : options ? includeAll : excludeAll;
-
   const { host, pathname, search, ...fragmentRules } = keyRules;
   const urlRules: KeyRules = { host, pathname, search };
 
@@ -260,7 +252,7 @@ export function createKeyGenerator(
       .filter((name) => urlRules[name])
       .map((name) => {
         const urlPartDefiner = BUILT_IN_URL_PART_DEFINERS[name];
-        return urlPartDefiner(url, toOptions(keyRules[name]));
+        return urlPartDefiner(url, keyRules[name]);
       });
 
     const fragmentPart: string[] = await Promise.all(
@@ -271,11 +263,7 @@ export function createKeyGenerator(
             BUILT_IN_EXPANDED_PART_DEFINERS[name] ?? parts?.[name];
 
           if (expandedPartDefiners) {
-            return expandedPartDefiners(
-              request,
-              toOptions(keyRules[name]),
-              vary
-            );
+            return expandedPartDefiners(request, keyRules[name], vary);
           }
 
           throw TypeError(

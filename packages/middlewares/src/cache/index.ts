@@ -240,16 +240,6 @@ async function setCache(
 ) {
   const ttl = value.policy.timeToLive();
 
-  if (value.response.status === 206) {
-    throw new TypeError(
-      'Cannot cache response to a range request (206 Partial Content).'
-    );
-  }
-
-  if (value.response.headers.get('Vary') === '*') {
-    throw new TypeError("Cannot cache response with 'Vary: *' header.");
-  }
-
   if (value.policy.storable() && ttl > 0) {
     const newCacheValue: CacheValue = {
       policy: value.policy.toObject(),
