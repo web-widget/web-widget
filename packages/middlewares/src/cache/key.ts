@@ -125,13 +125,9 @@ export async function method(request: Request, options?: FilterOptions) {
     request.body && ['POST', 'PATCH', 'PUT'].includes(request.method);
   return (
     await Promise.all(
-      filter([[request.method, '']], options).map(async ([key]) => {
-        if (hasBody) {
-          const hash = await shortHash(request.body);
-          return `${key}=${hash}`;
-        }
-        return key;
-      })
+      filter([[request.method, '']], options).map(async ([key]) =>
+        hasBody ? `${key}=${await shortHash(request.body)}` : key
+      )
     )
   ).join('');
 }
@@ -170,8 +166,8 @@ export async function very(
   );
   return (
     await Promise.all(
-      sort(filter(entries, options)).map(
-        async ([key, value]) => `${key}=${await shortHash(value)}`
+      sort(filter(entries, options)).map(async ([key, value]) =>
+        value ? `${key}=${await shortHash(value)}` : key
       )
     )
   ).join('&');

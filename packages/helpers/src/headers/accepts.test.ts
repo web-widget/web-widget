@@ -9,11 +9,11 @@ describe('parseAccept', () => {
     expect(accepts).toEqual([
       { type: 'text/html', params: {}, quality: 1 },
       { type: 'application/xhtml+xml', params: {}, quality: 1 },
-      { type: 'application/xml', params: { quality: '0.9' }, quality: 0.9 },
+      { type: 'application/xml', params: { q: '0.9' }, quality: 0.9 },
       { type: 'image/webp', params: {}, quality: 1 },
       {
         type: '*/*',
-        params: { quality: '0.8', level: '1', foo: 'bar' },
+        params: { q: '0.8', level: '1', foo: 'bar' },
         quality: 0.8,
       },
     ]);
