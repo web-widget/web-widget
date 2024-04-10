@@ -148,7 +148,7 @@ export default function cache(options: CacheOptions) {
     const key = await createKey(req);
 
     if (!key) {
-      throw new Error('Cache key is not defined.');
+      throw new Error('Missing cache key.');
     }
 
     const backgroundUpdate = resolveOptions._backgroundUpdate;
