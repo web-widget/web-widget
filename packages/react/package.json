@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/react",
-  "version": "1.10.33",
+  "version": "1.10.34",
   "type": "module",
   "exports": {
     ".": {
@@ -55,14 +55,14 @@
     "react": "canary",
     "tsup": "^8.0.1",
     "typescript": "latest",
-    "vite": "^5.0.12"
+    "vite": "^5.0.13"
   },
   "peerDependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "react-dom": "canary",
     "react": "canary",
-    "vite": "^5.0.12"
+    "vite": "^5.0.13"
   },
   "publishConfig": {
     "access": "public",
