@@ -707,6 +707,7 @@ describe('stale while revalidate', () => {
         },
       ]
     );
+
     test('step 1: the first request should load the latest response and cache it', async () => {
       const req = new Request('http://localhost/');
       const res = await app.request(req);
@@ -814,6 +815,9 @@ describe('stale while revalidate', () => {
       expect(res.status).toBe(200);
       expect(res.headers.get('x-cache-status')).toBe(HIT);
       expect(res.headers.get('age')).toBe('0');
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-while-revalidate=1'
+      );
       expect(await res.text()).toBe('Hello 0');
     });
 
@@ -844,6 +848,98 @@ describe('stale while revalidate', () => {
         'max-age=1, stale-while-revalidate=1'
       );
       expect(await res.text()).toBe('Hello 1');
+    });
+  });
+
+  describe('stale if error', () => {
+    let count = 0;
+    const store = createStore();
+    const app = createApp(
+      store,
+      {
+        control: () =>
+          buildCacheControl({
+            maxAge: 1,
+            staleWhileRevalidate: 1,
+            staleIfError: 1,
+          }),
+      },
+      [
+        {
+          pathname: '*',
+          module: {
+            handler: async (ctx) => {
+              if (ctx.request.headers.has('throw-error')) {
+                throw new Error('Error');
+              }
+              return new Response(`Hello ${count++}`);
+            },
+          },
+        },
+      ]
+    );
+
+    test('step 1: the first request should load the latest response and cache it', async () => {
+      const req = new Request('http://localhost/');
+      const res = await app.request(req);
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe(MISS);
+      expect(res.headers.get('age')).toBe(null);
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-if-error=1, stale-while-revalidate=1'
+      );
+      expect(await res.text()).toBe('Hello 0');
+    });
+
+    test('step 2: content should be fetched from cache', async () => {
+      const req = new Request('http://localhost/');
+      const res = await app.request(req);
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe(HIT);
+      expect(res.headers.get('age')).toBe('0');
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-if-error=1, stale-while-revalidate=1'
+      );
+      expect(await res.text()).toBe('Hello 0');
+    });
+
+    test('step 3: reloading encounters errors and should use caching', async () => {
+      // NOTE: Simulation exceeds max age
+      await timeout(1001);
+
+      const req = new Request('http://localhost/');
+      const res = await app.request(req, {
+        headers: {
+          'throw-error': 'true',
+        },
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe(STALE);
+      expect(res.headers.get('age')).toBe('1');
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-if-error=1, stale-while-revalidate=1'
+      );
+      expect(await res.text()).toBe('Hello 0');
+    });
+
+    test('step 4: errors that last too long should bypass caching', async () => {
+      // NOTE: Simulation exceeds max age
+      await timeout(1001);
+
+      const req = new Request('http://localhost/');
+      const res = await app.request(req, {
+        headers: {
+          'throw-error': 'true',
+        },
+      });
+
+      expect(res.status).toBe(500);
+      expect(res.headers.get('x-cache-status')).toBe(null);
+      expect(res.headers.get('age')).toBe(null);
+      expect(res.headers.get('cache-control')).toBe(null);
     });
   });
 });
