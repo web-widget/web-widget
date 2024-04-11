@@ -58,17 +58,6 @@ export type CacheOptions = {
   parts?: PartDefiners;
 
   /**
-   * This is a method for unit testing.
-   *
-   * If the value is `true`, then the cache will be updated in the background
-   * after the response is sent.
-   *
-   * If the value is `false`, then the cache will be updated before the
-   * response is sent.
-   */
-  _backgroundUpdate?: boolean;
-
-  /**
    * A method to get a cache value by key.
    */
   get: (key: string) => Promise<any>;
@@ -126,7 +115,6 @@ export default function cache(options: CacheOptions) {
   if (!set) throw new Error('.set not defined');
 
   const defaultOptions = {
-    _backgroundUpdate: true,
     parts: {},
     ...DEFAULT_OPTIONS,
     ...options,
@@ -181,7 +169,6 @@ export default function cache(options: CacheOptions) {
       throw new Error('Missing cache key.');
     }
 
-    const backgroundUpdate = resolveOptions._backgroundUpdate;
     const getResponse = async (req: Request) => {
       ctx.request = req;
       const res = await next();
@@ -208,11 +195,7 @@ export default function cache(options: CacheOptions) {
           // Well actually, in this case it's fine to return the stale response.
           // But we'll update the cache in the background.
           // TODO: Use waitUntil
-          if (backgroundUpdate) {
-            revalidate(getResponse, req, set, key, cache).then(() => {});
-          } else {
-            await revalidate(getResponse, req, set, key, cache);
-          }
+          revalidate(getResponse, req, set, key, cache).then(() => {});
           setCacheStatus(response.headers, STALE);
         } else {
           // NOTE: This will take effect when caching TTL is not working.

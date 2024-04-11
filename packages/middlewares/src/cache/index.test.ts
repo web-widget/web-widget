@@ -566,7 +566,6 @@ test('`s-maxage` should be used first as cache expiration time', async () => {
 test('`age` should change based on cache time', async () => {
   const store = createStore();
   const app = createApp(store, {
-    _backgroundUpdate: false,
     control() {
       return buildCacheControl({
         maxAge: 2,
