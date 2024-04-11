@@ -109,6 +109,13 @@ export type CacheStatus =
   | 'BYPASS'
   | 'REVALIDATED';
 
+export const HIT: CacheStatus = 'HIT';
+export const MISS: CacheStatus = 'MISS';
+export const EXPIRED: CacheStatus = 'EXPIRED';
+export const STALE: CacheStatus = 'STALE';
+export const BYPASS: CacheStatus = 'BYPASS';
+export const REVALIDATED: CacheStatus = 'REVALIDATED';
+
 export default function cache(options: CacheOptions) {
   const { get, set } = options;
 
@@ -194,30 +201,30 @@ export default function cache(options: CacheOptions) {
           } else {
             await revalidate(getResponse, req, set, key, cache);
           }
-          setCacheStatus(response.headers, 'STALE');
+          setCacheStatus(response.headers, STALE);
         } else {
           // NOTE: This will take effect when caching TTL is not working.
           response = await revalidate(getResponse, req, set, key, cache);
-          setCacheStatus(response.headers, 'EXPIRED');
+          setCacheStatus(response.headers, EXPIRED);
         }
       } else {
-        setCacheStatus(response.headers, 'HIT');
+        setCacheStatus(response.headers, HIT);
       }
 
       return response;
     }
 
     const res = await getResponse(req);
-    setCacheStatus(res.headers, 'MISS');
+    setCacheStatus(res.headers, MISS);
 
     if (res.status === 304) {
       let etag = formatETag(res.headers.get('etag'));
       let ifNoneMatch = req.headers.get('if-none-match');
       if (etag) {
         if (ifNoneMatch && ifNoneMatch === etag) {
-          setCacheStatus(res.headers, 'REVALIDATED');
+          setCacheStatus(res.headers, REVALIDATED);
         } else {
-          setCacheStatus(res.headers, 'EXPIRED');
+          setCacheStatus(res.headers, EXPIRED);
         }
         res.headers.set('etag', formatETag(etag, 'weak'));
       }
@@ -327,7 +334,7 @@ async function revalidate(
 
 async function bypassCache(next: MiddlewareNext) {
   const res = await next();
-  setCacheStatus(res.headers, 'BYPASS');
+  setCacheStatus(res.headers, BYPASS);
   return res;
 }
 

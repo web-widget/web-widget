@@ -6,6 +6,10 @@ import conditional from '../conditional-get';
 import cache, {
   createKeyGenerator,
   defaultOptions,
+  HIT,
+  MISS,
+  STALE,
+  BYPASS,
   type CacheOptions,
   type CacheValue,
 } from './index';
@@ -146,7 +150,7 @@ describe('multiple duplicate requests', () => {
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toBe('text/lol; charset=utf-8');
     expect(res.headers.get('etag')).toBe('"v1"');
-    expect(res.headers.get('x-cache-status')).toBe('MISS');
+    expect(res.headers.get('x-cache-status')).toBe(MISS);
     expect(await res.text()).toBe('lol');
   });
 
@@ -156,7 +160,7 @@ describe('multiple duplicate requests', () => {
 
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toBe('text/lol; charset=utf-8');
-    expect(res.headers.get('x-cache-status')).toBe('HIT');
+    expect(res.headers.get('x-cache-status')).toBe(HIT);
     expect(res.headers.get('etag')).toBe('"v1"');
     expect(await res.text()).toBe('lol');
   });
@@ -169,7 +173,7 @@ describe('multiple duplicate requests', () => {
 
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toBe('text/lol; charset=utf-8');
-    expect(res.headers.get('x-cache-status')).toBe('MISS');
+    expect(res.headers.get('x-cache-status')).toBe(MISS);
     expect(res.headers.get('etag')).toBe('"v1"');
     expect(await res.text()).toBe('lol');
   });
@@ -183,7 +187,7 @@ describe('multiple duplicate requests', () => {
     });
 
     expect(res.status).toBe(304);
-    expect(res.headers.get('x-cache-status')).toBe('HIT');
+    expect(res.headers.get('x-cache-status')).toBe(HIT);
   });
 
   test('when cached when the method is GET it should serve from cache until cleared', async () => {
@@ -217,7 +221,7 @@ describe('multiple duplicate requests', () => {
     const res = await app.request(req);
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toBe('text/lol; charset=utf-8');
-    expect(res.headers.get('x-cache-status')).toBe('HIT');
+    expect(res.headers.get('x-cache-status')).toBe(HIT);
     expect(res.headers.get('etag')).toBe('"v1"');
     expect(await res.text()).toBe('lol');
 
@@ -227,7 +231,7 @@ describe('multiple duplicate requests', () => {
     const newRes = await app.request(req);
     expect(newRes.status).toBe(200);
     expect(newRes.headers.get('content-type')).toBe('text/lol; charset=utf-8');
-    expect(newRes.headers.get('x-cache-status')).toBe('MISS');
+    expect(newRes.headers.get('x-cache-status')).toBe(MISS);
     expect(await newRes.text()).toBe('new content');
   });
 });
@@ -307,7 +311,7 @@ test('when the method is POST it should not cache the response', async () => {
 
   expect(res.status).toBe(200);
   expect(await res.text()).toBe('lol');
-  expect(res.headers.get('x-cache-status')).toBe('MISS');
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
 });
 
 test('when the response code is not 200 it should not cache the response', async () => {
@@ -454,82 +458,84 @@ test('`age` should change based on cache time', async () => {
     },
   });
   let res = await app.request('http://localhost/');
-  expect(res.headers.get('x-cache-status')).toBe('MISS');
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
   expect(res.headers.get('cache-control')).toBe('max-age=2');
   expect(res.headers.get('age')).toBe(null);
 
   res = await app.request('http://localhost/');
-  expect(res.headers.get('x-cache-status')).toBe('HIT');
+  expect(res.headers.get('x-cache-status')).toBe(HIT);
   expect(res.headers.get('cache-control')).toBe('max-age=2');
   expect(res.headers.get('age')).toBe('0');
 
   await timeout(1000);
   res = await app.request('http://localhost/');
-  expect(res.headers.get('x-cache-status')).toBe('HIT');
+  expect(res.headers.get('x-cache-status')).toBe(HIT);
   expect(res.headers.get('cache-control')).toBe('max-age=2');
   expect(res.headers.get('age')).toBe('1');
 
   await timeout(1000);
   res = await app.request('http://localhost/');
-  expect(res.headers.get('x-cache-status')).toBe('MISS');
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
   expect(res.headers.get('cache-control')).toBe('max-age=2');
   expect(res.headers.get('age')).toBe(null);
 
   await timeout(1000);
   res = await app.request('http://localhost/');
-  expect(res.headers.get('x-cache-status')).toBe('HIT');
+  expect(res.headers.get('x-cache-status')).toBe(HIT);
   expect(res.headers.get('cache-control')).toBe('max-age=2');
   expect(res.headers.get('age')).toBe('1');
 });
 
-test('it should be possible to disable caching middleware', async () => {
-  const store = createStore();
-  const app = createApp(
-    store,
-    {
-      control() {
-        return buildCacheControl({
-          maxAge: 2,
-        });
-      },
-    },
-    [
+describe('caching should be allowed to be bypassed', () => {
+  test('it should be possible to disable caching middleware', async () => {
+    const store = createStore();
+    const app = createApp(
+      store,
       {
-        pathname: '*',
-        module: {
-          handler: async () => {
-            return new Response(`Hello`);
-          },
-          config: {
-            cache: false,
-          },
+        control() {
+          return buildCacheControl({
+            maxAge: 2,
+          });
         },
       },
-    ]
-  );
-  const res = await app.request('http://localhost/');
+      [
+        {
+          pathname: '*',
+          module: {
+            handler: async () => {
+              return new Response(`Hello`);
+            },
+            config: {
+              cache: false,
+            },
+          },
+        },
+      ]
+    );
+    const res = await app.request('http://localhost/');
 
-  expect(res.status).toBe(200);
-  expect(res.headers.get('x-cache-status')).toBe('BYPASS');
-  expect(res.headers.get('age')).toBe(null);
-  expect(res.headers.get('cache-control')).toBe(null);
-});
-
-test('no store', async () => {
-  const store = createStore();
-  const app = createApp(store, {
-    control() {
-      return buildCacheControl({
-        noStore: true,
-      });
-    },
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe(null);
   });
-  const res = await app.request('http://localhost/');
 
-  expect(res.status).toBe(200);
-  expect(res.headers.get('x-cache-status')).toBe('BYPASS');
-  expect(res.headers.get('age')).toBe(null);
-  expect(res.headers.get('cache-control')).toBe('no-store');
+  test('no store', async () => {
+    const store = createStore();
+    const app = createApp(store, {
+      control() {
+        return buildCacheControl({
+          noStore: true,
+        });
+      },
+    });
+    const res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('no-store');
+  });
 });
 
 describe('stale while revalidate', () => {
@@ -560,7 +566,7 @@ describe('stale while revalidate', () => {
       const cached = await store.get(key);
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('x-cache-status')).toBe('MISS');
+      expect(res.headers.get('x-cache-status')).toBe(MISS);
       expect(res.headers.get('age')).toBe(null);
       expect(res.headers.get('cache-control')).toBe(
         'max-age=1, stale-while-revalidate=2'
@@ -574,7 +580,7 @@ describe('stale while revalidate', () => {
       const res = await app.request(req);
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('x-cache-status')).toBe('HIT');
+      expect(res.headers.get('x-cache-status')).toBe(HIT);
       expect(res.headers.get('age')).toBe('0');
       expect(res.headers.get('cache-control')).toBe(
         'max-age=1, stale-while-revalidate=2'
@@ -591,7 +597,7 @@ describe('stale while revalidate', () => {
       const key = await defaultKeyGenerator(req);
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('x-cache-status')).toBe('STALE');
+      expect(res.headers.get('x-cache-status')).toBe(STALE);
       expect(res.headers.get('age')).toBe('1');
       expect(res.headers.get('cache-control')).toBe(
         'max-age=1, stale-while-revalidate=2'
@@ -610,7 +616,7 @@ describe('stale while revalidate', () => {
       let res = await app.request(req);
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('x-cache-status')).toBe('HIT');
+      expect(res.headers.get('x-cache-status')).toBe(HIT);
       expect(res.headers.get('age')).toBe('0');
       expect(res.headers.get('cache-control')).toBe(
         'max-age=1, stale-while-revalidate=2'
@@ -645,7 +651,7 @@ describe('stale while revalidate', () => {
       const res = await app.request(req);
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('x-cache-status')).toBe('MISS');
+      expect(res.headers.get('x-cache-status')).toBe(MISS);
       expect(res.headers.get('age')).toBe(null);
       expect(res.headers.get('cache-control')).toBe(
         'max-age=1, stale-while-revalidate=1'
@@ -658,7 +664,7 @@ describe('stale while revalidate', () => {
       const res = await app.request(req);
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('x-cache-status')).toBe('HIT');
+      expect(res.headers.get('x-cache-status')).toBe(HIT);
       expect(res.headers.get('age')).toBe('0');
       expect(await res.text()).toBe('Hello 0');
     });
@@ -671,7 +677,7 @@ describe('stale while revalidate', () => {
       const res = await app.request(req);
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('x-cache-status')).toBe('MISS');
+      expect(res.headers.get('x-cache-status')).toBe(MISS);
       expect(res.headers.get('age')).toBe(null);
       expect(res.headers.get('cache-control')).toBe(
         'max-age=1, stale-while-revalidate=1'
@@ -684,7 +690,7 @@ describe('stale while revalidate', () => {
       const res = await app.request(req);
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('x-cache-status')).toBe('HIT');
+      expect(res.headers.get('x-cache-status')).toBe(HIT);
       expect(res.headers.get('age')).toBe('0');
       expect(res.headers.get('cache-control')).toBe(
         'max-age=1, stale-while-revalidate=1'
