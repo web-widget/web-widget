@@ -642,6 +642,30 @@ describe('caching should be allowed to be bypassed', () => {
     expect(res.headers.get('cache-control')).toBe(null);
   });
 
+  test('`private` should bypass caching', async () => {
+    const store = createStore();
+    const app = createApp(store, {
+      control() {
+        return buildCacheControl({
+          public: false,
+        });
+      },
+    });
+    let res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('private');
+
+    res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('private');
+  });
+
   test('`no-store` should bypass caching', async () => {
     const store = createStore();
     const app = createApp(store, {
@@ -738,28 +762,29 @@ describe('caching should be allowed to be bypassed', () => {
     expect(res.headers.get('cache-control')).toBe('s-maxage=0');
   });
 
-  test('`private` should bypass caching', async () => {
+  test('`max-age=0, s-maxage=<value>` should not bypass cache', async () => {
     const store = createStore();
     const app = createApp(store, {
       control() {
         return buildCacheControl({
-          public: false,
+          maxAge: 0,
+          sharedMaxAge: 1,
         });
       },
     });
     let res = await app.request('http://localhost/');
 
     expect(res.status).toBe(200);
-    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('x-cache-status')).toBe(MISS);
     expect(res.headers.get('age')).toBe(null);
-    expect(res.headers.get('cache-control')).toBe('private');
+    expect(res.headers.get('cache-control')).toBe('max-age=0, s-maxage=1');
 
     res = await app.request('http://localhost/');
 
     expect(res.status).toBe(200);
-    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
-    expect(res.headers.get('age')).toBe(null);
-    expect(res.headers.get('cache-control')).toBe('private');
+    expect(res.headers.get('x-cache-status')).toBe(HIT);
+    expect(res.headers.get('age')).toBe('0');
+    expect(res.headers.get('cache-control')).toBe('max-age=0, s-maxage=1');
   });
 });
 

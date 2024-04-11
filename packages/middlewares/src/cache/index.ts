@@ -29,15 +29,6 @@ export type CacheOptions = {
   vary?: (req: Request) => string;
 
   /**
-   * If `true`, then the response is evaluated from a perspective of a
-   * shared cache (i.e. `private` is not cacheable and `s-maxage` is respected).
-   * If `false`, then the response is evaluated from a perspective of a
-   * single-user cache (i.e. `private` is cacheable and `s-maxage` is ignored).
-   * @default true
-   */
-  shared?: boolean;
-
-  /**
    * Create custom cache keys.
    * @default
    * ```json
@@ -86,7 +77,6 @@ const DEFAULT_OPTIONS = Object.freeze({
     search: true,
     very: true,
   }),
-  shared: true,
 });
 
 export { DEFAULT_OPTIONS as defaultOptions };
@@ -134,7 +124,6 @@ export default function cache(options: CacheOptions) {
     };
 
     const req = ctx.request;
-    const shared = !!resolveOptions.shared;
     const vary = resolveOptions.vary ? resolveOptions.vary(req) : undefined;
     const control = resolveOptions.control
       ? resolveOptions.control(req)
@@ -143,9 +132,9 @@ export default function cache(options: CacheOptions) {
     if (
       control?.includes('no-store') ||
       control?.includes('no-cache') ||
-      control?.includes('max-age=0') ||
-      (shared &&
-        (control?.includes('private') || control?.includes('s-maxage=0')))
+      control?.includes('private') ||
+      control?.includes('s-maxage=0') ||
+      (!control?.includes('s-maxage') && control?.includes('max-age=0'))
     ) {
       const res = await bypassCache(next);
       setCacheControl(res.headers, control);
@@ -232,9 +221,7 @@ export default function cache(options: CacheOptions) {
 
     await setCache(set, key, {
       response: res,
-      policy: new CachePolicy(req, res, {
-        shared,
-      }),
+      policy: new CachePolicy(req, res),
     });
 
     return res;
