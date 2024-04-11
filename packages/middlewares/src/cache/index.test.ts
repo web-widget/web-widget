@@ -12,6 +12,7 @@ import cache, {
   BYPASS,
   type CacheOptions,
   type CacheValue,
+  DYNAMIC,
 } from './index';
 
 const defaultKeyGenerator = createKeyGenerator(defaultOptions.key);
@@ -272,6 +273,22 @@ test('disabling caching middleware should be allowed', async () => {
   expect(res.status).toBe(200);
 });
 
+test('when no cache control is set the latest content should be loaded', async () => {
+  const store = createStore();
+  const app = createApp(store, {
+    control() {
+      return '';
+    },
+  });
+  const res = await app.request('http://localhost/');
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(DYNAMIC);
+  expect(res.headers.get('age')).toBe(null);
+  expect(res.headers.get('cache-control')).toBe(null);
+  expect(await res.text()).toBe('lol');
+});
+
 test('when body is a string it should cache the response', async () => {
   const store = createStore();
   const app = createApp(store);
@@ -312,6 +329,67 @@ test('when the method is POST it should not cache the response', async () => {
   expect(res.status).toBe(200);
   expect(await res.text()).toBe('lol');
   expect(res.headers.get('x-cache-status')).toBe(MISS);
+});
+
+test('when the `vary` header is present, different versions should be cached', async () => {
+  const store = createStore();
+  const app = createApp(
+    store,
+    {
+      vary() {
+        return 'accept-language';
+      },
+    },
+    [
+      {
+        pathname: '*',
+        module: {
+          handler: async (ctx) => {
+            return new Response(ctx.request.headers.get('accept-language'));
+          },
+        },
+      },
+    ]
+  );
+  let req = new Request('http://localhost/', {
+    headers: {
+      'accept-language': 'en-us',
+    },
+  });
+  let res = await app.request(req);
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
+  expect(res.headers.get('vary')).toBe('accept-language');
+  expect(await res.text()).toBe('en-us');
+  res = await app.request(req);
+  expect(res.headers.get('x-cache-status')).toBe(HIT);
+
+  req = new Request('http://localhost/', {
+    headers: {
+      'accept-language': 'tr-tr',
+    },
+  });
+  res = await app.request(req);
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
+  expect(res.headers.get('vary')).toBe('accept-language');
+  expect(await res.text()).toBe('tr-tr');
+  res = await app.request(req);
+  expect(res.headers.get('x-cache-status')).toBe(HIT);
+
+  req = new Request('http://localhost/', {
+    headers: {
+      'accept-language': 'en-us',
+    },
+  });
+  res = await app.request(req);
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(HIT);
+  expect(res.headers.get('vary')).toBe('accept-language');
+  expect(await res.text()).toBe('en-us');
 });
 
 test('when the response code is not 200 it should not cache the response', async () => {
@@ -870,7 +948,7 @@ describe('stale while revalidate', () => {
           module: {
             handler: async (ctx) => {
               if (ctx.request.headers.has('throw-error')) {
-                throw new Error('Error');
+                throw new Error('This is a simulated error.');
               }
               return new Response(`Hello ${count++}`);
             },

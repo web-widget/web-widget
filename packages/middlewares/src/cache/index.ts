@@ -107,7 +107,8 @@ export type CacheStatus =
   | 'EXPIRED'
   | 'STALE'
   | 'BYPASS'
-  | 'REVALIDATED';
+  | 'REVALIDATED'
+  | 'DYNAMIC';
 
 export const HIT: CacheStatus = 'HIT';
 export const MISS: CacheStatus = 'MISS';
@@ -115,6 +116,7 @@ export const EXPIRED: CacheStatus = 'EXPIRED';
 export const STALE: CacheStatus = 'STALE';
 export const BYPASS: CacheStatus = 'BYPASS';
 export const REVALIDATED: CacheStatus = 'REVALIDATED';
+export const DYNAMIC: CacheStatus = 'DYNAMIC';
 
 export default function cache(options: CacheOptions) {
   const { get, set } = options;
@@ -144,6 +146,7 @@ export default function cache(options: CacheOptions) {
 
     const req = ctx.request;
     const shared = !!resolveOptions.shared;
+    const vary = resolveOptions.vary ? resolveOptions.vary(req) : undefined;
     const control = resolveOptions.control
       ? resolveOptions.control(req)
       : undefined;
@@ -157,10 +160,12 @@ export default function cache(options: CacheOptions) {
     ) {
       const res = await bypassCache(next);
       setCacheControl(res.headers, control);
+      if (vary) {
+        setVary(res.headers, vary);
+      }
       return res;
     }
 
-    const vary = resolveOptions.vary ? resolveOptions.vary(req) : undefined;
     const createKey =
       typeof resolveOptions.key === 'function'
         ? resolveOptions.key
@@ -221,7 +226,12 @@ export default function cache(options: CacheOptions) {
     }
 
     const res = await getResponse(req);
-    setCacheStatus(res.headers, MISS);
+
+    if (control) {
+      setCacheStatus(res.headers, MISS);
+    } else {
+      setCacheStatus(res.headers, DYNAMIC);
+    }
 
     if (res.status === 304) {
       let etag = formatETag(res.headers.get('etag'));
