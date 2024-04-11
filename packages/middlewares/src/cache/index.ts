@@ -33,6 +33,7 @@ export type CacheOptions = {
    * shared cache (i.e. `private` is not cacheable and `s-maxage` is respected).
    * If `false`, then the response is evaluated from a perspective of a
    * single-user cache (i.e. `private` is cacheable and `s-maxage` is ignored).
+   * @default true
    */
   shared?: boolean;
 
