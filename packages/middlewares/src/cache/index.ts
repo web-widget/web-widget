@@ -143,17 +143,23 @@ export default function cache(options: CacheOptions) {
     };
 
     const req = ctx.request;
+    const shared = !!resolveOptions.shared;
     const control = resolveOptions.control
       ? resolveOptions.control(req)
       : undefined;
 
-    if (control?.includes('no-store')) {
+    if (
+      control?.includes('no-store') ||
+      control?.includes('no-cache') ||
+      control?.includes('max-age=0') ||
+      (shared &&
+        (control?.includes('private') || control?.includes('s-maxage=0')))
+    ) {
       const res = await bypassCache(next);
       setCacheControl(res.headers, control);
       return res;
     }
 
-    const shared = !!resolveOptions.shared;
     const vary = resolveOptions.vary ? resolveOptions.vary(req) : undefined;
     const createKey =
       typeof resolveOptions.key === 'function'

@@ -512,7 +512,14 @@ describe('caching should be allowed to be bypassed', () => {
         },
       ]
     );
-    const res = await app.request('http://localhost/');
+    let res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe(null);
+
+    res = await app.request('http://localhost/');
 
     expect(res.status).toBe(200);
     expect(res.headers.get('x-cache-status')).toBe(BYPASS);
@@ -520,7 +527,7 @@ describe('caching should be allowed to be bypassed', () => {
     expect(res.headers.get('cache-control')).toBe(null);
   });
 
-  test('no store', async () => {
+  test('`no-store` should bypass caching', async () => {
     const store = createStore();
     const app = createApp(store, {
       control() {
@@ -529,12 +536,115 @@ describe('caching should be allowed to be bypassed', () => {
         });
       },
     });
-    const res = await app.request('http://localhost/');
+    let res = await app.request('http://localhost/');
 
     expect(res.status).toBe(200);
     expect(res.headers.get('x-cache-status')).toBe(BYPASS);
     expect(res.headers.get('age')).toBe(null);
     expect(res.headers.get('cache-control')).toBe('no-store');
+
+    res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('no-store');
+  });
+
+  test('`no-cache` should bypass caching', async () => {
+    const store = createStore();
+    const app = createApp(store, {
+      control() {
+        return buildCacheControl({
+          noCache: true,
+        });
+      },
+    });
+    let res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('no-cache');
+
+    res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('no-cache');
+  });
+
+  test('`max-age=0` should bypass caching', async () => {
+    const store = createStore();
+    const app = createApp(store, {
+      control() {
+        return buildCacheControl({
+          maxAge: 0,
+        });
+      },
+    });
+    let res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('max-age=0');
+
+    res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('max-age=0');
+  });
+
+  test('`s-maxage=0` should bypass caching', async () => {
+    const store = createStore();
+    const app = createApp(store, {
+      control() {
+        return buildCacheControl({
+          sharedMaxAge: 0,
+        });
+      },
+    });
+    let res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('s-maxage=0');
+
+    res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('s-maxage=0');
+  });
+
+  test('`private` should bypass caching', async () => {
+    const store = createStore();
+    const app = createApp(store, {
+      control() {
+        return buildCacheControl({
+          public: false,
+        });
+      },
+    });
+    let res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('private');
+
+    res = await app.request('http://localhost/');
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res.headers.get('age')).toBe(null);
+    expect(res.headers.get('cache-control')).toBe('private');
   });
 });
 
