@@ -447,6 +447,44 @@ test('cache control should be added', async () => {
   expect(cached?.response.body).toBe('lol');
 });
 
+test('`s-maxage` should be used first as cache expiration time', async () => {
+  const store = createStore();
+  const app = createApp(store, {
+    control() {
+      return buildCacheControl({
+        maxAge: 3,
+        sharedMaxAge: 1,
+      });
+    },
+  });
+  const req = new Request('http://localhost/');
+  let res = await app.request(req);
+  const key = await defaultKeyGenerator(req);
+  const cached = await store.get(key);
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
+  expect(res.headers.get('cache-control')).toBe('max-age=3, s-maxage=1');
+  expect(res.headers.get('age')).toBe(null);
+  expect(cached?.response.body).toBe('lol');
+
+  res = await app.request(req);
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(HIT);
+  expect(res.headers.get('cache-control')).toBe('max-age=3, s-maxage=1');
+  expect(res.headers.get('age')).toBe('0');
+  expect(cached?.response.body).toBe('lol');
+
+  await timeout(1000);
+
+  res = await app.request(req);
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
+  expect(res.headers.get('cache-control')).toBe('max-age=3, s-maxage=1');
+  expect(res.headers.get('age')).toBe(null);
+  expect(cached?.response.body).toBe('lol');
+});
+
 test('`age` should change based on cache time', async () => {
   const store = createStore();
   const app = createApp(store, {
