@@ -1,3 +1,4 @@
+import type { MiddlewareNext } from '@web-widget/helpers';
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import {
   cacheControl as setCacheControl,
@@ -100,6 +101,14 @@ const DEFAULT_OPTIONS = Object.freeze({
 
 export { DEFAULT_OPTIONS as defaultOptions };
 
+export type CacheStatus =
+  | 'HIT'
+  | 'MISS'
+  | 'EXPIRED'
+  | 'STALE'
+  | 'BYPASS'
+  | 'REVALIDATED';
+
 export default function cache(options: CacheOptions) {
   const { get, set } = options;
 
@@ -116,7 +125,7 @@ export default function cache(options: CacheOptions) {
   return defineMiddlewareHandler(async function cacheMiddleware(ctx, next) {
     const rawConfig = ctx?.module?.config?.cache;
     if (rawConfig === false) {
-      return next();
+      return bypassCache(next);
     }
 
     const routeConfig: Partial<CacheOptions> =
@@ -132,7 +141,7 @@ export default function cache(options: CacheOptions) {
       : undefined;
 
     if (control?.includes('no-store')) {
-      return next();
+      return bypassCache(next);
     }
 
     const shared = !!resolveOptions.shared;
@@ -183,15 +192,34 @@ export default function cache(options: CacheOptions) {
           } else {
             await revalidate(getResponse, req, set, key, cache);
           }
+          setCacheStatus(response.headers, 'STALE');
         } else {
+          // NOTE: This will take effect when caching TTL is not working.
           response = await revalidate(getResponse, req, set, key, cache);
+          setCacheStatus(response.headers, 'EXPIRED');
         }
+      } else {
+        setCacheStatus(response.headers, 'HIT');
       }
 
       return response;
     }
 
     const res = await getResponse(req);
+    setCacheStatus(res.headers, 'MISS');
+
+    if (res.status === 304) {
+      let etag = formatETag(res.headers.get('etag'));
+      let ifNoneMatch = req.headers.get('if-none-match');
+      if (etag) {
+        if (ifNoneMatch && ifNoneMatch === etag) {
+          setCacheStatus(res.headers, 'REVALIDATED');
+        } else {
+          setCacheStatus(res.headers, 'EXPIRED');
+        }
+        res.headers.set('etag', formatETag(etag, 'weak'));
+      }
+    }
 
     await setCache(set, key, {
       response: res,
@@ -215,7 +243,6 @@ async function getCache(
     const policy = CachePolicy.fromObject(cacheValue.policy);
     const headers = policy.responseHeaders();
 
-    headers.set('x-cached-response', 'HIT');
     const response = new Response(body, {
       status,
       statusText,
@@ -295,5 +322,48 @@ async function revalidate(
     headers: revalidatedPolicy.responseHeaders(),
   });
 }
+
+async function bypassCache(next: MiddlewareNext) {
+  const res = await next();
+  setCacheStatus(res.headers, 'BYPASS');
+  return res;
+}
+
+function setCacheStatus(headers: Headers, status: CacheStatus) {
+  headers.set('x-cache-status', status);
+}
+
+// formats the etag depending on the response context. if the entityId
+// is invalid, returns an empty string (instead of null) to prevent the
+// the potentially disastrous scenario where the value of the Etag resp
+// header is "null". Could be modified in future to base64 encode etc
+const formatETag = (
+  entityId: string | null,
+  validatorType: string = 'strong'
+) => {
+  if (!entityId) {
+    return '';
+  }
+  switch (validatorType) {
+    case 'weak':
+      if (!entityId.startsWith('W/')) {
+        if (entityId.startsWith(`"`) && entityId.endsWith(`"`)) {
+          return `W/${entityId}`;
+        }
+        return `W/"${entityId}"`;
+      }
+      return entityId;
+    case 'strong':
+      if (entityId.startsWith(`W/"`)) {
+        entityId = entityId.replace('W/', '');
+      }
+      if (!entityId.endsWith(`"`)) {
+        entityId = `"${entityId}"`;
+      }
+      return entityId;
+    default:
+      return '';
+  }
+};
 
 export { createKeyGenerator };

@@ -196,7 +196,7 @@ export const CANNOT_INCLUDE_HEADERS = [
   'host',
   'vary',
   // Headers that cache middleware status
-  'x-cached-response',
+  'x-cache-status',
 ];
 
 export async function header(

@@ -94,8 +94,8 @@ describe('multiple duplicate requests', () => {
             return new Response('lol', {
               headers: {
                 ETag: '"v1"',
-                'Content-Type': 'text/lol; charset=utf-8',
-                'Last-Modified': new Date(date * 1000).toUTCString(),
+                'content-type': 'text/lol; charset=utf-8',
+                'last-modified': new Date(date * 1000).toUTCString(),
               },
             });
           },
@@ -144,9 +144,9 @@ describe('multiple duplicate requests', () => {
     const res = await app.request('http://localhost/');
 
     expect(res.status).toBe(200);
-    expect(res.headers.get('Content-Type')).toBe('text/lol; charset=utf-8');
-    expect(res.headers.get('ETag')).toBe('"v1"');
-    expect(res.headers.get('X-Cached-Response')).toBe(null);
+    expect(res.headers.get('content-type')).toBe('text/lol; charset=utf-8');
+    expect(res.headers.get('etag')).toBe('"v1"');
+    expect(res.headers.get('x-cache-status')).toBe('MISS');
     expect(await res.text()).toBe('lol');
   });
 
@@ -155,9 +155,9 @@ describe('multiple duplicate requests', () => {
     const res = await app.request('http://localhost/');
 
     expect(res.status).toBe(200);
-    expect(res.headers.get('Content-Type')).toBe('text/lol; charset=utf-8');
-    expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-    expect(res.headers.get('ETag')).toBe('"v1"');
+    expect(res.headers.get('content-type')).toBe('text/lol; charset=utf-8');
+    expect(res.headers.get('x-cache-status')).toBe('HIT');
+    expect(res.headers.get('etag')).toBe('"v1"');
     expect(await res.text()).toBe('lol');
   });
 
@@ -168,9 +168,9 @@ describe('multiple duplicate requests', () => {
     });
 
     expect(res.status).toBe(200);
-    expect(res.headers.get('Content-Type')).toBe('text/lol; charset=utf-8');
-    expect(res.headers.get('X-Cached-Response')).toBe(null);
-    expect(res.headers.get('ETag')).toBe('"v1"');
+    expect(res.headers.get('content-type')).toBe('text/lol; charset=utf-8');
+    expect(res.headers.get('x-cache-status')).toBe('MISS');
+    expect(res.headers.get('etag')).toBe('"v1"');
     expect(await res.text()).toBe('lol');
   });
 
@@ -178,12 +178,12 @@ describe('multiple duplicate requests', () => {
     const app = createApp(store);
     const res = await app.request('http://localhost/', {
       headers: {
-        'If-None-Match': '"v1"',
+        'if-None-Match': '"v1"',
       },
     });
 
     expect(res.status).toBe(304);
-    expect(res.headers.get('X-Cached-Response')).toBe('HIT');
+    expect(res.headers.get('x-cache-status')).toBe('HIT');
   });
 
   test('when cached when the method is GET it should serve from cache until cleared', async () => {
@@ -195,8 +195,8 @@ describe('multiple duplicate requests', () => {
             return new Response('new content', {
               headers: {
                 ETag: '"v2"',
-                'Content-Type': 'text/lol; charset=utf-8',
-                'Last-Modified': new Date(date * 1000).toUTCString(),
+                'content-type': 'text/lol; charset=utf-8',
+                'last-modified': new Date(date * 1000).toUTCString(),
               },
             });
           },
@@ -216,9 +216,9 @@ describe('multiple duplicate requests', () => {
 
     const res = await app.request(req);
     expect(res.status).toBe(200);
-    expect(res.headers.get('Content-Type')).toBe('text/lol; charset=utf-8');
-    expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-    expect(res.headers.get('ETag')).toBe('"v1"');
+    expect(res.headers.get('content-type')).toBe('text/lol; charset=utf-8');
+    expect(res.headers.get('x-cache-status')).toBe('HIT');
+    expect(res.headers.get('etag')).toBe('"v1"');
     expect(await res.text()).toBe('lol');
 
     // clear cache
@@ -226,8 +226,8 @@ describe('multiple duplicate requests', () => {
 
     const newRes = await app.request(req);
     expect(newRes.status).toBe(200);
-    expect(newRes.headers.get('Content-Type')).toBe('text/lol; charset=utf-8');
-    expect(newRes.headers.get('X-Cached-Response')).toBe(null);
+    expect(newRes.headers.get('content-type')).toBe('text/lol; charset=utf-8');
+    expect(newRes.headers.get('x-cache-status')).toBe('MISS');
     expect(await newRes.text()).toBe('new content');
   });
 });
@@ -307,7 +307,7 @@ test('when the method is POST it should not cache the response', async () => {
 
   expect(res.status).toBe(200);
   expect(await res.text()).toBe('lol');
-  expect(res.headers.get('X-Cached-Response')).toBe(null);
+  expect(res.headers.get('x-cache-status')).toBe('MISS');
 });
 
 test('when the response code is not 200 it should not cache the response', async () => {
@@ -343,8 +343,8 @@ test('when etag and last-modified headers are set it should cache those values',
           return new Response('lol', {
             headers: {
               ETag: 'lol',
-              'Content-Type': 'text/lol; charset=utf-8',
-              'Last-Modified': new Date(date * 1000).toUTCString(),
+              'content-type': 'text/lol; charset=utf-8',
+              'last-modified': new Date(date * 1000).toUTCString(),
             },
           });
         },
@@ -384,8 +384,8 @@ test('when the response is fresh it should return a 304 and cache the response',
           return new Response('lol', {
             headers: {
               ETag: 'lol',
-              'Content-Type': 'text/lol; charset=utf-8',
-              'Last-Modified': new Date(date * 1000).toUTCString(),
+              'content-type': 'text/lol; charset=utf-8',
+              'last-modified': new Date(date * 1000).toUTCString(),
             },
           });
         },
@@ -401,7 +401,7 @@ test('when the response is fresh it should return a 304 and cache the response',
   ]);
   const req = new Request('http://localhost/', {
     headers: {
-      'If-None-Match': 'lol',
+      'if-none-match': 'lol',
     },
   });
   const key = await defaultKeyGenerator(req);
@@ -437,141 +437,209 @@ test('cache control should be added', async () => {
   const cached = await store.get(key);
 
   expect(res.status).toBe(200);
-  expect(res.headers.get('Cache-Control')).toBe(
+  expect(res.headers.get('cache-control')).toBe(
     'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5'
   );
   expect(cached?.response.body).toBe('lol');
 });
 
-test('`Age` should change based on cache time', async () => {
+test('`age` should change based on cache time', async () => {
   const store = createStore();
   const app = createApp(store, {
     _backgroundUpdate: false,
     control() {
       return buildCacheControl({
-        maxAge: 3,
-        sharedMaxAge: 2,
-        staleIfError: 0,
-        staleWhileRevalidate: 2,
+        maxAge: 2,
       });
     },
   });
   let res = await app.request('http://localhost/');
-  expect(res.headers.get('X-Cached-Response')).toBe(null);
-  expect(res.headers.get('Cache-Control')).toBe(
-    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
-  );
-  expect(res.headers.get('Age')).toBe(null);
+  expect(res.headers.get('x-cache-status')).toBe('MISS');
+  expect(res.headers.get('cache-control')).toBe('max-age=2');
+  expect(res.headers.get('age')).toBe(null);
 
   res = await app.request('http://localhost/');
-  expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-  expect(res.headers.get('Cache-Control')).toBe(
-    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
-  );
-  expect(res.headers.get('Age')).toBe('0');
+  expect(res.headers.get('x-cache-status')).toBe('HIT');
+  expect(res.headers.get('cache-control')).toBe('max-age=2');
+  expect(res.headers.get('age')).toBe('0');
 
   await timeout(1000);
   res = await app.request('http://localhost/');
-  expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-  expect(res.headers.get('Cache-Control')).toBe(
-    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
-  );
-  expect(res.headers.get('Age')).toBe('1');
-
-  await timeout(999);
-  res = await app.request('http://localhost/');
-  expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-  expect(res.headers.get('Cache-Control')).toBe(
-    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
-  );
-  expect(res.headers.get('Age')).toBe('2');
+  expect(res.headers.get('x-cache-status')).toBe('HIT');
+  expect(res.headers.get('cache-control')).toBe('max-age=2');
+  expect(res.headers.get('age')).toBe('1');
 
   await timeout(1000);
   res = await app.request('http://localhost/');
-  expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-  expect(res.headers.get('Cache-Control')).toBe(
-    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
-  );
-  expect(res.headers.get('Age')).toBe('1');
+  expect(res.headers.get('x-cache-status')).toBe('MISS');
+  expect(res.headers.get('cache-control')).toBe('max-age=2');
+  expect(res.headers.get('age')).toBe(null);
 
   await timeout(1000);
   res = await app.request('http://localhost/');
-  expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-  expect(res.headers.get('Cache-Control')).toBe(
-    'max-age=3, s-maxage=2, stale-if-error=0, stale-while-revalidate=2'
-  );
-  expect(res.headers.get('Age')).toBe('2');
+  expect(res.headers.get('x-cache-status')).toBe('HIT');
+  expect(res.headers.get('cache-control')).toBe('max-age=2');
+  expect(res.headers.get('age')).toBe('1');
 });
 
 describe('stale-while-revalidate', () => {
-  const STALE_WHILE_REVALIDATE = () =>
-    buildCacheControl({ maxAge: 0, staleWhileRevalidate: 2 });
-
-  let count = 0;
-  const store = createStore();
-  const app = createApp(
-    store,
-    {
-      control: STALE_WHILE_REVALIDATE,
-    },
-    [
+  describe('when the cache is stale', () => {
+    let count = 0;
+    const store = createStore();
+    const app = createApp(
+      store,
       {
-        pathname: '*',
-        module: {
-          handler: async () => {
-            return new Response(`Hello ${count++}`);
+        control: () =>
+          buildCacheControl({ maxAge: 1, staleWhileRevalidate: 2 }),
+      },
+      [
+        {
+          pathname: '*',
+          module: {
+            handler: async () => {
+              return new Response(`Hello ${count++}`);
+            },
           },
         },
+      ]
+    );
+    test('step 1: the first request should load the latest response and cache it', async () => {
+      const req = new Request('http://localhost/');
+      const res = await app.request(req);
+      const key = await defaultKeyGenerator(req);
+      const cached = await store.get(key);
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe('MISS');
+      expect(res.headers.get('age')).toBe(null);
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-while-revalidate=2'
+      );
+      expect(await res.text()).toBe('Hello 0');
+      expect(cached?.response.body).toBe('Hello 0');
+    });
+
+    test('step 2: content should be fetched from cache', async () => {
+      const req = new Request('http://localhost/');
+      const res = await app.request(req);
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe('HIT');
+      expect(res.headers.get('age')).toBe('0');
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-while-revalidate=2'
+      );
+      expect(await res.text()).toBe('Hello 0');
+    });
+
+    test('step 3: use stale content and update cache in the background', async () => {
+      // NOTE: Simulation exceeds max age
+      await timeout(1001);
+
+      const req = new Request('http://localhost/');
+      const res = await app.request(req);
+      const key = await defaultKeyGenerator(req);
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe('STALE');
+      expect(res.headers.get('age')).toBe('1');
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-while-revalidate=2'
+      );
+      expect(await res.text()).toBe('Hello 0');
+
+      // NOTE: Wait for background update
+      await timeout(16);
+
+      const cached = await store.get(key);
+      expect(cached?.response.body).toBe('Hello 1');
+    });
+
+    test('step 4: the updated cache should be used', async () => {
+      const req = new Request('http://localhost/');
+      let res = await app.request(req);
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe('HIT');
+      expect(res.headers.get('age')).toBe('0');
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-while-revalidate=2'
+      );
+      expect(await res.text()).toBe('Hello 1');
+    });
+  });
+
+  describe('when the cache is expired', () => {
+    let count = 0;
+    const store = createStore();
+    const app = createApp(
+      store,
+      {
+        control: () =>
+          buildCacheControl({ maxAge: 1, staleWhileRevalidate: 1 }),
       },
-    ]
-  );
+      [
+        {
+          pathname: '*',
+          module: {
+            handler: async () => {
+              return new Response(`Hello ${count++}`);
+            },
+          },
+        },
+      ]
+    );
 
-  test('on the first request for an asset, fetch it from the network, place it in the cache, and return the network response', async () => {
-    const req = new Request('http://localhost/');
-    const res = await app.request(req);
-    const key = await defaultKeyGenerator(req);
-    const cached = await store.get(key);
+    test('step 1: the first request should load the latest response and cache it', async () => {
+      const req = new Request('http://localhost/');
+      const res = await app.request(req);
 
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe('Hello 0');
-    expect(cached?.response.body).toBe('Hello 0');
-    expect(res.headers.get('X-Cached-Response')).toBe(null);
-  });
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe('MISS');
+      expect(res.headers.get('age')).toBe(null);
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-while-revalidate=1'
+      );
+      expect(await res.text()).toBe('Hello 0');
+    });
 
-  test('on subsequent requests, serve the asset from the cache first, then "in the background," re-request it from the network and update the asset\'s cache entry', async () => {
-    const req = new Request('http://localhost/');
-    const res = await app.request(req);
-    const key = await defaultKeyGenerator(req);
+    test('step 2: content should be fetched from cache', async () => {
+      const req = new Request('http://localhost/');
+      const res = await app.request(req);
 
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe('Hello 0');
-    expect(res.headers.get('X-Cached-Response')).toBe('HIT');
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe('HIT');
+      expect(res.headers.get('age')).toBe('0');
+      expect(await res.text()).toBe('Hello 0');
+    });
 
-    await timeout(8);
+    test('step 3: reload the latest content and cache it after the cache expires', async () => {
+      // NOTE: Simulation exceeds max age
+      await timeout(2001);
 
-    const cached = await store.get(key);
-    expect(cached?.response.body).toBe('Hello 1');
-  });
+      const req = new Request('http://localhost/');
+      const res = await app.request(req);
 
-  test("for requests after that, you'll receive the latest version fetched from the network that was placed in the cache in the prior step", async () => {
-    const req = new Request('http://localhost/');
-    let res = await app.request(req);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe('MISS');
+      expect(res.headers.get('age')).toBe(null);
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-while-revalidate=1'
+      );
+      expect(await res.text()).toBe('Hello 1');
+    });
 
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe('Hello 1');
-    expect(res.headers.get('X-Cached-Response')).toBe('HIT');
+    test('step 4: the updated cache should be used', async () => {
+      const req = new Request('http://localhost/');
+      const res = await app.request(req);
 
-    await timeout(8);
-    res = await app.request(req);
-
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe('Hello 2');
-    expect(res.headers.get('X-Cached-Response')).toBe('HIT');
-
-    await timeout(2000);
-    res = await app.request(req);
-
-    expect(res.status).toBe(200);
-    expect(res.headers.get('X-Cached-Response')).toBe(null);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe('HIT');
+      expect(res.headers.get('age')).toBe('0');
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-while-revalidate=1'
+      );
+      expect(await res.text()).toBe('Hello 1');
+    });
   });
 });
