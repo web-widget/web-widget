@@ -482,7 +482,57 @@ test('`age` should change based on cache time', async () => {
   expect(res.headers.get('age')).toBe('1');
 });
 
-describe('stale-while-revalidate', () => {
+test('it should be possible to disable caching middleware', async () => {
+  const store = createStore();
+  const app = createApp(
+    store,
+    {
+      control() {
+        return buildCacheControl({
+          maxAge: 2,
+        });
+      },
+    },
+    [
+      {
+        pathname: '*',
+        module: {
+          handler: async () => {
+            return new Response(`Hello`);
+          },
+          config: {
+            cache: false,
+          },
+        },
+      },
+    ]
+  );
+  const res = await app.request('http://localhost/');
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe('BYPASS');
+  expect(res.headers.get('age')).toBe(null);
+  expect(res.headers.get('cache-control')).toBe(null);
+});
+
+test('no store', async () => {
+  const store = createStore();
+  const app = createApp(store, {
+    control() {
+      return buildCacheControl({
+        noStore: true,
+      });
+    },
+  });
+  const res = await app.request('http://localhost/');
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe('BYPASS');
+  expect(res.headers.get('age')).toBe(null);
+  expect(res.headers.get('cache-control')).toBe('no-store');
+});
+
+describe('stale while revalidate', () => {
   describe('when the cache is stale', () => {
     let count = 0;
     const store = createStore();

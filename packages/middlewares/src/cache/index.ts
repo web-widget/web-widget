@@ -141,7 +141,9 @@ export default function cache(options: CacheOptions) {
       : undefined;
 
     if (control?.includes('no-store')) {
-      return bypassCache(next);
+      const res = await bypassCache(next);
+      setCacheControl(res.headers, control);
+      return res;
     }
 
     const shared = !!resolveOptions.shared;
