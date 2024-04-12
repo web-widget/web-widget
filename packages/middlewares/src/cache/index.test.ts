@@ -1116,11 +1116,9 @@ describe('stale while revalidate', () => {
       });
 
       expect(res.status).toBe(500);
-      expect(res.headers.get('x-cache-status')).toBe(MISS);
+      expect(res.headers.get('x-cache-status')).toBe(DYNAMIC);
       expect(res.headers.get('age')).toBe(null);
-      expect(res.headers.get('cache-control')).toBe(
-        'max-age=1, stale-if-error=1, stale-while-revalidate=1'
-      );
+      expect(res.headers.get('cache-control')).toBe(null);
     });
   });
 });

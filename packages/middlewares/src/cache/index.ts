@@ -160,11 +160,15 @@ export default function cache(options: CacheOptions) {
           cacheControl.includes('max-age=0'))
       ) {
         const response = await next();
-        setCacheStatus(response.headers, BYPASS);
-        setCacheControl(response.headers, cacheControl);
-        if (vary) {
-          setVary(response.headers, vary);
+
+        if (response.status < 500) {
+          setCacheControl(response.headers, cacheControl);
+          if (vary) {
+            setVary(response.headers, vary);
+          }
         }
+
+        setCacheStatus(response.headers, BYPASS);
         return response;
       }
     }
@@ -182,12 +186,14 @@ export default function cache(options: CacheOptions) {
       context.request = request;
       const response = await next();
 
-      if (cacheControl) {
-        setCacheControl(response.headers, cacheControl);
-      }
+      if (response.status < 500) {
+        if (cacheControl) {
+          setCacheControl(response.headers, cacheControl);
+        }
 
-      if (vary) {
-        setVary(response.headers, vary);
+        if (vary) {
+          setVary(response.headers, vary);
+        }
       }
 
       return response;
