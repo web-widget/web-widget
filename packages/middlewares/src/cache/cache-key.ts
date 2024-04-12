@@ -12,7 +12,7 @@ export type FilterOptions =
     }
   | boolean;
 
-export type KeyRules = {
+export type CacheKeyRules = {
   /** Use cookie as part of cache key. */
   cookie?: FilterOptions;
   /** Use device type as part of cache key. */
@@ -34,12 +34,12 @@ export type KeyRules = {
 };
 
 export type PartDefiner = (
-  req: Request,
+  request: Request,
   options?: FilterOptions
 ) => Promise<string>;
 
 export type BuiltInExpandedPartDefiner = (
-  req: Request,
+  request: Request,
   options?: FilterOptions,
   very?: string[]
 ) => Promise<string>;
@@ -238,15 +238,15 @@ const BUILT_IN_EXPANDED_PART_DEFINERS: BuiltInExpandedPartDefiners = {
   very,
 };
 
-export function createKeyGenerator(
-  keyRules: KeyRules,
+export function createCacheKeyGenerator(
+  keyRules: CacheKeyRules,
   parts?: PartDefiners,
   vary?: string[]
 ) {
   const { host, pathname, search, ...fragmentRules } = keyRules;
-  const urlRules: KeyRules = { host, pathname, search };
+  const urlRules: CacheKeyRules = { host, pathname, search };
 
-  return async function keyDefiner(request: Request): Promise<string> {
+  return async function cacheKeyDefiner(request: Request): Promise<string> {
     const url = new URL(request.url);
     const urlPart: string[] = ['host', 'pathname', 'search']
       .filter((name) => urlRules[name])

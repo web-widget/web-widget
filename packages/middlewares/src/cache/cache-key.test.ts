@@ -1,7 +1,7 @@
-import { CANNOT_INCLUDE_HEADERS, createKeyGenerator } from './key';
+import { CANNOT_INCLUDE_HEADERS, createCacheKeyGenerator } from './cache-key';
 
 test('base: host + pathname + search', async () => {
-  const keyGenerator = createKeyGenerator({
+  const keyGenerator = createCacheKeyGenerator({
     host: true,
     pathname: true,
     search: true,
@@ -11,7 +11,7 @@ test('base: host + pathname + search', async () => {
 });
 
 test('should support built-in rules', async () => {
-  const keyGenerator = createKeyGenerator(
+  const keyGenerator = createCacheKeyGenerator(
     {
       cookie: true,
       device: true,
@@ -44,7 +44,7 @@ test('should support built-in rules', async () => {
 });
 
 test('should support filtering', async () => {
-  const keyGenerator = createKeyGenerator({
+  const keyGenerator = createCacheKeyGenerator({
     host: {
       include: ['localhost'],
     },
@@ -64,7 +64,7 @@ test('should support filtering', async () => {
 });
 
 test('should support presence or absence without including its actual value', async () => {
-  const keyGenerator = createKeyGenerator({
+  const keyGenerator = createCacheKeyGenerator({
     host: true,
     pathname: true,
     search: { include: ['a', 'b'], checkPresence: ['a'] },
@@ -75,7 +75,7 @@ test('should support presence or absence without including its actual value', as
 
 describe('should support cookie', () => {
   test('the value should be hashed', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       cookie: true,
     });
     const key = await keyGenerator(
@@ -89,7 +89,7 @@ describe('should support cookie', () => {
   });
 
   test('should be sorted', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       cookie: true,
     });
     const key = await keyGenerator(
@@ -104,7 +104,7 @@ describe('should support cookie', () => {
 
   test('should support filtering', async () => {
     expect(
-      await createKeyGenerator({
+      await createCacheKeyGenerator({
         cookie: { include: ['a'] },
       })(
         new Request('http://localhost/', {
@@ -116,7 +116,7 @@ describe('should support cookie', () => {
     ).toBe('#a=356a19');
 
     expect(
-      await createKeyGenerator({
+      await createCacheKeyGenerator({
         cookie: { exclude: ['a'] },
       })(
         new Request('http://localhost/', {
@@ -129,7 +129,7 @@ describe('should support cookie', () => {
   });
 
   test('should support check presence', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       cookie: { include: ['a', 'b', 'c'], checkPresence: ['a'] },
     });
     const key = await keyGenerator(
@@ -145,7 +145,7 @@ describe('should support cookie', () => {
 
 describe('should support device', () => {
   test('default device type', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       device: true,
     });
     const key = await keyGenerator(new Request('http://localhost/'));
@@ -153,7 +153,7 @@ describe('should support device', () => {
   });
 
   test('desktop device type', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       device: true,
     });
     const key = await keyGenerator(
@@ -168,7 +168,7 @@ describe('should support device', () => {
   });
 
   test('mobile device type', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       device: true,
     });
     const key = await keyGenerator(
@@ -183,7 +183,7 @@ describe('should support device', () => {
   });
 
   test('tablet device type', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       device: true,
     });
     const key = await keyGenerator(
@@ -200,7 +200,7 @@ describe('should support device', () => {
 
 describe('should support header', () => {
   test('the value should be hashed', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       header: true,
     });
     const key = await keyGenerator(
@@ -214,7 +214,7 @@ describe('should support header', () => {
   });
 
   test('should be sorted', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       header: true,
     });
     const key = await keyGenerator(
@@ -231,7 +231,7 @@ describe('should support header', () => {
 
   test('should support filtering', async () => {
     expect(
-      await createKeyGenerator({
+      await createCacheKeyGenerator({
         header: { include: ['a'] },
       })(
         new Request('http://localhost/', {
@@ -245,7 +245,7 @@ describe('should support header', () => {
     ).toBe('#a=356a19');
 
     expect(
-      await createKeyGenerator({
+      await createCacheKeyGenerator({
         header: { exclude: ['a'] },
       })(
         new Request('http://localhost/', {
@@ -260,7 +260,7 @@ describe('should support header', () => {
   });
 
   test('should support check presence', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       header: { include: ['a', 'b', 'c'], checkPresence: ['a'] },
     });
     const key = await keyGenerator(
@@ -276,7 +276,7 @@ describe('should support header', () => {
   });
 
   test('header key should ignore case', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       header: true,
     });
     const key = await keyGenerator(
@@ -293,7 +293,7 @@ describe('should support header', () => {
   test('some headers are not allowed to be included', async () => {
     CANNOT_INCLUDE_HEADERS.forEach(async (key) => {
       await expect(
-        createKeyGenerator({
+        createCacheKeyGenerator({
           header: { include: [key] },
         })(
           new Request('http://localhost/', {
@@ -308,7 +308,7 @@ describe('should support header', () => {
 
   test('`header` should not be used instead of `vary` rules', async () => {
     await expect(
-      createKeyGenerator(
+      createCacheKeyGenerator(
         {
           header: { include: ['x-a'] },
         },
@@ -329,7 +329,7 @@ describe('should support header', () => {
 
 describe('should support host', () => {
   test('basic', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       host: true,
     });
     const key = await keyGenerator(new Request('http://localhost/'));
@@ -337,7 +337,7 @@ describe('should support host', () => {
   });
 
   test('should support filtering', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       host: { include: ['localhost'] },
     });
     const key = await keyGenerator(new Request('http://localhost:8080/'));
@@ -347,7 +347,7 @@ describe('should support host', () => {
 
 describe('should support method', () => {
   test('basic', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       method: true,
     });
     const key = await keyGenerator(new Request('http://localhost/'));
@@ -355,7 +355,7 @@ describe('should support method', () => {
   });
 
   test('should support filtering', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       method: { include: ['GET'] },
     });
     const key = await keyGenerator(
@@ -367,7 +367,7 @@ describe('should support method', () => {
   test('the body of the POST, PATCH and PUT methods should be used as part of the key', async () => {
     await Promise.all(
       ['POST', 'PATCH', 'PUT'].map(async (method) => {
-        const keyGenerator = createKeyGenerator({
+        const keyGenerator = createCacheKeyGenerator({
           method: true,
         });
         const key = await keyGenerator(
@@ -384,7 +384,7 @@ describe('should support method', () => {
 
 describe('should support pathname', () => {
   test('basic', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       pathname: true,
     });
     const key = await keyGenerator(new Request('http://localhost/a/b/c'));
@@ -392,7 +392,7 @@ describe('should support pathname', () => {
   });
 
   test('should support filtering', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       pathname: { include: ['/a/b/c'] },
     });
     const key = await keyGenerator(new Request('http://localhost:8080/a/b/c'));
@@ -402,7 +402,7 @@ describe('should support pathname', () => {
 
 describe('should support search', () => {
   test('should be sorted', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       search: true,
     });
     const key = await keyGenerator(
@@ -412,7 +412,7 @@ describe('should support search', () => {
   });
 
   test('question marks should not be generated if there are no query parameters', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       search: true,
     });
     const key = await keyGenerator(new Request('http://localhost/'));
@@ -420,7 +420,7 @@ describe('should support search', () => {
   });
 
   test('should support filtering', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       search: { include: ['a'] },
     });
     const key = await keyGenerator(
@@ -430,7 +430,7 @@ describe('should support search', () => {
   });
 
   test('should support check presence', async () => {
-    const keyGenerator = createKeyGenerator({
+    const keyGenerator = createCacheKeyGenerator({
       search: { include: ['a', 'b', 'c'], checkPresence: ['a'] },
     });
     const key = await keyGenerator(
@@ -442,7 +442,7 @@ describe('should support search', () => {
 
 describe('should support very', () => {
   test('basic', async () => {
-    const keyGenerator = createKeyGenerator(
+    const keyGenerator = createCacheKeyGenerator(
       {
         very: true,
       },
@@ -463,7 +463,7 @@ describe('should support very', () => {
 
 describe('should support custom key', () => {
   test('basic', async () => {
-    const keyGenerator = createKeyGenerator(
+    const keyGenerator = createCacheKeyGenerator(
       {
         foo: true,
       },

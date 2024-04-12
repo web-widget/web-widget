@@ -4,33 +4,35 @@ import WebRouter from '@web-widget/web-router';
 import { buildCacheControl } from '@web-widget/helpers/headers';
 import conditional from '../conditional-get';
 import cache, {
-  createKeyGenerator,
+  createCacheKeyGenerator,
   defaultOptions,
   HIT,
   MISS,
   STALE,
   BYPASS,
   type CacheOptions,
-  type CacheValue,
+  type CacheItem,
   DYNAMIC,
 } from './index';
 
-const defaultKeyGenerator = createKeyGenerator(defaultOptions.key);
+const defaultCacheKeyGenerator = createCacheKeyGenerator(
+  defaultOptions.cacheKey
+);
 
-type Store = {
-  get: (key: string) => Promise<CacheValue | undefined>;
-  set: (key: string, value: CacheValue, maxAge?: number) => Promise<void>;
+type CacheStore = {
+  get: (cacheKey: string) => Promise<CacheItem | undefined>;
+  set: (cacheKey: string, value: CacheItem, maxAge?: number) => Promise<void>;
 };
 
-const createStore = (): Store => {
-  const store = new LRUCache<string, CacheValue>({ max: 1024 });
+const createCacheStore = (): CacheStore => {
+  const store = new LRUCache<string, CacheItem>({ max: 1024 });
 
   return {
-    async get(key: string) {
-      return store.get(key) as CacheValue | undefined;
+    async get(cacheKey: string) {
+      return store.get(cacheKey) as CacheItem | undefined;
     },
-    async set(key: string, value: CacheValue, maxAge?: number) {
-      store.set(key, value, { ttl: maxAge });
+    async set(cacheKey: string, value: CacheItem, maxAge?: number) {
+      store.set(cacheKey, value, { ttl: maxAge });
     },
   };
 };
@@ -39,7 +41,7 @@ const timeout = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 const createApp = function (
-  store: Store,
+  store: CacheStore,
   opts: Partial<CacheOptions> = {},
   routes: Manifest['routes'] = [
     {
@@ -65,14 +67,14 @@ const createApp = function (
         pathname: '*',
         module: {
           handler: cache({
-            control() {
+            cacheControl() {
               return buildCacheControl({ maxAge: 10 });
             },
-            async get(key) {
-              return store.get(key);
+            async get(cacheKey) {
+              return store.get(cacheKey);
             },
-            async set(key, value, maxAge) {
-              store.set(key, value, maxAge);
+            async set(cacheKey, value, maxAge) {
+              store.set(cacheKey, value, maxAge);
             },
             ...opts,
           }),
@@ -85,11 +87,11 @@ const createApp = function (
 };
 
 describe('multiple duplicate requests', () => {
-  const store = createStore();
+  const store = createCacheStore();
   const date = Math.round(Date.now() / 1000);
 
   const createApp = function (
-    store: Store,
+    store: CacheStore,
     opts: Partial<CacheOptions> = {},
     routes: Manifest['routes'] = [
       {
@@ -106,7 +108,7 @@ describe('multiple duplicate requests', () => {
           },
           config: {
             cache: {
-              control() {
+              cacheControl() {
                 return buildCacheControl({ maxAge: 300 });
               },
             },
@@ -128,11 +130,11 @@ describe('multiple duplicate requests', () => {
           pathname: '*',
           module: {
             handler: cache({
-              async get(key) {
-                return store.get(key);
+              async get(cacheKey) {
+                return store.get(cacheKey);
               },
-              async set(key, value) {
-                store.set(key, value);
+              async set(cacheKey, value) {
+                store.set(cacheKey, value);
               },
               ...opts,
             }),
@@ -207,7 +209,7 @@ describe('multiple duplicate requests', () => {
           },
           config: {
             cache: {
-              control() {
+              cacheControl() {
                 return buildCacheControl({ maxAge: 300 });
               },
             },
@@ -217,7 +219,7 @@ describe('multiple duplicate requests', () => {
     ]);
 
     const req = new Request('http://localhost/');
-    const key = await defaultKeyGenerator(req);
+    const cacheKey = await defaultCacheKeyGenerator(req);
 
     const res = await app.request(req);
     expect(res.status).toBe(200);
@@ -227,7 +229,7 @@ describe('multiple duplicate requests', () => {
     expect(await res.text()).toBe('lol');
 
     // clear cache
-    await store.set(key, null as unknown as CacheValue);
+    await store.set(cacheKey, null as unknown as CacheItem);
 
     const newRes = await app.request(req);
     expect(newRes.status).toBe(200);
@@ -240,17 +242,17 @@ describe('multiple duplicate requests', () => {
 test('disabling caching middleware should be allowed', async () => {
   let set = false;
 
-  const store = createStore();
+  const store = createCacheStore();
   const app = createApp(
     store,
     {
-      async get(key) {
-        return store.get(key);
+      async get(cacheKey) {
+        return store.get(cacheKey);
       },
-      async set(key, value, maxAge) {
+      async set(cacheKey, value, maxAge) {
         set = true;
         expect(maxAge).toBe(300);
-        store.set(key, value);
+        store.set(cacheKey, value);
       },
     },
     [
@@ -274,9 +276,9 @@ test('disabling caching middleware should be allowed', async () => {
 });
 
 test('when no cache control is set the latest content should be loaded', async () => {
-  const store = createStore();
+  const store = createCacheStore();
   const app = createApp(store, {
-    control() {
+    cacheControl() {
       return '';
     },
   });
@@ -289,27 +291,59 @@ test('when no cache control is set the latest content should be loaded', async (
   expect(await res.text()).toBe('lol');
 });
 
+test('when a request contains a cache control header it should be ignored', async () => {
+  const store = createCacheStore();
+  const app = createApp(store, {
+    cacheControl() {
+      return buildCacheControl({ maxAge: 300 });
+    },
+  });
+  let res = await app.request('http://localhost/', {
+    headers: {
+      'cache-control': 'no-cache',
+    },
+  });
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
+  expect(res.headers.get('age')).toBe(null);
+  expect(res.headers.get('cache-control')).toBe('max-age=300');
+  expect(await res.text()).toBe('lol');
+
+  res = await app.request('http://localhost/', {
+    headers: {
+      'cache-control': 'no-cache',
+    },
+  });
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(HIT);
+  expect(res.headers.get('age')).toBe('0');
+  expect(res.headers.get('cache-control')).toBe('max-age=300');
+  expect(await res.text()).toBe('lol');
+});
+
 test('when body is a string it should cache the response', async () => {
-  const store = createStore();
+  const store = createCacheStore();
   const app = createApp(store);
   const req = new Request('http://localhost/');
   const res = await app.request(req);
-  const key = await defaultKeyGenerator(req);
-  const cached = await store.get(key);
+  const cacheKey = await defaultCacheKeyGenerator(req);
+  const cached = await store.get(cacheKey);
 
   expect(res.status).toBe(200);
   expect(cached?.response.body).toBe('lol');
 });
 
 test('when the method is HEAD it should cache the response', async () => {
-  const store = createStore();
+  const store = createCacheStore();
   const app = createApp(store);
   const req = new Request('http://localhost/', {
     method: 'HEAD',
   });
   const res = await app.request(req);
-  const key = await defaultKeyGenerator(req);
-  const cached = await store.get(key);
+  const cacheKey = await defaultCacheKeyGenerator(req);
+  const cached = await store.get(cacheKey);
 
   expect(res.status).toBe(200);
   expect(cached?.response.body).toBe('lol');
@@ -317,7 +351,7 @@ test('when the method is HEAD it should cache the response', async () => {
 });
 
 test('when the method is POST it should not cache the response', async () => {
-  const store = createStore();
+  const store = createCacheStore();
   const app = createApp(store);
   await app.request('http://localhost/', {
     method: 'GET',
@@ -332,7 +366,7 @@ test('when the method is POST it should not cache the response', async () => {
 });
 
 test('when the `vary` header is present, different versions should be cached', async () => {
-  const store = createStore();
+  const store = createCacheStore();
   const app = createApp(
     store,
     {
@@ -393,7 +427,7 @@ test('when the `vary` header is present, different versions should be cached', a
 });
 
 test('when the response code is not 200 it should not cache the response', async () => {
-  const store = createStore();
+  const store = createCacheStore();
   const app = createApp(store, {}, [
     {
       pathname: '*',
@@ -415,7 +449,7 @@ test('when the response code is not 200 it should not cache the response', async
 });
 
 test('when etag and last-modified headers are set it should cache those values', async () => {
-  const store = createStore();
+  const store = createCacheStore();
   const date = Math.round(Date.now() / 1000);
   const app = createApp(store, {}, [
     {
@@ -432,7 +466,7 @@ test('when etag and last-modified headers are set it should cache those values',
         },
         config: {
           cache: {
-            control() {
+            cacheControl() {
               return buildCacheControl({ maxAge: 1 });
             },
           },
@@ -441,9 +475,9 @@ test('when etag and last-modified headers are set it should cache those values',
     },
   ]);
   const req = new Request('http://localhost/');
-  const key = await defaultKeyGenerator(req);
+  const cacheKey = await defaultCacheKeyGenerator(req);
   const res = await app.request(req);
-  const cached = await store.get(key);
+  const cached = await store.get(cacheKey);
 
   expect(res.status).toBe(200);
   expect(cached).toBeTruthy();
@@ -456,7 +490,7 @@ test('when etag and last-modified headers are set it should cache those values',
 });
 
 test('when the response is fresh it should return a 304 and cache the response', async () => {
-  const store = createStore();
+  const store = createCacheStore();
   const date = Math.round(Date.now() / 1000);
   const app = createApp(store, {}, [
     {
@@ -473,7 +507,7 @@ test('when the response is fresh it should return a 304 and cache the response',
         },
         config: {
           cache: {
-            control() {
+            cacheControl() {
               return buildCacheControl({ maxAge: 1 });
             },
           },
@@ -486,9 +520,9 @@ test('when the response is fresh it should return a 304 and cache the response',
       'if-none-match': 'lol',
     },
   });
-  const key = await defaultKeyGenerator(req);
+  const cacheKey = await defaultCacheKeyGenerator(req);
   const res = await app.request(req);
-  const cached = await store.get(key);
+  const cached = await store.get(cacheKey);
 
   expect(await res.text()).toBe('');
   expect(res.status).toBe(304);
@@ -502,9 +536,9 @@ test('when the response is fresh it should return a 304 and cache the response',
 });
 
 test('cache control should be added', async () => {
-  const store = createStore();
+  const store = createCacheStore();
   const app = createApp(store, {
-    control() {
+    cacheControl() {
       return buildCacheControl({
         maxAge: 2,
         sharedMaxAge: 3,
@@ -515,8 +549,8 @@ test('cache control should be added', async () => {
   });
   const req = new Request('http://localhost/');
   const res = await app.request(req);
-  const key = await defaultKeyGenerator(req);
-  const cached = await store.get(key);
+  const cacheKey = await defaultCacheKeyGenerator(req);
+  const cached = await store.get(cacheKey);
 
   expect(res.status).toBe(200);
   expect(res.headers.get('cache-control')).toBe(
@@ -526,9 +560,9 @@ test('cache control should be added', async () => {
 });
 
 test('`s-maxage` should be used first as cache expiration time', async () => {
-  const store = createStore();
+  const store = createCacheStore();
   const app = createApp(store, {
-    control() {
+    cacheControl() {
       return buildCacheControl({
         maxAge: 3,
         sharedMaxAge: 1,
@@ -537,8 +571,8 @@ test('`s-maxage` should be used first as cache expiration time', async () => {
   });
   const req = new Request('http://localhost/');
   let res = await app.request(req);
-  const key = await defaultKeyGenerator(req);
-  const cached = await store.get(key);
+  const cacheKey = await defaultCacheKeyGenerator(req);
+  const cached = await store.get(cacheKey);
 
   expect(res.status).toBe(200);
   expect(res.headers.get('x-cache-status')).toBe(MISS);
@@ -564,9 +598,9 @@ test('`s-maxage` should be used first as cache expiration time', async () => {
 });
 
 test('`age` should change based on cache time', async () => {
-  const store = createStore();
+  const store = createCacheStore();
   const app = createApp(store, {
-    control() {
+    cacheControl() {
       return buildCacheControl({
         maxAge: 2,
       });
@@ -603,11 +637,11 @@ test('`age` should change based on cache time', async () => {
 
 describe('caching should be allowed to be bypassed', () => {
   test('it should be possible to disable caching middleware', async () => {
-    const store = createStore();
+    const store = createCacheStore();
     const app = createApp(
       store,
       {
-        control() {
+        cacheControl() {
           return buildCacheControl({
             maxAge: 2,
           });
@@ -643,9 +677,9 @@ describe('caching should be allowed to be bypassed', () => {
   });
 
   test('`private` should bypass caching', async () => {
-    const store = createStore();
+    const store = createCacheStore();
     const app = createApp(store, {
-      control() {
+      cacheControl() {
         return buildCacheControl({
           public: false,
         });
@@ -667,9 +701,9 @@ describe('caching should be allowed to be bypassed', () => {
   });
 
   test('`no-store` should bypass caching', async () => {
-    const store = createStore();
+    const store = createCacheStore();
     const app = createApp(store, {
-      control() {
+      cacheControl() {
         return buildCacheControl({
           noStore: true,
         });
@@ -691,9 +725,9 @@ describe('caching should be allowed to be bypassed', () => {
   });
 
   test('`no-cache` should bypass caching', async () => {
-    const store = createStore();
+    const store = createCacheStore();
     const app = createApp(store, {
-      control() {
+      cacheControl() {
         return buildCacheControl({
           noCache: true,
         });
@@ -715,9 +749,9 @@ describe('caching should be allowed to be bypassed', () => {
   });
 
   test('`max-age=0` should bypass caching', async () => {
-    const store = createStore();
+    const store = createCacheStore();
     const app = createApp(store, {
-      control() {
+      cacheControl() {
         return buildCacheControl({
           maxAge: 0,
         });
@@ -739,9 +773,9 @@ describe('caching should be allowed to be bypassed', () => {
   });
 
   test('`s-maxage=0` should bypass caching', async () => {
-    const store = createStore();
+    const store = createCacheStore();
     const app = createApp(store, {
-      control() {
+      cacheControl() {
         return buildCacheControl({
           sharedMaxAge: 0,
         });
@@ -763,9 +797,9 @@ describe('caching should be allowed to be bypassed', () => {
   });
 
   test('`max-age=0, s-maxage=<value>` should not bypass cache', async () => {
-    const store = createStore();
+    const store = createCacheStore();
     const app = createApp(store, {
-      control() {
+      cacheControl() {
         return buildCacheControl({
           maxAge: 0,
           sharedMaxAge: 1,
@@ -791,12 +825,13 @@ describe('caching should be allowed to be bypassed', () => {
 describe('stale while revalidate', () => {
   describe('when the cache is stale', () => {
     let count = 0;
-    const store = createStore();
+    const store = createCacheStore();
     const app = createApp(
       store,
       {
-        control: () =>
-          buildCacheControl({ maxAge: 1, staleWhileRevalidate: 2 }),
+        cacheControl() {
+          return buildCacheControl({ maxAge: 1, staleWhileRevalidate: 2 });
+        },
       },
       [
         {
@@ -813,8 +848,8 @@ describe('stale while revalidate', () => {
     test('step 1: the first request should load the latest response and cache it', async () => {
       const req = new Request('http://localhost/');
       const res = await app.request(req);
-      const key = await defaultKeyGenerator(req);
-      const cached = await store.get(key);
+      const cacheKey = await defaultCacheKeyGenerator(req);
+      const cached = await store.get(cacheKey);
 
       expect(res.status).toBe(200);
       expect(res.headers.get('x-cache-status')).toBe(MISS);
@@ -845,7 +880,7 @@ describe('stale while revalidate', () => {
 
       const req = new Request('http://localhost/');
       const res = await app.request(req);
-      const key = await defaultKeyGenerator(req);
+      const cacheKey = await defaultCacheKeyGenerator(req);
 
       expect(res.status).toBe(200);
       expect(res.headers.get('x-cache-status')).toBe(STALE);
@@ -858,7 +893,7 @@ describe('stale while revalidate', () => {
       // NOTE: Wait for background update
       await timeout(16);
 
-      const cached = await store.get(key);
+      const cached = await store.get(cacheKey);
       expect(cached?.response.body).toBe('Hello 1');
     });
 
@@ -878,12 +913,13 @@ describe('stale while revalidate', () => {
 
   describe('when the cache is expired', () => {
     let count = 0;
-    const store = createStore();
+    const store = createCacheStore();
     const app = createApp(
       store,
       {
-        control: () =>
-          buildCacheControl({ maxAge: 1, staleWhileRevalidate: 1 }),
+        cacheControl() {
+          return buildCacheControl({ maxAge: 1, staleWhileRevalidate: 1 });
+        },
       },
       [
         {
@@ -955,16 +991,17 @@ describe('stale while revalidate', () => {
 
   describe('stale if error', () => {
     let count = 0;
-    const store = createStore();
+    const store = createCacheStore();
     const app = createApp(
       store,
       {
-        control: () =>
-          buildCacheControl({
+        cacheControl() {
+          return buildCacheControl({
             maxAge: 1,
             staleWhileRevalidate: 1,
             staleIfError: 1,
-          }),
+          });
+        },
       },
       [
         {
@@ -973,6 +1010,9 @@ describe('stale while revalidate', () => {
             handler: async (ctx) => {
               if (ctx.request.headers.has('throw-error')) {
                 throw new Error('This is a simulated error.');
+              }
+              if (ctx.request.headers.has('status-500')) {
+                return new Response('Internal Server Error', { status: 500 });
               }
               return new Response(`Hello ${count++}`);
             },
@@ -1011,10 +1051,25 @@ describe('stale while revalidate', () => {
       // NOTE: Simulation exceeds max age
       await timeout(1001);
 
-      const req = new Request('http://localhost/');
-      const res = await app.request(req, {
+      let req = new Request('http://localhost/');
+      let res = await app.request(req, {
         headers: {
           'throw-error': 'true',
+        },
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-cache-status')).toBe(STALE);
+      expect(res.headers.get('age')).toBe('1');
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-if-error=1, stale-while-revalidate=1'
+      );
+      expect(await res.text()).toBe('Hello 0');
+
+      req = new Request('http://localhost/');
+      res = await app.request(req, {
+        headers: {
+          'status-500': 'true',
         },
       });
 
@@ -1031,8 +1086,8 @@ describe('stale while revalidate', () => {
       // NOTE: Simulation exceeds max age
       await timeout(1001);
 
-      const req = new Request('http://localhost/');
-      const res = await app.request(req, {
+      let req = new Request('http://localhost/');
+      let res = await app.request(req, {
         headers: {
           'throw-error': 'true',
         },
@@ -1042,6 +1097,20 @@ describe('stale while revalidate', () => {
       expect(res.headers.get('x-cache-status')).toBe(null);
       expect(res.headers.get('age')).toBe(null);
       expect(res.headers.get('cache-control')).toBe(null);
+
+      req = new Request('http://localhost/');
+      res = await app.request(req, {
+        headers: {
+          'status-500': 'true',
+        },
+      });
+
+      expect(res.status).toBe(500);
+      expect(res.headers.get('x-cache-status')).toBe(MISS);
+      expect(res.headers.get('age')).toBe(null);
+      expect(res.headers.get('cache-control')).toBe(
+        'max-age=1, stale-if-error=1, stale-while-revalidate=1'
+      );
     });
   });
 });

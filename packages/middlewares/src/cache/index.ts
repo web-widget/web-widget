@@ -1,4 +1,3 @@
-import type { MiddlewareNext } from '@web-widget/helpers';
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import {
   cacheControl as setCacheControl,
@@ -6,8 +5,8 @@ import {
 } from '@web-widget/helpers/headers';
 import type { CachePolicyObject } from '@web-widget/http-cache-semantics';
 import CachePolicy from '@web-widget/http-cache-semantics';
-import { createKeyGenerator } from './key';
-import type { KeyRules, PartDefiners } from './key';
+import { createCacheKeyGenerator } from './cache-key';
+import type { CacheKeyRules, PartDefiners } from './cache-key';
 
 declare module '@web-widget/schema' {
   interface RouteConfig {
@@ -20,13 +19,19 @@ export type CacheOptions = {
    * Override HTTP `Cache-Control` header.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
    */
-  control?: (req: Request) => string;
+  cacheControl?: (request: Request) => string;
 
   /**
    * Override HTTP `Vary` header.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
    */
-  vary?: (req: Request) => string;
+  vary?: (request: Request) => string;
+
+  /**
+   * Ignore the `Cache-Control` header in the request.
+   * @default true
+   */
+  ignoreRequestCacheControl?: boolean;
 
   /**
    * Create custom cache keys.
@@ -41,7 +46,7 @@ export type CacheOptions = {
    * }
    * ```
    */
-  key?: KeyRules | ((req: Request) => Promise<string>);
+  cacheKey?: CacheKeyRules | ((request: Request) => Promise<string>);
 
   /**
    * Define custom parts for cache keys.
@@ -49,18 +54,18 @@ export type CacheOptions = {
   parts?: PartDefiners;
 
   /**
-   * A method to get a cache value by key.
+   * A method to get a cache value by cacheKey.
    */
-  get: (key: string) => Promise<any>;
+  get: (cacheKey: string) => Promise<any>;
 
   /**
-   * A method to set a cache value by key.
+   * A method to set a cache value by cacheKey.
    * If `ttl` is provided, then it's the time-to-live in milliseconds.
    */
-  set: (key: string, value: any, ttl?: number) => Promise<void>;
+  set: (cacheKey: string, value: any, ttl?: number) => Promise<void>;
 };
 
-export type CacheValue = {
+export type CacheItem = {
   response: {
     body: string;
     status: number;
@@ -70,7 +75,8 @@ export type CacheValue = {
 };
 
 const DEFAULT_OPTIONS = Object.freeze({
-  key: Object.freeze({
+  ignoreRequestCacheControl: true,
+  cacheKey: Object.freeze({
     host: true,
     method: { include: ['GET', 'HEAD'] },
     pathname: true,
@@ -110,10 +116,12 @@ export default function cache(options: CacheOptions) {
     ...options,
   };
 
-  return defineMiddlewareHandler(async function cacheMiddleware(ctx, next) {
-    const rawConfig = ctx?.module?.config?.cache;
+  return defineMiddlewareHandler(async function cacheMiddleware(context, next) {
+    const rawConfig = context?.module?.config?.cache;
     if (rawConfig === false) {
-      return bypassCache(next);
+      const response = await next();
+      setCacheStatus(response.headers, BYPASS);
+      return response;
     }
 
     const routeConfig: Partial<CacheOptions> =
@@ -123,72 +131,85 @@ export default function cache(options: CacheOptions) {
       ...routeConfig,
     };
 
-    const req = ctx.request;
-    const vary = resolveOptions.vary ? resolveOptions.vary(req) : undefined;
-    const control = resolveOptions.control
-      ? resolveOptions.control(req)
+    const request = context.request;
+    const vary = resolveOptions.vary ? resolveOptions.vary(request) : undefined;
+    const ignoreRequestCacheControl = resolveOptions.ignoreRequestCacheControl;
+    const cacheControl = resolveOptions.cacheControl
+      ? resolveOptions.cacheControl(request)
       : undefined;
 
-    if (
-      control?.includes('no-store') ||
-      control?.includes('no-cache') ||
-      control?.includes('private') ||
-      control?.includes('s-maxage=0') ||
-      (!control?.includes('s-maxage') && control?.includes('max-age=0'))
-    ) {
-      const res = await bypassCache(next);
-      setCacheControl(res.headers, control);
-      if (vary) {
-        setVary(res.headers, vary);
+    if (cacheControl) {
+      if (
+        cacheControl.includes('no-store') ||
+        cacheControl.includes('no-cache') ||
+        cacheControl.includes('private') ||
+        cacheControl.includes('s-maxage=0') ||
+        (!cacheControl.includes('s-maxage') &&
+          cacheControl.includes('max-age=0'))
+      ) {
+        const response = await next();
+        setCacheStatus(response.headers, BYPASS);
+        setCacheControl(response.headers, cacheControl);
+        if (vary) {
+          setVary(response.headers, vary);
+        }
+        return response;
       }
-      return res;
     }
 
-    const createKey =
-      typeof resolveOptions.key === 'function'
-        ? resolveOptions.key
-        : createKeyGenerator(
-            resolveOptions.key,
+    const createCacheKey =
+      typeof resolveOptions.cacheKey === 'function'
+        ? resolveOptions.cacheKey
+        : createCacheKeyGenerator(
+            resolveOptions.cacheKey,
             resolveOptions.parts,
             vary?.split(',').map((field) => field.trim())
           );
-    const key = await createKey(req);
+    const cacheKey = await createCacheKey(request);
 
-    if (!key) {
+    if (!cacheKey) {
       throw new Error('Missing cache key.');
     }
 
-    const getResponse = async (req: Request) => {
-      ctx.request = req;
-      const res = await next();
+    const getResponse = async (request: Request) => {
+      context.request = request;
+      const response = await next();
 
-      if (control) {
-        setCacheControl(res.headers, control);
+      if (cacheControl) {
+        setCacheControl(response.headers, cacheControl);
       }
 
       if (vary) {
-        setVary(res.headers, vary);
+        setVary(response.headers, vary);
       }
 
-      return res;
+      return response;
     };
 
-    let cache = await getCache(get, key);
+    const cache = await getCache(get, cacheKey);
     if (cache) {
       const policy = cache.policy;
       let response = cache.response;
+      const stale = ignoreRequestCacheControl
+        ? policy.stale()
+        : !policy.satisfiesWithoutRevalidation(request);
 
-      if (!policy.satisfiesWithoutRevalidation(req)) {
-        // Cache does not satisfy request. Need to revalidate.
+      if (stale) {
         if (policy.useStaleWhileRevalidate()) {
           // Well actually, in this case it's fine to return the stale response.
           // But we'll update the cache in the background.
           // TODO: Use waitUntil
-          revalidate(getResponse, req, set, key, cache).then(() => {});
+          revalidate(getResponse, request, set, cacheKey, cache).then(() => {});
           setCacheStatus(response.headers, STALE);
         } else {
           // NOTE: This will take effect when caching TTL is not working.
-          response = await revalidate(getResponse, req, set, key, cache);
+          response = await revalidate(
+            getResponse,
+            request,
+            set,
+            cacheKey,
+            cache
+          );
           setCacheStatus(response.headers, EXPIRED);
         }
       } else {
@@ -198,41 +219,41 @@ export default function cache(options: CacheOptions) {
       return response;
     }
 
-    const res = await getResponse(req);
+    const response = await getResponse(request);
 
-    if (control) {
-      setCacheStatus(res.headers, MISS);
+    if (cacheControl) {
+      setCacheStatus(response.headers, MISS);
     } else {
-      setCacheStatus(res.headers, DYNAMIC);
+      setCacheStatus(response.headers, DYNAMIC);
     }
 
-    if (res.status === 304) {
-      let etag = formatETag(res.headers.get('etag'));
-      let ifNoneMatch = req.headers.get('if-none-match');
+    if (response.status === 304) {
+      const etag = formatETag(response.headers.get('etag'));
+      const ifNoneMatch = request.headers.get('if-none-match');
       if (etag) {
         if (ifNoneMatch && ifNoneMatch === etag) {
-          setCacheStatus(res.headers, REVALIDATED);
+          setCacheStatus(response.headers, REVALIDATED);
         } else {
-          setCacheStatus(res.headers, EXPIRED);
+          setCacheStatus(response.headers, EXPIRED);
         }
-        res.headers.set('etag', formatETag(etag, 'weak'));
+        response.headers.set('etag', formatETag(etag, 'weak'));
       }
     }
 
-    await setCache(set, key, {
-      response: res,
-      policy: new CachePolicy(req, res),
+    await setCache(set, cacheKey, {
+      response: response,
+      policy: new CachePolicy(request, response),
     });
 
-    return res;
+    return response;
   });
 }
 
 async function getCache(
-  get: (key: string) => Promise<CacheValue | undefined>,
-  key: string
+  get: (cacheKey: string) => Promise<CacheItem | undefined>,
+  cacheKey: string
 ) {
-  const cacheValue = await get(key);
+  const cacheValue = await get(cacheKey);
 
   if (cacheValue) {
     const { body, status, statusText } = cacheValue.response;
@@ -254,8 +275,8 @@ async function getCache(
 }
 
 async function setCache(
-  set: (key: string, value: any, ttl?: number) => Promise<void>,
-  key: string,
+  set: (cacheKey: string, value: any, ttl?: number) => Promise<void>,
+  cacheKey: string,
   value: {
     response: Response;
     policy: CachePolicy;
@@ -264,7 +285,7 @@ async function setCache(
   const ttl = value.policy.timeToLive();
 
   if (value.policy.storable() && ttl > 0) {
-    const newCacheValue: CacheValue = {
+    const newCacheValue: CacheItem = {
       policy: value.policy.toObject(),
       response: {
         body: await value.response.clone().text(),
@@ -272,7 +293,7 @@ async function setCache(
         statusText: value.response.statusText,
       },
     };
-    await set(key, newCacheValue, ttl);
+    await set(cacheKey, newCacheValue, ttl);
     return true;
   }
   return false;
@@ -281,8 +302,8 @@ async function setCache(
 async function revalidate(
   fetch: (request: Request) => Promise<Response>,
   request: Request,
-  set: (key: string, value: any, ttl?: number) => Promise<void>,
-  key: string,
+  set: (cacheKey: string, value: any, ttl?: number) => Promise<void>,
+  cacheKey: string,
   cache: {
     response: Response;
     policy: CachePolicy;
@@ -305,24 +326,18 @@ async function revalidate(
 
   const { modified, policy: revalidatedPolicy } =
     cache.policy.revalidatedPolicy(revalidationRequest, revalidationResponse);
-  const res = modified ? revalidationResponse : cache.response;
+  const response = modified ? revalidationResponse : cache.response;
 
-  await setCache(set, key, {
-    response: res,
+  await setCache(set, cacheKey, {
+    response: response,
     policy: revalidatedPolicy,
   });
 
-  return new Response(res.body, {
-    status: res.status,
-    statusText: res.statusText,
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
     headers: revalidatedPolicy.responseHeaders(),
   });
-}
-
-async function bypassCache(next: MiddlewareNext) {
-  const res = await next();
-  setCacheStatus(res.headers, BYPASS);
-  return res;
 }
 
 function setCacheStatus(headers: Headers, status: CacheStatus) {
@@ -362,4 +377,4 @@ const formatETag = (
   }
 };
 
-export { createKeyGenerator };
+export { createCacheKeyGenerator };
