@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vite-plugin",
-  "version": "1.10.34",
+  "version": "1.10.35",
   "type": "module",
   "keywords": [
     "vite-plugin"

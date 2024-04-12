@@ -1,5 +1,14 @@
 # @web-widget/middlewares
 
+## 1.10.35
+
+### Patch Changes
+
+- 4d81279: `cache`: New, powerful caching middleware that fully respects HTTP standards.
+- Updated dependencies [4d81279]
+  - @web-widget/helpers@1.10.35
+  - @web-widget/schema@1.10.35
+
 ## 1.10.34
 
 ### Patch Changes

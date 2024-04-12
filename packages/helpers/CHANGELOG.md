@@ -1,5 +1,18 @@
 # @web-widget/helpers
 
+## 1.10.35
+
+### Patch Changes
+
+- 4d81279: - `headers`: Add `vary` helper method.
+  - `headers`: Add `deviceType` helper method.
+  - `headers`: Add `buildCacheControl` helper method.
+  - `headers`: `accepts` renamed to `matchAccepts`.
+  - `headers`: `defaultMatch` renamed to `defaultMatchAccept`.
+  - `crypto`: Add `crypto` module entry.
+  - @web-widget/context@1.10.35
+  - @web-widget/schema@1.10.35
+
 ## 1.10.34
 
 ### Patch Changes
