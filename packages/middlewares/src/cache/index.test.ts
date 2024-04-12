@@ -282,12 +282,16 @@ test('when no cache control is set the latest content should be loaded', async (
       return '';
     },
   });
-  const res = await app.request('http://localhost/');
+  const req = new Request('http://localhost/');
+  const cacheKey = await defaultCacheKeyGenerator(req);
+  const res = await app.request(req);
+  const cacheItem = await store.get(cacheKey);
 
   expect(res.status).toBe(200);
   expect(res.headers.get('x-cache-status')).toBe(DYNAMIC);
   expect(res.headers.get('age')).toBe(null);
   expect(res.headers.get('cache-control')).toBe(null);
+  expect(cacheItem).toBeUndefined();
   expect(await res.text()).toBe('lol');
 });
 
@@ -329,10 +333,10 @@ test('when body is a string it should cache the response', async () => {
   const req = new Request('http://localhost/');
   const res = await app.request(req);
   const cacheKey = await defaultCacheKeyGenerator(req);
-  const cached = await store.get(cacheKey);
+  const cacheItem = await store.get(cacheKey);
 
   expect(res.status).toBe(200);
-  expect(cached?.response.body).toBe('lol');
+  expect(cacheItem?.response.body).toBe('lol');
 });
 
 test('when the method is HEAD it should cache the response', async () => {
@@ -343,11 +347,13 @@ test('when the method is HEAD it should cache the response', async () => {
   });
   const res = await app.request(req);
   const cacheKey = await defaultCacheKeyGenerator(req);
-  const cached = await store.get(cacheKey);
+  const cacheItem = await store.get(cacheKey);
 
   expect(res.status).toBe(200);
-  expect(cached?.response.body).toBe('lol');
-  expect(cached?.policy.resh['content-type']).toBe('text/plain;charset=UTF-8');
+  expect(cacheItem?.response.body).toBe('lol');
+  expect(cacheItem?.policy.resh['content-type']).toBe(
+    'text/plain;charset=UTF-8'
+  );
 });
 
 test('when the method is POST it should not cache the response', async () => {
@@ -441,11 +447,11 @@ test('when the response code is not 200 it should not cache the response', async
   const res = await app.request('http://localhost/', {
     method: 'POST',
   });
-  const cached = await store.get('http://localhost/');
+  const cacheItem = await store.get('http://localhost/');
 
   expect(res.status).toBe(201);
   expect(await res.text()).toBe('lol');
-  expect(cached).toBeUndefined();
+  expect(cacheItem).toBeUndefined();
 });
 
 test('when etag and last-modified headers are set it should cache those values', async () => {
@@ -477,14 +483,16 @@ test('when etag and last-modified headers are set it should cache those values',
   const req = new Request('http://localhost/');
   const cacheKey = await defaultCacheKeyGenerator(req);
   const res = await app.request(req);
-  const cached = await store.get(cacheKey);
+  const cacheItem = await store.get(cacheKey);
 
   expect(res.status).toBe(200);
-  expect(cached).toBeTruthy();
-  expect(cached?.response.body).toBe('lol');
-  expect(cached?.policy.resh.etag).toBe('lol');
-  expect(cached?.policy.resh['content-type']).toBe('text/lol; charset=utf-8');
-  expect(cached?.policy.resh['last-modified']).toBe(
+  expect(cacheItem).toBeTruthy();
+  expect(cacheItem?.response.body).toBe('lol');
+  expect(cacheItem?.policy.resh.etag).toBe('lol');
+  expect(cacheItem?.policy.resh['content-type']).toBe(
+    'text/lol; charset=utf-8'
+  );
+  expect(cacheItem?.policy.resh['last-modified']).toBe(
     new Date(date * 1000).toUTCString()
   );
 });
@@ -522,15 +530,17 @@ test('when the response is fresh it should return a 304 and cache the response',
   });
   const cacheKey = await defaultCacheKeyGenerator(req);
   const res = await app.request(req);
-  const cached = await store.get(cacheKey);
+  const cacheItem = await store.get(cacheKey);
 
   expect(await res.text()).toBe('');
   expect(res.status).toBe(304);
-  expect(cached).toBeTruthy();
-  expect(cached?.response.body).toBe('lol');
-  expect(cached?.policy.resh.etag).toBe('lol');
-  expect(cached?.policy.resh['content-type']).toBe('text/lol; charset=utf-8');
-  expect(cached?.policy.resh['last-modified']).toBe(
+  expect(cacheItem).toBeTruthy();
+  expect(cacheItem?.response.body).toBe('lol');
+  expect(cacheItem?.policy.resh.etag).toBe('lol');
+  expect(cacheItem?.policy.resh['content-type']).toBe(
+    'text/lol; charset=utf-8'
+  );
+  expect(cacheItem?.policy.resh['last-modified']).toBe(
     new Date(date * 1000).toUTCString()
   );
 });
@@ -550,13 +560,13 @@ test('cache control should be added', async () => {
   const req = new Request('http://localhost/');
   const res = await app.request(req);
   const cacheKey = await defaultCacheKeyGenerator(req);
-  const cached = await store.get(cacheKey);
+  const cacheItem = await store.get(cacheKey);
 
   expect(res.status).toBe(200);
   expect(res.headers.get('cache-control')).toBe(
     'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5'
   );
-  expect(cached?.response.body).toBe('lol');
+  expect(cacheItem?.response.body).toBe('lol');
 });
 
 test('`s-maxage` should be used first as cache expiration time', async () => {
@@ -572,20 +582,20 @@ test('`s-maxage` should be used first as cache expiration time', async () => {
   const req = new Request('http://localhost/');
   let res = await app.request(req);
   const cacheKey = await defaultCacheKeyGenerator(req);
-  const cached = await store.get(cacheKey);
+  const cacheItem = await store.get(cacheKey);
 
   expect(res.status).toBe(200);
   expect(res.headers.get('x-cache-status')).toBe(MISS);
   expect(res.headers.get('cache-control')).toBe('max-age=3, s-maxage=1');
   expect(res.headers.get('age')).toBe(null);
-  expect(cached?.response.body).toBe('lol');
+  expect(cacheItem?.response.body).toBe('lol');
 
   res = await app.request(req);
   expect(res.status).toBe(200);
   expect(res.headers.get('x-cache-status')).toBe(HIT);
   expect(res.headers.get('cache-control')).toBe('max-age=3, s-maxage=1');
   expect(res.headers.get('age')).toBe('0');
-  expect(cached?.response.body).toBe('lol');
+  expect(cacheItem?.response.body).toBe('lol');
 
   await timeout(1000);
 
@@ -594,7 +604,7 @@ test('`s-maxage` should be used first as cache expiration time', async () => {
   expect(res.headers.get('x-cache-status')).toBe(MISS);
   expect(res.headers.get('cache-control')).toBe('max-age=3, s-maxage=1');
   expect(res.headers.get('age')).toBe(null);
-  expect(cached?.response.body).toBe('lol');
+  expect(cacheItem?.response.body).toBe('lol');
 });
 
 test('`age` should change based on cache time', async () => {
@@ -849,7 +859,7 @@ describe('stale while revalidate', () => {
       const req = new Request('http://localhost/');
       const res = await app.request(req);
       const cacheKey = await defaultCacheKeyGenerator(req);
-      const cached = await store.get(cacheKey);
+      const cacheItem = await store.get(cacheKey);
 
       expect(res.status).toBe(200);
       expect(res.headers.get('x-cache-status')).toBe(MISS);
@@ -858,7 +868,7 @@ describe('stale while revalidate', () => {
         'max-age=1, stale-while-revalidate=2'
       );
       expect(await res.text()).toBe('Hello 0');
-      expect(cached?.response.body).toBe('Hello 0');
+      expect(cacheItem?.response.body).toBe('Hello 0');
     });
 
     test('step 2: content should be fetched from cache', async () => {
@@ -893,8 +903,8 @@ describe('stale while revalidate', () => {
       // NOTE: Wait for background update
       await timeout(16);
 
-      const cached = await store.get(cacheKey);
-      expect(cached?.response.body).toBe('Hello 1');
+      const cacheItem = await store.get(cacheKey);
+      expect(cacheItem?.response.body).toBe('Hello 1');
     });
 
     test('step 4: the updated cache should be used', async () => {

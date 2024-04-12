@@ -205,12 +205,11 @@ export default function cache(options: CacheOptions) {
 
     const response = await refetch(request);
 
-    await putCache(request, response, {
-      customCacheStorage,
-      customCacheKey,
-    });
-
     if (response.headers.has('cache-control')) {
+      await putCache(request, response, {
+        customCacheStorage,
+        customCacheKey,
+      });
       setCacheStatus(response.headers, MISS);
     } else {
       setCacheStatus(response.headers, DYNAMIC);
