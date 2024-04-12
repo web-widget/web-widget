@@ -48,7 +48,9 @@ describe('Should match snapshot', () => {
     const result = await server.fetch(`${pathname}`);
     expect(result.status).toBe(status);
     expect(result.statusText).toMatchSnapshot(`${pathname}@statusText`);
-    expect(result.headers).toMatchSnapshot(`${pathname}@headers`);
+    expect(Object.fromEntries(result.headers.entries())).toMatchSnapshot(
+      `${pathname}@headers`
+    );
     expect(await result.text()).toMatchSnapshot(`${pathname}@body`);
   });
 
@@ -58,7 +60,9 @@ describe('Should match snapshot', () => {
       const result = await server.fetch(`${pathname}`);
       expect(result.status).toBe(status);
       expect(result.statusText).toMatchSnapshot(`${pathname}@statusText`);
-      expect(result.headers).toMatchSnapshot(`${pathname}@headers`);
+      expect(Object.fromEntries(result.headers.entries())).toMatchSnapshot(
+        `${pathname}@headers`
+      );
     }
   );
 });

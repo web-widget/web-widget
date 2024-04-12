@@ -65,6 +65,10 @@
       "module": "routes/context/[[id]]@route.tsx"
     },
     {
+      "pathname": "/api/hello-world",
+      "module": "routes/api/hello-world@route.ts"
+    },
+    {
       "pathname": "/vue2-server-component",
       "module": "routes/(vue2)/vue2-server-component@route.vue"
     },
@@ -91,10 +95,6 @@
     {
       "pathname": "/vue3-router/:all*",
       "module": "routes/(vue3)/vue3-router/[...all]@route.tsx"
-    },
-    {
-      "pathname": "/api/hello-world",
-      "module": "routes/api/hello-world@route.ts"
     }
   ],
   "middlewares": [

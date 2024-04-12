@@ -37,6 +37,11 @@
         "default": "./dist/context.server.js"
       }
     },
+    "./crypto": {
+      "types": "./dist/crypto.d.ts",
+      "development": "./src/crypto/index.ts",
+      "default": "./dist/crypto.js"
+    },
     "./env": {
       "worker": {
         "types": "./dist/env.server.d.ts",
@@ -162,6 +167,10 @@
           "types": "./dist/context.server.d.ts",
           "default": "./dist/context.server.js"
         }
+      },
+      "./crypto": {
+        "types": "./dist/crypto.d.ts",
+        "default": "./dist/crypto.js"
       },
       "./env": {
         "worker": {

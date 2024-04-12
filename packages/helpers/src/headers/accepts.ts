@@ -11,7 +11,7 @@ export type AcceptHeader =
 export interface Accept {
   type: string;
   params: Record<string, string>;
-  q: number;
+  quality: number;
 }
 
 export interface acceptsConfig {
@@ -29,22 +29,25 @@ export const parseAccept = (acceptHeader: string) => {
   const accepts = acceptHeader.split(','); // ['text/html', 'application/xhtml+xml', 'application/xml;q=0.9', 'image/webp', '*/*;q=0.8']
   return accepts.map((accept) => {
     const [type, ...params] = accept.trim().split(';'); // ['application/xml', 'q=0.9']
-    const q = params.find((param) => param.startsWith('q=')); // 'q=0.9'
+    const quality = params.find((param) => param.startsWith('q=')); // 'q=0.9'
     return {
       type,
       params: params.reduce((acc, param) => {
         const [key, value] = param.split('=');
         return { ...acc, [key.trim()]: value.trim() };
       }, {}),
-      q: q ? parseFloat(q.split('=')[1]) : 1,
+      quality: quality ? parseFloat(quality.split('=')[1]) : 1,
     };
   });
 };
 
-export const defaultMatch = (accepts: Accept[], config: acceptsConfig) => {
+export const defaultMatchAccept = (
+  accepts: Accept[],
+  config: acceptsConfig
+) => {
   const { supports, default: defaultSupport } = config;
   const accept = accepts
-    .sort((a, b) => b.q - a.q)
+    .sort((a, b) => b.quality - a.quality)
     .find((accept) => supports.includes(accept.type));
   return accept ? accept.type : defaultSupport;
 };
@@ -53,19 +56,19 @@ export const defaultMatch = (accepts: Accept[], config: acceptsConfig) => {
  * Match the accept header with the given options.
  * @example
  * ```ts
- * const lang = accepts(req, {
+ * const lang = matchAccepts(req, {
  *   header: 'Accept-Language',
  *   supports: ['en', 'zh'],
  *   default: 'en',
  * });
  */
-export const accepts = (headers: Headers, options: acceptsOptions) => {
+export const matchAccepts = (headers: Headers, options: acceptsOptions) => {
   const acceptHeader = headers.get(options.header);
   if (!acceptHeader) {
     return options.default;
   }
   const accepts = parseAccept(acceptHeader);
-  const match = options.match || defaultMatch;
+  const match = options.match || defaultMatchAccept;
 
   return match(accepts, options);
 };

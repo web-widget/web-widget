@@ -3,6 +3,7 @@ export const tsup: Options = {
   entry: {
     'context.client': 'src/context/client.ts',
     'context.server': 'src/context/server.ts',
+    crypto: 'src/crypto/index.ts',
     'env.client': 'src/env/client.ts',
     'env.server': 'src/env/server.ts',
     error: 'src/error/index.ts',
