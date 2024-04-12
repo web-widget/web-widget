@@ -1,5 +1,6 @@
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import {
+  buildCacheControl,
   cacheControl as setCacheControl,
   vary as setVary,
 } from '@web-widget/helpers/headers';
@@ -19,13 +20,15 @@ export type CacheOptions = {
    * Override HTTP `Cache-Control` header.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
    */
-  cacheControl?: (request: Request) => string;
+  cacheControl?: (
+    request: Request
+  ) => string | Parameters<typeof buildCacheControl>[0];
 
   /**
    * Override HTTP `Vary` header.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
    */
-  vary?: (request: Request) => string;
+  vary?: (request: Request) => string | string[];
 
   /**
    * Ignore the `Cache-Control` header in the request.
@@ -146,9 +149,13 @@ export default function cache(options: CacheOptions) {
     const request = context.request;
     const vary = resolveOptions.vary ? resolveOptions.vary(request) : undefined;
     const ignoreRequestCacheControl = resolveOptions.ignoreRequestCacheControl;
-    const cacheControl = resolveOptions.cacheControl
+    const cacheControlRawValue = resolveOptions.cacheControl
       ? resolveOptions.cacheControl(request)
       : undefined;
+    const cacheControl =
+      typeof cacheControlRawValue === 'string'
+        ? cacheControlRawValue
+        : buildCacheControl(cacheControlRawValue);
 
     if (cacheControl) {
       if (
