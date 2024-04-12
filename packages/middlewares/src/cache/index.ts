@@ -74,6 +74,16 @@ export type CacheItem = {
   policy: CachePolicyObject;
 };
 
+type CacheItemResolved = {
+  response: Response;
+  policy: CachePolicy;
+};
+
+type CustomCacheStorage = {
+  get: (cacheKey: string) => Promise<CacheItem | undefined>;
+  set: (cacheKey: string, value: CacheItem, ttl?: number) => Promise<void>;
+};
+
 const DEFAULT_OPTIONS = Object.freeze({
   ignoreRequestCacheControl: true,
   cacheKey: Object.freeze({
@@ -157,7 +167,8 @@ export default function cache(options: CacheOptions) {
       }
     }
 
-    const createCacheKey =
+    const customCacheStorage: CustomCacheStorage = { get, set };
+    const customCacheKey =
       typeof resolveOptions.cacheKey === 'function'
         ? resolveOptions.cacheKey
         : createCacheKeyGenerator(
@@ -165,13 +176,8 @@ export default function cache(options: CacheOptions) {
             resolveOptions.parts,
             vary?.split(',').map((field) => field.trim())
           );
-    const cacheKey = await createCacheKey(request);
 
-    if (!cacheKey) {
-      throw new Error('Missing cache key.');
-    }
-
-    const getResponse = async (request: Request) => {
+    const refetch = async (request: Request) => {
       context.request = request;
       const response = await next();
 
@@ -186,42 +192,25 @@ export default function cache(options: CacheOptions) {
       return response;
     };
 
-    const cache = await getCache(get, cacheKey);
+    const cache = await matchCache(request, {
+      customCacheStorage,
+      customCacheKey,
+      refetch,
+      ignoreRequestCacheControl,
+    });
+
     if (cache) {
-      const policy = cache.policy;
-      let response = cache.response;
-      const stale = ignoreRequestCacheControl
-        ? policy.stale()
-        : !policy.satisfiesWithoutRevalidation(request);
-
-      if (stale) {
-        if (policy.useStaleWhileRevalidate()) {
-          // Well actually, in this case it's fine to return the stale response.
-          // But we'll update the cache in the background.
-          // TODO: Use waitUntil
-          revalidate(getResponse, request, set, cacheKey, cache).then(() => {});
-          setCacheStatus(response.headers, STALE);
-        } else {
-          // NOTE: This will take effect when caching TTL is not working.
-          response = await revalidate(
-            getResponse,
-            request,
-            set,
-            cacheKey,
-            cache
-          );
-          setCacheStatus(response.headers, EXPIRED);
-        }
-      } else {
-        setCacheStatus(response.headers, HIT);
-      }
-
-      return response;
+      return cache;
     }
 
-    const response = await getResponse(request);
+    const response = await refetch(request);
 
-    if (cacheControl) {
+    await putCache(request, response, {
+      customCacheStorage,
+      customCacheKey,
+    });
+
+    if (response.headers.has('cache-control')) {
       setCacheStatus(response.headers, MISS);
     } else {
       setCacheStatus(response.headers, DYNAMIC);
@@ -240,98 +229,139 @@ export default function cache(options: CacheOptions) {
       }
     }
 
-    await setCache(set, cacheKey, {
-      response: response,
-      policy: new CachePolicy(request, response),
-    });
-
     return response;
   });
 }
 
-async function getCache(
-  get: (cacheKey: string) => Promise<CacheItem | undefined>,
-  cacheKey: string
-) {
-  const cacheValue = await get(cacheKey);
+async function matchCache(
+  request: Request,
+  options: {
+    customCacheStorage: CustomCacheStorage;
+    customCacheKey: (request: Request) => Promise<string>;
+    refetch: (request: Request) => Promise<Response>;
+    ignoreRequestCacheControl: boolean;
+  }
+): Promise<Response | null> {
+  const cacheKey = await options.customCacheKey(request);
 
-  if (cacheValue) {
-    const { body, status, statusText } = cacheValue.response;
-    const policy = CachePolicy.fromObject(cacheValue.policy);
-    const headers = policy.responseHeaders();
+  if (!cacheKey) {
+    throw new Error('Missing cache key.');
+  }
 
-    const response = new Response(body, {
-      status,
-      statusText,
-      headers,
-    });
-    return {
+  const cacheItem = await options.customCacheStorage.get(cacheKey);
+
+  if (!cacheItem) {
+    return null;
+  }
+
+  const { body, status, statusText } = cacheItem.response;
+  const policy = CachePolicy.fromObject(cacheItem.policy);
+  const headers = policy.responseHeaders();
+
+  const response = new Response(body, {
+    status,
+    statusText,
+    headers,
+  });
+  const stale = options.ignoreRequestCacheControl
+    ? policy.stale()
+    : !policy.satisfiesWithoutRevalidation(request);
+
+  if (stale) {
+    const resolveCacheItem: CacheItemResolved = {
       response,
       policy,
     };
+    if (policy.useStaleWhileRevalidate()) {
+      // Well actually, in this case it's fine to return the stale response.
+      // But we'll update the cache in the background.
+      // TODO: Use waitUntil
+      revalidateCache(request, resolveCacheItem, options).then(() => {});
+      setCacheStatus(response.headers, STALE);
+      return response;
+    } else {
+      // NOTE: This will take effect when caching TTL is not working.
+      const response = await revalidateCache(
+        request,
+        resolveCacheItem,
+        options
+      );
+      setCacheStatus(response.headers, EXPIRED);
+      return response;
+    }
+  } else {
+    setCacheStatus(response.headers, HIT);
+    return response;
   }
-
-  return cacheValue;
 }
 
-async function setCache(
-  set: (cacheKey: string, value: any, ttl?: number) => Promise<void>,
-  cacheKey: string,
-  value: {
-    response: Response;
-    policy: CachePolicy;
+async function putCache(
+  request: Request,
+  response: Response,
+  options: {
+    customCacheStorage: CustomCacheStorage;
+    customCacheKey: (request: Request) => Promise<string>;
   }
 ) {
-  const ttl = value.policy.timeToLive();
+  const cacheKey = await options.customCacheKey(request);
 
-  if (value.policy.storable() && ttl > 0) {
-    const newCacheValue: CacheItem = {
-      policy: value.policy.toObject(),
-      response: {
-        body: await value.response.clone().text(),
-        status: value.response.status,
-        statusText: value.response.statusText,
-      },
-    };
-    await set(cacheKey, newCacheValue, ttl);
-    return true;
+  if (!cacheKey) {
+    throw new Error('Missing cache key.');
   }
-  return false;
+
+  const policy = new CachePolicy(request, response);
+  const ttl = policy.timeToLive();
+
+  if (!policy.storable() || ttl <= 0) {
+    return false;
+  }
+
+  const newCacheValue: CacheItem = {
+    policy: policy.toObject(),
+    response: {
+      body: await response.clone().text(),
+      status: response.status,
+      statusText: response.statusText,
+    },
+  };
+
+  await options.customCacheStorage.set(cacheKey, newCacheValue, ttl);
+
+  return true;
 }
 
-async function revalidate(
-  fetch: (request: Request) => Promise<Response>,
+async function revalidateCache(
   request: Request,
-  set: (cacheKey: string, value: any, ttl?: number) => Promise<void>,
-  cacheKey: string,
-  cache: {
-    response: Response;
-    policy: CachePolicy;
+  resolveCacheItem: CacheItemResolved,
+  options: {
+    refetch: (request: Request) => Promise<Response>;
+    customCacheStorage: CustomCacheStorage;
+    customCacheKey: (request: Request) => Promise<string>;
   }
 ): Promise<Response> {
   const revalidationRequest = new Request(request, {
-    headers: cache.policy.revalidationHeaders(request),
+    headers: resolveCacheItem.policy.revalidationHeaders(request),
   });
   let revalidationResponse: Response;
 
   try {
-    revalidationResponse = await fetch(revalidationRequest);
+    revalidationResponse = await options.refetch(revalidationRequest);
   } catch (error) {
-    if (cache.policy.useStaleIfError()) {
-      return cache.response;
+    if (resolveCacheItem.policy.useStaleIfError()) {
+      return resolveCacheItem.response;
     } else {
       throw error;
     }
   }
 
   const { modified, policy: revalidatedPolicy } =
-    cache.policy.revalidatedPolicy(revalidationRequest, revalidationResponse);
-  const response = modified ? revalidationResponse : cache.response;
+    resolveCacheItem.policy.revalidatedPolicy(
+      revalidationRequest,
+      revalidationResponse
+    );
+  const response = modified ? revalidationResponse : resolveCacheItem.response;
 
-  await setCache(set, cacheKey, {
-    response: response,
-    policy: revalidatedPolicy,
-  });
+  await putCache(request, response, options);
 
   return new Response(response.body, {
     status: response.status,
@@ -348,10 +378,7 @@ function setCacheStatus(headers: Headers, status: CacheStatus) {
 // is invalid, returns an empty string (instead of null) to prevent the
 // the potentially disastrous scenario where the value of the Etag resp
 // header is "null". Could be modified in future to base64 encode etc
-const formatETag = (
-  entityId: string | null,
-  validatorType: string = 'strong'
-) => {
+function formatETag(entityId: string | null, validatorType: string = 'strong') {
   if (!entityId) {
     return '';
   }
@@ -375,6 +402,6 @@ const formatETag = (
     default:
       return '';
   }
-};
+}
 
 export { createCacheKeyGenerator };
