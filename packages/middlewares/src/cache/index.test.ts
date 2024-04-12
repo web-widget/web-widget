@@ -1094,7 +1094,7 @@ describe('stale while revalidate', () => {
 
     test('step 4: errors that last too long should bypass caching', async () => {
       // NOTE: Simulation exceeds max age
-      await timeout(1001);
+      await timeout(1008);
 
       let req = new Request('http://localhost/');
       let res = await app.request(req, {
