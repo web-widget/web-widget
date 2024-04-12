@@ -28,7 +28,7 @@ export type CacheKeyRules = {
   /** Use search as part of cache key. */
   search?: FilterOptions;
   /** Use vary as part of cache key. */
-  very?: FilterOptions;
+  vary?: FilterOptions;
   /** Use custom variables as part of cache key. */
   [customKey: string]: FilterOptions | undefined;
 };
@@ -41,7 +41,7 @@ export type PartDefiner = (
 export type BuiltInExpandedPartDefiner = (
   request: Request,
   options?: FilterOptions,
-  very?: string[]
+  vary?: string[]
 ) => Promise<string>;
 
 export type PartDefiners = {
@@ -151,7 +151,7 @@ export function search(url: URL, options?: FilterOptions) {
   return search ? `?${search}` : '';
 }
 
-export async function very(
+export async function vary(
   request: Request,
   options?: FilterOptions,
   vary?: string[]
@@ -202,7 +202,7 @@ export const CANNOT_INCLUDE_HEADERS = [
 export async function header(
   request: Request,
   options?: FilterOptions,
-  very?: string[]
+  vary?: string[]
 ) {
   const entries = Array.from(request.headers.entries());
   return (
@@ -211,9 +211,9 @@ export async function header(
         if (CANNOT_INCLUDE_HEADERS.includes(key)) {
           throw new TypeError(`Cannot include header: ${key}`);
         }
-        if (very?.includes(key)) {
+        if (vary?.includes(key)) {
           throw new TypeError(
-            `Cannot include header: ${key}. Use \`very: { include: [${JSON.stringify(key)}] }\` instead.`
+            `Cannot include header: ${key}. Use \`vary: { include: [${JSON.stringify(key)}] }\` instead.`
           );
         }
         return value ? `${key}=${await shortHash(value)}` : key;
@@ -235,7 +235,7 @@ const BUILT_IN_EXPANDED_PART_DEFINERS: BuiltInExpandedPartDefiners = {
   device,
   header,
   method,
-  very,
+  vary,
 };
 
 export function createCacheKeyGenerator(

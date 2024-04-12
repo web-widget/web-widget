@@ -42,7 +42,7 @@ export type CacheOptions = {
    *   method: { include: ['GET', 'HEAD'] },
    *   pathname: true,
    *   search: true,
-   *   very: true
+   *   vary: true
    * }
    * ```
    */
@@ -91,7 +91,7 @@ const DEFAULT_OPTIONS = Object.freeze({
     method: { include: ['GET', 'HEAD'] },
     pathname: true,
     search: true,
-    very: true,
+    vary: true,
   }),
 });
 
