@@ -1,5 +1,14 @@
 # @web-widget/react
 
+## 1.10.35
+
+### Patch Changes
+
+- Updated dependencies [4d81279]
+  - @web-widget/helpers@1.10.35
+  - @web-widget/vite-plugin@1.10.35
+  - @web-widget/web-widget@1.10.35
+
 ## 1.10.34
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.10.35
+
+### Patch Changes
+
+- Updated dependencies [4d81279]
+  - @web-widget/helpers@1.10.35
+  - @web-widget/context@1.10.35
+
 ## 1.10.34
 
 ### Patch Changes
