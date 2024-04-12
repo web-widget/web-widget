@@ -5,7 +5,7 @@ import {
 } from '@web-widget/helpers/headers';
 import type { CachePolicyObject } from '@web-widget/http-cache-semantics';
 import CachePolicy from '@web-widget/http-cache-semantics';
-import { createCacheKeyGenerator } from './cache-key';
+import { createCacheKeyGenerator, vary as getVary } from './cache-key';
 import type { CacheKeyRules, PartDefiners } from './cache-key';
 
 declare module '@web-widget/schema' {
@@ -42,7 +42,6 @@ export type CacheOptions = {
    *   method: { include: ['GET', 'HEAD'] },
    *   pathname: true,
    *   search: true,
-   *   vary: true
    * }
    * ```
    */
@@ -80,9 +79,13 @@ type CacheItemResolved = {
 };
 
 type CustomCacheStorage = {
-  get: (cacheKey: string) => Promise<CacheItem | undefined>;
-  set: (cacheKey: string, value: CacheItem, ttl?: number) => Promise<void>;
+  get: (cacheKey: string) => Promise<any | undefined>;
+  set: (cacheKey: string, value: any, ttl?: number) => Promise<void>;
 };
+
+type CustomCacheKey = (request: Request) => Promise<string>;
+
+type Refetch = (request: Request) => Promise<Response>;
 
 const DEFAULT_OPTIONS = Object.freeze({
   ignoreRequestCacheControl: true,
@@ -91,7 +94,6 @@ const DEFAULT_OPTIONS = Object.freeze({
     method: { include: ['GET', 'HEAD'] },
     pathname: true,
     search: true,
-    vary: true,
   }),
 });
 
@@ -173,11 +175,10 @@ export default function cache(options: CacheOptions) {
         ? resolveOptions.cacheKey
         : createCacheKeyGenerator(
             resolveOptions.cacheKey,
-            resolveOptions.parts,
-            vary?.split(',').map((field) => field.trim())
+            resolveOptions.parts
           );
 
-    const refetch = async (request: Request) => {
+    const refetch: Refetch = async (request: Request) => {
       context.request = request;
       const response = await next();
 
@@ -236,8 +237,8 @@ async function matchCache(
   request: Request,
   options: {
     customCacheStorage: CustomCacheStorage;
-    customCacheKey: (request: Request) => Promise<string>;
-    refetch: (request: Request) => Promise<Response>;
+    customCacheKey: CustomCacheKey;
+    refetch: Refetch;
     ignoreRequestCacheControl: boolean;
   }
 ): Promise<Response | null> {
@@ -247,7 +248,11 @@ async function matchCache(
     throw new Error('Missing cache key.');
   }
 
-  const cacheItem = await options.customCacheStorage.get(cacheKey);
+  const vary = await options.customCacheStorage.get(getVaryCacheKey(cacheKey));
+  const varyPart = vary ? await getVary(request, vary) : undefined;
+  const cacheItem: CacheItem = await options.customCacheStorage.get(
+    varyPart ? `${cacheKey}:${varyPart}` : cacheKey
+  );
 
   if (!cacheItem) {
     return null;
@@ -299,7 +304,7 @@ async function putCache(
   response: Response,
   options: {
     customCacheStorage: CustomCacheStorage;
-    customCacheKey: (request: Request) => Promise<string>;
+    customCacheKey: CustomCacheKey;
   }
 ) {
   const cacheKey = await options.customCacheKey(request);
@@ -315,7 +320,7 @@ async function putCache(
     return false;
   }
 
-  const newCacheValue: CacheItem = {
+  const cacheItem: CacheItem = {
     policy: policy.toObject(),
     response: {
       body: await response.clone().text(),
@@ -324,7 +329,19 @@ async function putCache(
     },
   };
 
-  await options.customCacheStorage.set(cacheKey, newCacheValue, ttl);
+  const vary = response.headers.get('vary');
+
+  if (vary) {
+    const varyPart = await getVary(request, vary);
+    await options.customCacheStorage.set(
+      `${cacheKey}:${varyPart}`,
+      cacheItem,
+      ttl
+    );
+    await options.customCacheStorage.set(getVaryCacheKey(cacheKey), vary, ttl);
+  } else {
+    await options.customCacheStorage.set(cacheKey, cacheItem, ttl);
+  }
 
   return true;
 }
@@ -333,9 +350,9 @@ async function revalidateCache(
   request: Request,
   resolveCacheItem: CacheItemResolved,
   options: {
-    refetch: (request: Request) => Promise<Response>;
+    refetch: Refetch;
     customCacheStorage: CustomCacheStorage;
-    customCacheKey: (request: Request) => Promise<string>;
+    customCacheKey: CustomCacheKey;
   }
 ): Promise<Response> {
   const revalidationRequest = new Request(request, {
@@ -401,6 +418,10 @@ function formatETag(entityId: string | null, validatorType: string = 'strong') {
     default:
       return '';
   }
+}
+
+function getVaryCacheKey(cacheKey: string) {
+  return `VARY:${cacheKey}`;
 }
 
 export { createCacheKeyGenerator };

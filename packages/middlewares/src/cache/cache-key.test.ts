@@ -22,10 +22,8 @@ test('should support built-in rules', async () => {
       method: true,
       pathname: true,
       search: true,
-      very: true,
     },
-    {},
-    ['x-a', 'x-b']
+    {}
   );
   const key = await keyGenerator(
     new Request('http://localhost/?a=1', {
@@ -38,9 +36,7 @@ test('should support built-in rules', async () => {
       },
     })
   );
-  expect(key).toBe(
-    'localhost/?a=1#a=356a19:desktop:x-id=a9993e:GET:x-a=86f7e4&x-b=e9d71f'
-  );
+  expect(key).toBe('localhost/?a=1#a=356a19:desktop:x-id=a9993e:GET');
 });
 
 test('should support filtering', async () => {
@@ -305,26 +301,6 @@ describe('should support header', () => {
       ).rejects.toThrow(`Cannot include header: ${key}`);
     });
   });
-
-  test('`header` should not be used instead of `vary` rules', async () => {
-    await expect(
-      createCacheKeyGenerator(
-        {
-          header: { include: ['x-a'] },
-        },
-        {},
-        ['x-a']
-      )(
-        new Request('http://localhost/', {
-          headers: {
-            'x-a': 'a',
-          },
-        })
-      )
-    ).rejects.toThrow(
-      `Cannot include header: x-a. Use \`very: { include: ["x-a"] }\` instead.`
-    );
-  });
 });
 
 describe('should support host', () => {
@@ -437,27 +413,6 @@ describe('should support search', () => {
       new Request('http://localhost/?a=1&b=2&c=3')
     );
     expect(key).toBe('?a&b=2&c=3');
-  });
-});
-
-describe('should support very', () => {
-  test('basic', async () => {
-    const keyGenerator = createCacheKeyGenerator(
-      {
-        very: true,
-      },
-      {},
-      ['x-a', 'x-b']
-    );
-    const key = await keyGenerator(
-      new Request('http://localhost/', {
-        headers: {
-          'x-a': 'a',
-          'x-b': 'b',
-        },
-      })
-    );
-    expect(key).toBe('#x-a=86f7e4&x-b=e9d71f');
   });
 });
 

@@ -27,8 +27,6 @@ export type CacheKeyRules = {
   pathname?: FilterOptions;
   /** Use search as part of cache key. */
   search?: FilterOptions;
-  /** Use vary as part of cache key. */
-  vary?: FilterOptions;
   /** Use custom variables as part of cache key. */
   [customKey: string]: FilterOptions | undefined;
 };
@@ -40,8 +38,7 @@ export type PartDefiner = (
 
 export type BuiltInExpandedPartDefiner = (
   request: Request,
-  options?: FilterOptions,
-  vary?: string[]
+  options?: FilterOptions
 ) => Promise<string>;
 
 export type PartDefiners = {
@@ -151,21 +148,17 @@ export function search(url: URL, options?: FilterOptions) {
   return search ? `?${search}` : '';
 }
 
-export async function vary(
-  request: Request,
-  options?: FilterOptions,
-  vary?: string[]
-) {
-  if (!vary?.length) {
+export async function vary(request: Request, vary: string) {
+  if (!vary) {
     return '';
   }
-  const include = vary;
+  const include = vary.split(',').map((field) => field.trim());
   const entries = Array.from(request.headers.entries()).filter(([key]) =>
     include.includes(key)
   );
   return (
     await Promise.all(
-      sort(filter(entries, options)).map(async ([key, value]) =>
+      sort(entries).map(async ([key, value]) =>
         value ? `${key}=${await shortHash(value)}` : key
       )
     )
@@ -199,22 +192,13 @@ export const CANNOT_INCLUDE_HEADERS = [
   'x-cache-status',
 ];
 
-export async function header(
-  request: Request,
-  options?: FilterOptions,
-  vary?: string[]
-) {
+export async function header(request: Request, options?: FilterOptions) {
   const entries = Array.from(request.headers.entries());
   return (
     await Promise.all(
       sort(filter(entries, options)).map(async ([key, value]) => {
         if (CANNOT_INCLUDE_HEADERS.includes(key)) {
           throw new TypeError(`Cannot include header: ${key}`);
-        }
-        if (vary?.includes(key)) {
-          throw new TypeError(
-            `Cannot include header: ${key}. Use \`vary: { include: [${JSON.stringify(key)}] }\` instead.`
-          );
         }
         return value ? `${key}=${await shortHash(value)}` : key;
       })
@@ -235,13 +219,11 @@ const BUILT_IN_EXPANDED_PART_DEFINERS: BuiltInExpandedPartDefiners = {
   device,
   header,
   method,
-  vary,
 };
 
 export function createCacheKeyGenerator(
   keyRules: CacheKeyRules,
-  parts?: PartDefiners,
-  vary?: string[]
+  parts?: PartDefiners
 ) {
   const { host, pathname, search, ...fragmentRules } = keyRules;
   const urlRules: CacheKeyRules = { host, pathname, search };
@@ -263,7 +245,7 @@ export function createCacheKeyGenerator(
             BUILT_IN_EXPANDED_PART_DEFINERS[name] ?? parts?.[name];
 
           if (expandedPartDefiners) {
-            return expandedPartDefiners(request, keyRules[name], vary);
+            return expandedPartDefiners(request, keyRules[name]);
           }
 
           throw TypeError(
