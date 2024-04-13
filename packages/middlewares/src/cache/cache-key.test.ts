@@ -1,6 +1,7 @@
 import {
   CANNOT_INCLUDE_HEADERS,
   createCacheKeyGenerator,
+  header,
   vary,
 } from './cache-key';
 
@@ -450,6 +451,68 @@ describe('should support custom key', () => {
   });
 });
 
+describe('get header part', () => {
+  test('should include all', async () => {
+    const key = await header(
+      new Request('http://localhost/?a=1', {
+        headers: {
+          a: '1',
+          b: '2',
+          c: '3',
+        },
+      }),
+      true
+    );
+    expect(key).toBe('a=356a19&b=da4b92&c=77de68');
+  });
+
+  test('should exclude all', async () => {
+    const key = await header(
+      new Request('http://localhost/?a=1', {
+        headers: {
+          A: '1',
+          B: '2',
+          C: '3',
+        },
+      }),
+      false
+    );
+    expect(key).toBe('');
+  });
+
+  test('should include some', async () => {
+    const key = await header(
+      new Request('http://localhost/?a=1', {
+        headers: {
+          a: '1',
+          b: '2',
+          c: '3',
+        },
+      }),
+      {
+        include: ['a', 'b'],
+      }
+    );
+    expect(key).toBe('a=356a19&b=da4b92');
+  });
+
+  test('filter should ignore case', async () => {
+    const key = await header(
+      new Request('http://localhost/?a=1', {
+        headers: {
+          a: '1',
+          b: '2',
+          c: '3',
+        },
+      }),
+      {
+        include: ['A', 'B'],
+      }
+    );
+    expect(key).toBe('a=356a19&b=da4b92');
+  });
+});
+
 describe('get vary part', () => {
   test('should include all', async () => {
     const key = await vary(
@@ -490,6 +553,22 @@ describe('get vary part', () => {
       }),
       {
         include: ['a', 'b'],
+      }
+    );
+    expect(key).toBe('a=356a19&b=da4b92');
+  });
+
+  test('filter should ignore case', async () => {
+    const key = await vary(
+      new Request('http://localhost/?a=1', {
+        headers: {
+          a: '1',
+          b: '2',
+          c: '3',
+        },
+      }),
+      {
+        include: ['A', 'B'],
       }
     );
     expect(key).toBe('a=356a19&b=da4b92');
