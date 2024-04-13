@@ -27,8 +27,8 @@ export type CacheKeyRules = {
   pathname?: FilterOptions;
   /** Use search as part of cache key. */
   search?: FilterOptions;
-  /** Use custom variables as part of cache key. */
-  [customKey: string]: FilterOptions | undefined;
+  /** Use custom part of cache key. */
+  [customPart: string]: FilterOptions | undefined;
 };
 
 export type PartDefiner = (
@@ -42,11 +42,11 @@ export type BuiltInExpandedPartDefiner = (
 ) => Promise<string>;
 
 export type CacheKeyPartDefiners = {
-  [customKey: string]: PartDefiner | undefined;
+  [customPart: string]: PartDefiner | undefined;
 };
 
 export type BuiltInExpandedCacheKeyPartDefiners = {
-  [customKey: string]: BuiltInExpandedPartDefiner | undefined;
+  [customPart: string]: BuiltInExpandedPartDefiner | undefined;
 };
 
 export async function shortHash(data: Parameters<typeof sha1>[0]) {
@@ -243,7 +243,7 @@ export function createCacheKeyGenerator(
             return expandedCacheKeyPartDefiners(request, keyRules[name]);
           }
 
-          throw TypeError(`Unknown key rule: "${name}".`);
+          throw TypeError(`Unknown custom part: "${name}".`);
         })
     );
 

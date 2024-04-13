@@ -421,26 +421,32 @@ describe('should support search', () => {
 });
 
 describe('should support custom key', () => {
-  test('basic', async () => {
+  test('extract the contents of the header into a variable', async () => {
     const keyGenerator = createCacheKeyGenerator(
       {
         foo: true,
       },
       {
-        foo: async () => 'custom',
+        foo: async (request) => request.headers.get('x-id') || '',
       }
     );
-    const key = await keyGenerator(new Request('http://localhost/'));
+    const key = await keyGenerator(
+      new Request('http://localhost/', {
+        headers: {
+          'x-id': 'custom',
+        },
+      })
+    );
     expect(key).toBe('#custom');
   });
 
-  test('custom key variable must exist', async () => {
+  test('custom part must exist', async () => {
     const keyGenerator = createCacheKeyGenerator({
       foo: true,
     });
     await expect(() =>
       keyGenerator(new Request('http://localhost/'))
-    ).rejects.toThrow('Unknown key rule: "foo".');
+    ).rejects.toThrow('Unknown custom part: "foo".');
   });
 });
 
