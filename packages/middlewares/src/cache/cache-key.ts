@@ -148,17 +148,11 @@ export function search(url: URL, options?: FilterOptions) {
   return search ? `?${search}` : '';
 }
 
-export async function vary(request: Request, vary: string) {
-  if (!vary) {
-    return '';
-  }
-  const include = vary.split(',').map((field) => field.trim());
-  const entries = Array.from(request.headers.entries()).filter(([key]) =>
-    include.includes(key)
-  );
+export async function vary(request: Request, options?: FilterOptions) {
+  const entries = Array.from(request.headers.entries());
   return (
     await Promise.all(
-      sort(entries).map(async ([key, value]) =>
+      sort(filter(entries, options)).map(async ([key, value]) =>
         value ? `${key}=${await shortHash(value)}` : key
       )
     )
@@ -184,7 +178,7 @@ export const CANNOT_INCLUDE_HEADERS = [
   'if-unmodified-since',
   'range',
   'upgrade',
-  // Headers that are covered by other Cache Key features
+  // Headers that are covered by other cache Key features
   'cookie',
   'host',
   'vary',

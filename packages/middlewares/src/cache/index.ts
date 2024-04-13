@@ -1,13 +1,14 @@
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import {
-  buildCacheControl,
   cacheControl as setCacheControl,
+  stringifyResponseCacheControl,
   vary as setVary,
+  type ResponseCacheControlOptions,
 } from '@web-widget/helpers/headers';
 import type { CachePolicyObject } from '@web-widget/http-cache-semantics';
 import CachePolicy from '@web-widget/http-cache-semantics';
 import { createCacheKeyGenerator, vary as getVary } from './cache-key';
-import type { CacheKeyRules, PartDefiners } from './cache-key';
+import type { CacheKeyRules, FilterOptions, PartDefiners } from './cache-key';
 
 declare module '@web-widget/schema' {
   interface RouteConfig {
@@ -20,15 +21,16 @@ export type CacheOptions = {
    * Override HTTP `Cache-Control` header.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
    */
-  cacheControl?: (
-    request: Request
-  ) => string | Parameters<typeof buildCacheControl>[0];
+  cacheControl?:
+    | string
+    | ResponseCacheControlOptions
+    | ((request: Request) => string | ResponseCacheControlOptions);
 
   /**
    * Override HTTP `Vary` header.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
    */
-  vary?: (request: Request) => string | string[];
+  vary?: string | string[] | ((request: Request) => string | string[]);
 
   /**
    * Ignore the `Cache-Control` header in the request.
@@ -58,13 +60,13 @@ export type CacheOptions = {
   /**
    * A method to get a cache value by cacheKey.
    */
-  get: (cacheKey: string) => Promise<any>;
+  get: CustomCacheStorage['get'];
 
   /**
    * A method to set a cache value by cacheKey.
    * If `ttl` is provided, then it's the time-to-live in milliseconds.
    */
-  set: (cacheKey: string, value: any, ttl?: number) => Promise<void>;
+  set: CustomCacheStorage['set'];
 };
 
 export type CacheItem = {
@@ -85,8 +87,6 @@ type CustomCacheStorage = {
   get: (cacheKey: string) => Promise<any | undefined>;
   set: (cacheKey: string, value: any, ttl?: number) => Promise<void>;
 };
-
-type CustomCacheKey = (request: Request) => Promise<string>;
 
 type Refetch = (request: Request) => Promise<Response>;
 
@@ -147,15 +147,21 @@ export default function cache(options: CacheOptions) {
     };
 
     const request = context.request;
-    const vary = resolveOptions.vary ? resolveOptions.vary(request) : undefined;
+    const vary =
+      typeof resolveOptions.vary === 'function'
+        ? resolveOptions.vary(request)
+        : resolveOptions.vary;
     const ignoreRequestCacheControl = resolveOptions.ignoreRequestCacheControl;
-    const cacheControlRawValue = resolveOptions.cacheControl
-      ? resolveOptions.cacheControl(request)
-      : undefined;
+    const cacheControlRawValue =
+      typeof resolveOptions.cacheControl === 'function'
+        ? resolveOptions.cacheControl(request)
+        : undefined;
     const cacheControl =
       typeof cacheControlRawValue === 'string'
         ? cacheControlRawValue
-        : buildCacheControl(cacheControlRawValue);
+        : cacheControlRawValue
+          ? stringifyResponseCacheControl(cacheControlRawValue)
+          : undefined;
 
     if (cacheControl) {
       if (
@@ -181,13 +187,18 @@ export default function cache(options: CacheOptions) {
     }
 
     const customCacheStorage: CustomCacheStorage = { get, set };
-    const customCacheKey =
+    const cacheKey =
       typeof resolveOptions.cacheKey === 'function'
         ? resolveOptions.cacheKey
         : createCacheKeyGenerator(
             resolveOptions.cacheKey,
             resolveOptions.parts
           );
+    const customCacheKey = await cacheKey(request);
+
+    if (!cacheKey) {
+      throw new Error('Missing cache key.');
+    }
 
     const refetch: Refetch = async (request: Request) => {
       context.request = request;
@@ -250,21 +261,15 @@ async function matchCache(
   request: Request,
   options: {
     customCacheStorage: CustomCacheStorage;
-    customCacheKey: CustomCacheKey;
+    customCacheKey: string;
     refetch: Refetch;
     ignoreRequestCacheControl: boolean;
   }
 ): Promise<Response | null> {
-  const cacheKey = await options.customCacheKey(request);
-
-  if (!cacheKey) {
-    throw new Error('Missing cache key.');
-  }
-
-  const vary = await options.customCacheStorage.get(getVaryCacheKey(cacheKey));
-  const varyPart = vary ? await getVary(request, vary) : undefined;
-  const cacheItem: CacheItem = await options.customCacheStorage.get(
-    varyPart ? `${cacheKey}:${varyPart}` : cacheKey
+  const cacheItem = await getCacheItem(
+    request,
+    options.customCacheStorage,
+    options.customCacheKey
   );
 
   if (!cacheItem) {
@@ -317,15 +322,9 @@ async function putCache(
   response: Response,
   options: {
     customCacheStorage: CustomCacheStorage;
-    customCacheKey: CustomCacheKey;
+    customCacheKey: string;
   }
 ) {
-  const cacheKey = await options.customCacheKey(request);
-
-  if (!cacheKey) {
-    throw new Error('Missing cache key.');
-  }
-
   const policy = new CachePolicy(request, response);
   const ttl = policy.timeToLive();
 
@@ -342,21 +341,62 @@ async function putCache(
     },
   };
 
-  const vary = response.headers.get('vary');
+  await setCacheItem(
+    options.customCacheStorage,
+    options.customCacheKey,
+    cacheItem,
+    ttl,
+    request,
+    response
+  );
 
+  return true;
+}
+
+async function getCacheItem(
+  request: Request,
+  customCacheStorage: CustomCacheStorage,
+  customCacheKey: string
+): Promise<CacheItem> {
+  const varyFilterOptions: FilterOptions | undefined =
+    await customCacheStorage.get(getVaryCacheKey(customCacheKey));
+  const varyPart = varyFilterOptions
+    ? await getVary(request, varyFilterOptions)
+    : undefined;
+  const cacheItem: CacheItem = await customCacheStorage.get(
+    varyPart ? `${customCacheKey}:${varyPart}` : customCacheKey
+  );
+  return cacheItem;
+}
+
+async function setCacheItem(
+  customCacheStorage: CustomCacheStorage,
+  customCacheKey: string,
+  cacheItem: CacheItem,
+  ttl: number,
+  request: Request,
+  response: Response
+): Promise<void> {
+  const vary = response.headers.get('vary');
   if (vary) {
-    const varyPart = await getVary(request, vary);
-    await options.customCacheStorage.set(
-      `${cacheKey}:${varyPart}`,
+    const varyFilterOptions: FilterOptions =
+      vary === '*'
+        ? true
+        : { include: vary.split(',').map((field) => field.trim()) };
+    const varyPart = await getVary(request, varyFilterOptions);
+    await customCacheStorage.set(
+      `${customCacheKey}:${varyPart}`,
       cacheItem,
       ttl
     );
-    await options.customCacheStorage.set(getVaryCacheKey(cacheKey), vary, ttl);
+    await customCacheStorage.set(
+      getVaryCacheKey(customCacheKey),
+      varyFilterOptions,
+      ttl
+    );
   } else {
-    await options.customCacheStorage.set(cacheKey, cacheItem, ttl);
+    await customCacheStorage.set(customCacheKey, cacheItem, ttl);
   }
-
-  return true;
 }
 
 async function revalidateCache(
@@ -365,7 +405,7 @@ async function revalidateCache(
   options: {
     refetch: Refetch;
     customCacheStorage: CustomCacheStorage;
-    customCacheKey: CustomCacheKey;
+    customCacheKey: string;
   }
 ): Promise<Response> {
   const revalidationRequest = new Request(request, {
