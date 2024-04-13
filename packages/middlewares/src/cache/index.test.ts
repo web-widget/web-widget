@@ -491,65 +491,109 @@ test('when the method is POST it should not cache the response', async () => {
   expect(res.headers.get('x-cache-status')).toBe(MISS);
 });
 
-test('when the `vary` header is present, different versions should be cached', async () => {
-  const store = createCacheStore();
-  const app = createApp(
-    store,
-    {
-      vary() {
-        return 'accept-language';
-      },
-    },
-    [
+describe('when the `vary` header is present, different versions should be cached', () => {
+  test('multiple versions should be cached', async () => {
+    const store = createCacheStore();
+    const app = createApp(
+      store,
       {
-        pathname: '*',
-        module: {
-          handler: async (ctx) => {
-            return new Response(ctx.request.headers.get('accept-language'));
-          },
+        vary() {
+          return 'accept-language';
         },
       },
-    ]
-  );
-  let req = new Request('http://localhost/', {
-    headers: {
-      'accept-language': 'en-us',
-    },
+      [
+        {
+          pathname: '*',
+          module: {
+            handler: async (ctx) => {
+              return new Response(ctx.request.headers.get('accept-language'));
+            },
+          },
+        },
+      ]
+    );
+    let req = new Request('http://localhost/', {
+      headers: {
+        'accept-language': 'en-us',
+      },
+    });
+    let res = await app.request(req);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(MISS);
+    expect(res.headers.get('vary')).toBe('accept-language');
+    expect(await res.text()).toBe('en-us');
+
+    res = await app.request(req);
+    expect(res.headers.get('x-cache-status')).toBe(HIT);
+
+    req = new Request('http://localhost/', {
+      headers: {
+        'accept-language': 'tr-tr',
+      },
+    });
+    res = await app.request(req);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(MISS);
+    expect(res.headers.get('vary')).toBe('accept-language');
+    expect(await res.text()).toBe('tr-tr');
+
+    res = await app.request(req);
+    expect(res.headers.get('x-cache-status')).toBe(HIT);
+
+    req = new Request('http://localhost/', {
+      headers: {
+        'accept-language': 'en-us',
+      },
+    });
+    res = await app.request(req);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(HIT);
+    expect(res.headers.get('vary')).toBe('accept-language');
+    expect(await res.text()).toBe('en-us');
   });
-  let res = await app.request(req);
 
-  expect(res.status).toBe(200);
-  expect(res.headers.get('x-cache-status')).toBe(MISS);
-  expect(res.headers.get('vary')).toBe('accept-language');
-  expect(await res.text()).toBe('en-us');
-  res = await app.request(req);
-  expect(res.headers.get('x-cache-status')).toBe(HIT);
+  test('case should be ignored', async () => {
+    const store = createCacheStore();
+    const app = createApp(
+      store,
+      {
+        vary() {
+          return 'Accept-Language';
+        },
+      },
+      [
+        {
+          pathname: '*',
+          module: {
+            handler: async (ctx) => {
+              return new Response(ctx.request.headers.get('accept-language'));
+            },
+          },
+        },
+      ]
+    );
+    let req = new Request('http://localhost/', {
+      headers: {
+        'accept-language': 'en-us',
+      },
+    });
+    let res = await app.request(req);
 
-  req = new Request('http://localhost/', {
-    headers: {
-      'accept-language': 'tr-tr',
-    },
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(MISS);
+    expect(res.headers.get('vary')).toBe('Accept-Language');
+    expect(await res.text()).toBe('en-us');
+
+    res = await app.request(req);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-cache-status')).toBe(HIT);
+    expect(res.headers.get('vary')).toBe('Accept-Language');
+    expect(await res.text()).toBe('en-us');
   });
-  res = await app.request(req);
-
-  expect(res.status).toBe(200);
-  expect(res.headers.get('x-cache-status')).toBe(MISS);
-  expect(res.headers.get('vary')).toBe('accept-language');
-  expect(await res.text()).toBe('tr-tr');
-  res = await app.request(req);
-  expect(res.headers.get('x-cache-status')).toBe(HIT);
-
-  req = new Request('http://localhost/', {
-    headers: {
-      'accept-language': 'en-us',
-    },
-  });
-  res = await app.request(req);
-
-  expect(res.status).toBe(200);
-  expect(res.headers.get('x-cache-status')).toBe(HIT);
-  expect(res.headers.get('vary')).toBe('accept-language');
-  expect(await res.text()).toBe('en-us');
 });
 
 test('when the response code is not 200 it should not cache the response', async () => {

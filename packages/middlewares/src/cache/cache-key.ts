@@ -87,6 +87,18 @@ function sort(array: [key: string, value: string][]) {
   return array.sort((a, b) => a[0].localeCompare(b[0]));
 }
 
+function toLowerCase(options?: FilterOptions) {
+  if (typeof options === 'object') {
+    const newOptions: FilterOptions = {
+      include: options.include?.map((name) => name.toLowerCase()),
+      exclude: options.exclude?.map((name) => name.toLowerCase()),
+      checkPresence: options.checkPresence?.map((name) => name.toLowerCase()),
+    };
+    return newOptions;
+  }
+  return options;
+}
+
 export async function cookie(request: Request, options?: FilterOptions) {
   const cookie = new RequestCookies(request.headers);
   const entries: [string, string][] = cookie
@@ -152,7 +164,7 @@ export async function vary(request: Request, options?: FilterOptions) {
   const entries = Array.from(request.headers.entries());
   return (
     await Promise.all(
-      sort(filter(entries, options)).map(
+      sort(filter(entries, toLowerCase(options))).map(
         async ([key, value]) => `${key}=${await shortHash(value)}`
       )
     )
@@ -190,7 +202,7 @@ export async function header(request: Request, options?: FilterOptions) {
   const entries = Array.from(request.headers.entries());
   return (
     await Promise.all(
-      sort(filter(entries, options)).map(async ([key, value]) => {
+      sort(filter(entries, toLowerCase(options))).map(async ([key, value]) => {
         if (CANNOT_INCLUDE_HEADERS.includes(key)) {
           throw new TypeError(`Cannot include header: ${key}`);
         }
