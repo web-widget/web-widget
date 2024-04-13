@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.10.37
+
+### Patch Changes
+
+- 5a167d8: `cache`: `options.vary` ignores case.
+  - @web-widget/helpers@1.10.37
+  - @web-widget/schema@1.10.37
+
 ## 1.10.36
 
 ### Patch Changes
