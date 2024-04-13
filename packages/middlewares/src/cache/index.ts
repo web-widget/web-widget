@@ -365,7 +365,7 @@ async function getCacheItem(
   customCacheKey: string
 ): Promise<CacheItem> {
   const varyFilterOptions: FilterOptions | undefined =
-    await customCacheStorage.get(getVaryCacheKey(customCacheKey));
+    await customCacheStorage.get(`VARY:${customCacheKey}`);
   const varyPart = varyFilterOptions
     ? await getVary(request, varyFilterOptions)
     : undefined;
@@ -396,7 +396,7 @@ async function setCacheItem(
       ttl
     );
     await customCacheStorage.set(
-      getVaryCacheKey(customCacheKey),
+      `VARY:${customCacheKey}`,
       varyFilterOptions,
       ttl
     );
@@ -478,10 +478,6 @@ function formatETag(entityId: string | null, validatorType: string = 'strong') {
     default:
       return '';
   }
-}
-
-function getVaryCacheKey(cacheKey: string) {
-  return `VARY:${cacheKey}`;
 }
 
 export { createCacheKeyGenerator };
