@@ -433,6 +433,15 @@ describe('should support custom key', () => {
     const key = await keyGenerator(new Request('http://localhost/'));
     expect(key).toBe('#custom');
   });
+
+  test('custom key variable must exist', async () => {
+    const keyGenerator = createCacheKeyGenerator({
+      foo: true,
+    });
+    await expect(() =>
+      keyGenerator(new Request('http://localhost/'))
+    ).rejects.toThrow('Unknown key rule: "foo".');
+  });
 });
 
 describe('get vary part', () => {

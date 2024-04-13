@@ -41,11 +41,11 @@ export type BuiltInExpandedPartDefiner = (
   options?: FilterOptions
 ) => Promise<string>;
 
-export type PartDefiners = {
+export type CacheKeyPartDefiners = {
   [customKey: string]: PartDefiner | undefined;
 };
 
-export type BuiltInExpandedPartDefiners = {
+export type BuiltInExpandedCacheKeyPartDefiners = {
   [customKey: string]: BuiltInExpandedPartDefiner | undefined;
 };
 
@@ -152,8 +152,8 @@ export async function vary(request: Request, options?: FilterOptions) {
   const entries = Array.from(request.headers.entries());
   return (
     await Promise.all(
-      sort(filter(entries, options)).map(async ([key, value]) =>
-        value ? `${key}=${await shortHash(value)}` : key
+      sort(filter(entries, options)).map(
+        async ([key, value]) => `${key}=${await shortHash(value)}`
       )
     )
   ).join('&');
@@ -208,7 +208,7 @@ const BUILT_IN_URL_PART_DEFINERS: {
   search,
 };
 
-const BUILT_IN_EXPANDED_PART_DEFINERS: BuiltInExpandedPartDefiners = {
+const BUILT_IN_EXPANDED_PART_DEFINERS: BuiltInExpandedCacheKeyPartDefiners = {
   cookie,
   device,
   header,
@@ -217,7 +217,7 @@ const BUILT_IN_EXPANDED_PART_DEFINERS: BuiltInExpandedPartDefiners = {
 
 export function createCacheKeyGenerator(
   keyRules: CacheKeyRules,
-  parts?: PartDefiners
+  cacheKeyPartDefiners?: CacheKeyPartDefiners
 ) {
   const { host, pathname, search, ...fragmentRules } = keyRules;
   const urlRules: CacheKeyRules = { host, pathname, search };
@@ -235,16 +235,15 @@ export function createCacheKeyGenerator(
       Object.keys(fragmentRules)
         .sort()
         .map((name) => {
-          const expandedPartDefiners =
-            BUILT_IN_EXPANDED_PART_DEFINERS[name] ?? parts?.[name];
+          const expandedCacheKeyPartDefiners =
+            BUILT_IN_EXPANDED_PART_DEFINERS[name] ??
+            cacheKeyPartDefiners?.[name];
 
-          if (expandedPartDefiners) {
-            return expandedPartDefiners(request, keyRules[name]);
+          if (expandedCacheKeyPartDefiners) {
+            return expandedCacheKeyPartDefiners(request, keyRules[name]);
           }
 
-          throw TypeError(
-            `Unknown key rule: "${name}": "${name}" needs to be defined in "options.parts".`
-          );
+          throw TypeError(`Unknown key rule: "${name}".`);
         })
     );
 

@@ -8,7 +8,11 @@ import {
 import type { CachePolicyObject } from '@web-widget/http-cache-semantics';
 import CachePolicy from '@web-widget/http-cache-semantics';
 import { createCacheKeyGenerator, vary as getVary } from './cache-key';
-import type { CacheKeyRules, FilterOptions, PartDefiners } from './cache-key';
+import type {
+  CacheKeyRules,
+  FilterOptions,
+  CacheKeyPartDefiners,
+} from './cache-key';
 
 declare module '@web-widget/schema' {
   interface RouteConfig {
@@ -55,7 +59,7 @@ export type CacheOptions = {
   /**
    * Define custom parts for cache keys.
    */
-  parts?: PartDefiners;
+  cacheKeyPartDefiners?: CacheKeyPartDefiners;
 
   /**
    * A method to get a cache value by cacheKey.
@@ -126,7 +130,7 @@ export default function cache(options: CacheOptions) {
   if (!set) throw new Error('.set not defined');
 
   const defaultOptions = {
-    parts: {},
+    cacheKeyPartDefiners: {},
     ...DEFAULT_OPTIONS,
     ...options,
   };
@@ -192,7 +196,7 @@ export default function cache(options: CacheOptions) {
         ? resolveOptions.cacheKey
         : createCacheKeyGenerator(
             resolveOptions.cacheKey,
-            resolveOptions.parts
+            resolveOptions.cacheKeyPartDefiners
           );
     const customCacheKey = await cacheKey(request);
 
