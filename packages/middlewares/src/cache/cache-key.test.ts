@@ -1,4 +1,8 @@
-import { CANNOT_INCLUDE_HEADERS, createCacheKeyGenerator } from './cache-key';
+import {
+  CANNOT_INCLUDE_HEADERS,
+  createCacheKeyGenerator,
+  vary,
+} from './cache-key';
 
 test('base: host + pathname + search', async () => {
   const keyGenerator = createCacheKeyGenerator({
@@ -417,16 +421,77 @@ describe('should support search', () => {
 });
 
 describe('should support custom key', () => {
-  test('basic', async () => {
+  test('extract the contents of the header into a variable', async () => {
     const keyGenerator = createCacheKeyGenerator(
       {
         foo: true,
       },
       {
-        foo: async () => 'custom',
+        foo: async (request) => request.headers.get('x-id') || '',
       }
     );
-    const key = await keyGenerator(new Request('http://localhost/'));
+    const key = await keyGenerator(
+      new Request('http://localhost/', {
+        headers: {
+          'x-id': 'custom',
+        },
+      })
+    );
     expect(key).toBe('#custom');
+  });
+
+  test('custom part must exist', async () => {
+    const keyGenerator = createCacheKeyGenerator({
+      foo: true,
+    });
+    await expect(() =>
+      keyGenerator(new Request('http://localhost/'))
+    ).rejects.toThrow('Unknown custom part: "foo".');
+  });
+});
+
+describe('get vary part', () => {
+  test('should include all', async () => {
+    const key = await vary(
+      new Request('http://localhost/?a=1', {
+        headers: {
+          a: '1',
+          b: '2',
+          c: '3',
+        },
+      }),
+      true
+    );
+    expect(key).toBe('a=356a19&b=da4b92&c=77de68');
+  });
+
+  test('should exclude all', async () => {
+    const key = await vary(
+      new Request('http://localhost/?a=1', {
+        headers: {
+          A: '1',
+          B: '2',
+          C: '3',
+        },
+      }),
+      false
+    );
+    expect(key).toBe('');
+  });
+
+  test('should include some', async () => {
+    const key = await vary(
+      new Request('http://localhost/?a=1', {
+        headers: {
+          a: '1',
+          b: '2',
+          c: '3',
+        },
+      }),
+      {
+        include: ['a', 'b'],
+      }
+    );
+    expect(key).toBe('a=356a19&b=da4b92');
   });
 });

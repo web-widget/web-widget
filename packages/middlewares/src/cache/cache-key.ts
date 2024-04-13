@@ -27,8 +27,8 @@ export type CacheKeyRules = {
   pathname?: FilterOptions;
   /** Use search as part of cache key. */
   search?: FilterOptions;
-  /** Use custom variables as part of cache key. */
-  [customKey: string]: FilterOptions | undefined;
+  /** Use custom part of cache key. */
+  [customPart: string]: FilterOptions | undefined;
 };
 
 export type PartDefiner = (
@@ -41,12 +41,12 @@ export type BuiltInExpandedPartDefiner = (
   options?: FilterOptions
 ) => Promise<string>;
 
-export type PartDefiners = {
-  [customKey: string]: PartDefiner | undefined;
+export type CacheKeyPartDefiners = {
+  [customPart: string]: PartDefiner | undefined;
 };
 
-export type BuiltInExpandedPartDefiners = {
-  [customKey: string]: BuiltInExpandedPartDefiner | undefined;
+export type BuiltInExpandedCacheKeyPartDefiners = {
+  [customPart: string]: BuiltInExpandedPartDefiner | undefined;
 };
 
 export async function shortHash(data: Parameters<typeof sha1>[0]) {
@@ -148,18 +148,12 @@ export function search(url: URL, options?: FilterOptions) {
   return search ? `?${search}` : '';
 }
 
-export async function vary(request: Request, vary: string) {
-  if (!vary) {
-    return '';
-  }
-  const include = vary.split(',').map((field) => field.trim());
-  const entries = Array.from(request.headers.entries()).filter(([key]) =>
-    include.includes(key)
-  );
+export async function vary(request: Request, options?: FilterOptions) {
+  const entries = Array.from(request.headers.entries());
   return (
     await Promise.all(
-      sort(entries).map(async ([key, value]) =>
-        value ? `${key}=${await shortHash(value)}` : key
+      sort(filter(entries, options)).map(
+        async ([key, value]) => `${key}=${await shortHash(value)}`
       )
     )
   ).join('&');
@@ -184,7 +178,7 @@ export const CANNOT_INCLUDE_HEADERS = [
   'if-unmodified-since',
   'range',
   'upgrade',
-  // Headers that are covered by other Cache Key features
+  // Headers that are covered by other cache Key features
   'cookie',
   'host',
   'vary',
@@ -214,7 +208,7 @@ const BUILT_IN_URL_PART_DEFINERS: {
   search,
 };
 
-const BUILT_IN_EXPANDED_PART_DEFINERS: BuiltInExpandedPartDefiners = {
+const BUILT_IN_EXPANDED_PART_DEFINERS: BuiltInExpandedCacheKeyPartDefiners = {
   cookie,
   device,
   header,
@@ -223,7 +217,7 @@ const BUILT_IN_EXPANDED_PART_DEFINERS: BuiltInExpandedPartDefiners = {
 
 export function createCacheKeyGenerator(
   keyRules: CacheKeyRules,
-  parts?: PartDefiners
+  cacheKeyPartDefiners?: CacheKeyPartDefiners
 ) {
   const { host, pathname, search, ...fragmentRules } = keyRules;
   const urlRules: CacheKeyRules = { host, pathname, search };
@@ -241,16 +235,15 @@ export function createCacheKeyGenerator(
       Object.keys(fragmentRules)
         .sort()
         .map((name) => {
-          const expandedPartDefiners =
-            BUILT_IN_EXPANDED_PART_DEFINERS[name] ?? parts?.[name];
+          const expandedCacheKeyPartDefiners =
+            BUILT_IN_EXPANDED_PART_DEFINERS[name] ??
+            cacheKeyPartDefiners?.[name];
 
-          if (expandedPartDefiners) {
-            return expandedPartDefiners(request, keyRules[name]);
+          if (expandedCacheKeyPartDefiners) {
+            return expandedCacheKeyPartDefiners(request, keyRules[name]);
           }
 
-          throw TypeError(
-            `Unknown key rule: "${name}": "${name}" needs to be defined in "options.parts".`
-          );
+          throw TypeError(`Unknown custom part: "${name}".`);
         })
     );
 

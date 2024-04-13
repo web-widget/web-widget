@@ -20,7 +20,7 @@ const defaultCacheKeyGenerator = createCacheKeyGenerator(
 
 type CacheStore = {
   get: (cacheKey: string) => Promise<CacheItem | undefined>;
-  set: (cacheKey: string, value: CacheItem, maxAge?: number) => Promise<void>;
+  set: (cacheKey: string, value: CacheItem, ttl?: number) => Promise<void>;
 };
 
 const createCacheStore = (): CacheStore => {
@@ -30,8 +30,8 @@ const createCacheStore = (): CacheStore => {
     async get(cacheKey: string) {
       return store.get(cacheKey) as CacheItem | undefined;
     },
-    async set(cacheKey: string, value: CacheItem, maxAge?: number) {
-      store.set(cacheKey, value, { ttl: maxAge });
+    async set(cacheKey: string, value: CacheItem, ttl?: number) {
+      store.set(cacheKey, value, { ttl });
     },
   };
 };
@@ -120,6 +120,34 @@ describe('cache control should be added', () => {
       'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5'
     );
   });
+
+  test('do not set HTTP headers when status code is greater than or equal to 500', async () => {
+    const store = createCacheStore();
+    const app = createApp(
+      store,
+      {
+        cacheControl() {
+          return 'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5';
+        },
+      },
+      [
+        {
+          pathname: '*',
+          module: {
+            handler: async () => {
+              return new Response(null, {
+                status: 500,
+              });
+            },
+          },
+        },
+      ]
+    );
+    const req = new Request('http://localhost/');
+    const res = await app.request(req);
+
+    expect(res.headers.get('cache-control')).toBe(null);
+  });
 });
 
 describe('vary should be added', () => {
@@ -147,6 +175,34 @@ describe('vary should be added', () => {
     const res = await app.request(req);
 
     expect(res.headers.get('vary')).toBe('accept-language');
+  });
+
+  test('do not set HTTP headers when status code is greater than or equal to 500', async () => {
+    const store = createCacheStore();
+    const app = createApp(
+      store,
+      {
+        vary() {
+          return 'accept-language';
+        },
+      },
+      [
+        {
+          pathname: '*',
+          module: {
+            handler: async () => {
+              return new Response(null, {
+                status: 500,
+              });
+            },
+          },
+        },
+      ]
+    );
+    const req = new Request('http://localhost/');
+    const res = await app.request(req);
+
+    expect(res.headers.get('vary')).toBe(null);
   });
 });
 
@@ -606,6 +662,22 @@ test('when the response is fresh it should return a 304 and cache the response',
   );
   expect(cacheItem?.policy.resh['last-modified']).toBe(
     new Date(date * 1000).toUTCString()
+  );
+});
+
+test('an exception should be thrown when the cache key is empty', async () => {
+  const store = createCacheStore();
+  const app = createApp(store, {
+    async cacheKey() {
+      return '';
+    },
+  });
+  const req = new Request('http://localhost/');
+  const res = await app.request(req);
+  expect(res.status).toBe(500);
+  expect(res.headers.get('x-cache-status')).toBe(null);
+  expect(await res.text()).toEqual(
+    expect.stringContaining('Missing cache key.')
   );
 });
 
