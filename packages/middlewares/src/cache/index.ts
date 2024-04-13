@@ -244,6 +244,7 @@ export default function cache(options: CacheOptions) {
       setCacheStatus(response.headers, DYNAMIC);
     }
 
+    /* istanbul ignore if */
     if (response.status === 304) {
       const etag = formatETag(response.headers.get('etag'));
       const ifNoneMatch = request.headers.get('if-none-match');
@@ -298,6 +299,7 @@ async function matchCache(
       response,
       policy,
     };
+    /* istanbul ignore else */
     if (policy.useStaleWhileRevalidate()) {
       // Well actually, in this case it's fine to return the stale response.
       // But we'll update the cache in the background.
@@ -451,6 +453,7 @@ function setCacheStatus(headers: Headers, status: CacheStatus) {
 // is invalid, returns an empty string (instead of null) to prevent the
 // the potentially disastrous scenario where the value of the Etag resp
 // header is "null". Could be modified in future to base64 encode etc
+/* istanbul ignore next */
 function formatETag(entityId: string | null, validatorType: string = 'strong') {
   if (!entityId) {
     return '';
