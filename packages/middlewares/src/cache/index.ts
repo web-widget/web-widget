@@ -196,7 +196,7 @@ export default function cache(options: CacheOptions) {
           );
     const customCacheKey = await cacheKey(request);
 
-    if (!cacheKey) {
+    if (!customCacheKey) {
       throw new Error('Missing cache key.');
     }
 

@@ -665,6 +665,22 @@ test('when the response is fresh it should return a 304 and cache the response',
   );
 });
 
+test('an exception should be thrown when the cache key is empty', async () => {
+  const store = createCacheStore();
+  const app = createApp(store, {
+    async cacheKey() {
+      return '';
+    },
+  });
+  const req = new Request('http://localhost/');
+  const res = await app.request(req);
+  expect(res.status).toBe(500);
+  expect(res.headers.get('x-cache-status')).toBe(null);
+  expect(await res.text()).toEqual(
+    expect.stringContaining('Missing cache key.')
+  );
+});
+
 test('`s-maxage` should be used first as cache expiration time', async () => {
   const store = createCacheStore();
   const app = createApp(store, {
