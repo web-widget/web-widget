@@ -1,5 +1,17 @@
 # @web-widget/helpers
 
+## 1.10.36
+
+### Patch Changes
+
+- a788eea: - `headers`: Removed `buildCacheControl` method.
+  - `headers`: Add `responseCacheControl` method.
+  - `headers`: Add `requestCacheControl` method.
+  - `headers:`: Add `stringifyResponseCacheControl` method.
+  - `headers:`: Add `stringifyRequestCacheControl` method.
+  - @web-widget/context@1.10.36
+  - @web-widget/schema@1.10.36
+
 ## 1.10.35
 
 ### Patch Changes

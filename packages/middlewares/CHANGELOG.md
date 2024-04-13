@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 1.10.36
+
+### Patch Changes
+
+- a788eea: - `cache`: `options.cacheControl` supports non-functions.
+  - `cache`: `options.vary` supports non-functions.
+  - `cache`: `options.parts` renamed to `options.cacheKeyPartDefiners`.
+- Updated dependencies [a788eea]
+  - @web-widget/helpers@1.10.36
+  - @web-widget/schema@1.10.36
+
 ## 1.10.35
 
 ### Patch Changes
