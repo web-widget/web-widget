@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.10.38
+
+### Patch Changes
+
+- 61bd811: `cache`: Not validating 304 response.
+  - @web-widget/helpers@1.10.38
+  - @web-widget/schema@1.10.38
+
 ## 1.10.37
 
 ### Patch Changes
