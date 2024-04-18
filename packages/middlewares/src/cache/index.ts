@@ -244,20 +244,6 @@ export default function cache(options: CacheOptions) {
       setCacheStatus(response.headers, DYNAMIC);
     }
 
-    /* istanbul ignore if */
-    if (response.status === 304) {
-      const etag = formatETag(response.headers.get('etag'));
-      const ifNoneMatch = request.headers.get('if-none-match');
-      if (etag) {
-        if (ifNoneMatch && ifNoneMatch === etag) {
-          setCacheStatus(response.headers, REVALIDATED);
-        } else {
-          setCacheStatus(response.headers, EXPIRED);
-        }
-        response.headers.set('etag', formatETag(etag, 'weak'));
-      }
-    }
-
     return response;
   });
 }
@@ -314,7 +300,7 @@ async function matchCache(
         resolveCacheItem,
         options
       );
-      setCacheStatus(response.headers, EXPIRED);
+      setCacheStatus(response.headers, REVALIDATED);
       return response;
     }
   } else {
@@ -365,7 +351,7 @@ async function getCacheItem(
   customCacheKey: string
 ): Promise<CacheItem> {
   const varyFilterOptions: FilterOptions | undefined =
-    await customCacheStorage.get(`VARY:${customCacheKey}`);
+    await customCacheStorage.get(`vary:${customCacheKey}`);
   const varyPart = varyFilterOptions
     ? await getVary(request, varyFilterOptions)
     : undefined;
@@ -391,13 +377,13 @@ async function setCacheItem(
         : { include: vary.split(',').map((field) => field.trim()) };
     const varyPart = await getVary(request, varyFilterOptions);
     await customCacheStorage.set(
-      `${customCacheKey}:${varyPart}`,
-      cacheItem,
+      `vary:${customCacheKey}`,
+      varyFilterOptions,
       ttl
     );
     await customCacheStorage.set(
-      `VARY:${customCacheKey}`,
-      varyFilterOptions,
+      `${customCacheKey}:${varyPart}`,
+      cacheItem,
       ttl
     );
   } else {
@@ -447,37 +433,6 @@ async function revalidateCache(
 
 function setCacheStatus(headers: Headers, status: CacheStatus) {
   headers.set('x-cache-status', status);
-}
-
-// formats the etag depending on the response context. if the entityId
-// is invalid, returns an empty string (instead of null) to prevent the
-// the potentially disastrous scenario where the value of the Etag resp
-// header is "null". Could be modified in future to base64 encode etc
-/* istanbul ignore next */
-function formatETag(entityId: string | null, validatorType: string = 'strong') {
-  if (!entityId) {
-    return '';
-  }
-  switch (validatorType) {
-    case 'weak':
-      if (!entityId.startsWith('W/')) {
-        if (entityId.startsWith(`"`) && entityId.endsWith(`"`)) {
-          return `W/${entityId}`;
-        }
-        return `W/"${entityId}"`;
-      }
-      return entityId;
-    case 'strong':
-      if (entityId.startsWith(`W/"`)) {
-        entityId = entityId.replace('W/', '');
-      }
-      if (!entityId.endsWith(`"`)) {
-        entityId = `"${entityId}"`;
-      }
-      return entityId;
-    default:
-      return '';
-  }
 }
 
 export { createCacheKeyGenerator };
