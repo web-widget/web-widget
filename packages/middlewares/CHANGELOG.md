@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.10.39
+
+### Patch Changes
+
+- 80c5f4c: `cache`: Refactor cache middleware using `@web-widget/shared-cache`.
+  - @web-widget/helpers@1.10.39
+  - @web-widget/schema@1.10.39
+
 ## 1.10.38
 
 ### Patch Changes
