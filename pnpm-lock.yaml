@@ -586,8 +586,8 @@ importers:
         specifier: workspace:*
         version: link:../schema
       '@web-widget/shared-cache':
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^0.1.2
+        version: 0.1.2
     devDependencies:
       '@jest/globals':
         specifier: ^29.6.2
@@ -5096,8 +5096,8 @@ packages:
     resolution: {integrity: sha512-5Zkcs109l+LhtJl6mO7A6fCXBGnym+eCJpRxAdUxtjuvPaOl5ZJjr7aObiQqx/7u1+7g0JkyMtNnpbGg2/w9Vg==}
     dev: false
 
-  /@web-widget/shared-cache@0.1.1:
-    resolution: {integrity: sha512-Eo2YR/RHhG3hx1x9+ut0Kj10uGrlFczhpXGC58Hhr+71xZixS9wUh7NdCGFA5sGdlwNaQvZOXmFSZ84eYgkXhg==}
+  /@web-widget/shared-cache@0.1.2:
+    resolution: {integrity: sha512-Ggs5PH88YR8oxX+uzNQZymiE3DhC9EWa7tkR0hkgmjCLw9Zkzd6B4I/s0Bce2+XUp+NmkKdwvZWBljspRwL+4Q==}
     dependencies:
       '@web-widget/helpers': 1.10.38
       '@web-widget/http-cache-semantics': 1.0.0
