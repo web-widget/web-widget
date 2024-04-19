@@ -55,21 +55,20 @@
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/schema": "workspace:*",
-    "@web-widget/http-cache-semantics": "^1.0.0"
+    "@web-widget/shared-cache": "^0.1.2"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.2",
     "@types/jest": "^29.5.3",
+    "@web-widget/web-router": "workspace:*",
     "jest": "^29.6.2",
-    "miniflare": "^3.20240129.1",
     "jest-environment-miniflare": "^2.14.2",
+    "lru-cache": "^10.2.0",
+    "miniflare": "^3.20240129.1",
     "ts-jest": "^29.1.1",
     "tsup": "^8.0.1",
-    "typescript": "latest",
-    "lru-cache": "^10.2.0",
-    "@web-widget/web-router": "workspace:*"
+    "typescript": "latest"
   },
-  "peerDependencies": {},
   "publishConfig": {
     "access": "public",
     "exports": {
