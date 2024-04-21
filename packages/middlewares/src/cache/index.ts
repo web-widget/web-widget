@@ -8,7 +8,6 @@ import type {
   CacheStorage,
   CacheStatus,
   CacheKeyRules,
-  CacheKeyPartDefiners,
 } from '@web-widget/shared-cache';
 
 declare module '@web-widget/schema' {
@@ -45,18 +44,13 @@ export type CacheOptions = {
    * ```json
    * {
    *   host: true,
-   *   method: { include: ['GET', 'HEAD'] },
+   *   method: true,
    *   pathname: true,
    *   search: true,
    * }
    * ```
    */
   cacheKeyRules?: CacheKeyRules;
-
-  /**
-   * Define custom parts for cache keys.
-   */
-  cacheKeyPartDefiners?: CacheKeyPartDefiners;
 
   /**
    * Cache name.
@@ -96,46 +90,36 @@ export default function cache(options: CacheOptions) {
       ...routeConfig,
     };
 
-    const request = context.request;
-    const varyRawValue =
-      typeof resolveOptions.vary === 'function'
-        ? resolveOptions.vary(request)
-        : resolveOptions.vary;
-    const vary = Array.isArray(varyRawValue)
-      ? varyRawValue.join(', ')
-      : varyRawValue;
-    const cacheControlRawValue =
-      typeof resolveOptions.cacheControl === 'function'
-        ? resolveOptions.cacheControl(request)
-        : undefined;
-    const cacheControl =
-      typeof cacheControlRawValue === 'string'
-        ? cacheControlRawValue
-        : cacheControlRawValue
-          ? stringifyResponseCacheControl(cacheControlRawValue)
-          : undefined;
-    const {
-      cacheName,
-      cacheKeyRules,
-      caches,
-      ignoreRequestCacheControl: ignoreCacheControl,
-    } = resolveOptions;
+    let request = context.request;
+    const vary = getVaryOption(resolveOptions.vary, request);
+    const cacheControl = getCacheControlOption(
+      resolveOptions.cacheControl,
+      request
+    );
+    const { cacheName, cacheKeyRules, caches, ignoreRequestCacheControl } =
+      resolveOptions;
     const cache = await caches.open(cacheName);
 
     const fetch = createFetch(cache, {
       async fetch(input, init) {
-        const request = new Request(input, init);
-        context.request = request;
+        context.request = new Request(input, init);
         return next();
       },
     });
+
+    if (ignoreRequestCacheControl) {
+      const headers = new Headers(request.headers);
+      headers.delete('cache-control');
+      request = new Request(request, {
+        headers,
+      });
+    }
 
     return fetch(request, {
       sharedCache: {
         cacheControlOverride: cacheControl,
         varyOverride: vary,
         cacheKeyRules,
-        ignoreCacheControl,
       },
     });
   });
@@ -143,4 +127,24 @@ export default function cache(options: CacheOptions) {
 
 function setCacheStatus(headers: Headers, status: CacheStatus) {
   headers.set('x-cache-status', status);
+}
+
+function getVaryOption(
+  option: CacheOptions['vary'],
+  request: Request
+): string | undefined {
+  const value = typeof option === 'function' ? option(request) : option;
+  return Array.isArray(value) ? value.join(', ') : value;
+}
+
+function getCacheControlOption(
+  option: CacheOptions['cacheControl'],
+  request: Request
+): string | undefined {
+  const value = typeof option === 'function' ? option(request) : undefined;
+  return typeof value === 'string'
+    ? value
+    : value && typeof value === 'object'
+      ? stringifyResponseCacheControl(value)
+      : undefined;
 }
