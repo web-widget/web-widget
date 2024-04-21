@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.10.40
+
+### Patch Changes
+
+- 5c51ad8: `cache`: Upgrade to the latest `@web-widget/shared-cache`.
+  - @web-widget/helpers@1.10.40
+  - @web-widget/schema@1.10.40
+
 ## 1.10.39
 
 ### Patch Changes
