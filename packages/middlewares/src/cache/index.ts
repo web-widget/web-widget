@@ -12,7 +12,12 @@ import type {
 
 declare module '@web-widget/schema' {
   interface RouteConfig {
+    /** Cache middleware options. */
     cache?: Partial<CacheOptions> | boolean;
+  }
+  interface RouteState {
+    /** If coming from cache middleware, this will be `true`. */
+    cacheRevalidate?: boolean;
   }
 }
 
@@ -103,6 +108,7 @@ export default function cache(options: CacheOptions) {
     const fetch = createFetch(cache, {
       async fetch(input, init) {
         context.request = new Request(input, init);
+        context.state.cacheRevalidate = true;
         return next();
       },
     });
