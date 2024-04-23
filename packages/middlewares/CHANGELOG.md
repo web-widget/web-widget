@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.10.41
+
+### Patch Changes
+
+- 4243572: `cache`: Allow forced cache bypass.
+  - @web-widget/helpers@1.10.41
+  - @web-widget/schema@1.10.41
+
 ## 1.10.40
 
 ### Patch Changes
