@@ -1,5 +1,13 @@
 # @web-widget/react
 
+## 1.10.42
+
+### Patch Changes
+
+- @web-widget/helpers@1.10.42
+- @web-widget/vite-plugin@1.10.42
+- @web-widget/web-widget@1.10.42
+
 ## 1.10.41
 
 ### Patch Changes

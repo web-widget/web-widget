@@ -1,5 +1,14 @@
 # @web-widget/middlewares
 
+## 1.10.42
+
+### Patch Changes
+
+- e53c42d: `cache`: Fix bug caused by working with `conditional-get`.
+- 7373a82: `cache`: Avoid request's `pragma` header bypassing cache.
+  - @web-widget/helpers@1.10.42
+  - @web-widget/schema@1.10.42
+
 ## 1.10.41
 
 ### Patch Changes
