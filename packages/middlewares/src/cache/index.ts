@@ -115,6 +115,7 @@ export default function cache(options: CacheOptions) {
     if (ignoreRequestCacheControl) {
       const headers = new Headers(request.headers);
       headers.delete('cache-control');
+      headers.delete('pragma');
       request = new Request(request, {
         headers,
       });
