@@ -15,10 +15,6 @@ declare module '@web-widget/schema' {
     /** Cache middleware options. */
     cache?: Partial<CacheOptions> | boolean;
   }
-  interface RouteState {
-    /** If coming from cache middleware, this will be `true`. */
-    cacheRevalidate?: boolean;
-  }
 }
 
 export type CacheOptions = {
@@ -113,11 +109,7 @@ export default function cache(options: CacheOptions) {
     const cache = await caches.open(cacheName);
 
     const fetch = createFetch(cache, {
-      async fetch(input, init) {
-        context.request = new Request(input, init);
-        context.state.cacheRevalidate = true;
-        return next();
-      },
+      fetch: async () => next(),
     });
 
     if (ignoreRequestCacheControl) {

@@ -17,6 +17,9 @@ export const DYNAMIC: CacheStatus = 'DYNAMIC';
 
 const TEST_URL = 'http://localhost/';
 
+const timeout = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 const createLRUCache = (): KVStorage => {
   const store = new LRUCache<string, any>({ max: 1024 });
 
@@ -276,6 +279,42 @@ describe('request cache control directives', () => {
   });
 });
 
+test('`age` should change based on cache time', async () => {
+  const caches = createCaches();
+  const app = createApp(caches, {
+    cacheControl() {
+      return { maxAge: 2 };
+    },
+  });
+  let res = await app.request(TEST_URL);
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
+  expect(res.headers.get('cache-control')).toBe('max-age=2');
+  expect(res.headers.get('age')).toBe(null);
+
+  res = await app.request(TEST_URL);
+  expect(res.headers.get('x-cache-status')).toBe(HIT);
+  expect(res.headers.get('cache-control')).toBe('max-age=2');
+  expect(res.headers.get('age')).toBe('0');
+
+  await timeout(1000);
+  res = await app.request(TEST_URL);
+  expect(res.headers.get('x-cache-status')).toBe(HIT);
+  expect(res.headers.get('cache-control')).toBe('max-age=2');
+  expect(res.headers.get('age')).toBe('1');
+
+  await timeout(1000);
+  res = await app.request(TEST_URL);
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
+  expect(res.headers.get('cache-control')).toBe('max-age=2');
+  expect(res.headers.get('age')).toBe(null);
+
+  await timeout(1000);
+  res = await app.request(TEST_URL);
+  expect(res.headers.get('x-cache-status')).toBe(HIT);
+  expect(res.headers.get('cache-control')).toBe('max-age=2');
+  expect(res.headers.get('age')).toBe('1');
+});
+
 describe('conditional-get middleware', () => {
   test('when the response is fresh it should return a 304 and cache the response', async () => {
     const caches = createCaches();
@@ -326,17 +365,12 @@ describe('conditional-get middleware', () => {
       ],
     });
 
-    const req = new Request(TEST_URL, {
-      headers: {
-        'if-none-match': '"v1"',
-      },
-    });
-    const res = await app.request(req);
+    let req = new Request(TEST_URL);
+    let res = await app.request(req);
     const c = await caches.open('default');
     const cacheItem = await c.match(req);
-
-    expect(await res.text()).toBe('');
-    expect(res.status).toBe(304);
+    expect(await res.text()).toBe('lol');
+    expect(res.status).toBe(200);
     expect(cacheItem).toBeTruthy();
     expect(await cacheItem?.text()).toBe('lol');
     expect(cacheItem?.headers.get('etag')).toBe('"v1"');
@@ -346,5 +380,18 @@ describe('conditional-get middleware', () => {
     expect(cacheItem?.headers.get('last-modified')).toBe(
       new Date(date * 1000).toUTCString()
     );
+
+    req = new Request(TEST_URL, {
+      headers: {
+        'if-none-match': '"v1"',
+      },
+    });
+    res = await app.request(req);
+    expect(res.status).toBe(304);
+
+    req = new Request(TEST_URL);
+    res = await app.request(req);
+    expect(await res.text()).toBe('lol');
+    expect(res.status).toBe(200);
   });
 });
