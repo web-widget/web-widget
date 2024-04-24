@@ -223,6 +223,7 @@ describe('request cache control directives', () => {
     let res = await app.request(TEST_URL, {
       headers: {
         'cache-control': 'no-cache',
+        pragma: 'no-cache',
       },
     });
 
@@ -235,6 +236,7 @@ describe('request cache control directives', () => {
     res = await app.request(TEST_URL, {
       headers: {
         'cache-control': 'no-cache',
+        pragma: 'no-cache',
       },
     });
 
@@ -256,6 +258,7 @@ describe('request cache control directives', () => {
     let res = await app.request(TEST_URL, {
       headers: {
         'cache-control': 'no-cache',
+        pragma: 'no-cache',
       },
     });
 
@@ -268,6 +271,7 @@ describe('request cache control directives', () => {
     res = await app.request(TEST_URL, {
       headers: {
         'cache-control': 'no-cache',
+        pragma: 'no-cache',
       },
     });
 
