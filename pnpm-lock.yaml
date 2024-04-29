@@ -532,9 +532,6 @@ importers:
       '@web-widget/lifecycle-cache':
         specifier: workspace:*
         version: link:../lifecycle-cache
-      '@web-widget/schema':
-        specifier: workspace:*
-        version: link:../schema
     devDependencies:
       '@jest/globals':
         specifier: ^29.6.2
@@ -542,6 +539,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../schema
       jest:
         specifier: ^29.6.2
         version: 29.6.2(@types/node@20.5.7)
@@ -563,16 +563,16 @@ importers:
 
   packages/html:
     dependencies:
-      whatwg-stream-to-async-iter:
-        specifier: ^0.6.2
-        version: 0.6.2
-    devDependencies:
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
       '@worker-tools/html':
         specifier: ^2.0.0-pre.13
         version: 2.0.0-pre.13
+      whatwg-stream-to-async-iter:
+        specifier: ^0.6.2
+        version: 0.6.2
+    devDependencies:
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(postcss@8.4.38)(typescript@5.4.5)
@@ -678,9 +678,15 @@ importers:
 
   packages/react:
     dependencies:
+      '@web-widget/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@web-widget/vite-plugin':
         specifier: workspace:*
         version: link:../vite-plugin
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../web-widget
     devDependencies:
       '@types/react':
         specifier: ^18.2.47
@@ -688,15 +694,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.18
         version: 18.2.18
-      '@web-widget/helpers':
-        specifier: workspace:*
-        version: link:../helpers
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
-      '@web-widget/web-widget':
-        specifier: workspace:*
-        version: link:../web-widget
       react:
         specifier: canary
         version: 18.3.0-canary-03d6f7cf0-20240209
@@ -724,9 +724,18 @@ importers:
       '@rollup/pluginutils':
         specifier: ^5.1.0
         version: 5.1.0(rollup@4.9.3)
+      '@web-widget/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@web-widget/node':
         specifier: workspace:*
         version: link:../node
+      '@web-widget/web-router':
+        specifier: workspace:*
+        version: link:../web-router
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../web-widget
       builtin-modules:
         specifier: ^3.3.0
         version: 3.3.0
@@ -758,15 +767,6 @@ importers:
       '@types/node':
         specifier: ^20.4.8
         version: 20.5.7
-      '@web-widget/helpers':
-        specifier: workspace:*
-        version: link:../helpers
-      '@web-widget/web-router':
-        specifier: workspace:*
-        version: link:../web-router
-      '@web-widget/web-widget':
-        specifier: workspace:*
-        version: link:../web-widget
       jest:
         specifier: ^29.6.2
         version: 29.6.2(@types/node@20.5.7)
@@ -788,19 +788,19 @@ importers:
 
   packages/vue:
     dependencies:
-      '@web-widget/vite-plugin':
-        specifier: workspace:*
-        version: link:../vite-plugin
-    devDependencies:
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
-      '@web-widget/schema':
+      '@web-widget/vite-plugin':
         specifier: workspace:*
-        version: link:../schema
+        version: link:../vite-plugin
       '@web-widget/web-widget':
         specifier: workspace:*
         version: link:../web-widget
+    devDependencies:
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../schema
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(postcss@8.4.38)(typescript@5.4.5)
@@ -816,19 +816,19 @@ importers:
 
   packages/vue2:
     dependencies:
+      '@web-widget/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@web-widget/vite-plugin':
         specifier: workspace:*
         version: link:../vite-plugin
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../web-widget
     devDependencies:
       '@types/node':
         specifier: ^20.5.7
         version: 20.5.7
-      '@web-widget/helpers':
-        specifier: workspace:*
-        version: link:../helpers
-      '@web-widget/web-widget':
-        specifier: workspace:*
-        version: link:../web-widget
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(postcss@8.4.38)(typescript@5.4.5)
@@ -850,6 +850,15 @@ importers:
       '@web-widget/context':
         specifier: workspace:*
         version: link:../context
+      '@web-widget/helpers':
+        specifier: workspace:*
+        version: link:../helpers
+      '@web-widget/html':
+        specifier: workspace:*
+        version: link:../html
+      '@web-widget/lifecycle-cache':
+        specifier: workspace:*
+        version: link:../lifecycle-cache
     devDependencies:
       '@babel/cli':
         specifier: ^7.23.9
@@ -863,15 +872,6 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
-      '@web-widget/helpers':
-        specifier: workspace:*
-        version: link:../helpers
-      '@web-widget/html':
-        specifier: workspace:*
-        version: link:../html
-      '@web-widget/lifecycle-cache':
-        specifier: workspace:*
-        version: link:../lifecycle-cache
       babel-plugin-template-html-minifier:
         specifier: ^4.1.0
         version: 4.1.0
@@ -898,6 +898,13 @@ importers:
         version: 9.0.0
 
   packages/web-widget:
+    dependencies:
+      '@web-widget/helpers':
+        specifier: workspace:*
+        version: link:../helpers
+      '@web-widget/lifecycle-cache':
+        specifier: workspace:*
+        version: link:../lifecycle-cache
     devDependencies:
       '@esm-bundle/chai':
         specifier: ^4.3.4-fix.0
@@ -908,12 +915,6 @@ importers:
       '@types/mocha':
         specifier: '^10.0.6 '
         version: 10.0.6
-      '@web-widget/helpers':
-        specifier: workspace:*
-        version: link:../helpers
-      '@web-widget/lifecycle-cache':
-        specifier: workspace:*
-        version: link:../lifecycle-cache
       '@web/dev-server-esbuild':
         specifier: ^1.0.1
         version: 1.0.1
@@ -5371,14 +5372,14 @@ packages:
     resolution: {integrity: sha512-MkmUNNX6fE/2tRM8iWpoSZ6hbZ4srMxzecPdyNvT4cydfYs6YEmFFv0w27839ALQxwtpsDCOKlDLEkhhzbMs9Q==}
     dependencies:
       '@worker-tools/stream-response': 0.1.0-pre.4
-    dev: true
+    dev: false
 
   /@worker-tools/stream-response@0.1.0-pre.4:
     resolution: {integrity: sha512-PHMaXNbaavvtPWuPTjslNMmbFX0Wv4iKsa9ZiL+KkcTuXwSh5okMShYxt0st0bx4C137kIK/bBQqw/JBEKlP9Q==}
     dependencies:
       typed-array-utils: 0.3.0-pre.0
       whatwg-stream-to-async-iter: 0.6.2
-    dev: true
+    dev: false
 
   /JSV@4.0.2:
     resolution: {integrity: sha512-ZJ6wx9xaKJ3yFUhq5/sk82PJMuUyLk277I8mQeyDgCTjGdjWJIvPfaU5LIXaMuaN2UO1X3kZH4+lgphublZUHw==}
@@ -12240,6 +12241,7 @@ packages:
 
   /tslib@2.5.2:
     resolution: {integrity: sha512-5svOrSA2w3iGFDs1HibEVBGbDrAY82bFQ3HZ3ixB+88nsbsWQoKqDRb5UBYAUPEzbBn6dAp5gRNXglySbx1MlA==}
+    dev: false
 
   /tslib@2.6.1:
     resolution: {integrity: sha512-t0hLfiEKfMUoqhG+U1oid7Pva4bbDPHYfJNiB7BiIjRkj1pyC++4N3huJfqY6aRH6VTB0rvtzQwjM4K6qpfOig==}
@@ -12465,7 +12467,7 @@ packages:
 
   /typed-array-utils@0.3.0-pre.0:
     resolution: {integrity: sha512-hzkk8/bpvqCayQnQAno11R8qOWHrkTHR9k+JYVEBpHAQMF2YfPqBMKKkSmeSw2Qd4ri+QugFmj7ca4ckSr4Z4Q==}
-    dev: true
+    dev: false
 
   /typedarray-to-buffer@3.1.5:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
@@ -12921,6 +12923,7 @@ packages:
     resolution: {integrity: sha512-ocSOY/Qe/Y5rLC3Xnz6gi8+A9niy+dUQSjnox/nRryKkV/NahxyspB/joyhYLBbQp1JAFrTBOVd/RUo0NrZ96g==}
     dependencies:
       tslib: 2.5.2
+    dev: false
 
   /whatwg-url@11.0.0:
     resolution: {integrity: sha512-RKT8HExMpoYx4igMiVMY83lN6UeITKJlBQ+vR/8ZJ8OCdSiN3RwCq+9gH0+Xzj0+5IrM6i4j/6LuvzbZIQgEcQ==}
