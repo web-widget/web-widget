@@ -7,8 +7,7 @@ type PromiseState<T> = Promise<T> & {
 
 export async function cacheAsyncProvider<T>(
   cacheKey: string,
-  handler: () => T | Promise<T>,
-  exposedToClient: boolean = true
+  handler: () => T | Promise<T>
 ): Promise<T> {
   const cache = lifecycleCache<{
     [cacheKey: string]: T | Promise<T>;
@@ -20,11 +19,11 @@ export async function cacheAsyncProvider<T>(
   }
 
   cacheValue = handler();
-  cache.set(cacheKey, cacheValue, exposedToClient);
+  cache.set(cacheKey, cacheValue, true);
 
   if (cacheValue instanceof Promise) {
     return cacheValue.then((result) => {
-      cache.set(cacheKey, result, exposedToClient);
+      cache.set(cacheKey, result, true);
       return result;
     });
   }
@@ -34,8 +33,7 @@ export async function cacheAsyncProvider<T>(
 
 export function cacheSyncProvider<T>(
   cacheKey: string,
-  handler: () => T | Promise<T>,
-  exposedToClient: boolean = true
+  handler: () => T | Promise<T>
 ): T {
   const cache = lifecycleCache<{
     [cacheKey: string]: T | Promise<T>;
@@ -50,12 +48,12 @@ export function cacheSyncProvider<T>(
   }
 
   cacheValue = handler();
-  cache.set(cacheKey, cacheValue, exposedToClient);
+  cache.set(cacheKey, cacheValue, true);
 
   if (cacheValue instanceof Promise) {
     throw cacheValue.then(
       (result) => {
-        cache.set(cacheKey, result, exposedToClient);
+        cache.set(cacheKey, result, true);
       },
       (error) => {
         (cacheValue as PromiseState<T>)[ERROR] = error;
