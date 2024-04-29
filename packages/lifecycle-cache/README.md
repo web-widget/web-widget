@@ -119,3 +119,19 @@ const data = await cacheAsyncProvider<Data>('cache_key', async () => {
 - `cacheKey` Must be a string or number
 - `value` The value to store
 - `httpOnly` Whether it is only readable on the server side, the default is `true`
+
+## Helpers
+
+### `cacheAsyncProvider(cacheKey, handler)`
+
+Get the value of asynchronous cache.
+
+- `cacheKey` Must be a string or number
+- `handler` Cache provider handler
+
+### `cacheSyncProvider(cacheKey, handler)`
+
+Get synchronized cached value.
+
+- `cacheKey` Must be a string or number
+- `handler` Cache provider handler
