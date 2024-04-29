@@ -58,7 +58,7 @@ export default () => {
 
 ```vue
 <script setup lang="ts">
-import { cacheSyncProvider } from '@web-widget/helpers/cache';
+import { cacheSyncProvider } from '@web-widget/lifecycle-cache';
 
 type Data = {
   id: string;
@@ -81,7 +81,7 @@ const data = cacheSyncProvider<data>('cache_key', async () => {
 
 ```vue
 <script setup lang="ts">
-import { cacheAsyncProvider } from '@web-widget/helpers/cache';
+import { cacheAsyncProvider } from '@web-widget/lifecycle-cache';
 
 type Data = {
   id: string;
@@ -99,3 +99,13 @@ const data = await cacheAsyncProvider<data>('cache_key', async () => {
   </h1>
 </template>
 ```
+
+## `LifecycleCache` class
+
+### `delete(cacheKey)`
+
+### `get(cacheKey)`
+
+### `has(cacheKey)`
+
+### `set(cacheKey, value, exposedToClient)`
