@@ -114,8 +114,8 @@ const data = await cacheAsyncProvider<Data>('cache_key', async () => {
 
 - `cacheKey` Must be a string or number
 
-### `set(cacheKey, value, exposedToClient)`
+### `set(cacheKey, value, httpOnly)`
 
 - `cacheKey` Must be a string or number
 - `value` The value to store
-- `exposedToClient` Whether the value should be exposed to the client
+- `httpOnly` Whether to use it only on the server side, the default is `true`

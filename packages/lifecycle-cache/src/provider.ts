@@ -19,11 +19,11 @@ export async function cacheAsyncProvider<T>(
   }
 
   cacheValue = handler();
-  cache.set(cacheKey, cacheValue, true);
+  cache.set(cacheKey, cacheValue, false);
 
   if (cacheValue instanceof Promise) {
     return cacheValue.then((result) => {
-      cache.set(cacheKey, result, true);
+      cache.set(cacheKey, result, false);
       return result;
     });
   }
@@ -48,12 +48,12 @@ export function cacheSyncProvider<T>(
   }
 
   cacheValue = handler();
-  cache.set(cacheKey, cacheValue, true);
+  cache.set(cacheKey, cacheValue, false);
 
   if (cacheValue instanceof Promise) {
     throw cacheValue.then(
       (result) => {
-        cache.set(cacheKey, result, true);
+        cache.set(cacheKey, result, false);
       },
       (error) => {
         (cacheValue as PromiseState<T>)[ERROR] = error;

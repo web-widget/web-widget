@@ -39,10 +39,10 @@ export class LifecycleCache<V extends Record<string, unknown>> {
    * Adds a new element with a specified key and value.
    * @param key Must be a string or number.
    * @param value The value to store.
-   * @param exposedToClient Whether the value should be exposed to the client.
+   * @param httpOnly Whether to use it only on the server side, the default is `true`.
    */
-  set<K extends keyof V>(key: K, value: V[K], exposedToClient?: boolean) {
-    if (exposedToClient) {
+  set<K extends keyof V>(key: K, value: V[K], httpOnly: boolean = true) {
+    if (httpOnly) {
       allowExposedToClient(this.#storage, key as string);
     }
     this.#storage[key] = value;
