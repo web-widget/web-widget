@@ -1,5 +1,4 @@
 import { defineRouteComponent, defineRouteHandler } from '@web-widget/react';
-import { state } from '@web-widget/helpers/state';
 import { params } from '@web-widget/helpers/navigation';
 import type { HelloData } from '../api/hello-world@route.ts';
 import BaseLayout from '../(components)/BaseLayout.tsx';
@@ -21,7 +20,6 @@ export const handler = defineRouteHandler<HelloData>({
 
 export default defineRouteComponent<HelloData>(function Page({ data }) {
   console.log('params', params());
-  console.log('state', state());
   return (
     <BaseLayout>
       <h1>Context</h1>
