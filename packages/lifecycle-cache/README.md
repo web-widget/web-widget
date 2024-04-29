@@ -42,7 +42,7 @@ type Data = {
 };
 
 export default () => {
-  const data = cacheSyncProvider<data>('cache_key', async () => {
+  const data = cacheSyncProvider<Data>('cache_key', async () => {
     const o = await fetchData();
     return { id: o.id };
   });
@@ -64,7 +64,7 @@ type Data = {
   id: string;
 };
 
-const data = cacheSyncProvider<data>('cache_key', async () => {
+const data = cacheSyncProvider<Data>('cache_key', async () => {
   const o = await fetchData();
   return { id: o.id };
 });
@@ -87,7 +87,7 @@ type Data = {
   id: string;
 };
 
-const data = await cacheAsyncProvider<data>('cache_key', async () => {
+const data = await cacheAsyncProvider<Data>('cache_key', async () => {
   const o = await fetchData();
   return { id: o.id };
 });
@@ -104,8 +104,18 @@ const data = await cacheAsyncProvider<data>('cache_key', async () => {
 
 ### `delete(cacheKey)`
 
+- `cacheKey` Must be a string or number
+
 ### `get(cacheKey)`
+
+- `cacheKey` Must be a string or number
 
 ### `has(cacheKey)`
 
+- `cacheKey` Must be a string or number
+
 ### `set(cacheKey, value, exposedToClient)`
+
+- `cacheKey` Must be a string or number
+- `value` The value to store
+- `exposedToClient` Whether the value should be exposed to the client
