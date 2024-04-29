@@ -25,15 +25,15 @@
   },
   "dependencies": {
     "@web-widget/context": "workspace:*",
-    "@web-widget/lifecycle-cache": "workspace:*"
+    "@web-widget/lifecycle-cache": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/html": "workspace:*"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.9",
     "@babel/core": "^7.23.9",
     "@babel/preset-env": "^7.23.9",
     "@types/jest": "^29.5.3",
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/html": "workspace:*",
     "babel-plugin-template-html-minifier": "^4.1.0",
     "jest": "^29.6.2",
     "miniflare": "^3.20240129.1",
@@ -42,10 +42,6 @@
     "tsup": "^8.0.1",
     "typescript": "latest",
     "urlpattern-polyfill": "^9.0.0"
-  },
-  "peerDependencies": {
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/html": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

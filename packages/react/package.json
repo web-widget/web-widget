@@ -43,14 +43,14 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@web-widget/vite-plugin": "workspace:*"
+    "@web-widget/vite-plugin": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
     "@types/react-dom": "^18.2.18",
     "@types/react": "^18.2.47",
     "@web-widget/schema": "workspace:*",
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/web-widget": "workspace:*",
     "react-dom": "canary",
     "react": "canary",
     "tsup": "^8.0.1",
@@ -58,8 +58,6 @@
     "vite": "^5.0.13"
   },
   "peerDependencies": {
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/web-widget": "workspace:*",
     "react-dom": "canary",
     "react": "canary",
     "vite": "^5.0.13"

@@ -139,13 +139,13 @@
   },
   "dependencies": {
     "@edge-runtime/cookies": "^4.0.3",
-    "@edge-runtime/user-agent": "^1.4.1"
+    "@edge-runtime/user-agent": "^1.4.1",
+    "@web-widget/context": "workspace:*",
+    "@web-widget/lifecycle-cache": "workspace:*"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.2",
     "@types/jest": "^29.5.3",
-    "@web-widget/context": "workspace:*",
-    "@web-widget/lifecycle-cache": "workspace:*",
     "@web-widget/schema": "workspace:*",
     "jest": "^29.6.2",
     "miniflare": "^3.20240129.1",
@@ -153,11 +153,6 @@
     "ts-jest": "^29.1.1",
     "tsup": "^8.0.1",
     "typescript": "latest"
-  },
-  "peerDependencies": {
-    "@web-widget/context": "workspace:*",
-    "@web-widget/lifecycle-cache": "workspace:*",
-    "@web-widget/schema": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

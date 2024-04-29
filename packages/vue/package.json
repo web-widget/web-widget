@@ -39,20 +39,18 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@web-widget/vite-plugin": "workspace:*"
+    "@web-widget/vite-plugin": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
     "@web-widget/schema": "workspace:*",
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/web-widget": "workspace:*",
     "tsup": "^8.0.1",
     "typescript": "latest",
     "vite": "^5.0.13",
     "vue": ">3.3.3"
   },
   "peerDependencies": {
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/web-widget": "workspace:*",
     "vite": "^5.0.13",
     "vue": ">3.3.3"
   },

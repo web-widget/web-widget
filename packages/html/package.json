@@ -33,17 +33,13 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "whatwg-stream-to-async-iter": "^0.6.2"
-  },
-  "devDependencies": {
-    "@web-widget/helpers": "workspace:*",
-    "@worker-tools/html": "^2.0.0-pre.13",
-    "tsup": "^8.0.1",
-    "typescript": "latest"
-  },
-  "peerDependencies": {
+    "whatwg-stream-to-async-iter": "^0.6.2",
     "@web-widget/helpers": "workspace:*",
     "@worker-tools/html": "^2.0.0-pre.13"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "typescript": "latest"
   },
   "publishConfig": {
     "access": "public",
