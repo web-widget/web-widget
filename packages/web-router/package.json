@@ -23,7 +23,10 @@
     "prebuild": "pnpm run clean:build",
     "lint": "eslint src"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@web-widget/context": "workspace:*",
+    "@web-widget/lifecycle-cache": "workspace:*"
+  },
   "devDependencies": {
     "@babel/cli": "^7.23.9",
     "@babel/core": "^7.23.9",
@@ -41,7 +44,6 @@
     "urlpattern-polyfill": "^9.0.0"
   },
   "peerDependencies": {
-    "@web-widget/context": "workspace:*",
     "@web-widget/helpers": "workspace:*",
     "@web-widget/html": "workspace:*"
   },

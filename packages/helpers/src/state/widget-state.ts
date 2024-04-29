@@ -1,76 +1,37 @@
-import { useContext } from '@web-widget/context';
+import {
+  cacheAsyncProvider,
+  cacheSyncProvider,
+} from '@web-widget/lifecycle-cache';
+import { state } from './route-state';
 
-const ERROR = Symbol.for('error');
-type PromiseState<T> = Promise<T> & {
-  [ERROR]: T | Error;
+/** @deprecated Use `import { cacheAsyncProvider } from '@web-widget/helpers/cache'` instead. */
+export const useWidgetAsyncState = (
+  ...args: Parameters<typeof cacheAsyncProvider>
+) => {
+  console.warn(
+    "Use `import { cacheAsyncProvider } from '@web-widget/helpers/cache'` instead."
+  );
+  return cacheAsyncProvider(args[0], args[1], true);
 };
 
-export async function useWidgetAsyncState<T>(
-  key: string,
-  handler: () => T | Promise<T>
-): Promise<T> {
-  const cache = useWidgetState();
-
-  let state = cache[key];
-
-  if (state) {
-    return state;
-  }
-
-  state = cache[key] = handler();
-
-  if (state instanceof Promise) {
-    return state.then((result) => {
-      cache[key] = result;
-      return result;
-    });
-  }
-
-  return state;
-}
-
-export function useWidgetSyncState<T>(
-  key: string,
-  handler: () => T | Promise<T>
-): T {
-  const cache = useWidgetState();
-  let state = cache[key];
-
-  if (state) {
-    if (state instanceof Promise) {
-      const error = (state as PromiseState<T>)[ERROR];
-      if (error) {
-        throw error;
-      } else {
-        throw state;
-      }
-    }
-    return state;
-  }
-
-  state = cache[key] = handler();
-
-  if (state instanceof Promise) {
-    throw state.then(
-      (result) => {
-        cache[key] = result;
-      },
-      (error) => {
-        (state as PromiseState<T>)[ERROR] = error;
-      }
-    );
-  }
-
-  return state;
-}
-
-export const useWidgetState = () => {
-  const ctx = useContext();
-
-  return ctx.widgetState;
+/** @deprecated Use `import { cacheSyncProvider } from '@web-widget/helpers/cache'` instead. */
+export const useWidgetSyncState = (
+  ...args: Parameters<typeof cacheSyncProvider>
+) => {
+  console.warn(
+    "Use `import { cacheSyncProvider } from '@web-widget/helpers/cache'` instead."
+  );
+  return cacheSyncProvider(args[0], args[1], true);
 };
 
 /**
- * @deprecated use `useWidgetState` instead of `useAllWidgetState'
+ * @deprecated
+ */
+export const useWidgetState = () => {
+  return state();
+};
+
+/**
+ * @deprecated
  */
 export const useAllWidgetState = useWidgetState;

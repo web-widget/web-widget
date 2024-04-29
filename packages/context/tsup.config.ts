@@ -1,8 +1,8 @@
 import type { Options } from 'tsup';
 export const tsup: Options = {
   entry: {
-    'universal.server': 'src/universal.server.ts',
-    'universal.client': 'src/universal.client.ts',
+    'context.universal.server': 'src/universal.server.ts',
+    'context.universal.client': 'src/universal.client.ts',
     'context.server': 'src/server.ts',
     'context.client': 'src/client.ts',
   },

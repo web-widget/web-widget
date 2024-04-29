@@ -1,1 +1,1 @@
-export { useContext } from './server';
+export { context, useContext } from './server';

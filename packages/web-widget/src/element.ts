@@ -3,16 +3,15 @@ import type {
   ClientWidgetRenderContext,
   Meta,
 } from '@web-widget/helpers';
+import { start as startLifecycleCache } from '@web-widget/lifecycle-cache/client';
+import { WebWidgetUpdateEvent } from './event';
+import { LifecycleController } from './modules/controller';
 import { status } from './modules/status';
 import type { JSONProps } from './types';
 import { createIdleObserver } from './utils/idle';
 import { createVisibleObserver } from './utils/lazy';
-
-import { installStateLayer } from './state-layer';
-import { LifecycleController } from './modules/controller';
-import { WebWidgetUpdateEvent } from './event';
-import { queueMicrotask } from './utils/queue-microtask';
 import { triggerModulePreload } from './utils/module-preload';
+import { queueMicrotask } from './utils/queue-microtask';
 
 declare const importShim: <T>(src: string) => Promise<T>;
 type Timeouts = Record<string, number>;
@@ -571,7 +570,7 @@ Object.assign(window, {
   HTMLWebWidgetElement,
 });
 
-installStateLayer(() => {
+startLifecycleCache(() => {
   queueMicrotask(() => {
     customElements.define('web-widget', HTMLWebWidgetElement);
   });

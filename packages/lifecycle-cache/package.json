@@ -1,34 +1,34 @@
 {
-  "name": "@web-widget/context",
+  "name": "@web-widget/lifecycle-cache",
   "version": "1.10.42",
   "type": "module",
   "exports": {
     ".": {
       "worker": {
-        "types": "./dist/context.universal.server.d.ts",
+        "types": "./dist/lifecycle-cache.universal.server.d.ts",
         "development": "./src/universal.server.ts",
-        "default": "./dist/context.universal.server.js"
+        "default": "./dist/lifecycle-cache.universal.server.js"
       },
       "browser": {
-        "types": "./dist/context.universal.client.d.ts",
+        "types": "./dist/lifecycle-cache.universal.client.d.ts",
         "development": "./src/universal.client.ts",
-        "default": "./dist/context.universal.client.js"
+        "default": "./dist/lifecycle-cache.universal.client.js"
       },
       "default": {
-        "types": "./dist/context.universal.server.d.ts",
+        "types": "./dist/lifecycle-cache.universal.server.d.ts",
         "development": "./src/universal.server.ts",
-        "default": "./dist/context.universal.server.js"
+        "default": "./dist/lifecycle-cache.universal.server.js"
       }
     },
     "./client": {
-      "types": "./dist/context.client.d.ts",
+      "types": "./dist/lifecycle-cache.client.d.ts",
       "development": "./src/client.ts",
-      "default": "./dist/context.client.js"
+      "default": "./dist/lifecycle-cache.client.js"
     },
     "./server": {
-      "types": "./dist/context.server.d.ts",
+      "types": "./dist/lifecycle-cache.server.d.ts",
       "development": "./src/server.ts",
-      "default": "./dist/context.server.js"
+      "default": "./dist/lifecycle-cache.server.js"
     }
   },
   "files": [
@@ -45,7 +45,7 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "unctx": "^2.3.1"
+    "@web-widget/context": "workspace:*"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.2",
@@ -63,25 +63,25 @@
     "exports": {
       ".": {
         "worker": {
-          "types": "./dist/context.universal.server.d.ts",
-          "default": "./dist/context.universal.server.js"
+          "types": "./dist/lifecycle-cache.universal.server.d.ts",
+          "default": "./dist/lifecycle-cache.universal.server.js"
         },
         "browser": {
-          "types": "./dist/context.universal.client.d.ts",
-          "default": "./dist/context.universal.client.js"
+          "types": "./dist/lifecycle-cache.universal.client.d.ts",
+          "default": "./dist/lifecycle-cache.universal.client.js"
         },
         "default": {
-          "types": "./dist/context.universal.server.d.ts",
-          "default": "./dist/context.universal.server.js"
+          "types": "./dist/lifecycle-cache.universal.server.d.ts",
+          "default": "./dist/lifecycle-cache.universal.server.js"
         }
       },
       "./client": {
-        "types": "./dist/context.client.d.ts",
-        "default": "./dist/context.client.js"
+        "types": "./dist/lifecycle-cache.client.d.ts",
+        "default": "./dist/lifecycle-cache.client.js"
       },
       "./server": {
-        "types": "./dist/context.server.d.ts",
-        "default": "./dist/context.server.js"
+        "types": "./dist/lifecycle-cache.server.d.ts",
+        "default": "./dist/lifecycle-cache.server.js"
       }
     }
   }

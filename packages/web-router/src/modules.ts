@@ -7,8 +7,7 @@ import {
 import {
   callContext,
   contextToScriptDescriptor,
-  createSerializableContext,
-  useContext,
+  context,
 } from '@web-widget/context/server';
 import { createHttpError } from '@web-widget/helpers/error';
 import type {
@@ -31,7 +30,7 @@ import type {
 function tryGetSerializableContext() {
   try {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useContext();
+    return context();
   } catch (e) {}
 }
 
@@ -50,7 +49,7 @@ function callAsyncContext<T extends (...args: any[]) => any>(
   if (asyncContext) {
     return args ? setup(...args) : setup();
   } else {
-    asyncContext = createSerializableContext(context);
+    asyncContext = context;
 
     // Exposed to client
     if (context.meta) {

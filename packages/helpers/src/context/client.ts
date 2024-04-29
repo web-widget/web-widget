@@ -1,3 +1,2 @@
-export { useContext } from '@web-widget/context/client';
-export function allowExposedToClient() {}
+export * from '@web-widget/context/client';
 export * from './state';

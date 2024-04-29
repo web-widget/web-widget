@@ -22,7 +22,7 @@ export interface ClientWidgetModule {
   render?: ClientWidgetRender;
 }
 
-export interface WidgetConfig {}
+export interface WidgetConfig extends Record<string, unknown> {}
 
 export type WidgetComponentProps<Data = unknown> = Data;
 
@@ -81,7 +81,7 @@ export type ClientWidgetRenderResult = void | {
   unload?: () => void | Promise<void>;
 };
 
-export interface WidgetRenderOptions {}
+export interface WidgetRenderOptions extends Record<string, unknown> {}
 
 export type WidgetRender<Data = unknown> =
   | ServerWidgetRender<Data>
@@ -116,7 +116,7 @@ export interface RouteModule {
   render?: RouteRender;
 }
 
-export interface RouteConfig {}
+export interface RouteConfig extends Record<string, unknown> {}
 
 export type RouteComponentProps<
   Data = unknown,
@@ -167,7 +167,7 @@ export type RouteError = {
   statusText?: string;
 } & Error;
 
-export interface RouteState {}
+export interface RouteState extends Record<string, unknown> {}
 
 export type RouteKnownMethods =
   | 'GET'
@@ -309,7 +309,9 @@ export interface RouteRenderContext<
   request: Request;
 }
 
-export interface RouteRenderOptions extends ResponseInit {}
+export interface RouteRenderOptions
+  extends Record<string, unknown>,
+    ResponseInit {}
 
 export type RouteRenderResult = string | ReadableStream;
 
