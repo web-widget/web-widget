@@ -2,7 +2,7 @@ import {
   cacheAsyncProvider,
   cacheSyncProvider,
 } from '@web-widget/lifecycle-cache';
-import { state } from './route-state';
+import { useRouteState } from './route-state';
 
 /** @deprecated Use `import { cacheAsyncProvider } from '@web-widget/helpers/cache'` instead. */
 export const useWidgetAsyncState = (
@@ -27,9 +27,7 @@ export const useWidgetSyncState = (
 /**
  * @deprecated
  */
-export const useWidgetState = () => {
-  return state();
-};
+export const useWidgetState = useRouteState;
 
 /**
  * @deprecated
