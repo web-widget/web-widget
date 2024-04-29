@@ -118,4 +118,4 @@ const data = await cacheAsyncProvider<Data>('cache_key', async () => {
 
 - `cacheKey` Must be a string or number
 - `value` The value to store
-- `httpOnly` Whether to use it only on the server side, the default is `true`
+- `httpOnly` Whether it is only readable on the server side, the default is `true`
