@@ -1,14 +1,14 @@
 import { context } from '@web-widget/context/server';
 import type { RouteState } from '@web-widget/schema';
 import { htmlEscapeJsonString } from './utils';
-import { LIFECYCLE_CACHE_LAYER, EXPOSED_TO_CLIENT } from './constants';
+import { LIFECYCLE_CACHE_LAYER, EXPOSE } from './constants';
 
 export { lifecycleCache } from './cache';
 export { asyncCacheProvider, syncCacheProvider } from './provider';
 
 declare module '@web-widget/schema' {
   interface RouteState {
-    [EXPOSED_TO_CLIENT]?: Set<string>;
+    [EXPOSE]?: Set<string>;
     toJSON?: (this: any) => Record<string, any>;
   }
 }
@@ -34,12 +34,12 @@ export function renderLifecycleCacheLayer(state?: RouteState) {
 }
 
 function toJSON(this: RouteState): any {
-  const exposed = this[EXPOSED_TO_CLIENT];
-  if (exposed) {
+  const expose = this[EXPOSE];
+  if (expose) {
     const newObject = {};
-    for (const key of exposed) {
+    for (const key of expose) {
       if (!(this[key] instanceof Promise)) {
-        exposed.delete(key);
+        expose.delete(key);
         (newObject as any)[key] = this[key];
       }
     }

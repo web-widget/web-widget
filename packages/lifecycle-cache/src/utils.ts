@@ -1,4 +1,4 @@
-import { EXPOSED_TO_CLIENT } from './constants';
+import { EXPOSE } from './constants';
 
 const ESCAPE_LOOKUP: { [match: string]: string } = {
   '>': '\\u003e',
@@ -19,6 +19,6 @@ export function allowExposedToClient(object: any, key: string) {
   if (typeof key !== 'string') {
     throw new TypeError('Key must be a string.');
   }
-  object[EXPOSED_TO_CLIENT] ??= new Set();
-  object[EXPOSED_TO_CLIENT].add(key);
+  object[EXPOSE] ??= new Set();
+  object[EXPOSE].add(key);
 }
