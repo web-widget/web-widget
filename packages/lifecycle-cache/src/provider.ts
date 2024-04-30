@@ -5,13 +5,20 @@ type PromiseState<T> = Promise<T> & {
   [ERROR]: T | Error;
 };
 
+type JSONValue =
+  | string
+  | number
+  | boolean
+  | { [x: string]: JSONValue }
+  | Array<JSONValue>;
+
 /**
  * Provide end-to-end cached values, the results are asynchronous.
  * @param cacheKey Cache key
  * @param handler Handler function
  * @returns Cached value
  */
-export async function asyncCacheProvider<T>(
+export async function asyncCacheProvider<T extends JSONValue>(
   cacheKey: string,
   handler: () => T | Promise<T>
 ): Promise<T> {
@@ -43,7 +50,7 @@ export async function asyncCacheProvider<T>(
  * @param handler Handler function
  * @returns Cached value
  */
-export function syncCacheProvider<T>(
+export function syncCacheProvider<T extends JSONValue>(
   cacheKey: string,
   handler: () => T | Promise<T>
 ): T {
