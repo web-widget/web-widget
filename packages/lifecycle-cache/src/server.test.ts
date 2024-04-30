@@ -37,3 +37,25 @@ test('should render the cache', async () => {
   expect(cache.get('numberArray')).toStrictEqual([1, 2, 3]);
   expect(cache.get('stringArray')).toStrictEqual(['a', 'b', 'c']);
 });
+
+test('private content should not be exposed', () => {
+  const state = {};
+  const cache = lifecycleCache<{
+    private?: string;
+  }>(state);
+
+  cache.set('private', 'private', false);
+  expect(renderLifecycleCacheLayer(state)).toBe('');
+});
+
+test('XSS content should be filtered', () => {
+  const state = {};
+  const cache = lifecycleCache<{
+    string?: string;
+  }>(state);
+
+  cache.set('string', '<script>alert(1)</script>', true);
+  expect(renderLifecycleCacheLayer(state)).toBe(
+    `<script>(self.${LIFECYCLE_CACHE_LAYER}=self.${LIFECYCLE_CACHE_LAYER}||[]).push({"string":"\\u003cscript\\u003ealert(1)\\u003c/script\\u003e"})</script>`
+  );
+});

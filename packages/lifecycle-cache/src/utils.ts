@@ -15,15 +15,6 @@ export function htmlEscapeJsonString(str: string): string {
   return str.replace(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match]);
 }
 
-export function unsafeAttrsToHtml(attrs: Record<string, string>) {
-  return Object.entries(attrs)
-    .map(
-      ([attrName, attrValue]) =>
-        `${attrName}${attrValue === '' ? '' : '="' + attrValue + '"'}`
-    )
-    .join(' ');
-}
-
 export function allowExposedToClient(object: any, key: string) {
   if (typeof key !== 'string') {
     throw new TypeError('Key must be a string.');
