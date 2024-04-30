@@ -12,7 +12,7 @@ The cache's lifetime begins when the server receives the request, and it will be
 import { syncCacheProvider } from '@web-widget/lifecycle-cache';
 
 type Data = {
-  id: string;
+  id?: string;
 };
 
 export default () => {
@@ -35,7 +35,7 @@ export default () => {
 import { asyncCacheProvider } from '@web-widget/lifecycle-cache';
 
 type Data = {
-  id: string;
+  id?: string;
 };
 
 const data = await asyncCacheProvider<Data>('cache_key', async () => {
@@ -58,7 +58,7 @@ const data = await asyncCacheProvider<Data>('cache_key', async () => {
 import { syncCacheProvider } from '@web-widget/lifecycle-cache';
 
 type Data = {
-  id: string;
+  id?: string;
 };
 
 const data = syncCacheProvider<Data>('cache_key', async () => {
@@ -80,12 +80,12 @@ const data = syncCacheProvider<Data>('cache_key', async () => {
 import { lifecycleCache } from '@web-widget/lifecycle-cache';
 
 type ICache = {
-  id?: string;
+  uid?: string;
   name?: string;
 };
 
 export const handler = async () => {
-  lifecycleCache<ICache>().set('id', '89').set('name', 'hello');
+  lifecycleCache<ICache>().set('uid', '89').set('name', 'hello');
 };
 ```
 
