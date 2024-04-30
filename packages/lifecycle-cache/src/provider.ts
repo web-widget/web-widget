@@ -18,23 +18,23 @@ export async function asyncCacheProvider<T>(
   const cache = lifecycleCache<{
     [cacheKey: string]: T | Promise<T>;
   }>();
-  let cacheValue = cache.get(cacheKey);
+  let cachedValue = cache.get(cacheKey);
 
-  if (cacheValue) {
-    return cacheValue;
+  if (cachedValue) {
+    return cachedValue;
   }
 
-  cacheValue = handler();
-  cache.set(cacheKey, cacheValue, false);
+  cachedValue = handler();
+  cache.set(cacheKey, cachedValue, false);
 
-  if (cacheValue instanceof Promise) {
-    return cacheValue.then((result) => {
+  if (cachedValue instanceof Promise) {
+    return cachedValue.then((result) => {
       cache.set(cacheKey, result, false);
       return result;
     });
   }
 
-  return cacheValue;
+  return cachedValue;
 }
 
 /**
@@ -50,28 +50,28 @@ export function syncCacheProvider<T>(
   const cache = lifecycleCache<{
     [cacheKey: string]: T | Promise<T>;
   }>();
-  let cacheValue = cache.get(cacheKey);
+  let cachedValue = cache.get(cacheKey);
 
-  if (cacheValue) {
-    if (cacheValue instanceof Promise) {
-      throw (cacheValue as PromiseState<T>)[ERROR] ?? cacheValue;
+  if (cachedValue) {
+    if (cachedValue instanceof Promise) {
+      throw (cachedValue as PromiseState<T>)[ERROR] ?? cachedValue;
     }
-    return cacheValue;
+    return cachedValue;
   }
 
-  cacheValue = handler();
-  cache.set(cacheKey, cacheValue, false);
+  cachedValue = handler();
+  cache.set(cacheKey, cachedValue, false);
 
-  if (cacheValue instanceof Promise) {
-    throw cacheValue.then(
+  if (cachedValue instanceof Promise) {
+    throw cachedValue.then(
       (result) => {
         cache.set(cacheKey, result, false);
       },
       (error) => {
-        (cacheValue as PromiseState<T>)[ERROR] = error;
+        (cachedValue as PromiseState<T>)[ERROR] = error;
       }
     );
   }
 
-  return cacheValue;
+  return cachedValue;
 }
