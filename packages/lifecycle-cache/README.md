@@ -91,7 +91,7 @@ export const handler = async () => {
 
 ### `lifecycleCache()`
 
-This is a low-level lifecycle cache API that returns a `lifecycleCache` object.
+This is a low-level lifecycle cache API that returns a `LifecycleCache` object.
 
 - `delete(cacheKey)`
 - `get(cacheKey)`
