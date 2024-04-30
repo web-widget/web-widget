@@ -1,6 +1,8 @@
 # @web-widget/lifecycle-cache
 
-This is a simple and powerful end-to-end caching library. Its life cycle begins when the server receives a request and ends when the web page is unloaded by the client.
+This is a simple and powerful end-to-end caching library.
+
+The cache's lifetime begins when the server receives the request, and it will be serialized and streamed to the client until the client unloads The web page is cleared.
 
 ## Usage
 
