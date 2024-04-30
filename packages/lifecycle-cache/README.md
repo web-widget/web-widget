@@ -4,45 +4,17 @@ This is a simple and powerful end-to-end caching library. Its life cycle begins 
 
 ## Usage
 
-### Route module
-
-```tsx
-import { lifecycleCache } from '@web-widget/lifecycle-cache';
-
-type ICache = {
-  id?: string;
-  name?: string;
-};
-
-export const handler = {
-  GET() {
-    const cache = lifecycleCache<ICache>();
-    cache.set('id', 'hello world');
-  },
-};
-
-export default () => {
-  const cache = lifecycleCache<ICache>();
-  const value = cache.get('id');
-  return (
-    <>
-      <h1>{value}</h1>
-    </>
-  );
-};
-```
-
 ### React component
 
 ```ts
-import { cacheSyncProvider } from '@web-widget/lifecycle-cache';
+import { syncCacheProvider } from '@web-widget/lifecycle-cache';
 
 type Data = {
   id: string;
 };
 
 export default () => {
-  const data = cacheSyncProvider<Data>('cache_key', async () => {
+  const data = syncCacheProvider<Data>('cache_key', async () => {
     const o = await fetchData();
     return { id: o.id };
   });
@@ -54,40 +26,17 @@ export default () => {
 };
 ```
 
-### Vue2 component
-
-```vue
-<script setup lang="ts">
-import { cacheSyncProvider } from '@web-widget/lifecycle-cache';
-
-type Data = {
-  id: string;
-};
-
-const data = cacheSyncProvider<Data>('cache_key', async () => {
-  const o = await fetchData();
-  return { id: o.id };
-});
-</script>
-
-<template>
-  <h1>
-    {{ data.id }}
-  </h1>
-</template>
-```
-
 ### Vue3 component
 
 ```vue
 <script setup lang="ts">
-import { cacheAsyncProvider } from '@web-widget/lifecycle-cache';
+import { asyncCacheProvider } from '@web-widget/lifecycle-cache';
 
 type Data = {
   id: string;
 };
 
-const data = await cacheAsyncProvider<Data>('cache_key', async () => {
+const data = await asyncCacheProvider<Data>('cache_key', async () => {
   const o = await fetchData();
   return { id: o.id };
 });
@@ -100,38 +49,78 @@ const data = await cacheAsyncProvider<Data>('cache_key', async () => {
 </template>
 ```
 
-## `LifecycleCache` class
+### Vue2 component
 
-### `delete(cacheKey)`
+```vue
+<script setup lang="ts">
+import { syncCacheProvider } from '@web-widget/lifecycle-cache';
+
+type Data = {
+  id: string;
+};
+
+const data = syncCacheProvider<Data>('cache_key', async () => {
+  const o = await fetchData();
+  return { id: o.id };
+});
+</script>
+
+<template>
+  <h1>
+    {{ data.id }}
+  </h1>
+</template>
+```
+
+### Route module or middleware module
+
+```tsx
+import { lifecycleCache } from '@web-widget/lifecycle-cache';
+
+type ICache = {
+  id?: string;
+  name?: string;
+};
+
+export const handler = async () => {
+  lifecycleCache<ICache>().set('id', '89').set('name', 'hello');
+};
+```
+
+## API
+
+### `lifecycleCache()`
+
+This is a low-level lifecycle cache API that returns a `lifecycleCache` object.
+
+#### `delete(cacheKey)`
 
 - `cacheKey` Must be a string or number
 
-### `get(cacheKey)`
+#### `get(cacheKey)`
 
 - `cacheKey` Must be a string or number
 
-### `has(cacheKey)`
+#### `has(cacheKey)`
 
 - `cacheKey` Must be a string or number
 
-### `set(cacheKey, value, httpOnly)`
+#### `set(cacheKey, value, expose)`
 
 - `cacheKey` Must be a string or number
 - `value` The value to store
-- `httpOnly` Whether it is only readable on the server side, the default is `true`
+- `expose` Whether exposed to the client, the default is `false`
 
-## Helpers
+### `asyncCacheProvider(cacheKey, handler)`
 
-### `cacheAsyncProvider(cacheKey, handler)`
-
-Get the value of asynchronous cache.
+Provide end-to-end cached values, the results are asynchronous.
 
 - `cacheKey` Must be a string or number
 - `handler` Cache provider handler
 
-### `cacheSyncProvider(cacheKey, handler)`
+### `syncCacheProvider(cacheKey, handler)`
 
-Get synchronized cached value.
+Provide end-to-end cached values, the results are synchronized.
 
 - `cacheKey` Must be a string or number
 - `handler` Cache provider handler

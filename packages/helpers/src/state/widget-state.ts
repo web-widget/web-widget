@@ -1,14 +1,14 @@
 import {
-  cacheAsyncProvider,
-  cacheSyncProvider,
+  asyncCacheProvider,
+  syncCacheProvider,
 } from '@web-widget/lifecycle-cache';
 import { useRouteState } from './route-state';
 
-/** @deprecated Use `import { cacheAsyncProvider } from '@web-widget/helpers/cache'` instead. */
-export const useWidgetAsyncState = cacheAsyncProvider;
+/** @deprecated Use `import { asyncCacheProvider } from '@web-widget/helpers/cache'` instead. */
+export const useWidgetAsyncState = asyncCacheProvider;
 
-/** @deprecated Use `import { cacheSyncProvider } from '@web-widget/helpers/cache'` instead. */
-export const useWidgetSyncState = cacheSyncProvider;
+/** @deprecated Use `import { syncCacheProvider } from '@web-widget/helpers/cache'` instead. */
+export const useWidgetSyncState = syncCacheProvider;
 
 /**
  * @deprecated

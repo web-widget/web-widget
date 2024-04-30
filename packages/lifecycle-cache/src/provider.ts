@@ -5,7 +5,13 @@ type PromiseState<T> = Promise<T> & {
   [ERROR]: T | Error;
 };
 
-export async function cacheAsyncProvider<T>(
+/**
+ * Provide end-to-end cached values, the results are asynchronous.
+ * @param cacheKey Cache key
+ * @param handler Handler function
+ * @returns Cached value
+ */
+export async function asyncCacheProvider<T>(
   cacheKey: string,
   handler: () => T | Promise<T>
 ): Promise<T> {
@@ -31,7 +37,13 @@ export async function cacheAsyncProvider<T>(
   return cacheValue;
 }
 
-export function cacheSyncProvider<T>(
+/**
+ * Provide end-to-end cached values, the results are synchronized.
+ * @param cacheKey Cache key
+ * @param handler Handler function
+ * @returns Cached value
+ */
+export function syncCacheProvider<T>(
   cacheKey: string,
   handler: () => T | Promise<T>
 ): T {

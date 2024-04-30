@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { cacheSyncProvider } from '@web-widget/helpers/cache';
+import { syncCacheProvider } from '@web-widget/helpers/cache';
 
 interface GitHubUserData {
   name: string;
@@ -14,7 +14,7 @@ interface Props {
 const useFetchGithub = (username: string): GitHubUserData => {
   const url = `https://api.github.com/users/${username}`;
   const cacheKey = url + '@react';
-  const data = cacheSyncProvider(cacheKey, async () => {
+  const data = syncCacheProvider(cacheKey, async () => {
     console.log('[github]', 'fetch..');
 
     const resp = await fetch(url);

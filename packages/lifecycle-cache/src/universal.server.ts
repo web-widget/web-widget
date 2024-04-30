@@ -1,5 +1,5 @@
 export {
   lifecycleCache,
-  cacheAsyncProvider,
-  cacheSyncProvider,
+  asyncCacheProvider,
+  syncCacheProvider,
 } from './server';

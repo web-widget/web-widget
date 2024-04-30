@@ -7,5 +7,5 @@
 - `context`: Remove `allowExposedToClient` feature.
 - `navigation`: Use `params` instead of `useParams`.
 - `navigation`: Use `url` instead of `useLocation`.
-- `state`: Use `import { cacheAsyncProvider } from '@web-widget/helpers/cache'` instead of `useWidgetAsyncState`.
-- `state`: Use `import { cacheSyncProvider } from '@web-widget/helpers/cache'` instead of `useWidgetSyncState`.
+- `state`: Use `import { asyncCacheProvider } from '@web-widget/helpers/cache'` instead of `useWidgetAsyncState`.
+- `state`: Use `import { syncCacheProvider } from '@web-widget/helpers/cache'` instead of `useWidgetSyncState`.
