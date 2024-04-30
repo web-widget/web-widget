@@ -3,7 +3,7 @@ import type {
   ClientWidgetRenderContext,
   Meta,
 } from '@web-widget/helpers';
-import { start as startLifecycleCache } from '@web-widget/lifecycle-cache/client';
+import { mountLifecycleCacheLayer } from '@web-widget/lifecycle-cache/client';
 import { WebWidgetUpdateEvent } from './event';
 import { LifecycleController } from './modules/controller';
 import { status } from './modules/status';
@@ -570,7 +570,7 @@ Object.assign(window, {
   HTMLWebWidgetElement,
 });
 
-startLifecycleCache(() => {
+mountLifecycleCacheLayer(() => {
   queueMicrotask(() => {
     customElements.define('web-widget', HTMLWebWidgetElement);
   });

@@ -7,7 +7,6 @@ import { allowExposedToClient } from './utils';
  */
 export class LifecycleCache<V extends Record<string, unknown>> {
   #storage: V;
-  [Symbol.toStringTag] = 'LifecycleCache';
 
   constructor(storage: V) {
     this.#storage = storage;
