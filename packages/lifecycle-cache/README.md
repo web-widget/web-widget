@@ -93,19 +93,12 @@ export const handler = async () => {
 
 This is a low-level lifecycle cache API that returns a `lifecycleCache` object.
 
-#### `delete(cacheKey)`
+- `delete(cacheKey)`
+- `get(cacheKey)`
+- `has(cacheKey)`
+- `set(cacheKey, value, expose)`
 
-- `cacheKey` Must be a string or number
-
-#### `get(cacheKey)`
-
-- `cacheKey` Must be a string or number
-
-#### `has(cacheKey)`
-
-- `cacheKey` Must be a string or number
-
-#### `set(cacheKey, value, expose)`
+Parameters:
 
 - `cacheKey` Must be a string or number
 - `value` The value to store
