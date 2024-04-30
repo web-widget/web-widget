@@ -32,11 +32,11 @@ export async function asyncCacheProvider<T extends JSONValue>(
   }
 
   cachedValue = handler();
-  cache.set(cacheKey, cachedValue, false);
+  cache.set(cacheKey, cachedValue, true);
 
   if (cachedValue instanceof Promise) {
     return cachedValue.then((result) => {
-      cache.set(cacheKey, result, false);
+      cache.set(cacheKey, result, true);
       return result;
     });
   }
@@ -67,12 +67,12 @@ export function syncCacheProvider<T extends JSONValue>(
   }
 
   cachedValue = handler();
-  cache.set(cacheKey, cachedValue, false);
+  cache.set(cacheKey, cachedValue, true);
 
   if (cachedValue instanceof Promise) {
     throw cachedValue.then(
       (result) => {
-        cache.set(cacheKey, result, false);
+        cache.set(cacheKey, result, true);
       },
       (error) => {
         (cachedValue as PromiseState<T>)[ERROR] = error;
