@@ -10,7 +10,9 @@ type LifecycleCacheValue<
 > = E extends true ? JSONValue & V[K] : V[K];
 
 /**
- * LifecycleCache is a key/value map that allows you to store data for the duration of a request.
+ * This is the lifecycle cache interface.
+ * Caching starts when the server receives a request,
+ * it will be serialized and streamed to the client until the client unloads the web page and clears it.
  */
 export class LifecycleCache<V extends Record<string, unknown>> {
   #storage: V;
