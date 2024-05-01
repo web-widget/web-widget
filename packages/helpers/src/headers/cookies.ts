@@ -9,11 +9,11 @@ export {
   stringifyCookie,
 } from '@edge-runtime/cookies';
 
-/** Write HTTP outgoing response cookies. */
-export function cookies(headers: Headers): ResponseCookies;
-
 /** Read HTTP incoming request cookies. */
 export function cookies(): RequestCookies;
+
+/** Write HTTP outgoing response cookies. */
+export function cookies(headers: Headers): ResponseCookies;
 
 export function cookies(headers?: Headers) {
   return headers

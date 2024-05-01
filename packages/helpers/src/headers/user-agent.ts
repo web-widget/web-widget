@@ -32,12 +32,15 @@ export function deviceType(headers: Headers) {
   }
 }
 
-export function userAgent(headers?: Headers) {
+/** @deprecated Use `userAgent(headers)` instead.  */
+export function userAgent(
+  request: Request
+): ReturnType<typeof userAgentFromString>;
+
+/** Read HTTP incoming request user agent. */
+export function userAgent(headers?: Headers | Request) {
   if (headers instanceof Request) {
-    console.warn(
-      '`userAgent` should be called with `Headers` instead of `Request`.'
-    );
-    return userAgent(headers.headers);
+    return userAgentFromString(headers.headers.get('user-agent') ?? undefined);
   }
   return userAgentFromString(
     (headers ?? requestHeaders()).get('user-agent') ?? undefined
