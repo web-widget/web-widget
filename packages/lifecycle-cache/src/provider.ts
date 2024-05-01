@@ -1,16 +1,10 @@
 import { lifecycleCache } from './cache';
+import type { JSONValue } from './types';
 
 const ERROR = Symbol.for('error');
 type PromiseState<T> = Promise<T> & {
   [ERROR]: T | Error;
 };
-
-type JSONValue =
-  | string
-  | number
-  | boolean
-  | { [x: string]: JSONValue }
-  | Array<JSONValue>;
 
 /**
  * Provide end-to-end cached values, the results are asynchronous.
@@ -32,7 +26,7 @@ export async function asyncCacheProvider<T extends JSONValue>(
   }
 
   cachedValue = handler();
-  cache.set(cacheKey, cachedValue, true);
+  cache.set(cacheKey, cachedValue as T, true);
 
   if (cachedValue instanceof Promise) {
     return cachedValue.then((result) => {
@@ -67,7 +61,7 @@ export function syncCacheProvider<T extends JSONValue>(
   }
 
   cachedValue = handler();
-  cache.set(cacheKey, cachedValue, true);
+  cache.set(cacheKey, cachedValue as T, true);
 
   if (cachedValue instanceof Promise) {
     throw cachedValue.then(

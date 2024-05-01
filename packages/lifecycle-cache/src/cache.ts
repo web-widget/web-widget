@@ -1,6 +1,13 @@
 import { context } from '@web-widget/context';
 import type { RouteState } from '@web-widget/schema';
 import { allowExposedToClient } from './utils';
+import type { JSONValue } from './types';
+
+type LifecycleCacheValue<
+  V,
+  K extends keyof V,
+  E extends boolean,
+> = E extends true ? JSONValue & V[K] : V[K];
 
 /**
  * LifecycleCache is a key/value map that allows you to store data for the duration of a request.
@@ -40,11 +47,15 @@ export class LifecycleCache<V extends Record<string, unknown>> {
    * @param value The value to store.
    * @param expose Whether exposed to the client, the default is `false`.
    */
-  set<K extends keyof V>(key: K, value: V[K], expose: boolean = false) {
+  set<K extends keyof V, E extends boolean = false>(
+    key: K,
+    value: LifecycleCacheValue<V, K, E>,
+    expose: E = false as E
+  ) {
     if (expose) {
       allowExposedToClient(this.#storage, key as string);
     }
-    this.#storage[key] = value;
+    this.#storage[key] = value as V[K];
     return this;
   }
 }

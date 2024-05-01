@@ -5,10 +5,11 @@ type JSONValue =
   | string
   | number
   | boolean
-  | { [x: string]: JSONValue }
-  | Array<JSONValue>;
+  | null
+  | { [key: string]: JSONValue }
+  | JSONValue[];
 
-export type JSONProps = { [x: string]: JSONValue };
+export type JSONProps = { [key: string]: JSONValue };
 
 export type Loader = () => Promise<WidgetModule>;
 

@@ -4,10 +4,11 @@ type JSONValue =
   | string
   | number
   | boolean
-  | { [x: string]: JSONValue }
-  | Array<JSONValue>;
+  | null
+  | { [key: string]: JSONValue }
+  | JSONValue[];
 
-export type JSONObject = { [x: string]: JSONValue };
+export type JSONObject = { [key: string]: JSONValue };
 
 export interface SafeSerializableContext extends Partial<MiddlewareContext> {
   params: Record<string, string>;
