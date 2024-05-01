@@ -1,5 +1,20 @@
 # @web-widget/helpers
 
+## 1.11.0
+
+### Patch Changes
+
+- 6aef990: - `cache`: Add lifecycle cache features.
+  - `context`: Use `context` instead of `useContext`.
+  - `context`: Remove `allowExposedToClient` feature.
+  - `navigation`: Use `params` instead of `useParams`.
+  - `navigation`: Use `url` instead of `useLocation`.
+  - `state`: Use `import { asyncCacheProvider } from '@web-widget/helpers/cache'` instead of `useWidgetAsyncState`.
+  - `state`: Use `import { syncCacheProvider } from '@web-widget/helpers/cache'` instead of `useWidgetSyncState`.
+- Updated dependencies [6aef990]
+  - @web-widget/lifecycle-cache@1.11.0
+  - @web-widget/context@1.11.0
+
 ## 1.10.42
 
 ### Patch Changes
