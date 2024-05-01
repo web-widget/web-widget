@@ -1,6 +1,9 @@
+import { userAgentFromString } from '@edge-runtime/user-agent';
+import { headers as requestHeaders } from './headers';
+
 export {
+  /** @deprecated */
   isBot,
-  userAgent,
   userAgentFromString,
 } from '@edge-runtime/user-agent';
 
@@ -15,6 +18,7 @@ const TABLET_REGEX =
  * - Tablet: `(?:ipad|playbook|(?:android|bb\d+|meego|silk)(?! .+? mobile))`
  * - Desktop: Everything else not matched above.
  * @see https://developers.cloudflare.com/cache/how-to/edge-browser-cache-ttl/create-page-rules/#cache-by-device-type-enterprise-only
+ * @deprecated Use `userAgent` instead.
  */
 export function deviceType(headers: Headers) {
   const userAgent = headers.get('User-Agent') || '';
@@ -26,4 +30,16 @@ export function deviceType(headers: Headers) {
   } else {
     return 'desktop';
   }
+}
+
+export function userAgent(headers?: Headers) {
+  if (headers instanceof Request) {
+    console.warn(
+      '`userAgent` should be called with `Headers` instead of `Request`.'
+    );
+    return userAgent(headers.headers);
+  }
+  return userAgentFromString(
+    (headers ?? requestHeaders()).get('user-agent') ?? undefined
+  );
 }
