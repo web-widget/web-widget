@@ -141,7 +141,9 @@ export type RequestCacheControlOptions = {
   onlyIfCached?: boolean;
 };
 
-const responseMappings = {
+const responseMappings: {
+  [key in keyof ResponseCacheControlOptions]: string | ((value: any) => string);
+} = {
   immutable: 'immutable',
   maxAge: (value: number) => `max-age=${value}`,
   mustRevalidate: 'must-revalidate',
@@ -170,7 +172,9 @@ function arrayifyResponseCacheControl(
   }, [] as string[]);
 }
 
-const requestMappings = {
+const requestMappings: {
+  [key in keyof RequestCacheControlOptions]: string | ((value: any) => string);
+} = {
   maxAge: (value: number) => `max-age=${value}`,
   maxStale: (value: number) => `max-stale=${value}`,
   minFresh: (value: number) => `min-fresh=${value}`,
