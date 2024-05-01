@@ -1,6 +1,6 @@
 import './counter-common.css';
 import { useState } from 'react';
-import { useParams } from '@web-widget/helpers/navigation';
+import { params } from '@web-widget/helpers/navigation';
 
 interface CounterProps {
   name: string;
@@ -9,7 +9,7 @@ interface CounterProps {
 
 export default function Counter(props: CounterProps) {
   const [count, setCount] = useState(props.start);
-  console.log('useParams', useParams());
+  console.log('params', params());
   return (
     <div className="counter">
       <button onClick={() => setCount(count - 1)}>-1</button>

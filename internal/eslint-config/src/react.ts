@@ -29,6 +29,6 @@ export default defineConfig({
     // react-hooks
     // https://github.com/facebook/react/tree/main/packages/eslint-plugin-react-hooks
     'react-hooks/exhaustive-deps': WARN,
-    'react-hooks/rules-of-hooks': ERROR,
+    'react-hooks/rules-of-hooks': WARN,
   },
 });

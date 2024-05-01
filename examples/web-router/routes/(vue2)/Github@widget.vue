@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useWidgetState } from '@web-widget/vue2';
+import { syncCacheProvider } from '@web-widget/helpers/cache';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -9,7 +9,7 @@ const props = defineProps({
 const url = `https://api.github.com/users/${props.username}`;
 const cacheKey = url + '@vue2';
 
-const data = useWidgetState(cacheKey, async () => {
+const data = syncCacheProvider(cacheKey, async () => {
   console.log('[github]', 'fetch..');
   const resp = await fetch(url);
   if (!resp.ok) {

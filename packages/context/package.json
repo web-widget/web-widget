@@ -5,19 +5,19 @@
   "exports": {
     ".": {
       "worker": {
-        "types": "./dist/universal.server.d.ts",
+        "types": "./dist/context.universal.server.d.ts",
         "development": "./src/universal.server.ts",
-        "default": "./dist/universal.server.js"
+        "default": "./dist/context.universal.server.js"
       },
       "browser": {
-        "types": "./dist/universal.client.d.ts",
+        "types": "./dist/context.universal.client.d.ts",
         "development": "./src/universal.client.ts",
-        "default": "./dist/universal.client.js"
+        "default": "./dist/context.universal.client.js"
       },
       "default": {
-        "types": "./dist/universal.server.d.ts",
+        "types": "./dist/context.universal.server.d.ts",
         "development": "./src/universal.server.ts",
-        "default": "./dist/universal.server.js"
+        "default": "./dist/context.universal.server.js"
       }
     },
     "./client": {
@@ -37,7 +37,7 @@
   "scripts": {
     "build": "pnpm exec tsup",
     "dev": "pnpm exec tsup --watch",
-    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --passWithNoTests",
     "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
@@ -63,16 +63,16 @@
     "exports": {
       ".": {
         "worker": {
-          "types": "./dist/universal.server.d.ts",
-          "default": "./dist/universal.server.js"
+          "types": "./dist/context.universal.server.d.ts",
+          "default": "./dist/context.universal.server.js"
         },
         "browser": {
-          "types": "./dist/universal.client.d.ts",
-          "default": "./dist/universal.client.js"
+          "types": "./dist/context.universal.client.d.ts",
+          "default": "./dist/context.universal.client.js"
         },
         "default": {
-          "types": "./dist/universal.server.d.ts",
-          "default": "./dist/universal.server.js"
+          "types": "./dist/context.universal.server.d.ts",
+          "default": "./dist/context.universal.server.js"
         }
       },
       "./client": {

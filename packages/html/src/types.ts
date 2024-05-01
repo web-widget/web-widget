@@ -10,10 +10,11 @@ type JSONValue =
   | string
   | number
   | boolean
-  | { [x: string]: JSONValue }
-  | Array<JSONValue>;
+  | null
+  | { [key: string]: JSONValue }
+  | JSONValue[];
 
-type JSONProps = { [x: string]: JSONValue };
+type JSONProps = { [key: string]: JSONValue };
 
 export interface DefineHtmlRenderOptions {
   /**@deprecated*/

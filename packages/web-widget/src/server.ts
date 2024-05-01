@@ -3,11 +3,11 @@ import type {
   ServerWidgetRenderContext,
 } from '@web-widget/helpers';
 import { mergeMeta, rebaseMeta, renderMetaToString } from '@web-widget/helpers';
-import { useWidgetState } from '@web-widget/helpers/state';
+import { renderLifecycleCacheLayer } from '@web-widget/lifecycle-cache/server';
 import type {
   Loader,
-  WebWidgetRendererOptions,
   WebWidgetElementProps,
+  WebWidgetRendererOptions,
 } from './types';
 import {
   getClientModuleId,
@@ -22,21 +22,6 @@ declare global {
   interface ReadableStream {
     [Symbol.asyncIterator](): AsyncIterator<ArrayBuffer | ArrayBufferView>;
   }
-}
-
-const ESCAPE_LOOKUP: { [match: string]: string } = {
-  '>': '\\u003e',
-  '<': '\\u003c',
-  '\u2028': '\\u2028',
-  '\u2029': '\\u2029',
-};
-
-const ESCAPE_REGEX = /[><\u2028\u2029]/g;
-
-// This utility is based on https://github.com/zertosh/htmlescape
-// License: https://github.com/zertosh/htmlescape/blob/0527ca7156a524d256101bb310a9f970f63078ad/LICENSE
-function htmlEscapeJsonString(str: string): string {
-  return str.replace(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match]);
 }
 
 async function readableStreamToString(readableStream: ReadableStream) {
@@ -139,10 +124,6 @@ export class WebWidgetRenderer {
     }
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const allState = useWidgetState();
-    const allStateKeys = Object.keys(allState);
-    const used: Set<string> = (allState[Symbol.for('used')] ??= new Set());
-
     const module = (await loader()) as ServerWidgetModule;
     if (typeof module.render !== 'function') {
       throw new TypeError(
@@ -214,32 +195,8 @@ export class WebWidgetRenderer {
       result += children;
     }
 
-    const dependenciesKeys = Object.keys(allState).filter((key) => {
-      if (
-        !used.has(key) &&
-        !allStateKeys.includes(key) &&
-        !(allState[key] instanceof Promise)
-      ) {
-        used.add(key);
-        return true;
-      }
-      return false;
-    });
-
-    const dependencies = dependenciesKeys.reduce(
-      (previousValue, currentValue) => {
-        previousValue[currentValue] = allState[currentValue];
-        return previousValue;
-      },
-      {} as any
-    );
-
-    if (dependenciesKeys.length) {
-      result += `<script>`;
-      result += `(self.stateLayer=self.stateLayer||[]).push`;
-      result += `(${htmlEscapeJsonString(JSON.stringify(dependencies))})`;
-      result += `</script>`;
-    }
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    result += renderLifecycleCacheLayer();
 
     return result;
   }

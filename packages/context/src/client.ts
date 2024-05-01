@@ -1,7 +1,11 @@
 import type { MiddlewareContext } from '@web-widget/schema';
-import type { SafeSerializableContext } from './types';
 import { tryGetAsyncLocalStorage } from './context';
 import { SCRIPT_ID } from './constants';
+
+type SafeSerializableContext = Pick<
+  MiddlewareContext,
+  'params' | 'pathname' | 'request' | 'state'
+>;
 
 export function createSafeSerializableContext(
   context: Partial<MiddlewareContext>
@@ -11,7 +15,6 @@ export function createSafeSerializableContext(
     pathname: '',
     request: new Request(location.href),
     state: Object.create(null),
-    widgetState: Object.create(null),
     ...context,
   };
 }
@@ -36,7 +39,10 @@ export function callContext<T extends (...args: any[]) => any>(
   return fn();
 }
 
-export function useContext() {
+export function context() {
   const ctx = tryGetAsyncLocalStorage();
   return ctx.use() as SafeSerializableContext;
 }
+
+/** @deprecated Use `context` instead. */
+export const useContext = context;

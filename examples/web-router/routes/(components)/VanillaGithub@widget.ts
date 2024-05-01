@@ -1,6 +1,6 @@
 import { defineWidgetRender } from '@web-widget/helpers';
 import { IS_SERVER } from '@web-widget/helpers/env';
-import { useWidgetSyncState } from '@web-widget/helpers/state';
+import { syncCacheProvider } from '@web-widget/helpers/cache';
 
 interface GitHubUserData {
   name: string;
@@ -15,7 +15,7 @@ interface Props {
 const useFetchGithub = (username: string): GitHubUserData => {
   const url = `https://api.github.com/users/${username}`;
   const cacheKey = url + '@vanilla';
-  const data = useWidgetSyncState(cacheKey, async () => {
+  const data = syncCacheProvider(cacheKey, async () => {
     console.log('[github]', 'fetch..');
     const resp = await fetch(url);
     if (!resp.ok) {

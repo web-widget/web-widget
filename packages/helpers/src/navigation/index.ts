@@ -1,10 +1,13 @@
-import { useContext } from '@web-widget/context';
+import { context } from '@web-widget/context';
 import { Status, STATUS_TEXT } from '../status';
 
-export function useParams<T extends Record<string, string>>(): T {
-  const ctx = useContext();
+export function params<T extends Record<string, string>>(): T {
+  const ctx = context();
   return ctx.params as T;
 }
+
+/** @deprecated Use `params` instead. */
+export const useParams = params;
 
 /**
  * `redirect()` can Redirect, default status code is 307.
@@ -27,9 +30,12 @@ export function redirect(
   });
 }
 
-export function useLocation(): URL {
+export function url(): URL {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const ctx = useContext();
+  const ctx = context();
 
   return new URL(ctx.request.url);
 }
+
+/** @deprecated Use `url` instead. */
+export const useLocation = url;

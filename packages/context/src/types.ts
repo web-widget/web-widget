@@ -1,20 +1,14 @@
 import type { MiddlewareContext } from '@web-widget/schema';
-import type { EXPOSED_TO_CLIENT } from './constants';
 
 type JSONValue =
   | string
   | number
   | boolean
-  | { [x: string]: JSONValue }
-  | Array<JSONValue>;
+  | null
+  | { [key: string]: JSONValue }
+  | JSONValue[];
 
-export type JSONObject = { [x: string]: JSONValue };
-
-export interface SerializableContext extends MiddlewareContext {
-  widgetState: Record<string | symbol, any>;
-  [EXPOSED_TO_CLIENT]?: string[];
-  toJSON?: () => JSONObject;
-}
+export type JSONObject = { [key: string]: JSONValue };
 
 export interface SafeSerializableContext extends Partial<MiddlewareContext> {
   params: Record<string, string>;
@@ -22,5 +16,4 @@ export interface SafeSerializableContext extends Partial<MiddlewareContext> {
   pathname: string;
   request: Request;
   state: JSONObject;
-  widgetState: Record<string | symbol, any>;
 }

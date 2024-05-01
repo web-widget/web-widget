@@ -49,6 +49,10 @@
       "module": "routes/react-streaming@route.tsx"
     },
     {
+      "pathname": "/request-cache",
+      "module": "routes/request-cache@route.tsx"
+    },
+    {
       "pathname": "/style",
       "module": "routes/style@route.tsx"
     },

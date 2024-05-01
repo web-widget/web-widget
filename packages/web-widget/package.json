@@ -70,21 +70,18 @@
     "prebuild": "pnpm run clean:build",
     "lint": "eslint src"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@web-widget/lifecycle-cache": "workspace:*",
+    "@web-widget/helpers": "workspace:*"
+  },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6 ",
     "@web/test-runner": "^0.18.0",
     "@web/dev-server-esbuild": "^1.0.1",
-    "@web-widget/context": "workspace:*",
-    "@web-widget/helpers": "workspace:*",
     "tsup": "^8.0.1",
     "typescript": "latest"
-  },
-  "peerDependencies": {
-    "@web-widget/context": "workspace:*",
-    "@web-widget/helpers": "workspace:*"
   },
   "publishConfig": {
     "access": "public",
