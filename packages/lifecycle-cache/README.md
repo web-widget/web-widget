@@ -109,6 +109,8 @@ Provide end-to-end cached values, the results are synchronized.
 
 This is a low-level lifecycle cache API that returns a `LifecycleCache` object.
 
+Methods:
+
 - `delete(cacheKey)`
 - `get(cacheKey)`
 - `has(cacheKey)`
