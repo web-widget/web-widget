@@ -141,75 +141,57 @@ export type RequestCacheControlOptions = {
   onlyIfCached?: boolean;
 };
 
+const responseMappings = {
+  immutable: 'immutable',
+  maxAge: (value: number) => `max-age=${value}`,
+  mustRevalidate: 'must-revalidate',
+  mustUnderstand: 'must-understand',
+  noCache: 'no-cache',
+  noStore: 'no-store',
+  noTransform: 'no-transform',
+  proxyRevalidate: 'proxy-revalidate',
+  public: (value: boolean) => (value ? 'public' : 'private'),
+  sharedMaxAge: (value: number) => `s-maxage=${value}`,
+  staleIfError: (value: number) => `stale-if-error=${value}`,
+  staleWhileRevalidate: (value: number) => `stale-while-revalidate=${value}`,
+};
+
 function arrayifyResponseCacheControl(
   options: ResponseCacheControlOptions
 ): string[] {
-  const config: string[] = [];
-  if (options.immutable) {
-    config.push('immutable');
-  }
-  if (options.maxAge !== undefined) {
-    config.push(`max-age=${options.maxAge}`);
-  }
-  if (options.mustRevalidate) {
-    config.push('must-revalidate');
-  }
-  if (options.mustUnderstand) {
-    config.push('must-understand');
-  }
-  if (options.noCache) {
-    config.push('no-cache');
-  }
-  if (options.noStore) {
-    config.push('no-store');
-  }
-  if (options.noTransform) {
-    config.push('no-transform');
-  }
-  if (options.proxyRevalidate) {
-    config.push('proxy-revalidate');
-  }
-  if (options.public !== undefined) {
-    config.push(options.public ? 'public' : 'private');
-  }
-  if (options.sharedMaxAge !== undefined) {
-    config.push(`s-maxage=${options.sharedMaxAge}`);
-  }
-  if (options.staleIfError !== undefined) {
-    config.push(`stale-if-error=${options.staleIfError}`);
-  }
-  if (options.staleWhileRevalidate !== undefined) {
-    config.push(`stale-while-revalidate=${options.staleWhileRevalidate}`);
-  }
-  return config;
+  return Object.entries(responseMappings).reduce((config, [key, transform]) => {
+    const value = options[key as keyof typeof options];
+    if (value !== undefined) {
+      config.push(
+        typeof transform === 'function' ? transform(value as never) : transform
+      );
+    }
+    return config;
+  }, [] as string[]);
 }
+
+const requestMappings = {
+  maxAge: (value: number) => `max-age=${value}`,
+  maxStale: (value: number) => `max-stale=${value}`,
+  minFresh: (value: number) => `min-fresh=${value}`,
+  noCache: 'no-cache',
+  noStore: 'no-store',
+  noTransform: 'no-transform',
+  onlyIfCached: 'only-if-cached',
+};
 
 function arrayifyRequestCacheControl(
   options: RequestCacheControlOptions
 ): string[] {
-  const config: string[] = [];
-  if (options.maxAge !== undefined) {
-    config.push(`max-age=${options.maxAge}`);
-  }
-  if (options.maxStale !== undefined) {
-    config.push(`max-stale=${options.maxStale}`);
-  }
-  if (options.minFresh !== undefined) {
-    config.push(`min-fresh=${options.minFresh}`);
-  }
-  if (options.noCache) {
-    config.push('no-cache');
-  }
-  if (options.noStore) {
-    config.push('no-store');
-  }
-  if (options.noTransform) {
-    config.push('no-transform');
-  }
-  if (options.onlyIfCached) {
-    config.push('only-if-cached');
-  }
-  return config;
+  return Object.entries(requestMappings).reduce((config, [key, transform]) => {
+    const value = options[key as keyof typeof options];
+    if (value !== undefined) {
+      config.push(
+        typeof transform === 'function' ? transform(value as never) : transform
+      );
+    }
+    return config;
+  }, [] as string[]);
 }
 
 export function stringifyResponseCacheControl(
