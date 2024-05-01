@@ -1,5 +1,17 @@
 # @web-widget/web-router
 
+## 1.11.0
+
+### Patch Changes
+
+- 6aef990: Use `@web-widget/lifecycle-cache` to reconstruct the cache.
+- Updated dependencies [6aef990]
+- Updated dependencies [6aef990]
+  - @web-widget/lifecycle-cache@1.11.0
+  - @web-widget/helpers@1.11.0
+  - @web-widget/html@1.11.0
+  - @web-widget/context@1.11.0
+
 ## 1.10.42
 
 ### Patch Changes
