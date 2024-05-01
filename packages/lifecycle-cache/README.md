@@ -91,6 +91,20 @@ export const handler = async () => {
 
 ## API
 
+### `asyncCacheProvider(cacheKey, handler)`
+
+Provide end-to-end cached values, the results are asynchronous.
+
+- `cacheKey` Must be a string or number
+- `handler` Cache provider handler
+
+### `syncCacheProvider(cacheKey, handler)`
+
+Provide end-to-end cached values, the results are synchronized.
+
+- `cacheKey` Must be a string or number
+- `handler` Cache provider handler
+
 ### `lifecycleCache()`
 
 This is a low-level lifecycle cache API that returns a `LifecycleCache` object.
@@ -105,17 +119,3 @@ Parameters:
 - `cacheKey` Must be a string or number
 - `value` The value to store
 - `expose` Whether exposed to the client, the default is `false`
-
-### `asyncCacheProvider(cacheKey, handler)`
-
-Provide end-to-end cached values, the results are asynchronous.
-
-- `cacheKey` Must be a string or number
-- `handler` Cache provider handler
-
-### `syncCacheProvider(cacheKey, handler)`
-
-Provide end-to-end cached values, the results are synchronized.
-
-- `cacheKey` Must be a string or number
-- `handler` Cache provider handler
