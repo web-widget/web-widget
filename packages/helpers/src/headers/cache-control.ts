@@ -208,16 +208,18 @@ export function stringifyRequestCacheControl(
  */
 export function cacheControl(
   headers: Headers,
-  cacheControl: string | string[]
+  cacheControl: string | string[],
+  replace?: boolean
 ) {
   const directives = Array.isArray(cacheControl)
     ? cacheControl
     : cacheControl.split(',');
 
-  append(headers, directives);
+  const fn = replace ? replaceCacheControl : appendCacheControl;
+  fn(headers, directives);
 }
 
-function append(headers: Headers, directives: string[]) {
+function appendCacheControl(headers: Headers, directives: string[]) {
   const existingDirectives =
     headers
       .get('cache-control')
@@ -232,14 +234,20 @@ function append(headers: Headers, directives: string[]) {
   }
 }
 
+function replaceCacheControl(headers: Headers, directives: string[]) {
+  headers.set('cache-control', directives.join(', '));
+}
+
 /**
  * Append `cache-control` headers to a response.
  */
 export function responseCacheControl(
   headers: Headers,
-  cacheControl: ResponseCacheControl
+  cacheControl: ResponseCacheControl,
+  replace?: boolean
 ) {
-  append(headers, arrayifyResponseCacheControl(cacheControl));
+  const fn = replace ? replaceCacheControl : appendCacheControl;
+  fn(headers, arrayifyRequestCacheControl(cacheControl));
 }
 
 /**
@@ -247,7 +255,9 @@ export function responseCacheControl(
  */
 export function requestCacheControl(
   headers: Headers,
-  cacheControl: RequestCacheControl
+  cacheControl: RequestCacheControl,
+  replace?: boolean
 ) {
-  append(headers, arrayifyRequestCacheControl(cacheControl));
+  const fn = replace ? replaceCacheControl : appendCacheControl;
+  fn(headers, arrayifyRequestCacheControl(cacheControl));
 }
