@@ -48,22 +48,22 @@ export type WidgetRenderContext<Data = unknown> =
 
 export interface ServerWidgetRenderContext<Data = unknown> {
   data: Data;
-  children?: ServerWidgetRenderResult;
+  readonly children?: ServerWidgetRenderResult;
   error?: WidgetError;
   meta: Meta;
-  module: ServerWidgetModule;
+  module: Readonly<ServerWidgetModule>;
 }
 
 export interface ClientWidgetRenderContext<Data = unknown> {
   data: Data;
-  children?: ClientWidgetRenderResult;
+  readonly children?: ClientWidgetRenderResult;
   error?: WidgetError;
   meta: Meta;
-  module: ClientWidgetModule;
+  module: Readonly<ClientWidgetModule>;
   /** The target element for component rendering. */
-  container: Element | DocumentFragment;
+  readonly container: Element | DocumentFragment;
   /** The component resumes running on the client side. */
-  recovering: boolean;
+  readonly recovering: boolean;
 }
 
 export type WidgetRenderResult =
@@ -135,14 +135,14 @@ export type RouteComponentProps<
    * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
    * be `{ path: 'bar/baz' }`.
    */
-  params: Params;
+  readonly params: Readonly<Params>;
 
   /**
    * The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered.
    * @deprecated
    */
-  pathname: string;
+  readonly pathname: string;
 
   /**
    * This Fetch API interface represents a resource request.
@@ -210,10 +210,10 @@ export interface RouteHandlerContext<
   /**
    * JavaScript module that handles the current route.
    */
-  module: RouteModule;
+  module: Readonly<RouteModule>;
 
   /** @deprecated */
-  name?: string;
+  readonly name?: string;
 
   /**
    * The parameters that were matched from the route.
@@ -223,14 +223,14 @@ export interface RouteHandlerContext<
    * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
    * be `{ path: 'bar/baz' }`.
    */
-  params: Params;
+  readonly params: Readonly<Params>;
 
   /**
    * The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered.
    * @deprecated
    */
-  pathname: string;
+  readonly pathname: string;
 
   /**
    * Render current route.
@@ -258,7 +258,7 @@ export interface RouteHandlerContext<
   /**
    * The state of the application, the content comes from the middleware.
    */
-  state: RouteState;
+  readonly state: RouteState;
 }
 
 export interface RouteRenderContext<
@@ -283,7 +283,7 @@ export interface RouteRenderContext<
   /**
    * JavaScript module that handles the current route.
    */
-  module: RouteModule;
+  module: Readonly<RouteModule>;
 
   /**
    * The parameters that were matched from the route.
@@ -293,14 +293,14 @@ export interface RouteRenderContext<
    * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
    * be `{ path: 'bar/baz' }`.
    */
-  params: Params;
+  readonly params: Readonly<Params>;
 
   /**
    * The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered.
    * @deprecated
    */
-  pathname: string;
+  readonly pathname: string;
 
   /**
    * This Fetch API interface represents a resource request.

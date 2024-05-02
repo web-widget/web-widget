@@ -1,7 +1,7 @@
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import {
   stringifyResponseCacheControl,
-  type ResponseCacheControlOptions,
+  type ResponseCacheControl,
 } from '@web-widget/helpers/headers';
 import { createFetch } from '@web-widget/shared-cache';
 import type {
@@ -24,8 +24,8 @@ export type CacheOptions = {
    */
   cacheControl?:
     | string
-    | ResponseCacheControlOptions
-    | ((request: Request) => string | ResponseCacheControlOptions);
+    | ResponseCacheControl
+    | ((request: Request) => string | ResponseCacheControl);
 
   /**
    * Override HTTP `Vary` header.

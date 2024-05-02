@@ -1,4 +1,4 @@
-export type ResponseCacheControlOptions = {
+export type ResponseCacheControl = {
   /**
    * The `immutable` response directive.
    * It indicates that the response will not be updated
@@ -90,7 +90,7 @@ export type ResponseCacheControlOptions = {
   staleWhileRevalidate?: number;
 };
 
-export type RequestCacheControlOptions = {
+export type RequestCacheControl = {
   /**
    * The `max-age=N` request directive.
    * It indicates that the client allows a stored response
@@ -141,87 +141,66 @@ export type RequestCacheControlOptions = {
   onlyIfCached?: boolean;
 };
 
+const mappings: {
+  [key in keyof (ResponseCacheControl & RequestCacheControl)]:
+    | string
+    | ((value: any) => string);
+} = {
+  immutable: 'immutable',
+  maxAge: (value: number) => `max-age=${value}`,
+  maxStale: (value: number) => `max-stale=${value}`,
+  minFresh: (value: number) => `min-fresh=${value}`,
+  mustRevalidate: 'must-revalidate',
+  mustUnderstand: 'must-understand',
+  noCache: 'no-cache',
+  noStore: 'no-store',
+  noTransform: 'no-transform',
+  proxyRevalidate: 'proxy-revalidate',
+  onlyIfCached: 'only-if-cached',
+  public: (value: boolean) => (value ? 'public' : 'private'),
+  sharedMaxAge: (value: number) => `s-maxage=${value}`,
+  staleIfError: (value: number) => `stale-if-error=${value}`,
+  staleWhileRevalidate: (value: number) => `stale-while-revalidate=${value}`,
+};
+
 function arrayifyResponseCacheControl(
-  options: ResponseCacheControlOptions
+  cacheControl: ResponseCacheControl
 ): string[] {
-  const config: string[] = [];
-  if (options.immutable) {
-    config.push('immutable');
-  }
-  if (options.maxAge !== undefined) {
-    config.push(`max-age=${options.maxAge}`);
-  }
-  if (options.mustRevalidate) {
-    config.push('must-revalidate');
-  }
-  if (options.mustUnderstand) {
-    config.push('must-understand');
-  }
-  if (options.noCache) {
-    config.push('no-cache');
-  }
-  if (options.noStore) {
-    config.push('no-store');
-  }
-  if (options.noTransform) {
-    config.push('no-transform');
-  }
-  if (options.proxyRevalidate) {
-    config.push('proxy-revalidate');
-  }
-  if (options.public !== undefined) {
-    config.push(options.public ? 'public' : 'private');
-  }
-  if (options.sharedMaxAge !== undefined) {
-    config.push(`s-maxage=${options.sharedMaxAge}`);
-  }
-  if (options.staleIfError !== undefined) {
-    config.push(`stale-if-error=${options.staleIfError}`);
-  }
-  if (options.staleWhileRevalidate !== undefined) {
-    config.push(`stale-while-revalidate=${options.staleWhileRevalidate}`);
-  }
-  return config;
+  return Object.entries(mappings).reduce((config, [key, transform]) => {
+    const value = cacheControl[key as keyof typeof cacheControl];
+    if (value !== undefined) {
+      config.push(
+        typeof transform === 'function' ? transform(value as never) : transform
+      );
+    }
+    return config;
+  }, [] as string[]);
 }
 
 function arrayifyRequestCacheControl(
-  options: RequestCacheControlOptions
+  cacheControl: RequestCacheControl
 ): string[] {
-  const config: string[] = [];
-  if (options.maxAge !== undefined) {
-    config.push(`max-age=${options.maxAge}`);
-  }
-  if (options.maxStale !== undefined) {
-    config.push(`max-stale=${options.maxStale}`);
-  }
-  if (options.minFresh !== undefined) {
-    config.push(`min-fresh=${options.minFresh}`);
-  }
-  if (options.noCache) {
-    config.push('no-cache');
-  }
-  if (options.noStore) {
-    config.push('no-store');
-  }
-  if (options.noTransform) {
-    config.push('no-transform');
-  }
-  if (options.onlyIfCached) {
-    config.push('only-if-cached');
-  }
-  return config;
+  return Object.entries(mappings).reduce((config, [key, transform]) => {
+    const value = cacheControl[key as keyof typeof cacheControl];
+    if (value !== undefined) {
+      config.push(
+        typeof transform === 'function' ? transform(value as never) : transform
+      );
+    }
+    return config;
+  }, [] as string[]);
 }
 
 export function stringifyResponseCacheControl(
-  options: ResponseCacheControlOptions
+  cacheControl: ResponseCacheControl
 ): string {
-  return arrayifyResponseCacheControl(options).join(', ');
+  return arrayifyResponseCacheControl(cacheControl).join(', ');
 }
 
 export function stringifyRequestCacheControl(
-  options: RequestCacheControlOptions
+  cacheControl: RequestCacheControl
 ): string {
-  return arrayifyRequestCacheControl(options).join(', ');
+  return arrayifyRequestCacheControl(cacheControl).join(', ');
 }
 
 /**
@@ -229,16 +208,18 @@ export function stringifyRequestCacheControl(
  */
 export function cacheControl(
   headers: Headers,
-  cacheControl: string | string[]
+  cacheControl: string | string[],
+  replace?: boolean
 ) {
   const directives = Array.isArray(cacheControl)
     ? cacheControl
     : cacheControl.split(',');
 
-  append(headers, directives);
+  const fn = replace ? replaceCacheControl : appendCacheControl;
+  fn(headers, directives);
 }
 
-function append(headers: Headers, directives: string[]) {
+function appendCacheControl(headers: Headers, directives: string[]) {
   const existingDirectives =
     headers
       .get('cache-control')
@@ -253,14 +234,20 @@ function append(headers: Headers, directives: string[]) {
   }
 }
 
+function replaceCacheControl(headers: Headers, directives: string[]) {
+  headers.set('cache-control', directives.join(', '));
+}
+
 /**
  * Append `cache-control` headers to a response.
  */
 export function responseCacheControl(
   headers: Headers,
-  options: ResponseCacheControlOptions
+  cacheControl: ResponseCacheControl,
+  replace?: boolean
 ) {
-  append(headers, arrayifyResponseCacheControl(options));
+  const fn = replace ? replaceCacheControl : appendCacheControl;
+  fn(headers, arrayifyRequestCacheControl(cacheControl));
 }
 
 /**
@@ -268,7 +255,9 @@ export function responseCacheControl(
  */
 export function requestCacheControl(
   headers: Headers,
-  options: RequestCacheControlOptions
+  cacheControl: RequestCacheControl,
+  replace?: boolean
 ) {
-  append(headers, arrayifyRequestCacheControl(options));
+  const fn = replace ? replaceCacheControl : appendCacheControl;
+  fn(headers, arrayifyRequestCacheControl(cacheControl));
 }

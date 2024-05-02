@@ -13,7 +13,17 @@ export function createSafeSerializableContext(
   return {
     params: Object.create(null),
     pathname: '',
-    request: new Request(location.href),
+    request: new Request(location.href, {
+      method: 'GET', // TODO: Use the actual method.
+      headers: {
+        'user-agent': navigator.userAgent,
+        cookie: document.cookie,
+        host: location.host,
+        origin: location.origin,
+        referer: document.referrer,
+        'accept-language': navigator.language,
+      },
+    }),
     state: Object.create(null),
     ...context,
   };

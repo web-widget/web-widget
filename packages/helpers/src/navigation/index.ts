@@ -9,6 +9,10 @@ export function params<T extends Record<string, string>>(): T {
 /** @deprecated Use `params` instead. */
 export const useParams = params;
 
+export function searchParams() {
+  return url().searchParams;
+}
+
 /**
  * `redirect()` can Redirect, default status code is 307.
  * @example
