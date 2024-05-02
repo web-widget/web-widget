@@ -1,5 +1,18 @@
 # @web-widget/helpers
 
+## 1.12.0
+
+### Minor Changes
+
+- e4f9b73: - `headers`: Add `headers()`, `cookies()` and `searchParams()`.
+  - `headers`: The first parameter of the `userAgent()` function is changed from `Request` to `Headers`.
+
+### Patch Changes
+
+- Updated dependencies [e4f9b73]
+  - @web-widget/context@1.12.0
+  - @web-widget/lifecycle-cache@1.12.0
+
 ## 1.11.0
 
 ### Patch Changes

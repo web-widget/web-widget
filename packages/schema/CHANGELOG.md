@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.12.0
+
+### Patch Changes
+
+- e4f9b73: Mark types such as `Params` as read-only.
+
 ## 1.11.0
 
 ## 1.10.42
