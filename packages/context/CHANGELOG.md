@@ -1,5 +1,11 @@
 # @web-widget/context
 
+## 1.12.0
+
+### Minor Changes
+
+- e4f9b73: `context()` in the client can be reverted to the more complete `Request` object member.
+
 ## 1.11.0
 
 ## 1.10.42
