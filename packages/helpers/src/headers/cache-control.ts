@@ -1,4 +1,4 @@
-export type ResponseCacheControlOptions = {
+export type ResponseCacheControl = {
   /**
    * The `immutable` response directive.
    * It indicates that the response will not be updated
@@ -90,7 +90,7 @@ export type ResponseCacheControlOptions = {
   staleWhileRevalidate?: number;
 };
 
-export type RequestCacheControlOptions = {
+export type RequestCacheControl = {
   /**
    * The `max-age=N` request directive.
    * It indicates that the client allows a stored response
@@ -141,17 +141,22 @@ export type RequestCacheControlOptions = {
   onlyIfCached?: boolean;
 };
 
-const responseMappings: {
-  [key in keyof ResponseCacheControlOptions]: string | ((value: any) => string);
+const mappings: {
+  [key in keyof (ResponseCacheControl & RequestCacheControl)]:
+    | string
+    | ((value: any) => string);
 } = {
   immutable: 'immutable',
   maxAge: (value: number) => `max-age=${value}`,
+  maxStale: (value: number) => `max-stale=${value}`,
+  minFresh: (value: number) => `min-fresh=${value}`,
   mustRevalidate: 'must-revalidate',
   mustUnderstand: 'must-understand',
   noCache: 'no-cache',
   noStore: 'no-store',
   noTransform: 'no-transform',
   proxyRevalidate: 'proxy-revalidate',
+  onlyIfCached: 'only-if-cached',
   public: (value: boolean) => (value ? 'public' : 'private'),
   sharedMaxAge: (value: number) => `s-maxage=${value}`,
   staleIfError: (value: number) => `stale-if-error=${value}`,
@@ -159,10 +164,10 @@ const responseMappings: {
 };
 
 function arrayifyResponseCacheControl(
-  options: ResponseCacheControlOptions
+  cacheControl: ResponseCacheControl
 ): string[] {
-  return Object.entries(responseMappings).reduce((config, [key, transform]) => {
-    const value = options[key as keyof typeof options];
+  return Object.entries(mappings).reduce((config, [key, transform]) => {
+    const value = cacheControl[key as keyof typeof cacheControl];
     if (value !== undefined) {
       config.push(
         typeof transform === 'function' ? transform(value as never) : transform
@@ -172,23 +177,11 @@ function arrayifyResponseCacheControl(
   }, [] as string[]);
 }
 
-const requestMappings: {
-  [key in keyof RequestCacheControlOptions]: string | ((value: any) => string);
-} = {
-  maxAge: (value: number) => `max-age=${value}`,
-  maxStale: (value: number) => `max-stale=${value}`,
-  minFresh: (value: number) => `min-fresh=${value}`,
-  noCache: 'no-cache',
-  noStore: 'no-store',
-  noTransform: 'no-transform',
-  onlyIfCached: 'only-if-cached',
-};
-
 function arrayifyRequestCacheControl(
-  options: RequestCacheControlOptions
+  cacheControl: RequestCacheControl
 ): string[] {
-  return Object.entries(requestMappings).reduce((config, [key, transform]) => {
-    const value = options[key as keyof typeof options];
+  return Object.entries(mappings).reduce((config, [key, transform]) => {
+    const value = cacheControl[key as keyof typeof cacheControl];
     if (value !== undefined) {
       config.push(
         typeof transform === 'function' ? transform(value as never) : transform
@@ -199,15 +192,15 @@ function arrayifyRequestCacheControl(
 }
 
 export function stringifyResponseCacheControl(
-  options: ResponseCacheControlOptions
+  cacheControl: ResponseCacheControl
 ): string {
-  return arrayifyResponseCacheControl(options).join(', ');
+  return arrayifyResponseCacheControl(cacheControl).join(', ');
 }
 
 export function stringifyRequestCacheControl(
-  options: RequestCacheControlOptions
+  cacheControl: RequestCacheControl
 ): string {
-  return arrayifyRequestCacheControl(options).join(', ');
+  return arrayifyRequestCacheControl(cacheControl).join(', ');
 }
 
 /**
@@ -244,9 +237,9 @@ function append(headers: Headers, directives: string[]) {
  */
 export function responseCacheControl(
   headers: Headers,
-  options: ResponseCacheControlOptions
+  cacheControl: ResponseCacheControl
 ) {
-  append(headers, arrayifyResponseCacheControl(options));
+  append(headers, arrayifyResponseCacheControl(cacheControl));
 }
 
 /**
@@ -254,7 +247,7 @@ export function responseCacheControl(
  */
 export function requestCacheControl(
   headers: Headers,
-  options: RequestCacheControlOptions
+  cacheControl: RequestCacheControl
 ) {
-  append(headers, arrayifyRequestCacheControl(options));
+  append(headers, arrayifyRequestCacheControl(cacheControl));
 }
