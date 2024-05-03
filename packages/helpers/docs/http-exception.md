@@ -28,7 +28,11 @@ new HTTPException(code, message, options);
 
 - `code`: HTTP status code to set.
 - `message` (optional): Human-readable error message.
-- `options` (optional): [Exception options](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error/Error#options).
+- `options` (optional): [Error options](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error/Error#options).
+
+## Returns
+
+Returns an HTTPException object that inherits the [Error interface](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error/Error).
 
 ## Notes
 
