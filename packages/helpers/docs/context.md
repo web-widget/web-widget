@@ -1,6 +1,6 @@
 # context
 
-This function allows getting the context of a route and is available both on the server and client sides.
+This function allows to get the context of a route.
 
 ## Examples
 

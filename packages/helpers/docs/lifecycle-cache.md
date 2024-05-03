@@ -1,5 +1,7 @@
 # lifecycleCache
 
+This is end-to-end caching functions.
+
 The cache's lifetime begins when the server receives the request, and it will be serialized and streamed to the client until the client unloads The web page is cleared.
 
 ## Examples

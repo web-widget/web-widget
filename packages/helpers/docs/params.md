@@ -1,6 +1,6 @@
 # params
 
-`params` is a function that allows you to get dynamic parameters from the current URL. It works in both server and client.
+`params` is a function that allows you to get dynamic parameters from the current URL.
 
 ## Examples
 
