@@ -1,5 +1,15 @@
 # @web-widget/lifecycle-cache
 
+## 1.13.0
+
+### Minor Changes
+
+- de7a4da: Added `cacheProvider` function.
+
+### Patch Changes
+
+- @web-widget/context@1.13.0
+
 ## 1.12.0
 
 ### Patch Changes
