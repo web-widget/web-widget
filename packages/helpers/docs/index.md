@@ -12,9 +12,9 @@
   - [`url`](./url.md)
   - [`redirect`](./redirect.md)
 - cache
-  - [`cacheProvider`](./lifecycle-cache.md)
-  - [`syncCacheProvider`](./lifecycle-cache.md)
-  - [`lifecycleCache`](./lifecycle-cache.md)
+  - [`cacheProvider`](./lifecycle-cache.md#cacheprovider)
+  - [`syncCacheProvider`](./lifecycle-cache.md#synccacheprovider)
+  - [`lifecycleCache`](./lifecycle-cache.md#lifecyclecache)
 - error
   - [`HTTPException`](./http-exception.md)
 - status
