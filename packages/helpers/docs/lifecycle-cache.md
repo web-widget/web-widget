@@ -8,7 +8,7 @@ The cache's lifetime begins when the server receives the request, and it will be
 
 ### Route or middleware
 
-```tsx
+```ts
 // examples@middleware.ts
 import { lifecycleCache } from '@web-widget/helpers/cache';
 
@@ -23,7 +23,7 @@ export const handler = async () => {
 };
 ```
 
-```ts
+```tsx
 // info@widget.tsx
 import { lifecycleCache } from '@web-widget/helpers/cache';
 import type { Data } from './examples@middleware';
@@ -43,7 +43,7 @@ export default () => {
 
 ### React component
 
-```ts
+```tsx
 import { syncCacheProvider } from '@web-widget/helpers/cache';
 import { fetchData } from './fetch-data';
 
@@ -52,11 +52,7 @@ export default () => {
     const o = await fetchData();
     return { id: o.id };
   });
-  return (
-    <div>
-      ID: {data.id}
-    </div>
-  );
+  return <div>ID: {data.id}</div>;
 };
 ```
 
