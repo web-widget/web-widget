@@ -33,10 +33,10 @@ export default () => {
   const uid = e2eCache.get('uid');
   const name = e2eCache.get('name');
   return (
-    <>
+    <div>
       Uid: {uid}
       Name: {name}
-    </>
+    </div>
   );
 };
 ```
@@ -53,9 +53,9 @@ export default () => {
     return { id: o.id };
   });
   return (
-    <>
+    <div>
       ID: {data.id}
-    </>
+    </div>
   );
 };
 ```
@@ -74,9 +74,7 @@ const data = await cacheProvider('cache_key', async () => {
 </script>
 
 <template>
-  <>
-    ID: {{ data.id }}
-  </>
+  <div>ID: {{ data.id }}</div>
 </template>
 ```
 
@@ -97,9 +95,7 @@ const data = syncCacheProvider<Data>('cache_key', async () => {
 </script>
 
 <template>
-  <>
-    ID: {{ data.id }}
-  </>
+  <div>ID: {{ data.id }}</div>
 </template>
 ```
 
