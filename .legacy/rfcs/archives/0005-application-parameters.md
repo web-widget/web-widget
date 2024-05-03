@@ -32,16 +32,16 @@ export async function mount({ sandboxed }) {
 
 在 Web Widget 应用接口中，增加 `parameters` 字段作为应用启动参数。
 
-* `<web-widget>` 元素所有的属性，都将出现在 `parameters` 中
-* `parameters` 它是一个被冻结的 `object` 结构，类似操作系统环境变量一样，每一项的值都是 `string` 类型
-* 应用可以 `update` 生命周期函数获取到更新后的 `parameters`
+- `<web-widget>` 元素所有的属性，都将出现在 `parameters` 中
+- `parameters` 它是一个被冻结的 `object` 结构，类似操作系统环境变量一样，每一项的值都是 `string` 类型
+- 应用可以 `update` 生命周期函数获取到更新后的 `parameters`
 
 ## 替代方案对比
 
 `data` 可以作为一种代替方案，但是它有一些不同：
 
-* `data` 是被设计为应用的数据，应用开发者对内部完全知晓；而应用启动参数则不同，它可能包含非常多宿主特有的额外信息，例如 `theme`、`lang` 等，应用程序可以遵循它们，也可以忽略它们
-* `data` 它可能会被反序列化后保存在服务端或者本地存储中，并且应用程序自己可以调用 `update({ data })` 来更新 `data`，如果包含启动信息，会导致存储不必要的数据导致混乱
+- `data` 是被设计为应用的数据，应用开发者对内部完全知晓；而应用启动参数则不同，它可能包含非常多宿主特有的额外信息，例如 `theme`、`lang` 等，应用程序可以遵循它们，也可以忽略它们
+- `data` 它可能会被反序列化后保存在服务端或者本地存储中，并且应用程序自己可以调用 `update({ data })` 来更新 `data`，如果包含启动信息，会导致存储不必要的数据导致混乱
 
 ## 指引和例子
 
@@ -73,7 +73,10 @@ export async function mount({ container, parameters }) {
 在可视化编辑器场景中，假设要编辑一个选项卡的第 2 页，编辑器可以临时的通过修改 Web Widget 属性通知应用程序内部切换状态，不用担心这个状态被永久的保存在数据模型中。
 
 ```html
-<web-widget data="[&quot;第一页&quot;,&quot;第二页&quot;,&quot;第三页&quot;]" activity="第二页" src="index.widget.js">
+<web-widget
+  data='["第一页","第二页","第三页"]'
+  activity="第二页"
+  src="index.widget.js">
   <div slot="第一页">
     <p>content 0</p>
   </div>
@@ -94,7 +97,7 @@ export default () => ({
   async mount({ container, data, parameters }) {
     container.innerHTML = data
       .map(
-        name =>
+        (name) =>
           `<div class="tabpanel" data-name="${name}" ${
             parameters.activity === name ? '' : 'hidden'
           }><slot name="${name}"></slot></div>`
@@ -103,14 +106,14 @@ export default () => ({
   },
 
   async update({ container, parameters }) {
-    container.querySelectorAll(`.tabpanel`).forEach(element => {
+    container.querySelectorAll(`.tabpanel`).forEach((element) => {
       element.hidden = parameters.activity !== element.dataset.name;
     });
   },
 
   async unmount({ container }) {
     container.innerHTML = '';
-  }
+  },
 });
 ```
 
@@ -123,10 +126,8 @@ export default () => ({
 
 目前有三种表达“参数”的单词：
 
-* parameters
-* params
-* arguments
+- parameters
+- params
+- arguments
 
 我目前通过 Google “application xxx“ 获取了使用更广泛的表达方式，即 `parameters`，是否还有更好的词来描述？
-
-
