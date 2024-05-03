@@ -1,5 +1,5 @@
 import { STATUS_TEXT, Status } from '../status';
-import { createHttpError, HttpError } from './index';
+import { createHttpError, HTTPException } from './index';
 
 function randomStr(): string {
   return (
@@ -195,8 +195,8 @@ for (const code of ClientServerErrorCodes) {
   });
 }
 
-test('instanceof HttpError', () => {
-  expect(createHttpError(500) instanceof HttpError).toBe(true);
+test('instanceof HTTPException', () => {
+  expect(createHttpError(500) instanceof HTTPException).toBe(true);
 });
 
 test('instanceof Error', () => {

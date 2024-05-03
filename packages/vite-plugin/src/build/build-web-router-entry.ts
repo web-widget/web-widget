@@ -328,7 +328,7 @@ function generateServerRoutemap(
     return source;
   }
 
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#escaping
+  // https://developer.mozilla.org/docs/Web/JavaScript/Guide/Regular_expressions#escaping
   function escapeRegExp(value: string) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
   }

@@ -146,7 +146,7 @@ export type RouteComponentProps<
 
   /**
    * This Fetch API interface represents a resource request.
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
+   * @see https://developer.mozilla.org/docs/Web/API/Request
    */
   request: Request;
 };
@@ -251,7 +251,7 @@ export interface RouteHandlerContext<
 
   /**
    * This Fetch API interface represents a resource request.
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
+   * @see https://developer.mozilla.org/docs/Web/API/Request
    */
   request: Request;
 
@@ -304,7 +304,7 @@ export interface RouteRenderContext<
 
   /**
    * This Fetch API interface represents a resource request.
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
+   * @see https://developer.mozilla.org/docs/Web/API/Request
    */
   request: Request;
 }

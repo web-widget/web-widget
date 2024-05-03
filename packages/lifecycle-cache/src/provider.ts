@@ -76,3 +76,31 @@ export function syncCacheProvider<T extends JSONValue>(
 
   return cachedValue;
 }
+
+export function cacheProvider<T extends JSONValue>(
+  cacheKey: string,
+  handler: () => Promise<T>,
+  options: {
+    sync: true;
+  }
+): T;
+
+export function cacheProvider<T extends JSONValue>(
+  cacheKey: string,
+  handler: () => Promise<T>,
+  options: {
+    sync: false;
+  }
+): Promise<T>;
+
+export function cacheProvider<T extends JSONValue>(
+  cacheKey: string,
+  handler: () => T | Promise<T>,
+  options?: {
+    sync?: boolean;
+  }
+) {
+  return options?.sync
+    ? syncCacheProvider<T>(cacheKey, handler as () => T)
+    : asyncCacheProvider<T>(cacheKey, handler as () => Promise<T>);
+}
