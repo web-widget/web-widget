@@ -20,7 +20,7 @@ declare module '@web-widget/schema' {
 export type CacheOptions = {
   /**
    * Override HTTP `Cache-Control` header.
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+   * @see https://developer.mozilla.org/docs/Web/HTTP/Headers/Cache-Control
    */
   cacheControl?:
     | string
@@ -29,7 +29,7 @@ export type CacheOptions = {
 
   /**
    * Override HTTP `Vary` header.
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
+   * @see https://developer.mozilla.org/docs/Web/HTTP/Headers/Vary
    */
   vary?: string | string[] | ((request: Request) => string | string[]);
 

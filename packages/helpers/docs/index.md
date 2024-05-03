@@ -1,0 +1,36 @@
+# Index
+
+- context
+  - [`context`](./context.md)
+- headers
+  - [`cookies`](./cookies.md)
+  - [`headers`](./headers.md)
+  - [`userAgent`](./user-agent.md)
+- navigation
+  - [`params`](./params.md)
+  - [`searchParams`](./search-params.md)
+  - [`url`](./url.md)
+  - [`redirect`](./redirect.md)
+- cache
+  - [`cacheProvider`](./lifecycle-cache.md)
+  - [`syncCacheProvider`](./lifecycle-cache.md)
+  - [`lifecycleCache`](./lifecycle-cache.md)
+- error
+  - [`HTTPException`](./http-exception.md)
+- status
+  - [`Status`](./status.md)
+  - [`STATUS_TEXT`](./status.md)
+- env
+  - `IS_CLIENT`
+  - `IS_SERVER`
+- module
+  - `defineConfig`
+  - `defineMeta`,
+  - `defineRender`
+  - `defineRouteComponent`
+  - `defineRouteFallbackComponent`
+  - `defineRouteHandler`,
+  - `defineMiddlewareHandler`
+  - `mergeMeta`
+  - `renderMetaToString`
+  - `composeMiddleware`
