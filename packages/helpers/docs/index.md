@@ -25,11 +25,11 @@
   - `IS_SERVER`
 - module
   - `defineConfig`
-  - `defineMeta`,
+  - `defineMeta`
   - `defineRender`
   - `defineRouteComponent`
   - `defineRouteFallbackComponent`
-  - `defineRouteHandler`,
+  - `defineRouteHandler`
   - `defineMiddlewareHandler`
   - `mergeMeta`
   - `renderMetaToString`
