@@ -22,7 +22,12 @@ export const handler = async () => {
 
 ```ts
 userAgent();
+userAgent(headers);
 ```
+
+## Parameters
+
+- `headers` (optional): [Web Headers interface](https://developer.mozilla.org/docs/Web/API/Headers).
 
 ## Returns
 

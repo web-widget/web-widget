@@ -135,6 +135,8 @@ lifecycleCache();
 
 ### Returns
 
+Return cached operation interface.
+
 - `delete(cacheKey)`
 - `get(cacheKey)`
 - `has(cacheKey)`

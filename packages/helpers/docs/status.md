@@ -13,3 +13,7 @@ import {
 console.log(Status.NotFound); //=> 404
 console.log(STATUS_TEXT[Status.NotFound]); //=> "Not Found"
 ```
+
+## Environment
+
+`server` `client`
