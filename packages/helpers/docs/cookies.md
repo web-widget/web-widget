@@ -2,7 +2,7 @@
 
 This function allows reading or writing `cookies` on the server side.
 
-The available methods are based on the [`Web CookieStore API`](https://wicg.github.io/cookie-store/#CookieStore). The main difference is that the methods are not asynchronous so they do not return a `Promise`.
+The available methods are based on the [`Web CookieStore interface`](https://wicg.github.io/cookie-store/#CookieStore). The main difference is that the methods are not asynchronous so they do not return a `Promise`.
 
 ## Examples
 
