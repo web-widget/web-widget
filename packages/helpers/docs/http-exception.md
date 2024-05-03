@@ -23,3 +23,13 @@ new HTTPException(code);
 new HTTPException(code, message);
 new HTTPException(code, message, options);
 ```
+
+## Parameters
+
+- `code`: HTTP status code to set.
+- `message` (optional): Human-readable error message.
+- `options` (optional): [Exception options](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error/Error#options).
+
+## Notes
+
+`@web-widget/web-router` can automatically render different error pages based on error status codes.

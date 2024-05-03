@@ -27,7 +27,7 @@ redirect(path, status);
 
 `path`: The URL to redirect to. Can be a relative or absolute path.
 
-`status`: HTTP status code.
+`status` (optional): HTTP status code.
 
 ## Returns
 
