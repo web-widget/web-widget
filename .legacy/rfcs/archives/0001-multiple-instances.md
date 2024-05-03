@@ -1,4 +1,3 @@
-
 - 开始日期：2021-07-05
 - 作者：糖饼
 
@@ -23,8 +22,8 @@ export default {
   },
   async unmount({ container }) {
     container.removeChild(element);
-  }
-}
+  },
+};
 ```
 
 可以看到 single-spa 应用生命周期的函数是面向单例设计的，而单例能够准确的适应这种场景；而 Web Widget 的颗粒度是组件级，而组件天然要求支持多实例。当前 Web Widget 容器通过动态运行代码的手段实现了应用默认在多例模式下运行，但随着 Web Widget 容器支持 es6 模块提案的探讨发现，我们不得不承认通过容器来实现多例会面临兼容性的问题：
@@ -50,7 +49,7 @@ export default () => ({
   async mount(properties) {},
   async update(properties) {},
   async unmount(properties) {},
-  async unload(properties) {}
+  async unload(properties) {},
 });
 ```
 
@@ -74,8 +73,8 @@ export default {
   async unmount({ container, context }) {
     const { element } = context;
     container.removeChild(element);
-  }
-}
+  },
+};
 ```
 
 值得说明的是 `context` 字段并不是本次 RFC 中新增的概念，它拥有 `mount()` 与 `unmount()` 方法，因此它的语义就是用来引用应用实例。
@@ -90,7 +89,7 @@ const modalDialog = {
   async mount(properties) {},
   async update(properties) {},
   async unmount(properties) {},
-  async unload(properties) {}
+  async unload(properties) {},
 };
 export default () => modalDialog;
 ```
@@ -103,8 +102,8 @@ export default {
   async mount(properties) {},
   async update(properties) {},
   async unmount(properties) {},
-  async unload(properties) {}
-}
+  async unload(properties) {},
+};
 ```
 
 ## 兼容性

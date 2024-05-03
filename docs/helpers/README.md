@@ -1,4 +1,4 @@
-# Index
+# Helpers
 
 - context
   - [`context`](./context.md)

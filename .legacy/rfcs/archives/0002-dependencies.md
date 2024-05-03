@@ -15,7 +15,7 @@ export default () => ({
   async mount(properties) {},
   async update(properties) {},
   async unmount(properties) {},
-  async unload(properties) {}
+  async unload(properties) {},
 });
 ```
 
@@ -35,9 +35,9 @@ export default () => ({
 - `HTMLWebWidgetElement` 类增加 `createDependencies` 钩子，它默认会调用 `new WebWidgetDependencies(this)`，而开发者可以覆盖它
 
 ```js
-WebWidgetDependencies.prototype.setDocumentTitle = function(title) {
+WebWidgetDependencies.prototype.setDocumentTitle = function (title) {
   document.title = title;
-}
+};
 ```
 
 ```js
@@ -45,7 +45,7 @@ WebWidgetDependencies.prototype.setDocumentTitle = function(title) {
 export default () => ({
   async mount({ setDocumentTitle }) {
     setDocumentTitle('hello wrold');
-  }
+  },
 });
 ```
 
@@ -57,9 +57,9 @@ export default () => ({
 
 ```js
 HTMLWebWidgetElement.prototype.dependencies.push('setDocumentTitle');
-HTMLWebWidgetElement.prototype.setDocumentTitle = function(title) {
+HTMLWebWidgetElement.prototype.setDocumentTitle = function (title) {
   document.title = title;
-}
+};
 ```
 
 此方案弊端：
@@ -74,9 +74,9 @@ HTMLWebWidgetElement.prototype.setDocumentTitle = function(title) {
 ```js
 const widget = document.createElement('web-widget');
 widget.src = './plugin.widget.js';
-widget.contentWindow.setDocumentTitle = function(title) {
+widget.contentWindow.setDocumentTitle = function (title) {
   document.title = title;
-}
+};
 ```
 
 ```js
@@ -84,14 +84,14 @@ widget.contentWindow.setDocumentTitle = function(title) {
 export default () => ({
   async mount(properties) {
     setDocumentTitle('hello wrold');
-  }
+  },
 });
 ```
 
 此方案的弊端：
 
-* 非沙箱环境下，插件没有自己的全局对象
-* 全局对象注入容易引起沙箱的安全隐患
+- 非沙箱环境下，插件没有自己的全局对象
+- 全局对象注入容易引起沙箱的安全隐患
 
 ## 指引和例子
 
@@ -120,12 +120,10 @@ customElements.define('editor-plugin', HTMLEditorPluginElement);
 ```js
 // main.plugin.js
 export default {
-  async mount({
-    setDocumentTitle
-  }) {
+  async mount({ setDocumentTitle }) {
     setDocumentTitle('hello wrold');
-  }
-}
+  },
+};
 ```
 
 ### 给所有的 Web Widget 容器增加 ShadowDOM 的开关
@@ -134,7 +132,10 @@ export default {
 
 ```js
 // 更改内置的 container getter 行为
-const containerDescriptor = Reflect.getOwnPropertyDescriptor(WebWidgetDependencies.prototype, 'container');
+const containerDescriptor = Reflect.getOwnPropertyDescriptor(
+  WebWidgetDependencies.prototype,
+  'container'
+);
 const containerGetter = containerDescriptor.get;
 containerDescriptor.get = function get() {
   // this.ownerElement 为容器元素的引用
@@ -143,7 +144,11 @@ containerDescriptor.get = function get() {
   }
   return containerGetter.apply(this, arguments);
 };
-Reflect.defineProperty(WebWidgetDependencies.prototype, 'container', containerDescriptor);
+Reflect.defineProperty(
+  WebWidgetDependencies.prototype,
+  'container',
+  containerDescriptor
+);
 ```
 
 通过标签使用：
@@ -166,8 +171,8 @@ Object.defineProperties(HTMLWebWidgetElement.prototype, {
       return v
         ? this.setAttribute('noshadow', '')
         : this.removeAttribute('noshadow');
-    }
-  }
+    },
+  },
 });
 ```
 
@@ -182,5 +187,5 @@ document.body.appendChild(widget);
 
 # 需要讨论的问题
 
-* 是否有比 `WebWidgetDependencies` 更符合语义的命名方式
-* 与 TC39 Realms 提案的兼容性问题
+- 是否有比 `WebWidgetDependencies` 更符合语义的命名方式
+- 与 TC39 Realms 提案的兼容性问题
