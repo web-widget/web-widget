@@ -34,6 +34,15 @@ new HTTPException(code, message, options);
 
 Returns an HTTPException object that inherits the [Error interface](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error/Error).
 
+- `status`
+- `statusText`
+- `expose`
+- `toJSON`
+
+## Static methods
+
+- `HTTPException.isHTTPException(error)`
+
 ## Notes
 
 `@web-widget/web-router` can automatically render different error pages based on error status codes.
