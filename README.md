@@ -16,7 +16,7 @@ It does not come with a new technology stack, but it can drive UI technology sta
 
 ### Web standards
 
-Based on W3C's minimal common web platform API, it can run in Node.js and Edge environments. The client supports native ESM and Importmap, and is compatible with Chrome 67+.
+The project is designed to comply with the standards set by [WinterCG](https://wintercg.org/), it can run in Node.js and Edge environments. The client supports native ESM and Importmap, and is compatible with Chrome 67+.
 
 ### Technology stack interoperability
 
