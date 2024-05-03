@@ -30,7 +30,7 @@ context();
 
 ## Returns
 
-[`MiddlewareContext`](https://github.com/web-widget/web-widget/blob/main/packages/schema/schema.d.ts)
+Returns a [`MiddlewareContext interface`](https://github.com/web-widget/web-widget/blob/main/packages/schema/schema.d.ts).
 
 - `params`
 - `request`
