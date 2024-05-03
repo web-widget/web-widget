@@ -9,15 +9,35 @@ The cache's lifetime begins when the server receives the request, and it will be
 ### Route or middleware
 
 ```tsx
+// examples@middleware.ts
 import { lifecycleCache } from '@web-widget/helpers/cache';
 
-type Data = {
+export type Data = {
   uid: string;
   name: string;
 };
 
 export const handler = async () => {
-  lifecycleCache<Data>().set('uid', '89').set('name', 'hello');
+  lifecycleCache<Data>().set('uid', '89', true).set('name', 'hello', true);
+  // do something...
+};
+```
+
+```ts
+// info@widget.tsx
+import { lifecycleCache } from '@web-widget/helpers/cache';
+import type { Data } from './examples@middleware';
+
+export default () => {
+  const e2eCache = lifecycleCache<Data>();
+  const uid = e2eCache.get('uid');
+  const name = e2eCache.get('name');
+  return (
+    <>
+      Uid: {uid}
+      Name: {name}
+    </>
+  );
 };
 ```
 
@@ -34,7 +54,7 @@ export default () => {
   });
   return (
     <>
-      <h1>{data.id}</h1>
+      ID: {data.id}
     </>
   );
 };
@@ -54,9 +74,9 @@ const data = await cacheProvider('cache_key', async () => {
 </script>
 
 <template>
-  <h1>
-    {{ data.id }}
-  </h1>
+  <>
+    ID: {{ data.id }}
+  </>
 </template>
 ```
 
@@ -77,9 +97,9 @@ const data = syncCacheProvider<Data>('cache_key', async () => {
 </script>
 
 <template>
-  <h1>
-    {{ data.id }}
-  </h1>
+  <>
+    ID: {{ data.id }}
+  </>
 </template>
 ```
 
