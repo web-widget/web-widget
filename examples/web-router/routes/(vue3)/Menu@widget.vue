@@ -25,9 +25,6 @@
       <a href="/fetching-data">Fetching data</a>
     </li>
     <li>
-      <a href="/server-action">Server action</a>
-    </li>
-    <li>
       <a href="/style">Styling</a>
     </li>
     <li>
