@@ -13,7 +13,7 @@ import type {
   ResolvedBuilderConfig,
   ServerEntryModule,
 } from '@/types';
-import { PLUGIN_NAME } from '@/constants';
+import { getWebRouterPluginApi } from '@/utils';
 
 type DevModule = RouteModule & {
   $source?: string;
@@ -35,11 +35,20 @@ export function webRouterDevServerPlugin(
     },
     async configResolved(config) {
       root = config.root;
-      builderConfig =
-        options ??
-        config.plugins.find((p) => p.name === PLUGIN_NAME)?.api?.config;
+
+      if (options) {
+        builderConfig = options;
+      }
+
       if (!builderConfig) {
-        throw new Error('Missing builder configuration');
+        const webRouterPluginApi = getWebRouterPluginApi(config);
+        if (webRouterPluginApi) {
+          builderConfig = webRouterPluginApi.config;
+        }
+      }
+
+      if (!builderConfig) {
+        throw new Error('Missing options.');
       }
     },
     async configureServer(viteServer) {

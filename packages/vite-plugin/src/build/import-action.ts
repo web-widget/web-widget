@@ -2,9 +2,11 @@ import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
-import { importsToImportNames, relativePathWithDot } from '@/utils';
-import { PLUGIN_NAME } from '@/constants';
-import type { WebRouterPlugin } from '@/types';
+import {
+  getWebRouterPluginApi,
+  importsToImportNames,
+  relativePathWithDot,
+} from '@/utils';
 
 const globalCache: Set<string> = new Set();
 
@@ -31,7 +33,9 @@ export interface ImportActionPluginOptions {
  * ...
  * const value = await echo("hello world");
  */
-export function importActionPlugin(options: ImportActionPluginOptions): Plugin {
+export function importActionPlugin(
+  options: ImportActionPluginOptions = {}
+): Plugin {
   let root: string;
   let filter: (id: string | unknown) => boolean;
   let importerFilter: (id: string | unknown) => boolean;
@@ -54,17 +58,16 @@ export function importActionPlugin(options: ImportActionPluginOptions): Plugin {
       importerFilter = createFilter(includeImporter, excludeImporter);
       root = config.root;
 
-      serverUrl =
-        options.serverUrl ??
-        (async (file) => {
-          const webRouterPlugin = config.plugins.find(
-            (p) => p.name === PLUGIN_NAME
-          ) as WebRouterPlugin;
-          if (!webRouterPlugin) {
-            throw new Error('Missing builder configuration');
-          }
+      const webRouterPluginApi = getWebRouterPluginApi(config);
+
+      if (options.serverUrl) {
+        serverUrl = options.serverUrl;
+      }
+
+      if (!serverUrl && webRouterPluginApi) {
+        serverUrl = async (file) => {
           const id = relativePathWithDot(root, file);
-          const routemap = await webRouterPlugin.api.serverRoutemap();
+          const routemap = await webRouterPluginApi.serverRoutemap();
           const action = routemap.actions?.find(({ module }) => {
             return module === id;
           });
@@ -78,7 +81,12 @@ export function importActionPlugin(options: ImportActionPluginOptions): Plugin {
             return action.pathname;
           }
           return '';
-        });
+        };
+      }
+
+      if (!serverUrl) {
+        throw new Error('serverUrl option is required.');
+      }
     },
     async transform(code, id, { ssr } = {}) {
       if (ssr) {

@@ -1,7 +1,6 @@
 import type { Plugin } from 'vite';
 import { buildWebRouterEntryPlugin } from './build/build-web-router-entry';
 import { parseConfig } from './config';
-import { pluginContainer } from './container';
 import { webRouterDevServerPlugin } from './dev/dev-server';
 import type {
   BuilderUserConfig,
@@ -11,6 +10,7 @@ import type {
   WebRouterPlugin,
 } from './types';
 import { importActionPlugin } from './build/import-action';
+import { PLUGIN_NAME } from './constants';
 
 export function webRouterPlugin(options: BuilderUserConfig = {}): Plugin[] {
   let builderConfig: ResolvedBuilderConfig;
@@ -39,7 +39,7 @@ export function webRouterPlugin(options: BuilderUserConfig = {}): Plugin[] {
   };
   return [
     {
-      name: 'vite-plugin-web-router',
+      name: PLUGIN_NAME,
       enforce: 'pre',
       api,
       async config({ root = process.cwd(), resolve: { extensions } = {} }) {
@@ -47,16 +47,10 @@ export function webRouterPlugin(options: BuilderUserConfig = {}): Plugin[] {
       },
     } as WebRouterPlugin,
 
-    ...pluginContainer<ResolvedBuilderConfig>(
-      buildWebRouterEntryPlugin,
-      () => {
-        return builderConfig;
-      },
-      true
-    ),
+    buildWebRouterEntryPlugin(),
 
     webRouterDevServerPlugin(),
 
-    importActionPlugin({}),
+    importActionPlugin(),
   ];
 }

@@ -11,6 +11,7 @@ import type {
 import { build, normalizePath } from 'vite';
 import { getLinks } from './utils';
 import type { ResolvedBuilderConfig, RouteMap } from '@/types';
+import { getWebRouterPluginApi } from '@/utils';
 
 let stage = 0;
 
@@ -32,8 +33,9 @@ type ImportMap = {
 };
 
 export function buildWebRouterEntryPlugin(
-  builderConfig: ResolvedBuilderConfig
+  options?: ResolvedBuilderConfig
 ): Plugin {
+  let builderConfig: ResolvedBuilderConfig;
   let clientImportmap: ImportMap;
   let resolvedConfig: ResolvedConfig;
   let serverRoutemap: RouteMap;
@@ -148,8 +150,21 @@ export function buildWebRouterEntryPlugin(
       return createConfig(userConfig);
     },
 
-    async configResolved(_resolvedConfig) {
-      resolvedConfig = _resolvedConfig;
+    async configResolved(config) {
+      if (options) {
+        builderConfig = options;
+      }
+
+      if (!builderConfig) {
+        const webRouterPluginApi = getWebRouterPluginApi(config);
+        if (webRouterPluginApi) {
+          builderConfig = webRouterPluginApi.config;
+        }
+      }
+
+      if (!builderConfig) {
+        throw new Error('Missing options.');
+      }
     },
 
     async generateBundle(_options, bundle) {
@@ -372,13 +387,14 @@ function generateServerRoutemap(
       .map((module, index) => `import * as _${index} from "${module}";`)
       .join('\n') +
     '\n\n' +
-    `export default ${imports.reduce((routemapJsonCode, source, index) => {
-      routemapJsonCode = routemapJsonCode.replaceAll(
-        new RegExp(`(\\s*)${escapeRegExp(`"module": "${source}"`)}`, 'g'),
-        `$1"source": "${source}",$1"module": _${index}`
-      );
-      return routemapJsonCode;
-    }, routemapJsonCode)}`; /*.replace(
+    `export default ${imports.reduce(
+      (routemapJsonCode, source, index) =>
+        routemapJsonCode.replaceAll(
+          new RegExp(`(\\s*)${escapeRegExp(`"module": "${source}"`)}`, 'g'),
+          `$1"source": "${source}",$1"module": _${index}`
+        ),
+      routemapJsonCode
+    )}`; /*.replace(
       JSON.stringify(basePlaceholder),
       `new URL("./", import.meta.url).href`
     )*/
