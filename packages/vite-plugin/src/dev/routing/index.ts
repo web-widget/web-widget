@@ -1,11 +1,11 @@
 import fs from 'node:fs/promises';
 import type { FSWatcher } from 'vite';
 import { normalizePath } from '@rollup/pluginutils';
-import type { RouteMap } from '../../types';
 import { walkRoutes } from './walk-routes-dir';
 import { pathToPattern, sortRoutePaths } from './extract';
 import type { RouteSourceFile, OverridePathname } from './types';
-import { normalizeRelativePath } from './utils';
+import type { RouteMap } from '@/types';
+import { relativePathWithDot } from '@/utils';
 
 export type FileSystemRouteGeneratorOptions = {
   basePathname: string;
@@ -127,7 +127,7 @@ export async function getRoutemap(
     }
 
     //const name = createFileId(pathname ?? source.name, source.type);
-    const module = normalizeRelativePath(root, source.source);
+    const module = relativePathWithDot(root, source.source);
     const status =
       source.type === 'fallback'
         ? parseInt(source.name.replaceAll(/\D/g, ''))

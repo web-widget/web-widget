@@ -4,9 +4,9 @@ import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { IndexHtmlTransformResult, Plugin } from 'vite';
-import { defineAsyncOptions } from '../container';
 import type { ResolveAssetProtocolPluginOptions } from './resolve-asset-protocol';
 import { ASSET_PROTOCOL, resolveAssetProtocol } from './resolve-asset-protocol';
+import { defineAsyncOptions } from '@/container';
 
 const ASSET_PLACEHOLDER = `${ASSET_PROTOCOL}//`;
 

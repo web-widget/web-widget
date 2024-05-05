@@ -6,14 +6,14 @@ import { renderMetaToString } from '@web-widget/helpers';
 import type { Manifest } from '@web-widget/web-router';
 import stripAnsi from 'strip-ansi';
 import type { Plugin, ViteDevServer } from 'vite';
+import { getMeta } from './meta';
+import { fileSystemRouteGenerator } from './routing';
 import type {
   RouteMap,
   ResolvedBuilderConfig,
   ServerEntryModule,
-} from '../types';
-import { getMeta } from './meta';
-import { fileSystemRouteGenerator } from './routing';
-import { PLUGIN_NAME } from 'src/constants';
+} from '@/types';
+import { PLUGIN_NAME } from '@/constants';
 
 type DevModule = RouteModule & {
   $source?: string;

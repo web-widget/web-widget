@@ -1,4 +1,5 @@
-import path, { basename, dirname, normalize } from 'node:path';
+import { basename, dirname } from 'node:path';
+import { normalizePath } from '@/utils';
 
 /**
  * Adopted from Qwik
@@ -33,35 +34,6 @@ export function removeExtension(fileName: string) {
     return fileName.slice(0, fileName.length - ext.length);
   }
   return '';
-}
-
-export function normalizePath(path: string) {
-  return normalizePathSlash(normalize(path));
-}
-
-export function normalizePathSlash(path: string) {
-  // MIT https://github.com/sindresorhus/slash/blob/main/license
-  // Convert Windows backslash paths to slash paths: foo\\bar ➔ foo/bar
-  const isExtendedLengthPath = /^\\\\\?\\/.test(path);
-  const hasNonAscii = /[^\u0000-\u0080]+/.test(path); // eslint-disable-line no-control-regex
-
-  if (isExtendedLengthPath || hasNonAscii) {
-    return path;
-  }
-
-  path = path.replace(/\\/g, '/');
-  if (path.endsWith('/')) {
-    path = path.slice(0, path.length - 1);
-  }
-  return path;
-}
-
-export function normalizeRelativePath(from: string, to: string): string {
-  let relativePath = normalizePath(path.relative(from, to));
-  if (!relativePath.startsWith('./') && !relativePath.startsWith('../')) {
-    return './' + relativePath;
-  }
-  return relativePath;
 }
 
 /**

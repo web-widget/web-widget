@@ -2,9 +2,9 @@ import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
-import { defineAsyncOptions } from '../container';
 import type { AppendWebWidgetMetaPluginOptions } from './append-web-widget-meta';
 import { appendWebWidgetMetaPlugin } from './append-web-widget-meta';
+import { defineAsyncOptions } from '@/container';
 
 const alias = (name: string) => `__$${name}$__`;
 

@@ -9,8 +9,8 @@ import type {
   Manifest as ViteManifest,
 } from 'vite';
 import { build, normalizePath } from 'vite';
-import type { ResolvedBuilderConfig, RouteMap } from '../types';
 import { getLinks } from './utils';
+import type { ResolvedBuilderConfig, RouteMap } from '@/types';
 
 let stage = 0;
 

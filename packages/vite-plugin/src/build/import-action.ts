@@ -1,12 +1,10 @@
-// import path from 'node:path';
-import path from 'node:path';
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
-import { importsToImportNames } from './utils';
-import { PLUGIN_NAME } from 'src/constants';
-import type { WebRouterPlugin } from 'src/types';
+import { importsToImportNames, relativePathWithDot } from '@/utils';
+import { PLUGIN_NAME } from '@/constants';
+import type { WebRouterPlugin } from '@/types';
 
 const globalCache: Set<string> = new Set();
 
@@ -65,7 +63,7 @@ export function importActionPlugin(options: ImportActionPluginOptions): Plugin {
           if (!webRouterPlugin) {
             throw new Error('Missing builder configuration');
           }
-          const id = './' + path.relative(root, file);
+          const id = relativePathWithDot(root, file);
           const routemap = await webRouterPlugin.api.serverRoutemap();
           const action = routemap.actions?.find(({ module }) => {
             return module === id;
@@ -84,7 +82,6 @@ export function importActionPlugin(options: ImportActionPluginOptions): Plugin {
     },
     async transform(code, id, { ssr } = {}) {
       if (ssr) {
-        // Skip SSR build
         return null;
       }
 
