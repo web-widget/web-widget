@@ -97,8 +97,15 @@ export function importActionPlugin(
         return null;
       }
 
-      await esModuleLexer.init;
-      const [imports] = esModuleLexer.parse(code, id);
+      let imports;
+
+      try {
+        await esModuleLexer.init;
+        [imports] = esModuleLexer.parse(code, id);
+      } catch (error) {
+        return this.error(error);
+      }
+
       const actionModules: {
         moduleId: string;
         moduleName: string;

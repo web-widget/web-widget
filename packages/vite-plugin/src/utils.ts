@@ -2,7 +2,7 @@ import path from 'node:path';
 import type { ResolvedConfig } from 'vite';
 import { normalizePath } from 'vite';
 import type { ImportSpecifier } from 'es-module-lexer';
-import { PLUGIN_NAME } from './constants';
+import { WEB_ROUTER_PLUGIN_NAME } from './constants';
 import type { WebRouterPlugin } from './types';
 
 /**
@@ -69,9 +69,9 @@ export function relativePathWithDot(from: string, to: string): string {
 }
 
 export function getWebRouterPluginApi(config: ResolvedConfig) {
-  const webRouterPlugin = config.plugins.find((p) => p.name === PLUGIN_NAME) as
-    | WebRouterPlugin
-    | undefined;
+  const webRouterPlugin = config.plugins.find(
+    (p) => p.name === WEB_ROUTER_PLUGIN_NAME
+  ) as WebRouterPlugin | undefined;
 
   return webRouterPlugin?.api;
 }

@@ -3,11 +3,14 @@ import { createRequire } from 'node:module';
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
-import type { IndexHtmlTransformResult, Plugin } from 'vite';
-import type { ResolveAssetProtocolPluginOptions } from './resolve-asset-protocol';
-import { ASSET_PROTOCOL, resolveAssetProtocol } from './resolve-asset-protocol';
-import { defineAsyncOptions } from '@/container';
+import type {
+  IndexHtmlTransformResult,
+  Plugin,
+  Manifest as ViteManifest,
+} from 'vite';
 
+export const ASSET_PROTOCOL = 'asset:';
+const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
 const ASSET_PLACEHOLDER = `${ASSET_PROTOCOL}//`;
 
 let index = 0;
@@ -26,7 +29,7 @@ export interface ImportWebWidgetPluginOptions {
   include?: FilterPattern;
   includeImporter?: FilterPattern;
   inject?: string;
-  manifest?: ResolveAssetProtocolPluginOptions['manifest'];
+  manifest?: ViteManifest;
   provide: string;
 }
 
@@ -47,55 +50,51 @@ export interface ImportWebWidgetPluginOptions {
  * ...
  * <MyComponent title="My component" />
  */
-export function importWebWidgetPlugin(
-  options: ImportWebWidgetPluginOptions
-): Plugin[] {
+export function importWebWidgetPlugin({
+  cache = globalCache,
+  component,
+  exclude,
+  excludeImporter,
+  include,
+  includeImporter = component,
+  inject = 'defineWebWidget',
+  manifest,
+  provide,
+}: ImportWebWidgetPluginOptions): Plugin[] {
+  if (typeof provide !== 'string') {
+    throw new TypeError(`options.provide must be a string type.`);
+  }
+
   let dev = false;
   let root: string;
   let filter: (id: string | unknown) => boolean;
   let importerFilter: (id: string | unknown) => boolean;
-  let cache: Set<string>;
   let base: string;
-  const [resolveAssetProtocolOptions, setResolveAssetProtocolOptions] =
-    defineAsyncOptions<ResolveAssetProtocolPluginOptions>({});
+  let extensions: string[] = [];
+  const assetMap: Map<string, string> = new Map();
+
+  filter = createFilter(include, exclude);
+  importerFilter = createFilter(includeImporter, excludeImporter);
 
   return [
     {
       name: '@widget:import-web-widget',
-      async config(userConfig) {
-        const ssrBuild = !!userConfig.build?.ssr;
-        const {
-          component,
-          exclude,
-          excludeImporter,
-          includeImporter = component,
-          include, // = /(?:\.|@)widget\..*$/,
-          manifest,
-          provide,
-        } = options;
-
-        cache = options.cache ?? globalCache;
-        filter = createFilter(include, exclude);
-        importerFilter = createFilter(includeImporter, excludeImporter);
-
-        if (typeof provide !== 'string') {
-          throw new TypeError(`options.provide must be a string type.`);
-        }
-
-        if (ssrBuild && !manifest) {
-          throw new Error(`options.manifest is required to build ssr.`);
-        }
-
-        setResolveAssetProtocolOptions({
-          exclude: excludeImporter,
-          include: includeImporter,
-          manifest: manifest || {},
-        });
-      },
       async configResolved(config) {
         dev = config.command === 'serve';
         root = config.root;
         base = config.base;
+        const ssrBuild = !!config.build?.ssr;
+
+        if (ssrBuild) {
+          if (!manifest && typeof config.build.manifest === 'string') {
+            const json = await import(config.build.manifest, {
+              assert: {
+                type: 'json',
+              },
+            });
+            manifest = json.default as ViteManifest;
+          }
+        }
       },
       async transformIndexHtml(html, { server: dev }) {
         const styleId = 'web-widget:style';
@@ -147,10 +146,15 @@ export function importWebWidgetPlugin(
           return null;
         }
 
-        const { provide, inject = 'defineWebWidget' } = options;
+        let imports;
 
-        await esModuleLexer.init;
-        const [imports] = esModuleLexer.parse(code, id);
+        try {
+          await esModuleLexer.init;
+          [imports] = esModuleLexer.parse(code, id);
+        } catch (error) {
+          return this.error(error);
+        }
+
         const widgetModules: {
           moduleId: string;
           moduleName: string;
@@ -242,9 +246,68 @@ export function importWebWidgetPlugin(
       },
     },
     {
-      ...resolveAssetProtocol(resolveAssetProtocolOptions),
       apply: (userConfig, { command }) => {
         return command === 'build' && !!userConfig.build?.ssr;
+      },
+      name: '@widget:resolve-asset-protocol',
+      enforce: 'post',
+      async configResolved() {
+        if (!manifest) {
+          throw new Error(`options.manifest is required to build ssr.`);
+        }
+        Object.entries(manifest).forEach(([fileName, value]) => {
+          if (value.file) {
+            assetMap.set(fileName, value.file);
+          } else if (Array.isArray(value)) {
+            const file = value.find((item) => item.endsWith('.js'));
+            if (file) {
+              assetMap.set(fileName, file.replace(/^\//, ''));
+            }
+          }
+        });
+      },
+      async transform(code, id) {
+        if (!filter(id)) {
+          return null;
+        }
+        // const normalize = (file: string) => {
+        //   return !/^\.+\//.test(file) ? "./" + file : file;
+        // };
+
+        let pos: number = 0;
+        const magicString = new MagicString(code);
+
+        try {
+          magicString.replace(
+            ASSET_PLACEHOLDER_REG,
+            (match, quotation, fileName, start) => {
+              if (!fileName) {
+                return match;
+              }
+
+              let asset = assetMap.get(fileName);
+
+              if (!asset) {
+                asset = extensions.find((extension) =>
+                  assetMap.get(fileName + extension)
+                );
+              }
+
+              if (!asset) {
+                pos = start;
+                throw new TypeError(
+                  `Asset not found in client build manifest: "${fileName}".`
+                );
+              }
+
+              return quotation + base + asset + quotation;
+            }
+          );
+        } catch (error) {
+          return this.error(error, pos);
+        }
+
+        return { code: magicString.toString(), map: magicString.generateMap() };
       },
     },
   ];

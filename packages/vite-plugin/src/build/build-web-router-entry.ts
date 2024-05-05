@@ -10,7 +10,7 @@ import type {
 } from 'vite';
 import { build, normalizePath } from 'vite';
 import { getLinks } from './utils';
-import type { ResolvedBuilderConfig, RouteMap } from '@/types';
+import type { ResolvedWebRouterConfig, RouteMap } from '@/types';
 import { getWebRouterPluginApi } from '@/utils';
 
 let stage = 0;
@@ -33,9 +33,9 @@ type ImportMap = {
 };
 
 export function buildWebRouterEntryPlugin(
-  options?: ResolvedBuilderConfig
+  options?: ResolvedWebRouterConfig
 ): Plugin {
-  let builderConfig: ResolvedBuilderConfig;
+  let resolvedWebRouterConfig: ResolvedWebRouterConfig;
   let clientImportmap: ImportMap;
   let resolvedConfig: ResolvedConfig;
   let serverRoutemap: RouteMap;
@@ -50,10 +50,10 @@ export function buildWebRouterEntryPlugin(
     ssrBuild = !!(config.build?.ssr ?? ssr);
     const root = config.root || process.cwd();
     const assetsDir = config.build?.assetsDir ?? 'assets';
-    const serverRoutemapPath = builderConfig.input.server.routemap;
+    const serverRoutemapPath = resolvedWebRouterConfig.input.server.routemap;
 
     clientImportmap = (
-      await import(builderConfig.input.client.importmap, {
+      await import(resolvedWebRouterConfig.input.client.importmap, {
         assert: {
           type: 'json',
         },
@@ -100,25 +100,31 @@ export function buildWebRouterEntryPlugin(
         : undefined,
       build: {
         outDir: path.join(
-          builderConfig.output.dir,
-          ssrBuild ? builderConfig.output.server : builderConfig.output.client
+          resolvedWebRouterConfig.output.dir,
+          ssrBuild
+            ? resolvedWebRouterConfig.output.server
+            : resolvedWebRouterConfig.output.client
         ),
         emptyOutDir: true,
         cssCodeSplit: true,
-        manifest: ssrBuild ? undefined : builderConfig.output.manifest,
+        manifest: ssrBuild
+          ? undefined
+          : resolvedWebRouterConfig.output.manifest,
         minify: ssrBuild ? false : config.build?.minify ?? 'esbuild',
         ssr: ssrBuild,
         ssrEmitAssets: config.build?.ssrEmitAssets ?? false,
-        ssrManifest: ssrBuild ? undefined : builderConfig.output.ssrManifest,
+        ssrManifest: ssrBuild
+          ? undefined
+          : resolvedWebRouterConfig.output.ssrManifest,
         rollupOptions: {
           input: ssrBuild
             ? {
                 ...serverRoutemapEntryPoints,
-                entry: builderConfig.input.server.entry,
+                entry: resolvedWebRouterConfig.input.server.entry,
               }
             : {
                 ...serverRoutemapEntryPoints,
-                entry: builderConfig.input.client.entry,
+                entry: resolvedWebRouterConfig.input.client.entry,
               },
           preserveEntrySignatures: 'allow-extension', // "strict",
           treeshake: config.build?.rollupOptions?.treeshake ?? true,
@@ -152,17 +158,17 @@ export function buildWebRouterEntryPlugin(
 
     async configResolved(config) {
       if (options) {
-        builderConfig = options;
+        resolvedWebRouterConfig = options;
       }
 
-      if (!builderConfig) {
+      if (!resolvedWebRouterConfig) {
         const webRouterPluginApi = getWebRouterPluginApi(config);
         if (webRouterPluginApi) {
-          builderConfig = webRouterPluginApi.config;
+          resolvedWebRouterConfig = webRouterPluginApi.config;
         }
       }
 
-      if (!builderConfig) {
+      if (!resolvedWebRouterConfig) {
         throw new Error('Missing options.');
       }
     },
@@ -174,9 +180,9 @@ export function buildWebRouterEntryPlugin(
             path.resolve(
               resolvedConfig.root,
               path.join(
-                builderConfig.output.dir,
-                builderConfig.output.client,
-                builderConfig.output.manifest
+                resolvedWebRouterConfig.output.dir,
+                resolvedWebRouterConfig.output.client,
+                resolvedWebRouterConfig.output.manifest
               )
             ),
             {
@@ -192,7 +198,7 @@ export function buildWebRouterEntryPlugin(
             clientImportmap,
             serverRoutemap,
             viteManifest,
-            builderConfig,
+            resolvedWebRouterConfig,
             resolvedConfig,
             bundle
           ).forEach((item) => this.emitFile(item));
@@ -224,7 +230,7 @@ export function buildWebRouterEntryPlugin(
     async writeBundle() {
       // TODO Watch module
       stage++;
-      if (!ssrBuild && builderConfig.autoFullBuild) {
+      if (!ssrBuild && resolvedWebRouterConfig.autoFullBuild) {
         runSsrBuild(await createConfig(userConfig, true));
         return;
       }
@@ -283,7 +289,7 @@ function generateServerRoutemap(
   clientImportmap: ImportMap,
   manifest: RouteMap,
   viteManifest: ViteManifest,
-  builderConfig: ResolvedBuilderConfig,
+  resolvedWebRouterConfig: ResolvedWebRouterConfig,
   { root, base }: ResolvedConfig,
   bundle: OutputBundle
 ): EmittedFile[] {
@@ -305,7 +311,9 @@ function generateServerRoutemap(
 
   function getClientEntryAssent() {
     const asset =
-      viteManifest[path.relative(root, builderConfig.input.client.entry)];
+      viteManifest[
+        path.relative(root, resolvedWebRouterConfig.input.client.entry)
+      ];
 
     if (!asset) {
       throw new Error(`No client entry found.`);
@@ -324,7 +332,7 @@ function generateServerRoutemap(
   const imports: string[] = [];
   function getImportModule(moduleName: string) {
     const moduleId = path.resolve(
-      path.dirname(builderConfig.input.server.entry),
+      path.dirname(resolvedWebRouterConfig.input.server.entry),
       moduleName
     );
     const fileName = path.relative(root, moduleId);
@@ -404,13 +412,16 @@ function generateServerRoutemap(
     `export default {} as Manifest;`,
   ].join('\n');
 
-  const entryFileName = path.relative(root, builderConfig.input.server.entry);
+  const entryFileName = path.relative(
+    root,
+    resolvedWebRouterConfig.input.server.entry
+  );
   const entryModuleName = './' + routeModuleMap.get(entryFileName).fileName;
   const clientImportmapCode = JSON.stringify(clientImportmap);
   const clientEntryModuleName = base + getClientEntryAssent().file;
   const clientEntryLink = getLinks(
     viteManifest,
-    path.relative(root, builderConfig.input.client.entry),
+    path.relative(root, resolvedWebRouterConfig.input.client.entry),
     base
   );
   const entryJsCode = [
@@ -448,8 +459,10 @@ function generateServerRoutemap(
     `export default {} as (manifest: Manifest, options?: StartOptions) => WebRouter;`,
   ].join('\n');
 
-  const routemapBasename = getBasename(builderConfig.input.server.routemap);
-  const entryBasename = getBasename(builderConfig.input.server.entry);
+  const routemapBasename = getBasename(
+    resolvedWebRouterConfig.input.server.routemap
+  );
+  const entryBasename = getBasename(resolvedWebRouterConfig.input.server.entry);
 
   return [
     // {

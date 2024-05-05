@@ -1,49 +1,52 @@
 import type { Plugin } from 'vite';
 import { buildWebRouterEntryPlugin } from './build/build-web-router-entry';
-import { parseConfig } from './config';
+import { parseWebRouterConfig } from './config';
 import { webRouterDevServerPlugin } from './dev/dev-server';
 import type {
-  BuilderUserConfig,
+  WebRouterUserConfig,
   ImportMap,
-  ResolvedBuilderConfig,
+  ResolvedWebRouterConfig,
   RouteMap,
   WebRouterPlugin,
 } from './types';
 import { importActionPlugin } from './build/import-action';
-import { PLUGIN_NAME } from './constants';
+import { WEB_ROUTER_PLUGIN_NAME } from './constants';
 
-export function webRouterPlugin(options: BuilderUserConfig = {}): Plugin[] {
-  let builderConfig: ResolvedBuilderConfig;
-  const api = {
-    get config() {
-      return builderConfig;
-    },
-    async clientImportap() {
-      return (
-        await import(this.config.input.client.importmap, {
-          assert: {
-            type: 'json',
-          },
-        })
-      ).default as ImportMap;
-    },
-    async serverRoutemap() {
-      return (
-        await import(this.config.input.server.routemap, {
-          assert: {
-            type: 'json',
-          },
-        })
-      ).default as RouteMap;
-    },
-  };
+export function webRouterPlugin(options: WebRouterUserConfig = {}): Plugin[] {
+  let resolvedWebRouterConfig: ResolvedWebRouterConfig;
   return [
     {
-      name: PLUGIN_NAME,
+      name: WEB_ROUTER_PLUGIN_NAME,
       enforce: 'pre',
-      api,
+      api: {
+        get config() {
+          return resolvedWebRouterConfig;
+        },
+        async clientImportap() {
+          return (
+            await import(this.config.input.client.importmap, {
+              assert: {
+                type: 'json',
+              },
+            })
+          ).default as ImportMap;
+        },
+        async serverRoutemap() {
+          return (
+            await import(this.config.input.server.routemap, {
+              assert: {
+                type: 'json',
+              },
+            })
+          ).default as RouteMap;
+        },
+      },
       async config({ root = process.cwd(), resolve: { extensions } = {} }) {
-        builderConfig = parseConfig(options, root, extensions);
+        resolvedWebRouterConfig = parseWebRouterConfig(
+          options,
+          root,
+          extensions
+        );
       },
     } as WebRouterPlugin,
 

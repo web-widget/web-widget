@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite';
 import { webWidgetPlugin } from '@web-widget/vite-plugin';
-import type { WebWidgetPluginOptions } from '@web-widget/vite-plugin';
+import type { WebWidgetUserConfig } from '@web-widget/vite-plugin';
 
 // Examples:
 // .vue?vue&type=script&setup=true&lang.ts
@@ -11,13 +11,16 @@ const VUE_INTERNAL_REQUEST = /\.vue\?vue\b.*$/;
 // .vue?vue&type=script&setup=true&lang.ts
 const VUE_INTERNAL_SCRIPT_REQUEST = /\.vue\?vue&type=script\b.*$/;
 
-export interface VueWebWidgetPluginOptions extends WebWidgetPluginOptions {}
+export interface VueWebWidgetPluginOptions extends WebWidgetUserConfig {}
 
-export default function vueWebWidgetPlugin({
-  provide = '@web-widget/vue',
-  export: exportWidget = {},
-  import: importWidget = {},
-}: VueWebWidgetPluginOptions = {}): Plugin[] {
+export default function vueWebWidgetPlugin(
+  options: VueWebWidgetPluginOptions
+): Plugin[] {
+  const {
+    provide = '@web-widget/vue',
+    export: exportWidget = {},
+    import: importWidget = {},
+  } = options;
   const route = /(?:\.|@)route\.vue(?:\?.*)?$/;
   const widget = /(?:\.|@)widget\.vue(?:\?.*)?$/;
   return webWidgetPlugin({
