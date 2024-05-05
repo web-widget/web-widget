@@ -169,7 +169,7 @@ export function importActionPlugin(
           alias ? `${name}:${alias}` : name
         );
         const content =
-          `import { rpcClient } from "@web-widget/action/client";\n` +
+          `import { rpcClient } from "@web-widget/helpers/action";\n` +
           `const { ${methods.join(', ')} } = /* @__PURE__ */ rpcClient(/*${JSON.stringify(moduleName)}*/ ${JSON.stringify(url)})`;
 
         magicString.update(statementStart, statementEnd, content);

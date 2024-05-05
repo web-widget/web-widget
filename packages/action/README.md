@@ -1,7 +1,5 @@
-# @web-widget/lifecycle-cache
+# @web-widget/action
 
-This is a simple and powerful end-to-end caching library.
+This is the built-in JSON RPC implementation of `@web-widget/web-router`.
 
-The cache's lifetime begins when the server receives the request, and it will be serialized and streamed to the client until the client unloads The web page is cleared.
-
-Normally you should not use this package directly as it is provided in [@web-widget/helpers/cache](https://github.com/web-widget/web-widget/blob/main/docs/helpers/lifecycle-cache.md).
+This utility is based on [typed-rpc](https://github.com/fgnass/typed-rpc).

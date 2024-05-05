@@ -48,12 +48,10 @@
     "typescript": "latest",
     "vite": "^5.0.13",
     "jest": "^29.6.2",
-    "ts-jest": "^29.1.1",
-    "@web-widget/action": "workspace:*"
+    "ts-jest": "^29.1.1"
   },
   "peerDependencies": {
-    "vite": "^5.0.13",
-    "@web-widget/action": "workspace:*"
+    "vite": "^5.0.13"
   },
   "peerDependenciesMeta": {
     "@web-widget/action": {

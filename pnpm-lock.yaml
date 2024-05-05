@@ -556,6 +556,9 @@ importers:
       '@edge-runtime/user-agent':
         specifier: ^1.4.1
         version: 1.4.1
+      '@web-widget/action':
+        specifier: workspace:*
+        version: link:../action
       '@web-widget/context':
         specifier: workspace:*
         version: link:../context
@@ -797,9 +800,6 @@ importers:
       '@types/node':
         specifier: ^20.4.8
         version: 20.5.7
-      '@web-widget/action':
-        specifier: workspace:*
-        version: link:../action
       jest:
         specifier: ^29.6.2
         version: 29.6.2(@types/node@20.5.7)

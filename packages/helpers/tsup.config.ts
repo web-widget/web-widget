@@ -1,6 +1,8 @@
 import type { Options } from 'tsup';
 export const tsup: Options = {
   entry: {
+    'action.client': 'src/action/client.ts',
+    'action.server': 'src/action/server.ts',
     'cache.client': 'src/cache/client.ts',
     'cache.server': 'src/cache/server.ts',
     'context.client': 'src/context/client.ts',
