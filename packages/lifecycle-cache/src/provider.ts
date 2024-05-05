@@ -1,5 +1,5 @@
+import type { SerializableValue } from '@web-widget/schema';
 import { lifecycleCache } from './cache';
-import type { JSONValue } from './types';
 
 const ERROR = Symbol.for('error');
 type PromiseState<T> = Promise<T> & {
@@ -12,7 +12,7 @@ type PromiseState<T> = Promise<T> & {
  * @param handler Handler function
  * @returns Cached value
  */
-export async function asyncCacheProvider<T extends JSONValue>(
+export async function asyncCacheProvider<T extends SerializableValue>(
   cacheKey: string,
   handler: () => T | Promise<T>
 ): Promise<T> {
@@ -44,7 +44,7 @@ export async function asyncCacheProvider<T extends JSONValue>(
  * @param handler Handler function
  * @returns Cached value
  */
-export function syncCacheProvider<T extends JSONValue>(
+export function syncCacheProvider<T extends SerializableValue>(
   cacheKey: string,
   handler: () => T | Promise<T>
 ): T {
@@ -77,7 +77,7 @@ export function syncCacheProvider<T extends JSONValue>(
   return cachedValue;
 }
 
-export function cacheProvider<T extends JSONValue>(
+export function cacheProvider<T extends SerializableValue>(
   cacheKey: string,
   handler: () => Promise<T>,
   options: {
@@ -85,7 +85,7 @@ export function cacheProvider<T extends JSONValue>(
   }
 ): T;
 
-export function cacheProvider<T extends JSONValue>(
+export function cacheProvider<T extends SerializableValue>(
   cacheKey: string,
   handler: () => Promise<T>,
   options: {
@@ -93,7 +93,7 @@ export function cacheProvider<T extends JSONValue>(
   }
 ): Promise<T>;
 
-export function cacheProvider<T extends JSONValue>(
+export function cacheProvider<T extends SerializableValue>(
   cacheKey: string,
   handler: () => T | Promise<T>,
   options?: {

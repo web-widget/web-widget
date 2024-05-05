@@ -9,7 +9,7 @@ import type {
   Manifest as ViteManifest,
 } from 'vite';
 import { build, normalizePath } from 'vite';
-import type { ResolvedBuilderConfig, ManifestJSON } from '../types';
+import type { ResolvedBuilderConfig, RouteMap } from '../types';
 import { getLinks } from './utils';
 
 let stage = 0;
@@ -36,7 +36,7 @@ export function buildWebRouterEntryPlugin(
 ): Plugin {
   let clientImportmap: ImportMap;
   let resolvedConfig: ResolvedConfig;
-  let serverRoutemap: ManifestJSON;
+  let serverRoutemap: RouteMap;
   let serverRoutemapEntryPoints: EntryPoints;
   let ssrBuild: boolean;
   let userConfig: UserConfig;
@@ -64,7 +64,7 @@ export function buildWebRouterEntryPlugin(
           type: 'json',
         },
       })
-    ).default as ManifestJSON;
+    ).default as RouteMap;
 
     serverRoutemapEntryPoints = resolveRoutemapEntryPoints(
       serverRoutemap,
@@ -78,6 +78,7 @@ export function buildWebRouterEntryPlugin(
       publicDir: ssrBuild ? config.publicDir ?? false : undefined,
       ssr: ssrBuild
         ? {
+            external: ['node:async_hooks'],
             noExternal:
               config.ssr?.noExternal ??
               (config.ssr?.target === 'node' ? undefined : true),
@@ -225,7 +226,7 @@ export function buildWebRouterEntryPlugin(
 type EntryPoints = Record<string, string>;
 
 function resolveRoutemapEntryPoints(
-  manifest: ManifestJSON,
+  manifest: RouteMap,
   routemapPath: string,
   root: string
 ): EntryPoints {
@@ -265,7 +266,7 @@ function resolveRoutemapEntryPoints(
 
 function generateServerRoutemap(
   clientImportmap: ImportMap,
-  manifest: ManifestJSON,
+  manifest: RouteMap,
   viteManifest: ViteManifest,
   builderConfig: ResolvedBuilderConfig,
   { root, base }: ResolvedConfig,
@@ -362,7 +363,7 @@ function generateServerRoutemap(
     },
     {
       //  base: basePlaceholder,
-    } as ManifestJSON
+    } as RouteMap
   );
 
   const routemapJsonCode = JSON.stringify(json, null, 2);

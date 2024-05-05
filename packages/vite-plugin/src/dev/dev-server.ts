@@ -7,20 +7,22 @@ import type { Manifest } from '@web-widget/web-router';
 import stripAnsi from 'strip-ansi';
 import type { Plugin, ViteDevServer } from 'vite';
 import type {
-  ManifestJSON,
+  RouteMap,
   ResolvedBuilderConfig,
   ServerEntryModule,
 } from '../types';
 import { getMeta } from './meta';
 import { fileSystemRouteGenerator } from './routing';
+import { PLUGIN_NAME } from 'src/constants';
 
 type DevModule = RouteModule & {
   $source?: string;
 };
 
 export function webRouterDevServerPlugin(
-  builderConfig: ResolvedBuilderConfig
+  options?: ResolvedBuilderConfig
 ): Plugin {
+  let builderConfig: ResolvedBuilderConfig;
   let root: string;
   return {
     name: '@widget:web-router-dev-server',
@@ -33,6 +35,12 @@ export function webRouterDevServerPlugin(
     },
     async configResolved(config) {
       root = config.root;
+      builderConfig =
+        options ??
+        config.plugins.find((p) => p.name === PLUGIN_NAME)?.api?.config;
+      if (!builderConfig) {
+        throw new Error('Missing builder configuration');
+      }
     },
     async configureServer(viteServer) {
       const [webRouter, restartWebRouter] = autoRestartMiddleware(
@@ -260,7 +268,7 @@ async function loadManifest(routemap: string, viteServer: ViteDevServer) {
     };
   }
   const manifestJson = (await viteServer.ssrLoadModule(routemap))
-    .default as ManifestJSON;
+    .default as RouteMap;
   return Object.entries(manifestJson).reduce((manifest, [key, value]) => {
     if (Array.isArray(value)) {
       // @ts-ignore

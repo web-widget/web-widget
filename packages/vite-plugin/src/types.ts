@@ -1,6 +1,7 @@
 import type WebRouter from '@web-widget/web-router';
 import type { z } from 'zod';
 import type { Manifest, StartOptions } from '@web-widget/web-router';
+import type { Plugin } from 'vite';
 import type { BuilderConfigSchema } from './config';
 import type { RouteSourceFile } from './dev/routing/types';
 
@@ -46,7 +47,7 @@ export interface ServerEntryModule {
 
 export interface ClientEntryModule {}
 
-export interface ManifestJSON {
+export interface RouteMap {
   $schema?: string;
   routes?: {
     module: string;
@@ -54,6 +55,11 @@ export interface ManifestJSON {
     pathname: string;
   }[];
   middlewares?: {
+    module: string;
+    name?: string;
+    pathname: string;
+  }[];
+  actions?: {
     module: string;
     name?: string;
     pathname: string;
@@ -68,4 +74,22 @@ export interface ManifestJSON {
     module: string;
     name?: string;
   };
+}
+
+type Imports = Record<string, string>;
+type Scopes = Record<string, Imports>;
+export type ImportMap = {
+  imports?: Imports;
+  scopes?: Scopes;
+};
+
+export interface PluginApi {
+  config: ResolvedBuilderConfig;
+  clientImportap(): Promise<ImportMap>;
+  serverRoutemap(): Promise<RouteMap>;
+}
+
+export interface WebRouterPlugin extends Plugin {
+  name: 'vite-plugin-web-router';
+  api: PluginApi;
 }

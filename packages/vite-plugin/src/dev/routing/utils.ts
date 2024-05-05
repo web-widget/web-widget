@@ -1,4 +1,4 @@
-import { basename, dirname, normalize } from 'node:path';
+import path, { basename, dirname, normalize } from 'node:path';
 
 /**
  * Adopted from Qwik
@@ -54,6 +54,14 @@ export function normalizePathSlash(path: string) {
     path = path.slice(0, path.length - 1);
   }
   return path;
+}
+
+export function normalizeRelativePath(from: string, to: string): string {
+  let relativePath = normalizePath(path.relative(from, to));
+  if (!relativePath.startsWith('./') && !relativePath.startsWith('../')) {
+    return './' + relativePath;
+  }
+  return relativePath;
 }
 
 /**

@@ -33,16 +33,16 @@ export interface ImportWebWidgetPluginOptions {
 /**
  * Input:
  *
- * import MyComponent from "../widgets/my-component.widget.vue";
+ * import MyComponent from "../widgets/my-component@widget.vue";
  * ...
  * <MyComponent title="My component" />
  *
  * Becomes:
  *
  * import { defineWebWidget } from "@web-widget/react";
- * const MyComponent = defineWebWidget(() => import("../widgets/my-component.widget.vue"), {
+ * const MyComponent = defineWebWidget(() => import("../widgets/my-component@widget.vue"), {
  *   base: import.meta.url,
- *   import: "asset://widgets/my-component.widget.vue"
+ *   import: "asset://widgets/my-component@widget.vue"
  * });
  * ...
  * <MyComponent title="My component" />

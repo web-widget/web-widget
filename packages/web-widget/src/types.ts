@@ -1,21 +1,17 @@
-import type { WidgetModule, Meta } from '@web-widget/helpers';
+import type {
+  WidgetModule,
+  Meta,
+  SerializableValue,
+} from '@web-widget/helpers';
 export type * from '@web-widget/helpers';
 
-type JSONValue =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: JSONValue }
-  | JSONValue[];
-
-export type JSONProps = { [key: string]: JSONValue };
+export type SerializableObject = { [key: string]: SerializableValue };
 
 export type Loader = () => Promise<WidgetModule>;
 
 export interface WebWidgetElementProps {
   base?: string;
-  data?: JSONProps;
+  data?: SerializableObject;
   import?: string;
   inactive?: boolean;
   loading?: 'lazy' | 'eager' | 'idle';

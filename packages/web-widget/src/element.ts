@@ -7,7 +7,7 @@ import { mountLifecycleCacheLayer } from '@web-widget/lifecycle-cache/client';
 import { WebWidgetUpdateEvent } from './event';
 import { LifecycleController } from './modules/controller';
 import { status } from './modules/status';
-import type { JSONProps } from './types';
+import type { SerializableObject } from './types';
 import { createIdleObserver } from './utils/idle';
 import { createVisibleObserver } from './utils/lazy';
 import { triggerModulePreload } from './utils/module-preload';
@@ -27,7 +27,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #lifecycleController: LifecycleController;
 
-  #data: JSONProps | null = null;
+  #data: SerializableObject | null = null;
 
   #disconnectObserver?: () => void;
 
@@ -114,7 +114,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   /**
    * WidgetModule data.
    */
-  get data(): JSONProps | null {
+  get data(): SerializableObject | null {
     if (!this.#data) {
       const dataAttr = this.getAttribute('data');
 
@@ -126,14 +126,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
           this.#data = {};
         }
       } else if (Object.entries(this.dataset).length) {
-        this.#data = { ...(this.dataset as JSONProps) };
+        this.#data = { ...(this.dataset as SerializableObject) };
       }
     }
 
     return this.#data;
   }
 
-  set data(value: JSONProps) {
+  set data(value: SerializableObject) {
     if (typeof value === 'object') {
       this.setAttribute('data', JSON.stringify(value));
     }

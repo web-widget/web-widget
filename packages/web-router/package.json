@@ -27,7 +27,8 @@
     "@web-widget/context": "workspace:*",
     "@web-widget/lifecycle-cache": "workspace:*",
     "@web-widget/helpers": "workspace:*",
-    "@web-widget/html": "workspace:*"
+    "@web-widget/html": "workspace:*",
+    "@web-widget/action": "workspace:*"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.9",

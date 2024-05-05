@@ -25,6 +25,9 @@
       <a href="/fetching-data">Fetching data</a>
     </li>
     <li>
+      <a href="/server-action">Server action</a>
+    </li>
+    <li>
       <a href="/style">Styling</a>
     </li>
     <li>
@@ -57,9 +60,7 @@
       <a href="/vue2-import-widgets">Vue2: Import react and vue3</a>
     </li>
     <li>
-      <a target="_blank" href="/vue2-server-component"
-        >Vue2: Server component</a
-      >
+      <a target="_blank" href="/vue2-server-component">Vue2: Server component</a>
     </li>
     <li>
       <a target="_blank" href="/lit-html-template"> Lit html template </a>
