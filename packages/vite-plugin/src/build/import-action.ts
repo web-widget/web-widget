@@ -43,7 +43,7 @@ export function importActionPlugin(
   let serverUrl: (file: string) => Promise<string>;
 
   return {
-    name: '@widget:import-action',
+    name: 'vite-plugin-import-action',
     async config() {},
     async configResolved(config) {
       const {

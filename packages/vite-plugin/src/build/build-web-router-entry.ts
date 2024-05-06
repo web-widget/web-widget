@@ -167,6 +167,19 @@ export function buildWebRouterEntryPlugin(
   return [
     {
       name: WEB_ROUTER_PLUGIN_NAME,
+      enforce: 'pre',
+      api,
+      async config(config) {
+        const { root = process.cwd(), resolve: { extensions } = {} } = config;
+        resolvedWebRouterConfig = parseWebRouterConfig(
+          options,
+          root,
+          extensions
+        );
+      },
+    } as WebRouterPlugin,
+    {
+      name: 'vite-plugin-build-web-router-entry',
       apply: 'build',
       enforce: 'pre',
 
@@ -174,13 +187,6 @@ export function buildWebRouterEntryPlugin(
 
       async config(config) {
         userConfig = config;
-        const { root = process.cwd(), resolve: { extensions } = {} } = config;
-        resolvedWebRouterConfig = parseWebRouterConfig(
-          options,
-          root,
-          extensions
-        );
-
         return createConfig(config);
       },
 
@@ -242,7 +248,7 @@ export function buildWebRouterEntryPlugin(
           });
         }
       },
-    } as WebRouterPlugin,
+    },
 
     webRouterDevServerPlugin(),
 

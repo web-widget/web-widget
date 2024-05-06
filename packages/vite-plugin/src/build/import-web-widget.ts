@@ -79,7 +79,7 @@ export function importWebWidgetPlugin({
 
   return [
     {
-      name: '@widget:import-web-widget',
+      name: 'vite-plugin-import-web-widget',
       async configResolved(config) {
         dev = config.command === 'serve';
         root = config.root;
@@ -238,7 +238,7 @@ export function importWebWidgetPlugin({
       apply: (userConfig, { command }) => {
         return command === 'build' && !!userConfig.build?.ssr;
       },
-      name: '@widget:resolve-asset-protocol',
+      name: 'vite-plugin-resolve-asset-protocol',
       enforce: 'post',
       async configResolved(config) {
         if (!manifest) {
@@ -264,7 +264,7 @@ export function importWebWidgetPlugin({
         });
       },
       async transform(code, id) {
-        if (!filter(id)) {
+        if (!importerFilter(id)) {
           return null;
         }
         // const normalize = (file: string) => {
