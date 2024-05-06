@@ -28,7 +28,7 @@ export interface ImportActionPluginOptions {
  *
  * Becomes:
  *
- * import { rpcClient } from "@web-widget/action/client";
+ * import { rpcClient } from "@web-widget/helpers/action";
  * const { echo } = rpcClient("/actions");
  * ...
  * const value = await echo("hello world");
