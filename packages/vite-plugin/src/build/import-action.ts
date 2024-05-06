@@ -43,7 +43,7 @@ export function importActionPlugin(
   let serverUrl: (file: string) => Promise<string>;
 
   return {
-    name: 'vite-plugin-import-action',
+    name: 'vite-plugin-@web-widget:import-action',
     async config() {},
     async configResolved(config) {
       const {
@@ -72,20 +72,19 @@ export function importActionPlugin(
             return module === id;
           });
 
-          if (action) {
-            if (/[^\w/.\-$]/.test(action.pathname)) {
-              throw new TypeError(
-                `Invalid pathname: ${action.pathname}. Action routes cannot contain dynamic parameters.`
-              );
-            }
-            return action.pathname;
+          if (!action) {
+            throw new Error(
+              `The action module is not registered in the server routing table.\n` +
+                `Please check the "routemap.server.json" file`
+            );
           }
-          return '';
+
+          return action.pathname;
         };
       }
 
       if (!serverUrl) {
-        throw new Error('serverUrl option is required.');
+        throw new Error('"serverUrl" option is required.');
       }
     },
     async transform(code, id, { ssr } = {}) {
@@ -114,7 +113,12 @@ export function importActionPlugin(
       }[] = [];
 
       for (const importSpecifier of imports) {
-        const { n: moduleName, d: dynamicImport } = importSpecifier;
+        const {
+          n: moduleName,
+          d: dynamicImport,
+          ss: statementStart,
+          se: statementEnd,
+        } = importSpecifier;
 
         const importModule = moduleName
           ? (
@@ -124,14 +128,20 @@ export function importActionPlugin(
             )?.id
           : undefined;
 
-        if (importModule && dynamicImport === -1 && filter(importModule)) {
+        if (importModule && filter(importModule)) {
+          if (dynamicImport !== -1) {
+            return this.error(
+              new SyntaxError(`Dynamic imports are not supported.`),
+              statementStart
+            );
+          }
           const cacheKey = [id, importModule].join(',');
           if (!cache.has(cacheKey)) {
             actionModules.push({
               moduleId: importModule,
               moduleName: moduleName as string,
-              statementEnd: importSpecifier.se,
-              statementStart: importSpecifier.ss,
+              statementEnd,
+              statementStart,
             });
           } else {
             cache.add(cacheKey);
@@ -144,13 +154,10 @@ export function importActionPlugin(
       }
 
       const magicString = new MagicString(code);
+      const dynamicPathname = /[^\w/.\-$]/;
 
-      for (const {
-        statementStart,
-        statementEnd,
-        moduleId,
-        moduleName,
-      } of actionModules) {
+      for (const { statementStart, statementEnd, moduleId } of actionModules) {
+        // TODO: Support default export.
         const names = importsToImportNames(
           imports,
           code.substring(statementStart, statementEnd)
@@ -160,9 +167,28 @@ export function importActionPlugin(
           continue;
         }
 
-        const url = await serverUrl(moduleId);
-        if (!url) {
-          throw new Error('serverUrl option is required.');
+        let url;
+
+        try {
+          url = await serverUrl(moduleId);
+        } catch (error) {
+          return this.error(error, statementStart);
+        }
+
+        if (typeof url !== 'string') {
+          return this.error(
+            TypeError(
+              `options.serverUrl(${JSON.stringify(moduleId)}) returns no result.`
+            )
+          );
+        }
+
+        if (dynamicPathname.test(url)) {
+          return this.error(
+            new TypeError(
+              `Invalid input: ${url}. Action route cannot contain dynamic parameters.`
+            )
+          );
         }
 
         const methods = names.map(({ name, alias }) =>
@@ -170,7 +196,7 @@ export function importActionPlugin(
         );
         const content =
           `import { rpcClient } from "@web-widget/helpers/action";\n` +
-          `const { ${methods.join(', ')} } = /* @__PURE__ */ rpcClient(/*${JSON.stringify(moduleName)}*/ ${JSON.stringify(url)})`;
+          `const { ${methods.join(', ')} } = /* @__PURE__ */ rpcClient(${JSON.stringify(url)})`;
 
         magicString.update(statementStart, statementEnd, content);
       }

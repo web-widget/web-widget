@@ -25,7 +25,7 @@ export function webRouterDevServerPlugin(
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;
   let root: string;
   return {
-    name: 'vite-plugin-web-router-dev-server',
+    name: 'vite-plugin-@web-widget:dev',
     enforce: 'pre',
     apply: 'serve',
     async config() {

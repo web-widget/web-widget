@@ -179,7 +179,7 @@ export function buildWebRouterEntryPlugin(
       },
     } as WebRouterPlugin,
     {
-      name: 'vite-plugin-build-web-router-entry',
+      name: 'vite-plugin-@web-widget:entry',
       apply: 'build',
       enforce: 'pre',
 

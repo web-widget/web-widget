@@ -79,7 +79,7 @@ export function importWebWidgetPlugin({
 
   return [
     {
-      name: 'vite-plugin-import-web-widget',
+      name: 'vite-plugin-@web-widget:import-render',
       async configResolved(config) {
         dev = config.command === 'serve';
         root = config.root;
@@ -152,7 +152,12 @@ export function importWebWidgetPlugin({
         }[] = [];
 
         for (const importSpecifier of imports) {
-          const { n: moduleName, d: dynamicImport } = importSpecifier;
+          const {
+            n: moduleName,
+            d: dynamicImport,
+            ss: statementStart,
+            se: statementEnd,
+          } = importSpecifier;
 
           const importModule = moduleName
             ? (
@@ -162,14 +167,20 @@ export function importWebWidgetPlugin({
               )?.id
             : undefined;
 
-          if (importModule && dynamicImport === -1 && filter(importModule)) {
+          if (importModule && filter(importModule)) {
+            if (dynamicImport !== -1) {
+              return this.error(
+                new SyntaxError(`Dynamic imports are not supported.`),
+                statementStart
+              );
+            }
             const cacheKey = [id, importModule].join(',');
             if (!cache.has(cacheKey)) {
               widgetModules.push({
                 moduleId: importModule,
                 moduleName: moduleName as string,
-                statementEnd: importSpecifier.se,
-                statementStart: importSpecifier.ss,
+                statementEnd,
+                statementStart,
               });
             } else {
               cache.add(cacheKey);
@@ -238,7 +249,7 @@ export function importWebWidgetPlugin({
       apply: (userConfig, { command }) => {
         return command === 'build' && !!userConfig.build?.ssr;
       },
-      name: 'vite-plugin-resolve-asset-protocol',
+      name: 'vite-plugin-@web-widget:resolve-asset-protocol',
       enforce: 'post',
       async configResolved(config) {
         if (!manifest) {
