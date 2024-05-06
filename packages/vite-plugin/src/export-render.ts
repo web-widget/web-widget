@@ -3,8 +3,7 @@ import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin, Manifest as ViteManifest } from 'vite';
-import { getLinks } from './utils';
-import { getManifest, getWebRouterPluginApi } from '@/utils';
+import { getLinks, getManifest, getWebRouterPluginApi } from './utils';
 
 const alias = (name: string) => `__$${name}$__`;
 

@@ -6,7 +6,7 @@ import {
   getWebRouterPluginApi,
   importsToImportNames,
   relativePathWithDot,
-} from '@/utils';
+} from './utils';
 
 const globalCache: Set<string> = new Set();
 

@@ -8,7 +8,7 @@ import type {
   Plugin,
   Manifest as ViteManifest,
 } from 'vite';
-import { getManifest, getWebRouterPluginApi } from '@/utils';
+import { getManifest, getWebRouterPluginApi } from './utils';
 
 export const ASSET_PROTOCOL = 'asset:';
 const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;

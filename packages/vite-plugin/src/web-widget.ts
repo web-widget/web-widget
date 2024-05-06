@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite';
-import { exportWebWidgetPlugin } from './build/export-web-widget';
-import { importWebWidgetPlugin } from './build/import-web-widget';
+import { exportWebWidgetPlugin } from './export-render';
+import { importWebWidgetPlugin } from './import-render';
 import type { WebWidgetUserConfig } from './types';
 
 export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {

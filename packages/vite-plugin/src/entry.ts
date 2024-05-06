@@ -8,18 +8,17 @@ import type {
   Manifest as ViteManifest,
 } from 'vite';
 import { build, normalizePath } from 'vite';
-import { getLinks } from './utils';
+import { getLinks, getManifest } from './utils';
 import { importActionPlugin } from './import-action';
+import { parseWebRouterConfig } from './config';
+import { webRouterDevServerPlugin } from './dev';
+import { WEB_ROUTER_PLUGIN_NAME } from './constants';
 import type {
   ResolvedWebRouterConfig,
   RouteMap,
   WebRouterPlugin,
   WebRouterUserConfig,
-} from '@/types';
-import { parseWebRouterConfig } from '@/config';
-import { webRouterDevServerPlugin } from '@/dev/dev-server';
-import { WEB_ROUTER_PLUGIN_NAME } from '@/constants';
-import { getManifest } from '@/utils';
+} from './types';
 
 let stage = 0;
 
