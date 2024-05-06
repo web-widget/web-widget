@@ -106,13 +106,14 @@ Provide end-to-end cached values, the results are asynchronous.
 ### Syntax
 
 ```ts
-cacheProvider(cacheKey, handler);
+cacheProvider(cacheKey, handler, args);
 ```
 
 ### Parameters
 
 - `cacheKey`: Must be a string or number.
 - `handler`: Cache provider handler.
+- `args` (optional): Cache handler arguments.
 
 ### Returns
 
@@ -125,13 +126,14 @@ Provide end-to-end cached values, the results are synchronized.
 ### Syntax
 
 ```ts
-syncCacheProvider(cacheKey, handler);
+syncCacheProvider(cacheKey, handler, args);
 ```
 
 ### Parameters
 
 - `cacheKey`: Must be a string or number.
 - `handler`: Cache provider handler.
+- `args` (optional): Cache handler arguments.
 
 ### Returns
 
