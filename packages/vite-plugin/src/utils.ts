@@ -1,9 +1,9 @@
 import path from 'node:path';
-import type { ResolvedConfig } from 'vite';
+import type { Manifest, ResolvedConfig } from 'vite';
 import { normalizePath } from 'vite';
 import type { ImportSpecifier } from 'es-module-lexer';
 import { WEB_ROUTER_PLUGIN_NAME } from './constants';
-import type { WebRouterPlugin } from './types';
+import type { ResolvedWebRouterConfig, WebRouterPlugin } from './types';
 
 /**
  * Extracts all import names for an already parsed files
@@ -74,4 +74,20 @@ export function getWebRouterPluginApi(config: ResolvedConfig) {
   ) as WebRouterPlugin | undefined;
 
   return webRouterPlugin?.api;
+}
+
+export async function getManifest(
+  root: string,
+  { output: { dir, client, manifest } }: ResolvedWebRouterConfig
+) {
+  const manifestPath = path.join(root, dir, client, manifest);
+  const viteManifest = (
+    await import(manifestPath, {
+      assert: {
+        type: 'json',
+      },
+    })
+  ).default as Manifest;
+
+  return viteManifest;
 }

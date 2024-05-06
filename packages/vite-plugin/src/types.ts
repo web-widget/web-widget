@@ -84,10 +84,10 @@ export type ImportMap = {
 };
 
 export interface WebRouterPlugin extends Plugin {
-  name: 'vite-plugin-web-router';
+  name: '@widget:build-web-router-entry';
   api: {
     config: ResolvedWebRouterConfig;
-    clientImportap(): Promise<ImportMap>;
+    clientImportmap(): Promise<ImportMap>;
     serverRoutemap(): Promise<RouteMap>;
   };
 }

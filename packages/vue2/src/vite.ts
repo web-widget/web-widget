@@ -14,13 +14,13 @@ const VUE_INTERNAL_SCRIPT_REQUEST = /\.vue\?vue&type=script\b.*$/;
 export interface Vue2WebWidgetPluginOptions extends WebWidgetUserConfig {}
 
 export default function vue2WebWidgetPlugin(
-  options: Vue2WebWidgetPluginOptions
+  options?: Vue2WebWidgetPluginOptions
 ): Plugin[] {
   const {
     provide = '@web-widget/vue2',
     export: exportWidget = {},
     import: importWidget = {},
-  } = options;
+  } = options ?? {};
   const route = /(?:\.|@)route\.vue(?:\?.*)?$/;
   const widget = /(?:\.|@)widget\.vue(?:\?.*)?$/;
   return webWidgetPlugin({

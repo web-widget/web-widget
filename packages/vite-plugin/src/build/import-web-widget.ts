@@ -8,6 +8,7 @@ import type {
   Plugin,
   Manifest as ViteManifest,
 } from 'vite';
+import { getManifest, getWebRouterPluginApi } from '@/utils';
 
 export const ASSET_PROTOCOL = 'asset:';
 const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
@@ -83,18 +84,6 @@ export function importWebWidgetPlugin({
         dev = config.command === 'serve';
         root = config.root;
         base = config.base;
-        const ssrBuild = !!config.build?.ssr;
-
-        if (ssrBuild) {
-          if (!manifest && typeof config.build.manifest === 'string') {
-            const json = await import(config.build.manifest, {
-              assert: {
-                type: 'json',
-              },
-            });
-            manifest = json.default as ViteManifest;
-          }
-        }
       },
       async transformIndexHtml(html, { server: dev }) {
         const styleId = 'web-widget:style';
@@ -251,10 +240,18 @@ export function importWebWidgetPlugin({
       },
       name: '@widget:resolve-asset-protocol',
       enforce: 'post',
-      async configResolved() {
+      async configResolved(config) {
         if (!manifest) {
-          throw new Error(`options.manifest is required to build ssr.`);
+          const api = getWebRouterPluginApi(config);
+          if (api) {
+            manifest = await getManifest(root, api.config);
+          }
         }
+
+        if (!manifest) {
+          throw new Error(`Missing manifest.`);
+        }
+
         Object.entries(manifest).forEach(([fileName, value]) => {
           if (value.file) {
             assetMap.set(fileName, value.file);

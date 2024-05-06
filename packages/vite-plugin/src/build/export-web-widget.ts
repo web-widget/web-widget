@@ -4,6 +4,7 @@ import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin, Manifest as ViteManifest } from 'vite';
 import { getLinks } from './utils';
+import { getManifest, getWebRouterPluginApi } from '@/utils';
 
 const alias = (name: string) => `__$${name}$__`;
 
@@ -41,22 +42,6 @@ export function exportWebWidgetPlugin({
   return [
     {
       name: '@widget:export-web-widget',
-      async configResolved(config) {
-        base = config.base;
-        root = config.root;
-        const ssrBuild = !!config.build?.ssr;
-
-        if (ssrBuild) {
-          if (!manifest && typeof config.build.manifest === 'string') {
-            const json = await import(config.build.manifest, {
-              assert: {
-                type: 'json',
-              },
-            });
-            manifest = json.default as ViteManifest;
-          }
-        }
-      },
       async transform(code, id) {
         if (!filter(id)) {
           return null;
@@ -143,13 +128,24 @@ export function exportWebWidgetPlugin({
 
       name: '@widget:append-web-widget-meta',
       enforce: 'post',
+      async configResolved(config) {
+        base = config.base;
+        root = config.root;
+
+        if (!manifest) {
+          const api = getWebRouterPluginApi(config);
+          if (api) {
+            manifest = await getManifest(root, api.config);
+          }
+        }
+      },
       async transform(code, id) {
         if (!filter(id)) {
           return null;
         }
 
         if (!manifest) {
-          throw new Error(`options.manifest is required to build ssr.`);
+          throw new Error(`Missing manifest.`);
         }
 
         const magicString = new MagicString(code);

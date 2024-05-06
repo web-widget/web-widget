@@ -10,13 +10,13 @@ const VUE_INTERNAL_REQUEST = /\.vue\?vue\b.*$/;
 export interface ReactWebWidgetPluginOptions extends WebWidgetUserConfig {}
 
 export default function reactWebWidgetPlugin(
-  options: ReactWebWidgetPluginOptions
+  options?: ReactWebWidgetPluginOptions
 ): Plugin[] {
   const {
     provide = '@web-widget/react',
     export: exportWidget = {},
     import: importWidget = {},
-  } = options;
+  } = options ?? {};
   return webWidgetPlugin({
     provide,
     export: {

@@ -4,14 +4,22 @@ import type { EmittedFile, OutputBundle, OutputChunk } from 'rollup';
 import type {
   InlineConfig,
   Plugin,
-  ResolvedConfig,
   UserConfig,
   Manifest as ViteManifest,
 } from 'vite';
 import { build, normalizePath } from 'vite';
 import { getLinks } from './utils';
-import type { ResolvedWebRouterConfig, RouteMap } from '@/types';
-import { getWebRouterPluginApi } from '@/utils';
+import { importActionPlugin } from './import-action';
+import type {
+  ResolvedWebRouterConfig,
+  RouteMap,
+  WebRouterPlugin,
+  WebRouterUserConfig,
+} from '@/types';
+import { parseWebRouterConfig } from '@/config';
+import { webRouterDevServerPlugin } from '@/dev/dev-server';
+import { WEB_ROUTER_PLUGIN_NAME } from '@/constants';
+import { getManifest } from '@/utils';
 
 let stage = 0;
 
@@ -33,12 +41,11 @@ type ImportMap = {
 };
 
 export function buildWebRouterEntryPlugin(
-  options?: ResolvedWebRouterConfig
-): Plugin {
+  options: WebRouterUserConfig = {}
+): Plugin[] {
+  let root: string;
+  let base: string;
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;
-  let clientImportmap: ImportMap;
-  let resolvedConfig: ResolvedConfig;
-  let serverRoutemap: RouteMap;
   let serverRoutemapEntryPoints: EntryPoints;
   let ssrBuild: boolean;
   let userConfig: UserConfig;
@@ -51,22 +58,8 @@ export function buildWebRouterEntryPlugin(
     const root = config.root || process.cwd();
     const assetsDir = config.build?.assetsDir ?? 'assets';
     const serverRoutemapPath = resolvedWebRouterConfig.input.server.routemap;
-
-    clientImportmap = (
-      await import(resolvedWebRouterConfig.input.client.importmap, {
-        assert: {
-          type: 'json',
-        },
-      })
-    ).default as ImportMap;
-
-    serverRoutemap = (
-      await import(serverRoutemapPath, {
-        assert: {
-          type: 'json',
-        },
-      })
-    ).default as RouteMap;
+    const clientImportmap = await api.clientImportmap();
+    const serverRoutemap = await api.serverRoutemap();
 
     serverRoutemapEntryPoints = resolveRoutemapEntryPoints(
       serverRoutemap,
@@ -113,9 +106,9 @@ export function buildWebRouterEntryPlugin(
         minify: ssrBuild ? false : config.build?.minify ?? 'esbuild',
         ssr: ssrBuild,
         ssrEmitAssets: config.build?.ssrEmitAssets ?? false,
-        ssrManifest: ssrBuild
-          ? undefined
-          : resolvedWebRouterConfig.output.ssrManifest,
+        // ssrManifest: ssrBuild
+        //   ? undefined
+        //   : resolvedWebRouterConfig.output.ssrManifest,
         rollupOptions: {
           input: ssrBuild
             ? {
@@ -147,101 +140,114 @@ export function buildWebRouterEntryPlugin(
     };
   }
 
-  return {
-    name: '@widget:build-web-router-entry',
-    apply: 'build',
-    enforce: 'pre',
-    async config(_userConfig) {
-      userConfig = _userConfig;
-      return createConfig(userConfig);
+  const api = {
+    get config() {
+      return resolvedWebRouterConfig;
     },
-
-    async configResolved(config) {
-      if (options) {
-        resolvedWebRouterConfig = options;
-      }
-
-      if (!resolvedWebRouterConfig) {
-        const webRouterPluginApi = getWebRouterPluginApi(config);
-        if (webRouterPluginApi) {
-          resolvedWebRouterConfig = webRouterPluginApi.config;
-        }
-      }
-
-      if (!resolvedWebRouterConfig) {
-        throw new Error('Missing options.');
-      }
+    async clientImportmap() {
+      return (
+        await import(this.config.input.client.importmap, {
+          assert: {
+            type: 'json',
+          },
+        })
+      ).default as ImportMap;
     },
-
-    async generateBundle(_options, bundle) {
-      if (ssrBuild) {
-        const viteManifest = (
-          await import(
-            path.resolve(
-              resolvedConfig.root,
-              path.join(
-                resolvedWebRouterConfig.output.dir,
-                resolvedWebRouterConfig.output.client,
-                resolvedWebRouterConfig.output.manifest
-              )
-            ),
-            {
-              assert: {
-                type: 'json',
-              },
-            }
-          )
-        ).default as ViteManifest;
-
-        try {
-          generateServerRoutemap(
-            clientImportmap,
-            serverRoutemap,
-            viteManifest,
-            resolvedWebRouterConfig,
-            resolvedConfig,
-            bundle
-          ).forEach((item) => this.emitFile(item));
-        } catch (error) {
-          return this.error(error);
-        }
-
-        this.emitFile({
-          type: 'prebuilt-chunk',
-          fileName: 'package.json',
-          code: JSON.stringify({ type: 'module' }, null, 2),
-        });
-      } else {
-        Object.keys(bundle).forEach((fileName) => {
-          const chunk = bundle[fileName];
-          const type = chunk.type;
-          if (
-            type === 'chunk' &&
-            chunk.isEntry &&
-            Reflect.has(serverRoutemapEntryPoints, chunk.name) &&
-            serverRoutemapEntryPoints[chunk.name] === chunk.facadeModuleId
-          ) {
-            chunk.code = 'throw new Error(`Only works on the server side.`);';
-          }
-        });
-      }
-    },
-
-    async writeBundle() {
-      // TODO Watch module
-      stage++;
-      if (!ssrBuild && resolvedWebRouterConfig.autoFullBuild) {
-        runSsrBuild(await createConfig(userConfig, true));
-        return;
-      }
-
-      if (stage === 2) {
-        process.nextTick(() => {
-          console.info(`@web-widget: build success!`);
-        });
-      }
+    async serverRoutemap() {
+      return (
+        await import(this.config.input.server.routemap, {
+          assert: {
+            type: 'json',
+          },
+        })
+      ).default as RouteMap;
     },
   };
+
+  return [
+    {
+      name: WEB_ROUTER_PLUGIN_NAME,
+      apply: 'build',
+      enforce: 'pre',
+
+      api,
+
+      async config(config) {
+        userConfig = config;
+        const { root = process.cwd(), resolve: { extensions } = {} } = config;
+        resolvedWebRouterConfig = parseWebRouterConfig(
+          options,
+          root,
+          extensions
+        );
+
+        return createConfig(config);
+      },
+
+      async configResolved(config) {
+        root = config.root;
+        base = config.base;
+      },
+
+      async generateBundle(_options, bundle) {
+        if (ssrBuild) {
+          const viteManifest = await getManifest(root, resolvedWebRouterConfig);
+
+          try {
+            generateServerRoutemap(
+              root,
+              base,
+              await api.clientImportmap(),
+              await api.serverRoutemap(),
+              viteManifest,
+              resolvedWebRouterConfig,
+              bundle
+            ).forEach((item) => this.emitFile(item));
+          } catch (error) {
+            return this.error(error);
+          }
+
+          this.emitFile({
+            type: 'prebuilt-chunk',
+            fileName: 'package.json',
+            code: JSON.stringify({ type: 'module' }, null, 2),
+          });
+        } else {
+          Object.keys(bundle).forEach((fileName) => {
+            const chunk = bundle[fileName];
+            const type = chunk.type;
+            if (
+              type === 'chunk' &&
+              chunk.isEntry &&
+              Reflect.has(serverRoutemapEntryPoints, chunk.name) &&
+              serverRoutemapEntryPoints[chunk.name] === chunk.facadeModuleId
+            ) {
+              chunk.code = 'throw new Error(`Only works on the server side.`);';
+            }
+          });
+        }
+      },
+
+      async writeBundle() {
+        // TODO Watch module
+        stage++;
+        if (!ssrBuild && resolvedWebRouterConfig.autoFullBuild) {
+          runSsrBuild(await createConfig(userConfig, true));
+          return;
+        }
+
+        if (stage === 2) {
+          process.nextTick(() => {
+            console.info(`@web-widget: build success!`);
+          });
+        }
+      },
+    } as WebRouterPlugin,
+
+    webRouterDevServerPlugin(),
+
+    importActionPlugin(),
+  ];
 }
 
 type EntryPoints = Record<string, string>;
@@ -286,11 +292,12 @@ function resolveRoutemapEntryPoints(
 }
 
 function generateServerRoutemap(
+  root: string,
+  base: string,
   clientImportmap: ImportMap,
   manifest: RouteMap,
   viteManifest: ViteManifest,
   resolvedWebRouterConfig: ResolvedWebRouterConfig,
-  { root, base }: ResolvedConfig,
   bundle: OutputBundle
 ): EmittedFile[] {
   function getChunkName(chunk: OutputChunk) {
