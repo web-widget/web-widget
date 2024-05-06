@@ -79,7 +79,7 @@ export function importWebWidgetPlugin({
 
   return [
     {
-      name: 'vite-plugin-@web-widget:import-render',
+      name: '@web-widget:import-render',
       async configResolved(config) {
         dev = config.command === 'serve';
         root = config.root;
@@ -249,7 +249,7 @@ export function importWebWidgetPlugin({
       apply: (userConfig, { command }) => {
         return command === 'build' && !!userConfig.build?.ssr;
       },
-      name: 'vite-plugin-@web-widget:resolve-asset-protocol',
+      name: '@web-widget:resolve-asset-protocol',
       enforce: 'post',
       async configResolved(config) {
         if (!manifest) {

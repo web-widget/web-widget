@@ -41,7 +41,7 @@ export function exportWebWidgetPlugin({
 
   return [
     {
-      name: 'vite-plugin-@web-widget:export-render',
+      name: '@web-widget:export-render',
       async transform(code, id) {
         if (!filter(id)) {
           return null;
@@ -126,7 +126,7 @@ export function exportWebWidgetPlugin({
         return command === 'build' && !!userConfig.build?.ssr;
       },
 
-      name: 'vite-plugin-@web-widget:append-meta',
+      name: '@web-widget:append-meta',
       enforce: 'post',
       async configResolved(config) {
         base = config.base;
