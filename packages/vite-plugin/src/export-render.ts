@@ -7,7 +7,7 @@ import { getLinks, getManifest, getWebRouterPluginApi } from './utils';
 
 const alias = (name: string) => `__$${name}$__`;
 
-export interface ExportWidgetPluginOptions {
+export interface ExportRenderPluginOptions {
   extractFromExportDefault?: {
     name: string;
     default: string;
@@ -21,14 +21,14 @@ export interface ExportWidgetPluginOptions {
   provide: string;
 }
 
-export function exportWebWidgetPlugin({
+export function exportRenderPlugin({
   exclude,
   extractFromExportDefault,
   include,
   inject = 'render',
   manifest,
   provide,
-}: ExportWidgetPluginOptions): Plugin[] {
+}: ExportRenderPluginOptions): Plugin[] {
   if (typeof provide !== 'string') {
     throw new TypeError(`options.provide must be a string type.`);
   }

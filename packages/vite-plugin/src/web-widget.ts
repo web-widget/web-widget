@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite';
-import { exportWebWidgetPlugin } from './export-render';
-import { importWebWidgetPlugin } from './import-render';
+import { exportRenderPlugin } from './export-render';
+import { importRenderPlugin } from './import-render';
 import type { WebWidgetUserConfig } from './types';
 
 export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
@@ -18,7 +18,7 @@ export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
   } = options;
 
   return [
-    ...exportWebWidgetPlugin({
+    ...exportRenderPlugin({
       extractFromExportDefault: exports?.extractFromExportDefault,
       exclude: exports?.exclude,
       include: exports?.include,
@@ -27,7 +27,7 @@ export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
       provide,
     }),
 
-    ...importWebWidgetPlugin({
+    ...importRenderPlugin({
       cache: imports?.cache,
       component: imports?.component,
       exclude: imports?.exclude,

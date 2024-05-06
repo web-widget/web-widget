@@ -21,7 +21,7 @@ const require = createRequire(import.meta.url);
 const parseComponentName = (code: string) =>
   code.match(/import\s+([a-zA-Z$_]\w*)\s+/)?.[1];
 
-export interface ImportWebWidgetPluginOptions {
+export interface ImportRenderPluginOptions {
   cache?: Set<string>;
   /** @deprecated */
   component?: FilterPattern;
@@ -51,7 +51,7 @@ export interface ImportWebWidgetPluginOptions {
  * ...
  * <MyComponent title="My component" />
  */
-export function importWebWidgetPlugin({
+export function importRenderPlugin({
   cache = globalCache,
   component,
   exclude,
@@ -61,7 +61,7 @@ export function importWebWidgetPlugin({
   inject = 'defineWebWidget',
   manifest,
   provide,
-}: ImportWebWidgetPluginOptions): Plugin[] {
+}: ImportRenderPluginOptions): Plugin[] {
   if (typeof provide !== 'string') {
     throw new TypeError(`options.provide must be a string type.`);
   }

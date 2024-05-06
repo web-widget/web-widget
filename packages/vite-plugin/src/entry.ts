@@ -39,9 +39,7 @@ type ImportMap = {
   scopes?: Scopes;
 };
 
-export function buildWebRouterEntryPlugin(
-  options: WebRouterUserConfig = {}
-): Plugin[] {
+export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
   let root: string;
   let base: string;
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;
