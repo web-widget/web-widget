@@ -1,7 +1,5 @@
 import { useState } from 'react';
-//import { echo } from '../(actions)/actions@action';
-
-import('../(actions)/actions@action').then(({ a }) => {});
+import { echo } from '../(actions)/actions@action';
 
 export default () => {
   const [log, setLog] = useState('');
