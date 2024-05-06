@@ -1,6 +1,6 @@
 import { context } from '@web-widget/helpers/context';
 
-export const echo = async <T>(content: T) => {
+export const echo = async (content: string) => {
   const { request } = context();
   return {
     url: request.url,
