@@ -10,14 +10,19 @@ type PromiseState<T> = Promise<T> & {
  * Provide end-to-end cached values, the results are asynchronous.
  * @param cacheKey Cache key
  * @param handler Handler function
+ * @param args Handler arguments
  * @returns Cached value
  */
-export async function asyncCacheProvider<T extends SerializableValue>(
+export async function cacheProvider<
+  A extends SerializableValue,
+  R extends SerializableValue,
+>(
   cacheKey: string,
-  handler: () => T | Promise<T>
-): Promise<T> {
+  handler: (...arts: A[]) => R | Promise<R>,
+  args?: A[]
+): Promise<R> {
   const cache = lifecycleCache<{
-    [cacheKey: string]: T | Promise<T>;
+    [cacheKey: string]: R | Promise<R>;
   }>();
   let cachedValue = cache.get(cacheKey);
 
@@ -25,8 +30,8 @@ export async function asyncCacheProvider<T extends SerializableValue>(
     return cachedValue;
   }
 
-  cachedValue = handler();
-  cache.set(cacheKey, cachedValue as T, true);
+  cachedValue = args ? handler(...args) : handler();
+  cache.set(cacheKey, cachedValue as R, true);
 
   if (cachedValue instanceof Promise) {
     return cachedValue.then((result) => {
@@ -38,30 +43,33 @@ export async function asyncCacheProvider<T extends SerializableValue>(
   return cachedValue;
 }
 
+export const asyncCacheProvider = cacheProvider;
+
 /**
  * Provide end-to-end cached values, the results are synchronized.
  * @param cacheKey Cache key
  * @param handler Handler function
+ * @param args Handler arguments
  * @returns Cached value
  */
-export function syncCacheProvider<T extends SerializableValue>(
-  cacheKey: string,
-  handler: () => T | Promise<T>
-): T {
+export function syncCacheProvider<
+  A extends SerializableValue,
+  R extends SerializableValue,
+>(cacheKey: string, handler: (...args: A[]) => R | Promise<R>, args?: A[]): R {
   const cache = lifecycleCache<{
-    [cacheKey: string]: T | Promise<T>;
+    [cacheKey: string]: R | Promise<R>;
   }>();
   let cachedValue = cache.get(cacheKey);
 
   if (cachedValue) {
     if (cachedValue instanceof Promise) {
-      throw (cachedValue as PromiseState<T>)[ERROR] ?? cachedValue;
+      throw (cachedValue as PromiseState<R>)[ERROR] ?? cachedValue;
     }
     return cachedValue;
   }
 
-  cachedValue = handler();
-  cache.set(cacheKey, cachedValue as T, true);
+  cachedValue = args ? handler(...args) : handler();
+  cache.set(cacheKey, cachedValue as R, true);
 
   if (cachedValue instanceof Promise) {
     throw cachedValue.then(
@@ -69,38 +77,10 @@ export function syncCacheProvider<T extends SerializableValue>(
         cache.set(cacheKey, result, true);
       },
       (error) => {
-        (cachedValue as PromiseState<T>)[ERROR] = error;
+        (cachedValue as PromiseState<R>)[ERROR] = error;
       }
     );
   }
 
   return cachedValue;
-}
-
-export function cacheProvider<T extends SerializableValue>(
-  cacheKey: string,
-  handler: () => Promise<T>,
-  options: {
-    sync: true;
-  }
-): T;
-
-export function cacheProvider<T extends SerializableValue>(
-  cacheKey: string,
-  handler: () => Promise<T>,
-  options: {
-    sync: false;
-  }
-): Promise<T>;
-
-export function cacheProvider<T extends SerializableValue>(
-  cacheKey: string,
-  handler: () => T | Promise<T>,
-  options?: {
-    sync?: boolean;
-  }
-) {
-  return options?.sync
-    ? syncCacheProvider<T>(cacheKey, handler as () => T)
-    : asyncCacheProvider<T>(cacheKey, handler as () => Promise<T>);
 }

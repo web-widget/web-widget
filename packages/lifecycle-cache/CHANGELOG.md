@@ -1,5 +1,15 @@
 # @web-widget/lifecycle-cache
 
+## 1.14.0
+
+### Minor Changes
+
+- 1c7136e: `cacheProvider` supports additional parameters for header.
+
+### Patch Changes
+
+- @web-widget/context@1.14.0
+
 ## 1.13.0
 
 ### Minor Changes
