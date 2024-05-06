@@ -191,7 +191,7 @@ export function importActionPlugin(
           );
         }
 
-        const methods = names.map(({ name, alias }) =>
+        const methods = names.map(([name, alias]) =>
           alias ? `${name}:${alias}` : name
         );
         const content =

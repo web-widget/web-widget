@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs/promises';
 import type { Manifest, ResolvedConfig, Manifest as ViteManifest } from 'vite';
 import { normalizePath } from 'vite';
 import type { ImportSpecifier } from 'es-module-lexer';
@@ -30,7 +31,7 @@ export function importsToImportNames(
  * => [{ name: 'html' }, { name: 'css', alias: 'litCss' }]
  */
 export function getImportNames(importStatement: string) {
-  const importNames: { name: string; alias?: string }[] = [];
+  const importNames: [name: string, alias?: string][] = [];
 
   const singleLine = importStatement.trim().replace(/\n/g, '');
   const fromIndex = singleLine.indexOf('from');
@@ -45,13 +46,10 @@ export function getImportNames(importStatement: string) {
     for (const importName of importStatementParts) {
       if (importName.includes(' as ')) {
         const v = importName.split(' as ');
-        importNames.push({
-          name: v[0].trim(),
-          alias: v[1].trim(),
-        });
+        importNames.push([v[0].trim(), v[1].trim()]);
         // TODO: Handle default imports
       } else {
-        importNames.push({ name: importName });
+        importNames.push([importName]);
       }
     }
     return importNames;
@@ -83,13 +81,8 @@ export async function getManifest(
   { output: { dir, client, manifest } }: ResolvedWebRouterConfig
 ) {
   const manifestPath = path.join(root, dir, client, manifest);
-  const viteManifest = (
-    await import(manifestPath, {
-      assert: {
-        type: 'json',
-      },
-    })
-  ).default as Manifest;
+  const fileContent = await fs.readFile(manifestPath, 'utf-8');
+  const viteManifest = JSON.parse(fileContent) as Manifest;
 
   return viteManifest;
 }
