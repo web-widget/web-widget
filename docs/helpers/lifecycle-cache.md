@@ -79,6 +79,7 @@ const data = await cacheProvider('cache_key', async () => {
 ```vue
 <script setup lang="ts">
 import { syncCacheProvider } from '@web-widget/helpers/cache';
+import { fetchData } from './fetch-data';
 
 type Data = {
   id: string;

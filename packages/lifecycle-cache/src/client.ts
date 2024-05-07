@@ -6,7 +6,7 @@ import {
 import { LIFECYCLE_CACHE_LAYER } from './constants';
 
 export { lifecycleCache } from './cache';
-export { asyncCacheProvider, syncCacheProvider } from './provider';
+export * from './provider';
 
 declare global {
   interface Window {

@@ -4,7 +4,7 @@ import { htmlEscapeJsonString } from './utils';
 import { LIFECYCLE_CACHE_LAYER, EXPOSE } from './constants';
 
 export { lifecycleCache } from './cache';
-export { asyncCacheProvider, syncCacheProvider } from './provider';
+export * from './provider';
 
 declare module '@web-widget/schema' {
   interface RouteState {
