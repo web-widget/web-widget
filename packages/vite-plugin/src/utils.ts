@@ -16,19 +16,27 @@ export function importsToImportNames(
   source: string
 ) {
   const allImportNames = [];
-  for (const singleImport of imports) {
-    const importStatement = source.substring(singleImport.ss, singleImport.se);
-    const importNames = getImportNames(importStatement);
-    allImportNames.push(...importNames);
+  for (const {
+    ss: statementStart,
+    se: statementEnd,
+    d: dynamicImport,
+  } of imports) {
+    if (dynamicImport < 0) {
+      const importStatement = source.substring(statementStart, statementEnd);
+      const importNames = getImportNames(importStatement);
+      allImportNames.push(...importNames);
+    } else {
+      allImportNames.push(['*']);
+    }
   }
   return allImportNames;
 }
 
 /**
- * Extracts all import names from a full import statement
+ * Extracts all import names from a full import statement.
  *
- * import { html, css as litCss } from 'lit';
- * => [{ name: 'html' }, { name: 'css', alias: 'litCss' }]
+ * `import { html, css as litCss } from 'lit'`
+ * => [[ 'html' ], [ 'css', 'litCss' ]
  */
 export function getImportNames(importStatement: string) {
   const importNames: [name: string, alias?: string][] = [];
@@ -36,23 +44,38 @@ export function getImportNames(importStatement: string) {
   const singleLine = importStatement.trim().replace(/\n/g, '');
   const fromIndex = singleLine.indexOf('from');
   if (fromIndex >= 0) {
-    const importPart = singleLine.substring(6, fromIndex);
-    const cleanedImportPart = importPart.replace(/[{}]/g, '');
-    const importStatementParts = cleanedImportPart
-      .split(',')
-      .map((el) => el.trim())
-      .filter(Boolean);
+    let parts: [defaultAndNamespacesPart: string, namedPart: string];
 
-    for (const importName of importStatementParts) {
-      if (importName.includes(' as ')) {
-        const v = importName.split(' as ');
-        importNames.push([v[0].trim(), v[1].trim()]);
-        // TODO: Handle default imports
-      } else {
-        importNames.push([importName]);
+    if (importStatement.includes('{')) {
+      const startsWith = importStatement.indexOf('{');
+      const endsWith = importStatement.indexOf('}');
+      const defaultAndNamespacesPart = importStatement.substring(6, startsWith);
+      const namedPart = importStatement.substring(startsWith + 1, endsWith);
+      parts = [defaultAndNamespacesPart, namedPart];
+    } else {
+      const index = importStatement.indexOf('from');
+      const defaultAndNamespacesPart = importStatement.substring(6, index);
+      parts = [defaultAndNamespacesPart, ''];
+    }
+
+    const list = parts.map((string) =>
+      string
+        .split(',')
+        .map((name) => name.trim())
+        .filter(Boolean)
+    );
+
+    for (const [index, part] of list.entries()) {
+      for (const importName of part) {
+        if (importName.includes(' as ')) {
+          const v = importName.split(' as ');
+          importNames.push([v[0].trim(), v[1].trim()]);
+        } else {
+          const isDefault = index === 0;
+          importNames.push(isDefault ? ['default', importName] : [importName]);
+        }
       }
     }
-    return importNames;
   }
 
   return importNames;

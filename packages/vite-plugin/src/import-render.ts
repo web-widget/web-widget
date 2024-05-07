@@ -144,7 +144,7 @@ export function importRenderPlugin({
           return this.error(error);
         }
 
-        const widgetModules: {
+        const modules: {
           moduleId: string;
           moduleName: string;
           statementEnd: number;
@@ -176,7 +176,7 @@ export function importRenderPlugin({
             }
             const cacheKey = [id, importModule].join(',');
             if (!cache.has(cacheKey)) {
-              widgetModules.push({
+              modules.push({
                 moduleId: importModule,
                 moduleName: moduleName as string,
                 statementEnd,
@@ -188,56 +188,59 @@ export function importRenderPlugin({
           }
         }
 
-        if (widgetModules.length === 0) {
+        if (modules.length === 0) {
           return null;
         }
 
         const magicString = new MagicString(code);
 
-        widgetModules.forEach(
-          ({ statementStart, statementEnd, moduleId, moduleName }) => {
-            const componentName = parseComponentName(
-              code.substring(statementStart, statementEnd)
-            );
+        for (const {
+          statementStart,
+          statementEnd,
+          moduleId,
+          moduleName,
+        } of modules) {
+          const componentName = parseComponentName(
+            code.substring(statementStart, statementEnd)
+          );
 
-            if (!componentName) {
-              return;
-            }
-
-            const asset = path.relative(root, moduleId);
-            const clientModuleId = dev
-              ? base + asset
-              : ssr
-                ? ASSET_PLACEHOLDER + asset
-                : this.emitFile({
-                    type: 'chunk',
-                    id: moduleId,
-                    preserveSignature: 'allow-extension', // "strict",
-                    importer: id,
-                  });
-
-            const clientModuleExpression =
-              ssr || dev
-                ? JSON.stringify(clientModuleId)
-                : `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
-            const clientContainerOptions = {
-              name: componentName,
-            };
-
-            const definerName = alias(inject);
-            const content =
-              `import { ${inject} as ${definerName} } from ${JSON.stringify(
-                provide
-              )};\n` +
-              `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
-                moduleName
-              )}), { /*base: import.meta.url,*/ import: ${clientModuleExpression}, ${JSON.stringify(
-                clientContainerOptions
-              ).replaceAll(/^\{|\}$/g, '')} });\n`;
-
-            magicString.update(statementStart, statementEnd, content);
+          if (!componentName) {
+            return;
           }
-        );
+
+          const asset = path.relative(root, moduleId);
+          const clientModuleId = dev
+            ? base + asset
+            : ssr
+              ? ASSET_PLACEHOLDER + asset
+              : this.emitFile({
+                  type: 'chunk',
+                  id: moduleId,
+                  preserveSignature: 'allow-extension', // "strict",
+                  importer: id,
+                });
+
+          const clientModuleExpression =
+            ssr || dev
+              ? JSON.stringify(clientModuleId)
+              : `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
+          const clientContainerOptions = {
+            name: componentName,
+          };
+
+          const definerName = alias(inject);
+          const content =
+            `import { ${inject} as ${definerName} } from ${JSON.stringify(
+              provide
+            )};\n` +
+            `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
+              moduleName
+            )}), { /*base: import.meta.url,*/ import: ${clientModuleExpression}, ${JSON.stringify(
+              clientContainerOptions
+            ).replaceAll(/^\{|\}$/g, '')} });\n`;
+
+          magicString.update(statementStart, statementEnd, content);
+        }
 
         return {
           code: magicString.toString(),

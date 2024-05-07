@@ -23,6 +23,7 @@ export interface ImportActionPluginOptions {
  * Input:
  *
  * import { echo } from "./actions/index@action.ts";
+ * import defaultExport, { exportName } from "./actions/foo@action.ts";
  * ...
  * const value = await echo('hello world');
  *
@@ -30,6 +31,7 @@ export interface ImportActionPluginOptions {
  *
  * import { rpcClient } from "@web-widget/helpers/action";
  * const { echo } = rpcClient("/actions");
+ * const { default: defaultExport, exportName } = rpcClient("/foo");
  * ...
  * const value = await echo("hello world");
  */
@@ -105,7 +107,7 @@ export function importActionPlugin(
         return this.error(error);
       }
 
-      const actionModules: {
+      const modules: {
         moduleId: string;
         moduleName: string;
         statementEnd: number;
@@ -137,7 +139,7 @@ export function importActionPlugin(
           }
           const cacheKey = [id, importModule].join(',');
           if (!cache.has(cacheKey)) {
-            actionModules.push({
+            modules.push({
               moduleId: importModule,
               moduleName: moduleName as string,
               statementEnd,
@@ -149,15 +151,14 @@ export function importActionPlugin(
         }
       }
 
-      if (actionModules.length === 0) {
+      if (modules.length === 0) {
         return null;
       }
 
       const magicString = new MagicString(code);
       const dynamicPathname = /[^\w/.\-$]/;
 
-      for (const { statementStart, statementEnd, moduleId } of actionModules) {
-        // TODO: Support default export.
+      for (const { statementStart, statementEnd, moduleId } of modules) {
         const names = importsToImportNames(
           imports,
           code.substring(statementStart, statementEnd)
