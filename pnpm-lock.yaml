@@ -218,9 +218,6 @@ importers:
       '@examples/web-router-vue3':
         specifier: workspace:*
         version: link:routes/(vue3)
-      '@web-widget/action':
-        specifier: workspace:*
-        version: link:../../packages/action
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
@@ -4815,7 +4812,7 @@ packages:
   /@types/istanbul-lib-report@3.0.0:
     resolution: {integrity: sha512-plGgXAPfVKFoYfa9NpYDAkseG+g6Jr294RqeqcqDixSbU34MZVJRi/P+7Y8GDpzkEwLaGZZOpKIEmeVZNtKsrg==}
     dependencies:
-      '@types/istanbul-lib-coverage': 2.0.4
+      '@types/istanbul-lib-coverage': 2.0.6
     dev: true
 
   /@types/istanbul-reports@3.0.1:
