@@ -7,14 +7,10 @@ import conditional from '../conditional-get';
 import type { CacheOptions } from '.';
 import cache from './';
 
-export const HIT: CacheStatus = 'HIT';
-export const MISS: CacheStatus = 'MISS';
-export const EXPIRED: CacheStatus = 'EXPIRED';
-export const STALE: CacheStatus = 'STALE';
-export const BYPASS: CacheStatus = 'BYPASS';
-export const REVALIDATED: CacheStatus = 'REVALIDATED';
-export const DYNAMIC: CacheStatus = 'DYNAMIC';
-
+const HIT: CacheStatus = 'HIT';
+const MISS: CacheStatus = 'MISS';
+const EXPIRED: CacheStatus = 'EXPIRED';
+const BYPASS: CacheStatus = 'BYPASS';
 const TEST_URL = 'http://localhost/';
 
 const timeout = (ms: number) =>
@@ -61,7 +57,7 @@ const createApp = function (
         pathname: '*',
         module: {
           handler: cache({
-            cacheControl() {
+            async cacheControl() {
               return { maxAge: 10 };
             },
             caches,
@@ -78,7 +74,7 @@ const createApp = function (
 describe('cache control should be added', () => {
   test('should support `object` type configuration', async () => {
     const app = createApp(createCaches(), {
-      cacheControl() {
+      async cacheControl() {
         return {
           maxAge: 2,
           sharedMaxAge: 3,
@@ -97,7 +93,7 @@ describe('cache control should be added', () => {
 
   test('should support `string` type configuration', async () => {
     const app = createApp(createCaches(), {
-      cacheControl() {
+      async cacheControl() {
         return 'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5';
       },
     });
@@ -113,7 +109,7 @@ describe('cache control should be added', () => {
     const app = createApp(
       createCaches(),
       {
-        cacheControl() {
+        async cacheControl() {
           return 'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5';
         },
       },
@@ -140,7 +136,7 @@ describe('cache control should be added', () => {
 describe('vary should be added', () => {
   test('should support `array[]` type configuration', async () => {
     const app = createApp(createCaches(), {
-      vary() {
+      async vary() {
         return ['accept-language'];
       },
     });
@@ -152,7 +148,7 @@ describe('vary should be added', () => {
 
   test('should support `string` type configuration', async () => {
     const app = createApp(createCaches(), {
-      vary() {
+      async vary() {
         return 'accept-language';
       },
     });
@@ -166,7 +162,7 @@ describe('vary should be added', () => {
     const app = createApp(
       createCaches(),
       {
-        vary() {
+        async vary() {
           return 'accept-language';
         },
       },
@@ -191,8 +187,6 @@ describe('vary should be added', () => {
 });
 
 test('disabling caching middleware should be allowed', async () => {
-  let set = false;
-
   const app = createApp(createCaches(), {}, [
     {
       pathname: '*',
@@ -208,15 +202,39 @@ test('disabling caching middleware should be allowed', async () => {
   ]);
   const res = await app.request(TEST_URL);
 
-  expect(set).toBe(false);
   expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+});
+
+test('caching should be allowed to be bypassed', async () => {
+  const app = createApp(createCaches(), {}, [
+    {
+      pathname: '*',
+      module: {
+        config: {
+          cache: {
+            async cacheControl() {
+              return null;
+            },
+          },
+        },
+        handler: async () => {
+          return new Response('lol');
+        },
+      },
+    },
+  ]);
+  const res = await app.request(TEST_URL);
+
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(BYPASS);
 });
 
 describe('request cache control directives', () => {
   test('when a request contains a cache control header it should be ignored', async () => {
     const caches = createCaches();
     const app = createApp(caches, {
-      cacheControl() {
+      async cacheControl() {
         return { maxAge: 300 };
       },
     });
@@ -250,7 +268,7 @@ describe('request cache control directives', () => {
   test('ability to respect request cache controls through configuration', async () => {
     const caches = createCaches();
     const app = createApp(caches, {
-      cacheControl() {
+      async cacheControl() {
         return { maxAge: 300 };
       },
       ignoreRequestCacheControl: false,
@@ -286,7 +304,7 @@ describe('request cache control directives', () => {
 test('`age` should change based on cache time', async () => {
   const caches = createCaches();
   const app = createApp(caches, {
-    cacheControl() {
+    async cacheControl() {
       return { maxAge: 2 };
     },
   });
@@ -340,7 +358,7 @@ describe('conditional-get middleware', () => {
             },
             config: {
               cache: {
-                cacheControl() {
+                async cacheControl() {
                   return { maxAge: 1 };
                 },
               },
@@ -359,7 +377,7 @@ describe('conditional-get middleware', () => {
           pathname: '*',
           module: {
             handler: cache({
-              cacheControl() {
+              async cacheControl() {
                 return { maxAge: 10 };
               },
               caches,
