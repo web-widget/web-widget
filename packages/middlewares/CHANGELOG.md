@@ -1,5 +1,17 @@
 # @web-widget/middlewares
 
+## 1.15.0
+
+### Minor Changes
+
+- a0eba60: - `cache`: `cacheControl` and `vary` support asynchronous functions.
+  - `cache`: `cacheControl` will bypass caching if empty.
+
+### Patch Changes
+
+- @web-widget/helpers@1.15.0
+- @web-widget/schema@1.15.0
+
 ## 1.14.1
 
 ### Patch Changes
