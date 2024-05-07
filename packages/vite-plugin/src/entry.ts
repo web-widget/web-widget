@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs/promises';
 import builtins from 'builtin-modules';
 import type { EmittedFile, OutputBundle, OutputChunk } from 'rollup';
 import type {
@@ -142,22 +143,18 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       return resolvedWebRouterConfig;
     },
     async clientImportmap() {
-      return (
-        await import(this.config.input.client.importmap, {
-          assert: {
-            type: 'json',
-          },
-        })
-      ).default as ImportMap;
+      const data = await fs.readFile(
+        this.config.input.client.importmap,
+        'utf-8'
+      );
+      return JSON.parse(data) as ImportMap;
     },
     async serverRoutemap() {
-      return (
-        await import(this.config.input.server.routemap, {
-          assert: {
-            type: 'json',
-          },
-        })
-      ).default as RouteMap;
+      const data = await fs.readFile(
+        this.config.input.server.routemap,
+        'utf-8'
+      );
+      return JSON.parse(data) as RouteMap;
     },
   };
 
