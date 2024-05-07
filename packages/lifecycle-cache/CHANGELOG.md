@@ -1,5 +1,12 @@
 # @web-widget/lifecycle-cache
 
+## 1.14.1
+
+### Patch Changes
+
+- 9447404: Fixed an issue where modules were not exported correctly.
+  - @web-widget/context@1.14.1
+
 ## 1.14.0
 
 ### Minor Changes
