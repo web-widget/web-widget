@@ -87,10 +87,6 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
         }
       });
 
-    actions.forEach((item) => {
-      router.use(item.pathname, callActionModule(item.module));
-    });
-
     routes.forEach((item) => {
       router.use(
         item.pathname,
@@ -108,6 +104,10 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
 
     middlewares.forEach((item) => {
       router.use(item.pathname, callMiddlewareModule(item.module));
+    });
+
+    actions.forEach((item) => {
+      router.use(item.pathname, callActionModule(item.module));
     });
 
     routes.forEach((item) => {
