@@ -18,8 +18,10 @@ let index = 0;
 const alias = (name: string) => `__$${name}${index++}$__`;
 const globalCache: Set<string> = new Set();
 const require = createRequire(import.meta.url);
+
+const IMPORT_DEFAULT_NAME_REG = /import\s+([a-zA-Z_$][\w$]*)\s+/;
 const parseComponentName = (code: string) =>
-  code.match(/import\s+([a-zA-Z$_]\w*)\s+/)?.[1];
+  code.match(IMPORT_DEFAULT_NAME_REG)?.[1];
 
 export interface ImportRenderPluginOptions {
   cache?: Set<string>;
