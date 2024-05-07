@@ -23,15 +23,20 @@ export type CacheOptions = {
    * @see https://developer.mozilla.org/docs/Web/HTTP/Headers/Cache-Control
    */
   cacheControl?:
+    | null
     | string
     | ResponseCacheControl
-    | ((request: Request) => string | ResponseCacheControl);
+    | ((request: Request) => Promise<null | string | ResponseCacheControl>);
 
   /**
    * Override HTTP `Vary` header.
    * @see https://developer.mozilla.org/docs/Web/HTTP/Headers/Vary
    */
-  vary?: string | string[] | ((request: Request) => string | string[]);
+  vary?:
+    | null
+    | string
+    | string[]
+    | ((request: Request) => Promise<null | string | string[]>);
 
   /**
    * Ignore the `Cache-Control` header in the request.
@@ -92,13 +97,13 @@ export default function cache(options: CacheOptions) {
     };
 
     let request = context.request;
-    const vary = getVaryOption(resolveOptions.vary, request);
-    const cacheControl = getCacheControlOption(
+    const vary = await getVaryOption(resolveOptions.vary, request);
+    const cacheControl = await getCacheControlOption(
       resolveOptions.cacheControl,
       request
     );
 
-    if (cacheControl && bypassCache(cacheControl)) {
+    if (!cacheControl) {
       const response = await next();
       setCacheStatus(response.headers, 'BYPASS');
       return response;
@@ -135,32 +140,23 @@ function setCacheStatus(headers: Headers, status: CacheStatus) {
   headers.set('x-cache-status', status);
 }
 
-function getVaryOption(
+async function getVaryOption(
   option: CacheOptions['vary'],
   request: Request
-): string | undefined {
-  const value = typeof option === 'function' ? option(request) : option;
-  return Array.isArray(value) ? value.join(', ') : value;
+): Promise<string> {
+  const value = typeof option === 'function' ? await option(request) : option;
+  return Array.isArray(value) ? value.join(', ') : value ?? '';
 }
 
-function getCacheControlOption(
+async function getCacheControlOption(
   option: CacheOptions['cacheControl'],
   request: Request
-): string | undefined {
-  const value = typeof option === 'function' ? option(request) : undefined;
-  return typeof value === 'string'
-    ? value
-    : value && typeof value === 'object'
-      ? stringifyResponseCacheControl(value)
-      : undefined;
-}
+): Promise<string> {
+  const value = typeof option === 'function' ? await option(request) : option;
 
-function bypassCache(cacheControl: string) {
-  return (
-    cacheControl.includes('no-store') ||
-    cacheControl.includes('no-cache') ||
-    cacheControl.includes('private') ||
-    cacheControl.includes('s-maxage=0') ||
-    (!cacheControl.includes('s-maxage') && cacheControl.includes('max-age=0'))
-  );
+  return !value
+    ? ''
+    : typeof value === 'object'
+      ? stringifyResponseCacheControl(value)
+      : value;
 }
