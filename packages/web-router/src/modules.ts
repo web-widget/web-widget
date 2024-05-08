@@ -7,7 +7,6 @@ import {
 import {
   callContext,
   contextToScriptDescriptor,
-  context,
 } from '@web-widget/context/server';
 import { createHttpError } from '@web-widget/helpers/error';
 import type {
@@ -27,40 +26,10 @@ import type {
   RouteRenderOptions,
 } from './types';
 
-function tryGetSerializableContext() {
-  try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return context();
-  } catch (e) {}
-}
-
 export type OnFallback = (
   error: RouteError,
   context?: MiddlewareContext
 ) => void;
-
-function callAsyncContext<T extends (...args: any[]) => any>(
-  context: MiddlewareContext,
-  setup: T,
-  args?: Parameters<T>
-): Promise<Response> {
-  let asyncContext = tryGetSerializableContext();
-
-  if (asyncContext) {
-    return args ? setup(...args) : setup();
-  } else {
-    asyncContext = context;
-
-    // Exposed to client
-    if (context.meta) {
-      context.meta = mergeMeta(context.meta, {
-        script: [contextToScriptDescriptor(asyncContext)],
-      });
-    }
-
-    return callContext(asyncContext, setup, args);
-  }
-}
 
 function composeRender(
   context: RouteHandlerContext,
@@ -239,6 +208,18 @@ export function createRouteContext(
   };
 }
 
+export function createAsyncContext() {
+  return async (context: MiddlewareContext, next: MiddlewareNext) => {
+    if (context.meta) {
+      context.meta = mergeMeta(context.meta, {
+        script: [contextToScriptDescriptor(context)],
+      });
+    }
+
+    return callContext(context, next);
+  };
+}
+
 export function createFallbackHandler(
   route: RouteModule | (() => Promise<RouteModule>),
   layout: LayoutModule | (() => Promise<LayoutModule>),
@@ -281,7 +262,7 @@ export function createFallbackHandler(
     );
     context.renderOptions = structuredClone(defaultRenderOptions);
 
-    return callAsyncContext(context, handler, [context as RouteHandlerContext]);
+    return handler(context as RouteHandlerContext);
   };
 }
 
@@ -301,11 +282,10 @@ export function renderRouteModule(): MiddlewareHandler {
                   },
                 } as RouteHandlers)
             ) as RouteHandler);
-      return callAsyncContext(context, handler, [
-        context as RouteHandlerContext,
-      ]);
+
+      return handler(context as RouteHandlerContext);
     } else {
-      return callAsyncContext(context, next);
+      return next();
     }
   };
 }
