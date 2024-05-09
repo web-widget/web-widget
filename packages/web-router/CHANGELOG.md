@@ -1,5 +1,15 @@
 # @web-widget/web-router
 
+## 1.15.1
+
+### Patch Changes
+
+- f3e6034: Enable middleware modules to use async context-based helper functions.
+  - @web-widget/context@1.15.1
+  - @web-widget/helpers@1.15.1
+  - @web-widget/html@1.15.1
+  - @web-widget/lifecycle-cache@1.15.1
+
 ## 1.15.0
 
 ### Patch Changes
