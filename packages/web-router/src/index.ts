@@ -101,7 +101,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       );
     });
 
-    router.use('*', createAsyncContext());
+    router.use('*', createAsyncContext);
 
     middlewares.forEach((item) => {
       router.use(item.pathname, callMiddlewareModule(item.module));

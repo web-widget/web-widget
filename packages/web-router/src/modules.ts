@@ -208,17 +208,7 @@ export function createRouteContext(
   };
 }
 
-export function createAsyncContext() {
-  return async (context: MiddlewareContext, next: MiddlewareNext) => {
-    if (context.meta) {
-      context.meta = mergeMeta(context.meta, {
-        script: [contextToScriptDescriptor(context)],
-      });
-    }
-
-    return callContext(context, next);
-  };
-}
+export const createAsyncContext = callContext;
 
 export function createFallbackHandler(
   route: RouteModule | (() => Promise<RouteModule>),
@@ -282,6 +272,12 @@ export function renderRouteModule(): MiddlewareHandler {
                   },
                 } as RouteHandlers)
             ) as RouteHandler);
+
+      if (context.meta) {
+        context.meta = mergeMeta(context.meta, {
+          script: [contextToScriptDescriptor(context)],
+        });
+      }
 
       return handler(context as RouteHandlerContext);
     } else {
