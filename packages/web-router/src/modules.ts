@@ -274,6 +274,7 @@ export function renderRouteModule(): MiddlewareHandler {
             ) as RouteHandler);
 
       if (context.meta) {
+        // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
         context.meta = mergeMeta(context.meta, {
           script: [contextToScriptDescriptor(context)],
         });
