@@ -243,6 +243,8 @@ export function createFallbackHandler(
       defaultMeta,
       rebaseMeta(module.meta ?? {}, defaultBaseAsset)
     );
+    // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
+    (context.meta!.script ??= []).push(contextToScriptDescriptor(context));
     context.module = module;
     context.render = composeRender(
       context as RouteHandlerContext,
@@ -252,7 +254,7 @@ export function createFallbackHandler(
     );
     context.renderOptions = structuredClone(defaultRenderOptions);
 
-    return handler(context as RouteHandlerContext);
+    return callContext(context, handler, [context as RouteHandlerContext]);
   };
 }
 
@@ -275,9 +277,7 @@ export function renderRouteModule(): MiddlewareHandler {
 
       if (context.meta) {
         // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
-        context.meta = mergeMeta(context.meta, {
-          script: [contextToScriptDescriptor(context)],
-        });
+        (context.meta.script ??= []).push(contextToScriptDescriptor(context));
       }
 
       return handler(context as RouteHandlerContext);
