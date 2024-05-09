@@ -18,6 +18,7 @@ import {
   createRouteContext,
   renderRouteModule,
   callMiddlewareModule,
+  createAsyncContext,
   callActionModule,
 } from './modules';
 import type { OnFallback } from './modules';
@@ -101,6 +102,8 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
         )
       );
     });
+
+    router.use('*', createAsyncContext);
 
     middlewares.forEach((item) => {
       router.use(item.pathname, callMiddlewareModule(item.module));
