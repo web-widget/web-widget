@@ -623,8 +623,8 @@ importers:
         specifier: workspace:*
         version: link:../schema
       '@web-widget/shared-cache':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.2.1
+        version: 0.2.1
     devDependencies:
       '@jest/globals':
         specifier: ^29.6.2
@@ -5137,8 +5137,8 @@ packages:
     resolution: {integrity: sha512-5Zkcs109l+LhtJl6mO7A6fCXBGnym+eCJpRxAdUxtjuvPaOl5ZJjr7aObiQqx/7u1+7g0JkyMtNnpbGg2/w9Vg==}
     dev: false
 
-  /@web-widget/shared-cache@0.2.0:
-    resolution: {integrity: sha512-ffwJJQ/d1DJt3E5tautOvHFzhxUehVDH7arLMsyLqi/KPY3hEgofOcUQTnusWpKay+5JepQDbfBzsM2RaP0VGA==}
+  /@web-widget/shared-cache@0.2.1:
+    resolution: {integrity: sha512-P5hf3IJxCVzhHLFDeWt+ZSbrQixjEA9/eHdtwMPQauwqaqMIMs9jSbeeFfbJNDQ7FtGdssvLrPv6egFbxo1rmA==}
     dependencies:
       '@web-widget/helpers': 1.10.38
       '@web-widget/http-cache-semantics': 1.0.0
@@ -5754,7 +5754,7 @@ packages:
     resolution: {integrity: sha512-ESAc/RJvGTFEzRwOTT4+lNDk/GNHMkKbNzsvT0qKRfDyyYTskxB5rnU2njIDYVxXCBHHEI1c0YwHob3WaYujOg==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
-      '@babel/template': 7.23.9
+      '@babel/template': 7.24.0
       '@babel/types': 7.24.0
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.20.1

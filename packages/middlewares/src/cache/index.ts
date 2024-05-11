@@ -1,3 +1,4 @@
+import type { MiddlewareNext } from '@web-widget/helpers';
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import {
   stringifyResponseCacheControl,
@@ -5,6 +6,7 @@ import {
 } from '@web-widget/helpers/headers';
 import { createFetch } from '@web-widget/shared-cache';
 import type {
+  Cache,
   CacheStorage,
   CacheStatus,
   CacheKeyRules,
@@ -68,6 +70,11 @@ export type CacheOptions = {
    * Cache storage.
    */
   caches: CacheStorage;
+
+  /**
+   * Signal an abort during cache revalidate.
+   */
+  signal?: (request: Request) => Promise<AbortSignal>;
 };
 
 export default function cache(options: CacheOptions) {
@@ -102,6 +109,9 @@ export default function cache(options: CacheOptions) {
       resolveOptions.cacheControl,
       request
     );
+    const signal = resolveOptions.signal
+      ? await resolveOptions.signal(request)
+      : undefined;
 
     if (!cacheControl) {
       const response = await next();
@@ -112,27 +122,19 @@ export default function cache(options: CacheOptions) {
     const { cacheName, cacheKeyRules, caches, ignoreRequestCacheControl } =
       resolveOptions;
     const cache = await caches.open(cacheName);
+    const fetch = createFetcher(cache, next);
 
-    const fetch = createFetch(cache, {
-      fetch: async () => next(),
-    });
-
-    if (ignoreRequestCacheControl) {
-      const headers = new Headers(request.headers);
-      headers.delete('cache-control');
-      headers.delete('pragma');
-      request = new Request(request, {
-        headers,
-      });
-    }
-
-    return fetch(request, {
-      sharedCache: {
-        cacheControlOverride: cacheControl,
-        varyOverride: vary,
-        cacheKeyRules,
-      },
-    });
+    return fetch(
+      ignoreRequestCacheControl ? removeRequestCacheControl(request) : request,
+      {
+        sharedCache: {
+          cacheControlOverride: cacheControl,
+          varyOverride: vary,
+          cacheKeyRules,
+        },
+        signal,
+      }
+    );
   });
 }
 
@@ -159,4 +161,50 @@ async function getCacheControlOption(
     : typeof value === 'object'
       ? stringifyResponseCacheControl(value)
       : value;
+}
+
+function removeRequestCacheControl(request: Request) {
+  const headers = new Headers(request.headers);
+  headers.delete('cache-control');
+  headers.delete('pragma');
+  return new Request(request, {
+    headers,
+  });
+}
+
+function createFetcher(cache: Cache, next: MiddlewareNext) {
+  return createFetch(cache, {
+    fetch: async (input, init) => {
+      const request = new Request(input, init);
+
+      if (request.signal) {
+        const signal = request.signal;
+        let isAborted = signal.aborted;
+        return new Promise((resolve, reject) => {
+          if (isAborted) {
+            reject(signal.reason);
+          }
+
+          const onAbort = () => {
+            isAborted = true;
+            reject(signal.reason);
+          };
+
+          signal.addEventListener('abort', onAbort);
+
+          Promise.resolve(next())
+            .then((val) => {
+              signal.removeEventListener('abort', onAbort);
+              resolve(val);
+            })
+            .catch((err) => {
+              signal.removeEventListener('abort', onAbort);
+              reject(err);
+            });
+        });
+      }
+
+      return next();
+    },
+  });
 }
