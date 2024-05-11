@@ -190,8 +190,6 @@ function createFetcher(cache: Cache, next: MiddlewareNext) {
             reject(signal.reason);
           };
 
-          signal.addEventListener('abort', onAbort);
-
           Promise.resolve(next())
             .then((val) => {
               signal.removeEventListener('abort', onAbort);
@@ -201,6 +199,8 @@ function createFetcher(cache: Cache, next: MiddlewareNext) {
               signal.removeEventListener('abort', onAbort);
               reject(err);
             });
+
+          signal.addEventListener('abort', onAbort);
         });
       }
 
