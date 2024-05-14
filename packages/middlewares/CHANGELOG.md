@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 1.16.0
+
+### Minor Changes
+
+- d6f5f0d: `cache`: An abort signal can be emitted during cache revalidate.
+
+### Patch Changes
+
+- @web-widget/helpers@1.16.0
+- @web-widget/schema@1.16.0
+
 ## 1.15.1
 
 ### Patch Changes
