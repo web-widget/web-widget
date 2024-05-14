@@ -347,8 +347,10 @@ test('it should be possible to terminate cache revalidate', async () => {
         pathname: '*',
         module: {
           handler: async (ctx) => {
-            if (ctx.request.headers.has('x-timeout')) {
-              const value = Number(ctx.request.headers.get('x-timeout') || 0);
+            if (ctx.request.headers.has('x-test-timeout')) {
+              const value = Number(
+                ctx.request.headers.get('x-test-timeout') || 0
+              );
               await timeout(value);
             }
             return new Response(`View: ${view++}`);
@@ -386,7 +388,7 @@ test('it should be possible to terminate cache revalidate', async () => {
 
   res = await app.request(TEST_URL, {
     headers: {
-      'x-timeout': '1000',
+      'x-test-timeout': '1000',
     },
   });
   expect(res.status).toBe(200);

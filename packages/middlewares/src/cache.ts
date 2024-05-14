@@ -58,7 +58,9 @@ export type CacheOptions = {
    * }
    * ```
    */
-  cacheKeyRules?: CacheKeyRules;
+  cacheKeyRules?:
+    | CacheKeyRules
+    | ((request: Request) => Promise<CacheKeyRules>);
 
   /**
    * Cache name.
@@ -105,7 +107,7 @@ export default function cache(options: CacheOptions) {
 
     let request = context.request;
 
-    const cacheControl = await getCacheControlOption(
+    const cacheControl = await resolveCacheControlOption(
       resolveOptions.cacheControl,
       request
     );
@@ -116,16 +118,14 @@ export default function cache(options: CacheOptions) {
       return response;
     }
 
-    const vary = await getVaryOption(resolveOptions.vary, request);
-    const signal = resolveOptions.signal
-      ? await resolveOptions.signal(request)
-      : undefined;
-    const caches =
-      typeof resolveOptions.caches === 'function'
-        ? await resolveOptions.caches(request)
-        : resolveOptions.caches;
-    const { cacheName, cacheKeyRules, ignoreRequestCacheControl } =
-      resolveOptions;
+    const vary = await resolveVaryOption(resolveOptions.vary, request);
+    const signal = await resolveOption(resolveOptions.signal, request);
+    const caches = await resolveOption(resolveOptions.caches, request);
+    const cacheKeyRules = await resolveOption(
+      resolveOptions.cacheKeyRules,
+      request
+    );
+    const { cacheName, ignoreRequestCacheControl } = resolveOptions;
     const cache = await caches.open(cacheName);
     const fetch = nextToFetch(cache, next);
 
@@ -147,7 +147,7 @@ function setCacheStatus(headers: Headers, status: CacheStatus) {
   headers.set('x-cache-status', status);
 }
 
-async function getVaryOption(
+async function resolveVaryOption(
   option: CacheOptions['vary'],
   request: Request
 ): Promise<string> {
@@ -155,7 +155,7 @@ async function getVaryOption(
   return Array.isArray(value) ? value.join(', ') : value ?? '';
 }
 
-async function getCacheControlOption(
+async function resolveCacheControlOption(
   option: CacheOptions['cacheControl'],
   request: Request
 ): Promise<string> {
@@ -166,6 +166,15 @@ async function getCacheControlOption(
     : typeof value === 'object'
       ? stringifyResponseCacheControl(value)
       : value;
+}
+
+async function resolveOption<T>(
+  value: T | ((request: Request) => Promise<T>),
+  request: Request
+) {
+  return typeof value === 'function'
+    ? await (value as (request: Request) => Promise<T>)(request)
+    : value;
 }
 
 function removeRequestCacheControl(request: Request) {
