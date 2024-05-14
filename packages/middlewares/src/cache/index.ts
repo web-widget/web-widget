@@ -69,7 +69,7 @@ export type CacheOptions = {
   /**
    * Cache storage.
    */
-  caches: CacheStorage;
+  caches: CacheStorage | ((request: Request) => Promise<CacheStorage>);
 
   /**
    * Signal an abort during cache revalidate.
@@ -104,14 +104,11 @@ export default function cache(options: CacheOptions) {
     };
 
     let request = context.request;
-    const vary = await getVaryOption(resolveOptions.vary, request);
+
     const cacheControl = await getCacheControlOption(
       resolveOptions.cacheControl,
       request
     );
-    const signal = resolveOptions.signal
-      ? await resolveOptions.signal(request)
-      : undefined;
 
     if (!cacheControl) {
       const response = await next();
@@ -119,10 +116,18 @@ export default function cache(options: CacheOptions) {
       return response;
     }
 
-    const { cacheName, cacheKeyRules, caches, ignoreRequestCacheControl } =
+    const vary = await getVaryOption(resolveOptions.vary, request);
+    const signal = resolveOptions.signal
+      ? await resolveOptions.signal(request)
+      : undefined;
+    const caches =
+      typeof resolveOptions.caches === 'function'
+        ? await resolveOptions.caches(request)
+        : resolveOptions.caches;
+    const { cacheName, cacheKeyRules, ignoreRequestCacheControl } =
       resolveOptions;
     const cache = await caches.open(cacheName);
-    const fetch = createFetcher(cache, next);
+    const fetch = nextToFetch(cache, next);
 
     return fetch(
       ignoreRequestCacheControl ? removeRequestCacheControl(request) : request,
@@ -172,39 +177,73 @@ function removeRequestCacheControl(request: Request) {
   });
 }
 
-function createFetcher(cache: Cache, next: MiddlewareNext) {
+function nextToFetch(cache: Cache, next: MiddlewareNext) {
+  const errorToResponse = (error: any = {}) => {
+    const body = error.message ?? null;
+    const status =
+      typeof error.status === 'number'
+        ? error.status
+        : error.name === 'TimeoutError'
+          ? 504
+          : 500;
+    const statusText = error.statusText ?? '';
+    return new Response(body, {
+      status,
+      statusText,
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+    });
+  };
   return createFetch(cache, {
     fetch: async (input, init) => {
       const request = new Request(input, init);
 
-      if (request.signal) {
-        const signal = request.signal;
-        let isAborted = signal.aborted;
-        return new Promise((resolve, reject) => {
-          if (isAborted) {
-            reject(signal.reason);
-          }
-
-          const onAbort = () => {
-            isAborted = true;
-            reject(signal.reason);
-          };
-
-          Promise.resolve(next())
-            .then((val) => {
-              signal.removeEventListener('abort', onAbort);
-              resolve(val);
-            })
-            .catch((err) => {
-              signal.removeEventListener('abort', onAbort);
-              reject(err);
-            });
-
-          signal.addEventListener('abort', onAbort);
-        });
+      if (!request.signal) {
+        try {
+          return next();
+        } catch (error) {
+          return errorToResponse(error);
+        }
       }
 
-      return next();
+      const signal = request.signal;
+      let isAborted = signal.aborted;
+
+      if (isAborted) {
+        return errorToResponse(signal.reason);
+      }
+
+      return new Promise((resolve) => {
+        const onAbort = () => {
+          isAborted = true;
+          resolve(errorToResponse(signal.reason));
+        };
+
+        let response;
+
+        try {
+          response = next();
+        } catch (error) {
+          resolve(errorToResponse(error));
+        }
+
+        if (response instanceof Promise) {
+          response.then(
+            (response) => {
+              signal.removeEventListener('abort', onAbort);
+              if (isAborted) return;
+              resolve(response);
+            },
+            (error) => {
+              signal.removeEventListener('abort', onAbort);
+              resolve(errorToResponse(error));
+            }
+          );
+        }
+
+        signal.addEventListener('abort', onAbort);
+      });
     },
   });
 }

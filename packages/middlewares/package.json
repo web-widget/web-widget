@@ -55,7 +55,7 @@
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/schema": "workspace:*",
-    "@web-widget/shared-cache": "^0.2.1"
+    "@web-widget/shared-cache": "^0.2.2"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.2",
