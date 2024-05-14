@@ -623,8 +623,8 @@ importers:
         specifier: workspace:*
         version: link:../schema
       '@web-widget/shared-cache':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.2.2
+        version: 0.2.2
     devDependencies:
       '@jest/globals':
         specifier: ^29.6.2
@@ -1199,7 +1199,7 @@ packages:
     resolution: {integrity: sha512-6gfrPwh7OuT6gZyJZvd6WbTfrqAo7vm4xCzAXOusKqq/vWdKXphTpj5klHKNmRUU6/QRGlBsyU9mAIPaWHlqJA==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.23.9
+      '@babel/types': 7.24.0
     dev: true
 
   /@babel/helper-module-imports@7.22.15:
@@ -1253,7 +1253,7 @@ packages:
     resolution: {integrity: sha512-HBwaojN0xFRx4yIvpwGqxiV2tUfl7401jlok564NgB9EHS1y6QT17FmKWm4ztqjeVdXLuC4fSvHc5ePpQjoTbw==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.23.9
+      '@babel/types': 7.24.0
     dev: true
 
   /@babel/helper-plugin-utils@7.22.5:
@@ -1326,7 +1326,7 @@ packages:
     dependencies:
       '@babel/helper-function-name': 7.23.0
       '@babel/template': 7.23.9
-      '@babel/types': 7.23.9
+      '@babel/types': 7.24.0
     dev: true
 
   /@babel/helpers@7.23.7:
@@ -3821,7 +3821,7 @@ packages:
     dependencies:
       '@jridgewell/set-array': 1.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
-      '@jridgewell/trace-mapping': 0.3.18
+      '@jridgewell/trace-mapping': 0.3.25
     dev: true
 
   /@jridgewell/gen-mapping@0.3.5:
@@ -5137,8 +5137,8 @@ packages:
     resolution: {integrity: sha512-5Zkcs109l+LhtJl6mO7A6fCXBGnym+eCJpRxAdUxtjuvPaOl5ZJjr7aObiQqx/7u1+7g0JkyMtNnpbGg2/w9Vg==}
     dev: false
 
-  /@web-widget/shared-cache@0.2.0:
-    resolution: {integrity: sha512-ffwJJQ/d1DJt3E5tautOvHFzhxUehVDH7arLMsyLqi/KPY3hEgofOcUQTnusWpKay+5JepQDbfBzsM2RaP0VGA==}
+  /@web-widget/shared-cache@0.2.2:
+    resolution: {integrity: sha512-ojU3l6Ts3IT0Fnm7JL+YmV9aAkZZdDukF6YS713pKyZjqJwQLIYUnsDiUVE8CbY77uAeET7yZs41X+KIUksE4g==}
     dependencies:
       '@web-widget/helpers': 1.10.38
       '@web-widget/http-cache-semantics': 1.0.0
@@ -5754,7 +5754,7 @@ packages:
     resolution: {integrity: sha512-ESAc/RJvGTFEzRwOTT4+lNDk/GNHMkKbNzsvT0qKRfDyyYTskxB5rnU2njIDYVxXCBHHEI1c0YwHob3WaYujOg==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
-      '@babel/template': 7.23.9
+      '@babel/template': 7.24.0
       '@babel/types': 7.24.0
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.20.1

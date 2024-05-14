@@ -10,7 +10,7 @@
     },
     "./cache": {
       "types": "./dist/cache.d.ts",
-      "development": "./src/cache/index.ts",
+      "development": "./src/cache.ts",
       "default": "./dist/cache.js"
     },
     "./conditional-get": {
@@ -55,7 +55,7 @@
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/schema": "workspace:*",
-    "@web-widget/shared-cache": "^0.2.0"
+    "@web-widget/shared-cache": "^0.2.2"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.2",

@@ -3,14 +3,15 @@ import type { Manifest } from '@web-widget/web-router';
 import WebRouter from '@web-widget/web-router';
 import type { CacheStatus, KVStorage } from '@web-widget/shared-cache';
 import { CacheStorage } from '@web-widget/shared-cache';
-import conditional from '../conditional-get';
-import type { CacheOptions } from '.';
-import cache from './';
+import conditional from './conditional-get';
+import type { CacheOptions } from './cache';
+import cache from './cache';
 
 const HIT: CacheStatus = 'HIT';
 const MISS: CacheStatus = 'MISS';
 const EXPIRED: CacheStatus = 'EXPIRED';
 const BYPASS: CacheStatus = 'BYPASS';
+const STALE: CacheStatus = 'STALE';
 const TEST_URL = 'http://localhost/';
 
 const timeout = (ms: number) =>
@@ -335,6 +336,64 @@ test('`age` should change based on cache time', async () => {
   expect(res.headers.get('x-cache-status')).toBe(HIT);
   expect(res.headers.get('cache-control')).toBe('max-age=2');
   expect(res.headers.get('age')).toBe('1');
+});
+
+test('it should be possible to terminate cache revalidate', async () => {
+  let view = 0;
+  const caches = createCaches();
+  const app = WebRouter.fromManifest({
+    routes: [
+      {
+        pathname: '*',
+        module: {
+          handler: async (ctx) => {
+            if (ctx.request.headers.has('x-test-timeout')) {
+              const value = Number(
+                ctx.request.headers.get('x-test-timeout') || 0
+              );
+              await timeout(value);
+            }
+            return new Response(`View: ${view++}`);
+          },
+        },
+      },
+    ],
+    middlewares: [
+      {
+        pathname: '*',
+        module: {
+          handler: cache({
+            async cacheControl() {
+              return {
+                sharedMaxAge: 1,
+                staleIfError: 5,
+                staleWhileRevalidate: 5,
+              };
+            },
+            caches,
+            async signal() {
+              return AbortSignal.timeout(500);
+            },
+          }),
+        },
+      },
+    ],
+  });
+  let res = await app.request(TEST_URL);
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
+  expect(await res.text()).toBe('View: 0');
+
+  await timeout(1024);
+
+  res = await app.request(TEST_URL, {
+    headers: {
+      'x-test-timeout': '1000',
+    },
+  });
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(STALE);
+  expect(await res.text()).toBe('View: 0');
 });
 
 describe('conditional-get middleware', () => {

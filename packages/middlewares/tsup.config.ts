@@ -1,7 +1,7 @@
 import type { Options } from 'tsup';
 export const tsup: Options = {
   entry: {
-    cache: 'src/cache/index.ts',
+    cache: 'src/cache.ts',
     'conditional-get': 'src/conditional-get.ts',
     etag: 'src/etag.ts',
     index: 'src/index.ts',
