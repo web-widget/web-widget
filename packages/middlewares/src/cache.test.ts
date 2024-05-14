@@ -3,9 +3,9 @@ import type { Manifest } from '@web-widget/web-router';
 import WebRouter from '@web-widget/web-router';
 import type { CacheStatus, KVStorage } from '@web-widget/shared-cache';
 import { CacheStorage } from '@web-widget/shared-cache';
-import conditional from '../conditional-get';
-import type { CacheOptions } from '.';
-import cache from './';
+import conditional from './conditional-get';
+import type { CacheOptions } from './cache';
+import cache from './cache';
 
 const HIT: CacheStatus = 'HIT';
 const MISS: CacheStatus = 'MISS';

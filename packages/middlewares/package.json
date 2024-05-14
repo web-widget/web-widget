@@ -10,7 +10,7 @@
     },
     "./cache": {
       "types": "./dist/cache.d.ts",
-      "development": "./src/cache/index.ts",
+      "development": "./src/cache.ts",
       "default": "./dist/cache.js"
     },
     "./conditional-get": {
