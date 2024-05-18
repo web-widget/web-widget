@@ -51,7 +51,7 @@ async function suspense<T>(handler: () => T) {
   } catch (error) {
     if (error instanceof Promise) {
       await error;
-      result = await handler();
+      return suspense(handler);
     } else {
       throw error;
     }
@@ -155,7 +155,9 @@ export class WebWidgetRenderer {
       meta,
       module,
     };
-    const rawResult = await suspense(() => module.render!(context));
+    const rawResult = await suspense(() => {
+      return module.render!(context);
+    });
 
     if (getType(rawResult) === 'ReadableStream') {
       result = await readableStreamToString(rawResult as ReadableStream);
