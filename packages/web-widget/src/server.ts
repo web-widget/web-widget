@@ -51,7 +51,7 @@ async function suspense<T>(handler: () => T) {
   } catch (error) {
     if (error instanceof Promise) {
       await error;
-      result = await handler();
+      return suspense(handler);
     } else {
       throw error;
     }
