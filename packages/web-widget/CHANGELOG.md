@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.16.1
+
+### Patch Changes
+
+- 6d3900c: Fixed an issue where multiple `syncCacheProvider()` operations were not supported.
+  - @web-widget/helpers@1.16.1
+  - @web-widget/lifecycle-cache@1.16.1
+
 ## 1.16.0
 
 ### Patch Changes
