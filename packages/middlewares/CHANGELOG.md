@@ -1,5 +1,12 @@
 # @web-widget/middlewares
 
+## 1.16.1
+
+### Patch Changes
+
+- @web-widget/helpers@1.16.1
+- @web-widget/schema@1.16.1
+
 ## 1.16.0
 
 ### Minor Changes

@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.16.1
+
+### Patch Changes
+
+- Updated dependencies [6d3900c]
+  - @web-widget/web-widget@1.16.1
+  - @web-widget/helpers@1.16.1
+  - @web-widget/node@1.16.1
+  - @web-widget/web-router@1.16.1
+
 ## 1.16.0
 
 ### Patch Changes
