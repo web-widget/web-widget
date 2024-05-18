@@ -155,9 +155,7 @@ export class WebWidgetRenderer {
       meta,
       module,
     };
-    const rawResult = await suspense(() => {
-      return module.render!(context);
-    });
+    const rawResult = await suspense(() => module.render!(context));
 
     if (getType(rawResult) === 'ReadableStream') {
       result = await readableStreamToString(rawResult as ReadableStream);
