@@ -57,7 +57,12 @@ export function rpcClient<T extends object>(options: RpcClientOptions) {
     options = { url: options };
   }
   const transport =
-    'transport' in options ? options.transport : fetchTransport(options);
+    'transport' in options
+      ? options.transport
+      : fetchTransport({
+          ...GLOBAL_CONFIG,
+          ...options,
+        });
 
   /**
    * Send a request using the configured transport and handle the result.
@@ -160,4 +165,10 @@ export function fetchTransport(options: FetchOptions): RpcTransport {
     }
     return await res.json();
   };
+}
+
+let GLOBAL_CONFIG: Omit<FetchOptions, 'url'> | undefined;
+
+export function setConfig(options: typeof GLOBAL_CONFIG) {
+  return (GLOBAL_CONFIG = options);
 }
