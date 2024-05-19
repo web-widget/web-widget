@@ -45,9 +45,8 @@ function unsafeAttrsToHtml(attrs: Record<string, string>) {
 }
 
 async function suspense<T>(handler: () => T) {
-  let result;
   try {
-    result = await handler();
+    return await handler();
   } catch (error) {
     if (error instanceof Promise) {
       await error;
@@ -56,7 +55,6 @@ async function suspense<T>(handler: () => T) {
       throw error;
     }
   }
-  return result;
 }
 
 export class WebWidgetRenderer {
