@@ -44,7 +44,9 @@ export type CacheOptions = {
    * Ignore the `Cache-Control` header in the request.
    * @default true
    */
-  ignoreRequestCacheControl?: boolean;
+  ignoreRequestCacheControl?:
+    | boolean
+    | ((request: Request) => Promise<boolean>);
 
   /**
    * Create custom cache keys.
@@ -66,7 +68,7 @@ export type CacheOptions = {
    * Cache name.
    * @default 'default'
    */
-  cacheName?: string;
+  cacheName?: string | ((request: Request) => Promise<string>);
 
   /**
    * Cache storage.
@@ -121,11 +123,15 @@ export default function cache(options: CacheOptions) {
     const vary = await resolveVaryOption(resolveOptions.vary, request);
     const signal = await resolveOption(resolveOptions.signal, request);
     const caches = await resolveOption(resolveOptions.caches, request);
+    const cacheName = await resolveOption(resolveOptions.cacheName, request);
+    const ignoreRequestCacheControl = await resolveOption(
+      resolveOptions.ignoreRequestCacheControl,
+      request
+    );
     const cacheKeyRules = await resolveOption(
       resolveOptions.cacheKeyRules,
       request
     );
-    const { cacheName, ignoreRequestCacheControl } = resolveOptions;
     const cache = await caches.open(cacheName);
     const fetch = nextToFetch(cache, next);
 
