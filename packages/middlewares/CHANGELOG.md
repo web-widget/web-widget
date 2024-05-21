@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 1.17.0
+
+### Minor Changes
+
+- 4612dcc: `cache`: `cacheName` and `ignoreRequestCacheControl` support set function.
+
+### Patch Changes
+
+- @web-widget/helpers@1.17.0
+- @web-widget/schema@1.17.0
+
 ## 1.16.1
 
 ### Patch Changes

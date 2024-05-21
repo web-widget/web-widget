@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/web-router",
-  "version": "1.16.1",
+  "version": "1.17.0",
   "type": "module",
   "exports": {
     ".": {
