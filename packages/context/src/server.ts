@@ -24,7 +24,7 @@ export function callContext<T extends (...args: any[]) => any>(
   const ctx = tryGetAsyncLocalStorage<MiddlewareContext>();
   const fn: () => ReturnType<T> = () =>
     args ? setup(...(args as Parameters<T>)) : setup();
-  return ctx.call(data, fn);
+  return ctx.callAsync(data, fn);
 }
 
 export function context() {
