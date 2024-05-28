@@ -1,4 +1,4 @@
-import type { MiddlewareNext } from '@web-widget/helpers';
+import type { MiddlewareNext, RouteConfig } from '@web-widget/helpers';
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import {
   stringifyResponseCacheControl,
@@ -15,12 +15,14 @@ import type {
 declare module '@web-widget/schema' {
   interface RouteConfig {
     /** Cache middleware options. */
-    cache?:
-      | Partial<CacheOptions>
-      | boolean
-      | ((request: Request) => Promise<Partial<CacheOptions>>);
+    cache?: CacheRouteOptions;
   }
 }
+
+export type CacheRouteOptions =
+  | Partial<CacheOptions>
+  | boolean
+  | ((request: Request) => Promise<Partial<CacheOptions | boolean>>);
 
 export type CacheOptions = {
   /**
@@ -80,21 +82,19 @@ export default function cache(options: CacheOptions) {
   };
 
   return defineMiddlewareHandler(async function cacheMiddleware(context, next) {
-    const rawConfig = context?.module?.config?.cache;
-    if (rawConfig === false) {
+    const request = context.request;
+    const routeCacheConfig = await getRouteCacheConfig(
+      context?.module?.config?.cache,
+      request
+    );
+
+    if (routeCacheConfig === false) {
       const response = await next();
       setCacheStatus(response.headers, 'BYPASS');
       return response;
     }
 
-    const request = context.request;
-    const routeConfig: Partial<CacheOptions> =
-      rawConfig === true
-        ? {}
-        : typeof rawConfig === 'function'
-          ? await rawConfig(request)
-          : rawConfig ?? {};
-
+    const routeOptions = routeCacheConfig === true ? {} : routeCacheConfig;
     const {
       cacheControl: cacheControlOption,
       cacheKeyRules,
@@ -105,7 +105,7 @@ export default function cache(options: CacheOptions) {
       vary: varyOption,
     } = {
       ...defaultOptions,
-      ...routeConfig,
+      ...routeOptions,
     };
 
     const cacheControl =
@@ -143,6 +143,16 @@ export default function cache(options: CacheOptions) {
       }
     );
   });
+}
+
+async function getRouteCacheConfig(
+  rawConfig: RouteConfig['cache'],
+  request: Request
+): Promise<Partial<CacheOptions> | boolean> {
+  if (typeof rawConfig === 'function') {
+    return await rawConfig(request);
+  }
+  return rawConfig ?? {};
 }
 
 function setCacheStatus(headers: Headers, status: CacheStatus) {
