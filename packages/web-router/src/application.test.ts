@@ -725,20 +725,8 @@ describe('error handle', () => {
         },
         {
           status: 500,
-        }
-      );
-    });
-
-    app.use('/error-response-no-transform', async () => {
-      return Response.json(
-        {
-          name: 'Error',
-          message: 'This is Response Error',
-        },
-        {
-          status: 500,
           headers: {
-            'x-error-no-transform': 'true',
+            'x-transform-error': 'true',
           },
         }
       );
@@ -766,25 +754,11 @@ describe('error handle', () => {
       expect(res.headers.get('x-debug')).toBe('This is Middleware Error');
     });
 
-    test('returns a error response', async () => {
+    test('transform error response', async () => {
       const res = await app.request('https://example.com/error-response');
       expect(res.status).toBe(500);
       expect(await res.text()).toBe('Custom Error: This is Response Error');
       expect(res.headers.get('x-debug')).toBe('This is Response Error');
-    });
-
-    test('returns a error response(no-transform)', async () => {
-      const res = await app.request(
-        'https://example.com/error-response-no-transform'
-      );
-      expect(res.status).toBe(500);
-      expect(await res.text()).toBe(
-        JSON.stringify({
-          name: 'Error',
-          message: 'This is Response Error',
-        })
-      );
-      expect(res.headers.get('x-debug')).toBe(null);
     });
   });
 

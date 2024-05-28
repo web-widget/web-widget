@@ -185,6 +185,9 @@ function errorToResponse(error: any = {}) {
     {
       status,
       statusText,
+      headers: {
+        'x-transform-error': 'true',
+      },
     }
   );
 }

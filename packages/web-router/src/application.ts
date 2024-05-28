@@ -182,7 +182,7 @@ class Application<
 
         if (
           res.status >= 400 &&
-          !res.headers.has('x-error-no-transform') &&
+          res.headers.has('x-transform-error') &&
           res.headers.get('content-type') === 'application/json'
         ) {
           const data = await res.json();
