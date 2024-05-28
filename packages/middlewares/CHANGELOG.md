@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 1.18.0
+
+### Minor Changes
+
+- f18bb94: `cache` Use a function to define all options.
+
+### Patch Changes
+
+- @web-widget/helpers@1.18.0
+- @web-widget/schema@1.18.0
+
 ## 1.17.0
 
 ### Minor Changes
