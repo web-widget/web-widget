@@ -186,14 +186,13 @@ class Application<
           res.headers.get('content-type') === 'application/json'
         ) {
           const data = await res.json();
-          const httpException = new HTTPException(
-            res.status,
-            data.message ?? res.statusText ?? 'Internal Server Error'
-          );
-          if (data.stack) {
-            httpException.stack = data.stack;
+          if (data && data.message) {
+            const httpException = new HTTPException(res.status, data.message);
+            if (data.stack) {
+              httpException.stack = data.stack;
+            }
+            throw httpException;
           }
-          throw httpException;
         }
 
         return res;
