@@ -1,5 +1,13 @@
 # @web-widget/vue2
 
+## 1.18.0
+
+### Patch Changes
+
+- @web-widget/vite-plugin@1.18.0
+- @web-widget/helpers@1.18.0
+- @web-widget/web-widget@1.18.0
+
 ## 1.17.0
 
 ### Patch Changes
