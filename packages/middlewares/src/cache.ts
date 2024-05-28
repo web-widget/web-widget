@@ -1,4 +1,4 @@
-import type { MiddlewareNext } from '@web-widget/helpers';
+import type { MiddlewareNext, RouteConfig } from '@web-widget/helpers';
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import {
   stringifyResponseCacheControl,
@@ -15,38 +15,33 @@ import type {
 declare module '@web-widget/schema' {
   interface RouteConfig {
     /** Cache middleware options. */
-    cache?: Partial<CacheOptions> | boolean;
+    cache?: CacheRouteOptions;
   }
 }
+
+export type CacheRouteOptions =
+  | Partial<CacheOptions>
+  | boolean
+  | ((request: Request) => Promise<Partial<CacheOptions | boolean>>);
 
 export type CacheOptions = {
   /**
    * Override HTTP `Cache-Control` header.
    * @see https://developer.mozilla.org/docs/Web/HTTP/Headers/Cache-Control
    */
-  cacheControl?:
-    | null
-    | string
-    | ResponseCacheControl
-    | ((request: Request) => Promise<null | string | ResponseCacheControl>);
+  cacheControl?: null | string | ResponseCacheControl;
 
   /**
    * Override HTTP `Vary` header.
    * @see https://developer.mozilla.org/docs/Web/HTTP/Headers/Vary
    */
-  vary?:
-    | null
-    | string
-    | string[]
-    | ((request: Request) => Promise<null | string | string[]>);
+  vary?: null | string | string[];
 
   /**
    * Ignore the `Cache-Control` header in the request.
    * @default true
    */
-  ignoreRequestCacheControl?:
-    | boolean
-    | ((request: Request) => Promise<boolean>);
+  ignoreRequestCacheControl?: boolean;
 
   /**
    * Create custom cache keys.
@@ -60,32 +55,26 @@ export type CacheOptions = {
    * }
    * ```
    */
-  cacheKeyRules?:
-    | CacheKeyRules
-    | ((request: Request) => Promise<CacheKeyRules>);
+  cacheKeyRules?: CacheKeyRules;
 
   /**
    * Cache name.
    * @default 'default'
    */
-  cacheName?: string | ((request: Request) => Promise<string>);
+  cacheName?: string;
 
   /**
    * Cache storage.
    */
-  caches: CacheStorage | ((request: Request) => Promise<CacheStorage>);
+  caches: CacheStorage;
 
   /**
    * Signal an abort during cache revalidate.
    */
-  signal?: (request: Request) => Promise<AbortSignal>;
+  signal?: AbortSignal | (() => AbortSignal);
 };
 
 export default function cache(options: CacheOptions) {
-  const { caches } = options;
-
-  if (!caches) throw new Error('.caches not defined');
-
   const defaultOptions = {
     cacheName: 'default',
     ignoreRequestCacheControl: true,
@@ -93,26 +82,36 @@ export default function cache(options: CacheOptions) {
   };
 
   return defineMiddlewareHandler(async function cacheMiddleware(context, next) {
-    const rawConfig = context?.module?.config?.cache;
-    if (rawConfig === false) {
+    const request = context.request;
+    const routeCacheConfig = await getRouteCacheConfig(
+      context?.module?.config?.cache,
+      request
+    );
+
+    if (routeCacheConfig === false) {
       const response = await next();
       setCacheStatus(response.headers, 'BYPASS');
       return response;
     }
 
-    const routeConfig: Partial<CacheOptions> =
-      rawConfig === true ? {} : rawConfig ?? {};
-    const resolveOptions = {
+    const routeOptions = routeCacheConfig === true ? {} : routeCacheConfig;
+    const {
+      cacheControl: cacheControlOption,
+      cacheKeyRules,
+      cacheName,
+      caches,
+      ignoreRequestCacheControl,
+      signal: signalOption,
+      vary: varyOption,
+    } = {
       ...defaultOptions,
-      ...routeConfig,
+      ...routeOptions,
     };
 
-    let request = context.request;
-
-    const cacheControl = await resolveCacheControlOption(
-      resolveOptions.cacheControl,
-      request
-    );
+    const cacheControl =
+      cacheControlOption && typeof cacheControlOption === 'object'
+        ? stringifyResponseCacheControl(cacheControlOption)
+        : cacheControlOption;
 
     if (!cacheControl) {
       const response = await next();
@@ -120,18 +119,15 @@ export default function cache(options: CacheOptions) {
       return response;
     }
 
-    const vary = await resolveVaryOption(resolveOptions.vary, request);
-    const signal = await resolveOption(resolveOptions.signal, request);
-    const caches = await resolveOption(resolveOptions.caches, request);
-    const cacheName = await resolveOption(resolveOptions.cacheName, request);
-    const ignoreRequestCacheControl = await resolveOption(
-      resolveOptions.ignoreRequestCacheControl,
-      request
-    );
-    const cacheKeyRules = await resolveOption(
-      resolveOptions.cacheKeyRules,
-      request
-    );
+    if (!caches) {
+      throw new Error('.caches not defined.');
+    }
+
+    const vary = Array.isArray(varyOption)
+      ? varyOption.join(', ')
+      : varyOption ?? '';
+    const signal =
+      typeof signalOption === 'function' ? signalOption() : signalOption;
     const cache = await caches.open(cacheName);
     const fetch = nextToFetch(cache, next);
 
@@ -149,38 +145,18 @@ export default function cache(options: CacheOptions) {
   });
 }
 
+async function getRouteCacheConfig(
+  rawConfig: RouteConfig['cache'],
+  request: Request
+): Promise<Partial<CacheOptions> | boolean> {
+  if (typeof rawConfig === 'function') {
+    return await rawConfig(request);
+  }
+  return rawConfig ?? {};
+}
+
 function setCacheStatus(headers: Headers, status: CacheStatus) {
   headers.set('x-cache-status', status);
-}
-
-async function resolveVaryOption(
-  option: CacheOptions['vary'],
-  request: Request
-): Promise<string> {
-  const value = typeof option === 'function' ? await option(request) : option;
-  return Array.isArray(value) ? value.join(', ') : value ?? '';
-}
-
-async function resolveCacheControlOption(
-  option: CacheOptions['cacheControl'],
-  request: Request
-): Promise<string> {
-  const value = typeof option === 'function' ? await option(request) : option;
-
-  return !value
-    ? ''
-    : typeof value === 'object'
-      ? stringifyResponseCacheControl(value)
-      : value;
-}
-
-async function resolveOption<T>(
-  value: T | ((request: Request) => Promise<T>),
-  request: Request
-) {
-  return typeof value === 'function'
-    ? await (value as (request: Request) => Promise<T>)(request)
-    : value;
 }
 
 function removeRequestCacheControl(request: Request) {
@@ -192,24 +168,32 @@ function removeRequestCacheControl(request: Request) {
   });
 }
 
-function nextToFetch(cache: Cache, next: MiddlewareNext) {
-  const errorToResponse = (error: any = {}) => {
-    const body = error.message ?? null;
-    const status =
-      typeof error.status === 'number'
-        ? error.status
-        : error.name === 'TimeoutError'
-          ? 504
-          : 500;
-    const statusText = error.statusText ?? '';
-    return new Response(body, {
+function errorToResponse(error: any = {}) {
+  const status =
+    typeof error.status === 'number'
+      ? error.status
+      : error.name === 'TimeoutError'
+        ? 504
+        : 500;
+  const statusText = error.statusText ?? error.name ?? '';
+  return Response.json(
+    {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    },
+    {
       status,
       statusText,
       headers: {
-        'Content-Type': 'text/plain',
+        // NOTE: Web Router supports this custom header to transform error responses
+        'x-transform-error': 'true',
       },
-    });
-  };
+    }
+  );
+}
+
+function nextToFetch(cache: Cache, next: MiddlewareNext) {
   return createFetch(cache, {
     fetch: async (input, init) => {
       const request = new Request(input, init);

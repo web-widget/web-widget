@@ -1,4 +1,5 @@
 import { compose } from '@web-widget/helpers';
+import { HTTPException } from '@web-widget/helpers/error';
 import { Context } from './context';
 import type { ExecutionContext } from './context';
 import type { Router } from './router';
@@ -174,6 +175,26 @@ class Application<
             'Response is not finalized. You may forget returning Response object or `return next()`.'
           );
         }
+
+        if (!(res instanceof Response)) {
+          throw new TypeError('Response must be an instance of Response.');
+        }
+
+        if (
+          res.status >= 400 &&
+          res.headers.has('x-transform-error') &&
+          res.headers.get('content-type') === 'application/json'
+        ) {
+          const data = await res.json();
+          if (data && data.message) {
+            const httpException = new HTTPException(res.status, data.message);
+            if (data.stack) {
+              httpException.stack = data.stack;
+            }
+            throw httpException;
+          }
+        }
+
         return res;
       } catch (error) {
         return this.#errorHandler(error, context);
