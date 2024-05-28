@@ -186,7 +186,7 @@ function errorToResponse(error: any = {}) {
       status,
       statusText,
       headers: {
-        // NOTE: Web Router supports this private header conversion error response.
+        // NOTE: Web Router supports this custom header to transform error responses
         'x-transform-error': 'true',
       },
     }
