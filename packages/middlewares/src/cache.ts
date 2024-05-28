@@ -168,25 +168,28 @@ function removeRequestCacheControl(request: Request) {
   });
 }
 
-function nextToFetch(cache: Cache, next: MiddlewareNext) {
-  const errorToResponse = (error: any = {}) => {
-    const body = error.message ?? null;
-    const status =
-      typeof error.status === 'number'
-        ? error.status
-        : error.name === 'TimeoutError'
-          ? 504
-          : 500;
-    const statusText = error.statusText ?? '';
-    return new Response(body, {
+function errorToResponse(error: any = {}) {
+  const status =
+    typeof error.status === 'number'
+      ? error.status
+      : error.name === 'TimeoutError'
+        ? 504
+        : 500;
+  const statusText = error.statusText ?? error.name ?? '';
+  return Response.json(
+    {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    },
+    {
       status,
       statusText,
-      headers: {
-        'Content-Type': 'text/plain',
-      },
-    });
-  };
+    }
+  );
+}
 
+function nextToFetch(cache: Cache, next: MiddlewareNext) {
   return createFetch(cache, {
     fetch: async (input, init) => {
       const request = new Request(input, init);
