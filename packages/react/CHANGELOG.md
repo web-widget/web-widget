@@ -1,5 +1,14 @@
 # @web-widget/react
 
+## 1.20.0
+
+### Patch Changes
+
+- Updated dependencies [dbec680]
+  - @web-widget/vite-plugin@1.20.0
+  - @web-widget/helpers@1.20.0
+  - @web-widget/web-widget@1.20.0
+
 ## 1.19.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/action",
-  "version": "1.19.0",
+  "version": "1.20.0",
   "type": "module",
   "exports": {
     ".": {

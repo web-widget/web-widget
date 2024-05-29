@@ -1,5 +1,18 @@
 # @web-widget/vite-plugin
 
+## 1.20.0
+
+### Minor Changes
+
+- dbec680: Add a switch for server actions (off by default).
+
+### Patch Changes
+
+- @web-widget/helpers@1.20.0
+- @web-widget/node@1.20.0
+- @web-widget/web-router@1.20.0
+- @web-widget/web-widget@1.20.0
+
 ## 1.19.0
 
 ### Minor Changes
