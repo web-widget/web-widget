@@ -137,8 +137,8 @@ describe('GET Request', () => {
   // });
 });
 
-describe('Register handlers without a path', () => {
-  describe('No basePath', () => {
+describe('register handlers without a path', () => {
+  describe('no basePath', () => {
     const app = new Application();
 
     app.get('/*', (c) => {
@@ -158,7 +158,7 @@ describe('Register handlers without a path', () => {
     });
   });
 
-  describe('With chaining', () => {
+  describe('with chaining', () => {
     const app = new Application();
 
     app
@@ -270,8 +270,8 @@ describe('strict parameter', () => {
 //   });
 // });
 
-describe('Routing', () => {
-  test('Return it self', async () => {
+describe('routing', () => {
+  test('return it self', async () => {
     const app = new Application();
 
     const app2 = app.get('/', () => new Response('get /'));
@@ -302,13 +302,13 @@ describe('Routing', () => {
     app.get('/about', (c) => text('About root'));
     app.get('/FOO/about', (c) => text('About FOO'));
 
-    test('Should return 200 without specifying a hostname', async () => {
+    test('should return 200 without specifying a hostname', async () => {
       const res = await app.request('/about');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('About root');
     });
 
-    test('Should return 200 with specifying the hostname in env', async () => {
+    test('should return 200 with specifying the hostname in env', async () => {
       const req = new Request('http://foo.localhost/about');
       const res = await app.handler(req, { host: 'foo.localhost' });
       expect(res.status).toBe(200);
@@ -316,7 +316,7 @@ describe('Routing', () => {
     });
   });
 
-  describe('Chained route', () => {
+  describe('chained route', () => {
     const app = new Application();
 
     app.get('/chained/:abc', (c) => {
@@ -327,21 +327,21 @@ describe('Routing', () => {
       const abc = c.params['abc'];
       return text(`POST for ${abc}`);
     });
-    test('Should return 200 response from GET request', async () => {
+    test('should return 200 response from GET request', async () => {
       const res = await app.request('http://localhost/chained/abc', {
         method: 'GET',
       });
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('GET for abc');
     });
-    test('Should return 200 response from POST request', async () => {
+    test('should return 200 response from POST request', async () => {
       const res = await app.request('http://localhost/chained/abc', {
         method: 'POST',
       });
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('POST for abc');
     });
-    test('Should return 404 response from PUT request', async () => {
+    test('should return 404 response from PUT request', async () => {
       const res = await app.request('http://localhost/chained/abc', {
         method: 'PUT',
       });
@@ -470,8 +470,8 @@ describe('param and query', () => {
   });
 });
 
-describe('Middleware', () => {
-  describe('Basic', () => {
+describe('middleware', () => {
+  describe('basic', () => {
     const app = new Application();
 
     // Custom Logger
@@ -574,7 +574,7 @@ describe('Middleware', () => {
     });
   });
 
-  describe('Overwrite the response from middleware after next()', () => {
+  describe('overwrite the response from middleware after next()', () => {
     const app = new Application();
 
     app.use('/normal', async (c, next) => {
@@ -594,19 +594,19 @@ describe('Middleware', () => {
       });
     });
 
-    test('Should have the custom header', async () => {
+    test('should have the custom header', async () => {
       const res = await app.request('/normal');
       expect(res.headers.get('x-custom')).toBe('foo');
     });
 
-    test('Should not have the custom header', async () => {
+    test('should not have the custom header', async () => {
       const res = await app.request('/overwrite');
       expect(res.headers.get('x-custom')).toBe(null);
     });
   });
 });
 
-describe('Builtin Middleware', () => {
+describe('builtin Middleware', () => {
   const app = new Application();
   app.use('/abc', poweredBy());
   app.use('/def', async (c, next) => {
@@ -627,7 +627,7 @@ describe('Builtin Middleware', () => {
   });
 });
 
-describe('Not Found', () => {
+describe('not Found', () => {
   const app = new Application();
 
   app.notFound((c) => {
@@ -640,7 +640,7 @@ describe('Not Found', () => {
     return text('hello');
   });
 
-  test('Custom 404 Not Found', async () => {
+  test('custom 404 Not Found', async () => {
     let res = await app.request('http://localhost/hello');
     expect(res.status).toBe(200);
     res = await app.request('http://localhost/foo');
@@ -649,7 +649,7 @@ describe('Not Found', () => {
   });
 });
 
-describe('Redirect', () => {
+describe('redirect', () => {
   const app = new Application();
   app.get('/redirect', (c) => {
     try {
@@ -664,7 +664,7 @@ describe('Redirect', () => {
     }
   });
 
-  test('Absolute URL', async () => {
+  test('absolute URL', async () => {
     const res = await app.request('https://example.com/redirect');
     expect(await res.text()).toBe('');
     expect(res.status).toBe(302);
@@ -672,8 +672,8 @@ describe('Redirect', () => {
   });
 });
 
-describe('Error handle', () => {
-  describe('Basic', () => {
+describe('error handle', () => {
+  describe('basic', () => {
     const app = new Application();
 
     app.get('/error', () => {
@@ -693,7 +693,7 @@ describe('Error handle', () => {
       });
     });
 
-    test('Custom Error Message', async () => {
+    test('custom Error Message', async () => {
       let res = await app.request('https://example.com/error');
       expect(res.status).toBe(500);
       expect(await res.text()).toBe('Custom Error Message');
@@ -706,7 +706,63 @@ describe('Error handle', () => {
     });
   });
 
-  describe('Async custom handler', () => {
+  describe('custom handler', () => {
+    const app = new Application();
+
+    app.get('/error', () => {
+      throw new Error('This is Error');
+    });
+
+    app.use('/error-middleware', async () => {
+      throw new Error('This is Middleware Error');
+    });
+
+    app.use('/error-response', async () => {
+      return Response.json(
+        {
+          name: 'Error',
+          message: 'This is Response Error',
+        },
+        {
+          status: 500,
+          headers: {
+            'x-transform-error': 'true',
+          },
+        }
+      );
+    });
+
+    app.onError((err, c) => {
+      const message = err.message;
+      return text(`Custom Error: ${message}`, {
+        status: 500,
+        headers: {
+          'x-debug': err.message,
+        },
+      });
+    });
+
+    test('custom error message', async () => {
+      let res = await app.request('https://example.com/error');
+      expect(res.status).toBe(500);
+      expect(await res.text()).toBe('Custom Error: This is Error');
+      expect(res.headers.get('x-debug')).toBe('This is Error');
+
+      res = await app.request('https://example.com/error-middleware');
+      expect(res.status).toBe(500);
+      expect(await res.text()).toBe('Custom Error: This is Middleware Error');
+      expect(res.headers.get('x-debug')).toBe('This is Middleware Error');
+    });
+
+    test('transform error response', async () => {
+      const res = await app.request('https://example.com/error-response');
+      expect(res.status).toBe(500);
+      expect(await res.text()).toBe('Custom Error: This is Response Error');
+      expect(res.headers.get('x-debug')).toBe('This is Response Error');
+    });
+  });
+
+  describe('async custom handler', () => {
     const app = new Application();
 
     app.get('/error', () => {
@@ -718,13 +774,8 @@ describe('Error handle', () => {
     });
 
     app.onError(async (err, c) => {
-      const promise = new Promise((resolve) =>
-        setTimeout(() => {
-          resolve('Promised');
-        }, 1)
-      );
-      const message = (await promise) as string;
-      return text(`Custom Error Message with ${message}`, {
+      const message = err.message;
+      return text(`Custom Error: ${message}`, {
         status: 500,
         headers: {
           'x-debug': err.message,
@@ -732,21 +783,21 @@ describe('Error handle', () => {
       });
     });
 
-    test('Custom Error Message', async () => {
+    test('custom error message', async () => {
       let res = await app.request('https://example.com/error');
       expect(res.status).toBe(500);
-      expect(await res.text()).toBe('Custom Error Message with Promised');
+      expect(await res.text()).toBe('Custom Error: This is Error');
       expect(res.headers.get('x-debug')).toBe('This is Error');
 
       res = await app.request('https://example.com/error-middleware');
       expect(res.status).toBe(500);
-      expect(await res.text()).toBe('Custom Error Message with Promised');
+      expect(await res.text()).toBe('Custom Error: This is Middleware Error');
       expect(res.headers.get('x-debug')).toBe('This is Middleware Error');
     });
   });
 });
 
-describe('Error handling in middleware', () => {
+describe('error handling in middleware', () => {
   const app = new Application();
 
   // @ts-expect-error
@@ -791,7 +842,7 @@ describe('Error handling in middleware', () => {
     throw new Error('Error message');
   });
 
-  test('Should handle the error in middleware', async () => {
+  test('should handle the error in middleware', async () => {
     const res = await app.request(
       'https://example.com/handle-error-in-middleware'
     );
@@ -801,7 +852,7 @@ describe('Error handling in middleware', () => {
     );
   });
 
-  test('Should handle the error in middleware - async', async () => {
+  test('should handle the error in middleware - async', async () => {
     const res = await app.request(
       'https://example.com/handle-error-in-middleware-async'
     );
@@ -811,7 +862,7 @@ describe('Error handling in middleware', () => {
     );
   });
 
-  describe('Error in `notFound()`', () => {
+  describe('error in `notFound()`', () => {
     const app = new Application();
 
     app.use('*', async (c, next) => next());
@@ -826,7 +877,7 @@ describe('Error handling in middleware', () => {
       });
     });
 
-    test('Should handle the error thrown in `notFound()``', async () => {
+    test('should handle the error thrown in `notFound()``', async () => {
       const res = await app.request('http://localhost/');
       expect(res.status).toBe(400);
       expect(await res.text()).toBe('@@@Error in Not Found');
@@ -834,7 +885,7 @@ describe('Error handling in middleware', () => {
   });
 });
 
-describe('Multiple handler', () => {
+describe('multiple handler', () => {
   describe('handler + handler', () => {
     const app = new Application();
 
@@ -855,7 +906,7 @@ describe('Multiple handler', () => {
         },
       });
     });
-    test('Should return response from `specialized` route', async () => {
+    test('should return response from `specialized` route', async () => {
       const res = await app.request('http://localhost/posts/123');
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('id is 123');
@@ -864,7 +915,7 @@ describe('Multiple handler', () => {
     });
   });
 
-  describe('Duplicate param name', () => {
+  describe('duplicate param name', () => {
     describe('basic', () => {
       const app = new Application();
       app.get('/:type/:url', (c) => {
@@ -874,13 +925,13 @@ describe('Multiple handler', () => {
         return text(`foo type: ${c.params['type']}, url: ${c.params['url']}`);
       });
 
-      test('Should return a correct param - GET /car/good-car', async () => {
+      test('should return a correct param - GET /car/good-car', async () => {
         const res = await app.request('/car/good-car');
         expect(res.ok).toBe(true);
         expect(await res.text()).toBe('type: car, url: good-car');
       });
 
-      test('Should return a correct param - GET /foo/food/good-food', async () => {
+      test('should return a correct param - GET /foo/food/good-food', async () => {
         const res = await app.request('/foo/food/good-food');
         expect(res.ok).toBe(true);
         expect(await res.text()).toBe('foo type: food, url: good-food');
@@ -897,12 +948,12 @@ describe('Multiple handler', () => {
       app.get('/posts/:id', (c) => {
         return text(`post: ${c.params['id']}`);
       });
-      test('Should return a correct param - GET /posts/123/comments/456', async () => {
+      test('should return a correct param - GET /posts/123/comments/456', async () => {
         const res = await app.request('/posts/123/comments/456');
         expect(res.status).toBe(200);
         expect(await res.text()).toBe('post: 123, comment: 456');
       });
-      test('Should return a correct param - GET /posts/789', async () => {
+      test('should return a correct param - GET /posts/789', async () => {
         const res = await app.request('/posts/789');
         expect(res.status).toBe(200);
         expect(await res.text()).toBe('post: 789');
@@ -918,17 +969,17 @@ describe('Multiple handler', () => {
         return text(`id: ${c.params['id']}, action: ${c.params['action']}`);
       });
 
-      test('Should return a correct param - GET /123/create', async () => {
+      test('should return a correct param - GET /123/create', async () => {
         const res = await app.request('/123/create');
         expect(res.status).toBe(200);
         expect(await res.text()).toBe('id: 123, action: create');
       });
-      test('Should return a correct param - GET /456/update', async () => {
+      test('should return a correct param - GET /456/update', async () => {
         const res = await app.request('/467/update');
         expect(res.status).toBe(200);
         expect(await res.text()).toBe('id: 467, action: update');
       });
-      test('Should return a correct param - GET /789/delete', async () => {
+      test('should return a correct param - GET /789/delete', async () => {
         const res = await app.request('/789/delete');
         expect(res.status).toBe(200);
         expect(await res.text()).toBe('id: 789, action: delete');
@@ -937,7 +988,7 @@ describe('Multiple handler', () => {
   });
 });
 
-describe('Context is not finalized', () => {
+describe('context is not finalized', () => {
   test('should throw error - lack `await next()`', async () => {
     const app = new Application();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -971,8 +1022,8 @@ describe('Context is not finalized', () => {
   });
 });
 
-describe('Both two middleware returning response', () => {
-  test('Should return correct Content-Type`', async () => {
+describe('both two middleware returning response', () => {
+  test('should return correct Content-Type`', async () => {
     const app = new Application();
     app.use('*', async (c, next) => {
       const res = await next();
@@ -989,10 +1040,10 @@ describe('Both two middleware returning response', () => {
   });
 });
 
-describe('Handler as variables', () => {
+describe('handler as variables', () => {
   const app = new Application();
 
-  test('Should be typed correctly', async () => {
+  test('should be typed correctly', async () => {
     const handler: MiddlewareHandler = (c) => {
       const id = c.params['id'];
       return text(`Post id is ${id}`);

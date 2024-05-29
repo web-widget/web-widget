@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/helpers",
-  "version": "1.15.1",
+  "version": "1.18.0",
   "type": "module",
   "exports": {
     ".": {

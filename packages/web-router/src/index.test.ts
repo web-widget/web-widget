@@ -7,7 +7,7 @@ import type {
 } from '.';
 import WebRouter from '.';
 
-describe('Basic', () => {
+describe('basic', () => {
   const app = WebRouter.fromManifest({
     routes: [
       {
@@ -41,7 +41,7 @@ describe('Basic', () => {
   });
 });
 
-describe('Multiple identical routes', () => {
+describe('multiple identical routes', () => {
   const app = WebRouter.fromManifest({
     routes: [
       {
@@ -84,8 +84,8 @@ describe('Multiple identical routes', () => {
   });
 });
 
-describe('Create route context', () => {
-  test('Generate default context', (done) => {
+describe('create route context', () => {
+  test('generate default context', (done) => {
     const createTestRoute = (
       callback: (context: RouteHandlerContext) => void
     ) => {
@@ -134,7 +134,7 @@ describe('Create route context', () => {
     });
   });
 
-  test('Modules that do not export `render` should not generate full context', (done) => {
+  test('modules that do not export `render` should not generate full context', (done) => {
     const createTestRoute = (
       callback: (context: RouteHandlerContext) => void
     ) => {
@@ -185,7 +185,7 @@ describe('Create route context', () => {
   });
 });
 
-describe('Error handling', () => {
+describe('error handling', () => {
   const createTestRoute = (
     routeModule: RouteModule,
     onFallback: OnFallback
@@ -207,7 +207,7 @@ describe('Error handling', () => {
     return app.request('http://localhost/test');
   };
 
-  test('Exceptions should be caught', (done) => {
+  test('exceptions should be caught', (done) => {
     let error: RouteError;
     const message = `Error:500`;
     const status = 500;
@@ -235,7 +235,7 @@ describe('Error handling', () => {
     });
   });
 
-  test('Throws a `Response` as an HTTP error', (done) => {
+  test('throws a `Response` as an HTTP error', (done) => {
     let error: RouteError;
     const message = `Error:404`;
     const status = 404;
@@ -270,7 +270,7 @@ describe('Error handling', () => {
     });
   });
 
-  test('Malformed errors converted to strings as HTTP error messages', (done) => {
+  test('malformed errors converted to strings as HTTP error messages', (done) => {
     let error: RouteError;
     const message = `Error:500`;
     const status = 500;
@@ -302,8 +302,8 @@ describe('Error handling', () => {
   });
 });
 
-describe('Change members of context', () => {
-  test('Default options should be read-only', async () => {
+describe('change members of context', () => {
+  test('default options should be read-only', async () => {
     const defaultMeta = {
       lang: 'en',
       meta: [

@@ -1,5 +1,45 @@
 # @web-widget/web-router
 
+## 1.18.0
+
+### Minor Changes
+
+- f18bb94: A 500 status response will go to the error handler.
+
+### Patch Changes
+
+- @web-widget/context@1.18.0
+- @web-widget/helpers@1.18.0
+- @web-widget/html@1.18.0
+- @web-widget/lifecycle-cache@1.18.0
+
+## 1.17.0
+
+### Patch Changes
+
+- @web-widget/context@1.17.0
+- @web-widget/helpers@1.17.0
+- @web-widget/html@1.17.0
+- @web-widget/lifecycle-cache@1.17.0
+
+## 1.16.1
+
+### Patch Changes
+
+- @web-widget/context@1.16.1
+- @web-widget/helpers@1.16.1
+- @web-widget/html@1.16.1
+- @web-widget/lifecycle-cache@1.16.1
+
+## 1.16.0
+
+### Patch Changes
+
+- @web-widget/context@1.16.0
+- @web-widget/helpers@1.16.0
+- @web-widget/html@1.16.0
+- @web-widget/lifecycle-cache@1.16.0
+
 ## 1.15.1
 
 ### Patch Changes

@@ -236,7 +236,7 @@ export function createRouteContext(
   };
 }
 
-export const createAsyncContext = callContext;
+export const createAsyncContext = callContext as MiddlewareNext;
 
 export function createFallbackHandler(
   route: RouteModule | (() => Promise<RouteModule>),

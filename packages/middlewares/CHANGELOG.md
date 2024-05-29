@@ -1,5 +1,45 @@
 # @web-widget/middlewares
 
+## 1.18.0
+
+### Minor Changes
+
+- f18bb94: `cache` Use a function to define all options.
+
+### Patch Changes
+
+- @web-widget/helpers@1.18.0
+- @web-widget/schema@1.18.0
+
+## 1.17.0
+
+### Minor Changes
+
+- 4612dcc: `cache`: `cacheName` and `ignoreRequestCacheControl` support set function.
+
+### Patch Changes
+
+- @web-widget/helpers@1.17.0
+- @web-widget/schema@1.17.0
+
+## 1.16.1
+
+### Patch Changes
+
+- @web-widget/helpers@1.16.1
+- @web-widget/schema@1.16.1
+
+## 1.16.0
+
+### Minor Changes
+
+- d6f5f0d: `cache`: An abort signal can be emitted during cache revalidate.
+
+### Patch Changes
+
+- @web-widget/helpers@1.16.0
+- @web-widget/schema@1.16.0
+
 ## 1.15.1
 
 ### Patch Changes

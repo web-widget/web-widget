@@ -3,14 +3,15 @@ import type { Manifest } from '@web-widget/web-router';
 import WebRouter from '@web-widget/web-router';
 import type { CacheStatus, KVStorage } from '@web-widget/shared-cache';
 import { CacheStorage } from '@web-widget/shared-cache';
-import conditional from '../conditional-get';
-import type { CacheOptions } from '.';
-import cache from './';
+import conditional from './conditional-get';
+import type { CacheOptions } from './cache';
+import cache from './cache';
 
 const HIT: CacheStatus = 'HIT';
 const MISS: CacheStatus = 'MISS';
 const EXPIRED: CacheStatus = 'EXPIRED';
 const BYPASS: CacheStatus = 'BYPASS';
+const STALE: CacheStatus = 'STALE';
 const TEST_URL = 'http://localhost/';
 
 const timeout = (ms: number) =>
@@ -57,9 +58,7 @@ const createApp = function (
         pathname: '*',
         module: {
           handler: cache({
-            async cacheControl() {
-              return { maxAge: 10 };
-            },
+            cacheControl: { maxAge: 10 },
             caches,
             ...opts,
           }),
@@ -74,13 +73,11 @@ const createApp = function (
 describe('cache control should be added', () => {
   test('should support `object` type configuration', async () => {
     const app = createApp(createCaches(), {
-      async cacheControl() {
-        return {
-          maxAge: 2,
-          sharedMaxAge: 3,
-          staleIfError: 4,
-          staleWhileRevalidate: 5,
-        };
+      cacheControl: {
+        maxAge: 2,
+        sharedMaxAge: 3,
+        staleIfError: 4,
+        staleWhileRevalidate: 5,
       },
     });
     const req = new Request(TEST_URL);
@@ -93,9 +90,8 @@ describe('cache control should be added', () => {
 
   test('should support `string` type configuration', async () => {
     const app = createApp(createCaches(), {
-      async cacheControl() {
-        return 'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5';
-      },
+      cacheControl:
+        'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5',
     });
     const req = new Request(TEST_URL);
     const res = await app.request(req);
@@ -109,9 +105,8 @@ describe('cache control should be added', () => {
     const app = createApp(
       createCaches(),
       {
-        async cacheControl() {
-          return 'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5';
-        },
+        cacheControl:
+          'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5',
       },
       [
         {
@@ -136,9 +131,7 @@ describe('cache control should be added', () => {
 describe('vary should be added', () => {
   test('should support `array[]` type configuration', async () => {
     const app = createApp(createCaches(), {
-      async vary() {
-        return ['accept-language'];
-      },
+      vary: ['accept-language'],
     });
     const req = new Request(TEST_URL);
     const res = await app.request(req);
@@ -148,9 +141,7 @@ describe('vary should be added', () => {
 
   test('should support `string` type configuration', async () => {
     const app = createApp(createCaches(), {
-      async vary() {
-        return 'accept-language';
-      },
+      vary: 'accept-language',
     });
     const req = new Request(TEST_URL);
     const res = await app.request(req);
@@ -162,9 +153,7 @@ describe('vary should be added', () => {
     const app = createApp(
       createCaches(),
       {
-        async vary() {
-          return 'accept-language';
-        },
+        vary: 'accept-language',
       },
       [
         {
@@ -213,9 +202,7 @@ test('caching should be allowed to be bypassed', async () => {
       module: {
         config: {
           cache: {
-            async cacheControl() {
-              return null;
-            },
+            cacheControl: null,
           },
         },
         handler: async () => {
@@ -234,9 +221,7 @@ describe('request cache control directives', () => {
   test('when a request contains a cache control header it should be ignored', async () => {
     const caches = createCaches();
     const app = createApp(caches, {
-      async cacheControl() {
-        return { maxAge: 300 };
-      },
+      cacheControl: { maxAge: 300 },
     });
     let res = await app.request(TEST_URL, {
       headers: {
@@ -268,9 +253,7 @@ describe('request cache control directives', () => {
   test('ability to respect request cache controls through configuration', async () => {
     const caches = createCaches();
     const app = createApp(caches, {
-      async cacheControl() {
-        return { maxAge: 300 };
-      },
+      cacheControl: { maxAge: 300 },
       ignoreRequestCacheControl: false,
     });
     let res = await app.request(TEST_URL, {
@@ -304,9 +287,7 @@ describe('request cache control directives', () => {
 test('`age` should change based on cache time', async () => {
   const caches = createCaches();
   const app = createApp(caches, {
-    async cacheControl() {
-      return { maxAge: 2 };
-    },
+    cacheControl: { maxAge: 2 },
   });
   let res = await app.request(TEST_URL);
   expect(res.headers.get('x-cache-status')).toBe(MISS);
@@ -337,6 +318,62 @@ test('`age` should change based on cache time', async () => {
   expect(res.headers.get('age')).toBe('1');
 });
 
+test('it should be possible to terminate cache revalidate', async () => {
+  let view = 0;
+  const caches = createCaches();
+  const app = WebRouter.fromManifest({
+    routes: [
+      {
+        pathname: '*',
+        module: {
+          handler: async (ctx) => {
+            if (ctx.request.headers.has('x-test-timeout')) {
+              const value = Number(
+                ctx.request.headers.get('x-test-timeout') || 0
+              );
+              await timeout(value);
+            }
+            return new Response(`View: ${view++}`);
+          },
+        },
+      },
+    ],
+    middlewares: [
+      {
+        pathname: '*',
+        module: {
+          handler: cache({
+            cacheControl: {
+              sharedMaxAge: 1,
+              staleIfError: 5,
+              staleWhileRevalidate: 5,
+            },
+            caches,
+            signal() {
+              return AbortSignal.timeout(500);
+            },
+          }),
+        },
+      },
+    ],
+  });
+  let res = await app.request(TEST_URL);
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
+  expect(await res.text()).toBe('View: 0');
+
+  await timeout(1024);
+
+  res = await app.request(TEST_URL, {
+    headers: {
+      'x-test-timeout': '1000',
+    },
+  });
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(STALE);
+  expect(await res.text()).toBe('View: 0');
+});
+
 describe('conditional-get middleware', () => {
   test('when the response is fresh it should return a 304 and cache the response', async () => {
     const caches = createCaches();
@@ -358,9 +395,7 @@ describe('conditional-get middleware', () => {
             },
             config: {
               cache: {
-                async cacheControl() {
-                  return { maxAge: 1 };
-                },
+                cacheControl: { maxAge: 1 },
               },
             },
           },
@@ -377,9 +412,7 @@ describe('conditional-get middleware', () => {
           pathname: '*',
           module: {
             handler: cache({
-              async cacheControl() {
-                return { maxAge: 10 };
-              },
+              cacheControl: { maxAge: 10 },
               caches,
             }),
           },
