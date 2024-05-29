@@ -43,6 +43,7 @@ export function importActionPlugin(
   let importerFilter: (id: string | unknown) => boolean;
   let cache: Set<string>;
   let serverUrl: (file: string) => Promise<string>;
+  let enabled: boolean;
 
   return {
     name: '@web-widget:import-action',
@@ -67,6 +68,7 @@ export function importActionPlugin(
       }
 
       if (!serverUrl && webRouterPluginApi) {
+        enabled = webRouterPluginApi.config.action;
         serverUrl = async (file) => {
           const id = relativePathWithDot(root, file);
           const routemap = await webRouterPluginApi.serverRoutemap();
@@ -90,7 +92,7 @@ export function importActionPlugin(
       }
     },
     async transform(code, id, { ssr } = {}) {
-      if (ssr) {
+      if (!enabled || ssr) {
         return null;
       }
 
