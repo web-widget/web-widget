@@ -1,5 +1,11 @@
 # @web-widget/context
 
+## 1.19.0
+
+### Minor Changes
+
+- bdd93b7: 🎉 Server Action is born.
+
 ## 1.18.0
 
 ## 1.17.0

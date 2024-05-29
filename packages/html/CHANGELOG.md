@@ -1,5 +1,16 @@
 # @web-widget/html
 
+## 1.19.0
+
+### Minor Changes
+
+- bdd93b7: 🎉 Server Action is born.
+
+### Patch Changes
+
+- Updated dependencies [bdd93b7]
+  - @web-widget/helpers@1.19.0
+
 ## 1.18.0
 
 ### Patch Changes
