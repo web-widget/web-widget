@@ -188,7 +188,7 @@ export function callActionModule(
       });
     }
 
-    return callAsyncContext(context, async function handler() {
+    return callContext(context, async function handler() {
       const json = await handleRpc(await request.json(), module);
       return Response.json(json);
     });
