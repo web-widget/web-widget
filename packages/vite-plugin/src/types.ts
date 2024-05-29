@@ -13,6 +13,7 @@ import type { RouteSourceFile } from './dev/routing/types';
 
 export interface ResolvedWebRouterConfig {
   autoFullBuild: boolean;
+  action: boolean;
   filesystemRouting: {
     basePathname: string;
     dir: string;
