@@ -1,3 +1,11 @@
+export type SerializableValue =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: SerializableValue }
+  | SerializableValue[];
+
 ////////////////////////////////////////
 //////                            //////
 //////       Widget Modules       //////
@@ -356,6 +364,23 @@ export interface MiddlewareNext {
 }
 
 export type MiddlewareResult = Response;
+
+////////////////////////////////////////
+//////                            //////
+//////       Action Modules       //////
+//////                            //////
+////////////////////////////////////////
+
+export interface ActionModule {
+  [method: string]: ActionHandler;
+}
+
+export interface ActionHandler<
+  A extends SerializableValue = SerializableValue,
+  T extends SerializableValue = SerializableValue,
+> {
+  (...args: A[]): Promise<T>;
+}
 
 ////////////////////////////////////////
 //////                            //////

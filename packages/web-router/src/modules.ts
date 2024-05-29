@@ -9,7 +9,9 @@ import {
   contextToScriptDescriptor,
 } from '@web-widget/context/server';
 import { createHttpError } from '@web-widget/helpers/error';
+import { handleRpc } from '@web-widget/action/server';
 import type {
+  ActionModule,
   LayoutModule,
   LayoutRenderContext,
   Meta,
@@ -164,6 +166,32 @@ export function callMiddlewareModule(
         : (methodsToHandler(module.handler) as MiddlewareHandler);
 
     return handler(context, next);
+  };
+}
+
+export function callActionModule(
+  action: ActionModule | (() => Promise<ActionModule>)
+): MiddlewareHandler {
+  let module: ActionModule;
+
+  return async (context) => {
+    module ??= await getModule<ActionModule>(action);
+    const { request } = context;
+
+    if (request.method !== 'POST') {
+      return new Response(null, {
+        status: 405,
+        statusText: 'Method Not Allowed',
+        headers: {
+          Accept: 'POST',
+        },
+      });
+    }
+
+    return callContext(context, async function handler() {
+      const json = await handleRpc(await request.json(), module);
+      return Response.json(json);
+    });
   };
 }
 

@@ -1,105 +1,42 @@
-import path from 'node:path';
-import type { Plugin, UserConfig } from 'vite';
-import {
-  exportWebWidgetPlugin,
-  type ExportWidgetPluginOptions,
-} from './build/export-web-widget';
-import {
-  importWebWidgetPlugin,
-  type ImportWebWidgetPluginOptions,
-} from './build/import-web-widget';
-import { getGlobalConfig, pluginContainer } from './container';
-import type { ResolvedBuilderConfig } from './types';
+import type { Plugin } from 'vite';
+import { exportRenderPlugin } from './export-render';
+import { importRenderPlugin } from './import-render';
+import type { WebWidgetUserConfig } from './types';
 
-export interface WebWidgetPluginOptions {
-  provide?: string;
-  manifest?: ExportWidgetPluginOptions['manifest'];
-  /**@deprecated Please use `export` instead. */
-  toWebWidgets?: Partial<
-    ExportWidgetPluginOptions & {
-      manifest?: ExportWidgetPluginOptions['manifest'];
-      provide?: ExportWidgetPluginOptions['provide'];
-    }
-  >;
-  export?: Partial<
-    ExportWidgetPluginOptions & {
-      manifest?: ExportWidgetPluginOptions['manifest'];
-      provide?: ExportWidgetPluginOptions['provide'];
-    }
-  >;
-  /**@deprecated Please use `import` instead. */
-  toComponents?: Partial<
-    ImportWebWidgetPluginOptions & {
-      manifest?: ImportWebWidgetPluginOptions['manifest'];
-      provide?: ImportWebWidgetPluginOptions['provide'];
-    }
-  >;
-  import?: Partial<
-    ImportWebWidgetPluginOptions & {
-      manifest?: ImportWebWidgetPluginOptions['manifest'];
-      provide?: ImportWebWidgetPluginOptions['provide'];
-    }
-  >;
-}
-
-export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
-  let { manifest, provide } = options;
-  const importWidget = options.import ?? options.toComponents;
-  const exportWidget = options.export ?? options.toWebWidgets;
-  const plugins: Plugin[] = [];
-
-  if (exportWidget) {
-    plugins.push(
-      pluginContainer<ExportWidgetPluginOptions>(
-        exportWebWidgetPlugin,
-        (userConfig) => {
-          if (!manifest) {
-            manifest = getManifest(userConfig);
-          }
-
-          return {
-            ...exportWidget,
-            provide: (exportWidget.provide ?? provide) as string,
-            manifest: manifest,
-          };
-        }
-      ) as unknown as Plugin
-    );
+export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
+  if (!options) {
+    throw new TypeError(`options is required.`);
   }
 
-  if (importWidget) {
-    plugins.push(
-      pluginContainer<ImportWebWidgetPluginOptions>(
-        importWebWidgetPlugin,
-        (userConfig) => {
-          if (!manifest) {
-            manifest = getManifest(userConfig);
-          }
-          return {
-            ...importWidget,
-            provide: (importWidget.provide ?? provide) as string,
-            manifest,
-          };
-        }
-      ) as unknown as Plugin
-    );
-  }
+  const {
+    manifest,
+    provide,
+    toWebWidgets,
+    toComponents,
+    export: exports = toWebWidgets,
+    import: imports = toComponents,
+  } = options;
 
-  return plugins;
-}
+  return [
+    ...exportRenderPlugin({
+      extractFromExportDefault: exports?.extractFromExportDefault,
+      exclude: exports?.exclude,
+      include: exports?.include,
+      inject: exports?.inject,
+      manifest,
+      provide,
+    }),
 
-function getManifest(userConfig: UserConfig) {
-  const { root = process.cwd() } = userConfig;
-  const resolvedBuilderConfig =
-    getGlobalConfig<ResolvedBuilderConfig>(userConfig);
-
-  if (resolvedBuilderConfig) {
-    const viteManifest = path.resolve(
-      root,
-      resolvedBuilderConfig.output.dir,
-      resolvedBuilderConfig.output.client,
-      resolvedBuilderConfig.output.manifest
-    );
-    return viteManifest;
-  }
+    ...importRenderPlugin({
+      cache: imports?.cache,
+      component: imports?.component,
+      exclude: imports?.exclude,
+      excludeImporter: imports?.excludeImporter,
+      include: imports?.include,
+      includeImporter: imports?.includeImporter,
+      inject: imports?.inject,
+      manifest,
+      provide,
+    }),
+  ];
 }

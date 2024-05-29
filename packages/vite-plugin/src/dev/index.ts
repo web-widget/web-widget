@@ -6,24 +6,26 @@ import { renderMetaToString } from '@web-widget/helpers';
 import type { Manifest } from '@web-widget/web-router';
 import stripAnsi from 'strip-ansi';
 import type { Plugin, ViteDevServer } from 'vite';
-import type {
-  ManifestJSON,
-  ResolvedBuilderConfig,
-  ServerEntryModule,
-} from '../types';
 import { getMeta } from './meta';
 import { fileSystemRouteGenerator } from './routing';
+import type {
+  RouteMap,
+  ResolvedWebRouterConfig,
+  WebRouterServerEntryModule,
+} from '@/types';
+import { getWebRouterPluginApi } from '@/utils';
 
 type DevModule = RouteModule & {
   $source?: string;
 };
 
 export function webRouterDevServerPlugin(
-  builderConfig: ResolvedBuilderConfig
+  options?: ResolvedWebRouterConfig
 ): Plugin {
+  let resolvedWebRouterConfig: ResolvedWebRouterConfig;
   let root: string;
   return {
-    name: '@widget:web-router-dev-server',
+    name: '@web-widget:dev',
     enforce: 'pre',
     apply: 'serve',
     async config() {
@@ -33,20 +35,35 @@ export function webRouterDevServerPlugin(
     },
     async configResolved(config) {
       root = config.root;
+
+      if (options) {
+        resolvedWebRouterConfig = options;
+      }
+
+      if (!resolvedWebRouterConfig) {
+        const webRouterPluginApi = getWebRouterPluginApi(config);
+        if (webRouterPluginApi) {
+          resolvedWebRouterConfig = webRouterPluginApi.config;
+        }
+      }
+
+      if (!resolvedWebRouterConfig) {
+        throw new Error('Missing options.');
+      }
     },
     async configureServer(viteServer) {
       const [webRouter, restartWebRouter] = autoRestartMiddleware(
         viteServer,
-        () => viteWebRouterMiddleware(builderConfig, viteServer)
+        () => viteWebRouterMiddleware(resolvedWebRouterConfig, viteServer)
       );
 
-      if (builderConfig.filesystemRouting.enabled) {
+      if (resolvedWebRouterConfig.filesystemRouting.enabled) {
         const {
           dir: routesPath,
           basePathname,
           overridePathname,
-        } = builderConfig.filesystemRouting;
-        const { routemap: routemapPath } = builderConfig.input.server;
+        } = resolvedWebRouterConfig.filesystemRouting;
+        const { routemap: routemapPath } = resolvedWebRouterConfig.input.server;
         fileSystemRouteGenerator({
           basePathname,
           root,
@@ -76,7 +93,9 @@ export function webRouterDevServerPlugin(
           tag: 'script',
           attrs: {
             type: 'module',
-            src: '/' + path.relative(root, builderConfig.input.client.entry),
+            src:
+              '/' +
+              path.relative(root, resolvedWebRouterConfig.input.client.entry),
           },
         },
       ];
@@ -116,7 +135,7 @@ function autoRestartMiddleware(
 }
 
 async function viteWebRouterMiddleware(
-  builderConfig: ResolvedBuilderConfig,
+  resolvedWebRouterConfig: ResolvedWebRouterConfig,
   viteServer: ViteDevServer
 ): Promise<Middleware> {
   const baseModulePath = path.join(viteServer.config.root, path.sep);
@@ -127,7 +146,7 @@ async function viteWebRouterMiddleware(
 
   let currentModule: string | undefined;
   const manifest = await loadManifest(
-    builderConfig.input.server.routemap,
+    resolvedWebRouterConfig.input.server.routemap,
     viteServer
   );
 
@@ -147,8 +166,8 @@ async function viteWebRouterMiddleware(
 
   const start = (
     (await viteServer.ssrLoadModule(
-      builderConfig.input.server.entry
-    )) as ServerEntryModule
+      resolvedWebRouterConfig.input.server.entry
+    )) as WebRouterServerEntryModule
   ).default;
 
   const webRouter = start(manifest, {
@@ -260,7 +279,7 @@ async function loadManifest(routemap: string, viteServer: ViteDevServer) {
     };
   }
   const manifestJson = (await viteServer.ssrLoadModule(routemap))
-    .default as ManifestJSON;
+    .default as RouteMap;
   return Object.entries(manifestJson).reduce((manifest, [key, value]) => {
     if (Array.isArray(value)) {
       // @ts-ignore

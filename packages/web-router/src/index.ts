@@ -19,6 +19,7 @@ import {
   renderRouteModule,
   callMiddlewareModule,
   createAsyncContext,
+  callActionModule,
 } from './modules';
 import type { OnFallback } from './modules';
 export type * from './types';
@@ -43,6 +44,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
   ) {
     const router = new WebRouter<E>(options);
     const middlewares = manifest.middlewares ?? [];
+    const actions = manifest.actions ?? [];
     const routes = manifest.routes ?? [];
     const layout = manifest.layout ?? {
       module: async () => defaultLayoutModule as LayoutModule,
@@ -105,6 +107,10 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
 
     middlewares.forEach((item) => {
       router.use(item.pathname, callMiddlewareModule(item.module));
+    });
+
+    actions.forEach((item) => {
+      router.use(item.pathname, callActionModule(item.module));
     });
 
     routes.forEach((item) => {

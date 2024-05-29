@@ -1,11 +1,11 @@
-import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { FSWatcher } from 'vite';
 import { normalizePath } from '@rollup/pluginutils';
-import type { ManifestJSON } from '../../types';
 import { walkRoutes } from './walk-routes-dir';
 import { pathToPattern, sortRoutePaths } from './extract';
 import type { RouteSourceFile, OverridePathname } from './types';
+import type { RouteMap } from '@/types';
+import { relativePathWithDot } from '@/utils';
 
 export type FileSystemRouteGeneratorOptions = {
   basePathname: string;
@@ -95,7 +95,7 @@ export async function getRoutemap(
   routesPath: string,
   basePathname: string,
   overridePathname: OverridePathname | undefined
-): Promise<ManifestJSON> {
+): Promise<RouteMap> {
   const sourceFiles = await walkRoutes(routesPath);
   const fallbacks = sourceFiles.filter((s) => s.type === 'fallback');
   const layouts = sourceFiles.filter((s) => s.type === 'layout');
@@ -105,11 +105,15 @@ export async function getRoutemap(
   const routes = sourceFiles
     .filter((s) => s.type === 'route')
     .sort((a, b) => sortRoutePaths(a.pathname, b.pathname));
+  const actions = sourceFiles
+    .filter((s) => s.type === 'action')
+    .sort((a, b) => sortRoutePaths(a.pathname, b.pathname));
 
+  const routeTypeLike = ['route', 'middleware', 'action'];
   const toValue = (source: RouteSourceFile) => {
     let pathname;
 
-    if (source.type === 'route' || source.type === 'middleware') {
+    if (routeTypeLike.includes(source.type)) {
       pathname = normalizePath(basePathname + source.pathname);
 
       if (pathname.startsWith('/')) {
@@ -123,7 +127,7 @@ export async function getRoutemap(
     }
 
     //const name = createFileId(pathname ?? source.name, source.type);
-    const module = normalizePath(path.relative(root, source.source));
+    const module = relativePathWithDot(root, source.source);
     const status =
       source.type === 'fallback'
         ? parseInt(source.name.replaceAll(/\D/g, ''))
@@ -138,11 +142,12 @@ export async function getRoutemap(
   };
 
   return {
-    routes: routes.map(toValue) as ManifestJSON['routes'],
-    middlewares: middlewares.map(toValue) as ManifestJSON['middlewares'],
-    fallbacks: fallbacks.map(toValue) as ManifestJSON['fallbacks'],
+    routes: routes.map(toValue) as RouteMap['routes'],
+    actions: actions.map(toValue) as RouteMap['actions'],
+    middlewares: middlewares.map(toValue) as RouteMap['middlewares'],
+    fallbacks: fallbacks.map(toValue) as RouteMap['fallbacks'],
     layout: (layouts[0]
       ? toValue(layouts[0])
-      : undefined) as ManifestJSON['layout'],
+      : undefined) as RouteMap['layout'],
   };
 }

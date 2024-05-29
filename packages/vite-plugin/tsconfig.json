@@ -7,7 +7,9 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noUnusedLocals": true,
-    "paths": {},
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,

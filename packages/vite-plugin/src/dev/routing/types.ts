@@ -9,7 +9,12 @@ export interface RouteSourceFileName {
   ext: string;
 }
 
-export type RouteSourceType = 'route' | 'fallback' | 'layout' | 'middleware';
+export type RouteSourceType =
+  | 'action'
+  | 'fallback'
+  | 'layout'
+  | 'middleware'
+  | 'route';
 
 export type OverridePathname = (
   pathname: string,

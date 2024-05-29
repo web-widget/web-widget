@@ -121,7 +121,6 @@ export class WebWidgetRenderer {
       return result;
     }
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const module = (await loader()) as ServerWidgetModule;
     if (typeof module.render !== 'function') {
       throw new TypeError(
@@ -193,8 +192,19 @@ export class WebWidgetRenderer {
       result += children;
     }
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    result += renderLifecycleCacheLayer();
+    try {
+      result += renderLifecycleCacheLayer();
+    } catch (error: any) {
+      if (error?.message?.includes('Context is not available')) {
+        // NOTE: This is a temporary solution, it mainly avoids crashes in stackblitz environment.
+        console.warn(
+          `LifecycleCache cannot be serialized: This may be caused by the runtime not supporting AsyncLocalStorage:`,
+          error
+        );
+      } else {
+        throw error;
+      }
+    }
 
     return result;
   }

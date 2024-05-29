@@ -2,19 +2,10 @@ import type {
   Component,
   ComponentProps,
   RenderContext,
+  SerializableValue,
 } from '@web-widget/helpers';
 
 export * from './web-widget';
-
-type JSONValue =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: JSONValue }
-  | JSONValue[];
-
-type JSONProps = { [key: string]: JSONValue };
 
 export interface DefineHtmlRenderOptions {
   /**@deprecated*/
@@ -22,5 +13,5 @@ export interface DefineHtmlRenderOptions {
     context: RenderContext,
     component: Component,
     props: ComponentProps
-  ) => Promise<JSONProps>;
+  ) => Promise<SerializableValue>;
 }

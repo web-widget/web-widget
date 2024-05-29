@@ -22,6 +22,7 @@ import type {
   WidgetRenderContext,
   WidgetRenderOptions,
   WidgetRenderResult,
+  ActionHandler,
 } from '@web-widget/schema';
 
 export /*#__PURE__*/ function defineConfig(config: RouteConfig) {
@@ -80,6 +81,10 @@ export /*#__PURE__*/ function defineRouteHandler<
 export /*#__PURE__*/ function defineMiddlewareHandler(
   handler: MiddlewareHandler | MiddlewareHandlers
 ) {
+  return handler;
+}
+
+export /*#__PURE__*/ function defineActionHandler(handler: ActionHandler) {
   return handler;
 }
 

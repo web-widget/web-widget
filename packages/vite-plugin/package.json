@@ -53,6 +53,11 @@
   "peerDependencies": {
     "vite": "^5.0.13"
   },
+  "peerDependenciesMeta": {
+    "@web-widget/action": {
+      "optional": false
+    }
+  },
   "engines": {
     "node": "^14.18 || >= 16.0.0"
   },

@@ -1,14 +1,13 @@
+import path from 'node:path';
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
-import type { Plugin } from 'vite';
-import { defineAsyncOptions } from '../container';
-import type { AppendWebWidgetMetaPluginOptions } from './append-web-widget-meta';
-import { appendWebWidgetMetaPlugin } from './append-web-widget-meta';
+import type { Plugin, Manifest as ViteManifest } from 'vite';
+import { getLinks, getManifest, getWebRouterPluginApi } from './utils';
 
 const alias = (name: string) => `__$${name}$__`;
 
-export interface ExportWidgetPluginOptions {
+export interface ExportRenderPluginOptions {
   extractFromExportDefault?: {
     name: string;
     default: string;
@@ -18,59 +17,46 @@ export interface ExportWidgetPluginOptions {
   exclude?: FilterPattern;
   include?: FilterPattern;
   inject?: string | string[];
-  manifest?: AppendWebWidgetMetaPluginOptions['manifest'];
+  manifest?: ViteManifest;
   provide: string;
 }
 
-export function exportWebWidgetPlugin(
-  options: ExportWidgetPluginOptions
-): Plugin[] {
-  let filter: (id: string | unknown) => boolean;
-  const [
-    appendWebWidgetMetaPluginOptions,
-    setAppendWebWidgetMetaPluginOptions,
-  ] = defineAsyncOptions<AppendWebWidgetMetaPluginOptions>({});
+export function exportRenderPlugin({
+  exclude,
+  extractFromExportDefault,
+  include,
+  inject = 'render',
+  manifest,
+  provide,
+}: ExportRenderPluginOptions): Plugin[] {
+  if (typeof provide !== 'string') {
+    throw new TypeError(`options.provide must be a string type.`);
+  }
+
+  let base: string;
+  let root: string;
+
+  const filter = createFilter(include, exclude);
+
   return [
     {
-      name: '@widget:export-web-widget',
-      async config(userConfig) {
-        const ssrBuild = !!userConfig.build?.ssr;
-        const {
-          exclude,
-          include, // = /(?:\.|@)(?:widget|route)\..*$/,
-          manifest,
-          provide,
-        } = options;
-        filter = createFilter(include, exclude);
-
-        if (typeof provide !== 'string') {
-          throw new TypeError(`options.provide must be a string type.`);
-        }
-
-        if (ssrBuild && !manifest) {
-          throw new Error(`options.manifest is required to build ssr.`);
-        }
-
-        setAppendWebWidgetMetaPluginOptions({
-          exclude,
-          include,
-          manifest: manifest || {},
-        });
-      },
+      name: '@web-widget:export-render',
       async transform(code, id) {
         if (!filter(id)) {
           return null;
         }
 
-        const {
-          inject = ['render'],
-          extractFromExportDefault,
-          provide,
-        } = options;
         const injects = Array.isArray(inject) ? inject : [inject];
 
-        await esModuleLexer.init;
-        const [, exports] = esModuleLexer.parse(code, id);
+        let exports;
+
+        try {
+          await esModuleLexer.init;
+          [, exports] = esModuleLexer.parse(code, id);
+        } catch (error) {
+          return this.error(error);
+        }
+
         const magicString = new MagicString(code);
 
         injects.forEach((exportName) => {
@@ -135,9 +121,65 @@ export function exportWebWidgetPlugin(
       },
     },
     {
-      ...appendWebWidgetMetaPlugin(appendWebWidgetMetaPluginOptions),
       apply: (userConfig, { command }) => {
         return command === 'build' && !!userConfig.build?.ssr;
+      },
+
+      name: '@web-widget:append-meta',
+      enforce: 'post',
+      async configResolved(config) {
+        base = config.base;
+        root = config.root;
+
+        if (!manifest) {
+          const api = getWebRouterPluginApi(config);
+          if (api) {
+            manifest = await getManifest(root, api.config);
+          }
+        }
+      },
+      async transform(code, id) {
+        if (!filter(id)) {
+          return null;
+        }
+
+        if (!manifest) {
+          throw new Error(`Missing manifest.`);
+        }
+
+        const magicString = new MagicString(code);
+        const fileName = path.relative(root, id);
+        const meta = {
+          link: getLinks(manifest, fileName, base, false),
+        };
+
+        await esModuleLexer.init;
+        const [, exports] = esModuleLexer.parse(code, id);
+        const metaExport = exports.find(({ n: name }) => name === 'meta');
+        if (metaExport) {
+          const { n: name, ln: localName } = metaExport;
+          const metaExportName = localName ?? name;
+          magicString.append(
+            [
+              ``,
+              `;((meta) => {`,
+              `  const link = ${JSON.stringify(meta.link, null, 2)};`,
+              `  meta.link ? meta.link.push(...link) : (meta.link = link);`,
+              `})(${metaExportName});`,
+            ].join('\n')
+          );
+        } else {
+          magicString.append(
+            [
+              ``,
+              `export const meta = {`,
+              `  link: ${JSON.stringify(meta.link)},`,
+              `};`,
+            ].join('\n')
+          );
+        }
+
+        return { code: magicString.toString(), map: magicString.generateMap() };
       },
     },
   ];

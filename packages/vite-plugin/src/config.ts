@@ -1,9 +1,33 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
-import type { ResolvedBuilderConfig, BuilderUserConfig } from './types';
+import type { ResolvedWebRouterConfig, WebRouterUserConfig } from './types';
 
-export const BUILDER_CONFIG_DEFAULTS: ResolvedBuilderConfig = {
+function resolveRealFile(
+  fileName: string,
+  root: string,
+  extensions: string[] = ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json']
+): string {
+  const paths = ['', ...extensions].map((extension) =>
+    path.resolve(root, `${fileName}${extension}`)
+  );
+
+  for (const file of paths) {
+    if (fs.existsSync(file)) {
+      return file;
+    }
+  }
+
+  throw new Error(`File not found: ${paths.join(', ')}`);
+}
+
+////////////////////////////////////////
+//////                            //////
+//////       WebRouterPlugin      //////
+//////                            //////
+////////////////////////////////////////
+
+export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
   autoFullBuild: true,
   filesystemRouting: {
     basePathname: '/',
@@ -30,25 +54,25 @@ export const BUILDER_CONFIG_DEFAULTS: ResolvedBuilderConfig = {
   },
 };
 
-export const BuilderConfigSchema = z.object({
+export const WebRouterConfigSchema = z.object({
   autoFullBuild: z
     .boolean()
     .optional()
-    .default(BUILDER_CONFIG_DEFAULTS.autoFullBuild),
+    .default(WEB_ROUTER_CONFIG_DEFAULTS.autoFullBuild),
   filesystemRouting: z
     .object({
       basePathname: z
         .string()
         .optional()
-        .default(BUILDER_CONFIG_DEFAULTS.filesystemRouting.basePathname),
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.filesystemRouting.basePathname),
       dir: z
         .string()
         .optional()
-        .default(BUILDER_CONFIG_DEFAULTS.filesystemRouting.dir),
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.filesystemRouting.dir),
       enabled: z
         .boolean()
         .optional()
-        .default(BUILDER_CONFIG_DEFAULTS.filesystemRouting.enabled),
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.filesystemRouting.enabled),
       overridePathname: z
         .function()
         .args(
@@ -68,7 +92,7 @@ export const BuilderConfigSchema = z.object({
         )
         .returns(z.string())
         .optional()
-        .default(BUILDER_CONFIG_DEFAULTS.filesystemRouting.overridePathname),
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.filesystemRouting.overridePathname),
     })
     .optional()
     .default({}),
@@ -79,11 +103,11 @@ export const BuilderConfigSchema = z.object({
           entry: z
             .string()
             .optional()
-            .default(BUILDER_CONFIG_DEFAULTS.input.client.entry),
+            .default(WEB_ROUTER_CONFIG_DEFAULTS.input.client.entry),
           importmap: z
             .string()
             .optional()
-            .default(BUILDER_CONFIG_DEFAULTS.input.client.importmap),
+            .default(WEB_ROUTER_CONFIG_DEFAULTS.input.client.importmap),
         })
         .optional()
         .default({}),
@@ -92,11 +116,11 @@ export const BuilderConfigSchema = z.object({
           entry: z
             .string()
             .optional()
-            .default(BUILDER_CONFIG_DEFAULTS.input.server.entry),
+            .default(WEB_ROUTER_CONFIG_DEFAULTS.input.server.entry),
           routemap: z
             .string()
             .optional()
-            .default(BUILDER_CONFIG_DEFAULTS.input.server.routemap),
+            .default(WEB_ROUTER_CONFIG_DEFAULTS.input.server.routemap),
         })
         .optional()
         .default({}),
@@ -108,39 +132,33 @@ export const BuilderConfigSchema = z.object({
       client: z
         .string()
         .optional()
-        .default(BUILDER_CONFIG_DEFAULTS.output.client),
-      dir: z.string().optional().default(BUILDER_CONFIG_DEFAULTS.output.dir),
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.output.client),
+      dir: z.string().optional().default(WEB_ROUTER_CONFIG_DEFAULTS.output.dir),
       manifest: z
         .string()
         .optional()
-        .default(BUILDER_CONFIG_DEFAULTS.output.manifest),
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.output.manifest),
       server: z
         .string()
         .optional()
-        .default(BUILDER_CONFIG_DEFAULTS.output.server),
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.output.server),
       ssrManifest: z
         .string()
         .optional()
-        .default(BUILDER_CONFIG_DEFAULTS.output.ssrManifest),
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.output.ssrManifest),
     })
     .optional()
     .default({}),
 });
 
-let resolve: (value: unknown) => void;
-
-const config = new Promise((_resolve) => {
-  resolve = _resolve;
-});
-
-export function parseConfig(
-  userConfig: BuilderUserConfig,
+export function parseWebRouterConfig(
+  userConfig: WebRouterUserConfig,
   root: string,
   extensions?: string[]
 ) {
-  const builderConfig = BuilderConfigSchema.parse(
+  const builderConfig = WebRouterConfigSchema.parse(
     userConfig
-  ) as ResolvedBuilderConfig;
+  ) as ResolvedWebRouterConfig;
   const setRealPath = (ctx: any, key: string) =>
     (ctx[key] = resolveRealFile(ctx[key], root, extensions));
 
@@ -151,30 +169,4 @@ export function parseConfig(
   setRealPath(builderConfig.input.server, 'routemap');
 
   return builderConfig;
-}
-
-export function setConfig(config: ResolvedBuilderConfig) {
-  resolve(config);
-}
-
-export function getConfig(): Promise<ResolvedBuilderConfig> {
-  return config as Promise<ResolvedBuilderConfig>;
-}
-
-function resolveRealFile(
-  fileName: string,
-  root: string,
-  extensions: string[] = ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json']
-): string {
-  const paths = ['', ...extensions].map((extension) =>
-    path.resolve(root, `${fileName}${extension}`)
-  );
-
-  for (const file of paths) {
-    if (fs.existsSync(file)) {
-      return file;
-    }
-  }
-
-  throw new Error(`File not found: ${paths.join(', ')}`);
 }

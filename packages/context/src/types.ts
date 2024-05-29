@@ -1,19 +1,11 @@
-import type { MiddlewareContext } from '@web-widget/schema';
+import type { MiddlewareContext, SerializableValue } from '@web-widget/schema';
 
-type JSONValue =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: JSONValue }
-  | JSONValue[];
-
-export type JSONObject = { [key: string]: JSONValue };
+type SerializableObject = { [key: string]: SerializableValue };
 
 export interface SafeSerializableContext extends Partial<MiddlewareContext> {
   params: Record<string, string>;
   /** @deprecated */
   pathname: string;
   request: Request;
-  state: JSONObject;
+  state: SerializableObject;
 }

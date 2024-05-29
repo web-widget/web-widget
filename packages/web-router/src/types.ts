@@ -9,6 +9,7 @@ import type {
   ServerWidgetRenderContext,
   ServerWidgetRenderResult,
   MiddlewareModule,
+  ActionModule,
 } from '@web-widget/helpers';
 
 import type { Context } from './context';
@@ -66,6 +67,11 @@ export abstract class FetchEventLike {
 export interface Manifest {
   routes: {
     module: RouteModule | (() => Promise<RouteModule>);
+    name?: string;
+    pathname: string;
+  }[];
+  actions: {
+    module: ActionModule | (() => Promise<ActionModule>);
     name?: string;
     pathname: string;
   }[];

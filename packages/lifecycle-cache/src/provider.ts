@@ -1,5 +1,5 @@
+import type { SerializableValue } from '@web-widget/schema';
 import { lifecycleCache } from './cache';
-import type { JSONValue } from './types';
 
 const ERROR = Symbol.for('error');
 type PromiseState<T> = Promise<T> & {
@@ -13,7 +13,10 @@ type PromiseState<T> = Promise<T> & {
  * @param args Handler arguments
  * @returns Cached value
  */
-export async function cacheProvider<A extends JSONValue, R extends JSONValue>(
+export async function cacheProvider<
+  A extends SerializableValue,
+  R extends SerializableValue,
+>(
   cacheKey: string,
   handler: (...arts: A[]) => R | Promise<R>,
   args?: A[]
@@ -49,11 +52,10 @@ export const asyncCacheProvider = cacheProvider;
  * @param args Handler arguments
  * @returns Cached value
  */
-export function syncCacheProvider<A extends JSONValue, R extends JSONValue>(
-  cacheKey: string,
-  handler: (...args: A[]) => R | Promise<R>,
-  args?: A[]
-): R {
+export function syncCacheProvider<
+  A extends SerializableValue,
+  R extends SerializableValue,
+>(cacheKey: string, handler: (...args: A[]) => R | Promise<R>, args?: A[]): R {
   const cache = lifecycleCache<{
     [cacheKey: string]: R | Promise<R>;
   }>();

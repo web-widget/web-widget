@@ -1,17 +1,13 @@
 import type { Component, App } from 'vue';
-import type { ComponentProps, RenderContext } from '@web-widget/helpers';
+import type {
+  ComponentProps,
+  RenderContext,
+  SerializableValue,
+} from '@web-widget/helpers';
 
 export * from './components';
 
-type JSONValue =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: JSONValue }
-  | JSONValue[];
-
-type JSONProps = { [key: string]: JSONValue };
+type SerializableObject = { [key: string]: SerializableValue };
 
 export interface CreateVueRenderOptions {
   onCreatedApp?: (
@@ -25,5 +21,5 @@ export interface CreateVueRenderOptions {
     context: RenderContext,
     component: Component,
     props: ComponentProps
-  ) => Promise<JSONProps>;
+  ) => Promise<SerializableObject>;
 }

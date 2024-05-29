@@ -20,6 +20,23 @@
         "default": "./dist/module.server.js"
       }
     },
+    "./action": {
+      "worker": {
+        "types": "./dist/action.server.d.ts",
+        "development": "./src/action/server.ts",
+        "default": "./dist/action.server.js"
+      },
+      "browser": {
+        "types": "./dist/action.client.d.ts",
+        "development": "./src/action/client.ts",
+        "default": "./dist/action.client.js"
+      },
+      "default": {
+        "types": "./dist/action.server.d.ts",
+        "development": "./src/action/server.ts",
+        "default": "./dist/action.server.js"
+      }
+    },
     "./cache": {
       "worker": {
         "types": "./dist/cache.server.d.ts",
@@ -141,7 +158,8 @@
     "@edge-runtime/cookies": "^4.0.3",
     "@edge-runtime/user-agent": "^1.4.1",
     "@web-widget/context": "workspace:*",
-    "@web-widget/lifecycle-cache": "workspace:*"
+    "@web-widget/lifecycle-cache": "workspace:*",
+    "@web-widget/action": "workspace:*"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.2",
@@ -169,6 +187,20 @@
         "default": {
           "types": "./dist/module.server.d.ts",
           "default": "./dist/module.server.js"
+        }
+      },
+      "./action": {
+        "worker": {
+          "types": "./dist/action.server.d.ts",
+          "default": "./dist/action.server.js"
+        },
+        "browser": {
+          "types": "./dist/action.client.d.ts",
+          "default": "./dist/action.client.js"
+        },
+        "default": {
+          "types": "./dist/action.server.d.ts",
+          "default": "./dist/action.server.js"
         }
       },
       "./cache": {
