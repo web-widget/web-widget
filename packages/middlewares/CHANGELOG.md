@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.19.0
+
+### Patch Changes
+
+- Updated dependencies [bdd93b7]
+  - @web-widget/helpers@1.19.0
+  - @web-widget/schema@1.19.0
+
 ## 1.18.0
 
 ### Minor Changes
