@@ -194,8 +194,16 @@ export class WebWidgetRenderer {
 
     try {
       result += renderLifecycleCacheLayer();
-    } catch (error) {
-      console.warn(`Failed to render lifecycle cache:`, error);
+    } catch (error: any) {
+      if (error?.message?.includes('Context is not available')) {
+        // NOTE: This is a temporary solution, it mainly avoids crashes in stackblitz environment.
+        console.warn(
+          `LifecycleCache cannot be serialized: This may be caused by the runtime not supporting AsyncLocalStorage:`,
+          error
+        );
+      } else {
+        throw error;
+      }
     }
 
     return result;
