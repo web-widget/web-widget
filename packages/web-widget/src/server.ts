@@ -121,7 +121,6 @@ export class WebWidgetRenderer {
       return result;
     }
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const module = (await loader()) as ServerWidgetModule;
     if (typeof module.render !== 'function') {
       throw new TypeError(
@@ -193,8 +192,11 @@ export class WebWidgetRenderer {
       result += children;
     }
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    result += renderLifecycleCacheLayer();
+    try {
+      result += renderLifecycleCacheLayer();
+    } catch (error) {
+      console.warn(`Failed to render lifecycle cache:`, error);
+    }
 
     return result;
   }

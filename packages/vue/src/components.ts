@@ -135,7 +135,6 @@ export /*#__PURE__*/ function defineWebWidget(
       },
       { slots }
     ) {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const data = useAttrs() as WebWidgetRendererOptions['data'];
 
       return () =>

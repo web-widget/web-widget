@@ -66,7 +66,6 @@ export /*#__PURE__*/ function defineWebWidget(
         throw new TypeError(`Slot not supported.`);
       }
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const data = useAttrs() as WebWidgetRendererOptions['data'];
       const widget = new WebWidgetRenderer(loader as Loader, {
         ...options,

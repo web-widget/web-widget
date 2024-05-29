@@ -35,7 +35,6 @@ export function redirect(
 }
 
 export function url(): URL {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const ctx = context();
 
   return new URL(ctx.request.url);
