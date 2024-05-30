@@ -25,13 +25,13 @@ params();
 
 ## Returns
 
-`useParams` returns an object containing the current route's filled in dynamic parameters.
+`params` returns an object containing the current route's filled in dynamic parameters.
 
 - Each property in the object is an active dynamic segment.
 - The properties name is the segment's name, and the properties value is what the segment is filled in with.
 - The properties value will either be a `string` or array of `string`'s depending on the type of dynamic segment.
-- If the route contains no dynamic parameters, `useParams` returns an empty object.
-- If used in Pages Router, `useParams` will return `null` on the initial render and updates with properties following the rules above once the router is ready.
+- If the route contains no dynamic parameters, `params` returns an empty object.
+- If used in Pages Router, `params` will return `null` on the initial render and updates with properties following the rules above once the router is ready.
 
 For example:
 
