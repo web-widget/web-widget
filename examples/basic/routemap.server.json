@@ -2,13 +2,14 @@
   "routes": [
     {
       "pathname": "/about",
-      "module": "routes/about@route.tsx"
+      "module": "./routes/about@route.tsx"
     },
     {
       "pathname": "/",
-      "module": "routes/index@route.tsx"
+      "module": "./routes/index@route.tsx"
     }
   ],
+  "actions": [],
   "middlewares": [],
   "fallbacks": []
 }

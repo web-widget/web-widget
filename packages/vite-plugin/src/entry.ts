@@ -431,6 +431,12 @@ function generateServerRoutemap(
     path.relative(root, resolvedWebRouterConfig.input.client.entry),
     base
   );
+
+  clientEntryLink.push({
+    rel: 'modulepreload',
+    href: clientEntryModuleName,
+  });
+
   const entryJsCode = [
     `import { mergeMeta } from "@web-widget/helpers";`,
     `import entry from ${JSON.stringify(entryModuleName)};`,
