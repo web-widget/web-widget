@@ -1,5 +1,18 @@
 # @web-widget/vite-plugin
 
+## 1.21.0
+
+### Minor Changes
+
+- c5dbe9b: Use `modulepreload` to optimize the speed of entry file.
+
+### Patch Changes
+
+- @web-widget/helpers@1.21.0
+- @web-widget/web-router@1.21.0
+- @web-widget/web-widget@1.21.0
+- @web-widget/node@1.21.0
+
 ## 1.20.0
 
 ### Minor Changes
