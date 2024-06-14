@@ -1,5 +1,11 @@
 # @web-widget/context
 
+## 1.21.0
+
+### Patch Changes
+
+- e46f5ef: Fix TypeError: Failed to construct 'Request': Failed to read the 'headers' property from 'RequestInit': String contains non ISO-8859-1 code point.
+
 ## 1.20.0
 
 ## 1.19.0
