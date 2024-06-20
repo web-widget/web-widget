@@ -66,7 +66,7 @@ export type CacheOptions = {
   /**
    * Cache storage.
    */
-  caches: CacheStorage;
+  caches?: CacheStorage;
 
   /**
    * Signal an abort during cache revalidate.
