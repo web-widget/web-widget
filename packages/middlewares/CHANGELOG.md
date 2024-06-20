@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.21.1
+
+### Patch Changes
+
+- a794c8c: `caches` is now optional.
+  - @web-widget/helpers@1.21.1
+  - @web-widget/schema@1.21.1
+
 ## 1.21.0
 
 ### Patch Changes
