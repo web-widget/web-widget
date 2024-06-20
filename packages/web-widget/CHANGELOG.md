@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.21.2
+
+### Patch Changes
+
+- d24fe43: Optimize warning messages in stackblitz environment.
+  - @web-widget/helpers@1.21.2
+  - @web-widget/lifecycle-cache@1.21.2
+
 ## 1.21.1
 
 ### Patch Changes
