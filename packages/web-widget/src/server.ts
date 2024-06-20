@@ -196,11 +196,20 @@ export class WebWidgetRenderer {
       result += renderLifecycleCacheLayer();
     } catch (error: any) {
       if (error?.message?.includes('Context is not available')) {
-        // NOTE: This is a temporary solution, it mainly avoids crashes in stackblitz environment.
-        console.warn(
-          `LifecycleCache cannot be serialized: This may be caused by the runtime not supporting AsyncLocalStorage:`,
-          error
-        );
+        if (isWebContainer()) {
+          // NOTE: This is a temporary solution, it mainly avoids crashes in stackblitz environment.
+          console.warn(
+            [
+              `WARN`,
+              `LifecycleCache cannot be serialized`,
+              `This may be because the WebContainer environment does not support AsyncLocalStorage`,
+              `Please see https://github.com/stackblitz/webcontainer-core/issues/1169`,
+            ].join(': '),
+            error
+          );
+        } else {
+          throw error;
+        }
       } else {
         throw error;
       }
@@ -215,4 +224,11 @@ export class WebWidgetRenderer {
     const children = await this.renderInnerHTMLToString();
     return `<${tag} ${unsafeAttrsToHtml(attributes)}>${children}</${tag}>`;
   }
+}
+
+function isWebContainer() {
+  return (
+    typeof Reflect.get(globalThis, 'process')?.versions?.webcontainer ===
+    'string'
+  );
 }
