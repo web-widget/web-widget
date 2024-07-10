@@ -18,8 +18,8 @@
     "@web-widget/react": "workspace:*",
     "@web-widget/helpers": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "react": "canary",
-    "react-dom": "canary",
+    "react": "beta",
+    "react-dom": "beta",
     "@web-widget/vue": "workspace:*"
   },
   "devDependencies": {

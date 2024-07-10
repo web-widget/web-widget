@@ -21,8 +21,8 @@
     "koa": "^2.14.2",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",
-    "react": "canary",
-    "react-dom": "canary",
+    "react": "beta",
+    "react-dom": "beta",
     "vue": "^3.4.8"
   },
   "devDependencies": {
