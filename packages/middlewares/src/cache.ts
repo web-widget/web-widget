@@ -74,7 +74,7 @@ export type CacheOptions = {
   signal?: AbortSignal | (() => AbortSignal);
 };
 
-export default function cache(options: CacheOptions) {
+export default function cache(options?: CacheOptions) {
   const defaultOptions = {
     cacheName: 'default',
     ignoreRequestCacheControl: true,
@@ -131,17 +131,15 @@ export default function cache(options: CacheOptions) {
     const cache = await caches.open(cacheName);
     const fetch = nextToFetch(cache, next);
 
-    return fetch(
-      ignoreRequestCacheControl ? removeRequestCacheControl(request) : request,
-      {
-        sharedCache: {
-          cacheControlOverride: cacheControl,
-          varyOverride: vary,
-          cacheKeyRules,
-        },
-        signal,
-      }
-    );
+    return fetch(request, {
+      sharedCache: {
+        cacheControlOverride: cacheControl,
+        varyOverride: vary,
+        cacheKeyRules,
+        ignoreRequestCacheControl,
+      },
+      signal,
+    });
   });
 }
 
@@ -157,15 +155,6 @@ async function getRouteCacheConfig(
 
 function setCacheStatus(headers: Headers, status: CacheStatus) {
   headers.set('x-cache-status', status);
-}
-
-function removeRequestCacheControl(request: Request) {
-  const headers = new Headers(request.headers);
-  headers.delete('cache-control');
-  headers.delete('pragma');
-  return new Request(request, {
-    headers,
-  });
 }
 
 function errorToResponse(error: any = {}) {

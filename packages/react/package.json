@@ -51,15 +51,15 @@
     "@types/react-dom": "^18.2.18",
     "@types/react": "^18.2.47",
     "@web-widget/schema": "workspace:*",
-    "react-dom": "canary",
-    "react": "canary",
+    "react-dom": "beta",
+    "react": "beta",
     "tsup": "^8.0.1",
     "typescript": "latest",
     "vite": "^5.0.13"
   },
   "peerDependencies": {
-    "react-dom": "canary",
-    "react": "canary",
+    "react-dom": "beta",
+    "react": "beta",
     "vite": "^5.0.13"
   },
   "publishConfig": {
