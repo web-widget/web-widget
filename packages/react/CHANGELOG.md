@@ -1,5 +1,18 @@
 # @web-widget/react
 
+## 1.22.0
+
+### Minor Changes
+
+- 3f90209: Upgrading `react@beta`.
+
+### Patch Changes
+
+- 3f90209: Upgrading `@web-widget/shared-cache`.
+  - @web-widget/helpers@1.22.0
+  - @web-widget/vite-plugin@1.22.0
+  - @web-widget/web-widget@1.22.0
+
 ## 1.21.2
 
 ### Patch Changes
