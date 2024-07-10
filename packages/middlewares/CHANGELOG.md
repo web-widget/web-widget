@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 1.22.0
+
+### Minor Changes
+
+- 3f90209: Upgrading `@web-widget/shared-cache`.
+
+### Patch Changes
+
+- @web-widget/helpers@1.22.0
+- @web-widget/schema@1.22.0
+
 ## 1.21.2
 
 ### Patch Changes
