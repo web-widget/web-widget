@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
@@ -124,13 +125,22 @@ export function importActionPlugin(
           se: statementEnd,
         } = importSpecifier;
 
-        const importModule = moduleName
-          ? (
+        let importModule: string | undefined;
+
+        if (moduleName) {
+          if (moduleName.startsWith('./') && !moduleName.includes('?')) {
+            // NOTE: Use `path.resolve` instead of `this.resolve` to avoid the latter waiting for a result but failing to return one.
+            // Possible errors with `this.resolve`:
+            // Unexpected early exit. This happens when Promises returned by plugins cannot resolve. Unfinished hook action(s) on exit
+            importModule = path.resolve(path.dirname(id), moduleName);
+          } else {
+            importModule = (
               await this.resolve(moduleName, id, {
                 skipSelf: true,
               })
-            )?.id
-          : undefined;
+            )?.id;
+          }
+        }
 
         if (importModule && filter(importModule)) {
           if (dynamicImport !== -1) {
