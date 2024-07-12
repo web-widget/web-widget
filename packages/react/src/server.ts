@@ -3,15 +3,12 @@ import {
   getComponentDescriptor,
   type ComponentProps,
 } from '@web-widget/helpers';
-import type { FunctionComponent, ReactNode } from 'react';
+import type { FunctionComponent } from 'react';
 import { createElement } from 'react';
 
-import type {
-  ReactDOMServerReadableStream,
-  RenderToReadableStreamOptions,
-} from 'react-dom/server';
+import type { RenderToReadableStreamOptions } from 'react-dom/server';
 // @ts-ignore
-import * as ReactDOMServer from 'react-dom/server.browser';
+import { renderToReadableStream } from 'react-dom/server.edge';
 import type { CreateReactRenderOptions } from './types';
 
 declare module '@web-widget/schema' {
@@ -26,13 +23,6 @@ declare module '@web-widget/schema' {
 export * from '@web-widget/helpers';
 export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
-
-function renderToReadableStream(
-  vNode: ReactNode,
-  renderOptions?: RenderToReadableStreamOptions
-): Promise<ReactDOMServerReadableStream> {
-  return ReactDOMServer.renderToReadableStream(vNode, renderOptions);
-}
 
 type StreamOptions = {
   awaitAllReady?: boolean;
