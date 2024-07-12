@@ -1,5 +1,17 @@
 # @web-widget/react
 
+## 1.23.0
+
+### Minor Changes
+
+- 260aea3: Update react@rc(v19.0).
+
+### Patch Changes
+
+- @web-widget/helpers@1.23.0
+- @web-widget/vite-plugin@1.23.0
+- @web-widget/web-widget@1.23.0
+
 ## 1.22.1
 
 ### Patch Changes
