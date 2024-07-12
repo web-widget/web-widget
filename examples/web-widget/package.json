@@ -18,8 +18,8 @@
     "@web-widget/react": "workspace:*",
     "@web-widget/helpers": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "react": "beta",
-    "react-dom": "beta",
+    "react": "rc",
+    "react-dom": "rc",
     "@web-widget/vue": "workspace:*"
   },
   "devDependencies": {

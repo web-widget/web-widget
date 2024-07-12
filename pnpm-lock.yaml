@@ -73,11 +73,11 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       react:
-        specifier: beta
-        version: 19.0.0-beta-26f2496093-20240514
+        specifier: rc
+        version: 19.0.0-rc-e684ca66ab-20240619
       react-dom:
-        specifier: beta
-        version: 19.0.0-beta-26f2496093-20240514(react@19.0.0-beta-26f2496093-20240514)
+        specifier: rc
+        version: 19.0.0-rc-e684ca66ab-20240619(react@19.0.0-rc-e684ca66ab-20240619)
       vue:
         specifier: ^3.4.8
         version: 3.4.8(typescript@5.5.3)
@@ -158,11 +158,11 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       react:
-        specifier: beta
-        version: 19.0.0-beta-26f2496093-20240514
+        specifier: rc
+        version: 19.0.0-rc-e684ca66ab-20240619
       react-dom:
-        specifier: beta
-        version: 19.0.0-beta-26f2496093-20240514(react@19.0.0-beta-26f2496093-20240514)
+        specifier: rc
+        version: 19.0.0-rc-e684ca66ab-20240619(react@19.0.0-rc-e684ca66ab-20240619)
       vue:
         specifier: ^3.4.8
         version: 3.4.8(typescript@5.5.3)
@@ -246,11 +246,11 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       react:
-        specifier: beta
-        version: 19.0.0-beta-26f2496093-20240514
+        specifier: rc
+        version: 19.0.0-rc-e684ca66ab-20240619
       react-dom:
-        specifier: beta
-        version: 19.0.0-beta-26f2496093-20240514(react@19.0.0-beta-26f2496093-20240514)
+        specifier: rc
+        version: 19.0.0-rc-e684ca66ab-20240619(react@19.0.0-rc-e684ca66ab-20240619)
     devDependencies:
       '@jest/globals':
         specifier: ^29.6.2
@@ -369,11 +369,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/web-widget
       react:
-        specifier: beta
-        version: 19.0.0-beta-26f2496093-20240514
+        specifier: rc
+        version: 19.0.0-rc-e684ca66ab-20240619
       react-dom:
-        specifier: beta
-        version: 19.0.0-beta-26f2496093-20240514(react@19.0.0-beta-26f2496093-20240514)
+        specifier: rc
+        version: 19.0.0-rc-e684ca66ab-20240619(react@19.0.0-rc-e684ca66ab-20240619)
     devDependencies:
       '@types/react':
         specifier: ^18.2.47
@@ -728,11 +728,11 @@ importers:
         specifier: workspace:*
         version: link:../schema
       react:
-        specifier: beta
-        version: 19.0.0-beta-26f2496093-20240514
+        specifier: rc
+        version: 19.0.0-rc-e684ca66ab-20240619
       react-dom:
-        specifier: beta
-        version: 19.0.0-beta-26f2496093-20240514(react@19.0.0-beta-26f2496093-20240514)
+        specifier: rc
+        version: 19.0.0-rc-e684ca66ab-20240619(react@19.0.0-rc-e684ca66ab-20240619)
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(postcss@8.4.38)(typescript@5.5.3)
@@ -11154,13 +11154,13 @@ packages:
       scheduler: 0.23.0
     dev: false
 
-  /react-dom@19.0.0-beta-26f2496093-20240514(react@19.0.0-beta-26f2496093-20240514):
-    resolution: {integrity: sha512-UvQ+K1l3DFQ34LDgfFSNuUGi9EC+yfE9tS6MdpNTd5fx7qC7KLfepfC/KpxWMQZ7JfE3axD4ZO6H4cBSpAZpqw==}
+  /react-dom@19.0.0-rc-e684ca66ab-20240619(react@19.0.0-rc-e684ca66ab-20240619):
+    resolution: {integrity: sha512-xjS2PN6oJkB5OHwv1fA1MgC1ZIIY/XYXKq62EXSiopNR2H338WOtpzy2ZVzOgzhZvXrQloWA10hNljiZsRnLPQ==}
     peerDependencies:
-      react: 19.0.0-beta-26f2496093-20240514
+      react: 19.0.0-rc-e684ca66ab-20240619
     dependencies:
-      react: 19.0.0-beta-26f2496093-20240514
-      scheduler: 0.25.0-beta-26f2496093-20240514
+      react: 19.0.0-rc-e684ca66ab-20240619
+      scheduler: 0.25.0-rc-e684ca66ab-20240619
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -11182,8 +11182,8 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
-  /react@19.0.0-beta-26f2496093-20240514:
-    resolution: {integrity: sha512-ZsU/WjNZ6GfzMWsq2DcGjElpV9it8JmETHm9mAJuOJNhuJcWJxt8ltCJabONFRpDFq1A/DP0d0KFj9CTJVM4VA==}
+  /react@19.0.0-rc-e684ca66ab-20240619:
+    resolution: {integrity: sha512-4qgXbyT2NSq23YEUu9ogVgQZJabgYjNudw3v4NqouWJKC5OODX1AtYXjzrqH6KKNRjwIu5D2Tvpmtg216qmQEQ==}
     engines: {node: '>=0.10.0'}
 
   /read-pkg-up@1.0.1:
@@ -11557,8 +11557,8 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
-  /scheduler@0.25.0-beta-26f2496093-20240514:
-    resolution: {integrity: sha512-vDwOytLHFnA3SW2B1lNcbO+/qKVyLCX+KLpm+tRGNDsXpyxzRgkIaYGWmX+S70AJGchUHCtuqQ50GFeFgDbXUw==}
+  /scheduler@0.25.0-rc-e684ca66ab-20240619:
+    resolution: {integrity: sha512-pojzCFWJ8YVWcOWmZg7EfMyLebCpDUzslBYJvIMaeeIZZ5Dg2NO0NTRkxwllUkjv4Nr3sB1x8DAT/Y+xlCse2w==}
 
   /scslre@0.2.0:
     resolution: {integrity: sha512-4hc49fUMmX3jM0XdFUAPBrs1xwEcdHa0KyjEsjFs+Zfc66mpFpq5YmRgDtl+Ffo6AtJIilfei+yKw8fUn3N88w==}

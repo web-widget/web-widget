@@ -28,8 +28,8 @@
     "koa": "^2.14.2",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",
-    "react": "beta",
-    "react-dom": "beta"
+    "react": "rc",
+    "react-dom": "rc"
   },
   "devDependencies": {
     "@web-widget/vite-plugin": "workspace:*",
