@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.22.1
+
+### Patch Changes
+
+- c2459a8: Fix possible build errors.
+  - @web-widget/helpers@1.22.1
+  - @web-widget/node@1.22.1
+  - @web-widget/web-router@1.22.1
+  - @web-widget/web-widget@1.22.1
+
 ## 1.22.0
 
 ### Patch Changes
