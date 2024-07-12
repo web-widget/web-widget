@@ -49,10 +49,10 @@ export const createReactRender = ({
         vNode = createElement(StrictMode, null, vNode);
 
         if (recovering) {
-          root = hydrateRoot(container as Element, vNode);
+          root = hydrateRoot(container as Element, vNode as any);
         } else {
           root = createRoot(container);
-          root.render(vNode);
+          root.render(vNode as any);
         }
       },
 

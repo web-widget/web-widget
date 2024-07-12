@@ -48,8 +48,8 @@
     "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
-    "@types/react-dom": "^18.2.18",
-    "@types/react": "^18.2.47",
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc",
     "@web-widget/schema": "workspace:*",
     "react-dom": "rc",
     "react": "rc",
@@ -61,6 +61,10 @@
     "react-dom": "rc",
     "react": "rc",
     "vite": "^5.0.13"
+  },
+  "overrides": {
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc"
   },
   "publishConfig": {
     "access": "public",
