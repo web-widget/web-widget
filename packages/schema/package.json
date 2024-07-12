@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/schema",
-  "version": "1.22.1",
+  "version": "1.23.0",
   "type": "module",
   "exports": {
     ".": {
