@@ -14,7 +14,10 @@ defineOptions({
 <template>
   <BaseLayout>
     <h1>Welcome to Web Widget.</h1>
-    <p>Try to update this message in the <code>./routes/index@route.vue</code> file.</p>
+    <p>
+      Try to update this message in the
+      <code>./routes/index@route.vue</code> file.
+    </p>
 
     <h2>React</h2>
     <ReactCounter .count="0" />
