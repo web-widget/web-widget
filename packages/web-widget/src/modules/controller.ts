@@ -108,8 +108,8 @@ export class LifecycleController {
               body ??
               (body = hasStyle
                 ? context.recovering
-                  ? context.container.querySelector(tag.replace('.', '\\.')) ??
-                    context.container
+                  ? (context.container.querySelector(tag.replace('.', '\\.')) ??
+                    context.container)
                   : context.container.appendChild(document.createElement(tag))
                 : context.container)
             );

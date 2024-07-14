@@ -5,7 +5,9 @@ import type {
 } from '@web-widget/helpers';
 export type * from '@web-widget/helpers';
 
-export type SerializableObject = { [key: string]: SerializableValue };
+export interface SerializableObject {
+  [key: string]: SerializableValue;
+}
 
 export type Loader = () => Promise<WidgetModule>;
 

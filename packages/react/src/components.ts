@@ -18,11 +18,11 @@ export interface WebWidgetProps {
   renderTarget?: WebWidgetRendererOptions['renderTarget'];
 }
 
-type WebWidgetElement = {
+interface WebWidgetElement {
   localName: string;
   attributes: Record<string, string>;
   innerHTML: Promise<string>;
-};
+}
 
 const renderWebWidget = function ({
   children,

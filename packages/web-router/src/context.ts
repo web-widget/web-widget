@@ -8,10 +8,10 @@ export interface ExecutionContext {
 
 // export interface ContextVariableMap {}
 
-type ContextOptions<E extends Env> = {
+interface ContextOptions<E extends Env> {
   env: E['Bindings'];
   executionContext?: FetchEventLike | ExecutionContext;
-};
+}
 
 export class Context<E extends Env = any> {
   state = Object.create(null);

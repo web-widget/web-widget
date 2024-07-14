@@ -35,10 +35,10 @@ function runSsrBuild(inlineConfig?: InlineConfig) {
 
 type Imports = Record<string, string>;
 type Scopes = Record<string, Imports>;
-type ImportMap = {
+interface ImportMap {
   imports?: Imports;
   scopes?: Scopes;
-};
+}
 
 export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
   let root: string;
@@ -68,7 +68,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     return {
       root,
       appType: 'custom',
-      publicDir: ssrBuild ? config.publicDir ?? false : undefined,
+      publicDir: ssrBuild ? (config.publicDir ?? false) : undefined,
       ssr: ssrBuild
         ? {
             external: ['node:async_hooks'],
@@ -101,7 +101,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
         manifest: ssrBuild
           ? undefined
           : resolvedWebRouterConfig.output.manifest,
-        minify: ssrBuild ? false : config.build?.minify ?? 'esbuild',
+        minify: ssrBuild ? false : (config.build?.minify ?? 'esbuild'),
         ssr: ssrBuild,
         ssrEmitAssets: config.build?.ssrEmitAssets ?? false,
         // ssrManifest: ssrBuild

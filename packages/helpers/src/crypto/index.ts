@@ -1,7 +1,7 @@
-type Algorithm = {
+interface Algorithm {
   name: string;
   alias: string;
-};
+}
 
 type Data = string | ArrayBufferView | ArrayBuffer | ReadableStream;
 

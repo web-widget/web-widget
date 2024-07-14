@@ -2,9 +2,9 @@ import { defineMiddlewareHandler } from '@web-widget/helpers';
 import { Status } from '@web-widget/helpers/status';
 import { redirect } from '@web-widget/helpers/navigation';
 
-export type TrailingSlashOptions = {
+export interface TrailingSlashOptions {
   trailingSlash?: boolean;
-};
+}
 
 export default function trailingSlash(options: TrailingSlashOptions = {}) {
   const trailingSlash = options.trailingSlash ?? false;

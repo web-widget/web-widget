@@ -25,10 +25,10 @@ export type StatusCode = number;
 export type Bindings = Record<string, unknown>;
 export type Variables = Record<string, unknown>;
 
-export type Env = {
+export interface Env {
   Bindings?: Bindings;
   Variables?: Variables;
-};
+}
 
 ////////////////////////////////////////
 //////                            //////

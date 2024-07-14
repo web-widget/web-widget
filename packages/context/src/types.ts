@@ -1,6 +1,8 @@
 import type { MiddlewareContext, SerializableValue } from '@web-widget/schema';
 
-type SerializableObject = { [key: string]: SerializableValue };
+interface SerializableObject {
+  [key: string]: SerializableValue;
+}
 
 export interface SafeSerializableContext extends Partial<MiddlewareContext> {
   params: Record<string, string>;

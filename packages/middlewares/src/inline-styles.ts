@@ -11,9 +11,9 @@ declare module '@web-widget/schema' {
   }
 }
 
-export type InlineStylesOptions = {
+export interface InlineStylesOptions {
   filter?: (href: string) => boolean;
-};
+}
 
 export default function inlineStyles(options: InlineStylesOptions = {}) {
   return defineMiddlewareHandler(

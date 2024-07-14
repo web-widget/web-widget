@@ -24,7 +24,7 @@ export type CacheRouteOptions =
   | boolean
   | ((request: Request) => Promise<Partial<CacheOptions | boolean>>);
 
-export type CacheOptions = {
+export interface CacheOptions {
   /**
    * Override HTTP `Cache-Control` header.
    * @see https://developer.mozilla.org/docs/Web/HTTP/Headers/Cache-Control
@@ -72,7 +72,7 @@ export type CacheOptions = {
    * Signal an abort during cache revalidate.
    */
   signal?: AbortSignal | (() => AbortSignal);
-};
+}
 
 export default function cache(options?: CacheOptions) {
   const defaultOptions = {
@@ -125,7 +125,7 @@ export default function cache(options?: CacheOptions) {
 
     const vary = Array.isArray(varyOption)
       ? varyOption.join(', ')
-      : varyOption ?? '';
+      : (varyOption ?? '');
     const signal =
       typeof signalOption === 'function' ? signalOption() : signalOption;
     const cache = await caches.open(cacheName);

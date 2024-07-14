@@ -7,7 +7,9 @@ import type {
 
 export * from './components';
 
-type SerializableObject = { [key: string]: SerializableValue };
+interface SerializableObject {
+  [key: string]: SerializableValue;
+}
 
 export interface CreateReactRenderOptions {
   /**@deprecated*/

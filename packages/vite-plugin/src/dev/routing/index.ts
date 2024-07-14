@@ -7,7 +7,7 @@ import type { RouteSourceFile, OverridePathname } from './types';
 import type { RouteMap } from '@/types';
 import { relativePathWithDot } from '@/utils';
 
-export type FileSystemRouteGeneratorOptions = {
+export interface FileSystemRouteGeneratorOptions {
   basePathname: string;
   root: string;
   routemapPath: string;
@@ -15,7 +15,7 @@ export type FileSystemRouteGeneratorOptions = {
   overridePathname?: OverridePathname;
   update: (padding: Promise<void>) => void;
   watcher: FSWatcher;
-};
+}
 
 export async function fileSystemRouteGenerator({
   basePathname,

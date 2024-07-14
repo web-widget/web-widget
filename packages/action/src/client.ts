@@ -33,14 +33,14 @@ type RpcClientOptions =
       transport: RpcTransport;
     };
 
-type FetchOptions = {
+interface FetchOptions {
   url: string;
   credentials?: RequestCredentials;
   getHeaders?():
     | Record<string, string>
     | Promise<Record<string, string>>
     | undefined;
-};
+}
 
 type Promisify<T> = T extends (...args: any[]) => Promise<any>
   ? T // already a promise
