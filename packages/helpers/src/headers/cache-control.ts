@@ -1,4 +1,4 @@
-export type ResponseCacheControl = {
+export interface ResponseCacheControl {
   /**
    * The `immutable` response directive.
    * It indicates that the response will not be updated
@@ -88,9 +88,9 @@ export type ResponseCacheControl = {
    * while it revalidates it to a cache.
    */
   staleWhileRevalidate?: number;
-};
+}
 
-export type RequestCacheControl = {
+export interface RequestCacheControl {
   /**
    * The `max-age=N` request directive.
    * It indicates that the client allows a stored response
@@ -139,7 +139,7 @@ export type RequestCacheControl = {
    * If no cached response is available, a 504 Gateway Timeout response will be returned.
    */
   onlyIfCached?: boolean;
-};
+}
 
 const mappings: {
   [key in keyof (ResponseCacheControl & RequestCacheControl)]:

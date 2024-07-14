@@ -11,6 +11,7 @@ export default defineConfig({
     '@typescript-eslint/no-namespace': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/consistent-type-definitions': 'error',
     'no-var': 'off',
     'prefer-rest-params': 'off',
 

@@ -79,10 +79,10 @@ export interface RouteMap {
 
 type Imports = Record<string, string>;
 type Scopes = Record<string, Imports>;
-export type ImportMap = {
+export interface ImportMap {
   imports?: Imports;
   scopes?: Scopes;
-};
+}
 
 export interface WebRouterPlugin extends Plugin {
   name: '@web-widget:router';

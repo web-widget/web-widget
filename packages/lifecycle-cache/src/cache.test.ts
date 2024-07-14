@@ -1,13 +1,13 @@
 import { LifecycleCache } from './cache';
 
 describe('LifecycleCache', () => {
-  type TestStorage = {
+  interface TestStorage extends Record<string, unknown> {
     key1?: string;
     key2?: string;
     key3?: string;
     key4?: string;
     key5?: string;
-  };
+  }
   let storage: LifecycleCache<TestStorage>;
   let routeState: TestStorage;
 

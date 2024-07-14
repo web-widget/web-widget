@@ -137,7 +137,7 @@ async function* crawlGraph(
     ? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),
       // So we can get up-to-date info on initial server load.
       // Needed for slower CSS preprocessing like Tailwind
-      viteDevServer.moduleGraph.getModulesByFile(id) ?? new Set()
+      (viteDevServer.moduleGraph.getModulesByFile(id) ?? new Set())
     : // For non-root files, we're safe to pull from "getModuleById" based on testing.
       // TODO: Find better invalidation start to use "getModuleById" in all cases!
       new Set([viteDevServer.moduleGraph.getModuleById(id)]);

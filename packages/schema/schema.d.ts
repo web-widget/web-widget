@@ -38,11 +38,11 @@ export type WidgetComponent<Data = unknown> = (
   props: WidgetComponentProps<Data>
 ) => any;
 
-export type WidgetFallbackComponentProps = {
+export interface WidgetFallbackComponentProps {
   name: string;
   message: string;
   stack?: string;
-};
+}
 
 export type WidgetFallbackComponent = (
   props: WidgetFallbackComponentProps
@@ -126,10 +126,10 @@ export interface RouteModule {
 
 export interface RouteConfig extends Record<string, unknown> {}
 
-export type RouteComponentProps<
+export interface RouteComponentProps<
   Data = unknown,
   Params = Record<string, string>,
-> = {
+> {
   /**
    * Render data for the route component.
    */
@@ -157,7 +157,7 @@ export type RouteComponentProps<
    * @see https://developer.mozilla.org/docs/Web/API/Request
    */
   request: Request;
-};
+}
 
 export type RouteComponent<Data = unknown, Params = Record<string, string>> = (
   props: RouteComponentProps<Data, Params>

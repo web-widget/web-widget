@@ -59,11 +59,11 @@ type GetPath<E extends Env> = (
   options?: { env?: E['Bindings'] }
 ) => string;
 
-export type ApplicationOptions<E extends Env> = {
+export interface ApplicationOptions<E extends Env> {
   strict?: boolean;
   router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
-};
+}
 
 class Application<
   E extends Env = Env,
@@ -101,7 +101,7 @@ class Application<
     const strict = options.strict ?? true;
     delete options.strict;
     // Object.assign(this, options);
-    this.getPath = strict ? options.getPath ?? getPath : getPathNoStrict;
+    this.getPath = strict ? (options.getPath ?? getPath) : getPathNoStrict;
     this.router = options.router ?? new URLPatternRouter();
   }
 

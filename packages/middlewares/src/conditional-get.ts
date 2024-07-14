@@ -33,9 +33,9 @@ const RETAINED_304_HEADERS = [
   'vary',
 ];
 
-export type ConditionalGetOptions = {
+export interface ConditionalGetOptions {
   retainedHeaders?: string[];
-};
+}
 
 export default function conditionalGet(options: ConditionalGetOptions = {}) {
   const retainedHeaders = options?.retainedHeaders ?? RETAINED_304_HEADERS;

@@ -13,7 +13,9 @@ type Handler<
 
 describe('compose: Extended functionality on koa-compose', () => {
   test('Reset context for each middleware', async () => {
-    type Context = { pathname: string };
+    interface Context {
+      pathname: string;
+    }
     const array: number[] = [];
     const stack: [handler: Handler<Context>, pathname: string][] = [];
     const pathnames: string[] = [];
