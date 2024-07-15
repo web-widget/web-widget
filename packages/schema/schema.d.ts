@@ -192,14 +192,11 @@ export type RouteHandlers<Data = unknown, Params = Record<string, string>> = {
 
 export interface RouteHandler<Data = unknown, Params = Record<string, string>> {
   (
-    context: RouteHandlerContext<Data, Params>
+    context: RouteContext<Data, Params>
   ): RouteHandlerResult | Promise<RouteHandlerResult>;
 }
 
-export interface RouteHandlerContext<
-  Data = unknown,
-  Params = Record<string, string>,
-> {
+export interface RouteContext<Data = unknown, Params = Record<string, string>> {
   /**
    * Errors in the current route.
    */
@@ -354,10 +351,10 @@ export type MiddlewareHandlers = {
 };
 
 export type MiddlewareContext = Pick<
-  RouteHandlerContext,
+  RouteContext,
   'params' | 'pathname' | 'request' | 'state'
 > &
-  Partial<RouteHandlerContext>;
+  Partial<RouteContext>;
 
 export interface MiddlewareNext {
   (): MiddlewareResult | Promise<MiddlewareResult>;
