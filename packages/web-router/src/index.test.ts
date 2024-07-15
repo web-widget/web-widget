@@ -1,11 +1,11 @@
 import type { OnFallback } from './modules';
 import type {
+  RouteContext,
   RouteError,
   RouteModule,
-  RouteHandlerContext,
   RouteRenderOptions,
-} from '.';
-import WebRouter from '.';
+} from './';
+import WebRouter from './';
 
 describe('basic', () => {
   const app = WebRouter.fromManifest({
@@ -86,9 +86,7 @@ describe('multiple identical routes', () => {
 
 describe('create route context', () => {
   test('generate default context', (done) => {
-    const createTestRoute = (
-      callback: (context: RouteHandlerContext) => void
-    ) => {
+    const createTestRoute = (callback: (context: RouteContext) => void) => {
       const app = WebRouter.fromManifest({
         routes: [
           {
@@ -103,7 +101,7 @@ describe('create route context', () => {
             pathname: '/test',
             module: {
               handler(context, next) {
-                callback(context as RouteHandlerContext);
+                callback(context as RouteContext);
                 return next();
               },
             },
@@ -114,7 +112,7 @@ describe('create route context', () => {
       return app.request('http://localhost/test');
     };
 
-    let context: RouteHandlerContext;
+    let context: RouteContext;
     Promise.resolve(
       createTestRoute((ctx) => {
         context = ctx;
@@ -135,9 +133,7 @@ describe('create route context', () => {
   });
 
   test('modules that do not export `render` should not generate full context', (done) => {
-    const createTestRoute = (
-      callback: (context: RouteHandlerContext) => void
-    ) => {
+    const createTestRoute = (callback: (context: RouteContext) => void) => {
       const app = WebRouter.fromManifest({
         routes: [
           {
@@ -152,7 +148,7 @@ describe('create route context', () => {
             pathname: '/test',
             module: {
               handler(context, next) {
-                callback(context as RouteHandlerContext);
+                callback(context as RouteContext);
                 return next();
               },
             },
@@ -163,7 +159,7 @@ describe('create route context', () => {
       return app.request('http://localhost/test');
     };
 
-    let context: RouteHandlerContext;
+    let context: RouteContext;
     Promise.resolve(
       createTestRoute((ctx) => {
         context = ctx;

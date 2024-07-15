@@ -1,15 +1,15 @@
-/* eslint-disable no-param-reassign */
-import {
-  methodsToHandler,
-  mergeMeta,
-  rebaseMeta,
-} from '@web-widget/helpers/module';
+import { handleRpc } from '@web-widget/action/server';
 import {
   callContext,
   contextToScriptDescriptor,
 } from '@web-widget/context/server';
 import { createHttpError } from '@web-widget/helpers/error';
-import { handleRpc } from '@web-widget/action/server';
+import {
+  mergeMeta,
+  methodsToHandler,
+  rebaseMeta,
+} from '@web-widget/helpers/module';
+
 import type {
   ActionModule,
   LayoutModule,
@@ -19,9 +19,9 @@ import type {
   MiddlewareHandler,
   MiddlewareModule,
   MiddlewareNext,
+  RouteContext,
   RouteError,
   RouteHandler,
-  RouteHandlerContext,
   RouteHandlers,
   RouteModule,
   RouteRenderContext,
@@ -34,7 +34,7 @@ export type OnFallback = (
 ) => void;
 
 function composeRender(
-  context: RouteHandlerContext,
+  context: RouteContext,
   layoutModule: LayoutModule,
   onFallback: OnFallback,
   dev?: boolean
@@ -223,7 +223,7 @@ export function createRouteContext(
           rebaseMeta(module.meta ?? {}, defaultBaseAsset)
         );
         context.render ??= composeRender(
-          context as RouteHandlerContext,
+          context as RouteContext,
           layoutModule,
           onFallback,
           dev
@@ -275,14 +275,14 @@ export function createFallbackHandler(
     (context.meta!.script ??= []).push(contextToScriptDescriptor(context));
     context.module = module;
     context.render = composeRender(
-      context as RouteHandlerContext,
+      context as RouteContext,
       layoutModule,
       onFallback,
       dev
     );
     context.renderOptions = structuredClone(defaultRenderOptions);
 
-    return callContext(context, handler, [context as RouteHandlerContext]);
+    return callContext(context, handler, [context as RouteContext]);
   };
 }
 
@@ -308,7 +308,7 @@ export function renderRouteModule(): MiddlewareHandler {
         (context.meta.script ??= []).push(contextToScriptDescriptor(context));
       }
 
-      return handler(context as RouteHandlerContext);
+      return handler(context as RouteContext);
     } else {
       return next();
     }

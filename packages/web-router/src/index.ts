@@ -1,8 +1,20 @@
-import type { RouteHandlerContext } from '@web-widget/helpers';
+import type { RouteContext } from '@web-widget/helpers';
 import { rebaseMeta } from '@web-widget/helpers';
 import { createHttpError } from '@web-widget/helpers/error';
-import { Application } from './application';
+
 import type { ApplicationOptions } from './application';
+import { Application } from './application';
+import * as defaultFallbackModule from './fallback';
+import * as defaultLayoutModule from './layout';
+import type { OnFallback } from './modules';
+import {
+  callActionModule,
+  callMiddlewareModule,
+  createAsyncContext,
+  createFallbackHandler,
+  createRouteContext,
+  renderRouteModule,
+} from './modules';
 import type {
   Env,
   LayoutModule,
@@ -11,17 +23,7 @@ import type {
   RouteModule,
   RouteRenderOptions,
 } from './types';
-import * as defaultFallbackModule from './fallback';
-import * as defaultLayoutModule from './layout';
-import {
-  createFallbackHandler,
-  createRouteContext,
-  renderRouteModule,
-  callMiddlewareModule,
-  createAsyncContext,
-  callActionModule,
-} from './modules';
-import type { OnFallback } from './modules';
+
 export type * from './types';
 
 export type StartOptions<E extends Env = {}> = {
@@ -135,7 +137,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     );
 
     router.notFound(async (context) =>
-      notFoundHandler(createHttpError(404), context as RouteHandlerContext)
+      notFoundHandler(createHttpError(404), context as RouteContext)
     );
 
     const fallback500 = fallbacks.find(
@@ -157,9 +159,9 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
 
     router.onError(async (error, context) => {
       if (error?.status === 404) {
-        return notFoundHandler(error, context as RouteHandlerContext);
+        return notFoundHandler(error, context as RouteContext);
       } else {
-        return errorHandler(error, context as RouteHandlerContext);
+        return errorHandler(error, context as RouteContext);
       }
     });
 
