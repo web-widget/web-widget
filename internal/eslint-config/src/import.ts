@@ -11,5 +11,6 @@ export default defineConfig({
     'import/no-duplicates': ERROR,
     'import/no-webpack-loader-syntax': ERROR,
     'import/order': WARN,
+    'import/exports-last': WARN,
   },
 });
