@@ -6,6 +6,15 @@ export type SerializableValue =
   | { [key: string]: SerializableValue }
   | SerializableValue[];
 
+export type KnownMethods =
+  | 'GET'
+  | 'HEAD'
+  | 'POST'
+  | 'PUT'
+  | 'DELETE'
+  | 'OPTIONS'
+  | 'PATCH';
+
 ////////////////////////////////////////
 //////                            //////
 //////       Widget Modules       //////
@@ -177,23 +186,12 @@ export type RouteError = {
 
 export interface RouteState extends Record<string, unknown> {}
 
-export type RouteKnownMethods =
-  | 'GET'
-  | 'HEAD'
-  | 'POST'
-  | 'PUT'
-  | 'DELETE'
-  | 'OPTIONS'
-  | 'PATCH';
-
 export type RouteHandlers<Data = unknown, Params = Record<string, string>> = {
-  [K in RouteKnownMethods]?: RouteHandler<Data, Params>;
+  [K in KnownMethods]?: RouteHandler<Data, Params>;
 };
 
 export interface RouteHandler<Data = unknown, Params = Record<string, string>> {
-  (
-    context: RouteContext<Data, Params>
-  ): RouteHandlerResult | Promise<RouteHandlerResult>;
+  (context: RouteContext<Data, Params>): Response | Promise<Response>;
 }
 
 export interface RouteContext<Data = unknown, Params = Record<string, string>> {
@@ -247,7 +245,7 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>> {
       meta?: Meta;
     },
     renderOptions?: RouteRenderOptions
-  ): RouteHandlerResult | Promise<RouteHandlerResult>;
+  ): Response | Promise<Response>;
 
   /**
    * This is the default option for the `render()` method.
@@ -320,8 +318,6 @@ export interface RouteRenderOptions
 
 export type RouteRenderResult = string | ReadableStream;
 
-export type RouteHandlerResult = Response;
-
 export interface RouteRender<Data = unknown, Params = Record<string, string>> {
   (
     renderContext: RouteRenderContext<Data, Params>,
@@ -347,7 +343,7 @@ export interface MiddlewareHandler {
 }
 
 export type MiddlewareHandlers = {
-  [K in RouteKnownMethods]?: MiddlewareHandler;
+  [K in KnownMethods]?: MiddlewareHandler;
 };
 
 export type MiddlewareContext = Pick<
