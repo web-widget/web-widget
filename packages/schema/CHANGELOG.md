@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.24.0
+
+### Minor Changes
+
+- 13d1aba: Rename `RouteHandlerContext` to `RouteContext`.
+
 ## 1.23.0
 
 ## 1.22.1
