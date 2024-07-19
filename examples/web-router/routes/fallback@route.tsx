@@ -12,15 +12,13 @@ export const handler = defineRouteHandler({
     const url = new URL(ctx.request.url);
 
     if (url.searchParams.has('404')) {
-      return ctx.render({
-        error: createHttpError(404, '😔 页面找不到了'),
-      });
+      ctx.error = createHttpError(404, '😔 页面找不到了');
+      return ctx.render();
     }
 
     if (url.searchParams.has('500')) {
-      return ctx.render({
-        error: createHttpError(500),
-      });
+      ctx.error = createHttpError(500);
+      return ctx.render();
     }
 
     if (url.searchParams.has('global-500')) {
