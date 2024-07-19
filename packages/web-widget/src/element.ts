@@ -12,6 +12,7 @@ import { createIdleObserver } from './utils/idle';
 import { createVisibleObserver } from './utils/lazy';
 import { triggerModulePreload } from './utils/module-preload';
 import { queueMicrotask } from './utils/queue-microtask';
+import { reportError } from './utils/report-error';
 
 declare const importShim: <T>(src: string) => Promise<T>;
 type Timeouts = Record<string, number>;
@@ -519,7 +520,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this.id || this.getAttribute('name') || this.import || this.localName;
     const prefix = `Web Widget module (${moduleName})`;
     if (typeof error !== 'object') {
-      error = new Error(error);
+      error = new Error(error, {
+        cause: error,
+      });
     }
 
     if (!error.message.includes(prefix)) {
@@ -530,9 +533,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       });
     }
 
-    queueMicrotask(() => {
-      throw error;
-    });
+    reportError(error);
   }
 
   static get observedAttributes() {
