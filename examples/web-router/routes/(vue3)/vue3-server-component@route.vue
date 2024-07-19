@@ -14,9 +14,8 @@ defineOptions({
   handler: defineRouteHandler<PageData>({
     async GET(ctx) {
       return ctx.render({
-        data: {
-          message: 'This is the server component of vue.',
-        } as PageData,
+        message: 'This is the server component of vue.',
+      }, {
         meta: mergeMeta(ctx.meta, {
           description: 'vue3 examples',
         }),

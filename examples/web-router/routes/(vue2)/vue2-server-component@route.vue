@@ -14,9 +14,8 @@ export default {
     handler: defineRouteHandler<PageData>({
       async GET(ctx) {
         return ctx.render({
-          data: {
-            message: 'This is the server component of vue.',
-          },
+          message: 'This is the server component of vue.',
+        }, {
           meta: mergeMeta(ctx.meta, {
             description: 'vue2 examples',
           }),
