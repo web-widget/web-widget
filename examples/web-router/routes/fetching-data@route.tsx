@@ -15,9 +15,7 @@ async function fetchData(url: URL) {
 export const handler = defineRouteHandler<HelloData>({
   async GET(ctx) {
     const data = await fetchData(useLocation());
-    return ctx.render({
-      data,
-    });
+    return ctx.render(data);
   },
 });
 

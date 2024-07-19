@@ -133,7 +133,9 @@ export interface RouteModule {
   render?: RouteRender;
 }
 
-export interface RouteConfig extends Record<string, unknown> {}
+export interface RouteConfig extends Record<string, unknown> {
+  renderOptions?: RouteRenderOptions;
+}
 
 export interface RouteComponentProps<
   Data = unknown,
@@ -196,6 +198,11 @@ export interface RouteHandler<Data = unknown, Params = Record<string, string>> {
 
 export interface RouteContext<Data = unknown, Params = Record<string, string>> {
   /**
+   * The current route configuration.
+   */
+  config: RouteConfig;
+
+  /**
    * Errors in the current route.
    */
   error?: RouteError;
@@ -238,17 +245,16 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>> {
   /**
    * Render current route.
    */
-  render(
-    renderProps?: {
-      data?: Data;
-      error?: RouteError;
+  render: (
+    data?: Data | null,
+    options?: {
       meta?: Meta;
-    },
-    renderOptions?: RouteRenderOptions
-  ): Response | Promise<Response>;
+    } & RouteRenderOptions
+  ) => Response | Promise<Response>;
 
   /**
    * This is the default option for the `render()` method.
+   * @deprecated Use `config.renderOptions` instead.
    */
   renderOptions: RouteRenderOptions;
 

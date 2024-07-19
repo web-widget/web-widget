@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { handleRpc } from '@web-widget/action/server';
 import {
   callContext,
@@ -33,20 +34,19 @@ export type OnFallback = (
   context?: MiddlewareContext
 ) => void;
 
-function composeRender(
+function createContextRender(
   context: RouteContext,
   layoutModule: LayoutModule,
   onFallback: OnFallback,
   dev?: boolean
-) {
+): RouteContext['render'] {
   return async function render(
-    {
-      data = context.data,
-      error: unsafeError = context.error,
-      meta = context.meta,
-    } = {},
-    renderOptions = context.renderOptions
+    data = context.data,
+    { meta = context.meta, ...renderOptions } = {}
   ) {
+    const unsafeError = context.error;
+    Object.assign(renderOptions, context.config.renderOptions);
+
     if (unsafeError) {
       onFallback(unsafeError, context);
     }
@@ -216,19 +216,21 @@ export function createRouteContext(
 
       // If the route has a render function, it's a route module.
       if (module.render) {
+        context.config ??= structuredClone(module.config ?? {});
+        context.config.renderOptions ??= structuredClone(defaultRenderOptions);
         context.data ??= Object.create(null);
         context.error ??= undefined;
         context.meta ??= mergeMeta(
           defaultMeta,
           rebaseMeta(module.meta ?? {}, defaultBaseAsset)
         );
-        context.render ??= composeRender(
+        context.render ??= createContextRender(
           context as RouteContext,
           layoutModule,
           onFallback,
           dev
         );
-        context.renderOptions ??= structuredClone(defaultRenderOptions);
+        context.renderOptions ??= context.config.renderOptions;
       }
     }
 
@@ -265,6 +267,8 @@ export function createFallbackHandler(
               } as RouteHandlers)
           ) as RouteHandler);
 
+    context.config = structuredClone(module.config ?? {});
+    context.config.renderOptions ??= structuredClone(defaultRenderOptions);
     context.data = Object.create(null);
     context.error = await transformRouteError(error);
     context.meta = mergeMeta(
@@ -274,13 +278,13 @@ export function createFallbackHandler(
     // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
     (context.meta!.script ??= []).push(contextToScriptDescriptor(context));
     context.module = module;
-    context.render = composeRender(
+    context.render = createContextRender(
       context as RouteContext,
       layoutModule,
       onFallback,
       dev
     );
-    context.renderOptions = structuredClone(defaultRenderOptions);
+    context.renderOptions = context.config.renderOptions;
 
     return callContext(context, handler, [context as RouteContext]);
   };
