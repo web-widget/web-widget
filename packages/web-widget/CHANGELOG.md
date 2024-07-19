@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.24.1
+
+### Patch Changes
+
+- e88cdc2: Fixed an issue where `SyntaxError` error line numbers could not be reported.
+  - @web-widget/helpers@1.24.1
+  - @web-widget/lifecycle-cache@1.24.1
+
 ## 1.24.0
 
 ### Patch Changes
