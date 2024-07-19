@@ -1,5 +1,13 @@
 # @web-widget/helpers
 
+## 1.24.0
+
+### Patch Changes
+
+- @web-widget/context@1.24.0
+- @web-widget/lifecycle-cache@1.24.0
+- @web-widget/action@1.24.0
+
 ## 1.23.0
 
 ### Patch Changes
