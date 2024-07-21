@@ -75,7 +75,6 @@ function createContextRender(
       meta,
       module: context.module,
       params: context.params,
-      pathname: context.pathname,
       request: context.request,
     };
     const children = await context.module.render(renderContext, renderOptions);
@@ -85,7 +84,6 @@ function createContextRender(
         children,
         meta,
         params: context.params,
-        pathname: context.pathname,
         request: context.request,
       },
       meta,
@@ -230,7 +228,6 @@ export function createRouteContext(
           onFallback,
           dev
         );
-        context.renderOptions ??= context.config.renderOptions;
       }
     }
 
@@ -284,7 +281,6 @@ export function createFallbackHandler(
       onFallback,
       dev
     );
-    context.renderOptions = context.config.renderOptions;
 
     return callContext(context, handler, [context as RouteContext]);
   };

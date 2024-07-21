@@ -103,8 +103,6 @@ export type LayoutComponentProps = WidgetComponentProps<{
   children: RouteRenderResult;
   meta: Meta;
   params: Record<string, string>;
-  /** @deprecated */
-  pathname: string;
   request: Request;
 }>;
 

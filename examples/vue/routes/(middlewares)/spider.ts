@@ -8,8 +8,8 @@ export const handler = defineMiddlewareHandler({
     );
 
     if (isSpider) {
-      if (ctx.renderOptions) {
-        ctx.renderOptions = Object.assign(ctx.renderOptions, {
+      if (ctx?.config?.renderOptions) {
+        Object.assign(ctx.config.renderOptions, {
           react: {
             awaitAllReady: true,
           },

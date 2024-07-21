@@ -157,13 +157,6 @@ export interface RouteComponentProps<
   readonly params: Readonly<Params>;
 
   /**
-   * The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered.
-   * @deprecated
-   */
-  readonly pathname: string;
-
-  /**
    * This Fetch API interface represents a resource request.
    * @see https://developer.mozilla.org/docs/Web/API/Request
    */
@@ -222,9 +215,6 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>> {
    */
   module: Readonly<RouteModule>;
 
-  /** @deprecated */
-  readonly name?: string;
-
   /**
    * The parameters that were matched from the route.
    *
@@ -236,13 +226,6 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>> {
   readonly params: Readonly<Params>;
 
   /**
-   * The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered.
-   * @deprecated
-   */
-  readonly pathname: string;
-
-  /**
    * Render current route.
    */
   render: (
@@ -251,12 +234,6 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>> {
       meta?: Meta;
     } & RouteRenderOptions
   ) => Response | Promise<Response>;
-
-  /**
-   * This is the default option for the `render()` method.
-   * @deprecated Use `config.renderOptions` instead.
-   */
-  renderOptions: RouteRenderOptions;
 
   /**
    * This Fetch API interface represents a resource request.
@@ -305,13 +282,6 @@ export interface RouteRenderContext<
   readonly params: Readonly<Params>;
 
   /**
-   * The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered.
-   * @deprecated
-   */
-  readonly pathname: string;
-
-  /**
    * This Fetch API interface represents a resource request.
    * @see https://developer.mozilla.org/docs/Web/API/Request
    */
@@ -354,7 +324,7 @@ export type MiddlewareHandlers = {
 
 export type MiddlewareContext = Pick<
   RouteContext,
-  'params' | 'pathname' | 'request' | 'state'
+  'params' | 'request' | 'state'
 > &
   Partial<RouteContext>;
 

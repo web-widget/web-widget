@@ -6,8 +6,6 @@ interface SerializableObject {
 
 export interface SafeSerializableContext extends Partial<MiddlewareContext> {
   params: Record<string, string>;
-  /** @deprecated */
-  pathname: string;
   request: Request;
   state: SerializableObject;
 }

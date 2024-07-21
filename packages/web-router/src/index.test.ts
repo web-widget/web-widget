@@ -118,14 +118,13 @@ describe('create route context', () => {
         context = ctx;
       })
     ).then(() => {
+      expect(context.config).toBeDefined();
       expect(context.data).toEqual({});
       expect(context.error).toBeUndefined();
       expect(context.meta).toBeDefined();
       expect(context.module).toBeDefined();
       expect(context.params).toEqual({});
-      expect(context.pathname).toBe('/test');
       expect(context.render).toBeDefined();
-      expect(context.renderOptions).toBeDefined();
       expect(context.request).toBeDefined();
       expect(context.state).toBeDefined();
       done();
@@ -165,15 +164,14 @@ describe('create route context', () => {
         context = ctx;
       })
     ).then(() => {
+      expect(context.config).toBeUndefined();
       expect(context.data).toBeUndefined();
       expect(context.error).toBeUndefined();
       expect(context.meta).toBeUndefined();
       expect(context.render).toBeUndefined();
-      expect(context.renderOptions).toBeUndefined();
 
       expect(context.module).toBeDefined();
       expect(context.params).toEqual({});
-      expect(context.pathname).toBe('/test');
       expect(context.request).toBeDefined();
       expect(context.state).toBeDefined();
       done();
@@ -324,10 +322,9 @@ describe('change members of context', () => {
                 if (context.meta?.meta?.[0]) {
                   context.meta.meta[0].content = 'changed';
                 }
-                // @ts-ignore
-                if (context.renderOptions.react) {
+                if (context.config?.renderOptions?.react) {
                   // @ts-ignore
-                  context.renderOptions.react.allReady = true;
+                  context.config.renderOptions.react.allReady = true;
                 }
                 return new Response('Hello');
               },
