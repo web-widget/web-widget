@@ -39,7 +39,7 @@ export function userAgent(
 
 /** Read HTTP incoming request user agent. */
 export function userAgent(
-  headers: Headers
+  headers?: Headers
 ): ReturnType<typeof userAgentFromString>;
 
 export function userAgent(headers?: Headers | Request) {
