@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.24.2
+
+### Patch Changes
+
+- Updated dependencies [cdfcadb]
+  - @web-widget/helpers@1.24.2
+  - @web-widget/web-router@1.24.2
+  - @web-widget/web-widget@1.24.2
+  - @web-widget/node@1.24.2
+
 ## 1.24.1
 
 ### Patch Changes

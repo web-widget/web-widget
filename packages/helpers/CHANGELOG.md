@@ -1,5 +1,14 @@
 # @web-widget/helpers
 
+## 1.24.2
+
+### Patch Changes
+
+- cdfcadb: Fix type error in `userAgent()` method.
+  - @web-widget/action@1.24.2
+  - @web-widget/context@1.24.2
+  - @web-widget/lifecycle-cache@1.24.2
+
 ## 1.24.1
 
 ### Patch Changes

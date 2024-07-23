@@ -1,5 +1,16 @@
 # @web-widget/web-router
 
+## 1.24.2
+
+### Patch Changes
+
+- Updated dependencies [cdfcadb]
+  - @web-widget/helpers@1.24.2
+  - @web-widget/html@1.24.2
+  - @web-widget/action@1.24.2
+  - @web-widget/context@1.24.2
+  - @web-widget/lifecycle-cache@1.24.2
+
 ## 1.24.1
 
 ### Patch Changes
