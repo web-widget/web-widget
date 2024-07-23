@@ -1,5 +1,12 @@
 # @web-widget/html
 
+## 1.24.3
+
+### Patch Changes
+
+- Updated dependencies [ccfef36]
+  - @web-widget/helpers@1.24.3
+
 ## 1.24.2
 
 ### Patch Changes
