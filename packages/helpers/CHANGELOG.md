@@ -1,5 +1,14 @@
 # @web-widget/helpers
 
+## 1.24.3
+
+### Patch Changes
+
+- ccfef36: Fix type error in userAgent() method.
+  - @web-widget/action@1.24.3
+  - @web-widget/context@1.24.3
+  - @web-widget/lifecycle-cache@1.24.3
+
 ## 1.24.2
 
 ### Patch Changes
