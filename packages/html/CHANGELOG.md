@@ -1,5 +1,12 @@
 # @web-widget/html
 
+## 1.24.2
+
+### Patch Changes
+
+- Updated dependencies [cdfcadb]
+  - @web-widget/helpers@1.24.2
+
 ## 1.24.1
 
 ### Patch Changes
