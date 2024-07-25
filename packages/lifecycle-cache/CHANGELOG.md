@@ -1,5 +1,12 @@
 # @web-widget/lifecycle-cache
 
+## 1.24.4
+
+### Patch Changes
+
+- 76a6ea4: Fix errors caused by caching `null` and `undefined`.
+  - @web-widget/context@1.24.4
+
 ## 1.24.3
 
 ### Patch Changes
