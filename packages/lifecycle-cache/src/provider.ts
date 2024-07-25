@@ -39,7 +39,6 @@ export async function cacheProvider<
   }
 
   cachedValue = args ? handler(...args) : handler();
-  throwIfNullOrUndefined(cachedValue);
   cache.set(cacheKey, cachedValue as R, true);
 
   if (cachedValue instanceof Promise) {
@@ -81,7 +80,6 @@ export function syncCacheProvider<
   }
 
   cachedValue = args ? handler(...args) : handler();
-  throwIfNullOrUndefined(cachedValue);
   cache.set(cacheKey, cachedValue as R, true);
 
   if (cachedValue instanceof Promise) {
