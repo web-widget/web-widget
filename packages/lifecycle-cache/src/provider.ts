@@ -6,6 +6,14 @@ type PromiseState<T> = Promise<T> & {
   [ERROR]: T | Error;
 };
 
+function throwIfNullOrUndefined<T>(
+  value: T | null | undefined
+): asserts value is T {
+  if (value == null) {
+    throw new Error('The cached value cannot be null or undefined.');
+  }
+}
+
 /**
  * Provide end-to-end cached values, the results are asynchronous.
  * @param cacheKey Cache key
@@ -15,7 +23,7 @@ type PromiseState<T> = Promise<T> & {
  */
 export async function cacheProvider<
   A extends SerializableValue,
-  R extends SerializableValue,
+  R extends NonNullable<SerializableValue>,
 >(
   cacheKey: string,
   handler: (...arts: A[]) => R | Promise<R>,
@@ -31,10 +39,12 @@ export async function cacheProvider<
   }
 
   cachedValue = args ? handler(...args) : handler();
+  throwIfNullOrUndefined(cachedValue);
   cache.set(cacheKey, cachedValue as R, true);
 
   if (cachedValue instanceof Promise) {
     return cachedValue.then((result) => {
+      throwIfNullOrUndefined(result);
       cache.set(cacheKey, result, true);
       return result;
     });
@@ -54,7 +64,7 @@ export const asyncCacheProvider = cacheProvider;
  */
 export function syncCacheProvider<
   A extends SerializableValue,
-  R extends SerializableValue,
+  R extends NonNullable<SerializableValue>,
 >(cacheKey: string, handler: (...args: A[]) => R | Promise<R>, args?: A[]): R {
   const cache = lifecycleCache<{
     [cacheKey: string]: R | Promise<R>;
@@ -69,11 +79,13 @@ export function syncCacheProvider<
   }
 
   cachedValue = args ? handler(...args) : handler();
+  throwIfNullOrUndefined(cachedValue);
   cache.set(cacheKey, cachedValue as R, true);
 
   if (cachedValue instanceof Promise) {
     throw cachedValue.then(
       (result) => {
+        throwIfNullOrUndefined(result);
         cache.set(cacheKey, result, true);
       },
       (error) => {
