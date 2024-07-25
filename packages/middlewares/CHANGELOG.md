@@ -1,5 +1,12 @@
 # @web-widget/middlewares
 
+## 1.24.4
+
+### Patch Changes
+
+- @web-widget/helpers@1.24.4
+- @web-widget/schema@1.24.4
+
 ## 1.24.3
 
 ### Patch Changes
