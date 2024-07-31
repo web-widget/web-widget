@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.24.5
+
+### Patch Changes
+
+- Updated dependencies [604b052]
+  - @web-widget/lifecycle-cache@1.24.5
+  - @web-widget/helpers@1.24.5
+
 ## 1.24.4
 
 ### Patch Changes

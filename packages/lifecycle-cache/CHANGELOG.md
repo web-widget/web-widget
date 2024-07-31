@@ -1,5 +1,12 @@
 # @web-widget/lifecycle-cache
 
+## 1.24.5
+
+### Patch Changes
+
+- 604b052: Refactor `cacheProvider` and `syncCacheProvider`.
+  - @web-widget/context@1.24.5
+
 ## 1.24.4
 
 ### Patch Changes
