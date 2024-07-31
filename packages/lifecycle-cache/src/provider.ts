@@ -1,18 +1,9 @@
 import type { SerializableValue } from '@web-widget/schema';
+import type { LifecycleCache } from './cache';
 import { lifecycleCache } from './cache';
 
-const ERROR = Symbol.for('error');
-type PromiseState<T> = Promise<T> & {
-  [ERROR]: T | Error;
-};
-
-function throwIfNullOrUndefined<T>(
-  value: T | null | undefined
-): asserts value is T {
-  if (value == null) {
-    throw new Error('The cached value cannot be null or undefined.');
-  }
-}
+const CACHE_VALUE_ERROR_MESSAGE =
+  'The cached value cannot be null or undefined.';
 
 /**
  * Provide end-to-end cached values, the results are asynchronous.
@@ -22,39 +13,53 @@ function throwIfNullOrUndefined<T>(
  * @returns Cached value
  */
 export async function cacheProvider<
-  A extends SerializableValue,
   R extends NonNullable<SerializableValue>,
+  A extends any[],
 >(
   cacheKey: string,
-  handler: (...arts: A[]) => R | Promise<R>,
-  args?: A[]
-): Promise<R> {
-  const cache = lifecycleCache<{
+  handler: (...args: A) => R | Promise<R>,
+  args: A = [] as unknown as A,
+  cache: LifecycleCache<any> = lifecycleCache<{
     [cacheKey: string]: R | Promise<R>;
-  }>();
-  let cachedValue = cache.get(cacheKey);
-
-  if (cachedValue != null) {
-    return cachedValue;
+  }>()
+): Promise<R> {
+  if (typeof handler !== 'function') {
+    throw new Error('Handler is required.');
   }
 
-  cachedValue = args ? handler(...args) : handler();
-  cache.set(cacheKey, cachedValue as R, true);
+  let value = cache.get(cacheKey);
 
-  if (cachedValue instanceof Promise) {
-    return cachedValue.then((result) => {
-      throwIfNullOrUndefined(result);
-      cache.set(cacheKey, result, true);
-      return result;
+  if (value != null) {
+    return value;
+  }
+
+  value = handler(...args);
+
+  if (value == null) {
+    throw new Error(CACHE_VALUE_ERROR_MESSAGE);
+  }
+
+  cache.set(cacheKey, value as R, true);
+
+  if (value instanceof Promise) {
+    return value.then((value) => {
+      if (value == null) {
+        throw new Error(CACHE_VALUE_ERROR_MESSAGE);
+      }
+      cache.set(cacheKey, value, true);
+      return value;
     });
-  } else {
-    throwIfNullOrUndefined(cachedValue);
   }
 
-  return cachedValue;
+  return value;
 }
 
 export const asyncCacheProvider = cacheProvider;
+
+const ERROR = Symbol.for('error');
+type PromiseState<T> = Promise<T> & {
+  [ERROR]: T | Error;
+};
 
 /**
  * Provide end-to-end cached values, the results are synchronized.
@@ -64,37 +69,52 @@ export const asyncCacheProvider = cacheProvider;
  * @returns Cached value
  */
 export function syncCacheProvider<
-  A extends SerializableValue,
   R extends NonNullable<SerializableValue>,
->(cacheKey: string, handler: (...args: A[]) => R | Promise<R>, args?: A[]): R {
-  const cache = lifecycleCache<{
+  A extends any[],
+>(
+  cacheKey: string,
+  handler: (...args: A) => R | Promise<R>,
+  args: A = [] as unknown as A,
+  cache: LifecycleCache<any> = lifecycleCache<{
     [cacheKey: string]: R | Promise<R>;
-  }>();
-  let cachedValue = cache.get(cacheKey);
-
-  if (cachedValue != null) {
-    if (cachedValue instanceof Promise) {
-      throw (cachedValue as PromiseState<R>)[ERROR] ?? cachedValue;
-    }
-    return cachedValue;
+  }>()
+): R {
+  if (typeof handler !== 'function') {
+    throw new Error('Handler is required.');
   }
 
-  cachedValue = args ? handler(...args) : handler();
-  cache.set(cacheKey, cachedValue as R, true);
+  let value = cache.get(cacheKey);
 
-  if (cachedValue instanceof Promise) {
-    throw cachedValue.then(
-      (result) => {
-        throwIfNullOrUndefined(result);
-        cache.set(cacheKey, result, true);
+  if (value != null) {
+    if (value instanceof Promise) {
+      throw (value as PromiseState<R>)[ERROR] ?? value;
+    }
+    return value;
+  }
+
+  value = handler(...args);
+
+  if (value == null) {
+    throw new Error(CACHE_VALUE_ERROR_MESSAGE);
+  }
+
+  cache.set(cacheKey, value as R, true);
+
+  if (value instanceof Promise) {
+    throw value.then(
+      (value) => {
+        if (value == null) {
+          throw new Error(CACHE_VALUE_ERROR_MESSAGE);
+        }
+        cache.set(cacheKey, value, true);
+        return value;
       },
       (error) => {
-        (cachedValue as PromiseState<R>)[ERROR] = error;
+        (value as PromiseState<R>)[ERROR] = error;
+        throw error;
       }
     );
-  } else {
-    throwIfNullOrUndefined(cachedValue);
   }
 
-  return cachedValue;
+  return value;
 }
