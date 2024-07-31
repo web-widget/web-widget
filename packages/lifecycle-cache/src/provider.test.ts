@@ -27,7 +27,7 @@ describe('cacheProvider', () => {
     const result = await cacheProvider(
       cacheKey,
       async () => 'newValue',
-      [],
+      undefined,
       mockCache
     );
     expect(result).toBe(cachedValue);
@@ -39,7 +39,7 @@ describe('cacheProvider', () => {
     const result = await cacheProvider(
       cacheKey,
       async () => 'newValue',
-      [],
+      undefined,
       mockCache
     );
     expect(result).toBe('newValue');
@@ -64,28 +64,38 @@ describe('cacheProvider', () => {
     const cacheKey = createCacheKey();
 
     await expect(
-      cacheProvider(cacheKey, undefined as any, [], mockCache)
+      cacheProvider(cacheKey, undefined as any, undefined, mockCache)
     ).rejects.toThrow('Handler is required.');
   });
 
   test('should throw an error if handler returns null', async () => {
     const cacheKey = createCacheKey();
     await expect(
-      cacheProvider(cacheKey, (async () => null) as any, [], mockCache)
+      cacheProvider(cacheKey, (async () => null) as any, undefined, mockCache)
     ).rejects.toThrow('The cached value cannot be null or undefined.');
   });
 
   test('should throw an error if handler returns undefined', async () => {
     const cacheKey = createCacheKey();
     await expect(
-      cacheProvider(cacheKey, (async () => undefined) as any, [], mockCache)
+      cacheProvider(
+        cacheKey,
+        (async () => undefined) as any,
+        undefined,
+        mockCache
+      )
     ).rejects.toThrow('The cached value cannot be null or undefined.');
   });
 
   test('should be cached if the handler returns empty string', async () => {
     const cacheKey = createCacheKey();
 
-    const result = await cacheProvider(cacheKey, () => '', [], mockCache);
+    const result = await cacheProvider(
+      cacheKey,
+      () => '',
+      undefined,
+      mockCache
+    );
     expect(result).toBe('');
     expect(mockCache.get(cacheKey)).toBe('');
   });
@@ -93,7 +103,12 @@ describe('cacheProvider', () => {
   test('should be cached if the handler returns 0', async () => {
     const cacheKey = createCacheKey();
 
-    const result = await cacheProvider(cacheKey, async () => 0, [], mockCache);
+    const result = await cacheProvider(
+      cacheKey,
+      async () => 0,
+      undefined,
+      mockCache
+    );
     expect(result).toBe(0);
     expect(mockCache.get(cacheKey)).toBe(0);
   });
@@ -104,7 +119,7 @@ describe('cacheProvider', () => {
     const result = await cacheProvider(
       cacheKey,
       () => Promise.resolve('syncValue'),
-      [],
+      undefined,
       mockCache
     );
     expect(result).toBe('syncValue');
@@ -119,7 +134,7 @@ describe('syncCacheProvider', () => {
     mockCache.set(cacheKey, cachedValue);
 
     const result = await suspense(() =>
-      syncCacheProvider(cacheKey, async () => 'newValue', [], mockCache)
+      syncCacheProvider(cacheKey, async () => 'newValue', undefined, mockCache)
     );
     expect(result).toBe(cachedValue);
   });
@@ -128,7 +143,7 @@ describe('syncCacheProvider', () => {
     const cacheKey = createCacheKey();
 
     const result = await suspense(() =>
-      syncCacheProvider(cacheKey, async () => 'newValue', [], mockCache)
+      syncCacheProvider(cacheKey, async () => 'newValue', undefined, mockCache)
     );
     expect(result).toBe('newValue');
     expect(mockCache.get(cacheKey)).toBe('newValue');
@@ -155,7 +170,7 @@ describe('syncCacheProvider', () => {
 
     await expect(
       suspense(() =>
-        syncCacheProvider(cacheKey, undefined as any, [], mockCache)
+        syncCacheProvider(cacheKey, undefined as any, undefined, mockCache)
       )
     ).rejects.toThrow('Handler is required.');
   });
@@ -164,7 +179,12 @@ describe('syncCacheProvider', () => {
     const cacheKey = createCacheKey();
     await expect(
       suspense(() =>
-        syncCacheProvider(cacheKey, (async () => null) as any, [], mockCache)
+        syncCacheProvider(
+          cacheKey,
+          (async () => null) as any,
+          undefined,
+          mockCache
+        )
       )
     ).rejects.toThrow('The cached value cannot be null or undefined.');
   });
@@ -176,7 +196,7 @@ describe('syncCacheProvider', () => {
         syncCacheProvider(
           cacheKey,
           (async () => undefined) as any,
-          [],
+          undefined,
           mockCache
         )
       )
@@ -187,7 +207,7 @@ describe('syncCacheProvider', () => {
     const cacheKey = createCacheKey();
 
     const result = await suspense(() =>
-      syncCacheProvider(cacheKey, () => '', [], mockCache)
+      syncCacheProvider(cacheKey, () => '', undefined, mockCache)
     );
     expect(result).toBe('');
     expect(mockCache.get(cacheKey)).toBe('');
@@ -197,7 +217,7 @@ describe('syncCacheProvider', () => {
     const cacheKey = createCacheKey();
 
     const result = await suspense(() =>
-      syncCacheProvider(cacheKey, async () => 0, [], mockCache)
+      syncCacheProvider(cacheKey, async () => 0, undefined, mockCache)
     );
     expect(result).toBe(0);
     expect(mockCache.get(cacheKey)).toBe(0);
@@ -210,7 +230,7 @@ describe('syncCacheProvider', () => {
       syncCacheProvider(
         cacheKey,
         () => Promise.resolve('syncValue'),
-        [],
+        undefined,
         mockCache
       )
     );

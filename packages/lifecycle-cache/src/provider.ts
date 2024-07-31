@@ -24,7 +24,7 @@ export async function cacheProvider<
   }>()
 ): Promise<R> {
   if (typeof handler !== 'function') {
-    throw new Error('Handler is required.');
+    throw new TypeError('Handler is required.');
   }
 
   let value = cache.get(cacheKey);
@@ -80,7 +80,7 @@ export function syncCacheProvider<
   }>()
 ): R {
   if (typeof handler !== 'function') {
-    throw new Error('Handler is required.');
+    throw new TypeError('Handler is required.');
   }
 
   let value = cache.get(cacheKey);
