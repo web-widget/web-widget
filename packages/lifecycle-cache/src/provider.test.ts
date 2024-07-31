@@ -1,8 +1,10 @@
 import { cacheProvider, syncCacheProvider } from './provider';
 import { LifecycleCache } from './cache';
 
+let id = 0;
+const createCacheKey = () => `cacheKey:${id++}`;
+
 const mockCache = new LifecycleCache<any>({});
-const createCacheKey = () => `cacheKey:${Date.now()}`;
 async function suspense<T>(handler: () => T) {
   try {
     return await handler();
