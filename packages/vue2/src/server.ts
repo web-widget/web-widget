@@ -91,7 +91,11 @@ export const createVueRender = ({
     //   __FEATURE_STREAM__ && Readable.toWeb
     //     ? Readable.toWeb(renderer.renderToStream(app))
     //     : await renderer.renderToString(app);
-    const result = await renderer.renderToString(app);
+
+    // NOTE: Avoid vite-plugin-vue2-jsx not working.
+    // @see https://github.com/vitejs/vite-plugin-vue2-jsx/blob/f44adfd80a8c2d016947bcd808c88ebfa2d9da1a/src/index.ts#L32-L33
+    const ssrContext = {};
+    const result = await renderer.renderToString(app, ssrContext);
 
     app.$destroy();
 
