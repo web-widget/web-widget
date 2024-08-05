@@ -1,5 +1,14 @@
 # @web-widget/vue2
 
+## 1.24.6
+
+### Patch Changes
+
+- 3c6bdb4: Compatible with vite-plugin-vue2-jsx.
+  - @web-widget/helpers@1.24.6
+  - @web-widget/vite-plugin@1.24.6
+  - @web-widget/web-widget@1.24.6
+
 ## 1.24.5
 
 ### Patch Changes
