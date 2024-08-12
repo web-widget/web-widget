@@ -1,4 +1,5 @@
 import path from 'node:path';
+import crypto from 'node:crypto';
 import type { Middleware } from '@web-widget/node';
 import NodeAdapter from '@web-widget/node';
 import { renderMetaToString } from '@web-widget/helpers';
@@ -181,16 +182,27 @@ async function viteWebRouterMiddlewareV2(
             return res;
           }
 
-          const currentModule = res.headers.get('x-module-source');
+          const xModuleSource = 'x-module-source';
+          const currentModule = res.headers.get(xModuleSource);
 
           if (currentModule) {
-            let html = await res.text();
+            const html = await res.text();
             const meta = await getMeta(currentModule, viteServer);
             const url = new URL(request.url);
             const viteHtml = await viteServer.transformIndexHtml(
               url.pathname + url.search,
               html.replace(/(<\/head>)/, renderMetaToString(meta) + '$1')
             );
+            const headers = new Headers(res.headers);
+            headers.delete(xModuleSource);
+
+            if (headers.has('etag')) {
+              const newEtag = crypto
+                .createHash('sha1')
+                .update(viteHtml)
+                .digest('hex');
+              headers.set('etag', `W/"${newEtag}"`);
+            }
 
             res = new Response(viteHtml, {
               status: res.status,

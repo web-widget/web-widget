@@ -23,8 +23,9 @@ import type {
 } from './types';
 
 let stage = 0;
-const PLACEHOLDER_MODULE = '@web-widget/helpers/placeholder';
-const PLACEHOLDER_ID = PLACEHOLDER_MODULE.replaceAll('/', '-');
+const PLACEHOLDER_ID = '@web-widget/helpers/placeholder';
+const RESOLVED_PLACEHOLDER_ID = '\0' + PLACEHOLDER_ID.replaceAll('/', '-');
+const ROUTEMAP_ID = 'virtual:routemap';
 const ENTRY_ID = '@entry';
 const SERVER_ENTRY_OUTPUT_NAME = 'index';
 
@@ -77,12 +78,12 @@ export function webRouterPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       appType: 'custom',
       publicDir: ssrBuild ? (config.publicDir ?? false) : undefined,
       optimizeDeps: {
-        exclude: [PLACEHOLDER_MODULE],
+        exclude: [PLACEHOLDER_ID],
       },
       ssr: ssrBuild
         ? {
             external: ['node:async_hooks'],
-            noExternal: [PLACEHOLDER_MODULE],
+            noExternal: [PLACEHOLDER_ID],
             target,
             resolve: {
               // https://github.com/vitejs/vite/issues/6401
@@ -187,17 +188,19 @@ export function webRouterPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       root = config.root;
     },
 
-    async resolveId(id) {
-      if (id === PLACEHOLDER_MODULE) {
-        if (!ssrBuild) {
+    async resolveId(id, _importer, options) {
+      if (id === PLACEHOLDER_ID) {
+        if (!options.ssr) {
           return this.error(new Error(`Only works on the server side: ${id}`));
         }
-        return path.join(root, PLACEHOLDER_ID);
+        return path.join(root, RESOLVED_PLACEHOLDER_ID);
+      } else if (id === ROUTEMAP_ID) {
+        return resolvedWebRouterConfig.input.server.routemap;
       }
     },
 
     async load(id) {
-      if (id.endsWith(PLACEHOLDER_ID)) {
+      if (id.endsWith(RESOLVED_PLACEHOLDER_ID)) {
         return buildPlaceholder(
           root,
           base,
@@ -352,10 +355,10 @@ function resolveRoutemapEntryPoints(
   for (const value of Object.values(manifest)) {
     if (Array.isArray(value)) {
       for (const mod of value) {
-        setEntrypoint(mod.module);
+        mod.module && setEntrypoint(mod.module);
       }
     } else {
-      setEntrypoint(value.module);
+      value.module && setEntrypoint(value.module);
     }
   }
 
@@ -399,47 +402,48 @@ function buildManifest(
   manifest: RouteMap,
   dev: boolean
 ): string {
-  const imports: string[] = Object.entries(manifest).reduce(
-    (list, [key, value]) => {
-      if (Array.isArray(value)) {
-        value.forEach((mod) => {
-          list.push(mod.module);
-        });
-      } else if (value.module) {
-        list.push(value.module);
-      } else {
-        list.push(value);
-      }
-      return list;
-    },
-    [] as string[]
-  );
-
   if (dev) {
-    const routemapJsonCode = JSON.stringify(
-      {
-        dev,
-        ...manifest,
-      },
-      null,
-      2
-    );
-    const routemapJsCode = `export const manifest = ${imports.reduce(
-      (routemapJsonCode, source) =>
-        routemapJsonCode.replaceAll(
-          new RegExp(`(\\s*)${escapeRegExp(`"module": "${source}"`)}`, 'g'),
-          [
-            `$1`,
-            `"module": async () => Object.assign({`,
-            `  $source: "${path.resolve(path.dirname(routemap), source)}"  `,
-            `}, await import("${source}"))`,
-          ].join('')
-        ),
-      routemapJsonCode
-    )}`;
+    /* NOTE: Relying on ROUTEMAP_ID here is to allow Vite to update the content when routemap.json changes. */
+    const routemapJsCode = `/* @dev:manifest */
+      import path from "node:path";
+      import importmap from ${JSON.stringify(ROUTEMAP_ID)} assert { type: "json" };
+      const createLoader = (item) => {
+        const source = item.module;
+        if (source) {
+          item.module = async () => ({
+            $source: path.resolve(${JSON.stringify(path.dirname(routemap))}, source),
+            ...(await import(/* @vite-ignore */ source)),
+          });
+        }
+      };
+      const manifest = structuredClone(importmap);
+      for (const value of Object.values(manifest)) {
+        if (Array.isArray(value)) {
+          for (const mod of value) {
+            createLoader(mod);
+          }
+        } else {
+          createLoader(value);
+        }
+      }
+      manifest.dev = true;
+      export { manifest };`;
 
     return routemapJsCode;
   } else {
+    const imports: string[] = Object.entries(manifest).reduce(
+      (list, [key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach((mod) => {
+            list.push(mod.module);
+          });
+        } else if (value.module) {
+          list.push(value.module);
+        }
+        return list;
+      },
+      [] as string[]
+    );
     const routemapJsonCode = JSON.stringify(manifest, null, 2);
     const routemapJsCode =
       imports
