@@ -12,6 +12,8 @@ import {
 
 import type {
   ActionModule,
+  DevHandlerInit,
+  DevRouteModule,
   LayoutModule,
   LayoutRenderContext,
   Meta,
@@ -37,7 +39,7 @@ function composeRender(
   context: RouteContext,
   layoutModule: LayoutModule,
   onFallback: OnFallback,
-  dev?: boolean
+  dev: boolean | undefined
 ) {
   return async function render(
     {
@@ -103,10 +105,15 @@ function composeRender(
           ? error.statusText
           : 'Internal Server Error'
         : 'OK');
-    const headers = {
+    const headers: HeadersInit = {
       'content-type': 'text/html; charset=utf-8',
       ...renderOptions?.headers,
     };
+
+    if (dev) {
+      const source = (context.module as DevRouteModule).$source;
+      (headers as DevHandlerInit)['x-module-source'] = source;
+    }
 
     return new Response(html, {
       status,
@@ -202,7 +209,7 @@ export function createRouteContext(
   defaultBaseAsset: string,
   defaultRenderOptions: RouteRenderOptions,
   onFallback: OnFallback,
-  dev?: boolean
+  dev: boolean
 ) {
   let layoutModule: LayoutModule;
   let module: RouteModule;
@@ -245,7 +252,7 @@ export function createFallbackHandler(
   defaultBaseAsset: string,
   defaultRenderOptions: RouteRenderOptions,
   onFallback: OnFallback,
-  dev?: boolean
+  dev: boolean
 ) {
   let handler: RouteHandler;
   let layoutModule: LayoutModule;

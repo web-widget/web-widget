@@ -28,7 +28,6 @@ export type * from './types';
 
 export type StartOptions<E extends Env = {}> = {
   baseAsset?: string;
-  baseModule?: string;
   defaultMeta?: Meta;
   defaultRenderOptions?: RouteRenderOptions;
   dev?: boolean;
@@ -52,6 +51,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       module: async () => defaultLayoutModule as LayoutModule,
     };
     const fallbacks = manifest.fallbacks ?? [];
+    const dev = manifest.dev ?? options.dev ?? false;
     const defaultBaseAsset = options.baseAsset ?? '/';
     const defaultMeta = rebaseMeta(
       options.defaultMeta ?? {
@@ -100,7 +100,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
           defaultBaseAsset,
           defaultRenderOptions,
           onFallback,
-          options.dev
+          dev
         )
       );
     });
@@ -133,7 +133,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       defaultBaseAsset,
       defaultRenderOptions,
       onFallback,
-      options.dev
+      dev
     );
 
     router.notFound(async (context) =>
@@ -154,7 +154,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       defaultBaseAsset,
       defaultRenderOptions,
       onFallback,
-      options.dev
+      dev
     );
 
     router.onError(async (error, context) => {

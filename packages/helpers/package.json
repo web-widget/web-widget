@@ -130,6 +130,11 @@
       "development": "./src/navigation/index.ts",
       "default": "./dist/navigation.js"
     },
+    "./placeholder": {
+      "types": "./dist/placeholder.d.ts",
+      "development": "./src/placeholder/index.ts",
+      "default": "./dist/placeholder.js"
+    },
     "./state": {
       "types": "./dist/state.d.ts",
       "development": "./src/state/index.ts",
@@ -278,6 +283,10 @@
       "./navigation": {
         "types": "./dist/navigation.d.ts",
         "default": "./dist/navigation.js"
+      },
+      "./placeholder": {
+        "types": "./dist/placeholder.d.ts",
+        "default": "./dist/placeholder.js"
       },
       "./state": {
         "types": "./dist/state.d.ts",

@@ -14,6 +14,7 @@ import type { RouteSourceFile } from './dev/routing/types';
 export interface ResolvedWebRouterConfig {
   autoFullBuild: boolean;
   action: boolean;
+  entryFormatVersion: number;
   filesystemRouting: {
     basePathname: string;
     dir: string;
@@ -42,11 +43,17 @@ export interface ResolvedWebRouterConfig {
 export interface WebRouterUserConfig
   extends z.input<typeof WebRouterConfigSchema> {}
 
-export interface WebRouterServerEntryModule {
+export interface WebRouterServerEntryModuleV1 {
   default: (manifest: Manifest, options: StartOptions) => WebRouter;
 }
 
-export interface WebRouterClientEntryModule {}
+export interface WebRouterServerEntryModuleV2 {
+  default: WebRouter;
+}
+
+export interface WebRouterClientEntryModuleV1 {}
+
+export interface WebRouterClientEntryModuleV2 {}
 
 export interface RouteMap {
   $schema?: string;

@@ -65,6 +65,7 @@ export abstract class FetchEventLike {
 ////////////////////////////////////////
 
 export interface Manifest {
+  dev?: boolean;
   routes: {
     module: RouteModule | (() => Promise<RouteModule>);
     name?: string;
@@ -127,3 +128,17 @@ export interface LayoutModuleDescriptor {
 
 /** @deprecated */
 export type RootLayoutComponentProps = LayoutComponentProps;
+
+////////////////////////////////////////
+//////                            //////
+//////             Dev            //////
+//////                            //////
+////////////////////////////////////////
+
+export type DevRouteModule = RouteModule & {
+  $source: string;
+};
+
+export type DevHandlerInit = HeadersInit & {
+  'x-module-source': string;
+};
