@@ -88,23 +88,11 @@ export function importRenderPlugin({
         base = config.base;
       },
       async transformIndexHtml(html, { server: dev }) {
-        const styleId = 'web-widget:style';
         const inspectorId = 'web-widget:inspector';
         const result: IndexHtmlTransformResult = [];
 
         if (!html.includes(`</web-widget>`)) {
           return result;
-        }
-
-        if (!html.includes(`id="${styleId}"`)) {
-          result.push({
-            injectTo: 'head',
-            tag: 'style',
-            attrs: {
-              id: styleId,
-            },
-            children: 'web-widget{display:contents}',
-          });
         }
 
         if (dev && !html.includes(`id="${inspectorId}"`)) {

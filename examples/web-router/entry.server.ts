@@ -15,4 +15,9 @@ export default WebRouter.fromManifest(manifest, {
       },
     ],
   }),
+  defaultRenderOptions: {
+    react: {
+      awaitAllReady: true,
+    },
+  },
 });

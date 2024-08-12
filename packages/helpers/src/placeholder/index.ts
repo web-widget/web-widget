@@ -1,6 +1,6 @@
 import type { Meta } from '@web-widget/schema';
 
-type Module = unknown | (() => Promise<unknown>);
+type Module = any | (() => Promise<any>);
 interface Manifest {
   dev?: boolean;
   routes: {
