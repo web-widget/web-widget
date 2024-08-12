@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@web-widget/schema": "workspace:*",
-    "tsup": "^8.0.1",
+    "tsup": "catalog:",
     "typescript": "latest",
     "vite": "catalog:",
     "vue": ">3.3.3"

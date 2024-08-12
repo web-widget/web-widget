@@ -66,7 +66,7 @@
     "lru-cache": "^10.2.0",
     "miniflare": "^3.20240129.1",
     "ts-jest": "^29.1.1",
-    "tsup": "^8.0.1",
+    "tsup": "catalog:",
     "typescript": "latest"
   },
   "publishConfig": {

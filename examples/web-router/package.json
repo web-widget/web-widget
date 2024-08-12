@@ -11,8 +11,9 @@
     "build": "vite build",
     "dev": "vite",
     "dev:inspect": "NODE_OPTIONS='--inspect' vite",
-    "test": "NODE_OPTIONS='--experimental-vm-modules' pnpm exec jest",
-    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' pnpm exec jest --coverage",
+    "test": "cross-env VITE_PORT=51205 vitest",
+    "test:ui": "cross-env VITE_PORT=51205 vitest --ui",
+    "test:run": "cross-env VITE_PORT=51205 vitest run",
     "start": "node server.js",
     "start:inspect": "node --inspect server.js"
   },
@@ -32,18 +33,17 @@
     "react-dom": "rc"
   },
   "devDependencies": {
-    "@jest/globals": "^29.7.0",
-    "@types/jest": "^29.5.12",
+    "@edge-runtime/vm": "^4.0.1",
     "@types/koa": "^2.15.0",
     "@types/koa-send": "^4.1.6",
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",
     "@vitejs/plugin-react": "^4.3.1",
     "@web-widget/vite-plugin": "workspace:*",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.2.4",
+    "cross-env": "^7.0.3",
     "typescript": "latest",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": ">=18"

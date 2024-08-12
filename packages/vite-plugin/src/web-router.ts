@@ -8,6 +8,7 @@ import type {
   Manifest as ViteManifest,
 } from 'vite';
 import { build } from 'vite';
+import { nodeExternals } from 'rollup-plugin-node-externals';
 import { getLinks, getManifest } from './utils';
 import { importActionPlugin } from './import-action';
 import { parseWebRouterConfig } from './config';
@@ -143,6 +144,7 @@ export function webRouterPlugin(options: WebRouterUserConfig = {}): Plugin[] {
                 chunkFileNames: `${assetsDir}/[name].js`,
               }
             : {
+                //hoistTransitiveImports: false,
                 entryFileNames: `${assetsDir}/[name]-[hash].js`,
                 assetFileNames: `${assetsDir}/[name]-[hash][extname]`,
                 chunkFileNames: `${assetsDir}/[name]-[hash].js`,
@@ -321,6 +323,15 @@ export function webRouterPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     webRouterDevServerPlugin(),
 
     importActionPlugin(),
+
+    nodeExternals({
+      builtins: true,
+      builtinsPrefix: 'add',
+      deps: false,
+      devDeps: false,
+      peerDeps: false,
+      optDeps: false,
+    }) as Plugin,
   ];
 }
 

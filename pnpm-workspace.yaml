@@ -7,4 +7,6 @@ packages:
 
 catalog:
   'vite': ^5.4.0
+  'vitest': ^2.0.5
   '@types/node': '^22.2.0'
+  'tsup': ^8.2.4

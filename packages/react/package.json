@@ -53,7 +53,7 @@
     "@web-widget/schema": "workspace:*",
     "react-dom": "rc",
     "react": "rc",
-    "tsup": "^8.0.1",
+    "tsup": "catalog:",
     "typescript": "latest",
     "vite": "catalog:"
   },

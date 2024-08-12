@@ -1,3 +1,4 @@
+import './global';
 import type { MiddlewareContext, ScriptDescriptor } from '@web-widget/schema';
 import { tryGetAsyncLocalStorage } from './context';
 import { SCRIPT_ID, EXPOSED_TO_CLIENT } from './constants';

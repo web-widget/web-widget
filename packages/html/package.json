@@ -38,7 +38,7 @@
     "@worker-tools/html": "^2.0.0-pre.13"
   },
   "devDependencies": {
-    "tsup": "^8.0.1",
+    "tsup": "catalog:",
     "typescript": "latest"
   },
   "publishConfig": {

@@ -174,7 +174,7 @@
     "miniflare": "^3.20240129.1",
     "jest-environment-miniflare": "^2.14.2",
     "ts-jest": "^29.1.1",
-    "tsup": "^8.0.1",
+    "tsup": "catalog:",
     "typescript": "latest"
   },
   "publishConfig": {

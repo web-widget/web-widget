@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { webRouterPlugin } from '@web-widget/vite-plugin';
@@ -18,5 +19,11 @@ export default defineConfig({
   ],
   build: {
     target: ['chrome76'],
+  },
+  server: {
+    port: Number(process.env.VITE_PORT ?? 3000),
+  },
+  test: {
+    environment: 'edge-runtime',
   },
 });
