@@ -207,7 +207,7 @@ class Application<
   };
 
   /**
-   * @experimental
+   * @deprecated
    */
   request = (
     input: RequestInfo | URL,
@@ -228,6 +228,14 @@ class Application<
       : `http://localhost${mergePath('/', input)}`;
     const req = new Request(path, requestInit);
     return this.handler(req, Env, executionContext);
+  };
+
+  /**
+   * Interface for testing.
+   * @experimental
+   */
+  dispatch = (input: RequestInfo | URL, requestInit?: RequestInit) => {
+    return this.request(input, requestInit);
   };
 }
 

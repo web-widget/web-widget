@@ -42,7 +42,7 @@ describe('conditional()', function () {
           },
         ],
       });
-      const res = await app.request('http://localhost/', {
+      const res = await app.dispatch('http://localhost/', {
         headers: {
           'If-None-Match': await calculate(JSON.stringify(body)),
         },
@@ -80,7 +80,7 @@ describe('conditional()', function () {
           },
         ],
       });
-      const res = await app.request('http://localhost/', {
+      const res = await app.dispatch('http://localhost/', {
         headers: {
           'If-None-Match': 'tobi',
         },

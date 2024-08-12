@@ -81,7 +81,7 @@ describe('cache control should be added', () => {
       },
     });
     const req = new Request(TEST_URL);
-    const res = await app.request(req);
+    const res = await app.dispatch(req);
 
     expect(res.headers.get('cache-control')).toBe(
       'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5'
@@ -94,7 +94,7 @@ describe('cache control should be added', () => {
         'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5',
     });
     const req = new Request(TEST_URL);
-    const res = await app.request(req);
+    const res = await app.dispatch(req);
 
     expect(res.headers.get('cache-control')).toBe(
       'max-age=2, s-maxage=3, stale-if-error=4, stale-while-revalidate=5'
@@ -122,7 +122,7 @@ describe('cache control should be added', () => {
       ]
     );
     const req = new Request(TEST_URL);
-    const res = await app.request(req);
+    const res = await app.dispatch(req);
 
     expect(res.headers.get('cache-control')).toBe(null);
   });
@@ -134,7 +134,7 @@ describe('vary should be added', () => {
       vary: ['accept-language'],
     });
     const req = new Request(TEST_URL);
-    const res = await app.request(req);
+    const res = await app.dispatch(req);
 
     expect(res.headers.get('vary')).toBe('accept-language');
   });
@@ -144,7 +144,7 @@ describe('vary should be added', () => {
       vary: 'accept-language',
     });
     const req = new Request(TEST_URL);
-    const res = await app.request(req);
+    const res = await app.dispatch(req);
 
     expect(res.headers.get('vary')).toBe('accept-language');
   });
@@ -169,7 +169,7 @@ describe('vary should be added', () => {
       ]
     );
     const req = new Request(TEST_URL);
-    const res = await app.request(req);
+    const res = await app.dispatch(req);
 
     expect(res.headers.get('vary')).toBe(null);
   });
@@ -189,7 +189,7 @@ test('disabling caching middleware should be allowed', async () => {
       },
     },
   ]);
-  const res = await app.request(TEST_URL);
+  const res = await app.dispatch(TEST_URL);
 
   expect(res.status).toBe(200);
   expect(res.headers.get('x-cache-status')).toBe(BYPASS);
@@ -211,7 +211,7 @@ test('caching should be allowed to be bypassed', async () => {
       },
     },
   ]);
-  const res = await app.request(TEST_URL);
+  const res = await app.dispatch(TEST_URL);
 
   expect(res.status).toBe(200);
   expect(res.headers.get('x-cache-status')).toBe(BYPASS);
@@ -223,7 +223,7 @@ describe('request cache control directives', () => {
     const app = createApp(caches, {
       cacheControl: { maxAge: 300 },
     });
-    let res = await app.request(TEST_URL, {
+    let res = await app.dispatch(TEST_URL, {
       headers: {
         'cache-control': 'no-cache',
         pragma: 'no-cache',
@@ -236,7 +236,7 @@ describe('request cache control directives', () => {
     expect(res.headers.get('cache-control')).toBe('max-age=300');
     expect(await res.text()).toBe('lol');
 
-    res = await app.request(TEST_URL, {
+    res = await app.dispatch(TEST_URL, {
       headers: {
         'cache-control': 'no-cache',
         pragma: 'no-cache',
@@ -256,7 +256,7 @@ describe('request cache control directives', () => {
       cacheControl: { maxAge: 300 },
       ignoreRequestCacheControl: false,
     });
-    let res = await app.request(TEST_URL, {
+    let res = await app.dispatch(TEST_URL, {
       headers: {
         'cache-control': 'no-cache',
         pragma: 'no-cache',
@@ -269,7 +269,7 @@ describe('request cache control directives', () => {
     expect(res.headers.get('cache-control')).toBe('max-age=300');
     expect(await res.text()).toBe('lol');
 
-    res = await app.request(TEST_URL, {
+    res = await app.dispatch(TEST_URL, {
       headers: {
         'cache-control': 'no-cache',
         pragma: 'no-cache',
@@ -289,30 +289,30 @@ test('`age` should change based on cache time', async () => {
   const app = createApp(caches, {
     cacheControl: { maxAge: 2 },
   });
-  let res = await app.request(TEST_URL);
+  let res = await app.dispatch(TEST_URL);
   expect(res.headers.get('x-cache-status')).toBe(MISS);
   expect(res.headers.get('cache-control')).toBe('max-age=2');
   expect(res.headers.get('age')).toBe(null);
 
-  res = await app.request(TEST_URL);
+  res = await app.dispatch(TEST_URL);
   expect(res.headers.get('x-cache-status')).toBe(HIT);
   expect(res.headers.get('cache-control')).toBe('max-age=2');
   expect(res.headers.get('age')).toBe('0');
 
   await timeout(1000);
-  res = await app.request(TEST_URL);
+  res = await app.dispatch(TEST_URL);
   expect(res.headers.get('x-cache-status')).toBe(HIT);
   expect(res.headers.get('cache-control')).toBe('max-age=2');
   expect(res.headers.get('age')).toBe('1');
 
   await timeout(1000);
-  res = await app.request(TEST_URL);
+  res = await app.dispatch(TEST_URL);
   expect(res.headers.get('x-cache-status')).toBe(MISS);
   expect(res.headers.get('cache-control')).toBe('max-age=2');
   expect(res.headers.get('age')).toBe(null);
 
   await timeout(1000);
-  res = await app.request(TEST_URL);
+  res = await app.dispatch(TEST_URL);
   expect(res.headers.get('x-cache-status')).toBe(HIT);
   expect(res.headers.get('cache-control')).toBe('max-age=2');
   expect(res.headers.get('age')).toBe('1');
@@ -357,14 +357,14 @@ test('it should be possible to terminate cache revalidate', async () => {
       },
     ],
   });
-  let res = await app.request(TEST_URL);
+  let res = await app.dispatch(TEST_URL);
   expect(res.status).toBe(200);
   expect(res.headers.get('x-cache-status')).toBe(MISS);
   expect(await res.text()).toBe('View: 0');
 
   await timeout(1024);
 
-  res = await app.request(TEST_URL, {
+  res = await app.dispatch(TEST_URL, {
     headers: {
       'x-test-timeout': '1000',
     },
@@ -421,7 +421,7 @@ describe('conditional-get middleware', () => {
     });
 
     let req = new Request(TEST_URL);
-    let res = await app.request(req);
+    let res = await app.dispatch(req);
     const c = await caches.open('default');
     const cacheItem = await c.match(req);
     expect(await res.text()).toBe('lol');
@@ -441,11 +441,11 @@ describe('conditional-get middleware', () => {
         'if-none-match': '"v1"',
       },
     });
-    res = await app.request(req);
+    res = await app.dispatch(req);
     expect(res.status).toBe(304);
 
     req = new Request(TEST_URL);
-    res = await app.request(req);
+    res = await app.dispatch(req);
     expect(await res.text()).toBe('lol');
     expect(res.status).toBe(200);
   });
