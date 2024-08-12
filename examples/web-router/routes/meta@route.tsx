@@ -11,9 +11,9 @@ import BaseLayout from './(components)/BaseLayout.tsx';
 import ReactCounter from './(components)/Counter@widget';
 import './(css)/style.css';
 
-type MetaPageData = {
+interface MetaPageData {
   allMetadata: Meta;
-};
+}
 
 export const meta = defineMeta({
   title: 'Meta',
@@ -63,11 +63,11 @@ export const handler = defineRouteHandler<MetaPageData>({
         },
       ],
     });
-    return ctx.render({
+    const data = {
+      allMetadata: newMeta,
+    };
+    return ctx.render(data, {
       meta: newMeta,
-      data: {
-        allMetadata: newMeta,
-      },
     });
   },
 });

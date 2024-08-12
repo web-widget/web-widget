@@ -117,8 +117,7 @@ export function getComponentProps(
   context: WidgetRenderContext | RouteRenderContext
 ) {
   if (isRouteRenderContext(context)) {
-    const { data, error, params, pathname, request } =
-      context as RouteRenderContext;
+    const { data, error, params, request } = context as RouteRenderContext;
 
     if (error) {
       const props: RouteFallbackComponentProps = {
@@ -133,7 +132,6 @@ export function getComponentProps(
       const props: RouteComponentProps = {
         data,
         params,
-        pathname,
         request,
       };
       return props;

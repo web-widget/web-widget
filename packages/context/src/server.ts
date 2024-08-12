@@ -10,7 +10,6 @@ export function contextToScriptDescriptor(
     id: SCRIPT_ID,
     type: 'application/json',
     content: JSON.stringify({
-      pathname: context.pathname,
       params: context.params,
     }),
   };

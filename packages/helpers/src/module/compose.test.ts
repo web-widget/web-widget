@@ -83,8 +83,7 @@ describe('compose: Extended functionality on koa-compose', () => {
 
 describe('methodsToHandler', () => {
   const handler = methodsToHandler<MiddlewareHandlers>({
-    async GET(context, next) {
-      expect(context.pathname).toBe('/');
+    async GET(_context, next) {
       const res = await next();
       res.headers.set('Test', '1');
       return res;
@@ -95,7 +94,6 @@ describe('methodsToHandler', () => {
     return handler(
       {
         params: {},
-        pathname: '/',
         request: new Request('http://localhost', {
           method,
         }),
@@ -136,7 +134,6 @@ describe('methodsToHandler', () => {
 describe('composeMiddleware', () => {
   const handler = composeMiddleware([
     async (context, next) => {
-      expect(context.pathname).toBe('/');
       const res = await next();
       // @ts-ignore
       context.state.history.push('MiddlewareA');
@@ -145,7 +142,6 @@ describe('composeMiddleware', () => {
       return res;
     },
     async (context, next) => {
-      expect(context.pathname).toBe('/');
       const res = await next();
       res.headers.set('MiddlewareB', '1');
       // @ts-ignore
@@ -169,7 +165,6 @@ describe('composeMiddleware', () => {
     return handler(
       {
         params: {},
-        pathname: '/',
         request: new Request('http://localhost/', {
           method,
         }),

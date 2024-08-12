@@ -4,7 +4,7 @@ import { SCRIPT_ID } from './constants';
 
 type SafeSerializableContext = Pick<
   MiddlewareContext,
-  'params' | 'pathname' | 'request' | 'state'
+  'params' | 'request' | 'state'
 >;
 
 export function createSafeSerializableContext(
@@ -12,7 +12,6 @@ export function createSafeSerializableContext(
 ): SafeSerializableContext {
   return {
     params: Object.create(null),
-    pathname: '',
     request: new Request(location.href, {
       method: 'GET', // TODO: Use the actual method.
       headers: {
