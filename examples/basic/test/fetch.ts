@@ -10,7 +10,7 @@ Reflect.deleteProperty(globalThis, 'window');
 console.info('TEST ORIGIN', ORIGIN);
 
 export default async function fetch(pathname: string, options?: RequestInit) {
-  const response = await webRouter.request(`${ORIGIN}${pathname}`, options);
+  const response = await webRouter.dispatch(`${ORIGIN}${pathname}`, options);
 
   const res = new Response(response.body, response);
   const text = res.text;
