@@ -1,6 +1,10 @@
 packages:
-  - "examples/*"
-  - "examples/web-router/routes/*"
-  - "examples/web-widget/packages/*"
-  - "packages/*"
-  - "internal/*"
+  - 'examples/*'
+  - 'examples/web-router/routes/*'
+  - 'examples/web-widget/packages/*'
+  - 'packages/*'
+  - 'internal/*'
+
+catalog:
+  'vite': ^5.4.0
+  '@types/node': '^22.2.0'

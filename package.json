@@ -58,6 +58,9 @@
   },
   "packageManager": "pnpm@8.4.0",
   "pnpm": {
+    "overrides": {
+      "@types/node": "^22.2.0"
+    },
     "patchedDependencies": {
       "@miniflare/core@2.14.2": "patches/@miniflare__core@2.14.2.patch"
     }

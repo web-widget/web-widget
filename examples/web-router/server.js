@@ -3,9 +3,7 @@ import Koa from 'koa';
 import koaSend from 'koa-send';
 import NodeAdapter from '@web-widget/node';
 import connectToKoa from 'koa-connect';
-import start from './dist/server/entry.js';
-
-import routemap from './dist/server/routemap.js';
+import webRouter from './dist/server/index.js';
 
 const PORT = 9000;
 const ORIGIN = `http://localhost:${PORT}`;
@@ -20,8 +18,6 @@ app.use(async (ctx, next) => {
   }
   await next();
 });
-
-const webRouter = start(routemap, {});
 
 const webRouterMiddleware = new NodeAdapter(webRouter, {
   defaultOrigin: ORIGIN,

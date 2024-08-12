@@ -1,4 +1,3 @@
-import type { Plugin } from 'vite';
 import { webWidgetPlugin } from '@web-widget/vite-plugin';
 import type { WebWidgetUserConfig } from '@web-widget/vite-plugin';
 
@@ -7,11 +6,12 @@ import type { WebWidgetUserConfig } from '@web-widget/vite-plugin';
 // .vue?vue&type=script&setup=true&lang.jsx
 const VUE_INTERNAL_REQUEST = /\.vue\?vue\b.*$/;
 
-export interface ReactWebWidgetPluginOptions extends WebWidgetUserConfig {}
+export interface ReactWebWidgetPluginOptions
+  extends Partial<WebWidgetUserConfig> {}
 
 export default function reactWebWidgetPlugin(
   options?: ReactWebWidgetPluginOptions
-): Plugin[] {
+) {
   const {
     provide = '@web-widget/react',
     export: exportWidget = {},

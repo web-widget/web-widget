@@ -16,6 +16,7 @@
     "vue-server-renderer": "^2.7.16"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue2": "^2.3.1"
+    "@vitejs/plugin-vue2": "^2.3.1",
+    "vite": "catalog:"
   }
 }

@@ -91,13 +91,14 @@ export interface ImportMap {
   scopes?: Scopes;
 }
 
-export interface WebRouterPlugin extends Plugin {
+export interface WebRouterPluginApi {
+  config: ResolvedWebRouterConfig;
+  clientImportmap(): Promise<ImportMap>;
+  serverRoutemap(): Promise<RouteMap>;
+}
+
+export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {
   name: '@web-widget:router';
-  api: {
-    config: ResolvedWebRouterConfig;
-    clientImportmap(): Promise<ImportMap>;
-    serverRoutemap(): Promise<RouteMap>;
-  };
 }
 
 ////////////////////////////////////////

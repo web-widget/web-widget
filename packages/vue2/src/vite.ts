@@ -1,4 +1,3 @@
-import type { Plugin } from 'vite';
 import { webWidgetPlugin } from '@web-widget/vite-plugin';
 import type { WebWidgetUserConfig } from '@web-widget/vite-plugin';
 
@@ -11,11 +10,12 @@ const VUE_INTERNAL_REQUEST = /\.vue\?vue\b.*$/;
 // .vue?vue&type=script&setup=true&lang.ts
 const VUE_INTERNAL_SCRIPT_REQUEST = /\.vue\?vue&type=script\b.*$/;
 
-export interface Vue2WebWidgetPluginOptions extends WebWidgetUserConfig {}
+export interface Vue2WebWidgetPluginOptions
+  extends Partial<WebWidgetUserConfig> {}
 
 export default function vue2WebWidgetPlugin(
   options?: Vue2WebWidgetPluginOptions
-): Plugin[] {
+) {
   const {
     provide = '@web-widget/vue2',
     export: exportWidget = {},

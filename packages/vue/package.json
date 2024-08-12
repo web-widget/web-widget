@@ -47,11 +47,11 @@
     "@web-widget/schema": "workspace:*",
     "tsup": "^8.0.1",
     "typescript": "latest",
-    "vite": "^5.0.13",
+    "vite": "catalog:",
     "vue": ">3.3.3"
   },
   "peerDependencies": {
-    "vite": "^5.0.13",
+    "vite": "^5.4.0",
     "vue": ">3.3.3"
   },
   "publishConfig": {
