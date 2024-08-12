@@ -2,10 +2,10 @@ import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
 import { findWorkspaceDir } from '@pnpm/find-workspace-dir';
 
-export type Server = {
+export interface Server {
   close: () => Promise<void>;
   fetch: (pathname: string, options?: RequestInit) => Promise<Response>;
-};
+}
 
 export async function createTestServer(): Promise<Server> {
   const workspaceDir =
@@ -39,6 +39,7 @@ export async function createTestServer(): Promise<Server> {
 
       // NOTE: Remove date to make the snapshot stable.
       res.headers.delete('date');
+      res.headers.delete('x-module-source');
       res.text = async () => {
         const t = await text.call(res);
         // NOTE: Replace monorepo root with a placeholder to make the snapshot stable.
