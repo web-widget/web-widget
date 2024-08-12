@@ -50,7 +50,7 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Home - Web Widget</title><script id="state:web-router" type="application/json">{"pathname":"/","params":{}}</script>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Home - Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script id="state:web-router" type="application/json">{"pathname":"/","params":{}}</script>
       <link rel="stylesheet" href="/routes/(components)/BaseLayout.module.css" /><link rel="stylesheet" href="/routes/(components)/Counter.module.css" /><style data-vite-dev-id="#TEST_WORKSPACE_DIR#/examples/vue/routes/(components)/Counter@widget.vue?vue&amp;type=style&amp;index=0&amp;scoped=a67ee2b2&amp;lang.css">
 .counter[data-v-a67ee2b2] {
   display: inline-block;
@@ -86,9 +86,7 @@ window.__vite_plugin_react_preamble_installed__ = true
   border: 1px solid transparent;
   background: transparent;
 }
-</style><script type="module" src="/routes/(components)/Counter@widget.vue?vue&amp;type=style&amp;index=0&amp;scoped=a67ee2b2&amp;lang.css"></script>  <script type="module" src="/entry.client.ts"></script>
-  <style id="web-widget:style">web-widget{display:contents}</style>
-</head>
+</style><script type="module" src="/routes/(components)/Counter@widget.vue?vue&amp;type=style&amp;index=0&amp;scoped=a67ee2b2&amp;lang.css"></script></head>
       <body>
         <!--[--><header class="_header_a4vlw_14"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li></ul></nav></header><main class="_main_a4vlw_31"><!--[--><h1>Welcome to Web Widget.</h1><p> Try to update this message in the <code>./routes/index@route.vue</code> file. </p><h2>React</h2><web-widget import="/routes/(components)/Counter@widget.tsx" name="ReactCounter" loading="lazy" rendertarget="light" recovering data="{&quot;count&quot;:0}"><div class="_counter_7ir4i_1"><button>−</button><span class="_count_7ir4i_1">0</span><button>+</button></div></web-widget><h2>Vue</h2><web-widget import="/routes/(components)/Counter@widget.vue" name="VueCounter" loading="lazy" rendertarget="light" recovering data="{&quot;count&quot;:0}"><div class="counter" data-v-a67ee2b2><button data-v-a67ee2b2>−</button><span class="count" data-v-a67ee2b2>0</span><button data-v-a67ee2b2>+</button></div></web-widget><!--]--></main><footer class="_footer_a4vlw_47"><p>This is a footer</p></footer><!--]-->
         <web-widget-inspector id="web-widget:inspector" dir="#TEST_WORKSPACE_DIR#/examples/vue" keys="[&quot;Shift&quot;]">          <script type="module" src="/@fs#TEST_WORKSPACE_DIR#/packages/web-widget/dist/inspector.js"></script>
@@ -162,9 +160,8 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >About - Web Widget</title><script id="state:web-router" type="application/json">{"pathname":"/about","params":{}}</script>
-      <link rel="stylesheet" href="/routes/(components)/BaseLayout.module.css" />  <script type="module" src="/entry.client.ts"></script>
-</head>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >About - Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script id="state:web-router" type="application/json">{"pathname":"/about","params":{}}</script>
+      <link rel="stylesheet" href="/routes/(components)/BaseLayout.module.css" /></head>
       <body>
         <!--[--><header class="_header_a4vlw_14"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li></ul></nav></header><main class="_main_a4vlw_31"><!--[--><h1>About</h1><p> The page you&#39;re looking at is purely static HTML, with no client-side interactivity needed. Because of that, we don&#39;t need to load any JavaScript. Try viewing the page&#39;s source, or opening the devtools network panel and reloading. </p><!--]--></main><footer class="_footer_a4vlw_47"><p>This is a footer</p></footer><!--]-->
       </body>
