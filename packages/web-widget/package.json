@@ -76,10 +76,10 @@
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@types/chai": "^4.3.11",
-    "@types/mocha": "^10.0.6 ",
-    "@web/test-runner": "^0.18.0",
-    "@web/dev-server-esbuild": "^1.0.1",
+    "@types/chai": "^4.3.17",
+    "@types/mocha": "^10.0.7",
+    "@web/test-runner": "^0.18.3",
+    "@web/dev-server-esbuild": "^1.0.2",
     "tsup": "catalog:",
     "typescript": "latest"
   },
