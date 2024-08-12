@@ -3,7 +3,6 @@ import path from 'node:path';
 import * as compiler from 'vue/compiler-sfc';
 import vue2Plugin from '@vitejs/plugin-vue2';
 import vue2WebWidgetPlugin from '@web-widget/vue2/vite';
-import type { Plugin } from 'vite';
 
 const dirname = path.join(
   path.dirname(url.fileURLToPath(import.meta.url)),
@@ -27,6 +26,6 @@ export function vue2PresetsPlugin() {
       import: {
         includeImporter: subFile('\\.vue'),
       },
-    }) as Plugin<any>[],
+    }),
   ];
 }

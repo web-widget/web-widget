@@ -207,7 +207,7 @@ async function viteWebRouterMiddlewareV2(
             res = new Response(viteHtml, {
               status: res.status,
               statusText: res.statusText,
-              headers: res.headers,
+              headers,
             });
           }
 
