@@ -1,5 +1,20 @@
 # @web-widget/vite-plugin
 
+## 1.27.0
+
+### Minor Changes
+
+- 6c8a04a: Replace `@web-widget/helpers/placeholder` with `@placeholder`.
+
+### Patch Changes
+
+- 6c8a04a: Fixed the issue where the dev server may not start.
+- Updated dependencies [6c8a04a]
+  - @web-widget/web-router@1.27.0
+  - @web-widget/helpers@1.27.0
+  - @web-widget/web-widget@1.27.0
+  - @web-widget/node@1.27.0
+
 ## 1.26.0
 
 ### Minor Changes
