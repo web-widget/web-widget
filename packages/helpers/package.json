@@ -130,6 +130,11 @@
       "development": "./src/navigation/index.ts",
       "default": "./dist/navigation.js"
     },
+    "./placeholder": {
+      "types": "./dist/placeholder.d.ts",
+      "development": "./src/placeholder/index.ts",
+      "default": "./dist/placeholder.js"
+    },
     "./state": {
       "types": "./dist/state.d.ts",
       "development": "./src/state/index.ts",
@@ -162,15 +167,15 @@
     "@web-widget/action": "workspace:*"
   },
   "devDependencies": {
-    "@jest/globals": "^29.6.2",
-    "@types/jest": "^29.5.3",
+    "@jest/globals": "catalog:",
+    "@types/jest": "catalog:",
     "@web-widget/schema": "workspace:*",
-    "jest": "^29.6.2",
-    "miniflare": "^3.20240129.1",
-    "jest-environment-miniflare": "^2.14.2",
-    "ts-jest": "^29.1.1",
-    "tsup": "^8.0.1",
-    "typescript": "latest"
+    "jest": "catalog:",
+    "miniflare": "catalog:",
+    "jest-environment-miniflare": "catalog:",
+    "ts-jest": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "publishConfig": {
     "access": "public",
@@ -278,6 +283,10 @@
       "./navigation": {
         "types": "./dist/navigation.d.ts",
         "default": "./dist/navigation.js"
+      },
+      "./placeholder": {
+        "types": "./dist/placeholder.d.ts",
+        "default": "./dist/placeholder.js"
       },
       "./state": {
         "types": "./dist/state.d.ts",

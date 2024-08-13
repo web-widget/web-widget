@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import type { Plugin } from 'vite';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -5,6 +6,12 @@ import { webRouterPlugin } from '@web-widget/vite-plugin';
 import reactWebWidgetPlugin from '@web-widget/react/vite';
 import { vue2PresetsPlugin } from './routes/(vue2)/vite-plugins';
 import { vuePresetsPlugin } from './routes/(vue3)/vite-plugins';
+
+Reflect.defineProperty(global, 'window', {
+  set(value) {
+    console.trace('window =', value);
+  },
+});
 
 function reactPresetsPlugin() {
   return [react(), reactWebWidgetPlugin()];
@@ -49,6 +56,7 @@ export default defineConfig({
   plugins: [
     patchVuePluginConfig(),
     webRouterPlugin({
+      entryFormatVersion: 2,
       action: true,
       filesystemRouting: {
         enabled: true,
@@ -60,5 +68,11 @@ export default defineConfig({
   ],
   build: {
     target: ['chrome76'],
+  },
+  server: {
+    port: Number(process.env.VITE_PORT ?? 3000),
+  },
+  test: {
+    environment: 'edge-runtime',
   },
 });

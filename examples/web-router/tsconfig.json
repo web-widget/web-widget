@@ -17,7 +17,7 @@
     "strict": true,
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "types": ["vite/client", "@web-widget/react/globals", "jest"]
+    "types": ["vite/client", "@web-widget/react/globals"]
   },
   "include": ["*.ts", "routes/**/*", "test/**/*"]
 }

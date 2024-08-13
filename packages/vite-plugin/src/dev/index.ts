@@ -1,23 +1,16 @@
 import path from 'node:path';
+import crypto from 'node:crypto';
 import type { Middleware } from '@web-widget/node';
 import NodeAdapter from '@web-widget/node';
-import type { RouteModule } from '@web-widget/helpers';
 import { renderMetaToString } from '@web-widget/helpers';
-import type { Manifest } from '@web-widget/web-router';
 import stripAnsi from 'strip-ansi';
 import type { Plugin, ViteDevServer } from 'vite';
+import type WebRouter from '@web-widget/web-router';
 import { getMeta } from './meta';
 import { fileSystemRouteGenerator } from './routing';
-import type {
-  RouteMap,
-  ResolvedWebRouterConfig,
-  WebRouterServerEntryModule,
-} from '@/types';
+import { viteWebRouterMiddlewareV1 } from '@/v1/router';
+import type { ResolvedWebRouterConfig } from '@/types';
 import { getWebRouterPluginApi } from '@/utils';
-
-type DevModule = RouteModule & {
-  $source?: string;
-};
 
 export function webRouterDevServerPlugin(
   options?: ResolvedWebRouterConfig
@@ -28,11 +21,13 @@ export function webRouterDevServerPlugin(
     name: '@web-widget:dev',
     enforce: 'pre',
     apply: 'serve',
+
     async config() {
       return {
         appType: 'custom',
       };
     },
+
     async configResolved(config) {
       root = config.root;
 
@@ -51,10 +46,22 @@ export function webRouterDevServerPlugin(
         throw new Error('Missing options.');
       }
     },
+
     async configureServer(viteServer) {
       const [webRouter, restartWebRouter] = autoRestartMiddleware(
         viteServer,
-        () => viteWebRouterMiddleware(resolvedWebRouterConfig, viteServer)
+        () => {
+          const entryFormatVersion = resolvedWebRouterConfig.entryFormatVersion;
+          if (entryFormatVersion === 1) {
+            return viteWebRouterMiddlewareV1(
+              resolvedWebRouterConfig,
+              viteServer,
+              errorTemplate
+            );
+          }
+
+          return viteWebRouterMiddlewareV2(resolvedWebRouterConfig, viteServer);
+        }
       );
 
       if (resolvedWebRouterConfig.filesystemRouting.enabled) {
@@ -86,19 +93,26 @@ export function webRouterDevServerPlugin(
         }
       };
     },
+
     async transformIndexHtml() {
-      return [
-        {
-          injectTo: 'head',
-          tag: 'script',
-          attrs: {
-            type: 'module',
-            src:
-              '/' +
-              path.relative(root, resolvedWebRouterConfig.input.client.entry),
-          },
-        },
-      ];
+      const entryFormatVersion = resolvedWebRouterConfig.entryFormatVersion;
+      return entryFormatVersion === 1
+        ? [
+            {
+              injectTo: 'head',
+              tag: 'script',
+              attrs: {
+                type: 'module',
+                src:
+                  '/' +
+                  path.relative(
+                    root,
+                    resolvedWebRouterConfig.input.client.entry
+                  ),
+              },
+            },
+          ]
+        : [];
     },
   };
 }
@@ -134,67 +148,21 @@ function autoRestartMiddleware(
   return [autoRestartMiddleware, restart];
 }
 
-async function viteWebRouterMiddleware(
+async function viteWebRouterMiddlewareV2(
   resolvedWebRouterConfig: ResolvedWebRouterConfig,
   viteServer: ViteDevServer
 ): Promise<Middleware> {
-  const baseModulePath = path.join(viteServer.config.root, path.sep);
   const protocol = viteServer.config.server.https ? 'https' : 'http';
   const host = viteServer.config.server.host || 'localhost';
   const port = viteServer.config.server.port || 8080;
-  const origin = `${protocol}://${host}:${port}`;
+  const { ORIGIN } = process.env;
+  const origin = ORIGIN ?? `${protocol}://${host}:${port}`;
 
-  let currentModule: string | undefined;
-  const manifest = await loadManifest(
-    resolvedWebRouterConfig.input.server.routemap,
-    viteServer
-  );
-
-  manifest.middlewares ??= [];
-  manifest.middlewares.unshift({
-    pathname: '(.*)',
-    module: {
-      async handler(context, next) {
-        try {
-          return await next();
-        } finally {
-          currentModule = (context.module as DevModule)?.$source;
-        }
-      },
-    },
-  });
-
-  const start = (
-    (await viteServer.ssrLoadModule(
-      resolvedWebRouterConfig.input.server.entry
-    )) as WebRouterServerEntryModule
+  const webRouter: WebRouter = (
+    await viteServer.ssrLoadModule(resolvedWebRouterConfig.input.server.entry, {
+      fixStacktrace: true,
+    })
   ).default;
-
-  const webRouter = start(manifest, {
-    dev: true,
-    baseAsset: viteServer.config.base,
-    baseModule: baseModulePath,
-    defaultRenderOptions: {
-      react: {
-        awaitAllReady: true,
-      },
-    } as any,
-    onFallback(error, context) {
-      currentModule = (context?.module as DevModule)?.$source;
-      const status = Reflect.get(error, 'status') ?? 500;
-      const expose = Reflect.get(error, 'expose');
-      if (status >= 500 && !expose) {
-        const message = (error.stack || error.toString()).replace(/^/gm, '  ');
-        if (context) {
-          console.error(
-            `${context.request.method} ${context.request.url}\n${message}\n`
-          );
-        } else {
-          console.error(`\n${message}\n`);
-        }
-      }
-    },
-  });
 
   const nodeAdapter = new NodeAdapter(
     {
@@ -214,19 +182,32 @@ async function viteWebRouterMiddleware(
             return res;
           }
 
+          const xModuleSource = 'x-module-source';
+          const currentModule = res.headers.get(xModuleSource);
+
           if (currentModule) {
-            let html = await res.text();
+            const html = await res.text();
             const meta = await getMeta(currentModule, viteServer);
             const url = new URL(request.url);
             const viteHtml = await viteServer.transformIndexHtml(
               url.pathname + url.search,
               html.replace(/(<\/head>)/, renderMetaToString(meta) + '$1')
             );
+            const headers = new Headers(res.headers);
+            headers.delete(xModuleSource);
+
+            if (headers.has('etag')) {
+              const newEtag = crypto
+                .createHash('sha1')
+                .update(viteHtml)
+                .digest('hex');
+              headers.set('etag', `W/"${newEtag}"`);
+            }
 
             res = new Response(viteHtml, {
               status: res.status,
               statusText: res.statusText,
-              headers: res.headers,
+              headers,
             });
           }
 
@@ -258,51 +239,6 @@ async function viteWebRouterMiddleware(
   );
 
   return nodeAdapter.middleware;
-}
-
-async function loadManifest(routemap: string, viteServer: ViteDevServer) {
-  function createRouteLoader(id: string) {
-    let routeModule: DevModule;
-    return async () => {
-      const modulePath = path.resolve(path.dirname(routemap), id);
-
-      if (routeModule) {
-        return routeModule;
-      }
-
-      routeModule = {
-        $source: modulePath,
-        ...((await viteServer.ssrLoadModule(modulePath)) as RouteModule),
-      };
-
-      return routeModule;
-    };
-  }
-  const manifestJson = (await viteServer.ssrLoadModule(routemap))
-    .default as RouteMap;
-  return Object.entries(manifestJson).reduce((manifest, [key, value]) => {
-    if (Array.isArray(value)) {
-      // @ts-ignore
-      manifest[key] = [];
-      value.forEach((mod) => {
-        // @ts-ignore
-        manifest[key].push({
-          ...mod,
-          module: createRouteLoader(mod.module),
-        });
-      });
-    } else if (value.module) {
-      // @ts-ignore
-      manifest[key] = {
-        ...value,
-        module: createRouteLoader(value.module),
-      };
-    } else {
-      // @ts-ignore
-      manifest[key] = value;
-    }
-    return manifest;
-  }, {} as Manifest);
 }
 
 function errorTemplate(message: string) {

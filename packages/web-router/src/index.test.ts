@@ -27,13 +27,13 @@ describe('basic', () => {
   });
 
   test('GET http://localhost/hello is ok', async () => {
-    const res = await app.request('http://localhost/hello');
+    const res = await app.dispatch('http://localhost/hello');
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('get hello');
   });
 
   test('POST http://localhost/hello is ok', async () => {
-    const res = await app.request('http://localhost/hello', {
+    const res = await app.dispatch('http://localhost/hello', {
       method: 'POST',
     });
     expect(res.status).toBe(200);
@@ -66,19 +66,19 @@ describe('multiple identical routes', () => {
   });
 
   test('GET http://localhost/ is ok', async () => {
-    const res = await app.request('http://localhost/');
+    const res = await app.dispatch('http://localhost/');
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('Home');
   });
 
   test('POST http://localhost/a/ is ok', async () => {
-    const res = await app.request('http://localhost/a/');
+    const res = await app.dispatch('http://localhost/a/');
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('Home');
   });
 
   test('POST http://localhost/b/ is ok', async () => {
-    const res = await app.request('http://localhost/b/');
+    const res = await app.dispatch('http://localhost/b/');
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('Home');
   });
@@ -109,7 +109,7 @@ describe('create route context', () => {
         ],
       });
 
-      return app.request('http://localhost/test');
+      return app.dispatch('http://localhost/test');
     };
 
     let context: RouteContext;
@@ -156,7 +156,7 @@ describe('create route context', () => {
         ],
       });
 
-      return app.request('http://localhost/test');
+      return app.dispatch('http://localhost/test');
     };
 
     let context: RouteContext;
@@ -200,7 +200,7 @@ describe('error handling', () => {
       }
     );
 
-    return app.request('http://localhost/test');
+    return app.dispatch('http://localhost/test');
   };
 
   test('exceptions should be caught', (done) => {
@@ -344,7 +344,7 @@ describe('change members of context', () => {
       }
     );
 
-    const res = await app.request('http://localhost/test');
+    const res = await app.dispatch('http://localhost/test');
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('Hello');
     expect(defaultMeta.meta[0].content).toBe('defaultMeta');

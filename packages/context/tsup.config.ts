@@ -13,5 +13,5 @@ export const tsup: Options = {
   format: ['esm'],
   outDir: 'dist',
   clean: true,
-  external: [],
+  external: ['node:async_hooks'],
 };

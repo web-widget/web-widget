@@ -24,7 +24,7 @@ describe('etag()', function () {
           },
         ],
       });
-      await app.request('http://localhost/');
+      await app.dispatch('http://localhost/');
     });
   });
 
@@ -54,7 +54,7 @@ describe('etag()', function () {
           },
         ],
       });
-      const res = await app.request('http://localhost/');
+      const res = await app.dispatch('http://localhost/');
 
       expect(res.headers.get('ETag')).toBe('etaghaha');
       expect(await res.text()).toBe('etag');
@@ -84,7 +84,7 @@ describe('etag()', function () {
           },
         ],
       });
-      const res = await app.request('http://localhost/');
+      const res = await app.dispatch('http://localhost/');
 
       expect(res.headers.get('ETag')).toBe(
         '"0a4d55a8d778e5022fab701977c5d840bbc486d0"'
@@ -115,7 +115,7 @@ describe('etag()', function () {
           },
         ],
       });
-      const res = await app.request('http://localhost/');
+      const res = await app.dispatch('http://localhost/');
 
       expect(res.headers.get('ETag')).toBe(
         'W/"0a4d55a8d778e5022fab701977c5d840bbc486d0"'

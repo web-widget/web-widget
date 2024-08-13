@@ -25,8 +25,7 @@
     "unbuild": "^1.2.1"
   },
   "engines": {
-    "node": ">=16",
-    "npm": ">=7"
+    "node": ">=16"
   },
   "scripts": {
     "build": "turbo run build",
@@ -56,8 +55,12 @@
       "finepack"
     ]
   },
-  "packageManager": "pnpm@8.4.0",
+  "packageManager": "pnpm@9.7.0",
   "pnpm": {
+    "overrides": {
+      "@types/node": "^22.2.0",
+      "typescript": "^5.5.4"
+    },
     "patchedDependencies": {
       "@miniflare/core@2.14.2": "patches/@miniflare__core@2.14.2.patch"
     }

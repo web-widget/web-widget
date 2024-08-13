@@ -45,14 +45,15 @@
     "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^20.5.7",
-    "tsup": "^8.0.1",
-    "typescript": "latest",
-    "vite": "^5.0.13",
+    "@types/node": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
     "vue-server-renderer": "^2.7.16",
     "vue": "^2.7.16"
   },
   "peerDependencies": {
+    "vite": "^5.4.0",
     "vue-server-renderer": "^2.7.16",
     "vue": "^2.7.16"
   },

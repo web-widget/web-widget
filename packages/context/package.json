@@ -48,15 +48,16 @@
     "unctx": "^2.3.1"
   },
   "devDependencies": {
-    "@jest/globals": "^29.6.2",
-    "@types/jest": "^29.5.3",
-    "jest": "^29.6.2",
-    "miniflare": "^3.20240129.1",
-    "jest-environment-miniflare": "^2.14.2",
-    "ts-jest": "^29.1.1",
-    "tsup": "^8.0.1",
-    "typescript": "latest",
-    "@web-widget/schema": "workspace:*"
+    "@jest/globals": "catalog:",
+    "@types/jest": "catalog:",
+    "@types/node": "catalog:",
+    "@web-widget/schema": "workspace:*",
+    "jest": "catalog:",
+    "jest-environment-miniflare": "catalog:",
+    "miniflare": "catalog:",
+    "ts-jest": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "publishConfig": {
     "access": "public",

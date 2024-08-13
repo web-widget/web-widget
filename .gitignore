@@ -23,6 +23,7 @@ dist/
 _site/
 _site-dev/
 stats.html
+vite.config.*.timestamp-*
 
 ## Rocket ignore files (need to be the full relative path to the folders)
 docs/_merged_data/

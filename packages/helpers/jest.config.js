@@ -2,7 +2,7 @@ export default {
   roots: ['<rootDir>/src'],
   testMatch: ['**/src/**/(*.)+(spec|test).+(ts|tsx|js)'],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(ts|tsx)$': ['ts-jest', { useESM: true }],
   },
   transformIgnorePatterns: ['/node_modules/'],
   testEnvironment: 'miniflare',
@@ -10,9 +10,4 @@ export default {
     compatibilityFlags: ['streams_enable_constructors'],
   },
   extensionsToTreatAsEsm: ['.ts'],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
-  },
 };

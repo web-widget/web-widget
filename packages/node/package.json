@@ -26,9 +26,9 @@
     "@edge-runtime/primitives": "^4.1.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.45",
-    "tsup": "^8.0.1",
-    "typescript": "latest"
+    "@types/node": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "engines": {
     "node": ">=18"

@@ -21,6 +21,7 @@
     "vue-router": "^3.6.5"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue2": "^2.3.1"
+    "@vitejs/plugin-vue2": "^2.3.1",
+    "vite": "catalog:"
   }
 }

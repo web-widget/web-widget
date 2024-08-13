@@ -1,19 +1,9 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Should match snapshot Request "/" should match snapshot: /@body 1`] = `
+exports[`Should match snapshot > Request "/" should match snapshot > /@body 1`] = `
 "<!doctype html>
     <html lang="en">
       <head>
-        <script type="module">
-import RefreshRuntime from "/@react-refresh"
-RefreshRuntime.injectIntoGlobalHook(window)
-window.$RefreshReg$ = () => {}
-window.$RefreshSig$ = () => (type) => type
-window.__vite_plugin_react_preamble_installed__ = true
-</script>
-
-        <script type="module" src="/@vite/client"></script>
-
         <script id="shim:es-module">
   if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
     self.importShim = Object.assign(
@@ -50,82 +40,29 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Home - Web Widget</title><script id="state:web-router" type="application/json">{"pathname":"/","params":{}}</script>
-      <link rel="stylesheet" href="/routes/(components)/BaseLayout.module.css" /><link rel="stylesheet" href="/routes/(components)/Counter.module.css" /><style data-vite-dev-id="#TEST_WORKSPACE_DIR#/examples/vue/routes/(components)/Counter@widget.vue?vue&amp;type=style&amp;index=0&amp;scoped=a67ee2b2&amp;lang.css">
-.counter[data-v-a67ee2b2] {
-  display: inline-block;
-  line-height: 1em;
-  padding: 15px;
-  border-radius: 30px;
-  font-size: 16px;
-  border: 2px solid #42b883;
-}
-.counter button[data-v-a67ee2b2] {
-  width: 2em;
-  height: 2em;
-  line-height: 2em;
-  text-align: center;
-  border-radius: 100%;
-  font-size: 1em;
-  border: 0 none;
-  outline: #fff solid 5px;
-  background: #42b883;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-}
-.counter .count[data-v-a67ee2b2] {
-  display: inline-block;
-  min-width: 1.2em;
-  text-align: center;
-  padding-left: 10px;
-  padding-right: 10px;
-  font-weight: bold;
-  font-size: 1em;
-  color: #42b883;
-  border: 1px solid transparent;
-  background: transparent;
-}
-</style><script type="module" src="/routes/(components)/Counter@widget.vue?vue&amp;type=style&amp;index=0&amp;scoped=a67ee2b2&amp;lang.css"></script>  <script type="module" src="/entry.client.ts"></script>
-  <style id="web-widget:style">web-widget{display:contents}</style>
-</head>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Home - Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script id="state:web-router" type="application/json">{"pathname":"/","params":{}}</script>
+      </head>
       <body>
-        <!--[--><header class="_header_a4vlw_14"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li></ul></nav></header><main class="_main_a4vlw_31"><!--[--><h1>Welcome to Web Widget.</h1><p> Try to update this message in the <code>./routes/index@route.vue</code> file. </p><h2>React</h2><web-widget import="/routes/(components)/Counter@widget.tsx" name="ReactCounter" loading="lazy" rendertarget="light" recovering data="{&quot;count&quot;:0}"><div class="_counter_7ir4i_1"><button>−</button><span class="_count_7ir4i_1">0</span><button>+</button></div></web-widget><h2>Vue</h2><web-widget import="/routes/(components)/Counter@widget.vue" name="VueCounter" loading="lazy" rendertarget="light" recovering data="{&quot;count&quot;:0}"><div class="counter" data-v-a67ee2b2><button data-v-a67ee2b2>−</button><span class="count" data-v-a67ee2b2>0</span><button data-v-a67ee2b2>+</button></div></web-widget><!--]--></main><footer class="_footer_a4vlw_47"><p>This is a footer</p></footer><!--]-->
-        <web-widget-inspector id="web-widget:inspector" dir="#TEST_WORKSPACE_DIR#/examples/vue" keys="[&quot;Shift&quot;]">          <script type="module" src="/@fs#TEST_WORKSPACE_DIR#/packages/web-widget/dist/inspector.js"></script>
-</web-widget-inspector>
+        <!--[--><header class="_header_d366fc"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li></ul></nav></header><main class="_main_d366fc"><!--[--><h1>Welcome to Web Widget.</h1><p> Try to update this message in the <code>./routes/index@route.vue</code> file. </p><h2>React</h2><web-widget import="/routes/(components)/Counter@widget.tsx" name="ReactCounter" loading="lazy" rendertarget="light" recovering data="{&quot;count&quot;:0}"><div class="_counter_6a98f7"><button>−</button><span class="_count_6a98f7">0</span><button>+</button></div></web-widget><h2>Vue</h2><web-widget import="/routes/(components)/Counter@widget.vue" name="VueCounter" loading="lazy" rendertarget="light" recovering data="{&quot;count&quot;:0}"><div class="counter" data-v-a67ee2b2><button data-v-a67ee2b2>−</button><span class="count" data-v-a67ee2b2>0</span><button data-v-a67ee2b2>+</button></div></web-widget><!--]--></main><footer class="_footer_d366fc"><p>This is a footer</p></footer><!--]-->
       </body>
     </html>"
 `;
 
-exports[`Should match snapshot Request "/" should match snapshot: /@headers 1`] = `
+exports[`Should match snapshot > Request "/" should match snapshot > /@headers 1`] = `
 {
-  "access-control-allow-origin": "*",
-  "connection": "keep-alive",
   "content-type": "text/html; charset=utf-8",
-  "keep-alive": "timeout=5",
-  "transfer-encoding": "chunked",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
 
-exports[`Should match snapshot Request "/" should match snapshot: /@status 1`] = `200`;
+exports[`Should match snapshot > Request "/" should match snapshot > /@status 1`] = `200`;
 
-exports[`Should match snapshot Request "/" should match snapshot: /@statusText 1`] = `"OK"`;
+exports[`Should match snapshot > Request "/" should match snapshot > /@statusText 1`] = `"OK"`;
 
-exports[`Should match snapshot Request "/about" should match snapshot: /about@body 1`] = `
+exports[`Should match snapshot > Request "/about" should match snapshot > /about@body 1`] = `
 "<!doctype html>
     <html lang="en">
       <head>
-        <script type="module">
-import RefreshRuntime from "/@react-refresh"
-RefreshRuntime.injectIntoGlobalHook(window)
-window.$RefreshReg$ = () => {}
-window.$RefreshSig$ = () => (type) => type
-window.__vite_plugin_react_preamble_installed__ = true
-</script>
-
-        <script type="module" src="/@vite/client"></script>
-
         <script id="shim:es-module">
   if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
     self.importShim = Object.assign(
@@ -162,26 +99,21 @@ window.__vite_plugin_react_preamble_installed__ = true
       }
     );
   }
-</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >About - Web Widget</title><script id="state:web-router" type="application/json">{"pathname":"/about","params":{}}</script>
-      <link rel="stylesheet" href="/routes/(components)/BaseLayout.module.css" />  <script type="module" src="/entry.client.ts"></script>
-</head>
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >About - Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script id="state:web-router" type="application/json">{"pathname":"/about","params":{}}</script>
+      </head>
       <body>
-        <!--[--><header class="_header_a4vlw_14"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li></ul></nav></header><main class="_main_a4vlw_31"><!--[--><h1>About</h1><p> The page you&#39;re looking at is purely static HTML, with no client-side interactivity needed. Because of that, we don&#39;t need to load any JavaScript. Try viewing the page&#39;s source, or opening the devtools network panel and reloading. </p><!--]--></main><footer class="_footer_a4vlw_47"><p>This is a footer</p></footer><!--]-->
+        <!--[--><header class="_header_d366fc"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li></ul></nav></header><main class="_main_d366fc"><!--[--><h1>About</h1><p> The page you&#39;re looking at is purely static HTML, with no client-side interactivity needed. Because of that, we don&#39;t need to load any JavaScript. Try viewing the page&#39;s source, or opening the devtools network panel and reloading. </p><!--]--></main><footer class="_footer_d366fc"><p>This is a footer</p></footer><!--]-->
       </body>
     </html>"
 `;
 
-exports[`Should match snapshot Request "/about" should match snapshot: /about@headers 1`] = `
+exports[`Should match snapshot > Request "/about" should match snapshot > /about@headers 1`] = `
 {
-  "access-control-allow-origin": "*",
-  "connection": "keep-alive",
   "content-type": "text/html; charset=utf-8",
-  "keep-alive": "timeout=5",
-  "transfer-encoding": "chunked",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
 
-exports[`Should match snapshot Request "/about" should match snapshot: /about@status 1`] = `200`;
+exports[`Should match snapshot > Request "/about" should match snapshot > /about@status 1`] = `200`;
 
-exports[`Should match snapshot Request "/about" should match snapshot: /about@statusText 1`] = `"OK"`;
+exports[`Should match snapshot > Request "/about" should match snapshot > /about@statusText 1`] = `"OK"`;

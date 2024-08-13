@@ -53,14 +53,14 @@
     "@web-widget/schema": "workspace:*",
     "react-dom": "rc",
     "react": "rc",
-    "tsup": "^8.0.1",
-    "typescript": "latest",
-    "vite": "^5.0.13"
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   },
   "peerDependencies": {
     "react-dom": "rc",
     "react": "rc",
-    "vite": "^5.0.13"
+    "vite": "^5.4.0"
   },
   "overrides": {
     "@types/react": "npm:types-react@rc",
