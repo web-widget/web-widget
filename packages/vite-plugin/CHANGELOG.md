@@ -1,5 +1,19 @@
 # @web-widget/vite-plugin
 
+## 1.26.0
+
+### Minor Changes
+
+- d35d205: Replace `@web-widget/helpers/placeholder` with `@placeholder`.
+
+### Patch Changes
+
+- Updated dependencies [d35d205]
+  - @web-widget/web-router@1.26.0
+  - @web-widget/helpers@1.26.0
+  - @web-widget/web-widget@1.26.0
+  - @web-widget/node@1.26.0
+
 ## 1.25.0
 
 ### Minor Changes
