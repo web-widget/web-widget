@@ -30,6 +30,7 @@ export type StartOptions<E extends Env = {}> = {
   baseAsset?: string;
   defaultMeta?: Meta;
   defaultRenderOptions?: RouteRenderOptions;
+  /** @deprecated */
   dev?: boolean;
   onFallback?: OnFallback;
 } & ApplicationOptions<E>;
