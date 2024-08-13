@@ -31,5 +31,5 @@ const server = app.listen(PORT, () => {
 
 // Export interfaces for testing tools.
 export const dispatch = (pathname, ...args) =>
-  webRouter.dispatch(`${ORIGIN}${pathname} `, ...args);
+  webRouter.dispatch(`${ORIGIN}${pathname}`, ...args);
 export const close = () => server.close();
