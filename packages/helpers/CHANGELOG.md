@@ -1,5 +1,17 @@
 # @web-widget/helpers
 
+## 1.25.0
+
+### Minor Changes
+
+- 748ca9f: Support for new entry formats.
+
+### Patch Changes
+
+- @web-widget/action@1.25.0
+- @web-widget/context@1.25.0
+- @web-widget/lifecycle-cache@1.25.0
+
 ## 1.24.6
 
 ### Patch Changes

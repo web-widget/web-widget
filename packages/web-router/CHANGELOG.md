@@ -1,5 +1,20 @@
 # @web-widget/web-router
 
+## 1.25.0
+
+### Minor Changes
+
+- 748ca9f: Support for new entry formats.
+
+### Patch Changes
+
+- Updated dependencies [748ca9f]
+  - @web-widget/helpers@1.25.0
+  - @web-widget/html@1.25.0
+  - @web-widget/action@1.25.0
+  - @web-widget/context@1.25.0
+  - @web-widget/lifecycle-cache@1.25.0
+
 ## 1.24.6
 
 ### Patch Changes
