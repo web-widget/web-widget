@@ -9,6 +9,11 @@ const __dirname = path.dirname(__filename);
 const DIST = 'dist';
 const NAME = 'web-router.server';
 const PLACEHOLDER_NAME = 'placeholder';
+const PLACEHOLDER_PATH = path.resolve(
+  __dirname,
+  DIST,
+  `${PLACEHOLDER_NAME}.d.ts`
+);
 const PLACEHOLDER_CODE = `declare module '@placeholder' {
   /**
    * Placeholder for the meta object.
@@ -39,14 +44,8 @@ export const tsup: Options = {
   clean: false,
   external: [],
   onSuccess: async () => {
-    const placeholderPath = path.resolve(
-      __dirname,
-      DIST,
-      `${PLACEHOLDER_NAME}.d.ts`
-    );
-
     try {
-      await fs.writeFile(placeholderPath, PLACEHOLDER_CODE, 'utf8');
+      await fs.writeFile(PLACEHOLDER_PATH, PLACEHOLDER_CODE, 'utf8');
     } catch (error: any) {
       error.message = `Failed to create file: ${error.message}`;
       throw error;
