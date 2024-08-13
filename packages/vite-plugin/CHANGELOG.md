@@ -1,5 +1,19 @@
 # @web-widget/vite-plugin
 
+## 1.25.0
+
+### Minor Changes
+
+- 748ca9f: Support for new entry formats.
+
+### Patch Changes
+
+- Updated dependencies [748ca9f]
+  - @web-widget/web-router@1.25.0
+  - @web-widget/helpers@1.25.0
+  - @web-widget/web-widget@1.25.0
+  - @web-widget/node@1.25.0
+
 ## 1.24.6
 
 ### Patch Changes

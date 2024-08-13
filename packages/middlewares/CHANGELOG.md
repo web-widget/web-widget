@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.25.0
+
+### Patch Changes
+
+- Updated dependencies [748ca9f]
+  - @web-widget/helpers@1.25.0
+  - @web-widget/schema@1.25.0
+
 ## 1.24.6
 
 ### Patch Changes
