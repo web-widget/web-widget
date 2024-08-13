@@ -6,6 +6,7 @@ import type {
   Plugin,
   UserConfig,
   Manifest as ViteManifest,
+  ResolvedConfig,
 } from 'vite';
 import { build } from 'vite';
 import { nodeExternals } from 'rollup-plugin-node-externals';
@@ -22,6 +23,24 @@ import type {
   WebRouterPluginApi,
   WebRouterUserConfig,
 } from './types';
+
+interface ResolvedVitestConfig extends ResolvedConfig {
+  /**
+   * Options for Vitest
+   */
+  test?: {
+    /**
+     * Running environment
+     *
+     * Supports 'node', 'jsdom', 'happy-dom', 'edge-runtime'
+     *
+     * If used unsupported string, will try to load the package `vitest-environment-${env}`
+     *
+     * @default 'node'
+     */
+    environment?: 'node' | 'jsdom' | 'happy-dom' | 'edge-runtime';
+  };
+}
 
 let stage = 0;
 const PLACEHOLDER_ID = '@web-widget/helpers/placeholder';
@@ -184,10 +203,28 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       resolvedWebRouterConfig = parseWebRouterConfig(options, root, extensions);
     },
 
-    async configResolved(config) {
+    async configResolved(config: ResolvedVitestConfig) {
       dev = config.command === 'serve';
       base = config.base;
       root = config.root;
+      const environment = config?.test?.environment;
+      const widnowEnvironments = ['jsdom', 'happy-dom', 'edge-runtime'];
+      if (environment && widnowEnvironments.includes(environment)) {
+        // @see https://github.com/vitest-dev/vitest/blob/45a0f88437ffdb2d55bf65c2ae7cff65f41bd757/packages/vitest/src/integrations/env/utils.ts#L80-L83
+        // console.warn(
+        //   `[WARN] Environment "${environment}" will add global context of the browser, you may need to remove them before initialization.`
+        // );
+        // console.info(
+        //   [
+        //     ``,
+        //     `Example:`,
+        //     ``,
+        //     `['window', 'self', 'top', 'parent'].forEach((key) => {`,
+        //     `  Reflect.deleteProperty(globalThis, key);`,
+        //     `});`,
+        //   ].join('\n')
+        // );
+      }
     },
 
     async resolveId(id, _importer, options) {

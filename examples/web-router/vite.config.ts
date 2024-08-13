@@ -7,6 +7,12 @@ import reactWebWidgetPlugin from '@web-widget/react/vite';
 import { vue2PresetsPlugin } from './routes/(vue2)/vite-plugins';
 import { vuePresetsPlugin } from './routes/(vue3)/vite-plugins';
 
+Reflect.defineProperty(global, 'window', {
+  set(value) {
+    console.trace('window =', value);
+  },
+});
+
 function reactPresetsPlugin() {
   return [react(), reactWebWidgetPlugin()];
 }

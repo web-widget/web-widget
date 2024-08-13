@@ -5,8 +5,11 @@ const PORT = Number(process.env.VITE_PORT ?? 3000);
 const ORIGIN = `http://localhost:${PORT}`;
 const MONOREPO_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 
-// NOTE: Removed the window variable to prevent some libraries from working
-Reflect.deleteProperty(globalThis, 'window');
+// NOTE: Prevent the program from running due to global variables registered in some test environments of Vitest
+['window', 'self', 'top', 'parent'].forEach((key) => {
+  Reflect.deleteProperty(globalThis, key);
+});
+
 console.info('TEST ORIGIN', ORIGIN);
 
 export default async function fetch(pathname: string, options?: RequestInit) {
