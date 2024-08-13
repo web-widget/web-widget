@@ -955,6 +955,9 @@ importers:
       '@types/jest':
         specifier: 'catalog:'
         version: 29.5.12
+      '@types/node':
+        specifier: ^22.2.0
+        version: 22.2.0
       babel-plugin-template-html-minifier:
         specifier: ^4.1.0
         version: 4.1.0

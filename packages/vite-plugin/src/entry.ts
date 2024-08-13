@@ -43,7 +43,7 @@ interface ResolvedVitestConfig extends ResolvedConfig {
 }
 
 let stage = 0;
-const PLACEHOLDER_ID = '@web-widget/helpers/placeholder';
+const PLACEHOLDER_ID = '@placeholder';
 const RESOLVED_PLACEHOLDER_ID = '\0' + PLACEHOLDER_ID.replaceAll('/', '-');
 const ROUTEMAP_ID = 'virtual:routemap';
 const ENTRY_ID = '@entry';

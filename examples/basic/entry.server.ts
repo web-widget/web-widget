@@ -1,6 +1,6 @@
 import { mergeMeta } from '@web-widget/helpers';
-import { meta, manifest } from '@web-widget/helpers/placeholder';
 import WebRouter from '@web-widget/web-router';
+import { meta, manifest } from '@placeholder';
 
 export default WebRouter.fromManifest(manifest, {
   defaultMeta: mergeMeta(meta, {
