@@ -1,9 +1,12 @@
 import { fileURLToPath } from 'node:url';
+import { findWorkspaceDir } from '@pnpm/find-workspace-dir';
 import webRouter from '../entry.server';
 
 const PORT = Number(process.env.VITE_PORT ?? 3000);
 const ORIGIN = `http://localhost:${PORT}`;
-const MONOREPO_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const MONOREPO_ROOT =
+  (await findWorkspaceDir(process.cwd())) ||
+  fileURLToPath(new URL('../', import.meta.url));
 
 // NOTE: Prevent the program from running due to global variables registered in some test environments of Vitest
 ['window', 'self', 'top', 'parent'].forEach((key) => {

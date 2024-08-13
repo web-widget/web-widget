@@ -290,6 +290,9 @@ importers:
       '@edge-runtime/vm':
         specifier: 'catalog:'
         version: 4.0.1
+      '@pnpm/find-workspace-dir':
+        specifier: ^7.0.1
+        version: 7.0.1
       '@types/koa':
         specifier: ^2.15.0
         version: 2.15.0
@@ -2711,13 +2714,25 @@ packages:
     resolution: {integrity: sha512-31pZqMtjwV+Vaq7MaPrT1EoDFSYwye3dp6BiHIGRJmVThCQwySRKM7hCvqqI94epNkqFAAYoWrNynWoRYosGdw==}
     engines: {node: '>=16.14'}
 
+  '@pnpm/constants@8.0.0':
+    resolution: {integrity: sha512-yQosGUvYPpAjb1jOFcdbwekRjZRVxN6C0hHzfRCZrMKbxGjt/E0g0RcFlEDNVZ95tm4oMMcr7nEPa7H7LX3emw==}
+    engines: {node: '>=18.12'}
+
   '@pnpm/error@5.0.2':
     resolution: {integrity: sha512-0TEm+tWNYm+9uh6DSKyRbv8pv/6b4NL0PastLvMxIoqZbBZ5Zj1cYi332R9xsSUi31ZOsu2wpgn/bC7DA9hrjg==}
     engines: {node: '>=16.14'}
 
+  '@pnpm/error@6.0.1':
+    resolution: {integrity: sha512-7yjO0RgmWYb4OKgcWC33yD4Z2CxE7Tm7vXX1SmS7GDifDT/bgZZhHeS2xq/+W6y9yhwIrRSA+7AlQL1NM2wIvw==}
+    engines: {node: '>=18.12'}
+
   '@pnpm/find-workspace-dir@6.0.2':
     resolution: {integrity: sha512-JSrpQUFCs4vY1D5tOmj7qBb+oE2j/lO6341giEdUpvYf3FijY8CY13l8rPjfHV2y3m//utzl0An+q+qx14S6Nw==}
     engines: {node: '>=16.14'}
+
+  '@pnpm/find-workspace-dir@7.0.1':
+    resolution: {integrity: sha512-o1LAFM/5MChI6qBolMBOznzatch01UK3wIgoAE/b779qs1FakksB278nMRTwRY58PZSBT+RxZ2RCMjlxPLeVWw==}
+    engines: {node: '>=18.12'}
 
   '@puppeteer/browsers@2.3.0':
     resolution: {integrity: sha512-ioXoq9gPxkss4MYhD+SFaU9p1IHFUX0ILAWFPyjGaBdjLsYAlZw6j1iLA0N/m12uVHLFDfSYNF7EQccjinIMDA==}
@@ -9431,13 +9446,24 @@ snapshots:
 
   '@pnpm/constants@7.1.1': {}
 
+  '@pnpm/constants@8.0.0': {}
+
   '@pnpm/error@5.0.2':
     dependencies:
       '@pnpm/constants': 7.1.1
 
+  '@pnpm/error@6.0.1':
+    dependencies:
+      '@pnpm/constants': 8.0.0
+
   '@pnpm/find-workspace-dir@6.0.2':
     dependencies:
       '@pnpm/error': 5.0.2
+      find-up: 5.0.0
+
+  '@pnpm/find-workspace-dir@7.0.1':
+    dependencies:
+      '@pnpm/error': 6.0.1
       find-up: 5.0.0
 
   '@puppeteer/browsers@2.3.0':

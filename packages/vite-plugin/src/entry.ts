@@ -244,7 +244,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
           root,
           base,
           await api.clientImportmap(),
-          await getManifest(root, resolvedWebRouterConfig),
+          dev ? {} : await getManifest(root, resolvedWebRouterConfig),
           resolvedWebRouterConfig,
           await api.serverRoutemap(),
           dev
@@ -424,13 +424,13 @@ function buildPlaceholder(
   clientImportmap: ImportMap,
   viteManifest: ViteManifest,
   resolvedWebRouterConfig: ResolvedWebRouterConfig,
-  manifest: RouteMap,
+  routemap: RouteMap,
   dev: boolean
 ): string {
   return (
     buildManifest(
       resolvedWebRouterConfig.input.server.routemap,
-      manifest,
+      routemap,
       dev
     ) +
     '\n' +
@@ -445,11 +445,7 @@ function buildPlaceholder(
   );
 }
 
-function buildManifest(
-  routemap: string,
-  manifest: RouteMap,
-  dev: boolean
-): string {
+function buildManifest(file: string, routemap: RouteMap, dev: boolean): string {
   if (dev) {
     /* NOTE: Relying on ROUTEMAP_ID here is to allow Vite to update the content when routemap.json changes. */
     const routemapJsCode = `/* @dev:manifest */
@@ -459,7 +455,7 @@ function buildManifest(
         const source = item.module;
         if (source) {
           item.module = async () => ({
-            $source: path.resolve(${JSON.stringify(path.dirname(routemap))}, source),
+            $source: path.resolve(${JSON.stringify(path.dirname(file))}, source),
             ...(await import(/* @vite-ignore */ source)),
           });
         }
@@ -479,7 +475,7 @@ function buildManifest(
 
     return routemapJsCode;
   } else {
-    const imports: string[] = Object.entries(manifest).reduce(
+    const imports: string[] = Object.entries(routemap).reduce(
       (list, [key, value]) => {
         if (Array.isArray(value)) {
           value.forEach((mod) => {
@@ -492,7 +488,7 @@ function buildManifest(
       },
       [] as string[]
     );
-    const routemapJsonCode = JSON.stringify(manifest, null, 2);
+    const routemapJsonCode = JSON.stringify(routemap, null, 2);
     const routemapJsCode =
       imports
         .map((module, index) => `import * as _${index} from "${module}";`)
