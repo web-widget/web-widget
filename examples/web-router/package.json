@@ -33,7 +33,7 @@
     "react-dom": "rc"
   },
   "devDependencies": {
-    "@edge-runtime/vm": "^4.0.1",
+    "@edge-runtime/vm": "catalog:",
     "@types/koa": "^2.15.0",
     "@types/koa-send": "^4.1.6",
     "@types/react": "npm:types-react@rc",
@@ -41,7 +41,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "@web-widget/vite-plugin": "workspace:*",
     "cross-env": "^7.0.3",
-    "typescript": "latest",
+    "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   },

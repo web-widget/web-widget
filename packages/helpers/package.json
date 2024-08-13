@@ -167,15 +167,15 @@
     "@web-widget/action": "workspace:*"
   },
   "devDependencies": {
-    "@jest/globals": "^29.6.2",
-    "@types/jest": "^29.5.3",
+    "@jest/globals": "catalog:",
+    "@types/jest": "catalog:",
     "@web-widget/schema": "workspace:*",
-    "jest": "^29.6.2",
-    "miniflare": "^3.20240129.1",
-    "jest-environment-miniflare": "^2.14.2",
-    "ts-jest": "^29.1.1",
+    "jest": "catalog:",
+    "miniflare": "catalog:",
+    "jest-environment-miniflare": "catalog:",
+    "ts-jest": "catalog:",
     "tsup": "catalog:",
-    "typescript": "latest"
+    "typescript": "catalog:"
   },
   "publishConfig": {
     "access": "public",

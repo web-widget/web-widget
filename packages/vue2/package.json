@@ -47,7 +47,7 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "tsup": "catalog:",
-    "typescript": "latest",
+    "typescript": "catalog:",
     "vite": "catalog:",
     "vue-server-renderer": "^2.7.16",
     "vue": "^2.7.16"

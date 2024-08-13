@@ -41,7 +41,7 @@
     "vue-eslint-parser": "^9.3.1"
   },
   "devDependencies": {
-    "typescript": "latest",
+    "typescript": "catalog:",
     "unbuild": "latest"
   }
 }

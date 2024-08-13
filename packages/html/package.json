@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "tsup": "catalog:",
-    "typescript": "latest"
+    "typescript": "catalog:"
   },
   "publishConfig": {
     "access": "public",

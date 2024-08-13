@@ -6,7 +6,15 @@ packages:
   - 'internal/*'
 
 catalog:
+  '@types/jest': ^29.5.12
+  '@jest/globals': ^29.7.0
+  '@types/node': '^22.2.0'
+  '@edge-runtime/vm': ^4.0.1
   'vite': ^5.4.0
   'vitest': ^2.0.5
-  '@types/node': '^22.2.0'
   'tsup': ^8.2.4
+  'jest': ^29.7.0
+  'ts-jest': ^29.2.4
+  'jest-environment-miniflare': ^2.14.2
+  'miniflare': ^3.20240806.0
+  'typescript': ^5.5.4

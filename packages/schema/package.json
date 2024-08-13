@@ -14,7 +14,7 @@
   "scripts": {},
   "dependencies": {},
   "devDependencies": {
-    "typescript": "latest"
+    "typescript": "catalog:"
   },
   "publishConfig": {
     "access": "public"

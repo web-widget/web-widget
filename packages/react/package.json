@@ -54,7 +54,7 @@
     "react-dom": "rc",
     "react": "rc",
     "tsup": "catalog:",
-    "typescript": "latest",
+    "typescript": "catalog:",
     "vite": "catalog:"
   },
   "peerDependencies": {
