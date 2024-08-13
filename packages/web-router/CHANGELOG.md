@@ -1,5 +1,20 @@
 # @web-widget/web-router
 
+## 1.26.0
+
+### Minor Changes
+
+- d35d205: Replace `@web-widget/helpers/placeholder` with `@placeholder`.
+
+### Patch Changes
+
+- Updated dependencies [d35d205]
+  - @web-widget/helpers@1.26.0
+  - @web-widget/html@1.26.0
+  - @web-widget/action@1.26.0
+  - @web-widget/context@1.26.0
+  - @web-widget/lifecycle-cache@1.26.0
+
 ## 1.25.0
 
 ### Minor Changes
