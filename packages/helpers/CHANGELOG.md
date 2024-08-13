@@ -1,5 +1,17 @@
 # @web-widget/helpers
 
+## 1.27.0
+
+### Minor Changes
+
+- 6c8a04a: Replace `@web-widget/helpers/placeholder` with `@placeholder`.
+
+### Patch Changes
+
+- @web-widget/action@1.27.0
+- @web-widget/context@1.27.0
+- @web-widget/lifecycle-cache@1.27.0
+
 ## 1.26.0
 
 ### Minor Changes
