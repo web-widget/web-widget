@@ -11,9 +11,9 @@
     "build": "vite build",
     "dev": "vite",
     "dev:inspect": "NODE_OPTIONS='--inspect' vite",
-    "test": "cross-env VITE_PORT=51205 vitest",
-    "test:ui": "cross-env VITE_PORT=51205 vitest --ui",
-    "test:run": "cross-env VITE_PORT=51205 vitest run",
+    "test": "cross-env TEST_PORT=51205 vitest",
+    "test:ui": "cross-env TEST_PORT=51205 vitest --ui",
+    "test:run": "cross-env TEST_PORT=51205 vitest run",
     "start": "node server.js",
     "start:inspect": "node --inspect server.js"
   },

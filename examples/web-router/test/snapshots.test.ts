@@ -5,7 +5,7 @@ describe('Should match snapshot', () => {
   test.each([
     ['/client-only-component'],
     ['/custom-handlers'],
-    // TODO ['/experimental-async-component'],
+    ['/experimental-async-component'],
     ['/fallback'],
     /**/ ['/fallback?404', 404],
     /**/ ['/fallback?500', 500],
@@ -15,12 +15,12 @@ describe('Should match snapshot', () => {
     // ['/fetching-data'],
     ['/form'],
     ['/'],
-    // TODO ['/lit-html-template'],
+    ['/lit-html-template'],
     ['/meta'],
     ['/react-and-vue'],
     ['/react-server-component'],
     // NOTE: React streaming rendering cannot output a stable HTML structure.
-    // ['/react-streaming'],
+    ['/react-streaming'],
     ['/style'],
     ['/react-import-widgets'],
     ['/dynamic-routes', 404],
@@ -45,15 +45,15 @@ describe('Should match snapshot', () => {
     expect(await result.text()).toMatchSnapshot(`${pathname}@body`);
   });
 
-  test.each([
-    // TODO ['/fetching-data'],
-    ['/react-streaming'],
-  ])('Request "%s" should match status', async (pathname, status = 200) => {
-    const result = await fetch(`${pathname}`);
-    expect(result.status).toBe(status);
-    expect(result.statusText).toMatchSnapshot(`${pathname}@statusText`);
-    expect(Object.fromEntries(result.headers.entries())).toMatchSnapshot(
-      `${pathname}@headers`
-    );
-  });
+  test.each([['/fetching-data'], ['/react-streaming']])(
+    'Request "%s" should match status',
+    async (pathname, status = 200) => {
+      const result = await fetch(`${pathname}`);
+      expect(result.status).toBe(status);
+      expect(result.statusText).toMatchSnapshot(`${pathname}@statusText`);
+      expect(Object.fromEntries(result.headers.entries())).toMatchSnapshot(
+        `${pathname}@headers`
+      );
+    }
+  );
 });

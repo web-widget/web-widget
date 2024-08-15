@@ -7,9 +7,9 @@
     "build": "vite build",
     "dev": "vite",
     "start": "node server.js",
-    "test": "cross-env VITE_PORT=51204 vitest",
-    "test:ui": "cross-env VITE_PORT=51204 vitest --ui",
-    "test:run": "cross-env VITE_PORT=51204 vitest run"
+    "test": "cross-env TEST_PORT=51204 vitest",
+    "test:ui": "cross-env TEST_PORT=51204 vitest --ui",
+    "test:run": "cross-env TEST_PORT=51204 vitest run"
   },
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
