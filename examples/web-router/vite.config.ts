@@ -69,10 +69,11 @@ export default defineConfig({
   build: {
     target: ['chrome76'],
   },
-  server: {
-    port: Number(process.env.VITE_PORT ?? 3000),
-  },
   test: {
     environment: 'edge-runtime',
+    api: {
+      port: Number(process.env.TEST_PORT ?? 51204),
+      strictPort: true,
+    },
   },
 });

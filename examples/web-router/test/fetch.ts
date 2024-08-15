@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { findWorkspaceDir } from '@pnpm/find-workspace-dir';
 import webRouter from '../entry.server';
 
-const PORT = Number(process.env.VITE_PORT ?? 3000);
+const PORT = Number(process.env.TEST_PORT ?? 51204);
 const ORIGIN = `http://localhost:${PORT}`;
 const MONOREPO_ROOT =
   (await findWorkspaceDir(process.cwd())) ||
@@ -12,8 +12,6 @@ const MONOREPO_ROOT =
 ['window', 'self', 'top', 'parent'].forEach((key) => {
   Reflect.deleteProperty(globalThis, key);
 });
-
-console.info('TEST ORIGIN', ORIGIN);
 
 export default async function fetch(pathname: string, options?: RequestInit) {
   const response = await webRouter.dispatch(`${ORIGIN}${pathname}`, options);

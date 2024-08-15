@@ -1067,6 +1067,63 @@ exports[`Should match snapshot > Request "/react-server-component" should match 
 
 exports[`Should match snapshot > Request "/react-server-component" should match snapshot > /react-server-component@statusText 1`] = `"OK"`;
 
+exports[`Should match snapshot > Request "/react-streaming" should match snapshot > /react-streaming@body 1`] = `
+"<!doctype html>
+    <html lang="en">
+      <head>
+        <script id="shim:es-module">
+  if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
+    self.importShim = Object.assign(
+      function importShimProxy() {
+        const esModuleShimUrl =
+          'https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js';
+        const promise = new Promise((resolve, reject) => {
+          document.head.appendChild(
+            Object.assign(document.createElement('script'), {
+              src: esModuleShimUrl,
+              crossorigin: 'anonymous',
+              async: true,
+              onload() {
+                if (!importShim.$proxy) {
+                  resolve(importShim);
+                } else {
+                  reject(
+                    new Error(
+                      'No globalThis.importShim found:' + esModuleShimUrl
+                    )
+                  );
+                }
+              },
+              onerror(error) {
+                reject(error);
+              },
+            })
+          );
+        });
+        return promise.then((importShim) => importShim(...arguments));
+      },
+      {
+        $proxy: true,
+      }
+    );
+  }
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script id="state:web-router" type="application/json">{"pathname":"/react-streaming","params":{}}</script>
+      </head>
+      <body>
+        <header><h1>Web Router Examples</h1></header><div class="container"><aside><!--$--><web-widget name="Menu"><ul class="menu"><li><a href="/">🏠</a></li><li><a href="/react-server-component">React: Server component</a></li><li><a href="/vue3-server-component">Vue3: Server component</a></li><li><a href="/dynamic-routes/@web-widget">Dynamic routes</a></li><li><a href="/react-and-vue">Using react and vue together</a></li><li><a href="/custom-handlers">Custom handlers</a></li><li><a href="/client-only-component">Client only component</a></li><li><a href="/fetching-data">Fetching data</a></li><li><a href="/style">Styling</a></li><li><a href="/meta">Meta</a></li><li><a href="/form">Form submissions</a></li><li><a href="/fallback">Error handling</a></li><li><a href="/react-streaming">React: Streaming</a></li><li><a href="/vue3-streaming">Vue3: Streaming</a></li><li><a href="/experimental-async-component">Async component</a></li><li><a href="/vue3-router">Using vue3 router</a></li><li><a href="/vue2-router">Using vue2 router</a></li><li><a href="/react-import-widgets">React: Import vue2 and vue3</a></li><li><a href="/vue3-import-widgets">Vue3: Import react and vue2</a></li><li><a href="/vue2-import-widgets">Vue2: Import react and vue3</a></li><li><a target="_blank" href="/vue2-server-component">Vue2: Server component</a></li><li><a target="_blank" href="/lit-html-template"> Lit html template </a></li><li><a target="_blank" href="/api/hello-world"> Api route </a></li></ul></web-widget><!--/$--></aside><main><h1>React Route: Streaming</h1><p style="background:yellow">💡 This example needs to run \`pnpm start\`</p><!--$--><web-widget import="/routes/(vue3)/Wait@widget.vue?as=tsx" name="VueWaitDemo" data="{&quot;id&quot;:&quot;demo:0&quot;}" loading="lazy" rendertarget="light" recovering=""><div class="box" data-v-79dcbc5d>Vue demo:0: Hello World</div></web-widget><!--/$--><hr/><!--$--><web-widget import="/routes/(vue3)/Wait@widget.vue?as=tsx" name="VueWaitDemo" data="{&quot;id&quot;:&quot;demo:1&quot;}" loading="lazy" rendertarget="light" recovering=""><div class="box" data-v-79dcbc5d>Vue demo:1: Hello World</div></web-widget><!--/$--><hr/><!--$--><web-widget import="/routes/(vue3)/Wait@widget.vue?as=tsx" name="VueWaitDemo" data="{&quot;id&quot;:&quot;demo:2&quot;}" loading="lazy" rendertarget="light" recovering=""><div class="box" data-v-79dcbc5d>Vue demo:2: Hello World</div></web-widget><!--/$--><hr/><!--$--><web-widget import="/routes/(components)/Wait@widget.tsx" name="ReactWaitDemo" data="{&quot;id&quot;:&quot;demo:3&quot;}" loading="lazy" rendertarget="light" recovering=""><div style="background:linear-gradient(315deg,#42d392 25%,#0074a6);color:#FFF;padding:20px">React <!-- -->demo:3<!-- -->: <!-- -->Hello World</div></web-widget><!--/$--><hr/><!--$--><web-widget import="/routes/(components)/Wait@widget.tsx" name="ReactWaitDemo" data="{&quot;id&quot;:&quot;demo:4&quot;}" loading="lazy" rendertarget="light" recovering=""><div style="background:linear-gradient(315deg,#42d392 25%,#0074a6);color:#FFF;padding:20px">React <!-- -->demo:4<!-- -->: <!-- -->Hello World</div></web-widget><!--/$--><hr/><!--$--><web-widget import="/routes/(components)/Wait@widget.tsx" name="ReactWaitDemo" data="{&quot;id&quot;:&quot;demo:5&quot;}" loading="lazy" rendertarget="light" recovering=""><div style="background:linear-gradient(315deg,#42d392 25%,#0074a6);color:#FFF;padding:20px">React <!-- -->demo:5<!-- -->: <!-- -->Hello World</div></web-widget><!--/$--></main></div><footer><p>This is a footer</p></footer>
+      </body>
+    </html>"
+`;
+
+exports[`Should match snapshot > Request "/react-streaming" should match snapshot > /react-streaming@headers 1`] = `
+{
+  "content-type": "text/html; charset=utf-8",
+  "x-powered-by": "@web-widget/web-router",
+}
+`;
+
+exports[`Should match snapshot > Request "/react-streaming" should match snapshot > /react-streaming@statusText 1`] = `"OK"`;
+
 exports[`Should match snapshot > Request "/react-streaming" should match status > /react-streaming@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
