@@ -54,7 +54,7 @@ export type ErrorHandler<E extends Env = any> = (
 export abstract class FetchEventLike {
   abstract readonly request: Request;
   abstract respondWith(promise: Response | Promise<Response>): void;
-  abstract passThroughOnException(): void;
+  abstract passThroughOnException?(): void;
   abstract waitUntil(promise: Promise<void>): void;
 }
 
