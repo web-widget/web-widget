@@ -206,7 +206,7 @@ class Application<
    * Implements the (ancient) event listener object interface to allow passing to fetch event directly,
    * e.g. `self.addEventListener('fetch', webRouter)`.
    */
-  handleEvent = (event: FetchEventLike) => {
+  handleEvent = (event: FetchEvent) => {
     event.respondWith(this.handler(event.request, undefined, event));
   };
 
