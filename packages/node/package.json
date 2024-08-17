@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/node",
-  "version": "1.29.0",
+  "version": "1.29.1",
   "dependencies": {
     "@edge-runtime/node-utils": "^2.3.0",
     "@edge-runtime/primitives": "^4.1.0"
