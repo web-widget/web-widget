@@ -1,7 +1,7 @@
 {
   "name": "@playgrounds/web-router",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "author": "",
   "dependencies": {
     "@playgrounds/web-router-vue2": "workspace:*",

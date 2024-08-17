@@ -1,7 +1,7 @@
 {
   "name": "@playgrounds/web-widget",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "author": "",
   "dependencies": {
     "@playgrounds/web-widget-vue2": "workspace:*",

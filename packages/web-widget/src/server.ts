@@ -197,16 +197,16 @@ export class WebWidgetRenderer {
       result += renderLifecycleCacheLayer();
     } catch (error: any) {
       if (error?.message?.includes('Context is not available')) {
-        if (showWebContainerWarning && isWebContainer()) {
+        if (isWebContainer()) {
           // NOTE: This is a temporary solution, it mainly avoids crashes in stackblitz environment.
-          console.warn(
-            `WARN: This may be because the WebContainer environment does not support AsyncLocalStorage.`
-          );
-          console.warn(
-            `WARN: Please see https://github.com/stackblitz/webcontainer-core/issues/1169`
-          );
-          console.warn(`WARN: LifecycleCache cannot be serialized.`);
-          showWebContainerWarning = false;
+          if (showWebContainerWarning) {
+            console.warn(
+              `WARN: LifecycleCache cannot be serialized.\n` +
+                `WARN: This may be because the WebContainer environment does not support AsyncLocalStorage.\n` +
+                `WARN: Please see https://github.com/stackblitz/webcontainer-core/issues/1169`
+            );
+            showWebContainerWarning = false;
+          }
         } else {
           throw error;
         }
