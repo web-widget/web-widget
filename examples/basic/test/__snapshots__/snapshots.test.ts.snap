@@ -51,6 +51,7 @@ exports[`Should match snapshot > Request "/" should match snapshot > /@body 1`] 
 exports[`Should match snapshot > Request "/" should match snapshot > /@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-module-source": "source://routes/index@route.tsx",
 }
 `;
 
@@ -109,6 +110,7 @@ exports[`Should match snapshot > Request "/about" should match snapshot > /about
 exports[`Should match snapshot > Request "/about" should match snapshot > /about@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-module-source": "source://routes/about@route.tsx",
 }
 `;
 
