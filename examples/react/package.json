@@ -1,5 +1,5 @@
 {
-  "name": "@examples/basic",
+  "name": "@examples/react",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,13 +12,13 @@
     "test:run": "cross-env TEST_PORT=51204 vitest run"
   },
   "dependencies": {
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/html": "workspace:*",
-    "@web-widget/node": "workspace:*",
-    "@web-widget/react": "workspace:*",
-    "@web-widget/vue": "workspace:*",
-    "@web-widget/web-router": "workspace:*",
-    "@web-widget/web-widget": "workspace:*",
+    "@web-widget/helpers": "^1.28.0",
+    "@web-widget/html": "^1.28.0",
+    "@web-widget/node": "^1.28.0",
+    "@web-widget/react": "^1.28.0",
+    "@web-widget/vue": "^1.28.0",
+    "@web-widget/web-router": "^1.28.0",
+    "@web-widget/web-widget": "^1.28.0",
     "koa": "^2.14.2",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",
@@ -27,18 +27,18 @@
     "vue": "^3.4.8"
   },
   "devDependencies": {
-    "@edge-runtime/vm": "catalog:",
+    "@edge-runtime/vm": "^4.0.1",
     "@types/koa": "^2.13.6",
     "@types/koa-send": "^4.1.3",
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",
     "@vitejs/plugin-react": "^4.1.1",
     "@vitejs/plugin-vue": "^5.0.0",
-    "@web-widget/vite-plugin": "workspace:*",
-    "typescript": "catalog:",
+    "@web-widget/vite-plugin": "^1.28.0",
     "cross-env": "^7.0.3",
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "^5.5.4",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.5"
   },
   "engines": {
     "node": ">=18"

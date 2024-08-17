@@ -25,11 +25,6 @@ const webRouterMiddleware = new NodeAdapter(webRouter, {
 
 app.use(connectToKoa(webRouterMiddleware));
 
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(ORIGIN);
 });
-
-// Export interfaces for testing tools.
-export const dispatch = (pathname, ...args) =>
-  webRouter.dispatch(`${ORIGIN}${pathname}`, ...args);
-export const close = () => server.close();

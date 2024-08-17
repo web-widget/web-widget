@@ -58,8 +58,16 @@
   "packageManager": "pnpm@9.7.0",
   "pnpm": {
     "overrides": {
-      "@types/node": "^22.2.0",
-      "typescript": "^5.5.4"
+      "@types/node": "catalog:",
+      "@web-widget/helpers": "workspace:*",
+      "@web-widget/html": "workspace:*",
+      "@web-widget/node": "workspace:*",
+      "@web-widget/react": "workspace:*",
+      "@web-widget/vite-plugin": "workspace:*",
+      "@web-widget/vue": "workspace:*",
+      "@web-widget/web-router": "workspace:*",
+      "@web-widget/web-widget": "workspace:*",
+      "typescript": "catalog:"
     },
     "patchedDependencies": {
       "@miniflare/core@2.14.2": "patches/@miniflare__core@2.14.2.patch"
