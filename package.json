@@ -28,7 +28,9 @@
     "node": ">=16"
   },
   "scripts": {
-    "build": "turbo run build",
+    "build": "pnpm run build:packages && pnpm run build:examples",
+    "build:examples": "turbo run build --filter=@examples/*",
+    "build:packages": "turbo run build --filter=@web-widget/*",
     "changeset": "changeset",
     "clean": "pnpm -r run clean && rm -rf ./node_modules",
     "clean:build": "pnpm -r run clean:build",
@@ -58,15 +60,23 @@
   "packageManager": "pnpm@9.7.0",
   "pnpm": {
     "overrides": {
+      "@examples/react>@web-widget/helpers": "workspace:*",
+      "@examples/react>@web-widget/html": "workspace:*",
+      "@examples/react>@web-widget/node": "workspace:*",
+      "@examples/react>@web-widget/react": "workspace:*",
+      "@examples/react>@web-widget/vite-plugin": "workspace:*",
+      "@examples/react>@web-widget/vue": "workspace:*",
+      "@examples/react>@web-widget/web-router": "workspace:*",
+      "@examples/react>@web-widget/web-widget": "workspace:*",
+      "@examples/vue>@web-widget/helpers": "workspace:*",
+      "@examples/vue>@web-widget/html": "workspace:*",
+      "@examples/vue>@web-widget/node": "workspace:*",
+      "@examples/vue>@web-widget/react": "workspace:*",
+      "@examples/vue>@web-widget/vite-plugin": "workspace:*",
+      "@examples/vue>@web-widget/vue": "workspace:*",
+      "@examples/vue>@web-widget/web-router": "workspace:*",
+      "@examples/vue>@web-widget/web-widget": "workspace:*",
       "@types/node": "catalog:",
-      "@web-widget/helpers": "workspace:*",
-      "@web-widget/html": "workspace:*",
-      "@web-widget/node": "workspace:*",
-      "@web-widget/react": "workspace:*",
-      "@web-widget/vite-plugin": "workspace:*",
-      "@web-widget/vue": "workspace:*",
-      "@web-widget/web-router": "workspace:*",
-      "@web-widget/web-widget": "workspace:*",
       "typescript": "catalog:"
     },
     "patchedDependencies": {
