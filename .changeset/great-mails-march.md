@@ -1,5 +1,5 @@
 ---
-'@web-widget/vite-plugin': patch
+'@web-widget/vite-plugin': minor
 ---
 
 Add vitest preset configuration.
