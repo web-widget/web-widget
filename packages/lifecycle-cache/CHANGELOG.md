@@ -1,5 +1,11 @@
 # @web-widget/lifecycle-cache
 
+## 1.28.0
+
+### Patch Changes
+
+- @web-widget/context@1.28.0
+
 ## 1.27.2
 
 ### Patch Changes
