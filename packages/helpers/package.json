@@ -38,17 +38,17 @@
       }
     },
     "./action": {
+      "worker": {
+        "types": "./dist/action.server.d.ts",
+        "development": "./src/action/server.ts",
+        "default": "./dist/action.server.js"
+      },
       "browser": {
         "types": "./dist/action.client.d.ts",
         "development": "./src/action/client.ts",
         "default": "./dist/action.client.js"
       },
       "default": {
-        "types": "./dist/action.server.d.ts",
-        "development": "./src/action/server.ts",
-        "default": "./dist/action.server.js"
-      },
-      "worker": {
         "types": "./dist/action.server.d.ts",
         "development": "./src/action/server.ts",
         "default": "./dist/action.server.js"
