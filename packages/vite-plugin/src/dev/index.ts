@@ -60,7 +60,11 @@ export function webRouterDevServerPlugin(
             );
           }
 
-          return viteWebRouterMiddlewareV2(resolvedWebRouterConfig, viteServer);
+          return viteWebRouterMiddlewareV2(
+            root,
+            resolvedWebRouterConfig,
+            viteServer
+          );
         }
       );
 
@@ -149,6 +153,7 @@ function autoRestartMiddleware(
 }
 
 async function viteWebRouterMiddlewareV2(
+  root: string,
   resolvedWebRouterConfig: ResolvedWebRouterConfig,
   viteServer: ViteDevServer
 ): Promise<Middleware> {
@@ -186,15 +191,18 @@ async function viteWebRouterMiddlewareV2(
           const currentModule = res.headers.get(xModuleSource);
 
           if (currentModule) {
+            const source = path.join(
+              root,
+              currentModule.replace('source://', '')
+            );
             const html = await res.text();
-            const meta = await getMeta(currentModule, viteServer);
+            const meta = await getMeta(source, viteServer);
             const url = new URL(request.url);
             const viteHtml = await viteServer.transformIndexHtml(
               url.pathname + url.search,
               html.replace(/(<\/head>)/, renderMetaToString(meta) + '$1')
             );
             const headers = new Headers(res.headers);
-            headers.delete(xModuleSource);
 
             if (headers.has('etag')) {
               const newEtag = crypto

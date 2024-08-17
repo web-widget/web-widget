@@ -21,7 +21,6 @@ export default defineConfig({
     target: ['chrome76'],
   },
   test: {
-    environment: 'edge-runtime',
     api: {
       port: Number(process.env.TEST_PORT ?? 51204),
       strictPort: true,

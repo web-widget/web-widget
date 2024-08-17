@@ -6,10 +6,13 @@ import type {
   Plugin,
   UserConfig,
   Manifest as ViteManifest,
-  ResolvedConfig,
 } from 'vite';
 import { build } from 'vite';
 import { nodeExternals } from 'rollup-plugin-node-externals';
+import type {
+  VitestEnvironment,
+  InlineConfig as VitestInlineConfig,
+} from 'vitest/node';
 import { getLinks, getManifest } from './utils';
 import { importActionPlugin } from './import-action';
 import { parseWebRouterConfig } from './config';
@@ -24,22 +27,11 @@ import type {
   WebRouterUserConfig,
 } from './types';
 
-interface ResolvedVitestConfig extends ResolvedConfig {
+interface VitestUserConfig extends UserConfig {
   /**
    * Options for Vitest
    */
-  test?: {
-    /**
-     * Running environment
-     *
-     * Supports 'node', 'jsdom', 'happy-dom', 'edge-runtime'
-     *
-     * If used unsupported string, will try to load the package `vitest-environment-${env}`
-     *
-     * @default 'node'
-     */
-    environment?: 'node' | 'jsdom' | 'happy-dom' | 'edge-runtime';
-  };
+  test?: VitestInlineConfig;
 }
 
 let stage = 0;
@@ -82,7 +74,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     ssrBuild = !!(config.build?.ssr ?? ssr);
     const root = config.root || process.cwd();
     const assetsDir = config.build?.assetsDir ?? 'assets';
-    const target = config.ssr?.target ?? 'webworker';
+    const target = getServerBuildTarget(config);
     const serverRoutemapPath = resolvedWebRouterConfig.input.server.routemap;
     const clientImportmap = await api.clientImportmap();
     const serverRoutemap = await api.serverRoutemap();
@@ -198,33 +190,33 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     enforce: 'pre',
     api,
 
-    async config(config) {
+    async config(config: VitestUserConfig) {
       const { root = process.cwd(), resolve: { extensions } = {} } = config;
       resolvedWebRouterConfig = parseWebRouterConfig(options, root, extensions);
+
+      const test = config.test;
+      const target = getServerBuildTarget(config);
+      const environment: VitestEnvironment =
+        test?.environment ?? (target === 'webworker' ? 'edge-runtime' : 'node');
+      return {
+        test: test
+          ? {
+              environment,
+              setupFiles:
+                environment === 'edge-runtime'
+                  ? ['@web-widget/vite-plugin/vitest-edge-runtime-environment']
+                  : environment === 'node'
+                    ? ['@web-widget/vite-plugin/vitest-node-environment']
+                    : undefined,
+            }
+          : undefined,
+      };
     },
 
-    async configResolved(config: ResolvedVitestConfig) {
+    async configResolved(config) {
       dev = config.command === 'serve';
       base = config.base;
       root = config.root;
-      const environment = config?.test?.environment;
-      const widnowEnvironments = ['jsdom', 'happy-dom', 'edge-runtime'];
-      if (environment && widnowEnvironments.includes(environment)) {
-        // @see https://github.com/vitest-dev/vitest/blob/45a0f88437ffdb2d55bf65c2ae7cff65f41bd757/packages/vitest/src/integrations/env/utils.ts#L80-L83
-        // console.warn(
-        //   `[WARN] Environment "${environment}" will add global context of the browser, you may need to remove them before initialization.`
-        // );
-        // console.info(
-        //   [
-        //     ``,
-        //     `Example:`,
-        //     ``,
-        //     `['window', 'self', 'top', 'parent'].forEach((key) => {`,
-        //     `  Reflect.deleteProperty(globalThis, key);`,
-        //     `});`,
-        //   ].join('\n')
-        // );
-      }
     },
 
     async resolveId(id, _importer, options) {
@@ -429,6 +421,7 @@ function buildPlaceholder(
 ): string {
   return (
     buildManifest(
+      root,
       resolvedWebRouterConfig.input.server.routemap,
       routemap,
       dev
@@ -445,9 +438,16 @@ function buildPlaceholder(
   );
 }
 
-function buildManifest(file: string, routemap: RouteMap, dev: boolean): string {
+function buildManifest(
+  root: string,
+  file: string,
+  routemap: RouteMap,
+  dev: boolean
+): string {
   if (dev) {
     /* NOTE: Relying on ROUTEMAP_ID here is to allow Vite to update the content when routemap.json changes. */
+    const sRoot = JSON.stringify(root);
+    const sDirname = JSON.stringify(path.dirname(file));
     const routemapJsCode = `/* @dev:manifest */
       import path from "node:path";
       import importmap from ${JSON.stringify(ROUTEMAP_ID)} assert { type: "json" };
@@ -455,7 +455,7 @@ function buildManifest(file: string, routemap: RouteMap, dev: boolean): string {
         const source = item.module;
         if (source) {
           item.module = async () => ({
-            $source: path.resolve(${JSON.stringify(path.dirname(file))}, source),
+            $source: "source://" + path.relative(${sRoot}, path.resolve(${sDirname}, source)),
             ...(await import(/* @vite-ignore */ source)),
           });
         }
@@ -570,4 +570,8 @@ function buildMeta(
       `}`,
     ].join('\n');
   }
+}
+
+function getServerBuildTarget(config: UserConfig) {
+  return config.ssr?.target ?? 'webworker';
 }
