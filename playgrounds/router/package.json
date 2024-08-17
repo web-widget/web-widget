@@ -1,5 +1,5 @@
 {
-  "name": "@examples/web-router",
+  "name": "@playgrounds/web-router",
   "version": "0.0.0",
   "private": true,
   "description": "",
@@ -18,8 +18,8 @@
     "start:inspect": "node --inspect server.js"
   },
   "dependencies": {
-    "@examples/web-router-vue2": "workspace:*",
-    "@examples/web-router-vue3": "workspace:*",
+    "@playgrounds/web-router-vue2": "workspace:*",
+    "@playgrounds/web-router-vue3": "workspace:*",
     "@web-widget/helpers": "workspace:*",
     "@web-widget/html": "workspace:*",
     "@web-widget/node": "workspace:*",

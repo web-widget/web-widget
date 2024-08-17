@@ -1,7 +1,7 @@
 import { defineRouteComponent } from '@web-widget/react';
 import BaseLayout from './(components)/BaseLayout.js';
 import ReactWaitDemo from './(components)/Wait@widget.js';
-import VueWaitDemo from '@examples/web-router-vue3/Wait@widget.vue?as=tsx';
+import VueWaitDemo from '@playgrounds/web-router-vue3/Wait@widget.vue?as=tsx';
 
 const Loading = (
   <div style={{ background: '#f3f3f3', padding: '20px' }}>Loading..</div>

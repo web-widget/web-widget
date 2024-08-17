@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@edge-runtime/vm':
+      specifier: ^4.0.1
+      version: 4.0.1
     '@jest/globals':
       specifier: ^29.7.0
       version: 29.7.0
@@ -93,106 +96,6 @@ importers:
       unbuild:
         specifier: ^1.2.1
         version: 1.2.1
-
-  examples/.web-router/routes/(vue2):
-    dependencies:
-      '@web-widget/helpers':
-        specifier: workspace:*
-        version: link:../../../../packages/helpers
-      '@web-widget/react':
-        specifier: workspace:*
-        version: link:../../../../packages/react
-      '@web-widget/vue2':
-        specifier: workspace:*
-        version: link:../../../../packages/vue2
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
-      vue:
-        specifier: ^2.7.16
-        version: 2.7.16
-      vue-router:
-        specifier: ^3.6.5
-        version: 3.6.5(vue@2.7.16)
-      vue-server-renderer:
-        specifier: ^2.7.16
-        version: 2.7.16
-    devDependencies:
-      '@vitejs/plugin-vue2':
-        specifier: ^2.3.1
-        version: 2.3.1(vite@5.4.0(@types/node@22.2.0))(vue@2.7.16)
-      vite:
-        specifier: 'catalog:'
-        version: 5.4.0(@types/node@22.2.0)
-
-  examples/.web-router/routes/(vue3):
-    dependencies:
-      '@web-widget/helpers':
-        specifier: workspace:*
-        version: link:../../../../packages/helpers
-      '@web-widget/react':
-        specifier: workspace:*
-        version: link:../../../../packages/react
-      '@web-widget/vue':
-        specifier: workspace:*
-        version: link:../../../../packages/vue
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
-      vue:
-        specifier: ^3.4.8
-        version: 3.4.8(typescript@5.5.4)
-      vue-router:
-        specifier: ^4.2.5
-        version: 4.4.3(vue@3.4.8(typescript@5.5.4))
-    devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: ^5.0.0
-        version: 5.0.2(vite@5.4.0(@types/node@22.2.0))(vue@3.4.8(typescript@5.5.4))
-      vite:
-        specifier: 'catalog:'
-        version: 5.4.0(@types/node@22.2.0)
-
-  examples/.web-widget/packages/vue2:
-    dependencies:
-      '@web-widget/vue2':
-        specifier: workspace:*
-        version: link:../../../../packages/vue2
-      vue:
-        specifier: ^2.7.16
-        version: 2.7.16
-      vue-server-renderer:
-        specifier: ^2.7.16
-        version: 2.7.16
-    devDependencies:
-      '@vitejs/plugin-vue2':
-        specifier: ^2.3.1
-        version: 2.3.1(vite@5.4.0(@types/node@22.2.0))(vue@2.7.16)
-      vite:
-        specifier: 'catalog:'
-        version: 5.4.0(@types/node@22.2.0)
-
-  examples/.web-widget/packages/vue3:
-    dependencies:
-      '@web-widget/vue':
-        specifier: workspace:*
-        version: link:../../../../packages/vue
-      vue:
-        specifier: ^3.4.8
-        version: 3.4.8(typescript@5.5.4)
-    devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: ^5.0.0
-        version: 5.0.2(vite@5.4.0(@types/node@22.2.0))(vue@3.4.8(typescript@5.5.4))
-      vite:
-        specifier: 'catalog:'
-        version: 5.4.0(@types/node@22.2.0)
 
   examples/react:
     dependencies:
@@ -901,6 +804,225 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
+
+  playgrounds/router:
+    dependencies:
+      '@playgrounds/web-router-vue2':
+        specifier: workspace:*
+        version: link:routes/(vue2)
+      '@playgrounds/web-router-vue3':
+        specifier: workspace:*
+        version: link:routes/(vue3)
+      '@web-widget/helpers':
+        specifier: workspace:*
+        version: link:../../packages/helpers
+      '@web-widget/html':
+        specifier: workspace:*
+        version: link:../../packages/html
+      '@web-widget/node':
+        specifier: workspace:*
+        version: link:../../packages/node
+      '@web-widget/react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      '@web-widget/web-router':
+        specifier: workspace:*
+        version: link:../../packages/web-router
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../../packages/web-widget
+      koa:
+        specifier: ^2.15.3
+        version: 2.15.3
+      koa-connect:
+        specifier: ^2.1.0
+        version: 2.1.0
+      koa-send:
+        specifier: ^5.0.1
+        version: 5.0.1
+      react:
+        specifier: rc
+        version: 19.0.0-rc-1eaccd82-20240816
+      react-dom:
+        specifier: rc
+        version: 19.0.0-rc-1eaccd82-20240816(react@19.0.0-rc-1eaccd82-20240816)
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: 'catalog:'
+        version: 4.0.1
+      '@types/koa':
+        specifier: ^2.15.0
+        version: 2.15.0
+      '@types/koa-send':
+        specifier: ^4.1.6
+        version: 4.1.6
+      '@types/react':
+        specifier: npm:types-react@rc
+        version: types-react@19.0.0-rc.1
+      '@types/react-dom':
+        specifier: npm:types-react-dom@rc
+        version: types-react-dom@19.0.0-rc.1
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.3.1(vite@5.4.0(@types/node@22.2.0))
+      '@web-widget/vite-plugin':
+        specifier: workspace:*
+        version: link:../../packages/vite-plugin
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
+      vite:
+        specifier: 'catalog:'
+        version: 5.4.0(@types/node@22.2.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 2.0.5(@edge-runtime/vm@4.0.1)(@types/node@22.2.0)(happy-dom@14.12.3)
+
+  playgrounds/router/routes/(vue2):
+    dependencies:
+      '@web-widget/helpers':
+        specifier: workspace:*
+        version: link:../../../../packages/helpers
+      '@web-widget/react':
+        specifier: workspace:*
+        version: link:../../../../packages/react
+      '@web-widget/vue2':
+        specifier: workspace:*
+        version: link:../../../../packages/vue2
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+      vue:
+        specifier: ^2.7.16
+        version: 2.7.16
+      vue-router:
+        specifier: ^3.6.5
+        version: 3.6.5(vue@2.7.16)
+      vue-server-renderer:
+        specifier: ^2.7.16
+        version: 2.7.16
+    devDependencies:
+      '@vitejs/plugin-vue2':
+        specifier: ^2.3.1
+        version: 2.3.1(vite@5.4.0(@types/node@22.2.0))(vue@2.7.16)
+      vite:
+        specifier: 'catalog:'
+        version: 5.4.0(@types/node@22.2.0)
+
+  playgrounds/router/routes/(vue3):
+    dependencies:
+      '@web-widget/helpers':
+        specifier: workspace:*
+        version: link:../../../../packages/helpers
+      '@web-widget/react':
+        specifier: workspace:*
+        version: link:../../../../packages/react
+      '@web-widget/vue':
+        specifier: workspace:*
+        version: link:../../../../packages/vue
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+      vue:
+        specifier: ^3.4.8
+        version: 3.4.8(typescript@5.5.4)
+      vue-router:
+        specifier: ^4.2.5
+        version: 4.4.3(vue@3.4.8(typescript@5.5.4))
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.0
+        version: 5.0.2(vite@5.4.0(@types/node@22.2.0))(vue@3.4.8(typescript@5.5.4))
+      vite:
+        specifier: 'catalog:'
+        version: 5.4.0(@types/node@22.2.0)
+
+  playgrounds/widget:
+    dependencies:
+      '@playgrounds/web-widget-vue2':
+        specifier: workspace:*
+        version: link:packages/vue2
+      '@playgrounds/web-widget-vue3':
+        specifier: workspace:*
+        version: link:packages/vue3
+      '@web-widget/helpers':
+        specifier: workspace:*
+        version: link:../../packages/helpers
+      '@web-widget/react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      '@web-widget/vue':
+        specifier: workspace:*
+        version: link:../../packages/vue
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../../packages/web-widget
+      react:
+        specifier: rc
+        version: 19.0.0-rc-1eaccd82-20240816
+      react-dom:
+        specifier: rc
+        version: 19.0.0-rc-1eaccd82-20240816(react@19.0.0-rc-1eaccd82-20240816)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.2.47
+        version: 18.3.3
+      '@types/react-dom':
+        specifier: ^18.2.18
+        version: 18.3.0
+      '@vitejs/plugin-react':
+        specifier: ^4.2.1
+        version: 4.3.1(vite@5.4.0(@types/node@22.2.0))
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
+      vite:
+        specifier: 'catalog:'
+        version: 5.4.0(@types/node@22.2.0)
+
+  playgrounds/widget/packages/vue2:
+    dependencies:
+      '@web-widget/vue2':
+        specifier: workspace:*
+        version: link:../../../../packages/vue2
+      vue:
+        specifier: ^2.7.16
+        version: 2.7.16
+      vue-server-renderer:
+        specifier: ^2.7.16
+        version: 2.7.16
+    devDependencies:
+      '@vitejs/plugin-vue2':
+        specifier: ^2.3.1
+        version: 2.3.1(vite@5.4.0(@types/node@22.2.0))(vue@2.7.16)
+      vite:
+        specifier: 'catalog:'
+        version: 5.4.0(@types/node@22.2.0)
+
+  playgrounds/widget/packages/vue3:
+    dependencies:
+      '@web-widget/vue':
+        specifier: workspace:*
+        version: link:../../../../packages/vue
+      vue:
+        specifier: ^3.4.8
+        version: 3.4.8(typescript@5.5.4)
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.0
+        version: 5.0.2(vite@5.4.0(@types/node@22.2.0))(vue@3.4.8(typescript@5.5.4))
+      vite:
+        specifier: 'catalog:'
+        version: 5.4.0(@types/node@22.2.0)
 
 packages:
 
@@ -3001,6 +3123,9 @@ packages:
 
   '@types/range-parser@1.2.7':
     resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
+
+  '@types/react-dom@18.3.0':
+    resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
 
   '@types/react@18.3.3':
     resolution: {integrity: sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==}
@@ -9723,6 +9848,10 @@ snapshots:
   '@types/range-parser@1.2.4': {}
 
   '@types/range-parser@1.2.7': {}
+
+  '@types/react-dom@18.3.0':
+    dependencies:
+      '@types/react': 18.3.3
 
   '@types/react@18.3.3':
     dependencies:

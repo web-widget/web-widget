@@ -4,8 +4,8 @@ import type { HelloData } from './api/hello-world@route.ts';
 import BaseLayout from './(components)/BaseLayout.tsx';
 import ReactGithub from './(components)/Github@widget.tsx';
 import VanillaGithub from './(components)/VanillaGithub@widget';
-import VueGithub from '@examples/web-router-vue3/Github@widget.vue?as=jsx';
-import Vue2Github from '@examples/web-router-vue2/Github@widget.vue?as=jsx';
+import VueGithub from '@playgrounds/web-router-vue3/Github@widget.vue?as=jsx';
+import Vue2Github from '@playgrounds/web-router-vue2/Github@widget.vue?as=jsx';
 
 async function fetchData(url: URL) {
   const data = await fetch(`${url.origin}/api/hello-world`);

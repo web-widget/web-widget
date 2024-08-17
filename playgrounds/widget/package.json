@@ -1,5 +1,5 @@
 {
-  "name": "@examples/web-widget",
+  "name": "@playgrounds/web-widget",
   "version": "0.0.0",
   "private": true,
   "description": "",
@@ -13,8 +13,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@examples/web-widget-vue2": "workspace:*",
-    "@examples/web-widget-vue3": "workspace:*",
+    "@playgrounds/web-widget-vue2": "workspace:*",
+    "@playgrounds/web-widget-vue3": "workspace:*",
     "@web-widget/react": "workspace:*",
     "@web-widget/helpers": "workspace:*",
     "@web-widget/web-widget": "workspace:*",

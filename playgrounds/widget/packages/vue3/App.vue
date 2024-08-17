@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ReactCounter from '../react/Counter@widget';
-import VueCounter from '../vue3/Counter@widget.vue';
-import Vue2Counter from './Counter@widget.vue';
+import VueCounter from './Counter@widget.vue';
+import Vue2Counter from '../vue2/Counter@widget.vue';
 import VanillaCounter from '../vanilla/Counter@widget';
 import { ref } from 'vue';
 
@@ -56,3 +56,4 @@ const count = ref(0);
   filter: drop-shadow(0 0 2em #42b883aa);
 }
 </style>
+@playgrounds/web-widget-vue2/Counter@widget.d.vue.js
