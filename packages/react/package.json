@@ -1,7 +1,21 @@
 {
   "name": "@web-widget/react",
   "version": "1.28.0",
-  "type": "module",
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/vite-plugin": "workspace:*",
+    "@web-widget/web-widget": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc",
+    "@web-widget/schema": "workspace:*",
+    "react": "rc",
+    "react-dom": "rc",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  },
   "exports": {
     ".": {
       "worker": {
@@ -22,8 +36,8 @@
     },
     "./vite": {
       "types": "./dist/vite.d.ts",
-      "development": "./src/vite.ts",
       "require": "./dist/vite.cjs",
+      "development": "./src/vite.ts",
       "default": "./dist/vite.js"
     },
     "./globals": {
@@ -34,37 +48,14 @@
     "dist",
     "globals.d.ts"
   ],
-  "scripts": {
-    "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch",
-    "clean:build": "rm -rf dist",
-    "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build",
-    "lint": "eslint src"
-  },
-  "dependencies": {
-    "@web-widget/vite-plugin": "workspace:*",
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/web-widget": "workspace:*"
-  },
-  "devDependencies": {
-    "@types/react": "npm:types-react@rc",
-    "@types/react-dom": "npm:types-react-dom@rc",
-    "@web-widget/schema": "workspace:*",
-    "react-dom": "rc",
-    "react": "rc",
-    "tsup": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:"
-  },
-  "peerDependencies": {
-    "react-dom": "rc",
-    "react": "rc",
-    "vite": "^5.4.0"
-  },
   "overrides": {
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc"
+  },
+  "peerDependencies": {
+    "react": "rc",
+    "react-dom": "rc",
+    "vite": "^5.4.0"
   },
   "publishConfig": {
     "access": "public",
@@ -92,5 +83,14 @@
         "types": "./globals.d.ts"
       }
     }
-  }
+  },
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "dev": "pnpm exec tsup --watch",
+    "lint": "eslint src",
+    "prebuild": "pnpm run clean:build"
+  },
+  "type": "module"
 }

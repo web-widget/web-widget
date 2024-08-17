@@ -1,0 +1,26 @@
+{
+  "name": "@playgrounds/web-router-vue3",
+  "description": "",
+  "version": "0.0.0",
+  "author": "",
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/react": "workspace:*",
+    "@web-widget/vue": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vue": "^3.4.8",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "vite": "catalog:"
+  },
+  "exports": {
+    "./*": "./*"
+  },
+  "license": "ISC",
+  "private": true,
+  "scripts": {},
+  "type": "module"
+}

@@ -1,7 +1,23 @@
 {
   "name": "@web-widget/middlewares",
   "version": "1.28.0",
-  "type": "module",
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/shared-cache": "next"
+  },
+  "devDependencies": {
+    "@jest/globals": "catalog:",
+    "@types/jest": "catalog:",
+    "@web-widget/web-router": "workspace:*",
+    "jest": "catalog:",
+    "jest-environment-miniflare": "catalog:",
+    "lru-cache": "^10.2.0",
+    "miniflare": "catalog:",
+    "ts-jest": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -42,33 +58,6 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch",
-    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
-    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage",
-    "clean:build": "rm -rf dist",
-    "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build",
-    "lint": "eslint src"
-  },
-  "dependencies": {
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/schema": "workspace:*",
-    "@web-widget/shared-cache": "next"
-  },
-  "devDependencies": {
-    "@jest/globals": "catalog:",
-    "@types/jest": "catalog:",
-    "@web-widget/web-router": "workspace:*",
-    "jest": "catalog:",
-    "jest-environment-miniflare": "catalog:",
-    "lru-cache": "^10.2.0",
-    "miniflare": "catalog:",
-    "ts-jest": "catalog:",
-    "tsup": "catalog:",
-    "typescript": "catalog:"
-  },
   "publishConfig": {
     "access": "public",
     "exports": {
@@ -101,5 +90,16 @@
         "default": "./dist/trailing-slash.js"
       }
     }
-  }
+  },
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "dev": "pnpm exec tsup --watch",
+    "lint": "eslint src",
+    "prebuild": "pnpm run clean:build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage"
+  },
+  "type": "module"
 }

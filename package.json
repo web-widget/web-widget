@@ -21,6 +21,7 @@
     "nano-staged": "latest",
     "prettier": "latest",
     "simple-git-hooks": "latest",
+    "syncpack": "latest",
     "turbo": "latest",
     "unbuild": "^1.2.1"
   },
@@ -28,7 +29,9 @@
     "node": ">=16"
   },
   "scripts": {
-    "build": "turbo run build",
+    "build": "pnpm run build:packages && pnpm run build:examples",
+    "build:examples": "turbo run build --filter=@examples/*",
+    "build:packages": "turbo run build --filter=!@examples/*",
     "changeset": "changeset",
     "clean": "pnpm -r run clean && rm -rf ./node_modules",
     "clean:build": "pnpm -r run clean:build",
@@ -40,6 +43,7 @@
     "postinstall": "./node_modules/.bin/simple-git-hooks",
     "prebuild": "pnpm -r run clean:build",
     "prettier": "prettier **/*.{ts,tsx,js,vue} --write",
+    "syncpack:json": "syncpack format --source '**/*package.json'",
     "test": "c8 turbo run test",
     "update": "pnpm -r exec ncu -- --upgrade && ncu -- --upgrade",
     "update:check": "pnpm -r exec ncu -- --errorLevel 2 && ncu -- --errorLevel 2",
@@ -58,8 +62,24 @@
   "packageManager": "pnpm@9.7.0",
   "pnpm": {
     "overrides": {
-      "@types/node": "^22.2.0",
-      "typescript": "^5.5.4"
+      "@examples/react>@web-widget/helpers": "workspace:*",
+      "@examples/react>@web-widget/html": "workspace:*",
+      "@examples/react>@web-widget/node": "workspace:*",
+      "@examples/react>@web-widget/react": "workspace:*",
+      "@examples/react>@web-widget/vite-plugin": "workspace:*",
+      "@examples/react>@web-widget/vue": "workspace:*",
+      "@examples/react>@web-widget/web-router": "workspace:*",
+      "@examples/react>@web-widget/web-widget": "workspace:*",
+      "@examples/vue>@web-widget/helpers": "workspace:*",
+      "@examples/vue>@web-widget/html": "workspace:*",
+      "@examples/vue>@web-widget/node": "workspace:*",
+      "@examples/vue>@web-widget/react": "workspace:*",
+      "@examples/vue>@web-widget/vite-plugin": "workspace:*",
+      "@examples/vue>@web-widget/vue": "workspace:*",
+      "@examples/vue>@web-widget/web-router": "workspace:*",
+      "@examples/vue>@web-widget/web-widget": "workspace:*",
+      "@types/node": "catalog:",
+      "typescript": "catalog:"
     },
     "patchedDependencies": {
       "@miniflare/core@2.14.2": "patches/@miniflare__core@2.14.2.patch"

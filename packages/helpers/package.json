@@ -1,7 +1,24 @@
 {
   "name": "@web-widget/helpers",
   "version": "1.28.0",
-  "type": "module",
+  "dependencies": {
+    "@edge-runtime/cookies": "^4.0.3",
+    "@edge-runtime/user-agent": "^1.4.1",
+    "@web-widget/action": "workspace:*",
+    "@web-widget/context": "workspace:*",
+    "@web-widget/lifecycle-cache": "workspace:*"
+  },
+  "devDependencies": {
+    "@jest/globals": "catalog:",
+    "@types/jest": "catalog:",
+    "@web-widget/schema": "workspace:*",
+    "jest": "catalog:",
+    "jest-environment-miniflare": "catalog:",
+    "miniflare": "catalog:",
+    "ts-jest": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
   "exports": {
     ".": {
       "worker": {
@@ -144,34 +161,6 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch",
-    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
-    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage",
-    "clean:build": "rm -rf dist",
-    "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build",
-    "lint": "eslint src"
-  },
-  "dependencies": {
-    "@edge-runtime/cookies": "^4.0.3",
-    "@edge-runtime/user-agent": "^1.4.1",
-    "@web-widget/context": "workspace:*",
-    "@web-widget/lifecycle-cache": "workspace:*",
-    "@web-widget/action": "workspace:*"
-  },
-  "devDependencies": {
-    "@jest/globals": "catalog:",
-    "@types/jest": "catalog:",
-    "@web-widget/schema": "workspace:*",
-    "jest": "catalog:",
-    "miniflare": "catalog:",
-    "jest-environment-miniflare": "catalog:",
-    "ts-jest": "catalog:",
-    "tsup": "catalog:",
-    "typescript": "catalog:"
-  },
   "publishConfig": {
     "access": "public",
     "exports": {
@@ -288,5 +277,16 @@
         "default": "./dist/status.js"
       }
     }
-  }
+  },
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "dev": "pnpm exec tsup --watch",
+    "lint": "eslint src",
+    "prebuild": "pnpm run clean:build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage"
+  },
+  "type": "module"
 }

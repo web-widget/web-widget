@@ -1,7 +1,6 @@
 {
-  "name": "@examples/vue",
+  "name": "@examples/react",
   "version": "0.0.0",
-  "author": "aui",
   "dependencies": {
     "@web-widget/helpers": "^1.28.0",
     "@web-widget/html": "^1.28.0",
@@ -40,9 +39,9 @@
     "build": "vite build",
     "dev": "vite",
     "start": "node server.js",
-    "test": "cross-env TEST_PORT=51206 vitest",
-    "test:run": "cross-env TEST_PORT=51206 vitest run",
-    "test:ui": "cross-env TEST_PORT=51206 vitest --ui"
+    "test": "cross-env TEST_PORT=51204 vitest",
+    "test:run": "cross-env TEST_PORT=51204 vitest run",
+    "test:ui": "cross-env TEST_PORT=51204 vitest --ui"
   },
   "type": "module"
 }

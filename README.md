@@ -2,11 +2,14 @@
 
 [![CI](https://github.com/web-widget/web-widget/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/web-widget/web-widget/actions/workflows/test.yml?query=event%3Apush)
 
+> ⚠️ This project is undergoing internal testing and may have unknown problems.
+
 It is a web application framework designed to give new impetus to all front-end frameworks.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/examples/tree/main/react)
-
-> ⚠️ This project is undergoing internal testing and may have unknown problems.
+| Name             | Description                                         | Examples                                                                                                                                                           |
+| ---------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [React](./react) | Example of using React as the main technology stack | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
+| [Vue](./vue)     | Example of using Vue as the main technology stack   | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
 
 ## Features
 

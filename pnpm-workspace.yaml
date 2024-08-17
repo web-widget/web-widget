@@ -1,7 +1,8 @@
 packages:
   - 'examples/*'
-  - 'examples/web-router/routes/*'
-  - 'examples/web-widget/packages/*'
+  - 'playgrounds/*'
+  - 'playgrounds/router/routes/*'
+  - 'playgrounds/widget/packages/*'
   - 'packages/*'
   - 'internal/*'
 

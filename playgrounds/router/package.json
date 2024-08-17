@@ -1,0 +1,51 @@
+{
+  "name": "@playgrounds/web-router",
+  "description": "",
+  "version": "0.0.0",
+  "author": "",
+  "dependencies": {
+    "@playgrounds/web-router-vue2": "workspace:*",
+    "@playgrounds/web-router-vue3": "workspace:*",
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/html": "workspace:*",
+    "@web-widget/node": "workspace:*",
+    "@web-widget/react": "workspace:*",
+    "@web-widget/web-router": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
+    "koa": "^2.15.3",
+    "koa-connect": "^2.1.0",
+    "koa-send": "^5.0.1",
+    "react": "rc",
+    "react-dom": "rc"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "catalog:",
+    "@types/koa": "^2.15.0",
+    "@types/koa-send": "^4.1.6",
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@web-widget/vite-plugin": "workspace:*",
+    "cross-env": "^7.0.3",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [],
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "dev:inspect": "NODE_OPTIONS='--inspect' vite",
+    "start": "node server.js",
+    "start:inspect": "node --inspect server.js",
+    "test": "cross-env TEST_PORT=51205 vitest",
+    "test:run": "cross-env TEST_PORT=51205 vitest run",
+    "test:ui": "cross-env TEST_PORT=51205 vitest --ui"
+  },
+  "type": "module"
+}

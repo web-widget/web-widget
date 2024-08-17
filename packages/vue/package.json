@@ -1,7 +1,18 @@
 {
   "name": "@web-widget/vue",
   "version": "1.28.0",
-  "type": "module",
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/vite-plugin": "workspace:*",
+    "@web-widget/web-widget": "workspace:*"
+  },
+  "devDependencies": {
+    "@web-widget/schema": "workspace:*",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vue": ">3.3.3"
+  },
   "exports": {
     ".": {
       "worker": {
@@ -22,34 +33,14 @@
     },
     "./vite": {
       "types": "./dist/vite.d.ts",
-      "development": "./src/vite.ts",
       "require": "./dist/vite.cjs",
+      "development": "./src/vite.ts",
       "default": "./dist/vite.js"
     }
   },
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch",
-    "clean:build": "rm -rf dist",
-    "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build",
-    "lint": "eslint src"
-  },
-  "dependencies": {
-    "@web-widget/vite-plugin": "workspace:*",
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/web-widget": "workspace:*"
-  },
-  "devDependencies": {
-    "@web-widget/schema": "workspace:*",
-    "tsup": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
-    "vue": ">3.3.3"
-  },
   "peerDependencies": {
     "vite": "^5.4.0",
     "vue": ">3.3.3"
@@ -77,5 +68,14 @@
         "default": "./dist/vite.js"
       }
     }
-  }
+  },
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "dev": "pnpm exec tsup --watch",
+    "lint": "eslint src",
+    "prebuild": "pnpm run clean:build"
+  },
+  "type": "module"
 }
