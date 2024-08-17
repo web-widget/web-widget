@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.29.1
+
+### Patch Changes
+
+- 99d5ad8: Fix WebContainer running examples.
+  - @web-widget/helpers@1.29.1
+  - @web-widget/lifecycle-cache@1.29.1
+
 ## 1.29.0
 
 ### Minor Changes
