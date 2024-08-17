@@ -17,6 +17,7 @@ import {
 export type * from './types';
 
 const __FEATURE_INJECTING_STYLES__ = false;
+let showWebContainerWarning = true;
 
 declare global {
   interface ReadableStream {
@@ -196,17 +197,16 @@ export class WebWidgetRenderer {
       result += renderLifecycleCacheLayer();
     } catch (error: any) {
       if (error?.message?.includes('Context is not available')) {
-        if (isWebContainer()) {
+        if (showWebContainerWarning && isWebContainer()) {
           // NOTE: This is a temporary solution, it mainly avoids crashes in stackblitz environment.
           console.warn(
-            [
-              `WARN`,
-              `LifecycleCache cannot be serialized`,
-              `This may be because the WebContainer environment does not support AsyncLocalStorage`,
-              `Please see https://github.com/stackblitz/webcontainer-core/issues/1169`,
-            ].join(': '),
-            error
+            `WARN: This may be because the WebContainer environment does not support AsyncLocalStorage.`
           );
+          console.warn(
+            `WARN: Please see https://github.com/stackblitz/webcontainer-core/issues/1169`
+          );
+          console.warn(`WARN: LifecycleCache cannot be serialized.`);
+          showWebContainerWarning = false;
         } else {
           throw error;
         }
