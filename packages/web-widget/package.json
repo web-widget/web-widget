@@ -1,40 +1,35 @@
 {
   "name": "@web-widget/web-widget",
-  "version": "1.28.0",
   "description": "Web front-end application container",
-  "keywords": [
-    "island",
-    "shadow dom",
-    "web components",
-    "widget"
-  ],
-  "homepage": "https://github.com/web-widget/web-widget#readme",
-  "bugs": {
-    "url": "https://github.com/web-widget/web-widget/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/web-widget/web-widget.git",
-    "directory": "packages/web-widget"
-  },
+  "version": "1.28.0",
   "author": "aui",
-  "sideEffects": [
-    "./dist/web-widget.client.js"
-  ],
-  "type": "module",
+  "bugs": "https://github.com/web-widget/web-widget/issues",
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/lifecycle-cache": "workspace:*"
+  },
+  "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@types/chai": "^4.3.17",
+    "@types/mocha": "^10.0.7",
+    "@web/dev-server-esbuild": "^1.0.2",
+    "@web/test-runner": "^0.18.3",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
   "exports": {
     ".": {
-      "worker": {
-        "types": "./dist/web-widget.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/web-widget.server.js"
-      },
       "browser": {
         "types": "./dist/web-widget.client.d.ts",
         "development": "./src/client.ts",
         "default": "./dist/web-widget.client.js"
       },
       "default": {
+        "types": "./dist/web-widget.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/web-widget.server.js"
+      },
+      "worker": {
         "types": "./dist/web-widget.server.d.ts",
         "development": "./src/server.ts",
         "default": "./dist/web-widget.server.js"
@@ -59,30 +54,13 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch",
-    "test": "web-test-runner test/**/*.test.ts",
-    "test:watch": "web-test-runner test/**/*.test.ts --watch",
-    "test:coverage": "web-test-runner test/**/*.test.ts --coverage",
-    "clean:build": "rm -rf dist",
-    "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build",
-    "lint": "eslint src"
-  },
-  "dependencies": {
-    "@web-widget/lifecycle-cache": "workspace:*",
-    "@web-widget/helpers": "workspace:*"
-  },
-  "devDependencies": {
-    "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@types/chai": "^4.3.17",
-    "@types/mocha": "^10.0.7",
-    "@web/test-runner": "^0.18.3",
-    "@web/dev-server-esbuild": "^1.0.2",
-    "tsup": "catalog:",
-    "typescript": "catalog:"
-  },
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "keywords": [
+    "island",
+    "shadow dom",
+    "web components",
+    "widget"
+  ],
   "publishConfig": {
     "access": "public",
     "exports": {
@@ -113,5 +91,25 @@
         "default": "./dist/web-widget.server.js"
       }
     }
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/web-widget"
+  },
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "dev": "pnpm exec tsup --watch",
+    "lint": "eslint src",
+    "prebuild": "pnpm run clean:build",
+    "test": "web-test-runner test/**/*.test.ts",
+    "test:coverage": "web-test-runner test/**/*.test.ts --coverage",
+    "test:watch": "web-test-runner test/**/*.test.ts --watch"
+  },
+  "sideEffects": [
+    "./dist/web-widget.client.js"
+  ],
+  "type": "module"
 }

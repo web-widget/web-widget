@@ -1,14 +1,26 @@
 {
   "name": "@web-widget/helpers",
   "version": "1.28.0",
-  "type": "module",
+  "dependencies": {
+    "@edge-runtime/cookies": "^4.0.3",
+    "@edge-runtime/user-agent": "^1.4.1",
+    "@web-widget/action": "workspace:*",
+    "@web-widget/context": "workspace:*",
+    "@web-widget/lifecycle-cache": "workspace:*"
+  },
+  "devDependencies": {
+    "@jest/globals": "catalog:",
+    "@types/jest": "catalog:",
+    "@web-widget/schema": "workspace:*",
+    "jest": "catalog:",
+    "jest-environment-miniflare": "catalog:",
+    "miniflare": "catalog:",
+    "ts-jest": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
   "exports": {
     ".": {
-      "worker": {
-        "types": "./dist/module.server.d.ts",
-        "development": "./src/module/server.ts",
-        "default": "./dist/module.server.js"
-      },
       "browser": {
         "types": "./dist/module.client.d.ts",
         "development": "./src/module/client.ts",
@@ -18,14 +30,14 @@
         "types": "./dist/module.server.d.ts",
         "development": "./src/module/server.ts",
         "default": "./dist/module.server.js"
+      },
+      "worker": {
+        "types": "./dist/module.server.d.ts",
+        "development": "./src/module/server.ts",
+        "default": "./dist/module.server.js"
       }
     },
     "./action": {
-      "worker": {
-        "types": "./dist/action.server.d.ts",
-        "development": "./src/action/server.ts",
-        "default": "./dist/action.server.js"
-      },
       "browser": {
         "types": "./dist/action.client.d.ts",
         "development": "./src/action/client.ts",
@@ -35,14 +47,14 @@
         "types": "./dist/action.server.d.ts",
         "development": "./src/action/server.ts",
         "default": "./dist/action.server.js"
+      },
+      "worker": {
+        "types": "./dist/action.server.d.ts",
+        "development": "./src/action/server.ts",
+        "default": "./dist/action.server.js"
       }
     },
     "./cache": {
-      "worker": {
-        "types": "./dist/cache.server.d.ts",
-        "development": "./src/cache/server.ts",
-        "default": "./dist/cache.server.js"
-      },
       "browser": {
         "types": "./dist/cache.client.d.ts",
         "development": "./src/cache/client.ts",
@@ -52,20 +64,25 @@
         "types": "./dist/cache.server.d.ts",
         "development": "./src/cache/server.ts",
         "default": "./dist/cache.server.js"
+      },
+      "worker": {
+        "types": "./dist/cache.server.d.ts",
+        "development": "./src/cache/server.ts",
+        "default": "./dist/cache.server.js"
       }
     },
     "./context": {
-      "worker": {
-        "types": "./dist/context.server.d.ts",
-        "development": "./src/context/server.ts",
-        "default": "./dist/context.server.js"
-      },
       "browser": {
         "types": "./dist/context.client.d.ts",
         "development": "./src/context/client.ts",
         "default": "./dist/context.client.js"
       },
       "default": {
+        "types": "./dist/context.server.d.ts",
+        "development": "./src/context/server.ts",
+        "default": "./dist/context.server.js"
+      },
+      "worker": {
         "types": "./dist/context.server.d.ts",
         "development": "./src/context/server.ts",
         "default": "./dist/context.server.js"
@@ -77,17 +94,17 @@
       "default": "./dist/crypto.js"
     },
     "./env": {
-      "worker": {
-        "types": "./dist/env.server.d.ts",
-        "development": "./src/env/server.ts",
-        "default": "./dist/env.server.js"
-      },
       "browser": {
         "types": "./dist/env.client.d.ts",
         "development": "./src/env/client.ts",
         "default": "./dist/env.client.js"
       },
       "default": {
+        "types": "./dist/env.server.d.ts",
+        "development": "./src/env/server.ts",
+        "default": "./dist/env.server.js"
+      },
+      "worker": {
         "types": "./dist/env.server.d.ts",
         "development": "./src/env/server.ts",
         "default": "./dist/env.server.js"
@@ -109,17 +126,17 @@
       "default": "./dist/http.js"
     },
     "./module": {
-      "worker": {
-        "types": "./dist/module.server.d.ts",
-        "development": "./src/module/server.ts",
-        "default": "./dist/module.server.js"
-      },
       "browser": {
         "types": "./dist/module.client.d.ts",
         "development": "./src/module/client.ts",
         "default": "./dist/module.client.js"
       },
       "default": {
+        "types": "./dist/module.server.d.ts",
+        "development": "./src/module/server.ts",
+        "default": "./dist/module.server.js"
+      },
+      "worker": {
         "types": "./dist/module.server.d.ts",
         "development": "./src/module/server.ts",
         "default": "./dist/module.server.js"
@@ -144,34 +161,6 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch",
-    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
-    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage",
-    "clean:build": "rm -rf dist",
-    "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build",
-    "lint": "eslint src"
-  },
-  "dependencies": {
-    "@edge-runtime/cookies": "^4.0.3",
-    "@edge-runtime/user-agent": "^1.4.1",
-    "@web-widget/context": "workspace:*",
-    "@web-widget/lifecycle-cache": "workspace:*",
-    "@web-widget/action": "workspace:*"
-  },
-  "devDependencies": {
-    "@jest/globals": "catalog:",
-    "@types/jest": "catalog:",
-    "@web-widget/schema": "workspace:*",
-    "jest": "catalog:",
-    "miniflare": "catalog:",
-    "jest-environment-miniflare": "catalog:",
-    "ts-jest": "catalog:",
-    "tsup": "catalog:",
-    "typescript": "catalog:"
-  },
   "publishConfig": {
     "access": "public",
     "exports": {
@@ -288,5 +277,16 @@
         "default": "./dist/status.js"
       }
     }
-  }
+  },
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "dev": "pnpm exec tsup --watch",
+    "lint": "eslint src",
+    "prebuild": "pnpm run clean:build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage"
+  },
+  "type": "module"
 }

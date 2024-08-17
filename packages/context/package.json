@@ -1,20 +1,34 @@
 {
   "name": "@web-widget/context",
   "version": "1.28.0",
-  "type": "module",
+  "dependencies": {
+    "unctx": "^2.3.1"
+  },
+  "devDependencies": {
+    "@jest/globals": "catalog:",
+    "@types/jest": "catalog:",
+    "@types/node": "catalog:",
+    "@web-widget/schema": "workspace:*",
+    "jest": "catalog:",
+    "jest-environment-miniflare": "catalog:",
+    "miniflare": "catalog:",
+    "ts-jest": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
   "exports": {
     ".": {
-      "worker": {
-        "types": "./dist/context.universal.server.d.ts",
-        "development": "./src/universal.server.ts",
-        "default": "./dist/context.universal.server.js"
-      },
       "browser": {
         "types": "./dist/context.universal.client.d.ts",
         "development": "./src/universal.client.ts",
         "default": "./dist/context.universal.client.js"
       },
       "default": {
+        "types": "./dist/context.universal.server.d.ts",
+        "development": "./src/universal.server.ts",
+        "default": "./dist/context.universal.server.js"
+      },
+      "worker": {
         "types": "./dist/context.universal.server.d.ts",
         "development": "./src/universal.server.ts",
         "default": "./dist/context.universal.server.js"
@@ -34,31 +48,6 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch",
-    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --passWithNoTests",
-    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage",
-    "clean:build": "rm -rf dist",
-    "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build",
-    "lint": "eslint src"
-  },
-  "dependencies": {
-    "unctx": "^2.3.1"
-  },
-  "devDependencies": {
-    "@jest/globals": "catalog:",
-    "@types/jest": "catalog:",
-    "@types/node": "catalog:",
-    "@web-widget/schema": "workspace:*",
-    "jest": "catalog:",
-    "jest-environment-miniflare": "catalog:",
-    "miniflare": "catalog:",
-    "ts-jest": "catalog:",
-    "tsup": "catalog:",
-    "typescript": "catalog:"
-  },
   "publishConfig": {
     "access": "public",
     "exports": {
@@ -85,5 +74,16 @@
         "default": "./dist/context.server.js"
       }
     }
-  }
+  },
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "dev": "pnpm exec tsup --watch",
+    "lint": "eslint src",
+    "prebuild": "pnpm run clean:build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --passWithNoTests",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage"
+  },
+  "type": "module"
 }

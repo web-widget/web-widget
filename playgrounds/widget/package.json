@@ -1,26 +1,17 @@
 {
   "name": "@playgrounds/web-widget",
-  "version": "0.0.0",
-  "private": true,
   "description": "",
-  "keywords": [],
-  "license": "MIT",
+  "version": "0.0.0",
   "author": "",
-  "type": "module",
-  "scripts": {
-    "build": "vite build",
-    "dev": "vite",
-    "preview": "vite preview"
-  },
   "dependencies": {
     "@playgrounds/web-widget-vue2": "workspace:*",
     "@playgrounds/web-widget-vue3": "workspace:*",
-    "@web-widget/react": "workspace:*",
     "@web-widget/helpers": "workspace:*",
+    "@web-widget/react": "workspace:*",
+    "@web-widget/vue": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "react": "rc",
-    "react-dom": "rc",
-    "@web-widget/vue": "workspace:*"
+    "react-dom": "rc"
   },
   "devDependencies": {
     "@types/react": "^18.2.47",
@@ -31,5 +22,14 @@
   },
   "engines": {
     "node": ">=18"
-  }
+  },
+  "keywords": [],
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "type": "module"
 }

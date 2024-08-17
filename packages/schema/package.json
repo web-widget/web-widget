@@ -1,7 +1,10 @@
 {
   "name": "@web-widget/schema",
   "version": "1.28.0",
-  "type": "module",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "catalog:"
+  },
   "exports": {
     ".": {
       "types": "./schema.d.ts",
@@ -11,12 +14,9 @@
   "files": [
     "schema.d.ts"
   ],
-  "scripts": {},
-  "dependencies": {},
-  "devDependencies": {
-    "typescript": "catalog:"
-  },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "scripts": {},
+  "type": "module"
 }

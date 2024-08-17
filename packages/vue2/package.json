@@ -1,47 +1,9 @@
 {
   "name": "@web-widget/vue2",
   "version": "1.28.0",
-  "type": "module",
-  "exports": {
-    ".": {
-      "worker": {
-        "types": "./dist/vue2.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/vue2.server.js"
-      },
-      "browser": {
-        "types": "./dist/vue2.client.d.ts",
-        "development": "./src/client.ts",
-        "default": "./dist/vue2.client.js"
-      },
-      "default": {
-        "types": "./dist/vue2.server.d.ts",
-        "development": "./src/server.ts",
-        "require": "./dist/vue2.server.cjs",
-        "default": "./dist/vue2.server.js"
-      }
-    },
-    "./vite": {
-      "types": "./dist/vite.d.ts",
-      "development": "./src/vite.ts",
-      "require": "./dist/vite.cjs",
-      "default": "./dist/vite.js"
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch",
-    "clean:build": "rm -rf dist",
-    "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build",
-    "lint": "eslint src"
-  },
   "dependencies": {
-    "@web-widget/vite-plugin": "workspace:*",
     "@web-widget/helpers": "workspace:*",
+    "@web-widget/vite-plugin": "workspace:*",
     "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
@@ -49,13 +11,42 @@
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vue-server-renderer": "^2.7.16",
-    "vue": "^2.7.16"
+    "vue": "^2.7.16",
+    "vue-server-renderer": "^2.7.16"
   },
+  "exports": {
+    ".": {
+      "browser": {
+        "types": "./dist/vue2.client.d.ts",
+        "development": "./src/client.ts",
+        "default": "./dist/vue2.client.js"
+      },
+      "default": {
+        "types": "./dist/vue2.server.d.ts",
+        "require": "./dist/vue2.server.cjs",
+        "development": "./src/server.ts",
+        "default": "./dist/vue2.server.js"
+      },
+      "worker": {
+        "types": "./dist/vue2.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/vue2.server.js"
+      }
+    },
+    "./vite": {
+      "types": "./dist/vite.d.ts",
+      "require": "./dist/vite.cjs",
+      "development": "./src/vite.ts",
+      "default": "./dist/vite.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "peerDependencies": {
     "vite": "^5.4.0",
-    "vue-server-renderer": "^2.7.16",
-    "vue": "^2.7.16"
+    "vue": "^2.7.16",
+    "vue-server-renderer": "^2.7.16"
   },
   "publishConfig": {
     "access": "public",
@@ -81,5 +72,14 @@
         "default": "./dist/vite.js"
       }
     }
-  }
+  },
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "dev": "pnpm exec tsup --watch",
+    "lint": "eslint src",
+    "prebuild": "pnpm run clean:build"
+  },
+  "type": "module"
 }

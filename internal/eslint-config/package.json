@@ -1,25 +1,6 @@
 {
   "name": "@web-widget/eslint-config",
   "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "pnpm unbuild",
-    "dev": "pnpm unbuild --stub"
-  },
   "dependencies": {
     "@babel/eslint-parser": "^7.22.9",
     "@typescript-eslint/eslint-plugin": "^6.2.0",
@@ -43,5 +24,24 @@
   "devDependencies": {
     "typescript": "catalog:",
     "unbuild": "latest"
-  }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "private": true,
+  "scripts": {
+    "build": "pnpm unbuild",
+    "dev": "pnpm unbuild --stub"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts"
 }

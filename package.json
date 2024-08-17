@@ -21,6 +21,7 @@
     "nano-staged": "latest",
     "prettier": "latest",
     "simple-git-hooks": "latest",
+    "syncpack": "latest",
     "turbo": "latest",
     "unbuild": "^1.2.1"
   },
@@ -42,6 +43,7 @@
     "postinstall": "./node_modules/.bin/simple-git-hooks",
     "prebuild": "pnpm -r run clean:build",
     "prettier": "prettier **/*.{ts,tsx,js,vue} --write",
+    "syncpack:json": "syncpack format --source '**/*package.json'",
     "test": "c8 turbo run test",
     "update": "pnpm -r exec ncu -- --upgrade && ncu -- --upgrade",
     "update:check": "pnpm -r exec ncu -- --errorLevel 2 && ncu -- --errorLevel 2",

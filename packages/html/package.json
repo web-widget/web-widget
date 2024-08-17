@@ -1,14 +1,17 @@
 {
   "name": "@web-widget/html",
   "version": "1.28.0",
-  "type": "module",
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@worker-tools/html": "^2.0.0-pre.13",
+    "whatwg-stream-to-async-iter": "^0.6.2"
+  },
+  "devDependencies": {
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
   "exports": {
     ".": {
-      "worker": {
-        "types": "./dist/html.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/html.server.js"
-      },
       "browser": {
         "types": "./dist/html.client.d.ts",
         "development": "./src/client.ts",
@@ -18,29 +21,17 @@
         "types": "./dist/html.server.d.ts",
         "development": "./src/server.ts",
         "default": "./dist/html.server.js"
+      },
+      "worker": {
+        "types": "./dist/html.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/html.server.js"
       }
     }
   },
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "pnpm exec tsup",
-    "dev": "pnpm exec tsup --watch",
-    "clean:build": "rm -rf dist",
-    "clean:node": "rm -rf node_modules",
-    "prebuild": "pnpm run clean:build",
-    "lint": "eslint src"
-  },
-  "dependencies": {
-    "whatwg-stream-to-async-iter": "^0.6.2",
-    "@web-widget/helpers": "workspace:*",
-    "@worker-tools/html": "^2.0.0-pre.13"
-  },
-  "devDependencies": {
-    "tsup": "catalog:",
-    "typescript": "catalog:"
-  },
   "publishConfig": {
     "access": "public",
     "exports": {
@@ -59,5 +50,14 @@
         }
       }
     }
-  }
+  },
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "dev": "pnpm exec tsup --watch",
+    "lint": "eslint src",
+    "prebuild": "pnpm run clean:build"
+  },
+  "type": "module"
 }
