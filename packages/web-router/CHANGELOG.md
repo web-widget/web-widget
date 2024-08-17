@@ -1,5 +1,15 @@
 # @web-widget/web-router
 
+## 1.29.0
+
+### Patch Changes
+
+- @web-widget/action@1.29.0
+- @web-widget/context@1.29.0
+- @web-widget/helpers@1.29.0
+- @web-widget/html@1.29.0
+- @web-widget/lifecycle-cache@1.29.0
+
 ## 1.28.0
 
 ### Patch Changes

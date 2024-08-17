@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.29.0
+
+### Minor Changes
+
+- e53b83a: Optimize WebContainer warning display.
+
+### Patch Changes
+
+- @web-widget/helpers@1.29.0
+- @web-widget/lifecycle-cache@1.29.0
+
 ## 1.28.0
 
 ### Patch Changes
