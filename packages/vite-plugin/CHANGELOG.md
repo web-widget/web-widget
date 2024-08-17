@@ -1,5 +1,20 @@
 # @web-widget/vite-plugin
 
+## 1.28.0
+
+### Minor Changes
+
+- b771e0e: Add vitest preset configuration.
+
+  Remove cjs.
+
+### Patch Changes
+
+- @web-widget/helpers@1.28.0
+- @web-widget/node@1.28.0
+- @web-widget/web-router@1.28.0
+- @web-widget/web-widget@1.28.0
+
 ## 1.27.2
 
 ### Patch Changes
