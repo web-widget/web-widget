@@ -18,17 +18,17 @@
   },
   "exports": {
     ".": {
+      "worker": {
+        "types": "./dist/context.universal.server.d.ts",
+        "development": "./src/universal.server.ts",
+        "default": "./dist/context.universal.server.js"
+      },
       "browser": {
         "types": "./dist/context.universal.client.d.ts",
         "development": "./src/universal.client.ts",
         "default": "./dist/context.universal.client.js"
       },
       "default": {
-        "types": "./dist/context.universal.server.d.ts",
-        "development": "./src/universal.server.ts",
-        "default": "./dist/context.universal.server.js"
-      },
-      "worker": {
         "types": "./dist/context.universal.server.d.ts",
         "development": "./src/universal.server.ts",
         "default": "./dist/context.universal.server.js"

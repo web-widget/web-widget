@@ -19,17 +19,17 @@
   },
   "exports": {
     ".": {
+      "worker": {
+        "types": "./dist/web-widget.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/web-widget.server.js"
+      },
       "browser": {
         "types": "./dist/web-widget.client.d.ts",
         "development": "./src/client.ts",
         "default": "./dist/web-widget.client.js"
       },
       "default": {
-        "types": "./dist/web-widget.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/web-widget.server.js"
-      },
-      "worker": {
         "types": "./dist/web-widget.server.d.ts",
         "development": "./src/server.ts",
         "default": "./dist/web-widget.server.js"

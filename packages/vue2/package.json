@@ -16,6 +16,11 @@
   },
   "exports": {
     ".": {
+      "worker": {
+        "types": "./dist/vue2.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/vue2.server.js"
+      },
       "browser": {
         "types": "./dist/vue2.client.d.ts",
         "development": "./src/client.ts",
@@ -24,11 +29,6 @@
       "default": {
         "types": "./dist/vue2.server.d.ts",
         "require": "./dist/vue2.server.cjs",
-        "development": "./src/server.ts",
-        "default": "./dist/vue2.server.js"
-      },
-      "worker": {
-        "types": "./dist/vue2.server.d.ts",
         "development": "./src/server.ts",
         "default": "./dist/vue2.server.js"
       }

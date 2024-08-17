@@ -15,17 +15,17 @@
   },
   "exports": {
     ".": {
+      "worker": {
+        "types": "./dist/vue.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/vue.server.js"
+      },
       "browser": {
         "types": "./dist/vue.client.d.ts",
         "development": "./src/client.ts",
         "default": "./dist/vue.client.js"
       },
       "default": {
-        "types": "./dist/vue.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/vue.server.js"
-      },
-      "worker": {
         "types": "./dist/vue.server.d.ts",
         "development": "./src/server.ts",
         "default": "./dist/vue.server.js"
