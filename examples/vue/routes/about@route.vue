@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineMeta } from '@web-widget/vue';
+import { defineMeta } from '@web-widget/helpers';
 import BaseLayout from './(components)/BaseLayout.vue';
 
 defineOptions({

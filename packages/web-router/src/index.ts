@@ -13,7 +13,7 @@ import {
   createAsyncContext,
   createFallbackHandler,
   createRouteContext,
-  renderRouteModule,
+  callRouteModule,
 } from './modules';
 import type {
   Env,
@@ -117,7 +117,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     });
 
     routes.forEach((item) => {
-      router.use(item.pathname, renderRouteModule());
+      router.use(item.pathname, callRouteModule());
     });
 
     const fallback404 = fallbacks.find(

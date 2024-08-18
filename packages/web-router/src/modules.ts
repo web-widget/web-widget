@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { handleRpc } from '@web-widget/action/server';
 import {
   callContext,
@@ -29,6 +30,8 @@ import type {
   RouteRenderContext,
   RouteRenderOptions,
 } from './types';
+
+const HANDLER = Symbol('handler');
 
 export type OnFallback = (
   error: RouteError,
@@ -149,29 +152,29 @@ async function transformRouteError(error: any): Promise<RouteError> {
   return createHttpError(500, String(error));
 }
 
-async function getModule<T>(module: any) {
+async function normalizeModule<T>(module: any) {
   return (typeof module === 'function' ? module() : module) as T;
+}
+
+function normalizeHandler<T>(handler: any): T {
+  if (!handler) {
+    throw new TypeError(`Module does not export "handler".`);
+  }
+  if (typeof handler === 'function') {
+    return handler;
+  } else if (handler[HANDLER]) {
+    return handler[HANDLER];
+  } else {
+    return (handler[HANDLER] = methodsToHandler(handler) as T);
+  }
 }
 
 export function callMiddlewareModule(
   middleware: MiddlewareModule | (() => Promise<MiddlewareModule>)
 ): MiddlewareHandler {
-  let module: MiddlewareModule;
-  let handler: MiddlewareHandler;
   return async (context, next) => {
-    module ??= await getModule<MiddlewareModule>(middleware);
-
-    if (!module.handler) {
-      throw new TypeError(
-        `Middleware module does not export "handler" function.`
-      );
-    }
-
-    handler ??=
-      typeof module.handler === 'function'
-        ? module.handler
-        : (methodsToHandler(module.handler) as MiddlewareHandler);
-
+    const module = await normalizeModule<MiddlewareModule>(middleware);
+    const handler = normalizeHandler<MiddlewareHandler>(module.handler);
     return handler(context, next);
   };
 }
@@ -179,10 +182,8 @@ export function callMiddlewareModule(
 export function callActionModule(
   action: ActionModule | (() => Promise<ActionModule>)
 ): MiddlewareHandler {
-  let module: ActionModule;
-
   return async (context) => {
-    module ??= await getModule<ActionModule>(action);
+    const module = await normalizeModule<ActionModule>(action);
     const { request } = context;
 
     if (request.method !== 'POST') {
@@ -211,15 +212,13 @@ export function createRouteContext(
   onFallback: OnFallback,
   dev: boolean
 ) {
-  let layoutModule: LayoutModule;
-  let module: RouteModule;
   return async (context: MiddlewareContext, next: MiddlewareNext) => {
-    module ??= await getModule<RouteModule>(route);
-    layoutModule ??= await getModule<LayoutModule>(layout);
+    const module = await normalizeModule<RouteModule>(route);
+    const layoutModule = await normalizeModule<LayoutModule>(layout);
 
     // If multiple routes match here, only the first one is valid.
     if (!context.module) {
-      context.module ??= module;
+      context.module = module;
 
       // If the route has a render function, it's a route module.
       if (module.render) {
@@ -254,23 +253,17 @@ export function createFallbackHandler(
   onFallback: OnFallback,
   dev: boolean
 ) {
-  let handler: RouteHandler;
-  let layoutModule: LayoutModule;
-  let module: RouteModule;
   return async (error: unknown, context: MiddlewareContext) => {
-    layoutModule ??= await getModule<LayoutModule>(layout);
-    module ??= await getModule<RouteModule>(route);
-    handler ??=
-      typeof module.handler === 'function'
-        ? module.handler
-        : (methodsToHandler(
-            module.handler ??
-              ({
-                GET({ render }) {
-                  return render();
-                },
-              } as RouteHandlers)
-          ) as RouteHandler);
+    const layoutModule = await normalizeModule<LayoutModule>(layout);
+    const module = await normalizeModule<RouteModule>(route);
+    const handler = normalizeHandler<RouteHandler>(
+      module.handler ??
+        ({
+          GET({ render }) {
+            return render();
+          },
+        } as RouteHandlers)
+    );
 
     context.data = Object.create(null);
     context.error = await transformRouteError(error);
@@ -293,22 +286,18 @@ export function createFallbackHandler(
   };
 }
 
-export function renderRouteModule(): MiddlewareHandler {
-  let handler: RouteHandler;
+export function callRouteModule(): MiddlewareHandler {
   return async (context, next) => {
-    if (context.module) {
-      const module = context.module;
-      handler ??=
-        typeof module.handler === 'function'
-          ? module.handler
-          : (methodsToHandler(
-              module.handler ??
-                ({
-                  GET({ render }) {
-                    return render();
-                  },
-                } as RouteHandlers)
-            ) as RouteHandler);
+    const module = context.module;
+    if (module) {
+      const handler = normalizeHandler<RouteHandler>(
+        module.handler ??
+          ({
+            GET({ render }) {
+              return render();
+            },
+          } as RouteHandlers)
+      );
 
       if (context.meta) {
         // NOTE: `contextToScriptDescriptor` promises not to serialize private data.

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import './global.css';
 import styles from './BaseLayout.module.css';
 </script>
 <template>
@@ -11,10 +12,18 @@ import styles from './BaseLayout.module.css';
         <li>
           <a href="/about">About</a>
         </li>
+        <li>
+          <a href="/fetch">Fetching data</a>
+        </li>
+        <li>
+          <a href="/greet/web-widget">Dynamic routes</a>
+        </li>
       </ul>
     </nav>
   </header>
-  <main .class="styles.main"><slot></slot></main>
+  <main .class="styles.main">
+    <slot></slot>
+  </main>
   <footer .class="styles.footer">
     <p>This is a footer</p>
   </footer>

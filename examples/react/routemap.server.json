@@ -5,8 +5,20 @@
       "module": "./routes/about@route.tsx"
     },
     {
+      "pathname": "/fetch",
+      "module": "./routes/fetch@route.tsx"
+    },
+    {
       "pathname": "/",
       "module": "./routes/index@route.tsx"
+    },
+    {
+      "pathname": "/greet/:name",
+      "module": "./routes/greet/[name]@route.tsx"
+    },
+    {
+      "pathname": "/api/hello",
+      "module": "./routes/api/hello@route.ts"
     }
   ],
   "actions": [],
