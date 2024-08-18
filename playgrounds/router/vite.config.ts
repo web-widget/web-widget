@@ -75,4 +75,10 @@ export default defineConfig({
       strictPort: true,
     },
   },
+  preview: {
+    open: true,
+    headers: {
+      'x-server-mode': 'preview',
+    },
+  },
 });

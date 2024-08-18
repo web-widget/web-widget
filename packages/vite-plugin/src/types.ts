@@ -36,7 +36,6 @@ export interface ResolvedWebRouterConfig {
     dir: string;
     manifest: string;
     server: string;
-    ssrManifest: string;
   };
 }
 

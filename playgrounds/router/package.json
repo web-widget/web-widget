@@ -1,5 +1,5 @@
 {
-  "name": "@playgrounds/web-router",
+  "name": "@playgrounds/router",
   "description": "",
   "version": "0.0.0",
   "author": "",
@@ -41,6 +41,7 @@
     "build": "vite build",
     "dev": "vite",
     "dev:inspect": "NODE_OPTIONS='--inspect' vite",
+    "preview": "vite preview",
     "start": "node server.js",
     "start:inspect": "node --inspect server.js",
     "test": "cross-env TEST_PORT=51205 vitest",
