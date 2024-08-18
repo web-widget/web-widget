@@ -5,8 +5,20 @@
       "module": "./routes/about@route.vue"
     },
     {
+      "pathname": "/fetch",
+      "module": "./routes/fetch@route.vue"
+    },
+    {
       "pathname": "/",
       "module": "./routes/index@route.vue"
+    },
+    {
+      "pathname": "/greet/:name",
+      "module": "./routes/greet/[name]@route.vue"
+    },
+    {
+      "pathname": "/api/hello",
+      "module": "./routes/api/hello@route.ts"
     }
   ],
   "actions": [],

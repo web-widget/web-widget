@@ -1,4 +1,5 @@
 import type { ComponentProps } from 'react';
+import './global.css';
 import styles from './BaseLayout.module.css';
 
 export default function BaseLayout({ children }: ComponentProps<any>) {
@@ -12,6 +13,12 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
             </li>
             <li>
               <a href="/about">About</a>
+            </li>
+            <li>
+              <a href="/fetch">Fetching data</a>
+            </li>
+            <li>
+              <a href="/greet/web-widget">Dynamic routes</a>
             </li>
           </ul>
         </nav>

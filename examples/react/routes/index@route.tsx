@@ -1,4 +1,4 @@
-import { defineRouteComponent, defineMeta } from '@web-widget/react';
+import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
 import ReactCounter from './(components)/Counter@widget.tsx';
 import BaseLayout from './(components)/BaseLayout.tsx';
 import VueCounter from './(components)/Counter@widget.vue?as=jsx';

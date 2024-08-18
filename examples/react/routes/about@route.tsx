@@ -1,4 +1,4 @@
-import { defineRouteComponent, defineMeta } from '@web-widget/react';
+import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
 import BaseLayout from './(components)/BaseLayout.tsx';
 
 export const meta = defineMeta({
