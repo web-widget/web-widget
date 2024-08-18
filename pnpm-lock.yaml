@@ -403,6 +403,9 @@ importers:
       '@web-widget/lifecycle-cache':
         specifier: workspace:*
         version: link:../lifecycle-cache
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../schema
     devDependencies:
       '@jest/globals':
         specifier: 'catalog:'
@@ -410,9 +413,6 @@ importers:
       '@types/jest':
         specifier: 'catalog:'
         version: 29.5.12
-      '@web-widget/schema':
-        specifier: workspace:*
-        version: link:../schema
       jest:
         specifier: 'catalog:'
         version: 29.7.0(@types/node@22.2.0)
