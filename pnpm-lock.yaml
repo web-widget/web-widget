@@ -351,6 +351,9 @@ importers:
 
   packages/context:
     dependencies:
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../schema
       unctx:
         specifier: ^2.3.1
         version: 2.3.1
@@ -364,9 +367,6 @@ importers:
       '@types/node':
         specifier: ^22.2.0
         version: 22.2.0
-      '@web-widget/schema':
-        specifier: workspace:*
-        version: link:../schema
       jest:
         specifier: 'catalog:'
         version: 29.7.0(@types/node@22.2.0)
@@ -456,6 +456,9 @@ importers:
       '@web-widget/context':
         specifier: workspace:*
         version: link:../context
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../schema
     devDependencies:
       '@jest/globals':
         specifier: 'catalog:'
@@ -463,9 +466,6 @@ importers:
       '@types/jest':
         specifier: 'catalog:'
         version: 29.5.12
-      '@web-widget/schema':
-        specifier: workspace:*
-        version: link:../schema
       jest:
         specifier: 'catalog:'
         version: 29.7.0(@types/node@22.2.0)
@@ -552,6 +552,9 @@ importers:
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../schema
       '@web-widget/vite-plugin':
         specifier: workspace:*
         version: link:../vite-plugin
@@ -565,9 +568,6 @@ importers:
       '@types/react-dom':
         specifier: npm:types-react-dom@rc
         version: types-react-dom@19.0.0-rc.1
-      '@web-widget/schema':
-        specifier: workspace:*
-        version: link:../schema
       react:
         specifier: rc
         version: 19.0.0-rc-1eaccd82-20240816
@@ -668,6 +668,9 @@ importers:
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../schema
       '@web-widget/vite-plugin':
         specifier: workspace:*
         version: link:../vite-plugin
@@ -675,9 +678,6 @@ importers:
         specifier: workspace:*
         version: link:../web-widget
     devDependencies:
-      '@web-widget/schema':
-        specifier: workspace:*
-        version: link:../schema
       tsup:
         specifier: 'catalog:'
         version: 8.2.4(jiti@1.21.6)(postcss@8.4.41)(typescript@5.5.4)

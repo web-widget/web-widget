@@ -4,7 +4,8 @@
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/vite-plugin": "workspace:*",
-    "@web-widget/web-widget": "workspace:*"
+    "@web-widget/web-widget": "workspace:*",
+    "@web-widget/schema": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "npm:types-react@rc",
