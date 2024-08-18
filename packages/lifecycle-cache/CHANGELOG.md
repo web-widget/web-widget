@@ -1,5 +1,14 @@
 # @web-widget/lifecycle-cache
 
+## 1.30.3
+
+### Patch Changes
+
+- 8d5ef44: Fix package exports.
+- Updated dependencies [8d5ef44]
+  - @web-widget/context@1.30.3
+  - @web-widget/schema@1.30.3
+
 ## 1.30.2
 
 ### Patch Changes

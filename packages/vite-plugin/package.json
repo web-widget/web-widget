@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vite-plugin",
-  "version": "1.30.2",
+  "version": "1.30.3",
   "dependencies": {
     "@rollup/pluginutils": "^5.1.0",
     "@web-widget/helpers": "workspace:*",

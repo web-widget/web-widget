@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/react",
-  "version": "1.30.2",
+  "version": "1.30.3",
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/vite-plugin": "workspace:*",

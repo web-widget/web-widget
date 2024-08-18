@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/html",
-  "version": "1.30.2",
+  "version": "1.30.3",
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@worker-tools/html": "^2.0.0-pre.13",

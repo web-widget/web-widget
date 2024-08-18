@@ -1,5 +1,15 @@
 # @web-widget/vue
 
+## 1.30.3
+
+### Patch Changes
+
+- 8d5ef44: Fix package exports.
+  - @web-widget/helpers@1.30.3
+  - @web-widget/web-widget@1.30.3
+  - @web-widget/vite-plugin@1.30.3
+  - @web-widget/schema@1.30.3
+
 ## 1.30.2
 
 ### Patch Changes

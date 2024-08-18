@@ -1,5 +1,12 @@
 # @web-widget/context
 
+## 1.30.3
+
+### Patch Changes
+
+- 8d5ef44: Fix package exports.
+  - @web-widget/schema@1.30.3
+
 ## 1.30.2
 
 ## 1.30.1
