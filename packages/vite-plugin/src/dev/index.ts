@@ -157,11 +157,18 @@ async function viteWebRouterMiddlewareV2(
   resolvedWebRouterConfig: ResolvedWebRouterConfig,
   viteServer: ViteDevServer
 ): Promise<Middleware> {
-  const protocol = viteServer.config.server.https ? 'https' : 'http';
-  const host = viteServer.config.server.host || 'localhost';
-  const port = viteServer.config.server.port || 8080;
-  const { ORIGIN } = process.env;
-  const origin = ORIGIN ?? `${protocol}://${host}:${port}`;
+  let origin: string;
+  const resolvedUrls = viteServer.resolvedUrls;
+
+  if (resolvedUrls?.local && resolvedUrls?.local[0]) {
+    origin = new URL(resolvedUrls.local[0]).origin;
+  } else {
+    const protocol = viteServer.config.preview.https ? 'https' : 'http';
+    const host = viteServer.config.preview.host || 'localhost';
+    const port = viteServer.config.preview.port || 5173;
+    const { ORIGIN } = process.env;
+    origin = ORIGIN ?? `${protocol}://${host}:${port}`;
+  }
 
   const webRouter: WebRouter = (
     await viteServer.ssrLoadModule(resolvedWebRouterConfig.input.server.entry, {

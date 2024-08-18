@@ -26,6 +26,7 @@ import type {
   WebRouterPluginApi,
   WebRouterUserConfig,
 } from './types';
+import { webRouterPreviewServerPlugin } from './preview';
 
 interface VitestUserConfig extends UserConfig {
   /**
@@ -65,16 +66,23 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;
   let serverRoutemapEntryPoints: EntryPoints;
   let ssrBuild: boolean;
-  let userConfig: UserConfig;
+  let rawUserConfig: UserConfig;
 
   async function createConfig(
-    config: UserConfig,
+    config: VitestUserConfig,
     ssr: boolean
   ): Promise<UserConfig> {
     ssrBuild = !!(config.build?.ssr ?? ssr);
     const root = config.root || process.cwd();
     const assetsDir = config.build?.assetsDir ?? 'assets';
     const target = getServerBuildTarget(config);
+
+    resolvedWebRouterConfig = parseWebRouterConfig(
+      options,
+      root,
+      config.resolve?.extensions
+    );
+
     const serverRoutemapPath = resolvedWebRouterConfig.input.server.routemap;
     const clientImportmap = await api.clientImportmap();
     const serverRoutemap = await api.serverRoutemap();
@@ -84,6 +92,10 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       serverRoutemapPath,
       root
     );
+
+    const test = config.test;
+    const environment: VitestEnvironment =
+      test?.environment ?? (target === 'webworker' ? 'edge-runtime' : 'node');
 
     return {
       root,
@@ -122,9 +134,6 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
         minify: ssrBuild ? false : (config.build?.minify ?? 'esbuild'),
         ssr: ssrBuild,
         ssrEmitAssets: config.build?.ssrEmitAssets ?? false,
-        // ssrManifest: ssrBuild
-        //   ? undefined
-        //   : resolvedWebRouterConfig.output.ssrManifest,
         rollupOptions: {
           input: ssrBuild
             ? {
@@ -162,6 +171,17 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
               },
         },
       },
+      test: test
+        ? {
+            environment,
+            setupFiles:
+              environment === 'edge-runtime'
+                ? ['@web-widget/vite-plugin/vitest-edge-runtime-environment']
+                : environment === 'node'
+                  ? ['@web-widget/vite-plugin/vitest-node-environment']
+                  : undefined,
+          }
+        : undefined,
     };
   }
 
@@ -190,27 +210,9 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     enforce: 'pre',
     api,
 
-    async config(config: VitestUserConfig) {
-      const { root = process.cwd(), resolve: { extensions } = {} } = config;
-      resolvedWebRouterConfig = parseWebRouterConfig(options, root, extensions);
-
-      const test = config.test;
-      const target = getServerBuildTarget(config);
-      const environment: VitestEnvironment =
-        test?.environment ?? (target === 'webworker' ? 'edge-runtime' : 'node');
-      return {
-        test: test
-          ? {
-              environment,
-              setupFiles:
-                environment === 'edge-runtime'
-                  ? ['@web-widget/vite-plugin/vitest-edge-runtime-environment']
-                  : environment === 'node'
-                    ? ['@web-widget/vite-plugin/vitest-node-environment']
-                    : undefined,
-            }
-          : undefined,
-      };
+    async config(config) {
+      rawUserConfig = config;
+      return createConfig(config, false);
     },
 
     async configResolved(config) {
@@ -251,11 +253,6 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       name: '@web-widget:entry-assets',
       apply: 'build',
       enforce: 'pre',
-
-      async config(config) {
-        userConfig = config;
-        return createConfig(config, false);
-      },
 
       async configResolved(config) {
         root = config.root;
@@ -337,7 +334,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
         // TODO Watch module
         stage++;
         if (!ssrBuild && resolvedWebRouterConfig.autoFullBuild) {
-          runSsrBuild(await createConfig(userConfig, true));
+          runSsrBuild(await createConfig(rawUserConfig, true));
           return;
         }
 
@@ -350,6 +347,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     },
 
     webRouterDevServerPlugin(),
+    webRouterPreviewServerPlugin(),
 
     importActionPlugin(),
 

@@ -52,7 +52,6 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
     dir: 'dist',
     manifest: 'manifest.json',
     server: 'server',
-    ssrManifest: 'ssr-manifest.json',
   },
 };
 
@@ -149,10 +148,6 @@ export const WebRouterConfigSchema = z.object({
         .string()
         .optional()
         .default(WEB_ROUTER_CONFIG_DEFAULTS.output.server),
-      ssrManifest: z
-        .string()
-        .optional()
-        .default(WEB_ROUTER_CONFIG_DEFAULTS.output.ssrManifest),
     })
     .optional()
     .default({}),
