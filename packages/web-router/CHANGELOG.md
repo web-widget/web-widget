@@ -1,5 +1,16 @@
 # @web-widget/web-router
 
+## 1.30.1
+
+### Patch Changes
+
+- 119225a: Fixed the issue that automatic reload of the dev server failed.
+  - @web-widget/action@1.30.1
+  - @web-widget/context@1.30.1
+  - @web-widget/helpers@1.30.1
+  - @web-widget/html@1.30.1
+  - @web-widget/lifecycle-cache@1.30.1
+
 ## 1.30.0
 
 ### Patch Changes
