@@ -6,7 +6,8 @@
     "@edge-runtime/user-agent": "^1.4.1",
     "@web-widget/action": "workspace:*",
     "@web-widget/context": "workspace:*",
-    "@web-widget/lifecycle-cache": "workspace:*"
+    "@web-widget/lifecycle-cache": "workspace:*",
+    "@web-widget/schema": "workspace:*"
   },
   "devDependencies": {
     "@jest/globals": "catalog:",
