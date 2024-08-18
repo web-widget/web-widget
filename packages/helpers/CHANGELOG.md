@@ -1,5 +1,15 @@
 # @web-widget/helpers
 
+## 1.30.2
+
+### Patch Changes
+
+- b58ba41: Fix package exports.
+  - @web-widget/action@1.30.2
+  - @web-widget/context@1.30.2
+  - @web-widget/lifecycle-cache@1.30.2
+  - @web-widget/schema@1.30.2
+
 ## 1.30.1
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.30.2
+
+### Patch Changes
+
+- Updated dependencies [b58ba41]
+  - @web-widget/helpers@1.30.2
+  - @web-widget/web-router@1.30.2
+  - @web-widget/web-widget@1.30.2
+  - @web-widget/node@1.30.2
+
 ## 1.30.1
 
 ### Patch Changes
