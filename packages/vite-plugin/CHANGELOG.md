@@ -1,5 +1,18 @@
 # @web-widget/vite-plugin
 
+## 1.30.0
+
+### Minor Changes
+
+- f8e27ac: Support vite preview command.
+
+### Patch Changes
+
+- @web-widget/helpers@1.30.0
+- @web-widget/node@1.30.0
+- @web-widget/web-router@1.30.0
+- @web-widget/web-widget@1.30.0
+
 ## 1.29.1
 
 ### Patch Changes

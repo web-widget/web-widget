@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vue2",
-  "version": "1.29.1",
+  "version": "1.30.0",
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/vite-plugin": "workspace:*",

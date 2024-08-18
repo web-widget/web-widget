@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/web-router",
-  "version": "1.29.1",
+  "version": "1.30.0",
   "dependencies": {
     "@web-widget/action": "workspace:*",
     "@web-widget/context": "workspace:*",
