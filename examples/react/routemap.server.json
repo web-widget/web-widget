@@ -13,6 +13,10 @@
       "module": "./routes/index@route.tsx"
     },
     {
+      "pathname": "/action",
+      "module": "./routes/action/index@route.tsx"
+    },
+    {
       "pathname": "/greet/:name",
       "module": "./routes/greet/[name]@route.tsx"
     },
@@ -21,7 +25,17 @@
       "module": "./routes/api/hello@route.ts"
     }
   ],
-  "actions": [],
-  "middlewares": [],
+  "actions": [
+    {
+      "pathname": "/action/functions",
+      "module": "./routes/action/functions@action.ts"
+    }
+  ],
+  "middlewares": [
+    {
+      "pathname": "/(.*)",
+      "module": "./routes/(middlewares)/[...]@middleware.ts"
+    }
+  ],
   "fallbacks": []
 }

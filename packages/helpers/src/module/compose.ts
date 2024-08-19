@@ -138,6 +138,7 @@ export function methodsToHandler(
 
     const handler =
       Reflect.get(mergedMethods, request.method) ??
+      next ??
       (() =>
         new Response(null, {
           status: 405,

@@ -29,7 +29,9 @@ function resolveRealFile(
 
 export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
   autoFullBuild: true,
-  action: false,
+  serverAction: {
+    enabled: false,
+  },
   entryFormatVersion: 1,
   filesystemRouting: {
     basePathname: '/',
@@ -60,7 +62,15 @@ export const WebRouterConfigSchema = z.object({
     .boolean()
     .optional()
     .default(WEB_ROUTER_CONFIG_DEFAULTS.autoFullBuild),
-  action: z.boolean().optional().default(WEB_ROUTER_CONFIG_DEFAULTS.action),
+  serverAction: z
+    .object({
+      enabled: z
+        .boolean()
+        .optional()
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.serverAction.enabled),
+    })
+    .optional()
+    .default({}),
   entryFormatVersion: z
     .number()
     .optional()
