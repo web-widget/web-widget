@@ -18,6 +18,9 @@ import styles from './BaseLayout.module.css';
         <li>
           <a href="/greet/web-widget">Dynamic routes</a>
         </li>
+        <li>
+          <a href="/action">Server actions</a>
+        </li>
       </ul>
     </nav>
   </header>
