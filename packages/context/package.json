@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/context",
-  "version": "1.30.2",
+  "version": "1.31.0",
   "dependencies": {
     "unctx": "^2.3.1",
     "@web-widget/schema": "workspace:*"

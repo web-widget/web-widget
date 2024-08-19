@@ -1,5 +1,17 @@
 # @web-widget/web-router
 
+## 1.31.0
+
+### Patch Changes
+
+- Updated dependencies [8d5ef44]
+- Updated dependencies [7806796]
+  - @web-widget/lifecycle-cache@1.31.0
+  - @web-widget/context@1.31.0
+  - @web-widget/helpers@1.31.0
+  - @web-widget/html@1.31.0
+  - @web-widget/action@1.31.0
+
 ## 1.30.2
 
 ### Patch Changes
