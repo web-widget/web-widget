@@ -43,7 +43,7 @@ exports[`Should match snapshot > Request "/" should match snapshot > /@body 1`] 
 </script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Home - Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script id="state:web-router" type="application/json">{"pathname":"/","params":{}}</script>
       </head>
       <body>
-        <header class="_header_d366fc"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/fetch">Fetching data</a></li><li><a href="/greet/web-widget">Dynamic routes</a></li></ul></nav></header><main class="_main_d366fc"><h1>Welcome to Web Widget.</h1><p>Try to update this message in the ./routes/index@route.tsx file.</p><h2>React</h2><!--$--><web-widget import="/routes/(components)/Counter@widget.tsx" name="ReactCounter" data="{&quot;name&quot;:&quot;React Counter&quot;,&quot;start&quot;:0}" loading="lazy" rendertarget="light" recovering=""><div class="_counter_6a98f7"><button>−</button><span class="_count_6a98f7">0</span><button>+</button></div></web-widget><!--/$--><h2>Vue</h2><!--$--><web-widget import="/routes/(components)/Counter@widget.vue?as=jsx" name="VueCounter" data="{&quot;name&quot;:&quot;Vue3 Counter&quot;,&quot;start&quot;:0}" loading="lazy" rendertarget="light" recovering=""><div class="counter" data-v-a67ee2b2><button data-v-a67ee2b2>−</button><span class="count" data-v-a67ee2b2>0</span><button data-v-a67ee2b2>+</button></div></web-widget><!--/$--></main><footer class="_footer_d366fc"><p>This is a footer</p></footer>
+        <header class="_header_d366fc"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/fetch">Fetching data</a></li><li><a href="/greet/web-widget">Dynamic routes</a></li><li><a href="/action">Server actions</a></li></ul></nav></header><main class="_main_d366fc"><h1>Welcome to Web Widget.</h1><p>Try to update this message in the ./routes/index@route.tsx file.</p><h2>React</h2><!--$--><web-widget import="/routes/(components)/Counter@widget.tsx" name="ReactCounter" data="{&quot;name&quot;:&quot;React Counter&quot;,&quot;start&quot;:0}" loading="lazy" rendertarget="light" recovering=""><div class="_counter_6a98f7"><button>−</button><span class="_count_6a98f7">0</span><button>+</button></div></web-widget><!--/$--><h2>Vue</h2><!--$--><web-widget import="/routes/(components)/Counter@widget.vue?as=jsx" name="VueCounter" data="{&quot;name&quot;:&quot;Vue3 Counter&quot;,&quot;start&quot;:0}" loading="lazy" rendertarget="light" recovering=""><div class="counter" data-v-a67ee2b2><button data-v-a67ee2b2>−</button><span class="count" data-v-a67ee2b2>0</span><button data-v-a67ee2b2>+</button></div></web-widget><!--/$--></main><footer class="_footer_d366fc"><p>This is a footer</p></footer>
       </body>
     </html>"
 `;
@@ -52,6 +52,7 @@ exports[`Should match snapshot > Request "/" should match snapshot > /@headers 1
 {
   "content-type": "text/html; charset=utf-8",
   "x-module-source": "source://routes/index@route.tsx",
+  "x-powered-by": "@web-widget/web-router",
 }
 `;
 
@@ -102,7 +103,7 @@ exports[`Should match snapshot > Request "/about" should match snapshot > /about
 </script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >About - Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script id="state:web-router" type="application/json">{"pathname":"/about","params":{}}</script>
       </head>
       <body>
-        <header class="_header_d366fc"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/fetch">Fetching data</a></li><li><a href="/greet/web-widget">Dynamic routes</a></li></ul></nav></header><main class="_main_d366fc"><h1>About</h1><p>The page you&#x27;re looking at is purely static HTML, with no client-side interactivity needed. Because of that, we don&#x27;t need to load any JavaScript. Try viewing the page&#x27;s source, or opening the devtools network panel and reloading.</p></main><footer class="_footer_d366fc"><p>This is a footer</p></footer>
+        <header class="_header_d366fc"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/fetch">Fetching data</a></li><li><a href="/greet/web-widget">Dynamic routes</a></li><li><a href="/action">Server actions</a></li></ul></nav></header><main class="_main_d366fc"><h1>About</h1><p>The page you&#x27;re looking at is purely static HTML, with no client-side interactivity needed. Because of that, we don&#x27;t need to load any JavaScript. Try viewing the page&#x27;s source, or opening the devtools network panel and reloading.</p></main><footer class="_footer_d366fc"><p>This is a footer</p></footer>
       </body>
     </html>"
 `;
@@ -111,6 +112,7 @@ exports[`Should match snapshot > Request "/about" should match snapshot > /about
 {
   "content-type": "text/html; charset=utf-8",
   "x-module-source": "source://routes/about@route.tsx",
+  "x-powered-by": "@web-widget/web-router",
 }
 `;
 
@@ -118,11 +120,72 @@ exports[`Should match snapshot > Request "/about" should match snapshot > /about
 
 exports[`Should match snapshot > Request "/about" should match snapshot > /about@statusText 1`] = `"OK"`;
 
+exports[`Should match snapshot > Request "/action" should match snapshot > /action@body 1`] = `
+"<!doctype html>
+    <html lang="en">
+      <head>
+        <script id="shim:es-module">
+  if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
+    self.importShim = Object.assign(
+      function importShimProxy() {
+        const esModuleShimUrl =
+          'https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js';
+        const promise = new Promise((resolve, reject) => {
+          document.head.appendChild(
+            Object.assign(document.createElement('script'), {
+              src: esModuleShimUrl,
+              crossorigin: 'anonymous',
+              async: true,
+              onload() {
+                if (!importShim.$proxy) {
+                  resolve(importShim);
+                } else {
+                  reject(
+                    new Error(
+                      'No globalThis.importShim found:' + esModuleShimUrl
+                    )
+                  );
+                }
+              },
+              onerror(error) {
+                reject(error);
+              },
+            })
+          );
+        });
+        return promise.then((importShim) => importShim(...arguments));
+      },
+      {
+        $proxy: true,
+      }
+    );
+  }
+</script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script id="state:web-router" type="application/json">{"pathname":"/action","params":{}}</script>
+      </head>
+      <body>
+        <header class="_header_d366fc"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/fetch">Fetching data</a></li><li><a href="/greet/web-widget">Dynamic routes</a></li><li><a href="/action">Server actions</a></li></ul></nav></header><main class="_main_d366fc"><h1>Server action</h1><!--$--><web-widget import="/routes/action/Echo@widget.tsx" name="Echo" loading="lazy" rendertarget="light" recovering=""><input type="text" value=""/><button>echo</button></web-widget><!--/$--></main><footer class="_footer_d366fc"><p>This is a footer</p></footer>
+      </body>
+    </html>"
+`;
+
+exports[`Should match snapshot > Request "/action" should match snapshot > /action@headers 1`] = `
+{
+  "content-type": "text/html; charset=utf-8",
+  "x-module-source": "source://routes/action/index@route.tsx",
+  "x-powered-by": "@web-widget/web-router",
+}
+`;
+
+exports[`Should match snapshot > Request "/action" should match snapshot > /action@status 1`] = `200`;
+
+exports[`Should match snapshot > Request "/action" should match snapshot > /action@statusText 1`] = `"OK"`;
+
 exports[`Should match snapshot > Request "/api/hello" should match snapshot > /api/hello@body 1`] = `"[{"title":"👋🌍","url":"#id0"},{"title":"你好世界","url":"#id1"},{"title":"Hello world","url":"#id2"},{"title":"こんにちは世界","url":"#id3"},{"title":"مرحبا بالعالم","url":"#id4"},{"title":"헬로월드","url":"#id5"}]"`;
 
 exports[`Should match snapshot > Request "/api/hello" should match snapshot > /api/hello@headers 1`] = `
 {
   "content-type": "application/json; charset=utf-8",
+  "x-powered-by": "@web-widget/web-router",
 }
 `;
 
@@ -173,7 +236,7 @@ exports[`Should match snapshot > Request "/fetch" should match snapshot > /fetch
 </script> <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Fetching data - Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script id="state:web-router" type="application/json">{"pathname":"/fetch","params":{}}</script>
       </head>
       <body>
-        <header class="_header_d366fc"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/fetch">Fetching data</a></li><li><a href="/greet/web-widget">Dynamic routes</a></li></ul></nav></header><main class="_main_d366fc"><h1>Fetching data</h1><ul><li>👋🌍</li><li>你好世界</li><li>Hello world</li><li>こんにちは世界</li><li>مرحبا بالعالم</li><li>헬로월드</li></ul><p>Source:<a href="/api/hello" target="_blank">/api/hello</a></p></main><footer class="_footer_d366fc"><p>This is a footer</p></footer>
+        <header class="_header_d366fc"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/fetch">Fetching data</a></li><li><a href="/greet/web-widget">Dynamic routes</a></li><li><a href="/action">Server actions</a></li></ul></nav></header><main class="_main_d366fc"><h1>Fetching data</h1><ul><li>👋🌍</li><li>你好世界</li><li>Hello world</li><li>こんにちは世界</li><li>مرحبا بالعالم</li><li>헬로월드</li></ul><p>Source:<a href="/api/hello" target="_blank">/api/hello</a></p></main><footer class="_footer_d366fc"><p>This is a footer</p></footer>
       </body>
     </html>"
 `;
@@ -182,6 +245,7 @@ exports[`Should match snapshot > Request "/fetch" should match snapshot > /fetch
 {
   "content-type": "text/html; charset=utf-8",
   "x-module-source": "source://routes/fetch@route.tsx",
+  "x-powered-by": "@web-widget/web-router",
 }
 `;
 

@@ -67,7 +67,8 @@ export function compose<
 }
 
 export function composeMiddleware(
-  middlewares: (MiddlewareHandler | MiddlewareHandlers)[]
+  middlewares: (MiddlewareHandler | MiddlewareHandlers)[],
+  disallowUnknownMethod?: boolean
 ) {
   if (!Array.isArray(middlewares)) {
     throw new TypeError('Middleware stack must be an array.');
@@ -77,7 +78,7 @@ export function composeMiddleware(
     if (type === 'function') {
       return fn as MiddlewareHandler;
     } else if (fn && type === 'object') {
-      return methodsToHandler(fn as MiddlewareHandlers);
+      return methodsToHandler(fn as MiddlewareHandlers, disallowUnknownMethod);
     }
     throw new TypeError('Middleware must be composed of functions.');
   });
@@ -86,15 +87,18 @@ export function composeMiddleware(
 }
 
 export function methodsToHandler<T extends RouteHandlers>(
-  methods: T
+  methods: T,
+  disallowUnknownMethod?: boolean
 ): RouteHandler;
 
 export function methodsToHandler<T extends MiddlewareHandlers>(
-  methods: T
+  methods: T,
+  disallowUnknownMethod?: boolean
 ): MiddlewareHandler;
 
 export function methodsToHandler(
-  methods: RouteHandlers | MiddlewareHandlers
+  methods: RouteHandlers | MiddlewareHandlers,
+  disallowUnknownMethod?: boolean
 ): RouteHandler | MiddlewareHandler {
   if (!methods || typeof methods !== 'object') {
     throw new TypeError('Method stack must be an object.');
@@ -138,14 +142,16 @@ export function methodsToHandler(
 
     const handler =
       Reflect.get(mergedMethods, request.method) ??
-      (() =>
-        new Response(null, {
-          status: 405,
-          statusText: 'Method Not Allowed',
-          headers: {
-            Accept: Object.keys(mergedMethods).join(', '),
-          },
-        }));
+      (disallowUnknownMethod
+        ? () =>
+            new Response(null, {
+              status: 405,
+              statusText: 'Method Not Allowed',
+              headers: {
+                Accept: Object.keys(mergedMethods).join(', '),
+              },
+            })
+        : next);
 
     return handler(context, next);
   };

@@ -13,7 +13,7 @@ import type {
   VitestEnvironment,
   InlineConfig as VitestInlineConfig,
 } from 'vitest/node';
-import { getLinks, getManifest } from './utils';
+import { CLIENT_MODULE, getLinks, getManifest } from './utils';
 import { importActionPlugin } from './import-action';
 import { parseWebRouterConfig } from './config';
 import { webRouterDevServerPlugin } from './dev';
@@ -322,8 +322,10 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
               type === 'chunk' &&
               chunk.isEntry &&
               Reflect.has(serverRoutemapEntryPoints, chunk.name) &&
-              serverRoutemapEntryPoints[chunk.name] === chunk.facadeModuleId
+              serverRoutemapEntryPoints[chunk.name] === chunk.facadeModuleId &&
+              !chunk.code.includes(CLIENT_MODULE)
             ) {
+              // NOTE: Exposing the server module to the client will cause security risks.
               chunk.code = 'throw new Error(`Only works on the server side.`);';
             }
           });

@@ -57,7 +57,9 @@ export default defineConfig({
     patchVuePluginConfig(),
     webRouterPlugin({
       entryFormatVersion: 2,
-      action: true,
+      serverAction: {
+        enabled: true,
+      },
       filesystemRouting: {
         enabled: true,
       },

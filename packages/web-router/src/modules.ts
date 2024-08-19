@@ -156,7 +156,7 @@ async function normalizeModule<T>(module: any) {
   return (typeof module === 'function' ? module() : module) as T;
 }
 
-function normalizeHandler<T>(handler: any): T {
+function normalizeHandler<T>(handler: any, disallowUnknownMethod: boolean): T {
   if (!handler) {
     throw new TypeError(`Module does not export "handler".`);
   }
@@ -165,7 +165,10 @@ function normalizeHandler<T>(handler: any): T {
   } else if (handler[HANDLER]) {
     return handler[HANDLER];
   } else {
-    return (handler[HANDLER] = methodsToHandler(handler) as T);
+    return (handler[HANDLER] = methodsToHandler(
+      handler,
+      disallowUnknownMethod
+    ) as T);
   }
 }
 
@@ -174,7 +177,7 @@ export function callMiddlewareModule(
 ): MiddlewareHandler {
   return async (context, next) => {
     const module = await normalizeModule<MiddlewareModule>(middleware);
-    const handler = normalizeHandler<MiddlewareHandler>(module.handler);
+    const handler = normalizeHandler<MiddlewareHandler>(module.handler, false);
     return handler(context, next);
   };
 }
@@ -262,7 +265,8 @@ export function createFallbackHandler(
           GET({ render }) {
             return render();
           },
-        } as RouteHandlers)
+        } as RouteHandlers),
+      true
     );
 
     context.data = Object.create(null);
@@ -296,7 +300,8 @@ export function callRouteModule(): MiddlewareHandler {
             GET({ render }) {
               return render();
             },
-          } as RouteHandlers)
+          } as RouteHandlers),
+        true
       );
 
       if (context.meta) {

@@ -1,15 +1,12 @@
-import path from 'node:path';
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
-import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
+import type { ExportSpecifier } from 'es-module-lexer';
 import {
+  CLIENT_MODULE,
   getWebRouterPluginApi,
-  importsToImportNames,
   relativePathWithDot,
 } from './utils';
-
-const globalCache: Set<string> = new Set();
 
 export interface ImportActionPluginOptions {
   cache?: Set<string>;
@@ -21,45 +18,33 @@ export interface ImportActionPluginOptions {
 }
 
 /**
- * Input:
+ * Input(client): functions@action.ts
  *
- * import { echo } from "./actions/index@action.ts";
- * import defaultExport, { exportName } from "./actions/foo@action.ts";
- * ...
- * const value = await echo('hello world');
+ * export async function echo(message) {}
+ * export default async function() { }
  *
- * Becomes:
+ * Becomes(client): functions@action.ts
  *
  * import { rpcClient } from "@web-widget/helpers/action";
- * const { echo } = rpcClient("/actions");
- * const { default: defaultExport, exportName } = rpcClient("/foo");
- * ...
- * const value = await echo("hello world");
+ * const $exports = rpcClient("/functions");
+ * export const echo = $exports.echo;
+ * export default $exports.default;
  */
 export function importActionPlugin(
   options: ImportActionPluginOptions = {}
 ): Plugin {
   let root: string;
   let filter: (id: string | unknown) => boolean;
-  let importerFilter: (id: string | unknown) => boolean;
-  let cache: Set<string>;
   let serverUrl: (file: string) => Promise<string>;
   let enabled: boolean;
 
   return {
     name: '@web-widget:import-action',
-    async config() {},
-    async configResolved(config) {
-      const {
-        exclude,
-        excludeImporter,
-        includeImporter = /\.(js|mjs|jsx|ts|tsx)$/,
-        include = /(?:\.|@)action\..*$/,
-      } = options;
 
-      cache = options.cache ?? globalCache;
+    async configResolved(config) {
+      const { exclude, include = /(?:\.|@)action\..*$/ } = options;
+
       filter = createFilter(include, exclude);
-      importerFilter = createFilter(includeImporter, excludeImporter);
       root = config.root;
 
       const webRouterPluginApi = getWebRouterPluginApi(config);
@@ -69,7 +54,7 @@ export function importActionPlugin(
       }
 
       if (!serverUrl && webRouterPluginApi) {
-        enabled = webRouterPluginApi.config.action;
+        enabled = webRouterPluginApi.config.serverAction.enabled;
         serverUrl = async (file) => {
           const id = relativePathWithDot(root, file);
           const routemap = await webRouterPluginApi.serverRoutemap();
@@ -92,131 +77,60 @@ export function importActionPlugin(
         throw new Error('"serverUrl" option is required.');
       }
     },
+
     async transform(code, id, { ssr } = {}) {
       if (!enabled || ssr) {
         return null;
       }
 
-      if (!importerFilter(id)) {
+      if (!filter(id)) {
         return null;
       }
 
-      let imports;
+      let exports: ReadonlyArray<ExportSpecifier>;
 
       try {
         await esModuleLexer.init;
-        [imports] = esModuleLexer.parse(code, id);
+        [, exports] = esModuleLexer.parse(code, id);
       } catch (error) {
         return this.error(error);
       }
 
-      const modules: {
-        moduleId: string;
-        moduleName: string;
-        statementEnd: number;
-        statementStart: number;
-      }[] = [];
+      const names = exports.map(({ n }) => n);
 
-      for (const importSpecifier of imports) {
-        const {
-          n: moduleName,
-          d: dynamicImport,
-          ss: statementStart,
-          se: statementEnd,
-        } = importSpecifier;
-
-        let importModule: string | undefined;
-
-        if (moduleName) {
-          if (moduleName.startsWith('./') && !moduleName.includes('?')) {
-            // NOTE: Use `path.resolve` instead of `this.resolve` to avoid the latter waiting for a result but failing to return one.
-            // Possible errors with `this.resolve`:
-            // Unexpected early exit. This happens when Promises returned by plugins cannot resolve. Unfinished hook action(s) on exit
-            importModule = path.resolve(path.dirname(id), moduleName);
-          } else {
-            importModule = (
-              await this.resolve(moduleName, id, {
-                skipSelf: true,
-              })
-            )?.id;
-          }
-        }
-
-        if (importModule && filter(importModule)) {
-          if (dynamicImport !== -1) {
-            return this.error(
-              new SyntaxError(`Dynamic imports are not supported.`),
-              statementStart
-            );
-          }
-          const cacheKey = [id, importModule].join(',');
-          if (!cache.has(cacheKey)) {
-            modules.push({
-              moduleId: importModule,
-              moduleName: moduleName as string,
-              statementEnd,
-              statementStart,
-            });
-          } else {
-            cache.add(cacheKey);
-          }
-        }
-      }
-
-      if (modules.length === 0) {
+      if (names.length === 0) {
         return null;
       }
 
-      const magicString = new MagicString(code);
-      const dynamicPathname = /[^\w/.\-$]/;
+      let url: string | undefined;
 
-      for (const { statementStart, statementEnd, moduleId } of modules) {
-        const names = importsToImportNames(
-          imports,
-          code.substring(statementStart, statementEnd)
-        );
-
-        if (!names.length) {
-          continue;
-        }
-
-        let url;
-
-        try {
-          url = await serverUrl(moduleId);
-        } catch (error) {
-          return this.error(error, statementStart);
-        }
-
-        if (typeof url !== 'string') {
-          return this.error(
-            TypeError(
-              `options.serverUrl(${JSON.stringify(moduleId)}) returns no result.`
-            )
+      try {
+        url = await serverUrl(id);
+        if (!url) {
+          throw new Error(
+            `options.serverUrl(${JSON.stringify(id)}) returns no result.`
           );
         }
-
-        if (dynamicPathname.test(url)) {
-          return this.error(
-            new TypeError(
-              `Invalid input: ${url}. Action route cannot contain dynamic parameters.`
-            )
-          );
-        }
-
-        const methods = names.map(([name, alias]) =>
-          alias ? `${name}:${alias}` : name
-        );
-        const content =
-          `import { rpcClient } from "@web-widget/helpers/action";\n` +
-          `const { ${methods.join(', ')} } = /* @__PURE__ */ rpcClient(${JSON.stringify(url)})`;
-
-        magicString.update(statementStart, statementEnd, content);
+      } catch (error) {
+        return this.error(error);
       }
 
+      let content =
+        `${CLIENT_MODULE}\n` +
+        `import { rpcClient } from "@web-widget/helpers/action";\n` +
+        `const $exports = /* @__PURE__ */ rpcClient(${JSON.stringify(url)})`;
+
+      names.forEach((name) => {
+        if (name === 'default') {
+          content += `\nexport default $exports.default;`;
+        } else {
+          content += `\nexport const ${name} = $exports.${name};`;
+        }
+      });
+
       return {
-        code: magicString.toString(),
-        map: magicString.generateMap(),
+        code: content,
+        map: null,
       };
     },
   };

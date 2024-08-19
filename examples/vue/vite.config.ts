@@ -10,6 +10,9 @@ export default defineConfig({
   plugins: [
     webRouterPlugin({
       entryFormatVersion: 2,
+      serverAction: {
+        enabled: true,
+      },
       filesystemRouting: {
         enabled: true,
       },
