@@ -82,16 +82,18 @@ describe('compose: Extended functionality on koa-compose', () => {
 });
 
 describe('methodsToHandler', () => {
-  const handler = methodsToHandler<MiddlewareHandlers>({
-    async GET(context, next) {
-      expect(context.pathname).toBe('/');
-      const res = await next();
-      res.headers.set('Test', '1');
-      return res;
-    },
-  });
-
-  const createRequest = (method: string) => {
+  const createRequest = (method: string, disallowUnknownMethod?: boolean) => {
+    const handler = methodsToHandler<MiddlewareHandlers>(
+      {
+        async GET(context, next) {
+          expect(context.pathname).toBe('/');
+          const res = await next();
+          res.headers.set('Test', '1');
+          return res;
+        },
+      },
+      disallowUnknownMethod
+    );
     return handler(
       {
         params: {},
@@ -118,7 +120,7 @@ describe('methodsToHandler', () => {
   });
 
   test('Access non-existent method', async () => {
-    const res = await createRequest('PUT');
+    const res = await createRequest('PUT', true);
     expect(res.status).toBe(405);
     expect(res.statusText).toBe('Method Not Allowed');
     expect(res.headers.get('Accept')).toBe('GET, HEAD');
