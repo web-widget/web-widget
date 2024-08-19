@@ -1,5 +1,19 @@
 # @web-widget/vite-plugin
 
+## 1.31.0
+
+### Minor Changes
+
+- 7806796: Refactoring server actions.
+
+### Patch Changes
+
+- Updated dependencies [7806796]
+  - @web-widget/helpers@1.31.0
+  - @web-widget/web-router@1.31.0
+  - @web-widget/web-widget@1.31.0
+  - @web-widget/node@1.31.0
+
 ## 1.30.2
 
 ### Patch Changes

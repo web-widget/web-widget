@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/action",
-  "version": "1.30.2",
+  "version": "1.31.0",
   "dependencies": {},
   "devDependencies": {
     "@jest/globals": "catalog:",

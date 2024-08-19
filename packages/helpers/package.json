@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/helpers",
-  "version": "1.30.2",
+  "version": "1.31.0",
   "dependencies": {
     "@edge-runtime/cookies": "^4.0.3",
     "@edge-runtime/user-agent": "^1.4.1",

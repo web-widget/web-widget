@@ -1,5 +1,19 @@
 # @web-widget/helpers
 
+## 1.31.0
+
+### Minor Changes
+
+- 7806796: Refactoring server actions.
+
+### Patch Changes
+
+- Updated dependencies [8d5ef44]
+  - @web-widget/lifecycle-cache@1.31.0
+  - @web-widget/context@1.31.0
+  - @web-widget/action@1.31.0
+  - @web-widget/schema@1.31.0
+
 ## 1.30.2
 
 ### Patch Changes
