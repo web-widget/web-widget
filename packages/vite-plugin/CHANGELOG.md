@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.32.1
+
+### Patch Changes
+
+- 95efafc: Optimize the size of embedded scripts.
+  - @web-widget/helpers@1.32.1
+  - @web-widget/node@1.32.1
+  - @web-widget/web-router@1.32.1
+  - @web-widget/web-widget@1.32.1
+
 ## 1.32.0
 
 ### Minor Changes

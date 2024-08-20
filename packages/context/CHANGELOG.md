@@ -1,5 +1,11 @@
 # @web-widget/context
 
+## 1.32.1
+
+### Patch Changes
+
+- @web-widget/schema@1.32.1
+
 ## 1.32.0
 
 ### Patch Changes
