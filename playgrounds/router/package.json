@@ -2,7 +2,7 @@
   "name": "@playgrounds/router",
   "description": "",
   "version": "0.0.0",
-  "author": "",
+  "author": "aui",
   "dependencies": {
     "@playgrounds/web-router-vue2": "workspace:*",
     "@playgrounds/web-router-vue3": "workspace:*",

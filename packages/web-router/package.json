@@ -9,11 +9,7 @@
     "@web-widget/lifecycle-cache": "workspace:*"
   },
   "devDependencies": {
-    "@babel/cli": "^7.23.9",
-    "@babel/core": "^7.23.9",
-    "@babel/preset-env": "^7.23.9",
     "@types/jest": "catalog:",
-    "babel-plugin-template-html-minifier": "^4.1.0",
     "jest": "catalog:",
     "jest-environment-miniflare": "catalog:",
     "miniflare": "catalog:",
@@ -42,11 +38,10 @@
     }
   },
   "scripts": {
-    "build": "pnpm exec tsup && pnpm run html-minifier",
+    "build": "pnpm exec tsup",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
     "dev": "pnpm exec tsup --watch",
-    "html-minifier": "babel dist/* --out-dir dist",
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build",
     "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
