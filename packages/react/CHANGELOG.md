@@ -1,5 +1,15 @@
 # @web-widget/react
 
+## 1.32.0
+
+### Patch Changes
+
+- Updated dependencies [72b9179]
+  - @web-widget/vite-plugin@1.32.0
+  - @web-widget/helpers@1.32.0
+  - @web-widget/schema@1.32.0
+  - @web-widget/web-widget@1.32.0
+
 ## 1.31.0
 
 ### Patch Changes
