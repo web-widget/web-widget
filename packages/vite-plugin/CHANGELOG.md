@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.32.2
+
+### Patch Changes
+
+- d2c3129: Optimize the size of embedded scripts.
+  - @web-widget/helpers@1.32.2
+  - @web-widget/node@1.32.2
+  - @web-widget/web-router@1.32.2
+  - @web-widget/web-widget@1.32.2
+
 ## 1.32.1
 
 ### Patch Changes
