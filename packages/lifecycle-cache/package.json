@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/lifecycle-cache",
-  "version": "1.32.0",
+  "version": "1.32.1",
   "dependencies": {
     "@web-widget/context": "workspace:*",
     "@web-widget/schema": "workspace:*"
