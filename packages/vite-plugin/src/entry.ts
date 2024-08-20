@@ -569,18 +569,13 @@ function buildMeta(
         ...(importShim.enabled
           ? [
               {
-                content: `((w,d,h,i,u)=>{if(h.supports&&h.supports("importmap"))return;w[i]=(...a)=>new Promise((resolve,reject)=>{d.head.appendChild(Object.assign(d.createElement("script"),{src:u,crossorigin:"anonymous",async:true,onload(){!w[i].$p?resolve(w[i]):reject(new Error("[importShim loader] No importShim injected:"+u))},onerror(error){reject(error)}}))}).then((s)=>s(...a));w[i].$p=true})(self,document,HTMLScriptElement,"importShim",${JSON.stringify(importShim.url)});`,
+                content: `((o,r,n,s,e,p="loader")=>{n.supports&&n.supports("importmap")||(o[s]=(...n)=>new Promise((n,a)=>{r.head.appendChild(Object.assign(r.createElement("script"),{src:e,crossorigin:"anonymous",async:!0,onload(){o[s][p]?a(Error("["+s+" "+p+"] No "+s+" found: "+e)):n(o[s])},onerror:a}))}).then(o=>o(...n)),o[s][p]=!0)})(self,document,HTMLScriptElement,"importShim",${JSON.stringify(importShim.url)});`,
               },
             ]
           : []),
         {
           type: 'module',
-          content: [
-            'const m=[' + JSON.stringify(clientEntryModuleName) + '];',
-            'typeof importShim==="function"',
-            '?m.map(n=>importShim(n))',
-            ':m.map(n=>import(n))',
-          ].join(''),
+          content: `const m=[${JSON.stringify(clientEntryModuleName)}];typeof importShim==="function"?m.map(n=>importShim(n)):m.map(n=>import(n));`,
         },
       ],
     };
