@@ -539,6 +539,7 @@ function buildMeta(
       throw new Error(`No client entry found.`);
     }
 
+    const importShim = resolvedWebRouterConfig.importShim;
     const clientImportmapCode = JSON.stringify(clientImportmap);
     const clientEntryModuleName = base + asset.file;
     const clientEntryLinks = getLinks(
@@ -565,20 +566,20 @@ function buildMeta(
           type: 'importmap',
           content: clientImportmapCode,
         },
-        ...(resolvedWebRouterConfig.importShim.enabled
+        ...(importShim.enabled
           ? [
               {
-                content: `if(!HTMLScriptElement.supports||!HTMLScriptElement.supports("importmap")){self.importShim=function(){const esModuleShimUrl="${resolvedWebRouterConfig.importShim.url}";const promise=new Promise((resolve,reject)=>{document.head.appendChild(Object.assign(document.createElement("script"),{src:esModuleShimUrl,crossorigin:"anonymous",async:true,onload(){if(!importShim.$proxy){resolve(importShim)}else{reject(new Error("No globalThis.importShim found:"+esModuleShimUrl),)}},onerror(error){reject(error)},}),)});importShim.$proxy=true;return promise.then((importShim)=>importShim(...arguments))}}`,
+                content: `((w,d,h,i,u)=>{if(h.supports&&h.supports("importmap"))return;w[i]=(...a)=>new Promise((resolve,reject)=>{d.head.appendChild(Object.assign(d.createElement("script"),{src:u,crossorigin:"anonymous",async:true,onload(){!w[i].$p?resolve(w[i]):reject(new Error("[importShim loader] No importShim injected:"+u))},onerror(error){reject(error)}}))}).then((s)=>s(...a));w[i].$p=true})(self,document,HTMLScriptElement,"importShim",${JSON.stringify(importShim.url)});`,
               },
             ]
           : []),
         {
           type: 'module',
           content: [
-            'const modules=[' + JSON.stringify(clientEntryModuleName) + '];',
+            'const m=[' + JSON.stringify(clientEntryModuleName) + '];',
             'typeof importShim==="function"',
-            '?modules.map(moduleName=>importShim(moduleName))',
-            ':modules.map(moduleName=>import(moduleName))',
+            '?m.map(n=>importShim(n))',
+            ':m.map(n=>import(n))',
           ].join(''),
         },
       ],
