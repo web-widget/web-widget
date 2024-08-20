@@ -16,6 +16,9 @@ export default defineConfig({
       filesystemRouting: {
         enabled: true,
       },
+      importShim: {
+        enabled: true,
+      },
     }),
     [react(), reactWebWidgetPlugin()],
     [vuePlugin(), vueWebWidgetPlugin()],

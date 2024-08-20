@@ -23,6 +23,10 @@ export interface ResolvedWebRouterConfig {
     enabled: boolean;
     overridePathname: (pathname: string, source: RouteSourceFile) => string;
   };
+  importShim: {
+    enabled: boolean;
+    url: string;
+  };
   input: {
     client: {
       entry: string;

@@ -39,6 +39,10 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
     enabled: false,
     overridePathname: (pathname) => pathname,
   },
+  importShim: {
+    enabled: false,
+    url: 'https://ga.jspm.io/npm:es-module-shims@1.10.0/dist/es-module-shims.js',
+  },
   input: {
     client: {
       entry: 'entry.client',
@@ -109,6 +113,19 @@ export const WebRouterConfigSchema = z.object({
         .returns(z.string())
         .optional()
         .default(WEB_ROUTER_CONFIG_DEFAULTS.filesystemRouting.overridePathname),
+    })
+    .optional()
+    .default({}),
+  importShim: z
+    .object({
+      enabled: z
+        .boolean()
+        .optional()
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.importShim.enabled),
+      url: z
+        .string()
+        .optional()
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.importShim.url),
     })
     .optional()
     .default({}),

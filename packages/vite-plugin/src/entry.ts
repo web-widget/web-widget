@@ -13,6 +13,7 @@ import type {
   VitestEnvironment,
   InlineConfig as VitestInlineConfig,
 } from 'vitest/node';
+import type { Meta } from '@web-widget/helpers';
 import { CLIENT_MODULE, getLinks, getManifest } from './utils';
 import { importActionPlugin } from './import-action';
 import { parseWebRouterConfig } from './config';
@@ -75,7 +76,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     ssrBuild = !!(config.build?.ssr ?? ssr);
     const root = config.root || process.cwd();
     const assetsDir = config.build?.assetsDir ?? 'assets';
-    const target = getServerBuildTarget(config);
+    const target = config.ssr?.target ?? 'webworker';
 
     resolvedWebRouterConfig = parseWebRouterConfig(
       options,
@@ -517,18 +518,20 @@ function buildMeta(
 ): string {
   const entry = path.relative(root, resolvedWebRouterConfig.input.client.entry);
   if (dev) {
-    return [
-      `export const meta = {`,
-      // `  link: [{ rel: "dev:placeholder" }],`,
-      `  style: [{`,
-      `    content: "web-widget{display:contents}"`,
-      `  }],`,
-      `  script: [{`,
-      `    type: "module",`,
-      `    src: "${base}${entry}"`,
-      `  }]`,
-      `}`,
-    ].join('\n');
+    const meta: Meta = {
+      style: [
+        {
+          content: 'web-widget{display:contents}',
+        },
+      ],
+      script: [
+        {
+          type: 'module',
+          src: `${base}${entry}`,
+        },
+      ],
+    };
+    return `export const meta = ${JSON.stringify(meta, null, 2)};`;
   } else {
     const asset = viteManifest[entry];
 
@@ -538,40 +541,49 @@ function buildMeta(
 
     const clientImportmapCode = JSON.stringify(clientImportmap);
     const clientEntryModuleName = base + asset.file;
-    const clientEntryLink = getLinks(
+    const clientEntryLinks = getLinks(
       viteManifest,
       path.relative(root, resolvedWebRouterConfig.input.client.entry),
       base
     );
 
-    clientEntryLink.push({
+    clientEntryLinks.push({
       rel: 'modulepreload',
       href: clientEntryModuleName,
     });
 
-    return [
-      `export const meta = {`,
-      `  link: ${JSON.stringify(clientEntryLink)},`,
-      `  style: [{`,
-      `    content: "web-widget{display:contents}"`,
-      `  }],`,
-      `  script: [{`,
-      `    type: "importmap",`,
-      `    content: JSON.stringify(${clientImportmapCode})`,
-      `  }, {`,
-      `    type: "module",`,
-      `    content: [`,
-      `      'const modules = [${JSON.stringify(clientEntryModuleName)}];',`,
-      `      'typeof importShim === "function"',`,
-      `    '? modules.map(moduleName => importShim(moduleName))',`,
-      `    ': modules.map(moduleName => import(moduleName))'`,
-      `    ].join("")`,
-      `  }]`,
-      `}`,
-    ].join('\n');
-  }
-}
+    // TODO: Encode HTML string in ${variable}.
+    const meta: Meta = {
+      link: clientEntryLinks,
+      style: [
+        {
+          content: 'web-widget{display:contents}',
+        },
+      ],
+      script: [
+        {
+          type: 'importmap',
+          content: clientImportmapCode,
+        },
+        ...(resolvedWebRouterConfig.importShim.enabled
+          ? [
+              {
+                content: `if(!HTMLScriptElement.supports||!HTMLScriptElement.supports("importmap")){self.importShim=function(){const esModuleShimUrl="${resolvedWebRouterConfig.importShim.url}";const promise=new Promise((resolve,reject)=>{document.head.appendChild(Object.assign(document.createElement("script"),{src:esModuleShimUrl,crossorigin:"anonymous",async:true,onload(){if(!importShim.$proxy){resolve(importShim)}else{reject(new Error("No globalThis.importShim found:"+esModuleShimUrl),)}},onerror(error){reject(error)},}),)});importShim.$proxy=true;return promise.then((importShim)=>importShim(...arguments))}}`,
+              },
+            ]
+          : []),
+        {
+          type: 'module',
+          content: [
+            'const modules=[' + JSON.stringify(clientEntryModuleName) + '];',
+            'typeof importShim==="function"',
+            '?modules.map(moduleName=>importShim(moduleName))',
+            ':modules.map(moduleName=>import(moduleName))',
+          ].join(''),
+        },
+      ],
+    };
 
-function getServerBuildTarget(config: UserConfig) {
-  return config.ssr?.target ?? 'webworker';
+    return `export const meta = ${JSON.stringify(meta, null, 2)};`;
+  }
 }

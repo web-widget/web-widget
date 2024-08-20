@@ -63,6 +63,9 @@ export default defineConfig({
       filesystemRouting: {
         enabled: true,
       },
+      importShim: {
+        enabled: true,
+      },
     }),
     reactPresetsPlugin(),
     vuePresetsPlugin(),
