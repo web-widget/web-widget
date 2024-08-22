@@ -2,8 +2,16 @@
   "name": "@web-widget/web-widget",
   "description": "Web front-end application container",
   "version": "1.32.2",
-  "author": "aui",
-  "bugs": "https://github.com/web-widget/web-widget/issues",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/web-widget"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "license": "MIT",
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/lifecycle-cache": "workspace:*"
@@ -54,7 +62,6 @@
   "files": [
     "dist"
   ],
-  "homepage": "https://github.com/web-widget/web-widget#readme",
   "keywords": [
     "island",
     "shadow dom",
@@ -91,11 +98,6 @@
         "default": "./dist/web-widget.server.js"
       }
     }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/web-widget/web-widget.git",
-    "directory": "packages/web-widget"
   },
   "scripts": {
     "build": "pnpm exec tsup",

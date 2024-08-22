@@ -1,7 +1,17 @@
 {
   "name": "@examples/vue",
+  "description": "Vue demo based on @web-widget/web-router",
   "version": "0.0.0",
-  "author": "aui",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "examples/vue"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "license": "MIT",
   "dependencies": {
     "@web-widget/helpers": "^1.32.2",
     "@web-widget/html": "^1.32.2",

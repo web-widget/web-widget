@@ -1,6 +1,17 @@
 {
   "name": "@web-widget/lifecycle-cache",
+  "description": "End-to-end lifecycle caching",
   "version": "1.32.2",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/lifecycle-cache"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "license": "MIT",
   "dependencies": {
     "@web-widget/context": "workspace:*",
     "@web-widget/schema": "workspace:*"

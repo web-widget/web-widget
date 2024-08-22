@@ -1,6 +1,17 @@
 {
   "name": "@web-widget/node",
+  "description": "Node.js adapter",
   "version": "1.32.2",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/node"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "license": "MIT",
   "dependencies": {
     "@edge-runtime/node-utils": "^2.3.0",
     "@edge-runtime/primitives": "^4.1.0"

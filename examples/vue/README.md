@@ -1,6 +1,6 @@
 # Examples
 
-This template integrates React and Vue.
+This template integrates Vue and React.
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)
 
