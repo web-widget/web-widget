@@ -55,7 +55,7 @@ exports[`Should match snapshot > Request "/action" should match snapshot > /acti
         <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script id="state:web-router" type="application/json">{"pathname":"/action","params":{}}</script>
       </head>
       <body>
-        <header class="_header_d366fc"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/fetch">Fetching data</a></li><li><a href="/greet/web-widget">Dynamic routes</a></li><li><a href="/action">Server actions</a></li></ul></nav></header><main class="_main_d366fc"><h1>Server action</h1><!--$--><web-widget import="/routes/action/Echo@widget.tsx" name="Echo" loading="lazy" rendertarget="light" recovering=""><input type="text" value=""/><button>echo</button></web-widget><!--/$--></main><footer class="_footer_d366fc"><p>This is a footer</p></footer>
+        <header class="_header_d366fc"><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/fetch">Fetching data</a></li><li><a href="/greet/web-widget">Dynamic routes</a></li><li><a href="/action">Server actions</a></li></ul></nav></header><main class="_main_d366fc"><h1>Server actions</h1><!--$--><web-widget import="/routes/action/Echo@widget.tsx" name="Echo" loading="lazy" rendertarget="light" recovering=""><input type="text" value=""/><button>echo</button></web-widget><!--/$--></main><footer class="_footer_d366fc"><p>This is a footer</p></footer>
       </body>
     </html>"
 `;
