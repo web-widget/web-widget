@@ -1,6 +1,17 @@
 {
   "name": "@web-widget/helpers",
+  "description": "Helper functions that can be run on both the server and the client",
   "version": "1.32.2",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/helpers"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "license": "MIT",
   "dependencies": {
     "@edge-runtime/cookies": "^4.0.3",
     "@edge-runtime/user-agent": "^1.4.1",

@@ -1,6 +1,17 @@
 {
   "name": "@web-widget/action",
+  "description": "This is the built-in JSON RPC implementation of @web-widget/web-router",
   "version": "1.32.2",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/action"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "license": "MIT",
   "dependencies": {},
   "devDependencies": {
     "@jest/globals": "catalog:",

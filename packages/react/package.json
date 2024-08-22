@@ -1,6 +1,17 @@
 {
   "name": "@web-widget/react",
+  "description": "React adapter",
   "version": "1.32.2",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "license": "MIT",
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/vite-plugin": "workspace:*",

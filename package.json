@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.7",
-    "@web-widget/eslint-config": "workspace:*",
+    "@internal/eslint-config": "workspace:*",
     "c8": "latest",
     "finepack": "latest",
     "git-authors-cli": "latest",
@@ -87,5 +87,6 @@
   },
   "simple-git-hooks": {
     "pre-commit": "./node_modules/.bin/nano-staged"
-  }
+  },
+  "type": "module"
 }

@@ -1,6 +1,17 @@
 {
   "name": "@web-widget/schema",
+  "description": "Web Widget and Web Router module format standard definitions",
   "version": "1.32.2",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/schema"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "license": "MIT",
   "dependencies": {},
   "devDependencies": {
     "typescript": "catalog:"

@@ -1,5 +1,5 @@
 {
-  "name": "@web-widget/eslint-config",
+  "name": "@internal/eslint-config",
   "version": "0.0.0",
   "dependencies": {
     "@babel/eslint-parser": "^7.22.9",
