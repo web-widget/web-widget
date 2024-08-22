@@ -1,5 +1,18 @@
 # @web-widget/vite-plugin
 
+## 1.33.0
+
+### Minor Changes
+
+- 2d993c5: Optimizing client assets.
+
+### Patch Changes
+
+- @web-widget/helpers@1.33.0
+- @web-widget/node@1.33.0
+- @web-widget/web-router@1.33.0
+- @web-widget/web-widget@1.33.0
+
 ## 1.32.2
 
 ### Patch Changes
