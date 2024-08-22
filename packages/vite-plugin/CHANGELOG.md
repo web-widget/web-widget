@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.33.1
+
+### Patch Changes
+
+- b76489e: Fixed an issue where client assets could be lost.
+  - @web-widget/helpers@1.33.1
+  - @web-widget/node@1.33.1
+  - @web-widget/web-router@1.33.1
+  - @web-widget/web-widget@1.33.1
+
 ## 1.33.0
 
 ### Minor Changes
