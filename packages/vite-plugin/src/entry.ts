@@ -8,7 +8,7 @@ import type {
   Manifest as ViteManifest,
 } from 'vite';
 import { build } from 'vite';
-import { nodeExternals } from 'rollup-plugin-node-externals';
+// import { nodeExternals } from 'rollup-plugin-node-externals';
 import type {
   VitestEnvironment,
   InlineConfig as VitestInlineConfig,
@@ -355,14 +355,14 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     webRouterPreviewServerPlugin(),
     importActionPlugin(),
 
-    nodeExternals({
-      builtins: true,
-      builtinsPrefix: 'add',
-      deps: false,
-      devDeps: false,
-      peerDeps: false,
-      optDeps: false,
-    }) as Plugin,
+    // nodeExternals({
+    //   builtins: true,
+    //   builtinsPrefix: 'add',
+    //   deps: false,
+    //   devDeps: false,
+    //   peerDeps: false,
+    //   optDeps: false,
+    // }) as Plugin,
   ];
 }
 
@@ -377,7 +377,13 @@ function resolveRoutemapEntryPoints(
   root: string,
   serverBuild: boolean
 ): BuildEntryPoints {
-  const clientTypes: (keyof RouteMap)[] = ['routes', 'actions'];
+  // NOTE: .css or .widget files may be imported by server-side modules.
+  const clientTypes: (keyof RouteMap)[] = [
+    'routes',
+    'actions',
+    'fallbacks',
+    'layout',
+  ];
   const serverTypes: (keyof RouteMap)[] = [
     'routes',
     'actions',
@@ -385,7 +391,7 @@ function resolveRoutemapEntryPoints(
     'fallbacks',
     'layout',
   ];
-  const temporaryTypes = serverBuild ? [] : ['routes'];
+  const temporaryTypes = serverBuild ? [] : ['routes', 'fallbacks', 'layout'];
   const currentTypes = serverBuild ? serverTypes : clientTypes;
   const points: Record<string, string> = Object.create(null);
   const exposures: Set<string> = new Set();
