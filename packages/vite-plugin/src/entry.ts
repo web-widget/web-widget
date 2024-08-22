@@ -14,7 +14,7 @@ import type {
   InlineConfig as VitestInlineConfig,
 } from 'vitest/node';
 import type { Meta } from '@web-widget/helpers';
-import { CLIENT_MODULE, getLinks, getManifest } from './utils';
+import { getLinks, getManifest } from './utils';
 import { importActionPlugin } from './import-action';
 import { parseWebRouterConfig } from './config';
 import { webRouterDevServerPlugin } from './dev';
@@ -65,7 +65,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
   let base: string;
   let dev: boolean;
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;
-  let serverRoutemapEntryPoints: EntryPoints;
+  let serverRoutemapEntryPoints: BuildEntryPoints;
   let ssrBuild: boolean;
   let rawUserConfig: UserConfig;
 
@@ -91,7 +91,8 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     serverRoutemapEntryPoints = resolveRoutemapEntryPoints(
       serverRoutemap,
       serverRoutemapPath,
-      root
+      root,
+      ssrBuild
     );
 
     const test = config.test;
@@ -138,11 +139,11 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
         rollupOptions: {
           input: ssrBuild
             ? {
-                ...serverRoutemapEntryPoints,
+                ...serverRoutemapEntryPoints.points,
                 [ENTRY_ID]: resolvedWebRouterConfig.input.server.entry,
               }
             : {
-                ...serverRoutemapEntryPoints,
+                ...serverRoutemapEntryPoints.points,
                 [ENTRY_ID]: resolvedWebRouterConfig.input.client.entry,
               },
           preserveEntrySignatures: 'exports-only',
@@ -322,9 +323,10 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
             if (
               type === 'chunk' &&
               chunk.isEntry &&
-              Reflect.has(serverRoutemapEntryPoints, chunk.name) &&
-              serverRoutemapEntryPoints[chunk.name] === chunk.facadeModuleId &&
-              !chunk.code.includes(CLIENT_MODULE)
+              Reflect.has(serverRoutemapEntryPoints.points, chunk.name) &&
+              serverRoutemapEntryPoints.points[chunk.name] ===
+                chunk.facadeModuleId &&
+              !serverRoutemapEntryPoints.exposures.has(chunk.name)
             ) {
               // NOTE: Exposing the server module to the client will cause security risks.
               chunk.code = 'throw new Error(`Only works on the server side.`);';
@@ -351,7 +353,6 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
 
     webRouterDevServerPlugin(),
     webRouterPreviewServerPlugin(),
-
     importActionPlugin(),
 
     nodeExternals({
@@ -365,16 +366,31 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
   ];
 }
 
-type EntryPoints = Record<string, string>;
+type BuildEntryPoints = {
+  points: Record<string, string>;
+  exposures: Set<string>;
+};
 
 function resolveRoutemapEntryPoints(
   manifest: RouteMap,
   routemapPath: string,
-  root: string
-): EntryPoints {
-  const entryPoints: EntryPoints = Object.create(null);
-  const setEntrypoint = (file: string) => {
-    const modulePath = path.resolve(path.dirname(routemapPath), file);
+  root: string,
+  serverBuild: boolean
+): BuildEntryPoints {
+  const clientTypes: (keyof RouteMap)[] = ['routes', 'actions'];
+  const serverTypes: (keyof RouteMap)[] = [
+    'routes',
+    'actions',
+    'middlewares',
+    'fallbacks',
+    'layout',
+  ];
+  const temporaryTypes = serverBuild ? [] : ['routes'];
+  const currentTypes = serverBuild ? serverTypes : clientTypes;
+  const points: Record<string, string> = Object.create(null);
+  const exposures: Set<string> = new Set();
+  const add = (type: string, module: string) => {
+    const modulePath = path.resolve(path.dirname(routemapPath), module);
     const basename = path
       .relative(
         root,
@@ -386,24 +402,34 @@ function resolveRoutemapEntryPoints(
       .split(path.sep)
       .join('-');
 
-    if (entryPoints[basename]) {
+    if (points[basename]) {
       throw new Error('Duplicate entry point: ' + basename);
     }
 
-    entryPoints[basename] = modulePath;
+    points[basename] = modulePath;
+
+    if (!temporaryTypes.includes(type)) {
+      exposures.add(basename);
+    }
   };
 
-  for (const value of Object.values(manifest)) {
+  for (const type of currentTypes) {
+    const value = manifest[type];
     if (Array.isArray(value)) {
       for (const mod of value) {
-        mod.module && setEntrypoint(mod.module);
+        if (typeof mod === 'object' && mod.module) {
+          add(type, mod.module);
+        }
       }
-    } else {
-      value.module && setEntrypoint(value.module);
+    } else if (typeof value === 'object' && value.module) {
+      add(type, value.module);
     }
   }
 
-  return entryPoints;
+  return {
+    points,
+    exposures,
+  };
 }
 
 // https://developer.mozilla.org/docs/Web/JavaScript/Guide/Regular_expressions#escaping
