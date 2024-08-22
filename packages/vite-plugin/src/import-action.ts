@@ -2,11 +2,7 @@ import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import type { Plugin } from 'vite';
 import type { ExportSpecifier } from 'es-module-lexer';
-import {
-  CLIENT_MODULE,
-  getWebRouterPluginApi,
-  relativePathWithDot,
-} from './utils';
+import { getWebRouterPluginApi, relativePathWithDot } from './utils';
 
 export interface ImportActionPluginOptions {
   cache?: Set<string>;
@@ -116,7 +112,6 @@ export function importActionPlugin(
       }
 
       let content =
-        `${CLIENT_MODULE}\n` +
         `import { rpcClient } from "@web-widget/helpers/action";\n` +
         `const $exports = /* @__PURE__ */ rpcClient(${JSON.stringify(url)})`;
 

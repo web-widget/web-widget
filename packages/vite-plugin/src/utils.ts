@@ -209,5 +209,3 @@ function getLink(
 
   return null;
 }
-
-export const CLIENT_MODULE = `/*! action client */`;
