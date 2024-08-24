@@ -8,9 +8,9 @@ import type {
   Plugin,
   Manifest as ViteManifest,
 } from 'vite';
-import { getManifest, getWebRouterPluginApi } from './utils';
+import { getManifest, getWebRouterPluginApi, normalizePath } from './utils';
 
-export const ASSET_PROTOCOL = 'asset:';
+const ASSET_PROTOCOL = 'asset:';
 const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
 const ASSET_PLACEHOLDER = `${ASSET_PROTOCOL}//`;
 
@@ -198,7 +198,7 @@ export function importRenderPlugin({
             return;
           }
 
-          const asset = path.relative(root, moduleId);
+          const asset = normalizePath(path.relative(root, moduleId));
           const clientModuleId = dev
             ? base + asset
             : ssr
@@ -206,7 +206,7 @@ export function importRenderPlugin({
               : this.emitFile({
                   type: 'chunk',
                   id: moduleId,
-                  preserveSignature: 'allow-extension', // "strict",
+                  preserveSignature: 'allow-extension',
                   importer: id,
                 });
 

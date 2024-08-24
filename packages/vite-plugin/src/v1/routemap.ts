@@ -1,9 +1,8 @@
 import path from 'node:path';
 import type { EmittedFile, OutputBundle, OutputChunk } from 'rollup';
 import type { Manifest as ViteManifest } from 'vite';
-import { normalizePath } from 'vite';
-import { getLinks } from '../utils';
-import type { ResolvedWebRouterConfig, RouteMap } from '../types';
+import { getLinks, normalizePath } from '@/utils';
+import type { ResolvedWebRouterConfig, RouteMap } from '@/types';
 
 type Imports = Record<string, string>;
 type Scopes = Record<string, Imports>;

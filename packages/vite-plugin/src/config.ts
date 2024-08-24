@@ -46,17 +46,17 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
   input: {
     client: {
       entry: 'entry.client',
-      importmap: 'importmap.client',
+      importmap: 'importmap.client.json',
     },
     server: {
       entry: 'entry.server',
-      routemap: 'routemap.server',
+      routemap: 'routemap.server.json',
     },
   },
   output: {
     client: 'client',
     dir: 'dist',
-    manifest: 'manifest.json',
+    manifest: '.manifest.json',
     server: 'server',
   },
 };

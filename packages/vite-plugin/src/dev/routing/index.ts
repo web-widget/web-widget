@@ -1,11 +1,10 @@
 import fs from 'node:fs/promises';
 import type { FSWatcher } from 'vite';
-import { normalizePath } from '@rollup/pluginutils';
 import { walkRoutes } from './walk-routes-dir';
 import { pathToPattern, sortRoutePaths } from './extract';
 import type { RouteSourceFile, OverridePathname } from './types';
 import type { RouteMap } from '@/types';
-import { relativePathWithDot } from '@/utils';
+import { relativePathWithDot, normalizePath } from '@/utils';
 
 export interface FileSystemRouteGeneratorOptions {
   basePathname: string;

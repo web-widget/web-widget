@@ -14,11 +14,11 @@ import type {
   InlineConfig as VitestInlineConfig,
 } from 'vitest/node';
 import type { Meta } from '@web-widget/helpers';
-import { getLinks, getManifest } from './utils';
+import { getLinks, getManifest, normalizePath } from './utils';
 import { importActionPlugin } from './import-action';
 import { parseWebRouterConfig } from './config';
 import { webRouterDevServerPlugin } from './dev';
-import { WEB_ROUTER_PLUGIN_NAME } from './constants';
+import { SOURCE_PROTOCOL, WEB_ROUTER_PLUGIN_NAME } from './constants';
 import { generateServerRoutemap } from './v1/routemap';
 import type {
   ResolvedWebRouterConfig,
@@ -146,31 +146,35 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
                 ...serverRoutemapEntryPoints.points,
                 [ENTRY_ID]: resolvedWebRouterConfig.input.client.entry,
               },
-          preserveEntrySignatures: 'exports-only',
+          preserveEntrySignatures: 'allow-extension',
           treeshake: config.build?.rollupOptions?.treeshake ?? true,
           external: ssrBuild
             ? (builtins as string[])
             : Object.keys(clientImportmap?.imports ?? []),
-          output: ssrBuild
-            ? {
-                entryFileNames(chunkInfo) {
-                  if (
-                    resolvedWebRouterConfig.entryFormatVersion === 2 &&
-                    chunkInfo.name === ENTRY_ID
-                  ) {
-                    return `${SERVER_ENTRY_OUTPUT_NAME}.js`;
-                  }
-                  return `${assetsDir}/[name].js`;
-                },
-                assetFileNames: `${assetsDir}/[name][extname]`,
-                chunkFileNames: `${assetsDir}/[name].js`,
-              }
-            : {
-                //hoistTransitiveImports: false,
-                entryFileNames: `${assetsDir}/[name]-[hash].js`,
-                assetFileNames: `${assetsDir}/[name]-[hash][extname]`,
-                chunkFileNames: `${assetsDir}/[name]-[hash].js`,
-              },
+          output: {
+            // NOTE: The `preserveModules` option causes build artifacts to reference
+            // external modules using relative paths, rather than bare module names.
+            // preserveModules: true,
+            ...(ssrBuild
+              ? {
+                  entryFileNames(chunkInfo) {
+                    if (
+                      resolvedWebRouterConfig.entryFormatVersion === 2 &&
+                      chunkInfo.name === ENTRY_ID
+                    ) {
+                      return `${SERVER_ENTRY_OUTPUT_NAME}.js`;
+                    }
+                    return `${assetsDir}/[name].js`;
+                  },
+                  assetFileNames: `${assetsDir}/[name][extname]`,
+                  chunkFileNames: `${assetsDir}/[name].js`,
+                }
+              : {
+                  entryFileNames: `${assetsDir}/[name]-[hash].js`,
+                  assetFileNames: `${assetsDir}/[name]-[hash][extname]`,
+                  chunkFileNames: `${assetsDir}/[name]-[hash].js`,
+                }),
+          },
         },
       },
       test: test
@@ -320,13 +324,13 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
           Object.keys(bundle).forEach((fileName) => {
             const chunk = bundle[fileName];
             const type = chunk.type;
+            const name = chunk.name ? normalizePath(chunk.name) : '';
             if (
               type === 'chunk' &&
               chunk.isEntry &&
-              Reflect.has(serverRoutemapEntryPoints.points, chunk.name) &&
-              serverRoutemapEntryPoints.points[chunk.name] ===
-                chunk.facadeModuleId &&
-              !serverRoutemapEntryPoints.exposures.has(chunk.name)
+              Reflect.has(serverRoutemapEntryPoints.points, name) &&
+              serverRoutemapEntryPoints.points[name] === chunk.facadeModuleId &&
+              !serverRoutemapEntryPoints.exposures.has(name)
             ) {
               // NOTE: Exposing the server module to the client will cause security risks.
               chunk.code = 'throw new Error(`Only works on the server side.`);';
@@ -397,16 +401,21 @@ function resolveRoutemapEntryPoints(
   const exposures: Set<string> = new Set();
   const add = (type: string, module: string) => {
     const modulePath = path.resolve(path.dirname(routemapPath), module);
-    const basename = path
-      .relative(
-        root,
-        modulePath.slice(0, modulePath.length - path.extname(modulePath).length)
-      )
-      .replace(/^(routes|pages|src|app)[/\\]/g, '')
-      // NOTE: Rollup's OutputChunk["name"] object will replace `[` and `]`.
-      .replace(/\[|\]/g, '_')
-      .split(path.sep)
-      .join('-');
+    const basename = normalizePath(
+      path
+        .relative(
+          root,
+          modulePath.slice(
+            0,
+            modulePath.length - path.extname(modulePath).length
+          )
+        )
+        .replace(/^(routes|pages|src|app)[/\\]/g, '')
+        .split(path.sep)
+        .join('.')
+        // NOTE: Rollup's OutputChunk["name"] object will replace `[` and `]`.
+        .replace(/[^a-zA-Z0-9@_.-]+/g, '_')
+    );
 
     if (points[basename]) {
       throw new Error('Duplicate entry point: ' + basename);
@@ -488,7 +497,7 @@ function buildManifest(
         const source = item.module;
         if (source) {
           item.module = async () => ({
-            $source: "source://" + path.relative(${sRoot}, path.resolve(${sDirname}, source)),
+            $source: "${SOURCE_PROTOCOL}//" + path.relative(${sRoot}, path.resolve(${sDirname}, source)),
             ...(await import(/* @vite-ignore */ source)),
           });
         }
@@ -548,7 +557,9 @@ function buildMeta(
   resolvedWebRouterConfig: ResolvedWebRouterConfig,
   dev: boolean
 ): string {
-  const entry = path.relative(root, resolvedWebRouterConfig.input.client.entry);
+  const entry = normalizePath(
+    path.relative(root, resolvedWebRouterConfig.input.client.entry)
+  );
   if (dev) {
     const meta: Meta = {
       style: [
@@ -574,11 +585,7 @@ function buildMeta(
     const importShim = resolvedWebRouterConfig.importShim;
     const clientImportmapCode = JSON.stringify(clientImportmap);
     const clientEntryModuleName = base + asset.file;
-    const clientEntryLinks = getLinks(
-      viteManifest,
-      path.relative(root, resolvedWebRouterConfig.input.client.entry),
-      base
-    );
+    const clientEntryLinks = getLinks(viteManifest, entry, base);
 
     clientEntryLinks.push({
       rel: 'modulepreload',

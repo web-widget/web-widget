@@ -3,7 +3,12 @@ import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin, Manifest as ViteManifest } from 'vite';
-import { getLinks, getManifest, getWebRouterPluginApi } from './utils';
+import {
+  getLinks,
+  getManifest,
+  getWebRouterPluginApi,
+  normalizePath,
+} from './utils';
 
 const alias = (name: string) => `__$${name}$__`;
 
@@ -148,7 +153,7 @@ export function exportRenderPlugin({
         }
 
         const magicString = new MagicString(code);
-        const fileName = path.relative(root, id);
+        const fileName = normalizePath(path.relative(root, id));
         const meta = {
           link: getLinks(manifest, fileName, base, false),
         };

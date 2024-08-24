@@ -10,13 +10,15 @@ import { getMeta } from './meta';
 import { fileSystemRouteGenerator } from './routing';
 import { viteWebRouterMiddlewareV1 } from '@/v1/router';
 import type { ResolvedWebRouterConfig } from '@/types';
-import { getWebRouterPluginApi } from '@/utils';
+import { getWebRouterPluginApi, normalizePath } from '@/utils';
+import { SOURCE_PROTOCOL } from '@/constants';
 
 export function webRouterDevServerPlugin(
   options?: ResolvedWebRouterConfig
 ): Plugin {
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;
   let root: string;
+  let base: string;
   return {
     name: '@web-widget:dev',
     enforce: 'pre',
@@ -30,6 +32,7 @@ export function webRouterDevServerPlugin(
 
     async configResolved(config) {
       root = config.root;
+      base = config.base;
 
       if (options) {
         resolvedWebRouterConfig = options;
@@ -108,10 +111,12 @@ export function webRouterDevServerPlugin(
               attrs: {
                 type: 'module',
                 src:
-                  '/' +
-                  path.relative(
-                    root,
-                    resolvedWebRouterConfig.input.client.entry
+                  base +
+                  normalizePath(
+                    path.relative(
+                      root,
+                      resolvedWebRouterConfig.input.client.entry
+                    )
                   ),
               },
             },
@@ -200,7 +205,7 @@ async function viteWebRouterMiddlewareV2(
           if (currentModule) {
             const source = path.join(
               root,
-              currentModule.replace('source://', '')
+              currentModule.replace(`${SOURCE_PROTOCOL}//`, '')
             );
             const html = await res.text();
             const meta = await getMeta(source, viteServer);
