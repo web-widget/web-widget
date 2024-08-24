@@ -206,7 +206,7 @@ export function importRenderPlugin({
               : this.emitFile({
                   type: 'chunk',
                   id: moduleId,
-                  preserveSignature: 'exports-only',
+                  preserveSignature: 'allow-extension',
                   importer: id,
                 });
 

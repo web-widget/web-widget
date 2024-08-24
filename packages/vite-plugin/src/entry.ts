@@ -146,7 +146,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
                 ...serverRoutemapEntryPoints.points,
                 [ENTRY_ID]: resolvedWebRouterConfig.input.client.entry,
               },
-          preserveEntrySignatures: 'exports-only',
+          preserveEntrySignatures: 'allow-extension',
           treeshake: config.build?.rollupOptions?.treeshake ?? true,
           external: ssrBuild
             ? (builtins as string[])
@@ -407,10 +407,10 @@ function resolveRoutemapEntryPoints(
           )
         )
         .replace(/^(routes|pages|src|app)[/\\]/g, '')
-        // NOTE: Rollup's OutputChunk["name"] object will replace `[` and `]`.
-        .replace(/\[|\]/g, '$')
         .split(path.sep)
-        .join('-')
+        .join('.')
+        // NOTE: Rollup's OutputChunk["name"] object will replace `[` and `]`.
+        .replace(/[^a-zA-Z0-9@_.-]+/g, '_')
     );
 
     if (points[basename]) {
