@@ -1,6 +1,10 @@
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { createFilter, type FilterPattern } from '@rollup/pluginutils';
+import {
+  createFilter,
+  normalizePath,
+  type FilterPattern,
+} from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type {
@@ -10,7 +14,7 @@ import type {
 } from 'vite';
 import { getManifest, getWebRouterPluginApi } from './utils';
 
-export const ASSET_PROTOCOL = 'asset:';
+const ASSET_PROTOCOL = 'asset:';
 const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
 const ASSET_PLACEHOLDER = `${ASSET_PROTOCOL}//`;
 
@@ -198,7 +202,7 @@ export function importRenderPlugin({
             return;
           }
 
-          const asset = path.relative(root, moduleId);
+          const asset = normalizePath(path.relative(root, moduleId));
           const clientModuleId = dev
             ? base + asset
             : ssr
@@ -206,7 +210,7 @@ export function importRenderPlugin({
               : this.emitFile({
                   type: 'chunk',
                   id: moduleId,
-                  preserveSignature: 'allow-extension', // "strict",
+                  preserveSignature: 'exports-only',
                   importer: id,
                 });
 
