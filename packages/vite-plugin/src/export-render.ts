@@ -1,13 +1,14 @@
 import path from 'node:path';
-import {
-  createFilter,
-  normalizePath,
-  type FilterPattern,
-} from '@rollup/pluginutils';
+import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin, Manifest as ViteManifest } from 'vite';
-import { getLinks, getManifest, getWebRouterPluginApi } from './utils';
+import {
+  getLinks,
+  getManifest,
+  getWebRouterPluginApi,
+  normalizePath,
+} from './utils';
 
 const alias = (name: string) => `__$${name}$__`;
 

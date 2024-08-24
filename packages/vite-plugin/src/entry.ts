@@ -14,7 +14,7 @@ import type {
   InlineConfig as VitestInlineConfig,
 } from 'vitest/node';
 import type { Meta } from '@web-widget/helpers';
-import { getLinks, getManifest } from './utils';
+import { getLinks, getManifest, normalizePath } from './utils';
 import { importActionPlugin } from './import-action';
 import { parseWebRouterConfig } from './config';
 import { webRouterDevServerPlugin } from './dev';
@@ -28,7 +28,6 @@ import type {
   WebRouterUserConfig,
 } from './types';
 import { webRouterPreviewServerPlugin } from './preview';
-import { normalizePath } from '@rollup/pluginutils';
 
 interface VitestUserConfig extends UserConfig {
   /**

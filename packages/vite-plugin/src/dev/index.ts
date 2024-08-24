@@ -10,8 +10,7 @@ import { getMeta } from './meta';
 import { fileSystemRouteGenerator } from './routing';
 import { viteWebRouterMiddlewareV1 } from '@/v1/router';
 import type { ResolvedWebRouterConfig } from '@/types';
-import { getWebRouterPluginApi } from '@/utils';
-import { normalizePath } from '@rollup/pluginutils';
+import { getWebRouterPluginApi, normalizePath } from '@/utils';
 import { SOURCE_PROTOCOL } from '@/constants';
 
 export function webRouterDevServerPlugin(

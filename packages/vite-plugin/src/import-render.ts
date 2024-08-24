@@ -1,10 +1,6 @@
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import {
-  createFilter,
-  normalizePath,
-  type FilterPattern,
-} from '@rollup/pluginutils';
+import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type {
@@ -12,7 +8,7 @@ import type {
   Plugin,
   Manifest as ViteManifest,
 } from 'vite';
-import { getManifest, getWebRouterPluginApi } from './utils';
+import { getManifest, getWebRouterPluginApi, normalizePath } from './utils';
 
 const ASSET_PROTOCOL = 'asset:';
 const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
