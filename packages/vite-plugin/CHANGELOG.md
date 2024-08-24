@@ -1,5 +1,18 @@
 # @web-widget/vite-plugin
 
+## 1.33.2
+
+### Patch Changes
+
+- b267aa6: Normalized Path.
+
+  `importmap` and `routemap` are limited to json files.
+
+  - @web-widget/helpers@1.33.2
+  - @web-widget/node@1.33.2
+  - @web-widget/web-router@1.33.2
+  - @web-widget/web-widget@1.33.2
+
 ## 1.33.1
 
 ### Patch Changes

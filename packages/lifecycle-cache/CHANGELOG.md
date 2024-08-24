@@ -1,5 +1,12 @@
 # @web-widget/lifecycle-cache
 
+## 1.33.2
+
+### Patch Changes
+
+- @web-widget/context@1.33.2
+- @web-widget/schema@1.33.2
+
 ## 1.33.1
 
 ### Patch Changes
