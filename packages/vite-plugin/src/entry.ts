@@ -151,26 +151,30 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
           external: ssrBuild
             ? (builtins as string[])
             : Object.keys(clientImportmap?.imports ?? []),
-          output: ssrBuild
-            ? {
-                entryFileNames(chunkInfo) {
-                  if (
-                    resolvedWebRouterConfig.entryFormatVersion === 2 &&
-                    chunkInfo.name === ENTRY_ID
-                  ) {
-                    return `${SERVER_ENTRY_OUTPUT_NAME}.js`;
-                  }
-                  return `${assetsDir}/[name].js`;
-                },
-                assetFileNames: `${assetsDir}/[name][extname]`,
-                chunkFileNames: `${assetsDir}/[name].js`,
-              }
-            : {
-                //hoistTransitiveImports: false,
-                entryFileNames: `${assetsDir}/[name]-[hash].js`,
-                assetFileNames: `${assetsDir}/[name]-[hash][extname]`,
-                chunkFileNames: `${assetsDir}/[name]-[hash].js`,
-              },
+          output: {
+            // NOTE: The `preserveModules` option causes build artifacts to reference
+            // external modules using relative paths, rather than bare module names.
+            // preserveModules: true,
+            ...(ssrBuild
+              ? {
+                  entryFileNames(chunkInfo) {
+                    if (
+                      resolvedWebRouterConfig.entryFormatVersion === 2 &&
+                      chunkInfo.name === ENTRY_ID
+                    ) {
+                      return `${SERVER_ENTRY_OUTPUT_NAME}.js`;
+                    }
+                    return `${assetsDir}/[name].js`;
+                  },
+                  assetFileNames: `${assetsDir}/[name][extname]`,
+                  chunkFileNames: `${assetsDir}/[name].js`,
+                }
+              : {
+                  entryFileNames: `${assetsDir}/[name]-[hash].js`,
+                  assetFileNames: `${assetsDir}/[name]-[hash][extname]`,
+                  chunkFileNames: `${assetsDir}/[name]-[hash].js`,
+                }),
+          },
         },
       },
       test: test
