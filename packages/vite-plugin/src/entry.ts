@@ -570,7 +570,9 @@ function buildMeta(
       script: [
         {
           type: 'module',
-          src: `${base}${entry}`,
+          // src: `${base}${entry}`,
+          // NOTE: Vite DevServer will add base to the output HTML, so there is no need to add it here
+          src: entry,
         },
       ],
     };

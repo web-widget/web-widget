@@ -9,7 +9,7 @@ import { WEB_ROUTER_PLUGIN_NAME } from './constants';
 import type { ResolvedWebRouterConfig, WebRouterPlugin } from './types';
 
 /**
- * Extracts all import names for an already parsed files
+ * Extracts all import names for an already parsed files.
  */
 export function importsToImportNames(
   imports: Iterable<ImportSpecifier>,
@@ -180,27 +180,29 @@ function getLink(
   base: string,
   fetchpriority: 'low' | 'high' | 'auto'
 ): LinkDescriptor | null {
-  if (fileName.endsWith('.js')) {
+  const ext = path.extname(fileName);
+  if (ext === '.js') {
     return {
       fetchpriority,
       href: rebase(fileName, base),
       rel: 'modulepreload',
     };
-  } else if (fileName.endsWith('.css')) {
+  }
+
+  if (ext === '.css') {
     return {
       href: rebase(fileName, base),
       rel: 'stylesheet',
     };
   }
 
-  const ext = path.extname(fileName);
-  const type = mime.lookup(ext);
-  const asValue = type ? type.split('/')[0] : '';
+  const type = mime.lookup(ext) || '';
+  const assertedType = type.split('/')[0] ?? '';
 
-  if (type && ['image', 'font'].includes(asValue)) {
+  if (['image', 'font'].includes(assertedType)) {
     return {
-      as: asValue,
-      ...(asValue === 'font' ? { crossorigin: '' } : {}),
+      as: assertedType,
+      ...(assertedType === 'font' ? { crossorigin: '' } : {}),
       href: rebase(fileName, base),
       rel: 'preload',
       type,

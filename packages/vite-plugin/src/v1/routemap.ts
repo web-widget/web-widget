@@ -40,7 +40,9 @@ export function generateServerRoutemap(
   function getClientEntryAssent() {
     const asset =
       viteManifest[
-        path.relative(root, resolvedWebRouterConfig.input.client.entry)
+        normalizePath(
+          path.relative(root, resolvedWebRouterConfig.input.client.entry)
+        )
       ];
 
     if (!asset) {
@@ -64,7 +66,7 @@ export function generateServerRoutemap(
       moduleName
     );
     const fileName = path.relative(root, moduleId);
-    const chunk = routeModuleMap.get(fileName);
+    const chunk = routeModuleMap.get(normalizePath(fileName));
 
     if (!chunk || chunk.type !== 'chunk' || !chunk.isEntry) {
       throw new Error(
@@ -74,7 +76,7 @@ export function generateServerRoutemap(
       );
     }
 
-    const source = './' + chunk.fileName;
+    const source = './' + normalizePath(chunk.fileName);
     imports.push(source);
 
     return source;
@@ -144,12 +146,15 @@ export function generateServerRoutemap(
     root,
     resolvedWebRouterConfig.input.server.entry
   );
-  const entryModuleName = './' + routeModuleMap.get(entryFileName).fileName;
+  const entryModuleName =
+    './' + routeModuleMap.get(normalizePath(entryFileName)).fileName;
   const clientImportmapCode = JSON.stringify(clientImportmap);
   const clientEntryModuleName = base + getClientEntryAssent().file;
   const clientEntryLink = getLinks(
     viteManifest,
-    path.relative(root, resolvedWebRouterConfig.input.client.entry),
+    normalizePath(
+      path.relative(root, resolvedWebRouterConfig.input.client.entry)
+    ),
     base
   );
 
