@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { createRequire } from 'node:module';
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
@@ -8,7 +7,12 @@ import type {
   Plugin,
   Manifest as ViteManifest,
 } from 'vite';
-import { getManifest, getWebRouterPluginApi, normalizePath } from './utils';
+import {
+  getManifest,
+  getWebRouterPluginApi,
+  normalizePath,
+  packageToDevUrl,
+} from './utils';
 
 const ASSET_PROTOCOL = 'asset:';
 const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
@@ -17,7 +21,6 @@ const ASSET_PLACEHOLDER = `${ASSET_PROTOCOL}//`;
 let index = 0;
 const alias = (name: string) => `__$${name}${index++}$__`;
 const globalCache: Set<string> = new Set();
-const require = createRequire(import.meta.url);
 
 const IMPORT_DEFAULT_NAME_REG = /import\s+([a-zA-Z_$][\w$]*)\s+/;
 const parseComponentName = (code: string) =>
@@ -96,8 +99,7 @@ export function importRenderPlugin({
         }
 
         if (dev && !html.includes(`id="${inspectorId}"`)) {
-          const id = require.resolve('@web-widget/web-widget/inspector');
-          const src = `/@fs${id}`;
+          const src = packageToDevUrl('@web-widget/web-widget/inspector', base);
           result.push({
             injectTo: 'body',
             tag: 'web-widget-inspector',
