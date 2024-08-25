@@ -13,7 +13,7 @@ import type {
   VitestEnvironment,
   InlineConfig as VitestInlineConfig,
 } from 'vitest/node';
-import type { Meta } from '@web-widget/helpers';
+import type { Meta, RouteModule } from '@web-widget/helpers';
 import { getLinks, getManifest, normalizePath } from './utils';
 import { importActionPlugin } from './import-action';
 import { parseWebRouterConfig } from './config';
@@ -28,6 +28,8 @@ import type {
   WebRouterUserConfig,
 } from './types';
 import { webRouterPreviewServerPlugin } from './preview';
+import { removeExportsPlugin } from './remove-exports';
+import { LayoutModule } from '@web-widget/web-router';
 
 interface VitestUserConfig extends UserConfig {
   /**
@@ -358,6 +360,19 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     webRouterDevServerPlugin(),
     webRouterPreviewServerPlugin(),
     importActionPlugin(),
+
+    // NOTE: Although the routing module does not run on the client,
+    // it needs to be built on the client to get the css file.
+    // However, the routing module may introduce server-specific modules,
+    // so the server-specific exports need to be deleted.
+    removeExportsPlugin({
+      target: ['handler', 'config'] as (
+        | keyof RouteModule
+        | keyof LayoutModule
+      )[],
+      only: 'client',
+      include: /(?:\.|@)(route|layout)\..*$/,
+    }),
 
     // nodeExternals({
     //   builtins: true,

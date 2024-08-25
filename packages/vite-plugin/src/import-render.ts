@@ -74,6 +74,7 @@ export function importRenderPlugin({
   let importerFilter: (id: string | unknown) => boolean;
   let base: string;
   let extensions: string[] = [];
+  let sourcemap: boolean;
   const assetMap: Map<string, string> = new Map();
 
   filter = createFilter(include, exclude);
@@ -86,6 +87,7 @@ export function importRenderPlugin({
         dev = config.command === 'serve';
         root = config.root;
         base = config.base;
+        sourcemap = !!config.build?.sourcemap;
       },
       async transformIndexHtml(html, { server: dev }) {
         const inspectorId = 'web-widget:inspector';
@@ -233,7 +235,7 @@ export function importRenderPlugin({
 
         return {
           code: magicString.toString(),
-          map: magicString.generateMap(),
+          map: sourcemap ? magicString.generateMap() : null,
         };
       },
     },
@@ -307,7 +309,10 @@ export function importRenderPlugin({
           return this.error(error, pos);
         }
 
-        return { code: magicString.toString(), map: magicString.generateMap() };
+        return {
+          code: magicString.toString(),
+          map: sourcemap ? magicString.generateMap() : null,
+        };
       },
     },
   ];

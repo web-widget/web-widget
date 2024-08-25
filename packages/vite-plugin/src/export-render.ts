@@ -40,12 +40,15 @@ export function exportRenderPlugin({
 
   let base: string;
   let root: string;
-
+  let sourcemap: boolean;
   const filter = createFilter(include, exclude);
 
   return [
     {
       name: '@web-widget:export-render',
+      async configResolved(config) {
+        sourcemap = !!config.build?.sourcemap;
+      },
       async transform(code, id) {
         if (!filter(id)) {
           return null;
@@ -121,7 +124,7 @@ export function exportRenderPlugin({
 
         return {
           code: magicString.toString(),
-          map: magicString.generateMap(),
+          map: sourcemap ? magicString.generateMap() : null,
         };
       },
     },
@@ -184,7 +187,10 @@ export function exportRenderPlugin({
           );
         }
 
-        return { code: magicString.toString(), map: magicString.generateMap() };
+        return {
+          code: magicString.toString(),
+          map: sourcemap ? magicString.generateMap() : null,
+        };
       },
     },
   ];
