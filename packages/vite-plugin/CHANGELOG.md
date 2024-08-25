@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.33.3
+
+### Patch Changes
+
+- 828c2c1: Fixed the issue that development mode does not support vite's base configuration.
+  - @web-widget/helpers@1.33.3
+  - @web-widget/node@1.33.3
+  - @web-widget/web-router@1.33.3
+  - @web-widget/web-widget@1.33.3
+
 ## 1.33.2
 
 ### Patch Changes
