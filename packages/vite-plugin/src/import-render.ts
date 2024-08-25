@@ -7,12 +7,9 @@ import type {
   Plugin,
   Manifest as ViteManifest,
 } from 'vite';
-import {
-  getManifest,
-  getWebRouterPluginApi,
-  normalizePath,
-  packageToDevUrl,
-} from './utils';
+import { getManifest, getWebRouterPluginApi, normalizePath } from './utils';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 
 const ASSET_PROTOCOL = 'asset:';
 const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
@@ -314,4 +311,9 @@ export function importRenderPlugin({
       },
     },
   ];
+}
+
+function packageToDevUrl(name: string, base: string) {
+  const id = require.resolve(name);
+  return `${base}@fs${id}`;
 }

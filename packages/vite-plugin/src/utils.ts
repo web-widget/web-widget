@@ -7,12 +7,9 @@ import type { LinkDescriptor } from '@web-widget/helpers';
 import mime from 'mime-types';
 import { WEB_ROUTER_PLUGIN_NAME } from './constants';
 import type { ResolvedWebRouterConfig, WebRouterPlugin } from './types';
-import { createRequire } from 'node:module';
-
-const require = createRequire(import.meta.url);
 
 /**
- * Extracts all import names for an already parsed files
+ * Extracts all import names for an already parsed files.
  */
 export function importsToImportNames(
   imports: Iterable<ImportSpecifier>,
@@ -213,9 +210,4 @@ function getLink(
   }
 
   return null;
-}
-
-export function packageToDevUrl(name: string, base: string) {
-  const id = require.resolve(name);
-  return `${base}@fs${id}`;
 }
