@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.34.1
+
+### Patch Changes
+
+- 510dc89: Fix the problem that dev server cannot start.
+  - @web-widget/helpers@1.34.1
+  - @web-widget/node@1.34.1
+  - @web-widget/web-router@1.34.1
+  - @web-widget/web-widget@1.34.1
+
 ## 1.34.0
 
 ### Minor Changes
