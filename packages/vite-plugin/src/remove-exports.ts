@@ -38,11 +38,7 @@ export function removeExportsPlugin(
         }
       }
 
-      if (
-        !this.getModuleInfo(id)?.isEntry ||
-        !code.includes('export') ||
-        !filter(id)
-      ) {
+      if (!code.includes('export') || !filter(id)) {
         return;
       }
 
