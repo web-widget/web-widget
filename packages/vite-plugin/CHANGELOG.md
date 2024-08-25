@@ -1,5 +1,18 @@
 # @web-widget/vite-plugin
 
+## 1.34.0
+
+### Minor Changes
+
+- 0c02a64: Reduce orphaned client assets.
+
+### Patch Changes
+
+- @web-widget/helpers@1.34.0
+- @web-widget/node@1.34.0
+- @web-widget/web-router@1.34.0
+- @web-widget/web-widget@1.34.0
+
 ## 1.33.3
 
 ### Patch Changes
