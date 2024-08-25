@@ -25,6 +25,7 @@ export function removeExportsPlugin(
   return {
     name: '@web-widget:remove-exports',
     enforce: 'post',
+    apply: 'build',
     async configResolved(config) {
       sourcemap = !!config.build?.sourcemap;
     },
