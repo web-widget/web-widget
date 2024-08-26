@@ -1,6 +1,6 @@
 import type { MiddlewareContext } from '@web-widget/schema';
 import { tryGetAsyncLocalStorage } from './context';
-import { SCRIPT_ID } from './constants';
+import { SCRIPT_TYPE } from './constants';
 
 type SafeSerializableContext = Pick<
   MiddlewareContext,
@@ -30,7 +30,7 @@ export function createSafeSerializableContext(
 }
 
 export function getSafeSerializableContext() {
-  const stateElement = document.getElementById(SCRIPT_ID);
+  const stateElement = document.querySelector(`[type="${SCRIPT_TYPE}"]`);
   const context = stateElement
     ? JSON.parse(stateElement.textContent as string)
     : {};

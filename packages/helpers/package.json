@@ -18,7 +18,8 @@
     "@web-widget/action": "workspace:*",
     "@web-widget/context": "workspace:*",
     "@web-widget/lifecycle-cache": "workspace:*",
-    "@web-widget/schema": "workspace:*"
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/purify": "workspace:*"
   },
   "devDependencies": {
     "@jest/globals": "catalog:",
@@ -159,6 +160,11 @@
       "development": "./src/navigation/index.ts",
       "default": "./dist/navigation.js"
     },
+    "./purify": {
+      "types": "./dist/purify.d.ts",
+      "development": "./src/purify/index.ts",
+      "default": "./dist/purify.js"
+    },
     "./state": {
       "types": "./dist/state.d.ts",
       "development": "./src/state/index.ts",
@@ -279,6 +285,10 @@
       "./navigation": {
         "types": "./dist/navigation.d.ts",
         "default": "./dist/navigation.js"
+      },
+      "./purify": {
+        "types": "./dist/purify.d.ts",
+        "default": "./dist/purify.js"
       },
       "./state": {
         "types": "./dist/state.d.ts",
