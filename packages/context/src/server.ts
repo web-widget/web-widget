@@ -1,19 +1,21 @@
 import './global';
 import type { MiddlewareContext, ScriptDescriptor } from '@web-widget/schema';
 import { tryGetAsyncLocalStorage } from './context';
-import { SCRIPT_ID, EXPOSED_TO_CLIENT } from './constants';
+import { SCRIPT_TYPE, EXPOSED_TO_CLIENT } from './constants';
+import { escapeJson } from '@web-widget/purify';
 export const exposedToClient = EXPOSED_TO_CLIENT;
 
 export function contextToScriptDescriptor(
   context: MiddlewareContext
 ): ScriptDescriptor {
   return {
-    id: SCRIPT_ID,
-    type: 'application/json',
-    content: JSON.stringify({
-      pathname: context.pathname,
-      params: context.params,
-    }),
+    type: SCRIPT_TYPE,
+    content: escapeJson(
+      JSON.stringify({
+        pathname: context.pathname,
+        params: context.params,
+      })
+    ),
   };
 }
 

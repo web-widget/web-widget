@@ -1,4 +1,5 @@
 import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
+import { escapeJson } from '@web-widget/helpers/purify';
 // import { Readable } from "node:stream";
 // import { TransformStream } from "node:stream/web";
 import type { Component } from 'vue';
@@ -23,21 +24,6 @@ Vue.config.warnHandler = (msg, vm, trace) => {
 };
 
 // const __FEATURE_STREAM__ = false;
-
-const ESCAPE_LOOKUP: { [match: string]: string } = {
-  '>': '\\u003e',
-  '<': '\\u003c',
-  '\u2028': '\\u2028',
-  '\u2029': '\\u2029',
-};
-
-const ESCAPE_REGEX = /[><\u2028\u2029]/g;
-
-// This utility is based on https://github.com/zertosh/htmlescape
-// License: https://github.com/zertosh/htmlescape/blob/0527ca7156a524d256101bb310a9f970f63078ad/LICENSE
-function htmlEscapeJsonString(str: string): string {
-  return str.replace(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match]);
-}
 
 // function appendStringToReadableStream(
 //   stream: ReadableStream,
@@ -100,7 +86,7 @@ export const createVueRender = ({
     app.$destroy();
 
     if (state) {
-      const json = htmlEscapeJsonString(JSON.stringify(state));
+      const json = escapeJson(JSON.stringify(state));
       const script = `<script as="state" type="application/json">${json}</script>`;
       // return typeof result === "string"
       //   ? result + script

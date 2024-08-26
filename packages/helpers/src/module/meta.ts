@@ -1,5 +1,5 @@
 import type { Meta } from '@web-widget/schema';
-import { escapeHtml } from './utils';
+import { escapeHtml } from '@web-widget/purify';
 
 const safeAttributeName = (value: string) =>
   escapeHtml(String(value)).toLowerCase();

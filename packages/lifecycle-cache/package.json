@@ -14,7 +14,8 @@
   "license": "MIT",
   "dependencies": {
     "@web-widget/context": "workspace:*",
-    "@web-widget/schema": "workspace:*"
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/purify": "workspace:*"
   },
   "devDependencies": {
     "@jest/globals": "catalog:",

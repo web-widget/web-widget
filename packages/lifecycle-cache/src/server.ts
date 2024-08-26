@@ -1,6 +1,6 @@
 import { context } from '@web-widget/context/server';
 import type { RouteState } from '@web-widget/schema';
-import { htmlEscapeJsonString } from './utils';
+import { escapeJson } from '@web-widget/purify';
 import { LIFECYCLE_CACHE_LAYER, EXPOSE } from './constants';
 
 export { lifecycleCache } from './cache';
@@ -26,7 +26,7 @@ export function renderLifecycleCacheLayer(state?: RouteState) {
   if (json !== '{}') {
     result += `<script>`;
     result += `(self.${LIFECYCLE_CACHE_LAYER}=self.${LIFECYCLE_CACHE_LAYER}||[]).push`;
-    result += `(${htmlEscapeJsonString(json)})`;
+    result += `(${escapeJson(json)})`;
     result += `</script>`;
   }
 

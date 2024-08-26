@@ -16,6 +16,7 @@ export const tsup: Options = {
     'module.client': 'src/module/client.ts',
     'module.server': 'src/module/server.ts',
     navigation: 'src/navigation/index.ts',
+    purify: 'src/purify/index.ts',
     state: 'src/state/index.ts',
     status: 'src/status/index.ts',
   },
