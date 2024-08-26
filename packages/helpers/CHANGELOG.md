@@ -1,5 +1,17 @@
 # @web-widget/helpers
 
+## 1.35.0
+
+### Patch Changes
+
+- Updated dependencies [1502943]
+- Updated dependencies [1502943]
+  - @web-widget/purify@1.35.0
+  - @web-widget/context@1.35.0
+  - @web-widget/lifecycle-cache@1.35.0
+  - @web-widget/action@1.35.0
+  - @web-widget/schema@1.35.0
+
 ## 1.34.1
 
 ### Patch Changes
