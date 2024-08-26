@@ -1,5 +1,17 @@
 # @web-widget/context
 
+## 1.35.0
+
+### Minor Changes
+
+- 1502943: Prevent `<script type="application/json">` content from being accidentally indexed by Google.
+
+### Patch Changes
+
+- Updated dependencies [1502943]
+  - @web-widget/purify@1.35.0
+  - @web-widget/schema@1.35.0
+
 ## 1.34.1
 
 ### Patch Changes
