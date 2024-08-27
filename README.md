@@ -8,8 +8,8 @@ It is a web application framework designed to give new impetus to all front-end 
 
 | Name             | Description                                         | Examples                                                                                                                                                           |
 | ---------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [React](./react) | Example of using React as the main technology stack | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
-| [Vue](./vue)     | Example of using Vue as the main technology stack   | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
+| [React](./examples/react) | Example of using React as the main technology stack | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
+| [Vue](./examples/vue)     | Example of using Vue as the main technology stack   | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
 
 ## Features
 
@@ -28,8 +28,3 @@ The project is designed to comply with the standards set by [WinterCG](https://w
 ### Technology stack interoperability
 
 Different technology stacks are isolated through component container technology. For example, React components can be embedded in Vue components, and Vue components can also introduce React components.
-
-## Links
-
-- [Full examples](https://github.com/web-widget/web-widget/tree/main/examples/web-router)
-- [Document](https://github.com/web-widget/web-widget/tree/main/docs)
