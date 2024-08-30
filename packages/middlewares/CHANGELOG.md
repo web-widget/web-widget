@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.35.1
+
+### Patch Changes
+
+- 49fe0d7: When there is no cache control, the status is adjusted to `BYPASS`.
+  - @web-widget/helpers@1.35.1
+  - @web-widget/schema@1.35.1
+
 ## 1.35.0
 
 ### Patch Changes
