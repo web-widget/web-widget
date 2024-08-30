@@ -115,7 +115,7 @@ export default function cache(options?: CacheOptions) {
 
     if (!cacheControl) {
       const response = await next();
-      setCacheStatus(response.headers, 'BYPASS');
+      setCacheStatus(response.headers, 'DYNAMIC');
       return response;
     }
 

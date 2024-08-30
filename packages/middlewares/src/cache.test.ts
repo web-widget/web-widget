@@ -12,6 +12,7 @@ const MISS: CacheStatus = 'MISS';
 const EXPIRED: CacheStatus = 'EXPIRED';
 const BYPASS: CacheStatus = 'BYPASS';
 const STALE: CacheStatus = 'STALE';
+const DYNAMIC: CacheStatus = 'DYNAMIC';
 const TEST_URL = 'http://localhost/';
 
 const timeout = (ms: number) =>
@@ -195,7 +196,7 @@ test('disabling caching middleware should be allowed', async () => {
   expect(res.headers.get('x-cache-status')).toBe(BYPASS);
 });
 
-test('caching should be allowed to be bypassed', async () => {
+test('caching should be allowed to be dynamic', async () => {
   const app = createApp(createCaches(), {}, [
     {
       pathname: '*',
@@ -214,7 +215,7 @@ test('caching should be allowed to be bypassed', async () => {
   const res = await app.dispatch(TEST_URL);
 
   expect(res.status).toBe(200);
-  expect(res.headers.get('x-cache-status')).toBe(BYPASS);
+  expect(res.headers.get('x-cache-status')).toBe(DYNAMIC);
 });
 
 describe('request cache control directives', () => {
