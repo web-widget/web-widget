@@ -89,7 +89,7 @@ export default defineRouteComponent<MetaPageData>(function Page(props) {
       <h2>HTML:</h2>
       <MetaHtmlCode {...allMetadata} />
       <hr />
-      <ReactCounter name="React Counter" start={3} />
+      <ReactCounter count={3} />
       <div>
         <img src={icon} />
       </div>

@@ -1,8 +1,11 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import { Suspense, createElement, use } from 'react';
-import type { ReactNode } from 'react';
+import type { FunctionComponent, ReactNode } from 'react';
 import { IS_CLIENT } from '@web-widget/helpers/env';
+
+export interface ReactWidgetComponent<T>
+  extends FunctionComponent<T & WebWidgetSuspenseProps> {}
 
 export interface WebWidgetProps {
   base?: WebWidgetRendererOptions['base'];

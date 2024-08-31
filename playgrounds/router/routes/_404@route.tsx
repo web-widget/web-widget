@@ -7,7 +7,7 @@ export const fallback = defineRouteFallbackComponent(function Page404(ctx) {
     <main>
       <h1>⚠️ 404 NotFound</h1>
       <pre>{ctx.message}</pre>
-      <VueCounter name="Vue3 Counter" start={3} />
+      <VueCounter count={3} />
     </main>
   );
 });

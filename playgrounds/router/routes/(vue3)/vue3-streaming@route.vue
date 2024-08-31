@@ -33,4 +33,3 @@ const Loading = h(
     <ReactWaitDemo :fallback="Loading" id="demo:5" />
   </BaseLayout>
 </template>
-../(components)/Wait@widget.js../(components)/Wait@widget.js

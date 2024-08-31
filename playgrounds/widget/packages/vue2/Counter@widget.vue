@@ -1,19 +1,26 @@
 <script lang="ts">
-export default {
-  props: ['name', 'start'],
+import Vue, { PropType } from 'vue';
+
+export default Vue.extend({
+  props: {
+    count: {
+      type: Number as PropType<number>,
+      required: true,
+    },
+  },
   data() {
     return {
-      count: this.start ?? 0,
+      value: this.count ?? 0,
     };
   },
-};
+});
 </script>
 
 <template>
   <div class="counter">
-    <button @click="count--">−</button>
-    <span class="count">{{ count }}</span>
-    <button @click="count++">+</button>
+    <button @click="value--">−</button>
+    <span class="count">{{ value }}</span>
+    <button @click="value++">+</button>
   </div>
 </template>
 
@@ -26,6 +33,7 @@ export default {
   font-size: 16px;
   background: linear-gradient(315deg, #42d392 25%, #647eff);
 }
+
 .counter button {
   width: 2em;
   height: 2em;
@@ -40,6 +48,7 @@ export default {
   font-weight: bold;
   cursor: pointer;
 }
+
 .counter .count {
   display: inline-block;
   min-width: 1.5em;

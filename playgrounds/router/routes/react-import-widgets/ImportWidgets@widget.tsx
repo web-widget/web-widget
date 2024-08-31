@@ -7,16 +7,16 @@ export default function Page() {
   return (
     <div>
       <h2>React component:</h2>
-      <ReactCounter name="React Counter" start={3} />
+      <ReactCounter count={3} />
 
       <h2>Vue3 component:</h2>
-      <VueCounter name="Vue3 Counter" start={3} />
+      <VueCounter count={3} />
 
       <h2>Vue2 component:</h2>
-      <Vue2Counter name="Vue2 Counter" start={3} />
+      <Vue2Counter count={3} />
 
       <h2>Vanilla component:</h2>
-      <VanillaCounter name="Vanilla Counter" start={3} />
+      <VanillaCounter count={3} />
     </div>
   );
 }

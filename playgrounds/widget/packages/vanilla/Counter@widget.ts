@@ -30,8 +30,7 @@ export const render = defineWidgetRender((context) => {
 });
 
 interface CounterProps {
-  name: string;
-  start: number;
+  count: number;
 }
 
 function compressHTML(html: string) {
@@ -48,7 +47,7 @@ export default function CounterVanilla(props: CounterProps) {
   return compressHTML(`
   <div class="counter" data-root>
     <button data-action="-">-1</button>
-    <span class="count" data-count>${props.start}</span>
+    <span class="count" data-count>${props.count}</span>
     <button data-action="+">+1</button>
   </div>`);
 }

@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-const props = defineProps(['name', 'start']);
+import { ref, defineProps } from 'vue';
 
-const name = props.name;
-const count = ref(props.start);
+interface CounterProps {
+  count: number;
+}
+
+const props = defineProps<CounterProps>();
+
+const count = ref(props.count);
 </script>
 
 <template>
@@ -23,6 +27,7 @@ const count = ref(props.start);
   font-size: 16px;
   background: linear-gradient(315deg, #42d392 25%, #647eff);
 }
+
 .counter button {
   width: 2em;
   height: 2em;
@@ -37,6 +42,7 @@ const count = ref(props.start);
   font-weight: bold;
   cursor: pointer;
 }
+
 .counter .count {
   display: inline-block;
   min-width: 1.5em;
