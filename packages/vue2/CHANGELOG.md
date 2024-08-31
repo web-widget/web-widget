@@ -1,5 +1,19 @@
 # @web-widget/vue2
 
+## 1.37.0
+
+### Minor Changes
+
+- 9376d89: Added `toReact` function to convert Vue component type to React component type.
+
+### Patch Changes
+
+- Updated dependencies [9376d89]
+  - @web-widget/react@1.37.0
+  - @web-widget/helpers@1.37.0
+  - @web-widget/vite-plugin@1.37.0
+  - @web-widget/web-widget@1.37.0
+
 ## 1.36.0
 
 ### Patch Changes
