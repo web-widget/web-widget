@@ -200,13 +200,14 @@ async function viteWebRouterMiddlewareV2(
           }
 
           const xModuleSource = 'x-module-source';
-          const currentModule = res.headers.get(xModuleSource);
+          const sourceProtocol = res.headers.get(xModuleSource);
 
-          if (currentModule) {
-            const source = path.join(
-              root,
-              currentModule.replace(`${SOURCE_PROTOCOL}//`, '')
+          if (sourceProtocol) {
+            const source = path.resolve(
+              path.dirname(resolvedWebRouterConfig.input.server.routemap),
+              sourceProtocol.replace(`${SOURCE_PROTOCOL}//`, '')
             );
+
             const html = await res.text();
             const meta = await getMeta(source, viteServer);
             const url = new URL(request.url);
