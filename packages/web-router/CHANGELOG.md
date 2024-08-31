@@ -1,5 +1,19 @@
 # @web-widget/web-router
 
+## 1.36.0
+
+### Minor Changes
+
+- 17ee770: Use `import.meta.framework` instead of `@placeholder` to avoid Vite dev code splitting errors.
+
+### Patch Changes
+
+- @web-widget/action@1.36.0
+- @web-widget/context@1.36.0
+- @web-widget/helpers@1.36.0
+- @web-widget/html@1.36.0
+- @web-widget/lifecycle-cache@1.36.0
+
 ## 1.35.1
 
 ### Patch Changes

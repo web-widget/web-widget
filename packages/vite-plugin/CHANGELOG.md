@@ -1,5 +1,19 @@
 # @web-widget/vite-plugin
 
+## 1.36.0
+
+### Minor Changes
+
+- 17ee770: Use `import.meta.framework` instead of `@placeholder` to avoid Vite dev code splitting errors.
+
+### Patch Changes
+
+- Updated dependencies [17ee770]
+  - @web-widget/web-router@1.36.0
+  - @web-widget/helpers@1.36.0
+  - @web-widget/node@1.36.0
+  - @web-widget/web-widget@1.36.0
+
 ## 1.35.1
 
 ### Patch Changes

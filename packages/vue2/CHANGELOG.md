@@ -1,5 +1,14 @@
 # @web-widget/vue2
 
+## 1.36.0
+
+### Patch Changes
+
+- Updated dependencies [17ee770]
+  - @web-widget/vite-plugin@1.36.0
+  - @web-widget/helpers@1.36.0
+  - @web-widget/web-widget@1.36.0
+
 ## 1.35.1
 
 ### Patch Changes
