@@ -1,12 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import builtins from 'builtin-modules';
-import type {
-  InlineConfig,
-  Plugin,
-  UserConfig,
-  Manifest as ViteManifest,
-} from 'vite';
+import type { InlineConfig, Plugin, UserConfig } from 'vite';
 import { build } from 'vite';
 // import { nodeExternals } from 'rollup-plugin-node-externals';
 import type {
@@ -14,7 +9,7 @@ import type {
   InlineConfig as VitestInlineConfig,
 } from 'vitest/node';
 import type { Meta, RouteModule } from '@web-widget/helpers';
-import { getLinks, getManifest, normalizePath } from './utils';
+import { escapeRegExp, getLinks, getManifest, normalizePath } from './utils';
 import { importActionPlugin } from './import-action';
 import { parseWebRouterConfig } from './config';
 import { webRouterDevServerPlugin } from './dev';
@@ -30,6 +25,7 @@ import type {
 import { webRouterPreviewServerPlugin } from './preview';
 import { removeExportsPlugin } from './remove-exports';
 import { LayoutModule } from '@web-widget/web-router';
+import MagicString from 'magic-string';
 
 interface VitestUserConfig extends UserConfig {
   /**
@@ -39,9 +35,6 @@ interface VitestUserConfig extends UserConfig {
 }
 
 let stage = 0;
-const PLACEHOLDER_ID = '@placeholder';
-const RESOLVED_PLACEHOLDER_ID = '\0' + PLACEHOLDER_ID.replaceAll('/', '-');
-const ROUTEMAP_ID = 'virtual:routemap';
 const ENTRY_ID = '@entry';
 const SERVER_ENTRY_OUTPUT_NAME = 'index';
 
@@ -66,6 +59,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
   let root: string;
   let base: string;
   let dev: boolean;
+  let sourcemap: boolean;
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;
   let serverRoutemapEntryPoints: BuildEntryPoints;
   let ssrBuild: boolean;
@@ -106,12 +100,12 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       appType: 'custom',
       publicDir: ssrBuild ? (config.publicDir ?? false) : undefined,
       optimizeDeps: {
-        exclude: [PLACEHOLDER_ID],
+        exclude: [],
       },
       ssr: ssrBuild
         ? {
             external: ['node:async_hooks'],
-            noExternal: [PLACEHOLDER_ID],
+            noExternal: [],
             target,
             resolve: {
               // https://github.com/vitejs/vite/issues/6401
@@ -227,31 +221,177 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       dev = config.command === 'serve';
       base = config.base;
       root = config.root;
+      sourcemap = !!config.build?.sourcemap;
     },
 
-    async resolveId(id, _importer, options) {
-      if (id === PLACEHOLDER_ID) {
-        if (!options.ssr) {
-          return this.error(new Error(`Only works on the server side: ${id}`));
-        }
-        return path.join(root, RESOLVED_PLACEHOLDER_ID);
-      } else if (id === ROUTEMAP_ID) {
-        return resolvedWebRouterConfig.input.server.routemap;
+    /**
+     * Input:
+     *
+     * const { meta, manifest } = import.meta.framework;
+     *
+     * Becomes:
+     *
+     * const __import_meta_framework__ = {};
+     * __import_meta_framework__.meta = { ... };
+     * __import_meta_framework__.manifest = { ... };
+     * const { meta, manifest } = __import_meta_framework__;
+     */
+    async transform(code, id, { ssr } = {}) {
+      const { entry, routemap } = resolvedWebRouterConfig.input.server;
+      const PLACEHOLDER = 'import.meta.framework';
+      if (id !== entry || !ssr || !code.includes(PLACEHOLDER)) {
+        return null;
       }
-    },
 
-    async load(id) {
-      if (id.endsWith(RESOLVED_PLACEHOLDER_ID)) {
-        return buildPlaceholder(
-          root,
-          base,
-          await api.clientImportmap(),
-          dev ? {} : await getManifest(root, resolvedWebRouterConfig),
-          resolvedWebRouterConfig,
-          await api.serverRoutemap(),
-          dev
+      const magicString = new MagicString(code);
+      const FRAMEWORK = '__import_meta_framework__';
+      let manifestCode: string;
+      let metaCode: string;
+
+      if (dev) {
+        manifestCode = `
+          import importmap from ${JSON.stringify(routemap)} assert { type: "json" };
+          ${FRAMEWORK}.manifest = (() => {
+            const createLoader = (item) => {
+              const source = item.module;
+              if (source) {
+                item.module = async () => ({
+                  $source: "${SOURCE_PROTOCOL}//" + source,
+                  ...(await import(/* @vite-ignore */ source)),
+                });
+              }
+            };
+            const manifest = structuredClone(importmap);
+            for (const value of Object.values(manifest)) {
+              if (Array.isArray(value)) {
+                for (const mod of value) {
+                  createLoader(mod);
+                }
+              } else {
+                createLoader(value);
+              }
+            }
+            manifest.dev = true;
+            return manifest;
+          })();
+          `;
+      } else {
+        const routemapJson = await api.serverRoutemap();
+        const imports: string[] = Object.entries(routemapJson).reduce(
+          (list, [key, value]) => {
+            if (Array.isArray(value)) {
+              value.forEach((mod) => {
+                list.push(mod.module);
+              });
+            } else if (value.module) {
+              list.push(value.module);
+            }
+            return list;
+          },
+          [] as string[]
         );
+        const routemapJsonCode = JSON.stringify(routemapJson, null, 2);
+        manifestCode =
+          imports
+            .map((module, index) => `import * as _${index} from "${module}";`)
+            .join('\n') +
+          '\n\n' +
+          `${FRAMEWORK}.manifest = ${imports.reduce(
+            (routemapJsonCode, source, index) =>
+              routemapJsonCode.replaceAll(
+                new RegExp(
+                  `(\\s*)${escapeRegExp(`"module": "${source}"`)}`,
+                  'g'
+                ),
+                `$1"module": _${index}`
+              ),
+            routemapJsonCode
+          )}`;
       }
+
+      const entryFileName = normalizePath(
+        path.relative(root, resolvedWebRouterConfig.input.client.entry)
+      );
+
+      if (dev) {
+        const meta: Meta = {
+          style: [
+            {
+              content: 'web-widget{display:contents}',
+            },
+          ],
+          script: [
+            {
+              type: 'module',
+              // NOTE: Vite DevServer will add base to the output HTML
+              // src: `${base}${entryFileName}`,
+              src: entryFileName,
+            },
+          ],
+        };
+        metaCode = `${FRAMEWORK}.meta = ${JSON.stringify(meta, null, 2)};`;
+      } else {
+        const clientImportmap = await api.clientImportmap();
+        const viteManifest = await getManifest(root, resolvedWebRouterConfig);
+        const asset = viteManifest[entryFileName];
+
+        if (!asset) {
+          throw new Error(`No client entry found.`);
+        }
+
+        const importShim = resolvedWebRouterConfig.importShim;
+        const clientEntryModuleName = base + asset.file;
+        const clientEntryLinks = getLinks(viteManifest, entryFileName, base);
+        const importmapScripts: Meta['script'] = [];
+
+        clientEntryLinks.push({
+          rel: 'modulepreload',
+          href: clientEntryModuleName,
+        });
+
+        if (clientImportmap) {
+          importmapScripts.push({
+            type: 'importmap',
+            content: JSON.stringify(clientImportmap),
+          });
+
+          if (importShim.enabled) {
+            importmapScripts.push({
+              content: `((o,r,n,s,e,p="loader")=>{n.supports&&n.supports("importmap")||(o[s]=(...n)=>new Promise((n,a)=>{r.head.appendChild(Object.assign(r.createElement("script"),{src:e,crossorigin:"anonymous",async:!0,onload(){o[s][p]?a(Error("["+s+" "+p+"] No "+s+" found: "+e)):n(o[s])},onerror:a}))}).then(o=>o(...n)),o[s][p]=!0)})(self,document,HTMLScriptElement,"importShim",${JSON.stringify(importShim.url)});`,
+            });
+          }
+        }
+
+        const meta: Meta = {
+          link: clientEntryLinks,
+          style: [
+            {
+              content: 'web-widget{display:contents}',
+            },
+          ],
+          script: [
+            ...importmapScripts,
+            {
+              type: 'module',
+              content: `const m=[${JSON.stringify(clientEntryModuleName)}];typeof importShim==="function"?m.map(n=>importShim(n)):m.map(n=>import(n));`,
+            },
+          ],
+        };
+
+        metaCode = `${FRAMEWORK}.meta = ${JSON.stringify(meta, null, 2)};`;
+      }
+
+      magicString.prepend(`const ${FRAMEWORK} = {};
+        ${manifestCode}
+        ${metaCode}
+        `);
+
+      magicString.replaceAll(PLACEHOLDER, FRAMEWORK);
+
+      return {
+        code: magicString.toString(),
+        map: sourcemap ? magicString.generateMap() : null,
+      };
     },
   };
 
@@ -460,182 +600,4 @@ function resolveRoutemapEntryPoints(
     points,
     exposures,
   };
-}
-
-// https://developer.mozilla.org/docs/Web/JavaScript/Guide/Regular_expressions#escaping
-function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-}
-
-function buildPlaceholder(
-  root: string,
-  base: string,
-  clientImportmap: ImportMap,
-  viteManifest: ViteManifest,
-  resolvedWebRouterConfig: ResolvedWebRouterConfig,
-  routemap: RouteMap,
-  dev: boolean
-): string {
-  return (
-    buildManifest(
-      root,
-      resolvedWebRouterConfig.input.server.routemap,
-      routemap,
-      dev
-    ) +
-    '\n' +
-    buildMeta(
-      root,
-      base,
-      clientImportmap,
-      viteManifest,
-      resolvedWebRouterConfig,
-      dev
-    )
-  );
-}
-
-function buildManifest(
-  root: string,
-  file: string,
-  routemap: RouteMap,
-  dev: boolean
-): string {
-  if (dev) {
-    /* NOTE: Relying on ROUTEMAP_ID here is to allow Vite to update the content when routemap.json changes. */
-    const sRoot = JSON.stringify(root);
-    const sDirname = JSON.stringify(path.dirname(file));
-    const routemapJsCode = `/* @dev:manifest */
-      import path from "node:path";
-      import importmap from ${JSON.stringify(ROUTEMAP_ID)} assert { type: "json" };
-      const createLoader = (item) => {
-        const source = item.module;
-        if (source) {
-          item.module = async () => ({
-            $source: "${SOURCE_PROTOCOL}//" + path.relative(${sRoot}, path.resolve(${sDirname}, source)),
-            ...(await import(/* @vite-ignore */ source)),
-          });
-        }
-      };
-      const manifest = structuredClone(importmap);
-      for (const value of Object.values(manifest)) {
-        if (Array.isArray(value)) {
-          for (const mod of value) {
-            createLoader(mod);
-          }
-        } else {
-          createLoader(value);
-        }
-      }
-      manifest.dev = true;
-      export { manifest };`;
-
-    return routemapJsCode;
-  } else {
-    const imports: string[] = Object.entries(routemap).reduce(
-      (list, [key, value]) => {
-        if (Array.isArray(value)) {
-          value.forEach((mod) => {
-            list.push(mod.module);
-          });
-        } else if (value.module) {
-          list.push(value.module);
-        }
-        return list;
-      },
-      [] as string[]
-    );
-    const routemapJsonCode = JSON.stringify(routemap, null, 2);
-    const routemapJsCode =
-      imports
-        .map((module, index) => `import * as _${index} from "${module}";`)
-        .join('\n') +
-      '\n\n' +
-      `export const manifest = ${imports.reduce(
-        (routemapJsonCode, source, index) =>
-          routemapJsonCode.replaceAll(
-            new RegExp(`(\\s*)${escapeRegExp(`"module": "${source}"`)}`, 'g'),
-            `$1"module": _${index}`
-          ),
-        routemapJsonCode
-      )}`;
-
-    return routemapJsCode;
-  }
-}
-
-function buildMeta(
-  root: string,
-  base: string,
-  clientImportmap: ImportMap,
-  viteManifest: ViteManifest,
-  resolvedWebRouterConfig: ResolvedWebRouterConfig,
-  dev: boolean
-): string {
-  const entry = normalizePath(
-    path.relative(root, resolvedWebRouterConfig.input.client.entry)
-  );
-  if (dev) {
-    const meta: Meta = {
-      style: [
-        {
-          content: 'web-widget{display:contents}',
-        },
-      ],
-      script: [
-        {
-          type: 'module',
-          // src: `${base}${entry}`,
-          // NOTE: Vite DevServer will add base to the output HTML, so there is no need to add it here
-          src: entry,
-        },
-      ],
-    };
-    return `export const meta = ${JSON.stringify(meta, null, 2)};`;
-  } else {
-    const asset = viteManifest[entry];
-
-    if (!asset) {
-      throw new Error(`No client entry found.`);
-    }
-
-    const importShim = resolvedWebRouterConfig.importShim;
-    const clientImportmapCode = JSON.stringify(clientImportmap);
-    const clientEntryModuleName = base + asset.file;
-    const clientEntryLinks = getLinks(viteManifest, entry, base);
-
-    clientEntryLinks.push({
-      rel: 'modulepreload',
-      href: clientEntryModuleName,
-    });
-
-    // TODO: Encode HTML string in ${variable}.
-    const meta: Meta = {
-      link: clientEntryLinks,
-      style: [
-        {
-          content: 'web-widget{display:contents}',
-        },
-      ],
-      script: [
-        {
-          type: 'importmap',
-          content: clientImportmapCode,
-        },
-        ...(importShim.enabled
-          ? [
-              {
-                content: `((o,r,n,s,e,p="loader")=>{n.supports&&n.supports("importmap")||(o[s]=(...n)=>new Promise((n,a)=>{r.head.appendChild(Object.assign(r.createElement("script"),{src:e,crossorigin:"anonymous",async:!0,onload(){o[s][p]?a(Error("["+s+" "+p+"] No "+s+" found: "+e)):n(o[s])},onerror:a}))}).then(o=>o(...n)),o[s][p]=!0)})(self,document,HTMLScriptElement,"importShim",${JSON.stringify(importShim.url)});`,
-              },
-            ]
-          : []),
-        {
-          type: 'module',
-          content: `const m=[${JSON.stringify(clientEntryModuleName)}];typeof importShim==="function"?m.map(n=>importShim(n)):m.map(n=>import(n));`,
-        },
-      ],
-    };
-
-    return `export const meta = ${JSON.stringify(meta, null, 2)};`;
-  }
 }

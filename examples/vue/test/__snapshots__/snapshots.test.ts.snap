@@ -15,7 +15,7 @@ exports[`Should match snapshot > Request "/" should match snapshot > /@body 1`] 
 exports[`Should match snapshot > Request "/" should match snapshot > /@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://routes/index@route.vue",
+  "x-module-source": "source://./routes/index@route.vue",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -39,7 +39,7 @@ exports[`Should match snapshot > Request "/about" should match snapshot > /about
 exports[`Should match snapshot > Request "/about" should match snapshot > /about@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://routes/about@route.vue",
+  "x-module-source": "source://./routes/about@route.vue",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -63,7 +63,7 @@ exports[`Should match snapshot > Request "/action" should match snapshot > /acti
 exports[`Should match snapshot > Request "/action" should match snapshot > /action@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://routes/action/index@route.vue",
+  "x-module-source": "source://./routes/action/index@route.vue",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -100,7 +100,7 @@ exports[`Should match snapshot > Request "/fetch" should match snapshot > /fetch
 exports[`Should match snapshot > Request "/fetch" should match snapshot > /fetch@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://routes/fetch@route.vue",
+  "x-module-source": "source://./routes/fetch@route.vue",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
