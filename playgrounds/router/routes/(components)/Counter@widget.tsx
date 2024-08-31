@@ -3,12 +3,11 @@ import { useState } from 'react';
 import { params } from '@web-widget/helpers/navigation';
 
 interface CounterProps {
-  name: string;
-  start: number;
+  count: number;
 }
 
 export default function Counter(props: CounterProps) {
-  const [count, setCount] = useState(props.start);
+  const [count, setCount] = useState(props.count);
   console.log('params', params());
   return (
     <div className="counter">

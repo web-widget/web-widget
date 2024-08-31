@@ -24,16 +24,16 @@ const count = ref(0);
     </div>
     <div>
       <h2>React component:</h2>
-      <ReactCounter name="React Counter" :start="3" />
+      <ReactCounter :count="3" />
 
       <h2>Vue3 component:</h2>
-      <VueCounter name="Vue3 Counter" :start="3" />
+      <VueCounter :count="3" />
 
       <h2>Vue2 component:</h2>
-      <Vue2Counter name="Vue2 Counter" :start="3" />
+      <Vue2Counter :count="3" />
 
       <h2>Vanilla component:</h2>
-      <VanillaCounter name="Vanilla Counter" :start="3" />
+      <VanillaCounter :count="3" />
     </div>
     <div class="card">
       <button type="button" @click="count++">count is {{ count }}</button>
@@ -49,9 +49,11 @@ const count = ref(0);
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #42b883aa);
 }

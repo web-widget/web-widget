@@ -13,6 +13,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@web-widget/react": "workspace:*",
     "@web-widget/helpers": "workspace:*",
     "@web-widget/vite-plugin": "workspace:*",
     "@web-widget/web-widget": "workspace:*"

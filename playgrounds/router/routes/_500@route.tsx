@@ -7,7 +7,7 @@ export const fallback = defineRouteFallbackComponent(function Page500(ctx) {
     <main>
       <h1>⚠️ 500</h1>
       <pre>{ctx.message}</pre>
-      <VueCounter name="Vue3 Counter" start={3} />
+      <VueCounter count={3} />
     </main>
   );
 });

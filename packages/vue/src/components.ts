@@ -8,8 +8,9 @@ import {
   // onServerPrefetch,
   // getCurrentInstance,
 } from 'vue';
-import type { VNode, PropType } from 'vue';
+import type { VNode, PropType, ComponentPublicInstance, Component } from 'vue';
 import { IS_CLIENT } from '@web-widget/helpers/env';
+import type { ReactWidgetComponent } from '@web-widget/react';
 
 const WebWidget = /*#__PURE__*/ defineComponent({
   name: 'WebWidgetRoot',
@@ -159,4 +160,13 @@ export /*#__PURE__*/ function defineWebWidget(
         );
     },
   });
+}
+
+/**
+ * Convert Vue component types to React component types.
+ */
+export /*#__PURE__*/ function toReact<T>(component: Component<T>) {
+  return component as unknown as ReactWidgetComponent<
+    Omit<T, keyof ComponentPublicInstance | '$route' | '$router'>
+  >;
 }

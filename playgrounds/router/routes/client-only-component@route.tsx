@@ -6,7 +6,7 @@ export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
       <h1>Client only component</h1>
-      <ReactCounter renderStage="client" name="React Counter" start={3} />
+      <ReactCounter renderStage="client" count={3} />
     </BaseLayout>
   );
 });

@@ -1,8 +1,10 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import { h, defineComponent, useAttrs, getCurrentInstance } from 'vue';
-import type { Component, PropType } from 'vue';
+import type { Component, ComponentPublicInstance, PropType } from 'vue';
 import { IS_CLIENT } from '@web-widget/helpers/env';
+import type { ReactWidgetComponent } from '@web-widget/react';
+import { DefaultProps } from 'vue/types/options';
 
 export interface DefineWebWidgetOptions {
   base?: WebWidgetRendererOptions['base'];
@@ -100,4 +102,15 @@ export /*#__PURE__*/ function defineWebWidget(
       };
     },
   });
+}
+
+/**
+ * Convert Vue component types to React component types.
+ */
+export /*#__PURE__*/ function toReact<T extends DefaultProps>(
+  component: Component<never, never, never, T, never>
+) {
+  return component as unknown as ReactWidgetComponent<
+    Omit<T, keyof ComponentPublicInstance | '$route' | '$router'>
+  >;
 }
