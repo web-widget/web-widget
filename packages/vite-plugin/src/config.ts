@@ -29,6 +29,9 @@ function resolveRealFile(
 
 export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
   autoFullBuild: true,
+  asyncContext: {
+    enabled: true,
+  },
   serverAction: {
     enabled: false,
   },
@@ -66,6 +69,15 @@ export const WebRouterConfigSchema = z.object({
     .boolean()
     .optional()
     .default(WEB_ROUTER_CONFIG_DEFAULTS.autoFullBuild),
+  asyncContext: z
+    .object({
+      enabled: z
+        .boolean()
+        .optional()
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.asyncContext.enabled),
+    })
+    .optional()
+    .default({}),
   serverAction: z
     .object({
       enabled: z

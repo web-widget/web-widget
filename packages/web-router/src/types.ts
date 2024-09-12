@@ -84,7 +84,7 @@ export interface Manifest {
   fallbacks: {
     module: RouteModule | (() => Promise<RouteModule>);
     name?: string;
-    pathname: string;
+    pathname?: string;
     status: number;
   }[];
   layout: {

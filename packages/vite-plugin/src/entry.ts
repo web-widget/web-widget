@@ -497,6 +497,28 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       },
     },
 
+    {
+      name: '@web-widget:remove-async-hooks',
+      enforce: 'pre',
+
+      async resolveId(id) {
+        if (
+          id === 'node:async_hooks' &&
+          resolvedWebRouterConfig.asyncContext.enabled
+        ) {
+          return id;
+        }
+        return null;
+      },
+
+      async load(id) {
+        if (id === 'node:async_hooks') {
+          return 'export const AsyncLocalStorage = undefined';
+        }
+        return null;
+      },
+    },
+
     webRouterDevServerPlugin(),
     webRouterPreviewServerPlugin(),
     importActionPlugin(),
