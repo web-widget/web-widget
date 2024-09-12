@@ -13,6 +13,9 @@ import type { RouteSourceFile } from './dev/routing/types';
 
 export interface ResolvedWebRouterConfig {
   autoFullBuild: boolean;
+  asyncContext: {
+    enabled: boolean;
+  };
   serverAction: {
     enabled: boolean;
   };
