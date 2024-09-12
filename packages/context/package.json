@@ -13,7 +13,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "unctx": "^2.3.1",
     "@web-widget/schema": "workspace:*",
     "@web-widget/purify": "workspace:*"
   },
@@ -28,6 +27,9 @@
     "ts-jest": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "unctx": "^2.3.1"
   },
   "exports": {
     ".": {
