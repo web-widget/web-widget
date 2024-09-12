@@ -1,5 +1,18 @@
 # @web-widget/vite-plugin
 
+## 1.38.0
+
+### Minor Changes
+
+- d25a7d6: Add `asyncContext` option.
+
+### Patch Changes
+
+- @web-widget/helpers@1.38.0
+- @web-widget/node@1.38.0
+- @web-widget/web-router@1.38.0
+- @web-widget/web-widget@1.38.0
+
 ## 1.37.0
 
 ### Patch Changes
