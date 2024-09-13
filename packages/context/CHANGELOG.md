@@ -1,5 +1,13 @@
 # @web-widget/context
 
+## 1.38.1
+
+### Patch Changes
+
+- 10b4c7c: Move `unctx` to `peerDependencies`.
+  - @web-widget/purify@1.38.1
+  - @web-widget/schema@1.38.1
+
 ## 1.38.0
 
 ### Patch Changes
