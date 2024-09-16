@@ -1,5 +1,16 @@
 # @web-widget/vue
 
+## 1.39.1
+
+### Patch Changes
+
+- Updated dependencies [39c5cf1]
+  - @web-widget/helpers@1.39.1
+  - @web-widget/react@1.39.1
+  - @web-widget/vite-plugin@1.39.1
+  - @web-widget/web-widget@1.39.1
+  - @web-widget/schema@1.39.1
+
 ## 1.39.0
 
 ### Patch Changes

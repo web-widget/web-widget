@@ -1,5 +1,12 @@
 # @web-widget/context
 
+## 1.39.1
+
+### Patch Changes
+
+- @web-widget/purify@1.39.1
+- @web-widget/schema@1.39.1
+
 ## 1.39.0
 
 ### Patch Changes
