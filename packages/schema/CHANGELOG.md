@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.39.0
+
+### Minor Changes
+
+- 608e18f: Use `State` instead of `RouteState`.
+
 ## 1.38.1
 
 ## 1.38.0
