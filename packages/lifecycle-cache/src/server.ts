@@ -1,5 +1,5 @@
 import { context } from '@web-widget/context/server';
-import type { RouteState } from '@web-widget/schema';
+import type { State } from '@web-widget/schema';
 import { escapeJson } from '@web-widget/purify';
 import { LIFECYCLE_CACHE_LAYER, EXPOSE } from './constants';
 
@@ -7,7 +7,7 @@ export { lifecycleCache } from './cache';
 export * from './provider';
 
 declare module '@web-widget/schema' {
-  interface RouteState {
+  interface State {
     [EXPOSE]?: Set<string>;
     toJSON?: (this: any) => Record<string, any>;
   }
@@ -16,7 +16,7 @@ declare module '@web-widget/schema' {
 /**
  * Serialize the cache and transfer it to the client.
  */
-export function renderLifecycleCacheLayer(state?: RouteState) {
+export function renderLifecycleCacheLayer(state?: State) {
   const cache = state ?? context().state;
   cache.toJSON ??= toJSON;
 
@@ -33,7 +33,7 @@ export function renderLifecycleCacheLayer(state?: RouteState) {
   return result;
 }
 
-function toJSON(this: RouteState): any {
+function toJSON(this: State): any {
   const expose = this[EXPOSE];
   if (expose) {
     const newObject = {};
