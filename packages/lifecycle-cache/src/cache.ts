@@ -1,5 +1,5 @@
 import { context } from '@web-widget/context';
-import type { RouteState, SerializableValue } from '@web-widget/schema';
+import type { State, SerializableValue } from '@web-widget/schema';
 import { allowExposedToClient } from './utils';
 
 type LifecycleCacheValue<
@@ -61,6 +61,6 @@ export class LifecycleCache<V extends Record<string, unknown>> {
   }
 }
 
-export function lifecycleCache<T extends RouteState>(state?: T) {
-  return new LifecycleCache<T & RouteState>((state ?? context().state) as T);
+export function lifecycleCache<T extends State>(state?: T) {
+  return new LifecycleCache<T & State>((state ?? context().state) as T);
 }

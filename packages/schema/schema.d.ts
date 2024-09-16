@@ -184,7 +184,8 @@ export type RouteError = {
   statusText?: string;
 } & Error;
 
-export interface RouteState extends Record<string, unknown> {}
+/** @deprecated Use State instead. */
+export type RouteState = State;
 
 export type RouteHandlers<Data = unknown, Params = Record<string, string>> = {
   [K in KnownMethods]?: RouteHandler<Data, Params>;
@@ -261,7 +262,7 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>> {
   /**
    * The state of the application, the content comes from the middleware.
    */
-  readonly state: RouteState;
+  readonly state: State;
 }
 
 export interface RouteRenderContext<
@@ -374,6 +375,14 @@ export interface ActionHandler<
 > {
   (...args: A[]): Promise<T>;
 }
+
+////////////////////////////////////////
+//////                            //////
+//////            State            //////
+//////                            //////
+////////////////////////////////////////
+
+export interface State extends Record<string, unknown> {}
 
 ////////////////////////////////////////
 //////                            //////
