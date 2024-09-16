@@ -32,8 +32,8 @@ export function deviceType(headers: Headers) {
   }
 }
 
-/** @deprecated Use `userAgent(headers)` instead. */
 export function userAgent(
+  /** @deprecated */
   request: Request
 ): ReturnType<typeof userAgentFromString>;
 
