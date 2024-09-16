@@ -1,5 +1,16 @@
 # @web-widget/helpers
 
+## 1.39.1
+
+### Patch Changes
+
+- 39c5cf1: Fix `userAgent` types.
+  - @web-widget/action@1.39.1
+  - @web-widget/context@1.39.1
+  - @web-widget/lifecycle-cache@1.39.1
+  - @web-widget/purify@1.39.1
+  - @web-widget/schema@1.39.1
+
 ## 1.39.0
 
 ### Patch Changes

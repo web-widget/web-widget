@@ -1,5 +1,12 @@
 # @web-widget/html
 
+## 1.39.1
+
+### Patch Changes
+
+- Updated dependencies [39c5cf1]
+  - @web-widget/helpers@1.39.1
+
 ## 1.39.0
 
 ### Patch Changes
