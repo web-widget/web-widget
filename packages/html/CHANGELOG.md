@@ -1,5 +1,11 @@
 # @web-widget/html
 
+## 1.40.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.40.0
+
 ## 1.39.2
 
 ### Patch Changes
