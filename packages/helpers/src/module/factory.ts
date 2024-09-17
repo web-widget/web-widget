@@ -33,14 +33,33 @@ export /*#__PURE__*/ function defineMeta(meta: Meta) {
   return meta;
 }
 
+export function defineRender<Data = unknown>(
+  render: (
+    context: WidgetRenderContext<Data>,
+    renderOptions: WidgetRenderOptions
+  ) => Promise<WidgetRenderResult>
+): typeof render;
+
+export function defineRender<Data = unknown, Params = Record<string, string>>(
+  render: (
+    context: RouteRenderContext<Data, Params>,
+    renderOptions: RouteRenderOptions
+  ) => Promise<RouteRenderResult>
+): typeof render;
+
 export /*#__PURE__*/ function defineRender<
   Data = unknown,
   Params = Record<string, string>,
 >(
-  render: (
-    context: WidgetRenderContext<Data> | RouteRenderContext<Data, Params>,
-    renderOptions: WidgetRenderOptions | RouteRenderOptions
-  ) => Promise<WidgetRenderResult | RouteRenderResult>
+  render:
+    | ((
+        context: WidgetRenderContext<Data>,
+        renderOptions: WidgetRenderOptions
+      ) => Promise<WidgetRenderResult>)
+    | ((
+        context: RouteRenderContext<Data, Params>,
+        renderOptions: RouteRenderOptions
+      ) => Promise<RouteRenderResult>)
 ) {
   return render;
 }
@@ -71,12 +90,30 @@ export /*#__PURE__*/ function defineRouteFallbackComponent(
   return component;
 }
 
+export function defineRouteHandler<
+  Data = unknown,
+  Params = Record<string, string>,
+>(handler: RouteHandler<Data, Params>): typeof handler;
+
+export function defineRouteHandler<
+  Data = unknown,
+  Params = Record<string, string>,
+>(handler: RouteHandlers<Data, Params>): typeof handler;
+
 export /*#__PURE__*/ function defineRouteHandler<
   Data = unknown,
   Params = Record<string, string>,
 >(handler: RouteHandler<Data, Params> | RouteHandlers<Data, Params>) {
   return handler;
 }
+
+export function defineMiddlewareHandler(
+  handler: MiddlewareHandler
+): typeof handler;
+
+export function defineMiddlewareHandler(
+  handler: MiddlewareHandlers
+): typeof handler;
 
 export /*#__PURE__*/ function defineMiddlewareHandler(
   handler: MiddlewareHandler | MiddlewareHandlers
@@ -88,13 +125,13 @@ export /*#__PURE__*/ function defineActionHandler(handler: ActionHandler) {
   return handler;
 }
 
-export function getComponent(
+export /*#__PURE__*/ function getComponent(
   context: WidgetRenderContext | RouteRenderContext
 ):
-  | RouteFallbackComponent
-  | RouteComponent
   | WidgetFallbackComponent
-  | WidgetComponent {
+  | WidgetComponent
+  | RouteFallbackComponent
+  | RouteComponent {
   if (context?.error) {
     const component = context.module?.fallback;
 
@@ -113,9 +150,13 @@ export function getComponent(
   }
 }
 
-export function getComponentProps(
+export /*#__PURE__*/ function getComponentProps(
   context: WidgetRenderContext | RouteRenderContext
-) {
+):
+  | WidgetFallbackComponentProps
+  | WidgetComponentProps
+  | RouteFallbackComponentProps
+  | RouteComponentProps {
   if (isRouteRenderContext(context)) {
     const { data, error, params, pathname, request } =
       context as RouteRenderContext;
@@ -160,22 +201,9 @@ export function isRouteRenderContext(
   return Reflect.has(context, 'request');
 }
 
-export interface ComponentDescriptor {
-  component:
-    | RouteFallbackComponent
-    | RouteComponent
-    | WidgetFallbackComponent
-    | WidgetComponent;
-  props:
-    | RouteFallbackComponentProps
-    | RouteComponentProps
-    | WidgetFallbackComponentProps
-    | WidgetComponentProps;
-}
-
 export function getComponentDescriptor(
   context: WidgetRenderContext | RouteRenderContext
-): ComponentDescriptor {
+) {
   return {
     component: getComponent(context),
     props: getComponentProps(context),
