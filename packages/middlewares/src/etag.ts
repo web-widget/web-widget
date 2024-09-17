@@ -5,7 +5,7 @@ import { etag as calculate } from '@web-widget/helpers/headers';
 export type EtagOptions = Parameters<typeof calculate>[1];
 
 export default function etag(options?: EtagOptions) {
-  return defineMiddlewareHandler(async function etagHandler(_ctx, next) {
+  return defineMiddlewareHandler(async function etagMiddleware(_ctx, next) {
     const res = await next();
 
     if (res.headers.get('ETag')) {
