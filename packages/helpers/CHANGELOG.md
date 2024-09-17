@@ -1,5 +1,16 @@
 # @web-widget/helpers
 
+## 1.39.2
+
+### Patch Changes
+
+- 1a75e88: Optimizing factory functions using function overloading.
+  - @web-widget/action@1.39.2
+  - @web-widget/context@1.39.2
+  - @web-widget/lifecycle-cache@1.39.2
+  - @web-widget/purify@1.39.2
+  - @web-widget/schema@1.39.2
+
 ## 1.39.1
 
 ### Patch Changes
