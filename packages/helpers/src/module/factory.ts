@@ -201,9 +201,22 @@ export function isRouteRenderContext(
   return Reflect.has(context, 'request');
 }
 
+export interface ComponentDescriptor {
+  component:
+    | RouteFallbackComponent
+    | RouteComponent
+    | WidgetFallbackComponent
+    | WidgetComponent;
+  props:
+    | RouteFallbackComponentProps
+    | RouteComponentProps
+    | WidgetFallbackComponentProps
+    | WidgetComponentProps;
+}
+
 export function getComponentDescriptor(
   context: WidgetRenderContext | RouteRenderContext
-) {
+): ComponentDescriptor {
   return {
     component: getComponent(context),
     props: getComponentProps(context),
