@@ -211,7 +211,7 @@ class Application<
   };
 
   /**
-   * @deprecated
+   * @deprecated Use `dispatch` method instead.
    */
   request = (
     input: RequestInfo | URL,

@@ -60,6 +60,11 @@
       "development": "./src/powered-by.ts",
       "default": "./dist/powered-by.js"
     },
+    "./timing": {
+      "types": "./dist/timing.d.ts",
+      "development": "./src/timing.ts",
+      "default": "./dist/timing.js"
+    },
     "./trailing-slash": {
       "types": "./dist/trailing-slash.d.ts",
       "development": "./src/trailing-slash.ts",
@@ -95,6 +100,10 @@
       "./powered-by": {
         "types": "./dist/powered-by.d.ts",
         "default": "./dist/powered-by.js"
+      },
+      "timing": {
+        "types": "./dist/timing.d.ts",
+        "default": "./dist/timing.js"
       },
       "./trailing-slash": {
         "types": "./dist/trailing-slash.d.ts",

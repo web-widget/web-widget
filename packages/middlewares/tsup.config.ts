@@ -7,6 +7,7 @@ export const tsup: Options = {
     index: 'src/index.ts',
     'inline-styles': 'src/inline-styles.ts',
     'powered-by': 'src/powered-by.ts',
+    timing: 'src/timing.ts',
     'trailing-slash': 'src/trailing-slash.ts',
   },
   dts: true,
