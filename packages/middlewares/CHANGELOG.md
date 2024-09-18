@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 1.40.0
+
+### Minor Changes
+
+- f3bfbf4: Added Server-Timing Middleware.
+
+### Patch Changes
+
+- @web-widget/helpers@1.40.0
+- @web-widget/schema@1.40.0
+
 ## 1.39.2
 
 ### Patch Changes
