@@ -101,7 +101,7 @@
         "types": "./dist/powered-by.d.ts",
         "default": "./dist/powered-by.js"
       },
-      "timing": {
+      "./timing": {
         "types": "./dist/timing.d.ts",
         "default": "./dist/timing.js"
       },
