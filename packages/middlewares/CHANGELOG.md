@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.40.1
+
+### Patch Changes
+
+- ad6bc9c: Fix exports error in package.json.
+  - @web-widget/helpers@1.40.1
+  - @web-widget/schema@1.40.1
+
 ## 1.40.0
 
 ### Minor Changes
