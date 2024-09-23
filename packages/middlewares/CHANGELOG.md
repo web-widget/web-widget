@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.41.1
+
+### Patch Changes
+
+- fb09cac: Update @web-widget/shared-cache.
+  - @web-widget/helpers@1.41.1
+  - @web-widget/schema@1.41.1
+
 ## 1.41.0
 
 ### Minor Changes
