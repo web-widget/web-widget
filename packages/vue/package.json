@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/vue",
   "description": "Vue adapter",
-  "version": "1.41.0",
+  "version": "1.41.1",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",
