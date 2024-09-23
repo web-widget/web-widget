@@ -503,8 +503,8 @@ importers:
         specifier: workspace:*
         version: link:../schema
       '@web-widget/shared-cache':
-        specifier: ^1.0.0-next.3
-        version: 1.0.0-next.3
+        specifier: ^1.0.0
+        version: 1.0.0
     devDependencies:
       '@jest/globals':
         specifier: 'catalog:'
@@ -2896,8 +2896,8 @@ packages:
   '@web-widget/lifecycle-cache@1.28.0':
     resolution: {integrity: sha512-bGi9TMhhn1GM2Fdl+QwKPGSKHtAE1S4FV6HAWH+ZnP3Vc1rILXx1c8VIDILTlP5PLB0qh9wYOnZT4ysO+axIRg==}
 
-  '@web-widget/shared-cache@1.0.0-next.3':
-    resolution: {integrity: sha512-VfTPoVI1sB/Abwj69YZAGhKcdjx3fXerbwCR2p1HQXWWIE0ANPIrsLQs6KzERKusAJCYARMMF+40QsZMA45IGQ==}
+  '@web-widget/shared-cache@1.0.0':
+    resolution: {integrity: sha512-2fK+wqOPSVWHjEiU+9R6uhxD0WCQvkh7NgZlaY1dmj1aya8lIfS/G9+OxlEuxfH59uSQEbUY0E3GRQcIJzaFzw==}
 
   '@web/browser-logs@0.4.0':
     resolution: {integrity: sha512-/EBiDAUCJ2DzZhaFxTPRIznEPeafdLbXShIL6aTu7x73x7ZoxSDv7DGuTsh2rWNMUa4+AKli4UORrpyv6QBOiA==}
@@ -9008,7 +9008,7 @@ snapshots:
     dependencies:
       '@web-widget/context': 1.28.0
 
-  '@web-widget/shared-cache@1.0.0-next.3':
+  '@web-widget/shared-cache@1.0.0':
     dependencies:
       '@web-widget/helpers': 1.28.0
       '@web-widget/http-cache-semantics': 1.2.0
