@@ -1,5 +1,15 @@
 # @web-widget/vue
 
+## 1.41.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.41.0
+- @web-widget/react@1.41.0
+- @web-widget/schema@1.41.0
+- @web-widget/vite-plugin@1.41.0
+- @web-widget/web-widget@1.41.0
+
 ## 1.40.1
 
 ### Patch Changes
