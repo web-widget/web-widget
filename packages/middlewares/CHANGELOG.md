@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 1.41.0
+
+### Minor Changes
+
+- ed6dfb7: `cache`: Added ignoreVary option.
+
+### Patch Changes
+
+- @web-widget/helpers@1.41.0
+- @web-widget/schema@1.41.0
+
 ## 1.40.1
 
 ### Patch Changes
