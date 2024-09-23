@@ -44,6 +44,11 @@ export interface CacheOptions {
   ignoreRequestCacheControl?: boolean;
 
   /**
+   * @default false
+   */
+  ignoreVary?: boolean;
+
+  /**
    * Create custom cache keys.
    * @default
    * ```json
@@ -78,6 +83,7 @@ export default function cache(options?: CacheOptions) {
   const defaultOptions = {
     cacheName: 'default',
     ignoreRequestCacheControl: true,
+    ignoreVary: false,
     ...options,
   };
 
@@ -101,6 +107,7 @@ export default function cache(options?: CacheOptions) {
       cacheName,
       caches,
       ignoreRequestCacheControl,
+      ignoreVary,
       signal: signalOption,
       vary: varyOption,
     } = {
@@ -137,6 +144,7 @@ export default function cache(options?: CacheOptions) {
         varyOverride: vary,
         cacheKeyRules,
         ignoreRequestCacheControl,
+        ignoreVary,
       },
       signal,
     });
