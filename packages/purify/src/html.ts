@@ -1,58 +1,27 @@
-/**
- * escape-html
- * https://github.com/component/escape-html/blob/master/index.js
- * Copyright(c) 2012-2013 TJ Holowaychuk
- * Copyright(c) 2015 Andreas Lubbe
- * Copyright(c) 2015 Tiancheng "Timothy" Gu
- * MIT Licensed
- */
+import { replace } from './replace';
 
-const matchHtmlRegExp = /["'&<>]/;
+// This utility is based on https://github.com/component/escape-html
+// License: https://github.com/component/escape-html/blob/master/LICENSE
+const MATCH_HTML_REGEXP = /["'&<>]/;
 
 /**
- * Escape special characters in the given string of text.
+ * Escape special characters in the given string of html.
  */
 export function escapeHtml(string: string): string {
-  const str = '' + string;
-  const match = matchHtmlRegExp.exec(str);
-
-  if (!match) {
-    return str;
-  }
-
-  let escape;
-  let html = '';
-  let index = 0;
-  let lastIndex = 0;
-
-  for (index = match.index; index < str.length; index++) {
-    switch (str.charCodeAt(index)) {
+  return replace(string, MATCH_HTML_REGEXP, (code) => {
+    switch (code) {
       case 34: // "
-        escape = '&quot;';
-        break;
+        return '&quot;';
       case 38: // &
-        escape = '&amp;';
-        break;
+        return '&amp;';
       case 39: // '
-        escape = '&#39;';
-        break;
+        return '&#39;';
       case 60: // <
-        escape = '&lt;';
-        break;
+        return '&lt;';
       case 62: // >
-        escape = '&gt;';
-        break;
+        return '&gt;';
       default:
-        continue;
+        return undefined;
     }
-
-    if (lastIndex !== index) {
-      html += str.substring(lastIndex, index);
-    }
-
-    lastIndex = index + 1;
-    html += escape;
-  }
-
-  return lastIndex !== index ? html + str.substring(lastIndex, index) : html;
+  });
 }
