@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.42.0
+
+### Minor Changes
+
+- afcc8dc: Support for [`CustomStateSet`](https://developer.mozilla.org/en-US/docs/Web/API/CustomStateSet).
+
+### Patch Changes
+
+- @web-widget/helpers@1.42.0
+- @web-widget/lifecycle-cache@1.42.0
+
 ## 1.41.1
 
 ### Patch Changes

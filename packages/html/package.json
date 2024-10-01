@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/html",
   "description": "HTML adapter",
-  "version": "1.41.1",
+  "version": "1.42.0",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",
