@@ -41,6 +41,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   #timeouts: Timeouts | null = null;
 
   #status: string = status.INITIAL;
+  #internals?: ElementInternals;
 
   constructor() {
     super();
@@ -68,6 +69,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
         timeouts: this.timeouts || {},
       }
     );
+    if (this.attachInternals) {
+      this.#internals = this.attachInternals();
+    }
   }
 
   #autoMount() {
@@ -506,7 +510,21 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #statusChangeCallback(value: string) {
     this.#status = value;
-    this.setAttribute('status', value);
+
+    if (this.#internals?.states) {
+      // The double dash is required in browsers with the
+      // legacy syntax, not supplying it will throw.
+      // @see https://developer.mozilla.org/en-US/docs/Web/API/CustomStateSet#comptability_with_dashed-ident_syntax
+      try {
+        this.#internals.states.clear();
+        this.#internals.states.add(value);
+      } catch (error) {
+        // this.#internals.states.add(`--${value}`);
+        this.setAttribute('status', value);
+      }
+    } else {
+      this.setAttribute('status', value);
+    }
 
     if (value === status.MOUNTED) {
       this.removeAttribute('recovering');
