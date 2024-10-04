@@ -2,8 +2,11 @@ import type {
   Loader,
   WebWidgetRendererOptions,
   WebWidgetElementProps,
+  WebWidgetRendererInterface,
+  WebWidgetRendererConstructor,
 } from './types';
 import { getClientModuleId, unsafePropsToAttrs } from './utils/render';
+import { PLACEHOLDER } from './element';
 
 export type * from './types';
 export * from './element';
@@ -18,7 +21,7 @@ function unsafeAttrsToHtml(attrs: Record<string, string>) {
     .join(' ');
 }
 
-export class WebWidgetRenderer {
+class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
   #clientImport: string;
   #options: WebWidgetElementProps;
   localName = 'web-widget';
@@ -44,27 +47,32 @@ export class WebWidgetRenderer {
     this.#options = options;
   }
 
-  get attributes(): Record<string, string> {
+  get attributes() {
     const clientImport = this.#clientImport;
-    const options = this.#options;
+    const { data: contextdata, meta: contextmeta, ...options } = this.#options;
 
     const attrs = unsafePropsToAttrs({
       ...options,
       // base: options.base?.startsWith("file://") ? undefined : options.base,
-      data: JSON.stringify(options.data),
+      contextdata: JSON.stringify(contextdata),
+      contextmeta: JSON.stringify(contextmeta),
       import: clientImport,
       recovering: false,
     });
 
-    if (attrs.data === '{}') {
-      delete attrs.data;
+    if (attrs.contextdata === '{}') {
+      delete attrs.contextdata;
+    }
+
+    if (attrs.contextmeta === '{}') {
+      delete attrs.contextmeta;
     }
 
     return attrs;
   }
 
   async renderInnerHTMLToString() {
-    return '';
+    return PLACEHOLDER;
   }
 
   async renderOuterHTMLToString() {
@@ -74,3 +82,6 @@ export class WebWidgetRenderer {
     return `<${tag} ${unsafeAttrsToHtml(attributes)}>${children}</${tag}>`;
   }
 }
+
+export const WebWidgetRenderer: WebWidgetRendererConstructor =
+  ClientWebWidgetRenderer;

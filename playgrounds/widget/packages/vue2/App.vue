@@ -22,6 +22,7 @@ const count = ref(0);
         <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
       </a>
     </div>
+    <h1>Vite + Vue2</h1>
     <div>
       <h2>React component:</h2>
       <ReactCounter :count="3" />
@@ -58,4 +59,3 @@ const count = ref(0);
   filter: drop-shadow(0 0 2em #42b883aa);
 }
 </style>
-@playgrounds/web-widget-vue3/Counter@widget.d.vue.js

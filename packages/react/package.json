@@ -14,9 +14,9 @@
   "license": "MIT",
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
+    "@web-widget/schema": "workspace:*",
     "@web-widget/vite-plugin": "workspace:*",
-    "@web-widget/web-widget": "workspace:*",
-    "@web-widget/schema": "workspace:*"
+    "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "npm:types-react@rc",

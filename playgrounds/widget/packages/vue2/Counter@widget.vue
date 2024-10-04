@@ -10,7 +10,7 @@ export default Vue.extend({
   },
   data() {
     return {
-      value: this.count ?? 0,
+      value: this.count,
     };
   },
 });

@@ -2,7 +2,6 @@ import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import { Suspense, createElement, use } from 'react';
 import type { FunctionComponent, ReactNode } from 'react';
-import { IS_CLIENT } from '@web-widget/helpers/env';
 
 export interface ReactWidgetComponent<T>
   extends FunctionComponent<T & WebWidgetSuspenseProps> {}
@@ -48,7 +47,6 @@ const renderWebWidget = function ({
   const localName = widget.localName;
   const attributes = widget.attributes;
   const innerHTML = widget.renderInnerHTMLToString();
-
   return {
     localName,
     attributes,
@@ -57,25 +55,23 @@ const renderWebWidget = function ({
 };
 
 function WebWidget({ localName, attributes, innerHTML }: WebWidgetElement) {
-  if (IS_CLIENT) {
-    // TODO Warning: Prop `dangerouslySetInnerHTML` did not match. Server"
-  }
+  const html = use(innerHTML);
   return createElement(localName, {
     ...attributes,
-    dangerouslySetInnerHTML: {
-      __html: use(innerHTML),
-    },
+    dangerouslySetInnerHTML: { __html: html },
+    // NOTE: Since the innerHTML property of a widget
+    // will inevitably differ between the server and the client,
+    // this turns off hydration mismatch warnings.
+    suppressHydrationWarning: true,
   });
 }
 
-export interface DefineWebWidgetOptions {
-  base?: WebWidgetRendererOptions['base'];
-  import?: WebWidgetRendererOptions['import'];
-  loading?: WebWidgetRendererOptions['loading'];
-  name?: WebWidgetRendererOptions['name'];
-  renderStage?: WebWidgetRendererOptions['renderStage'];
-  renderTarget?: WebWidgetRendererOptions['renderTarget'];
-}
+export type DefineWebWidgetOptions = Partial<
+  Pick<
+    WebWidgetRendererOptions,
+    'base' | 'import' | 'loading' | 'name' | 'renderStage' | 'renderTarget'
+  >
+>;
 
 export interface WebWidgetSuspenseProps {
   children?: ReactNode;

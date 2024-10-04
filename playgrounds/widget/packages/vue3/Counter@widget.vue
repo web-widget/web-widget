@@ -22,10 +22,10 @@ const count = ref(props.count);
 .counter {
   display: inline-block;
   line-height: 1em;
-  padding: 15px;
+  padding: 20px;
   border-radius: 30px;
   font-size: 16px;
-  border: 2px solid #42b883;
+  background: linear-gradient(315deg, #42d392 25%, #647eff);
 }
 
 .counter button {
@@ -37,7 +37,7 @@ const count = ref(props.count);
   font-size: 1em;
   border: 0 none;
   outline: #fff solid 5px;
-  background: #42b883;
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
   font-weight: bold;
   cursor: pointer;
@@ -45,14 +45,15 @@ const count = ref(props.count);
 
 .counter .count {
   display: inline-block;
-  min-width: 1.2em;
+  min-width: 1.5em;
   text-align: center;
   padding-left: 10px;
   padding-right: 10px;
   font-weight: bold;
   font-size: 1em;
-  color: #42b883;
+  color: cadetblue;
   border: 1px solid transparent;
+  color: #fff;
   background: transparent;
 }
 </style>

@@ -27,3 +27,17 @@ export interface WebWidgetRendererOptions extends WebWidgetElementProps {
   children?: string;
   renderStage?: 'server' | 'client';
 }
+
+export interface WebWidgetRendererInterface {
+  localName: string;
+  attributes: Record<string, string>;
+  renderInnerHTMLToString(): Promise<string>;
+  renderOuterHTMLToString(): Promise<string>;
+}
+
+export interface WebWidgetRendererConstructor {
+  new (
+    loader: Loader,
+    options: WebWidgetRendererOptions
+  ): WebWidgetRendererInterface;
+}
