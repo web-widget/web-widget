@@ -1000,6 +1000,9 @@ importers:
         specifier: ^2.0.4
         version: 2.0.4
     devDependencies:
+      '@web-widget/react':
+        specifier: workspace:*
+        version: link:../../packages/react
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3

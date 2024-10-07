@@ -12,7 +12,8 @@
   "devDependencies": {
     "typescript": "catalog:",
     "vite": "catalog:",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "@web-widget/react": "workspace:*"
   },
   "engines": {
     "node": ">=18"
