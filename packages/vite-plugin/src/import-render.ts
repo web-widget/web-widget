@@ -97,8 +97,15 @@ export function importRenderPlugin({
           return result;
         }
 
-        if (dev && !html.includes(`id="${inspectorId}"`)) {
-          const src = packageToDevUrl('@web-widget/web-widget/inspector', base);
+        if (
+          dev &&
+          process.env.NODE_ENV !== 'test' &&
+          !html.includes(`id="${inspectorId}"`)
+        ) {
+          const src = resolvePathToDevUrl(
+            '@web-widget/web-widget/inspector',
+            base
+          );
           result.push({
             injectTo: 'body',
             tag: 'web-widget-inspector',
@@ -200,8 +207,9 @@ export function importRenderPlugin({
           }
 
           const asset = normalizePath(path.relative(root, moduleId));
+
           const clientModuleId = dev
-            ? base + asset
+            ? toDevUrl(asset, base)
             : ssr
               ? ASSET_PLACEHOLDER + asset
               : this.emitFile({
@@ -318,7 +326,23 @@ export function importRenderPlugin({
   ];
 }
 
-function packageToDevUrl(name: string, base: string) {
-  const id = require.resolve(name);
+function resolvePathToDevUrl(target: string, base: string) {
+  const id = require.resolve(target);
   return `${base}@fs${id}`;
+}
+
+function relativePathToDevUrl(target: string, base: string) {
+  return `${base}${target}`;
+}
+
+// @examples
+// toDevUrl('App.vue', '/base/');
+// toDevUrl('../App.vue', '/base');
+// toDevUrl('../App.vue?as=jsx', '/base');
+// toDevUrl('/www/dev/App.vue', '/base');
+function toDevUrl(target: string, base: string) {
+  target = target.replace(/\?.*?$/, '');
+  return path.isAbsolute(target) || target.startsWith(`../`)
+    ? resolvePathToDevUrl(target, base)
+    : relativePathToDevUrl(target, base);
 }
