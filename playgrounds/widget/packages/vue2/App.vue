@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import ReactCounter from '../react/Counter@widget';
-import VueCounter from '../vue3/Counter@widget.vue';
+import ReactCounter from '@playgrounds/widget-react/Counter@widget.tsx';
+import VueCounter from '@playgrounds/widget-vue3/Counter@widget.vue';
 import Vue2Counter from './Counter@widget.vue';
-import VanillaCounter from '../vanilla/Counter@widget';
 import { ref } from 'vue';
 
 defineProps({
@@ -32,14 +31,13 @@ const count = ref(0);
 
       <h2>Vue2 component:</h2>
       <Vue2Counter :count="3" />
-
-      <h2>Vanilla component:</h2>
-      <VanillaCounter :count="3" />
     </div>
     <div class="card">
       <button type="button" @click="count++">count is {{ count }}</button>
     </div>
-    <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
+    <p>
+      Edit <code>packages/vue2/App.vue</code> and save to test HMR
+    </p>
   </div>
 </template>
 

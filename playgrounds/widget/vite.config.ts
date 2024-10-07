@@ -1,13 +1,9 @@
 import path from 'node:path';
+import fs from 'node:fs';
 import { defineConfig, type Plugin } from 'vite';
-import react from '@vitejs/plugin-react';
-import reactWebWidgetPlugin from '@web-widget/react/vite';
 import { vuePresetsPlugin } from './packages/vue3/vite-plugins';
 import { vue2PresetsPlugin } from './packages/vue2/vite-plugins';
-
-function reactPresetsPlugin() {
-  return [react(), reactWebWidgetPlugin()];
-}
+import { reactPresetsPlugin } from './packages/react/vite-plugins';
 
 function patchVuePluginConfig(): Plugin {
   return {
@@ -42,24 +38,46 @@ function patchVuePluginConfig(): Plugin {
   };
 }
 
-export default defineConfig({
-  plugins: [
-    patchVuePluginConfig(),
-    reactPresetsPlugin(),
-    vuePresetsPlugin(),
-    vue2PresetsPlugin(),
-  ],
-  build: {
-    minify: false,
-    manifest: true,
-    target: ['chrome76'],
-    rollupOptions: {
-      input: {
-        index: path.resolve(__dirname, 'index.html'),
-        vue3: path.resolve(__dirname, 'vue3.html'),
-        vue2: path.resolve(__dirname, 'vue2.html'),
-        react: path.resolve(__dirname, 'react.html'),
+function createInputMap(names: string[], type: 'client' | 'server') {
+  const inputMap: Record<string, string> = {};
+  if (type === 'client') {
+    inputMap['index.html'] = 'index.html';
+  }
+  for (const name of names) {
+    if (type === 'client') {
+      inputMap[`${name}`] = `${name}.html`;
+    } else {
+      inputMap[`${name}`] = `packages/${name}/entry-${type}.ts`;
+    }
+  }
+  return inputMap;
+}
+
+export default defineConfig(({ isSsrBuild }) => {
+  const type = isSsrBuild ? 'server' : 'client';
+  const manifest = isSsrBuild
+    ? JSON.parse(
+        fs.readFileSync(
+          path.resolve(__dirname, 'dist/client/.vite/manifest.json'),
+          'utf-8'
+        )
+      )
+    : undefined;
+  return {
+    plugins: [
+      patchVuePluginConfig(),
+      reactPresetsPlugin(manifest),
+      vuePresetsPlugin(manifest),
+      vue2PresetsPlugin(manifest),
+    ],
+    build: {
+      manifest: isSsrBuild ? false : true,
+      outDir: `dist/${type}`,
+      rollupOptions: {
+        input: {
+          ...createInputMap(['react', 'vue3', 'vue2'], type),
+        },
       },
     },
-  },
+  };
 });

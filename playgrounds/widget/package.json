@@ -1,35 +1,34 @@
 {
   "name": "@playgrounds/widget",
-  "description": "",
   "version": "0.0.0",
-  "author": "",
   "dependencies": {
-    "@playgrounds/web-widget-vue2": "workspace:*",
-    "@playgrounds/web-widget-vue3": "workspace:*",
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/react": "workspace:*",
-    "@web-widget/vue": "workspace:*",
-    "@web-widget/web-widget": "workspace:*",
     "react": "rc",
-    "react-dom": "rc"
+    "react-dom": "rc",
+    "@web-widget/web-widget": "workspace:*",
+    "compression": "^1.7.4",
+    "express": "^4.19.2",
+    "sirv": "^2.0.4"
   },
   "devDependencies": {
-    "@types/react": "^18.2.47",
-    "@types/react-dom": "^18.2.18",
-    "@vitejs/plugin-react": "^4.2.1",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "cross-env": "^7.0.3"
   },
   "engines": {
     "node": ">=18"
   },
-  "keywords": [],
-  "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "vite build",
-    "dev": "vite",
-    "preview": "vite preview"
+    "/*----csr mode----*/": "",
+    "dev:csr": "vite",
+    "build:csr": "vite build",
+    "preview:csr": "vite preview",
+    "/*----ssr mode----*/": "",
+    "dev:ssr": "node server",
+    "build:ssr": "pnpm build:ssr:client && pnpm run build:ssr:server",
+    "build:ssr:client": "cross-env VITE_HYDRATE_MODE=true vite build",
+    "build:ssr:server": "vite build --ssr",
+    "preview:ssr": "cross-env NODE_ENV=production node server"
   },
   "type": "module"
 }

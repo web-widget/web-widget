@@ -1,0 +1,22 @@
+{
+  "name": "@playgrounds/widget-react",
+  "dependencies": {
+    "@web-widget/react": "workspace:*",
+    "@playgrounds/widget-vue2": "workspace:*",
+    "@playgrounds/widget-vue3": "workspace:*",
+    "react": "rc",
+    "react-dom": "rc"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.47",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  },
+  "exports": {
+    "./*": "./*"
+  },
+  "private": true,
+  "type": "module"
+}
