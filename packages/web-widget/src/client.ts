@@ -6,7 +6,7 @@ import type {
   WebWidgetRendererConstructor,
 } from './types';
 import { getClientModuleId, unsafePropsToAttrs } from './utils/render';
-import { PLACEHOLDER } from './element';
+import { INNER_HTML_PLACEHOLDER } from './element';
 
 export type * from './types';
 export * from './element';
@@ -72,7 +72,7 @@ class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
   }
 
   async renderInnerHTMLToString() {
-    return PLACEHOLDER;
+    return INNER_HTML_PLACEHOLDER;
   }
 
   async renderOuterHTMLToString() {

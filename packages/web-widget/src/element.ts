@@ -24,7 +24,7 @@ const innerHTMLDescriptor = Object.getOwnPropertyDescriptor(
 )!;
 const innerHTMLSetter = innerHTMLDescriptor.set!;
 
-export const PLACEHOLDER = `<!--web-widget:placeholder-->`;
+export const INNER_HTML_PLACEHOLDER = `<!--web-widget:placeholder-->`;
 
 /**
  * Web Widget Container
@@ -310,7 +310,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   // NOTE: This is a temporary solution for React.
   // NOTE: Prevent React components from clearing innerHTML when re-rendering on the client side.
   set innerHTML(value: string) {
-    if (value === PLACEHOLDER) {
+    if (value === INNER_HTML_PLACEHOLDER) {
       return;
     } else {
       innerHTMLSetter.call(this, value);
