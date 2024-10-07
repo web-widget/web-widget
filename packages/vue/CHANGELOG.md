@@ -1,5 +1,21 @@
 # @web-widget/vue
 
+## 1.43.0
+
+### Minor Changes
+
+- 2f36b88: Support Vite plugin for using WebWidget alone.
+
+### Patch Changes
+
+- Updated dependencies [2f36b88]
+- Updated dependencies [2f36b88]
+  - @web-widget/web-widget@1.43.0
+  - @web-widget/react@1.43.0
+  - @web-widget/vite-plugin@1.43.0
+  - @web-widget/helpers@1.43.0
+  - @web-widget/schema@1.43.0
+
 ## 1.42.0
 
 ### Patch Changes
