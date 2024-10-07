@@ -1,5 +1,19 @@
 # @web-widget/vite-plugin
 
+## 1.43.0
+
+### Minor Changes
+
+- 2f36b88: Support the introduction of widgets outside of vite root.
+
+### Patch Changes
+
+- Updated dependencies [2f36b88]
+  - @web-widget/web-widget@1.43.0
+  - @web-widget/helpers@1.43.0
+  - @web-widget/node@1.43.0
+  - @web-widget/web-router@1.43.0
+
 ## 1.42.0
 
 ### Patch Changes

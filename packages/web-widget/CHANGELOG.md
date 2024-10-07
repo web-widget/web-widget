@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.43.0
+
+### Minor Changes
+
+- 2f36b88: Support Vite plugin for using WebWidget alone.
+
+### Patch Changes
+
+- @web-widget/helpers@1.43.0
+- @web-widget/lifecycle-cache@1.43.0
+
 ## 1.42.0
 
 ### Minor Changes
