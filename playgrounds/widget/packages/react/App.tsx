@@ -3,8 +3,8 @@ import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
 
-import VueCounter from '@playgrounds/widget-vue3/Counter@widget.vue?as=jsx';
-import Vue2Counter from '@playgrounds/widget-vue2/Counter@widget.vue?as=jsx';
+import VueCounter from '../vue3/Counter@widget.vue?as=jsx';
+import Vue2Counter from '../vue2/Counter@widget.vue?as=jsx';
 import ReactCounter from './Counter@widget';
 
 function App() {

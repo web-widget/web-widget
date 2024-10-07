@@ -2,8 +2,6 @@
   "name": "@playgrounds/widget-vue3",
   "dependencies": {
     "@web-widget/vue": "workspace:*",
-    "@playgrounds/widget-react": "workspace:*",
-    "@playgrounds/widget-vue2": "workspace:*",
     "vue": "^3.4.8"
   },
   "devDependencies": {

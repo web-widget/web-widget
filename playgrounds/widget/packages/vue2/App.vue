@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ReactCounter from '@playgrounds/widget-react/Counter@widget.tsx';
-import VueCounter from '@playgrounds/widget-vue3/Counter@widget.vue';
+import ReactCounter from '../react/Counter@widget.tsx';
+import VueCounter from '../vue3/Counter@widget.vue';
 import Vue2Counter from './Counter@widget.vue';
 import { ref } from 'vue';
 

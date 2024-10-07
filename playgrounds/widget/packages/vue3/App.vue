@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import ReactCounter from '@playgrounds/widget-react/Counter@widget.tsx';
+import ReactCounter from '../react/Counter@widget.tsx';
 import VueCounter from './Counter@widget.vue';
-import Vue2Counter from '@playgrounds/widget-vue2/Counter@widget.vue';
+import Vue2Counter from '../vue2/Counter@widget.vue';
 import { ref } from 'vue';
 
 defineProps({

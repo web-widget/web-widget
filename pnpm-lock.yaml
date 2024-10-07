@@ -1015,12 +1015,6 @@ importers:
 
   playgrounds/widget/packages/react:
     dependencies:
-      '@playgrounds/widget-vue2':
-        specifier: workspace:*
-        version: link:../vue2
-      '@playgrounds/widget-vue3':
-        specifier: workspace:*
-        version: link:../vue3
       '@web-widget/react':
         specifier: workspace:*
         version: link:../../../../packages/react
@@ -1049,12 +1043,6 @@ importers:
 
   playgrounds/widget/packages/vue2:
     dependencies:
-      '@playgrounds/widget-react':
-        specifier: workspace:*
-        version: link:../react
-      '@playgrounds/widget-vue3':
-        specifier: workspace:*
-        version: link:../vue3
       '@web-widget/vue2':
         specifier: workspace:*
         version: link:../../../../packages/vue2
@@ -1074,12 +1062,6 @@ importers:
 
   playgrounds/widget/packages/vue3:
     dependencies:
-      '@playgrounds/widget-react':
-        specifier: workspace:*
-        version: link:../react
-      '@playgrounds/widget-vue2':
-        specifier: workspace:*
-        version: link:../vue2
       '@web-widget/vue':
         specifier: workspace:*
         version: link:../../../../packages/vue

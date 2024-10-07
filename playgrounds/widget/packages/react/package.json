@@ -2,8 +2,6 @@
   "name": "@playgrounds/widget-react",
   "dependencies": {
     "@web-widget/react": "workspace:*",
-    "@playgrounds/widget-vue2": "workspace:*",
-    "@playgrounds/widget-vue3": "workspace:*",
     "react": "rc",
     "react-dom": "rc"
   },
