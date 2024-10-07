@@ -1,8 +1,5 @@
 {
-  "name": "@playgrounds/web-widget-vue2",
-  "description": "",
-  "version": "0.0.1",
-  "author": "",
+  "name": "@playgrounds/widget-vue2",
   "dependencies": {
     "@web-widget/vue2": "workspace:*",
     "vue": "^2.7.16",
@@ -15,8 +12,6 @@
   "exports": {
     "./*": "./*"
   },
-  "license": "ISC",
   "private": true,
-  "scripts": {},
   "type": "module"
 }

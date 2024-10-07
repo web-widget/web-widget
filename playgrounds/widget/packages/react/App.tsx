@@ -1,18 +1,17 @@
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
 
 import VueCounter from '../vue3/Counter@widget.vue?as=jsx';
 import Vue2Counter from '../vue2/Counter@widget.vue?as=jsx';
-import VanillaCounter from '../vanilla/Counter@widget';
 import ReactCounter from './Counter@widget';
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
-    <Suspense>
+    <div>
       <div>
         <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
           <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -31,22 +30,16 @@ function App() {
 
         <h2>Vue2 component:</h2>
         <Vue2Counter count={3} />
-
-        <h2>Vanilla component:</h2>
-        <VanillaCounter count={3} />
       </div>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+      <p>
+        Edit <code>packages/react/App.tsx</code> and save to test HMR
       </p>
-    </Suspense>
+    </div>
   );
 }
 

@@ -1,13 +1,8 @@
 <script setup lang="ts">
-import ReactCounter from '../react/Counter@widget';
+import ReactCounter from '../react/Counter@widget.tsx';
 import VueCounter from '../vue3/Counter@widget.vue';
 import Vue2Counter from './Counter@widget.vue';
-import VanillaCounter from '../vanilla/Counter@widget';
 import { ref } from 'vue';
-
-defineProps({
-  msg: String,
-});
 
 const count = ref(0);
 </script>
@@ -22,6 +17,7 @@ const count = ref(0);
         <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
       </a>
     </div>
+    <h1>Vite + Vue2</h1>
     <div>
       <h2>React component:</h2>
       <ReactCounter :count="3" />
@@ -31,14 +27,13 @@ const count = ref(0);
 
       <h2>Vue2 component:</h2>
       <Vue2Counter :count="3" />
-
-      <h2>Vanilla component:</h2>
-      <VanillaCounter :count="3" />
     </div>
     <div class="card">
       <button type="button" @click="count++">count is {{ count }}</button>
     </div>
-    <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
+    <p>
+      Edit <code>packages/vue2/App.vue</code> and save to test HMR
+    </p>
   </div>
 </template>
 
@@ -58,4 +53,3 @@ const count = ref(0);
   filter: drop-shadow(0 0 2em #42b883aa);
 }
 </style>
-@playgrounds/web-widget-vue3/Counter@widget.d.vue.js

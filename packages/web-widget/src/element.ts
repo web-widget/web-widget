@@ -18,6 +18,14 @@ declare const importShim: <T>(src: string) => Promise<T>;
 type Timeouts = Record<string, number>;
 let globalTimeouts: Timeouts = Object.create(null);
 
+const innerHTMLDescriptor = Object.getOwnPropertyDescriptor(
+  Element.prototype,
+  'innerHTML'
+)!;
+const innerHTMLSetter = innerHTMLDescriptor.set!;
+
+export const INNER_HTML_PLACEHOLDER = `<!--web-widget:placeholder-->`;
+
 /**
  * Web Widget Container
  * @event {Event} statuschange
@@ -41,6 +49,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   #timeouts: Timeouts | null = null;
 
   #status: string = status.INITIAL;
+
   #internals?: ElementInternals;
 
   constructor() {
@@ -69,6 +78,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         timeouts: this.timeouts || {},
       }
     );
+
     if (this.attachInternals) {
       this.#internals = this.attachInternals();
     }
@@ -118,24 +128,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   /**
    * WidgetModule data.
+   * @deprecated Use `contextData` instead.
    */
   get data(): SerializableObject | null {
-    if (!this.#data) {
-      const dataAttr = this.getAttribute('data');
-
-      if (dataAttr) {
-        try {
-          this.#data = JSON.parse(dataAttr);
-        } catch (error) {
-          this.#throwGlobalError(error as TypeError);
-          this.#data = {};
-        }
-      } else if (Object.entries(this.dataset).length) {
-        this.#data = { ...(this.dataset as SerializableObject) };
-      }
-    }
-
-    return this.#data;
+    console.warn('`data` is deprecated. Use `contextData` instead.');
+    return this.contextData;
   }
 
   set data(value: SerializableObject) {
@@ -145,11 +142,44 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
+   * WidgetModule data.
+   */
+  get contextData(): SerializableObject | null {
+    if (!this.#data) {
+      const dataAttr =
+        this.getAttribute('contextdata') ??
+        // @deprecated
+        this.getAttribute('data');
+
+      if (dataAttr) {
+        try {
+          this.#data = JSON.parse(dataAttr);
+        } catch (error) {
+          this.#throwGlobalError(error as TypeError);
+          this.#data = {};
+        }
+      }
+      // @deprecated
+      else if (Object.entries(this.dataset).length) {
+        this.#data = { ...(this.dataset as SerializableObject) };
+      }
+    }
+
+    return this.#data;
+  }
+
+  set contextData(value: SerializableObject) {
+    if (typeof value === 'object') {
+      this.#data = value;
+    }
+  }
+
+  /**
    * WidgetModule meta.
    */
-  get meta(): Meta | null {
+  get contextMeta(): Meta | null {
     if (!this.#meta) {
-      const dataAttr = this.getAttribute('meta');
+      const dataAttr = this.getAttribute('contextmeta');
 
       if (dataAttr) {
         try {
@@ -164,9 +194,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return this.#meta;
   }
 
-  set meta(value: Meta) {
+  set contextMeta(value: Meta) {
     if (typeof value === 'object') {
-      this.setAttribute('meta', JSON.stringify(value));
+      this.setAttribute('contextmeta', JSON.stringify(value));
     }
   }
 
@@ -277,6 +307,16 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.#timeouts = value || null;
   }
 
+  // NOTE: This is a temporary solution for React.
+  // NOTE: Prevent React components from clearing innerHTML when re-rendering on the client side.
+  set innerHTML(value: string) {
+    if (value === INNER_HTML_PLACEHOLDER) {
+      return;
+    } else {
+      innerHTMLSetter.call(this, value);
+    }
+  }
+
   /**
    * Hook: Create the module's context.
    */
@@ -306,8 +346,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
         return container;
       },
 
-      data: view.data ?? {},
-      meta: view.meta ?? {},
+      data: view.contextData ?? {},
+      meta: view.contextMeta ?? {},
       recovering: view.recovering,
       /**@deprecated*/
       update: this.update.bind(this),
@@ -324,12 +364,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
     if (this.renderTarget === 'shadow') {
       if (this.recovering) {
-        if (this.attachInternals) {
-          const internals = this.attachInternals();
-          if (internals.shadowRoot) {
-            container = internals.shadowRoot;
-          }
-        }
+        container = this.#internals?.shadowRoot ?? null;
       }
 
       if (!container) {
@@ -482,11 +517,15 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string) {
-    if (name === 'data') {
+    if (
+      name === 'contextdata' ||
+      // @deprecated
+      name === 'data'
+    ) {
       // NOTE: Clear cache
       this.#data = null;
     }
-    if (name === 'meta') {
+    if (name === 'contextmeta') {
       // NOTE: Clear cache
       this.#meta = null;
     }
@@ -555,7 +594,15 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['data', 'inactive', 'loading', 'import', 'meta'];
+    return [
+      'data', // @deprecated
+      'contextdata',
+      'inactive',
+      'loading',
+      'import',
+      'meta', // @deprecated
+      'contextmeta',
+    ];
   }
 
   static get timeouts() {
@@ -599,7 +646,19 @@ declare global {
   interface Window {
     HTMLWebWidgetElement: typeof HTMLWebWidgetElement;
   }
+
+  interface WebWidgetAttributes extends HTMLWebWidgetElement {
+    contextdata: string;
+    contextmeta: string;
+  }
+
   interface HTMLElementTagNameMap {
     'web-widget': HTMLWebWidgetElement;
+  }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      'web-widget': WebWidgetAttributes;
+    }
   }
 }

@@ -89,7 +89,8 @@ describe('Element default properties', () => {
     const emptyWidget = await createEmptyWidget();
     expect(emptyWidget).to.have.property('base', emptyWidget.baseURI);
     expect(emptyWidget).to.have.property('data', null);
-    expect(emptyWidget).to.have.property('meta', null);
+    expect(emptyWidget).to.have.property('contextData', null);
+    expect(emptyWidget).to.have.property('contextMeta', null);
     expect(emptyWidget).to.have.property('context', null);
     expect(emptyWidget).to.have.property('inactive', false);
     expect(emptyWidget).to.have.property('recovering', false);

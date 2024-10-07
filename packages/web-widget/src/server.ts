@@ -8,6 +8,8 @@ import type {
   Loader,
   WebWidgetElementProps,
   WebWidgetRendererOptions,
+  WebWidgetRendererInterface,
+  WebWidgetRendererConstructor,
 } from './types';
 import {
   getClientModuleId,
@@ -58,7 +60,7 @@ async function suspense<T>(handler: () => T) {
   }
 }
 
-export class WebWidgetRenderer {
+class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   #children: string;
   #clientImport: string;
   #loader: Loader;
@@ -83,9 +85,9 @@ export class WebWidgetRenderer {
     this.#renderStage = renderStage;
   }
 
-  get attributes(): Record<string, string> {
+  get attributes() {
     const clientImport = this.#clientImport;
-    const options = this.#options;
+    const { data: contextdata, meta: contextmeta, ...options } = this.#options;
     const renderStage = this.#renderStage;
 
     if (renderStage === 'server') {
@@ -97,13 +99,18 @@ export class WebWidgetRenderer {
     const attrs = unsafePropsToAttrs({
       ...options,
       // base: options.base?.startsWith("file://") ? undefined : options.base,
-      data: JSON.stringify(options.data),
+      contextdata: JSON.stringify(contextdata),
+      contextmeta: JSON.stringify(contextmeta),
       import: clientImport,
       recovering: renderStage !== 'client',
     });
 
-    if (attrs.data === '{}') {
-      delete attrs.data;
+    if (attrs.contextdata === '{}') {
+      delete attrs.contextdata;
+    }
+
+    if (attrs.contextmeta === '{}') {
+      delete attrs.contextmeta;
     }
 
     return attrs;
@@ -208,7 +215,9 @@ export class WebWidgetRenderer {
             showWebContainerWarning = false;
           }
         } else {
-          throw error;
+          // NOTE: Since WebWidget can run independently of WebRouter,
+          // it should not throw errors when lacking context.
+          // throw error;
         }
       } else {
         throw error;
@@ -232,3 +241,6 @@ function isWebContainer() {
     'string'
   );
 }
+
+export const WebWidgetRenderer: WebWidgetRendererConstructor =
+  ServerWebWidgetRenderer;
