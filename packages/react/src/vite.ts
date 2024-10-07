@@ -16,8 +16,10 @@ export default function reactWebWidgetPlugin(
     provide = '@web-widget/react',
     export: exportWidget = {},
     import: importWidget = {},
+    manifest,
   } = options ?? {};
   return webWidgetPlugin({
+    manifest,
     provide,
     export: {
       include: /(?:\.|@)(?:route|widget)\.(?:tsx|jsx)(?:\?.*)?$/,

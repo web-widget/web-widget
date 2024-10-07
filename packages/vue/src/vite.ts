@@ -4,7 +4,8 @@ import type { WebWidgetUserConfig } from '@web-widget/vite-plugin';
 // Examples:
 // .vue?vue&type=script&setup=true&lang.ts
 // .vue?vue&type=style&index=0&scoped=7b8d5933&lang.less
-const VUE_INTERNAL_REQUEST = /\.vue\?vue\b.*$/;
+// .vue?direct&vue&type=style&index=0&scoped=7b8d5933&lang.css
+const VUE_INTERNAL_REQUEST = /\.vue\?(?:direct&)?vue\b.*$/;
 
 // Examples:
 // .vue?vue&type=script&setup=true&lang.ts
@@ -17,6 +18,7 @@ export default function vueWebWidgetPlugin(
   options?: VueWebWidgetPluginOptions
 ) {
   const {
+    manifest,
     provide = '@web-widget/vue',
     export: exportWidget = {},
     import: importWidget = {},
@@ -24,6 +26,7 @@ export default function vueWebWidgetPlugin(
   const route = /(?:\.|@)route\.vue(?:\?.*)?$/;
   const widget = /(?:\.|@)widget\.vue(?:\?.*)?$/;
   return webWidgetPlugin({
+    manifest,
     provide,
     export: {
       include: [route, widget],

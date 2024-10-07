@@ -215,7 +215,9 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
             showWebContainerWarning = false;
           }
         } else {
-          throw error;
+          // NOTE: Since WebWidget can run independently of WebRouter,
+          // it should not throw errors when lacking context.
+          // throw error;
         }
       } else {
         throw error;
