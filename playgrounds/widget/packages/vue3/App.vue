@@ -4,10 +4,6 @@ import VueCounter from './Counter@widget.vue';
 import Vue2Counter from '../vue2/Counter@widget.vue';
 import { ref } from 'vue';
 
-defineProps({
-  msg: String,
-});
-
 const count = ref(0);
 </script>
 

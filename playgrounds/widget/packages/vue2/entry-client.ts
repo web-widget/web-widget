@@ -8,7 +8,10 @@ const app = new Vue({
 
 const element = document.getElementById('app')!;
 if (import.meta.env.VITE_HYDRATE_MODE) {
-  app.$mount(element, true);
+  const vue2ssrAttrSelector = `[data-server-rendered="true"]`;
+  const ssrRoot =
+    element.querySelector(vue2ssrAttrSelector) || element.firstElementChild;
+  app.$mount(ssrRoot!, true);
 } else {
   element.appendChild(app.$mount().$el);
 }

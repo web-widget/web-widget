@@ -25,7 +25,7 @@
     "build:csr": "vite build",
     "preview:csr": "vite preview",
     "/*----ssr mode----*/": "",
-    "dev:ssr": "node server",
+    "dev:ssr": "cross-env VITE_HYDRATE_MODE=true node server",
     "build:ssr": "pnpm build:ssr:client && pnpm run build:ssr:server",
     "build:ssr:client": "cross-env VITE_HYDRATE_MODE=true vite build",
     "build:ssr:server": "vite build --ssr",

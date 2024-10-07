@@ -41,7 +41,7 @@ export const createVueRender = ({
           const vue2ssrAttrSelector = `[data-server-rendered="true"]`;
           const ssrRoot =
             container.querySelector(vue2ssrAttrSelector) ||
-            container.firstChild;
+            container.firstElementChild;
           const state = container.querySelector(
             'script[as=state]'
           ) as HTMLScriptElement | null;
