@@ -64,11 +64,6 @@ export default defineConfig(({ isSsrBuild }) => {
       )
     : undefined;
   return {
-    // define: {
-    //   'import.meta.env.VITE_HYDRATE_MODE': process.env.VITE_HYDRATE_MODE
-    //     ? JSON.stringify(process.env.VITE_HYDRATE_MODE)
-    //     : null,
-    // },
     plugins: [
       patchVuePluginConfig(),
       reactPresetsPlugin(manifest),
