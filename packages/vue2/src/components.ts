@@ -8,6 +8,8 @@ import { DefaultProps } from 'vue/types/options';
 
 Vue.config.ignoredElements = ['web-widget'];
 
+type WebWidgetRenderer = InstanceType<typeof WebWidgetRenderer>;
+
 export interface DefineWebWidgetOptions {
   base?: WebWidgetRendererOptions['base'];
   import?: WebWidgetRendererOptions['import'];
