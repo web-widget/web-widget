@@ -11,7 +11,7 @@ function App() {
   const [count, setCount] = useState(0);
 
   return (
-    <Suspense>
+    <div>
       <div>
         <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
           <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -39,7 +39,7 @@ function App() {
       <p>
         Edit <code>packages/react/App.tsx</code> and save to test HMR
       </p>
-    </Suspense>
+    </div>
   );
 }
 
