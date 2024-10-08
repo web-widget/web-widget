@@ -209,10 +209,13 @@ export function importRenderPlugin({
           const asset = normalizePath(path.relative(root, moduleId));
 
           const clientModuleId = dev
-            ? toDevUrl(asset, base)
+            ? // dev
+              toDevUrl(asset, base)
             : ssr
-              ? ASSET_PLACEHOLDER + asset
-              : this.emitFile({
+              ? // build: server
+                ASSET_PLACEHOLDER + asset
+              : // build: client
+                this.emitFile({
                   type: 'chunk',
                   id: moduleId,
                   preserveSignature: 'allow-extension',
@@ -220,9 +223,11 @@ export function importRenderPlugin({
                 });
 
           const clientModuleExpression =
-            ssr || dev
-              ? JSON.stringify(clientModuleId)
-              : `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
+            dev || ssr
+              ? // dev || build: server
+                JSON.stringify(clientModuleId)
+              : // build: client
+                `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
           const clientContainerOptions = {
             name: componentName,
           };
