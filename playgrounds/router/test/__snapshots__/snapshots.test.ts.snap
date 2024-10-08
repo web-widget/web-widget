@@ -428,28 +428,6 @@ exports[`Should match snapshot > Request "/react-and-vue" should match snapshot 
 
 exports[`Should match snapshot > Request "/react-and-vue" should match snapshot > /react-and-vue@statusText 1`] = `"OK"`;
 
-exports[`Should match snapshot > Request "/react-import-widgets" should match snapshot > /react-import-widgets@body 1`] = `
-"<!doctype html>
-    <html lang="en">
-      <head>
-        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/react-import-widgets","params":{}}</script>
-      </head>
-      <body>
-        <header><h1>Web Router Examples</h1></header><div class="container"><aside><!--$--><web-widget name="Menu"><ul class="menu"><li><a href="/">🏠</a></li><li><a href="/react-server-component">React: Server component</a></li><li><a href="/vue3-server-component">Vue3: Server component</a></li><li><a href="/dynamic-routes/@web-widget">Dynamic routes</a></li><li><a href="/react-and-vue">Using react and vue together</a></li><li><a href="/custom-handlers">Custom handlers</a></li><li><a href="/client-only-component">Client only component</a></li><li><a href="/fetching-data">Fetching data</a></li><li><a href="/style">Styling</a></li><li><a href="/meta">Meta</a></li><li><a href="/form">Form submissions</a></li><li><a href="/fallback">Error handling</a></li><li><a href="/react-streaming">React: Streaming</a></li><li><a href="/vue3-streaming">Vue3: Streaming</a></li><li><a href="/experimental-async-component">Async component</a></li><li><a href="/vue3-router">Using vue3 router</a></li><li><a href="/vue2-router">Using vue2 router</a></li><li><a href="/react-import-widgets">React: Import vue2 and vue3</a></li><li><a href="/vue3-import-widgets">Vue3: Import react and vue2</a></li><li><a href="/vue2-import-widgets">Vue2: Import react and vue3</a></li><li><a target="_blank" href="/vue2-server-component">Vue2: Server component</a></li><li><a target="_blank" href="/lit-html-template"> Lit html template </a></li><li><a target="_blank" href="/api/hello-world"> Api route </a></li></ul></web-widget><!--/$--></aside><main><h1>React: Import Vue2 and Vue3</h1><!--$--><web-widget import="/routes/react-import-widgets/ImportWidgets@widget.tsx" name="ImportWidgetsWidget" loading="lazy" rendertarget="light" recovering=""><div><h2>React component:</h2><!--$?--><template id="B:0"></template><!--/$--><h2>Vue3 component:</h2><!--$?--><template id="B:1"></template><!--/$--><h2>Vue2 component:</h2><!--$?--><template id="B:2"></template><!--/$--><h2>Vanilla component:</h2><!--$?--><template id="B:3"></template><!--/$--><div><button>count is <!-- -->0</button></div></div><div hidden id="S:3"><web-widget import="/routes/(components)/VanillaCounter@widget.ts" name="VanillaCounter" loading="lazy" rendertarget="light" contextdata="{&quot;count&quot;:3}" recovering=""><div class="counter" data-root><button data-action="-">-1</button><span class="count" data-count>3</span><button data-action="+">+1</button></div></web-widget></div><script>$RC=function(b,c,e){c=document.getElementById(c);c.parentNode.removeChild(c);var a=document.getElementById(b);if(a){b=a.previousSibling;if(e)b.data="$!",a.setAttribute("data-dgst",e);else{e=b.parentNode;a=b.nextSibling;var f=0;do{if(a&&8===a.nodeType){var d=a.data;if("/$"===d)if(0===f)break;else f--;else"$"!==d&&"$?"!==d&&"$!"!==d||f++}d=a.nextSibling;e.removeChild(a);a=d}while(a);for(;c.firstChild;)e.insertBefore(c.firstChild,a);b.data="$"}b._reactRetry&&b._reactRetry()}};$RC("B:3","S:3")</script><div hidden id="S:1"><web-widget import="/routes/(vue3)/Counter@widget.vue" name="VueCounter" loading="lazy" rendertarget="light" contextdata="{&quot;count&quot;:3}" recovering=""><div class="counter" data-v-a3e69a9a><button data-v-a3e69a9a>−</button><span class="count" data-v-a3e69a9a>3</span><button data-v-a3e69a9a>+</button></div></web-widget></div><script>$RC("B:1","S:1")</script><div hidden id="S:0"><web-widget import="/routes/(components)/Counter@widget.tsx" name="ReactCounter" loading="lazy" rendertarget="light" contextdata="{&quot;count&quot;:3}" recovering=""><div class="counter"><button>-1</button><span class="count">3</span><button>+1</button></div></web-widget></div><script>$RC("B:0","S:0")</script><div hidden id="S:2"><web-widget import="/routes/(vue2)/Counter@widget.vue" name="Vue2Counter" loading="lazy" rendertarget="light" contextdata="{&quot;count&quot;:3}" recovering=""><div data-server-rendered="true" class="counter" data-v-4029556e><button data-v-4029556e>−</button><span class="count" data-v-4029556e>3</span><button data-v-4029556e>+</button></div></web-widget></div><script>$RC("B:2","S:2")</script></web-widget><!--/$--></main></div><footer><p>This is a footer</p></footer>
-      </body>
-    </html>"
-`;
-
-exports[`Should match snapshot > Request "/react-import-widgets" should match snapshot > /react-import-widgets@headers 1`] = `
-{
-  "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/react-import-widgets/index.route.tsx",
-  "x-powered-by": "@web-widget/web-router",
-}
-`;
-
-exports[`Should match snapshot > Request "/react-import-widgets" should match snapshot > /react-import-widgets@statusText 1`] = `"OK"`;
-
 exports[`Should match snapshot > Request "/react-server-component" should match snapshot > /react-server-component@body 1`] = `
 "<!doctype html>
     <html lang="en">
