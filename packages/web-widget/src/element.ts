@@ -24,6 +24,11 @@ const innerHTMLDescriptor = Object.getOwnPropertyDescriptor(
 )!;
 const innerHTMLSetter = innerHTMLDescriptor.set!;
 
+export type PerformanceMarkDetail = {
+  name: string;
+  import: string;
+};
+
 export const INNER_HTML_PLACEHOLDER = `<!--web-widget:placeholder-->`;
 
 /**
@@ -571,10 +576,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
     const name = this.localName;
     const markNameSpace = `${name}:statusChange`;
-    const detail = {
+    const detail: PerformanceMarkDetail = {
       name: this.#name,
       import: this.import,
     };
+
     performance.mark(`${markNameSpace}:${value}`, {
       detail,
     });
