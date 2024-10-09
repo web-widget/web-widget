@@ -569,12 +569,44 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this.removeAttribute('recovering');
     }
 
+    const name = this.localName;
+    const markNameSpace = `${name}:statusChange`;
+    const detail = {
+      name: this.#name,
+      import: this.import,
+    };
+    performance.mark(`${markNameSpace}:${value}`, {
+      detail,
+    });
+
+    switch (value) {
+      case status.LOADED:
+        performance.measure(`${name}:load`, {
+          start: `${markNameSpace}:${status.LOADING}`,
+          end: `${markNameSpace}:${status.LOADED}`,
+          detail,
+        });
+        break;
+      case status.MOUNTED:
+        performance.measure(`${name}:mount`, {
+          start: `${markNameSpace}:${status.MOUNTING}`,
+          end: `${markNameSpace}:${status.MOUNTED}`,
+          detail,
+        });
+        break;
+    }
+
     this.dispatchEvent(new Event('statuschange'));
   }
 
+  get #name() {
+    return (
+      this.id || this.getAttribute('name') || this.import || this.localName
+    );
+  }
+
   #throwGlobalError(error: Error) {
-    const moduleName =
-      this.id || this.getAttribute('name') || this.import || this.localName;
+    const moduleName = this.#name;
     const prefix = `Web Widget module (${moduleName})`;
     if (typeof error !== 'object') {
       error = new Error(error, {
