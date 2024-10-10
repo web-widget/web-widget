@@ -34,12 +34,19 @@ interface TimingOptions {
     | ((context: MiddlewareContext) => boolean | string);
 }
 
-const getTime = (): number => {
+function getTime(): number {
   try {
     return performance.now();
   } catch {}
   return Date.now();
-};
+}
+
+function validName(name: string) {
+  const tokenRegex = /^[!#$%&'*+\-.^_`|~0-9a-zA-Z]+$/;
+  if (!tokenRegex.test(name)) {
+    throw new Error(`Invalid Server-Timing name: ${name}`);
+  }
+}
 
 /**
  * Server-Timing Middleware
@@ -147,6 +154,7 @@ export const setMetric: SetMetric = (
   description?: string,
   precision?: number
 ) => {
+  validName(name);
   const metrics = context.state[METRIC];
   if (!metrics) {
     console.warn(
@@ -189,6 +197,7 @@ export const startTime = (
   name: string,
   description?: string
 ) => {
+  validName(name);
   const metrics = context.state[METRIC];
   if (!metrics) {
     console.warn(
@@ -216,6 +225,7 @@ export const endTime = (
   name: string,
   precision?: number
 ) => {
+  validName(name);
   const metrics = context.state[METRIC];
   if (!metrics) {
     console.warn(
