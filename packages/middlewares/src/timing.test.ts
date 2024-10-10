@@ -37,7 +37,7 @@ describe('Server-Timing API', () => {
     return text('cache!');
   });
 
-  test('Should contain total duration', async () => {
+  test('should contain total duration', async () => {
     const res = await app.dispatch('http://localhost/');
     expect(res).not.toBeNull();
     expect(res.headers.has('server-timing')).toBeTruthy();
@@ -49,7 +49,7 @@ describe('Server-Timing API', () => {
     ).toBeTruthy();
   });
 
-  test('Should contain value metrics', async () => {
+  test('should contain value metrics', async () => {
     const res = await app.dispatch('http://localhost/api');
     expect(res).not.toBeNull();
     expect(res.headers.has('server-timing')).toBeTruthy();
@@ -59,7 +59,7 @@ describe('Server-Timing API', () => {
     expect(res.headers.get('server-timing')?.includes(name)).toBeTruthy();
   });
 
-  test('Should contain value-less metrics', async () => {
+  test('should contain value-less metrics', async () => {
     const res = await app.dispatch('http://localhost/cache');
     expect(res).not.toBeNull();
     expect(res.headers.has('server-timing')).toBeTruthy();
@@ -72,8 +72,8 @@ describe('Server-Timing API', () => {
     expect(res.headers.get('server-timing')?.includes(regionDesc)).toBeTruthy();
   });
 
-  describe('Should handle crossOrigin setting', () => {
-    test('Should do nothing when crossOrigin is falsy', async () => {
+  describe('should handle crossOrigin setting', () => {
+    test('should do nothing when crossOrigin is falsy', async () => {
       const crossOriginApp = new WebRouter();
 
       crossOriginApp.use(
@@ -92,7 +92,7 @@ describe('Server-Timing API', () => {
       expect(res.headers.has('timing-allow-origin')).toBeFalsy();
     });
 
-    test('Should set Timing-Allow-Origin to * when crossOrigin is true', async () => {
+    test('should set Timing-Allow-Origin to * when crossOrigin is true', async () => {
       const crossOriginApp = new WebRouter();
 
       crossOriginApp.use(
@@ -112,7 +112,7 @@ describe('Server-Timing API', () => {
       expect(res.headers.get('timing-allow-origin')).toBe('*');
     });
 
-    test('Should set Timing-Allow-Origin to the value of crossOrigin when it is a string', async () => {
+    test('should set Timing-Allow-Origin to the value of crossOrigin when it is a string', async () => {
       const crossOriginApp = new WebRouter();
 
       crossOriginApp.use(
@@ -134,7 +134,7 @@ describe('Server-Timing API', () => {
       );
     });
 
-    test('Should set Timing-Allow-Origin to the return value of crossOrigin when it is a function', async () => {
+    test('should set Timing-Allow-Origin to the return value of crossOrigin when it is a function', async () => {
       const crossOriginApp = new WebRouter();
 
       crossOriginApp.use(
@@ -160,5 +160,21 @@ describe('Server-Timing API', () => {
         'https://example.com'
       );
     });
+  });
+
+  test('should throw an error when name is an invalid string', async () => {
+    const invalidNameApp = new WebRouter();
+
+    invalidNameApp.use('*', timing());
+
+    invalidNameApp.get('/invalid', (context) => {
+      expect(() => startTime(context, 'a b?;')).toThrow(
+        'Invalid Server-Timing name: a b?;'
+      );
+      return text('invalid');
+    });
+
+    const res = await invalidNameApp.dispatch('http://localhost/invalid');
+    expect(res).not.toBeNull();
   });
 });
