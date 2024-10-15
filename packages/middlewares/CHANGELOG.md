@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.44.0
+
+### Patch Changes
+
+- 384e019: When the server-timing name contains illegal characters, an error will be thrown.
+  - @web-widget/helpers@1.44.0
+  - @web-widget/schema@1.44.0
+
 ## 1.43.0
 
 ### Patch Changes

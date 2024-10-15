@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/node",
   "description": "Node.js adapter",
-  "version": "1.43.0",
+  "version": "1.44.0",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",
