@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.44.0
+
+### Minor Changes
+
+- e31a8d6: Support Web performance API to record performance.
+
+### Patch Changes
+
+- @web-widget/helpers@1.44.0
+- @web-widget/lifecycle-cache@1.44.0
+
 ## 1.43.0
 
 ### Minor Changes
