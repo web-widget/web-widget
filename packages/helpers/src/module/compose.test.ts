@@ -102,6 +102,7 @@ describe('methodsToHandler', () => {
           method,
         }),
         state: {},
+        waitUntil: () => {},
       },
       () => {
         return new Response('Hello', {
@@ -178,6 +179,7 @@ describe('composeMiddleware', () => {
         state: {
           history: [],
         },
+        waitUntil: () => {},
       },
       () => {
         return new Response(null, {
