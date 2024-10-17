@@ -48,11 +48,15 @@ function composeRender(
   dev: boolean | undefined
 ): RouteContext['render'] {
   return async function render(
-    renderProps = {},
+    {
+      data = context.data,
+      error: unsafeError = context.error,
+      meta = context.meta,
+    } = {},
     renderOptions = context.renderOptions
   ) {
-    if (renderProps.error) {
-      onFallback(renderProps.error, context);
+    if (unsafeError) {
+      onFallback(unsafeError, context);
     }
 
     if (typeof layoutModule.render !== 'function') {
@@ -67,21 +71,11 @@ function composeRender(
       throw new TypeError(`Module does not export "render" function.`);
     }
 
-    if (renderProps.data) {
-      context.data = renderProps.data;
-    }
-
-    if (renderProps.meta) {
-      context.meta = renderProps.meta;
-    }
-
-    if (renderProps.error) {
-      context.error = renderProps.error;
-    }
-
-    if (context.error && dev) {
-      context.error = createSafeError(context.error);
-    }
+    const error = unsafeError
+      ? dev
+        ? unsafeError
+        : createSafeError(unsafeError)
+      : undefined;
 
     const {
       render: _render,
@@ -89,12 +83,16 @@ function composeRender(
       ...restContext
     } = context;
 
-    const renderContext: RouteRenderContext = restContext;
+    const renderContext: RouteRenderContext = Object.assign(restContext, {
+      data,
+      error,
+      meta,
+    });
     const children = await context.module.render(renderContext, renderOptions);
     const layoutContext: LayoutRenderContext = {
       data: {
         children,
-        meta: context.meta,
+        meta,
         params: context.params,
         pathname: context.pathname,
         request: context.request,
@@ -103,7 +101,6 @@ function composeRender(
       module: layoutModule,
     };
 
-    const error = context.error;
     const html = await layoutModule.render(layoutContext, renderOptions);
     const status =
       renderOptions?.status ??
