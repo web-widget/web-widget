@@ -20,6 +20,7 @@
     "@web-widget/schema": "workspace:*"
   },
   "devDependencies": {
+    "@web-widget/react": "workspace:*",
     "@web-widget/schema": "workspace:*",
     "tsup": "catalog:",
     "typescript": "catalog:",
