@@ -1,19 +1,20 @@
 import type {
+  ActionModule,
+  FetchEventLike,
   Meta,
+  MiddlewareModule,
   RouteModule,
   RouteRenderResult,
-  WidgetComponent,
-  WidgetComponentProps,
   ServerWidgetModule,
   ServerWidgetRender,
   ServerWidgetRenderContext,
   ServerWidgetRenderResult,
-  MiddlewareModule,
-  ActionModule,
+  WidgetComponent,
+  WidgetComponentProps,
 } from '@web-widget/helpers';
 
 import type { Context } from './context';
-export * from '@web-widget/helpers';
+export type * from '@web-widget/helpers';
 
 ////////////////////////////////////////
 //////                            //////
@@ -51,12 +52,13 @@ export type ErrorHandler<E extends Env = any> = (
 //////                            //////
 ////////////////////////////////////////
 
-export abstract class FetchEventLike {
-  abstract readonly request: Request;
-  abstract respondWith(promise: Response | Promise<Response>): void;
-  abstract passThroughOnException?(): void;
-  abstract waitUntil(promise: Promise<void>): void;
-}
+export type ExecutionContext = FetchEventLike | CloudflareFetchContext;
+
+/** [Cloudflare Worker Fetch Handler](https://developers.cloudflare.com/workers/runtime-apis/handlers/fetch/#parameters) */
+export type CloudflareFetchContext = {
+  waitUntil: FetchEventLike['waitUntil'];
+  passThroughOnException(): void;
+};
 
 ////////////////////////////////////////
 //////                            //////

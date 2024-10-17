@@ -183,9 +183,9 @@ async function viteWebRouterMiddlewareV2(
 
   const nodeAdapter = new NodeAdapter(
     {
-      async handler(request, fetchEvent) {
+      async handler(request, ...args) {
         try {
-          let res = await webRouter.handler(request, fetchEvent);
+          let res = await webRouter.handler(request, ...args);
           const isEmptyStatus =
             ((res.status / 100) | 0) === 1 ||
             res.status === 204 ||

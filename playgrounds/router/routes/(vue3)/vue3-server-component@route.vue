@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import BaseLayout from './BaseLayout.vue';
-import type { RouteComponentProps } from '@web-widget/vue';
 import { mergeMeta, defineMeta, defineRouteHandler } from '@web-widget/vue';
 
 type PageData = {
@@ -25,7 +24,7 @@ defineOptions({
   }),
 });
 
-const { data } = defineProps<RouteComponentProps<PageData>>();
+const { data } = defineProps<{ data: PageData }>();
 </script>
 
 <template>

@@ -1,11 +1,12 @@
 import type {
+  ActionHandler,
+  HTTPException,
   Meta,
-  RouteConfig,
   MiddlewareHandler,
   MiddlewareHandlers,
   RouteComponent,
   RouteComponentProps,
-  RouteError,
+  RouteConfig,
   RouteFallbackComponent,
   RouteFallbackComponentProps,
   RouteHandler,
@@ -22,7 +23,6 @@ import type {
   WidgetRenderContext,
   WidgetRenderOptions,
   WidgetRenderResult,
-  ActionHandler,
 } from '@web-widget/schema';
 
 export /*#__PURE__*/ function defineConfig(config: RouteConfig) {
@@ -158,29 +158,25 @@ export /*#__PURE__*/ function getComponentProps(
   | RouteFallbackComponentProps
   | RouteComponentProps {
   if (isRouteRenderContext(context)) {
-    const { data, error, params, pathname, request } =
-      context as RouteRenderContext;
+    const routeContext = context as RouteRenderContext;
+    const { error } = routeContext;
 
     if (error) {
       const props: RouteFallbackComponentProps = {
         name: error.name,
         message: error.message,
         stack: error.stack,
-        status: (error as RouteError).status,
-        statusText: (error as RouteError).statusText,
+        status: (error as HTTPException).status,
+        statusText: (error as HTTPException).statusText,
       };
       return props;
     } else {
-      const props: RouteComponentProps = {
-        data,
-        params,
-        pathname,
-        request,
-      };
+      const props: RouteComponentProps = routeContext;
       return props;
     }
   } else {
-    const { error } = context as WidgetRenderContext;
+    const widgetContext = context as WidgetRenderContext;
+    const { error } = widgetContext;
     if (error) {
       const props: WidgetFallbackComponentProps = {
         name: error.name,
@@ -189,7 +185,7 @@ export /*#__PURE__*/ function getComponentProps(
       };
       return props;
     } else {
-      const props: WidgetComponentProps = context.data;
+      const props: WidgetComponentProps = widgetContext.data;
       return props;
     }
   }

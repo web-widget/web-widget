@@ -1,6 +1,10 @@
 {
   "routes": [
     {
+      "pathname": "/background-tasks",
+      "module": "./routes/background-tasks@route.tsx"
+    },
+    {
       "pathname": "/client-only-component",
       "module": "./routes/client-only-component@route.tsx"
     },

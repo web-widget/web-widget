@@ -1,7 +1,7 @@
 import type { OnFallback } from './modules';
 import type {
+  HTTPException,
   RouteContext,
-  RouteError,
   RouteModule,
   RouteRenderOptions,
 } from './';
@@ -204,7 +204,7 @@ describe('error handling', () => {
   };
 
   test('exceptions should be caught', (done) => {
-    let error: RouteError;
+    let error: HTTPException;
     const message = `Error:500`;
     const status = 500;
     const statusText = 'Internal Server Error';
@@ -232,7 +232,7 @@ describe('error handling', () => {
   });
 
   test('throws a `Response` as an HTTP error', (done) => {
-    let error: RouteError;
+    let error: HTTPException;
     const message = `Error:404`;
     const status = 404;
     const statusText = 'Not Found';
@@ -267,7 +267,7 @@ describe('error handling', () => {
   });
 
   test('malformed errors converted to strings as HTTP error messages', (done) => {
-    let error: RouteError;
+    let error: HTTPException;
     const message = `Error:500`;
     const status = 500;
     const statusText = 'Internal Server Error';

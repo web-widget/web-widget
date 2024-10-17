@@ -19,26 +19,6 @@ type WebHandler = (
   event: FetchEvent
 ) => Promise<Response> | Response | null | undefined;
 
-class FetchEvent {
-  public request: Request;
-  public awaiting: Set<Promise<void>>;
-  public response: Response | null;
-
-  constructor(request: Request) {
-    this.request = request;
-    this.response = null;
-    this.awaiting = new Set();
-  }
-
-  respondWith(response: Response) {
-    this.response = response;
-  }
-
-  waitUntil() {
-    throw new Error('waitUntil is not implemented yet for Node.js');
-  }
-}
-
 const dependencies: BuildDependencies = {
   Headers,
   ReadableStream,
@@ -48,7 +28,7 @@ const dependencies: BuildDependencies = {
     }
   },
   Uint8Array: Uint8Array,
-  FetchEvent: FetchEvent,
+  FetchEvent: primitives.FetchEvent,
 };
 
 export interface NodeAdapterOptions extends RequestOptions {
@@ -88,10 +68,6 @@ export default class NodeAdapter {
   get handler() {
     return this.#handler;
   }
-
-  static get primitives() {
-    return primitives;
-  }
 }
 
 /**
@@ -114,11 +90,9 @@ function toMiddleware(
   const toFetchEvent = buildToFetchEvent(dependencies);
   return async function middleware(incomingMessage, serverResponse, next) {
     const request = toRequest(incomingMessage, options);
-    const webResponse = await webHandler(
-      request,
-      process.env,
-      toFetchEvent(request)
-    );
+    const env = process.env;
+    const event = toFetchEvent(request);
+    const webResponse = await webHandler(request, env, event);
     await toServerResponse(webResponse, serverResponse);
     await next();
   };
@@ -214,11 +188,9 @@ function buildToNodeHandler(
       serverResponse: ServerResponse
     ) => {
       const request = toRequest(incomingMessage, options);
-      const maybePromise = webHandler(
-        request,
-        process.env,
-        toFetchEvent(request)
-      );
+      const env = process.env;
+      const event = toFetchEvent(request);
+      const maybePromise = webHandler(request, env, event);
       if (maybePromise instanceof Promise) {
         maybePromise.then((response) =>
           toServerResponse(response, serverResponse)

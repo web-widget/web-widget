@@ -15,6 +15,52 @@ export type KnownMethods =
   | 'OPTIONS'
   | 'PATCH';
 
+export type FetchEventLike = Pick<
+  FetchEvent,
+  'request' | 'respondWith' | 'waitUntil'
+>;
+
+export interface FetchContext<Params = Record<string, string>>
+  extends Omit<FetchEventLike, 'respondWith'> {
+  /**
+   * Errors in the current route.
+   */
+  error?: HTTPException;
+
+  /**
+   * The parameters that were matched from the route.
+   *
+   * For the `/foo/:bar` route with url `/foo/123`, `params` would be
+   * `{ bar: '123' }`. For a route with no matchers, `params` would be `{}`. For
+   * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
+   * be `{ path: 'bar/baz' }`.
+   */
+  params: Readonly<Params>;
+
+  /**
+   * The state of the application, the content comes from the middleware.
+   */
+  readonly state: State;
+
+  /** @deprecated */
+  readonly name?: string;
+
+  /**
+   * The route matcher (e.g. /blog/:id) that the request matched for this page
+   * to be rendered.
+   * @deprecated
+   */
+  readonly pathname: string;
+}
+
+export interface HTTPException extends Error {
+  expose?: boolean;
+  status?: number;
+  statusText?: string;
+}
+
+export interface State extends Record<string, unknown> {}
+
 ////////////////////////////////////////
 //////                            //////
 //////       Widget Modules       //////
@@ -138,51 +184,20 @@ export interface RouteConfig extends Record<string, unknown> {}
 export interface RouteComponentProps<
   Data = unknown,
   Params = Record<string, string>,
-> {
-  /**
-   * Render data for the route component.
-   */
-  data: Data;
-
-  /**
-   * The parameters that were matched from the route.
-   *
-   * For the `/foo/:bar` route with url `/foo/123`, `params` would be
-   * `{ bar: '123' }`. For a route with no matchers, `params` would be `{}`. For
-   * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
-   * be `{ path: 'bar/baz' }`.
-   */
-  readonly params: Readonly<Params>;
-
-  /**
-   * The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered.
-   * @deprecated
-   */
-  readonly pathname: string;
-
-  /**
-   * This Fetch API interface represents a resource request.
-   * @see https://developer.mozilla.org/docs/Web/API/Request
-   */
-  request: Request;
-}
+> extends RouteRenderContext<Data, Params> {}
 
 export type RouteComponent<Data = unknown, Params = Record<string, string>> = (
   props: RouteComponentProps<Data, Params>
 ) => any;
 
-export type RouteFallbackComponentProps = RouteError;
+export type RouteFallbackComponentProps = HTTPException;
 
 export type RouteFallbackComponent = (
   props: RouteFallbackComponentProps
 ) => any;
 
-export type RouteError = {
-  expose?: boolean;
-  status?: number;
-  statusText?: string;
-} & Error;
+/** @deprecated Use HTTPException instead. */
+export type RouteError = HTTPException;
 
 /** @deprecated Use State instead. */
 export type RouteState = State;
@@ -195,12 +210,8 @@ export interface RouteHandler<Data = unknown, Params = Record<string, string>> {
   (context: RouteContext<Data, Params>): Response | Promise<Response>;
 }
 
-export interface RouteContext<Data = unknown, Params = Record<string, string>> {
-  /**
-   * Errors in the current route.
-   */
-  error?: RouteError;
-
+export interface RouteContext<Data = unknown, Params = Record<string, string>>
+  extends FetchContext<Params> {
   /**
    * This is the default data given to the `render()` method.
    */
@@ -216,33 +227,13 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>> {
    */
   module: Readonly<RouteModule>;
 
-  /** @deprecated */
-  readonly name?: string;
-
-  /**
-   * The parameters that were matched from the route.
-   *
-   * For the `/foo/:bar` route with url `/foo/123`, `params` would be
-   * `{ bar: '123' }`. For a route with no matchers, `params` would be `{}`. For
-   * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
-   * be `{ path: 'bar/baz' }`.
-   */
-  readonly params: Readonly<Params>;
-
-  /**
-   * The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered.
-   * @deprecated
-   */
-  readonly pathname: string;
-
   /**
    * Render current route.
    */
   render(
     renderProps?: {
       data?: Data;
-      error?: RouteError;
+      error?: HTTPException;
       meta?: Meta;
     },
     renderOptions?: RouteRenderOptions
@@ -252,66 +243,12 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>> {
    * This is the default option for the `render()` method.
    */
   renderOptions: RouteRenderOptions;
-
-  /**
-   * This Fetch API interface represents a resource request.
-   * @see https://developer.mozilla.org/docs/Web/API/Request
-   */
-  request: Request;
-
-  /**
-   * The state of the application, the content comes from the middleware.
-   */
-  readonly state: State;
 }
 
 export interface RouteRenderContext<
   Data = unknown,
   Params = Record<string, string>,
-> {
-  /**
-   * Render data for the route component.
-   */
-  data: Data;
-
-  /**
-   * Errors in the current route.
-   */
-  error?: RouteError;
-
-  /**
-   * Metadata for the current route.
-   */
-  meta: Meta;
-
-  /**
-   * JavaScript module that handles the current route.
-   */
-  module: Readonly<RouteModule>;
-
-  /**
-   * The parameters that were matched from the route.
-   *
-   * For the `/foo/:bar` route with url `/foo/123`, `params` would be
-   * `{ bar: '123' }`. For a route with no matchers, `params` would be `{}`. For
-   * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
-   * be `{ path: 'bar/baz' }`.
-   */
-  readonly params: Readonly<Params>;
-
-  /**
-   * The route matcher (e.g. /blog/:id) that the request matched for this page
-   * to be rendered.
-   * @deprecated
-   */
-  readonly pathname: string;
-
-  /**
-   * This Fetch API interface represents a resource request.
-   * @see https://developer.mozilla.org/docs/Web/API/Request
-   */
-  request: Request;
-}
+> extends Omit<RouteContext<Data, Params>, 'render' | 'renderOptions'> {}
 
 export interface RouteRenderOptions
   extends Record<string, unknown>,
@@ -347,11 +284,7 @@ export type MiddlewareHandlers = {
   [K in KnownMethods]?: MiddlewareHandler;
 };
 
-export type MiddlewareContext = Pick<
-  RouteContext,
-  'params' | 'pathname' | 'request' | 'state'
-> &
-  Partial<RouteContext>;
+export type MiddlewareContext = FetchContext & Partial<RouteContext>;
 
 export interface MiddlewareNext {
   (): MiddlewareResult | Promise<MiddlewareResult>;
@@ -375,14 +308,6 @@ export interface ActionHandler<
 > {
   (...args: A[]): Promise<T>;
 }
-
-////////////////////////////////////////
-//////                            //////
-//////            State            //////
-//////                            //////
-////////////////////////////////////////
-
-export interface State extends Record<string, unknown> {}
 
 ////////////////////////////////////////
 //////                            //////
