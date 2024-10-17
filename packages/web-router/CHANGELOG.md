@@ -1,5 +1,20 @@
 # @web-widget/web-router
 
+## 1.45.0
+
+### Minor Changes
+
+- 58c8055: Support running background tasks `context.waitUntil(promise)`.
+
+### Patch Changes
+
+- Updated dependencies [58c8055]
+  - @web-widget/helpers@1.45.0
+  - @web-widget/html@1.45.0
+  - @web-widget/context@1.45.0
+  - @web-widget/lifecycle-cache@1.45.0
+  - @web-widget/action@1.45.0
+
 ## 1.44.0
 
 ### Patch Changes

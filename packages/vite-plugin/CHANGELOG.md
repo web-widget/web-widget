@@ -1,5 +1,19 @@
 # @web-widget/vite-plugin
 
+## 1.45.0
+
+### Minor Changes
+
+- 58c8055: Support running background tasks `context.waitUntil(promise)`.
+
+### Patch Changes
+
+- Updated dependencies [58c8055]
+  - @web-widget/web-router@1.45.0
+  - @web-widget/helpers@1.45.0
+  - @web-widget/node@1.45.0
+  - @web-widget/web-widget@1.45.0
+
 ## 1.44.0
 
 ### Patch Changes

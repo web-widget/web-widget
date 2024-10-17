@@ -1,5 +1,11 @@
 # @web-widget/node
 
+## 1.45.0
+
+### Minor Changes
+
+- 58c8055: Support running background tasks `context.waitUntil(promise)`.
+
 ## 1.44.0
 
 ## 1.43.0
