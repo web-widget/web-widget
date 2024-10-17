@@ -1,7 +1,7 @@
 import type { OnFallback } from './modules';
 import type {
+  HTTPException,
   RouteContext,
-  RouteError,
   RouteModule,
   RouteRenderOptions,
 } from './';
@@ -204,7 +204,7 @@ describe('error handling', () => {
   };
 
   test('exceptions should be caught', (done) => {
-    let error: RouteError;
+    let error: HTTPException;
     const message = `Error:500`;
     const status = 500;
     const statusText = 'Internal Server Error';
@@ -232,7 +232,7 @@ describe('error handling', () => {
   });
 
   test('throws a `Response` as an HTTP error', (done) => {
-    let error: RouteError;
+    let error: HTTPException;
     const message = `Error:404`;
     const status = 404;
     const statusText = 'Not Found';
@@ -267,7 +267,7 @@ describe('error handling', () => {
   });
 
   test('malformed errors converted to strings as HTTP error messages', (done) => {
-    let error: RouteError;
+    let error: HTTPException;
     const message = `Error:500`;
     const status = 500;
     const statusText = 'Internal Server Error';
@@ -349,5 +349,47 @@ describe('change members of context', () => {
     expect(await res.text()).toBe('Hello');
     expect(defaultMeta.meta[0].content).toBe('defaultMeta');
     expect(defaultRenderOptions.react?.allReady).toBe(false);
+  });
+});
+
+describe('background tasks', () => {
+  let backgroundTaskRunning = false;
+  const backgroundTask = () =>
+    new Promise((resolve) =>
+      setTimeout(() => {
+        backgroundTaskRunning = true;
+        resolve(undefined);
+      }, 100)
+    );
+  const app = WebRouter.fromManifest({
+    routes: [
+      {
+        pathname: '/hello',
+        module: {
+          handler: {
+            GET(context) {
+              context.waitUntil(backgroundTask());
+              return new Response('get hello');
+            },
+          },
+        },
+      },
+    ],
+  });
+
+  test('background tasks should be performed', async () => {
+    const res = await app.dispatch(
+      'http://localhost/hello',
+      undefined,
+      undefined,
+      {
+        waitUntil: () => {},
+        passThroughOnException: () => {},
+      }
+    );
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('get hello');
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    expect(backgroundTaskRunning).toBe(true);
   });
 });

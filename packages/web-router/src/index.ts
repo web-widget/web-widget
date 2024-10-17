@@ -138,7 +138,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     );
 
     router.notFound(async (context) =>
-      notFoundHandler(createHttpError(404), context as RouteContext)
+      notFoundHandler(createHttpError(404), context as unknown as RouteContext)
     );
 
     const fallback500 = fallbacks.find(
@@ -160,9 +160,9 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
 
     router.onError(async (error, context) => {
       if (error?.status === 404) {
-        return notFoundHandler(error, context as RouteContext);
+        return notFoundHandler(error, context as unknown as RouteContext);
       } else {
-        return errorHandler(error, context as RouteContext);
+        return errorHandler(error, context as unknown as RouteContext);
       }
     });
 

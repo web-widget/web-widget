@@ -19,6 +19,7 @@
     "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
+    "@web-widget/react": "workspace:*",
     "@types/node": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",
