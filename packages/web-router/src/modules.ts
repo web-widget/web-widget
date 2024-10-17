@@ -4,7 +4,10 @@ import {
   callContext,
   contextToScriptDescriptor,
 } from '@web-widget/context/server';
-import { createHttpError } from '@web-widget/helpers/error';
+import {
+  createHttpError,
+  HTTPException as HTTPError,
+} from '@web-widget/helpers/error';
 import {
   mergeMeta,
   methodsToHandler,
@@ -15,7 +18,6 @@ import type {
   ActionModule,
   DevHandlerInit,
   DevRouteModule,
-  HTTPException,
   LayoutModule,
   LayoutRenderContext,
   Meta,
@@ -29,6 +31,7 @@ import type {
   RouteModule,
   RouteRenderContext,
   RouteRenderOptions,
+  HTTPException,
 } from './types';
 
 const HANDLER = Symbol('handler');
@@ -45,11 +48,11 @@ function composeRender(
   dev: boolean | undefined
 ): RouteContext['render'] {
   return async function render(
-    { data, error, meta } = {},
+    renderProps = {},
     renderOptions = context.renderOptions
   ) {
-    if (error) {
-      onFallback(error, context);
+    if (renderProps.error) {
+      onFallback(renderProps.error, context);
     }
 
     if (typeof layoutModule.render !== 'function') {
@@ -64,16 +67,16 @@ function composeRender(
       throw new TypeError(`Module does not export "render" function.`);
     }
 
-    if (data) {
-      context.data = data;
+    if (renderProps.data) {
+      context.data = renderProps.data;
     }
 
-    if (meta) {
-      context.meta = meta;
+    if (renderProps.meta) {
+      context.meta = renderProps.meta;
     }
 
-    if (error) {
-      context.error = error;
+    if (renderProps.error) {
+      context.error = renderProps.error;
     }
 
     if (context.error && dev) {
@@ -100,6 +103,7 @@ function composeRender(
       module: layoutModule,
     };
 
+    const error = context.error;
     const html = await layoutModule.render(layoutContext, renderOptions);
     const status =
       renderOptions?.status ??
@@ -150,9 +154,15 @@ function createSafeError(error: HTTPException | SafeError): HTTPException {
   return safeError;
 }
 
-async function transformRouteError(error: any): Promise<HTTPException> {
+async function transformHTTPException(error: any): Promise<HTTPException> {
   if (error instanceof Error) {
-    return error;
+    if (Reflect.has(error, 'status')) {
+      return error as HTTPException;
+    } else {
+      return new HTTPError(500, error.message, {
+        cause: error,
+      });
+    }
   }
 
   if (error instanceof Response) {
@@ -285,7 +295,7 @@ export function createFallbackHandler(
     );
 
     routeContext.data = Object.create(null);
-    routeContext.error = await transformRouteError(error);
+    routeContext.error = await transformHTTPException(error);
     routeContext.meta = mergeMeta(
       defaultMeta,
       rebaseMeta(module.meta ?? {}, defaultBaseAsset)
@@ -335,3 +345,11 @@ export function callRouteModule(): MiddlewareHandler {
     }
   };
 }
+
+// export function callFallbackModule(): MiddlewareHandler {
+//   return async (context, next) => {
+//     const routeContext = context as RouteContext;
+//     const error = createHttpError(404);
+//     return next(error);
+//   };
+// }
