@@ -134,6 +134,7 @@ export function methodsToHandler(
 
     // If not overridden, HEAD requests should be handled as GET requests but without the body.
     if (request.method === 'HEAD' && !mergedMethods['HEAD']) {
+      // @ts-ignore
       context.request = new Request(request.url, {
         method: 'GET',
         headers: request.headers,

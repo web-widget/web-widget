@@ -11,33 +11,13 @@ import {
   mergeIntoServerResponse,
   toOutgoingHeaders,
 } from '@edge-runtime/node-utils';
-import primitives from '@edge-runtime/primitives';
+import * as primitives from '@edge-runtime/primitives';
 
 type WebHandler = (
   req: Request,
   env: Record<string, unknown>,
   event: FetchEvent
 ) => Promise<Response> | Response | null | undefined;
-
-class FetchEvent {
-  public request: Request;
-  public awaiting: Set<Promise<void>>;
-  public response: Response | null;
-
-  constructor(request: Request) {
-    this.request = request;
-    this.response = null;
-    this.awaiting = new Set();
-  }
-
-  respondWith(response: Response) {
-    this.response = response;
-  }
-
-  waitUntil() {
-    throw new Error('waitUntil is not implemented yet for Node.js');
-  }
-}
 
 const dependencies: BuildDependencies = {
   Headers,
@@ -48,7 +28,7 @@ const dependencies: BuildDependencies = {
     }
   },
   Uint8Array: Uint8Array,
-  FetchEvent: FetchEvent,
+  FetchEvent: primitives.FetchEvent,
 };
 
 export interface NodeAdapterOptions extends RequestOptions {
@@ -87,10 +67,6 @@ export default class NodeAdapter {
 
   get handler() {
     return this.#handler;
-  }
-
-  static get primitives() {
-    return primitives;
   }
 }
 

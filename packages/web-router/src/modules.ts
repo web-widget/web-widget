@@ -15,6 +15,7 @@ import type {
   ActionModule,
   DevHandlerInit,
   DevRouteModule,
+  HTTPException,
   LayoutModule,
   LayoutRenderContext,
   Meta,
@@ -23,7 +24,6 @@ import type {
   MiddlewareModule,
   MiddlewareNext,
   RouteContext,
-  RouteError,
   RouteHandler,
   RouteHandlers,
   RouteModule,
@@ -34,7 +34,7 @@ import type {
 const HANDLER = Symbol('handler');
 
 export type OnFallback = (
-  error: RouteError,
+  error: HTTPException,
   context?: MiddlewareContext
 ) => void;
 
@@ -43,17 +43,13 @@ function composeRender(
   layoutModule: LayoutModule,
   onFallback: OnFallback,
   dev: boolean | undefined
-) {
+): RouteContext['render'] {
   return async function render(
-    {
-      data = context.data,
-      error: unsafeError = context.error,
-      meta = context.meta,
-    } = {},
+    { data, error, meta } = {},
     renderOptions = context.renderOptions
   ) {
-    if (unsafeError) {
-      onFallback(unsafeError, context);
+    if (error) {
+      onFallback(error, context);
     }
 
     if (typeof layoutModule.render !== 'function') {
@@ -68,32 +64,39 @@ function composeRender(
       throw new TypeError(`Module does not export "render" function.`);
     }
 
-    const error = unsafeError
-      ? dev
-        ? unsafeError
-        : createSafeError(unsafeError)
-      : undefined;
+    if (data) {
+      context.data = data;
+    }
 
-    const renderContext: RouteRenderContext = {
-      data,
-      error,
-      meta,
-      module: context.module,
-      params: context.params,
-      pathname: context.pathname,
-      request: context.request,
-    };
+    if (meta) {
+      context.meta = meta;
+    }
+
+    if (error) {
+      context.error = error;
+    }
+
+    if (context.error && dev) {
+      context.error = createSafeError(context.error);
+    }
+
+    const {
+      render: _render,
+      renderOptions: _renderOptions,
+      ...restContext
+    } = context;
+
+    const renderContext: RouteRenderContext = restContext;
     const children = await context.module.render(renderContext, renderOptions);
-
     const layoutContext: LayoutRenderContext = {
       data: {
         children,
-        meta,
+        meta: context.meta,
         params: context.params,
         pathname: context.pathname,
         request: context.request,
       },
-      meta,
+      meta: context.meta,
       module: layoutModule,
     };
 
@@ -126,18 +129,28 @@ function composeRender(
   };
 }
 
-function createSafeError(error: RouteError): RouteError {
-  return new Proxy(error, {
+type SafeError = { proxy: true } & HTTPException;
+
+function createSafeError(error: HTTPException | SafeError): HTTPException {
+  if ((error as SafeError).proxy) {
+    return error as HTTPException;
+  }
+
+  const safeError = new Proxy(error, {
     get(target, key) {
       if (key === 'stack') {
         return '';
       }
       return Reflect.get(target, key);
     },
-  });
+  }) as SafeError;
+
+  safeError.proxy = true;
+
+  return safeError;
 }
 
-async function transformRouteError(error: any): Promise<RouteError> {
+async function transformRouteError(error: any): Promise<HTTPException> {
   if (error instanceof Error) {
     return error;
   }
@@ -214,30 +227,31 @@ export function createRouteContext(
   defaultRenderOptions: RouteRenderOptions,
   onFallback: OnFallback,
   dev: boolean
-) {
-  return async (context: MiddlewareContext, next: MiddlewareNext) => {
+): MiddlewareHandler {
+  return async (context, next) => {
+    const routeContext = context as RouteContext;
     const module = await normalizeModule<RouteModule>(route);
     const layoutModule = await normalizeModule<LayoutModule>(layout);
 
     // If multiple routes match here, only the first one is valid.
-    if (!context.module) {
-      context.module = module;
+    if (!routeContext.module) {
+      routeContext.module = module;
 
       // If the route has a render function, it's a route module.
       if (module.render) {
-        context.data ??= Object.create(null);
-        context.error ??= undefined;
-        context.meta ??= mergeMeta(
+        routeContext.data ??= Object.create(null);
+        routeContext.error ??= undefined;
+        routeContext.meta ??= mergeMeta(
           defaultMeta,
           rebaseMeta(module.meta ?? {}, defaultBaseAsset)
         );
-        context.render ??= composeRender(
-          context as RouteContext,
+        routeContext.render ??= composeRender(
+          routeContext,
           layoutModule,
           onFallback,
           dev
         );
-        context.renderOptions ??= structuredClone(defaultRenderOptions);
+        routeContext.renderOptions ??= structuredClone(defaultRenderOptions);
       }
     }
 
@@ -257,6 +271,7 @@ export function createFallbackHandler(
   dev: boolean
 ) {
   return async (error: unknown, context: MiddlewareContext) => {
+    const routeContext = context as RouteContext;
     const layoutModule = await normalizeModule<LayoutModule>(layout);
     const module = await normalizeModule<RouteModule>(route);
     const handler = normalizeHandler<RouteHandler>(
@@ -269,30 +284,33 @@ export function createFallbackHandler(
       true
     );
 
-    context.data = Object.create(null);
-    context.error = await transformRouteError(error);
-    context.meta = mergeMeta(
+    routeContext.data = Object.create(null);
+    routeContext.error = await transformRouteError(error);
+    routeContext.meta = mergeMeta(
       defaultMeta,
       rebaseMeta(module.meta ?? {}, defaultBaseAsset)
     );
     // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
-    (context.meta!.script ??= []).push(contextToScriptDescriptor(context));
-    context.module = module;
-    context.render = composeRender(
-      context as RouteContext,
+    (routeContext.meta!.script ??= []).push(
+      contextToScriptDescriptor(routeContext)
+    );
+    routeContext.module = module;
+    routeContext.render = composeRender(
+      routeContext,
       layoutModule,
       onFallback,
       dev
     );
-    context.renderOptions = structuredClone(defaultRenderOptions);
+    routeContext.renderOptions = structuredClone(defaultRenderOptions);
 
-    return callContext(context, handler, [context as RouteContext]);
+    return callContext(routeContext, handler, [routeContext]);
   };
 }
 
 export function callRouteModule(): MiddlewareHandler {
   return async (context, next) => {
-    const module = context.module;
+    const routeContext = context as RouteContext;
+    const module = routeContext.module;
     if (module) {
       const handler = normalizeHandler<RouteHandler>(
         module.handler ??
@@ -304,12 +322,14 @@ export function callRouteModule(): MiddlewareHandler {
         true
       );
 
-      if (context.meta) {
+      if (routeContext.meta) {
         // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
-        (context.meta.script ??= []).push(contextToScriptDescriptor(context));
+        (routeContext.meta.script ??= []).push(
+          contextToScriptDescriptor(routeContext)
+        );
       }
 
-      return handler(context as RouteContext);
+      return handler(routeContext);
     } else {
       return next();
     }

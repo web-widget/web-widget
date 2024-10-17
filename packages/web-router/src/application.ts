@@ -1,13 +1,12 @@
 import { compose } from '@web-widget/helpers';
 import { HTTPException } from '@web-widget/helpers/error';
 import { Context } from './context';
-import type { ExecutionContext } from './context';
 import type { Router } from './router';
 import { METHOD_NAME_ALL, METHODS, URLPatternRouter } from './router';
 import type {
   Env,
   ErrorHandler,
-  FetchEventLike,
+  ExecutionContext,
   MiddlewareHandler,
   NotFoundHandler,
 } from './types';
@@ -138,7 +137,7 @@ class Application<
   handler(
     request: Request,
     env: E['Bindings'] | undefined = Object.create(null),
-    executionContext?: ExecutionContext | FetchEventLike,
+    executionContext?: ExecutionContext,
     method: string = request.method
   ): Response | Promise<Response> {
     // Handle HEAD method
