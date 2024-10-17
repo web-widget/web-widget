@@ -4,10 +4,7 @@ import {
   callContext,
   contextToScriptDescriptor,
 } from '@web-widget/context/server';
-import {
-  createHttpError,
-  HTTPException as HTTPError,
-} from '@web-widget/helpers/error';
+import { createHttpError } from '@web-widget/helpers/error';
 import {
   mergeMeta,
   methodsToHandler,
@@ -153,13 +150,7 @@ function createSafeError(error: HTTPException | SafeError): HTTPException {
 
 async function transformHTTPException(error: any): Promise<HTTPException> {
   if (error instanceof Error) {
-    if (Reflect.has(error, 'status')) {
-      return error as HTTPException;
-    } else {
-      return new HTTPError(500, error.message, {
-        cause: error,
-      });
-    }
+    return error;
   }
 
   if (error instanceof Response) {

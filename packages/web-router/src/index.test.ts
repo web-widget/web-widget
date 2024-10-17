@@ -351,3 +351,45 @@ describe('change members of context', () => {
     expect(defaultRenderOptions.react?.allReady).toBe(false);
   });
 });
+
+describe('background tasks', () => {
+  let backgroundTaskRunning = false;
+  const backgroundTask = () =>
+    new Promise((resolve) =>
+      setTimeout(() => {
+        backgroundTaskRunning = true;
+        resolve(undefined);
+      }, 100)
+    );
+  const app = WebRouter.fromManifest({
+    routes: [
+      {
+        pathname: '/hello',
+        module: {
+          handler: {
+            GET(context) {
+              context.waitUntil(backgroundTask());
+              return new Response('get hello');
+            },
+          },
+        },
+      },
+    ],
+  });
+
+  test('background tasks should be performed', async () => {
+    const res = await app.dispatch(
+      'http://localhost/hello',
+      undefined,
+      undefined,
+      {
+        waitUntil: () => {},
+        passThroughOnException: () => {},
+      }
+    );
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('get hello');
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    expect(backgroundTaskRunning).toBe(true);
+  });
+});

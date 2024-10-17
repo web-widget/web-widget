@@ -210,19 +210,20 @@ class Application<
   };
 
   /**
-   * @deprecated Use `dispatch` method instead.
+   * Interface for testing.
+   * @experimental
    */
-  request = (
+  dispatch = (
     input: RequestInfo | URL,
     requestInit?: RequestInit,
-    Env?: E['Bindings'] | {},
+    env?: E['Bindings'] | {},
     executionContext?: ExecutionContext
   ) => {
     if (input instanceof Request) {
       if (requestInit !== undefined) {
         input = new Request(input, requestInit);
       }
-      return this.handler(input, Env, executionContext);
+      return this.handler(input, env, executionContext);
     }
 
     input = input.toString();
@@ -230,15 +231,19 @@ class Application<
       ? input
       : `http://localhost${mergePath('/', input)}`;
     const req = new Request(path, requestInit);
-    return this.handler(req, Env, executionContext);
+    return this.handler(req, env, executionContext);
   };
 
   /**
-   * Interface for testing.
-   * @experimental
+   * @deprecated Use `dispatch` method instead.
    */
-  dispatch = (input: RequestInfo | URL, requestInit?: RequestInit) => {
-    return this.request(input, requestInit);
+  request = (
+    input: RequestInfo | URL,
+    requestInit?: RequestInit,
+    env?: E['Bindings'] | {},
+    executionContext?: ExecutionContext
+  ) => {
+    return this.dispatch(input, requestInit, env, executionContext);
   };
 }
 
