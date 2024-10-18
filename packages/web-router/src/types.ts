@@ -54,7 +54,7 @@ export type ErrorHandler<E extends Env = any> = (
 
 export type ExecutionContext = FetchEventLike | CloudflareFetchContext;
 
-/** [Cloudflare Worker Fetch Handler](https://developers.cloudflare.com/workers/runtime-apis/handlers/fetch/#parameters) */
+/** [Cloudflare worker context](https://developers.cloudflare.com/workers/runtime-apis/context/) */
 export type CloudflareFetchContext = {
   waitUntil: FetchEventLike['waitUntil'];
   passThroughOnException(): void;
