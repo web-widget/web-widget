@@ -333,11 +333,3 @@ export function callRouteModule(): MiddlewareHandler {
     }
   };
 }
-
-// export function callFallbackModule(): MiddlewareHandler {
-//   return async (context, next) => {
-//     const routeContext = context as RouteContext;
-//     const error = createHttpError(404);
-//     return next(error);
-//   };
-// }
