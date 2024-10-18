@@ -1,5 +1,19 @@
 # @web-widget/web-router
 
+## 1.46.0
+
+### Minor Changes
+
+- 7e66ee3: The `dispatch` method will create a `FetchEvent` object for testing.
+
+### Patch Changes
+
+- @web-widget/action@1.46.0
+- @web-widget/context@1.46.0
+- @web-widget/helpers@1.46.0
+- @web-widget/html@1.46.0
+- @web-widget/lifecycle-cache@1.46.0
+
 ## 1.45.0
 
 ### Minor Changes
