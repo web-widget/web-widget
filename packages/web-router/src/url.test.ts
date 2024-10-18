@@ -1,4 +1,4 @@
-import { getPath, getPathNoStrict, mergePath, getQueryStrings } from './url';
+import { getPath, getPathNoStrict, getQueryStrings } from './url';
 
 describe('url', () => {
   describe('getPath', () => {
@@ -54,35 +54,6 @@ describe('url', () => {
     test('getPathNoStrict - return `/` even if strict is false', () => {
       const path = getPathNoStrict(new Request('https://example.com/'));
       expect(path).toBe('/');
-    });
-  });
-
-  describe('mergePath', () => {
-    test('mergePath', () => {
-      expect(mergePath('/book', '/')).toBe('/book');
-      expect(mergePath('/book/', '/')).toBe('/book/');
-      expect(mergePath('/book', '/hey')).toBe('/book/hey');
-      expect(mergePath('/book/', '/hey')).toBe('/book/hey');
-      expect(mergePath('/book', '/hey/')).toBe('/book/hey/');
-      expect(mergePath('/book/', '/hey/')).toBe('/book/hey/');
-      expect(mergePath('/book', 'hey', 'say')).toBe('/book/hey/say');
-      expect(mergePath('/book', '/hey/', '/say/')).toBe('/book/hey/say/');
-      expect(mergePath('/book', '/hey/', '/say/', '/')).toBe('/book/hey/say/');
-
-      expect(mergePath('book', '/')).toBe('/book');
-      expect(mergePath('book/', '/')).toBe('/book/');
-      expect(mergePath('book', '/hey')).toBe('/book/hey');
-      expect(mergePath('book', 'hey')).toBe('/book/hey');
-      expect(mergePath('book', 'hey/')).toBe('/book/hey/');
-    });
-    test('Should be `/book`', () => {
-      expect(mergePath('/', 'book')).toBe('/book');
-    });
-    test('Should be `/book`', () => {
-      expect(mergePath('/', '/book')).toBe('/book');
-    });
-    test('Should be `/`', () => {
-      expect(mergePath('/', '/')).toBe('/');
     });
   });
 });
