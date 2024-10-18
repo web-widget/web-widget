@@ -10,7 +10,7 @@ import type {
   MiddlewareHandler,
   NotFoundHandler,
 } from './types';
-import { getPath, getPathNoStrict, mergePath } from './url';
+import { getPath, getPathNoStrict } from './url';
 
 type Methods = (typeof METHODS)[number];
 
@@ -219,19 +219,18 @@ class Application<
     env?: E['Bindings'] | {},
     executionContext?: ExecutionContext
   ) => {
-    if (input instanceof Request) {
-      if (requestInit !== undefined) {
-        input = new Request(input, requestInit);
-      }
-      return this.handler(input, env, executionContext);
-    }
-
-    input = input.toString();
-    const path = /^https?:\/\//.test(input)
-      ? input
-      : `http://localhost${mergePath('/', input)}`;
-    const req = new Request(path, requestInit);
-    return this.handler(req, env, executionContext);
+    const request =
+      input instanceof Request
+        ? requestInit
+          ? new Request(input, requestInit)
+          : input
+        : new Request(new URL(input, 'http://localhost'), requestInit);
+    const context =
+      executionContext ??
+      new FetchEvent('fetch', {
+        request,
+      });
+    return this.handler(request, env, context);
   };
 
   /**

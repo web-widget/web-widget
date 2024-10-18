@@ -3,6 +3,7 @@ import fetch from './fetch';
 
 describe('Should match snapshot', () => {
   test.each([
+    ['/background-tasks'],
     ['/client-only-component'],
     ['/custom-handlers'],
     ['/experimental-async-component'],
