@@ -68,7 +68,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
   async function createConfig(
     config: VitestUserConfig,
     ssr: boolean
-  ): Promise<UserConfig> {
+  ): Promise<VitestUserConfig> {
     ssrBuild = !!(config.build?.ssr ?? ssr);
     const root = config.root || process.cwd();
     const assetsDir = config.build?.assetsDir ?? 'assets';
