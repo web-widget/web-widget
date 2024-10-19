@@ -137,14 +137,16 @@ export default function cache(options?: CacheOptions) {
       typeof signalOption === 'function' ? signalOption() : signalOption;
     const cache = await caches.open(cacheName);
     const fetch = nextToFetch(cache, next);
+    const waitUntil = context.waitUntil.bind(context);
 
     return fetch(request, {
       sharedCache: {
         cacheControlOverride: cacheControl,
-        varyOverride: vary,
         cacheKeyRules,
         ignoreRequestCacheControl,
         ignoreVary,
+        varyOverride: vary,
+        waitUntil,
       },
       signal,
     });

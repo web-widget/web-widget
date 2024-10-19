@@ -15,7 +15,7 @@
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/schema": "workspace:*",
-    "@web-widget/shared-cache": "^1.0.0"
+    "@web-widget/shared-cache": "^1.1.0"
   },
   "devDependencies": {
     "@jest/globals": "catalog:",
