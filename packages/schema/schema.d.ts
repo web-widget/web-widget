@@ -273,7 +273,7 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>>
    * Render current route.
    */
   render(
-    pageProps?: {
+    renderProps?: {
       data?: Data;
       error?: HTTPException;
       meta?: Meta;
