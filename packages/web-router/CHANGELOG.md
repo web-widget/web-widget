@@ -1,5 +1,15 @@
 # @web-widget/web-router
 
+## 1.47.0
+
+### Patch Changes
+
+- @web-widget/action@1.47.0
+- @web-widget/context@1.47.0
+- @web-widget/helpers@1.47.0
+- @web-widget/html@1.47.0
+- @web-widget/lifecycle-cache@1.47.0
+
 ## 1.46.0
 
 ### Minor Changes
