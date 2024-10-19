@@ -360,7 +360,10 @@ export interface ActionHandler<
 ////////////////////////////////////////
 
 export interface Meta {
-  /** The base URL of the document. */
+  /**
+   * The base URL of the document.
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/HTML/Element/base)
+   */
   base?: BaseDescriptor;
 
   /** Description of the document. */
@@ -372,16 +375,28 @@ export interface Meta {
   /** Document language. */
   lang?: string;
 
-  /** Document links. */
+  /**
+   * Document links.
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/HTML/Element/link)
+   */
   link?: LinkDescriptor[];
 
-  /** Document metadata. */
+  /**
+   * Document metadata.
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/HTML/Element/meta)
+   */
   meta?: MetaDescriptor[];
 
-  /** Document scripts. */
+  /**
+   * Document scripts.
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/HTML/Element/script)
+   */
   script?: ScriptDescriptor[];
 
-  /** Document styles. */
+  /**
+   * Document styles.
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/HTML/Element/style)
+   */
   style?: StyleDescriptor[];
 
   /** Document title. */
@@ -389,110 +404,130 @@ export interface Meta {
 }
 
 export interface ElementDescriptor {
+  /** The ID of the element. */
   id?: string;
+
+  /** The cryptographic nonce used for inline scripts. */
   nonce?: string;
+
+  /** The title of the element. */
   title?: string;
+
+  /** Custom data attributes. */
+  [key: `data-${string}`]: string | undefined;
 }
 
 export interface BaseDescriptor extends ElementDescriptor {
-  /** Gets or sets the baseline URL on which relative links are based. */
+  /** The URL of the linked resource. */
   href?: string;
 
-  /** Sets or retrieves the window or frame at which to target content. */
+  /** The browsing context for the hyperlink. */
   target?: string;
 }
 
 export interface LinkDescriptor extends ElementDescriptor {
+  /** The destination for the link. */
   as?: string;
 
+  /** The CORS setting for the link. */
   crossorigin?: string;
 
+  /** Whether the link is disabled. */
   disabled?: string;
 
-  /** A string representing the priority hint. */
+  /** The fetch priority for the link. */
   fetchpriority?: 'high' | 'low' | 'auto';
 
-  /** Sets or retrieves a destination URL or an anchor point. */
+  /** The URL of the linked resource. */
   href?: string;
 
-  /** Sets or retrieves the language code of the object. */
+  /** The language of the linked resource. */
   hreflang?: string;
 
+  /** The sizes of the images for different viewport sizes. */
   imagesizes?: string;
 
+  /** The source set for responsive images. */
   imagesrcset?: string;
 
+  /** The integrity metadata for the link. */
   integrity?: string;
 
-  /** Sets or retrieves the media type. */
+  /** The media attribute for the link. */
   media?: string;
 
+  /** The referrer policy for the link. */
   referrerpolicy?: string;
 
-  /** Sets or retrieves the relationship between the object and the destination of the link. */
+  /** The relationship between the current document and the linked resource. */
   rel?: string;
 
-  /** Sets or retrieves the MIME type of the object. */
+  /** The MIME type of the linked resource. */
   type?: string;
 }
 
 export interface MetaDescriptor extends ElementDescriptor {
-  /** This attribute declares the document's character encoding. */
+  /** The character encoding for the HTML document. */
   charset?: string;
 
-  /** Gets or sets meta-information to associate with httpEquiv or name. */
+  /** The value of the meta element. */
   content?: string;
 
-  /** Gets or sets information used to bind the value of a content attribute of a meta element to an HTTP response header. */
+  /** The pragma directive for the meta element. */
   'http-equiv'?: string;
 
+  /** The media attribute for the meta element. */
   media?: string;
 
-  /** Sets or retrieves the value specified in the content attribute of the meta object. */
+  /** The name of the meta element. */
   name?: string;
 
-  /** NOTE: OpenGraph */
+  /** The property attribute for the meta element. */
   property?: string;
 }
 
 export interface ScriptDescriptor extends ElementDescriptor {
+  /** Whether the script should be executed asynchronously. */
   async?: string;
 
-  /** Sets or retrieves the `script.textContent`. */
+  /** The value of the script element. */
   content?: string;
 
+  /** The CORS setting for the script. */
   crossorigin?: string;
 
-  /** Sets or retrieves the status of the script. */
+  /** Whether the script should be executed after the document has been parsed. */
   defer?: string;
 
-  /** A string representing the priority hint. */
+  /** The fetch priority for the script. */
   fetchpriority?: 'high' | 'low' | 'auto';
 
+  /** The integrity metadata for the script. */
   integrity?: string;
 
+  /** Whether the script should not be executed in modules. */
   nomodule?: string;
 
+  /** The referrer policy for the script. */
   referrerpolicy?: string;
 
-  /** Retrieves the URL to an external file that contains the source code or data. */
+  /** The URL of the external script. */
   src?: string;
 
-  /** Retrieves or sets the text of the object as a string. */
   //  text: string;
 
-  /** Sets or retrieves the MIME type for the associated scripting engine. */
+  /** The MIME type of the script. */
   type?: string;
 }
 
 export interface StyleDescriptor extends ElementDescriptor {
-  /** Sets or retrieves the `style.textContent`. */
+  /** The value of the style element. */
   content?: string;
 
-  /** Enables or disables the style sheet. */
+  /** Whether the style is disabled. */
   disabled?: string;
 
-  /** Sets or retrieves the media type. */
+  /** The media attribute for the style element. */
   media?: string;
 }
 
