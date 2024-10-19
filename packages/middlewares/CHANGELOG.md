@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 1.47.0
+
+### Minor Changes
+
+- bd9cfa0: `cache`: Extending the lifecycle of background tasks.
+
+### Patch Changes
+
+- @web-widget/helpers@1.47.0
+- @web-widget/schema@1.47.0
+
 ## 1.46.0
 
 ### Patch Changes
