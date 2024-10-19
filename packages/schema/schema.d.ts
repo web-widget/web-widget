@@ -1,3 +1,45 @@
+export type Module = ServerModule | ClientModule;
+
+export type ServerModule =
+  | ServerWidgetModule
+  | ActionModule
+  | RouteModule
+  | MiddlewareModule;
+
+export type ClientModule = ClientWidgetModule | RouteModule;
+
+export type Handlers<Data = unknown, Params = Record<string, string>> =
+  | RouteHandlers<Data, Params>
+  | MiddlewareHandlers;
+
+export type Handler<Data = unknown, Params = Record<string, string>> =
+  | RouteHandler<Data, Params>
+  | MiddlewareHandler;
+
+export type ComponentProps<Data = unknown, Params = Record<string, string>> =
+  | WidgetComponentProps<Data>
+  | RouteComponentProps<Data, Params>;
+
+export type Component<Data = unknown, Params = Record<string, string>> =
+  | WidgetComponent<Data>
+  | RouteComponent<Data, Params>;
+
+export type RenderContext<Data = unknown, Params = Record<string, string>> =
+  | RouteRenderContext<Data, Params>
+  | WidgetRenderContext<Data>;
+
+export type Render<Data = unknown, Params = Record<string, string>> =
+  | ServerRender<Data, Params>
+  | ClientRender<Data, Params>;
+
+export type ServerRender<Data = unknown, Params = Record<string, string>> =
+  | ServerWidgetRender<Data>
+  | RouteRender<Data, Params>;
+
+export type ClientRender<Data = unknown, Params = Record<string, string>> =
+  | ClientWidgetRender<Data>
+  | RouteRender<Data, Params>;
+
 export type SerializableValue =
   | string
   | number
@@ -284,7 +326,9 @@ export type MiddlewareHandlers = {
   [K in KnownMethods]?: MiddlewareHandler;
 };
 
-export type MiddlewareContext = FetchContext & Partial<RouteContext>;
+export interface MiddlewareContext
+  extends FetchContext,
+    Partial<Omit<RouteContext<any, any>, keyof FetchContext<any>>> {}
 
 export interface MiddlewareNext {
   (): MiddlewareResult | Promise<MiddlewareResult>;
@@ -346,6 +390,8 @@ export interface Meta {
 
 export interface ElementDescriptor {
   id?: string;
+  nonce?: string;
+  title?: string;
 }
 
 export interface BaseDescriptor extends ElementDescriptor {
@@ -453,51 +499,3 @@ export interface StyleDescriptor extends ElementDescriptor {
 // export interface TitleDescriptor {
 //   content?: string;
 // }
-
-////////////////////////////////////////
-//////                            //////
-//////           (...)            //////
-//////                            //////
-////////////////////////////////////////
-
-export type Module = ServerModule | ClientModule;
-
-export type ServerModule =
-  | ServerWidgetModule
-  | ActionModule
-  | RouteModule
-  | MiddlewareModule;
-
-export type ClientModule = ClientWidgetModule | RouteModule;
-
-export type Handlers<Data = unknown, Params = Record<string, string>> =
-  | RouteHandlers<Data, Params>
-  | MiddlewareHandlers;
-
-export type Handler<Data = unknown, Params = Record<string, string>> =
-  | RouteHandler<Data, Params>
-  | MiddlewareHandler;
-
-export type ComponentProps<Data = unknown, Params = Record<string, string>> =
-  | WidgetComponentProps<Data>
-  | RouteComponentProps<Data, Params>;
-
-export type Component<Data = unknown, Params = Record<string, string>> =
-  | WidgetComponent<Data>
-  | RouteComponent<Data, Params>;
-
-export type RenderContext<Data = unknown, Params = Record<string, string>> =
-  | RouteRenderContext<Data, Params>
-  | WidgetRenderContext<Data>;
-
-export type Render<Data = unknown, Params = Record<string, string>> =
-  | ServerRender<Data, Params>
-  | ClientRender<Data, Params>;
-
-export type ServerRender<Data = unknown, Params = Record<string, string>> =
-  | ServerWidgetRender<Data>
-  | RouteRender<Data, Params>;
-
-export type ClientRender<Data = unknown, Params = Record<string, string>> =
-  | ClientWidgetRender<Data>
-  | RouteRender<Data, Params>;
