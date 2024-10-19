@@ -57,7 +57,7 @@
     "dist"
   ],
   "peerDependencies": {
-    "vite": "^5.4.0",
+    "vite": "catalog:",
     "vue": "^2.7.16",
     "vue-server-renderer": "^2.7.16"
   },

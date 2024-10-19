@@ -67,7 +67,7 @@
   "peerDependencies": {
     "react": "rc",
     "react-dom": "rc",
-    "vite": "^5.4.0"
+    "vite": "catalog:"
   },
   "publishConfig": {
     "access": "public",
