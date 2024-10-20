@@ -1,6 +1,6 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
-import { Suspense, createElement, use } from 'react';
+import { Suspense, createElement, use, memo } from 'react';
 import type { FunctionComponent, ReactNode } from 'react';
 
 export interface ReactWidgetComponent<T>
@@ -85,7 +85,7 @@ export /*#__PURE__*/ function defineWebWidget(
   loader: Loader,
   options: DefineWebWidgetOptions
 ) {
-  return function WebWidgetSuspense({
+  return memo(function WebWidgetSuspense({
     children,
     fallback,
     experimental_loading = options.loading ?? 'lazy',
@@ -108,5 +108,5 @@ export /*#__PURE__*/ function defineWebWidget(
         })
       ),
     });
-  };
+  });
 }
