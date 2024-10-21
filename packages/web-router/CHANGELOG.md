@@ -1,5 +1,16 @@
 # @web-widget/web-router
 
+## 1.48.0
+
+### Patch Changes
+
+- Updated dependencies [72b5c7b]
+  - @web-widget/lifecycle-cache@1.48.0
+  - @web-widget/helpers@1.48.0
+  - @web-widget/html@1.48.0
+  - @web-widget/action@1.48.0
+  - @web-widget/context@1.48.0
+
 ## 1.47.0
 
 ### Patch Changes

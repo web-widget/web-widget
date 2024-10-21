@@ -1,5 +1,17 @@
 # @web-widget/lifecycle-cache
 
+## 1.48.0
+
+### Minor Changes
+
+- 72b5c7b: Support `serverOnly` option for `cacheProvider`.
+
+### Patch Changes
+
+- @web-widget/context@1.48.0
+- @web-widget/purify@1.48.0
+- @web-widget/schema@1.48.0
+
 ## 1.47.0
 
 ### Patch Changes
