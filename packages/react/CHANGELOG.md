@@ -1,5 +1,19 @@
 # @web-widget/react
 
+## 1.48.0
+
+### Minor Changes
+
+- 28abc1d: Use `memo` to optimize repeated rendering.
+
+### Patch Changes
+
+- Updated dependencies [72b5c7b]
+  - @web-widget/web-widget@1.48.0
+  - @web-widget/helpers@1.48.0
+  - @web-widget/vite-plugin@1.48.0
+  - @web-widget/schema@1.48.0
+
 ## 1.47.0
 
 ### Patch Changes

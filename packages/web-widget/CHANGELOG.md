@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 1.48.0
+
+### Minor Changes
+
+- 72b5c7b: Support `serverOnly` option for `cacheProvider`.
+
+### Patch Changes
+
+- Updated dependencies [72b5c7b]
+  - @web-widget/lifecycle-cache@1.48.0
+  - @web-widget/helpers@1.48.0
+
 ## 1.47.0
 
 ### Patch Changes
