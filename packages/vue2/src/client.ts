@@ -1,5 +1,6 @@
 import type { ClientWidgetRenderContext } from '@web-widget/helpers';
 import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
+import { cacheProviderIsLoading } from '@web-widget/helpers/cache';
 import type { Component } from 'vue';
 import Vue from 'vue';
 import type { CreateVueRenderOptions } from './types';
@@ -14,7 +15,7 @@ export const createVueRender = ({
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
   return defineRender(async (context) => {
-    const { recovering, container } = context as ClientWidgetRenderContext;
+    let { recovering, container } = context as ClientWidgetRenderContext;
     const componentDescriptor = getComponentDescriptor(context);
     const component = componentDescriptor.component as Component & {
       __name?: string;
@@ -34,12 +35,12 @@ export const createVueRender = ({
 
     return {
       async mount() {
-        let element: Element | Node = container;
+        let ssrRoot: Element | Node = container;
         let mergedProps: Record<string, any> = props as any;
 
         if (recovering) {
           const vue2ssrAttrSelector = `[data-server-rendered="true"]`;
-          const ssrRoot =
+          const root =
             container.querySelector(vue2ssrAttrSelector) ||
             container.firstElementChild;
           const state = container.querySelector(
@@ -51,13 +52,13 @@ export const createVueRender = ({
               ? await onPrefetchData(context, component, props)
               : undefined;
 
-          if (!ssrRoot) {
+          if (!root) {
             throw new Error(
               `No element found for hydration: ${vue2ssrAttrSelector}`
             );
           }
 
-          element = ssrRoot;
+          ssrRoot = root;
           mergedProps = stateContent
             ? Object.assign(stateContent, props)
             : props;
@@ -65,11 +66,20 @@ export const createVueRender = ({
           state?.remove();
         }
 
+        let loading: unknown;
         app = new Vue({
           render(h) {
             return h(component, {
               props: mergedProps,
             });
+          },
+          errorCaptured: (err, vm, info) => {
+            if (cacheProviderIsLoading(err)) {
+              loading = err;
+              return false;
+            } else {
+              throw err;
+            }
           },
           ...(await onBeforeCreateApp(context, component, mergedProps)),
         });
@@ -77,22 +87,33 @@ export const createVueRender = ({
         await onCreatedApp(app, context, component, mergedProps);
 
         if (recovering) {
-          app.$mount(element as Element, recovering);
+          app.$mount(ssrRoot as Element, recovering);
         } else {
           container.appendChild(app.$mount().$el);
+        }
+
+        if (loading) {
+          recovering = false;
+          clearInsterHTML(container);
+          // NOTE: Let the framework wait for the data to be ready before remounting.
+          throw loading;
         }
       },
 
       async unmount() {
         app?.$destroy();
-        if ('innerHTML' in container) {
-          container.innerHTML = '';
-        }
+        clearInsterHTML(container);
         app = null;
       },
     };
   });
 };
+
+function clearInsterHTML(container: Element | Node) {
+  if ('innerHTML' in container) {
+    container.innerHTML = '';
+  }
+}
 
 /**@deprecated Please use `createVueRender` instead.*/
 export const defineVueRender = createVueRender;

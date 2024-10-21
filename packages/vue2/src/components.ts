@@ -8,6 +8,18 @@ import { DefaultProps } from 'vue/types/options';
 
 Vue.config.ignoredElements = ['web-widget'];
 
+/**
+ * The thrown promise is not necessarily a real error,
+ * it will be handled by the web widget container.
+ * @link ../lifecycle-cache/src/provider.ts#cacheProviderIsLoading
+ */
+Vue.config.warnHandler = (msg, vm, trace) => {
+  if (msg === `Error in setup: "[object Promise]"`) {
+    return;
+  }
+  console.error('[Vue warn]: '.concat(msg).concat(trace));
+};
+
 type WebWidgetRenderer = InstanceType<typeof WebWidgetRenderer>;
 
 export interface DefineWebWidgetOptions {

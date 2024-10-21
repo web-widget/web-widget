@@ -2,6 +2,7 @@ import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
 import { createSSRApp, h, Suspense } from 'vue';
 import { renderToWebStream, type SSRContext } from 'vue/server-renderer';
 import type { CreateVueRenderOptions } from './types';
+import installErrorHandler from './error-handler';
 
 declare module '@web-widget/schema' {
   interface WidgetRenderOptions {
@@ -37,18 +38,7 @@ export const createVueRender = ({
         h(Suspense, null, [h(component, props)]);
       const app = createSSRApp(WidgetSuspense, props as any);
 
-      /**
-       * The thrown promise is not necessarily a real error,
-       * it will be handled by the web widget container.
-       * @see ../../web-widget/src/server.ts#suspense
-       */
-      app.config.errorHandler = (err, instance, info) => {
-        if (err instanceof Promise) {
-          return;
-        }
-        throw err;
-      };
-
+      installErrorHandler(app);
       await onCreatedApp(app, context, component, props);
       return renderToWebStream(app, ssrContext);
     }

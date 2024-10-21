@@ -11,18 +11,6 @@ export * from '@web-widget/helpers';
 export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
-/**
- * The thrown promise is not necessarily a real error,
- * it will be handled by the web widget container.
- * @see ../../web-widget/src/server.ts#suspense
- */
-Vue.config.warnHandler = (msg, vm, trace) => {
-  if (msg === `Error in setup: "[object Promise]"`) {
-    return;
-  }
-  console.error('[Vue warn]: '.concat(msg).concat(trace));
-};
-
 // const __FEATURE_STREAM__ = false;
 
 // function appendStringToReadableStream(

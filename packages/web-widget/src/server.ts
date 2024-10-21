@@ -3,7 +3,10 @@ import type {
   ServerWidgetRenderContext,
 } from '@web-widget/helpers';
 import { mergeMeta, rebaseMeta, renderMetaToString } from '@web-widget/helpers';
-import { renderLifecycleCacheLayer } from '@web-widget/lifecycle-cache/server';
+import {
+  renderLifecycleCacheLayer,
+  callSyncCacheProvider,
+} from '@web-widget/lifecycle-cache/server';
 import type {
   Loader,
   WebWidgetElementProps,
@@ -45,19 +48,6 @@ function unsafeAttrsToHtml(attrs: Record<string, string>) {
         `${attrName}${attrValue === '' ? '' : '="' + attrValue + '"'}`
     )
     .join(' ');
-}
-
-async function suspense<T>(handler: () => T) {
-  try {
-    return await handler();
-  } catch (error) {
-    if (error instanceof Promise) {
-      await error;
-      return suspense(handler);
-    } else {
-      throw error;
-    }
-  }
 }
 
 class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
@@ -160,7 +150,9 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       meta,
       module,
     };
-    const rawResult = await suspense(() => module.render!(context));
+    const rawResult = await callSyncCacheProvider(() =>
+      module.render!(context)
+    );
 
     if (getType(rawResult) === 'ReadableStream') {
       result = await readableStreamToString(rawResult as ReadableStream);
