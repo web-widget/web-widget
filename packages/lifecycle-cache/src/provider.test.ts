@@ -21,7 +21,7 @@ describe('cacheProvider', () => {
   test('should return cached value if available', async () => {
     const cacheKey = createCacheKey();
     const cachedValue = 'cachedValue';
-    mockCache.set(cacheKey, cachedValue);
+    mockCache.set(composeCacheKey(cacheKey, undefined), cachedValue);
 
     const result = await cacheProvider(
       cacheKey,
@@ -131,7 +131,7 @@ describe('syncCacheProvider', () => {
   test('should return cached value if available', async () => {
     const cacheKey = createCacheKey();
     const cachedValue = 'cachedValue';
-    mockCache.set(cacheKey, cachedValue);
+    mockCache.set(composeCacheKey(cacheKey, undefined), cachedValue);
 
     const result = await callSyncCacheProvider(() =>
       syncCacheProvider(cacheKey, async () => 'newValue', undefined, {
