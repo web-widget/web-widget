@@ -3,7 +3,10 @@ import type {
   ClientWidgetRenderContext,
   Meta,
 } from '@web-widget/helpers';
-import { mountLifecycleCacheLayer } from '@web-widget/lifecycle-cache/client';
+import {
+  mountLifecycleCacheLayer,
+  callSyncCacheProvider,
+} from '@web-widget/lifecycle-cache/client';
 import { WebWidgetUpdateEvent } from './event';
 import { LifecycleController } from './modules/controller';
 import { status } from './modules/status';
@@ -436,7 +439,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Trigger the mounting of the module.
    */
   async mount(): Promise<void> {
-    await this.#trigger('mount');
+    await callSyncCacheProvider(() => this.#trigger('mount'));
   }
 
   /**
