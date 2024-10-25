@@ -13,10 +13,11 @@ const existsSync = (filePath: string) => {
   }
 };
 
-existsSync(`${__dirname}/node_modules/vite/pakcage.json`);
-existsSync(`${__dirname}/node_modules/@web-widget/helpers/pakcage.json`);
-existsSync(`${__dirname}/node_modules/@web-widget/react/pakcage.json`);
-existsSync(`${__dirname}/node_modules/@web-widget/react/dist/react.server.ts`);
+existsSync(`${__dirname}/package.json`);
+existsSync(`${__dirname}/node_modules/vite/package.json`);
+existsSync(`${__dirname}/node_modules/@web-widget/helpers/package.json`);
+existsSync(`${__dirname}/node_modules/@web-widget/react/package.json`);
+existsSync(`${__dirname}/node_modules/@web-widget/react/dist/react.server.js`);
 existsSync(
   `${__dirname}/node_modules/@web-widget/react/dist/react.server.d.ts`
 );
