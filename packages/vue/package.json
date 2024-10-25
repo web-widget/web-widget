@@ -83,7 +83,7 @@
     }
   },
   "scripts": {
-    "build": "pnpm exec tsup",
+    "build": "echo '>>>vue build start' && pnpm exec tsup && echo '<<<vue build end'",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
     "dev": "pnpm exec tsup --watch",
