@@ -54,15 +54,6 @@ export function webRouterDevServerPlugin(
       const [webRouter, restartWebRouter] = autoRestartMiddleware(
         viteServer,
         () => {
-          const entryFormatVersion = resolvedWebRouterConfig.entryFormatVersion;
-          if (entryFormatVersion === 1) {
-            return viteWebRouterMiddlewareV1(
-              resolvedWebRouterConfig,
-              viteServer,
-              errorTemplate
-            );
-          }
-
           return viteWebRouterMiddlewareV2(
             root,
             resolvedWebRouterConfig,
@@ -99,29 +90,6 @@ export function webRouterDevServerPlugin(
           console.error(`Service startup failed: ${error.stack}`);
         }
       };
-    },
-
-    async transformIndexHtml() {
-      const entryFormatVersion = resolvedWebRouterConfig.entryFormatVersion;
-      return entryFormatVersion === 1
-        ? [
-            {
-              injectTo: 'head',
-              tag: 'script',
-              attrs: {
-                type: 'module',
-                src:
-                  base +
-                  normalizePath(
-                    path.relative(
-                      root,
-                      resolvedWebRouterConfig.input.client.entry
-                    )
-                  ),
-              },
-            },
-          ]
-        : [];
     },
   };
 }

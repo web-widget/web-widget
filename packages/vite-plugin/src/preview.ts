@@ -35,12 +35,6 @@ export function webRouterPreviewServerPlugin(
 
     async configurePreviewServer(viteServer) {
       return async () => {
-        const entryFormatVersion = resolvedWebRouterConfig.entryFormatVersion;
-
-        if (entryFormatVersion !== 2) {
-          throw new Error('Unsupported entry format version.');
-        }
-
         let origin: string;
         const resolvedUrls = viteServer.resolvedUrls;
         const headers = viteServer.config.preview.headers;

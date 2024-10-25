@@ -19,7 +19,6 @@ export interface ResolvedWebRouterConfig {
   serverAction: {
     enabled: boolean;
   };
-  entryFormatVersion: number;
   filesystemRouting: {
     basePathname: string;
     dir: string;
