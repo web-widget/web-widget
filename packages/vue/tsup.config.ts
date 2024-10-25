@@ -1,13 +1,21 @@
 import type { Options } from 'tsup';
 
 import fs from 'node:fs';
-const filePath = '../react/dist/react.server.d.ts';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 
-if (fs.existsSync(filePath)) {
-  console.log('>>>>File exists:', filePath);
-} else {
-  console.log('>>>>File does not exist', filePath);
-}
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const existsSync = (filePath: string) => {
+  if (fs.existsSync(filePath)) {
+    console.log('>>>>File exists:', filePath);
+  } else {
+    console.log('>>>>File does not exist', filePath);
+  }
+};
+
+existsSync(`${__dirname}/../react/pakcage.json`);
+existsSync(`${__dirname}/../react/dist/react.server.ts`);
+existsSync(`${__dirname}/../react/dist/react.server.d.ts`);
 
 const baseOptions: Options = {
   dts: true,
