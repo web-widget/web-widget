@@ -1,5 +1,18 @@
 # @web-widget/vite-plugin
 
+## 1.49.0
+
+### Minor Changes
+
+- ab160ca: Deprecated `entryFormatVersion: 1`.
+
+### Patch Changes
+
+- @web-widget/helpers@1.49.0
+- @web-widget/node@1.49.0
+- @web-widget/web-router@1.49.0
+- @web-widget/web-widget@1.49.0
+
 ## 1.48.0
 
 ### Patch Changes
