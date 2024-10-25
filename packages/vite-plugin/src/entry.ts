@@ -14,7 +14,6 @@ import { importActionPlugin } from './import-action';
 import { parseWebRouterConfig } from './config';
 import { webRouterDevServerPlugin } from './dev';
 import { SOURCE_PROTOCOL, WEB_ROUTER_PLUGIN_NAME } from './constants';
-import { generateServerRoutemap } from './v1/routemap';
 import type {
   ResolvedWebRouterConfig,
   RouteMap,
@@ -154,10 +153,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
             ...(ssrBuild
               ? {
                   entryFileNames(chunkInfo) {
-                    if (
-                      resolvedWebRouterConfig.entryFormatVersion === 2 &&
-                      chunkInfo.name === ENTRY_ID
-                    ) {
+                    if (chunkInfo.name === ENTRY_ID) {
                       return `${SERVER_ENTRY_OUTPUT_NAME}.js`;
                     }
                     return `${assetsDir}/[name].js`;
@@ -409,59 +405,33 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
 
       async generateBundle(_options, bundle) {
         if (ssrBuild) {
-          const entryFormatVersion = resolvedWebRouterConfig.entryFormatVersion;
-          if (entryFormatVersion === 1) {
-            try {
-              const viteManifest = await getManifest(
-                root,
-                resolvedWebRouterConfig
-              );
-              generateServerRoutemap(
-                root,
-                base,
-                await api.clientImportmap(),
-                await api.serverRoutemap(),
-                viteManifest,
-                resolvedWebRouterConfig,
-                bundle
-              ).forEach((item) => this.emitFile(item));
-            } catch (error) {
-              return this.error(error);
-            }
-            this.emitFile({
-              type: 'prebuilt-chunk',
-              fileName: 'package.json',
-              code: JSON.stringify({ type: 'module' }, null, 2),
-            });
-          } else if (entryFormatVersion === 2) {
-            this.emitFile({
-              type: 'prebuilt-chunk',
-              fileName: `${SERVER_ENTRY_OUTPUT_NAME}.d.ts`,
-              code: [
-                `import WebRouter from '@web-widget/web-router';`,
-                `declare const _default: WebRouter;`,
-                `export default _default;`,
-              ].join('\n'),
-            });
+          this.emitFile({
+            type: 'prebuilt-chunk',
+            fileName: `${SERVER_ENTRY_OUTPUT_NAME}.d.ts`,
+            code: [
+              `import WebRouter from '@web-widget/web-router';`,
+              `declare const _default: WebRouter;`,
+              `export default _default;`,
+            ].join('\n'),
+          });
 
-            this.emitFile({
-              type: 'prebuilt-chunk',
-              fileName: 'package.json',
-              code: JSON.stringify(
-                {
-                  type: 'module',
-                  exports: {
-                    '.': {
-                      types: `./${SERVER_ENTRY_OUTPUT_NAME}.d.ts`,
-                      default: `./${SERVER_ENTRY_OUTPUT_NAME}.js`,
-                    },
+          this.emitFile({
+            type: 'prebuilt-chunk',
+            fileName: 'package.json',
+            code: JSON.stringify(
+              {
+                type: 'module',
+                exports: {
+                  '.': {
+                    types: `./${SERVER_ENTRY_OUTPUT_NAME}.d.ts`,
+                    default: `./${SERVER_ENTRY_OUTPUT_NAME}.js`,
                   },
                 },
-                null,
-                2
-              ),
-            });
-          }
+              },
+              null,
+              2
+            ),
+          });
         } else {
           Object.keys(bundle).forEach((fileName) => {
             const chunk = bundle[fileName];

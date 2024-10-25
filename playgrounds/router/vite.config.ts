@@ -56,7 +56,6 @@ export default defineConfig({
   plugins: [
     patchVuePluginConfig(),
     webRouterPlugin({
-      entryFormatVersion: 2,
       serverAction: {
         enabled: true,
       },

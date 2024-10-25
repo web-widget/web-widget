@@ -9,7 +9,6 @@ import vueWebWidgetPlugin from '@web-widget/vue/vite';
 export default defineConfig({
   plugins: [
     webRouterPlugin({
-      entryFormatVersion: 2,
       serverAction: {
         enabled: true,
       },

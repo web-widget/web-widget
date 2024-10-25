@@ -35,7 +35,6 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
   serverAction: {
     enabled: false,
   },
-  entryFormatVersion: 1,
   filesystemRouting: {
     basePathname: '/',
     dir: 'routes',
@@ -87,10 +86,6 @@ export const WebRouterConfigSchema = z.object({
     })
     .optional()
     .default({}),
-  entryFormatVersion: z
-    .number()
-    .optional()
-    .default(WEB_ROUTER_CONFIG_DEFAULTS.entryFormatVersion),
   filesystemRouting: z
     .object({
       basePathname: z
