@@ -13,9 +13,11 @@ const existsSync = (filePath: string) => {
   }
 };
 
-existsSync(`${__dirname}/../react/pakcage.json`);
-existsSync(`${__dirname}/../react/dist/react.server.ts`);
-existsSync(`${__dirname}/../react/dist/react.server.d.ts`);
+existsSync(`${__dirname}/node_modules/@web-widget/react/pakcage.json`);
+existsSync(`${__dirname}/node_modules/@web-widget/react/dist/react.server.ts`);
+existsSync(
+  `${__dirname}/node_modules/@web-widget/react/dist/react.server.d.ts`
+);
 
 const baseOptions: Options = {
   dts: true,
