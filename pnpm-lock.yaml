@@ -704,9 +704,6 @@ importers:
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
-      '@web-widget/react':
-        specifier: workspace:*
-        version: link:../react
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
@@ -717,6 +714,9 @@ importers:
         specifier: workspace:*
         version: link:../web-widget
     devDependencies:
+      '@web-widget/react':
+        specifier: workspace:*
+        version: link:../react
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
@@ -735,9 +735,6 @@ importers:
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
-      '@web-widget/react':
-        specifier: workspace:*
-        version: link:../react
       '@web-widget/vite-plugin':
         specifier: workspace:*
         version: link:../vite-plugin
@@ -748,6 +745,9 @@ importers:
       '@types/node':
         specifier: ^22.2.0
         version: 22.2.0
+      '@web-widget/react':
+        specifier: workspace:*
+        version: link:../react
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
