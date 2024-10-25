@@ -97,7 +97,7 @@
     }
   },
   "scripts": {
-    "build": "echo '>>>react build start' && pnpm exec tsup && if [ -f dist/react.server.d.ts ]; then echo '>>>File exists'; else echo '>>>>File does not exist'; fi && echo '<<<react build end'",
+    "build": "echo '>>>react build start' && pnpm exec tsup && if [ -f dist/react.server.d.ts ]; then echo '>>>File exists'; else echo '>>>>File does not exist'; fi && echo '<<<react build end' $(date)",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
     "dev": "pnpm exec tsup --watch",
