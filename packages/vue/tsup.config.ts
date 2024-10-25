@@ -1,5 +1,14 @@
 import type { Options } from 'tsup';
 
+import fs from 'node:fs';
+const filePath = '../react/dist/react.server.d.ts';
+
+if (fs.existsSync(filePath)) {
+  console.log('>>>>File exists:', filePath);
+} else {
+  console.log('>>>>File does not exist', filePath);
+}
+
 const baseOptions: Options = {
   dts: true,
   target: 'es2017',
