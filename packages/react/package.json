@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/react",
   "description": "React adapter",
-  "version": "1.49.0",
+  "version": "1.49.1",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",
