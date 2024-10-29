@@ -577,33 +577,35 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this.removeAttribute('recovering');
     }
 
-    const name = this.localName;
-    const markNameSpace = `${name}:statusChange`;
-    const detail: PerformanceMarkDetail = {
-      name: this.#name,
-      import: this.import,
-    };
+    try {
+      const name = this.localName;
+      const markNameSpace = `${name}:statusChange`;
+      const detail: PerformanceMarkDetail = {
+        name: this.#name,
+        import: this.import,
+      };
 
-    performance.mark(`${markNameSpace}:${value}`, {
-      detail,
-    });
+      performance.mark(`${markNameSpace}:${value}`, {
+        detail,
+      });
 
-    switch (value) {
-      case status.LOADED:
-        performance.measure(`${name}:load`, {
-          start: `${markNameSpace}:${status.LOADING}`,
-          end: `${markNameSpace}:${status.LOADED}`,
-          detail,
-        });
-        break;
-      case status.MOUNTED:
-        performance.measure(`${name}:mount`, {
-          start: `${markNameSpace}:${status.MOUNTING}`,
-          end: `${markNameSpace}:${status.MOUNTED}`,
-          detail,
-        });
-        break;
-    }
+      switch (value) {
+        case status.LOADED:
+          performance.measure(`${name}:load`, {
+            start: `${markNameSpace}:${status.LOADING}`,
+            end: `${markNameSpace}:${status.LOADED}`,
+            detail,
+          });
+          break;
+        case status.MOUNTED:
+          performance.measure(`${name}:mount`, {
+            start: `${markNameSpace}:${status.MOUNTING}`,
+            end: `${markNameSpace}:${status.MOUNTED}`,
+            detail,
+          });
+          break;
+      }
+    } catch (e) {}
 
     this.dispatchEvent(new Event('statuschange'));
   }
