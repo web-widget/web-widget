@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.49.1
+
+### Patch Changes
+
+- 85b3a33: Avoid errors when accessing the performance API from older browsers.
+  - @web-widget/helpers@1.49.1
+  - @web-widget/lifecycle-cache@1.49.1
+
 ## 1.49.0
 
 ### Patch Changes

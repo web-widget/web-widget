@@ -1,5 +1,16 @@
 # @web-widget/vue2
 
+## 1.49.1
+
+### Patch Changes
+
+- 1b2a8b8: Optimize `peerDependencies` in package.json.
+- Updated dependencies [85b3a33]
+  - @web-widget/web-widget@1.49.1
+  - @web-widget/react@1.49.1
+  - @web-widget/vite-plugin@1.49.1
+  - @web-widget/helpers@1.49.1
+
 ## 1.49.0
 
 ### Patch Changes
