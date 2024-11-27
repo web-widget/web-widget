@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.49.2
+
+### Patch Changes
+
+- 907b6bf: Fix incorrect `mode` value when building ssr.
+  - @web-widget/helpers@1.49.2
+  - @web-widget/node@1.49.2
+  - @web-widget/web-router@1.49.2
+  - @web-widget/web-widget@1.49.2
+
 ## 1.49.1
 
 ### Patch Changes

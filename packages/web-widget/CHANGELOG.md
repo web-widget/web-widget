@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.49.2
+
+### Patch Changes
+
+- @web-widget/helpers@1.49.2
+- @web-widget/lifecycle-cache@1.49.2
+
 ## 1.49.1
 
 ### Patch Changes
