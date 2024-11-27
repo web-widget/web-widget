@@ -1,5 +1,16 @@
 # @web-widget/vue
 
+## 1.49.2
+
+### Patch Changes
+
+- Updated dependencies [907b6bf]
+  - @web-widget/vite-plugin@1.49.2
+  - @web-widget/react@1.49.2
+  - @web-widget/helpers@1.49.2
+  - @web-widget/schema@1.49.2
+  - @web-widget/web-widget@1.49.2
+
 ## 1.49.1
 
 ### Patch Changes
