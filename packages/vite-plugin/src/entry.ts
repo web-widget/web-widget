@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import builtins from 'builtin-modules';
-import type { InlineConfig, Plugin, UserConfig } from 'vite';
+import type { ConfigEnv, InlineConfig, Plugin, UserConfig } from 'vite';
 import { build } from 'vite';
 // import { nodeExternals } from 'rollup-plugin-node-externals';
 import type {
@@ -63,12 +63,13 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
   let serverRoutemapEntryPoints: BuildEntryPoints;
   let ssrBuild: boolean;
   let rawUserConfig: UserConfig;
+  let rawUserConfigEnv: ConfigEnv;
 
   async function createConfig(
     config: VitestUserConfig,
-    ssr: boolean
+    env: ConfigEnv
   ): Promise<VitestUserConfig> {
-    ssrBuild = !!(config.build?.ssr ?? ssr);
+    ssrBuild = !!env.isSsrBuild;
     const root = config.root || process.cwd();
     const assetsDir = config.build?.assetsDir ?? 'assets';
     const target = config.ssr?.target ?? 'webworker';
@@ -96,6 +97,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
 
     return {
       root,
+      mode: env.mode,
       appType: 'custom',
       publicDir: ssrBuild ? (config.publicDir ?? false) : undefined,
       optimizeDeps: {
@@ -208,9 +210,10 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     enforce: 'pre',
     api,
 
-    async config(config) {
+    async config(config, env) {
       rawUserConfig = config;
-      return createConfig(config, false);
+      rawUserConfigEnv = env;
+      return createConfig(config, env);
     },
 
     async configResolved(config) {
@@ -455,7 +458,12 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
         // TODO Watch module
         stage++;
         if (!ssrBuild && resolvedWebRouterConfig.autoFullBuild) {
-          runSsrBuild(await createConfig(rawUserConfig, true));
+          runSsrBuild(
+            await createConfig(rawUserConfig, {
+              ...rawUserConfigEnv,
+              isSsrBuild: true,
+            })
+          );
           return;
         }
 
