@@ -2,9 +2,9 @@
 
 [![CI](https://github.com/web-widget/web-widget/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/web-widget/web-widget/actions/workflows/test.yml?query=event%3Apush)
 
-> This project is currently in the preview stage, and the API is subject to significant changes at any time.
-
 It is a web application framework designed to give new impetus to all front-end frameworks.
+
+> This project is currently in the preview stage, and the API is subject to significant changes at any time.
 
 ## Motivation
 
