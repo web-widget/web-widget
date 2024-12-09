@@ -39,4 +39,4 @@ Different technology stacks are isolated through component container technology.
 ## Who Uses This
 
 - <https://www.insmind.com> Use **React** to render pages and load interactive components of **Vue3** and **Vue2**.
-- <https://www.gaoding.com> Use **React** to render pages and load interactive components of **Vue2**.
+- <https://www.gaoding.com> Use **React** to render pages and load interactive components of **Vue2** and **Lit**.
