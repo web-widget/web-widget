@@ -20,7 +20,6 @@
     "@jest/globals": "catalog:",
     "@types/jest": "catalog:",
     "@types/node": "catalog:",
-    "@web-widget/schema": "workspace:*",
     "jest": "catalog:",
     "jest-environment-miniflare": "catalog:",
     "miniflare": "catalog:",

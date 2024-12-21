@@ -15,10 +15,10 @@
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/vite-plugin": "workspace:*",
-    "@web-widget/web-widget": "workspace:*"
+    "@web-widget/web-widget": "workspace:*",
+    "@web-widget/react": "workspace:*"
   },
   "devDependencies": {
-    "@web-widget/react": "workspace:*",
     "@types/node": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",
@@ -54,7 +54,6 @@
     "dist"
   ],
   "peerDependencies": {
-    "@web-widget/react": "workspace:*",
     "vite": "catalog:",
     "vue": "^2.7.16",
     "vue-server-renderer": "^2.7.16"
