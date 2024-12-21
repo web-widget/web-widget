@@ -17,7 +17,7 @@ export default WebRouter.fromManifest(manifest, {
   }),
   defaultRenderOptions: {
     react: {
-      awaitAllReady: false,
+      awaitAllReady: process.env.TEST ? true : false,
     },
   },
 });
