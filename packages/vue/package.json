@@ -16,11 +16,10 @@
     "@web-widget/helpers": "workspace:*",
     "@web-widget/vite-plugin": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "@web-widget/schema": "workspace:*"
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/react": "workspace:*"
   },
   "devDependencies": {
-    "@web-widget/react": "workspace:*",
-    "@web-widget/schema": "workspace:*",
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
@@ -46,7 +45,6 @@
     },
     "./vite": {
       "types": "./dist/vite.d.ts",
-      "require": "./dist/vite.cjs",
       "development": "./src/vite.ts",
       "default": "./dist/vite.js"
     }
@@ -55,7 +53,6 @@
     "dist"
   ],
   "peerDependencies": {
-    "@web-widget/react": "workspace:*",
     "vite": "catalog:",
     "vue": ">3.3.3"
   },
@@ -78,7 +75,6 @@
       },
       "./vite": {
         "types": "./dist/vite.d.ts",
-        "require": "./dist/vite.cjs",
         "default": "./dist/vite.js"
       }
     }

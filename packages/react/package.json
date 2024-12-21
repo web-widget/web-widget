@@ -21,7 +21,6 @@
   "devDependencies": {
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",
-    "@web-widget/schema": "workspace:*",
     "react": "rc",
     "react-dom": "rc",
     "tsup": "catalog:",
@@ -48,7 +47,6 @@
     },
     "./vite": {
       "types": "./dist/vite.d.ts",
-      "require": "./dist/vite.cjs",
       "development": "./src/vite.ts",
       "default": "./dist/vite.js"
     },
@@ -88,7 +86,6 @@
       },
       "./vite": {
         "types": "./dist/vite.d.ts",
-        "require": "./dist/vite.cjs",
         "default": "./dist/vite.js"
       },
       "./globals": {

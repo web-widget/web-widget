@@ -3,9 +3,7 @@ import { defineConfig } from 'tsup';
 export default defineConfig({
   dts: true,
   entry: {
-    action: 'src/index.ts',
-    'action.server': 'src/server.ts',
-    'action.client': 'src/client.ts',
+    index: 'src/index.ts',
   },
   external: [],
   format: 'esm',

@@ -24,7 +24,6 @@
   "devDependencies": {
     "@jest/globals": "catalog:",
     "@types/jest": "catalog:",
-    "@web-widget/schema": "workspace:*",
     "jest": "catalog:",
     "jest-environment-miniflare": "catalog:",
     "miniflare": "catalog:",

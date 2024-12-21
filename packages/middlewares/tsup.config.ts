@@ -1,5 +1,7 @@
-import type { Options } from 'tsup';
-export const tsup: Options = {
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
+  dts: true,
   entry: {
     cache: 'src/cache.ts',
     'conditional-get': 'src/conditional-get.ts',
@@ -10,12 +12,10 @@ export const tsup: Options = {
     timing: 'src/timing.ts',
     'trailing-slash': 'src/trailing-slash.ts',
   },
-  dts: true,
-  target: 'es2020',
-  splitting: true,
-  sourcemap: false,
-  format: ['esm'],
-  outDir: 'dist',
-  clean: true,
   external: [],
-};
+  format: 'esm',
+  outDir: 'dist',
+  sourcemap: false,
+  splitting: true,
+  target: 'chrome67',
+});

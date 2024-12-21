@@ -73,7 +73,6 @@
     "exports": {
       ".": {
         "types": "./dist/vite.d.ts",
-        "require": "./dist/vite.cjs",
         "default": "./dist/vite.js"
       },
       "./vitest-node-environment": {
