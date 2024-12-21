@@ -1,5 +1,11 @@
 # @web-widget/action
 
+## 1.50.0
+
+### Minor Changes
+
+- e7e6b56: Delete the cjs entry of the package.
+
 ## 1.49.2
 
 ## 1.49.1

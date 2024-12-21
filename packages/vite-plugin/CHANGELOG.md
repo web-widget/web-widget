@@ -1,5 +1,19 @@
 # @web-widget/vite-plugin
 
+## 1.50.0
+
+### Minor Changes
+
+- e7e6b56: Delete the cjs entry of the package.
+
+### Patch Changes
+
+- Updated dependencies [e7e6b56]
+  - @web-widget/web-router@1.50.0
+  - @web-widget/web-widget@1.50.0
+  - @web-widget/helpers@1.50.0
+  - @web-widget/node@1.50.0
+
 ## 1.49.2
 
 ### Patch Changes
