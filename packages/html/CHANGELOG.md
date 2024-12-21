@@ -1,5 +1,16 @@
 # @web-widget/html
 
+## 1.50.0
+
+### Minor Changes
+
+- e7e6b56: Delete the cjs entry of the package.
+
+### Patch Changes
+
+- Updated dependencies [e7e6b56]
+  - @web-widget/helpers@1.50.0
+
 ## 1.49.2
 
 ### Patch Changes
