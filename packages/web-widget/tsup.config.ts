@@ -1,5 +1,5 @@
-import type { Options } from 'tsup';
-export const tsup: Options = {
+import { defineConfig } from 'tsup';
+export default defineConfig({
   entry: {
     'web-widget.server': 'src/server.ts',
     'web-widget.client': 'src/client.ts',
@@ -7,10 +7,9 @@ export const tsup: Options = {
   },
   dts: true,
   target: ['es2017', 'chrome67'],
-  splitting: false,
+  splitting: true,
   sourcemap: true,
   format: ['esm'],
   outDir: 'dist',
-  clean: true,
   external: [],
-};
+});

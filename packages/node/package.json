@@ -27,7 +27,6 @@
   "exports": {
     ".": {
       "types": "./dist/node.d.ts",
-      "require": "./dist/node.cjs",
       "development": "./src/index.ts",
       "default": "./dist/node.js"
     }
@@ -40,7 +39,6 @@
     "exports": {
       ".": {
         "types": "./dist/node.d.ts",
-        "require": "./dist/node.cjs",
         "default": "./dist/node.js"
       }
     }

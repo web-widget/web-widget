@@ -48,7 +48,6 @@
     },
     "./vite": {
       "types": "./dist/vite.d.ts",
-      "require": "./dist/vite.cjs",
       "development": "./src/vite.ts",
       "default": "./dist/vite.js"
     },
@@ -88,7 +87,6 @@
       },
       "./vite": {
         "types": "./dist/vite.d.ts",
-        "require": "./dist/vite.cjs",
         "default": "./dist/vite.js"
       },
       "./globals": {

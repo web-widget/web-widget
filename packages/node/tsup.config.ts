@@ -1,12 +1,12 @@
-import type { Options } from 'tsup';
-export const tsup: Options = {
-  entry: { node: 'src/index.ts' },
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
   dts: true,
-  target: 'node18',
-  splitting: false,
-  sourcemap: false,
-  format: ['esm', 'cjs'],
-  outDir: 'dist',
-  clean: true,
+  entry: { node: 'src/index.ts' },
   external: [],
-};
+  format: 'esm',
+  outDir: 'dist',
+  sourcemap: false,
+  splitting: true,
+  target: 'chrome67',
+});

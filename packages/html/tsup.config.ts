@@ -1,15 +1,15 @@
-import type { Options } from 'tsup';
-export const tsup: Options = {
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
+  dts: true,
   entry: {
     'html.server': 'src/server.ts',
     'html.client': 'src/client.ts',
   },
-  dts: true,
-  target: 'esnext',
-  splitting: false,
-  sourcemap: false,
-  format: ['esm'],
-  outDir: 'dist',
-  clean: true,
   external: [],
-};
+  format: 'esm',
+  outDir: 'dist',
+  sourcemap: false,
+  splitting: true,
+  target: 'chrome67',
+});

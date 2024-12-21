@@ -23,25 +23,24 @@
   },
   "devDependencies": {
     "typescript": "catalog:",
-    "unbuild": "latest"
+    "tsup": "catalog:"
   },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "import": "./dist/index.mjs"
     }
   },
   "files": [
     "dist"
   ],
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
   "private": true,
   "scripts": {
-    "build": "pnpm unbuild",
-    "dev": "pnpm unbuild --stub"
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "dev": "pnpm exec tsup --watch",
+    "prebuild": "pnpm run clean:build"
   },
-  "type": "module",
-  "types": "./dist/index.d.ts"
+  "type": "module"
 }

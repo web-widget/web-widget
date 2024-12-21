@@ -315,12 +315,12 @@ importers:
         specifier: ^9.3.1
         version: 9.3.1(eslint@8.46.0)
     devDependencies:
+      tsup:
+        specifier: 'catalog:'
+        version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
-      unbuild:
-        specifier: latest
-        version: 2.0.0(typescript@5.5.4)
 
   packages/action:
     devDependencies:
@@ -2339,15 +2339,6 @@ packages:
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.68.0||^3.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-
-  '@rollup/plugin-commonjs@25.0.8':
-    resolution: {integrity: sha512-ZEZWTK5n6Qde0to4vS9Mr5x/0UZoqCxPVR9KRUjU4kA2sO7GEUn1fop0DAwpO6z0Nw/kJON9bDmSxdWxO/TT1A==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^2.68.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -6224,13 +6215,6 @@ packages:
       rollup: ^3.0
       typescript: ^5.5.4
 
-  rollup-plugin-dts@6.1.1:
-    resolution: {integrity: sha512-aSHRcJ6KG2IHIioYlvAOcEq6U99sVtqDDKVhnwt70rW6tsz3tv5OSjEiWcgzfsHdLyGXZ/3b/7b/+Za3Y6r1XA==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      rollup: ^3.29.4 || ^4
-      typescript: ^5.5.4
-
   rollup@3.29.4:
     resolution: {integrity: sha512-oWzmBZwvYrU0iJHtDmhsm662rC15FRXmcjCk1xD771dFDx5jJ02ufAQQTn0etB2emNk4J9EZg/yWKpsn9BWGRw==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
@@ -6904,15 +6888,6 @@ packages:
   unbuild@1.2.1:
     resolution: {integrity: sha512-J4efk69Aye43tWcBPCsLK7TIRppGrEN4pAlDzRKo3HSE6MgTSTBxSEuE3ccx7ixc62JvGQ/CoFXYqqF2AHozow==}
     hasBin: true
-
-  unbuild@2.0.0:
-    resolution: {integrity: sha512-JWCUYx3Oxdzvw2J9kTAp+DKE8df/BnH/JTSj6JyA4SH40ECdFu7FoJJcrm8G92B7TjofQ6GZGjJs50TRxoH6Wg==}
-    hasBin: true
-    peerDependencies:
-      typescript: ^5.5.4
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   unbzip2-stream@1.4.3:
     resolution: {integrity: sha512-mlExGW4w71ebDJviH16lQLtZS32VKqsSfk80GCfUlwT/4/hNRFsoscrF/c++9xinkMzECL1uL9DDwXqFWkruPg==}
@@ -8598,17 +8573,6 @@ snapshots:
       glob: 8.1.0
       is-reference: 1.2.1
       magic-string: 0.27.0
-    optionalDependencies:
-      rollup: 3.29.4
-
-  '@rollup/plugin-commonjs@25.0.8(rollup@3.29.4)':
-    dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
-      commondir: 1.0.1
-      estree-walker: 2.0.2
-      glob: 8.1.0
-      is-reference: 1.2.1
-      magic-string: 0.30.10
     optionalDependencies:
       rollup: 3.29.4
 
@@ -13244,14 +13208,6 @@ snapshots:
     optionalDependencies:
       '@babel/code-frame': 7.24.7
 
-  rollup-plugin-dts@6.1.1(rollup@3.29.4)(typescript@5.5.4):
-    dependencies:
-      magic-string: 0.30.10
-      rollup: 3.29.4
-      typescript: 5.5.4
-    optionalDependencies:
-      '@babel/code-frame': 7.24.7
-
   rollup@3.29.4:
     optionalDependencies:
       fsevents: 2.3.3
@@ -13990,39 +13946,6 @@ snapshots:
       scule: 1.3.0
       typescript: 5.5.4
       untyped: 1.4.2
-    transitivePeerDependencies:
-      - sass
-      - supports-color
-      - vue-tsc
-
-  unbuild@2.0.0(typescript@5.5.4):
-    dependencies:
-      '@rollup/plugin-alias': 5.1.0(rollup@3.29.4)
-      '@rollup/plugin-commonjs': 25.0.8(rollup@3.29.4)
-      '@rollup/plugin-json': 6.1.0(rollup@3.29.4)
-      '@rollup/plugin-node-resolve': 15.2.3(rollup@3.29.4)
-      '@rollup/plugin-replace': 5.0.7(rollup@3.29.4)
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
-      chalk: 5.3.0
-      citty: 0.1.6
-      consola: 3.2.3
-      defu: 6.1.4
-      esbuild: 0.19.12
-      globby: 13.2.2
-      hookable: 5.5.3
-      jiti: 1.21.6
-      magic-string: 0.30.10
-      mkdist: 1.5.3(typescript@5.5.4)
-      mlly: 1.7.1
-      pathe: 1.1.2
-      pkg-types: 1.1.3
-      pretty-bytes: 6.1.1
-      rollup: 3.29.4
-      rollup-plugin-dts: 6.1.1(rollup@3.29.4)(typescript@5.5.4)
-      scule: 1.3.0
-      untyped: 1.4.2
-    optionalDependencies:
-      typescript: 5.5.4
     transitivePeerDependencies:
       - sass
       - supports-color

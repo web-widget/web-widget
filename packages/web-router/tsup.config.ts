@@ -1,7 +1,9 @@
+// @ts-ignore
 import { promises as fs } from 'node:fs';
+// @ts-ignore
 import path from 'node:path';
+// @ts-ignore
 import { fileURLToPath } from 'node:url';
-import type { Options } from 'tsup';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,21 +34,21 @@ interface ImportMeta {
   readonly framework: Framework;
 }`;
 
-export const tsup: Options = {
-  entry: {
-    [NAME]: 'src/index.ts',
-  },
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
   dts: {
     banner: `/// <reference path="./${PLACEHOLDER_NAME}.d.ts" />`,
   },
-  target: 'es2022',
-  splitting: true,
-  sourcemap: false,
-  format: ['esm'],
-  outDir: DIST,
-  // NOTE: Prevent `placeholder.d.ts` files from being cleaned up.
-  clean: false,
+  entry: {
+    [NAME]: 'src/index.ts',
+  },
   external: [],
+  format: 'esm',
+  outDir: DIST,
+  sourcemap: false,
+  splitting: true,
+  target: 'chrome67',
   onSuccess: async () => {
     try {
       await fs.writeFile(PLACEHOLDER_PATH, PLACEHOLDER_CODE, 'utf8');
@@ -55,4 +57,4 @@ export const tsup: Options = {
       throw error;
     }
   },
-};
+});
