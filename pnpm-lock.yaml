@@ -341,7 +341,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
@@ -381,7 +381,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
@@ -430,7 +430,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
@@ -486,7 +486,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
@@ -529,7 +529,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
@@ -575,7 +575,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
@@ -685,7 +685,7 @@ importers:
         version: 4.22.4
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
@@ -704,6 +704,9 @@ importers:
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@web-widget/react':
+        specifier: workspace:*
+        version: link:../react
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
@@ -714,9 +717,6 @@ importers:
         specifier: workspace:*
         version: link:../web-widget
     devDependencies:
-      '@web-widget/react':
-        specifier: workspace:*
-        version: link:../react
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
@@ -735,6 +735,9 @@ importers:
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@web-widget/react':
+        specifier: workspace:*
+        version: link:../react
       '@web-widget/vite-plugin':
         specifier: workspace:*
         version: link:../vite-plugin
@@ -745,9 +748,6 @@ importers:
       '@types/node':
         specifier: ^22.2.0
         version: 22.2.0
-      '@web-widget/react':
-        specifier: workspace:*
-        version: link:../react
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
@@ -796,7 +796,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.4.47)(typescript@5.5.4)
@@ -13774,7 +13774,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-jest@29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4):
+  ts-jest@29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4):
     dependencies:
       bs-logger: 0.2.6
       ejs: 3.1.10
@@ -13792,7 +13792,6 @@ snapshots:
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
       babel-jest: 29.7.0(@babel/core@7.25.2)
-      esbuild: 0.24.0
 
   ts-toolbelt@9.6.0: {}
 
