@@ -9,7 +9,7 @@ import {
   Status,
   STATUS_TEXT,
 } from "@web-widget/helpers/status";
- *
+
 console.log(Status.NotFound); //=> 404
 console.log(STATUS_TEXT[Status.NotFound]); //=> "Not Found"
 ```
