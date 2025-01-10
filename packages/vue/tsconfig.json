@@ -7,7 +7,8 @@
     "moduleResolution": "Bundler",
     "rootDir": "./src",
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "types": ["./src/import-meta.d.ts"]
   },
   "exclude": ["node_modules"],
   "include": ["./src/**/*"]

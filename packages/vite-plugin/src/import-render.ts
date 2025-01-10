@@ -25,8 +25,6 @@ const parseComponentName = (code: string) =>
 
 export interface ImportRenderPluginOptions {
   cache?: Set<string>;
-  /** @deprecated */
-  component?: FilterPattern;
   exclude?: FilterPattern;
   excludeImporter?: FilterPattern;
   include?: FilterPattern;
@@ -53,21 +51,11 @@ export interface ImportRenderPluginOptions {
  * ...
  * <MyComponent title="My component" />
  */
-export function importRenderPlugin({
-  cache = globalCache,
-  component,
-  exclude,
-  excludeImporter,
-  include,
-  includeImporter = component,
-  inject = 'defineWebWidget',
-  manifest,
-  provide,
-}: ImportRenderPluginOptions): Plugin[] {
-  if (typeof provide !== 'string') {
-    throw new TypeError(`options.provide must be a string type.`);
-  }
-
+export function importRenderPlugin(
+  options:
+    | ImportRenderPluginOptions
+    | (() => Promise<ImportRenderPluginOptions>)
+): Plugin[] {
   let dev = false;
   let root: string;
   let filter: (id: string | unknown) => boolean;
@@ -77,13 +65,38 @@ export function importRenderPlugin({
   let sourcemap: boolean;
   const assetMap: Map<string, string> = new Map();
 
-  filter = createFilter(include, exclude);
-  importerFilter = createFilter(includeImporter, excludeImporter);
+  let cache: NonNullable<ImportRenderPluginOptions['cache']>;
+  let exclude: ImportRenderPluginOptions['exclude'];
+  let excludeImporter: ImportRenderPluginOptions['excludeImporter'];
+  let include: ImportRenderPluginOptions['include'];
+  let includeImporter: ImportRenderPluginOptions['includeImporter'];
+  let inject: NonNullable<ImportRenderPluginOptions['inject']>;
+  let manifest: ImportRenderPluginOptions['manifest'];
+  let provide: ImportRenderPluginOptions['provide'];
 
   return [
     {
       name: '@web-widget:import-render',
       async configResolved(config) {
+        const resolvedOptions =
+          typeof options === 'function' ? await options() : options;
+
+        if (typeof provide !== 'string') {
+          throw new TypeError(`options.provide must be a string type.`);
+        }
+
+        cache = resolvedOptions.cache ?? globalCache;
+        exclude = resolvedOptions.exclude;
+        excludeImporter = resolvedOptions.excludeImporter;
+        include = resolvedOptions.include;
+        includeImporter = resolvedOptions.includeImporter;
+        inject = resolvedOptions.inject ?? 'defineWebWidget';
+        manifest = resolvedOptions.manifest;
+        provide = resolvedOptions.provide;
+
+        filter = createFilter(include, exclude);
+        importerFilter = createFilter(includeImporter, excludeImporter);
+
         dev = config.command === 'serve';
         root = config.root;
         base = config.base;

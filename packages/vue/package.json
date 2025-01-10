@@ -87,5 +87,6 @@
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build"
   },
+  "sideEffects": false,
   "type": "module"
 }

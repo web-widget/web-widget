@@ -66,14 +66,14 @@ function WebWidget({ localName, attributes, innerHTML }: WebWidgetElement) {
   });
 }
 
-export type DefineWebWidgetOptions = Partial<
+export type ImporterOptions = Partial<
   Pick<
     WebWidgetRendererOptions,
     'base' | 'import' | 'loading' | 'name' | 'renderStage' | 'renderTarget'
   >
 >;
 
-export interface WebWidgetSuspenseProps {
+interface WebWidgetSuspenseProps {
   children?: ReactNode;
   fallback?: ReactNode;
   experimental_loading?: WebWidgetRendererOptions['loading'];
@@ -81,10 +81,10 @@ export interface WebWidgetSuspenseProps {
   experimental_renderTarget?: WebWidgetRendererOptions['renderTarget'];
 }
 
-export /*#__PURE__*/ function defineWebWidget(
-  loader: Loader,
-  options: DefineWebWidgetOptions
-) {
+/**
+ * Import a [Web Widget](https://web-widget.js.org) renderable format into a component.
+ */
+export function importer(loader: Loader, options: ImporterOptions) {
   return memo(function WebWidgetSuspense({
     children,
     fallback,

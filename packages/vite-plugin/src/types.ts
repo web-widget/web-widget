@@ -118,7 +118,6 @@ export interface ResolvedWebWidgetConfig {
   provide: string;
   manifest?: ViteManifest;
   export?: {
-    /** @default `"render"` */
     inject?: string | string[];
     extractFromExportDefault?: {
       name: string;
@@ -130,11 +129,8 @@ export interface ResolvedWebWidgetConfig {
     include?: FilterPattern;
   };
   import?: {
-    /** @default `"defineWebWidget"` */
     inject?: string;
     cache?: Set<string>;
-    /** @deprecated Please use `import.includeImporter` instead. */
-    component?: FilterPattern;
     exclude?: FilterPattern;
     excludeImporter?: FilterPattern;
     include?: FilterPattern;
@@ -142,9 +138,4 @@ export interface ResolvedWebWidgetConfig {
   };
 }
 
-export interface WebWidgetUserConfig extends ResolvedWebWidgetConfig {
-  /** @deprecated Please use `export` instead. */
-  toWebWidgets?: ResolvedWebWidgetConfig['export'];
-  /** @deprecated Please use `import` instead. */
-  toComponents?: ResolvedWebWidgetConfig['import'];
-}
+export interface WebWidgetUserConfig extends ResolvedWebWidgetConfig {}

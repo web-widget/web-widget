@@ -24,7 +24,8 @@
     "magic-string": "^0.30.5",
     "mime-types": "^2.1.35",
     "strip-ansi": "^7.1.0",
-    "zod": "^3.22.3"
+    "zod": "^3.22.3",
+    "minimatch": "^10.0.1"
   },
   "devDependencies": {
     "@jest/globals": "catalog:",

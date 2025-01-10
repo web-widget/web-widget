@@ -26,27 +26,42 @@ export interface ExportRenderPluginOptions {
   provide: string;
 }
 
-export function exportRenderPlugin({
-  exclude,
-  extractFromExportDefault,
-  include,
-  inject = 'render',
-  manifest,
-  provide,
-}: ExportRenderPluginOptions): Plugin[] {
-  if (typeof provide !== 'string') {
-    throw new TypeError(`options.provide must be a string type.`);
-  }
-
+export function exportRenderPlugin(
+  options:
+    | ExportRenderPluginOptions
+    | (() => Promise<ExportRenderPluginOptions>)
+): Plugin[] {
   let base: string;
   let root: string;
   let sourcemap: boolean;
-  const filter = createFilter(include, exclude);
+  let filter: (id: string | unknown) => boolean;
+  let exclude: ExportRenderPluginOptions['exclude'];
+  let extractFromExportDefault: ExportRenderPluginOptions['extractFromExportDefault'];
+  let include: ExportRenderPluginOptions['include'];
+  let inject: NonNullable<ExportRenderPluginOptions['inject']>;
+  let manifest: ExportRenderPluginOptions['manifest'];
+  let provide: ExportRenderPluginOptions['provide'];
 
   return [
     {
       name: '@web-widget:export-render',
       async configResolved(config) {
+        const resolvedOptions =
+          typeof options === 'function' ? await options() : options;
+
+        if (typeof resolvedOptions.provide !== 'string') {
+          throw new TypeError(`options.provide must be a string type.`);
+        }
+
+        exclude = resolvedOptions.exclude;
+        extractFromExportDefault = resolvedOptions.extractFromExportDefault;
+        include = resolvedOptions.include;
+        inject = resolvedOptions.inject ?? 'render';
+        manifest = resolvedOptions.manifest;
+        provide = resolvedOptions.provide;
+
+        filter = createFilter(include, exclude);
+
         sourcemap = !!config.build?.sourcemap;
       },
       async transform(code, id) {

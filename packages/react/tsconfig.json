@@ -12,7 +12,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
-    "types": ["@types/react", "@types/react-dom"]
+    "types": ["@types/react", "@types/react-dom", "./src/import-meta.d.ts"]
   },
   "exclude": ["node_modules"],
   "include": ["src/**/*", "globals.d.ts"]

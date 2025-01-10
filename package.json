@@ -15,6 +15,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.27.7",
     "@internal/eslint-config": "workspace:*",
+    "@types/eslint": "^9.6.1",
     "c8": "latest",
     "finepack": "latest",
     "git-authors-cli": "latest",

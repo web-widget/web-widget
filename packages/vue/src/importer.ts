@@ -94,7 +94,7 @@ const WebWidget = /*#__PURE__*/ defineComponent({
   },
 });
 
-export interface DefineWebWidgetOptions {
+export interface ImporterOptions {
   base?: WebWidgetRendererOptions['base'];
   import?: WebWidgetRendererOptions['import'];
   loading?: WebWidgetRendererOptions['loading'];
@@ -103,10 +103,19 @@ export interface DefineWebWidgetOptions {
   renderTarget?: WebWidgetRendererOptions['renderTarget'];
 }
 
-export /*#__PURE__*/ function defineWebWidget(
-  loader: Loader,
-  options: DefineWebWidgetOptions
-) {
+/**
+ * Convert Vue component types to React component types.
+ */
+export /*#__PURE__*/ function toReact<T>(component: Component<T>) {
+  return component as unknown as ReactWidgetComponent<
+    Omit<T, keyof ComponentPublicInstance | '$route' | '$router'>
+  >;
+}
+
+/**
+ * Import a [Web Widget](https://web-widget.js.org) renderable format into a component.
+ */
+export function importer(loader: Loader, options: ImporterOptions) {
   return defineComponent({
     name: 'WebWidgetSuspense',
     inheritAttrs: false,
@@ -160,13 +169,4 @@ export /*#__PURE__*/ function defineWebWidget(
         );
     },
   });
-}
-
-/**
- * Convert Vue component types to React component types.
- */
-export /*#__PURE__*/ function toReact<T>(component: Component<T>) {
-  return component as unknown as ReactWidgetComponent<
-    Omit<T, keyof ComponentPublicInstance | '$route' | '$router'>
-  >;
 }

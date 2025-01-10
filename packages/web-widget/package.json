@@ -111,7 +111,8 @@
     "test:watch": "web-test-runner test/**/*.test.ts --watch"
   },
   "sideEffects": [
-    "./dist/web-widget.client.js"
+    "./dist/web-widget.client.js",
+    "./dist/inspector.js"
   ],
   "type": "module"
 }
