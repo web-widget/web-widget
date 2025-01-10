@@ -1,5 +1,7 @@
 # @web-widget/action
 
+## 1.50.1
+
 ## 1.50.0
 
 ### Minor Changes
