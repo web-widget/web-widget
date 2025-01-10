@@ -3,7 +3,7 @@ import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
 import type { App } from 'vue';
 import { Suspense, createApp, createSSRApp, h } from 'vue';
 import type { CreateVueRenderOptions } from './types';
-import installErrorHandler from './error-handler';
+import errorHandler from './error-handler';
 
 export * from '@web-widget/helpers';
 export { useWidgetAsyncState as useWidgetState } from '@web-widget/helpers/state';
@@ -37,10 +37,18 @@ export const createVueRender = ({
           app = createApp(WidgetSuspense, props as any);
         }
 
-        installErrorHandler(app);
+        let error;
+        errorHandler(app, (err) => {
+          error = err;
+        });
+
         await onCreatedApp(app, context, component, props);
 
         app.mount(container);
+
+        if (error) {
+          throw error;
+        }
       },
 
       async unmount() {

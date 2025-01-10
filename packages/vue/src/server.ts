@@ -1,8 +1,8 @@
 import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
 import { createSSRApp, h, Suspense } from 'vue';
-import { renderToWebStream, type SSRContext } from 'vue/server-renderer';
+import { renderToString, type SSRContext } from 'vue/server-renderer';
 import type { CreateVueRenderOptions } from './types';
-import installErrorHandler from './error-handler';
+import errorHandler from './error-handler';
 
 declare module '@web-widget/schema' {
   interface WidgetRenderOptions {
@@ -33,14 +33,21 @@ export const createVueRender = ({
     async (context, { vue: ssrContext } = {}) => {
       const componentDescriptor = getComponentDescriptor(context);
       const { component, props } = componentDescriptor;
-
       const WidgetSuspense = (props: any) =>
         h(Suspense, null, [h(component, props)]);
       const app = createSSRApp(WidgetSuspense, props as any);
-
-      installErrorHandler(app);
+      let error;
+      errorHandler(app, (err) => {
+        error = err;
+      });
       await onCreatedApp(app, context, component, props);
-      return renderToWebStream(app, ssrContext);
+      const html = await renderToString(app, ssrContext);
+
+      if (error) {
+        throw error;
+      }
+
+      return html;
     }
   );
 };
