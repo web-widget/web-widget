@@ -2,8 +2,8 @@
   "name": "@playgrounds/widget-react",
   "dependencies": {
     "@web-widget/react": "workspace:*",
-    "react": "rc",
-    "react-dom": "rc"
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.47",

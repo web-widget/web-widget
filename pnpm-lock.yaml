@@ -38,8 +38,6 @@ catalogs:
       version: 2.1.3
 
 overrides:
-  '@types/node': ^22.2.0
-  typescript: ^5.5.4
   '@examples/react>@web-widget/helpers': workspace:*
   '@examples/react>@web-widget/html': workspace:*
   '@examples/react>@web-widget/node': workspace:*
@@ -56,10 +54,12 @@ overrides:
   '@examples/vue>@web-widget/vue': workspace:*
   '@examples/vue>@web-widget/web-router': workspace:*
   '@examples/vue>@web-widget/web-widget': workspace:*
+  '@types/node': ^22.2.0
+  typescript: ^5.5.4
 
 patchedDependencies:
   '@miniflare/core@2.14.2':
-    hash: vylcvxdvkobd5p5nb74earctsq
+    hash: 9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be
     path: patches/@miniflare__core@2.14.2.patch
 
 importers:
@@ -133,11 +133,11 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       react:
-        specifier: rc
-        version: 19.0.0-rc.1
+        specifier: 19.0.0
+        version: 19.0.0
       react-dom:
-        specifier: rc
-        version: 19.0.0-rc.1(react@19.0.0-rc.1)
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
       vue:
         specifier: ^3.4.8
         version: 3.4.8(typescript@5.5.4)
@@ -152,11 +152,11 @@ importers:
         specifier: ^4.1.3
         version: 4.1.6
       '@types/react':
-        specifier: npm:types-react@rc
-        version: types-react@19.0.0-rc.1
+        specifier: 19.0.8
+        version: 19.0.8
       '@types/react-dom':
-        specifier: npm:types-react-dom@rc
-        version: types-react-dom@19.0.0-rc.1
+        specifier: 19.0.3
+        version: 19.0.3(@types/react@19.0.8)
       '@vitejs/plugin-react':
         specifier: ^4.1.1
         version: 4.3.1(vite@5.4.12(@types/node@22.2.0))
@@ -212,11 +212,11 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       react:
-        specifier: rc
-        version: 19.0.0-rc.1
+        specifier: 19.0.0
+        version: 19.0.0
       react-dom:
-        specifier: rc
-        version: 19.0.0-rc.1(react@19.0.0-rc.1)
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
       vue:
         specifier: ^3.4.8
         version: 3.4.8(typescript@5.5.4)
@@ -231,11 +231,11 @@ importers:
         specifier: ^4.1.3
         version: 4.1.3
       '@types/react':
-        specifier: npm:types-react@rc
-        version: types-react@19.0.0-rc.1
+        specifier: 19.0.8
+        version: 19.0.8
       '@types/react-dom':
-        specifier: npm:types-react-dom@rc
-        version: types-react-dom@19.0.0-rc.1
+        specifier: 19.0.3
+        version: 19.0.3(@types/react@19.0.8)
       '@vitejs/plugin-react':
         specifier: ^4.1.1
         version: 4.2.1(vite@5.4.12(@types/node@22.2.0))
@@ -335,13 +335,13 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0)
+        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0)(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -375,13 +375,13 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0)
+        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0)(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -424,13 +424,13 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0)
+        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0)(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -480,13 +480,13 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0)
+        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0)(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -520,7 +520,7 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0)
+        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
       lru-cache:
         specifier: ^10.2.0
         version: 10.2.0
@@ -529,7 +529,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0)(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -569,13 +569,13 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0)
+        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0)(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -599,17 +599,17 @@ importers:
         version: link:../web-widget
     devDependencies:
       '@types/react':
-        specifier: npm:types-react@rc
-        version: types-react@19.0.0-rc.1
+        specifier: 19.0.8
+        version: 19.0.8
       '@types/react-dom':
-        specifier: npm:types-react-dom@rc
-        version: types-react-dom@19.0.0-rc.1
+        specifier: 19.0.3
+        version: 19.0.3(@types/react@19.0.8)
       react:
-        specifier: rc
-        version: 19.0.0-rc.1
+        specifier: 19.0.0
+        version: 19.0.0
       react-dom:
-        specifier: rc
-        version: 19.0.0-rc.1(react@19.0.0-rc.1)
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -685,7 +685,7 @@ importers:
         version: 4.22.4
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0)(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -790,13 +790,13 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0)
+        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0)(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -874,11 +874,11 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       react:
-        specifier: rc
-        version: 19.0.0-rc.1
+        specifier: 19.0.0
+        version: 19.0.0
       react-dom:
-        specifier: rc
-        version: 19.0.0-rc.1(react@19.0.0-rc.1)
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
@@ -890,11 +890,11 @@ importers:
         specifier: ^4.1.6
         version: 4.1.6
       '@types/react':
-        specifier: npm:types-react@rc
-        version: types-react@19.0.0-rc.1
+        specifier: 19.0.8
+        version: 19.0.8
       '@types/react-dom':
-        specifier: npm:types-react-dom@rc
-        version: types-react-dom@19.0.0-rc.1
+        specifier: 19.0.3
+        version: 19.0.3(@types/react@19.0.8)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
         version: 4.3.1(vite@5.4.12(@types/node@22.2.0))
@@ -991,11 +991,11 @@ importers:
         specifier: ^4.19.2
         version: 4.21.0
       react:
-        specifier: rc
-        version: 19.0.0-rc.1
+        specifier: 19.0.0
+        version: 19.0.0
       react-dom:
-        specifier: rc
-        version: 19.0.0-rc.1(react@19.0.0-rc.1)
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
       sirv:
         specifier: ^2.0.4
         version: 2.0.4
@@ -1019,11 +1019,11 @@ importers:
         specifier: workspace:*
         version: link:../../../../packages/react
       react:
-        specifier: rc
-        version: 19.0.0-rc.1
+        specifier: 19.0.0
+        version: 19.0.0
       react-dom:
-        specifier: rc
-        version: 19.0.0-rc.1(react@19.0.0-rc.1)
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
     devDependencies:
       '@types/react':
         specifier: ^18.2.47
@@ -2835,8 +2835,16 @@ packages:
   '@types/react-dom@18.3.0':
     resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
 
+  '@types/react-dom@19.0.3':
+    resolution: {integrity: sha512-0Knk+HJiMP/qOZgMyNFamlIjw9OFCsyC2ZbigmEEyXXixgre6IQpm/4V+r3qH4GC1JPvRJKInw+on2rV6YZLeA==}
+    peerDependencies:
+      '@types/react': ^19.0.0
+
   '@types/react@18.3.3':
     resolution: {integrity: sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==}
+
+  '@types/react@19.0.8':
+    resolution: {integrity: sha512-9P/o1IGdfmQxrujGbIMDyYaaCykhLKc0NGCtYcECNUr9UAaDe4gwvV9bR6tvd5Br1SG0j+PBpbKr2UYY8CwqSw==}
 
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
@@ -6167,10 +6175,10 @@ packages:
     peerDependencies:
       react: ^18.3.1
 
-  react-dom@19.0.0-rc.1:
-    resolution: {integrity: sha512-k8MfDX+4G+eaa1cXXI9QF4d+pQtYol3nx8vauqRWUEOPqC7NQn2qmEqUsLoSd28rrZUL+R3T2VC+kZ2Hyx1geQ==}
+  react-dom@19.0.0:
+    resolution: {integrity: sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==}
     peerDependencies:
-      react: 19.0.0-rc.1
+      react: ^19.0.0
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -6190,8 +6198,8 @@ packages:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
     engines: {node: '>=0.10.0'}
 
-  react@19.0.0-rc.1:
-    resolution: {integrity: sha512-NZKln+uyPuyHchzP07I6GGYFxdAoaKhehgpCa3ltJGzwE31OYumLeshGaitA1R/fS5d9D2qpZVwTFAr6zCLM9w==}
+  react@19.0.0:
+    resolution: {integrity: sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ==}
     engines: {node: '>=0.10.0'}
 
   read-pkg-up@1.0.1:
@@ -6342,8 +6350,8 @@ packages:
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
-  scheduler@0.25.0-rc.1:
-    resolution: {integrity: sha512-fVinv2lXqYpKConAMdergOl5owd0rY1O4P/QTe0aWKCqGtu7VsCt1iqQFxSJtqK4Lci/upVSBpGwVC7eWcuS9Q==}
+  scheduler@0.25.0:
+    resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
 
   scslre@0.2.0:
     resolution: {integrity: sha512-4hc49fUMmX3jM0XdFUAPBrs1xwEcdHa0KyjEsjFs+Zfc66mpFpq5YmRgDtl+Ffo6AtJIilfei+yKw8fUn3N88w==}
@@ -6929,12 +6937,6 @@ packages:
 
   typedarray-to-buffer@3.1.5:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
-
-  types-react-dom@19.0.0-rc.1:
-    resolution: {integrity: sha512-VSLZJl8VXCD0fAWp7DUTFUDCcZ8DVXOQmjhJMD03odgeFmu14ZQJHCXeETm3BEAhJqfgJaFkLnGkQv88sRx0fQ==}
-
-  types-react@19.0.0-rc.1:
-    resolution: {integrity: sha512-RshndUfqTW6K3STLPis8BtAYCGOkMbtvYsi90gmVNDZBXUyUc5juf2PE9LfS/JmOlUIRO8cWTS/1MTnmhjDqyQ==}
 
   typescript@5.5.4:
     resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
@@ -8425,12 +8427,12 @@ snapshots:
 
   '@miniflare/cache@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
       http-cache-semantics: 4.1.1
       undici: 5.28.2
 
-  '@miniflare/core@2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)':
+  '@miniflare/core@2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)':
     dependencies:
       '@iarna/toml': 2.2.5
       '@miniflare/queues': 2.14.2
@@ -8445,19 +8447,19 @@ snapshots:
 
   '@miniflare/d1@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
 
   '@miniflare/durable-objects@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
       '@miniflare/storage-memory': 2.14.2
       undici: 5.28.2
 
   '@miniflare/html-rewriter@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
       html-rewriter-wasm: 0.4.1
       undici: 5.28.2
@@ -8472,7 +8474,7 @@ snapshots:
 
   '@miniflare/r2@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
       undici: 5.28.2
 
@@ -8484,7 +8486,7 @@ snapshots:
     dependencies:
       '@cloudflare/workers-types': 4.20231025.0
       '@miniflare/cache': 2.14.2
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/d1': 2.14.2
       '@miniflare/durable-objects': 2.14.2
       '@miniflare/html-rewriter': 2.14.2
@@ -8527,7 +8529,7 @@ snapshots:
 
   '@miniflare/web-sockets@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
       undici: 5.28.2
       ws: 8.18.0
@@ -9042,9 +9044,17 @@ snapshots:
     dependencies:
       '@types/react': 18.3.3
 
+  '@types/react-dom@19.0.3(@types/react@19.0.8)':
+    dependencies:
+      '@types/react': 19.0.8
+
   '@types/react@18.3.3':
     dependencies:
       '@types/prop-types': 15.7.12
+      csstype: 3.1.3
+
+  '@types/react@19.0.8':
+    dependencies:
       csstype: 3.1.3
 
   '@types/resolve@1.20.2': {}
@@ -10685,7 +10695,7 @@ snapshots:
       debug: 4.3.4
       enhanced-resolve: 5.14.0
       eslint: 8.46.0
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-plugin-import@2.28.0)(eslint@8.46.0))(eslint@8.46.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0)
       eslint-plugin-import: 2.28.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0)
       get-tsconfig: 4.6.2
       globby: 13.2.2
@@ -10698,7 +10708,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-plugin-import@2.28.0)(eslint@8.46.0))(eslint@8.46.0):
+  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -10725,7 +10735,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.46.0
       eslint-import-resolver-node: 0.3.7
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-plugin-import@2.28.0)(eslint@8.46.0))(eslint@8.46.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0)
       has: 1.0.3
       is-core-module: 2.12.1
       is-glob: 4.0.3
@@ -11795,7 +11805,7 @@ snapshots:
       jest-util: 29.7.0
       pretty-format: 29.7.0
 
-  jest-environment-miniflare@2.14.2(jest@29.7.0):
+  jest-environment-miniflare@2.14.2(jest@29.7.0(@types/node@22.2.0)):
     dependencies:
       '@jest/environment': 29.7.0
       '@jest/fake-timers': 29.7.0
@@ -13112,10 +13122,10 @@ snapshots:
       react: 18.3.1
       scheduler: 0.23.2
 
-  react-dom@19.0.0-rc.1(react@19.0.0-rc.1):
+  react-dom@19.0.0(react@19.0.0):
     dependencies:
-      react: 19.0.0-rc.1
-      scheduler: 0.25.0-rc.1
+      react: 19.0.0
+      scheduler: 0.25.0
 
   react-is@16.13.1: {}
 
@@ -13129,7 +13139,7 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
 
-  react@19.0.0-rc.1: {}
+  react@19.0.0: {}
 
   read-pkg-up@1.0.1:
     dependencies:
@@ -13338,7 +13348,7 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
 
-  scheduler@0.25.0-rc.1: {}
+  scheduler@0.25.0: {}
 
   scslre@0.2.0:
     dependencies:
@@ -13822,7 +13832,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-jest@29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0)(typescript@5.5.4):
+  ts-jest@29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4):
     dependencies:
       bs-logger: 0.2.6
       ejs: 3.1.10
@@ -13940,14 +13950,6 @@ snapshots:
   typedarray-to-buffer@3.1.5:
     dependencies:
       is-typedarray: 1.0.0
-
-  types-react-dom@19.0.0-rc.1:
-    dependencies:
-      '@types/react': 18.3.3
-
-  types-react@19.0.0-rc.1:
-    dependencies:
-      csstype: 3.1.3
 
   typescript@5.5.4: {}
 
