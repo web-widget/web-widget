@@ -19,8 +19,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+          
+      - run: npm install -g corepack@latest
+  
       - run: corepack enable && pnpm --version
-      - run: pnpm i --lockfile-only
+
+      - run: pnpm install --lockfile-only
+
       - run: |
           git config --global user.name github-actions[bot]
           git config --global user.email github-actions[bot]@users.noreply.github.com
