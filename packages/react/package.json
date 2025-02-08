@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/react",
   "description": "React adapter",
-  "version": "1.50.1",
+  "version": "1.51.0",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",
@@ -19,10 +19,10 @@
     "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "npm:types-react@rc",
-    "@types/react-dom": "npm:types-react-dom@rc",
-    "react": "rc",
-    "react-dom": "rc",
+    "@types/react": "19.0.8",
+    "@types/react-dom": "19.0.3",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
@@ -58,13 +58,9 @@
     "dist",
     "globals.d.ts"
   ],
-  "overrides": {
-    "@types/react": "npm:types-react@rc",
-    "@types/react-dom": "npm:types-react-dom@rc"
-  },
   "peerDependencies": {
-    "react": "rc",
-    "react-dom": "rc",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "vite": "catalog:"
   },
   "publishConfig": {

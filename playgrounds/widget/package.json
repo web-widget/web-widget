@@ -2,8 +2,8 @@
   "name": "@playgrounds/widget",
   "version": "0.0.0",
   "dependencies": {
-    "react": "rc",
-    "react-dom": "rc",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "@web-widget/web-widget": "workspace:*",
     "compression": "^1.7.4",
     "express": "^4.19.2",

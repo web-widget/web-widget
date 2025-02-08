@@ -41,9 +41,11 @@ jobs:
         with:
           node-version: ${{ matrix.version.node }}
 
+      - run: npm install -g corepack@latest
+  
       - run: corepack enable && pnpm --version
 
-      - run: pnpm install --recursive --loglevel=error
+      - run: pnpm install --recursive --no-frozen-lockfile --loglevel=error
 
       - run: pnpm build
 
