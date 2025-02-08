@@ -45,7 +45,7 @@ jobs:
   
       - run: corepack enable && pnpm --version
 
-      - run: pnpm install --recursive --loglevel=error
+      - run: pnpm install --recursive --no-frozen-lockfile --loglevel=error
 
       - run: pnpm build
 
