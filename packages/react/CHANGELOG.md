@@ -1,5 +1,18 @@
 # @web-widget/react
 
+## 1.51.0
+
+### Minor Changes
+
+- 35c1f54: Upgrade to react@19.
+
+### Patch Changes
+
+- @web-widget/helpers@1.51.0
+- @web-widget/schema@1.51.0
+- @web-widget/vite-plugin@1.51.0
+- @web-widget/web-widget@1.51.0
+
 ## 1.50.1
 
 ### Patch Changes
