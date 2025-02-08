@@ -34,7 +34,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - run: npm install -g corepack@latest && corepack enable && pnpm --version
+      - run: npm install -g corepack@latest
+      
+      - run: corepack enable && pnpm --version
 
       - run: pnpm install --recursive --no-frozen-lockfile --loglevel=error
 
