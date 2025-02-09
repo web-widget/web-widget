@@ -10,6 +10,6 @@
   "ignore": ["@internal/*", "@examples/*", "@playgrounds/*"],
   "snapshot": {
     "useCalculatedVersion": true,
-    "prereleaseTemplate": "{tag}-{commit}-{datetime}"
+    "prereleaseTemplate": "{tag}-{datetime}"
   }
 }
