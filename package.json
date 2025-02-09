@@ -47,7 +47,7 @@
     "test": "c8 turbo run test",
     "update": "pnpm -r exec ncu -- --upgrade && ncu -- --upgrade",
     "update:check": "pnpm -r exec ncu -- --errorLevel 2 && ncu -- --errorLevel 2",
-    "version:prepare": "changeset version --snapshot alpha && pnpm install --no-frozen-lockfile",
+    "version:prepare": "changeset version --no-git-tag --snapshot alpha",
     "version:publish": "changeset publish"
   },
   "private": true,
