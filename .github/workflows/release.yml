@@ -2,8 +2,8 @@ name: Publish
 
 on:
   push:
-    # branches:
-    #   - '*'
+    branches:
+      - test/changeset-snapshot-releases
     tags:
       - '!*'
 
