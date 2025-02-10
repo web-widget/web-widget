@@ -7,9 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@internal/*", "@examples/*", "@playgrounds/*"],
-  "snapshot": {
-    "useCalculatedVersion": true,
-    "prereleaseTemplate": "{tag}-{datetime}"
-  }
+  "ignore": ["@internal/*", "@examples/*", "@playgrounds/*"]
 }
