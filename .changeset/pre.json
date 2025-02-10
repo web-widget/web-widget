@@ -23,7 +23,12 @@
     "@playgrounds/router": "0.0.0",
     "@playgrounds/web-router-vue2": "0.0.1",
     "@playgrounds/web-router-vue3": "0.0.1",
-    "@playgrounds/widget": "0.0.0"
+    "@playgrounds/widget": "0.0.0",
+    "@playgrounds/widget-react": "0.0.0",
+    "@playgrounds/widget-vue2": "0.0.0",
+    "@playgrounds/widget-vue3": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "funny-ducks-ring"
+  ]
 }
