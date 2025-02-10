@@ -1,5 +1,12 @@
 # @web-widget/context
 
+## 1.52.0-alpha-20250210022941
+
+### Patch Changes
+
+- @web-widget/purify@1.52.0-alpha-20250210022941
+- @web-widget/schema@1.52.0-alpha-20250210022941
+
 ## 1.51.0
 
 ### Patch Changes

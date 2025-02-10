@@ -1,5 +1,11 @@
 # @web-widget/html
 
+## 1.52.0-alpha-20250210022941
+
+### Patch Changes
+
+- @web-widget/helpers@1.52.0-alpha-20250210022941
+
 ## 1.51.0
 
 ### Patch Changes
