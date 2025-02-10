@@ -51,4 +51,3 @@ jobs:
         with:
           version: pnpm version:prepare
           publish: pnpm version:publish
-          branch: test-snapshot
