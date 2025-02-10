@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/web-router",
   "description": "A server based on the Web Workers standard",
-  "version": "1.51.1-next.0",
+  "version": "1.51.1",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",
