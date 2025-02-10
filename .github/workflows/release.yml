@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - test/changeset-snapshot-releases
+      - prerelease/*
     tags:
       - '!*'
 
@@ -40,6 +40,14 @@ jobs:
       - run: corepack enable && pnpm --version
 
       - run: pnpm install --recursive --no-frozen-lockfile --loglevel=error
+
+      - name: Check for Prerelease Mode
+        if: startsWith(github.ref, 'refs/heads/prerelease/')
+        run: |
+          if ! pnpm changeset status | grep -q 'pre mode'; then
+            echo "Changesets is not in prerelease mode. Exiting..."
+            exit 0
+          fi
 
       - run: pnpm build
 
