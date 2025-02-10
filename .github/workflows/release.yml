@@ -3,6 +3,7 @@ name: Publish
 on:
   push:
     branches:
+      - main
       - test/changeset-snapshot-releases
     tags:
       - '!*'
@@ -15,6 +16,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   release:
     name: Release
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'testing'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
