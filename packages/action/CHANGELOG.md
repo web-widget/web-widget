@@ -1,5 +1,11 @@
 # @web-widget/action
 
+## 1.51.1
+
+### Patch Changes
+
+- 451f096: test
+
 ## 1.51.1-next.0
 
 ### Patch Changes
