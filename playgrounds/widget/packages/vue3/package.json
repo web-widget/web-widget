@@ -1,5 +1,6 @@
 {
   "name": "@playgrounds/widget-vue3",
+  "version": "0.0.0",
   "dependencies": {
     "@web-widget/vue": "workspace:*",
     "vue": "^3.4.8"
