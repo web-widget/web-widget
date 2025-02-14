@@ -20,7 +20,7 @@
     "@web-widget/vue": "^1.51.0",
     "@web-widget/web-router": "^1.51.0",
     "@web-widget/web-widget": "^1.51.0",
-    "koa": "^2.14.2",
+    "koa": "^2.15.4",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",
     "react": "19.0.0",
