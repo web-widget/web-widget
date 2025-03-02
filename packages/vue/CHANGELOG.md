@@ -1,5 +1,27 @@
 # @web-widget/vue
 
+## 1.51.0
+
+### Patch Changes
+
+- Updated dependencies [35c1f54]
+  - @web-widget/react@1.51.0
+  - @web-widget/helpers@1.51.0
+  - @web-widget/schema@1.51.0
+  - @web-widget/vite-plugin@1.51.0
+  - @web-widget/web-widget@1.51.0
+
+## 1.50.1
+
+### Patch Changes
+
+- bff0c4e: Fix vue renderer not catching errors.
+  - @web-widget/helpers@1.50.1
+  - @web-widget/react@1.50.1
+  - @web-widget/schema@1.50.1
+  - @web-widget/vite-plugin@1.50.1
+  - @web-widget/web-widget@1.50.1
+
 ## 1.50.0
 
 ### Minor Changes

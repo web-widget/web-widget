@@ -1,7 +1,10 @@
 import type { App } from 'vue';
 import { cacheProviderIsLoading } from '@web-widget/helpers/cache';
 
-export default function installErrorHandler(app: App<Element>) {
+export default function installErrorHandler(
+  app: App<Element>,
+  callback: (err: unknown) => void
+) {
   /**
    * The thrown promise is not necessarily a real error,
    * it will be handled by the web widget container.
@@ -11,6 +14,6 @@ export default function installErrorHandler(app: App<Element>) {
     if (cacheProviderIsLoading(err)) {
       return;
     }
-    throw err;
+    callback(err);
   };
 }

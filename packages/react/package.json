@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/react",
   "description": "React adapter",
-  "version": "1.50.0",
+  "version": "1.51.0",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",
@@ -19,8 +19,8 @@
     "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^19.0.2",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tsup": "catalog:",

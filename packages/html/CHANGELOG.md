@@ -1,5 +1,17 @@
 # @web-widget/html
 
+## 1.51.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.51.0
+
+## 1.50.1
+
+### Patch Changes
+
+- @web-widget/helpers@1.50.1
+
 ## 1.50.0
 
 ### Minor Changes

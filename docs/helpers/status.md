@@ -5,11 +5,8 @@ Contains the enum Status which enumerates standard HTTP status codes and provide
 ## Examples
 
 ```ts
-import {
-  Status,
-  STATUS_TEXT,
-} from "@web-widget/helpers/status";
- *
+import { Status, STATUS_TEXT } from '@web-widget/helpers/status';
+
 console.log(Status.NotFound); //=> 404
 console.log(STATUS_TEXT[Status.NotFound]); //=> "Not Found"
 ```
