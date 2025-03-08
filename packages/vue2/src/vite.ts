@@ -23,14 +23,13 @@ export default function vue2WebWidgetPlugin(
     export: exportWidget = {},
     import: importWidget = {},
   } = options ?? {};
-  const route = /(?:\.|@)route\.vue(?:\?.*)?$/;
-  const widget = /(?:\.|@)widget\.vue(?:\?.*)?$/;
+  const route = /(?:\.|@)route\.vue(?:\?as=.*)?$/;
+  const widget = /(?:\.|@)widget\.vue(?:\?as=.*)?$/;
   return webWidgetPlugin({
     manifest,
     provide,
     export: {
       include: [route, widget],
-      exclude: VUE_INTERNAL_REQUEST,
       extractFromExportDefault: [
         {
           name: 'handler',
@@ -46,8 +45,7 @@ export default function vue2WebWidgetPlugin(
       ...exportWidget,
     },
     import: {
-      include: /(?:\.|@)widget\..*$/,
-      exclude: VUE_INTERNAL_REQUEST,
+      include: /(?:\.|@)widget\.[^?]*(?:\?as=.*)?$/,
       includeImporter: [
         // vite: dev mode
         /\.vue$/,

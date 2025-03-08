@@ -10,6 +10,14 @@ import type {
 } from '@web-widget/web-widget';
 import { WebWidgetUserConfig } from './types';
 
+export type File = {
+  workspace: string;
+  name: string;
+  signature: string;
+  extension: string;
+  search: string;
+};
+
 export type WebWidgetAdapterModule = {
   importer?: Importer;
   exporter?: Exporter;
@@ -48,12 +56,12 @@ export type WebWidgetAdapterPluginOptions = {
 };
 
 export async function webWidgetAdapterPlugin(
-  plguinName: string,
+  pluginName: string,
   options: {
     manifest?: WebWidgetUserConfig['manifest'];
   } = {}
 ): Promise<WebWidgetUserConfig> {
-  const module: WebWidgetAdapterModule = await import(plguinName);
+  const module: WebWidgetAdapterModule = await import(pluginName);
   const { compilerOptions } = module;
   if (!compilerOptions) {
     throw new TypeError(`compilerOptions is required.`);
@@ -73,7 +81,7 @@ export async function webWidgetAdapterPlugin(
   const search = `{,\\?*}`;
 
   return {
-    provide: plguinName,
+    provide: pluginName,
     manifest: options.manifest,
     export: {
       include: filePattern({
@@ -107,6 +115,6 @@ function filePattern({
   signature = '',
   extension = '',
   search = '',
-}) {
+}: Partial<File>) {
   return `${workspace}${name}${signature}${extension}${search}`;
 }
