@@ -3,12 +3,6 @@ import type { WebWidgetUserConfig } from '@web-widget/vite-plugin';
 
 // Examples:
 // .vue?vue&type=script&setup=true&lang.ts
-// .vue?vue&type=style&index=0&scoped=7b8d5933&lang.less
-// .vue?direct&vue&type=style&index=0&scoped=7b8d5933&lang.css
-const VUE_INTERNAL_REQUEST = /\.vue\?(?:direct&)?vue\b.*$/;
-
-// Examples:
-// .vue?vue&type=script&setup=true&lang.ts
 const VUE_INTERNAL_SCRIPT_REQUEST = /\.vue\?vue&type=script\b.*$/;
 
 export interface Vue2WebWidgetPluginOptions
@@ -23,14 +17,13 @@ export default function vue2WebWidgetPlugin(
     export: exportWidget = {},
     import: importWidget = {},
   } = options ?? {};
-  const route = /(?:\.|@)route\.vue(?:\?.*)?$/;
-  const widget = /(?:\.|@)widget\.vue(?:\?.*)?$/;
+  const route = /(?:\.|@)route\.vue(?:\?as=.*)?$/;
+  const widget = /(?:\.|@)widget\.vue(?:\?as=.*)?$/;
   return webWidgetPlugin({
     manifest,
     provide,
     export: {
       include: [route, widget],
-      exclude: VUE_INTERNAL_REQUEST,
       extractFromExportDefault: [
         {
           name: 'handler',
@@ -46,8 +39,7 @@ export default function vue2WebWidgetPlugin(
       ...exportWidget,
     },
     import: {
-      include: /(?:\.|@)widget\..*$/,
-      exclude: VUE_INTERNAL_REQUEST,
+      include: /(?:\.|@)widget\.[^?]*(?:\?as=.*)?$/,
       includeImporter: [
         // vite: dev mode
         /\.vue$/,

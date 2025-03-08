@@ -9,20 +9,20 @@ const dirname = path.join(
 );
 const encode = (string: string) =>
   string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const subFile = (type = '') =>
-  new RegExp(`^${encode(dirname)}.*${type}(?:\\?.*)?$`);
+const subFile = (reg = '') =>
+  new RegExp(`^${encode(dirname)}${reg}`);
 
 export function vuePresetsPlugin() {
   return [
     vuePlugin({
-      include: subFile('\\.vue'),
+      include: subFile('.*\\.vue$'),
     }),
     vue3WebWidgetPlugin({
       export: {
-        include: subFile('@(:?route|widget)\\.vue'),
+        include: subFile('.*@(:?route|widget)\\.vue(?:\\?.*)?$'),
       },
       import: {
-        includeImporter: subFile('\\.vue'),
+        includeImporter: subFile('.*\\.vue(?:\\?vue&type=script\\b.*)?$'),
       },
     }),
   ];
