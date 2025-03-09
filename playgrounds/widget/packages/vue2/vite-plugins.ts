@@ -11,8 +11,7 @@ const dirname = path.join(
 );
 const encode = (string: string) =>
   string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const subFile = (reg = '') =>
-  new RegExp(`^${encode(dirname)}${reg}`);
+const subFile = (reg = '') => new RegExp(`^${encode(dirname)}${reg}`);
 
 export function vue2PresetsPlugin(manifest?: Manifest) {
   return [
@@ -23,10 +22,13 @@ export function vue2PresetsPlugin(manifest?: Manifest) {
     vue2WebWidgetPlugin({
       manifest,
       export: {
-        include: subFile('.*@(:?route|widget)\\.vue(?:\\?.*)?$'),
+        include: subFile('.*@(:?route|widget)\\.vue(?:\\?as=.+)?$'),
       },
       import: {
-        includeImporter: subFile('.*\\.vue(?:\\?vue&type=script\\b.*)?$'),
+        include: /(?:\.|@)widget\.[^?]*(?:\?as=.+)?$/,
+        includeImporter: subFile(
+          '.*\\.vue(?:\\?as=.+|\\?vue&type=script\\b.*)?$'
+        ),
       },
     }),
   ];
