@@ -1,5 +1,19 @@
 # @web-widget/vue2
 
+## 1.52.0
+
+### Minor Changes
+
+- 5805819: Optimize compilation configuration。
+
+### Patch Changes
+
+- Updated dependencies [5805819]
+  - @web-widget/react@1.52.0
+  - @web-widget/helpers@1.52.0
+  - @web-widget/vite-plugin@1.52.0
+  - @web-widget/web-widget@1.52.0
+
 ## 1.51.1
 
 ### Patch Changes
