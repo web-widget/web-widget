@@ -21,7 +21,7 @@ export const render = defineWidgetRender((context) => {
       if (action) {
         if (action === '+') {
           count.textContent = String(Number(count.textContent) + 1);
-        } else if (action === '-') {
+        } else if (action === '−') {
           count.textContent = String(Number(count.textContent) - 1);
         }
       }
@@ -46,8 +46,8 @@ function compressHTML(html: string) {
 export default function CounterVanilla(props: CounterProps) {
   return compressHTML(`
   <div class="counter" data-root>
-    <button data-action="-">-1</button>
+    <button data-action="−">−</button>
     <span class="count" data-count>${props.count}</span>
-    <button data-action="+">+1</button>
+    <button data-action="+">+</button>
   </div>`);
 }

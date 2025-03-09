@@ -1,11 +1,6 @@
 import { webWidgetPlugin } from '@web-widget/vite-plugin';
 import type { WebWidgetUserConfig } from '@web-widget/vite-plugin';
 
-// Examples:
-// .vue?vue&type=script&setup=true&lang.tsx
-// .vue?vue&type=script&setup=true&lang.jsx
-const VUE_INTERNAL_REQUEST = /\.vue\?vue\b.*$/;
-
 export interface ReactWebWidgetPluginOptions
   extends Partial<WebWidgetUserConfig> {}
 
@@ -22,21 +17,13 @@ export default function reactWebWidgetPlugin(
     manifest,
     provide,
     export: {
-      include: /(?:\.|@)(?:route|widget)\.(?:tsx|jsx)(?:\?.*)?$/,
+      include: /(?:\.|@)(?:route|widget)\.(?:tsx|jsx)(?:\?as=.+)?$/,
       ...exportWidget,
     },
     import: {
-      include: /(?:\.|@)widget\..*$/,
-      includeImporter: /\.(?:tsx|jsx)(?:\?.*)?$/,
+      include: /(?:\.|@)widget\.[^?]*(?:\?as=.+)?$/,
+      includeImporter: /\.(?:tsx|jsx)(?:\?as=.+)?$/,
       ...importWidget,
-      excludeImporter: [
-        ...toArray(importWidget.excludeImporter),
-        VUE_INTERNAL_REQUEST,
-      ],
     },
   });
-}
-
-function toArray(value: any) {
-  return Array.isArray(value) ? value : value ? [value] : [];
 }
