@@ -8,25 +8,23 @@ const dirname = path.join(
   path.dirname(url.fileURLToPath(import.meta.url)),
   path.sep
 );
+const vue2Dir = path.join(dirname, '..', 'vue2');
 const encode = (string: string) =>
   string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const subFile = (reg = '') => new RegExp(`^${encode(dirname)}${reg}`);
+const exclude = new RegExp(`^${encode(path.join(vue2Dir, path.sep))}.*$`);
 
 export function vuePresetsPlugin(manifest?: Manifest) {
   return [
     vuePlugin({
-      include: subFile('.*\\.vue$'),
+      exclude,
     }),
     vue3WebWidgetPlugin({
       manifest,
       export: {
-        include: subFile('.*@(:?route|widget)\\.vue(?:\\?as=.+)?$'),
+        exclude,
       },
       import: {
-        include: /[.@]widget\.[^?]*(?:\?as=.+)?$/,
-        includeImporter: subFile(
-          '.*\\.vue(?:\\?as=.+|\\?vue&type=script\\b.*)?$'
-        ),
+        includeImporter: exclude,
       },
     }),
   ];
