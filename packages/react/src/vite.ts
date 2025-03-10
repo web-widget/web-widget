@@ -17,11 +17,11 @@ export default function reactWebWidgetPlugin(
     manifest,
     provide,
     export: {
-      include: /(?:\.|@)(?:route|widget)\.(?:tsx|jsx)(?:\?as=.+)?$/,
+      include: /[.@](?:route|widget)\.(?:tsx|jsx)(?:\?as=.+)?$/,
       ...exportWidget,
     },
     import: {
-      include: /(?:\.|@)widget\.[^?]*(?:\?as=.+)?$/,
+      include: /[.@]widget\.[^?]*(?:\?as=.+)?$/,
       includeImporter: /\.(?:tsx|jsx)(?:\?as=.+)?$/,
       ...importWidget,
     },
