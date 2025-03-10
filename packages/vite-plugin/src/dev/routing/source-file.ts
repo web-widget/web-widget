@@ -2,7 +2,7 @@ import type { RouteSourceFileName, RouteSourceType } from './types';
 import { getExtension, removeExtension } from './utils';
 
 // eslint-disable-next-line regexp/no-super-linear-backtracking
-const NAME_REG = /^(?<name>.*)(?:\.|@)(?<type>.*)$/;
+const NAME_REG = /^(?<name>.*)[.@](?<type>.*)$/;
 const FALLBACK_NAME_REG = /^_\d\d\d$/;
 const types: RouteSourceType[] = [
   'fallback',

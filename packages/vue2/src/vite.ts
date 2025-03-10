@@ -17,8 +17,8 @@ export default function vue2WebWidgetPlugin(
     export: exportWidget = {},
     import: importWidget = {},
   } = options ?? {};
-  const route = /(?:\.|@)route\.vue(?:\?as=.+)?$/;
-  const widget = /(?:\.|@)widget\.vue(?:\?as=.+)?$/;
+  const route = /[.@]route\.vue(?:\?as=.+)?$/;
+  const widget = /[.@]widget\.vue(?:\?as=.+)?$/;
   return webWidgetPlugin({
     manifest,
     provide,
@@ -39,7 +39,7 @@ export default function vue2WebWidgetPlugin(
       ...exportWidget,
     },
     import: {
-      include: /(?:\.|@)widget\.[^?]*(?:\?as=.+)?$/,
+      include: /[.@]widget\.[^?]*(?:\?as=.+)?$/,
       includeImporter: [
         // vite: dev mode
         /\.vue(?:\?as=.+)?$/,

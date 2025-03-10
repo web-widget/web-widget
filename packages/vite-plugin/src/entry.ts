@@ -511,7 +511,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
         | keyof LayoutModule
       )[],
       only: 'client',
-      include: /(?:\.|@)(route|layout)\..*$/,
+      include: /[.@](route|layout)\..*$/,
     }),
 
     // nodeExternals({

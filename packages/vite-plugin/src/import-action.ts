@@ -38,7 +38,7 @@ export function importActionPlugin(
     name: '@web-widget:import-action',
 
     async configResolved(config) {
-      const { exclude, include = /(?:\.|@)action\..*$/ } = options;
+      const { exclude, include = /[.@]action\..*$/ } = options;
 
       filter = createFilter(include, exclude);
       root = config.root;

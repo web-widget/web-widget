@@ -25,7 +25,7 @@ export function vue2PresetsPlugin(manifest?: Manifest) {
         include: subFile('.*@(:?route|widget)\\.vue(?:\\?as=.+)?$'),
       },
       import: {
-        include: /(?:\.|@)widget\.[^?]*(?:\?as=.+)?$/,
+        include: /[.@]widget\.[^?]*(?:\?as=.+)?$/,
         includeImporter: subFile(
           '.*\\.vue(?:\\?as=.+|\\?vue&type=script\\b.*)?$'
         ),
