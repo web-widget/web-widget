@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.52.1
+
+### Patch Changes
+
+- 5715665: Optimize path delimiters.
+  - @web-widget/helpers@1.52.1
+  - @web-widget/node@1.52.1
+  - @web-widget/web-router@1.52.1
+  - @web-widget/web-widget@1.52.1
+
 ## 1.52.0
 
 ### Patch Changes
