@@ -1,5 +1,16 @@
 # @web-widget/vue2
 
+## 1.52.1
+
+### Patch Changes
+
+- 5715665: Optimize path delimiters.
+- Updated dependencies [5715665]
+  - @web-widget/vite-plugin@1.52.1
+  - @web-widget/react@1.52.1
+  - @web-widget/helpers@1.52.1
+  - @web-widget/web-widget@1.52.1
+
 ## 1.52.0
 
 ### Minor Changes
