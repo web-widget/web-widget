@@ -65,6 +65,8 @@ export default function vueWebWidgetPlugin(
     import: {
       include: new RegExp(`^.*${widgetPattern}\\.[^?]*${modifierPattern}?$`),
       includeImporter: new RegExp(
+        // vite dev mode: .vue
+        // vite build mode: .vue?vue&type=script&setup=true&lang.ts
         `^${workspacePattern}.*${extensionPattern}(?:${modifierPattern}|${vueBuildModeQueryPattern})?$`
       ),
       ...importWidget,
