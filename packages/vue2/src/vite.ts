@@ -28,7 +28,7 @@ export default function vue2WebWidgetPlugin(
   } = options ?? {};
 
   const workspacePattern = workspace
-    ? escapeRegExp(appendSlash(normalizePath(workspace)))
+    ? escapeRegExp(normalizePath(appendSlash(workspace)))
     : workspace;
   const widgetPattern = `[.@]widget`;
   const routePattern = `[.@]route`;

@@ -27,7 +27,7 @@ export default function reactWebWidgetPlugin(
     manifest,
   } = options ?? {};
   const workspacePattern = workspace
-    ? escapeRegExp(appendSlash(normalizePath(workspace)))
+    ? escapeRegExp(normalizePath(appendSlash(workspace)))
     : workspace;
   const widgetPattern = `[.@]widget`;
   const modulesPattern = `[.@](?:route|widget)`;
