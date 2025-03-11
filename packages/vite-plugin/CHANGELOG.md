@@ -1,5 +1,14 @@
 # @web-widget/vite-plugin
 
+## 1.53.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.53.0
+- @web-widget/node@1.53.0
+- @web-widget/web-router@1.53.0
+- @web-widget/web-widget@1.53.0
+
 ## 1.52.1
 
 ### Patch Changes

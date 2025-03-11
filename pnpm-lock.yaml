@@ -62,7 +62,7 @@ overrides:
 
 patchedDependencies:
   '@miniflare/core@2.14.2':
-    hash: vylcvxdvkobd5p5nb74earctsq
+    hash: 9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be
     path: patches/@miniflare__core@2.14.2.patch
 
 importers:
@@ -8533,12 +8533,12 @@ snapshots:
 
   '@miniflare/cache@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
       http-cache-semantics: 4.1.1
       undici: 5.28.2
 
-  '@miniflare/core@2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)':
+  '@miniflare/core@2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)':
     dependencies:
       '@iarna/toml': 2.2.5
       '@miniflare/queues': 2.14.2
@@ -8553,19 +8553,19 @@ snapshots:
 
   '@miniflare/d1@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
 
   '@miniflare/durable-objects@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
       '@miniflare/storage-memory': 2.14.2
       undici: 5.28.2
 
   '@miniflare/html-rewriter@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
       html-rewriter-wasm: 0.4.1
       undici: 5.28.2
@@ -8580,7 +8580,7 @@ snapshots:
 
   '@miniflare/r2@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
       undici: 5.28.2
 
@@ -8592,7 +8592,7 @@ snapshots:
     dependencies:
       '@cloudflare/workers-types': 4.20231025.0
       '@miniflare/cache': 2.14.2
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/d1': 2.14.2
       '@miniflare/durable-objects': 2.14.2
       '@miniflare/html-rewriter': 2.14.2
@@ -8635,7 +8635,7 @@ snapshots:
 
   '@miniflare/web-sockets@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
+      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
       '@miniflare/shared': 2.14.2
       undici: 5.28.2
       ws: 8.18.0
@@ -10828,7 +10828,7 @@ snapshots:
       debug: 4.3.4
       enhanced-resolve: 5.14.0
       eslint: 8.46.0
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-plugin-import@2.28.0)(eslint@8.46.0))(eslint@8.46.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0)
       eslint-plugin-import: 2.28.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0)
       get-tsconfig: 4.6.2
       globby: 13.2.2
@@ -10841,7 +10841,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-plugin-import@2.28.0)(eslint@8.46.0))(eslint@8.46.0):
+  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -10868,7 +10868,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.46.0
       eslint-import-resolver-node: 0.3.7
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-plugin-import@2.28.0)(eslint@8.46.0))(eslint@8.46.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0)
       has: 1.0.3
       is-core-module: 2.12.1
       is-glob: 4.0.3
