@@ -12,6 +12,9 @@ catalogs:
     '@jest/globals':
       specifier: ^29.7.0
       version: 29.7.0
+    '@rollup/pluginutils':
+      specifier: ^5.1.4
+      version: 5.1.4
     '@types/jest':
       specifier: ^29.5.12
       version: 29.5.12
@@ -59,7 +62,7 @@ overrides:
 
 patchedDependencies:
   '@miniflare/core@2.14.2':
-    hash: 9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be
+    hash: vylcvxdvkobd5p5nb74earctsq
     path: patches/@miniflare__core@2.14.2.patch
 
 importers:
@@ -585,6 +588,9 @@ importers:
 
   packages/react:
     dependencies:
+      '@rollup/pluginutils':
+        specifier: 'catalog:'
+        version: 5.1.4(rollup@4.31.0)
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -701,6 +707,9 @@ importers:
 
   packages/vue:
     dependencies:
+      '@rollup/pluginutils':
+        specifier: 'catalog:'
+        version: 5.1.4(rollup@4.31.0)
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -732,6 +741,9 @@ importers:
 
   packages/vue2:
     dependencies:
+      '@rollup/pluginutils':
+        specifier: 'catalog:'
+        version: 5.1.4(rollup@4.31.0)
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -2376,6 +2388,15 @@ packages:
 
   '@rollup/pluginutils@5.1.0':
     resolution: {integrity: sha512-XTIWOPPcpvyKI6L1NHo0lFlCyznUEyPmPY1mc3KpPVDYulHSTvyeLNVW00QTLIAFNhR3kYnJTQHeGqU4M3n09g==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+
+  '@rollup/pluginutils@5.1.4':
+    resolution: {integrity: sha512-USm05zrsFxYLPdWWq+K3STlWiT/3ELn3RcV5hJMghpeAIhxfsUIg6mt12CBJBInWMV4VneoV7SfGv8xIwo2qNQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
@@ -8512,12 +8533,12 @@ snapshots:
 
   '@miniflare/cache@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
+      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
       '@miniflare/shared': 2.14.2
       http-cache-semantics: 4.1.1
       undici: 5.28.2
 
-  '@miniflare/core@2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)':
+  '@miniflare/core@2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)':
     dependencies:
       '@iarna/toml': 2.2.5
       '@miniflare/queues': 2.14.2
@@ -8532,19 +8553,19 @@ snapshots:
 
   '@miniflare/d1@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
+      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
       '@miniflare/shared': 2.14.2
 
   '@miniflare/durable-objects@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
+      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
       '@miniflare/shared': 2.14.2
       '@miniflare/storage-memory': 2.14.2
       undici: 5.28.2
 
   '@miniflare/html-rewriter@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
+      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
       '@miniflare/shared': 2.14.2
       html-rewriter-wasm: 0.4.1
       undici: 5.28.2
@@ -8559,7 +8580,7 @@ snapshots:
 
   '@miniflare/r2@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
+      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
       '@miniflare/shared': 2.14.2
       undici: 5.28.2
 
@@ -8571,7 +8592,7 @@ snapshots:
     dependencies:
       '@cloudflare/workers-types': 4.20231025.0
       '@miniflare/cache': 2.14.2
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
+      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
       '@miniflare/d1': 2.14.2
       '@miniflare/durable-objects': 2.14.2
       '@miniflare/html-rewriter': 2.14.2
@@ -8614,7 +8635,7 @@ snapshots:
 
   '@miniflare/web-sockets@2.14.2':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
+      '@miniflare/core': 2.14.2(patch_hash=vylcvxdvkobd5p5nb74earctsq)
       '@miniflare/shared': 2.14.2
       undici: 5.28.2
       ws: 8.18.0
@@ -8673,7 +8694,7 @@ snapshots:
 
   '@rollup/plugin-commonjs@24.1.0(rollup@3.29.4)':
     dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.4(rollup@3.29.4)
       commondir: 1.0.1
       estree-walker: 2.0.2
       glob: 8.1.0
@@ -8684,13 +8705,13 @@ snapshots:
 
   '@rollup/plugin-json@6.1.0(rollup@3.29.4)':
     dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.4(rollup@3.29.4)
     optionalDependencies:
       rollup: 3.29.4
 
   '@rollup/plugin-node-resolve@15.2.3(rollup@3.29.4)':
     dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.4(rollup@3.29.4)
       '@types/resolve': 1.20.2
       deepmerge: 4.3.1
       is-builtin-module: 3.2.1
@@ -8701,7 +8722,7 @@ snapshots:
 
   '@rollup/plugin-node-resolve@15.2.3(rollup@4.31.0)':
     dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@4.31.0)
+      '@rollup/pluginutils': 5.1.4(rollup@4.31.0)
       '@types/resolve': 1.20.2
       deepmerge: 4.3.1
       is-builtin-module: 3.2.1
@@ -8712,16 +8733,8 @@ snapshots:
 
   '@rollup/plugin-replace@5.0.7(rollup@3.29.4)':
     dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.4(rollup@3.29.4)
       magic-string: 0.30.12
-    optionalDependencies:
-      rollup: 3.29.4
-
-  '@rollup/pluginutils@5.1.0(rollup@3.29.4)':
-    dependencies:
-      '@types/estree': 1.0.5
-      estree-walker: 2.0.2
-      picomatch: 2.3.1
     optionalDependencies:
       rollup: 3.29.4
 
@@ -8733,11 +8746,19 @@ snapshots:
     optionalDependencies:
       rollup: 4.22.4
 
-  '@rollup/pluginutils@5.1.0(rollup@4.31.0)':
+  '@rollup/pluginutils@5.1.4(rollup@3.29.4)':
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       estree-walker: 2.0.2
-      picomatch: 2.3.1
+      picomatch: 4.0.2
+    optionalDependencies:
+      rollup: 3.29.4
+
+  '@rollup/pluginutils@5.1.4(rollup@4.31.0)':
+    dependencies:
+      '@types/estree': 1.0.6
+      estree-walker: 2.0.2
+      picomatch: 4.0.2
     optionalDependencies:
       rollup: 4.31.0
 
@@ -10807,7 +10828,7 @@ snapshots:
       debug: 4.3.4
       enhanced-resolve: 5.14.0
       eslint: 8.46.0
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-plugin-import@2.28.0)(eslint@8.46.0))(eslint@8.46.0)
       eslint-plugin-import: 2.28.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0)
       get-tsconfig: 4.6.2
       globby: 13.2.2
@@ -10820,7 +10841,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0):
+  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-plugin-import@2.28.0)(eslint@8.46.0))(eslint@8.46.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -10847,7 +10868,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.46.0
       eslint-import-resolver-node: 0.3.7
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5)(eslint@8.46.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.7)(eslint-import-resolver-typescript@3.5.5(@typescript-eslint/parser@6.2.0(eslint@8.46.0)(typescript@5.5.4))(eslint-plugin-import@2.28.0)(eslint@8.46.0))(eslint@8.46.0)
       has: 1.0.3
       is-core-module: 2.12.1
       is-glob: 4.0.3
@@ -14119,7 +14140,7 @@ snapshots:
       '@rollup/plugin-json': 6.1.0(rollup@3.29.4)
       '@rollup/plugin-node-resolve': 15.2.3(rollup@3.29.4)
       '@rollup/plugin-replace': 5.0.7(rollup@3.29.4)
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.4(rollup@3.29.4)
       chalk: 5.3.0
       consola: 3.2.3
       defu: 6.1.4

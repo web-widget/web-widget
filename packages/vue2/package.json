@@ -16,7 +16,8 @@
     "@web-widget/helpers": "workspace:*",
     "@web-widget/vite-plugin": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "@web-widget/react": "workspace:*"
+    "@web-widget/react": "workspace:*",
+    "@rollup/pluginutils": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
