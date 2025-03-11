@@ -30,7 +30,7 @@ export default function reactWebWidgetPlugin(
     ? escapeRegExp(appendSlash(normalizePath(workspace)))
     : workspace;
   const widgetPattern = `[.@]widget`;
-  const typePattern = `[.@](?:route|widget)`;
+  const modulesPattern = `[.@](?:route|widget)`;
   const extensionPattern = `\\.(?:tsx|jsx)`;
   const modifierPattern = `(?:\\?as=.+)`;
 
@@ -39,7 +39,7 @@ export default function reactWebWidgetPlugin(
     provide,
     export: {
       include: new RegExp(
-        `^${workspacePattern}.*${typePattern}${extensionPattern}${modifierPattern}?$`
+        `^${workspacePattern}.*${modulesPattern}${extensionPattern}${modifierPattern}?$`
       ),
       ...exportWidget,
     },

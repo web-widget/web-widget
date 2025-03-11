@@ -32,7 +32,7 @@ export default function vueWebWidgetPlugin(
     : workspace;
   const widgetPattern = `[.@]widget`;
   const routePattern = `[.@]route`;
-  const typePattern = `[.@](?:route|widget)`;
+  const modulesPattern = `[.@](?:route|widget)`;
   const extensionPattern = `\\.vue`;
   const modifierPattern = `(?:\\?as=.+)`;
   const vueBuildModeQueryPattern = `(?:\\?vue&type=script\\b.*)`;
@@ -46,7 +46,7 @@ export default function vueWebWidgetPlugin(
     provide,
     export: {
       include: new RegExp(
-        `^${workspacePattern}.*${typePattern}${extensionPattern}${modifierPattern}?$`
+        `^${workspacePattern}.*${modulesPattern}${extensionPattern}${modifierPattern}?$`
       ),
       extractFromExportDefault: [
         {
