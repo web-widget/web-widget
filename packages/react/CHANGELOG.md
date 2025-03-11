@@ -1,5 +1,18 @@
 # @web-widget/react
 
+## 1.53.0
+
+### Minor Changes
+
+- 098c376: Add the workspace feature to limit the compilation scope.
+
+### Patch Changes
+
+- @web-widget/helpers@1.53.0
+- @web-widget/schema@1.53.0
+- @web-widget/vite-plugin@1.53.0
+- @web-widget/web-widget@1.53.0
+
 ## 1.52.1
 
 ### Patch Changes

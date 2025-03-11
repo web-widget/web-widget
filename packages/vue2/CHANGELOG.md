@@ -1,5 +1,19 @@
 # @web-widget/vue2
 
+## 1.53.0
+
+### Minor Changes
+
+- 098c376: Add the workspace feature to limit the compilation scope.
+
+### Patch Changes
+
+- Updated dependencies [098c376]
+  - @web-widget/react@1.53.0
+  - @web-widget/helpers@1.53.0
+  - @web-widget/vite-plugin@1.53.0
+  - @web-widget/web-widget@1.53.0
+
 ## 1.52.1
 
 ### Patch Changes
