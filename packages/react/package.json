@@ -16,7 +16,8 @@
     "@web-widget/helpers": "workspace:*",
     "@web-widget/schema": "workspace:*",
     "@web-widget/vite-plugin": "workspace:*",
-    "@web-widget/web-widget": "workspace:*"
+    "@web-widget/web-widget": "workspace:*",
+    "@rollup/pluginutils": "catalog:"
   },
   "devDependencies": {
     "@types/react": "^19.0.10",

@@ -1,12 +1,20 @@
 import { webWidgetPlugin } from '@web-widget/vite-plugin';
 import type { WebWidgetUserConfig } from '@web-widget/vite-plugin';
+import { posix } from 'node:path';
+import { normalizePath } from '@rollup/pluginutils';
 
-// Examples:
-// .vue?vue&type=script&setup=true&lang.ts
-const VUE_INTERNAL_SCRIPT_REQUEST = /\.vue\?vue&type=script\b.*$/;
+function escapeRegExp(path: string) {
+  return path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function appendSlash(path: string) {
+  return path.endsWith(posix.sep) ? path : `${path}${posix.sep}`;
+}
 
 export interface VueWebWidgetPluginOptions
-  extends Partial<WebWidgetUserConfig> {}
+  extends Partial<WebWidgetUserConfig> {
+  workspace?: string;
+}
 
 export default function vueWebWidgetPlugin(
   options?: VueWebWidgetPluginOptions
@@ -14,38 +22,51 @@ export default function vueWebWidgetPlugin(
   const {
     manifest,
     provide = '@web-widget/vue',
+    workspace = '',
     export: exportWidget = {},
     import: importWidget = {},
   } = options ?? {};
-  const route = /[.@]route\.vue(?:\?as=.+)?$/;
-  const widget = /[.@]widget\.vue(?:\?as=.+)?$/;
+
+  const workspacePattern = workspace
+    ? escapeRegExp(appendSlash(normalizePath(workspace)))
+    : workspace;
+  const widgetPattern = `[.@]widget`;
+  const routePattern = `[.@]route`;
+  const typePattern = `[.@](?:route|widget)`;
+  const extensionPattern = `\\.vue`;
+  const modifierPattern = `(?:\\?as=.+)`;
+  const vueBuildModeQueryPattern = `(?:\\?vue&type=script\\b.*)`;
+
+  const routeRegExp = new RegExp(
+    `^${workspacePattern}.*${routePattern}${extensionPattern}${modifierPattern}?$`
+  );
+
   return webWidgetPlugin({
     manifest,
     provide,
     export: {
-      include: [route, widget],
+      include: new RegExp(
+        `^${workspacePattern}.*${typePattern}${extensionPattern}${modifierPattern}?$`
+      ),
       extractFromExportDefault: [
         {
           name: 'handler',
           default: '{GET({render}){return render()}}',
-          include: route,
+          include: routeRegExp,
         },
         {
           name: 'meta',
           default: '{}',
-          include: route,
+          include: routeRegExp,
         },
       ],
       ...exportWidget,
     },
     import: {
-      include: /[.@]widget\.[^?]*(?:\?as=.+)?$/,
-      includeImporter: [
-        // vite: dev mode
-        /\.vue(?:\?as=.+)?$/,
-        // vite: build mode
-        VUE_INTERNAL_SCRIPT_REQUEST,
-      ],
+      include: new RegExp(`^.*${widgetPattern}\\.[^?]*${modifierPattern}?$`),
+      includeImporter: new RegExp(
+        `^${workspacePattern}.*${extensionPattern}(?:${modifierPattern}|${vueBuildModeQueryPattern})?$`
+      ),
       ...importWidget,
     },
   });
