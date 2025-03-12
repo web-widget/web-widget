@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.53.1
+
+### Patch Changes
+
+- cd64177: Fixed the issue that file type judgment was too loose.
+  - @web-widget/helpers@1.53.1
+  - @web-widget/node@1.53.1
+  - @web-widget/web-router@1.53.1
+  - @web-widget/web-widget@1.53.1
+
 ## 1.53.0
 
 ### Patch Changes

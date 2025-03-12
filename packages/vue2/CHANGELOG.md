@@ -1,5 +1,16 @@
 # @web-widget/vue2
 
+## 1.53.1
+
+### Patch Changes
+
+- cd64177: Fixed the issue that file type judgment was too loose.
+- Updated dependencies [cd64177]
+  - @web-widget/vite-plugin@1.53.1
+  - @web-widget/react@1.53.1
+  - @web-widget/helpers@1.53.1
+  - @web-widget/web-widget@1.53.1
+
 ## 1.53.0
 
 ### Minor Changes
