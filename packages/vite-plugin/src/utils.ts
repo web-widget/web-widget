@@ -216,3 +216,7 @@ function getLink(
 export function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
+
+export function removeAs(id: string) {
+  return id.split(/\?as=.*/)[0];
+}

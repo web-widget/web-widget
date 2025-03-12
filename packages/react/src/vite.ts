@@ -32,21 +32,21 @@ export default function reactWebWidgetPlugin(
   const widgetPattern = `[.@]widget`;
   const modulesPattern = `[.@](?:route|widget)`;
   const extensionPattern = `\\.(?:tsx|jsx)`;
-  const modifierPattern = `(?:\\?as=.+)`;
 
   return webWidgetPlugin({
     manifest,
     provide,
     export: {
       include: new RegExp(
-        `^${workspacePattern}.*${modulesPattern}${extensionPattern}${modifierPattern}?$`
+        `^${workspacePattern}[^?]*${modulesPattern}${extensionPattern}$`
       ),
       ...exportWidget,
     },
     import: {
-      include: new RegExp(`^.*${widgetPattern}\\.[^?]*${modifierPattern}?$`),
+      include: new RegExp(`^[^?]*${widgetPattern}\\.[^?]*$`),
       includeImporter: new RegExp(
-        `^${workspacePattern}.*${extensionPattern}${modifierPattern}?$`
+        // NOTE: Should not match this: app.vue?vue&type=script&lang.jsx
+        `^${workspacePattern}[^?]*${extensionPattern}$`
       ),
       ...importWidget,
     },

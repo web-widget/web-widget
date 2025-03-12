@@ -7,7 +7,12 @@ import type {
   Plugin,
   Manifest as ViteManifest,
 } from 'vite';
-import { getManifest, getWebRouterPluginApi, normalizePath } from './utils';
+import {
+  getManifest,
+  getWebRouterPluginApi,
+  normalizePath,
+  removeAs,
+} from './utils';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 
@@ -129,7 +134,7 @@ export function importRenderPlugin({
         return result;
       },
       async transform(code, id, { ssr } = {}) {
-        if (!importerFilter(id)) {
+        if (!importerFilter(removeAs(id))) {
           return null;
         }
 
@@ -165,7 +170,7 @@ export function importRenderPlugin({
               )?.id
             : undefined;
 
-          if (importModule && filter(importModule)) {
+          if (importModule && filter(removeAs(importModule))) {
             if (dynamicImport !== -1) {
               return this.error(
                 new SyntaxError(`Dynamic imports are not supported.`),
@@ -282,7 +287,7 @@ export function importRenderPlugin({
         });
       },
       async transform(code, id) {
-        if (!importerFilter(id)) {
+        if (!importerFilter(removeAs(id))) {
           return null;
         }
         // const normalize = (file: string) => {
