@@ -34,11 +34,10 @@ export default function vue2WebWidgetPlugin(
   const routePattern = `[.@]route`;
   const modulesPattern = `[.@](?:route|widget)`;
   const extensionPattern = `\\.vue`;
-  const modifierPattern = `(?:\\?as=.+)`;
   const vueBuildModeQueryPattern = `(?:\\?vue&type=script\\b.*)`;
 
   const routeRegExp = new RegExp(
-    `^${workspacePattern}.*${routePattern}${extensionPattern}${modifierPattern}?$`
+    `^${workspacePattern}.*${routePattern}${extensionPattern}$`
   );
 
   return webWidgetPlugin({
@@ -46,7 +45,7 @@ export default function vue2WebWidgetPlugin(
     provide,
     export: {
       include: new RegExp(
-        `^${workspacePattern}.*${modulesPattern}${extensionPattern}${modifierPattern}?$`
+        `^${workspacePattern}[^?]*${modulesPattern}${extensionPattern}$`
       ),
       extractFromExportDefault: [
         {
@@ -63,11 +62,11 @@ export default function vue2WebWidgetPlugin(
       ...exportWidget,
     },
     import: {
-      include: new RegExp(`^.*${widgetPattern}\\.[^?]*${modifierPattern}?$`),
+      include: new RegExp(`^[^?]*${widgetPattern}\\.[^?]*$`),
       includeImporter: new RegExp(
         // vite dev mode: .vue
         // vite build mode: .vue?vue&type=script&setup=true&lang.ts
-        `^${workspacePattern}.*${extensionPattern}(?:${modifierPattern}|${vueBuildModeQueryPattern})?$`
+        `^${workspacePattern}[^?]*${extensionPattern}${vueBuildModeQueryPattern}?$`
       ),
       ...importWidget,
     },
