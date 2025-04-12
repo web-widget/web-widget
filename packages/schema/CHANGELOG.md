@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.54.0
+
+### Minor Changes
+
+- 428f37b: Refactor large modules into smaller ones for easier reading.
+
 ## 1.53.1
 
 ## 1.53.0
