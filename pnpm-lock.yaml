@@ -34,8 +34,8 @@ catalogs:
       specifier: ^8.3.4
       version: 8.3.4
     vite:
-      specifier: ^5.4.10
-      version: 5.4.12
+      specifier: ^5.4.18
+      version: 5.4.18
     vitest:
       specifier: ^2.1.9
       version: 2.1.9
@@ -344,7 +344,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -384,7 +384,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -433,7 +433,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -489,7 +489,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -532,7 +532,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -578,7 +578,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -624,7 +624,7 @@ importers:
         version: 5.5.4
       vite:
         specifier: 'catalog:'
-        version: 5.4.12(@types/node@22.2.0)
+        version: 5.4.18(@types/node@22.2.0)
 
   packages/schema:
     devDependencies:
@@ -691,7 +691,7 @@ importers:
         version: 4.22.4
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -700,7 +700,7 @@ importers:
         version: 5.5.4
       vite:
         specifier: 'catalog:'
-        version: 5.4.12(@types/node@22.2.0)
+        version: 5.4.18(@types/node@22.2.0)
       vitest:
         specifier: 'catalog:'
         version: 2.1.9(@edge-runtime/vm@4.0.1)(@types/node@22.2.0)(happy-dom@14.12.3)
@@ -734,7 +734,7 @@ importers:
         version: 5.5.4
       vite:
         specifier: 'catalog:'
-        version: 5.4.12(@types/node@22.2.0)
+        version: 5.4.18(@types/node@22.2.0)
       vue:
         specifier: '>3.3.3'
         version: 3.4.8(typescript@5.5.4)
@@ -768,7 +768,7 @@ importers:
         version: 5.5.4
       vite:
         specifier: 'catalog:'
-        version: 5.4.12(@types/node@22.2.0)
+        version: 5.4.18(@types/node@22.2.0)
       vue:
         specifier: ^2.7.16
         version: 2.7.16
@@ -808,7 +808,7 @@ importers:
         version: 3.20240806.0
       ts-jest:
         specifier: 'catalog:'
-        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
+        version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@1.21.6)(postcss@8.5.1)(typescript@5.5.4)
@@ -909,7 +909,7 @@ importers:
         version: 19.0.4(@types/react@19.0.10)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.1(vite@5.4.12(@types/node@22.2.0))
+        version: 4.3.1(vite@5.4.18(@types/node@22.2.0))
       '@web-widget/vite-plugin':
         specifier: workspace:*
         version: link:../../packages/vite-plugin
@@ -921,7 +921,7 @@ importers:
         version: 5.5.4
       vite:
         specifier: 'catalog:'
-        version: 5.4.12(@types/node@22.2.0)
+        version: 5.4.18(@types/node@22.2.0)
       vitest:
         specifier: 'catalog:'
         version: 2.1.9(@edge-runtime/vm@4.0.1)(@types/node@22.2.0)(happy-dom@14.12.3)
@@ -955,10 +955,10 @@ importers:
     devDependencies:
       '@vitejs/plugin-vue2':
         specifier: ^2.3.1
-        version: 2.3.1(vite@5.4.12(@types/node@22.2.0))(vue@2.7.16)
+        version: 2.3.1(vite@5.4.18(@types/node@22.2.0))(vue@2.7.16)
       vite:
         specifier: 'catalog:'
-        version: 5.4.12(@types/node@22.2.0)
+        version: 5.4.18(@types/node@22.2.0)
 
   playgrounds/router/routes/(vue3):
     dependencies:
@@ -986,10 +986,10 @@ importers:
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^5.0.0
-        version: 5.0.2(vite@5.4.12(@types/node@22.2.0))(vue@3.4.8(typescript@5.5.4))
+        version: 5.0.2(vite@5.4.18(@types/node@22.2.0))(vue@3.4.8(typescript@5.5.4))
       vite:
         specifier: 'catalog:'
-        version: 5.4.12(@types/node@22.2.0)
+        version: 5.4.18(@types/node@22.2.0)
 
   playgrounds/widget:
     dependencies:
@@ -1023,7 +1023,7 @@ importers:
         version: 5.5.4
       vite:
         specifier: 'catalog:'
-        version: 5.4.12(@types/node@22.2.0)
+        version: 5.4.18(@types/node@22.2.0)
 
   playgrounds/widget/packages/react:
     dependencies:
@@ -1045,13 +1045,13 @@ importers:
         version: 18.3.0
       '@vitejs/plugin-react':
         specifier: ^4.2.1
-        version: 4.3.1(vite@5.4.12(@types/node@22.2.0))
+        version: 4.3.1(vite@5.4.18(@types/node@22.2.0))
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
       vite:
         specifier: 'catalog:'
-        version: 5.4.12(@types/node@22.2.0)
+        version: 5.4.18(@types/node@22.2.0)
 
   playgrounds/widget/packages/vue2:
     dependencies:
@@ -1067,10 +1067,10 @@ importers:
     devDependencies:
       '@vitejs/plugin-vue2':
         specifier: ^2.3.1
-        version: 2.3.1(vite@5.4.12(@types/node@22.2.0))(vue@2.7.16)
+        version: 2.3.1(vite@5.4.18(@types/node@22.2.0))(vue@2.7.16)
       vite:
         specifier: 'catalog:'
-        version: 5.4.12(@types/node@22.2.0)
+        version: 5.4.18(@types/node@22.2.0)
 
   playgrounds/widget/packages/vue3:
     dependencies:
@@ -1083,10 +1083,10 @@ importers:
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^5.0.0
-        version: 5.0.2(vite@5.4.12(@types/node@22.2.0))(vue@3.4.8(typescript@5.5.4))
+        version: 5.0.2(vite@5.4.18(@types/node@22.2.0))(vue@3.4.8(typescript@5.5.4))
       vite:
         specifier: 'catalog:'
-        version: 5.4.12(@types/node@22.2.0)
+        version: 5.4.18(@types/node@22.2.0)
 
 packages:
 
@@ -7225,6 +7225,37 @@ packages:
       terser:
         optional: true
 
+  vite@5.4.18:
+    resolution: {integrity: sha512-1oDcnEp3lVyHCuQ2YFelM4Alm2o91xNoMncRm1U7S+JdYfYOvbiGZ3/CxGttrOu2M/KcGz7cRC2DoNUA6urmMA==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': ^22.2.0
+      less: '*'
+      lightningcss: ^1.21.0
+      sass: '*'
+      sass-embedded: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      sass-embedded:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+
   vitest@2.1.9:
     resolution: {integrity: sha512-MSmPM9REYqDGBI8439mA4mWhV5sKmDlBKWIYbA3lRb2PTHACE0mgKwA8yQ2xq9vxDTuk4iPrECBAEW2aoFXY0Q==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -9337,14 +9368,30 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue2@2.3.1(vite@5.4.12(@types/node@22.2.0))(vue@2.7.16)':
+  '@vitejs/plugin-react@4.3.1(vite@5.4.18(@types/node@22.2.0))':
     dependencies:
-      vite: 5.4.12(@types/node@22.2.0)
+      '@babel/core': 7.25.2
+      '@babel/plugin-transform-react-jsx-self': 7.24.7(@babel/core@7.25.2)
+      '@babel/plugin-transform-react-jsx-source': 7.24.7(@babel/core@7.25.2)
+      '@types/babel__core': 7.20.5
+      react-refresh: 0.14.2
+      vite: 5.4.18(@types/node@22.2.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@vitejs/plugin-vue2@2.3.1(vite@5.4.18(@types/node@22.2.0))(vue@2.7.16)':
+    dependencies:
+      vite: 5.4.18(@types/node@22.2.0)
       vue: 2.7.16
 
   '@vitejs/plugin-vue@5.0.2(vite@5.4.12(@types/node@22.2.0))(vue@3.4.8(typescript@5.5.4))':
     dependencies:
       vite: 5.4.12(@types/node@22.2.0)
+      vue: 3.4.8(typescript@5.5.4)
+
+  '@vitejs/plugin-vue@5.0.2(vite@5.4.18(@types/node@22.2.0))(vue@3.4.8(typescript@5.5.4))':
+    dependencies:
+      vite: 5.4.18(@types/node@22.2.0)
       vue: 3.4.8(typescript@5.5.4)
 
   '@vitest/expect@2.1.9':
@@ -9354,13 +9401,13 @@ snapshots:
       chai: 5.1.2
       tinyrainbow: 1.2.0
 
-  '@vitest/mocker@2.1.9(vite@5.4.12(@types/node@22.2.0))':
+  '@vitest/mocker@2.1.9(vite@5.4.18(@types/node@22.2.0))':
     dependencies:
       '@vitest/spy': 2.1.9
       estree-walker: 3.0.3
       magic-string: 0.30.12
     optionalDependencies:
-      vite: 5.4.12(@types/node@22.2.0)
+      vite: 5.4.18(@types/node@22.2.0)
 
   '@vitest/pretty-format@2.1.9':
     dependencies:
@@ -14022,7 +14069,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-jest@29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4):
+  ts-jest@29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.24.0)(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4):
     dependencies:
       bs-logger: 0.2.6
       ejs: 3.1.10
@@ -14040,6 +14087,7 @@ snapshots:
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
       babel-jest: 29.7.0(@babel/core@7.25.2)
+      esbuild: 0.24.0
 
   ts-toolbelt@9.6.0: {}
 
@@ -14300,7 +14348,7 @@ snapshots:
       debug: 4.3.7
       es-module-lexer: 1.6.0
       pathe: 1.1.2
-      vite: 5.4.12(@types/node@22.2.0)
+      vite: 5.4.18(@types/node@22.2.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -14321,10 +14369,19 @@ snapshots:
       '@types/node': 22.2.0
       fsevents: 2.3.3
 
+  vite@5.4.18(@types/node@22.2.0):
+    dependencies:
+      esbuild: 0.21.5
+      postcss: 8.5.1
+      rollup: 4.31.0
+    optionalDependencies:
+      '@types/node': 22.2.0
+      fsevents: 2.3.3
+
   vitest@2.1.9(@edge-runtime/vm@4.0.1)(@types/node@22.2.0)(happy-dom@14.12.3):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.4.12(@types/node@22.2.0))
+      '@vitest/mocker': 2.1.9(vite@5.4.18(@types/node@22.2.0))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9
@@ -14340,7 +14397,7 @@ snapshots:
       tinyexec: 0.3.1
       tinypool: 1.0.2
       tinyrainbow: 1.2.0
-      vite: 5.4.12(@types/node@22.2.0)
+      vite: 5.4.18(@types/node@22.2.0)
       vite-node: 2.1.9(@types/node@22.2.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
