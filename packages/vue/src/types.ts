@@ -2,13 +2,13 @@ import type { Component, App } from 'vue';
 import type {
   ComponentProps,
   RenderContext,
-  SerializableValue,
+  Serializable,
 } from '@web-widget/helpers';
 
 export * from './components';
 
 interface SerializableObject {
-  [key: string]: SerializableValue;
+  [key: string]: Serializable;
 }
 
 export interface CreateVueRenderOptions {

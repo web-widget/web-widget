@@ -1,12 +1,12 @@
 import { context } from '@web-widget/context';
-import type { State, SerializableValue } from '@web-widget/schema';
+import type { State, Serializable } from '@web-widget/schema';
 import { allowExposedToClient } from './utils';
 
 type LifecycleCacheValue<
   V,
   K extends keyof V,
   E extends boolean,
-> = E extends true ? SerializableValue & V[K] : V[K];
+> = E extends true ? Serializable & V[K] : V[K];
 
 /**
  * This is the lifecycle cache interface.
