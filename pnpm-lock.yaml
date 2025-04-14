@@ -22,11 +22,11 @@ catalogs:
       specifier: ^29.7.0
       version: 29.7.0
     jest-environment-miniflare:
-      specifier: ^2.14.2
-      version: 2.14.2
+      specifier: ^2.14.4
+      version: 2.14.4
     miniflare:
-      specifier: ^3.20240806.0
-      version: 3.20240806.0
+      specifier: ^4.20250409.0
+      version: 4.20250409.0
     ts-jest:
       specifier: 29.2.1
       version: 29.2.1
@@ -59,11 +59,6 @@ overrides:
   '@examples/vue>@web-widget/web-widget': workspace:*
   '@types/node': ^22.2.0
   typescript: ^5.5.4
-
-patchedDependencies:
-  '@miniflare/core@2.14.2':
-    hash: 9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be
-    path: patches/@miniflare__core@2.14.2.patch
 
 importers:
 
@@ -338,10 +333,10 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
+        version: 2.14.4(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
-        version: 3.20240806.0
+        version: 4.20250409.0
       ts-jest:
         specifier: 'catalog:'
         version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
@@ -378,10 +373,10 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
+        version: 2.14.4(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
-        version: 3.20240806.0
+        version: 4.20250409.0
       ts-jest:
         specifier: 'catalog:'
         version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
@@ -427,10 +422,10 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
+        version: 2.14.4(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
-        version: 3.20240806.0
+        version: 4.20250409.0
       ts-jest:
         specifier: 'catalog:'
         version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
@@ -483,10 +478,10 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
+        version: 2.14.4(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
-        version: 3.20240806.0
+        version: 4.20250409.0
       ts-jest:
         specifier: 'catalog:'
         version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
@@ -523,13 +518,13 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
+        version: 2.14.4(jest@29.7.0(@types/node@22.2.0))
       lru-cache:
         specifier: ^10.2.0
         version: 10.2.0
       miniflare:
         specifier: 'catalog:'
-        version: 3.20240806.0
+        version: 4.20250409.0
       ts-jest:
         specifier: 'catalog:'
         version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
@@ -572,10 +567,10 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
+        version: 2.14.4(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
-        version: 3.20240806.0
+        version: 4.20250409.0
       ts-jest:
         specifier: 'catalog:'
         version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
@@ -802,10 +797,10 @@ importers:
         version: 29.7.0(@types/node@22.2.0)
       jest-environment-miniflare:
         specifier: 'catalog:'
-        version: 2.14.2(jest@29.7.0(@types/node@22.2.0))
+        version: 2.14.4(jest@29.7.0(@types/node@22.2.0))
       miniflare:
         specifier: 'catalog:'
-        version: 3.20240806.0
+        version: 4.20250409.0
       ts-jest:
         specifier: 'catalog:'
         version: 29.2.1(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(jest@29.7.0(@types/node@22.2.0))(typescript@5.5.4)
@@ -1454,32 +1449,32 @@ packages:
   '@changesets/write@0.3.2':
     resolution: {integrity: sha512-kDxDrPNpUgsjDbWBvUo27PzKX4gqeKOlhibaOXDJA6kuBisGqNHv/HwGJrAu8U/dSf8ZEFIeHIPtvSlZI1kULw==}
 
-  '@cloudflare/workerd-darwin-64@1.20240806.0':
-    resolution: {integrity: sha512-FqcVBBCO//I39K5F+HqE/v+UkqY1UrRnS653Jv+XsNNH9TpX5fTs7VCKG4kDSnmxlAaKttyIN5sMEt7lpuNExQ==}
+  '@cloudflare/workerd-darwin-64@1.20250409.0':
+    resolution: {integrity: sha512-smA9yq77xsdQ1NMLhFz3JZxMHGd01lg0bE+X3dTFmIUs+hHskJ+HJ/IkMFInkCCeEFlUkoL4yO7ilaU/fin/xA==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [darwin]
 
-  '@cloudflare/workerd-darwin-arm64@1.20240806.0':
-    resolution: {integrity: sha512-8c3KvmzYp/wg+82KHSOzDetJK+pThH4MTrU1OsjmsR2cUfedm5dk5Lah9/0Ld68+6A0umFACi4W2xJHs/RoBpA==}
+  '@cloudflare/workerd-darwin-arm64@1.20250409.0':
+    resolution: {integrity: sha512-oLVcf+Y5Qun8JHcy1VcR/YnbA5U2ne0czh3XNhDqdHZFK8+vKeC7MnVPX+kEqQA3+uLcMM1/FsIDU1U4Na0h1g==}
     engines: {node: '>=16'}
     cpu: [arm64]
     os: [darwin]
 
-  '@cloudflare/workerd-linux-64@1.20240806.0':
-    resolution: {integrity: sha512-/149Bpxw4e2p5QqnBc06g0mx+4sZYh9j0doilnt0wk/uqYkLp0DdXGMQVRB74sBLg2UD3wW8amn1w3KyFhK2tQ==}
+  '@cloudflare/workerd-linux-64@1.20250409.0':
+    resolution: {integrity: sha512-D31B4kdC3a0RD5yfpdIa89//kGHbYsYihZmejm1k4S4NHOho3MUDHAEh4aHtafQNXbZdydGHlSyiVYjTdQ9ILQ==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [linux]
 
-  '@cloudflare/workerd-linux-arm64@1.20240806.0':
-    resolution: {integrity: sha512-lacDWY3S1rKL/xT6iMtTQJEKmTTKrBavPczInEuBFXElmrS6IwVjZwv8hhVm32piyNt/AuFu9BYoJALi9D85/g==}
+  '@cloudflare/workerd-linux-arm64@1.20250409.0':
+    resolution: {integrity: sha512-Sr59P0TREayil5OQ7kcbjuIn6L6OTSRLI91LKu0D8vi1hss2q9FUwBcwxg0+Yd/x+ty/x7IISiAK5QBkAMeITQ==}
     engines: {node: '>=16'}
     cpu: [arm64]
     os: [linux]
 
-  '@cloudflare/workerd-windows-64@1.20240806.0':
-    resolution: {integrity: sha512-hC6JEfTSQK6//Lg+D54TLVn1ceTPY+fv4MXqDZIYlPP53iN+dL8Xd0utn2SG57UYdlL5FRAhm/EWHcATZg1RgA==}
+  '@cloudflare/workerd-windows-64@1.20250409.0':
+    resolution: {integrity: sha512-dK9I8zBX5rR7MtaaP2AhICQTEw3PVzHcsltN8o46w7JsbYlMvFOj27FfYH5dhs3IahgmIfw2e572QXW2o/dbpg==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
@@ -2247,83 +2242,83 @@ packages:
   '@mdn/browser-compat-data@4.2.1':
     resolution: {integrity: sha512-EWUguj2kd7ldmrF9F+vI5hUOralPd+sdsUnYbRy33vZTuZkduC1shE9TtEMEjAQwyfyMb4ole5KtjF8MsnQOlA==}
 
-  '@miniflare/cache@2.14.2':
-    resolution: {integrity: sha512-XH218Y2jxSOfxG8EyuprBKhI/Fn6xLrb9A39niJBlzpiKXqr8skl/sy/sUL5tfvqEbEnqDagGne8zEcjM+1fBg==}
+  '@miniflare/cache@2.14.4':
+    resolution: {integrity: sha512-ayzdjhcj+4mjydbNK7ZGDpIXNliDbQY4GPcY2KrYw0v1OSUdj5kZUkygD09fqoGRfAks0d91VelkyRsAXX8FQA==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/core@2.14.2':
-    resolution: {integrity: sha512-n/smm5ZTg7ilGM4fxO7Gxhbe573oc8Za06M3b2fO+lPWqF6NJcEKdCC+sJntVFbn3Cbbd2G1ChISmugPfmlCkQ==}
+  '@miniflare/core@2.14.4':
+    resolution: {integrity: sha512-FMmZcC1f54YpF4pDWPtdQPIO8NXfgUxCoR9uyrhxKJdZu7M6n8QKopPVNuaxR40jcsdxb7yKoQoFWnHfzJD9GQ==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/d1@2.14.2':
-    resolution: {integrity: sha512-3NPJyBLbFfzz9VAAdIZrDRdRpyslVCJoZHQk0/0CX3z2mJIfcQzjZhox2cYCFNH8NMJ7pRg6AeSMPYAnDKECDg==}
+  '@miniflare/d1@2.14.4':
+    resolution: {integrity: sha512-pMBVq9XWxTDdm+RRCkfXZP+bREjPg1JC8s8C0JTovA9OGmLQXqGTnFxIaS9vf1d8k3uSUGhDzPTzHr0/AUW1gA==}
     engines: {node: '>=16.7'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/durable-objects@2.14.2':
-    resolution: {integrity: sha512-BfK+ZkJABoi7gd/O6WbpsO4GrgW+0dmOBWJDlNBxQ7GIpa+w3n9+SNnrYUxKzWlPSvz+TfTTk381B1z/Z87lPw==}
+  '@miniflare/durable-objects@2.14.4':
+    resolution: {integrity: sha512-+JrmHP6gHHrjxV8S3axVw5lGHLgqmAGdcO/1HJUPswAyJEd3Ah2YnKhpo+bNmV4RKJCtEq9A2hbtVjBTD2YzwA==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/html-rewriter@2.14.2':
-    resolution: {integrity: sha512-tu0kd9bj38uZ04loHb3sMI8kzUzZPgPOAJEdS9zmdSPh0uOkjCDf/TEkKsDdv2OFysyb0DRsIrwhPqCTIrPf1Q==}
+  '@miniflare/html-rewriter@2.14.4':
+    resolution: {integrity: sha512-GB/vZn7oLbnhw+815SGF+HU5EZqSxbhIa3mu2L5MzZ2q5VOD5NHC833qG8c2GzDPhIaZ99ITY+ZJmbR4d+4aNQ==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/kv@2.14.2':
-    resolution: {integrity: sha512-3rs4cJOGACT/U7NH7j4KD29ugXRYUiM0aGkvOEdFQtChXLsYClJljXpezTfJJxBwZjdS4F2UFTixtFcHp74UfA==}
+  '@miniflare/kv@2.14.4':
+    resolution: {integrity: sha512-QlERH0Z+klwLg0xw+/gm2yC34Nnr/I0GcQ+ASYqXeIXBwjqOtMBa3YVQnocaD+BPy/6TUtSpOAShHsEj76R2uw==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/queues@2.14.2':
-    resolution: {integrity: sha512-OylkRs4lOWKvGnX+Azab3nx+1qwC87M36/hkgAU1RRvVDCOxOrYLvNLUczFfgmgMBwpYsmmW8YOIASlI3p4Qgw==}
+  '@miniflare/queues@2.14.4':
+    resolution: {integrity: sha512-aXQ5Ik8Iq1KGMBzGenmd6Js/jJgqyYvjom95/N9GptCGpiVWE5F0XqC1SL5rCwURbHN+aWY191o8XOFyY2nCUA==}
     engines: {node: '>=16.7'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/r2@2.14.2':
-    resolution: {integrity: sha512-uuc7dx6OqSQT8i0F2rsigfizXmInssRvvJAjoi1ltaNZNJCHH9l1PwHfaNc/XAuDjYmiCjtHDaPdRvZU9g9F3g==}
+  '@miniflare/r2@2.14.4':
+    resolution: {integrity: sha512-4ctiZWh7Ty7LB3brUjmbRiGMqwyDZgABYaczDtUidblo2DxX4JZPnJ/ZAyxMPNJif32kOJhcg6arC2hEthR9Sw==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/runner-vm@2.14.2':
-    resolution: {integrity: sha512-WlyxAQ+bv/9Pm/xnbpgAg7RNX4pz/q3flytUoo4z4OrRmNEuXrbMUsJZnH8dziqzrZ2gCLkYIEzeaTmSQKp5Jg==}
+  '@miniflare/runner-vm@2.14.4':
+    resolution: {integrity: sha512-Nog0bB9SVhPbZAkTWfO4lpLAUsBXKEjlb4y+y66FJw77mPlmPlVdpjElCvmf8T3VN/pqh83kvELGM+/fucMf4g==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/shared-test-environment@2.14.2':
-    resolution: {integrity: sha512-97y/95EzDC86jM2bKYacKk4n59miFC+WXueRdW5TeVzBw2UTL2Alvy36AZuyMUgBqxZdJSv88/q0jHTw7LvyMA==}
+  '@miniflare/shared-test-environment@2.14.4':
+    resolution: {integrity: sha512-FdU2/8wEd00vIu+MfofLiHcfZWz+uCbE2VTL85KpyYfBsNGAbgRtzFMpOXdoXLqQfRu6MBiRwWpb2FbMrBzi7g==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/shared@2.14.2':
-    resolution: {integrity: sha512-dDnYIztz10zDQjaFJ8Gy9UaaBWZkw3NyhFdpX6tAeyPA/2lGvkftc42MYmNi8s5ljqkZAtKgWAJnSf2K75NCJw==}
+  '@miniflare/shared@2.14.4':
+    resolution: {integrity: sha512-upl4RSB3hyCnITOFmRZjJj4A72GmkVrtfZTilkdq5Qe5TTlzsjVeDJp7AuNUM9bM8vswRo+N5jOiot6O4PVwwQ==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/sites@2.14.2':
-    resolution: {integrity: sha512-jFOx1G5kD+kTubsga6jcFbMdU2nSuNG2/EkojwuhYT8hYp3qd8duvPyh1V+OR2tMvM4FWu6jXPXNZNBHXHQaUQ==}
+  '@miniflare/sites@2.14.4':
+    resolution: {integrity: sha512-O5npWopi+fw9W9Ki0gy99nuBbgDva/iXy8PDC4dAXDB/pz45nISDqldabk0rL2t4W2+lY6LXKzdOw+qJO1GQTA==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/storage-file@2.14.2':
-    resolution: {integrity: sha512-tn8rqMBeTtN+ICHQAMKQ0quHGYIkcyDK0qKW+Ic14gdfGDZx45BqXExQM9wTVqKtwAt85zp5eKVUYQCFfUx46Q==}
+  '@miniflare/storage-file@2.14.4':
+    resolution: {integrity: sha512-JxcmX0hXf4cB0cC9+s6ZsgYCq+rpyUKRPCGzaFwymWWplrO3EjPVxKCcMxG44jsdgsII6EZihYUN2J14wwCT7A==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/storage-memory@2.14.2':
-    resolution: {integrity: sha512-9Wtz9mayHIY0LDsfpMGx+/sfKCq3eAQJzYY+ju1tTEaKR0sVAuO51wu0wbyldsjj9OcBcd2X32iPbIa7KcSZQQ==}
+  '@miniflare/storage-memory@2.14.4':
+    resolution: {integrity: sha512-9jB5BqNkMZ3SFjbPFeiVkLi1BuSahMhc/W1Y9H0W89qFDrrD+z7EgRgDtHTG1ZRyi9gIlNtt9qhkO1B6W2qb2A==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/watcher@2.14.2':
-    resolution: {integrity: sha512-/TL0np4uYDl+6MdseDApZmDdlJ6Y7AY5iDY0TvUQJG9nyBoCjX6w0Zn4SiKDwO6660rPtSqZ5c7HzbPhGb5vsA==}
+  '@miniflare/watcher@2.14.4':
+    resolution: {integrity: sha512-PYn05ET2USfBAeXF6NZfWl0O32KVyE8ncQ/ngysrh3hoIV7l3qGGH7ubeFx+D8VWQ682qYhwGygUzQv2j1tGGg==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
-  '@miniflare/web-sockets@2.14.2':
-    resolution: {integrity: sha512-kpbVlznPuxNQahssQvZiNPQo/iPme7qV3WMQeg6TYNCkYD7n6vEqeFZ5E/eQgB59xCanpvw4Ci8y/+SdMK6BUg==}
+  '@miniflare/web-sockets@2.14.4':
+    resolution: {integrity: sha512-stTxvLdJ2IcGOs76AnvGYAzGvx8JvQPRxC5DW0P5zdAAnhL33noqb5LKdPt3P37BKp9FzBKZHuihQI9oVqwm0g==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
 
@@ -3168,8 +3163,8 @@ packages:
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
 
-  acorn-walk@8.3.0:
-    resolution: {integrity: sha512-FS7hV565M5l1R08MXqo8odwMTB02C2UqzB17RVgu9EyuYFBqJZ3/ZY97sQD5FewVu1UyDFc1yztUDrAwT0EypA==}
+  acorn-walk@8.3.2:
+    resolution: {integrity: sha512-cjkyv4OtNCIeqhHrfS81QWXoCBPExR/J62oyEqepVw8WaQeSqpW2uhuLPh1m9eWhDuOo/jUXVTlifvesOWp/4A==}
     engines: {node: '>=0.4.0'}
 
   acorn@8.10.0:
@@ -3184,6 +3179,11 @@ packages:
 
   acorn@8.12.1:
     resolution: {integrity: sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  acorn@8.14.0:
+    resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -3546,9 +3546,6 @@ packages:
   caniuse-lite@1.0.30001650:
     resolution: {integrity: sha512-fgEc7hP/LB7iicdXHUI9VsBsMZmUmlVJeQP2qqQW+3lkqVhbmjEU8zp+h5stWeilX+G7uXuIUIIlWlDw9jdt8g==}
 
-  capnp-ts@0.7.0:
-    resolution: {integrity: sha512-XKxXAC3HVPv7r674zP0VC3RTXz+/JKhfyw94ljvF80yynK6VkTnqE3jMuN8b3dUVmmc43TjyxjW4KTsmB3c86g==}
-
   cb2promise@1.1.1:
     resolution: {integrity: sha512-ShCxBARPFJlSO+Y4pxSpbXh6y+tW54Dmy4jKf0gB1C7qUslRqWqFi80+W9416zSoj6RsqMsnKUcpkt3bOrZmDg==}
     engines: {node: '>= 4'}
@@ -3746,12 +3743,12 @@ packages:
   cookie-signature@1.0.6:
     resolution: {integrity: sha512-QADzlaHc8icV8I7vbaJXJwod9HWYp8uCqf1xa4OfNu1T7JVxQIrUgOWtHdNDtPiywmFbiS12VjotIXLrKM3orQ==}
 
-  cookie@0.5.0:
-    resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
-    engines: {node: '>= 0.6'}
-
   cookie@0.6.0:
     resolution: {integrity: sha512-U71cyTamuh1CRNCfpGY6to28lxvNwPG4Guz/EVjgf3Jmzv0vlDp1atT9eS5dDjMYHucpHbWns6Lwf3BKz6svdw==}
+    engines: {node: '>= 0.6'}
+
+  cookie@0.7.2:
+    resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
     engines: {node: '>= 0.6'}
 
   cookies@0.9.1:
@@ -5124,8 +5121,8 @@ packages:
     resolution: {integrity: sha512-gns+Er14+ZrEoC5fhOfYCY1LOHHr0TI+rQUHZS8Ttw2l7gl+80eHc/gFf2Ktkw0+SIACDTeWvpFcv3B04VembQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  jest-environment-miniflare@2.14.2:
-    resolution: {integrity: sha512-ssczII1i1aRUsVRLGAijICq4vmFlrDJyOsnG7dqIkC/N9dQmusXA/A+x7TgEHnBGCVk7+JVS/QyZtJRbiXCUmQ==}
+  jest-environment-miniflare@2.14.4:
+    resolution: {integrity: sha512-r5OtP6seAotjWmB10jNfr6UUf9n55Bsr4DHLkXX+7bq1bguTI3m+eNIY+rPE4/fqUoCSEMKAYhLi+JauGGsboA==}
     engines: {node: '>=16.13'}
     deprecated: Miniflare v2 is no longer supported. Please upgrade to Miniflare v4
     peerDependencies:
@@ -5578,9 +5575,9 @@ packages:
     resolution: {integrity: sha512-VP79XUPxV2CigYP3jWwAUFSku2aKqBH7uTAapFWCBqutsbmDo96KY5o8uh6U+/YSIn5OxJnXp73beVkpqMIGhA==}
     engines: {node: '>=18'}
 
-  miniflare@3.20240806.0:
-    resolution: {integrity: sha512-jDsXBJOLUVpIQXHsluX3xV0piDxXolTCsxdje2Ex2LTC9PsSoBIkMwvCmnCxe9wpJJCq8rb0UMyeEn3KOF3LOw==}
-    engines: {node: '>=16.13'}
+  miniflare@4.20250409.0:
+    resolution: {integrity: sha512-Hu02dYZvFR+MyrI57O6rSrOUTofcO9EIvcodgq2SAHzAeWSJw2E0oq9lylOrcckFwPMcwxUAb/cQN1LIoCyySw==}
+    engines: {node: '>=18.0.0'}
     hasBin: true
 
   minimatch@3.1.2:
@@ -7104,12 +7101,12 @@ packages:
   undici-types@6.13.0:
     resolution: {integrity: sha512-xtFJHudx8S2DSoujjMd1WeWvn7KKWFRESZTMeL1RptAYERu29D6jphMjjY+vn96jvN3kVPDNxU/E13VTaXj6jg==}
 
-  undici@5.28.2:
-    resolution: {integrity: sha512-wh1pHJHnUeQV5Xa8/kyQhO7WFa8M34l026L5P/+2TYiakvGy5Rdc8jWZVyG7ieht/0WgJLEd3kcU5gKx+6GC8w==}
-    engines: {node: '>=14.0'}
-
   undici@5.28.4:
     resolution: {integrity: sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==}
+    engines: {node: '>=14.0'}
+
+  undici@5.29.0:
+    resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
     engines: {node: '>=14.0'}
 
   unicorn-magic@0.3.0:
@@ -7333,8 +7330,8 @@ packages:
     resolution: {integrity: sha512-JNjcULU2e4KJwUNv6CHgI46UvDGitb6dGryHajXTDiLgg1/RiGoPSDw4kZfYnwGtEXf2ZMeIewDQgFGzkCB2Sg==}
     engines: {node: '>=12.17'}
 
-  workerd@1.20240806.0:
-    resolution: {integrity: sha512-yyNtyzTMgVY0sgYijHBONqZFVXsOFGj2jDjS8MF/RbO2ZdGROvs4Hkc/9QnmqFWahE0STxXeJ1yW1yVotdF0UQ==}
+  workerd@1.20250409.0:
+    resolution: {integrity: sha512-hqjX9swiHvrkOI3jlH9lrZsZRRv9lddUwcMe8Ua76jnyQz+brybWznNjHu8U5oswwcrFwvky1A4CcLjcLY31gQ==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -7421,8 +7418,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  youch@3.3.3:
-    resolution: {integrity: sha512-qSFXUk3UZBLfggAW3dJKg0BMblG5biqSF8M34E06o5CSsZtH92u9Hqmj2RzGiHDi64fhe83+4tENFP2DB6t6ZA==}
+  youch@3.3.4:
+    resolution: {integrity: sha512-UeVBXie8cA35DS6+nBkls68xaBBXCye0CNznrhszZjTbRVnJKQuNsyLKBTTL4ln1o1rh2PKtv35twV7irj5SEg==}
 
   zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
@@ -7952,19 +7949,19 @@ snapshots:
       human-id: 1.0.2
       prettier: 2.8.8
 
-  '@cloudflare/workerd-darwin-64@1.20240806.0':
+  '@cloudflare/workerd-darwin-64@1.20250409.0':
     optional: true
 
-  '@cloudflare/workerd-darwin-arm64@1.20240806.0':
+  '@cloudflare/workerd-darwin-arm64@1.20250409.0':
     optional: true
 
-  '@cloudflare/workerd-linux-64@1.20240806.0':
+  '@cloudflare/workerd-linux-64@1.20250409.0':
     optional: true
 
-  '@cloudflare/workerd-linux-arm64@1.20240806.0':
+  '@cloudflare/workerd-linux-arm64@1.20250409.0':
     optional: true
 
-  '@cloudflare/workerd-windows-64@1.20240806.0':
+  '@cloudflare/workerd-windows-64@1.20250409.0':
     optional: true
 
   '@cloudflare/workers-types@4.20231025.0': {}
@@ -8553,113 +8550,113 @@ snapshots:
 
   '@mdn/browser-compat-data@4.2.1': {}
 
-  '@miniflare/cache@2.14.2':
+  '@miniflare/cache@2.14.4':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
-      '@miniflare/shared': 2.14.2
+      '@miniflare/core': 2.14.4
+      '@miniflare/shared': 2.14.4
       http-cache-semantics: 4.1.1
-      undici: 5.28.2
+      undici: 5.28.4
 
-  '@miniflare/core@2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)':
+  '@miniflare/core@2.14.4':
     dependencies:
       '@iarna/toml': 2.2.5
-      '@miniflare/queues': 2.14.2
-      '@miniflare/shared': 2.14.2
-      '@miniflare/watcher': 2.14.2
+      '@miniflare/queues': 2.14.4
+      '@miniflare/shared': 2.14.4
+      '@miniflare/watcher': 2.14.4
       busboy: 1.6.0
       dotenv: 10.0.0
       kleur: 4.1.5
       set-cookie-parser: 2.6.0
-      undici: 5.28.2
+      undici: 5.28.4
       urlpattern-polyfill: 4.0.3
 
-  '@miniflare/d1@2.14.2':
+  '@miniflare/d1@2.14.4':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
-      '@miniflare/shared': 2.14.2
+      '@miniflare/core': 2.14.4
+      '@miniflare/shared': 2.14.4
 
-  '@miniflare/durable-objects@2.14.2':
+  '@miniflare/durable-objects@2.14.4':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
-      '@miniflare/shared': 2.14.2
-      '@miniflare/storage-memory': 2.14.2
-      undici: 5.28.2
+      '@miniflare/core': 2.14.4
+      '@miniflare/shared': 2.14.4
+      '@miniflare/storage-memory': 2.14.4
+      undici: 5.28.4
 
-  '@miniflare/html-rewriter@2.14.2':
+  '@miniflare/html-rewriter@2.14.4':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
-      '@miniflare/shared': 2.14.2
+      '@miniflare/core': 2.14.4
+      '@miniflare/shared': 2.14.4
       html-rewriter-wasm: 0.4.1
-      undici: 5.28.2
+      undici: 5.28.4
 
-  '@miniflare/kv@2.14.2':
+  '@miniflare/kv@2.14.4':
     dependencies:
-      '@miniflare/shared': 2.14.2
+      '@miniflare/shared': 2.14.4
 
-  '@miniflare/queues@2.14.2':
+  '@miniflare/queues@2.14.4':
     dependencies:
-      '@miniflare/shared': 2.14.2
+      '@miniflare/shared': 2.14.4
 
-  '@miniflare/r2@2.14.2':
+  '@miniflare/r2@2.14.4':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
-      '@miniflare/shared': 2.14.2
-      undici: 5.28.2
+      '@miniflare/core': 2.14.4
+      '@miniflare/shared': 2.14.4
+      undici: 5.28.4
 
-  '@miniflare/runner-vm@2.14.2':
+  '@miniflare/runner-vm@2.14.4':
     dependencies:
-      '@miniflare/shared': 2.14.2
+      '@miniflare/shared': 2.14.4
 
-  '@miniflare/shared-test-environment@2.14.2':
+  '@miniflare/shared-test-environment@2.14.4':
     dependencies:
       '@cloudflare/workers-types': 4.20231025.0
-      '@miniflare/cache': 2.14.2
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
-      '@miniflare/d1': 2.14.2
-      '@miniflare/durable-objects': 2.14.2
-      '@miniflare/html-rewriter': 2.14.2
-      '@miniflare/kv': 2.14.2
-      '@miniflare/queues': 2.14.2
-      '@miniflare/r2': 2.14.2
-      '@miniflare/shared': 2.14.2
-      '@miniflare/sites': 2.14.2
-      '@miniflare/storage-memory': 2.14.2
-      '@miniflare/web-sockets': 2.14.2
+      '@miniflare/cache': 2.14.4
+      '@miniflare/core': 2.14.4
+      '@miniflare/d1': 2.14.4
+      '@miniflare/durable-objects': 2.14.4
+      '@miniflare/html-rewriter': 2.14.4
+      '@miniflare/kv': 2.14.4
+      '@miniflare/queues': 2.14.4
+      '@miniflare/r2': 2.14.4
+      '@miniflare/shared': 2.14.4
+      '@miniflare/sites': 2.14.4
+      '@miniflare/storage-memory': 2.14.4
+      '@miniflare/web-sockets': 2.14.4
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@miniflare/shared@2.14.2':
+  '@miniflare/shared@2.14.4':
     dependencies:
       '@types/better-sqlite3': 7.6.7
       kleur: 4.1.5
       npx-import: 1.1.4
       picomatch: 2.3.1
 
-  '@miniflare/sites@2.14.2':
+  '@miniflare/sites@2.14.4':
     dependencies:
-      '@miniflare/kv': 2.14.2
-      '@miniflare/shared': 2.14.2
-      '@miniflare/storage-file': 2.14.2
+      '@miniflare/kv': 2.14.4
+      '@miniflare/shared': 2.14.4
+      '@miniflare/storage-file': 2.14.4
 
-  '@miniflare/storage-file@2.14.2':
+  '@miniflare/storage-file@2.14.4':
     dependencies:
-      '@miniflare/shared': 2.14.2
-      '@miniflare/storage-memory': 2.14.2
+      '@miniflare/shared': 2.14.4
+      '@miniflare/storage-memory': 2.14.4
 
-  '@miniflare/storage-memory@2.14.2':
+  '@miniflare/storage-memory@2.14.4':
     dependencies:
-      '@miniflare/shared': 2.14.2
+      '@miniflare/shared': 2.14.4
 
-  '@miniflare/watcher@2.14.2':
+  '@miniflare/watcher@2.14.4':
     dependencies:
-      '@miniflare/shared': 2.14.2
+      '@miniflare/shared': 2.14.4
 
-  '@miniflare/web-sockets@2.14.2':
+  '@miniflare/web-sockets@2.14.4':
     dependencies:
-      '@miniflare/core': 2.14.2(patch_hash=9cc6c865c28f2487c7d0cb2876ed1e416ba4b3f5d7d3aa0470340e603c7096be)
-      '@miniflare/shared': 2.14.2
-      undici: 5.28.2
+      '@miniflare/core': 2.14.4
+      '@miniflare/shared': 2.14.4
+      undici: 5.28.4
       ws: 8.18.0
     transitivePeerDependencies:
       - bufferutil
@@ -9686,13 +9683,15 @@ snapshots:
     dependencies:
       acorn: 8.11.2
 
-  acorn-walk@8.3.0: {}
+  acorn-walk@8.3.2: {}
 
   acorn@8.10.0: {}
 
   acorn@8.11.2: {}
 
   acorn@8.12.1: {}
+
+  acorn@8.14.0: {}
 
   agent-base@7.1.0:
     dependencies:
@@ -10099,13 +10098,6 @@ snapshots:
 
   caniuse-lite@1.0.30001650: {}
 
-  capnp-ts@0.7.0:
-    dependencies:
-      debug: 4.3.6
-      tslib: 2.6.1
-    transitivePeerDependencies:
-      - supports-color
-
   cb2promise@1.1.1:
     dependencies:
       mimic-fn: 2.0.0
@@ -10320,9 +10312,9 @@ snapshots:
 
   cookie-signature@1.0.6: {}
 
-  cookie@0.5.0: {}
-
   cookie@0.6.0: {}
+
+  cookie@0.7.2: {}
 
   cookies@0.9.1:
     dependencies:
@@ -11091,7 +11083,7 @@ snapshots:
 
   execa@6.1.0:
     dependencies:
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       get-stream: 6.0.1
       human-signals: 3.0.1
       is-stream: 3.0.0
@@ -12005,15 +11997,15 @@ snapshots:
       jest-util: 29.7.0
       pretty-format: 29.7.0
 
-  jest-environment-miniflare@2.14.2(jest@29.7.0(@types/node@22.2.0)):
+  jest-environment-miniflare@2.14.4(jest@29.7.0(@types/node@22.2.0)):
     dependencies:
       '@jest/environment': 29.7.0
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@miniflare/queues': 2.14.2
-      '@miniflare/runner-vm': 2.14.2
-      '@miniflare/shared': 2.14.2
-      '@miniflare/shared-test-environment': 2.14.2
+      '@miniflare/queues': 2.14.4
+      '@miniflare/runner-vm': 2.14.4
+      '@miniflare/shared': 2.14.4
+      '@miniflare/shared-test-environment': 2.14.4
       jest: 29.7.0(@types/node@22.2.0)
       jest-mock: 29.7.0
       jest-util: 29.7.0
@@ -12593,23 +12585,21 @@ snapshots:
 
   mimic-function@5.0.1: {}
 
-  miniflare@3.20240806.0:
+  miniflare@4.20250409.0:
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
-      acorn: 8.12.1
-      acorn-walk: 8.3.0
-      capnp-ts: 0.7.0
+      acorn: 8.14.0
+      acorn-walk: 8.3.2
       exit-hook: 2.2.1
       glob-to-regexp: 0.4.1
       stoppable: 1.1.0
-      undici: 5.28.4
-      workerd: 1.20240806.0
+      undici: 5.29.0
+      workerd: 1.20250409.0
       ws: 8.18.0
-      youch: 3.3.3
-      zod: 3.23.8
+      youch: 3.3.4
+      zod: 3.22.3
     transitivePeerDependencies:
       - bufferutil
-      - supports-color
       - utf-8-validate
 
   minimatch@3.1.2:
@@ -14206,11 +14196,11 @@ snapshots:
 
   undici-types@6.13.0: {}
 
-  undici@5.28.2:
+  undici@5.28.4:
     dependencies:
       '@fastify/busboy': 2.1.0
 
-  undici@5.28.4:
+  undici@5.29.0:
     dependencies:
       '@fastify/busboy': 2.1.0
 
@@ -14464,13 +14454,13 @@ snapshots:
 
   wordwrapjs@5.1.0: {}
 
-  workerd@1.20240806.0:
+  workerd@1.20250409.0:
     optionalDependencies:
-      '@cloudflare/workerd-darwin-64': 1.20240806.0
-      '@cloudflare/workerd-darwin-arm64': 1.20240806.0
-      '@cloudflare/workerd-linux-64': 1.20240806.0
-      '@cloudflare/workerd-linux-arm64': 1.20240806.0
-      '@cloudflare/workerd-windows-64': 1.20240806.0
+      '@cloudflare/workerd-darwin-64': 1.20250409.0
+      '@cloudflare/workerd-darwin-arm64': 1.20250409.0
+      '@cloudflare/workerd-linux-64': 1.20250409.0
+      '@cloudflare/workerd-linux-arm64': 1.20250409.0
+      '@cloudflare/workerd-windows-64': 1.20250409.0
 
   wrap-ansi@6.2.0:
     dependencies:
@@ -14546,9 +14536,9 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  youch@3.3.3:
+  youch@3.3.4:
     dependencies:
-      cookie: 0.5.0
+      cookie: 0.7.2
       mustache: 4.2.0
       stacktracey: 2.1.8
 

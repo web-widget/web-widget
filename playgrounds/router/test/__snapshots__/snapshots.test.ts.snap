@@ -15,6 +15,7 @@ exports[`Should match snapshot > Request "/" should match snapshot > /@body 1`] 
 exports[`Should match snapshot > Request "/" should match snapshot > /@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -48,6 +49,7 @@ exports[`Should match snapshot > Request "/background-tasks" should match snapsh
 exports[`Should match snapshot > Request "/background-tasks" should match snapshot > /background-tasks@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/background-tasks@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -70,6 +72,7 @@ exports[`Should match snapshot > Request "/client-only-component" should match s
 exports[`Should match snapshot > Request "/client-only-component" should match snapshot > /client-only-component@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/client-only-component@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -92,6 +95,7 @@ exports[`Should match snapshot > Request "/custom-handlers" should match snapsho
 exports[`Should match snapshot > Request "/custom-handlers" should match snapshot > /custom-handlers@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-custom-header": "Hello",
   "x-module-source": "source://./routes/custom-handlers@route.tsx",
   "x-powered-by": "@web-widget/web-router",
@@ -116,6 +120,7 @@ exports[`Should match snapshot > Request "/dynamic-routes" should match snapshot
 exports[`Should match snapshot > Request "/dynamic-routes" should match snapshot > /dynamic-routes@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/_404@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -138,6 +143,7 @@ exports[`Should match snapshot > Request "/dynamic-routes/1" should match snapsh
 exports[`Should match snapshot > Request "/dynamic-routes/1" should match snapshot > /dynamic-routes/1@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/dynamic-routes/[name]@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -160,6 +166,7 @@ exports[`Should match snapshot > Request "/experimental-async-component" should 
 exports[`Should match snapshot > Request "/experimental-async-component" should match snapshot > /experimental-async-component@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/experimental-async-component@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -182,6 +189,7 @@ exports[`Should match snapshot > Request "/fallback" should match snapshot > /fa
 exports[`Should match snapshot > Request "/fallback" should match snapshot > /fallback@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/fallback@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -204,6 +212,7 @@ exports[`Should match snapshot > Request "/fallback?404" should match snapshot >
 exports[`Should match snapshot > Request "/fallback?404" should match snapshot > /fallback?404@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/fallback@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -226,6 +235,7 @@ exports[`Should match snapshot > Request "/fallback?500" should match snapshot >
 exports[`Should match snapshot > Request "/fallback?500" should match snapshot > /fallback?500@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/fallback@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -248,6 +258,7 @@ exports[`Should match snapshot > Request "/fallback?global-404" should match sna
 exports[`Should match snapshot > Request "/fallback?global-404" should match snapshot > /fallback?global-404@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/_404@route.tsx",
 }
 `;
@@ -269,6 +280,7 @@ exports[`Should match snapshot > Request "/fallback?global-500" should match sna
 exports[`Should match snapshot > Request "/fallback?global-500" should match snapshot > /fallback?global-500@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/_500@route.tsx",
 }
 `;
@@ -278,6 +290,7 @@ exports[`Should match snapshot > Request "/fallback?global-500" should match sna
 exports[`Should match snapshot > Request "/fetching-data" should match status > /fetching-data@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/fetching-data@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -300,6 +313,7 @@ exports[`Should match snapshot > Request "/form" should match snapshot > /form@b
 exports[`Should match snapshot > Request "/form" should match snapshot > /form@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/form@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -337,6 +351,7 @@ exports[`Should match snapshot > Request "/lit-html-template" should match snaps
 exports[`Should match snapshot > Request "/lit-html-template" should match snapshot > /lit-html-template@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/lit-html-template@route.ts",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -421,6 +436,7 @@ exports[`Should match snapshot > Request "/meta" should match snapshot > /meta@b
 exports[`Should match snapshot > Request "/meta" should match snapshot > /meta@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/meta@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -443,6 +459,7 @@ exports[`Should match snapshot > Request "/react-and-vue" should match snapshot 
 exports[`Should match snapshot > Request "/react-and-vue" should match snapshot > /react-and-vue@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/react-and-vue@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -465,6 +482,7 @@ exports[`Should match snapshot > Request "/react-server-component" should match 
 exports[`Should match snapshot > Request "/react-server-component" should match snapshot > /react-server-component@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/react-server-component@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -487,6 +505,7 @@ exports[`Should match snapshot > Request "/react-streaming" should match snapsho
 exports[`Should match snapshot > Request "/react-streaming" should match snapshot > /react-streaming@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/react-streaming@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -497,6 +516,7 @@ exports[`Should match snapshot > Request "/react-streaming" should match snapsho
 exports[`Should match snapshot > Request "/react-streaming" should match status > /react-streaming@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/react-streaming@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -519,6 +539,7 @@ exports[`Should match snapshot > Request "/style" should match snapshot > /style
 exports[`Should match snapshot > Request "/style" should match snapshot > /style@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/style@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -541,6 +562,7 @@ exports[`Should match snapshot > Request "/vue2-import-widgets" should match sna
 exports[`Should match snapshot > Request "/vue2-import-widgets" should match snapshot > /vue2-import-widgets@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/(vue2)/vue2-import-widgets/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -563,6 +585,7 @@ exports[`Should match snapshot > Request "/vue2-router" should match snapshot > 
 exports[`Should match snapshot > Request "/vue2-router" should match snapshot > /vue2-router@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/(vue2)/vue2-router/[...all]@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -585,6 +608,7 @@ exports[`Should match snapshot > Request "/vue2-router/about" should match snaps
 exports[`Should match snapshot > Request "/vue2-router/about" should match snapshot > /vue2-router/about@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/(vue2)/vue2-router/[...all]@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -609,6 +633,7 @@ exports[`Should match snapshot > Request "/vue2-server-component" should match s
 exports[`Should match snapshot > Request "/vue2-server-component" should match snapshot > /vue2-server-component@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/(vue2)/vue2-server-component@route.vue",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -631,6 +656,7 @@ exports[`Should match snapshot > Request "/vue3-import-widgets" should match sna
 exports[`Should match snapshot > Request "/vue3-import-widgets" should match snapshot > /vue3-import-widgets@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/(vue3)/vue3-import-widgets/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -653,6 +679,7 @@ exports[`Should match snapshot > Request "/vue3-router" should match snapshot > 
 exports[`Should match snapshot > Request "/vue3-router" should match snapshot > /vue3-router@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/(vue3)/vue3-router/[...all]@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -675,6 +702,7 @@ exports[`Should match snapshot > Request "/vue3-router/about" should match snaps
 exports[`Should match snapshot > Request "/vue3-router/about" should match snapshot > /vue3-router/about@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/(vue3)/vue3-router/[...all]@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -699,6 +727,7 @@ exports[`Should match snapshot > Request "/vue3-server-component" should match s
 exports[`Should match snapshot > Request "/vue3-server-component" should match snapshot > /vue3-server-component@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/(vue3)/vue3-server-component@route.vue",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -721,6 +750,7 @@ exports[`Should match snapshot > Request "/vue3-streaming" should match snapshot
 exports[`Should match snapshot > Request "/vue3-streaming" should match snapshot > /vue3-streaming@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
+  "x-accel-buffering": "no",
   "x-module-source": "source://./routes/(vue3)/vue3-streaming@route.vue",
   "x-powered-by": "@web-widget/web-router",
 }
