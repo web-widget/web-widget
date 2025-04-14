@@ -117,6 +117,8 @@ function composeRender(
     }
 
     if (renderOptions?.progressive) {
+      // NOTE: Disable nginx buffering.
+      // NOTE: https://nginx.org/en/docs/http/ngx_http_proxy_module.html
       headers.set('x-accel-buffering', 'no');
       // headers.set('cache-control', 'no-cache');
     }
