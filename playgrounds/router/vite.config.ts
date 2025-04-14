@@ -56,6 +56,9 @@ export default defineConfig({
   plugins: [
     patchVuePluginConfig(),
     webRouterPlugin({
+      asyncContext: {
+        enabled: true,
+      },
       serverAction: {
         enabled: true,
       },
