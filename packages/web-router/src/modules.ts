@@ -13,7 +13,6 @@ import {
 
 import type {
   ActionModule,
-  DevHandlerInit,
   DevRouteModule,
   LayoutModule,
   LayoutRenderContext,
@@ -29,6 +28,7 @@ import type {
   RouteRenderContext,
   RouteRenderOptions,
   HTTPException,
+  DevHttpHandler,
 } from './types';
 
 const HANDLER = Symbol('handler');
@@ -109,14 +109,22 @@ function composeRender(
           ? error.statusText
           : 'Internal Server Error'
         : 'OK');
-    const headers: HeadersInit = {
-      'content-type': 'text/html; charset=utf-8',
-      ...renderOptions?.headers,
-    };
+
+    const headers = new Headers(renderOptions?.headers);
+
+    if (!headers.has('content-type')) {
+      headers.set('content-type', 'text/html; charset=utf-8');
+    }
+
+    if (renderOptions?.progressive) {
+      headers.set('x-accel-buffering', 'no');
+      // headers.set('cache-control', 'no-cache');
+    }
 
     if (dev) {
       const source = (context.module as DevRouteModule).$source;
-      (headers as DevHandlerInit)['x-module-source'] = source;
+      const devSourceKey: DevHttpHandler = 'x-module-source';
+      headers.set(devSourceKey, source);
     }
 
     return new Response(html, {

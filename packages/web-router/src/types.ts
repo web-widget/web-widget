@@ -141,6 +141,4 @@ export type DevRouteModule = RouteModule & {
   $source: string;
 };
 
-export type DevHandlerInit = HeadersInit & {
-  'x-module-source': string;
-};
+export type DevHttpHandler = 'x-module-source';
