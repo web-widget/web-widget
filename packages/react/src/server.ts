@@ -43,7 +43,7 @@ export const createReactRender = ({
   }
 
   return defineRender<unknown, Record<string, string>>(
-    async (context, { streaming, react: options } = {}) => {
+    async (context, { progressive, react: options } = {}) => {
       const reactRenderOptions: StreamOptions = Object.create(options ?? null);
 
       let error;
@@ -79,7 +79,7 @@ export const createReactRender = ({
         );
       }
 
-      const html = await (streaming
+      const html = await (progressive
         ? renderToReadableStream(vNode, reactRenderOptions)
         : readableStreamToString(
             (await prerender(vNode, reactRenderOptions)).prelude

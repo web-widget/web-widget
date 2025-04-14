@@ -88,9 +88,9 @@ export interface RouteRenderContext<
 
 export interface RouteRenderOptions extends ResponseInit {
   /**
-   * Enable streaming rendering.
+   * Enable progressive rendering.
    */
-  streaming?: boolean;
+  progressive?: boolean;
 }
 
 export type RouteRenderResult = string | ReadableStream;

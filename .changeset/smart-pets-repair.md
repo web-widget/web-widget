@@ -10,4 +10,4 @@
 '@web-widget/vue': minor
 ---
 
-Add streaming rendering feature flags.
+Add progressive rendering feature flags.

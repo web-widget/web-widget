@@ -69,8 +69,8 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       },
       defaultBaseAsset
     );
-    const defaultRenderOptions = {
-      streaming: true,
+    const defaultRenderOptions: RouteRenderOptions = {
+      progressive: true,
       ...structuredClone(options.defaultRenderOptions ?? {}),
     };
     const onFallback =

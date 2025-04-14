@@ -34,7 +34,7 @@ export const createVueRender = ({
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
   return defineRender<unknown, Record<string, string>>(
-    async (context, { streaming }) => {
+    async (context, { progressive }) => {
       const componentDescriptor = getComponentDescriptor(context);
       const component = componentDescriptor.component as Component & {
         __name?: string;
@@ -67,8 +67,8 @@ export const createVueRender = ({
       //     ? Readable.toWeb(renderer.renderToStream(app))
       //     : await renderer.renderToString(app);
 
-      if (streaming) {
-        console.warn(`Streaming is not supported in vue2.`);
+      if (progressive) {
+        console.warn(`Vue2 does not support progressive rendering.`);
       }
 
       // NOTE: Avoid vite-plugin-vue2-jsx not working.

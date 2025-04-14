@@ -34,7 +34,7 @@ export const createVueRender = ({
   }
 
   return defineRender<unknown, Record<string, string>>(
-    async (context, { streaming, vue: ssrContext } = {}) => {
+    async (context, { progressive, vue: ssrContext } = {}) => {
       const componentDescriptor = getComponentDescriptor(context);
       const { component, props } = componentDescriptor;
       const WidgetSuspense = (props: any) =>
@@ -45,7 +45,7 @@ export const createVueRender = ({
         error = err;
       });
       await onCreatedApp(app, context, component, props);
-      const html = streaming
+      const html = progressive
         ? renderToWebStream(app, ssrContext)
         : await renderToString(app, ssrContext);
 

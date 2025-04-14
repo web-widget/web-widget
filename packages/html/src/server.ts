@@ -79,7 +79,7 @@ export const defineHtmlRender = ({
     throw new Error(`"onPrefetchData" is not supported.`);
   }
   return defineRender<unknown, Record<string, string>>(
-    async (context, { streaming }) => {
+    async (context, { progressive }) => {
       const componentDescriptor = getComponentDescriptor(context);
       const { component, props } = componentDescriptor;
 
