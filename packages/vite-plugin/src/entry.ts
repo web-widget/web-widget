@@ -480,18 +480,17 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       enforce: 'pre',
 
       async resolveId(id) {
-        if (
-          id === 'node:async_hooks' &&
-          resolvedWebRouterConfig.asyncContext.enabled
-        ) {
-          return id;
+        if (id === 'node:async_hooks') {
+          return resolvedWebRouterConfig.asyncContext.enabled ? false : id;
         }
         return null;
       },
 
       async load(id) {
         if (id === 'node:async_hooks') {
-          return 'export const AsyncLocalStorage = undefined';
+          return resolvedWebRouterConfig.asyncContext.enabled
+            ? null
+            : 'export const AsyncLocalStorage = undefined';
         }
         return null;
       },
