@@ -13,7 +13,9 @@ import {
 
 import type {
   ActionModule,
+  DevHttpHandler,
   DevRouteModule,
+  HTTPException,
   LayoutModule,
   LayoutRenderContext,
   Meta,
@@ -27,8 +29,6 @@ import type {
   RouteModule,
   RouteRenderContext,
   RouteRenderOptions,
-  HTTPException,
-  DevHttpHandler,
 } from './types';
 
 const HANDLER = Symbol('handler');
