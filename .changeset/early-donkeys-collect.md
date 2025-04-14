@@ -2,4 +2,4 @@
 '@web-widget/web-router': minor
 ---
 
-Automatically add `x-accel-buffering` header.
+Avoid nginx default configuration blocking progressive rendering.
