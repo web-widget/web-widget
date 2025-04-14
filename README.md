@@ -36,7 +36,12 @@ Different technology stacks are isolated through component container technology.
 | [Vue](./examples/vue)     | Use **Vue** to render pages and load interactive components of **React** and **Vue** | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
 | ... | ... | ... |
 
-## 🌏  Open in the Cloud 
+## Who Uses This
+
+- <https://www.insmind.com> Use **React** to render pages and load interactive components of **Vue3** and **Vue2**.
+- <https://www.gaoding.com> Use **React** to render pages and load interactive components of **Vue2** and **Lit**.
+
+## Open in the Cloud 
 
 Click any of the buttons below to start a new development environment to demo or contribute to the codebase without having to install anything on your machine:
 
@@ -47,8 +52,3 @@ Click any of the buttons below to start a new development environment to demo or
 [![Open in Repl.it](https://replit.com/badge/github/withastro/astro)](https://replit.com/github/web-widget/web-widget/tree/main/examples/)
 [![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/web-widget/web-widget/tree/main/examples/)
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/web-widget/web-widget/tree/main/examples/)
-
-## Who Uses This
-
-- <https://www.insmind.com> Use **React** to render pages and load interactive components of **Vue3** and **Vue2**.
-- <https://www.gaoding.com> Use **React** to render pages and load interactive components of **Vue2** and **Lit**.
