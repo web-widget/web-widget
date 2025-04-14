@@ -68,7 +68,7 @@ export const createVueRender = ({
       //     : await renderer.renderToString(app);
 
       if (streaming) {
-        throw new Error(`Streaming is not supported in Vue2.`);
+        console.warn(`Streaming is not supported in vue2.`);
       }
 
       // NOTE: Avoid vite-plugin-vue2-jsx not working.
