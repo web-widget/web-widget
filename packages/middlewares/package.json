@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/middlewares",
   "description": "A collection of middleware based on @web-widget/web-router",
-  "version": "1.54.0",
+  "version": "1.54.1",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",
