@@ -190,18 +190,22 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       return resolvedWebRouterConfig;
     },
     async clientImportmap() {
-      const data = await fs.readFile(
-        this.config.input.client.importmap,
-        'utf-8'
-      );
-      return JSON.parse(data) as ImportMap;
+      const file = this.config.input.client.importmap;
+      const data = await fs.readFile(file, 'utf-8');
+      try {
+        return JSON.parse(data) as ImportMap;
+      } catch (error) {
+        throw new Error(`Failed to parse client importmap: ${file}`);
+      }
     },
     async serverRoutemap() {
-      const data = await fs.readFile(
-        this.config.input.server.routemap,
-        'utf-8'
-      );
-      return JSON.parse(data) as RouteMap;
+      const file = resolvedWebRouterConfig.input.server.routemap;
+      const data = await fs.readFile(file, 'utf-8');
+      try {
+        return JSON.parse(data) as RouteMap;
+      } catch (error) {
+        throw new Error(`Failed to parse server routemap: ${file}`);
+      }
     },
   };
 
