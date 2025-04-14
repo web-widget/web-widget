@@ -2,7 +2,7 @@ import type {
   Component,
   ComponentProps,
   RenderContext,
-  Serializable,
+  SerializableValue,
 } from '@web-widget/helpers';
 
 export * from './web-widget';
@@ -13,5 +13,5 @@ export interface DefineHtmlRenderOptions {
     context: RenderContext,
     component: Component,
     props: ComponentProps
-  ) => Promise<Serializable>;
+  ) => Promise<SerializableValue>;
 }

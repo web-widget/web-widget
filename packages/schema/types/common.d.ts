@@ -1,13 +1,10 @@
-export type Serializable =
+export type SerializableValue =
   | string
   | number
   | boolean
   | null
-  | { [key: string]: Serializable }
-  | Serializable[];
-
-/** @deprecated Use Serializable instead. */
-export type SerializableValue = Serializable;
+  | { [key: string]: SerializableValue }
+  | SerializableValue[];
 
 export interface HTTPException extends Error {
   expose?: boolean;

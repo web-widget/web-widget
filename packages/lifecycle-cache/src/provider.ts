@@ -1,4 +1,4 @@
-import type { Serializable } from '@web-widget/schema';
+import type { SerializableValue } from '@web-widget/schema';
 import type { LifecycleCache } from './cache';
 import { lifecycleCache } from './cache';
 
@@ -23,7 +23,7 @@ function composeCacheKey(cacheKey: string, args?: any[]): string {
  * @returns Cached value
  */
 export async function cacheProvider<
-  R extends NonNullable<Serializable>,
+  R extends NonNullable<SerializableValue>,
   A extends any[],
 >(
   cacheKey: string,
@@ -84,7 +84,7 @@ type PromiseState<T> = Promise<T> & {
  * @returns Cached value
  */
 export function syncCacheProvider<
-  R extends NonNullable<Serializable>,
+  R extends NonNullable<SerializableValue>,
   A extends any[],
 >(
   cacheKey: string,

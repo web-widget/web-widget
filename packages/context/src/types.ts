@@ -1,7 +1,7 @@
-import type { MiddlewareContext, Serializable } from '@web-widget/schema';
+import type { MiddlewareContext, SerializableValue } from '@web-widget/schema';
 
 interface SerializableObject {
-  [key: string]: Serializable;
+  [key: string]: SerializableValue;
 }
 
 export interface SafeSerializableContext extends Partial<MiddlewareContext> {
