@@ -6,10 +6,13 @@ import {
 import type { FunctionComponent } from 'react';
 import { createElement } from 'react';
 
-import type { RenderToReadableStreamOptions } from 'react-dom/server';
-// @ts-ignore
-import { renderToReadableStream } from 'react-dom/server.edge';
 import type { CreateReactRenderOptions } from './types';
+import {
+  prerender,
+  renderToReadableStream,
+  type RenderToReadableStreamOptions,
+  type ReactDOMServerReadableStream,
+} from './edge';
 
 declare module '@web-widget/schema' {
   interface WidgetRenderOptions {
@@ -40,7 +43,7 @@ export const createReactRender = ({
   }
 
   return defineRender<unknown, Record<string, string>>(
-    async (context, { react: options } = {}) => {
+    async (context, { streaming, react: options } = {}) => {
       const reactRenderOptions: StreamOptions = Object.create(options ?? null);
 
       let error;
@@ -76,17 +79,21 @@ export const createReactRender = ({
         );
       }
 
-      const stream = await renderToReadableStream(vNode, reactRenderOptions);
+      const html = await (streaming
+        ? renderToReadableStream(vNode, reactRenderOptions)
+        : readableStreamToString(
+            (await prerender(vNode, reactRenderOptions)).prelude
+          ));
 
-      if (awaitAllReady) {
-        await stream.allReady;
+      if (awaitAllReady && typeof html !== 'string') {
+        await (html as ReactDOMServerReadableStream).allReady;
       }
 
       if (error) {
         throw error;
       }
 
-      return stream;
+      return html;
     }
   );
 };
@@ -95,3 +102,13 @@ export const createReactRender = ({
 export const defineReactRender = createReactRender;
 
 export const render = createReactRender();
+
+async function readableStreamToString(readableStream: ReadableStream) {
+  let result = '';
+  const textDecoder = new TextDecoder();
+  for await (const chunk of readableStream) {
+    result += textDecoder.decode(chunk, { stream: true });
+  }
+  result += textDecoder.decode(); // flush end character
+  return result;
+}

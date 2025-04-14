@@ -86,9 +86,12 @@ export interface RouteRenderContext<
   Params = Record<string, string>,
 > extends Omit<RouteContext<Data, Params>, 'render' | 'renderOptions'> {}
 
-export interface RouteRenderOptions
-  extends Record<string, unknown>,
-    ResponseInit {}
+export interface RouteRenderOptions extends ResponseInit {
+  /**
+   * Enable streaming rendering.
+   */
+  streaming?: boolean;
+}
 
 export type RouteRenderResult = string | ReadableStream;
 

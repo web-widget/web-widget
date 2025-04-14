@@ -30,15 +30,6 @@ declare global {
   }
 }
 
-async function readableStreamToString(readableStream: ReadableStream) {
-  let result = '';
-  const textDecoder = new TextDecoder();
-  for await (const chunk of readableStream) {
-    result += textDecoder.decode(chunk, { stream: true });
-  }
-  return result;
-}
-
 const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
 
 function unsafeAttrsToHtml(attrs: Record<string, string>) {
@@ -151,16 +142,14 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       module,
     };
     const rawResult = await callSyncCacheProvider(() =>
-      module.render!(context)
+      module.render!(context, {})
     );
 
-    if (getType(rawResult) === 'ReadableStream') {
-      result = await readableStreamToString(rawResult as ReadableStream);
-    } else if (typeof rawResult === 'string') {
+    if (typeof rawResult === 'string') {
       result = rawResult;
     } else {
       throw new TypeError(
-        `Render results in an unknown format: ${getDisplayModuleId(
+        `Render results in an unknown format: ${getType(rawResult)}: ${getDisplayModuleId(
           loader,
           options
         )}`

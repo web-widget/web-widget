@@ -249,7 +249,7 @@ export function createRouteContext(
           onFallback,
           dev
         );
-        routeContext.renderOptions ??= structuredClone(defaultRenderOptions);
+        routeContext.renderOptions ??= defaultRenderOptions;
       }
     }
 
@@ -299,7 +299,7 @@ export function createFallbackHandler(
       onFallback,
       dev
     );
-    routeContext.renderOptions = structuredClone(defaultRenderOptions);
+    routeContext.renderOptions = defaultRenderOptions;
 
     return callContext(routeContext, handler, [routeContext]);
   };
