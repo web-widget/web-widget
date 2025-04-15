@@ -66,7 +66,7 @@ export type WidgetRenderResult =
   | ServerWidgetRenderResult
   | ClientWidgetRenderResult;
 
-export type ServerWidgetRenderResult = string | ReadableStream;
+export type ServerWidgetRenderResult = string;
 
 export type ClientWidgetRenderResult = void | {
   bootstrap?: () => void | Promise<void>;
@@ -77,7 +77,7 @@ export type ClientWidgetRenderResult = void | {
   unload?: () => void | Promise<void>;
 };
 
-export interface WidgetRenderOptions extends Record<string, unknown> {}
+export interface WidgetRenderOptions {}
 
 export type WidgetRender<Data = unknown> =
   | ServerWidgetRender<Data>

@@ -4,12 +4,16 @@ import {
   type ComponentProps,
 } from '@web-widget/helpers';
 import type { FunctionComponent } from 'react';
-import { createElement } from 'react';
+import { createElement, StrictMode } from 'react';
 
-import type { RenderToReadableStreamOptions } from 'react-dom/server';
-// @ts-ignore
-import { renderToReadableStream } from 'react-dom/server.edge';
 import type { CreateReactRenderOptions } from './types';
+import {
+  renderToReadableStream,
+  renderToString,
+  type RenderToReadableStreamOptions,
+  type ReactDOMServerReadableStream,
+  type RenderToStringOptions,
+} from './edge';
 
 declare module '@web-widget/schema' {
   interface WidgetRenderOptions {
@@ -26,7 +30,8 @@ export * from './components';
 
 type StreamOptions = {
   awaitAllReady?: boolean;
-} & RenderToReadableStreamOptions;
+} & RenderToReadableStreamOptions &
+  RenderToStringOptions;
 
 export interface ReactRenderOptions {
   react?: StreamOptions;
@@ -40,7 +45,7 @@ export const createReactRender = ({
   }
 
   return defineRender<unknown, Record<string, string>>(
-    async (context, { react: options } = {}) => {
+    async (context, { progressive, react: options } = {}) => {
       const reactRenderOptions: StreamOptions = Object.create(options ?? null);
 
       let error;
@@ -76,17 +81,21 @@ export const createReactRender = ({
         );
       }
 
-      const stream = await renderToReadableStream(vNode, reactRenderOptions);
+      vNode = createElement(StrictMode, null, vNode);
 
-      if (awaitAllReady) {
-        await stream.allReady;
+      const html = await (progressive
+        ? renderToReadableStream(vNode, reactRenderOptions)
+        : renderToString(vNode, reactRenderOptions));
+
+      if (awaitAllReady && typeof html !== 'string') {
+        await (html as ReactDOMServerReadableStream).allReady;
       }
 
       if (error) {
         throw error;
       }
 
-      return stream;
+      return html;
     }
   );
 };

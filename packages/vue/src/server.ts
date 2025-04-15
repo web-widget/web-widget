@@ -1,6 +1,10 @@
 import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
 import { createSSRApp, h, Suspense } from 'vue';
-import { renderToString, type SSRContext } from 'vue/server-renderer';
+import {
+  renderToString,
+  renderToWebStream,
+  type SSRContext,
+} from 'vue/server-renderer';
 import type { CreateVueRenderOptions } from './types';
 import errorHandler from './error-handler';
 
@@ -30,7 +34,7 @@ export const createVueRender = ({
   }
 
   return defineRender<unknown, Record<string, string>>(
-    async (context, { vue: ssrContext } = {}) => {
+    async (context, { progressive, vue: ssrContext } = {}) => {
       const componentDescriptor = getComponentDescriptor(context);
       const { component, props } = componentDescriptor;
       const WidgetSuspense = (props: any) =>
@@ -41,7 +45,9 @@ export const createVueRender = ({
         error = err;
       });
       await onCreatedApp(app, context, component, props);
-      const html = await renderToString(app, ssrContext);
+      const html = progressive
+        ? renderToWebStream(app, ssrContext)
+        : await renderToString(app, ssrContext);
 
       if (error) {
         throw error;

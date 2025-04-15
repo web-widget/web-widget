@@ -86,9 +86,12 @@ export interface RouteRenderContext<
   Params = Record<string, string>,
 > extends Omit<RouteContext<Data, Params>, 'render' | 'renderOptions'> {}
 
-export interface RouteRenderOptions
-  extends Record<string, unknown>,
-    ResponseInit {}
+export interface RouteRenderOptions extends ResponseInit {
+  /**
+   * Use progressive rendering first.
+   */
+  progressive?: boolean;
+}
 
 export type RouteRenderResult = string | ReadableStream;
 

@@ -78,24 +78,26 @@ export const defineHtmlRender = ({
   if (onPrefetchData) {
     throw new Error(`"onPrefetchData" is not supported.`);
   }
-  return defineRender(async (context) => {
-    const componentDescriptor = getComponentDescriptor(context);
-    const { component, props } = componentDescriptor;
+  return defineRender<unknown, Record<string, string>>(
+    async (context, { progressive }) => {
+      const componentDescriptor = getComponentDescriptor(context);
+      const { component, props } = componentDescriptor;
 
-    let content: HTML;
-    if (
-      typeof component === 'function' &&
-      component.constructor.name === 'AsyncFunction'
-    ) {
-      // experimental
-      content = await component(props as any);
-    } else {
-      content = component(props as any);
+      let content: HTML;
+      if (
+        typeof component === 'function' &&
+        component.constructor.name === 'AsyncFunction'
+      ) {
+        // experimental
+        content = await component(props as any);
+      } else {
+        content = component(props as any);
+      }
+
+      await supportNonBinaryTransformStreams();
+      return HTMLToStream(content);
     }
-
-    await supportNonBinaryTransformStreams();
-    return HTMLToStream(content);
-  });
+  );
 };
 
 export const render = defineHtmlRender();

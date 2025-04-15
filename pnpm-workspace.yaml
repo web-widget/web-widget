@@ -16,7 +16,7 @@ catalog:
   'tsup': ^8.3.4
   'jest': ^29.7.0
   'ts-jest': 29.2.1
-  'jest-environment-miniflare': ^2.14.2
-  'miniflare': ^3.20240806.0
+  'jest-environment-miniflare': ^2.14.4
+  'miniflare': ^4.20250409.0
   'typescript': ^5.5.4
   '@rollup/pluginutils': ^5.1.4
