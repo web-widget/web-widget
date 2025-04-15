@@ -1,5 +1,15 @@
 # @web-widget/html
 
+## 1.55.0
+
+### Minor Changes
+
+- 8c58765: Add progressive rendering feature flags.
+
+### Patch Changes
+
+- @web-widget/helpers@1.55.0
+
 ## 1.54.1
 
 ### Patch Changes

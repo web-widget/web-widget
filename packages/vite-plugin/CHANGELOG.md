@@ -1,5 +1,17 @@
 # @web-widget/vite-plugin
 
+## 1.55.0
+
+### Patch Changes
+
+- 9068b48: Optimize json parsing error message.
+- Updated dependencies [2c42cd7]
+- Updated dependencies [8c58765]
+  - @web-widget/web-router@1.55.0
+  - @web-widget/web-widget@1.55.0
+  - @web-widget/helpers@1.55.0
+  - @web-widget/node@1.55.0
+
 ## 1.54.1
 
 ### Patch Changes
