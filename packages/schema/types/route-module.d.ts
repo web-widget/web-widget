@@ -88,7 +88,7 @@ export interface RouteRenderContext<
 
 export interface RouteRenderOptions extends ResponseInit {
   /**
-   * Enable progressive rendering.
+   * Use progressive rendering first.
    */
   progressive?: boolean;
 }
