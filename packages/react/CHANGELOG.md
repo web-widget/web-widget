@@ -1,5 +1,20 @@
 # @web-widget/react
 
+## 1.55.0
+
+### Minor Changes
+
+- 8c58765: Add progressive rendering feature flags.
+
+### Patch Changes
+
+- Updated dependencies [9068b48]
+- Updated dependencies [8c58765]
+  - @web-widget/vite-plugin@1.55.0
+  - @web-widget/web-widget@1.55.0
+  - @web-widget/schema@1.55.0
+  - @web-widget/helpers@1.55.0
+
 ## 1.54.1
 
 ### Patch Changes

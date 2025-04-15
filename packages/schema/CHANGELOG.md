@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.55.0
+
+### Minor Changes
+
+- 8c58765: Add progressive rendering feature flags.
+
 ## 1.54.1
 
 ## 1.54.0
