@@ -1,5 +1,16 @@
 # @web-widget/react
 
+## 1.56.0
+
+### Patch Changes
+
+- ae2bdfa: Fix case where error might not be thrown.
+- Updated dependencies [93da705]
+  - @web-widget/vite-plugin@1.56.0
+  - @web-widget/helpers@1.56.0
+  - @web-widget/schema@1.56.0
+  - @web-widget/web-widget@1.56.0
+
 ## 1.55.0
 
 ### Minor Changes

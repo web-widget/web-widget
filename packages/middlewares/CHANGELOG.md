@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.56.0
+
+### Patch Changes
+
+- 0803055: `cache`: Fix error not caught.
+  - @web-widget/helpers@1.56.0
+  - @web-widget/schema@1.56.0
+
 ## 1.55.0
 
 ### Patch Changes
