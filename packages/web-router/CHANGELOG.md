@@ -1,5 +1,20 @@
 # @web-widget/web-router
 
+## 1.56.0
+
+### Minor Changes
+
+- 93da705: Improve accuracy of development mode error stack.
+
+### Patch Changes
+
+- aef76a4: Fix the problem that custom error page exception will cause service crash.
+  - @web-widget/action@1.56.0
+  - @web-widget/context@1.56.0
+  - @web-widget/helpers@1.56.0
+  - @web-widget/html@1.56.0
+  - @web-widget/lifecycle-cache@1.56.0
+
 ## 1.55.0
 
 ### Minor Changes

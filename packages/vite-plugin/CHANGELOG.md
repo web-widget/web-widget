@@ -1,5 +1,20 @@
 # @web-widget/vite-plugin
 
+## 1.56.0
+
+### Minor Changes
+
+- 93da705: Improve accuracy of development mode error stack.
+
+### Patch Changes
+
+- Updated dependencies [aef76a4]
+- Updated dependencies [93da705]
+  - @web-widget/web-router@1.56.0
+  - @web-widget/helpers@1.56.0
+  - @web-widget/node@1.56.0
+  - @web-widget/web-widget@1.56.0
+
 ## 1.55.0
 
 ### Patch Changes
