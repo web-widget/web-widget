@@ -62,7 +62,7 @@ export const createReactRender = ({
         error = e;
         if (onError) {
           onError(e, i);
-        } else if (!awaitAllReady) {
+        } else if (progressive && !awaitAllReady) {
           console.error(e);
         }
       };
@@ -87,7 +87,7 @@ export const createReactRender = ({
         ? renderToReadableStream(vNode, reactRenderOptions)
         : renderToString(vNode, reactRenderOptions));
 
-      if (awaitAllReady && typeof html !== 'string') {
+      if (progressive && awaitAllReady) {
         await (html as ReactDOMServerReadableStream).allReady;
       }
 

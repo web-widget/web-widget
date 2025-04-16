@@ -199,7 +199,7 @@ function nextToFetch(cache: Cache, next: MiddlewareNext) {
 
       if (!request.signal) {
         try {
-          return next();
+          return await next();
         } catch (error) {
           return errorToResponse(error);
         }

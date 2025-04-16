@@ -148,6 +148,10 @@ async function viteWebRouterMiddlewareV2(
     })
   ).default;
 
+  webRouter.fixErrorStack = (error: Error) => {
+    viteServer.ssrFixStacktrace(error);
+  };
+
   const nodeAdapter = new NodeAdapter(
     {
       async handler(request, ...args) {
@@ -202,13 +206,13 @@ async function viteWebRouterMiddlewareV2(
           return res;
         } catch (error) {
           let message: string;
+          const prefix = '🚧 @web-widget/web-router exception:';
           if (error instanceof Error) {
-            viteServer.ssrFixStacktrace(error);
             message = stripAnsi(error.stack ?? error.message);
-            console.error(error.stack);
+            console.error(`${prefix} ${error.stack}`);
           } else {
-            message = String(error);
-            console.error(error);
+            message = `Unknown error.`;
+            console.error(prefix, error);
           }
 
           return new Response(errorTemplate(message), {

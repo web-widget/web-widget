@@ -108,6 +108,11 @@ class Application<
   #errorHandler: ErrorHandler = errorHandler;
 
   /**
+   * @internal
+   */
+  fixErrorStack(error: Error) {}
+
+  /**
    * @experimental
    */
   onError(handler: ErrorHandler<E>) {
@@ -196,6 +201,7 @@ class Application<
 
         return res;
       } catch (error) {
+        this.fixErrorStack(error as Error);
         return this.#errorHandler(error, context);
       }
     })();
