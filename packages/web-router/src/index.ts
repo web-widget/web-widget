@@ -70,7 +70,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       defaultBaseAsset
     );
     const defaultRenderOptions: RouteRenderOptions = {
-      progressive: true,
+      progressive: !dev,
       ...structuredClone(options.defaultRenderOptions ?? {}),
     };
     const onFallback =
@@ -162,10 +162,19 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     );
 
     router.onError(async (error, context) => {
-      if (error?.status === 404) {
-        return notFoundHandler(error, context as unknown as RouteContext);
-      } else {
-        return errorHandler(error, context as unknown as RouteContext);
+      try {
+        const handler = error?.status === 404 ? notFoundHandler : errorHandler;
+        return await handler(error, context as unknown as RouteContext);
+      } catch (cause) {
+        console.error(
+          new Error('Custom error page throws an error.', {
+            cause,
+          })
+        );
+        const message = 'Internal Server Error';
+        return new Response(message, {
+          status: 500,
+        });
       }
     });
 
