@@ -34,20 +34,33 @@ export const createVueRender = ({
   }
 
   return defineRender<unknown, Record<string, string>>(
-    async (context, { progressive, vue: ssrContext } = {}) => {
+    async (context, { progressive, vue: options } = {}) => {
+      const ssrContext: SSRContext = Object.create(options ?? null);
+
+      let error;
       const componentDescriptor = getComponentDescriptor(context);
       const { component, props } = componentDescriptor;
       const WidgetSuspense = (props: any) =>
         h(Suspense, null, [h(component, props)]);
       const app = createSSRApp(WidgetSuspense, props as any);
-      let error;
+
       errorHandler(app, (err) => {
         error = err;
       });
+
       await onCreatedApp(app, context, component, props);
+
       const html = progressive
         ? renderToWebStream(app, ssrContext)
         : await renderToString(app, ssrContext);
+
+      if (ssrContext?.teleports) {
+        const file = Reflect.get(component, '__file') ?? 'unknown';
+        throw new Error(
+          `Teleports are not supported in SSR: ${JSON.stringify(ssrContext.teleports, null, 2)} in ${file}` +
+            `\nDo conditionally render Teleport when mounted on the client.`
+        );
+      }
 
       if (error) {
         throw error;
