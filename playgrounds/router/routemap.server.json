@@ -115,12 +115,7 @@
       "module": "./routes/(actions)/actions@action.ts"
     }
   ],
-  "middlewares": [
-    {
-      "pathname": "/(.*)",
-      "module": "./routes/(middlewares)/[...]@middleware.ts"
-    }
-  ],
+  "middlewares": [],
   "fallbacks": [
     {
       "module": "./routes/_404@route.tsx",
