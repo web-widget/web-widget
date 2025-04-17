@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.56.1
+
+### Patch Changes
+
+- 34be0e1: Fix the missing issue when publishing.
+
 ## 1.56.0
 
 ## 1.55.0
