@@ -1,9 +1,9 @@
-import { mergeMeta } from '@web-widget/helpers';
-import WebRouter from '@web-widget/web-router';
-import type {
+import {
+  mergeMeta,
   MiddlewareHandler,
   MiddlewareHandlers,
-} from '@web-widget/web-router';
+} from '@web-widget/helpers';
+import WebRouter from '@web-widget/web-router';
 const { meta, manifest } = import.meta.framework;
 
 function use(
