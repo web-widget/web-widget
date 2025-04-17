@@ -61,7 +61,10 @@ export interface ApplicationOptions<E extends Env> {
   router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
   /**
-   * When true proxy header fields will be trusted.
+   * Whether to enable proxy mode. When setting to true, it is important to ensure
+   * that the last reverse proxy trusted is removing/overwriting all of the following
+   * HTTP headers: X-Forwarded-For, X-Forwarded-Host, and X-Forwarded-Proto, otherwise
+   * it may be possible for the client to provide any value.
    */
   proxy?: boolean;
 }
