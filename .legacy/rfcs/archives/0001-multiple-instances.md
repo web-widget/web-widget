@@ -15,7 +15,7 @@ console.log('loaded');
 export default {
   async bootstrap() {
     element = document.createElement('div');
-    element.innerHTML = `hello wrold`;
+    element.innerHTML = `hello world`;
   },
   async mount({ container }) {
     container.appendChild(element);
@@ -63,7 +63,7 @@ export default () => ({
 export default {
   async bootstrap({ container, context }) {
     context.element = document.createElement('div');
-    context.element.innerHTML = `hello wrold`;
+    context.element.innerHTML = `hello world`;
     instances.set(container, context);
   },
   async mount({ container, context }) {

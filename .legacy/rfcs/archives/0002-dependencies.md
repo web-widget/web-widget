@@ -44,7 +44,7 @@ WebWidgetDependencies.prototype.setDocumentTitle = function (title) {
 // ./plugin.widget.js
 export default () => ({
   async mount({ setDocumentTitle }) {
-    setDocumentTitle('hello wrold');
+    setDocumentTitle('hello world');
   },
 });
 ```
@@ -83,7 +83,7 @@ widget.contentWindow.setDocumentTitle = function (title) {
 // ./plugin.widget.js
 export default () => ({
   async mount(properties) {
-    setDocumentTitle('hello wrold');
+    setDocumentTitle('hello world');
   },
 });
 ```
@@ -121,7 +121,7 @@ customElements.define('editor-plugin', HTMLEditorPluginElement);
 // main.plugin.js
 export default {
   async mount({ setDocumentTitle }) {
-    setDocumentTitle('hello wrold');
+    setDocumentTitle('hello world');
   },
 };
 ```

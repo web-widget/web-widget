@@ -2,7 +2,7 @@ export default () => ({
   async mount({ container, recovering }) {
     if (!recovering) {
       // csr
-      container.innerHTML = `<button>hello wrold</button>`;
+      container.innerHTML = `<button>hello world</button>`;
     }
 
     // hydrate

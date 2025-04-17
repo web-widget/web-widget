@@ -278,7 +278,7 @@ customElements.define('web-widget', HTMLWebWidgetElement);
 
 ```html
 <hello-world src="./slot.widget.js" sandboxed>
-  <p slot="main">hello wrold</p>
+  <p slot="main">hello world</p>
 </hello-world>
 
 <script type="module">
@@ -314,7 +314,7 @@ customElements.define('web-widget', HTMLWebWidgetElement);
 </web-widget.import>
 
 <hello-world>
-  <p slot="main">hello wrold</p>
+  <p slot="main">hello world</p>
 </hello-world>
 
 <hello-world>
@@ -346,7 +346,7 @@ class MyElment extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.shadowRoot = `
-      <main><slot name="main">hello wrold</slot></main>
+      <main><slot name="main">hello world</slot></main>
     `;
   }
 }

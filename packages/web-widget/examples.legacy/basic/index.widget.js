@@ -4,7 +4,7 @@ export default (a) => {
   return {
     async bootstrap() {
       element = document.createElement('div');
-      element.innerHTML = `hello wrold`;
+      element.innerHTML = `hello world`;
     },
 
     async mount({ container }) {
