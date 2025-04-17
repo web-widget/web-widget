@@ -3,7 +3,7 @@ export default () => {
   return {
     async bootstrap({ data }) {
       element = document.createElement('div');
-      element.innerHTML = `hello wrold: ${JSON.stringify(data, null, 2)}`;
+      element.innerHTML = `hello world: ${JSON.stringify(data, null, 2)}`;
     },
 
     async mount({ container }) {

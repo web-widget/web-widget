@@ -3,7 +3,7 @@ export default () => {
   return {
     async bootstrap() {
       element = document.createElement('span');
-      element.innerHTML = `hello wrold`;
+      element.innerHTML = `hello world`;
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve();

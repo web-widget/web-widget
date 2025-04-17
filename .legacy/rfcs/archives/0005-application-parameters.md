@@ -82,7 +82,7 @@ export async function mount({ container, parameters }) {
   </div>
 
   <div slot="第二页">
-    <p>hello wrold</p>
+    <p>hello world</p>
   </div>
 
   <div slot="第三页">

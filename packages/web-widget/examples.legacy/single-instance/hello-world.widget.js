@@ -2,7 +2,7 @@ let element;
 
 export async function bootstrap() {
   element = document.createElement('div');
-  element.innerHTML = `hello wrold`;
+  element.innerHTML = `hello world`;
 }
 
 export async function mount({ container }) {

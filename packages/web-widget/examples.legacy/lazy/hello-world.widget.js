@@ -4,7 +4,7 @@ export default () => {
     async bootstrap() {
       element = document.createElement('div');
       element.style = 'background: green; color: white';
-      element.innerHTML = `hello wrold`;
+      element.innerHTML = `hello world`;
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve();

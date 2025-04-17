@@ -5,13 +5,13 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" main="IE=edge">
   <title>Web Widget DEMO</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
 
   <web-widget src="./index.widget.js" recovering>
-    <template shadowroot="closed"><button>hello wrold (hydrateonly)</button></template>
+    <template shadowroot="closed"><button>hello world (hydrateonly)</button></template>
   </web-widget>
 
   <web-widget src="./index.widget.js"></web-widget>
@@ -29,7 +29,7 @@
 
         host.attachInternals = function () {
           const ei = attachInternals ? attachInternals.call(this, arguments) : {};
-          return Object.create(ei, { shadowRoot: { value: shadowRoot} });
+          return Object.create(ei, { shadowRoot: { value: shadowRoot } });
         };
         attachShadowRoots(shadowRoot);
       });

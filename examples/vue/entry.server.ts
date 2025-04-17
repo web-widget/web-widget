@@ -1,6 +1,30 @@
-import { mergeMeta } from '@web-widget/helpers';
+import {
+  mergeMeta,
+  MiddlewareHandler,
+  MiddlewareHandlers,
+} from '@web-widget/helpers';
 import WebRouter from '@web-widget/web-router';
 const { meta, manifest } = import.meta.framework;
+
+function use(
+  pathname: string,
+  handler: MiddlewareHandler | MiddlewareHandlers
+) {
+  manifest.middlewares.push({
+    pathname,
+    module: {
+      handler,
+    },
+  });
+}
+
+use('/*', async function poweredBy(ctx, next) {
+  ctx.state.test = 'hello world';
+  const resp = await next();
+  resp.headers.set('X-Powered-By', '@web-widget/web-router');
+
+  return resp;
+});
 
 export default WebRouter.fromManifest(manifest, {
   defaultMeta: mergeMeta(meta, {
@@ -16,8 +40,6 @@ export default WebRouter.fromManifest(manifest, {
     ],
   }),
   defaultRenderOptions: {
-    react: {
-      awaitAllReady: true,
-    },
+    progressive: false,
   },
 });

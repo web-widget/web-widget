@@ -31,11 +31,6 @@
       "module": "./routes/action/functions@action.ts"
     }
   ],
-  "middlewares": [
-    {
-      "pathname": "/(.*)",
-      "module": "./routes/(middlewares)/[...]@middleware.ts"
-    }
-  ],
+  "middlewares": [],
   "fallbacks": []
 }
