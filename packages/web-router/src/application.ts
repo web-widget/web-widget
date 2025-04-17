@@ -14,12 +14,6 @@ import { getPath, getPathNoStrict } from './url';
 
 type Methods = (typeof METHODS)[number];
 
-interface RouterRoute {
-  path: string;
-  method: string;
-  handler: MiddlewareHandler;
-}
-
 function defineDynamicClass(): {
   new <E extends Env = Env, BasePath extends string = '/'>(): {
     /**
@@ -74,7 +68,6 @@ class Application<
   */
   router!: Router<MiddlewareHandler>;
   readonly getPath: GetPath<E>;
-  routes: RouterRoute[] = [];
 
   constructor(options: ApplicationOptions<E> = {}) {
     super();
@@ -131,8 +124,6 @@ class Application<
   #addRoute(method: string, path: string, handler: MiddlewareHandler) {
     method = method.toUpperCase();
     this.router.add(method, path, handler);
-    const r: RouterRoute = { path: path, method, handler };
-    this.routes.push(r);
   }
 
   #matchRoute(method: string, path: string) {
