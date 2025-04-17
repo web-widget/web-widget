@@ -1056,6 +1056,44 @@ describe('handler as variables', () => {
   });
 });
 
+describe('proxy mode', () => {
+  test('should resolve original request URL when proxy is enabled', async () => {
+    const app = new Application({ proxy: true });
+
+    app.get('/proxy-test', (c) => {
+      return new Response(c.request.url);
+    });
+
+    const res = await app.dispatch('http://localhost/proxy-test', {
+      headers: {
+        'x-forwarded-host': 'example.com',
+        'x-forwarded-proto': 'https',
+      },
+    });
+
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('https://example.com/proxy-test');
+  });
+
+  test('should not modify request URL when proxy is disabled', async () => {
+    const app = new Application({ proxy: false });
+
+    app.get('/proxy-test', (c) => {
+      return new Response(c.request.url);
+    });
+
+    const res = await app.dispatch('http://localhost/proxy-test', {
+      headers: {
+        'x-forwarded-host': 'example.com',
+        'x-forwarded-proto': 'https',
+      },
+    });
+
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('http://localhost/proxy-test');
+  });
+});
+
 declare module './context' {
   interface ContextRenderer {
     (

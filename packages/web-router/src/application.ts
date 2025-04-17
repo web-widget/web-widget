@@ -47,6 +47,10 @@ const errorHandler = (error: unknown) => {
   });
 };
 
+const splitCommaSeparatedValues = (value: string, limit: number) => {
+  return value.split(',', limit).map((v) => v.trim());
+};
+
 type GetPath<E extends Env> = (
   request: Request,
   options?: { env?: E['Bindings'] }
@@ -56,6 +60,10 @@ export interface ApplicationOptions<E extends Env> {
   strict?: boolean;
   router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
+  /**
+   * When true proxy header fields will be trusted.
+   */
+  proxy?: boolean;
 }
 
 class Application<
@@ -95,8 +103,28 @@ class Application<
     // Object.assign(this, options);
     this.getPath = strict ? (options.getPath ?? getPath) : getPathNoStrict;
     this.router = options.router ?? new URLPatternRouter();
+    this.#proxy = !!options.proxy;
   }
 
+  #resolveOriginalRequestUrl(request: Request) {
+    const url = new URL(request.url);
+    const headers = request.headers;
+    const forwardedHost =
+      headers.get('x-forwarded-host') ?? headers.get('host');
+    const forwardedProto = headers.get('x-forwarded-proto');
+
+    if (forwardedHost) {
+      url.host = splitCommaSeparatedValues(forwardedHost, 1)[0];
+    }
+
+    if (forwardedProto) {
+      url.protocol = `${splitCommaSeparatedValues(forwardedProto, 1)[0]}:`;
+    }
+
+    return request.url === url.href ? request : new Request(url, request);
+  }
+
+  #proxy: boolean = false;
   #notFoundHandler: NotFoundHandler = notFoundHandler;
   #errorHandler: ErrorHandler = errorHandler;
 
@@ -136,6 +164,10 @@ class Application<
     executionContext?: ExecutionContext,
     method: string = request.method
   ): Response | Promise<Response> {
+    if (this.#proxy) {
+      request = this.#resolveOriginalRequestUrl(request);
+    }
+
     // Handle HEAD method
     if (method === 'HEAD') {
       return (async () =>
