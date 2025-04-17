@@ -15,31 +15,39 @@ export interface Router<T> {
 
 export type Params = Record<string, string>;
 export type Pathname = string;
+/**
+ * Type representing the result of a route match.
+ *
+ * The result can be in one of two formats:
+ * 1. An array of handlers with their corresponding parameter index maps, followed by a parameter stash.
+ * 2. An array of handlers with their corresponding parameter maps.
+ *
+ * Example:
+ *
+ * [[handler, paramIndexMap][], paramArray]
+ * ```typescript
+ * [
+ *   [
+ *     [middlewareA, {}],                     // '*'
+ *     [funcA,       {'id': 0}],              // '/user/:id/*'
+ *     [funcB,       {'id': 0, 'action': 1}], // '/user/:id/:action'
+ *   ],
+ *   ['123', 'abc']
+ * ]
+ * ```
+ *
+ * [[handler, params][]]
+ * ```typescript
+ * [
+ *   [
+ *     [middlewareA, {}],                             // '*'
+ *     [funcA,       {'id': '123'}],                  // '/user/:id/*'
+ *     [funcB,       {'id': '123', 'action': 'abc'}], // '/user/:id/:action'
+ *   ]
+ * ]
+ * ```
+ */
 export type Result<T> = [[T, Params, Pathname][]];
-/*
-The router returns the result of `match` in either format.
-
-[[handler, paramIndexMap][], paramArray]
-e.g.
-[
-  [
-    [middlewareA, {}],                     // '*'
-    [funcA,       {'id': 0}],              // '/user/:id/*'
-    [funcB,       {'id': 0, 'action': 1}], // '/user/:id/:action'
-  ],
-  ['123', 'abc']
-]
-
-[[handler, params][]]
-e.g.
-[
-  [
-    [middlewareA, {}],                             // '*'
-    [funcA,       {'id': '123'}],                  // '/user/:id/*'
-    [funcB,       {'id': '123', 'action': 'abc'}], // '/user/:id/:action'
-  ]
-]
-*/
 
 export class UnsupportedPathError extends Error {}
 
@@ -75,6 +83,7 @@ export class URLPatternRouter<T> implements Router<T> {
               params[key] = decodeURIComponent(value);
             }
           }
+          Object.freeze(params);
           handlers.push([handler, params, pattern.pathname]);
         }
       }
