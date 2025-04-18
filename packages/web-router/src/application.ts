@@ -1,4 +1,5 @@
 import { compose } from '@web-widget/helpers';
+import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { HTTPException } from '@web-widget/helpers/error';
 import { Context } from './context';
 import type { Router } from './router';
@@ -45,10 +46,6 @@ const errorHandler = (error: unknown) => {
   return new Response(message, {
     status: 500,
   });
-};
-
-const splitCommaSeparatedValues = (value: string, limit: number) => {
-  return value.split(',', limit).map((v) => v.trim());
 };
 
 type GetPath<E extends Env> = (
@@ -108,24 +105,6 @@ class Application<
     this.#proxy = !!options.proxy;
   }
 
-  #resolveOriginalRequestUrl(request: Request) {
-    const url = new URL(request.url);
-    const headers = request.headers;
-    const forwardedHost =
-      headers.get('x-forwarded-host') ?? headers.get('host');
-    const forwardedProto = headers.get('x-forwarded-proto');
-
-    if (forwardedHost) {
-      url.host = splitCommaSeparatedValues(forwardedHost, 1)[0];
-    }
-
-    if (forwardedProto) {
-      url.protocol = `${splitCommaSeparatedValues(forwardedProto, 1)[0]}:`;
-    }
-
-    return request.url === url.href ? request : new Request(url, request);
-  }
-
   #proxy: boolean = false;
   #notFoundHandler: NotFoundHandler = notFoundHandler;
   #errorHandler: ErrorHandler = errorHandler;
@@ -167,7 +146,7 @@ class Application<
     method: string = request.method
   ): Response | Promise<Response> {
     if (this.#proxy) {
-      request = this.#resolveOriginalRequestUrl(request);
+      request = normalizeForwardedRequest(request);
     }
 
     // Handle HEAD method

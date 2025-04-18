@@ -18,6 +18,7 @@ export default defineConfig({
     'module.client': 'src/module/client.ts',
     'module.server': 'src/module/server.ts',
     navigation: 'src/navigation/index.ts',
+    proxy: 'src/proxy/index.ts',
     purify: 'src/purify/index.ts',
     state: 'src/state/index.ts',
     status: 'src/status/index.ts',
