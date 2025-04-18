@@ -1,4 +1,5 @@
 import { compose } from '@web-widget/helpers';
+import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { HTTPException } from '@web-widget/helpers/error';
 import { Context } from './context';
 import type { Router } from './router';
@@ -56,6 +57,12 @@ export interface ApplicationOptions<E extends Env> {
   strict?: boolean;
   router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
+  /**
+   * Whether to enable proxy mode. When set to true, ensure that the last reverse proxy
+   * trusted is removing or overwriting the following HTTP headers:
+   * X-Forwarded-Host and X-Forwarded-Proto. Otherwise, the client may provide any value.
+   */
+  proxy?: boolean;
 }
 
 class Application<
@@ -95,8 +102,10 @@ class Application<
     // Object.assign(this, options);
     this.getPath = strict ? (options.getPath ?? getPath) : getPathNoStrict;
     this.router = options.router ?? new URLPatternRouter();
+    this.#proxy = !!options.proxy;
   }
 
+  #proxy: boolean = false;
   #notFoundHandler: NotFoundHandler = notFoundHandler;
   #errorHandler: ErrorHandler = errorHandler;
 
@@ -136,6 +145,10 @@ class Application<
     executionContext?: ExecutionContext,
     method: string = request.method
   ): Response | Promise<Response> {
+    if (this.#proxy) {
+      request = normalizeForwardedRequest(request);
+    }
+
     // Handle HEAD method
     if (method === 'HEAD') {
       return (async () =>

@@ -159,6 +159,11 @@
       "development": "./src/navigation/index.ts",
       "default": "./dist/navigation.js"
     },
+    "./proxy": {
+      "types": "./dist/proxy.d.ts",
+      "development": "./src/proxy/index.ts",
+      "default": "./dist/proxy.js"
+    },
     "./purify": {
       "types": "./dist/purify.d.ts",
       "development": "./src/purify/index.ts",
@@ -284,6 +289,10 @@
       "./navigation": {
         "types": "./dist/navigation.d.ts",
         "default": "./dist/navigation.js"
+      },
+      "./proxy": {
+        "types": "./dist/proxy.d.ts",
+        "default": "./dist/proxy.js"
       },
       "./purify": {
         "types": "./dist/purify.d.ts",
