@@ -626,6 +626,9 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
+      urlpattern-polyfill:
+        specifier: ^10.0.0
+        version: 10.0.0
 
   packages/vite-plugin:
     dependencies:
@@ -811,8 +814,8 @@ importers:
         specifier: ^5.5.4
         version: 5.5.4
       urlpattern-polyfill:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: ^10.0.0
+        version: 10.0.0
 
   packages/web-widget:
     dependencies:
@@ -7156,9 +7159,6 @@ packages:
 
   urlpattern-polyfill@4.0.3:
     resolution: {integrity: sha512-DOE84vZT2fEcl9gqCUTcnAw5ZY5Id55ikUcziSUntuEFL3pRvavg5kwDmTEUJkeCHInTlV/HexFomgYnzO5kdQ==}
-
-  urlpattern-polyfill@9.0.0:
-    resolution: {integrity: sha512-WHN8KDQblxd32odxeIgo83rdVDE2bvdkb86it7bMhYZwWKJz0+O0RK/eZiHYnM+zgt/U7hAHOlCQGfjjvSkw2g==}
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -14258,8 +14258,6 @@ snapshots:
   urlpattern-polyfill@10.0.0: {}
 
   urlpattern-polyfill@4.0.3: {}
-
-  urlpattern-polyfill@9.0.0: {}
 
   util-deprecate@1.0.2: {}
 

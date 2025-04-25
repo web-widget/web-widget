@@ -541,3 +541,22 @@ describe('routing with a hostname', () => {
     expect(res.length).toBe(0);
   });
 });
+
+describe('params encoding', () => {
+  const router = new URLPatternRouter<string>();
+  router.add('GET', '/user/:id', 'get user');
+
+  test('should decode encoded params', () => {
+    const [res] = router.match('GET', '/user/%E4%BD%A0%E5%A5%BD');
+    expect(res.length).toBe(1);
+    expect(res[0][0]).toEqual('get user');
+    expect(res[0][1]['id']).toBe('你好');
+  });
+
+  test('should handle params without encoding', () => {
+    const [res] = router.match('GET', '/user/hello');
+    expect(res.length).toBe(1);
+    expect(res[0][0]).toEqual('get user');
+    expect(res[0][1]['id']).toBe('hello');
+  });
+});

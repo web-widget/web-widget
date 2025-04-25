@@ -14,7 +14,7 @@ export interface Router<T> {
 }
 
 export type Params = Record<string, string>;
-export type Pathname = string;
+export type Scope = URLPattern;
 /**
  * Type representing the result of a route match.
  *
@@ -47,7 +47,7 @@ export type Pathname = string;
  * ]
  * ```
  */
-export type Result<T> = [[T, Params, Pathname][]];
+export type Result<T> = [[T, Params, URLPattern][]];
 
 export class UnsupportedPathError extends Error {}
 
@@ -69,22 +69,22 @@ export class URLPatternRouter<T> implements Router<T> {
   }
 
   match(method: string, pathname: string): Result<T> {
-    const handlers: [T, Params, string][] = [];
+    const handlers: [T, Params, URLPattern][] = [];
 
     for (const [pattern, routeMethod, handler] of this.#routes) {
       if (routeMethod === METHOD_NAME_ALL || routeMethod === method) {
-        const match = pattern.exec({ pathname });
-        if (match) {
+        const matched = pattern.exec({ pathname });
+        if (matched) {
           const params = Object.create(null) as Params;
-          for (const key in match.pathname.groups) {
-            const value = match.pathname.groups[key];
+          for (const key in matched.pathname.groups) {
+            const value = matched.pathname.groups[key];
 
             if (value !== undefined) {
               params[key] = decodeURIComponent(value);
             }
           }
           Object.freeze(params);
-          handlers.push([handler, params, pattern.pathname]);
+          handlers.push([handler, params, pattern]);
         }
       }
     }

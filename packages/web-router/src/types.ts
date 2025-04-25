@@ -13,6 +13,7 @@ import type {
   WidgetComponentProps,
 } from '@web-widget/helpers';
 
+export type { URLPattern } from 'urlpattern-polyfill';
 import type { Context } from './context';
 export type * from '@web-widget/helpers';
 

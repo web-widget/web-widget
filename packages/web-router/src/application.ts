@@ -157,7 +157,7 @@ class Application<
       handlers,
       (handler) => {
         context.params = handler[1];
-        context.pathname = handler[2];
+        context.scope = handler[2];
         return handler[0];
       }
     );

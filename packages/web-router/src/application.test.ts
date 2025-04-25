@@ -470,6 +470,20 @@ describe('param and query', () => {
   });
 });
 
+describe('scope', () => {
+  const app = new Application();
+
+  app.get('/foo/:bar', (c) => {
+    return text(`foo is ${c.scope.pathname}`);
+  });
+
+  test('scope of /foo/:bar is found', async () => {
+    const res = await app.dispatch('http://localhost/foo/bar');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('foo is /foo/:bar');
+  });
+});
+
 describe('middleware', () => {
   describe('basic', () => {
     const app = new Application();

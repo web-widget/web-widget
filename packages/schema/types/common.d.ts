@@ -1,3 +1,5 @@
+import type { URLPattern } from './standard';
+
 export type SerializableValue =
   | string
   | number
@@ -50,13 +52,19 @@ export interface FetchContext<Params = Record<string, string>>
    */
   readonly state: State;
 
+  /**
+   * Matched route.
+   * [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern#instance_properties)
+   */
+  readonly scope: URLPattern;
+
   /** @deprecated */
   readonly name?: string;
 
   /**
    * The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered.
-   * @deprecated
+   * @deprecated Use `scope.pathname` instead.
    */
   readonly pathname: string;
 }
