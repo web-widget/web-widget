@@ -83,10 +83,11 @@ describe('compose: Extended functionality on koa-compose', () => {
 
 describe('methodsToHandler', () => {
   const createRequest = (method: string, disallowUnknownMethod?: boolean) => {
+    const scope = new URLPattern({ pathname: '/' });
     const handler = methodsToHandler<MiddlewareHandlers>(
       {
         async GET(context, next) {
-          expect(context.pathname).toBe('/');
+          expect(context.scope.pathname).toBe('/');
           const res = await next();
           res.headers.set('Test', '1');
           return res;
@@ -97,11 +98,12 @@ describe('methodsToHandler', () => {
     return handler(
       {
         params: {},
-        pathname: '/',
+        pathname: scope.pathname,
         request: new Request('http://localhost', {
           method,
         }),
         state: {},
+        scope,
         waitUntil: () => {},
       },
       () => {
@@ -169,16 +171,18 @@ describe('composeMiddleware', () => {
   ]);
 
   const createRequest = (method: string) => {
+    const scope = new URLPattern({ pathname: '/' });
     return handler(
       {
         params: {},
-        pathname: '/',
+        pathname: scope.pathname,
         request: new Request('http://localhost/', {
           method,
         }),
         state: {
           history: [],
         },
+        scope,
         waitUntil: () => {},
       },
       () => {
