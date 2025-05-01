@@ -90,8 +90,10 @@ function composeRender(
       data: {
         children,
         meta,
+        url: context.url,
+        scope: context.scope,
         params: context.params,
-        pathname: context.pathname,
+        pathname: context.scope.pathname!,
         request: context.request,
       },
       meta: context.meta,

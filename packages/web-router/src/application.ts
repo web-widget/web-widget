@@ -142,10 +142,10 @@ class Application extends defineDynamicClass() {
     const handlers = this.#matchRoute(method, context.url);
     const composed = compose<(typeof handlers)[0], Context>(
       handlers,
-      (handler) => {
-        context.params = handler[1];
-        context.scope = handler[2];
-        return handler[0];
+      ([handler, params, scope]) => {
+        context.params = params;
+        context.scope = scope;
+        return handler;
       }
     );
 

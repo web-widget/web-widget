@@ -41,7 +41,9 @@ function createTestContext(method: string, disallowUnknownMethod?: boolean) {
 describe('compose: Extended functionality on koa-compose', () => {
   test('Reset context for each middleware', async () => {
     interface Context {
-      pathname: string;
+      scope: {
+        pathname: string;
+      };
     }
     const array: number[] = [];
     const stack: [handler: Handler<Context>, pathname: string][] = [];
@@ -49,7 +51,7 @@ describe('compose: Extended functionality on koa-compose', () => {
 
     stack.push([
       async (context, next) => {
-        pathnames.push(context.pathname);
+        pathnames.push(context.scope.pathname);
         array.push(1);
         await wait(1);
         const res = await next();
@@ -62,7 +64,7 @@ describe('compose: Extended functionality on koa-compose', () => {
 
     stack.push([
       async (context, next) => {
-        pathnames.push(context.pathname);
+        pathnames.push(context.scope.pathname);
         array.push(2);
         await wait(1);
         const res = await next();
@@ -75,7 +77,7 @@ describe('compose: Extended functionality on koa-compose', () => {
 
     stack.push([
       async (context, next) => {
-        pathnames.push(context.pathname);
+        pathnames.push(context.scope.pathname);
         array.push(3);
         await wait(1);
         const res = await next();
@@ -88,10 +90,12 @@ describe('compose: Extended functionality on koa-compose', () => {
 
     const ctx = {
       params: {},
-      pathname: '/',
+      scope: {
+        pathname: '/',
+      },
     };
     await compose(stack, (item) => {
-      ctx.pathname = item[1];
+      ctx.scope.pathname = item[1];
       return item[0];
     })(ctx);
 

@@ -95,9 +95,11 @@ export type LayoutComponentProps = WidgetComponentProps<{
   children: RouteRenderResult;
   meta: Meta;
   params: Record<string, string>;
-  /** @deprecated */
+  /** @deprecated Use `scope.pathname` instead. */
   pathname: string;
   request: Request;
+  scope: URLPatternInit;
+  url: URL;
 }>;
 
 export interface LayoutComponent
