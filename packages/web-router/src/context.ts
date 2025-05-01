@@ -10,17 +10,25 @@ const DEFAULT_SCOPE = Object.freeze(new URLPattern());
 const DEFAULT_PARAMS = Object.freeze(Object.create(null));
 
 export class Context implements FetchContext {
+  #executionContext?: ExecutionContext;
+  #request: Request;
   #state: Record<string, unknown> = Object.create(null);
-  request: Request;
+  #url?: URL;
+  #waitUntil?: WaitUntil;
   params = DEFAULT_PARAMS;
   scope = DEFAULT_SCOPE;
-  #waitUntil?: WaitUntil;
-  #executionContext?: ExecutionContext;
-  #url?: URL;
 
   constructor(request: Request, options: ContextOptions = {}) {
-    this.request = request;
+    this.#request = request;
     this.#executionContext = options.executionContext;
+  }
+
+  get request() {
+    return this.#request;
+  }
+
+  get state() {
+    return this.#state;
   }
 
   get url() {
@@ -28,10 +36,6 @@ export class Context implements FetchContext {
       this.#url = new URL(this.request.url);
     }
     return this.#url;
-  }
-
-  get state() {
-    return this.#state;
   }
 
   get waitUntil() {
