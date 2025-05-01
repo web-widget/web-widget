@@ -11,7 +11,7 @@ const DEFAULT_PARAMS = Object.freeze(Object.create(null));
 
 export class Context implements FetchContext {
   #executionContext?: ExecutionContext;
-  #request: Request;
+  request: Request;
   #state: Record<string, unknown> = Object.create(null);
   #url?: URL;
   #waitUntil?: WaitUntil;
@@ -19,12 +19,8 @@ export class Context implements FetchContext {
   scope = DEFAULT_SCOPE;
 
   constructor(request: Request, options: ContextOptions = {}) {
-    this.#request = request;
+    this.request = request;
     this.#executionContext = options.executionContext;
-  }
-
-  get request() {
-    return this.#request;
   }
 
   get state() {
