@@ -51,25 +51,28 @@ export type CloudflareFetchContext = {
 //////                            //////
 ////////////////////////////////////////
 
-type ManifestEntry<T> = {
+type ManifestModule<T> = {
   module: T | (() => Promise<T>);
+};
+
+type ManifestScope = {
   name?: string;
 } & URLPatternInit & {
     pathname: string;
   };
 
-type FallbackManifestEntry = ManifestEntry<RouteModule> & { status: number };
-
-type LayoutManifestEntry<T> = {
-  module: T | (() => Promise<T>);
-  name?: string;
+type ManifestStatus = {
+  status: number;
 };
 
-export type ManifestRoute = ManifestEntry<RouteModule>;
-export type ManifestAction = ManifestEntry<ActionModule>;
-export type ManifestMiddleware = ManifestEntry<MiddlewareModule>;
-export type ManifestFallback = FallbackManifestEntry;
-export type ManifestLayout = LayoutManifestEntry<LayoutModule>;
+export type ManifestRoute = ManifestModule<RouteModule> & ManifestScope;
+export type ManifestAction = ManifestModule<ActionModule> & ManifestScope;
+export type ManifestMiddleware = ManifestModule<MiddlewareModule> &
+  ManifestScope;
+export type ManifestFallback = ManifestModule<RouteModule> &
+  ManifestStatus &
+  ManifestScope;
+export type ManifestLayout = ManifestModule<LayoutModule>;
 
 export interface Manifest {
   dev?: boolean;

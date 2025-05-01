@@ -62,33 +62,33 @@ export interface WebRouterClientEntryModuleV1 {}
 
 export interface WebRouterClientEntryModuleV2 {}
 
+type RouteMapModule = {
+  module: string;
+};
+
+type RouteMapScope = {
+  name?: string;
+} & URLPatternInit & {
+    pathname: string;
+  };
+
+type RouteMapStatus = {
+  status: number;
+};
+
+type RouteMapRoute = RouteMapModule & RouteMapScope;
+type RouteMapAction = RouteMapModule & RouteMapScope;
+type RouteMapMiddleware = RouteMapModule & RouteMapScope;
+type RouteMapFallback = RouteMapModule & RouteMapStatus & RouteMapScope;
+type RouteMapLayout = RouteMapModule;
+
 export interface RouteMap {
   $schema?: string;
-  routes?: {
-    module: string;
-    name?: string;
-    pathname: string;
-  }[];
-  middlewares?: {
-    module: string;
-    name?: string;
-    pathname: string;
-  }[];
-  actions?: {
-    module: string;
-    name?: string;
-    pathname: string;
-  }[];
-  fallbacks?: {
-    module: string;
-    name?: string;
-    pathname: string;
-    status: number;
-  }[];
-  layout?: {
-    module: string;
-    name?: string;
-  };
+  routes: RouteMapRoute[];
+  actions: RouteMapAction[];
+  middlewares: RouteMapMiddleware[];
+  fallbacks: RouteMapFallback[];
+  layout: RouteMapLayout;
 }
 
 type Imports = Record<string, string>;

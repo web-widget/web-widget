@@ -60,9 +60,9 @@ export interface FetchContext<Params = Record<string, string>>
 
   /**
    * Matched route.
-   * [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern#instance_properties)
+   * [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern/URLPattern#input)
    */
-  readonly scope: URLPattern;
+  readonly scope: URLPatternInit;
 
   /** @deprecated */
   readonly name?: string;

@@ -127,7 +127,7 @@ export default class WebRouter extends Application {
       (page) => page.status === 404 || page.name === 'NotFound'
     ) ?? {
       module: async () => defaultFallbackModule as RouteModule,
-      pathname: '/*',
+      pathname: '*',
     };
 
     const notFoundHandler = createFallbackHandler(
@@ -148,7 +148,7 @@ export default class WebRouter extends Application {
       (page) => page.status === 500 || page.name === 'InternalServerError'
     ) ?? {
       module: async () => defaultFallbackModule as RouteModule,
-      pathname: '/*',
+      pathname: '*',
     };
 
     const errorHandler = createFallbackHandler(
