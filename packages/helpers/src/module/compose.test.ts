@@ -11,6 +11,33 @@ type Handler<
   Result = Response,
 > = (context: Content, next: Next) => Promise<Result>;
 
+function createTestContext(method: string, disallowUnknownMethod?: boolean) {
+  const scope = new URLPattern({ pathname: '/' });
+  const url = new URL('http://localhost/');
+  return {
+    handler: methodsToHandler<MiddlewareHandlers>(
+      {
+        async GET(context, next) {
+          expect(context.scope.pathname).toBe('/');
+          const res = await next();
+          res.headers.set('Test', '1');
+          return res;
+        },
+      },
+      disallowUnknownMethod
+    ),
+    context: {
+      params: {},
+      pathname: scope.pathname,
+      url,
+      request: new Request(url, { method }),
+      state: {},
+      scope,
+      waitUntil: () => {},
+    },
+  };
+}
+
 describe('compose: Extended functionality on koa-compose', () => {
   test('Reset context for each middleware', async () => {
     interface Context {
@@ -83,36 +110,16 @@ describe('compose: Extended functionality on koa-compose', () => {
 
 describe('methodsToHandler', () => {
   const createRequest = (method: string, disallowUnknownMethod?: boolean) => {
-    const scope = new URLPattern({ pathname: '/' });
-    const handler = methodsToHandler<MiddlewareHandlers>(
-      {
-        async GET(context, next) {
-          expect(context.scope.pathname).toBe('/');
-          const res = await next();
-          res.headers.set('Test', '1');
-          return res;
-        },
-      },
+    const { handler, context } = createTestContext(
+      method,
       disallowUnknownMethod
     );
-    return handler(
-      {
-        params: {},
-        pathname: scope.pathname,
-        request: new Request('http://localhost', {
-          method,
-        }),
-        state: {},
-        scope,
-        waitUntil: () => {},
-      },
-      () => {
-        return new Response('Hello', {
-          status: 200,
-          statusText: 'OK',
-        });
-      }
-    );
+    return handler(context, () => {
+      return new Response('Hello', {
+        status: 200,
+        statusText: 'OK',
+      });
+    });
   };
 
   test('Basic', async () => {
@@ -172,11 +179,13 @@ describe('composeMiddleware', () => {
 
   const createRequest = (method: string) => {
     const scope = new URLPattern({ pathname: '/' });
+    const url = new URL('http://localhost/');
     return handler(
       {
         params: {},
         pathname: scope.pathname,
-        request: new Request('http://localhost/', {
+        url,
+        request: new Request(url, {
           method,
         }),
         state: {

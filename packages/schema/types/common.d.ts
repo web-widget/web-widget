@@ -38,14 +38,20 @@ export interface FetchContext<Params = Record<string, string>>
   error?: HTTPException;
 
   /**
-   * The parameters that were matched from the route.
+   * The URL of the request.
+   * [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/URL)
+   */
+  readonly url: URL;
+
+  /**
+   * Alias for `pathnameParams`. Represents the parameters that were matched from the route.
    *
    * For the `/foo/:bar` route with url `/foo/123`, `params` would be
    * `{ bar: '123' }`. For a route with no matchers, `params` would be `{}`. For
    * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
    * be `{ path: 'bar/baz' }`.
    */
-  params: Readonly<Params>;
+  readonly params: Readonly<Params>;
 
   /**
    * The state of the application, the content comes from the middleware.

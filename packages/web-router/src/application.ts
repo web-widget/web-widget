@@ -4,33 +4,36 @@ import { Context } from './context';
 import type { Router } from './router';
 import { METHOD_NAME_ALL, METHODS, URLPatternRouter } from './router';
 import type {
-  Env,
   ErrorHandler,
   ExecutionContext,
   MiddlewareHandler,
   NotFoundHandler,
 } from './types';
-import { getPath, getPathNoStrict } from './url';
 
+type Route = string | URLPatternInit;
 type Methods = (typeof METHODS)[number];
 
 function defineDynamicClass(): {
-  new <E extends Env = Env, BasePath extends string = '/'>(): {
+  new (): {
     /**
      * @experimental
      */
-    [M in Methods]: (
-      path: string,
-      handler: MiddlewareHandler
-    ) => Application<E, BasePath>;
+    [M in Methods]: (route: Route, handler: MiddlewareHandler) => Application;
   } & {
     /**
      * @experimental
      */
-    use: (path: string, handler: MiddlewareHandler) => Application<E, BasePath>;
+    use: (route: Route, handler: MiddlewareHandler) => Application;
   };
 } {
   return class {} as never;
+}
+
+function normalizeRoute(route: Route): URLPatternInit {
+  if (typeof route === 'string') {
+    return { pathname: route };
+  }
+  return route;
 }
 
 const notFoundHandler = () => {
@@ -47,53 +50,40 @@ const errorHandler = (error: unknown) => {
   });
 };
 
-type GetPath<E extends Env> = (
-  request: Request,
-  options?: { env?: E['Bindings'] }
-) => string;
-
-export interface ApplicationOptions<E extends Env> {
-  strict?: boolean;
+export interface ApplicationOptions {
   router?: Router<MiddlewareHandler>;
-  getPath?: GetPath<E>;
 }
 
-class Application<
-  E extends Env = Env,
-  BasePath extends string = '/',
-> extends defineDynamicClass()<E, BasePath> {
+class Application extends defineDynamicClass() {
   /*
     This class is like an abstract class and does not have a router.
     To use it, inherit the class and implement router in the constructor.
   */
   router!: Router<MiddlewareHandler>;
-  readonly getPath: GetPath<E>;
 
-  constructor(options: ApplicationOptions<E> = {}) {
+  constructor(options: ApplicationOptions = {}) {
     super();
 
-    // Implementation of app.get(path, ...handlers[])
+    // Implementation of app.get(route, ...handlers[])
     METHODS.forEach((method) => {
-      this[method] = (path: string, ...args: MiddlewareHandler[]) => {
+      this[method] = (route: Route, ...args: MiddlewareHandler[]) => {
+        route = normalizeRoute(route);
         args.forEach((handler) => {
-          this.#addRoute(method, path, handler);
+          this.#addRoute(method, route, handler);
         });
         return this;
       };
     });
 
-    // Implementation of app.get(path, ...handlers[])
-    this.use = (path: string, ...handlers: MiddlewareHandler[]) => {
+    // Implementation of app.get(route, ...handlers[])
+    this.use = (route: Route, ...handlers: MiddlewareHandler[]) => {
+      route = normalizeRoute(route);
       handlers.forEach((handler) => {
-        this.#addRoute(METHOD_NAME_ALL, path, handler);
+        this.#addRoute(METHOD_NAME_ALL, route, handler);
       });
       return this;
     };
 
-    const strict = options.strict ?? true;
-    delete options.strict;
-    // Object.assign(this, options);
-    this.getPath = strict ? (options.getPath ?? getPath) : getPathNoStrict;
     this.router = options.router ?? new URLPatternRouter();
   }
 
@@ -108,7 +98,7 @@ class Application<
   /**
    * @experimental
    */
-  onError(handler: ErrorHandler<E>) {
+  onError(handler: ErrorHandler) {
     this.#errorHandler = handler;
     return this;
   }
@@ -116,23 +106,23 @@ class Application<
   /**
    * @experimental
    */
-  notFound(handler: NotFoundHandler<E>) {
+  notFound(handler: NotFoundHandler) {
     this.#notFoundHandler = handler;
     return this;
   }
 
-  #addRoute(method: string, path: string, handler: MiddlewareHandler) {
+  #addRoute(method: string, input: URLPatternInit, handler: MiddlewareHandler) {
     method = method.toUpperCase();
-    this.router.add(method, path, handler);
+    this.router.add(method, input, handler);
   }
 
-  #matchRoute(method: string, path: string) {
-    return this.router.match(method, path);
+  #matchRoute(method: string, input: URLPatternInit) {
+    return this.router.match(method, input);
   }
 
   handler(
     request: Request,
-    env: E['Bindings'] | undefined = Object.create(null),
+    env?: unknown,
     executionContext?: ExecutionContext,
     method: string = request.method
   ): Response | Promise<Response> {
@@ -145,14 +135,11 @@ class Application<
         ))();
     }
 
-    const path = this.getPath(request, { env });
-    const [handlers] = this.#matchRoute(method, path);
-
     const context = new Context(request, {
-      env,
       executionContext,
     });
 
+    const handlers = this.#matchRoute(method, context.url);
     const composed = compose<(typeof handlers)[0], Context>(
       handlers,
       (handler) => {
@@ -213,7 +200,7 @@ class Application<
   dispatch = (
     input: RequestInfo | URL,
     requestInit?: RequestInit,
-    env?: E['Bindings'] | {},
+    env?: unknown,
     executionContext?: ExecutionContext
   ) => {
     const request =
@@ -236,7 +223,7 @@ class Application<
   request = (
     input: RequestInfo | URL,
     requestInit?: RequestInit,
-    env?: E['Bindings'] | {},
+    env?: unknown,
     executionContext?: ExecutionContext
   ) => {
     return this.dispatch(input, requestInit, env, executionContext);

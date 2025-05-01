@@ -8,87 +8,84 @@ export const METHODS = [
   'patch',
 ] as const;
 
+const URL_PART_KEYS_LITERAL = [
+  'protocol',
+  'hostname',
+  'port',
+  'pathname',
+  'search',
+  'hash',
+] as const;
+
+const URL_PART_KEYS_PRIORITY: (keyof Omit<URLPatternResult, 'input'>)[] = [
+  ...URL_PART_KEYS_LITERAL,
+].reverse();
+
 export interface Router<T> {
-  add(method: string, pathname: string, handler: T): void;
-  match(method: string, pathname: string): Result<T>;
+  add(method: string, input: URLPatternInit, handler: T): void;
+  match(method: string, input: URLPatternInit): Result<T>;
 }
 
-export type Params = Record<string, string>;
-export type Scope = URLPattern;
-/**
- * Type representing the result of a route match.
- *
- * The result can be in one of two formats:
- * 1. An array of handlers with their corresponding parameter index maps, followed by a parameter stash.
- * 2. An array of handlers with their corresponding parameter maps.
- *
- * Example:
- *
- * [[handler, paramIndexMap][], paramArray]
- * ```typescript
- * [
- *   [
- *     [middlewareA, {}],                     // '*'
- *     [funcA,       {'id': 0}],              // '/user/:id/*'
- *     [funcB,       {'id': 0, 'action': 1}], // '/user/:id/:action'
- *   ],
- *   ['123', 'abc']
- * ]
- * ```
- *
- * [[handler, params][]]
- * ```typescript
- * [
- *   [
- *     [middlewareA, {}],                             // '*'
- *     [funcA,       {'id': '123'}],                  // '/user/:id/*'
- *     [funcB,       {'id': '123', 'action': 'abc'}], // '/user/:id/:action'
- *   ]
- * ]
- * ```
- */
-export type Result<T> = [[T, Params, URLPattern][]];
-
+export type Params = Readonly<Record<string, string>>;
+export type Result<T> = [T, Params, URLPattern][];
 export class UnsupportedPathError extends Error {}
 
-type Route<T> = [URLPattern, string, T]; // [pattern, method, handler, pathname]
+type Route<T> = [pattern: URLPattern, method: string, handler: T];
 
 export class URLPatternRouter<T> implements Router<T> {
   #routes: Route<T>[] = [];
 
-  add(method: string, pathname: string, handler: T) {
-    let pattern;
+  add(method: string, input: URLPatternInit, handler: T) {
     try {
-      pattern = new URLPattern({ pathname });
+      this.#routes.push([new URLPattern(input), method, handler]);
     } catch (error) {
-      throw new UnsupportedPathError((error as Error).message, {
+      throw new UnsupportedPathError('Invalid URLPattern input.', {
         cause: error,
       });
     }
-    this.#routes.push([pattern, method, handler]);
   }
 
-  match(method: string, pathname: string): Result<T> {
-    const handlers: [T, Params, URLPattern][] = [];
+  match(method: string, input: URLPatternInit): Result<T> {
+    const handlers: Result<T> = [];
 
-    for (const [pattern, routeMethod, handler] of this.#routes) {
-      if (routeMethod === METHOD_NAME_ALL || routeMethod === method) {
-        const matched = pattern.exec({ pathname });
-        if (matched) {
-          const params = Object.create(null) as Params;
-          for (const key in matched.pathname.groups) {
-            const value = matched.pathname.groups[key];
-
-            if (value !== undefined) {
-              params[key] = decodeURIComponent(value);
-            }
-          }
-          Object.freeze(params);
-          handlers.push([handler, params, pattern]);
-        }
+    for (const [currentPattern, currentMethod, currentHandler] of this
+      .#routes) {
+      if (currentMethod !== METHOD_NAME_ALL && currentMethod !== method) {
+        continue;
       }
+
+      const matched = currentPattern.exec(input);
+      if (!matched) {
+        continue;
+      }
+
+      const params = this.#extractParams(matched);
+      handlers.push([currentHandler, params, currentPattern]);
     }
 
-    return [handlers];
+    return handlers;
+  }
+
+  #extractParams(matched: URLPatternResult): Params {
+    const numberRegex = /^\d+$/;
+    return Object.freeze(
+      URL_PART_KEYS_PRIORITY.reduce((allParams, type) => {
+        const groups = (matched[type] as URLPatternComponentResult)?.groups;
+        if (!groups) {
+          return allParams;
+        }
+
+        for (const [key, value] of Object.entries(groups)) {
+          if (
+            value !== undefined &&
+            (!numberRegex.test(key) || type === 'pathname')
+          ) {
+            allParams[key] = decodeURIComponent(value);
+          }
+        }
+
+        return allParams;
+      }, Object.create(null))
+    );
   }
 }

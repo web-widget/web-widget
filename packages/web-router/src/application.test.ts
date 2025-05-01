@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Application } from './application';
 import type { MiddlewareHandler } from './types';
-import { getPath } from './url';
 
 // https://stackoverflow.com/a/65666402
 function throwExpression(errorMessage: string): never {
@@ -216,43 +215,6 @@ describe('strict parameter', () => {
       expect(res.status).toBe(404);
     });
   });
-
-  describe('strict is false', () => {
-    const app = new Application({ strict: false });
-
-    app.get('/hello', (c) => {
-      return text('/hello');
-    });
-
-    test('/hello and /hello/ are treated as the same', async () => {
-      let res = await app.dispatch('http://localhost/hello');
-      expect(res).not.toBeNull();
-      expect(res.status).toBe(200);
-      res = await app.dispatch('http://localhost/hello/');
-      expect(res).not.toBeNull();
-      expect(res.status).toBe(200);
-    });
-  });
-
-  describe('strict is false with `getPath` option', () => {
-    const app = new Application({
-      strict: false,
-      getPath: getPath,
-    });
-
-    app.get('/hello', (c) => {
-      return text('/hello');
-    });
-
-    test('/hello and /hello/ are treated as the same', async () => {
-      let res = await app.dispatch('http://localhost/hello');
-      expect(res).not.toBeNull();
-      expect(res.status).toBe(200);
-      res = await app.dispatch('http://localhost/hello/');
-      expect(res).not.toBeNull();
-      expect(res.status).toBe(200);
-    });
-  });
 });
 
 // describe("Destruct functions in context", () => {
@@ -287,33 +249,6 @@ describe('routing', () => {
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('delete /');
-  });
-
-  describe('routing with the bindings value', () => {
-    const app = new Application<{ Bindings: { host: string } }>({
-      getPath: (req, options) => {
-        const url = new URL(req.url);
-        const host = options?.env?.host;
-        const prefix = url.host === host ? '/FOO' : '';
-        return url.pathname === '/' ? prefix : `${prefix}${url.pathname}`;
-      },
-    });
-
-    app.get('/about', (c) => text('About root'));
-    app.get('/FOO/about', (c) => text('About FOO'));
-
-    test('should return 200 without specifying a hostname', async () => {
-      const res = await app.dispatch('/about');
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe('About root');
-    });
-
-    test('should return 200 with specifying the hostname in env', async () => {
-      const req = new Request('http://foo.localhost/about');
-      const res = await app.handler(req, { host: 'foo.localhost' });
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe('About FOO');
-    });
   });
 
   describe('chained route', () => {
@@ -474,7 +409,7 @@ describe('scope', () => {
   const app = new Application();
 
   app.get('/foo/:bar', (c) => {
-    return text(`foo is ${c.scope.pathname}`);
+    return text(`foo is ${c.scope?.pathname}`);
   });
 
   test('scope of /foo/:bar is found', async () => {

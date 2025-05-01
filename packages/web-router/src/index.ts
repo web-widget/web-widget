@@ -16,9 +16,12 @@ import {
   callRouteModule,
 } from './modules';
 import type {
-  Env,
   LayoutModule,
   Manifest,
+  ManifestAction,
+  ManifestFallback,
+  ManifestMiddleware,
+  ManifestRoute,
   Meta,
   RouteModule,
   RouteRenderOptions,
@@ -26,25 +29,22 @@ import type {
 
 export type * from './types';
 
-export type StartOptions<E extends Env = {}> = {
+export type StartOptions = {
   baseAsset?: string;
   defaultMeta?: Meta;
   defaultRenderOptions?: RouteRenderOptions;
   /** @deprecated */
   dev?: boolean;
   onFallback?: OnFallback;
-} & ApplicationOptions<E>;
+} & ApplicationOptions;
 
-export default class WebRouter<E extends Env = Env> extends Application<E> {
-  constructor(options: StartOptions<E> = {}) {
+export default class WebRouter extends Application {
+  constructor(options: StartOptions = {}) {
     super(options);
   }
 
-  static fromManifest<E extends Env = Env>(
-    manifest: Partial<Manifest>,
-    options: StartOptions<E> = {}
-  ) {
-    const router = new WebRouter<E>(options);
+  static fromManifest(manifest: Partial<Manifest>, options: StartOptions = {}) {
+    const router = new WebRouter(options);
     const middlewares = manifest.middlewares ?? [];
     const actions = manifest.actions ?? [];
     const routes = manifest.routes ?? [];
@@ -96,7 +96,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
 
     routes.forEach((item) => {
       router.use(
-        item.pathname,
+        normalizeRoute(item),
         createRouteContext(
           item.module,
           layout.module,
@@ -112,22 +112,22 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     router.use('*', createAsyncContext);
 
     middlewares.forEach((item) => {
-      router.use(item.pathname, callMiddlewareModule(item.module));
+      router.use(normalizeRoute(item), callMiddlewareModule(item.module));
     });
 
     actions.forEach((item) => {
-      router.use(item.pathname, callActionModule(item.module));
+      router.use(normalizeRoute(item), callActionModule(item.module));
     });
 
     routes.forEach((item) => {
-      router.use(item.pathname, callRouteModule());
+      router.use(normalizeRoute(item), callRouteModule());
     });
 
     const fallback404 = fallbacks.find(
       (page) => page.status === 404 || page.name === 'NotFound'
     ) ?? {
       module: async () => defaultFallbackModule as RouteModule,
-      pathname: '*',
+      pathname: '/*',
     };
 
     const notFoundHandler = createFallbackHandler(
@@ -148,7 +148,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       (page) => page.status === 500 || page.name === 'InternalServerError'
     ) ?? {
       module: async () => defaultFallbackModule as RouteModule,
-      pathname: '*',
+      pathname: '/*',
     };
 
     const errorHandler = createFallbackHandler(
@@ -180,4 +180,23 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
 
     return router;
   }
+}
+
+const URL_PATTERN_INIT_KEYS: (keyof URLPatternInit)[] = [
+  'protocol',
+  'hostname',
+  'port',
+  'pathname',
+  'search',
+  'hash',
+];
+
+function normalizeRoute(
+  route: ManifestRoute | ManifestAction | ManifestMiddleware | ManifestFallback
+): URLPatternInit {
+  return Object.fromEntries(
+    Object.entries(route).filter(([key]) =>
+      URL_PATTERN_INIT_KEYS.includes(key as keyof URLPatternInit)
+    )
+  );
 }

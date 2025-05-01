@@ -18,32 +18,17 @@ export type * from '@web-widget/helpers';
 
 ////////////////////////////////////////
 //////                            //////
-//////           Values           //////
-//////                            //////
-////////////////////////////////////////
-
-export type StatusCode = number;
-export type Bindings = Record<string, unknown>;
-export type Variables = Record<string, unknown>;
-
-export interface Env {
-  Bindings?: Bindings;
-  Variables?: Variables;
-}
-
-////////////////////////////////////////
-//////                            //////
 //////       Error Handlers       //////
 //////                            //////
 ////////////////////////////////////////
 
-export type NotFoundHandler<E extends Env = any> = (
-  context: Context<E>
+export type NotFoundHandler = (
+  context: Context
 ) => Response | Promise<Response>;
 
-export type ErrorHandler<E extends Env = any> = (
+export type ErrorHandler = (
   error: any,
-  context: Context<E>
+  context: Context
 ) => Response | Promise<Response>;
 
 ////////////////////////////////////////
@@ -66,32 +51,33 @@ export type CloudflareFetchContext = {
 //////                            //////
 ////////////////////////////////////////
 
+type ManifestEntry<T> = {
+  module: T | (() => Promise<T>);
+  name?: string;
+} & URLPatternInit & {
+    pathname: string;
+  };
+
+type FallbackManifestEntry = ManifestEntry<RouteModule> & { status: number };
+
+type LayoutManifestEntry<T> = {
+  module: T | (() => Promise<T>);
+  name?: string;
+};
+
+export type ManifestRoute = ManifestEntry<RouteModule>;
+export type ManifestAction = ManifestEntry<ActionModule>;
+export type ManifestMiddleware = ManifestEntry<MiddlewareModule>;
+export type ManifestFallback = FallbackManifestEntry;
+export type ManifestLayout = LayoutManifestEntry<LayoutModule>;
+
 export interface Manifest {
   dev?: boolean;
-  routes: {
-    module: RouteModule | (() => Promise<RouteModule>);
-    name?: string;
-    pathname: string;
-  }[];
-  actions: {
-    module: ActionModule | (() => Promise<ActionModule>);
-    name?: string;
-    pathname: string;
-  }[];
-  middlewares: {
-    module: MiddlewareModule | (() => Promise<MiddlewareModule>);
-    name?: string;
-    pathname: string;
-  }[];
-  fallbacks: {
-    module: RouteModule | (() => Promise<RouteModule>);
-    name?: string;
-    pathname?: string;
-    status: number;
-  }[];
-  layout: {
-    module: LayoutModule | (() => Promise<LayoutModule>);
-  };
+  routes: ManifestRoute[];
+  actions: ManifestAction[];
+  middlewares: ManifestMiddleware[];
+  fallbacks: ManifestFallback[];
+  layout: ManifestLayout;
 }
 
 ////////////////////////////////////////
