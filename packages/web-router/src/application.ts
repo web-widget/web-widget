@@ -1,7 +1,7 @@
 import { compose } from '@web-widget/helpers';
 import { HTTPException } from '@web-widget/helpers/error';
 import { Context } from './context';
-import type { Router } from './router';
+import type { RoutePattern, Router } from './router';
 import { METHOD_NAME_ALL, METHODS, URLPatternRouter } from './router';
 import type {
   ErrorHandler,
@@ -11,7 +11,7 @@ import type {
 } from './types';
 
 type Pathname = string;
-type Route = Pathname | URLPatternInit;
+type Route = Pathname | RoutePattern;
 type Methods = (typeof METHODS)[number];
 
 function defineDynamicClass(): {
@@ -30,7 +30,7 @@ function defineDynamicClass(): {
   return class {} as never;
 }
 
-function normalizeRoute(route: Route): URLPatternInit {
+function normalizeRoute(route: Route): RoutePattern {
   if (typeof route === 'string') {
     return { pathname: route };
   }
@@ -112,12 +112,12 @@ class Application extends defineDynamicClass() {
     return this;
   }
 
-  #addRoute(method: string, input: URLPatternInit, handler: MiddlewareHandler) {
+  #addRoute(method: string, input: RoutePattern, handler: MiddlewareHandler) {
     method = method.toUpperCase();
     this.router.add(method, input, handler);
   }
 
-  #matchRoute(method: string, input: URLPatternInit) {
+  #matchRoute(method: string, input: RoutePattern) {
     return this.router.match(method, input);
   }
 

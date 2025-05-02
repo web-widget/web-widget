@@ -14,6 +14,7 @@ import type {
 } from '@web-widget/helpers';
 
 import type { Context } from './context';
+import type { RoutePattern } from './router';
 export type * from '@web-widget/helpers';
 
 ////////////////////////////////////////
@@ -57,14 +58,14 @@ type ManifestModule<T> = {
 
 type ManifestScope = {
   name?: string;
-} & URLPatternInit & {
+} & RoutePattern & {
     pathname: string;
   };
 
 type ManifestStatus = {
   status: number;
 };
-
+export { RoutePattern };
 export type ManifestRoute = ManifestModule<RouteModule> & ManifestScope;
 export type ManifestAction = ManifestModule<ActionModule> & ManifestScope;
 export type ManifestMiddleware = ManifestModule<MiddlewareModule> &
@@ -98,7 +99,7 @@ export type LayoutComponentProps = WidgetComponentProps<{
   /** @deprecated Use `scope.pathname` instead. */
   pathname: string;
   request: Request;
-  scope: URLPatternInit;
+  scope: RoutePattern;
   url: URL;
 }>;
 

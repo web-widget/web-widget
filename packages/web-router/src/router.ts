@@ -17,25 +17,36 @@ const URL_PART_KEYS_LITERAL = [
   'hash',
 ] as const;
 
-const URL_PART_KEYS_PRIORITY: (keyof Omit<URLPatternResult, 'input'>)[] = [
+const URL_PART_KEYS_PRIORITY: (keyof RoutePattern)[] = [
   ...URL_PART_KEYS_LITERAL,
 ].reverse();
 
+type Params = Readonly<Record<string, string>>;
+type Result<T> = [T, Params, URLPattern][];
+type Route<T> = [pattern: URLPattern, method: string, handler: T];
+
+export type RoutePattern = {
+  username?: string;
+  password?: string;
+  protocol?: string;
+  hostname?: string;
+  port?: string;
+  pathname?: string;
+  search?: string;
+  hash?: string;
+};
+
 export interface Router<T> {
-  add(method: string, input: URLPatternInit, handler: T): void;
-  match(method: string, input: URLPatternInit): Result<T>;
+  add(method: string, input: RoutePattern, handler: T): void;
+  match(method: string, input: RoutePattern): Result<T>;
 }
 
-export type Params = Readonly<Record<string, string>>;
-export type Result<T> = [T, Params, URLPattern][];
 export class UnsupportedPathError extends Error {}
-
-type Route<T> = [pattern: URLPattern, method: string, handler: T];
 
 export class URLPatternRouter<T> implements Router<T> {
   #routes: Route<T>[] = [];
 
-  add(method: string, input: URLPatternInit, handler: T) {
+  add(method: string, input: RoutePattern, handler: T) {
     try {
       this.#routes.push([new URLPattern(input), method, handler]);
     } catch (error) {
@@ -45,7 +56,7 @@ export class URLPatternRouter<T> implements Router<T> {
     }
   }
 
-  match(method: string, input: URLPatternInit): Result<T> {
+  match(method: string, input: RoutePattern): Result<T> {
     const handlers: Result<T> = [];
 
     for (const [currentPattern, currentMethod, currentHandler] of this

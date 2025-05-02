@@ -1,6 +1,10 @@
 import type WebRouter from '@web-widget/web-router';
 import type { z } from 'zod';
-import type { Manifest, StartOptions } from '@web-widget/web-router';
+import type {
+  Manifest,
+  RoutePattern,
+  StartOptions,
+} from '@web-widget/web-router';
 import type { FilterPattern, Plugin, Manifest as ViteManifest } from 'vite';
 import type { WebRouterConfigSchema } from './config';
 import type { RouteSourceFile } from './dev/routing/types';
@@ -68,16 +72,9 @@ type RouteMapModule = {
 
 type RouteMapScope = {
   name?: string;
-} & {
-  username?: string;
-  password?: string;
-  protocol?: string;
-  hostname?: string;
-  port?: string;
-  pathname: string;
-  search?: string;
-  hash?: string;
-};
+} & RoutePattern & {
+    pathname: string;
+  };
 
 type RouteMapStatus = {
   status: number;

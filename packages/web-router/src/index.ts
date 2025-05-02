@@ -25,6 +25,7 @@ import type {
   Meta,
   RouteModule,
   RouteRenderOptions,
+  RoutePattern,
 } from './types';
 
 export type * from './types';
@@ -182,7 +183,7 @@ export default class WebRouter extends Application {
   }
 }
 
-const URL_PATTERN_INIT_KEYS: (keyof URLPatternInit)[] = [
+const URL_PATTERN_INIT_KEYS: (keyof RoutePattern)[] = [
   'protocol',
   'hostname',
   'port',
@@ -193,10 +194,10 @@ const URL_PATTERN_INIT_KEYS: (keyof URLPatternInit)[] = [
 
 function normalizeRoute(
   route: ManifestRoute | ManifestAction | ManifestMiddleware | ManifestFallback
-): URLPatternInit {
+): RoutePattern {
   return Object.fromEntries(
     Object.entries(route).filter(([key]) =>
-      URL_PATTERN_INIT_KEYS.includes(key as keyof URLPatternInit)
+      URL_PATTERN_INIT_KEYS.includes(key as keyof RoutePattern)
     )
   );
 }
