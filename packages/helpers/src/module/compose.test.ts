@@ -12,7 +12,16 @@ type Handler<
 > = (context: Content, next: Next) => Promise<Result>;
 
 function createTestContext(method: string, disallowUnknownMethod?: boolean) {
-  const scope = new URLPattern({ pathname: '/' });
+  const scope = {
+    hash: '*',
+    hostname: '*',
+    password: '*',
+    pathname: '/',
+    port: '*',
+    protocol: '*',
+    search: '*',
+    username: '*',
+  };
   const url = new URL('http://localhost/');
   return {
     handler: methodsToHandler<MiddlewareHandlers>(
@@ -182,7 +191,16 @@ describe('composeMiddleware', () => {
   ]);
 
   const createRequest = (method: string) => {
-    const scope = new URLPattern({ pathname: '/' });
+    const scope = {
+      hash: '*',
+      hostname: '*',
+      password: '*',
+      pathname: '/',
+      port: '*',
+      protocol: '*',
+      search: '*',
+      username: '*',
+    };
     const url = new URL('http://localhost/');
     return handler(
       {
