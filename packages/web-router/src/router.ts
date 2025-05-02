@@ -21,6 +21,8 @@ const URL_PART_KEYS_PRIORITY: (keyof RoutePattern)[] = [
   ...URL_PART_KEYS_LITERAL,
 ].reverse();
 
+const NUMBER_REGEX = /^\d+$/;
+
 type Params = Readonly<Record<string, string>>;
 type Result<T> = [T, Params, URLPattern][];
 type Route<T> = [pattern: URLPattern, method: string, handler: T];
@@ -41,7 +43,7 @@ export interface Router<T> {
   match(method: string, input: RoutePattern): Result<T>;
 }
 
-export class UnsupportedPathError extends Error {}
+export class UnsupportedRoutePatternError extends Error {}
 
 export class URLPatternRouter<T> implements Router<T> {
   #routes: Route<T>[] = [];
@@ -50,9 +52,12 @@ export class URLPatternRouter<T> implements Router<T> {
     try {
       this.#routes.push([new URLPattern(input), method, handler]);
     } catch (error) {
-      throw new UnsupportedPathError('Invalid URLPattern input.', {
-        cause: error,
-      });
+      throw new UnsupportedRoutePatternError(
+        'Invalid route pattern provided.',
+        {
+          cause: error,
+        }
+      );
     }
   }
 
@@ -78,7 +83,6 @@ export class URLPatternRouter<T> implements Router<T> {
   }
 
   #extractParams(matched: URLPatternResult): Params {
-    const numberRegex = /^\d+$/;
     return Object.freeze(
       URL_PART_KEYS_PRIORITY.reduce((allParams, type) => {
         const groups = (matched[type] as URLPatternComponentResult)?.groups;
@@ -89,7 +93,7 @@ export class URLPatternRouter<T> implements Router<T> {
         for (const [key, value] of Object.entries(groups)) {
           if (
             value !== undefined &&
-            (!numberRegex.test(key) || type === 'pathname')
+            (!NUMBER_REGEX.test(key) || type === 'pathname')
           ) {
             allParams[key] = decodeURIComponent(value);
           }

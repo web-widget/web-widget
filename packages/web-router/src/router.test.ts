@@ -1,4 +1,4 @@
-import { UnsupportedPathError, URLPatternRouter } from './router';
+import { UnsupportedRoutePatternError, URLPatternRouter } from './router';
 
 describe('basic', () => {
   const router = new URLPatternRouter<string>();
@@ -286,7 +286,7 @@ describe('duplicate param name', () => {
     const router = new URLPatternRouter<string>();
     expect(() => {
       router.add('GET', { pathname: '/:id/:id' }, 'foo');
-    }).toThrow(UnsupportedPathError);
+    }).toThrow(UnsupportedRoutePatternError);
   });
 
   test('parent', () => {
