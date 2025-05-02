@@ -626,9 +626,6 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
-      urlpattern-polyfill:
-        specifier: ^10.0.0
-        version: 10.0.0
 
   packages/vite-plugin:
     dependencies:

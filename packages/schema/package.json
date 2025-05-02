@@ -14,8 +14,7 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "typescript": "catalog:",
-    "urlpattern-polyfill": "^10.0.0"
+    "typescript": "catalog:"
   },
   "exports": {
     ".": {

@@ -1,5 +1,3 @@
-import type { URLPattern } from './standard';
-
 export type SerializableValue =
   | string
   | number
@@ -29,6 +27,17 @@ export type FetchEventLike = Pick<
   FetchEvent,
   'request' | 'respondWith' | 'waitUntil'
 >;
+
+export type Scope = {
+  username: string;
+  password: string;
+  protocol: string;
+  hostname: string;
+  port: string;
+  pathname: string;
+  search: string;
+  hash: string;
+};
 
 export interface FetchContext<Params = Record<string, string>>
   extends Omit<FetchEventLike, 'respondWith'> {
@@ -62,7 +71,7 @@ export interface FetchContext<Params = Record<string, string>>
    * Matched route.
    * [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern/URLPattern#input)
    */
-  readonly scope: URLPatternInit;
+  readonly scope: Scope;
 
   /** @deprecated */
   readonly name?: string;

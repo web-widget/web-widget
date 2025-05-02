@@ -10,7 +10,8 @@ import type {
   NotFoundHandler,
 } from './types';
 
-type Route = string | URLPatternInit;
+type Pathname = string;
+type Route = Pathname | URLPatternInit;
 type Methods = (typeof METHODS)[number];
 
 function defineDynamicClass(): {
