@@ -517,6 +517,34 @@ describe('URLPatternInit with overlapping named groups', () => {
   });
 });
 
+describe('URLPatternInit with overlapping unnamed groups', () => {
+  const app = new Application();
+
+  test('should match unnamed group in pathname', async () => {
+    app.get({ pathname: '/foo/(.*)' }, (c) => {
+      return text(`Value is ${c.params['0']}`);
+    });
+    const res = await app.dispatch('http://localhost/foo/some/path');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('Value is some/path');
+  });
+
+  test('only pathname is recorded as a named group', async () => {
+    app.get({ pathname: '/bar/(.*)', search: '?bar=(.*)' }, (c) => {
+      const pathnameValue = c.params['0'];
+      const searchValue = c.params['1'];
+      return text(
+        `Pathname value is ${pathnameValue}, Search value is ${searchValue}`
+      );
+    });
+    const res = await app.dispatch('http://localhost/bar/some/path?bar=value');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe(
+      'Pathname value is some/path, Search value is undefined'
+    );
+  });
+});
+
 describe('scope', () => {
   const app = new Application();
 
