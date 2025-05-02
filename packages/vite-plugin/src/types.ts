@@ -1,6 +1,6 @@
 import type WebRouter from '@web-widget/web-router';
 import type { z } from 'zod';
-import type { Manifest, Scope, StartOptions } from '@web-widget/web-router';
+import type { Manifest, StartOptions } from '@web-widget/web-router';
 import type { FilterPattern, Plugin, Manifest as ViteManifest } from 'vite';
 import type { WebRouterConfigSchema } from './config';
 import type { RouteSourceFile } from './dev/routing/types';
