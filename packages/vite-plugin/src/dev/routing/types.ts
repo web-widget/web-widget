@@ -1,3 +1,5 @@
+import type { RoutePattern } from '@web-widget/web-router';
+
 export interface RouteSourceFile extends RouteSourceFileName {
   pathname: string;
   source: string;
@@ -16,7 +18,9 @@ export type RouteSourceType =
   | 'middleware'
   | 'route';
 
-export type OverridePathname = (
-  pathname: string,
+export { RoutePattern };
+
+export type Override = (
+  route: RoutePattern,
   source: RouteSourceFile
-) => string;
+) => RoutePattern;

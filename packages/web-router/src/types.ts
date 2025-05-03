@@ -58,9 +58,7 @@ type ManifestModule<T> = {
 
 type ManifestScope = {
   name?: string;
-} & RoutePattern & {
-    pathname: string;
-  };
+} & RoutePattern;
 
 type ManifestStatus = {
   status: number;

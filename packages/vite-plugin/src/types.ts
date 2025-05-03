@@ -7,7 +7,7 @@ import type {
 } from '@web-widget/web-router';
 import type { FilterPattern, Plugin, Manifest as ViteManifest } from 'vite';
 import type { WebRouterConfigSchema } from './config';
-import type { RouteSourceFile } from './dev/routing/types';
+import type { Override, RouteSourceFile } from './dev/routing/types';
 
 ////////////////////////////////////////
 //////                            //////
@@ -27,7 +27,9 @@ export interface ResolvedWebRouterConfig {
     basePathname: string;
     dir: string;
     enabled: boolean;
-    overridePathname: (pathname: string, source: RouteSourceFile) => string;
+    /** @deprecated Use `override` instead. */
+    overridePathname?(pathname: string, source: RouteSourceFile): string;
+    override?: Override;
   };
   importShim: {
     enabled: boolean;
@@ -72,9 +74,7 @@ type RouteMapModule = {
 
 type RouteMapScope = {
   name?: string;
-} & RoutePattern & {
-    pathname: string;
-  };
+} & RoutePattern;
 
 type RouteMapStatus = {
   status: number;
