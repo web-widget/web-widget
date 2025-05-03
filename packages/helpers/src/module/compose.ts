@@ -130,7 +130,7 @@ export function methodsToHandler(
   }
 
   return (context, next) => {
-    let request = context.request;
+    const request = context.request;
 
     // If not overridden, HEAD requests should be handled as GET requests but without the body.
     if (request.method === 'HEAD' && !mergedMethods['HEAD']) {

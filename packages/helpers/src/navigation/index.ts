@@ -37,7 +37,7 @@ export function redirect(
 export function url(): URL {
   const ctx = context();
 
-  return new URL(ctx.request.url);
+  return ctx.url;
 }
 
 /** @deprecated Use `url` instead. */

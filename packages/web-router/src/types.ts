@@ -14,22 +14,8 @@ import type {
 } from '@web-widget/helpers';
 
 import type { Context } from './context';
+import type { RoutePattern } from './router';
 export type * from '@web-widget/helpers';
-
-////////////////////////////////////////
-//////                            //////
-//////           Values           //////
-//////                            //////
-////////////////////////////////////////
-
-export type StatusCode = number;
-export type Bindings = Record<string, unknown>;
-export type Variables = Record<string, unknown>;
-
-export interface Env {
-  Bindings?: Bindings;
-  Variables?: Variables;
-}
 
 ////////////////////////////////////////
 //////                            //////
@@ -37,13 +23,13 @@ export interface Env {
 //////                            //////
 ////////////////////////////////////////
 
-export type NotFoundHandler<E extends Env = any> = (
-  context: Context<E>
+export type NotFoundHandler = (
+  context: Context
 ) => Response | Promise<Response>;
 
-export type ErrorHandler<E extends Env = any> = (
+export type ErrorHandler = (
   error: any,
-  context: Context<E>
+  context: Context
 ) => Response | Promise<Response>;
 
 ////////////////////////////////////////
@@ -66,32 +52,34 @@ export type CloudflareFetchContext = {
 //////                            //////
 ////////////////////////////////////////
 
+type ManifestModule<T> = {
+  module: T | (() => Promise<T>);
+};
+
+type ManifestScope = {
+  name?: string;
+} & RoutePattern;
+
+type ManifestStatus = {
+  status: number;
+};
+export { RoutePattern };
+export type ManifestRoute = ManifestModule<RouteModule> & ManifestScope;
+export type ManifestAction = ManifestModule<ActionModule> & ManifestScope;
+export type ManifestMiddleware = ManifestModule<MiddlewareModule> &
+  ManifestScope;
+export type ManifestFallback = ManifestModule<RouteModule> &
+  ManifestStatus &
+  ManifestScope;
+export type ManifestLayout = ManifestModule<LayoutModule>;
+
 export interface Manifest {
   dev?: boolean;
-  routes: {
-    module: RouteModule | (() => Promise<RouteModule>);
-    name?: string;
-    pathname: string;
-  }[];
-  actions: {
-    module: ActionModule | (() => Promise<ActionModule>);
-    name?: string;
-    pathname: string;
-  }[];
-  middlewares: {
-    module: MiddlewareModule | (() => Promise<MiddlewareModule>);
-    name?: string;
-    pathname: string;
-  }[];
-  fallbacks: {
-    module: RouteModule | (() => Promise<RouteModule>);
-    name?: string;
-    pathname?: string;
-    status: number;
-  }[];
-  layout: {
-    module: LayoutModule | (() => Promise<LayoutModule>);
-  };
+  routes: ManifestRoute[];
+  actions: ManifestAction[];
+  middlewares: ManifestMiddleware[];
+  fallbacks: ManifestFallback[];
+  layout: ManifestLayout;
 }
 
 ////////////////////////////////////////
@@ -106,9 +94,11 @@ export type LayoutComponentProps = WidgetComponentProps<{
   children: RouteRenderResult;
   meta: Meta;
   params: Record<string, string>;
-  /** @deprecated */
+  /** @deprecated Use `scope.pathname` instead. */
   pathname: string;
   request: Request;
+  scope: RoutePattern;
+  url: URL;
 }>;
 
 export interface LayoutComponent

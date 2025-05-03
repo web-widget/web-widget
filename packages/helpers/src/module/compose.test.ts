@@ -11,10 +11,48 @@ type Handler<
   Result = Response,
 > = (context: Content, next: Next) => Promise<Result>;
 
+function createTestContext(method: string, disallowUnknownMethod?: boolean) {
+  const scope = {
+    hash: '*',
+    hostname: '*',
+    password: '*',
+    pathname: '/',
+    port: '*',
+    protocol: '*',
+    search: '*',
+    username: '*',
+  };
+  const url = new URL('http://localhost/');
+  return {
+    handler: methodsToHandler<MiddlewareHandlers>(
+      {
+        async GET(context, next) {
+          expect(context.scope.pathname).toBe('/');
+          const res = await next();
+          res.headers.set('Test', '1');
+          return res;
+        },
+      },
+      disallowUnknownMethod
+    ),
+    context: {
+      params: {},
+      pathname: scope.pathname,
+      url,
+      request: new Request(url, { method }),
+      state: {},
+      scope,
+      waitUntil: () => {},
+    },
+  };
+}
+
 describe('compose: Extended functionality on koa-compose', () => {
   test('Reset context for each middleware', async () => {
     interface Context {
-      pathname: string;
+      scope: {
+        pathname: string;
+      };
     }
     const array: number[] = [];
     const stack: [handler: Handler<Context>, pathname: string][] = [];
@@ -22,7 +60,7 @@ describe('compose: Extended functionality on koa-compose', () => {
 
     stack.push([
       async (context, next) => {
-        pathnames.push(context.pathname);
+        pathnames.push(context.scope.pathname);
         array.push(1);
         await wait(1);
         const res = await next();
@@ -35,7 +73,7 @@ describe('compose: Extended functionality on koa-compose', () => {
 
     stack.push([
       async (context, next) => {
-        pathnames.push(context.pathname);
+        pathnames.push(context.scope.pathname);
         array.push(2);
         await wait(1);
         const res = await next();
@@ -48,7 +86,7 @@ describe('compose: Extended functionality on koa-compose', () => {
 
     stack.push([
       async (context, next) => {
-        pathnames.push(context.pathname);
+        pathnames.push(context.scope.pathname);
         array.push(3);
         await wait(1);
         const res = await next();
@@ -61,10 +99,12 @@ describe('compose: Extended functionality on koa-compose', () => {
 
     const ctx = {
       params: {},
-      pathname: '/',
+      scope: {
+        pathname: '/',
+      },
     };
     await compose(stack, (item) => {
-      ctx.pathname = item[1];
+      ctx.scope.pathname = item[1];
       return item[0];
     })(ctx);
 
@@ -83,34 +123,16 @@ describe('compose: Extended functionality on koa-compose', () => {
 
 describe('methodsToHandler', () => {
   const createRequest = (method: string, disallowUnknownMethod?: boolean) => {
-    const handler = methodsToHandler<MiddlewareHandlers>(
-      {
-        async GET(context, next) {
-          expect(context.pathname).toBe('/');
-          const res = await next();
-          res.headers.set('Test', '1');
-          return res;
-        },
-      },
+    const { handler, context } = createTestContext(
+      method,
       disallowUnknownMethod
     );
-    return handler(
-      {
-        params: {},
-        pathname: '/',
-        request: new Request('http://localhost', {
-          method,
-        }),
-        state: {},
-        waitUntil: () => {},
-      },
-      () => {
-        return new Response('Hello', {
-          status: 200,
-          statusText: 'OK',
-        });
-      }
-    );
+    return handler(context, () => {
+      return new Response('Hello', {
+        status: 200,
+        statusText: 'OK',
+      });
+    });
   };
 
   test('Basic', async () => {
@@ -169,16 +191,29 @@ describe('composeMiddleware', () => {
   ]);
 
   const createRequest = (method: string) => {
+    const scope = {
+      hash: '*',
+      hostname: '*',
+      password: '*',
+      pathname: '/',
+      port: '*',
+      protocol: '*',
+      search: '*',
+      username: '*',
+    };
+    const url = new URL('http://localhost/');
     return handler(
       {
         params: {},
-        pathname: '/',
-        request: new Request('http://localhost/', {
+        pathname: scope.pathname,
+        url,
+        request: new Request(url, {
           method,
         }),
         state: {
           history: [],
         },
+        scope,
         waitUntil: () => {},
       },
       () => {
