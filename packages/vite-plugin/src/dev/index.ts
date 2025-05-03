@@ -66,15 +66,15 @@ export function webRouterDevServerPlugin(
           dir: routesPath,
           basePathname,
           overridePathname,
-          override,
+          rewrite,
         } = resolvedWebRouterConfig.filesystemRouting;
-        let overrideRoute = override;
+        let overrideRoute = rewrite;
         const { routemap: routemapPath } = resolvedWebRouterConfig.input.server;
 
-        if (overridePathname && !override) {
+        if (overridePathname && !rewrite) {
           overrideRoute = (route, source) => {
             console.warn(
-              'The `overridePathname` property is deprecated. Use `override` instead.'
+              'The `overridePathname` property is deprecated. Use `rewrite` instead.'
             );
             return {
               pathname: overridePathname(route.pathname!, source),
@@ -87,7 +87,7 @@ export function webRouterDevServerPlugin(
           root,
           routemapPath,
           routesPath,
-          override: overrideRoute,
+          rewrite: overrideRoute,
           update(padding) {
             restartWebRouter(padding);
           },

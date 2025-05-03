@@ -40,7 +40,7 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
     dir: 'routes',
     enabled: false,
     overridePathname: undefined,
-    override: undefined,
+    rewrite: undefined,
   },
   importShim: {
     enabled: false,
@@ -121,7 +121,7 @@ export const WebRouterConfigSchema = z.object({
         )
         .returns(z.string())
         .optional(),
-      override: z
+      rewrite: z
         .function()
         .args(
           z.object({

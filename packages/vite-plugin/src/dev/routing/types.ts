@@ -20,7 +20,7 @@ export type RouteSourceType =
 
 export { RoutePattern };
 
-export type Override = (
+export type Rewrite = (
   route: RoutePattern,
   source: RouteSourceFile
 ) => RoutePattern;

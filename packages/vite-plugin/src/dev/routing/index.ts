@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import type { FSWatcher } from 'vite';
 import { walkRoutes } from './walk-routes-dir';
 import { pathToPattern, sortRoutePaths } from './extract';
-import type { RouteSourceFile, Override, RoutePattern } from './types';
+import type { RouteSourceFile, Rewrite, RoutePattern } from './types';
 import type { RouteMap } from '@/types';
 import { relativePathWithDot, normalizePath } from '@/utils';
 
@@ -11,7 +11,7 @@ export interface FileSystemRouteGeneratorOptions {
   root: string;
   routemapPath: string;
   routesPath: string;
-  override?: Override;
+  rewrite?: Rewrite;
   update: (padding: Promise<void>) => void;
   watcher: FSWatcher;
 }
@@ -21,7 +21,7 @@ export async function fileSystemRouteGenerator({
   root,
   routemapPath,
   routesPath,
-  override,
+  rewrite,
   update,
   watcher,
 }: FileSystemRouteGeneratorOptions) {
@@ -30,7 +30,7 @@ export async function fileSystemRouteGenerator({
     root,
     routesPath,
     basePathname,
-    override,
+    rewrite,
     routemapPath,
     cache
   );
@@ -40,7 +40,7 @@ export async function fileSystemRouteGenerator({
         root,
         routesPath,
         basePathname,
-        override,
+        rewrite,
         routemapPath,
         cache
       )
@@ -70,12 +70,12 @@ async function generateRoutemapFile(
   root: string,
   routesPath: string,
   basePathname: string,
-  override: Override | undefined,
+  rewrite: Rewrite | undefined,
   routemapPath: string,
   cache: any
 ) {
   const key = Symbol.for('routemap');
-  const routemap = await getRoutemap(root, routesPath, basePathname, override);
+  const routemap = await getRoutemap(root, routesPath, basePathname, rewrite);
   const newJson = JSON.stringify(routemap, null, 2);
 
   if (newJson !== cache[key]) {
@@ -88,7 +88,7 @@ export async function getRoutemap(
   root: string,
   routesPath: string,
   basePathname: string,
-  override: Override | undefined
+  rewrite: Rewrite | undefined
 ): Promise<RouteMap> {
   const sourceFiles = await walkRoutes(routesPath);
   const fallbacks = sourceFiles.filter((s) => s.type === 'fallback');
@@ -115,8 +115,8 @@ export async function getRoutemap(
       }
 
       route.pathname = pathToPattern(route.pathname);
-      if (override) {
-        Object.assign(route, override(route, source));
+      if (rewrite) {
+        Object.assign(route, rewrite(route, source));
       }
     }
 
