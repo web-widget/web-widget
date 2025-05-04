@@ -1,11 +1,3 @@
-export interface ServerRenderModule {
-  render: ServerRenderFunction;
-}
-
-export interface ClientRenderModule {
-  render: ClientRenderFunction;
-}
-
 /**
  * The options required to render a component on the server side.
  */
@@ -53,13 +45,13 @@ export interface ClientRenderOptions<Component = unknown> {
 /**
  * Lifecycle hooks returned by a client-side renderer.
  */
-export interface ClientRenderResult {
+export interface ClientRenderResult<Data> {
   /** Prepare any required state before mount. */
   bootstrap?: () => void | Promise<void>;
   /** Mount the component into the DOM. */
   mount?: () => void | Promise<void>;
   /** Update the component with new data. */
-  update?: (data: Record<string, any>) => void | Promise<void>;
+  update?: (data: Data) => void | Promise<void>;
   /** Unmount the component from the DOM. */
   unmount?: () => void | Promise<void>;
   /** Clean up resources after unmount. */
@@ -77,7 +69,7 @@ export interface ClientRenderFunction<
   Component = unknown,
   Data = unknown,
   Options extends ClientRenderOptions = ClientRenderOptions,
-  Result = void | ClientRenderResult,
+  Result = void | ClientRenderResult<Data>,
 > {
   (
     component: Component,
