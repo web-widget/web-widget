@@ -1,5 +1,5 @@
-import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
-import { createSSRApp, h, Suspense } from 'vue';
+import { defineServerRender } from '@web-widget/helpers';
+import { type Component, createSSRApp, h, Suspense } from 'vue';
 import {
   renderToString,
   renderToWebStream,
@@ -9,11 +9,8 @@ import type { CreateVueRenderOptions } from './types';
 import errorHandler from './error-handler';
 
 declare module '@web-widget/schema' {
-  interface WidgetRenderOptions {
+  interface ServerRenderOptions {
     vue?: {};
-  }
-  interface RouteRenderOptions {
-    vue?: SSRContext;
   }
 }
 
@@ -27,28 +24,26 @@ export interface VueRenderOptions {
 
 export const createVueRender = ({
   onCreatedApp = async () => {},
-  onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
-  if (onPrefetchData) {
-    throw new Error(`"onPrefetchData" is not supported.`);
-  }
+  return defineServerRender<Component>(
+    async (component, data, { progressive, vue: options } = {}) => {
+      if (!component) {
+        throw new TypeError(`Missing component.`);
+      }
 
-  return defineRender<unknown, Record<string, string>>(
-    async (context, { progressive, vue: options } = {}) => {
       const ssrContext: SSRContext = Object.create(options ?? null);
 
       let error;
-      const componentDescriptor = getComponentDescriptor(context);
-      const { component, props } = componentDescriptor;
+      const context = { data, progressive }; // This is to be compatible with createVueRender's on*** lifecycle
       const WidgetSuspense = (props: any) =>
         h(Suspense, null, [h(component, props)]);
-      const app = createSSRApp(WidgetSuspense, props as any);
+      const app = createSSRApp(WidgetSuspense, context as any);
 
       errorHandler(app, (err) => {
         error = err;
       });
 
-      await onCreatedApp(app, context, component, props);
+      await onCreatedApp(app, context, component, data);
 
       const html = progressive
         ? renderToWebStream(app, ssrContext)

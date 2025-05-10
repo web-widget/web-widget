@@ -1,4 +1,4 @@
-import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
+import { defineServerRender } from '@web-widget/helpers';
 import type { Fallback, HTML, UnsafeHTML } from '@worker-tools/html';
 import { fallback, html, unsafeHTML } from '@worker-tools/html';
 import {
@@ -72,26 +72,20 @@ const supportNonBinaryTransformStreams = async () => {
 };
 supportNonBinaryTransformStreams();
 
-export const defineHtmlRender = ({
-  onPrefetchData,
-}: DefineHtmlRenderOptions = {}) => {
-  if (onPrefetchData) {
-    throw new Error(`"onPrefetchData" is not supported.`);
-  }
-  return defineRender<unknown, Record<string, string>>(
-    async (context, { progressive }) => {
-      const componentDescriptor = getComponentDescriptor(context);
-      const { component, props } = componentDescriptor;
+export const defineHtmlRender = ({}: DefineHtmlRenderOptions = {}) => {
+  return defineServerRender<Function>(
+    async (component, context, { progressive: _ignore }) => {
+      if (!component) {
+        throw new TypeError(`Missing component.`);
+      }
 
       let content: HTML;
-      if (
-        typeof component === 'function' &&
-        component.constructor.name === 'AsyncFunction'
-      ) {
+
+      if (component.constructor.name === 'AsyncFunction') {
         // experimental
-        content = await component(props as any);
+        content = await component(context as any);
       } else {
-        content = component(props as any);
+        content = component(context as any);
       }
 
       await supportNonBinaryTransformStreams();

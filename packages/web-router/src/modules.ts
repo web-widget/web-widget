@@ -17,17 +17,18 @@ import type {
   DevRouteModule,
   HTTPException,
   LayoutModule,
-  LayoutRenderContext,
+  LayoutComponentProps,
   Meta,
   MiddlewareContext,
   MiddlewareHandler,
   MiddlewareModule,
   MiddlewareNext,
   RouteContext,
+  RouteFallbackComponentProps,
   RouteHandler,
   RouteHandlers,
   RouteModule,
-  RouteRenderContext,
+  RouteComponentProps,
   RouteRenderOptions,
 } from './types';
 
@@ -57,15 +58,15 @@ function composeRender(
     }
 
     if (typeof layoutModule.render !== 'function') {
-      throw new TypeError(`Layout module does not export "render" function.`);
+      throw new TypeError(`Layout module is missing export "render" function.`);
     }
 
     if (!context.module) {
-      throw new TypeError(`Missing "module".`);
+      throw new TypeError(`Context is missing "module".`);
     }
 
     if (typeof context.module.render !== 'function') {
-      throw new TypeError(`Module does not export "render" function.`);
+      throw new TypeError(`Module is missing export "render" function.`);
     }
 
     const error = unsafeError
@@ -77,28 +78,50 @@ function composeRender(
     const {
       render: _render,
       renderOptions: _renderOptions,
+      waitUntil: _waitUntil,
+      module: _module,
       ...restContext
     } = context;
 
-    const renderContext: RouteRenderContext = Object.assign(restContext, {
+    const componentExportName = error ? 'fallback' : 'default';
+    const component = context.module[componentExportName];
+
+    const renderContext: RouteFallbackComponentProps | RouteComponentProps =
+      error
+        ? {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            status: error.status,
+            statusText: error.statusText,
+          }
+        : {
+            ...restContext,
+            data,
+            error,
+            meta,
+          };
+
+    const children = await context.module.render(
+      component,
+      renderContext,
+      renderOptions
+    );
+    const layoutContext: LayoutComponentProps = {
+      children,
       data,
-      error,
       meta,
-    });
-    const children = await context.module.render(renderContext, renderOptions);
-    const layoutContext: LayoutRenderContext = {
-      data: {
-        children,
-        meta,
-        params: context.params,
-        pathname: context.pathname,
-        request: context.request,
-      },
-      meta: context.meta,
-      module: layoutModule,
+      params: context.params,
+      pathname: context.pathname,
+      request: context.request,
+      state: context.state,
     };
 
-    const html = await layoutModule.render(layoutContext, renderOptions);
+    const html = await layoutModule.render(
+      layoutModule.default,
+      layoutContext,
+      renderOptions
+    );
     const status =
       renderOptions?.status ??
       (error ? (error.status ? error.status : 500) : 200);
@@ -179,7 +202,7 @@ async function normalizeModule<T>(module: any) {
 
 function normalizeHandler<T>(handler: any, disallowUnknownMethod: boolean): T {
   if (!handler) {
-    throw new TypeError(`Module does not export "handler".`);
+    throw new TypeError(`Module is missing export "handler".`);
   }
   if (typeof handler === 'function') {
     return handler;

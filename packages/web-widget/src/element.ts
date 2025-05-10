@@ -1,8 +1,4 @@
-import type {
-  ClientWidgetModule,
-  ClientWidgetRenderContext,
-  Meta,
-} from '@web-widget/helpers';
+import type { ClientWidgetModule, Meta } from '@web-widget/helpers';
 import {
   mountLifecycleCacheLayer,
   callSyncCacheProvider,
@@ -10,7 +6,7 @@ import {
 import { WebWidgetUpdateEvent } from './event';
 import { LifecycleController } from './modules/controller';
 import { status } from './modules/status';
-import type { SerializableObject } from './types';
+import type { ClientWidgetRenderContext, SerializableObject } from './types';
 import { createIdleObserver } from './utils/idle';
 import { createVisibleObserver } from './utils/lazy';
 import { triggerModulePreload } from './utils/module-preload';

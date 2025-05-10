@@ -5,6 +5,7 @@ import {
   FetchContext,
   Meta,
 } from './common';
+import { ServerRenderFunction, ServerRenderOptions } from './render-contract';
 
 export interface RouteModule {
   config?: RouteConfig;
@@ -12,7 +13,7 @@ export interface RouteModule {
   fallback?: RouteFallbackComponent;
   handler?: RouteHandler | RouteHandlers;
   meta?: Meta;
-  render?: RouteRender;
+  render?: ServerRenderFunction;
 }
 
 export interface RouteConfig extends Record<string, unknown> {}
@@ -20,7 +21,10 @@ export interface RouteConfig extends Record<string, unknown> {}
 export interface RouteComponentProps<
   Data = unknown,
   Params = Record<string, string>,
-> extends RouteRenderContext<Data, Params> {}
+> extends Omit<
+    RouteContext<Data, Params>,
+    'render' | 'renderOptions' | 'waitUntil' | 'module'
+  > {}
 
 export type RouteComponent<Data = unknown, Params = Record<string, string>> = (
   props: RouteComponentProps<Data, Params>
@@ -81,23 +85,4 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>>
   renderOptions: RouteRenderOptions;
 }
 
-export interface RouteRenderContext<
-  Data = unknown,
-  Params = Record<string, string>,
-> extends Omit<RouteContext<Data, Params>, 'render' | 'renderOptions'> {}
-
-export interface RouteRenderOptions extends ResponseInit {
-  /**
-   * Use progressive rendering first.
-   */
-  progressive?: boolean;
-}
-
-export type RouteRenderResult = string | ReadableStream;
-
-export interface RouteRender<Data = unknown, Params = Record<string, string>> {
-  (
-    renderContext: RouteRenderContext<Data, Params>,
-    renderOptions?: RouteRenderOptions
-  ): RouteRenderResult | Promise<RouteRenderResult>;
-}
+export interface RouteRenderOptions extends ResponseInit, ServerRenderOptions {}

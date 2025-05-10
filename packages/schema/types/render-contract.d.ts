@@ -1,16 +1,15 @@
 /**
  * The options required to render a component on the server side.
  */
-export interface ServerRenderOptions<Component = unknown> {
+export interface ServerRenderOptions {
   /** If true, enable progressive (streaming) rendering. */
   progressive?: boolean;
 }
 
 /**
- * The result type of a server renderer depending on the progressive flag.
+ * The result of a server-side render operation.
  */
-export type ServerRenderResult<Options extends ServerRenderOptions> =
-  Options extends { progressive: true } ? ReadableStream<string> : string;
+export type ServerRenderResult = ReadableStream<string> | string;
 
 /**
  * A function that renders a component to HTML or stream on the server.
@@ -23,19 +22,19 @@ export interface ServerRenderFunction<
   Component = unknown,
   Data = unknown,
   Options extends ServerRenderOptions = ServerRenderOptions,
-  Result = ServerRenderResult<Options>,
+  Result = ServerRenderResult,
 > {
   (
     component: Component,
     data: Data,
-    options?: Options
+    options: Options
   ): Result | Promise<Result>;
 }
 
 /**
  * The options required to render a component on the client side.
  */
-export interface ClientRenderOptions<Component = unknown> {
+export interface ClientRenderOptions {
   /** The target DOM element or fragment where the component will be mounted. */
   container: Element | DocumentFragment;
   /** Indicates whether hydration should be used (i.e., recovering from SSR). */
@@ -45,7 +44,7 @@ export interface ClientRenderOptions<Component = unknown> {
 /**
  * Lifecycle hooks returned by a client-side renderer.
  */
-export interface ClientRenderResult<Data> {
+export type ClientRenderResult<Data = unknown> = {
   /** Prepare any required state before mount. */
   bootstrap?: () => void | Promise<void>;
   /** Mount the component into the DOM. */
@@ -56,7 +55,7 @@ export interface ClientRenderResult<Data> {
   unmount?: () => void | Promise<void>;
   /** Clean up resources after unmount. */
   unload?: () => void | Promise<void>;
-}
+};
 
 /**
  * A function that renders a component on the client (CSR or hydration).
@@ -74,6 +73,6 @@ export interface ClientRenderFunction<
   (
     component: Component,
     data: Data,
-    options?: Options
+    options: Options
   ): Result | Promise<Result>;
 }
