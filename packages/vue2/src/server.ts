@@ -1,4 +1,4 @@
-import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
+import { defineServerRender } from '@web-widget/helpers';
 import { escapeJson } from '@web-widget/helpers/purify';
 // import { Readable } from "node:stream";
 // import { TransformStream } from "node:stream/web";
@@ -28,27 +28,30 @@ export * from './components';
 //   );
 // }
 
+type BuildedComponent = Component & {
+  __name?: string;
+};
+
 export const createVueRender = ({
   onBeforeCreateApp = async () => ({}),
   onCreatedApp = async () => {},
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
-  return defineRender<unknown, Record<string, string>>(
-    async (context, { progressive }) => {
-      const componentDescriptor = getComponentDescriptor(context);
-      const component = componentDescriptor.component as Component & {
-        __name?: string;
-      };
-      const props = componentDescriptor.props;
+  return defineServerRender<BuildedComponent>(
+    async (component, data, { progressive }) => {
+      if (!component) {
+        throw new TypeError(`Missing component.`);
+      }
 
       if (component.__name) {
         component.__name = component.__name.replace('@', '-');
       }
 
+      const context = { data, progressive }; // This is to be compatible with createVueRender's on*** lifecycle
       const state = onPrefetchData
-        ? await onPrefetchData(context, component, props)
+        ? await onPrefetchData(context, component, data)
         : undefined;
-      const mergedProps = state ? Object.assign({}, state, props) : props;
+      const mergedProps = state ? Object.assign({}, state, data) : data;
 
       const renderer = createRenderer();
 

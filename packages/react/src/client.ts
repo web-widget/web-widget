@@ -1,8 +1,4 @@
-import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
-import type {
-  ClientWidgetRenderContext,
-  ComponentProps,
-} from '@web-widget/helpers';
+import { defineClientRender } from '@web-widget/helpers';
 import type { FunctionComponent } from 'react';
 import { createElement, StrictMode } from 'react';
 import type { Root } from 'react-dom/client';
@@ -13,55 +9,49 @@ export * from '@web-widget/helpers';
 export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
-export const createReactRender = ({
-  onPrefetchData,
-}: CreateReactRenderOptions = {}) => {
-  if (onPrefetchData) {
-    throw new Error(`"onPrefetchData" is not supported.`);
-  }
+export const createReactRender = ({}: CreateReactRenderOptions = {}) => {
+  return defineClientRender<FunctionComponent>(
+    async (component, context, { recovering, container }) => {
+      if (!component) {
+        throw new TypeError(`Missing component.`);
+      }
 
-  return defineRender(async (context) => {
-    const { recovering, container } = context as ClientWidgetRenderContext;
-    const componentDescriptor = getComponentDescriptor(context);
-    const { component, props } = componentDescriptor;
+      if (!container) {
+        throw new Error(`Missing container.`);
+      }
 
-    if (!container) {
-      throw new Error(`Container required.`);
+      let root: Root | null;
+      return {
+        async mount() {
+          let vNode;
+
+          if (component.constructor.name === 'AsyncFunction') {
+            // experimental
+            vNode = await component(context as any);
+          } else {
+            vNode = createElement(
+              component as FunctionComponent,
+              context as any
+            );
+          }
+
+          vNode = createElement(StrictMode, null, vNode);
+
+          if (recovering) {
+            root = hydrateRoot(container as Element, vNode as any);
+          } else {
+            root = createRoot(container);
+            root.render(vNode as any);
+          }
+        },
+
+        async unmount() {
+          root?.unmount();
+          root = null;
+        },
+      };
     }
-
-    let root: Root | null;
-    return {
-      async mount() {
-        let vNode;
-        if (
-          typeof component === 'function' &&
-          component.constructor.name === 'AsyncFunction'
-        ) {
-          // experimental
-          vNode = await component(props as ComponentProps<any>);
-        } else {
-          vNode = createElement(
-            component as FunctionComponent,
-            props as ComponentProps<any>
-          );
-        }
-
-        vNode = createElement(StrictMode, null, vNode);
-
-        if (recovering) {
-          root = hydrateRoot(container as Element, vNode as any);
-        } else {
-          root = createRoot(container);
-          root.render(vNode as any);
-        }
-      },
-
-      async unmount() {
-        root?.unmount();
-        root = null;
-      },
-    };
-  });
+  );
 };
 
 /**@deprecated Please use `createReactRender` instead.*/

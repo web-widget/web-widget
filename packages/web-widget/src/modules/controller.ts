@@ -1,10 +1,12 @@
 import type {
-  ClientWidgetRenderContext as WidgetRenderContext,
-  ClientWidgetRenderResult as WidgetRenderResult,
+  ClientRenderResult as WidgetRenderResult,
   ClientWidgetModule as WidgetModule,
 } from '@web-widget/helpers';
 import { rebaseMeta, mergeMeta } from '@web-widget/helpers';
-import type { Loader } from '../types';
+import type {
+  Loader,
+  ClientWidgetRenderContext as WidgetRenderContext,
+} from '../types';
 
 import { status } from './status';
 import { reasonableTime } from './timeouts';
@@ -100,6 +102,7 @@ export class LifecycleController {
           : [];
         const styles = meta.style ?? [];
         const hasStyle = styleLinks.length ?? styles.length;
+        const component = widgetModule.default;
         const renderContext: WidgetRenderContext = Object.freeze({
           children: undefined, // TODO
           get container() {
@@ -122,7 +125,23 @@ export class LifecycleController {
           update: Reflect.get(context, 'update'),
         });
 
-        const lifecycle: WidgetRenderResult = await render(renderContext);
+        const lifecycle: WidgetRenderResult =
+          (await render(component, context.data, {
+            recovering: context.recovering,
+            get container() {
+              const tag = 'web-widget.body';
+              return (
+                body ??
+                (body = hasStyle
+                  ? context.recovering
+                    ? (context.container.querySelector(
+                        tag.replace('.', '\\.')
+                      ) ?? context.container)
+                    : context.container.appendChild(document.createElement(tag))
+                  : context.container)
+              );
+            },
+          })) ?? {};
 
         Object.assign(
           // @ts-ignore
@@ -165,7 +184,7 @@ export class LifecycleController {
               return Promise.all(loading);
             },
           },
-          lifecycle ?? {}
+          lifecycle
         );
       };
     }

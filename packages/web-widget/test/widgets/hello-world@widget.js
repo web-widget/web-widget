@@ -1,7 +1,7 @@
-import { defineRender } from '@web-widget/helpers';
+import { defineClientRender } from '@web-widget/helpers';
 window.TEST_LIFECYCLE = 'load';
 
-export const render = defineRender(({ container }) => ({
+export const render = defineClientRender(({ container }) => ({
   async bootstrap() {
     window.TEST_LIFECYCLE = 'bootstrap';
   },

@@ -1,7 +1,4 @@
-import type {
-  ServerWidgetModule,
-  ServerWidgetRenderContext,
-} from '@web-widget/helpers';
+import type { ServerWidgetModule } from '@web-widget/helpers';
 import { mergeMeta, rebaseMeta, renderMetaToString } from '@web-widget/helpers';
 import {
   renderLifecycleCacheLayer,
@@ -13,6 +10,7 @@ import type {
   WebWidgetRendererOptions,
   WebWidgetRendererInterface,
   WebWidgetRendererConstructor,
+  ServerWidgetRenderContext,
 } from './types';
 import {
   getClientModuleId,
@@ -113,7 +111,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
     const module = (await loader()) as ServerWidgetModule;
     if (typeof module.render !== 'function') {
       throw new TypeError(
-        `The module does not export a "render" method: ${getDisplayModuleId(
+        `Module is missing export "render": ${getDisplayModuleId(
           loader,
           options
         )}`
@@ -139,10 +137,15 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       children: options.renderTarget === 'light' ? children : undefined,
       data: options.data,
       meta,
-      module,
     };
+    const component = module.default;
+
+    if (!component) {
+      throw new TypeError(`Module is missing export "default".`);
+    }
+
     const rawResult = await callSyncCacheProvider(() =>
-      module.render!(context, {})
+      module.render!(component, context, {})
     );
 
     if (typeof rawResult === 'string') {

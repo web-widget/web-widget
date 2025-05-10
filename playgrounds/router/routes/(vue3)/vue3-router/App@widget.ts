@@ -1,5 +1,4 @@
 import { createVueRender } from '@web-widget/vue';
-import type { ClientWidgetRenderContext } from '@web-widget/helpers';
 import type { RouteLocationRaw } from 'vue-router';
 import App from './App.vue';
 import createRouter from './router';
@@ -10,7 +9,7 @@ type Props = {
 
 export const render = createVueRender({
   async onCreatedApp(app, context) {
-    const container = (context as ClientWidgetRenderContext).container;
+    const container = context.container;
     const router = createRouter(container);
 
     app.use(router);

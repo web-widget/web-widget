@@ -1,8 +1,4 @@
-import {
-  defineRender,
-  getComponentDescriptor,
-  type ComponentProps,
-} from '@web-widget/helpers';
+import { defineServerRender } from '@web-widget/helpers';
 import type { FunctionComponent } from 'react';
 import { createElement, StrictMode } from 'react';
 
@@ -16,10 +12,7 @@ import {
 } from './edge';
 
 declare module '@web-widget/schema' {
-  interface WidgetRenderOptions {
-    react?: {};
-  }
-  interface RouteRenderOptions {
+  interface ServerRenderOptions {
     react?: StreamOptions;
   }
 }
@@ -37,20 +30,16 @@ export interface ReactRenderOptions {
   react?: StreamOptions;
 }
 
-export const createReactRender = ({
-  onPrefetchData,
-}: CreateReactRenderOptions = {}) => {
-  if (onPrefetchData) {
-    throw new Error(`"onPrefetchData" is not supported.`);
-  }
+export const createReactRender = ({}: CreateReactRenderOptions = {}) => {
+  return defineServerRender<FunctionComponent>(
+    async (component, context, { progressive, react }) => {
+      if (!component) {
+        throw new TypeError(`Missing component.`);
+      }
 
-  return defineRender<unknown, Record<string, string>>(
-    async (context, { progressive, react: options } = {}) => {
-      const reactRenderOptions: StreamOptions = Object.create(options ?? null);
+      const reactRenderOptions: StreamOptions = Object.create(react ?? null);
 
       let error;
-      const componentDescriptor = getComponentDescriptor(context);
-      const { component, props } = componentDescriptor;
       const onError = reactRenderOptions.onError;
       const awaitAllReady = reactRenderOptions.awaitAllReady;
 
@@ -68,34 +57,33 @@ export const createReactRender = ({
       };
 
       let vNode;
-      if (
-        typeof component === 'function' &&
-        component.constructor.name === 'AsyncFunction'
-      ) {
+      if (component.constructor.name === 'AsyncFunction') {
         // experimental
-        vNode = await component(props as ComponentProps<any>);
+        vNode = await component(context as any);
       } else {
-        vNode = createElement(
-          component as FunctionComponent,
-          props as ComponentProps<any>
-        );
+        vNode = createElement(component, context as any);
       }
 
       vNode = createElement(StrictMode, null, vNode);
 
-      const html = await (progressive
-        ? renderToReadableStream(vNode, reactRenderOptions)
-        : renderToString(vNode, reactRenderOptions));
+      const renderMethod = progressive
+        ? renderToReadableStream
+        : renderToString;
+      const result = await renderMethod(vNode, reactRenderOptions);
 
-      if (progressive && awaitAllReady) {
-        await (html as ReactDOMServerReadableStream).allReady;
+      if (
+        progressive &&
+        awaitAllReady &&
+        'allReady' in (result as ReactDOMServerReadableStream)
+      ) {
+        await (result as ReactDOMServerReadableStream).allReady;
       }
 
       if (error) {
         throw error;
       }
 
-      return html;
+      return result;
     }
   );
 };
