@@ -29,9 +29,9 @@ export const createVueRender = ({
       return {
         async mount() {
           if (recovering) {
-            app = createSSRApp(WidgetSuspense, context as any);
+            app = createSSRApp(WidgetSuspense, data as any);
           } else {
-            app = createApp(WidgetSuspense, context as any);
+            app = createApp(WidgetSuspense, data as any);
           }
 
           let error;

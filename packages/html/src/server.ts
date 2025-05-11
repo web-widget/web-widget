@@ -5,7 +5,6 @@ import {
   asyncIterToStream,
   streamToAsyncIter,
 } from 'whatwg-stream-to-async-iter';
-import type { DefineHtmlRenderOptions } from './types';
 
 export * from '@web-widget/helpers';
 export * from './web-widget';
@@ -72,26 +71,22 @@ const supportNonBinaryTransformStreams = async () => {
 };
 supportNonBinaryTransformStreams();
 
-export const defineHtmlRender = ({}: DefineHtmlRenderOptions = {}) => {
-  return defineServerRender<Function>(
-    async (component, context, { progressive: _ignore }) => {
-      if (!component) {
-        throw new TypeError(`Missing component.`);
-      }
-
-      let content: HTML;
-
-      if (component.constructor.name === 'AsyncFunction') {
-        // experimental
-        content = await component(context as any);
-      } else {
-        content = component(context as any);
-      }
-
-      await supportNonBinaryTransformStreams();
-      return HTMLToStream(content);
+export const render = defineServerRender<Function>(
+  async (component, context, { progressive: _ignore }) => {
+    if (!component) {
+      throw new TypeError(`Missing component.`);
     }
-  );
-};
 
-export const render = defineHtmlRender();
+    let content: HTML;
+
+    if (component.constructor.name === 'AsyncFunction') {
+      // experimental
+      content = await component(context as any);
+    } else {
+      content = component(context as any);
+    }
+
+    await supportNonBinaryTransformStreams();
+    return HTMLToStream(content);
+  }
+);

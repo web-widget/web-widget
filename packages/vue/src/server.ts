@@ -37,7 +37,7 @@ export const createVueRender = ({
       const context = { data, progressive }; // This is to be compatible with createVueRender's on*** lifecycle
       const WidgetSuspense = (props: any) =>
         h(Suspense, null, [h(component, props)]);
-      const app = createSSRApp(WidgetSuspense, context as any);
+      const app = createSSRApp(WidgetSuspense, data as any);
 
       errorHandler(app, (err) => {
         error = err;

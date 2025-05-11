@@ -109,7 +109,9 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
     }
 
     const module = (await loader()) as ServerWidgetModule;
-    if (typeof module.render !== 'function') {
+    const { default: component, meta: _meta, render } = module;
+
+    if (typeof render !== 'function') {
       throw new TypeError(
         `Module is missing export "render": ${getDisplayModuleId(
           loader,
@@ -119,7 +121,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
     }
 
     const meta = rebaseMeta(
-      mergeMeta(module.meta ?? {}, options.meta ?? {}),
+      mergeMeta(_meta ?? {}, options.meta ?? {}),
       clientImport
     );
 
@@ -133,19 +135,10 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
     const styles = meta.style || [];
     const hasStyle = styleLinks.length || styles.length;
 
-    const context: ServerWidgetRenderContext = {
-      children: options.renderTarget === 'light' ? children : undefined,
-      data: options.data,
-      meta,
-    };
-    const component = module.default;
-
-    if (!component) {
-      throw new TypeError(`Module is missing export "default".`);
-    }
-
     const rawResult = await callSyncCacheProvider(() =>
-      module.render!(component, context, {})
+      render(component, options.data, {
+        progressive: false,
+      })
     );
 
     if (typeof rawResult === 'string') {
