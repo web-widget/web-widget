@@ -32,6 +32,10 @@ type BuildedComponent = Component & {
   __name?: string;
 };
 
+function sanitizeComponentName(name: string): string {
+  return name.replace('@', '-');
+}
+
 export const createVueRender = ({
   onBeforeCreateApp = async () => ({}),
   onCreatedApp = async () => {},
@@ -44,7 +48,7 @@ export const createVueRender = ({
       }
 
       if (component.__name) {
-        component.__name = component.__name.replace('@', '-');
+        component.__name = sanitizeComponentName(component.__name);
       }
 
       const context = { data, progressive }; // This is to be compatible with createVueRender's on*** lifecycle
@@ -74,7 +78,7 @@ export const createVueRender = ({
         console.warn(`Vue2 does not support progressive rendering.`);
       }
 
-      // NOTE: Avoid vite-plugin-vue2-jsx not working.
+      // NOTE: Avoid issues with vite-plugin-vue2-jsx by ensuring proper SSR context handling.
       // @see https://github.com/vitejs/vite-plugin-vue2-jsx/blob/f44adfd80a8c2d016947bcd808c88ebfa2d9da1a/src/index.ts#L32-L33
       const ssrContext = {};
       const result = await renderer.renderToString(app, ssrContext);

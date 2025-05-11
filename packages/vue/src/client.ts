@@ -8,6 +8,10 @@ export * from '@web-widget/helpers';
 export { useWidgetAsyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
+// Helper function to create the WidgetSuspense component
+const createWidgetSuspense = (component: Component) => (props: any) =>
+  h(Suspense, null, [h(component, props)]);
+
 export const createVueRender = ({
   onCreatedApp = async () => {},
 }: CreateVueRenderOptions = {}) => {
@@ -22,23 +26,22 @@ export const createVueRender = ({
       }
 
       let app: App | null;
-      const context = { data, recovering, container }; // This is to be compatible with createVueRender's on*** lifecycle
-      const WidgetSuspense = (props: any) =>
-        h(Suspense, null, [h(component, props)]);
+      const context = { data, recovering, container }; // Context for lifecycle hooks
+      const WidgetSuspense = createWidgetSuspense(component);
 
       return {
         async mount() {
-          if (recovering) {
-            app = createSSRApp(WidgetSuspense, data as any);
-          } else {
-            app = createApp(WidgetSuspense, data as any);
-          }
+          // Choose the appropriate app creation method based on recovery state
+          app = recovering
+            ? createSSRApp(WidgetSuspense, data as any)
+            : createApp(WidgetSuspense, data as any);
 
           let error;
           errorHandler(app, (err) => {
             error = err;
           });
 
+          // Call the user-defined lifecycle hook
           await onCreatedApp(app, context, component, data);
 
           app.mount(container);

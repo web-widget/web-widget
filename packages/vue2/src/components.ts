@@ -14,7 +14,7 @@ Vue.config.ignoredElements = ['web-widget'];
  * @link ../lifecycle-cache/src/provider.ts#cacheProviderIsLoading
  */
 Vue.config.warnHandler = (msg, vm, trace) => {
-  if (msg === `Error in setup: "[object Promise]"`) {
+  if (msg.includes(`[object Promise]`)) {
     return;
   }
   console.error('[Vue warn]: '.concat(msg).concat(trace));
@@ -35,6 +35,10 @@ export /*#__PURE__*/ function defineWebWidget(
   loader: Loader,
   options: DefineWebWidgetOptions
 ) {
+  if (!loader) {
+    throw new TypeError(`Missing loader.`);
+  }
+
   return defineComponent({
     name: 'WebWidgetRoot',
     inheritAttrs: false,
@@ -57,63 +61,30 @@ export /*#__PURE__*/ function defineWebWidget(
     },
     async serverPrefetch() {
       const widget = (this as any).$widget as WebWidgetRenderer;
-      const innerHTML = await widget.renderInnerHTMLToString();
-      (this as any).$innerHTML = innerHTML;
+      (this as any).$innerHTML = await widget.renderInnerHTMLToString();
     },
-    // async mounted() {
-    //   if (!(this as any).$innerHTML) {
-    //     const widget = (this as any).$widget as WebWidgetRenderer;
-    //     const innerHTML = await widget.renderInnerHTMLToString();
-    //     (this as any).$innerHTML = innerHTML;
-    //   }
-    // },
-    setup(
-      {
-        fallback,
-        experimental_loading,
-        renderStage,
-        experimental_renderTarget,
-      },
-      { slots }
-    ) {
-      if (!loader) {
-        throw new TypeError(`Missing loader.`);
-      }
-
+    setup(props, { slots }) {
       if (Object.keys(slots).length > 0) {
         throw new TypeError(`Slot not supported.`);
       }
 
       const data = useAttrs() as WebWidgetRendererOptions['data'];
-      const widget = new WebWidgetRenderer(loader as Loader, {
+      const widget = new WebWidgetRenderer(loader, {
         ...options,
         data,
-        loading: experimental_loading,
-        renderStage,
-        renderTarget: experimental_renderTarget,
+        loading: props.experimental_loading,
+        renderStage: props.renderStage,
+        renderTarget: props.experimental_renderTarget,
       });
+
       const instance = getCurrentInstance()!;
       (instance.proxy as any).$widget = widget;
-
-      if (IS_CLIENT) {
-        // await customElements.whenDefined(tag);
-        // let element = document.createElement(tag);
-        // Object.entries(attrs).forEach(([name, value]) => {
-        //   element.setAttribute(name, value);
-        // });
-        // // @ts-ignore
-        // await element.bootstrap();
-        // // @ts-ignore
-        // element = null;
-      }
 
       return () => {
         const innerHTML = (instance.proxy as any).$innerHTML;
         return h(widget.localName, {
           attrs: widget.attributes,
-          domProps: {
-            innerHTML,
-          },
+          domProps: { innerHTML },
         });
       };
     },

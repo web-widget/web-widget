@@ -29,6 +29,8 @@ export interface ReactRenderOptions {
   react?: StreamOptions;
 }
 
+const DEFAULT_TIMEOUT_MS = 1000 * 10; // 提取默认超时时间为常量
+
 export const render = defineServerRender<FunctionComponent>(
   async (component, context, { progressive, react }) => {
     if (!component) {
@@ -37,30 +39,25 @@ export const render = defineServerRender<FunctionComponent>(
 
     const reactRenderOptions: StreamOptions = Object.create(react ?? null);
 
-    let error;
-    const onError = reactRenderOptions.onError;
-    const awaitAllReady = reactRenderOptions.awaitAllReady;
+    let error: unknown;
+    const { onError, awaitAllReady, signal } = reactRenderOptions;
 
-    if (!reactRenderOptions.signal) {
-      reactRenderOptions.signal = AbortSignal.timeout(1000 * 10);
-    }
+    reactRenderOptions.signal =
+      signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS);
 
     reactRenderOptions.onError = (e, i) => {
       error = e;
-      if (onError) {
-        onError(e, i);
-      } else if (progressive && !awaitAllReady) {
+      onError?.(e, i); // 使用可选链简化调用
+      if (!onError && progressive && !awaitAllReady) {
         console.error(e);
       }
     };
 
-    let vNode;
-    if (component.constructor.name === 'AsyncFunction') {
-      // experimental
-      vNode = await component(context as any);
-    } else {
-      vNode = createElement(component, context as any);
-    }
+    const isAsyncFunction =
+      Object.prototype.toString.call(component) === '[object AsyncFunction]';
+    let vNode = isAsyncFunction
+      ? await component(context as any)
+      : createElement(component, context as any);
 
     vNode = createElement(StrictMode, null, vNode);
 

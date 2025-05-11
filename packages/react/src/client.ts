@@ -21,14 +21,12 @@ export const render = defineClientRender<FunctionComponent>(
     let root: Root | null;
     return {
       async mount() {
-        let vNode;
-
-        if (component.constructor.name === 'AsyncFunction') {
-          // experimental
-          vNode = await component(context as any);
-        } else {
-          vNode = createElement(component as FunctionComponent, context as any);
-        }
+        const isAsyncFunction =
+          Object.prototype.toString.call(component) ===
+          '[object AsyncFunction]';
+        let vNode = isAsyncFunction
+          ? await component(context as any)
+          : createElement(component as FunctionComponent, context as any);
 
         vNode = createElement(StrictMode, null, vNode);
 

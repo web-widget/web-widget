@@ -8,16 +8,26 @@ export * from '@web-widget/helpers';
 export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
-type BuildedComponent = Component & {
+type EnhancedComponent = Component & {
   __name?: string;
 };
+
+function sanitizeComponentName(name: string): string {
+  return name.replace('@', '.');
+}
+
+function clearContainerContent(container: Element | Node) {
+  if ('innerHTML' in container) {
+    container.innerHTML = '';
+  }
+}
 
 export const createVueRender = ({
   onBeforeCreateApp = async () => ({}),
   onCreatedApp = async () => {},
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
-  return defineClientRender<BuildedComponent>(
+  return defineClientRender<EnhancedComponent>(
     async (component, data, { recovering, container }) => {
       if (!component) {
         throw new TypeError(`Missing component.`);
@@ -28,8 +38,7 @@ export const createVueRender = ({
       }
 
       if (component.__name) {
-        // NOTE: Avoid vue warnings: `[Vue warn]: Invalid component name ...`
-        component.__name = component.__name.replace('@', '.');
+        component.__name = sanitizeComponentName(component.__name);
       }
 
       let app: Vue | null;
@@ -96,7 +105,7 @@ export const createVueRender = ({
 
           if (loading) {
             recovering = false;
-            clearInsterHTML(container);
+            clearContainerContent(container);
             // NOTE: Let the framework wait for the data to be ready before remounting.
             throw loading;
           }
@@ -104,19 +113,13 @@ export const createVueRender = ({
 
         async unmount() {
           app?.$destroy();
-          clearInsterHTML(container);
+          clearContainerContent(container);
           app = null;
         },
       };
     }
   );
 };
-
-function clearInsterHTML(container: Element | Node) {
-  if ('innerHTML' in container) {
-    container.innerHTML = '';
-  }
-}
 
 /**@deprecated Please use `createVueRender` instead.*/
 export const defineVueRender = createVueRender;

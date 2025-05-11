@@ -18,6 +18,10 @@ export * from '@web-widget/helpers';
 export { useWidgetAsyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
+// Helper function to create the WidgetSuspense component
+const createWidgetSuspense = (component: Component) => (props: any) =>
+  h(Suspense, null, [h(component, props)]);
+
 export interface VueRenderOptions {
   vue?: SSRContext;
 }
@@ -34,17 +38,18 @@ export const createVueRender = ({
       const ssrContext: SSRContext = Object.create(options ?? null);
 
       let error;
-      const context = { data, progressive }; // This is to be compatible with createVueRender's on*** lifecycle
-      const WidgetSuspense = (props: any) =>
-        h(Suspense, null, [h(component, props)]);
+      const context = { data, progressive }; // Context for lifecycle hooks
+      const WidgetSuspense = createWidgetSuspense(component);
       const app = createSSRApp(WidgetSuspense, data as any);
 
       errorHandler(app, (err) => {
         error = err;
       });
 
+      // Call the user-defined lifecycle hook
       await onCreatedApp(app, context, component, data);
 
+      // Render the app to a string or stream based on the progressive flag
       const html = progressive
         ? renderToWebStream(app, ssrContext)
         : await renderToString(app, ssrContext);
