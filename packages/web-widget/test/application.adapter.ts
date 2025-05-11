@@ -1,8 +1,6 @@
-import type {
-  ClientWidgetModule,
-  WidgetRenderContext,
-} from '@web-widget/helpers';
+import type { ClientWidgetModule } from '@web-widget/helpers';
 import { HTMLWebWidgetElement } from '../src/element';
+import { ClientWidgetRenderContext } from '../src/types';
 
 type TestWidgetContainer = {
   getStatusHistory(): string[];
@@ -60,12 +58,12 @@ export function createApplication(
   callback: (
     app: TestWidgetContainer & {
       getLifecycleHistory: () => string[];
-      getData: () => WidgetRenderContext['data'];
+      getData: () => ClientWidgetRenderContext['data'];
     }
   ) => Promise<void>
 ) {
   const lifecycleHistory: string[] = [];
-  let data: WidgetRenderContext['data'];
+  let data: ClientWidgetRenderContext['data'];
   return createBaseContainer(
     {
       render: () => {
@@ -79,8 +77,8 @@ export function createApplication(
             lifecycleHistory.push('mount');
           },
 
-          async update(props) {
-            data = props.data;
+          async update(updateData) {
+            data = updateData;
             lifecycleHistory.push('update');
           },
 

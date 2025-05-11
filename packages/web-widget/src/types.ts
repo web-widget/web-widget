@@ -44,12 +44,6 @@ export interface WebWidgetRendererConstructor {
   ): WebWidgetRendererInterface;
 }
 
-export interface ServerWidgetRenderContext<Data = unknown> {
-  children?: string;
-  data: Data;
-  meta: Meta;
-}
-
 export interface ClientWidgetRenderContext<Data = unknown> {
   children?: ClientRenderResult<Data>;
   data: Data;

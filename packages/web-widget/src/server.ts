@@ -10,7 +10,6 @@ import type {
   WebWidgetRendererOptions,
   WebWidgetRendererInterface,
   WebWidgetRendererConstructor,
-  ServerWidgetRenderContext,
 } from './types';
 import {
   getClientModuleId,

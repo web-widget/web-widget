@@ -3,10 +3,7 @@ import type {
   ClientWidgetModule as WidgetModule,
 } from '@web-widget/helpers';
 import { rebaseMeta, mergeMeta } from '@web-widget/helpers';
-import type {
-  Loader,
-  ClientWidgetRenderContext as WidgetRenderContext,
-} from '../types';
+import type { Loader, ClientWidgetRenderContext } from '../types';
 
 import { status } from './status';
 import { reasonableTime } from './timeouts';
@@ -15,7 +12,7 @@ import { rules } from './flow';
 interface LifecycleControllerOptions {
   handler: () => {
     importer: string;
-    context: WidgetRenderContext;
+    context: ClientWidgetRenderContext;
   };
   statusChangeCallback: (status: string) => void;
   timeouts: Record<string, number>;
@@ -76,7 +73,7 @@ export class LifecycleController {
     // @ts-ignore
     if (rule.creator && !this.#lifecycle[name]) {
       //@ts-ignore
-      this.#lifecycle[name] = async (context: WidgetRenderContext) => {
+      this.#lifecycle[name] = async (context: ClientWidgetRenderContext) => {
         const widgetModule = (await this.#moduleLoader()) as WidgetModule;
         const render = widgetModule.render;
 
@@ -103,28 +100,6 @@ export class LifecycleController {
         const styles = meta.style ?? [];
         const hasStyle = styleLinks.length ?? styles.length;
         const component = widgetModule.default;
-        const renderContext: WidgetRenderContext = Object.freeze({
-          children: undefined, // TODO
-          get container() {
-            const tag = 'web-widget.body';
-            return (
-              body ??
-              (body = hasStyle
-                ? context.recovering
-                  ? (context.container.querySelector(tag.replace('.', '\\.')) ??
-                    context.container)
-                  : context.container.appendChild(document.createElement(tag))
-                : context.container)
-            );
-          },
-          data: context.data,
-          meta,
-          module: widgetModule,
-          recovering: context.recovering,
-          /**@deprecated*/
-          update: Reflect.get(context, 'update'),
-        });
-
         const lifecycle: WidgetRenderResult =
           (await render(component, context.data, {
             recovering: context.recovering,
