@@ -1,6 +1,6 @@
 import { expect } from '@esm-bundle/chai';
-import type { ClientWidgetRenderContext } from '@web-widget/helpers';
 import { HTMLWebWidgetElement } from '../src/element.js';
+import { ClientRenderOptions } from '../src/types.js';
 
 const TEST_WIDGET_FILE =
   '/packages/web-widget/test/widgets/hello-world@widget.js';
@@ -29,20 +29,25 @@ const createEmptyWidget = async () => {
 const createWidget = (
   callback: (app: {
     getStatusHistory(): string[];
-    getContext: () => ClientWidgetRenderContext;
+    getContext: () => {
+      data: any;
+      options: ClientRenderOptions;
+    };
     getElement: () => HTMLWebWidgetElement;
   }) => Promise<void>
 ) => {
   const lifecycleHistory = [];
   const statusHistory: string[] = [];
-  let context: ClientWidgetRenderContext;
+  let currentData: any;
+  let currentOptions: any;
   const widget = document.createElement('web-widget');
   widget.inactive = true;
   widget.loader = async () => {
     lifecycleHistory.push('load');
     return {
-      async render(ctx) {
-        context = ctx;
+      async render(_component, data, options) {
+        currentData = data;
+        currentOptions = options;
         return {
           async bootstrap() {
             lifecycleHistory.push('bootstrap');
@@ -79,7 +84,10 @@ const createWidget = (
       return widget;
     },
     getContext() {
-      return context;
+      return {
+        data: currentData,
+        options: currentOptions,
+      };
     },
   });
 };
@@ -141,7 +149,7 @@ describe('Load module', () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
     widget.loader = async () => ({
-      render: ({ container }) => ({
+      render: (_component, _data, { container }) => ({
         async bootstrap() {
           element = document.createElement('div');
           element.innerHTML = 'hello world';
@@ -230,9 +238,9 @@ describe('Application property: container', () => {
   it('container', () =>
     createWidget(async ({ getElement, getContext }) => {
       await getElement().mount();
-      expect(getContext().container).to.be.an.instanceof(ShadowRoot);
+      expect(getContext().options.container).to.be.an.instanceof(ShadowRoot);
       await getElement().unload();
-      expect(getContext().container).to.be.an.instanceof(ShadowRoot);
+      expect(getContext().options.container).to.be.an.instanceof(ShadowRoot);
     }));
 });
 

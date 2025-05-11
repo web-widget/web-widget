@@ -246,7 +246,7 @@ describe('Application lifecycle: update', () => {
         await load();
         await bootstrap();
         await mount();
-        const promise = update({ data });
+        const promise = update(data);
         expect(getStatus()).to.equal(UPDATING);
         await promise;
         expect(getData()).to.have.property('testValue', data.testValue);
@@ -319,10 +319,7 @@ describe('Application lifecycle: update', () => {
           a: number;
         };
         await mount();
-        await Promise.all([
-          update({ data: { a: 1 } as Data }),
-          update({ data: { a: 3 } as Data }),
-        ]);
+        await Promise.all([update({ a: 1 } as Data), update({ a: 3 } as Data)]);
         expect(getStatus()).to.equal(MOUNTED);
         expect(getLifecycleHistory()).to.deep.equal([
           'load',
@@ -524,7 +521,7 @@ describe('Application lifecycle: unload', () => {
         testValue: Date.now(),
       };
       await mount();
-      await update({ data });
+      await update(data);
       expect(getData()).to.have.property('testValue', data.testValue);
       await unmount();
       expect(getData()).to.have.property('testValue', data.testValue);
@@ -800,15 +797,15 @@ describe('Application lifecycle: error', () => {
     ));
 });
 
-describe('Application lifecycle: context', () => {
+describe('Application lifecycle: options', () => {
   it('Should have members', () =>
     createBaseContainer(
       {
-        render: (context) => ({
+        render: (_component, _data, options: any) => ({
           async bootstrap() {
-            const expected = ['container', 'data'];
+            const expected = ['container'];
             expected.forEach((key) => {
-              if (!(key in context)) {
+              if (!(key in options)) {
                 throw new Error(`"${key}" not found`);
               }
             });
