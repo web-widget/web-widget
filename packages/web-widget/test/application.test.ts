@@ -1,5 +1,5 @@
 import { expect } from '@esm-bundle/chai';
-import { status } from '../src/modules/status';
+import { status } from '../src/container';
 import {
   createApplication,
   createBaseContainer,

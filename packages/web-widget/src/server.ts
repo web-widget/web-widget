@@ -21,12 +21,6 @@ export type * from './types';
 const __FEATURE_INJECTING_STYLES__ = false;
 let showWebContainerWarning = true;
 
-declare global {
-  interface ReadableStream {
-    [Symbol.asyncIterator](): AsyncIterator<ArrayBuffer | ArrayBufferView>;
-  }
-}
-
 const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
 
 function unsafeAttrsToHtml(attrs: Record<string, string>) {

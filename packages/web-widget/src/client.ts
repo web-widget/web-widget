@@ -10,7 +10,6 @@ import { INNER_HTML_PLACEHOLDER } from './element';
 
 export type * from './types';
 export * from './element';
-export * from './event';
 
 function unsafeAttrsToHtml(attrs: Record<string, string>) {
   return Object.entries(attrs)

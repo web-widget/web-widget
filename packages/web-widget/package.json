@@ -106,9 +106,9 @@
     "dev": "pnpm exec tsup --watch",
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build",
-    "test": "web-test-runner test/**/*.test.ts",
-    "test:coverage": "web-test-runner test/**/*.test.ts --coverage",
-    "test:watch": "web-test-runner test/**/*.test.ts --watch"
+    "test": "web-test-runner src/**/*.test.ts",
+    "test:coverage": "web-test-runner src/**/*.test.ts --coverage",
+    "test:watch": "web-test-runner src/**/*.test.ts --watch"
   },
   "sideEffects": [
     "./dist/web-widget.client.js"

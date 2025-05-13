@@ -3,10 +3,7 @@ import type {
   ClientWidgetModule,
   Meta,
   SerializableValue,
-  ClientRenderResult,
 } from '@web-widget/helpers';
-export type * from '@web-widget/helpers';
-
 export interface SerializableObject {
   [key: string]: SerializableValue;
 }
@@ -42,14 +39,4 @@ export interface WebWidgetRendererConstructor {
     loader: Loader,
     options: WebWidgetRendererOptions
   ): WebWidgetRendererInterface;
-}
-
-export interface ClientWidgetRenderContext<Data = unknown> {
-  children?: ClientRenderResult<Data>;
-  data: Data;
-  meta: Meta;
-  /** The target element for component rendering. */
-  readonly container: Element | DocumentFragment;
-  /** The component resumes running on the client side. */
-  readonly recovering: boolean;
 }
