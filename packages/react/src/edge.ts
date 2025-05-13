@@ -13,6 +13,12 @@ import type {
 } from 'react-dom/static';
 import { ReactNode } from 'react';
 
+declare global {
+  interface ReadableStream {
+    [Symbol.asyncIterator](): AsyncIterator<ArrayBuffer | ArrayBufferView>;
+  }
+}
+
 const prerender: typeof Prerender = _prerender;
 const renderToReadableStream: typeof RenderToReadableStream =
   _renderToReadableStream;
