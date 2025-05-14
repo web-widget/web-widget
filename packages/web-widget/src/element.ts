@@ -13,6 +13,7 @@ import {
   Lifecycle,
   ModuleContainer,
   ModuleLoader,
+  Status,
   status,
   Timeouts,
 } from './container';
@@ -52,7 +53,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #timeouts: Timeouts | null = null;
 
-  #status: string = status.INITIAL;
+  #status: Status = status.INITIAL;
 
   #internals?: ElementInternals;
 
@@ -74,20 +75,24 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   #autoMount() {
-    this.#ready &&
-      queueMicrotask(async () => {
-        try {
-          await this.load();
-          await this.bootstrap();
-          await this.mount();
-        } catch (error) {
-          try {
-            await this.#call('retry');
-          } catch {
-            this.#throwGlobalError(error as Error);
-          }
-        }
-      });
+    if (!this.#ready) return;
+    queueMicrotask(async () => {
+      try {
+        await this.load();
+        await this.bootstrap();
+        await this.mount();
+      } catch (error) {
+        await this.#handleMountError(error as Error);
+      }
+    });
+  }
+
+  async #handleMountError(error: Error) {
+    try {
+      await this.#call('retry');
+    } catch {
+      this.#throwGlobalError(error);
+    }
   }
 
   /**
@@ -228,8 +233,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Indicates how the browser should load the module.
    * @default "eager"
    */
-  get loading(): string {
-    return this.getAttribute('loading') || 'eager';
+  get loading(): 'eager' | 'lazy' | 'idle' {
+    return (
+      (this.getAttribute('loading') as 'eager' | 'lazy' | 'idle' | null) ||
+      'eager'
+    );
   }
 
   set loading(value: 'eager' | 'lazy' | 'idle') {
@@ -240,7 +248,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * WidgetModule container status.
    * @default "initial"
    */
-  get status(): string {
+  get status(): Status {
     return this.#status;
   }
 
@@ -384,29 +392,26 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   #firstConnectedCallback() {
-    const options: AddEventListenerOptions = {
-      once: true,
-      passive: true,
-    };
-    const preload = () => {
-      if (this.import) {
-        triggerModulePreload(this.import);
-      }
-    };
+    const preload = () => this.import && triggerModulePreload(this.import);
+    const options: AddEventListenerOptions = { once: true, passive: true };
+
     ['mousemove', 'touchstart'].forEach((type) =>
       this.addEventListener(type, preload, options)
     );
-    if (this.loading === 'eager') {
-      this.#autoMount();
-    } else if (this.loading === 'lazy') {
-      this.#disconnectObserver = createVisibleObserver(this, () =>
-        this.#autoMount()
-      );
-    } else if (this.loading === 'idle') {
-      this.#disconnectObserver = createIdleObserver(this, () =>
-        this.#autoMount()
-      );
-    }
+
+    const loadingStrategies = {
+      eager: () => this.#autoMount(),
+      lazy: () =>
+        (this.#disconnectObserver = createVisibleObserver(this, () =>
+          this.#autoMount()
+        )),
+      idle: () =>
+        (this.#disconnectObserver = createIdleObserver(this, () =>
+          this.#autoMount()
+        )),
+    };
+
+    loadingStrategies[this.loading]?.();
   }
 
   disconnectedCallback() {
@@ -419,16 +424,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string) {
-    if (
-      name === 'contextdata' ||
-      // @deprecated
-      name === 'data'
-    ) {
-      // NOTE: Clear cache
+    const cacheClearingAttributes = ['contextdata', 'data', 'contextmeta'];
+    if (cacheClearingAttributes.includes(name)) {
       this.#data = null;
-    }
-    if (name === 'contextmeta') {
-      // NOTE: Clear cache
       this.#meta = null;
     }
     if (this.loading === 'eager') {
@@ -485,7 +483,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return moduleContainer;
   }
 
-  #statusChangeCallback(value: string) {
+  #statusChangeCallback(value: Status) {
     this.#status = value;
     if (this.#internals?.states) {
       // The double dash is required in browsers with the
@@ -543,18 +541,15 @@ export class HTMLWebWidgetElement extends HTMLElement {
   #throwGlobalError(error: Error) {
     const moduleName = this.#name;
     const prefix = `Web Widget module (${moduleName})`;
+
     if (typeof error !== 'object') {
-      error = new Error(error, {
-        cause: error,
-      });
+      error = new Error(error, { cause: error });
     }
+
     if (!error.message.includes(prefix)) {
-      Reflect.defineProperty(error, 'message', {
-        value: `${prefix}: ${error.message}`,
-        writable: true,
-        configurable: true,
-      });
+      error.message = `${prefix}: ${error.message}`;
     }
+
     reportError(error);
   }
 
