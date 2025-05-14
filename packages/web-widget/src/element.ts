@@ -18,8 +18,10 @@ import {
   Timeouts,
 } from './container';
 
-declare const importShim: <T>(src: string) => Promise<T>;
 let globalTimeouts: Timeouts = Object.create(null);
+
+type Loading = 'eager' | 'lazy' | 'idle';
+type RenderTarget = 'light' | 'shadow';
 
 const innerHTMLDescriptor = Object.getOwnPropertyDescriptor(
   Element.prototype,
@@ -233,14 +235,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Indicates how the browser should load the module.
    * @default "eager"
    */
-  get loading(): 'eager' | 'lazy' | 'idle' {
-    return (
-      (this.getAttribute('loading') as 'eager' | 'lazy' | 'idle' | null) ||
-      'eager'
-    );
+  get loading(): Loading {
+    return (this.getAttribute('loading') as Loading | null) || 'eager';
   }
 
-  set loading(value: 'eager' | 'lazy' | 'idle') {
+  set loading(value: Loading) {
     this.setAttribute('loading', value);
   }
 
@@ -273,11 +272,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * WidgetModule render target.
    * @default "shadow"
    */
-  get renderTarget(): 'light' | 'shadow' {
+  get renderTarget(): RenderTarget {
     return (this.getAttribute('rendertarget') as 'light') || 'shadow';
   }
 
-  set renderTarget(value: 'light' | 'shadow') {
+  set renderTarget(value: RenderTarget) {
     this.setAttribute('rendertarget', value);
   }
 
@@ -603,12 +602,20 @@ mountLifecycleCacheLayer(() => {
 });
 
 declare global {
+  let importShim: <T>(src: string) => Promise<T>;
   interface Window {
     HTMLWebWidgetElement: typeof HTMLWebWidgetElement;
   }
-  interface WebWidgetAttributes extends HTMLWebWidgetElement {
-    contextdata: string;
-    contextmeta: string;
+  interface WebWidgetAttributes extends Partial<HTMLWebWidgetElement> {
+    contextdata?: string;
+    contextmeta?: string;
+    inactive?: boolean;
+    recovering?: boolean;
+    loading?: Loading;
+    import?: string;
+    rendertarget?: RenderTarget;
+    base?: string;
+    timeouts?: Timeouts;
   }
   interface HTMLElementTagNameMap {
     'web-widget': HTMLWebWidgetElement;
