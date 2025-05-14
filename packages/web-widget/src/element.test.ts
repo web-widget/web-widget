@@ -2,14 +2,7 @@ import { expect } from '@esm-bundle/chai';
 import { HTMLWebWidgetElement } from './element';
 import { ClientRenderOptions } from '@web-widget/helpers';
 
-const TEST_WIDGET_FILE =
-  '/packages/web-widget/src/__fixtures__/hello-world@widget.js';
-
-declare global {
-  interface Window {
-    TEST_LIFECYCLE: string;
-  }
-}
+const __FIXTURES__ = '/packages/web-widget/src/__fixtures__/code@widget.js';
 
 const shadowRoot = Symbol('shadowRoot');
 const oldAttachShadow = HTMLElement.prototype.attachShadow;
@@ -142,15 +135,21 @@ describe('Element default properties', () => {
 
 describe('Load module', () => {
   it('should load the ES module', async () => {
+    const testData = { test: 'hello world' };
     const widget = document.createElement('web-widget');
     widget.inactive = true;
-    widget.import = TEST_WIDGET_FILE;
+    widget.import = __FIXTURES__;
+    widget.renderTarget = 'light';
+    widget.contextData = testData;
     document.body.appendChild(widget);
 
     await widget.load();
-    if (window.TEST_LIFECYCLE !== 'load') {
-      throw new Error('Load error');
-    }
+    await widget.bootstrap();
+    await widget.mount();
+
+    expect(document.body.innerHTML).to.contains(
+      JSON.stringify(testData, null, 2)
+    );
   });
 
   it('should load the function', async () => {
@@ -209,7 +208,7 @@ describe('Load module: error', () => {
 });
 
 describe('Auto load', () => {
-  const src = TEST_WIDGET_FILE;
+  const src = __FIXTURES__;
 
   it('Connected (import)', (done) => {
     const widget = document.createElement('web-widget');

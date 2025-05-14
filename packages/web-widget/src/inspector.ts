@@ -209,3 +209,12 @@ export class HTMLWebWidgetInspectorElement extends HTMLElement {
 }
 
 customElements.define('web-widget-inspector', HTMLWebWidgetInspectorElement);
+
+declare global {
+  interface Window {
+    HTMLWebWidgetInspectorElement: typeof HTMLWebWidgetInspectorElement;
+  }
+  interface HTMLElementTagNameMap {
+    'web-widget-inspector': HTMLWebWidgetInspectorElement;
+  }
+}
