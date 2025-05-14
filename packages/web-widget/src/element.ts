@@ -483,6 +483,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   #statusChangeCallback(value: Status) {
+    this.#updateStatus(value);
+    this.#markPerformance(value);
+    this.#dispatchStatusChangeEvent();
+  }
+
+  #updateStatus(value: Status) {
     this.#status = value;
     if (this.#internals?.states) {
       // The double dash is required in browsers with the
@@ -492,7 +498,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
         this.#internals.states.clear();
         this.#internals.states.add(value);
       } catch (error) {
-        // this.#internals.states.add(`--${value}`);
         this.setAttribute('status', value);
       }
     } else {
@@ -501,6 +506,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
     if (value === status.MOUNTED) {
       this.removeAttribute('recovering');
     }
+  }
+
+  #markPerformance(value: Status) {
     try {
       const name = this.localName;
       const markNameSpace = `${name}:statusChange`;
@@ -508,9 +516,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         name: this.#name,
         import: this.import,
       };
-      performance.mark(`${markNameSpace}:${value}`, {
-        detail,
-      });
+      performance.mark(`${markNameSpace}:${value}`, { detail });
       switch (value) {
         case status.LOADED:
           performance.measure(`${name}:load`, {
@@ -528,6 +534,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
           break;
       }
     } catch (e) {}
+  }
+
+  #dispatchStatusChangeEvent() {
     this.dispatchEvent(new Event('statuschange'));
   }
 
