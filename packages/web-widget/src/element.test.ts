@@ -1,9 +1,9 @@
 import { expect } from '@esm-bundle/chai';
-import { HTMLWebWidgetElement } from '../src/element.js';
-import { ClientRenderOptions } from '../src/types.js';
+import { HTMLWebWidgetElement } from './element';
+import { ClientRenderOptions } from '@web-widget/helpers';
 
 const TEST_WIDGET_FILE =
-  '/packages/web-widget/test/widgets/hello-world@widget.js';
+  '/packages/web-widget/src/__fixtures__/hello-world@widget.js';
 
 declare global {
   interface Window {
@@ -26,7 +26,7 @@ const createEmptyWidget = async () => {
   return emptyWidget;
 };
 
-const createWidget = (
+const createInactiveWidget = (
   callback: (app: {
     getStatusHistory(): string[];
     getContext: () => {
@@ -93,58 +93,67 @@ const createWidget = (
 };
 
 describe('Element default properties', () => {
-  it('properties', async () => {
+  it('should have default properties', async () => {
     const emptyWidget = await createEmptyWidget();
-    expect(emptyWidget).to.have.property('base', emptyWidget.baseURI);
-    expect(emptyWidget).to.have.property('data', null);
-    expect(emptyWidget).to.have.property('contextData', null);
-    expect(emptyWidget).to.have.property('contextMeta', null);
-    expect(emptyWidget).to.have.property('context', null);
-    expect(emptyWidget).to.have.property('inactive', false);
-    expect(emptyWidget).to.have.property('recovering', false);
-    expect(emptyWidget).to.have.property('loading', 'eager');
-    expect(emptyWidget).to.have.property(
-      'status',
-      HTMLWebWidgetElement.INITIAL
-    );
-    expect(emptyWidget).to.have.property('import', '');
-    expect(emptyWidget).to.have.property('renderTarget', 'shadow');
-    expect(emptyWidget).to.have.property('loader', null);
+    const expectedProperties = {
+      base: emptyWidget.baseURI,
+      data: null,
+      contextData: null,
+      contextMeta: null,
+      inactive: false,
+      recovering: false,
+      loading: 'eager',
+      status: HTMLWebWidgetElement.INITIAL,
+      import: '',
+      renderTarget: 'shadow',
+      loader: null,
+    };
+
+    Object.entries(expectedProperties).forEach(([key, value]) => {
+      expect(emptyWidget).to.have.property(key, value);
+    });
   });
 
-  it('methods', async () => {
+  it('should have default methods', async () => {
     const emptyWidget = await createEmptyWidget();
-    expect(emptyWidget).to.have.property('load').is.a('function');
-    expect(emptyWidget).to.have.property('bootstrap').is.a('function');
-    expect(emptyWidget).to.have.property('mount').is.a('function');
-    expect(emptyWidget).to.have.property('update').is.a('function');
-    expect(emptyWidget).to.have.property('unmount').is.a('function');
-    expect(emptyWidget).to.have.property('unload').is.a('function');
+    const expectedMethods = [
+      'load',
+      'bootstrap',
+      'mount',
+      'update',
+      'unmount',
+      'unload',
+    ];
+
+    expectedMethods.forEach((method) => {
+      expect(emptyWidget).to.have.property(method).is.a('function');
+    });
   });
 
-  it('hooks', async () => {
+  it('should have default hooks', async () => {
     const emptyWidget = await createEmptyWidget();
-    expect(emptyWidget).to.have.property('createContext').is.a('function');
-    expect(emptyWidget).to.have.property('createContainer').is.a('function');
-    expect(emptyWidget).to.have.property('createLoader').is.a('function');
+    const expectedHooks = ['createContainer', 'createLoader'];
+
+    expectedHooks.forEach((hook) => {
+      expect(emptyWidget).to.have.property(hook).is.a('function');
+    });
   });
 });
 
 describe('Load module', () => {
-  it('Load the ES module', async () => {
+  it('should load the ES module', async () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
     widget.import = TEST_WIDGET_FILE;
     document.body.appendChild(widget);
 
-    return widget.load().then(() => {
-      if (window.TEST_LIFECYCLE !== 'load') {
-        throw new Error('Load error');
-      }
-    });
+    await widget.load();
+    if (window.TEST_LIFECYCLE !== 'load') {
+      throw new Error('Load error');
+    }
   });
 
-  it('Load the function', async () => {
+  it('should load the function', async () => {
     let element: HTMLElement;
     const widget = document.createElement('web-widget');
     widget.inactive = true;
@@ -154,11 +163,9 @@ describe('Load module', () => {
           element = document.createElement('div');
           element.innerHTML = 'hello world';
         },
-
         async mount() {
           container.appendChild(element);
         },
-
         async unmount() {
           container.removeChild(element);
         },
@@ -166,8 +173,7 @@ describe('Load module', () => {
     });
 
     document.body.appendChild(widget);
-
-    return widget.load();
+    await widget.load();
   });
 });
 
@@ -236,84 +242,86 @@ describe('Auto load', () => {
 
 describe('Application property: container', () => {
   it('container', () =>
-    createWidget(async ({ getElement, getContext }) => {
+    createInactiveWidget(async ({ getElement, getContext }) => {
+      await getElement().load();
+      await getElement().bootstrap();
       await getElement().mount();
       expect(getContext().options.container).to.be.an.instanceof(ShadowRoot);
+      await getElement().unmount();
       await getElement().unload();
       expect(getContext().options.container).to.be.an.instanceof(ShadowRoot);
     }));
 });
 
 describe('Application property: data', () => {
-  it('data', () =>
-    createWidget(async ({ getElement, getContext }) => {
+  it('should handle data property correctly', () =>
+    createInactiveWidget(async ({ getElement, getContext }) => {
       const testValue = Date.now();
-      // eslint-disable-next-line no-param-reassign
       getElement().data = { testValue };
+      await getElement().load();
+      await getElement().bootstrap();
       await getElement().mount();
       expect(getContext().data).to.have.property('testValue', testValue);
+      await getElement().unmount();
       await getElement().unload();
       expect(getContext().data).to.have.property('testValue', testValue);
     }));
 
-  it('Should support "data" attribute to store JSON content', () =>
-    createWidget(async ({ getElement, getContext }) => {
-      const data = {
-        test: Date.now(),
-      };
+  it('should support "data" attribute to store JSON content', () =>
+    createInactiveWidget(async ({ getElement, getContext }) => {
+      const data = { test: Date.now() };
       getElement().setAttribute('data', JSON.stringify(data));
+      await getElement().load();
+      await getElement().bootstrap();
       await getElement().mount();
       expect(getContext().data).to.deep.equal(data);
+      await getElement().unmount();
       await getElement().unload();
       expect(getContext().data).to.deep.equal(data);
     }));
 
-  it('The priority of attributes and properties should be handled correctly', () =>
-    createWidget(async ({ getElement, getContext }) => {
-      const arrtData = {
-        test: Date.now(),
-      };
-      const priorityData = {
-        test: 'priority',
-      };
+  it('should prioritize attributes over properties', () =>
+    createInactiveWidget(async ({ getElement, getContext }) => {
+      const attrData = { test: Date.now() };
+      const propData = { test: 'priority' };
 
-      // eslint-disable-next-line no-param-reassign
-      getElement().data = priorityData;
-      getElement().setAttribute('data', JSON.stringify(arrtData));
+      getElement().data = propData;
+      getElement().setAttribute('data', JSON.stringify(attrData));
+      await getElement().load();
+      await getElement().bootstrap();
       await getElement().mount();
-      expect(getContext().data).to.deep.equal(arrtData);
+      expect(getContext().data).to.deep.equal(attrData);
 
-      getElement().setAttribute('data', JSON.stringify(arrtData));
-      // eslint-disable-next-line no-param-reassign
-      getElement().data = priorityData;
+      getElement().setAttribute('data', JSON.stringify(attrData));
+      getElement().data = propData;
       await getElement().unmount();
       await getElement().mount();
-      // expect(getContext().data).to.deep.equal(priorityData); // v1.0.0-beta.1: getElement().data 不会再更新
     }));
 
-  it('The content of the "data-*" attribute should be used as the default value', () =>
-    createWidget(async ({ getElement, getContext }) => {
+  it('should use "data-*" attributes as default values', () =>
+    createInactiveWidget(async ({ getElement, getContext }) => {
       const a = String(Date.now());
       const b = String(Date.now());
-      // eslint-disable-next-line no-param-reassign
       getElement().dataset.a = a;
       getElement().setAttribute('data-b', b);
+      await getElement().load();
+      await getElement().bootstrap();
       await getElement().mount();
-      expect(getContext().data).to.have.property('a', a);
-      expect(getContext().data).to.have.property('b', b);
+      expect(getContext().data).to.include({ a, b });
+      await getElement().unmount();
       await getElement().unload();
-      expect(getContext().data).to.have.property('a', a);
-      expect(getContext().data).to.have.property('b', b);
+      expect(getContext().data).to.include({ a, b });
     }));
 });
 
 describe('Events', () => {
   it('statuschange', () =>
-    createWidget(async ({ getStatusHistory, getElement }) => {
+    createInactiveWidget(async ({ getStatusHistory, getElement }) => {
+      expect(getStatusHistory()).to.deep.equal([]);
       await getElement().load();
       await getElement().bootstrap();
       await getElement().mount();
-      await getElement().update();
+      await getElement().update({});
       await getElement().unmount();
       await getElement().unload();
       expect(getStatusHistory()).to.deep.equal([

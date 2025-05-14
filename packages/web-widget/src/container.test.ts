@@ -57,7 +57,7 @@ describe('ModuleContainer', () => {
     expect(container.status).to.equal(status.MOUNTED);
 
     await container.unmount();
-    expect(container.status).to.equal(status.LOADED);
+    expect(container.status).to.equal(status.BOOTSTRAPPED);
 
     await container.unload();
     expect(container.status).to.equal(status.INITIAL);

@@ -578,22 +578,22 @@ export class HTMLWebWidgetElement extends HTMLElement {
     globalTimeouts = value;
   }
 
-  static INITIAL: string;
-  static LOADING: string;
-  static LOADED: string;
-  static BOOTSTRAPPING: string;
-  static BOOTSTRAPPED: string;
-  static MOUNTING: string;
-  static MOUNTED: string;
-  static UPDATING: string;
-  static UNMOUNTING: string;
-  static UNLOADING: string;
-  static LOAD_ERROR: string;
-  static BOOTSTRAP_ERROR: string;
-  static MOUNT_ERROR: string;
-  static UPDATE_ERROR: string;
-  static UNMOUNT_ERROR: string;
-  static UNLOAD_ERROR: string;
+  static INITIAL: typeof status.INITIAL;
+  static LOADING: typeof status.LOADING;
+  static LOADED: typeof status.LOADED;
+  static BOOTSTRAPPING: typeof status.BOOTSTRAPPING;
+  static BOOTSTRAPPED: typeof status.BOOTSTRAPPED;
+  static MOUNTING: typeof status.MOUNTING;
+  static MOUNTED: typeof status.MOUNTED;
+  static UPDATING: typeof status.UPDATING;
+  static UNMOUNTING: typeof status.UNMOUNTING;
+  static UNLOADING: typeof status.UNLOADING;
+  static LOAD_ERROR: typeof status.LOAD_ERROR;
+  static BOOTSTRAP_ERROR: typeof status.BOOTSTRAP_ERROR;
+  static MOUNT_ERROR: typeof status.MOUNT_ERROR;
+  static UPDATE_ERROR: typeof status.UPDATE_ERROR;
+  static UNMOUNT_ERROR: typeof status.UNMOUNT_ERROR;
+  static UNLOAD_ERROR: typeof status.UNLOAD_ERROR;
 }
 
 Object.assign(HTMLWebWidgetElement, Object.freeze(status));

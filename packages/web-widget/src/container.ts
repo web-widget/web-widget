@@ -4,6 +4,22 @@ import type {
   ClientRenderResult,
 } from '@web-widget/helpers';
 
+const INITIAL = 'initial';
+const LOADING = 'loading';
+const LOADED = 'loaded';
+const BOOTSTRAPPING = 'bootstrapping';
+const BOOTSTRAPPED = 'bootstrapped';
+const MOUNTING = 'mounting';
+const MOUNTED = 'mounted';
+const UPDATING = 'updating';
+const UNMOUNTING = 'unmounting';
+const UNLOADING = 'unloading';
+const LOAD_ERROR = 'load-error';
+const BOOTSTRAP_ERROR = 'bootstrap-error';
+const MOUNT_ERROR = 'mount-error';
+const UPDATE_ERROR = 'update-error';
+const UNMOUNT_ERROR = 'unmount-error';
+const UNLOAD_ERROR = 'unload-error';
 /**
  * The status of the widget module lifecycle.
  * It represents the current state of the widget module.
@@ -26,44 +42,44 @@ import type {
  * - `unload-error`: An error occurred while unloading the module.
  */
 export const status = {
-  INITIAL: 'initial',
-  LOADING: 'loading',
-  LOADED: 'loaded',
-  BOOTSTRAPPING: 'bootstrapping',
-  BOOTSTRAPPED: 'bootstrapped',
-  MOUNTING: 'mounting',
-  MOUNTED: 'mounted',
-  UPDATING: 'updating',
-  UNMOUNTING: 'unmounting',
-  UNLOADING: 'unloading',
-  LOAD_ERROR: 'load-error',
-  BOOTSTRAP_ERROR: 'bootstrap-error',
-  MOUNT_ERROR: 'mount-error',
-  UPDATE_ERROR: 'update-error',
-  UNMOUNT_ERROR: 'unmount-error',
-  UNLOAD_ERROR: 'unload-error',
+  INITIAL,
+  LOADING,
+  LOADED,
+  BOOTSTRAPPING,
+  BOOTSTRAPPED,
+  MOUNTING,
+  MOUNTED,
+  UPDATING,
+  UNMOUNTING,
+  UNLOADING,
+  LOAD_ERROR,
+  BOOTSTRAP_ERROR,
+  MOUNT_ERROR,
+  UPDATE_ERROR,
+  UNMOUNT_ERROR,
+  UNLOAD_ERROR,
 } as const;
 
 /**
  * Defines valid state transitions for the widget module lifecycle.
  */
 const statusTransitions: Record<Status, Status[]> = {
-  [status.INITIAL]: [status.LOADING],
-  [status.LOADING]: [status.LOADED, status.LOAD_ERROR],
-  [status.LOADED]: [status.BOOTSTRAPPING, status.UNLOADING],
-  [status.BOOTSTRAPPING]: [status.BOOTSTRAPPED, status.BOOTSTRAP_ERROR],
-  [status.BOOTSTRAPPED]: [status.MOUNTING],
-  [status.MOUNTING]: [status.MOUNTED, status.MOUNT_ERROR],
-  [status.MOUNTED]: [status.UPDATING, status.UNMOUNTING],
-  [status.UPDATING]: [status.MOUNTED, status.UPDATE_ERROR],
-  [status.UNMOUNTING]: [status.LOADED, status.UNMOUNT_ERROR],
-  [status.UNLOADING]: [status.INITIAL, status.UNLOAD_ERROR],
-  [status.LOAD_ERROR]: [status.LOADING],
-  [status.BOOTSTRAP_ERROR]: [status.BOOTSTRAPPING],
-  [status.MOUNT_ERROR]: [status.MOUNTING],
-  [status.UPDATE_ERROR]: [status.UPDATING],
-  [status.UNMOUNT_ERROR]: [status.UNMOUNTING],
-  [status.UNLOAD_ERROR]: [status.UNLOADING],
+  [INITIAL]: [LOADING],
+  [LOADING]: [LOADED, LOAD_ERROR],
+  [LOADED]: [BOOTSTRAPPING, UNLOADING],
+  [BOOTSTRAPPING]: [BOOTSTRAPPED, BOOTSTRAP_ERROR],
+  [BOOTSTRAPPED]: [MOUNTING, UNLOADING],
+  [MOUNTING]: [MOUNTED, MOUNT_ERROR],
+  [MOUNTED]: [UPDATING, UNMOUNTING],
+  [UPDATING]: [MOUNTED, UPDATE_ERROR],
+  [UNMOUNTING]: [LOADED, UNMOUNT_ERROR],
+  [UNLOADING]: [INITIAL, UNLOAD_ERROR],
+  [LOAD_ERROR]: [LOADING],
+  [BOOTSTRAP_ERROR]: [BOOTSTRAPPING],
+  [MOUNT_ERROR]: [MOUNTING],
+  [UPDATE_ERROR]: [UPDATING],
+  [UNMOUNT_ERROR]: [UNMOUNTING],
+  [UNLOAD_ERROR]: [UNLOADING],
 };
 
 export type Lifecycle = 'load' | keyof ClientRenderResult;
@@ -120,7 +136,7 @@ export type Timeouts = Partial<Record<Lifecycle, number>>;
  * +-------------------+
  *           |
  *           | MOUNTED -> UNMOUNTING
- *           | Success -> LOADED
+ *           | Success -> BOOTSTRAPPED
  *           | Failure -> UNMOUNT_ERROR
  *           v
  * +-------------------+
@@ -142,7 +158,7 @@ export class ModuleContainer<Data = unknown> {
   #data: Data;
   #options: ClientRenderOptions;
   #lifecycle: ClientRenderResult<Data> = {};
-  #currentStatus: Status = status.INITIAL;
+  #currentStatus: Status = INITIAL;
   #statusListener: StatusListener | null = null;
   #timeouts?: Timeouts | null = null;
 
@@ -214,30 +230,25 @@ export class ModuleContainer<Data = unknown> {
 
   /** Loads the widget module. */
   async load() {
-    await this.#transition(
-      'load',
-      status.LOADING,
-      status.LOAD_ERROR,
-      async () => {
-        const mod = await withTimeout(
-          this.#moduleLoader(),
-          this.#timeouts?.load ?? 0
-        );
-        if (!mod?.render || typeof mod.render !== 'function') {
-          throw new Error('Invalid module: missing render() function.');
-        }
-        this.#module = mod;
+    await this.#transition('load', LOADING, LOAD_ERROR, async () => {
+      const mod = await withTimeout(
+        this.#moduleLoader(),
+        this.#timeouts?.load ?? 0
+      );
+      if (!mod?.render || typeof mod.render !== 'function') {
+        throw new Error('Invalid module: missing render() function.');
       }
-    );
-    this.#setStatus(status.LOADED);
+      this.#module = mod;
+    });
+    this.#setStatus(LOADED);
   }
 
   /** Bootstraps the widget module. */
   async bootstrap() {
     await this.#transition(
       'bootstrap',
-      status.BOOTSTRAPPING,
-      status.BOOTSTRAP_ERROR,
+      BOOTSTRAPPING,
+      BOOTSTRAP_ERROR,
       async () => {
         const renderResult = await this.#module!.render!(
           this.#module!.default,
@@ -248,79 +259,79 @@ export class ModuleContainer<Data = unknown> {
         await this.#safeExecute(
           'bootstrap',
           this.#lifecycle.bootstrap,
-          status.BOOTSTRAP_ERROR
+          BOOTSTRAP_ERROR
         );
       }
     );
-    this.#setStatus(status.BOOTSTRAPPED);
+    this.#setStatus(BOOTSTRAPPED);
   }
 
   /** Mounts the widget module. */
   async mount() {
     await this.#transition(
       'mount',
-      status.MOUNTING,
-      status.MOUNT_ERROR,
+      MOUNTING,
+      MOUNT_ERROR,
       this.#lifecycle.mount
     );
-    this.#setStatus(status.MOUNTED);
+    this.#setStatus(MOUNTED);
   }
 
   /** Updates the widget module with new data. */
   async update(data: Data) {
     this.#data = data;
-    await this.#transition('update', status.UPDATING, status.UPDATE_ERROR, () =>
+    await this.#transition('update', UPDATING, UPDATE_ERROR, () =>
       this.#lifecycle.update?.(data)
     );
-    this.#setStatus(status.MOUNTED);
+    this.#setStatus(MOUNTED);
   }
 
   /** Unmounts the widget module. */
   async unmount() {
     await this.#transition(
       'unmount',
-      status.UNMOUNTING,
-      status.UNMOUNT_ERROR,
+      UNMOUNTING,
+      UNMOUNT_ERROR,
       this.#lifecycle.unmount
     );
-    this.#setStatus(status.LOADED);
+    this.#setStatus(BOOTSTRAPPED);
   }
 
   /** Unloads the widget module. */
   async unload() {
     await this.#transition(
       'unload',
-      status.UNLOADING,
-      status.UNLOAD_ERROR,
+      UNLOADING,
+      UNLOAD_ERROR,
       this.#lifecycle.unload
     );
     this.#module = null;
     this.#lifecycle = {};
-    this.#setStatus(status.INITIAL);
+    this.#setStatus(INITIAL);
   }
 
   /**
-   * Retry the last failed operation based on the current error status.
+   * Retry the last failed operation based on the current error
    * Throws an error if the current status is not an error state.
    */
   async retry() {
     switch (this.#currentStatus) {
-      case status.LOAD_ERROR:
+      case LOAD_ERROR:
         await this.load();
         break;
-      case status.BOOTSTRAP_ERROR:
+      case BOOTSTRAP_ERROR:
         await this.bootstrap();
         break;
-      case status.MOUNT_ERROR:
+      case MOUNT_ERROR:
         await this.mount();
         break;
-      case status.UPDATE_ERROR:
+      case UPDATE_ERROR:
         await this.update(this.#data);
         break;
-      case status.UNMOUNT_ERROR:
+      case UNMOUNT_ERROR:
         await this.unmount();
         break;
-      case status.UNLOAD_ERROR:
+      case UNLOAD_ERROR:
         await this.unload();
         break;
       default:
