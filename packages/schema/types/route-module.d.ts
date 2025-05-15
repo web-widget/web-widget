@@ -1,11 +1,6 @@
-import {
-  HTTPException,
-  State,
-  KnownMethods,
-  FetchContext,
-  Meta,
-} from './common';
-import { ServerRenderFunction, ServerRenderOptions } from './render-contract';
+import { HTTPException, State, KnownMethods, FetchContext } from './http';
+import { Meta } from './meta';
+import { ServerRender, ServerRenderOptions } from './render';
 
 export interface RouteModule {
   config?: RouteConfig;
@@ -13,7 +8,7 @@ export interface RouteModule {
   fallback?: RouteFallbackComponent;
   handler?: RouteHandler | RouteHandlers;
   meta?: Meta;
-  render?: ServerRenderFunction;
+  render?: ServerRender;
 }
 
 export interface RouteConfig extends Record<string, unknown> {}

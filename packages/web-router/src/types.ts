@@ -5,7 +5,7 @@ import type {
   MiddlewareModule,
   RouteModule,
   ServerRenderResult,
-  ServerRenderFunction,
+  ServerRender,
   ServerWidgetModule,
   RouteComponentProps,
   RouteComponent,
@@ -111,7 +111,7 @@ export interface LayoutComponent {
   (props: LayoutComponentProps): any;
 }
 export interface LayoutRender
-  extends ServerRenderFunction<LayoutComponent, LayoutComponentProps> {}
+  extends ServerRender<LayoutComponent, LayoutComponentProps> {}
 
 ////////////////////////////////////////
 //////                            //////

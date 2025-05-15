@@ -18,7 +18,7 @@ export type ServerRenderResult = ReadableStream<string> | string;
  * @param options The options for rendering.
  * @returns The rendered result, either as a string or a stream.
  */
-export interface ServerRenderFunction<
+export interface ServerRender<
   Component = unknown,
   Data = unknown,
   Options extends ServerRenderOptions = ServerRenderOptions,
@@ -64,7 +64,7 @@ export type ClientRenderResult<Data = unknown> = {
  * @param options The options for rendering.
  * @returns The rendered result, either as a string or a set of lifecycle hooks.
  */
-export interface ClientRenderFunction<
+export interface ClientRender<
   Component = unknown,
   Data = unknown,
   Options extends ClientRenderOptions = ClientRenderOptions,

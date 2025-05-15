@@ -1,14 +1,14 @@
-import { Meta } from './common';
-import { ServerRenderFunction, ClientRenderFunction } from './render-contract';
+import { Meta } from './meta';
+import { ServerRender, ClientRender } from './render';
 
 export interface ServerWidgetModule {
   default?: unknown;
   meta?: Meta;
-  render?: ServerRenderFunction;
+  render?: ServerRender;
 }
 
 export interface ClientWidgetModule {
   default?: unknown;
   meta?: Meta;
-  render?: ClientRenderFunction;
+  render?: ClientRender;
 }

@@ -1,6 +1,6 @@
 import type {
   ActionHandler,
-  ClientRenderFunction,
+  ClientRender,
   Meta,
   MiddlewareHandler,
   MiddlewareHandlers,
@@ -9,7 +9,7 @@ import type {
   RouteFallbackComponent,
   RouteHandler,
   RouteHandlers,
-  ServerRenderFunction,
+  ServerRender,
 } from '@web-widget/schema';
 
 export /*#__PURE__*/ function defineConfig(config: RouteConfig) {
@@ -21,13 +21,13 @@ export /*#__PURE__*/ function defineMeta(meta: Meta) {
 }
 
 export /*#__PURE__*/ function defineServerRender<Component = unknown>(
-  render: ServerRenderFunction<Component>
+  render: ServerRender<Component>
 ) {
   return render;
 }
 
 export /*#__PURE__*/ function defineClientRender<Component = unknown>(
-  render: ClientRenderFunction<Component>
+  render: ClientRender<Component>
 ) {
   return render;
 }
