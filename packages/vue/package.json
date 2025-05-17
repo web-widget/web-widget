@@ -29,23 +29,23 @@
   "exports": {
     ".": {
       "worker": {
-        "types": "./dist/vue.server.d.ts",
+        "types": "./src/server.ts",
         "development": "./src/server.ts",
         "default": "./dist/vue.server.js"
       },
       "browser": {
-        "types": "./dist/vue.client.d.ts",
+        "types": "./src/client.ts",
         "development": "./src/client.ts",
         "default": "./dist/vue.client.js"
       },
       "default": {
-        "types": "./dist/vue.server.d.ts",
+        "types": "./src/server.ts",
         "development": "./src/server.ts",
         "default": "./dist/vue.server.js"
       }
     },
     "./vite": {
-      "types": "./dist/vite.d.ts",
+      "types": "./src/vite.ts",
       "development": "./src/vite.ts",
       "default": "./dist/vite.js"
     }

@@ -30,17 +30,17 @@
   "exports": {
     ".": {
       "worker": {
-        "types": "./dist/vue2.server.d.ts",
+        "types": "./src/server.ts",
         "development": "./src/server.ts",
         "default": "./dist/vue2.server.js"
       },
       "browser": {
-        "types": "./dist/vue2.client.d.ts",
+        "types": "./src/client.ts",
         "development": "./src/client.ts",
         "default": "./dist/vue2.client.js"
       },
       "default": {
-        "types": "./dist/vue2.server.d.ts",
+        "types": "./src/server.ts",
         "development": "./src/server.ts",
         "default": "./dist/vue2.server.js"
       }

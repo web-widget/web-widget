@@ -24,17 +24,17 @@
   "exports": {
     ".": {
       "worker": {
-        "types": "./dist/html.server.d.ts",
+        "types": "./src/server.ts",
         "development": "./src/server.ts",
         "default": "./dist/html.server.js"
       },
       "browser": {
-        "types": "./dist/html.client.d.ts",
+        "types": "./src/client.ts",
         "development": "./src/client.ts",
         "default": "./dist/html.client.js"
       },
       "default": {
-        "types": "./dist/html.server.d.ts",
+        "types": "./src/server.ts",
         "development": "./src/server.ts",
         "default": "./dist/html.server.js"
       }
