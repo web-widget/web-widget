@@ -1,5 +1,5 @@
 import type {
-  ClientLoader,
+  Loader,
   WebWidgetRendererOptions,
   WebWidgetElementProps,
   WebWidgetRendererInterface,
@@ -27,7 +27,7 @@ class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
   localName = 'web-widget';
 
   constructor(
-    loader: ClientLoader,
+    loader: Loader,
     { children = '', renderStage, ...options }: WebWidgetRendererOptions
   ) {
     if (children && options.renderTarget !== 'shadow') {
@@ -83,5 +83,5 @@ class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
   }
 }
 
-export const WebWidgetRenderer: WebWidgetRendererConstructor<ClientLoader> =
+export const WebWidgetRenderer: WebWidgetRendererConstructor<Loader> =
   ClientWebWidgetRenderer;
