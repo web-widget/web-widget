@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.57.0
+
+### Minor Changes
+
+- c2d1386: Updated the format specification for renderable modules.
+
 ## 1.56.1
 
 ### Patch Changes
