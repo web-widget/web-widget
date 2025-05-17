@@ -1,5 +1,20 @@
 # @web-widget/web-router
 
+## 1.57.0
+
+### Minor Changes
+
+- c2d1386: Updated the format specification for renderable modules.
+
+### Patch Changes
+
+- Updated dependencies [c2d1386]
+  - @web-widget/helpers@1.57.0
+  - @web-widget/html@1.57.0
+  - @web-widget/context@1.57.0
+  - @web-widget/lifecycle-cache@1.57.0
+  - @web-widget/action@1.57.0
+
 ## 1.56.1
 
 ### Patch Changes
