@@ -84,17 +84,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
         await this.bootstrap();
         await this.mount();
       } catch (error) {
-        await this.#handleMountError(error as Error);
+        this.#throwGlobalError(error as Error);
       }
     });
-  }
-
-  async #handleMountError(error: Error) {
-    try {
-      await this.#call('retry');
-    } catch {
-      this.#throwGlobalError(error);
-    }
   }
 
   /**
@@ -444,7 +436,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
-  async #call(lifecycle: Lifecycle | 'retry', data?: SerializableObject) {
+  async #call(lifecycle: Lifecycle, data?: SerializableObject) {
     if (!this.#moduleContainer) {
       this.#moduleContainer = this.#createModuleContainer();
     }

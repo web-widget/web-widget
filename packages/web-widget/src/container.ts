@@ -314,32 +314,32 @@ export class ModuleContainer<Data = unknown> {
    * Retry the last failed operation based on the current error
    * Throws an error if the current status is not an error state.
    */
-  async retry() {
-    switch (this.#currentStatus) {
-      case LOAD_ERROR:
-        await this.load();
-        break;
-      case BOOTSTRAP_ERROR:
-        await this.bootstrap();
-        break;
-      case MOUNT_ERROR:
-        await this.mount();
-        break;
-      case UPDATE_ERROR:
-        await this.update(this.#data);
-        break;
-      case UNMOUNT_ERROR:
-        await this.unmount();
-        break;
-      case UNLOAD_ERROR:
-        await this.unload();
-        break;
-      default:
-        throw new Error(
-          `Cannot retry operation from the current status: "${this.#currentStatus}".`
-        );
-    }
-  }
+  // async retry() {
+  //   switch (this.#currentStatus) {
+  //     case LOAD_ERROR:
+  //       await this.load();
+  //       break;
+  //     case BOOTSTRAP_ERROR:
+  //       await this.bootstrap();
+  //       break;
+  //     case MOUNT_ERROR:
+  //       await this.mount();
+  //       break;
+  //     case UPDATE_ERROR:
+  //       await this.update(this.#data);
+  //       break;
+  //     case UNMOUNT_ERROR:
+  //       await this.unmount();
+  //       break;
+  //     case UNLOAD_ERROR:
+  //       await this.unload();
+  //       break;
+  //     default:
+  //       throw new Error(
+  //         `Cannot retry operation from the current status: "${this.#currentStatus}".`
+  //       );
+  //   }
+  // }
 }
 
 /**

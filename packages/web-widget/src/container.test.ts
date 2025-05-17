@@ -86,7 +86,7 @@ describe('ModuleContainer', () => {
       expect(container.status).to.equal(status.LOAD_ERROR);
     }
 
-    await container.retry();
+    await container.load();
     expect(container.status).to.equal(status.LOADED);
   });
 
