@@ -1,6 +1,7 @@
 import { expect } from '@esm-bundle/chai';
 import { HTMLWebWidgetElement } from './element';
-import { ClientRenderOptions } from '@web-widget/helpers';
+import './install';
+import type { ClientRenderOptions } from '@web-widget/helpers';
 
 const __FIXTURES__ = '/packages/web-widget/src/__fixtures__/code@widget.js';
 
