@@ -1,8 +1,5 @@
 import type { Meta } from '@web-widget/helpers';
-import {
-  mountLifecycleCacheLayer,
-  callSyncCacheProvider,
-} from '@web-widget/lifecycle-cache/client';
+import { callSyncCacheProvider } from '@web-widget/lifecycle-cache/client';
 import type { SerializableObject } from './types';
 import { createIdleObserver } from './utils/idle';
 import { createVisibleObserver } from './utils/lazy';
@@ -592,16 +589,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
   static UNLOAD_ERROR: typeof status.UNLOAD_ERROR;
 }
 
-Object.assign(HTMLWebWidgetElement, Object.freeze(status));
-Object.assign(window, {
-  HTMLWebWidgetElement,
-});
-
-mountLifecycleCacheLayer(() => {
-  queueMicrotask(() => {
-    customElements.define('web-widget', HTMLWebWidgetElement);
-  });
-});
+Object.assign(HTMLWebWidgetElement, status);
 
 declare global {
   let importShim: <T>(src: string) => Promise<T>;
