@@ -33,28 +33,28 @@
   "exports": {
     ".": {
       "worker": {
-        "types": "./dist/context.universal.server.d.ts",
+        "types": "./src/universal.server.ts",
         "development": "./src/universal.server.ts",
         "default": "./dist/context.universal.server.js"
       },
       "browser": {
-        "types": "./dist/context.universal.client.d.ts",
+        "types": "./src/universal.client.ts",
         "development": "./src/universal.client.ts",
         "default": "./dist/context.universal.client.js"
       },
       "default": {
-        "types": "./dist/context.universal.server.d.ts",
+        "types": "./src/universal.server.ts",
         "development": "./src/universal.server.ts",
         "default": "./dist/context.universal.server.js"
       }
     },
     "./client": {
-      "types": "./dist/context.client.d.ts",
+      "types": "./src/client.ts",
       "development": "./src/client.ts",
       "default": "./dist/context.client.js"
     },
     "./server": {
-      "types": "./dist/context.server.d.ts",
+      "types": "./src/server.ts",
       "development": "./src/server.ts",
       "default": "./dist/context.server.js"
     }

@@ -30,28 +30,28 @@
   "exports": {
     ".": {
       "worker": {
-        "types": "./dist/lifecycle-cache.universal.server.d.ts",
+        "types": "./src/universal.server.ts",
         "development": "./src/universal.server.ts",
         "default": "./dist/lifecycle-cache.universal.server.js"
       },
       "browser": {
-        "types": "./dist/lifecycle-cache.universal.client.d.ts",
+        "types": "./src/universal.client.ts",
         "development": "./src/universal.client.ts",
         "default": "./dist/lifecycle-cache.universal.client.js"
       },
       "default": {
-        "types": "./dist/lifecycle-cache.universal.server.d.ts",
+        "types": "./src/universal.server.ts",
         "development": "./src/universal.server.ts",
         "default": "./dist/lifecycle-cache.universal.server.js"
       }
     },
     "./client": {
-      "types": "./dist/lifecycle-cache.client.d.ts",
+      "types": "./src/client.ts",
       "development": "./src/client.ts",
       "default": "./dist/lifecycle-cache.client.js"
     },
     "./server": {
-      "types": "./dist/lifecycle-cache.server.d.ts",
+      "types": "./src/server.ts",
       "development": "./src/server.ts",
       "default": "./dist/lifecycle-cache.server.js"
     }

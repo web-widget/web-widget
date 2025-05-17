@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
-    "types": ["node", "jest"],
+    "types": ["jest", "node"],
     "useUnknownInCatchVariables": false
   },
   "exclude": ["node_modules"],
