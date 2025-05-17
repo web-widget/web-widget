@@ -212,5 +212,5 @@ function isWebContainer() {
   );
 }
 
-export const WebWidgetRenderer: WebWidgetRendererConstructor<Loader> =
+export const WebWidgetRenderer: WebWidgetRendererConstructor =
   ServerWebWidgetRenderer;

@@ -83,5 +83,5 @@ class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
   }
 }
 
-export const WebWidgetRenderer: WebWidgetRendererConstructor<Loader> =
+export const WebWidgetRenderer: WebWidgetRendererConstructor =
   ClientWebWidgetRenderer;
