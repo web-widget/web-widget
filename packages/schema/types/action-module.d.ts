@@ -1,4 +1,4 @@
-import { SerializableValue } from './common';
+import { SerializableValue } from './http';
 
 export interface ActionModule {
   [method: string]: ActionHandler;

@@ -48,6 +48,11 @@
       "development": "./src/client.ts",
       "default": "./dist/web-widget.client.js"
     },
+    "./element": {
+      "types": "./dist/element.d.ts",
+      "development": "./src/element.ts",
+      "default": "./dist/element.js"
+    },
     "./inspector": {
       "types": "./dist/inspector.d.ts",
       "development": "./src/inspector.ts",
@@ -89,6 +94,10 @@
         "types": "./dist/web-widget.client.d.ts",
         "default": "./dist/web-widget.client.js"
       },
+      "./element": {
+        "types": "./dist/element.d.ts",
+        "default": "./dist/element.js"
+      },
       "./inspector": {
         "types": "./dist/inspector.d.ts",
         "default": "./dist/inspector.js"
@@ -106,11 +115,12 @@
     "dev": "pnpm exec tsup --watch",
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build",
-    "test": "web-test-runner test/**/*.test.ts",
-    "test:coverage": "web-test-runner test/**/*.test.ts --coverage",
-    "test:watch": "web-test-runner test/**/*.test.ts --watch"
+    "test": "web-test-runner src/**/*.test.ts",
+    "test:coverage": "web-test-runner src/**/*.test.ts --coverage",
+    "test:watch": "web-test-runner src/**/*.test.ts --watch"
   },
   "sideEffects": [
+    "src/install.ts",
     "./dist/web-widget.client.js"
   ],
   "type": "module"

@@ -1,4 +1,4 @@
-import { KnownMethods, FetchContext } from './common';
+import { KnownMethods, FetchContext } from './http';
 import { RouteContext } from './route-module';
 
 export interface MiddlewareModule {

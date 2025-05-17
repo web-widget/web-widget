@@ -1,7 +1,4 @@
-import type {
-  ServerWidgetModule,
-  ServerWidgetRenderContext,
-} from '@web-widget/helpers';
+import type { ServerWidgetModule } from '@web-widget/helpers';
 import { mergeMeta, rebaseMeta, renderMetaToString } from '@web-widget/helpers';
 import {
   renderLifecycleCacheLayer,
@@ -23,12 +20,6 @@ export type * from './types';
 
 const __FEATURE_INJECTING_STYLES__ = false;
 let showWebContainerWarning = true;
-
-declare global {
-  interface ReadableStream {
-    [Symbol.asyncIterator](): AsyncIterator<ArrayBuffer | ArrayBufferView>;
-  }
-}
 
 const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
 
@@ -111,9 +102,11 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
     }
 
     const module = (await loader()) as ServerWidgetModule;
-    if (typeof module.render !== 'function') {
+    const { default: component, meta: _meta, render } = module;
+
+    if (typeof render !== 'function') {
       throw new TypeError(
-        `The module does not export a "render" method: ${getDisplayModuleId(
+        `Module is missing export "render": ${getDisplayModuleId(
           loader,
           options
         )}`
@@ -121,7 +114,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
     }
 
     const meta = rebaseMeta(
-      mergeMeta(module.meta ?? {}, options.meta ?? {}),
+      mergeMeta(_meta ?? {}, options.meta ?? {}),
       clientImport
     );
 
@@ -135,14 +128,10 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
     const styles = meta.style || [];
     const hasStyle = styleLinks.length || styles.length;
 
-    const context: ServerWidgetRenderContext = {
-      children: options.renderTarget === 'light' ? children : undefined,
-      data: options.data,
-      meta,
-      module,
-    };
     const rawResult = await callSyncCacheProvider(() =>
-      module.render!(context, {})
+      render(component, options.data, {
+        progressive: false,
+      })
     );
 
     if (typeof rawResult === 'string') {

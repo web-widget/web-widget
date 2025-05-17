@@ -1,15 +1,14 @@
 import type {
-  WidgetModule,
+  ServerWidgetModule,
+  ClientWidgetModule,
   Meta,
   SerializableValue,
 } from '@web-widget/helpers';
-export type * from '@web-widget/helpers';
-
 export interface SerializableObject {
   [key: string]: SerializableValue;
 }
 
-export type Loader = () => Promise<WidgetModule>;
+export type Loader = () => Promise<ServerWidgetModule | ClientWidgetModule>;
 
 export interface WebWidgetElementProps {
   base?: string;

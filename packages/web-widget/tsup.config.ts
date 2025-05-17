@@ -3,6 +3,7 @@ export default defineConfig({
   entry: {
     'web-widget.server': 'src/server.ts',
     'web-widget.client': 'src/client.ts',
+    element: 'src/element.ts',
     inspector: 'src/inspector.ts',
   },
   dts: true,

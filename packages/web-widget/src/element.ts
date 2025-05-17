@@ -1,25 +1,25 @@
-import type {
-  ClientWidgetModule,
-  ClientWidgetRenderContext,
-  Meta,
-} from '@web-widget/helpers';
-import {
-  mountLifecycleCacheLayer,
-  callSyncCacheProvider,
-} from '@web-widget/lifecycle-cache/client';
-import { WebWidgetUpdateEvent } from './event';
-import { LifecycleController } from './modules/controller';
-import { status } from './modules/status';
+import type { Meta } from '@web-widget/helpers';
+import { callSyncCacheProvider } from '@web-widget/lifecycle-cache/client';
 import type { SerializableObject } from './types';
 import { createIdleObserver } from './utils/idle';
 import { createVisibleObserver } from './utils/lazy';
 import { triggerModulePreload } from './utils/module-preload';
 import { queueMicrotask } from './utils/queue-microtask';
 import { reportError } from './utils/report-error';
+import {
+  Lifecycle,
+  ModuleContainer,
+  ModuleLoader,
+  Status,
+  status,
+  Timeouts,
+} from './container';
+import { WebWidgetError } from './error';
 
-declare const importShim: <T>(src: string) => Promise<T>;
-type Timeouts = Record<string, number>;
 let globalTimeouts: Timeouts = Object.create(null);
+
+type Loading = 'eager' | 'lazy' | 'idle';
+type RenderTarget = 'light' | 'shadow';
 
 const innerHTMLDescriptor = Object.getOwnPropertyDescriptor(
   Element.prototype,
@@ -37,12 +37,11 @@ export const INNER_HTML_PLACEHOLDER = `<!--web-widget:placeholder-->`;
 /**
  * Web Widget Container
  * @event {Event} statuschange
- * @event {WebWidgetUpdateEvent} update
  */
 export class HTMLWebWidgetElement extends HTMLElement {
-  #loader: (() => Promise<ClientWidgetModule>) | null = null;
+  #loader: ModuleLoader | null = null;
 
-  #lifecycleController: LifecycleController;
+  #moduleContainer: ModuleContainer | null = null;
 
   #data: SerializableObject | null = null;
 
@@ -50,59 +49,42 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #meta: Meta | null = null;
 
-  #context: ClientWidgetRenderContext | Record<string, unknown> | null = null;
-
   #isFirstConnect = false;
 
   #timeouts: Timeouts | null = null;
 
-  #status: string = status.INITIAL;
+  #status: Status = status.INITIAL;
 
   #internals?: ElementInternals;
 
   constructor() {
     super();
 
-    this.#lifecycleController = new LifecycleController(
-      () => {
-        if (!this.loader) {
-          this.loader = this.createLoader();
-        }
-        return this.loader();
-      },
-      {
-        handler: () => {
-          if (!this.context) {
-            this.context = this.createContext();
-          }
-          return {
-            importer: this.import,
-            context: this.context as ClientWidgetRenderContext,
-          };
-        },
-        statusChangeCallback: (status) => {
-          this.#statusChangeCallback(status);
-        },
-        timeouts: this.timeouts || {},
-      }
-    );
-
     if (this.attachInternals) {
       this.#internals = this.attachInternals();
     }
   }
 
-  #autoMount() {
-    if (
+  get #ready() {
+    return (
+      this.isConnected &&
       this.status === status.INITIAL &&
       !this.inactive &&
-      this.isConnected &&
       (this.import || this.loader)
-    ) {
-      queueMicrotask(() =>
-        this.mount().catch(this.#throwGlobalError.bind(this))
-      );
-    }
+    );
+  }
+
+  #autoMount() {
+    if (!this.#ready) return;
+    queueMicrotask(async () => {
+      try {
+        await this.load();
+        await this.bootstrap();
+        await this.mount();
+      } catch (error) {
+        this.#throwGlobalError(error);
+      }
+    });
   }
 
   /**
@@ -113,7 +95,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return this.#loader || null;
   }
 
-  set loader(value) {
+  set loader(value: ModuleLoader | null) {
     if (typeof value === 'function') {
       this.#loader = value;
       if (this.loading === 'eager') {
@@ -158,21 +140,23 @@ export class HTMLWebWidgetElement extends HTMLElement {
         this.getAttribute('contextdata') ??
         // @deprecated
         this.getAttribute('data');
-
       if (dataAttr) {
         try {
-          this.#data = JSON.parse(dataAttr);
+          const parsedData = JSON.parse(dataAttr);
+          if (parsedData !== null) {
+            this.#data = parsedData;
+          } else {
+            throw new Error('Invalid contextData format');
+          }
         } catch (error) {
-          this.#throwGlobalError(error as TypeError);
+          this.#throwGlobalError(error);
           this.#data = {};
         }
-      }
-      // @deprecated
-      else if (Object.entries(this.dataset).length) {
+        // @deprecated
+      } else if (Object.entries(this.dataset).length) {
         this.#data = { ...(this.dataset as SerializableObject) };
       }
     }
-
     return this.#data;
   }
 
@@ -188,36 +172,21 @@ export class HTMLWebWidgetElement extends HTMLElement {
   get contextMeta(): Meta | null {
     if (!this.#meta) {
       const dataAttr = this.getAttribute('contextmeta');
-
       if (dataAttr) {
         try {
           this.#meta = JSON.parse(dataAttr);
         } catch (error) {
-          this.#throwGlobalError(error as TypeError);
+          this.#throwGlobalError(error);
           this.#meta = {};
         }
       }
     }
-
     return this.#meta;
   }
 
   set contextMeta(value: Meta) {
     if (typeof value === 'object') {
       this.setAttribute('contextmeta', JSON.stringify(value));
-    }
-  }
-
-  /**
-   * WidgetModule context.
-   */
-  get context(): ClientWidgetRenderContext | Record<string, unknown> | null {
-    return this.#context;
-  }
-
-  set context(value: ClientWidgetRenderContext | Record<string, unknown>) {
-    if (typeof value === 'object' && value !== null) {
-      this.#context = value;
     }
   }
 
@@ -256,11 +225,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Indicates how the browser should load the module.
    * @default "eager"
    */
-  get loading(): string {
-    return this.getAttribute('loading') || 'eager';
+  get loading(): Loading {
+    return (this.getAttribute('loading') as Loading | null) || 'eager';
   }
 
-  set loading(value: 'eager' | 'lazy' | 'idle') {
+  set loading(value: Loading) {
     this.setAttribute('loading', value);
   }
 
@@ -268,7 +237,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * WidgetModule container status.
    * @default "initial"
    */
-  get status(): string {
+  get status(): Status {
     return this.#status;
   }
 
@@ -293,11 +262,11 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * WidgetModule render target.
    * @default "shadow"
    */
-  get renderTarget(): 'light' | 'shadow' {
+  get renderTarget(): RenderTarget {
     return (this.getAttribute('rendertarget') as 'light') || 'shadow';
   }
 
-  set renderTarget(value: 'light' | 'shadow') {
+  set renderTarget(value: RenderTarget) {
     this.setAttribute('rendertarget', value);
   }
 
@@ -326,98 +295,38 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * Hook: Create the module's context.
-   */
-  createContext(): ClientWidgetRenderContext {
-    let container: Element | DocumentFragment;
-    let customContext = this.context;
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const view = this;
-
-    if (!customContext) {
-      const context = this.getAttribute('context');
-
-      if (context) {
-        try {
-          customContext = JSON.parse(context);
-        } catch (error) {
-          this.#throwGlobalError(error as TypeError);
-        }
-      }
-    }
-
-    const context = Object.create({
-      get container() {
-        if (!container) {
-          container = view.createContainer();
-        }
-        return container;
-      },
-
-      data: view.contextData ?? {},
-      meta: view.contextMeta ?? {},
-      recovering: view.recovering,
-      /**@deprecated*/
-      update: this.update.bind(this),
-    });
-
-    return Object.assign(context, customContext || {});
-  }
-
-  /**
    * Hook: Create the module's render node.
    */
   createContainer(): Element | DocumentFragment {
     let container: Element | DocumentFragment | null = null;
-
     if (this.renderTarget === 'shadow') {
       if (this.recovering) {
         container = this.#internals?.shadowRoot ?? null;
       }
-
       if (!container) {
         container = this.attachShadow({ mode: 'open' });
       }
     } else if (this.renderTarget === 'light') {
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
       container = this;
     }
-
-    if (container && !Reflect.has(container, 'update')) {
-      // support v0
-      ['mount', 'update', 'unmount'].forEach((name) => {
-        // @ts-ignore
-        if (!container[name]) {
-          Reflect.defineProperty(container as Node, name, {
-            // @ts-ignore
-            value: (context) => this[name](context),
-          });
-        }
-      });
-    }
-
     return container as Element | DocumentFragment;
   }
 
   /**
-   * Hook: Create Create the module's loader.
+   * Hook: Create the module's loader.
    */
-  createLoader(): () => Promise<ClientWidgetModule> {
+  createLoader(): ModuleLoader {
     // @see https://github.com/WICG/import-maps#feature-detection
     const supportsImportMaps =
       HTMLScriptElement.supports && HTMLScriptElement.supports('importmap');
-
     function importModule(target: string) {
       if (!supportsImportMaps && typeof importShim === 'function') {
         // @see https://github.com/guybedford/es-module-shims
         // eslint-disable-next-line no-undef
-        return importShim<ClientWidgetModule>(target);
+        return importShim(target);
       }
-      return import(
-        /* @vite-ignore */ /* webpackIgnore: true */ target
-      ) as Promise<ClientWidgetModule>;
+      return import(/* @vite-ignore */ /* webpackIgnore: true */ target);
     }
-
     return () => importModule(this.import);
   }
 
@@ -425,63 +334,46 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * Trigger the loading of the module.
    */
   async load(): Promise<void> {
-    await this.#trigger('load');
+    await this.#call('load');
   }
 
   /**
    * Trigger the bootstrapping of the module.
    */
   async bootstrap(): Promise<void> {
-    await this.#trigger('bootstrap');
+    await this.#call('bootstrap');
   }
 
   /**
    * Trigger the mounting of the module.
    */
   async mount(): Promise<void> {
-    await callSyncCacheProvider(() => this.#trigger('mount'));
+    await callSyncCacheProvider(() => this.#call('mount'));
   }
 
   /**
    * Trigger the updating of the module.
    */
-  async update(context: object = {}): Promise<void> {
-    if (
-      this.context &&
-      this.dispatchEvent(
-        new WebWidgetUpdateEvent('update', {
-          value: context,
-          cancelable: true,
-        })
-      )
-    ) {
-      Object.assign(this.context, context);
-      await this.#trigger('update');
-    } else {
-      throw new Error(`Can't update`);
-    }
+  async update(data: any): Promise<void> {
+    await this.#call('update', data);
   }
 
   /**
    * Trigger the unmounting of the module.
    */
   async unmount(): Promise<void> {
-    await this.#trigger('unmount');
+    await this.#call('unmount');
   }
 
   /**
    * Trigger the unloading of the module.
    */
   async unload(): Promise<void> {
-    const context = this.context || {};
-    await this.#trigger('unload');
-    Object.getOwnPropertyNames(context).forEach((key) => {
-      Reflect.deleteProperty(context, key);
-    });
+    await this.#call('unload');
   }
 
   connectedCallback() {
-    // connected
+    /** connected */
     if (!this.#isFirstConnect) {
       this.#firstConnectedCallback();
       this.#isFirstConnect = true;
@@ -489,34 +381,30 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   #firstConnectedCallback() {
-    const options: AddEventListenerOptions = {
-      once: true,
-      passive: true,
-    };
-    const preload = () => {
-      if (this.import) {
-        triggerModulePreload(this.import);
-      }
-    };
+    const preload = () => this.import && triggerModulePreload(this.import);
+    const options: AddEventListenerOptions = { once: true, passive: true };
+
     ['mousemove', 'touchstart'].forEach((type) =>
       this.addEventListener(type, preload, options)
     );
 
-    if (this.loading === 'eager') {
-      this.#autoMount();
-    } else if (this.loading === 'lazy') {
-      this.#disconnectObserver = createVisibleObserver(this, () =>
-        this.#autoMount()
-      );
-    } else if (this.loading === 'idle') {
-      this.#disconnectObserver = createIdleObserver(this, () =>
-        this.#autoMount()
-      );
-    }
+    const loadingStrategies = {
+      eager: () => this.#autoMount(),
+      lazy: () =>
+        (this.#disconnectObserver = createVisibleObserver(this, () =>
+          this.#autoMount()
+        )),
+      idle: () =>
+        (this.#disconnectObserver = createIdleObserver(this, () =>
+          this.#autoMount()
+        )),
+    };
+
+    loadingStrategies[this.loading]?.();
   }
 
   disconnectedCallback() {
-    // disconnected
+    /** disconnected */
     queueMicrotask(() => {
       if (!this.isConnected) {
         this.destroyedCallback();
@@ -525,16 +413,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string) {
-    if (
-      name === 'contextdata' ||
-      // @deprecated
-      name === 'data'
-    ) {
-      // NOTE: Clear cache
+    const cacheClearingAttributes = ['contextdata', 'data', 'contextmeta'];
+    if (cacheClearingAttributes.includes(name)) {
       this.#data = null;
-    }
-    if (name === 'contextmeta') {
-      // NOTE: Clear cache
       this.#meta = null;
     }
     if (this.loading === 'eager') {
@@ -547,17 +428,58 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this.#disconnectObserver();
     }
     if (!this.inactive) {
-      this.unload().catch(this.#throwGlobalError.bind(this));
+      this.unmount()
+        .then(() => this.unload())
+        .catch((error) => this.#throwGlobalError(error));
     }
   }
 
-  #trigger(name: string) {
-    return this.#lifecycleController.run(name);
+  async #call(lifecycle: Lifecycle, data?: SerializableObject) {
+    if (!this.#moduleContainer) {
+      this.#moduleContainer = this.#createModuleContainer();
+    }
+    return this.#moduleContainer[lifecycle](data);
   }
 
-  #statusChangeCallback(value: string) {
-    this.#status = value;
+  #createModuleContainer() {
+    const view = this;
+    let container: Element | DocumentFragment;
+    const { recovering, contextData } = this;
+    const moduleContainer = new ModuleContainer<unknown>(
+      () => {
+        if (!this.loader) {
+          this.loader = this.createLoader();
+        }
+        return this.loader();
+      },
+      contextData,
+      {
+        get container() {
+          if (!container) {
+            container = view.createContainer();
+          }
+          return container;
+        },
+        get recovering() {
+          return recovering;
+        },
+      }
+    );
+    moduleContainer.timeouts = this.#timeouts;
+    moduleContainer.onStatusChange = (status) => {
+      this.#statusChangeCallback(status);
+    };
+    return moduleContainer;
+  }
 
+  #statusChangeCallback(value: Status) {
+    this.#updateStatus(value);
+    this.#markPerformance(value);
+    this.#dispatchStatusChangeEvent();
+  }
+
+  #updateStatus(value: Status) {
+    this.#status = value;
     if (this.#internals?.states) {
       // The double dash is required in browsers with the
       // legacy syntax, not supplying it will throw.
@@ -566,17 +488,17 @@ export class HTMLWebWidgetElement extends HTMLElement {
         this.#internals.states.clear();
         this.#internals.states.add(value);
       } catch (error) {
-        // this.#internals.states.add(`--${value}`);
         this.setAttribute('status', value);
       }
     } else {
       this.setAttribute('status', value);
     }
-
     if (value === status.MOUNTED) {
       this.removeAttribute('recovering');
     }
+  }
 
+  #markPerformance(value: Status) {
     try {
       const name = this.localName;
       const markNameSpace = `${name}:statusChange`;
@@ -584,11 +506,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         name: this.#name,
         import: this.import,
       };
-
-      performance.mark(`${markNameSpace}:${value}`, {
-        detail,
-      });
-
+      performance.mark(`${markNameSpace}:${value}`, { detail });
       switch (value) {
         case status.LOADED:
           performance.measure(`${name}:load`, {
@@ -606,7 +524,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
           break;
       }
     } catch (e) {}
+  }
 
+  #dispatchStatusChangeEvent() {
     this.dispatchEvent(new Event('statuschange'));
   }
 
@@ -616,24 +536,19 @@ export class HTMLWebWidgetElement extends HTMLElement {
     );
   }
 
-  #throwGlobalError(error: Error) {
+  #throwGlobalError(error: unknown) {
     const moduleName = this.#name;
-    const prefix = `Web Widget module (${moduleName})`;
-    if (typeof error !== 'object') {
-      error = new Error(error, {
-        cause: error,
-      });
+    let err: Error;
+    if (error instanceof WebWidgetError) {
+      err = error;
+    } else if (error instanceof Error) {
+      err = new WebWidgetError(moduleName, error.message, error);
+    } else if (typeof error === 'string') {
+      err = new WebWidgetError(moduleName, error);
+    } else {
+      err = new WebWidgetError(moduleName, 'Unknown error', error);
     }
-
-    if (!error.message.includes(prefix)) {
-      Reflect.defineProperty(error, 'message', {
-        value: `${prefix}: ${error.message}`,
-        writable: true,
-        configurable: true,
-      });
-    }
-
-    reportError(error);
+    reportError(err);
   }
 
   static get observedAttributes() {
@@ -656,49 +571,45 @@ export class HTMLWebWidgetElement extends HTMLElement {
     globalTimeouts = value;
   }
 
-  static INITIAL: string;
-  static LOADING: string;
-  static LOADED: string;
-  static BOOTSTRAPPING: string;
-  static BOOTSTRAPPED: string;
-  static MOUNTING: string;
-  static MOUNTED: string;
-  static UPDATING: string;
-  static UNMOUNTING: string;
-  static UNLOADING: string;
-  static LOAD_ERROR: string;
-  static BOOTSTRAP_ERROR: string;
-  static MOUNT_ERROR: string;
-  static UPDATE_ERROR: string;
-  static UNMOUNT_ERROR: string;
-  static UNLOAD_ERROR: string;
+  static INITIAL: typeof status.INITIAL;
+  static LOADING: typeof status.LOADING;
+  static LOADED: typeof status.LOADED;
+  static BOOTSTRAPPING: typeof status.BOOTSTRAPPING;
+  static BOOTSTRAPPED: typeof status.BOOTSTRAPPED;
+  static MOUNTING: typeof status.MOUNTING;
+  static MOUNTED: typeof status.MOUNTED;
+  static UPDATING: typeof status.UPDATING;
+  static UNMOUNTING: typeof status.UNMOUNTING;
+  static UNLOADING: typeof status.UNLOADING;
+  static LOAD_ERROR: typeof status.LOAD_ERROR;
+  static BOOTSTRAP_ERROR: typeof status.BOOTSTRAP_ERROR;
+  static MOUNT_ERROR: typeof status.MOUNT_ERROR;
+  static UPDATE_ERROR: typeof status.UPDATE_ERROR;
+  static UNMOUNT_ERROR: typeof status.UNMOUNT_ERROR;
+  static UNLOAD_ERROR: typeof status.UNLOAD_ERROR;
 }
 
 Object.assign(HTMLWebWidgetElement, status);
-Object.assign(window, {
-  HTMLWebWidgetElement,
-});
-
-mountLifecycleCacheLayer(() => {
-  queueMicrotask(() => {
-    customElements.define('web-widget', HTMLWebWidgetElement);
-  });
-});
 
 declare global {
+  let importShim: <T>(src: string) => Promise<T>;
   interface Window {
     HTMLWebWidgetElement: typeof HTMLWebWidgetElement;
   }
-
-  interface WebWidgetAttributes extends HTMLWebWidgetElement {
-    contextdata: string;
-    contextmeta: string;
+  interface WebWidgetAttributes extends Partial<HTMLWebWidgetElement> {
+    contextdata?: string;
+    contextmeta?: string;
+    inactive?: boolean;
+    recovering?: boolean;
+    loading?: Loading;
+    import?: string;
+    rendertarget?: RenderTarget;
+    base?: string;
+    timeouts?: Timeouts;
   }
-
   interface HTMLElementTagNameMap {
     'web-widget': HTMLWebWidgetElement;
   }
-
   namespace JSX {
     interface IntrinsicElements {
       'web-widget': WebWidgetAttributes;

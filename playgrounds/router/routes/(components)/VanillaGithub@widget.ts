@@ -1,4 +1,4 @@
-import { defineWidgetRender } from '@web-widget/helpers';
+import { defineClientRender, defineServerRender } from '@web-widget/helpers';
 import { IS_SERVER } from '@web-widget/helpers/env';
 import { syncCacheProvider } from '@web-widget/helpers/cache';
 
@@ -40,16 +40,19 @@ export default ({ username }: Props) => {
     </div>`;
 };
 
-export const render = defineWidgetRender(async (context) => {
-  if (IS_SERVER) {
-    return context.module.default!(context.data);
-  } else if (Reflect.get(context, 'recovering')) {
-    const container = Reflect.get(context, 'container') as HTMLElement;
-    const button = container.querySelector('button[show]') as HTMLElement;
-    const pre = container.querySelector('pre[hidden]') as HTMLElement;
+export const render = IS_SERVER
+  ? defineServerRender<Function>((component, data) => {
+      return component(data);
+    })
+  : defineClientRender<Function>(
+      (_component, _data, { container, recovering }) => {
+        if (recovering) {
+          const button = container.querySelector('button[show]') as HTMLElement;
+          const pre = container.querySelector('pre[hidden]') as HTMLElement;
 
-    button.onclick = () => {
-      pre.hidden = false;
-    };
-  }
-});
+          button.onclick = () => {
+            pre.hidden = false;
+          };
+        }
+      }
+    );
