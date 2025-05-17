@@ -1,5 +1,5 @@
-import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
-import { createSSRApp, h, Suspense } from 'vue';
+import { defineServerRender } from '@web-widget/helpers';
+import { type Component, createSSRApp, h, Suspense } from 'vue';
 import {
   renderToString,
   renderToWebStream,
@@ -9,11 +9,8 @@ import type { CreateVueRenderOptions } from './types';
 import errorHandler from './error-handler';
 
 declare module '@web-widget/schema' {
-  interface WidgetRenderOptions {
+  interface ServerRenderOptions {
     vue?: {};
-  }
-  interface RouteRenderOptions {
-    vue?: SSRContext;
   }
 }
 
@@ -21,35 +18,38 @@ export * from '@web-widget/helpers';
 export { useWidgetAsyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
+// Helper function to create the WidgetSuspense component
+const createWidgetSuspense = (component: Component) => (props: any) =>
+  h(Suspense, null, [h(component, props)]);
+
 export interface VueRenderOptions {
   vue?: SSRContext;
 }
 
 export const createVueRender = ({
   onCreatedApp = async () => {},
-  onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
-  if (onPrefetchData) {
-    throw new Error(`"onPrefetchData" is not supported.`);
-  }
+  return defineServerRender<Component>(
+    async (component, data, { progressive, vue: options } = {}) => {
+      if (!component) {
+        throw new TypeError(`Missing component.`);
+      }
 
-  return defineRender<unknown, Record<string, string>>(
-    async (context, { progressive, vue: options } = {}) => {
       const ssrContext: SSRContext = Object.create(options ?? null);
 
       let error;
-      const componentDescriptor = getComponentDescriptor(context);
-      const { component, props } = componentDescriptor;
-      const WidgetSuspense = (props: any) =>
-        h(Suspense, null, [h(component, props)]);
-      const app = createSSRApp(WidgetSuspense, props as any);
+      const context = { data, progressive }; // Context for lifecycle hooks
+      const WidgetSuspense = createWidgetSuspense(component);
+      const app = createSSRApp(WidgetSuspense, data as any);
 
       errorHandler(app, (err) => {
         error = err;
       });
 
-      await onCreatedApp(app, context, component, props);
+      // Call the user-defined lifecycle hook
+      await onCreatedApp(app, context, component, data);
 
+      // Render the app to a string or stream based on the progressive flag
       const html = progressive
         ? renderToWebStream(app, ssrContext)
         : await renderToString(app, ssrContext);

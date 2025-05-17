@@ -1,12 +1,7 @@
-import {
-  defineRender,
-  getComponentDescriptor,
-  type ComponentProps,
-} from '@web-widget/helpers';
+import { defineServerRender } from '@web-widget/helpers';
 import type { FunctionComponent } from 'react';
 import { createElement, StrictMode } from 'react';
 
-import type { CreateReactRenderOptions } from './types';
 import {
   renderToReadableStream,
   renderToString,
@@ -16,10 +11,7 @@ import {
 } from './edge';
 
 declare module '@web-widget/schema' {
-  interface WidgetRenderOptions {
-    react?: {};
-  }
-  interface RouteRenderOptions {
+  interface ServerRenderOptions {
     react?: StreamOptions;
   }
 }
@@ -37,70 +29,53 @@ export interface ReactRenderOptions {
   react?: StreamOptions;
 }
 
-export const createReactRender = ({
-  onPrefetchData,
-}: CreateReactRenderOptions = {}) => {
-  if (onPrefetchData) {
-    throw new Error(`"onPrefetchData" is not supported.`);
-  }
+const DEFAULT_TIMEOUT_MS = 1000 * 10; // 提取默认超时时间为常量
 
-  return defineRender<unknown, Record<string, string>>(
-    async (context, { progressive, react: options } = {}) => {
-      const reactRenderOptions: StreamOptions = Object.create(options ?? null);
-
-      let error;
-      const componentDescriptor = getComponentDescriptor(context);
-      const { component, props } = componentDescriptor;
-      const onError = reactRenderOptions.onError;
-      const awaitAllReady = reactRenderOptions.awaitAllReady;
-
-      if (!reactRenderOptions.signal) {
-        reactRenderOptions.signal = AbortSignal.timeout(1000 * 10);
-      }
-
-      reactRenderOptions.onError = (e, i) => {
-        error = e;
-        if (onError) {
-          onError(e, i);
-        } else if (progressive && !awaitAllReady) {
-          console.error(e);
-        }
-      };
-
-      let vNode;
-      if (
-        typeof component === 'function' &&
-        component.constructor.name === 'AsyncFunction'
-      ) {
-        // experimental
-        vNode = await component(props as ComponentProps<any>);
-      } else {
-        vNode = createElement(
-          component as FunctionComponent,
-          props as ComponentProps<any>
-        );
-      }
-
-      vNode = createElement(StrictMode, null, vNode);
-
-      const html = await (progressive
-        ? renderToReadableStream(vNode, reactRenderOptions)
-        : renderToString(vNode, reactRenderOptions));
-
-      if (progressive && awaitAllReady) {
-        await (html as ReactDOMServerReadableStream).allReady;
-      }
-
-      if (error) {
-        throw error;
-      }
-
-      return html;
+export const render = defineServerRender<FunctionComponent>(
+  async (component, context, { progressive, react }) => {
+    if (!component) {
+      throw new TypeError(`Missing component.`);
     }
-  );
-};
 
-/**@deprecated Please use `createReactRender` instead.*/
-export const defineReactRender = createReactRender;
+    const reactRenderOptions: StreamOptions = Object.create(react ?? null);
 
-export const render = createReactRender();
+    let error: unknown;
+    const { onError, awaitAllReady, signal } = reactRenderOptions;
+
+    reactRenderOptions.signal =
+      signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS);
+
+    reactRenderOptions.onError = (e, i) => {
+      error = e;
+      onError?.(e, i); // 使用可选链简化调用
+      if (!onError && progressive && !awaitAllReady) {
+        console.error(e);
+      }
+    };
+
+    const isAsyncFunction =
+      Object.prototype.toString.call(component) === '[object AsyncFunction]';
+    let vNode = isAsyncFunction
+      ? await component(context as any)
+      : createElement(component, context as any);
+
+    vNode = createElement(StrictMode, null, vNode);
+
+    const renderMethod = progressive ? renderToReadableStream : renderToString;
+    const result = await renderMethod(vNode, reactRenderOptions);
+
+    if (
+      progressive &&
+      awaitAllReady &&
+      'allReady' in (result as ReactDOMServerReadableStream)
+    ) {
+      await (result as ReactDOMServerReadableStream).allReady;
+    }
+
+    if (error) {
+      throw error;
+    }
+
+    return result;
+  }
+);

@@ -1,9 +1,5 @@
 import type { Component, App } from 'vue';
-import type {
-  ComponentProps,
-  RenderContext,
-  SerializableValue,
-} from '@web-widget/helpers';
+import type { SerializableValue } from '@web-widget/helpers';
 
 export * from './components';
 
@@ -14,14 +10,13 @@ interface SerializableObject {
 export interface CreateVueRenderOptions {
   onCreatedApp?: (
     app: App<Element>,
-    context: RenderContext,
+    context: {
+      container?: Element | DocumentFragment;
+      data: any;
+      progressive?: boolean;
+      recovering?: boolean;
+    },
     component: Component,
-    props: ComponentProps
+    props: any
   ) => Promise<void>;
-  /**@deprecated*/
-  onPrefetchData?: (
-    context: RenderContext,
-    component: Component,
-    props: ComponentProps
-  ) => Promise<SerializableObject>;
 }
