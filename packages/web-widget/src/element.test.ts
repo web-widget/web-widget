@@ -4,15 +4,6 @@ import { ClientRenderOptions } from '@web-widget/helpers';
 
 const __FIXTURES__ = '/packages/web-widget/src/__fixtures__/code@widget.js';
 
-const shadowRoot = Symbol('shadowRoot');
-const oldAttachShadow = HTMLElement.prototype.attachShadow;
-HTMLElement.prototype.attachShadow = function attachShadow() {
-  // @ts-ignore
-  this[shadowRoot] = oldAttachShadow.apply(this, arguments);
-  // @ts-ignore
-  return this[shadowRoot];
-};
-
 const createEmptyWidget = async () => {
   const emptyWidget = document.createElement('web-widget');
   await customElements.whenDefined('web-widget');

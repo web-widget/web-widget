@@ -5,7 +5,7 @@ import {
   callSyncCacheProvider,
 } from '@web-widget/lifecycle-cache/server';
 import type {
-  Loader,
+  ServerLoader,
   WebWidgetElementProps,
   WebWidgetRendererOptions,
   WebWidgetRendererInterface,
@@ -35,13 +35,13 @@ function unsafeAttrsToHtml(attrs: Record<string, string>) {
 class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   #children: string;
   #clientImport: string;
-  #loader: Loader;
+  #loader: ServerLoader;
   #options: WebWidgetElementProps;
   #renderStage?: string;
   localName = 'web-widget';
 
   constructor(
-    loader: Loader,
+    loader: ServerLoader,
     { children = '', renderStage, ...options }: WebWidgetRendererOptions
   ) {
     if (children && options.renderTarget !== 'shadow') {
@@ -212,5 +212,5 @@ function isWebContainer() {
   );
 }
 
-export const WebWidgetRenderer: WebWidgetRendererConstructor =
+export const WebWidgetRenderer: WebWidgetRendererConstructor<ServerLoader> =
   ServerWebWidgetRenderer;

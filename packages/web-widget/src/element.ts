@@ -17,6 +17,7 @@ import {
   status,
   Timeouts,
 } from './container';
+import { WebWidgetError } from './error';
 
 let globalTimeouts: Timeouts = Object.create(null);
 
@@ -84,7 +85,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         await this.bootstrap();
         await this.mount();
       } catch (error) {
-        this.#throwGlobalError(error as Error);
+        this.#throwGlobalError(error);
       }
     });
   }
@@ -97,7 +98,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     return this.#loader || null;
   }
 
-  set loader(value) {
+  set loader(value: ModuleLoader | null) {
     if (typeof value === 'function') {
       this.#loader = value;
       if (this.loading === 'eager') {
@@ -151,7 +152,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
             throw new Error('Invalid contextData format');
           }
         } catch (error) {
-          this.#throwGlobalError(error as TypeError);
+          this.#throwGlobalError(error);
           this.#data = {};
         }
         // @deprecated
@@ -178,7 +179,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         try {
           this.#meta = JSON.parse(dataAttr);
         } catch (error) {
-          this.#throwGlobalError(error as TypeError);
+          this.#throwGlobalError(error);
           this.#meta = {};
         }
       }
@@ -538,19 +539,19 @@ export class HTMLWebWidgetElement extends HTMLElement {
     );
   }
 
-  #throwGlobalError(error: Error) {
+  #throwGlobalError(error: unknown) {
     const moduleName = this.#name;
-    const prefix = `Web Widget module (${moduleName})`;
-
-    if (typeof error !== 'object') {
-      error = new Error(error, { cause: error });
+    let err: Error;
+    if (error instanceof WebWidgetError) {
+      err = error;
+    } else if (error instanceof Error) {
+      err = new WebWidgetError(moduleName, error.message, error);
+    } else if (typeof error === 'string') {
+      err = new WebWidgetError(moduleName, error);
+    } else {
+      err = new WebWidgetError(moduleName, 'Unknown error', error);
     }
-
-    if (!error.message.includes(prefix)) {
-      error.message = `${prefix}: ${error.message}`;
-    }
-
-    reportError(error);
+    reportError(err);
   }
 
   static get observedAttributes() {

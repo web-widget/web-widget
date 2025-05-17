@@ -10,6 +10,10 @@ export interface SerializableObject {
 
 export type Loader = () => Promise<ServerWidgetModule | ClientWidgetModule>;
 
+export type ClientLoader = () => Promise<ClientWidgetModule>;
+
+export type ServerLoader = () => Promise<ServerWidgetModule>;
+
 export interface WebWidgetElementProps {
   base?: string;
   data?: SerializableObject;
@@ -34,7 +38,9 @@ export interface WebWidgetRendererInterface {
   renderOuterHTMLToString(): Promise<string>;
 }
 
-export interface WebWidgetRendererConstructor {
+export interface WebWidgetRendererConstructor<
+  Loader = ServerLoader | ClientLoader,
+> {
   new (
     loader: Loader,
     options: WebWidgetRendererOptions
