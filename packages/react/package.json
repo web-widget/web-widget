@@ -31,23 +31,23 @@
   "exports": {
     ".": {
       "worker": {
-        "types": "./src/server.ts",
+        "types": "./dist/react.server.d.ts",
         "development": "./src/server.ts",
         "default": "./dist/react.server.js"
       },
       "browser": {
-        "types": "./src/client.ts",
+        "types": "./dist/react.client.d.ts",
         "development": "./src/client.ts",
         "default": "./dist/react.client.js"
       },
       "default": {
-        "types": "./src/server.ts",
+        "types": "./dist/react.server.d.ts",
         "development": "./src/server.ts",
         "default": "./dist/react.server.js"
       }
     },
     "./vite": {
-      "types": "./src/vite.ts",
+      "types": "./dist/vite.d.ts",
       "development": "./src/vite.ts",
       "default": "./dist/vite.js"
     },

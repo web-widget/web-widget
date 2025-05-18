@@ -25,17 +25,17 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/action.d.ts",
       "development": "./src/index.ts",
       "default": "./dist/action.js"
     },
     "./client": {
-      "types": "./src/client.ts",
+      "types": "./dist/action.client.d.ts",
       "development": "./src/client.ts",
       "default": "./dist/action.client.js"
     },
     "./server": {
-      "types": "./src/server.ts",
+      "types": "./dist/action.server.d.ts",
       "development": "./src/server.ts",
       "default": "./dist/action.server.js"
     }

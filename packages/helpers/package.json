@@ -34,143 +34,143 @@
   "exports": {
     ".": {
       "worker": {
-        "types": "./src/module/server.ts",
+        "types": "./dist/module.server.d.ts",
         "development": "./src/module/server.ts",
         "default": "./dist/module.server.js"
       },
       "browser": {
-        "types": "./src/module/client.ts",
+        "types": "./dist/module.client.d.ts",
         "development": "./src/module/client.ts",
         "default": "./dist/module.client.js"
       },
       "default": {
-        "types": "./src/module/server.ts",
+        "types": "./dist/module.server.d.ts",
         "development": "./src/module/server.ts",
         "default": "./dist/module.server.js"
       }
     },
     "./action": {
       "worker": {
-        "types": "./src/action/server.ts",
+        "types": "./dist/action.server.d.ts",
         "development": "./src/action/server.ts",
         "default": "./dist/action.server.js"
       },
       "browser": {
-        "types": "./src/action/client.ts",
+        "types": "./dist/action.client.d.ts",
         "development": "./src/action/client.ts",
         "default": "./dist/action.client.js"
       },
       "default": {
-        "types": "./src/action/server.ts",
+        "types": "./dist/action.server.d.ts",
         "development": "./src/action/server.ts",
         "default": "./dist/action.server.js"
       }
     },
     "./cache": {
       "worker": {
-        "types": "./src/cache/server.ts",
+        "types": "./dist/cache.server.d.ts",
         "development": "./src/cache/server.ts",
         "default": "./dist/cache.server.js"
       },
       "browser": {
-        "types": "./src/cache/client.ts",
+        "types": "./dist/cache.client.d.ts",
         "development": "./src/cache/client.ts",
         "default": "./dist/cache.client.js"
       },
       "default": {
-        "types": "./src/cache/server.ts",
+        "types": "./dist/cache.server.d.ts",
         "development": "./src/cache/server.ts",
         "default": "./dist/cache.server.js"
       }
     },
     "./context": {
       "worker": {
-        "types": "./src/context/server.ts",
+        "types": "./dist/context.server.d.ts",
         "development": "./src/context/server.ts",
         "default": "./dist/context.server.js"
       },
       "browser": {
-        "types": "./src/context/client.ts",
+        "types": "./dist/context.client.d.ts",
         "development": "./src/context/client.ts",
         "default": "./dist/context.client.js"
       },
       "default": {
-        "types": "./src/context/server.ts",
+        "types": "./dist/context.server.d.ts",
         "development": "./src/context/server.ts",
         "default": "./dist/context.server.js"
       }
     },
     "./crypto": {
-      "types": "./src/crypto/index.ts",
+      "types": "./dist/crypto.d.ts",
       "development": "./src/crypto/index.ts",
       "default": "./dist/crypto.js"
     },
     "./env": {
       "worker": {
-        "types": "./src/env/server.ts",
+        "types": "./dist/env.server.d.ts",
         "development": "./src/env/server.ts",
         "default": "./dist/env.server.js"
       },
       "browser": {
-        "types": "./src/env/client.ts",
+        "types": "./dist/env.client.d.ts",
         "development": "./src/env/client.ts",
         "default": "./dist/env.client.js"
       },
       "default": {
-        "types": "./src/env/server.ts",
+        "types": "./dist/env.server.d.ts",
         "development": "./src/env/server.ts",
         "default": "./dist/env.server.js"
       }
     },
     "./error": {
-      "types": "./src/error/index.ts",
+      "types": "./dist/error.d.ts",
       "development": "./src/error/index.ts",
       "default": "./dist/error.js"
     },
     "./headers": {
-      "types": "./src/headers/index.ts",
+      "types": "./dist/headers.d.ts",
       "development": "./src/headers/index.ts",
       "default": "./dist/headers.js"
     },
     "./http": {
-      "types": "./src/http/index.ts",
+      "types": "./dist/http.d.ts",
       "development": "./src/http/index.ts",
       "default": "./dist/http.js"
     },
     "./module": {
       "worker": {
-        "types": "./src/module/server.ts",
+        "types": "./dist/module.server.d.ts",
         "development": "./src/module/server.ts",
         "default": "./dist/module.server.js"
       },
       "browser": {
-        "types": "./src/module/client.ts",
+        "types": "./dist/module.client.d.ts",
         "development": "./src/module/client.ts",
         "default": "./dist/module.client.js"
       },
       "default": {
-        "types": "./src/module/server.ts",
+        "types": "./dist/module.server.d.ts",
         "development": "./src/module/server.ts",
         "default": "./dist/module.server.js"
       }
     },
     "./navigation": {
-      "types": "./src/navigation/index.ts",
+      "types": "./dist/navigation.d.ts",
       "development": "./src/navigation/index.ts",
       "default": "./dist/navigation.js"
     },
     "./purify": {
-      "types": "./src/purify/index.ts",
+      "types": "./dist/purify.d.ts",
       "development": "./src/purify/index.ts",
       "default": "./dist/purify.js"
     },
     "./state": {
-      "types": "./src/state/index.ts",
+      "types": "./dist/state.d.ts",
       "development": "./src/state/index.ts",
       "default": "./dist/state.js"
     },
     "./status": {
-      "types": "./src/status/index.ts",
+      "types": "./dist/status.d.ts",
       "development": "./src/status/index.ts",
       "default": "./dist/status.js"
     }

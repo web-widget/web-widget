@@ -28,38 +28,38 @@
   "exports": {
     ".": {
       "worker": {
-        "types": "./src/server.ts",
+        "types": "./dist/web-widget.server.d.ts",
         "development": "./src/server.ts",
         "default": "./dist/web-widget.server.js"
       },
       "browser": {
-        "types": "./src/client.ts",
+        "types": "./dist/web-widget.client.d.ts",
         "development": "./src/client.ts",
         "default": "./dist/web-widget.client.js"
       },
       "default": {
-        "types": "./src/server.ts",
+        "types": "./dist/web-widget.server.d.ts",
         "development": "./src/server.ts",
         "default": "./dist/web-widget.server.js"
       }
     },
     "./client": {
-      "types": "./src/client.ts",
+      "types": "./dist/web-widget.client.d.ts",
       "development": "./src/client.ts",
       "default": "./dist/web-widget.client.js"
     },
     "./element": {
-      "types": "./src/element.ts",
+      "types": "./dist/element.d.ts",
       "development": "./src/element.ts",
       "default": "./dist/element.js"
     },
     "./inspector": {
-      "types": "./src/inspector.ts",
+      "types": "./dist/inspector.d.ts",
       "development": "./src/inspector.ts",
       "default": "./dist/inspector.js"
     },
     "./server": {
-      "types": "./src/server.ts",
+      "types": "./dist/web-widget.server.d.ts",
       "development": "./src/server.ts",
       "default": "./dist/web-widget.server.js"
     }

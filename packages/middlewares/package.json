@@ -31,42 +31,42 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "development": "./src/index.ts",
       "default": "./dist/index.js"
     },
     "./cache": {
-      "types": "./src/cache.ts",
+      "types": "./dist/cache.d.ts",
       "development": "./src/cache.ts",
       "default": "./dist/cache.js"
     },
     "./conditional-get": {
-      "types": "./src/conditional-get.ts",
+      "types": "./dist/conditional-get.d.ts",
       "development": "./src/conditional-get.ts",
       "default": "./dist/conditional-get.js"
     },
     "./etag": {
-      "types": "./src/etag.ts",
+      "types": "./dist/etag.d.ts",
       "development": "./src/etag.ts",
       "default": "./dist/etag.js"
     },
     "./inline-styles": {
-      "types": "./src/inline-styles.ts",
+      "types": "./dist/inline-styles.d.ts",
       "development": "./src/inline-styles.ts",
       "default": "./dist/inline-styles.js"
     },
     "./powered-by": {
-      "types": "./src/powered-by.ts",
+      "types": "./dist/powered-by.d.ts",
       "development": "./src/powered-by.ts",
       "default": "./dist/powered-by.js"
     },
     "./timing": {
-      "types": "./src/timing.ts",
+      "types": "./dist/timing.d.ts",
       "development": "./src/timing.ts",
       "default": "./dist/timing.js"
     },
     "./trailing-slash": {
-      "types": "./src/trailing-slash.ts",
+      "types": "./dist/trailing-slash.d.ts",
       "development": "./src/trailing-slash.ts",
       "default": "./dist/trailing-slash.js"
     }

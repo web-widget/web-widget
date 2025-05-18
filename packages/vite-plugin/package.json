@@ -44,17 +44,17 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/vite.d.ts",
       "development": "./src/index.ts",
       "default": "./dist/vite.js"
     },
     "./vitest-node-environment": {
-      "types": "./src/vitest-node-environment.ts",
+      "types": "./dist/vitest-node-environment.d.ts",
       "development": "./src/vitest-node-environment.ts",
       "default": "./dist/vitest-node-environment.js"
     },
     "./vitest-edge-runtime-environment": {
-      "types": "./src/vitest-edge-runtime-environment.ts",
+      "types": "./dist/vitest-edge-runtime-environment.d.ts",
       "development": "./src/vitest-edge-runtime-environment.ts",
       "default": "./dist/vitest-edge-runtime-environment.js"
     }
