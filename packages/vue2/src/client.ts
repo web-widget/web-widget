@@ -84,7 +84,7 @@ export const createVueRender = ({
                 props: mergedProps,
               });
             },
-            errorCaptured: (err, vm, info) => {
+            errorCaptured: (err, _vm, _info) => {
               if (cacheProviderIsLoading(err)) {
                 loading = err;
                 return false;

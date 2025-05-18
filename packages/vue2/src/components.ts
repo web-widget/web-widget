@@ -2,7 +2,6 @@ import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import Vue, { h, defineComponent, useAttrs, getCurrentInstance } from 'vue';
 import type { Component, ComponentPublicInstance, PropType } from 'vue';
-import { IS_CLIENT } from '@web-widget/helpers/env';
 import type { ReactWidgetComponent } from '@web-widget/react';
 import { DefaultProps } from 'vue/types/options';
 
@@ -13,7 +12,7 @@ Vue.config.ignoredElements = ['web-widget'];
  * it will be handled by the web widget container.
  * @link ../lifecycle-cache/src/provider.ts#cacheProviderIsLoading
  */
-Vue.config.warnHandler = (msg, vm, trace) => {
+Vue.config.warnHandler = (msg, _vm, trace) => {
   if (msg.includes(`[object Promise]`)) {
     return;
   }

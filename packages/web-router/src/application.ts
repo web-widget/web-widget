@@ -103,7 +103,7 @@ class Application<
   /**
    * @internal
    */
-  fixErrorStack(error: Error) {}
+  fixErrorStack(_error: Error) {}
 
   /**
    * @experimental

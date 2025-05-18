@@ -1,14 +1,9 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": false,
-    "declaration": true,
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "rootDir": "./src",
-    "skipLibCheck": true,
-    "strict": true
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
   "exclude": ["node_modules"],
-  "include": ["./src/**/*"]
+  "include": ["src/**/*"]
 }
