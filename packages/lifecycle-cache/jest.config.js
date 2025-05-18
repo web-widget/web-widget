@@ -1,3 +1,4 @@
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 export default {
   roots: ['<rootDir>/src'],
   testMatch: ['**/src/**/(*.)+(spec|test).+(ts|tsx|js)'],

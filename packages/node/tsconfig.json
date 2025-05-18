@@ -1,18 +1,9 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "declaration": true,
-    "esModuleInterop": true,
-    "lib": ["ESNext", "WebWorker"],
-    "module": "es2020",
-    "moduleResolution": "Bundler",
-    "noUnusedLocals": true,
-    "paths": {},
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "es2020",
-    "useUnknownInCatchVariables": false
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["node"]
   },
   "exclude": ["node_modules"],
   "include": ["src/**/*"]

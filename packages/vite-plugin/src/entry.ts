@@ -281,7 +281,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       } else {
         const routemapJson = await api.serverRoutemap();
         const imports: string[] = Object.entries(routemapJson).reduce(
-          (list, [key, value]) => {
+          (list, [_key, value]) => {
             if (Array.isArray(value)) {
               value.forEach((mod) => {
                 list.push(mod.module);

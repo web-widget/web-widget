@@ -1,11 +1,6 @@
 import type { Component, App } from 'vue';
-import type { SerializableValue } from '@web-widget/helpers';
 
 export * from './components';
-
-interface SerializableObject {
-  [key: string]: SerializableValue;
-}
 
 export interface CreateVueRenderOptions {
   onCreatedApp?: (
