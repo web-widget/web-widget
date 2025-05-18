@@ -1,21 +1,6 @@
 {
-  "compilerOptions": {
-    "declaration": true,
-    "declarationMap": true,
-    "esModuleInterop": true,
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
-    "module": "esnext",
-    "moduleResolution": "Bundler",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "sourceMap": true,
-    "strict": true,
-    "target": "es2020"
-  },
-  "include": ["*.ts"],
-  "exclude": []
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {},
+  "exclude": ["node_modules"],
+  "include": ["*.d.ts", "types/**/*.d.ts"]
 }

@@ -1,16 +1,11 @@
 import type {
   ActionModule,
   FetchEventLike,
-  Meta,
   MiddlewareModule,
   RouteModule,
-  RouteRenderResult,
-  ServerWidgetModule,
-  ServerWidgetRender,
-  ServerWidgetRenderContext,
-  ServerWidgetRenderResult,
-  WidgetComponent,
-  WidgetComponentProps,
+  ServerRenderResult,
+  ServerRender,
+  RouteComponentProps,
 } from '@web-widget/helpers';
 
 import type { Context } from './context';
@@ -88,38 +83,20 @@ export interface Manifest {
 //////                            //////
 ////////////////////////////////////////
 
-export interface LayoutModule extends ServerWidgetModule {}
-
-export type LayoutComponentProps = WidgetComponentProps<{
-  children: RouteRenderResult;
-  meta: Meta;
-  params: Record<string, string>;
-  /** @deprecated Use `scope.pathname` instead. */
-  pathname: string;
-  request: Request;
-  scope: RoutePattern;
-  url: URL;
-}>;
-
-export interface LayoutComponent
-  extends WidgetComponent<LayoutComponentProps> {}
-
-export interface LayoutRenderContext
-  extends ServerWidgetRenderContext<LayoutComponentProps> {}
-
-export type LayoutRenderResult = ServerWidgetRenderResult;
-
-export interface LayoutRender
-  extends ServerWidgetRender<LayoutComponentProps> {}
-
-export interface LayoutModuleDescriptor {
-  module: LayoutModule;
-  name?: string;
+export interface LayoutModule {
   render: LayoutRender;
+  default: LayoutComponent;
 }
 
-/** @deprecated */
-export type RootLayoutComponentProps = LayoutComponentProps;
+export interface LayoutComponentProps extends RouteComponentProps {
+  children: ServerRenderResult;
+}
+
+export interface LayoutComponent {
+  (props: LayoutComponentProps): any;
+}
+export interface LayoutRender
+  extends ServerRender<LayoutComponent, LayoutComponentProps> {}
 
 ////////////////////////////////////////
 //////                            //////

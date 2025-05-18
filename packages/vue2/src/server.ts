@@ -1,4 +1,4 @@
-import { defineRender, getComponentDescriptor } from '@web-widget/helpers';
+import { defineServerRender } from '@web-widget/helpers';
 import { escapeJson } from '@web-widget/helpers/purify';
 // import { Readable } from "node:stream";
 // import { TransformStream } from "node:stream/web";
@@ -28,27 +28,34 @@ export * from './components';
 //   );
 // }
 
+type BuildedComponent = Component & {
+  __name?: string;
+};
+
+function sanitizeComponentName(name: string): string {
+  return name.replace('@', '-');
+}
+
 export const createVueRender = ({
   onBeforeCreateApp = async () => ({}),
   onCreatedApp = async () => {},
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
-  return defineRender<unknown, Record<string, string>>(
-    async (context, { progressive }) => {
-      const componentDescriptor = getComponentDescriptor(context);
-      const component = componentDescriptor.component as Component & {
-        __name?: string;
-      };
-      const props = componentDescriptor.props;
-
-      if (component.__name) {
-        component.__name = component.__name.replace('@', '-');
+  return defineServerRender<BuildedComponent>(
+    async (component, data, { progressive }) => {
+      if (!component) {
+        throw new TypeError(`Missing component.`);
       }
 
+      if (component.__name) {
+        component.__name = sanitizeComponentName(component.__name);
+      }
+
+      const context = { data, progressive }; // This is to be compatible with createVueRender's on*** lifecycle
       const state = onPrefetchData
-        ? await onPrefetchData(context, component, props)
+        ? await onPrefetchData(context, component, data)
         : undefined;
-      const mergedProps = state ? Object.assign({}, state, props) : props;
+      const mergedProps = state ? Object.assign({}, state, data) : data;
 
       const renderer = createRenderer();
 
@@ -71,7 +78,7 @@ export const createVueRender = ({
         console.warn(`Vue2 does not support progressive rendering.`);
       }
 
-      // NOTE: Avoid vite-plugin-vue2-jsx not working.
+      // NOTE: Avoid issues with vite-plugin-vue2-jsx by ensuring proper SSR context handling.
       // @see https://github.com/vitejs/vite-plugin-vue2-jsx/blob/f44adfd80a8c2d016947bcd808c88ebfa2d9da1a/src/index.ts#L32-L33
       const ssrContext = {};
       const result = await renderer.renderToString(app, ssrContext);

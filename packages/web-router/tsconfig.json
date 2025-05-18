@@ -1,17 +1,10 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": false,
-    "declaration": true,
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "outDir": "./dist",
     "rootDir": "./src",
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "ESNext",
-    "types": ["jest", "urlpattern-polyfill"],
-    "esModuleInterop": true,
+    "types": ["jest", "urlpattern-polyfill"]
   },
-  "exclude": [".backup/**/*", "tsup.config.ts", "node_modules"],
+  "exclude": ["node_modules"],
   "include": ["src/**/*"]
 }

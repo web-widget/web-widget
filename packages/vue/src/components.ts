@@ -1,13 +1,6 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
-import {
-  h,
-  defineComponent,
-  Suspense,
-  useAttrs,
-  // onServerPrefetch,
-  // getCurrentInstance,
-} from 'vue';
+import { h, defineComponent, Suspense, useAttrs } from 'vue';
 import type { VNode, PropType, ComponentPublicInstance, Component } from 'vue';
 import { IS_CLIENT } from '@web-widget/helpers/env';
 import type { ReactWidgetComponent } from '@web-widget/react';
@@ -20,17 +13,16 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     },
     data: {
       type: Object as PropType<WebWidgetRendererOptions['data']>,
-      default: {},
+      default: () => ({}),
     },
     import: {
       type: String as PropType<WebWidgetRendererOptions['import']>,
     },
     inactive: {
       type: Boolean as PropType<WebWidgetRendererOptions['inactive']>,
-      // NOTE: If the default value is not set, it will be false here.
-      default: undefined,
+      default: false,
     },
-    loader /**/: {
+    loader: {
       type: Function as PropType<Loader>,
       required: true,
     },
@@ -62,7 +54,6 @@ const WebWidget = /*#__PURE__*/ defineComponent({
 
     const widget = new WebWidgetRenderer(loader as Loader, {
       ...props,
-      // TODO slots.default
       children: '',
     });
     const tag = widget.localName;
@@ -71,14 +62,6 @@ const WebWidget = /*#__PURE__*/ defineComponent({
 
     if (IS_CLIENT) {
       await customElements.whenDefined(tag);
-      // let element = document.createElement(tag);
-      // Object.entries(attrs).forEach(([name, value]) => {
-      //   element.setAttribute(name, value);
-      // });
-      // // @ts-ignore
-      // await element.bootstrap();
-      // // @ts-ignore
-      // element = null;
     }
 
     const data = attrs.data;
@@ -87,7 +70,6 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     return () =>
       h(tag, {
         ...attrs,
-        // NOTE: Use attr instead of props.
         ...(IS_CLIENT ? { '^data': data } : { data }),
         innerHTML,
       });

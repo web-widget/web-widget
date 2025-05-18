@@ -7,10 +7,10 @@ import type {
 } from './types';
 import { getClientModuleId, unsafePropsToAttrs } from './utils/render';
 import { INNER_HTML_PLACEHOLDER } from './element';
+import './install';
 
 export type * from './types';
 export * from './element';
-export * from './event';
 
 function unsafeAttrsToHtml(attrs: Record<string, string>) {
   return Object.entries(attrs)

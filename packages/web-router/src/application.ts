@@ -94,7 +94,7 @@ class Application extends defineDynamicClass() {
   /**
    * @internal
    */
-  fixErrorStack(error: Error) {}
+  fixErrorStack(_error: Error) {}
 
   /**
    * @experimental
