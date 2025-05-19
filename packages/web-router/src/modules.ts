@@ -114,7 +114,9 @@ function composeRender(
       params: context.params,
       pathname: context.pathname,
       request: context.request,
+      scope: context.scope,
       state: context.state,
+      url: context.url,
     };
 
     const html = await layoutModule.render(

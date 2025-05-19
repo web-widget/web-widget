@@ -1,9 +1,13 @@
 import type WebRouter from '@web-widget/web-router';
 import type { z } from 'zod';
-import type { Manifest, StartOptions } from '@web-widget/web-router';
+import type {
+  Manifest,
+  RoutePattern,
+  StartOptions,
+} from '@web-widget/web-router';
 import type { FilterPattern, Plugin, Manifest as ViteManifest } from 'vite';
 import type { WebRouterConfigSchema } from './config';
-import type { RouteSourceFile } from './dev/routing/types';
+import type { Rewrite, RouteSourceFile } from './dev/routing/types';
 
 ////////////////////////////////////////
 //////                            //////
@@ -23,7 +27,9 @@ export interface ResolvedWebRouterConfig {
     basePathname: string;
     dir: string;
     enabled: boolean;
-    overridePathname: (pathname: string, source: RouteSourceFile) => string;
+    /** @deprecated Use `rewrite` instead. */
+    overridePathname?(pathname: string, source: RouteSourceFile): string;
+    rewrite?: Rewrite;
   };
   importShim: {
     enabled: boolean;
@@ -62,33 +68,31 @@ export interface WebRouterClientEntryModuleV1 {}
 
 export interface WebRouterClientEntryModuleV2 {}
 
+type RouteMapModule = {
+  module: string;
+};
+
+type RouteMapScope = {
+  name?: string;
+} & RoutePattern;
+
+type RouteMapStatus = {
+  status: number;
+};
+
+type RouteMapRoute = RouteMapModule & RouteMapScope;
+type RouteMapAction = RouteMapModule & RouteMapScope;
+type RouteMapMiddleware = RouteMapModule & RouteMapScope;
+type RouteMapFallback = RouteMapModule & RouteMapStatus & RouteMapScope;
+type RouteMapLayout = RouteMapModule;
+
 export interface RouteMap {
   $schema?: string;
-  routes?: {
-    module: string;
-    name?: string;
-    pathname: string;
-  }[];
-  middlewares?: {
-    module: string;
-    name?: string;
-    pathname: string;
-  }[];
-  actions?: {
-    module: string;
-    name?: string;
-    pathname: string;
-  }[];
-  fallbacks?: {
-    module: string;
-    name?: string;
-    pathname: string;
-    status: number;
-  }[];
-  layout?: {
-    module: string;
-    name?: string;
-  };
+  routes: RouteMapRoute[];
+  actions: RouteMapAction[];
+  middlewares: RouteMapMiddleware[];
+  fallbacks: RouteMapFallback[];
+  layout: RouteMapLayout;
 }
 
 type Imports = Record<string, string>;

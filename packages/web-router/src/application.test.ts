@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Application } from './application';
 import type { MiddlewareHandler } from './types';
-import { getPath } from './url';
 
 // https://stackoverflow.com/a/65666402
 function throwExpression(errorMessage: string): never {
@@ -216,43 +215,6 @@ describe('strict parameter', () => {
       expect(res.status).toBe(404);
     });
   });
-
-  describe('strict is false', () => {
-    const app = new Application({ strict: false });
-
-    app.get('/hello', (c) => {
-      return text('/hello');
-    });
-
-    test('/hello and /hello/ are treated as the same', async () => {
-      let res = await app.dispatch('http://localhost/hello');
-      expect(res).not.toBeNull();
-      expect(res.status).toBe(200);
-      res = await app.dispatch('http://localhost/hello/');
-      expect(res).not.toBeNull();
-      expect(res.status).toBe(200);
-    });
-  });
-
-  describe('strict is false with `getPath` option', () => {
-    const app = new Application({
-      strict: false,
-      getPath: getPath,
-    });
-
-    app.get('/hello', (c) => {
-      return text('/hello');
-    });
-
-    test('/hello and /hello/ are treated as the same', async () => {
-      let res = await app.dispatch('http://localhost/hello');
-      expect(res).not.toBeNull();
-      expect(res.status).toBe(200);
-      res = await app.dispatch('http://localhost/hello/');
-      expect(res).not.toBeNull();
-      expect(res.status).toBe(200);
-    });
-  });
 });
 
 // describe("Destruct functions in context", () => {
@@ -287,33 +249,6 @@ describe('routing', () => {
     expect(res).not.toBeNull();
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('delete /');
-  });
-
-  describe('routing with the bindings value', () => {
-    const app = new Application<{ Bindings: { host: string } }>({
-      getPath: (req, options) => {
-        const url = new URL(req.url);
-        const host = options?.env?.host;
-        const prefix = url.host === host ? '/FOO' : '';
-        return url.pathname === '/' ? prefix : `${prefix}${url.pathname}`;
-      },
-    });
-
-    app.get('/about', (c) => text('About root'));
-    app.get('/FOO/about', (c) => text('About FOO'));
-
-    test('should return 200 without specifying a hostname', async () => {
-      const res = await app.dispatch('/about');
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe('About root');
-    });
-
-    test('should return 200 with specifying the hostname in env', async () => {
-      const req = new Request('http://foo.localhost/about');
-      const res = await app.handler(req, { host: 'foo.localhost' });
-      expect(res.status).toBe(200);
-      expect(await res.text()).toBe('About FOO');
-    });
   });
 
   describe('chained route', () => {
@@ -470,6 +405,189 @@ describe('param and query', () => {
   });
 });
 
+describe('URLPatternInit support', () => {
+  const app = new Application();
+
+  app.get({ pathname: '/pattern-init' }, (c) => {
+    return new Response('Matched URLPatternInit', {
+      status: 200,
+    });
+  });
+
+  test('GET /pattern-init matches URLPatternInit route', async () => {
+    const res = await app.dispatch('http://localhost/pattern-init');
+    expect(res).not.toBeNull();
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('Matched URLPatternInit');
+  });
+
+  test('GET /non-existent does not match URLPatternInit route', async () => {
+    const res = await app.dispatch('http://localhost/non-existent');
+    expect(res).not.toBeNull();
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('URLPatternInit with hostname support', () => {
+  const app = new Application();
+
+  app.get({ hostname: ':lang.example.com', pathname: '/pattern-init' }, (c) => {
+    return new Response(
+      `Matched URLPatternInit with hostname: ${c.params['lang']}`,
+      {
+        status: 200,
+      }
+    );
+  });
+
+  test('GET /pattern-init matches URLPatternInit route with hostname', async () => {
+    const res = await app.dispatch('http://en.example.com/pattern-init');
+    expect(res).not.toBeNull();
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('Matched URLPatternInit with hostname: en');
+  });
+
+  test('GET /pattern-init does not match incorrect hostname', async () => {
+    const res = await app.dispatch('http://example.com/pattern-init');
+    expect(res).not.toBeNull();
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('URLPatternInit with overlapping named groups', () => {
+  test('GET /pattern-init with hostname lang takes precedence', async () => {
+    const app = new Application();
+    app.get(
+      {
+        hostname: ':lang.example.com',
+        pathname: '/:lang/pattern-init',
+        search: '?lang=:lang',
+      },
+      (c) => {
+        return new Response(`Matched with lang: ${c.params['lang']}`, {
+          status: 200,
+        });
+      }
+    );
+    const res = await app.dispatch(
+      'http://en.example.com/cn/pattern-init?lang=fr'
+    );
+    expect(res).not.toBeNull();
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('Matched with lang: en');
+  });
+
+  test('GET /pattern-init with pathname lang takes precedence over search', async () => {
+    const app = new Application();
+    app.get(
+      {
+        pathname: '/:lang/pattern-init',
+        search: '?lang=:lang',
+      },
+      (c) => {
+        return new Response(`Matched with lang: ${c.params['lang']}`, {
+          status: 200,
+        });
+      }
+    );
+    const res = await app.dispatch(
+      'http://example.com/en/pattern-init?lang=fr'
+    );
+    expect(res).not.toBeNull();
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('Matched with lang: en');
+  });
+
+  test('GET /pattern-init with only search lang', async () => {
+    const app = new Application();
+    app.get(
+      {
+        search: '?lang=:lang',
+      },
+      (c) => {
+        return new Response(`Matched with lang: ${c.params['lang']}`, {
+          status: 200,
+        });
+      }
+    );
+    const res = await app.dispatch('http://example.com/pattern-init?lang=fr');
+    expect(res).not.toBeNull();
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('Matched with lang: fr');
+  });
+});
+
+describe('URLPatternInit with overlapping unnamed groups', () => {
+  const app = new Application();
+
+  test('should match unnamed group in pathname', async () => {
+    app.get({ pathname: '/foo/(.*)' }, (c) => {
+      return text(`Value is ${c.params['0']}`);
+    });
+    const res = await app.dispatch('http://localhost/foo/some/path');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('Value is some/path');
+  });
+
+  test('only pathname is recorded as a named group', async () => {
+    app.get({ pathname: '/bar/(.*)', search: '?bar=(.*)' }, (c) => {
+      const pathnameValue = c.params['0'];
+      const searchValue = c.params['1'];
+      return text(
+        `Pathname value is ${pathnameValue}, Search value is ${searchValue}`
+      );
+    });
+    const res = await app.dispatch('http://localhost/bar/some/path?bar=value');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe(
+      'Pathname value is some/path, Search value is undefined'
+    );
+  });
+});
+
+describe('scope', () => {
+  const app = new Application();
+
+  app.get('/foo/:bar', (c) => {
+    return text(`foo is ${c.scope.pathname}`);
+  });
+
+  test('scope of /foo/:bar is found', async () => {
+    const res = await app.dispatch('http://localhost/foo/bar');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('foo is /foo/:bar');
+  });
+});
+
+describe('url', () => {
+  const app = new Application();
+
+  app.get('/url-test', (c) => {
+    return text(`URL is ${c.url.toString()}`);
+  });
+
+  test('should return the correct URL from context', async () => {
+    const res = await app.dispatch('http://localhost/url-test');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('URL is http://localhost/url-test');
+  });
+
+  test('url should be an instance of URL', async () => {
+    const app = new Application();
+
+    app.get('/url-instance-test', (c) => {
+      if (!(c.url instanceof URL)) {
+        throw new Error('url is not an instance of URL');
+      }
+      return text('URL instance check passed');
+    });
+
+    const res = await app.dispatch('http://localhost/url-instance-test');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('URL instance check passed');
+  });
+});
+
 describe('middleware', () => {
   describe('basic', () => {
     const app = new Application();
@@ -606,7 +724,7 @@ describe('middleware', () => {
   });
 });
 
-describe('builtin Middleware', () => {
+describe('builtin middleware', () => {
   const app = new Application();
   app.use('/abc', poweredBy());
   app.use('/def', async (c, next) => {
@@ -627,7 +745,7 @@ describe('builtin Middleware', () => {
   });
 });
 
-describe('not Found', () => {
+describe('not found', () => {
   const app = new Application();
 
   app.notFound((c) => {
@@ -1055,298 +1173,3 @@ describe('handler as variables', () => {
     expect(await res.text()).toBe('Post id is 123');
   });
 });
-
-declare module './context' {
-  interface ContextRenderer {
-    (
-      content: string | Promise<string>,
-      head: { title: string }
-    ): Response | Promise<Response>;
-  }
-}
-
-// describe("c.state - with testing types", () => {
-//   const app = new Application<{
-//     Bindings: {
-//       Token: string;
-//     };
-//   }>();
-
-//   const mw =
-//     (): MiddlewareHandler<{
-//       Variables: {
-//         echo: (str: string) => string;
-//       };
-//     }> =>
-//     async (c, next) => {
-//       c.state.echo = (str: string) => str;
-//       return next();
-//     };
-
-//   const mw2 =
-//     (): MiddlewareHandler<{
-//       Variables: {
-//         echo2: (str: string) => string;
-//       };
-//     }> =>
-//     async (c, next) => {
-//       c.state.echo2 = (str: string) => str;
-//       return next();
-//     };
-
-//   const mw3 =
-//     (): MiddlewareHandler<{
-//       Variables: {
-//         echo3: (str: string) => string;
-//       };
-//     }> =>
-//     async (c, next) => {
-//       c.state.echo3 = (str: string) => str;
-//       return next();
-//     };
-
-//   const mw4 =
-//     (): MiddlewareHandler<{
-//       Variables: {
-//         echo4: (str: string) => string;
-//       };
-//     }> =>
-//     async (c, next) => {
-//       c.state.echo4 = (str: string) => str;
-//       return next();
-//     };
-
-//   const mw5 =
-//     (): MiddlewareHandler<{
-//       Variables: {
-//         echo5: (str: string) => string;
-//       };
-//     }> =>
-//     async (c, next) => {
-//       c.state.echo5 = (str: string) => str;
-//       return next();
-//     };
-
-//   app.use("/no-path/1").get(mw(), (c) => {
-//     // @ts-expect-error
-//     return text(c.state.echo("hello"));
-//   });
-
-//   app.use("/no-path/2").get(mw(), mw2(), (c) => {
-//     // @ts-expect-error
-//     return text(c.state.echo("hello") + c.state.echo2("hello2"));
-//   });
-
-//   app.use("/no-path/3").get(mw(), mw2(), mw3(), (c) => {
-//     return text(
-//       // @ts-expect-error
-//       c.state.echo("hello") + c.state.echo2("hello2") + c.state.echo3("hello3")
-//     );
-//   });
-
-//   app.use("/no-path/4").get(mw(), mw2(), mw3(), mw4(), (c) => {
-//     return text(
-//       // @ts-expect-error
-//       c.state.echo("hello") +
-//         // @ts-expect-error
-//         c.state.echo2("hello2") +
-//         // @ts-expect-error
-//         c.state.echo3("hello3") +
-//         // @ts-expect-error
-//         c.state.echo4("hello4")
-//     );
-//   });
-
-//   app.use("/no-path/5").get(mw(), mw2(), mw3(), mw4(), mw5(), (c) => {
-//     return text(
-//       // @ts-expect-error
-//       c.state.echo("hello") +
-//         // @ts-expect-error
-//         c.state.echo2("hello2") +
-//         // @ts-expect-error
-//         c.state.echo3("hello3") +
-//         // @ts-expect-error
-//         c.state.echo4("hello4") +
-//         // @ts-expect-error
-//         c.state.echo5("hello5")
-//     );
-//   });
-
-//   app.get("*", mw());
-
-//   app.get("/path/1", mw(), (c) => {
-//     // @ts-expect-error
-//     return text(c.state.echo("hello"));
-//   });
-
-//   app.get("/path/2", mw(), mw2(), (c) => {
-//     // @ts-expect-error
-//     return text(c.state.echo("hello") + c.state.echo2("hello2"));
-//   });
-
-//   app.get("/path/3", mw(), mw2(), mw3(), (c) => {
-//     return text(
-//       // @ts-expect-error
-//       c.state.echo("hello") + c.state.echo2("hello2") + c.state.echo3("hello3")
-//     );
-//   });
-
-//   app.get("/path/4", mw(), mw2(), mw3(), mw4(), (c) => {
-//     return text(
-//       // @ts-expect-error
-//       c.state.echo("hello") +
-//         // @ts-expect-error
-//         c.state.echo2("hello2") +
-//         // @ts-expect-error
-//         c.state.echo3("hello3") +
-//         // @ts-expect-error
-//         c.state.echo4("hello4")
-//     );
-//   });
-
-//   app.get("/path/5", mw(), mw2(), mw3(), mw4(), mw5(), (c) => {
-//     return text(
-//       // @ts-expect-error
-//       c.state.echo("hello") +
-//         // @ts-expect-error
-//         c.state.echo2("hello2") +
-//         // @ts-expect-error
-//         c.state.echo3("hello3") +
-//         // @ts-expect-error
-//         c.state.echo4("hello4") +
-//         // @ts-expect-error
-//         c.state.echo5("hello5")
-//     );
-//   });
-
-//   app.on("GET", "/on/1", mw(), (c) => {
-//     // @ts-expect-error
-//     return text(c.state.echo("hello"));
-//   });
-
-//   app.on("GET", "/on/2", mw(), mw2(), (c) => {
-//     // @ts-expect-error
-//     return text(c.state.echo("hello") + c.state.echo2("hello2"));
-//   });
-
-//   app.on("GET", "/on/3", mw(), mw2(), mw3(), (c) => {
-//     return text(
-//       // @ts-expect-error
-//       c.state.echo("hello") + c.state.echo2("hello2") + c.state.echo3("hello3")
-//     );
-//   });
-
-//   app.on("GET", "/on/4", mw(), mw2(), mw3(), mw4(), (c) => {
-//     return text(
-//       // @ts-expect-error
-//       c.state.echo("hello") +
-//         // @ts-expect-error
-//         c.state.echo2("hello2") +
-//         // @ts-expect-error
-//         c.state.echo3("hello3") +
-//         // @ts-expect-error
-//         c.state.echo4("hello4")
-//     );
-//   });
-
-//   app.on("GET", "/on/5", mw(), mw2(), mw3(), mw4(), mw5(), (c) => {
-//     return text(
-//       // @ts-expect-error
-//       c.state.echo("hello") +
-//         // @ts-expect-error
-//         c.state.echo2("hello2") +
-//         // @ts-expect-error
-//         c.state.echo3("hello3") +
-//         // @ts-expect-error
-//         c.state.echo4("hello4") +
-//         // @ts-expect-error
-//         c.state.echo5("hello5")
-//     );
-//   });
-
-//   test("Should return the correct response - no-path", async () => {
-//     let res = await app.dispatch("/no-path/1");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hello");
-
-//     res = await app.dispatch("/no-path/2");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2");
-
-//     res = await app.dispatch("/no-path/3");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2hello3");
-
-//     res = await app.dispatch("/no-path/4");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2hello3hello4");
-
-//     res = await app.dispatch("/no-path/5");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2hello3hello4hello5");
-//   });
-
-//   test("Should return the correct response - path", async () => {
-//     let res = await app.dispatch("/path/1");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hello");
-
-//     res = await app.dispatch("/path/2");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2");
-
-//     res = await app.dispatch("/path/3");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2hello3");
-
-//     res = await app.dispatch("/path/4");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2hello3hello4");
-
-//     res = await app.dispatch("/path/5");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2hello3hello4hello5");
-//   });
-
-//   test("Should return the correct response - on", async () => {
-//     let res = await app.dispatch("/on/1");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hello");
-
-//     res = await app.dispatch("/on/2");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2");
-
-//     res = await app.dispatch("/on/3");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2hello3");
-
-//     res = await app.dispatch("/on/4");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2hello3hello4");
-
-//     res = await app.dispatch("/on/5");
-//     expect(res.status).toBe(200);
-//     expect(await res.text()).toBe("hellohello2hello3hello4hello5");
-//   });
-
-//   test("Should not throw type errors", () => {
-//     const app = new Application<{
-//       Variables: {
-//         hello: () => string;
-//       };
-//     }>();
-
-//     app.get(mw());
-//     app.get(mw(), mw2());
-//     app.get(mw(), mw2(), mw3());
-//     app.get(mw(), mw2(), mw3(), mw4());
-//     app.get(mw(), mw2(), mw3(), mw4(), mw5());
-
-//     app.get("/", mw());
-//     app.get("/", mw(), mw2());
-//     app.get("/", mw(), mw2(), mw3());
-//     app.get("/", mw(), mw2(), mw3(), mw4());
-//     app.get("/", mw(), mw2(), mw3(), mw4(), mw5());
-//   });
-// });
