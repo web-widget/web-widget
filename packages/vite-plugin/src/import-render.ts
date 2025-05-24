@@ -14,6 +14,7 @@ import {
   removeAs,
 } from './utils';
 import { createRequire } from 'node:module';
+import { parseImportStatement } from './compiler/parser';
 const require = createRequire(import.meta.url);
 
 const ASSET_PROTOCOL = 'asset:';
@@ -23,10 +24,6 @@ const ASSET_PLACEHOLDER = `${ASSET_PROTOCOL}//`;
 let index = 0;
 const alias = (name: string) => `__$${name}${index++}$__`;
 const globalCache: Set<string> = new Set();
-
-const IMPORT_DEFAULT_NAME_REG = /import\s+([a-zA-Z_$][\w$]*)\s+/;
-const parseComponentName = (code: string) =>
-  code.match(IMPORT_DEFAULT_NAME_REG)?.[1];
 
 export interface ImportRenderPluginOptions {
   cache?: Set<string>;
@@ -144,7 +141,7 @@ export function importRenderPlugin({
           await esModuleLexer.init;
           [imports] = esModuleLexer.parse(code, id);
         } catch (error) {
-          return this.error(error);
+          return this.error(error as Error);
         }
 
         const modules: {
@@ -203,12 +200,22 @@ export function importRenderPlugin({
           moduleId,
           moduleName,
         } of modules) {
-          const componentName = parseComponentName(
-            code.substring(statementStart, statementEnd)
+          const importStatement = code.substring(statementStart, statementEnd);
+          const importNames = parseImportStatement(importStatement);
+
+          // Find the default import name
+          const defaultImport = importNames.find(
+            ([name, alias]) => name === 'default'
           );
+          const componentName = defaultImport?.[1];
 
           if (!componentName) {
-            return;
+            return this.warn(
+              new SyntaxError(
+                `Module compilation skipped because it does not use a default export.`
+              ),
+              statementStart
+            );
           }
 
           const asset = normalizePath(path.relative(root, moduleId));
@@ -324,7 +331,7 @@ export function importRenderPlugin({
             }
           );
         } catch (error) {
-          return this.error(error, pos);
+          return this.error(error as Error, pos);
         }
 
         return {
