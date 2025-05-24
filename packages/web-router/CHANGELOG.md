@@ -1,5 +1,20 @@
 # @web-widget/web-router
 
+## 1.58.0
+
+### Minor Changes
+
+- c2db8f1: Add proxy mode.
+
+### Patch Changes
+
+- Updated dependencies [c2db8f1]
+  - @web-widget/helpers@1.58.0
+  - @web-widget/html@1.58.0
+  - @web-widget/action@1.58.0
+  - @web-widget/context@1.58.0
+  - @web-widget/lifecycle-cache@1.58.0
+
 ## 1.57.0
 
 ### Minor Changes
