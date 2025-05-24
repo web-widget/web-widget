@@ -203,21 +203,49 @@ export function importRenderPlugin({
           const importStatement = code.substring(statementStart, statementEnd);
           const importNames = parseImportStatement(importStatement);
 
-          // Find the default import name
-          const defaultImport = importNames.find(
-            ([name, alias]) => name === 'default'
-          );
-          const componentName = defaultImport?.[1];
-
-          if (!componentName) {
-            return this.warn(
+          if (importNames.length === 0) {
+            return this.error(
               new SyntaxError(
-                `Module compilation skipped because it does not use a default export.`
+                `No valid default import found in statement:\n  ${importStatement}\n` +
+                  `Please use a default import when importing web widget components.`
               ),
               statementStart
             );
           }
 
+          if (importNames.length > 1) {
+            return this.error(
+              new SyntaxError(
+                `Only default imports are supported for web widget components.\n` +
+                  `Found multiple imports in statement:\n  ${importStatement}\n` +
+                  `Please use a single default import.`
+              ),
+              statementStart
+            );
+          }
+
+          if (importNames[0][0] !== 'default') {
+            return this.error(
+              new SyntaxError(
+                `Only default imports are supported for web widget components.\n` +
+                  `Found named import \`${importNames[0][0]}\` in statement:\n  ${importStatement}\n` +
+                  `Please use a default import.`
+              ),
+              statementStart
+            );
+          }
+
+          if (importNames[0][1] === undefined) {
+            return this.error(
+              new SyntaxError(
+                `No alias provided for default import in statement:\n  ${importStatement}\n` +
+                  `Please provide an alias for the default import.`
+              ),
+              statementStart
+            );
+          }
+
+          const importName = importNames[0][1];
           const asset = normalizePath(path.relative(root, moduleId));
 
           const clientModuleId = dev
@@ -241,7 +269,7 @@ export function importRenderPlugin({
               : // build: client
                 `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
           const clientContainerOptions = {
-            name: componentName,
+            name: importName,
           };
 
           const definerName = alias(inject);
@@ -249,7 +277,7 @@ export function importRenderPlugin({
             `import { ${inject} as ${definerName} } from ${JSON.stringify(
               provide
             )};\n` +
-            `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
+            `const ${importName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
               moduleName
             )}), { /*base: import.meta.url,*/ import: ${clientModuleExpression}, ${JSON.stringify(
               clientContainerOptions
