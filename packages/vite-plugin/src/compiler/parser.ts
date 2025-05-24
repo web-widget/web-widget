@@ -1,52 +1,75 @@
-type ImportName = [name: string, alias?: string];
+type ImportBinding = [name: string, alias?: string];
 
 /**
- * Extracts all import names from a full import statement using token parsing.
+ * Extracts all import bindings from an import statement.
+ * Handles default imports, named imports, and aliases.
  *
- * `import { html, css as litCss } from 'lit'`
- * => [[ 'html' ], [ 'css', 'litCss' ]]
+ * @param importStatement - The import statement to parse
+ * @returns Array of import bindings as [originalName, alias?] tuples
+ *
+ * @example
+ * ```typescript
+ * extractImportBindings('import { html, css as litCss } from "lit"')
+ * // => [['html'], ['css', 'litCss']]
+ *
+ * extractImportBindings('import React from "react"')
+ * // => [['default', 'React']]
+ * ```
  */
-export function parseImportStatement(importStatement: string): ImportName[] {
-  const importNames: ImportName[] = [];
-  // Remove JS comments and trim leading/trailing whitespace
-  const code = importStatement.replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '').trim();
+export function extractImportBindings(
+  importStatement: string
+): ImportBinding[] {
+  const bindings: ImportBinding[] = [];
 
-  const singleLine = code.replace(/\n+/g, '');
-  const fromIndex = singleLine.indexOf('from');
-  if (fromIndex >= 0) {
-    let parts: [defaultAndNamespacesPart: string, namedPart: string];
+  // Remove comments and normalize whitespace
+  const normalizedCode = importStatement
+    .replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 
-    if (code.includes('{')) {
-      const startsWith = code.indexOf('{');
-      const endsWith = code.indexOf('}');
-      const defaultAndNamespacesPart = code.substring(6, startsWith);
-      const namedPart = code.substring(startsWith + 1, endsWith);
-      parts = [defaultAndNamespacesPart, namedPart];
-    } else {
-      const index = code.indexOf('from');
-      const defaultAndNamespacesPart = code.substring(6, index);
-      parts = [defaultAndNamespacesPart, ''];
-    }
+  if (!normalizedCode.includes('from')) {
+    return bindings;
+  }
 
-    const list = parts.map((string) =>
-      string
-        .split(',')
-        .map((name) => name.trim())
-        .filter(Boolean)
-    );
+  let importParts: [defaultAndNamespacesPart: string, namedImportsPart: string];
 
-    for (const [index, part] of list.entries()) {
-      for (const importName of part) {
-        if (importName.includes(' as ')) {
-          const v = importName.split(' as ');
-          importNames.push([v[0].trim(), v[1].trim()]);
-        } else {
-          const isDefault = index === 0;
-          importNames.push(isDefault ? ['default', importName] : [importName]);
-        }
+  // Parse named imports (with braces) vs default/namespace imports
+  if (normalizedCode.includes('{')) {
+    const braceStart = normalizedCode.indexOf('{');
+    const braceEnd = normalizedCode.indexOf('}');
+    const defaultAndNamespacesPart = normalizedCode.substring(6, braceStart);
+    const namedImportsPart = normalizedCode.substring(braceStart + 1, braceEnd);
+    importParts = [defaultAndNamespacesPart, namedImportsPart];
+  } else {
+    const fromIndex = normalizedCode.indexOf('from');
+    const defaultAndNamespacesPart = normalizedCode.substring(6, fromIndex);
+    importParts = [defaultAndNamespacesPart, ''];
+  }
+
+  // Split and clean import names
+  const importNameLists = importParts.map((part) =>
+    part
+      .split(',')
+      .map((name) => name.trim())
+      .filter(Boolean)
+  );
+
+  // Process each import name and create bindings
+  for (const [partIndex, nameList] of importNameLists.entries()) {
+    for (const importName of nameList) {
+      if (importName.includes(' as ')) {
+        // Handle aliased imports: "originalName as alias"
+        const [originalName, alias] = importName
+          .split(' as ')
+          .map((s) => s.trim());
+        bindings.push([originalName, alias]);
+      } else {
+        // Handle non-aliased imports
+        const isDefaultImport = partIndex === 0;
+        bindings.push(isDefaultImport ? ['default', importName] : [importName]);
       }
     }
   }
 
-  return importNames;
+  return bindings;
 }

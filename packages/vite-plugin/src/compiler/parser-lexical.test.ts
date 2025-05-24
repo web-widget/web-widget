@@ -1,11 +1,11 @@
-import { extractImportBindings } from './parser';
+import { extractImportBindingsLexical } from './parser-lexical';
 import { importTestCases } from './__fixtures__/import-test-cases';
 
-describe('extractImportBindings', () => {
+describe('extractImportBindingsLexical', () => {
   test.each(importTestCases)(
     '%s: %s',
     (description, importStatement, expected) => {
-      const result = extractImportBindings(importStatement);
+      const result = extractImportBindingsLexical(importStatement);
       expect(result).toEqual(expected);
     }
   );

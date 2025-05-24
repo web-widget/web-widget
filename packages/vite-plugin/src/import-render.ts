@@ -14,7 +14,7 @@ import {
   removeAs,
 } from './utils';
 import { createRequire } from 'node:module';
-import { parseImportStatement } from './compiler/parser';
+import { extractImportBindings } from './compiler/parser';
 const require = createRequire(import.meta.url);
 
 const ASSET_PROTOCOL = 'asset:';
@@ -201,7 +201,7 @@ export function importRenderPlugin({
           moduleName,
         } of modules) {
           const importStatement = code.substring(statementStart, statementEnd);
-          const importNames = parseImportStatement(importStatement);
+          const importNames = extractImportBindings(importStatement);
 
           if (importNames.length === 0) {
             return this.error(
