@@ -63,7 +63,7 @@ export function exportRenderPlugin({
           await esModuleLexer.init;
           [, exports] = esModuleLexer.parse(code, id);
         } catch (error) {
-          return this.error(error);
+          return this.error(error as Error);
         }
 
         const magicString = new MagicString(code);

@@ -1,6 +1,6 @@
 import MagicString from 'magic-string';
 import { Plugin } from 'vite';
-import { walk } from 'estree-walker';
+import { walk, type Node } from 'estree-walker';
 import { createFilter, FilterPattern } from '@rollup/pluginutils';
 
 export interface RemoveExportsPluginOptions {
@@ -47,7 +47,7 @@ export function removeExportsPlugin(
       const magicString = new MagicString(code);
       let removed = false;
 
-      walk(ast, {
+      walk(ast as Node, {
         enter(node): void {
           let start: number;
           let end: number;
