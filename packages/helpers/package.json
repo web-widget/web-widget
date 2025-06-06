@@ -13,8 +13,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@edge-runtime/cookies": "^4.0.3",
-    "@edge-runtime/user-agent": "^1.4.1",
+    "@edge-runtime/cookies": "^6.0.0",
+    "@edge-runtime/user-agent": "^3.0.0",
     "@web-widget/action": "workspace:*",
     "@web-widget/context": "workspace:*",
     "@web-widget/lifecycle-cache": "workspace:*",
