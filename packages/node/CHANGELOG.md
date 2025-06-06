@@ -1,5 +1,11 @@
 # @web-widget/node
 
+## 1.59.0
+
+### Minor Changes
+
+- beb25af: Upgrading @edge-runtime/\*.
+
 ## 1.58.0
 
 ## 1.57.0
