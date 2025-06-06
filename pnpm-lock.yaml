@@ -7,8 +7,8 @@ settings:
 catalogs:
   default:
     '@edge-runtime/vm':
-      specifier: ^4.0.1
-      version: 4.0.1
+      specifier: ^5.0.0
+      version: 5.0.0
     '@jest/globals':
       specifier: ^29.7.0
       version: 29.7.0
@@ -141,8 +141,8 @@ importers:
         version: 3.4.8(typescript@5.5.4)
     devDependencies:
       '@edge-runtime/vm':
-        specifier: ^4.0.1
-        version: 4.0.1
+        specifier: ^5.0.0
+        version: 5.0.0
       '@types/koa':
         specifier: ^2.13.6
         version: 2.15.0
@@ -175,7 +175,7 @@ importers:
         version: 5.4.19(@types/node@22.2.0)
       vitest:
         specifier: ^2.1.9
-        version: 2.1.9(@edge-runtime/vm@4.0.1)(@types/node@22.2.0)(happy-dom@14.12.3)
+        version: 2.1.9(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3)
 
   examples/vue:
     dependencies:
@@ -220,8 +220,8 @@ importers:
         version: 3.4.8(typescript@5.5.4)
     devDependencies:
       '@edge-runtime/vm':
-        specifier: ^4.0.1
-        version: 4.0.1
+        specifier: ^5.0.0
+        version: 5.0.0
       '@types/koa':
         specifier: ^2.13.6
         version: 2.13.9
@@ -254,7 +254,7 @@ importers:
         version: 5.4.19(@types/node@22.2.0)
       vitest:
         specifier: ^2.1.9
-        version: 2.1.9(@edge-runtime/vm@4.0.1)(@types/node@22.2.0)(happy-dom@14.12.3)
+        version: 2.1.9(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3)
 
   internal/eslint-config:
     dependencies:
@@ -390,11 +390,11 @@ importers:
   packages/helpers:
     dependencies:
       '@edge-runtime/cookies':
-        specifier: ^4.0.3
-        version: 4.0.3
+        specifier: ^6.0.0
+        version: 6.0.0
       '@edge-runtime/user-agent':
-        specifier: ^1.4.1
-        version: 1.4.1
+        specifier: ^3.0.0
+        version: 3.0.0
       '@web-widget/action':
         specifier: workspace:*
         version: link:../action
@@ -538,11 +538,11 @@ importers:
   packages/node:
     dependencies:
       '@edge-runtime/node-utils':
-        specifier: ^2.3.0
-        version: 2.3.0
+        specifier: ^4.0.0
+        version: 4.0.0
       '@edge-runtime/primitives':
-        specifier: ^4.1.0
-        version: 4.1.0
+        specifier: ^6.0.0
+        version: 6.0.0
     devDependencies:
       '@types/node':
         specifier: ^22.2.0
@@ -698,7 +698,7 @@ importers:
         version: 5.4.19(@types/node@22.2.0)
       vitest:
         specifier: 'catalog:'
-        version: 2.1.9(@edge-runtime/vm@4.0.1)(@types/node@22.2.0)(happy-dom@14.12.3)
+        version: 2.1.9(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3)
 
   packages/vue:
     dependencies:
@@ -889,7 +889,7 @@ importers:
     devDependencies:
       '@edge-runtime/vm':
         specifier: 'catalog:'
-        version: 4.0.1
+        version: 5.0.0
       '@types/koa':
         specifier: ^2.15.0
         version: 2.15.0
@@ -919,7 +919,7 @@ importers:
         version: 5.4.19(@types/node@22.2.0)
       vitest:
         specifier: 'catalog:'
-        version: 2.1.9(@edge-runtime/vm@4.0.1)(@types/node@22.2.0)(happy-dom@14.12.3)
+        version: 2.1.9(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3)
 
   playgrounds/router/routes/(vue2):
     dependencies:
@@ -1486,33 +1486,33 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@edge-runtime/cookies@4.0.3':
-    resolution: {integrity: sha512-DzMJ3gp2EKpFwcU/7C7oVswijvB4HBjBk/VUXNCrN3LqLg6Z/UD6zfyYZscvbk8aJ0hqIpeia5u629Qaxx5Lkw==}
-    engines: {node: '>=16'}
-
   '@edge-runtime/cookies@4.1.1':
     resolution: {integrity: sha512-ATZLTOpnCUD9ZLNBIXhxOmP/UVx6BfhCjDy9P1YACpD8vrHb5Uw7YlG9RYUl1AMF7Y10TIIN3jhFbUSMiH2J7g==}
     engines: {node: '>=16'}
 
-  '@edge-runtime/node-utils@2.3.0':
-    resolution: {integrity: sha512-uUtx8BFoO1hNxtHjp3eqVPC/mWImGb2exOfGjMLUoipuWgjej+f4o/VP4bUI8U40gu7Teogd5VTeZUkGvJSPOQ==}
-    engines: {node: '>=16'}
+  '@edge-runtime/cookies@6.0.0':
+    resolution: {integrity: sha512-VVO/8AwC2qVbygLb2IOkX1zWFx2yWIHzFv4D602CTnoRffd/+cdcXqpSydKaedFrk7a1dRYXbWwjzfV/gwZ2Gw==}
+    engines: {node: '>=18'}
 
-  '@edge-runtime/primitives@4.1.0':
-    resolution: {integrity: sha512-Vw0lbJ2lvRUqc7/soqygUX216Xb8T3WBZ987oywz6aJqRxcwSVWwr9e+Nqo2m9bxobA9mdbWNNoRY6S9eko1EQ==}
-    engines: {node: '>=16'}
+  '@edge-runtime/node-utils@4.0.0':
+    resolution: {integrity: sha512-DDSb2mUh5Zd9KFLUzP9nkNOnkPpi7z8aaCQt7HW1i65HHa0NbCcOxLXrxYJ+RocM7H00QTBBSr9Q15sRb52OFg==}
+    engines: {node: '>=18'}
 
-  '@edge-runtime/primitives@5.0.1':
-    resolution: {integrity: sha512-qjqqCa9v3IE7Fo9OnmkIWg9l0WUu3uOfUYomuOVxaaHqlIvNI75E5IB0XNNDypz249ObRSmjRj8jLjkBUmFYYw==}
-    engines: {node: '>=16'}
+  '@edge-runtime/primitives@6.0.0':
+    resolution: {integrity: sha512-FqoxaBT+prPBHBwE1WXS1ocnu/VLTQyZ6NMUBAdbP7N2hsFTTxMC/jMu2D/8GAlMQfxeuppcPuCUk/HO3fpIvA==}
+    engines: {node: '>=18'}
 
   '@edge-runtime/user-agent@1.4.1':
     resolution: {integrity: sha512-BW3jik9l4bftpx+ViP12sAAuqy0Lgw/82Az8xC2CEp/B7VEKzdvDe2ZLCgJ6dATfHkjleOlSlyuwrHpMjPBeUA==}
     engines: {node: '>=16'}
 
-  '@edge-runtime/vm@4.0.1':
-    resolution: {integrity: sha512-jYXrosmxlahsgLlChnSTRIfoOkcg+U+7jMEFvV5pQ9mJ7BrM2O4Kb+n/IDardpgEWZsXLBC9Y2RN7nhpuX7PTQ==}
-    engines: {node: '>=16'}
+  '@edge-runtime/user-agent@3.0.0':
+    resolution: {integrity: sha512-gBRMdel9SMPjHO573dIZ71BRaIVmkV23P7SGZ4UVYO6KYdxlBeWqkD+fn9QalNqi1vtpI/guRCNKPmslsGCeTw==}
+    engines: {node: '>=18'}
+
+  '@edge-runtime/vm@5.0.0':
+    resolution: {integrity: sha512-NKBGBSIKUG584qrS1tyxVpX/AKJKQw5HgjYEnPLC0QsTw79JrGn+qUr8CXFb955Iy7GUdiiUv1rJ6JBGvaKb6w==}
+    engines: {node: '>=18'}
 
   '@esbuild/aix-ppc64@0.19.12':
     resolution: {integrity: sha512-bmoCYyWdEL3wDQIVbcyzRyeKLgk2WtWLTWz1ZIAZF/EGbNOwSA6ew3PftJ1PqMiOOGu0OyFMzG53L0zqIpPeNA==}
@@ -7964,21 +7964,21 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@edge-runtime/cookies@4.0.3': {}
-
   '@edge-runtime/cookies@4.1.1': {}
 
-  '@edge-runtime/node-utils@2.3.0': {}
+  '@edge-runtime/cookies@6.0.0': {}
 
-  '@edge-runtime/primitives@4.1.0': {}
+  '@edge-runtime/node-utils@4.0.0': {}
 
-  '@edge-runtime/primitives@5.0.1': {}
+  '@edge-runtime/primitives@6.0.0': {}
 
   '@edge-runtime/user-agent@1.4.1': {}
 
-  '@edge-runtime/vm@4.0.1':
+  '@edge-runtime/user-agent@3.0.0': {}
+
+  '@edge-runtime/vm@5.0.0':
     dependencies:
-      '@edge-runtime/primitives': 5.0.1
+      '@edge-runtime/primitives': 6.0.0
 
   '@esbuild/aix-ppc64@0.19.12':
     optional: true
@@ -14299,7 +14299,7 @@ snapshots:
       '@types/node': 22.2.0
       fsevents: 2.3.3
 
-  vitest@2.1.9(@edge-runtime/vm@4.0.1)(@types/node@22.2.0)(happy-dom@14.12.3):
+  vitest@2.1.9(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3):
     dependencies:
       '@vitest/expect': 2.1.9
       '@vitest/mocker': 2.1.9(vite@5.4.19(@types/node@22.2.0))
@@ -14322,7 +14322,7 @@ snapshots:
       vite-node: 2.1.9(@types/node@22.2.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@edge-runtime/vm': 4.0.1
+      '@edge-runtime/vm': 5.0.0
       '@types/node': 22.2.0
       happy-dom: 14.12.3
     transitivePeerDependencies:
