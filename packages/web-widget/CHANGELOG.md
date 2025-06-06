@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.59.0
+
+### Patch Changes
+
+- Updated dependencies [beb25af]
+  - @web-widget/helpers@1.59.0
+  - @web-widget/lifecycle-cache@1.59.0
+
 ## 1.58.0
 
 ### Patch Changes

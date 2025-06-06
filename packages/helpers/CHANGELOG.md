@@ -1,5 +1,19 @@
 # @web-widget/helpers
 
+## 1.59.0
+
+### Minor Changes
+
+- beb25af: Upgrading @edge-runtime/\*.
+
+### Patch Changes
+
+- @web-widget/action@1.59.0
+- @web-widget/context@1.59.0
+- @web-widget/lifecycle-cache@1.59.0
+- @web-widget/purify@1.59.0
+- @web-widget/schema@1.59.0
+
 ## 1.58.0
 
 ### Minor Changes
