@@ -259,20 +259,26 @@ const userData = syncCacheProvider('user-profile', async () => {
 
 ```
 my-web-widget-app/
-├── routes/                    # Route modules (server-side)
-│   ├── index@route.tsx       # → /
-│   ├── about@route.tsx       # → /about
-│   ├── blog/[slug]@route.tsx # → /blog/:slug
-│   └── api/hello@route.ts    # → /api/hello
-├── components/               # Shared components
-│   ├── Layout.tsx           # Regular components
-│   ├── Counter@widget.tsx   # React widget (isomorphic)
-│   └── Timer@widget.vue     # Vue widget (isomorphic)
-├── public/                  # Static files
-├── entry.client.ts         # Client entry
-├── entry.server.ts         # Server entry
-├── importmap.client.json   # Production module sharing config
-└── package.json
+├── routes/
+│   ├── (components)/
+│   │   ├── BaseLayout.tsx
+│   │   ├── Counter@widget.tsx
+│   │   └── Counter@widget.vue
+│   ├── index@route.tsx
+│   ├── about@route.tsx
+│   ├── action/
+│   │   ├── index@route.tsx
+│   │   └── functions@action.ts
+│   └── api/
+│       └── hello@route.ts
+├── public/
+├── entry.client.ts
+├── entry.server.ts
+├── routemap.server.json
+├── importmap.client.json
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
 ```
 
 _Organized structure with clear separation of concerns._
@@ -772,6 +778,9 @@ my-web-widget-app/
 │   │   └── Counter@widget.vue
 │   ├── index@route.tsx
 │   ├── about@route.tsx
+│   ├── action/
+│   │   ├── index@route.tsx
+│   │   └── functions@action.ts
 │   └── api/
 │       └── hello@route.ts
 ├── public/
@@ -813,6 +822,7 @@ my-web-widget-app/
 
 - `routes/**/*@route.*` Route modules that only run on the server side
 - `routes/**/*@middleware.*` Middleware that only runs on the server side
+- `routes/**/*@action.*` Server functions that can be called directly from client components
 - `routes/**/*@widget.*` Components that can interact with users, running simultaneously on both server and client sides
 - `entry.client.ts` Client entry point
 - `entry.server.ts` Server entry point
