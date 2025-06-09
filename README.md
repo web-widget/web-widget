@@ -1031,40 +1031,9 @@ my-web-widget-app/
 
 ## ⚡ Native Module Sharing: Production-Ready Web Standards
 
-Web Widget leverages **Import Maps** - a Web Standard for production module sharing that eliminates dependency duplication:
+Web Widget leverages **Import Maps** during production builds to eliminate dependency duplication and optimize performance.
 
-### 🎯 **Production vs Development**
-
-**🚀 Production**: Import Maps provide native module sharing
-
-```json
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "vue": "https://esm.sh/vue@3.4.8"
-  }
-}
-```
-
-**🔧 Development**: Standard bundler behavior (Vite, etc.)
-
-```tsx
-// During development - standard imports, bundled by Vite
-import React from 'react'; // Resolved from node_modules
-import { createApp } from 'vue'; // Bundled normally
-```
-
-### 🌐 **Why Import Maps for Production?**
-
-| Approach                 | Import Maps (Production)  | Traditional Bundles       |
-| ------------------------ | ------------------------- | ------------------------- |
-| **Standards-Based**      | ✅ Native Web Standard    | ❌ Bundler-specific       |
-| **Module Deduplication** | ✅ Perfect sharing        | ❌ Duplicate dependencies |
-| **CDN Optimization**     | ✅ Shared across sites    | ❌ Per-app bundles        |
-| **Cache Efficiency**     | ✅ Browser-native caching | ❌ Bundle invalidation    |
-| **Bundle Size**          | ✅ Minimal app code only  | ❌ Includes all deps      |
-
-### 📝 **Production Configuration**
+### 📝 **Production Build Configuration**
 
 ```json
 {
@@ -1076,22 +1045,21 @@ import { createApp } from 'vue'; // Bundled normally
 }
 ```
 
-**Production Benefits:**
+### 🌐 **Production Advantages**
 
-- 📦 **Smaller App Bundles**: Framework code loaded separately
-- 🚀 **Better Caching**: Shared dependencies cached across sites
-- ⚡ **Faster Loading**: Popular libraries from optimized CDNs
-- 🌐 **Browser Native**: Zero polyfill overhead on modern browsers
+| Traditional Bundles       | Import Maps (Production)  |
+| ------------------------- | ------------------------- |
+| ❌ Duplicate dependencies | ✅ Perfect module sharing |
+| ❌ Per-app bundles        | ✅ Shared across sites    |
+| ❌ Includes all deps      | ✅ Minimal app code only  |
 
-### 🔧 **Browser Compatibility**
+**Core Benefits:**
 
-**📊 Universal Support with Progressive Enhancement:**
+- 📦 **Smaller Bundles**: Framework code loaded separately
+- 🚀 **Better Caching**: Dependencies shared across applications
+- 🌐 **Web Standard**: Native browser support with polyfill fallback
 
-- ✅ **Modern Browsers**: Native import maps (Chrome 89+, Firefox 108+)
-- ✅ **Legacy Browsers**: Automatic polyfill via `es-module-shims` (Chrome 67+)
-- ✅ **98.5% Coverage**: Works everywhere with zero code changes
-
-> **Production-First Design**: Import Maps optimize your production builds while development remains fast and familiar with standard bundling.
+> **Production-Only Feature**: `importmap.client.json` is used exclusively during Vite production builds to optimize module loading.
 
 ---
 
