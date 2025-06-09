@@ -12,10 +12,10 @@
 [![RFC Compliant](https://img.shields.io/badge/RFC%207234-Compliant-green.svg)](https://tools.ietf.org/html/rfc7234)
 
 > 🌟 A revolutionary meta-framework that seamlessly integrates multiple frontend technologies with unprecedented simplicity.
->
-> ⚠️ **Preview Release**: This project is currently in preview stage with API subject to changes. Some features mentioned may be under development.
 
 Break free from technology stack lock-in while maintaining elegant simplicity. Experience the power of running React, Vue, and other frameworks together with ease.
+
+> ⚠️ **Preview Release**: This project is currently in preview stage with API subject to changes. Some features mentioned may be under development.
 
 ## 📋 Table of Contents
 
@@ -930,8 +930,6 @@ _Join developers exploring the future of multi-framework architecture._
 - ✅ **Reduced Risk**: Incremental changes instead of big-bang migrations
 - ✅ **Developer Choice**: Use the best tool for each component, not one-size-fits-all
 - ✅ **Future-Ready**: Built on standards that will outlast individual frameworks
-
-> _"The best technology enables choice rather than constraining it."_
 
 **Ready to explore framework freedom?**
 
