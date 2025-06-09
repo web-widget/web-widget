@@ -26,8 +26,6 @@ Break free from technology stack lock-in while maintaining elegant simplicity. E
 - [🔥 Key Features](#-key-features)
 - [📁 Project Structure](#-project-structure-elegant-organization)
 - [📖 Documentation](#-documentation)
-- [🛠️ Development](#️-development)
-- [🚀 Try Online](#-try-online)
 - [🤝 Community](#-community)
 
 ## 💫 Design Philosophy: Simplicity Meets Power
@@ -891,24 +889,6 @@ my-web-widget-app/
 - Implement proper error boundaries at route level
 
 </details>
-
-## 🛠️ Development
-
-Get up and running quickly with minimal configuration:
-
-```bash
-# Install dependencies
-npm install
-
-# Development server with hot reload
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
-```
 
 ## 🤝 Community
 
