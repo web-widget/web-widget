@@ -4,155 +4,399 @@ Web Widget is a meta-framework that provides higher-level abstractions for contr
 
 ## Features
 
-- Works as an SSR development framework, collaborating with modern build tools like Vite
-- Technology stack-neutral architecture that can integrate React, Vue, and other frontend UI frameworks while providing interoperability between components of different technology stacks
-- Default server-side routing with customizable integration of client-side routing from other frontend frameworks
-- Progressive streaming rendering on the server without waiting for all data to be ready; streaming loading and hydration of components on the client
-- Provides Web Worker standard API support for Node.js and client-side Importmap support
-- Offers middleware integration capabilities with frameworks like Koa for integration into existing BFF infrastructure; can also be used independently as a web framework for lightweight web business development
-- Provides module extension capabilities, allowing the definition of business development frameworks on its foundation: custom exports from routing modules can form an extension system with middleware
+### Fast
 
-## Core Concepts
+- Use web streaming to accelerate page display
+- Server-side components reduce client-side JS
+- Streaming State and selective hydration to reduce lag
 
-In SSR business code driven by the meta-framework, most code revolves around three concepts: routing modules, widget modules, and Web standards.
+### Flexibility
 
-### Routing Modules
+- No new technology stack required
+- Can drive UI technology stacks such as React and Vue simultaneously
+- Provides performance optimization methods at a higher level
 
-Routing modules are typically used for rendering HTML or handling other HTTP responses. They work exclusively on the server side, and their **entry points** are named with `*@route.*`.
+### Web Standards
 
-A simple routing module example:
+- Complies with [WinterCG](https://wintercg.org/) standards
+- Runs in Node.js and Edge environments
+- Client supports native ESM and Importmap
+- Compatible with Chrome 67+
+
+### Technology Stack Interoperability
+
+- Different technology stacks are isolated through component container technology
+- React components can be embedded in Vue components
+- Vue components can also introduce React components
+
+## Getting Started
+
+### Project Structure
+
+A typical Web Widget project structure looks like this:
+
+```txt
+├── routes/                 # Route modules
+│   ├── (middlewares)/     # Middleware route group
+│   │   └── [...all]@middleware.ts
+│   ├── (vue)/            # Vue route group
+│   │   └── info@route.vue
+│   └── (react)/          # React route group
+│       └── hello@route.tsx
+├── widgets/              # Widget modules
+│   ├── Counter@widget.vue
+│   └── App@widget.tsx
+├── components/          # Shared components
+│   └── BaseLayout.tsx
+├── public/             # Static assets
+├── entry.client.ts     # Client entry
+├── entry.server.ts     # Server entry
+├── routemap.server.json # Route configuration
+└── vite.config.ts      # Build configuration
+```
+
+### Basic Setup
+
+1. Install dependencies:
+
+```bash
+npm install @web-widget/core @web-widget/helpers
+```
+
+2. Configure Vite:
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite';
+import webWidget from '@web-widget/vite';
+
+export default defineConfig({
+  plugins: [
+    webWidget({
+      // Enable file system routing in development
+      fileSystemRouting: true,
+    }),
+  ],
+});
+```
+
+3. Create a route module:
 
 ```tsx
-// ./routes/hello/index@route.tsx
+// routes/hello@route.tsx
+import { defineMeta } from '@web-widget/helpers';
+
+export const meta = defineMeta({
+  title: 'Hello World',
+});
+
 export default function Page() {
   return (
     <>
-      <h1>Hello world</h1>
+      <h1>Hello World</h1>
     </>
   );
 }
 ```
 
-Then add the route configuration in `routemap.server.json` to make it effective:
+4. Configure routes:
 
 ```json
+// routemap.server.json
 {
   "routes": [
     {
       "name": "Hello",
-      "pathname": "/:lang/hello",
-      "module": "./routes/hello/index@route.tsx"
+      "pathname": "/hello",
+      "module": "./routes/hello@route.tsx"
     }
   ]
 }
 ```
 
-> The `pathname` syntax can refer to [URLPattern](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern).
->
-> If file system routing is enabled, this file will be automatically generated during development.
+## Core Concepts
 
-Example of adding a page title:
+### Routing Modules
+
+Routing modules are the foundation of server-side rendering in Web Widget. They handle HTTP requests and render HTML responses.
+
+#### Basic Route Module
 
 ```tsx
+// routes/hello@route.tsx
 import { defineMeta } from '@web-widget/helpers';
+
 export const meta = defineMeta({
-  title: 'Hello',
+  title: 'Hello World',
 });
 
 export default function Page() {
   return (
     <>
-      <h1>Hello world</h1>
+      <h1>Hello World</h1>
     </>
   );
 }
 ```
 
-Example of dynamically modifying page title:
+#### Dynamic Route Module
 
 ```tsx
-import { mergeMeta, defineRouteHandler } from '@web-widget/helpers';
+// routes/blog/[slug]@route.tsx
+import { defineRouteHandler, defineRouteComponent } from '@web-widget/helpers';
 
 export const handler = defineRouteHandler({
   async GET(ctx) {
-    const { title } = await fetchMeta();
-    const meta = mergeMeta(ctx.meta, {
-      title,
-    });
-    return ctx.render({
-      meta,
-    });
+    const { slug } = ctx.params;
+    const post = await fetchPost(slug);
+
+    if (!post) {
+      return ctx.render({
+        error: { status: 404, message: 'Post not found' },
+      });
+    }
+
+    return ctx.render({ data: post });
   },
+});
+
+export default defineRouteComponent(function Page({ data }) {
+  return (
+    <article>
+      <h1>{data.title}</h1>
+      <div>{data.content}</div>
+    </article>
+  );
 });
 ```
 
 ### Widget Modules
 
-Widget modules are an intermediate format for components that support running on both server and client sides by default. Their **entry points** are named with `*@widget.*`.
+Widget modules are components that can run on both server and client sides. They support multiple frameworks and can be embedded in routing modules.
 
-Example of embedding a widget module in a routing module:
+#### Vue Widget Example
+
+```vue
+<!-- widgets/Counter@widget.vue -->
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const props = defineProps<{
+  initialCount?: number;
+}>();
+
+const count = ref(props.initialCount ?? 0);
+</script>
+
+<template>
+  <div>
+    <p>Count: {{ count }}</p>
+    <button @click="count++">Increment</button>
+  </div>
+</template>
+```
+
+#### React Widget Example
 
 ```tsx
+// widgets/App@widget.tsx
+import { useState } from 'react';
+
+export default function App({ initialCount = 0 }) {
+  const [count, setCount] = useState(initialCount);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+    </div>
+  );
+}
+```
+
+#### Using Widgets in Routes
+
+```tsx
+// routes/dashboard@route.tsx
 import { defineRouteComponent } from '@web-widget/helpers';
-import BaseLayout from '../../components/BaseLayout';
-import App from './App@widget.vue';
+import VueCounter from '../widgets/Counter@widget.vue';
+import ReactApp from '../widgets/App@widget.tsx';
 
 export default defineRouteComponent(function Page() {
   return (
-    <BaseLayout>
-      <h1>Vue router</h1>
-      <App />
-    </BaseLayout>
+    <div>
+      <h1>Dashboard</h1>
+      <VueCounter initialCount={5} />
+      <ReactApp initialCount={10} />
+    </div>
   );
 });
 ```
 
-Typically, you only need to name existing Vue components as `*@widget.vue` or React components as `*@widget.jsx`, and the build tool will automatically convert them into the intermediate component format for embedding in routing modules.
-
-Key features of widget modules:
-
-- When embedded in routing modules, they support server-side rendering and can be independently hydrated on the client side to reduce lag
-- Widgets are loaded asynchronously (converted to async imports by the build tool)
-- When embedded in JSX-developed routing modules, they can utilize [React Suspense](https://react.dev/reference/react/Suspense) to provide progressive streaming rendering for faster page display
-- The intermediate format enables interoperability between frameworks, allowing React components to embed Vue components and vice versa
-
 ### Web Standards
 
-The meta-framework uses Web standard APIs like Fetch to build the server, and the Node.js global context is injected with Web standard APIs defined by [WinterTC (TC55)](https://wintertc.org). These global objects can be used directly in business code.
+Web Widget uses standard Web APIs for both server and client-side code. This ensures compatibility across different environments.
 
-Using only Web standards to write server-side code ensures that the business can be migrated to platforms like Cloudflare Workers (currently gaoding.com uses Alibaba Cloud DCDN).
+#### Server-side Example
 
-## File System Routing
+```ts
+// routes/api@route.ts
+import { defineRouteHandler } from '@web-widget/helpers';
 
-The Web Widget meta-framework doesn't depend on file system routing to work. Enabling file system routing only automatically updates the `routemap.server.json` file during development. This file is essential for the framework, can be version controlled, and is subject to Code Review.
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    const response = await fetch('https://api.example.com/data');
+    const data = await response.json();
 
-File names are mapped to route patterns as follows:
+    return ctx.render({ data });
+  },
+});
+```
 
-- Files containing `*@route.*` and `*@middleware.*` suffixes will participate in route matching
-- File extensions are ignored
-- Literals in the file path are treated as string literals to match
-- Files named `<path>/index.<ext>` behave identically to a file named `<path>.<ext>`
-- Path segments can be made dynamic by surrounding an identifier with `[` and `]`
-- Paths where the last path segment follows the structure `[...<ident>]` are treated as having a wildcard suffix
+#### Client-side Example
+
+```ts
+// widgets/DataFetcher@widget.tsx
+import { useEffect, useState } from 'react';
+
+export default function DataFetcher() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/data')
+      .then(res => res.json())
+      .then(setData);
+  }, []);
+
+  return <div>{JSON.stringify(data)}</div>;
+}
+```
+
+## Best Practices
+
+### Performance Optimization
+
+1. Use streaming rendering for large pages:
+
+```tsx
+// routes/large-page@route.tsx
+import { defineRouteComponent } from '@web-widget/helpers';
+
+export default defineRouteComponent(function Page() {
+  return (
+    <div>
+      <h1>Large Page</h1>
+      <Suspense fallback={<div>Loading...</div>}>
+        <HeavyComponent />
+      </Suspense>
+    </div>
+  );
+});
+```
+
+2. Implement selective hydration:
+
+```tsx
+// routes/dashboard@route.tsx
+import { defineRouteComponent } from '@web-widget/helpers';
+import InteractiveWidget from '../widgets/Interactive@widget.vue';
+
+export default defineRouteComponent(function Page() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <InteractiveWidget renderStage="client" />
+    </div>
+  );
+});
+```
+
+### Error Handling
+
+```tsx
+// routes/error@route.tsx
+import {
+  defineRouteHandler,
+  defineRouteComponent,
+  defineRouteFallbackComponent,
+} from '@web-widget/helpers';
+import { createHttpError } from '@web-widget/helpers/error';
+
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    try {
+      const data = await fetchData();
+      return ctx.render({ data });
+    } catch (error) {
+      return ctx.render({
+        error: createHttpError(500, 'Internal Server Error'),
+      });
+    }
+  },
+});
+
+export const fallback = defineRouteFallbackComponent(function ErrorPage({
+  error,
+}) {
+  return (
+    <div>
+      <h1>Error: {error.status}</h1>
+      <p>{error.message}</p>
+    </div>
+  );
+});
+```
+
+### Data Fetching and Caching
+
+```tsx
+// routes/data@route.tsx
+import { defineRouteComponent } from '@web-widget/helpers';
+import { cacheProvider } from '@web-widget/helpers/cache';
+
+export default defineRouteComponent(function Page() {
+  const data = cacheProvider('data-key', async () => {
+    const response = await fetch('https://api.example.com/data');
+    return response.json();
+  });
+
+  return <div>{JSON.stringify(data)}</div>;
+});
+```
+
+## Advanced Topics
+
+### Custom Middleware
+
+```ts
+// routes/(middlewares)/[...all]@middleware.ts
+import { defineMiddleware } from '@web-widget/helpers';
+
+export const handler = defineMiddleware({
+  async handle(ctx, next) {
+    // Add custom headers
+    ctx.response.headers.set('X-Custom-Header', 'value');
+
+    // Continue to next middleware or route
+    return next();
+  },
+});
+```
 
 ### Route Groups
 
-A route group is a folder with a name wrapped in braces. For example, `(pages)` or `(marketing)`. This allows grouping related routes in folders and using different dependencies for each group.
+Route groups allow organizing related routes and using different dependencies:
 
 ```txt
-└── routes
-    ├── (middlewares)
-    │   └── [...all]@middleware.ts # -> /:all*
-    ├── (vue2)
-    │   ├── package.json
-    │   └── marketing@route.vue    # -> /marketing
-    └── (vue3)
-        ├── package.json
-        └── info@route.vue         # -> /info
+routes/
+├── (marketing)/
+│   ├── package.json        # Marketing-specific dependencies
+│   └── home@route.tsx
+└── (dashboard)/
+    ├── package.json        # Dashboard-specific dependencies
+    └── stats@route.tsx
 ```
 
 ## Helper Methods
 
-`@web-widget/helpers` exposes some commonly used helper methods that can read and write SSR context. Most methods can work simultaneously on the server side, client side, and across different technology stacks.
-
-For detailed documentation of helper methods, please refer to [@web-widget/helpers documentation](./helpers/README.md).
+`@web-widget/helpers` provides various utility functions for working with SSR context. For detailed documentation, please refer to [@web-widget/helpers documentation](./helpers/README.md).
