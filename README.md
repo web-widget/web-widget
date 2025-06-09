@@ -11,55 +11,312 @@
 [![WinterCG](https://img.shields.io/badge/WinterCG-Compatible-blue.svg)](https://wintercg.org/)
 [![RFC Compliant](https://img.shields.io/badge/RFC%207234-Compliant-green.svg)](https://tools.ietf.org/html/rfc7234)
 
-A revolutionary web application framework designed to breathe new life into all frontend frameworks. It provides higher-level abstractions to control and integrate multiple frontend frameworks or tools, achieving truly technology-agnostic architecture.
+> **🚀 A revolutionary web framework that enables seamless integration of multiple frontend technologies in a single application.**
 
-> This project is currently in the preview stage, and the API is subject to significant changes at any time.
+Break free from technology stack lock-in. Build applications that can simultaneously use React, Vue, and other frameworks with true technology-agnostic architecture.
 
-## Motivation
+> ⚠️ **Preview Release**: This project is in preview stage with API subject to changes.
 
-In many enterprises, technology stack lock-in is a common phenomenon. For instance, if a large project is initially built with Vue 2, upgrading to Vue 3 later may become a significant challenge. This project aims to introduce a scalable architecture. By doing so, it enables enterprises to gradually upgrade their UI framework versions or explore alternative frameworks, thereby continuously improving both the user experience and the developer experience.
+## ✨ Why Web Widget?
 
-## Core Features
+**The Problem**: Enterprise applications often get locked into specific frameworks, making upgrades costly and risky.
 
-### ⚡ Lightning Fast
+**The Solution**: Web Widget provides a higher-level abstraction that lets you:
 
-- Use web streaming to accelerate page display
-- Server-side components reduce client-side JS bundle size
-- Streaming state transfer and selective hydration to reduce lag
+- 🔄 **Mix Technologies**: Use React and Vue components in the same application
+- ⚡ **Upgrade Gradually**: Migrate frameworks incrementally without rewrites
+- 🚀 **Performance First**: Server-side streaming and selective hydration
+- 🌐 **Standards Based**: Built on Web Standards (WinterCG compliant)
 
-### 🔄 Technology Stack Flexibility
+## 🚀 Quick Start
 
-- Framework-agnostic architecture that can drive React, Vue, and other UI frameworks simultaneously
-- Provides performance optimization methods at a higher level
-- Supports cross-framework component interoperability
+```bash
+# Create a new project
+npx create-web-widget-app my-app
+cd my-app
 
-### 🌐 Web Standards Compliant
+# Start development
+npm run dev
+```
 
-- Designed to comply with [WinterCG](https://wintercg.org/) standards
-- Can run in Node.js and Edge environments
-- Client supports native ESM and Importmap
-- Compatible with Chrome 67+
+**Or try online examples:**
 
-### 🔧 Enterprise-Ready Solution
+| Example                   | Description                             | Live Demo                                                                                                                                                          |
+| ------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [React](./examples/react) | React pages with React + Vue components | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
+| [Vue](./examples/vue)     | Vue pages with React + Vue components   | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
 
-- Solves technology stack lock-in problems
-- Supports progressive framework upgrades
-- Continuously improves user experience and developer experience
+## 🏗️ Core Architecture
 
-## Examples
+Web Widget uses two main module types:
 
-| Name                      | Description                                                                            | Try Online                                                                                                                                                         |
-| ------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [React](./examples/react) | Use **React** to render pages and load interactive components of **Vue** and **React** | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
-| [Vue](./examples/vue)     | Use **Vue** to render pages and load interactive components of **React** and **Vue**   | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
+### 📄 Route Modules (`*@route.*`)
 
-## Core Concepts
+Server-side modules for rendering pages and handling HTTP requests.
 
-### Route Module
+```tsx
+// routes/index@route.tsx
+import { defineRouteComponent } from '@web-widget/helpers';
+import Counter from './components/Counter@widget.tsx';
 
-Route modules are server-side exclusive modules used for rendering HTML or handling other HTTP responses. Entry files are named with `*@route.*` suffix.
+export default defineRouteComponent(function HomePage() {
+  return (
+    <html>
+      <body>
+        <h1>Welcome to Web Widget</h1>
+        <Counter count={0} />
+      </body>
+    </html>
+  );
+});
+```
 
-#### Basic Route Module
+### 🧩 Widget Modules (`*@widget.*`)
+
+Isomorphic components that work on both server and client.
+
+```tsx
+// components/Counter@widget.tsx (React)
+import { useState } from 'react';
+
+export default function Counter({ count }: { count: number }) {
+  const [value, setValue] = useState(count);
+
+  return (
+    <div>
+      <button onClick={() => setValue((v) => v - 1)}>-</button>
+      <span>{value}</span>
+      <button onClick={() => setValue((v) => v + 1)}>+</button>
+    </div>
+  );
+}
+```
+
+```vue
+<!-- components/Counter@widget.vue (Vue) -->
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const props = defineProps<{ count: number }>();
+const value = ref(props.count);
+</script>
+
+<template>
+  <div>
+    <button @click="value--">-</button>
+    <span>{{ value }}</span>
+    <button @click="value++">+</button>
+  </div>
+</template>
+```
+
+### 🔀 Cross-Framework Usage
+
+Use components from different frameworks together:
+
+```tsx
+// Mix React and Vue in the same page
+import ReactCounter from './Counter@widget.tsx';
+import VueCounter from './Counter@widget.vue';
+import { toReact } from '@web-widget/vue';
+
+const VueCounterAsReact = toReact(VueCounter);
+
+export default defineRouteComponent(function MixedPage() {
+  return (
+    <div>
+      <h2>React Component:</h2>
+      <ReactCounter count={0} />
+
+      <h2>Vue Component (as React):</h2>
+      <VueCounterAsReact count={0} />
+    </div>
+  );
+});
+```
+
+## 🔥 Key Features
+
+### ⚡ **Lightning Fast Performance**
+
+- **Streaming SSR**: Pages start rendering before all data is loaded
+- **Selective Hydration**: Only interactive components hydrate on client
+- **Optimized Bundles**: Server components reduce client-side JavaScript
+
+### 🔄 **Technology Flexibility**
+
+- **Framework Agnostic**: React, Vue, Svelte, Solid, and more
+- **Progressive Migration**: Upgrade frameworks piece by piece
+- **Component Interop**: Share components across different frameworks
+
+### 🌐 **Web Standards First**
+
+- **WinterCG Compatible**: Runs in Node.js, Deno, Bun, and Edge environments
+- **ESM Native**: Modern module system with import maps
+- **Web APIs**: Use standard fetch, streams, and crypto APIs everywhere
+
+### 🔧 **Enterprise Ready**
+
+- **Type Safe**: Full TypeScript support out of the box
+- **File-based Routing**: Intuitive routing with automatic route generation
+- **Error Boundaries**: Comprehensive error handling and fallbacks
+
+## 📁 Project Structure
+
+```
+my-web-widget-app/
+├── routes/                    # Route modules
+│   ├── index@route.tsx       # → /
+│   ├── about@route.tsx       # → /about
+│   ├── blog/[slug]@route.tsx # → /blog/:slug
+│   └── api/hello@route.ts    # → /api/hello
+├── components/               # Shared components
+│   ├── Layout.tsx
+│   ├── Counter@widget.tsx    # React widget
+│   └── Timer@widget.vue      # Vue widget
+├── public/                   # Static files
+├── entry.client.ts          # Client entry
+├── entry.server.ts          # Server entry
+└── package.json
+```
+
+## 📚 Learn More
+
+<details>
+<summary><strong>🛣️ Advanced Routing</strong></summary>
+
+### Dynamic Routes
+
+```tsx
+// routes/users/[id]@route.tsx
+export default defineRouteComponent(function UserPage(props) {
+  const { id } = props.params;
+  return <div>User ID: {id}</div>;
+});
+```
+
+### Data Loading
+
+```tsx
+// routes/posts@route.tsx
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    const posts = await fetchPosts();
+    return ctx.render({ posts });
+  },
+});
+
+export default defineRouteComponent(function PostsPage({ posts }) {
+  return (
+    <div>
+      {posts.map((post) => (
+        <article key={post.id}>{post.title}</article>
+      ))}
+    </div>
+  );
+});
+```
+
+### Nested Layouts
+
+```tsx
+// routes/(dashboard)/layout@route.tsx
+export default defineRouteComponent(function DashboardLayout({ children }) {
+  return (
+    <div>
+      <nav>Dashboard Navigation</nav>
+      <main>{children}</main>
+    </div>
+  );
+});
+```
+
+</details>
+
+<details>
+<summary><strong>🧩 Widget Advanced Features</strong></summary>
+
+### Render Control
+
+```tsx
+// Server-only rendering
+<StaticChart renderStage="server" data={chartData} />
+
+// Client-only rendering
+<InteractiveMap renderStage="client" location={coords} />
+```
+
+### Caching
+
+```tsx
+// Async cache in Vue components
+const data = await asyncCacheProvider('cache-key', async () => {
+  return await fetchExpensiveData();
+});
+
+// Sync cache in React components
+const data = syncCacheProvider('cache-key', fetchData);
+```
+
+</details>
+
+<details>
+<summary><strong>🌐 Web Standards APIs</strong></summary>
+
+Full Web Standards support in all environments:
+
+- **Network**: `fetch`, `Request`, `Response`, `Headers`, `WebSocket`
+- **Encoding**: `TextDecoder`, `TextEncoder`, `atob`, `btoa`
+- **Streams**: `ReadableStream`, `WritableStream`, `TransformStream`
+- **Crypto**: `crypto`, `CryptoKey`, `SubtleCrypto`
+- **Other**: `AbortController`, `URLPattern`, `structuredClone`
+
+</details>
+
+## 🛠️ Development
+
+```bash
+# Install dependencies
+npm install
+
+# Development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## 🌍 Real-World Usage
+
+Production applications using Web Widget:
+
+- **[insmind.com](https://www.insmind.com)** - React pages with Vue 3 + Vue 2 components
+- **[gaoding.com](https://www.gaoding.com)** - React pages with Vue 2 + Lit components
+
+## 🤝 Community
+
+- **GitHub**: [web-widget/web-widget](https://github.com/web-widget/web-widget)
+- **Issues**: [Report bugs or request features](https://github.com/web-widget/web-widget/issues)
+- **Discussions**: [Join the community](https://github.com/web-widget/web-widget/discussions)
+
+## 🚀 Try Online
+
+[![Open in VS Code](https://img.shields.io/badge/Open%20in-VS%20Code-blue?logo=visualstudiocode)](https://vscode.dev/github/web-widget/web-widget/tree/main/examples/)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-GitHub%20Codespaces-black?logo=github)](https://codespaces.new/web-widget/web-widget/tree/main/examples/)
+[![Edit in CodeSandbox](https://img.shields.io/badge/Edit%20in-CodeSandbox-blue?logo=codesandbox)](https://codesandbox.io/s/github/web-widget/web-widget/tree/main/examples/)
+[![Open in Gitpod](https://img.shields.io/badge/Open%20in-Gitpod-orange?logo=gitpod)](https://gitpod.io/#https://github.com/web-widget/web-widget/tree/main/examples/)
+
+---
+
+## 📖 Detailed Documentation
+
+<details>
+<summary><strong>📋 Complete Route Module Examples</strong></summary>
+
+### Basic Route Module
 
 ```tsx
 // ./routes/index@route.tsx
@@ -80,30 +337,7 @@ export default defineRouteComponent(function Page() {
 });
 ```
 
-#### Dynamic Routes
-
-```tsx
-// ./routes/greet/[name]@route.tsx
-import { defineRouteComponent } from '@web-widget/helpers';
-import BaseLayout from '../components/BaseLayout';
-
-export default defineRouteComponent(function Page(props) {
-  const { name } = props.params;
-  const url = new URL(props.request.url);
-  const id = url.searchParams.get('id');
-
-  return (
-    <BaseLayout>
-      <h1>Dynamic Routes</h1>
-      <p>
-        Greetings to you, {name}! ID: {id}
-      </p>
-    </BaseLayout>
-  );
-});
-```
-
-#### Data Fetching and Processing
+### Data Fetching and Processing
 
 ```tsx
 // ./routes/fetch@route.tsx
@@ -112,7 +346,7 @@ import {
   defineRouteHandler,
   defineMeta,
 } from '@web-widget/helpers';
-import BaseLayout from '../components/BaseLayout';
+import BaseLayout from './components/BaseLayout';
 
 interface PageData {
   items: Array<{ title: string; url: string }>;
@@ -154,11 +388,38 @@ export default defineRouteComponent<PageData>(function Page({ data }) {
 });
 ```
 
-### Widget Module
+### Route Configuration
 
-Widget modules are intermediate component formats that support both server-side and client-side execution. Entry files are named with `*@widget.*` suffix.
+Routes are configured through the `routemap.server.json` file:
 
-#### React Widget
+```json
+{
+  "routes": [
+    {
+      "pathname": "/",
+      "module": "./routes/index@route.tsx"
+    },
+    {
+      "pathname": "/greet/:name",
+      "module": "./routes/greet/[name]@route.tsx"
+    },
+    {
+      "pathname": "/api/hello",
+      "module": "./routes/api/hello@route.ts"
+    }
+  ],
+  "middlewares": [],
+  "actions": [],
+  "fallbacks": []
+}
+```
+
+</details>
+
+<details>
+<summary><strong>🧩 Complete Widget Examples</strong></summary>
+
+### React Widget with Styles
 
 ```tsx
 // ./components/Counter@widget.tsx
@@ -182,7 +443,7 @@ export default function Counter(props: CounterProps) {
 }
 ```
 
-#### Vue Widget
+### Vue Widget with Scoped Styles
 
 ```vue
 <!-- ./components/Counter@widget.vue -->
@@ -214,11 +475,29 @@ const count = ref(props.count);
   font-size: 16px;
   border: 2px solid #42b883;
 }
-/* ... more styles */
+
+.count {
+  margin: 0 10px;
+  font-weight: bold;
+}
+
+button {
+  background: #42b883;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #369870;
+}
 </style>
 ```
 
-#### Using Widgets in Routes
+### Using Widgets in Routes
 
 ```tsx
 // ./routes/index@route.tsx
@@ -245,33 +524,10 @@ export default defineRouteComponent(function Page() {
 });
 ```
 
-### Route Configuration
+</details>
 
-Routes are configured through the `routemap.server.json` file:
-
-```json
-{
-  "routes": [
-    {
-      "pathname": "/",
-      "module": "./routes/index@route.tsx"
-    },
-    {
-      "pathname": "/greet/:name",
-      "module": "./routes/greet/[name]@route.tsx"
-    },
-    {
-      "pathname": "/api/hello",
-      "module": "./routes/api/hello@route.ts"
-    }
-  ],
-  "middlewares": [],
-  "actions": [],
-  "fallbacks": []
-}
-```
-
-## Advanced Features
+<details>
+<summary><strong>🔧 Advanced Features</strong></summary>
 
 ### Error Handling
 
@@ -422,36 +678,6 @@ export default function UserProfile({ userId }: UserProfileProps) {
 }
 ```
 
-### Render Control
-
-#### Client-Only Rendering
-
-```tsx
-// In route module
-export default defineRouteComponent(function Page() {
-  return (
-    <BaseLayout>
-      <h1>Client-Only Rendering Example</h1>
-      <Counter renderStage="client" count={3} />
-    </BaseLayout>
-  );
-});
-```
-
-#### Server-Only Rendering
-
-```tsx
-// In route module
-export default defineRouteComponent(function Page() {
-  return (
-    <BaseLayout>
-      <h1>Server-Only Rendering Example</h1>
-      <StaticContent renderStage="server" data="static data" />
-    </BaseLayout>
-  );
-});
-```
-
 ### Navigation and Redirects
 
 ```tsx
@@ -472,7 +698,10 @@ export const handler = defineRouteHandler({
 });
 ```
 
-## File-System Routing
+</details>
+
+<details>
+<summary><strong>🗂️ File-System Routing</strong></summary>
 
 Web Widget supports file-system based routing conventions, automatically generating `routemap.server.json` during development.
 
@@ -503,37 +732,12 @@ Create route groups using parentheses-wrapped folder names:
         └── info@route.vue         # -> /info
 ```
 
-## Web Standards APIs
+</details>
 
-Web Widget provides complete Web Standards API support in Node.js environment, following [WinterCG (TC55)](https://wintertc.org) specifications.
+<details>
+<summary><strong>🏗️ Project Setup</strong></summary>
 
-### Network APIs
-
-- `fetch`, `Request`, `Response`, `Headers`
-- `URLSearchParams`, `FormData`, `File`, `Blob`
-- `WebSocket`
-
-### Encoding APIs
-
-- `TextDecoder`, `TextEncoder`
-- `atob`, `btoa`
-
-### Stream APIs
-
-- `ReadableStream`, `WritableStream`, `TransformStream`
-
-### Crypto APIs
-
-- `crypto`, `CryptoKey`, `SubtleCrypto`
-
-### Other Standard APIs
-
-- `AbortController`, `DOMException`
-- `structuredClone`, `URLPattern`
-
-## Project Setup
-
-### Basic Project Structure
+### Complete Project Structure
 
 ```
 my-web-widget-app/
@@ -581,23 +785,7 @@ my-web-widget-app/
 }
 ```
 
-### Development Commands
-
-```bash
-# Install dependencies
-pnpm install
-
-# Development mode
-pnpm dev
-
-# Build for production
-pnpm build
-
-# Start production server
-pnpm start
-```
-
-## File Description
+### File Description
 
 - `routes/**/*@route.*` Route modules that only run on the server side
 - `routes/**/*@middleware.*` Middleware that only runs on the server side
@@ -607,7 +795,10 @@ pnpm start
 - `importmap.client.json` Client's import mapping configuration file
 - `routemap.server.json` Routing configuration file, automatically generated by development tools
 
-## Best Practices
+</details>
+
+<details>
+<summary><strong>💡 Best Practices</strong></summary>
 
 1. **Technology Stack Isolation**: Use widget modules to achieve isolation of different technology stack components
 2. **Progressive Enhancement**: Prioritize server-side rendering, add client-side interaction as needed
@@ -615,28 +806,22 @@ pnpm start
 4. **Error Handling**: Implement comprehensive error boundaries and fallback solutions
 5. **Type Safety**: Make full use of TypeScript's type system
 
-## Who Uses This
+### Performance Tips
 
-- <https://www.insmind.com> Use **React** to render pages and load interactive components of **Vue3** and **Vue2**
-- <https://www.gaoding.com> Use **React** to render pages and load interactive components of **Vue2** and **Lit**
+- Use `renderStage="server"` for static content that doesn't need interactivity
+- Use `renderStage="client"` for components that require browser APIs
+- Implement proper caching strategies for expensive operations
+- Keep server components lightweight to improve SSR performance
 
-## Open in the Cloud
+### Code Organization
 
-Click any of the buttons below to start a new development environment to demo or contribute to the codebase without having to install anything on your machine:
+- Group related routes using parentheses folders
+- Share common components through widget modules
+- Use TypeScript interfaces for prop typing
+- Implement proper error boundaries at route level
 
-[![Open in VS Code](https://img.shields.io/badge/Open%20in-VS%20Code-blue?logo=visualstudiocode)](https://vscode.dev/github/web-widget/web-widget/tree/main/examples/)
-[![Open in Glitch](https://img.shields.io/badge/Open%20in-Glitch-blue?logo=glitch)](https://glitch.com/edit/#!/import/github/web-widget/web-widget/tree/main/examples/)
-[![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-GitHub%20Codespaces-black?logo=github)](https://codespaces.new/web-widget/web-widget/tree/main/examples/)
-[![Edit in CodeSandbox](https://img.shields.io/badge/Edit%20in-CodeSandbox-blue?logo=codesandbox)](https://codesandbox.io/s/github/web-widget/web-widget/tree/main/examples/)
-[![Open in Repl.it](https://img.shields.io/badge/Open%20in-Repl.it-orange?logo=replit)](https://replit.com/github/web-widget/web-widget/tree/main/examples/)
-[![Open in Codeanywhere](https://img.shields.io/badge/Open%20in-Codeanywhere-blue?logo=codeanywhere)](https://app.codeanywhere.com/#https://github.com/web-widget/web-widget/tree/main/examples/)
-[![Open in Gitpod](https://img.shields.io/badge/Open%20in-Gitpod-orange?logo=gitpod)](https://gitpod.io/#https://github.com/web-widget/web-widget/tree/main/examples/)
-
-## Community & Support
-
-- **GitHub**: https://github.com/web-widget/web-widget
-- **Issues**: https://github.com/web-widget/web-widget/issues
+</details>
 
 ---
 
-Web Widget framework provides a new architectural approach for modern web development, enabling enterprises to continuously evolve and optimize their frontend architecture without being locked into specific technology stacks.
+**Web Widget** empowers enterprises to break free from technology stack lock-in, enabling continuous innovation and seamless framework evolution.
