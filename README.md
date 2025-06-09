@@ -353,51 +353,22 @@ Full Web Standards support in all environments:
 ### Production-Ready Import Maps
 
 ```json
-// importmap.client.json - Enterprise configuration
 {
   "imports": {
-    // Framework dependencies
     "react": "https://esm.sh/react@18.2.0",
     "react-dom": "https://esm.sh/react-dom@18.2.0",
     "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
     "vue": "https://esm.sh/vue@3.4.8",
-
-    // Utility libraries (shared across teams)
     "lodash": "https://esm.sh/lodash@4.17.21",
     "date-fns": "https://esm.sh/date-fns@2.30.0",
-
-    // Micro-frontend modules
     "@company/ui-kit": "https://cdn.company.com/ui-kit@1.2.0/index.js",
     "@company/analytics": "https://cdn.company.com/analytics@2.1.0/index.js"
   },
   "scopes": {
-    // Different versions for different parts of the app
     "/legacy/": {
       "react": "https://esm.sh/react@17.0.2",
       "react-dom": "https://esm.sh/react-dom@17.0.2"
     }
-  }
-}
-```
-
-### Development vs Production
-
-```json
-// Development: Local development with hot reload
-{
-  "imports": {
-    "react": "/node_modules/react/index.js",
-    "vue": "/node_modules/vue/dist/vue.esm-bundler.js",
-    "@/": "./src/"
-  }
-}
-
-// Production: CDN-optimized with version pinning
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0?pin=v135",
-    "vue": "https://esm.sh/vue@3.4.8?pin=v135",
-    "@/": "./dist/"
   }
 }
 ```
@@ -488,12 +459,7 @@ Import Maps Approach:
 
 **📊 Compatibility Matrix:**
 
-| Browser | Native Support | Polyfill Support | Coverage      |
-| ------- | -------------- | ---------------- | ------------- |
-| Chrome  | 89+            | 67+              | ✅ 95%+ users |
-| Firefox | 108+           | 67+              | ✅ 92%+ users |
-| Safari  | 16.4+          | 11+              | ✅ 98%+ users |
-| Edge    | 89+            | 79+              | ✅ 100% users |
+Chrome (63+) | Firefox (67+) | Safari (11.1+)
 
 **🚀 Performance Characteristics:**
 
@@ -511,27 +477,24 @@ import { ref } from 'vue'; // Chrome 89+: native
 **🔧 Zero Configuration Compatibility:**
 
 ```json
-// Your importmap.client.json works everywhere
 {
   "imports": {
     "react": "https://esm.sh/react@18.2.0"
   }
 }
-
-// Framework ensures compatibility:
-// ✅ Modern browsers: Direct ESM loading
-// ✅ Legacy browsers: Transparent polyfill
-
-
-// ✅ Your code: No changes required
 ```
+
+Framework ensures compatibility:
+
+- ✅ Modern browsers: Direct ESM loading
+- ✅ Legacy browsers: Transparent polyfill
+- ✅ Your code: No changes required
 
 > **Future-Proof Architecture**: As browsers gain native support, your apps automatically get faster without any code changes.
 
 ### 📝 **Simple Configuration, Powerful Results**
 
 ```json
-// importmap.client.json - One file to rule them all
 {
   "imports": {
     "react": "https://esm.sh/react@18.2.0",
