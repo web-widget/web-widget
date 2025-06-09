@@ -191,8 +191,6 @@ export default defineRouteComponent(function MixedPage() {
 - **Zero Config**: Sensible defaults that just work
 - **Smart Bundling**: Automatic dependency deduplication and sharing
 
-> **📚 Complete API Reference**: For detailed documentation and advanced examples, see [Helpers API Documentation](./docs/helpers/README.md)
-
 ## 📁 Project Structure: Elegant Organization
 
 ```
@@ -236,15 +234,15 @@ export default defineRouteComponent(function UserPage(props) {
 // routes/posts@route.tsx
 export const handler = defineRouteHandler({
   async GET(ctx) {
-    const posts = await fetchPosts();
-    return ctx.render({ posts });
+    const data = await fetchPosts();
+    return ctx.render({ data });
   },
 });
 
-export default defineRouteComponent(function PostsPage({ posts }) {
+export default defineRouteComponent(function PostsPage({ data }) {
   return (
     <div>
-      {posts.map((post) => (
+      {data.map((post) => (
         <article key={post.id}>{post.title}</article>
       ))}
     </div>
