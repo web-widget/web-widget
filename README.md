@@ -272,41 +272,12 @@ import { createHttpError } from '@web-widget/helpers/error';
 
 export const handler = defineRouteHandler({
   async GET(ctx) {
-    const url = new URL(ctx.request.url);
-
-    if (url.searchParams.has('404')) {
-      // Render 404 component in current route
-      return ctx.render({
-        error: createHttpError(404, 'Page not found'),
-      });
+    // ...
+    if (!data) {
+      throw createHttpError(404, 'Not Found');
     }
-
-    // Throw global error
-    if (url.searchParams.has('global-error')) {
-      throw createHttpError(404, 'Global error');
-    }
-
-    return ctx.render();
+    // ...
   },
-});
-
-// Route-level error fallback
-export const fallback = defineRouteFallbackComponent(function Fallback(error) {
-  return (
-    <div>
-      <h1>Error: {error.name}</h1>
-      <p>{error.message}</p>
-    </div>
-  );
-});
-
-export default defineRouteComponent(function Page() {
-  return (
-    <div>
-      <h1>Error Handling Example</h1>
-      <a href="?404">Trigger 404 Error</a>
-    </div>
-  );
 });
 ```
 
