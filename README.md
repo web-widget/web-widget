@@ -643,14 +643,6 @@ Web Widget provides enterprise-grade HTTP caching using standard Cache Control h
 - **ETag & Conditional Requests**: Efficient cache validation
 - **Pluggable Storage**: Memory, Redis, disk, or custom backends via [SharedCache](https://github.com/web-widget/shared-cache)
 
-> **📚 Detailed Documentation**:
->
-> - [Complete API Reference](./docs/helpers/README.md)
-> - [Cache Providers](./docs/helpers/lifecycle-cache.md)
-> - [Navigation & Routing](./docs/helpers/redirect.md)
-> - [Error Handling](./docs/helpers/http-exception.md)
-> - [Context & Headers](./docs/helpers/context.md)
-
 </details>
 
 <details>
