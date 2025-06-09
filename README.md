@@ -15,6 +15,8 @@
 
 Break free from technology stack lock-in while maintaining elegant simplicity. Experience the power of running React, Vue, and other frameworks together with ease.
 
+> ⚠️ **Preview Release**: This project is currently in preview stage with API subject to changes. Some features mentioned may be under development.
+
 ## 🏆 Real-World Applications
 
 Web Widget is being used in production applications, demonstrating its practical viability:
@@ -25,8 +27,6 @@ Web Widget is being used in production applications, demonstrating its practical
 | **[gaoding.com](https://www.gaoding.com)** | React pages + Vue 2 + Lit components   | _"Migrated incrementally from Vue 2 to React without downtime"_              |
 
 > **💡 These examples showcase the framework's ability to handle complex multi-technology scenarios in real applications.**
-
-> ⚠️ **Preview Release**: This project is in preview stage with API subject to changes.
 
 ## 📋 Table of Contents
 
@@ -55,9 +55,9 @@ Our framework is built on the core principle that powerful technology should be 
 
 ### ⚡ **Powerful by Nature**
 
-- **Multi-Framework**: React, Vue, Svelte, Solid - all in one application
+- **Multi-Framework**: React 19, Vue 3, Vue 2 - with more frameworks coming soon
 - **Web Standards**: Built on solid foundations that won't become obsolete
-- **Enterprise Scale**: Powers production applications with millions of users
+- **Real-World Ready**: Designed to handle production applications
 - **Future Proof**: Open architecture that evolves with the web platform
 
 > _"The best technology is the one you don't have to think about"_ - This is our guiding principle.
@@ -72,7 +72,7 @@ Our framework is built on the core principle that powerful technology should be 
 
 - 🔄 **Technology Freedom**: Use the right framework for each component, not the entire application
 - ⚡ **Incremental Adoption**: Introduce new frameworks gradually without big-bang rewrites
-- 🧩 **Component Interoperability**: Mix React, Vue, Svelte components seamlessly
+- 🧩 **Component Interoperability**: Mix React and Vue components seamlessly
 - 🌐 **Standards Foundation**: Built on Web Standards that evolve with the platform
 - 🎯 **Developer Experience**: Simple concepts that scale to complex applications
 
@@ -88,16 +88,31 @@ Applications like **insmind.com** and **gaoding.com** demonstrate these benefits
 
 ## 🚀 Quick Start
 
-Experience the simplicity - get started in under 2 minutes:
+Get started with Web Widget (preview release):
 
 ```bash
-# Create a new project
-npx create-web-widget-app my-app
-cd my-app
+# Clone or download the example
+git clone https://github.com/web-widget/web-widget.git
+cd web-widget/examples/react  # or examples/vue
+
+# Install dependencies
+npm install
 
 # Start development
 npm run dev
 ```
+
+### 🎯 **Current Framework Support**
+
+| Framework | Status         | Version  |
+| --------- | -------------- | -------- |
+| React     | ✅ Supported   | 19.x     |
+| Vue       | ✅ Supported   | 3.x, 2.x |
+| Svelte    | 🚧 Coming Soon | -        |
+| Solid     | 🚧 Coming Soon | -        |
+| Angular   | 🚧 Planned     | -        |
+
+> 💡 **Preview Status**: Web Widget is currently in preview. A dedicated CLI tool (`create-web-widget-app`) is planned for future releases.
 
 **Try online examples:**
 
@@ -207,7 +222,7 @@ export default defineRouteComponent(function MixedPage() {
 
 ### 🔄 **Technology Flexibility Without Complexity**
 
-- **Framework Agnostic**: React, Vue, Svelte, Solid, and more
+- **Currently Supported**: React 19, Vue 3, Vue 2 (Svelte, Solid, and more coming soon)
 - **Progressive Migration**: Upgrade frameworks piece by piece
 - **Component Interop**: Share components across different frameworks
 - **No Lock-in**: Each component can use its preferred framework
@@ -220,7 +235,7 @@ export default defineRouteComponent(function MixedPage() {
 - **Future Proof**: Based on standards that won't become obsolete
 - **Production Module Sharing**: Import Maps for optimal production performance
 
-### 🔧 **Enterprise Ready, Developer Friendly**
+### 🔧 **Production Ready, Developer Friendly**
 
 - **Type Safe**: Full TypeScript support out of the box
 - **File-based Routing**: Intuitive routing with automatic route generation
