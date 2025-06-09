@@ -392,29 +392,7 @@ export default defineRouteComponent<PageData>(function Page({ data }) {
 
 #### Route Configuration
 
-Routes are configured through the `routemap.server.json` file:
-
-```json
-{
-  "routes": [
-    {
-      "pathname": "/",
-      "module": "./routes/index@route.tsx"
-    },
-    {
-      "pathname": "/greet/:name",
-      "module": "./routes/greet/[name]@route.tsx"
-    },
-    {
-      "pathname": "/api/hello",
-      "module": "./routes/api/hello@route.ts"
-    }
-  ],
-  "middlewares": [],
-  "actions": [],
-  "fallbacks": []
-}
-```
+Routes are automatically configured based on your file structure. Web Widget generates the routing configuration during development, so you don't need to manually manage route mappings.
 
 </details>
 
@@ -635,23 +613,10 @@ Full Web Standards support in all environments:
 }
 ```
 
-#### Smart Loading Strategy
-
-```json
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
-    "vue": "https://esm.sh/vue@3.4.8"
-  }
-}
-```
-
 **Benefits in action:**
 
 - 📦 **Automatic Deduplication**: React loaded once, shared everywhere
 - 🚀 **CDN Optimization**: Load popular libraries from fast CDNs
-- 🔧 **Development Speed**: Instant hot reloads, no rebundling
 - 📱 **Perfect Caching**: Browser-native module caching
 
 ```tsx
