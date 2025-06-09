@@ -250,20 +250,6 @@ export default defineRouteComponent(function PostsPage({ data }) {
 });
 ```
 
-### Nested Layouts
-
-```tsx
-// routes/(dashboard)/layout@route.tsx
-export default defineRouteComponent(function DashboardLayout({ children }) {
-  return (
-    <div>
-      <nav>Dashboard Navigation</nav>
-      <main>{children}</main>
-    </div>
-  );
-});
-```
-
 </details>
 
 <details>
