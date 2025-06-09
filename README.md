@@ -334,6 +334,73 @@ Full Web Standards support in all environments:
 </details>
 
 <details>
+<summary><strong>⚡ Production Module Sharing</strong></summary>
+
+Web Widget leverages **Import Maps** during production builds to eliminate dependency duplication and optimize performance.
+
+### 📝 **Production Build Configuration**
+
+```json
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "vue": "https://esm.sh/vue@3.4.8"
+  }
+}
+```
+
+### 🌐 **Production Advantages**
+
+| Traditional Bundles       | Import Maps (Production)  |
+| ------------------------- | ------------------------- |
+| ❌ Bundler-specific       | ✅ Native Web Standard    |
+| ❌ Duplicate dependencies | ✅ Perfect module sharing |
+| ❌ Per-app bundles        | ✅ Shared across sites    |
+| ❌ Bundle invalidation    | ✅ Browser-native caching |
+| ❌ Includes all deps      | ✅ Minimal app code only  |
+
+**Core Benefits:**
+
+- 📦 **Smaller Bundles**: Framework code loaded separately
+- 🚀 **Better Caching**: Dependencies shared across applications
+- 🌐 **Web Standard**: Native browser support with polyfill fallback
+
+### Browser Compatibility & Polyfill Strategy
+
+**🎯 Automatic Polyfill Loading:**
+
+Web Widget **automatically detects** browser capabilities and loads polyfills only when needed - zero configuration required.
+
+```html
+<!-- Framework automatically injects this detection logic -->
+<script>
+  // Auto-detect Import Maps support
+  if (!HTMLScriptElement.supports?.('importmap')) {
+    // Framework automatically loads polyfill for older browsers
+    import(
+      'https://ga.jspm.io/npm:es-module-shims@1.8.0/dist/es-module-shims.js'
+    );
+  }
+</script>
+```
+
+**📊 Compatibility Matrix:**
+
+Chrome (63+) | Firefox (67+) | Safari (11.1+)
+
+**🚀 Seamless Experience:**
+
+- ✅ **Modern Browsers**: Native Import Maps - maximum performance
+- ✅ **Legacy Browsers**: Automatic polyfill injection - same functionality
+- ✅ **Zero Configuration**: Framework handles detection and loading
+- ✅ **Progressive Enhancement**: Optimal performance as browsers evolve
+
+> **Production-Only Feature**: `importmap.client.json` is used exclusively during Vite production builds to optimize module loading.
+
+</details>
+
+<details>
 <summary><strong>🗺️ Advanced Import Maps Configuration</strong></summary>
 
 ### Production-Ready Import Maps
