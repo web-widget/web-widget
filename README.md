@@ -11,34 +11,33 @@
 [![WinterCG](https://img.shields.io/badge/WinterCG-Compatible-blue.svg)](https://wintercg.org/)
 [![RFC Compliant](https://img.shields.io/badge/RFC%207234-Compliant-green.svg)](https://tools.ietf.org/html/rfc7234)
 
-> **🌟 Simple yet Powerful - A revolutionary meta-framework that seamlessly integrates multiple frontend technologies.**
+> **🌟 A revolutionary meta-framework that seamlessly integrates multiple frontend technologies with unprecedented simplicity.**
 
-Built on the philosophy of **"Simple yet Powerful"**, Web Widget breaks free from technology stack lock-in while maintaining elegant simplicity. Experience the power of running React, Vue, and other frameworks together with unprecedented ease.
+Break free from technology stack lock-in while maintaining elegant simplicity. Experience the power of running React, Vue, and other frameworks together with ease.
 
 > ⚠️ **Preview Release**: This project is in preview stage with API subject to changes.
 
 ## 📋 Table of Contents
 
-- [💫 Design Philosophy](#-design-philosophy-simple-yet-powerful)
+- [💫 Design Philosophy](#-design-philosophy-simplicity-meets-power)
 - [✨ Why Web Widget?](#-why-web-widget)
 - [🚀 Quick Start](#-quick-start)
 - [🏗️ Core Architecture](#️-core-architecture-simplicity-in-action)
-- [🔥 Key Features](#-key-features-where-simple-meets-powerful)
+- [🔥 Key Features](#-key-features)
 - [📁 Project Structure](#-project-structure-elegant-organization)
-- [🌍 Real-World Usage](#-real-world-usage-proven-in-production)
 - [📖 Documentation](#-documentation)
-- [🛠️ Development](#️-development-as-simple-as-it-gets)
+- [🛠️ Development](#️-development)
 - [🚀 Try Online](#-try-online)
 - [🤝 Community](#-community)
 
-## 💫 Design Philosophy: Simple yet Powerful
+## 💫 Design Philosophy: Simplicity Meets Power
 
-Web Widget is crafted with an unwavering commitment to being **"Simple yet Powerful"** - this is what sets it apart from every other framework:
+Our framework is built on the core principle that powerful technology should be intuitive to use:
 
 ### 🎯 **Simple by Design**
 
 - **Two File Types**: Just `@route.*` and `@widget.*` - that's all you need to learn
-- **Zero Configuration**: Works out of the box with intelligent defaults
+- **Minimal Configuration**: Works with sensible defaults and simple setup
 - **Familiar Syntax**: Use the frameworks you already know and love
 - **Intuitive APIs**: If it feels natural, it probably works
 
@@ -113,7 +112,7 @@ export default defineRouteComponent(function HomePage() {
 Isomorphic components that work on both server and client - the secret to our power.
 
 ```tsx
-// components/Counter@widget.tsx (React) - Simple to write
+// components/Counter@widget.tsx (React)
 import { useState } from 'react';
 
 export default function Counter({ count }: { count: number }) {
@@ -130,7 +129,7 @@ export default function Counter({ count }: { count: number }) {
 ```
 
 ```vue
-<!-- components/Counter@widget.vue (Vue) - Just as simple -->
+<!-- components/Counter@widget.vue (Vue) -->
 <script setup lang="ts">
 import { ref } from 'vue';
 
@@ -152,7 +151,7 @@ const value = ref(props.count);
 The real power emerges when you effortlessly combine different frameworks:
 
 ```tsx
-// Mix React and Vue in the same page - Simple syntax, powerful result
+// Mix React and Vue in the same page
 import ReactCounter from './Counter@widget.tsx';
 import VueCounter from './Counter@widget.vue';
 import { toReact } from '@web-widget/vue';
@@ -172,7 +171,7 @@ export default defineRouteComponent(function MixedPage() {
 });
 ```
 
-## 🔥 Key Features: Where Simple Meets Powerful
+## 🔥 Key Features
 
 ### ⚡ **Lightning Fast Performance**
 
@@ -202,7 +201,7 @@ export default defineRouteComponent(function MixedPage() {
 - **Type Safe**: Full TypeScript support out of the box
 - **File-based Routing**: Intuitive routing with automatic route generation
 - **Error Boundaries**: Comprehensive error handling and fallbacks
-- **Zero Config**: Sensible defaults that just work
+- **Sensible Defaults**: Simple setup with intelligent defaults that just work
 - **Smart Bundling**: Automatic dependency deduplication and sharing
 
 ### 🚀 End-to-End State Caching: Zero Hydration Errors
@@ -252,7 +251,7 @@ const userData = syncCacheProvider('user-profile', async () => {
 #### 🚀 **Key Benefits**
 
 - ✅ **Zero Hydration Errors**: Perfect server-client state synchronization
-- ✅ **Zero Configuration**: Framework handles everything automatically
+- ✅ **Simple Setup**: Framework handles most configuration automatically
 - ✅ **Optimal Performance**: Data fetched once, used everywhere
 - ✅ **Type Safe**: Full TypeScript support with inferred types
 
@@ -276,7 +275,7 @@ my-web-widget-app/
 └── package.json
 ```
 
-_Simple structure, powerful capabilities._
+_Organized structure with clear separation of concerns._
 
 ## 📖 Documentation
 
@@ -779,9 +778,9 @@ my-web-widget-app/
 
 </details>
 
-## 🛠️ Development: As Simple as It Gets
+## 🛠️ Development
 
-Get up and running in seconds - because powerful tools should be easy to use:
+Get up and running quickly with minimal configuration:
 
 ```bash
 # Install dependencies
@@ -796,8 +795,6 @@ npm run build
 # Start production server
 npm start
 ```
-
-_That's it. No complex configuration files, no setup wizards, no learning curve._
 
 ## 🚀 Try Online
 
