@@ -77,10 +77,11 @@ npm run dev
 
 **Or try online examples:**
 
-| Example                   | Description                             | Live Demo                                                                                                                                                          |
-| ------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [React](./examples/react) | React pages with React + Vue components | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
-| [Vue](./examples/vue)     | Vue pages with React + Vue components   | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
+| Example                                          | Description                              | Live Demo                                                                                                                                                          |
+| ------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [React](./examples/react)                        | React pages with React + Vue components  | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
+| [Vue](./examples/vue)                            | Vue pages with React + Vue components    | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
+| [Server Actions](./examples/react/routes/action) | Seamless client-to-server function calls | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
 
 ## 🏗️ Core Architecture: Simplicity in Action
 
@@ -633,6 +634,119 @@ import MyComponent from '@components/MyComponent'; // Path mapping
 </details>
 
 ### 🔧 Advanced Features
+
+<details>
+<summary><strong>Server Actions: Seamless Client-Server Integration</strong></summary>
+
+Web Widget's Server Actions feature allows you to call server-side functions directly from client components with unprecedented simplicity - no API endpoints, no fetch calls, just direct function invocation.
+
+#### 🎯 **The Revolution**
+
+```tsx
+// Traditional approach: Complex API setup
+// ❌ Create API endpoint
+export async function POST(request: Request) {
+  const data = await request.json();
+  return Response.json({ message: data.content, date: new Date() });
+}
+
+// ❌ Client-side fetch calls
+const handleClick = async () => {
+  const response = await fetch('/api/echo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: inputValue }),
+  });
+  const result = await response.json();
+  setLog(JSON.stringify(result));
+};
+
+// ✅ Web Widget Server Actions: Pure simplicity
+// Server function (functions@action.ts)
+export const echo = async (content: string) => {
+  return {
+    message: content,
+    date: new Date().toISOString(),
+    respondent: 'server',
+  };
+};
+
+// Client component - call server function like any local function
+const handleClick = async () => {
+  const result = await echo(inputValue); // Direct server call!
+  setLog(JSON.stringify(result));
+};
+```
+
+#### 🚀 **Key Features**
+
+- **🎯 Direct Function Calls**: Call server functions like local functions
+- **📡 Automatic Networking**: Framework handles HTTP requests/responses
+- **🔒 Type Safety**: End-to-end TypeScript support with full type checking
+- **⚡ Zero Boilerplate**: No API routes, no fetch calls, no serialization code
+- **🌐 Environment Detection**: Server functions automatically run server-side only
+
+#### 📁 **File Structure**
+
+```
+routes/action/
+├── index@route.tsx        # Route page
+├── Echo@widget.tsx        # Interactive client component
+├── functions@action.ts    # Server-only functions
+└── styles.css            # Styling
+```
+
+#### 💻 **Complete Example**
+
+```tsx
+// functions@action.ts - Server functions
+export const echo = async (content: string) => {
+  // This code ONLY runs on the server
+  return {
+    message: content,
+    date: new Date().toISOString(),
+    respondent: typeof document === 'undefined' ? 'server' : 'client',
+  };
+};
+
+// Echo@widget.tsx - Client component
+import { useState } from 'react';
+import { echo } from './functions@action';
+
+export default function EchoWidget() {
+  const [inputValue, setInputValue] = useState('');
+  const [result, setResult] = useState('');
+
+  const handleSubmit = async () => {
+    // Direct server function call - no fetch, no API endpoints!
+    const response = await echo(inputValue);
+    setResult(JSON.stringify(response, null, 2));
+  };
+
+  return (
+    <>
+      <input
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+      />
+      <button onClick={handleSubmit}>Send to Server</button>
+      {result && <pre>{result}</pre>}
+    </>
+  );
+}
+```
+
+#### 🌟 **Why Server Actions Matter**
+
+1. **🎯 Simplicity**: Write server logic as simple functions, not API endpoints
+2. **⚡ Performance**: Automatic request optimization and batching
+3. **🔒 Security**: Server functions never expose internals to client
+4. **📱 Developer Experience**: Unified development model across client/server
+5. **🚀 Productivity**: Focus on business logic, not infrastructure code
+
+> **The Future of Full-Stack Development**: Server Actions represent a paradigm shift from thinking in terms of "API endpoints" to thinking in terms of "server functions" - making full-stack development as natural as writing single-tier applications.
+
+</details>
 
 <details>
 <summary><strong>HTTP Caching & Performance</strong></summary>
