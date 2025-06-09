@@ -77,11 +77,10 @@ npm run dev
 
 **Or try online examples:**
 
-| Example                                          | Description                              | Live Demo                                                                                                                                                          |
-| ------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [React](./examples/react)                        | React pages with React + Vue components  | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
-| [Vue](./examples/vue)                            | Vue pages with React + Vue components    | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
-| [Server Actions](./examples/react/routes/action) | Seamless client-to-server function calls | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
+| Example                   | Description                             | Live Demo                                                                                                                                                          |
+| ------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [React](./examples/react) | React pages with React + Vue components | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
+| [Vue](./examples/vue)     | Vue pages with React + Vue components   | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
 
 ## 🏗️ Core Architecture: Simplicity in Action
 
