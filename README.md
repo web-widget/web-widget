@@ -797,20 +797,17 @@ Web Widget provides enterprise-grade HTTP caching using standard Cache Control h
 ```tsx
 // index@route.tsx
 
-// Cache rendered pages using HTTP cache control directives
-export const handler = {
-  async GET(ctx) {
-    const response = await ctx.render();
-
-    // Set cache control headers for shared cache optimization
-    response.headers.set(
-      'cache-control',
-      's-maxage=60, ' + // Cache for 60 seconds in shared caches
-        'stale-if-error=604800, ' + // Serve stale content for 7 days on errors
-        'stale-while-revalidate=604800' // Background revalidation for 7 days
-    );
-
-    return response;
+export const config = {
+  cache: {
+    // Cache rendered pages using HTTP cache control directives
+    cacheControl: {
+      // Cache for 60 seconds in shared caches
+      sharedMaxAge: 60,
+      // Serve stale content for 7 days on errors
+      staleIfError: 604800,
+      // Background revalidation for 7 days
+      staleWhileRevalidate: 604800,
+    },
   },
 };
 
