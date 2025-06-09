@@ -17,6 +17,20 @@ Built on the philosophy of **"Simple yet Powerful"**, Web Widget breaks free fro
 
 > ⚠️ **Preview Release**: This project is in preview stage with API subject to changes.
 
+## 📋 Table of Contents
+
+- [💫 Design Philosophy](#-design-philosophy-simple-yet-powerful)
+- [✨ Why Web Widget?](#-why-web-widget)
+- [🚀 Quick Start](#-quick-start)
+- [🏗️ Core Architecture](#️-core-architecture-simplicity-in-action)
+- [🔥 Key Features](#-key-features-where-simple-meets-powerful)
+- [📁 Project Structure](#-project-structure-elegant-organization)
+- [🌍 Real-World Usage](#-real-world-usage-proven-in-production)
+- [📖 Documentation](#-documentation)
+- [🛠️ Development](#️-development-as-simple-as-it-gets)
+- [🚀 Try Online](#-try-online)
+- [🤝 Community](#-community)
+
 ## 💫 Design Philosophy: Simple yet Powerful
 
 Web Widget is crafted with an unwavering commitment to being **"Simple yet Powerful"** - this is what sets it apart from every other framework:
@@ -191,81 +205,7 @@ export default defineRouteComponent(function MixedPage() {
 - **Zero Config**: Sensible defaults that just work
 - **Smart Bundling**: Automatic dependency deduplication and sharing
 
-## 📁 Project Structure: Elegant Organization
-
-```
-my-web-widget-app/
-├── routes/                    # Route modules (server-side)
-│   ├── index@route.tsx       # → /
-│   ├── about@route.tsx       # → /about
-│   ├── blog/[slug]@route.tsx # → /blog/:slug
-│   └── api/hello@route.ts    # → /api/hello
-├── components/               # Shared components
-│   ├── Layout.tsx           # Regular components
-│   ├── Counter@widget.tsx   # React widget (isomorphic)
-│   └── Timer@widget.vue     # Vue widget (isomorphic)
-├── public/                  # Static files
-├── entry.client.ts         # Client entry
-├── entry.server.ts         # Server entry
-├── importmap.client.json   # Production module sharing config
-└── package.json
-```
-
-_Simple structure, powerful capabilities._
-
-## 📚 Learn More
-
-<details>
-<summary><strong>🛣️ Advanced Routing</strong></summary>
-
-### Dynamic Routes
-
-```tsx
-// routes/users/[id]@route.tsx
-export default defineRouteComponent(function UserPage(props) {
-  const { id } = props.params;
-  return <div>User ID: {id}</div>;
-});
-```
-
-### Data Loading
-
-```tsx
-// routes/posts@route.tsx
-export const handler = defineRouteHandler({
-  async GET(ctx) {
-    const data = await fetchPosts();
-    return ctx.render({ data });
-  },
-});
-
-export default defineRouteComponent(function PostsPage({ data }) {
-  return (
-    <div>
-      {data.map((post) => (
-        <article key={post.id}>{post.title}</article>
-      ))}
-    </div>
-  );
-});
-```
-
-</details>
-
-<details>
-<summary><strong>🧩 Widget Advanced Features</strong></summary>
-
-### Render Control
-
-```tsx
-// Server-only rendering
-<StaticChart renderStage="server" data={chartData} />
-
-// Client-only rendering
-<InteractiveMap renderStage="client" location={coords} />
-```
-
-### End-to-End State Caching: Zero Hydration Errors
+### 🚀 End-to-End State Caching: Zero Hydration Errors
 
 Web Widget solves SSR's biggest challenge: **hydration mismatches**. Our cache providers ensure server and client always render identical content.
 
@@ -316,249 +256,70 @@ const userData = syncCacheProvider('user-profile', async () => {
 - ✅ **Optimal Performance**: Data fetched once, used everywhere
 - ✅ **Type Safe**: Full TypeScript support with inferred types
 
-> **Learn More**: See detailed examples and API reference in [Cache Provider Documentation](./docs/helpers/lifecycle-cache.md)
+## 📁 Project Structure: Elegant Organization
+
+```
+my-web-widget-app/
+├── routes/                    # Route modules (server-side)
+│   ├── index@route.tsx       # → /
+│   ├── about@route.tsx       # → /about
+│   ├── blog/[slug]@route.tsx # → /blog/:slug
+│   └── api/hello@route.ts    # → /api/hello
+├── components/               # Shared components
+│   ├── Layout.tsx           # Regular components
+│   ├── Counter@widget.tsx   # React widget (isomorphic)
+│   └── Timer@widget.vue     # Vue widget (isomorphic)
+├── public/                  # Static files
+├── entry.client.ts         # Client entry
+├── entry.server.ts         # Server entry
+├── importmap.client.json   # Production module sharing config
+└── package.json
+```
+
+_Simple structure, powerful capabilities._
+
+## 📖 Documentation
+
+### 🛣️ Routing & Navigation
+
+<details>
+<summary><strong>File-System Routing</strong></summary>
+
+Web Widget supports file-system based routing conventions, automatically generating `routemap.server.json` during development.
+
+#### File Naming Rules
+
+| File Name                       | Route Pattern          | Matching Paths             |
+| ------------------------------- | ---------------------- | -------------------------- |
+| `index@route.ts`                | `/`                    | `/`                        |
+| `about@route.ts`                | `/about`               | `/about`                   |
+| `blog/[slug]@route.ts`          | `/blog/:slug`          | `/blog/foo`, `/blog/bar`   |
+| `blog/[slug]/comments@route.ts` | `/blog/:slug/comments` | `/blog/foo/comments`       |
+| `old/[...path]@route.ts`        | `/old/:path*`          | `/old/foo`, `/old/bar/baz` |
+| `[[lang]]/index@route.ts`       | `/{/:lang}?`           | `/`, `/en`, `/zh-cn`       |
+
+#### Route Groups
+
+Create route groups using parentheses-wrapped folder names:
+
+```
+└── routes
+    ├── (middlewares)
+    │   └── [...all]@middleware.ts # -> /:all*
+    ├── (vue2)
+    │   ├── package.json
+    │   └── marketing@route.vue    # -> /marketing
+    └── (vue3)
+        ├── package.json
+        └── info@route.vue         # -> /info
+```
 
 </details>
 
 <details>
-<summary><strong>🌐 Web Standards APIs</strong></summary>
+<summary><strong>Route Module Examples</strong></summary>
 
-Full Web Standards support in all environments:
-
-- **Network**: `fetch`, `Request`, `Response`, `Headers`, `WebSocket`
-- **Encoding**: `TextDecoder`, `TextEncoder`, `atob`, `btoa`
-- **Streams**: `ReadableStream`, `WritableStream`, `TransformStream`
-- **Crypto**: `crypto`, `CryptoKey`, `SubtleCrypto`
-- **Other**: `AbortController`, `URLPattern`, `structuredClone`
-
-</details>
-
-<details>
-<summary><strong>⚡ Production Module Sharing</strong></summary>
-
-Web Widget leverages **Import Maps** during production builds to eliminate dependency duplication and optimize performance.
-
-### 📝 **Production Build Configuration**
-
-```json
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
-    "vue": "https://esm.sh/vue@3.4.8"
-  }
-}
-```
-
-### 🌐 **Production Advantages**
-
-| Traditional Bundles       | Import Maps (Production)  |
-| ------------------------- | ------------------------- |
-| ❌ Bundler-specific       | ✅ Native Web Standard    |
-| ❌ Duplicate dependencies | ✅ Perfect module sharing |
-| ❌ Per-app bundles        | ✅ Shared across sites    |
-| ❌ Bundle invalidation    | ✅ Browser-native caching |
-| ❌ Includes all deps      | ✅ Minimal app code only  |
-
-**Core Benefits:**
-
-- 📦 **Smaller Bundles**: Framework code loaded separately
-- 🚀 **Better Caching**: Dependencies shared across applications
-- 🌐 **Web Standard**: Native browser support with polyfill fallback
-
-### Browser Compatibility & Polyfill Strategy
-
-**🎯 Automatic Polyfill Loading:**
-
-Web Widget **automatically detects** browser capabilities and loads polyfills only when needed - zero configuration required.
-
-```html
-<!-- Framework automatically injects this detection logic -->
-<script>
-  // Auto-detect Import Maps support
-  if (!HTMLScriptElement.supports?.('importmap')) {
-    // Framework automatically loads polyfill for older browsers
-    import(
-      'https://ga.jspm.io/npm:es-module-shims@1.8.0/dist/es-module-shims.js'
-    );
-  }
-</script>
-```
-
-**📊 Compatibility Matrix:**
-
-Chrome (63+) | Firefox (67+) | Safari (11.1+)
-
-**🚀 Seamless Experience:**
-
-- ✅ **Modern Browsers**: Native Import Maps - maximum performance
-- ✅ **Legacy Browsers**: Automatic polyfill injection - same functionality
-- ✅ **Zero Configuration**: Framework handles detection and loading
-- ✅ **Progressive Enhancement**: Optimal performance as browsers evolve
-
-> **Production-Only Feature**: `importmap.client.json` is used exclusively during Vite production builds to optimize module loading.
-
-</details>
-
-<details>
-<summary><strong>🗺️ Advanced Import Maps Configuration</strong></summary>
-
-### Production-Ready Import Maps
-
-```json
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
-    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-    "vue": "https://esm.sh/vue@3.4.8",
-    "lodash": "https://esm.sh/lodash@4.17.21",
-    "date-fns": "https://esm.sh/date-fns@2.30.0",
-    "@company/ui-kit": "https://cdn.company.com/ui-kit@1.2.0/index.js",
-    "@company/analytics": "https://cdn.company.com/analytics@2.1.0/index.js"
-  },
-  "scopes": {
-    "/legacy/": {
-      "react": "https://esm.sh/react@17.0.2",
-      "react-dom": "https://esm.sh/react-dom@17.0.2"
-    }
-  }
-}
-```
-
-### Performance Impact
-
-```
-Traditional Bundle:
-├── vendor.js (2.5MB) - All dependencies
-├── app.js (800KB) - Application code
-└── Total: 3.3MB first load
-
-Import Maps Approach:
-├── react (45KB) - Cached across sites
-├── vue (50KB) - Cached across sites
-├── app.js (200KB) - Only app code
-└── Total: 295KB first load + cached deps
-```
-
-### Browser Compatibility & Polyfill Strategy
-
-**🎯 Automatic Polyfill Loading:**
-
-Web Widget **automatically detects** browser capabilities and loads polyfills only when needed - zero configuration required.
-
-```html
-<!-- Framework automatically injects this detection logic -->
-<script>
-  // Auto-detect Import Maps support
-  if (!HTMLScriptElement.supports?.('importmap')) {
-    // Framework automatically loads polyfill for older browsers
-    import(
-      'https://ga.jspm.io/npm:es-module-shims@1.8.0/dist/es-module-shims.js'
-    );
-  }
-</script>
-```
-
-**📊 Compatibility Matrix:**
-
-Chrome (63+) | Firefox (67+) | Safari (11.1+)
-
-**🚀 Seamless Experience:**
-
-- ✅ **Modern Browsers**: Native Import Maps - maximum performance
-- ✅ **Legacy Browsers**: Automatic polyfill injection - same functionality
-- ✅ **Zero Configuration**: Framework handles detection and loading
-- ✅ **Progressive Enhancement**: Optimal performance as browsers evolve
-
-> **Smart Loading**: The framework intelligently serves native Import Maps to modern browsers and automatically polyfills older ones - your code stays identical across all environments.
-
-### 📝 **Simple Configuration, Powerful Results**
-
-```json
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
-    "vue": "https://esm.sh/vue@3.4.8"
-  }
-}
-```
-
-**Benefits in action:**
-
-- 📦 **Automatic Deduplication**: React loaded once, shared everywhere
-- 🚀 **CDN Optimization**: Load popular libraries from fast CDNs
-- 🔧 **Development Speed**: Instant hot reloads, no rebundling
-- 📱 **Perfect Caching**: Browser-native module caching
-
-```tsx
-// In your components - just import naturally
-import React from 'react'; // Shared via importmap
-import { createApp } from 'vue'; // Shared via importmap
-import MyComponent from '@components/MyComponent'; // Path mapping
-
-// No build-time complexity, maximum runtime efficiency
-```
-
-> **The Web Platform Way**: Instead of reinventing module sharing, we embrace the native solution that browsers are optimizing for.
-
-</details>
-
-## 🛠️ Development: As Simple as It Gets
-
-Get up and running in seconds - because powerful tools should be easy to use:
-
-```bash
-# Install dependencies
-npm install
-
-# Development server with hot reload
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
-```
-
-_That's it. No complex configuration files, no setup wizards, no learning curve._
-
-## 🌍 Real-World Usage: Proven in Production
-
-**Simple to adopt, powerful in production** - Web Widget already powers applications serving millions of users:
-
-- **[insmind.com](https://www.insmind.com)** - React pages with Vue 3 + Vue 2 components
-  - _"Seamlessly integrated legacy Vue 2 components with modern Vue 3 features"_
-- **[gaoding.com](https://www.gaoding.com)** - React pages with Vue 2 + Lit components
-  - _"Migrated incrementally from Vue 2 to React without downtime"_
-
-> These production deployments prove that our philosophy works: **complex enterprise challenges solved with elegant simplicity**.
-
-## 🤝 Community
-
-- **GitHub**: [web-widget/web-widget](https://github.com/web-widget/web-widget)
-- **Issues**: [Report bugs or request features](https://github.com/web-widget/web-widget/issues)
-- **Discussions**: [Join the community](https://github.com/web-widget/web-widget/discussions)
-
-_Join developers who believe that powerful technology should be simple to use._
-
-## 🚀 Try Online
-
-[![Open in VS Code](https://img.shields.io/badge/Open%20in-VS%20Code-blue?logo=visualstudiocode)](https://vscode.dev/github/web-widget/web-widget/tree/main/examples/)
-[![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-GitHub%20Codespaces-black?logo=github)](https://codespaces.new/web-widget/web-widget/tree/main/examples/)
-[![Edit in CodeSandbox](https://img.shields.io/badge/Edit%20in-CodeSandbox-blue?logo=codesandbox)](https://codesandbox.io/s/github/web-widget/web-widget/tree/main/examples/)
-[![Open in Gitpod](https://img.shields.io/badge/Open%20in-Gitpod-orange?logo=gitpod)](https://gitpod.io/#https://github.com/web-widget/web-widget/tree/main/examples/)
-
----
-
-## 📖 Detailed Documentation
-
-<details>
-<summary><strong>📋 Complete Route Module Examples</strong></summary>
-
-### Basic Route Module
+#### Basic Route Module
 
 ```tsx
 // ./routes/index@route.tsx
@@ -579,7 +340,7 @@ export default defineRouteComponent(function Page() {
 });
 ```
 
-### Data Fetching and Processing
+#### Data Fetching and Processing
 
 ```tsx
 // ./routes/fetch@route.tsx
@@ -630,7 +391,7 @@ export default defineRouteComponent<PageData>(function Page({ data }) {
 });
 ```
 
-### Route Configuration
+#### Route Configuration
 
 Routes are configured through the `routemap.server.json` file:
 
@@ -659,9 +420,73 @@ Routes are configured through the `routemap.server.json` file:
 </details>
 
 <details>
-<summary><strong>🧩 Complete Widget Examples</strong></summary>
+<summary><strong>Advanced Routing Features</strong></summary>
 
-### React Widget with Styles
+#### Dynamic Routes
+
+```tsx
+// routes/users/[id]@route.tsx
+export default defineRouteComponent(function UserPage(props) {
+  const { id } = props.params;
+  return <div>User ID: {id}</div>;
+});
+```
+
+#### Navigation and Redirects
+
+```tsx
+// Simple redirects in route handlers
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    if (shouldRedirect) {
+      return redirect('/new-path', 301);
+    }
+    return ctx.render();
+  },
+});
+```
+
+#### Error Handling
+
+```tsx
+// Route-level error handling
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    if (!data) {
+      throw createHttpError(404, 'Not Found');
+    }
+    return ctx.render({ data });
+  },
+});
+```
+
+#### Page Metadata Management
+
+```tsx
+export const meta = defineMeta({
+  title: 'My Page',
+  description: 'Page description',
+});
+
+// Dynamic metadata in handlers
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    const newMeta = mergeMeta(ctx.meta, {
+      title: `User: ${user.name}`,
+    });
+    return ctx.render({ meta: newMeta });
+  },
+});
+```
+
+</details>
+
+### 🧩 Component Development
+
+<details>
+<summary><strong>Widget Module Examples</strong></summary>
+
+#### React Widget with Styles
 
 ```tsx
 // ./components/Counter@widget.tsx
@@ -685,7 +510,7 @@ export default function Counter(props: CounterProps) {
 }
 ```
 
-### Vue Widget with Scoped Styles
+#### Vue Widget with Scoped Styles
 
 ```vue
 <!-- ./components/Counter@widget.vue -->
@@ -713,7 +538,7 @@ const count = ref(props.count);
 </style>
 ```
 
-### Using Widgets in Routes
+#### Using Widgets in Routes
 
 ```tsx
 // ./routes/index@route.tsx
@@ -743,56 +568,19 @@ export default defineRouteComponent(function Page() {
 </details>
 
 <details>
-<summary><strong>🔧 Advanced Features</strong></summary>
+<summary><strong>Advanced Widget Features</strong></summary>
 
-### Navigation and Redirects
-
-```tsx
-// Simple redirects in route handlers
-export const handler = defineRouteHandler({
-  async GET(ctx) {
-    if (shouldRedirect) {
-      return redirect('/new-path', 301);
-    }
-    return ctx.render();
-  },
-});
-```
-
-### Error Handling
+#### Render Control
 
 ```tsx
-// Route-level error handling
-export const handler = defineRouteHandler({
-  async GET(ctx) {
-    if (!data) {
-      throw createHttpError(404, 'Not Found');
-    }
-    return ctx.render({ data });
-  },
-});
+// Server-only rendering
+<StaticChart renderStage="server" data={chartData} />
+
+// Client-only rendering
+<InteractiveMap renderStage="client" location={coords} />
 ```
 
-### Page Metadata Management
-
-```tsx
-export const meta = defineMeta({
-  title: 'My Page',
-  description: 'Page description',
-});
-
-// Dynamic metadata in handlers
-export const handler = defineRouteHandler({
-  async GET(ctx) {
-    const newMeta = mergeMeta(ctx.meta, {
-      title: `User: ${user.name}`,
-    });
-    return ctx.render({ meta: newMeta });
-  },
-});
-```
-
-### Working with Context
+#### Working with Context
 
 Access request data, parameters, and state in your components:
 
@@ -805,7 +593,85 @@ export default function MyComponent() {
 }
 ```
 
-### HTTP Caching Middleware
+</details>
+
+### 🌐 Web Standards & APIs
+
+<details>
+<summary><strong>Web Standards APIs</strong></summary>
+
+Full Web Standards support in all environments:
+
+- **Network**: `fetch`, `Request`, `Response`, `Headers`, `WebSocket`
+- **Encoding**: `TextDecoder`, `TextEncoder`, `atob`, `btoa`
+- **Streams**: `ReadableStream`, `WritableStream`, `TransformStream`
+- **Crypto**: `crypto`, `CryptoKey`, `SubtleCrypto`
+- **Other**: `AbortController`, `URLPattern`, `structuredClone`
+
+</details>
+
+<details>
+<summary><strong>Advanced Import Maps Configuration</strong></summary>
+
+#### Production-Ready Import Maps
+
+```json
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "vue": "https://esm.sh/vue@3.4.8",
+    "lodash": "https://esm.sh/lodash@4.17.21",
+    "date-fns": "https://esm.sh/date-fns@2.30.0",
+    "@company/ui-kit": "https://cdn.company.com/ui-kit@1.2.0/index.js",
+    "@company/analytics": "https://cdn.company.com/analytics@2.1.0/index.js"
+  },
+  "scopes": {
+    "/legacy/": {
+      "react": "https://esm.sh/react@17.0.2",
+      "react-dom": "https://esm.sh/react-dom@17.0.2"
+    }
+  }
+}
+```
+
+#### Smart Loading Strategy
+
+```json
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "vue": "https://esm.sh/vue@3.4.8"
+  }
+}
+```
+
+**Benefits in action:**
+
+- 📦 **Automatic Deduplication**: React loaded once, shared everywhere
+- 🚀 **CDN Optimization**: Load popular libraries from fast CDNs
+- 🔧 **Development Speed**: Instant hot reloads, no rebundling
+- 📱 **Perfect Caching**: Browser-native module caching
+
+```tsx
+// In your components - just import naturally
+import React from 'react'; // Shared via importmap
+import { createApp } from 'vue'; // Shared via importmap
+import MyComponent from '@components/MyComponent'; // Path mapping
+
+// No build-time complexity, maximum runtime efficiency
+```
+
+> **The Web Platform Way**: Instead of reinventing module sharing, we embrace the native solution that browsers are optimizing for.
+
+</details>
+
+### 🔧 Advanced Features
+
+<details>
+<summary><strong>HTTP Caching & Performance</strong></summary>
 
 Web Widget provides enterprise-grade HTTP caching using standard Cache Control headers:
 
@@ -824,43 +690,9 @@ Web Widget provides enterprise-grade HTTP caching using standard Cache Control h
 </details>
 
 <details>
-<summary><strong>🗂️ File-System Routing</strong></summary>
+<summary><strong>Project Setup & Configuration</strong></summary>
 
-Web Widget supports file-system based routing conventions, automatically generating `routemap.server.json` during development.
-
-### File Naming Rules
-
-| File Name                       | Route Pattern          | Matching Paths             |
-| ------------------------------- | ---------------------- | -------------------------- |
-| `index@route.ts`                | `/`                    | `/`                        |
-| `about@route.ts`                | `/about`               | `/about`                   |
-| `blog/[slug]@route.ts`          | `/blog/:slug`          | `/blog/foo`, `/blog/bar`   |
-| `blog/[slug]/comments@route.ts` | `/blog/:slug/comments` | `/blog/foo/comments`       |
-| `old/[...path]@route.ts`        | `/old/:path*`          | `/old/foo`, `/old/bar/baz` |
-| `[[lang]]/index@route.ts`       | `/{/:lang}?`           | `/`, `/en`, `/zh-cn`       |
-
-### Route Groups
-
-Create route groups using parentheses-wrapped folder names:
-
-```
-└── routes
-    ├── (middlewares)
-    │   └── [...all]@middleware.ts # -> /:all*
-    ├── (vue2)
-    │   ├── package.json
-    │   └── marketing@route.vue    # -> /marketing
-    └── (vue3)
-        ├── package.json
-        └── info@route.vue         # -> /info
-```
-
-</details>
-
-<details>
-<summary><strong>🏗️ Project Setup</strong></summary>
-
-### Complete Project Structure
+#### Complete Project Structure
 
 ```
 my-web-widget-app/
@@ -883,7 +715,7 @@ my-web-widget-app/
 └── vite.config.ts
 ```
 
-### Package Dependencies
+#### Package Dependencies
 
 ```json
 {
@@ -908,7 +740,7 @@ my-web-widget-app/
 }
 ```
 
-### File Description
+#### File Description
 
 - `routes/**/*@route.*` Route modules that only run on the server side
 - `routes/**/*@middleware.*` Middleware that only runs on the server side
@@ -921,7 +753,9 @@ my-web-widget-app/
 </details>
 
 <details>
-<summary><strong>💡 Best Practices</strong></summary>
+<summary><strong>Best Practices & Tips</strong></summary>
+
+#### Development Best Practices
 
 1. **Technology Stack Isolation**: Use widget modules to achieve isolation of different technology stack components
 2. **Progressive Enhancement**: Prioritize server-side rendering, add client-side interaction as needed
@@ -929,14 +763,14 @@ my-web-widget-app/
 4. **Error Handling**: Implement comprehensive error boundaries and fallback solutions
 5. **Type Safety**: Make full use of TypeScript's type system
 
-### Performance Tips
+#### Performance Tips
 
 - Use `renderStage="server"` for static content that doesn't need interactivity
 - Use `renderStage="client"` for components that require browser APIs
 - Implement proper caching strategies for expensive operations
 - Keep server components lightweight to improve SSR performance
 
-### Code Organization
+#### Code Organization
 
 - Group related routes using parentheses folders
 - Share common components through widget modules
@@ -945,39 +779,40 @@ my-web-widget-app/
 
 </details>
 
-## ⚡ Native Module Sharing: Production-Ready Web Standards
+## 🛠️ Development: As Simple as It Gets
 
-Web Widget leverages **Import Maps** during production builds to eliminate dependency duplication and optimize performance.
+Get up and running in seconds - because powerful tools should be easy to use:
 
-### 📝 **Production Build Configuration**
+```bash
+# Install dependencies
+npm install
 
-```json
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
-    "vue": "https://esm.sh/vue@3.4.8"
-  }
-}
+# Development server with hot reload
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
 ```
 
-### 🌐 **Production Advantages**
+_That's it. No complex configuration files, no setup wizards, no learning curve._
 
-| Traditional Bundles       | Import Maps (Production)  |
-| ------------------------- | ------------------------- |
-| ❌ Bundler-specific       | ✅ Native Web Standard    |
-| ❌ Duplicate dependencies | ✅ Perfect module sharing |
-| ❌ Per-app bundles        | ✅ Shared across sites    |
-| ❌ Bundle invalidation    | ✅ Browser-native caching |
-| ❌ Includes all deps      | ✅ Minimal app code only  |
+## 🚀 Try Online
 
-**Core Benefits:**
+[![Open in VS Code](https://img.shields.io/badge/Open%20in-VS%20Code-blue?logo=visualstudiocode)](https://vscode.dev/github/web-widget/web-widget/tree/main/examples/)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-GitHub%20Codespaces-black?logo=github)](https://codespaces.new/web-widget/web-widget/tree/main/examples/)
+[![Edit in CodeSandbox](https://img.shields.io/badge/Edit%20in-CodeSandbox-blue?logo=codesandbox)](https://codesandbox.io/s/github/web-widget/web-widget/tree/main/examples/)
+[![Open in Gitpod](https://img.shields.io/badge/Open%20in-Gitpod-orange?logo=gitpod)](https://gitpod.io/#https://github.com/web-widget/web-widget/tree/main/examples/)
 
-- 📦 **Smaller Bundles**: Framework code loaded separately
-- 🚀 **Better Caching**: Dependencies shared across applications
-- 🌐 **Web Standard**: Native browser support with polyfill fallback
+## 🤝 Community
 
-> **Production-Only Feature**: `importmap.client.json` is used exclusively during Vite production builds to optimize module loading.
+- **GitHub**: [web-widget/web-widget](https://github.com/web-widget/web-widget)
+- **Issues**: [Report bugs or request features](https://github.com/web-widget/web-widget/issues)
+- **Discussions**: [Join the community](https://github.com/web-widget/web-widget/discussions)
+
+_Join developers who believe that powerful technology should be simple to use._
 
 ---
 
