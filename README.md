@@ -12,25 +12,13 @@
 [![RFC Compliant](https://img.shields.io/badge/RFC%207234-Compliant-green.svg)](https://tools.ietf.org/html/rfc7234)
 
 > **🌟 A revolutionary meta-framework that seamlessly integrates multiple frontend technologies with unprecedented simplicity.**
+>
+> ⚠️ **Preview Release**: This project is currently in preview stage with API subject to changes. Some features mentioned may be under development.
 
 Break free from technology stack lock-in while maintaining elegant simplicity. Experience the power of running React, Vue, and other frameworks together with ease.
 
-> ⚠️ **Preview Release**: This project is currently in preview stage with API subject to changes. Some features mentioned may be under development.
-
-## 🏆 Real-World Applications
-
-Web Widget is being used in production applications, demonstrating its practical viability:
-
-| **Application**                            | **Architecture**                       | **Use Case**                                                                 |
-| ------------------------------------------ | -------------------------------------- | ---------------------------------------------------------------------------- |
-| **[insmind.com](https://www.insmind.com)** | React pages + Vue 3 + Vue 2 components | _"Seamlessly integrated legacy Vue 2 components with modern Vue 3 features"_ |
-| **[gaoding.com](https://www.gaoding.com)** | React pages + Vue 2 + Lit components   | _"Migrated incrementally from Vue 2 to React without downtime"_              |
-
-> **💡 These examples showcase the framework's ability to handle complex multi-technology scenarios in real applications.**
-
 ## 📋 Table of Contents
 
-- [🏆 Real-World Applications](#-real-world-applications)
 - [💫 Design Philosophy](#-design-philosophy-simplicity-meets-power)
 - [✨ Why Web Widget?](#-why-web-widget)
 - [🚀 Quick Start](#-quick-start)
@@ -83,6 +71,13 @@ Applications like **insmind.com** and **gaoding.com** demonstrate these benefits
 - Legacy component preservation while adopting modern frameworks
 - Zero-downtime migrations through incremental transitions
 - Successful mixing of multiple technology stacks in production
+
+| **Application**                            | **Architecture**                       | **Use Case**                                                                 |
+| ------------------------------------------ | -------------------------------------- | ---------------------------------------------------------------------------- |
+| **[insmind.com](https://www.insmind.com)** | React pages + Vue 3 + Vue 2 components | _"Seamlessly integrated legacy Vue 2 components with modern Vue 3 features"_ |
+| **[gaoding.com](https://www.gaoding.com)** | React pages + Vue 2 + Lit components   | _"Migrated incrementally from Vue 2 to React without downtime"_              |
+
+> **💡 These examples showcase the framework's ability to handle complex multi-technology scenarios in real applications.**
 
 > **The approach works**: Web Widget provides a practical path to multi-framework architecture without the usual complexity overhead.
 
