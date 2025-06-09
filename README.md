@@ -794,7 +794,9 @@ Web Widget provides enterprise-grade HTTP caching using standard Cache Control h
 - **ETag & Conditional Requests**: Efficient cache validation
 - **Pluggable Storage**: Memory, Redis, disk, or custom backends via [SharedCache](https://github.com/web-widget/shared-cache)
 
-```ts
+```tsx
+// index@route.tsx
+
 // Cache rendered pages using HTTP cache control directives
 export const handler = {
   async GET(ctx) {
@@ -811,6 +813,8 @@ export const handler = {
     return response;
   },
 };
+
+// ...
 ```
 
 > This mode requires integrating the [@web-widget/middlewares/cache](https://github.com/web-widget/web-widget/blob/main/packages/middlewares/src/cache.ts) middleware
