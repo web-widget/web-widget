@@ -765,33 +765,7 @@ const count = ref(props.count);
 </template>
 
 <style scoped>
-.counter {
-  display: inline-block;
-  line-height: 1em;
-  padding: 15px;
-  border-radius: 30px;
-  font-size: 16px;
-  border: 2px solid #42b883;
-}
-
-.count {
-  margin: 0 10px;
-  font-weight: bold;
-}
-
-button {
-  background: #42b883;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #369870;
-}
+/*...*/
 </style>
 ```
 
@@ -1047,8 +1021,10 @@ Web Widget leverages **Import Maps** during production builds to eliminate depen
 
 | Traditional Bundles       | Import Maps (Production)  |
 | ------------------------- | ------------------------- |
+| ❌ Bundler-specific       | ✅ Native Web Standard    |
 | ❌ Duplicate dependencies | ✅ Perfect module sharing |
 | ❌ Per-app bundles        | ✅ Shared across sites    |
+| ❌ Bundle invalidation    | ✅ Browser-native caching |
 | ❌ Includes all deps      | ✅ Minimal app code only  |
 
 **Core Benefits:**
