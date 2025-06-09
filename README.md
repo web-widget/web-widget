@@ -794,6 +794,27 @@ Web Widget provides enterprise-grade HTTP caching using standard Cache Control h
 - **ETag & Conditional Requests**: Efficient cache validation
 - **Pluggable Storage**: Memory, Redis, disk, or custom backends via [SharedCache](https://github.com/web-widget/shared-cache)
 
+```ts
+// Cache rendered pages using HTTP cache control directives
+export const handler = {
+  async GET(ctx) {
+    const response = await ctx.render();
+
+    // Set cache control headers for shared cache optimization
+    response.headers.set(
+      'cache-control',
+      's-maxage=60, ' + // Cache for 60 seconds in shared caches
+        'stale-if-error=604800, ' + // Serve stale content for 7 days on errors
+        'stale-while-revalidate=604800' // Background revalidation for 7 days
+    );
+
+    return response;
+  },
+};
+```
+
+> This mode requires integrating the [@web-widget/middlewares/cache](https://github.com/web-widget/web-widget/blob/main/packages/middlewares/src/cache.ts) middleware
+
 </details>
 
 <details>
