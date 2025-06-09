@@ -143,7 +143,7 @@ import ReactCounter from './Counter@widget.tsx';
 import VueCounter from './Counter@widget.vue';
 import { toReact } from '@web-widget/vue';
 
-const VueCounterAsReact = toReact(VueCounter);
+const RVueCounter = toReact(VueCounter);
 
 export default defineRouteComponent(function MixedPage() {
   return (
@@ -152,7 +152,7 @@ export default defineRouteComponent(function MixedPage() {
       <ReactCounter count={0} />
 
       <h2>Vue Component (as React):</h2>
-      <VueCounterAsReact count={0} />
+      <RVueCounter count={0} />
     </div>
   );
 });
@@ -165,6 +165,8 @@ export default defineRouteComponent(function MixedPage() {
 - **Streaming SSR**: Pages start rendering before all data is loaded
 - **Selective Hydration**: Only interactive components hydrate on client
 - **Optimized Bundles**: Server components reduce client-side JavaScript
+- **Zero Hydration Errors**: End-to-end state caching eliminates SSR mismatches
+- **HTTP Caching**: Standards-based page caching with stale-while-revalidate patterns
 
 ### 🔄 **Technology Flexibility Without Complexity**
 
@@ -188,6 +190,8 @@ export default defineRouteComponent(function MixedPage() {
 - **Error Boundaries**: Comprehensive error handling and fallbacks
 - **Zero Config**: Sensible defaults that just work
 - **Smart Bundling**: Automatic dependency deduplication and sharing
+
+> **📚 Complete API Reference**: For detailed documentation and advanced examples, see [Helpers API Documentation](./docs/helpers/README.md)
 
 ## 📁 Project Structure: Elegant Organization
 
@@ -277,17 +281,58 @@ export default defineRouteComponent(function DashboardLayout({ children }) {
 <InteractiveMap renderStage="client" location={coords} />
 ```
 
-### Caching
+### End-to-End State Caching: Zero Hydration Errors
+
+Web Widget solves SSR's biggest challenge: **hydration mismatches**. Our cache providers ensure server and client always render identical content.
+
+#### 🎯 **The Problem Solved**
 
 ```tsx
-// Async cache in Vue components
-const data = await asyncCacheProvider('cache-key', async () => {
-  return await fetchExpensiveData();
+// ❌ Traditional SSR: Hydration mismatches
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null); // Server: null, Client: fetched data
+
+  useEffect(() => {
+    fetchUser(userId).then(setUser); // Only runs on client
+  }, []);
+
+  return <div>{user?.name || 'Loading...'}</div>; // Different on server vs client
+}
+
+// ✅ Web Widget: Perfect hydration
+function UserProfile({ userId }) {
+  const user = syncCacheProvider(`user-${userId}`, () => fetchUser(userId));
+
+  return <div>{user.name}</div>; // Identical on server and client
+}
+```
+
+#### 🔄 **How It Works**
+
+1. **Server**: Execute data fetching, cache results
+2. **Transfer**: Automatically embed cached data in HTML
+3. **Client**: Read cached data, skip re-fetching
+
+```tsx
+// Vue 3: Use asyncCacheProvider for top-level await
+const userData = await asyncCacheProvider('user-profile', async () => {
+  return fetch('/api/user').then((r) => r.json());
 });
 
-// Sync cache in React components
-const data = syncCacheProvider('cache-key', fetchData);
+// React: Use syncCacheProvider for hook-like behavior
+const userData = syncCacheProvider('user-profile', async () => {
+  return fetch('/api/user').then((r) => r.json());
+});
 ```
+
+#### 🚀 **Key Benefits**
+
+- ✅ **Zero Hydration Errors**: Perfect server-client state synchronization
+- ✅ **Zero Configuration**: Framework handles everything automatically
+- ✅ **Optimal Performance**: Data fetched once, used everywhere
+- ✅ **Type Safe**: Full TypeScript support with inferred types
+
+> **Learn More**: See detailed examples and API reference in [Cache Provider Documentation](./docs/helpers/lifecycle-cache.md)
 
 </details>
 
@@ -792,26 +837,30 @@ export default defineRouteComponent(function Page() {
 <details>
 <summary><strong>🔧 Advanced Features</strong></summary>
 
-### Error Handling
-
-Web Widget provides comprehensive error handling with route-level fallbacks and global error boundaries.
+### Navigation and Redirects
 
 ```tsx
-// ./routes/error-example@route.tsx
-import {
-  defineRouteHandler,
-  defineRouteComponent,
-  defineRouteFallbackComponent,
-} from '@web-widget/helpers';
-import { createHttpError } from '@web-widget/helpers/error';
-
+// Simple redirects in route handlers
 export const handler = defineRouteHandler({
   async GET(ctx) {
-    // ...
+    if (shouldRedirect) {
+      return redirect('/new-path', 301);
+    }
+    return ctx.render();
+  },
+});
+```
+
+### Error Handling
+
+```tsx
+// Route-level error handling
+export const handler = defineRouteHandler({
+  async GET(ctx) {
     if (!data) {
       throw createHttpError(404, 'Not Found');
     }
-    // ...
+    return ctx.render({ data });
   },
 });
 ```
@@ -819,147 +868,50 @@ export const handler = defineRouteHandler({
 ### Page Metadata Management
 
 ```tsx
-// ./routes/meta@route.tsx
-import {
-  defineMeta,
-  defineRouteComponent,
-  defineRouteHandler,
-  mergeMeta,
-} from '@web-widget/helpers';
-import BaseLayout from './components/BaseLayout';
-
 export const meta = defineMeta({
-  title: 'Meta Example',
-  description: 'HTML Meta Data Example',
-  meta: [
-    {
-      name: 'keywords',
-      content: 'web-widget, meta, seo',
-    },
-    {
-      property: 'og:title',
-      content: 'Web Widget Meta Example',
-    },
-  ],
+  title: 'My Page',
+  description: 'Page description',
 });
 
+// Dynamic metadata in handlers
 export const handler = defineRouteHandler({
   async GET(ctx) {
     const newMeta = mergeMeta(ctx.meta, {
-      title: '😄 Dynamic Title!',
-      meta: [
-        {
-          name: 'description',
-          content: 'Dynamically generated description',
-        },
-      ],
+      title: `User: ${user.name}`,
     });
-
     return ctx.render({ meta: newMeta });
   },
 });
-
-export default defineRouteComponent(function Page() {
-  return (
-    <BaseLayout>
-      <h1>Page Metadata Example</h1>
-      <p>View page source to see dynamically generated meta tags</p>
-    </BaseLayout>
-  );
-});
 ```
 
-### Data Caching
+### Working with Context
 
-#### Async Cache in Vue 3 Components
-
-```vue
-<!-- ./components/GithubUser@widget.vue -->
-<script setup lang="ts">
-import { asyncCacheProvider } from '@web-widget/helpers/cache';
-import { ref } from 'vue';
-
-const props = defineProps({
-  username: String,
-});
-
-const url = `https://api.github.com/users/${props.username}`;
-const cacheKey = `github-user-${props.username}`;
-
-const data = await asyncCacheProvider(cacheKey, async () => {
-  console.log('Fetching user data...');
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch user data: ${response.statusText}`);
-  }
-  const { name, location, avatar_url } = await response.json();
-  return { name, location, avatar_url };
-});
-
-const show = ref(false);
-</script>
-
-<template>
-  <div>
-    <button @click="show = !show">
-      {{ show ? 'Hide' : 'Show' }} GitHub User Info
-    </button>
-    <div v-show="show">
-      <img :src="data.avatar_url" :alt="data.name" width="50" />
-      <p>
-        <strong>{{ data.name }}</strong>
-      </p>
-      <p>{{ data.location }}</p>
-    </div>
-  </div>
-</template>
-```
-
-#### Sync Cache in React Components
+Access request data, parameters, and state in your components:
 
 ```tsx
-// ./components/UserProfile@widget.tsx
-import { syncCacheProvider } from '@web-widget/helpers/cache';
+import { context } from '@web-widget/helpers/context';
 
-interface UserProfileProps {
-  userId: string;
-}
-
-export default function UserProfile({ userId }: UserProfileProps) {
-  const data = syncCacheProvider(`user-${userId}`, async () => {
-    const response = await fetch(`/api/users/${userId}`);
-    const user = await response.json();
-    return { id: user.id, name: user.name, email: user.email };
-  });
-
-  return (
-    <div>
-      <h3>{data.name}</h3>
-      <p>{data.email}</p>
-    </div>
-  );
+export default function MyComponent() {
+  const { request, params, state } = context();
+  return <div>Current URL: {request.url}</div>;
 }
 ```
 
-### Navigation and Redirects
+### HTTP Caching Middleware
 
-```tsx
-// ./routes/redirect@route.tsx
-import { defineRouteHandler } from '@web-widget/helpers';
-import { redirect } from '@web-widget/helpers/navigation';
+Web Widget provides enterprise-grade HTTP caching using standard Cache Control headers:
 
-export const handler = defineRouteHandler({
-  async GET(ctx) {
-    const url = new URL(ctx.request.url);
+- **Cache-Control**: Standard max-age, stale-while-revalidate, stale-if-error
+- **ETag & Conditional Requests**: Efficient cache validation
+- **Pluggable Storage**: Memory, Redis, disk, or custom backends via [SharedCache](https://github.com/web-widget/shared-cache)
 
-    if (url.searchParams.has('external')) {
-      return redirect('https://www.example.com', 302);
-    }
-
-    return redirect('/home', 301);
-  },
-});
-```
+> **📚 Detailed Documentation**:
+>
+> - [Complete API Reference](./docs/helpers/README.md)
+> - [Cache Providers](./docs/helpers/lifecycle-cache.md)
+> - [Navigation & Routing](./docs/helpers/redirect.md)
+> - [Error Handling](./docs/helpers/http-exception.md)
+> - [Context & Headers](./docs/helpers/context.md)
 
 </details>
 
