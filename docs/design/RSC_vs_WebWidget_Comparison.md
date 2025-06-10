@@ -1,4 +1,4 @@
-# Modern Frontend Architecture Comparison: Framework-Agnostic Web Widget vs Framework-Specific React RSC
+# Architecture Comparison: Framework-Agnostic Web Widget vs Framework-Specific React RSC
 
 ## 🎯 Overview
 
