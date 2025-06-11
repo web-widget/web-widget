@@ -222,7 +222,7 @@ export default defineRouteComponent(function MixedPage() {
 
 ### 🌐 **Web Standards First - Built to Last**
 
-- **WinterCG Compatible**: Runs in Node.js, Deno, Bun, and Edge environments
+- **WinterCG Compatible**: Runs in Node.js, Deno, Bun, and Edge environments (Currently only Node.js deployment examples are supported, other platforms coming soon)
 - **ESM Native**: Modern module system with import maps
 - **Web APIs**: Use standard fetch, streams, and crypto APIs everywhere
 - **Future Proof**: Based on standards that won't become obsolete
