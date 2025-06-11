@@ -11,7 +11,7 @@
 [![WinterCG](https://img.shields.io/badge/WinterCG-Compatible-blue.svg)](https://wintercg.org/)
 [![RFC Compliant](https://img.shields.io/badge/RFC%207234-Compliant-green.svg)](https://tools.ietf.org/html/rfc7234)
 
-> 🌟 A revolutionary meta-framework that seamlessly integrates multiple frontend technologies with unprecedented simplicity.
+**🌟 A revolutionary meta-framework that seamlessly integrates multiple frontend technologies with unprecedented simplicity.**
 
 Break free from technology stack lock-in while maintaining elegant simplicity. Experience the power of running React, Vue, and other frameworks together with ease.
 
