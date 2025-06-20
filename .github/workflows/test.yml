@@ -44,7 +44,7 @@ jobs:
           node-version: ${{ matrix.version.node }}
 
       - run: npm install -g corepack@latest
-  
+
       - run: corepack enable && pnpm --version
 
       - run: pnpm install --recursive --no-frozen-lockfile --loglevel=error
@@ -55,3 +55,8 @@ jobs:
 
       - name: Generate coverage
         run: pnpm coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
