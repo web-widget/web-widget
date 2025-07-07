@@ -19,7 +19,8 @@
     "@web-widget/context": "workspace:*",
     "@web-widget/lifecycle-cache": "workspace:*",
     "@web-widget/schema": "workspace:*",
-    "@web-widget/purify": "workspace:*"
+    "@web-widget/purify": "workspace:*",
+    "@web-widget/flags-kit": "^4.1.1"
   },
   "devDependencies": {
     "@jest/globals": "catalog:",
@@ -126,6 +127,11 @@
       "types": "./dist/error.d.ts",
       "development": "./src/error/index.ts",
       "default": "./dist/error.js"
+    },
+    "./flags": {
+      "types": "./dist/flags.d.ts",
+      "development": "./src/flags/index.ts",
+      "default": "./dist/flags.js"
     },
     "./headers": {
       "types": "./dist/headers.d.ts",
@@ -263,6 +269,10 @@
       "./error": {
         "types": "./dist/error.d.ts",
         "default": "./dist/error.js"
+      },
+      "./flags": {
+        "types": "./dist/flags.d.ts",
+        "default": "./dist/flags.js"
       },
       "./headers": {
         "types": "./dist/headers.d.ts",
