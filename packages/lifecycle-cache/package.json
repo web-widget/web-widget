@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/lifecycle-cache",
   "description": "End-to-end lifecycle caching",
-  "version": "1.59.0",
+  "version": "1.60.0",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",

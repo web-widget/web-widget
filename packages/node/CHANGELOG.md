@@ -1,5 +1,7 @@
 # @web-widget/node
 
+## 1.60.0
+
 ## 1.59.0
 
 ### Minor Changes

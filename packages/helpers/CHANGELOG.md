@@ -1,5 +1,19 @@
 # @web-widget/helpers
 
+## 1.60.0
+
+### Minor Changes
+
+- 74d18f3: Add flags sdk.
+
+### Patch Changes
+
+- @web-widget/action@1.60.0
+- @web-widget/context@1.60.0
+- @web-widget/lifecycle-cache@1.60.0
+- @web-widget/purify@1.60.0
+- @web-widget/schema@1.60.0
+
 ## 1.59.0
 
 ### Minor Changes
