@@ -41,6 +41,14 @@ catalogs:
       version: 2.1.9
 
 overrides:
+  '@examples/flags>@web-widget/helpers': workspace:*
+  '@examples/flags>@web-widget/html': workspace:*
+  '@examples/flags>@web-widget/node': workspace:*
+  '@examples/flags>@web-widget/react': workspace:*
+  '@examples/flags>@web-widget/vite-plugin': workspace:*
+  '@examples/flags>@web-widget/vue': workspace:*
+  '@examples/flags>@web-widget/web-router': workspace:*
+  '@examples/flags>@web-widget/web-widget': workspace:*
   '@examples/react>@web-widget/helpers': workspace:*
   '@examples/react>@web-widget/html': workspace:*
   '@examples/react>@web-widget/node': workspace:*
@@ -57,13 +65,6 @@ overrides:
   '@examples/vue>@web-widget/vue': workspace:*
   '@examples/vue>@web-widget/web-router': workspace:*
   '@examples/vue>@web-widget/web-widget': workspace:*
-  '@examples/flags>@web-widget/helpers': workspace:*
-  '@examples/flags>@web-widget/html': workspace:*
-  '@examples/flags>@web-widget/node': workspace:*
-  '@examples/flags>@web-widget/react': workspace:*
-  '@examples/flags>@web-widget/vite-plugin': workspace:*
-  '@examples/flags>@web-widget/vue': workspace:*
-  '@examples/flags>@web-widget/web-router': workspace:*
   '@types/node': ^22.2.0
   typescript: ^5.5.4
 
@@ -123,8 +124,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/web-router
       '@web-widget/web-widget':
-        specifier: ^1.59.0
-        version: 1.59.0(unctx@2.3.1)
+        specifier: workspace:*
+        version: link:../../packages/web-widget
       koa:
         specifier: ^2.16.1
         version: 2.16.1
@@ -480,7 +481,7 @@ importers:
         version: link:../context
       '@web-widget/flags-kit':
         specifier: ^4.1.1
-        version: 4.1.1(@web-widget/helpers@1.59.0(unctx@2.3.1))(@web-widget/schema@packages+schema)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 4.1.1(@web-widget/schema@packages+schema)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@web-widget/lifecycle-cache':
         specifier: workspace:*
         version: link:../lifecycle-cache
@@ -3144,16 +3145,8 @@ packages:
   '@web-widget/action@1.28.0':
     resolution: {integrity: sha512-Zav1oyr3f121NtpkZgW8bwvGCClLIBre3ZfjwePVP4+mfkkJrX5+Zp88V0PyywzXM6ta5inweXXQrRmlfxjl/g==}
 
-  '@web-widget/action@1.59.0':
-    resolution: {integrity: sha512-yPs51nJ2NobCxIOtgsiHwoejfluG+jXUqPMfRdw5c8mpWS5kU9cySPqALOXVrGieasb/QJDVH1HBXRs2uS1wyg==}
-
   '@web-widget/context@1.28.0':
     resolution: {integrity: sha512-GSpipoQWe/f9j5mnx9FBIIBvIZoTCRyp19tjQf4sbeOYdFgRvrjFsLEAt1FppBwkUHwM9qffwhGdHasYPHfPkQ==}
-
-  '@web-widget/context@1.59.0':
-    resolution: {integrity: sha512-LSOo5CiQcV+WZW6V3yGncsQOu1792+BhYRZf2q7Uqf95QypuKr8Xdbhk84S2+N4Uep9fYXQqCGPjjZyYqaqO+A==}
-    peerDependencies:
-      unctx: ^2.3.1
 
   '@web-widget/flags-kit@4.1.1':
     resolution: {integrity: sha512-+Ehv+lg2djCFkbVs7tnfj0h4IBQiHNmBp/qaTwXqrNhpUmlNW2LCzrOQVt3cgX4irS6m7hz5kareOjWTnlhBaQ==}
@@ -3184,29 +3177,14 @@ packages:
   '@web-widget/helpers@1.28.0':
     resolution: {integrity: sha512-XKVvdrdPkuJ3YDKG0i2oZ991vUkTwS1ojI5+TjJ0+01tlXm2hGoB848hC57Ty5nFrbgaaYLFrP+++2rulRGOtQ==}
 
-  '@web-widget/helpers@1.59.0':
-    resolution: {integrity: sha512-zvzOmBQsI68FjIag0bT0RptroW0uP+fn1xNRXyVZRoYuQatP0gFHxxVExMVO28Y0CZmL4m9LYfL2/nxGjUTdfw==}
-
   '@web-widget/http-cache-semantics@1.2.0':
     resolution: {integrity: sha512-q/MobtHmwp3oaHmEATX/f6BJ+4bNMPVQ1nfDiNW9GkGI/JxRGhpOcs8wxdyr4tbcTgkuqjex8h9G7ONTDuVBmQ==}
 
   '@web-widget/lifecycle-cache@1.28.0':
     resolution: {integrity: sha512-bGi9TMhhn1GM2Fdl+QwKPGSKHtAE1S4FV6HAWH+ZnP3Vc1rILXx1c8VIDILTlP5PLB0qh9wYOnZT4ysO+axIRg==}
 
-  '@web-widget/lifecycle-cache@1.59.0':
-    resolution: {integrity: sha512-Z9+5w/uQ5NVDWMljNPpVIzX0340ZJu+vJAqOzjS7YuN2wJo0M5Hh6Xpfaf9SMkCpLfZO5naRia2477wAc8Mt/A==}
-
-  '@web-widget/purify@1.59.0':
-    resolution: {integrity: sha512-JIq2H1bK9WkpEePBAD5MvHhZBulc7j+4XyV7276Dm+Ul7IopHbYW5u4vx4CTj0wmKfuIbF/2hCd1NKmEZ+b2Zg==}
-
-  '@web-widget/schema@1.59.0':
-    resolution: {integrity: sha512-v2H29zMCAvXTHk49dTzqhjjvp9G+O1ySGAbnJgKxcy1DI+j+VO324RcB74S91Bajn9rQMC3xrzVriL8DPN1ndQ==}
-
   '@web-widget/shared-cache@1.1.0':
     resolution: {integrity: sha512-0CXGsF7FXXAWIiw9SITyOrCnC8Ep8Xa4g7DSpsuqtGtUl3UVO27fHskoGGhh23QvKl31J86y1rNgB7NhDAvjbA==}
-
-  '@web-widget/web-widget@1.59.0':
-    resolution: {integrity: sha512-7Jy3CHFyOq2WKCvsd1sQvCJuqONUrBku7WV5g/ywG2ul0YB7IKcwq0mahuhOmslKONfoDqpGcBqyrgeEJ8EUjA==}
 
   '@web/browser-logs@0.4.0':
     resolution: {integrity: sha512-/EBiDAUCJ2DzZhaFxTPRIznEPeafdLbXShIL6aTu7x73x7ZoxSDv7DGuTsh2rWNMUa4+AKli4UORrpyv6QBOiA==}
@@ -9576,24 +9554,15 @@ snapshots:
 
   '@web-widget/action@1.28.0': {}
 
-  '@web-widget/action@1.59.0': {}
-
   '@web-widget/context@1.28.0':
     dependencies:
       unctx: 2.3.1
 
-  '@web-widget/context@1.59.0(unctx@2.3.1)':
-    dependencies:
-      '@web-widget/purify': 1.59.0
-      '@web-widget/schema': 1.59.0
-      unctx: 2.3.1
-
-  '@web-widget/flags-kit@4.1.1(@web-widget/helpers@1.59.0(unctx@2.3.1))(@web-widget/schema@packages+schema)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@web-widget/flags-kit@4.1.1(@web-widget/schema@packages+schema)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
       '@edge-runtime/cookies': 5.0.2
       jose: 5.10.0
     optionalDependencies:
-      '@web-widget/helpers': 1.59.0(unctx@2.3.1)
       '@web-widget/schema': link:packages/schema
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -9606,47 +9575,16 @@ snapshots:
       '@web-widget/context': 1.28.0
       '@web-widget/lifecycle-cache': 1.28.0
 
-  '@web-widget/helpers@1.59.0(unctx@2.3.1)':
-    dependencies:
-      '@edge-runtime/cookies': 6.0.0
-      '@edge-runtime/user-agent': 3.0.0
-      '@web-widget/action': 1.59.0
-      '@web-widget/context': 1.59.0(unctx@2.3.1)
-      '@web-widget/lifecycle-cache': 1.59.0(unctx@2.3.1)
-      '@web-widget/purify': 1.59.0
-      '@web-widget/schema': 1.59.0
-    transitivePeerDependencies:
-      - unctx
-
   '@web-widget/http-cache-semantics@1.2.0': {}
 
   '@web-widget/lifecycle-cache@1.28.0':
     dependencies:
       '@web-widget/context': 1.28.0
 
-  '@web-widget/lifecycle-cache@1.59.0(unctx@2.3.1)':
-    dependencies:
-      '@web-widget/context': 1.59.0(unctx@2.3.1)
-      '@web-widget/purify': 1.59.0
-      '@web-widget/schema': 1.59.0
-    transitivePeerDependencies:
-      - unctx
-
-  '@web-widget/purify@1.59.0': {}
-
-  '@web-widget/schema@1.59.0': {}
-
   '@web-widget/shared-cache@1.1.0':
     dependencies:
       '@web-widget/helpers': 1.28.0
       '@web-widget/http-cache-semantics': 1.2.0
-
-  '@web-widget/web-widget@1.59.0(unctx@2.3.1)':
-    dependencies:
-      '@web-widget/helpers': 1.59.0(unctx@2.3.1)
-      '@web-widget/lifecycle-cache': 1.59.0(unctx@2.3.1)
-    transitivePeerDependencies:
-      - unctx
 
   '@web/browser-logs@0.4.0':
     dependencies:

@@ -1,5 +1,16 @@
 # @web-widget/vite-plugin
 
+## 1.60.0
+
+### Patch Changes
+
+- 7450fd4: Fixed some minor edge cases.
+- Updated dependencies [74d18f3]
+  - @web-widget/helpers@1.60.0
+  - @web-widget/web-router@1.60.0
+  - @web-widget/web-widget@1.60.0
+  - @web-widget/node@1.60.0
+
 ## 1.59.0
 
 ### Patch Changes
