@@ -85,8 +85,12 @@ export function webRouterDevServerPlugin(
         try {
           viteServer.middlewares.use(webRouter);
         } catch (error) {
-          viteServer.ssrFixStacktrace(error);
-          console.error(`Service startup failed: ${error.stack}`);
+          if (error instanceof Error) {
+            viteServer.ssrFixStacktrace(error);
+            console.error(`Service startup failed: ${error.stack}`);
+          } else {
+            console.error(`Service startup failed: ${error}`);
+          }
         }
       };
     },
@@ -165,7 +169,7 @@ async function viteWebRouterMiddlewareV2(
 
           if (
             isEmptyStatus ||
-            !res.headers.get('content-type')?.startsWith('text/html;')
+            !res.headers.get('content-type')?.includes('text/html')
           ) {
             return res;
           }
