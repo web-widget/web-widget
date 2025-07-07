@@ -1,0 +1,32 @@
+{
+  "routes": [
+    {
+      "pathname": "/",
+      "module": "./routes/index@route.tsx"
+    },
+    {
+      "pathname": "/flags",
+      "module": "./routes/flags/index@route.tsx"
+    },
+    {
+      "pathname": "/flags/marketing-pages-manual-approach",
+      "module": "./routes/flags/marketing-pages-manual-approach/index@route.tsx"
+    },
+    {
+      "pathname": "/flags/dashboard-pages",
+      "module": "./routes/flags/dashboard-pages/index@route.tsx"
+    },
+    {
+      "pathname": "/flags/marketing-pages",
+      "module": "./routes/flags/marketing-pages/index@route.tsx"
+    }
+  ],
+  "actions": [],
+  "middlewares": [
+    {
+      "pathname": "/flags/marketing-pages",
+      "module": "./routes/(middlewares)/flags/marketing-pages@middleware.ts"
+    }
+  ],
+  "fallbacks": []
+}

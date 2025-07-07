@@ -13,6 +13,7 @@ export default defineConfig({
     'env.client': 'src/env/client.ts',
     'env.server': 'src/env/server.ts',
     error: 'src/error/index.ts',
+    flags: 'src/flags/index.ts',
     headers: 'src/headers/index.ts',
     http: 'src/http/index.ts',
     'module.client': 'src/module/client.ts',
