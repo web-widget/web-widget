@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         # https://nodejs.org/en/about/releases/
-        # https://pnpm.io/installation#compatibility
+        # https://pnpm.io/installation#compatibility
         version:
           # - node: 16
           - node: 18
@@ -25,6 +25,7 @@ jobs:
     name: Node.js ${{ matrix.version.node }}
     env:
       NODE_VERSION: ${{ matrix.version.node }}
+      FLAGS_SECRET: ${{ secrets.FLAGS_SECRET }}
 
     steps:
       - uses: actions/checkout@v4
