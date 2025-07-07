@@ -72,6 +72,7 @@
       "@examples/flags>@web-widget/vite-plugin": "workspace:*",
       "@examples/flags>@web-widget/vue": "workspace:*",
       "@examples/flags>@web-widget/web-router": "workspace:*",
+      "@examples/flags>@web-widget/web-widget": "workspace:*",
       "@examples/react>@web-widget/helpers": "workspace:*",
       "@examples/react>@web-widget/html": "workspace:*",
       "@examples/react>@web-widget/node": "workspace:*",
