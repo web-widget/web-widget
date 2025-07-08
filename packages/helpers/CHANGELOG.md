@@ -1,5 +1,16 @@
 # @web-widget/helpers
 
+## 1.60.1
+
+### Patch Changes
+
+- f548c2d: Update flags sdk.
+  - @web-widget/action@1.60.1
+  - @web-widget/context@1.60.1
+  - @web-widget/lifecycle-cache@1.60.1
+  - @web-widget/purify@1.60.1
+  - @web-widget/schema@1.60.1
+
 ## 1.60.0
 
 ### Minor Changes
