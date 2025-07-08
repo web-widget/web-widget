@@ -41,30 +41,21 @@ catalogs:
       version: 2.1.9
 
 overrides:
-  '@examples/flags>@web-widget/helpers': workspace:*
-  '@examples/flags>@web-widget/html': workspace:*
-  '@examples/flags>@web-widget/node': workspace:*
-  '@examples/flags>@web-widget/react': workspace:*
-  '@examples/flags>@web-widget/vite-plugin': workspace:*
-  '@examples/flags>@web-widget/vue': workspace:*
-  '@examples/flags>@web-widget/web-router': workspace:*
-  '@examples/flags>@web-widget/web-widget': workspace:*
-  '@examples/react>@web-widget/helpers': workspace:*
-  '@examples/react>@web-widget/html': workspace:*
-  '@examples/react>@web-widget/node': workspace:*
-  '@examples/react>@web-widget/react': workspace:*
-  '@examples/react>@web-widget/vite-plugin': workspace:*
-  '@examples/react>@web-widget/vue': workspace:*
-  '@examples/react>@web-widget/web-router': workspace:*
-  '@examples/react>@web-widget/web-widget': workspace:*
-  '@examples/vue>@web-widget/helpers': workspace:*
-  '@examples/vue>@web-widget/html': workspace:*
-  '@examples/vue>@web-widget/node': workspace:*
-  '@examples/vue>@web-widget/react': workspace:*
-  '@examples/vue>@web-widget/vite-plugin': workspace:*
-  '@examples/vue>@web-widget/vue': workspace:*
-  '@examples/vue>@web-widget/web-router': workspace:*
-  '@examples/vue>@web-widget/web-widget': workspace:*
+  '@web-widget/action': workspace:*
+  '@web-widget/context': workspace:*
+  '@web-widget/helpers': workspace:*
+  '@web-widget/html': workspace:*
+  '@web-widget/lifecycle-cache': workspace:*
+  '@web-widget/middlewares': workspace:*
+  '@web-widget/node': workspace:*
+  '@web-widget/purify': workspace:*
+  '@web-widget/react': workspace:*
+  '@web-widget/schema': workspace:*
+  '@web-widget/vite-plugin': workspace:*
+  '@web-widget/vue': workspace:*
+  '@web-widget/vue2': workspace:*
+  '@web-widget/web-router': workspace:*
+  '@web-widget/web-widget': workspace:*
   '@types/node': ^22.2.0
   typescript: ^5.5.4
 
@@ -480,8 +471,8 @@ importers:
         specifier: workspace:*
         version: link:../context
       '@web-widget/flags-kit':
-        specifier: ^4.1.1
-        version: 4.1.1(@web-widget/schema@packages+schema)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: ^4.1.2
+        version: 4.1.2(@web-widget/context@packages+context)(@web-widget/schema@packages+schema)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@web-widget/lifecycle-cache':
         specifier: workspace:*
         version: link:../lifecycle-cache
@@ -3148,13 +3139,13 @@ packages:
   '@web-widget/context@1.28.0':
     resolution: {integrity: sha512-GSpipoQWe/f9j5mnx9FBIIBvIZoTCRyp19tjQf4sbeOYdFgRvrjFsLEAt1FppBwkUHwM9qffwhGdHasYPHfPkQ==}
 
-  '@web-widget/flags-kit@4.1.1':
-    resolution: {integrity: sha512-+Ehv+lg2djCFkbVs7tnfj0h4IBQiHNmBp/qaTwXqrNhpUmlNW2LCzrOQVt3cgX4irS6m7hz5kareOjWTnlhBaQ==}
+  '@web-widget/flags-kit@4.1.2':
+    resolution: {integrity: sha512-9ZSzL4awMBeoJIuX/GSLRwJhJzQ4IBr8GB9MywkYC/UldwG5tO+uc63JTxTYskfvkLsoUGtQWC6iARFEOkaivQ==}
     peerDependencies:
       '@opentelemetry/api': ^1.7.0
       '@sveltejs/kit': '*'
-      '@web-widget/helpers': '*'
-      '@web-widget/schema': '*'
+      '@web-widget/context': workspace:*
+      '@web-widget/schema': workspace:*
       next: '*'
       react: '*'
       react-dom: '*'
@@ -3163,7 +3154,7 @@ packages:
         optional: true
       '@sveltejs/kit':
         optional: true
-      '@web-widget/helpers':
+      '@web-widget/context':
         optional: true
       '@web-widget/schema':
         optional: true
@@ -9558,11 +9549,12 @@ snapshots:
     dependencies:
       unctx: 2.3.1
 
-  '@web-widget/flags-kit@4.1.1(@web-widget/schema@packages+schema)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@web-widget/flags-kit@4.1.2(@web-widget/context@packages+context)(@web-widget/schema@packages+schema)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
       '@edge-runtime/cookies': 5.0.2
       jose: 5.10.0
     optionalDependencies:
+      '@web-widget/context': link:packages/context
       '@web-widget/schema': link:packages/schema
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
