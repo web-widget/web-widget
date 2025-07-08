@@ -12,9 +12,9 @@
     "dev": "vite",
     "preview": "vite preview",
     "start": "node server.js",
-    "test": "cross-env TEST_PORT=51207 vitest",
-    "test:run": "cross-env TEST_PORT=51207 vitest run",
-    "test:ui": "cross-env TEST_PORT=51207 vitest --ui"
+    "test": "cross-env NODE_ENV=production TEST_PORT=51207 vitest",
+    "test:run": "cross-env NODE_ENV=production TEST_PORT=51207 vitest run",
+    "test:ui": "cross-env NODE_ENV=production TEST_PORT=51207 vitest --ui"
   },
   "dependencies": {
     "@web-widget/helpers": "^1.60.0",
