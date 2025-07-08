@@ -17,10 +17,10 @@
     "@edge-runtime/user-agent": "^3.0.0",
     "@web-widget/action": "workspace:*",
     "@web-widget/context": "workspace:*",
+    "@web-widget/flags-kit": "^4.1.2",
     "@web-widget/lifecycle-cache": "workspace:*",
-    "@web-widget/schema": "workspace:*",
     "@web-widget/purify": "workspace:*",
-    "@web-widget/flags-kit": "^4.1.1"
+    "@web-widget/schema": "workspace:*"
   },
   "devDependencies": {
     "@jest/globals": "catalog:",
