@@ -28,7 +28,9 @@ export const createVueRender = ({
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
   return defineClientRender<EnhancedComponent>(
-    async (component, data = {}, { recovering, container }) => {
+    async (component, data, { recovering, container }) => {
+      data = data ?? {};
+
       if (!component) {
         throw new TypeError(`Missing component.`);
       }
