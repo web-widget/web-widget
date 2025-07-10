@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/schema",
   "description": "Web Widget and Web Router module format standard definitions",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",

@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/action",
   "description": "This is the built-in JSON RPC implementation of @web-widget/web-router",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",

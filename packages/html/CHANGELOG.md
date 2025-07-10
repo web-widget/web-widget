@@ -1,5 +1,12 @@
 # @web-widget/html
 
+## 1.61.1
+
+### Patch Changes
+
+- ac2c5b2: Fixed render adapter not implementing default values ​​correctly.
+  - @web-widget/helpers@1.61.1
+
 ## 1.61.0
 
 ### Minor Changes
