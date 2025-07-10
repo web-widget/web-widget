@@ -57,6 +57,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #internals?: ElementInternals;
 
+  #autoMountPromise: Promise<void> | null = null;
+
   constructor() {
     super();
 
@@ -65,24 +67,35 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
-  get #ready() {
-    return (
-      this.isConnected &&
-      this.status === status.INITIAL &&
-      !this.inactive &&
-      (this.import || this.loader)
-    );
-  }
-
   #autoMount() {
-    if (!this.#ready) return;
-    queueMicrotask(async () => {
+    // Prevent duplicate execution
+    if (this.#autoMountPromise) return;
+
+    // Check prerequisites for auto-mounting:
+    // - Element must be connected to DOM
+    // - Element must not be inactive
+    // - Must have either import URL or loader function
+    if (!this.isConnected || this.inactive || !(this.import || this.loader)) {
+      return;
+    }
+
+    // Only auto-mount from initial state or load error state
+    const canAutoMount =
+      this.status === status.INITIAL || this.status === status.LOAD_ERROR;
+
+    if (!canAutoMount) {
+      return;
+    }
+
+    this.#autoMountPromise = Promise.resolve().then(async () => {
       try {
         await this.load();
         await this.bootstrap();
         await this.mount();
       } catch (error) {
         this.#throwGlobalError(error);
+      } finally {
+        this.#autoMountPromise = null;
       }
     });
   }
