@@ -1,5 +1,15 @@
 # @web-widget/html
 
+## 1.61.0
+
+### Minor Changes
+
+- 0753fdd: The second parameter of the UI framework renderer will have a default value.
+
+### Patch Changes
+
+- @web-widget/helpers@1.61.0
+
 ## 1.60.1
 
 ### Patch Changes
