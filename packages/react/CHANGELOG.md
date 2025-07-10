@@ -1,5 +1,15 @@
 # @web-widget/react
 
+## 1.61.1
+
+### Patch Changes
+
+- ac2c5b2: Fixed render adapter not implementing default values ​​correctly.
+  - @web-widget/vite-plugin@1.61.1
+  - @web-widget/helpers@1.61.1
+  - @web-widget/schema@1.61.1
+  - @web-widget/web-widget@1.61.1
+
 ## 1.61.0
 
 ### Minor Changes
