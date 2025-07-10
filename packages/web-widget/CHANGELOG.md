@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.61.2
+
+### Patch Changes
+
+- 5160a48: Fix race condition in autoMount execution that caused "Cannot perform 'load' from 'loading' to 'loading'" errors when multiple triggers occurred simultaneously. Added Promise-based deduplication and comprehensive test coverage.
+  - @web-widget/helpers@1.61.2
+  - @web-widget/lifecycle-cache@1.61.2
+
 ## 1.61.1
 
 ### Patch Changes
