@@ -331,3 +331,283 @@ describe('Events', () => {
       ]);
     }));
 });
+
+describe('Race Condition Fix', () => {
+  let element: HTMLWebWidgetElement;
+
+  beforeEach(() => {
+    element = document.createElement('web-widget');
+    document.body.appendChild(element);
+  });
+
+  afterEach(() => {
+    if (element.parentNode) {
+      element.parentNode.removeChild(element);
+    }
+  });
+
+  it('should prevent multiple autoMount calls with loading="eager"', async () => {
+    let loadCallCount = 0;
+
+    // Mock the loader to track calls
+    element.loader = async () => {
+      loadCallCount++;
+      return {
+        render: async () => ({
+          bootstrap: async () => {},
+          mount: async () => {},
+          update: async () => {},
+          unmount: async () => {},
+          unload: async () => {},
+        }),
+      };
+    };
+
+    // Set loading to eager and import
+    element.loading = 'eager';
+    element.import = 'test-module';
+
+    // Trigger multiple potential autoMount calls rapidly
+    element.setAttribute('contextdata', '{"test": "data1"}');
+    element.setAttribute('contextmeta', '{"test": "meta1"}');
+    element.setAttribute('loading', 'eager'); // This should not trigger another load
+    element.setAttribute('contextdata', '{"test": "data2"}');
+
+    // Wait for all microtasks to complete
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Should only have been called once despite multiple triggers
+    expect(loadCallCount).to.equal(1);
+    expect(element.status).to.equal('mounted');
+  });
+
+  it('should allow autoMount after error state', async () => {
+    let loadCallCount = 0;
+
+    // Mock the loader to fail first, then succeed
+    element.loader = async () => {
+      loadCallCount++;
+      if (loadCallCount === 1) {
+        throw new Error('Load failed');
+      }
+      return {
+        render: async () => ({
+          bootstrap: async () => {},
+          mount: async () => {},
+          update: async () => {},
+          unmount: async () => {},
+          unload: async () => {},
+        }),
+      };
+    };
+
+    element.loading = 'eager';
+    element.import = 'test-module';
+
+    // Wait for first load to fail
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Should be in error state
+    expect(element.status).to.equal('load-error');
+
+    // Trigger another autoMount (should work since we're in error state)
+    element.setAttribute('contextdata', '{"retry": "data"}');
+
+    // Wait for retry to complete
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Should have been called twice and succeed
+    expect(loadCallCount).to.equal(2);
+    expect(element.status).to.equal('mounted');
+  });
+
+  it('should handle concurrent loader setting and attribute changes', async () => {
+    let loadCallCount = 0;
+    const testLoader = async () => {
+      loadCallCount++;
+      return {
+        render: async () => ({
+          bootstrap: async () => {},
+          mount: async () => {},
+          update: async () => {},
+          unmount: async () => {},
+          unload: async () => {},
+        }),
+      };
+    };
+
+    element.loading = 'eager';
+    element.import = 'test-module';
+
+    // Trigger multiple operations concurrently
+    element.loader = testLoader;
+    element.setAttribute('contextdata', '{"test": "data"}');
+    element.loader = testLoader; // Set again
+    element.setAttribute('contextmeta', '{"test": "meta"}');
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Should only load once
+    expect(loadCallCount).to.equal(1);
+    expect(element.status).to.equal('mounted');
+  });
+
+  it('should not trigger autoMount when inactive', async () => {
+    // Create a completely isolated element for this test
+    const isolatedElement = document.createElement('web-widget');
+
+    let loadCallCount = 0;
+
+    // Set attributes first BEFORE adding to DOM
+    isolatedElement.loading = 'eager';
+    isolatedElement.import = 'test-module';
+    isolatedElement.inactive = true; // Set inactive BEFORE adding to DOM
+
+    isolatedElement.loader = async () => {
+      loadCallCount++;
+      return {
+        render: async () => ({
+          bootstrap: async () => {},
+          mount: async () => {},
+          update: async () => {},
+          unmount: async () => {},
+          unload: async () => {},
+        }),
+      };
+    };
+
+    // Now add to DOM after setting all attributes
+    document.body.appendChild(isolatedElement);
+
+    // Try to trigger autoMount
+    isolatedElement.setAttribute('contextdata', '{"test": "data"}');
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Should not have been called because element is inactive
+    expect(loadCallCount).to.equal(0);
+    expect(isolatedElement.status).to.equal('initial');
+
+    // Clean up
+    document.body.removeChild(isolatedElement);
+  });
+
+  it('should handle mount error correctly', async () => {
+    let mountCallCount = 0;
+
+    // Mock the loader to succeed load but fail mount initially
+    element.loader = async () => {
+      return {
+        render: async () => ({
+          bootstrap: async () => {},
+          mount: async () => {
+            mountCallCount++;
+            if (mountCallCount === 1) {
+              throw new Error('Mount failed');
+            }
+          },
+          update: async () => {},
+          unmount: async () => {},
+          unload: async () => {},
+        }),
+      };
+    };
+
+    element.loading = 'eager';
+    element.import = 'test-module';
+
+    // Wait for first attempt to fail at mount
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Should be in mount error state
+    expect(element.status).to.equal('mount-error');
+
+    // For mount error, we should retry mount directly, not autoMount
+    await element.mount();
+
+    // Should have been called twice and succeed the second time
+    expect(mountCallCount).to.equal(2);
+    expect(element.status).to.equal('mounted');
+  });
+
+  it('should not cause "load from loading to loading" error', async () => {
+    let loadCallCount = 0;
+    let errorOccurred = false;
+
+    // Listen for the specific error we're trying to prevent
+    const originalError = window.onerror;
+    window.onerror = (message) => {
+      if (
+        typeof message === 'string' &&
+        message.includes('Cannot perform "load" from "loading" to "loading"')
+      ) {
+        errorOccurred = true;
+      }
+      return false;
+    };
+
+    element.loader = async () => {
+      loadCallCount++;
+      // Add small delay to make race condition more likely
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      return {
+        render: async () => ({
+          bootstrap: async () => {},
+          mount: async () => {},
+          update: async () => {},
+          unmount: async () => {},
+          unload: async () => {},
+        }),
+      };
+    };
+
+    element.loading = 'eager';
+    element.import = 'test-module';
+
+    // Rapidly trigger multiple changes that could cause race condition
+    for (let i = 0; i < 5; i++) {
+      element.setAttribute('contextdata', `{"test": "data${i}"}`);
+      element.setAttribute('contextmeta', `{"test": "meta${i}"}`);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Restore original error handler
+    window.onerror = originalError;
+
+    // Should not have caused the race condition error
+    expect(errorOccurred).to.be.false;
+    expect(loadCallCount).to.equal(1);
+    expect(element.status).to.equal('mounted');
+  });
+
+  it('should work correctly with lazy loading', async () => {
+    let loadCallCount = 0;
+
+    // Set attributes first before setting loader
+    element.loading = 'lazy';
+    element.import = 'test-module';
+
+    element.loader = async () => {
+      loadCallCount++;
+      return {
+        render: async () => ({
+          bootstrap: async () => {},
+          mount: async () => {},
+          update: async () => {},
+          unmount: async () => {},
+          unload: async () => {},
+        }),
+      };
+    };
+
+    // Trigger attribute changes (should not auto-mount with lazy loading)
+    element.setAttribute('contextdata', '{"test": "data"}');
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Should not have auto-mounted with lazy loading
+    expect(loadCallCount).to.equal(0);
+    expect(element.status).to.equal('initial');
+  });
+});
