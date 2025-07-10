@@ -9,7 +9,9 @@ export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state'
 export * from './components';
 
 export const render = defineClientRender<FunctionComponent>(
-  async (component, data = {}, { recovering, container }) => {
+  async (component, data, { recovering, container }) => {
+    data = data ?? {};
+
     if (!component) {
       throw new TypeError(`Missing component.`);
     }

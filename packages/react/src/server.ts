@@ -32,7 +32,9 @@ export interface ReactRenderOptions {
 const DEFAULT_TIMEOUT_MS = 1000 * 10; // 提取默认超时时间为常量
 
 export const render = defineServerRender<FunctionComponent>(
-  async (component, data = {}, { progressive, react }) => {
+  async (component, data, { progressive, react }) => {
+    data = data ?? {};
+
     if (!component) {
       throw new TypeError(`Missing component.`);
     }

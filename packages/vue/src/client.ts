@@ -16,7 +16,9 @@ export const createVueRender = ({
   onCreatedApp = async () => {},
 }: CreateVueRenderOptions = {}) => {
   return defineClientRender<Component>(
-    async (component, data = {}, { recovering, container }) => {
+    async (component, data, { recovering, container }) => {
+      data = data ?? {};
+
       if (!component) {
         throw new TypeError(`Missing component.`);
       }
