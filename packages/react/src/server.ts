@@ -32,7 +32,7 @@ export interface ReactRenderOptions {
 const DEFAULT_TIMEOUT_MS = 1000 * 10; // 提取默认超时时间为常量
 
 export const render = defineServerRender<FunctionComponent>(
-  async (component, context, { progressive, react }) => {
+  async (component, data = {}, { progressive, react }) => {
     if (!component) {
       throw new TypeError(`Missing component.`);
     }
@@ -56,8 +56,8 @@ export const render = defineServerRender<FunctionComponent>(
     const isAsyncFunction =
       Object.prototype.toString.call(component) === '[object AsyncFunction]';
     let vNode = isAsyncFunction
-      ? await component(context as any)
-      : createElement(component, context as any);
+      ? await component(data as any)
+      : createElement(component, data as any);
 
     vNode = createElement(StrictMode, null, vNode);
 

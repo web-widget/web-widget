@@ -42,7 +42,7 @@ export const createVueRender = ({
   onPrefetchData,
 }: CreateVueRenderOptions = {}) => {
   return defineServerRender<BuildedComponent>(
-    async (component, data, { progressive }) => {
+    async (component, data = {}, { progressive }) => {
       if (!component) {
         throw new TypeError(`Missing component.`);
       }
