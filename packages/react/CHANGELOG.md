@@ -1,5 +1,18 @@
 # @web-widget/react
 
+## 1.61.0
+
+### Minor Changes
+
+- 0753fdd: The second parameter of the UI framework renderer will have a default value.
+
+### Patch Changes
+
+- @web-widget/vite-plugin@1.61.0
+- @web-widget/helpers@1.61.0
+- @web-widget/schema@1.61.0
+- @web-widget/web-widget@1.61.0
+
 ## 1.60.1
 
 ### Patch Changes
