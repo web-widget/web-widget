@@ -107,7 +107,7 @@
 
 /* 暗黑主题 - 使用 prefers-color-scheme */
 @media (prefers-color-scheme: dark) {
-  :root:not(.theme-light) {
+  :root {
     /* 文本颜色 */
     --color-text-primary: #f1f5f9;
     --color-text-secondary: #cbd5e1;
@@ -124,6 +124,7 @@
     /* 边框颜色 */
     --color-border-primary: #334155;
     --color-border-secondary: #475569;
+    --color-border-focus: #3b82f6;
 
     /* 代码块颜色（暗黑主题下改进对比度） */
     --color-code-bg: #0f172a;
@@ -153,172 +154,14 @@
   }
 }
 
-/* 手动主题切换类 - 使用适当的CSS选择器优先级 */
-html.theme-dark {
-  /* 文本颜色 */
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #cbd5e1;
-  --color-text-muted: #64748b;
-  --color-text-inverse: #1e293b;
-
-  /* 背景颜色 */
-  --color-bg-primary: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-bg-tertiary: #334155;
-  --color-bg-elevated: #1e293b;
-  --color-bg-overlay: rgba(0, 0, 0, 0.8);
-
-  /* 边框颜色 */
-  --color-border-primary: #334155;
-  --color-border-secondary: #475569;
-
-  /* 代码块颜色（暗黑主题下改进对比度） */
-  --color-code-bg: #0f172a;
-  --color-code-text: #f1f5f9;
-  --color-code-border: #1e293b;
-
-  /* 阴影 */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-xl: 0 10px 15px rgba(0, 0, 0, 0.4), 0 4px 6px rgba(0, 0, 0, 0.2);
-  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.6);
-
-  /* 渐变 */
-  --gradient-hero: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  --gradient-accent:
-    radial-gradient(
-      circle at 30% 20%,
-      rgba(59, 130, 246, 0.1) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 70% 80%,
-      rgba(147, 51, 234, 0.1) 0%,
-      transparent 50%
-    );
+/* 防止页面加载时的过渡动画闪烁 */
+html.loading *,
+html.loading *::before,
+html.loading *::after {
+  transition: none !important;
 }
 
-/* 明亮主题类 - 使用适当的CSS选择器优先级 */
-html.theme-light {
-  /* 文本颜色 */
-  --color-text-primary: #1e293b;
-  --color-text-secondary: #64748b;
-  --color-text-muted: #94a3b8;
-  --color-text-inverse: #ffffff;
-
-  /* 背景颜色 */
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f8fafc;
-  --color-bg-tertiary: #f1f5f9;
-  --color-bg-elevated: #ffffff;
-  --color-bg-overlay: rgba(0, 0, 0, 0.5);
-
-  /* 边框颜色 */
-  --color-border-primary: #e2e8f0;
-  --color-border-secondary: #cbd5e1;
-
-  /* 代码块颜色 */
-  --color-code-bg: #1e293b;
-  --color-code-text: #e2e8f0;
-  --color-code-border: #334155;
-
-  /* 阴影 */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-xl: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
-  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
-
-  /* 渐变 */
-  --gradient-hero: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  --gradient-accent:
-    radial-gradient(
-      circle at 30% 20%,
-      rgba(59, 130, 246, 0.05) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 70% 80%,
-      rgba(147, 51, 234, 0.05) 0%,
-      transparent 50%
-    );
-}
-
-/* 通过 data-theme 属性的主题切换（优先级更高，防止闪烁） */
-[data-theme='light'],
-:root:not([data-theme]) {
-  /* 与 :root 相同的明亮主题变量，确保优先级 */
-  --color-text-primary: #1e293b;
-  --color-text-secondary: #64748b;
-  --color-text-muted: #94a3b8;
-  --color-text-inverse: #ffffff;
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f8fafc;
-  --color-bg-tertiary: #f1f5f9;
-  --color-bg-elevated: #ffffff;
-  --color-bg-overlay: rgba(0, 0, 0, 0.5);
-  --color-border-primary: #e2e8f0;
-  --color-border-secondary: #cbd5e1;
-  --color-border-focus: #3b82f6;
-  --color-code-bg: #1e293b;
-  --color-code-text: #e2e8f0;
-  --color-code-border: #334155;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-xl: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
-  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
-  --gradient-hero: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  --gradient-accent:
-    radial-gradient(
-      circle at 30% 20%,
-      rgba(59, 130, 246, 0.05) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 70% 80%,
-      rgba(147, 51, 234, 0.05) 0%,
-      transparent 50%
-    );
-}
-
-[data-theme='dark'] {
-  /* 暗黑主题变量 */
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #cbd5e1;
-  --color-text-muted: #64748b;
-  --color-text-inverse: #1e293b;
-  --color-bg-primary: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-bg-tertiary: #334155;
-  --color-bg-elevated: #1e293b;
-  --color-bg-overlay: rgba(0, 0, 0, 0.8);
-  --color-border-primary: #334155;
-  --color-border-secondary: #475569;
-  --color-code-bg: #0f172a;
-  --color-code-text: #f1f5f9;
-  --color-code-border: #1e293b;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-xl: 0 10px 15px rgba(0, 0, 0, 0.4), 0 4px 6px rgba(0, 0, 0, 0.2);
-  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.6);
-  --gradient-hero: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  --gradient-accent:
-    radial-gradient(
-      circle at 30% 20%,
-      rgba(59, 130, 246, 0.1) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 70% 80%,
-      rgba(147, 51, 234, 0.1) 0%,
-      transparent 50%
-    );
-}
-
-/* 平滑过渡 */
+/* 仅为主题相关属性添加平滑过渡 */
 *,
 *::before,
 *::after {
@@ -326,13 +169,10 @@ html.theme-light {
     color var(--transition-fast),
     background-color var(--transition-fast),
     border-color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
+    box-shadow var(--transition-fast);
 }
 
 /* 确保主题切换时页面的平滑过渡 */
 html {
   color-scheme: light dark;
 }
-
-

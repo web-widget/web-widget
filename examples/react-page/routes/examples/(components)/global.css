@@ -29,10 +29,20 @@ pre {
   text-align: left;
 }
 
-/* 确保根元素应用背景色 */
+/* 确保根元素应用背景色，防止闪烁 */
 html {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
+  /* 确保CSS变量加载期间有后备颜色 */
+  background-color: #ffffff;
+  color: #1e293b;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    background-color: #0f172a;
+    color: #f1f5f9;
+  }
 }
 
 body {
@@ -43,4 +53,5 @@ body {
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   line-height: var(--line-height-normal);
+  font-size: 1rem;
 }

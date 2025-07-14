@@ -1,52 +1,27 @@
 import type { ComponentProps } from 'react';
 import './global.css';
 import styles from './BaseLayout.module.css';
-import ThemeToggle from './ThemeToggle@widget.tsx';
 import Navigation from './Navigation@widget.tsx';
 
 export default function BaseLayout({ children }: ComponentProps<any>) {
   return (
     <>
-      {/* 主题初始化脚本 - 防止主题闪烁 */}
+      {/* 防止页面加载时的动画闪烁 */}
       <script
         dangerouslySetInnerHTML={{
           __html: `
-            (function() {
-              function getStoredTheme() {
-                try { return localStorage.getItem('theme'); } catch (e) { return null; }
-              }
-              function getSystemTheme() {
-                try { 
-                  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                } catch (e) { return 'light'; }
-              }
-              function applyTheme(theme, isManual) {
-                const html = document.documentElement;
-                html.classList.remove('theme-dark', 'theme-light');
-                
-                if (isManual) {
-                  // 手动设置的主题，添加类覆盖系统偏好
-                  html.classList.add('theme-' + theme);
-                }
-                // 如果不是手动设置，不添加类，让CSS媒体查询生效
-                
-                html.setAttribute('data-theme', theme);
-                html.style.colorScheme = theme;
-              }
-              
-              const storedTheme = getStoredTheme();
-              if (storedTheme === 'light' || storedTheme === 'dark') {
-                // 有手动设置，使用手动设置
-                applyTheme(storedTheme, true);
-              } else {
-                // 没有手动设置，跟随系统
-                applyTheme(getSystemTheme(), false);
-              }
-            })();
+            // 在页面加载时添加loading类，防止动画闪烁
+            document.documentElement.classList.add('loading');
+            
+            // 页面加载完成后移除loading类
+            document.addEventListener('DOMContentLoaded', function() {
+              setTimeout(function() {
+                document.documentElement.classList.remove('loading');
+              }, 50);
+            });
           `,
         }}
       />
-      <ThemeToggle />
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.brandLogo}>
