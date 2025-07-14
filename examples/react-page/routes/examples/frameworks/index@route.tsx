@@ -67,8 +67,7 @@ export default defineRouteComponent(function Page() {
               <div className={shared.cardIcon}>🔄</div>
               <h4 className={shared.cardTitle}>自动转换</h4>
               <p className={shared.cardDescription}>
-                Vue 组件通过 <code>toReact()</code> 函数自动转换为 React
-                组件，无需手动桥接
+                Vue 组件通过 Vite 自动转换为 React 组件
               </p>
             </div>
             <div className={shared.card}>

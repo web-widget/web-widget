@@ -1,4 +1,4 @@
-/* BaseLayout 样式 - 使用设计令牌 */
+/* BaseLayout 样式 */
 .header {
   max-width: 900px;
   min-height: 2em;
@@ -68,7 +68,6 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   box-shadow: var(--shadow-sm);
-  /* 专门为这个元素启用transform过渡 */
   transition-property:
     color, background-color, border-color, opacity, box-shadow, transform;
   transition-duration: var(--transition-normal);
@@ -88,7 +87,6 @@
 
 .reactIcon {
   font-size: var(--font-size-base);
-  /* 专门为图标缩放启用transform过渡 */
   transition-property: transform;
   transition-duration: var(--transition-normal);
   transition-timing-function: ease;
@@ -134,7 +132,6 @@
   font-weight: 500;
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
-  /* 明确指定需要过渡的属性 */
   transition-property: background-color, color;
   transition-duration: var(--transition-fast);
   transition-timing-function: ease;
@@ -146,7 +143,7 @@
   color: var(--color-primary);
 }
 
-/* 活跃导航样式 - 极简设计 */
+/* 活跃导航样式 */
 .header nav a.active {
   background: linear-gradient(
     135deg,
@@ -156,7 +153,6 @@
   color: white;
   font-weight: 600;
   box-shadow: var(--shadow-md);
-  /* 为活跃状态的导航启用transform过渡 */
   transition-property: background-color, color, box-shadow, transform;
   transition-duration: var(--transition-fast);
   transition-timing-function: ease;
@@ -229,7 +225,6 @@
   color: var(--color-text-muted);
   text-decoration: none;
   font-size: var(--font-size-sm);
-  /* 明确指定需要过渡的属性 */
   transition-property: color;
   transition-duration: var(--transition-fast);
   transition-timing-function: ease;

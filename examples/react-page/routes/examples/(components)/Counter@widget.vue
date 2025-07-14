@@ -50,18 +50,21 @@ const handleCountChange = async (newCount: number) => {
 </template>
 
 <style scoped>
-/* 使用与 React 版本一致的样式 */
+/* 使用与 React 版本一致的现代化大尺寸样式 */
 .counter {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
+  gap: var(--spacing-xl); /* 增大间距 */
+  padding: var(--spacing-xl) var(--spacing-2xl); /* 增大内边距 */
   background: var(--color-bg-primary);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl); /* 增大圆角 */
   font-family: inherit;
-  transition: var(--transition-fast);
-  min-width: 200px;
+  /* 精确控制过渡效果 */
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
+  min-width: 280px; /* 增大最小宽度 */
   position: relative;
   /* 默认使用主色调 */
   --counter-primary: var(--color-primary);
@@ -83,16 +86,19 @@ const handleCountChange = async (newCount: number) => {
 }
 
 .button {
-  width: 40px;
-  height: 40px;
+  width: 48px; /* 增大按钮尺寸 */
+  height: 48px;
   border-radius: 50%;
   border: none;
   background: var(--counter-primary);
   color: white;
   font-weight: 600;
-  font-size: 1.2rem;
+  font-size: 1.4rem; /* 增大字体 */
   cursor: pointer;
-  transition: all var(--transition-fast);
+  /* 为按钮启用必要的过渡效果，包括transform */
+  transition-property: background-color, color, box-shadow, transform;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,23 +118,26 @@ const handleCountChange = async (newCount: number) => {
 }
 
 .count {
-  font-size: 1.75rem;
+  font-size: 2.25rem; /* 显著增大数字显示 */
   font-weight: 700;
   color: var(--counter-primary);
-  min-width: 2.5rem;
+  min-width: 3rem; /* 增大最小宽度 */
   text-align: center;
-  transition: var(--transition-fast);
+  /* 只为颜色添加过渡 */
+  transition-property: color;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
   user-select: none;
 }
 
 .counterLabel {
   position: absolute;
-  top: -6px;
+  top: -8px; /* 稍微调整位置适应更大的组件 */
   left: 50%;
   transform: translateX(-50%);
   background: var(--color-bg-primary);
-  padding: 0 var(--spacing-sm);
-  font-size: 0.7rem;
+  padding: 0 var(--spacing-md); /* 增大内边距 */
+  font-size: 0.8rem; /* 稍微增大字体 */
   font-weight: 600;
   color: var(--counter-primary);
   text-transform: uppercase;
@@ -164,20 +173,25 @@ const handleCountChange = async (newCount: number) => {
 /* 响应式设计 */
 @media (max-width: 480px) {
   .counter {
-    min-width: 180px;
-    padding: var(--spacing-md);
-    gap: var(--spacing-md);
+    min-width: 220px; /* 调整移动端最小宽度 */
+    padding: var(--spacing-lg); /* 保持适当的内边距 */
+    gap: var(--spacing-lg); /* 保持适当的间距 */
   }
 
   .button {
-    width: 36px;
-    height: 36px;
-    font-size: 1.1rem;
+    width: 42px; /* 稍微减小但仍然足够大 */
+    height: 42px;
+    font-size: 1.3rem; /* 保持较大的字体 */
   }
 
   .count {
-    font-size: 1.5rem;
-    min-width: 2rem;
+    font-size: 2rem; /* 在移动端保持较大的数字显示 */
+    min-width: 2.5rem;
+  }
+
+  .counterLabel {
+    font-size: 0.75rem; /* 移动端稍微调整标签字体 */
+    top: -7px;
   }
 }
 </style>
