@@ -1,0 +1,183 @@
+<script setup lang="ts">
+import { ref, nextTick } from 'vue';
+
+interface CounterProps {
+  count: number;
+  variant?: 'react' | 'vue';
+}
+
+const props = withDefaults(defineProps<CounterProps>(), {
+  variant: 'vue'
+});
+
+const count = ref(props.count);
+const countElement = ref<HTMLElement>();
+const isAnimating = ref(false);
+
+const handleCountChange = async (newCount: number) => {
+  count.value = newCount;
+
+  // 添加计数变化动画
+  if (countElement.value) {
+    isAnimating.value = false;
+    await nextTick();
+    isAnimating.value = true;
+    setTimeout(() => {
+      isAnimating.value = false;
+    }, 250);
+  }
+};
+</script>
+
+<template>
+  <div class="counter" :data-variant="variant">
+    <span class="counterLabel">
+      {{ variant === 'react' ? 'React' : 'Vue' }} Counter
+    </span>
+
+    <button class="button" @click="handleCountChange(count - 1)" :aria-label="`减少计数`">
+      −
+    </button>
+
+    <span ref="countElement" :class="['count', { animate: isAnimating }]" :aria-label="`当前计数: ${count}`">
+      {{ count }}
+    </span>
+
+    <button class="button" @click="handleCountChange(count + 1)" :aria-label="`增加计数`">
+      +
+    </button>
+  </div>
+</template>
+
+<style scoped>
+/* 使用与 React 版本一致的样式 */
+.counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  font-family: inherit;
+  transition: var(--transition-fast);
+  min-width: 200px;
+  position: relative;
+  /* 默认使用主色调 */
+  --counter-primary: var(--color-primary);
+  --counter-hover: var(--color-primary-hover);
+}
+
+/* React 变体 - 使用语义辅助色 */
+.counter[data-variant="react"] {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(6, 182, 212, 0.03) 100%);
+  --counter-primary: var(--color-variant-secondary);
+  --counter-hover: #0891b2;
+}
+
+/* Vue 变体 - 使用语义第三色（绿色调） */
+.counter[data-variant="vue"] {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.03) 100%);
+  --counter-primary: var(--color-variant-tertiary);
+  --counter-hover: #059669;
+}
+
+.button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--counter-primary);
+  color: white;
+  font-weight: 600;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  user-select: none;
+}
+
+.button:hover {
+  background: var(--counter-hover);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.button:active {
+  transform: translateY(0) scale(0.95);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.count {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--counter-primary);
+  min-width: 2.5rem;
+  text-align: center;
+  transition: var(--transition-fast);
+  user-select: none;
+}
+
+.counterLabel {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-bg-primary);
+  padding: 0 var(--spacing-sm);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--counter-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: var(--radius-sm);
+}
+
+/* 悬停时整体轻微高亮 */
+.counter:hover {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 数值变化动画 */
+@keyframes countChange {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+    color: var(--counter-hover);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.count.animate {
+  animation: countChange 0.25s ease-out;
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .counter {
+    min-width: 180px;
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .button {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .count {
+    font-size: 1.5rem;
+    min-width: 2rem;
+  }
+}
+</style>

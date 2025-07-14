@@ -1,0 +1,155 @@
+/* =============================================================================
+   首页特定样式
+   使用设计令牌和共享模块样式
+   ============================================================================= */
+
+/* Hero Section - 舒适的留白设计 */
+.hero {
+  text-align: center;
+  padding: var(--spacing-4xl) 0 var(--spacing-3xl) 0;
+  margin-bottom: var(--spacing-4xl);
+  position: relative;
+}
+
+/* 增强主标题效果 */
+.hero h1 {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 50%,
+    var(--color-primary) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease-in-out infinite;
+  font-weight: 900;
+  letter-spacing: -2px;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: perspective(1000px) rotateX(3deg);
+  margin-bottom: var(--spacing-xl);
+  line-height: 1.1;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin: var(--spacing-xl) 0 var(--spacing-3xl) 0;
+  font-weight: 400;
+  line-height: var(--line-height-relaxed);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Hero Demo - 增加垂直留白 */
+.heroDemo {
+  margin-top: var(--spacing-3xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-2xl) 0;
+}
+
+.demoIntro {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.demoHint {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin: var(--spacing-lg) 0 0 0;
+  max-width: 500px;
+  line-height: var(--line-height-relaxed);
+  padding: 0 var(--spacing-lg);
+}
+
+/* Frameworks Section - 首页特有 */
+.frameworks {
+  text-align: center;
+  padding: var(--spacing-2xl) 0;
+}
+
+.frameworkItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  text-align: left;
+}
+
+.frameworkStatus {
+  font-size: var(--font-size-xl);
+}
+
+/* 响应式设计 - 保持舒适留白 */
+@media (max-width: 768px) {
+  .hero {
+    padding: var(--spacing-3xl) var(--spacing-lg) var(--spacing-2xl)
+      var(--spacing-lg);
+    margin-bottom: var(--spacing-3xl);
+  }
+
+  .subtitle {
+    font-size: var(--font-size-lg);
+    margin: var(--spacing-lg) 0 var(--spacing-2xl) 0;
+    padding: 0 var(--spacing-md);
+  }
+
+  .heroDemo {
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xl) 0;
+    margin-top: var(--spacing-2xl);
+  }
+
+  .demoIntro {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .demoHint {
+    font-size: var(--font-size-xs);
+    margin-top: var(--spacing-md);
+    padding: 0 var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: var(--spacing-2xl) var(--spacing-md) var(--spacing-xl)
+      var(--spacing-md);
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .subtitle {
+    font-size: var(--font-size-base);
+    margin: var(--spacing-md) 0 var(--spacing-xl) 0;
+  }
+
+  .heroDemo {
+    margin-top: var(--spacing-xl);
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg) 0;
+  }
+
+  .demoHint {
+    padding: 0 var(--spacing-sm);
+  }
+}

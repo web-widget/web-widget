@@ -1,0 +1,24 @@
+/* =============================================================================
+   关于页面特定样式
+   页面特有样式，配合共享模块样式使用
+   ============================================================================= */
+
+/* 目前这个页面主要使用共享样式，如果需要特定样式可以在这里添加 */
+
+/* 示例：如果需要特殊的列表样式 */
+.demoList {
+  background: var(--color-bg-secondary);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--color-primary);
+}
+
+.demoList ol {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.demoList li {
+  padding: 0.5rem 0;
+  color: var(--color-text-secondary);
+}

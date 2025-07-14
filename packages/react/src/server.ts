@@ -29,7 +29,7 @@ export interface ReactRenderOptions {
   react?: StreamOptions;
 }
 
-const DEFAULT_TIMEOUT_MS = 1000 * 10; // 提取默认超时时间为常量
+const DEFAULT_TIMEOUT_MS = 1000 * 10;
 
 export const render = defineServerRender<FunctionComponent>(
   async (component, data, { progressive, react }) => {
@@ -49,7 +49,7 @@ export const render = defineServerRender<FunctionComponent>(
 
     reactRenderOptions.onError = (e, i) => {
       error = e;
-      onError?.(e, i); // 使用可选链简化调用
+      onError?.(e, i);
       if (!onError && progressive && !awaitAllReady) {
         console.error(e);
       }

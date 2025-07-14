@@ -1,0 +1,49 @@
+/* 主题切换器样式 */
+.themeToggle {
+  position: fixed;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-full);
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+}
+
+.themeToggle:hover {
+  background: var(--color-bg-secondary);
+  box-shadow: var(--shadow-xl);
+  transform: scale(1.05);
+}
+
+.themeToggle:active {
+  transform: scale(0.95);
+}
+
+.icon {
+  font-size: var(--font-size-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .themeToggle {
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .icon {
+    font-size: var(--font-size-base);
+  }
+}
