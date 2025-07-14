@@ -5,7 +5,7 @@ import styles from './index.module.css';
 import shared from './(components)/shared.module.css';
 
 export const meta = defineMeta({
-  title: 'Web Widget - 欢迎',
+  title: 'Web Widget',
 });
 
 export default defineRouteComponent(function Page() {
@@ -31,10 +31,6 @@ export default defineRouteComponent(function Page() {
         {/* Features Section */}
         <div className={shared.mb6}>
           <h2 className={shared.sectionTitle}>基本示例</h2>
-          <p
-            className={`${shared.textMuted} ${shared.textCenter} ${shared.mb4}`}>
-            以下是 Web Widget 核心功能的实际演示，点击即可体验：
-          </p>
 
           <div className={`${shared.grid} ${shared.grid3}`}>
             <a
@@ -104,7 +100,7 @@ export default defineRouteComponent(function Page() {
                 <div className={shared.cardIcon}>🧅</div>
                 <h3 className={shared.cardTitle}>中间件</h3>
                 <p className={shared.cardDescription}>
-                  强大的中间件管道，支持修改页面元数据、添加响应头等
+                  不仅仅可以控制请求和响应，还能修改页面元数据
                 </p>
               </div>
             </a>

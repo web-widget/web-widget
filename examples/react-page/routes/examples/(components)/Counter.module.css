@@ -123,8 +123,9 @@
 @media (max-width: 480px) {
   .counter {
     min-width: 220px;
-    padding: var(--spacing-lg);
+    padding: var(--mobile-padding);
     gap: var(--spacing-lg);
+    margin: 0; /* 边距由 BaseLayout.main 统一管理 */
   }
 
   .button {

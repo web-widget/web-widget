@@ -11,33 +11,59 @@
   position: relative;
 }
 
-/* 增强主标题效果 */
+/* 主标题效果 - 苹果风格日落余晖渐变 */
 .hero h1 {
+  /* 回退颜色，确保文字始终可见 */
+  color: var(--color-text-primary);
+  
+  /* 渐变效果（支持的浏览器） */
   background: linear-gradient(
     135deg,
-    var(--color-primary) 0%,
-    var(--color-accent) 50%,
-    var(--color-primary) 100%
+    #ff6b35 0%,     /* 温暖的橙红色 - 日落余晖 */
+    #f7931e 15%,    /* 金橙色 */
+    #ffc93c 30%,    /* 金黄色 */
+    #06d6a0 50%,    /* 青绿色 - 过渡色 */
+    #118ab2 70%,    /* 海蓝色 */
+    #073b4c 85%,    /* 深海蓝 */
+    #1e3a8a 100%    /* 深蓝色 - 夜幕 */
   );
-  background-clip: text;
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  
+  /* 确保不支持的浏览器显示正常颜色 */
   background-size: 200% 200%;
-  animation: gradientShift 8s ease-in-out infinite;
+  animation: sunsetGlow 12s ease-in-out infinite;
   font-weight: 900;
   letter-spacing: -2px;
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transform: perspective(1000px) rotateX(3deg);
   margin-bottom: var(--spacing-xl);
-  line-height: 1.1;
+  line-height: 1.4;
 }
 
-@keyframes gradientShift {
+/* 为不支持渐变文字的浏览器提供回退 */
+@supports not (-webkit-background-clip: text) {
+  .hero h1 {
+    color: var(--color-primary);
+    background: none;
+    -webkit-text-fill-color: unset;
+    /* 保持其他视觉效果 */
+    animation: sunsetGlow 12s ease-in-out infinite;
+    transform: perspective(1000px) rotateX(3deg);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@keyframes sunsetGlow {
   0%, 100% {
     background-position: 0% 50%;
   }
-  50% {
-    background-position: 100% 50%;
+  33% {
+    background-position: 50% 30%;
+  }
+  66% {
+    background-position: 100% 70%;
   }
 }
 
@@ -102,8 +128,7 @@
 /* 响应式设计 - 保持舒适留白 */
 @media (max-width: 768px) {
   .hero {
-    padding: var(--spacing-3xl) var(--spacing-lg) var(--spacing-2xl)
-      var(--spacing-lg);
+    padding: var(--spacing-3xl) 0 var(--spacing-2xl) 0;
     margin-bottom: var(--spacing-3xl);
   }
 
@@ -133,8 +158,7 @@
 
 @media (max-width: 480px) {
   .hero {
-    padding: var(--spacing-2xl) var(--spacing-md) var(--spacing-xl)
-      var(--spacing-md);
+    padding: var(--spacing-2xl) 0 var(--spacing-xl) 0;
     margin-bottom: var(--spacing-2xl);
   }
 
@@ -151,5 +175,44 @@
 
   .demoHint {
     padding: 0 var(--spacing-sm);
+  }
+}
+
+/* 暗黑主题下的日落渐变适配 */
+@media (prefers-color-scheme: dark) {
+  .hero h1 {
+    /* 暗黑主题回退颜色 */
+    color: var(--color-text-primary);
+    
+    background: linear-gradient(
+      135deg,
+      #ff8a65 0%,     /* 柔和的橙红色 */
+      #ffab40 15%,    /* 温暖金橙 */
+      #ffcc02 30%,    /* 明亮金黄 */
+      #26c6da 50%,    /* 青色 */
+      #42a5f5 70%,    /* 天空蓝 */
+      #3949ab 85%,    /* 靛蓝 */
+      #5c6bc0 100%    /* 柔和紫蓝 */
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* 关键！确保暗黑主题也有动画 */
+    background-size: 200% 200%;
+    animation: sunsetGlow 12s ease-in-out infinite;
+    text-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  }
+  
+  /* 暗黑主题不支持渐变的回退 */
+  @supports not (-webkit-background-clip: text) {
+    .hero h1 {
+      color: var(--color-primary);
+      background: none;
+      -webkit-text-fill-color: unset;
+      /* 保持动画和视觉效果 */
+      animation: sunsetGlow 12s ease-in-out infinite;
+      transform: perspective(1000px) rotateX(3deg);
+      text-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    }
   }
 }

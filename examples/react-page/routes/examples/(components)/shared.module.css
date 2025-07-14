@@ -11,6 +11,7 @@
   text-align: left;
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
+  padding: 0;
 }
 
 /* 标题样式 */
@@ -20,7 +21,8 @@
   margin-bottom: var(--spacing-xl);
   color: var(--color-text-primary);
   text-align: center;
-  line-height: var(--line-height-tight);
+  line-height: 1.4;
+  letter-spacing: -0.02em;
 }
 
 .sectionTitle {
@@ -78,7 +80,7 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
   padding: var(--spacing-lg);
-  /* 为卡片启用必要的过渡效果，包括transform */
+  /* 卡片过渡效果 */
   transition-property: background-color, border-color, box-shadow, transform;
   transition-duration: var(--transition-normal);
   transition-timing-function: ease;
@@ -288,7 +290,7 @@
   text-decoration: none;
   font-weight: 500;
   margin-left: var(--spacing-sm);
-  /* 只为颜色和文本装饰添加过渡 */
+  /* 颜色过渡 */
   transition-property: color, text-decoration-color;
   transition-duration: var(--transition-fast);
   transition-timing-function: ease;
@@ -310,10 +312,17 @@
   text-decoration: none;
 }
 
-/* 响应式设计 */
+/* 移动端布局 */
 @media (max-width: 768px) {
+  .container {
+    padding: 0;
+  }
+
   .pageTitle {
     font-size: 2rem;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    margin-bottom: var(--spacing-lg);
   }
 
   .sectionTitle {
@@ -333,6 +342,8 @@
   .card,
   .infoPanel,
   .comparison {
-    padding: 1.25rem;
+    padding: var(--mobile-padding);
+    margin-left: 0;
+    margin-right: 0;
   }
 }

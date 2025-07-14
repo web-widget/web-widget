@@ -6,6 +6,10 @@ import Navigation from './Navigation@widget.tsx';
 export default function BaseLayout({ children }: ComponentProps<any>) {
   return (
     <>
+      <a href="#main-content" className="skip-link">
+        跳过导航，前往主内容
+      </a>
+
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.brandLogo}>
@@ -20,7 +24,9 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
           <Navigation />
         </div>
       </header>
-      <main className={styles.main}>{children}</main>
+      <main id="main-content" className={styles.main} tabIndex={-1}>
+        {children}
+      </main>
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <div className={styles.footerBrand}>
