@@ -246,6 +246,85 @@ importers:
         specifier: ^2.1.9
         version: 2.1.9(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3)
 
+  examples/react-page:
+    dependencies:
+      '@web-widget/helpers':
+        specifier: workspace:*
+        version: link:../../packages/helpers
+      '@web-widget/html':
+        specifier: workspace:*
+        version: link:../../packages/html
+      '@web-widget/node':
+        specifier: workspace:*
+        version: link:../../packages/node
+      '@web-widget/react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      '@web-widget/vue':
+        specifier: workspace:*
+        version: link:../../packages/vue
+      '@web-widget/web-router':
+        specifier: workspace:*
+        version: link:../../packages/web-router
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../../packages/web-widget
+      koa:
+        specifier: ^2.16.1
+        version: 2.16.1
+      koa-connect:
+        specifier: ^2.1.0
+        version: 2.1.0
+      koa-send:
+        specifier: ^5.0.1
+        version: 5.0.1
+      react:
+        specifier: ^19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.0.0(react@19.0.0)
+      vue:
+        specifier: ^3.4.8
+        version: 3.4.8(typescript@5.5.4)
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^5.0.0
+        version: 5.0.0
+      '@types/koa':
+        specifier: ^2.13.6
+        version: 2.15.0
+      '@types/koa-send':
+        specifier: ^4.1.3
+        version: 4.1.6
+      '@types/react':
+        specifier: ^19.0.10
+        version: 19.0.10
+      '@types/react-dom':
+        specifier: ^19.0.4
+        version: 19.0.4(@types/react@19.0.10)
+      '@vitejs/plugin-react':
+        specifier: ^4.1.1
+        version: 4.3.1(vite@5.4.19(@types/node@22.2.0))
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.0
+        version: 5.0.2(vite@5.4.19(@types/node@22.2.0))(vue@3.4.8(typescript@5.5.4))
+      '@web-widget/vite-plugin':
+        specifier: workspace:*
+        version: link:../../packages/vite-plugin
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
+      vite:
+        specifier: ^5.4.19
+        version: 5.4.19(@types/node@22.2.0)
+      vitest:
+        specifier: ^2.1.9
+        version: 2.1.9(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3)
+
   examples/vue:
     dependencies:
       '@web-widget/helpers':

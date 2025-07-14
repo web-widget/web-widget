@@ -1,0 +1,270 @@
+/* 设计令牌 - CSS 变量定义 */
+
+:root {
+  /* 颜色系统 */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-secondary: #64748b;
+  --color-accent: #10b981;
+  --color-warning: #d97706;
+  --color-error: #ef4444;
+  --color-success: #10b981;
+
+  /* 扩展语义颜色 */
+  --color-info: #0ea5e9;
+  --color-variant-secondary: #06b6d4;
+  --color-variant-tertiary: #10b981;
+
+  /* 文本颜色 */
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #64748b;
+  --color-text-subtle: #94a3b8;
+  --color-text-inverse: #ffffff;
+
+  /* 背景颜色 */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-tertiary: #f1f5f9;
+  --color-bg-elevated: #ffffff;
+  --color-bg-overlay: rgba(0, 0, 0, 0.5);
+
+  /* 边框颜色 */
+  --color-border-primary: #e2e8f0;
+  --color-border-secondary: #cbd5e1;
+  --color-border-focus: #3b82f6;
+
+  /* 代码块颜色 */
+  --color-code-bg: #1e293b;
+  --color-code-text: #e2e8f0;
+  --color-code-border: #334155;
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
+
+  /* 间距系统 - 基于行业主流 8px 基础网格 */
+  --spacing-1: 0.25rem;    /* 4px */
+  --spacing-2: 0.5rem;     /* 8px */
+  --spacing-3: 0.75rem;    /* 12px */
+  --spacing-4: 1rem;       /* 16px - 主流移动端最小边距 */
+  --spacing-5: 1.25rem;    /* 20px */
+  --spacing-6: 1.5rem;     /* 24px - 主流移动端内容边距 */
+  --spacing-8: 2rem;       /* 32px - 主流移动端大边距 */
+  --spacing-10: 2.5rem;    /* 40px */
+  --spacing-12: 3rem;      /* 48px */
+  --spacing-16: 4rem;      /* 64px */
+  
+  /* 语义化间距别名 - 方便使用 */
+  --spacing-xs: var(--spacing-1);     /* 4px */
+  --spacing-sm: var(--spacing-2);     /* 8px */
+  --spacing-md: var(--spacing-4);     /* 16px */
+  --spacing-lg: var(--spacing-6);     /* 24px */
+  --spacing-xl: var(--spacing-8);     /* 32px */
+  --spacing-2xl: var(--spacing-12);   /* 48px */
+  --spacing-3xl: var(--spacing-16);   /* 64px */
+  
+  /* 移动端专用间距 - 参考苹果官网百分比宽度设计 */
+  --mobile-gutter: 5.33vw;                 /* ~20px at 375px viewport, 苹果官网移动端百分比边距 */
+  --mobile-gutter-min: 16px;               /* 最小边距，避免极小屏幕问题 */
+  --mobile-gutter-max: 24px;               /* 最大边距，避免过大屏幕问题 */
+  --mobile-padding: var(--spacing-6);      /* 24px - 主流移动端内容区边距 */
+  --mobile-section-gap: var(--spacing-8);  /* 32px - 移动端区块间距 */
+  
+  /* 触摸目标最小尺寸 - Apple HIG 和 Material Design 标准 */
+  --touch-target-min: 44px;           /* iOS 最小触摸目标 */
+  --touch-target-optimal: 48px;       /* Android 推荐触摸目标 */
+
+  /* 字体大小系统 - 基于主流设计系统 */
+  --font-size-xs: 0.75rem;      /* 12px - 辅助文本 */
+  --font-size-sm: 0.875rem;     /* 14px - 小文本 */
+  --font-size-base: 1rem;       /* 16px - 基础文本，移动端最佳可读性 */
+  --font-size-lg: 1.125rem;     /* 18px - 大文本 */
+  --font-size-xl: 1.25rem;      /* 20px - 子标题 */
+  --font-size-2xl: 1.5rem;      /* 24px - 小标题 */
+  --font-size-3xl: 1.875rem;    /* 30px - 标题 */
+  --font-size-4xl: 2.25rem;     /* 36px - 大标题 */
+  --font-size-5xl: 3rem;        /* 48px - 超大标题 */
+  
+  /* 移动端字体大小 */
+  --mobile-font-base: 1rem;     /* 16px - 移动端基础字体，符合可访问性标准 */
+  --mobile-font-sm: 0.875rem;   /* 14px - 移动端小字体 */
+  --mobile-font-lg: 1.125rem;   /* 18px - 移动端大字体 */
+
+  /* 行高 */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* 圆角 */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* 过渡动画 */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+
+  /* 渐变 */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-warning: linear-gradient(135deg, #d97706 0%, #c2410c 100%);
+  --gradient-hero: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  --gradient-accent:
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(59, 130, 246, 0.05) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 70% 80%,
+      rgba(147, 51, 234, 0.05) 0%,
+      transparent 50%
+    );
+}
+
+/* 暗黑主题 - 使用 prefers-color-scheme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* 文本颜色 */
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #cbd5e1;
+    --color-text-muted: #94a3b8;
+    --color-text-subtle: #64748b;
+    --color-text-inverse: #ffffff;
+
+    /* 背景颜色 */
+    --color-bg-primary: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-bg-tertiary: #334155;
+    --color-bg-elevated: #1e293b;
+    --color-bg-overlay: rgba(0, 0, 0, 0.8);
+
+    /* 边框颜色 */
+    --color-border-primary: #334155;
+    --color-border-secondary: #475569;
+    --color-border-focus: #3b82f6;
+
+    /* 代码块颜色（暗黑主题下改进对比度） */
+    --color-code-bg: #0f172a;
+    --color-code-text: #f1f5f9;
+    --color-code-border: #1e293b;
+
+    /* 阴影（暗黑主题下更加明显） */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 10px 15px rgba(0, 0, 0, 0.4), 0 4px 6px rgba(0, 0, 0, 0.2);
+    --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.6);
+
+    /* 渐变（暗黑主题调整） */
+    --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --gradient-success: linear-gradient(135deg, #059669 0%, #047857 100%);
+    --gradient-warning: linear-gradient(135deg, #d97706 0%, #c2410c 100%);
+    --gradient-hero: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    --gradient-accent:
+      radial-gradient(
+        circle at 30% 20%,
+        rgba(59, 130, 246, 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 70% 80%,
+        rgba(147, 51, 234, 0.1) 0%,
+        transparent 50%
+      );
+  }
+}
+
+/* 精确控制过渡效果，避免Safari等浏览器的布局闪烁 */
+/* 关键原则：永远不要对可能影响布局的属性添加过渡 */
+*,
+*::before,
+*::after {
+  /* 只为纯视觉属性添加过渡，这些属性的变化不会触发重排 */
+  transition-property:
+    color, background-color, border-color, opacity, box-shadow, filter,
+    text-decoration-color;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
+}
+
+/* 对于可能影响布局的属性（如 transform），单独控制 */
+/* 只在明确需要的元素上添加 transform 过渡 */
+.transform-enabled {
+  transition-property:
+    color, background-color, border-color, opacity, box-shadow, filter,
+    transform;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
+}
+
+/* 确保主题切换时页面的平滑过渡 */
+html {
+  color-scheme: light dark;
+}
+
+/* 为用户代理样式表中的高对比度模式提供支持 */
+@media (prefers-contrast: high) {
+  :root {
+    --color-text-muted: var(--color-text-secondary);
+    --color-text-subtle: var(--color-text-muted);
+    --color-border-primary: var(--color-text-secondary);
+    --gradient-primary: var(--color-primary);
+    --gradient-success: var(--color-success);
+    --gradient-warning: var(--color-warning);
+  }
+}
+
+/* 跳过链接样式 - 可访问性增强 */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: var(--spacing-md);
+  z-index: 9999;
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  box-shadow: var(--shadow-lg);
+  transition-property: top, opacity;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
+  opacity: 0;
+}
+
+.skip-link:focus {
+  top: var(--spacing-md);
+  opacity: 1;
+  outline: 3px solid var(--color-bg-primary);
+  outline-offset: 2px;
+}
+
+.skip-link:hover:focus {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-xl);
+}
+
+/* 高对比度模式下的跳过链接 */
+@media (prefers-contrast: high) {
+  .skip-link {
+    background-color: var(--color-text-primary);
+    color: var(--color-bg-primary);
+    border: 2px solid var(--color-bg-primary);
+  }
+  
+  .skip-link:focus {
+    outline: 4px solid var(--color-text-secondary);
+  }
+}
