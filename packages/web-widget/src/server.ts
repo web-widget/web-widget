@@ -1,6 +1,5 @@
 import type { ServerWidgetModule } from '@web-widget/helpers';
 import { mergeMeta, rebaseMeta, renderMetaToString } from '@web-widget/helpers';
-import { escapeJson } from '@web-widget/helpers/purify';
 import {
   renderLifecycleCacheLayer,
   callSyncCacheProvider,
@@ -22,25 +21,6 @@ export type * from './types';
 const __FEATURE_INJECTING_STYLES__ = false;
 let showWebContainerWarning = true;
 
-// Data optimization: intelligent threshold based on HTML escaping cost analysis
-// When data contains many special characters (quotes, HTML tags, etc.), HTML escaping cost is high, script approach is better
-// 128 characters is the optimal balance point considering escaping costs
-const DATA_OPTIMIZATION_THRESHOLD = 128;
-
-/**
- * Check if data optimization is needed
- */
-function shouldOptimizeData(data: string): boolean {
-  return data.length > DATA_OPTIMIZATION_THRESHOLD;
-}
-
-/**
- * Generate data optimization script
- */
-function generateDataScript(data: string): string {
-  return `<script>document.currentScript.parentElement.setAttribute('contextdata', JSON.stringify(${escapeJson(data)}))</script>`;
-}
-
 const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
 
 function unsafeAttrsToHtml(attrs: Record<string, string>) {
@@ -58,7 +38,6 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   #loader: Loader;
   #options: WebWidgetElementProps;
   #renderStage?: string;
-  #optimizedData?: string;
   localName = 'web-widget';
 
   constructor(
@@ -98,11 +77,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       recovering: renderStage !== 'client',
     });
 
-    // Optimize long data: move from attributes to script
     if (attrs.contextdata === '{}') {
-      delete attrs.contextdata;
-    } else if (shouldOptimizeData(attrs.contextdata)) {
-      this.#optimizedData = attrs.contextdata;
       delete attrs.contextdata;
     }
 
@@ -193,11 +168,6 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       result += `<template shadowrootmode="open">${result}</template>`;
       result += `<script>${shimCode}</script>`;
       result += children;
-    }
-
-    // Add optimized data
-    if (this.#optimizedData) {
-      result += generateDataScript(this.#optimizedData);
     }
 
     try {
