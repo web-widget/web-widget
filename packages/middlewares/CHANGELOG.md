@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.62.0
+
+### Patch Changes
+
+- Updated dependencies [d6add51]
+  - @web-widget/schema@1.62.0
+  - @web-widget/helpers@1.62.0
+
 ## 1.61.2
 
 ### Patch Changes
