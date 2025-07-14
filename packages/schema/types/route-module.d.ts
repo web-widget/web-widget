@@ -18,7 +18,7 @@ export interface RouteComponentProps<
   Params = Record<string, string>,
 > extends Omit<
     RouteContext<Data, Params>,
-    'render' | 'renderOptions' | 'waitUntil' | 'module'
+    'render' | 'renderWith' | 'renderOptions' | 'waitUntil' | 'module'
   > {}
 
 export type RouteComponent<Data = unknown, Params = Record<string, string>> = (
@@ -71,6 +71,14 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>>
       error?: HTTPException;
       meta?: Meta;
     },
+    renderOptions?: Omit<RouteRenderOptions, 'meta' | 'error'>
+  ): Response | Promise<Response>;
+
+  /**
+   * Render current route with specific data and options.
+   */
+  renderWith(
+    data?: Data,
     renderOptions?: RouteRenderOptions
   ): Response | Promise<Response>;
 
@@ -80,4 +88,7 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>>
   renderOptions: RouteRenderOptions;
 }
 
-export interface RouteRenderOptions extends ResponseInit, ServerRenderOptions {}
+export interface RouteRenderOptions extends ResponseInit, ServerRenderOptions {
+  meta?: Meta;
+  error?: HTTPException;
+}

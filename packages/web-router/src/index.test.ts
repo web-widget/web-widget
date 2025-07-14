@@ -118,7 +118,7 @@ describe('create route context', () => {
         context = ctx;
       })
     ).then(() => {
-      expect(context.data).toEqual({});
+      expect(context.data).toBeUndefined();
       expect(context.error).toBeUndefined();
       expect(context.meta).toBeDefined();
       expect(context.module).toBeDefined();
@@ -391,5 +391,133 @@ describe('background tasks', () => {
     expect(await res.text()).toBe('get hello');
     await new Promise((resolve) => setTimeout(resolve, 150));
     expect(backgroundTaskRunning).toBe(true);
+  });
+});
+
+describe('renderWith method', () => {
+  test('renderWith should work with simple data', async () => {
+    const testData = { message: 'Hello, World!' };
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler: {
+              async GET(ctx: RouteContext) {
+                return ctx.renderWith(testData);
+              },
+            },
+            render: async (_component: any, props: any) => {
+              return `<div>Data: ${JSON.stringify(props.data)}</div>`;
+            },
+            default: () => null,
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain(JSON.stringify(testData));
+  });
+
+  test('renderWith should work with meta options', async () => {
+    const testData = { message: 'Hello, World!' };
+    const customTitle = 'Custom Page Title';
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler: {
+              async GET(ctx: RouteContext) {
+                return ctx.renderWith(testData, {
+                  meta: {
+                    title: customTitle,
+                  },
+                });
+              },
+            },
+            render: async (_component: any, props: any) => {
+              return `<div>Title: ${props.meta?.title}</div>`;
+            },
+            default: () => null,
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain(customTitle);
+  });
+
+  test('renderWith should work with response options', async () => {
+    const testData = { message: 'Hello, World!' };
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler: {
+              async GET(ctx: RouteContext) {
+                return ctx.renderWith(testData, {
+                  status: 201,
+                  headers: {
+                    'X-Custom-Header': 'test-value',
+                  },
+                });
+              },
+            },
+            render: async (_component: any, props: any) => {
+              return `<div>Data: ${JSON.stringify(props.data)}</div>`;
+            },
+            default: () => null,
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+
+    expect(response.status).toBe(201);
+    expect(response.headers.get('X-Custom-Header')).toBe('test-value');
+  });
+
+  test('renderWith should support progressive rendering', async () => {
+    const testData = { message: 'Hello, World!' };
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler: {
+              async GET(ctx: RouteContext) {
+                return ctx.renderWith(testData, {
+                  progressive: true,
+                });
+              },
+            },
+            render: async (_component: any, props: any) => {
+              return `<div>Progressive: ${JSON.stringify(props.data)}</div>`;
+            },
+            default: () => null,
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('x-accel-buffering')).toBe('no');
   });
 });

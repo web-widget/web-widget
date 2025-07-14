@@ -33,130 +33,192 @@ import type {
 } from './types';
 
 const HANDLER = Symbol('handler');
+const MODULE_CACHE = new WeakMap<
+  RouteModule,
+  {
+    meta: Meta;
+    renderOptions: RouteRenderOptions;
+    render: RouteContext['render'];
+    renderWith: RouteContext['renderWith'];
+  }
+>();
 
 export type OnFallback = (
   error: HTTPException,
   context?: MiddlewareContext
 ) => void;
 
-function composeRender(
+async function renderCore(
   context: RouteContext,
+  layoutModule: LayoutModule,
+  onFallback: OnFallback,
+  dev: boolean | undefined,
+  data: unknown,
+  unsafeError: HTTPException | undefined,
+  meta: Meta,
+  renderOptions: RouteRenderOptions
+) {
+  if (unsafeError) {
+    onFallback(unsafeError, context);
+  }
+
+  if (typeof layoutModule.render !== 'function') {
+    throw new TypeError(`Layout module is missing export "render" function.`);
+  }
+
+  if (!context.module) {
+    throw new TypeError(`Context is missing "module".`);
+  }
+
+  if (typeof context.module.render !== 'function') {
+    throw new TypeError(`Module is missing export "render" function.`);
+  }
+
+  const error = unsafeError
+    ? dev
+      ? unsafeError
+      : createSafeError(unsafeError)
+    : undefined;
+
+  const {
+    render: _render,
+    renderWith: _renderWith,
+    renderOptions: _renderOptions,
+    waitUntil: _waitUntil,
+    module: _module,
+    ...restContext
+  } = context;
+
+  const componentExportName = error ? 'fallback' : 'default';
+  const component = context.module[componentExportName];
+
+  const renderContext: RouteFallbackComponentProps | RouteComponentProps = error
+    ? {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        status: error.status,
+        statusText: error.statusText,
+      }
+    : {
+        ...restContext,
+        data,
+        error,
+        meta,
+      };
+
+  const children = await context.module.render(
+    component,
+    renderContext,
+    renderOptions
+  );
+  const layoutContext: LayoutComponentProps = {
+    children,
+    data,
+    meta,
+    params: context.params,
+    pathname: context.pathname,
+    request: context.request,
+    state: context.state,
+  };
+
+  const html = await layoutModule.render(
+    layoutModule.default,
+    layoutContext,
+    renderOptions
+  );
+  const status =
+    renderOptions?.status ??
+    (error ? (error.status ? error.status : 500) : 200);
+  const statusText =
+    renderOptions?.statusText ??
+    (error
+      ? error.statusText
+        ? error.statusText
+        : 'Internal Server Error'
+      : 'OK');
+
+  const headers = new Headers(renderOptions?.headers);
+
+  if (!headers.has('content-type')) {
+    headers.set('content-type', 'text/html; charset=utf-8');
+  }
+
+  if (renderOptions?.progressive) {
+    // NOTE: Disable nginx buffering.
+    // NOTE: https://nginx.org/en/docs/http/ngx_http_proxy_module.html
+    headers.set('x-accel-buffering', 'no');
+    // headers.set('cache-control', 'no-cache');
+  }
+
+  if (dev) {
+    const source = (context.module as DevRouteModule).$source;
+    const devSourceKey: DevHttpHandler = 'x-module-source';
+    headers.set(devSourceKey, source);
+  }
+
+  return new Response(html, {
+    status,
+    statusText,
+    headers,
+  });
+}
+
+function composeRender(
   layoutModule: LayoutModule,
   onFallback: OnFallback,
   dev: boolean | undefined
 ): RouteContext['render'] {
   return async function render(
+    this: RouteContext,
     {
-      data = context.data,
-      error: unsafeError = context.error,
-      meta = context.meta,
+      data = this.data,
+      error: unsafeError = this.error,
+      meta = this.meta,
     } = {},
-    renderOptions = context.renderOptions
+    renderOptions = this.renderOptions
   ) {
-    if (unsafeError) {
-      onFallback(unsafeError, context);
-    }
-
-    if (typeof layoutModule.render !== 'function') {
-      throw new TypeError(`Layout module is missing export "render" function.`);
-    }
-
-    if (!context.module) {
-      throw new TypeError(`Context is missing "module".`);
-    }
-
-    if (typeof context.module.render !== 'function') {
-      throw new TypeError(`Module is missing export "render" function.`);
-    }
-
-    const error = unsafeError
-      ? dev
-        ? unsafeError
-        : createSafeError(unsafeError)
-      : undefined;
-
-    const {
-      render: _render,
-      renderOptions: _renderOptions,
-      waitUntil: _waitUntil,
-      module: _module,
-      ...restContext
-    } = context;
-
-    const componentExportName = error ? 'fallback' : 'default';
-    const component = context.module[componentExportName];
-
-    const renderContext: RouteFallbackComponentProps | RouteComponentProps =
-      error
-        ? {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-            status: error.status,
-            statusText: error.statusText,
-          }
-        : {
-            ...restContext,
-            data,
-            error,
-            meta,
-          };
-
-    const children = await context.module.render(
-      component,
-      renderContext,
-      renderOptions
-    );
-    const layoutContext: LayoutComponentProps = {
-      children,
+    return renderCore(
+      this,
+      layoutModule,
+      onFallback,
+      dev,
       data,
+      unsafeError,
       meta,
-      params: context.params,
-      pathname: context.pathname,
-      request: context.request,
-      state: context.state,
-    };
-
-    const html = await layoutModule.render(
-      layoutModule.default,
-      layoutContext,
       renderOptions
     );
-    const status =
-      renderOptions?.status ??
-      (error ? (error.status ? error.status : 500) : 200);
-    const statusText =
-      renderOptions?.statusText ??
-      (error
-        ? error.statusText
-          ? error.statusText
-          : 'Internal Server Error'
-        : 'OK');
+  };
+}
 
-    const headers = new Headers(renderOptions?.headers);
+function composeRenderWith(
+  layoutModule: LayoutModule,
+  onFallback: OnFallback,
+  dev: boolean | undefined
+): RouteContext['renderWith'] {
+  return async function renderWith(
+    this: RouteContext,
+    data = this.data,
+    renderOptions = this.renderOptions
+  ) {
+    // Extract error and meta from renderOptions if provided
+    const {
+      error: unsafeError,
+      meta,
+      ...responseOptions
+    } = renderOptions || {};
+    const finalMeta = meta ?? this.meta;
 
-    if (!headers.has('content-type')) {
-      headers.set('content-type', 'text/html; charset=utf-8');
-    }
-
-    if (renderOptions?.progressive) {
-      // NOTE: Disable nginx buffering.
-      // NOTE: https://nginx.org/en/docs/http/ngx_http_proxy_module.html
-      headers.set('x-accel-buffering', 'no');
-      // headers.set('cache-control', 'no-cache');
-    }
-
-    if (dev) {
-      const source = (context.module as DevRouteModule).$source;
-      const devSourceKey: DevHttpHandler = 'x-module-source';
-      headers.set(devSourceKey, source);
-    }
-
-    return new Response(html, {
-      status,
-      statusText,
-      headers,
-    });
+    return renderCore(
+      this,
+      layoutModule,
+      onFallback,
+      dev,
+      data,
+      unsafeError,
+      finalMeta,
+      responseOptions
+    );
   };
 }
 
@@ -262,7 +324,6 @@ export function createRouteContext(
   return async (context, next) => {
     const routeContext = context as RouteContext;
     const module = await normalizeModule<RouteModule>(route);
-    const layoutModule = await normalizeModule<LayoutModule>(layout);
 
     // If multiple routes match here, only the first one is valid.
     if (!routeContext.module) {
@@ -270,19 +331,26 @@ export function createRouteContext(
 
       // If the route has a render function, it's a route module.
       if (module.render) {
-        routeContext.data ??= Object.create(null);
-        routeContext.error ??= undefined;
-        routeContext.meta ??= mergeMeta(
-          defaultMeta,
-          rebaseMeta(module.meta ?? {}, defaultBaseAsset)
-        );
-        routeContext.render ??= composeRender(
-          routeContext,
-          layoutModule,
-          onFallback,
-          dev
-        );
-        routeContext.renderOptions ??= defaultRenderOptions;
+        let cached = MODULE_CACHE.get(module);
+
+        if (!cached) {
+          const layoutModule = await normalizeModule<LayoutModule>(layout);
+          cached = {
+            meta: mergeMeta(
+              defaultMeta,
+              rebaseMeta(module.meta ?? {}, defaultBaseAsset)
+            ),
+            renderOptions: defaultRenderOptions,
+            render: composeRender(layoutModule, onFallback, dev),
+            renderWith: composeRenderWith(layoutModule, onFallback, dev),
+          };
+          MODULE_CACHE.set(module, cached);
+        }
+
+        routeContext.meta = structuredClone(cached.meta);
+        routeContext.render = cached.render.bind(context);
+        routeContext.renderWith = cached.renderWith.bind(context);
+        routeContext.renderOptions = structuredClone(cached.renderOptions);
       }
     }
 
@@ -303,38 +371,32 @@ export function createFallbackHandler(
 ) {
   return async (error: unknown, context: MiddlewareContext) => {
     const routeContext = context as RouteContext;
-    const layoutModule = await normalizeModule<LayoutModule>(layout);
     const module = await normalizeModule<RouteModule>(route);
-    const handler = normalizeHandler<RouteHandler>(
-      module.handler ??
-        ({
-          GET({ render }) {
-            return render();
-          },
-        } as RouteHandlers),
-      true
-    );
 
-    routeContext.data = Object.create(null);
-    routeContext.error = await transformHTTPException(error);
-    routeContext.meta = mergeMeta(
+    // Don't use cache for fallback handlers to avoid onFallback callback conflicts
+    const layoutModule = await normalizeModule<LayoutModule>(layout);
+    const meta = mergeMeta(
       defaultMeta,
       rebaseMeta(module.meta ?? {}, defaultBaseAsset)
     );
+    const render = composeRender(layoutModule, onFallback, dev);
+    const renderWith = composeRenderWith(layoutModule, onFallback, dev);
+
+    routeContext.meta = structuredClone(meta);
+    routeContext.render = render.bind(context);
+    routeContext.renderWith = renderWith.bind(context);
+    routeContext.renderOptions = structuredClone(defaultRenderOptions);
+
+    const httpError = await transformHTTPException(error);
+    routeContext.error = httpError;
     // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
     (routeContext.meta!.script ??= []).push(
       contextToScriptDescriptor(routeContext)
     );
     routeContext.module = module;
-    routeContext.render = composeRender(
-      routeContext,
-      layoutModule,
-      onFallback,
-      dev
-    );
-    routeContext.renderOptions = defaultRenderOptions;
 
-    return callContext(routeContext, handler, [routeContext]);
+    // Call render directly with the error to trigger onFallback
+    return routeContext.renderWith(null, { error: httpError });
   };
 }
 
