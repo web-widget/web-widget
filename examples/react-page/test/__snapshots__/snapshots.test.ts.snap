@@ -166,25 +166,31 @@ exports[`Should match snapshot > Request "/examples/middleware" should match sna
         <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >中间件 - Web Widget</title><meta name="description" content="这是一个中间件页面..." /><meta name="keywords" content="middleware, web widget, demo" /><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script >console.log("中间件动态插入的脚本！");</script><script type="server:context">{"pathname":"/examples/middleware","params":{}}</script>
       </head>
       <body>
-        <header class="_header_35ba78"><div class="_headerContent_35ba78"><div class="_brandLogo_35ba78"><a class="_brandText_35ba78" href="/">Web Widget</a><div class="_techStackBadge_35ba78"><span class="_reactIcon_35ba78">⚛️</span><span class="_techText_35ba78">for React</span></div></div><!--$--><web-widget import="/routes/examples/(components)/Navigation@widget.tsx" name="Navigation" loading="lazy" rendertarget="light" recovering=""><nav><ul><li><a href="/examples" class="">首页</a></li><li><a href="/examples/static" class="">静态页面</a></li><li><a href="/examples/params/web-widget" class="">动态路由</a></li><li><a href="/examples/fetch" class="">数据获取</a></li><li><a href="/examples/action" class="">服务器操作</a></li><li><a href="/examples/frameworks" class="">多框架共存</a></li><li><a href="/examples/middleware" class="">中间件</a></li></ul></nav></web-widget><!--/$--></div></header><main class="_main_35ba78"><div class="_container_86428e"><h1 class="_pageTitle_86428e">🧅 中间件</h1><div class="_highlight_86428e _info_86428e"><h2>Web Widget 中间件系统</h2><p>中间件是 Web Widget 路由系统的核心组件，允许您在请求处理管道中插入自定义逻辑。 这个页面通过中间件动态修改了页面元数据，展示了中间件的强大能力。</p></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">响应头部演示</h3><div class="_infoPanel_86428e _warning_86428e"><h4>🚀 实时性能监控</h4><p>这个页面的中间件还添加了多个自定义响应头部。您可以通过浏览器开发者工具观察：</p><ul style="margin:0;padding-left:1.5rem"><li><strong>Network 面板</strong>：查看 <code>Server-Timing</code> <!-- -->头部的性能计时信息</li><li><strong>Response Headers</strong>：查看<!-- --> <code>X-Processing-Time</code>、<code>X-Request-ID</code> 等头部</li><li><strong>安全头部</strong>：<code>X-Content-Type-Options</code>、<code>X-Frame-Options</code> 等</li></ul></div></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">页面元数据操作演示</h3><div class="_infoPanel_86428e _success_86428e"><h4>🔧 动态修改的页面元数据</h4><p>当前页面的 <code>&lt;meta&gt;</code> <!-- -->标签和脚本都是通过中间件动态修改的：</p><ul style="margin:0;padding-left:1.5rem"><li><strong>描述信息</strong>：动态添加了SEO友好的页面描述</li><li><strong>关键词</strong>：注入了&quot;middleware, web widget, demo&quot;等关键词</li><li><strong>动态脚本</strong>：注入了一段JavaScript代码（检查浏览器控制台）</li></ul></div><div class="_codeBlock_86428e _mb4_86428e"><h4>中间件代码示例</h4><pre><code>// index@middleware.ts
+        <header class="_header_35ba78"><div class="_headerContent_35ba78"><div class="_brandLogo_35ba78"><a class="_brandText_35ba78" href="/">Web Widget</a><div class="_techStackBadge_35ba78"><span class="_reactIcon_35ba78">⚛️</span><span class="_techText_35ba78">for React</span></div></div><!--$--><web-widget import="/routes/examples/(components)/Navigation@widget.tsx" name="Navigation" loading="lazy" rendertarget="light" recovering=""><nav><ul><li><a href="/examples" class="">首页</a></li><li><a href="/examples/static" class="">静态页面</a></li><li><a href="/examples/params/web-widget" class="">动态路由</a></li><li><a href="/examples/fetch" class="">数据获取</a></li><li><a href="/examples/action" class="">服务器操作</a></li><li><a href="/examples/frameworks" class="">多框架共存</a></li><li><a href="/examples/middleware" class="">中间件</a></li></ul></nav></web-widget><!--/$--></div></header><main class="_main_35ba78"><div class="_container_86428e"><h1 class="_pageTitle_86428e">🧅 中间件</h1><div class="_highlight_86428e _info_86428e"><h2>Web Widget 中间件系统</h2><p>中间件是 Web Widget 路由系统的核心组件，允许您在请求处理管道中插入自定义逻辑。 这个页面通过中间件动态修改了页面元数据，展示了中间件的强大能力。</p></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">响应头部演示</h3><div class="_infoPanel_86428e _warning_86428e"><h4>🚀 实时性能监控</h4><p>这个页面的中间件还添加了自定义响应头部。您可以通过浏览器开发者工具观察：</p><ul style="margin:0;padding-left:1.5rem"><li><strong>Network 面板</strong>：查看 <code>X-Powered-By</code> <!-- -->演示标头</li></ul></div></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">页面元数据操作演示</h3><div class="_infoPanel_86428e _success_86428e"><h4>🔧 动态修改的页面元数据</h4><p>当前页面的 <code>&lt;meta&gt;</code> <!-- -->标签和脚本都是通过中间件动态修改的：</p><ul style="margin:0;padding-left:1.5rem"><li><strong>描述信息</strong>：动态添加了SEO友好的页面描述</li><li><strong>关键词</strong>：注入了&quot;middleware, web widget, demo&quot;等关键词</li><li><strong>动态脚本</strong>：注入了一段JavaScript代码（检查浏览器控制台）</li></ul></div><div class="_codeBlock_86428e _mb4_86428e"><h4>中间件代码示例</h4><pre><code>// routes/examples/middleware/index@middleware.ts
 import { defineMiddlewareHandler, mergeMeta } from &#x27;@web-widget/helpers&#x27;;
 
 export const handler = defineMiddlewareHandler(
   async function middlewareDemo(context, next) {
-    // 修改页面元数据
+    // 如果当前路由是页面，那么会有元数据对象，中间件可以在这里添加默认值
     if (context.meta) {
       context.meta = mergeMeta(context.meta, {
         title: &#x27;中间件 - Web Widget&#x27;,
         description: &#x27;这是一个中间件页面...&#x27;,
         keywords: &#x27;middleware, web widget, demo&#x27;,
-        script: [{
-          content: &#x27;console.log(&quot;中间件动态插入的脚本！&quot;);&#x27;
-        }]
+        script: [
+          {
+            content: &#x27;console.log(&quot;中间件动态插入的脚本！&quot;);&#x27;,
+          },
+        ],
       });
     }
-    
+
+    // 执行下一个中间件/路由处理器
     const response = await next();
-    // 添加自定义响应头...
+
+    // 添加示例响应头
+    response.headers.set(&#x27;X-Powered-By&#x27;, &#x27;Web Widget Middleware Example&#x27;);
+
     return response;
   }
 );</code></pre></div></div></div></main><footer class="_footer_35ba78"><div class="_footerContent_35ba78"><div class="_footerBrand_35ba78"><h3 class="_footerBrandName_35ba78">Web Widget</h3><p class="_footerTagline_35ba78">Simplicity is the ultimate sophistication</p></div><div class="_footerLinks_35ba78"><a href="https://github.com/web-widget/web-widget#readme" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">📚 文档</a><a href="https://github.com/web-widget/web-widget" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">⭐ GitHub</a></div></div></footer>
@@ -195,15 +201,8 @@ export const handler = defineMiddlewareHandler(
 exports[`Should match snapshot > Request "/examples/middleware" should match snapshot > /examples/middleware@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "referrer-policy": "strict-origin-when-cross-origin",
-  "server-timing": "middleware;dur=1;desc="Middleware Demo Processing"",
-  "x-content-type-options": "nosniff",
-  "x-frame-options": "DENY",
   "x-module-source": "source://./routes/examples/middleware/index@route.tsx",
-  "x-powered-by": "Web Widget Middleware Demo",
-  "x-processing-time": "1ms",
-  "x-request-id": "req-1752505717032-cm62k5ah7",
-  "x-xss-protection": "1; mode=block",
+  "x-powered-by": "Web Widget Middleware Example",
 }
 `;
 

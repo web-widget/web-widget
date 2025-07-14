@@ -26,20 +26,12 @@ export default defineRouteComponent(function Page() {
           <div className={`${shared.infoPanel} ${shared.warning}`}>
             <h4>🚀 实时性能监控</h4>
             <p>
-              这个页面的中间件还添加了多个自定义响应头部。您可以通过浏览器开发者工具观察：
+              这个页面的中间件还添加了自定义响应头部。您可以通过浏览器开发者工具观察：
             </p>
             <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
               <li>
-                <strong>Network 面板</strong>：查看 <code>Server-Timing</code>{' '}
-                头部的性能计时信息
-              </li>
-              <li>
-                <strong>Response Headers</strong>：查看{' '}
-                <code>X-Processing-Time</code>、<code>X-Request-ID</code> 等头部
-              </li>
-              <li>
-                <strong>安全头部</strong>：<code>X-Content-Type-Options</code>、
-                <code>X-Frame-Options</code> 等
+                <strong>Network 面板</strong>：查看 <code>X-Powered-By</code>{' '}
+                演示标头
               </li>
             </ul>
           </div>
@@ -71,25 +63,31 @@ export default defineRouteComponent(function Page() {
           <div className={`${shared.codeBlock} ${shared.mb4}`}>
             <h4>中间件代码示例</h4>
             <pre>
-              <code>{`// index@middleware.ts
+              <code>{`// routes/examples/middleware/index@middleware.ts
 import { defineMiddlewareHandler, mergeMeta } from '@web-widget/helpers';
 
 export const handler = defineMiddlewareHandler(
   async function middlewareDemo(context, next) {
-    // 修改页面元数据
+    // 如果当前路由是页面，那么会有元数据对象，中间件可以在这里添加默认值
     if (context.meta) {
       context.meta = mergeMeta(context.meta, {
         title: '中间件 - Web Widget',
         description: '这是一个中间件页面...',
         keywords: 'middleware, web widget, demo',
-        script: [{
-          content: 'console.log("中间件动态插入的脚本！");'
-        }]
+        script: [
+          {
+            content: 'console.log("中间件动态插入的脚本！");',
+          },
+        ],
       });
     }
-    
+
+    // 执行下一个中间件/路由处理器
     const response = await next();
-    // 添加自定义响应头...
+
+    // 添加示例响应头
+    response.headers.set('X-Powered-By', 'Web Widget Middleware Example');
+
     return response;
   }
 );`}</code>
