@@ -1,0 +1,243 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Should match snapshot > Request "/" should match snapshot > /@body 1`] = `""`;
+
+exports[`Should match snapshot > Request "/" should match snapshot > /@headers 1`] = `
+{
+  "location": "/examples",
+  "x-powered-by": "@web-widget/web-router",
+}
+`;
+
+exports[`Should match snapshot > Request "/" should match snapshot > /@status 1`] = `307`;
+
+exports[`Should match snapshot > Request "/" should match snapshot > /@statusText 1`] = `"Temporary Redirect"`;
+
+exports[`Should match snapshot > Request "/examples" should match snapshot > /examples@body 1`] = `
+"<!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Web Widget - 欢迎</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/examples","params":{}}</script>
+      </head>
+      <body>
+        <header class="_header_35ba78"><div class="_headerContent_35ba78"><div class="_brandLogo_35ba78"><a class="_brandText_35ba78" href="/">Web Widget</a><div class="_techStackBadge_35ba78"><span class="_reactIcon_35ba78">⚛️</span><span class="_techText_35ba78">for React</span></div></div><!--$--><web-widget import="/routes/examples/(components)/Navigation@widget.tsx" name="Navigation" loading="lazy" rendertarget="light" recovering=""><nav><ul><li><a href="/examples" class="">首页</a></li><li><a href="/examples/static" class="">静态页面</a></li><li><a href="/examples/params/web-widget" class="">动态路由</a></li><li><a href="/examples/fetch" class="">数据获取</a></li><li><a href="/examples/action" class="">服务器操作</a></li><li><a href="/examples/frameworks" class="">多框架共存</a></li><li><a href="/examples/middleware" class="">中间件</a></li></ul></nav></web-widget><!--/$--></div></header><main class="_main_35ba78"><div class="_container_86428e"><div class="_hero_d74fe1"><h1 class="_pageTitle_86428e">简单、充满力量<br/>技术栈中立的应用框架</h1><p class="_subtitle_d74fe1">建立在 Web 标准之上、跨平台、可驱动多种前端 UI 框架</p><div class="_heroDemo_d74fe1"><p class="_demoIntro_d74fe1">⚡ 孤岛架构</p><!--$--><web-widget import="/routes/examples/(components)/Counter@widget.tsx" name="ReactCounter" loading="lazy" rendertarget="light" contextdata="{&quot;count&quot;:0}" recovering=""><div class="_counter_f84f89" data-variant="react"><span class="_counterLabel_f84f89">React<!-- --> Counter</span><button class="_button_f84f89" aria-label="减少计数">−</button><span class="_count_f84f89" aria-label="当前计数: 0">0</span><button class="_button_f84f89" aria-label="增加计数">+</button></div></web-widget><!--/$--><p class="_demoHint_d74fe1">仅发送必要的 JavaScript 到客户端</p></div></div><div class="_mb6_86428e"><h2 class="_sectionTitle_86428e">基本示例</h2><p class="_textMuted_86428e _textCenter_86428e _mb4_86428e">以下是 Web Widget 核心功能的实际演示，点击即可体验：</p><div class="_grid_86428e _grid3_86428e"><a class="_card_86428e _cardHover_86428e _linkCard_86428e" href="/examples/static"><div class="_textCenter_86428e"><div class="_cardIcon_86428e">📄</div><h3 class="_cardTitle_86428e">静态页面</h3><p class="_cardDescription_86428e">纯静态 HTML 页面，无需客户端 JavaScript</p></div></a><a class="_card_86428e _cardHover_86428e _linkCard_86428e" href="/examples/params/web-widget"><div class="_textCenter_86428e"><div class="_cardIcon_86428e">🎯</div><h3 class="_cardTitle_86428e">动态路由</h3><p class="_cardDescription_86428e">基于文件系统的动态路由处理</p></div></a><a class="_card_86428e _cardHover_86428e _linkCard_86428e" href="/examples/fetch"><div class="_textCenter_86428e"><div class="_cardIcon_86428e">🔄</div><h3 class="_cardTitle_86428e">数据获取</h3><p class="_cardDescription_86428e">在服务器端获取数据并渲染为静态 HTML</p></div></a><a class="_card_86428e _cardHover_86428e _linkCard_86428e" href="/examples/action"><div class="_textCenter_86428e"><div class="_cardIcon_86428e">⚡</div><h3 class="_cardTitle_86428e">服务器操作</h3><p class="_cardDescription_86428e">从客户端直接调用服务器端函数</p></div></a><a class="_card_86428e _cardHover_86428e _linkCard_86428e" href="/examples/frameworks"><div class="_textCenter_86428e"><div class="_cardIcon_86428e">🍀</div><h3 class="_cardTitle_86428e">多框架共存</h3><p class="_cardDescription_86428e">React 与 Vue 组件在同一页面无缝协作</p></div></a><a class="_card_86428e _cardHover_86428e _linkCard_86428e" href="/examples/middleware"><div class="_textCenter_86428e"><div class="_cardIcon_86428e">🧅</div><h3 class="_cardTitle_86428e">中间件</h3><p class="_cardDescription_86428e">强大的中间件管道，支持修改页面元数据、添加响应头等</p></div></a></div></div></div></main><footer class="_footer_35ba78"><div class="_footerContent_35ba78"><div class="_footerBrand_35ba78"><h3 class="_footerBrandName_35ba78">Web Widget</h3><p class="_footerTagline_35ba78">Simplicity is the ultimate sophistication</p></div><div class="_footerLinks_35ba78"><a href="https://github.com/web-widget/web-widget#readme" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">📚 文档</a><a href="https://github.com/web-widget/web-widget" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">⭐ GitHub</a></div></div></footer>
+      </body>
+    </html>"
+`;
+
+exports[`Should match snapshot > Request "/examples" should match snapshot > /examples@headers 1`] = `
+{
+  "content-type": "text/html; charset=utf-8",
+  "x-module-source": "source://./routes/examples/index@route.tsx",
+  "x-powered-by": "@web-widget/web-router",
+}
+`;
+
+exports[`Should match snapshot > Request "/examples" should match snapshot > /examples@status 1`] = `200`;
+
+exports[`Should match snapshot > Request "/examples" should match snapshot > /examples@statusText 1`] = `"OK"`;
+
+exports[`Should match snapshot > Request "/examples/action" should match snapshot > /examples/action@body 1`] = `
+"<!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >服务器操作 - Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/examples/action","params":{}}</script>
+      </head>
+      <body>
+        <header class="_header_35ba78"><div class="_headerContent_35ba78"><div class="_brandLogo_35ba78"><a class="_brandText_35ba78" href="/">Web Widget</a><div class="_techStackBadge_35ba78"><span class="_reactIcon_35ba78">⚛️</span><span class="_techText_35ba78">for React</span></div></div><!--$--><web-widget import="/routes/examples/(components)/Navigation@widget.tsx" name="Navigation" loading="lazy" rendertarget="light" recovering=""><nav><ul><li><a href="/examples" class="">首页</a></li><li><a href="/examples/static" class="">静态页面</a></li><li><a href="/examples/params/web-widget" class="">动态路由</a></li><li><a href="/examples/fetch" class="">数据获取</a></li><li><a href="/examples/action" class="">服务器操作</a></li><li><a href="/examples/frameworks" class="">多框架共存</a></li><li><a href="/examples/middleware" class="">中间件</a></li></ul></nav></web-widget><!--/$--></div></header><main class="_main_35ba78"><div class="_container_86428e"><h1 class="_pageTitle_86428e">⚡ 服务器操作</h1><div class="_highlight_86428e _info_86428e"><h2>从客户端直接调用服务器端函数</h2><p>服务器操作允许您直接从客户端组件运行服务器端函数， 在前端和后端代码之间建立无缝桥梁。</p></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">核心特性</h3><div class="_grid_86428e _grid3_86428e"><div class="_card_86428e"><div class="_cardIcon_86428e">🔒</div><h4 class="_cardTitle_86428e">类型安全</h4><p class="_cardDescription_86428e">TypeScript 类型检查覆盖客户端到服务器的完整调用链</p></div><div class="_card_86428e"><div class="_cardIcon_86428e">🔄</div><h4 class="_cardTitle_86428e">自动序列化</h4><p class="_cardDescription_86428e">自动处理参数和返回值的序列化，无需手动转换</p></div><div class="_card_86428e"><div class="_cardIcon_86428e">📞</div><h4 class="_cardTitle_86428e">直接调用</h4><p class="_cardDescription_86428e">像调用本地函数一样调用服务器函数，无需编写 API 路由</p></div></div></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">代码示例</h3><div class="_mb4_86428e"><h4 class="_subsectionTitle_86428e">1. 定义服务器函数 (functions@action.ts)</h4><pre class="_codeBlock_86428e">export async function echoMessage(message: string) {
+  // 服务器端处理逻辑
+  return {
+    original: message,
+    echo: \`服务器回显: \${message}\`,
+    timestamp: new Date().toISOString(),
+    server: &#x27;Web Widget Server&#x27;
+  };
+}</pre></div><div class="_mb4_86428e"><h4 class="_subsectionTitle_86428e">2. 客户端调用 (Echo@widget.tsx)</h4><pre class="_codeBlock_86428e">import { echoMessage } from &#x27;./functions@action&#x27;;
+
+export default function Echo() {
+  const handleSubmit = async (message: string) =&gt; {
+    // 直接调用服务器函数
+    const result = await echoMessage(message);
+    console.log(result); // 类型安全的结果
+  };
+  
+  return &lt;form onSubmit={handleSubmit}&gt;...&lt;/form&gt;;
+}</pre></div></div><div class="_infoPanel_86428e _success_86428e"><h3 class="_subsectionTitle_86428e">交互演示</h3><p>在下方输入一些文本。点击&quot;发送到服务器&quot;后，文本将被发送到服务器端函数进行处理， 并返回包含时间戳和服务器信息的响应。</p><div style="margin-top:1.5rem"><!--$--><web-widget import="/routes/examples/action/Echo@widget.tsx" name="Echo" loading="lazy" rendertarget="light" recovering=""><div class="_echoWidget_3e29ba"><form><div class="_inputGroup_3e29ba"><label for="echo-input" class="_label_3e29ba">💬 输入消息</label><div class="_inputContainer_3e29ba"><input id="echo-input" type="text" placeholder="输入任何文本，服务器将回显处理结果..." class="_input_3e29ba" value=""/><button type="submit" class="_button_3e29ba" disabled="">📤 发送到服务器</button></div></div></form></div></web-widget><!--/$--></div></div><div class="_comparison_86428e"><h3 class="_subsectionTitle_86428e _textCenter_86428e">与传统 API 的对比</h3><div class="_comparisonGrid_86428e"><div class="_comparisonItem_86428e"><h4 class="_cardTitle_86428e" style="color:var(--color-error);margin-bottom:1rem">传统 REST API</h4><ul style="list-style:none;padding:0"><li>❌ 需要创建独立的 API 路由</li><li>⚙️ 手动处理请求/响应序列化</li><li>🔄 客户端和服务端类型容易不同步</li><li>🛠️ 需要额外的错误处理和状态管理</li><li>🔗 URL 路径和参数容易出错</li></ul></div><div class="_comparisonItem_86428e"><h4 class="_cardTitle_86428e" style="color:var(--color-success);margin-bottom:1rem">Web Widget 服务器操作</h4><ul style="list-style:none;padding:0"><li>✅ 函数即 API，无需额外路由</li><li>⚡ 自动序列化，无需手动转换</li><li>🔒 完整的 TypeScript 类型安全</li><li>🎯 内置加载和错误状态</li><li>📞 像本地函数一样直接调用</li></ul></div></div></div></div></main><footer class="_footer_35ba78"><div class="_footerContent_35ba78"><div class="_footerBrand_35ba78"><h3 class="_footerBrandName_35ba78">Web Widget</h3><p class="_footerTagline_35ba78">Simplicity is the ultimate sophistication</p></div><div class="_footerLinks_35ba78"><a href="https://github.com/web-widget/web-widget#readme" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">📚 文档</a><a href="https://github.com/web-widget/web-widget" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">⭐ GitHub</a></div></div></footer>
+      </body>
+    </html>"
+`;
+
+exports[`Should match snapshot > Request "/examples/action" should match snapshot > /examples/action@headers 1`] = `
+{
+  "content-type": "text/html; charset=utf-8",
+  "x-module-source": "source://./routes/examples/action/index@route.tsx",
+  "x-powered-by": "@web-widget/web-router",
+}
+`;
+
+exports[`Should match snapshot > Request "/examples/action" should match snapshot > /examples/action@status 1`] = `200`;
+
+exports[`Should match snapshot > Request "/examples/action" should match snapshot > /examples/action@statusText 1`] = `"OK"`;
+
+exports[`Should match snapshot > Request "/examples/api/hello" should match snapshot > /examples/api/hello@body 1`] = `"[{"title":"👋🌍","url":"#id0"},{"title":"你好世界","url":"#id1"},{"title":"Hello world","url":"#id2"},{"title":"こんにちは世界","url":"#id3"},{"title":"مرحبا بالعالم","url":"#id4"},{"title":"헬로월드","url":"#id5"}]"`;
+
+exports[`Should match snapshot > Request "/examples/api/hello" should match snapshot > /examples/api/hello@headers 1`] = `
+{
+  "content-type": "application/json; charset=utf-8",
+  "x-powered-by": "@web-widget/web-router",
+}
+`;
+
+exports[`Should match snapshot > Request "/examples/api/hello" should match snapshot > /examples/api/hello@status 1`] = `200`;
+
+exports[`Should match snapshot > Request "/examples/api/hello" should match snapshot > /examples/api/hello@statusText 1`] = `""`;
+
+exports[`Should match snapshot > Request "/examples/fetch" should match snapshot > /examples/fetch@body 1`] = `
+"<!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >数据获取 - Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/examples/fetch","params":{}}</script>
+      </head>
+      <body>
+        <header class="_header_35ba78"><div class="_headerContent_35ba78"><div class="_brandLogo_35ba78"><a class="_brandText_35ba78" href="/">Web Widget</a><div class="_techStackBadge_35ba78"><span class="_reactIcon_35ba78">⚛️</span><span class="_techText_35ba78">for React</span></div></div><!--$--><web-widget import="/routes/examples/(components)/Navigation@widget.tsx" name="Navigation" loading="lazy" rendertarget="light" recovering=""><nav><ul><li><a href="/examples" class="">首页</a></li><li><a href="/examples/static" class="">静态页面</a></li><li><a href="/examples/params/web-widget" class="">动态路由</a></li><li><a href="/examples/fetch" class="">数据获取</a></li><li><a href="/examples/action" class="">服务器操作</a></li><li><a href="/examples/frameworks" class="">多框架共存</a></li><li><a href="/examples/middleware" class="">中间件</a></li></ul></nav></web-widget><!--/$--></div></header><main class="_main_35ba78"><div class="_container_86428e"><h1 class="_pageTitle_86428e">🔄 数据获取</h1><div class="_highlight_86428e _info_86428e"><h2>在服务器端获取数据并渲染为静态 HTML</h2><p>以下数据在服务器端获取并呈现为静态 HTML。 无需等待客户端加载和数据请求，内容即时可见。</p></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">服务器端数据获取的优势</h3><div class="_grid_86428e _grid3_86428e"><div class="_card_86428e"><div class="_cardIcon_86428e">🔍</div><h4 class="_cardTitle_86428e">SEO 优化</h4><p class="_cardDescription_86428e">搜索引擎可以直接索引完整的数据内容</p></div><div class="_card_86428e"><div class="_cardIcon_86428e">📱</div><h4 class="_cardTitle_86428e">更好的用户体验</h4><p class="_cardDescription_86428e">特别适合移动设备和慢网络环境</p></div><div class="_card_86428e"><div class="_cardIcon_86428e">🛡️</div><h4 class="_cardTitle_86428e">数据安全</h4><p class="_cardDescription_86428e">敏感的 API 密钥和逻辑只在服务器端运行</p></div></div></div><div class="_infoPanel_86428e _success_86428e"><h3 class="_subsectionTitle_86428e">演示数据</h3><p>以下数据通过服务器端 API 调用获取：</p><div class="_grid_86428e _grid2_86428e" style="margin-top:1.5rem"><div class="_card_86428e"><h4 class="_cardTitle_86428e">👋🌍</h4><p class="_textMuted_86428e" style="margin:0">数据项 #<!-- -->1</p></div><div class="_card_86428e"><h4 class="_cardTitle_86428e">你好世界</h4><p class="_textMuted_86428e" style="margin:0">数据项 #<!-- -->2</p></div><div class="_card_86428e"><h4 class="_cardTitle_86428e">Hello world</h4><p class="_textMuted_86428e" style="margin:0">数据项 #<!-- -->3</p></div><div class="_card_86428e"><h4 class="_cardTitle_86428e">こんにちは世界</h4><p class="_textMuted_86428e" style="margin:0">数据项 #<!-- -->4</p></div><div class="_card_86428e"><h4 class="_cardTitle_86428e">مرحبا بالعالم</h4><p class="_textMuted_86428e" style="margin:0">数据项 #<!-- -->5</p></div><div class="_card_86428e"><h4 class="_cardTitle_86428e">헬로월드</h4><p class="_textMuted_86428e" style="margin:0">数据项 #<!-- -->6</p></div></div><div style="margin-top:1.5rem"><p><strong>数据源：</strong><a href="/examples/api/hello" target="_blank" class="_link_86428e">/api/hello</a></p><p class="_textMuted_86428e" style="font-size:0.875rem;margin-top:0.5rem">点击上方链接可以查看原始 API 响应数据</p></div></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">实现方式</h3><div class="_mb4_86428e"><h4 class="_subsectionTitle_86428e">1. 定义页面处理器</h4><pre class="_codeBlock_86428e">export const handler = defineRouteHandler&lt;HelloData&gt;({
+  async GET({ request, renderWidth }) {
+    // 在服务器端获取数据
+    const res = await fetch(api);
+    const data = await res.json();
+    
+    // 将数据传递给页面组件
+    return renderWidth }) {(data);
+  },
+});</pre></div><div><h4 class="_subsectionTitle_86428e">2. 页面组件接收数据</h4><pre class="_codeBlock_86428e">export default defineRouteComponent&lt;HelloData&gt;(
+  function Page({ data }) {
+    return (
+      &lt;div&gt;
+        {data.map(item =&gt; (
+          &lt;div key={item.id}&gt;{item.title}&lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+    );
+  }
+);</pre></div></div></div></main><footer class="_footer_35ba78"><div class="_footerContent_35ba78"><div class="_footerBrand_35ba78"><h3 class="_footerBrandName_35ba78">Web Widget</h3><p class="_footerTagline_35ba78">Simplicity is the ultimate sophistication</p></div><div class="_footerLinks_35ba78"><a href="https://github.com/web-widget/web-widget#readme" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">📚 文档</a><a href="https://github.com/web-widget/web-widget" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">⭐ GitHub</a></div></div></footer>
+      </body>
+    </html>"
+`;
+
+exports[`Should match snapshot > Request "/examples/fetch" should match snapshot > /examples/fetch@headers 1`] = `
+{
+  "content-type": "text/html; charset=utf-8",
+  "x-module-source": "source://./routes/examples/fetch/index@route.tsx",
+  "x-powered-by": "@web-widget/web-router",
+}
+`;
+
+exports[`Should match snapshot > Request "/examples/fetch" should match snapshot > /examples/fetch@status 1`] = `200`;
+
+exports[`Should match snapshot > Request "/examples/fetch" should match snapshot > /examples/fetch@statusText 1`] = `"OK"`;
+
+exports[`Should match snapshot > Request "/examples/frameworks" should match snapshot > /examples/frameworks@body 1`] = `
+"<!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >多框架共存 - Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/examples/frameworks","params":{}}</script>
+      </head>
+      <body>
+        <header class="_header_35ba78"><div class="_headerContent_35ba78"><div class="_brandLogo_35ba78"><a class="_brandText_35ba78" href="/">Web Widget</a><div class="_techStackBadge_35ba78"><span class="_reactIcon_35ba78">⚛️</span><span class="_techText_35ba78">for React</span></div></div><!--$--><web-widget import="/routes/examples/(components)/Navigation@widget.tsx" name="Navigation" loading="lazy" rendertarget="light" recovering=""><nav><ul><li><a href="/examples" class="">首页</a></li><li><a href="/examples/static" class="">静态页面</a></li><li><a href="/examples/params/web-widget" class="">动态路由</a></li><li><a href="/examples/fetch" class="">数据获取</a></li><li><a href="/examples/action" class="">服务器操作</a></li><li><a href="/examples/frameworks" class="">多框架共存</a></li><li><a href="/examples/middleware" class="">中间件</a></li></ul></nav></web-widget><!--/$--></div></header><main class="_main_35ba78"><div class="_container_86428e"><h1 class="_pageTitle_86428e">🍀 多框架共存</h1><div class="_highlight_86428e _info_86428e"><h2>React 与 Vue 组件在同一页面中协作</h2><p>Web Widget 的核心特性之一是支持多个前端框架在同一个应用中无缝共存。 以下演示展示了 React 和 Vue 组件如何在同一页面中协同工作。</p></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">框架共存演示</h3><div class="_grid_86428e _grid2_86428e"><div class="_card_86428e"><h4 class="_cardTitle_86428e">⚛️ React 计数器</h4><p class="_cardDescription_86428e">使用 React 19 和现代 Hooks 实现的计数器组件</p><div class="_mt3_86428e"><!--$--><web-widget import="/routes/examples/(components)/Counter@widget.tsx" name="ReactCounter" loading="lazy" rendertarget="light" contextdata="{&quot;count&quot;:0,&quot;variant&quot;:&quot;react&quot;}" recovering=""><div class="_counter_f84f89" data-variant="react"><span class="_counterLabel_f84f89">React<!-- --> Counter</span><button class="_button_f84f89" aria-label="减少计数">−</button><span class="_count_f84f89" aria-label="当前计数: 0">0</span><button class="_button_f84f89" aria-label="增加计数">+</button></div></web-widget><!--/$--></div></div><div class="_card_86428e"><h4 class="_cardTitle_86428e">💚 Vue 计数器</h4><p class="_cardDescription_86428e">使用 Vue 3 Composition API 实现的计数器组件</p><div class="_mt3_86428e"><!--$--><web-widget import="/routes/examples/(components)/Counter@widget.vue" name="VueCounter" loading="lazy" rendertarget="light" contextdata="{&quot;count&quot;:0,&quot;variant&quot;:&quot;vue&quot;}" recovering=""><div class="counter" data-variant="vue" data-v-8f2b1605><span class="counterLabel" data-v-8f2b1605>Vue Counter </span><button class="button" aria-label="减少计数" data-v-8f2b1605> − </button><span class="count" aria-label="当前计数: 0" data-v-8f2b1605>0</span><button class="button" aria-label="增加计数" data-v-8f2b1605> + </button></div></web-widget><!--/$--></div></div></div><div class="_infoPanel_86428e _success_86428e" style="margin-top:2rem"><h4>🎯 实际效果</h4><p>注意观察：两个计数器是完全独立的组件，分别使用不同的前端框架实现， 但它们可以在同一个页面中无缝运行，不会相互冲突。</p></div></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">技术特点</h3><div class="_grid_86428e _grid3_86428e"><div class="_card_86428e"><div class="_cardIcon_86428e">🔄</div><h4 class="_cardTitle_86428e">自动转换</h4><p class="_cardDescription_86428e">Vue 组件通过 Vite 自动转换为 React 组件</p></div><div class="_card_86428e"><div class="_cardIcon_86428e">⚡</div><h4 class="_cardTitle_86428e">同构渲染</h4><p class="_cardDescription_86428e">两个框架的组件都支持服务器端渲染和客户端 hydration</p></div><div class="_card_86428e"><div class="_cardIcon_86428e">🔒</div><h4 class="_cardTitle_86428e">类型安全</h4><p class="_cardDescription_86428e">TypeScript 类型定义确保跨框架组件调用的类型安全</p></div></div></div></div></main><footer class="_footer_35ba78"><div class="_footerContent_35ba78"><div class="_footerBrand_35ba78"><h3 class="_footerBrandName_35ba78">Web Widget</h3><p class="_footerTagline_35ba78">Simplicity is the ultimate sophistication</p></div><div class="_footerLinks_35ba78"><a href="https://github.com/web-widget/web-widget#readme" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">📚 文档</a><a href="https://github.com/web-widget/web-widget" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">⭐ GitHub</a></div></div></footer>
+      </body>
+    </html>"
+`;
+
+exports[`Should match snapshot > Request "/examples/frameworks" should match snapshot > /examples/frameworks@headers 1`] = `
+{
+  "content-type": "text/html; charset=utf-8",
+  "x-module-source": "source://./routes/examples/frameworks/index@route.tsx",
+  "x-powered-by": "@web-widget/web-router",
+}
+`;
+
+exports[`Should match snapshot > Request "/examples/frameworks" should match snapshot > /examples/frameworks@status 1`] = `200`;
+
+exports[`Should match snapshot > Request "/examples/frameworks" should match snapshot > /examples/frameworks@statusText 1`] = `"OK"`;
+
+exports[`Should match snapshot > Request "/examples/middleware" should match snapshot > /examples/middleware@body 1`] = `
+"<!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >中间件 - Web Widget</title><meta name="description" content="这是一个中间件页面..." /><meta name="keywords" content="middleware, web widget, demo" /><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script >console.log("中间件动态插入的脚本！");</script><script type="server:context">{"pathname":"/examples/middleware","params":{}}</script>
+      </head>
+      <body>
+        <header class="_header_35ba78"><div class="_headerContent_35ba78"><div class="_brandLogo_35ba78"><a class="_brandText_35ba78" href="/">Web Widget</a><div class="_techStackBadge_35ba78"><span class="_reactIcon_35ba78">⚛️</span><span class="_techText_35ba78">for React</span></div></div><!--$--><web-widget import="/routes/examples/(components)/Navigation@widget.tsx" name="Navigation" loading="lazy" rendertarget="light" recovering=""><nav><ul><li><a href="/examples" class="">首页</a></li><li><a href="/examples/static" class="">静态页面</a></li><li><a href="/examples/params/web-widget" class="">动态路由</a></li><li><a href="/examples/fetch" class="">数据获取</a></li><li><a href="/examples/action" class="">服务器操作</a></li><li><a href="/examples/frameworks" class="">多框架共存</a></li><li><a href="/examples/middleware" class="">中间件</a></li></ul></nav></web-widget><!--/$--></div></header><main class="_main_35ba78"><div class="_container_86428e"><h1 class="_pageTitle_86428e">🧅 中间件</h1><div class="_highlight_86428e _info_86428e"><h2>Web Widget 中间件系统</h2><p>中间件是 Web Widget 路由系统的核心组件，允许您在请求处理管道中插入自定义逻辑。 这个页面通过中间件动态修改了页面元数据，展示了中间件的强大能力。</p></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">响应头部演示</h3><div class="_infoPanel_86428e _warning_86428e"><h4>🚀 实时性能监控</h4><p>这个页面的中间件还添加了多个自定义响应头部。您可以通过浏览器开发者工具观察：</p><ul style="margin:0;padding-left:1.5rem"><li><strong>Network 面板</strong>：查看 <code>Server-Timing</code> <!-- -->头部的性能计时信息</li><li><strong>Response Headers</strong>：查看<!-- --> <code>X-Processing-Time</code>、<code>X-Request-ID</code> 等头部</li><li><strong>安全头部</strong>：<code>X-Content-Type-Options</code>、<code>X-Frame-Options</code> 等</li></ul></div></div><div class="_mb6_86428e"><h3 class="_sectionTitle_86428e">页面元数据操作演示</h3><div class="_infoPanel_86428e _success_86428e"><h4>🔧 动态修改的页面元数据</h4><p>当前页面的 <code>&lt;meta&gt;</code> <!-- -->标签和脚本都是通过中间件动态修改的：</p><ul style="margin:0;padding-left:1.5rem"><li><strong>描述信息</strong>：动态添加了SEO友好的页面描述</li><li><strong>关键词</strong>：注入了&quot;middleware, web widget, demo&quot;等关键词</li><li><strong>动态脚本</strong>：注入了一段JavaScript代码（检查浏览器控制台）</li></ul></div><div class="_codeBlock_86428e _mb4_86428e"><h4>中间件代码示例</h4><pre><code>// index@middleware.ts
+import { defineMiddlewareHandler, mergeMeta } from &#x27;@web-widget/helpers&#x27;;
+
+export const handler = defineMiddlewareHandler(
+  async function middlewareDemo(context, next) {
+    // 修改页面元数据
+    if (context.meta) {
+      context.meta = mergeMeta(context.meta, {
+        title: &#x27;中间件 - Web Widget&#x27;,
+        description: &#x27;这是一个中间件页面...&#x27;,
+        keywords: &#x27;middleware, web widget, demo&#x27;,
+        script: [{
+          content: &#x27;console.log(&quot;中间件动态插入的脚本！&quot;);&#x27;
+        }]
+      });
+    }
+    
+    const response = await next();
+    // 添加自定义响应头...
+    return response;
+  }
+);</code></pre></div></div></div></main><footer class="_footer_35ba78"><div class="_footerContent_35ba78"><div class="_footerBrand_35ba78"><h3 class="_footerBrandName_35ba78">Web Widget</h3><p class="_footerTagline_35ba78">Simplicity is the ultimate sophistication</p></div><div class="_footerLinks_35ba78"><a href="https://github.com/web-widget/web-widget#readme" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">📚 文档</a><a href="https://github.com/web-widget/web-widget" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">⭐ GitHub</a></div></div></footer>
+      </body>
+    </html>"
+`;
+
+exports[`Should match snapshot > Request "/examples/middleware" should match snapshot > /examples/middleware@headers 1`] = `
+{
+  "content-type": "text/html; charset=utf-8",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "server-timing": "middleware;dur=1;desc="Middleware Demo Processing"",
+  "x-content-type-options": "nosniff",
+  "x-frame-options": "DENY",
+  "x-module-source": "source://./routes/examples/middleware/index@route.tsx",
+  "x-powered-by": "Web Widget Middleware Demo",
+  "x-processing-time": "1ms",
+  "x-request-id": "req-1752505717032-cm62k5ah7",
+  "x-xss-protection": "1; mode=block",
+}
+`;
+
+exports[`Should match snapshot > Request "/examples/middleware" should match snapshot > /examples/middleware@status 1`] = `200`;
+
+exports[`Should match snapshot > Request "/examples/middleware" should match snapshot > /examples/middleware@statusText 1`] = `"OK"`;
+
+exports[`Should match snapshot > Request "/examples/static" should match snapshot > /examples/static@body 1`] = `
+"<!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >静态页面 - Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/examples/static","params":{}}</script>
+      </head>
+      <body>
+        <header class="_header_35ba78"><div class="_headerContent_35ba78"><div class="_brandLogo_35ba78"><a class="_brandText_35ba78" href="/">Web Widget</a><div class="_techStackBadge_35ba78"><span class="_reactIcon_35ba78">⚛️</span><span class="_techText_35ba78">for React</span></div></div><!--$--><web-widget import="/routes/examples/(components)/Navigation@widget.tsx" name="Navigation" loading="lazy" rendertarget="light" recovering=""><nav><ul><li><a href="/examples" class="">首页</a></li><li><a href="/examples/static" class="">静态页面</a></li><li><a href="/examples/params/web-widget" class="">动态路由</a></li><li><a href="/examples/fetch" class="">数据获取</a></li><li><a href="/examples/action" class="">服务器操作</a></li><li><a href="/examples/frameworks" class="">多框架共存</a></li><li><a href="/examples/middleware" class="">中间件</a></li></ul></nav></web-widget><!--/$--></div></header><main class="_main_35ba78"><div class="_container_86428e"><h1 class="_pageTitle_86428e">📄 静态页面</h1><div class="_highlight_86428e _info_86428e"><h2>纯静态 HTML，无需客户端 JavaScript</h2><p>当前页面是纯静态 HTML，无需任何客户端交互。 这意味着我们不需要加载任何 JavaScript 代码。</p></div><div class="_mb6_86428e"><h3 class="_subsectionTitle_86428e">特点与优势</h3><ul class="_featureList_86428e"><li><strong>快速加载</strong> - 无需等待 JavaScript 下载和执行</li><li><strong>SEO 友好</strong> - 搜索引擎可以直接索引完整内容</li><li><strong>低资源消耗</strong> - 减少客户端计算和电池消耗</li><li><strong>高可用性</strong> - 即使 JavaScript 被禁用也能正常显示</li></ul></div><div class="_demoList_cbb7dc"><h3 class="_subsectionTitle_86428e">验证方式</h3><p>你可以通过以下方式验证这是纯静态页面：</p><ol><li>右键查看页面源代码 - 内容已完全渲染在 HTML 中</li><li>打开开发者工具的 Network 面板并刷新页面 - 没有额外的 JavaScript 请求</li><li>禁用 JavaScript 后刷新页面 - 内容依然完整显示</li></ol></div><div class="_mb6_86428e"><h3 class="_subsectionTitle_86428e">实现方式</h3><p class="_textMuted_86428e">这个页面使用 <code>defineRouteComponent</code> 创建：</p><pre class="_codeBlock_86428e">export default defineRouteComponent(function Page() {
+  return (
+    &lt;BaseLayout&gt;
+      &lt;h1&gt;静态页面内容&lt;/h1&gt;
+      {/* 纯静态内容，无客户端交互 */}
+    &lt;/BaseLayout&gt;
+  );
+});</pre></div></div></main><footer class="_footer_35ba78"><div class="_footerContent_35ba78"><div class="_footerBrand_35ba78"><h3 class="_footerBrandName_35ba78">Web Widget</h3><p class="_footerTagline_35ba78">Simplicity is the ultimate sophistication</p></div><div class="_footerLinks_35ba78"><a href="https://github.com/web-widget/web-widget#readme" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">📚 文档</a><a href="https://github.com/web-widget/web-widget" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">⭐ GitHub</a></div></div></footer>
+      </body>
+    </html>"
+`;
+
+exports[`Should match snapshot > Request "/examples/static" should match snapshot > /examples/static@headers 1`] = `
+{
+  "content-type": "text/html; charset=utf-8",
+  "x-module-source": "source://./routes/examples/static/index@route.tsx",
+  "x-powered-by": "@web-widget/web-router",
+}
+`;
+
+exports[`Should match snapshot > Request "/examples/static" should match snapshot > /examples/static@status 1`] = `200`;
+
+exports[`Should match snapshot > Request "/examples/static" should match snapshot > /examples/static@statusText 1`] = `"OK"`;
