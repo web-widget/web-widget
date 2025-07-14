@@ -22,18 +22,38 @@ export default defineRouteComponent(function Page() {
         </div>
 
         <div className={shared.mb6}>
+          <h3 className={shared.sectionTitle}>响应头部演示</h3>
+          <div className={`${shared.infoPanel} ${shared.warning}`}>
+            <h4>🚀 实时性能监控</h4>
+            <p>
+              这个页面的中间件还添加了多个自定义响应头部。您可以通过浏览器开发者工具观察：
+            </p>
+            <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
+              <li>
+                <strong>Network 面板</strong>：查看 <code>Server-Timing</code>{' '}
+                头部的性能计时信息
+              </li>
+              <li>
+                <strong>Response Headers</strong>：查看{' '}
+                <code>X-Processing-Time</code>、<code>X-Request-ID</code> 等头部
+              </li>
+              <li>
+                <strong>安全头部</strong>：<code>X-Content-Type-Options</code>、
+                <code>X-Frame-Options</code> 等
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className={shared.mb6}>
           <h3 className={shared.sectionTitle}>页面元数据操作演示</h3>
           <div className={`${shared.infoPanel} ${shared.success}`}>
             <h4>🔧 动态修改的页面元数据</h4>
             <p>
-              当前页面的 <code>&lt;title&gt;</code>、<code>&lt;meta&gt;</code>{' '}
+              当前页面的 <code>&lt;meta&gt;</code>{' '}
               标签和脚本都是通过中间件动态修改的：
             </p>
             <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
-              <li>
-                <strong>页面标题</strong>：从"中间件演示"修改为"中间件演示 - Web
-                Widget"
-              </li>
               <li>
                 <strong>描述信息</strong>：动态添加了SEO友好的页面描述
               </li>
@@ -51,7 +71,7 @@ export default defineRouteComponent(function Page() {
           <div className={`${shared.codeBlock} ${shared.mb4}`}>
             <h4>中间件代码示例</h4>
             <pre>
-              <code>{`// middleware@middleware.ts
+              <code>{`// index@middleware.ts
 import { defineMiddlewareHandler, mergeMeta } from '@web-widget/helpers';
 
 export const handler = defineMiddlewareHandler(
@@ -74,30 +94,6 @@ export const handler = defineMiddlewareHandler(
   }
 );`}</code>
             </pre>
-          </div>
-        </div>
-
-        <div className={shared.mb6}>
-          <h3 className={shared.sectionTitle}>响应头部演示</h3>
-          <div className={`${shared.infoPanel} ${shared.warning}`}>
-            <h4>🚀 实时性能监控</h4>
-            <p>
-              这个页面的中间件还添加了多个自定义响应头部。您可以通过浏览器开发者工具观察：
-            </p>
-            <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
-              <li>
-                <strong>Network 面板</strong>：查看 <code>Server-Timing</code>{' '}
-                头部的性能计时信息
-              </li>
-              <li>
-                <strong>Response Headers</strong>：查看{' '}
-                <code>X-Processing-Time</code>、<code>X-Request-ID</code> 等头部
-              </li>
-              <li>
-                <strong>安全头部</strong>：<code>X-Content-Type-Options</code>、
-                <code>X-Frame-Options</code> 等
-              </li>
-            </ul>
           </div>
         </div>
       </div>

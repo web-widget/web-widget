@@ -8,16 +8,16 @@ export const handler = defineMiddlewareHandler(
     // 在请求开始时记录时间
     context.state.requestStart = startTime;
 
-    // 如果当前路由是页面，那么会有元数据对象，中间件可以修改它
+    // 如果当前路由是页面，那么会有元数据对象，中间件可以在这里添加默认值
+    // 修改页面元数据
     if (context.meta) {
       context.meta = mergeMeta(context.meta, {
         title: '中间件 - Web Widget',
-        description:
-          '这是一个中间件页面，展示如何在请求处理中添加自定义头部和处理时间。',
+        description: '这是一个中间件页面...',
         keywords: 'middleware, web widget, demo',
         script: [
           {
-            content: `console.log("这是中间件动态插入的脚本！");`,
+            content: 'console.log("中间件动态插入的脚本！");',
           },
         ],
       });
