@@ -5,6 +5,9 @@
 
 /* 根变量定义 - 明亮主题（默认） */
 :root {
+  /* 确保CSS变量在解析期间有稳定的后备值 */
+  /* 这防止了Safari等浏览器在变量加载时的闪烁问题 */
+
   /* 颜色系统 */
   --color-primary: #3b82f6;
   --color-primary-hover: #2563eb;
@@ -154,22 +157,27 @@
   }
 }
 
-/* 防止页面加载时的过渡动画闪烁 */
-html.loading *,
-html.loading *::before,
-html.loading *::after {
-  transition: none !important;
-}
-
-/* 仅为主题相关属性添加平滑过渡 */
+/* 精确控制过渡效果，避免Safari等浏览器的布局闪烁 */
+/* 关键原则：永远不要对可能影响布局的属性添加过渡 */
 *,
 *::before,
 *::after {
-  transition:
-    color var(--transition-fast),
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
+  /* 只为纯视觉属性添加过渡，这些属性的变化不会触发重排 */
+  transition-property:
+    color, background-color, border-color, opacity, box-shadow, filter,
+    text-decoration-color;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
+}
+
+/* 对于可能影响布局的属性（如 transform），单独控制 */
+/* 只在明确需要的元素上添加 transform 过渡 */
+.transform-enabled {
+  transition-property:
+    color, background-color, border-color, opacity, box-shadow, filter,
+    transform;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
 }
 
 /* 确保主题切换时页面的平滑过渡 */

@@ -41,7 +41,10 @@
   font-size: var(--font-size-base);
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
-  transition: var(--transition-fast);
+  /* 只为边框颜色和背景色添加过渡 */
+  transition-property: border-color, background-color, box-shadow;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
   min-height: 44px; /* 移动端友好的触摸目标 */
 }
 
@@ -64,7 +67,10 @@
   font-weight: 600;
   font-size: var(--font-size-base);
   cursor: pointer;
-  transition: var(--transition-fast);
+  /* 为按钮添加必要的过渡效果 */
+  transition-property: background-color, color, box-shadow, transform;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
   min-height: 44px;
   min-width: 100px;
   display: flex;

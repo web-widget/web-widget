@@ -12,7 +12,9 @@ ol {
 a {
   color: var(--color-primary);
   text-decoration: none;
-  transition: var(--transition-fast);
+  transition-property: color, text-decoration-color;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
 }
 a:hover {
   color: var(--color-primary-hover);
@@ -30,18 +32,24 @@ pre {
 }
 
 /* 确保根元素应用背景色，防止闪烁 */
+/* 使用具体的颜色值作为后备，确保CSS变量加载期间有稳定的显示 */
 html {
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  /* 确保CSS变量加载期间有后备颜色 */
+  /* 后备颜色 - 在CSS变量加载前使用 */
   background-color: #ffffff;
   color: #1e293b;
+  /* CSS变量 - 优先使用 */
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
 
 @media (prefers-color-scheme: dark) {
   html {
+    /* 后备颜色 */
     background-color: #0f172a;
     color: #f1f5f9;
+    /* CSS变量 */
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
   }
 }
 

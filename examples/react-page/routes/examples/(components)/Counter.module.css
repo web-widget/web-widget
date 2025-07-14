@@ -12,7 +12,10 @@
   background: var(--color-bg-primary);
   border-radius: var(--radius-lg);
   font-family: inherit;
-  transition: var(--transition-fast);
+  /* 明确指定需要过渡的属性 */
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
   min-width: 200px;
   position: relative;
   /* 默认使用主色调 */
@@ -52,7 +55,10 @@
   font-weight: 600;
   font-size: 1.2rem;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  /* 为按钮启用必要的过渡效果，包括transform */
+  transition-property: background-color, color, box-shadow, transform;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,7 +83,10 @@
   color: var(--counter-primary);
   min-width: 2.5rem;
   text-align: center;
-  transition: var(--transition-fast);
+  /* 只为颜色添加过渡 */
+  transition-property: color;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
   user-select: none;
 }
 

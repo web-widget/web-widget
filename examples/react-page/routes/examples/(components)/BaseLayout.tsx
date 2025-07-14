@@ -6,22 +6,6 @@ import Navigation from './Navigation@widget.tsx';
 export default function BaseLayout({ children }: ComponentProps<any>) {
   return (
     <>
-      {/* 防止页面加载时的动画闪烁 */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            // 在页面加载时添加loading类，防止动画闪烁
-            document.documentElement.classList.add('loading');
-            
-            // 页面加载完成后移除loading类
-            document.addEventListener('DOMContentLoaded', function() {
-              setTimeout(function() {
-                document.documentElement.classList.remove('loading');
-              }, 50);
-            });
-          `,
-        }}
-      />
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.brandLogo}>

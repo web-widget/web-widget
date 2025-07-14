@@ -78,7 +78,10 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
   padding: var(--spacing-lg);
-  transition: all var(--transition-normal);
+  /* 为卡片启用必要的过渡效果，包括transform */
+  transition-property: background-color, border-color, box-shadow, transform;
+  transition-duration: var(--transition-normal);
+  transition-timing-function: ease;
   color: var(--color-text-primary);
 }
 
@@ -285,7 +288,10 @@
   text-decoration: none;
   font-weight: 500;
   margin-left: var(--spacing-sm);
-  transition: var(--transition-fast);
+  /* 只为颜色和文本装饰添加过渡 */
+  transition-property: color, text-decoration-color;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
 }
 
 .linkPrimary:hover {

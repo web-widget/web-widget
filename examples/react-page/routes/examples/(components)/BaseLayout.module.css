@@ -68,7 +68,11 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   box-shadow: var(--shadow-sm);
-  transition: var(--transition-normal);
+  /* 专门为这个元素启用transform过渡 */
+  transition-property:
+    color, background-color, border-color, opacity, box-shadow, transform;
+  transition-duration: var(--transition-normal);
+  transition-timing-function: ease;
 }
 
 .techStackBadge:hover {
@@ -84,7 +88,10 @@
 
 .reactIcon {
   font-size: var(--font-size-base);
-  transition: var(--transition-normal);
+  /* 专门为图标缩放启用transform过渡 */
+  transition-property: transform;
+  transition-duration: var(--transition-normal);
+  transition-timing-function: ease;
 }
 
 .techStackBadge:hover .reactIcon {
@@ -127,7 +134,10 @@
   font-weight: 500;
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
-  transition: var(--transition-fast);
+  /* 明确指定需要过渡的属性 */
+  transition-property: background-color, color;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
   position: relative;
 }
 
@@ -146,6 +156,10 @@
   color: white;
   font-weight: 600;
   box-shadow: var(--shadow-md);
+  /* 为活跃状态的导航启用transform过渡 */
+  transition-property: background-color, color, box-shadow, transform;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
   transform: translateY(-1px);
 }
 
@@ -215,7 +229,10 @@
   color: var(--color-text-muted);
   text-decoration: none;
   font-size: var(--font-size-sm);
-  transition: var(--transition-fast);
+  /* 明确指定需要过渡的属性 */
+  transition-property: color;
+  transition-duration: var(--transition-fast);
+  transition-timing-function: ease;
 }
 
 .footerLink:hover {
