@@ -19,7 +19,6 @@ describe('Should match snapshot', () => {
     ['/meta'],
     ['/react-and-vue'],
     ['/react-server-component'],
-    // NOTE: React streaming rendering cannot output a stable HTML structure.
     ['/react-streaming'],
     ['/style'],
     // TODO: Fix the issue with the React import widgets.
@@ -36,26 +35,21 @@ describe('Should match snapshot', () => {
     ['/vue3-router'],
     /**/ ['/vue3-router/about'],
     ['/api/hello-world'],
-    ['/api/mock-users?username=react'],
-  ])('Request "%s" should match snapshot', async (pathname, status = 200) => {
-    const result = await fetch(`${pathname}`);
-    expect(result.status).toBe(status);
-    expect(result.statusText).toMatchSnapshot(`${pathname}@statusText`);
-    expect(Object.fromEntries(result.headers.entries())).toMatchSnapshot(
-      `${pathname}@headers`
-    );
-    expect(await result.text()).toMatchSnapshot(`${pathname}@body`);
-  });
-
-  test.each([['/react-streaming']])(
-    'Request "%s" should match status',
-    async (pathname, status = 200) => {
+    [
+      '/api/mock-users?username=react',
+      200,
+      (v: string) => v.replace(/<script>.*?<\/script>/g, ''),
+    ],
+  ])(
+    'Request "%s" should match snapshot',
+    async (pathname, status = 200, replace = (v: string) => v) => {
       const result = await fetch(`${pathname}`);
       expect(result.status).toBe(status);
       expect(result.statusText).toMatchSnapshot(`${pathname}@statusText`);
       expect(Object.fromEntries(result.headers.entries())).toMatchSnapshot(
         `${pathname}@headers`
       );
+      expect(replace(await result.text())).toMatchSnapshot(`${pathname}@body`);
     }
   );
 });

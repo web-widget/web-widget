@@ -563,16 +563,6 @@ exports[`Should match snapshot > Request "/react-streaming" should match snapsho
 
 exports[`Should match snapshot > Request "/react-streaming" should match snapshot > /react-streaming@statusText 1`] = `"OK"`;
 
-exports[`Should match snapshot > Request "/react-streaming" should match status > /react-streaming@headers 1`] = `
-{
-  "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/react-streaming@route.tsx",
-  "x-powered-by": "@web-widget/web-router",
-}
-`;
-
-exports[`Should match snapshot > Request "/react-streaming" should match status > /react-streaming@statusText 1`] = `"OK"`;
-
 exports[`Should match snapshot > Request "/style" should match snapshot > /style@body 1`] = `
 "<!doctype html>
     <html lang="en">
