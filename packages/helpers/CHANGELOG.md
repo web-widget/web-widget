@@ -1,5 +1,16 @@
 # @web-widget/helpers
 
+## 1.63.0
+
+### Patch Changes
+
+- Updated dependencies [0df6a09]
+  - @web-widget/schema@1.63.0
+  - @web-widget/context@1.63.0
+  - @web-widget/lifecycle-cache@1.63.0
+  - @web-widget/action@1.63.0
+  - @web-widget/purify@1.63.0
+
 ## 1.62.0
 
 ### Patch Changes
