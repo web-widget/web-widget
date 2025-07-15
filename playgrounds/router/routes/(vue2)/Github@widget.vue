@@ -1,22 +1,28 @@
 <script setup lang="ts">
 import { syncCacheProvider } from '@web-widget/helpers/cache';
+import { context } from '@web-widget/helpers/context';
 import { ref } from 'vue';
 
 const props = defineProps({
   username: String,
 });
 
-const url = `https://api.github.com/users/${props.username}`;
-const cacheKey = url + '@vue2';
+const url = `/api/mock-users?username=${props.username}`;
+const cacheKey = url;
 
 const data = syncCacheProvider(cacheKey, async () => {
-  console.log('[github]', 'fetch..');
-  const resp = await fetch(url);
+  console.log('[mock-users]', 'fetch..');
+
+  // Get current service URL from request context
+  const { request } = context();
+  const currentUrl = new URL(request.url);
+  const fullUrl = `${currentUrl.origin}${url}`;
+  const resp = await fetch(fullUrl);
   if (!resp.ok) {
-    throw new Error(`[github] ${JSON.stringify(await resp.json())}`);
+    throw new Error(`[mock-users] ${JSON.stringify(await resp.json())}`);
   }
-  const { name, location, avatar_url } = await resp.json();
-  return { name, location, avatar_url, ['vue2@</' + 'script>']: 1 };
+  const userData = await resp.json();
+  return { ...userData, ['vue2@</' + 'script>']: 1 };
 });
 
 const show = ref(false);
@@ -24,7 +30,7 @@ const show = ref(false);
 
 <template>
   <div>
-    <button @click="show = true">Vue: Show Github Info</button>
+    <button @click="show = true">Vue2: Show Framework Info</button>
     <pre v-show="show">{{ data }}</pre>
   </div>
 </template>
