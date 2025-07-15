@@ -12,7 +12,11 @@ describe('Should match snapshot', () => {
     /**/ ['/fallback?500', 500],
     /**/ ['/fallback?global-404', 404],
     /**/ ['/fallback?global-500', 500],
-    ['/fetching-data'],
+    [
+      '/fetching-data',
+      200,
+      (v: string) => v.replace(/<script>.*?<\/script>/g, ''),
+    ],
     ['/form'],
     ['/'],
     ['/lit-html-template'],
@@ -35,11 +39,7 @@ describe('Should match snapshot', () => {
     ['/vue3-router'],
     /**/ ['/vue3-router/about'],
     ['/api/hello-world'],
-    [
-      '/api/mock-users?username=react',
-      200,
-      (v: string) => v.replace(/<script>.*?<\/script>/g, ''),
-    ],
+    ['/api/mock-users?username=react'],
   ])(
     'Request "%s" should match snapshot',
     async (pathname, status = 200, replace = (v: string) => v) => {
