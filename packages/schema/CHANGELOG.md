@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.62.0
+
+### Minor Changes
+
+- d6add51: New rendering method `renderWith`, as a future replacement for the `render` method.
+
 ## 1.61.2
 
 ## 1.61.1

@@ -1,5 +1,16 @@
 # @web-widget/vue
 
+## 1.62.0
+
+### Patch Changes
+
+- Updated dependencies [d6add51]
+  - @web-widget/schema@1.62.0
+  - @web-widget/vite-plugin@1.62.0
+  - @web-widget/helpers@1.62.0
+  - @web-widget/react@1.62.0
+  - @web-widget/web-widget@1.62.0
+
 ## 1.61.2
 
 ### Patch Changes

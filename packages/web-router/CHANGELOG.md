@@ -1,5 +1,19 @@
 # @web-widget/web-router
 
+## 1.62.0
+
+### Minor Changes
+
+- d6add51: New rendering method `renderWith`, as a future replacement for the `render` method.
+
+### Patch Changes
+
+- @web-widget/context@1.62.0
+- @web-widget/helpers@1.62.0
+- @web-widget/lifecycle-cache@1.62.0
+- @web-widget/html@1.62.0
+- @web-widget/action@1.62.0
+
 ## 1.61.2
 
 ### Patch Changes
