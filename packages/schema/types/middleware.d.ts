@@ -10,7 +10,7 @@
  */
 
 import { KnownMethods, FetchContext } from './http';
-import { RouteContext } from './route-module';
+import { RouteContext } from './route';
 
 /**
  * Represents a middleware module that can contain handlers for different HTTP methods.

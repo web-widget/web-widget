@@ -6,10 +6,10 @@
  * HTTP types, metadata types, and rendering types.
  */
 
-export * from './action-module';
+export * from './action';
 export * from './http';
 export * from './meta';
-export * from './middleware-module';
+export * from './middleware';
 export * from './render';
-export * from './route-module';
-export * from './widget-module';
+export * from './route';
+export * from './widget';
