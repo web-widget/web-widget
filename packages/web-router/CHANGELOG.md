@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- d6add51: New rendering method `renderWith`, as a future replacement for the `render` method.
+- d6add51: New rendering method `renderWith`, as a future replacement for the `render` method (experimental).
 
 ### Patch Changes
 

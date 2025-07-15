@@ -394,8 +394,8 @@ describe('background tasks', () => {
   });
 });
 
-describe('renderWith method', () => {
-  test('renderWith should work with simple data', async () => {
+describe('html method', () => {
+  test('html should work with simple data', async () => {
     const testData = { message: 'Hello, World!' };
 
     const app = WebRouter.fromManifest({
@@ -405,7 +405,7 @@ describe('renderWith method', () => {
           module: {
             handler: {
               async GET(ctx: RouteContext) {
-                return ctx.renderWith(testData);
+                return ctx.html(testData);
               },
             },
             render: async (_component: any, props: any) => {
@@ -424,7 +424,7 @@ describe('renderWith method', () => {
     expect(html).toContain(JSON.stringify(testData));
   });
 
-  test('renderWith should work with meta options', async () => {
+  test('html should work with meta options', async () => {
     const testData = { message: 'Hello, World!' };
     const customTitle = 'Custom Page Title';
 
@@ -435,7 +435,7 @@ describe('renderWith method', () => {
           module: {
             handler: {
               async GET(ctx: RouteContext) {
-                return ctx.renderWith(testData, {
+                return ctx.html(testData, {
                   meta: {
                     title: customTitle,
                   },
@@ -458,7 +458,7 @@ describe('renderWith method', () => {
     expect(html).toContain(customTitle);
   });
 
-  test('renderWith should work with response options', async () => {
+  test('html should work with response options', async () => {
     const testData = { message: 'Hello, World!' };
 
     const app = WebRouter.fromManifest({
@@ -468,7 +468,7 @@ describe('renderWith method', () => {
           module: {
             handler: {
               async GET(ctx: RouteContext) {
-                return ctx.renderWith(testData, {
+                return ctx.html(testData, {
                   status: 201,
                   headers: {
                     'X-Custom-Header': 'test-value',
@@ -491,7 +491,7 @@ describe('renderWith method', () => {
     expect(response.headers.get('X-Custom-Header')).toBe('test-value');
   });
 
-  test('renderWith should support progressive rendering', async () => {
+  test('html should support progressive rendering', async () => {
     const testData = { message: 'Hello, World!' };
 
     const app = WebRouter.fromManifest({
@@ -501,8 +501,10 @@ describe('renderWith method', () => {
           module: {
             handler: {
               async GET(ctx: RouteContext) {
-                return ctx.renderWith(testData, {
-                  progressive: true,
+                return ctx.html(testData, {
+                  renderer: {
+                    progressive: true,
+                  },
                 });
               },
             },

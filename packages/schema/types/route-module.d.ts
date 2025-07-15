@@ -18,7 +18,7 @@ export interface RouteComponentProps<
   Params = Record<string, string>,
 > extends Omit<
     RouteContext<Data, Params>,
-    'render' | 'renderWith' | 'renderOptions' | 'waitUntil' | 'module'
+    'render' | 'html' | 'renderOptions' | 'renderer' | 'waitUntil' | 'module'
   > {}
 
 export type RouteComponent<Data = unknown, Params = Record<string, string>> = (
@@ -71,24 +71,32 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>>
       error?: HTTPException;
       meta?: Meta;
     },
-    renderOptions?: Omit<RouteRenderOptions, 'meta' | 'error'>
+    renderOptions?: RouteRenderOptions
   ): Response | Promise<Response>;
 
   /**
    * Render current route with specific data and options.
+   * @experimental
    */
-  renderWith(
+  html(
     data?: Data,
-    renderOptions?: RouteRenderOptions
+    options?: {
+      error?: HTTPException;
+      meta?: Meta;
+      renderer?: ServerRenderOptions;
+    } & ResponseInit
   ): Response | Promise<Response>;
 
   /**
    * This is the default option for the `render()` method.
    */
   renderOptions: RouteRenderOptions;
+
+  /**
+   * This is the default option for the renderer.
+   * @experimental
+   */
+  renderer: ServerRenderOptions;
 }
 
-export interface RouteRenderOptions extends ResponseInit, ServerRenderOptions {
-  meta?: Meta;
-  error?: HTTPException;
-}
+export interface RouteRenderOptions extends ResponseInit, ServerRenderOptions {}
