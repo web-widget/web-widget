@@ -81,6 +81,10 @@
       "module": "./routes/api/hello-world@route.ts"
     },
     {
+      "pathname": "/api/mock-users",
+      "module": "./routes/api/mock-users@route.ts"
+    },
+    {
       "pathname": "/vue2-server-component",
       "module": "./routes/(vue2)/vue2-server-component@route.vue"
     },

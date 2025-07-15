@@ -12,8 +12,7 @@ describe('Should match snapshot', () => {
     /**/ ['/fallback?500', 500],
     /**/ ['/fallback?global-404', 404],
     /**/ ['/fallback?global-500', 500],
-    // NOTE: React streaming rendering cannot output a stable HTML structure.
-    // ['/fetching-data'],
+    ['/fetching-data'],
     ['/form'],
     ['/'],
     ['/lit-html-template'],

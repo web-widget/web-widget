@@ -1,40 +1,40 @@
 import React, { useState } from 'react';
 import { syncCacheProvider } from '@web-widget/helpers/cache';
-
-interface GitHubUserData {
-  name: string;
-  location: string;
-  avatar_url: string;
-}
+import { context } from '@web-widget/helpers/context';
+import type { MockUserData } from '../api/mock-users@route.ts';
 
 interface Props {
   username: string;
 }
 
-const useFetchGithub = (username: string): GitHubUserData => {
-  const url = `https://api.github.com/users/${username}`;
-  const cacheKey = url + '@react';
+const useFetchUser = (username: string): MockUserData => {
+  const url = `/api/mock-users?username=${username}`;
+  const cacheKey = url;
   const data = syncCacheProvider(cacheKey, async () => {
-    console.log('[github]', 'fetch..');
+    console.log('[mock-users]', 'fetch..');
 
-    const resp = await fetch(url);
+    // Get current service URL from request context
+    const { request } = context();
+    const currentUrl = new URL(request.url);
+    const fullUrl = `${currentUrl.origin}${url}`;
+    const resp = await fetch(fullUrl);
     if (!resp.ok) {
-      throw new Error(`[github] ${JSON.stringify(await resp.json())}`);
+      throw new Error(`[mock-users] ${JSON.stringify(await resp.json())}`);
     }
-    const { name, location, avatar_url } = await resp.json();
-    return { name, location, avatar_url, 'react@</script>': 1 };
+    const userData = await resp.json();
+    return { ...userData, 'react@</script>': 1 };
   });
 
   return data;
 };
 
 const WidgetComponent: React.FC<Props> = ({ username }: Props) => {
-  const data = useFetchGithub(username);
+  const data = useFetchUser(username);
   const [show, setShow] = useState(false);
 
   return (
     <div>
-      <button onClick={() => setShow(true)}>React: Show Github Info</button>
+      <button onClick={() => setShow(true)}>React: Show Framework Info</button>
       <pre style={{ display: show ? 'block' : 'none' }}>
         {JSON.stringify(data, null, 2)}
       </pre>
