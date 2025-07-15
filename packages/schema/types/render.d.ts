@@ -1,5 +1,17 @@
 /**
+ * Rendering type definitions.
+ *
+ * This module defines the types for both server-side and client-side
+ * rendering, including render functions, options, and lifecycle hooks.
+ * These types provide the foundation for the rendering system,
+ * supporting SSR, CSR, and hydration scenarios.
+ *
+ * @module Rendering Types
+ */
+
+/**
  * The options required to render a component on the server side.
+ * These options control how the server-side rendering process works.
  */
 export interface ServerRenderOptions {
   /** If true, enable progressive (streaming) rendering. */
@@ -8,11 +20,13 @@ export interface ServerRenderOptions {
 
 /**
  * The result of a server-side render operation.
+ * Can be either a string (complete HTML) or a stream (progressive rendering).
  */
 export type ServerRenderResult = ReadableStream<string> | string;
 
 /**
  * A function that renders a component to HTML or stream on the server.
+ * This is the core interface for server-side rendering in the framework.
  * @param component The component to be rendered.
  * @param data The data to be passed to the component.
  * @param options The options for rendering.
@@ -33,6 +47,7 @@ export interface ServerRender<
 
 /**
  * The options required to render a component on the client side.
+ * These options control how the client-side rendering process works.
  */
 export interface ClientRenderOptions {
   /** The target DOM element or fragment where the component will be mounted. */
@@ -43,6 +58,7 @@ export interface ClientRenderOptions {
 
 /**
  * Lifecycle hooks returned by a client-side renderer.
+ * These hooks allow for fine-grained control over the component lifecycle.
  */
 export type ClientRenderResult<Data = unknown> = {
   /** Prepare any required state before mount. */
@@ -59,6 +75,7 @@ export type ClientRenderResult<Data = unknown> = {
 
 /**
  * A function that renders a component on the client (CSR or hydration).
+ * This is the core interface for client-side rendering in the framework.
  * @param component The component to be rendered.
  * @param data The data to be passed to the component.
  * @param options The options for rendering.
