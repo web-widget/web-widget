@@ -36,6 +36,7 @@ describe('Should match snapshot', () => {
     ['/vue3-router'],
     /**/ ['/vue3-router/about'],
     ['/api/hello-world'],
+    ['/api/mock-users?username=react'],
   ])('Request "%s" should match snapshot', async (pathname, status = 200) => {
     const result = await fetch(`${pathname}`);
     expect(result.status).toBe(status);
@@ -46,7 +47,7 @@ describe('Should match snapshot', () => {
     expect(await result.text()).toMatchSnapshot(`${pathname}@body`);
   });
 
-  test.each([['/fetching-data'], ['/react-streaming']])(
+  test.each([['/react-streaming']])(
     'Request "%s" should match status',
     async (pathname, status = 200) => {
       const result = await fetch(`${pathname}`);

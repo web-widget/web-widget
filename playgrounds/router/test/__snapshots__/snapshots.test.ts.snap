@@ -33,6 +33,17 @@ exports[`Should match snapshot > Request "/api/hello-world" should match snapsho
 
 exports[`Should match snapshot > Request "/api/hello-world" should match snapshot > /api/hello-world@statusText 1`] = `""`;
 
+exports[`Should match snapshot > Request "/api/mock-users?username=react" should match snapshot > /api/mock-users?username=react@body 1`] = `"{"name":"React","location":"Menlo Park, CA","avatar_url":"https://avatars.githubusercontent.com/u/70142?v=4","username":"react","bio":"The library for web and native user interfaces","followers":215000,"following":0,"public_repos":1250}"`;
+
+exports[`Should match snapshot > Request "/api/mock-users?username=react" should match snapshot > /api/mock-users?username=react@headers 1`] = `
+{
+  "content-type": "application/json; charset=utf-8",
+  "x-powered-by": "@web-widget/web-router",
+}
+`;
+
+exports[`Should match snapshot > Request "/api/mock-users?username=react" should match snapshot > /api/mock-users?username=react@statusText 1`] = `""`;
+
 exports[`Should match snapshot > Request "/background-tasks" should match snapshot > /background-tasks@body 1`] = `
 "<!doctype html>
     <html lang="en">
@@ -342,16 +353,6 @@ exports[`Should match snapshot > Request "/fetching-data" should match snapshot 
 `;
 
 exports[`Should match snapshot > Request "/fetching-data" should match snapshot > /fetching-data@statusText 1`] = `"OK"`;
-
-exports[`Should match snapshot > Request "/fetching-data" should match status > /fetching-data@headers 1`] = `
-{
-  "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/fetching-data@route.tsx",
-  "x-powered-by": "@web-widget/web-router",
-}
-`;
-
-exports[`Should match snapshot > Request "/fetching-data" should match status > /fetching-data@statusText 1`] = `"OK"`;
 
 exports[`Should match snapshot > Request "/form" should match snapshot > /form@body 1`] = `
 "<!doctype html>
