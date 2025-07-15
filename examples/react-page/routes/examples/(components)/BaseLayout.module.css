@@ -554,7 +554,7 @@
 .footerBrandName {
   font-size: var(--font-size-lg);
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-text-secondary);
   margin: 0 0 var(--spacing-xs);
 }
 

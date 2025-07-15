@@ -15,10 +15,10 @@ export default defineRouteComponent(function Page() {
         {/* Hero Section */}
         <div className={styles.hero}>
           <h1 className={shared.pageTitle}>
-            简单、充满力量<br></br>技术栈中立的应用框架
+            简单、充满力量<br></br>技术栈中立的 Web 框架
           </h1>
           <p className={styles.subtitle}>
-            建立在 Web 标准之上、跨平台、可驱动多种前端 UI 框架
+            建立在 Web 标准之上、跨平台、与不同的前端 UI 框架衔接
           </p>
 
           <div className={styles.heroDemo}>
