@@ -1,5 +1,11 @@
 # @web-widget/schema
 
+## 1.63.0
+
+### Minor Changes
+
+- 0df6a09: New rendering method `html`, as a future replacement for the `render` method (experimental) (experimental).
+
 ## 1.62.0
 
 ### Minor Changes

@@ -1,5 +1,19 @@
 # @web-widget/web-router
 
+## 1.63.0
+
+### Minor Changes
+
+- 0df6a09: New rendering method `html`, as a future replacement for the `render` method (experimental) (experimental).
+
+### Patch Changes
+
+- @web-widget/context@1.63.0
+- @web-widget/helpers@1.63.0
+- @web-widget/lifecycle-cache@1.63.0
+- @web-widget/html@1.63.0
+- @web-widget/action@1.63.0
+
 ## 1.62.0
 
 ### Minor Changes
