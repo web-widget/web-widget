@@ -29,7 +29,7 @@ import type {
   RouteHandlers,
   RouteModule,
   RouteComponentProps,
-  RouteRenderOptions,
+  ServerRenderOptions,
 } from './types';
 
 const HANDLER = Symbol('handler');
@@ -37,9 +37,9 @@ const MODULE_CACHE = new WeakMap<
   RouteModule,
   {
     meta: Meta;
-    renderOptions: RouteRenderOptions;
+    renderer: ServerRenderOptions;
     render: RouteContext['render'];
-    renderWith: RouteContext['renderWith'];
+    html: RouteContext['html'];
   }
 >();
 
@@ -48,7 +48,7 @@ export type OnFallback = (
   context?: MiddlewareContext
 ) => void;
 
-async function renderCore(
+async function renderToResponse(
   context: RouteContext,
   layoutModule: LayoutModule,
   onFallback: OnFallback,
@@ -56,7 +56,8 @@ async function renderCore(
   data: unknown,
   unsafeError: HTTPException | undefined,
   meta: Meta,
-  renderOptions: RouteRenderOptions
+  renderer: ServerRenderOptions,
+  responseInit: ResponseInit
 ) {
   if (unsafeError) {
     onFallback(unsafeError, context);
@@ -81,11 +82,12 @@ async function renderCore(
     : undefined;
 
   const {
+    html: _html,
+    module: _module,
     render: _render,
-    renderWith: _renderWith,
+    renderer: _renderer,
     renderOptions: _renderOptions,
     waitUntil: _waitUntil,
-    module: _module,
     ...restContext
   } = context;
 
@@ -110,7 +112,7 @@ async function renderCore(
   const children = await context.module.render(
     component,
     renderContext,
-    renderOptions
+    renderer
   );
   const layoutContext: LayoutComponentProps = {
     children,
@@ -125,26 +127,25 @@ async function renderCore(
   const html = await layoutModule.render(
     layoutModule.default,
     layoutContext,
-    renderOptions
+    renderer
   );
   const status =
-    renderOptions?.status ??
-    (error ? (error.status ? error.status : 500) : 200);
+    responseInit?.status ?? (error ? (error.status ? error.status : 500) : 200);
   const statusText =
-    renderOptions?.statusText ??
+    responseInit?.statusText ??
     (error
       ? error.statusText
         ? error.statusText
         : 'Internal Server Error'
       : 'OK');
 
-  const headers = new Headers(renderOptions?.headers);
+  const headers = new Headers(responseInit?.headers);
 
   if (!headers.has('content-type')) {
     headers.set('content-type', 'text/html; charset=utf-8');
   }
 
-  if (renderOptions?.progressive) {
+  if (renderer?.progressive) {
     // NOTE: Disable nginx buffering.
     // NOTE: https://nginx.org/en/docs/http/ngx_http_proxy_module.html
     headers.set('x-accel-buffering', 'no');
@@ -171,53 +172,49 @@ function composeRender(
 ): RouteContext['render'] {
   return async function render(
     this: RouteContext,
-    {
-      data = this.data,
-      error: unsafeError = this.error,
-      meta = this.meta,
-    } = {},
-    renderOptions = this.renderOptions
+    { data = this.data, error = this.error, meta = this.meta } = {},
+    { headers, status, statusText, ...renderer } = this.renderOptions
   ) {
-    return renderCore(
+    return renderToResponse(
       this,
       layoutModule,
       onFallback,
       dev,
       data,
-      unsafeError,
+      error,
       meta,
-      renderOptions
+      renderer,
+      { headers, status, statusText }
     );
   };
 }
 
-function composeRenderWith(
+/** @experimental */
+function composeHtml(
   layoutModule: LayoutModule,
   onFallback: OnFallback,
   dev: boolean | undefined
-): RouteContext['renderWith'] {
-  return async function renderWith(
+): RouteContext['html'] {
+  return async function html(
     this: RouteContext,
     data = this.data,
-    renderOptions = this.renderOptions
+    {
+      error = this.error,
+      meta = this.meta,
+      renderer = this.renderer,
+      ...responseInit
+    } = {}
   ) {
-    // Extract error and meta from renderOptions if provided
-    const {
-      error: unsafeError,
-      meta,
-      ...responseOptions
-    } = renderOptions || {};
-    const finalMeta = meta ?? this.meta;
-
-    return renderCore(
+    return renderToResponse(
       this,
       layoutModule,
       onFallback,
       dev,
       data,
-      unsafeError,
-      finalMeta,
-      responseOptions
+      error,
+      meta,
+      renderer,
+      responseInit
     );
   };
 }
@@ -317,7 +314,7 @@ export function createRouteContext(
   layout: LayoutModule | (() => Promise<LayoutModule>),
   defaultMeta: Meta,
   defaultBaseAsset: string,
-  defaultRenderOptions: RouteRenderOptions,
+  defaultRenderer: ServerRenderOptions,
   onFallback: OnFallback,
   dev: boolean
 ): MiddlewareHandler {
@@ -340,17 +337,19 @@ export function createRouteContext(
               defaultMeta,
               rebaseMeta(module.meta ?? {}, defaultBaseAsset)
             ),
-            renderOptions: defaultRenderOptions,
+            renderer: defaultRenderer,
             render: composeRender(layoutModule, onFallback, dev),
-            renderWith: composeRenderWith(layoutModule, onFallback, dev),
+            html: composeHtml(layoutModule, onFallback, dev),
           };
           MODULE_CACHE.set(module, cached);
         }
 
         routeContext.meta = structuredClone(cached.meta);
         routeContext.render = cached.render.bind(context);
-        routeContext.renderWith = cached.renderWith.bind(context);
-        routeContext.renderOptions = structuredClone(cached.renderOptions);
+        routeContext.html = cached.html.bind(context);
+        routeContext.renderOptions = routeContext.renderer = structuredClone(
+          cached.renderer
+        );
       }
     }
 
@@ -365,7 +364,7 @@ export function createFallbackHandler(
   layout: LayoutModule | (() => Promise<LayoutModule>),
   defaultMeta: Meta,
   defaultBaseAsset: string,
-  defaultRenderOptions: RouteRenderOptions,
+  defaultRenderer: ServerRenderOptions,
   onFallback: OnFallback,
   dev: boolean
 ) {
@@ -379,13 +378,12 @@ export function createFallbackHandler(
       defaultMeta,
       rebaseMeta(module.meta ?? {}, defaultBaseAsset)
     );
-    const render = composeRender(layoutModule, onFallback, dev);
-    const renderWith = composeRenderWith(layoutModule, onFallback, dev);
 
     routeContext.meta = structuredClone(meta);
-    routeContext.render = render.bind(context);
-    routeContext.renderWith = renderWith.bind(context);
-    routeContext.renderOptions = structuredClone(defaultRenderOptions);
+    routeContext.render = composeRender(layoutModule, onFallback, dev);
+    routeContext.html = composeHtml(layoutModule, onFallback, dev);
+    routeContext.renderOptions = routeContext.renderer =
+      structuredClone(defaultRenderer);
 
     const httpError = await transformHTTPException(error);
     routeContext.error = httpError;
@@ -396,7 +394,7 @@ export function createFallbackHandler(
     routeContext.module = module;
 
     // Call render directly with the error to trigger onFallback
-    return routeContext.renderWith(null, { error: httpError });
+    return routeContext.html(null, { error: httpError });
   };
 }
 

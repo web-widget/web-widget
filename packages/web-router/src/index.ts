@@ -1,4 +1,4 @@
-import type { RouteContext } from '@web-widget/helpers';
+import type { RouteContext, ServerRenderOptions } from '@web-widget/helpers';
 import { rebaseMeta } from '@web-widget/helpers';
 import { createHttpError } from '@web-widget/helpers/error';
 
@@ -30,6 +30,8 @@ export type StartOptions<E extends Env = {}> = {
   baseAsset?: string;
   defaultMeta?: Meta;
   defaultRenderOptions?: RouteRenderOptions;
+  /** @experimental */
+  defaultRenderer?: ServerRenderOptions;
   /** @deprecated */
   dev?: boolean;
   onFallback?: OnFallback;
@@ -69,9 +71,11 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       },
       defaultBaseAsset
     );
-    const defaultRenderOptions: RouteRenderOptions = {
+    const defaultRenderer: RouteRenderOptions = {
       progressive: !dev,
-      ...structuredClone(options.defaultRenderOptions ?? {}),
+      ...structuredClone(
+        options.defaultRenderer ?? options.defaultRenderOptions ?? {}
+      ),
     };
     const onFallback =
       options.onFallback ??
@@ -102,7 +106,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
           layout.module,
           defaultMeta,
           defaultBaseAsset,
-          defaultRenderOptions,
+          defaultRenderer,
           onFallback,
           dev
         )
@@ -135,7 +139,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       layout.module,
       defaultMeta,
       defaultBaseAsset,
-      defaultRenderOptions,
+      defaultRenderer,
       onFallback,
       dev
     );
@@ -156,7 +160,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       layout.module,
       defaultMeta,
       defaultBaseAsset,
-      defaultRenderOptions,
+      defaultRenderer,
       onFallback,
       dev
     );
