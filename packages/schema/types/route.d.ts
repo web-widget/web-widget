@@ -45,9 +45,18 @@ export interface RouteConfig extends Record<string, unknown> {}
 export interface RouteComponentProps<
   Data = unknown,
   Params = Record<string, string>,
-> extends Omit<
+> extends Pick<
     RouteContext<Data, Params>,
-    'render' | 'html' | 'renderOptions' | 'renderer' | 'waitUntil' | 'module'
+    | 'data'
+    | 'error'
+    | 'meta'
+    /** @deprecated */
+    | 'name'
+    | 'params'
+    /** @deprecated */
+    | 'pathname'
+    | 'request'
+    | 'state'
   > {}
 
 /**
@@ -131,13 +140,24 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>>
   /**
    * Render current route.
    * @param renderProps - Optional data, error, and meta overrides for rendering.
-   * @param renderOptions - Optional rendering options.
+   * @param renderOptions - Optional rendering options. @default current context's renderOptions
    * @returns A promise that resolves to a Response or the Response itself.
    */
   render(
     renderProps?: {
-      data?: Data;
+      /**
+       * Error to be passed to the component during rendering.
+       * @default current context's error value
+       */
       error?: HTTPException;
+      /**
+       * Data to be passed to the component during rendering.
+       */
+      data?: Data;
+      /**
+       * Metadata for the route, including HTML head elements.
+       * @default current context's meta value
+       */
       meta?: Meta;
     },
     renderOptions?: RouteRenderOptions
@@ -154,11 +174,20 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>>
   html(
     data?: Data,
     options?: {
-      /** Error to be passed to the component during rendering. */
+      /**
+       * Error to be passed to the component during rendering.
+       * @default current context's error value
+       */
       error?: HTTPException;
-      /** Metadata for the route, including HTML head elements. */
+      /**
+       * Metadata for the route, including HTML head elements.
+       * @default current context's meta value
+       */
       meta?: Meta;
-      /** Server-side rendering options for this specific render call. */
+      /**
+       * Server-side rendering options for this specific render call.
+       * @default current context's renderer settings
+       */
       renderer?: ServerRenderOptions;
     } & ResponseInit
   ): Response | Promise<Response>;
