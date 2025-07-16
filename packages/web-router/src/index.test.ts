@@ -408,8 +408,8 @@ describe('html method', () => {
                 return ctx.html(testData);
               },
             },
-            render: async (_component: any, props: any) => {
-              return `<div>Data: ${JSON.stringify(props.data)}</div>`;
+            render: async (_component: unknown, props: unknown) => {
+              return `<div>Data: ${JSON.stringify((props as { data: unknown }).data)}</div>`;
             },
             default: () => null,
           },
@@ -442,8 +442,8 @@ describe('html method', () => {
                 });
               },
             },
-            render: async (_component: any, props: any) => {
-              return `<div>Title: ${props.meta?.title}</div>`;
+            render: async (_component: unknown, props: unknown) => {
+              return `<div>Title: ${(props as { meta?: { title?: string } }).meta?.title}</div>`;
             },
             default: () => null,
           },
@@ -476,8 +476,8 @@ describe('html method', () => {
                 });
               },
             },
-            render: async (_component: any, props: any) => {
-              return `<div>Data: ${JSON.stringify(props.data)}</div>`;
+            render: async (_component: unknown, props: unknown) => {
+              return `<div>Data: ${JSON.stringify((props as { data: unknown }).data)}</div>`;
             },
             default: () => null,
           },
@@ -508,8 +508,8 @@ describe('html method', () => {
                 });
               },
             },
-            render: async (_component: any, props: any) => {
-              return `<div>Progressive: ${JSON.stringify(props.data)}</div>`;
+            render: async (_component: unknown, props: unknown) => {
+              return `<div>Progressive: ${JSON.stringify((props as { data: unknown }).data)}</div>`;
             },
             default: () => null,
           },

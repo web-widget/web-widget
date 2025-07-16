@@ -26,7 +26,7 @@ function html(content: string, { status = 200, headers = {} } = {}) {
   });
 }
 
-function json(content: any, { status = 200, headers = {} } = {}) {
+function json(content: unknown, { status = 200, headers = {} } = {}) {
   return new Response(JSON.stringify(content), {
     status,
     headers: {
@@ -688,7 +688,7 @@ describe('error handle', () => {
       return text('Custom Error Message', {
         status: 500,
         headers: {
-          'x-debug': err.message,
+          'x-debug': (err as Error).message,
         },
       });
     });
@@ -733,11 +733,11 @@ describe('error handle', () => {
     });
 
     app.onError((err, c) => {
-      const message = err.message;
+      const message = (err as Error).message;
       return text(`Custom Error: ${message}`, {
         status: 500,
         headers: {
-          'x-debug': err.message,
+          'x-debug': (err as Error).message,
         },
       });
     });
@@ -774,11 +774,11 @@ describe('error handle', () => {
     });
 
     app.onError(async (err, c) => {
-      const message = err.message;
+      const message = (err as Error).message;
       return text(`Custom Error: ${message}`, {
         status: 500,
         headers: {
-          'x-debug': err.message,
+          'x-debug': (err as Error).message,
         },
       });
     });
@@ -872,7 +872,7 @@ describe('error handling in middleware', () => {
     });
 
     app.onError((err, c) => {
-      return text(err.message, {
+      return text((err as Error).message, {
         status: 400,
       });
     });
@@ -998,7 +998,7 @@ describe('context is not finalized', () => {
       return text('foo');
     });
     app.onError((err, c) => {
-      return text(err.message, { status: 500 });
+      return text((err as Error).message, { status: 500 });
     });
     const res = await app.dispatch('http://localhost/foo');
     expect(res.status).toBe(500);
@@ -1014,7 +1014,7 @@ describe('context is not finalized', () => {
     // @ts-ignore
     app.get('/foo', () => {});
     app.onError((err, c) => {
-      return text(err.message, { status: 500 });
+      return text((err as Error).message, { status: 500 });
     });
     const res = await app.dispatch('http://localhost/foo');
     expect(res.status).toBe(500);

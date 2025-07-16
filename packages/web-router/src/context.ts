@@ -26,7 +26,7 @@ interface ContextOptions<E extends Env> {
  * - Rendering methods
  * - Error handling state
  */
-export class Context<E extends Env = any> implements FetchContext {
+export class Context<E extends Env = Env> implements FetchContext {
   #state = Object.create(null);
   // /** @experimental */
   // env: E["Bindings"] = Object.create(null);

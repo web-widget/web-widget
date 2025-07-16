@@ -34,15 +34,16 @@ import type {
 } from './types';
 
 const HANDLER = Symbol('handler');
-const MODULE_CACHE = new WeakMap<
-  RouteModule,
-  {
-    meta: Meta;
-    renderer: ServerRenderOptions;
-    render: RouteContext['render'];
-    html: RouteContext['html'];
-  }
->();
+
+// Type for cached module data
+interface CachedModuleData {
+  meta: Meta;
+  renderer: ServerRenderOptions;
+  render: RouteContext['render'];
+  html: RouteContext['html'];
+}
+
+const MODULE_CACHE = new WeakMap<RouteModule, CachedModuleData>();
 
 export type OnFallback = (
   error: HTTPException,
@@ -113,14 +114,16 @@ export class Engine {
   async processMiddleware(
     middleware: MiddlewareModule | (() => Promise<MiddlewareModule>)
   ): Promise<MiddlewareHandler> {
-    return async (context, next) => {
-      const module = await this.#normalizeModule<MiddlewareModule>(middleware);
-      const handler = this.#normalizeHandler<MiddlewareHandler>(
-        module.handler,
-        false
-      );
-      return handler(context, next);
-    };
+    const module = await this.#normalizeModule<MiddlewareModule>(middleware);
+    const handler = this.#normalizeHandler<MiddlewareHandler>(
+      module.handler ??
+        (() => {
+          throw new Error('Middleware handler is not defined.');
+        }),
+      false
+    );
+
+    return handler;
   }
 
   async processAction(
@@ -147,44 +150,81 @@ export class Engine {
     };
   }
 
+  /**
+   * Unified module activation method
+   *
+   * NOTE: This method handles both regular route modules and error modules
+   * by activating the module in the context and setting up rendering capabilities.
+   * For error modules, it immediately executes the onFallback callback.
+   */
+  async #activateModule(
+    context: RouteContext,
+    module: RouteModule,
+    error?: HTTPException
+  ): Promise<void> {
+    // Set the module as the active module
+    context.module = module;
+
+    // For error scenarios, execute onFallback callback immediately upon module activation
+    if (error) {
+      this.#onFallback(error, context);
+      context.error = error;
+    }
+
+    // Setup rendering capabilities based on module type
+    if (module.render) {
+      let cached: CachedModuleData | undefined;
+
+      // Use cache for regular modules, skip cache for error modules to avoid callback conflicts
+      if (!error) {
+        cached = MODULE_CACHE.get(module);
+      }
+
+      if (!cached) {
+        const layoutModule = await this.#normalizeModule<LayoutModule>(
+          this.#layoutModule
+        );
+        cached = {
+          meta: mergeMeta(
+            this.#defaultMeta,
+            rebaseMeta(module.meta ?? {}, this.#defaultBaseAsset)
+          ),
+          renderer: this.#defaultRenderer,
+          render: this.#composeRender(layoutModule),
+          html: this.#composeHtml(layoutModule),
+        };
+
+        // Only cache for regular modules
+        if (!error) {
+          MODULE_CACHE.set(module, cached);
+        }
+      }
+
+      context.meta = structuredClone(cached.meta);
+      context.render = cached.render.bind(context);
+      context.html = cached.html.bind(context);
+      context.renderOptions = context.renderer = structuredClone(
+        cached.renderer
+      );
+
+      // For error modules, add context to script descriptors
+      if (error) {
+        // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
+        (context.meta!.script ??= []).push(contextToScriptDescriptor(context));
+      }
+    }
+  }
+
   async createRouteContextHandler(
     route: RouteModule | (() => Promise<RouteModule>)
   ): Promise<MiddlewareHandler> {
     return async (context, next) => {
       const routeContext = context as RouteContext;
-      const module = await this.#normalizeModule<RouteModule>(route);
 
       // If multiple routes match here, only the first one is valid.
       if (!routeContext.module) {
-        routeContext.module = module;
-
-        // If the route has a render function, it's a route module.
-        if (module.render) {
-          let cached = MODULE_CACHE.get(module);
-
-          if (!cached) {
-            const layoutModule = await this.#normalizeModule<LayoutModule>(
-              this.#layoutModule
-            );
-            cached = {
-              meta: mergeMeta(
-                this.#defaultMeta,
-                rebaseMeta(module.meta ?? {}, this.#defaultBaseAsset)
-              ),
-              renderer: this.#defaultRenderer,
-              render: this.#composeRender(layoutModule),
-              html: this.#composeHtml(layoutModule),
-            };
-            MODULE_CACHE.set(module, cached);
-          }
-
-          routeContext.meta = structuredClone(cached.meta);
-          routeContext.render = cached.render.bind(context);
-          routeContext.html = cached.html.bind(context);
-          routeContext.renderOptions = routeContext.renderer = structuredClone(
-            cached.renderer
-          );
-        }
+        const module = await this.#normalizeModule<RouteModule>(route);
+        await this.#activateModule(routeContext, module);
       }
 
       return next();
@@ -195,32 +235,12 @@ export class Engine {
     return async (error: unknown, context: MiddlewareContext) => {
       const routeContext = context as RouteContext;
       const module = await this.#normalizeModule<RouteModule>(route);
-
-      // Don't use cache for fallback handlers to avoid onFallback callback conflicts
-      const layoutModule = await this.#normalizeModule<LayoutModule>(
-        this.#layoutModule
-      );
-      const meta = mergeMeta(
-        this.#defaultMeta,
-        rebaseMeta(module.meta ?? {}, this.#defaultBaseAsset)
-      );
-
-      routeContext.meta = structuredClone(meta);
-      routeContext.render = this.#composeRender(layoutModule).bind(context);
-      routeContext.html = this.#composeHtml(layoutModule).bind(context);
-      routeContext.renderOptions = routeContext.renderer = structuredClone(
-        this.#defaultRenderer
-      );
-
       const httpError = await this.#transformHTTPException(error);
-      routeContext.error = httpError;
-      // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
-      (routeContext.meta!.script ??= []).push(
-        contextToScriptDescriptor(routeContext)
-      );
-      routeContext.module = module;
 
-      // Call render directly with the error to trigger onFallback
+      // Activate error module with immediate callback execution
+      await this.#activateModule(routeContext, module, httpError);
+
+      // Render the error page
       return routeContext.html(null, { error: httpError });
     };
   }
@@ -234,10 +254,6 @@ export class Engine {
     renderer: ServerRenderOptions,
     responseInit?: ResponseInit
   ) {
-    if (unsafeError) {
-      this.#onFallback(unsafeError, context);
-    }
-
     if (typeof layoutModule.render !== 'function') {
       throw new TypeError(`Layout module is missing export "render" function.`);
     }
@@ -390,7 +406,7 @@ export class Engine {
     return safeError;
   }
 
-  async #transformHTTPException(error: any): Promise<HTTPException> {
+  async #transformHTTPException(error: unknown): Promise<HTTPException> {
     if (error instanceof Error) {
       return error;
     }
@@ -405,23 +421,33 @@ export class Engine {
     return createHttpError(500, String(error));
   }
 
-  async #normalizeModule<T>(module: any) {
-    return (typeof module === 'function' ? module() : module) as T;
+  async #normalizeModule<T>(module: T | (() => Promise<T>)): Promise<T> {
+    if (typeof module === 'function') {
+      return await (module as () => Promise<T>)();
+    }
+    return module;
   }
 
-  #normalizeHandler<T>(handler: any, disallowUnknownMethod: boolean): T {
+  #normalizeHandler<T>(
+    handler: T | Record<string, unknown>,
+    disallowUnknownMethod: boolean
+  ): T {
     if (!handler) {
       throw new TypeError(`Module is missing export "handler".`);
     }
     if (typeof handler === 'function') {
-      return handler;
-    } else if (handler[HANDLER]) {
-      return handler[HANDLER];
+      return handler as T;
     } else {
-      return (handler[HANDLER] = methodsToHandler(
-        handler,
-        disallowUnknownMethod
-      ) as T);
+      const handlerObj = handler as Record<string, unknown> & { [HANDLER]?: T };
+      if (handlerObj[HANDLER]) {
+        return handlerObj[HANDLER]!;
+      } else {
+        // Use type assertion to handle the methodsToHandler call
+        return (handlerObj[HANDLER] = methodsToHandler(
+          handlerObj as any,
+          disallowUnknownMethod
+        ) as T);
+      }
     }
   }
 }
