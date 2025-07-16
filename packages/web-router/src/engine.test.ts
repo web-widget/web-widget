@@ -73,7 +73,7 @@ describe('Engine', () => {
       };
 
       const mockNext = () => new Response('next');
-      const middleware = await engine.processRoute();
+      const middleware = engine.createRouteHandler();
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -86,7 +86,7 @@ describe('Engine', () => {
       };
 
       const mockNext = () => new Response('next response');
-      const middleware = await engine.processRoute();
+      const middleware = engine.createRouteHandler();
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -107,7 +107,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      const handler = await engine.createRouteContextHandler(mockRoute);
+      const handler = engine.createRouteContextHandler(mockRoute);
       await handler(mockContext as RouteContext, mockNext);
 
       expect(mockContext.module).toBe(mockRoute);
@@ -129,7 +129,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      const handler = await engine.createRouteContextHandler(newModule);
+      const handler = engine.createRouteContextHandler(newModule);
       await handler(mockContext as RouteContext, mockNext);
 
       expect(mockContext.module).toBe(existingModule);
@@ -146,7 +146,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      const handler = await engine.createRouteContextHandler(mockRoute);
+      const handler = engine.createRouteContextHandler(mockRoute);
       await handler(mockContext as RouteContext, mockNext);
 
       expect(mockContext.module).toBe(mockRoute);

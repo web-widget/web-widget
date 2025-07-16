@@ -82,74 +82,6 @@ export class Engine {
     this.#dev = options.dev;
   }
 
-  async processRoute(): Promise<MiddlewareHandler> {
-    return async (context, next) => {
-      const routeContext = context as RouteContext;
-      const module = routeContext.module;
-      if (module) {
-        const handler = this.#normalizeHandler<RouteHandler>(
-          module.handler ??
-            ({
-              GET({ render }) {
-                return render();
-              },
-            } as RouteHandlers),
-          true
-        );
-
-        if (routeContext.meta) {
-          // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
-          (routeContext.meta.script ??= []).push(
-            contextToScriptDescriptor(routeContext)
-          );
-        }
-
-        return handler(routeContext);
-      } else {
-        return next();
-      }
-    };
-  }
-
-  async processMiddleware(
-    middleware: MiddlewareModule | (() => Promise<MiddlewareModule>)
-  ): Promise<MiddlewareHandler> {
-    const module = await this.#normalizeModule<MiddlewareModule>(middleware);
-    const handler = this.#normalizeHandler<MiddlewareHandler>(
-      module.handler ??
-        (() => {
-          throw new Error('Middleware handler is not defined.');
-        }),
-      false
-    );
-
-    return handler;
-  }
-
-  async processAction(
-    action: ActionModule | (() => Promise<ActionModule>)
-  ): Promise<MiddlewareHandler> {
-    return async (context) => {
-      const module = await this.#normalizeModule<ActionModule>(action);
-      const { request } = context;
-
-      if (request.method !== 'POST') {
-        return new Response(null, {
-          status: 405,
-          statusText: 'Method Not Allowed',
-          headers: {
-            Accept: 'POST',
-          },
-        });
-      }
-
-      return callContext(context, async function handler() {
-        const json = await handleRpc(await request.json(), module);
-        return Response.json(json);
-      });
-    };
-  }
-
   /**
    * Unified module activation method
    *
@@ -213,22 +145,6 @@ export class Engine {
         (context.meta!.script ??= []).push(contextToScriptDescriptor(context));
       }
     }
-  }
-
-  async createRouteContextHandler(
-    route: RouteModule | (() => Promise<RouteModule>)
-  ): Promise<MiddlewareHandler> {
-    return async (context, next) => {
-      const routeContext = context as RouteContext;
-
-      // If multiple routes match here, only the first one is valid.
-      if (!routeContext.module) {
-        const module = await this.#normalizeModule<RouteModule>(route);
-        await this.#activateModule(routeContext, module);
-      }
-
-      return next();
-    };
   }
 
   async createErrorHandler(route: RouteModule | (() => Promise<RouteModule>)) {
@@ -326,8 +242,7 @@ export class Engine {
     }
 
     if (renderer?.progressive) {
-      // NOTE: Disable Nginx buffering for progressive responses.
-      // NOTE: https://nginx.org/en/docs/http/ngx_http_proxy_module.html
+      // NOTE: Disable Nginx buffering for progressive responses. [link](https://nginx.org/en/docs/http/ngx_http_proxy_module.html)
       headers.set('x-accel-buffering', 'no');
     }
 
@@ -449,5 +364,120 @@ export class Engine {
         ) as T);
       }
     }
+  }
+
+  createRouteContextHandler(
+    module: RouteModule | (() => Promise<RouteModule>)
+  ): MiddlewareHandler {
+    let cachedHandler: MiddlewareHandler | null = null;
+
+    return async (context, next) => {
+      if (!cachedHandler) {
+        cachedHandler = async (context, next) => {
+          const routeContext = context as RouteContext;
+
+          // If multiple routes match here, only the first one is valid.
+          if (!routeContext.module) {
+            const resolvedModule =
+              await this.#normalizeModule<RouteModule>(module);
+            await this.#activateModule(routeContext, resolvedModule);
+          }
+
+          return next();
+        };
+      }
+      return cachedHandler(context, next);
+    };
+  }
+
+  createMiddlewareHandler(
+    module: MiddlewareModule | (() => Promise<MiddlewareModule>)
+  ): MiddlewareHandler {
+    let cachedHandler: MiddlewareHandler | null = null;
+
+    return async (context, next) => {
+      if (!cachedHandler) {
+        const resolvedModule =
+          await this.#normalizeModule<MiddlewareModule>(module);
+        cachedHandler = this.#normalizeHandler<MiddlewareHandler>(
+          resolvedModule.handler ??
+            (() => {
+              throw new Error('Middleware handler is not defined.');
+            }),
+          false
+        );
+      }
+      return cachedHandler(context, next);
+    };
+  }
+
+  createActionHandler(
+    module: ActionModule | (() => Promise<ActionModule>)
+  ): MiddlewareHandler {
+    let cachedHandler: MiddlewareHandler | null = null;
+
+    return async (context, next) => {
+      if (!cachedHandler) {
+        cachedHandler = async (context) => {
+          const resolvedModule =
+            await this.#normalizeModule<ActionModule>(module);
+          const { request } = context;
+
+          // Actions only accept POST requests
+          if (request.method !== 'POST') {
+            return new Response(null, {
+              status: 405,
+              statusText: 'Method Not Allowed',
+              headers: {
+                Accept: 'POST',
+              },
+            });
+          }
+
+          return callContext(context, async function handler() {
+            const json = await handleRpc(await request.json(), resolvedModule);
+            return Response.json(json);
+          });
+        };
+      }
+      return cachedHandler(context, next);
+    };
+  }
+
+  createRouteHandler(): MiddlewareHandler {
+    let cachedHandler: MiddlewareHandler | null = null;
+
+    return async (context, next) => {
+      if (!cachedHandler) {
+        cachedHandler = async (context, next) => {
+          const routeContext = context as RouteContext;
+          const module = routeContext.module;
+          if (module) {
+            const handler = this.#normalizeHandler<RouteHandler>(
+              module.handler ??
+                // Default handler: render the component for GET requests
+                ({
+                  GET({ render }) {
+                    return render();
+                  },
+                } as RouteHandlers),
+              true
+            );
+
+            if (routeContext.meta) {
+              // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
+              (routeContext.meta.script ??= []).push(
+                contextToScriptDescriptor(routeContext)
+              );
+            }
+
+            return handler(routeContext);
+          } else {
+            return next();
+          }
+        };
+      }
+      return cachedHandler(context, next);
+    };
   }
 }

@@ -22,7 +22,6 @@ import type {
   Meta,
   RouteModule,
   RouteRenderOptions,
-  MiddlewareHandler,
 } from './types';
 
 export type * from './types';
@@ -110,45 +109,21 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     });
 
     routes.forEach((item) => {
-      let cachedHandler: MiddlewareHandler | null = null;
-      router.use(item.pathname, async (context, next) => {
-        if (!cachedHandler) {
-          cachedHandler = await engine.createRouteContextHandler(item.module);
-        }
-        return cachedHandler(context, next);
-      });
+      router.use(item.pathname, engine.createRouteContextHandler(item.module));
     });
 
     router.use('*', callContext);
 
     middlewares.forEach((item) => {
-      let cachedHandler: MiddlewareHandler | null = null;
-      router.use(item.pathname, async (context, next) => {
-        if (!cachedHandler) {
-          cachedHandler = await engine.processMiddleware(item.module);
-        }
-        return cachedHandler(context, next);
-      });
+      router.use(item.pathname, engine.createMiddlewareHandler(item.module));
     });
 
     actions.forEach((item) => {
-      let cachedHandler: MiddlewareHandler | null = null;
-      router.use(item.pathname, async (context, next) => {
-        if (!cachedHandler) {
-          cachedHandler = await engine.processAction(item.module);
-        }
-        return cachedHandler(context, next);
-      });
+      router.use(item.pathname, engine.createActionHandler(item.module));
     });
 
     routes.forEach((item) => {
-      let cachedHandler: MiddlewareHandler | null = null;
-      router.use(item.pathname, async (context, next) => {
-        if (!cachedHandler) {
-          cachedHandler = await engine.processRoute();
-        }
-        return cachedHandler(context, next);
-      });
+      router.use(item.pathname, engine.createRouteHandler());
     });
 
     const fallback404 = fallbacks.find(
