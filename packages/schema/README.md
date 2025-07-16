@@ -20,6 +20,8 @@ This package defines TypeScript type definitions for a standardized module forma
 
 Route modules handle HTTP requests and define page endpoints. They can contain components, handlers, metadata, and rendering logic.
 
+📁 **Type Definitions:** [types/route.d.ts](./types/route.d.ts)
+
 ```typescript
 interface RouteModule {
   config?: RouteConfig;
@@ -42,6 +44,8 @@ interface RouteModule {
 ### Widget Modules
 
 Widget modules are reusable components that can be embedded in different contexts. They support both server-side and client-side rendering.
+
+📁 **Type Definitions:** [types/widget.d.ts](./types/widget.d.ts)
 
 ```typescript
 type WidgetModule = ServerWidgetModule | ClientWidgetModule;
@@ -70,6 +74,8 @@ interface ClientWidgetModule {
 
 Action modules contain server-side functions that can be called from the client to perform operations.
 
+📁 **Type Definitions:** [types/action.d.ts](./types/action.d.ts)
+
 ```typescript
 interface ActionModule {
   [method: string]: ActionHandler;
@@ -89,6 +95,8 @@ interface ActionHandler<A = SerializableValue, T = SerializableValue> {
 ### Middleware Modules
 
 Middleware modules provide request processing and context modification capabilities.
+
+📁 **Type Definitions:** [types/middleware.d.ts](./types/middleware.d.ts)
 
 ```typescript
 interface MiddlewareModule {
@@ -116,6 +124,8 @@ interface MiddlewareHandler {
 
 Standard HTTP request/response handling with error management and state management.
 
+📁 **Type Definitions:** [types/http.d.ts](./types/http.d.ts)
+
 ```typescript
 interface FetchContext<Params = Record<string, string>> {
   request: Request;
@@ -135,6 +145,8 @@ interface HTTPException extends Error {
 
 Comprehensive HTML document metadata management for dynamic head elements.
 
+📁 **Type Definitions:** [types/meta.d.ts](./types/meta.d.ts)
+
 ```typescript
 interface Meta {
   title?: string;
@@ -150,6 +162,8 @@ interface Meta {
 ### Rendering Types
 
 Server-side and client-side rendering interfaces with streaming support.
+
+📁 **Type Definitions:** [types/render.d.ts](./types/render.d.ts)
 
 ```typescript
 interface ServerRender<Component, Data, Options, Result> {
@@ -186,6 +200,10 @@ Built on web standards like Fetch API, ReadableStream, and standard HTTP methods
 ### Modularity
 
 Clear separation of concerns with distinct module types for different responsibilities, enabling better code organization and reusability.
+
+## Type Definitions Entry Point
+
+📁 **Main Entry:** [types/index.d.ts](./types/index.d.ts) - Exports all type definitions
 
 ## Usage
 

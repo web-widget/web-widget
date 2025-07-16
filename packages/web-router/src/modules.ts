@@ -81,19 +81,19 @@ async function renderToResponse(
       : createSafeError(unsafeError)
     : undefined;
 
-  const {
-    html: _html,
-    module: _module,
-    render: _render,
-    renderer: _renderer,
-    renderOptions: _renderOptions,
-    waitUntil: _waitUntil,
-    ...restContext
-  } = context;
-
   const componentExportName = error ? 'fallback' : 'default';
   const component = context.module[componentExportName];
 
+  const componentProps: RouteComponentProps = {
+    data,
+    error,
+    meta,
+    name: context.name,
+    params: context.params,
+    pathname: context.pathname,
+    request: context.request,
+    state: context.state,
+  };
   const renderContext: RouteFallbackComponentProps | RouteComponentProps = error
     ? {
         name: error.name,
@@ -102,12 +102,7 @@ async function renderToResponse(
         status: error.status,
         statusText: error.statusText,
       }
-    : {
-        ...restContext,
-        data,
-        error,
-        meta,
-      };
+    : componentProps;
 
   const children = await context.module.render(
     component,
@@ -116,12 +111,7 @@ async function renderToResponse(
   );
   const layoutContext: LayoutComponentProps = {
     children,
-    data,
-    meta,
-    params: context.params,
-    pathname: context.pathname,
-    request: context.request,
-    state: context.state,
+    ...componentProps,
   };
 
   const html = await layoutModule.render(
