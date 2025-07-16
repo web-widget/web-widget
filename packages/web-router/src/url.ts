@@ -1,3 +1,6 @@
+/**
+ * @fileoverview URL processing utility functions
+ */
 export const getPath = (request: Request): string => {
   // Optimized: RegExp is faster than indexOf() + slice()
   const match = request.url.match(/^https?:\/\/[^/]+(\/[^?]*)/);

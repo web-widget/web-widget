@@ -1,3 +1,6 @@
+/**
+ * @fileoverview Router domain object - URL pattern matching and route registration
+ */
 export const METHOD_NAME_ALL = 'ALL' as const;
 export const METHODS = [
   'get',

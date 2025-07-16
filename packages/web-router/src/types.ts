@@ -1,3 +1,6 @@
+/**
+ * @fileoverview TypeScript type definitions for web-router
+ */
 import type {
   ActionModule,
   FetchEventLike,

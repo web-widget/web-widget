@@ -1,3 +1,6 @@
+/**
+ * @fileoverview Application domain object - HTTP request/response lifecycle management
+ */
 import { compose } from '@web-widget/helpers';
 import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { HTTPException } from '@web-widget/helpers/error';

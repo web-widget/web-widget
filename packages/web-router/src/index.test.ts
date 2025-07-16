@@ -1,4 +1,4 @@
-import type { OnFallback } from './modules';
+import type { OnFallback } from './engine';
 import type {
   HTTPException,
   RouteContext,
