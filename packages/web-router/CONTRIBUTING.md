@@ -22,17 +22,17 @@ cd packages/web-router
 
 ```bash
 # Unit tests (using Vitest)
-npm test
+pnpm test
 
 # Watch mode during development
-npm run test:watch
+pnpm run test:watch
 
 # Coverage report
-npm run test:coverage
+pnpm run test:coverage
 
 # Integration tests
 cd ../../playgrounds/router
-npm test
+pnpm test
 ```
 
 ### Test Infrastructure
@@ -158,19 +158,19 @@ git commit -m "feat: add your feature description"
 
 ```bash
 # Run all tests (158 comprehensive tests)
-npm test
+pnpm test
 
 # Watch mode for TDD
-npm run test:watch
+pnpm run test:watch
 
 # Type checking
 npx tsc --noEmit
 
 # Code style checking
-npm run lint
+pnpm run lint
 
 # Coverage report (verify 100% Engine coverage)
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 ### 3. Submit PR
@@ -255,56 +255,6 @@ async processRoute(route: RouteModule | (() => Promise<RouteModule>)): Promise<M
   // Implementation...
 }
 ```
-
-## 🎯 Common Contribution Scenarios
-
-### Scenario 1: Adding New Module Types
-
-The framework provides clear extension points. If you want to support new module types:
-
-1. **Define module interface** (`types.ts`)
-2. **Add processing method in Engine** (`engine.ts`)
-3. **Integrate in WebRouter** (`index.ts`)
-4. **Add comprehensive tests** (follow our 28-test Engine pattern)
-5. **Update documentation**
-
-Extension examples:
-
-- **Module type extension**: Add new processing methods in Engine
-- **Middleware development**: Standard middleware patterns
-- **Custom renderers**: Extend rendering options
-- **Route handlers**: Custom route logic
-
-### Scenario 2: Optimizing Rendering Performance
-
-Rendering optimization typically involves:
-
-1. **Cache strategy improvements** (`MODULE_CACHE` in `engine.ts`)
-2. **Streaming rendering optimization** (`renderToResponse` method)
-3. **Metadata processing optimization**
-
-Performance optimization points:
-
-- **Module caching**: WeakMap caches rendering functions
-- **Streaming rendering**: Support progressive responses
-- **Efficient routing**: Native URLPattern API
-- **Lazy loading**: Support async module loading
-
-### Scenario 3: Enhancing Error Handling
-
-Error handling improvements may include:
-
-1. **New error type support** (`transformHTTPException`)
-2. **Error page template enhancements** (`fallback.ts`)
-3. **Development tool improvements** (error stack, source maps)
-
-### Scenario 4: Extending Middleware System
-
-Middleware system extensions:
-
-1. **Middleware lifecycle hooks**
-2. **Middleware configuration options**
-3. **Middleware composition patterns**
 
 ## 🧪 Testing Guide
 
@@ -476,31 +426,6 @@ Check actual usage examples in `playgrounds/router`:
 - Error page handling
 - Streaming rendering
 
-## ❓ Getting Help
-
-### Common Questions
-
-**Q: How to add new HTTP method support?**  
-A: Add to the `METHODS` array in `application.ts`, the framework will automatically generate corresponding methods.
-
-**Q: How to customize error pages?**  
-A: Define custom error modules in the `fallbacks` of the manifest.
-
-**Q: How to optimize rendering performance?**  
-A: Check `MODULE_CACHE` usage, consider streaming rendering (`progressive: true`).
-
-**Q: How to run tests in Cloudflare Workers environment?**  
-A: Our Vitest configuration automatically uses `@cloudflare/vitest-pool-workers` for native Workers support.
-
-**Q: How to achieve 100% test coverage like Engine?**  
-A: Follow our Engine test pattern: cover all public methods, test async/sync variants, verify caching, test error scenarios.
-
-### Contact Us
-
-- **GitHub Issues** - Report bugs or feature requests
-- **Discussions** - Technical discussions and Q&A
-- **Pull Request** - Direct code contributions
-
 ## 🎉 Contribution Recognition
 
 All contributors will be recognized in the project! Thank you for helping web-router become better!
@@ -513,7 +438,7 @@ Before submitting a PR, please confirm:
 
 - [ ] Code follows project standards
 - [ ] Added comprehensive tests (follow Engine test pattern)
-- [ ] All 158+ tests pass with Vitest
+- [ ] All tests pass with Vitest
 - [ ] Updated relevant documentation
 - [ ] No TypeScript type errors
 - [ ] Backward compatible (if applicable)
