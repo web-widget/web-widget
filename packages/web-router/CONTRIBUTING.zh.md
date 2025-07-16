@@ -62,8 +62,40 @@ web-router 采用**领域驱动设计**，核心组件：
 
 > 💡 **重点**：Engine 是核心组件，负责模块处理、渲染管道和错误处理
 
+### 模块格式标准
+
+web-router 遵循 **`@web-widget/schema`** 规范，该规范为 web 应用程序定义了技术无关的模块格式标准。这确保了整个框架的一致性、互操作性和类型安全。
+
+**核心模块类型：**
+
+- **路由模块** (`RouteModule`) - 处理 HTTP 请求并渲染页面
+- **中间件模块** (`MiddlewareModule`) - 处理请求并修改上下文
+- **动作模块** (`ActionModule`) - 可从客户端调用的服务器端函数（JSON-RPC）
+
+**标准优势：**
+
+- **类型安全** - 全面的 TypeScript 定义确保编译时类型检查
+- **框架无关** - 模块格式适用于不同的前端技术
+- **Web 标准合规** - 基于 Fetch API、ReadableStream 和标准 HTTP 方法构建
+- **一致接口** - 所有模块遵循相同的结构和模式
+
+**模块结构示例：**
+
+```typescript
+// 遵循 @web-widget/schema 的路由模块
+interface RouteModule {
+  handler?: RouteHandler | RouteHandlers; // HTTP 方法处理器
+  render?: ServerRender; // 服务器端渲染函数
+  meta?: Meta; // HTML head 元数据
+  default?: RouteComponent; // 组件引用
+}
+```
+
+> 📋 **参考**: 查看 `packages/schema/README.md` 获取完整的模块格式规范和类型定义。
+
 ### 设计原则
 
+- **标准化模块格式** - 遵循 `@web-widget/schema` 规范，提供技术无关的模块定义
 - **领域驱动设计** - 使用明确的领域对象替代函数式组合
 - **统一处理管道** - 所有请求（正常/错误）都通过一致的处理流程
 - **单一职责** - 每个组件有明确的职责边界
@@ -402,8 +434,9 @@ console.log('Current test state:', expect.getState());
 ### 必读文档
 
 1. **[README.md](./README.md)** - 项目概述和快速开始
-2. **[REFACTOR_SUMMARY.md](./REFACTOR_SUMMARY.md)** - 详细的架构重构文档
-3. **本文档** - 完整的贡献指南和架构设计
+2. **[packages/schema/README.md](../schema/README.md)** - 模块格式标准规范和类型定义
+3. **[REFACTOR_SUMMARY.md](./REFACTOR_SUMMARY.md)** - 详细的架构重构文档
+4. **本文档** - 完整的贡献指南和架构设计
 
 ### 代码阅读路径
 

@@ -62,8 +62,40 @@ web-router adopts **Domain-Driven Design** with core components:
 
 > 💡 **Key Point**: Engine is the core component responsible for module processing, rendering pipeline, and error handling
 
+### Module Format Standard
+
+web-router follows the **`@web-widget/schema`** specifications, which define a technology-agnostic module format standard for web applications. This ensures consistency, interoperability, and type safety across the entire framework.
+
+**Key Module Types:**
+
+- **Route Modules** (`RouteModule`) - Handle HTTP requests and render pages
+- **Middleware Modules** (`MiddlewareModule`) - Process requests and modify context
+- **Action Modules** (`ActionModule`) - Server-side functions callable from client (JSON-RPC)
+
+**Standard Benefits:**
+
+- **Type Safety** - Comprehensive TypeScript definitions ensure compile-time type checking
+- **Framework Agnostic** - Module format works across different frontend technologies
+- **Web Standards Compliance** - Built on Fetch API, ReadableStream, and standard HTTP methods
+- **Consistent Interface** - All modules follow the same structure and patterns
+
+**Example Module Structure:**
+
+```typescript
+// Route Module following @web-widget/schema
+interface RouteModule {
+  handler?: RouteHandler | RouteHandlers; // HTTP method handlers
+  render?: ServerRender; // Server-side rendering function
+  meta?: Meta; // HTML head metadata
+  default?: RouteComponent; // Component reference
+}
+```
+
+> 📋 **Reference**: See `packages/schema/README.md` for complete module format specifications and type definitions.
+
 ### Design Principles
 
+- **Standardized Module Format** - Follows `@web-widget/schema` specifications for technology-agnostic module definitions
 - **Domain-Driven Design** - Use clear domain objects instead of functional composition
 - **Unified Processing Pipeline** - All requests (normal/error) go through consistent processing flow
 - **Single Responsibility** - Each component has clear responsibility boundaries
@@ -402,8 +434,9 @@ console.log('Current test state:', expect.getState());
 ### Required Reading
 
 1. **[README.md](./README.md)** - Project overview and quick start
-2. **[REFACTOR_SUMMARY.md](./REFACTOR_SUMMARY.md)** - Detailed architecture refactoring documentation
-3. **This document** - Complete contribution guide and architecture design
+2. **[packages/schema/README.md](../schema/README.md)** - Module format standard specifications and type definitions
+3. **[REFACTOR_SUMMARY.md](./REFACTOR_SUMMARY.md)** - Detailed architecture refactoring documentation
+4. **This document** - Complete contribution guide and architecture design
 
 ### Code Reading Path
 
