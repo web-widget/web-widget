@@ -169,7 +169,7 @@ describe('Engine', () => {
 
       const testError = new Error('Test error');
 
-      const errorHandler = await engine.createErrorHandler(mockRoute);
+      const errorHandler = engine.createErrorHandler(mockRoute);
       const result = await errorHandler(
         testError,
         mockContext as MiddlewareContext

@@ -118,7 +118,7 @@ class Application<
   fixErrorStack(_error: Error) {}
 
   /**
-   * @experimental
+   * @internal
    */
   onError(handler: ErrorHandler<E>) {
     this.#errorHandler = handler;
@@ -126,7 +126,7 @@ class Application<
   }
 
   /**
-   * @experimental
+   * @internal
    */
   notFound(handler: NotFoundHandler<E>) {
     this.#notFoundHandler = handler;

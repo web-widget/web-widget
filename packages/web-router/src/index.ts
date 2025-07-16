@@ -1,11 +1,7 @@
 /**
  * @fileoverview Web-Router entry point - WebRouter class definition and exports
  */
-import type {
-  RouteContext,
-  ServerRenderOptions,
-  MiddlewareContext,
-} from '@web-widget/helpers';
+import type { RouteContext, ServerRenderOptions } from '@web-widget/helpers';
 import { rebaseMeta } from '@web-widget/helpers';
 import { createHttpError } from '@web-widget/helpers/error';
 
@@ -133,20 +129,13 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       pathname: '*',
     };
 
-    // NOTE: Lazy creation to avoid async in sync context
-    let notFoundHandler:
-      | ((error: unknown, context: MiddlewareContext) => Promise<Response>)
-      | undefined;
-    const getNotFoundHandler = async () => {
-      if (!notFoundHandler) {
-        notFoundHandler = await engine.createErrorHandler(fallback404.module);
-      }
-      return notFoundHandler;
-    };
+    const notFoundHandler = engine.createErrorHandler(fallback404.module);
 
     router.notFound(async (context) => {
-      const handler = await getNotFoundHandler();
-      return handler!(createHttpError(404), context as unknown as RouteContext);
+      return notFoundHandler(
+        createHttpError(404),
+        context as unknown as RouteContext
+      );
     });
 
     const fallback500 = fallbacks.find(
@@ -156,24 +145,15 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       pathname: '*',
     };
 
-    // NOTE: Lazy creation to avoid async in sync context
-    let errorHandler:
-      | ((error: unknown, context: MiddlewareContext) => Promise<Response>)
-      | undefined;
-    const getErrorHandler = async () => {
-      if (!errorHandler) {
-        errorHandler = await engine.createErrorHandler(fallback500.module);
-      }
-      return errorHandler;
-    };
+    const errorHandler = engine.createErrorHandler(fallback500.module);
 
     router.onError(async (error, context) => {
       try {
         const handler =
           (error as { status?: number })?.status === 404
-            ? await getNotFoundHandler()
-            : await getErrorHandler();
-        return await handler!(error, context as unknown as RouteContext);
+            ? notFoundHandler
+            : errorHandler;
+        return await handler(error, context as unknown as RouteContext);
       } catch (cause) {
         console.error(
           new Error('Custom error page throws an error.', {
