@@ -1,6 +1,6 @@
 # @web-widget/web-router
 
-A server based on the Web Workers standard.
+A server based on the Web standard.
 
 ## 📚 Documentation
 
