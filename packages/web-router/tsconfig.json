@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "types": ["jest", "urlpattern-polyfill"]
+    "types": ["vitest/globals", "urlpattern-polyfill"]
   },
   "exclude": ["node_modules"],
   "include": ["src/**/*"]

@@ -240,9 +240,16 @@ class Application<
         : new Request(new URL(input, 'http://localhost'), requestInit);
     const context =
       executionContext ??
-      new FetchEvent('fetch', {
-        request,
-      });
+      // NOTE: This is a workaround to avoid the error:
+      // "TypeError: Illegal constructor"
+      // when running tests in Cloudflare Workers.
+      // new FetchEvent('fetch', {
+      //  request,
+      // });
+      ({
+        waitUntil: () => {},
+        passThroughOnException: () => {},
+      } as ExecutionContext);
     return this.handler(request, env, context);
   };
 
