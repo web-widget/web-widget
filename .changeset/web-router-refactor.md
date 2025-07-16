@@ -1,5 +1,5 @@
 ---
-'@web-widget/web-router': major
+'@web-widget/web-router': minor
 ---
 
 Refactor web-router architecture with improved design and documentation
@@ -16,7 +16,6 @@ Refactor web-router architecture with improved design and documentation
 - Implement domain-driven design with clear separation of concerns
 - Add comprehensive English documentation and comments
 - Merge architecture documentation into CONTRIBUTING.md
-- Use ES private fields (#field) instead of TypeScript private keyword
 - Improve code organization and maintainability
 - Add proper JSDoc comments throughout codebase
 
