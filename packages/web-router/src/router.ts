@@ -1,3 +1,6 @@
+/**
+ * @fileoverview Router domain object - URL pattern matching and route registration
+ */
 export const METHOD_NAME_ALL = 'ALL' as const;
 export const METHODS = [
   'get',
@@ -79,7 +82,9 @@ export class URLPatternRouter<T> implements Router<T> {
           for (const key in match.pathname.groups) {
             const value = match.pathname.groups[key];
 
-            if (value !== undefined) {
+            // In Cloudflare Workers, optional parameters return empty string instead of undefined
+            // We need to normalize this to undefined for consistency with Web standards
+            if (value !== undefined && value !== '') {
               params[key] = decodeURIComponent(value);
             }
           }

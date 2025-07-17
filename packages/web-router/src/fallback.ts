@@ -1,3 +1,6 @@
+/**
+ * @fileoverview Default error page module for web-router
+ */
 import type { Meta, RouteFallbackComponentProps } from '@web-widget/helpers';
 import { html, render } from '@web-widget/html';
 

@@ -1,3 +1,6 @@
+/**
+ * @fileoverview TypeScript type definitions for web-router
+ */
 import type {
   ActionModule,
   FetchEventLike,
@@ -32,12 +35,12 @@ export interface Env {
 //////                            //////
 ////////////////////////////////////////
 
-export type NotFoundHandler<E extends Env = any> = (
+export type NotFoundHandler<E extends Env = Env> = (
   context: Context<E>
 ) => Response | Promise<Response>;
 
-export type ErrorHandler<E extends Env = any> = (
-  error: any,
+export type ErrorHandler<E extends Env = Env> = (
+  error: unknown,
   context: Context<E>
 ) => Response | Promise<Response>;
 
@@ -105,7 +108,7 @@ export interface LayoutComponentProps extends RouteComponentProps {
 }
 
 export interface LayoutComponent {
-  (props: LayoutComponentProps): any;
+  (props: LayoutComponentProps): unknown;
 }
 export interface LayoutRender
   extends ServerRender<LayoutComponent, LayoutComponentProps> {}

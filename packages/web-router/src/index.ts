@@ -1,3 +1,6 @@
+/**
+ * @fileoverview Web-Router entry point - WebRouter class definition and exports
+ */
 import type { RouteContext, ServerRenderOptions } from '@web-widget/helpers';
 import { rebaseMeta } from '@web-widget/helpers';
 import { createHttpError } from '@web-widget/helpers/error';
@@ -6,15 +9,8 @@ import type { ApplicationOptions } from './application';
 import { Application } from './application';
 import * as defaultFallbackModule from './fallback';
 import * as defaultLayoutModule from './layout';
-import type { OnFallback } from './modules';
-import {
-  callActionModule,
-  callMiddlewareModule,
-  createAsyncContext,
-  createFallbackHandler,
-  createRouteContext,
-  callRouteModule,
-} from './modules';
+import { callContext } from '@web-widget/context/server';
+import { Engine, type OnFallback } from './engine';
 import type {
   Env,
   LayoutModule,
@@ -25,6 +21,7 @@ import type {
 } from './types';
 
 export type * from './types';
+export type { OnFallback } from './engine';
 
 export type StartOptions<E extends Env = {}> = {
   baseAsset?: string;
@@ -98,33 +95,31 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
         }
       });
 
-    routes.forEach((item) => {
-      router.use(
-        item.pathname,
-        createRouteContext(
-          item.module,
-          layout.module,
-          defaultMeta,
-          defaultBaseAsset,
-          defaultRenderer,
-          onFallback,
-          dev
-        )
-      );
+    const engine = new Engine({
+      layoutModule: layout.module,
+      defaultMeta,
+      defaultBaseAsset,
+      defaultRenderer,
+      onFallback,
+      dev,
     });
 
-    router.use('*', createAsyncContext);
+    routes.forEach((item) => {
+      router.use(item.pathname, engine.createRouteContextHandler(item.module));
+    });
+
+    router.use('*', callContext);
 
     middlewares.forEach((item) => {
-      router.use(item.pathname, callMiddlewareModule(item.module));
+      router.use(item.pathname, engine.createMiddlewareHandler(item.module));
     });
 
     actions.forEach((item) => {
-      router.use(item.pathname, callActionModule(item.module));
+      router.use(item.pathname, engine.createActionHandler(item.module));
     });
 
     routes.forEach((item) => {
-      router.use(item.pathname, callRouteModule());
+      router.use(item.pathname, engine.createRouteHandler(item.module));
     });
 
     const fallback404 = fallbacks.find(
@@ -134,19 +129,14 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       pathname: '*',
     };
 
-    const notFoundHandler = createFallbackHandler(
-      fallback404.module,
-      layout.module,
-      defaultMeta,
-      defaultBaseAsset,
-      defaultRenderer,
-      onFallback,
-      dev
-    );
+    const notFoundHandler = engine.createErrorHandler(fallback404.module);
 
-    router.notFound(async (context) =>
-      notFoundHandler(createHttpError(404), context as unknown as RouteContext)
-    );
+    router.notFound(async (context) => {
+      return notFoundHandler(
+        createHttpError(404),
+        context as unknown as RouteContext
+      );
+    });
 
     const fallback500 = fallbacks.find(
       (page) => page.status === 500 || page.name === 'InternalServerError'
@@ -155,19 +145,14 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       pathname: '*',
     };
 
-    const errorHandler = createFallbackHandler(
-      fallback500.module,
-      layout.module,
-      defaultMeta,
-      defaultBaseAsset,
-      defaultRenderer,
-      onFallback,
-      dev
-    );
+    const errorHandler = engine.createErrorHandler(fallback500.module);
 
     router.onError(async (error, context) => {
       try {
-        const handler = error?.status === 404 ? notFoundHandler : errorHandler;
+        const handler =
+          (error as { status?: number })?.status === 404
+            ? notFoundHandler
+            : errorHandler;
         return await handler(error, context as unknown as RouteContext);
       } catch (cause) {
         console.error(

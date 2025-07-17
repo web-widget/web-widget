@@ -1,3 +1,6 @@
+/**
+ * @fileoverview Default layout module for web-router
+ */
 import { html, render, unsafeHTML, unsafeStreamToHTML } from '@web-widget/html';
 
 import type { HTML } from '@web-widget/html';

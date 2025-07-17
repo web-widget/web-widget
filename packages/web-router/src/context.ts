@@ -1,11 +1,32 @@
-import type { Env, ExecutionContext, FetchContext } from './types';
+/**
+ * @fileoverview Context domain object - Request context and state management
+ */
+import type {
+  Env,
+  ExecutionContext,
+  FetchContext,
+  HTTPException,
+  Meta,
+  RouteModule,
+  RouteRenderOptions,
+  ServerRenderOptions,
+} from './types';
 
 interface ContextOptions<E extends Env> {
   env: E['Bindings'];
   executionContext?: ExecutionContext;
 }
 
-export class Context<E extends Env = any> implements FetchContext {
+/**
+ * Context domain object
+ *
+ * Enhanced context object containing:
+ * - Request/response state management
+ * - Module and rendering state
+ * - Rendering methods
+ * - Error handling state
+ */
+export class Context<E extends Env = Env> implements FetchContext {
   #state = Object.create(null);
   // /** @experimental */
   // env: E["Bindings"] = Object.create(null);
@@ -15,6 +36,14 @@ export class Context<E extends Env = any> implements FetchContext {
   request: Request;
   #waitUntil?: FetchContext['waitUntil'];
   #executionContext?: ExecutionContext;
+
+  // New: Module and rendering related state
+  module?: RouteModule;
+  meta?: Meta;
+  renderOptions?: RouteRenderOptions;
+  renderer?: ServerRenderOptions;
+  data?: unknown;
+  error?: HTTPException;
 
   constructor(request: Request, options?: ContextOptions<E>) {
     this.request = request;
@@ -36,4 +65,30 @@ export class Context<E extends Env = any> implements FetchContext {
       throw new Error('This context has no FetchEvent.');
     }
   }
+
+  /**
+   * Render page response
+   * This method will be bound with concrete implementation in Engine
+   */
+  render?: (
+    options?: {
+      data?: unknown;
+      error?: HTTPException;
+      meta?: Meta;
+    },
+    renderOptions?: RouteRenderOptions & ResponseInit
+  ) => Promise<Response>;
+
+  /**
+   * Render page response
+   * This method will be bound with concrete implementation in Engine
+   */
+  html?: (
+    data?: unknown,
+    options?: {
+      error?: HTTPException;
+      meta?: Meta;
+      renderer?: ServerRenderOptions;
+    } & ResponseInit
+  ) => Promise<Response>;
 }

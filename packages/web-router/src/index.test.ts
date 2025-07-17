@@ -1,4 +1,4 @@
-import type { OnFallback } from './modules';
+import type { OnFallback } from './engine';
 import type {
   HTTPException,
   RouteContext,
@@ -85,107 +85,100 @@ describe('multiple identical routes', () => {
 });
 
 describe('create route context', () => {
-  test('generate default context', (done) => {
-    const createTestRoute = (callback: (context: RouteContext) => void) => {
-      const app = WebRouter.fromManifest({
-        routes: [
-          {
-            pathname: '/test',
-            module: {
-              render: () => 'Hello',
-            },
-          },
-        ],
-        middlewares: [
-          {
-            pathname: '/test',
-            module: {
-              handler(context, next) {
-                callback(context as RouteContext);
-                return next();
+  test('generate default context', async () => {
+    const createTestRoute = (): Promise<RouteContext> => {
+      return new Promise((resolve) => {
+        const app = WebRouter.fromManifest({
+          routes: [
+            {
+              pathname: '/test',
+              module: {
+                render: () => 'Hello',
               },
             },
-          },
-        ],
-      });
+          ],
+          middlewares: [
+            {
+              pathname: '/test',
+              module: {
+                handler(context, next) {
+                  resolve(context as RouteContext);
+                  return next();
+                },
+              },
+            },
+          ],
+        });
 
-      return app.dispatch('http://localhost/test');
+        app.dispatch('http://localhost/test');
+      });
     };
 
-    let context: RouteContext;
-    Promise.resolve(
-      createTestRoute((ctx) => {
-        context = ctx;
-      })
-    ).then(() => {
-      expect(context.data).toBeUndefined();
-      expect(context.error).toBeUndefined();
-      expect(context.meta).toBeDefined();
-      expect(context.module).toBeDefined();
-      expect(context.params).toEqual({});
-      expect(context.pathname).toBe('/test');
-      expect(context.render).toBeDefined();
-      expect(context.renderOptions).toBeDefined();
-      expect(context.request).toBeDefined();
-      expect(context.state).toBeDefined();
-      done();
-    });
+    const context = await createTestRoute();
+
+    expect(context.data).toBeUndefined();
+    expect(context.error).toBeUndefined();
+    expect(context.meta).toBeDefined();
+    expect(context.module).toBeDefined();
+    expect(context.params).toEqual({});
+    expect(context.pathname).toBe('/test');
+    expect(context.render).toBeDefined();
+    expect(context.renderOptions).toBeDefined();
+    expect(context.request).toBeDefined();
+    expect(context.state).toBeDefined();
   });
 
-  test('modules that do not export `render` should not generate full context', (done) => {
-    const createTestRoute = (callback: (context: RouteContext) => void) => {
-      const app = WebRouter.fromManifest({
-        routes: [
-          {
-            pathname: '/test',
-            module: {
-              handler: () => new Response('Hello'),
-            },
-          },
-        ],
-        middlewares: [
-          {
-            pathname: '/test',
-            module: {
-              handler(context, next) {
-                callback(context as RouteContext);
-                return next();
+  test('modules that do not export `render` should not generate full context', async () => {
+    const createTestRoute = (): Promise<RouteContext> => {
+      return new Promise((resolve) => {
+        const app = WebRouter.fromManifest({
+          routes: [
+            {
+              pathname: '/test',
+              module: {
+                handler: () => new Response('Hello'),
               },
             },
-          },
-        ],
-      });
+          ],
+          middlewares: [
+            {
+              pathname: '/test',
+              module: {
+                handler(context, next) {
+                  resolve(context as RouteContext);
+                  return next();
+                },
+              },
+            },
+          ],
+        });
 
-      return app.dispatch('http://localhost/test');
+        app.dispatch('http://localhost/test');
+      });
     };
 
-    let context: RouteContext;
-    Promise.resolve(
-      createTestRoute((ctx) => {
-        context = ctx;
-      })
-    ).then(() => {
-      expect(context.data).toBeUndefined();
-      expect(context.error).toBeUndefined();
-      expect(context.meta).toBeUndefined();
-      expect(context.render).toBeUndefined();
-      expect(context.renderOptions).toBeUndefined();
+    const context = await createTestRoute();
 
-      expect(context.module).toBeDefined();
-      expect(context.params).toEqual({});
-      expect(context.pathname).toBe('/test');
-      expect(context.request).toBeDefined();
-      expect(context.state).toBeDefined();
-      done();
-    });
+    expect(context.data).toBeUndefined();
+    expect(context.error).toBeUndefined();
+    expect(context.meta).toBeUndefined();
+    expect(context.render).toBeUndefined();
+    expect(context.renderOptions).toBeUndefined();
+
+    expect(context.module).toBeDefined();
+    expect(context.params).toEqual({});
+    expect(context.pathname).toBe('/test');
+    expect(context.request).toBeDefined();
+    expect(context.state).toBeDefined();
   });
 });
 
 describe('error handling', () => {
-  const createTestRoute = (
-    routeModule: RouteModule,
-    onFallback: OnFallback
-  ) => {
+  const createTestRoute = async (
+    routeModule: RouteModule
+  ): Promise<{ response: Response; error?: HTTPException }> => {
+    let capturedError: HTTPException | undefined;
+
     const app = WebRouter.fromManifest(
       {
         routes: [
@@ -196,105 +189,84 @@ describe('error handling', () => {
         ],
       },
       {
-        onFallback,
+        onFallback: (e, context) => {
+          capturedError = e;
+        },
       }
     );
 
-    return app.dispatch('http://localhost/test');
+    const response = await app.dispatch('http://localhost/test');
+    return { response, error: capturedError };
   };
 
-  test('exceptions should be caught', (done) => {
-    let error: HTTPException;
+  test('exceptions should be caught', async () => {
     const message = `Error:500`;
     const status = 500;
     const statusText = 'Internal Server Error';
-    Promise.resolve(
-      createTestRoute(
-        {
-          handler() {
-            throw new Error(message);
-          },
-        },
-        (e, context) => {
-          error = e;
-        }
-      )
-    ).then(async (res) => {
-      if (!error) {
-        done(new Error(`Error handler not working.`));
-      }
 
-      expect(error.message).toBe(message);
-      expect(res.status).toBe(status);
-      expect(res.statusText).toBe(statusText);
-      done();
+    const { response: res, error } = await createTestRoute({
+      handler() {
+        throw new Error(message);
+      },
     });
+
+    if (!error) {
+      throw new Error(`Error handler not working.`);
+    }
+
+    expect(error.message).toBe(message);
+    expect(res.status).toBe(status);
+    expect(res.statusText).toBe(statusText);
   });
 
-  test('throws a `Response` as an HTTP error', (done) => {
-    let error: HTTPException;
+  test('throws a `Response` as an HTTP error', async () => {
     const message = `Error:404`;
     const status = 404;
     const statusText = 'Not Found';
-    Promise.resolve(
-      createTestRoute(
-        {
-          handler() {
-            throw new Response(message, {
-              status,
-              statusText,
-            });
-          },
-        },
-        (e, context) => {
-          error = e;
-        }
-      )
-    ).then(async (res) => {
-      if (!error) {
-        done(new Error(`Error handler not working.`));
-      }
 
-      const text = await res.text();
-      expect(error.message).toBe(message);
-      expect(error.status).toBe(status);
-      expect(error.statusText).toBe(statusText);
-      expect(res.status).toBe(status);
-      expect(res.statusText).toBe(statusText);
-      expect(text).toEqual(expect.stringContaining(message));
-      done();
+    const { response: res, error } = await createTestRoute({
+      handler() {
+        throw new Response(message, {
+          status,
+          statusText,
+        });
+      },
     });
+
+    if (!error) {
+      throw new Error(`Error handler not working.`);
+    }
+
+    const text = await res.text();
+    expect(error.message).toBe(message);
+    expect(error.status).toBe(status);
+    expect(error.statusText).toBe(statusText);
+    expect(res.status).toBe(status);
+    expect(res.statusText).toBe(statusText);
+    expect(text).toEqual(expect.stringContaining(message));
   });
 
-  test('malformed errors converted to strings as HTTP error messages', (done) => {
-    let error: HTTPException;
+  test('malformed errors converted to strings as HTTP error messages', async () => {
     const message = `Error:500`;
     const status = 500;
     const statusText = 'Internal Server Error';
-    Promise.resolve(
-      createTestRoute(
-        {
-          handler() {
-            throw message;
-          },
-        },
-        (e, context) => {
-          error = e;
-        }
-      )
-    ).then(async (res) => {
-      if (!error) {
-        done(new Error(`Error handler not working.`));
-      }
 
-      const text = await res.text();
-      expect(error.message).toBe(message);
-      expect(error.status).toBe(status);
-      expect(res.status).toBe(status);
-      expect(res.statusText).toBe(statusText);
-      expect(text).toEqual(expect.stringContaining(message));
-      done();
+    const { response: res, error } = await createTestRoute({
+      handler() {
+        throw message;
+      },
     });
+
+    if (!error) {
+      throw new Error(`Error handler not working.`);
+    }
+
+    const text = await res.text();
+    expect(error.message).toBe(message);
+    expect(error.status).toBe(status);
+    expect(res.status).toBe(status);
+    expect(res.statusText).toBe(statusText);
+    expect(text).toEqual(expect.stringContaining(message));
   });
 });
 
@@ -408,8 +380,8 @@ describe('html method', () => {
                 return ctx.html(testData);
               },
             },
-            render: async (_component: any, props: any) => {
-              return `<div>Data: ${JSON.stringify(props.data)}</div>`;
+            render: async (_component: unknown, props: unknown) => {
+              return `<div>Data: ${JSON.stringify((props as { data: unknown }).data)}</div>`;
             },
             default: () => null,
           },
@@ -442,8 +414,8 @@ describe('html method', () => {
                 });
               },
             },
-            render: async (_component: any, props: any) => {
-              return `<div>Title: ${props.meta?.title}</div>`;
+            render: async (_component: unknown, props: unknown) => {
+              return `<div>Title: ${(props as { meta?: { title?: string } }).meta?.title}</div>`;
             },
             default: () => null,
           },
@@ -476,8 +448,8 @@ describe('html method', () => {
                 });
               },
             },
-            render: async (_component: any, props: any) => {
-              return `<div>Data: ${JSON.stringify(props.data)}</div>`;
+            render: async (_component: unknown, props: unknown) => {
+              return `<div>Data: ${JSON.stringify((props as { data: unknown }).data)}</div>`;
             },
             default: () => null,
           },
@@ -508,8 +480,8 @@ describe('html method', () => {
                 });
               },
             },
-            render: async (_component: any, props: any) => {
-              return `<div>Progressive: ${JSON.stringify(props.data)}</div>`;
+            render: async (_component: unknown, props: unknown) => {
+              return `<div>Progressive: ${JSON.stringify((props as { data: unknown }).data)}</div>`;
             },
             default: () => null,
           },

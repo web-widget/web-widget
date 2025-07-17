@@ -522,17 +522,20 @@ describe('routing order with named parameters', () => {
   });
 });
 
-describe('routing with a hostname', () => {
+describe('routing with pathname patterns (not hostname)', () => {
+  // Note: These tests were originally labeled as "hostname" routing, but they actually
+  // test pathname patterns that happen to contain domain-like strings.
+  // True hostname routing would require URLPattern with separate hostname/pathname components.
   const router = new URLPatternRouter<string>();
-  router.add('get', 'www1.example.com/hello', 'www1');
-  router.add('get', 'www2.example.com/hello', 'www2');
-  test('GET www1.example.com/hello', () => {
-    const [res] = router.match('get', 'www1.example.com/hello');
+  router.add('get', '/www1.example.com/hello', 'www1');
+  router.add('get', '/www2.example.com/hello', 'www2');
+  test('GET /www1.example.com/hello', () => {
+    const [res] = router.match('get', '/www1.example.com/hello');
     expect(res.length).toBe(1);
     expect(res[0][0]).toEqual('www1');
   });
-  test('GET www2.example.com/hello', () => {
-    const [res] = router.match('get', 'www2.example.com/hello');
+  test('GET /www2.example.com/hello', () => {
+    const [res] = router.match('get', '/www2.example.com/hello');
     expect(res.length).toBe(1);
     expect(res[0][0]).toEqual('www2');
   });

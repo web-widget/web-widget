@@ -1,3 +1,6 @@
+/**
+ * @fileoverview Application domain object - HTTP request/response lifecycle management
+ */
 import { compose } from '@web-widget/helpers';
 import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { HTTPException } from '@web-widget/helpers/error';
@@ -115,7 +118,7 @@ class Application<
   fixErrorStack(_error: Error) {}
 
   /**
-   * @experimental
+   * @internal
    */
   onError(handler: ErrorHandler<E>) {
     this.#errorHandler = handler;
@@ -123,7 +126,7 @@ class Application<
   }
 
   /**
-   * @experimental
+   * @internal
    */
   notFound(handler: NotFoundHandler<E>) {
     this.#notFoundHandler = handler;
@@ -237,9 +240,16 @@ class Application<
         : new Request(new URL(input, 'http://localhost'), requestInit);
     const context =
       executionContext ??
-      new FetchEvent('fetch', {
-        request,
-      });
+      // NOTE: This is a workaround to avoid the error:
+      // "TypeError: Illegal constructor"
+      // when running tests in Cloudflare Workers.
+      // new FetchEvent('fetch', {
+      //  request,
+      // });
+      ({
+        waitUntil: () => {},
+        passThroughOnException: () => {},
+      } as ExecutionContext);
     return this.handler(request, env, context);
   };
 
