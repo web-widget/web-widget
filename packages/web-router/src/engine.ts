@@ -1,7 +1,6 @@
 /**
  * @fileoverview Engine domain object - Core business processing engine with unified rendering pipeline
  */
-/* eslint-disable no-param-reassign */
 import { handleRpc } from '@web-widget/action/server';
 import { contextToScriptDescriptor } from '@web-widget/context/server';
 import { createHttpError } from '@web-widget/helpers/error';
