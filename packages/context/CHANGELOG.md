@@ -1,5 +1,13 @@
 # @web-widget/context
 
+## 1.65.0
+
+### Patch Changes
+
+- Updated dependencies [090d66f]
+  - @web-widget/schema@1.65.0
+  - @web-widget/purify@1.65.0
+
 ## 1.64.0
 
 ### Patch Changes
