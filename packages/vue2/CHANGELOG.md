@@ -1,5 +1,14 @@
 # @web-widget/vue2
 
+## 1.64.0
+
+### Patch Changes
+
+- @web-widget/vite-plugin@1.64.0
+- @web-widget/react@1.64.0
+- @web-widget/helpers@1.64.0
+- @web-widget/web-widget@1.64.0
+
 ## 1.63.0
 
 ### Patch Changes
