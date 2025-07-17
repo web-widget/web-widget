@@ -18,7 +18,7 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
             </a>
             <div className={styles.techStackBadge}>
               <span className={styles.reactIcon}>⚛️</span>
-              <span className={styles.techText}>for React</span>
+              <span className={styles.techText}>React 示例</span>
             </div>
           </div>
           <Navigation />

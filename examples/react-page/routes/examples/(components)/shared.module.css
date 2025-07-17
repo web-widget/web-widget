@@ -9,7 +9,6 @@
   max-width: 900px;
   margin: 0 auto;
   text-align: left;
-  background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   padding: 0;
 }
@@ -319,8 +318,8 @@
   }
 
   .pageTitle {
-    font-size: 2rem;
-    line-height: 1.5;
+    font-size: 2.5rem;
+    line-height: 1.4;
     letter-spacing: -0.01em;
     margin-bottom: var(--spacing-lg);
   }

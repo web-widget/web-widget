@@ -8,14 +8,14 @@ import shared from '../(components)/shared.module.css';
 const RVueCounter = toReact(VueCounter);
 
 export const meta = defineMeta({
-  title: '多框架共存 - Web Widget',
+  title: '挂件 - Web Widget',
 });
 
 export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
       <div className={shared.container}>
-        <h1 className={shared.pageTitle}>🍀 多框架共存</h1>
+        <h1 className={shared.pageTitle}>🍀 挂件</h1>
 
         <div className={`${shared.highlight} ${shared.info}`}>
           <h2>React 与 Vue 组件在同一页面中协作</h2>
@@ -29,7 +29,7 @@ export default defineRouteComponent(function Page() {
           <h3 className={shared.sectionTitle}>框架共存演示</h3>
           <div className={`${shared.grid} ${shared.grid2}`}>
             <div className={shared.card}>
-              <h4 className={shared.cardTitle}>⚛️ React 计数器</h4>
+              <h4 className={shared.cardTitle}>React 计数器</h4>
               <p className={shared.cardDescription}>
                 使用 React 19 和现代 Hooks 实现的计数器组件
               </p>
@@ -39,7 +39,7 @@ export default defineRouteComponent(function Page() {
             </div>
 
             <div className={shared.card}>
-              <h4 className={shared.cardTitle}>💚 Vue 计数器</h4>
+              <h4 className={shared.cardTitle}>Vue 计数器</h4>
               <p className={shared.cardDescription}>
                 使用 Vue 3 Composition API 实现的计数器组件
               </p>

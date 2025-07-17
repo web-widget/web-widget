@@ -15,16 +15,23 @@ export default defineRouteComponent(function Page() {
         {/* Hero Section */}
         <div className={styles.hero}>
           <h1 className={shared.pageTitle}>
-            简单、充满力量<br></br>技术栈中立的 Web 框架
+            <span>简单、充满力量</span>
+            <br></br>
+            <span>技术栈中立的</span> <span>Web 框架</span>
           </h1>
           <p className={styles.subtitle}>
             建立在 Web 标准之上、跨平台、与不同的前端 UI 框架衔接
           </p>
+        </div>
 
+        {/* Demo Section */}
+        <div className={styles.demoSection}>
           <div className={styles.heroDemo}>
-            <p className={styles.demoIntro}>⚡ 孤岛架构</p>
+            <p className={styles.demoIntro}>⚡ 页面中的挂件</p>
             <ReactCounter count={0} />
-            <p className={styles.demoHint}>仅发送必要的 JavaScript 到客户端</p>
+            <p className={styles.demoHint}>
+              这是一个可交互的挂件演示，它可以使用任何技术栈
+            </p>
           </div>
         </div>
 
@@ -86,7 +93,7 @@ export default defineRouteComponent(function Page() {
               href="/examples/frameworks">
               <div className={shared.textCenter}>
                 <div className={shared.cardIcon}>🍀</div>
-                <h3 className={shared.cardTitle}>多框架共存</h3>
+                <h3 className={shared.cardTitle}>挂件</h3>
                 <p className={shared.cardDescription}>
                   React 与 Vue 组件在同一页面无缝协作
                 </p>

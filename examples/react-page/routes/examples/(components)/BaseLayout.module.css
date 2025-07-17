@@ -3,10 +3,10 @@
   max-width: 900px;
   min-height: 2em;
   margin: auto;
-  border-bottom: 1px solid var(--color-border-primary);
   text-align: center;
-  padding: var(--spacing-lg) 0;
+  padding: var(--spacing-lg) 0 0 0;
   background-color: var(--color-bg-primary);
+  position: relative;
 }
 
 .headerContent {
@@ -20,26 +20,31 @@
 @media (max-width: 768px) {
   .header {
     position: relative;
-    padding: var(--mobile-padding) clamp(var(--mobile-gutter-min), var(--mobile-gutter), var(--mobile-gutter-max));
+    padding: var(--mobile-padding)
+      clamp(
+        var(--mobile-gutter-min),
+        var(--mobile-gutter),
+        var(--mobile-gutter-max)
+      );
     max-width: 100%;
   }
-  
+
   .headerContent {
     flex-direction: column;
     align-items: center;
     gap: var(--spacing-4);
   }
-  
+
   .brandLogo {
     justify-content: center;
     width: 100%;
   }
-  
+
   .header nav {
-    position: absolute;
-    top: clamp(var(--mobile-gutter-min), var(--mobile-gutter), var(--mobile-gutter-max));
-    right: clamp(var(--mobile-gutter-min), var(--mobile-gutter), var(--mobile-gutter-max));
-    z-index: 10;
+    position: fixed;
+    top: var(--spacing-2);
+    right: var(--spacing-2);
+    z-index: 1000;
   }
 }
 
@@ -143,7 +148,7 @@
     font-size: var(--font-size-2xl);
     text-align: center;
   }
-  
+
   .techStackBadge {
     font-size: var(--mobile-font-sm);
     padding: var(--spacing-1) var(--spacing-3);
@@ -155,11 +160,11 @@
   .mobileMenuButton {
     display: none;
   }
-  
+
   .mobileMenuCloseWrapper {
     display: none !important;
   }
-  
+
   .navigationMenu {
     display: flex !important;
     position: static !important;
@@ -176,7 +181,7 @@
     gap: var(--spacing-md) !important;
     justify-content: center !important;
   }
-  
+
   .mobileMenuOverlay {
     display: none !important;
   }
@@ -185,27 +190,85 @@
 /* 汉堡菜单按钮 */
 .mobileMenuButton {
   display: none;
-  background: none;
-  border: none;
-  padding: var(--spacing-2);
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0;
   cursor: pointer;
-  border-radius: var(--radius-md);
-  transition-property: background-color;
+  border-radius: 50%;
+  transition-property:
+    background-color, border-color, box-shadow, backdrop-filter;
   transition-duration: var(--transition-fast);
-  min-height: var(--touch-target-min);
-  min-width: var(--touch-target-min);
+  width: 44px;
+  height: 44px;
   align-items: center;
   justify-content: center;
+  position: fixed;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  z-index: 1000;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 深色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .mobileMenuButton {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* 降级方案：不支持 backdrop-filter 的浏览器 */
+@supports not (backdrop-filter: blur(12px)) {
+  .mobileMenuButton {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .mobileMenuButton {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  }
 }
 
 .mobileMenuButton:hover {
-  background-color: var(--color-bg-secondary);
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(25px) saturate(200%);
+  -webkit-backdrop-filter: blur(25px) saturate(200%);
+}
+
+/* 深色主题 hover 状态 */
+@media (prefers-color-scheme: dark) {
+  .mobileMenuButton:hover {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(25px) saturate(200%);
+    -webkit-backdrop-filter: blur(25px) saturate(200%);
+  }
 }
 
 .mobileMenuButton:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  background-color: var(--color-bg-secondary);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--color-primary);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* 深色主题 focus 状态 */
+@media (prefers-color-scheme: dark) {
+  .mobileMenuButton:focus-visible {
+    background: rgba(0, 0, 0, 0.95);
+    border-color: var(--color-primary);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  }
 }
 
 /* 汉堡图标 */
@@ -228,6 +291,13 @@
   transform-origin: center;
 }
 
+/* 深色主题图标颜色 */
+@media (prefers-color-scheme: dark) {
+  .hamburgerLine {
+    background-color: var(--color-text-primary);
+  }
+}
+
 /* 汉堡图标变成 X 的动画 */
 .hamburgerLineOpen:nth-child(1) {
   transform: translateY(8px) rotate(45deg);
@@ -246,10 +316,25 @@
   display: flex;
   list-style: none;
   margin: 0;
-  padding: 0;
-  gap: var(--spacing-md);
+  padding: var(--spacing-xl) 0;
+  gap: var(--spacing-lg);
   justify-content: center;
   flex-wrap: wrap;
+  position: relative;
+  min-height: 3em;
+}
+
+/* 桌面端导航底部分割线 */
+@media (min-width: 769px) {
+  .navigationMenu::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: var(--color-border-primary);
+  }
 }
 
 .navigationMenu li {
@@ -262,7 +347,7 @@
   text-decoration: none;
   color: var(--color-text-primary);
   font-weight: 500;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
   border-radius: var(--radius-md);
   transition-property: background-color, color;
   transition-duration: var(--transition-fast);
@@ -274,33 +359,48 @@
 
 .navigationMenu a:hover {
   background-color: var(--color-bg-secondary);
-  color: var(--color-primary);
+  color: var(--color-text-primary);
 }
 
 .navigationMenu a.active {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary) 0%,
-    var(--color-accent) 100%
-  );
-  color: white;
+  background: transparent;
+  color: var(--color-text-primary);
   font-weight: 600;
-  box-shadow: var(--shadow-md);
-  transition-property: background-color, color, box-shadow, transform;
+  position: relative;
+  transition-property: color, font-weight;
   transition-duration: var(--transition-fast);
   transition-timing-function: ease;
-  transform: translateY(-1px);
+}
+
+/* 桌面端导航 active 指示器 */
+@media (min-width: 769px) {
+  .navigationMenu::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: var(--active-item-left, 0);
+    width: var(--active-item-width, 0);
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      var(--color-primary) 0%,
+      var(--color-accent) 100%
+    );
+    border-radius: 0;
+    z-index: 1;
+    opacity: var(--active-item-opacity, 0);
+    transition: opacity, left, width;
+    transition-duration: var(--transition-fast);
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+    transform: translateX(0);
+  }
 }
 
 .navigationMenu a.active:hover {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary) 0%,
-    var(--color-accent) 100%
-  );
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  background: transparent;
+  color: var(--color-text-primary);
+  transform: none;
+  box-shadow: none;
 }
 
 /* 移动端菜单遮罩 */
@@ -321,18 +421,20 @@
   .mobileMenuButton {
     display: flex;
   }
-  
+
   .navigationMenu {
     position: fixed;
     top: 0;
     right: 0;
     width: 280px;
     height: 100vh;
-    background-color: var(--color-bg-elevated);
-    border-left: 1px solid var(--color-border-primary);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: var(--shadow-2xl);
     z-index: 999;
-    padding: var(--mobile-section-gap) clamp(var(--mobile-gutter-min), var(--mobile-gutter), var(--mobile-gutter-max));
+    padding: var(--spacing-4) var(--spacing-2) var(--spacing-2) var(--spacing-2);
     flex-direction: column;
     justify-content: flex-start;
     align-items: stretch;
@@ -346,23 +448,31 @@
     overflow-y: auto;
     box-sizing: border-box;
   }
-  
+
   .navigationMenuOpen {
     transform: translateX(0);
     opacity: 1;
     visibility: visible;
   }
-  
+
+  /* 深色主题菜单浮层 */
+  @media (prefers-color-scheme: dark) {
+    .navigationMenu {
+      background: rgba(0, 0, 0, 0.8);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  }
+
   .mobileMenuOverlay {
     display: block;
   }
-  
+
   .navigationMenu li {
     margin: 0;
     width: 100%;
     list-style: none;
   }
-  
+
   .navigationMenu a {
     display: flex;
     align-items: center;
@@ -382,19 +492,20 @@
     box-sizing: border-box;
     margin: 0;
     position: relative;
+    white-space: nowrap;
   }
-  
+
   .navigationMenu a:hover {
-    color: var(--color-primary);
+    color: var(--color-text-primary);
     background: transparent;
     background-color: transparent;
     background-image: none;
     box-shadow: none;
     transform: none;
   }
-  
+
   .navigationMenu a.active {
-    color: var(--color-primary);
+    color: var(--color-text-primary);
     font-weight: 600;
     font-size: var(--font-size-xl);
     background: transparent;
@@ -404,8 +515,9 @@
     box-shadow: none;
     transform: none;
     position: relative;
+    white-space: nowrap;
   }
-  
+
   .navigationMenu a.active::before {
     content: '';
     position: absolute;
@@ -414,10 +526,14 @@
     transform: translateY(-50%);
     width: 3px;
     height: 20px;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      var(--color-accent) 100%
+    );
     border-radius: 2px;
   }
-  
+
   .navigationMenu a.active:hover {
     color: var(--color-primary);
     background: transparent;
@@ -426,13 +542,13 @@
     box-shadow: none;
     transform: none;
   }
-  
+
   .navigationMenu a:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
     background-color: transparent;
   }
-  
+
   .navigationMenu a.active:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
@@ -448,7 +564,12 @@
     left: 0;
     border-left: none;
     border-top: 1px solid var(--color-border-primary);
-    padding: var(--mobile-padding) clamp(var(--mobile-gutter-min), var(--mobile-gutter), var(--mobile-gutter-max));
+    padding: var(--mobile-padding)
+      clamp(
+        var(--mobile-gutter-min),
+        var(--mobile-gutter),
+        var(--mobile-gutter-max)
+      );
   }
 }
 
@@ -458,29 +579,29 @@
     outline: 3px solid currentColor !important;
     outline-offset: 2px;
   }
-  
+
   .mobileMenuCloseButton:focus-visible {
     outline: 3px solid currentColor !important;
     outline-offset: 2px;
   }
-  
+
   .hamburgerLine {
     background-color: var(--color-text-primary) !important;
   }
-  
+
   .closeIconLine {
     background-color: var(--color-text-primary) !important;
   }
-  
+
   .header nav a:focus-visible {
     outline: 3px solid currentColor !important;
     outline-offset: 2px;
   }
-  
+
   .header nav a.active:focus-visible {
     outline: 3px solid var(--color-primary) !important;
   }
-  
+
   .navigationMenu a.active::before {
     width: 4px !important;
     height: 24px !important;
@@ -511,14 +632,36 @@
 @media (max-width: 768px) {
   .main {
     max-width: 100%;
-    padding: var(--spacing-lg) clamp(var(--mobile-gutter-min), var(--mobile-gutter), var(--mobile-gutter-max)) var(--spacing-xl) clamp(var(--mobile-gutter-min), var(--mobile-gutter), var(--mobile-gutter-max));
+    padding: var(--spacing-lg)
+      clamp(
+        var(--mobile-gutter-min),
+        var(--mobile-gutter),
+        var(--mobile-gutter-max)
+      )
+      var(--spacing-xl)
+      clamp(
+        var(--mobile-gutter-min),
+        var(--mobile-gutter),
+        var(--mobile-gutter-max)
+      );
     margin: 0;
   }
 }
 
 @media (max-width: 480px) {
   .main {
-    padding: var(--spacing-md) clamp(var(--mobile-gutter-min), var(--mobile-gutter), var(--mobile-gutter-max)) var(--spacing-lg) clamp(var(--mobile-gutter-min), var(--mobile-gutter), var(--mobile-gutter-max));
+    padding: var(--spacing-md)
+      clamp(
+        var(--mobile-gutter-min),
+        var(--mobile-gutter),
+        var(--mobile-gutter-max)
+      )
+      var(--spacing-lg)
+      clamp(
+        var(--mobile-gutter-min),
+        var(--mobile-gutter),
+        var(--mobile-gutter-max)
+      );
   }
 }
 
@@ -536,7 +679,12 @@
   .footer {
     max-width: 100%;
     margin: 0;
-    padding: var(--mobile-padding) clamp(var(--mobile-gutter-min), var(--mobile-gutter), var(--mobile-gutter-max));
+    padding: var(--mobile-padding)
+      clamp(
+        var(--mobile-gutter-min),
+        var(--mobile-gutter),
+        var(--mobile-gutter-max)
+      );
   }
 }
 
@@ -599,20 +747,20 @@
     width: 100%;
     justify-content: flex-start;
   }
-  
+
   .footerLink {
     min-height: 44px;
     display: flex;
     align-items: center;
     padding: var(--spacing-sm) 0;
   }
-  
+
   .footerBrandName {
     font-size: var(--font-size-base);
     font-weight: 500;
     opacity: 0.8;
   }
-  
+
   .footerTagline {
     font-size: var(--font-size-xs);
     opacity: 0.5;
@@ -625,34 +773,77 @@
   padding: 0;
   margin: 0;
   width: 100%;
-  border-bottom: 1px solid var(--color-border-primary);
   margin-bottom: var(--spacing-4);
+  justify-content: flex-end;
+  position: absolute;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
+  z-index: 1000;
+  height: 44px;
 }
 
 .mobileMenuCloseButton {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  background: none;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
   border: none;
-  padding: var(--spacing-3) var(--spacing-4);
+  padding: 0;
   cursor: pointer;
-  border-radius: var(--radius-md);
+  border-radius: 50%;
   transition-property: background-color;
   transition-duration: var(--transition-fast);
-  min-height: var(--touch-target-optimal);
   box-sizing: border-box;
+  margin-left: auto;
+}
+
+/* 深色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .mobileMenuCloseButton {
+    background: transparent;
+    border: none;
+  }
+}
+
+/* 降级方案：不支持 backdrop-filter 的浏览器 */
+@supports not (backdrop-filter: blur(12px)) {
+  .mobileMenuCloseButton {
+    background: transparent;
+    border: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .mobileMenuCloseButton {
+      background: transparent;
+      border: none;
+    }
+  }
 }
 
 .mobileMenuCloseButton:hover {
-  background-color: var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
+}
+
+/* 深色主题 hover 状态 */
+@media (prefers-color-scheme: dark) {
+  .mobileMenuCloseButton:hover {
+    background: var(--color-bg-secondary);
+  }
 }
 
 .mobileMenuCloseButton:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  background-color: var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
+}
+
+/* 深色主题 focus 状态 */
+@media (prefers-color-scheme: dark) {
+  .mobileMenuCloseButton:focus-visible {
+    background: var(--color-bg-secondary);
+  }
 }
 
 /* 关闭图标 */
@@ -675,6 +866,13 @@
   transition-duration: var(--transition-fast);
 }
 
+/* 深色主题关闭图标颜色 */
+@media (prefers-color-scheme: dark) {
+  .closeIconLine {
+    background-color: var(--color-text-primary);
+  }
+}
+
 .closeIconLine:nth-child(1) {
   transform: rotate(45deg);
 }
@@ -690,6 +888,6 @@
 /* 移动端显示关闭按钮 */
 @media (max-width: 768px) {
   .mobileMenuCloseWrapper {
-    display: block;
+    display: flex;
   }
 }
