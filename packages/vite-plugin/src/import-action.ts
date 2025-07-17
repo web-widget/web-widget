@@ -89,7 +89,7 @@ export function importActionPlugin(
         await esModuleLexer.init;
         [, exports] = esModuleLexer.parse(code, id);
       } catch (error) {
-        return this.error(error);
+        return this.error(error as Error);
       }
 
       const names = exports.map(({ n }) => n);
@@ -108,7 +108,7 @@ export function importActionPlugin(
           );
         }
       } catch (error) {
-        return this.error(error);
+        return this.error(error as Error);
       }
 
       let content =
