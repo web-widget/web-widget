@@ -1,5 +1,5 @@
 ---
-'@web-widget/schema': major
+'@web-widget/schema': minor
 ---
 
 feat: deprecate render method in favor of html method
