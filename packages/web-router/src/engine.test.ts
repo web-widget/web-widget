@@ -294,7 +294,7 @@ describe('Engine', () => {
 
       await expect(
         handler(mockContext as MiddlewareContext, mockNext)
-      ).rejects.toThrow('Middleware handler is not defined.');
+      ).rejects.toThrow('Module is missing export "handler".');
     });
 
     test('should cache middleware handler', async () => {

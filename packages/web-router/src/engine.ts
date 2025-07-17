@@ -3,10 +3,7 @@
  */
 /* eslint-disable no-param-reassign */
 import { handleRpc } from '@web-widget/action/server';
-import {
-  callContext,
-  contextToScriptDescriptor,
-} from '@web-widget/context/server';
+import { contextToScriptDescriptor } from '@web-widget/context/server';
 import { createHttpError } from '@web-widget/helpers/error';
 import {
   mergeMeta,
@@ -124,10 +121,7 @@ export class Engine {
         const resolvedModule =
           await this.#normalizeModule<MiddlewareModule>(module);
         cachedHandler = this.#normalizeHandler<MiddlewareHandler>(
-          resolvedModule.handler ??
-            (() => {
-              throw new Error('Middleware handler is not defined.');
-            }),
+          resolvedModule.handler!,
           false
         );
       }
@@ -158,10 +152,8 @@ export class Engine {
             });
           }
 
-          return callContext(context, async function handler() {
-            const json = await handleRpc(await request.json(), resolvedModule);
-            return Response.json(json);
-          });
+          const json = await handleRpc(await request.json(), resolvedModule);
+          return Response.json(json);
         };
       }
       return cachedHandler(context, next);
@@ -181,19 +173,16 @@ export class Engine {
               module.handler ??
                 // Default handler: render the component for GET requests
                 ({
-                  GET({ render }) {
-                    return render();
+                  GET(context) {
+                    return context.html();
                   },
                 } as RouteHandlers),
               true
             );
 
-            if (routeContext.meta) {
-              // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
-              (routeContext.meta.script ??= []).push(
-                contextToScriptDescriptor(routeContext)
-              );
-            }
+            // Add context to script descriptors for client-side hydration
+            // This ensures the client has access to server-side context data
+            this.#addContextScriptDescriptor(routeContext);
 
             return handler(routeContext);
           } else {
@@ -206,7 +195,7 @@ export class Engine {
   }
 
   createErrorHandler(
-    route: RouteModule | (() => Promise<RouteModule>)
+    module: RouteModule | (() => Promise<RouteModule>)
   ): (error: unknown, context: MiddlewareContext) => Promise<Response> {
     let cachedHandler:
       | ((error: unknown, context: MiddlewareContext) => Promise<Response>)
@@ -216,14 +205,26 @@ export class Engine {
       if (!cachedHandler) {
         cachedHandler = async (error: unknown, context: MiddlewareContext) => {
           const routeContext = context as RouteContext;
-          const module = await this.#normalizeModule<RouteModule>(route);
+          const resolvedModule =
+            await this.#normalizeModule<RouteModule>(module);
           const httpError = await this.#transformHTTPException(error);
 
           // Activate error module with immediate callback execution
-          await this.#activateModule(routeContext, module, httpError);
+          await this.#activateModule(routeContext, resolvedModule, httpError);
 
-          // Render the error page
-          return routeContext.html(null, { error: httpError });
+          const handler = this.#normalizeHandler<RouteHandler>(
+            resolvedModule.handler ??
+              // Default error handler - doesn't depend on HTTP method
+              ((context: RouteContext) => {
+                return context.html(null, { error: httpError });
+              }),
+            true
+          );
+
+          // Add context to script descriptors for client-side hydration
+          // This ensures the client has access to server-side context data
+          this.#addContextScriptDescriptor(routeContext);
+          return handler(routeContext);
         };
       }
       return cachedHandler(error, context);
@@ -259,10 +260,7 @@ export class Engine {
     if (module.render) {
       let cached: CachedModuleData | undefined;
 
-      // Use cache for regular modules, skip cache for error modules to avoid callback conflicts
-      if (!error) {
-        cached = MODULE_CACHE.get(module);
-      }
+      cached = MODULE_CACHE.get(module);
 
       if (!cached) {
         const layoutModule = await this.#normalizeModule<LayoutModule>(
@@ -278,10 +276,7 @@ export class Engine {
           html: this.#composeHtml(layoutModule),
         };
 
-        // Only cache for regular modules
-        if (!error) {
-          MODULE_CACHE.set(module, cached);
-        }
+        MODULE_CACHE.set(module, cached);
       }
 
       context.meta = structuredClone(cached.meta);
@@ -290,12 +285,6 @@ export class Engine {
       context.renderOptions = context.renderer = structuredClone(
         cached.renderer
       );
-
-      // For error modules, add context to script descriptors
-      if (error) {
-        // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
-        (context.meta!.script ??= []).push(contextToScriptDescriptor(context));
-      }
     }
   }
 
@@ -448,6 +437,16 @@ export class Engine {
   // =========================================================================
   // Utility Methods
   // =========================================================================
+
+  /**
+   * Add context script descriptor to meta for client-side hydration
+   */
+  #addContextScriptDescriptor(context: RouteContext): void {
+    if (context.meta) {
+      // NOTE: `contextToScriptDescriptor` promises not to serialize private data.
+      (context.meta.script ??= []).push(contextToScriptDescriptor(context));
+    }
+  }
 
   async #normalizeModule<T>(module: T | (() => Promise<T>)): Promise<T> {
     if (typeof module === 'function') {
