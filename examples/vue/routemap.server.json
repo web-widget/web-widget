@@ -1,36 +1,53 @@
 {
   "routes": [
     {
-      "pathname": "/about",
-      "module": "./routes/about@route.vue"
-    },
-    {
-      "pathname": "/fetch",
-      "module": "./routes/fetch@route.vue"
-    },
-    {
       "pathname": "/",
       "module": "./routes/index@route.vue"
     },
     {
-      "pathname": "/action",
-      "module": "./routes/action/index@route.vue"
+      "pathname": "/examples",
+      "module": "./routes/examples/index@route.vue"
     },
     {
-      "pathname": "/greet/:name",
-      "module": "./routes/greet/[name]@route.vue"
+      "pathname": "/examples/frameworks",
+      "module": "./routes/examples/frameworks/index@route.vue"
     },
     {
-      "pathname": "/api/hello",
-      "module": "./routes/api/hello@route.ts"
+      "pathname": "/examples/middleware",
+      "module": "./routes/examples/middleware/index@route.vue"
+    },
+    {
+      "pathname": "/examples/action",
+      "module": "./routes/examples/action/index@route.vue"
+    },
+    {
+      "pathname": "/examples/static",
+      "module": "./routes/examples/static/index@route.vue"
+    },
+    {
+      "pathname": "/examples/params/:name",
+      "module": "./routes/examples/params/[name]@route.vue"
+    },
+    {
+      "pathname": "/examples/fetch",
+      "module": "./routes/examples/fetch/index@route.vue"
+    },
+    {
+      "pathname": "/examples/api/hello",
+      "module": "./routes/examples/api/hello@route.ts"
     }
   ],
   "actions": [
     {
-      "pathname": "/action/functions",
-      "module": "./routes/action/functions@action.ts"
+      "pathname": "/examples/action/functions",
+      "module": "./routes/examples/action/functions@action.ts"
     }
   ],
-  "middlewares": [],
+  "middlewares": [
+    {
+      "pathname": "/examples/middleware",
+      "module": "./routes/examples/middleware/index@middleware.ts"
+    }
+  ],
   "fallbacks": []
 }

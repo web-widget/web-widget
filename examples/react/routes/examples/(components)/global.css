@@ -1,0 +1,62 @@
+/* Import design tokens */
+@import './design-tokens.css';
+
+/* Global reset and base styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    'Noto Sans',
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol',
+    'Noto Color Emoji';
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure root element applies background color to prevent flashing */
+/* Use specific color values as fallback to ensure stable display during CSS variable loading */
+html {
+  /* Fallback colors - used before CSS variables load */
+  background-color: #ffffff;
+  color: #1f2937;
+}
+
+/* CSS variables - preferred */
+html {
+  /* Fallback colors */
+  background-color: #ffffff;
+  color: #1f2937;
+}
+
+/* CSS variables */
+html {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
