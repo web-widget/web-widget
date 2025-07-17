@@ -30,14 +30,25 @@ import type {
   ServerRenderOptions,
 } from './types';
 
+declare module '@web-widget/helpers' {
+  interface RouteContext {
+    /**
+     * Private property: cached handler
+     * @internal
+     */
+    _handler?: RouteHandler;
+  }
+}
+
 const HANDLER = Symbol('handler');
 
 // Type for cached module data
 interface CachedModuleData {
-  meta: Meta;
-  renderer: ServerRenderOptions;
-  render: RouteContext['render'];
-  html: RouteContext['html'];
+  meta?: Meta;
+  renderer?: ServerRenderOptions;
+  render?: RouteContext['render'];
+  html?: RouteContext['html'];
+  handler: RouteHandler;
 }
 
 const MODULE_CACHE = new WeakMap<RouteModule, CachedModuleData>();
@@ -160,25 +171,26 @@ export class Engine {
     };
   }
 
-  createRouteHandler(): MiddlewareHandler {
+  createRouteHandler(
+    module: RouteModule | (() => Promise<RouteModule>)
+  ): MiddlewareHandler {
     let cachedHandler: MiddlewareHandler | null = null;
 
     return async (context, next) => {
       if (!cachedHandler) {
         cachedHandler = async (context, next) => {
           const routeContext = context as RouteContext;
-          const module = routeContext.module;
-          if (module) {
-            const handler = this.#normalizeHandler<RouteHandler>(
-              module.handler ??
-                // Default handler: render the component for GET requests
-                ({
-                  GET(context) {
-                    return context.html();
-                  },
-                } as RouteHandlers),
-              true
-            );
+          const resolvedModule =
+            await this.#normalizeModule<RouteModule>(module);
+
+          if (resolvedModule) {
+            // Use cached handler from context if available, otherwise activate module
+            // which will set up the cached handler
+            if (!routeContext._handler) {
+              await this.#activateModule(routeContext, resolvedModule);
+            }
+
+            const handler = routeContext._handler!;
 
             // Add context to script descriptors for client-side hydration
             // This ensures the client has access to server-side context data
@@ -215,14 +227,8 @@ export class Engine {
           // Activate error module with immediate callback execution
           await this.#activateModule(routeContext, resolvedModule, httpError);
 
-          const handler = this.#normalizeHandler<RouteHandler>(
-            resolvedModule.handler ??
-              // Default error handler - doesn't depend on HTTP method
-              ((context: RouteContext) => {
-                return context.html(null, { error: httpError });
-              }),
-            true
-          );
+          // Use the cached handler (already handles error scenarios correctly)
+          const handler = routeContext._handler!;
 
           // Add context to script descriptors for client-side hydration
           // This ensures the client has access to server-side context data
@@ -253,13 +259,12 @@ export class Engine {
     context.module = module;
     context.error = error;
 
-    // Setup rendering capabilities based on module type
-    if (module.render) {
-      let cached: CachedModuleData | undefined;
+    // Cache and set handler for all modules
+    let cached = MODULE_CACHE.get(module);
+    if (!cached) {
+      const handler = this.#normalizeRouteHandler(module, !!error);
 
-      cached = MODULE_CACHE.get(module);
-
-      if (!cached) {
+      if (module.render) {
         const layoutModule = await this.#normalizeModule<LayoutModule>(
           this.#layoutModule
         );
@@ -271,16 +276,29 @@ export class Engine {
           renderer: this.#defaultRenderer,
           render: this.#composeRender(layoutModule),
           html: this.#composeHtml(layoutModule),
+          handler,
         };
-
-        MODULE_CACHE.set(module, cached);
+      } else {
+        // For modules without render capability, still cache the handler
+        cached = {
+          handler,
+        };
       }
 
-      context.meta = structuredClone(cached.meta);
-      context.render = cached.render.bind(context);
-      context.html = cached.html.bind(context);
+      MODULE_CACHE.set(module, cached);
+    }
+
+    // Set cached handler
+    context._handler = cached.handler;
+
+    // Setup rendering capabilities only for modules with render capability
+    if (module.render) {
+      // We know these properties exist because we set them when module.render exists
+      context.meta = structuredClone(cached.meta!);
+      context.render = cached.render!.bind(context);
+      context.html = cached.html!.bind(context);
       context.renderOptions = context.renderer = structuredClone(
-        cached.renderer
+        cached.renderer!
       );
     }
   }
@@ -450,6 +468,52 @@ export class Engine {
       return await (module as () => Promise<T>)();
     }
     return module;
+  }
+
+  /**
+   * Factory methods for creating default handlers
+   */
+  #createDefaultRouteHandler(): RouteHandlers {
+    return {
+      GET(context: RouteContext) {
+        return context.html();
+      },
+    };
+  }
+
+  #createDefaultErrorHandler(): RouteHandler {
+    return (context: RouteContext) => {
+      // Use the error from context, which is set during module activation
+      return context.html(null, { error: context.error });
+    };
+  }
+
+  /**
+   * Get or create appropriate handler for a module
+   */
+  #getModuleHandler(
+    module: RouteModule,
+    isErrorScenario = false
+  ): RouteHandler | RouteHandlers {
+    if (module.handler) {
+      return module.handler;
+    }
+
+    // Return appropriate default handler based on scenario
+    return isErrorScenario
+      ? this.#createDefaultErrorHandler()
+      : this.#createDefaultRouteHandler();
+  }
+
+  /**
+   * Normalize any handler to RouteHandler with unified default handling
+   */
+  #normalizeRouteHandler(
+    module: RouteModule,
+    isErrorScenario = false
+  ): RouteHandler {
+    const handler = this.#getModuleHandler(module, isErrorScenario);
+    return this.#normalizeHandler<RouteHandler>(handler, true);
   }
 
   #normalizeHandler<T>(

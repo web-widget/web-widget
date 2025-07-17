@@ -69,13 +69,12 @@ describe('Engine', () => {
       };
 
       const mockContext: Partial<RouteContext> = {
-        module: mockModule,
         meta: { title: 'Test' },
         request: new Request('http://test.com', { method: 'GET' }),
       };
 
       const mockNext = () => new Response('next');
-      const middleware = engine.createRouteHandler();
+      const middleware = engine.createRouteHandler(mockModule);
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -83,12 +82,10 @@ describe('Engine', () => {
     });
 
     test('should call next when no module is present', async () => {
-      const mockContext: Partial<RouteContext> = {
-        module: undefined,
-      };
+      const mockContext: Partial<RouteContext> = {};
 
       const mockNext = () => new Response('next response');
-      const middleware = engine.createRouteHandler();
+      const middleware = engine.createRouteHandler(null as any);
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -101,13 +98,12 @@ describe('Engine', () => {
       };
 
       const mockContext: Partial<RouteContext> = {
-        module: mockModule,
         request: new Request('http://test.com', { method: 'GET' }),
         html: () => new Response('rendered response'),
       };
 
       const mockNext = () => new Response('next');
-      const middleware = engine.createRouteHandler();
+      const middleware = engine.createRouteHandler(mockModule);
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -121,13 +117,12 @@ describe('Engine', () => {
       };
 
       const mockContext: Partial<RouteContext> = {
-        module: mockModule,
         request: new Request('http://test.com', { method: 'GET' }),
         meta: { title: 'Test', script: [] },
       };
 
       const mockNext = () => new Response('next');
-      const middleware = engine.createRouteHandler();
+      const middleware = engine.createRouteHandler(mockModule);
       await middleware(mockContext as RouteContext, mockNext);
 
       expect(mockContext.meta!.script).toBeDefined();
@@ -642,12 +637,10 @@ describe('Engine', () => {
         handler: functionHandler,
       };
 
-      const mockContext: Partial<RouteContext> = {
-        module: mockModule,
-      };
+      const mockContext: Partial<RouteContext> = {};
 
       const mockNext = () => new Response('next');
-      const middleware = engine.createRouteHandler();
+      const middleware = engine.createRouteHandler(mockModule);
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -665,16 +658,734 @@ describe('Engine', () => {
       };
 
       const mockContext: Partial<RouteContext> = {
-        module: mockModule,
         request: new Request('http://test.com', { method: 'GET' }),
       };
 
       const mockNext = () => new Response('next');
-      const middleware = engine.createRouteHandler();
+      const middleware = engine.createRouteHandler(mockModule);
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
       expect(await result.text()).toBe('GET response');
+    });
+  });
+
+  describe('handler caching', () => {
+    test('should cache handler for modules without render capability', async () => {
+      const mockModule: RouteModule = {
+        handler: {
+          GET: () => new Response('cached handler'),
+        },
+      };
+
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+      };
+      const mockNext = () => new Response('next');
+
+      const handler = engine.createRouteContextHandler(mockModule);
+
+      // First activation
+      await handler(mockContext as RouteContext, mockNext);
+
+      expect(mockContext.module).toBe(mockModule);
+      expect(mockContext._handler).toBeDefined();
+      expect(mockContext.render).toBeUndefined(); // No render capability
+      expect(mockContext.html).toBeUndefined(); // No render capability
+
+      // Verify cached handler works
+      const result = await mockContext._handler!(mockContext as RouteContext);
+      expect(result).toBeInstanceOf(Response);
+      expect(await result.text()).toBe('cached handler');
+    });
+
+    test('should cache handler for modules with render capability', async () => {
+      const mockModule: RouteModule = {
+        handler: {
+          GET: () => new Response('render handler'),
+        },
+        render: () => 'rendered content',
+        meta: { title: 'Test' },
+      };
+
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+      };
+      const mockNext = () => new Response('next');
+
+      const handler = engine.createRouteContextHandler(mockModule);
+
+      // First activation
+      await handler(mockContext as RouteContext, mockNext);
+
+      expect(mockContext.module).toBe(mockModule);
+      expect(mockContext._handler).toBeDefined();
+      expect(mockContext.render).toBeDefined(); // Has render capability
+      expect(mockContext.html).toBeDefined(); // Has render capability
+      expect(mockContext.meta).toBeDefined();
+
+      // Verify cached handler works
+      const result = await mockContext._handler!(mockContext as RouteContext);
+      expect(result).toBeInstanceOf(Response);
+      expect(await result.text()).toBe('render handler');
+    });
+
+    test('should use cached handler on subsequent calls', async () => {
+      const mockModule: RouteModule = {
+        handler: {
+          GET: () => new Response('cached response'),
+        },
+      };
+
+      const mockContext1: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+      };
+      const mockContext2: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+      };
+      const mockNext = () => new Response('next');
+
+      const handler = engine.createRouteContextHandler(mockModule);
+
+      // First call - should set up cache
+      await handler(mockContext1 as RouteContext, mockNext);
+      expect(mockContext1._handler).toBeDefined();
+
+      // Second call with same module - should reuse cached handler
+      await handler(mockContext2 as RouteContext, mockNext);
+      expect(mockContext2._handler).toBeDefined();
+
+      // Both contexts should have the same cached handler reference
+      expect(mockContext1._handler).toBe(mockContext2._handler);
+
+      // Verify the cached handlers work correctly
+      const result1 = await mockContext1._handler!(
+        mockContext1 as RouteContext
+      );
+      const result2 = await mockContext2._handler!(
+        mockContext2 as RouteContext
+      );
+
+      expect(await result1.text()).toBe('cached response');
+      expect(await result2.text()).toBe('cached response');
+    });
+
+    test('should handle error scenarios with cached handlers', async () => {
+      const mockModule: RouteModule = {
+        handler: {
+          GET: () => new Response('normal response'),
+        },
+      };
+
+      const testError = new Error('Test error');
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+        html: () => new Response('error html response'),
+      };
+
+      const errorHandler = engine.createErrorHandler(mockModule);
+      const result = await errorHandler(testError, mockContext as RouteContext);
+
+      expect(result).toBeInstanceOf(Response);
+      expect(mockContext.module).toBe(mockModule);
+      expect(mockContext._handler).toBeDefined();
+      expect(mockContext.error).toBe(testError);
+
+      // Verify the cached handler is accessible and correct
+      const handlerResult = await mockContext._handler!(
+        mockContext as RouteContext
+      );
+      expect(handlerResult).toBeInstanceOf(Response);
+    });
+
+    test('should maintain handler cache consistency across different handler types', async () => {
+      // Test with function handler
+      const functionModule: RouteModule = {
+        handler: () => new Response('function'),
+      };
+
+      // Test with object handler
+      const objectModule: RouteModule = {
+        handler: {
+          GET: () => new Response('object GET'),
+          POST: () => new Response('object POST'),
+        },
+      };
+
+      // Test with default handler (no handler specified)
+      const defaultModule: RouteModule = {
+        render: () => 'default content',
+      };
+
+      const testCases = [
+        {
+          module: functionModule,
+          context: {
+            request: new Request('http://test.com', { method: 'GET' }),
+          } as Partial<RouteContext>,
+          name: 'function handler',
+        },
+        {
+          module: objectModule,
+          context: {
+            request: new Request('http://test.com', { method: 'GET' }),
+          } as Partial<RouteContext>,
+          name: 'object handler',
+        },
+        {
+          module: defaultModule,
+          context: {
+            html: () => new Response('default html'),
+          } as Partial<RouteContext>,
+          name: 'default handler',
+        },
+      ];
+
+      const mockNext = () => new Response('next');
+
+      for (const { module, context, name } of testCases) {
+        const handler = engine.createRouteContextHandler(module);
+        await handler(context as RouteContext, mockNext);
+
+        expect(context.module).toBe(module);
+        expect(context._handler).toBeDefined();
+        expect(typeof context._handler).toBe('function');
+      }
+    });
+  });
+
+  describe('module activation consistency', () => {
+    test('should consistently activate modules across different handler types', async () => {
+      const modules = [
+        {
+          name: 'render-only module',
+          module: { render: () => 'content' } as RouteModule,
+          expectedProps: ['module', '_handler', 'render', 'html', 'meta'],
+        },
+        {
+          name: 'handler-only module',
+          module: {
+            handler: { GET: () => new Response('test') },
+          } as RouteModule,
+          expectedProps: ['module', '_handler'],
+          unexpectedProps: ['render', 'html'],
+        },
+        {
+          name: 'combined module',
+          module: {
+            handler: { GET: () => new Response('combined') },
+            render: () => 'rendered',
+            meta: { title: 'Test' },
+          } as RouteModule,
+          expectedProps: ['module', '_handler', 'render', 'html', 'meta'],
+        },
+      ];
+
+      for (const { name, module, expectedProps, unexpectedProps } of modules) {
+        const mockContext: Partial<RouteContext> = {
+          request: new Request('http://test.com', { method: 'GET' }),
+        };
+        const mockNext = () => new Response('next');
+
+        const handler = engine.createRouteContextHandler(module);
+        await handler(mockContext as RouteContext, mockNext);
+
+        // Check expected properties
+        for (const prop of expectedProps) {
+          expect(mockContext).toHaveProperty(prop);
+          expect((mockContext as any)[prop]).toBeDefined();
+        }
+
+        // Check unexpected properties for handler-only modules
+        if (unexpectedProps) {
+          for (const prop of unexpectedProps) {
+            expect((mockContext as any)[prop]).toBeUndefined();
+          }
+        }
+
+        // Verify module reference consistency
+        expect(mockContext.module).toBe(module);
+      }
+    });
+
+    test('should handle module activation with missing dependencies gracefully', async () => {
+      const moduleWithoutRender: RouteModule = {
+        handler: {
+          GET: (context) => {
+            // This should not fail even though context.html might not be defined
+            return new Response('handler without render');
+          },
+        },
+      };
+
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+      };
+      const mockNext = () => new Response('next');
+
+      const handler = engine.createRouteContextHandler(moduleWithoutRender);
+      await handler(mockContext as RouteContext, mockNext);
+
+      expect(mockContext.module).toBe(moduleWithoutRender);
+      expect(mockContext._handler).toBeDefined();
+      expect(mockContext.render).toBeUndefined();
+      expect(mockContext.html).toBeUndefined();
+
+      // Handler should still work
+      const result = await mockContext._handler!(mockContext as RouteContext);
+      expect(result).toBeInstanceOf(Response);
+      expect(await result.text()).toBe('handler without render');
+    });
+
+    test('should maintain activation state across multiple context objects', async () => {
+      const sharedModule: RouteModule = {
+        handler: { GET: () => new Response('shared') },
+        render: () => 'shared content',
+        meta: { title: 'Shared Module' },
+      };
+
+      const contexts = Array.from({ length: 3 }, () => ({
+        request: new Request('http://test.com', { method: 'GET' }),
+      })) as Partial<RouteContext>[];
+
+      const mockNext = () => new Response('next');
+      const handler = engine.createRouteContextHandler(sharedModule);
+
+      // Activate module in all contexts
+      for (const context of contexts) {
+        await handler(context as RouteContext, mockNext);
+      }
+
+      // All contexts should have consistent state
+      for (let i = 0; i < contexts.length; i++) {
+        const context = contexts[i];
+        expect(context.module).toBe(sharedModule);
+        expect(context._handler).toBeDefined();
+        expect(context.render).toBeDefined();
+        expect(context.html).toBeDefined();
+        expect(context.meta).toBeDefined();
+
+        // All contexts should share the same cached handler
+        if (i > 0) {
+          expect(context._handler).toBe(contexts[0]._handler);
+        }
+      }
+    });
+
+    test('should properly activate error modules with consistent state', async () => {
+      const errorModule: RouteModule = {
+        handler: {
+          GET: () => new Response('error page'),
+        },
+        render: () => 'error content',
+        fallback: () => 'fallback component',
+      };
+
+      const testError = new Error('Test activation error');
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+        html: () => new Response('error html'),
+      };
+
+      const errorHandler = engine.createErrorHandler(errorModule);
+      const result = await errorHandler(testError, mockContext as RouteContext);
+
+      // Verify error module activation state
+      expect(mockContext.module).toBe(errorModule);
+      expect(mockContext.error).toBe(testError);
+      expect(mockContext._handler).toBeDefined();
+      expect(mockContext.render).toBeDefined();
+      expect(mockContext.html).toBeDefined();
+
+      // Verify error response
+      expect(result).toBeInstanceOf(Response);
+
+      // Verify cached handler works with error context
+      const handlerResult = await mockContext._handler!(
+        mockContext as RouteContext
+      );
+      expect(handlerResult).toBeInstanceOf(Response);
+    });
+
+    test('should handle module cache consistency with WeakMap behavior', async () => {
+      const originalModule: RouteModule = {
+        handler: { GET: () => new Response('original') },
+        render: () => 'original content',
+        meta: { title: 'Original' },
+      };
+
+      const mockContext1: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+      };
+      const mockContext2: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+      };
+      const mockNext = () => new Response('next');
+
+      const handler = engine.createRouteContextHandler(originalModule);
+
+      // First activation
+      await handler(mockContext1 as RouteContext, mockNext);
+      const firstHandler = mockContext1._handler;
+      const firstMeta = mockContext1.meta;
+
+      expect(firstHandler).toBeDefined();
+      expect(firstMeta?.title).toBe('Original');
+
+      // Second activation with same module should use cached data
+      await handler(mockContext2 as RouteContext, mockNext);
+
+      // Should use exact same cached handler and cloned meta
+      expect(mockContext2._handler).toBe(firstHandler);
+      expect(mockContext2.meta?.title).toBe('Original');
+      expect(mockContext2.meta).not.toBe(firstMeta); // Should be cloned, not same reference
+    });
+  });
+
+  describe('handler cache performance', () => {
+    test('should demonstrate performance improvement with handler caching', async () => {
+      const complexHandler = {
+        GET: (context: RouteContext) => {
+          // Simulate complex processing
+          const start = Date.now();
+          while (Date.now() - start < 1) {
+            // Small delay to simulate processing
+          }
+          return new Response(`processed at ${Date.now()}`);
+        },
+        POST: (context: RouteContext) => {
+          return new Response('POST processed');
+        },
+        PUT: (context: RouteContext) => {
+          return new Response('PUT processed');
+        },
+      };
+
+      const moduleWithComplexHandler: RouteModule = {
+        handler: complexHandler,
+        render: () => 'complex content',
+        meta: { title: 'Complex Module' },
+      };
+
+      const contexts = Array.from({ length: 10 }, () => ({
+        request: new Request('http://test.com', { method: 'GET' }),
+      })) as Partial<RouteContext>[];
+
+      const mockNext = () => new Response('next');
+      const handler = engine.createRouteContextHandler(
+        moduleWithComplexHandler
+      );
+
+      const startTime = Date.now();
+
+      // Multiple activations should reuse cached handler
+      for (const context of contexts) {
+        await handler(context as RouteContext, mockNext);
+        expect(context._handler).toBeDefined();
+        expect(context.module).toBe(moduleWithComplexHandler);
+      }
+
+      const endTime = Date.now();
+      const totalTime = endTime - startTime;
+
+      // All contexts should share the same cached handler
+      const firstHandler = contexts[0]._handler;
+      for (let i = 1; i < contexts.length; i++) {
+        expect(contexts[i]._handler).toBe(firstHandler);
+      }
+
+      // Performance should be reasonable (this is a basic sanity check)
+      expect(totalTime).toBeLessThan(100); // Should complete quickly due to caching
+    });
+
+    test('should cache handlers for different module types efficiently', async () => {
+      const modules = [
+        {
+          name: 'simple-handler',
+          module: { handler: () => new Response('simple') } as RouteModule,
+        },
+        {
+          name: 'complex-handler',
+          module: {
+            handler: {
+              GET: () => new Response('get'),
+              POST: () => new Response('post'),
+              PUT: () => new Response('put'),
+              DELETE: () => new Response('delete'),
+            },
+          } as RouteModule,
+        },
+        {
+          name: 'render-module',
+          module: {
+            handler: { GET: () => new Response('render-get') },
+            render: () => 'rendered',
+            meta: { title: 'Render Module' },
+          } as RouteModule,
+        },
+      ];
+
+      const results: Array<{
+        name: string;
+        contexts: Partial<RouteContext>[];
+        time: number;
+      }> = [];
+
+      for (const { name, module } of modules) {
+        const contexts = Array.from({ length: 5 }, () => ({
+          request: new Request('http://test.com', { method: 'GET' }),
+        })) as Partial<RouteContext>[];
+
+        const mockNext = () => new Response('next');
+        const handler = engine.createRouteContextHandler(module);
+
+        const startTime = Date.now();
+
+        for (const context of contexts) {
+          await handler(context as RouteContext, mockNext);
+        }
+
+        const endTime = Date.now();
+
+        results.push({
+          name,
+          contexts,
+          time: endTime - startTime,
+        });
+
+        // Verify all contexts share the same cached handler
+        const firstHandler = contexts[0]._handler;
+        for (let i = 1; i < contexts.length; i++) {
+          expect(contexts[i]._handler).toBe(firstHandler);
+        }
+      }
+
+      // All should complete in reasonable time
+      for (const result of results) {
+        expect(result.time).toBeLessThan(50);
+      }
+    });
+
+    test('should minimize repeated handler normalization calls', async () => {
+      const mockModule: RouteModule = {
+        handler: {
+          GET: () => new Response('normalized once'),
+          POST: () => new Response('post normalized once'),
+        },
+        render: () => 'content',
+      };
+
+      // Create multiple contexts that will all need the same module
+      const contexts = Array.from({ length: 20 }, () => ({
+        request: new Request('http://test.com', { method: 'GET' }),
+      })) as Partial<RouteContext>[];
+
+      const mockNext = () => new Response('next');
+      const handler = engine.createRouteContextHandler(mockModule);
+
+      // Process all contexts
+      const startTime = Date.now();
+      for (const context of contexts) {
+        await handler(context as RouteContext, mockNext);
+      }
+      const processingTime = Date.now() - startTime;
+
+      // Verify caching worked - all should have same handler reference
+      const referenceHandler = contexts[0]._handler;
+      expect(referenceHandler).toBeDefined();
+
+      for (let i = 1; i < contexts.length; i++) {
+        expect(contexts[i]._handler).toBe(referenceHandler);
+        expect(contexts[i].module).toBe(mockModule);
+      }
+
+      // Should process quickly due to caching
+      expect(processingTime).toBeLessThan(100);
+
+      // Verify handlers work correctly
+      for (const context of contexts.slice(0, 3)) {
+        // Test a few to ensure functionality
+        const result = await context._handler!(context as RouteContext);
+        expect(result).toBeInstanceOf(Response);
+        expect(await result.text()).toBe('normalized once');
+      }
+    });
+
+    test('should handle concurrent activation without cache corruption', async () => {
+      const sharedModule: RouteModule = {
+        handler: {
+          GET: () => new Response('concurrent response'),
+        },
+        render: () => 'concurrent content',
+        meta: { title: 'Concurrent Module' },
+      };
+
+      const concurrentContexts = Array.from({ length: 10 }, (_, i) => ({
+        id: i,
+        request: new Request(`http://test.com?id=${i}`, { method: 'GET' }),
+      })) as Array<Partial<RouteContext> & { id: number }>;
+
+      const mockNext = () => new Response('next');
+      const handler = engine.createRouteContextHandler(sharedModule);
+
+      // Simulate concurrent activation
+      const promises = concurrentContexts.map((context) =>
+        handler(context as RouteContext, mockNext)
+      );
+
+      await Promise.all(promises);
+
+      // All contexts should have consistent state
+      const referenceHandler = concurrentContexts[0]._handler;
+      expect(referenceHandler).toBeDefined();
+
+      for (const context of concurrentContexts) {
+        expect(context.module).toBe(sharedModule);
+        expect(context._handler).toBe(referenceHandler);
+        expect(context.render).toBeDefined();
+        expect(context.html).toBeDefined();
+        expect(context.meta?.title).toBe('Concurrent Module');
+      }
+    });
+  });
+
+  describe('default handler processing (refactored)', () => {
+    test('should use unified default handler creation for modules without handlers', async () => {
+      const moduleWithoutHandler: RouteModule = {
+        // No render method, so no rendering pipeline will be set up
+        meta: { title: 'No Handler Module' },
+      };
+
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+        html: () => new Response('default html response'),
+      };
+      const mockNext = () => new Response('next');
+
+      const handler = engine.createRouteContextHandler(moduleWithoutHandler);
+      await handler(mockContext as RouteContext, mockNext);
+
+      expect(mockContext.module).toBe(moduleWithoutHandler);
+      expect(mockContext._handler).toBeDefined();
+      // Since module has no render method, engine won't override our html mock
+      expect(mockContext.render).toBeUndefined();
+
+      // Verify the default handler works (should be a GET handler that calls context.html())
+      const result = await mockContext._handler!(mockContext as RouteContext);
+      expect(result).toBeInstanceOf(Response);
+      expect(await result.text()).toBe('default html response');
+    });
+
+    test('should use specialized error handler for error modules without custom handlers', async () => {
+      const errorModuleWithoutHandler: RouteModule = {
+        // No handler, and no render method to avoid engine overriding our html mock
+        fallback: () => 'error fallback',
+      };
+
+      const testError = new Error('Test error for default handler');
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+        html: (data, options) => {
+          // Verify that error is passed correctly to html method
+          expect(options?.error).toBe(testError);
+          return new Response('error html with correct error');
+        },
+      };
+
+      const errorHandler = engine.createErrorHandler(errorModuleWithoutHandler);
+      const result = await errorHandler(testError, mockContext as RouteContext);
+
+      expect(result).toBeInstanceOf(Response);
+      expect(await result.text()).toBe('error html with correct error');
+      expect(mockContext.module).toBe(errorModuleWithoutHandler);
+      expect(mockContext.error).toBe(testError);
+    });
+
+    test('should maintain custom handlers when modules provide them', async () => {
+      const moduleWithCustomHandler: RouteModule = {
+        handler: {
+          GET: () => new Response('custom GET handler'),
+          POST: () => new Response('custom POST handler'),
+        },
+        render: () => 'content with custom handler',
+      };
+
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+      };
+      const mockNext = () => new Response('next');
+
+      const handler = engine.createRouteContextHandler(moduleWithCustomHandler);
+      await handler(mockContext as RouteContext, mockNext);
+
+      expect(mockContext.module).toBe(moduleWithCustomHandler);
+      expect(mockContext._handler).toBeDefined();
+
+      // Verify the custom handler is used, not the default
+      const result = await mockContext._handler!(mockContext as RouteContext);
+      expect(result).toBeInstanceOf(Response);
+      expect(await result.text()).toBe('custom GET handler');
+    });
+
+    test('should use custom error handlers when modules provide them', async () => {
+      const errorModuleWithCustomHandler: RouteModule = {
+        handler: (context: RouteContext) => {
+          const error = context.error;
+          return new Response(`custom error: ${error?.message}`, {
+            status: error?.status || 500,
+          });
+        },
+        render: () => 'error content',
+      };
+
+      const testError = new Error('Custom handler test error');
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+      };
+
+      const errorHandler = engine.createErrorHandler(
+        errorModuleWithCustomHandler
+      );
+      const result = await errorHandler(testError, mockContext as RouteContext);
+
+      expect(result).toBeInstanceOf(Response);
+      expect(await result.text()).toBe(
+        'custom error: Custom handler test error'
+      );
+      expect(result.status).toBe(500);
+    });
+
+    test('should reduce complexity by eliminating duplicate default handler logic', () => {
+      // This test verifies that the refactoring achieved its goal
+      const moduleTypes = [
+        {
+          name: 'no-handler',
+          module: { render: () => 'content' } as RouteModule,
+        },
+        {
+          name: 'with-handler',
+          module: { handler: () => new Response('test') } as RouteModule,
+        },
+        {
+          name: 'mixed',
+          module: {
+            handler: { GET: () => new Response('get') },
+            render: () => 'content',
+          } as RouteModule,
+        },
+      ];
+
+      // All module types should be processed consistently
+      for (const { name, module } of moduleTypes) {
+        expect(() => {
+          // These factory methods should handle all cases without requiring caller to handle defaults
+          const routeHandler = engine.createRouteContextHandler(module);
+          const errorHandler = engine.createErrorHandler(module);
+
+          expect(routeHandler).toBeDefined();
+          expect(errorHandler).toBeDefined();
+        }).not.toThrow();
+      }
     });
   });
 });

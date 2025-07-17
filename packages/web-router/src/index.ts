@@ -119,7 +119,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     });
 
     routes.forEach((item) => {
-      router.use(item.pathname, engine.createRouteHandler());
+      router.use(item.pathname, engine.createRouteHandler(item.module));
     });
 
     const fallback404 = fallbacks.find(
