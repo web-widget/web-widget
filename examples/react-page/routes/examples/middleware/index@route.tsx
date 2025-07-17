@@ -24,7 +24,7 @@ export default defineRouteComponent(function Page() {
         <div className={shared.mb6}>
           <h3 className={shared.sectionTitle}>响应头部演示</h3>
           <div className={`${shared.infoPanel} ${shared.warning}`}>
-            <h4>🚀 实时性能监控</h4>
+            <h4>⚙️ 动态修改的请求头</h4>
             <p>
               这个页面的中间件还添加了自定义响应头部。您可以通过浏览器开发者工具观察：
             </p>
