@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.64.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.64.0
+- @web-widget/lifecycle-cache@1.64.0
+
 ## 1.63.0
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @web-widget/lifecycle-cache
 
+## 1.64.0
+
+### Patch Changes
+
+- @web-widget/context@1.64.0
+- @web-widget/purify@1.64.0
+- @web-widget/schema@1.64.0
+
 ## 1.63.0
 
 ### Patch Changes
