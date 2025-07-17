@@ -50,7 +50,7 @@ export default function vueWebWidgetPlugin(
       extractFromExportDefault: [
         {
           name: 'handler',
-          default: '{GET({render}){return render()}}',
+          default: '{GET({html}){return html()}}',
           include: routeRegExp,
         },
         {

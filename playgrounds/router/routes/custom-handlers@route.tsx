@@ -3,7 +3,7 @@ import BaseLayout from './(components)/BaseLayout';
 
 export const handler = defineRouteHandler({
   async GET(ctx) {
-    const resp = await ctx.render();
+    const resp = await ctx.html();
     resp.headers.set('X-Custom-Header', 'Hello');
     resp.headers.set('X-Route-name', ctx.name || '');
     return resp;

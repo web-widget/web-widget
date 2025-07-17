@@ -20,7 +20,7 @@ interface MarketingData {
 }
 
 export const handler = defineRouteHandler<MarketingData>({
-  async GET({ request, render }) {
+  async GET({ request, html }) {
     // Get the precomputed flags code from the custom header set by middleware
     // This header is set by the middleware using the flags/web-router precompute function
     const flagsCode = request.headers.get('x-flags-code');
@@ -37,9 +37,7 @@ export const handler = defineRouteHandler<MarketingData>({
     const flag1 = await firstMarketingABTest(flagsCode, marketingFlags);
     const flag2 = await secondMarketingABTest(flagsCode, marketingFlags);
 
-    return render({
-      data: { flag1, flag2 },
-    });
+    return html({ flag1, flag2 });
   },
 });
 
