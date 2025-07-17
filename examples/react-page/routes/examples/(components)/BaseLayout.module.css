@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
 /* 移动端 header 布局 */
@@ -175,7 +175,6 @@
     transform: none !important;
     opacity: 1 !important;
     visibility: visible !important;
-    width: auto !important;
     height: auto !important;
     flex-direction: row !important;
     gap: var(--spacing-md) !important;
@@ -362,39 +361,9 @@
   color: var(--color-text-primary);
 }
 
-.navigationMenu a.active {
-  background: transparent;
-  color: var(--color-text-primary);
-  font-weight: 600;
-  position: relative;
-  transition-property: color, font-weight;
-  transition-duration: var(--transition-fast);
-  transition-timing-function: ease;
-}
+/* 导航样式已移至Navigation.module.css */
 
-/* 桌面端导航 active 指示器 */
-@media (min-width: 769px) {
-  .navigationMenu::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: var(--active-item-left, 0);
-    width: var(--active-item-width, 0);
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      var(--color-primary) 0%,
-      var(--color-accent) 100%
-    );
-    border-radius: 0;
-    z-index: 1;
-    opacity: var(--active-item-opacity, 0);
-    transition: opacity, left, width;
-    transition-duration: var(--transition-fast);
-    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
-    transform: translateX(0);
-  }
-}
+/* 桌面端导航 active 指示器 - 已移除，使用Navigation.module.css中的新实现 */
 
 .navigationMenu a.active:hover {
   background: transparent;
@@ -504,35 +473,7 @@
     transform: none;
   }
 
-  .navigationMenu a.active {
-    color: var(--color-text-primary);
-    font-weight: 600;
-    font-size: var(--font-size-xl);
-    background: transparent;
-    background-color: transparent;
-    background-image: none;
-    border: none;
-    box-shadow: none;
-    transform: none;
-    position: relative;
-    white-space: nowrap;
-  }
-
-  .navigationMenu a.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 20px;
-    background: linear-gradient(
-      135deg,
-      var(--color-primary) 0%,
-      var(--color-accent) 100%
-    );
-    border-radius: 2px;
-  }
+  /* 移动端导航样式已移至Navigation.module.css */
 
   .navigationMenu a.active:hover {
     color: var(--color-primary);
@@ -764,130 +705,5 @@
   .footerTagline {
     font-size: var(--font-size-xs);
     opacity: 0.5;
-  }
-}
-
-/* 移动端导航关闭按钮 */
-.mobileMenuCloseWrapper {
-  display: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  margin-bottom: var(--spacing-4);
-  justify-content: flex-end;
-  position: absolute;
-  top: var(--spacing-2);
-  right: var(--spacing-2);
-  z-index: 1000;
-  height: 44px;
-}
-
-.mobileMenuCloseButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  border-radius: 50%;
-  transition-property: background-color;
-  transition-duration: var(--transition-fast);
-  box-sizing: border-box;
-  margin-left: auto;
-}
-
-/* 深色主题支持 */
-@media (prefers-color-scheme: dark) {
-  .mobileMenuCloseButton {
-    background: transparent;
-    border: none;
-  }
-}
-
-/* 降级方案：不支持 backdrop-filter 的浏览器 */
-@supports not (backdrop-filter: blur(12px)) {
-  .mobileMenuCloseButton {
-    background: transparent;
-    border: none;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .mobileMenuCloseButton {
-      background: transparent;
-      border: none;
-    }
-  }
-}
-
-.mobileMenuCloseButton:hover {
-  background: var(--color-bg-secondary);
-}
-
-/* 深色主题 hover 状态 */
-@media (prefers-color-scheme: dark) {
-  .mobileMenuCloseButton:hover {
-    background: var(--color-bg-secondary);
-  }
-}
-
-.mobileMenuCloseButton:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-  background: var(--color-bg-secondary);
-}
-
-/* 深色主题 focus 状态 */
-@media (prefers-color-scheme: dark) {
-  .mobileMenuCloseButton:focus-visible {
-    background: var(--color-bg-secondary);
-  }
-}
-
-/* 关闭图标 */
-.closeIcon {
-  position: relative;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.closeIconLine {
-  position: absolute;
-  width: 16px;
-  height: 2px;
-  background-color: var(--color-text-primary);
-  border-radius: 1px;
-  transition-property: background-color;
-  transition-duration: var(--transition-fast);
-}
-
-/* 深色主题关闭图标颜色 */
-@media (prefers-color-scheme: dark) {
-  .closeIconLine {
-    background-color: var(--color-text-primary);
-  }
-}
-
-.closeIconLine:nth-child(1) {
-  transform: rotate(45deg);
-}
-
-.closeIconLine:nth-child(2) {
-  transform: rotate(-45deg);
-}
-
-.mobileMenuCloseButton:hover .closeIconLine {
-  background-color: var(--color-primary);
-}
-
-/* 移动端显示关闭按钮 */
-@media (max-width: 768px) {
-  .mobileMenuCloseWrapper {
-    display: flex;
   }
 }

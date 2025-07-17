@@ -38,7 +38,7 @@ export default function Counter({
         className={styles.button}
         onClick={() => handleCountChange(count - 1)}
         aria-label="减少计数">
-        −
+        <span>−</span>
       </button>
 
       <span
@@ -52,7 +52,7 @@ export default function Counter({
         className={styles.button}
         onClick={() => handleCountChange(count + 1)}
         aria-label="增加计数">
-        +
+        <span>+</span>
       </button>
     </div>
   );
