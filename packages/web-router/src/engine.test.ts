@@ -103,7 +103,7 @@ describe('Engine', () => {
       const mockContext: Partial<RouteContext> = {
         module: mockModule,
         request: new Request('http://test.com', { method: 'GET' }),
-        render: () => new Response('rendered response'),
+        html: () => new Response('rendered response'),
       };
 
       const mockNext = () => new Response('next');

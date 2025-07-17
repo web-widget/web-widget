@@ -209,6 +209,9 @@ export class Engine {
             await this.#normalizeModule<RouteModule>(module);
           const httpError = await this.#transformHTTPException(error);
 
+          // For error scenarios, execute onFallback callback immediately upon module activation
+          this.#onFallback(httpError, context);
+
           // Activate error module with immediate callback execution
           await this.#activateModule(routeContext, resolvedModule, httpError);
 
@@ -240,21 +243,15 @@ export class Engine {
    *
    * NOTE: This method handles both regular route modules and error modules
    * by activating the module in the context and setting up rendering capabilities.
-   * For error modules, it immediately executes the onFallback callback.
    */
   async #activateModule(
     context: RouteContext,
     module: RouteModule,
     error?: HTTPException
   ): Promise<void> {
-    // Set the module as the active module
+    // Set the module as the active module - must be set regardless of render capability
     context.module = module;
-
-    // For error scenarios, execute onFallback callback immediately upon module activation
-    if (error) {
-      this.#onFallback(error, context);
-      context.error = error;
-    }
+    context.error = error;
 
     // Setup rendering capabilities based on module type
     if (module.render) {
