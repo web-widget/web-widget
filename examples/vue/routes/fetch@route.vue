@@ -8,7 +8,7 @@ defineOptions({
     title: 'Fetching data - Web Widget',
   }),
   handler: defineRouteHandler<HelloData>({
-    async GET({ request, render }) {
+    async GET({ request, html }) {
       const url = new URL(request.url);
       const api = `${url.origin}/api/hello`;
       const res = await fetch(api);
@@ -18,9 +18,7 @@ defineOptions({
       }
 
       const data = (await res.json()) as HelloData;
-      return render({
-        data,
-      });
+      return html(data);
     },
   })
 });

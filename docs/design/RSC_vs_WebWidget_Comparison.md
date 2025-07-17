@@ -66,15 +66,15 @@ Web Widget distinguishes different module types through file naming conventions:
 import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import UserActions from './components/UserActions@widget.tsx';
 
-export const handler = defineRouteHandler({
+export const handler = defineRouteHandler<User>({
   async GET(ctx) {
     const user = await db.user.findUnique({ where: { id: ctx.params.id } });
-    return ctx.render({ user });
+    return ctx.html({ user });
   },
 });
 
 export default defineRouteComponent<{ user: User }>(function ProfilePage({
-  user,
+  data: { user },
 }) {
   return (
     <div>
@@ -293,7 +293,7 @@ function PostFilter({ posts }) {
 export const handler = defineRouteHandler({
   async GET(ctx) {
     const posts = await db.post.findMany();
-    return ctx.render({ posts });
+    return ctx.html({ posts });
   },
 });
 ```

@@ -11,7 +11,7 @@ export const meta = defineMeta({
 });
 
 export const handler = defineRouteHandler<HelloData>({
-  async GET({ request, render }) {
+  async GET({ request, html }) {
     const url = new URL(request.url);
     const api = `${url.origin}/api/hello`;
     const res = await fetch(api);
@@ -21,7 +21,7 @@ export const handler = defineRouteHandler<HelloData>({
     }
 
     const data = (await res.json()) as HelloData;
-    return render({ data });
+    return html(data);
   },
 });
 

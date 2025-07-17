@@ -12,9 +12,7 @@ async function fetchData(url: URL) {
 export const handler = defineRouteHandler<HelloData>({
   async GET(ctx) {
     const data = await fetchData(new URL(ctx.request.url));
-    return ctx.render({
-      data,
-    });
+    return ctx.html(data);
   },
 });
 

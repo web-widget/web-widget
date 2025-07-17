@@ -223,7 +223,7 @@ export const handler = defineMiddlewareHandler(async (ctx, next) => {
 ```typescript
 // Clean separation of concerns with precomputed flags
 export const handler = defineRouteHandler({
-  async GET({ request, render }) {
+  async GET({ request, html }) {
     // Get precomputed flags code from middleware
     const flagsCode = request.headers.get('x-flags-code');
 
@@ -237,7 +237,7 @@ export const handler = defineRouteHandler({
     const flag1 = await firstMarketingABTest(flagsCode, marketingFlags);
     const flag2 = await secondMarketingABTest(flagsCode, marketingFlags);
 
-    return render({ data: { flag1, flag2 } });
+    return html({ flag1, flag2 });
   },
 });
 ```

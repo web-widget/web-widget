@@ -17,12 +17,10 @@ interface DashboardData {
 }
 
 export const handler = defineRouteHandler<DashboardData>({
-  async GET({ request, render }) {
+  async GET({ request, html }) {
     const flagValue = await showNewDashboard(request);
 
-    return render({
-      data: { flagValue },
-    });
+    return html({ flagValue });
   },
 });
 

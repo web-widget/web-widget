@@ -16,9 +16,7 @@ async function fetchData(url: URL) {
 export const handler = defineRouteHandler<HelloData>({
   async GET(ctx) {
     const data = await fetchData(useLocation());
-    return ctx.render({
-      data,
-    });
+    return ctx.html(data);
   },
 });
 
@@ -49,8 +47,6 @@ export default defineRouteComponent<HelloData>(function Page({ data }) {
         </div>
       </div>
 
-      <hr />
-
       <h2>Frontend Frameworks Showcase</h2>
       <p>
         Display mainstream frontend frameworks using beautiful card components:
@@ -69,6 +65,12 @@ export default defineRouteComponent<HelloData>(function Page({ data }) {
         <UserCard username="sveltejs" />
         <UserCard username="preactjs" />
         <UserCard username="solidjs" />
+      </div>
+
+      <h2>Data</h2>
+
+      <div>
+        <pre>{JSON.stringify(data, null, 2)}</pre>
       </div>
     </BaseLayout>
   );

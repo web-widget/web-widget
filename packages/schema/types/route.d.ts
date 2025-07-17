@@ -120,13 +120,13 @@ export interface RouteHandler<Data = unknown, Params = Record<string, string>> {
 export interface RouteContext<Data = unknown, Params = Record<string, string>>
   extends FetchContext<Params> {
   /**
-   * This is the default data given to the `render()` method.
+   * This is the default data given to the `html()` method.
    * Contains the data that will be passed to the route component.
    */
   data: Data;
 
   /**
-   * This is the default meta given to the `render()` method.
+   * This is the default meta given to the `html()` method.
    * Contains metadata for the route, including HTML head elements.
    */
   meta: Meta;
@@ -139,6 +139,7 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>>
 
   /**
    * Render current route.
+   * @deprecated Use html() instead.
    * @param renderProps - Optional data, error, and meta overrides for rendering.
    * @param renderOptions - Optional rendering options. @default current context's renderOptions
    * @returns A promise that resolves to a Response or the Response itself.
@@ -166,7 +167,6 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>>
   /**
    * Render current route with specific data and options.
    * This method provides more direct control over the rendering process.
-   * @experimental
    * @param data - The data to pass to the component.
    * @param options - Rendering options including error, meta, and renderer settings.
    * @returns A promise that resolves to a Response or the Response itself.
@@ -195,13 +195,13 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>>
   /**
    * This is the default option for the `render()` method.
    * Contains the default rendering options for this route.
+   * @deprecated Use renderer instead.
    */
   renderOptions: RouteRenderOptions;
 
   /**
    * This is the default option for the renderer.
    * Contains the default server render options for this route.
-   * @experimental
    */
   renderer: ServerRenderOptions;
 }
@@ -209,5 +209,6 @@ export interface RouteContext<Data = unknown, Params = Record<string, string>>
 /**
  * Options for route rendering, extending both ResponseInit and ServerRenderOptions.
  * Combines HTTP response options with server rendering options.
+ * @deprecated Use ServerRenderOptions instead.
  */
 export interface RouteRenderOptions extends ResponseInit, ServerRenderOptions {}

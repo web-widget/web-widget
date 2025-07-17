@@ -17,12 +17,10 @@ interface MarketingManualData {
 }
 
 export const handler = defineRouteHandler<MarketingManualData>({
-  async GET({ request, render }) {
+  async GET({ request, html }) {
     const flagValue = await marketingABTestManualApproach(request);
 
-    return render({
-      data: { flagValue },
-    });
+    return html({ flagValue });
   },
 });
 

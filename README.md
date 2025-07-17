@@ -405,7 +405,7 @@ export const handler = defineRouteHandler<PageData>({
   async GET(ctx) {
     const data = await fetchData(new URL(ctx.request.url));
 
-    const response = ctx.render({ data });
+    const response = ctx.html(data);
     response.headers.set('X-Custom-Header', 'Hello');
 
     return response;
@@ -456,7 +456,7 @@ export const handler = defineRouteHandler({
     if (shouldRedirect) {
       return redirect('/new-path', 301);
     }
-    return ctx.render();
+    return ctx.html();
   },
 });
 ```
@@ -470,7 +470,7 @@ export const handler = defineRouteHandler({
     if (!data) {
       throw createHttpError(404, 'Not Found');
     }
-    return ctx.render({ data });
+    return ctx.html(data);
   },
 });
 ```
@@ -489,7 +489,7 @@ export const handler = defineRouteHandler({
     const newMeta = mergeMeta(ctx.meta, {
       title: `User: ${user.name}`,
     });
-    return ctx.render({ meta: newMeta });
+    return ctx.html(null, { meta: newMeta });
   },
 });
 ```

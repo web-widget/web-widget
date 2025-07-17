@@ -63,12 +63,14 @@ export const handler = defineRouteHandler<MetaPageData>({
         },
       ],
     });
-    return ctx.render({
-      meta: newMeta,
-      data: {
+    return ctx.html(
+      {
         allMetadata: newMeta,
       },
-    });
+      {
+        meta: newMeta,
+      }
+    );
   },
 });
 
