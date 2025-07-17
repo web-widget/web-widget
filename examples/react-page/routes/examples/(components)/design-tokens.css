@@ -47,52 +47,54 @@
   --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
 
   /* 间距系统 - 基于行业主流 8px 基础网格 */
-  --spacing-1: 0.25rem;    /* 4px */
-  --spacing-2: 0.5rem;     /* 8px */
-  --spacing-3: 0.75rem;    /* 12px */
-  --spacing-4: 1rem;       /* 16px - 主流移动端最小边距 */
-  --spacing-5: 1.25rem;    /* 20px */
-  --spacing-6: 1.5rem;     /* 24px - 主流移动端内容边距 */
-  --spacing-8: 2rem;       /* 32px - 主流移动端大边距 */
-  --spacing-10: 2.5rem;    /* 40px */
-  --spacing-12: 3rem;      /* 48px */
-  --spacing-16: 4rem;      /* 64px */
-  
+  --spacing-1: 0.25rem; /* 4px */
+  --spacing-2: 0.5rem; /* 8px */
+  --spacing-3: 0.75rem; /* 12px */
+  --spacing-4: 1rem; /* 16px - 主流移动端最小边距 */
+  --spacing-5: 1.25rem; /* 20px */
+  --spacing-6: 1.5rem; /* 24px - 主流移动端内容边距 */
+  --spacing-8: 2rem; /* 32px - 主流移动端大边距 */
+  --spacing-10: 2.5rem; /* 40px */
+  --spacing-12: 3rem; /* 48px */
+  --spacing-16: 4rem; /* 64px */
+
   /* 语义化间距别名 - 方便使用 */
-  --spacing-xs: var(--spacing-1);     /* 4px */
-  --spacing-sm: var(--spacing-2);     /* 8px */
-  --spacing-md: var(--spacing-4);     /* 16px */
-  --spacing-lg: var(--spacing-6);     /* 24px */
-  --spacing-xl: var(--spacing-8);     /* 32px */
-  --spacing-2xl: var(--spacing-12);   /* 48px */
-  --spacing-3xl: var(--spacing-16);   /* 64px */
-  
+  --spacing-xs: var(--spacing-1); /* 4px */
+  --spacing-sm: var(--spacing-2); /* 8px */
+  --spacing-md: var(--spacing-4); /* 16px */
+  --spacing-lg: var(--spacing-6); /* 24px */
+  --spacing-xl: var(--spacing-8); /* 32px */
+  --spacing-2xl: var(--spacing-12); /* 48px */
+  --spacing-3xl: var(--spacing-16); /* 64px */
+  --spacing-4xl: 5rem; /* 80px */
+  --spacing-5xl: 6rem; /* 96px */
+
   /* 移动端专用间距 - 参考苹果官网百分比宽度设计 */
-  --mobile-gutter: 5.33vw;                 /* ~20px at 375px viewport, 苹果官网移动端百分比边距 */
-  --mobile-gutter-min: 16px;               /* 最小边距，避免极小屏幕问题 */
-  --mobile-gutter-max: 24px;               /* 最大边距，避免过大屏幕问题 */
-  --mobile-padding: var(--spacing-6);      /* 24px - 主流移动端内容区边距 */
-  --mobile-section-gap: var(--spacing-8);  /* 32px - 移动端区块间距 */
-  
+  --mobile-gutter: 5.33vw; /* ~20px at 375px viewport, 苹果官网移动端百分比边距 */
+  --mobile-gutter-min: 16px; /* 最小边距，避免极小屏幕问题 */
+  --mobile-gutter-max: 24px; /* 最大边距，避免过大屏幕问题 */
+  --mobile-padding: var(--spacing-6); /* 24px - 主流移动端内容区边距 */
+  --mobile-section-gap: var(--spacing-8); /* 32px - 移动端区块间距 */
+
   /* 触摸目标最小尺寸 - Apple HIG 和 Material Design 标准 */
-  --touch-target-min: 44px;           /* iOS 最小触摸目标 */
-  --touch-target-optimal: 48px;       /* Android 推荐触摸目标 */
+  --touch-target-min: 44px; /* iOS 最小触摸目标 */
+  --touch-target-optimal: 48px; /* Android 推荐触摸目标 */
 
   /* 字体大小系统 - 基于主流设计系统 */
-  --font-size-xs: 0.75rem;      /* 12px - 辅助文本 */
-  --font-size-sm: 0.875rem;     /* 14px - 小文本 */
-  --font-size-base: 1rem;       /* 16px - 基础文本，移动端最佳可读性 */
-  --font-size-lg: 1.125rem;     /* 18px - 大文本 */
-  --font-size-xl: 1.25rem;      /* 20px - 子标题 */
-  --font-size-2xl: 1.5rem;      /* 24px - 小标题 */
-  --font-size-3xl: 1.875rem;    /* 30px - 标题 */
-  --font-size-4xl: 2.25rem;     /* 36px - 大标题 */
-  --font-size-5xl: 3rem;        /* 48px - 超大标题 */
-  
+  --font-size-xs: 0.75rem; /* 12px - 辅助文本 */
+  --font-size-sm: 0.875rem; /* 14px - 小文本 */
+  --font-size-base: 1rem; /* 16px - 基础文本，移动端最佳可读性 */
+  --font-size-lg: 1.125rem; /* 18px - 大文本 */
+  --font-size-xl: 1.25rem; /* 20px - 子标题 */
+  --font-size-2xl: 1.5rem; /* 24px - 小标题 */
+  --font-size-3xl: 1.875rem; /* 30px - 标题 */
+  --font-size-4xl: 2.25rem; /* 36px - 大标题 */
+  --font-size-5xl: 3rem; /* 48px - 超大标题 */
+
   /* 移动端字体大小 */
-  --mobile-font-base: 1rem;     /* 16px - 移动端基础字体，符合可访问性标准 */
-  --mobile-font-sm: 0.875rem;   /* 14px - 移动端小字体 */
-  --mobile-font-lg: 1.125rem;   /* 18px - 移动端大字体 */
+  --mobile-font-base: 1rem; /* 16px - 移动端基础字体，符合可访问性标准 */
+  --mobile-font-sm: 0.875rem; /* 14px - 移动端小字体 */
+  --mobile-font-lg: 1.125rem; /* 18px - 移动端大字体 */
 
   /* 行高 */
   --line-height-tight: 1.25;
@@ -263,7 +265,7 @@ html {
     color: var(--color-bg-primary);
     border: 2px solid var(--color-bg-primary);
   }
-  
+
   .skip-link:focus {
     outline: 4px solid var(--color-text-secondary);
   }

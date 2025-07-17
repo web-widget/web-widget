@@ -3,34 +3,36 @@
    使用设计令牌和共享模块样式
    ============================================================================= */
 
-/* Hero Section - 舒适的留白设计 */
+/* Hero Section - 简洁优雅的设计 */
 .hero {
   text-align: center;
-  padding: var(--spacing-4xl) 0 var(--spacing-3xl) 0;
-  margin-bottom: var(--spacing-4xl);
+  padding: var(--spacing-5xl) var(--spacing-xl) var(--spacing-4xl)
+    var(--spacing-xl);
+  margin-bottom: var(--spacing-5xl);
   position: relative;
+  margin: 0 var(--spacing-lg) var(--spacing-5xl) var(--spacing-lg);
 }
 
 /* 主标题效果 - 苹果风格日落余晖渐变 */
 .hero h1 {
   /* 回退颜色，确保文字始终可见 */
-  color: var(--color-text-primary);
-  
+  color: #0f172a; /* 深色文字，增强对比度 */
+
   /* 渐变效果（支持的浏览器） */
   background: linear-gradient(
     135deg,
-    #ff6b35 0%,     /* 温暖的橙红色 - 日落余晖 */
-    #f7931e 15%,    /* 金橙色 */
-    #ffc93c 30%,    /* 金黄色 */
-    #06d6a0 50%,    /* 青绿色 - 过渡色 */
-    #118ab2 70%,    /* 海蓝色 */
-    #073b4c 85%,    /* 深海蓝 */
-    #1e3a8a 100%    /* 深蓝色 - 夜幕 */
+    #dc2626 0%,
+    /* 深红色 */ #ea580c 15%,
+    /* 深橙色 */ #d97706 30%,
+    /* 深黄色 */ #059669 50%,
+    /* 深绿色 */ #0891b2 70%,
+    /* 深青色 */ #1e40af 85%,
+    /* 深蓝色 */ #7c3aed 100% /* 深紫色 */
   );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  
+
   /* 确保不支持的浏览器显示正常颜色 */
   background-size: 200% 200%;
   animation: sunsetGlow 12s ease-in-out infinite;
@@ -40,6 +42,11 @@
   transform: perspective(1000px) rotateX(3deg);
   margin-bottom: var(--spacing-xl);
   line-height: 1.4;
+}
+
+.hero h1 span {
+  /* 防止词语断开 */
+  white-space: nowrap;
 }
 
 /* 为不支持渐变文字的浏览器提供回退 */
@@ -56,7 +63,8 @@
 }
 
 @keyframes sunsetGlow {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   33% {
@@ -78,9 +86,15 @@
   margin-right: auto;
 }
 
-/* Hero Demo - 增加垂直留白 */
+/* Demo Section - 独立的演示区块 */
+.demoSection {
+  text-align: center;
+  padding: var(--spacing-3xl) 0;
+  margin-bottom: var(--spacing-4xl);
+}
+
+/* Hero Demo - 演示内容 */
 .heroDemo {
-  margin-top: var(--spacing-3xl);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -98,10 +112,11 @@
 .demoHint {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
-  margin: var(--spacing-lg) 0 0 0;
+  margin: var(--spacing-md) 0 0 0;
   max-width: 500px;
   line-height: var(--line-height-relaxed);
   padding: 0 var(--spacing-lg);
+  letter-spacing: 0.01em;
 }
 
 /* Frameworks Section - 首页特有 */
@@ -128,7 +143,13 @@
 /* 响应式设计 - 保持舒适留白 */
 @media (max-width: 768px) {
   .hero {
-    padding: var(--spacing-3xl) 0 var(--spacing-2xl) 0;
+    padding: var(--spacing-4xl) var(--spacing-md) var(--spacing-3xl)
+      var(--spacing-md);
+    margin: 0 var(--spacing-sm) var(--spacing-4xl) var(--spacing-sm);
+  }
+
+  .demoSection {
+    padding: var(--spacing-2xl) 0;
     margin-bottom: var(--spacing-3xl);
   }
 
@@ -141,7 +162,6 @@
   .heroDemo {
     gap: var(--spacing-lg);
     padding: var(--spacing-xl) 0;
-    margin-top: var(--spacing-2xl);
   }
 
   .demoIntro {
@@ -151,14 +171,21 @@
 
   .demoHint {
     font-size: var(--font-size-xs);
-    margin-top: var(--spacing-md);
+    margin-top: var(--spacing-sm);
     padding: 0 var(--spacing-md);
+    letter-spacing: 0.005em;
   }
 }
 
 @media (max-width: 480px) {
   .hero {
-    padding: var(--spacing-2xl) 0 var(--spacing-xl) 0;
+    padding: var(--spacing-3xl) var(--spacing-sm) var(--spacing-2xl)
+      var(--spacing-sm);
+    margin: 0 var(--spacing-xs) var(--spacing-3xl) var(--spacing-xs);
+  }
+
+  .demoSection {
+    padding: var(--spacing-xl) 0;
     margin-bottom: var(--spacing-2xl);
   }
 
@@ -168,7 +195,6 @@
   }
 
   .heroDemo {
-    margin-top: var(--spacing-xl);
     gap: var(--spacing-md);
     padding: var(--spacing-lg) 0;
   }
@@ -183,16 +209,16 @@
   .hero h1 {
     /* 暗黑主题回退颜色 */
     color: var(--color-text-primary);
-    
+
     background: linear-gradient(
       135deg,
-      #ff8a65 0%,     /* 柔和的橙红色 */
-      #ffab40 15%,    /* 温暖金橙 */
-      #ffcc02 30%,    /* 明亮金黄 */
-      #26c6da 50%,    /* 青色 */
-      #42a5f5 70%,    /* 天空蓝 */
-      #3949ab 85%,    /* 靛蓝 */
-      #5c6bc0 100%    /* 柔和紫蓝 */
+      #ff8a65 0%,
+      /* 柔和的橙红色 */ #ffab40 15%,
+      /* 温暖金橙 */ #ffcc02 30%,
+      /* 明亮金黄 */ #26c6da 50%,
+      /* 青色 */ #42a5f5 70%,
+      /* 天空蓝 */ #3949ab 85%,
+      /* 靛蓝 */ #5c6bc0 100% /* 柔和紫蓝 */
     );
     -webkit-background-clip: text;
     background-clip: text;
@@ -202,7 +228,7 @@
     animation: sunsetGlow 12s ease-in-out infinite;
     text-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
   }
-  
+
   /* 暗黑主题不支持渐变的回退 */
   @supports not (-webkit-background-clip: text) {
     .hero h1 {

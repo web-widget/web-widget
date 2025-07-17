@@ -59,7 +59,7 @@ export default function Navigation({ className }: NavigationProps) {
     },
     {
       href: '/examples/frameworks',
-      label: '多框架共存',
+      label: '挂件',
       matchPath: '/examples/frameworks',
     },
     {
@@ -120,6 +120,49 @@ export default function Navigation({ className }: NavigationProps) {
       <ul
         id="mobile-navigation-menu"
         className={`${styles.navigationMenu} ${isMobileMenuOpen ? styles.navigationMenuOpen : ''}`}
+        style={(() => {
+          const activeIndex = navigationItems.findIndex((item) =>
+            isActiveLink(item.matchPath)
+          );
+
+          if (activeIndex >= 0) {
+            const activeItem = navigationItems[activeIndex];
+
+            // 使用更精确的宽度计算（考虑padding和字体权重）
+            const getItemWidth = (label: string) => {
+              // 基础宽度：每个字符约8px，加上padding
+              const charWidth = 8;
+              const padding = 32; // var(--spacing-lg) * 2
+              return label.length * charWidth + padding;
+            };
+
+            const totalWidth = navigationItems.reduce(
+              (sum, item) => sum + getItemWidth(item.label),
+              0
+            );
+            const activeItemWidth =
+              (getItemWidth(activeItem.label) / totalWidth) * 100;
+
+            // 计算左侧位置（累加前面所有项的宽度）
+            let leftPosition = 0;
+            for (let i = 0; i < activeIndex; i++) {
+              leftPosition +=
+                (getItemWidth(navigationItems[i].label) / totalWidth) * 100;
+            }
+
+            return {
+              '--active-item-left': `${leftPosition}%`,
+              '--active-item-width': `${activeItemWidth}%`,
+              '--active-item-opacity': '1',
+            } as React.CSSProperties;
+          }
+
+          return {
+            '--active-item-left': '0%',
+            '--active-item-width': '0%',
+            '--active-item-opacity': '0',
+          } as React.CSSProperties;
+        })()}
         role="list"
         aria-hidden={!isMobileMenuOpen ? 'true' : 'false'}>
         <li className={styles.mobileMenuCloseWrapper} role="none">
