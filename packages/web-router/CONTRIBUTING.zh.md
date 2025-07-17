@@ -218,8 +218,7 @@ pnpm run test:coverage
 
 1. **[README.md](./README.md)** - 项目概述和快速开始
 2. **[packages/schema/README.md](../schema/README.md)** - 模块格式标准规范和类型定义
-3. **[REFACTOR_SUMMARY.md](./REFACTOR_SUMMARY.md)** - 详细的架构重构文档
-4. **本文档** - 完整的贡献指南和架构设计
+3. **本文档** - 完整的贡献指南和架构设计
 
 ### 代码阅读路径
 

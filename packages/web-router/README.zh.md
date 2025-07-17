@@ -5,7 +5,6 @@
 ## 📚 文档
 
 - **[贡献指南](./CONTRIBUTING.md)** - 包含架构设计和贡献工作流程的完整指南
-- **[重构总结](./REFACTOR_SUMMARY.md)** - 架构重构详情和改进
 - **[中文文档](./README.zh.md)** - 中文文档
 - **[中文贡献指南](./CONTRIBUTING.zh.md)** - 中文贡献指南
 

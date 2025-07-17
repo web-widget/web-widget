@@ -218,8 +218,7 @@ pnpm run test:coverage
 
 1. **[README.md](./README.md)** - Project overview and quick start
 2. **[packages/schema/README.md](../schema/README.md)** - Module format standard specifications and type definitions
-3. **[REFACTOR_SUMMARY.md](./REFACTOR_SUMMARY.md)** - Detailed architecture refactoring documentation
-4. **This document** - Complete contribution guide and architecture design
+3. **This document** - Complete contribution guide and architecture design
 
 ### Code Reading Path
 

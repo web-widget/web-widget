@@ -5,7 +5,6 @@ A server based on the Web standard.
 ## 📚 Documentation
 
 - **[Contributing Guide](./CONTRIBUTING.md)** - Complete guide with architecture design and contribution workflow
-- **[Refactoring Summary](./REFACTOR_SUMMARY.md)** - Architecture refactoring details and improvements
 - **[中文文档](./README.zh.md)** - Chinese documentation
 - **[中文贡献指南](./CONTRIBUTING.zh.md)** - Chinese contributing guide
 
