@@ -1,0 +1,241 @@
+/* =============================================================================
+   Homepage specific styles
+   Using design tokens and shared module styles
+   ============================================================================= */
+
+/* Hero Section - Clean and elegant design */
+.hero {
+  text-align: center;
+  padding: var(--spacing-4xl) var(--spacing-xl) var(--spacing-xl)
+    var(--spacing-xl);
+  position: relative;
+  margin: 0 var(--spacing-lg) var(--spacing-2xl) var(--spacing-lg);
+}
+
+/* Main title effects */
+.hero h1 {
+  /* Fallback color to ensure text is always visible */
+  color: #0f172a; /* Dark text for enhanced contrast */
+
+  /* Gradient effect (for supported browsers) */
+  background: linear-gradient(
+    135deg,
+    #dc2626 0%,
+    /* Dark red */ #ea580c 15%,
+    /* Dark orange */ #d97706 30%,
+    /* Dark yellow */ #059669 50%,
+    /* Dark green */ #0891b2 70%,
+    /* Dark cyan */ #1e40af 85%,
+    /* Dark blue */ #7c3aed 100% /* Dark purple */
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* Ensure unsupported browsers display normal colors */
+  background-size: 200% 200%;
+  animation: sunsetGlow 12s ease-in-out infinite;
+  font-weight: 900;
+  letter-spacing: -2px;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: perspective(1000px) rotateX(3deg);
+  margin-bottom: var(--spacing-xl);
+  line-height: 1.4;
+}
+
+.hero h1 span {
+  /* Prevent word breaks */
+  white-space: nowrap;
+}
+
+/* Fallback for browsers that don't support gradient text */
+@supports not (-webkit-background-clip: text) {
+  .hero h1 {
+    color: var(--color-primary);
+    background: none;
+    -webkit-text-fill-color: unset;
+    /* Maintain other visual effects */
+    animation: sunsetGlow 12s ease-in-out infinite;
+    transform: perspective(1000px) rotateX(3deg);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@keyframes sunsetGlow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  33% {
+    background-position: 50% 30%;
+  }
+  66% {
+    background-position: 100% 70%;
+  }
+}
+
+.subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin: var(--spacing-xl) 0 var(--spacing-3xl) 0;
+  font-weight: 400;
+  line-height: var(--line-height-relaxed);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.demoSection {
+  text-align: center;
+  padding: var(--spacing-3xl) 0;
+  margin-bottom: var(--spacing-4xl);
+}
+
+.heroDemo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-2xl) 0;
+}
+
+.demoIntro {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.demoHint {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin: var(--spacing-md) 0 0 0;
+  max-width: 500px;
+  line-height: var(--line-height-relaxed);
+  padding: 0 var(--spacing-lg);
+  letter-spacing: 0.01em;
+}
+
+/* Frameworks Section - Homepage specific */
+.frameworks {
+  text-align: center;
+  padding: var(--spacing-2xl) 0;
+}
+
+.frameworkItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  text-align: left;
+}
+
+.frameworkStatus {
+  font-size: var(--font-size-xl);
+}
+
+/* Responsive design - Maintain comfortable spacing */
+@media (max-width: 768px) {
+  .hero {
+    padding: var(--spacing-3xl) var(--spacing-md) var(--spacing-lg)
+      var(--spacing-md);
+    margin: 0 var(--spacing-sm) var(--spacing-xl) var(--spacing-sm);
+  }
+
+  .demoSection {
+    padding: var(--spacing-2xl) 0;
+    margin-bottom: var(--spacing-3xl);
+  }
+
+  .subtitle {
+    font-size: var(--font-size-lg);
+    margin: var(--spacing-lg) 0 var(--spacing-2xl) 0;
+    padding: 0 var(--spacing-md);
+  }
+
+  .heroDemo {
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xl) 0;
+  }
+
+  .demoIntro {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .demoHint {
+    font-size: var(--font-size-xs);
+    margin-top: var(--spacing-sm);
+    padding: 0 var(--spacing-md);
+    letter-spacing: 0.005em;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: var(--spacing-2xl) var(--spacing-sm) var(--spacing-md)
+      var(--spacing-sm);
+    margin: 0 var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
+  }
+
+  .demoSection {
+    padding: var(--spacing-xl) 0;
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .subtitle {
+    font-size: var(--font-size-base);
+    margin: var(--spacing-md) 0 var(--spacing-xl) 0;
+  }
+
+  .heroDemo {
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg) 0;
+  }
+
+  .demoHint {
+    padding: 0 var(--spacing-sm);
+  }
+}
+
+/* Dark theme sunset gradient adaptation */
+@media (prefers-color-scheme: dark) {
+  .hero h1 {
+    /* Dark theme fallback color */
+    color: var(--color-text-primary);
+
+    background: linear-gradient(
+      135deg,
+      #ff8a65 0%,
+      /* Soft orange-red */ #ffab40 15%,
+      /* Warm golden orange */ #ffcc02 30%,
+      /* Bright golden yellow */ #26c6da 50%,
+      /* Cyan */ #42a5f5 70%,
+      /* Sky blue */ #3949ab 85%,
+      /* Indigo */ #5c6bc0 100% /* Soft purple-blue */
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* Critical! Ensure dark theme also has animation */
+    background-size: 200% 200%;
+    animation: sunsetGlow 12s ease-in-out infinite;
+    text-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  }
+
+  /* Dark theme fallback for browsers that don't support gradients */
+  @supports not (-webkit-background-clip: text) {
+    .hero h1 {
+      color: var(--color-primary);
+      background: none;
+      -webkit-text-fill-color: unset;
+      /* Maintain animation and visual effects */
+      animation: sunsetGlow 12s ease-in-out infinite;
+      transform: perspective(1000px) rotateX(3deg);
+      text-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    }
+  }
+}
