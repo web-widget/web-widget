@@ -105,25 +105,21 @@ export default defineRouteComponent<HelloData>(function Page({ data }) {
         <div className={shared.mb6}>
           <h3 className={shared.sectionTitle}>实现方式</h3>
           <div className={shared.mb4}>
-            <h4 className={shared.subsectionTitle}>1. 定义页面处理器</h4>
             <pre className={shared.codeBlock}>
-              {`export const handler = defineRouteHandler<HelloData>({
-  async GET({ request, renderWidth }) {
+              {`// 请求处理器
+export const handler = defineRouteHandler<HelloData>({
+  async GET({ request, html }) {
     // 在服务器端获取数据
     const res = await fetch(api);
     const data = await res.json();
     
     // 将数据传递给页面组件
-    return renderWidth }) {(data);
+    return html(data);
   },
-});`}
-            </pre>
-          </div>
+});
 
-          <div>
-            <h4 className={shared.subsectionTitle}>2. 页面组件接收数据</h4>
-            <pre className={shared.codeBlock}>
-              {`export default defineRouteComponent<HelloData>(
+// 页面组件接受数据
+export default defineRouteComponent<HelloData>(
   function Page({ data }) {
     return (
       <div>

@@ -6,11 +6,10 @@
 /* Hero Section - 简洁优雅的设计 */
 .hero {
   text-align: center;
-  padding: var(--spacing-5xl) var(--spacing-xl) var(--spacing-4xl)
+  padding: var(--spacing-4xl) var(--spacing-xl) var(--spacing-xl)
     var(--spacing-xl);
-  margin-bottom: var(--spacing-5xl);
   position: relative;
-  margin: 0 var(--spacing-lg) var(--spacing-5xl) var(--spacing-lg);
+  margin: 0 var(--spacing-lg) var(--spacing-2xl) var(--spacing-lg);
 }
 
 /* 主标题效果 - 苹果风格日落余晖渐变 */
@@ -143,9 +142,9 @@
 /* 响应式设计 - 保持舒适留白 */
 @media (max-width: 768px) {
   .hero {
-    padding: var(--spacing-4xl) var(--spacing-md) var(--spacing-3xl)
+    padding: var(--spacing-3xl) var(--spacing-md) var(--spacing-lg)
       var(--spacing-md);
-    margin: 0 var(--spacing-sm) var(--spacing-4xl) var(--spacing-sm);
+    margin: 0 var(--spacing-sm) var(--spacing-xl) var(--spacing-sm);
   }
 
   .demoSection {
@@ -179,9 +178,9 @@
 
 @media (max-width: 480px) {
   .hero {
-    padding: var(--spacing-3xl) var(--spacing-sm) var(--spacing-2xl)
+    padding: var(--spacing-2xl) var(--spacing-sm) var(--spacing-md)
       var(--spacing-sm);
-    margin: 0 var(--spacing-xs) var(--spacing-3xl) var(--spacing-xs);
+    margin: 0 var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
   }
 
   .demoSection {

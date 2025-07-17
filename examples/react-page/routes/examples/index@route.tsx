@@ -27,7 +27,7 @@ export default defineRouteComponent(function Page() {
         {/* Demo Section */}
         <div className={styles.demoSection}>
           <div className={styles.heroDemo}>
-            <p className={styles.demoIntro}>⚡ 页面中的挂件</p>
+            <p className={styles.demoIntro}>✨ 页面中的挂件</p>
             <ReactCounter count={0} />
             <p className={styles.demoHint}>
               这是一个可交互的挂件演示，它可以使用任何技术栈
