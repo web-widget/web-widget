@@ -14,7 +14,7 @@ export const meta: Meta = {
         body { 
           margin: 0; 
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-          background: #ffffff;
+          background: #fff;
           min-height: 100vh;
           display: flex;
           align-items: center;
@@ -22,109 +22,36 @@ export const meta: Meta = {
           padding: 60px 40px;
           box-sizing: border-box;
         }
-        .error-card {
-          max-width: 600px;
-          width: 100%;
-          text-align: center;
-          padding: 0 20px;
+        .error-card { 
+          max-width: 600px; width: 100%; text-align: center; padding: 0 20px;
+          flex: 0 0 auto;
         }
-        .error-status { 
-          font-size: 72px; 
-          font-weight: 700; 
-          color: #333333; 
-          margin-bottom: 16px; 
-          line-height: 1;
-        }
-        .error-title { 
-          font-size: 48px; 
-          font-weight: 600; 
-          color: #555555; 
-          margin-bottom: 20px; 
-          line-height: 1.1;
-        }
-        .error-desc { 
-          font-size: 18px; 
-          color: #777777; 
-          line-height: 1.6; 
-          margin-bottom: 40px;
-        }
-        .error-debug {
-          margin-top: 40px;
-          text-align: left;
-        }
-        .error-code-block {
-          margin-top: 20px;
-          background: #f8f8f8;
-          border-radius: 4px;
-          overflow: hidden;
-        }
-        .error-code-header {
-          background: #f0f0f0;
-          padding: 12px 16px;
-          font-size: 14px;
-          font-weight: 500;
-          color: #333333;
-        }
-        .error-code-content {
-          margin: 0;
-          font-size: 13px;
-          line-height: 1.5;
-          overflow-x: auto;
-          padding: 16px;
-          background: #f8f8f8;
+        .error-status { font-size: 72px; font-weight: 700; color: #333; margin-bottom: 16px; }
+        .error-title { font-size: 48px; font-weight: 600; color: #555; margin-bottom: 20px; }
+        .error-desc { font-size: 18px; color: #777; margin-bottom: 40px; }
+        .error-debug { margin-top: 40px; text-align: left; }
+        .error-code-block { margin-top: 20px; background: #f8f8f8; border-radius: 4px; overflow: hidden; }
+        .error-code-header { background: #f0f0f0; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #333; }
+        .error-code-content { 
+          margin: 0; font-size: 13px; padding: 16px; background: #f8f8f8;
           font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-          color: #333333;
-          white-space: pre-wrap;
-          word-wrap: break-word;
+          color: #333; white-space: pre-wrap; overflow-x: auto; max-width: 100%;
+          overflow-wrap: break-word;
         }
-        .copy-error-btn {
-          margin: 20px auto 0;
-          background: none;
-          border: none;
-          padding: 0;
-          font-size: 12px;
-          color: #999999;
-          cursor: pointer;
-          transition: color 0.2s ease;
-          display: block;
-          width: fit-content;
-          text-decoration: underline;
-          font-family: inherit;
+        .copy-error-btn { 
+          margin: 20px auto 0; background: none; border: none; font-size: 12px; 
+          color: #999; cursor: pointer; display: block; text-decoration: underline;
         }
-        .copy-error-btn:hover {
-          color: #666666;
-        }
-        .copy-error-btn:active {
-          color: #333333;
-        }
-        .copy-success {
-          color: #22c55e !important;
-        }
+        .copy-error-btn:hover { color: #666; }
+        .copy-success { color: #22c55e !important; }
         @media (max-width: 640px) {
-          body {
-            padding: 20px 15px;
-            min-height: 100vh;
-          }
-          .error-card { 
-            padding: 0;
-            max-width: 100%;
-          }
+          body { padding: 20px 15px; min-height: 100vh; }
           .error-status { font-size: 56px; }
           .error-title { font-size: 36px; }
           .error-desc { font-size: 16px; }
-          .copy-error-btn {
-            margin: 16px auto 0;
-            font-size: 11px;
-          }
-          .error-code-content {
-            font-size: 12px;
-            padding: 12px;
-          }
         }
         @media (max-width: 480px) {
-          body {
-            padding: 15px 10px;
-          }
+          body { padding: 15px 10px; min-height: 100vh; }
           .error-status { font-size: 48px; }
           .error-title { font-size: 28px; }
           .error-desc { font-size: 14px; }
@@ -135,10 +62,7 @@ export const meta: Meta = {
 };
 
 const ERROR_INFO = {
-  400: {
-    title: 'Bad Request',
-    desc: 'The request could not be processed.',
-  },
+  400: { title: 'Bad Request', desc: 'The request could not be processed.' },
   401: {
     title: 'Unauthorized',
     desc: 'You need to sign in to access this page.',
@@ -151,14 +75,8 @@ const ERROR_INFO = {
     title: 'Page Not Found',
     desc: "The page you're looking for doesn't exist.",
   },
-  500: {
-    title: 'Server Error',
-    desc: 'Something went wrong on our end.',
-  },
-  502: {
-    title: 'Bad Gateway',
-    desc: 'The server is temporarily unavailable.',
-  },
+  500: { title: 'Server Error', desc: 'Something went wrong on our end.' },
+  502: { title: 'Bad Gateway', desc: 'The server is temporarily unavailable.' },
   503: {
     title: 'Service Unavailable',
     desc: 'The service is temporarily down.',
@@ -169,11 +87,11 @@ const ERROR_INFO = {
   },
 } as const;
 
-function getErrorInfo(error: RouteFallbackComponentProps) {
+const getErrorInfo = (error: RouteFallbackComponentProps) => {
   const status = error.status || 500;
   const info = ERROR_INFO[status as keyof typeof ERROR_INFO] || ERROR_INFO[500];
-  return { status, title: info.title, desc: info.desc };
-}
+  return { status, ...info };
+};
 
 const CodeBlock = (title: string, code: string) =>
   html`<div class="error-code-block">
@@ -240,17 +158,16 @@ const CopyErrorButton = (error: RouteFallbackComponentProps) => {
   </button>`;
 };
 
-export const fallback = function DefaultRootErrorPage(
-  error: RouteFallbackComponentProps
-) {
+export const fallback = (error: RouteFallbackComponentProps) => {
   const { status, title, desc } = getErrorInfo(error);
+  const hasDebugInfo = error.stack || error.message || error.cause;
 
   return html`<div class="error-card">
     <div class="error-status">${status}</div>
     <div class="error-title">${title}</div>
     <div class="error-desc">${desc}</div>
 
-    ${error.stack || error.message || error.cause
+    ${hasDebugInfo
       ? html`<div class="error-debug">
           ${error.message ? CodeBlock('Error Message', error.message) : ''}
           ${error.stack ? CodeBlock('Stack Trace', error.stack) : ''}
@@ -259,6 +176,6 @@ export const fallback = function DefaultRootErrorPage(
             : ''}
           ${CopyErrorButton(error)}
         </div>`
-      : html`${CopyErrorButton(error)}`}
+      : CopyErrorButton(error)}
   </div>`;
 };

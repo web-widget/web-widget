@@ -22,7 +22,6 @@ defineProps<BaseLayoutProps>();
           Web Widget
         </a>
         <div :class="styles.techStackBadge">
-          <span :class="styles.vueIcon">💚</span>
           <span :class="styles.techText">Vue Example</span>
         </div>
       </div>

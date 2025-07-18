@@ -334,8 +334,7 @@ export class Engine {
         : this.#createSafeError(unsafeError)
       : undefined;
 
-    const componentExportName = error ? 'fallback' : 'default';
-    const component = context.module[componentExportName];
+    // Build common component props
     const componentProps: RouteComponentProps = {
       data,
       error,
@@ -347,11 +346,23 @@ export class Engine {
       state: context.state,
     };
 
+    // Select component and props based on error state and availability
+    const component =
+      error && context.module.fallback
+        ? context.module.fallback
+        : context.module.default;
+
+    const renderProps =
+      error && context.module.fallback
+        ? this.#createSerializableError(error)
+        : componentProps;
+
     const children = await context.module.render(
       component,
-      error ? this.#createSerializableError(error) : componentProps,
+      renderProps,
       renderer
     );
+
     const layoutContext: LayoutComponentProps = {
       children,
       ...componentProps,
