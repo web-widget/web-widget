@@ -2,7 +2,10 @@
 import { defineMeta, defineRouteHandler } from '@web-widget/helpers';
 import type { HelloData } from '../api/hello@route.ts';
 import BaseLayout from '../(components)/BaseLayout.vue';
+import EditButton from '../(components)/EditButton@widget.vue';
 import shared from '../(components)/shared.module.css';
+
+const currentFileUrl = import.meta.url;
 
 defineOptions({
   meta: defineMeta({
@@ -97,5 +100,8 @@ const { data } = defineProps<{ data: HelloData }>();
         </div>
       </div>
     </div>
+
+    <!-- Edit button - only shown in development -->
+    <EditButton :currentFileUrl="currentFileUrl" />
   </BaseLayout>
 </template>

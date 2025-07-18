@@ -6,6 +6,15 @@ const STATIC_ROUTES = routes.routes.filter(
   ({ pathname }) => !/[:(){}*+?]/.test(pathname)
 );
 
+// Replace local file paths with placeholders to ensure snapshots are consistent across different devices
+function replaceLocalPaths(content: string): string {
+  return (
+    content
+      // Replace all file:// protocol URLs
+      .replace(/file:\/\/\/[^"'\s>]+/g, 'file:///LOCAL_PATH')
+  );
+}
+
 describe('Should match snapshot', () => {
   test.each(STATIC_ROUTES.map((route) => [route.pathname]))(
     'Request "%s" should match snapshot',
@@ -16,7 +25,9 @@ describe('Should match snapshot', () => {
       expect(Object.fromEntries(result.headers.entries())).toMatchSnapshot(
         `${pathname}@headers`
       );
-      expect(await result.text()).toMatchSnapshot(`${pathname}@body`);
+      expect(replaceLocalPaths(await result.text())).toMatchSnapshot(
+        `${pathname}@body`
+      );
     }
   );
 });

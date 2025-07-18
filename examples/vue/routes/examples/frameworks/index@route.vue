@@ -2,8 +2,11 @@
 import { defineMeta } from '@web-widget/helpers';
 import ReactCounter from '../(components)/Counter@widget.tsx';
 import BaseLayout from '../(components)/BaseLayout.vue';
+import EditButton from '../(components)/EditButton@widget.vue';
 import VueCounter from '../(components)/Counter@widget.vue';
 import shared from '../(components)/shared.module.css';
+
+const currentFileUrl = import.meta.url;
 
 defineOptions({
   meta: defineMeta({
@@ -82,5 +85,8 @@ defineOptions({
         </div>
       </div>
     </div>
+
+    <!-- Edit button - only shown in development -->
+    <EditButton :currentFileUrl="currentFileUrl" />
   </BaseLayout>
 </template>

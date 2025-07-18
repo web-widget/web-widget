@@ -1,6 +1,7 @@
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
 import ReactCounter from '../(components)/Counter@widget.tsx';
 import BaseLayout from '../(components)/BaseLayout.tsx';
+import EditButton from '../(components)/EditButton@widget.tsx';
 import VueCounter from '../(components)/Counter@widget.vue';
 import { toReact } from '@web-widget/vue';
 import shared from '../(components)/shared.module.css';
@@ -82,6 +83,9 @@ export default defineRouteComponent(function Page() {
           </div>
         </div>
       </div>
+
+      {/* Edit button - only shown in development */}
+      <EditButton currentFileUrl={import.meta.url} />
     </BaseLayout>
   );
 });
