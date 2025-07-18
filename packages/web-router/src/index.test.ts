@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import type {
   HTTPException,
   RouteContext,
@@ -910,5 +911,355 @@ describe('custom error pages and fallback handling', () => {
     );
     expect(internalErrorResponse.status).toBe(500);
     expect(await internalErrorResponse.text()).toBe('Server maintenance');
+  });
+});
+
+describe('onFallback parameter', () => {
+  test('should call onFallback with error and context for server errors', async () => {
+    const mockOnFallback = vi.fn();
+    const testError = new Error('Test server error');
+
+    const app = WebRouter.fromManifest(
+      {
+        routes: [
+          {
+            pathname: '/error',
+            module: {
+              handler() {
+                throw testError;
+              },
+            },
+          },
+        ],
+      },
+      {
+        onFallback: mockOnFallback,
+      }
+    );
+
+    const response = await app.dispatch('http://localhost/error');
+
+    expect(response.status).toBe(500);
+    expect(mockOnFallback).toHaveBeenCalledTimes(1);
+    expect(mockOnFallback).toHaveBeenCalledWith(
+      testError,
+      expect.objectContaining({
+        request: expect.any(Request),
+        pathname: '/error',
+      })
+    );
+  });
+
+  test('should call onFallback with HTTP errors and proper status codes', async () => {
+    const mockOnFallback = vi.fn();
+
+    const app = WebRouter.fromManifest(
+      {
+        routes: [
+          {
+            pathname: '/not-found',
+            module: {
+              handler() {
+                throw new Response('Not found', { status: 404 });
+              },
+            },
+          },
+          {
+            pathname: '/unauthorized',
+            module: {
+              handler() {
+                const error = new Error('Unauthorized access');
+                (error as any).status = 401;
+                (error as any).expose = true;
+                throw error;
+              },
+            },
+          },
+        ],
+      },
+      {
+        onFallback: mockOnFallback,
+      }
+    );
+
+    // Test 404 error
+    const notFoundResponse = await app.dispatch('http://localhost/not-found');
+    expect(notFoundResponse.status).toBe(404);
+
+    // Test 401 error
+    const unauthorizedResponse = await app.dispatch(
+      'http://localhost/unauthorized'
+    );
+    expect(unauthorizedResponse.status).toBe(401);
+
+    expect(mockOnFallback).toHaveBeenCalledTimes(2);
+  });
+
+  test('should not log exposed errors to console', async () => {
+    const originalConsoleError = console.error;
+    const mockConsoleError = vi.fn();
+    console.error = mockConsoleError;
+
+    const exposedError = new Error('User validation failed');
+    (exposedError as any).status = 400;
+    (exposedError as any).expose = true;
+
+    const app = WebRouter.fromManifest(
+      {
+        routes: [
+          {
+            pathname: '/validation-error',
+            module: {
+              handler() {
+                throw exposedError;
+              },
+            },
+          },
+        ],
+      },
+      {
+        onFallback: (error, context) => {
+          const status = Reflect.get(error, 'status') ?? 500;
+          const expose = Reflect.get(error, 'expose');
+
+          if (status >= 500 && !expose) {
+            const message = (error.stack || error.toString()).replace(
+              /^/gm,
+              '  '
+            );
+            if (context) {
+              console.error(
+                `${context.request.method} ${context.request.url}\n${message}\n`
+              );
+            } else {
+              console.error(`\n${message}\n`);
+            }
+          }
+        },
+      }
+    );
+
+    const response = await app.dispatch('http://localhost/validation-error');
+
+    expect(response.status).toBe(400);
+    // Should not log exposed errors
+    expect(mockConsoleError).not.toHaveBeenCalled();
+
+    console.error = originalConsoleError;
+  });
+
+  test('should log non-exposed 5xx errors to console', async () => {
+    const originalConsoleError = console.error;
+    const mockConsoleError = vi.fn();
+    console.error = mockConsoleError;
+
+    const serverError = new Error('Database connection failed');
+
+    const app = WebRouter.fromManifest(
+      {
+        routes: [
+          {
+            pathname: '/server-error',
+            module: {
+              handler() {
+                throw serverError;
+              },
+            },
+          },
+        ],
+      },
+      {
+        onFallback: (error, context) => {
+          const status = Reflect.get(error, 'status') ?? 500;
+          const expose = Reflect.get(error, 'expose');
+
+          if (status >= 500 && !expose) {
+            const message = (error.stack || error.toString()).replace(
+              /^/gm,
+              '  '
+            );
+            if (context) {
+              console.error(
+                `${context.request.method} ${context.request.url}\n${message}\n`
+              );
+            } else {
+              console.error(`\n${message}\n`);
+            }
+          }
+        },
+      }
+    );
+
+    const response = await app.dispatch('http://localhost/server-error');
+
+    expect(response.status).toBe(500);
+    // Should log non-exposed 5xx errors
+    expect(mockConsoleError).toHaveBeenCalledTimes(1);
+    expect(mockConsoleError).toHaveBeenCalledWith(
+      expect.stringContaining('GET http://localhost/server-error')
+    );
+    expect(mockConsoleError).toHaveBeenCalledWith(
+      expect.stringContaining('Database connection failed')
+    );
+
+    console.error = originalConsoleError;
+  });
+
+  test('should handle onFallback when context is undefined', async () => {
+    const originalConsoleError = console.error;
+    const mockConsoleError = vi.fn();
+    console.error = mockConsoleError;
+
+    // Simulate calling onFallback without context
+    const testError = new Error('Error without context');
+
+    const onFallback = (error: Error, context?: any) => {
+      const status = Reflect.get(error, 'status') ?? 500;
+      const expose = Reflect.get(error, 'expose');
+
+      if (status >= 500 && !expose) {
+        const message = (error.stack || error.toString()).replace(/^/gm, '  ');
+        if (context) {
+          console.error(
+            `${context.request.method} ${context.request.url}\n${message}\n`
+          );
+        } else {
+          console.error(`\n${message}\n`);
+        }
+      }
+    };
+
+    // Call onFallback without context
+    onFallback(testError, undefined);
+
+    expect(mockConsoleError).toHaveBeenCalledWith(
+      expect.stringContaining('Error without context')
+    );
+
+    console.error = originalConsoleError;
+  });
+
+  test('should provide default onFallback when not specified', async () => {
+    const originalConsoleError = console.error;
+    const mockConsoleError = vi.fn();
+    console.error = mockConsoleError;
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/default-fallback',
+          module: {
+            handler() {
+              throw new Error('Default fallback test');
+            },
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/default-fallback');
+
+    expect(response.status).toBe(500);
+    // Default onFallback should log the error
+    expect(mockConsoleError).toHaveBeenCalled();
+
+    console.error = originalConsoleError;
+  });
+
+  test('should handle custom onFallback that throws errors', async () => {
+    const originalConsoleError = console.error;
+    const mockConsoleError = vi.fn();
+    console.error = mockConsoleError;
+
+    const app = WebRouter.fromManifest(
+      {
+        routes: [
+          {
+            pathname: '/fallback-error',
+            module: {
+              handler() {
+                throw new Error('Original error');
+              },
+            },
+          },
+        ],
+      },
+      {
+        onFallback: (error, context) => {
+          throw new Error('Fallback handler error');
+        },
+      }
+    );
+
+    const response = await app.dispatch('http://localhost/fallback-error');
+
+    // Should still return a response even if onFallback throws
+    expect(response.status).toBe(500);
+
+    console.error = originalConsoleError;
+  });
+
+  test('should call onFallback for different error types', async () => {
+    const mockOnFallback = vi.fn();
+
+    const app = WebRouter.fromManifest(
+      {
+        routes: [
+          {
+            pathname: '/string-error',
+            module: {
+              handler() {
+                throw 'String error';
+              },
+            },
+          },
+          {
+            pathname: '/object-error',
+            module: {
+              handler() {
+                throw { message: 'Object error', code: 'ERR001' };
+              },
+            },
+          },
+          {
+            pathname: '/null-error',
+            module: {
+              handler() {
+                throw null;
+              },
+            },
+          },
+        ],
+      },
+      {
+        onFallback: mockOnFallback,
+      }
+    );
+
+    // Test string error
+    await app.dispatch('http://localhost/string-error');
+
+    // Test object error
+    await app.dispatch('http://localhost/object-error');
+
+    // Test null error
+    await app.dispatch('http://localhost/null-error');
+
+    expect(mockOnFallback).toHaveBeenCalledTimes(3);
+    expect(mockOnFallback).toHaveBeenNthCalledWith(
+      1,
+      expect.any(Error),
+      expect.any(Object)
+    );
+    expect(mockOnFallback).toHaveBeenNthCalledWith(
+      2,
+      expect.any(Error),
+      expect.any(Object)
+    );
+    expect(mockOnFallback).toHaveBeenNthCalledWith(
+      3,
+      expect.any(Error),
+      expect.any(Object)
+    );
   });
 });
