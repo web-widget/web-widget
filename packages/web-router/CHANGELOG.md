@@ -1,5 +1,41 @@
 # @web-widget/web-router
 
+## 1.66.0
+
+### Minor Changes
+
+- f697a7b: # Improve HTTP Exception Handling and Error Page Design
+
+  ## New Features
+  - Added `normalizeHTTPException` method providing unified error handling logic
+  - Support intelligent conversion of multiple error formats: Error objects, Response objects, plain objects, and strings
+  - Preserve original error `cause` information for better debugging and error tracking
+
+  ## Improvements
+  - Refactored default error page with modern UI design
+  - Added error information copy functionality for one-click copying of complete error reports
+  - Improved responsive design for error pages with better mobile support
+  - Optimized error handling flow, reducing unnecessary Response parsing operations
+
+  ## Breaking Changes
+  - Changed `ErrorHandler` type parameter from `unknown` to `HTTPException` for stricter type safety
+  - Removed `#transformHTTPException` method from `engine.ts`, unified error handling logic in `application.ts`
+
+  ## Test Coverage
+  - Added comprehensive test cases for `normalizeHTTPException` method
+  - Test coverage includes various error formats: Error objects, Response objects, plain objects, strings, etc.
+  - Ensures proper preservation of error `cause` property
+
+- f1d5639: Error pages can be defined according to error status codes.
+
+### Patch Changes
+
+- @web-widget/action@1.66.0
+- @web-widget/context@1.66.0
+- @web-widget/helpers@1.66.0
+- @web-widget/html@1.66.0
+- @web-widget/lifecycle-cache@1.66.0
+
 ## 1.65.0
 
 ### Patch Changes

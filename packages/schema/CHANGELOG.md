@@ -1,5 +1,7 @@
 # @web-widget/schema
 
+## 1.66.0
+
 ## 1.65.0
 
 ### Minor Changes
