@@ -50,17 +50,6 @@ export default defineRouteComponent(function Page() {
               </div>
             </div>
           </div>
-
-          <div
-            className={`${shared.infoPanel} ${shared.success}`}
-            style={{ marginTop: '2rem' }}>
-            <h4>🎯 Actual Effect</h4>
-            <p>
-              Notice: The two counters are completely independent components,
-              implemented with different frontend frameworks, but they can run
-              seamlessly on the same page without conflicts.
-            </p>
-          </div>
         </div>
 
         <div className={shared.mb6}>
@@ -68,10 +57,10 @@ export default defineRouteComponent(function Page() {
           <div className={`${shared.grid} ${shared.grid3}`}>
             <div className={shared.card}>
               <div className={shared.cardIcon}>🔄</div>
-              <h4 className={shared.cardTitle}>Auto Conversion</h4>
+              <h4 className={shared.cardTitle}>Interoperability</h4>
               <p className={shared.cardDescription}>
-                Vue components are automatically converted to React components
-                via Vite
+                Components from different tech stacks can seamlessly integrate
+                with each other through automatic conversion
               </p>
             </div>
             <div className={shared.card}>
