@@ -29,7 +29,7 @@ describe('Engine', () => {
       defaultBaseAsset: '/assets/',
       defaultRenderer: { ssr: true } as ServerRenderOptions,
       onFallback: mockOnFallback,
-      dev: false,
+      dev: true,
     };
 
     engine = new Engine(options);
@@ -1329,7 +1329,7 @@ describe('Engine', () => {
       ];
 
       // All module types should be processed consistently
-      for (const { name, module } of moduleTypes) {
+      for (const { module } of moduleTypes) {
         expect(() => {
           // These factory methods should handle all cases without requiring caller to handle defaults
           const routeHandler = engine.createRouteContextHandler(module);
@@ -1339,6 +1339,147 @@ describe('Engine', () => {
           expect(errorHandler).toBeDefined();
         }).not.toThrow();
       }
+    });
+  });
+
+  describe('fallback component prioritization', () => {
+    test('should prefer fallback component when error occurs and fallback exists', async () => {
+      let receivedComponent: unknown;
+      let receivedProps: unknown;
+
+      const moduleWithFallback: RouteModule = {
+        default: () => 'default component',
+        fallback: () => 'fallback component',
+        render: async (component, props) => {
+          receivedComponent = component;
+          receivedProps = props;
+          return 'rendered content';
+        },
+      };
+
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+      };
+
+      const testError = new Error('Test error') as any;
+      testError.status = 500;
+
+      // Create error handler and activate module
+      const errorHandler = engine.createErrorHandler(moduleWithFallback);
+      await errorHandler(testError, mockContext as RouteContext);
+
+      // The module should be activated and have the html method
+      expect(mockContext.module).toBe(moduleWithFallback);
+      expect((mockContext as RouteContext).html).toBeDefined();
+
+      // Call html to trigger the render flow
+      await (mockContext as RouteContext).html!();
+
+      // Should use fallback component
+      expect(receivedComponent).toBe(moduleWithFallback.fallback);
+      // Should receive HTTPException-like props (serialized error)
+      expect(receivedProps).toMatchObject({
+        name: 'Error',
+        message: 'Test error',
+        status: 500,
+      });
+    });
+
+    test('should fallback to default component when error occurs but no fallback exists', async () => {
+      let receivedComponent: unknown;
+      let receivedProps: unknown;
+
+      const moduleWithoutFallback: RouteModule = {
+        default: () => 'default component',
+        render: async (component, props) => {
+          receivedComponent = component;
+          receivedProps = props;
+          return 'rendered content';
+        },
+      };
+
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+        name: 'test-route',
+        params: { id: '123' },
+        pathname: '/test',
+        state: {},
+      };
+
+      const testError = new Error('Test error') as any;
+      testError.status = 404;
+
+      // Create error handler and activate module
+      const errorHandler = engine.createErrorHandler(moduleWithoutFallback);
+      await errorHandler(testError, mockContext as RouteContext);
+
+      // The module should be activated and have the html method
+      expect(mockContext.module).toBe(moduleWithoutFallback);
+      expect((mockContext as RouteContext).html).toBeDefined();
+
+      // Call html to trigger the render flow
+      await (mockContext as RouteContext).html!();
+
+      // Should use default component as fallback
+      expect(receivedComponent).toBe(moduleWithoutFallback.default);
+      // Should receive RouteComponentProps with error included
+      expect(receivedProps).toMatchObject({
+        error: expect.objectContaining({
+          message: 'Test error',
+          status: 404,
+        }),
+        name: 'test-route',
+        params: { id: '123' },
+        pathname: '/test',
+        state: {},
+        request: expect.any(Request),
+      });
+    });
+
+    test('should use default component when no error occurs', async () => {
+      let receivedComponent: unknown;
+      let receivedProps: unknown;
+
+      const moduleWithFallback: RouteModule = {
+        default: () => 'default component',
+        fallback: () => 'fallback component',
+        render: async (component, props) => {
+          receivedComponent = component;
+          receivedProps = props;
+          return 'rendered content';
+        },
+      };
+
+      const mockContext: Partial<RouteContext> = {
+        request: new Request('http://test.com', { method: 'GET' }),
+        name: 'test-route',
+        params: {},
+        pathname: '/test',
+        state: {},
+      };
+
+      // Create route handler and activate module (without error)
+      const routeHandler = engine.createRouteContextHandler(moduleWithFallback);
+      await routeHandler(mockContext as RouteContext, () => new Response());
+
+      // The module should be activated and have the html method
+      expect(mockContext.module).toBe(moduleWithFallback);
+      expect((mockContext as RouteContext).html).toBeDefined();
+
+      // Call html to trigger the render flow
+      await (mockContext as RouteContext).html!();
+
+      // Should use default component
+      expect(receivedComponent).toBe(moduleWithFallback.default);
+      // Should receive RouteComponentProps without error
+      expect(receivedProps).toMatchObject({
+        error: undefined,
+        name: 'test-route',
+        params: {},
+        pathname: '/test',
+        state: {},
+        request: expect.any(Request),
+      });
     });
   });
 });

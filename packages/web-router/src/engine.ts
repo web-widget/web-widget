@@ -334,9 +334,56 @@ export class Engine {
         : this.#createSafeError(unsafeError)
       : undefined;
 
-    const componentExportName = error ? 'fallback' : 'default';
-    const component = context.module[componentExportName];
-    const componentProps: RouteComponentProps = {
+    // When there's an error, prefer fallback component but fallback to default if fallback doesn't exist
+    let component: unknown;
+    let renderProps: unknown;
+
+    if (error) {
+      // Try fallback component first
+      if (context.module.fallback) {
+        component = context.module.fallback;
+        // fallback components receive HTTPException as props
+        renderProps = this.#createSerializableError(error);
+      } else {
+        // Fallback to default component if no fallback component exists
+        component = context.module.default;
+        // default components receive RouteComponentProps even in error scenarios
+        const componentProps: RouteComponentProps = {
+          data,
+          error,
+          meta,
+          name: context.name,
+          params: context.params,
+          pathname: context.pathname,
+          request: context.request,
+          state: context.state,
+        };
+        renderProps = componentProps;
+      }
+    } else {
+      // Normal case: use default component
+      component = context.module.default;
+      const componentProps: RouteComponentProps = {
+        data,
+        error,
+        meta,
+        name: context.name,
+        params: context.params,
+        pathname: context.pathname,
+        request: context.request,
+        state: context.state,
+      };
+      renderProps = componentProps;
+    }
+
+    const children = await context.module.render(
+      component,
+      renderProps,
+      renderer
+    );
+
+    // LayoutComponentProps always needs RouteComponentProps structure
+    const layoutProps: RouteComponentProps = {
       data,
       error,
       meta,
@@ -347,14 +394,9 @@ export class Engine {
       state: context.state,
     };
 
-    const children = await context.module.render(
-      component,
-      error ? this.#createSerializableError(error) : componentProps,
-      renderer
-    );
     const layoutContext: LayoutComponentProps = {
       children,
-      ...componentProps,
+      ...layoutProps,
     };
 
     const html = await layoutModule.render(
