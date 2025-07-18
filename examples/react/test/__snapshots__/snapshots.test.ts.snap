@@ -38,6 +38,30 @@ exports[`Should match snapshot > Request "/examples" should match snapshot > /ex
 
 exports[`Should match snapshot > Request "/examples" should match snapshot > /examples@statusText 1`] = `"OK"`;
 
+exports[`Should match snapshot > Request "/examples/_404" should match snapshot > /examples/_404@body 1`] = `
+"<!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >404 - Not Found</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/examples/:notFound*","params":{"notFound":"_404"}}</script>
+      </head>
+      <body>
+        <a href="#main-content" class="skip-link">Skip navigation, go to main content</a><header class="_header_35ba78"><div class="_headerContent_35ba78"><div class="_brandLogo_35ba78"><a class="_brandText_35ba78" href="/">Web Widget</a><div class="_techStackBadge_35ba78"><span class="_techText_35ba78">React Example</span></div></div><!--$--><web-widget import="/routes/examples/(components)/Navigation@widget.tsx" name="Navigation" loading="lazy" rendertarget="light" recovering=""><nav class="_navigation_40db6a " aria-label="Main navigation" role="navigation"><button class="_mobileMenuButton_40db6a" aria-expanded="false" aria-controls="mobile-navigation-menu" aria-label="Open navigation menu"><span class="_hamburgerIcon_40db6a"><span class="_hamburgerLine_40db6a "></span><span class="_hamburgerLine_40db6a "></span><span class="_hamburgerLine_40db6a "></span></span></button><ul id="mobile-navigation-menu" class="_navigationMenu_40db6a " role="list" aria-hidden="true"><li role="listitem"><a href="/examples" class="" aria-label="Home">Home</a></li><li role="listitem"><a href="/examples/static" class="" aria-label="Static Page">Static Page</a></li><li role="listitem"><a href="/examples/params/web-widget" class="" aria-label="Dynamic Routing">Dynamic Routing</a></li><li role="listitem"><a href="/examples/fetch" class="" aria-label="Data Fetching">Data Fetching</a></li><li role="listitem"><a href="/examples/action" class="" aria-label="Server Actions">Server Actions</a></li><li role="listitem"><a href="/examples/frameworks" class="" aria-label="Widgets">Widgets</a></li><li role="listitem"><a href="/examples/middleware" class="" aria-label="Middleware">Middleware</a></li></ul></nav></web-widget><!--/$--></div></header><main id="main-content" class="_main_35ba78" tabindex="-1"><div class="_container_86428e"><div class="_errorContainer_ab22ac"><div class="_errorIcon_ab22ac">🔍</div><h1 class="_errorTitle_ab22ac">Not Found</h1><p class="_errorSubtitle_ab22ac">Sorry, the page you are looking for does not exist or has been moved.</p></div></div></main><footer class="_footer_35ba78"><div class="_footerContent_35ba78"><div class="_footerBrand_35ba78"><h3 class="_footerBrandName_35ba78">Web Widget</h3><p class="_footerTagline_35ba78">Simplicity is the ultimate sophistication</p></div><div class="_footerLinks_35ba78"><a href="https://github.com/web-widget/web-widget#readme" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">📚 Documentation</a><a href="https://github.com/web-widget/web-widget" target="_blank" rel="noopener noreferrer" class="_footerLink_35ba78">⭐ GitHub</a></div></div></footer>
+      </body>
+    </html>"
+`;
+
+exports[`Should match snapshot > Request "/examples/_404" should match snapshot > /examples/_404@headers 1`] = `
+{
+  "content-type": "text/html; charset=utf-8",
+  "x-module-source": "source://./routes/examples/[...notFound]@route.tsx",
+  "x-powered-by": "@web-widget/web-router",
+}
+`;
+
+exports[`Should match snapshot > Request "/examples/_404" should match snapshot > /examples/_404@status 1`] = `200`;
+
+exports[`Should match snapshot > Request "/examples/_404" should match snapshot > /examples/_404@statusText 1`] = `"OK"`;
+
 exports[`Should match snapshot > Request "/examples/action" should match snapshot > /examples/action@body 1`] = `
 "<!doctype html>
     <html lang="en">
