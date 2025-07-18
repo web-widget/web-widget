@@ -49,5 +49,10 @@
       "module": "./routes/examples/middleware/index@middleware.ts"
     }
   ],
-  "fallbacks": []
+  "fallbacks": [
+    {
+      "module": "./routes/_404@route.tsx",
+      "status": 404
+    }
+  ]
 }

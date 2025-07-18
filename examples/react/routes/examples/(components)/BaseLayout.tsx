@@ -17,7 +17,6 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
               Web Widget
             </a>
             <div className={styles.techStackBadge}>
-              <span className={styles.reactIcon}>⚛️</span>
               <span className={styles.techText}>React Example</span>
             </div>
           </div>

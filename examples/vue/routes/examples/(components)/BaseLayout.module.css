@@ -106,28 +106,6 @@
   transition-timing-function: ease;
 }
 
-.techStackBadge:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-  border-color: rgba(97, 218, 251, 0.4);
-  background: linear-gradient(
-    135deg,
-    rgba(97, 218, 251, 0.15) 0%,
-    rgba(97, 218, 251, 0.08) 100%
-  );
-}
-
-.reactIcon {
-  font-size: var(--font-size-base);
-  transition-property: transform;
-  transition-duration: var(--transition-normal);
-  transition-timing-function: ease;
-}
-
-.techStackBadge:hover .reactIcon {
-  transform: scale(1.1);
-}
-
 .techText {
   font-size: var(--font-size-sm);
   letter-spacing: 0.5px;

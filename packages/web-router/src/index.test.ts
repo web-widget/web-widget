@@ -494,3 +494,421 @@ describe('html method', () => {
     expect(response.headers.get('x-accel-buffering')).toBe('no');
   });
 });
+
+describe('custom error pages and fallback handling', () => {
+  test('should use exact status code fallback when available', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler() {
+              throw new Response('Not Found', { status: 404 });
+            },
+          },
+        },
+      ],
+      fallbacks: [
+        {
+          status: 404,
+          module: {
+            handler: () => new Response('Custom 404 Page', { status: 404 }),
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+    expect(response.status).toBe(404);
+    expect(await response.text()).toBe('Custom 404 Page');
+  });
+
+  test('should use 400 fallback for 4xx errors when no exact match', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/forbidden',
+          module: {
+            handler() {
+              throw new Response('Forbidden', { status: 403 });
+            },
+          },
+        },
+        {
+          pathname: '/payment-required',
+          module: {
+            handler() {
+              throw new Response('Payment Required', { status: 402 });
+            },
+          },
+        },
+      ],
+      fallbacks: [
+        {
+          status: 400,
+          module: {
+            handler: () =>
+              new Response('Generic 4xx Error Page', { status: 400 }),
+          },
+        },
+      ],
+    });
+
+    const forbiddenResponse = await app.dispatch('http://localhost/forbidden');
+    expect(forbiddenResponse.status).toBe(400);
+    expect(await forbiddenResponse.text()).toBe('Generic 4xx Error Page');
+
+    const paymentResponse = await app.dispatch(
+      'http://localhost/payment-required'
+    );
+    expect(paymentResponse.status).toBe(400);
+    expect(await paymentResponse.text()).toBe('Generic 4xx Error Page');
+  });
+
+  test('should fallback to 404 for 4xx errors when no 400 fallback exists', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler() {
+              throw new Response('Forbidden', { status: 403 });
+            },
+          },
+        },
+      ],
+      fallbacks: [
+        {
+          status: 404,
+          module: {
+            handler: () => new Response('Custom 404 Fallback', { status: 404 }),
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+    expect(response.status).toBe(404);
+    expect(await response.text()).toBe('Custom 404 Fallback');
+  });
+
+  test('should use 500 fallback for 5xx errors when no exact match', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/bad-gateway',
+          module: {
+            handler() {
+              throw new Response('Bad Gateway', { status: 502 });
+            },
+          },
+        },
+        {
+          pathname: '/service-unavailable',
+          module: {
+            handler() {
+              throw new Response('Service Unavailable', { status: 503 });
+            },
+          },
+        },
+      ],
+      fallbacks: [
+        {
+          status: 500,
+          module: {
+            handler: () =>
+              new Response('Generic 5xx Error Page', { status: 500 }),
+          },
+        },
+      ],
+    });
+
+    const badGatewayResponse = await app.dispatch(
+      'http://localhost/bad-gateway'
+    );
+    expect(badGatewayResponse.status).toBe(500);
+    expect(await badGatewayResponse.text()).toBe('Generic 5xx Error Page');
+
+    const serviceUnavailableResponse = await app.dispatch(
+      'http://localhost/service-unavailable'
+    );
+    expect(serviceUnavailableResponse.status).toBe(500);
+    expect(await serviceUnavailableResponse.text()).toBe(
+      'Generic 5xx Error Page'
+    );
+  });
+
+  test('should prioritize exact status match over generic fallbacks', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler() {
+              throw new Response('Internal Server Error', { status: 500 });
+            },
+          },
+        },
+      ],
+      fallbacks: [
+        {
+          status: 400,
+          module: {
+            handler: () => new Response('Generic 4xx Error', { status: 400 }),
+          },
+        },
+        {
+          status: 500,
+          module: {
+            handler: () => new Response('Specific 500 Error', { status: 500 }),
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+    expect(response.status).toBe(500);
+    expect(await response.text()).toBe('Specific 500 Error');
+  });
+
+  test('should use default fallback when no custom fallbacks match', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler() {
+              throw new Error('Unexpected error');
+            },
+          },
+        },
+      ],
+      fallbacks: [], // No custom fallbacks
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+    expect(response.status).toBe(500);
+    // Should use the default fallback module
+    const text = await response.text();
+    expect(text).toContain('Error'); // Default fallback contains "Error" in the title
+  });
+
+  test('should handle function-based fallback modules', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler() {
+              throw new Response('Not Found', { status: 404 });
+            },
+          },
+        },
+      ],
+      fallbacks: [
+        {
+          status: 404,
+          module: async () => ({
+            handler: () => new Response('Async 404 Page', { status: 404 }),
+          }),
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+    expect(response.status).toBe(404);
+    expect(await response.text()).toBe('Async 404 Page');
+  });
+
+  test('should handle non-Response errors with status codes', async () => {
+    const customError = new Error('Custom error message');
+    (customError as any).status = 422;
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler() {
+              throw customError;
+            },
+          },
+        },
+      ],
+      fallbacks: [
+        {
+          status: 400,
+          module: {
+            handler: () => new Response('Generic 4xx Error', { status: 400 }),
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+    expect(response.status).toBe(400);
+    expect(await response.text()).toBe('Generic 4xx Error');
+  });
+
+  test('should handle errors without status property as 500', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler() {
+              throw new Error('Regular error without status');
+            },
+          },
+        },
+      ],
+      fallbacks: [
+        {
+          status: 500,
+          module: {
+            handler: () => new Response('Server Error Page', { status: 500 }),
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+    expect(response.status).toBe(500);
+    expect(await response.text()).toBe('Server Error Page');
+  });
+
+  test('should handle 404 for non-existent routes', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [], // No routes defined
+      fallbacks: [
+        {
+          status: 404,
+          module: {
+            handler: () =>
+              new Response('Custom 404 for missing routes', { status: 404 }),
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/nonexistent');
+    expect(response.status).toBe(404);
+    expect(await response.text()).toBe('Custom 404 for missing routes');
+  });
+
+  test('should handle cascading fallback from 400 to 404 to default', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler() {
+              throw new Response('Unprocessable Entity', { status: 422 });
+            },
+          },
+        },
+      ],
+      fallbacks: [], // No custom fallbacks, should use default
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+    expect(response.status).toBe(422);
+    // Should use default fallback since no 400 or 404 fallbacks are defined
+    const text = await response.text();
+    expect(text).toContain('Error'); // Default fallback contains "Error"
+  });
+
+  test('should catch errors in custom error pages and fallback to default', async () => {
+    let errorHandlerCalled = false;
+    const originalConsoleError = console.error;
+    console.error = (() => {
+      errorHandlerCalled = true;
+    }) as any;
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler() {
+              throw new Error('Original error');
+            },
+          },
+        },
+      ],
+      fallbacks: [
+        {
+          status: 500,
+          module: {
+            handler: () => {
+              throw new Error('Error in error handler');
+            },
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+    expect(response.status).toBe(500);
+    expect(await response.text()).toBe('Internal Server Error');
+    expect(errorHandlerCalled).toBe(true);
+
+    console.error = originalConsoleError;
+  });
+
+  test('should handle multiple fallbacks for different status codes', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/unauthorized',
+          module: {
+            handler() {
+              throw new Response('Unauthorized', { status: 401 });
+            },
+          },
+        },
+        {
+          pathname: '/internal-error',
+          module: {
+            handler() {
+              throw new Response('Internal Error', { status: 500 });
+            },
+          },
+        },
+      ],
+      fallbacks: [
+        {
+          status: 401,
+          module: {
+            handler: () => new Response('Please log in', { status: 401 }),
+          },
+        },
+        {
+          status: 500,
+          module: {
+            handler: () => new Response('Server maintenance', { status: 500 }),
+          },
+        },
+        {
+          status: 400,
+          module: {
+            handler: () =>
+              new Response('Bad request fallback', { status: 400 }),
+          },
+        },
+      ],
+    });
+
+    const unauthorizedResponse = await app.dispatch(
+      'http://localhost/unauthorized'
+    );
+    expect(unauthorizedResponse.status).toBe(401);
+    expect(await unauthorizedResponse.text()).toBe('Please log in');
+
+    const internalErrorResponse = await app.dispatch(
+      'http://localhost/internal-error'
+    );
+    expect(internalErrorResponse.status).toBe(500);
+    expect(await internalErrorResponse.text()).toBe('Server maintenance');
+  });
+});
