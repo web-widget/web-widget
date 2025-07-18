@@ -50,15 +50,6 @@ defineOptions({
             </div>
           </div>
         </div>
-
-        <div :class="`${shared.infoPanel} ${shared.success}`" style="margin-top: 2rem;">
-          <h4>🎯 Actual Effect</h4>
-          <p>
-            Notice: The two counters are completely independent components,
-            implemented with different frontend frameworks, but they can run
-            seamlessly on the same page without conflicts.
-          </p>
-        </div>
       </div>
 
       <div :class="shared.mb6">
@@ -66,10 +57,10 @@ defineOptions({
         <div :class="`${shared.grid} ${shared.grid3}`">
           <div :class="shared.card">
             <div :class="shared.cardIcon">🔄</div>
-            <h4 :class="shared.cardTitle">Auto Conversion</h4>
+            <h4 :class="shared.cardTitle">Interoperability</h4>
             <p :class="shared.cardDescription">
-              Vue components are automatically converted to React components
-              via Vite
+              Components from different tech stacks can seamlessly integrate
+              with each other through automatic conversion
             </p>
           </div>
           <div :class="shared.card">

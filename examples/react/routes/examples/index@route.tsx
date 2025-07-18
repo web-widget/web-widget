@@ -17,7 +17,7 @@ export default defineRouteComponent(function Page() {
           <h1 className={shared.pageTitle}>
             <span>Simple & Powerful</span>
             <br></br>
-            <span>Framework-agnostic</span> <span>Web Framework</span>
+            <span>Tech-stack-agnostic</span> <span>Web Framework</span>
           </h1>
           <p className={styles.subtitle}>
             Built on web standards, cross-platform, integrates with different

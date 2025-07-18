@@ -24,20 +24,7 @@ export const handler = defineRouteHandler({
         title: 'こんにちは世界',
         url: '#id3',
       },
-      {
-        title: 'مرحبا بالعالم',
-        url: '#id4',
-      },
-      {
-        title: '헬로월드',
-        url: '#id5',
-      },
     ];
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-      },
-    });
+    return Response.json(data);
   },
 });

@@ -20,7 +20,7 @@ defineOptions({
         <h1 :class="shared.pageTitle">
           <span>Simple & Powerful</span>
           <br>
-          <span>Framework-agnostic</span> <span>Web Framework</span>
+          <span>Tech-stack-agnostic</span> <span>Web Framework</span>
         </h1>
         <p :class="styles.subtitle">
           Built on web standards, cross-platform, integrates with different
