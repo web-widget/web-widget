@@ -1,7 +1,6 @@
 /**
  * @fileoverview Web-Router entry point - WebRouter class definition and exports
  */
-import type { RouteContext, ServerRenderOptions } from '@web-widget/helpers';
 import { rebaseMeta } from '@web-widget/helpers';
 import { createHttpError } from '@web-widget/helpers/error';
 
@@ -16,8 +15,10 @@ import type {
   LayoutModule,
   Manifest,
   Meta,
+  RouteContext,
   RouteModule,
   RouteRenderOptions,
+  ServerRenderOptions,
 } from './types';
 
 export type * from './types';

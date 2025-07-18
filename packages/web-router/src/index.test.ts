@@ -1,4 +1,3 @@
-import type { OnFallback } from './engine';
 import type {
   HTTPException,
   RouteContext,
@@ -262,7 +261,7 @@ describe('error handling', () => {
     }
 
     const text = await res.text();
-    expect(error.message).toBe(message);
+    expect(error.message).toBe('Unknown error: ' + message);
     expect(error.status).toBe(status);
     expect(res.status).toBe(status);
     expect(res.statusText).toBe(statusText);

@@ -3,7 +3,6 @@
  */
 import { handleRpc } from '@web-widget/action/server';
 import { contextToScriptDescriptor } from '@web-widget/context/server';
-import { createHttpError } from '@web-widget/helpers/error';
 import {
   mergeMeta,
   methodsToHandler,
@@ -15,17 +14,17 @@ import type {
   DevHttpHandler,
   DevRouteModule,
   HTTPException,
-  LayoutModule,
   LayoutComponentProps,
+  LayoutModule,
   Meta,
   MiddlewareContext,
   MiddlewareHandler,
   MiddlewareModule,
+  RouteComponentProps,
   RouteContext,
   RouteHandler,
   RouteHandlers,
   RouteModule,
-  RouteComponentProps,
   ServerRenderOptions,
 } from './types';
 
@@ -207,24 +206,26 @@ export class Engine {
 
   createErrorHandler(
     module: RouteModule | (() => Promise<RouteModule>)
-  ): (error: unknown, context: MiddlewareContext) => Promise<Response> {
+  ): (error: HTTPException, context: MiddlewareContext) => Promise<Response> {
     let cachedHandler:
-      | ((error: unknown, context: MiddlewareContext) => Promise<Response>)
+      | ((
+          error: HTTPException,
+          context: MiddlewareContext
+        ) => Promise<Response>)
       | null = null;
 
-    return async (error: unknown, context: MiddlewareContext) => {
+    return async (error, context) => {
       if (!cachedHandler) {
-        cachedHandler = async (error: unknown, context: MiddlewareContext) => {
+        cachedHandler = async (error, context) => {
           const routeContext = context as RouteContext;
           const resolvedModule =
             await this.#normalizeModule<RouteModule>(module);
-          const httpError = await this.#transformHTTPException(error);
 
           // For error scenarios, execute onFallback callback immediately upon module activation
-          this.#onFallback(httpError, context);
+          this.#onFallback(error, context);
 
           // Activate error module with immediate callback execution
-          await this.#activateModule(routeContext, resolvedModule, httpError);
+          await this.#activateModule(routeContext, resolvedModule, error);
 
           // Use the cached handler (already handles error scenarios correctly)
           const handler = routeContext._handler!;
@@ -348,15 +349,7 @@ export class Engine {
 
     const children = await context.module.render(
       component,
-      error
-        ? {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-            status: error.status,
-            statusText: error.statusText,
-          }
-        : componentProps,
+      error ? this.#createSerializableError(error) : componentProps,
       renderer
     );
     const layoutContext: LayoutComponentProps = {
@@ -538,19 +531,22 @@ export class Engine {
     }
   }
 
-  async #transformHTTPException(error: unknown): Promise<HTTPException> {
-    if (error instanceof Error) {
-      return error;
-    }
-
-    if (error instanceof Response) {
-      return createHttpError(
-        error.status,
-        (await error.text()) || error.statusText
-      );
-    }
-
-    return createHttpError(500, String(error));
+  #createSerializableError(error: HTTPException): {
+    name: string;
+    message: string;
+    stack: string;
+    status: number;
+    statusText: string;
+    cause?: unknown;
+  } {
+    return {
+      name: error.name || 'Error',
+      message: error.message || 'An error occurred',
+      stack: error.stack || '',
+      status: error.status || 500,
+      statusText: error.statusText || 'Internal Server Error',
+      cause: error.cause,
+    };
   }
 
   #createSafeError(error: HTTPException | SafeError): HTTPException {
@@ -560,7 +556,7 @@ export class Engine {
 
     const safeError = new Proxy(error, {
       get(target, key) {
-        if (key === 'stack') {
+        if (key === 'stack' || key === 'cause') {
           return '';
         }
         return Reflect.get(target, key);

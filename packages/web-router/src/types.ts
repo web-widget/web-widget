@@ -4,11 +4,12 @@
 import type {
   ActionModule,
   FetchEventLike,
+  HTTPException,
   MiddlewareModule,
-  RouteModule,
-  ServerRenderResult,
-  ServerRender,
   RouteComponentProps,
+  RouteModule,
+  ServerRender,
+  ServerRenderResult,
 } from '@web-widget/helpers';
 
 import type { Context } from './context';
@@ -40,7 +41,7 @@ export type NotFoundHandler<E extends Env = Env> = (
 ) => Response | Promise<Response>;
 
 export type ErrorHandler<E extends Env = Env> = (
-  error: unknown,
+  error: HTTPException,
   context: Context<E>
 ) => Response | Promise<Response>;
 
