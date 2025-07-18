@@ -2,9 +2,11 @@ import { describe, test, expect } from 'vitest';
 import routes from '../routemap.server.json';
 import fetch from './fetch';
 
-const STATIC_ROUTES = routes.routes.filter(
+const STATIC_ROUTES: { pathname: string }[] = routes.routes.filter(
   ({ pathname }) => !/[:(){}*+?]/.test(pathname)
 );
+
+STATIC_ROUTES.push({ pathname: '/examples/_404' });
 
 // Replace local file paths with placeholders to ensure snapshots are consistent across different devices
 function replaceLocalPaths(content: string): string {

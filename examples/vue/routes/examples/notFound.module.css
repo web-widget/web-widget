@@ -1,0 +1,69 @@
+/* =============================================================================
+   404 Not Found Page Styles
+   Using design tokens and shared module styles
+   ============================================================================= */
+
+.errorContainer {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  padding: var(--spacing-4xl) var(--spacing-xl);
+  color: var(--color-text-primary);
+}
+
+.errorIcon {
+  font-size: 5rem;
+  margin-bottom: var(--spacing-xl);
+  opacity: 0.8;
+  animation: float 3s ease-in-out infinite;
+}
+
+.errorTitle {
+  font-size: clamp(var(--font-size-3xl), 6vw, 3.5rem);
+  font-weight: 900;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text-primary);
+  line-height: 1.2;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.errorSubtitle {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-xl);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  font-weight: 400;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 640px) {
+  .errorContainer {
+    padding: var(--spacing-2xl) var(--spacing-md);
+  }
+
+  .errorIcon {
+    font-size: 4rem;
+  }
+
+  .errorTitle {
+    font-size: var(--font-size-2xl);
+  }
+
+  .errorSubtitle {
+    font-size: var(--font-size-md);
+  }
+}

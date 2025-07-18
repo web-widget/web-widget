@@ -35,6 +35,10 @@
     {
       "pathname": "/examples/api/hello",
       "module": "./routes/examples/api/hello@route.ts"
+    },
+    {
+      "pathname": "/examples/:notFound*",
+      "module": "./routes/examples/[...notFound]@route.tsx"
     }
   ],
   "actions": [
@@ -49,10 +53,5 @@
       "module": "./routes/examples/middleware/index@middleware.ts"
     }
   ],
-  "fallbacks": [
-    {
-      "module": "./routes/_404@route.tsx",
-      "status": 404
-    }
-  ]
+  "fallbacks": []
 }
