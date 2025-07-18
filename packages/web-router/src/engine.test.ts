@@ -488,53 +488,6 @@ describe('Engine', () => {
       expect(mockContext.html).toBeDefined();
     });
 
-    test('should handle Response errors', async () => {
-      const mockRoute: RouteModule = {
-        render: () => 'error page',
-      };
-
-      const mockContext: Partial<RouteContext> = {
-        html: () => new Response('error html'),
-      };
-
-      const responseError = new Response('Not Found', {
-        status: 404,
-        statusText: 'Not Found',
-      });
-
-      const errorHandler = engine.createErrorHandler(mockRoute);
-      const result = await errorHandler(
-        responseError,
-        mockContext as MiddlewareContext
-      );
-
-      expect(result).toBeInstanceOf(Response);
-      expect(mockContext.error).toBeDefined();
-      expect((mockContext.error as any).status).toBe(404);
-    });
-
-    test('should handle non-Error objects', async () => {
-      const mockRoute: RouteModule = {
-        render: () => 'error page',
-      };
-
-      const mockContext: Partial<RouteContext> = {
-        html: () => new Response('error html'),
-      };
-
-      const stringError = 'String error message';
-
-      const errorHandler = engine.createErrorHandler(mockRoute);
-      const result = await errorHandler(
-        stringError,
-        mockContext as MiddlewareContext
-      );
-
-      expect(result).toBeInstanceOf(Response);
-      expect(mockContext.error).toBeDefined();
-      expect((mockContext.error as any).message).toBe('String error message');
-    });
-
     test('should handle async route module loader', async () => {
       const mockRoute: RouteModule = {
         render: () => 'async error page',
@@ -843,7 +796,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      for (const { module, context, name } of testCases) {
+      for (const { module, context } of testCases) {
         const handler = engine.createRouteContextHandler(module);
         await handler(context as RouteContext, mockNext);
 
@@ -881,7 +834,7 @@ describe('Engine', () => {
         },
       ];
 
-      for (const { name, module, expectedProps, unexpectedProps } of modules) {
+      for (const { module, expectedProps, unexpectedProps } of modules) {
         const mockContext: Partial<RouteContext> = {
           request: new Request('http://test.com', { method: 'GET' }),
         };

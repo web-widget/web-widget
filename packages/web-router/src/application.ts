@@ -3,7 +3,7 @@
  */
 import { compose } from '@web-widget/helpers';
 import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
-import { HTTPException } from '@web-widget/helpers/error';
+import { createHttpError } from '@web-widget/helpers/error';
 import { Context } from './context';
 import type { Router } from './router';
 import { METHOD_NAME_ALL, METHODS, URLPatternRouter } from './router';
@@ -11,6 +11,7 @@ import type {
   Env,
   ErrorHandler,
   ExecutionContext,
+  HTTPException,
   MiddlewareHandler,
   NotFoundHandler,
 } from './types';
@@ -193,23 +194,22 @@ class Application<
 
         if (
           res.status >= 400 &&
+          // NOTE: This is a workaround to handle the error response from the cache middleware.
+          // https://github.com/web-widget/web-widget/blob/6ed821db5535aa274f1ee151fff38f1ea0a99231/packages/middlewares/src/cache.ts#L189
+          // TODO: This is not a good code, we will eliminate it later.
           res.headers.has('x-transform-error') &&
           res.headers.get('content-type') === 'application/json'
         ) {
-          const data = await res.json();
-          if (data && data.message) {
-            const httpException = new HTTPException(res.status, data.message);
-            if (data.stack) {
-              httpException.stack = data.stack;
-            }
-            throw httpException;
-          }
+          throw res;
         }
 
         return res;
       } catch (error) {
         this.fixErrorStack(error as Error);
-        return this.#errorHandler(error, context);
+        return this.#errorHandler(
+          await this.#normalizeHTTPException(error),
+          context
+        );
       }
     })();
   }
@@ -264,6 +264,54 @@ class Application<
   ) => {
     return this.dispatch(input, requestInit, env, executionContext);
   };
+
+  async #normalizeHTTPException(error: unknown): Promise<HTTPException> {
+    // If it's an Error object, preserve original stack trace
+    if (error instanceof Error) {
+      return error;
+    }
+
+    // If it's a Response object, intelligently parse content
+    if (error instanceof Response) {
+      const clonedResponse = error.clone();
+      let message = error.statusText;
+
+      try {
+        const contentType = clonedResponse.headers.get('content-type');
+        if (contentType?.includes('application/json')) {
+          const jsonData = await clonedResponse.json();
+          if (jsonData && typeof jsonData === 'object') {
+            message =
+              jsonData.message ?? jsonData.error ?? JSON.stringify(jsonData);
+          }
+        } else {
+          message = await clonedResponse.text();
+        }
+      } catch {
+        message = error.statusText;
+      }
+
+      return createHttpError(error.status, message, { cause: error });
+    }
+
+    // If it's an object format error
+    if (error && typeof error === 'object' && !Array.isArray(error)) {
+      const errorObj = error as Record<string, any>;
+      const status =
+        errorObj.status >= 400 && errorObj.status < 600 ? errorObj.status : 500;
+      const message =
+        errorObj.message ?? errorObj.error ?? JSON.stringify(error);
+
+      return createHttpError(status, message, {
+        cause: error,
+      });
+    }
+
+    // For other cases, convert to string
+    return createHttpError(500, `Unknown error: ${String(error)}`, {
+      cause: error,
+    });
+  }
 }
 
 export { Application };
