@@ -125,8 +125,8 @@ const handleEditClick = async () => {
 /* Responsive Design */
 @media (max-width: 768px) {
   .editButton {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: var(--font-size-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
   }
 
   .editIcon {
