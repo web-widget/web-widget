@@ -845,8 +845,6 @@ export class HTMLWebWidgetInspectorElement extends HTMLElement {
     }
   }
 
-
-  /* 无障碍设计 */
   @media (prefers-reduced-motion: reduce) {
     web-widget-inspector-toolbar,
     web-widget-inspector-toolbar .inspector-btn {
@@ -864,7 +862,6 @@ export class HTMLWebWidgetInspectorElement extends HTMLElement {
     }
   }
 
-  /* 响应式设计 */
   @media (max-width: 640px) {
     web-widget-inspector-toolbar {
       bottom: 10px;
