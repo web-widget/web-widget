@@ -60,7 +60,7 @@ export default function EditButton({
         title={`Edit this page in IDE\nSource: ${currentFileUrl}`}
         aria-label="Edit this page in IDE">
         <span className={styles.editIcon}>🖊️</span>
-        <span className={styles.editText}>Try editing this page</span>
+        <span className={styles.editText}>Open in editor</span>
       </button>
     </div>
   );

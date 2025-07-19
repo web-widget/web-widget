@@ -49,7 +49,6 @@
   }
 }
 
-/* 响应式设计 */
 @media (max-width: 640px) {
   .errorContainer {
     padding: var(--spacing-2xl) var(--spacing-md);
