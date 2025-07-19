@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.67.0
+
+### Minor Changes
+
+- 94beb22: New web-widget-inspector, supports editing the current page.
+
+### Patch Changes
+
+- @web-widget/helpers@1.67.0
+- @web-widget/lifecycle-cache@1.67.0
+
 ## 1.66.0
 
 ### Patch Changes
