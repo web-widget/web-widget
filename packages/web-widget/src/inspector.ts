@@ -366,10 +366,8 @@ export class HTMLWebWidgetInspectorElement extends HTMLElement {
     header
       .querySelector('.inspector-logo')
       ?.addEventListener('click', (e: Event) => {
-        if (toolbar.getAttribute('data-minimized') === 'true') {
-          this.minimizeToolbar();
-          e.stopPropagation();
-        }
+        this.minimizeToolbar();
+        e.stopPropagation();
       });
     toolbar.appendChild(header);
     this.#updateWidgetCount();
