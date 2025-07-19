@@ -55,19 +55,16 @@ const handleCountChange = async (newCount: number) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xl);
-  /* Increased from var(--spacing-lg) */
-  padding: var(--spacing-xl) var(--spacing-2xl);
-  /* Increased from var(--spacing-lg) var(--spacing-xl) */
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-xl);
   background: transparent;
-  border: 3px solid var(--color-border-primary);
+  border: 2px solid var(--color-border-primary);
   border-radius: var(--radius-lg);
   font-family: inherit;
   transition-property: border-color, box-shadow;
   transition-duration: var(--transition-fast);
   transition-timing-function: ease;
-  min-width: 300px;
-  /* Increased from 240px */
+  min-width: 240px;
   position: relative;
   --counter-primary: var(--color-primary);
   --counter-hover: var(--color-primary-hover);
@@ -88,17 +85,14 @@ const handleCountChange = async (newCount: number) => {
 }
 
 .button {
-  width: 48px;
-  /* Increased from 40px */
-  height: 48px;
-  /* Increased from 40px */
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 3px solid var(--counter-primary);
+  border: 2px solid var(--counter-primary);
   background: transparent;
   color: var(--counter-primary);
   font-weight: 600;
-  font-size: 1.4rem;
-  /* Increased from 1.2rem */
+  font-size: 1.8rem;
   cursor: pointer;
   transition-property: background-color, color, border-color, transform;
   transition-duration: var(--transition-fast);
@@ -109,6 +103,7 @@ const handleCountChange = async (newCount: number) => {
   user-select: none;
   position: relative;
   overflow: hidden;
+  line-height: 1;
 }
 
 .button::before {
@@ -143,18 +138,20 @@ const handleCountChange = async (newCount: number) => {
 }
 
 .count {
-  font-size: 2.2rem;
-  /* Increased from 1.8rem */
+  font-size: 2.8rem;
   font-weight: 600;
   color: var(--counter-primary);
-  min-width: 3rem;
-  /* Increased from 2.5rem */
+  min-width: 2.5rem;
   text-align: center;
   transition-property: color, transform;
   transition-duration: var(--transition-fast);
   transition-timing-function: ease;
   user-select: none;
   position: relative;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .count::after {
@@ -185,8 +182,7 @@ const handleCountChange = async (newCount: number) => {
   transform: translateX(-50%);
   background: var(--color-bg-primary);
   padding: 0 var(--spacing-sm);
-  font-size: 0.8rem;
-  /* Increased from 0.75rem */
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--counter-primary);
   text-transform: uppercase;
@@ -204,33 +200,24 @@ const handleCountChange = async (newCount: number) => {
 /* Responsive design */
 @media (max-width: 480px) {
   .counter {
-    min-width: 280px;
-    /* Increased from 200px */
-    padding: var(--spacing-lg) var(--spacing-xl);
-    /* Increased from var(--spacing-md) var(--spacing-lg) */
-    gap: var(--spacing-lg);
-    /* Increased from var(--spacing-md) */
+    min-width: 200px;
+    padding: var(--spacing-md) var(--spacing-lg);
+    gap: var(--spacing-md);
   }
 
   .button {
-    width: 44px;
-    /* Increased from 36px */
-    height: 44px;
-    /* Increased from 36px */
-    font-size: 1.3rem;
-    /* Increased from 1.1rem */
+    width: 36px;
+    height: 36px;
+    font-size: 1.5rem;
   }
 
   .count {
-    font-size: 2rem;
-    /* Increased from 1.6rem */
-    min-width: 2.5rem;
-    /* Increased from 2rem */
+    font-size: 2.4rem;
+    min-width: 2rem;
   }
 
   .counterLabel {
-    font-size: 0.75rem;
-    /* Increased from 0.7rem */
+    font-size: 0.7rem;
     top: -10px;
   }
 }

@@ -3,7 +3,7 @@
     <button class="editButton" @click="handleEditClick"
       :title="`Edit this page in IDE\nSource: ${props.currentFileUrl}`" aria-label="Edit this page in IDE">
       <span class="editIcon">🖊️</span>
-      <span class="editText">Try editing this page</span>
+      <span class="editText">Open in editor</span>
     </button>
   </div>
 </template>
@@ -127,10 +127,6 @@ const handleEditClick = async () => {
   .editButton {
     padding: var(--spacing-xs) var(--spacing-sm);
     font-size: var(--font-size-xs);
-  }
-
-  .editText {
-    display: none;
   }
 
   .editIcon {
