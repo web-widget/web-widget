@@ -144,7 +144,7 @@ export function importRenderPlugin({
           await esModuleLexer.init;
           [imports] = esModuleLexer.parse(code, id);
         } catch (error) {
-          return this.error(error);
+          return this.error(error as Error);
         }
 
         const modules: {
@@ -324,7 +324,7 @@ export function importRenderPlugin({
             }
           );
         } catch (error) {
-          return this.error(error, pos);
+          return this.error(error as Error, pos);
         }
 
         return {
