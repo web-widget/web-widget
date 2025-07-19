@@ -1,6 +1,5 @@
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
 import BaseLayout from '../(components)/BaseLayout';
-import EditButton from '../(components)/EditButton@widget.tsx';
 import Echo from './Echo@widget';
 import shared from '../(components)/shared.module.css';
 
@@ -101,9 +100,6 @@ export default defineRouteComponent(function Page() {
           </div>
         </div>
       </div>
-
-      {/* Edit button - only shown in development */}
-      <EditButton currentFileUrl={import.meta.url} />
     </BaseLayout>
   );
 });

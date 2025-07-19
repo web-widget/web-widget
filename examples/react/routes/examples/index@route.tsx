@@ -1,7 +1,6 @@
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
 import ReactCounter from './(components)/Counter@widget.tsx';
 import BaseLayout from './(components)/BaseLayout.tsx';
-import EditButton from './(components)/EditButton@widget.tsx';
 import styles from './index.module.css';
 import shared from './(components)/shared.module.css';
 
@@ -116,9 +115,6 @@ export default defineRouteComponent(function Page() {
           </div>
         </div>
       </div>
-
-      {/* 编辑按钮 - 只在开发环境显示 */}
-      <EditButton currentFileUrl={import.meta.url} />
     </BaseLayout>
   );
 });

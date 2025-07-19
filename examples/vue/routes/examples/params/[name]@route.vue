@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { defineMeta } from '@web-widget/helpers';
 import BaseLayout from '../(components)/BaseLayout.vue';
-import EditButton from '../(components)/EditButton@widget.vue';
 import shared from '../(components)/shared.module.css';
-
-const currentFileUrl = import.meta.url;
 
 interface Params {
   name: string;
@@ -72,8 +69,5 @@ const { name } = params;
         </div>
       </div>
     </div>
-
-    <!-- Edit button - only shown in development -->
-    <EditButton :currentFileUrl="currentFileUrl" />
   </BaseLayout>
 </template>

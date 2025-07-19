@@ -2,7 +2,6 @@
 import { defineMeta } from '@web-widget/helpers';
 import VueCounter from './(components)/Counter@widget.vue';
 import BaseLayout from './(components)/BaseLayout.vue';
-import EditButton from './(components)/EditButton@widget.vue';
 import styles from './index.module.css';
 import shared from './(components)/shared.module.css';
 
@@ -109,8 +108,5 @@ defineOptions({
         </div>
       </div>
     </div>
-
-    <!-- Edit button - only shown in development -->
-    <EditButton :currentFileUrl="currentFileUrl" />
   </BaseLayout>
 </template>
