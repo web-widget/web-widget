@@ -1,5 +1,19 @@
 # @web-widget/vite-plugin
 
+## 1.67.0
+
+### Minor Changes
+
+- 94beb22: New web-widget-inspector, supports editing the current page.
+
+### Patch Changes
+
+- Updated dependencies [94beb22]
+  - @web-widget/web-widget@1.67.0
+  - @web-widget/helpers@1.67.0
+  - @web-widget/node@1.67.0
+  - @web-widget/web-router@1.67.0
+
 ## 1.66.0
 
 ### Patch Changes
