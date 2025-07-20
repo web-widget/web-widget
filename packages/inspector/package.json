@@ -1,0 +1,86 @@
+{
+  "name": "@web-widget/inspector",
+  "description": "Web Widget Inspector - Development toolbar for web-widget elements",
+  "version": "1.0.0",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/inspector"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "lit": "^3.0.0"
+  },
+  "devDependencies": {
+    "@web-widget/web-widget": "workspace:*",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  },
+  "exports": {
+    ".": {
+      "browser": {
+        "types": "./dist/index.d.ts",
+        "development": "./src/index.ts",
+        "default": "./dist/index.js"
+      },
+      "default": {
+        "types": "./dist/index.d.ts",
+        "development": "./src/index.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./element": {
+      "types": "./dist/element.d.ts",
+      "development": "./src/element.ts",
+      "default": "./dist/element.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "browser": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        },
+        "default": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        }
+      },
+      "./element": {
+        "types": "./dist/element.d.ts",
+        "default": "./dist/element.js"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "dev": "vite",
+    "preview": "vite preview",
+    "prebuild": "npm run clean:build",
+    "type-check": "tsc --noEmit"
+  },
+  "sideEffects": [
+    "./dist/index.js"
+  ],
+  "type": "module",
+  "keywords": [
+    "web-widget",
+    "inspector",
+    "development",
+    "toolbar",
+    "vite"
+  ],
+  "author": "Web Widget Team"
+}

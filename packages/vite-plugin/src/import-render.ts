@@ -107,17 +107,13 @@ export function importRenderPlugin({
           process.env.NODE_ENV !== 'test' &&
           !html.includes(`id="${inspectorId}"`)
         ) {
-          const src = resolvePathToDevUrl(
-            '@web-widget/web-widget/inspector',
-            base
-          );
+          const src = resolvePathToDevUrl('@web-widget/inspector', base);
           result.push({
             injectTo: 'body',
             tag: 'web-widget-inspector',
             attrs: {
               id: inspectorId,
               dir: root,
-              keys: `[&quot;Shift&quot;]`,
             },
             children: [
               {

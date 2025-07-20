@@ -161,16 +161,16 @@ async function viteWebRouterMiddlewareV2(
       async handler(request, ...args) {
         try {
           let res = await webRouter.handler(request, ...args);
+          const contentType = res.headers.get('content-type') || '';
+          const isHtml = contentType.includes('text/html');
+          const isJSON = request.url.endsWith('.json');
           const isEmptyStatus =
             ((res.status / 100) | 0) === 1 ||
             res.status === 204 ||
             res.status === 205 ||
             res.status === 304;
 
-          if (
-            isEmptyStatus ||
-            !res.headers.get('content-type')?.includes('text/html')
-          ) {
+          if (isEmptyStatus || !isHtml || isJSON) {
             return res;
           }
 
@@ -190,9 +190,10 @@ async function viteWebRouterMiddlewareV2(
               url.pathname + url.search,
               html.replace(/(<\/head>)/, renderMetaToString(meta) + '$1')
             );
+            //.catch(() => html);
             const headers = new Headers(res.headers);
 
-            if (headers.has('etag')) {
+            if (html !== viteHtml && headers.has('etag')) {
               const newEtag = crypto
                 .createHash('sha1')
                 .update(viteHtml)
@@ -210,7 +211,7 @@ async function viteWebRouterMiddlewareV2(
           return res;
         } catch (error) {
           let message: string;
-          const prefix = '🚧 @web-widget/web-router exception:';
+          const prefix = `🚧 @web-widget/web-router ${request.url} exception:`;
           if (error instanceof Error) {
             message = stripAnsi(error.stack ?? error.message);
             console.error(`${prefix} ${error.stack}`);
