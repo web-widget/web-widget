@@ -1,5 +1,19 @@
 # @web-widget/vite-plugin
 
+## 1.68.0
+
+### Minor Changes
+
+- a7b8247: Enhanced development toolbar, provided by new package.
+
+### Patch Changes
+
+- Updated dependencies [a7b8247]
+  - @web-widget/inspector@1.68.0
+  - @web-widget/helpers@1.68.0
+  - @web-widget/node@1.68.0
+  - @web-widget/web-router@1.68.0
+
 ## 1.67.0
 
 ### Minor Changes
