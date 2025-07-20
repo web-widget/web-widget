@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.68.0
+
+### Minor Changes
+
+- a7b8247: Enhanced development toolbar, provided by new package.
+
+### Patch Changes
+
+- @web-widget/helpers@1.68.0
+- @web-widget/lifecycle-cache@1.68.0
+
 ## 1.67.0
 
 ### Minor Changes
