@@ -604,28 +604,19 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
 Object.assign(HTMLWebWidgetElement, status);
 
+export interface HTMLWebWidgetElementAttributes
+  extends Partial<HTMLWebWidgetElement> {
+  contextdata?: string;
+  contextmeta?: string;
+  inactive?: boolean;
+  recovering?: boolean;
+  loading?: Loading;
+  import?: string;
+  rendertarget?: RenderTarget;
+  base?: string;
+  timeouts?: Timeouts;
+}
+
 declare global {
   let importShim: <T>(src: string) => Promise<T>;
-  interface Window {
-    HTMLWebWidgetElement: typeof HTMLWebWidgetElement;
-  }
-  interface WebWidgetAttributes extends Partial<HTMLWebWidgetElement> {
-    contextdata?: string;
-    contextmeta?: string;
-    inactive?: boolean;
-    recovering?: boolean;
-    loading?: Loading;
-    import?: string;
-    rendertarget?: RenderTarget;
-    base?: string;
-    timeouts?: Timeouts;
-  }
-  interface HTMLElementTagNameMap {
-    'web-widget': HTMLWebWidgetElement;
-  }
-  namespace JSX {
-    interface IntrinsicElements {
-      'web-widget': WebWidgetAttributes;
-    }
-  }
 }

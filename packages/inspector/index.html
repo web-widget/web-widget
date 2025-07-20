@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Widget Inspector - Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 300;
+    }
+
+    .header p {
+      margin: 10px 0 0 0;
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .section {
+      margin: 40px 0;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      color: #333;
+      font-size: 1.8rem;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 10px;
+    }
+
+    .controls {
+      position: sticky;
+      top: 20px;
+      margin: 20px 0;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+      z-index: 100;
+    }
+
+    .controls h4 {
+      margin-top: 0;
+      color: #495057;
+      font-size: 1.3rem;
+    }
+
+    .control-group {
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    label {
+      display: inline-block;
+      width: 120px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    input,
+    select {
+      padding: 8px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-size: 14px;
+      min-width: 150px;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #5a6fd8;
+    }
+
+    .corner-widgets {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .corner-widgets web-widget {
+      position: absolute;
+      pointer-events: auto;
+      max-width: 200px;
+      min-height: 80px;
+    }
+
+    .top-left {
+      top: 20px;
+      left: 20px;
+    }
+
+    .top-right {
+      top: 20px;
+      right: 20px;
+    }
+
+    .bottom-left {
+      bottom: 20px;
+      left: 20px;
+    }
+
+    .bottom-right {
+      bottom: 20px;
+      right: 20px;
+    }
+
+    .demo-content {
+      margin: 40px 0;
+      padding: 40px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .demo-content h2 {
+      margin-top: 0;
+      font-size: 2rem;
+    }
+
+    .demo-content p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .corner-widgets web-widget {
+        max-width: 150px;
+        min-height: 60px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Corner widgets for demonstration -->
+  <div class="corner-widgets">
+    <web-widget class="top-left" import="/examples/counter.ts" loading="eager" rendertarget="light"
+      contextdata="{&quot;count&quot;:0}">
+      <div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 4px;">Top Left</div>
+    </web-widget>
+
+    <web-widget class="top-right" import="/examples/counter.ts" loading="eager" rendertarget="light"
+      contextdata="{&quot;count&quot;:0}">
+      <div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 4px;">Top Right</div>
+    </web-widget>
+
+    <web-widget class="bottom-left" import="/examples/counter.ts" loading="eager" rendertarget="light"
+      contextdata="{&quot;count&quot;:0}">
+      <div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 4px;">Bottom Left</div>
+    </web-widget>
+
+    <web-widget class="bottom-right" import="/examples/counter.ts" loading="eager" rendertarget="light"
+      contextdata="{&quot;count&quot;:0}">
+      <div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 4px;">Bottom Right</div>
+    </web-widget>
+  </div>
+
+  <div class="header">
+    <h1>Web Widget Inspector</h1>
+    <p>Development Tool Demo - Hover over widgets to inspect them</p>
+  </div>
+
+  <div class="container">
+    <div class="controls">
+      <h4>Inspector Configuration</h4>
+      <div class="control-group">
+        <label for="theme">Theme:</label>
+        <select id="theme">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+      <button onclick="updateInspector()">Update Inspector</button>
+    </div>
+
+    <div class="section">
+      <h2>Web Widget Inspector</h2>
+      <p>This page demonstrates the Web Widget Inspector tool. The inspector toolbar is located at the bottom-left
+        corner of the screen.</p>
+
+      <h3>Features:</h3>
+      <ul>
+        <li><strong>Inspect Mode:</strong> Click the "Inspect" button to activate inspection mode</li>
+        <li><strong>Hover Detection:</strong> Hover over any web-widget element to see debug information</li>
+        <li><strong>Source Code:</strong> Click on web-widget elements to open their source code</li>
+        <li><strong>Theme Support:</strong> Switch between light, dark, and auto themes</li>
+      </ul>
+
+      <h3>Corner Widgets:</h3>
+      <p>Four web-widget elements are positioned at the corners of the screen for demonstration purposes. Try hovering
+        over them to see the inspector in action.</p>
+    </div>
+
+    <div class="demo-content">
+      <h2>Scroll to Bottom</h2>
+      <p>Scroll down to see how the inspector handles widgets at different screen positions</p>
+    </div>
+  </div>
+
+  <!-- Inspector Component -->
+  <web-widget-inspector id="inspector" dir="/Users/tangbin/Git/web-widget" route-module-source="/index.html"
+    theme="auto">
+  </web-widget-inspector>
+
+  <script type="module">
+    import '@web-widget/web-widget';
+    import './src/index.ts';
+  </script>
+
+  <script>
+    function updateInspector() {
+      const theme = document.getElementById('theme').value;
+      const inspector = document.getElementById('inspector');
+      inspector.theme = theme;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      updateInspector();
+    });
+  </script>
+</body>
+
+</html>
