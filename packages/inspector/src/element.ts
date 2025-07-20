@@ -59,22 +59,35 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       display: contents;
     }
 
+    .inspector-toolbar,
+    .inspector-toolbar *,
+    .inspector-tooltip,
+    .inspector-tooltip * {
+      font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+        Arial, sans-serif !important;
+    }
+
     .inspector-toolbar {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
       position: fixed;
       bottom: 1rem;
       left: 1rem;
       z-index: ${Z_INDEX.TOOLBAR};
       background: var(--wwi-bg, rgba(255, 255, 255, 0.95));
       color: var(--wwi-fg, #222);
-      padding: 0.5rem 0.75rem;
+      padding: 0.75rem 1rem;
       border-radius: 0.375rem;
       border: 1px solid var(--wwi-border, #e5e7eb);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      font-family: inherit;
-      font-size: 0.8rem;
+      box-shadow:
+        0 1px 3px 0 rgba(0, 0, 0, 0.1),
+        0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+        Arial, sans-serif;
+      font-size: 0.875rem;
       min-width: max-content;
       transition: all 0.2s;
       backdrop-filter: blur(8px);
@@ -163,7 +176,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
         rgba(255, 255, 255, 0.5) 10px
       );
       border: 2px solid rgba(102, 126, 234, 0.9);
-      border-radius: 4px;
+      border-radius: 0;
       box-sizing: border-box;
     }
 
@@ -194,7 +207,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       color: var(--wwi-accent, #888);
       width: 16px;
       height: 16px;
-      margin-right: 2px;
+      margin-right: 0.125rem;
     }
 
     .logo-text {
@@ -226,7 +239,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-size: 0.7rem;
+      font-size: 0.875rem;
       color: var(--wwi-fg, #222);
       opacity: 0.7;
     }
@@ -259,7 +272,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       border-radius: 0.25rem;
       cursor: pointer;
       transition: all 0.15s ease;
-      font-size: 0.7rem;
+      font-size: 0.875rem;
       font-weight: 500;
       white-space: nowrap;
       opacity: 0.8;
@@ -271,7 +284,9 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       color: var(--wwi-fg, #111);
       opacity: 1;
       transform: translateY(-1px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow:
+        0 1px 3px 0 rgba(0, 0, 0, 0.1),
+        0 1px 2px 0 rgba(0, 0, 0, 0.06);
     }
 
     .inspector-btn[data-selected='true'] {
@@ -360,22 +375,22 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
 
     @media (max-width: 768px) {
       .inspector-toolbar {
-        bottom: 0.5rem;
-        left: 0.5rem;
-        right: 0.5rem;
+        bottom: 0.75rem;
+        left: 0.75rem;
+        right: 0.75rem;
         flex-wrap: wrap;
-        max-width: calc(100vw - 1rem);
-        padding: 0.5rem 0.75rem;
-        gap: 0.375rem;
+        max-width: calc(100vw - 1.25rem);
+        padding: 0.75rem 1rem;
+        gap: 0.75rem;
       }
 
       .inspector-btn {
-        padding: 0.375rem 0.5rem;
-        font-size: 0.75rem;
+        padding: 0.75rem 0.75rem;
+        font-size: 0.875rem;
       }
 
       .inspector-info {
-        font-size: 0.7rem;
+        font-size: 0.875rem;
       }
 
       .logo-text {
@@ -573,6 +588,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
           opacity: 1 !important;
           display: block !important;
           cursor: pointer !important;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
           background: repeating-linear-gradient(
             45deg,
             rgba(102, 126, 234, 0.5),
@@ -581,7 +597,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
             rgba(255, 255, 255, 0.5) 10px
           ) !important;
           border: 2px solid rgba(102, 126, 234, 0.9) !important;
-          border-radius: 4px !important;
+          border-radius: 0 !important;
           box-sizing: border-box !important;
         `;
 
@@ -655,10 +671,10 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
         background: var(--wwi-bg, rgba(255, 255, 255, 0.95));
         color: var(--wwi-fg, #222);
         border: 1px solid var(--wwi-border, #e5e7eb);
-        border-radius: ${DESIGN_SYSTEM.borderRadius.md};
+        border-radius: 0.375rem;
         padding: ${DESIGN_SYSTEM.spacing.lg} ${DESIGN_SYSTEM.spacing.xl};
         font-size: ${DESIGN_SYSTEM.typography.fontSize.base};
-        font-family: ${DESIGN_SYSTEM.typography.fontFamily};
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
         line-height: ${DESIGN_SYSTEM.typography.lineHeight.normal};
         font-weight: ${DESIGN_SYSTEM.typography.fontWeight.normal};
         letter-spacing: ${DESIGN_SYSTEM.typography.letterSpacing.normal};
