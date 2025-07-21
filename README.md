@@ -1,54 +1,942 @@
 # Web Widget
 
 [![CI](https://github.com/web-widget/web-widget/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/web-widget/web-widget/actions/workflows/test.yml?query=event%3Apush)
+[![npm version](https://img.shields.io/npm/v/@web-widget/web-widget.svg)](https://www.npmjs.com/package/@web-widget/web-widget)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![codecov](https://codecov.io/gh/web-widget/web-widget/branch/main/graph/badge.svg)](https://codecov.io/gh/web-widget/web-widget)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![Deno](https://img.shields.io/badge/Deno-Compatible-brightgreen.svg)](https://deno.land/)
+[![Bun](https://img.shields.io/badge/Bun-Compatible-orange.svg)](https://bun.sh/)
+[![WinterCG](https://img.shields.io/badge/WinterCG-Compatible-blue.svg)](https://wintercg.org/)
+[![RFC Compliant](https://img.shields.io/badge/RFC%207234-Compliant-green.svg)](https://tools.ietf.org/html/rfc7234)
 
-It is a web application framework designed to give new impetus to all front-end frameworks.
+**🌟 A revolutionary meta-framework that seamlessly integrates multiple frontend technologies with unprecedented simplicity.**
 
-> This project is currently in the preview stage, and the API is subject to significant changes at any time.
+Break free from technology stack lock-in while maintaining elegant simplicity. Experience the power of running React, Vue, and other frameworks together with ease.
 
-## Motivation
+> ⚠️ **Preview Release**: This project is currently in preview stage with API subject to changes. Some features mentioned may be under development.
 
-In many enterprises, technology stack lock-in is a common phenomenon. For instance, if a large project is initially built with Vue 2, upgrading to Vue 3 later may become a significant challenge. This project aims to introduce a scalable architecture. By doing so, it enables enterprises to gradually upgrade their UI framework versions or explore alternative frameworks, thereby continuously improving both the user experience and the developer experience.
+## 📋 Table of Contents
 
-## Features
+- [💫 Design Philosophy](#-design-philosophy-simplicity-meets-power)
+- [✨ Why Web Widget?](#-why-web-widget)
+- [🚀 Quick Start](#-quick-start)
+- [🏗️ Core Architecture](#️-core-architecture-simplicity-in-action)
+- [🔥 Key Features](#-key-features)
+- [📁 Project Structure](#-project-structure-elegant-organization)
+- [📖 Documentation](#-documentation)
+- [🤝 Community](#-community)
 
-### Fast
+## 💫 Design Philosophy: Simplicity Meets Power
 
-Use web streaming to accelerate page display; server-side components reduce client-side JS, streaming State and selective hydration to reduce lag.
+Our framework is built on the core principle that powerful technology should be intuitive to use:
 
-### Flexibility
+### 🎯 **Simple by Design**
 
-It does not come with a new technology stack, but it can drive UI technology stacks such as React and Vue at the same time, and provides performance optimization methods at a higher level.
+- **Two File Types**: Just `@route.*` and `@widget.*` - that's all you need to learn
+- **Minimal Configuration**: Works with sensible defaults and simple setup
+- **Familiar Syntax**: Use the frameworks you already know and love
+- **Intuitive APIs**: If it feels natural, it probably works
 
-### Web standards
+### ⚡ **Powerful by Nature**
 
-The project is designed to comply with the standards set by [WinterCG](https://wintercg.org/), it can run in Node.js and Edge environments. The client supports native ESM and Importmap, and is compatible with Chrome 67+.
+- **Multi-Framework**: React 19, Vue 3, Vue 2 - with more frameworks coming soon
+- **Web Standards**: Built on solid foundations that won't become obsolete
+- **Real-World Ready**: Designed to handle production applications
+- **Future Proof**: Open architecture that evolves with the web platform
 
-### Technology stack interoperability
+> _"The best technology is the one you don't have to think about"_ - This is our guiding principle.
 
-Different technology stacks are isolated through component container technology. For example, React components can be embedded in Vue components, and Vue components can also introduce React components.
+## ✨ Why Web Widget?
 
-## Examples
+**The Challenge**: Modern web development often forces teams into framework silos, making technology evolution difficult and risky. Monolithic frontend architectures become increasingly hard to maintain and upgrade.
 
-| Name             | Description                                         | Examples                                                                                                                                                           |
-| ---------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [React](./examples/react) | Use **React** to render pages and load interactive components of **Vue** and **React** | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
-| [Vue](./examples/vue)     | Use **Vue** to render pages and load interactive components of **React** and **Vue** | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
-| ... | ... | ... |
+**The Web Widget Approach**: A meta-framework that embraces framework diversity while maintaining simplicity.
 
-## Who Uses This
+### 🎯 **Core Benefits**
 
-- <https://www.insmind.com> Use **React** to render pages and load interactive components of **Vue3** and **Vue2**.
-- <https://www.gaoding.com> Use **React** to render pages and load interactive components of **Vue2** and **Lit**.
+- 🔄 **Technology Freedom**: Use the right framework for each component, not the entire application
+- ⚡ **Incremental Adoption**: Introduce new frameworks gradually without big-bang rewrites
+- 🧩 **Component Interoperability**: Mix React and Vue components seamlessly
+- 🌐 **Standards Foundation**: Built on Web Standards that evolve with the platform
+- 🎯 **Developer Experience**: Simple concepts that scale to complex applications
 
-## Open in the Cloud 
+### 💡 **Real-World Validation**
 
-Click any of the buttons below to start a new development environment to demo or contribute to the codebase without having to install anything on your machine:
+Applications like **insmind.com** and **gaoding.com** demonstrate these benefits in practice:
 
-[![Open in VS Code](https://img.shields.io/badge/Open%20in-VS%20Code-blue?logo=visualstudiocode)](https://vscode.dev/github/web-widget/web-widget/tree/main/examples/)
-[![Open in Glitch](https://img.shields.io/badge/Open%20in-Glitch-blue?logo=glitch)](https://glitch.com/edit/#!/import/github/web-widget/web-widget/tree/main/examples/)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/web-widget/web-widget/tree/main/examples/)
-[![Edit in Codesandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/web-widget/web-widget/tree/main/examples/)
-[![Open in Repl.it](https://replit.com/badge/github/withastro/astro)](https://replit.com/github/web-widget/web-widget/tree/main/examples/)
-[![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/web-widget/web-widget/tree/main/examples/)
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/web-widget/web-widget/tree/main/examples/)
+- Legacy component preservation while adopting modern frameworks
+- Zero-downtime migrations through incremental transitions
+- Successful mixing of multiple technology stacks in production
+
+| **Application**                            | **Architecture**                       | **Use Case**                                                                 |
+| ------------------------------------------ | -------------------------------------- | ---------------------------------------------------------------------------- |
+| **[insmind.com](https://www.insmind.com)** | React pages + Vue 3 + Vue 2 components | _"Seamlessly integrated legacy Vue 2 components with modern Vue 3 features"_ |
+| **[gaoding.com](https://www.gaoding.com)** | React pages + Vue 2 + Lit components   | _"Migrated incrementally from Vue 2 to React without downtime"_              |
+
+> **💡 These examples showcase the framework's ability to handle complex multi-technology scenarios in real applications.**
+
+> **The approach works**: Web Widget provides a practical path to multi-framework architecture without the usual complexity overhead.
+
+## 🚀 Quick Start
+
+Get started with Web Widget (preview release):
+
+```bash
+# Clone or download the example
+git clone https://github.com/web-widget/web-widget.git
+cd web-widget/examples/react  # or examples/vue
+
+# Install dependencies
+npm install
+
+# Start development
+npm run dev
+```
+
+### 🎯 **Current Framework Support**
+
+| Framework | Status         | Version  |
+| --------- | -------------- | -------- |
+| React     | ✅ Supported   | 19.x     |
+| Vue       | ✅ Supported   | 3.x, 2.x |
+| Svelte    | 🚧 Coming Soon | -        |
+| Solid     | 🚧 Coming Soon | -        |
+| Angular   | 🚧 Planned     | -        |
+
+> 💡 **Preview Status**: Web Widget is currently in preview. A dedicated CLI tool (`create-web-widget-app`) is planned for future releases.
+
+**Try online examples:**
+
+| Example                   | Description                             | Live Demo                                                                                                                                                          |
+| ------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [React](./examples/react) | React pages with React + Vue components | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/react) |
+| [Vue](./examples/vue)     | Vue pages with React + Vue components   | [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/web-widget/web-widget/tree/main/examples/vue)   |
+
+## 🏗️ Core Architecture: Simplicity in Action
+
+Web Widget's power comes from just two concepts - keeping it beautifully simple:
+
+### 📄 Route Modules (`*@route.*`)
+
+Server-side modules for rendering pages and handling HTTP requests.
+
+```tsx
+// routes/index@route.tsx - Simple, yet it can do everything
+import { defineRouteComponent } from '@web-widget/helpers';
+import Counter from './components/Counter@widget.tsx';
+
+export default defineRouteComponent(function HomePage() {
+  return (
+    <html>
+      <body>
+        <h1>Welcome to Web Widget</h1>
+        <Counter count={0} />
+      </body>
+    </html>
+  );
+});
+```
+
+### 🧩 Widget Modules (`*@widget.*`)
+
+Isomorphic components that work on both server and client - the secret to our power.
+
+```tsx
+// components/Counter@widget.tsx (React)
+import { useState } from 'react';
+
+export default function Counter({ count }: { count: number }) {
+  const [value, setValue] = useState(count);
+
+  return (
+    <div>
+      <button onClick={() => setValue((v) => v - 1)}>-</button>
+      <span>{value}</span>
+      <button onClick={() => setValue((v) => v + 1)}>+</button>
+    </div>
+  );
+}
+```
+
+```vue
+<!-- components/Counter@widget.vue (Vue) -->
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const props = defineProps<{ count: number }>();
+const value = ref(props.count);
+</script>
+
+<template>
+  <div>
+    <button @click="value--">-</button>
+    <span>{{ value }}</span>
+    <button @click="value++">+</button>
+  </div>
+</template>
+```
+
+### 🔀 Cross-Framework Magic: Power Unleashed
+
+The real power emerges when you effortlessly combine different frameworks:
+
+```tsx
+// Mix React and Vue in the same page
+import ReactCounter from './Counter@widget.tsx';
+import VueCounter from './Counter@widget.vue';
+import { toReact } from '@web-widget/vue';
+
+const RVueCounter = toReact(VueCounter);
+
+export default defineRouteComponent(function MixedPage() {
+  return (
+    <div>
+      <h2>React Component:</h2>
+      <ReactCounter count={0} />
+
+      <h2>Vue Component (as React):</h2>
+      <RVueCounter count={0} />
+    </div>
+  );
+});
+```
+
+## 🔥 Key Features
+
+### ⚡ **Lightning Fast Performance**
+
+- **Streaming SSR**: Pages start rendering before all data is loaded
+- **Selective Hydration**: Only interactive components hydrate on client
+- **Optimized Bundles**: Server components reduce client-side JavaScript
+- **Zero Hydration Errors**: End-to-end state caching eliminates SSR mismatches
+- **HTTP Caching**: Standards-based page caching with stale-while-revalidate patterns
+
+### 🔄 **Technology Flexibility Without Complexity**
+
+- **Currently Supported**: React 19, Vue 3, Vue 2 (Svelte, Solid, and more coming soon)
+- **Progressive Migration**: Upgrade frameworks piece by piece
+- **Component Interop**: Share components across different frameworks
+- **No Lock-in**: Each component can use its preferred framework
+
+### 🌐 **Web Standards First - Built to Last**
+
+- **WinterCG Compatible**: Runs in Node.js, Deno, Bun, and Edge environments (Currently only Node.js deployment examples are supported, other platforms coming soon)
+- **ESM Native**: Modern module system with import maps
+- **Web APIs**: Use standard fetch, streams, and crypto APIs everywhere
+- **Future Proof**: Based on standards that won't become obsolete
+- **Production Module Sharing**: Import Maps for optimal production performance
+
+### 🔧 **Production Ready, Developer Friendly**
+
+- **Type Safe**: Full TypeScript support out of the box
+- **File-based Routing**: Intuitive routing with automatic route generation
+- **Error Boundaries**: Comprehensive error handling and fallbacks
+- **Sensible Defaults**: Simple setup with intelligent defaults that just work
+- **Smart Bundling**: Automatic dependency deduplication and sharing
+
+### 🚀 End-to-End State Caching: Zero Hydration Errors
+
+Web Widget solves SSR's biggest challenge: **hydration mismatches**. Our cache providers ensure server and client always render identical content.
+
+#### 🎯 **The Problem Solved**
+
+```tsx
+// ❌ Traditional SSR: Hydration mismatches
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null); // Server: null, Client: fetched data
+
+  useEffect(() => {
+    fetchUser(userId).then(setUser); // Only runs on client
+  }, []);
+
+  return <div>{user?.name || 'Loading...'}</div>; // Different on server vs client
+}
+
+// ✅ Web Widget: Perfect hydration
+function UserProfile({ userId }) {
+  const user = syncCacheProvider(`user-${userId}`, () => fetchUser(userId));
+
+  return <div>{user.name}</div>; // Identical on server and client
+}
+```
+
+#### 🔄 **How It Works**
+
+1. **Server**: Execute data fetching, cache results
+2. **Transfer**: Automatically embed cached data in HTML
+3. **Client**: Read cached data, skip re-fetching
+
+```tsx
+// Vue 3: Use asyncCacheProvider for top-level await
+const userData = await asyncCacheProvider('user-profile', async () => {
+  return fetch('/api/user').then((r) => r.json());
+});
+
+// React: Use syncCacheProvider for hook-like behavior
+const userData = syncCacheProvider('user-profile', async () => {
+  return fetch('/api/user').then((r) => r.json());
+});
+```
+
+#### 🚀 **Key Benefits**
+
+- ✅ **Zero Hydration Errors**: Perfect server-client state synchronization
+- ✅ **Simple Setup**: Framework handles most configuration automatically
+- ✅ **Optimal Performance**: Data fetched once, used everywhere
+- ✅ **Type Safe**: Full TypeScript support with inferred types
+
+## 📁 Project Structure: Elegant Organization
+
+```
+my-web-widget-app/
+├── routes/
+│   ├── (components)/
+│   │   ├── BaseLayout.tsx
+│   │   ├── Counter@widget.tsx
+│   │   └── Counter@widget.vue
+│   ├── index@route.tsx
+│   ├── about@route.tsx
+│   ├── action/
+│   │   ├── index@route.tsx
+│   │   └── functions@action.ts
+│   └── api/
+│       └── hello@route.ts
+├── public/
+├── entry.client.ts
+├── entry.server.ts
+├── routemap.server.json
+├── importmap.client.json
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
+```
+
+_Organized structure with clear separation of concerns._
+
+## 📖 Documentation
+
+### 🛣️ Routing & Navigation
+
+<details>
+<summary><strong>File-System Routing</strong></summary>
+
+Web Widget supports file-system based routing conventions, automatically generating `routemap.server.json` during development.
+
+#### File Naming Rules
+
+| File Name                       | Route Pattern          | Matching Paths             |
+| ------------------------------- | ---------------------- | -------------------------- |
+| `index@route.ts`                | `/`                    | `/`                        |
+| `about@route.ts`                | `/about`               | `/about`                   |
+| `blog/[slug]@route.ts`          | `/blog/:slug`          | `/blog/foo`, `/blog/bar`   |
+| `blog/[slug]/comments@route.ts` | `/blog/:slug/comments` | `/blog/foo/comments`       |
+| `old/[...path]@route.ts`        | `/old/:path*`          | `/old/foo`, `/old/bar/baz` |
+| `[[lang]]/index@route.ts`       | `/{/:lang}?`           | `/`, `/en`, `/zh-cn`       |
+
+#### Route Groups
+
+Create route groups using parentheses-wrapped folder names:
+
+```
+└── routes
+    ├── (middlewares)
+    │   └── [...all]@middleware.ts # -> /:all*
+    ├── (vue2)
+    │   ├── package.json
+    │   └── marketing@route.vue    # -> /marketing
+    └── (vue3)
+        ├── package.json
+        └── info@route.vue         # -> /info
+```
+
+</details>
+
+<details>
+<summary><strong>Route Module Examples</strong></summary>
+
+#### Basic Route Module
+
+```tsx
+// ./routes/index@route.tsx
+import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
+import BaseLayout from './components/BaseLayout';
+
+export const meta = defineMeta({
+  title: 'Home - Web Widget',
+});
+
+export default defineRouteComponent(function Page() {
+  return (
+    <BaseLayout>
+      <h1>Welcome to Web Widget</h1>
+      <p>This is a basic route module example</p>
+    </BaseLayout>
+  );
+});
+```
+
+#### Data Fetching and Processing
+
+```tsx
+// ./routes/fetch@route.tsx
+import {
+  defineRouteComponent,
+  defineRouteHandler,
+  defineMeta,
+} from '@web-widget/helpers';
+import BaseLayout from './components/BaseLayout';
+
+interface PageData {
+  items: Array<{ title: string; url: string }>;
+}
+
+async function fetchData(url: URL): Promise<PageData> {
+  const response = await fetch(`${url.origin}/api/data`);
+  return response.json();
+}
+
+export const meta = defineMeta({
+  title: 'Data Fetching Example',
+});
+
+export const handler = defineRouteHandler<PageData>({
+  async GET(ctx) {
+    const data = await fetchData(new URL(ctx.request.url));
+
+    const response = ctx.html(data);
+    response.headers.set('X-Custom-Header', 'Hello');
+
+    return response;
+  },
+});
+
+export default defineRouteComponent<PageData>(function Page({ data }) {
+  return (
+    <BaseLayout>
+      <h1>Data Fetching</h1>
+      <ul>
+        {data.items.map((item, index) => (
+          <li key={index}>
+            <a href={item.url}>{item.title}</a>
+          </li>
+        ))}
+      </ul>
+    </BaseLayout>
+  );
+});
+```
+
+#### Route Configuration
+
+Routes are automatically configured based on your file structure. Web Widget generates the routing configuration during development, so you don't need to manually manage route mappings.
+
+</details>
+
+<details>
+<summary><strong>Advanced Routing Features</strong></summary>
+
+#### Dynamic Routes
+
+```tsx
+// routes/users/[id]@route.tsx
+export default defineRouteComponent(function UserPage(props) {
+  const { id } = props.params;
+  return <div>User ID: {id}</div>;
+});
+```
+
+#### Navigation and Redirects
+
+```tsx
+// Simple redirects in route handlers
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    if (shouldRedirect) {
+      return redirect('/new-path', 301);
+    }
+    return ctx.html();
+  },
+});
+```
+
+#### Error Handling
+
+```tsx
+// Route-level error handling
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    if (!data) {
+      throw createHttpError(404, 'Not Found');
+    }
+    return ctx.html(data);
+  },
+});
+```
+
+#### Page Metadata Management
+
+```tsx
+export const meta = defineMeta({
+  title: 'My Page',
+  description: 'Page description',
+});
+
+// Dynamic metadata in handlers
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    const newMeta = mergeMeta(ctx.meta, {
+      title: `User: ${user.name}`,
+    });
+    return ctx.html(null, { meta: newMeta });
+  },
+});
+```
+
+</details>
+
+### 🧩 Component Development
+
+<details>
+<summary><strong>Widget Module Examples</strong></summary>
+
+#### React Widget with Styles
+
+```tsx
+// ./components/Counter@widget.tsx
+import { useState } from 'react';
+import styles from './Counter.module.css';
+
+interface CounterProps {
+  count: number;
+}
+
+export default function Counter(props: CounterProps) {
+  const [count, setCount] = useState(props.count);
+
+  return (
+    <div className={styles.counter}>
+      <button onClick={() => setCount(count - 1)}>−</button>
+      <span className={styles.count}>{count}</span>
+      <button onClick={() => setCount(count + 1)}>+</button>
+    </div>
+  );
+}
+```
+
+#### Vue Widget with Scoped Styles
+
+```vue
+<!-- ./components/Counter@widget.vue -->
+<script setup lang="ts">
+import { ref } from 'vue';
+
+interface CounterProps {
+  count: number;
+}
+
+const props = defineProps<CounterProps>();
+const count = ref(props.count);
+</script>
+
+<template>
+  <div class="counter">
+    <button @click="count--">−</button>
+    <span class="count">{{ count }}</span>
+    <button @click="count++">+</button>
+  </div>
+</template>
+
+<style scoped>
+/*...*/
+</style>
+```
+
+#### Using Widgets in Routes
+
+```tsx
+// ./routes/index@route.tsx
+import { defineRouteComponent } from '@web-widget/helpers';
+import BaseLayout from './components/BaseLayout';
+import ReactCounter from './components/Counter@widget.tsx';
+import VueCounter from './components/Counter@widget.vue';
+import { toReact } from '@web-widget/vue';
+
+const RVueCounter = toReact(VueCounter);
+
+export default defineRouteComponent(function Page() {
+  return (
+    <BaseLayout>
+      <h1>Mixed Technology Stack Example</h1>
+
+      <h2>React Component:</h2>
+      <ReactCounter count={0} />
+
+      <h2>Vue Component:</h2>
+      <RVueCounter count={0} />
+    </BaseLayout>
+  );
+});
+```
+
+</details>
+
+<details>
+<summary><strong>Advanced Widget Features</strong></summary>
+
+#### Render Control
+
+```tsx
+// Server-only rendering
+<StaticChart renderStage="server" data={chartData} />
+
+// Client-only rendering
+<InteractiveMap renderStage="client" location={coords} />
+```
+
+#### Working with Context
+
+Access request data, parameters, and state in your components:
+
+```tsx
+import { context } from '@web-widget/helpers/context';
+
+export default function MyComponent() {
+  const { request, params, state } = context();
+  return <div>Current URL: {request.url}</div>;
+}
+```
+
+</details>
+
+### 🌐 Web Standards & APIs
+
+<details>
+<summary><strong>Web Standards APIs</strong></summary>
+
+Full Web Standards support in all environments:
+
+- **Network**: `fetch`, `Request`, `Response`, `Headers`, `WebSocket`
+- **Encoding**: `TextDecoder`, `TextEncoder`, `atob`, `btoa`
+- **Streams**: `ReadableStream`, `WritableStream`, `TransformStream`
+- **Crypto**: `crypto`, `CryptoKey`, `SubtleCrypto`
+- **Other**: `AbortController`, `URLPattern`, `structuredClone`
+
+</details>
+
+<details>
+<summary><strong>Advanced Import Maps Configuration</strong></summary>
+
+#### Production-Ready Import Maps
+
+```json
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "vue": "https://esm.sh/vue@3.4.8",
+    "lodash": "https://esm.sh/lodash@4.17.21",
+    "date-fns": "https://esm.sh/date-fns@2.30.0",
+    "@company/ui-kit": "https://cdn.company.com/ui-kit@1.2.0/index.js",
+    "@company/analytics": "https://cdn.company.com/analytics@2.1.0/index.js"
+  },
+  "scopes": {
+    "/legacy/": {
+      "react": "https://esm.sh/react@17.0.2",
+      "react-dom": "https://esm.sh/react-dom@17.0.2"
+    }
+  }
+}
+```
+
+**Benefits in action:**
+
+- 📦 **Automatic Deduplication**: React loaded once, shared everywhere
+- 🚀 **CDN Optimization**: Load popular libraries from fast CDNs
+- 📱 **Perfect Caching**: Browser-native module caching
+
+```tsx
+// In your components - just import naturally
+import React from 'react'; // Shared via importmap
+import { createApp } from 'vue'; // Shared via importmap
+import MyComponent from '@components/MyComponent'; // Path mapping
+
+// No build-time complexity, maximum runtime efficiency
+```
+
+> **The Web Platform Way**: Instead of reinventing module sharing, we embrace the native solution that browsers are optimizing for.
+
+</details>
+
+### 🔧 Advanced Features
+
+<details>
+<summary><strong>Server Actions: Seamless Client-Server Integration</strong></summary>
+
+Web Widget's Server Actions feature allows you to call server-side functions directly from client components with unprecedented simplicity - no API endpoints, no fetch calls, just direct function invocation.
+
+#### 🎯 **The Revolution**
+
+```tsx
+// Traditional approach: Complex API setup
+// ❌ Create API endpoint
+export async function POST(request: Request) {
+  const data = await request.json();
+  return Response.json({ message: data.content, date: new Date() });
+}
+
+// ❌ Client-side fetch calls
+const handleClick = async () => {
+  const response = await fetch('/api/echo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: inputValue }),
+  });
+  const result = await response.json();
+  setLog(JSON.stringify(result));
+};
+
+// ✅ Web Widget Server Actions: Pure simplicity
+// Server function (functions@action.ts)
+export const echo = async (content: string) => {
+  return {
+    message: content,
+    date: new Date().toISOString(),
+    respondent: 'server',
+  };
+};
+
+// Client component - call server function like any local function
+const handleClick = async () => {
+  const result = await echo(inputValue); // Direct server call!
+  setLog(JSON.stringify(result));
+};
+```
+
+#### 🚀 **Key Features**
+
+- **🎯 Direct Function Calls**: Call server functions like local functions
+- **📡 Automatic Networking**: Framework handles HTTP requests/responses
+- **🔒 Type Safety**: End-to-end TypeScript support with full type checking
+- **⚡ Zero Boilerplate**: No API routes, no fetch calls, no serialization code
+- **🌐 Environment Detection**: Server functions automatically run server-side only
+
+#### 📁 **File Structure**
+
+```
+routes/action/
+├── index@route.tsx        # Route page
+├── Echo@widget.tsx        # Interactive client component
+├── functions@action.ts    # Server-only functions
+└── styles.css            # Styling
+```
+
+#### 💻 **Complete Example**
+
+```tsx
+// functions@action.ts - Server functions
+export const echo = async (content: string) => {
+  // This code ONLY runs on the server
+  return {
+    message: content,
+    date: new Date().toISOString(),
+    respondent: typeof document === 'undefined' ? 'server' : 'client',
+  };
+};
+
+// Echo@widget.tsx - Client component
+import { useState } from 'react';
+import { echo } from './functions@action';
+
+export default function EchoWidget() {
+  const [inputValue, setInputValue] = useState('');
+  const [result, setResult] = useState('');
+
+  const handleSubmit = async () => {
+    // Direct server function call - no fetch, no API endpoints!
+    const response = await echo(inputValue);
+    setResult(JSON.stringify(response, null, 2));
+  };
+
+  return (
+    <>
+      <input
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+      />
+      <button onClick={handleSubmit}>Send to Server</button>
+      {result && <pre>{result}</pre>}
+    </>
+  );
+}
+```
+
+#### 🌟 **Why Server Actions Matter**
+
+1. **🎯 Simplicity**: Write server logic as simple functions, not API endpoints
+2. **⚡ Performance**: Automatic request optimization and batching
+3. **🔒 Security**: Server functions never expose internals to client
+4. **📱 Developer Experience**: Unified development model across client/server
+5. **🚀 Productivity**: Focus on business logic, not infrastructure code
+
+> **The Future of Full-Stack Development**: Server Actions represent a paradigm shift from thinking in terms of "API endpoints" to thinking in terms of "server functions" - making full-stack development as natural as writing single-tier applications.
+
+</details>
+
+<details>
+<summary><strong>HTTP Caching & Performance</strong></summary>
+
+Web Widget provides enterprise-grade HTTP caching using standard Cache Control headers:
+
+- **Cache-Control**: Standard max-age, stale-while-revalidate, stale-if-error
+- **ETag & Conditional Requests**: Efficient cache validation
+- **Pluggable Storage**: Memory, Redis, disk, or custom backends via [SharedCache](https://github.com/web-widget/shared-cache)
+
+```tsx
+// index@route.tsx
+
+export const config = {
+  cache: {
+    // Cache rendered pages using HTTP cache control directives
+    cacheControl: {
+      // Cache for 60 seconds in shared caches
+      sharedMaxAge: 60,
+      // Serve stale content for 7 days on errors
+      staleIfError: 604800,
+      // Background revalidation for 7 days
+      staleWhileRevalidate: 604800,
+    },
+  },
+};
+
+// ...
+```
+
+> This mode requires integrating the [@web-widget/middlewares/cache](https://github.com/web-widget/web-widget/blob/main/packages/middlewares/src/cache.ts) middleware
+
+</details>
+
+<details>
+<summary><strong>Project Setup & Configuration</strong></summary>
+
+#### Complete Project Structure
+
+```
+my-web-widget-app/
+├── routes/
+│   ├── (components)/
+│   │   ├── BaseLayout.tsx
+│   │   ├── Counter@widget.tsx
+│   │   └── Counter@widget.vue
+│   ├── index@route.tsx
+│   ├── about@route.tsx
+│   ├── action/
+│   │   ├── index@route.tsx
+│   │   └── functions@action.ts
+│   └── api/
+│       └── hello@route.ts
+├── public/
+├── entry.client.ts
+├── entry.server.ts
+├── routemap.server.json
+├── importmap.client.json
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
+```
+
+#### Package Dependencies
+
+```json
+{
+  "dependencies": {
+    "@web-widget/helpers": "^1.59.0",
+    "@web-widget/html": "^1.59.0",
+    "@web-widget/node": "^1.59.0",
+    "@web-widget/react": "^1.59.0",
+    "@web-widget/vue": "^1.59.0",
+    "@web-widget/web-router": "^1.59.0",
+    "@web-widget/web-widget": "^1.59.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "vue": "^3.4.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.1.1",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@web-widget/vite-plugin": "^1.59.0",
+    "vite": "^5.4.19"
+  }
+}
+```
+
+#### File Description
+
+- `routes/**/*@route.*` Route modules that only run on the server side
+- `routes/**/*@middleware.*` Middleware that only runs on the server side
+- `routes/**/*@action.*` Server functions that can be called directly from client components
+- `routes/**/*@widget.*` Components that can interact with users, running simultaneously on both server and client sides
+- `entry.client.ts` Client entry point
+- `entry.server.ts` Server entry point
+- `importmap.client.json` Production module sharing configuration (used in builds only)
+- `routemap.server.json` Routing configuration file, automatically generated by development tools
+
+</details>
+
+<details>
+<summary><strong>Best Practices & Tips</strong></summary>
+
+#### Development Best Practices
+
+1. **Technology Stack Isolation**: Use widget modules to achieve isolation of different technology stack components
+2. **Progressive Enhancement**: Prioritize server-side rendering, add client-side interaction as needed
+3. **Caching Strategy**: Use lifecycle caching wisely to improve performance
+4. **Error Handling**: Implement comprehensive error boundaries and fallback solutions
+5. **Type Safety**: Make full use of TypeScript's type system
+
+#### Performance Tips
+
+- Use `renderStage="server"` for static content that doesn't need interactivity
+- Use `renderStage="client"` for components that require browser APIs
+- Implement proper caching strategies for expensive operations
+- Keep server components lightweight to improve SSR performance
+
+#### Code Organization
+
+- Group related routes using parentheses folders
+- Share common components through widget modules
+- Use TypeScript interfaces for prop typing
+- Implement proper error boundaries at route level
+
+</details>
+
+## 🤝 Community
+
+- **GitHub**: [web-widget/web-widget](https://github.com/web-widget/web-widget)
+- **Issues**: [Report bugs or request features](https://github.com/web-widget/web-widget/issues)
+- **Discussions**: [Join the community](https://github.com/web-widget/web-widget/discussions)
+
+_Join developers exploring the future of multi-framework architecture._
+
+---
+
+## 🌟 The Future of Framework Freedom
+
+**Web Widget** represents a new approach to frontend architecture - one that embraces technology diversity rather than fighting it. By building on Web Standards and providing elegant abstractions, we're creating a path forward that doesn't require abandoning existing investments or limiting future choices.
+
+### 🎯 **Why This Matters**
+
+- ✅ **Sustainable Architecture**: Build applications that can evolve with the ecosystem
+- ✅ **Reduced Risk**: Incremental changes instead of big-bang migrations
+- ✅ **Developer Choice**: Use the best tool for each component, not one-size-fits-all
+- ✅ **Future-Ready**: Built on standards that will outlast individual frameworks
+
+**Ready to explore framework freedom?**
+
+**Experience the elegant simplicity of multi-framework architecture. Build your future with Web Widget.**
+
+---
+
+> _"Simplicity is the ultimate sophistication"_ - Leonardo da Vinci

@@ -1,4 +1,6 @@
-import type { RouteContext } from '@web-widget/helpers';
+/**
+ * @fileoverview Web-Router entry point - WebRouter class definition and exports
+ */
 import { rebaseMeta } from '@web-widget/helpers';
 import { createHttpError } from '@web-widget/helpers/error';
 
@@ -6,15 +8,8 @@ import type { ApplicationOptions } from './application';
 import { Application } from './application';
 import * as defaultFallbackModule from './fallback';
 import * as defaultLayoutModule from './layout';
-import type { OnFallback } from './modules';
-import {
-  callActionModule,
-  callMiddlewareModule,
-  createAsyncContext,
-  createFallbackHandler,
-  createRouteContext,
-  callRouteModule,
-} from './modules';
+import { callContext } from '@web-widget/context/server';
+import { Engine, type OnFallback } from './engine';
 import type {
   LayoutModule,
   Manifest,
@@ -23,17 +18,22 @@ import type {
   ManifestMiddleware,
   ManifestRoute,
   Meta,
+  RouteContext,
   RouteModule,
   RouteRenderOptions,
   RoutePattern,
+  ServerRenderOptions,
 } from './types';
 
 export type * from './types';
+export type { OnFallback } from './engine';
 
 export type StartOptions = {
   baseAsset?: string;
   defaultMeta?: Meta;
   defaultRenderOptions?: RouteRenderOptions;
+  /** @experimental */
+  defaultRenderer?: ServerRenderOptions;
   /** @deprecated */
   dev?: boolean;
   onFallback?: OnFallback;
@@ -70,9 +70,11 @@ export default class WebRouter extends Application {
       },
       defaultBaseAsset
     );
-    const defaultRenderOptions: RouteRenderOptions = {
+    const defaultRenderer: RouteRenderOptions = {
       progressive: !dev,
-      ...structuredClone(options.defaultRenderOptions ?? {}),
+      ...structuredClone(
+        options.defaultRenderer ?? options.defaultRenderOptions ?? {}
+      ),
     };
     const onFallback =
       options.onFallback ??
@@ -95,76 +97,72 @@ export default class WebRouter extends Application {
         }
       });
 
+    const engine = new Engine({
+      layoutModule: layout.module,
+      defaultMeta,
+      defaultBaseAsset,
+      defaultRenderer,
+      onFallback,
+      dev,
+    });
+
     routes.forEach((item) => {
       router.use(
         normalizeRoute(item),
-        createRouteContext(
-          item.module,
-          layout.module,
-          defaultMeta,
-          defaultBaseAsset,
-          defaultRenderOptions,
-          onFallback,
-          dev
-        )
+        engine.createRouteContextHandler(item.module)
       );
     });
 
-    router.use('*', createAsyncContext);
+    router.use('*', callContext);
 
     middlewares.forEach((item) => {
-      router.use(normalizeRoute(item), callMiddlewareModule(item.module));
+      router.use(
+        normalizeRoute(item),
+        engine.createMiddlewareHandler(item.module)
+      );
     });
 
     actions.forEach((item) => {
-      router.use(normalizeRoute(item), callActionModule(item.module));
+      router.use(normalizeRoute(item), engine.createActionHandler(item.module));
     });
 
     routes.forEach((item) => {
-      router.use(normalizeRoute(item), callRouteModule());
+      router.use(normalizeRoute(item), engine.createRouteHandler(item.module));
     });
 
-    const fallback404 = fallbacks.find(
-      (page) => page.status === 404 || page.name === 'NotFound'
-    ) ?? {
-      module: async () => defaultFallbackModule as RouteModule,
-      pathname: '*',
-    };
+    // Create a status code to fallback mapping for efficient lookups
+    const fallbackMap = new Map<number, () => Promise<RouteModule>>();
 
-    const notFoundHandler = createFallbackHandler(
-      fallback404.module,
-      layout.module,
-      defaultMeta,
-      defaultBaseAsset,
-      defaultRenderOptions,
-      onFallback,
-      dev
+    // Populate the map with user-defined fallbacks
+    fallbacks.forEach((fallback) => {
+      const normalizedModule =
+        typeof fallback.module === 'function'
+          ? fallback.module
+          : async () => fallback.module as RouteModule;
+      fallbackMap.set(fallback.status, normalizedModule);
+    });
+
+    // Create fallback resolver using the extracted function
+    const getFallbackHandler = createFallbackResolver(
+      fallbackMap,
+      engine,
+      defaultFallbackModule as RouteModule
     );
 
-    router.notFound(async (context) =>
-      notFoundHandler(createHttpError(404), context as unknown as RouteContext)
-    );
+    // Setup 404 handler with the new system
+    const notFoundHandler = getFallbackHandler(404);
+    router.notFound(async (context) => {
+      return notFoundHandler(
+        createHttpError(404),
+        context as unknown as RouteContext
+      );
+    });
 
-    const fallback500 = fallbacks.find(
-      (page) => page.status === 500 || page.name === 'InternalServerError'
-    ) ?? {
-      module: async () => defaultFallbackModule as RouteModule,
-      pathname: '*',
-    };
-
-    const errorHandler = createFallbackHandler(
-      fallback500.module,
-      layout.module,
-      defaultMeta,
-      defaultBaseAsset,
-      defaultRenderOptions,
-      onFallback,
-      dev
-    );
-
+    // Setup generic error handler with smart status code routing
     router.onError(async (error, context) => {
       try {
-        const handler = error?.status === 404 ? notFoundHandler : errorHandler;
+        const status = (error as { status?: number })?.status ?? 500;
+        const handler = getFallbackHandler(status);
         return await handler(error, context as unknown as RouteContext);
       } catch (cause) {
         console.error(
@@ -200,4 +198,37 @@ function normalizeRoute(
       URL_PATTERN_INIT_KEYS.includes(key as keyof RoutePattern)
     )
   );
+}
+
+/**
+ * Helper function to get appropriate fallback handler for a status code
+ */
+function createFallbackResolver(
+  fallbackMap: Map<number, () => Promise<RouteModule>>,
+  engine: Engine,
+  defaultFallbackModule: RouteModule
+) {
+  return (status: number) => {
+    // First try exact status match (highest priority)
+    let fallbackModule = fallbackMap.get(status);
+
+    if (!fallbackModule) {
+      // For 4xx errors, use 400 as default fallback for all client errors
+      // If no 400 page is defined, fallback to 404 for backward compatibility
+      if (status >= 400 && status < 500) {
+        fallbackModule = fallbackMap.get(400) || fallbackMap.get(404);
+      }
+      // For 5xx and above errors, all treat as 500 (server errors)
+      else if (status >= 500) {
+        fallbackModule = fallbackMap.get(500);
+      }
+    }
+
+    // Ultimate fallback to default module
+    if (!fallbackModule) {
+      fallbackModule = async () => defaultFallbackModule;
+    }
+
+    return engine.createErrorHandler(fallbackModule);
+  };
 }

@@ -3,7 +3,7 @@ import BaseLayout from './(components)/BaseLayout';
 
 export const handler = defineRouteHandler({
   async GET(ctx) {
-    return await ctx.render();
+    return await ctx.html();
   },
   async POST(ctx) {
     const form = await ctx.request.formData();

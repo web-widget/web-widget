@@ -1,5 +1,174 @@
 # @web-widget/vite-plugin
 
+## 1.69.0
+
+### Patch Changes
+
+- Updated dependencies [058a9ed]
+  - @web-widget/inspector@1.69.0
+  - @web-widget/helpers@1.69.0
+  - @web-widget/node@1.69.0
+  - @web-widget/web-router@1.69.0
+
+## 1.68.0
+
+### Minor Changes
+
+- a7b8247: Enhanced development toolbar, provided by new package.
+
+### Patch Changes
+
+- Updated dependencies [a7b8247]
+  - @web-widget/inspector@1.68.0
+  - @web-widget/helpers@1.68.0
+  - @web-widget/node@1.68.0
+  - @web-widget/web-router@1.68.0
+
+## 1.67.0
+
+### Minor Changes
+
+- 94beb22: New web-widget-inspector, supports editing the current page.
+
+### Patch Changes
+
+- Updated dependencies [94beb22]
+  - @web-widget/web-widget@1.67.0
+  - @web-widget/helpers@1.67.0
+  - @web-widget/node@1.67.0
+  - @web-widget/web-router@1.67.0
+
+## 1.66.0
+
+### Patch Changes
+
+- Updated dependencies [f697a7b]
+- Updated dependencies [f1d5639]
+  - @web-widget/web-router@1.66.0
+  - @web-widget/helpers@1.66.0
+  - @web-widget/node@1.66.0
+  - @web-widget/web-widget@1.66.0
+
+## 1.65.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.65.0
+- @web-widget/web-router@1.65.0
+- @web-widget/web-widget@1.65.0
+- @web-widget/node@1.65.0
+
+## 1.64.0
+
+### Patch Changes
+
+- Updated dependencies [4ffee1a]
+  - @web-widget/web-router@1.64.0
+  - @web-widget/helpers@1.64.0
+  - @web-widget/node@1.64.0
+  - @web-widget/web-widget@1.64.0
+
+## 1.63.0
+
+### Patch Changes
+
+- Updated dependencies [0df6a09]
+  - @web-widget/web-router@1.63.0
+  - @web-widget/helpers@1.63.0
+  - @web-widget/web-widget@1.63.0
+  - @web-widget/node@1.63.0
+
+## 1.62.0
+
+### Patch Changes
+
+- Updated dependencies [d6add51]
+  - @web-widget/web-router@1.62.0
+  - @web-widget/helpers@1.62.0
+  - @web-widget/web-widget@1.62.0
+  - @web-widget/node@1.62.0
+
+## 1.61.2
+
+### Patch Changes
+
+- Updated dependencies [5160a48]
+  - @web-widget/web-widget@1.61.2
+  - @web-widget/helpers@1.61.2
+  - @web-widget/node@1.61.2
+  - @web-widget/web-router@1.61.2
+
+## 1.61.1
+
+### Patch Changes
+
+- @web-widget/web-router@1.61.1
+- @web-widget/helpers@1.61.1
+- @web-widget/node@1.61.1
+- @web-widget/web-widget@1.61.1
+
+## 1.61.0
+
+### Patch Changes
+
+- @web-widget/web-router@1.61.0
+- @web-widget/helpers@1.61.0
+- @web-widget/node@1.61.0
+- @web-widget/web-widget@1.61.0
+
+## 1.60.1
+
+### Patch Changes
+
+- Updated dependencies [f548c2d]
+  - @web-widget/helpers@1.60.1
+  - @web-widget/web-router@1.60.1
+  - @web-widget/web-widget@1.60.1
+  - @web-widget/node@1.60.1
+
+## 1.60.0
+
+### Patch Changes
+
+- 7450fd4: Fixed some minor edge cases.
+- Updated dependencies [74d18f3]
+  - @web-widget/helpers@1.60.0
+  - @web-widget/web-router@1.60.0
+  - @web-widget/web-widget@1.60.0
+  - @web-widget/node@1.60.0
+
+## 1.59.0
+
+### Patch Changes
+
+- Updated dependencies [beb25af]
+  - @web-widget/helpers@1.59.0
+  - @web-widget/node@1.59.0
+  - @web-widget/web-router@1.59.0
+  - @web-widget/web-widget@1.59.0
+
+## 1.58.0
+
+### Patch Changes
+
+- Updated dependencies [c2db8f1]
+- Updated dependencies [c2db8f1]
+  - @web-widget/web-router@1.58.0
+  - @web-widget/helpers@1.58.0
+  - @web-widget/web-widget@1.58.0
+  - @web-widget/node@1.58.0
+
+## 1.57.0
+
+### Patch Changes
+
+- Updated dependencies [c2d1386]
+- Updated dependencies [c2d1386]
+  - @web-widget/web-router@1.57.0
+  - @web-widget/web-widget@1.57.0
+  - @web-widget/helpers@1.57.0
+  - @web-widget/node@1.57.0
+
 ## 1.56.1
 
 ### Patch Changes
@@ -412,7 +581,6 @@
 - b267aa6: Normalized Path.
 
   `importmap` and `routemap` are limited to json files.
-
   - @web-widget/helpers@1.33.2
   - @web-widget/node@1.33.2
   - @web-widget/web-router@1.33.2

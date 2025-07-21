@@ -1,11 +1,15 @@
+/**
+ * @fileoverview TypeScript type definitions for web-router
+ */
 import type {
   ActionModule,
   FetchEventLike,
+  HTTPException,
   MiddlewareModule,
-  RouteModule,
-  ServerRenderResult,
-  ServerRender,
   RouteComponentProps,
+  RouteModule,
+  ServerRender,
+  ServerRenderResult,
 } from '@web-widget/helpers';
 
 import type { Context } from './context';
@@ -23,7 +27,7 @@ export type NotFoundHandler = (
 ) => Response | Promise<Response>;
 
 export type ErrorHandler = (
-  error: any,
+  error: HTTPException,
   context: Context
 ) => Response | Promise<Response>;
 
@@ -93,7 +97,7 @@ export interface LayoutComponentProps extends RouteComponentProps {
 }
 
 export interface LayoutComponent {
-  (props: LayoutComponentProps): any;
+  (props: LayoutComponentProps): unknown;
 }
 export interface LayoutRender
   extends ServerRender<LayoutComponent, LayoutComponentProps> {}

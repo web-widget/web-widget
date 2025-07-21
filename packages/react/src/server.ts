@@ -29,10 +29,12 @@ export interface ReactRenderOptions {
   react?: StreamOptions;
 }
 
-const DEFAULT_TIMEOUT_MS = 1000 * 10; // 提取默认超时时间为常量
+const DEFAULT_TIMEOUT_MS = 1000 * 10;
 
 export const render = defineServerRender<FunctionComponent>(
-  async (component, context, { progressive, react }) => {
+  async (component, data, { progressive, react }) => {
+    data = data ?? {};
+
     if (!component) {
       throw new TypeError(`Missing component.`);
     }
@@ -47,7 +49,7 @@ export const render = defineServerRender<FunctionComponent>(
 
     reactRenderOptions.onError = (e, i) => {
       error = e;
-      onError?.(e, i); // 使用可选链简化调用
+      onError?.(e, i);
       if (!onError && progressive && !awaitAllReady) {
         console.error(e);
       }
@@ -56,8 +58,8 @@ export const render = defineServerRender<FunctionComponent>(
     const isAsyncFunction =
       Object.prototype.toString.call(component) === '[object AsyncFunction]';
     let vNode = isAsyncFunction
-      ? await component(context as any)
-      : createElement(component, context as any);
+      ? await component(data as any)
+      : createElement(component, data as any);
 
     vNode = createElement(StrictMode, null, vNode);
 

@@ -1,5 +1,243 @@
 # @web-widget/web-router
 
+## 1.69.0
+
+### Patch Changes
+
+- @web-widget/action@1.69.0
+- @web-widget/context@1.69.0
+- @web-widget/helpers@1.69.0
+- @web-widget/html@1.69.0
+- @web-widget/lifecycle-cache@1.69.0
+
+## 1.68.0
+
+### Patch Changes
+
+- @web-widget/action@1.68.0
+- @web-widget/context@1.68.0
+- @web-widget/helpers@1.68.0
+- @web-widget/html@1.68.0
+- @web-widget/lifecycle-cache@1.68.0
+
+## 1.67.0
+
+### Patch Changes
+
+- @web-widget/action@1.67.0
+- @web-widget/context@1.67.0
+- @web-widget/helpers@1.67.0
+- @web-widget/html@1.67.0
+- @web-widget/lifecycle-cache@1.67.0
+
+## 1.66.0
+
+### Minor Changes
+
+- f697a7b: # Improve HTTP Exception Handling and Error Page Design
+
+  ## New Features
+  - Added `normalizeHTTPException` method providing unified error handling logic
+  - Support intelligent conversion of multiple error formats: Error objects, Response objects, plain objects, and strings
+  - Preserve original error `cause` information for better debugging and error tracking
+
+  ## Improvements
+  - Refactored default error page with modern UI design
+  - Added error information copy functionality for one-click copying of complete error reports
+  - Improved responsive design for error pages with better mobile support
+  - Optimized error handling flow, reducing unnecessary Response parsing operations
+
+  ## Breaking Changes
+  - Changed `ErrorHandler` type parameter from `unknown` to `HTTPException` for stricter type safety
+  - Removed `#transformHTTPException` method from `engine.ts`, unified error handling logic in `application.ts`
+
+  ## Test Coverage
+  - Added comprehensive test cases for `normalizeHTTPException` method
+  - Test coverage includes various error formats: Error objects, Response objects, plain objects, strings, etc.
+  - Ensures proper preservation of error `cause` property
+
+- f1d5639: Error pages can be defined according to error status codes.
+
+### Patch Changes
+
+- @web-widget/action@1.66.0
+- @web-widget/context@1.66.0
+- @web-widget/helpers@1.66.0
+- @web-widget/html@1.66.0
+- @web-widget/lifecycle-cache@1.66.0
+
+## 1.65.0
+
+### Patch Changes
+
+- @web-widget/context@1.65.0
+- @web-widget/helpers@1.65.0
+- @web-widget/lifecycle-cache@1.65.0
+- @web-widget/html@1.65.0
+- @web-widget/action@1.65.0
+
+## 1.64.0
+
+### Minor Changes
+
+- 4ffee1a: Refactor web-router architecture with improved design and documentation
+
+  ## Changes
+  - **BREAKING**: Refactor internal architecture with domain-driven design
+  - **BREAKING**: Remove Engine class from public API (now internal only)
+  - **BREAKING**: Remove modules.ts and modules-adapter.ts files
+  - **BREAKING**: Update OnFallback type signature for better type safety
+
+  ## Architecture Improvements
+  - Implement domain-driven design with clear separation of concerns
+  - Add comprehensive English documentation and comments
+  - Merge architecture documentation into CONTRIBUTING.md
+  - Improve code organization and maintainability
+  - Add proper JSDoc comments throughout codebase
+
+  ## Documentation
+  - Add CONTRIBUTING.md with architecture overview
+  - Add Chinese documentation (CONTRIBUTING.zh.md, README.zh.md)
+  - Update README.md with improved structure and examples
+  - Add comprehensive inline comments and documentation
+
+  ## Code Quality
+  - Replace Chinese comments with English equivalents
+  - Add meaningful "NOTE:" comments for important implementation details
+  - Remove redundant and meaningless comments
+  - Improve type safety and error handling
+
+### Patch Changes
+
+- @web-widget/action@1.64.0
+- @web-widget/context@1.64.0
+- @web-widget/helpers@1.64.0
+- @web-widget/html@1.64.0
+- @web-widget/lifecycle-cache@1.64.0
+
+## 1.63.0
+
+### Minor Changes
+
+- 0df6a09: New rendering method `html`, as a future replacement for the `render` method (experimental) (experimental).
+
+### Patch Changes
+
+- @web-widget/context@1.63.0
+- @web-widget/helpers@1.63.0
+- @web-widget/lifecycle-cache@1.63.0
+- @web-widget/html@1.63.0
+- @web-widget/action@1.63.0
+
+## 1.62.0
+
+### Minor Changes
+
+- d6add51: New rendering method `renderWith`, as a future replacement for the `render` method (experimental).
+
+### Patch Changes
+
+- @web-widget/context@1.62.0
+- @web-widget/helpers@1.62.0
+- @web-widget/lifecycle-cache@1.62.0
+- @web-widget/html@1.62.0
+- @web-widget/action@1.62.0
+
+## 1.61.2
+
+### Patch Changes
+
+- @web-widget/action@1.61.2
+- @web-widget/context@1.61.2
+- @web-widget/helpers@1.61.2
+- @web-widget/html@1.61.2
+- @web-widget/lifecycle-cache@1.61.2
+
+## 1.61.1
+
+### Patch Changes
+
+- Updated dependencies [ac2c5b2]
+  - @web-widget/html@1.61.1
+  - @web-widget/action@1.61.1
+  - @web-widget/context@1.61.1
+  - @web-widget/helpers@1.61.1
+  - @web-widget/lifecycle-cache@1.61.1
+
+## 1.61.0
+
+### Patch Changes
+
+- Updated dependencies [0753fdd]
+  - @web-widget/html@1.61.0
+  - @web-widget/action@1.61.0
+  - @web-widget/context@1.61.0
+  - @web-widget/helpers@1.61.0
+  - @web-widget/lifecycle-cache@1.61.0
+
+## 1.60.1
+
+### Patch Changes
+
+- Updated dependencies [f548c2d]
+  - @web-widget/helpers@1.60.1
+  - @web-widget/html@1.60.1
+  - @web-widget/action@1.60.1
+  - @web-widget/context@1.60.1
+  - @web-widget/lifecycle-cache@1.60.1
+
+## 1.60.0
+
+### Patch Changes
+
+- Updated dependencies [74d18f3]
+  - @web-widget/helpers@1.60.0
+  - @web-widget/html@1.60.0
+  - @web-widget/action@1.60.0
+  - @web-widget/context@1.60.0
+  - @web-widget/lifecycle-cache@1.60.0
+
+## 1.59.0
+
+### Patch Changes
+
+- Updated dependencies [beb25af]
+  - @web-widget/helpers@1.59.0
+  - @web-widget/html@1.59.0
+  - @web-widget/action@1.59.0
+  - @web-widget/context@1.59.0
+  - @web-widget/lifecycle-cache@1.59.0
+
+## 1.58.0
+
+### Minor Changes
+
+- c2db8f1: Add proxy mode.
+
+### Patch Changes
+
+- Updated dependencies [c2db8f1]
+  - @web-widget/helpers@1.58.0
+  - @web-widget/html@1.58.0
+  - @web-widget/action@1.58.0
+  - @web-widget/context@1.58.0
+  - @web-widget/lifecycle-cache@1.58.0
+
+## 1.57.0
+
+### Minor Changes
+
+- c2d1386: Updated the format specification for renderable modules.
+
+### Patch Changes
+
+- Updated dependencies [c2d1386]
+  - @web-widget/helpers@1.57.0
+  - @web-widget/html@1.57.0
+  - @web-widget/context@1.57.0
+  - @web-widget/lifecycle-cache@1.57.0
+  - @web-widget/action@1.57.0
+
 ## 1.56.1
 
 ### Patch Changes

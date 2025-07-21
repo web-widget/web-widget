@@ -9,7 +9,9 @@ export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state'
 export * from './components';
 
 export const render = defineClientRender<FunctionComponent>(
-  async (component, context, { recovering, container }) => {
+  async (component, data, { recovering, container }) => {
+    data = data ?? {};
+
     if (!component) {
       throw new TypeError(`Missing component.`);
     }
@@ -25,8 +27,8 @@ export const render = defineClientRender<FunctionComponent>(
           Object.prototype.toString.call(component) ===
           '[object AsyncFunction]';
         let vNode = isAsyncFunction
-          ? await component(context as any)
-          : createElement(component as FunctionComponent, context as any);
+          ? await component(data as any)
+          : createElement(component as FunctionComponent, data as any);
 
         vNode = createElement(StrictMode, null, vNode);
 

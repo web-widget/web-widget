@@ -29,6 +29,8 @@ export const createVueRender = ({
 }: CreateVueRenderOptions = {}) => {
   return defineClientRender<EnhancedComponent>(
     async (component, data, { recovering, container }) => {
+      data = data ?? {};
+
       if (!component) {
         throw new TypeError(`Missing component.`);
       }

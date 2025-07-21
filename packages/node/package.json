@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/node",
   "description": "Node.js adapter",
-  "version": "1.56.1",
+  "version": "1.69.0",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",
@@ -13,8 +13,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@edge-runtime/node-utils": "^2.3.0",
-    "@edge-runtime/primitives": "^4.1.0"
+    "@edge-runtime/node-utils": "^4.0.0",
+    "@edge-runtime/primitives": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",

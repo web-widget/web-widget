@@ -1,62 +1,181 @@
-import type { Meta, RouteFallbackComponentProps } from '@web-widget/helpers';
+/**
+ * @fileoverview Default error page module for web-router
+ */
+import type { Meta, RouteFallbackComponentProps } from './types';
 import { html, render } from '@web-widget/html';
 
 export { render };
 
 export const meta: Meta = {
   title: 'Error',
+  style: [
+    {
+      content: `
+        body { 
+          margin: 0; 
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          background: #fff;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 60px 40px;
+          box-sizing: border-box;
+        }
+        .error-card { 
+          max-width: 600px; width: 100%; text-align: center; padding: 0 20px;
+          flex: 0 0 auto;
+        }
+        .error-status { font-size: 72px; font-weight: 700; color: #333; margin-bottom: 16px; }
+        .error-title { font-size: 48px; font-weight: 600; color: #555; margin-bottom: 20px; }
+        .error-desc { font-size: 18px; color: #777; margin-bottom: 40px; }
+        .error-debug { margin-top: 40px; text-align: left; }
+        .error-code-block { margin-top: 20px; background: #f8f8f8; border-radius: 4px; overflow: hidden; }
+        .error-code-header { background: #f0f0f0; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #333; }
+        .error-code-content { 
+          margin: 0; font-size: 13px; padding: 16px; background: #f8f8f8;
+          font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+          color: #333; white-space: pre-wrap; overflow-x: auto; max-width: 100%;
+          overflow-wrap: break-word;
+        }
+        .copy-error-btn { 
+          margin: 20px auto 0; background: none; border: none; font-size: 12px; 
+          color: #999; cursor: pointer; display: block; text-decoration: underline;
+        }
+        .copy-error-btn:hover { color: #666; }
+        .copy-success { color: #22c55e !important; }
+        @media (max-width: 640px) {
+          body { padding: 20px 15px; min-height: 100vh; }
+          .error-status { font-size: 56px; }
+          .error-title { font-size: 36px; }
+          .error-desc { font-size: 16px; }
+        }
+        @media (max-width: 480px) {
+          body { padding: 15px 10px; min-height: 100vh; }
+          .error-status { font-size: 48px; }
+          .error-title { font-size: 28px; }
+          .error-desc { font-size: 14px; }
+        }
+      `,
+    },
+  ],
 };
 
-function style(style: Record<string, string | number>) {
-  return Object.entries(style)
-    .map(
-      ([k, v]) =>
-        `${k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)}:${v}`
-    )
-    .join(';');
-}
+const ERROR_INFO = {
+  400: { title: 'Bad Request', desc: 'The request could not be processed.' },
+  401: {
+    title: 'Unauthorized',
+    desc: 'You need to sign in to access this page.',
+  },
+  403: {
+    title: 'Access Forbidden',
+    desc: "You don't have permission to view this content.",
+  },
+  404: {
+    title: 'Page Not Found',
+    desc: "The page you're looking for doesn't exist.",
+  },
+  500: { title: 'Server Error', desc: 'Something went wrong on our end.' },
+  502: { title: 'Bad Gateway', desc: 'The server is temporarily unavailable.' },
+  503: {
+    title: 'Service Unavailable',
+    desc: 'The service is temporarily down.',
+  },
+  504: {
+    title: 'Gateway Timeout',
+    desc: 'The request took too long to complete.',
+  },
+} as const;
 
-const Code = (code: string = '') =>
-  code
-    ? // prettier-ignore
-      html`<pre
-          style="${style({
-            margin: "0",
-            fontSize: "12pt",
-            overflowY: "auto",
-            padding: "16px",
-            paddingTop: "0",
-            fontFamily: "monospace",
-          })}">${code}</pre>`
-    : '';
+const getErrorInfo = (error: RouteFallbackComponentProps) => {
+  const status = error.status || 500;
+  const info = ERROR_INFO[status as keyof typeof ERROR_INFO] || ERROR_INFO[500];
+  return { status, ...info };
+};
 
-export const fallback = function DefaultRootErrorPage(
-  error: RouteFallbackComponentProps
-) {
-  return html`<div
-    style="${style({
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    })}">
-    <div
-      style="${style({
-        border: '#f3f4f6 2px solid',
-        borderTop: 'red 4px solid',
-        background: '#f9fafb',
-        margin: '16px',
-        minWidth: '550px',
-      })}">
-      <p
-        style="${style({
-          margin: '0',
-          fontSize: '12pt',
-          padding: '16px',
-          fontFamily: 'sans-serif',
-        })}">
-        An error occurred during route handling or page rendering.
-      </p>
-      ${Code(error.stack || error.message)}
-    </div>
+const CodeBlock = (title: string, code: string) =>
+  html`<div class="error-code-block">
+    <div class="error-code-header">${title}</div>
+    <pre class="error-code-content">${code}</pre>
+  </div>`;
+
+const CopyErrorButton = (error: RouteFallbackComponentProps) => {
+  const errorInfo = {
+    status: error.status || 500,
+    message: error.message || 'Unknown error',
+    stack: error.stack || 'No stack trace available',
+    cause: error.cause || 'No cause information',
+    timestamp: new Date().toISOString(),
+  };
+
+  return html`<button
+    class="copy-error-btn"
+    onclick="
+      const stackTrace = \`${errorInfo.stack
+      .replace(/`/g, '\\`')
+      .replace(/\$/g, '\\$')}\`;
+      const causeInfo = \`${JSON.stringify(errorInfo.cause, null, 2)
+      .replace(/`/g, '\\`')
+      .replace(/\$/g, '\\$')}\`;
+      
+      const fullErrorText = \`# Error Report
+
+## Basic Information
+- **Status Code**: ${errorInfo.status}
+- **Error Message**: ${errorInfo.message}
+- **Timestamp**: ${errorInfo.timestamp}
+- **URL**: \${window.location.href}
+- **User Agent**: \${navigator.userAgent}
+
+## Stack Trace
+\\\`\\\`\\\`
+\${stackTrace}
+\\\`\\\`\\\`
+
+## Cause Information
+\\\`\\\`\\\`json
+\${causeInfo}
+\\\`\\\`\\\`
+
+---
+*Generated by Web Widget*\`;
+      
+      navigator.clipboard.writeText(fullErrorText).then(() => {
+        this.textContent = '✓ Copied';
+        this.classList.add('copy-success');
+        setTimeout(() => {
+          this.textContent = 'Copy error info';
+          this.classList.remove('copy-success');
+        }, 2000);
+      }).catch(() => {
+        this.textContent = 'Copy failed';
+        setTimeout(() => {
+          this.textContent = 'Copy error info';
+        }, 2000);
+      });
+    ">
+    Copy error info
+  </button>`;
+};
+
+export const fallback = (error: RouteFallbackComponentProps) => {
+  const { status, title, desc } = getErrorInfo(error);
+  const hasDebugInfo = error.stack || error.message || error.cause;
+
+  return html`<div class="error-card">
+    <div class="error-status">${status}</div>
+    <div class="error-title">${title}</div>
+    <div class="error-desc">${desc}</div>
+
+    ${hasDebugInfo
+      ? html`<div class="error-debug">
+          ${error.message ? CodeBlock('Error Message', error.message) : ''}
+          ${error.stack ? CodeBlock('Stack Trace', error.stack) : ''}
+          ${error.cause
+            ? CodeBlock('Caused by', JSON.stringify(error.cause, null, 2))
+            : ''}
+          ${CopyErrorButton(error)}
+        </div>`
+      : CopyErrorButton(error)}
   </div>`;
 };

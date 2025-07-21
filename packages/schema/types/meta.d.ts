@@ -1,3 +1,19 @@
+/**
+ * Metadata type definitions.
+ *
+ * This module defines the types for HTML document metadata, including
+ * title, description, links, scripts, styles, and other head elements.
+ * These types are used to manage the HTML head content dynamically
+ * based on the current route or component context.
+ *
+ * @module Metadata Types
+ */
+
+/**
+ * Represents metadata for an HTML document.
+ * This interface defines all the metadata that can be set for a page,
+ * including title, description, links, scripts, styles, and other HTML head elements.
+ */
 export interface Meta {
   /**
    * The base URL of the document.
@@ -42,6 +58,10 @@ export interface Meta {
   title?: string;
 }
 
+/**
+ * Base interface for HTML element descriptors.
+ * Provides common properties that can be applied to any HTML element.
+ */
 export interface ElementDescriptor {
   /** The ID of the element. */
   id?: string;
@@ -56,6 +76,10 @@ export interface ElementDescriptor {
   [key: `data-${string}`]: string | undefined;
 }
 
+/**
+ * Descriptor for HTML base elements.
+ * Used to set the base URL for relative links in the document.
+ */
 export interface BaseDescriptor extends ElementDescriptor {
   /** The URL of the linked resource. */
   href?: string;
@@ -64,6 +88,10 @@ export interface BaseDescriptor extends ElementDescriptor {
   target?: string;
 }
 
+/**
+ * Descriptor for HTML link elements.
+ * Used to define relationships with external resources like stylesheets, icons, etc.
+ */
 export interface LinkDescriptor extends ElementDescriptor {
   /** The destination for the link. */
   as?: string;
@@ -105,6 +133,10 @@ export interface LinkDescriptor extends ElementDescriptor {
   type?: string;
 }
 
+/**
+ * Descriptor for HTML meta elements.
+ * Used to provide metadata about the HTML document.
+ */
 export interface MetaDescriptor extends ElementDescriptor {
   /** The character encoding for the HTML document. */
   charset?: string;
@@ -125,6 +157,10 @@ export interface MetaDescriptor extends ElementDescriptor {
   property?: string;
 }
 
+/**
+ * Descriptor for HTML script elements.
+ * Used to include JavaScript code in the document.
+ */
 export interface ScriptDescriptor extends ElementDescriptor {
   /** Whether the script should be executed asynchronously. */
   async?: string;
@@ -159,6 +195,10 @@ export interface ScriptDescriptor extends ElementDescriptor {
   type?: string;
 }
 
+/**
+ * Descriptor for HTML style elements.
+ * Used to include CSS styles in the document.
+ */
 export interface StyleDescriptor extends ElementDescriptor {
   /** The value of the style element. */
   content?: string;

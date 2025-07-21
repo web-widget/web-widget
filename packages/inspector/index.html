@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Widget Inspector - Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 300;
+    }
+
+    .header p {
+      margin: 10px 0 0 0;
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .section {
+      margin: 40px 0;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      color: #333;
+      font-size: 1.8rem;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 10px;
+    }
+
+    .controls {
+      margin: 20px 0;
+      padding: 25px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .controls h4 {
+      margin-top: 0;
+      color: #333;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+
+    .control-section {
+      margin: 20px 0;
+    }
+
+    .control-section h5 {
+      margin: 0 0 15px 0;
+      color: #555;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .theme-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .theme-card {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .theme-card:hover {
+      border-color: #22c55e;
+      background: #f0fdf4;
+    }
+
+    .theme-card.active {
+      border-color: #22c55e;
+      background: #22c55e;
+      color: white;
+    }
+
+    .theme-card.active::after {
+      content: '✓';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-weight: bold;
+    }
+
+    .theme-card h6 {
+      margin: 0 0 8px 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .theme-card p {
+      margin: 0;
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-btn:hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+    }
+
+    .action-btn.secondary {
+      background: #6c757d;
+    }
+
+    .action-btn.secondary:hover {
+      background: #5a6268;
+    }
+
+    .action-btn.danger {
+      background: #dc3545;
+    }
+
+    .action-btn.danger:hover {
+      background: #c82333;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #d4edda;
+      color: #155724;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      margin-top: 15px;
+    }
+
+    .status-indicator.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .corner-widgets {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .corner-widgets web-widget {
+      position: absolute;
+      pointer-events: auto;
+      max-width: 200px;
+      min-height: 80px;
+    }
+
+    .top-left {
+      top: 20px;
+      left: 20px;
+    }
+
+    .top-right {
+      top: 20px;
+      right: 20px;
+    }
+
+    .bottom-left {
+      bottom: 20px;
+      left: 20px;
+    }
+
+    .bottom-right {
+      bottom: 20px;
+      right: 20px;
+    }
+
+    .demo-content {
+      margin: 40px 0;
+      padding: 40px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .demo-content h2 {
+      margin-top: 0;
+      font-size: 2rem;
+    }
+
+    .demo-content p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .corner-widgets web-widget {
+        max-width: 150px;
+        min-height: 60px;
+      }
+
+      .theme-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Corner widgets for demonstration -->
+  <div class="corner-widgets">
+    <web-widget class="top-left" import="/examples/counter.ts" loading="eager" rendertarget="light"
+      contextdata="{&quot;count&quot;:0}">
+      <div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 4px;">Top Left</div>
+    </web-widget>
+
+    <web-widget class="top-right" import="/examples/counter.ts" loading="eager" rendertarget="light"
+      contextdata="{&quot;count&quot;:0}">
+      <div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 4px;">Top Right</div>
+    </web-widget>
+
+    <web-widget class="bottom-left" import="/examples/counter.ts" loading="eager" rendertarget="light"
+      contextdata="{&quot;count&quot;:0}">
+      <div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 4px;">Bottom Left</div>
+    </web-widget>
+
+    <web-widget class="bottom-right" import="/examples/counter.ts" loading="eager" rendertarget="light"
+      contextdata="{&quot;count&quot;:0}">
+      <div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 4px;">Bottom Right</div>
+    </web-widget>
+  </div>
+
+  <div class="header">
+    <h1>Web Widget Inspector</h1>
+    <p>Development Tool Demo - Hover over widgets to inspect them</p>
+  </div>
+
+  <div class="container">
+    <div class="controls">
+      <h4>🔧 Inspector Configuration</h4>
+
+      <div class="control-section">
+        <h5>🎨 Theme Selection</h5>
+        <div class="theme-cards">
+          <div class="theme-card" data-theme="auto" onclick="selectTheme('auto')">
+            <h6>Auto</h6>
+            <p>Follows system preference</p>
+          </div>
+          <div class="theme-card" data-theme="light" onclick="selectTheme('light')">
+            <h6>Light</h6>
+            <p>Light theme</p>
+          </div>
+          <div class="theme-card" data-theme="dark" onclick="selectTheme('dark')">
+            <h6>Dark</h6>
+            <p>Dark theme</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-section">
+        <h5>⚡ Quick Actions</h5>
+        <div class="action-buttons">
+          <button class="action-btn" onclick="toggleInspector()">
+            <span>🔍</span>
+            Toggle Inspector
+          </button>
+          <button class="action-btn secondary" onclick="resetInspector()">
+            <span>🔄</span>
+            Reset Settings
+          </button>
+          <button class="action-btn danger" onclick="clearStorage()">
+            <span>🗑️</span>
+            Clear Storage
+          </button>
+        </div>
+      </div>
+
+      <div id="status" class="status-indicator" style="display: none;">
+        <span>✅</span>
+        <span id="status-text">Settings updated successfully</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Web Widget Inspector</h2>
+      <p>This page demonstrates the Web Widget Inspector tool. The inspector toolbar is located at the bottom-left
+        corner of the screen.</p>
+
+      <h3>Features:</h3>
+      <ul>
+        <li><strong>Inspect Mode:</strong> Click the "Inspect" button to activate inspection mode</li>
+        <li><strong>Hover Detection:</strong> Hover over any web-widget element to see debug information</li>
+        <li><strong>Source Code:</strong> Click on web-widget elements to open their source code</li>
+        <li><strong>Theme Support:</strong> Switch between light, dark, and auto themes</li>
+      </ul>
+
+      <h3>Corner Widgets:</h3>
+      <p>Four web-widget elements are positioned at the corners of the screen for demonstration purposes. Try hovering
+        over them to see the inspector in action.</p>
+    </div>
+
+    <div class="demo-content">
+      <h2>Scroll to Bottom</h2>
+      <p>Scroll down to see how the inspector handles widgets at different screen positions</p>
+    </div>
+  </div>
+
+  <!-- Inspector Component -->
+  <web-widget-inspector id="inspector" dir="/Users/tangbin/Git/web-widget" route-module-source="/index.html"
+    theme="auto">
+  </web-widget-inspector>
+
+  <script type="module">
+    import '@web-widget/web-widget';
+    import './src/index.ts';
+  </script>
+
+  <script>
+    let currentTheme = 'auto';
+
+    function selectTheme(theme) {
+      // Remove active class from all cards
+      document.querySelectorAll('.theme-card').forEach(card => {
+        card.classList.remove('active');
+      });
+
+      // Add active class to selected card
+      const selectedCard = document.querySelector(`[data-theme="${theme}"]`);
+      if (selectedCard) {
+        selectedCard.classList.add('active');
+      }
+
+      currentTheme = theme;
+      updateInspector();
+      showStatus('Theme updated successfully', 'success');
+    }
+
+    function updateInspector() {
+      const inspector = document.getElementById('inspector');
+      inspector.theme = currentTheme;
+    }
+
+    function toggleInspector() {
+      const inspector = document.getElementById('inspector');
+      // This would need to be implemented in the inspector component
+      showStatus('Inspector toggled', 'success');
+    }
+
+    function resetInspector() {
+      currentTheme = 'auto';
+      selectTheme('auto');
+      showStatus('Settings reset to default', 'success');
+    }
+
+    function clearStorage() {
+      localStorage.clear();
+      sessionStorage.clear();
+      showStatus('Storage cleared successfully', 'success');
+    }
+
+    function showStatus(message, type = 'success') {
+      const status = document.getElementById('status');
+      const statusText = document.getElementById('status-text');
+
+      statusText.textContent = message;
+      status.className = `status-indicator ${type === 'error' ? 'error' : ''}`;
+      status.style.display = 'flex';
+
+      setTimeout(() => {
+        status.style.display = 'none';
+      }, 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize with auto theme
+      selectTheme('auto');
+    });
+  </script>
+</body>
+
+</html>

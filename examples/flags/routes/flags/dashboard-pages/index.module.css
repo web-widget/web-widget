@@ -1,0 +1,59 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #1a202c;
+}
+
+.description {
+  font-size: 1.125rem;
+  color: #64748b;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.flagResult {
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.flagTrue {
+  background-color: #d1fae5;
+  border: 1px solid #a7f3d0;
+}
+
+.flagFalse {
+  background-color: #fce7f3;
+  border: 1px solid #f9a8d4;
+}
+
+.flagMessage {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.flagTrue .flagMessage {
+  color: #047857;
+}
+
+.flagFalse .flagMessage {
+  color: #be185d;
+}
+
+.flagName {
+  font-weight: 600;
+  font-family: monospace;
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+}
+
+.flagValue {
+  font-weight: 700;
+}

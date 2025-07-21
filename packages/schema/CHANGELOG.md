@@ -1,5 +1,60 @@
 # @web-widget/schema
 
+## 1.69.0
+
+## 1.68.0
+
+## 1.67.0
+
+## 1.66.0
+
+## 1.65.0
+
+### Minor Changes
+
+- 090d66f: feat: deprecate render method in favor of html method
+  - Mark render() method as @deprecated in RouteContext interface
+  - Update comments to reference html() method instead of render()
+  - Mark renderOptions as @deprecated in favor of renderer
+  - Mark RouteRenderOptions as @deprecated in favor of ServerRenderOptions
+  - Remove @experimental tags from html() method and renderer property
+
+  This is a breaking change as the render() method is now deprecated and will be removed in a future version. Users should migrate to the html() method for better type safety and clearer API.
+
+## 1.64.0
+
+## 1.63.0
+
+### Minor Changes
+
+- 0df6a09: New rendering method `html`, as a future replacement for the `render` method (experimental) (experimental).
+
+## 1.62.0
+
+### Minor Changes
+
+- d6add51: New rendering method `renderWith`, as a future replacement for the `render` method (experimental).
+
+## 1.61.2
+
+## 1.61.1
+
+## 1.61.0
+
+## 1.60.1
+
+## 1.60.0
+
+## 1.59.0
+
+## 1.58.0
+
+## 1.57.0
+
+### Minor Changes
+
+- c2d1386: Updated the format specification for renderable modules.
+
 ## 1.56.1
 
 ### Patch Changes

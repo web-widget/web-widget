@@ -107,17 +107,13 @@ export function importRenderPlugin({
           process.env.NODE_ENV !== 'test' &&
           !html.includes(`id="${inspectorId}"`)
         ) {
-          const src = resolvePathToDevUrl(
-            '@web-widget/web-widget/inspector',
-            base
-          );
+          const src = resolvePathToDevUrl('@web-widget/inspector', base);
           result.push({
             injectTo: 'body',
             tag: 'web-widget-inspector',
             attrs: {
               id: inspectorId,
               dir: root,
-              keys: `[&quot;Shift&quot;]`,
             },
             children: [
               {
@@ -144,7 +140,7 @@ export function importRenderPlugin({
           await esModuleLexer.init;
           [imports] = esModuleLexer.parse(code, id);
         } catch (error) {
-          return this.error(error);
+          return this.error(error as Error);
         }
 
         const modules: {
@@ -324,7 +320,7 @@ export function importRenderPlugin({
             }
           );
         } catch (error) {
-          return this.error(error, pos);
+          return this.error(error as Error, pos);
         }
 
         return {

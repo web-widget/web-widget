@@ -72,7 +72,9 @@ const supportNonBinaryTransformStreams = async () => {
 supportNonBinaryTransformStreams();
 
 export const render = defineServerRender<Function>(
-  async (component, context, { progressive: _ignore }) => {
+  async (component, data, { progressive: _ignore }) => {
+    data = data ?? {};
+
     if (!component) {
       throw new TypeError(`Missing component.`);
     }
@@ -81,9 +83,9 @@ export const render = defineServerRender<Function>(
 
     if (component.constructor.name === 'AsyncFunction') {
       // experimental
-      content = await component(context as any);
+      content = await component(data as any);
     } else {
-      content = component(context as any);
+      content = component(data as any);
     }
 
     await supportNonBinaryTransformStreams();

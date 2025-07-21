@@ -1,5 +1,171 @@
 # @web-widget/vue2
 
+## 1.69.0
+
+### Patch Changes
+
+- Updated dependencies [058a9ed]
+  - @web-widget/web-widget@1.69.0
+  - @web-widget/vite-plugin@1.69.0
+  - @web-widget/react@1.69.0
+  - @web-widget/helpers@1.69.0
+
+## 1.68.0
+
+### Patch Changes
+
+- Updated dependencies [a7b8247]
+  - @web-widget/vite-plugin@1.68.0
+  - @web-widget/web-widget@1.68.0
+  - @web-widget/react@1.68.0
+  - @web-widget/helpers@1.68.0
+
+## 1.67.0
+
+### Patch Changes
+
+- Updated dependencies [94beb22]
+  - @web-widget/vite-plugin@1.67.0
+  - @web-widget/web-widget@1.67.0
+  - @web-widget/react@1.67.0
+  - @web-widget/helpers@1.67.0
+
+## 1.66.0
+
+### Patch Changes
+
+- @web-widget/vite-plugin@1.66.0
+- @web-widget/react@1.66.0
+- @web-widget/helpers@1.66.0
+- @web-widget/web-widget@1.66.0
+
+## 1.65.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.65.0
+- @web-widget/react@1.65.0
+- @web-widget/vite-plugin@1.65.0
+- @web-widget/web-widget@1.65.0
+
+## 1.64.0
+
+### Patch Changes
+
+- @web-widget/vite-plugin@1.64.0
+- @web-widget/react@1.64.0
+- @web-widget/helpers@1.64.0
+- @web-widget/web-widget@1.64.0
+
+## 1.63.0
+
+### Patch Changes
+
+- @web-widget/vite-plugin@1.63.0
+- @web-widget/helpers@1.63.0
+- @web-widget/react@1.63.0
+- @web-widget/web-widget@1.63.0
+
+## 1.62.0
+
+### Patch Changes
+
+- @web-widget/vite-plugin@1.62.0
+- @web-widget/helpers@1.62.0
+- @web-widget/react@1.62.0
+- @web-widget/web-widget@1.62.0
+
+## 1.61.2
+
+### Patch Changes
+
+- Updated dependencies [5160a48]
+  - @web-widget/web-widget@1.61.2
+  - @web-widget/react@1.61.2
+  - @web-widget/vite-plugin@1.61.2
+  - @web-widget/helpers@1.61.2
+
+## 1.61.1
+
+### Patch Changes
+
+- ac2c5b2: Fixed render adapter not implementing default values ​​correctly.
+- Updated dependencies [ac2c5b2]
+  - @web-widget/react@1.61.1
+  - @web-widget/vite-plugin@1.61.1
+  - @web-widget/helpers@1.61.1
+  - @web-widget/web-widget@1.61.1
+
+## 1.61.0
+
+### Minor Changes
+
+- 0753fdd: The second parameter of the UI framework renderer will have a default value.
+
+### Patch Changes
+
+- Updated dependencies [0753fdd]
+  - @web-widget/react@1.61.0
+  - @web-widget/vite-plugin@1.61.0
+  - @web-widget/helpers@1.61.0
+  - @web-widget/web-widget@1.61.0
+
+## 1.60.1
+
+### Patch Changes
+
+- Updated dependencies [f548c2d]
+  - @web-widget/helpers@1.60.1
+  - @web-widget/react@1.60.1
+  - @web-widget/vite-plugin@1.60.1
+  - @web-widget/web-widget@1.60.1
+
+## 1.60.0
+
+### Patch Changes
+
+- Updated dependencies [74d18f3]
+- Updated dependencies [7450fd4]
+  - @web-widget/helpers@1.60.0
+  - @web-widget/vite-plugin@1.60.0
+  - @web-widget/react@1.60.0
+  - @web-widget/web-widget@1.60.0
+
+## 1.59.0
+
+### Patch Changes
+
+- Updated dependencies [beb25af]
+  - @web-widget/helpers@1.59.0
+  - @web-widget/react@1.59.0
+  - @web-widget/vite-plugin@1.59.0
+  - @web-widget/web-widget@1.59.0
+
+## 1.58.0
+
+### Patch Changes
+
+- Updated dependencies [c2db8f1]
+  - @web-widget/helpers@1.58.0
+  - @web-widget/vite-plugin@1.58.0
+  - @web-widget/react@1.58.0
+  - @web-widget/web-widget@1.58.0
+
+## 1.57.0
+
+### Minor Changes
+
+- c2d1386: Updated the format specification for renderable modules.
+
+### Patch Changes
+
+- Updated dependencies [c2d1386]
+- Updated dependencies [c2d1386]
+  - @web-widget/web-widget@1.57.0
+  - @web-widget/helpers@1.57.0
+  - @web-widget/react@1.57.0
+  - @web-widget/vite-plugin@1.57.0
+
 ## 1.56.1
 
 ### Patch Changes

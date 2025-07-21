@@ -30,6 +30,8 @@ const innerHTMLSetter = innerHTMLDescriptor.set!;
 export type PerformanceMarkDetail = {
   name: string;
   import: string;
+  source: string;
+  timestamp: number;
 };
 
 export const INNER_HTML_PLACEHOLDER = `<!--web-widget:placeholder-->`;
@@ -57,6 +59,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #internals?: ElementInternals;
 
+  #autoMountPromise: Promise<void> | null = null;
+
+  // Performance data fields
+  performance?: {
+    loadTime?: string;
+    mountTime?: string;
+  };
+
   constructor() {
     super();
 
@@ -65,24 +75,35 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
   }
 
-  get #ready() {
-    return (
-      this.isConnected &&
-      this.status === status.INITIAL &&
-      !this.inactive &&
-      (this.import || this.loader)
-    );
-  }
-
   #autoMount() {
-    if (!this.#ready) return;
-    queueMicrotask(async () => {
+    // Prevent duplicate execution
+    if (this.#autoMountPromise) return;
+
+    // Check prerequisites for auto-mounting:
+    // - Element must be connected to DOM
+    // - Element must not be inactive
+    // - Must have either import URL or loader function
+    if (!this.isConnected || this.inactive || !(this.import || this.loader)) {
+      return;
+    }
+
+    // Only auto-mount from initial state or load error state
+    const canAutoMount =
+      this.status === status.INITIAL || this.status === status.LOAD_ERROR;
+
+    if (!canAutoMount) {
+      return;
+    }
+
+    this.#autoMountPromise = Promise.resolve().then(async () => {
       try {
         await this.load();
         await this.bootstrap();
         await this.mount();
       } catch (error) {
         this.#throwGlobalError(error);
+      } finally {
+        this.#autoMountPromise = null;
       }
     });
   }
@@ -500,27 +521,41 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #markPerformance(value: Status) {
     try {
-      const name = this.localName;
-      const markNameSpace = `${name}:statusChange`;
+      const componentName = this.#name;
+      const markNameSpace = `${componentName}:statusChange`;
       const detail: PerformanceMarkDetail = {
-        name: this.#name,
+        name: componentName,
         import: this.import,
+        source: this.localName,
+        timestamp: Date.now(),
       };
+
       performance.mark(`${markNameSpace}:${value}`, { detail });
+
       switch (value) {
         case status.LOADED:
-          performance.measure(`${name}:load`, {
+          const loadMeasure = performance.measure(`${componentName}:load`, {
             start: `${markNameSpace}:${status.LOADING}`,
             end: `${markNameSpace}:${status.LOADED}`,
             detail,
           });
+          // Store load time in performance object
+          if (!this.performance) {
+            this.performance = {};
+          }
+          this.performance.loadTime = `${Math.round(loadMeasure.duration)}ms`;
           break;
         case status.MOUNTED:
-          performance.measure(`${name}:mount`, {
+          const mountMeasure = performance.measure(`${componentName}:mount`, {
             start: `${markNameSpace}:${status.MOUNTING}`,
             end: `${markNameSpace}:${status.MOUNTED}`,
             detail,
           });
+          // Store mount time in performance object
+          if (!this.performance) {
+            this.performance = {};
+          }
+          this.performance.mountTime = `${Math.round(mountMeasure.duration)}ms`;
           break;
       }
     } catch (e) {}
@@ -531,9 +566,17 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   get #name() {
-    return (
-      this.id || this.getAttribute('name') || this.import || this.localName
-    );
+    const attr = this.id
+      ? ['id', this.id]
+      : this.getAttribute('name')
+        ? ['name', this.getAttribute('name')]
+        : this.import
+          ? ['import', this.import]
+          : null;
+
+    return attr
+      ? `${this.localName}[${attr[0]}=${JSON.stringify(attr[1])}]`
+      : this.localName;
   }
 
   #throwGlobalError(error: unknown) {
@@ -591,28 +634,19 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
 Object.assign(HTMLWebWidgetElement, status);
 
+export interface HTMLWebWidgetElementAttributes
+  extends Partial<HTMLWebWidgetElement> {
+  contextdata?: string;
+  contextmeta?: string;
+  inactive?: boolean;
+  recovering?: boolean;
+  loading?: Loading;
+  import?: string;
+  rendertarget?: RenderTarget;
+  base?: string;
+  timeouts?: Timeouts;
+}
+
 declare global {
   let importShim: <T>(src: string) => Promise<T>;
-  interface Window {
-    HTMLWebWidgetElement: typeof HTMLWebWidgetElement;
-  }
-  interface WebWidgetAttributes extends Partial<HTMLWebWidgetElement> {
-    contextdata?: string;
-    contextmeta?: string;
-    inactive?: boolean;
-    recovering?: boolean;
-    loading?: Loading;
-    import?: string;
-    rendertarget?: RenderTarget;
-    base?: string;
-    timeouts?: Timeouts;
-  }
-  interface HTMLElementTagNameMap {
-    'web-widget': HTMLWebWidgetElement;
-  }
-  namespace JSX {
-    interface IntrinsicElements {
-      'web-widget': WebWidgetAttributes;
-    }
-  }
 }

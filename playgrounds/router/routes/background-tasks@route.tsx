@@ -11,7 +11,7 @@ export const handler = defineRouteHandler({
         }, 1000)
       )
     );
-    return ctx.render();
+    return ctx.html();
   },
 });
 

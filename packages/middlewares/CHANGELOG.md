@@ -1,5 +1,125 @@
 # @web-widget/middlewares
 
+## 1.69.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.69.0
+- @web-widget/schema@1.69.0
+
+## 1.68.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.68.0
+- @web-widget/schema@1.68.0
+
+## 1.67.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.67.0
+- @web-widget/schema@1.67.0
+
+## 1.66.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.66.0
+- @web-widget/schema@1.66.0
+
+## 1.65.0
+
+### Patch Changes
+
+- Updated dependencies [090d66f]
+  - @web-widget/schema@1.65.0
+  - @web-widget/helpers@1.65.0
+
+## 1.64.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.64.0
+- @web-widget/schema@1.64.0
+
+## 1.63.0
+
+### Patch Changes
+
+- Updated dependencies [0df6a09]
+  - @web-widget/schema@1.63.0
+  - @web-widget/helpers@1.63.0
+
+## 1.62.0
+
+### Patch Changes
+
+- Updated dependencies [d6add51]
+  - @web-widget/schema@1.62.0
+  - @web-widget/helpers@1.62.0
+
+## 1.61.2
+
+### Patch Changes
+
+- @web-widget/helpers@1.61.2
+- @web-widget/schema@1.61.2
+
+## 1.61.1
+
+### Patch Changes
+
+- @web-widget/helpers@1.61.1
+- @web-widget/schema@1.61.1
+
+## 1.61.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.61.0
+- @web-widget/schema@1.61.0
+
+## 1.60.1
+
+### Patch Changes
+
+- Updated dependencies [f548c2d]
+  - @web-widget/helpers@1.60.1
+  - @web-widget/schema@1.60.1
+
+## 1.60.0
+
+### Patch Changes
+
+- Updated dependencies [74d18f3]
+  - @web-widget/helpers@1.60.0
+  - @web-widget/schema@1.60.0
+
+## 1.59.0
+
+### Patch Changes
+
+- Updated dependencies [beb25af]
+  - @web-widget/helpers@1.59.0
+  - @web-widget/schema@1.59.0
+
+## 1.58.0
+
+### Patch Changes
+
+- Updated dependencies [c2db8f1]
+  - @web-widget/helpers@1.58.0
+  - @web-widget/schema@1.58.0
+
+## 1.57.0
+
+### Patch Changes
+
+- Updated dependencies [c2d1386]
+  - @web-widget/helpers@1.57.0
+  - @web-widget/schema@1.57.0
+
 ## 1.56.1
 
 ### Patch Changes

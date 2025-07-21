@@ -1,5 +1,137 @@
 # CHANGELOG
 
+## 1.69.0
+
+### Patch Changes
+
+- 058a9ed: Fixed performance data format issue.
+  - @web-widget/helpers@1.69.0
+  - @web-widget/lifecycle-cache@1.69.0
+
+## 1.68.0
+
+### Minor Changes
+
+- a7b8247: Enhanced development toolbar, provided by new package.
+
+### Patch Changes
+
+- @web-widget/helpers@1.68.0
+- @web-widget/lifecycle-cache@1.68.0
+
+## 1.67.0
+
+### Minor Changes
+
+- 94beb22: New web-widget-inspector, supports editing the current page.
+
+### Patch Changes
+
+- @web-widget/helpers@1.67.0
+- @web-widget/lifecycle-cache@1.67.0
+
+## 1.66.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.66.0
+- @web-widget/lifecycle-cache@1.66.0
+
+## 1.65.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.65.0
+- @web-widget/lifecycle-cache@1.65.0
+
+## 1.64.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.64.0
+- @web-widget/lifecycle-cache@1.64.0
+
+## 1.63.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.63.0
+- @web-widget/lifecycle-cache@1.63.0
+
+## 1.62.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.62.0
+- @web-widget/lifecycle-cache@1.62.0
+
+## 1.61.2
+
+### Patch Changes
+
+- 5160a48: Fix race condition in autoMount execution that caused "Cannot perform 'load' from 'loading' to 'loading'" errors when multiple triggers occurred simultaneously. Added Promise-based deduplication and comprehensive test coverage.
+  - @web-widget/helpers@1.61.2
+  - @web-widget/lifecycle-cache@1.61.2
+
+## 1.61.1
+
+### Patch Changes
+
+- @web-widget/helpers@1.61.1
+- @web-widget/lifecycle-cache@1.61.1
+
+## 1.61.0
+
+### Patch Changes
+
+- @web-widget/helpers@1.61.0
+- @web-widget/lifecycle-cache@1.61.0
+
+## 1.60.1
+
+### Patch Changes
+
+- Updated dependencies [f548c2d]
+  - @web-widget/helpers@1.60.1
+  - @web-widget/lifecycle-cache@1.60.1
+
+## 1.60.0
+
+### Patch Changes
+
+- Updated dependencies [74d18f3]
+  - @web-widget/helpers@1.60.0
+  - @web-widget/lifecycle-cache@1.60.0
+
+## 1.59.0
+
+### Patch Changes
+
+- Updated dependencies [beb25af]
+  - @web-widget/helpers@1.59.0
+  - @web-widget/lifecycle-cache@1.59.0
+
+## 1.58.0
+
+### Patch Changes
+
+- Updated dependencies [c2db8f1]
+  - @web-widget/helpers@1.58.0
+  - @web-widget/lifecycle-cache@1.58.0
+
+## 1.57.0
+
+### Minor Changes
+
+- c2d1386: Updated the format specification for renderable modules.
+- c2d1386: Exported side-effect-free entry point `./element`.
+
+### Patch Changes
+
+- Updated dependencies [c2d1386]
+  - @web-widget/helpers@1.57.0
+  - @web-widget/lifecycle-cache@1.57.0
+
 ## 1.56.1
 
 ### Patch Changes

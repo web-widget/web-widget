@@ -30,7 +30,9 @@ export const createVueRender = ({
   onCreatedApp = async () => {},
 }: CreateVueRenderOptions = {}) => {
   return defineServerRender<Component>(
-    async (component, data, { progressive, vue: options } = {}) => {
+    async (component, data, { progressive, vue: options }) => {
+      data = data ?? {};
+
       if (!component) {
         throw new TypeError(`Missing component.`);
       }

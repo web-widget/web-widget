@@ -1,11 +1,16 @@
+/**
+ * @fileoverview Application domain object - HTTP request/response lifecycle management
+ */
 import { compose } from '@web-widget/helpers';
-import { HTTPException } from '@web-widget/helpers/error';
+import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
+import { createHttpError } from '@web-widget/helpers/error';
 import { Context } from './context';
 import type { RoutePattern, Router } from './router';
 import { METHOD_NAME_ALL, METHODS, URLPatternRouter } from './router';
 import type {
   ErrorHandler,
   ExecutionContext,
+  HTTPException,
   MiddlewareHandler,
   NotFoundHandler,
 } from './types';
@@ -53,6 +58,12 @@ const errorHandler = (error: unknown) => {
 
 export interface ApplicationOptions {
   router?: Router<MiddlewareHandler>;
+  /**
+   * Whether to enable proxy mode. When set to true, ensure that the last reverse proxy
+   * trusted is removing or overwriting the following HTTP headers:
+   * X-Forwarded-Host and X-Forwarded-Proto. Otherwise, the client may provide any value.
+   */
+  proxy?: boolean;
 }
 
 class Application extends defineDynamicClass() {
@@ -86,8 +97,10 @@ class Application extends defineDynamicClass() {
     };
 
     this.router = options.router ?? new URLPatternRouter();
+    this.#proxy = !!options.proxy;
   }
 
+  #proxy: boolean = false;
   #notFoundHandler: NotFoundHandler = notFoundHandler;
   #errorHandler: ErrorHandler = errorHandler;
 
@@ -97,7 +110,7 @@ class Application extends defineDynamicClass() {
   fixErrorStack(_error: Error) {}
 
   /**
-   * @experimental
+   * @internal
    */
   onError(handler: ErrorHandler) {
     this.#errorHandler = handler;
@@ -105,7 +118,7 @@ class Application extends defineDynamicClass() {
   }
 
   /**
-   * @experimental
+   * @internal
    */
   notFound(handler: NotFoundHandler) {
     this.#notFoundHandler = handler;
@@ -127,6 +140,10 @@ class Application extends defineDynamicClass() {
     executionContext?: ExecutionContext,
     method: string = request.method
   ): Response | Promise<Response> {
+    if (this.#proxy) {
+      request = normalizeForwardedRequest(request);
+    }
+
     // Handle HEAD method
     if (method === 'HEAD') {
       return (async () =>
@@ -165,23 +182,22 @@ class Application extends defineDynamicClass() {
 
         if (
           res.status >= 400 &&
+          // NOTE: This is a workaround to handle the error response from the cache middleware.
+          // https://github.com/web-widget/web-widget/blob/6ed821db5535aa274f1ee151fff38f1ea0a99231/packages/middlewares/src/cache.ts#L189
+          // TODO: This is not a good code, we will eliminate it later.
           res.headers.has('x-transform-error') &&
           res.headers.get('content-type') === 'application/json'
         ) {
-          const data = await res.json();
-          if (data && data.message) {
-            const httpException = new HTTPException(res.status, data.message);
-            if (data.stack) {
-              httpException.stack = data.stack;
-            }
-            throw httpException;
-          }
+          throw res;
         }
 
         return res;
       } catch (error) {
         this.fixErrorStack(error as Error);
-        return this.#errorHandler(error, context);
+        return this.#errorHandler(
+          await this.#normalizeHTTPException(error),
+          context
+        );
       }
     })();
   }
@@ -212,9 +228,16 @@ class Application extends defineDynamicClass() {
         : new Request(new URL(input, 'http://localhost'), requestInit);
     const context =
       executionContext ??
-      new FetchEvent('fetch', {
-        request,
-      });
+      // NOTE: This is a workaround to avoid the error:
+      // "TypeError: Illegal constructor"
+      // when running tests in Cloudflare Workers.
+      // new FetchEvent('fetch', {
+      //  request,
+      // });
+      ({
+        waitUntil: () => {},
+        passThroughOnException: () => {},
+      } as ExecutionContext);
     return this.handler(request, env, context);
   };
 
@@ -229,6 +252,54 @@ class Application extends defineDynamicClass() {
   ) => {
     return this.dispatch(input, requestInit, env, executionContext);
   };
+
+  async #normalizeHTTPException(error: unknown): Promise<HTTPException> {
+    // If it's an Error object, preserve original stack trace
+    if (error instanceof Error) {
+      return error;
+    }
+
+    // If it's a Response object, intelligently parse content
+    if (error instanceof Response) {
+      const clonedResponse = error.clone();
+      let message = error.statusText;
+
+      try {
+        const contentType = clonedResponse.headers.get('content-type');
+        if (contentType?.includes('application/json')) {
+          const jsonData = await clonedResponse.json();
+          if (jsonData && typeof jsonData === 'object') {
+            message =
+              jsonData.message ?? jsonData.error ?? JSON.stringify(jsonData);
+          }
+        } else {
+          message = await clonedResponse.text();
+        }
+      } catch {
+        message = error.statusText;
+      }
+
+      return createHttpError(error.status, message, { cause: error });
+    }
+
+    // If it's an object format error
+    if (error && typeof error === 'object' && !Array.isArray(error)) {
+      const errorObj = error as Record<string, any>;
+      const status =
+        errorObj.status >= 400 && errorObj.status < 600 ? errorObj.status : 500;
+      const message =
+        errorObj.message ?? errorObj.error ?? JSON.stringify(error);
+
+      return createHttpError(status, message, {
+        cause: error,
+      });
+    }
+
+    // For other cases, convert to string
+    return createHttpError(500, `Unknown error: ${String(error)}`, {
+      cause: error,
+    });
+  }
 }
 
 export { Application };

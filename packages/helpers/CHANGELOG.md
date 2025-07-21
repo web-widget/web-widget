@@ -1,5 +1,186 @@
 # @web-widget/helpers
 
+## 1.69.0
+
+### Patch Changes
+
+- @web-widget/action@1.69.0
+- @web-widget/context@1.69.0
+- @web-widget/lifecycle-cache@1.69.0
+- @web-widget/purify@1.69.0
+- @web-widget/schema@1.69.0
+
+## 1.68.0
+
+### Patch Changes
+
+- @web-widget/action@1.68.0
+- @web-widget/context@1.68.0
+- @web-widget/lifecycle-cache@1.68.0
+- @web-widget/purify@1.68.0
+- @web-widget/schema@1.68.0
+
+## 1.67.0
+
+### Patch Changes
+
+- @web-widget/action@1.67.0
+- @web-widget/context@1.67.0
+- @web-widget/lifecycle-cache@1.67.0
+- @web-widget/purify@1.67.0
+- @web-widget/schema@1.67.0
+
+## 1.66.0
+
+### Patch Changes
+
+- @web-widget/action@1.66.0
+- @web-widget/context@1.66.0
+- @web-widget/lifecycle-cache@1.66.0
+- @web-widget/purify@1.66.0
+- @web-widget/schema@1.66.0
+
+## 1.65.0
+
+### Patch Changes
+
+- Updated dependencies [090d66f]
+  - @web-widget/schema@1.65.0
+  - @web-widget/context@1.65.0
+  - @web-widget/lifecycle-cache@1.65.0
+  - @web-widget/action@1.65.0
+  - @web-widget/purify@1.65.0
+
+## 1.64.0
+
+### Patch Changes
+
+- @web-widget/action@1.64.0
+- @web-widget/context@1.64.0
+- @web-widget/lifecycle-cache@1.64.0
+- @web-widget/purify@1.64.0
+- @web-widget/schema@1.64.0
+
+## 1.63.0
+
+### Patch Changes
+
+- Updated dependencies [0df6a09]
+  - @web-widget/schema@1.63.0
+  - @web-widget/context@1.63.0
+  - @web-widget/lifecycle-cache@1.63.0
+  - @web-widget/action@1.63.0
+  - @web-widget/purify@1.63.0
+
+## 1.62.0
+
+### Patch Changes
+
+- Updated dependencies [d6add51]
+  - @web-widget/schema@1.62.0
+  - @web-widget/context@1.62.0
+  - @web-widget/lifecycle-cache@1.62.0
+  - @web-widget/action@1.62.0
+  - @web-widget/purify@1.62.0
+
+## 1.61.2
+
+### Patch Changes
+
+- @web-widget/action@1.61.2
+- @web-widget/context@1.61.2
+- @web-widget/lifecycle-cache@1.61.2
+- @web-widget/purify@1.61.2
+- @web-widget/schema@1.61.2
+
+## 1.61.1
+
+### Patch Changes
+
+- @web-widget/action@1.61.1
+- @web-widget/context@1.61.1
+- @web-widget/lifecycle-cache@1.61.1
+- @web-widget/purify@1.61.1
+- @web-widget/schema@1.61.1
+
+## 1.61.0
+
+### Patch Changes
+
+- @web-widget/action@1.61.0
+- @web-widget/context@1.61.0
+- @web-widget/lifecycle-cache@1.61.0
+- @web-widget/purify@1.61.0
+- @web-widget/schema@1.61.0
+
+## 1.60.1
+
+### Patch Changes
+
+- f548c2d: Update flags sdk.
+  - @web-widget/action@1.60.1
+  - @web-widget/context@1.60.1
+  - @web-widget/lifecycle-cache@1.60.1
+  - @web-widget/purify@1.60.1
+  - @web-widget/schema@1.60.1
+
+## 1.60.0
+
+### Minor Changes
+
+- 74d18f3: Add flags sdk.
+
+### Patch Changes
+
+- @web-widget/action@1.60.0
+- @web-widget/context@1.60.0
+- @web-widget/lifecycle-cache@1.60.0
+- @web-widget/purify@1.60.0
+- @web-widget/schema@1.60.0
+
+## 1.59.0
+
+### Minor Changes
+
+- beb25af: Upgrading @edge-runtime/\*.
+
+### Patch Changes
+
+- @web-widget/action@1.59.0
+- @web-widget/context@1.59.0
+- @web-widget/lifecycle-cache@1.59.0
+- @web-widget/purify@1.59.0
+- @web-widget/schema@1.59.0
+
+## 1.58.0
+
+### Minor Changes
+
+- c2db8f1: Add `proxy` module.
+
+### Patch Changes
+
+- @web-widget/action@1.58.0
+- @web-widget/context@1.58.0
+- @web-widget/lifecycle-cache@1.58.0
+- @web-widget/purify@1.58.0
+- @web-widget/schema@1.58.0
+
+## 1.57.0
+
+### Minor Changes
+
+- c2d1386: Updated the format specification for renderable modules.
+
+### Patch Changes
+
+- Updated dependencies [c2d1386]
+  - @web-widget/schema@1.57.0
+  - @web-widget/context@1.57.0
+  - @web-widget/lifecycle-cache@1.57.0
+  - @web-widget/action@1.57.0
+  - @web-widget/purify@1.57.0
+
 ## 1.56.1
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/web-router",
   "description": "A server based on the Web Workers standard",
-  "version": "1.56.1",
+  "version": "1.69.0",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",
@@ -20,14 +20,11 @@
     "@web-widget/lifecycle-cache": "workspace:*"
   },
   "devDependencies": {
-    "@types/jest": "catalog:",
-    "jest": "catalog:",
-    "jest-environment-miniflare": "catalog:",
-    "miniflare": "catalog:",
-    "ts-jest": "catalog:",
+    "@cloudflare/vitest-pool-workers": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",
-    "urlpattern-polyfill": "^10.0.0"
+    "urlpattern-polyfill": "^10.0.0",
+    "vitest": "catalog:"
   },
   "exports": {
     ".": {
@@ -55,8 +52,8 @@
     "dev": "pnpm exec tsup --watch",
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build",
-    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest",
-    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest --coverage"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "type": "module"
 }

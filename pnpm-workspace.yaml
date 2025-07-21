@@ -10,9 +10,10 @@ catalog:
   '@types/jest': ^29.5.12
   '@jest/globals': ^29.7.0
   '@types/node': '^22.2.0'
-  '@edge-runtime/vm': ^4.0.1
+  '@edge-runtime/vm': ^5.0.0
   'vite': ^5.4.10
   'vitest': ^2.1.9
+  '@cloudflare/vitest-pool-workers': ^0.5.29
   'tsup': ^8.3.4
   'jest': ^29.7.0
   'ts-jest': 29.2.1

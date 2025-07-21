@@ -1,39 +1,40 @@
 import { defineClientRender, defineServerRender } from '@web-widget/helpers';
-import { IS_SERVER } from '@web-widget/helpers/env';
 import { syncCacheProvider } from '@web-widget/helpers/cache';
-
-interface GitHubUserData {
-  name: string;
-  location: string;
-  avatar_url: string;
-}
+import { context } from '@web-widget/helpers/context';
+import { IS_SERVER } from '@web-widget/helpers/env';
+import type { MockUserData } from '../api/mock-users@route.ts';
 
 interface Props {
   username: string;
 }
 
-const useFetchGithub = (username: string): GitHubUserData => {
-  const url = `https://api.github.com/users/${username}`;
-  const cacheKey = url + '@vanilla';
+const useFetchUser = (username: string): MockUserData => {
+  const url = `/api/mock-users?username=${username}`;
+  const cacheKey = url;
   const data = syncCacheProvider(cacheKey, async () => {
-    console.log('[github]', 'fetch..');
-    const resp = await fetch(url);
+    console.log('[mock-users]', 'fetch..');
+
+    // Get current service URL from request context
+    const { request } = context();
+    const currentUrl = new URL(request.url);
+    const fullUrl = `${currentUrl.origin}${url}`;
+    const resp = await fetch(fullUrl);
     if (!resp.ok) {
-      throw new Error(`[github] ${JSON.stringify(await resp.json())}`);
+      throw new Error(`[mock-users] ${JSON.stringify(await resp.json())}`);
     }
-    const { name, location, avatar_url } = await resp.json();
-    return { name, location, avatar_url, 'vanilla@</script>': 1 };
+    const userData = await resp.json();
+    return { ...userData, 'vanilla@</script>': 1 };
   });
 
   return data;
 };
 
 export default ({ username }: Props) => {
-  const data = useFetchGithub(username);
+  const data = useFetchUser(username);
 
   return `
     <div>
-      <button show>Vanilla: Show Github Info</button>
+      <button show>Vanilla: Show Framework Info</button>
       <pre hidden>
         ${JSON.stringify(data, null, 2)}
       </pre>
