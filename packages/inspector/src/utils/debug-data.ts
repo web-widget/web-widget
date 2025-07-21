@@ -167,7 +167,7 @@ export function formatDebugData(
 
     const componentName = element.getAttribute('name');
     if (componentName) {
-      items.push({ key: 'Component', value: componentName, priority: 1 });
+      items.push({ key: 'Name', value: componentName, priority: 1 });
     }
 
     if (widgetData.module) {
