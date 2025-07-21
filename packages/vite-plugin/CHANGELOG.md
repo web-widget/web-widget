@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.69.0
+
+### Patch Changes
+
+- Updated dependencies [058a9ed]
+  - @web-widget/inspector@1.69.0
+  - @web-widget/helpers@1.69.0
+  - @web-widget/node@1.69.0
+  - @web-widget/web-router@1.69.0
+
 ## 1.68.0
 
 ### Minor Changes

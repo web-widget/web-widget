@@ -1,5 +1,15 @@
 # @web-widget/helpers
 
+## 1.69.0
+
+### Patch Changes
+
+- @web-widget/action@1.69.0
+- @web-widget/context@1.69.0
+- @web-widget/lifecycle-cache@1.69.0
+- @web-widget/purify@1.69.0
+- @web-widget/schema@1.69.0
+
 ## 1.68.0
 
 ### Patch Changes
