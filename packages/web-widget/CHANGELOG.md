@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.69.0
+
+### Patch Changes
+
+- 058a9ed: Fixed performance data format issue.
+  - @web-widget/helpers@1.69.0
+  - @web-widget/lifecycle-cache@1.69.0
+
 ## 1.68.0
 
 ### Minor Changes
