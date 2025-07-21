@@ -57,59 +57,137 @@
     }
 
     .controls {
-      position: sticky;
-      top: 20px;
       margin: 20px 0;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border: 1px solid #e9ecef;
-      z-index: 100;
+      padding: 25px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .controls h4 {
       margin-top: 0;
-      color: #495057;
-      font-size: 1.3rem;
+      color: #333;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
     }
 
-    .control-group {
-      margin: 15px 0;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .control-section {
+      margin: 20px 0;
     }
 
-    label {
-      display: inline-block;
-      width: 120px;
-      font-weight: 500;
+    .control-section h5 {
+      margin: 0 0 15px 0;
       color: #555;
+      font-size: 1.1rem;
+      font-weight: 600;
     }
 
-    input,
-    select {
-      padding: 8px 12px;
-      border: 1px solid #ced4da;
-      border-radius: 6px;
-      font-size: 14px;
-      min-width: 150px;
+    .theme-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
-    button {
-      background: #667eea;
+    .theme-card {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .theme-card:hover {
+      border-color: #22c55e;
+      background: #f0fdf4;
+    }
+
+    .theme-card.active {
+      border-color: #22c55e;
+      background: #22c55e;
+      color: white;
+    }
+
+    .theme-card.active::after {
+      content: '✓';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-weight: bold;
+    }
+
+    .theme-card h6 {
+      margin: 0 0 8px 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .theme-card p {
+      margin: 0;
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      background: #22c55e;
       color: white;
       border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
+      padding: 12px 20px;
+      border-radius: 8px;
       cursor: pointer;
-      margin: 5px;
       font-size: 14px;
-      transition: background 0.2s;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    button:hover {
-      background: #5a6fd8;
+    .action-btn:hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+    }
+
+    .action-btn.secondary {
+      background: #6c757d;
+    }
+
+    .action-btn.secondary:hover {
+      background: #5a6268;
+    }
+
+    .action-btn.danger {
+      background: #dc3545;
+    }
+
+    .action-btn.danger:hover {
+      background: #c82333;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #d4edda;
+      color: #155724;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      margin-top: 15px;
+    }
+
+    .status-indicator.error {
+      background: #f8d7da;
+      color: #721c24;
     }
 
     .corner-widgets {
@@ -175,6 +253,14 @@
         max-width: 150px;
         min-height: 60px;
       }
+
+      .theme-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -210,16 +296,48 @@
 
   <div class="container">
     <div class="controls">
-      <h4>Inspector Configuration</h4>
-      <div class="control-group">
-        <label for="theme">Theme:</label>
-        <select id="theme">
-          <option value="auto">Auto</option>
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </select>
+      <h4>🔧 Inspector Configuration</h4>
+
+      <div class="control-section">
+        <h5>🎨 Theme Selection</h5>
+        <div class="theme-cards">
+          <div class="theme-card" data-theme="auto" onclick="selectTheme('auto')">
+            <h6>Auto</h6>
+            <p>Follows system preference</p>
+          </div>
+          <div class="theme-card" data-theme="light" onclick="selectTheme('light')">
+            <h6>Light</h6>
+            <p>Light theme</p>
+          </div>
+          <div class="theme-card" data-theme="dark" onclick="selectTheme('dark')">
+            <h6>Dark</h6>
+            <p>Dark theme</p>
+          </div>
+        </div>
       </div>
-      <button onclick="updateInspector()">Update Inspector</button>
+
+      <div class="control-section">
+        <h5>⚡ Quick Actions</h5>
+        <div class="action-buttons">
+          <button class="action-btn" onclick="toggleInspector()">
+            <span>🔍</span>
+            Toggle Inspector
+          </button>
+          <button class="action-btn secondary" onclick="resetInspector()">
+            <span>🔄</span>
+            Reset Settings
+          </button>
+          <button class="action-btn danger" onclick="clearStorage()">
+            <span>🗑️</span>
+            Clear Storage
+          </button>
+        </div>
+      </div>
+
+      <div id="status" class="status-indicator" style="display: none;">
+        <span>✅</span>
+        <span id="status-text">Settings updated successfully</span>
+      </div>
     </div>
 
     <div class="section">
@@ -257,14 +375,64 @@
   </script>
 
   <script>
+    let currentTheme = 'auto';
+
+    function selectTheme(theme) {
+      // Remove active class from all cards
+      document.querySelectorAll('.theme-card').forEach(card => {
+        card.classList.remove('active');
+      });
+
+      // Add active class to selected card
+      const selectedCard = document.querySelector(`[data-theme="${theme}"]`);
+      if (selectedCard) {
+        selectedCard.classList.add('active');
+      }
+
+      currentTheme = theme;
+      updateInspector();
+      showStatus('Theme updated successfully', 'success');
+    }
+
     function updateInspector() {
-      const theme = document.getElementById('theme').value;
       const inspector = document.getElementById('inspector');
-      inspector.theme = theme;
+      inspector.theme = currentTheme;
+    }
+
+    function toggleInspector() {
+      const inspector = document.getElementById('inspector');
+      // This would need to be implemented in the inspector component
+      showStatus('Inspector toggled', 'success');
+    }
+
+    function resetInspector() {
+      currentTheme = 'auto';
+      selectTheme('auto');
+      showStatus('Settings reset to default', 'success');
+    }
+
+    function clearStorage() {
+      localStorage.clear();
+      sessionStorage.clear();
+      showStatus('Storage cleared successfully', 'success');
+    }
+
+    function showStatus(message, type = 'success') {
+      const status = document.getElementById('status');
+      const statusText = document.getElementById('status-text');
+
+      statusText.textContent = message;
+      status.className = `status-indicator ${type === 'error' ? 'error' : ''}`;
+      status.style.display = 'flex';
+
+      setTimeout(() => {
+        status.style.display = 'none';
+      }, 3000);
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-      updateInspector();
+      // Initialize with auto theme
+      selectTheme('auto');
     });
   </script>
 </body>

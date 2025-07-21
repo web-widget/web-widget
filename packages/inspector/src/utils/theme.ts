@@ -1,12 +1,37 @@
 import type { ThemeMap, ThemeConfig } from '../types';
-import { getThemeVariables } from './design-system';
+import { getThemeVariables, designSystem } from './design-system';
 
 export function applyTheme(vars: ThemeConfig): void {
-  const root = document.documentElement;
-  root.style.setProperty('--wwi-bg', vars.bg);
-  root.style.setProperty('--wwi-fg', vars.fg);
-  root.style.setProperty('--wwi-border', vars.border);
-  root.style.setProperty('--wwi-accent', vars.accent);
+  // Remove existing design system styles
+  const existingStyle = document.getElementById('wwi-design-system-styles');
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  // Create new style element
+  const style = document.createElement('style');
+  style.id = 'wwi-design-system-styles';
+
+  // Generate CSS variables
+  const cssVariables = Object.entries(designSystem.cssVariables)
+    .map(([property, value]) => `  ${property}: ${value};`)
+    .join('\n');
+
+  const themeVariables = `
+  --wwi-bg: ${vars.bg};
+  --wwi-fg: ${vars.fg};
+  --wwi-border: ${vars.border};
+  --wwi-accent: ${vars.accent};
+  `;
+
+  style.textContent = `
+:root {
+${cssVariables}
+${themeVariables}
+}
+  `;
+
+  document.head.appendChild(style);
 }
 
 export function detectAutoTheme(): keyof ThemeMap | undefined {

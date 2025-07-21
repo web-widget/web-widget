@@ -30,6 +30,8 @@ const innerHTMLSetter = innerHTMLDescriptor.set!;
 export type PerformanceMarkDetail = {
   name: string;
   import: string;
+  source: string;
+  timestamp: number;
 };
 
 export const INNER_HTML_PLACEHOLDER = `<!--web-widget:placeholder-->`;
@@ -58,6 +60,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
   #internals?: ElementInternals;
 
   #autoMountPromise: Promise<void> | null = null;
+
+  // Performance data fields
+  performance?: {
+    loadTime?: string;
+    mountTime?: string;
+  };
 
   constructor() {
     super();
@@ -513,27 +521,41 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #markPerformance(value: Status) {
     try {
-      const name = this.localName;
-      const markNameSpace = `${name}:statusChange`;
+      const componentName = this.#name;
+      const markNameSpace = `${componentName}:statusChange`;
       const detail: PerformanceMarkDetail = {
-        name: this.#name,
+        name: componentName,
         import: this.import,
+        source: this.localName,
+        timestamp: Date.now(),
       };
+
       performance.mark(`${markNameSpace}:${value}`, { detail });
+
       switch (value) {
         case status.LOADED:
-          performance.measure(`${name}:load`, {
+          const loadMeasure = performance.measure(`${componentName}:load`, {
             start: `${markNameSpace}:${status.LOADING}`,
             end: `${markNameSpace}:${status.LOADED}`,
             detail,
           });
+          // Store load time in performance object
+          if (!this.performance) {
+            this.performance = {};
+          }
+          this.performance.loadTime = `${Math.round(loadMeasure.duration)}ms`;
           break;
         case status.MOUNTED:
-          performance.measure(`${name}:mount`, {
+          const mountMeasure = performance.measure(`${componentName}:mount`, {
             start: `${markNameSpace}:${status.MOUNTING}`,
             end: `${markNameSpace}:${status.MOUNTED}`,
             detail,
           });
+          // Store mount time in performance object
+          if (!this.performance) {
+            this.performance = {};
+          }
+          this.performance.mountTime = `${Math.round(mountMeasure.duration)}ms`;
           break;
       }
     } catch (e) {}
@@ -544,9 +566,17 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   get #name() {
-    return (
-      this.id || this.getAttribute('name') || this.import || this.localName
-    );
+    const attr = this.id
+      ? ['id', this.id]
+      : this.getAttribute('name')
+        ? ['name', this.getAttribute('name')]
+        : this.import
+          ? ['import', this.import]
+          : null;
+
+    return attr
+      ? `${this.localName}[${attr[0]}=${JSON.stringify(attr[1])}]`
+      : this.localName;
   }
 
   #throwGlobalError(error: unknown) {
