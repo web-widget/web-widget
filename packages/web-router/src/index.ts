@@ -11,20 +11,24 @@ import * as defaultLayoutModule from './layout';
 import { callContext } from '@web-widget/context/server';
 import { Engine, type OnFallback } from './engine';
 import type {
-  Env,
   LayoutModule,
   Manifest,
+  ManifestAction,
+  ManifestFallback,
+  ManifestMiddleware,
+  ManifestRoute,
   Meta,
   RouteContext,
   RouteModule,
   RouteRenderOptions,
+  RoutePattern,
   ServerRenderOptions,
 } from './types';
 
 export type * from './types';
 export type { OnFallback } from './engine';
 
-export type StartOptions<E extends Env = {}> = {
+export type StartOptions = {
   baseAsset?: string;
   defaultMeta?: Meta;
   defaultRenderOptions?: RouteRenderOptions;
@@ -33,18 +37,15 @@ export type StartOptions<E extends Env = {}> = {
   /** @deprecated */
   dev?: boolean;
   onFallback?: OnFallback;
-} & ApplicationOptions<E>;
+} & ApplicationOptions;
 
-export default class WebRouter<E extends Env = Env> extends Application<E> {
-  constructor(options: StartOptions<E> = {}) {
+export default class WebRouter extends Application {
+  constructor(options: StartOptions = {}) {
     super(options);
   }
 
-  static fromManifest<E extends Env = Env>(
-    manifest: Partial<Manifest>,
-    options: StartOptions<E> = {}
-  ) {
-    const router = new WebRouter<E>(options);
+  static fromManifest(manifest: Partial<Manifest>, options: StartOptions = {}) {
+    const router = new WebRouter(options);
     const middlewares = manifest.middlewares ?? [];
     const actions = manifest.actions ?? [];
     const routes = manifest.routes ?? [];
@@ -106,21 +107,27 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     });
 
     routes.forEach((item) => {
-      router.use(item.pathname, engine.createRouteContextHandler(item.module));
+      router.use(
+        normalizeRoute(item),
+        engine.createRouteContextHandler(item.module)
+      );
     });
 
     router.use('*', callContext);
 
     middlewares.forEach((item) => {
-      router.use(item.pathname, engine.createMiddlewareHandler(item.module));
+      router.use(
+        normalizeRoute(item),
+        engine.createMiddlewareHandler(item.module)
+      );
     });
 
     actions.forEach((item) => {
-      router.use(item.pathname, engine.createActionHandler(item.module));
+      router.use(normalizeRoute(item), engine.createActionHandler(item.module));
     });
 
     routes.forEach((item) => {
-      router.use(item.pathname, engine.createRouteHandler(item.module));
+      router.use(normalizeRoute(item), engine.createRouteHandler(item.module));
     });
 
     // Create a status code to fallback mapping for efficient lookups
@@ -172,6 +179,25 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
 
     return router;
   }
+}
+
+const URL_PATTERN_INIT_KEYS: (keyof RoutePattern)[] = [
+  'protocol',
+  'hostname',
+  'port',
+  'pathname',
+  'search',
+  'hash',
+];
+
+function normalizeRoute(
+  route: ManifestRoute | ManifestAction | ManifestMiddleware | ManifestFallback
+): RoutePattern {
+  return Object.fromEntries(
+    Object.entries(route).filter(([key]) =>
+      URL_PATTERN_INIT_KEYS.includes(key as keyof RoutePattern)
+    )
+  );
 }
 
 /**

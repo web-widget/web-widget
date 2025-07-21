@@ -56,6 +56,7 @@ export interface RouteComponentProps<
     /** @deprecated */
     | 'pathname'
     | 'request'
+    | 'scope'
     | 'state'
   > {}
 

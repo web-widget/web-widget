@@ -10,6 +10,38 @@ import type {
   ServerRenderOptions,
 } from './types';
 
+// Helper function to create a mock context with proper scope
+function createMockContext(
+  overrides: Partial<RouteContext> = {}
+): RouteContext {
+  const scope = {
+    username: '',
+    password: '',
+    protocol: 'http:',
+    hostname: 'localhost',
+    port: '',
+    pathname: '/',
+    search: '',
+    hash: '',
+  };
+
+  return {
+    params: {},
+    url: new URL('http://localhost/'),
+    request: new Request('http://localhost/', { method: 'GET' }),
+    state: {},
+    scope,
+    data: {},
+    meta: {},
+    module: undefined,
+    render: () => new Response('rendered'),
+    html: () => new Response('html'),
+    renderOptions: {},
+    renderer: {},
+    ...overrides,
+  } as RouteContext;
+}
+
 describe('Engine', () => {
   let engine: Engine;
   let mockOnFallback: OnFallback;
@@ -68,10 +100,10 @@ describe('Engine', () => {
         },
       };
 
-      const mockContext: Partial<RouteContext> = {
+      const mockContext = createMockContext({
         meta: { title: 'Test' },
         request: new Request('http://test.com', { method: 'GET' }),
-      };
+      });
 
       const mockNext = () => new Response('next');
       const middleware = engine.createRouteHandler(mockModule);
@@ -82,7 +114,7 @@ describe('Engine', () => {
     });
 
     test('should call next when no module is present', async () => {
-      const mockContext: Partial<RouteContext> = {};
+      const mockContext = createMockContext();
 
       const mockNext = () => new Response('next response');
       const middleware = engine.createRouteHandler(null as any);
@@ -97,10 +129,10 @@ describe('Engine', () => {
         render: () => 'rendered content',
       };
 
-      const mockContext: Partial<RouteContext> = {
+      const mockContext = createMockContext({
         request: new Request('http://test.com', { method: 'GET' }),
         html: () => new Response('rendered response'),
-      };
+      });
 
       const mockNext = () => new Response('next');
       const middleware = engine.createRouteHandler(mockModule);
@@ -116,10 +148,10 @@ describe('Engine', () => {
         },
       };
 
-      const mockContext: Partial<RouteContext> = {
+      const mockContext = createMockContext({
         request: new Request('http://test.com', { method: 'GET' }),
         meta: { title: 'Test', script: [] },
-      };
+      });
 
       const mockNext = () => new Response('next');
       const middleware = engine.createRouteHandler(mockModule);
@@ -468,9 +500,9 @@ describe('Engine', () => {
         fallback: mockFallbackComponent,
       };
 
-      const mockContext: Partial<RouteContext> = {
+      const mockContext = createMockContext({
         html: () => new Response('error html'),
-      };
+      });
 
       const testError = new Error('Test error');
 
@@ -495,9 +527,9 @@ describe('Engine', () => {
 
       const asyncLoader = async () => mockRoute;
 
-      const mockContext: Partial<RouteContext> = {
+      const mockContext = createMockContext({
         html: () => new Response('async error html'),
-      };
+      });
 
       const testError = new Error('Async error');
 
@@ -516,9 +548,9 @@ describe('Engine', () => {
         render: () => 'cached error page',
       };
 
-      const mockContext: Partial<RouteContext> = {
+      const mockContext = createMockContext({
         html: () => new Response('cached error html'),
-      };
+      });
 
       const testError = new Error('Cache test error');
 
@@ -532,8 +564,8 @@ describe('Engine', () => {
       expect(result1).toBeInstanceOf(Response);
 
       // Reset context
-      delete mockContext.module;
-      delete mockContext.error;
+      (mockContext as any).module = undefined;
+      (mockContext as any).error = undefined;
 
       // Second call should use cached handler
       const result2 = await errorHandler(
@@ -935,10 +967,10 @@ describe('Engine', () => {
       };
 
       const testError = new Error('Test activation error');
-      const mockContext: Partial<RouteContext> = {
+      const mockContext = createMockContext({
         request: new Request('http://test.com', { method: 'GET' }),
         html: () => new Response('error html'),
-      };
+      });
 
       const errorHandler = engine.createErrorHandler(errorModule);
       const result = await errorHandler(testError, mockContext as RouteContext);
@@ -1292,9 +1324,9 @@ describe('Engine', () => {
       };
 
       const testError = new Error('Custom handler test error');
-      const mockContext: Partial<RouteContext> = {
+      const mockContext = createMockContext({
         request: new Request('http://test.com', { method: 'GET' }),
-      };
+      });
 
       const errorHandler = engine.createErrorHandler(
         errorModuleWithCustomHandler
@@ -1357,9 +1389,9 @@ describe('Engine', () => {
         },
       };
 
-      const mockContext: Partial<RouteContext> = {
+      const mockContext = createMockContext({
         request: new Request('http://test.com', { method: 'GET' }),
-      };
+      });
 
       const testError = new Error('Test error') as any;
       testError.status = 500;
@@ -1398,13 +1430,13 @@ describe('Engine', () => {
         },
       };
 
-      const mockContext: Partial<RouteContext> = {
+      const mockContext = createMockContext({
         request: new Request('http://test.com', { method: 'GET' }),
         name: 'test-route',
         params: { id: '123' },
         pathname: '/test',
         state: {},
-      };
+      });
 
       const testError = new Error('Test error') as any;
       testError.status = 404;
@@ -1450,13 +1482,13 @@ describe('Engine', () => {
         },
       };
 
-      const mockContext: Partial<RouteContext> = {
+      const mockContext = createMockContext({
         request: new Request('http://test.com', { method: 'GET' }),
         name: 'test-route',
         params: {},
         pathname: '/test',
         state: {},
-      };
+      });
 
       // Create route handler and activate module (without error)
       const routeHandler = engine.createRouteContextHandler(moduleWithFallback);

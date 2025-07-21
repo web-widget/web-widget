@@ -34,14 +34,14 @@ test('parses optional params', () => {
 });
 
 test('throws on invalid patterns', () => {
-  expect(() => pathToPattern('foo/[foo][bar]')).toThrowError();
-  expect(() => pathToPattern('foo/foo]')).toThrowError();
-  expect(() => pathToPattern('foo/[foo]]')).toThrowError();
-  expect(() => pathToPattern('foo/foo-[[name]]-bar/baz')).toThrowError();
-  expect(() => pathToPattern('foo/[[name]]-bar/baz')).toThrowError();
-  expect(() => pathToPattern('foo/foo-[[name]]/baz')).toThrowError();
-  expect(() => pathToPattern('foo/foo-[[name]]')).toThrowError();
-  expect(() => pathToPattern('foo/[[name]]-bar')).toThrowError();
+  expect(() => pathToPattern('foo/[foo][bar]')).toThrow();
+  expect(() => pathToPattern('foo/foo]')).toThrow();
+  expect(() => pathToPattern('foo/[foo]]')).toThrow();
+  expect(() => pathToPattern('foo/foo-[[name]]-bar/baz')).toThrow();
+  expect(() => pathToPattern('foo/[[name]]-bar/baz')).toThrow();
+  expect(() => pathToPattern('foo/foo-[[name]]/baz')).toThrow();
+  expect(() => pathToPattern('foo/foo-[[name]]')).toThrow();
+  expect(() => pathToPattern('foo/[[name]]-bar')).toThrow();
 });
 
 test('sortRoutePaths', () => {

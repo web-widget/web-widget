@@ -3,6 +3,7 @@ import BaseLayout from '../(components)/BaseLayout';
 
 export default defineRouteComponent(function Page(props) {
   const { name } = props.params;
+  console.log('scope.pathname>>>', props.scope.pathname);
   return (
     <BaseLayout>
       <h1>Dynamic routes</h1>
