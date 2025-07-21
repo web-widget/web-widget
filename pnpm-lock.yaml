@@ -532,13 +532,13 @@ importers:
 
   packages/inspector:
     dependencies:
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../web-widget
       lit:
         specifier: ^3.0.0
         version: 3.3.1
     devDependencies:
-      '@web-widget/web-widget':
-        specifier: workspace:*
-        version: link:../web-widget
       tsup:
         specifier: 'catalog:'
         version: 8.3.4(jiti@2.4.2)(postcss@8.5.1)(typescript@5.5.4)

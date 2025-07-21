@@ -1,3 +1,5 @@
+import type { HTMLWebWidgetElement } from '@web-widget/web-widget/element';
+
 export interface ThemeConfig {
   bg: string;
   fg: string;
@@ -10,6 +12,7 @@ export interface ThemeConfig {
   primary: string;
   primaryHover: string;
   primarySelected: string;
+  overlayBorder: string;
 }
 
 export interface ThemeMap {
@@ -26,29 +29,6 @@ export interface ElementBounds {
   left: number;
 }
 
-export interface WidgetInfo {
-  name: string;
-  import: string;
-  status: string;
-  loading: string;
-  renderTarget: string;
-  inactive: boolean;
-  recovering: boolean;
-  hasContextData: boolean;
-  hasContextMeta: boolean;
-  performance: Array<{
-    name: string;
-    duration: number;
-  }>;
-}
-
-export interface InspectorConfig {
-  dir?: string;
-  keys?: string[];
-  routeModuleSource?: string;
-  theme?: keyof ThemeMap | 'auto';
-}
-
-export type LoadingStrategy = 'eager' | 'lazy' | 'idle';
-export type RenderTarget = 'light' | 'shadow';
-export type InspectorMode = 'inactive' | 'active' | 'inspecting';
+// Re-export types from web-widget to avoid duplication
+export type LoadingStrategy = HTMLWebWidgetElement['loading'];
+export type RenderTarget = HTMLWebWidgetElement['renderTarget'];

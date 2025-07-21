@@ -1,10 +1,11 @@
 import { getElementBox } from './box';
 import type { ElementBounds } from '../types';
+import type { HTMLWebWidgetElement } from '@web-widget/web-widget/element';
 
 export interface DebugDataItem {
   key: string;
   value: string;
-  priority: number; // 1 = highest priority, 10 = lowest priority
+  priority: number;
 }
 
 export interface WebWidgetDebugData {
@@ -66,6 +67,7 @@ export class DebugDataCollector {
    */
   static collectWebWidgetData(element: HTMLElement): WebWidgetDebugData {
     const data: WebWidgetDebugData = {};
+    const webWidgetElement = element as HTMLWebWidgetElement;
 
     // Component name
     const name = element.getAttribute('name');
@@ -80,44 +82,40 @@ export class DebugDataCollector {
     }
 
     // Loading strategy
-    const loading = (element as any).loading;
+    const loading = webWidgetElement.loading;
     if (loading && loading !== 'eager') {
       data.loading = loading;
     }
 
     // Render target
-    const renderTarget = (element as any).renderTarget;
+    const renderTarget = webWidgetElement.renderTarget;
     if (renderTarget && renderTarget !== 'light') {
       data.renderTarget = renderTarget;
     }
 
     // Status information
-    const status = (element as any).status;
+    const status = webWidgetElement.status;
     if (status) {
       data.status = status;
     }
 
-    // Inactive status
-    if ((element as any).inactive) {
+    // Inactive state
+    if (webWidgetElement.inactive) {
       data.inactive = true;
     }
 
-    // Parameter data
-    const contextData = element.getAttribute('contextdata');
-    if (contextData) {
-      try {
-        data.contextData = JSON.parse(contextData);
-      } catch {
-        // Ignore when parsing fails
-      }
+    // Context data
+    const contextData = webWidgetElement.contextData;
+    if (contextData && typeof contextData === 'object') {
+      data.contextData = contextData;
     }
 
     // Performance data
-    const performanceData = this.collectPerformanceData();
-    if (performanceData.loadTime) {
+    const performanceData = this.collectPerformanceData(element);
+    if (performanceData.loadTime !== undefined) {
       data.loadTime = performanceData.loadTime;
     }
-    if (performanceData.mountTime) {
+    if (performanceData.mountTime !== undefined) {
       data.mountTime = performanceData.mountTime;
     }
 
@@ -125,94 +123,183 @@ export class DebugDataCollector {
   }
 
   /**
-   * Collect performance data
+   * Collect performance data for a specific element
    */
-  static collectPerformanceData(): { loadTime?: number; mountTime?: number } {
+  static collectPerformanceData(element: HTMLElement): {
+    loadTime?: number;
+    mountTime?: number;
+  } {
     const data: { loadTime?: number; mountTime?: number } = {};
 
-    // Web Widget uses fixed measurement names: web-widget:load and web-widget:mount
-    const loadMeasure = performance.getEntriesByName('web-widget:load')[0];
-    const mountMeasure = performance.getEntriesByName('web-widget:mount')[0];
+    // Get performance data from element's performance property (set by web-widget)
+    const webWidgetElement = element as HTMLWebWidgetElement;
+    const performanceData = webWidgetElement.performance;
 
-    if (loadMeasure) {
-      data.loadTime = Math.round(loadMeasure.duration);
-    }
-    if (mountMeasure) {
-      data.mountTime = Math.round(mountMeasure.duration);
+    if (performanceData && typeof performanceData === 'object') {
+      if (performanceData.loadTime) {
+        const loadTimeStr = performanceData.loadTime;
+        if (typeof loadTimeStr === 'string' && loadTimeStr.endsWith('ms')) {
+          data.loadTime = parseInt(loadTimeStr, 10);
+        }
+      }
+      if (performanceData.mountTime) {
+        const mountTimeStr = performanceData.mountTime;
+        if (typeof mountTimeStr === 'string' && mountTimeStr.endsWith('ms')) {
+          data.mountTime = parseInt(mountTimeStr, 10);
+        }
+      }
     }
 
     return data;
   }
 
   /**
+   * Performance monitoring system for real-time data collection
+   */
+  private static performanceObservers = new Map<
+    HTMLElement,
+    {
+      observer: null; // No longer using PerformanceObserver
+      timeout: number;
+      lastData: { loadTime?: number; mountTime?: number };
+    }
+  >();
+
+  /**
+   * Start monitoring performance data for an element
+   */
+  static startPerformanceMonitoring(element: HTMLElement): void {
+    // Clean up existing observer for this element
+    this.stopPerformanceMonitoring(element);
+
+    // Set up periodic check for performance data
+    const timeout = window.setInterval(() => {
+      const data = this.collectPerformanceData(element);
+      const observerData = this.performanceObservers.get(element);
+
+      if (
+        observerData &&
+        (data.loadTime !== observerData.lastData.loadTime ||
+          data.mountTime !== observerData.lastData.mountTime)
+      ) {
+        observerData.lastData = { ...data };
+        this.triggerTooltipUpdate(element);
+      }
+    }, 100);
+
+    // Store observer and timeout
+    this.performanceObservers.set(element, {
+      observer: null as any, // No need for PerformanceObserver since data is on element
+      timeout,
+      lastData: {},
+    });
+
+    // Initial data collection
+    const initialData = this.collectPerformanceData(element);
+    this.performanceObservers.get(element)!.lastData = initialData;
+  }
+
+  /**
+   * Stop monitoring performance data for an element
+   */
+  static stopPerformanceMonitoring(element: HTMLElement): void {
+    const observerData = this.performanceObservers.get(element);
+    if (observerData) {
+      clearInterval(observerData.timeout);
+      this.performanceObservers.delete(element);
+    }
+  }
+
+  /**
+   * Trigger tooltip update for an element
+   */
+  private static triggerTooltipUpdate(element: HTMLElement): void {
+    // Find the inspector element and trigger update
+    const inspector = document.querySelector('web-widget-inspector') as any;
+    if (
+      inspector &&
+      inspector.isInspectorMode &&
+      inspector.triggerTooltipUpdate
+    ) {
+      inspector.triggerTooltipUpdate(element);
+    }
+  }
+
+  /**
+   * Clean up all performance observers
+   */
+  static cleanupAllObservers(): void {
+    for (const [element, observerData] of this.performanceObservers) {
+      clearInterval(observerData.timeout);
+    }
+    this.performanceObservers.clear();
+  }
+
+  /**
+   * Generate component identifier in the same format as Web Widget
+   */
+
+  /**
    * Convert debug data to display format with priority-based sorting
    */
-  static formatDebugData(data: ElementDebugData): DebugDataItem[] {
+  static formatDebugData(
+    data: ElementDebugData,
+    element: HTMLElement
+  ): DebugDataItem[] {
     const items: DebugDataItem[] = [];
 
     if (data.isWebWidget && data.webWidgetData) {
       // Web Widget specific information - ordered by importance
       const widgetData = data.webWidgetData;
 
-      // Priority 1: Component Name (most important for identification)
-      if (widgetData.name) {
-        items.push({ key: 'Component', value: widgetData.name, priority: 1 });
+      const componentName = element.getAttribute('name');
+      if (componentName) {
+        items.push({ key: 'Component', value: componentName, priority: 1 });
       }
 
-      // Priority 2: Module Path (essential for development)
       if (widgetData.module) {
         items.push({ key: 'Module', value: widgetData.module, priority: 2 });
       }
 
-      // Priority 3: Status (critical for debugging)
+      if (widgetData.loadTime !== undefined) {
+        items.push({
+          key: 'Load Time',
+          value: `${widgetData.loadTime}ms`,
+          priority: 3,
+        });
+      }
+
+      if (widgetData.mountTime !== undefined) {
+        items.push({
+          key: 'Mount Time',
+          value: `${widgetData.mountTime}ms`,
+          priority: 3,
+        });
+      }
+
       if (widgetData.status) {
-        items.push({ key: 'Status', value: widgetData.status, priority: 3 });
+        items.push({ key: 'Status', value: widgetData.status, priority: 4 });
       }
 
-      // Priority 4: Inactive status (important state)
-      if (widgetData.inactive) {
-        items.push({ key: 'State', value: 'inactive', priority: 4 });
-      }
-
-      // Priority 5: Loading strategy (performance related)
       if (widgetData.loading) {
-        items.push({ key: 'Loading', value: widgetData.loading, priority: 5 });
+        items.push({ key: 'Loading', value: widgetData.loading, priority: 4 });
       }
 
-      // Priority 6: Render target (technical detail)
       if (widgetData.renderTarget) {
         items.push({
           key: 'Render',
           value: widgetData.renderTarget,
-          priority: 6,
+          priority: 4,
         });
       }
 
-      // Priority 7: Performance metrics (useful for optimization)
-      if (widgetData.loadTime) {
-        items.push({
-          key: 'Load Time',
-          value: `${widgetData.loadTime}ms`,
-          priority: 7,
-        });
-      }
-
-      if (widgetData.mountTime) {
-        items.push({
-          key: 'Mount Time',
-          value: `${widgetData.mountTime}ms`,
-          priority: 8,
-        });
-      }
-
-      // Priority 9: Parameters (context data)
       if (widgetData.contextData) {
         const dataKeys = Object.keys(widgetData.contextData);
         if (dataKeys.length > 0) {
           items.push({
             key: 'Parameters',
             value: `${dataKeys.length} keys`,
-            priority: 9,
+            priority: 5,
           });
         }
       }
@@ -225,7 +312,6 @@ export class DebugDataCollector {
       }
     }
 
-    // Priority 10: Size information (always last, least important)
     items.push({
       key: 'Size',
       value: `${Math.round(data.bounds.width)}×${Math.round(data.bounds.height)}px`,
@@ -241,7 +327,7 @@ export class DebugDataCollector {
    */
   static generateTooltipContent(element: HTMLElement): string {
     const debugData = this.collectElementData(element);
-    const formattedData = this.formatDebugData(debugData);
+    const formattedData = this.formatDebugData(debugData, element);
 
     // Generate table HTML with priority-based styling
     const tableRows = formattedData

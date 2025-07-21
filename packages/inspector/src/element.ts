@@ -7,7 +7,6 @@ import { designSystem, DESIGN_SYSTEM } from './utils/design-system';
 import { DebugDataCollector } from './utils/debug-data';
 import type { ElementBounds } from './types';
 import { getElementBox } from './utils/box';
-import { Z_INDEX } from './constants';
 
 export class HTMLWebWidgetInspectorElement extends LitElement {
   @property({ type: String })
@@ -52,7 +51,14 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
 
   private pressedKeys = new Set<string>();
   private tooltipElement: HTMLElement | null = null;
-  private tooltipTimeout: number | null = null;
+  private currentElementBounds: ElementBounds = {
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: 0,
+    height: 0,
+  };
 
   static override styles = css`
     :host {
@@ -63,9 +69,16 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     .inspector-toolbar *,
     .inspector-tooltip,
     .inspector-tooltip * {
-      font-family:
-        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-        Arial, sans-serif !important;
+      font-family: var(
+        --wwi-font-sans,
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        'Helvetica Neue',
+        Arial,
+        sans-serif
+      );
     }
 
     .inspector-toolbar {
@@ -75,7 +88,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       position: fixed;
       bottom: 1rem;
       left: 1rem;
-      z-index: ${Z_INDEX.TOOLBAR};
+      z-index: ${DESIGN_SYSTEM.zIndex.TOOLBAR};
       background: var(--wwi-bg, rgba(255, 255, 255, 0.95));
       color: var(--wwi-fg, #222);
       padding: 0.75rem 1rem;
@@ -84,73 +97,80 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       box-shadow:
         0 1px 3px 0 rgba(0, 0, 0, 0.1),
         0 1px 2px 0 rgba(0, 0, 0, 0.06);
-      font-family:
-        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-        Arial, sans-serif;
-      font-size: 0.875rem;
+      font-family: var(
+        --wwi-font-sans,
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        'Helvetica Neue',
+        Arial,
+        sans-serif
+      );
+      font-size: 0.75rem;
       min-width: max-content;
       transition: all 0.2s;
       backdrop-filter: blur(8px);
     }
 
     .inspector-toolbar[data-minimized='true'] {
-      padding: 0 !important;
-      gap: 0 !important;
-      min-width: 0 !important;
-      width: 32px !important;
-      height: 32px !important;
-      background: var(--wwi-bg, rgba(255, 255, 255, 0.95)) !important;
-      border: 1px solid var(--wwi-border, #e5e7eb) !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-      border-radius: 50% !important;
-      cursor: pointer !important;
-      justify-content: center !important;
-      align-items: center !important;
-      display: flex !important;
+      padding: 0;
+      gap: 0;
+      min-width: 0;
+      width: 32px;
+      height: 32px;
+      background: var(--wwi-bg, rgba(255, 255, 255, 0.95));
+      border: 1px solid var(--wwi-border, #e5e7eb);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      border-radius: 50%;
+      cursor: pointer;
+      justify-content: center;
+      align-items: center;
+      display: flex;
       transition:
         background 0.2s,
-        border 0.2s !important;
+        border 0.2s;
     }
 
     .inspector-toolbar[data-minimized='true']:hover {
-      background: var(--wwi-bg, rgba(255, 255, 255, 0.98)) !important;
-      border: 1px solid var(--wwi-border, #e5e7eb) !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+      background: var(--wwi-bg, rgba(255, 255, 255, 0.98));
+      border: 1px solid var(--wwi-border, #e5e7eb);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .inspector-toolbar[data-minimized='true'] .inspector-header {
-      display: flex !important;
-      flex: 1 1 auto !important;
-      align-items: center !important;
-      justify-content: center !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      height: 100% !important;
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      margin: 0;
+      height: 100%;
     }
 
     .inspector-toolbar[data-minimized='true'] .inspector-logo {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      width: 100% !important;
-      height: 100% !important;
-      margin: 0 !important;
-      padding: 0 !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
     }
 
     .inspector-toolbar[data-minimized='true'] .inspector-logo svg {
-      margin: 0 !important;
-      width: 16px !important;
-      height: 16px !important;
-      display: block !important;
-      opacity: 0.7 !important;
-      filter: none !important;
-      transition: opacity 0.2s !important;
+      margin: 0;
+      width: 16px;
+      height: 16px;
+      display: block;
+      opacity: 0.7;
+      filter: none;
+      transition: opacity 0.2s;
     }
 
     .inspector-toolbar[data-minimized='true']:hover .inspector-logo svg {
-      opacity: 1 !important;
-      filter: none !important;
+      opacity: 1;
+      filter: none;
     }
 
     .inspector-toolbar[data-minimized='true']
@@ -161,12 +181,12 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     .inspector-toolbar[data-minimized='true'] .inspector-info,
     .inspector-toolbar[data-minimized='true'] .inspector-actions,
     .inspector-toolbar[data-minimized='true'] .inspector-controls {
-      display: none !important;
+      display: none;
     }
 
     .inspector-overlay {
       position: fixed;
-      z-index: ${Z_INDEX.OVERLAY};
+      z-index: ${DESIGN_SYSTEM.zIndex.OVERLAY};
       pointer-events: none;
       background: repeating-linear-gradient(
         45deg,
@@ -182,7 +202,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
 
     .inspector-tooltip {
       /* Styles dynamically injected by ensureTooltipStyles */
-      display: none;
+      visibility: hidden;
     }
 
     .inspector-header {
@@ -239,7 +259,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-size: 0.875rem;
+      font-size: 0.75rem;
       color: var(--wwi-fg, #222);
       opacity: 0.7;
     }
@@ -272,7 +292,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       border-radius: 0.25rem;
       cursor: pointer;
       transition: all 0.15s ease;
-      font-size: 0.875rem;
+      font-size: 0.75rem;
       font-weight: 500;
       white-space: nowrap;
       opacity: 0.8;
@@ -283,51 +303,17 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       border-color: rgba(0, 0, 0, 0.2);
       color: var(--wwi-fg, #111);
       opacity: 1;
-      transform: translateY(-1px);
       box-shadow:
         0 1px 3px 0 rgba(0, 0, 0, 0.1),
         0 1px 2px 0 rgba(0, 0, 0, 0.06);
     }
 
     .inspector-btn[data-selected='true'] {
-      background: rgba(102, 126, 234, 0.15);
-      border-color: rgba(102, 126, 234, 0.4);
-      color: rgba(102, 126, 234, 1);
-      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+      background: rgba(34, 197, 94, 0.15);
+      border-color: #22c55e;
+      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
       opacity: 1;
       position: relative;
-    }
-
-    .inspector-btn[data-selected='true']::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      background: linear-gradient(
-        45deg,
-        rgba(102, 126, 234, 0.3),
-        rgba(102, 126, 234, 0.1)
-      );
-      border-radius: 0.375rem;
-      z-index: -1;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%,
-      100% {
-        opacity: 0.6;
-      }
-      50% {
-        opacity: 1;
-      }
-    }
-
-    .inspector-btn[data-selected='true'] svg {
-      stroke: rgba(102, 126, 234, 1);
-      filter: drop-shadow(0 0 2px rgba(102, 126, 234, 0.3));
     }
 
     .inspector-btn svg {
@@ -338,39 +324,13 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       opacity: 0.9;
     }
 
+    .inspector-controls .inspector-btn {
+      padding: 0.25rem;
+      border-radius: 50%;
+    }
+
     .inspector-toolbar[data-inspector-active='true'] {
-      border-color: rgba(102, 126, 234, 0.4);
-      box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.06),
-        0 0 0 1px rgba(102, 126, 234, 0.2);
       background: var(--wwi-bg, rgba(255, 255, 255, 0.98));
-    }
-
-    .inspector-toolbar[data-inspector-active='true']::before {
-      content: '';
-      position: absolute;
-      top: -1px;
-      left: -1px;
-      right: -1px;
-      bottom: -1px;
-      background: linear-gradient(
-        45deg,
-        rgba(102, 126, 234, 0.1),
-        rgba(102, 126, 234, 0.05)
-      );
-      border-radius: 0.5rem;
-      z-index: -1;
-      animation: toolbar-pulse 3s infinite;
-    }
-
-    @keyframes toolbar-pulse {
-      0%,
-      100% {
-        opacity: 0.3;
-      }
-      50% {
-        opacity: 0.6;
-      }
     }
 
     @media (max-width: 768px) {
@@ -380,31 +340,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
         right: 0.75rem;
         flex-wrap: wrap;
         max-width: calc(100vw - 1.25rem);
-        padding: 0.75rem 1rem;
-        gap: 0.75rem;
-      }
-
-      .inspector-btn {
-        padding: 0.75rem 0.75rem;
-        font-size: 0.875rem;
-      }
-
-      .inspector-info {
-        font-size: 0.875rem;
-      }
-
-      .logo-text {
-        gap: 0.1rem;
-      }
-
-      .logo-title {
-        font-size: 0.6rem;
-        letter-spacing: 0.04em;
-      }
-
-      .logo-subtitle {
-        font-size: 0.45rem;
-        letter-spacing: 0.12em;
       }
     }
   `;
@@ -420,9 +355,8 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
-    this.cleanupTooltip();
-
     this.cleanupInspectorElements();
+    DebugDataCollector.cleanupAllObservers();
   }
 
   private initializeTheme(): void {
@@ -499,7 +433,18 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     const target = findWebWidgetContainer(event.target as HTMLElement);
 
     if (this.hoveredElement !== target) {
+      if (this.hoveredElement) {
+        this.hoveredElement.style.removeProperty('cursor');
+        DebugDataCollector.stopPerformanceMonitoring(this.hoveredElement);
+      }
+
       this.hoveredElement = target;
+
+      // Start monitoring new element if it's a web widget
+      if (target && target.tagName.toLowerCase().includes('web-widget')) {
+        DebugDataCollector.startPerformanceMonitoring(target);
+      }
+
       this.updateState();
     }
   }
@@ -513,23 +458,24 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
         return;
       }
 
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-
       const widgetTarget = findWebWidgetContainer(event.target as HTMLElement);
-      const inspectUrl = widgetTarget?.getAttribute('import');
-      if (inspectUrl) {
-        document.body.style.cursor = 'progress';
 
-        this.openInEditor(inspectUrl, this.dir);
-        this.updateState();
+      if (widgetTarget) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const inspectUrl = widgetTarget?.getAttribute('import');
+        if (inspectUrl) {
+          document.body.style.cursor = 'progress';
+          this.openInEditor(inspectUrl, this.dir);
+          this.updateState();
+        }
       }
     }
   }
 
   private updateState(): void {
-    const shouldShowInspector = !!(this.hoveredElement && this.isInspectorMode);
     const targetKeys = this.keys;
     const shouldShowToolbar =
       this.isToolbarVisible || this.checkKeysMatch(targetKeys);
@@ -538,81 +484,76 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       this.showToolbar();
     }
 
-    this.updateOverlay(shouldShowInspector);
+    // Update inspector overlays based on current state
+    if (this.isInspectorMode && this.hoveredElement) {
+      this.updateInspectorOverlays(this.hoveredElement);
+    } else {
+      this.clearInspectorOverlays();
+    }
+
     this.setButtonSelected(this.isInspectorMode);
 
     if (this.isInspectorMode) {
-      const shouldShowPointer = !!this.hoveredElement;
-      if (shouldShowPointer) {
-        document.body.style.setProperty('cursor', 'pointer', 'important');
-      } else {
-        document.body.style.removeProperty('cursor');
+      if (this.hoveredElement) {
+        this.hoveredElement.style.cursor = 'pointer';
       }
     } else {
       document.body.style.removeProperty('cursor');
+      const allElements = document.querySelectorAll('*');
+      allElements.forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.removeProperty('cursor');
+        }
+      });
     }
 
     this.requestUpdate();
   }
 
-  private updateOverlay(show: boolean): void {
-    let highlightOverlay = document.querySelector(
-      '.web-widget-inspector-highlight-overlay'
-    ) as HTMLElement;
+  private overlayElement: HTMLElement | null = null;
 
-    if (this.isInspectorMode) {
-      if (show && this.hoveredElement) {
-        if (!highlightOverlay) {
-          highlightOverlay = document.createElement('div');
-          highlightOverlay.className = 'web-widget-inspector-highlight-overlay';
-          highlightOverlay.setAttribute('aria-hidden', 'true');
-          document.body.appendChild(highlightOverlay);
-        }
+  private createOverlayElement(): HTMLElement {
+    if (this.overlayElement) {
+      return this.overlayElement;
+    }
 
-        const rect = getElementBox(this.hoveredElement) ?? {
-          top: 0,
-          left: 0,
-          width: 0,
-          height: 0,
-        };
+    if (!this.isInspectorMode) {
+      const dummy = document.createElement('div');
+      dummy.style.visibility = 'hidden';
+      return dummy;
+    }
 
-        highlightOverlay.style.cssText = `
-          position: fixed !important;
-          top: ${rect.top}px !important;
-          left: ${rect.left}px !important;
-          width: ${rect.width}px !important;
-          height: ${rect.height}px !important;
-          z-index: 999998 !important;
-          pointer-events: none !important;
-          visibility: visible !important;
-          opacity: 1 !important;
-          display: block !important;
-          cursor: pointer !important;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
-          background: repeating-linear-gradient(
-            45deg,
-            rgba(102, 126, 234, 0.5),
-            rgba(102, 126, 234, 0.5) 5px,
-            rgba(255, 255, 255, 0.5) 5px,
-            rgba(255, 255, 255, 0.5) 10px
-          ) !important;
-          border: 2px solid rgba(102, 126, 234, 0.9) !important;
-          border-radius: 0 !important;
-          box-sizing: border-box !important;
-        `;
+    this.ensureOverlayStyles();
 
-        this.showTooltip(this.hoveredElement);
-      } else {
-        if (highlightOverlay) {
-          highlightOverlay.remove();
-        }
-        this.hideTooltip();
-      }
-    } else {
-      if (highlightOverlay) {
-        highlightOverlay.remove();
-      }
-      this.hideTooltip();
+    const overlay = document.createElement('div');
+    overlay.className = 'inspector-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.setAttribute('data-visible', 'false');
+
+    document.body.appendChild(overlay);
+    this.overlayElement = overlay;
+    return overlay;
+  }
+
+  private showOverlay(element: HTMLElement): void {
+    if (!this.isInspectorMode || !element) return;
+
+    const overlay = this.createOverlayElement();
+    const rect = this.currentElementBounds;
+
+    overlay.style.top = `${rect.top}px`;
+    overlay.style.left = `${rect.left}px`;
+    overlay.style.width = `${rect.width}px`;
+    overlay.style.height = `${rect.height}px`;
+
+    overlay.style.visibility = 'visible';
+    overlay.setAttribute('data-visible', 'true');
+  }
+
+  private cleanupOverlay(): void {
+    if (this.overlayElement) {
+      this.overlayElement.remove();
+      this.overlayElement = null;
     }
   }
 
@@ -635,7 +576,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
 
     if (!this.isInspectorMode) {
       const dummy = document.createElement('div');
-      dummy.style.display = 'none';
+      dummy.style.visibility = 'hidden';
       return dummy;
     }
 
@@ -649,6 +590,37 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     document.body.appendChild(tooltip);
     this.tooltipElement = tooltip;
     return tooltip;
+  }
+
+  private ensureOverlayStyles(): void {
+    if (!this.isInspectorMode) {
+      return;
+    }
+
+    if (document.getElementById('inspector-overlay-styles')) {
+      return;
+    }
+
+    const style = document.createElement('style');
+    style.id = 'inspector-overlay-styles';
+
+    style.textContent = `
+      .inspector-overlay {
+        position: fixed;
+        z-index: ${DESIGN_SYSTEM.zIndex.OVERLAY};
+        pointer-events: none;
+        visibility: hidden;
+        opacity: 1;
+        display: block;
+        background: rgba(34, 197, 94, 0.3);
+        border: 2px solid var(--wwi-overlay-border, #22c55e);
+        border-radius: 0;
+        box-sizing: border-box;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+    `;
+
+    document.head.appendChild(style);
   }
 
   private ensureTooltipStyles(): void {
@@ -666,7 +638,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     style.textContent = `
       .inspector-tooltip {
         position: fixed;
-        z-index: ${Z_INDEX.TOOLTIP};
+        z-index: ${DESIGN_SYSTEM.zIndex.TOOLTIP};
         pointer-events: none;
         background: var(--wwi-bg, rgba(255, 255, 255, 0.95));
         color: var(--wwi-fg, #222);
@@ -674,7 +646,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
         border-radius: 0.375rem;
         padding: ${DESIGN_SYSTEM.spacing.lg} ${DESIGN_SYSTEM.spacing.xl};
         font-size: ${DESIGN_SYSTEM.typography.fontSize.base};
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+        font-family: ${DESIGN_SYSTEM.typography.fontFamily.sans};
         line-height: ${DESIGN_SYSTEM.typography.lineHeight.normal};
         font-weight: ${DESIGN_SYSTEM.typography.fontWeight.normal};
         letter-spacing: ${DESIGN_SYSTEM.typography.letterSpacing.normal};
@@ -685,6 +657,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
         max-width: 640px;
         min-width: 280px;
         visibility: hidden;
+        display: block;
       }
 
       .tooltip-table {
@@ -715,7 +688,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
         text-align: right;
       }
 
-      /* Priority-based styling */
       .tooltip-table tr.priority-high .key {
         color: var(--wwi-fg, #222);
         font-weight: ${DESIGN_SYSTEM.typography.fontWeight.semibold};
@@ -770,25 +742,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
           padding: ${DESIGN_SYSTEM.spacing.md} ${DESIGN_SYSTEM.spacing.lg};
           gap: ${DESIGN_SYSTEM.spacing.md};
         }
-
-        .inspector-btn {
-          padding: ${DESIGN_SYSTEM.spacing.md} ${DESIGN_SYSTEM.spacing.md};
-          font-size: ${DESIGN_SYSTEM.typography.fontSize.sm};
-        }
-
-        .inspector-info {
-          font-size: ${DESIGN_SYSTEM.typography.fontSize.sm};
-        }
-
-        .inspector-tooltip {
-          font-size: ${DESIGN_SYSTEM.typography.fontSize.sm};
-          padding: ${DESIGN_SYSTEM.spacing.md} ${DESIGN_SYSTEM.spacing.lg};
-          max-width: calc(100vw - ${DESIGN_SYSTEM.spacing.xl});
-        }
-        
-        .tooltip-table {
-          font-size: ${DESIGN_SYSTEM.typography.fontSize.sm};
-        }
       }
     `;
 
@@ -830,11 +783,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
   private showTooltip(element: HTMLElement): void {
     if (!this.isInspectorMode || !element) return;
 
-    if (this.tooltipTimeout) {
-      clearTimeout(this.tooltipTimeout);
-      this.tooltipTimeout = null;
-    }
-
     const tooltip = this.createTooltipElement();
     const content = this.generateTooltipContent(element);
 
@@ -842,21 +790,12 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     tooltip.style.visibility = 'hidden';
     tooltip.style.display = 'block';
 
+    // Force reflow to get accurate dimensions
     tooltip.offsetHeight;
 
-    const elementRect = getElementBox(element);
+    const elementRect = this.currentElementBounds;
     const tooltipRect = tooltip.getBoundingClientRect();
-    const position = this.calculateSimplePosition(
-      elementRect ?? {
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: 0,
-        height: 0,
-      },
-      tooltipRect
-    );
+    const position = this.calculateSimplePosition(elementRect, tooltipRect);
 
     tooltip.style.left = `${position.x}px`;
     tooltip.style.top = `${position.y}px`;
@@ -865,11 +804,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
   }
 
   private hideTooltip(): void {
-    if (this.tooltipTimeout) {
-      clearTimeout(this.tooltipTimeout);
-      this.tooltipTimeout = null;
-    }
-
     if (this.tooltipElement) {
       this.tooltipElement.setAttribute('data-visible', 'false');
       this.tooltipElement.style.visibility = 'hidden';
@@ -881,28 +815,50 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       this.tooltipElement.remove();
       this.tooltipElement = null;
     }
-    if (this.tooltipTimeout) {
-      clearTimeout(this.tooltipTimeout);
-      this.tooltipTimeout = null;
+  }
+
+  private updateTooltipContent(): void {
+    if (this.hoveredElement && this.tooltipElement) {
+      const content = this.generateTooltipContent(this.hoveredElement);
+      this.tooltipElement.innerHTML = content;
+    }
+  }
+
+  private triggerTooltipUpdate(element: HTMLElement): void {
+    // Only update if this is the currently hovered element
+    if (this.hoveredElement === element && this.tooltipElement) {
+      this.updateTooltipContent();
     }
   }
 
   private cleanupInspectorElements(): void {
-    const highlightOverlay = document.querySelector(
-      '.web-widget-inspector-highlight-overlay'
-    );
-    if (highlightOverlay) {
-      highlightOverlay.remove();
+    // Cleanup overlay
+    if (this.overlayElement) {
+      this.overlayElement.remove();
+      this.overlayElement = null;
     }
 
+    // Cleanup overlay styles
+    const overlayStyles = document.getElementById('inspector-overlay-styles');
+    if (overlayStyles) {
+      overlayStyles.remove();
+    }
+
+    // Cleanup tooltip styles
     const tooltipStyles = document.getElementById('inspector-tooltip-styles');
     if (tooltipStyles) {
       tooltipStyles.remove();
     }
 
+    // Cleanup tooltip
     if (this.tooltipElement) {
       this.tooltipElement.remove();
       this.tooltipElement = null;
+    }
+
+    // Stop performance monitoring for current element
+    if (this.hoveredElement) {
+      DebugDataCollector.stopPerformanceMonitoring(this.hoveredElement);
     }
 
     document.body.style.removeProperty('cursor');
@@ -989,6 +945,43 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
           );
         });
     }
+  }
+
+  /**
+   * Batch update all inspector overlays for the current hovered element
+   * This avoids multiple expensive getElementBox calls
+   */
+  private updateInspectorOverlays(element: HTMLElement): void {
+    // Get bounds once and reuse for all overlays
+    const bounds = getElementBox(element);
+    this.currentElementBounds = bounds ?? {
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: 0,
+      height: 0,
+    };
+
+    // Batch update all overlays
+    this.showOverlay(element);
+    this.showTooltip(element);
+  }
+
+  private clearInspectorOverlays(): void {
+    // Clear current bounds
+    this.currentElementBounds = {
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: 0,
+      height: 0,
+    };
+
+    // Remove all overlays
+    this.cleanupOverlay();
+    this.cleanupTooltip();
   }
 
   override render() {

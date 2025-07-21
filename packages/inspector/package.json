@@ -13,10 +13,10 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@web-widget/web-widget": "workspace:*",
     "lit": "^3.0.0"
   },
   "devDependencies": {
-    "@web-widget/web-widget": "workspace:*",
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
