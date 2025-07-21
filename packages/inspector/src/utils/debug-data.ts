@@ -183,7 +183,6 @@ export class DebugDataCollector {
           data.mountTime !== observerData.lastData.mountTime)
       ) {
         observerData.lastData = { ...data };
-        this.triggerTooltipUpdate(element);
       }
     }, 100);
 
@@ -207,21 +206,6 @@ export class DebugDataCollector {
     if (observerData) {
       clearInterval(observerData.timeout);
       this.performanceObservers.delete(element);
-    }
-  }
-
-  /**
-   * Trigger tooltip update for an element
-   */
-  private static triggerTooltipUpdate(element: HTMLElement): void {
-    // Find the inspector element and trigger update
-    const inspector = document.querySelector('web-widget-inspector') as any;
-    if (
-      inspector &&
-      inspector.isInspectorMode &&
-      inspector.triggerTooltipUpdate
-    ) {
-      inspector.triggerTooltipUpdate(element);
     }
   }
 

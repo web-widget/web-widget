@@ -3,7 +3,7 @@ import { property, state } from 'lit/decorators.js';
 import { findWebWidgetContainer } from './utils/widget-finder';
 import { getStoredValue, setStoredValue } from './utils/storage';
 import { applyThemeMode } from './utils/theme';
-import { designSystem, DESIGN_SYSTEM } from './utils/design-system';
+import { DESIGN_SYSTEM } from './utils/design-system';
 import { DebugDataCollector } from './utils/debug-data';
 import type { ElementBounds } from './types';
 import { getElementBox } from './utils/box';
@@ -477,8 +477,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
 
   private updateState(): void {
     const targetKeys = this.keys;
-    const shouldShowToolbar =
-      this.isToolbarVisible || this.checkKeysMatch(targetKeys);
 
     if (!this.isToolbarVisible && this.checkKeysMatch(targetKeys)) {
       this.showToolbar();
@@ -528,7 +526,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     const overlay = document.createElement('div');
     overlay.className = 'inspector-overlay';
     overlay.setAttribute('aria-hidden', 'true');
-    overlay.setAttribute('data-visible', 'false');
 
     document.body.appendChild(overlay);
     this.overlayElement = overlay;
@@ -547,7 +544,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     overlay.style.height = `${rect.height}px`;
 
     overlay.style.visibility = 'visible';
-    overlay.setAttribute('data-visible', 'true');
   }
 
   private cleanupOverlay(): void {
@@ -585,7 +581,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     const tooltip = document.createElement('div');
     tooltip.className = 'inspector-tooltip';
     tooltip.setAttribute('aria-hidden', 'true');
-    tooltip.setAttribute('data-visible', 'false');
 
     document.body.appendChild(tooltip);
     this.tooltipElement = tooltip;
@@ -799,13 +794,11 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
 
     tooltip.style.left = `${position.x}px`;
     tooltip.style.top = `${position.y}px`;
-    tooltip.setAttribute('data-visible', 'true');
     tooltip.style.visibility = 'visible';
   }
 
   private hideTooltip(): void {
     if (this.tooltipElement) {
-      this.tooltipElement.setAttribute('data-visible', 'false');
       this.tooltipElement.style.visibility = 'hidden';
     }
   }
@@ -821,13 +814,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     if (this.hoveredElement && this.tooltipElement) {
       const content = this.generateTooltipContent(this.hoveredElement);
       this.tooltipElement.innerHTML = content;
-    }
-  }
-
-  private triggerTooltipUpdate(element: HTMLElement): void {
-    // Only update if this is the currently hovered element
-    if (this.hoveredElement === element && this.tooltipElement) {
-      this.updateTooltipContent();
     }
   }
 
