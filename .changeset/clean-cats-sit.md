@@ -1,5 +1,4 @@
 ---
-'@web-widget/web-widget': minor
 '@web-widget/inspector': minor
 ---
 
