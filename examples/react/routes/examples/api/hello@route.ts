@@ -9,19 +9,19 @@ export const handler = defineRouteHandler({
   async GET() {
     const data: HelloData = [
       {
-        title: '👋🌍',
+        title: `console.log('hello world')`,
         url: '#id0',
       },
       {
-        title: '你好世界',
+        title: `echo "hello world"`,
         url: '#id1',
       },
       {
-        title: 'Hello world',
+        title: `print('hello world')`,
         url: '#id2',
       },
       {
-        title: 'こんにちは世界',
+        title: `println!("Hello, World")`,
         url: '#id3',
       },
     ];
