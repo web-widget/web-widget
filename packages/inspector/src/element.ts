@@ -4,7 +4,11 @@ import { findWebWidgetContainer } from './utils/widget-finder';
 import { getStoredValue, setStoredValue } from './utils/storage';
 import { applyThemeMode } from './utils/theme';
 import { DESIGN_SYSTEM } from './utils/design-system';
-import { DebugDataCollector } from './utils/debug-data';
+import {
+  collectElementData,
+  formatDebugData,
+  getPriorityClass,
+} from './utils/debug-data';
 import type { ElementBounds } from './types';
 import { getElementBox } from './utils/box';
 
@@ -65,10 +69,10 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       display: contents;
     }
 
-    .inspector-toolbar,
-    .inspector-toolbar *,
-    .inspector-tooltip,
-    .inspector-tooltip * {
+    .wwi-toolbar,
+    .wwi-toolbar *,
+    .wwi-tooltip,
+    .wwi-tooltip * {
       font-family: var(
         --wwi-font-sans,
         -apple-system,
@@ -81,7 +85,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       );
     }
 
-    .inspector-toolbar {
+    .wwi-toolbar {
       display: flex;
       align-items: center;
       gap: 0.75rem;
@@ -113,7 +117,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       backdrop-filter: blur(8px);
     }
 
-    .inspector-toolbar[data-minimized='true'] {
+    .wwi-toolbar[data-minimized='true'] {
       padding: 0;
       gap: 0;
       min-width: 0;
@@ -132,13 +136,13 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
         border 0.2s;
     }
 
-    .inspector-toolbar[data-minimized='true']:hover {
+    .wwi-toolbar[data-minimized='true']:hover {
       background: var(--wwi-bg, rgba(255, 255, 255, 0.98));
       border: 1px solid var(--wwi-border, #e5e7eb);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
-    .inspector-toolbar[data-minimized='true'] .inspector-header {
+    .wwi-toolbar[data-minimized='true'] .wwi-header {
       display: flex;
       flex: 1 1 auto;
       align-items: center;
@@ -148,7 +152,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       height: 100%;
     }
 
-    .inspector-toolbar[data-minimized='true'] .inspector-logo {
+    .wwi-toolbar[data-minimized='true'] .wwi-logo {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -158,7 +162,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       padding: 0;
     }
 
-    .inspector-toolbar[data-minimized='true'] .inspector-logo svg {
+    .wwi-toolbar[data-minimized='true'] .wwi-logo svg {
       margin: 0;
       width: 16px;
       height: 16px;
@@ -168,23 +172,20 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       transition: opacity 0.2s;
     }
 
-    .inspector-toolbar[data-minimized='true']:hover .inspector-logo svg {
+    .wwi-toolbar[data-minimized='true']:hover .wwi-logo svg {
       opacity: 1;
       filter: none;
     }
 
-    .inspector-toolbar[data-minimized='true']
-      .inspector-header
-      .inspector-logo
-      span,
-    .inspector-toolbar[data-minimized='true'] .inspector-logo .logo-text,
-    .inspector-toolbar[data-minimized='true'] .inspector-info,
-    .inspector-toolbar[data-minimized='true'] .inspector-actions,
-    .inspector-toolbar[data-minimized='true'] .inspector-controls {
+    .wwi-toolbar[data-minimized='true'] .wwi-header .wwi-logo span,
+    .wwi-toolbar[data-minimized='true'] .wwi-logo .logo-text,
+    .wwi-toolbar[data-minimized='true'] .wwi-info,
+    .wwi-toolbar[data-minimized='true'] .wwi-actions,
+    .wwi-toolbar[data-minimized='true'] .wwi-controls {
       display: none;
     }
 
-    .inspector-overlay {
+    .wwi-overlay {
       position: fixed;
       z-index: ${DESIGN_SYSTEM.zIndex.OVERLAY};
       pointer-events: none;
@@ -200,19 +201,19 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       box-sizing: border-box;
     }
 
-    .inspector-tooltip {
+    .wwi-tooltip {
       /* Styles dynamically injected by ensureTooltipStyles */
       visibility: hidden;
     }
 
-    .inspector-header {
+    .wwi-header {
       display: flex;
       align-items: center;
       gap: 0.375rem;
       padding-right: 0.5rem;
     }
 
-    .inspector-logo {
+    .wwi-logo {
       display: flex;
       align-items: center;
       gap: 0.375rem;
@@ -222,7 +223,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       user-select: none;
     }
 
-    .inspector-logo svg {
+    .wwi-logo svg {
       cursor: pointer;
       color: var(--wwi-accent, #888);
       width: 16px;
@@ -255,7 +256,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       text-transform: uppercase;
     }
 
-    .inspector-info {
+    .wwi-info {
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -269,19 +270,19 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       font-weight: 500;
     }
 
-    .inspector-actions {
+    .wwi-actions {
       display: flex;
       align-items: center;
       gap: 0.375rem;
     }
 
-    .inspector-controls {
+    .wwi-controls {
       display: flex;
       align-items: center;
       gap: 0.125rem;
     }
 
-    .inspector-btn {
+    .wwi-btn {
       display: flex;
       align-items: center;
       gap: 0.25rem;
@@ -298,7 +299,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       opacity: 0.8;
     }
 
-    .inspector-btn:hover {
+    .wwi-btn:hover {
       background: rgba(0, 0, 0, 0.12);
       border-color: rgba(0, 0, 0, 0.2);
       color: var(--wwi-fg, #111);
@@ -308,7 +309,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
         0 1px 2px 0 rgba(0, 0, 0, 0.06);
     }
 
-    .inspector-btn[data-selected='true'] {
+    .wwi-btn[data-selected='true'] {
       background: rgba(34, 197, 94, 0.15);
       border-color: #22c55e;
       box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
@@ -316,7 +317,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       position: relative;
     }
 
-    .inspector-btn svg {
+    .wwi-btn svg {
       flex-shrink: 0;
       width: 14px;
       height: 14px;
@@ -324,17 +325,17 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       opacity: 0.9;
     }
 
-    .inspector-controls .inspector-btn {
+    .wwi-controls .wwi-btn {
       padding: 0.25rem;
       border-radius: 50%;
     }
 
-    .inspector-toolbar[data-inspector-active='true'] {
+    .wwi-toolbar[data-inspector-active='true'] {
       background: var(--wwi-bg, rgba(255, 255, 255, 0.98));
     }
 
     @media (max-width: 768px) {
-      .inspector-toolbar {
+      .wwi-toolbar {
         bottom: 0.75rem;
         left: 0.75rem;
         right: 0.75rem;
@@ -356,7 +357,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.cleanupInspectorElements();
-    DebugDataCollector.cleanupAllObservers();
   }
 
   private initializeTheme(): void {
@@ -435,15 +435,9 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     if (this.hoveredElement !== target) {
       if (this.hoveredElement) {
         this.hoveredElement.style.removeProperty('cursor');
-        DebugDataCollector.stopPerformanceMonitoring(this.hoveredElement);
       }
 
       this.hoveredElement = target;
-
-      // Start monitoring new element if it's a web widget
-      if (target && target.tagName.toLowerCase().includes('web-widget')) {
-        DebugDataCollector.startPerformanceMonitoring(target);
-      }
 
       this.updateState();
     }
@@ -451,7 +445,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
 
   private handleClickEvent(event: MouseEvent): void {
     if (this.isInspectorMode) {
-      const toolbar = this.renderRoot?.querySelector('.inspector-toolbar');
+      const toolbar = this.renderRoot?.querySelector('.wwi-toolbar');
       const isToolbarClick = toolbar?.contains(event.target as Node);
 
       if (isToolbarClick) {
@@ -524,7 +518,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     this.ensureOverlayStyles();
 
     const overlay = document.createElement('div');
-    overlay.className = 'inspector-overlay';
+    overlay.className = 'wwi-overlay';
     overlay.setAttribute('aria-hidden', 'true');
 
     document.body.appendChild(overlay);
@@ -554,7 +548,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
   }
 
   private setButtonSelected(selected: boolean): void {
-    const btn = this.renderRoot?.querySelector('.inspect-btn');
+    const btn = this.renderRoot?.querySelector('.wwi-inspect-btn');
     if (btn) {
       btn.setAttribute('data-selected', selected ? 'true' : 'false');
       btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
@@ -579,7 +573,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     this.ensureTooltipStyles();
 
     const tooltip = document.createElement('div');
-    tooltip.className = 'inspector-tooltip';
+    tooltip.className = 'wwi-tooltip';
     tooltip.setAttribute('aria-hidden', 'true');
 
     document.body.appendChild(tooltip);
@@ -592,15 +586,15 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       return;
     }
 
-    if (document.getElementById('inspector-overlay-styles')) {
+    if (document.getElementById('wwi-overlay-styles')) {
       return;
     }
 
     const style = document.createElement('style');
-    style.id = 'inspector-overlay-styles';
+    style.id = 'wwi-overlay-styles';
 
     style.textContent = `
-      .inspector-overlay {
+      .wwi-overlay {
         position: fixed;
         z-index: ${DESIGN_SYSTEM.zIndex.OVERLAY};
         pointer-events: none;
@@ -623,15 +617,15 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       return;
     }
 
-    if (document.getElementById('inspector-tooltip-styles')) {
+    if (document.getElementById('wwi-tooltip-styles')) {
       return;
     }
 
     const style = document.createElement('style');
-    style.id = 'inspector-tooltip-styles';
+    style.id = 'wwi-tooltip-styles';
 
     style.textContent = `
-      .inspector-tooltip {
+      .wwi-tooltip {
         position: fixed;
         z-index: ${DESIGN_SYSTEM.zIndex.TOOLTIP};
         pointer-events: none;
@@ -655,19 +649,19 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
         display: block;
       }
 
-      .tooltip-table {
+      .wwi-tooltip-table {
         width: 100%;
         border-collapse: collapse;
         font-size: ${DESIGN_SYSTEM.typography.fontSize.xs};
         line-height: ${DESIGN_SYSTEM.typography.lineHeight.normal};
       }
 
-      .tooltip-table td {
+      .wwi-tooltip-table td {
         padding: ${DESIGN_SYSTEM.spacing.xs} 0;
         vertical-align: top;
       }
 
-      .tooltip-table .key {
+      .wwi-tooltip-table .key {
         color: var(--wwi-accent, #888);
         font-weight: ${DESIGN_SYSTEM.typography.fontWeight.medium};
         padding-right: ${DESIGN_SYSTEM.spacing.lg};
@@ -676,48 +670,48 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
         opacity: 0.8;
       }
 
-      .tooltip-table .value {
+      .wwi-tooltip-table .value {
         color: var(--wwi-fg, #222);
         font-weight: ${DESIGN_SYSTEM.typography.fontWeight.normal};
         word-break: break-all;
         text-align: right;
       }
 
-      .tooltip-table tr.priority-high .key {
+      .wwi-tooltip-table tr.priority-high .key {
         color: var(--wwi-fg, #222);
         font-weight: ${DESIGN_SYSTEM.typography.fontWeight.semibold};
         opacity: 1;
       }
 
-      .tooltip-table tr.priority-high .value {
+      .wwi-tooltip-table tr.priority-high .value {
         color: var(--wwi-fg, #222);
         font-weight: ${DESIGN_SYSTEM.typography.fontWeight.medium};
       }
 
-      .tooltip-table tr.priority-medium .key {
+      .wwi-tooltip-table tr.priority-medium .key {
         color: var(--wwi-accent, #666);
         font-weight: ${DESIGN_SYSTEM.typography.fontWeight.medium};
         opacity: 0.9;
       }
 
-      .tooltip-table tr.priority-medium .value {
+      .wwi-tooltip-table tr.priority-medium .value {
         color: var(--wwi-fg, #444);
         font-weight: ${DESIGN_SYSTEM.typography.fontWeight.normal};
       }
 
-      .tooltip-table tr.priority-low .key {
+      .wwi-tooltip-table tr.priority-low .key {
         color: var(--wwi-accent, #888);
         font-weight: ${DESIGN_SYSTEM.typography.fontWeight.normal};
         opacity: 0.7;
       }
 
-      .tooltip-table tr.priority-low .value {
+      .wwi-tooltip-table tr.priority-low .value {
         color: var(--wwi-fg, #666);
         font-weight: ${DESIGN_SYSTEM.typography.fontWeight.normal};
         opacity: 0.8;
       }
 
-      .tooltip-help {
+      .wwi-tooltip-help {
         margin-top: ${DESIGN_SYSTEM.spacing.md};
         padding-top: ${DESIGN_SYSTEM.spacing.md};
         border-top: 1px solid var(--wwi-border, #e5e7eb);
@@ -772,7 +766,23 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
   }
 
   private generateTooltipContent(element: HTMLElement): string {
-    return DebugDataCollector.generateTooltipContent(element);
+    const debugData = collectElementData(element);
+    const formattedData = formatDebugData(debugData, element);
+
+    // Generate table HTML with priority-based styling
+    const tableRows = formattedData
+      .map((item) => {
+        const priorityClass = getPriorityClass(item.priority);
+        return `<tr class="${priorityClass}"><td class="key">${item.key}</td><td class="value">${item.value}</td></tr>`;
+      })
+      .join('');
+
+    // Add help text
+    const helpText = debugData.isWebWidget
+      ? '<div class="wwi-tooltip-help">💡 Click to open source code</div>'
+      : '';
+
+    return `<table class="wwi-tooltip-table">${tableRows}</table>${helpText}`;
   }
 
   private showTooltip(element: HTMLElement): void {
@@ -825,13 +835,13 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     }
 
     // Cleanup overlay styles
-    const overlayStyles = document.getElementById('inspector-overlay-styles');
+    const overlayStyles = document.getElementById('wwi-overlay-styles');
     if (overlayStyles) {
       overlayStyles.remove();
     }
 
     // Cleanup tooltip styles
-    const tooltipStyles = document.getElementById('inspector-tooltip-styles');
+    const tooltipStyles = document.getElementById('wwi-tooltip-styles');
     if (tooltipStyles) {
       tooltipStyles.remove();
     }
@@ -840,11 +850,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     if (this.tooltipElement) {
       this.tooltipElement.remove();
       this.tooltipElement = null;
-    }
-
-    // Stop performance monitoring for current element
-    if (this.hoveredElement) {
-      DebugDataCollector.stopPerformanceMonitoring(this.hoveredElement);
     }
 
     document.body.style.removeProperty('cursor');
@@ -977,12 +982,12 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
 
     return html`
       <div
-        class="inspector-toolbar"
+        class="wwi-toolbar"
         data-minimized=${this.isMinimized ? 'true' : 'false'}
         data-inspector-active=${this.isInspectorMode ? 'true' : 'false'}>
-        <div class="inspector-header">
+        <div class="wwi-header">
           <div
-            class="inspector-logo"
+            class="wwi-logo"
             tabindex="0"
             title="Web Widget Inspector"
             @click=${this.minimizeToolbar}>
@@ -1002,13 +1007,13 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
           </div>
         </div>
 
-        <div class="inspector-info">
+        <div class="wwi-info">
           <span class="widget-count">${this.widgetCount} widgets</span>
         </div>
 
-        <div class="inspector-actions">
+        <div class="wwi-actions">
           <button
-            class="inspector-btn inspect-btn"
+            class="wwi-btn wwi-inspect-btn"
             @click=${this.toggleInspector}
             title="Click to activate widget inspector (ESC to exit)"
             aria-label="Activate widget inspector mode">
@@ -1028,7 +1033,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
           </button>
 
           <button
-            class="inspector-btn page-btn"
+            class="wwi-btn wwi-page-btn"
             @click=${() => {
               const currentFilePath = this.getCurrentFilePath();
               if (currentFilePath) {
@@ -1053,9 +1058,9 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
           </button>
         </div>
 
-        <div class="inspector-controls">
+        <div class="wwi-controls">
           <button
-            class="inspector-btn hide-btn"
+            class="wwi-btn wwi-hide-btn"
             @click=${this.hideToolbar}
             title="Hide Web Widget Inspector"
             aria-label="Hide inspector toolbar">
@@ -1073,7 +1078,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
             </svg>
           </button>
           <button
-            class="inspector-btn toggle-btn"
+            class="wwi-btn wwi-toggle-btn"
             @click=${this.minimizeToolbar}
             title="Minimize Web Widget Inspector"
             aria-label="Minimize inspector toolbar">
