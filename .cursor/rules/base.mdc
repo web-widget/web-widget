@@ -1,0 +1,327 @@
+---
+alwaysApply: true
+---
+
+# Web Widget Monorepo - Cursor Rules
+
+## Project Overview
+
+This is a monorepo for the Web Widget project, which provides a web front-end application container system with support for multiple frameworks (React, Vue, Vue2) and a web router based on [WinterCG](https://wintercg.org/).
+
+## Architecture & Structure
+
+### Monorepo Organization
+
+- **Root level**: Configuration files, scripts, and workspace management
+- **`packages/`**: All published packages with `@web-widget/` namespace
+- **`internal/`**: Internal packages (eslint-config, etc.)
+- **`examples/`**: Framework-specific examples (React, Vue, Vue2, flags)
+- **`playgrounds/`**: Development playgrounds for testing
+- **`benchmarks/`**: Performance benchmarking tools
+- **`docs/`**: Project documentation
+
+### Package Structure
+
+Each package follows this structure:
+
+```
+package-name/
+├── package.json          # Package configuration
+├── src/                  # Source code
+├── README.md            # Package documentation
+├── CHANGELOG.md         # Changelog
+└── tsconfig.json        # TypeScript configuration
+```
+
+## Documentation & Language Standards
+
+### Documentation Language
+
+- **Chinese documentation**: When users describe in Chinese, prioritize creating documentation in Chinese, but follow the `*.zh.md` suffix convention
+- **English code comments**: Use English for code comments and configuration files
+- **Meaningful comments**: Avoid procedural descriptions in comments; comments must be useful
+- **Important notes**: Use `NOTE:` prefix for comments that require special attention
+
+## Coding Standards
+
+### TypeScript Configuration
+
+- Use strict TypeScript configuration
+- Prefer ES modules (`"type": "module"`)
+- Use `tsup` for building packages
+- Export types alongside JavaScript modules
+
+### Package Naming & Exports
+
+- All packages use `@web-widget/` namespace
+- Use workspace dependencies (`workspace:*`) for internal packages
+- Export both development and production builds
+- Provide proper TypeScript declarations
+
+### Code Style
+
+- Use ESLint with `@internal/eslint-config`
+- Prettier for code formatting
+- Follow consistent naming conventions:
+  - `camelCase` for variables and functions
+  - `PascalCase` for classes and types
+  - `UPPER_SNAKE_CASE` for constants
+  - `kebab-case` for file names
+
+### File Organization
+
+- Group related functionality in modules
+- Use index files for clean exports
+- Separate client and server code when applicable
+- Keep test files close to source files
+
+## Framework Support
+
+### React Integration
+
+- Package: `@web-widget/react`
+- Support for React components and hooks
+- Client-side hydration and server-side rendering
+
+### Vue Integration
+
+- Packages: `@web-widget/vue` and `@web-widget/vue2`
+- Support for Vue 3 and Vue 2
+- Component lifecycle management
+
+### Web Router
+
+- Package: `@web-widget/web-router`
+- Web Service Workers-based routing
+- Server-side rendering capabilities
+
+### Schema & Module Format
+
+- **Package**: `@web-widget/schema`
+- **Purpose**: Technology-agnostic module format standard that defines the structure and types for web application modules
+- **Supported by**: Both Web Router and Web Widget Element for loading standardized modules
+- **Module Types**:
+  - **Route Modules**: Handle HTTP requests and render pages with components, handlers, and metadata
+  - **Widget Modules**: Reusable components that work on both server and client (isomorphic)
+  - **Action Modules**: Server-side functions callable from the client for operations
+  - **Middleware Modules**: Request processing and context modification
+- **Core Features**:
+  - Type-safe interfaces with comprehensive TypeScript definitions
+  - Web standards compliance (Fetch API, ReadableStream, HTTP methods)
+  - Framework-agnostic design for cross-technology interoperability
+  - Clear separation of concerns with distinct module responsibilities
+
+### Web Widget Element
+
+- **Package**: `@web-widget/web-widget`
+- **Custom Element**: `<web-widget>` - A Web Components-based container for dynamic widget loading
+- **Core Features**:
+  - Dynamic module loading with lifecycle management
+  - Support for multiple loading strategies (`eager`, `lazy`, `idle`)
+  - Render target options (`light` DOM or `shadow` DOM)
+  - Auto-mounting and lifecycle state management
+  - Performance monitoring and error handling
+  - Context data and metadata support
+- **Lifecycle States**: Initial → Loading → Loaded → Bootstrapping → Bootstrapped → Mounting → Mounted
+- **Integration**: Works with React, Vue, and Vue2 frameworks through dedicated packages
+
+## Development Workflow
+
+### Package Management
+
+- Use `pnpm` as package manager
+- Workspace dependencies for internal packages
+- Consistent versioning across packages
+- Use `turbo` for build orchestration
+
+### Testing Strategy
+
+- Unit tests with appropriate frameworks (vitest, web-test-runner)
+- Coverage reporting with `c8`
+- Snapshot testing for UI components
+- Integration tests for router functionality
+
+### Build Process
+
+- Use `tsup` for TypeScript compilation
+- Separate client and server builds
+- Tree-shaking and optimization
+- Proper source maps for debugging
+
+## Widget Lifecycle Management
+
+### Container States
+
+The widget container manages these lifecycle states:
+
+- `initial` → `loading` → `loaded`
+- `bootstrapping` → `bootstrapped`
+- `mounting` → `mounted`
+- `updating` → `mounted`
+- `unmounting` → `loaded`
+- `unloading` → `initial`
+
+### Error Handling
+
+- Graceful error states for each lifecycle phase
+- Proper error recovery mechanisms
+- Timeout handling for async operations
+
+## Performance Considerations
+
+### Caching
+
+- Use `@web-widget/lifecycle-cache` for performance
+- Implement proper cache invalidation
+- Memory management for widget instances
+
+### Bundle Optimization
+
+- Tree-shaking for unused code
+- Code splitting for large applications
+- Lazy loading of widget modules
+
+## Security & Best Practices
+
+### Content Security
+
+- Use `@web-widget/purify` for HTML sanitization
+- Validate all user inputs
+- Implement proper CSP headers
+
+### Error Boundaries
+
+- Graceful error handling in widgets
+- Fallback UI for failed components
+- Proper error reporting
+
+## Documentation Standards
+
+### Code Documentation
+
+- Use JSDoc for public APIs
+- Document complex algorithms and business logic
+- Include usage examples in comments
+
+### Package Documentation
+
+- Clear README files for each package
+- API documentation with examples
+- Migration guides for breaking changes
+
+## Git Workflow
+
+### Commit Standards
+
+- Use conventional commits format
+- Reference issues in commit messages
+- Keep commits focused and atomic
+
+### Branch Strategy
+
+- Main branch for stable releases
+- Feature branches for new development
+- Proper PR reviews before merging
+
+## Testing Guidelines
+
+### Unit Tests
+
+- Test all public APIs
+- Mock external dependencies
+- Use descriptive test names
+- Maintain good test coverage
+
+### Integration Tests
+
+- Test widget lifecycle end-to-end
+- Verify framework integrations
+- Test router functionality
+
+### Performance Tests
+
+- Use benchmarks for performance-critical code
+- Monitor bundle sizes
+- Track runtime performance
+
+## Deployment & Distribution
+
+### Package Publishing
+
+- Use `changesets` for version management
+- Automated publishing workflow
+- Proper changelog generation
+
+### Example Applications
+
+- Maintain working examples for each framework
+- Keep examples up-to-date with latest features
+- Provide clear setup instructions
+
+## Development Tools
+
+### IDE Configuration
+
+- Use TypeScript for better IntelliSense
+- Configure ESLint and Prettier
+- Set up proper debugging configurations
+
+### Debugging
+
+- Use inspector tools for widget debugging
+- Proper source maps for error tracking
+- Development mode with hot reloading
+
+## Performance Optimization
+
+### Bundle Size
+
+- Minimize dependencies
+- Use dynamic imports for large modules
+- Implement proper tree-shaking
+
+### Runtime Performance
+
+- Optimize widget lifecycle operations
+- Use efficient data structures
+- Implement proper memory management
+
+### Caching Strategy
+
+- Cache widget modules appropriately
+- Implement smart cache invalidation
+- Use browser caching effectively
+
+## Security Considerations
+
+### Input Validation
+
+- Validate all user inputs
+- Sanitize HTML content
+- Implement proper XSS protection
+
+### CSP Compliance
+
+- Ensure Content Security Policy compliance
+- Validate script sources
+- Implement proper sandboxing
+
+## Maintenance
+
+### Dependency Management
+
+- Regular dependency updates
+- Security vulnerability scanning
+- Compatibility testing
+
+### Code Quality
+
+- Regular code reviews
+- Automated quality checks
+- Performance monitoring
+
+### Documentation Updates
+
+- Keep documentation current
+- Update examples regularly
+- Maintain migration guides

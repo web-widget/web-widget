@@ -1,0 +1,31 @@
+{
+  "name": "@benchmarks/web-router",
+  "description": "Performance benchmarking for web frameworks with configuration-driven design",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "benchmark": "node src/runner/benchmark-centralized.js",
+    "report": "node src/runner/report.js",
+    "generate-report": "node src/runner/generate-report.js",
+    "benchmark:node24": "./run-with-fnm.sh",
+    "test:compatibility": "node test-compatibility.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.17.1",
+    "@koa/router": "^13.1.1",
+    "@web-widget/node": "workspace:*",
+    "@web-widget/web-router": "workspace:*",
+    "autocannon": "^8.0.0",
+    "express": "^5.1.0",
+    "fastify": "^5.4.0",
+    "hono": "^4.8.10",
+    "koa": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.0",
+    "@types/koa": "^2.13.0",
+    "@types/node": "^22.2.0",
+    "typescript": "^5.5.4"
+  }
+}
