@@ -1,0 +1,459 @@
+{
+  "route-patterns": {
+    "static": {
+      "description": "Static route matching",
+      "routes": [
+        {
+          "pattern": {
+            "hono": "/",
+            "web-router": "/",
+            "web-router#direct": "/",
+            "web-router#manifest": "/",
+            "urlpattern-simple": "/",
+            "express": "/",
+            "fastify": "/",
+            "koa": "/"
+          },
+          "test-case": "/",
+          "expected-response": {
+            "status": 200,
+            "contentType": "text/plain",
+            "content": "Home page"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/hello",
+            "web-router": "/hello",
+            "web-router#direct": "/hello",
+            "web-router#manifest": "/hello",
+            "urlpattern-simple": "/hello",
+            "express": "/hello",
+            "fastify": "/hello",
+            "koa": "/hello"
+          },
+          "test-case": "/hello",
+          "expected-response": {
+            "status": 200,
+            "contentType": "text/plain",
+            "content": "Hello World!"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/about",
+            "web-router": "/about",
+            "web-router#direct": "/about",
+            "web-router#manifest": "/about",
+            "urlpattern-simple": "/about",
+            "express": "/about",
+            "fastify": "/about",
+            "koa": "/about"
+          },
+          "test-case": "/about",
+          "expected-response": {
+            "status": 200,
+            "contentType": "text/plain",
+            "content": "About page"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/contact",
+            "web-router": "/contact",
+            "web-router#direct": "/contact",
+            "web-router#manifest": "/contact",
+            "urlpattern-simple": "/contact",
+            "express": "/contact",
+            "fastify": "/contact",
+            "koa": "/contact"
+          },
+          "test-case": "/contact",
+          "expected-response": {
+            "status": 200,
+            "contentType": "text/plain",
+            "content": "Contact page"
+          }
+        }
+      ]
+    },
+    "required-params": {
+      "description": "Required parameter matching",
+      "routes": [
+        {
+          "pattern": {
+            "hono": "/users/:id",
+            "web-router": "/users/:id",
+            "web-router#direct": "/users/:id",
+            "web-router#manifest": "/users/:id",
+            "urlpattern-simple": "/users/:id",
+            "express": "/users/:id",
+            "fastify": "/users/:id",
+            "koa": "/users/:id"
+          },
+          "test-case": "/users/123",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"id\":\"123\",\"type\":\"user\",\"pattern\":\"required-param\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/posts/:slug",
+            "web-router": "/posts/:slug",
+            "web-router#direct": "/posts/:slug",
+            "web-router#manifest": "/posts/:slug",
+            "urlpattern-simple": "/posts/:slug",
+            "express": "/posts/:slug",
+            "fastify": "/posts/:slug",
+            "koa": "/posts/:slug"
+          },
+          "test-case": "/posts/my-post",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"slug\":\"my-post\",\"type\":\"post\",\"pattern\":\"required-param\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/files/:name",
+            "web-router": "/files/:name",
+            "web-router#direct": "/files/:name",
+            "web-router#manifest": "/files/:name",
+            "urlpattern-simple": "/files/:name",
+            "express": "/files/:name",
+            "fastify": "/files/:name",
+            "koa": "/files/:name"
+          },
+          "test-case": "/files/document.pdf",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"name\":\"document.pdf\",\"type\":\"file\",\"pattern\":\"required-param\"}"
+          }
+        }
+      ]
+    },
+    "optional-params": {
+      "description": "Optional parameter matching",
+      "routes": [
+        {
+          "pattern": {
+            "hono": "/users/:id?",
+            "web-router": "/users/:id?",
+            "web-router#direct": "/users/:id?",
+            "web-router#manifest": "/users/:id?",
+            "urlpattern-simple": "/users/:id?",
+            "express": "/users",
+            "fastify": "/users",
+            "koa": "/users"
+          },
+          "test-case": "/users",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"message\":\"All users\",\"pattern\":\"optional-param\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/api/:version?",
+            "web-router": "/api/:version?",
+            "web-router#direct": "/api/:version?",
+            "web-router#manifest": "/api/:version?",
+            "urlpattern-simple": "/api/:version?",
+            "express": "/api",
+            "fastify": "/api",
+            "koa": "/api"
+          },
+          "test-case": "/api",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"message\":\"API root\",\"pattern\":\"optional-param\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/api/:version?",
+            "web-router": "/api/:version?",
+            "web-router#direct": "/api/:version?",
+            "web-router#manifest": "/api/:version?",
+            "urlpattern-simple": "/api/:version?",
+            "express": "/api/:version",
+            "fastify": "/api/:version",
+            "koa": "/api/:version"
+          },
+          "test-case": "/api/v1",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"version\":\"v1\",\"type\":\"api\",\"pattern\":\"optional-param\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/users/:id",
+            "web-router": "/users/:id",
+            "web-router#direct": "/users/:id",
+            "web-router#manifest": "/users/:id",
+            "urlpattern-simple": "/users/:id",
+            "express": "/users/:id",
+            "fastify": "/users/:id",
+            "koa": "/users/:id"
+          },
+          "test-case": "/users/123",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"id\":\"123\",\"type\":\"user\",\"pattern\":\"required-param\"}"
+          }
+        }
+      ]
+    },
+    "regex-numeric": {
+      "description": "Numeric regex matching",
+      "routes": [
+        {
+          "pattern": {
+            "hono": "/articles/:id{[0-9]+}",
+            "web-router": "/articles/:id([0-9]+)",
+            "web-router#direct": "/articles/:id([0-9]+)",
+            "web-router#manifest": "/articles/:id([0-9]+)",
+            "urlpattern-simple": "/articles/:id([0-9]+)",
+            "express": "/articles/:id",
+            "fastify": "/articles/:id",
+            "koa": "/articles/:id"
+          },
+          "test-case": "/articles/123",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"id\":\"123\",\"type\":\"article\",\"pattern\":\"regex-numeric\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/comments/:id{[0-9]+}",
+            "web-router": "/comments/:id([0-9]+)",
+            "web-router#direct": "/comments/:id([0-9]+)",
+            "web-router#manifest": "/comments/:id([0-9]+)",
+            "urlpattern-simple": "/comments/:id([0-9]+)",
+            "express": "/comments/:id",
+            "fastify": "/comments/:id",
+            "koa": "/comments/:id"
+          },
+          "test-case": "/comments/456",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"id\":\"456\",\"type\":\"comment\",\"pattern\":\"regex-numeric\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/api/users/:id{[0-9]+}",
+            "web-router": "/api/users/:id([0-9]+)",
+            "web-router#direct": "/api/users/:id([0-9]+)",
+            "web-router#manifest": "/api/users/:id([0-9]+)",
+            "urlpattern-simple": "/api/users/:id([0-9]+)",
+            "express": "/api/users/:id",
+            "fastify": "/api/users/:id",
+            "koa": "/api/users/:id"
+          },
+          "test-case": "/api/users/789",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"id\":\"789\",\"type\":\"api-user\",\"pattern\":\"regex-numeric\"}"
+          }
+        }
+      ]
+    },
+    "regex-alphanumeric": {
+      "description": "Alphanumeric regex matching",
+      "routes": [
+        {
+          "pattern": {
+            "hono": "/uploads/:filename{[a-zA-Z0-9._-]+}",
+            "web-router": "/uploads/:filename(.+)",
+            "web-router#direct": "/uploads/:filename(.+)",
+            "web-router#manifest": "/uploads/:filename(.+)",
+            "urlpattern-simple": "/uploads/:filename(.+)",
+            "express": "/uploads/:filename",
+            "fastify": "/uploads/:filename",
+            "koa": "/uploads/:filename"
+          },
+          "test-case": "/uploads/document.pdf",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"filename\":\"document.pdf\",\"type\":\"upload\",\"pattern\":\"regex-alphanumeric\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/tags/:tag{[a-z]+}",
+            "web-router": "/tags/:tag([a-z]+)",
+            "web-router#direct": "/tags/:tag([a-z]+)",
+            "web-router#manifest": "/tags/:tag([a-z]+)",
+            "urlpattern-simple": "/tags/:tag([a-z]+)",
+            "express": "/tags/:tag",
+            "fastify": "/tags/:tag",
+            "koa": "/tags/:tag"
+          },
+          "test-case": "/tags/javascript",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"tag\":\"javascript\",\"type\":\"tag\",\"pattern\":\"regex-alphanumeric\"}"
+          }
+        }
+      ]
+    },
+    "nested-params": {
+      "description": "Nested parameter matching",
+      "routes": [
+        {
+          "pattern": {
+            "hono": "/users/:id/posts/:postId",
+            "web-router": "/users/:id/posts/:postId",
+            "web-router#direct": "/users/:id/posts/:postId",
+            "web-router#manifest": "/users/:id/posts/:postId",
+            "urlpattern-simple": "/users/:id/posts/:postId",
+            "express": "/users/:id/posts/:postId",
+            "fastify": "/users/:id/posts/:postId",
+            "koa": "/users/:id/posts/:postId"
+          },
+          "test-case": "/users/123/posts/456",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"id\":\"123\",\"postId\":\"456\",\"type\":\"user-post\",\"pattern\":\"nested-params\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/api/:version/users/:id",
+            "web-router": "/api/:version/users/:id",
+            "web-router#direct": "/api/:version/users/:id",
+            "web-router#manifest": "/api/:version/users/:id",
+            "urlpattern-simple": "/api/:version/users/:id",
+            "express": "/api/:version/users/:id",
+            "fastify": "/api/:version/users/:id",
+            "koa": "/api/:version/users/:id"
+          },
+          "test-case": "/api/v1/users/789",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"version\":\"v1\",\"id\":\"789\",\"type\":\"api-user\",\"pattern\":\"nested-params\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/blog/:year/:month/:slug",
+            "web-router": "/blog/:year/:month/:slug",
+            "web-router#direct": "/blog/:year/:month/:slug",
+            "web-router#manifest": "/blog/:year/:month/:slug",
+            "urlpattern-simple": "/blog/:year/:month/:slug",
+            "express": "/blog/:year/:month/:slug",
+            "fastify": "/blog/:year/:month/:slug",
+            "koa": "/blog/:year/:month/:slug"
+          },
+          "test-case": "/blog/2024/03/my-post",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"year\":\"2024\",\"month\":\"03\",\"slug\":\"my-post\",\"type\":\"blog-post\",\"pattern\":\"nested-params\"}"
+          }
+        }
+      ]
+    },
+    "complex-regex": {
+      "description": "Complex regex pattern matching",
+      "routes": [
+        {
+          "pattern": {
+            "hono": "/blog/:year{[0-9][0-9][0-9][0-9]}/:month{[0-9][0-9]}/:slug{[a-z0-9-]+}",
+            "web-router": "/blog/:year(\\d{4})/:month(\\d{2})/:slug(.+)",
+            "web-router#direct": "/blog/:year(\\d{4})/:month(\\d{2})/:slug(.+)",
+            "web-router#manifest": "/blog/:year(\\d{4})/:month(\\d{2})/:slug(.+)",
+            "urlpattern-simple": "/blog/:year(\\d{4})/:month(\\d{2})/:slug(.+)",
+            "express": "/blog/:year/:month/:slug",
+            "fastify": "/blog/:year/:month/:slug",
+            "koa": "/blog/:year/:month/:slug"
+          },
+          "test-case": "/blog/2024/03/my-post",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"year\":\"2024\",\"month\":\"03\",\"slug\":\"my-post\",\"type\":\"blog-post\",\"pattern\":\"complex-regex\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/products/:category{[a-z]+}/:id{[0-9]+}",
+            "web-router": "/products/:category([a-z]+)/:id([0-9]+)",
+            "web-router#direct": "/products/:category([a-z]+)/:id([0-9]+)",
+            "web-router#manifest": "/products/:category([a-z]+)/:id([0-9]+)",
+            "urlpattern-simple": "/products/:category([a-z]+)/:id([0-9]+)",
+            "express": "/products/:category/:id",
+            "fastify": "/products/:category/:id",
+            "koa": "/products/:category/:id"
+          },
+          "test-case": "/products/electronics/456",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"category\":\"electronics\",\"id\":\"456\",\"type\":\"product\",\"pattern\":\"complex-regex\"}"
+          }
+        },
+        {
+          "pattern": {
+            "hono": "/api/:version{v[0-9]+}/:resource{[a-z]+}",
+            "web-router": "/api/:version(v[0-9]+)/:resource([a-z]+)",
+            "web-router#direct": "/api/:version(v[0-9]+)/:resource([a-z]+)",
+            "web-router#manifest": "/api/:version(v[0-9]+)/:resource([a-z]+)",
+            "urlpattern-simple": "/api/:version(v[0-9]+)/:resource([a-z]+)",
+            "express": "/api/:version/:resource",
+            "fastify": "/api/:version/:resource",
+            "koa": "/api/:version/:resource"
+          },
+          "test-case": "/api/v1/users",
+          "expected-response": {
+            "status": 200,
+            "contentType": "application/json",
+            "content": "{\"version\":\"v1\",\"resource\":\"users\",\"type\":\"api\",\"pattern\":\"complex-regex\"}"
+          }
+        }
+      ]
+    }
+  },
+  "test-configuration": {
+    "patterns": [
+      "static",
+      "required-params",
+      "optional-params",
+      "regex-numeric",
+      "regex-alphanumeric",
+      "nested-params",
+      "complex-regex"
+    ],
+    "frameworks": [
+      "hono",
+      "web-router",
+      "web-router#direct",
+      "web-router#manifest",
+      "urlpattern-simple",
+      "express",
+      "fastify",
+      "koa"
+    ],
+    "benchmark-duration": 5,
+    "connections": 50,
+    "pipelining": 4
+  }
+}

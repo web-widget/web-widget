@@ -5,6 +5,7 @@ packages:
   - 'playgrounds/widget/packages/*'
   - 'packages/*'
   - 'internal/*'
+  - 'benchmarks/*'
 
 catalog:
   '@types/jest': ^29.5.12
