@@ -1,6 +1,6 @@
 # Web Router Benchmark
 
-Performance benchmarking for web frameworks based on `routes.json` configuration.
+Performance benchmarking for web frameworks with configuration-driven design.
 
 ## Quick Start
 
@@ -15,36 +15,19 @@ pnpm benchmark
 pnpm test:compatibility
 ```
 
-## Configuration
-
-All route configurations are defined in `config/routes.json`.
-
 ## Project Structure
 
 ```
 benchmarks/web-router/
 ├── config/
-│   └── routes.json              # Core configuration file
+│   └── routes.json              # Centralized route configuration
 ├── src/
 │   ├── frameworks/              # Framework adapters
-│   │   ├── index.js             # Unified entry point
-│   │   ├── hono.js             # Hono adapter
-│   │   ├── web-router.js        # Web Router adapter (Direct mode)
-│   │   ├── web-router[manifest].js  # Web Router adapter (Manifest mode)
-│   │   ├── urlpattern-simple.js # URLPattern-based simple framework
-│   │   ├── express.js           # Express adapter
-│   │   ├── fastify.js           # Fastify adapter
-│   │   └── koa.js              # Koa adapter
-│   ├── runner/
-│   │   ├── benchmark-centralized.js  # Main benchmark runner
-│   │   ├── report.js            # Report generator
-│   │   └── generate-report.js   # Standalone report generator
-│   ├── utils/
-│   │   └── route-manager.js     # Route management utilities
-├── reports/                     # Generated benchmark reports
-├── docs/                        # Documentation
-├── test-compatibility.js        # Framework compatibility tester
-├── run-with-fnm.sh             # Node.js version manager script
+│   ├── runner/                  # Benchmark runners
+│   └── utils/                   # Utilities
+├── reports/                     # Generated reports
+├── scripts/                     # Node.js version runners
+├── tools/                       # Testing tools
 └── package.json
 ```
 
@@ -53,59 +36,92 @@ benchmarks/web-router/
 - **Hono** - Modern web framework with Web API compatibility
 - **Web Router** - Direct mode (`app.get(route, fn)`)
 - **Web Router#Manifest** - Manifest mode (`WebRouter.fromManifest()`)
-- **urlpattern-simple** - Minimal URLPattern-based framework for performance isolation
+- **urlpattern-simple** - Minimal URLPattern-based framework
 - **Express** - Traditional Node.js web framework
 - **Fastify** - Fast and low overhead web framework
 - **Koa** - Lightweight and modular web framework
 
+## Node.js Version Compatibility
+
+**Node.js 18+ (Recommended):**
+
+- ✅ Native Web API support
+- ✅ All frameworks use same APIs (fair comparison)
+
+**Node.js < 18:**
+
+- ❌ Not supported
+
+## Available Scripts
+
+### Core Scripts
+
+```bash
+pnpm benchmark              # Run benchmarks
+pnpm report                 # Generate reports
+pnpm test:compatibility     # Test framework compatibility
+```
+
+### Node.js Version Scripts
+
+```bash
+pnpm benchmark:node18       # Node.js 18.x
+pnpm benchmark:node20       # Node.js 20.x
+pnpm benchmark:node22       # Node.js 22.x
+pnpm benchmark:node24       # Node.js 24.x
+pnpm benchmark:all-versions # All supported versions
+```
+
 ## Adding New Frameworks
 
-### Step 1: Create Framework Adapter
+### 1. Create Framework Adapter
 
-Create a new file in `src/frameworks/`:
-
-```javascript
-// src/frameworks/my-framework.js
-import MyFramework from 'my-framework';
-
-export function createMyFrameworkAdapter() {
-  return {
-    name: 'my-framework',
-    createApp: () => new MyFramework(),
-    registerRoute: (app, route, expected, description) => {
-      app.get(route, (req, res) => {
-        if (expected) {
-          res.type(expected.contentType);
-          res.send(expected.content);
-        } else {
-          res.send(description);
-        }
-      });
-    },
-    startServer: async (app) => {
-      return new Promise((resolve) => {
-        const server = app.listen(0, () => {
-          const address = server.address();
-          const port = typeof address === 'object' ? address?.port : 0;
-          const baseUrl = `http://localhost:${port}`;
-          resolve({ server, baseUrl });
-        });
-      });
-    },
-  };
-}
-```
-
-### Step 2: Register and Configure
-
-Add to `src/frameworks/index.js`:
+Create `src/frameworks/my-framework.js`:
 
 ```javascript
-const frameworkConfigs = {
-  // ... existing frameworks
-  'my-framework': createMyFrameworkAdapter(),
+export default {
+  name: 'my-framework',
+
+  // Optional: Check if framework is supported in current environment
+  isSupported: () => {
+    // Add your compatibility check logic here
+    return true;
+  },
+
+  // Required: Create the framework application instance
+  createApp: () => {
+    // Return your framework's app instance
+    return new MyFramework();
+  },
+
+  // Required: Register a route with the framework
+  registerRoute: (app, route, expected, description) => {
+    app.get(route, (req, res) => {
+      if (expected) {
+        res.type(expected.contentType);
+        res.send(expected.content);
+      } else {
+        res.send(description);
+      }
+    });
+  },
+
+  // Required: Start the server and return server info
+  startServer: async (app) => {
+    return new Promise((resolve) => {
+      const server = app.listen(0, () => {
+        const address = server.address();
+        const port = typeof address === 'object' ? address?.port : 0;
+        const baseUrl = `http://localhost:${port}`;
+        console.log(`✅ my-framework server started at ${baseUrl}`);
+        resolve({ server, baseUrl });
+      });
+    });
+  },
 };
 ```
+
+### 2. Register Framework
 
 Add to `config/routes.json`:
 
@@ -117,54 +133,34 @@ Add to `config/routes.json`:
 }
 ```
 
-### Framework Types
+The framework will be automatically detected and loaded from `src/frameworks/my-framework.js`.
 
-**Traditional (Express/Fastify):** Use `app.get(route, handler)` pattern
-**Web API (Hono):** Use `app.get(route, (c) => new Response())` pattern  
-**Middleware (Koa):** Use `router.get(route, (ctx) => {})` pattern
+## Report Generation
 
-### Key Points
+Reports are automatically generated in multiple formats:
 
-- Use port 0 for random port assignment
-- Set correct Content-Type headers
-- Handle errors gracefully
-- Add `isSupported()` for frameworks with specific requirements
-
-For detailed examples, see the framework adapter files in `src/frameworks/`.
-
-## Available Scripts
-
-```bash
-# Run benchmarks
-pnpm benchmark
-
-# Generate reports from existing results
-pnpm report
-
-# Generate standalone report
-pnpm generate-report
-
-# Run benchmarks with Node.js 24.4.1 (using fnm)
-pnpm benchmark:node24
-
-# Test framework compatibility
-pnpm test:compatibility
+```
+reports/
+├── latest/                      # Most recent reports
+│   ├── benchmark-report-*.md   # Detailed analysis
+│   ├── benchmark-results-*.json # Raw data
+│   └── performance-chart-*.txt # ASCII charts
+└── archive/                     # Historical reports
 ```
 
-## Framework Compatibility
+### Quick Access
 
-The system automatically detects which frameworks are supported in your current Node.js environment and skips unsupported frameworks.
+```bash
+# View latest report
+cat reports/latest/benchmark-report-*.md
 
-- **URLPattern-based frameworks** (web-router, web-router#manifest, urlpattern-simple) require Node.js 18+
-- **Traditional frameworks** (hono, express, fastify, koa) work with Node.js 14+
-
-Test compatibility: `pnpm test:compatibility`
+# View performance chart
+cat reports/latest/performance-chart-*.txt
+```
 
 ## Using Specific Node.js Versions
 
-If you want to run benchmarks with a specific Node.js version (e.g., 24.4.1) without upgrading your system Node.js:
-
-### Method 1: Using fnm (Recommended)
+### Using fnm (Recommended)
 
 ```bash
 # Install fnm
@@ -174,10 +170,23 @@ curl -fsSL https://fnm.vercel.app/install | bash
 fnm install 24.4.1
 
 # Run benchmarks
-pnpm benchmark:node24
+./scripts/run-with-node.sh 24
 ```
 
-### Method 2: Using Volta
+### Using nvm
+
+```bash
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Install Node.js 24.4.1
+nvm install 24.4.1
+
+# Run benchmarks
+./scripts/run-with-node.sh 24
+```
+
+### Using Volta
 
 ```bash
 # Install Volta
@@ -190,23 +199,43 @@ volta install node@24.4.1
 volta run node@24.4.1 -- pnpm benchmark
 ```
 
-## Report Generation
+## Key Features
 
-The benchmark system generates reports in Markdown, JSON, and ASCII chart formats, saved in the `./reports/` directory.
-
-## Configuration-Driven Design
-
-All route definitions are centralized in `routes.json` with framework-specific syntax defined declaratively.
+- **Process isolation**: Each framework runs in its own process
+- **Standard IPC communication**: Uses Node.js IPC instead of stdout parsing
+- **Configuration-driven**: All routes defined in `routes.json`
+- **Framework-agnostic**: Unified adapter interface
+- **Real performance testing**: Uses autocannon for accurate metrics
+- **Response validation**: Ensures test correctness
+- **Multiple report formats**: Markdown, JSON, ASCII charts
+- **Automatic compatibility detection**: Skips unsupported frameworks
+- **Complete isolation**: Prevents framework interference
+- **Easy extension**: Modular adapter system
+- **Terminal display**: Shows performance chart directly after benchmark
 
 ## Performance Metrics
 
-The benchmark measures requests per second, latency percentiles, throughput, error rate, and timeout rate.
+- **Requests per second** - Throughput measurement
+- **Latency percentiles** - Response time analysis
+- **Error rate** - Reliability assessment
+- **Timeout rate** - Stability evaluation
 
-## Key Features
+## Example Output
 
-- Configuration-driven design with centralized route definitions
-- Framework-agnostic adapter interface
-- Real performance testing with autocannon
-- Response validation and multiple report formats
-- Automatic compatibility detection
-- Easy framework addition with modular adapters
+After running `pnpm benchmark`, you'll see:
+
+```
+📊 Performance Comparison Chart
+================================
+
+hono                 ██████████████████████████████████████████████████ 47254 req/s (100.0%)
+fastify              ████████████████████████████████████████████████░░ 45177 req/s (95.6%)
+koa                  ███████████████████████████████████████████░░░░░░░ 40452 req/s (85.6%)
+express              █████████████████████████████████████░░░░░░░░░░░░░ 34761 req/s (73.6%)
+urlpattern-simple    ████████████████████████████░░░░░░░░░░░░░░░░░░░░░░ 26217 req/s (55.5%)
+web-router#direct    ████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 14732 req/s (31.2%)
+web-router           ███████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 13779 req/s (29.2%)
+web-router#manifest  █████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 8705 req/s (18.4%)
+
+Legend: █ = Performance bar, ░ = Empty space
+```

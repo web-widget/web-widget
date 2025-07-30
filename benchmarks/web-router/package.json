@@ -5,11 +5,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "benchmark": "node src/runner/benchmark-centralized.js",
+    "benchmark": "node src/runner/benchmark.js",
     "report": "node src/runner/report.js",
     "generate-report": "node src/runner/generate-report.js",
-    "benchmark:node24": "./run-with-fnm.sh",
-    "test:compatibility": "node test-compatibility.js"
+    "test:compatibility": "node tools/test-compatibility.js",
+    "test:web-api": "node tools/test-node-version-web-api.js",
+    "benchmark:node18": "./scripts/run-with-node.sh 18",
+    "benchmark:node20": "./scripts/run-with-node.sh 20",
+    "benchmark:node22": "./scripts/run-with-node.sh 22",
+    "benchmark:node24": "./scripts/run-with-node.sh 24",
+    "benchmark:all-versions": "npm run benchmark:node18 && npm run benchmark:node20 && npm run benchmark:node22 && npm run benchmark:node24"
   },
   "dependencies": {
     "@hono/node-server": "^1.17.1",

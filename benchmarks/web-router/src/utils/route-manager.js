@@ -298,14 +298,6 @@ export const getExpectedParams = (testCase) => {
 };
 
 /**
- * Get all routes from configuration
- */
-export function getAllRoutes() {
-  const config = loadRouteConfig();
-  return config['route-patterns'] || {};
-}
-
-/**
  * Get test configuration
  */
 export function getTestConfiguration() {

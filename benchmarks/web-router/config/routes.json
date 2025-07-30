@@ -7,6 +7,7 @@
           "pattern": {
             "hono": "/",
             "web-router": "/",
+            "web-router#direct": "/",
             "web-router#manifest": "/",
             "urlpattern-simple": "/",
             "express": "/",
@@ -24,6 +25,7 @@
           "pattern": {
             "hono": "/hello",
             "web-router": "/hello",
+            "web-router#direct": "/hello",
             "web-router#manifest": "/hello",
             "urlpattern-simple": "/hello",
             "express": "/hello",
@@ -41,6 +43,7 @@
           "pattern": {
             "hono": "/about",
             "web-router": "/about",
+            "web-router#direct": "/about",
             "web-router#manifest": "/about",
             "urlpattern-simple": "/about",
             "express": "/about",
@@ -58,6 +61,7 @@
           "pattern": {
             "hono": "/contact",
             "web-router": "/contact",
+            "web-router#direct": "/contact",
             "web-router#manifest": "/contact",
             "urlpattern-simple": "/contact",
             "express": "/contact",
@@ -80,6 +84,7 @@
           "pattern": {
             "hono": "/users/:id",
             "web-router": "/users/:id",
+            "web-router#direct": "/users/:id",
             "web-router#manifest": "/users/:id",
             "urlpattern-simple": "/users/:id",
             "express": "/users/:id",
@@ -97,6 +102,7 @@
           "pattern": {
             "hono": "/posts/:slug",
             "web-router": "/posts/:slug",
+            "web-router#direct": "/posts/:slug",
             "web-router#manifest": "/posts/:slug",
             "urlpattern-simple": "/posts/:slug",
             "express": "/posts/:slug",
@@ -114,6 +120,7 @@
           "pattern": {
             "hono": "/files/:name",
             "web-router": "/files/:name",
+            "web-router#direct": "/files/:name",
             "web-router#manifest": "/files/:name",
             "urlpattern-simple": "/files/:name",
             "express": "/files/:name",
@@ -136,6 +143,7 @@
           "pattern": {
             "hono": "/users/:id?",
             "web-router": "/users/:id?",
+            "web-router#direct": "/users/:id?",
             "web-router#manifest": "/users/:id?",
             "urlpattern-simple": "/users/:id?",
             "express": "/users",
@@ -153,6 +161,7 @@
           "pattern": {
             "hono": "/api/:version?",
             "web-router": "/api/:version?",
+            "web-router#direct": "/api/:version?",
             "web-router#manifest": "/api/:version?",
             "urlpattern-simple": "/api/:version?",
             "express": "/api",
@@ -170,6 +179,7 @@
           "pattern": {
             "hono": "/api/:version?",
             "web-router": "/api/:version?",
+            "web-router#direct": "/api/:version?",
             "web-router#manifest": "/api/:version?",
             "urlpattern-simple": "/api/:version?",
             "express": "/api/:version",
@@ -187,6 +197,7 @@
           "pattern": {
             "hono": "/users/:id",
             "web-router": "/users/:id",
+            "web-router#direct": "/users/:id",
             "web-router#manifest": "/users/:id",
             "urlpattern-simple": "/users/:id",
             "express": "/users/:id",
@@ -209,6 +220,7 @@
           "pattern": {
             "hono": "/articles/:id{[0-9]+}",
             "web-router": "/articles/:id([0-9]+)",
+            "web-router#direct": "/articles/:id([0-9]+)",
             "web-router#manifest": "/articles/:id([0-9]+)",
             "urlpattern-simple": "/articles/:id([0-9]+)",
             "express": "/articles/:id",
@@ -226,6 +238,7 @@
           "pattern": {
             "hono": "/comments/:id{[0-9]+}",
             "web-router": "/comments/:id([0-9]+)",
+            "web-router#direct": "/comments/:id([0-9]+)",
             "web-router#manifest": "/comments/:id([0-9]+)",
             "urlpattern-simple": "/comments/:id([0-9]+)",
             "express": "/comments/:id",
@@ -243,6 +256,7 @@
           "pattern": {
             "hono": "/api/users/:id{[0-9]+}",
             "web-router": "/api/users/:id([0-9]+)",
+            "web-router#direct": "/api/users/:id([0-9]+)",
             "web-router#manifest": "/api/users/:id([0-9]+)",
             "urlpattern-simple": "/api/users/:id([0-9]+)",
             "express": "/api/users/:id",
@@ -265,6 +279,7 @@
           "pattern": {
             "hono": "/uploads/:filename{[a-zA-Z0-9._-]+}",
             "web-router": "/uploads/:filename(.+)",
+            "web-router#direct": "/uploads/:filename(.+)",
             "web-router#manifest": "/uploads/:filename(.+)",
             "urlpattern-simple": "/uploads/:filename(.+)",
             "express": "/uploads/:filename",
@@ -282,6 +297,7 @@
           "pattern": {
             "hono": "/tags/:tag{[a-z]+}",
             "web-router": "/tags/:tag([a-z]+)",
+            "web-router#direct": "/tags/:tag([a-z]+)",
             "web-router#manifest": "/tags/:tag([a-z]+)",
             "urlpattern-simple": "/tags/:tag([a-z]+)",
             "express": "/tags/:tag",
@@ -304,6 +320,7 @@
           "pattern": {
             "hono": "/users/:id/posts/:postId",
             "web-router": "/users/:id/posts/:postId",
+            "web-router#direct": "/users/:id/posts/:postId",
             "web-router#manifest": "/users/:id/posts/:postId",
             "urlpattern-simple": "/users/:id/posts/:postId",
             "express": "/users/:id/posts/:postId",
@@ -321,6 +338,7 @@
           "pattern": {
             "hono": "/api/:version/users/:id",
             "web-router": "/api/:version/users/:id",
+            "web-router#direct": "/api/:version/users/:id",
             "web-router#manifest": "/api/:version/users/:id",
             "urlpattern-simple": "/api/:version/users/:id",
             "express": "/api/:version/users/:id",
@@ -338,6 +356,7 @@
           "pattern": {
             "hono": "/blog/:year/:month/:slug",
             "web-router": "/blog/:year/:month/:slug",
+            "web-router#direct": "/blog/:year/:month/:slug",
             "web-router#manifest": "/blog/:year/:month/:slug",
             "urlpattern-simple": "/blog/:year/:month/:slug",
             "express": "/blog/:year/:month/:slug",
@@ -360,6 +379,7 @@
           "pattern": {
             "hono": "/blog/:year{[0-9][0-9][0-9][0-9]}/:month{[0-9][0-9]}/:slug{[a-z0-9-]+}",
             "web-router": "/blog/:year(\\d{4})/:month(\\d{2})/:slug(.+)",
+            "web-router#direct": "/blog/:year(\\d{4})/:month(\\d{2})/:slug(.+)",
             "web-router#manifest": "/blog/:year(\\d{4})/:month(\\d{2})/:slug(.+)",
             "urlpattern-simple": "/blog/:year(\\d{4})/:month(\\d{2})/:slug(.+)",
             "express": "/blog/:year/:month/:slug",
@@ -377,6 +397,7 @@
           "pattern": {
             "hono": "/products/:category{[a-z]+}/:id{[0-9]+}",
             "web-router": "/products/:category([a-z]+)/:id([0-9]+)",
+            "web-router#direct": "/products/:category([a-z]+)/:id([0-9]+)",
             "web-router#manifest": "/products/:category([a-z]+)/:id([0-9]+)",
             "urlpattern-simple": "/products/:category([a-z]+)/:id([0-9]+)",
             "express": "/products/:category/:id",
@@ -394,6 +415,7 @@
           "pattern": {
             "hono": "/api/:version{v[0-9]+}/:resource{[a-z]+}",
             "web-router": "/api/:version(v[0-9]+)/:resource([a-z]+)",
+            "web-router#direct": "/api/:version(v[0-9]+)/:resource([a-z]+)",
             "web-router#manifest": "/api/:version(v[0-9]+)/:resource([a-z]+)",
             "urlpattern-simple": "/api/:version(v[0-9]+)/:resource([a-z]+)",
             "express": "/api/:version/:resource",
@@ -423,14 +445,15 @@
     "frameworks": [
       "hono",
       "web-router",
+      "web-router#direct",
       "web-router#manifest",
       "urlpattern-simple",
       "express",
       "fastify",
       "koa"
     ],
-    "benchmark-duration": 10,
-    "connections": 10,
-    "pipelining": 1
+    "benchmark-duration": 5,
+    "connections": 50,
+    "pipelining": 4
   }
 }

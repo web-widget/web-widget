@@ -12,20 +12,137 @@ import { getTestConfiguration } from '../utils/route-manager.js';
 class BenchmarkReport {
   constructor() {
     this.reportDir = './reports';
-    this.ensureReportDir();
+    this.latestDir = './reports/latest';
+    this.archiveDir = './reports/archive';
+    this.ensureReportDirs();
     this.config = getTestConfiguration();
   }
 
-  ensureReportDir() {
+  ensureReportDirs() {
+    // Create main reports directory
     if (!fs.existsSync(this.reportDir)) {
       fs.mkdirSync(this.reportDir, { recursive: true });
     }
+
+    // Create latest directory
+    if (!fs.existsSync(this.latestDir)) {
+      fs.mkdirSync(this.latestDir, { recursive: true });
+    }
+
+    // Create archive directory
+    if (!fs.existsSync(this.archiveDir)) {
+      fs.mkdirSync(this.archiveDir, { recursive: true });
+    }
+  }
+
+  /**
+   * Move old latest files to archive
+   */
+  archiveOldReports() {
+    const latestFiles = fs
+      .readdirSync(this.latestDir)
+      .filter(
+        (file) =>
+          file.endsWith('.md') ||
+          file.endsWith('.json') ||
+          file.endsWith('.txt')
+      );
+
+    if (latestFiles.length > 0) {
+      const today = new Date().toISOString().split('T')[0];
+      const archiveDateDir = path.join(this.archiveDir, today);
+
+      if (!fs.existsSync(archiveDateDir)) {
+        fs.mkdirSync(archiveDateDir, { recursive: true });
+      }
+
+      latestFiles.forEach((file) => {
+        const sourcePath = path.join(this.latestDir, file);
+        const destPath = path.join(archiveDateDir, file);
+        try {
+          fs.renameSync(sourcePath, destPath);
+        } catch (error) {
+          console.log(`⚠️  Could not archive ${file}: ${error.message}`);
+        }
+      });
+    }
+  }
+
+  /**
+   * Create index files for easy navigation
+   */
+  createIndexFiles(timestamp) {
+    // Create latest index
+    const latestIndex = `# Latest Benchmark Reports
+
+Generated on: ${new Date().toISOString()}
+
+## Available Reports
+
+- [📊 Detailed Report](benchmark-report-${timestamp}.md) - Comprehensive benchmark analysis
+- [📈 JSON Data](benchmark-results-${timestamp}.json) - Raw benchmark data
+- [📉 Performance Chart](performance-chart-${timestamp}.txt) - ASCII performance chart
+
+## Quick Links
+
+- [📊 Latest Detailed Report](benchmark-report-${timestamp}.md)
+- [📈 Latest JSON Data](benchmark-results-${timestamp}.json)
+- [📉 Latest Performance Chart](performance-chart-${timestamp}.txt)
+
+## Report Types
+
+- **📊 Detailed Report** (\`
+      .md\`) - Comprehensive benchmark analysis with performance metrics
+- **📈 JSON Data** (\`.json\`) - Raw benchmark data for further analysis
+- **📉 Performance Chart** (\`
+      .txt\`) - ASCII performance charts for quick visualization
+`;
+
+    fs.writeFileSync(path.join(this.latestDir, 'README.md'), latestIndex);
+
+    // Create main index
+    const mainIndex = `# Benchmark Reports Archive
+
+This directory contains historical benchmark reports organized by date.
+
+## Directory Structure
+
+- \`latest/\` - Most recent benchmark reports
+- \`archive/YYYY-MM-DD/\` - Historical reports by date
+
+## Quick Navigation
+
+- [📁 Latest Reports](./latest/)
+- [📁 Archive](./archive/)
+
+## Report Types
+
+- **📊 Detailed Report** (\`.md\`) - Comprehensive benchmark analysis
+- **📈 JSON Data** (\`.json\`) - Raw benchmark data
+- **📉 Performance Chart** (\`.txt\`) - ASCII performance charts
+
+## Usage
+
+To view the latest reports:
+\`\`\`bash
+# View latest detailed report
+cat reports/latest/benchmark-report-*.md
+
+# View latest JSON data
+cat reports/latest/benchmark-results-*.json
+
+# View latest performance chart
+cat reports/latest/performance-chart-*.txt
+\`\`\`
+`;
+
+    fs.writeFileSync(path.join(this.reportDir, 'README.md'), mainIndex);
   }
 
   generateDetailedReport(results) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const reportPath = path.join(
-      this.reportDir,
+      this.latestDir,
       `benchmark-report-${timestamp}.md`
     );
 
@@ -99,35 +216,28 @@ class BenchmarkReport {
           result.framework === 'web-router' ? 'Direct Mode' : 'Manifest Mode';
         report += `- **${mode} (${result.framework})**: ${result.requests?.toFixed(2) || 'N/A'} req/s\n`;
       });
-
-      const direct = webRouterResults.find((r) => r.framework === 'web-router');
-      const manifest = webRouterResults.find(
-        (r) => r.framework === 'web-router#manifest'
-      );
-
-      if (direct && manifest) {
-        const improvement = (
-          ((direct.requests - manifest.requests) / manifest.requests) *
-          100
-        ).toFixed(1);
-        report += `\n**Performance Difference:** Direct mode is ${improvement}% faster than Manifest mode\n`;
-      }
+      report += `\n`;
     }
 
-    // Recommendations
-    report += `\n## Recommendations\n\n`;
-    report += `1. **For High Performance:** Use ${winner.framework} for maximum throughput\n`;
-    report += `2. **For Web Standards:** Consider Hono or Web Router for modern web API compatibility\n`;
-    report += `3. **For Ecosystem:** Express and Fastify offer rich middleware ecosystems\n`;
-    report += `4. **For Flexibility:** Koa provides a lightweight, modular approach\n`;
+    // Configuration
+    report += `## Test Configuration\n\n`;
+    report += `- **Duration:** ${this.config['benchmark-duration'] || 10} seconds\n`;
+    report += `- **Connections:** ${this.config.connections || 10}\n`;
+    report += `- **Pipelining:** ${this.config.pipelining || 1}\n`;
+    report += `- **Patterns:** ${(this.config.patterns || []).join(', ')}\n`;
+    report += `- **Frameworks:** ${(this.config.frameworks || []).join(', ')}\n\n`;
 
-    // Test Configuration
-    report += `\n## Test Configuration\n\n`;
-    report += `- **Test Duration:** ${this.config['benchmark-duration'] || 10} seconds per framework\n`;
-    report += `- **Connections:** ${this.config.connections || 10} concurrent connections\n`;
-    report += `- **Route Types:** ${this.config.patterns?.join(', ') || 'Static, Path Parameters, Optional Parameters, Regex Patterns'}\n`;
-    report += `- **Total Routes:** ${results.length > 0 ? '20+ routes per framework' : 'N/A'}\n`;
-    report += `- **Frameworks Tested:** ${this.config.frameworks?.join(', ') || 'N/A'}\n`;
+    // Environment
+    report += `## Test Environment\n\n`;
+    report += `- **Platform:** ${process.platform}\n`;
+    report += `- **Node.js Version:** ${process.version}\n`;
+    report += `- **Architecture:** ${process.arch}\n`;
+    report += `- **Test Date:** ${new Date().toLocaleString()}\n\n`;
+
+    // Conclusion
+    report += `## Conclusion\n\n`;
+    report += `This benchmark compares the performance of various web frameworks under identical conditions.\n`;
+    report += `Results show the relative performance of each framework for the tested route patterns.\n\n`;
 
     fs.writeFileSync(reportPath, report);
     console.log(`📊 Detailed report generated: ${reportPath}`);
@@ -138,12 +248,17 @@ class BenchmarkReport {
   generateJsonReport(results) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const reportPath = path.join(
-      this.reportDir,
+      this.latestDir,
       `benchmark-results-${timestamp}.json`
     );
 
     const reportData = {
-      timestamp: new Date().toISOString(),
+      metadata: {
+        generated: new Date().toISOString(),
+        testEnvironment: process.platform,
+        nodeVersion: process.version,
+        testDate: new Date().toLocaleString(),
+      },
       summary: {
         totalFrameworks: results.length,
         winner: results.sort((a, b) => b.requests - a.requests)[0]?.framework,
@@ -165,11 +280,6 @@ class BenchmarkReport {
         patterns: this.config.patterns || [],
         frameworks: this.config.frameworks || [],
       },
-      metadata: {
-        testEnvironment: process.platform,
-        nodeVersion: process.version,
-        testDate: new Date().toLocaleString(),
-      },
     };
 
     fs.writeFileSync(reportPath, JSON.stringify(reportData, null, 2));
@@ -181,7 +291,7 @@ class BenchmarkReport {
   generateComparisonChart(results) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const chartPath = path.join(
-      this.reportDir,
+      this.latestDir,
       `performance-chart-${timestamp}.txt`
     );
 
@@ -190,7 +300,8 @@ class BenchmarkReport {
 
     let chart = `Performance Comparison Chart\n`;
     chart += `Generated: ${new Date().toLocaleString()}\n`;
-    chart += `='.repeat(60)}\n\n`;
+    chart += `Node.js: ${process.version}\n`;
+    chart += `=${'='.repeat(60)}\n\n`;
 
     results
       .sort((a, b) => b.requests - a.requests)
@@ -213,8 +324,33 @@ class BenchmarkReport {
     return chartPath;
   }
 
+  displayAsciiChart(results) {
+    const maxRequests = Math.max(...results.map((r) => r.requests || 0));
+    const maxBarLength = 50;
+
+    results
+      .sort((a, b) => b.requests - a.requests)
+      .forEach((result) => {
+        const percentage = (result.requests / maxRequests) * 100;
+        const barLength = Math.round(
+          (result.requests / maxRequests) * maxBarLength
+        );
+        const bar =
+          '█'.repeat(barLength) + '░'.repeat(maxBarLength - barLength);
+
+        console.log(
+          `${result.framework.padEnd(20)} ${bar} ${result.requests?.toFixed(0) || 'N/A'} req/s (${percentage.toFixed(1)}%)`
+        );
+      });
+
+    console.log('\nLegend: █ = Performance bar, ░ = Empty space');
+  }
+
   async generateAllReports(results) {
-    console.log('📊 Generating benchmark reports...\n');
+    // Archive old reports before generating new ones
+    this.archiveOldReports();
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
     const reports = {
       markdown: this.generateDetailedReport(results),
@@ -222,8 +358,12 @@ class BenchmarkReport {
       chart: this.generateComparisonChart(results),
     };
 
+    // Create index files for easy navigation
+    this.createIndexFiles(timestamp);
+
     console.log('\n✅ All reports generated successfully!');
-    console.log(`📁 Reports saved in: ${this.reportDir}/`);
+    console.log(`📁 Reports saved in: ${this.latestDir}/`);
+    console.log(`📁 Archive available in: ${this.archiveDir}/`);
 
     return reports;
   }
