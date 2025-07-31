@@ -343,6 +343,7 @@ export class Engine {
       params: context.params,
       pathname: context.pathname,
       request: context.request,
+      scope: context.scope,
       state: context.state,
     };
 

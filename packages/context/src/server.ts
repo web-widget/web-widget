@@ -12,7 +12,7 @@ export function contextToScriptDescriptor(
     type: SCRIPT_TYPE,
     content: escapeJson(
       JSON.stringify({
-        pathname: context.pathname,
+        pathname: context.scope.pathname,
         params: context.params,
       })
     ),

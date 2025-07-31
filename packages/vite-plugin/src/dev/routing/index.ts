@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import type { FSWatcher } from 'vite';
 import { walkRoutes } from './walk-routes-dir';
 import { pathToPattern, sortRoutePaths } from './extract';
-import type { RouteSourceFile, OverridePathname } from './types';
+import type { RouteSourceFile, Rewrite, RoutePattern } from './types';
 import type { RouteMap } from '@/types';
 import { relativePathWithDot, normalizePath } from '@/utils';
 
@@ -11,7 +11,7 @@ export interface FileSystemRouteGeneratorOptions {
   root: string;
   routemapPath: string;
   routesPath: string;
-  overridePathname?: OverridePathname;
+  rewrite?: Rewrite;
   update: (padding: Promise<void>) => void;
   watcher: FSWatcher;
 }
@@ -21,7 +21,7 @@ export async function fileSystemRouteGenerator({
   root,
   routemapPath,
   routesPath,
-  overridePathname,
+  rewrite,
   update,
   watcher,
 }: FileSystemRouteGeneratorOptions) {
@@ -30,7 +30,7 @@ export async function fileSystemRouteGenerator({
     root,
     routesPath,
     basePathname,
-    overridePathname,
+    rewrite,
     routemapPath,
     cache
   );
@@ -40,7 +40,7 @@ export async function fileSystemRouteGenerator({
         root,
         routesPath,
         basePathname,
-        overridePathname,
+        rewrite,
         routemapPath,
         cache
       )
@@ -70,17 +70,12 @@ async function generateRoutemapFile(
   root: string,
   routesPath: string,
   basePathname: string,
-  overridePathname: OverridePathname | undefined,
+  rewrite: Rewrite | undefined,
   routemapPath: string,
   cache: any
 ) {
   const key = Symbol.for('routemap');
-  const routemap = await getRoutemap(
-    root,
-    routesPath,
-    basePathname,
-    overridePathname
-  );
+  const routemap = await getRoutemap(root, routesPath, basePathname, rewrite);
   const newJson = JSON.stringify(routemap, null, 2);
 
   if (newJson !== cache[key]) {
@@ -93,7 +88,7 @@ export async function getRoutemap(
   root: string,
   routesPath: string,
   basePathname: string,
-  overridePathname: OverridePathname | undefined
+  rewrite: Rewrite | undefined
 ): Promise<RouteMap> {
   const sourceFiles = await walkRoutes(routesPath);
   const fallbacks = sourceFiles.filter((s) => s.type === 'fallback');
@@ -109,19 +104,19 @@ export async function getRoutemap(
     .sort((a, b) => sortRoutePaths(a.pathname, b.pathname));
 
   const routeTypeLike = ['route', 'middleware', 'action'];
-  const toValue = (source: RouteSourceFile) => {
-    let pathname;
+  const normalize = (source: RouteSourceFile) => {
+    const route: RoutePattern = {};
 
     if (routeTypeLike.includes(source.type)) {
-      pathname = normalizePath(basePathname + source.pathname);
+      route.pathname = normalizePath(basePathname + source.pathname);
 
-      if (pathname.startsWith('/')) {
-        pathname = pathname.substring(1);
+      if (route.pathname.startsWith('/')) {
+        route.pathname = route.pathname.substring(1);
       }
 
-      pathname = pathToPattern(pathname);
-      if (overridePathname) {
-        pathname = overridePathname(pathname, source);
+      route.pathname = pathToPattern(route.pathname);
+      if (rewrite) {
+        Object.assign(route, rewrite(route, source));
       }
     }
 
@@ -133,7 +128,7 @@ export async function getRoutemap(
         : undefined;
 
     return {
-      pathname,
+      ...route,
       //name,
       module,
       status,
@@ -141,12 +136,12 @@ export async function getRoutemap(
   };
 
   return {
-    routes: routes.map(toValue) as RouteMap['routes'],
-    actions: actions.map(toValue) as RouteMap['actions'],
-    middlewares: middlewares.map(toValue) as RouteMap['middlewares'],
-    fallbacks: fallbacks.map(toValue) as RouteMap['fallbacks'],
+    routes: routes.map(normalize) as RouteMap['routes'],
+    actions: actions.map(normalize) as RouteMap['actions'],
+    middlewares: middlewares.map(normalize) as RouteMap['middlewares'],
+    fallbacks: fallbacks.map(normalize) as RouteMap['fallbacks'],
     layout: (layouts[0]
-      ? toValue(layouts[0])
+      ? normalize(layouts[0])
       : undefined) as RouteMap['layout'],
   };
 }

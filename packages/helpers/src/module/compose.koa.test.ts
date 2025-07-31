@@ -96,7 +96,7 @@ describe('`koa-compose` test cases', () => {
   });
 
   test('should only accept an array', () => {
-    expect(() => compose(undefined as any)).toThrowError(TypeError);
+    expect(() => compose(undefined as any)).toThrow(TypeError);
   });
 
   test('should create next functions that return a Promise', function () {
@@ -122,7 +122,7 @@ describe('`koa-compose` test cases', () => {
   });
 
   test('should only accept middleware as functions', () => {
-    expect(() => compose([{}])).toThrowError(TypeError);
+    expect(() => compose([{}])).toThrow(TypeError);
   });
 
   test('should work when yielding at the end of the stack', async () => {

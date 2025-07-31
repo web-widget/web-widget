@@ -39,7 +39,8 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
     basePathname: '/',
     dir: 'routes',
     enabled: false,
-    overridePathname: (pathname) => pathname,
+    overridePathname: undefined,
+    rewrite: undefined,
   },
   importShim: {
     enabled: false,
@@ -109,6 +110,7 @@ export const WebRouterConfigSchema = z.object({
             source: z.string(),
             name: z.string(),
             type: z.union([
+              z.literal('action'),
               z.literal('route'),
               z.literal('fallback'),
               z.literal('layout'),
@@ -118,8 +120,47 @@ export const WebRouterConfigSchema = z.object({
           })
         )
         .returns(z.string())
-        .optional()
-        .default(WEB_ROUTER_CONFIG_DEFAULTS.filesystemRouting.overridePathname),
+        .optional(),
+      rewrite: z
+        .function()
+        .args(
+          z.object({
+            username: z.string().optional(),
+            password: z.string().optional(),
+            protocol: z.string().optional(),
+            hostname: z.string().optional(),
+            port: z.string().optional(),
+            pathname: z.string(),
+            search: z.string().optional(),
+            hash: z.string().optional(),
+          }),
+          z.object({
+            pathname: z.string(),
+            source: z.string(),
+            name: z.string(),
+            type: z.union([
+              z.literal('action'),
+              z.literal('route'),
+              z.literal('fallback'),
+              z.literal('layout'),
+              z.literal('middleware'),
+            ]),
+            ext: z.string(),
+          })
+        )
+        .returns(
+          z.object({
+            username: z.string().optional(),
+            password: z.string().optional(),
+            protocol: z.string().optional(),
+            hostname: z.string().optional(),
+            port: z.string().optional(),
+            pathname: z.string(),
+            search: z.string().optional(),
+            hash: z.string().optional(),
+          })
+        )
+        .optional(),
     })
     .optional()
     .default({}),

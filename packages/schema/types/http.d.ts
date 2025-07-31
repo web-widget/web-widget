@@ -60,6 +60,17 @@ export type FetchEventLike = Pick<
   'request' | 'respondWith' | 'waitUntil'
 >;
 
+export type Scope = {
+  username: string;
+  password: string;
+  protocol: string;
+  hostname: string;
+  port: string;
+  pathname: string;
+  search: string;
+  hash: string;
+};
+
 /**
  * The context object passed to route handlers and middleware.
  * Contains all the information needed to process an HTTP request.
@@ -73,14 +84,20 @@ export interface FetchContext<Params = Record<string, string>>
   error?: HTTPException;
 
   /**
-   * The parameters that were matched from the route.
+   * The URL of the request.
+   * [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/URL)
+   */
+  readonly url: URL;
+
+  /**
+   * Alias for `pathnameParams`. Represents the parameters that were matched from the route.
    *
    * For the `/foo/:bar` route with url `/foo/123`, `params` would be
    * `{ bar: '123' }`. For a route with no matchers, `params` would be `{}`. For
    * a wildcard route, like `/foo/:path*` with url `/foo/bar/baz`, `params` would
    * be `{ path: 'bar/baz' }`.
    */
-  params: Readonly<Params>;
+  readonly params: Readonly<Params>;
 
   /**
    * The state of the application, the content comes from the middleware.
@@ -89,6 +106,12 @@ export interface FetchContext<Params = Record<string, string>>
   readonly state: State;
 
   /**
+   * Matched route.
+   * [MDN Reference](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern/URLPattern#input)
+   */
+  readonly scope: Scope;
+
+  /** @deprecated
    * The name of the current route.
    * @deprecated This property is deprecated and will be removed in a future version.
    */
@@ -97,7 +120,7 @@ export interface FetchContext<Params = Record<string, string>>
   /**
    * The route matcher (e.g. /blog/:id) that the request matched for this page
    * to be rendered.
-   * @deprecated This property is deprecated and will be removed in a future version.
+   * @deprecated Use `scope.pathname` instead.
    */
   readonly pathname: string;
 }
