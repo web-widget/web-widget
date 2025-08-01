@@ -24,8 +24,7 @@ benchmarks/web-router/
 ├── src/
 │   ├── config/                  # Configuration management
 │   │   ├── loader.js           # Configuration loader
-│   │   ├── validator.js        # Configuration validator
-│   │   └── manager.js          # Configuration manager
+│   │   └── validator.js        # Configuration validator
 │   ├── test/                   # Test management
 │   │   ├── cases.js           # Test case management
 │   │   └── chart.js           # Chart generation

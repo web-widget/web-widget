@@ -7,7 +7,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { getTestConfiguration } from '../config/manager.js';
+import { getTestConfiguration } from '../config/loader.js';
 import { generateAsciiChart } from '../test/chart.js';
 
 class BenchmarkReport {

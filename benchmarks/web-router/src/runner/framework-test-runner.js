@@ -3,12 +3,12 @@
  * Uses standard Node.js IPC for clean parent-child communication
  */
 
+import { getTestConfiguration } from '../config/loader.js';
 import {
-  getTestConfiguration,
   getTestCases,
   getExpectedResponses,
   getFrameworkRoutesWithTestCases,
-} from '../config/manager.js';
+} from '../test/cases.js';
 // Direct framework loading without async-loader (using child process isolation)
 
 class FrameworkTestRunner {

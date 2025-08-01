@@ -6,12 +6,9 @@
 import { fork } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import {
-  getTestConfiguration,
-  getTestCases,
-  getExpectedResponses,
-  getFrameworks,
-} from '../config/manager.js';
+import { getTestConfiguration } from '../config/loader.js';
+import { getTestCases, getExpectedResponses } from '../test/cases.js';
+import { getFrameworks } from '../frameworks/registry.js';
 import { displayAsciiChart } from '../test/chart.js';
 
 const __filename = fileURLToPath(import.meta.url);
