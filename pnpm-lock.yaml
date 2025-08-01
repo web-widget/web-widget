@@ -164,8 +164,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/web-widget
       koa:
-        specifier: ^2.16.1
-        version: 2.16.1
+        specifier: ^3.0.1
+        version: 3.0.1
       koa-connect:
         specifier: ^2.1.0
         version: 2.1.0
@@ -237,8 +237,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/web-widget
       koa:
-        specifier: ^2.16.1
-        version: 2.16.1
+        specifier: ^3.0.1
+        version: 3.0.1
       koa-connect:
         specifier: ^2.1.0
         version: 2.1.0
@@ -316,8 +316,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/web-widget
       koa:
-        specifier: ^2.16.1
-        version: 2.16.1
+        specifier: ^3.0.1
+        version: 3.0.1
       koa-connect:
         specifier: ^2.1.0
         version: 2.1.0
@@ -1000,8 +1000,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/web-widget
       koa:
-        specifier: ^2.16.1
-        version: 2.16.1
+        specifier: ^3.0.1
+        version: 3.0.1
       koa-connect:
         specifier: ^2.1.0
         version: 2.1.0
@@ -3377,6 +3377,10 @@ packages:
     resolution: {integrity: sha512-cjkyv4OtNCIeqhHrfS81QWXoCBPExR/J62oyEqepVw8WaQeSqpW2uhuLPh1m9eWhDuOo/jUXVTlifvesOWp/4A==}
     engines: {node: '>=0.4.0'}
 
+  acorn-walk@8.3.4:
+    resolution: {integrity: sha512-ueEepnujpqee2o5aIYnvHU6C0A42MNdsIDeqy5BydrkuC5R1ZuUFnm27EeFJGoEHJQgn3uleRvmTXaJgfXbt4g==}
+    engines: {node: '>=0.4.0'}
+
   acorn@8.10.0:
     resolution: {integrity: sha512-F0SAmZ8iUtS//m8DmCTA0jlh6TDKkHQyK6xc6V4KDTyZKA9dnvX9/3sRTVQrWm79glUAZbnmmNcdYwUIHWVybw==}
     engines: {node: '>=0.4.0'}
@@ -3389,6 +3393,11 @@ packages:
 
   acorn@8.14.0:
     resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  acorn@8.15.0:
+    resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -7263,6 +7272,10 @@ packages:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
     engines: {node: '>= 0.8'}
 
+  statuses@2.0.2:
+    resolution: {integrity: sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==}
+    engines: {node: '>= 0.8'}
+
   std-env@3.8.0:
     resolution: {integrity: sha512-Bc3YwwCB+OzldMxOXJIIvC6cPRWr/LxOp48CdQTOkPyk/t4JWWJbrilwBd7RJzKV8QW7tJkcgAmeuLLJugl5/w==}
 
@@ -10545,11 +10558,19 @@ snapshots:
 
   acorn-walk@8.3.2: {}
 
+  acorn-walk@8.3.4:
+    dependencies:
+      acorn: 8.15.0
+    optional: true
+
   acorn@8.10.0: {}
 
   acorn@8.11.2: {}
 
   acorn@8.14.0: {}
+
+  acorn@8.15.0:
+    optional: true
 
   agent-base@7.1.0:
     dependencies:
@@ -13528,7 +13549,7 @@ snapshots:
       mime-types: 3.0.1
       on-finished: 2.4.1
       parseurl: 1.3.3
-      statuses: 2.0.1
+      statuses: 2.0.2
       type-is: 2.0.1
       vary: 1.1.2
 
@@ -15104,6 +15125,8 @@ snapshots:
 
   statuses@2.0.1: {}
 
+  statuses@2.0.2: {}
+
   std-env@3.8.0: {}
 
   stdin-discarder@0.2.2: {}
@@ -15447,8 +15470,8 @@ snapshots:
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
       '@types/node': 22.2.0
-      acorn: 8.14.0
-      acorn-walk: 8.3.2
+      acorn: 8.15.0
+      acorn-walk: 8.3.4
       arg: 4.1.3
       create-require: 1.1.1
       diff: 4.0.2
