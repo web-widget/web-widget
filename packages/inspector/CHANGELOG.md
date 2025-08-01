@@ -1,5 +1,11 @@
 # @web-widget/inspector
 
+## 1.70.0
+
+### Patch Changes
+
+- @web-widget/web-widget@1.70.0
+
 ## 1.69.0
 
 ### Minor Changes
