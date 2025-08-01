@@ -116,7 +116,7 @@ exports[`Should match snapshot > Request "/dynamic-routes" should match snapshot
 "<!doctype html>
     <html lang="en">
       <head>
-        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/*","params":{"0":"dynamic-routes"}}</script>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"*","params":{"0":"/dynamic-routes"}}</script>
       </head>
       <body>
         <main><h1>⚠️ 404 NotFound</h1><pre>Not Found</pre><!--$--><web-widget import="/routes/(vue3)/Counter@widget.vue" name="VueCounter" loading="lazy" rendertarget="light" contextdata="{&quot;count&quot;:3}" recovering=""><div class="counter" data-v-a3e69a9a><button data-v-a3e69a9a>−</button><span class="count" data-v-a3e69a9a>3</span><button data-v-a3e69a9a>+</button></div></web-widget><!--/$--></main>

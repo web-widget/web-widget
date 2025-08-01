@@ -48,7 +48,7 @@ async function main() {
 
   if (!results) {
     console.log('❌ No existing benchmark results found.');
-    console.log('💡  To generate reports, first run: pnpm benchmark');
+    console.log('🟢 To generate reports, first run: pnpm benchmark');
     console.log('📁 Reports will be saved in ./reports/ directory.\n');
     return;
   }

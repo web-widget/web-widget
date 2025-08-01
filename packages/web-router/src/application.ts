@@ -6,7 +6,14 @@ import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { createHttpError } from '@web-widget/helpers/error';
 import { Context } from './context';
 import type { Router } from './router';
-import { METHOD_NAME_ALL, METHODS, URLPatternRouter } from './router';
+import {
+  METHOD_NAME_ALL,
+  METHODS,
+  createRouter,
+  getDefaultRouterType,
+  isValidRouterType,
+  type RouterType,
+} from './router';
 import type {
   Env,
   ErrorHandler,
@@ -62,6 +69,12 @@ export interface ApplicationOptions<E extends Env> {
   router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
   /**
+   * Router type to use. Defaults to 'url-pattern' for backward compatibility.
+   * Use 'radix-tree' for better performance with large route sets.
+   * @experimental
+   */
+  routerType?: RouterType;
+  /**
    * Whether to enable proxy mode. When set to true, ensure that the last reverse proxy
    * trusted is removing or overwriting the following HTTP headers:
    * X-Forwarded-Host and X-Forwarded-Proto. Otherwise, the client may provide any value.
@@ -93,7 +106,7 @@ class Application<
       };
     });
 
-    // Implementation of app.get(path, ...handlers[])
+    // Implementation of app.use(path, ...handlers[])
     this.use = (path: string, ...handlers: MiddlewareHandler[]) => {
       handlers.forEach((handler) => {
         this.#addRoute(METHOD_NAME_ALL, path, handler);
@@ -102,10 +115,22 @@ class Application<
     };
 
     const strict = options.strict ?? true;
+    const routerType = options.routerType ?? getDefaultRouterType();
     delete options.strict;
+    delete options.routerType;
     // Object.assign(this, options);
     this.getPath = strict ? (options.getPath ?? getPath) : getPathNoStrict;
-    this.router = options.router ?? new URLPatternRouter();
+
+    // Choose router based on configuration
+    if (options.router) {
+      this.router = options.router;
+    } else {
+      if (!isValidRouterType(routerType)) {
+        throw new Error(`Invalid router type: ${routerType}`);
+      }
+      this.router = createRouter<MiddlewareHandler>(routerType);
+    }
+
     this.#proxy = !!options.proxy;
   }
 
@@ -163,7 +188,7 @@ class Application<
     }
 
     const path = this.getPath(request, { env });
-    const [handlers] = this.#matchRoute(method, path);
+    const handlers = this.#matchRoute(method, path);
 
     const context = new Context(request, {
       env,

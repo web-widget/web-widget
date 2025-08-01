@@ -57,7 +57,7 @@ elif command -v volta &> /dev/null; then
 
 else
     echo "❌ No Node.js version manager found (fnm, nvm, or volta)"
-    echo "💡 Please install one of:"
+    echo "🟢 Please install one of:"
     echo "   - fnm: curl -fsSL https://fnm.vercel.app/install | bash"
     echo "   - nvm: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash"
     echo "   - volta: curl https://get.volta.sh | bash"

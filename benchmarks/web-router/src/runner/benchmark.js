@@ -10,7 +10,9 @@ import {
   getTestConfiguration,
   getTestCases,
   getExpectedResponses,
-} from '../utils/route-manager.js';
+  getFrameworks,
+} from '../config/manager.js';
+import { displayAsciiChart } from '../test/chart.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -61,8 +63,8 @@ class ProcessIsolatedBenchmark {
           const emoji =
             {
               error: '❌',
-              warning: '⚠️',
-              info: '💡',
+              warning: '🟠',
+              info: '🟢',
             }[level] || '📝';
           console.log(`${emoji} ${frameworkName}: ${logMessage}`);
         }
@@ -122,21 +124,6 @@ class ProcessIsolatedBenchmark {
         }
       });
 
-      // Handle process events
-      child.on('close', (code) => {
-        if (!hasResolved) {
-          console.log(`❌ ${frameworkName}: process exited with code ${code}`);
-          resolve(null);
-        }
-      });
-
-      child.on('error', (error) => {
-        if (!hasResolved) {
-          console.log(`❌ ${frameworkName}: process error: ${error.message}`);
-          resolve(null);
-        }
-      });
-
       // Handle stdout/stderr for fallback
       let stdout = '';
       let stderr = '';
@@ -147,6 +134,56 @@ class ProcessIsolatedBenchmark {
 
       child.stderr.on('data', (data) => {
         stderr += data.toString();
+      });
+
+      // Handle process events with detailed error information
+      child.on('close', (code) => {
+        if (!hasResolved) {
+          // Provide more detailed exit code information
+          let exitReason = '';
+          switch (code) {
+            case 0:
+              exitReason = ' (success)';
+              break;
+            case 1:
+              exitReason = ' (framework not supported or test failed)';
+              break;
+            case 2:
+              exitReason = ' (configuration error)';
+              break;
+            default:
+              exitReason = ` (unknown error code ${code})`;
+          }
+
+          console.log(
+            `❌ ${frameworkName}: process exited with code ${code}${exitReason}`
+          );
+
+          // Show stderr output if available
+          if (stderr.trim()) {
+            console.log(`    stderr: ${stderr.trim()}`);
+          }
+
+          // Show stdout output if available (for debugging)
+          if (stdout.trim()) {
+            console.log(`    stdout: ${stdout.trim()}`);
+          }
+
+          resolve(null);
+        }
+      });
+
+      child.on('error', (error) => {
+        if (!hasResolved) {
+          console.log(`❌ ${frameworkName}: process error: ${error.message}`);
+
+          // Show stderr output if available
+          if (stderr.trim()) {
+            console.log(`    stderr: ${stderr.trim()}`);
+          }
+
+          resolve(null);
+        }
       });
 
       // Timeout fallback
@@ -198,6 +235,26 @@ class ProcessIsolatedBenchmark {
         return false;
       }
 
+      // NOTE: Validate configured frameworks
+      if (!this.config.frameworks || this.config.frameworks.length === 0) {
+        console.log('❌ No frameworks configured in test-configuration');
+        return false;
+      }
+
+      // NOTE: Check if configured frameworks have routes defined
+      const availableFrameworks = getFrameworks();
+      const missingFrameworks = this.config.frameworks.filter(
+        (framework) => !availableFrameworks.includes(framework)
+      );
+
+      if (missingFrameworks.length > 0) {
+        console.log(
+          `❌ Frameworks not found in route configuration: ${missingFrameworks.join(', ')}`
+        );
+        console.log(`Available frameworks: ${availableFrameworks.join(', ')}`);
+        return false;
+      }
+
       return true;
     } catch (error) {
       console.log(`❌ Route configuration validation error: ${error.message}`);
@@ -217,22 +274,10 @@ class ProcessIsolatedBenchmark {
     // Sort results by requests per second
     this.results.sort((a, b) => b.requests - a.requests);
 
-    // Generate ASCII chart
-    const maxRequests = this.results[0].requests;
+    // Generate ASCII chart using shared utility
     console.log('\n📊 Performance Comparison Chart');
     console.log('================================');
-    console.log(`Node.js: ${process.version}\n`);
-
-    this.results.forEach((result) => {
-      const percentage = ((result.requests / maxRequests) * 100).toFixed(1);
-      const barLength = Math.round((result.requests / maxRequests) * 50);
-      const bar = '█'.repeat(barLength) + '░'.repeat(50 - barLength);
-      console.log(
-        `${result.framework.padEnd(20)} ${bar} ${result.requests.toFixed(0)} req/s (${percentage}%)`
-      );
-    });
-
-    console.log('\nLegend: █ = Performance bar, ░ = Empty space');
+    displayAsciiChart(this.results, { includeHeader: false });
 
     // Generate detailed reports (without console output)
     const validResults = this.results.filter((result) => result !== null);
@@ -242,9 +287,7 @@ class ProcessIsolatedBenchmark {
         const reportGenerator = new BenchmarkReport();
         reportGenerator.generateAllReports(validResults);
       } catch (error) {
-        console.log(
-          `⚠️  Could not generate detailed reports: ${error.message}`
-        );
+        console.log(`🟠 Could not generate detailed reports: ${error.message}`);
       }
     }
   }

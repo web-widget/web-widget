@@ -18,7 +18,7 @@ function use(
   });
 }
 
-use('/*', async function poweredBy(ctx, next) {
+use('*', async function poweredBy(ctx, next) {
   ctx.state.test = 'hello world';
   const resp = await next();
   resp.headers.set('X-Powered-By', '@web-widget/web-router');

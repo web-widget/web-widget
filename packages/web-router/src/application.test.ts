@@ -141,7 +141,7 @@ describe('register handlers without a path', () => {
   describe('no basePath', () => {
     const app = new Application();
 
-    app.get('/*', (c) => {
+    app.get('*', (c) => {
       return text('Hello');
     });
 
