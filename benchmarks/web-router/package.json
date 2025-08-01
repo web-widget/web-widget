@@ -8,8 +8,6 @@
     "benchmark": "node src/runner/benchmark.js",
     "report": "node src/runner/report.js",
     "generate-report": "node src/runner/generate-report.js",
-    "test:compatibility": "node tools/test-compatibility.js",
-    "test:web-api": "node tools/test-node-version-web-api.js",
     "benchmark:node18": "./scripts/run-with-node.sh 18",
     "benchmark:node20": "./scripts/run-with-node.sh 20",
     "benchmark:node22": "./scripts/run-with-node.sh 22",

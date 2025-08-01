@@ -4,7 +4,7 @@ import middleware from './routes/(middlewares)/global';
 const { meta, manifest } = import.meta.framework;
 
 manifest.middlewares.unshift({
-  pathname: '/*',
+  pathname: '*',
   module: {
     handler: middleware,
   },

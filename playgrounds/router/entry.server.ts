@@ -18,7 +18,7 @@ function use(
   });
 }
 
-use('/*', async function spider(ctx, next) {
+use('*', async function spider(ctx, next) {
   const isSpider = /spider|bot/i.test(
     String(ctx.request.headers.get('User-Agent'))
   );
@@ -36,7 +36,7 @@ use('/*', async function spider(ctx, next) {
   return next();
 });
 
-use('/*', async function poweredBy(ctx, next) {
+use('*', async function poweredBy(ctx, next) {
   ctx.state.test = 'hello world';
   const resp = await next();
   resp.headers.set('X-Powered-By', '@web-widget/web-router');

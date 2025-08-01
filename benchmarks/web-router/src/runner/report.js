@@ -7,7 +7,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import { getTestConfiguration } from '../utils/route-manager.js';
+import { getTestConfiguration } from '../config/loader.js';
+import { generateAsciiChart } from '../test/chart.js';
 
 class BenchmarkReport {
   constructor() {
@@ -62,7 +63,7 @@ class BenchmarkReport {
         try {
           fs.renameSync(sourcePath, destPath);
         } catch (error) {
-          console.log(`⚠️  Could not archive ${file}: ${error.message}`);
+          console.log(`🟠 Could not archive ${file}: ${error.message}`);
         }
       });
     }
@@ -295,55 +296,22 @@ cat reports/latest/performance-chart-*.txt
       `performance-chart-${timestamp}.txt`
     );
 
-    const maxRequests = Math.max(...results.map((r) => r.requests || 0));
-    const maxBarLength = 50;
-
-    let chart = `Performance Comparison Chart\n`;
-    chart += `Generated: ${new Date().toLocaleString()}\n`;
-    chart += `Node.js: ${process.version}\n`;
-    chart += `=${'='.repeat(60)}\n\n`;
-
-    results
-      .sort((a, b) => b.requests - a.requests)
-      .forEach((result) => {
-        const percentage = (result.requests / maxRequests) * 100;
-        const barLength = Math.round(
-          (result.requests / maxRequests) * maxBarLength
-        );
-        const bar =
-          '█'.repeat(barLength) + '░'.repeat(maxBarLength - barLength);
-
-        chart += `${result.framework.padEnd(20)} ${bar} ${result.requests?.toFixed(0) || 'N/A'} req/s (${percentage.toFixed(1)}%)\n`;
-      });
-
-    chart += `\nLegend: █ = Performance bar, ░ = Empty space\n`;
-
+    const chart = generateAsciiChart(results, { includeHeader: true });
     fs.writeFileSync(chartPath, chart);
     console.log(`📊 ASCII chart generated: ${chartPath}`);
 
     return chartPath;
   }
 
-  displayAsciiChart(results) {
-    const maxRequests = Math.max(...results.map((r) => r.requests || 0));
-    const maxBarLength = 50;
-
-    results
-      .sort((a, b) => b.requests - a.requests)
-      .forEach((result) => {
-        const percentage = (result.requests / maxRequests) * 100;
-        const barLength = Math.round(
-          (result.requests / maxRequests) * maxBarLength
-        );
-        const bar =
-          '█'.repeat(barLength) + '░'.repeat(maxBarLength - barLength);
-
-        console.log(
-          `${result.framework.padEnd(20)} ${bar} ${result.requests?.toFixed(0) || 'N/A'} req/s (${percentage.toFixed(1)}%)`
-        );
-      });
-
-    console.log('\nLegend: █ = Performance bar, ░ = Empty space');
+  async displayAsciiChart(results) {
+    // NOTE: This method is now deprecated, use the shared utility instead
+    console.warn(
+      '🟠 displayAsciiChart is deprecated, use chart-utils.js instead'
+    );
+    const { displayAsciiChart: displayChart } = await import(
+      '../test/chart.js'
+    );
+    displayChart(results);
   }
 
   async generateAllReports(results) {

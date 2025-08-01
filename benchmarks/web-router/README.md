@@ -22,9 +22,19 @@ benchmarks/web-router/
 ├── config/
 │   └── routes.json              # Centralized route configuration
 ├── src/
-│   ├── frameworks/              # Framework adapters
-│   ├── runner/                  # Benchmark runners
-│   └── utils/                   # Utilities
+│   ├── config/                  # Configuration management
+│   │   ├── loader.js           # Configuration loader
+│   │   └── validator.js        # Configuration validator
+│   ├── test/                   # Test management
+│   │   ├── cases.js           # Test case management
+│   │   └── chart.js           # Chart generation
+│   ├── frameworks/             # Framework management
+│   │   ├── registry.js        # Framework registry
+│   │   ├── base-adapter.js    # Base framework adapter
+│   │   ├── express.js         # Express adapter
+│   │   ├── fastify.js         # Fastify adapter
+│   │   └── ...                # Other framework adapters
+│   └── runner/                 # Benchmark runners
 ├── reports/                     # Generated reports
 ├── scripts/                     # Node.js version runners
 ├── tools/                       # Testing tools
@@ -34,7 +44,9 @@ benchmarks/web-router/
 ## Supported Frameworks
 
 - **Hono** - Modern web framework with Web API compatibility
-- **Web Router** - Direct mode (`app.get(route, fn)`)
+- **Web Router** - Standard mode with URLPattern-based routing
+- **Web Router#Direct** - Direct mode (`app.get(route, fn)`)
+- **Web Router#Radix Tree** - Radix tree-based routing
 - **Web Router#Manifest** - Manifest mode (`WebRouter.fromManifest()`)
 - **urlpattern-simple** - Minimal URLPattern-based framework
 - **Express** - Traditional Node.js web framework
@@ -212,6 +224,8 @@ volta run node@24.4.1 -- pnpm benchmark
 - **Complete isolation**: Prevents framework interference
 - **Easy extension**: Modular adapter system
 - **Terminal display**: Shows performance chart directly after benchmark
+- **Domain-driven architecture**: Clear separation of concerns with dedicated modules
+- **Modular design**: Specialized modules for configuration, testing, and framework management
 
 ## Performance Metrics
 
@@ -219,23 +233,3 @@ volta run node@24.4.1 -- pnpm benchmark
 - **Latency percentiles** - Response time analysis
 - **Error rate** - Reliability assessment
 - **Timeout rate** - Stability evaluation
-
-## Example Output
-
-After running `pnpm benchmark`, you'll see:
-
-```
-📊 Performance Comparison Chart
-================================
-
-hono                 ██████████████████████████████████████████████████ 47254 req/s (100.0%)
-fastify              ████████████████████████████████████████████████░░ 45177 req/s (95.6%)
-koa                  ███████████████████████████████████████████░░░░░░░ 40452 req/s (85.6%)
-express              █████████████████████████████████████░░░░░░░░░░░░░ 34761 req/s (73.6%)
-urlpattern-simple    ████████████████████████████░░░░░░░░░░░░░░░░░░░░░░ 26217 req/s (55.5%)
-web-router#direct    ████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 14732 req/s (31.2%)
-web-router           ███████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 13779 req/s (29.2%)
-web-router#manifest  █████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 8705 req/s (18.4%)
-
-Legend: █ = Performance bar, ░ = Empty space
-```

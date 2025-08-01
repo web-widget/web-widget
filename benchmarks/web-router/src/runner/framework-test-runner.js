@@ -3,12 +3,12 @@
  * Uses standard Node.js IPC for clean parent-child communication
  */
 
+import { getTestConfiguration } from '../config/loader.js';
 import {
-  getTestConfiguration,
   getTestCases,
   getExpectedResponses,
   getFrameworkRoutesWithTestCases,
-} from '../utils/route-manager.js';
+} from '../test/cases.js';
 // Direct framework loading without async-loader (using child process isolation)
 
 class FrameworkTestRunner {
@@ -65,17 +65,22 @@ class FrameworkTestRunner {
    * Send error
    */
   error(message, error = null) {
-    this.log(
-      'error',
-      message,
-      error
-        ? {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-          }
-        : {}
-    );
+    // NOTE: Send as 'error' type for better error display in parent process
+    if (error) {
+      this.sendMessage('error', {
+        message,
+        error: {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+          cause: error.cause,
+          code: error.code,
+          toString: error.toString(),
+        },
+      });
+    } else {
+      this.log('error', message);
+    }
   }
 
   /**
@@ -235,21 +240,22 @@ class FrameworkTestRunner {
       this.info(`Validating ${testCases.length} test cases`);
 
       for (const testCase of testCases) {
-        const response = await fetch(`${baseUrl}${testCase}`);
+        const testPath = testCase.path || testCase; // Handle both object and string
+        const response = await fetch(`${baseUrl}${testPath}`);
 
         if (!response.ok) {
           this.error(
-            `Test case failed: ${testCase} - HTTP ${response.status} ${response.statusText}`
+            `Test case failed: ${testPath} - HTTP ${response.status} ${response.statusText}`
           );
           return false;
         }
 
-        const expected = expectedResponses[testCase];
+        const expected = expectedResponses[testPath];
         if (expected) {
           const contentType = response.headers.get('content-type');
           if (!contentType?.includes(expected.contentType)) {
             this.error(
-              `Content-Type mismatch for ${testCase} (expected: ${expected.contentType}, got: ${contentType})`
+              `Content-Type mismatch for ${testPath} (expected: ${expected.contentType}, got: ${contentType})`
             );
             return false;
           }
@@ -274,7 +280,10 @@ class FrameworkTestRunner {
 
       const { default: autocannon } = await import('autocannon');
       const testCases = getTestCases();
-      const urls = testCases.map((testCase) => `${baseUrl}${testCase}`);
+      const urls = testCases.map((testCase) => {
+        const testPath = testCase.path || testCase; // Handle both object and string
+        return `${baseUrl}${testPath}`;
+      });
 
       const result = await autocannon({
         url: urls[0], // Use first URL as base
@@ -356,7 +365,10 @@ class FrameworkTestRunner {
       // Check framework support
       const isSupported = await this.checkFrameworkSupport();
       if (!isSupported) {
-        this.sendMessage('error', { message: 'Framework not supported' });
+        this.sendMessage('log', {
+          level: 'warning',
+          message: 'Framework skipped',
+        });
         process.exit(1);
       }
 
