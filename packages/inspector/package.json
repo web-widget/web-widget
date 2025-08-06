@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/inspector",
   "description": "Web Widget Inspector - Development toolbar for web-widget elements",
-  "version": "1.70.0",
+  "version": "1.70.1",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",

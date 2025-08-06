@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.70.1
+
+### Patch Changes
+
+- d68770e: Fix queueMicrotask compatibility for better browser support.
+
+  Added queueMicrotask utility function to ensure consistent behavior across different browsers and environments.
+  - @web-widget/helpers@1.70.1
+  - @web-widget/lifecycle-cache@1.70.1
+
 ## 1.70.0
 
 ### Patch Changes
