@@ -2,6 +2,7 @@ import {
   HTMLWebWidgetElement,
   HTMLWebWidgetElementAttributes,
 } from './element';
+import { queueMicrotask } from './utils/queue-microtask';
 import { mountLifecycleCacheLayer } from '@web-widget/lifecycle-cache/client';
 
 function install() {
