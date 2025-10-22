@@ -22,7 +22,7 @@
     "autocannon": "^8.0.0",
     "express": "^5.1.0",
     "fastify": "^5.4.0",
-    "hono": "^4.8.10",
+    "hono": "^4.10.2",
     "koa": "^3.0.1"
   },
   "devDependencies": {
