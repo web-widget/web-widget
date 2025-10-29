@@ -38,7 +38,7 @@
     "@web-widget/vite-plugin": "^1.70.1",
     "cross-env": "^7.0.3",
     "typescript": "^5.5.4",
-    "vite": "^5.4.19",
+    "vite": "^5.4.20",
     "vitest": "^2.1.9"
   },
   "engines": {
