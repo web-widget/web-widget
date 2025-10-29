@@ -12,7 +12,7 @@
     "@web-widget/react": "workspace:*",
     "@web-widget/web-router": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "koa": "^3.0.1",
+    "koa": "^3.0.3",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",
     "react": "^19.0.0",
