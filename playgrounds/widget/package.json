@@ -6,7 +6,7 @@
     "react-dom": "^19.0.0",
     "@web-widget/web-widget": "workspace:*",
     "compression": "^1.7.4",
-    "express": "^4.19.2",
+    "express": "^4.22.0",
     "sirv": "^2.0.4"
   },
   "devDependencies": {
