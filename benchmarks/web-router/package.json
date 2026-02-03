@@ -21,7 +21,7 @@
     "@web-widget/web-router": "workspace:*",
     "autocannon": "^8.0.0",
     "express": "^5.1.0",
-    "fastify": "^5.4.0",
+    "fastify": "^5.7.3",
     "hono": "^4.8.10",
     "koa": "^3.0.3"
   },
