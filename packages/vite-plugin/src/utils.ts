@@ -2,84 +2,10 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { Manifest, ResolvedConfig, Manifest as ViteManifest } from 'vite';
 import { normalizePath } from 'vite';
-import type { ImportSpecifier } from 'es-module-lexer';
 import type { LinkDescriptor } from '@web-widget/helpers';
 import mime from 'mime-types';
 import { WEB_ROUTER_PLUGIN_NAME } from './constants';
 import type { ResolvedWebRouterConfig, WebRouterPlugin } from './types';
-
-/**
- * Extracts all import names for an already parsed files.
- */
-export function importsToImportNames(
-  imports: Iterable<ImportSpecifier>,
-  source: string
-) {
-  const allImportNames = [];
-  for (const {
-    ss: statementStart,
-    se: statementEnd,
-    d: dynamicImport,
-  } of imports) {
-    if (dynamicImport < 0) {
-      const importStatement = source.substring(statementStart, statementEnd);
-      const importNames = getImportNames(importStatement);
-      allImportNames.push(...importNames);
-    } else {
-      allImportNames.push(['*']);
-    }
-  }
-  return allImportNames;
-}
-
-/**
- * Extracts all import names from a full import statement.
- *
- * `import { html, css as litCss } from 'lit'`
- * => [[ 'html' ], [ 'css', 'litCss' ]
- */
-export function getImportNames(importStatement: string) {
-  const importNames: [name: string, alias?: string][] = [];
-
-  const singleLine = importStatement.trim().replace(/\n/g, '');
-  const fromIndex = singleLine.indexOf('from');
-  if (fromIndex >= 0) {
-    let parts: [defaultAndNamespacesPart: string, namedPart: string];
-
-    if (importStatement.includes('{')) {
-      const startsWith = importStatement.indexOf('{');
-      const endsWith = importStatement.indexOf('}');
-      const defaultAndNamespacesPart = importStatement.substring(6, startsWith);
-      const namedPart = importStatement.substring(startsWith + 1, endsWith);
-      parts = [defaultAndNamespacesPart, namedPart];
-    } else {
-      const index = importStatement.indexOf('from');
-      const defaultAndNamespacesPart = importStatement.substring(6, index);
-      parts = [defaultAndNamespacesPart, ''];
-    }
-
-    const list = parts.map((string) =>
-      string
-        .split(',')
-        .map((name) => name.trim())
-        .filter(Boolean)
-    );
-
-    for (const [index, part] of list.entries()) {
-      for (const importName of part) {
-        if (importName.includes(' as ')) {
-          const v = importName.split(' as ');
-          importNames.push([v[0].trim(), v[1].trim()]);
-        } else {
-          const isDefault = index === 0;
-          importNames.push(isDefault ? ['default', importName] : [importName]);
-        }
-      }
-    }
-  }
-
-  return importNames;
-}
 
 export { normalizePath };
 
