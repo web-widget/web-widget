@@ -32,7 +32,7 @@
     "@types/mime-types": "^2.1.1",
     "@types/node": "catalog:",
     "jest": "catalog:",
-    "rollup": "^4.22.4",
+    "rollup": "^4.59.0",
     "ts-jest": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",
