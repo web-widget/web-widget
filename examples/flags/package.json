@@ -23,7 +23,7 @@
     "@web-widget/react": "^1.70.1",
     "@web-widget/web-router": "^1.70.1",
     "@web-widget/web-widget": "^1.70.1",
-    "koa": "^3.0.1",
+    "koa": "^3.0.3",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",
     "react": "^19.0.0",
@@ -39,7 +39,7 @@
     "@web-widget/vite-plugin": "^1.70.1",
     "cross-env": "^7.0.3",
     "typescript": "^5.5.0",
-    "vite": "^5.4.20",
+    "vite": "^5.4.21",
     "vitest": "^2.1.9"
   }
 }
