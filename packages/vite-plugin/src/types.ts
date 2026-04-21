@@ -47,8 +47,9 @@ export interface ResolvedWebRouterConfig {
   };
 }
 
-export interface WebRouterUserConfig
-  extends z.input<typeof WebRouterConfigSchema> {}
+export interface WebRouterUserConfig extends z.input<
+  typeof WebRouterConfigSchema
+> {}
 
 export interface WebRouterServerEntryModuleV1 {
   default: (manifest: Manifest, options: StartOptions) => WebRouter;

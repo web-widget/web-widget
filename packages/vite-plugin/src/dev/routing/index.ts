@@ -98,15 +98,9 @@ export async function getRoutemap(
   const sourceFiles = await walkRoutes(routesPath);
   const fallbacks = sourceFiles.filter((s) => s.type === 'fallback');
   const layouts = sourceFiles.filter((s) => s.type === 'layout');
-  const middlewares = sourceFiles
-    .filter((s) => s.type === 'middleware')
-    .sort((a, b) => sortRoutePaths(a.pathname, b.pathname));
-  const routes = sourceFiles
-    .filter((s) => s.type === 'route')
-    .sort((a, b) => sortRoutePaths(a.pathname, b.pathname));
-  const actions = sourceFiles
-    .filter((s) => s.type === 'action')
-    .sort((a, b) => sortRoutePaths(a.pathname, b.pathname));
+  const middlewares = sourceFiles.filter((s) => s.type === 'middleware');
+  const routes = sourceFiles.filter((s) => s.type === 'route');
+  const actions = sourceFiles.filter((s) => s.type === 'action');
 
   const routeTypeLike = ['route', 'middleware', 'action'];
   const toValue = (source: RouteSourceFile) => {
@@ -141,9 +135,21 @@ export async function getRoutemap(
   };
 
   return {
-    routes: routes.map(toValue) as RouteMap['routes'],
-    actions: actions.map(toValue) as RouteMap['actions'],
-    middlewares: middlewares.map(toValue) as RouteMap['middlewares'],
+    routes: routes
+      .map(toValue)
+      .sort((a, b) =>
+        sortRoutePaths(a.pathname!, b.pathname!)
+      ) as RouteMap['routes'],
+    actions: actions
+      .map(toValue)
+      .sort((a, b) =>
+        sortRoutePaths(a.pathname!, b.pathname!)
+      ) as RouteMap['actions'],
+    middlewares: middlewares
+      .map(toValue)
+      .sort((a, b) =>
+        sortRoutePaths(a.pathname!, b.pathname!)
+      ) as RouteMap['middlewares'],
     fallbacks: fallbacks.map(toValue) as RouteMap['fallbacks'],
     layout: (layouts[0]
       ? toValue(layouts[0])

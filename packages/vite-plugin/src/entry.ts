@@ -106,7 +106,6 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       ssr: ssrBuild
         ? {
             external: ['node:async_hooks'],
-            noExternal: [],
             target,
             resolve: {
               // https://github.com/vitejs/vite/issues/6401

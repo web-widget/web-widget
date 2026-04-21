@@ -113,6 +113,7 @@ export const WebRouterConfigSchema = z.object({
               z.literal('fallback'),
               z.literal('layout'),
               z.literal('middleware'),
+              z.literal('action'),
             ]),
             ext: z.string(),
           })

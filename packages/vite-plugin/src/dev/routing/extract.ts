@@ -1,36 +1,68 @@
-const GROUPS = /\([^)]*\)/g;
 /**
  * Adopted from Fresh
  *
  * https://github.com/denoland/fresh/blob/main/LICENSE
  */
 export function sortRoutePaths(a: string, b: string) {
-  a = a.replace(GROUPS, '');
-  b = b.replace(GROUPS, '');
-  let segmentIdx = 0;
   const aLen = a.length;
   const bLen = b.length;
-  const maxLen = aLen > bLen ? aLen : bLen;
-  for (let i = 0; i < maxLen; i++) {
-    const charA = a.charAt(i);
-    const charB = b.charAt(i);
-    const nextA = i + 1 < aLen ? a.charAt(i + 1) : '';
-    const nextB = i + 1 < bLen ? b.charAt(i + 1) : '';
+
+  let segment = false;
+  let aIdx = 0;
+  let bIdx = 0;
+  for (; aIdx < aLen && bIdx < bLen; aIdx++, bIdx++) {
+    const charA = a.charAt(aIdx);
+    const charB = b.charAt(bIdx);
+
+    // When comparing a grouped route with a non-grouped one, we
+    // need to skip over the group name to effectively compare the
+    // actual route.
+    if (charA === '(' && charB !== '(') {
+      if (charB == '[') return -1;
+      return 1;
+    } else if (charB === '(' && charA !== '(') {
+      if (charA == '[') return 1;
+      return -1;
+    }
 
     if (charA === '/' || charB === '/') {
-      segmentIdx = i;
+      segment = true;
+
       // If the other path doesn't close the segment
       // then we don't need to continue
-      if (charA !== '/') return -1;
-      if (charB !== '/') return 1;
+      if (charA !== '/') return 1;
+      if (charB !== '/') return -1;
+
       continue;
     }
 
-    if (i === segmentIdx + 1) {
-      const scoreA = getRoutePathScore(charA, nextA);
-      const scoreB = getRoutePathScore(charB, nextB);
-      if (scoreA === scoreB) continue;
+    if (segment) {
+      segment = false;
+
+      const scoreA = getRoutePathScore(charA, a, aIdx);
+      const scoreB = getRoutePathScore(charB, b, bIdx);
+      if (scoreA === scoreB) {
+        if (charA !== charB) {
+          // TODO: Do we need localeSort here or is this good enough?
+          return charA < charB ? 0 : 1;
+        }
+        continue;
+      }
+
       return scoreA > scoreB ? -1 : 1;
+    }
+
+    if (charA !== charB) {
+      // TODO: Do we need localeSort here or is this good enough?
+      return charA < charB ? 0 : 1;
+    }
+
+    // If we're at the end of A or B, then we assume that the longer
+    // path is more specific
+    if (aIdx === aLen - 1 && bIdx < bLen - 1) {
+      return 1;
+    } else if (bIdx === bLen - 1 && aIdx < aLen - 1) {
+      return -1;
     }
   }
 
@@ -38,26 +70,40 @@ export function sortRoutePaths(a: string, b: string) {
 }
 
 /**
- * Assign a score based on the first two characters of a path segment.
- * The goal is to sort `_middleware` and `_layout` in front of everything
- * and `[` or `[...` last respectively.
+ * Assign a score based on the first character of a path segment.
+ * The goal is to sort `[` or `[...` last respectively.
  */
-function getRoutePathScore(char: string, nextChar: string): number {
+function getRoutePathScore(char: string, s: string, i: number): number {
   if (char === '_') {
-    if (nextChar === 'm') return 4;
-    return 3;
+    return 4;
   } else if (char === '[') {
-    if (nextChar === '.') {
+    if (i + 1 < s.length && s[i + 1] === '.') {
       return 0;
     }
     return 1;
   }
+
+  if (
+    i + 4 === s.length - 1 &&
+    char === 'i' &&
+    s[i + 1] === 'n' &&
+    s[i + 2] === 'd' &&
+    s[i + 3] === 'e' &&
+    s[i + 4] === 'x'
+  ) {
+    return 3;
+  }
+
   return 2;
 }
 
 /**
- * Transform a filesystem URL path to a `path-to-regex` style matcher. */
-export function pathToPattern(path: string): string {
+ * Transform a filesystem URL path to a `path-to-regex` style matcher.
+ */
+export function pathToPattern(
+  path: string,
+  options?: { keepGroups: boolean }
+): string {
   const parts = path.split('/');
   if (parts[parts.length - 1] === 'index') {
     if (parts.length === 1) {
@@ -68,14 +114,13 @@ export function pathToPattern(path: string): string {
 
   let route = '';
 
+  let nonOptionalSegments = 0;
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
 
     // Case: /[...foo].tsx
-    // Case: /[...].tsx
     if (part.startsWith('[...') && part.endsWith(']')) {
-      const param = part.slice(4, part.length - 1);
-      route += param ? `/:${param}*` : `/(.*)`;
+      route += `/:${part.slice(4, part.length - 1)}*`;
       continue;
     }
 
@@ -84,7 +129,7 @@ export function pathToPattern(path: string): string {
     // Case: /foo/(bar) -> /foo
     // Case: /foo/(bar)/bob -> /foo/bob
     // Case: /(foo)/bar -> /bar
-    if (part.startsWith('(') && part.endsWith(')')) {
+    if (!options?.keepGroups && part.startsWith('(') && part.endsWith(')')) {
       continue;
     }
 
@@ -142,12 +187,27 @@ export function pathToPattern(path: string): string {
       }
     }
 
-    route += (optional ? '' : '/') + pattern;
+    if (optional) {
+      route += pattern;
+    } else {
+      nonOptionalSegments++;
+      route += '/' + pattern;
+    }
   }
 
   // Case: /(group)/index.tsx
   if (route === '') {
     route = '/';
+  }
+
+  // Handles all cases where a route starts with
+  // an optional parameter and does not contain
+  // any non-group and non-optional segments after
+  // Case: /[[id]].tsx
+  // Case: /(group)/[[id]].tsx
+  // Case: /(group)/[[name]]/(group2)/index.tsx
+  if (route.startsWith(`{/`) && nonOptionalSegments === 0) {
+    route = route.replace('{/', '/{');
   }
 
   return route;
