@@ -43,8 +43,7 @@ export function sortRoutePaths(a: string, b: string) {
       const scoreB = getRoutePathScore(charB, b, bIdx);
       if (scoreA === scoreB) {
         if (charA !== charB) {
-          // TODO: Do we need localeSort here or is this good enough?
-          return charA < charB ? 0 : 1;
+          return charA < charB ? -1 : 1;
         }
         continue;
       }
@@ -53,20 +52,63 @@ export function sortRoutePaths(a: string, b: string) {
     }
 
     if (charA !== charB) {
-      // TODO: Do we need localeSort here or is this good enough?
-      return charA < charB ? 0 : 1;
-    }
-
-    // If we're at the end of A or B, then we assume that the longer
-    // path is more specific
-    if (aIdx === aLen - 1 && bIdx < bLen - 1) {
-      return 1;
-    } else if (bIdx === bLen - 1 && aIdx < aLen - 1) {
-      return -1;
+      return charA < charB ? -1 : 1;
     }
   }
 
+  // Shared prefix ended because one string ended: shorter path wins when the
+  // longer path continues with `/` + dynamic or `/` + static segment.
+  if (aIdx >= aLen && bIdx >= bLen) {
+    return 0;
+  }
+  if (aIdx >= aLen && bIdx < bLen) {
+    return prefixContinuationOrder(b, bIdx);
+  }
+  if (bIdx >= bLen && aIdx < aLen) {
+    return -prefixContinuationOrder(a, aIdx);
+  }
+
   return 0;
+}
+
+/** Negative if the shorter path (already matched) should sort before `longer`. */
+function prefixContinuationOrder(longer: string, from: number): number {
+  const kind = segmentTailKind(longer, from);
+  return kind !== TailKind.Neutral ? -1 : 0;
+}
+
+const enum TailKind {
+  Neutral = 0,
+  Dynamic = 1,
+  Static = 2,
+}
+
+/** Classify `path[from..]` after a full segment boundary (must start with `/`). */
+function segmentTailKind(path: string, from: number): TailKind {
+  if (from >= path.length || path.charCodeAt(from) !== 47 /* / */) {
+    return TailKind.Neutral;
+  }
+  const c = path.charCodeAt(from + 1);
+  if (!c) {
+    return TailKind.Neutral;
+  }
+  if (
+    c === 58 /* : */ ||
+    c === 42 /* * */ ||
+    c === 123 /* { */ ||
+    c === 91 /* [ */
+  ) {
+    return TailKind.Dynamic;
+  }
+  if (
+    (c >= 97 && c <= 122) ||
+    (c >= 65 && c <= 90) ||
+    (c >= 48 && c <= 57) ||
+    c === 95 /* _ */
+  ) {
+    return TailKind.Static;
+  }
+  return TailKind.Neutral;
 }
 
 /**
@@ -80,6 +122,9 @@ function getRoutePathScore(char: string, s: string, i: number): number {
     if (i + 1 < s.length && s[i + 1] === '.') {
       return 0;
     }
+    return 1;
+  } else if (char === ':') {
+    // Named / repeated params (`:id`, `:rest*`) — less specific than a static segment.
     return 1;
   }
 
