@@ -1,6 +1,7 @@
 /**
  * @fileoverview Application domain object - HTTP request/response lifecycle management
  */
+import { callContext } from '@web-widget/context/server';
 import { compose } from '@web-widget/helpers';
 import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { createHttpError } from '@web-widget/helpers/error';
@@ -231,9 +232,10 @@ class Application<
         return res;
       } catch (error) {
         this.fixErrorStack(error as Error);
-        return this.#errorHandler(
-          await this.#normalizeHTTPException(error),
-          context
+        // Re-enter AsyncLocalStorage / unctx scope so onError and fallbacks can use
+        // context() and other ALS-backed APIs (see web-widget#716).
+        return callContext(context, async () =>
+          this.#errorHandler(await this.#normalizeHTTPException(error), context)
         );
       }
     })();
