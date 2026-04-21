@@ -1,5 +1,23 @@
 # @web-widget/vite-plugin
 
+## 1.70.2
+
+### Patch Changes
+
+- 9d6362b: Improve filesystem routes sorting and grouping:
+  - Add 'action' file type to route type schema
+  - Rewrite sortRoutePaths to properly handle grouped routes and skip group names during comparison
+  - Enhance pathToPattern to support keepGroups option and fix handling of optional parameters
+  - Move sorting logic to after toValue transformation in getRoutemap
+  - Add comprehensive tests for route sorting with groups and multiple extensions
+  - Clean up unused noExternal config in entry.ts
+
+- Updated dependencies [9fc3842]
+  - @web-widget/web-router@1.70.2
+  - @web-widget/inspector@1.70.2
+  - @web-widget/helpers@1.70.2
+  - @web-widget/node@1.70.2
+
 ## 1.70.1
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.70.2
+
+### Patch Changes
+
+- 1e1f5b6: Serialize the lifecycle cache layer when `renderStage` is `client`, so request-level state exposed via `lifecycleCache` (for example i18n) reaches the browser. Extract `tryRenderLifecycleCacheLayer()` for shared error handling with WebContainer.
+
+  Fixes [#720](https://github.com/web-widget/web-widget/issues/720).
+  - @web-widget/helpers@1.70.2
+  - @web-widget/lifecycle-cache@1.70.2
+
 ## 1.70.1
 
 ### Patch Changes
