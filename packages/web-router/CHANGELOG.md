@@ -1,5 +1,18 @@
 # @web-widget/web-router
 
+## 1.70.2
+
+### Patch Changes
+
+- 9fc3842: Re-enter request async context (`callContext`) when handling errors in `Application.handler`, so `onError` and custom fallback rendering can use `context()` and other ALS-backed APIs after a thrown error.
+
+  Fixes [#716](https://github.com/web-widget/web-widget/issues/716).
+  - @web-widget/action@1.70.2
+  - @web-widget/context@1.70.2
+  - @web-widget/helpers@1.70.2
+  - @web-widget/html@1.70.2
+  - @web-widget/lifecycle-cache@1.70.2
+
 ## 1.70.1
 
 ### Patch Changes

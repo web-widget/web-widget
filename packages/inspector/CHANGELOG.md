@@ -1,5 +1,12 @@
 # @web-widget/inspector
 
+## 1.70.2
+
+### Patch Changes
+
+- Updated dependencies [1e1f5b6]
+  - @web-widget/web-widget@1.70.2
+
 ## 1.70.1
 
 ### Patch Changes
