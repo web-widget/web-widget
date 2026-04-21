@@ -1,6 +1,14 @@
 {
   "routes": [
     {
+      "pathname": "/api/hello-world",
+      "module": "./routes/api/hello-world@route.ts"
+    },
+    {
+      "pathname": "/api/mock-users",
+      "module": "./routes/api/mock-users@route.ts"
+    },
+    {
       "pathname": "/background-tasks",
       "module": "./routes/background-tasks@route.tsx"
     },
@@ -9,8 +17,16 @@
       "module": "./routes/client-only-component@route.tsx"
     },
     {
+      "pathname": "/context{/:id}?",
+      "module": "./routes/context/[[id]]@route.tsx"
+    },
+    {
       "pathname": "/custom-handlers",
       "module": "./routes/custom-handlers@route.tsx"
+    },
+    {
+      "pathname": "/dynamic-routes/:name",
+      "module": "./routes/dynamic-routes/[name]@route.tsx"
     },
     {
       "pathname": "/experimental-async-component",
@@ -29,10 +45,6 @@
       "module": "./routes/form@route.tsx"
     },
     {
-      "pathname": "/",
-      "module": "./routes/index@route.tsx"
-    },
-    {
       "pathname": "/lit-html-template",
       "module": "./routes/lit-html-template@route.ts"
     },
@@ -43,6 +55,10 @@
     {
       "pathname": "/react-and-vue",
       "module": "./routes/react-and-vue@route.tsx"
+    },
+    {
+      "pathname": "/react-import-widgets",
+      "module": "./routes/react-import-widgets/index.route.tsx"
     },
     {
       "pathname": "/react-server-component",
@@ -65,28 +81,24 @@
       "module": "./routes/style@route.tsx"
     },
     {
-      "pathname": "/react-import-widgets",
-      "module": "./routes/react-import-widgets/index.route.tsx"
+      "pathname": "/vue2-import-widgets",
+      "module": "./routes/(vue2)/vue2-import-widgets/index@route.tsx"
     },
     {
-      "pathname": "/dynamic-routes/:name",
-      "module": "./routes/dynamic-routes/[name]@route.tsx"
-    },
-    {
-      "pathname": "/context{/:id}?",
-      "module": "./routes/context/[[id]]@route.tsx"
-    },
-    {
-      "pathname": "/api/hello-world",
-      "module": "./routes/api/hello-world@route.ts"
-    },
-    {
-      "pathname": "/api/mock-users",
-      "module": "./routes/api/mock-users@route.ts"
+      "pathname": "/vue2-router/:all*",
+      "module": "./routes/(vue2)/vue2-router/[...all]@route.tsx"
     },
     {
       "pathname": "/vue2-server-component",
       "module": "./routes/(vue2)/vue2-server-component@route.vue"
+    },
+    {
+      "pathname": "/vue3-import-widgets",
+      "module": "./routes/(vue3)/vue3-import-widgets/index@route.tsx"
+    },
+    {
+      "pathname": "/vue3-router/:all*",
+      "module": "./routes/(vue3)/vue3-router/[...all]@route.tsx"
     },
     {
       "pathname": "/vue3-server-component",
@@ -97,20 +109,8 @@
       "module": "./routes/(vue3)/vue3-streaming@route.vue"
     },
     {
-      "pathname": "/vue2-import-widgets",
-      "module": "./routes/(vue2)/vue2-import-widgets/index@route.tsx"
-    },
-    {
-      "pathname": "/vue3-import-widgets",
-      "module": "./routes/(vue3)/vue3-import-widgets/index@route.tsx"
-    },
-    {
-      "pathname": "/vue2-router/:all*",
-      "module": "./routes/(vue2)/vue2-router/[...all]@route.tsx"
-    },
-    {
-      "pathname": "/vue3-router/:all*",
-      "module": "./routes/(vue3)/vue3-router/[...all]@route.tsx"
+      "pathname": "/",
+      "module": "./routes/index@route.tsx"
     }
   ],
   "actions": [
