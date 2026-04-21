@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { callContext, context } from '@web-widget/context/server';
 import { Application } from './application';
 import type { MiddlewareHandler } from './types';
 import { getPath } from './url';
@@ -793,6 +794,33 @@ describe('error handle', () => {
       expect(res.status).toBe(500);
       expect(await res.text()).toBe('Custom Error: This is Middleware Error');
       expect(res.headers.get('x-debug')).toBe('This is Middleware Error');
+    });
+  });
+
+  describe('onError restores async context (web-widget#716)', () => {
+    const app = new Application();
+
+    app.use('*', callContext);
+
+    app.use('*', async (c, next) => {
+      c.state.marker = 'from-middleware';
+      return next();
+    });
+
+    app.get('/throws', () => {
+      throw new Error('route boom');
+    });
+
+    app.onError(async () => {
+      const ctx = context();
+      const marker = (ctx.state as { marker?: string }).marker ?? 'missing';
+      return text(`marker=${marker}`, { status: 500 });
+    });
+
+    test('context() works in onError after route throw', async () => {
+      const res = await app.dispatch('https://example.com/throws');
+      expect(res.status).toBe(500);
+      expect(await res.text()).toBe('marker=from-middleware');
     });
   });
 });
