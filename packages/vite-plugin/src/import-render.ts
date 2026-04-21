@@ -14,6 +14,7 @@ import {
   removeAs,
 } from './utils';
 import { createRequire } from 'node:module';
+import { extractImportBindings } from './compiler/parser';
 const require = createRequire(import.meta.url);
 
 const ASSET_PROTOCOL = 'asset:';
@@ -23,10 +24,6 @@ const ASSET_PLACEHOLDER = `${ASSET_PROTOCOL}//`;
 let index = 0;
 const alias = (name: string) => `__$${name}${index++}$__`;
 const globalCache: Set<string> = new Set();
-
-const IMPORT_DEFAULT_NAME_REG = /import\s+([a-zA-Z_$][\w$]*)\s+/;
-const parseComponentName = (code: string) =>
-  code.match(IMPORT_DEFAULT_NAME_REG)?.[1];
 
 export interface ImportRenderPluginOptions {
   cache?: Set<string>;
@@ -199,14 +196,52 @@ export function importRenderPlugin({
           moduleId,
           moduleName,
         } of modules) {
-          const componentName = parseComponentName(
-            code.substring(statementStart, statementEnd)
-          );
+          const importStatement = code.substring(statementStart, statementEnd);
+          const importNames = extractImportBindings(importStatement);
 
-          if (!componentName) {
-            return;
+          if (importNames.length === 0) {
+            return this.error(
+              new SyntaxError(
+                `No valid default import found in statement:\n  ${importStatement}\n` +
+                  `Please use a default import when importing web widget components.`
+              ),
+              statementStart
+            );
           }
 
+          if (importNames.length > 1) {
+            return this.error(
+              new SyntaxError(
+                `Only default imports are supported for web widget components.\n` +
+                  `Found multiple imports in statement:\n  ${importStatement}\n` +
+                  `Please use a single default import.`
+              ),
+              statementStart
+            );
+          }
+
+          if (importNames[0][0] !== 'default') {
+            return this.error(
+              new SyntaxError(
+                `Only default imports are supported for web widget components.\n` +
+                  `Found named import \`${importNames[0][0]}\` in statement:\n  ${importStatement}\n` +
+                  `Please use a default import.`
+              ),
+              statementStart
+            );
+          }
+
+          if (importNames[0][1] === undefined) {
+            return this.error(
+              new SyntaxError(
+                `No alias provided for default import in statement:\n  ${importStatement}\n` +
+                  `Please provide an alias for the default import.`
+              ),
+              statementStart
+            );
+          }
+
+          const importName = importNames[0][1];
           const asset = normalizePath(path.relative(root, moduleId));
 
           const clientModuleId = dev
@@ -230,7 +265,7 @@ export function importRenderPlugin({
               : // build: client
                 `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
           const clientContainerOptions = {
-            name: componentName,
+            name: importName,
           };
 
           const definerName = alias(inject);
@@ -238,7 +273,7 @@ export function importRenderPlugin({
             `import { ${inject} as ${definerName} } from ${JSON.stringify(
               provide
             )};\n` +
-            `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
+            `const ${importName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
               moduleName
             )}), { /*base: import.meta.url,*/ import: ${clientModuleExpression}, ${JSON.stringify(
               clientContainerOptions
