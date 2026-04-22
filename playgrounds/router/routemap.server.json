@@ -21,6 +21,10 @@
       "module": "./routes/context/[[id]]@route.tsx"
     },
     {
+      "pathname": "/css-lazy-dynamic",
+      "module": "./routes/css-lazy-dynamic@route.tsx"
+    },
+    {
       "pathname": "/custom-handlers",
       "module": "./routes/custom-handlers@route.tsx"
     },

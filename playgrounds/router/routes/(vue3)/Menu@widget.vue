@@ -22,6 +22,9 @@
       <a href="/client-only-component">Client only component</a>
     </li>
     <li>
+      <a href="/css-lazy-dynamic">CSS: lazy chunk (dynamic import)</a>
+    </li>
+    <li>
       <a href="/fetching-data">Fetching data</a>
     </li>
     <li>

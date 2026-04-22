@@ -5,6 +5,7 @@ describe('Should match snapshot', () => {
   test.each([
     ['/background-tasks'],
     ['/client-only-component'],
+    ['/css-lazy-dynamic'],
     ['/custom-handlers'],
     ['/experimental-async-component'],
     ['/fallback'],

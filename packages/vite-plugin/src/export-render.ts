@@ -3,8 +3,8 @@ import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin, Manifest as ViteManifest } from 'vite';
+import { getLinks } from './manifest-links';
 import {
-  getLinks,
   getManifest,
   getWebRouterPluginApi,
   normalizePath,
@@ -25,6 +25,8 @@ export interface ExportRenderPluginOptions {
   inject?: string | string[];
   manifest?: ViteManifest;
   provide: string;
+  /** From `webWidgetPlugin` `import.include` / `exclude` via `createFilter`. */
+  isWidgetManifestKey: (manifestKey: string) => boolean;
 }
 
 export function exportRenderPlugin({
@@ -34,6 +36,7 @@ export function exportRenderPlugin({
   inject = 'render',
   manifest,
   provide,
+  isWidgetManifestKey,
 }: ExportRenderPluginOptions): Plugin[] {
   if (typeof provide !== 'string') {
     throw new TypeError(`options.provide must be a string type.`);
@@ -63,7 +66,9 @@ export function exportRenderPlugin({
           await esModuleLexer.init;
           [, exports] = esModuleLexer.parse(code, id);
         } catch (error) {
-          return this.error(error);
+          return this.error(
+            error instanceof Error ? error : { message: String(error) }
+          );
         }
 
         const magicString = new MagicString(code);
@@ -140,8 +145,9 @@ export function exportRenderPlugin({
         base = config.base;
         root = config.root;
 
+        const api = getWebRouterPluginApi(config);
+
         if (!manifest) {
-          const api = getWebRouterPluginApi(config);
           if (api) {
             manifest = await getManifest(root, api.config);
           }
@@ -159,7 +165,15 @@ export function exportRenderPlugin({
         const magicString = new MagicString(code);
         const fileName = normalizePath(path.relative(root, id));
         const meta = {
-          link: getLinks(manifest, fileName, base, false),
+          link: getLinks(
+            manifest,
+            fileName,
+            base,
+            false,
+            new Set(),
+            'auto',
+            isWidgetManifestKey
+          ),
         };
 
         await esModuleLexer.init;

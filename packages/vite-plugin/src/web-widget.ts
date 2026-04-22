@@ -1,3 +1,4 @@
+import { createFilter } from '@rollup/pluginutils';
 import type { Plugin } from 'vite';
 import { exportRenderPlugin } from './export-render';
 import { importRenderPlugin } from './import-render';
@@ -17,6 +18,12 @@ export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
     import: imports = toComponents,
   } = options;
 
+  const widgetManifestKeyFilter = createFilter(
+    imports?.include,
+    imports?.exclude
+  );
+  const isWidgetManifestKey = (key: string) => widgetManifestKeyFilter(key);
+
   return [
     ...exportRenderPlugin({
       extractFromExportDefault: exports?.extractFromExportDefault,
@@ -25,6 +32,7 @@ export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
       inject: exports?.inject,
       manifest,
       provide,
+      isWidgetManifestKey,
     }),
 
     ...importRenderPlugin({

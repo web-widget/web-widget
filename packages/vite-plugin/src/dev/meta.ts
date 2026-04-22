@@ -66,7 +66,8 @@ async function getStylesForURL(
   for await (const importedModule of crawlGraph(
     viteDevServer,
     filePath,
-    true
+    true,
+    new Set()
   )) {
     if (isBuildableCSSRequest(importedModule.url)) {
       let ssrModule: Record<string, any>;
