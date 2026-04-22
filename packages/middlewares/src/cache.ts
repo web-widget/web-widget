@@ -8,8 +8,8 @@ import { createFetch } from '@web-widget/shared-cache';
 import type {
   Cache,
   CacheStorage,
-  CacheStatus,
-  CacheKeyRules,
+  SharedCacheKeyRules as CacheKeyRules,
+  SharedCacheStatus as CacheStatus,
 } from '@web-widget/shared-cache';
 
 declare module '@web-widget/schema' {
