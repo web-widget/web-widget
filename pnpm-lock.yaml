@@ -638,8 +638,8 @@ importers:
         specifier: workspace:*
         version: link:../schema
       '@web-widget/shared-cache':
-        specifier: ^1.1.0
-        version: 1.1.0
+        specifier: ^1.7.2
+        version: 1.7.2
     devDependencies:
       '@jest/globals':
         specifier: 'catalog:'
@@ -3253,8 +3253,8 @@ packages:
   '@web-widget/http-cache-semantics@1.2.0':
     resolution: {integrity: sha512-q/MobtHmwp3oaHmEATX/f6BJ+4bNMPVQ1nfDiNW9GkGI/JxRGhpOcs8wxdyr4tbcTgkuqjex8h9G7ONTDuVBmQ==}
 
-  '@web-widget/shared-cache@1.1.0':
-    resolution: {integrity: sha512-0CXGsF7FXXAWIiw9SITyOrCnC8Ep8Xa4g7DSpsuqtGtUl3UVO27fHskoGGhh23QvKl31J86y1rNgB7NhDAvjbA==}
+  '@web-widget/shared-cache@1.7.2':
+    resolution: {integrity: sha512-tia5B6dyA//TjgQtRxmhlCtxrLqodPH7qfW63nxz3S8+mz89f91qcwzKH/1bd0dxyOX/b9xAELeNssdhwqwS2A==}
 
   '@web/browser-logs@0.4.0':
     resolution: {integrity: sha512-/EBiDAUCJ2DzZhaFxTPRIznEPeafdLbXShIL6aTu7x73x7ZoxSDv7DGuTsh2rWNMUa4+AKli4UORrpyv6QBOiA==}
@@ -10003,9 +10003,9 @@ snapshots:
 
   '@web-widget/http-cache-semantics@1.2.0': {}
 
-  '@web-widget/shared-cache@1.1.0':
+  '@web-widget/shared-cache@1.7.2':
     dependencies:
-      '@web-widget/helpers': link:packages/helpers
+      '@edge-runtime/cookies': 6.0.0
       '@web-widget/http-cache-semantics': 1.2.0
 
   '@web/browser-logs@0.4.0':
