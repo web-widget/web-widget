@@ -1,5 +1,13 @@
 # @web-widget/middlewares
 
+## 1.71.0
+
+### Patch Changes
+
+- dee794c: Upgrade Internal Dependencies
+  - @web-widget/helpers@1.71.0
+  - @web-widget/schema@1.71.0
+
 ## 1.70.2
 
 ### Patch Changes
