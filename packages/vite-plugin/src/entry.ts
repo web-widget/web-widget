@@ -9,7 +9,8 @@ import type {
   InlineConfig as VitestInlineConfig,
 } from 'vitest/node';
 import type { Meta, RouteModule } from '@web-widget/helpers';
-import { escapeRegExp, getLinks, getManifest, normalizePath } from './utils';
+import { escapeRegExp, getManifest, normalizePath } from './utils';
+import { getLinks } from './manifest-links';
 import { importActionPlugin } from './import-action';
 import { parseWebRouterConfig } from './config';
 import { webRouterDevServerPlugin } from './dev';
@@ -343,7 +344,15 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
 
         const importShim = resolvedWebRouterConfig.importShim;
         const clientEntryModuleName = base + asset.file;
-        const clientEntryLinks = getLinks(viteManifest, entryFileName, base);
+        const clientEntryLinks = getLinks(
+          viteManifest,
+          entryFileName,
+          base,
+          false,
+          new Set(),
+          'auto',
+          () => false
+        );
         const importmapScripts: Meta['script'] = [];
 
         clientEntryLinks.push({
