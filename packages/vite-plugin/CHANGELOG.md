@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.71.2
+
+### Patch Changes
+
+- 2093449: Fix `getLinks` dropping widget CSS when the client manifest reaches a `@widget` chunk through static `imports` first (for example a bridge chunk that `dynamicImport`s the widget). The dynamic-import filter is now propagated across static import edges; entering a matched dynamic chunk clears the predicate for nested expansion. Tests cover single- and multi-hop static chains.
+  - @web-widget/helpers@1.71.2
+  - @web-widget/inspector@1.71.2
+  - @web-widget/node@1.71.2
+  - @web-widget/web-router@1.71.2
+
 ## 1.71.1
 
 ### Patch Changes
