@@ -348,10 +348,7 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
           viteManifest,
           entryFileName,
           base,
-          false,
-          new Set(),
-          'auto',
-          () => false
+          new Set()
         );
         const importmapScripts: Meta['script'] = [];
 
