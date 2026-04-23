@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.71.1
+
+### Patch Changes
+
+- 48cd21c: Optimize the number of `<link>` tags generated for the client entry (`entry.client`).
+  - @web-widget/helpers@1.71.1
+  - @web-widget/inspector@1.71.1
+  - @web-widget/node@1.71.1
+  - @web-widget/web-router@1.71.1
+
 ## 1.71.0
 
 ### Minor Changes
