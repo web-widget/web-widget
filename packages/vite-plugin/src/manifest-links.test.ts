@@ -131,4 +131,91 @@ describe('getLinks', () => {
     expect(hrefs).not.toContain(`${base}assets/w-inner.css`);
     expect(links.some((l) => l.href?.includes('w-inner.js'))).toBe(false);
   });
+
+  test('static import chain propagates containDynamicImports: intermediary chunk’s dynamicImport(widget) still emits CSS', () => {
+    const m = {
+      'routes/page@route.tsx': {
+        file: 'assets/page.js',
+        src: 'routes/page@route.tsx',
+        imports: ['assets/bridge.js'],
+        dynamicImports: [],
+        css: [],
+      },
+      'assets/bridge.js': {
+        file: 'assets/bridge.js',
+        src: 'assets/bridge.js',
+        imports: [],
+        dynamicImports: ['routes/Widget@widget.tsx'],
+        css: [],
+      },
+      'routes/Widget@widget.tsx': {
+        file: 'assets/w.js',
+        src: 'routes/Widget@widget.tsx',
+        imports: [],
+        dynamicImports: [],
+        css: ['assets/w.css'],
+      },
+    } as unknown as Manifest;
+
+    const withoutPredicate = getLinks(
+      m,
+      'routes/page@route.tsx',
+      base,
+      new Set()
+    );
+    expect(withoutPredicate.map((l) => l.href)).not.toContain(
+      `${base}assets/w.css`
+    );
+
+    const links = getLinks(
+      m,
+      'routes/page@route.tsx',
+      base,
+      new Set(),
+      fixtureIncludeDynamicImport
+    );
+    expect(links.map((l) => l.href)).toContain(`${base}assets/w.css`);
+  });
+
+  test('multi-hop static imports still propagate containDynamicImports before dynamicImport(widget)', () => {
+    const m = {
+      'routes/page@route.tsx': {
+        file: 'assets/page.js',
+        src: 'routes/page@route.tsx',
+        imports: ['assets/helper.js'],
+        dynamicImports: [],
+        css: [],
+      },
+      'assets/helper.js': {
+        file: 'assets/helper.js',
+        src: 'assets/helper.js',
+        imports: ['assets/bridge.js'],
+        dynamicImports: [],
+        css: [],
+      },
+      'assets/bridge.js': {
+        file: 'assets/bridge.js',
+        src: 'assets/bridge.js',
+        imports: [],
+        dynamicImports: ['routes/Widget@widget.tsx'],
+        css: [],
+      },
+      'routes/Widget@widget.tsx': {
+        file: 'assets/w.js',
+        src: 'routes/Widget@widget.tsx',
+        imports: [],
+        dynamicImports: [],
+        css: ['assets/w.css'],
+      },
+    } as unknown as Manifest;
+
+    const links = getLinks(
+      m,
+      'routes/page@route.tsx',
+      base,
+      new Set(),
+      fixtureIncludeDynamicImport
+    );
+    expect(links.map((l) => l.href)).toContain(`${base}assets/w.css`);
+  });
 });

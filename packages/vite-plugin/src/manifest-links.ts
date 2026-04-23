@@ -86,7 +86,14 @@ function getLinksInternal(
   if (Array.isArray(item.imports)) {
     item.imports.forEach((dep) => {
       links.push(
-        ...getLinksInternal(manifest, dep, base, true, cache)
+        ...getLinksInternal(
+          manifest,
+          dep,
+          base,
+          true,
+          cache,
+          containDynamicImports
+        )
           // Note: In the web router, all client components are loaded asynchronously.
           .filter((link) => link.rel !== 'modulepreload')
       );
@@ -95,7 +102,9 @@ function getLinksInternal(
 
   if (containDynamicImports && Array.isArray(item.dynamicImports)) {
     item.dynamicImports.filter(containDynamicImports).forEach((dep) => {
-      links.push(...getLinksInternal(manifest, dep, base, true, cache));
+      links.push(
+        ...getLinksInternal(manifest, dep, base, true, cache, undefined)
+      );
     });
   }
 
