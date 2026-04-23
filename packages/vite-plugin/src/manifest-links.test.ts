@@ -1,8 +1,11 @@
 import type { Manifest } from 'vite';
 import { getLinks } from './manifest-links';
 
-/** Fixture naming only; production callers pass `createFilter` from real `import.include`. */
-const fixtureIsWidgetManifestKey = (key: string) =>
+/**
+ * Fixture filter only. Production callers pass `createFilter` from `import.include`
+ * (or any predicate that marks which manifest chunk keys should be followed across `dynamicImports`).
+ */
+const fixtureIncludeDynamicImport = (key: string) =>
   /^[^?]*[.@]widget\.[^?]*$/.test(key);
 
 describe('getLinks', () => {
@@ -31,24 +34,36 @@ describe('getLinks', () => {
     },
   } as unknown as Manifest;
 
-  test('route scope: includes stylesheets from dynamic import subgraph', () => {
-    const links = getLinks(
+  test('includes stylesheets from static imports; follows dynamicImports only when filter allows', () => {
+    const withoutDynamic = getLinks(
       manifest,
       'entry.client.ts',
       base,
-      false,
-      new Set(),
-      'auto',
-      () => false
+      new Set()
     );
-    const hrefs = links.map((l) => l.href);
-    expect(hrefs).toContain(`${base}assets/entry-abc.css`);
-    expect(hrefs).toContain(`${base}assets/vendor-def.css`);
-    expect(hrefs).toContain(`${base}assets/lazy-ghi.css`);
-    expect(links.some((l) => l.href?.includes('lazy-ghi.js'))).toBe(true);
+    const hrefsStatic = withoutDynamic.map((l) => l.href);
+    expect(hrefsStatic).toContain(`${base}assets/entry-abc.css`);
+    expect(hrefsStatic).toContain(`${base}assets/vendor-def.css`);
+    expect(hrefsStatic).not.toContain(`${base}assets/lazy-ghi.css`);
+    expect(withoutDynamic.some((l) => l.href?.includes('lazy-ghi.js'))).toBe(
+      false
+    );
+
+    const withAllDynamic = getLinks(
+      manifest,
+      'entry.client.ts',
+      base,
+      new Set(),
+      () => true
+    );
+    const hrefsAll = withAllDynamic.map((l) => l.href);
+    expect(hrefsAll).toContain(`${base}assets/lazy-ghi.css`);
+    expect(withAllDynamic.some((l) => l.href?.includes('lazy-ghi.js'))).toBe(
+      true
+    );
   });
 
-  test('widget scope: omits own JS and CSS from dynamic import subgraph by default', () => {
+  test('widget entry: CSS of entry included; nested dynamicImports omitted when filter excludes inner chunk', () => {
     const widgetManifest = {
       'routes/CssLazy@widget.tsx': {
         file: 'assets/w-main.js',
@@ -70,10 +85,8 @@ describe('getLinks', () => {
       widgetManifest,
       'routes/CssLazy@widget.tsx',
       base,
-      false,
       new Set(),
-      'auto',
-      fixtureIsWidgetManifestKey
+      fixtureIncludeDynamicImport
     );
     const hrefs = links.map((l) => l.href);
     expect(hrefs).toContain(`${base}assets/w-main.css`);
@@ -81,7 +94,7 @@ describe('getLinks', () => {
     expect(links.some((l) => l.href?.includes('w-inner.js'))).toBe(false);
   });
 
-  test('route → dynamic → widget: widget own assets included, inner dynamic JS/CSS omitted', () => {
+  test('route → widget boundary: follows matching dynamicImport; deeper dynamic chunk omitted by filter', () => {
     const m = {
       'routes/page@route.tsx': {
         file: 'assets/page.js',
@@ -110,10 +123,8 @@ describe('getLinks', () => {
       m,
       'routes/page@route.tsx',
       base,
-      false,
       new Set(),
-      'auto',
-      fixtureIsWidgetManifestKey
+      fixtureIncludeDynamicImport
     );
     const hrefs = links.map((l) => l.href);
     expect(hrefs).toContain(`${base}assets/w.css`);

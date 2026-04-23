@@ -169,9 +169,7 @@ export function exportRenderPlugin({
             manifest,
             fileName,
             base,
-            false,
             new Set(),
-            'auto',
             isWidgetManifestKey
           ),
         };

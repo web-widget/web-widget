@@ -8,15 +8,10 @@ const rebase = (src: string, base: string) => {
   return RESOLVE_URL_REG.test(src) ? src : base + src;
 };
 
-function getLink(
-  fileName: string,
-  base: string,
-  fetchpriority: 'low' | 'high' | 'auto'
-): LinkDescriptor | null {
+function getLink(fileName: string, base: string): LinkDescriptor | null {
   const ext = path.extname(fileName);
   if (ext === '.js') {
     return {
-      fetchpriority,
       href: rebase(fileName, base),
       rel: 'modulepreload',
     };
@@ -51,11 +46,7 @@ function getLinksInternal(
   base: string,
   containSelf: boolean,
   cache: Set<string>,
-  fetchpriority: 'low' | 'high' | 'auto',
-  isWidgetKey: (key: string) => boolean,
-  widgetCssCutoff: boolean,
-  fromDynamic: boolean,
-  allowOwn: boolean
+  containDynamicImports?: (dep: string) => boolean
 ): LinkDescriptor[] {
   if (cache.has(srcFileName)) {
     return [];
@@ -70,19 +61,10 @@ function getLinksInternal(
     return [];
   }
 
-  /** Omit this chunk's own entry JS (modulepreload) and extracted CSS from meta when under widget dynamic subgraph. */
-  const omitOwnDynamicBundle = widgetCssCutoff && fromDynamic && !allowOwn;
-
   const push = (assetFileName: string) => {
-    const ld = getLink(assetFileName, base, fetchpriority);
+    const ld = getLink(assetFileName, base);
     const href = ld?.href;
     if (!ld || !href || cache.has(href)) {
-      return;
-    }
-    if (
-      omitOwnDynamicBundle &&
-      (ld.rel === 'stylesheet' || ld.rel === 'modulepreload')
-    ) {
       return;
     }
     links.push(ld);
@@ -102,48 +84,18 @@ function getLinksInternal(
   }
 
   if (Array.isArray(item.imports)) {
-    item.imports?.forEach((dep) => {
-      const nextCutoff = widgetCssCutoff || isWidgetKey(dep);
-
+    item.imports.forEach((dep) => {
       links.push(
-        ...getLinksInternal(
-          manifest,
-          dep,
-          base,
-          true,
-          cache,
-          fetchpriority,
-          isWidgetKey,
-          nextCutoff,
-          false,
-          false
-        ).filter((link) => link.rel !== 'modulepreload')
+        ...getLinksInternal(manifest, dep, base, true, cache)
+          // Note: In the web router, all client components are loaded asynchronously.
+          .filter((link) => link.rel !== 'modulepreload')
       );
     });
   }
 
-  if (Array.isArray(item.dynamicImports)) {
-    item.dynamicImports?.forEach((dep) => {
-      const depIsWidget = isWidgetKey(dep);
-      const nextCutoff =
-        !widgetCssCutoff && depIsWidget ? true : widgetCssCutoff;
-      const nextFromDynamic = true;
-      const nextAllowOwn = !widgetCssCutoff && depIsWidget ? true : false;
-
-      links.push(
-        ...getLinksInternal(
-          manifest,
-          dep,
-          base,
-          true,
-          cache,
-          'low',
-          isWidgetKey,
-          nextCutoff,
-          nextFromDynamic,
-          nextAllowOwn
-        )
-      );
+  if (containDynamicImports && Array.isArray(item.dynamicImports)) {
+    item.dynamicImports.filter(containDynamicImports).forEach((dep) => {
+      links.push(...getLinksInternal(manifest, dep, base, true, cache));
     });
   }
 
@@ -152,29 +104,20 @@ function getLinksInternal(
 
 /**
  * Collect `<link>` descriptors from a Vite client manifest entry.
- * Pass `() => false` for `isWidgetManifestKey` when no manifest key is a widget (e.g. client entry).
  */
 export function getLinks(
   manifest: ViteManifest,
   srcFileName: string,
   base: string,
-  containSelf: boolean = false,
   cache: Set<string> = new Set(),
-  fetchpriority: 'low' | 'high' | 'auto' = 'auto',
-  isWidgetManifestKey: (manifestKey: string) => boolean
+  containDynamicImports?: (manifestKey: string) => boolean
 ): LinkDescriptor[] {
-  const widgetEntry = isWidgetManifestKey(srcFileName);
-
   return getLinksInternal(
     manifest,
     srcFileName,
     base,
-    containSelf,
-    cache,
-    fetchpriority,
-    isWidgetManifestKey,
-    widgetEntry,
     false,
-    false
+    cache,
+    containDynamicImports
   );
 }
