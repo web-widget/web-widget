@@ -99,10 +99,21 @@ export interface ImportMap {
   scopes?: Scopes;
 }
 
+/**
+ * Whether to follow a `dynamicImports` target key (Vite client manifest in build;
+ * same-shaped normalized project paths in dev SSR). Not a generic import hook.
+ */
+export type DynamicImportPredicate = (chunkKey: string) => boolean;
+
 export interface WebRouterPluginApi {
   config: ResolvedWebRouterConfig;
   clientImportmap(): Promise<ImportMap>;
   serverRoutemap(): Promise<RouteMap>;
+  /**
+   * Registered by `webWidgetPlugin` from `import.include` / `exclude`.
+   * Dev SSR meta reads this via `getWebRouterPluginApi` (`./utils.ts`).
+   */
+  dynamicImportPredicate?: DynamicImportPredicate;
 }
 
 export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {

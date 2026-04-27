@@ -3,6 +3,10 @@ import type { LinkDescriptor } from '@web-widget/helpers';
 import mime from 'mime-types';
 import type { Manifest as ViteManifest } from 'vite';
 
+import type { DynamicImportPredicate } from './types';
+
+export type { DynamicImportPredicate };
+
 const RESOLVE_URL_REG = /^(?:\w+:)?\//;
 const rebase = (src: string, base: string) => {
   return RESOLVE_URL_REG.test(src) ? src : base + src;
@@ -46,7 +50,7 @@ function getLinksInternal(
   base: string,
   containSelf: boolean,
   cache: Set<string>,
-  containDynamicImports?: (dep: string) => boolean
+  dynamicImportPredicate?: DynamicImportPredicate
 ): LinkDescriptor[] {
   if (cache.has(srcFileName)) {
     return [];
@@ -92,7 +96,7 @@ function getLinksInternal(
           base,
           true,
           cache,
-          containDynamicImports
+          dynamicImportPredicate
         )
           // Note: In the web router, all client components are loaded asynchronously.
           .filter((link) => link.rel !== 'modulepreload')
@@ -100,10 +104,17 @@ function getLinksInternal(
     });
   }
 
-  if (containDynamicImports && Array.isArray(item.dynamicImports)) {
-    item.dynamicImports.filter(containDynamicImports).forEach((dep) => {
+  if (dynamicImportPredicate && Array.isArray(item.dynamicImports)) {
+    item.dynamicImports.filter(dynamicImportPredicate).forEach((dep) => {
       links.push(
-        ...getLinksInternal(manifest, dep, base, true, cache, undefined)
+        ...getLinksInternal(
+          manifest,
+          dep,
+          base,
+          true,
+          cache,
+          dynamicImportPredicate
+        )
       );
     });
   }
@@ -119,7 +130,7 @@ export function getLinks(
   srcFileName: string,
   base: string,
   cache: Set<string> = new Set(),
-  containDynamicImports?: (manifestKey: string) => boolean
+  dynamicImportPredicate?: DynamicImportPredicate
 ): LinkDescriptor[] {
   return getLinksInternal(
     manifest,
@@ -127,6 +138,6 @@ export function getLinks(
     base,
     false,
     cache,
-    containDynamicImports
+    dynamicImportPredicate
   );
 }

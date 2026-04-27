@@ -63,6 +63,44 @@ describe('getLinks', () => {
     );
   });
 
+  test('nested dynamicImport(widget) inside widget still emits CSS when inner key matches predicate', () => {
+    const m = {
+      'routes/Outer@widget.tsx': {
+        file: 'assets/outer.js',
+        src: 'routes/Outer@widget.tsx',
+        imports: [],
+        dynamicImports: ['routes/Inner@widget.tsx'],
+        css: ['assets/outer.css'],
+      },
+      'routes/Inner@widget.tsx': {
+        file: 'assets/inner.js',
+        src: 'routes/Inner@widget.tsx',
+        imports: [],
+        dynamicImports: ['routes/Third@widget.tsx'],
+        css: ['assets/inner.css'],
+      },
+      'routes/Third@widget.tsx': {
+        file: 'assets/third.js',
+        src: 'routes/Third@widget.tsx',
+        imports: [],
+        dynamicImports: [],
+        css: ['assets/third.css'],
+      },
+    } as unknown as Manifest;
+
+    const links = getLinks(
+      m,
+      'routes/Outer@widget.tsx',
+      base,
+      new Set(),
+      fixtureIncludeDynamicImport
+    );
+    const hrefs = links.map((l) => l.href);
+    expect(hrefs).toContain(`${base}assets/outer.css`);
+    expect(hrefs).toContain(`${base}assets/inner.css`);
+    expect(hrefs).toContain(`${base}assets/third.css`);
+  });
+
   test('widget entry: CSS of entry included; nested dynamicImports omitted when filter excludes inner chunk', () => {
     const widgetManifest = {
       'routes/CssLazy@widget.tsx': {
@@ -132,7 +170,7 @@ describe('getLinks', () => {
     expect(links.some((l) => l.href?.includes('w-inner.js'))).toBe(false);
   });
 
-  test('static import chain propagates containDynamicImports: intermediary chunk’s dynamicImport(widget) still emits CSS', () => {
+  test('static import chain propagates dynamicImportPredicate: intermediary chunk’s dynamicImport(widget) still emits CSS', () => {
     const m = {
       'routes/page@route.tsx': {
         file: 'assets/page.js',
@@ -177,7 +215,7 @@ describe('getLinks', () => {
     expect(links.map((l) => l.href)).toContain(`${base}assets/w.css`);
   });
 
-  test('multi-hop static imports still propagate containDynamicImports before dynamicImport(widget)', () => {
+  test('multi-hop static imports still propagate dynamicImportPredicate before dynamicImport(widget)', () => {
     const m = {
       'routes/page@route.tsx': {
         file: 'assets/page.js',

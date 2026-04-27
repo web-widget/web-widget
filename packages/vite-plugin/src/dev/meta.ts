@@ -8,11 +8,27 @@ import type {
 } from '@web-widget/helpers';
 
 import type { ViteDevServer, ModuleNode } from 'vite';
-import { isCSSRequest } from 'vite';
+import { isCSSRequest, normalizePath } from 'vite';
+
+import type { DynamicImportPredicate } from '../types';
+import { removeAs } from '../utils';
+
+/**
+ * Dev-time dependency keys for `crawlGraph`, parallel to `getLinksInternal` in
+ * `./manifest-links.ts`:
+ * - `importDepKeys`: static edges (`imports` / SSR `deps`)
+ * - `matchedDynamicImportKeys`: `dynamicImports` / SSR `dynamicDeps` targets accepted by `dynamicImportPredicate`
+ */
+type SsrModuleDependencyKeys = {
+  filterDisabled: boolean;
+  importDepKeys: Set<string>;
+  matchedDynamicImportKeys: Set<string>;
+};
 
 export async function getMeta(
   filePath: string,
-  viteDevServer: ViteDevServer
+  viteDevServer: ViteDevServer,
+  dynamicImportPredicate?: DynamicImportPredicate
 ): Promise<{
   link: LinkDescriptor[];
   style: StyleDescriptor[];
@@ -24,7 +40,8 @@ export async function getMeta(
   // Pass framework CSS in as style tags to be appended to the page.
   const { urls: styleUrls, styles } = await getStylesForURL(
     filePath,
-    viteDevServer
+    viteDevServer,
+    dynamicImportPredicate
   );
   let link: LinkDescriptor[] = styleUrls.map((href) => ({
     rel: 'stylesheet',
@@ -57,17 +74,22 @@ interface ImportedStyle {
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 async function getStylesForURL(
   filePath: string,
-  viteDevServer: ViteDevServer
+  viteDevServer: ViteDevServer,
+  dynamicImportPredicate?: DynamicImportPredicate
 ): Promise<{ urls: string[]; styles: ImportedStyle[] }> {
   const importedCssUrls = new Set<string>();
   // Map of url to injected style object. Use a `url` key to deduplicate styles
   const importedStylesMap = new Map<string, ImportedStyle>();
 
+  const root = viteDevServer.config.root;
+
   for await (const importedModule of crawlGraph(
     viteDevServer,
     filePath,
     true,
-    new Set()
+    new Set(),
+    root,
+    dynamicImportPredicate
   )) {
     if (isBuildableCSSRequest(importedModule.url)) {
       let ssrModule: Record<string, any>;
@@ -116,6 +138,159 @@ function unwrapId(id: string): string {
   return id.startsWith(VALID_ID_PREFIX) ? id.slice(VALID_ID_PREFIX.length) : id;
 }
 
+function stripViteTimestampQuery(url: string): string {
+  return url.replace(/\?t=\d+(?=&|$)/, '').replace(/&t=\d+(?=&|$)/, '');
+}
+
+function canonicalModuleKey(id: string): string {
+  return unwrapId(id.replace(STRIP_QUERY_PARAMS_REGEX, ''));
+}
+
+function moduleNodeKeys(mod: ModuleNode): string[] {
+  const keys: string[] = [];
+  if (mod.id) {
+    keys.push(canonicalModuleKey(mod.id));
+  }
+  if (mod.file) {
+    const k = canonicalModuleKey(mod.file);
+    if (!keys.includes(k)) {
+      keys.push(k);
+    }
+  }
+  return keys;
+}
+
+function classifyImportEdge(
+  mod: ModuleNode,
+  importDepKeys: Set<string>,
+  matchedDynamicImportKeys: Set<string>
+): 'import' | 'dynamic-import' | 'none' {
+  let fromImport = false;
+  let fromDynamicImport = false;
+  for (const k of moduleNodeKeys(mod)) {
+    if (importDepKeys.has(k)) {
+      fromImport = true;
+    }
+    if (matchedDynamicImportKeys.has(k)) {
+      fromDynamicImport = true;
+    }
+  }
+  if (fromImport) {
+    return 'import';
+  }
+  if (fromDynamicImport) {
+    return 'dynamic-import';
+  }
+  return 'none';
+}
+
+async function ensureSsrTransformResult(
+  viteDevServer: ViteDevServer,
+  mod: ModuleNode
+) {
+  if (mod.ssrTransformResult) {
+    return;
+  }
+  try {
+    await viteDevServer.transformRequest(stripViteTimestampQuery(mod.url), {
+      ssr: true,
+    });
+  } catch {
+    /** transform may fail for virtual / special modules */
+  }
+}
+
+async function resolveSpecifierKeys(
+  viteDevServer: ViteDevServer,
+  importer: string,
+  specifiers: readonly string[] | undefined
+): Promise<Set<string>> {
+  const keys = new Set<string>();
+  for (const spec of specifiers ?? []) {
+    try {
+      const r = await viteDevServer.pluginContainer.resolveId(spec, importer, {
+        ssr: true,
+      });
+      if (r?.id) {
+        keys.add(canonicalModuleKey(r.id));
+      }
+    } catch {
+      /** unresolved optional deps, etc. */
+    }
+  }
+  return keys;
+}
+
+async function resolveSsrModuleDependencyKeys(
+  viteDevServer: ViteDevServer,
+  entry: ModuleNode,
+  root: string,
+  dynamicImportPredicate?: DynamicImportPredicate
+): Promise<SsrModuleDependencyKeys> {
+  const entryPath = entry.id?.replace(STRIP_QUERY_PARAMS_REGEX, '') ?? '';
+  const entryIsStyle =
+    entry.type === 'css' ||
+    isCSSRequest(entryPath) ||
+    isCSSRequest(entry.id ?? '');
+
+  if (entryIsStyle) {
+    return {
+      filterDisabled: true,
+      importDepKeys: new Set(),
+      matchedDynamicImportKeys: new Set(),
+    };
+  }
+
+  await ensureSsrTransformResult(viteDevServer, entry);
+
+  const tr = entry.ssrTransformResult;
+  const importer = entry.file ?? entry.id;
+  if (!tr || !importer) {
+    return {
+      filterDisabled: true,
+      importDepKeys: new Set(),
+      matchedDynamicImportKeys: new Set(),
+    };
+  }
+
+  const importDepKeys = await resolveSpecifierKeys(
+    viteDevServer,
+    importer,
+    tr.deps
+  );
+
+  const matchedDynamicImportKeys = new Set<string>();
+  if (dynamicImportPredicate && tr.dynamicDeps?.length) {
+    for (const dep of tr.dynamicDeps) {
+      try {
+        const r = await viteDevServer.pluginContainer.resolveId(dep, importer, {
+          ssr: true,
+        });
+        if (!r?.id) {
+          continue;
+        }
+        const manifestKey = normalizePath(
+          path.relative(
+            root,
+            removeAs(r.id).replace(STRIP_QUERY_PARAMS_REGEX, '')
+          )
+        );
+        if (dynamicImportPredicate(manifestKey)) {
+          matchedDynamicImportKeys.add(canonicalModuleKey(r.id));
+        }
+      } catch {
+        /** */
+      }
+    }
+  }
+
+  return {
+    filterDisabled: false,
+    importDepKeys,
+    matchedDynamicImportKeys,
+  };
+}
+
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time
  * See usage below
@@ -129,7 +304,9 @@ async function* crawlGraph(
   viteDevServer: ViteDevServer,
   _id: string,
   isRootFile: boolean,
-  scanned = new Set<string>()
+  scanned: Set<string>,
+  root: string,
+  dynamicImportPredicate?: DynamicImportPredicate
 ): AsyncGenerator<ModuleNode, void, unknown> {
   const id = unwrapId(_id);
   const importedModules = new Set<ModuleNode>();
@@ -152,7 +329,16 @@ async function* crawlGraph(
     }
     if (id === entry.id) {
       scanned.add(id);
-      const entryIsStyle = isCSSRequest(id);
+      const entryPath = id.replace(STRIP_QUERY_PARAMS_REGEX, '');
+      const entryIsStyle = isCSSRequest(entryPath) || isCSSRequest(id);
+
+      const { filterDisabled, importDepKeys, matchedDynamicImportKeys } =
+        await resolveSsrModuleDependencyKeys(
+          viteDevServer,
+          entry,
+          root,
+          dynamicImportPredicate
+        );
 
       for (const importedModule of entry.importedModules) {
         if (!importedModule.id) continue;
@@ -194,7 +380,21 @@ async function* crawlGraph(
         }
 
         // Make sure the `importedModule` traversed is explicitly imported by the user, and not by HMR
-        if (isImportedBy(id, importedModule)) {
+        if (!isImportedBy(id, importedModule)) {
+          continue;
+        }
+
+        if (!filterDisabled) {
+          const edge = classifyImportEdge(
+            importedModule,
+            importDepKeys,
+            matchedDynamicImportKeys
+          );
+          if (edge === 'none') {
+            continue;
+          }
+          importedModules.add(importedModule);
+        } else {
           importedModules.add(importedModule);
         }
       }
@@ -209,7 +409,14 @@ async function* crawlGraph(
     }
 
     yield importedModule;
-    yield* crawlGraph(viteDevServer, importedModule.id, false, scanned);
+    yield* crawlGraph(
+      viteDevServer,
+      importedModule.id,
+      false,
+      scanned,
+      root,
+      dynamicImportPredicate
+    );
   }
 }
 

@@ -4,6 +4,7 @@ import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin, Manifest as ViteManifest } from 'vite';
 import { getLinks } from './manifest-links';
+import type { DynamicImportPredicate } from './types';
 import {
   getManifest,
   getWebRouterPluginApi,
@@ -26,7 +27,7 @@ export interface ExportRenderPluginOptions {
   manifest?: ViteManifest;
   provide: string;
   /** From `webWidgetPlugin` `import.include` / `exclude` via `createFilter`. */
-  isWidgetManifestKey: (manifestKey: string) => boolean;
+  dynamicImportPredicate: DynamicImportPredicate;
 }
 
 export function exportRenderPlugin({
@@ -36,7 +37,7 @@ export function exportRenderPlugin({
   inject = 'render',
   manifest,
   provide,
-  isWidgetManifestKey,
+  dynamicImportPredicate,
 }: ExportRenderPluginOptions): Plugin[] {
   if (typeof provide !== 'string') {
     throw new TypeError(`options.provide must be a string type.`);
@@ -170,7 +171,7 @@ export function exportRenderPlugin({
             fileName,
             base,
             new Set(),
-            isWidgetManifestKey
+            dynamicImportPredicate
           ),
         };
 
