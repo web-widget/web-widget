@@ -184,7 +184,11 @@ async function viteWebRouterMiddlewareV2(
             );
 
             const html = await res.text();
-            const meta = await getMeta(source, viteServer);
+            const meta = await getMeta(
+              source,
+              viteServer,
+              getWebRouterPluginApi(viteServer.config)?.dynamicImportPredicate
+            );
             const url = new URL(request.url);
             const viteHtml = await viteServer.transformIndexHtml(
               url.pathname + url.search,
