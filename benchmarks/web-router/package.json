@@ -1,7 +1,7 @@
 {
   "name": "@benchmarks/web-router",
   "description": "Performance benchmarking for web frameworks with configuration-driven design",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "private": true,
   "type": "module",
   "scripts": {

@@ -1,5 +1,18 @@
 # @web-widget/vite-plugin
 
+## 1.72.0
+
+### Minor Changes
+
+- d1c0358: Align dev SSR HTML `meta` link/CSS discovery with production `getLinks` behavior for static `imports` and filtered `dynamicImports`, so async CSS inclusion is consistent between dev and build. This also streamlines internal predicate wiring used by the vite plugin.
+
+### Patch Changes
+
+- @web-widget/helpers@1.72.0
+- @web-widget/inspector@1.72.0
+- @web-widget/node@1.72.0
+- @web-widget/web-router@1.72.0
+
 ## 1.71.2
 
 ### Patch Changes
