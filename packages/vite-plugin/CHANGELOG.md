@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.72.1
+
+### Patch Changes
+
+- ed99f68: Fix SSR CSS collection for widget modules imported with `?as=...` (for example `?as=jsx`) so dynamic widget styles are included consistently with non-query imports.
+  - @web-widget/helpers@1.72.1
+  - @web-widget/inspector@1.72.1
+  - @web-widget/node@1.72.1
+  - @web-widget/web-router@1.72.1
+
 ## 1.72.0
 
 ### Minor Changes
