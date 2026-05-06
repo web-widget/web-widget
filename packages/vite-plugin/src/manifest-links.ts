@@ -11,6 +11,7 @@ const RESOLVE_URL_REG = /^(?:\w+:)?\//;
 const rebase = (src: string, base: string) => {
   return RESOLVE_URL_REG.test(src) ? src : base + src;
 };
+const stripAsQuery = (src: string) => src.replace(/\?as=.*/, '');
 
 function getLink(fileName: string, base: string): LinkDescriptor | null {
   const ext = path.extname(fileName);
@@ -104,8 +105,17 @@ function getLinksInternal(
     });
   }
 
+  const canFollowDynamicImport = (dep: string) => {
+    if (!dynamicImportPredicate) {
+      return false;
+    }
+    return (
+      dynamicImportPredicate(dep) || dynamicImportPredicate(stripAsQuery(dep))
+    );
+  };
+
   if (dynamicImportPredicate && Array.isArray(item.dynamicImports)) {
-    item.dynamicImports.filter(dynamicImportPredicate).forEach((dep) => {
+    item.dynamicImports.filter(canFollowDynamicImport).forEach((dep) => {
       links.push(
         ...getLinksInternal(
           manifest,
