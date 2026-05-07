@@ -1029,7 +1029,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <span>Inspect</span>
+            <span>Inspector</span>
           </button>
 
           <button
@@ -1040,8 +1040,8 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
                 this.openInEditor(currentFilePath);
               }
             }}
-            title="Open current page source code"
-            aria-label="Open current page source code">
+            title="Open current route source code"
+            aria-label="Open current route source code">
             <svg
               width="16"
               height="16"
@@ -1054,7 +1054,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
               <rect x="3" y="3" width="18" height="18" rx="2" />
               <path d="M9 9h6v6H9z" />
             </svg>
-            <span>Open Source</span>
+            <span>Route Source</span>
           </button>
         </div>
 
