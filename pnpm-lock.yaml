@@ -92,10 +92,10 @@ importers:
         version: 2.13.1
       syncpack:
         specifier: latest
-        version: 14.3.0
+        version: 15.0.0
       turbo:
         specifier: latest
-        version: 2.9.6
+        version: 2.9.9
       unbuild:
         specifier: ^1.2.1
         version: 1.2.1
@@ -104,7 +104,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.19.13
-        version: 1.19.14(hono@4.12.14)
+        version: 1.19.14(hono@4.12.16)
       '@koa/router':
         specifier: ^13.1.1
         version: 13.1.1
@@ -124,8 +124,8 @@ importers:
         specifier: ^5.8.5
         version: 5.8.5
       hono:
-        specifier: ^4.12.14
-        version: 4.12.14
+        specifier: ^4.12.16
+        version: 4.12.16
       koa:
         specifier: ^3.1.2
         version: 3.2.0
@@ -2843,33 +2843,33 @@ packages:
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
-  '@turbo/darwin-64@2.9.6':
-    resolution: {integrity: sha512-X/56SnVXIQZBLKwniGTwEQTGmtE5brSACnKMBWpY3YafuxVYefrC2acamfjgxP7BG5w3I+6jf0UrLoSzgPcSJg==}
+  '@turbo/darwin-64@2.9.9':
+    resolution: {integrity: sha512-hTEiNu2ABZZOO1qbjnKASI8eF3BdOOzU6iKv5w5uGOK65DDMc10cS40N1kqM99YT0uSAGUwNu6GdFctRPeEeVA==}
     cpu: [x64]
     os: [darwin]
 
-  '@turbo/darwin-arm64@2.9.6':
-    resolution: {integrity: sha512-aalBeSl4agT/QtYGDyf/XLajedWzUC9Vg/pm/YO6QQ93vkQ91Vz5uK1ta5RbVRDozQSz4njxUNqRNmOXDzW+qw==}
+  '@turbo/darwin-arm64@2.9.9':
+    resolution: {integrity: sha512-MinO40EEcP5mJiTVpfjtEulsEBhVeryfq21QhYtJZ8hQJLHGgy459rcmDVAY8/JERe4dkVU4KW+zoLF22o01EA==}
     cpu: [arm64]
     os: [darwin]
 
-  '@turbo/linux-64@2.9.6':
-    resolution: {integrity: sha512-YKi05jnNHaD7vevgYwahpzGwbsNNTwzU2c7VZdmdFm7+cGDP4oREUWSsainiMfRqjRuolQxBwRn8wf1jmu+YZA==}
+  '@turbo/linux-64@2.9.9':
+    resolution: {integrity: sha512-7JNLw88Isk+gMlbsC8pulLDkrqe2B827ZsKFEHilb17AC6Xn/62pzH7afjY7fEU6Ayp4XP/vGhlRWOzqBvBvIQ==}
     cpu: [x64]
     os: [linux]
 
-  '@turbo/linux-arm64@2.9.6':
-    resolution: {integrity: sha512-02o/ZS69cOYEDczXvOB2xmyrtzjQ2hVFtWZK1iqxXUfzMmTjZK4UumrfNnjckSg+gqeBfnPRHa0NstA173Ik3g==}
+  '@turbo/linux-arm64@2.9.9':
+    resolution: {integrity: sha512-0pnXDwPw1rHii98JZPRg7SvsjIzy7jrhkwGU9Jy5fVYoMdYd3P2vbtLfII+OJ0Mm4Ar5yykdHDTz3RWiRI1o9g==}
     cpu: [arm64]
     os: [linux]
 
-  '@turbo/windows-64@2.9.6':
-    resolution: {integrity: sha512-wVdQjvnBI15wB6JrA+43CtUtagjIMmX6XYO758oZHAsCNSxqRlJtdyujih0D8OCnwCRWiGWGI63zAxR0hO6s9g==}
+  '@turbo/windows-64@2.9.9':
+    resolution: {integrity: sha512-vjDQycz4gQVvIq4n2rPtiiIESwJlAc406qtkiZlqyL+fHZEd9SxYNlBIFYtc5cuMuwrk+sIKrhN7XvwjmvS9YQ==}
     cpu: [x64]
     os: [win32]
 
-  '@turbo/windows-arm64@2.9.6':
-    resolution: {integrity: sha512-1XUUyWW0W6FTSqGEhU8RHVqb2wP1SPkr7hIvBlMEwH9jr+sJQK5kqeosLJ/QaUv4ecSAd1ZhIrLoW7qslAzT4A==}
+  '@turbo/windows-arm64@2.9.9':
+    resolution: {integrity: sha512-V6NiH43oCctepbOdQFp7UjqLyK8p6Tt824QA+G4TE+B1BBHu80A0W8OCL+H7uBJ3XZjAj/hvPDw3k3l65DoDGw==}
     cpu: [arm64]
     os: [win32]
 
@@ -5006,8 +5006,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  hono@4.12.14:
-    resolution: {integrity: sha512-am5zfg3yu6sqn5yjKBNqhnTX7Cv+m00ox+7jbaKkrLMRJ4rAdldd1xPd/JzbBWspqaQv6RSTrgFN95EsfhC+7w==}
+  hono@4.12.16:
+    resolution: {integrity: sha512-jN0ZewiNAWSe5khM3EyCmBb250+b40wWbwNILNfEvq84VREWwOIkuUsFONk/3i3nqkz7Oe1PcpM2mwQEK2L9Kg==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -7241,48 +7241,48 @@ packages:
     resolution: {integrity: sha512-L1dapNV6vu2s/4Sputv8xGsCdAVlb5nRDMFU/E27D44l5U6cw1g0dGd45uLc+OXjNMmF4ntiMdCimzcjFKQI8Q==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  syncpack-darwin-arm64@14.3.0:
-    resolution: {integrity: sha512-gpbkBzO7yqa3BONc4EU3jY07yiPSZdoAxcpnz8REV9Bc6FkmKfOejCpYIh8RaogGPS4gOLJ/RUJEECqAaHTcjA==}
+  syncpack-darwin-arm64@15.0.0:
+    resolution: {integrity: sha512-xUIOGuWKHAUWOXRKPAlQ2I2XmyuJpEe25G0Vx2/eQoKakEFj3XpQePqOMJLj6ik71xEHxicdMljIKCxEPurahA==}
     cpu: [arm64]
     os: [darwin]
 
-  syncpack-darwin-x64@14.3.0:
-    resolution: {integrity: sha512-wTpl6Qj5qGIHrYhpCrlNnosmhQqvUoidqqmxtdM3f+j+b+OkTtpkUl2tdE28h3aeEEUPf9ClQnHuwRJMYNlrJw==}
+  syncpack-darwin-x64@15.0.0:
+    resolution: {integrity: sha512-tcAZ3rbWgoWaT3jcDVZXqob2wgjmHh0GvxPx5oJ/pJ0b8ul2eSX0fhBoczEjV0v5WnBhueDVAfW/aQK7I8co3A==}
     cpu: [x64]
     os: [darwin]
 
-  syncpack-linux-arm64-musl@14.3.0:
-    resolution: {integrity: sha512-AezJ5dv0s+l/p1l4/wBatYhM6SZEKLcyNKggSOX5uISzqbSKwj/Aak13pBXWarzS+N6LnOl4PMcwRMJPOUfN/g==}
+  syncpack-linux-arm64-musl@15.0.0:
+    resolution: {integrity: sha512-hVcSOv0D6eRACrCJHPjPMn1H8ovQpZadYoDUL2cW1oTwN/eWNPo2sDZaO+UONQsrWX0LU1Gq59pbIs3TyltDpQ==}
     cpu: [arm64]
     os: [linux]
 
-  syncpack-linux-arm64@14.3.0:
-    resolution: {integrity: sha512-Vcf9zWkJGRqb5mGPKi9E+s/mB/Tw08LmKGRaiyKJjK8bhd1Ds65O8A2lOidy3jg0NOOojqREmDsli74Xd0z6KA==}
+  syncpack-linux-arm64@15.0.0:
+    resolution: {integrity: sha512-xd3+1bqFI5ym2r1AtJH9MUPxAGB2SPYi6FeP1QmCOdAFsykp2yTYsMg9Qs9g8DwOfMM+nSoJGrE1H/eeldU8+A==}
     cpu: [arm64]
     os: [linux]
 
-  syncpack-linux-x64-musl@14.3.0:
-    resolution: {integrity: sha512-tIRF0lvBJcoIwcO05/Q6j30CAg0jzn+A5eQL+06Ncq8CE5i8fBWrVwN1U/QQ4fzT+tondNWH/2BR5zlaB1VUpQ==}
+  syncpack-linux-x64-musl@15.0.0:
+    resolution: {integrity: sha512-MCs1MC9iwqNADthJ8dfbINKHPoWZT49TmmkPvbrbV0/QKHcK4TqckrNrHEo7NFrL6BvLEWdWe/Vbdy7PbDluhw==}
     cpu: [x64]
     os: [linux]
 
-  syncpack-linux-x64@14.3.0:
-    resolution: {integrity: sha512-n/4iBJnoOCe5An+WYlaqfSxOKQ7Id3TZTpxOpI60Cucq3yqwq0JHQUielj6JBtVaxvo2rAsTwbCLyp2aB0SD2g==}
+  syncpack-linux-x64@15.0.0:
+    resolution: {integrity: sha512-gaThoG8k+2UA5A6FFosoT9mSXf69RTZt68iHxqejxDVVPGuPdtAkf6rXIZWiElhJJ3kQwGW+Zo+e0ZdKviqJMg==}
     cpu: [x64]
     os: [linux]
 
-  syncpack-windows-arm64@14.3.0:
-    resolution: {integrity: sha512-ZTX0rSUTJZjIde3qPKLEqU7IEt4KxFsmq6gKLfESx5rB1rxk/B1Ljv6nTYph5QVItEzHQHUXDWnqa9yCb15myw==}
+  syncpack-windows-arm64@15.0.0:
+    resolution: {integrity: sha512-hMm9zTYihwP9t86z5FIQ/7Hk1LcXw4SuqxjWy+Nylxwj82DIHr+fLzbSmDFQNiFqwz1gY56FuTGH+UavsWkgXQ==}
     cpu: [arm64]
     os: [win32]
 
-  syncpack-windows-x64@14.3.0:
-    resolution: {integrity: sha512-zvbphZw40wFZYeEW2oJYqA9Uw6IOwNIpgFmVNdWdGmShPF/Zu1cavHEcGwtQmvVzwuTEyiu67uxQ3hDC2q6vtg==}
+  syncpack-windows-x64@15.0.0:
+    resolution: {integrity: sha512-8dvfrgSBwVol2PCJeVyESnTdlxdA0ho1w3/EQCW6ixag6Ov0lw7mfEN9SHDim1TVihpr47wr7KKt9t3Qi6d9qQ==}
     cpu: [x64]
     os: [win32]
 
-  syncpack@14.3.0:
-    resolution: {integrity: sha512-8/WtPPxxGFqE21JPFz6Bpw0m9BT3lzMYDcewJFj++EBPmCaDWowTnx0R4V7ofH/1z3HAIaAps6g2GHL76l1Y2g==}
+  syncpack@15.0.0:
+    resolution: {integrity: sha512-8aCVifg97m3hig1dnDwvGSPk6g/SDMzYRDjyL58c7l74gq8BCpUFmJrZZUL/9w6kGrnHxl6HsqUeOVja4ZpqTA==}
     engines: {node: '>=14.17.0'}
     hasBin: true
 
@@ -7492,8 +7492,8 @@ packages:
       typescript:
         optional: true
 
-  turbo@2.9.6:
-    resolution: {integrity: sha512-+v2QJey7ZUeUiuigkU+uFfklvNUyPI2VO2vBpMYJA+a1hKFLFiKtUYlRHdb3P9CrAvMzi0upbjI4WT+zKtqkBg==}
+  turbo@2.9.9:
+    resolution: {integrity: sha512-3xfzXE/yTjhh0S5dIWlE+3E+J9A09REpLI1ZqVh2+HrNZoVzZn0pkvjiRgVK/Ev3PF9XnaTwCntTx+CADWXcyA==}
     hasBin: true
 
   type-check@0.4.0:
@@ -7554,6 +7554,9 @@ packages:
 
   ufo@1.6.3:
     resolution: {integrity: sha512-yDJTmhydvl5lJzBmy/hyOAA0d+aqCBuwl818haVdYCRrWV84o7YyeVm4QlVHStqNrrJSTb6jKuFAVqAFsr+K3Q==}
+
+  ufo@1.6.4:
+    resolution: {integrity: sha512-JFNbkD1Svwe0KvGi8GOeLcP4kAWQ609twvCdcHxq1oSL8svv39ZuSvajcD8B+5D0eL4+s1Is2D/O6KN3qcTeRA==}
 
   unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
@@ -7634,6 +7637,7 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-compile-cache-lib@3.0.1:
@@ -8863,9 +8867,9 @@ snapshots:
       '@fastify/forwarded': 3.0.1
       ipaddr.js: 2.3.0
 
-  '@hono/node-server@1.19.14(hono@4.12.14)':
+  '@hono/node-server@1.19.14(hono@4.12.16)':
     dependencies:
-      hono: 4.12.14
+      hono: 4.12.16
 
   '@humanwhocodes/config-array@0.11.10':
     dependencies:
@@ -9507,22 +9511,22 @@ snapshots:
   '@tsconfig/node16@1.0.4':
     optional: true
 
-  '@turbo/darwin-64@2.9.6':
+  '@turbo/darwin-64@2.9.9':
     optional: true
 
-  '@turbo/darwin-arm64@2.9.6':
+  '@turbo/darwin-arm64@2.9.9':
     optional: true
 
-  '@turbo/linux-64@2.9.6':
+  '@turbo/linux-64@2.9.9':
     optional: true
 
-  '@turbo/linux-arm64@2.9.6':
+  '@turbo/linux-arm64@2.9.9':
     optional: true
 
-  '@turbo/windows-64@2.9.6':
+  '@turbo/windows-64@2.9.9':
     optional: true
 
-  '@turbo/windows-arm64@2.9.6':
+  '@turbo/windows-arm64@2.9.9':
     optional: true
 
   '@types/accepts@1.3.5':
@@ -12256,7 +12260,7 @@ snapshots:
 
   he@1.2.0: {}
 
-  hono@4.12.14: {}
+  hono@4.12.16: {}
 
   hookable@5.5.3: {}
 
@@ -13447,7 +13451,7 @@ snapshots:
       acorn: 8.16.0
       pathe: 2.0.3
       pkg-types: 1.3.1
-      ufo: 1.6.3
+      ufo: 1.6.4
 
   mri@1.2.0: {}
 
@@ -14784,40 +14788,40 @@ snapshots:
       '@pkgr/utils': 2.4.2
       tslib: 2.6.1
 
-  syncpack-darwin-arm64@14.3.0:
+  syncpack-darwin-arm64@15.0.0:
     optional: true
 
-  syncpack-darwin-x64@14.3.0:
+  syncpack-darwin-x64@15.0.0:
     optional: true
 
-  syncpack-linux-arm64-musl@14.3.0:
+  syncpack-linux-arm64-musl@15.0.0:
     optional: true
 
-  syncpack-linux-arm64@14.3.0:
+  syncpack-linux-arm64@15.0.0:
     optional: true
 
-  syncpack-linux-x64-musl@14.3.0:
+  syncpack-linux-x64-musl@15.0.0:
     optional: true
 
-  syncpack-linux-x64@14.3.0:
+  syncpack-linux-x64@15.0.0:
     optional: true
 
-  syncpack-windows-arm64@14.3.0:
+  syncpack-windows-arm64@15.0.0:
     optional: true
 
-  syncpack-windows-x64@14.3.0:
+  syncpack-windows-x64@15.0.0:
     optional: true
 
-  syncpack@14.3.0:
+  syncpack@15.0.0:
     optionalDependencies:
-      syncpack-darwin-arm64: 14.3.0
-      syncpack-darwin-x64: 14.3.0
-      syncpack-linux-arm64: 14.3.0
-      syncpack-linux-arm64-musl: 14.3.0
-      syncpack-linux-x64: 14.3.0
-      syncpack-linux-x64-musl: 14.3.0
-      syncpack-windows-arm64: 14.3.0
-      syncpack-windows-x64: 14.3.0
+      syncpack-darwin-arm64: 15.0.0
+      syncpack-darwin-x64: 15.0.0
+      syncpack-linux-arm64: 15.0.0
+      syncpack-linux-arm64-musl: 15.0.0
+      syncpack-linux-x64: 15.0.0
+      syncpack-linux-x64-musl: 15.0.0
+      syncpack-windows-arm64: 15.0.0
+      syncpack-windows-x64: 15.0.0
 
   table-layout@3.0.2:
     dependencies:
@@ -15017,14 +15021,14 @@ snapshots:
       - tsx
       - yaml
 
-  turbo@2.9.6:
+  turbo@2.9.9:
     optionalDependencies:
-      '@turbo/darwin-64': 2.9.6
-      '@turbo/darwin-arm64': 2.9.6
-      '@turbo/linux-64': 2.9.6
-      '@turbo/linux-arm64': 2.9.6
-      '@turbo/windows-64': 2.9.6
-      '@turbo/windows-arm64': 2.9.6
+      '@turbo/darwin-64': 2.9.9
+      '@turbo/darwin-arm64': 2.9.9
+      '@turbo/linux-64': 2.9.9
+      '@turbo/linux-arm64': 2.9.9
+      '@turbo/windows-64': 2.9.9
+      '@turbo/windows-arm64': 2.9.9
 
   type-check@0.4.0:
     dependencies:
@@ -15072,6 +15076,8 @@ snapshots:
   ufo@1.6.1: {}
 
   ufo@1.6.3: {}
+
+  ufo@1.6.4: {}
 
   unbox-primitive@1.0.2:
     dependencies:
@@ -15142,7 +15148,7 @@ snapshots:
       mlly: 1.8.2
       ohash: 1.1.6
       pathe: 1.1.2
-      ufo: 1.6.3
+      ufo: 1.6.4
 
   universalify@0.1.2: {}
 
