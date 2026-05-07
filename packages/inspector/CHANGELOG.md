@@ -1,5 +1,12 @@
 # @web-widget/inspector
 
+## 1.72.2
+
+### Patch Changes
+
+- f79107c: Clarify inspector toolbar copy: use "Inspector" and "Route Source" labels, and describe the source action as the current route.
+  - @web-widget/web-widget@1.72.2
+
 ## 1.72.1
 
 ### Patch Changes

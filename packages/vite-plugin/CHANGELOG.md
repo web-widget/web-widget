@@ -1,5 +1,15 @@
 # @web-widget/vite-plugin
 
+## 1.72.2
+
+### Patch Changes
+
+- Updated dependencies [f79107c]
+  - @web-widget/inspector@1.72.2
+  - @web-widget/helpers@1.72.2
+  - @web-widget/node@1.72.2
+  - @web-widget/web-router@1.72.2
+
 ## 1.72.1
 
 ### Patch Changes
