@@ -1,5 +1,16 @@
 # @web-widget/vite-plugin
 
+## 1.72.3
+
+### Patch Changes
+
+- Updated dependencies [afc784a]
+- Updated dependencies [afc784a]
+  - @web-widget/node@1.72.3
+  - @web-widget/web-router@1.72.3
+  - @web-widget/helpers@1.72.3
+  - @web-widget/inspector@1.72.3
+
 ## 1.72.2
 
 ### Patch Changes

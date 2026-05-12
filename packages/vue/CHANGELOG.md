@@ -1,5 +1,15 @@
 # @web-widget/vue
 
+## 1.72.3
+
+### Patch Changes
+
+- @web-widget/vite-plugin@1.72.3
+- @web-widget/react@1.72.3
+- @web-widget/helpers@1.72.3
+- @web-widget/schema@1.72.3
+- @web-widget/web-widget@1.72.3
+
 ## 1.72.2
 
 ### Patch Changes
