@@ -1,5 +1,14 @@
 # @benchmarks/web-router
 
+## 1.0.10
+
+### Patch Changes
+
+- Updated dependencies [afc784a]
+- Updated dependencies [afc784a]
+  - @web-widget/node@1.72.3
+  - @web-widget/web-router@1.72.3
+
 ## 1.0.9
 
 ### Patch Changes

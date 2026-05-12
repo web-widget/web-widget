@@ -1,5 +1,18 @@
 # @web-widget/web-router
 
+## 1.72.3
+
+### Patch Changes
+
+- afc784a: When a thrown `Response` has JSON with a non-empty `stack` string, propagate it onto the normalized HTTP error so `onError` handlers can display server stacks.
+
+  Update the built-in fallback error page CSS to use `100dvh` and column flex alignment for more reliable vertical centering across viewports.
+  - @web-widget/action@1.72.3
+  - @web-widget/context@1.72.3
+  - @web-widget/helpers@1.72.3
+  - @web-widget/html@1.72.3
+  - @web-widget/lifecycle-cache@1.72.3
+
 ## 1.72.2
 
 ### Patch Changes
