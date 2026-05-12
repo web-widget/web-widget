@@ -302,6 +302,7 @@ class Application<
     if (error instanceof Response) {
       const clonedResponse = error.clone();
       let message = error.statusText;
+      let stack: string | undefined;
 
       try {
         const contentType = clonedResponse.headers.get('content-type');
@@ -310,6 +311,10 @@ class Application<
           if (jsonData && typeof jsonData === 'object') {
             message =
               jsonData.message ?? jsonData.error ?? JSON.stringify(jsonData);
+            stack =
+              typeof jsonData.stack === 'string'
+                ? jsonData.stack || undefined
+                : undefined;
           }
         } else {
           message = await clonedResponse.text();
@@ -318,7 +323,10 @@ class Application<
         message = error.statusText;
       }
 
-      return createHttpError(error.status, message, { cause: error });
+      return createHttpError(error.status, message, {
+        cause: error,
+        ...(stack !== undefined ? { stack } : {}),
+      });
     }
 
     // If it's an object format error

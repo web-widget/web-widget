@@ -167,29 +167,42 @@ function setCacheStatus(headers: Headers, status: CacheStatus) {
   headers.set('x-cache-status', status);
 }
 
-function errorToResponse(error: any = {}) {
-  const status =
-    typeof error.status === 'number'
-      ? error.status
-      : error.name === 'TimeoutError'
-        ? 504
-        : 500;
-  const statusText = error.statusText ?? error.name ?? '';
-  return Response.json(
-    {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    },
-    {
-      status,
-      statusText,
-      headers: {
-        // NOTE: Web Router supports this custom header to transform error responses
-        'x-transform-error': 'true',
+function errorToResponse(error: any = {}): Response {
+  const errorHeaders = {
+    // NOTE: Web Router supports this custom header to transform error responses
+    'x-transform-error': 'true',
+  } as const;
+
+  try {
+    const status =
+      typeof error?.status === 'number'
+        ? error.status
+        : error?.name === 'TimeoutError'
+          ? 504
+          : 500;
+    const statusText = error?.statusText ?? error?.name ?? '';
+    return Response.json(
+      {
+        name: error?.name,
+        message: error?.message,
+        stack: error?.stack,
       },
-    }
-  );
+      {
+        status,
+        statusText,
+        headers: errorHeaders,
+      }
+    );
+  } catch {
+    return new Response('Internal Server Error', {
+      status: 500,
+      statusText: 'Internal Server Error',
+      headers: {
+        ...errorHeaders,
+        'content-type': 'text/plain; charset=utf-8',
+      },
+    });
+  }
 }
 
 function nextToFetch(cache: Cache, next: MiddlewareNext) {
@@ -227,17 +240,22 @@ function nextToFetch(cache: Cache, next: MiddlewareNext) {
         }
 
         if (response instanceof Promise) {
-          response.then(
-            (response) => {
-              signal.removeEventListener('abort', onAbort);
-              if (isAborted) return;
-              resolve(response);
-            },
-            (error) => {
+          response
+            .then(
+              (response) => {
+                signal.removeEventListener('abort', onAbort);
+                if (isAborted) return;
+                resolve(response);
+              },
+              (error) => {
+                signal.removeEventListener('abort', onAbort);
+                resolve(errorToResponse(error));
+              }
+            )
+            .catch((error) => {
               signal.removeEventListener('abort', onAbort);
               resolve(errorToResponse(error));
-            }
-          );
+            });
         }
 
         signal.addEventListener('abort', onAbort);

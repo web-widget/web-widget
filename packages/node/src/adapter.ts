@@ -89,12 +89,34 @@ function toMiddleware(
   const toRequest = buildToRequest(dependencies);
   const toFetchEvent = buildToFetchEvent(dependencies);
   return async function middleware(incomingMessage, serverResponse, next) {
-    const request = toRequest(incomingMessage, options);
-    const env = process.env;
-    const event = toFetchEvent(request);
-    const webResponse = await webHandler(request, env, event);
-    await toServerResponse(webResponse, serverResponse);
-    await next();
+    try {
+      const request = toRequest(incomingMessage, options);
+      const env = process.env;
+      const event = toFetchEvent(request);
+      const webResponse = await webHandler(request, env, event);
+      await toServerResponse(webResponse, serverResponse);
+      await next();
+    } catch (error: unknown) {
+      let responded = false;
+      if (checkWritable(serverResponse) && !serverResponse.headersSent) {
+        try {
+          serverResponse.statusCode = 500;
+          serverResponse.statusMessage = 'Internal Server Error';
+          serverResponse.setHeader('content-type', 'text/plain; charset=utf-8');
+          serverResponse.end(
+            error instanceof Error ? error.message : 'Internal Server Error'
+          );
+          responded = true;
+        } catch {
+          /* ignore: socket may already be closed */
+        }
+      }
+      if (responded) {
+        next();
+      } else {
+        next(error);
+      }
+    }
   };
 }
 
@@ -192,11 +214,31 @@ function buildToNodeHandler(
       const event = toFetchEvent(request);
       const maybePromise = webHandler(request, env, event);
       if (maybePromise instanceof Promise) {
-        maybePromise.then((response) =>
-          toServerResponse(response, serverResponse)
-        );
+        maybePromise
+          .then((response) => toServerResponse(response, serverResponse))
+          .catch(() => {
+            if (checkWritable(serverResponse) && !serverResponse.headersSent) {
+              serverResponse.statusCode = 500;
+              serverResponse.statusMessage = 'Internal Server Error';
+              serverResponse.setHeader(
+                'content-type',
+                'text/plain; charset=utf-8'
+              );
+              serverResponse.end('Internal Server Error');
+            }
+          });
       } else {
-        toServerResponse(maybePromise, serverResponse);
+        toServerResponse(maybePromise, serverResponse).catch(() => {
+          if (checkWritable(serverResponse) && !serverResponse.headersSent) {
+            serverResponse.statusCode = 500;
+            serverResponse.statusMessage = 'Internal Server Error';
+            serverResponse.setHeader(
+              'content-type',
+              'text/plain; charset=utf-8'
+            );
+            serverResponse.end('Internal Server Error');
+          }
+        });
       }
     };
   };

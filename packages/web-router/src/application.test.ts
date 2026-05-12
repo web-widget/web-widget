@@ -1509,8 +1509,71 @@ describe('normalizeHTTPException', () => {
 
     expect(capturedError).toBeDefined();
     expect(capturedError.status).toBe(400);
-    // Note: Response parsing might not work as expected in test environment
-    // We'll focus on testing the core functionality
+    expect(capturedError.message).toBe('API Error');
+    expect(capturedError.cause).toBe(jsonResponse);
+  });
+
+  test('should attach stack from JSON Response body when present', async () => {
+    const serverStack = 'Error: boom\n    at foo (bar.js:1:1)';
+    const jsonResponse = new Response(
+      JSON.stringify({
+        message: 'API Error',
+        stack: serverStack,
+      }),
+      {
+        status: 400,
+        headers: { 'content-type': 'application/json' },
+      }
+    );
+
+    const testApp = new Application();
+    testApp.get('/test-error', () => {
+      throw jsonResponse;
+    });
+
+    let capturedError: any = null;
+    testApp.onError((error) => {
+      capturedError = error;
+      return new Response('Error handled', { status: 500 });
+    });
+
+    await testApp.dispatch('/test-error');
+
+    expect(capturedError).toBeDefined();
+    expect(capturedError.status).toBe(400);
+    expect(capturedError.message).toBe('API Error');
+    expect(capturedError.stack).toBe(serverStack);
+    expect(capturedError.cause).toBe(jsonResponse);
+  });
+
+  test('should not attach stack when JSON stack is empty string', async () => {
+    const jsonResponse = new Response(
+      JSON.stringify({
+        message: 'API Error',
+        stack: '',
+      }),
+      {
+        status: 400,
+        headers: { 'content-type': 'application/json' },
+      }
+    );
+
+    const testApp = new Application();
+    testApp.get('/test-error', () => {
+      throw jsonResponse;
+    });
+
+    let capturedError: any = null;
+    testApp.onError((error) => {
+      capturedError = error;
+      return new Response('Error handled', { status: 500 });
+    });
+
+    await testApp.dispatch('/test-error');
+
+    expect(capturedError).toBeDefined();
+    expect(capturedError.message).toBe('API Error');
+    expect(capturedError.stack).not.toBe('');
   });
 
   test('should handle Response objects with text content', async () => {

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, jest } from '@jest/globals';
 import { LRUCache } from 'lru-cache';
 import type { Manifest } from '@web-widget/web-router';
 import WebRouter from '@web-widget/web-router';
@@ -376,6 +377,141 @@ test('it should be possible to terminate cache revalidate', async () => {
   expect(res.status).toBe(200);
   expect(res.headers.get('x-cache-status')).toBe(STALE);
   expect(await res.text()).toBe('View: 0');
+});
+
+describe('cache middleware error boundaries', () => {
+  let consoleErrorSpy: ReturnType<typeof jest.spyOn>;
+
+  beforeEach(() => {
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
+  });
+
+  test('async route that throws yields a 500-style error response', async () => {
+    const app = createApp(createCaches(), { cacheControl: { maxAge: 10 } }, [
+      {
+        pathname: '*',
+        module: {
+          handler: async () => {
+            throw new Error('async route error');
+          },
+        },
+      },
+    ]);
+    const res = await app.dispatch(TEST_URL);
+
+    expect(res.status).toBe(500);
+    const body = await res.text();
+    expect(body).toMatch(/async route error|Internal Server Error|Error/i);
+  });
+
+  test('async route that returns a rejected promise yields a 500-style error response', async () => {
+    const app = createApp(createCaches(), { cacheControl: { maxAge: 10 } }, [
+      {
+        pathname: '*',
+        module: {
+          handler: async () => {
+            return Promise.reject(new Error('rejected route promise'));
+          },
+        },
+      },
+    ]);
+    const res = await app.dispatch(TEST_URL);
+
+    expect(res.status).toBe(500);
+    const body = await res.text();
+    expect(body).toMatch(/rejected route promise|Internal Server Error|Error/i);
+  });
+
+  test('sync route that throws yields a 500-style error response', async () => {
+    const app = createApp(createCaches(), { cacheControl: { maxAge: 10 } }, [
+      {
+        pathname: '*',
+        module: {
+          handler: () => {
+            throw new Error('sync route error');
+          },
+        },
+      },
+    ]);
+    const res = await app.dispatch(TEST_URL);
+
+    expect(res.status).toBe(500);
+    const body = await res.text();
+    expect(body).toMatch(/sync route error|Internal Server Error|Error/i);
+  });
+
+  test('when Response.json fails, error handling falls back to plain text with x-transform-error', async () => {
+    const jsonSpy = jest.spyOn(Response, 'json').mockImplementation(() => {
+      throw new Error('Response.json unavailable');
+    });
+
+    try {
+      const app = createApp(createCaches(), { cacheControl: { maxAge: 10 } }, [
+        {
+          pathname: '*',
+          module: {
+            handler: async () => {
+              throw new Error('original route error');
+            },
+          },
+        },
+      ]);
+      const res = await app.dispatch(TEST_URL);
+
+      expect(res.headers.get('x-transform-error')).toBe('true');
+      expect(res.headers.get('content-type')).toContain('text/plain');
+    } finally {
+      jsonSpy.mockRestore();
+    }
+  });
+
+  test('when reading error fields throws, error handling falls back to plain text', async () => {
+    const app = createApp(createCaches(), { cacheControl: { maxAge: 10 } }, [
+      {
+        pathname: '*',
+        module: {
+          handler: async () => {
+            throw Object.defineProperties(new Error('base'), {
+              status: {
+                enumerable: true,
+                get() {
+                  throw new Error('status accessor throws');
+                },
+              },
+            });
+          },
+        },
+      },
+    ]);
+    const res = await app.dispatch(TEST_URL);
+
+    expect(res.status).toBe(500);
+    expect(res.headers.get('x-transform-error')).toBe('true');
+    expect(res.headers.get('content-type')).toContain('text/plain');
+  });
+
+  test('rejection after fulfillment runs the outer catch and still resolves to an error response', async () => {
+    const app = createApp(createCaches(), { cacheControl: { maxAge: 10 } }, [
+      {
+        pathname: '*',
+        module: {
+          handler: () =>
+            Promise.resolve(new Response('ok', { status: 200 })).then(() => {
+              throw new Error('throw after fulfill');
+            }),
+        },
+      },
+    ]);
+    const res = await app.dispatch(TEST_URL);
+
+    expect(res.status).toBe(500);
+    const body = await res.text();
+    expect(body).toMatch(/throw after fulfill|Internal Server Error|Error/i);
+  });
 });
 
 describe('conditional-get middleware', () => {

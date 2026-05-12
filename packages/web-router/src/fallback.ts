@@ -16,15 +16,18 @@ export const meta: Meta = {
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           background: #fff;
           min-height: 100vh;
+          min-height: 100dvh;
           display: flex;
+          flex-direction: column;
           align-items: center;
-          justify-content: center;
           padding: 60px 40px;
           box-sizing: border-box;
         }
         .error-card { 
           max-width: 600px; width: 100%; text-align: center; padding: 0 20px;
           flex: 0 0 auto;
+          margin-top: auto;
+          margin-bottom: auto;
         }
         .error-status { font-size: 72px; font-weight: 700; color: #333; margin-bottom: 16px; }
         .error-title { font-size: 48px; font-weight: 600; color: #555; margin-bottom: 20px; }
