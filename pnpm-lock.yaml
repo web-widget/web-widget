@@ -180,7 +180,7 @@ importers:
         version: 19.2.6(react@19.2.6)
     devDependencies:
       '@cloudflare/vitest-pool-workers':
-        specifier: 'catalog:'
+        specifier: ^0.16.4
         version: 0.16.4(@vitest/runner@4.1.6)(@vitest/snapshot@4.1.6)(vitest@4.1.6(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3)(vite@8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2)))
       '@types/koa':
         specifier: ^2.13.6
@@ -256,7 +256,7 @@ importers:
         version: 3.5.34(typescript@5.5.4)
     devDependencies:
       '@cloudflare/vitest-pool-workers':
-        specifier: 'catalog:'
+        specifier: ^0.16.4
         version: 0.16.4(@vitest/runner@4.1.6)(@vitest/snapshot@4.1.6)(vitest@4.1.6(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3)(vite@8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2)))
       '@types/koa':
         specifier: ^2.13.6
@@ -335,7 +335,7 @@ importers:
         version: 3.5.34(typescript@5.5.4)
     devDependencies:
       '@cloudflare/vitest-pool-workers':
-        specifier: 'catalog:'
+        specifier: ^0.16.4
         version: 0.16.4(@vitest/runner@4.1.6)(@vitest/snapshot@4.1.6)(vitest@4.1.6(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3)(vite@8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2)))
       '@types/koa':
         specifier: ^2.13.6
