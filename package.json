@@ -95,6 +95,9 @@
         }
       }
     },
+    "patchedDependencies": {
+      "yargs@17.7.2": "patches/yargs@17.7.2.patch"
+    },
     "peerDependencyRules": {
       "allowedVersions": {
         "@vitejs/plugin-vue2>vite": "8"
