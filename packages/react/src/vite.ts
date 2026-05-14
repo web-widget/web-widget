@@ -11,8 +11,7 @@ function appendSlash(path: string) {
   return path.endsWith(posix.sep) ? path : `${path}${posix.sep}`;
 }
 
-export interface ReactWebWidgetPluginOptions
-  extends Partial<WebWidgetUserConfig> {
+export interface ReactWebWidgetPluginOptions extends Partial<WebWidgetUserConfig> {
   workspace?: string;
 }
 
@@ -45,7 +44,6 @@ export default function reactWebWidgetPlugin(
     import: {
       include: new RegExp(`^[^?]*${widgetPattern}\\.[^?]*$`),
       includeImporter: new RegExp(
-        // NOTE: Should not match this: app.vue?vue&type=script&lang.jsx
         `^${workspacePattern}[^?]*${extensionPattern}$`
       ),
       ...importWidget,

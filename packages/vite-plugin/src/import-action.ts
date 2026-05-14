@@ -74,7 +74,8 @@ export function importActionPlugin(
       }
     },
 
-    async transform(code, id, { ssr } = {}) {
+    async transform(code, id, options) {
+      const ssr = options?.ssr;
       if (!enabled || ssr) {
         return null;
       }
@@ -89,7 +90,9 @@ export function importActionPlugin(
         await esModuleLexer.init;
         [, exports] = esModuleLexer.parse(code, id);
       } catch (error) {
-        return this.error(error);
+        return this.error(
+          error instanceof Error ? error.message : String(error)
+        );
       }
 
       const names = exports.map(({ n }) => n);
@@ -108,7 +111,9 @@ export function importActionPlugin(
           );
         }
       } catch (error) {
-        return this.error(error);
+        return this.error(
+          error instanceof Error ? error.message : String(error)
+        );
       }
 
       let content =

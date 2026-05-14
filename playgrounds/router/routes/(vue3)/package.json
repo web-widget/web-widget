@@ -7,13 +7,13 @@
     "@web-widget/helpers": "workspace:*",
     "@web-widget/react": "workspace:*",
     "@web-widget/vue": "workspace:*",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "vue": "^3.4.8",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "vue": "^3.5.34",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.0",
+    "@vitejs/plugin-vue": "^6.0.6",
     "vite": "catalog:"
   },
   "exports": {

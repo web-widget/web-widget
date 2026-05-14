@@ -15,16 +15,16 @@
     "koa": "^3.1.2",
     "koa-connect": "^2.1.0",
     "koa-send": "^5.0.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
   },
   "devDependencies": {
-    "@edge-runtime/vm": "catalog:",
+    "@cloudflare/vitest-pool-workers": "catalog:",
     "@types/koa": "^2.15.0",
     "@types/koa-send": "^4.1.6",
-    "@types/react": "^19.0.10",
-    "@types/react-dom": "^19.0.4",
-    "@vitejs/plugin-react": "^4.3.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
     "@web-widget/vite-plugin": "workspace:*",
     "cross-env": "^7.0.3",
     "typescript": "catalog:",
@@ -32,7 +32,7 @@
     "vitest": "catalog:"
   },
   "engines": {
-    "node": ">=18"
+    "node": "^20.19.0 || >=22.12.0"
   },
   "keywords": [],
   "license": "MIT",

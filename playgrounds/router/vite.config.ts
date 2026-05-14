@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 import type { Plugin } from 'vite';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { webRouterPlugin } from '@web-widget/vite-plugin';
 import reactWebWidgetPlugin from '@web-widget/react/vite';
@@ -14,7 +14,7 @@ Reflect.defineProperty(global, 'window', {
 });
 
 function reactPresetsPlugin() {
-  return [react(), reactWebWidgetPlugin()];
+  return [reactWebWidgetPlugin(), react()];
 }
 
 function patchVuePluginConfig(): Plugin {
@@ -53,6 +53,11 @@ function patchVuePluginConfig(): Plugin {
 }
 
 export default defineConfig({
+  // Node Koa server (`server.js`) — avoid treating all Node built-ins as Rolldown
+  // externals (breaks CJS deps such as vue-server-renderer under ESM output).
+  ssr: {
+    target: 'node',
+  },
   plugins: [
     patchVuePluginConfig(),
     webRouterPlugin({
@@ -70,8 +75,8 @@ export default defineConfig({
       },
     }),
     reactPresetsPlugin(),
-    vuePresetsPlugin(),
     vue2PresetsPlugin(),
+    vuePresetsPlugin(),
   ],
   build: {
     target: ['chrome76'],

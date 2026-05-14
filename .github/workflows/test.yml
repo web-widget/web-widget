@@ -13,14 +13,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # https://nodejs.org/en/about/releases/
-        # https://pnpm.io/installation#compatibility
+        # Vite 8 requires Node ^20.19.0 || >=22.12.0
         version:
-          # - node: 16
-          - node: 18
-          - node: 20
-          - node: 22
-          - node: 23
+          - node: '20.19.0'
+          - node: '22.12.0'
+          - node: '23'
 
     name: Node.js ${{ matrix.version.node }}
     env:
@@ -49,6 +46,8 @@ jobs:
       - run: corepack enable && pnpm --version
 
       - run: pnpm install --recursive --no-frozen-lockfile --loglevel=error
+
+      - run: pnpm examples-catalog:check
 
       - run: pnpm build
 

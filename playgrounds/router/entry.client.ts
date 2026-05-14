@@ -29,11 +29,9 @@ async function getContentLength(src) {
   return fetch(src, { method: 'HEAD' }).then((response) => {
     if (response.ok) {
       const length = response.headers.get('Content-Length');
-      return typeof length === 'string'
-        ? Number(length)
-        : Promise.reject(`Missing Content-Length.`);
+      return typeof length === 'string' ? Number(length) : undefined;
     } else {
-      Promise.reject(response.statusText);
+      return Promise.reject(response.statusText);
     }
   });
 }
@@ -79,10 +77,12 @@ defineHook(
 
           if (this.status === MOUNTED) {
             if (import.meta.env.DEV) {
+              const moduleEntrySize = await getContentLength(this.import);
               Object.assign(data, {
-                moduleEntrySize: `${(
-                  (await getContentLength(this.import)) / 1024
-                ).toFixed(2)}kb`,
+                moduleEntrySize:
+                  typeof moduleEntrySize === 'number'
+                    ? `${(moduleEntrySize / 1024).toFixed(2)}kb`
+                    : 'n/a',
               });
             }
             Object.assign(data, countNodes(this));

@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { webRouterPlugin } from '@web-widget/vite-plugin';
 import reactWebWidgetPlugin from '@web-widget/react/vite';
@@ -18,11 +18,11 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    [react(), reactWebWidgetPlugin()],
+    [reactWebWidgetPlugin(), react()],
   ],
   build: {
     target: ['chrome76'],
-    rollupOptions: {
+    rolldownOptions: {
       external: [
         ...builtinModules,
         ...builtinModules.map((module) => `node:${module}`),

@@ -47,9 +47,9 @@ export const render = defineServerRender<FunctionComponent>(
     reactRenderOptions.signal =
       signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS);
 
-    reactRenderOptions.onError = (e, i) => {
+    reactRenderOptions.onError = (e: unknown, i: any) => {
       error = e;
-      onError?.(e, i);
+      onError?.(e instanceof Error ? e : new Error(String(e)), i);
       if (!onError && progressive && !awaitAllReady) {
         console.error(e);
       }

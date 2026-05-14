@@ -129,7 +129,8 @@ export function importRenderPlugin({
 
         return result;
       },
-      async transform(code, id, { ssr } = {}) {
+      async transform(code, id, options) {
+        const ssr = options?.ssr;
         if (!importerFilter(removeAs(id))) {
           return null;
         }

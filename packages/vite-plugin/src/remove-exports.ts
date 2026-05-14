@@ -29,25 +29,26 @@ export function removeExportsPlugin(
     async configResolved(config) {
       sourcemap = !!config.build?.sourcemap;
     },
-    async transform(code: string, id: string, { ssr } = {}) {
+    async transform(code: string, id: string, options) {
+      const ssr = options?.ssr;
       if (only) {
         if (only === 'server' && ssr === false) {
-          return;
+          return null;
         }
         if (only === 'client' && ssr === true) {
-          return;
+          return null;
         }
       }
 
       if (!code.includes('export') || !filter(id)) {
-        return;
+        return null;
       }
 
       const ast = this.parse(code);
       const magicString = new MagicString(code);
       let removed = false;
 
-      walk(ast, {
+      walk(ast as any, {
         enter(node): void {
           let start: number;
           let end: number;
@@ -118,6 +119,7 @@ export function removeExportsPlugin(
           map: sourcemap ? magicString.generateMap() : null,
         };
       }
+      return null;
     },
   };
 }

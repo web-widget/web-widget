@@ -70,7 +70,11 @@ export function webRouterPreviewServerPlugin(
           });
           viteServer.middlewares.use(nodeAdapter.middleware);
         } catch (error) {
-          console.error(`Service startup failed: ${error.stack}`);
+          const message =
+            error instanceof Error
+              ? (error.stack ?? error.message)
+              : String(error);
+          console.error(`Service startup failed: ${message}`);
         }
       };
     },
