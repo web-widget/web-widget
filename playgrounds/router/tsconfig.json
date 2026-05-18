@@ -19,5 +19,5 @@
     "useDefineForClassFields": true,
     "types": ["vite/client", "@web-widget/react/globals"]
   },
-  "include": ["*.ts", "routes/**/*", "test/**/*"]
+  "include": ["*.ts", "routes/**/*", "test/**/*", "vite-plugins/**/*"]
 }

@@ -1,11 +1,11 @@
 /// <reference types="vitest" />
-import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { webRouterPlugin } from '@web-widget/vite-plugin';
 import reactWebWidgetPlugin from '@web-widget/react/vite';
 import { vue2PresetsPlugin } from './routes/(vue2)/vite-plugins';
 import { vuePresetsPlugin } from './routes/(vue3)/vite-plugins';
+import { vueCoexistencePlugins } from './vite-plugins/vue-coexistence';
 
 Reflect.defineProperty(global, 'window', {
   set(value) {
@@ -17,49 +17,31 @@ function reactPresetsPlugin() {
   return [reactWebWidgetPlugin(), react()];
 }
 
-function patchVuePluginConfig(): Plugin {
-  return {
-    name: 'patchVuePluginConfig',
-    enforce: 'post',
-    async config() {
-      return {
-        optimizeDeps: {
-          // Avoid version conflicts caused by `optimizeDeps`.
-          exclude: ['vue', 'vue-router'],
-        },
-      };
-    },
-    async configResolved(config) {
-      const alias = config.resolve.alias;
-      const dedupe = config.resolve.dedupe;
-
-      if (Array.isArray(dedupe)) {
-        // Patch vue3 plugin config.
-        // @see https://github.com/vitejs/vite-plugin-vue/blob/main/packages/plugin-vue/src/index.ts#L147
-        dedupe.forEach((value, index) => {
-          if (value === 'vue') {
-            dedupe.splice(index, 1);
-          }
-        });
-      }
-
-      if (Array.isArray(alias)) {
-        // Patch vue2 plugin config.
-        // @see https://github.com/vitejs/vite-plugin-vue2/blob/main/src/index.ts#L103
-        alias.splice(alias.findIndex(({ find }) => find === 'vue'));
-      }
-    },
-  };
-}
-
 export default defineConfig({
   // Node Koa server (`server.js`) — avoid treating all Node built-ins as Rolldown
   // externals (breaks CJS deps such as vue-server-renderer under ESM output).
   ssr: {
     target: 'node',
+    // Keep SSR package resolution ESM-first under Vite 8 module runner.
+    resolve: {
+      conditions: ['import', 'module', 'default'],
+    },
   },
   plugins: [
-    patchVuePluginConfig(),
+    ...vueCoexistencePlugins([
+      {
+        packageJsonId: '@playgrounds/web-router-vue3/package.json',
+        runtimeImportId: 'vue/dist/vue.runtime.esm-bundler.js',
+        runtimeSubpath: 'dist/vue.runtime.esm-bundler.js',
+        importerIncludes: ['/routes/(vue3)/', '/packages/vue/'],
+      },
+      {
+        packageJsonId: '@playgrounds/web-router-vue2/package.json',
+        runtimeImportId: 'vue/dist/vue.runtime.esm.js',
+        runtimeSubpath: 'dist/vue.runtime.esm.js',
+        importerIncludes: ['/routes/(vue2)/', '/packages/vue2/'],
+      },
+    ]),
     webRouterPlugin({
       asyncContext: {
         enabled: true,
