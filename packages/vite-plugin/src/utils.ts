@@ -123,15 +123,16 @@ export function normalizeFilterId(id: string) {
 
   const pathname = cleanId.slice(0, queryIndex);
   const query = cleanId.slice(queryIndex + 1);
-  const params = new URLSearchParams(query);
-
-  // Drop unstable/adapter-only params while keeping semantic subresource params
-  // like `vue&type=style`.
-  params.delete('as');
-  params.delete('import');
-  params.delete('t');
-  params.delete('v');
-
-  const normalizedQuery = params.toString();
+  const normalizedQuery = query
+    .split('&')
+    .filter((part) => {
+      if (!part) {
+        return false;
+      }
+      const equalIndex = part.indexOf('=');
+      const key = equalIndex >= 0 ? part.slice(0, equalIndex) : part;
+      return key !== 'as' && key !== 'import' && key !== 't' && key !== 'v';
+    })
+    .join('&');
   return normalizedQuery ? `${pathname}?${normalizedQuery}` : pathname;
 }

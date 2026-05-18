@@ -75,11 +75,11 @@ describe('normalizeFilterId', () => {
     ],
     [
       '/routes/(vue2)/Counter@widget.vue?vue&type=style&index=0&scoped=4029556e&lang.css',
-      '/routes/(vue2)/Counter@widget.vue?vue=&type=style&index=0&scoped=4029556e&lang.css=',
+      '/routes/(vue2)/Counter@widget.vue?vue&type=style&index=0&scoped=4029556e&lang.css',
     ],
     [
       '/routes/(vue2)/Counter@widget.vue?vue&type=style&index=0&scoped=4029556e&lang.css&t=123',
-      '/routes/(vue2)/Counter@widget.vue?vue=&type=style&index=0&scoped=4029556e&lang.css=',
+      '/routes/(vue2)/Counter@widget.vue?vue&type=style&index=0&scoped=4029556e&lang.css',
     ],
   ];
 
