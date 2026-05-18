@@ -11,7 +11,7 @@ import {
   getManifest,
   getWebRouterPluginApi,
   normalizePath,
-  removeAs,
+  normalizeFilterId,
 } from './utils';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -131,7 +131,9 @@ export function importRenderPlugin({
       },
       async transform(code, id, options) {
         const ssr = options?.ssr;
-        if (!importerFilter(removeAs(id))) {
+        const normalizedImporterId = normalizeFilterId(id);
+        const importerMatched = importerFilter(normalizedImporterId);
+        if (!importerMatched) {
           return null;
         }
 
@@ -167,7 +169,19 @@ export function importRenderPlugin({
               )?.id
             : undefined;
 
-          if (importModule && filter(removeAs(importModule))) {
+          const normalizedImportModule = importModule
+            ? normalizeFilterId(importModule)
+            : undefined;
+          const importMatched = normalizedImportModule
+            ? filter(normalizedImportModule)
+            : false;
+          const isSelfImport =
+            normalizedImportModule &&
+            normalizedImportModule === normalizedImporterId;
+          if (importModule && importMatched) {
+            if (isSelfImport) {
+              continue;
+            }
             if (dynamicImport !== -1) {
               return this.error(
                 new SyntaxError(`Dynamic imports are not supported.`),
@@ -205,7 +219,7 @@ export function importRenderPlugin({
           );
 
           if (!componentName) {
-            return;
+            continue;
           }
 
           const asset = normalizePath(path.relative(root, moduleId));
@@ -284,7 +298,7 @@ export function importRenderPlugin({
         });
       },
       async transform(code, id) {
-        if (!importerFilter(removeAs(id))) {
+        if (!importerFilter(normalizeFilterId(id))) {
           return null;
         }
         // const normalize = (file: string) => {

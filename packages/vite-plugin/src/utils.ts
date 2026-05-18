@@ -113,6 +113,25 @@ export function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
-export function removeAs(id: string) {
-  return id.split(/\?as=.*/)[0];
+export function normalizeFilterId(id: string) {
+  const hashIndex = id.indexOf('#');
+  const cleanId = hashIndex >= 0 ? id.slice(0, hashIndex) : id;
+  const queryIndex = cleanId.indexOf('?');
+  if (queryIndex < 0) {
+    return cleanId;
+  }
+
+  const pathname = cleanId.slice(0, queryIndex);
+  const query = cleanId.slice(queryIndex + 1);
+  const params = new URLSearchParams(query);
+
+  // Drop unstable/adapter-only params while keeping semantic subresource params
+  // like `vue&type=style`.
+  params.delete('as');
+  params.delete('import');
+  params.delete('t');
+  params.delete('v');
+
+  const normalizedQuery = params.toString();
+  return normalizedQuery ? `${pathname}?${normalizedQuery}` : pathname;
 }

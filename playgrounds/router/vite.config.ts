@@ -14,7 +14,7 @@ Reflect.defineProperty(global, 'window', {
 });
 
 function reactPresetsPlugin() {
-  return [reactWebWidgetPlugin(), react()];
+  return [react(), reactWebWidgetPlugin()];
 }
 
 export default defineConfig({
@@ -57,8 +57,8 @@ export default defineConfig({
       },
     }),
     reactPresetsPlugin(),
-    vue2PresetsPlugin(),
     vuePresetsPlugin(),
+    vue2PresetsPlugin(),
   ],
   build: {
     target: ['chrome76'],

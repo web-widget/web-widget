@@ -11,7 +11,7 @@ import type { ViteDevServer, ModuleNode } from 'vite';
 import { isCSSRequest, normalizePath } from 'vite';
 
 import type { DynamicImportPredicate } from '../types';
-import { removeAs } from '../utils';
+import { normalizeFilterId } from '../utils';
 
 /**
  * Dev-time dependency keys for `crawlGraph`, parallel to `getLinksInternal` in
@@ -272,7 +272,7 @@ async function resolveSsrModuleDependencyKeys(
         const manifestKey = normalizePath(
           path.relative(
             root,
-            removeAs(r.id).replace(STRIP_QUERY_PARAMS_REGEX, '')
+            normalizeFilterId(r.id).replace(STRIP_QUERY_PARAMS_REGEX, '')
           )
         );
         if (dynamicImportPredicate(manifestKey)) {

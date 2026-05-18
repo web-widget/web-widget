@@ -1,5 +1,5 @@
 import { init, parse } from 'es-module-lexer';
-import { importsToImportNames } from './utils';
+import { importsToImportNames, normalizeFilterId } from './utils';
 
 describe('importsToImportNames', () => {
   const codes: [code: string, names: [name: string, alias?: string][]][] = [
@@ -40,5 +40,50 @@ describe('importsToImportNames', () => {
     const [imports] = parse(code);
     const result = importsToImportNames(imports, code);
     expect(result).toEqual(names);
+  });
+});
+
+describe('normalizeFilterId', () => {
+  const cases: [id: string, expected: string][] = [
+    [
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
+    ],
+    [
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx?as=jsx',
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
+    ],
+    [
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx?t=123',
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
+    ],
+    [
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx?v=abc&t=123',
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
+    ],
+    [
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx?as=jsx&t=123',
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
+    ],
+    [
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx?import',
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
+    ],
+    [
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx?import&t=123',
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
+    ],
+    [
+      '/routes/(vue2)/Counter@widget.vue?vue&type=style&index=0&scoped=4029556e&lang.css',
+      '/routes/(vue2)/Counter@widget.vue?vue=&type=style&index=0&scoped=4029556e&lang.css=',
+    ],
+    [
+      '/routes/(vue2)/Counter@widget.vue?vue&type=style&index=0&scoped=4029556e&lang.css&t=123',
+      '/routes/(vue2)/Counter@widget.vue?vue=&type=style&index=0&scoped=4029556e&lang.css=',
+    ],
+  ];
+
+  test.each(cases)('normalize id: %p', (id, expected) => {
+    expect(normalizeFilterId(id)).toBe(expected);
   });
 });

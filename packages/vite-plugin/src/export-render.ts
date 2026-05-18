@@ -9,7 +9,7 @@ import {
   getManifest,
   getWebRouterPluginApi,
   normalizePath,
-  removeAs,
+  normalizeFilterId,
 } from './utils';
 
 const alias = (name: string) => `__$${name}$__`;
@@ -55,7 +55,7 @@ export function exportRenderPlugin({
         sourcemap = !!config.build?.sourcemap;
       },
       async transform(code, id) {
-        if (!filter(removeAs(id))) {
+        if (!filter(normalizeFilterId(id))) {
           return null;
         }
 
@@ -116,7 +116,7 @@ export function exportRenderPlugin({
             const filter = createFilter(item.include, item.exclude);
             if (
               !exports.some(({ n: name }) => name === item.name) &&
-              filter(removeAs(id))
+              filter(normalizeFilterId(id))
             ) {
               magicString.append(
                 `\nexport const { ${item.name} = ${item.default} } = ${alias(
@@ -155,7 +155,7 @@ export function exportRenderPlugin({
         }
       },
       async transform(code, id) {
-        if (!filter(removeAs(id))) {
+        if (!filter(normalizeFilterId(id))) {
           return null;
         }
 
