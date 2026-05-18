@@ -1,11 +1,11 @@
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
 import ReactCounter from '../(components)/Counter@widget.tsx';
-import VueCounterRaw from '../(components)/Counter@widget.vue?as=tsx';
 import BaseLayout from '../(components)/BaseLayout.tsx';
-import shared from '../(components)/shared.module.css';
+import VueCounter from '../(components)/Counter@widget.vue';
 import { toReact } from '@web-widget/vue';
+import shared from '../(components)/shared.module.css';
 
-const VueCounter = toReact(VueCounterRaw);
+const RVueCounter = toReact(VueCounter);
 
 export const meta = defineMeta({
   title: 'Widgets - Web Widget',
@@ -46,7 +46,7 @@ export default defineRouteComponent(function Page() {
                 Counter component implemented with Vue 3 Composition API
               </p>
               <div className={shared.mt3}>
-                <VueCounter count={0} variant="vue" />
+                <RVueCounter count={0} variant="vue" />
               </div>
             </div>
           </div>
