@@ -188,10 +188,11 @@ export function importRenderPlugin({
                 statementStart
               );
             }
-            const cacheKey = [id, importModule].join(',');
+            const resolvedModuleId = normalizedImportModule ?? importModule;
+            const cacheKey = [id, resolvedModuleId].join(',');
             if (!cache.has(cacheKey)) {
               modules.push({
-                moduleId: importModule,
+                moduleId: resolvedModuleId,
                 moduleName: moduleName as string,
                 statementEnd,
                 statementStart,
