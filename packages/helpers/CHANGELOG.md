@@ -1,5 +1,16 @@
 # @web-widget/helpers
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [4501f26]
+  - @web-widget/context@2.0.0
+  - @web-widget/lifecycle-cache@2.0.0
+  - @web-widget/action@2.0.0
+  - @web-widget/purify@2.0.0
+  - @web-widget/schema@2.0.0
+
 ## 1.72.3
 
 ### Patch Changes
