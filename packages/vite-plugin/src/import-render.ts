@@ -12,6 +12,7 @@ import {
   getWebRouterPluginApi,
   normalizePath,
   normalizeFilterId,
+  stripModuleIdQuery,
 } from './utils';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -363,7 +364,7 @@ function relativePathToDevUrl(target: string, base: string) {
 // toDevUrl('../App.vue?as=jsx', '/base');
 // toDevUrl('/www/dev/App.vue', '/base');
 function toDevUrl(target: string, base: string) {
-  target = target.replace(/\?.*?$/, '');
+  target = stripModuleIdQuery(target);
   return path.isAbsolute(target) || target.startsWith(`../`)
     ? resolvePathToDevUrl(target, base)
     : relativePathToDevUrl(target, base);

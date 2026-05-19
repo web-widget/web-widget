@@ -4,6 +4,7 @@ import mime from 'mime-types';
 import type { Manifest as ViteManifest } from 'vite';
 
 import type { DynamicImportPredicate } from './types';
+import { stripModuleIdQuery } from './utils';
 
 export type { DynamicImportPredicate };
 
@@ -11,7 +12,6 @@ const RESOLVE_URL_REG = /^(?:\w+:)?\//;
 const rebase = (src: string, base: string) => {
   return RESOLVE_URL_REG.test(src) ? src : base + src;
 };
-const stripAsQuery = (src: string) => src.replace(/\?as=.*/, '');
 
 function getLink(fileName: string, base: string): LinkDescriptor | null {
   const ext = path.extname(fileName);
@@ -109,9 +109,8 @@ function getLinksInternal(
     if (!dynamicImportPredicate) {
       return false;
     }
-    return (
-      dynamicImportPredicate(dep) || dynamicImportPredicate(stripAsQuery(dep))
-    );
+    const depPath = stripModuleIdQuery(dep);
+    return dynamicImportPredicate(dep) || dynamicImportPredicate(depPath);
   };
 
   if (dynamicImportPredicate && Array.isArray(item.dynamicImports)) {
