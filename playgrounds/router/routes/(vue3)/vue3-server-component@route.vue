@@ -12,13 +12,16 @@ defineOptions({
   }),
   handler: defineRouteHandler<PageData>({
     async GET(ctx) {
-      return ctx.html({
-        message: 'This is the server component of vue.',
-      }, {
-        meta: mergeMeta(ctx.meta, {
-          description: 'vue3 examples',
-        })
-      });
+      return ctx.html(
+        {
+          message: 'This is the server component of vue.',
+        },
+        {
+          meta: mergeMeta(ctx.meta, {
+            description: 'vue3 examples',
+          }),
+        }
+      );
     },
   }),
 });

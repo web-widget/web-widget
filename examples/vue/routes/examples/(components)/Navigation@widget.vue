@@ -101,22 +101,37 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <nav :class="`${styles.navigation} ${props.className}`" aria-label="Main navigation" role="navigation">
-    <button :class="styles.mobileMenuButton" @click="toggleMobileMenu" :aria-expanded="isMobileMenuOpen"
+  <nav
+    :class="`${styles.navigation} ${props.className}`"
+    aria-label="Main navigation"
+    role="navigation">
+    <button
+      :class="styles.mobileMenuButton"
+      @click="toggleMobileMenu"
+      :aria-expanded="isMobileMenuOpen"
       aria-controls="mobile-navigation-menu"
-      :aria-label="isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'">
+      :aria-label="
+        isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'
+      ">
       <span :class="styles.hamburgerIcon">
-        <span :class="`${styles.hamburgerLine} ${isMobileMenuOpen ? styles.hamburgerLineOpen : ''}`"></span>
-        <span :class="`${styles.hamburgerLine} ${isMobileMenuOpen ? styles.hamburgerLineOpen : ''}`"></span>
-        <span :class="`${styles.hamburgerLine} ${isMobileMenuOpen ? styles.hamburgerLineOpen : ''}`"></span>
+        <span
+          :class="`${styles.hamburgerLine} ${isMobileMenuOpen ? styles.hamburgerLineOpen : ''}`"></span>
+        <span
+          :class="`${styles.hamburgerLine} ${isMobileMenuOpen ? styles.hamburgerLineOpen : ''}`"></span>
+        <span
+          :class="`${styles.hamburgerLine} ${isMobileMenuOpen ? styles.hamburgerLineOpen : ''}`"></span>
       </span>
     </button>
 
-    <ul id="mobile-navigation-menu"
-      :class="`${styles.navigationMenu} ${isMobileMenuOpen ? styles.navigationMenuOpen : ''}`" role="list"
+    <ul
+      id="mobile-navigation-menu"
+      :class="`${styles.navigationMenu} ${isMobileMenuOpen ? styles.navigationMenuOpen : ''}`"
+      role="list"
       :aria-hidden="!isMobileMenuOpen ? 'true' : 'false'">
       <li v-for="item in navigationItems" :key="item.matchPath" role="listitem">
-        <a :href="item.href" :class="isActiveLink(item.matchPath) ? styles.active : ''"
+        <a
+          :href="item.href"
+          :class="isActiveLink(item.matchPath) ? styles.active : ''"
           :aria-current="isActiveLink(item.matchPath) ? 'page' : undefined"
           :aria-label="`${item.label}${isActiveLink(item.matchPath) ? ' (current page)' : ''}`"
           @click="handleLinkClick">
@@ -126,6 +141,10 @@ onUnmounted(() => {
     </ul>
 
     <!-- Mobile menu background overlay -->
-    <div v-if="isMobileMenuOpen" :class="styles.mobileMenuOverlay" @click="closeMobileMenu" aria-hidden="true" />
+    <div
+      v-if="isMobileMenuOpen"
+      :class="styles.mobileMenuOverlay"
+      @click="closeMobileMenu"
+      aria-hidden="true" />
   </nav>
 </template>

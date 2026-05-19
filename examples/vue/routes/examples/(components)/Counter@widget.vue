@@ -7,7 +7,7 @@ interface CounterProps {
 }
 
 const props = withDefaults(defineProps<CounterProps>(), {
-  variant: 'vue'
+  variant: 'vue',
 });
 
 const count = ref(props.count);
@@ -35,15 +35,24 @@ const handleCountChange = async (newCount: number) => {
       {{ variant === 'react' ? 'React' : 'Vue' }} Counter
     </span>
 
-    <button class="button" @click="handleCountChange(count - 1)" :aria-label="`Decrease count`">
+    <button
+      class="button"
+      @click="handleCountChange(count - 1)"
+      :aria-label="`Decrease count`">
       <span>−</span>
     </button>
 
-    <span ref="countElement" :class="['count', { animate: isAnimating }]" :aria-label="`Current count: ${count}`">
+    <span
+      ref="countElement"
+      :class="['count', { animate: isAnimating }]"
+      :aria-label="`Current count: ${count}`">
       {{ count }}
     </span>
 
-    <button class="button" @click="handleCountChange(count + 1)" :aria-label="`Increase count`">
+    <button
+      class="button"
+      @click="handleCountChange(count + 1)"
+      :aria-label="`Increase count`">
       <span>+</span>
     </button>
   </div>
@@ -71,14 +80,14 @@ const handleCountChange = async (newCount: number) => {
 }
 
 /* React variant - use blue lines */
-.counter[data-variant="react"] {
+.counter[data-variant='react'] {
   border-color: var(--color-variant-secondary);
   --counter-primary: var(--color-variant-secondary);
   --counter-hover: #0891b2;
 }
 
 /* Vue variant - use green lines */
-.counter[data-variant="vue"] {
+.counter[data-variant='vue'] {
   border-color: var(--color-variant-tertiary);
   --counter-primary: var(--color-variant-tertiary);
   --counter-hover: #059669;

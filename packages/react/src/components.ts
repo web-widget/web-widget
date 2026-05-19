@@ -3,8 +3,9 @@ import { WebWidgetRenderer } from '@web-widget/web-widget';
 import { Suspense, createElement, use, memo } from 'react';
 import type { FunctionComponent, ReactNode } from 'react';
 
-export interface ReactWidgetComponent<T>
-  extends FunctionComponent<T & WebWidgetSuspenseProps> {}
+export interface ReactWidgetComponent<T> extends FunctionComponent<
+  T & WebWidgetSuspenseProps
+> {}
 
 export interface WebWidgetProps {
   base?: WebWidgetRendererOptions['base'];
@@ -12,7 +13,7 @@ export interface WebWidgetProps {
   data?: WebWidgetRendererOptions['data'];
   import?: WebWidgetRendererOptions['import'];
   inactive?: WebWidgetRendererOptions['inactive'];
-  loader /**/ : Loader;
+  loader /**/: Loader;
   meta?: WebWidgetRendererOptions['meta'];
   loading?: WebWidgetRendererOptions['loading'];
   name?: WebWidgetRendererOptions['name'];

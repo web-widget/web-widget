@@ -111,8 +111,10 @@ export interface LayoutComponentProps extends RouteComponentProps {
 export interface LayoutComponent {
   (props: LayoutComponentProps): unknown;
 }
-export interface LayoutRender
-  extends ServerRender<LayoutComponent, LayoutComponentProps> {}
+export interface LayoutRender extends ServerRender<
+  LayoutComponent,
+  LayoutComponentProps
+> {}
 
 ////////////////////////////////////////
 //////                            //////

@@ -40,8 +40,8 @@ defineOptions({
             computation and battery consumption
           </li>
           <li>
-            <strong>High Availability</strong> - Content displays normally
-            even when JavaScript is disabled
+            <strong>High Availability</strong> - Content displays normally even
+            when JavaScript is disabled
           </li>
         </ul>
       </div>
@@ -54,8 +54,8 @@ defineOptions({
         </p>
         <ol>
           <li>
-            Right-click to view page source - content is completely rendered
-            in HTML
+            Right-click to view page source - content is completely rendered in
+            HTML
           </li>
           <li>
             Open Developer Tools Network panel and refresh the page - no

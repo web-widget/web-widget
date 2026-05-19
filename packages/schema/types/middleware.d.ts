@@ -51,7 +51,8 @@ export type MiddlewareHandlers = {
  * Extends FetchContext with additional route-specific properties.
  */
 export interface MiddlewareContext
-  extends FetchContext,
+  extends
+    FetchContext,
     Partial<Omit<RouteContext<any, any>, keyof FetchContext<any>>> {}
 
 /**

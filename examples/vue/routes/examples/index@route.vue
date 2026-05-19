@@ -21,7 +21,7 @@ defineOptions({
       <div :class="styles.hero">
         <h1 :class="shared.pageTitle">
           <span>Simple & Powerful</span>
-          <br>
+          <br />
           <span>Tech-stack-agnostic</span> <span>Web Framework</span>
         </h1>
         <p :class="styles.subtitle">
@@ -46,7 +46,9 @@ defineOptions({
         <h2 :class="shared.sectionTitle">Basic Examples</h2>
 
         <div :class="`${shared.grid} ${shared.grid3}`">
-          <a :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`" href="/examples/static">
+          <a
+            :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`"
+            href="/examples/static">
             <div :class="shared.textCenter">
               <div :class="shared.cardIcon">📄</div>
               <h3 :class="shared.cardTitle">Static Page</h3>
@@ -56,7 +58,9 @@ defineOptions({
             </div>
           </a>
 
-          <a :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`" href="/examples/params/web-widget">
+          <a
+            :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`"
+            href="/examples/params/web-widget">
             <div :class="shared.textCenter">
               <div :class="shared.cardIcon">🎯</div>
               <h3 :class="shared.cardTitle">Dynamic Routing</h3>
@@ -66,7 +70,9 @@ defineOptions({
             </div>
           </a>
 
-          <a :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`" href="/examples/fetch">
+          <a
+            :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`"
+            href="/examples/fetch">
             <div :class="shared.textCenter">
               <div :class="shared.cardIcon">🔄</div>
               <h3 :class="shared.cardTitle">Data Fetching</h3>
@@ -76,7 +82,9 @@ defineOptions({
             </div>
           </a>
 
-          <a :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`" href="/examples/action">
+          <a
+            :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`"
+            href="/examples/action">
             <div :class="shared.textCenter">
               <div :class="shared.cardIcon">⚡</div>
               <h3 :class="shared.cardTitle">Server Actions</h3>
@@ -86,7 +94,9 @@ defineOptions({
             </div>
           </a>
 
-          <a :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`" href="/examples/frameworks">
+          <a
+            :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`"
+            href="/examples/frameworks">
             <div :class="shared.textCenter">
               <div :class="shared.cardIcon">🍀</div>
               <h3 :class="shared.cardTitle">Widgets</h3>
@@ -96,7 +106,9 @@ defineOptions({
             </div>
           </a>
 
-          <a :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`" href="/examples/middleware">
+          <a
+            :class="`${shared.card} ${shared.cardHover} ${shared.linkCard}`"
+            href="/examples/middleware">
             <div :class="shared.textCenter">
               <div :class="shared.cardIcon">🧅</div>
               <h3 :class="shared.cardTitle">Middleware</h3>

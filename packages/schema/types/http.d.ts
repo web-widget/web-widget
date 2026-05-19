@@ -64,8 +64,10 @@ export type FetchEventLike = Pick<
  * The context object passed to route handlers and middleware.
  * Contains all the information needed to process an HTTP request.
  */
-export interface FetchContext<Params = Record<string, string>>
-  extends Omit<FetchEventLike, 'respondWith'> {
+export interface FetchContext<Params = Record<string, string>> extends Omit<
+  FetchEventLike,
+  'respondWith'
+> {
   /**
    * Errors that occurred during request processing.
    * This is typically set by middleware or previous route handlers.

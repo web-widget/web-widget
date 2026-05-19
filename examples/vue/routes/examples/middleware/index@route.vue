@@ -33,7 +33,7 @@ defineOptions({
             This page's middleware also adds custom response headers. You can
             observe through browser developer tools:
           </p>
-          <ul style="margin: 0; padding-left: 1.5rem;">
+          <ul style="margin: 0; padding-left: 1.5rem">
             <li>
               <strong>Network panel</strong>: Check the
               <code>X-Powered-By</code> demo header
@@ -50,14 +50,14 @@ defineOptions({
             The current page's <code>&lt;meta&gt;</code> tags and scripts are
             all dynamically modified through middleware:
           </p>
-          <ul style="margin: 0; padding-left: 1.5rem;">
+          <ul style="margin: 0; padding-left: 1.5rem">
             <li>
-              <strong>Description</strong>: Dynamically added SEO-friendly
-              page description
+              <strong>Description</strong>: Dynamically added SEO-friendly page
+              description
             </li>
             <li>
-              <strong>Keywords</strong>: Injected keywords like "middleware,
-              web widget, demo"
+              <strong>Keywords</strong>: Injected keywords like "middleware, web
+              widget, demo"
             </li>
             <li>
               <strong>Dynamic Script</strong>: Injected a JavaScript code

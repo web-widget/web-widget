@@ -634,8 +634,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
 Object.assign(HTMLWebWidgetElement, status);
 
-export interface HTMLWebWidgetElementAttributes
-  extends Partial<HTMLWebWidgetElement> {
+export interface HTMLWebWidgetElementAttributes extends Partial<HTMLWebWidgetElement> {
   contextdata?: string;
   contextmeta?: string;
   inactive?: boolean;

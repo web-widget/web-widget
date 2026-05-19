@@ -75,23 +75,27 @@ const { data } = defineProps<{ data: HelloData }>();
         <h3 :class="shared.subsectionTitle">Demo Data</h3>
         <p>The following data is fetched through server-side API calls:</p>
 
-        <div :class="`${shared.grid} ${shared.grid2}`" style="margin-top: 1.5rem;">
+        <div
+          :class="`${shared.grid} ${shared.grid2}`"
+          style="margin-top: 1.5rem">
           <div v-for="(item, index) in data" :key="index" :class="shared.card">
             <h4 :class="shared.cardTitle">{{ item.title }}</h4>
-            <p :class="shared.textMuted" style="margin: 0;">
+            <p :class="shared.textMuted" style="margin: 0">
               Data item #{{ index + 1 }}
             </p>
           </div>
         </div>
 
-        <div style="margin-top: 1.5rem;">
+        <div style="margin-top: 1.5rem">
           <p>
             <strong>Data source:</strong>
             <a href="/examples/api/hello" target="_blank" :class="shared.link">
               /api/hello
             </a>
           </p>
-          <p :class="shared.textMuted" style="font-size: 0.875rem; margin-top: 0.5rem;">
+          <p
+            :class="shared.textMuted"
+            style="font-size: 0.875rem; margin-top: 0.5rem">
             Click the link above to view the original API response data
           </p>
         </div>

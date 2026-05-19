@@ -46,18 +46,18 @@ export interface RouteComponentProps<
   Data = unknown,
   Params = Record<string, string>,
 > extends Pick<
-    RouteContext<Data, Params>,
-    | 'data'
-    | 'error'
-    | 'meta'
-    /** @deprecated */
-    | 'name'
-    | 'params'
-    /** @deprecated */
-    | 'pathname'
-    | 'request'
-    | 'state'
-  > {}
+  RouteContext<Data, Params>,
+  | 'data'
+  | 'error'
+  | 'meta'
+  /** @deprecated */
+  | 'name'
+  | 'params'
+  /** @deprecated */
+  | 'pathname'
+  | 'request'
+  | 'state'
+> {}
 
 /**
  * Represents a route component function.
@@ -117,8 +117,10 @@ export interface RouteHandler<Data = unknown, Params = Record<string, string>> {
  * The context object passed to route handlers and components.
  * Contains all the information and utilities needed to handle a route request.
  */
-export interface RouteContext<Data = unknown, Params = Record<string, string>>
-  extends FetchContext<Params> {
+export interface RouteContext<
+  Data = unknown,
+  Params = Record<string, string>,
+> extends FetchContext<Params> {
   /**
    * This is the default data given to the `html()` method.
    * Contains the data that will be passed to the route component.

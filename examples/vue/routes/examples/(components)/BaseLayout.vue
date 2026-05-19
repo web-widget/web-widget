@@ -18,9 +18,7 @@ defineProps<BaseLayoutProps>();
   <header :class="styles.header">
     <div :class="styles.headerContent">
       <div :class="styles.brandLogo">
-        <a :class="styles.brandText" href="/">
-          Web Widget
-        </a>
+        <a :class="styles.brandText" href="/"> Web Widget </a>
         <div :class="styles.techStackBadge">
           <span :class="styles.techText">Vue Example</span>
         </div>
@@ -43,11 +41,17 @@ defineProps<BaseLayoutProps>();
       </div>
 
       <div :class="styles.footerLinks">
-        <a href="https://github.com/web-widget/web-widget#readme" target="_blank" rel="noopener noreferrer"
+        <a
+          href="https://github.com/web-widget/web-widget#readme"
+          target="_blank"
+          rel="noopener noreferrer"
           :class="styles.footerLink">
           📚 Documentation
         </a>
-        <a href="https://github.com/web-widget/web-widget" target="_blank" rel="noopener noreferrer"
+        <a
+          href="https://github.com/web-widget/web-widget"
+          target="_blank"
+          rel="noopener noreferrer"
           :class="styles.footerLink">
           ⭐ GitHub
         </a>

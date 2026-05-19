@@ -40,8 +40,8 @@ defineOptions({
             <div :class="shared.cardIcon">🔄</div>
             <h4 :class="shared.cardTitle">Auto Serialization</h4>
             <p :class="shared.cardDescription">
-              Automatically handles parameter and return value serialization,
-              no manual conversion needed
+              Automatically handles parameter and return value serialization, no
+              manual conversion needed
             </p>
           </div>
           <div :class="shared.card">
@@ -58,11 +58,11 @@ defineOptions({
       <div :class="`${shared.infoPanel} ${shared.success}`">
         <h3 :class="shared.subsectionTitle">Interactive Demo</h3>
         <p>
-          Enter some text below. After clicking "Send to Server", the text
-          will be sent to the server-side function for processing, and return
-          a response containing timestamp and server information.
+          Enter some text below. After clicking "Send to Server", the text will
+          be sent to the server-side function for processing, and return a
+          response containing timestamp and server information.
         </p>
-        <div style="margin-top: 1.5rem;">
+        <div style="margin-top: 1.5rem">
           <Echo />
         </div>
       </div>
@@ -73,10 +73,12 @@ defineOptions({
         </h3>
         <div :class="shared.comparisonGrid">
           <div :class="shared.comparisonItem">
-            <h4 :class="shared.cardTitle" style="color: var(--color-error); margin-bottom: 1rem;">
+            <h4
+              :class="shared.cardTitle"
+              style="color: var(--color-error); margin-bottom: 1rem">
               Traditional REST API
             </h4>
-            <ul style="list-style: none; padding: 0;">
+            <ul style="list-style: none; padding: 0">
               <li>❌ Need to create separate API routes</li>
               <li>⚙️ Manual request/response serialization</li>
               <li>🔄 Client and server types easily get out of sync</li>
@@ -85,10 +87,12 @@ defineOptions({
             </ul>
           </div>
           <div :class="shared.comparisonItem">
-            <h4 :class="shared.cardTitle" style="color: var(--color-success); margin-bottom: 1rem;">
+            <h4
+              :class="shared.cardTitle"
+              style="color: var(--color-success); margin-bottom: 1rem">
               Web Widget Server Actions
             </h4>
-            <ul style="list-style: none; padding: 0;">
+            <ul style="list-style: none; padding: 0">
               <li>✅ Function is API, no additional routes needed</li>
               <li>⚡ Auto serialization, no manual conversion</li>
               <li>🔒 Complete TypeScript type safety</li>
