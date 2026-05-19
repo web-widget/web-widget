@@ -41,3 +41,26 @@ declare module '*?as=tsx' {
   const reactWidgetComponent: ReactWidgetComponent<any>;
   export default reactWidgetComponent;
 }
+
+declare module 'react-dom/server.edge' {
+  import type { ReactNode } from 'react';
+  import type {
+    ReactDOMServerReadableStream,
+    RenderToReadableStreamOptions,
+  } from 'react-dom/server';
+
+  export function renderToReadableStream(
+    children: ReactNode,
+    options?: RenderToReadableStreamOptions
+  ): Promise<ReactDOMServerReadableStream>;
+}
+
+declare module 'react-dom/static.edge' {
+  import type { ReactNode } from 'react';
+  import type { PrerenderOptions } from 'react-dom/static';
+
+  export function prerender(
+    children: ReactNode,
+    options?: PrerenderOptions
+  ): Promise<{ prelude: ReadableStream }>;
+}

@@ -8,7 +8,7 @@ const props = defineProps({
 });
 
 const url = `/api/mock-users?username=${props.username}`;
-const cacheKey = url;
+const cacheKey = `${url}#github-vue2`;
 
 const data = syncCacheProvider(cacheKey, async () => {
   console.log('[mock-users]', 'fetch..');

@@ -37,6 +37,13 @@ interface VitestUserConfig extends UserConfig {
 let stage = 0;
 const ENTRY_ID = '@entry';
 const SERVER_ENTRY_OUTPUT_NAME = 'index';
+const WEBWORKER_SSR_RESOLVE_CONDITIONS = [
+  'worklet',
+  'worker',
+  'import',
+  'module',
+  'default',
+];
 
 function runSsrBuild(inlineConfig?: InlineConfig) {
   process.nextTick(() => {
@@ -93,8 +100,28 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     );
 
     const test = config.test;
+    const hasCustomTestPool = !!test?.pool;
     const environment: VitestEnvironment =
       test?.environment ?? (target === 'webworker' ? 'edge-runtime' : 'node');
+    const injectedSetupFile =
+      environment === 'edge-runtime'
+        ? '@web-widget/vite-plugin/vitest-edge-runtime-environment'
+        : environment === 'node'
+          ? '@web-widget/vite-plugin/vitest-node-environment'
+          : undefined;
+    const userSetupFiles = test?.setupFiles
+      ? Array.isArray(test.setupFiles)
+        ? test.setupFiles
+        : [test.setupFiles]
+      : [];
+    const mergedSetupFiles = injectedSetupFile
+      ? Array.from(new Set([...userSetupFiles, injectedSetupFile]))
+      : undefined;
+    const conditions =
+      config.ssr?.resolve?.conditions ??
+      (target === 'webworker' ? WEBWORKER_SSR_RESOLVE_CONDITIONS : undefined);
+
+    const rolldownUserExternal = config.build?.rolldownOptions?.external;
 
     return {
       root,
@@ -104,20 +131,20 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
       optimizeDeps: {
         exclude: [],
       },
-      ssr: ssrBuild
-        ? {
-            external: ['node:async_hooks'],
-            target,
-            resolve: {
-              // https://github.com/vitejs/vite/issues/6401
-              // https://webpack.js.org/guides/package-exports/
-              conditions:
-                target === 'webworker'
-                  ? ['worklet', 'worker', 'import', 'module', 'default']
-                  : undefined,
-            },
-          }
-        : undefined,
+      ssr: {
+        target,
+        ...(ssrBuild
+          ? {
+              external: ['node:async_hooks'],
+            }
+          : {}),
+        resolve: {
+          ...(config.ssr?.resolve ?? {}),
+          // Keep SSR module resolution ESM-first for webworker target in both dev/build.
+          // This avoids CJS fallbacks such as `vue/index.js` being evaluated as ESM.
+          ...(conditions ? { conditions } : {}),
+        },
+      },
       build: {
         outDir: path.join(
           resolvedWebRouterConfig.output.dir,
@@ -130,10 +157,13 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
         manifest: ssrBuild
           ? undefined
           : resolvedWebRouterConfig.output.manifest,
-        minify: ssrBuild ? false : (config.build?.minify ?? 'esbuild'),
+        ...(ssrBuild ? { minify: false as const } : {}),
+        ...(!ssrBuild && config.build?.minify !== undefined
+          ? { minify: config.build.minify }
+          : {}),
         ssr: ssrBuild,
         ssrEmitAssets: config.build?.ssrEmitAssets ?? false,
-        rollupOptions: {
+        rolldownOptions: {
           input: ssrBuild
             ? {
                 ...serverRoutemapEntryPoints.points,
@@ -144,10 +174,22 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
                 [ENTRY_ID]: resolvedWebRouterConfig.input.client.entry,
               },
           preserveEntrySignatures: 'allow-extension',
-          treeshake: config.build?.rollupOptions?.treeshake ?? true,
-          external: ssrBuild
-            ? (builtins as string[])
-            : Object.keys(clientImportmap?.imports ?? []),
+          treeshake: config.build?.rolldownOptions?.treeshake ?? true,
+          // NOTE: SSR ESM bundles cannot satisfy `require("stream")`-style builtins that
+          // CJS deps (e.g. vue-server-renderer) emit when those builtins are marked
+          // `external`. For `webworker` target externals remain correct; Node SSR must
+          // let Rolldown/Vite rewrite or inline Node built-ins instead.
+          ...(ssrBuild && target !== 'webworker'
+            ? rolldownUserExternal !== undefined
+              ? {
+                  external: rolldownUserExternal,
+                }
+              : {}
+            : {
+                external: ssrBuild
+                  ? (builtins as string[])
+                  : Object.keys(clientImportmap?.imports ?? []),
+              }),
           output: {
             // NOTE: The `preserveModules` option causes build artifacts to reference
             // external modules using relative paths, rather than bare module names.
@@ -172,15 +214,12 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
         },
       },
       test: test
-        ? {
-            environment,
-            setupFiles:
-              environment === 'edge-runtime'
-                ? ['@web-widget/vite-plugin/vitest-edge-runtime-environment']
-                : environment === 'node'
-                  ? ['@web-widget/vite-plugin/vitest-node-environment']
-                  : undefined,
-          }
+        ? hasCustomTestPool
+          ? undefined
+          : {
+              environment,
+              ...(mergedSetupFiles ? { setupFiles: mergedSetupFiles } : {}),
+            }
         : undefined,
     };
   }
@@ -239,7 +278,8 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
      * __import_meta_framework__.manifest = { ... };
      * const { meta, manifest } = __import_meta_framework__;
      */
-    async transform(code, id, { ssr } = {}) {
+    async transform(code, id, options) {
+      const ssr = options?.ssr;
       const { entry, routemap } = resolvedWebRouterConfig.input.server;
       const PLACEHOLDER = 'import.meta.framework';
       if (id !== entry || !ssr || !code.includes(PLACEHOLDER)) {

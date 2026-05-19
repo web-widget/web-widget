@@ -1,35 +1,32 @@
-// @ts-ignore
 import { renderToReadableStream as _renderToReadableStream } from 'react-dom/server.edge';
+import { prerender as _prerender } from 'react-dom/static.edge';
 import type {
   ReactDOMServerReadableStream,
   renderToReadableStream as RenderToReadableStream,
   RenderToReadableStreamOptions,
 } from 'react-dom/server';
-// @ts-ignore
-import { prerender as _prerender } from 'react-dom/static.edge';
-import type {
-  prerender as Prerender,
-  PrerenderOptions,
-} from 'react-dom/static';
-import { ReactNode } from 'react';
+import type { PrerenderOptions } from 'react-dom/static';
+import type { ReactNode } from 'react';
 
 declare global {
   interface ReadableStream {
-    [Symbol.asyncIterator](): AsyncIterator<ArrayBuffer | ArrayBufferView>;
+    [Symbol.asyncIterator](): AsyncIterator<ArrayBuffer | Uint8Array>;
   }
 }
 
-const prerender: typeof Prerender = _prerender;
+const prerender = _prerender;
 const renderToReadableStream: typeof RenderToReadableStream =
   _renderToReadableStream;
 
-type RenderToStringOptions = PrerenderOptions;
+export type RenderToStringOptions = PrerenderOptions;
 
 async function renderToString(
   vNode: ReactNode,
   options: RenderToReadableStreamOptions
 ): Promise<string> {
-  return readableStreamToString((await prerender(vNode, options)).prelude);
+  return readableStreamToString(
+    (await prerender(vNode, options as any)).prelude
+  );
 }
 
 async function readableStreamToString(readableStream: ReadableStream) {
@@ -44,7 +41,6 @@ async function readableStreamToString(readableStream: ReadableStream) {
 
 export {
   renderToString,
-  RenderToStringOptions,
   renderToReadableStream,
   RenderToReadableStreamOptions,
   ReactDOMServerReadableStream,

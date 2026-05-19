@@ -73,7 +73,7 @@ export default defineConfig(({ isSsrBuild }) => {
     build: {
       manifest: isSsrBuild ? false : true,
       outDir: `dist/${type}`,
-      rollupOptions: {
+      rolldownOptions: {
         input: {
           ...createInputMap(['react', 'vue3', 'vue2'], type),
         },

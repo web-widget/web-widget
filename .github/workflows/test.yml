@@ -13,14 +13,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # https://nodejs.org/en/about/releases/
-        # https://pnpm.io/installation#compatibility
+        # Vite 8 requires Node ^20.19.0 || >=22.12.0
         version:
-          # - node: 16
-          - node: 18
-          - node: 20
-          - node: 22
-          - node: 23
+          - node: "20.19.0"
+          - node: "22.12.0"
+          - node: "24"
+          - node: "26"
 
     name: Node.js ${{ matrix.version.node }}
     env:
@@ -48,7 +46,13 @@ jobs:
 
       - run: corepack enable && pnpm --version
 
-      - run: pnpm install --recursive --no-frozen-lockfile --loglevel=error
+      # NOTE: Avoid --loglevel=error: pnpm may set npm_config_loglevel for lifecycle scripts (e.g.
+      # workerd install calling npm). That can hide stderr from failures. Hooks are skipped in CI.
+      - run: pnpm install --recursive --no-frozen-lockfile
+        env:
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
+
+      - run: pnpm examples-catalog:check
 
       - run: pnpm build
 

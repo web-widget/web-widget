@@ -8,10 +8,16 @@ import type {
 } from '@web-widget/helpers';
 
 import type { ViteDevServer, ModuleNode } from 'vite';
-import { isCSSRequest, normalizePath } from 'vite';
+import { isCSSRequest } from 'vite';
 
 import type { DynamicImportPredicate } from '../types';
-import { removeAs } from '../utils';
+import {
+  canonicalModuleKey,
+  normalizeFilterId,
+  stripModuleIdQuery,
+  toManifestFilterKey,
+  unwrapViteId,
+} from '../utils';
 
 /**
  * Dev-time dependency keys for `crawlGraph`, parallel to `getLinksInternal` in
@@ -130,22 +136,6 @@ const inlineRE = /(?:\?|&)inline\b/;
 const isBuildableCSSRequest = (request: string): boolean =>
   isCSSRequest(request) && !rawRE.test(request) && !inlineRE.test(request);
 
-const VALID_ID_PREFIX = `/@id/`;
-
-// Strip valid id prefix. This is prepended to resolved Ids that are
-// not valid browser import specifiers by the importAnalysis plugin.
-function unwrapId(id: string): string {
-  return id.startsWith(VALID_ID_PREFIX) ? id.slice(VALID_ID_PREFIX.length) : id;
-}
-
-function stripViteTimestampQuery(url: string): string {
-  return url.replace(/\?t=\d+(?=&|$)/, '').replace(/&t=\d+(?=&|$)/, '');
-}
-
-function canonicalModuleKey(id: string): string {
-  return unwrapId(id.replace(STRIP_QUERY_PARAMS_REGEX, ''));
-}
-
 function moduleNodeKeys(mod: ModuleNode): string[] {
   const keys: string[] = [];
   if (mod.id) {
@@ -192,7 +182,7 @@ async function ensureSsrTransformResult(
     return;
   }
   try {
-    await viteDevServer.transformRequest(stripViteTimestampQuery(mod.url), {
+    await viteDevServer.transformRequest(normalizeFilterId(mod.url), {
       ssr: true,
     });
   } catch {
@@ -227,7 +217,7 @@ async function resolveSsrModuleDependencyKeys(
   root: string,
   dynamicImportPredicate?: DynamicImportPredicate
 ): Promise<SsrModuleDependencyKeys> {
-  const entryPath = entry.id?.replace(STRIP_QUERY_PARAMS_REGEX, '') ?? '';
+  const entryPath = entry.id ? canonicalModuleKey(entry.id) : '';
   const entryIsStyle =
     entry.type === 'css' ||
     isCSSRequest(entryPath) ||
@@ -269,12 +259,7 @@ async function resolveSsrModuleDependencyKeys(
         if (!r?.id) {
           continue;
         }
-        const manifestKey = normalizePath(
-          path.relative(
-            root,
-            removeAs(r.id).replace(STRIP_QUERY_PARAMS_REGEX, '')
-          )
-        );
+        const manifestKey = toManifestFilterKey(r.id, root);
         if (dynamicImportPredicate(manifestKey)) {
           matchedDynamicImportKeys.add(canonicalModuleKey(r.id));
         }
@@ -297,8 +282,6 @@ async function resolveSsrModuleDependencyKeys(
  */
 const fileExtensionsToSSR = new Set();
 
-const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
-
 /** recursively crawl the module graph to get all style files imported by parent id */
 async function* crawlGraph(
   viteDevServer: ViteDevServer,
@@ -308,7 +291,7 @@ async function* crawlGraph(
   root: string,
   dynamicImportPredicate?: DynamicImportPredicate
 ): AsyncGenerator<ModuleNode, void, unknown> {
-  const id = unwrapId(_id);
+  const id = unwrapViteId(_id);
   const importedModules = new Set<ModuleNode>();
 
   const moduleEntriesForId = isRootFile
@@ -329,7 +312,7 @@ async function* crawlGraph(
     }
     if (id === entry.id) {
       scanned.add(id);
-      const entryPath = id.replace(STRIP_QUERY_PARAMS_REGEX, '');
+      const entryPath = stripModuleIdQuery(id);
       const entryIsStyle = isCSSRequest(entryPath) || isCSSRequest(id);
 
       const { filterDisabled, importDepKeys, matchedDynamicImportKeys } =
@@ -350,10 +333,7 @@ async function* crawlGraph(
         // Strip special query params like "?content".
         // NOTE: Cannot use `new URL()` here because not all IDs will be valid paths.
         // For example, `virtual:image-loader` if you don't have the plugin installed.
-        const importedModulePathname = importedModule.id.replace(
-          STRIP_QUERY_PARAMS_REGEX,
-          ''
-        );
+        const importedModulePathname = canonicalModuleKey(importedModule.id);
         // If the entry is a style, skip any modules that are not also styles.
         // Tools like Tailwind might add HMR dependencies as `importedModules`
         // but we should skip them--they aren't really imported. Without this,

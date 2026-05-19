@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+/**
+ * Sync root `pnpm.overrides`: every `packages/*` name gets `@web-widget/*` → `workspace:*`.
+ * Run after adding, renaming, or removing workspace packages.
+ */
+
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';

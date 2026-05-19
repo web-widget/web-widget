@@ -26,7 +26,7 @@
     "unbuild": "^1.2.1"
   },
   "engines": {
-    "node": ">=16"
+    "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
     "build": "pnpm run build:packages && pnpm run build:examples",
@@ -39,12 +39,14 @@
     "contributors": "git-authors-cli && finepack",
     "coverage": "c8 report --reporter=lcov --reporter=text",
     "dev": "turbo run dev --filter=@playgrounds/router",
+    "examples-catalog:check": "node scripts/materialize-examples-catalog.js --check",
+    "examples-catalog:materialize": "node scripts/materialize-examples-catalog.js",
     "lint": "turbo run lint",
     "lockfile": "pnpm install --lockfile && git add pnpm-lock.yaml && git commit -m \"build: regenerate lock\"",
+    "pnpm-overrides:sync": "node scripts/sync-pnpm-overrides.js",
     "postinstall": "./node_modules/.bin/simple-git-hooks",
     "prebuild": "pnpm -r run clean:build",
     "prettier": "prettier **/*.{ts,tsx,js,vue} --write",
-    "sync-packages": "node scripts/sync-packages.js",
     "syncpack:json": "syncpack format --source '**/*package.json'",
     "test": "c8 --reporter=lcov --reporter=text turbo run test",
     "update": "pnpm -r exec ncu -- --upgrade && ncu -- --upgrade",
@@ -72,6 +74,7 @@
       "@web-widget/context": "workspace:*",
       "@web-widget/helpers": "workspace:*",
       "@web-widget/html": "workspace:*",
+      "@web-widget/inspector": "workspace:*",
       "@web-widget/lifecycle-cache": "workspace:*",
       "@web-widget/middlewares": "workspace:*",
       "@web-widget/node": "workspace:*",
@@ -84,10 +87,26 @@
       "@web-widget/web-router": "workspace:*",
       "@web-widget/web-widget": "workspace:*",
       "typescript": "catalog:"
+    },
+    "packageExtensions": {
+      "@cloudflare/vitest-pool-workers": {
+        "dependencies": {
+          "undici": "^7.24.8"
+        }
+      }
+    },
+    "patchedDependencies": {
+      "yargs@17.7.2": "patches/yargs@17.7.2.patch"
+    },
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "@vitejs/plugin-vue2>vite": "8"
+      }
     }
   },
   "simple-git-hooks": {
-    "pre-commit": "./node_modules/.bin/nano-staged"
+    "post-merge": "node scripts/git-hooks/post-merge-maintenance.js",
+    "pre-commit": "node scripts/git-hooks/pre-commit.js"
   },
   "type": "module"
 }

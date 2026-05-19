@@ -11,7 +11,8 @@ import {
   getManifest,
   getWebRouterPluginApi,
   normalizePath,
-  removeAs,
+  normalizeFilterId,
+  stripModuleIdQuery,
 } from './utils';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -129,8 +130,11 @@ export function importRenderPlugin({
 
         return result;
       },
-      async transform(code, id, { ssr } = {}) {
-        if (!importerFilter(removeAs(id))) {
+      async transform(code, id, options) {
+        const ssr = options?.ssr;
+        const normalizedImporterId = normalizeFilterId(id);
+        const importerMatched = importerFilter(normalizedImporterId);
+        if (!importerMatched) {
           return null;
         }
 
@@ -166,17 +170,30 @@ export function importRenderPlugin({
               )?.id
             : undefined;
 
-          if (importModule && filter(removeAs(importModule))) {
+          const normalizedImportModule = importModule
+            ? normalizeFilterId(importModule)
+            : undefined;
+          const importMatched = normalizedImportModule
+            ? filter(normalizedImportModule)
+            : false;
+          const isSelfImport =
+            normalizedImportModule &&
+            normalizedImportModule === normalizedImporterId;
+          if (importModule && importMatched) {
+            if (isSelfImport) {
+              continue;
+            }
             if (dynamicImport !== -1) {
               return this.error(
                 new SyntaxError(`Dynamic imports are not supported.`),
                 statementStart
               );
             }
-            const cacheKey = [id, importModule].join(',');
+            const resolvedModuleId = normalizedImportModule ?? importModule;
+            const cacheKey = [id, resolvedModuleId].join(',');
             if (!cache.has(cacheKey)) {
               modules.push({
-                moduleId: importModule,
+                moduleId: resolvedModuleId,
                 moduleName: moduleName as string,
                 statementEnd,
                 statementStart,
@@ -204,7 +221,7 @@ export function importRenderPlugin({
           );
 
           if (!componentName) {
-            return;
+            continue;
           }
 
           const asset = normalizePath(path.relative(root, moduleId));
@@ -283,7 +300,7 @@ export function importRenderPlugin({
         });
       },
       async transform(code, id) {
-        if (!importerFilter(removeAs(id))) {
+        if (!importerFilter(normalizeFilterId(id))) {
           return null;
         }
         // const normalize = (file: string) => {
@@ -347,7 +364,7 @@ function relativePathToDevUrl(target: string, base: string) {
 // toDevUrl('../App.vue?as=jsx', '/base');
 // toDevUrl('/www/dev/App.vue', '/base');
 function toDevUrl(target: string, base: string) {
-  target = target.replace(/\?.*?$/, '');
+  target = stripModuleIdQuery(target);
   return path.isAbsolute(target) || target.startsWith(`../`)
     ? resolvePathToDevUrl(target, base)
     : relativePathToDevUrl(target, base);

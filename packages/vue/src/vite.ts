@@ -11,8 +11,7 @@ function appendSlash(path: string) {
   return path.endsWith(posix.sep) ? path : `${path}${posix.sep}`;
 }
 
-export interface VueWebWidgetPluginOptions
-  extends Partial<WebWidgetUserConfig> {
+export interface VueWebWidgetPluginOptions extends Partial<WebWidgetUserConfig> {
   workspace?: string;
 }
 

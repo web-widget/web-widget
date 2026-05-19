@@ -67,12 +67,14 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     const data = attrs.data;
     delete attrs.data;
 
-    return () =>
-      h(tag, {
+    return () => {
+      const nodeProps = {
         ...attrs,
         ...(IS_CLIENT ? { '^data': data } : { data }),
-        innerHTML,
-      });
+        ...(!IS_CLIENT ? { innerHTML } : null),
+      };
+      return h(tag, nodeProps);
+    };
   },
 });
 

@@ -57,7 +57,4 @@ export default WebRouter.fromManifest(manifest, {
       },
     ],
   }),
-  defaultRenderOptions: {
-    progressive: !process.env.TEST,
-  },
 });

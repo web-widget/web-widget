@@ -17,7 +17,6 @@ export function webRouterDevServerPlugin(
 ): Plugin {
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;
   let root: string;
-  let base: string;
   return {
     name: '@web-widget:dev',
     enforce: 'pre',
@@ -31,7 +30,6 @@ export function webRouterDevServerPlugin(
 
     async configResolved(config) {
       root = config.root;
-      base = config.base;
 
       if (options) {
         resolvedWebRouterConfig = options;

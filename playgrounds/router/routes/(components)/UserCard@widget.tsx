@@ -9,7 +9,7 @@ interface Props {
 
 const useFetchUser = (username: string): MockUserData => {
   const url = `/api/mock-users?username=${username}`;
-  const cacheKey = url;
+  const cacheKey = `${url}#user-card`;
   const data = syncCacheProvider(cacheKey, async () => {
     console.log('[mock-users]', 'fetch..');
 
