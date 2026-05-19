@@ -19,7 +19,6 @@
     "react-dom": "^19.2.6"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "catalog:",
     "@types/koa": "^2.15.0",
     "@types/koa-send": "^4.1.6",
     "@types/react": "^19.2.14",

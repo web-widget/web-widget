@@ -1,6 +1,5 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vitest/config';
-import { cloudflarePool } from '@cloudflare/vitest-pool-workers';
 import react from '@vitejs/plugin-react';
 import { webRouterPlugin } from '@web-widget/vite-plugin';
 import reactWebWidgetPlugin from '@web-widget/react/vite';
@@ -30,16 +29,6 @@ export default defineConfig({
     target: ['chrome76'],
   },
   test: {
-    pool: cloudflarePool({
-      miniflare: {
-        compatibilityDate: '2026-05-14',
-        compatibilityFlags: ['nodejs_compat'],
-        bindings: {
-          TEST_PORT: Number(process.env.TEST_PORT ?? 51204),
-        },
-        modules: true,
-      },
-    }),
     api: {
       port: Number(process.env.TEST_PORT ?? 51204),
       strictPort: true,
