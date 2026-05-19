@@ -19,7 +19,7 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    [reactWebWidgetPlugin(), react()],
+    [react(), reactWebWidgetPlugin()],
     [vuePlugin(), vueWebWidgetPlugin()],
   ],
   build: {

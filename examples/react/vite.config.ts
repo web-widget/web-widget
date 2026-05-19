@@ -9,9 +9,6 @@ import vueWebWidgetPlugin from '@web-widget/vue/vite';
 export default defineConfig({
   plugins: [
     webRouterPlugin({
-      asyncContext: {
-        enabled: false,
-      },
       serverAction: {
         enabled: true,
       },
@@ -22,7 +19,7 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    [reactWebWidgetPlugin(), react()],
+    [react(), reactWebWidgetPlugin()],
     [vuePlugin(), vueWebWidgetPlugin()],
   ],
   build: {

@@ -18,7 +18,7 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    [reactWebWidgetPlugin(), react()],
+    [react(), reactWebWidgetPlugin()],
   ],
   build: {
     target: ['chrome76'],
