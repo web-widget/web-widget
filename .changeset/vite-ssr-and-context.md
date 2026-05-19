@@ -6,11 +6,9 @@
 '@web-widget/web-router': major
 ---
 
-### Major
-
 **BREAKING:** This release targets **Vite 8** and **Vitest 4**, and raises the **Node.js** baseline beyond **≥ Node 18** — use **`vite@^8`** and **`vitest@^4`** (this repo’s catalog uses `^8.0.12` and `^4.1.6`), **upgrade Node**, bump related packages as needed, and adjust build / test configs for Rolldown-oriented APIs (for example `build.rolldownOptions`), SSR resolution (`resolve.conditions` under `ssr`), and Vitest setup integration used by `@web-widget/vite-plugin`.
 
-### Details
+Details:
 
 - Lazily load `AsyncLocalStorage` in `@web-widget/context` when `node:async_hooks` is missing so globals initialization does not hard-fail.
 - Improve React edge SSR typings, export `RenderToStringOptions`, and normalize non-`Error` values passed to server `onError`.
