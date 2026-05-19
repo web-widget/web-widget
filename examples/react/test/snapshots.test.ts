@@ -8,44 +8,28 @@ const STATIC_ROUTES: { pathname: string }[] = routes.routes.filter(
 
 STATIC_ROUTES.push({ pathname: '/examples/_404' });
 
-const EXPECTED_STATUS: Record<string, number> = {
-  '/': 307,
-  '/examples/_404': 200,
-};
+// Replace local file paths with placeholders to ensure snapshots are consistent across different devices
+function replaceLocalPaths(content: string): string {
+  return (
+    content
+      // Replace all file:// protocol URLs
+      .replace(/file:\/\/\/[^"'\s>]+/g, 'file:///LOCAL_PATH')
+  );
+}
 
-const JSON_ROUTES = new Set(['/examples/api/hello']);
-
-describe('Should return stable responses', () => {
+describe('Should match snapshot', () => {
   test.each(STATIC_ROUTES.map((route) => [route.pathname]))(
-    'Request "%s" should return expected response',
+    'Request "%s" should match snapshot',
     async (pathname) => {
-      const result = await fetch(pathname);
-      const expectedStatus = EXPECTED_STATUS[pathname] ?? 200;
-      expect(result.status).toBe(expectedStatus);
-      expect(result.headers.get('x-powered-by')).toBeTruthy();
-
-      if (pathname === '/') {
-        expect(result.headers.get('location')).toBe('/examples');
-        return;
-      }
-
-      if (JSON_ROUTES.has(pathname)) {
-        expect(result.headers.get('content-type')).toContain(
-          'application/json'
-        );
-        const data = await result.json();
-        expect(Array.isArray(data)).toBe(true);
-        expect(data.length).toBeGreaterThan(0);
-        return;
-      }
-
-      expect(result.headers.get('content-type')).toContain('text/html');
-      const html = await result.text();
-      expect(html).toContain('<!doctype html>');
-      expect(html).toContain('<main');
-      if (pathname === '/examples/frameworks') {
-        expect(html).toContain('Framework Coexistence Demo');
-      }
+      const result = await fetch(`${pathname}`);
+      expect(result.status).toMatchSnapshot(`${pathname}@status`);
+      expect(result.statusText).toMatchSnapshot(`${pathname}@statusText`);
+      expect(Object.fromEntries(result.headers.entries())).toMatchSnapshot(
+        `${pathname}@headers`
+      );
+      expect(replaceLocalPaths(await result.text())).toMatchSnapshot(
+        `${pathname}@body`
+      );
     }
   );
 });
