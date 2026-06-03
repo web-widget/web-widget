@@ -43,6 +43,7 @@
     "examples-catalog:materialize": "node scripts/materialize-examples-catalog.js",
     "lint": "turbo run lint",
     "lockfile": "pnpm install --lockfile && git add pnpm-lock.yaml && git commit -m \"build: regenerate lock\"",
+    "npm-trust:setup": "bash scripts/setup-npm-trusted-publishing.sh",
     "pnpm-overrides:sync": "node scripts/sync-pnpm-overrides.js",
     "postinstall": "./node_modules/.bin/simple-git-hooks",
     "prebuild": "pnpm -r run clean:build",
