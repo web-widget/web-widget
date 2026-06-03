@@ -1,5 +1,17 @@
 # @web-widget/vue
 
+## 2.1.0
+
+### Patch Changes
+
+- Updated dependencies [fc3e100]
+- Updated dependencies [8859525]
+  - @web-widget/schema@2.1.0
+  - @web-widget/helpers@2.1.0
+  - @web-widget/vite-plugin@2.1.0
+  - @web-widget/react@2.1.0
+  - @web-widget/web-widget@2.1.0
+
 ## 2.0.0
 
 ### Major Changes

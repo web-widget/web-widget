@@ -1,5 +1,17 @@
 # @web-widget/vite-plugin
 
+## 2.1.0
+
+### Patch Changes
+
+- 8859525: Fix client build removing entire route re-exports when stripping server-only `handler`/`config` exports. Bare `export { handler, default } from './page'` now keeps `default` so `page.tsx` and `@widget` assets stay in the client manifest (fixes #752).
+- Updated dependencies [fc3e100]
+- Updated dependencies [4897259]
+  - @web-widget/web-router@2.1.0
+  - @web-widget/helpers@2.1.0
+  - @web-widget/node@2.1.0
+  - @web-widget/inspector@2.1.0
+
 ## 2.0.0
 
 ### Major Changes

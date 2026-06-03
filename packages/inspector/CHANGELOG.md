@@ -1,5 +1,11 @@
 # @web-widget/inspector
 
+## 2.1.0
+
+### Patch Changes
+
+- @web-widget/web-widget@2.1.0
+
 ## 2.0.0
 
 ### Patch Changes

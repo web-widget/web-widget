@@ -1,5 +1,21 @@
 # @web-widget/helpers
 
+## 2.1.0
+
+### Patch Changes
+
+- fc3e100: Add runtime internal URL rewrite: `context.rewrite(destination)` re-matches and runs the target route handler chain while keeping `context.request` (the browser URL) unchanged. Supports same-origin destinations, query merge, skipping already-run global (`*`) middleware, nested depth limits, and loop detection.
+  - **@web-widget/schema**: optional `rewrite()` on `FetchContext`.
+  - **@web-widget/web-router**: `rewrite` implementation, matched-stack runner, `getPathFromResolvedUrl`, tests, and RFC `rfcs/rewrite.zh.md`.
+  - **@web-widget/helpers**: `compose` awaits middleware return values so async handlers and `rewrite()` rejections propagate to `onError` reliably.
+
+- Updated dependencies [fc3e100]
+  - @web-widget/schema@2.1.0
+  - @web-widget/context@2.1.0
+  - @web-widget/lifecycle-cache@2.1.0
+  - @web-widget/action@2.1.0
+  - @web-widget/purify@2.1.0
+
 ## 2.0.0
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @web-widget/context
 
+## 2.1.0
+
+### Patch Changes
+
+- Updated dependencies [fc3e100]
+  - @web-widget/schema@2.1.0
+  - @web-widget/purify@2.1.0
+
 ## 2.0.0
 
 ### Major Changes

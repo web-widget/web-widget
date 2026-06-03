@@ -1,5 +1,12 @@
 # @web-widget/html
 
+## 2.1.0
+
+### Patch Changes
+
+- Updated dependencies [fc3e100]
+  - @web-widget/helpers@2.1.0
+
 ## 2.0.0
 
 ### Patch Changes
