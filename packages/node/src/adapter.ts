@@ -7,11 +7,12 @@ import type {
 } from '@edge-runtime/node-utils';
 import {
   buildToFetchEvent,
-  buildToRequest,
   mergeIntoServerResponse,
   toOutgoingHeaders,
 } from '@edge-runtime/node-utils';
 import primitives from '@edge-runtime/primitives';
+
+import { buildToRequestWithHttp2Compat } from './incoming-request';
 
 type WebHandler = (
   req: Request,
@@ -86,7 +87,7 @@ function toMiddleware(
   webHandler: WebHandler,
   options: RequestOptions
 ): Middleware {
-  const toRequest = buildToRequest(dependencies);
+  const toRequest = buildToRequestWithHttp2Compat(dependencies);
   const toFetchEvent = buildToFetchEvent(dependencies);
   return async function middleware(incomingMessage, serverResponse, next) {
     try {
@@ -202,7 +203,7 @@ function buildToNodeHandler(
   dependencies: BuildDependencies,
   options: RequestOptions
 ) {
-  const toRequest = buildToRequest(dependencies);
+  const toRequest = buildToRequestWithHttp2Compat(dependencies);
   const toFetchEvent = buildToFetchEvent(dependencies);
   return function toNodeHandler(webHandler: WebHandler): NodeHandler {
     return (
