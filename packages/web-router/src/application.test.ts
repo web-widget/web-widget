@@ -2,7 +2,7 @@
 import { callContext, context } from '@web-widget/context/server';
 import { Application } from './application';
 import type { MiddlewareHandler } from './types';
-import { getPath } from './url';
+import { getPathForRequest } from './url';
 
 // https://stackoverflow.com/a/65666402
 function throwExpression(errorMessage: string): never {
@@ -238,7 +238,7 @@ describe('strict parameter', () => {
   describe('strict is false with `getPath` option', () => {
     const app = new Application({
       strict: false,
-      getPath: getPath,
+      getPath: getPathForRequest,
     });
 
     app.get('/hello', (c) => {
@@ -1418,8 +1418,6 @@ declare module './context' {
 // });
 
 describe('normalizeHTTPException', () => {
-  const app = new Application();
-
   // Test basic error handling
   test('should handle basic errors', async () => {
     const testApp = new Application();
@@ -1720,5 +1718,221 @@ describe('normalizeHTTPException', () => {
     await testApp.dispatch('/test-error');
 
     expect(capturedError.cause).toBe(objectError);
+  });
+});
+
+describe('rewrite', () => {
+  describe('response', () => {
+    test('returns the target route handler result', async () => {
+      const app = new Application();
+
+      app.get('/gateway', (ctx) => ctx.rewrite!('/target'));
+      app.get('/target', () => text('from-target'));
+
+      const res = await app.dispatch('http://localhost/gateway');
+      expect(res.status).toBe(200);
+      expect(await res.text()).toBe('from-target');
+    });
+
+    test('allows the caller to adjust the rewritten response', async () => {
+      const app = new Application();
+
+      app.use('*', async (ctx, next) => {
+        const url = new URL(ctx.request.url);
+        if (!url.pathname.startsWith('/v1/')) {
+          return next();
+        }
+        const res = await ctx.rewrite!(
+          new URL(url.pathname.replace(/^\/v1/, '/internal'), url)
+        );
+        res.headers.set('x-routed-by', 'v1-gateway');
+        return res;
+      });
+
+      app.get('/internal/:id', () => text('ok'));
+
+      const res = await app.dispatch('http://localhost/v1/products');
+      expect(res.headers.get('x-routed-by')).toBe('v1-gateway');
+    });
+  });
+
+  describe('external request URL', () => {
+    test('keeps ctx.request.url on the original client URL', async () => {
+      const app = new Application();
+
+      app.get('/gateway', (ctx) => ctx.rewrite!('/target'));
+      app.get('/target', (ctx) => text(new URL(ctx.request.url).pathname));
+
+      const res = await app.dispatch('http://localhost/gateway?foo=1');
+      expect(await res.text()).toBe('/gateway');
+    });
+  });
+
+  describe('query string', () => {
+    test('preserves search when destination omits query', async () => {
+      const app = new Application();
+
+      app.get('/gateway', (ctx) => ctx.rewrite!('/target'));
+      app.get('/target', (ctx) => text(new URL(ctx.request.url).search));
+
+      const res = await app.dispatch('http://localhost/gateway?foo=1');
+      expect(await res.text()).toBe('?foo=1');
+    });
+  });
+
+  describe('params and pathname', () => {
+    test('binds params from the rewritten route pattern', async () => {
+      const app = new Application();
+
+      app.use('*', async (ctx, next) => {
+        const url = new URL(ctx.request.url);
+        if (!url.pathname.startsWith('/v1/')) {
+          return next();
+        }
+        return ctx.rewrite!(
+          new URL(url.pathname.replace(/^\/v1/, '/internal'), url)
+        );
+      });
+
+      app.get('/internal/:id', (ctx) => text(`id:${ctx.params.id}`));
+
+      const res = await app.dispatch('http://localhost/v1/products');
+      expect(await res.text()).toBe('id:products');
+    });
+
+    test('replaces params when external and internal patterns differ', async () => {
+      const app = new Application();
+      let paramsBeforeRewrite: Record<string, string> = {};
+
+      app.get('/edge/:version/:id', (ctx) => {
+        paramsBeforeRewrite = { ...ctx.params };
+        return ctx.rewrite!(`/core/${ctx.params.id}`);
+      });
+
+      app.get('/core/:itemId', (ctx) =>
+        text(
+          JSON.stringify({
+            itemId: ctx.params.itemId,
+            version: (ctx.params as Record<string, string>).version,
+            pathname: ctx.pathname,
+            urlPath: new URL(ctx.request.url).pathname,
+          })
+        )
+      );
+
+      const res = await app.dispatch('http://localhost/edge/v2/item-9');
+      const body = JSON.parse(await res.text()) as {
+        itemId: string;
+        version?: string;
+        pathname: string;
+        urlPath: string;
+      };
+
+      expect(paramsBeforeRewrite).toEqual({ version: 'v2', id: 'item-9' });
+      expect(body.itemId).toBe('item-9');
+      expect(body.version).toBeUndefined();
+      expect(body.pathname).toBe('/core/:itemId');
+      expect(body.urlPath).toBe('/edge/v2/item-9');
+    });
+  });
+
+  describe('middleware stack', () => {
+    test('does not re-run global (*) middleware already executed', async () => {
+      const app = new Application();
+      let globalRuns = 0;
+
+      app.use('*', async (ctx, next) => {
+        globalRuns += 1;
+        if (ctx.request.url.includes('/v1/')) {
+          return ctx.rewrite!('/internal');
+        }
+        return next();
+      });
+
+      app.get('/internal', () => text('ok'));
+
+      await app.dispatch('http://localhost/v1/x');
+      expect(globalRuns).toBe(1);
+    });
+
+    test('still runs route-scoped middleware registered for the target path', async () => {
+      const app = new Application();
+      let scopedRuns = 0;
+
+      app.use('*', async (ctx, next) => {
+        if (ctx.request.url.includes('/gateway')) {
+          return ctx.rewrite!('/target');
+        }
+        return next();
+      });
+
+      app.use('/target', async (_ctx, next) => {
+        scopedRuns += 1;
+        return next();
+      });
+
+      app.get('/target', () => text('ok'));
+
+      await app.dispatch('http://localhost/gateway');
+      expect(scopedRuns).toBe(1);
+    });
+  });
+
+  describe('routing', () => {
+    test('returns 404 when the rewritten path has no handler', async () => {
+      const app = new Application();
+      app.get('/gateway', (ctx) => ctx.rewrite!('/missing'));
+
+      const res = await app.dispatch('http://localhost/gateway');
+      expect(res.status).toBe(404);
+    });
+  });
+
+  describe('handler contract', () => {
+    test('rejects rewrite() after next() completes in the same handler', async () => {
+      const app = new Application();
+      app.get('/bad', async (ctx, next) => {
+        await next();
+        return await ctx.rewrite!('/other');
+      });
+      app.get('/other', () => text('other'));
+
+      const res = await app.dispatch('http://localhost/bad');
+      expect(res.status).toBe(500);
+    });
+
+    test('resets next/rewrite guards for handlers in a nested rewrite target', async () => {
+      const app = new Application();
+
+      app.get('/outer', (ctx) => ctx.rewrite!('/middle'));
+      app.get('/middle', (ctx) => ctx.rewrite!('/inner'));
+      app.get('/inner', (_ctx, next) => next());
+      app.get('/inner', () => text('inner'));
+
+      const res = await app.dispatch('http://localhost/outer');
+      expect(res.status).toBe(200);
+      expect(await res.text()).toBe('inner');
+    });
+  });
+
+  describe('safety limits', () => {
+    test('detects rewrite loops', async () => {
+      const app = new Application({ maxRewriteDepth: 5 });
+      app.get('/a', (ctx) => ctx.rewrite!('/b'));
+      app.get('/b', (ctx) => ctx.rewrite!('/a'));
+
+      const res = await app.dispatch('http://localhost/a');
+      expect(res.status).toBe(508);
+    });
+
+    test('enforces maxRewriteDepth', async () => {
+      const app = new Application({ maxRewriteDepth: 1 });
+      app.get('/a', (ctx) => ctx.rewrite!('/b'));
+      app.get('/b', (ctx) => ctx.rewrite!('/c'));
+      app.get('/c', () => text('c'));
+
+      const res = await app.dispatch('http://localhost/a');
+      expect(res.status).toBe(508);
+    });
   });
 });

@@ -2,9 +2,9 @@
  * @fileoverview Application domain object - HTTP request/response lifecycle management
  */
 import { callContext } from '@web-widget/context/server';
-import { compose } from '@web-widget/helpers';
 import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { createHttpError } from '@web-widget/helpers/error';
+import { runMatchedStack } from './stack';
 import { Context } from './context';
 import type { Router } from './router';
 import {
@@ -23,7 +23,23 @@ import type {
   MiddlewareHandler,
   NotFoundHandler,
 } from './types';
-import { getPath, getPathNoStrict } from './url';
+import {
+  DEFAULT_MAX_REWRITE_DEPTH,
+  assertRewriteAllowed,
+  filterHandlersForRewrite,
+  getRewriteState,
+  popRewriteDestination,
+  pushRewriteDestination,
+  resolveRewriteDestination,
+  rewritePathKey,
+  type RewriteState,
+} from './rewrite';
+import {
+  getPathForRequest,
+  getPathForUrl,
+  getPathNoStrictForRequest,
+  getPathNoStrictForUrl,
+} from './url';
 
 type Methods = (typeof METHODS)[number];
 
@@ -52,11 +68,33 @@ const notFoundHandler = () => {
   });
 };
 
+function assertHandlerResponse(res: void | Response | undefined): Response {
+  if (!res) {
+    throw new Error(
+      'Response is not finalized. You may forget returning Response object or `return next()`.'
+    );
+  }
+  if (!(res instanceof Response)) {
+    throw new TypeError('Response must be an instance of Response.');
+  }
+  return res;
+}
+
 const errorHandler = (error: unknown) => {
   console.error(error);
-  const message = 'Internal Server Error';
+  const status =
+    error &&
+    typeof error === 'object' &&
+    typeof (error as HTTPException).status === 'number' &&
+    (error as HTTPException).status! >= 400
+      ? (error as HTTPException).status!
+      : 500;
+  const message =
+    status < 500 && error instanceof Error
+      ? error.message
+      : 'Internal Server Error';
   return new Response(message, {
-    status: 500,
+    status,
   });
 };
 
@@ -81,6 +119,11 @@ export interface ApplicationOptions<E extends Env> {
    * X-Forwarded-Host and X-Forwarded-Proto. Otherwise, the client may provide any value.
    */
   proxy?: boolean;
+  /**
+   * Maximum nested `rewrite()` depth per request (cycle guard).
+   * @default 10
+   */
+  maxRewriteDepth?: number;
 }
 
 class Application<
@@ -93,6 +136,8 @@ class Application<
   */
   router!: Router<MiddlewareHandler>;
   readonly getPath: GetPath<E>;
+  readonly #strict: boolean;
+  readonly #usesCustomGetPath: boolean;
 
   constructor(options: ApplicationOptions<E> = {}) {
     super();
@@ -119,8 +164,11 @@ class Application<
     const routerType = options.routerType ?? getDefaultRouterType();
     delete options.strict;
     delete options.routerType;
-    // Object.assign(this, options);
-    this.getPath = strict ? (options.getPath ?? getPath) : getPathNoStrict;
+    this.#strict = strict;
+    this.#usesCustomGetPath = !!options.getPath;
+    this.getPath = strict
+      ? (options.getPath ?? getPathForRequest)
+      : getPathNoStrictForRequest;
 
     // Choose router based on configuration
     if (options.router) {
@@ -133,9 +181,12 @@ class Application<
     }
 
     this.#proxy = !!options.proxy;
+    this.#maxRewriteDepth =
+      options.maxRewriteDepth ?? DEFAULT_MAX_REWRITE_DEPTH;
   }
 
   #proxy: boolean = false;
+  #maxRewriteDepth: number = DEFAULT_MAX_REWRITE_DEPTH;
   #notFoundHandler: NotFoundHandler = notFoundHandler;
   #errorHandler: ErrorHandler = errorHandler;
 
@@ -169,6 +220,36 @@ class Application<
     return this.router.match(method, path);
   }
 
+  #pathForUrl(url: URL, env?: E['Bindings']): string {
+    if (this.#usesCustomGetPath) {
+      return this.getPath(new Request(url.href), { env });
+    }
+    return this.#strict ? getPathForUrl(url) : getPathNoStrictForUrl(url);
+  }
+
+  async #runMatchedStack(
+    context: Context,
+    method: string,
+    path: string,
+    rewriteState: RewriteState,
+    options: {
+      recordInitialHandlers: boolean;
+      filterGlobalHandlers?: boolean;
+    }
+  ): Promise<Response> {
+    let matched = this.#matchRoute(method, path);
+    if (options.filterGlobalHandlers) {
+      matched = filterHandlersForRewrite(matched, rewriteState);
+    }
+
+    const run = runMatchedStack(matched, {
+      rewriteState,
+      recordInitialHandlers: options.recordInitialHandlers,
+    });
+
+    return assertHandlerResponse(await run(context, this.#notFoundHandler));
+  }
+
   handler(
     request: Request,
     env: E['Bindings'] | undefined = Object.create(null),
@@ -189,34 +270,25 @@ class Application<
     }
 
     const path = this.getPath(request, { env });
-    const handlers = this.#matchRoute(method, path);
 
     const context = new Context(request, {
       env,
       executionContext,
     });
 
-    const composed = compose<(typeof handlers)[0], Context>(
-      handlers,
-      (handler) => {
-        context.params = handler[1];
-        context.pathname = handler[2];
-        return handler[0];
-      }
-    );
+    const rewriteState = getRewriteState(context);
+    context.rewrite = (destination) =>
+      this.#rewrite(context, destination, method, env, rewriteState);
 
     return (async () => {
       try {
-        const res = await composed(context, this.#notFoundHandler);
-        if (!res) {
-          throw new Error(
-            'Response is not finalized. You may forget returning Response object or `return next()`.'
-          );
-        }
-
-        if (!(res instanceof Response)) {
-          throw new TypeError('Response must be an instance of Response.');
-        }
+        const res = await this.#runMatchedStack(
+          context,
+          method,
+          path,
+          rewriteState,
+          { recordInitialHandlers: true }
+        );
 
         if (
           res.status >= 400 &&
@@ -291,6 +363,46 @@ class Application<
   ) => {
     return this.dispatch(input, requestInit, env, executionContext);
   };
+
+  async #rewrite(
+    context: Context,
+    destination: string | URL,
+    method: string,
+    env: E['Bindings'] | undefined,
+    state: RewriteState
+  ): Promise<Response> {
+    assertRewriteAllowed(state);
+    state._rewriteCalled = true;
+
+    if (state._depth >= this.#maxRewriteDepth) {
+      throw createHttpError(508, 'Maximum rewrite depth exceeded');
+    }
+
+    const resolved = resolveRewriteDestination(destination, context.request);
+    const pathKey = rewritePathKey(resolved);
+
+    pushRewriteDestination(state, pathKey);
+
+    const internalPath = this.#pathForUrl(resolved, env);
+
+    state._depth += 1;
+    const previousRewriteCalled = state._rewriteCalled;
+    const previousNextCompleted = state._nextCompleted;
+    state._rewriteCalled = false;
+    state._nextCompleted = false;
+
+    try {
+      return await this.#runMatchedStack(context, method, internalPath, state, {
+        recordInitialHandlers: false,
+        filterGlobalHandlers: true,
+      });
+    } finally {
+      popRewriteDestination(state);
+      state._depth -= 1;
+      state._rewriteCalled = previousRewriteCalled;
+      state._nextCompleted = previousNextCompleted;
+    }
+  }
 
   async #normalizeHTTPException(error: unknown): Promise<HTTPException> {
     // If it's an Error object, preserve original stack trace

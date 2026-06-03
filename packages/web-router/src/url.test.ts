@@ -1,58 +1,86 @@
-import { getPath, getPathNoStrict, getQueryStrings } from './url';
+import {
+  getPathForRequest,
+  getPathForUrl,
+  getPathNoStrictForRequest,
+  getPathNoStrictForUrl,
+  getQueryStringForHref,
+} from './url';
 
 describe('url', () => {
-  describe('getPath', () => {
-    test('getPath - no trailing slash', () => {
-      let path = getPath(new Request('https://example.com/'));
+  describe('getPathForRequest', () => {
+    test('no trailing slash', () => {
+      let path = getPathForRequest(new Request('https://example.com/'));
       expect(path).toBe('/');
-      path = getPath(new Request('https://example.com/hello'));
+      path = getPathForRequest(new Request('https://example.com/hello'));
       expect(path).toBe('/hello');
-      path = getPath(new Request('https://example.com/hello/hey'));
+      path = getPathForRequest(new Request('https://example.com/hello/hey'));
       expect(path).toBe('/hello/hey');
-      path = getPath(new Request('https://example.com/hello?name=foo'));
+      path = getPathForRequest(
+        new Request('https://example.com/hello?name=foo')
+      );
       expect(path).toBe('/hello');
-      path = getPath(
+      path = getPathForRequest(
         new Request('https://example.com/hello/hey?name=foo&name=bar')
       );
       expect(path).toBe('/hello/hey');
     });
 
-    test('getPath - with trailing slash', () => {
-      let path = getPath(new Request('https://example.com/hello/'));
+    test('with trailing slash', () => {
+      let path = getPathForRequest(new Request('https://example.com/hello/'));
       expect(path).toBe('/hello/');
-      path = getPath(new Request('https://example.com/hello/hey/'));
+      path = getPathForRequest(new Request('https://example.com/hello/hey/'));
       expect(path).toBe('/hello/hey/');
     });
   });
 
-  describe('getQueryStrings', () => {
-    test('getQueryStrings', () => {
-      let qs = getQueryStrings(
+  describe('getQueryStringForHref', () => {
+    test('extracts search from href', () => {
+      let qs = getQueryStringForHref(
         'https://example.com/hello?name=foo&name=bar&age=20'
       );
       expect(qs).toBe('?name=foo&name=bar&age=20');
-      qs = getQueryStrings('https://example.com/hello?');
+      qs = getQueryStringForHref('https://example.com/hello?');
       expect(qs).toBe('?');
-      qs = getQueryStrings('https://example.com/hello');
+      qs = getQueryStringForHref('https://example.com/hello');
       expect(qs).toBe('');
-      // Allows to contain hash
-      qs = getQueryStrings(
+      qs = getQueryStringForHref(
         'https://example.com/hello?name=foo&name=bar&age=20#hash'
       );
       expect(qs).toBe('?name=foo&name=bar&age=20#hash');
     });
   });
 
-  describe('getPathNoStrict', () => {
-    test('getPathNoStrict - no strict is false', () => {
-      let path = getPathNoStrict(new Request('https://example.com/hello/'));
+  describe('getPathForUrl', () => {
+    test('matches getPathForRequest for the same URL', () => {
+      const url = new URL('https://example.com/hello/hey?name=foo');
+      expect(getPathForUrl(url)).toBe(
+        getPathForRequest(new Request('https://example.com/hello/hey?name=foo'))
+      );
+    });
+
+    test('getPathNoStrictForUrl strips trailing slash', () => {
+      expect(getPathNoStrictForUrl(new URL('https://example.com/hello/'))).toBe(
+        '/hello'
+      );
+    });
+  });
+
+  describe('getPathNoStrictForRequest', () => {
+    test('strips trailing slash when strict is false', () => {
+      let path = getPathNoStrictForRequest(
+        new Request('https://example.com/hello/')
+      );
       expect(path).toBe('/hello');
-      path = getPathNoStrict(new Request('https://example.com/hello/hey/'));
+      path = getPathNoStrictForRequest(
+        new Request('https://example.com/hello/hey/')
+      );
       expect(path).toBe('/hello/hey');
     });
 
-    test('getPathNoStrict - return `/` even if strict is false', () => {
-      const path = getPathNoStrict(new Request('https://example.com/'));
+    test('returns `/` for root', () => {
+      const path = getPathNoStrictForRequest(
+        new Request('https://example.com/')
+      );
       expect(path).toBe('/');
     });
   });

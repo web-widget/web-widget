@@ -53,7 +53,7 @@ export function compose<
       }
 
       if (handler) {
-        return (handler as Function)(context, () => {
+        return await (handler as Function)(context, () => {
           return dispatch(i + 1);
         });
       } else {
