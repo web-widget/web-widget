@@ -549,10 +549,8 @@ export function entryPlugin(options: WebRouterUserConfig = {}): Plugin[] {
     webRouterPreviewServerPlugin(),
     importActionPlugin(),
 
-    // NOTE: Although the routing module does not run on the client,
-    // it needs to be built on the client to get the css file.
-    // However, the routing module may introduce server-specific modules,
-    // so the server-specific exports need to be deleted.
+    // NOTE: Route modules are built on the client for CSS and widgets; server-only
+    // exports (handler, config) are replaced with void stubs and trimmed re-exports.
     removeExportsPlugin({
       target: ['handler', 'config'] as (
         | keyof RouteModule
