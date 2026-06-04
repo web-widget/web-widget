@@ -1,5 +1,18 @@
 # @web-widget/web-router
 
+## 2.1.1
+
+### Patch Changes
+
+- 104d872: Fix rewrite route context realignment so route-derived fields are reset before matching the rewritten target path.
+
+  Add regression tests to cover target route context/meta/config alignment, non-render target cleanup, and chained rewrites.
+  - @web-widget/action@2.1.1
+  - @web-widget/context@2.1.1
+  - @web-widget/helpers@2.1.1
+  - @web-widget/html@2.1.1
+  - @web-widget/lifecycle-cache@2.1.1
+
 ## 2.1.0
 
 ### Minor Changes

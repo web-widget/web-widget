@@ -1,5 +1,13 @@
 # @benchmarks/web-router
 
+## 1.0.13
+
+### Patch Changes
+
+- Updated dependencies [104d872]
+  - @web-widget/web-router@2.1.1
+  - @web-widget/node@2.1.1
+
 ## 1.0.12
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @web-widget/vite-plugin
 
+## 2.1.1
+
+### Patch Changes
+
+- 9676345: On client builds, `remove-exports` replaces `handler` and `config` with `export const name = void 0` stubs and keeps other specifiers on the same `export` statement (for example `default` on `export { … } from`).
+- Updated dependencies [104d872]
+  - @web-widget/web-router@2.1.1
+  - @web-widget/helpers@2.1.1
+  - @web-widget/inspector@2.1.1
+  - @web-widget/node@2.1.1
+
 ## 2.1.0
 
 ### Patch Changes
