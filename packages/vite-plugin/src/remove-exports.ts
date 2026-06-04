@@ -12,9 +12,58 @@ export interface RemoveExportsPluginOptions {
 
 type ParseFn = (code: string) => unknown;
 
+type ExportSpecifier = {
+  exported: { name: string };
+  start?: number;
+  end?: number;
+};
+
+function nodeRange(node: unknown): { start: number; end: number } | null {
+  const range = Reflect.get(node as object, 'range') as
+    | [number, number]
+    | undefined;
+  if (range) {
+    return { start: range[0], end: range[1] };
+  }
+  const start = Reflect.get(node as object, 'start');
+  const end = Reflect.get(node as object, 'end');
+  if (typeof start === 'number' && typeof end === 'number') {
+    return { start, end };
+  }
+  return null;
+}
+
+function sliceNode(source: string, node: unknown): string {
+  const range = nodeRange(node);
+  if (!range) {
+    throw new Error('AST node is missing source positions.');
+  }
+  return source.slice(range.start, range.end);
+}
+
+function stubExport(name: string): string {
+  return `export const ${name} = void 0;\n`;
+}
+
+function stubExports(names: string[]): string {
+  return names.map(stubExport).join('');
+}
+
+function partitionSpecifiers<T extends { exported: { name: string } }>(
+  specifiers: T[],
+  isTarget: (name: string) => boolean
+) {
+  const kept: T[] = [];
+  const removed: T[] = [];
+  for (const specifier of specifiers) {
+    (isTarget(specifier.exported.name) ? removed : kept).push(specifier);
+  }
+  return { kept, removed };
+}
+
 /**
- * Removes `target` export names from module code. For `export { a, b } from '…'`,
- * only matching specifiers are dropped so client builds keep re-exports like `default`.
+ * Client-build transform for route/layout modules: `target` exports become
+ * `export const name = void 0`, other specifiers on the same statement stay.
  */
 export function removeTargetExports(
   code: string,
@@ -22,30 +71,26 @@ export function removeTargetExports(
   parse: ParseFn,
   sourcemap = false
 ): { code: string; map: ReturnType<MagicString['generateMap']> | null } | null {
-  if (!code.includes('export') || target.length === 0) {
+  if (target.length === 0 || !code.includes('export')) {
     return null;
   }
+
+  const isTarget = (name: string) => target.includes(name);
 
   const ast = parse(code);
   const magicString = new MagicString(code);
   let removed = false;
+  const appendedStubs = new Set<string>();
 
   walk(ast as any, {
     enter(node): void {
-      let start: number;
-      let end: number;
-
-      if (node.range) {
-        [start, end] = node.range;
-      } else {
-        start = Reflect.get(node, 'start');
-        end = Reflect.get(node, 'end');
-      }
-
-      if (typeof start !== 'number' || typeof end !== 'number') {
+      const range = nodeRange(node);
+      if (!range) {
         this.skip();
         return;
       }
+
+      const { start, end } = range;
 
       if (sourcemap) {
         magicString.addSourcemapLocation(start);
@@ -56,63 +101,78 @@ export function removeTargetExports(
         case 'ExportNamedDeclaration':
           if (node.declaration) {
             if (node.declaration.type === 'VariableDeclaration') {
-              node.declaration.declarations.forEach((declaration) => {
+              const names: string[] = [];
+              for (const declaration of node.declaration.declarations) {
+                const id = declaration.id as { type?: string; name?: string };
                 if (
-                  declaration.id &&
-                  declaration.id.type === 'Identifier' &&
-                  target.includes(declaration.id.name)
+                  id?.type === 'Identifier' &&
+                  typeof id.name === 'string' &&
+                  isTarget(id.name)
                 ) {
-                  magicString.remove(start, end);
-                  removed = true;
-                  this.skip();
+                  names.push(id.name);
                 }
-              });
+              }
+
+              if (names.length > 0) {
+                magicString.overwrite(start, end, stubExports(names));
+                removed = true;
+                this.skip();
+              }
             } else if (
               node.declaration.id &&
-              target.includes(node.declaration.id.name)
+              isTarget(node.declaration.id.name)
             ) {
-              magicString.remove(start, end);
+              magicString.overwrite(
+                start,
+                end,
+                stubExport(node.declaration.id.name)
+              );
               removed = true;
               this.skip();
             }
           } else if (node.specifiers?.length) {
-            const remaining = node.specifiers.filter(
-              (specifier: { exported: { name: string } }) =>
-                !target.includes(specifier.exported.name)
+            const { kept, removed: removedSpecifiers } = partitionSpecifiers(
+              node.specifiers as ExportSpecifier[],
+              isTarget
             );
 
-            if (remaining.length === node.specifiers.length) {
+            if (removedSpecifiers.length === 0) {
               break;
             }
 
-            if (remaining.length === 0) {
-              magicString.remove(start, end);
+            const isReexportFrom = !!node.source;
+
+            if (kept.length === 0) {
+              if (isReexportFrom) {
+                magicString.overwrite(
+                  start,
+                  end,
+                  stubExports(
+                    removedSpecifiers.map(
+                      (specifier) => specifier.exported.name
+                    )
+                  )
+                );
+              } else {
+                magicString.remove(start, end);
+              }
             } else {
-              const specifierRange = (specifier: unknown) => {
-                const specStart = Reflect.get(specifier as object, 'start');
-                const specEnd = Reflect.get(specifier as object, 'end');
-                if (
-                  typeof specStart !== 'number' ||
-                  typeof specEnd !== 'number'
-                ) {
-                  throw new Error(
-                    'Export specifier is missing source positions.'
-                  );
-                }
-                return { start: specStart, end: specEnd };
-              };
-              const first = specifierRange(node.specifiers[0]);
-              const last = specifierRange(
-                node.specifiers[node.specifiers.length - 1]
-              );
-              const newList = remaining
-                .map((specifier) => {
-                  const { start: specStart, end: specEnd } =
-                    specifierRange(specifier);
-                  return code.slice(specStart, specEnd);
-                })
+              const list = kept
+                .map((specifier) => sliceNode(code, specifier))
                 .join(', ');
-              magicString.overwrite(first.start, last.end, newList);
+
+              if (isReexportFrom) {
+                magicString.overwrite(
+                  start,
+                  end,
+                  `export { ${list} } from ${sliceNode(code, node.source)};`
+                );
+                for (const specifier of removedSpecifiers) {
+                  appendedStubs.add(specifier.exported.name);
+                }
+              } else {
+                magicString.overwrite(start, end, `export { ${list} };`);
+              }
             }
 
             removed = true;
@@ -120,7 +180,7 @@ export function removeTargetExports(
           }
           break;
         case 'ExportDefaultDeclaration':
-          if (target.includes('default')) {
+          if (isTarget('default')) {
             magicString.remove(start, end);
             removed = true;
             this.skip();
@@ -129,6 +189,11 @@ export function removeTargetExports(
       }
     },
   });
+
+  if (appendedStubs.size > 0) {
+    magicString.append(stubExports([...appendedStubs]));
+    removed = true;
+  }
 
   if (!removed) {
     return null;
