@@ -173,6 +173,221 @@ describe('create route context', () => {
   });
 });
 
+describe('rewrite route-derived context', () => {
+  test('should realign activated route context to rewritten target route', async () => {
+    let contextSeenInTargetMiddleware: RouteContext | undefined;
+    const routeAConfig = { namespace: 'route-a' };
+    const routeBConfig = { namespace: 'route-b' };
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/a',
+          module: {
+            handler: {
+              GET: () => new Response('route-a'),
+            },
+            meta: { title: 'Route A' },
+            config: routeAConfig,
+            render: async () => '<div>route-a</div>',
+            default: () => null,
+          } as RouteModule,
+        },
+        {
+          pathname: '/b',
+          module: {
+            handler: {
+              GET: () => new Response('route-b'),
+            },
+            meta: { title: 'Route B' },
+            config: routeBConfig,
+            render: async () => '<div>route-b</div>',
+            default: () => null,
+          } as RouteModule,
+        },
+      ],
+      middlewares: [
+        {
+          pathname: '/a',
+          module: {
+            handler(context) {
+              return context.rewrite!('/b');
+            },
+          },
+        },
+        {
+          pathname: '*',
+          module: {
+            handler(context, next) {
+              contextSeenInTargetMiddleware = context as RouteContext;
+              return next();
+            },
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/a');
+
+    expect(response.status).toBe(200);
+    expect(contextSeenInTargetMiddleware).toBeDefined();
+    expect(contextSeenInTargetMiddleware!.pathname).toBe('/b');
+    expect(contextSeenInTargetMiddleware!.meta?.title).toBe('Route B');
+    expect((contextSeenInTargetMiddleware!.module as any)?.config).toEqual(
+      routeBConfig
+    );
+  });
+
+  test('should clear render-derived context when rewritten target has no render', async () => {
+    let contextSeenInTargetMiddleware: RouteContext | undefined;
+    const routeAConfig = { namespace: 'route-a' };
+    const routeBConfig = { namespace: 'route-b' };
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/a',
+          module: {
+            handler: {
+              GET: () => new Response('route-a'),
+            },
+            meta: { title: 'Route A' },
+            config: routeAConfig,
+            render: async () => '<div>route-a</div>',
+            default: () => null,
+          } as RouteModule,
+        },
+        {
+          pathname: '/b',
+          module: {
+            handler: {
+              GET: () => new Response('route-b'),
+            },
+            config: routeBConfig,
+          } as RouteModule,
+        },
+      ],
+      middlewares: [
+        {
+          pathname: '/a',
+          module: {
+            handler(context) {
+              return context.rewrite!('/b');
+            },
+          },
+        },
+        {
+          pathname: '/b',
+          module: {
+            handler(context, next) {
+              contextSeenInTargetMiddleware = context as RouteContext;
+              return next();
+            },
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/a');
+
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe('route-b');
+    expect(contextSeenInTargetMiddleware).toBeDefined();
+    expect(contextSeenInTargetMiddleware!.pathname).toBe('/b');
+    expect(contextSeenInTargetMiddleware!.meta).toBeUndefined();
+    expect(contextSeenInTargetMiddleware!.render).toBeUndefined();
+    expect(contextSeenInTargetMiddleware!.html).toBeUndefined();
+    expect(contextSeenInTargetMiddleware!.renderOptions).toBeUndefined();
+    expect((contextSeenInTargetMiddleware!.module as any)?.config).toEqual(
+      routeBConfig
+    );
+  });
+
+  test('should keep route-derived context aligned after chained rewrites', async () => {
+    let contextSeenInFinalMiddleware: RouteContext | undefined;
+    const routeCConfig = { namespace: 'route-c' };
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/a',
+          module: {
+            handler: {
+              GET: () => new Response('route-a'),
+            },
+            meta: { title: 'Route A' },
+            config: { namespace: 'route-a' },
+            render: async () => '<div>route-a</div>',
+            default: () => null,
+          } as RouteModule,
+        },
+        {
+          pathname: '/b',
+          module: {
+            handler: {
+              GET: () => new Response('route-b'),
+            },
+            meta: { title: 'Route B' },
+            config: { namespace: 'route-b' },
+            render: async () => '<div>route-b</div>',
+            default: () => null,
+          } as RouteModule,
+        },
+        {
+          pathname: '/c',
+          module: {
+            handler: {
+              GET: () => new Response('route-c'),
+            },
+            meta: { title: 'Route C' },
+            config: routeCConfig,
+            render: async () => '<div>route-c</div>',
+            default: () => null,
+          } as RouteModule,
+        },
+      ],
+      middlewares: [
+        {
+          pathname: '/a',
+          module: {
+            handler(context) {
+              return context.rewrite!('/b');
+            },
+          },
+        },
+        {
+          pathname: '/b',
+          module: {
+            handler(context) {
+              return context.rewrite!('/c');
+            },
+          },
+        },
+        {
+          pathname: '/c',
+          module: {
+            handler(context, next) {
+              contextSeenInFinalMiddleware = context as RouteContext;
+              return next();
+            },
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/a');
+
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe('route-c');
+    expect(contextSeenInFinalMiddleware).toBeDefined();
+    expect(contextSeenInFinalMiddleware!.pathname).toBe('/c');
+    expect(contextSeenInFinalMiddleware!.meta?.title).toBe('Route C');
+    expect((contextSeenInFinalMiddleware!.module as any)?.config).toEqual(
+      routeCConfig
+    );
+  });
+});
+
 describe('error handling', () => {
   const createTestRoute = async (
     routeModule: RouteModule
