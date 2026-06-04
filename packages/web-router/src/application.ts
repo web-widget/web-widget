@@ -385,6 +385,10 @@ class Application<
 
     const internalPath = this.#pathForUrl(resolved, env);
 
+    // Rewrite switches the active route branch. Reset route-derived context
+    // so the target route can activate its own module/context consistently.
+    this.#resetRouteDerivedContext(context);
+
     state._depth += 1;
     const previousRewriteCalled = state._rewriteCalled;
     const previousNextCompleted = state._nextCompleted;
@@ -402,6 +406,29 @@ class Application<
       state._rewriteCalled = previousRewriteCalled;
       state._nextCompleted = previousNextCompleted;
     }
+  }
+
+  #resetRouteDerivedContext(context: Context): void {
+    const routeContext = context as Context & {
+      module?: unknown;
+      meta?: unknown;
+      render?: unknown;
+      html?: unknown;
+      renderOptions?: unknown;
+      renderer?: unknown;
+      data?: unknown;
+      error?: unknown;
+      _handler?: unknown;
+    };
+    routeContext.module = undefined;
+    routeContext.meta = undefined;
+    routeContext.render = undefined;
+    routeContext.html = undefined;
+    routeContext.renderOptions = undefined;
+    routeContext.renderer = undefined;
+    routeContext.data = undefined;
+    routeContext.error = undefined;
+    routeContext._handler = undefined;
   }
 
   async #normalizeHTTPException(error: unknown): Promise<HTTPException> {
