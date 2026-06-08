@@ -77,6 +77,12 @@ export interface CacheOptions {
    * Signal an abort during cache revalidate.
    */
   signal?: AbortSignal | (() => AbortSignal);
+
+  /**
+   * Expose the computed cache key via the `x-cache-key` response header.
+   * @default false
+   */
+  debugCacheKey?: boolean;
 }
 
 export default function cache(options?: CacheOptions) {
@@ -106,6 +112,7 @@ export default function cache(options?: CacheOptions) {
       cacheKeyRules,
       cacheName,
       caches,
+      debugCacheKey,
       ignoreRequestCacheControl,
       ignoreVary,
       signal: signalOption,
@@ -143,6 +150,7 @@ export default function cache(options?: CacheOptions) {
       sharedCache: {
         cacheControlOverride: cacheControl,
         cacheKeyRules,
+        debugCacheKey,
         ignoreRequestCacheControl,
         ignoreVary,
         varyOverride: vary,
