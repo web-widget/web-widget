@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 2.2.0
+
+### Minor Changes
+
+- c24d4bd: Upgrade `@web-widget/shared-cache` to 1.8.0 and add `debugCacheKey` cache middleware option to expose the effective cache key via the `x-cache-key` response header.
+
+### Patch Changes
+
+- @web-widget/helpers@2.2.0
+- @web-widget/schema@2.2.0
+
 ## 2.1.1
 
 ### Patch Changes
