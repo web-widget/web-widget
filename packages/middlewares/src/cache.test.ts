@@ -180,6 +180,40 @@ describe('vary should be added', () => {
   });
 });
 
+describe('debug cache key header', () => {
+  test('should not expose cache key by default', async () => {
+    const app = createApp(createCaches());
+    const res = await app.dispatch(TEST_URL);
+
+    expect(res.headers.get('x-cache-key')).toBe(null);
+  });
+
+  test('should expose cache key when debugCacheKey is enabled', async () => {
+    const app = createApp(createCaches(), {
+      debugCacheKey: true,
+    });
+    const res = await app.dispatch(TEST_URL);
+
+    expect(res.headers.get('x-cache-key')).toBe('localhost/');
+  });
+
+  test('should apply vary to debug cache key', async () => {
+    const app = createApp(createCaches(), {
+      debugCacheKey: true,
+      vary: 'accept-language',
+    });
+    const res = await app.dispatch(TEST_URL, {
+      headers: {
+        'accept-language': 'en-US',
+      },
+    });
+
+    expect(res.headers.get('x-cache-key')).toMatch(
+      /^localhost\/:accept-language=[a-f0-9]+$/
+    );
+  });
+});
+
 test('disabling caching middleware should be allowed', async () => {
   const app = createApp(createCaches(), {}, [
     {
