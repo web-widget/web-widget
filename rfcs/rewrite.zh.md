@@ -11,7 +11,7 @@
 典型用法：
 
 ```ts
-context.rewrite(new URL('/internal', context.request.url));
+context.rewrite('/internal');
 return next();
 ```
 
@@ -62,10 +62,10 @@ interface FetchContext {
   request: Request;
 
   /**
-   * 客户端原始 Request（未来可能公开）。
+   * 客户端原始 Request。
    * 始终指向本次 HTTP 请求进入框架时的 Request，rewrite 不改变此引用。
    */
-  originalRequest?: Request;
+  originalRequest: Request;
 
   /**
    * 内部重写到 destination（相对路径相对于 context.request.url 解析）。
@@ -106,7 +106,7 @@ interface FetchContext {
 
 `rewrite()` 触发时：
 
-1. 将 `context.request` 设为 `new Request(resolvedDestination, context.request)`（同源校验与 query 合并见下文）
+1. 将 `context.request` 设为 `new Request(resolvedDestination, context.request)`（同源校验见下文）
 2. 失效当前 route 激活状态（`module`、`meta`、`render`、`html`、`_handler` 等）
 3. 按新的 `context.request` 重新匹配尚未执行的 handler，替换当前栈的剩余部分
 4. 不重跑本请求中已执行过的全局 middleware（`*`）
@@ -125,13 +125,14 @@ Rewrite 到 Route 时，应走与直接命中该 Route 相同的渲染与 layout
 
 ### Query
 
-遵循 `URL` 解析：`destination` 未带 search 时保留当前 `context.request` 的 query；显式写在 `destination` 中的 query 优先。
+不自动继承当前 `context.request` 的 query；对内 query 仅来自 `destination` 自身。对外 query 通过 `context.originalRequest.url` 读取。
 
 ### 错误与安全
 
 - 重写目标不存在或抛错：与直接访问该路径一致，走现有 404 / fallback
-- 仅允许同源或相对 `destination`
-- 须检测 rewrite 环：同一请求内不得 rewrite 到已访问过的 destination（pathname + search）；再次命中时拒绝（建议 508）
+- 仅允许同源或相对 `destination`；跨 origin 或非法 `destination` 时 `rewrite()` 同步抛出 `HTTPException`
+- 须检测 rewrite 环：同一请求内不得 rewrite 到已访问过的 destination（pathname + search）；再次命中时同步抛出 `HTTPException`（status 508）
+- `await next()` 完成后再调用 `rewrite()`：同步抛出 `Error`（与 Koa 一致）
 
 ### 缓存
 
@@ -183,7 +184,7 @@ Web Router 的 rewrite 对齐 Koa 的可变路由视图模型，并扩展 route 
 export const handler = defineMiddlewareHandler(async (ctx, next) => {
   const url = new URL(ctx.request.url);
   if (url.pathname.startsWith('/v1/')) {
-    ctx.rewrite(new URL(url.pathname.replace(/^\/v1/, '/internal'), url));
+    ctx.rewrite(url.pathname.replace(/^\/v1/, '/internal'));
     const res = await next();
     res.headers.set('x-routed-by', 'v1-gateway');
     return res;
@@ -203,7 +204,7 @@ export const handler = defineMiddlewareHandler(async (ctx, next) => {
 
 ```ts
 export const handler = defineMiddlewareHandler(async (ctx, next) => {
-  const externalPath = new URL(ctx.originalRequest!.url).pathname;
+  const externalPath = new URL(ctx.originalRequest.url).pathname;
   ctx.state.externalPath = externalPath;
   return next();
 });
