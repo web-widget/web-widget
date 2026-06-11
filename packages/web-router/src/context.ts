@@ -11,19 +11,17 @@ interface ContextOptions<E extends Env> {
 }
 
 /**
- * Context domain object
- *
- * HTTP dispatch context (`FetchContext`). Route module activation state
+ * HTTP dispatch context (`FetchContext`).
  * Route module activation (`module`, `render`, `html`, …) is owned by {@link Engine}.
  */
 export class Context<E extends Env = Env> implements FetchContext {
   #state = Object.create(null);
+  #request: Request;
   // /** @experimental */
   // env: E["Bindings"] = Object.create(null);
   params = Object.create(null);
   /** @deprecated */
   pathname: string = '*';
-  readonly request: Request;
   readonly originalRequest: Request;
   #waitUntil?: FetchContext['waitUntil'];
   #executionContext?: ExecutionContext;
@@ -32,9 +30,18 @@ export class Context<E extends Env = Env> implements FetchContext {
   rewrite!: FetchContext['rewrite'];
 
   constructor(request: Request, options?: ContextOptions<E>) {
-    this.request = request;
+    this.#request = request;
     this.originalRequest = options?.originalRequest ?? request;
     this.#executionContext = options?.executionContext;
+  }
+
+  get request(): Request {
+    return this.#request;
+  }
+
+  /** @internal Updated by Application on rewrite. */
+  updateRequest(request: Request): void {
+    this.#request = request;
   }
 
   get state() {

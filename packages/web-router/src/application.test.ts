@@ -2,7 +2,13 @@
 import { callContext, context } from '@web-widget/context/server';
 import { methodsToHandler } from '@web-widget/helpers/module';
 import { Application } from './application';
-import type { MiddlewareHandler } from './types';
+import { Engine } from './engine';
+import type {
+  LayoutModule,
+  Meta,
+  MiddlewareHandler,
+  ServerRenderOptions,
+} from './types';
 import { getPath } from './url';
 
 // https://stackoverflow.com/a/65666402
@@ -1419,8 +1425,6 @@ declare module './context' {
 // });
 
 describe('normalizeHTTPException', () => {
-  const app = new Application();
-
   // Test basic error handling
   test('should handle basic errors', async () => {
     const testApp = new Application();
@@ -2190,5 +2194,97 @@ describe('rewrite()', () => {
       method: 'GET',
     });
     expect(await res.text()).toBe('POST');
+  });
+
+  test('resets route lifecycle when rewrite changes method on same path', async () => {
+    let resetCount = 0;
+    const app = new Application({
+      onRouteContextReset: () => {
+        resetCount++;
+      },
+    });
+
+    app.use('*', async (c) => c.rewrite('/resource', { method: 'POST' }));
+    app.get('/resource', () => text('get'));
+    app.post('/resource', () => text('post'));
+
+    const res = await app.dispatch('http://localhost/resource', {
+      method: 'GET',
+    });
+    expect(resetCount).toBe(1);
+    expect(await res.text()).toBe('post');
+  });
+
+  test('fails when rewrite changes route view with active module but no lifecycle binding', async () => {
+    const engine = new Engine({
+      layoutModule: {
+        default: () => '<html/>',
+        render: async () => '<html/>',
+      } as LayoutModule,
+      defaultMeta: { title: 't' } as Meta,
+      defaultBaseAsset: '/',
+      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      onFallback: () => {},
+      dev: true,
+    });
+
+    const app = new Application();
+    app.use(
+      '/page',
+      engine.createRouteContextHandler({
+        render: () => 'Page',
+        handler: { GET: () => new Response('get') },
+      })
+    );
+    app.use('*', async (c) => c.rewrite('/other'));
+    app.get('/other', () => text('other'));
+
+    let capturedMessage = '';
+    app.onError((error) => {
+      capturedMessage = (error as Error).message;
+      return text('handled', { status: 500 });
+    });
+
+    await app.dispatch('http://localhost/page');
+    expect(capturedMessage).toMatch(/not invalidated on rewrite/i);
+  });
+
+  test('bindRouteLifecycle allows rewrite after route activation', async () => {
+    const engine = new Engine({
+      layoutModule: {
+        default: () => '<html/>',
+        render: async () => '<html/>',
+      } as LayoutModule,
+      defaultMeta: { title: 't' } as Meta,
+      defaultBaseAsset: '/',
+      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      onFallback: () => {},
+      dev: true,
+    });
+
+    const app = new Application();
+    app.bindRouteLifecycle(Engine.invalidateRouteContext);
+    app.use(
+      '/with-render',
+      engine.createRouteContextHandler({
+        render: () => 'Render Route',
+        handler: { GET: (c) => c.html!() },
+      })
+    );
+    app.use('/with-render', async (c) => c.rewrite('/plain'));
+    app.use(
+      '/plain',
+      engine.createRouteHandler({
+        handler: {
+          GET() {
+            return new Response('plain');
+          },
+        },
+      })
+    );
+
+    const res = await app.dispatch('http://localhost/with-render');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('plain');
   });
 });

@@ -114,10 +114,8 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       dev,
     });
 
-    const router = new WebRouter<E>({
-      ...options,
-      onRouteContextReset: (context) => engine.invalidateRouteContext(context),
-    });
+    const router = new WebRouter<E>(options);
+    router.bindRouteLifecycle(Engine.invalidateRouteContext);
 
     routes.forEach((item) => {
       router.use(item.pathname, engine.createRouteContextHandler(item.module));

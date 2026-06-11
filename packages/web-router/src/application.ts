@@ -27,6 +27,7 @@ import type {
 import { getPath, getPathNoStrict } from './url';
 
 type Methods = (typeof METHODS)[number];
+type DispatchMode = 'initial' | 'rewrite';
 
 const GLOBAL_ROUTE_PATTERN = '*';
 
@@ -80,6 +81,25 @@ function pathKeyFromUrl(url: string | URL): string {
   return parsed.pathname + parsed.search;
 }
 
+/** Engine mirrors activated route fields onto the context host object. */
+function contextHasMirroredRouteModule(context: Context): boolean {
+  return (context as Context & { module?: unknown }).module !== undefined;
+}
+
+function resetRouteActivationOnViewChange(
+  context: Context,
+  onRouteContextReset: ((context: Context) => void) | undefined
+): void {
+  if (onRouteContextReset) {
+    onRouteContextReset(context);
+    return;
+  }
+
+  if (contextHasMirroredRouteModule(context)) {
+    throw new Error('Route context was not invalidated on rewrite');
+  }
+}
+
 function toInternalRequest(request: Request): Request {
   if (request.method !== 'HEAD') {
     return request;
@@ -109,26 +129,12 @@ function finalizeHeadResponse(
 
 function filterExecutedGlobalHandlers(
   handlers: Result<MiddlewareHandler>,
-  executedGlobalHandlers: WeakSet<MiddlewareHandler>,
-  hasRecordedGlobals: boolean
+  executedGlobalHandlers: WeakSet<MiddlewareHandler>
 ): Result<MiddlewareHandler> {
-  if (!hasRecordedGlobals) {
-    return handlers;
-  }
-
-  const filtered: Result<MiddlewareHandler> = [];
-  for (let i = 0; i < handlers.length; i++) {
-    const entry = handlers[i];
-    const pattern = entry[2];
-    if (
-      pattern === GLOBAL_ROUTE_PATTERN &&
-      executedGlobalHandlers.has(entry[0])
-    ) {
-      continue;
-    }
-    filtered.push(entry);
-  }
-  return filtered;
+  return handlers.filter(
+    (entry) =>
+      entry[2] !== GLOBAL_ROUTE_PATTERN || !executedGlobalHandlers.has(entry[0])
+  );
 }
 
 type GetPath<E extends Env> = (
@@ -138,7 +144,6 @@ type GetPath<E extends Env> = (
 
 interface DispatchState<E extends Env = Env> {
   executedGlobalHandlers: WeakSet<MiddlewareHandler>;
-  hasRecordedGlobals: boolean;
   nextCompleted: boolean;
   visited: Set<string>;
   method: string;
@@ -150,7 +155,7 @@ export interface ApplicationOptions<E extends Env> {
   router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
   /**
-   * @internal Wired by {@link WebRouter.fromManifest} so rewrite can reset Engine route state.
+   * @internal Wired by {@link WebRouter.fromManifest} for Engine route activation reset.
    */
   onRouteContextReset?: (context: Context) => void;
   /**
@@ -244,6 +249,14 @@ class Application<
     return this;
   }
 
+  /**
+   * Binds route-module lifecycle hooks (e.g. Engine route activation reset on rewrite).
+   */
+  bindRouteLifecycle(onReset: (context: Context) => void): this {
+    this.#onRouteContextReset = onReset;
+    return this;
+  }
+
   #addRoute(method: string, path: string, handler: MiddlewareHandler) {
     method = method.toUpperCase();
     this.router.add(method, path, handler);
@@ -253,57 +266,34 @@ class Application<
     return this.router.match(method, path);
   }
 
-  #bindRequest(context: Context): (request: Request) => void {
-    let request = context.request;
-
-    Object.defineProperty(context, 'request', {
-      configurable: true,
-      enumerable: true,
-      get: () => request,
-    });
-
-    return (value: Request) => {
-      request = value;
-    };
-  }
-
   // NOTE: Node cannot resolve `new Request('/path', prev)`; pre-resolve relative URLs.
-  #resolveRewriteInput(
-    input: RequestInfo | URL,
-    baseUrl: string
-  ): RequestInfo | URL {
-    if (input instanceof Request) {
-      try {
-        new URL(input.url);
-        return input;
-      } catch {
-        return new URL(input.url, baseUrl);
-      }
-    }
-    if (input instanceof URL) {
-      return input;
-    }
-    return new URL(input, baseUrl);
-  }
-
-  #buildRewriteRequest(
+  #createRewriteRequest(
     context: Context,
     input: RequestInfo | URL,
     init?: RequestInit
   ): Request {
     const prev = context.request;
-    const resolved = this.#resolveRewriteInput(input, prev.url);
 
-    if (resolved instanceof Request) {
-      return init ? new Request(resolved, init) : resolved;
+    if (input instanceof Request) {
+      let resolved: Request | URL = input;
+      try {
+        new URL(input.url);
+      } catch {
+        resolved = new URL(input.url, prev.url);
+      }
+      if (resolved instanceof Request) {
+        return init ? new Request(resolved, init) : resolved;
+      }
+      return new Request(resolved, init ?? prev);
     }
+
+    const resolved = input instanceof URL ? input : new URL(input, prev.url);
     return new Request(resolved, init ?? prev);
   }
 
   #rewrite(
     context: Context,
     state: DispatchState,
-    updateRequest: (request: Request) => void,
     input: RequestInfo | URL,
     init?: RequestInit
   ): Promise<Response> {
@@ -314,8 +304,7 @@ class Application<
     }
 
     const prev = context.request;
-    const nextRequest = this.#buildRewriteRequest(context, input, init);
-
+    const nextRequest = this.#createRewriteRequest(context, input, init);
     const nextUrl = new URL(nextRequest.url);
     const currentUrl = new URL(prev.url);
 
@@ -328,40 +317,38 @@ class Application<
 
     const nextPathKey = pathKeyFromUrl(nextUrl);
     const currentPathKey = pathKeyFromUrl(currentUrl);
+    const routeViewChanged =
+      nextPathKey !== currentPathKey || nextRequest.method !== prev.method;
 
     if (nextPathKey !== currentPathKey) {
       if (state.visited.has(nextPathKey)) {
         throw createHttpError(508, 'Rewrite loop detected');
       }
-      this.#onRouteContextReset?.(context);
       state.visited.add(nextPathKey);
     }
 
-    updateRequest(nextRequest);
-    state.method = context.request.method;
+    if (routeViewChanged) {
+      resetRouteActivationOnViewChange(context, this.#onRouteContextReset);
+    }
+
+    context.updateRequest(nextRequest);
+    state.method = nextRequest.method;
 
     const path = this.getPath(context.request, { env: state.env });
-    return this.#dispatchMatched(context, path, state, {
-      recordGlobalHandlers: false,
-      filterGlobalHandlers: true,
-    });
+    return this.#dispatchMatched(context, path, state, 'rewrite');
   }
 
   #dispatchMatched(
     context: Context,
     path: string,
     state: DispatchState,
-    options: {
-      recordGlobalHandlers: boolean;
-      filterGlobalHandlers?: boolean;
-    }
+    mode: DispatchMode = 'initial'
   ): Promise<Response> {
     let matched = this.#matchRoute(state.method, path);
-    if (options.filterGlobalHandlers) {
+    if (mode === 'rewrite') {
       matched = filterExecutedGlobalHandlers(
         matched,
-        state.executedGlobalHandlers,
-        state.hasRecordedGlobals
+        state.executedGlobalHandlers
       );
     }
 
@@ -370,9 +357,8 @@ class Application<
       (entry) => {
         context.params = entry[1];
         context.pathname = entry[2];
-        if (options.recordGlobalHandlers && entry[2] === GLOBAL_ROUTE_PATTERN) {
+        if (mode === 'initial' && entry[2] === GLOBAL_ROUTE_PATTERN) {
           state.executedGlobalHandlers.add(entry[0]);
-          state.hasRecordedGlobals = true;
         }
         return entry[0];
       },
@@ -417,22 +403,18 @@ class Application<
 
     const state: DispatchState = {
       executedGlobalHandlers: new WeakSet(),
-      hasRecordedGlobals: false,
       nextCompleted: false,
       visited: new Set([pathKeyFromUrl(internalRequest.url)]),
       method: internalRequest.method,
       env,
     };
 
-    const updateRequest = this.#bindRequest(context);
     context.rewrite = (input, init) =>
-      this.#rewrite(context, state, updateRequest, input, init);
+      this.#rewrite(context, state, input, init);
 
     return (async () => {
       try {
-        const res = await this.#dispatchMatched(context, path, state, {
-          recordGlobalHandlers: true,
-        });
+        const res = await this.#dispatchMatched(context, path, state);
 
         if (
           res.status >= 400 &&

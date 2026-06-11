@@ -1500,7 +1500,7 @@ describe('Engine', () => {
       expect(host.module).toBe(module);
       expect(host.meta).toBeDefined();
 
-      engine.invalidateRouteContext(host as RouteContext);
+      Engine.invalidateRouteContext(host as RouteContext);
 
       expect(host.module).toBeUndefined();
       expect(host.meta).toBeUndefined();

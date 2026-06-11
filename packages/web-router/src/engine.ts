@@ -93,6 +93,13 @@ export class Engine {
     this.#dev = options.dev;
   }
 
+  /**
+   * @internal Resets route activation when Application rewrites the internal request.
+   */
+  static invalidateRouteContext(context: MiddlewareContext): void {
+    invalidateRouteActivation(context);
+  }
+
   // =========================================================================
   // Public API - Handler Factory Methods
   // =========================================================================
@@ -572,14 +579,6 @@ export class Engine {
     safeError.proxy = true;
 
     return safeError;
-  }
-
-  /**
-   * @internal
-   * Clears route module activation when Application switches the internal request.
-   */
-  invalidateRouteContext(context: MiddlewareContext): void {
-    invalidateRouteActivation(context);
   }
 }
 
