@@ -116,6 +116,8 @@ export class ModuleRuntime {
             const resolvedModule =
               await this.#normalizeModule<RouteModule>(module);
             await this.#activateModule(routeContext, resolvedModule);
+          } else {
+            ensureRouteAccessors(routeContext);
           }
 
           return next();
@@ -232,7 +234,7 @@ export class ModuleRuntime {
           await this.#activateModule(routeContext, resolvedModule, error);
 
           // Use the cached handler (already handles error scenarios correctly)
-          const handler = routeContext._handler!;
+          const handler = getRouteActivation(routeContext)!._handler!;
 
           // Add context to script descriptors for client-side hydration
           // This ensures the client has access to server-side context data
@@ -298,8 +300,6 @@ export class ModuleRuntime {
       state.html = cached.html!.bind(context);
       state.renderOptions = state.renderer = structuredClone(cached.renderer!);
     }
-
-    applyRouteActivationToHost(context, state);
   }
 
   // =========================================================================
@@ -580,8 +580,8 @@ export class ModuleRuntime {
 }
 
 // ---------------------------------------------------------------------------
-// Route activation (ModuleRuntime-private). State lives here; mirrored onto the host
-// object so RouteContext handlers keep using context.module / context.html().
+// Route activation (ModuleRuntime-private). Single source of truth in WeakMap;
+// host object exposes accessors for context.module / context.html() etc.
 // ---------------------------------------------------------------------------
 
 interface RouteActivationState {
@@ -597,6 +597,7 @@ interface RouteActivationState {
 }
 
 const activations = new WeakMap<MiddlewareContext, RouteActivationState>();
+const hostsWithAccessors = new WeakSet<MiddlewareContext>();
 
 const ROUTE_HOST_KEYS = [
   'module',
@@ -610,6 +611,13 @@ const ROUTE_HOST_KEYS = [
   '_handler',
 ] as const satisfies ReadonlyArray<keyof RouteActivationState>;
 
+const READONLY_ROUTE_KEYS = new Set<keyof RouteActivationState>([
+  'module',
+  'render',
+  'html',
+  '_handler',
+]);
+
 function getRouteActivation(
   host: MiddlewareContext
 ): RouteActivationState | undefined {
@@ -617,43 +625,82 @@ function getRouteActivation(
 }
 
 function ensureRouteActivation(host: MiddlewareContext): RouteActivationState {
+  ensureRouteAccessors(host);
+  return activations.get(host)!;
+}
+
+/** @internal */
+export function hasRouteActivation(host: MiddlewareContext): boolean {
+  if (activations.get(host)?.module !== undefined) {
+    return true;
+  }
+  const descriptor = Object.getOwnPropertyDescriptor(host, 'module');
+  return Boolean(
+    descriptor && !descriptor.get && descriptor.value !== undefined
+  );
+}
+
+function migrateOwnRouteProperties(host: MiddlewareContext): void {
   let state = activations.get(host);
   if (!state) {
     activations.set(host, (state = {}));
   }
-  return state;
-}
 
-function hasRouteActivation(host: MiddlewareContext): boolean {
-  const state = activations.get(host);
-  if (state?.module !== undefined) {
-    applyRouteActivationToHost(host, state);
-    return true;
-  }
-  return (host as RouteContext).module !== undefined;
-}
-
-function applyRouteActivationToHost(
-  host: MiddlewareContext,
-  state: RouteActivationState
-): void {
-  const target = host as RouteContext;
   for (const key of ROUTE_HOST_KEYS) {
-    const value = state[key];
-    if (value !== undefined) {
-      (target as unknown as Record<string, unknown>)[key] = value;
+    const descriptor = Object.getOwnPropertyDescriptor(host, key);
+    if (descriptor && !descriptor.get && descriptor.value !== undefined) {
+      (state as Record<string, unknown>)[key] = descriptor.value;
     }
   }
 }
 
-function removeRouteActivationFromHost(host: MiddlewareContext): void {
-  const target = host as unknown as Record<string, unknown>;
+function ensureRouteAccessors(host: MiddlewareContext): void {
+  if (hostsWithAccessors.has(host)) {
+    return;
+  }
+  migrateOwnRouteProperties(host);
+  installRouteAccessors(host);
+}
+
+function installRouteAccessors(host: MiddlewareContext): void {
+  hostsWithAccessors.add(host);
+
   for (const key of ROUTE_HOST_KEYS) {
-    delete target[key];
+    const descriptor: PropertyDescriptor = {
+      configurable: true,
+      enumerable: true,
+      get() {
+        return activations.get(host)?.[key];
+      },
+    };
+
+    if (!READONLY_ROUTE_KEYS.has(key)) {
+      descriptor.set = (value) => {
+        const state = activations.get(host) ?? {};
+        (state as Record<string, unknown>)[key] = value;
+        activations.set(host, state);
+      };
+    }
+
+    Object.defineProperty(host, key, descriptor);
+  }
+}
+
+function removeRouteAccessors(host: MiddlewareContext): void {
+  if (!hostsWithAccessors.has(host)) {
+    return;
+  }
+  hostsWithAccessors.delete(host);
+
+  for (const key of ROUTE_HOST_KEYS) {
+    const descriptor = Object.getOwnPropertyDescriptor(host, key);
+    if (descriptor?.get) {
+      Reflect.deleteProperty(host, key);
+    }
   }
 }
 
 function invalidateRouteActivation(host: MiddlewareContext): void {
   activations.delete(host);
-  removeRouteActivationFromHost(host);
+  removeRouteAccessors(host);
 }

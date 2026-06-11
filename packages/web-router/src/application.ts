@@ -6,6 +6,7 @@ import { compose } from '@web-widget/helpers';
 import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { createHttpError } from '@web-widget/helpers/error';
 import { Context } from './context';
+import { hasRouteActivation } from './module';
 import type { Router } from './router';
 import {
   METHOD_NAME_ALL,
@@ -81,11 +82,6 @@ function pathKeyFromUrl(url: string | URL): string {
   return parsed.pathname + parsed.search;
 }
 
-/** ModuleRuntime mirrors activated route fields onto the context host object. */
-function contextHasMirroredRouteModule(context: Context): boolean {
-  return (context as Context & { module?: unknown }).module !== undefined;
-}
-
 function resetRouteActivationOnViewChange(
   context: Context,
   onRouteContextReset: ((context: Context) => void) | undefined
@@ -95,7 +91,7 @@ function resetRouteActivationOnViewChange(
     return;
   }
 
-  if (contextHasMirroredRouteModule(context)) {
+  if (hasRouteActivation(context)) {
     throw new Error('Route context was not invalidated on rewrite');
   }
 }
@@ -251,6 +247,7 @@ class Application<
 
   /**
    * Binds route-module lifecycle hooks (e.g. ModuleRuntime route activation reset on rewrite).
+   * Also invoked in a `finally` block when each request completes.
    */
   bindRouteLifecycle(onReset: (context: Context) => void): this {
     this.#onRouteContextReset = onReset;
@@ -309,10 +306,7 @@ class Application<
     const currentUrl = new URL(prev.url);
 
     if (nextUrl.origin !== currentUrl.origin) {
-      throw createHttpError(
-        400,
-        'Rewrite destination must be same-origin or relative'
-      );
+      throw new Error('Rewrite destination must be same-origin or relative');
     }
 
     const nextPathKey = pathKeyFromUrl(nextUrl);
@@ -338,7 +332,7 @@ class Application<
     return this.#dispatchMatched(context, path, state, 'rewrite');
   }
 
-  #dispatchMatched(
+  async #dispatchMatched(
     context: Context,
     path: string,
     state: DispatchState,
@@ -379,7 +373,8 @@ class Application<
       }
     );
 
-    return composed(context, this.#notFoundHandler).then(assertHandlerResponse);
+    const res = await composed(context, this.#notFoundHandler);
+    return assertHandlerResponse(res);
   }
 
   handler(
@@ -441,6 +436,8 @@ class Application<
             )
           )
         );
+      } finally {
+        this.#onRouteContextReset?.(context);
       }
     })();
   }

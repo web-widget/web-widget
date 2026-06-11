@@ -7,6 +7,7 @@ import type {
   LayoutModule,
   Meta,
   MiddlewareHandler,
+  RouteContext,
   ServerRenderOptions,
 } from './types';
 import { getPath } from './url';
@@ -2094,16 +2095,16 @@ describe('rewrite()', () => {
 
   test('rejects cross-origin rewrite via onError', async () => {
     const app = new Application();
-    let capturedStatus: number | undefined;
+    let capturedMessage = '';
 
     app.use('*', (c) => c.rewrite('https://evil.com/path'));
     app.onError((error) => {
-      capturedStatus = (error as { status?: number }).status;
-      return text(`error:${capturedStatus}`, { status: 500 });
+      capturedMessage = (error as Error).message;
+      return text('handled', { status: 500 });
     });
 
     await app.dispatch('http://localhost/v1/foo');
-    expect(capturedStatus).toBe(400);
+    expect(capturedMessage).toMatch(/same-origin or relative/i);
   });
 
   test('detects rewrite loop with HTTPException 508', async () => {
@@ -2211,8 +2212,87 @@ describe('rewrite()', () => {
     const res = await app.dispatch('http://localhost/resource', {
       method: 'GET',
     });
-    expect(resetCount).toBe(1);
+    expect(resetCount).toBe(2);
     expect(await res.text()).toBe('post');
+  });
+
+  test('releases route activation after successful dispatch', async () => {
+    const runtime = new ModuleRuntime({
+      layoutModule: {
+        default: () => '<html/>',
+        render: async () => '<html/>',
+      } as LayoutModule,
+      defaultMeta: { title: 't' } as Meta,
+      defaultBaseAsset: '/',
+      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      onFallback: () => {},
+      dev: true,
+    });
+
+    const app = new Application();
+    app.bindRouteLifecycle(ModuleRuntime.invalidateRouteContext);
+
+    let captured: RouteContext | undefined;
+    app.use(
+      '/page',
+      runtime.createRouteContextHandler({
+        render: () => 'Page',
+        handler: { GET: () => new Response('ok') },
+      })
+    );
+    app.use('/page', async (c, next) => {
+      captured = c as RouteContext;
+      return next();
+    });
+    app.use(
+      '/page',
+      runtime.createRouteHandler({
+        handler: { GET: () => new Response('ok') },
+      })
+    );
+
+    const res = await app.dispatch('http://localhost/page');
+    expect(res.status).toBe(200);
+    expect(captured?.module).toBeUndefined();
+    expect(captured?.render).toBeUndefined();
+  });
+
+  test('releases route activation after error dispatch', async () => {
+    const runtime = new ModuleRuntime({
+      layoutModule: {
+        default: () => '<html/>',
+        render: async () => '<html/>',
+      } as LayoutModule,
+      defaultMeta: { title: 't' } as Meta,
+      defaultBaseAsset: '/',
+      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      onFallback: () => {},
+      dev: true,
+    });
+
+    const app = new Application();
+    app.bindRouteLifecycle(ModuleRuntime.invalidateRouteContext);
+
+    let captured: RouteContext | undefined;
+    app.use(
+      '/page',
+      runtime.createRouteContextHandler({
+        render: () => 'Page',
+        handler: { GET: () => new Response('ok') },
+      })
+    );
+    app.use('/page', async (c, next) => {
+      captured = c as RouteContext;
+      return next();
+    });
+    app.get('/page', () => {
+      throw new Error('boom');
+    });
+    app.onError(() => text('handled', { status: 500 }));
+
+    const res = await app.dispatch('http://localhost/page');
+    expect(res.status).toBe(500);
+    expect(captured?.module).toBeUndefined();
   });
 
   test('fails when rewrite changes route view with active module but no lifecycle binding', async () => {

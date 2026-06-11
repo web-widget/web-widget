@@ -1434,7 +1434,8 @@ describe('rewrite()', () => {
   });
 
   test('clears render state when rewriting to handler-only route', async () => {
-    let capturedContext: RouteContext | undefined;
+    let sawRenderCleared = false;
+    let sawHandlerModule = false;
 
     const app = WebRouter.fromManifest({
       routes: [
@@ -1473,7 +1474,9 @@ describe('rewrite()', () => {
           pathname: '/no-render',
           module: {
             handler(context, next) {
-              capturedContext = context as RouteContext;
+              sawRenderCleared =
+                context.render === undefined && context.meta === undefined;
+              sawHandlerModule = context.module?.handler !== undefined;
               return next();
             },
           },
@@ -1484,9 +1487,8 @@ describe('rewrite()', () => {
     const res = await app.dispatch('http://localhost/with-render');
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('plain');
-    expect(capturedContext?.render).toBeUndefined();
-    expect(capturedContext?.meta).toBeUndefined();
-    expect(capturedContext?.module?.handler).toBeDefined();
+    expect(sawRenderCleared).toBe(true);
+    expect(sawHandlerModule).toBe(true);
   });
 
   test('originalRequest exposes client URL during rewrite', async () => {

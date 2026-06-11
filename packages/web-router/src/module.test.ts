@@ -228,10 +228,8 @@ describe('ModuleRuntime', () => {
       await handler(mockContext as RouteContext, mockNext);
       const firstModule = mockContext.module;
 
-      // Reset context
-      mockContext.module = undefined;
-
       // Second call should use cached handler
+      ModuleRuntime.invalidateRouteContext(mockContext as RouteContext);
       await handler(mockContext as RouteContext, mockNext);
       expect(mockContext.module).toBe(firstModule);
     });
@@ -531,16 +529,13 @@ describe('ModuleRuntime', () => {
       );
       expect(result1).toBeInstanceOf(Response);
 
-      // Reset context
-      delete mockContext.module;
-      delete mockContext.error;
-
-      // Second call should use cached handler
+      const secondContext: Partial<RouteContext> = {};
       const result2 = await errorHandler(
         testError,
-        mockContext as MiddlewareContext
+        secondContext as MiddlewareContext
       );
       expect(result2).toBeInstanceOf(Response);
+      expect(secondContext.module).toBe(mockRoute);
     });
   });
 
@@ -1510,6 +1505,28 @@ describe('ModuleRuntime', () => {
       expect(host.module).toBeUndefined();
       expect(host.meta).toBeUndefined();
       expect(host.render).toBeUndefined();
+    });
+
+    test('persists mutable route fields through accessors into WeakMap', async () => {
+      const host: Partial<RouteContext> = {};
+      const module: RouteModule = {
+        render: () => 'content',
+        meta: { title: 'Route' },
+      };
+
+      await runtime.createRouteContextHandler(module)(
+        host as RouteContext,
+        () => new Response('next')
+      );
+
+      const updatedMeta = { title: 'Updated' };
+      (host as RouteContext).meta = updatedMeta;
+
+      expect((host as RouteContext).meta).toBe(updatedMeta);
+
+      ModuleRuntime.invalidateRouteContext(host as RouteContext);
+
+      expect((host as RouteContext).meta).toBeUndefined();
     });
   });
 });
