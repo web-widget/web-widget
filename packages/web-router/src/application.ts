@@ -150,9 +150,7 @@ export interface ApplicationOptions<E extends Env> {
   strict?: boolean;
   router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
-  /**
-   * @internal Wired by {@link WebRouter.fromManifest} for ModuleRuntime route activation reset.
-   */
+  /** @internal */
   onRouteContextReset?: (context: Context) => void;
   /**
    * Router type to use. Defaults to 'url-pattern' for backward compatibility.
@@ -245,10 +243,7 @@ class Application<
     return this;
   }
 
-  /**
-   * Binds route-module lifecycle hooks (e.g. ModuleRuntime route activation reset on rewrite).
-   * Also invoked in a `finally` block when each request completes.
-   */
+  /** @internal Resets route activation on rewrite and when a request completes. */
   bindRouteLifecycle(onReset: (context: Context) => void): this {
     this.#onRouteContextReset = onReset;
     return this;

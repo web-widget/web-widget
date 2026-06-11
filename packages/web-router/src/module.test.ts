@@ -1197,7 +1197,7 @@ describe('ModuleRuntime', () => {
     });
   });
 
-  describe('default handler processing (refactored)', () => {
+  describe('default handler processing', () => {
     test('should use unified default handler creation for modules without handlers', async () => {
       const moduleWithoutHandler: RouteModule = {
         // No render method, so no rendering pipeline will be set up

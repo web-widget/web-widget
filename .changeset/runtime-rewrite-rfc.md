@@ -4,4 +4,13 @@
 '@web-widget/schema': patch
 ---
 
-Implement runtime internal URL rewrite per RFC: `return context.rewrite(input, init?)` returns the target handler stack `Response`, keeps `originalRequest` as the client request, and maintains a readonly internal `request` for routing. Application normalizes `HEAD` to an internal `GET` and strips response bodies at the exit. ModuleRuntime owns route activation state and invalidates it when rewrite changes the internal path. Helpers `compose` replaces `wrapNext` with `wrapAdvance`; `methodsToHandler` no longer synthesizes `HEAD` handlers (framework entry handles `HEAD`).
+Add runtime internal URL rewrite ([RFC](https://github.com/web-widget/web-widget/blob/main/rfcs/rewrite.zh.md)):
+
+- `context.rewrite(input, init?)` — switch the internal route within the same HTTP request; the browser URL is unchanged
+- `context.originalRequest` — client request; `context.request` — readonly view used for routing
+- Global `*` middleware runs once per request; rewrite loops respond with HTTP 508
+- `HEAD` is normalized at the framework entry and returns an empty body
+
+`@web-widget/schema`: `rewrite()` and `originalRequest` on `FetchContext`.
+
+`@web-widget/helpers`: `compose` awaits middleware return values so rejected `rewrite()` propagates to `onError`.

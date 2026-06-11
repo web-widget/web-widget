@@ -90,9 +90,7 @@ export class ModuleRuntime {
     this.#dev = options.dev;
   }
 
-  /**
-   * @internal Resets route activation when Application rewrites the internal request.
-   */
+  /** @internal Clears route activation for the given context. */
   static invalidateRouteContext(context: MiddlewareContext): void {
     invalidateRouteActivation(context);
   }
@@ -579,10 +577,7 @@ export class ModuleRuntime {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Route activation (ModuleRuntime-private). Single source of truth in WeakMap;
-// host object exposes accessors for context.module / context.html() etc.
-// ---------------------------------------------------------------------------
+// Per-request route activation (module, render, html, …).
 
 interface RouteActivationState {
   module?: RouteModule;

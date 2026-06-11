@@ -51,16 +51,16 @@ web-router 采用**领域驱动设计**，核心组件：
 ```
 ┌─────────────┐    ┌────────────────┐    ┌─────────────────┐    ┌────────────┐
 │ Application │───▶│ Router         │───▶│ ModuleRuntime   │───▶│ Context    │
-│ HTTP Layer  │    │ Route Matching │    │ Module Runtime  │    │ State Mgmt │
+│ HTTP Layer  │    │ Route Matching │    │ Module & SSR    │    │ State Mgmt │
 └─────────────┘    └────────────────┘    └─────────────────┘    └────────────┘
 ```
 
 - **Application** (`application.ts`) - HTTP 请求/响应生命周期
 - **Router** (`router.ts`) - URL 模式匹配和路由注册
-- **ModuleRuntime** (`module.ts`) - 🌟 **核心**：统一的业务处理引擎
-- **Context** (`context.ts`) - 增强的请求上下文
+- **ModuleRuntime** (`module.ts`) - 🌟 **核心**：schema 模块运行时（handler 工厂、SSR 管道）
+- **Context** (`context.ts`) - 请求上下文（`request`、`originalRequest`、`rewrite` 等）
 
-> 💡 **重点**：ModuleRuntime 是核心组件，负责模块处理、渲染管道和错误处理
+> 💡 **重点**：ModuleRuntime 将 Route / Middleware / Action 模块接入 Application 调度栈
 
 ### 模块格式标准
 
@@ -149,13 +149,13 @@ Handler → render() → ModuleRuntime → Layout → Response
 
 让正常页面和错误页面使用相同的渲染流程，确保一致的用户体验和共享的布局系统。
 
-#### 2. ModuleRuntime 引擎模式
+#### 2. ModuleRuntime 模式
 
 集中管理模块处理、缓存机制和错误处理，避免代码重复，提供一致的处理接口。
 
 #### 3. 缓存机制
 
-使用 WeakMap 缓存模块渲染函数，在开发模式禁用缓存支持热重载，生产模式启用缓存提升性能。
+按模块缓存 handler 与渲染管道配置；开发模式禁用缓存以支持热重载，生产模式启用缓存以提升性能。
 
 #### 4. 错误处理
 

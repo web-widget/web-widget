@@ -51,16 +51,16 @@ web-router adopts **Domain-Driven Design** with core components:
 ```
 ┌─────────────┐    ┌────────────────┐    ┌─────────────────┐    ┌────────────┐
 │ Application │───▶│ Router         │───▶│ ModuleRuntime   │───▶│ Context    │
-│ HTTP Layer  │    │ Route Matching │    │ Module Runtime  │    │ State Mgmt │
+│ HTTP Layer  │    │ Route Matching │    │ Module & SSR    │    │ State Mgmt │
 └─────────────┘    └────────────────┘    └─────────────────┘    └────────────┘
 ```
 
 - **Application** (`application.ts`) - HTTP request/response lifecycle
 - **Router** (`router.ts`) - URL pattern matching and route registration
-- **ModuleRuntime** (`module.ts`) - 🌟 **Core**: Unified business processing engine
-- **Context** (`context.ts`) - Enhanced request context
+- **ModuleRuntime** (`module.ts`) - 🌟 **Core**: Schema module runtime (handler factories, SSR pipeline)
+- **Context** (`context.ts`) - Request context (`request`, `originalRequest`, `rewrite`, …)
 
-> 💡 **Key Point**: ModuleRuntime is the core component responsible for module processing, rendering pipeline, and error handling
+> 💡 **Key Point**: ModuleRuntime wires Route / Middleware / Action modules into the Application dispatch stack
 
 ### Module Format Standard
 
@@ -155,7 +155,7 @@ Centralized management of module processing, caching mechanisms, and error handl
 
 #### 3. Caching Mechanism
 
-Use WeakMap to cache module rendering functions, disable caching in development mode to support hot reload, enable caching in production mode to improve performance.
+Cache handlers and render pipeline config per module; disable caching in development for hot reload, enable in production for performance.
 
 #### 4. Error Handling
 

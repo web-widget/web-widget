@@ -12,8 +12,7 @@ interface ContextOptions<E extends Env> {
 
 /**
  * HTTP dispatch context (`FetchContext`).
- * Route module activation (`module`, `render`, `html`, …) is owned by {@link ModuleRuntime}
- * and exposed on the context via accessors backed by a per-request WeakMap.
+ * Route fields (`module`, `render`, `html`, …) are provided by {@link ModuleRuntime}.
  */
 export class Context<E extends Env = Env> implements FetchContext {
   #state = Object.create(null);
