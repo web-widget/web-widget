@@ -9,7 +9,7 @@ import { Application } from './application';
 import * as defaultFallbackModule from './fallback';
 import * as defaultLayoutModule from './layout';
 import { callContext } from '@web-widget/context/server';
-import { Engine, type OnFallback } from './engine';
+import { ModuleRuntime, type OnFallback } from './module';
 import type {
   Env,
   LayoutModule,
@@ -22,7 +22,7 @@ import type {
 } from './types';
 
 export type * from './types';
-export type { OnFallback } from './engine';
+export type { OnFallback } from './module';
 
 // Export router types and implementations
 // export type { Router, Result, Params, RouterType } from './router';
@@ -105,7 +105,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
         }
       });
 
-    const engine = new Engine({
+    const runtime = new ModuleRuntime({
       layoutModule: layout.module,
       defaultMeta,
       defaultBaseAsset,
@@ -115,24 +115,24 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     });
 
     const router = new WebRouter<E>(options);
-    router.bindRouteLifecycle(Engine.invalidateRouteContext);
+    router.bindRouteLifecycle(ModuleRuntime.invalidateRouteContext);
 
     routes.forEach((item) => {
-      router.use(item.pathname, engine.createRouteContextHandler(item.module));
+      router.use(item.pathname, runtime.createRouteContextHandler(item.module));
     });
 
     router.use('*', callContext);
 
     middlewares.forEach((item) => {
-      router.use(item.pathname, engine.createMiddlewareHandler(item.module));
+      router.use(item.pathname, runtime.createMiddlewareHandler(item.module));
     });
 
     actions.forEach((item) => {
-      router.use(item.pathname, engine.createActionHandler(item.module));
+      router.use(item.pathname, runtime.createActionHandler(item.module));
     });
 
     routes.forEach((item) => {
-      router.use(item.pathname, engine.createRouteHandler(item.module));
+      router.use(item.pathname, runtime.createRouteHandler(item.module));
     });
 
     // Create a status code to fallback mapping for efficient lookups
@@ -150,7 +150,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     // Create fallback resolver using the extracted function
     const getFallbackHandler = createFallbackResolver(
       fallbackMap,
-      engine,
+      runtime,
       defaultFallbackModule as RouteModule
     );
 
@@ -191,7 +191,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
  */
 function createFallbackResolver(
   fallbackMap: Map<number, () => Promise<RouteModule>>,
-  engine: Engine,
+  runtime: ModuleRuntime,
   defaultFallbackModule: RouteModule
 ) {
   return (status: number) => {
@@ -215,6 +215,6 @@ function createFallbackResolver(
       fallbackModule = async () => defaultFallbackModule;
     }
 
-    return engine.createErrorHandler(fallbackModule);
+    return runtime.createErrorHandler(fallbackModule);
   };
 }

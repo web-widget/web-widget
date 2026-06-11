@@ -1,5 +1,5 @@
 /**
- * @fileoverview Engine domain object - Core business processing engine with unified rendering pipeline
+ * @fileoverview ModuleRuntime — executes schema modules and the SSR pipeline
  */
 import { handleRpc } from '@web-widget/action/server';
 import { contextToScriptDescriptor } from '@web-widget/context/server';
@@ -60,12 +60,9 @@ export type OnFallback = (
 type SafeError = { proxy: true } & HTTPException;
 
 /**
- * Engine domain object
- *
- * NOTE: Core business processing engine for unified module handling,
- * rendering pipeline orchestration, and error management
+ * Runtime for schema modules: handler factories, route activation, and SSR.
  */
-export class Engine {
+export class ModuleRuntime {
   #layoutModule: LayoutModule | (() => Promise<LayoutModule>);
   #defaultMeta: Meta;
   #defaultBaseAsset: string;
@@ -583,7 +580,7 @@ export class Engine {
 }
 
 // ---------------------------------------------------------------------------
-// Route activation (Engine-private). State lives here; mirrored onto the host
+// Route activation (ModuleRuntime-private). State lives here; mirrored onto the host
 // object so RouteContext handlers keep using context.module / context.html().
 // ---------------------------------------------------------------------------
 

@@ -101,7 +101,7 @@ Rewrite 与 `redirect()` 一样由 `return` 驱动：
 不变量：已激活的 route module 必须对应当前 `context.request` 的 match 结果。
 
 - `rewrite()` 时清除 route 衍生状态
-- 目标栈执行时 Engine 按当前 `context.request` 重新激活 module
+- 目标栈执行时按当前 `context.request` 重新激活 module
 - `params`、`pathname` 随 matched handler 更新
 
 Rewrite 到 Route 时，走与直接命中该 Route 相同的渲染与 layout 管道。

@@ -2,7 +2,7 @@
 import { callContext, context } from '@web-widget/context/server';
 import { methodsToHandler } from '@web-widget/helpers/module';
 import { Application } from './application';
-import { Engine } from './engine';
+import { ModuleRuntime } from './module';
 import type {
   LayoutModule,
   Meta,
@@ -2216,7 +2216,7 @@ describe('rewrite()', () => {
   });
 
   test('fails when rewrite changes route view with active module but no lifecycle binding', async () => {
-    const engine = new Engine({
+    const runtime = new ModuleRuntime({
       layoutModule: {
         default: () => '<html/>',
         render: async () => '<html/>',
@@ -2231,7 +2231,7 @@ describe('rewrite()', () => {
     const app = new Application();
     app.use(
       '/page',
-      engine.createRouteContextHandler({
+      runtime.createRouteContextHandler({
         render: () => 'Page',
         handler: { GET: () => new Response('get') },
       })
@@ -2250,7 +2250,7 @@ describe('rewrite()', () => {
   });
 
   test('bindRouteLifecycle allows rewrite after route activation', async () => {
-    const engine = new Engine({
+    const runtime = new ModuleRuntime({
       layoutModule: {
         default: () => '<html/>',
         render: async () => '<html/>',
@@ -2263,10 +2263,10 @@ describe('rewrite()', () => {
     });
 
     const app = new Application();
-    app.bindRouteLifecycle(Engine.invalidateRouteContext);
+    app.bindRouteLifecycle(ModuleRuntime.invalidateRouteContext);
     app.use(
       '/with-render',
-      engine.createRouteContextHandler({
+      runtime.createRouteContextHandler({
         render: () => 'Render Route',
         handler: { GET: (c) => c.html!() },
       })
@@ -2274,7 +2274,7 @@ describe('rewrite()', () => {
     app.use('/with-render', async (c) => c.rewrite('/plain'));
     app.use(
       '/plain',
-      engine.createRouteHandler({
+      runtime.createRouteHandler({
         handler: {
           GET() {
             return new Response('plain');

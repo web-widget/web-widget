@@ -12,7 +12,7 @@ interface ContextOptions<E extends Env> {
 
 /**
  * HTTP dispatch context (`FetchContext`).
- * Route module activation (`module`, `render`, `html`, …) is owned by {@link Engine}.
+ * Route module activation (`module`, `render`, `html`, …) is owned by {@link ModuleRuntime}.
  */
 export class Context<E extends Env = Env> implements FetchContext {
   #state = Object.create(null);

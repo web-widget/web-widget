@@ -81,7 +81,7 @@ function pathKeyFromUrl(url: string | URL): string {
   return parsed.pathname + parsed.search;
 }
 
-/** Engine mirrors activated route fields onto the context host object. */
+/** ModuleRuntime mirrors activated route fields onto the context host object. */
 function contextHasMirroredRouteModule(context: Context): boolean {
   return (context as Context & { module?: unknown }).module !== undefined;
 }
@@ -155,7 +155,7 @@ export interface ApplicationOptions<E extends Env> {
   router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
   /**
-   * @internal Wired by {@link WebRouter.fromManifest} for Engine route activation reset.
+   * @internal Wired by {@link WebRouter.fromManifest} for ModuleRuntime route activation reset.
    */
   onRouteContextReset?: (context: Context) => void;
   /**
@@ -250,7 +250,7 @@ class Application<
   }
 
   /**
-   * Binds route-module lifecycle hooks (e.g. Engine route activation reset on rewrite).
+   * Binds route-module lifecycle hooks (e.g. ModuleRuntime route activation reset on rewrite).
    */
   bindRouteLifecycle(onReset: (context: Context) => void): this {
     this.#onRouteContextReset = onReset;

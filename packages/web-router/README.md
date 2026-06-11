@@ -38,7 +38,7 @@ web-router uses **Domain-Driven Design** with clear separation of concerns:
 
 - **Application** - HTTP request/response lifecycle management
 - **Router** - URL pattern matching and route registration
-- **Engine** - Core business logic and unified processing pipeline
+- **ModuleRuntime** - Core business logic and unified processing pipeline
 - **Context** - Enhanced request state and rendering methods
 
 ## 🤝 Contributing

@@ -38,7 +38,7 @@ web-router 采用**领域驱动设计**，具有清晰的关注点分离：
 
 - **Application** - HTTP 请求/响应生命周期管理
 - **Router** - URL 模式匹配和路由注册
-- **Engine** - 核心业务逻辑和统一处理管道
+- **ModuleRuntime** - 核心业务逻辑和统一处理管道
 - **Context** - 增强的请求状态和渲染方法
 
 ## 🤝 贡献

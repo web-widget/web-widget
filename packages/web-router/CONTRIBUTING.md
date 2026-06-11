@@ -42,7 +42,7 @@ The project uses **Vitest** with **@cloudflare/vitest-pool-workers** for optimal
 - **Test runner**: Vitest (faster than Jest, better Workers support)
 - **Configuration**: `vitest.config.ts`
 - **Environment**: Cloudflare Workers runtime
-- **Coverage**: 158 comprehensive tests with 100% Engine method coverage
+- **Coverage**: 158 comprehensive tests with 100% ModuleRuntime method coverage
 
 ## 📐 Architecture Overview
 
@@ -50,17 +50,17 @@ web-router adopts **Domain-Driven Design** with core components:
 
 ```
 ┌─────────────┐    ┌────────────────┐    ┌─────────────────┐    ┌────────────┐
-│ Application │───▶│ Router         │───▶│ Engine          │───▶│ Context    │
-│ HTTP Layer  │    │ Route Matching │    │ Business Engine │    │ State Mgmt │
+│ Application │───▶│ Router         │───▶│ ModuleRuntime          │───▶│ Context    │
+│ HTTP Layer  │    │ Route Matching │    │ Business Module Runtime│    │ State Mgmt │
 └─────────────┘    └────────────────┘    └─────────────────┘    └────────────┘
 ```
 
 - **Application** (`application.ts`) - HTTP request/response lifecycle
 - **Router** (`router.ts`) - URL pattern matching and route registration
-- **Engine** (`engine.ts`) - 🌟 **Core**: Unified business processing engine
+- **ModuleRuntime** (`module.ts`) - 🌟 **Core**: Unified business processing engine
 - **Context** (`context.ts`) - Enhanced request context
 
-> 💡 **Key Point**: Engine is the core component responsible for module processing, rendering pipeline, and error handling
+> 💡 **Key Point**: ModuleRuntime is the core component responsible for module processing, rendering pipeline, and error handling
 
 ### Module Format Standard
 
@@ -109,7 +109,7 @@ packages/web-router/src/
 ├── index.ts          # Entry file, WebRouter class definition
 ├── application.ts    # Application domain object
 ├── router.ts         # Router domain object
-├── engine.ts         # Engine domain object (core)
+├── module.ts         # ModuleRuntime domain object (core)
 ├── context.ts        # Context domain object
 ├── types.ts          # TypeScript type definitions
 ├── layout.ts         # Default layout module
@@ -125,7 +125,7 @@ packages/web-router/src/
 1. **HTTP Request** → Application receives request
 2. **Route Matching** → Router matches route patterns
 3. **Context Creation** → Create request context
-4. **Module Processing** → Engine processes modules (Route/Middleware/Action)
+4. **Module Processing** → ModuleRuntime processes modules (Route/Middleware/Action)
 5. **Render Pipeline** → Unified rendering pipeline processing
 6. **HTTP Response** → Return response
 
@@ -140,7 +140,7 @@ packages/web-router/src/
 All response types (200/404/500) use unified rendering flow:
 
 ```
-Handler → render() → Engine → Layout → Response
+Handler → render() → ModuleRuntime → Layout → Response
 ```
 
 ### Key Design Decisions
@@ -149,7 +149,7 @@ Handler → render() → Engine → Layout → Response
 
 Let normal pages and error pages use the same rendering flow, ensuring consistent user experience and shared layout system.
 
-#### 2. Engine Pattern
+#### 2. ModuleRuntime Pattern
 
 Centralized management of module processing, caching mechanisms, and error handling, avoiding code duplication and providing consistent processing interfaces.
 
@@ -201,7 +201,7 @@ npx tsc --noEmit
 # Code style checking
 pnpm run lint
 
-# Coverage report (verify 100% Engine coverage)
+# Coverage report (verify 100% ModuleRuntime coverage)
 pnpm run test:coverage
 ```
 
@@ -227,7 +227,7 @@ Recommended reading order:
 1. **`types.ts`** - Understand type definitions
 2. **`context.ts`** - Learn about context objects
 3. **`router.ts`** - Master route matching
-4. **`engine.ts`** - 🌟 **Focus**: Core business logic
+4. **`module.ts`** - 🌟 **Focus**: Core business logic
 5. **`application.ts`** - HTTP layer processing
 6. **`index.ts`** - Overall integration
 7. **`*.test.ts`** - Study comprehensive test patterns
@@ -252,7 +252,7 @@ All contributors will be recognized in the project! Thank you for helping web-ro
 Before submitting a PR, please confirm:
 
 - [ ] Code follows project standards
-- [ ] Added comprehensive tests (follow Engine test pattern)
+- [ ] Added comprehensive tests (follow ModuleRuntime test pattern)
 - [ ] All tests pass with Vitest
 - [ ] Updated relevant documentation
 - [ ] No TypeScript type errors

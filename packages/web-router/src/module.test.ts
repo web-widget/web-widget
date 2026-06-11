@@ -1,4 +1,4 @@
-import { Engine, type OnFallback } from './engine';
+import { ModuleRuntime, type OnFallback } from './module';
 import type {
   ActionModule,
   LayoutModule,
@@ -10,8 +10,8 @@ import type {
   ServerRenderOptions,
 } from './types';
 
-describe('Engine', () => {
-  let engine: Engine;
+describe('ModuleRuntime', () => {
+  let runtime: ModuleRuntime;
   let mockOnFallback: OnFallback;
 
   beforeEach(() => {
@@ -32,12 +32,12 @@ describe('Engine', () => {
       dev: true,
     };
 
-    engine = new Engine(options);
+    runtime = new ModuleRuntime(options);
   });
 
   describe('constructor', () => {
-    test('should create engine instance with provided options', () => {
-      expect(engine).toBeInstanceOf(Engine);
+    test('should create runtime instance with provided options', () => {
+      expect(runtime).toBeInstanceOf(ModuleRuntime);
     });
 
     test('should accept async layout module loader', () => {
@@ -47,7 +47,7 @@ describe('Engine', () => {
           render: async () => '<html>async rendered</html>',
         }) as LayoutModule;
 
-      const engineWithAsyncLayout = new Engine({
+      const runtimeWithAsyncLayout = new ModuleRuntime({
         layoutModule: asyncLayoutLoader,
         defaultMeta: { title: 'Test' } as Meta,
         defaultBaseAsset: '/assets/',
@@ -56,7 +56,7 @@ describe('Engine', () => {
         dev: false,
       });
 
-      expect(engineWithAsyncLayout).toBeInstanceOf(Engine);
+      expect(runtimeWithAsyncLayout).toBeInstanceOf(ModuleRuntime);
     });
   });
 
@@ -74,7 +74,7 @@ describe('Engine', () => {
       };
 
       const mockNext = () => new Response('next');
-      const middleware = engine.createRouteHandler(mockModule);
+      const middleware = runtime.createRouteHandler(mockModule);
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -85,7 +85,7 @@ describe('Engine', () => {
       const mockContext: Partial<RouteContext> = {};
 
       const mockNext = () => new Response('next response');
-      const middleware = engine.createRouteHandler(null as any);
+      const middleware = runtime.createRouteHandler(null as any);
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -103,7 +103,7 @@ describe('Engine', () => {
       };
 
       const mockNext = () => new Response('next');
-      const middleware = engine.createRouteHandler(mockModule);
+      const middleware = runtime.createRouteHandler(mockModule);
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -122,7 +122,7 @@ describe('Engine', () => {
       };
 
       const mockNext = () => new Response('next');
-      const middleware = engine.createRouteHandler(mockModule);
+      const middleware = runtime.createRouteHandler(mockModule);
       await middleware(mockContext as RouteContext, mockNext);
 
       expect(mockContext.meta!.script).toBeDefined();
@@ -143,7 +143,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(mockRoute);
+      const handler = runtime.createRouteContextHandler(mockRoute);
       await handler(mockContext as RouteContext, mockNext);
 
       expect(mockContext.module).toBe(mockRoute);
@@ -165,7 +165,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(newModule);
+      const handler = runtime.createRouteContextHandler(newModule);
       await handler(mockContext as RouteContext, mockNext);
 
       expect(mockContext.module).toBe(existingModule);
@@ -182,7 +182,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(mockRoute);
+      const handler = runtime.createRouteContextHandler(mockRoute);
       await handler(mockContext as RouteContext, mockNext);
 
       expect(mockContext.module).toBe(mockRoute);
@@ -204,7 +204,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(asyncLoader);
+      const handler = runtime.createRouteContextHandler(asyncLoader);
       await handler(mockContext as RouteContext, mockNext);
 
       expect(mockContext.module).toBe(mockRoute);
@@ -222,7 +222,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(mockRoute);
+      const handler = runtime.createRouteContextHandler(mockRoute);
 
       // First call
       await handler(mockContext as RouteContext, mockNext);
@@ -249,7 +249,7 @@ describe('Engine', () => {
       const mockContext: Partial<MiddlewareContext> = {};
       const mockNext = () => new Response('next response');
 
-      const handler = engine.createMiddlewareHandler(mockMiddleware);
+      const handler = runtime.createMiddlewareHandler(mockMiddleware);
       const result = await handler(mockContext as MiddlewareContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -270,7 +270,7 @@ describe('Engine', () => {
       const mockContext: Partial<MiddlewareContext> = {};
       const mockNext = () => new Response('async next');
 
-      const handler = engine.createMiddlewareHandler(asyncLoader);
+      const handler = runtime.createMiddlewareHandler(asyncLoader);
       const result = await handler(mockContext as MiddlewareContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -285,7 +285,7 @@ describe('Engine', () => {
       const mockContext: Partial<MiddlewareContext> = {};
       const mockNext = () => new Response('next');
 
-      const handler = engine.createMiddlewareHandler(invalidMiddleware);
+      const handler = runtime.createMiddlewareHandler(invalidMiddleware);
 
       await expect(
         handler(mockContext as MiddlewareContext, mockNext)
@@ -304,7 +304,7 @@ describe('Engine', () => {
       const mockContext: Partial<MiddlewareContext> = {};
       const mockNext = () => new Response('cached');
 
-      const handler = engine.createMiddlewareHandler(mockMiddleware);
+      const handler = runtime.createMiddlewareHandler(mockMiddleware);
 
       // First call
       await handler(mockContext as MiddlewareContext, mockNext);
@@ -342,7 +342,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      const handler = engine.createActionHandler(mockAction);
+      const handler = runtime.createActionHandler(mockAction);
       const result = await handler(mockContext as MiddlewareContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -367,7 +367,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      const handler = engine.createActionHandler(mockAction);
+      const handler = runtime.createActionHandler(mockAction);
       const result = await handler(mockContext as MiddlewareContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -402,7 +402,7 @@ describe('Engine', () => {
 
       const mockNext = () => new Response('next');
 
-      const handler = engine.createActionHandler(asyncLoader);
+      const handler = runtime.createActionHandler(asyncLoader);
       const result = await handler(mockContext as MiddlewareContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -422,7 +422,7 @@ describe('Engine', () => {
         params: [],
       };
 
-      const handler = engine.createActionHandler(mockAction);
+      const handler = runtime.createActionHandler(mockAction);
 
       // First call
       const mockRequest1 = new Request('http://test.com/action', {
@@ -474,7 +474,7 @@ describe('Engine', () => {
 
       const testError = new Error('Test error');
 
-      const errorHandler = engine.createErrorHandler(mockRoute);
+      const errorHandler = runtime.createErrorHandler(mockRoute);
       const result = await errorHandler(
         testError,
         mockContext as MiddlewareContext
@@ -501,7 +501,7 @@ describe('Engine', () => {
 
       const testError = new Error('Async error');
 
-      const errorHandler = engine.createErrorHandler(asyncLoader);
+      const errorHandler = runtime.createErrorHandler(asyncLoader);
       const result = await errorHandler(
         testError,
         mockContext as MiddlewareContext
@@ -522,7 +522,7 @@ describe('Engine', () => {
 
       const testError = new Error('Cache test error');
 
-      const errorHandler = engine.createErrorHandler(mockRoute);
+      const errorHandler = runtime.createErrorHandler(mockRoute);
 
       // First call
       const result1 = await errorHandler(
@@ -545,8 +545,8 @@ describe('Engine', () => {
   });
 
   describe('error handling in development mode', () => {
-    test('should create dev engine instance', () => {
-      const devEngine = new Engine({
+    test('should create dev runtime instance', () => {
+      const devModuleRuntime = new ModuleRuntime({
         layoutModule: {
           default: () => '<html>dev</html>',
           render: async () => '<html>dev rendered</html>',
@@ -558,7 +558,7 @@ describe('Engine', () => {
         dev: true,
       });
 
-      expect(devEngine).toBeInstanceOf(Engine);
+      expect(devModuleRuntime).toBeInstanceOf(ModuleRuntime);
     });
 
     test('should handle errors differently in dev mode', () => {
@@ -566,7 +566,7 @@ describe('Engine', () => {
         expect(error).toBeDefined();
       };
 
-      const devEngine = new Engine({
+      const devModuleRuntime = new ModuleRuntime({
         layoutModule: {
           default: () => '<html>dev</html>',
           render: async () => '<html>dev rendered</html>',
@@ -578,7 +578,7 @@ describe('Engine', () => {
         dev: true,
       });
 
-      expect(devEngine).toBeInstanceOf(Engine);
+      expect(devModuleRuntime).toBeInstanceOf(ModuleRuntime);
     });
   });
 
@@ -593,7 +593,7 @@ describe('Engine', () => {
       const mockContext: Partial<RouteContext> = {};
 
       const mockNext = () => new Response('next');
-      const middleware = engine.createRouteHandler(mockModule);
+      const middleware = runtime.createRouteHandler(mockModule);
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -615,7 +615,7 @@ describe('Engine', () => {
       };
 
       const mockNext = () => new Response('next');
-      const middleware = engine.createRouteHandler(mockModule);
+      const middleware = runtime.createRouteHandler(mockModule);
       const result = await middleware(mockContext as RouteContext, mockNext);
 
       expect(result).toBeInstanceOf(Response);
@@ -636,7 +636,7 @@ describe('Engine', () => {
       };
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(mockModule);
+      const handler = runtime.createRouteContextHandler(mockModule);
 
       // First activation
       await handler(mockContext as RouteContext, mockNext);
@@ -666,7 +666,7 @@ describe('Engine', () => {
       };
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(mockModule);
+      const handler = runtime.createRouteContextHandler(mockModule);
 
       // First activation
       await handler(mockContext as RouteContext, mockNext);
@@ -698,7 +698,7 @@ describe('Engine', () => {
       };
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(mockModule);
+      const handler = runtime.createRouteContextHandler(mockModule);
 
       // First call - should set up cache
       await handler(mockContext1 as RouteContext, mockNext);
@@ -736,7 +736,7 @@ describe('Engine', () => {
         html: () => new Response('error html response'),
       };
 
-      const errorHandler = engine.createErrorHandler(mockModule);
+      const errorHandler = runtime.createErrorHandler(mockModule);
       const result = await errorHandler(testError, mockContext as RouteContext);
 
       expect(result).toBeInstanceOf(Response);
@@ -797,7 +797,7 @@ describe('Engine', () => {
       const mockNext = () => new Response('next');
 
       for (const { module, context } of testCases) {
-        const handler = engine.createRouteContextHandler(module);
+        const handler = runtime.createRouteContextHandler(module);
         await handler(context as RouteContext, mockNext);
 
         expect(context.module).toBe(module);
@@ -840,7 +840,7 @@ describe('Engine', () => {
         };
         const mockNext = () => new Response('next');
 
-        const handler = engine.createRouteContextHandler(module);
+        const handler = runtime.createRouteContextHandler(module);
         await handler(mockContext as RouteContext, mockNext);
 
         // Check expected properties
@@ -876,7 +876,7 @@ describe('Engine', () => {
       };
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(moduleWithoutRender);
+      const handler = runtime.createRouteContextHandler(moduleWithoutRender);
       await handler(mockContext as RouteContext, mockNext);
 
       expect(mockContext.module).toBe(moduleWithoutRender);
@@ -902,7 +902,7 @@ describe('Engine', () => {
       })) as Partial<RouteContext>[];
 
       const mockNext = () => new Response('next');
-      const handler = engine.createRouteContextHandler(sharedModule);
+      const handler = runtime.createRouteContextHandler(sharedModule);
 
       // Activate module in all contexts
       for (const context of contexts) {
@@ -940,7 +940,7 @@ describe('Engine', () => {
         html: () => new Response('error html'),
       };
 
-      const errorHandler = engine.createErrorHandler(errorModule);
+      const errorHandler = runtime.createErrorHandler(errorModule);
       const result = await errorHandler(testError, mockContext as RouteContext);
 
       // Verify error module activation state
@@ -975,7 +975,7 @@ describe('Engine', () => {
       };
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(originalModule);
+      const handler = runtime.createRouteContextHandler(originalModule);
 
       // First activation
       await handler(mockContext1 as RouteContext, mockNext);
@@ -1025,7 +1025,7 @@ describe('Engine', () => {
       })) as Partial<RouteContext>[];
 
       const mockNext = () => new Response('next');
-      const handler = engine.createRouteContextHandler(
+      const handler = runtime.createRouteContextHandler(
         moduleWithComplexHandler
       );
 
@@ -1090,7 +1090,7 @@ describe('Engine', () => {
         })) as Partial<RouteContext>[];
 
         const mockNext = () => new Response('next');
-        const handler = engine.createRouteContextHandler(module);
+        const handler = runtime.createRouteContextHandler(module);
 
         const startTime = Date.now();
 
@@ -1134,7 +1134,7 @@ describe('Engine', () => {
       })) as Partial<RouteContext>[];
 
       const mockNext = () => new Response('next');
-      const handler = engine.createRouteContextHandler(mockModule);
+      const handler = runtime.createRouteContextHandler(mockModule);
 
       // Process all contexts
       const startTime = Date.now();
@@ -1179,7 +1179,7 @@ describe('Engine', () => {
       })) as Array<Partial<RouteContext> & { id: number }>;
 
       const mockNext = () => new Response('next');
-      const handler = engine.createRouteContextHandler(sharedModule);
+      const handler = runtime.createRouteContextHandler(sharedModule);
 
       // Simulate concurrent activation
       const promises = concurrentContexts.map((context) =>
@@ -1215,12 +1215,12 @@ describe('Engine', () => {
       };
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(moduleWithoutHandler);
+      const handler = runtime.createRouteContextHandler(moduleWithoutHandler);
       await handler(mockContext as RouteContext, mockNext);
 
       expect(mockContext.module).toBe(moduleWithoutHandler);
       expect(mockContext._handler).toBeDefined();
-      // Since module has no render method, engine won't override our html mock
+      // Since module has no render method, runtime won't override our html mock
       expect(mockContext.render).toBeUndefined();
 
       // Verify the default handler works (should be a GET handler that calls context.html())
@@ -1231,7 +1231,7 @@ describe('Engine', () => {
 
     test('should use specialized error handler for error modules without custom handlers', async () => {
       const errorModuleWithoutHandler: RouteModule = {
-        // No handler, and no render method to avoid engine overriding our html mock
+        // No handler, and no render method to avoid runtime overriding our html mock
         fallback: () => 'error fallback',
       };
 
@@ -1245,7 +1245,9 @@ describe('Engine', () => {
         },
       };
 
-      const errorHandler = engine.createErrorHandler(errorModuleWithoutHandler);
+      const errorHandler = runtime.createErrorHandler(
+        errorModuleWithoutHandler
+      );
       const result = await errorHandler(testError, mockContext as RouteContext);
 
       expect(result).toBeInstanceOf(Response);
@@ -1268,7 +1270,9 @@ describe('Engine', () => {
       };
       const mockNext = () => new Response('next');
 
-      const handler = engine.createRouteContextHandler(moduleWithCustomHandler);
+      const handler = runtime.createRouteContextHandler(
+        moduleWithCustomHandler
+      );
       await handler(mockContext as RouteContext, mockNext);
 
       expect(mockContext.module).toBe(moduleWithCustomHandler);
@@ -1296,7 +1300,7 @@ describe('Engine', () => {
         request: new Request('http://test.com', { method: 'GET' }),
       };
 
-      const errorHandler = engine.createErrorHandler(
+      const errorHandler = runtime.createErrorHandler(
         errorModuleWithCustomHandler
       );
       const result = await errorHandler(testError, mockContext as RouteContext);
@@ -1332,8 +1336,8 @@ describe('Engine', () => {
       for (const { module } of moduleTypes) {
         expect(() => {
           // These factory methods should handle all cases without requiring caller to handle defaults
-          const routeHandler = engine.createRouteContextHandler(module);
-          const errorHandler = engine.createErrorHandler(module);
+          const routeHandler = runtime.createRouteContextHandler(module);
+          const errorHandler = runtime.createErrorHandler(module);
 
           expect(routeHandler).toBeDefined();
           expect(errorHandler).toBeDefined();
@@ -1365,7 +1369,7 @@ describe('Engine', () => {
       testError.status = 500;
 
       // Create error handler and activate module
-      const errorHandler = engine.createErrorHandler(moduleWithFallback);
+      const errorHandler = runtime.createErrorHandler(moduleWithFallback);
       await errorHandler(testError, mockContext as RouteContext);
 
       // The module should be activated and have the html method
@@ -1410,7 +1414,7 @@ describe('Engine', () => {
       testError.status = 404;
 
       // Create error handler and activate module
-      const errorHandler = engine.createErrorHandler(moduleWithoutFallback);
+      const errorHandler = runtime.createErrorHandler(moduleWithoutFallback);
       await errorHandler(testError, mockContext as RouteContext);
 
       // The module should be activated and have the html method
@@ -1459,7 +1463,8 @@ describe('Engine', () => {
       };
 
       // Create route handler and activate module (without error)
-      const routeHandler = engine.createRouteContextHandler(moduleWithFallback);
+      const routeHandler =
+        runtime.createRouteContextHandler(moduleWithFallback);
       await routeHandler(mockContext as RouteContext, () => new Response());
 
       // The module should be activated and have the html method
@@ -1492,7 +1497,7 @@ describe('Engine', () => {
         meta: { title: 'Route' },
       };
 
-      await engine.createRouteContextHandler(module)(
+      await runtime.createRouteContextHandler(module)(
         host as RouteContext,
         mockNext
       );
@@ -1500,7 +1505,7 @@ describe('Engine', () => {
       expect(host.module).toBe(module);
       expect(host.meta).toBeDefined();
 
-      Engine.invalidateRouteContext(host as RouteContext);
+      ModuleRuntime.invalidateRouteContext(host as RouteContext);
 
       expect(host.module).toBeUndefined();
       expect(host.meta).toBeUndefined();
