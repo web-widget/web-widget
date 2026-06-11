@@ -54,7 +54,6 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     manifest: Partial<Manifest>,
     options: StartOptions<E> = {}
   ) {
-    const router = new WebRouter<E>(options);
     const middlewares = manifest.middlewares ?? [];
     const actions = manifest.actions ?? [];
     const routes = manifest.routes ?? [];
@@ -113,6 +112,11 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       defaultRenderer,
       onFallback,
       dev,
+    });
+
+    const router = new WebRouter<E>({
+      ...options,
+      onRouteContextReset: (context) => engine.invalidateRouteContext(context),
     });
 
     routes.forEach((item) => {

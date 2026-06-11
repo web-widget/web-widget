@@ -1482,4 +1482,29 @@ describe('Engine', () => {
       });
     });
   });
+
+  describe('invalidateRouteContext', () => {
+    test('clears module and render state mirrored on the host', async () => {
+      const host: Partial<RouteContext> = {};
+      const mockNext = () => new Response('next');
+      const module: RouteModule = {
+        render: () => 'content',
+        meta: { title: 'Route' },
+      };
+
+      await engine.createRouteContextHandler(module)(
+        host as RouteContext,
+        mockNext
+      );
+
+      expect(host.module).toBe(module);
+      expect(host.meta).toBeDefined();
+
+      engine.invalidateRouteContext(host as RouteContext);
+
+      expect(host.module).toBeUndefined();
+      expect(host.meta).toBeUndefined();
+      expect(host.render).toBeUndefined();
+    });
+  });
 });

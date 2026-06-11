@@ -1,5 +1,20 @@
-import type { MiddlewareHandlers } from '@web-widget/schema';
+import type { MiddlewareContext, MiddlewareHandlers } from '@web-widget/schema';
 import { compose, methodsToHandler, composeMiddleware } from './compose';
+
+function stubMiddlewareContext(
+  request: Request,
+  state: Record<string, unknown> = {}
+): MiddlewareContext {
+  return {
+    params: {},
+    pathname: '/',
+    request,
+    originalRequest: request,
+    rewrite: () => new Response(),
+    state,
+    waitUntil: () => {},
+  };
+}
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms || 1));
@@ -95,15 +110,11 @@ describe('methodsToHandler', () => {
       disallowUnknownMethod
     );
     return handler(
-      {
-        params: {},
-        pathname: '/',
-        request: new Request('http://localhost', {
+      stubMiddlewareContext(
+        new Request('http://localhost', {
           method,
-        }),
-        state: {},
-        waitUntil: () => {},
-      },
+        })
+      ),
       () => {
         return new Response('Hello', {
           status: 200,
@@ -124,15 +135,39 @@ describe('methodsToHandler', () => {
     const res = await createRequest('PUT', true);
     expect(res.status).toBe(405);
     expect(res.statusText).toBe('Method Not Allowed');
-    expect(res.headers.get('Accept')).toBe('GET, HEAD');
+    expect(res.headers.get('Accept')).toBe('GET');
   });
 
-  test('Add default HEAD method', async () => {
-    const res = await createRequest('HEAD');
-    expect(res.body).toBe(null);
+  test('dispatches explicit HEAD handler', async () => {
+    const handler = methodsToHandler<MiddlewareHandlers>({
+      async HEAD(_context, next) {
+        const res = await next();
+        return new Response(null, {
+          headers: res.headers,
+          status: res.status,
+          statusText: res.statusText,
+        });
+      },
+    });
+
+    const res = await handler(
+      stubMiddlewareContext(
+        new Request('http://localhost', { method: 'HEAD' })
+      ),
+      () =>
+        new Response('Hello', {
+          status: 200,
+          statusText: 'OK',
+        })
+    );
+
     expect(res.status).toBe(200);
-    expect(res.statusText).toBe('OK');
-    expect(res.headers.get('Test')).toBe('1');
+    expect(res.body).toBe(null);
+  });
+
+  test('HEAD without HEAD handler is not allowed when disallowUnknownMethod', async () => {
+    const res = await createRequest('HEAD', true);
+    expect(res.status).toBe(405);
   });
 });
 
@@ -170,17 +205,9 @@ describe('composeMiddleware', () => {
 
   const createRequest = (method: string) => {
     return handler(
-      {
-        params: {},
-        pathname: '/',
-        request: new Request('http://localhost/', {
-          method,
-        }),
-        state: {
-          history: [],
-        },
-        waitUntil: () => {},
-      },
+      stubMiddlewareContext(new Request('http://localhost/', { method }), {
+        history: [],
+      }),
       () => {
         return new Response(null, {
           status: 404,

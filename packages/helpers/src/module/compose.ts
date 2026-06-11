@@ -13,6 +13,13 @@ type ComposedHandler<Content, Next, Result> = (
   next?: Next
 ) => Promise<Result>;
 
+export interface ComposeOptions<Context, Result = Response> {
+  /**
+   * Wrap the `advance()` call behind each handler's `next()` (e.g. lifecycle hooks).
+   */
+  wrapAdvance?: (advance: () => Promise<Result>) => () => Promise<Result>;
+}
+
 // Based on the code in the MIT licensed `koa-compose` package.
 export function compose<
   Handler = Function,
@@ -21,7 +28,8 @@ export function compose<
   Result = Response,
 >(
   middlewares: Handler[],
-  each?: (value: Handler, index: number, array: Handler[]) => Function
+  each?: (value: Handler, index: number, array: Handler[]) => Function,
+  options?: ComposeOptions<Context, Result>
 ): ComposedHandler<Context, Next, Result> {
   if (!Array.isArray(middlewares)) {
     throw new TypeError('Middleware stack must be an array.');
@@ -53,9 +61,11 @@ export function compose<
       }
 
       if (handler) {
-        return (handler as Function)(context, () => {
-          return dispatch(i + 1);
-        });
+        const advance = () => dispatch(i + 1);
+        const next = options?.wrapAdvance
+          ? options.wrapAdvance(advance)
+          : () => advance();
+        return await (handler as Function)(context, next);
       } else {
         return new Response(null, {
           status: 404,
@@ -111,38 +121,10 @@ export function methodsToHandler(
   }
 
   const mergedMethods = { ...methods };
-  if (mergedMethods.GET && !mergedMethods.HEAD) {
-    const GET = mergedMethods.GET;
-    mergedMethods.HEAD = async function HEAD() {
-      const [context, next] = arguments;
-      const resp = await GET(context, next);
-
-      if (!resp.body?.locked) {
-        resp.body?.cancel();
-      }
-
-      return new Response(null, {
-        headers: resp.headers,
-        status: resp.status,
-        statusText: resp.statusText,
-      });
-    };
-  }
 
   return (context, next) => {
-    let request = context.request;
-
-    // If not overridden, HEAD requests should be handled as GET requests but without the body.
-    if (request.method === 'HEAD' && !mergedMethods['HEAD']) {
-      // @ts-ignore
-      context.request = new Request(request.url, {
-        method: 'GET',
-        headers: request.headers,
-      });
-    }
-
     const handler =
-      Reflect.get(mergedMethods, request.method) ??
+      Reflect.get(mergedMethods, context.request.method) ??
       (disallowUnknownMethod
         ? () =>
             new Response(null, {

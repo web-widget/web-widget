@@ -13,6 +13,7 @@ import {
   createRouter,
   getDefaultRouterType,
   isValidRouterType,
+  type Result,
   type RouterType,
 } from './router';
 import type {
@@ -26,6 +27,8 @@ import type {
 import { getPath, getPathNoStrict } from './url';
 
 type Methods = (typeof METHODS)[number];
+
+const GLOBAL_ROUTE_PATTERN = '*';
 
 function defineDynamicClass(): {
   new <E extends Env = Env, BasePath extends string = '/'>(): {
@@ -60,15 +63,96 @@ const errorHandler = (error: unknown) => {
   });
 };
 
+function assertHandlerResponse(res: void | Response | undefined): Response {
+  if (!res) {
+    throw new Error(
+      'Response is not finalized. You may forget returning Response object or `return next()`.'
+    );
+  }
+  if (!(res instanceof Response)) {
+    throw new TypeError('Response must be an instance of Response.');
+  }
+  return res;
+}
+
+function pathKeyFromUrl(url: string | URL): string {
+  const parsed = typeof url === 'string' ? new URL(url) : url;
+  return parsed.pathname + parsed.search;
+}
+
+function toInternalRequest(request: Request): Request {
+  if (request.method !== 'HEAD') {
+    return request;
+  }
+  return new Request(request.url, {
+    method: 'GET',
+    headers: request.headers,
+  });
+}
+
+function finalizeHeadResponse(
+  originalRequest: Request,
+  response: Response
+): Response {
+  if (originalRequest.method !== 'HEAD') {
+    return response;
+  }
+  if (response.body && !response.body.locked) {
+    response.body.cancel();
+  }
+  return new Response(null, {
+    headers: response.headers,
+    status: response.status,
+    statusText: response.statusText,
+  });
+}
+
+function filterExecutedGlobalHandlers(
+  handlers: Result<MiddlewareHandler>,
+  executedGlobalHandlers: WeakSet<MiddlewareHandler>,
+  hasRecordedGlobals: boolean
+): Result<MiddlewareHandler> {
+  if (!hasRecordedGlobals) {
+    return handlers;
+  }
+
+  const filtered: Result<MiddlewareHandler> = [];
+  for (let i = 0; i < handlers.length; i++) {
+    const entry = handlers[i];
+    const pattern = entry[2];
+    if (
+      pattern === GLOBAL_ROUTE_PATTERN &&
+      executedGlobalHandlers.has(entry[0])
+    ) {
+      continue;
+    }
+    filtered.push(entry);
+  }
+  return filtered;
+}
+
 type GetPath<E extends Env> = (
   request: Request,
   options?: { env?: E['Bindings'] }
 ) => string;
 
+interface DispatchState<E extends Env = Env> {
+  executedGlobalHandlers: WeakSet<MiddlewareHandler>;
+  hasRecordedGlobals: boolean;
+  nextCompleted: boolean;
+  visited: Set<string>;
+  method: string;
+  env: E['Bindings'] | undefined;
+}
+
 export interface ApplicationOptions<E extends Env> {
   strict?: boolean;
   router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
+  /**
+   * @internal Wired by {@link WebRouter.fromManifest} so rewrite can reset Engine route state.
+   */
+  onRouteContextReset?: (context: Context) => void;
   /**
    * Router type to use. Defaults to 'url-pattern' for backward compatibility.
    * Use 'radix-tree' for better performance with large route sets.
@@ -119,10 +203,8 @@ class Application<
     const routerType = options.routerType ?? getDefaultRouterType();
     delete options.strict;
     delete options.routerType;
-    // Object.assign(this, options);
     this.getPath = strict ? (options.getPath ?? getPath) : getPathNoStrict;
 
-    // Choose router based on configuration
     if (options.router) {
       this.router = options.router;
     } else {
@@ -133,11 +215,13 @@ class Application<
     }
 
     this.#proxy = !!options.proxy;
+    this.#onRouteContextReset = options.onRouteContextReset;
   }
 
   #proxy: boolean = false;
   #notFoundHandler: NotFoundHandler = notFoundHandler;
   #errorHandler: ErrorHandler = errorHandler;
+  #onRouteContextReset?: (context: Context) => void;
 
   /**
    * @internal
@@ -169,54 +253,186 @@ class Application<
     return this.router.match(method, path);
   }
 
+  #bindRequest(context: Context): (request: Request) => void {
+    let request = context.request;
+
+    Object.defineProperty(context, 'request', {
+      configurable: true,
+      enumerable: true,
+      get: () => request,
+    });
+
+    return (value: Request) => {
+      request = value;
+    };
+  }
+
+  // NOTE: Node cannot resolve `new Request('/path', prev)`; pre-resolve relative URLs.
+  #resolveRewriteInput(
+    input: RequestInfo | URL,
+    baseUrl: string
+  ): RequestInfo | URL {
+    if (input instanceof Request) {
+      try {
+        new URL(input.url);
+        return input;
+      } catch {
+        return new URL(input.url, baseUrl);
+      }
+    }
+    if (input instanceof URL) {
+      return input;
+    }
+    return new URL(input, baseUrl);
+  }
+
+  #buildRewriteRequest(
+    context: Context,
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ): Request {
+    const prev = context.request;
+    const resolved = this.#resolveRewriteInput(input, prev.url);
+
+    if (resolved instanceof Request) {
+      return init ? new Request(resolved, init) : resolved;
+    }
+    return new Request(resolved, init ?? prev);
+  }
+
+  #rewrite(
+    context: Context,
+    state: DispatchState,
+    updateRequest: (request: Request) => void,
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ): Promise<Response> {
+    if (state.nextCompleted) {
+      throw new Error(
+        'Cannot change internal request after next() has completed.'
+      );
+    }
+
+    const prev = context.request;
+    const nextRequest = this.#buildRewriteRequest(context, input, init);
+
+    const nextUrl = new URL(nextRequest.url);
+    const currentUrl = new URL(prev.url);
+
+    if (nextUrl.origin !== currentUrl.origin) {
+      throw createHttpError(
+        400,
+        'Rewrite destination must be same-origin or relative'
+      );
+    }
+
+    const nextPathKey = pathKeyFromUrl(nextUrl);
+    const currentPathKey = pathKeyFromUrl(currentUrl);
+
+    if (nextPathKey !== currentPathKey) {
+      if (state.visited.has(nextPathKey)) {
+        throw createHttpError(508, 'Rewrite loop detected');
+      }
+      this.#onRouteContextReset?.(context);
+      state.visited.add(nextPathKey);
+    }
+
+    updateRequest(nextRequest);
+    state.method = context.request.method;
+
+    const path = this.getPath(context.request, { env: state.env });
+    return this.#dispatchMatched(context, path, state, {
+      recordGlobalHandlers: false,
+      filterGlobalHandlers: true,
+    });
+  }
+
+  #dispatchMatched(
+    context: Context,
+    path: string,
+    state: DispatchState,
+    options: {
+      recordGlobalHandlers: boolean;
+      filterGlobalHandlers?: boolean;
+    }
+  ): Promise<Response> {
+    let matched = this.#matchRoute(state.method, path);
+    if (options.filterGlobalHandlers) {
+      matched = filterExecutedGlobalHandlers(
+        matched,
+        state.executedGlobalHandlers,
+        state.hasRecordedGlobals
+      );
+    }
+
+    const composed = compose<(typeof matched)[0], Context>(
+      matched,
+      (entry) => {
+        context.params = entry[1];
+        context.pathname = entry[2];
+        if (options.recordGlobalHandlers && entry[2] === GLOBAL_ROUTE_PATTERN) {
+          state.executedGlobalHandlers.add(entry[0]);
+          state.hasRecordedGlobals = true;
+        }
+        return entry[0];
+      },
+      {
+        wrapAdvance: (advance) => {
+          return () =>
+            advance().then(
+              (response) => {
+                state.nextCompleted = true;
+                return response;
+              },
+              (error) => {
+                state.nextCompleted = true;
+                throw error;
+              }
+            );
+        },
+      }
+    );
+
+    return composed(context, this.#notFoundHandler).then(assertHandlerResponse);
+  }
+
   handler(
     request: Request,
     env: E['Bindings'] | undefined = Object.create(null),
-    executionContext?: ExecutionContext,
-    method: string = request.method
+    executionContext?: ExecutionContext
   ): Response | Promise<Response> {
     if (this.#proxy) {
       request = normalizeForwardedRequest(request);
     }
 
-    // Handle HEAD method
-    if (method === 'HEAD') {
-      return (async () =>
-        new Response(
-          null,
-          await this.handler(request, env, executionContext, 'GET')
-        ))();
-    }
+    const originalRequest = request;
+    const internalRequest = toInternalRequest(originalRequest);
 
-    const path = this.getPath(request, { env });
-    const handlers = this.#matchRoute(method, path);
-
-    const context = new Context(request, {
+    const path = this.getPath(internalRequest, { env });
+    const context = new Context(internalRequest, {
       env,
       executionContext,
+      originalRequest,
     });
 
-    const composed = compose<(typeof handlers)[0], Context>(
-      handlers,
-      (handler) => {
-        context.params = handler[1];
-        context.pathname = handler[2];
-        return handler[0];
-      }
-    );
+    const state: DispatchState = {
+      executedGlobalHandlers: new WeakSet(),
+      hasRecordedGlobals: false,
+      nextCompleted: false,
+      visited: new Set([pathKeyFromUrl(internalRequest.url)]),
+      method: internalRequest.method,
+      env,
+    };
+
+    const updateRequest = this.#bindRequest(context);
+    context.rewrite = (input, init) =>
+      this.#rewrite(context, state, updateRequest, input, init);
 
     return (async () => {
       try {
-        const res = await composed(context, this.#notFoundHandler);
-        if (!res) {
-          throw new Error(
-            'Response is not finalized. You may forget returning Response object or `return next()`.'
-          );
-        }
-
-        if (!(res instanceof Response)) {
-          throw new TypeError('Response must be an instance of Response.');
-        }
+        const res = await this.#dispatchMatched(context, path, state, {
+          recordGlobalHandlers: true,
+        });
 
         if (
           res.status >= 400 &&
@@ -229,13 +445,19 @@ class Application<
           throw res;
         }
 
-        return res;
+        return finalizeHeadResponse(originalRequest, res);
       } catch (error) {
         this.fixErrorStack(error as Error);
         // Re-enter AsyncLocalStorage / unctx scope so onError and fallbacks can use
         // context() and other ALS-backed APIs (see web-widget#716).
         return callContext(context, async () =>
-          this.#errorHandler(await this.#normalizeHTTPException(error), context)
+          finalizeHeadResponse(
+            originalRequest,
+            await this.#errorHandler(
+              await this.#normalizeHTTPException(error),
+              context
+            )
+          )
         );
       }
     })();
