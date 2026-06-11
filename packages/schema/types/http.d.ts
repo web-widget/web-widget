@@ -102,11 +102,4 @@ export interface FetchContext<Params = Record<string, string>> extends Omit<
    * @deprecated This property is deprecated and will be removed in a future version.
    */
   readonly pathname: string;
-
-  /**
-   * Internally rewrite to `destination` (relative paths resolve against `request.url`).
-   * Returns the target path handler chain's `Response`; usage mirrors `next()`.
-   * The browser URL (`request`) is unchanged.
-   */
-  rewrite?(destination: string | URL): Response | Promise<Response>;
 }

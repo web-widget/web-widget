@@ -1,36 +1,22 @@
 /**
  * @fileoverview URL processing utility functions
  */
-
-function extractPathname(url: string): string {
+export const getPath = (request: Request): string => {
   // Optimized: RegExp is faster than indexOf() + slice()
-  const match = url.match(/^https?:\/\/[^/]+(\/[^?]*)/);
+  const match = request.url.match(/^https?:\/\/[^/]+(\/[^?]*)/);
   return match ? match[1] : '';
-}
-
-function normalizeTrailingSlash(path: string): string {
-  return path.length > 1 && path[path.length - 1] === '/'
-    ? path.slice(0, -1)
-    : path;
-}
-
-export const getPathForRequest = (request: Request): string => {
-  return extractPathname(request.url);
 };
 
-export const getPathForUrl = (url: URL): string => {
-  return extractPathname(url.href);
+export const getQueryStrings = (url: string): string => {
+  const queryIndex = url.indexOf('?', 8);
+  return queryIndex === -1 ? '' : '?' + url.slice(queryIndex + 1);
 };
 
-export const getQueryStringForHref = (href: string): string => {
-  const queryIndex = href.indexOf('?', 8);
-  return queryIndex === -1 ? '' : '?' + href.slice(queryIndex + 1);
-};
+export const getPathNoStrict = (request: Request): string => {
+  const result = getPath(request);
 
-export const getPathNoStrictForRequest = (request: Request): string => {
-  return normalizeTrailingSlash(getPathForRequest(request));
-};
-
-export const getPathNoStrictForUrl = (url: URL): string => {
-  return normalizeTrailingSlash(getPathForUrl(url));
+  // if strict routing is false => `/hello/hey/` and `/hello/hey` are treated the same
+  return result.length > 1 && result[result.length - 1] === '/'
+    ? result.slice(0, -1)
+    : result;
 };

@@ -45,9 +45,6 @@ export class Context<E extends Env = Env> implements FetchContext {
   data?: unknown;
   error?: HTTPException;
 
-  /** Bound per request in Application.handler when rewrite is available. */
-  rewrite?: FetchContext['rewrite'];
-
   constructor(request: Request, options?: ContextOptions<E>) {
     this.request = request;
     this.#executionContext = options?.executionContext;
