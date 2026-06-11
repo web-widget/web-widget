@@ -50,8 +50,8 @@ web-router 采用**领域驱动设计**，核心组件：
 
 ```
 ┌─────────────┐    ┌────────────────┐    ┌─────────────────┐    ┌────────────┐
-│ Application │───▶│ Router         │───▶│ ModuleRuntime          │───▶│ Context    │
-│ HTTP Layer  │    │ Route Matching │    │ Business Module Runtime│    │ State Mgmt │
+│ Application │───▶│ Router         │───▶│ ModuleRuntime   │───▶│ Context    │
+│ HTTP Layer  │    │ Route Matching │    │ Module Runtime  │    │ State Mgmt │
 └─────────────┘    └────────────────┘    └─────────────────┘    └────────────┘
 ```
 

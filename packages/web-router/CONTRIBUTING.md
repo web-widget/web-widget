@@ -50,8 +50,8 @@ web-router adopts **Domain-Driven Design** with core components:
 
 ```
 ┌─────────────┐    ┌────────────────┐    ┌─────────────────┐    ┌────────────┐
-│ Application │───▶│ Router         │───▶│ ModuleRuntime          │───▶│ Context    │
-│ HTTP Layer  │    │ Route Matching │    │ Business Module Runtime│    │ State Mgmt │
+│ Application │───▶│ Router         │───▶│ ModuleRuntime   │───▶│ Context    │
+│ HTTP Layer  │    │ Route Matching │    │ Module Runtime  │    │ State Mgmt │
 └─────────────┘    └────────────────┘    └─────────────────┘    └────────────┘
 ```
 
