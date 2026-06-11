@@ -229,7 +229,7 @@ describe('ModuleRuntime', () => {
       const firstModule = mockContext.module;
 
       // Second call should use cached handler
-      ModuleRuntime.invalidateRouteContext(mockContext as RouteContext);
+      runtime.clearActivation(mockContext as RouteContext);
       await handler(mockContext as RouteContext, mockNext);
       expect(mockContext.module).toBe(firstModule);
     });
@@ -1483,7 +1483,7 @@ describe('ModuleRuntime', () => {
     });
   });
 
-  describe('invalidateRouteContext', () => {
+  describe('clearActivation', () => {
     test('clears module and render state mirrored on the host', async () => {
       const host: Partial<RouteContext> = {};
       const mockNext = () => new Response('next');
@@ -1500,7 +1500,7 @@ describe('ModuleRuntime', () => {
       expect(host.module).toBe(module);
       expect(host.meta).toBeDefined();
 
-      ModuleRuntime.invalidateRouteContext(host as RouteContext);
+      runtime.clearActivation(host as RouteContext);
 
       expect(host.module).toBeUndefined();
       expect(host.meta).toBeUndefined();
@@ -1524,7 +1524,7 @@ describe('ModuleRuntime', () => {
 
       expect((host as RouteContext).meta).toBe(updatedMeta);
 
-      ModuleRuntime.invalidateRouteContext(host as RouteContext);
+      runtime.clearActivation(host as RouteContext);
 
       expect((host as RouteContext).meta).toBeUndefined();
     });

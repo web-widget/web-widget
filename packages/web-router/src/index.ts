@@ -115,7 +115,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     });
 
     const router = new WebRouter<E>(options);
-    router.bindRouteLifecycle(ModuleRuntime.invalidateRouteContext);
+    router.useModuleRuntime(runtime);
 
     routes.forEach((item) => {
       router.use(item.pathname, runtime.createRouteContextHandler(item.module));

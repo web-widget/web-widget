@@ -90,8 +90,13 @@ export class ModuleRuntime {
     this.#dev = options.dev;
   }
 
+  /** @internal */
+  static hasActivation(host: MiddlewareContext): boolean {
+    return hasRouteActivation(host);
+  }
+
   /** @internal Clears route activation for the given context. */
-  static invalidateRouteContext(context: MiddlewareContext): void {
+  clearActivation(context: MiddlewareContext): void {
     invalidateRouteActivation(context);
   }
 
@@ -624,8 +629,7 @@ function ensureRouteActivation(host: MiddlewareContext): RouteActivationState {
   return activations.get(host)!;
 }
 
-/** @internal */
-export function hasRouteActivation(host: MiddlewareContext): boolean {
+function hasRouteActivation(host: MiddlewareContext): boolean {
   if (activations.get(host)?.module !== undefined) {
     return true;
   }

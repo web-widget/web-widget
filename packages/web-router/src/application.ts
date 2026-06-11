@@ -6,7 +6,7 @@ import { compose } from '@web-widget/helpers';
 import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { createHttpError } from '@web-widget/helpers/error';
 import { Context } from './context';
-import { hasRouteActivation } from './module';
+import { ModuleRuntime } from './module';
 import type { Router } from './router';
 import {
   METHOD_NAME_ALL,
@@ -84,14 +84,14 @@ function pathKeyFromUrl(url: string | URL): string {
 
 function resetRouteActivationOnViewChange(
   context: Context,
-  onRouteContextReset: ((context: Context) => void) | undefined
+  moduleRuntime: ModuleRuntime | undefined
 ): void {
-  if (onRouteContextReset) {
-    onRouteContextReset(context);
+  if (moduleRuntime) {
+    moduleRuntime.clearActivation(context);
     return;
   }
 
-  if (hasRouteActivation(context)) {
+  if (ModuleRuntime.hasActivation(context)) {
     throw new Error('Route context was not invalidated on rewrite');
   }
 }
@@ -150,8 +150,6 @@ export interface ApplicationOptions<E extends Env> {
   strict?: boolean;
   router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
-  /** @internal */
-  onRouteContextReset?: (context: Context) => void;
   /**
    * Router type to use. Defaults to 'url-pattern' for backward compatibility.
    * Use 'radix-tree' for better performance with large route sets.
@@ -214,13 +212,12 @@ class Application<
     }
 
     this.#proxy = !!options.proxy;
-    this.#onRouteContextReset = options.onRouteContextReset;
   }
 
   #proxy: boolean = false;
   #notFoundHandler: NotFoundHandler = notFoundHandler;
   #errorHandler: ErrorHandler = errorHandler;
-  #onRouteContextReset?: (context: Context) => void;
+  #moduleRuntime?: ModuleRuntime;
 
   /**
    * @internal
@@ -243,9 +240,9 @@ class Application<
     return this;
   }
 
-  /** @internal Resets route activation on rewrite and when a request completes. */
-  bindRouteLifecycle(onReset: (context: Context) => void): this {
-    this.#onRouteContextReset = onReset;
+  /** @internal Clears route activation on rewrite and when a request completes. */
+  useModuleRuntime(runtime: ModuleRuntime): this {
+    this.#moduleRuntime = runtime;
     return this;
   }
 
@@ -317,7 +314,7 @@ class Application<
     }
 
     if (routeViewChanged) {
-      resetRouteActivationOnViewChange(context, this.#onRouteContextReset);
+      resetRouteActivationOnViewChange(context, this.#moduleRuntime);
     }
 
     context.updateRequest(nextRequest);
@@ -432,7 +429,7 @@ class Application<
           )
         );
       } finally {
-        this.#onRouteContextReset?.(context);
+        this.#moduleRuntime?.clearActivation(context);
       }
     })();
   }

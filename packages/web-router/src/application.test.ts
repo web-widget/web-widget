@@ -2197,13 +2197,22 @@ describe('rewrite()', () => {
     expect(await res.text()).toBe('POST');
   });
 
-  test('resets route lifecycle when rewrite changes method on same path', async () => {
-    let resetCount = 0;
-    const app = new Application({
-      onRouteContextReset: () => {
-        resetCount++;
-      },
+  test('clears route activation when rewrite changes method on same path', async () => {
+    const runtime = new ModuleRuntime({
+      layoutModule: {
+        default: () => '<html/>',
+        render: async () => '<html/>',
+      } as LayoutModule,
+      defaultMeta: { title: 't' } as Meta,
+      defaultBaseAsset: '/',
+      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      onFallback: () => {},
+      dev: true,
     });
+    const clearSpy = vi.spyOn(runtime, 'clearActivation');
+
+    const app = new Application();
+    app.useModuleRuntime(runtime);
 
     app.use('*', async (c) => c.rewrite('/resource', { method: 'POST' }));
     app.get('/resource', () => text('get'));
@@ -2212,7 +2221,7 @@ describe('rewrite()', () => {
     const res = await app.dispatch('http://localhost/resource', {
       method: 'GET',
     });
-    expect(resetCount).toBe(2);
+    expect(clearSpy).toHaveBeenCalledTimes(2);
     expect(await res.text()).toBe('post');
   });
 
@@ -2230,7 +2239,7 @@ describe('rewrite()', () => {
     });
 
     const app = new Application();
-    app.bindRouteLifecycle(ModuleRuntime.invalidateRouteContext);
+    app.useModuleRuntime(runtime);
 
     let captured: RouteContext | undefined;
     app.use(
@@ -2271,7 +2280,7 @@ describe('rewrite()', () => {
     });
 
     const app = new Application();
-    app.bindRouteLifecycle(ModuleRuntime.invalidateRouteContext);
+    app.useModuleRuntime(runtime);
 
     let captured: RouteContext | undefined;
     app.use(
@@ -2295,7 +2304,7 @@ describe('rewrite()', () => {
     expect(captured?.module).toBeUndefined();
   });
 
-  test('fails when rewrite changes route view with active module but no lifecycle binding', async () => {
+  test('fails when rewrite changes route view with active module but no module runtime', async () => {
     const runtime = new ModuleRuntime({
       layoutModule: {
         default: () => '<html/>',
@@ -2329,7 +2338,7 @@ describe('rewrite()', () => {
     expect(capturedMessage).toMatch(/not invalidated on rewrite/i);
   });
 
-  test('bindRouteLifecycle allows rewrite after route activation', async () => {
+  test('useModuleRuntime allows rewrite after route activation', async () => {
     const runtime = new ModuleRuntime({
       layoutModule: {
         default: () => '<html/>',
@@ -2343,7 +2352,7 @@ describe('rewrite()', () => {
     });
 
     const app = new Application();
-    app.bindRouteLifecycle(ModuleRuntime.invalidateRouteContext);
+    app.useModuleRuntime(runtime);
     app.use(
       '/with-render',
       runtime.createRouteContextHandler({
