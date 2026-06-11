@@ -17,23 +17,11 @@ return next();
 
 ## 动机
 
-### 与 Redirect 的区别
+应用常需要**对外 URL 与对内路由分离**：浏览器地址栏保持 `/v1/products`，服务端改由 `/internal/products` 的 Route 处理（含 SSR）。这应在**同一次 HTTP 请求**内完成，而不是返回 3xx 让客户端重新请求——后者由已有的 `redirect()` 负责。
 
-|            | Rewrite                      | Redirect（已有 `redirect()`） |
-| ---------- | ---------------------------- | ----------------------------- |
-| 浏览器 URL | 不变                         | 变为 `Location` 目标          |
-| 对内路由   | 切换 `context.request`       | 不适用（客户端发起新请求）    |
-| 典型场景   | 门面路径、实验分流、渐进迁移 | 永久跳转、登录重定向          |
+`rewrite()` 填补的是框架级**内部路由切换**能力：在 middleware 中改写对内路径，并令后续 handler 栈按新路径继续执行。
 
-项目已有 `redirect()` 与对外 `proxy`，缺少**框架级内部路由重写**。自行 `dispatch(new Request(...))` 易导致 params、中间件顺序、route 激活与错误处理不一致。
-
-### 典型用例
-
-- 对外路径与对内路由解耦（如 `/v1/*` → `/internal/*`）
-- 结合 flags / cookie 分流到不同页面实现
-- 保留对外 URL 的审计与 SEO，对内走新 Route（含 SSR）
-
-### 非目标
+## 非目标
 
 - 声明式 rewrites 配置、构建期 routemap 改写
 - rewrite 到外部 origin（归 `@web-widget/helpers/proxy`）
@@ -42,7 +30,7 @@ return next();
 
 ## 核心抽象
 
-`context.rewrite(destination)` 的本质是**更新 Context 的对内路由视图**，语义上等价于：
+`context.rewrite(destination)` 的本质是更新 Context 的对内路由视图，语义上等价于：
 
 ```ts
 context.request = new Request(destination, context.request);
@@ -92,25 +80,25 @@ interface FetchContext {
 
 ### context.request 与 originalRequest
 
-| 字段                      | 含义                                                                                  |
-| ------------------------- | ------------------------------------------------------------------------------------- |
-| `context.request`         | 当前**对内路由**所用的 `Request`；`rewrite` 后更新为 `new Request(destination, prev)` |
-| `context.originalRequest` | 客户端原始 `Request`；整个请求生命周期内不变                                          |
+| 字段                      | 含义                                                                              |
+| ------------------------- | --------------------------------------------------------------------------------- |
+| `context.request`         | 当前对内路由所用的 `Request`；`rewrite` 后更新为 `new Request(destination, prev)` |
+| `context.originalRequest` | 客户端原始 `Request`；整个请求生命周期内不变                                      |
 
 需要对外 URL（鉴权、日志、canonical、SEO、缓存键）时，应读取 `context.originalRequest.url`（或其在 `context.state` 中的等价快照），而非假设 `context.request.url` 与地址栏一致。
 
 ### 与 next() 的关系
 
-| 能力        | 作用                                                             |
-| ----------- | ---------------------------------------------------------------- |
-| `rewrite()` | 切换对内 `Request`，失效 route 状态，**重新匹配剩余 handler 栈** |
-| `next()`    | 在（可能已更新的）栈上继续执行下游 handler                       |
+| 能力        | 作用                                                         |
+| ----------- | ------------------------------------------------------------ |
+| `rewrite()` | 切换对内 `Request`，失效 route 状态，重新匹配剩余 handler 栈 |
+| `next()`    | 在（可能已更新的）栈上继续执行下游 handler                   |
 
 规则：
 
-- **允许且推荐**：`context.rewrite(...); return next()`
-- **禁止**：`await next()` 完成后再 `rewrite()`（与 Koa 一致，语义冲突）
-- **禁止**：`rewrite()` 后在不 re-match 的情况下继续旧路径的 handler 栈（由实现保证）
+- 允许且推荐：`context.rewrite(...); return next()`
+- 禁止：`await next()` 完成后再 `rewrite()`（与 Koa 一致，语义冲突）
+- 禁止：`rewrite()` 后在不 re-match 的情况下继续旧路径的 handler 栈（由实现保证）
 
 `rewrite()` 不返回 `Response`。`Response` 由 `rewrite` 之后的新栈经 `next()` 产生，并可被外层 middleware 读取、修改后返回。
 
@@ -120,14 +108,14 @@ interface FetchContext {
 
 1. 将 `context.request` 设为 `new Request(resolvedDestination, context.request)`（同源校验与 query 合并见下文）
 2. 失效当前 route 激活状态（`module`、`meta`、`render`、`html`、`_handler` 等）
-3. 按新的 `context.request` **重新匹配尚未执行的 handler**，替换当前栈的剩余部分
-4. **不**重跑本请求中已执行过的全局 middleware（`*`）
+3. 按新的 `context.request` 重新匹配尚未执行的 handler，替换当前栈的剩余部分
+4. 不重跑本请求中已执行过的全局 middleware（`*`）
 
 已在当前 handler 之前执行完毕的 middleware 不受影响；`return next()` 进入的是与新对内路径对应的下游栈。
 
 ### Route 激活
 
-不变量：**Context 上已激活的 route module 必须对应当前 `context.request` 的匹配结果。**
+不变量：Context 上已激活的 route module 必须对应当前 `context.request` 的匹配结果。
 
 - `rewrite()` 时：清除 route 衍生状态
 - 后续 handler 进入时：Engine 按当前 `context.request` match 到的 module 重新激活
@@ -137,14 +125,29 @@ Rewrite 到 Route 时，应走与直接命中该 Route 相同的渲染与 layout
 
 ### Query
 
-遵循 `URL` 解析：`destination` 未带 search 时**保留**当前 `context.request` 的 query；显式写在 `destination` 中的 query 优先。
+遵循 `URL` 解析：`destination` 未带 search 时保留当前 `context.request` 的 query；显式写在 `destination` 中的 query 优先。
 
-### 错误、安全与缓存
+### 错误与安全
 
 - 重写目标不存在或抛错：与直接访问该路径一致，走现有 404 / fallback
 - 仅允许同源或相对 `destination`
-- 缓存与 `Vary` 以 **`context.originalRequest`（对外 URL）** 为基准
-- 须限制 rewrite 深度并检测环（默认最大深度与错误形态由实现定义，建议 508）
+- 须检测 rewrite 环：同一请求内不得 rewrite 到已访问过的 destination（pathname + search）；再次命中时拒绝（建议 508）
+
+### 缓存
+
+Rewrite 不改变浏览器地址栏 URL，但会切换对内 route。不同缓存层使用的键不同：
+
+**HTTP 共享缓存（CDN / 浏览器）**
+
+以 `context.originalRequest.url`（客户端可见 URL）为缓存键基准。边缘缓存与浏览器只感知对外请求；同一对外 URL 若总是 deterministic 地 rewrite 到同一对内路径，不必按对内路径再分桶。
+
+**应用内缓存 / 失效**
+
+以当前对内 route 路径（rewrite 后 `context.request` 的 match 结果）为基准。若框架提供按 path 失效的能力（类似 Next.js `revalidatePath`），应对 destination 路径操作，而非地址栏中的 source path。
+
+**Vary**
+
+遵循 HTTP 标准语义：`Vary` 声明哪些请求头会导致响应不同，而非 URL 本身。框架不因 rewrite 自动添加 URL 相关 `Vary`。需要按对外 URL 或自定义维度区分响应时，由 route 或 middleware 自行设置 `Cache-Control` / `Vary`。
 
 ### 控制流对比
 
@@ -156,11 +159,11 @@ Rewrite 到 Route 时，应走与直接命中该 Route 相同的渲染与 layout
 
 ## 与现有能力的关系
 
-| 能力                       | 关系                                                                           |
-| -------------------------- | ------------------------------------------------------------------------------ |
-| `redirect()`               | 改变客户端 URL；不更新对内 `context.request`                                   |
-| `proxy` / `fetchWithProxy` | 对外 origin；与内部 rewrite 职责分离                                           |
-| 直接赋值 `context.request` | 不推荐；应使用 `context.rewrite()` 以集中同源校验、环检测、深度限制与 re-match |
+| 能力                       | 关系                                                                 |
+| -------------------------- | -------------------------------------------------------------------- |
+| `redirect()`               | 改变客户端 URL；不更新对内 `context.request`                         |
+| `proxy` / `fetchWithProxy` | 对外 origin；与内部 rewrite 职责分离                                 |
+| 直接赋值 `context.request` | 不推荐；应使用 `context.rewrite()` 以集中同源校验、环检测与 re-match |
 
 ## 外部参考
 
@@ -170,7 +173,7 @@ Rewrite 到 Route 时，应走与直接命中该 Route 相同的渲染与 layout
 | Astro       | `context.rewrite()`；`originPathname` 表示改写前路径                |
 | Next.js     | `NextResponse.rewrite()`；内部路由与对外 URL 分离                   |
 
-Web Router 的 rewrite 对齐 Koa 的**可变路由视图**模型，并扩展 **route module 激活**与 **剩余栈 re-match** 语义。
+Web Router 的 rewrite 对齐 Koa 的可变路由视图模型，并扩展 route module 激活与剩余栈 re-match 语义。
 
 ## 示例
 
