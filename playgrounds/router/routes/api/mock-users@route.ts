@@ -103,8 +103,10 @@ export const handler = defineRouteHandler({
       });
     }
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000));
+    // Simulate network delay in development only; skip in tests to avoid CI timeouts
+    if (!import.meta.env.VITEST) {
+      await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000));
+    }
 
     return new Response(JSON.stringify(userData), {
       status: 200,
