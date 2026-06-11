@@ -102,4 +102,17 @@ export interface FetchContext<Params = Record<string, string>> extends Omit<
    * @deprecated This property is deprecated and will be removed in a future version.
    */
   readonly pathname: string;
+
+  /**
+   * The original client Request. Unchanged for the entire request lifecycle.
+   */
+  originalRequest: Request;
+
+  /**
+   * Internally rewrite to a same-origin destination (relative paths resolve
+   * against `context.request.url`). Updates `context.request`, clears route
+   * activation state, and re-matches the remaining handler stack. Must be
+   * followed by `return next()`.
+   */
+  rewrite(destination: string | URL): void;
 }

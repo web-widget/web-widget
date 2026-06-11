@@ -1722,3 +1722,256 @@ describe('normalizeHTTPException', () => {
     expect(capturedError.cause).toBe(objectError);
   });
 });
+
+function assignInternalRequest(
+  context: { request: Request },
+  destination: string | URL
+) {
+  const request = context.request;
+  context.request = new Request(new URL(destination, request.url), request);
+}
+
+describe('internal request', () => {
+  test('assigning internal request + next returns target route response', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      const url = new URL(c.request.url);
+      if (url.pathname.startsWith('/v1/')) {
+        assignInternalRequest(c, url.pathname.replace(/^\/v1/, '/internal'));
+        const res = await next();
+        res.headers.set('x-routed-by', 'v1-gateway');
+        return res;
+      }
+      return next();
+    });
+    app.get('/internal/products/:id', (c) => {
+      return text(`internal:${c.params.id}`);
+    });
+
+    const res = await app.dispatch('http://localhost/v1/products/42');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('internal:42');
+    expect(res.headers.get('x-routed-by')).toBe('v1-gateway');
+  });
+
+  test('originalRequest keeps client URL when internal request changes', async () => {
+    let internalUrl = '';
+    let originalUrl = '';
+
+    const app = new Application();
+    app.use('*', async (c, next) => {
+      assignInternalRequest(c, '/internal');
+      originalUrl = c.originalRequest.url;
+      return next();
+    });
+    app.get('/internal', (c) => {
+      internalUrl = c.request.url;
+      return text('ok');
+    });
+
+    await app.dispatch('http://localhost/v1/foo?bar=1');
+    expect(originalUrl).toBe('http://localhost/v1/foo?bar=1');
+    expect(new URL(internalUrl).pathname).toBe('/internal');
+  });
+
+  test('internal request uses query only from destination', async () => {
+    let internalSearch = '';
+
+    const app = new Application();
+    app.use('*', async (c, next) => {
+      assignInternalRequest(c, '/internal?p=2');
+      return next();
+    });
+    app.get('/internal', (c) => {
+      internalSearch = new URL(c.request.url).search;
+      return text('ok');
+    });
+
+    await app.dispatch('http://localhost/v1/foo?bar=1');
+    expect(internalSearch).toBe('?p=2');
+  });
+
+  test('global * middleware runs only once per request', async () => {
+    const log: string[] = [];
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      log.push('global');
+      if (new URL(c.request.url).pathname.startsWith('/v1')) {
+        assignInternalRequest(c, '/internal');
+        return next();
+      }
+      return next();
+    });
+    app.get('/internal', () => {
+      log.push('route');
+      return text('ok');
+    });
+
+    await app.dispatch('http://localhost/v1/foo');
+    expect(log).toEqual(['global', 'route']);
+  });
+
+  test('skips source route handler after internal request changes', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      if (new URL(c.request.url).pathname === '/v1/foo') {
+        assignInternalRequest(c, '/internal');
+        return next();
+      }
+      return next();
+    });
+    app.get('/v1/foo', () => text('source'));
+    app.get('/internal', () => text('target'));
+
+    const res = await app.dispatch('http://localhost/v1/foo');
+    expect(await res.text()).toBe('target');
+  });
+
+  test('runs target path middleware after internal request changes', async () => {
+    const log: string[] = [];
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      if (new URL(c.request.url).pathname === '/v1/foo') {
+        assignInternalRequest(c, '/internal');
+        return next();
+      }
+      return next();
+    });
+    app.use('/internal', async (_c, next) => {
+      log.push('internal-mw');
+      return next();
+    });
+    app.get('/internal', () => text('ok'));
+
+    await app.dispatch('http://localhost/v1/foo');
+    expect(log).toContain('internal-mw');
+  });
+
+  test('internal request to missing path returns 404', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      assignInternalRequest(c, '/missing');
+      return next();
+    });
+
+    const res = await app.dispatch('http://localhost/v1/foo');
+    expect(res.status).toBe(404);
+  });
+
+  test('rejects cross-origin internal request via onError', async () => {
+    const app = new Application();
+    let capturedStatus: number | undefined;
+
+    app.use('*', (c, next) => {
+      const request = c.request;
+      c.request = new Request(new URL('https://evil.com/path'), request);
+      return next();
+    });
+    app.onError((error) => {
+      capturedStatus = (error as { status?: number }).status;
+      return text(`error:${capturedStatus}`, { status: 500 });
+    });
+
+    await app.dispatch('http://localhost/v1/foo');
+    expect(capturedStatus).toBe(400);
+  });
+
+  test('detects internal request loop with HTTPException 508', async () => {
+    const app = new Application();
+    let capturedStatus: number | undefined;
+
+    app.use('/a', async (c, next) => {
+      assignInternalRequest(c, '/b');
+      return next();
+    });
+    app.use('/b', async (c, next) => {
+      assignInternalRequest(c, '/a');
+      return next();
+    });
+    app.onError((error) => {
+      capturedStatus = (error as { status?: number }).status;
+      return text(`error:${capturedStatus}`, { status: 500 });
+    });
+
+    await app.dispatch('http://localhost/a');
+    expect(capturedStatus).toBe(508);
+  });
+
+  test('rejects internal request change after next() has completed', async () => {
+    const app = new Application();
+    let capturedMessage = '';
+
+    app.use('*', async (c, next) => {
+      await next();
+      assignInternalRequest(c, '/internal');
+      return text('never');
+    });
+    app.get('/foo', () => text('ok'));
+    app.onError((error) => {
+      capturedMessage = (error as Error).message;
+      return text('handled', { status: 500 });
+    });
+
+    await app.dispatch('http://localhost/foo');
+    expect(capturedMessage).toBe(
+      'Cannot change internal request after next() has completed.'
+    );
+  });
+
+  test('updates params to match the internal route', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      if (new URL(c.request.url).pathname.startsWith('/v1/')) {
+        assignInternalRequest(
+          c,
+          new URL(c.request.url).pathname.replace('/v1', '/internal')
+        );
+        return next();
+      }
+      return next();
+    });
+    app.get('/internal/:id', (c) => text(`id:${c.params.id}`));
+
+    const res = await app.dispatch('http://localhost/v1/99');
+    expect(await res.text()).toBe('id:99');
+  });
+
+  test('preserves request method through internal request assignment', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      assignInternalRequest(c, '/internal');
+      return next();
+    });
+    app.post('/internal', (c) => text(c.request.method));
+
+    const res = await app.dispatch('http://localhost/v1/foo', {
+      method: 'POST',
+    });
+    expect(await res.text()).toBe('POST');
+  });
+});
+
+describe('rewrite()', () => {
+  test('delegates to internal request assignment for routing', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      if (new URL(c.request.url).pathname === '/v1/foo') {
+        c.rewrite('/internal');
+        return next();
+      }
+      return next();
+    });
+    app.get('/internal', () => text('target'));
+
+    const res = await app.dispatch('http://localhost/v1/foo');
+    expect(await res.text()).toBe('target');
+  });
+});

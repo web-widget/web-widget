@@ -1263,3 +1263,142 @@ describe('onFallback parameter', () => {
     );
   });
 });
+
+function assignInternalRequest(
+  context: { request: Request },
+  destination: string | URL
+) {
+  const request = context.request;
+  context.request = new Request(new URL(destination, request.url), request);
+}
+
+describe('internal request', () => {
+  test('assigning internal request to render route matches direct access', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/internal/test',
+          module: {
+            render: () => 'Rewritten Page',
+            handler: {
+              GET(context) {
+                return context.html!();
+              },
+            },
+          },
+        },
+      ],
+      middlewares: [
+        {
+          pathname: '/v1/test',
+          module: {
+            handler(context, next) {
+              assignInternalRequest(context, '/internal/test');
+              return next();
+            },
+          },
+        },
+      ],
+    });
+
+    const direct = await app.dispatch('http://localhost/internal/test');
+    const rewritten = await app.dispatch('http://localhost/v1/test');
+
+    expect(rewritten.status).toBe(direct.status);
+    expect(await rewritten.text()).toBe(await direct.text());
+  });
+
+  test('assigning internal request clears render state for handler-only route', async () => {
+    let capturedContext: RouteContext | undefined;
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/with-render',
+          module: {
+            render: () => 'Render Route',
+            handler: {
+              GET(context) {
+                return context.html!();
+              },
+            },
+          },
+        },
+        {
+          pathname: '/no-render',
+          module: {
+            handler: {
+              GET() {
+                return new Response('plain');
+              },
+            },
+          },
+        },
+      ],
+      middlewares: [
+        {
+          pathname: '/with-render',
+          module: {
+            handler(context, next) {
+              assignInternalRequest(context, '/no-render');
+              return next();
+            },
+          },
+        },
+        {
+          pathname: '/no-render',
+          module: {
+            handler(context, next) {
+              capturedContext = context as RouteContext;
+              return next();
+            },
+          },
+        },
+      ],
+    });
+
+    const res = await app.dispatch('http://localhost/with-render');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('plain');
+    expect(capturedContext?.render).toBeUndefined();
+    expect(capturedContext?.meta).toBeUndefined();
+    expect(capturedContext?.module?.handler).toBeDefined();
+  });
+
+  test('originalRequest is available when internal request changes', async () => {
+    let externalPath = '';
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/internal',
+          module: {
+            handler: {
+              GET() {
+                return new Response('ok');
+              },
+            },
+          },
+        },
+      ],
+      middlewares: [
+        {
+          pathname: '*',
+          module: {
+            handler(context, next) {
+              if (new URL(context.request.url).pathname.startsWith('/v1')) {
+                externalPath = new URL(context.originalRequest.url).pathname;
+                assignInternalRequest(context, '/internal');
+                return next();
+              }
+              return next();
+            },
+          },
+        },
+      ],
+    });
+
+    await app.dispatch('http://localhost/v1/products/42');
+    expect(externalPath).toBe('/v1/products/42');
+  });
+});
