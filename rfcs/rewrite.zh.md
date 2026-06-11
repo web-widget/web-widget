@@ -33,8 +33,12 @@ return next();
 `context.rewrite(destination)` 的本质是更新 Context 的对内路由视图，语义上等价于：
 
 ```ts
-context.request = new Request(destination, context.request);
+const url = new URL(destination, request.url);
+const newRequest = new Request(url, request);
+context.request = newRequest;
 ```
+
+`context.rewrite()` 是对上述的一层简单封装。
 
 并附带框架必需的调度副作用（见下文「重新匹配」与「Route 激活」）。
 
