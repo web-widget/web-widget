@@ -2069,6 +2069,79 @@ describe('rewrite()', () => {
     expect(log).toEqual(['first-global', 'second-global', 'route']);
   });
 
+  /**
+   * Documents actual dispatch order when rewrite is not used as return-driven
+   * control flow. These patterns are not supported; use `return context.rewrite(...)`.
+   */
+  describe('rewrite() flow (non-recommended patterns)', () => {
+    test('await rewrite then await next returns downstream response, not rewrite result', async () => {
+      const log: string[] = [];
+      const app = new Application();
+
+      app.use('*', async (c, next) => {
+        log.push('mw:start');
+        const rewriteRes = await c.rewrite('/internal');
+        log.push(`mw:rewrite:${await rewriteRes.clone().text()}`);
+        const downstreamRes = await next();
+        log.push(`mw:downstream:${await downstreamRes.clone().text()}`);
+        return downstreamRes;
+      });
+      app.get('/v1/foo', (c) => {
+        log.push(`source:request=${new URL(c.request.url).pathname}`);
+        return text('source-body');
+      });
+      app.get('/internal', (c) => {
+        log.push(`target:request=${new URL(c.request.url).pathname}`);
+        return text('target-body');
+      });
+
+      const res = await app.dispatch('http://localhost/v1/foo');
+
+      expect(await res.text()).toBe('source-body');
+      expect(log).toEqual([
+        'mw:start',
+        'target:request=/internal',
+        'mw:rewrite:target-body',
+        'source:request=/internal',
+        'mw:downstream:source-body',
+      ]);
+    });
+
+    test('rewrite without await still finishes inner dispatch before next() downstream', async () => {
+      const log: string[] = [];
+      const app = new Application();
+
+      app.use('*', async (c, next) => {
+        log.push('mw:start');
+        const rewritePromise = c.rewrite('/internal');
+        const downstreamRes = await next();
+        const rewriteRes = await rewritePromise;
+        log.push(`mw:rewrite:${await rewriteRes.clone().text()}`);
+        log.push(`mw:downstream:${await downstreamRes.clone().text()}`);
+        return downstreamRes;
+      });
+      app.get('/v1/foo', () => {
+        log.push('source');
+        return text('source-body');
+      });
+      app.get('/internal', () => {
+        log.push('target');
+        return text('target-body');
+      });
+
+      const res = await app.dispatch('http://localhost/v1/foo');
+
+      expect(await res.text()).toBe('source-body');
+      expect(log).toEqual([
+        'mw:start',
+        'target',
+        'source',
+        'mw:rewrite:target-body',
+        'mw:downstream:source-body',
+      ]);
+    });
+  });
+
   test('skips source route handler', async () => {
     const app = new Application();
 

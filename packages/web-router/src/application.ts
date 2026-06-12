@@ -80,6 +80,31 @@ function pathKeyFromUrl(url: string | URL): string {
   return parsed.pathname + parsed.search;
 }
 
+// NOTE: Node cannot resolve `new Request('/path', prev)`; pre-resolve relative URLs.
+function createRewriteRequest(
+  context: Context,
+  input: RequestInfo | URL,
+  init?: RequestInit
+): Request {
+  const prev = context.request;
+
+  if (input instanceof Request) {
+    let resolved: Request | URL = input;
+    try {
+      new URL(input.url);
+    } catch {
+      resolved = new URL(input.url, prev.url);
+    }
+    if (resolved instanceof Request) {
+      return init ? new Request(resolved, init) : resolved;
+    }
+    return new Request(resolved, init ?? prev);
+  }
+
+  const resolved = input instanceof URL ? input : new URL(input, prev.url);
+  return new Request(resolved, init ?? prev);
+}
+
 function resetRouteActivationOnViewChange(
   context: Context,
   moduleRuntime: ModuleRuntime | undefined
@@ -154,6 +179,11 @@ type GetPath<E extends Env> = (
 ) => string;
 
 interface DispatchFrame<E extends Env = Env> {
+  /**
+   * Handlers that have started in this request (rewrite re-match skips these).
+   * NOTE: Tracked by function reference — do not register the same handler on
+   * multiple routes; a second registration would be skipped after the first runs.
+   */
   executedHandlers: WeakSet<MiddlewareHandler>;
   nextCompleted: boolean;
   visited: Set<string>;
@@ -270,31 +300,6 @@ class Application<
     return this.router.match(method, path);
   }
 
-  // NOTE: Node cannot resolve `new Request('/path', prev)`; pre-resolve relative URLs.
-  #createRewriteRequest(
-    context: Context,
-    input: RequestInfo | URL,
-    init?: RequestInit
-  ): Request {
-    const prev = context.request;
-
-    if (input instanceof Request) {
-      let resolved: Request | URL = input;
-      try {
-        new URL(input.url);
-      } catch {
-        resolved = new URL(input.url, prev.url);
-      }
-      if (resolved instanceof Request) {
-        return init ? new Request(resolved, init) : resolved;
-      }
-      return new Request(resolved, init ?? prev);
-    }
-
-    const resolved = input instanceof URL ? input : new URL(input, prev.url);
-    return new Request(resolved, init ?? prev);
-  }
-
   #rewrite(
     context: Context,
     frame: DispatchFrame,
@@ -308,7 +313,7 @@ class Application<
     }
 
     const prev = context.request;
-    const nextRequest = this.#createRewriteRequest(context, input, init);
+    const nextRequest = createRewriteRequest(context, input, init);
     const nextUrl = new URL(nextRequest.url);
     const currentUrl = new URL(prev.url);
 
