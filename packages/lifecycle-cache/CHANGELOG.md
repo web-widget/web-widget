@@ -1,5 +1,14 @@
 # @web-widget/lifecycle-cache
 
+## 2.3.0
+
+### Patch Changes
+
+- Updated dependencies [b8d3b48]
+  - @web-widget/schema@2.3.0
+  - @web-widget/context@2.3.0
+  - @web-widget/purify@2.3.0
+
 ## 2.2.0
 
 ### Patch Changes

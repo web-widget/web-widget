@@ -1,5 +1,11 @@
 # @web-widget/html
 
+## 2.3.0
+
+### Patch Changes
+
+- @web-widget/helpers@2.3.0
+
 ## 2.2.0
 
 ### Patch Changes
