@@ -26,7 +26,6 @@ return context.rewrite('/internal');
 - rewrite 到外部 origin（归 `@web-widget/helpers/proxy`）
 - rewrite 到 Action 端点
 - 客户端 `context.rewrite()`
-- 用户代码对 `context.request` 的赋值
 
 ## 公开 API
 
