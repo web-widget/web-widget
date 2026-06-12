@@ -2028,7 +2028,7 @@ describe('rewrite()', () => {
     expect(internalSearch).toBe('?p=2');
   });
 
-  test('global * middleware runs only once per request', async () => {
+  test('executed handlers are not re-run after rewrite', async () => {
     const log: string[] = [];
     const app = new Application();
 
@@ -2046,6 +2046,27 @@ describe('rewrite()', () => {
 
     await app.dispatch('http://localhost/v1/foo');
     expect(log).toEqual(['global', 'route']);
+  });
+
+  test('skips every handler that already started before rewrite', async () => {
+    const log: string[] = [];
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      log.push('first-global');
+      return next();
+    });
+    app.use('*', async (c) => {
+      log.push('second-global');
+      return c.rewrite('/internal');
+    });
+    app.get('/internal', () => {
+      log.push('route');
+      return text('ok');
+    });
+
+    await app.dispatch('http://localhost/v1/foo');
+    expect(log).toEqual(['first-global', 'second-global', 'route']);
   });
 
   test('skips source route handler', async () => {

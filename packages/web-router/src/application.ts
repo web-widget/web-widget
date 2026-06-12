@@ -30,8 +30,6 @@ import { getPath, getPathNoStrict } from './url';
 type Methods = (typeof METHODS)[number];
 type DispatchMode = 'initial' | 'rewrite';
 
-const GLOBAL_ROUTE_PATTERN = '*';
-
 function defineDynamicClass(): {
   new <E extends Env = Env, BasePath extends string = '/'>(): {
     /**
@@ -123,14 +121,11 @@ function finalizeHeadResponse(
   });
 }
 
-function filterExecutedGlobalHandlers(
+function filterExecutedHandlers(
   handlers: Result<MiddlewareHandler>,
-  executedGlobalHandlers: WeakSet<MiddlewareHandler>
+  executedHandlers: WeakSet<MiddlewareHandler>
 ): Result<MiddlewareHandler> {
-  return handlers.filter(
-    (entry) =>
-      entry[2] !== GLOBAL_ROUTE_PATTERN || !executedGlobalHandlers.has(entry[0])
-  );
+  return handlers.filter((entry) => !executedHandlers.has(entry[0]));
 }
 
 function wrapHandlerWithNextGuard(
@@ -159,7 +154,7 @@ type GetPath<E extends Env> = (
 ) => string;
 
 interface DispatchFrame<E extends Env = Env> {
-  executedGlobalHandlers: WeakSet<MiddlewareHandler>;
+  executedHandlers: WeakSet<MiddlewareHandler>;
   nextCompleted: boolean;
   visited: Set<string>;
   method: string;
@@ -352,18 +347,13 @@ class Application<
   ): Promise<Response> {
     let matched = this.#matchRoute(frame.method, path);
     if (mode === 'rewrite') {
-      matched = filterExecutedGlobalHandlers(
-        matched,
-        frame.executedGlobalHandlers
-      );
+      matched = filterExecutedHandlers(matched, frame.executedHandlers);
     }
 
     const composed = compose<(typeof matched)[0], Context>(matched, (entry) => {
       context.params = entry[1];
       context.pathname = entry[2];
-      if (mode === 'initial' && entry[2] === GLOBAL_ROUTE_PATTERN) {
-        frame.executedGlobalHandlers.add(entry[0]);
-      }
+      frame.executedHandlers.add(entry[0]);
       return wrapHandlerWithNextGuard(entry[0], frame);
     });
 
@@ -391,7 +381,7 @@ class Application<
     });
 
     const frame: DispatchFrame = {
-      executedGlobalHandlers: new WeakSet(),
+      executedHandlers: new WeakSet(),
       nextCompleted: false,
       visited: new Set([pathKeyFromUrl(internalRequest.url)]),
       method: internalRequest.method,

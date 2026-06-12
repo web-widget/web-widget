@@ -20,7 +20,7 @@ return context.rewrite('/internal');
 - 典型模式：`return context.rewrite(...)`，与 `return next()`、`return redirect(...)` 同级
 - `context.originalRequest` 始终指向客户端原始请求
 - `context.request` 为用户只读、由框架维护的对内路由视图
-- 全局 middleware（`*`）在请求级只执行一次
+- rewrite 后 re-match 时，本请求中**已开始执行**的 handler 不再重复执行
 
 ## 非目标
 
@@ -91,10 +91,9 @@ Rewrite 与 `redirect()` 一样由 `return` 驱动：
 1. 按上表构造对内 `Request`（相对 URL 相对于 `context.request.url`）
 2. 同源校验；失败抛出 `Error`
 3. 检测 rewrite 环（pathname + search）；再次命中抛出 `HTTPException`（508）
-4. 失效 route 激活状态（`module`、`meta`、`render`、`html`、`_handler` 等）
+4. 失效 route 激活状态（`module`、`meta`、`html` 等）
 5. 更新 `context.request`
-6. 按新的 `context.request` re-match 尚未执行的 handler，执行目标栈并返回 `Response`
-7. 不重跑本请求中已执行过的全局 middleware（`*`）
+6. 按新的 `context.request` re-match 目标栈；跳过本请求已执行的 handler，返回 `Response`
 
 ### Route 激活
 
