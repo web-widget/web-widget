@@ -155,11 +155,16 @@ function filterExecutedHandlers(
 
 function wrapHandlerWithNextGuard(
   handler: MiddlewareHandler,
-  frame: DispatchFrame
+  frame: DispatchFrame,
+  context: Context
 ): MiddlewareHandler {
-  return (context, next) => {
-    const guardedNext = () =>
-      Promise.resolve(next()).then(
+  return (ctx, next) => {
+    const guardedNext = () => {
+      if (frame.subsequentInternalRequest) {
+        context.updateRequest(frame.subsequentInternalRequest);
+        frame.method = frame.subsequentInternalRequest.method;
+      }
+      return Promise.resolve(next()).then(
         (response: Response) => {
           frame.nextCompleted = true;
           return response;
@@ -169,7 +174,8 @@ function wrapHandlerWithNextGuard(
           throw error;
         }
       );
-    return handler(context, guardedNext);
+    };
+    return handler(ctx, guardedNext);
   };
 }
 
@@ -185,6 +191,7 @@ interface DispatchFrame<E extends Env = Env> {
    * multiple routes; a second registration would be skipped after the first runs.
    */
   executedHandlers: WeakSet<MiddlewareHandler>;
+  subsequentInternalRequest?: Request;
   nextCompleted: boolean;
   visited: Set<string>;
   method: string;
@@ -312,10 +319,10 @@ class Application<
       );
     }
 
-    const prev = context.request;
+    const callerRequest = context.request;
     const nextRequest = createRewriteRequest(context, input, init);
     const nextUrl = new URL(nextRequest.url);
-    const currentUrl = new URL(prev.url);
+    const currentUrl = new URL(callerRequest.url);
 
     if (nextUrl.origin !== currentUrl.origin) {
       throw new Error('Rewrite destination must be same-origin or relative');
@@ -324,7 +331,8 @@ class Application<
     const nextPathKey = pathKeyFromUrl(nextUrl);
     const currentPathKey = pathKeyFromUrl(currentUrl);
     const routeViewChanged =
-      nextPathKey !== currentPathKey || nextRequest.method !== prev.method;
+      nextPathKey !== currentPathKey ||
+      nextRequest.method !== callerRequest.method;
 
     if (nextPathKey !== currentPathKey) {
       if (frame.visited.has(nextPathKey)) {
@@ -341,7 +349,13 @@ class Application<
     frame.method = nextRequest.method;
 
     const path = this.getPath(context.request, { env: frame.env });
-    return this.#dispatchMatched(context, path, frame, 'rewrite');
+    return this.#dispatchMatched(context, path, frame, 'rewrite').finally(
+      () => {
+        context.updateRequest(callerRequest);
+        frame.subsequentInternalRequest = nextRequest;
+        frame.method = nextRequest.method;
+      }
+    );
   }
 
   async #dispatchMatched(
@@ -359,7 +373,7 @@ class Application<
       context.params = entry[1];
       context.pathname = entry[2];
       frame.executedHandlers.add(entry[0]);
-      return wrapHandlerWithNextGuard(entry[0], frame);
+      return wrapHandlerWithNextGuard(entry[0], frame, context);
     });
 
     const res = await composed(context, this.#notFoundHandler);

@@ -2069,18 +2069,71 @@ describe('rewrite()', () => {
     expect(log).toEqual(['first-global', 'second-global', 'route']);
   });
 
-  /**
-   * Documents actual dispatch order when rewrite is not used as return-driven
-   * control flow. These patterns are not supported; use `return context.rewrite(...)`.
-   */
-  describe('rewrite() flow (non-recommended patterns)', () => {
-    test('await rewrite then await next returns downstream response, not rewrite result', async () => {
+  describe('rewrite() request view', () => {
+    test('caller middleware keeps pre-rewrite context.request after await rewrite()', async () => {
+      const log: string[] = [];
+      const app = new Application();
+
+      app.use('*', async (c) => {
+        log.push(`before:${new URL(c.request.url).pathname}`);
+        await c.rewrite('/internal');
+        log.push(`after:${new URL(c.request.url).pathname}`);
+        return text('never returned when using return rewrite');
+      });
+      app.get('/internal', () => text('target'));
+
+      const res = await app.dispatch('http://localhost/v1/foo');
+      expect(await res.text()).toBe('never returned when using return rewrite');
+      expect(log).toEqual(['before:/v1/foo', 'after:/v1/foo']);
+    });
+
+    test('target stack handlers see rewritten context.request', async () => {
+      const log: string[] = [];
+      const app = new Application();
+
+      app.use('*', async (c) => c.rewrite('/internal'));
+      app.get('/internal', (c) => {
+        log.push(`target:${new URL(c.request.url).pathname}`);
+        return text('ok');
+      });
+
+      await app.dispatch('http://localhost/v1/foo');
+      expect(log).toEqual(['target:/internal']);
+    });
+
+    test('next() downstream sees rewritten context.request after await rewrite()', async () => {
       const log: string[] = [];
       const app = new Application();
 
       app.use('*', async (c, next) => {
-        log.push('mw:start');
+        await c.rewrite('/internal');
+        return next();
+      });
+      app.get('/v1/foo', (c) => {
+        log.push(`downstream:${new URL(c.request.url).pathname}`);
+        return text('downstream-body');
+      });
+      app.get('/internal', () => text('target-body'));
+
+      const res = await app.dispatch('http://localhost/v1/foo');
+      expect(await res.text()).toBe('downstream-body');
+      expect(log).toEqual(['downstream:/internal']);
+    });
+  });
+
+  /**
+   * Documents dispatch when rewrite is not return-driven control flow.
+   * These patterns are not recommended; use `return context.rewrite(...)`.
+   */
+  describe('rewrite() flow (non-recommended patterns)', () => {
+    test('await rewrite then return next() downstream response discards rewrite result', async () => {
+      const log: string[] = [];
+      const app = new Application();
+
+      app.use('*', async (c, next) => {
+        log.push(`caller:${new URL(c.request.url).pathname}`);
         const rewriteRes = await c.rewrite('/internal');
+        log.push(`after-rewrite:${new URL(c.request.url).pathname}`);
         log.push(`mw:rewrite:${await rewriteRes.clone().text()}`);
         const downstreamRes = await next();
         log.push(`mw:downstream:${await downstreamRes.clone().text()}`);
@@ -2099,23 +2152,25 @@ describe('rewrite()', () => {
 
       expect(await res.text()).toBe('source-body');
       expect(log).toEqual([
-        'mw:start',
+        'caller:/v1/foo',
         'target:request=/internal',
+        'after-rewrite:/v1/foo',
         'mw:rewrite:target-body',
         'source:request=/internal',
         'mw:downstream:source-body',
       ]);
     });
 
-    test('rewrite without await still finishes inner dispatch before next() downstream', async () => {
+    test('rewrite without await still applies subsequent request before next() downstream', async () => {
       const log: string[] = [];
       const app = new Application();
 
       app.use('*', async (c, next) => {
-        log.push('mw:start');
+        log.push(`caller:${new URL(c.request.url).pathname}`);
         const rewritePromise = c.rewrite('/internal');
         const downstreamRes = await next();
         const rewriteRes = await rewritePromise;
+        log.push(`after-next:${new URL(c.request.url).pathname}`);
         log.push(`mw:rewrite:${await rewriteRes.clone().text()}`);
         log.push(`mw:downstream:${await downstreamRes.clone().text()}`);
         return downstreamRes;
@@ -2133,9 +2188,10 @@ describe('rewrite()', () => {
 
       expect(await res.text()).toBe('source-body');
       expect(log).toEqual([
-        'mw:start',
+        'caller:/v1/foo',
         'target',
         'source',
+        'after-next:/v1/foo',
         'mw:rewrite:target-body',
         'mw:downstream:source-body',
       ]);
