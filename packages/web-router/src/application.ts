@@ -133,12 +133,32 @@ function filterExecutedGlobalHandlers(
   );
 }
 
+function wrapHandlerWithNextGuard(
+  handler: MiddlewareHandler,
+  frame: DispatchFrame
+): MiddlewareHandler {
+  return (context, next) => {
+    const guardedNext = () =>
+      Promise.resolve(next()).then(
+        (response: Response) => {
+          frame.nextCompleted = true;
+          return response;
+        },
+        (error: unknown) => {
+          frame.nextCompleted = true;
+          throw error;
+        }
+      );
+    return handler(context, guardedNext);
+  };
+}
+
 type GetPath<E extends Env> = (
   request: Request,
   options?: { env?: E['Bindings'] }
 ) => string;
 
-interface DispatchState<E extends Env = Env> {
+interface DispatchFrame<E extends Env = Env> {
   executedGlobalHandlers: WeakSet<MiddlewareHandler>;
   nextCompleted: boolean;
   visited: Set<string>;
@@ -282,11 +302,11 @@ class Application<
 
   #rewrite(
     context: Context,
-    state: DispatchState,
+    frame: DispatchFrame,
     input: RequestInfo | URL,
     init?: RequestInit
   ): Promise<Response> {
-    if (state.nextCompleted) {
+    if (frame.nextCompleted) {
       throw new Error(
         'Cannot change internal request after next() has completed.'
       );
@@ -307,10 +327,10 @@ class Application<
       nextPathKey !== currentPathKey || nextRequest.method !== prev.method;
 
     if (nextPathKey !== currentPathKey) {
-      if (state.visited.has(nextPathKey)) {
+      if (frame.visited.has(nextPathKey)) {
         throw createHttpError(508, 'Rewrite loop detected');
       }
-      state.visited.add(nextPathKey);
+      frame.visited.add(nextPathKey);
     }
 
     if (routeViewChanged) {
@@ -318,52 +338,34 @@ class Application<
     }
 
     context.updateRequest(nextRequest);
-    state.method = nextRequest.method;
+    frame.method = nextRequest.method;
 
-    const path = this.getPath(context.request, { env: state.env });
-    return this.#dispatchMatched(context, path, state, 'rewrite');
+    const path = this.getPath(context.request, { env: frame.env });
+    return this.#dispatchMatched(context, path, frame, 'rewrite');
   }
 
   async #dispatchMatched(
     context: Context,
     path: string,
-    state: DispatchState,
+    frame: DispatchFrame,
     mode: DispatchMode = 'initial'
   ): Promise<Response> {
-    let matched = this.#matchRoute(state.method, path);
+    let matched = this.#matchRoute(frame.method, path);
     if (mode === 'rewrite') {
       matched = filterExecutedGlobalHandlers(
         matched,
-        state.executedGlobalHandlers
+        frame.executedGlobalHandlers
       );
     }
 
-    const composed = compose<(typeof matched)[0], Context>(
-      matched,
-      (entry) => {
-        context.params = entry[1];
-        context.pathname = entry[2];
-        if (mode === 'initial' && entry[2] === GLOBAL_ROUTE_PATTERN) {
-          state.executedGlobalHandlers.add(entry[0]);
-        }
-        return entry[0];
-      },
-      {
-        wrapAdvance: (advance) => {
-          return () =>
-            advance().then(
-              (response) => {
-                state.nextCompleted = true;
-                return response;
-              },
-              (error) => {
-                state.nextCompleted = true;
-                throw error;
-              }
-            );
-        },
+    const composed = compose<(typeof matched)[0], Context>(matched, (entry) => {
+      context.params = entry[1];
+      context.pathname = entry[2];
+      if (mode === 'initial' && entry[2] === GLOBAL_ROUTE_PATTERN) {
+        frame.executedGlobalHandlers.add(entry[0]);
       }
-    );
+      return wrapHandlerWithNextGuard(entry[0], frame);
+    });
 
     const res = await composed(context, this.#notFoundHandler);
     return assertHandlerResponse(res);
@@ -388,7 +390,7 @@ class Application<
       originalRequest,
     });
 
-    const state: DispatchState = {
+    const frame: DispatchFrame = {
       executedGlobalHandlers: new WeakSet(),
       nextCompleted: false,
       visited: new Set([pathKeyFromUrl(internalRequest.url)]),
@@ -397,11 +399,11 @@ class Application<
     };
 
     context.rewrite = (input, init) =>
-      this.#rewrite(context, state, input, init);
+      this.#rewrite(context, frame, input, init);
 
     return (async () => {
       try {
-        const res = await this.#dispatchMatched(context, path, state);
+        const res = await this.#dispatchMatched(context, path, frame);
 
         if (
           res.status >= 400 &&

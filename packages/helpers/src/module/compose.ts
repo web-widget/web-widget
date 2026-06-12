@@ -13,13 +13,6 @@ type ComposedHandler<Content, Next, Result> = (
   next?: Next
 ) => Promise<Result>;
 
-export interface ComposeOptions<Context, Result = Response> {
-  /**
-   * Wrap the `advance()` call behind each handler's `next()` (e.g. lifecycle hooks).
-   */
-  wrapAdvance?: (advance: () => Promise<Result>) => () => Promise<Result>;
-}
-
 // Based on the code in the MIT licensed `koa-compose` package.
 export function compose<
   Handler = Function,
@@ -28,8 +21,7 @@ export function compose<
   Result = Response,
 >(
   middlewares: Handler[],
-  each?: (value: Handler, index: number, array: Handler[]) => Function,
-  options?: ComposeOptions<Context, Result>
+  each?: (value: Handler, index: number, array: Handler[]) => Function
 ): ComposedHandler<Context, Next, Result> {
   if (!Array.isArray(middlewares)) {
     throw new TypeError('Middleware stack must be an array.');
@@ -62,10 +54,7 @@ export function compose<
 
       if (handler) {
         const advance = () => dispatch(i + 1);
-        const next = options?.wrapAdvance
-          ? options.wrapAdvance(advance)
-          : () => advance();
-        return await (handler as Function)(context, next);
+        return await (handler as Function)(context, advance);
       } else {
         return new Response(null, {
           status: 404,

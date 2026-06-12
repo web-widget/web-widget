@@ -1,6 +1,5 @@
 ---
 '@web-widget/web-router': minor
-'@web-widget/helpers': patch
 '@web-widget/schema': patch
 ---
 
@@ -12,5 +11,3 @@ Add runtime internal URL rewrite ([RFC](https://github.com/web-widget/web-widget
 - `HEAD` is normalized at the framework entry and returns an empty body
 
 `@web-widget/schema`: `rewrite()` and `originalRequest` on `FetchContext`.
-
-`@web-widget/helpers`: `compose` awaits middleware return values so rejected `rewrite()` propagates to `onError`.
