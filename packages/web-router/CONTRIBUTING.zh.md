@@ -42,7 +42,7 @@ pnpm test
 - **测试运行器**: Vitest（比 Jest 更快，更好的 Workers 支持）
 - **配置文件**: `vitest.config.ts`
 - **运行环境**: Cloudflare Workers 运行时
-- **测试覆盖**: 158 个全面测试，Engine 方法 100% 覆盖
+- **测试覆盖**: 158 个全面测试，ModuleRuntime 方法 100% 覆盖
 
 ## 📐 架构概览
 
@@ -50,17 +50,17 @@ web-router 采用**领域驱动设计**，核心组件：
 
 ```
 ┌─────────────┐    ┌────────────────┐    ┌─────────────────┐    ┌────────────┐
-│ Application │───▶│ Router         │───▶│ Engine          │───▶│ Context    │
-│ HTTP Layer  │    │ Route Matching │    │ Business Engine │    │ State Mgmt │
+│ Application │───▶│ Router         │───▶│ ModuleRuntime   │───▶│ Context    │
+│ HTTP Layer  │    │ Route Matching │    │ Module & SSR    │    │ State Mgmt │
 └─────────────┘    └────────────────┘    └─────────────────┘    └────────────┘
 ```
 
 - **Application** (`application.ts`) - HTTP 请求/响应生命周期
 - **Router** (`router.ts`) - URL 模式匹配和路由注册
-- **Engine** (`engine.ts`) - 🌟 **核心**：统一的业务处理引擎
-- **Context** (`context.ts`) - 增强的请求上下文
+- **ModuleRuntime** (`module.ts`) - 🌟 **核心**：schema 模块运行时（handler 工厂、SSR 管道）
+- **Context** (`context.ts`) - 请求上下文（`request`、`originalRequest`、`rewrite` 等）
 
-> 💡 **重点**：Engine 是核心组件，负责模块处理、渲染管道和错误处理
+> 💡 **重点**：ModuleRuntime 将 Route / Middleware / Action 模块接入 Application 调度栈
 
 ### 模块格式标准
 
@@ -109,7 +109,7 @@ packages/web-router/src/
 ├── index.ts          # 入口文件，WebRouter 类定义
 ├── application.ts    # Application 领域对象
 ├── router.ts         # Router 领域对象
-├── engine.ts         # Engine 领域对象（核心）
+├── module.ts         # ModuleRuntime 领域对象（核心）
 ├── context.ts        # Context 领域对象
 ├── types.ts          # TypeScript 类型定义
 ├── layout.ts         # 默认布局模块
@@ -125,7 +125,7 @@ packages/web-router/src/
 1. **HTTP Request** → Application 接收请求
 2. **Route Matching** → Router 匹配路由模式
 3. **Context Creation** → 创建请求上下文
-4. **Module Processing** → Engine 处理模块（Route/Middleware/Action）
+4. **Module Processing** → ModuleRuntime 处理模块（Route/Middleware/Action）
 5. **Render Pipeline** → 统一渲染管道处理
 6. **HTTP Response** → 返回响应
 
@@ -140,7 +140,7 @@ packages/web-router/src/
 所有响应类型（200/404/500）使用统一的渲染流程：
 
 ```
-Handler → render() → Engine → Layout → Response
+Handler → render() → ModuleRuntime → Layout → Response
 ```
 
 ### 关键设计决策
@@ -149,13 +149,13 @@ Handler → render() → Engine → Layout → Response
 
 让正常页面和错误页面使用相同的渲染流程，确保一致的用户体验和共享的布局系统。
 
-#### 2. Engine 引擎模式
+#### 2. ModuleRuntime 模式
 
 集中管理模块处理、缓存机制和错误处理，避免代码重复，提供一致的处理接口。
 
 #### 3. 缓存机制
 
-使用 WeakMap 缓存模块渲染函数，在开发模式禁用缓存支持热重载，生产模式启用缓存提升性能。
+按模块缓存 handler 与渲染管道配置；开发模式禁用缓存以支持热重载，生产模式启用缓存以提升性能。
 
 #### 4. 错误处理
 
@@ -201,7 +201,7 @@ npx tsc --noEmit
 # 代码规范检查
 pnpm run lint
 
-# 覆盖率报告（验证 100% Engine 覆盖）
+# 覆盖率报告（验证 100% ModuleRuntime 覆盖）
 pnpm run test:coverage
 ```
 
@@ -227,7 +227,7 @@ pnpm run test:coverage
 1. **`types.ts`** - 理解类型定义
 2. **`context.ts`** - 了解上下文对象
 3. **`router.ts`** - 掌握路由匹配
-4. **`engine.ts`** - 🌟 **重点**：核心业务逻辑
+4. **`module.ts`** - 🌟 **重点**：核心业务逻辑
 5. **`application.ts`** - HTTP 层处理
 6. **`index.ts`** - 整体集成
 7. **`*.test.ts`** - 学习全面的测试模式
@@ -252,7 +252,7 @@ pnpm run test:coverage
 提交 PR 前请确认：
 
 - [ ] 代码遵循项目规范
-- [ ] 添加了全面的测试（遵循 Engine 测试模式）
+- [ ] 添加了全面的测试（遵循 ModuleRuntime 测试模式）
 - [ ] 所有测试通过 Vitest
 - [ ] 更新了相关文档
 - [ ] 无 TypeScript 类型错误

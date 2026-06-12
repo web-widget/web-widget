@@ -1263,3 +1263,269 @@ describe('onFallback parameter', () => {
     );
   });
 });
+
+describe('HEAD method', () => {
+  test('manifest GET route serves HEAD with same status and headers', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/page',
+          module: {
+            handler: {
+              GET() {
+                return new Response('content', {
+                  headers: { 'x-test': '1' },
+                });
+              },
+            },
+          },
+        },
+      ],
+    });
+
+    const getRes = await app.dispatch('http://localhost/page', {
+      method: 'GET',
+    });
+    const headRes = await app.dispatch('http://localhost/page', {
+      method: 'HEAD',
+    });
+
+    expect(await getRes.text()).toBe('content');
+    expect(headRes.body).toBe(null);
+    expect(headRes.status).toBe(getRes.status);
+    expect(headRes.headers.get('x-test')).toBe('1');
+  });
+
+  test('render route HEAD matches GET direct access', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/page',
+          module: {
+            render: () => 'Page Title',
+            handler: {
+              GET(context) {
+                return context.html!();
+              },
+            },
+          },
+        },
+      ],
+    });
+
+    const getRes = await app.dispatch('http://localhost/page', {
+      method: 'GET',
+    });
+    const headRes = await app.dispatch('http://localhost/page', {
+      method: 'HEAD',
+    });
+
+    expect(headRes.status).toBe(getRes.status);
+    expect(headRes.body).toBe(null);
+    expect(headRes.headers.get('content-type')).toBe(
+      getRes.headers.get('content-type')
+    );
+  });
+
+  test('HEAD keeps originalRequest method while internal routing uses GET', async () => {
+    let originalMethod = '';
+    let internalMethod = '';
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/page',
+          module: {
+            handler: {
+              GET(context) {
+                originalMethod = context.originalRequest.method;
+                internalMethod = context.request.method;
+                return new Response('ok');
+              },
+            },
+          },
+        },
+      ],
+    });
+
+    await app.dispatch('http://localhost/page', { method: 'HEAD' });
+    expect(originalMethod).toBe('HEAD');
+    expect(internalMethod).toBe('GET');
+  });
+
+  test('HEAD rewrite changes internal path but preserves originalRequest URL', async () => {
+    let originalUrl = '';
+    let internalPath = '';
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/internal',
+          module: {
+            handler: {
+              GET(context) {
+                originalUrl = context.originalRequest.url;
+                internalPath = new URL(context.request.url).pathname;
+                return new Response('ok');
+              },
+            },
+          },
+        },
+      ],
+      middlewares: [
+        {
+          pathname: '*',
+          module: {
+            handler(context, next) {
+              if (context.originalRequest.method === 'HEAD') {
+                return context.rewrite('/internal');
+              }
+              return next();
+            },
+          },
+        },
+      ],
+    });
+
+    const res = await app.dispatch('http://localhost/v1/products', {
+      method: 'HEAD',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toBe(null);
+    expect(originalUrl).toBe('http://localhost/v1/products');
+    expect(internalPath).toBe('/internal');
+  });
+});
+
+describe('rewrite()', () => {
+  test('rewritten render route matches direct access', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/internal/test',
+          module: {
+            render: () => 'Rewritten Page',
+            handler: {
+              GET(context) {
+                return context.html!();
+              },
+            },
+          },
+        },
+      ],
+      middlewares: [
+        {
+          pathname: '/v1/test',
+          module: {
+            handler(context) {
+              return context.rewrite('/internal/test');
+            },
+          },
+        },
+      ],
+    });
+
+    const direct = await app.dispatch('http://localhost/internal/test');
+    const rewritten = await app.dispatch('http://localhost/v1/test');
+
+    expect(rewritten.status).toBe(direct.status);
+    expect(await rewritten.text()).toBe(await direct.text());
+  });
+
+  test('clears render state when rewriting to handler-only route', async () => {
+    let sawRenderCleared = false;
+    let sawHandlerModule = false;
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/with-render',
+          module: {
+            render: () => 'Render Route',
+            handler: {
+              GET(context) {
+                return context.html!();
+              },
+            },
+          },
+        },
+        {
+          pathname: '/no-render',
+          module: {
+            handler: {
+              GET() {
+                return new Response('plain');
+              },
+            },
+          },
+        },
+      ],
+      middlewares: [
+        {
+          pathname: '/with-render',
+          module: {
+            handler(context) {
+              return context.rewrite('/no-render');
+            },
+          },
+        },
+        {
+          pathname: '/no-render',
+          module: {
+            handler(context, next) {
+              sawRenderCleared =
+                context.render === undefined && context.meta === undefined;
+              sawHandlerModule = context.module?.handler !== undefined;
+              return next();
+            },
+          },
+        },
+      ],
+    });
+
+    const res = await app.dispatch('http://localhost/with-render');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('plain');
+    expect(sawRenderCleared).toBe(true);
+    expect(sawHandlerModule).toBe(true);
+  });
+
+  test('originalRequest exposes client URL during rewrite', async () => {
+    let externalPath = '';
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/internal',
+          module: {
+            handler: {
+              GET() {
+                return new Response('ok');
+              },
+            },
+          },
+        },
+      ],
+      middlewares: [
+        {
+          pathname: '*',
+          module: {
+            handler(context, next) {
+              if (
+                new URL(context.originalRequest.url).pathname.startsWith('/v1')
+              ) {
+                externalPath = new URL(context.originalRequest.url).pathname;
+                return context.rewrite('/internal');
+              }
+              return next();
+            },
+          },
+        },
+      ],
+    });
+
+    await app.dispatch('http://localhost/v1/products/42');
+    expect(externalPath).toBe('/v1/products/42');
+  });
+});

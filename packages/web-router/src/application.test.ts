@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { callContext, context } from '@web-widget/context/server';
+import { methodsToHandler } from '@web-widget/helpers/module';
 import { Application } from './application';
-import type { MiddlewareHandler } from './types';
+import { ModuleRuntime } from './module';
+import type {
+  LayoutModule,
+  Meta,
+  MiddlewareHandler,
+  RouteContext,
+  ServerRenderOptions,
+} from './types';
 import { getPath } from './url';
 
 // https://stackoverflow.com/a/65666402
@@ -1418,8 +1426,6 @@ declare module './context' {
 // });
 
 describe('normalizeHTTPException', () => {
-  const app = new Application();
-
   // Test basic error handling
   test('should handle basic errors', async () => {
     const testApp = new Application();
@@ -1720,5 +1726,804 @@ describe('normalizeHTTPException', () => {
     await testApp.dispatch('/test-error');
 
     expect(capturedError.cause).toBe(objectError);
+  });
+});
+
+describe('HEAD method', () => {
+  test('normalizes internal request to GET while preserving originalRequest', async () => {
+    let internalMethod = '';
+    let originalMethod = '';
+
+    const app = new Application();
+    app.get('/page', (c) => {
+      internalMethod = c.request.method;
+      originalMethod = c.originalRequest.method;
+      return text('ok');
+    });
+
+    await app.dispatch('http://localhost/page', { method: 'HEAD' });
+    expect(internalMethod).toBe('GET');
+    expect(originalMethod).toBe('HEAD');
+  });
+
+  test('keeps same URL on internal request unlike rewrite', async () => {
+    let internalUrl = '';
+    let originalUrl = '';
+
+    const app = new Application();
+    app.get('/page', (c) => {
+      internalUrl = c.request.url;
+      originalUrl = c.originalRequest.url;
+      return text('ok');
+    });
+
+    await app.dispatch('http://localhost/page?q=1', { method: 'HEAD' });
+    expect(internalUrl).toBe('http://localhost/page?q=1');
+    expect(originalUrl).toBe('http://localhost/page?q=1');
+  });
+
+  test('dispatches to GET route handler via methodsToHandler', async () => {
+    const app = new Application();
+    app.get(
+      '/page',
+      methodsToHandler({
+        GET: () => text('ok'),
+      }) as MiddlewareHandler
+    );
+
+    const res = await app.dispatch('http://localhost/page', { method: 'HEAD' });
+    expect(res.status).toBe(200);
+    expect(res.body).toBe(null);
+    expect(res.headers.get('content-type')).toBe('text/plain; charset=utf-8');
+  });
+
+  test('plain GET middleware serves HEAD without body', async () => {
+    const app = new Application();
+    app.get('/page', () => text('ok'));
+
+    const res = await app.dispatch('http://localhost/page', { method: 'HEAD' });
+    expect(res.status).toBe(200);
+    expect(res.body).toBe(null);
+    expect(res.headers.get('content-type')).toBe('text/plain; charset=utf-8');
+  });
+
+  test('GET and HEAD to same path differ only by body', async () => {
+    const app = new Application();
+    app.get('/page', () => text('payload'));
+
+    const getRes = await app.dispatch('http://localhost/page', {
+      method: 'GET',
+    });
+    const headRes = await app.dispatch('http://localhost/page', {
+      method: 'HEAD',
+    });
+
+    expect(await getRes.text()).toBe('payload');
+    expect(headRes.body).toBe(null);
+    expect(headRes.status).toBe(getRes.status);
+    expect(headRes.headers.get('content-type')).toBe(
+      getRes.headers.get('content-type')
+    );
+  });
+
+  test('preserves status and headers from handler', async () => {
+    const app = new Application();
+    app.get('/page', () =>
+      text('body', { status: 201, headers: { 'x-custom': 'yes' } })
+    );
+
+    const res = await app.dispatch('http://localhost/page', { method: 'HEAD' });
+    expect(res.status).toBe(201);
+    expect(res.headers.get('x-custom')).toBe('yes');
+    expect(res.body).toBe(null);
+  });
+
+  test('runs middleware stack once without rematch', async () => {
+    const log: string[] = [];
+    const app = new Application();
+
+    app.use('*', async (_c, next) => {
+      log.push('middleware');
+      return next();
+    });
+    app.get('/page', () => {
+      log.push('route');
+      return text('ok');
+    });
+
+    await app.dispatch('http://localhost/page', { method: 'HEAD' });
+    expect(log).toEqual(['middleware', 'route']);
+  });
+
+  test('hits same matched route instead of switching path', async () => {
+    const log: string[] = [];
+    const app = new Application();
+
+    app.get('/a', () => {
+      log.push('a');
+      return text('a');
+    });
+    app.get('/b', () => {
+      log.push('b');
+      return text('b');
+    });
+
+    await app.dispatch('http://localhost/a', { method: 'HEAD' });
+    expect(log).toEqual(['a']);
+  });
+
+  test('middleware can branch on originalRequest.method', async () => {
+    let originalMethod = '';
+    let internalMethod = '';
+
+    const app = new Application();
+    app.use('*', async (c, next) => {
+      originalMethod = c.originalRequest.method;
+      internalMethod = c.request.method;
+      return next();
+    });
+    app.get('/page', () => text('ok'));
+
+    await app.dispatch('http://localhost/page', { method: 'HEAD' });
+    expect(originalMethod).toBe('HEAD');
+    expect(internalMethod).toBe('GET');
+  });
+
+  test('strips body on error responses', async () => {
+    const app = new Application();
+
+    app.get('/page', () => {
+      throw new Error('fail');
+    });
+    app.onError(() => text('error body', { status: 500 }));
+
+    const res = await app.dispatch('http://localhost/page', { method: 'HEAD' });
+    expect(res.status).toBe(500);
+    expect(res.body).toBe(null);
+    expect(res.headers.get('content-type')).toBe('text/plain; charset=utf-8');
+  });
+
+  test('returns 404 without body for missing routes', async () => {
+    const app = new Application();
+
+    const res = await app.dispatch('http://localhost/missing', {
+      method: 'HEAD',
+    });
+    expect(res.status).toBe(404);
+    expect(res.body).toBe(null);
+  });
+
+  test('matches GET route not separately registered HEAD handler', async () => {
+    const app = new Application();
+
+    app.head('/page', () =>
+      text('head-only', { headers: { 'x-handler': 'head' } })
+    );
+    app.get('/page', () => text('get', { headers: { 'x-handler': 'get' } }));
+
+    const res = await app.dispatch('http://localhost/page', { method: 'HEAD' });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-handler')).toBe('get');
+    expect(res.body).toBe(null);
+  });
+
+  test('HEAD-only registered route is not matched after normalization', async () => {
+    const app = new Application();
+
+    app.head('/page', () => text('head-only'));
+
+    const res = await app.dispatch('http://localhost/page', { method: 'HEAD' });
+    expect(res.status).toBe(404);
+    expect(res.body).toBe(null);
+  });
+
+  test('rewrite rematches GET routes after HEAD normalization', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      if (c.originalRequest.method === 'HEAD') {
+        return c.rewrite('/internal');
+      }
+      return next();
+    });
+    app.get('/internal', () => text('ok'));
+
+    const res = await app.dispatch('http://localhost/v1', { method: 'HEAD' });
+    expect(res.status).toBe(200);
+    expect(res.body).toBe(null);
+    expect(await res.text()).toBe('');
+  });
+
+  test('rewrite changes internal path while HEAD alone does not', async () => {
+    let internalPathHeadOnly = '';
+    let internalPathRewrite = '';
+
+    const headApp = new Application();
+    headApp.get('/page', (c) => {
+      internalPathHeadOnly = new URL(c.request.url).pathname;
+      return text('ok');
+    });
+    await headApp.dispatch('http://localhost/page', { method: 'HEAD' });
+    expect(internalPathHeadOnly).toBe('/page');
+
+    const rewriteApp = new Application();
+    rewriteApp.use('*', async (c) => c.rewrite('/internal'));
+    rewriteApp.get('/internal', (c) => {
+      internalPathRewrite = new URL(c.request.url).pathname;
+      return text('ok');
+    });
+    await rewriteApp.dispatch('http://localhost/external', { method: 'HEAD' });
+    expect(internalPathRewrite).toBe('/internal');
+  });
+});
+
+describe('rewrite()', () => {
+  test('returns target route response', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      const { pathname } = new URL(c.originalRequest.url);
+      if (pathname === '/v1/foo') {
+        return c.rewrite('/internal');
+      }
+      return next();
+    });
+    app.get('/internal', () => text('target'));
+
+    const res = await app.dispatch('http://localhost/v1/foo');
+    expect(await res.text()).toBe('target');
+  });
+
+  test('gateway middleware can amend response headers', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      const { pathname } = new URL(c.originalRequest.url);
+      if (!pathname.startsWith('/v1/')) return next();
+
+      const res = await c.rewrite(pathname.replace(/^\/v1/, '/internal'));
+      res.headers.set('x-routed-by', 'v1-gateway');
+      return res;
+    });
+    app.get('/internal/products/:id', (c) => {
+      return text(`internal:${c.params.id}`);
+    });
+
+    const res = await app.dispatch('http://localhost/v1/products/42');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('internal:42');
+    expect(res.headers.get('x-routed-by')).toBe('v1-gateway');
+  });
+
+  test('originalRequest keeps client URL after rewrite', async () => {
+    let internalUrl = '';
+    let originalUrl = '';
+
+    const app = new Application();
+    app.use('*', async (c) => {
+      originalUrl = c.originalRequest.url;
+      return c.rewrite('/internal');
+    });
+    app.get('/internal', (c) => {
+      internalUrl = c.request.url;
+      return text('ok');
+    });
+
+    await app.dispatch('http://localhost/v1/foo?bar=1');
+    expect(originalUrl).toBe('http://localhost/v1/foo?bar=1');
+    expect(new URL(internalUrl).pathname).toBe('/internal');
+  });
+
+  test('uses query only from rewrite destination', async () => {
+    let internalSearch = '';
+
+    const app = new Application();
+    app.use('*', async (c) => c.rewrite('/internal?p=2'));
+    app.get('/internal', (c) => {
+      internalSearch = new URL(c.request.url).search;
+      return text('ok');
+    });
+
+    await app.dispatch('http://localhost/v1/foo?bar=1');
+    expect(internalSearch).toBe('?p=2');
+  });
+
+  test('executed handlers are not re-run after rewrite', async () => {
+    const log: string[] = [];
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      log.push('global');
+      if (new URL(c.originalRequest.url).pathname.startsWith('/v1')) {
+        return c.rewrite('/internal');
+      }
+      return next();
+    });
+    app.get('/internal', () => {
+      log.push('route');
+      return text('ok');
+    });
+
+    await app.dispatch('http://localhost/v1/foo');
+    expect(log).toEqual(['global', 'route']);
+  });
+
+  test('skips every handler that already started before rewrite', async () => {
+    const log: string[] = [];
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      log.push('first-global');
+      return next();
+    });
+    app.use('*', async (c) => {
+      log.push('second-global');
+      return c.rewrite('/internal');
+    });
+    app.get('/internal', () => {
+      log.push('route');
+      return text('ok');
+    });
+
+    await app.dispatch('http://localhost/v1/foo');
+    expect(log).toEqual(['first-global', 'second-global', 'route']);
+  });
+
+  describe('rewrite() request view', () => {
+    test('caller middleware keeps pre-rewrite context.request after await rewrite()', async () => {
+      const log: string[] = [];
+      const app = new Application();
+
+      app.use('*', async (c) => {
+        log.push(`before:${new URL(c.request.url).pathname}`);
+        await c.rewrite('/internal');
+        log.push(`after:${new URL(c.request.url).pathname}`);
+        return text('never returned when using return rewrite');
+      });
+      app.get('/internal', () => text('target'));
+
+      const res = await app.dispatch('http://localhost/v1/foo');
+      expect(await res.text()).toBe('never returned when using return rewrite');
+      expect(log).toEqual(['before:/v1/foo', 'after:/v1/foo']);
+    });
+
+    test('target stack handlers see rewritten context.request', async () => {
+      const log: string[] = [];
+      const app = new Application();
+
+      app.use('*', async (c) => c.rewrite('/internal'));
+      app.get('/internal', (c) => {
+        log.push(`target:${new URL(c.request.url).pathname}`);
+        return text('ok');
+      });
+
+      await app.dispatch('http://localhost/v1/foo');
+      expect(log).toEqual(['target:/internal']);
+    });
+
+    test('next() downstream sees rewritten context.request after await rewrite()', async () => {
+      const log: string[] = [];
+      const app = new Application();
+
+      app.use('*', async (c, next) => {
+        await c.rewrite('/internal');
+        return next();
+      });
+      app.get('/v1/foo', (c) => {
+        log.push(`downstream:${new URL(c.request.url).pathname}`);
+        return text('downstream-body');
+      });
+      app.get('/internal', () => text('target-body'));
+
+      const res = await app.dispatch('http://localhost/v1/foo');
+      expect(await res.text()).toBe('downstream-body');
+      expect(log).toEqual(['downstream:/internal']);
+    });
+  });
+
+  /**
+   * Documents dispatch when rewrite is not return-driven control flow.
+   * These patterns are not recommended; use `return context.rewrite(...)`.
+   */
+  describe('rewrite() flow (non-recommended patterns)', () => {
+    test('await rewrite then return next() downstream response discards rewrite result', async () => {
+      const log: string[] = [];
+      const app = new Application();
+
+      app.use('*', async (c, next) => {
+        log.push(`caller:${new URL(c.request.url).pathname}`);
+        const rewriteRes = await c.rewrite('/internal');
+        log.push(`after-rewrite:${new URL(c.request.url).pathname}`);
+        log.push(`mw:rewrite:${await rewriteRes.clone().text()}`);
+        const downstreamRes = await next();
+        log.push(`mw:downstream:${await downstreamRes.clone().text()}`);
+        return downstreamRes;
+      });
+      app.get('/v1/foo', (c) => {
+        log.push(`source:request=${new URL(c.request.url).pathname}`);
+        return text('source-body');
+      });
+      app.get('/internal', (c) => {
+        log.push(`target:request=${new URL(c.request.url).pathname}`);
+        return text('target-body');
+      });
+
+      const res = await app.dispatch('http://localhost/v1/foo');
+
+      expect(await res.text()).toBe('source-body');
+      expect(log).toEqual([
+        'caller:/v1/foo',
+        'target:request=/internal',
+        'after-rewrite:/v1/foo',
+        'mw:rewrite:target-body',
+        'source:request=/internal',
+        'mw:downstream:source-body',
+      ]);
+    });
+
+    test('rewrite without await still applies subsequent request before next() downstream', async () => {
+      const log: string[] = [];
+      const app = new Application();
+
+      app.use('*', async (c, next) => {
+        log.push(`caller:${new URL(c.request.url).pathname}`);
+        const rewritePromise = c.rewrite('/internal');
+        const downstreamRes = await next();
+        const rewriteRes = await rewritePromise;
+        log.push(`after-next:${new URL(c.request.url).pathname}`);
+        log.push(`mw:rewrite:${await rewriteRes.clone().text()}`);
+        log.push(`mw:downstream:${await downstreamRes.clone().text()}`);
+        return downstreamRes;
+      });
+      app.get('/v1/foo', () => {
+        log.push('source');
+        return text('source-body');
+      });
+      app.get('/internal', () => {
+        log.push('target');
+        return text('target-body');
+      });
+
+      const res = await app.dispatch('http://localhost/v1/foo');
+
+      expect(await res.text()).toBe('source-body');
+      expect(log).toEqual([
+        'caller:/v1/foo',
+        'target',
+        'source',
+        'after-next:/v1/foo',
+        'mw:rewrite:target-body',
+        'mw:downstream:source-body',
+      ]);
+    });
+  });
+
+  test('skips source route handler', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      if (new URL(c.originalRequest.url).pathname === '/v1/foo') {
+        return c.rewrite('/internal');
+      }
+      return next();
+    });
+    app.get('/v1/foo', () => text('source'));
+    app.get('/internal', () => text('target'));
+
+    const res = await app.dispatch('http://localhost/v1/foo');
+    expect(await res.text()).toBe('target');
+  });
+
+  test('runs target path middleware', async () => {
+    const log: string[] = [];
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      if (new URL(c.originalRequest.url).pathname === '/v1/foo') {
+        return c.rewrite('/internal');
+      }
+      return next();
+    });
+    app.use('/internal', async (_c, next) => {
+      log.push('internal-mw');
+      return next();
+    });
+    app.get('/internal', () => text('ok'));
+
+    await app.dispatch('http://localhost/v1/foo');
+    expect(log).toContain('internal-mw');
+  });
+
+  test('rewrite to missing path returns 404', async () => {
+    const app = new Application();
+
+    app.use('*', async (c) => c.rewrite('/missing'));
+
+    const res = await app.dispatch('http://localhost/v1/foo');
+    expect(res.status).toBe(404);
+  });
+
+  test('rejects cross-origin rewrite via onError', async () => {
+    const app = new Application();
+    let capturedMessage = '';
+
+    app.use('*', (c) => c.rewrite('https://evil.com/path'));
+    app.onError((error) => {
+      capturedMessage = (error as Error).message;
+      return text('handled', { status: 500 });
+    });
+
+    await app.dispatch('http://localhost/v1/foo');
+    expect(capturedMessage).toMatch(/same-origin or relative/i);
+  });
+
+  test('detects rewrite loop with HTTPException 508', async () => {
+    const app = new Application();
+    let capturedStatus: number | undefined;
+
+    app.use('/a', async (c) => c.rewrite('/b'));
+    app.use('/b', async (c) => c.rewrite('/a'));
+    app.onError((error) => {
+      capturedStatus = (error as { status?: number }).status;
+      return text(`error:${capturedStatus}`, { status: 500 });
+    });
+
+    await app.dispatch('http://localhost/a');
+    expect(capturedStatus).toBe(508);
+  });
+
+  test('rejects rewrite after next() has completed', async () => {
+    const app = new Application();
+    let capturedMessage = '';
+
+    app.use('*', async (c, next) => {
+      await next();
+      c.rewrite('/internal');
+      return text('never');
+    });
+    app.get('/foo', () => text('ok'));
+    app.onError((error) => {
+      capturedMessage = (error as Error).message;
+      return text('handled', { status: 500 });
+    });
+
+    await app.dispatch('http://localhost/foo');
+    expect(capturedMessage).toMatch(/next\(\) has completed/i);
+  });
+
+  test('updates params to match rewritten route', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      const { pathname } = new URL(c.originalRequest.url);
+      if (pathname.startsWith('/v1/')) {
+        return c.rewrite(pathname.replace('/v1', '/internal'));
+      }
+      return next();
+    });
+    app.get('/internal/:id', (c) => text(`id:${c.params.id}`));
+
+    const res = await app.dispatch('http://localhost/v1/99');
+    expect(await res.text()).toBe('id:99');
+  });
+
+  test('inherits method from current internal request', async () => {
+    const app = new Application();
+
+    app.use('*', async (c) => c.rewrite('/internal'));
+    app.post('/internal', (c) => text(c.request.method));
+
+    const res = await app.dispatch('http://localhost/v1/foo', {
+      method: 'POST',
+    });
+    expect(await res.text()).toBe('POST');
+  });
+
+  test('accepts Request input', async () => {
+    const app = new Application();
+
+    app.use('*', async (c, next) => {
+      if (new URL(c.originalRequest.url).pathname === '/v1/foo') {
+        return c.rewrite(new Request('/internal', c.request));
+      }
+      return next();
+    });
+    app.get('/internal', () => text('from-request'));
+
+    const res = await app.dispatch('http://localhost/v1/foo');
+    expect(await res.text()).toBe('from-request');
+  });
+
+  test('accepts init to override method', async () => {
+    const app = new Application();
+
+    app.use('*', async (c) => c.rewrite('/internal', { method: 'POST' }));
+    app.post('/internal', (c) => text(c.request.method));
+    app.get('/internal', () => text('GET'));
+
+    const res = await app.dispatch('http://localhost/v1/foo', {
+      method: 'GET',
+    });
+    expect(await res.text()).toBe('POST');
+  });
+
+  test('clears route activation when rewrite changes method on same path', async () => {
+    const runtime = new ModuleRuntime({
+      layoutModule: {
+        default: () => '<html/>',
+        render: async () => '<html/>',
+      } as LayoutModule,
+      defaultMeta: { title: 't' } as Meta,
+      defaultBaseAsset: '/',
+      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      onFallback: () => {},
+      dev: true,
+    });
+    const clearSpy = vi.spyOn(runtime, 'clearActivation');
+
+    const app = new Application();
+    app.useModuleRuntime(runtime);
+
+    app.use('*', async (c) => c.rewrite('/resource', { method: 'POST' }));
+    app.get('/resource', () => text('get'));
+    app.post('/resource', () => text('post'));
+
+    const res = await app.dispatch('http://localhost/resource', {
+      method: 'GET',
+    });
+    expect(clearSpy).toHaveBeenCalledTimes(2);
+    expect(await res.text()).toBe('post');
+  });
+
+  test('releases route activation after successful dispatch', async () => {
+    const runtime = new ModuleRuntime({
+      layoutModule: {
+        default: () => '<html/>',
+        render: async () => '<html/>',
+      } as LayoutModule,
+      defaultMeta: { title: 't' } as Meta,
+      defaultBaseAsset: '/',
+      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      onFallback: () => {},
+      dev: true,
+    });
+
+    const app = new Application();
+    app.useModuleRuntime(runtime);
+
+    let captured: RouteContext | undefined;
+    app.use(
+      '/page',
+      runtime.createRouteContextHandler({
+        render: () => 'Page',
+        handler: { GET: () => new Response('ok') },
+      })
+    );
+    app.use('/page', async (c, next) => {
+      captured = c as RouteContext;
+      return next();
+    });
+    app.use(
+      '/page',
+      runtime.createRouteHandler({
+        handler: { GET: () => new Response('ok') },
+      })
+    );
+
+    const res = await app.dispatch('http://localhost/page');
+    expect(res.status).toBe(200);
+    expect(captured?.module).toBeUndefined();
+    expect(captured?.render).toBeUndefined();
+  });
+
+  test('releases route activation after error dispatch', async () => {
+    const runtime = new ModuleRuntime({
+      layoutModule: {
+        default: () => '<html/>',
+        render: async () => '<html/>',
+      } as LayoutModule,
+      defaultMeta: { title: 't' } as Meta,
+      defaultBaseAsset: '/',
+      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      onFallback: () => {},
+      dev: true,
+    });
+
+    const app = new Application();
+    app.useModuleRuntime(runtime);
+
+    let captured: RouteContext | undefined;
+    app.use(
+      '/page',
+      runtime.createRouteContextHandler({
+        render: () => 'Page',
+        handler: { GET: () => new Response('ok') },
+      })
+    );
+    app.use('/page', async (c, next) => {
+      captured = c as RouteContext;
+      return next();
+    });
+    app.get('/page', () => {
+      throw new Error('boom');
+    });
+    app.onError(() => text('handled', { status: 500 }));
+
+    const res = await app.dispatch('http://localhost/page');
+    expect(res.status).toBe(500);
+    expect(captured?.module).toBeUndefined();
+  });
+
+  test('fails when rewrite changes route view with active module but no module runtime', async () => {
+    const runtime = new ModuleRuntime({
+      layoutModule: {
+        default: () => '<html/>',
+        render: async () => '<html/>',
+      } as LayoutModule,
+      defaultMeta: { title: 't' } as Meta,
+      defaultBaseAsset: '/',
+      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      onFallback: () => {},
+      dev: true,
+    });
+
+    const app = new Application();
+    app.use(
+      '/page',
+      runtime.createRouteContextHandler({
+        render: () => 'Page',
+        handler: { GET: () => new Response('get') },
+      })
+    );
+    app.use('*', async (c) => c.rewrite('/other'));
+    app.get('/other', () => text('other'));
+
+    let capturedMessage = '';
+    app.onError((error) => {
+      capturedMessage = (error as Error).message;
+      return text('handled', { status: 500 });
+    });
+
+    await app.dispatch('http://localhost/page');
+    expect(capturedMessage).toMatch(/not invalidated on rewrite/i);
+  });
+
+  test('useModuleRuntime allows rewrite after route activation', async () => {
+    const runtime = new ModuleRuntime({
+      layoutModule: {
+        default: () => '<html/>',
+        render: async () => '<html/>',
+      } as LayoutModule,
+      defaultMeta: { title: 't' } as Meta,
+      defaultBaseAsset: '/',
+      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      onFallback: () => {},
+      dev: true,
+    });
+
+    const app = new Application();
+    app.useModuleRuntime(runtime);
+    app.use(
+      '/with-render',
+      runtime.createRouteContextHandler({
+        render: () => 'Render Route',
+        handler: { GET: (c) => c.html!() },
+      })
+    );
+    app.use('/with-render', async (c) => c.rewrite('/plain'));
+    app.use(
+      '/plain',
+      runtime.createRouteHandler({
+        handler: {
+          GET() {
+            return new Response('plain');
+          },
+        },
+      })
+    );
+
+    const res = await app.dispatch('http://localhost/with-render');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('plain');
   });
 });

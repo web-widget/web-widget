@@ -1,5 +1,5 @@
 /**
- * @fileoverview Engine domain object - Core business processing engine with unified rendering pipeline
+ * @fileoverview ModuleRuntime — executes schema modules and the SSR pipeline
  */
 import { handleRpc } from '@web-widget/action/server';
 import { contextToScriptDescriptor } from '@web-widget/context/server';
@@ -25,6 +25,7 @@ import type {
   RouteHandler,
   RouteHandlers,
   RouteModule,
+  RouteRenderOptions,
   ServerRenderOptions,
 } from './types';
 
@@ -59,12 +60,9 @@ export type OnFallback = (
 type SafeError = { proxy: true } & HTTPException;
 
 /**
- * Engine domain object
- *
- * NOTE: Core business processing engine for unified module handling,
- * rendering pipeline orchestration, and error management
+ * Runtime for schema modules: handler factories, route activation, and SSR.
  */
-export class Engine {
+export class ModuleRuntime {
   #layoutModule: LayoutModule | (() => Promise<LayoutModule>);
   #defaultMeta: Meta;
   #defaultBaseAsset: string;
@@ -92,6 +90,16 @@ export class Engine {
     this.#dev = options.dev;
   }
 
+  /** @internal */
+  static hasActivation(host: MiddlewareContext): boolean {
+    return hasRouteActivation(host);
+  }
+
+  /** @internal Clears route activation for the given context. */
+  clearActivation(context: MiddlewareContext): void {
+    invalidateRouteActivation(context);
+  }
+
   // =========================================================================
   // Public API - Handler Factory Methods
   // =========================================================================
@@ -107,10 +115,12 @@ export class Engine {
           const routeContext = context as RouteContext;
 
           // If multiple routes match here, only the first one is valid.
-          if (!routeContext.module) {
+          if (!hasRouteActivation(routeContext)) {
             const resolvedModule =
               await this.#normalizeModule<RouteModule>(module);
             await this.#activateModule(routeContext, resolvedModule);
+          } else {
+            ensureRouteAccessors(routeContext);
           }
 
           return next();
@@ -182,13 +192,12 @@ export class Engine {
             await this.#normalizeModule<RouteModule>(module);
 
           if (resolvedModule) {
-            // Use cached handler from context if available, otherwise activate module
-            // which will set up the cached handler
-            if (!routeContext._handler) {
+            const activation = getRouteActivation(routeContext);
+            if (!activation?._handler) {
               await this.#activateModule(routeContext, resolvedModule);
             }
 
-            const handler = routeContext._handler!;
+            const handler = getRouteActivation(routeContext)!._handler!;
 
             // Add context to script descriptors for client-side hydration
             // This ensures the client has access to server-side context data
@@ -228,7 +237,7 @@ export class Engine {
           await this.#activateModule(routeContext, resolvedModule, error);
 
           // Use the cached handler (already handles error scenarios correctly)
-          const handler = routeContext._handler!;
+          const handler = getRouteActivation(routeContext)!._handler!;
 
           // Add context to script descriptors for client-side hydration
           // This ensures the client has access to server-side context data
@@ -255,11 +264,10 @@ export class Engine {
     module: RouteModule,
     error?: HTTPException
   ): Promise<void> {
-    // Set the module as the active module - must be set regardless of render capability
-    context.module = module;
-    context.error = error;
+    const state = ensureRouteActivation(context);
+    state.module = module;
+    state.error = error;
 
-    // Cache and set handler for all modules
     let cached = MODULE_CACHE.get(module);
     if (!cached) {
       const handler = this.#normalizeRouteHandler(module, !!error);
@@ -279,7 +287,6 @@ export class Engine {
           handler,
         };
       } else {
-        // For modules without render capability, still cache the handler
         cached = {
           handler,
         };
@@ -288,18 +295,13 @@ export class Engine {
       MODULE_CACHE.set(module, cached);
     }
 
-    // Set cached handler
-    context._handler = cached.handler;
+    state._handler = cached.handler;
 
-    // Setup rendering capabilities only for modules with render capability
     if (module.render) {
-      // We know these properties exist because we set them when module.render exists
-      context.meta = structuredClone(cached.meta!);
-      context.render = cached.render!.bind(context);
-      context.html = cached.html!.bind(context);
-      context.renderOptions = context.renderer = structuredClone(
-        cached.renderer!
-      );
+      state.meta = structuredClone(cached.meta!);
+      state.render = cached.render!.bind(context);
+      state.html = cached.html!.bind(context);
+      state.renderOptions = state.renderer = structuredClone(cached.renderer!);
     }
   }
 
@@ -578,4 +580,126 @@ export class Engine {
 
     return safeError;
   }
+}
+
+// Per-request route activation (module, render, html, …).
+
+interface RouteActivationState {
+  module?: RouteModule;
+  meta?: Meta;
+  render?: RouteContext['render'];
+  html?: RouteContext['html'];
+  renderOptions?: RouteRenderOptions;
+  renderer?: ServerRenderOptions;
+  data?: unknown;
+  error?: HTTPException;
+  _handler?: RouteHandler;
+}
+
+const activations = new WeakMap<MiddlewareContext, RouteActivationState>();
+const hostsWithAccessors = new WeakSet<MiddlewareContext>();
+
+const ROUTE_HOST_KEYS = [
+  'module',
+  'meta',
+  'render',
+  'html',
+  'renderOptions',
+  'renderer',
+  'data',
+  'error',
+  '_handler',
+] as const satisfies ReadonlyArray<keyof RouteActivationState>;
+
+const READONLY_ROUTE_KEYS = new Set<keyof RouteActivationState>([
+  'module',
+  'render',
+  'html',
+  '_handler',
+]);
+
+function getRouteActivation(
+  host: MiddlewareContext
+): RouteActivationState | undefined {
+  return activations.get(host);
+}
+
+function ensureRouteActivation(host: MiddlewareContext): RouteActivationState {
+  ensureRouteAccessors(host);
+  return activations.get(host)!;
+}
+
+function hasRouteActivation(host: MiddlewareContext): boolean {
+  if (activations.get(host)?.module !== undefined) {
+    return true;
+  }
+  const descriptor = Object.getOwnPropertyDescriptor(host, 'module');
+  return Boolean(
+    descriptor && !descriptor.get && descriptor.value !== undefined
+  );
+}
+
+function migrateOwnRouteProperties(host: MiddlewareContext): void {
+  let state = activations.get(host);
+  if (!state) {
+    activations.set(host, (state = {}));
+  }
+
+  for (const key of ROUTE_HOST_KEYS) {
+    const descriptor = Object.getOwnPropertyDescriptor(host, key);
+    if (descriptor && !descriptor.get && descriptor.value !== undefined) {
+      (state as Record<string, unknown>)[key] = descriptor.value;
+    }
+  }
+}
+
+function ensureRouteAccessors(host: MiddlewareContext): void {
+  if (hostsWithAccessors.has(host)) {
+    return;
+  }
+  migrateOwnRouteProperties(host);
+  installRouteAccessors(host);
+}
+
+function installRouteAccessors(host: MiddlewareContext): void {
+  hostsWithAccessors.add(host);
+
+  for (const key of ROUTE_HOST_KEYS) {
+    const descriptor: PropertyDescriptor = {
+      configurable: true,
+      enumerable: true,
+      get() {
+        return activations.get(host)?.[key];
+      },
+    };
+
+    if (!READONLY_ROUTE_KEYS.has(key)) {
+      descriptor.set = (value) => {
+        const state = activations.get(host) ?? {};
+        (state as Record<string, unknown>)[key] = value;
+        activations.set(host, state);
+      };
+    }
+
+    Object.defineProperty(host, key, descriptor);
+  }
+}
+
+function removeRouteAccessors(host: MiddlewareContext): void {
+  if (!hostsWithAccessors.has(host)) {
+    return;
+  }
+  hostsWithAccessors.delete(host);
+
+  for (const key of ROUTE_HOST_KEYS) {
+    const descriptor = Object.getOwnPropertyDescriptor(host, key);
+    if (descriptor?.get) {
+      Reflect.deleteProperty(host, key);
+    }
+  }
+}
+
+function invalidateRouteActivation(host: MiddlewareContext): void {
+  activations.delete(host);
+  removeRouteAccessors(host);
 }

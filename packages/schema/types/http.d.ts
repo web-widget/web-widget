@@ -66,8 +66,10 @@ export type FetchEventLike = Pick<
  */
 export interface FetchContext<Params = Record<string, string>> extends Omit<
   FetchEventLike,
-  'respondWith'
+  'request' | 'respondWith'
 > {
+  /** Current internal routing Request; updated by the framework on rewrite. */
+  readonly request: Request;
   /**
    * Errors that occurred during request processing.
    * This is typically set by middleware or previous route handlers.
@@ -102,4 +104,22 @@ export interface FetchContext<Params = Record<string, string>> extends Omit<
    * @deprecated This property is deprecated and will be removed in a future version.
    */
   readonly pathname: string;
+
+  /**
+   * The original client Request. Unchanged for the entire request lifecycle.
+   */
+  readonly originalRequest: Request;
+
+  /**
+   * Internally rewrite to a new in-flight Request.
+   * Same signature as `new Request(input, init)`; relative URLs resolve against
+   * `context.request.url`. Updates `context.request`, clears route activation,
+   * re-matches the remaining handler stack, and returns the target Response.
+   *
+   * Typical usage: `return context.rewrite('/internal');`
+   */
+  rewrite(
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ): Response | Promise<Response>;
 }

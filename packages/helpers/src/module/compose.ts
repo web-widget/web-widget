@@ -53,9 +53,8 @@ export function compose<
       }
 
       if (handler) {
-        return (handler as Function)(context, () => {
-          return dispatch(i + 1);
-        });
+        const advance = () => dispatch(i + 1);
+        return await (handler as Function)(context, advance);
       } else {
         return new Response(null, {
           status: 404,
@@ -111,38 +110,10 @@ export function methodsToHandler(
   }
 
   const mergedMethods = { ...methods };
-  if (mergedMethods.GET && !mergedMethods.HEAD) {
-    const GET = mergedMethods.GET;
-    mergedMethods.HEAD = async function HEAD() {
-      const [context, next] = arguments;
-      const resp = await GET(context, next);
-
-      if (!resp.body?.locked) {
-        resp.body?.cancel();
-      }
-
-      return new Response(null, {
-        headers: resp.headers,
-        status: resp.status,
-        statusText: resp.statusText,
-      });
-    };
-  }
 
   return (context, next) => {
-    let request = context.request;
-
-    // If not overridden, HEAD requests should be handled as GET requests but without the body.
-    if (request.method === 'HEAD' && !mergedMethods['HEAD']) {
-      // @ts-ignore
-      context.request = new Request(request.url, {
-        method: 'GET',
-        headers: request.headers,
-      });
-    }
-
     const handler =
-      Reflect.get(mergedMethods, request.method) ??
+      Reflect.get(mergedMethods, context.request.method) ??
       (disallowUnknownMethod
         ? () =>
             new Response(null, {

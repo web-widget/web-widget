@@ -1,53 +1,47 @@
 /**
  * @fileoverview Context domain object - Request context and state management
  */
-import type {
-  Env,
-  ExecutionContext,
-  FetchContext,
-  HTTPException,
-  Meta,
-  RouteModule,
-  RouteRenderOptions,
-  ServerRenderOptions,
-} from './types';
+import type { Env, ExecutionContext, FetchContext } from './types';
 
 interface ContextOptions<E extends Env> {
   env: E['Bindings'];
   executionContext?: ExecutionContext;
+  /** Client Request; defaults to `request` when omitted. */
+  originalRequest?: Request;
 }
 
 /**
- * Context domain object
- *
- * Enhanced context object containing:
- * - Request/response state management
- * - Module and rendering state
- * - Rendering methods
- * - Error handling state
+ * HTTP dispatch context (`FetchContext`).
+ * Route fields (`module`, `render`, `html`, …) are provided by {@link ModuleRuntime}.
  */
 export class Context<E extends Env = Env> implements FetchContext {
   #state = Object.create(null);
+  #request: Request;
   // /** @experimental */
   // env: E["Bindings"] = Object.create(null);
   params = Object.create(null);
   /** @deprecated */
   pathname: string = '*';
-  request: Request;
+  readonly originalRequest: Request;
   #waitUntil?: FetchContext['waitUntil'];
   #executionContext?: ExecutionContext;
 
-  // New: Module and rendering related state
-  module?: RouteModule;
-  meta?: Meta;
-  renderOptions?: RouteRenderOptions;
-  renderer?: ServerRenderOptions;
-  data?: unknown;
-  error?: HTTPException;
+  /** Bound per request in Application.handler. */
+  rewrite!: FetchContext['rewrite'];
 
   constructor(request: Request, options?: ContextOptions<E>) {
-    this.request = request;
+    this.#request = request;
+    this.originalRequest = options?.originalRequest ?? request;
     this.#executionContext = options?.executionContext;
+  }
+
+  get request(): Request {
+    return this.#request;
+  }
+
+  /** @internal Updated by Application on rewrite. */
+  updateRequest(request: Request): void {
+    this.#request = request;
   }
 
   get state() {
@@ -65,30 +59,4 @@ export class Context<E extends Env = Env> implements FetchContext {
       throw new Error('This context has no FetchEvent.');
     }
   }
-
-  /**
-   * Render page response
-   * This method will be bound with concrete implementation in Engine
-   */
-  render?: (
-    options?: {
-      data?: unknown;
-      error?: HTTPException;
-      meta?: Meta;
-    },
-    renderOptions?: RouteRenderOptions & ResponseInit
-  ) => Promise<Response>;
-
-  /**
-   * Render page response
-   * This method will be bound with concrete implementation in Engine
-   */
-  html?: (
-    data?: unknown,
-    options?: {
-      error?: HTTPException;
-      meta?: Meta;
-      renderer?: ServerRenderOptions;
-    } & ResponseInit
-  ) => Promise<Response>;
 }
