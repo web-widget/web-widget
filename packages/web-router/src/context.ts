@@ -25,6 +25,7 @@ export class Context<E extends Env = Env> implements FetchContext {
   readonly originalRequest: Request;
   #waitUntil?: FetchContext['waitUntil'];
   #executionContext?: ExecutionContext;
+  #pendingBackgroundTasks = new Set<Promise<unknown>>();
 
   /** Bound per request in Application.handler. */
   rewrite!: FetchContext['rewrite'];
@@ -52,11 +53,23 @@ export class Context<E extends Env = Env> implements FetchContext {
     if (this.#waitUntil) {
       return this.#waitUntil;
     } else if (this.#executionContext) {
-      return (this.#waitUntil = this.#executionContext.waitUntil.bind(
+      const delegate = this.#executionContext.waitUntil.bind(
         this.#executionContext
-      ));
+      );
+      return (this.#waitUntil = (promise: Promise<unknown>) => {
+        const tracked = Promise.resolve(promise).finally(() => {
+          this.#pendingBackgroundTasks.delete(tracked);
+        });
+        this.#pendingBackgroundTasks.add(tracked);
+        delegate(promise);
+      });
     } else {
       throw new Error('This context has no FetchEvent.');
     }
+  }
+
+  /** @internal Pending promises registered via {@link waitUntil}. */
+  getPendingBackgroundTasks(): readonly Promise<unknown>[] {
+    return [...this.#pendingBackgroundTasks];
   }
 }
