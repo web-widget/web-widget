@@ -366,6 +366,70 @@ describe('background tasks', () => {
   });
 });
 
+describe('waitUntil route activation', () => {
+  test('background next() keeps context.meta after stale response (web-widget#771)', async () => {
+    let metaDuringBackground: unknown;
+    let handlerInvoked = false;
+    const waitUntilTasks: Promise<unknown>[] = [];
+
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/page',
+          module: {
+            render: () => 'Page',
+            meta: { title: 'Page' },
+            handler: {
+              GET(c: RouteContext) {
+                handlerInvoked = true;
+                metaDuringBackground = c.meta;
+                Object.entries(c.meta!);
+                return new Response('origin');
+              },
+            },
+          },
+        },
+      ],
+      middlewares: [
+        {
+          pathname: '/page',
+          module: {
+            handler: async (c, next) => {
+              c.waitUntil(
+                (async () => {
+                  await new Promise((resolve) => setTimeout(resolve, 50));
+                  await next();
+                })()
+              );
+              return new Response('stale');
+            },
+          },
+        },
+      ],
+    });
+
+    const res = await app.dispatch(
+      'http://localhost/page',
+      undefined,
+      undefined,
+      {
+        waitUntil: (promise) => {
+          waitUntilTasks.push(promise);
+        },
+        passThroughOnException: () => {},
+      }
+    );
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('stale');
+    expect(handlerInvoked).toBe(false);
+
+    await Promise.allSettled(waitUntilTasks);
+    expect(handlerInvoked).toBe(true);
+    expect(metaDuringBackground).toBeDefined();
+    expect(metaDuringBackground).toMatchObject({ title: 'Page' });
+  });
+});
+
 describe('html method', () => {
   test('html should work with simple data', async () => {
     const testData = { message: 'Hello, World!' };

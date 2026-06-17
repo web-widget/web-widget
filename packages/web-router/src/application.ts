@@ -440,9 +440,27 @@ class Application<
           )
         );
       } finally {
-        this.#moduleRuntime?.clearActivation(context);
+        this.#releaseRouteActivation(context);
       }
     })();
+  }
+
+  /** Clears route activation after dispatch; defers until `waitUntil` tasks finish. */
+  #releaseRouteActivation(context: Context<E>): void {
+    const runtime = this.#moduleRuntime;
+    if (!runtime) {
+      return;
+    }
+
+    const pending = context.getPendingBackgroundTasks();
+    if (pending.length > 0) {
+      void Promise.allSettled(pending).finally(() => {
+        runtime.clearActivation(context);
+      });
+      return;
+    }
+
+    runtime.clearActivation(context);
   }
 
   /**

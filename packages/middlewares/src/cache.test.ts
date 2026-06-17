@@ -413,6 +413,77 @@ test('it should be possible to terminate cache revalidate', async () => {
   expect(await res.text()).toBe('View: 0');
 });
 
+test('waitUntil revalidate keeps context.meta during stale-while-revalidate', async () => {
+  let generation = 0;
+  let revalidateMetaAvailable: boolean | undefined;
+  const caches = createCaches();
+  const app = WebRouter.fromManifest({
+    routes: [
+      {
+        pathname: '*',
+        module: {
+          render: () => 'Page',
+          handler: {
+            GET(context) {
+              const hadMeta = context.meta != null;
+              // Same failure mode as mergeMeta(context.meta, …) when meta is cleared.
+              Object.entries(context.meta!);
+              if (generation > 0) {
+                revalidateMetaAvailable = hadMeta;
+              }
+              return new Response(`Gen ${generation++}`);
+            },
+          },
+        },
+      },
+    ],
+    middlewares: [
+      {
+        pathname: '*',
+        module: {
+          handler: cache({
+            cacheControl: {
+              sharedMaxAge: 1,
+              staleWhileRevalidate: 5,
+            },
+            caches,
+          }),
+        },
+      },
+    ],
+  });
+
+  const waitUntilTasks: Promise<unknown>[] = [];
+  const executionContext = {
+    waitUntil: (promise: Promise<unknown>) => {
+      waitUntilTasks.push(promise);
+    },
+    passThroughOnException: () => {},
+  };
+
+  let res = await app.dispatch(
+    TEST_URL,
+    undefined,
+    undefined,
+    executionContext
+  );
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(MISS);
+  expect(await res.text()).toBe('Gen 0');
+  expect(revalidateMetaAvailable).toBeUndefined();
+
+  await timeout(1024);
+
+  res = await app.dispatch(TEST_URL, undefined, undefined, executionContext);
+  expect(res.status).toBe(200);
+  expect(res.headers.get('x-cache-status')).toBe(STALE);
+  expect(await res.text()).toBe('Gen 0');
+
+  await Promise.allSettled(waitUntilTasks);
+  expect(revalidateMetaAvailable).toBe(true);
+  expect(generation).toBe(2);
+});
+
 describe('cache middleware error boundaries', () => {
   let consoleErrorSpy: ReturnType<typeof jest.spyOn>;
 
