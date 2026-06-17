@@ -1,5 +1,18 @@
 # @web-widget/web-router
 
+## 2.3.1
+
+### Patch Changes
+
+- d1074d7: Defer route activation cleanup until `waitUntil` background tasks finish, so stale-while-revalidate revalidation keeps `context.meta` available when the origin handler runs.
+
+  Fixes #771.
+  - @web-widget/action@2.3.1
+  - @web-widget/context@2.3.1
+  - @web-widget/helpers@2.3.1
+  - @web-widget/html@2.3.1
+  - @web-widget/lifecycle-cache@2.3.1
+
 ## 2.3.0
 
 ### Minor Changes
