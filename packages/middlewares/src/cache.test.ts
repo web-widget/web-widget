@@ -2,10 +2,7 @@ import { afterEach, beforeEach, jest } from '@jest/globals';
 import { LRUCache } from 'lru-cache';
 import type { Manifest } from '@web-widget/web-router';
 import WebRouter from '@web-widget/web-router';
-import type {
-  KVStorage,
-  SharedCacheStatus as CacheStatus,
-} from '@web-widget/shared-cache';
+import type { KVStorage, CacheStatus } from '@web-widget/shared-cache';
 import { CacheStorage } from '@web-widget/shared-cache';
 import conditional from './conditional-get';
 import type { CacheOptions } from './cache';
@@ -15,7 +12,7 @@ const HIT: CacheStatus = 'HIT';
 const MISS: CacheStatus = 'MISS';
 const EXPIRED: CacheStatus = 'EXPIRED';
 const BYPASS: CacheStatus = 'BYPASS';
-const STALE: CacheStatus = 'STALE';
+const UPDATING: CacheStatus = 'UPDATING';
 const DYNAMIC: CacheStatus = 'DYNAMIC';
 const TEST_URL = 'http://localhost/';
 
@@ -194,7 +191,7 @@ describe('debug cache key header', () => {
     });
     const res = await app.dispatch(TEST_URL);
 
-    expect(res.headers.get('x-cache-key')).toBe('localhost/');
+    expect(res.headers.get('x-cache-key')).toBe('http://localhost/');
   });
 
   test('should apply vary to debug cache key', async () => {
@@ -209,7 +206,7 @@ describe('debug cache key header', () => {
     });
 
     expect(res.headers.get('x-cache-key')).toMatch(
-      /^localhost\/:accept-language=[a-f0-9]+$/
+      /^http:\/\/localhost\/\|v\|accept-language@[a-f0-9]+$/
     );
   });
 });
@@ -409,7 +406,9 @@ test('it should be possible to terminate cache revalidate', async () => {
     },
   });
   expect(res.status).toBe(200);
-  expect(res.headers.get('x-cache-status')).toBe(STALE);
+  // NOTE: With stale-while-revalidate enabled, the foreground response is served
+  // immediately as UPDATING while revalidation runs in the background.
+  expect(res.headers.get('x-cache-status')).toBe(UPDATING);
   expect(await res.text()).toBe('View: 0');
 });
 
@@ -476,7 +475,8 @@ test('waitUntil revalidate keeps context.meta during stale-while-revalidate', as
 
   res = await app.dispatch(TEST_URL, undefined, undefined, executionContext);
   expect(res.status).toBe(200);
-  expect(res.headers.get('x-cache-status')).toBe(STALE);
+  // NOTE: Foreground stale-while-revalidate serves cached content as UPDATING.
+  expect(res.headers.get('x-cache-status')).toBe(UPDATING);
   expect(await res.text()).toBe('Gen 0');
 
   await Promise.allSettled(waitUntilTasks);
@@ -549,29 +549,23 @@ describe('cache middleware error boundaries', () => {
     expect(body).toMatch(/sync route error|Internal Server Error|Error/i);
   });
 
-  test('when Response.json fails, error handling falls back to plain text with x-transform-error', async () => {
-    const jsonSpy = jest.spyOn(Response, 'json').mockImplementation(() => {
-      throw new Error('Response.json unavailable');
-    });
-
-    try {
-      const app = createApp(createCaches(), { cacheControl: { maxAge: 10 } }, [
-        {
-          pathname: '*',
-          module: {
-            handler: async () => {
-              throw new Error('original route error');
-            },
+  test('when route throws, error propagates through framework error handling', async () => {
+    const app = createApp(createCaches(), { cacheControl: { maxAge: 10 } }, [
+      {
+        pathname: '*',
+        module: {
+          handler: async () => {
+            throw new Error('original route error');
           },
         },
-      ]);
-      const res = await app.dispatch(TEST_URL);
+      },
+    ]);
+    const res = await app.dispatch(TEST_URL);
 
-      expect(res.headers.get('x-transform-error')).toBe('true');
-      expect(res.headers.get('content-type')).toContain('text/plain');
-    } finally {
-      jsonSpy.mockRestore();
-    }
+    expect(res.status).toBe(500);
+    // NOTE: Miss-phase throws now reach Web Router fallback instead of being
+    // converted to synthetic JSON error responses inside the cache middleware.
+    expect(res.headers.get('content-type')).toContain('text/html');
   });
 
   test('when reading error fields throws, error handling falls back to plain text', async () => {
@@ -595,7 +589,6 @@ describe('cache middleware error boundaries', () => {
     const res = await app.dispatch(TEST_URL);
 
     expect(res.status).toBe(500);
-    expect(res.headers.get('x-transform-error')).toBe('true');
     expect(res.headers.get('content-type')).toContain('text/plain');
   });
 

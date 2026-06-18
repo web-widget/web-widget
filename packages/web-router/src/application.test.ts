@@ -727,16 +727,13 @@ describe('error handle', () => {
     });
 
     app.use('/error-response', async () => {
-      return Response.json(
+      throw Response.json(
         {
           name: 'Error',
           message: 'This is Response Error',
         },
         {
           status: 500,
-          headers: {
-            'x-transform-error': 'true',
-          },
         }
       );
     });

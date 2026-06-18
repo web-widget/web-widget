@@ -414,16 +414,9 @@ class Application<
       try {
         const res = await this.#dispatchMatched(context, path, frame);
 
-        if (
-          res.status >= 400 &&
-          // NOTE: This is a workaround to handle the error response from the cache middleware.
-          // https://github.com/web-widget/web-widget/blob/6ed821db5535aa274f1ee151fff38f1ea0a99231/packages/middlewares/src/cache.ts#L189
-          // TODO: This is not a good code, we will eliminate it later.
-          res.headers.has('x-transform-error') &&
-          res.headers.get('content-type') === 'application/json'
-        ) {
-          throw res;
-        }
+        // NOTE: Cache middleware uses `createCacheHandler`, which propagates origin
+        // throws on cache miss to this catch block. The former `x-transform-error`
+        // response round-trip is no longer needed.
 
         return finalizeHeadResponse(originalRequest, res);
       } catch (error) {
