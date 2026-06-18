@@ -1,15 +1,15 @@
-import type { MiddlewareNext, RouteConfig } from '@web-widget/helpers';
+import type { RouteConfig } from '@web-widget/helpers';
 import { defineMiddlewareHandler } from '@web-widget/helpers';
 import {
   stringifyResponseCacheControl,
   type ResponseCacheControl,
 } from '@web-widget/helpers/headers';
-import { createFetch } from '@web-widget/shared-cache';
+import { createCacheHandler } from '@web-widget/shared-cache';
 import type {
-  Cache,
+  CacheOriginContext,
   CacheStorage,
-  SharedCacheKeyRules as CacheKeyRules,
-  SharedCacheStatus as CacheStatus,
+  CacheKeyRules,
+  CacheStatus,
 } from '@web-widget/shared-cache';
 
 declare module '@web-widget/schema' {
@@ -143,21 +143,28 @@ export default function cache(options?: CacheOptions) {
     const signal =
       typeof signalOption === 'function' ? signalOption() : signalOption;
     const cache = await caches.open(cacheName);
-    const fetch = nextToFetch(cache, next);
     const waitUntil = context.waitUntil.bind(context);
 
-    return fetch(request, {
-      sharedCache: {
-        cacheControlOverride: cacheControl,
-        cacheKeyRules,
-        debugCacheKey,
-        ignoreRequestCacheControl,
-        ignoreVary,
-        varyOverride: vary,
+    // NOTE: Use middleware-friendly cache resolution instead of wrapping `next()` in
+    // `createFetch`. On cache miss, origin throws propagate to the framework `onError`
+    // handler. Revalidation failures are converted to 5xx inside shared-cache for
+    // `stale-if-error` / `stale-while-revalidate` semantics.
+    return createCacheHandler(cache, {
+      cacheControlOverride: cacheControl,
+      cacheKeyRules,
+      debugCacheKey,
+      ignoreRequestCacheControl,
+      ignoreVary,
+      varyOverride: vary,
+    }).resolve(
+      request,
+      // The origin request from shared-cache is ignored; `next()` uses middleware context.
+      (_req: Request, _ctx: CacheOriginContext) => next(),
+      {
         waitUntil,
-      },
-      signal,
-    });
+        signal,
+      }
+    );
   });
 }
 
@@ -173,101 +180,4 @@ async function getRouteCacheConfig(
 
 function setCacheStatus(headers: Headers, status: CacheStatus) {
   headers.set('x-cache-status', status);
-}
-
-function errorToResponse(error: any = {}): Response {
-  const errorHeaders = {
-    // NOTE: Web Router supports this custom header to transform error responses
-    'x-transform-error': 'true',
-  } as const;
-
-  try {
-    const status =
-      typeof error?.status === 'number'
-        ? error.status
-        : error?.name === 'TimeoutError'
-          ? 504
-          : 500;
-    const statusText = error?.statusText ?? error?.name ?? '';
-    return Response.json(
-      {
-        name: error?.name,
-        message: error?.message,
-        stack: error?.stack,
-      },
-      {
-        status,
-        statusText,
-        headers: errorHeaders,
-      }
-    );
-  } catch {
-    return new Response('Internal Server Error', {
-      status: 500,
-      statusText: 'Internal Server Error',
-      headers: {
-        ...errorHeaders,
-        'content-type': 'text/plain; charset=utf-8',
-      },
-    });
-  }
-}
-
-function nextToFetch(cache: Cache, next: MiddlewareNext) {
-  return createFetch(cache, {
-    fetch: async (input, init) => {
-      const request = new Request(input, init);
-
-      if (!request.signal) {
-        try {
-          return await next();
-        } catch (error) {
-          return errorToResponse(error);
-        }
-      }
-
-      const signal = request.signal;
-      let isAborted = signal.aborted;
-
-      if (isAborted) {
-        return errorToResponse(signal.reason);
-      }
-
-      return new Promise((resolve) => {
-        const onAbort = () => {
-          isAborted = true;
-          resolve(errorToResponse(signal.reason));
-        };
-
-        let response;
-
-        try {
-          response = next();
-        } catch (error) {
-          resolve(errorToResponse(error));
-        }
-
-        if (response instanceof Promise) {
-          response
-            .then(
-              (response) => {
-                signal.removeEventListener('abort', onAbort);
-                if (isAborted) return;
-                resolve(response);
-              },
-              (error) => {
-                signal.removeEventListener('abort', onAbort);
-                resolve(errorToResponse(error));
-              }
-            )
-            .catch((error) => {
-              signal.removeEventListener('abort', onAbort);
-              resolve(errorToResponse(error));
-            });
-        }
-
-        signal.addEventListener('abort', onAbort);
-      });
-    },
-  });
 }
