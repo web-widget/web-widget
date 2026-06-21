@@ -159,6 +159,9 @@ async function viteWebRouterMiddlewareV2(
       async handler(request, ...args) {
         try {
           let res = await webRouter.handler(request, ...args);
+          if (request.method === 'HEAD') {
+            return res;
+          }
           const contentType = res.headers.get('content-type') || '';
           const isHtml = contentType.includes('text/html');
           const isJSON = request.url.endsWith('.json');

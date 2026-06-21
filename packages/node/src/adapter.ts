@@ -83,6 +83,24 @@ function addDuplexToInit(init: RequestInit | undefined) {
   return init;
 }
 
+function isHttp2ServerResponse(serverResponse: ServerResponse): boolean {
+  // Http2ServerResponse exposes `stream` but may omit httpVersionMajor on Node 20.
+  if ('stream' in serverResponse && serverResponse.stream) return true;
+  const httpVersionMajor = (
+    serverResponse as ServerResponse & { httpVersionMajor?: number }
+  ).httpVersionMajor;
+  return Number(httpVersionMajor) >= 2;
+}
+
+function setHttp1StatusMessage(
+  serverResponse: ServerResponse,
+  statusMessage: string
+) {
+  if (!isHttp2ServerResponse(serverResponse) && statusMessage) {
+    serverResponse.statusMessage = statusMessage;
+  }
+}
+
 function toMiddleware(
   webHandler: WebHandler,
   options: RequestOptions
@@ -96,13 +114,15 @@ function toMiddleware(
       const event = toFetchEvent(request);
       const webResponse = await webHandler(request, env, event);
       await toServerResponse(webResponse, serverResponse);
-      await next();
+      if (!serverResponse.headersSent && !serverResponse.writableEnded) {
+        await next();
+      }
     } catch (error: unknown) {
       let responded = false;
       if (checkWritable(serverResponse) && !serverResponse.headersSent) {
         try {
           serverResponse.statusCode = 500;
-          serverResponse.statusMessage = 'Internal Server Error';
+          setHttp1StatusMessage(serverResponse, 'Internal Server Error');
           serverResponse.setHeader('content-type', 'text/plain; charset=utf-8');
           serverResponse.end(
             error instanceof Error ? error.message : 'Internal Server Error'
@@ -134,15 +154,21 @@ async function toServerResponse(
     return;
   }
 
+  const isHttp2 = isHttp2ServerResponse(serverResponse);
+  const headers = toOutgoingHeaders(webResponse.headers);
+  const status = webResponse.status;
+
   if (!serverResponse.headersSent) {
-    mergeIntoServerResponse(
-      toOutgoingHeaders(webResponse.headers),
-      serverResponse
-    );
+    mergeIntoServerResponse(headers, serverResponse);
+    serverResponse.statusCode = status;
+    if (!isHttp2) {
+      setHttp1StatusMessage(serverResponse, webResponse.statusText);
+    }
+  } else if (!isHttp2) {
+    serverResponse.statusCode = status;
+    setHttp1StatusMessage(serverResponse, webResponse.statusText);
   }
 
-  serverResponse.statusCode = webResponse.status;
-  serverResponse.statusMessage = webResponse.statusText;
   if (!webResponse.body) {
     serverResponse.end();
     return;
@@ -192,6 +218,9 @@ function checkWritable(serverResponse: ServerResponse) {
   // https://stackoverflow.com/questions/16254385/undocumented-response-finished-in-node-js
   if (serverResponse.writableEnded || serverResponse.finished) return false;
 
+  // Http2ServerResponse may omit httpVersionMajor and report socket.writable=false.
+  if ('stream' in serverResponse && serverResponse.stream) return true;
+
   const socket = serverResponse.socket;
   // There are already pending outgoing res, but still writable
   // https://github.com/nodejs/node/blob/v4.4.7/lib/_http_server.js#L486
@@ -220,7 +249,7 @@ function buildToNodeHandler(
           .catch(() => {
             if (checkWritable(serverResponse) && !serverResponse.headersSent) {
               serverResponse.statusCode = 500;
-              serverResponse.statusMessage = 'Internal Server Error';
+              setHttp1StatusMessage(serverResponse, 'Internal Server Error');
               serverResponse.setHeader(
                 'content-type',
                 'text/plain; charset=utf-8'
@@ -232,7 +261,7 @@ function buildToNodeHandler(
         toServerResponse(maybePromise, serverResponse).catch(() => {
           if (checkWritable(serverResponse) && !serverResponse.headersSent) {
             serverResponse.statusCode = 500;
-            serverResponse.statusMessage = 'Internal Server Error';
+            setHttp1StatusMessage(serverResponse, 'Internal Server Error');
             serverResponse.setHeader(
               'content-type',
               'text/plain; charset=utf-8'
