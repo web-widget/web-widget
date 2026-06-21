@@ -1,5 +1,15 @@
 # @web-widget/node
 
+## 2.4.0
+
+### Patch Changes
+
+- 8ec5a22: Fix HTTP/2 HEAD request handling in Node adapter and Vite dev middleware.
+  - Detect Http2ServerResponse via `stream` when `httpVersionMajor` is missing
+  - Skip writing `statusMessage` on HTTP/2 responses
+  - Avoid calling Connect `next()` after the response has already been sent
+  - Skip `transformIndexHtml` for HEAD requests in dev middleware
+
 ## 2.3.1
 
 ## 2.3.0
