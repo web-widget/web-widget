@@ -1,5 +1,16 @@
 # @web-widget/middlewares
 
+## 2.4.0
+
+### Minor Changes
+
+- 0f81364: Upgrade to `@web-widget/shared-cache` 2.x and adopt `createCacheHandler` for cache middleware origin resolution. Server errors during cache miss propagate to the router error handler; errors during background revalidation return 5xx responses. Remove the `x-transform-error` workaround from web-router.
+
+### Patch Changes
+
+- @web-widget/helpers@2.4.0
+- @web-widget/schema@2.4.0
+
 ## 2.3.1
 
 ### Patch Changes
