@@ -2,8 +2,11 @@ import type WebRouter from '@web-widget/web-router';
 import type { z } from 'zod';
 import type { Manifest, StartOptions } from '@web-widget/web-router';
 import type { FilterPattern, Plugin, Manifest as ViteManifest } from 'vite';
-import type { WebRouterConfigSchema } from './config';
+import type { WebRouterConfigSchema } from './internal/config';
 import type { RouteSourceFile } from './dev/routing/types';
+import type { RouterBuildState } from './router/host';
+
+export type { RouterBuildState } from './router/host';
 
 ////////////////////////////////////////
 //////                            //////
@@ -12,7 +15,6 @@ import type { RouteSourceFile } from './dev/routing/types';
 ////////////////////////////////////////
 
 export interface ResolvedWebRouterConfig {
-  autoFullBuild: boolean;
   asyncContext: {
     enabled: boolean;
   };
@@ -101,19 +103,19 @@ export interface ImportMap {
 
 /**
  * Whether to follow a `dynamicImports` target key (Vite client manifest in build;
- * same-shaped normalized project paths in dev SSR). Not a generic import hook.
+ * same-shaped normalized project paths in dev server). Not a generic import hook.
  */
 export type DynamicImportPredicate = (chunkKey: string) => boolean;
 
 export interface WebRouterPluginApi {
-  config: ResolvedWebRouterConfig;
+  readonly config: ResolvedWebRouterConfig;
+  /** @internal Build-time state populated during the config hook. */
+  readonly build: Readonly<RouterBuildState>;
   clientImportmap(): Promise<ImportMap>;
   serverRoutemap(): Promise<RouteMap>;
-  /**
-   * Registered by `webWidgetPlugin` from `import.include` / `exclude`.
-   * Dev SSR meta reads this via `getWebRouterPluginApi` (`./utils.ts`).
-   */
-  dynamicImportPredicate?: DynamicImportPredicate;
+  readonly dynamicImportPredicate?: DynamicImportPredicate;
+  /** Register widget dynamic-import filter from `webWidgetPlugin`. */
+  setDynamicImportPredicate(predicate: DynamicImportPredicate): void;
 }
 
 export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {

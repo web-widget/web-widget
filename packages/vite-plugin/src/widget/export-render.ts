@@ -3,14 +3,12 @@ import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin, Manifest as ViteManifest } from 'vite';
-import { getLinks } from './manifest-links';
-import type { DynamicImportPredicate } from './types';
-import {
-  getManifest,
-  getWebRouterPluginApi,
-  normalizePath,
-  normalizeFilterId,
-} from './utils';
+import { getLinks, getRouteMetaLinks } from '@/internal/manifest-links';
+import type { DynamicImportPredicate } from '@/types';
+import { getManifest, getWebRouterPluginApi } from '@/internal/manifest';
+import { normalizeFilterId } from '@/internal/module-id';
+import { normalizePath } from '@/internal/path';
+import { applyToServerEnvironment } from '@/internal/environment';
 
 const alias = (name: string) => `__$${name}$__`;
 
@@ -78,7 +76,7 @@ export function exportRenderPlugin({
           if (!exports.some(({ n: name }) => name === exportName)) {
             magicString.prepend(
               // Note: Do not use the `export { render } from "xxx"`
-              // form because it may be accidentally deleted by rollup
+              // form because it may be accidentally deleted by the bundler
               `import { ${exportName} as ${alias(
                 exportName
               )} } from ${JSON.stringify(provide)};\n` +
@@ -136,27 +134,26 @@ export function exportRenderPlugin({
       },
     },
     {
-      apply: (userConfig, { command }) => {
-        return command === 'build' && !!userConfig.build?.ssr;
-      },
+      apply: 'build',
+      applyToEnvironment: applyToServerEnvironment(),
+      sharedDuringBuild: true,
 
-      name: '@web-widget:append-meta',
+      name: '@web-widget:export-meta',
       enforce: 'post',
       async configResolved(config) {
         base = config.base;
         root = config.root;
-
-        const api = getWebRouterPluginApi(config);
-
-        if (!manifest) {
-          if (api) {
-            manifest = await getManifest(root, api.config);
-          }
-        }
       },
       async transform(code, id) {
         if (!filter(normalizeFilterId(id))) {
           return null;
+        }
+
+        if (!manifest) {
+          const api = getWebRouterPluginApi(this.environment.config);
+          if (api) {
+            manifest = await getManifest(root, api.config);
+          }
         }
 
         if (!manifest) {
@@ -165,14 +162,23 @@ export function exportRenderPlugin({
 
         const magicString = new MagicString(code);
         const fileName = normalizePath(path.relative(root, id));
+        const routerApi = getWebRouterPluginApi(this.environment.config);
+        const routeAssets = routerApi?.build.routeClientAssets.get(fileName);
         const meta = {
-          link: getLinks(
-            manifest,
-            fileName,
-            base,
-            new Set(),
-            dynamicImportPredicate
-          ),
+          link: routeAssets
+            ? getRouteMetaLinks(
+                manifest,
+                routeAssets,
+                base,
+                dynamicImportPredicate
+              )
+            : getLinks(
+                manifest,
+                fileName,
+                base,
+                new Set(),
+                dynamicImportPredicate
+              ),
         };
 
         await esModuleLexer.init;

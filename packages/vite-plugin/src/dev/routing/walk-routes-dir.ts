@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { join, relative } from 'node:path';
 import type { RouteSourceFile } from './types';
 import { getSourceFile } from './source-file';
-import { normalizePath } from '@/utils';
+import { normalizePath } from '@/internal/path';
 
 export async function walkRoutes(
   routesDir: string,
@@ -46,7 +46,9 @@ async function walkRouteDir(
           if (sourceFileName !== null) {
             sourceFiles.push({
               ...sourceFileName,
-              pathname: join(relative(root, dir), sourceFileName.name),
+              pathname: normalizePath(
+                join(relative(root, dir), sourceFileName.name)
+              ),
               source,
             });
           }

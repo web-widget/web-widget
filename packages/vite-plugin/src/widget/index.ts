@@ -1,30 +1,9 @@
 import { createFilter } from '@rollup/pluginutils';
 import type { Plugin } from 'vite';
-import { WEB_ROUTER_PLUGIN_NAME } from './constants';
 import { exportRenderPlugin } from './export-render';
 import { importRenderPlugin } from './import-render';
-import type {
-  DynamicImportPredicate,
-  WebRouterPlugin,
-  WebWidgetUserConfig,
-} from './types';
-
-function registerDynamicImportPredicate(
-  predicate: DynamicImportPredicate
-): Plugin {
-  return {
-    name: '@web-widget:register-dynamic-import-predicate',
-    enforce: 'post',
-    configResolved(config) {
-      const router = config.plugins.find(
-        (p) => p.name === WEB_ROUTER_PLUGIN_NAME
-      ) as WebRouterPlugin | undefined;
-      if (router?.api) {
-        router.api.dynamicImportPredicate = predicate;
-      }
-    },
-  };
-}
+import type { WebWidgetUserConfig } from '@/types';
+import { getWebRouterPluginApi } from '@/internal/manifest';
 
 export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
   if (!options) {
@@ -41,11 +20,18 @@ export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
   } = options;
 
   const filterImportPath = createFilter(imports?.include, imports?.exclude);
-  const dynamicImportPredicate: DynamicImportPredicate = (key: string) =>
-    filterImportPath(key);
+  const dynamicImportPredicate = (key: string) => filterImportPath(key);
 
   return [
-    registerDynamicImportPredicate(dynamicImportPredicate),
+    {
+      name: '@web-widget:dynamic-import-predicate',
+      enforce: 'post',
+      configResolved(config) {
+        getWebRouterPluginApi(config)?.setDynamicImportPredicate(
+          dynamicImportPredicate
+        );
+      },
+    },
     ...exportRenderPlugin({
       extractFromExportDefault: exports?.extractFromExportDefault,
       exclude: exports?.exclude,

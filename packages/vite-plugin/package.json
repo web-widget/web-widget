@@ -92,7 +92,7 @@
     "dev": "pnpm exec tsup --watch",
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules pnpm exec jest"
   },
   "type": "module"
 }

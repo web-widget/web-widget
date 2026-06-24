@@ -4,3 +4,7 @@
 export function normalizePath(filename: string): string {
   return filename.replace(/\\/g, '/');
 }
+
+export function isCSSRequest(id: string): boolean {
+  return /\.css(?:$|\?)/.test(id);
+}

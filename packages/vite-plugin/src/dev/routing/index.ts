@@ -1,10 +1,15 @@
 import fs from 'node:fs/promises';
+import path from 'node:path';
 import type { FSWatcher } from 'vite';
 import { walkRoutes } from './walk-routes-dir';
 import { pathToPattern, sortRoutePaths } from './extract';
 import type { RouteSourceFile, OverridePathname } from './types';
 import type { RouteMap } from '@/types';
-import { relativePathWithDot, normalizePath } from '@/utils';
+import {
+  isPathPrefix,
+  normalizePath,
+  relativePathWithDot,
+} from '@/internal/path';
 
 export interface FileSystemRouteGeneratorOptions {
   basePathname: string;
@@ -12,7 +17,7 @@ export interface FileSystemRouteGeneratorOptions {
   routemapPath: string;
   routesPath: string;
   overridePathname?: OverridePathname;
-  update: (padding: Promise<void>) => void;
+  onRoutemapUpdated?: () => void | Promise<void>;
   watcher: FSWatcher;
 }
 
@@ -22,32 +27,33 @@ export async function fileSystemRouteGenerator({
   routemapPath,
   routesPath,
   overridePathname,
-  update,
+  onRoutemapUpdated,
   watcher,
 }: FileSystemRouteGeneratorOptions) {
   const cache = {};
+  const absoluteRoutesPath = path.resolve(root, routesPath);
   await generateRoutemapFile(
     root,
-    routesPath,
+    absoluteRoutesPath,
     basePathname,
     overridePathname,
     routemapPath,
-    cache
-  );
+    cache,
+    onRoutemapUpdated
+  ).catch((error) => logRoutemapError(error));
   const updateFileSystemRouteing = debounce(() => {
-    update(
-      generateRoutemapFile(
-        root,
-        routesPath,
-        basePathname,
-        overridePathname,
-        routemapPath,
-        cache
-      )
-    );
+    void generateRoutemapFile(
+      root,
+      absoluteRoutesPath,
+      basePathname,
+      overridePathname,
+      routemapPath,
+      cache,
+      onRoutemapUpdated
+    ).catch((error) => logRoutemapError(error));
   }, 40);
-  watcher.on('all', (event, path) => {
-    if (path.startsWith(routesPath) && event !== 'change') {
+  watcher.on('all', (event, filePath) => {
+    if (isPathPrefix(absoluteRoutesPath, filePath) && event !== 'change') {
       updateFileSystemRouteing();
     }
   });
@@ -72,7 +78,8 @@ async function generateRoutemapFile(
   basePathname: string,
   overridePathname: OverridePathname | undefined,
   routemapPath: string,
-  cache: any
+  cache: any,
+  onRoutemapUpdated?: () => void | Promise<void>
 ) {
   const key = Symbol.for('routemap');
   const routemap = await getRoutemap(
@@ -86,6 +93,20 @@ async function generateRoutemapFile(
   if (newJson !== cache[key]) {
     await fs.writeFile(routemapPath, JSON.stringify(routemap, null, 2), 'utf8');
     cache[key] = newJson;
+    try {
+      await onRoutemapUpdated?.();
+    } catch (error) {
+      logRoutemapError(error);
+    }
+  }
+}
+
+function logRoutemapError(error: unknown) {
+  const prefix = '🚧 @web-widget/vite-plugin routemap update failed:';
+  if (error instanceof Error) {
+    console.error(`${prefix} ${error.stack}`);
+  } else {
+    console.error(prefix, error);
   }
 }
 

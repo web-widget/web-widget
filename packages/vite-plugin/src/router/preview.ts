@@ -3,7 +3,8 @@ import NodeAdapter from '@web-widget/node';
 import type { Plugin } from 'vite';
 import type WebRouter from '@web-widget/web-router';
 import type { ResolvedWebRouterConfig } from '@/types';
-import { getWebRouterPluginApi } from '@/utils';
+import { getWebRouterPluginApi } from '@/internal/manifest';
+import { resolvePreviewOrigin } from '@/dev/resolve-dev-origin';
 
 export function webRouterPreviewServerPlugin(
   options?: ResolvedWebRouterConfig
@@ -35,19 +36,8 @@ export function webRouterPreviewServerPlugin(
 
     async configurePreviewServer(viteServer) {
       return async () => {
-        let origin: string;
-        const resolvedUrls = viteServer.resolvedUrls;
+        let origin = resolvePreviewOrigin(viteServer);
         const headers = viteServer.config.preview.headers;
-
-        if (resolvedUrls?.local && resolvedUrls?.local[0]) {
-          origin = new URL(resolvedUrls.local[0]).origin;
-        } else {
-          const protocol = viteServer.config.preview.https ? 'https' : 'http';
-          const host = viteServer.config.preview.host || 'localhost';
-          const port = viteServer.config.preview.port || 4173;
-          const { ORIGIN } = process.env;
-          origin = ORIGIN ?? `${protocol}://${host}:${port}`;
-        }
 
         try {
           const output = resolvedWebRouterConfig.output;

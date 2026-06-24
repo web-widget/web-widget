@@ -1,5 +1,5 @@
 import type { Manifest } from 'vite';
-import { getLinks } from './manifest-links';
+import { getLinks, getRouteMetaLinks } from './manifest-links';
 
 /**
  * Fixture filter only. Production callers pass `createFilter` from `import.include`
@@ -285,5 +285,80 @@ describe('getLinks', () => {
       fixtureIncludeDynamicImport
     );
     expect(links.map((l) => l.href)).toContain(`${base}assets/w.css`);
+  });
+});
+
+describe('getRouteMetaLinks', () => {
+  const base = '/';
+
+  test('includes plain CSS rolldown entries and CSS modules', () => {
+    const manifest = {
+      'routes/global.css': {
+        file: 'assets/global-abc.css',
+        src: 'routes/global.css',
+        isEntry: true,
+      },
+      'routes/shared.module.css': {
+        file: 'assets/shared-module.js',
+        src: 'routes/shared.module.css',
+        css: ['assets/shared-abc.css'],
+      },
+    } as unknown as Manifest;
+
+    const links = getRouteMetaLinks(
+      manifest,
+      {
+        cssModules: ['routes/global.css', 'routes/shared.module.css'],
+        widgetModules: [],
+      },
+      base
+    );
+    const hrefs = links.map((l) => l.href);
+    expect(hrefs).toContain(`${base}assets/global-abc.css`);
+    expect(hrefs).toContain(`${base}assets/shared-abc.css`);
+    expect(hrefs).not.toContain(`${base}assets/shared-module.js`);
+  });
+
+  test('omits async route chunk css when collectRouteModuleAssets skips it', () => {
+    const manifest = {
+      'routes/layout.css': {
+        file: 'assets/layout-abc.css',
+        src: 'routes/layout.css',
+        isEntry: true,
+      },
+      'routes/(css-lazy)/lazy-chunk.css': {
+        file: 'assets/lazy-chunk-abc.css',
+        src: 'routes/(css-lazy)/lazy-chunk.css',
+        isEntry: true,
+      },
+      'routes/(css-lazy)/CssLazyDynamicWidget@widget.tsx': {
+        file: 'assets/widget-abc.js',
+        src: 'routes/(css-lazy)/CssLazyDynamicWidget@widget.tsx',
+        imports: [],
+        dynamicImports: ['routes/(css-lazy)/WidgetInnerLazyChunk.tsx'],
+        css: ['assets/widget-abc.css'],
+      },
+      'routes/(css-lazy)/WidgetInnerLazyChunk.tsx': {
+        file: 'assets/inner-lazy.js',
+        src: 'routes/(css-lazy)/WidgetInnerLazyChunk.tsx',
+        css: ['assets/inner-lazy.css'],
+      },
+    } as unknown as Manifest;
+
+    const links = getRouteMetaLinks(
+      manifest,
+      {
+        cssModules: ['routes/layout.css'],
+        widgetModules: ['routes/(css-lazy)/CssLazyDynamicWidget@widget.tsx'],
+      },
+      base,
+      fixtureIncludeDynamicImport
+    );
+    const hrefs = links.map((l) => l.href);
+
+    expect(hrefs).toContain(`${base}assets/layout-abc.css`);
+    expect(hrefs).toContain(`${base}assets/widget-abc.css`);
+    expect(hrefs).not.toContain(`${base}assets/lazy-chunk-abc.css`);
+    expect(hrefs).not.toContain(`${base}assets/inner-lazy.css`);
   });
 });

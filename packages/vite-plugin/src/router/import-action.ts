@@ -2,7 +2,9 @@ import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import type { Plugin } from 'vite';
 import type { ExportSpecifier } from 'es-module-lexer';
-import { getWebRouterPluginApi, relativePathWithDot } from './utils';
+import { applyToClientEnvironment } from '@/internal/environment';
+import { getWebRouterPluginApi } from '@/internal/manifest';
+import { relativePathWithDot } from '@/internal/path';
 
 export interface ImportActionPluginOptions {
   cache?: Set<string>;
@@ -36,6 +38,8 @@ export function importActionPlugin(
 
   return {
     name: '@web-widget:import-action',
+    applyToEnvironment: applyToClientEnvironment(),
+    sharedDuringBuild: true,
 
     async configResolved(config) {
       const { exclude, include = /[.@]action\..*$/ } = options;
@@ -74,9 +78,8 @@ export function importActionPlugin(
       }
     },
 
-    async transform(code, id, options) {
-      const ssr = options?.ssr;
-      if (!enabled || ssr) {
+    async transform(code, id) {
+      if (!enabled) {
         return null;
       }
 

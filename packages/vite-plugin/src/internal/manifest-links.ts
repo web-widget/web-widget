@@ -3,10 +3,9 @@ import type { LinkDescriptor } from '@web-widget/helpers';
 import mime from 'mime-types';
 import type { Manifest as ViteManifest } from 'vite';
 
-import type { DynamicImportPredicate } from './types';
-import { stripModuleIdQuery } from './utils';
-
-export type { DynamicImportPredicate };
+import type { RouteClientAssets } from '@/internal/collect-route-assets';
+import type { DynamicImportPredicate } from '@/types';
+import { stripModuleIdQuery } from '@/internal/module-id';
 
 const RESOLVE_URL_REG = /^(?:\w+:)?\//;
 const rebase = (src: string, base: string) => {
@@ -78,6 +77,12 @@ function getLinksInternal(
 
   if (containSelf) {
     push(item.file);
+  } else if (
+    path.extname(srcFileName) === '.css' &&
+    item.file.endsWith('.css')
+  ) {
+    // Plain CSS rolldown entries use the stylesheet as `file` with no `css` array.
+    push(item.file);
   }
 
   if (Array.isArray(item.assets)) {
@@ -126,6 +131,29 @@ function getLinksInternal(
         )
       );
     });
+  }
+
+  return links;
+}
+
+/** Collect `<link>` descriptors for a route module asset graph. */
+export function getRouteMetaLinks(
+  manifest: ViteManifest,
+  assets: RouteClientAssets,
+  base: string,
+  dynamicImportPredicate?: DynamicImportPredicate
+): LinkDescriptor[] {
+  const cache = new Set<string>();
+  const links: LinkDescriptor[] = [];
+
+  for (const cssModule of assets.cssModules) {
+    links.push(...getLinks(manifest, cssModule, base, cache));
+  }
+
+  for (const widgetModule of assets.widgetModules) {
+    links.push(
+      ...getLinks(manifest, widgetModule, base, cache, dynamicImportPredicate)
+    );
   }
 
   return links;

@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
@@ -7,23 +8,17 @@ import type {
   Plugin,
   Manifest as ViteManifest,
 } from 'vite';
+import { getManifest, getWebRouterPluginApi } from '@/internal/manifest';
+import { normalizeFilterId, stripModuleIdQuery } from '@/internal/module-id';
+import { normalizePath } from '@/internal/path';
 import {
-  getManifest,
-  getWebRouterPluginApi,
-  normalizePath,
-  normalizeFilterId,
-  stripModuleIdQuery,
-} from './utils';
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
+  applyToServerEnvironment,
+  isServerEnvironment,
+} from '@/internal/environment';
 
 const ASSET_PROTOCOL = 'asset:';
 const ASSET_PLACEHOLDER_REG = /(["'`])asset:\/\/(.*?)\1/g;
 const ASSET_PLACEHOLDER = `${ASSET_PROTOCOL}//`;
-
-let index = 0;
-const alias = (name: string) => `__$${name}${index++}$__`;
-const globalCache: Set<string> = new Set();
 
 const IMPORT_DEFAULT_NAME_REG = /import\s+([a-zA-Z_$][\w$]*)\s+/;
 const parseComponentName = (code: string) =>
@@ -45,7 +40,7 @@ export interface ImportRenderPluginOptions {
 /**
  * Input:
  *
- * import MyComponent from "../widgets/my-component@widget.vue";
+ * import MyComponent from "@/widgets/my-component@widget.vue";
  * ...
  * <MyComponent title="My component" />
  *
@@ -53,14 +48,14 @@ export interface ImportRenderPluginOptions {
  *
  * import { defineWebWidget } from "@web-widget/react";
  * const MyComponent = defineWebWidget(() => import("../widgets/my-component@widget.vue"), {
- *   base: import.meta.url,
- *   import: "asset://widgets/my-component@widget.vue"
+ *   import: new URL("../widgets/my-component@widget.vue", import.meta.url).href,
+ *   name: "MyComponent",
  * });
  * ...
  * <MyComponent title="My component" />
  */
 export function importRenderPlugin({
-  cache = globalCache,
+  cache = new Set<string>(),
   component,
   exclude,
   excludeImporter,
@@ -74,6 +69,9 @@ export function importRenderPlugin({
     throw new TypeError(`options.provide must be a string type.`);
   }
 
+  let aliasIndex = 0;
+  const alias = (name: string) => `__$${name}${aliasIndex++}$__`;
+
   let dev = false;
   let root: string;
   let filter: (id: string | unknown) => boolean;
@@ -81,6 +79,7 @@ export function importRenderPlugin({
   let base: string;
   let extensions: string[] = [];
   let sourcemap: boolean;
+  let inspectorDevUrl: string | undefined;
   const assetMap: Map<string, string> = new Map();
 
   filter = createFilter(include, exclude);
@@ -94,6 +93,9 @@ export function importRenderPlugin({
         root = config.root;
         base = config.base;
         sourcemap = !!config.build?.sourcemap;
+        if (dev) {
+          inspectorDevUrl = `${base}@fs${fileURLToPath(await import.meta.resolve('@web-widget/inspector'))}`;
+        }
       },
       async transformIndexHtml(html, { server: dev }) {
         const inspectorId = 'web-widget:inspector';
@@ -108,7 +110,7 @@ export function importRenderPlugin({
           process.env.NODE_ENV !== 'test' &&
           !html.includes(`id="${inspectorId}"`)
         ) {
-          const src = resolvePathToDevUrl('@web-widget/inspector', base);
+          const src = inspectorDevUrl ?? `${base}@fs/@web-widget/inspector`;
           result.push({
             injectTo: 'body',
             tag: 'web-widget-inspector',
@@ -130,8 +132,8 @@ export function importRenderPlugin({
 
         return result;
       },
-      async transform(code, id, options) {
-        const ssr = options?.ssr;
+      async transform(code, id) {
+        const isServer = isServerEnvironment(this.environment);
         const normalizedImporterId = normalizeFilterId(id);
         const importerMatched = importerFilter(normalizedImporterId);
         if (!importerMatched) {
@@ -226,26 +228,11 @@ export function importRenderPlugin({
 
           const asset = normalizePath(path.relative(root, moduleId));
 
-          const clientModuleId = dev
-            ? // dev
-              toDevUrl(asset, base)
-            : ssr
-              ? // build: server
-                ASSET_PLACEHOLDER + asset
-              : // build: client
-                this.emitFile({
-                  type: 'chunk',
-                  id: moduleId,
-                  preserveSignature: 'allow-extension',
-                  importer: id,
-                });
-
-          const clientModuleExpression =
-            dev || ssr
-              ? // dev || build: server
-                JSON.stringify(clientModuleId)
-              : // build: client
-                `import.meta.ROLLUP_FILE_URL_${clientModuleId}`;
+          const clientModuleExpression = dev
+            ? JSON.stringify(toDevUrl(asset, base))
+            : isServer
+              ? JSON.stringify(ASSET_PLACEHOLDER + asset)
+              : `new URL(${JSON.stringify(moduleName)}, import.meta.url).href`;
           const clientContainerOptions = {
             name: componentName,
           };
@@ -257,7 +244,7 @@ export function importRenderPlugin({
             )};\n` +
             `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
               moduleName
-            )}), { /*base: import.meta.url,*/ import: ${clientModuleExpression}, ${JSON.stringify(
+            )}), { import: ${clientModuleExpression}, ${JSON.stringify(
               clientContainerOptions
             ).replaceAll(/^\{|\}$/g, '')} });\n`;
 
@@ -271,14 +258,17 @@ export function importRenderPlugin({
       },
     },
     {
-      apply: (userConfig, { command }) => {
-        return command === 'build' && !!userConfig.build?.ssr;
-      },
-      name: '@web-widget:resolve-asset-protocol',
+      apply: 'build',
+      applyToEnvironment: applyToServerEnvironment(),
+      sharedDuringBuild: true,
+      name: '@web-widget:resolve-asset',
       enforce: 'post',
       async configResolved(config) {
+        root = config.root;
+      },
+      async buildStart() {
         if (!manifest) {
-          const api = getWebRouterPluginApi(config);
+          const api = getWebRouterPluginApi(this.environment.config);
           if (api) {
             manifest = await getManifest(root, api.config);
           }
@@ -349,23 +339,7 @@ export function importRenderPlugin({
   ];
 }
 
-function resolvePathToDevUrl(target: string, base: string) {
-  const id = require.resolve(target);
-  return `${base}@fs${id}`;
-}
-
-function relativePathToDevUrl(target: string, base: string) {
-  return `${base}${target}`;
-}
-
-// @examples
-// toDevUrl('App.vue', '/base/');
-// toDevUrl('../App.vue', '/base');
-// toDevUrl('../App.vue?as=jsx', '/base');
-// toDevUrl('/www/dev/App.vue', '/base');
 function toDevUrl(target: string, base: string) {
   target = stripModuleIdQuery(target);
-  return path.isAbsolute(target) || target.startsWith(`../`)
-    ? resolvePathToDevUrl(target, base)
-    : relativePathToDevUrl(target, base);
+  return `${base}${target}`;
 }

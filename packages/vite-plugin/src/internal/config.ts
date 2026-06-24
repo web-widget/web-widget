@@ -1,19 +1,28 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
-import type { ResolvedWebRouterConfig, WebRouterUserConfig } from './types';
+import { defaultFileExistsSync, type FileExistsSync } from './io';
+import type { ResolvedWebRouterConfig, WebRouterUserConfig } from '@/types';
 
-function resolveRealFile(
+export function resolveRealFile(
   fileName: string,
   root: string,
-  extensions: string[] = ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json']
+  extensions: string[] = [
+    '.mjs',
+    '.js',
+    '.mts',
+    '.ts',
+    '.jsx',
+    '.tsx',
+    '.json',
+  ],
+  fileExists: FileExistsSync = defaultFileExistsSync
 ): string {
   const paths = ['', ...extensions].map((extension) =>
     path.resolve(root, `${fileName}${extension}`)
   );
 
   for (const file of paths) {
-    if (fs.existsSync(file)) {
+    if (fileExists(file)) {
       return file;
     }
   }
@@ -28,7 +37,6 @@ function resolveRealFile(
 ////////////////////////////////////////
 
 export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
-  autoFullBuild: true,
   asyncContext: {
     enabled: true,
   },
@@ -64,10 +72,6 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
 };
 
 export const WebRouterConfigSchema = z.object({
-  autoFullBuild: z
-    .boolean()
-    .optional()
-    .default(WEB_ROUTER_CONFIG_DEFAULTS.autoFullBuild),
   asyncContext: z
     .object({
       enabled: z
@@ -191,13 +195,14 @@ export const WebRouterConfigSchema = z.object({
 export function parseWebRouterConfig(
   userConfig: WebRouterUserConfig,
   root: string,
-  extensions?: string[]
+  extensions?: string[],
+  fileExists: FileExistsSync = defaultFileExistsSync
 ) {
   const builderConfig = WebRouterConfigSchema.parse(
     userConfig
   ) as ResolvedWebRouterConfig;
   const setRealPath = (ctx: any, key: string) =>
-    (ctx[key] = resolveRealFile(ctx[key], root, extensions));
+    (ctx[key] = resolveRealFile(ctx[key], root, extensions, fileExists));
 
   setRealPath(builderConfig.filesystemRouting, 'dir');
   setRealPath(builderConfig.input.client, 'entry');

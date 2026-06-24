@@ -1,1 +1,1 @@
-export { entryPlugin as webRouterPlugin } from './entry';
+export { createRouterPlugins as webRouterPlugin } from './router';
