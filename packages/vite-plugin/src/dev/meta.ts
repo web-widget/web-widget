@@ -1,5 +1,6 @@
 // Based on the code in the MIT licensed `astro` package.
 
+import path from 'node:path';
 import type {
   LinkDescriptor,
   ScriptDescriptor,
@@ -20,7 +21,8 @@ import {
 } from '@/internal/module-id';
 import {
   collectRouteModuleAssets,
-  defaultWidgetPathMatcher,
+  collectWidgetCssModules,
+  matchesWidgetModule,
 } from '@/internal/collect-route-assets';
 
 type ServerModuleDependencyKeys = {
@@ -84,7 +86,8 @@ async function getStylesForURL(
     filePath,
     serverEnvironment,
     dynamicImportPredicate,
-    importedCssUrls
+    importedCssUrls,
+    importedStylesMap
   );
 
   for await (const importedModule of crawlGraph(
@@ -148,17 +151,36 @@ async function collectCssFromSourceAssets(
   filePath: string,
   serverEnvironment: ServerDevEnvironment,
   dynamicImportPredicate: DynamicImportPredicate | undefined,
-  importedCssUrls: Set<string>
+  importedCssUrls: Set<string>,
+  importedStylesMap: Map<string, ImportedStyle>
 ): Promise<void> {
-  const assets = await collectRouteModuleAssets(filePath, {
+  const assetOptions = {
     root: serverEnvironment.root,
     extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.vue', '.json'],
-    isWidget: defaultWidgetPathMatcher,
     dynamicImportPredicate,
-  });
+  };
 
-  for (const cssModule of assets.cssModules) {
-    importedCssUrls.add(`/${cssModule}`);
+  const assets = await collectRouteModuleAssets(filePath, assetOptions);
+  const cssModules = new Set(assets.cssModules);
+
+  for (const widgetModule of assets.widgetModules) {
+    for (const cssModule of await collectWidgetCssModules(
+      path.resolve(serverEnvironment.root, widgetModule),
+      assetOptions
+    )) {
+      cssModules.add(cssModule);
+    }
+  }
+
+  for (const cssModule of cssModules) {
+    const href = `/${cssModule}`;
+    await appendCssModuleStyles(
+      serverEnvironment,
+      href,
+      path.resolve(serverEnvironment.root, cssModule),
+      importedCssUrls,
+      importedStylesMap
+    );
   }
 }
 
@@ -286,15 +308,17 @@ async function resolveServerModuleDependencyKeys(
   );
 
   const matchedDynamicImportKeys = new Set<string>();
-  if (dynamicImportPredicate && tr.dynamicDeps?.length) {
+  if (tr.dynamicDeps?.length) {
     for (const dep of tr.dynamicDeps) {
       try {
         const r = await serverEnvironment.resolveId(dep, importer);
         if (!r?.id) {
           continue;
         }
-        const manifestKey = toManifestFilterKey(r.id, root);
-        if (dynamicImportPredicate(manifestKey)) {
+        const relativeKey = toManifestFilterKey(r.id, root);
+        if (
+          matchesWidgetModule(root, relativeKey, r.id, dynamicImportPredicate)
+        ) {
           matchedDynamicImportKeys.add(canonicalModuleKey(r.id));
         }
       } catch {
@@ -308,6 +332,50 @@ async function resolveServerModuleDependencyKeys(
     importDepKeys,
     matchedDynamicImportKeys,
   };
+}
+
+async function resolveWidgetModulesFromDynamicDeps(
+  serverEnvironment: ServerDevEnvironment,
+  entry: EnvironmentModuleNode,
+  root: string,
+  dynamicImportPredicate?: DynamicImportPredicate
+): Promise<EnvironmentModuleNode[]> {
+  await ensureServerTransformResult(serverEnvironment, entry);
+
+  const tr = entry.transformResult;
+  const importer = entry.file ?? entry.id;
+  if (!tr?.dynamicDeps?.length || !importer) {
+    return [];
+  }
+
+  const modules: EnvironmentModuleNode[] = [];
+  for (const dep of tr.dynamicDeps) {
+    try {
+      const r = await serverEnvironment.resolveId(dep, importer);
+      if (!r?.id) {
+        continue;
+      }
+      const relativeKey = toManifestFilterKey(r.id, root);
+      if (
+        !matchesWidgetModule(root, relativeKey, r.id, dynamicImportPredicate)
+      ) {
+        continue;
+      }
+
+      let mod = serverEnvironment.getModuleById(r.id);
+      if (!mod) {
+        await serverEnvironment.transformRequest(normalizeFilterId(r.id));
+        mod = serverEnvironment.getModuleById(r.id) ?? undefined;
+      }
+      if (mod?.id) {
+        modules.push(mod);
+      }
+    } catch {
+      /** unresolved optional deps, etc. */
+    }
+  }
+
+  return modules;
 }
 
 async function* crawlGraph(
@@ -373,6 +441,17 @@ async function* crawlGraph(
         importedModules.add(importedModule);
       } else {
         importedModules.add(importedModule);
+      }
+    }
+
+    if (!filterDisabled) {
+      for (const widgetModule of await resolveWidgetModulesFromDynamicDeps(
+        serverEnvironment,
+        entry,
+        root,
+        dynamicImportPredicate
+      )) {
+        importedModules.add(widgetModule);
       }
     }
   }

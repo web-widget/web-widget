@@ -1,3 +1,5 @@
+import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { EnvironmentModuleNode, TransformResult } from 'vite';
@@ -338,6 +340,214 @@ describe('getMeta', () => {
         expect.objectContaining({
           rel: 'stylesheet',
           href: '/project/routes/style.css',
+        }),
+      ])
+    );
+  });
+
+  it('collects widget css from static source analysis when route reaches widgets indirectly', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-meta-widget-'));
+    const routePath = path.join(root, 'routes/page@route.tsx');
+    const layoutPath = path.join(root, 'routes/BaseLayout.tsx');
+    const widgetPath = path.join(root, 'routes/Counter@widget.tsx');
+    const cssPath = path.join(root, 'routes/counter-common.css');
+
+    await fs.mkdir(path.dirname(routePath), { recursive: true });
+    await fs.writeFile(cssPath, '.counter { color: red; }', 'utf-8');
+    await fs.writeFile(
+      widgetPath,
+      "import './counter-common.css';\nexport default function Counter() {}",
+      'utf-8'
+    );
+    await fs.writeFile(
+      layoutPath,
+      "import Counter from './Counter@widget.tsx';\nexport default function BaseLayout() {}",
+      'utf-8'
+    );
+    await fs.writeFile(
+      routePath,
+      "import BaseLayout from './BaseLayout.tsx';\nexport default function Page() {}",
+      'utf-8'
+    );
+
+    const environment = createMockServerDevEnvironment({
+      root,
+      getModulesByFile() {
+        return undefined;
+      },
+      getModuleById() {
+        return undefined;
+      },
+      async importModule(url: string) {
+        if (url.endsWith('counter-common.css')) {
+          return { default: '.counter { color: red; }' };
+        }
+        return {};
+      },
+    });
+
+    const meta = await getMeta(routePath, environment, (key) =>
+      key.includes('@widget.')
+    );
+
+    expect(meta.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          content: '.counter { color: red; }',
+        }),
+      ])
+    );
+  });
+
+  it('collects layout and widget css for react-and-vue-like route graph', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-meta-layout-'));
+    const routePath = path.join(root, 'routes/react-and-vue@route.tsx');
+    const layoutPath = path.join(root, 'routes/BaseLayout.tsx');
+    const widgetPath = path.join(root, 'routes/Counter@widget.tsx');
+    const layoutCssPath = path.join(root, 'routes/base-layout.css');
+    const widgetCssPath = path.join(root, 'routes/counter-common.css');
+
+    await fs.mkdir(path.dirname(routePath), { recursive: true });
+    await fs.writeFile(layoutCssPath, '.layout { padding: 1rem; }', 'utf-8');
+    await fs.writeFile(widgetCssPath, '.counter { color: red; }', 'utf-8');
+    await fs.writeFile(
+      widgetPath,
+      "import './counter-common.css';\nexport default function Counter() {}",
+      'utf-8'
+    );
+    await fs.writeFile(
+      layoutPath,
+      "import './base-layout.css';\nexport default function BaseLayout({ children }) { return children; }",
+      'utf-8'
+    );
+    await fs.writeFile(
+      routePath,
+      [
+        "import BaseLayout from './BaseLayout.tsx';",
+        "import Counter from './Counter@widget.tsx';",
+        'export default function Page() { return <BaseLayout><Counter /></BaseLayout>; }',
+      ].join('\n'),
+      'utf-8'
+    );
+
+    const environment = createMockServerDevEnvironment({
+      root,
+      getModulesByFile() {
+        return undefined;
+      },
+      getModuleById() {
+        return undefined;
+      },
+      async importModule(url: string) {
+        if (url.endsWith('base-layout.css')) {
+          return { default: '.layout { padding: 1rem; }' };
+        }
+        if (url.endsWith('counter-common.css')) {
+          return { default: '.counter { color: red; }' };
+        }
+        return {};
+      },
+    });
+
+    const meta = await getMeta(routePath, environment, (key: string) =>
+      key.includes('@widget.')
+    );
+
+    expect(meta.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          content: '.layout { padding: 1rem; }',
+        }),
+        expect.objectContaining({
+          content: '.counter { color: red; }',
+        }),
+      ])
+    );
+  });
+
+  it('follows widget dynamic imports that are not yet linked in importedModules', async () => {
+    const widgetCssModule = createModuleNode({
+      id: '/project/routes/counter-common.css',
+      url: '/project/routes/counter-common.css',
+      type: 'css',
+      ssrModule: { default: '.counter { color: red; }' },
+      importers: new Set([
+        createModuleNode({
+          id: '/project/routes/Counter@widget.tsx',
+          url: '/project/routes/Counter@widget.tsx',
+        }),
+      ]),
+    });
+    const widgetModule = createModuleNode({
+      id: '/project/routes/Counter@widget.tsx',
+      url: '/project/routes/Counter@widget.tsx',
+      transformResult: {
+        code: '',
+        map: null,
+        deps: ['./counter-common.css'],
+        dynamicDeps: [],
+      } as TransformResult,
+      importedModules: new Set([widgetCssModule]),
+    });
+    const routeModule = createModuleNode({
+      id: '/project/routes/page@route.tsx',
+      url: '/project/routes/page@route.tsx',
+      transformResult: {
+        code: '',
+        map: null,
+        deps: [],
+        dynamicDeps: ['./Counter@widget.tsx'],
+      } as TransformResult,
+      importedModules: new Set(),
+    });
+
+    const environment = createMockServerDevEnvironment({
+      root: '/project',
+      getModulesByFile(file: string) {
+        if (file.endsWith('page@route.tsx')) {
+          return new Set([routeModule]);
+        }
+        return undefined;
+      },
+      getModuleById(id: string) {
+        if (id.endsWith('Counter@widget.tsx')) {
+          return widgetModule;
+        }
+        if (id.endsWith('counter-common.css')) {
+          return widgetCssModule;
+        }
+        if (id.endsWith('page@route.tsx')) {
+          return routeModule;
+        }
+        return undefined;
+      },
+      async resolveId(specifier: string) {
+        if (specifier.endsWith('Counter@widget.tsx')) {
+          return { id: '/project/routes/Counter@widget.tsx' };
+        }
+        if (specifier.endsWith('counter-common.css')) {
+          return { id: '/project/routes/counter-common.css' };
+        }
+        return null;
+      },
+      async importModule(url: string) {
+        if (url.endsWith('counter-common.css')) {
+          return { default: '.counter { color: red; }' };
+        }
+        return {};
+      },
+    });
+
+    const meta = await getMeta(
+      '/project/routes/page@route.tsx',
+      environment,
+      (key) => key.includes('@widget.')
+    );
+
+    expect(meta.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          content: '.counter { color: red; }',
         }),
       ])
     );
