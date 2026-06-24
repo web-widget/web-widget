@@ -1,5 +1,5 @@
 /**
- * @fileoverview ModuleRuntime — executes schema modules and the SSR pipeline
+ * @fileoverview ModuleRuntime — executes schema modules and the server render pipeline
  */
 import { handleRpc } from '@web-widget/action/server';
 import { contextToScriptDescriptor } from '@web-widget/context/server';
@@ -9,24 +9,24 @@ import {
   rebaseMeta,
 } from '@web-widget/helpers/module';
 
-import type {
-  ActionModule,
-  DevHttpHandler,
-  DevRouteModule,
-  HTTPException,
-  LayoutComponentProps,
-  LayoutModule,
-  Meta,
-  MiddlewareContext,
-  MiddlewareHandler,
-  MiddlewareModule,
-  RouteComponentProps,
-  RouteContext,
-  RouteHandler,
-  RouteHandlers,
-  RouteModule,
-  RouteRenderOptions,
-  ServerRenderOptions,
+import {
+  DEV_MODULE_SOURCE_HEADER,
+  type ActionModule,
+  type DevRuntimeConfig,
+  type HTTPException,
+  type LayoutComponentProps,
+  type LayoutModule,
+  type Meta,
+  type MiddlewareContext,
+  type MiddlewareHandler,
+  type MiddlewareModule,
+  type RouteComponentProps,
+  type RouteContext,
+  type RouteHandler,
+  type RouteHandlers,
+  type RouteModule,
+  type RouteRenderOptions,
+  type ServerRenderOptions,
 } from './types';
 
 declare module '@web-widget/helpers' {
@@ -60,7 +60,7 @@ export type OnFallback = (
 type SafeError = { proxy: true } & HTTPException;
 
 /**
- * Runtime for schema modules: handler factories, route activation, and SSR.
+ * Runtime for schema modules: handler factories, route activation, and server rendering.
  */
 export class ModuleRuntime {
   #layoutModule: LayoutModule | (() => Promise<LayoutModule>);
@@ -68,7 +68,8 @@ export class ModuleRuntime {
   #defaultBaseAsset: string;
   #defaultRenderer: ServerRenderOptions;
   #onFallback: OnFallback;
-  #dev: boolean;
+  #exposeErrors: boolean;
+  #moduleSource?: DevRuntimeConfig['moduleSource'];
 
   // =========================================================================
   // Constructor and Configuration
@@ -80,14 +81,16 @@ export class ModuleRuntime {
     defaultBaseAsset: string;
     defaultRenderer: ServerRenderOptions;
     onFallback: OnFallback;
-    dev: boolean;
+    exposeErrors?: boolean;
+    moduleSource?: DevRuntimeConfig['moduleSource'];
   }) {
     this.#layoutModule = options.layoutModule;
     this.#defaultMeta = options.defaultMeta;
     this.#defaultBaseAsset = options.defaultBaseAsset;
     this.#defaultRenderer = options.defaultRenderer;
     this.#onFallback = options.onFallback;
-    this.#dev = options.dev;
+    this.#exposeErrors = options.exposeErrors ?? false;
+    this.#moduleSource = options.moduleSource;
   }
 
   /** @internal */
@@ -99,10 +102,6 @@ export class ModuleRuntime {
   clearActivation(context: MiddlewareContext): void {
     invalidateRouteActivation(context);
   }
-
-  // =========================================================================
-  // Public API - Handler Factory Methods
-  // =========================================================================
 
   createRouteContextHandler(
     module: RouteModule | (() => Promise<RouteModule>)
@@ -130,6 +129,10 @@ export class ModuleRuntime {
     };
   }
 
+  /**
+   * Production keeps module activation caches for static imports.
+   * Hosts may invalidate caches via module graph / router lifecycle.
+   */
   createMiddlewareHandler(
     module: MiddlewareModule | (() => Promise<MiddlewareModule>)
   ): MiddlewareHandler {
@@ -155,12 +158,11 @@ export class ModuleRuntime {
 
     return async (context, next) => {
       if (!cachedHandler) {
+        const resolvedModule =
+          await this.#normalizeModule<ActionModule>(module);
         cachedHandler = async (context) => {
-          const resolvedModule =
-            await this.#normalizeModule<ActionModule>(module);
           const { request } = context;
 
-          // Actions only accept POST requests
           if (request.method !== 'POST') {
             return new Response(null, {
               status: 405,
@@ -331,7 +333,7 @@ export class ModuleRuntime {
     }
 
     const error = unsafeError
-      ? this.#dev
+      ? this.#exposeErrors
         ? unsafeError
         : this.#createSafeError(unsafeError)
       : undefined;
@@ -398,10 +400,9 @@ export class ModuleRuntime {
       headers.set('x-accel-buffering', 'no');
     }
 
-    if (this.#dev) {
-      const source = (context.module as DevRouteModule).$source;
-      const devSourceKey: DevHttpHandler = 'x-module-source';
-      headers.set(devSourceKey, source);
+    const moduleSource = this.#moduleSource?.(context);
+    if (moduleSource) {
+      headers.set(DEV_MODULE_SOURCE_HEADER, moduleSource);
     }
 
     return new Response(html, {

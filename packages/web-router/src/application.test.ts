@@ -2352,9 +2352,9 @@ describe('rewrite()', () => {
       } as LayoutModule,
       defaultMeta: { title: 't' } as Meta,
       defaultBaseAsset: '/',
-      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      defaultRenderer: {} as ServerRenderOptions,
       onFallback: () => {},
-      dev: true,
+      exposeErrors: true,
     });
     const clearSpy = vi.spyOn(runtime, 'clearActivation');
 
@@ -2380,9 +2380,9 @@ describe('rewrite()', () => {
       } as LayoutModule,
       defaultMeta: { title: 't' } as Meta,
       defaultBaseAsset: '/',
-      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      defaultRenderer: {} as ServerRenderOptions,
       onFallback: () => {},
-      dev: true,
+      exposeErrors: true,
     });
 
     const app = new Application();
@@ -2421,9 +2421,9 @@ describe('rewrite()', () => {
       } as LayoutModule,
       defaultMeta: { title: 't' } as Meta,
       defaultBaseAsset: '/',
-      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      defaultRenderer: {} as ServerRenderOptions,
       onFallback: () => {},
-      dev: true,
+      exposeErrors: true,
     });
 
     const app = new Application();
@@ -2459,9 +2459,9 @@ describe('rewrite()', () => {
       } as LayoutModule,
       defaultMeta: { title: 't' } as Meta,
       defaultBaseAsset: '/',
-      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      defaultRenderer: {} as ServerRenderOptions,
       onFallback: () => {},
-      dev: true,
+      exposeErrors: true,
     });
 
     const app = new Application();
@@ -2493,9 +2493,9 @@ describe('rewrite()', () => {
       } as LayoutModule,
       defaultMeta: { title: 't' } as Meta,
       defaultBaseAsset: '/',
-      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      defaultRenderer: {} as ServerRenderOptions,
       onFallback: () => {},
-      dev: true,
+      exposeErrors: true,
     });
 
     const app = new Application();

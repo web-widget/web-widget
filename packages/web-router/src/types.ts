@@ -7,6 +7,7 @@ import type {
   HTTPException,
   MiddlewareModule,
   RouteComponentProps,
+  RouteContext,
   RouteModule,
   ServerRender,
   ServerRenderResult,
@@ -66,7 +67,11 @@ export type CloudflareFetchContext = {
 ////////////////////////////////////////
 
 export interface Manifest {
-  dev?: boolean;
+  /**
+   * Dev preset: `true` applies {@link DEV_RUNTIME_DEFAULTS};
+   * an object merges overrides (e.g. {@link DevRuntimeConfig.moduleSource} for tooling).
+   */
+  dev?: DevOption;
   routes: {
     module: RouteModule | (() => Promise<RouteModule>);
     name?: string;
@@ -116,14 +121,23 @@ export interface LayoutRender extends ServerRender<
   LayoutComponentProps
 > {}
 
-////////////////////////////////////////
-//////                            //////
-//////             Dev            //////
-//////                            //////
-////////////////////////////////////////
+/** Response header name for the active route module source path in dev. */
+export const DEV_MODULE_SOURCE_HEADER = 'x-module-source';
 
-export type DevRouteModule = RouteModule & {
-  $source: string;
+/** @see Manifest.dev */
+export type DevOption = boolean | DevRuntimeConfig;
+
+/** Dev runtime overrides when `dev` is a configuration object. */
+export interface DevRuntimeConfig {
+  /** When true, server error pages include full error details instead of sanitized errors. */
+  exposeErrors?: boolean;
+  /** Default progressive streaming for route renders. */
+  progressive?: boolean;
+  /** Returns route module source path (Vite-style, e.g. `/routes/index@route.tsx`); written to {@link DEV_MODULE_SOURCE_HEADER}. */
+  moduleSource?: (context: RouteContext) => string | void;
+}
+
+export const DEV_RUNTIME_DEFAULTS: DevRuntimeConfig = {
+  exposeErrors: true,
+  progressive: false,
 };
-
-export type DevHttpHandler = 'x-module-source';
