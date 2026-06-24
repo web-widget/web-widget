@@ -7,7 +7,7 @@ exports[`Should match snapshot > Request "/" should match snapshot > /@body 1`] 
         <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Hello, Web Widget</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/","params":{}}</script>
       </head>
       <body>
-        <header><h1>Web Router Examples</h1></header><div class="container"><aside><!--$--><web-widget name="Menu"><ul class="menu"><li><a href="/">🏠</a></li><li><a href="/react-server-component">React: Server component</a></li><li><a href="/vue3-server-component">Vue3: Server component</a></li><li><a href="/dynamic-routes/@web-widget">Dynamic routes</a></li><li><a href="/react-and-vue">Using react and vue together</a></li><li><a href="/custom-handlers">Custom handlers</a></li><li><a href="/client-only-component">Client only component</a></li><li><a href="/css-lazy-dynamic">CSS: lazy chunk (dynamic import)</a></li><li><a href="/fetching-data">Fetching data</a></li><li><a href="/style">Styling</a></li><li><a href="/meta">Meta</a></li><li><a href="/form">Form submissions</a></li><li><a href="/fallback">Error handling</a></li><li><a href="/react-streaming">React: Streaming</a></li><li><a href="/vue3-streaming">Vue3: Streaming</a></li><li><a href="/experimental-async-component">Async component</a></li><li><a href="/background-tasks">Background tasks</a></li><li><a href="/vue3-router">Using vue3 router</a></li><li><a href="/vue2-router">Using vue2 router</a></li><li><a href="/react-import-widgets">React: Import vue2 and vue3</a></li><li><a href="/vue3-import-widgets">Vue3: Import react and vue2</a></li><li><a href="/vue2-import-widgets">Vue2: Import react and vue3</a></li><li><a target="_blank" href="/vue2-server-component">Vue2: Server component</a></li><li><a target="_blank" href="/lit-html-template"> Lit html template </a></li><li><a target="_blank" href="/api/hello-world"> Api route </a></li></ul></web-widget><!--/$--></aside><main><h1 class="_title_ed933b">Home</h1><p>Welcome to @web-widget/web-router. Try to update this message in the ./routes/index@route.tsx file, and refresh.</p></main></div><footer><p>This is a footer</p></footer>
+        <header><h1>Web Router Examples</h1></header><div class="container"><aside><!--$--><web-widget name="Menu"><ul class="menu"><li><a href="/">🏠</a></li><li><a href="/react-server-component">React: Server component</a></li><li><a href="/vue3-server-component">Vue3: Server component</a></li><li><a href="/dynamic-routes/@web-widget">Dynamic routes</a></li><li><a href="/react-and-vue">Using react and vue together</a></li><li><a href="/custom-handlers">Custom handlers</a></li><li><a href="/client-only-component">Client only component</a></li><li><a href="/css-lazy-dynamic">CSS: lazy chunk (dynamic import)</a></li><li><a href="/fetching-data">Fetching data</a></li><li><a href="/style">Styling</a></li><li><a href="/meta">Meta</a></li><li><a href="/form">Form submissions</a></li><li><a href="/fallback">Error handling</a></li><li><a href="/react-streaming">React: Streaming</a></li><li><a href="/vue3-streaming">Vue3: Streaming</a></li><li><a href="/experimental-async-component">Async component</a></li><li><a href="/background-tasks">Background tasks</a></li><li><a href="/vue3-router">Using vue3 router</a></li><li><a href="/vue2-router">Using vue2 router</a></li><li><a href="/react-import-widgets">React: Import vue2 and vue3</a></li><li><a href="/vue3-import-widgets">Vue3: Import react and vue2</a></li><li><a href="/vue2-import-widgets">Vue2: Import react and vue3</a></li><li><a target="_blank" href="/vue2-server-component">Vue2: Server component</a></li><li><a target="_blank" href="/lit-html-template"> Lit html template </a></li><li><a target="_blank" href="/api/hello-world"> Api route </a></li></ul></web-widget><!--/$--></aside><main><h1 class="_title_ed933b">Home</h1><p>Welcome to @web-widget/web-router. Try to update this message in the ./routes/index@route.tsx file; the page should reload automatically.</p></main></div><footer><p>This is a footer</p></footer>
       </body>
     </html>"
 `;
@@ -15,7 +15,7 @@ exports[`Should match snapshot > Request "/" should match snapshot > /@body 1`] 
 exports[`Should match snapshot > Request "/" should match snapshot > /@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/index@route.tsx",
+  "x-module-source": "/routes/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -59,7 +59,7 @@ exports[`Should match snapshot > Request "/background-tasks" should match snapsh
 exports[`Should match snapshot > Request "/background-tasks" should match snapshot > /background-tasks@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/background-tasks@route.tsx",
+  "x-module-source": "/routes/background-tasks@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -81,7 +81,7 @@ exports[`Should match snapshot > Request "/client-only-component" should match s
 exports[`Should match snapshot > Request "/client-only-component" should match snapshot > /client-only-component@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/client-only-component@route.tsx",
+  "x-module-source": "/routes/client-only-component@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -95,7 +95,7 @@ exports[`Should match snapshot > Request "/css-lazy-dynamic" should match snapsh
         <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >CSS lazy dynamic chunk</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/css-lazy-dynamic","params":{}}</script>
       </head>
       <body>
-        <header><h1>Web Router Examples</h1></header><div class="container"><aside><!--$--><web-widget name="Menu"><ul class="menu"><li><a href="/">🏠</a></li><li><a href="/react-server-component">React: Server component</a></li><li><a href="/vue3-server-component">Vue3: Server component</a></li><li><a href="/dynamic-routes/@web-widget">Dynamic routes</a></li><li><a href="/react-and-vue">Using react and vue together</a></li><li><a href="/custom-handlers">Custom handlers</a></li><li><a href="/client-only-component">Client only component</a></li><li><a href="/css-lazy-dynamic">CSS: lazy chunk (dynamic import)</a></li><li><a href="/fetching-data">Fetching data</a></li><li><a href="/style">Styling</a></li><li><a href="/meta">Meta</a></li><li><a href="/form">Form submissions</a></li><li><a href="/fallback">Error handling</a></li><li><a href="/react-streaming">React: Streaming</a></li><li><a href="/vue3-streaming">Vue3: Streaming</a></li><li><a href="/experimental-async-component">Async component</a></li><li><a href="/background-tasks">Background tasks</a></li><li><a href="/vue3-router">Using vue3 router</a></li><li><a href="/vue2-router">Using vue2 router</a></li><li><a href="/react-import-widgets">React: Import vue2 and vue3</a></li><li><a href="/vue3-import-widgets">Vue3: Import react and vue2</a></li><li><a href="/vue2-import-widgets">Vue2: Import react and vue3</a></li><li><a target="_blank" href="/vue2-server-component">Vue2: Server component</a></li><li><a target="_blank" href="/lit-html-template"> Lit html template </a></li><li><a target="_blank" href="/api/hello-world"> Api route </a></li></ul></web-widget><!--/$--></aside><main><h1>CSS + dynamic import</h1><p>The green dashed box below is a <code>React.lazy</code> chunk on the<!-- --> <strong>route</strong> that imports <code>lazy-chunk.css</code>. Route-level meta keeps conservative CSS linking, so SSR should still include that stylesheet in head when needed.</p><!--$--><div class="css-lazy-dynamic-box" data-testid="lazy-css-chunk">This box is styled by CSS that lives in the dynamic import chunk only.</div><!--/$--><hr style="margin:2rem 0"/><!--$--><web-widget import="/routes/(css-lazy)/CssLazyDynamicWidget@widget.tsx" name="CssLazyDynamicWidget" loading="lazy" rendertarget="light" recovering=""><section class="css-lazy-widget-root"><h2>Widget: click → dynamic import + CSS</h2><p>This block is a <code>@widget</code> module (SSR/client boundary). For widget meta, dynamic-chunk CSS is omitted from head by default — search page source for <code>widget-inner-lazy</code> before clicking; after load, Vite injects styles.</p><button type="button">Load styled chunk inside widget</button></section></web-widget><!--/$--></main></div><footer><p>This is a footer</p></footer>
+        <header><h1>Web Router Examples</h1></header><div class="container"><aside><!--$--><web-widget name="Menu"><ul class="menu"><li><a href="/">🏠</a></li><li><a href="/react-server-component">React: Server component</a></li><li><a href="/vue3-server-component">Vue3: Server component</a></li><li><a href="/dynamic-routes/@web-widget">Dynamic routes</a></li><li><a href="/react-and-vue">Using react and vue together</a></li><li><a href="/custom-handlers">Custom handlers</a></li><li><a href="/client-only-component">Client only component</a></li><li><a href="/css-lazy-dynamic">CSS: lazy chunk (dynamic import)</a></li><li><a href="/fetching-data">Fetching data</a></li><li><a href="/style">Styling</a></li><li><a href="/meta">Meta</a></li><li><a href="/form">Form submissions</a></li><li><a href="/fallback">Error handling</a></li><li><a href="/react-streaming">React: Streaming</a></li><li><a href="/vue3-streaming">Vue3: Streaming</a></li><li><a href="/experimental-async-component">Async component</a></li><li><a href="/background-tasks">Background tasks</a></li><li><a href="/vue3-router">Using vue3 router</a></li><li><a href="/vue2-router">Using vue2 router</a></li><li><a href="/react-import-widgets">React: Import vue2 and vue3</a></li><li><a href="/vue3-import-widgets">Vue3: Import react and vue2</a></li><li><a href="/vue2-import-widgets">Vue2: Import react and vue3</a></li><li><a target="_blank" href="/vue2-server-component">Vue2: Server component</a></li><li><a target="_blank" href="/lit-html-template"> Lit html template </a></li><li><a target="_blank" href="/api/hello-world"> Api route </a></li></ul></web-widget><!--/$--></aside><main><h1>CSS + dynamic import</h1><p>The green dashed box below is a <code>React.lazy</code> chunk on the<!-- --> <strong>route</strong> that imports <code>lazy-chunk.css</code>. Route meta intentionally omits async-chunk CSS from server head; styles load with the client chunk instead.</p><!--$--><div class="css-lazy-dynamic-box" data-testid="lazy-css-chunk">This box is styled by CSS that lives in the dynamic import chunk only.</div><!--/$--><hr style="margin:2rem 0"/><!--$--><web-widget import="/routes/(css-lazy)/CssLazyDynamicWidget@widget.tsx" name="CssLazyDynamicWidget" loading="lazy" rendertarget="light" recovering=""><section class="css-lazy-widget-root"><h2>Widget: click → dynamic import + CSS</h2><p>This block is a <code>@widget</code> module (server/client boundary). For widget meta, dynamic-chunk CSS is omitted from head by default — search page source for <code>widget-inner-lazy</code> before clicking; after load, Vite injects styles.</p><button type="button">Load styled chunk inside widget</button></section></web-widget><!--/$--></main></div><footer><p>This is a footer</p></footer>
       </body>
     </html>"
 `;
@@ -103,7 +103,7 @@ exports[`Should match snapshot > Request "/css-lazy-dynamic" should match snapsh
 exports[`Should match snapshot > Request "/css-lazy-dynamic" should match snapshot > /css-lazy-dynamic@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/css-lazy-dynamic@route.tsx",
+  "x-module-source": "/routes/css-lazy-dynamic@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -126,7 +126,7 @@ exports[`Should match snapshot > Request "/custom-handlers" should match snapsho
 {
   "content-type": "text/html; charset=utf-8",
   "x-custom-header": "Hello",
-  "x-module-source": "source://./routes/custom-handlers@route.tsx",
+  "x-module-source": "/routes/custom-handlers@route.tsx",
   "x-powered-by": "@web-widget/web-router",
   "x-route-name": "",
 }
@@ -149,7 +149,7 @@ exports[`Should match snapshot > Request "/dynamic-routes" should match snapshot
 exports[`Should match snapshot > Request "/dynamic-routes" should match snapshot > /dynamic-routes@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/_404@route.tsx",
+  "x-module-source": "/routes/_404@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -171,7 +171,7 @@ exports[`Should match snapshot > Request "/dynamic-routes/1" should match snapsh
 exports[`Should match snapshot > Request "/dynamic-routes/1" should match snapshot > /dynamic-routes/1@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/dynamic-routes/[name]@route.tsx",
+  "x-module-source": "/routes/dynamic-routes/[name]@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -193,7 +193,7 @@ exports[`Should match snapshot > Request "/experimental-async-component" should 
 exports[`Should match snapshot > Request "/experimental-async-component" should match snapshot > /experimental-async-component@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/experimental-async-component@route.tsx",
+  "x-module-source": "/routes/experimental-async-component@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -215,7 +215,7 @@ exports[`Should match snapshot > Request "/fallback" should match snapshot > /fa
 exports[`Should match snapshot > Request "/fallback" should match snapshot > /fallback@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/fallback@route.tsx",
+  "x-module-source": "/routes/fallback@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -237,7 +237,7 @@ exports[`Should match snapshot > Request "/fallback?404" should match snapshot >
 exports[`Should match snapshot > Request "/fallback?404" should match snapshot > /fallback?404@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/fallback@route.tsx",
+  "x-module-source": "/routes/fallback@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -259,7 +259,7 @@ exports[`Should match snapshot > Request "/fallback?500" should match snapshot >
 exports[`Should match snapshot > Request "/fallback?500" should match snapshot > /fallback?500@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/fallback@route.tsx",
+  "x-module-source": "/routes/fallback@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -281,7 +281,7 @@ exports[`Should match snapshot > Request "/fallback?global-404" should match sna
 exports[`Should match snapshot > Request "/fallback?global-404" should match snapshot > /fallback?global-404@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/_404@route.tsx",
+  "x-module-source": "/routes/_404@route.tsx",
 }
 `;
 
@@ -302,7 +302,7 @@ exports[`Should match snapshot > Request "/fallback?global-500" should match sna
 exports[`Should match snapshot > Request "/fallback?global-500" should match snapshot > /fallback?global-500@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/_500@route.tsx",
+  "x-module-source": "/routes/_500@route.tsx",
 }
 `;
 
@@ -386,8 +386,7 @@ exports[`Should match snapshot > Request "/fetching-data" should match snapshot 
     &quot;title&quot;: &quot;헬로월드&quot;,
     &quot;url&quot;: &quot;#id5&quot;
   }
-]</pre></div></main></div><footer><p>This is a footer</p></footer><div hidden id="S:0"><web-widget import="/routes/(components)/UserCard@widget.tsx" name="UserCard" loading="lazy" rendertarget="light" contextdata="{&quot;username&quot;:&quot;sveltejs&quot;}" recovering=""><link rel="preload" as="image" href="https://avatars.githubusercontent.com/u/23617963?v=4"/><div style="border:1px solid #e1e4e8;border-radius:6px;padding:16px;background-color:#fafbfc"><div style="display:flex;align-items:center;margin-bottom:12px"><img src="https://avatars.githubusercontent.com/u/23617963?v=4" alt="Svelte avatar" style="width:40px;height:40px;border-radius:50%;margin-right:12px"/><div><h4 style="margin:0 0 4px 0">Svelte</h4><small style="color:#586069">@<!-- -->sveltejs</small></div></div><p style="margin:8px 0;font-size:14px;color:#24292e">Cybernetically enhanced web apps</p><div style="display:flex;gap:16px;font-size:12px;color:#586069;margin-bottom:12px"><span>📍 <!-- -->Worldwide</span><span>👥 <!-- -->78000<!-- --> followers</span><span>📦 <!-- -->156<!-- --> repos</span></div><button style="background:#0366d6;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px">Show<!-- --> Raw Data</button></div></web-widget></div><script>$RB=[];$RV=function(a){$RT=performance.now();for(var b=0;b<a.length;b+=2){var c=a[b],e=a[b+1];null!==e.parentNode&&e.parentNode.removeChild(e);var f=c.parentNode;if(f){var g=c.previousSibling,h=0;do{if(c&&8===c.nodeType){var d=c.data;if("/$"===d||"/&"===d)if(0===h)break;else h--;else"$"!==d&&"$?"!==d&&"$~"!==d&&"$!"!==d&&"&"!==d||h++}d=c.nextSibling;f.removeChild(c);c=d}while(c);for(;e.firstChild;)f.insertBefore(e.firstChild,c);g.data="$";g._reactRetry&&requestAnimationFrame(g._reactRetry)}}a.length=0};
-$RC=function(a,b){if(b=document.getElementById(b))(a=document.getElementById(a))?(a.previousSibling.data="$~",$RB.push(a,b),2===$RB.length&&("number"!==typeof $RT?requestAnimationFrame($RV.bind(null,$RB)):(a=performance.now(),setTimeout($RV.bind(null,$RB),2300>a&&2E3<a?2300-a:$RT+300-a)))):b.parentNode.removeChild(b)};$RC("B:0","S:0")</script><div hidden id="S:1"><web-widget import="/routes/(components)/UserCard@widget.tsx" name="UserCard" loading="lazy" rendertarget="light" contextdata="{&quot;username&quot;:&quot;preactjs&quot;}" recovering=""><link rel="preload" as="image" href="https://avatars.githubusercontent.com/u/123456?v=4"/><div style="border:1px solid #e1e4e8;border-radius:6px;padding:16px;background-color:#fafbfc"><div style="display:flex;align-items:center;margin-bottom:12px"><img src="https://avatars.githubusercontent.com/u/123456?v=4" alt="Preact avatar" style="width:40px;height:40px;border-radius:50%;margin-right:12px"/><div><h4 style="margin:0 0 4px 0">Preact</h4><small style="color:#586069">@<!-- -->preactjs</small></div></div><p style="margin:8px 0;font-size:14px;color:#24292e">Fast 3kB alternative to React with the same modern API</p><div style="display:flex;gap:16px;font-size:12px;color:#586069;margin-bottom:12px"><span>📍 <!-- -->Worldwide</span><span>👥 <!-- -->32000<!-- --> followers</span><span>📦 <!-- -->89<!-- --> repos</span></div><button style="background:#0366d6;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px">Show<!-- --> Raw Data</button></div></web-widget></div><div hidden id="S:2"><web-widget import="/routes/(components)/UserCard@widget.tsx" name="UserCard" loading="lazy" rendertarget="light" contextdata="{&quot;username&quot;:&quot;solidjs&quot;}" recovering=""><link rel="preload" as="image" href="https://avatars.githubusercontent.com/u/72231787?v=4"/><div style="border:1px solid #e1e4e8;border-radius:6px;padding:16px;background-color:#fafbfc"><div style="display:flex;align-items:center;margin-bottom:12px"><img src="https://avatars.githubusercontent.com/u/72231787?v=4" alt="SolidJS avatar" style="width:40px;height:40px;border-radius:50%;margin-right:12px"/><div><h4 style="margin:0 0 4px 0">SolidJS</h4><small style="color:#586069">@<!-- -->solidjs</small></div></div><p style="margin:8px 0;font-size:14px;color:#24292e">A declarative, efficient, and flexible JavaScript library for building user interfaces</p><div style="display:flex;gap:16px;font-size:12px;color:#586069;margin-bottom:12px"><span>📍 <!-- -->Worldwide</span><span>👥 <!-- -->28000<!-- --> followers</span><span>📦 <!-- -->67<!-- --> repos</span></div><button style="background:#0366d6;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px">Show<!-- --> Raw Data</button></div></web-widget></div>
+]</pre></div></main></div><footer><p>This is a footer</p></footer><div hidden id="S:0"><web-widget import="/routes/(components)/UserCard@widget.tsx" name="UserCard" loading="lazy" rendertarget="light" contextdata="{&quot;username&quot;:&quot;sveltejs&quot;}" recovering=""><link rel="preload" as="image" href="https://avatars.githubusercontent.com/u/23617963?v=4"/><div style="border:1px solid #e1e4e8;border-radius:6px;padding:16px;background-color:#fafbfc"><div style="display:flex;align-items:center;margin-bottom:12px"><img src="https://avatars.githubusercontent.com/u/23617963?v=4" alt="Svelte avatar" style="width:40px;height:40px;border-radius:50%;margin-right:12px"/><div><h4 style="margin:0 0 4px 0">Svelte</h4><small style="color:#586069">@<!-- -->sveltejs</small></div></div><p style="margin:8px 0;font-size:14px;color:#24292e">Cybernetically enhanced web apps</p><div style="display:flex;gap:16px;font-size:12px;color:#586069;margin-bottom:12px"><span>📍 <!-- -->Worldwide</span><span>👥 <!-- -->78000<!-- --> followers</span><span>📦 <!-- -->156<!-- --> repos</span></div><button style="background:#0366d6;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px">Show<!-- --> Raw Data</button></div></web-widget></div><div hidden id="S:1"><web-widget import="/routes/(components)/UserCard@widget.tsx" name="UserCard" loading="lazy" rendertarget="light" contextdata="{&quot;username&quot;:&quot;preactjs&quot;}" recovering=""><link rel="preload" as="image" href="https://avatars.githubusercontent.com/u/123456?v=4"/><div style="border:1px solid #e1e4e8;border-radius:6px;padding:16px;background-color:#fafbfc"><div style="display:flex;align-items:center;margin-bottom:12px"><img src="https://avatars.githubusercontent.com/u/123456?v=4" alt="Preact avatar" style="width:40px;height:40px;border-radius:50%;margin-right:12px"/><div><h4 style="margin:0 0 4px 0">Preact</h4><small style="color:#586069">@<!-- -->preactjs</small></div></div><p style="margin:8px 0;font-size:14px;color:#24292e">Fast 3kB alternative to React with the same modern API</p><div style="display:flex;gap:16px;font-size:12px;color:#586069;margin-bottom:12px"><span>📍 <!-- -->Worldwide</span><span>👥 <!-- -->32000<!-- --> followers</span><span>📦 <!-- -->89<!-- --> repos</span></div><button style="background:#0366d6;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px">Show<!-- --> Raw Data</button></div></web-widget></div><div hidden id="S:2"><web-widget import="/routes/(components)/UserCard@widget.tsx" name="UserCard" loading="lazy" rendertarget="light" contextdata="{&quot;username&quot;:&quot;solidjs&quot;}" recovering=""><link rel="preload" as="image" href="https://avatars.githubusercontent.com/u/72231787?v=4"/><div style="border:1px solid #e1e4e8;border-radius:6px;padding:16px;background-color:#fafbfc"><div style="display:flex;align-items:center;margin-bottom:12px"><img src="https://avatars.githubusercontent.com/u/72231787?v=4" alt="SolidJS avatar" style="width:40px;height:40px;border-radius:50%;margin-right:12px"/><div><h4 style="margin:0 0 4px 0">SolidJS</h4><small style="color:#586069">@<!-- -->solidjs</small></div></div><p style="margin:8px 0;font-size:14px;color:#24292e">A declarative, efficient, and flexible JavaScript library for building user interfaces</p><div style="display:flex;gap:16px;font-size:12px;color:#586069;margin-bottom:12px"><span>📍 <!-- -->Worldwide</span><span>👥 <!-- -->28000<!-- --> followers</span><span>📦 <!-- -->67<!-- --> repos</span></div><button style="background:#0366d6;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px">Show<!-- --> Raw Data</button></div></web-widget></div>
       </body>
     </html>"
 `;
@@ -395,7 +394,7 @@ $RC=function(a,b){if(b=document.getElementById(b))(a=document.getElementById(a))
 exports[`Should match snapshot > Request "/fetching-data" should match snapshot > /fetching-data@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/fetching-data@route.tsx",
+  "x-module-source": "/routes/fetching-data@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -417,7 +416,7 @@ exports[`Should match snapshot > Request "/form" should match snapshot > /form@b
 exports[`Should match snapshot > Request "/form" should match snapshot > /form@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/form@route.tsx",
+  "x-module-source": "/routes/form@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -454,7 +453,7 @@ exports[`Should match snapshot > Request "/lit-html-template" should match snaps
 exports[`Should match snapshot > Request "/lit-html-template" should match snapshot > /lit-html-template@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/lit-html-template@route.ts",
+  "x-module-source": "/routes/lit-html-template@route.ts",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -538,7 +537,7 @@ exports[`Should match snapshot > Request "/meta" should match snapshot > /meta@b
 exports[`Should match snapshot > Request "/meta" should match snapshot > /meta@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/meta@route.tsx",
+  "x-module-source": "/routes/meta@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -560,7 +559,7 @@ exports[`Should match snapshot > Request "/react-and-vue" should match snapshot 
 exports[`Should match snapshot > Request "/react-and-vue" should match snapshot > /react-and-vue@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/react-and-vue@route.tsx",
+  "x-module-source": "/routes/react-and-vue@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -582,7 +581,7 @@ exports[`Should match snapshot > Request "/react-server-component" should match 
 exports[`Should match snapshot > Request "/react-server-component" should match snapshot > /react-server-component@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/react-server-component@route.tsx",
+  "x-module-source": "/routes/react-server-component@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -604,7 +603,7 @@ exports[`Should match snapshot > Request "/react-streaming" should match snapsho
 exports[`Should match snapshot > Request "/react-streaming" should match snapshot > /react-streaming@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/react-streaming@route.tsx",
+  "x-module-source": "/routes/react-streaming@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -626,7 +625,7 @@ exports[`Should match snapshot > Request "/style" should match snapshot > /style
 exports[`Should match snapshot > Request "/style" should match snapshot > /style@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/style@route.tsx",
+  "x-module-source": "/routes/style@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -648,7 +647,7 @@ exports[`Should match snapshot > Request "/vue2-import-widgets" should match sna
 exports[`Should match snapshot > Request "/vue2-import-widgets" should match snapshot > /vue2-import-widgets@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/(vue2)/vue2-import-widgets/index@route.tsx",
+  "x-module-source": "/routes/(vue2)/vue2-import-widgets/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -670,7 +669,7 @@ exports[`Should match snapshot > Request "/vue2-router" should match snapshot > 
 exports[`Should match snapshot > Request "/vue2-router" should match snapshot > /vue2-router@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/(vue2)/vue2-router/[...all]@route.tsx",
+  "x-module-source": "/routes/(vue2)/vue2-router/[...all]@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -692,7 +691,7 @@ exports[`Should match snapshot > Request "/vue2-router/about" should match snaps
 exports[`Should match snapshot > Request "/vue2-router/about" should match snapshot > /vue2-router/about@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/(vue2)/vue2-router/[...all]@route.tsx",
+  "x-module-source": "/routes/(vue2)/vue2-router/[...all]@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -716,7 +715,7 @@ exports[`Should match snapshot > Request "/vue2-server-component" should match s
 exports[`Should match snapshot > Request "/vue2-server-component" should match snapshot > /vue2-server-component@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/(vue2)/vue2-server-component@route.vue",
+  "x-module-source": "/routes/(vue2)/vue2-server-component@route.vue",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -738,7 +737,7 @@ exports[`Should match snapshot > Request "/vue3-import-widgets" should match sna
 exports[`Should match snapshot > Request "/vue3-import-widgets" should match snapshot > /vue3-import-widgets@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/(vue3)/vue3-import-widgets/index@route.tsx",
+  "x-module-source": "/routes/(vue3)/vue3-import-widgets/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -760,7 +759,7 @@ exports[`Should match snapshot > Request "/vue3-router" should match snapshot > 
 exports[`Should match snapshot > Request "/vue3-router" should match snapshot > /vue3-router@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/(vue3)/vue3-router/[...all]@route.tsx",
+  "x-module-source": "/routes/(vue3)/vue3-router/[...all]@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -782,7 +781,7 @@ exports[`Should match snapshot > Request "/vue3-router/about" should match snaps
 exports[`Should match snapshot > Request "/vue3-router/about" should match snapshot > /vue3-router/about@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/(vue3)/vue3-router/[...all]@route.tsx",
+  "x-module-source": "/routes/(vue3)/vue3-router/[...all]@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -806,7 +805,7 @@ exports[`Should match snapshot > Request "/vue3-server-component" should match s
 exports[`Should match snapshot > Request "/vue3-server-component" should match snapshot > /vue3-server-component@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/(vue3)/vue3-server-component@route.vue",
+  "x-module-source": "/routes/(vue3)/vue3-server-component@route.vue",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -828,7 +827,7 @@ exports[`Should match snapshot > Request "/vue3-streaming" should match snapshot
 exports[`Should match snapshot > Request "/vue3-streaming" should match snapshot > /vue3-streaming@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/(vue3)/vue3-streaming@route.vue",
+  "x-module-source": "/routes/(vue3)/vue3-streaming@route.vue",
   "x-powered-by": "@web-widget/web-router",
 }
 `;

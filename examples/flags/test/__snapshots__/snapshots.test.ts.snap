@@ -28,7 +28,7 @@ exports[`Should match snapshot > Request "/flags" should match snapshot > /flags
 exports[`Should match snapshot > Request "/flags" should match snapshot > /flags@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/flags/index@route.tsx",
+  "x-module-source": "/routes/flags/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -52,7 +52,7 @@ exports[`Should match snapshot > Request "/flags/dashboard-pages" should match s
 exports[`Should match snapshot > Request "/flags/dashboard-pages" should match snapshot > /flags/dashboard-pages@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/flags/dashboard-pages/index@route.tsx",
+  "x-module-source": "/routes/flags/dashboard-pages/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -77,7 +77,7 @@ exports[`Should match snapshot > Request "/flags/marketing-pages" should match s
 {
   "content-type": "text/html; charset=utf-8",
   "vary": "x-flags-code",
-  "x-module-source": "source://./routes/flags/marketing-pages/index@route.tsx",
+  "x-module-source": "/routes/flags/marketing-pages/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -101,7 +101,7 @@ exports[`Should match snapshot > Request "/flags/marketing-pages-manual-approach
 exports[`Should match snapshot > Request "/flags/marketing-pages-manual-approach" should match snapshot > /flags/marketing-pages-manual-approach@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/flags/marketing-pages-manual-approach/index@route.tsx",
+  "x-module-source": "/routes/flags/marketing-pages-manual-approach/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
