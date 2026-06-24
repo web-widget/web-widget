@@ -26,7 +26,7 @@ export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
     {
       name: '@web-widget:dynamic-import-predicate',
       enforce: 'post',
-      configResolved(config) {
+      config(config) {
         getWebRouterPluginApi(config)?.setDynamicImportPredicate(
           dynamicImportPredicate
         );

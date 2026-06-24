@@ -102,10 +102,13 @@ export interface ImportMap {
 }
 
 /**
- * Whether to follow a `dynamicImports` target key (Vite client manifest in build;
- * same-shaped normalized project paths in dev server). Not a generic import hook.
+ * Whether a module path should be treated as a widget module for build graph,
+ * manifest links, and dev meta collection.
  */
-export type DynamicImportPredicate = (chunkKey: string) => boolean;
+export type WidgetModuleFilter = (modulePath: string) => boolean;
+
+/** @deprecated Use `WidgetModuleFilter`. */
+export type DynamicImportPredicate = WidgetModuleFilter;
 
 export interface WebRouterPluginApi {
   readonly config: ResolvedWebRouterConfig;
@@ -113,9 +116,12 @@ export interface WebRouterPluginApi {
   readonly build: Readonly<RouterBuildState>;
   clientImportmap(): Promise<ImportMap>;
   serverRoutemap(): Promise<RouteMap>;
-  readonly dynamicImportPredicate?: DynamicImportPredicate;
-  /** Register widget dynamic-import filter from `webWidgetPlugin`. */
-  setDynamicImportPredicate(predicate: DynamicImportPredicate): void;
+  readonly widgetModuleFilter?: WidgetModuleFilter;
+  setWidgetModuleFilter(filter: WidgetModuleFilter): void;
+  /** @deprecated Use `widgetModuleFilter`. */
+  readonly dynamicImportPredicate?: WidgetModuleFilter;
+  /** @deprecated Use `setWidgetModuleFilter`. */
+  setDynamicImportPredicate(filter: WidgetModuleFilter): void;
 }
 
 export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {

@@ -8,11 +8,20 @@ import type {
   ResolvedWebRouterConfig,
   RouteMap,
   WebRouterPluginApi,
+  WidgetModuleFilter,
 } from '@/types';
+
+/** Deferred client build graph inputs resolved during `configEnvironment`. */
+export interface ClientBuildGraphContext {
+  extensions: string[];
+  serverRoutemap: RouteMap;
+  serverRoutemapPath: string;
+}
 
 /** Build-time state shared across @web-widget router plugins. */
 export interface RouterBuildState {
   base: string;
+  clientBuildGraphContext?: ClientBuildGraphContext;
   clientImportmap?: ImportMap;
   clientRoutemapEntryPoints: BuildEntryPoints;
   dev: boolean;
@@ -24,6 +33,8 @@ export interface RouterBuildState {
   sourcemap: boolean;
   serverTarget: SSRTarget;
   useAppBuilder: boolean;
+  widgetModuleFilter?: WidgetModuleFilter;
+  /** @deprecated Use `widgetModuleFilter`. */
   dynamicImportPredicate?: DynamicImportPredicate;
   /** In-memory routemap while dev server is running (filesystem routing). */
   devServerRoutemap?: RouteMap;
@@ -74,11 +85,17 @@ export function createRouterPluginHost(
     get build() {
       return state;
     },
+    get widgetModuleFilter() {
+      return state.widgetModuleFilter;
+    },
+    setWidgetModuleFilter(filter) {
+      state.widgetModuleFilter = filter;
+    },
     get dynamicImportPredicate() {
-      return state.dynamicImportPredicate;
+      return state.widgetModuleFilter;
     },
     setDynamicImportPredicate(predicate) {
-      state.dynamicImportPredicate = predicate;
+      state.widgetModuleFilter = predicate;
     },
     async clientImportmap() {
       const file = api.config.input.client.importmap;

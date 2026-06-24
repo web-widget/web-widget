@@ -32,8 +32,8 @@ import {
   createServerManualChunks,
   resolveClientEntryPoints,
   resolveServerEntryPoints,
+  type BuildEntryPoints,
 } from '@/internal/build-entry-points';
-import { defaultWidgetPathMatcher } from '@/internal/collect-route-assets';
 import { mergeRouterVitestConfig } from '@/vitest-config';
 import { createRemoveAsyncHooksPlugin } from './remove-async-hooks';
 import { createServerEntryPlugin } from './server-entry';
@@ -56,6 +56,37 @@ type ImportMap = {
   imports?: Record<string, string>;
   scopes?: Record<string, Record<string, string>>;
 };
+
+const EMPTY_CLIENT_ENTRY_POINTS: BuildEntryPoints = {
+  points: Object.create(null),
+  exposures: new Set(),
+};
+
+async function resolveClientBuildGraph(host: RouterPluginHost) {
+  const context = host.state.clientBuildGraphContext;
+  if (!context) {
+    return;
+  }
+
+  const { root, widgetModuleFilter, resolvedWebRouterConfig } = host.state;
+  const { entryPoints, routeClientAssets } = await resolveClientEntryPoints(
+    context.serverRoutemap,
+    context.serverRoutemapPath,
+    root,
+    {
+      extensions: context.extensions,
+      dynamicImportPredicate: widgetModuleFilter,
+      widgetSearchDirs: [
+        resolvedWebRouterConfig.filesystemRouting.dir.replace(/^\.\//, ''),
+      ],
+    }
+  );
+
+  host.patchState({
+    clientRoutemapEntryPoints: entryPoints,
+    routeClientAssets,
+  });
+}
 
 function shouldBuildClient(env: ConfigEnv) {
   return !env.isSsrBuild;
@@ -195,36 +226,29 @@ async function createSharedConfig(
     '.vue',
     '.json',
   ];
-  const { entryPoints: clientRoutemapEntryPoints, routeClientAssets } =
-    await resolveClientEntryPoints(serverRoutemap, serverRoutemapPath, root, {
-      extensions,
-      isWidget: defaultWidgetPathMatcher,
-      widgetSearchDirs: [
-        resolvedWebRouterConfig.filesystemRouting.dir.replace(/^\.\//, ''),
-      ],
-    });
-
-  const resolveConditions =
-    config.ssr?.resolve?.conditions ??
-    (serverTarget === 'webworker'
-      ? WEBWORKER_SERVER_RESOLVE_CONDITIONS
-      : undefined);
-
-  const useAppBuilder = env.command === 'build' && shouldBuildClient(env);
 
   host.initialize({
     base: config.base ?? '/',
+    clientBuildGraphContext: {
+      extensions,
+      serverRoutemap,
+      serverRoutemapPath,
+    },
     clientImportmap,
-    clientRoutemapEntryPoints,
+    clientRoutemapEntryPoints: EMPTY_CLIENT_ENTRY_POINTS,
     dev: env.command === 'serve',
     resolvedWebRouterConfig,
-    resolveConditions,
+    resolveConditions:
+      config.ssr?.resolve?.conditions ??
+      (serverTarget === 'webworker'
+        ? WEBWORKER_SERVER_RESOLVE_CONDITIONS
+        : undefined),
     root,
-    routeClientAssets,
+    routeClientAssets: new Map(),
     serverRoutemapEntryPoints,
     sourcemap: !!config.build?.sourcemap,
     serverTarget,
-    useAppBuilder,
+    useAppBuilder: env.command === 'build' && shouldBuildClient(env),
   });
 
   const test = mergeRouterVitestConfig(config.test, serverTarget, env);
@@ -254,7 +278,9 @@ async function createSharedConfig(
       external: ['node:async_hooks'],
       resolve: {
         ...(config.ssr?.resolve ?? {}),
-        ...(resolveConditions ? { conditions: resolveConditions } : {}),
+        ...(host.state.resolveConditions
+          ? { conditions: host.state.resolveConditions }
+          : {}),
       },
     },
     builder:
@@ -287,13 +313,28 @@ function createRouterPlugin(
       return createSharedConfig(host, options, config, env);
     },
 
-    configEnvironment(name, config, env) {
+    async configResolved() {
+      if (
+        host.state.dev &&
+        Object.keys(host.state.clientRoutemapEntryPoints.points).length === 0
+      ) {
+        await resolveClientBuildGraph(host);
+      }
+    },
+
+    async configEnvironment(name, config, env) {
       if (env.command !== 'build') {
         return;
       }
 
       if (name === 'client' && !shouldBuildClient(env)) {
         return;
+      }
+
+      if (
+        Object.keys(host.state.clientRoutemapEntryPoints.points).length === 0
+      ) {
+        await resolveClientBuildGraph(host);
       }
 
       return createEnvironmentBuildOptions(host, config, name);
