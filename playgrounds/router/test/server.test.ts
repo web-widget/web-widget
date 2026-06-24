@@ -91,4 +91,27 @@ describe('production server (pnpm build && node server.js)', () => {
     const combinedCss = stylesheetContents.join('\n');
     expect(combinedCss).not.toContain('.css-lazy-dynamic-box');
   });
+
+  it('preloads Counter widget CSS on /react-and-vue', async () => {
+    const html = await (await fetch(`${server!.origin}/react-and-vue`)).text();
+    const stylesheets = [
+      ...html.matchAll(/href=["'](\/assets\/[^"']+\.css)["']/g),
+    ].map((match) => match[1]);
+
+    expect(stylesheets.length).toBeGreaterThan(0);
+
+    const stylesheetContents = await Promise.all(
+      stylesheets.map(async (href) => {
+        const response = await fetch(`${server!.origin}${href}`);
+        expect(response.status).toBe(200);
+        return response.text();
+      })
+    );
+
+    const combinedCss = stylesheetContents.join('\n');
+    expect(
+      combinedCss.includes('.counter') ||
+        combinedCss.includes('border-radius: 30px')
+    ).toBe(true);
+  });
 });

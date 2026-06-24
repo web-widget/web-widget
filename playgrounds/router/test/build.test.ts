@@ -95,4 +95,27 @@ describe('vite build integration', () => {
     expect(hrefs.some((href) => href.includes('lazy-chunk'))).toBe(false);
     expect(hrefs.some((href) => href.includes('_css-lazy_'))).toBe(false);
   });
+
+  it('injects Counter widget CSS into react-and-vue route meta links', () => {
+    const routeModulePath = path.join(
+      playgroundRoot,
+      'dist/server/assets/_vue3_.helpers.js'
+    );
+
+    expect(fs.existsSync(routeModulePath)).toBe(true);
+
+    const routeModuleSource = fs.readFileSync(routeModulePath, 'utf-8');
+    const linkInjection = routeModuleSource.match(
+      /\(\(meta\) => \{[\s\S]*?const link = (\[[\s\S]*?\]);[\s\S]*?\}\)\(meta\);/
+    );
+    expect(linkInjection).toBeTruthy();
+
+    const injectedLinks = JSON.parse(linkInjection![1]) as Array<{
+      href?: string;
+      rel?: string;
+    }>;
+    const hrefs = injectedLinks.map((link) => link.href ?? '');
+
+    expect(hrefs.some((href) => href.includes('counter-common'))).toBe(true);
+  });
 });
