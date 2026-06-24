@@ -1,4 +1,8 @@
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import type { Manifest } from 'vite';
+import { collectRouteModuleAssets } from './collect-route-assets';
 import { getLinks, getRouteMetaLinks } from './manifest-links';
 
 /**
@@ -360,5 +364,129 @@ describe('getRouteMetaLinks', () => {
     expect(hrefs).toContain(`${base}assets/widget-abc.css`);
     expect(hrefs).not.toContain(`${base}assets/lazy-chunk-abc.css`);
     expect(hrefs).not.toContain(`${base}assets/inner-lazy.css`);
+  });
+
+  test('includes layout css and widget css discovered from route assets', () => {
+    const manifest = {
+      'routes/(components)/base-layout.css': {
+        file: 'assets/base-layout-abc.css',
+        src: 'routes/(components)/base-layout.css',
+        isEntry: true,
+      },
+      'routes/(components)/Counter@widget.tsx': {
+        file: 'assets/counter-widget.js',
+        src: 'routes/(components)/Counter@widget.tsx',
+        imports: [],
+        dynamicImports: [],
+        css: ['assets/counter-common-abc.css'],
+      },
+    } as unknown as Manifest;
+
+    const links = getRouteMetaLinks(
+      manifest,
+      {
+        cssModules: ['routes/(components)/base-layout.css'],
+        widgetModules: ['routes/(components)/Counter@widget.tsx'],
+      },
+      base,
+      fixtureIncludeDynamicImport
+    );
+    const hrefs = links.map((l) => l.href);
+
+    expect(hrefs).toContain(`${base}assets/base-layout-abc.css`);
+    expect(hrefs).toContain(`${base}assets/counter-common-abc.css`);
+  });
+
+  test('collectRouteModuleAssets and getRouteMetaLinks agree on react-and-vue-like css set', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-meta-links-'));
+    const routePath = path.join(root, 'routes/react-and-vue@route.tsx');
+    await fs.mkdir(path.dirname(routePath), { recursive: true });
+    await fs.writeFile(
+      path.join(root, 'routes/base-layout.css'),
+      '.layout {}',
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(root, 'routes/counter-common.css'),
+      '.counter {}',
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(root, 'routes/Counter@widget.tsx'),
+      "import './counter-common.css';\nexport default function Counter() {}",
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(root, 'routes/BaseLayout.tsx'),
+      "import './base-layout.css';\nexport default function BaseLayout() {}",
+      'utf-8'
+    );
+    await fs.writeFile(
+      routePath,
+      [
+        "import BaseLayout from './BaseLayout.tsx';",
+        "import Counter from './Counter@widget.tsx';",
+        'export default function Page() {}',
+      ].join('\n'),
+      'utf-8'
+    );
+
+    const assets = await collectRouteModuleAssets(routePath, {
+      root,
+      extensions: ['.tsx', '.ts', '.css'],
+      dynamicImportPredicate: (key: string) => key.includes('@widget.'),
+    });
+
+    const manifest = {
+      'routes/base-layout.css': {
+        file: 'assets/base-layout.css',
+        src: 'routes/base-layout.css',
+        isEntry: true,
+      },
+      'routes/Counter@widget.tsx': {
+        file: 'assets/counter-widget.js',
+        src: 'routes/Counter@widget.tsx',
+        css: ['assets/counter-common.css'],
+      },
+    } as unknown as Manifest;
+
+    const links = getRouteMetaLinks(
+      manifest,
+      assets,
+      base,
+      fixtureIncludeDynamicImport
+    );
+    const hrefs = links.map((link) => link.href ?? '');
+
+    expect(hrefs).toContain(`${base}assets/base-layout.css`);
+    expect(hrefs).toContain(`${base}assets/counter-common.css`);
+    expect(assets.cssModules).toContain('routes/base-layout.css');
+    expect(assets.widgetModules).toContain('routes/Counter@widget.tsx');
+  });
+});
+
+describe('getLinks dynamicImportPredicate', () => {
+  const base = '/';
+
+  test('does not follow convention widget dynamic imports when predicate is omitted', () => {
+    const manifest = {
+      'routes/page@route.tsx': {
+        file: 'assets/page.js',
+        src: 'routes/page@route.tsx',
+        imports: [],
+        dynamicImports: ['routes/Counter@widget.tsx'],
+        css: [],
+      },
+      'routes/Counter@widget.tsx': {
+        file: 'assets/counter.js',
+        src: 'routes/Counter@widget.tsx',
+        css: ['assets/counter.css'],
+      },
+    } as unknown as Manifest;
+
+    const links = getLinks(manifest, 'routes/page@route.tsx', base, new Set());
+    const hrefs = links.map((link) => link.href ?? '');
+
+    expect(hrefs).not.toContain(`${base}assets/counter.css`);
   });
 });

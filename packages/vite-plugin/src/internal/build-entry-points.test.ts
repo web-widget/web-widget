@@ -2,7 +2,6 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from '@jest/globals';
-import { defaultWidgetPathMatcher } from './collect-route-assets';
 import {
   assetBaseNameFromModuleId,
   collapseIndexPathSegments,
@@ -118,7 +117,6 @@ describe('resolveClientEntryPoints', () => {
       tempDir,
       {
         extensions: ['.tsx', '.vue'],
-        isWidget: defaultWidgetPathMatcher,
         widgetSearchDirs: ['routes'],
       }
     );
@@ -187,7 +185,6 @@ describe('resolveClientEntryPoints', () => {
       tempDir,
       {
         extensions: ['.tsx', '.ts', '.css'],
-        isWidget: defaultWidgetPathMatcher,
         widgetSearchDirs: ['routes'],
       }
     );
@@ -200,6 +197,161 @@ describe('resolveClientEntryPoints', () => {
     );
     expect(Object.values(entryPoints.points)).not.toEqual(
       expect.arrayContaining([expect.stringMatching(/lazy-chunk\.css$/)])
+    );
+  });
+
+  it('excludes widgets rejected by dynamicImportPredicate from client build entries', async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-entry-points-'));
+    const routemapPath = path.join(tempDir, 'routemap.server.json');
+    await fs.writeFile(
+      routemapPath,
+      JSON.stringify({
+        routes: [
+          {
+            pathname: '/',
+            module: './routes/page@route.tsx',
+          },
+        ],
+        actions: [],
+        middlewares: [],
+        fallbacks: [],
+      }),
+      'utf-8'
+    );
+    await fs.mkdir(path.join(tempDir, 'routes'), { recursive: true });
+    await fs.writeFile(
+      path.join(tempDir, 'routes/Included@widget.tsx'),
+      'export default function Included() {}',
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(tempDir, 'routes/Excluded@widget.tsx'),
+      'export default function Excluded() {}',
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(tempDir, 'routes/page@route.tsx'),
+      [
+        "import Included from './Included@widget.tsx';",
+        'export default function Page() { return <Included />; }',
+      ].join('\n'),
+      'utf-8'
+    );
+
+    const dynamicImportPredicate = (key: string) =>
+      key.includes('Included@widget');
+
+    const { entryPoints, routeClientAssets } = await resolveClientEntryPoints(
+      {
+        routes: [
+          {
+            pathname: '/',
+            module: './routes/page@route.tsx',
+          },
+        ],
+        actions: [],
+        middlewares: [],
+        fallbacks: [],
+      },
+      routemapPath,
+      tempDir,
+      {
+        extensions: ['.tsx', '.ts'],
+        dynamicImportPredicate,
+        widgetSearchDirs: ['routes'],
+      }
+    );
+
+    expect(
+      routeClientAssets.get('routes/page@route.tsx')?.widgetModules
+    ).toEqual(['routes/Included@widget.tsx']);
+    expect(Object.values(entryPoints.points)).toEqual(
+      expect.arrayContaining([expect.stringMatching(/Included@widget\.tsx$/)])
+    );
+    expect(Object.values(entryPoints.points)).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/Excluded@widget\.tsx$/)])
+    );
+  });
+
+  it('excludes widgets reached via layout chain when filter rejects them', async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-entry-points-'));
+    const routemapPath = path.join(tempDir, 'routemap.server.json');
+    await fs.writeFile(
+      routemapPath,
+      JSON.stringify({
+        routes: [
+          {
+            pathname: '/',
+            module: './routes/page@route.tsx',
+          },
+        ],
+        actions: [],
+        middlewares: [],
+        fallbacks: [],
+      }),
+      'utf-8'
+    );
+    await fs.mkdir(path.join(tempDir, 'routes'), { recursive: true });
+    await fs.writeFile(
+      path.join(tempDir, 'routes/Included@widget.tsx'),
+      'export default function Included() {}',
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(tempDir, 'routes/Excluded@widget.tsx'),
+      'export default function Excluded() {}',
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(tempDir, 'routes/BaseLayout.tsx'),
+      [
+        "import Included from './Included@widget.tsx';",
+        "import Excluded from './Excluded@widget.tsx';",
+        'export default function BaseLayout() {}',
+      ].join('\n'),
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(tempDir, 'routes/page@route.tsx'),
+      [
+        "import BaseLayout from './BaseLayout.tsx';",
+        'export default function Page() { return <BaseLayout />; }',
+      ].join('\n'),
+      'utf-8'
+    );
+
+    const dynamicImportPredicate = (key: string) =>
+      key.includes('Included@widget');
+
+    const { entryPoints, routeClientAssets } = await resolveClientEntryPoints(
+      {
+        routes: [
+          {
+            pathname: '/',
+            module: './routes/page@route.tsx',
+          },
+        ],
+        actions: [],
+        middlewares: [],
+        fallbacks: [],
+      },
+      routemapPath,
+      tempDir,
+      {
+        extensions: ['.tsx', '.ts'],
+        dynamicImportPredicate,
+        widgetSearchDirs: ['routes'],
+      }
+    );
+
+    expect(
+      routeClientAssets.get('routes/page@route.tsx')?.widgetModules
+    ).toEqual(['routes/Included@widget.tsx']);
+    expect(Object.values(entryPoints.points)).toEqual(
+      expect.arrayContaining([expect.stringMatching(/Included@widget\.tsx$/)])
+    );
+    expect(Object.values(entryPoints.points)).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/Excluded@widget\.tsx$/)])
     );
   });
 });

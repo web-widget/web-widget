@@ -4,7 +4,6 @@ import { isPathInsideRoot, normalizePath } from '@/internal/path';
 import { stripModuleIdQuery } from '@/internal/module-id';
 import {
   collectRouteModuleAssets,
-  defaultWidgetPathMatcher,
   discoverWidgetModulePaths,
   type CollectRouteAssetsOptions,
   type RouteClientAssetsIndex,
@@ -325,8 +324,8 @@ export async function resolveClientEntryPoints(
 
   const assetOptions: CollectRouteAssetsOptions = {
     root,
-    ...collectOptions,
-    isWidget: collectOptions.isWidget ?? defaultWidgetPathMatcher,
+    extensions: collectOptions.extensions,
+    dynamicImportPredicate: collectOptions.dynamicImportPredicate,
   };
 
   const routeModules = collectRoutemapModulePaths(manifest, routemapPath, [
@@ -358,7 +357,8 @@ export async function resolveClientEntryPoints(
   const widgetSearchDirs = collectOptions.widgetSearchDirs ?? ['routes'];
   for (const widgetModule of await discoverWidgetModulePaths(
     root,
-    widgetSearchDirs
+    widgetSearchDirs,
+    collectOptions.dynamicImportPredicate
   )) {
     addUniqueModule(path.resolve(root, widgetModule), false);
   }

@@ -14,7 +14,7 @@ export type RouteClientAssetsIndex = Map<string, RouteClientAssets>;
 export interface CollectRouteAssetsOptions {
   root: string;
   extensions: string[];
-  isWidget: (relativePath: string) => boolean;
+  /** From `webWidgetPlugin` `import.include/exclude`; also drives static widget discovery. */
   dynamicImportPredicate?: DynamicImportPredicate;
 }
 
@@ -100,19 +100,45 @@ function toRelativeKey(root: string, absolutePath: string): string {
   return normalizePath(path.relative(root, absolutePath));
 }
 
+export function defaultWidgetPathMatcher(relativePath: string): boolean {
+  return /[.@]widget\./.test(relativePath);
+}
+
+/** Whether a module path matches the widget import filter (or `[.@]widget.` by default). */
+export function matchesWidgetModule(
+  root: string,
+  relativePath: string,
+  resolvedPath: string,
+  dynamicImportPredicate?: DynamicImportPredicate
+): boolean {
+  if (!dynamicImportPredicate) {
+    return defaultWidgetPathMatcher(relativePath);
+  }
+
+  const normalized = normalizePath(relativePath);
+  return (
+    dynamicImportPredicate(normalized) ||
+    dynamicImportPredicate(resolvedPath) ||
+    dynamicImportPredicate(path.resolve(root, normalized))
+  );
+}
+
+/** Static CSS crawl stops at convention widget paths without entering widget sources. */
+function isConventionWidgetCrawlBoundary(relativePath: string): boolean {
+  return defaultWidgetPathMatcher(relativePath);
+}
+
 function shouldFollowDynamicImport(
   resolvedPath: string,
   relativePath: string,
   options: CollectRouteAssetsOptions
 ): boolean {
-  if (options.isWidget(relativePath)) {
-    return (
-      options.dynamicImportPredicate?.(relativePath) ??
-      options.dynamicImportPredicate?.(resolvedPath) ??
-      true
-    );
-  }
-  return false;
+  return matchesWidgetModule(
+    options.root,
+    relativePath,
+    resolvedPath,
+    options.dynamicImportPredicate
+  );
 }
 
 interface ParsedImport {
@@ -157,6 +183,27 @@ async function parseImports(
     return parseImportsFallback(source);
   }
 }
+
+function recordWidgetModule(
+  relativePath: string,
+  resolvedPath: string,
+  options: CollectRouteAssetsOptions,
+  widgetModules: Set<string>
+): void {
+  if (
+    !matchesWidgetModule(
+      options.root,
+      relativePath,
+      resolvedPath,
+      options.dynamicImportPredicate
+    )
+  ) {
+    return;
+  }
+
+  widgetModules.add(relativePath);
+}
+
 async function crawlRouteModule(
   entryPath: string,
   options: CollectRouteAssetsOptions,
@@ -202,13 +249,10 @@ async function crawlRouteModule(
       continue;
     }
 
-    if (options.isWidget(relativePath)) {
-      if (
-        !isDynamicImport ||
-        shouldFollowDynamicImport(resolved, relativePath, options)
-      ) {
-        widgetModules.add(relativePath);
-      }
+    // NOTE: CSS crawl boundary uses convention only; import filter must not widen it
+    // (createFilter with no include matches all paths and would truncate the graph).
+    if (isConventionWidgetCrawlBoundary(relativePath)) {
+      recordWidgetModule(relativePath, resolved, options, widgetModules);
       continue;
     }
 
@@ -249,16 +293,21 @@ export async function collectRouteModuleAssets(
   };
 }
 
-export function defaultWidgetPathMatcher(relativePath: string): boolean {
-  return /[.@]widget\./.test(relativePath);
+/** Static CSS reachable from a widget entry (does not stop at the widget's own path). */
+export async function collectWidgetCssModules(
+  widgetEntryPath: string,
+  options: CollectRouteAssetsOptions
+): Promise<string[]> {
+  const assets = await collectRouteModuleAssets(widgetEntryPath, options);
+  return assets.cssModules;
 }
 
 export async function discoverWidgetModulePaths(
   root: string,
-  searchDirs: string[]
+  searchDirs: string[],
+  dynamicImportPredicate?: DynamicImportPredicate
 ): Promise<string[]> {
   const widgets = new Set<string>();
-  const widgetFileRe = /[.@]widget\.[^/\\]+$/;
 
   async function walk(dir: string) {
     let entries;
@@ -275,8 +324,18 @@ export async function discoverWidgetModulePaths(
           continue;
         }
         await walk(fullPath);
-      } else if (entry.isFile() && widgetFileRe.test(entry.name)) {
-        widgets.add(normalizePath(path.relative(root, fullPath)));
+      } else if (entry.isFile()) {
+        const relativePath = normalizePath(path.relative(root, fullPath));
+        if (
+          matchesWidgetModule(
+            root,
+            relativePath,
+            fullPath,
+            dynamicImportPredicate
+          )
+        ) {
+          widgets.add(relativePath);
+        }
       }
     }
   }
