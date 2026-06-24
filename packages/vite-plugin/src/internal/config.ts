@@ -1,6 +1,10 @@
 import path from 'node:path';
 import { z } from 'zod';
 import { defaultFileExistsSync, type FileExistsSync } from './io';
+import {
+  requireConventionEntry,
+  resolveLogicalConfigPath,
+} from './ensure-convention-files';
 import type { ResolvedWebRouterConfig, WebRouterUserConfig } from '@/types';
 
 export function resolveRealFile(
@@ -13,6 +17,7 @@ export function resolveRealFile(
     '.ts',
     '.jsx',
     '.tsx',
+    '.vue',
     '.json',
   ],
   fileExists: FileExistsSync = defaultFileExistsSync
@@ -28,6 +33,20 @@ export function resolveRealFile(
   }
 
   throw new Error(`File not found: ${paths.join(', ')}`);
+}
+
+function resolveRoutesDir(
+  root: string,
+  dir: string,
+  filesystemRoutingEnabled: boolean,
+  extensions: string[] | undefined,
+  fileExists: FileExistsSync
+): string {
+  if (filesystemRoutingEnabled) {
+    return resolveLogicalConfigPath(root, dir);
+  }
+
+  return resolveRealFile(dir, root, extensions, fileExists);
 }
 
 ////////////////////////////////////////
@@ -201,14 +220,46 @@ export function parseWebRouterConfig(
   const builderConfig = WebRouterConfigSchema.parse(
     userConfig
   ) as ResolvedWebRouterConfig;
-  const setRealPath = (ctx: any, key: string) =>
-    (ctx[key] = resolveRealFile(ctx[key], root, extensions, fileExists));
+  const entryExtensions = extensions ?? [
+    '.mjs',
+    '.js',
+    '.mts',
+    '.ts',
+    '.jsx',
+    '.tsx',
+    '.vue',
+    '.json',
+  ];
 
-  setRealPath(builderConfig.filesystemRouting, 'dir');
-  setRealPath(builderConfig.input.client, 'entry');
-  setRealPath(builderConfig.input.client, 'importmap');
-  setRealPath(builderConfig.input.server, 'entry');
-  setRealPath(builderConfig.input.server, 'routemap');
+  builderConfig.input.client.entry = requireConventionEntry(
+    'entry.client',
+    builderConfig.input.client.entry,
+    root,
+    entryExtensions,
+    fileExists
+  );
+  builderConfig.input.server.entry = requireConventionEntry(
+    'entry.server',
+    builderConfig.input.server.entry,
+    root,
+    entryExtensions,
+    fileExists
+  );
+  builderConfig.input.client.importmap = resolveLogicalConfigPath(
+    root,
+    builderConfig.input.client.importmap
+  );
+  builderConfig.input.server.routemap = resolveLogicalConfigPath(
+    root,
+    builderConfig.input.server.routemap
+  );
+  builderConfig.filesystemRouting.dir = resolveRoutesDir(
+    root,
+    builderConfig.filesystemRouting.dir,
+    builderConfig.filesystemRouting.enabled,
+    entryExtensions,
+    fileExists
+  );
 
   return builderConfig;
 }

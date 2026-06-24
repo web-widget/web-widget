@@ -62,16 +62,6 @@ describe('parseWebRouterConfig', () => {
       'export {}',
       'utf-8'
     );
-    await fs.writeFile(
-      path.join(tempDir, 'importmap.client.json'),
-      '{}',
-      'utf-8'
-    );
-    await fs.writeFile(
-      path.join(tempDir, 'routemap.server.json'),
-      '{"routes":[]}',
-      'utf-8'
-    );
     await fs.mkdir(path.join(tempDir, 'routes'), { recursive: true });
 
     const config = parseWebRouterConfig({}, tempDir);

@@ -11,6 +11,7 @@ import type {
 } from 'vite';
 import type { InlineConfig as VitestInlineConfig } from 'vitest/node';
 import { parseWebRouterConfig } from '@/internal/config';
+import { ensureConventionFiles } from '@/internal/ensure-convention-files';
 import { webRouterDevServerPlugin } from '@/dev';
 import { createServerFullReloadPlugin } from '@/dev/server-full-reload-plugin';
 import { importActionPlugin } from './import-action';
@@ -150,6 +151,11 @@ async function createSharedConfig(
     root,
     config.resolve?.extensions
   );
+
+  await ensureConventionFiles({
+    config: resolvedWebRouterConfig,
+    root,
+  });
 
   const serverRoutemapPath = resolvedWebRouterConfig.input.server.routemap;
   const clientImportmap = JSON.parse(
