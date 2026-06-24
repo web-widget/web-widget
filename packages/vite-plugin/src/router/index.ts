@@ -28,6 +28,8 @@ import {
   createServerOutputPlugin,
 } from './server-output';
 import {
+  createServerAssetFileNameResolver,
+  createServerManualChunks,
   resolveClientEntryPoints,
   resolveServerEntryPoints,
 } from '@/internal/build-entry-points';
@@ -71,12 +73,24 @@ function createEnvironmentBuildOptions(
     serverRoutemapEntryPoints,
     serverTarget,
   } = host.state;
+  // Vite environment key is `ssr`; docs refer to this as the server environment.
   const isServer = name === 'ssr';
   const assetsDir = config.build?.assetsDir ?? 'assets';
   const entryPoints = isServer
     ? serverRoutemapEntryPoints
     : clientRoutemapEntryPoints;
   const rolldownUserExternal = config.build?.rolldownOptions?.external;
+  const serverAssetFileNames = isServer
+    ? createServerAssetFileNameResolver({
+        assetsDir,
+        root: host.state.root,
+        entryId: ENTRY_ID,
+        serverEntryOutputName: SERVER_ENTRY_OUTPUT_NAME,
+      })
+    : undefined;
+  const serverManualChunks = isServer
+    ? createServerManualChunks(host.state.root)
+    : undefined;
 
   return {
     ...(isServer ? { publicDir: config.publicDir ?? false } : {}),
@@ -96,7 +110,7 @@ function createEnvironmentBuildOptions(
         : {}),
       rolldownOptions: {
         input: {
-          ...entryPoints.points,
+          ...(isServer ? {} : entryPoints.points),
           [ENTRY_ID]: isServer
             ? resolvedWebRouterConfig.input.server.entry
             : resolvedWebRouterConfig.input.client.entry,
@@ -117,15 +131,16 @@ function createEnvironmentBuildOptions(
         output: {
           ...(isServer
             ? {
-                entryFileNames(chunkInfo) {
-                  if (chunkInfo.name === ENTRY_ID) {
-                    return `${SERVER_ENTRY_OUTPUT_NAME}.js`;
-                  }
-                  return `${assetsDir}/[name].js`;
-                },
-                assetFileNames: `${assetsDir}/[name][extname]`,
-                chunkFileNames: `${assetsDir}/[name].js`,
+                codeSplitting: true,
+                ...(serverManualChunks
+                  ? { manualChunks: serverManualChunks }
+                  : {}),
               }
+            : {}),
+          ...(isServer
+            ? (serverAssetFileNames as NonNullable<
+                NonNullable<VitestUserConfig['build']>['rolldownOptions']
+              >['output'])
             : {
                 entryFileNames: `${assetsDir}/[name]-[hash].js`,
                 assetFileNames: `${assetsDir}/[name]-[hash][extname]`,

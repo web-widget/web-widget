@@ -8,16 +8,18 @@ import { isRunnableDevEnvironment } from 'vite';
 import type WebRouter from '@web-widget/web-router';
 import { getMeta } from './meta';
 import { fileSystemRouteGenerator } from './routing';
+import { handleDevRoutemapChange } from './routemap-invalidation';
 import type { ResolvedWebRouterConfig } from '@/types';
 import type { RouterPluginHost } from '@/router/host';
-import { asServerDevEnvironment } from '@/internal/environment';
+import {
+  asServerDevEnvironment,
+  getServerEnvironmentFromDevServer,
+} from '@/internal/environment';
 import { getWebRouterPluginApi } from '@/internal/manifest';
 import {
   DEV_MODULE_SOURCE_HEADER,
   resolveModuleSourcePath,
 } from './module-source';
-import { sendClientFullReload } from './server-full-reload-plugin';
-import { invalidateServerDevModules } from './server-invalidation';
 import { resolveDevOrigin } from './resolve-dev-origin';
 import { getDevServerRevision } from './dev-server-cache';
 import { warmupServerDevModules } from './warmup';
@@ -64,13 +66,19 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin {
           routemapPath,
           routesPath,
           overridePathname,
-          async onRoutemapUpdated() {
+          onRoutemapComputed(routemap) {
+            host?.setDevServerRoutemap(routemap);
+          },
+          async onRoutemapChanged(change) {
             try {
-              await invalidateServerDevModules(
-                viteServer.environments.ssr.moduleGraph,
-                resolvedWebRouterConfig
+              await handleDevRoutemapChange(
+                viteServer,
+                resolvedWebRouterConfig,
+                {
+                  structural: change.structural,
+                  filesystemChanged: change.filesystemChanged,
+                }
               );
-              sendClientFullReload(viteServer);
             } catch (error) {
               logDevError('Routemap server invalidation failed', error);
             }
@@ -116,7 +124,7 @@ function createWebRouterDevMiddleware(
   viteServer: ViteDevServer
 ): Middleware {
   const origin = resolveDevOrigin(viteServer);
-  const viteServerEnvironment = viteServer.environments.ssr;
+  const viteServerEnvironment = getServerEnvironmentFromDevServer(viteServer);
 
   if (!isRunnableDevEnvironment(viteServerEnvironment)) {
     throw new Error(
@@ -127,12 +135,9 @@ function createWebRouterDevMiddleware(
   const serverDev = asServerDevEnvironment(viteServerEnvironment);
   const serverEntry = resolvedWebRouterConfig.input.server.entry;
 
-  let cachedWebRouter:
-    | {
-        instance: WebRouter;
-        revision: number;
-      }
-    | undefined;
+  /** Rebuilt when server module invalidation bumps {@link getDevServerRevision}. */
+  let cachedWebRouter: WebRouter | undefined;
+  let cachedWebRouterRevision = -1;
 
   const nodeAdapter = new NodeAdapter(
     {
@@ -141,11 +146,12 @@ function createWebRouterDevMiddleware(
         const revision = getDevServerRevision();
 
         try {
-          if (cachedWebRouter?.revision === revision) {
-            webRouter = cachedWebRouter.instance;
+          if (cachedWebRouter && cachedWebRouterRevision === revision) {
+            webRouter = cachedWebRouter;
           } else {
             webRouter = (await serverDev.importModule(serverEntry)).default;
-            cachedWebRouter = { instance: webRouter, revision };
+            cachedWebRouter = webRouter;
+            cachedWebRouterRevision = revision;
           }
           webRouter.fixErrorStack = (error) => {
             viteServer.ssrFixStacktrace(error);
@@ -184,8 +190,7 @@ function createWebRouterDevMiddleware(
             const meta = await getMeta(
               source,
               serverDev,
-              getWebRouterPluginApi(viteServer.config)?.dynamicImportPredicate,
-              revision
+              getWebRouterPluginApi(viteServer.config)?.dynamicImportPredicate
             );
             const url = new URL(request.url);
             const viteHtml = await viteServer.transformIndexHtml(

@@ -4,6 +4,8 @@ import type {
   EnvironmentModuleNode,
   Plugin,
   TransformResult,
+  ViteBuilder,
+  ViteDevServer,
 } from 'vite';
 import { isRunnableDevEnvironment } from 'vite';
 
@@ -17,6 +19,33 @@ export function isClientEnvironment(
   environment: Environment | { config: { consumer: string } }
 ): boolean {
   return environment.config.consumer === 'client';
+}
+
+/**
+ * Vite server-side dev environment (`environments.ssr`).
+ * Docs use lowercase client / server for Vite environments.
+ */
+export function getServerEnvironmentFromDevServer(
+  viteServer: ViteDevServer
+): DevEnvironment {
+  const environment = viteServer.environments.ssr;
+  if (!environment) {
+    throw new Error(
+      'Expected Vite server environment at viteServer.environments.ssr.'
+    );
+  }
+  return environment;
+}
+
+/** Server build environment from Vite builder (`environments.ssr`). */
+export function getServerEnvironmentFromBuilder(builder: ViteBuilder) {
+  const environment = builder.environments.ssr;
+  if (!environment) {
+    throw new Error(
+      'Expected Vite server environment at builder.environments.ssr.'
+    );
+  }
+  return environment;
 }
 
 /**

@@ -1,6 +1,5 @@
 // Based on the code in the MIT licensed `astro` package.
 
-import path from 'node:path';
 import type {
   LinkDescriptor,
   ScriptDescriptor,
@@ -19,7 +18,10 @@ import {
   toManifestFilterKey,
   unwrapViteId,
 } from '@/internal/module-id';
-import { getCachedMeta, setCachedMeta } from './meta-cache';
+import {
+  collectRouteModuleAssets,
+  defaultWidgetPathMatcher,
+} from '@/internal/collect-route-assets';
 
 type ServerModuleDependencyKeys = {
   filterDisabled: boolean;
@@ -30,20 +32,12 @@ type ServerModuleDependencyKeys = {
 export async function getMeta(
   filePath: string,
   serverEnvironment: ServerDevEnvironment,
-  dynamicImportPredicate?: DynamicImportPredicate,
-  cacheRevision?: number
+  dynamicImportPredicate?: DynamicImportPredicate
 ): Promise<{
   link: LinkDescriptor[];
   style: StyleDescriptor[];
   script: ScriptDescriptor[];
 }> {
-  if (cacheRevision !== undefined) {
-    const cached = getCachedMeta(filePath, cacheRevision);
-    if (cached) {
-      return cached;
-    }
-  }
-
   const script: ScriptDescriptor[] = [];
 
   const { urls: styleUrls, styles } = await getStylesForURL(
@@ -67,13 +61,7 @@ export async function getMeta(
     };
   });
 
-  const meta = { script, style, link };
-
-  if (cacheRevision !== undefined) {
-    setCachedMeta(filePath, cacheRevision, meta);
-  }
-
-  return meta;
+  return { script, style, link };
 }
 
 interface ImportedStyle {
@@ -92,6 +80,13 @@ async function getStylesForURL(
 
   const root = serverEnvironment.root;
 
+  await collectCssFromSourceAssets(
+    filePath,
+    serverEnvironment,
+    dynamicImportPredicate,
+    importedCssUrls
+  );
+
   for await (const importedModule of crawlGraph(
     serverEnvironment,
     filePath,
@@ -100,25 +95,14 @@ async function getStylesForURL(
     root,
     dynamicImportPredicate
   )) {
-    if (isBuildableCSSRequest(importedModule.url)) {
-      let serverModule: Record<string, any>;
-      try {
-        serverModule =
-          importedModule.ssrModule ??
-          (await serverEnvironment.importModule(importedModule.url));
-      } catch {
-        continue;
-      }
-      if (typeof serverModule?.default === 'string') {
-        importedStylesMap.set(importedModule.url, {
-          id: importedModule.id ?? importedModule.url,
-          url: importedModule.url,
-          content: serverModule.default,
-        });
-      } else {
-        importedCssUrls.add(importedModule.url);
-      }
-    }
+    await appendCssModuleStyles(
+      serverEnvironment,
+      importedModule.url,
+      importedModule.id ?? importedModule.url,
+      importedCssUrls,
+      importedStylesMap,
+      importedModule.ssrModule
+    );
   }
 
   return {
@@ -127,11 +111,70 @@ async function getStylesForURL(
   };
 }
 
+async function appendCssModuleStyles(
+  serverEnvironment: ServerDevEnvironment,
+  moduleUrl: string,
+  moduleId: string,
+  importedCssUrls: Set<string>,
+  importedStylesMap: Map<string, ImportedStyle>,
+  preloadedModule?: Record<string, any> | null
+): Promise<void> {
+  if (!isBuildableCSSRequest(moduleUrl)) {
+    return;
+  }
+
+  let serverModule: Record<string, any> | undefined;
+  try {
+    serverModule =
+      preloadedModule ?? (await serverEnvironment.importModule(moduleUrl));
+  } catch {
+    importedCssUrls.add(moduleUrl);
+    return;
+  }
+
+  if (typeof serverModule?.default === 'string') {
+    importedStylesMap.set(moduleUrl, {
+      id: moduleId,
+      url: moduleUrl,
+      content: serverModule.default,
+    });
+    return;
+  }
+
+  importedCssUrls.add(moduleUrl);
+}
+
+async function collectCssFromSourceAssets(
+  filePath: string,
+  serverEnvironment: ServerDevEnvironment,
+  dynamicImportPredicate: DynamicImportPredicate | undefined,
+  importedCssUrls: Set<string>
+): Promise<void> {
+  const assets = await collectRouteModuleAssets(filePath, {
+    root: serverEnvironment.root,
+    extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.vue', '.json'],
+    isWidget: defaultWidgetPathMatcher,
+    dynamicImportPredicate,
+  });
+
+  for (const cssModule of assets.cssModules) {
+    importedCssUrls.add(`/${cssModule}`);
+  }
+}
+
 const rawRE = /(?:\?|&)raw(?:&|$)/;
 const inlineRE = /(?:\?|&)inline\b/;
 
 const isBuildableCSSRequest = (request: string): boolean =>
   isCSSRequest(request) && !rawRE.test(request) && !inlineRE.test(request);
+
+function moduleIdentityKey(id: string): string {
+  return canonicalModuleKey(id);
+}
+
+function moduleKeysMatch(a: string, b: string): boolean {
+  return moduleIdentityKey(a) === moduleIdentityKey(b);
+}
 
 function moduleNodeKeys(mod: EnvironmentModuleNode): string[] {
   const keys: string[] = [];
@@ -267,8 +310,6 @@ async function resolveServerModuleDependencyKeys(
   };
 }
 
-const fileExtensionsNeedingServerModule = new Set<string>();
-
 async function* crawlGraph(
   serverEnvironment: ServerDevEnvironment,
   _id: string,
@@ -285,69 +326,63 @@ async function* crawlGraph(
     : new Set([serverEnvironment.getModuleById(id)]);
 
   for (const entry of moduleEntriesForId) {
-    if (!entry) {
+    if (!entry?.id) {
       continue;
     }
-    if (id === entry.id) {
-      scanned.add(id);
-      const entryPath = stripModuleIdQuery(id);
-      const entryIsStyle = isCSSRequest(entryPath) || isCSSRequest(id);
 
-      const { filterDisabled, importDepKeys, matchedDynamicImportKeys } =
-        await resolveServerModuleDependencyKeys(
-          serverEnvironment,
-          entry,
-          root,
-          dynamicImportPredicate
+    const entryId = entry.id;
+    if (!isRootFile && !moduleKeysMatch(id, entryId)) {
+      continue;
+    }
+
+    scanned.add(moduleIdentityKey(entryId));
+    const entryPath = stripModuleIdQuery(entryId);
+    const entryIsStyle = isCSSRequest(entryPath) || isCSSRequest(entryId);
+
+    const { filterDisabled, importDepKeys, matchedDynamicImportKeys } =
+      await resolveServerModuleDependencyKeys(
+        serverEnvironment,
+        entry,
+        root,
+        dynamicImportPredicate
+      );
+
+    for (const importedModule of entry.importedModules) {
+      if (!importedModule.id) continue;
+
+      const importedModulePathname = canonicalModuleKey(importedModule.id);
+      if (entryIsStyle && !isCSSRequest(importedModulePathname)) {
+        continue;
+      }
+
+      if (!isImportedBy(entryId, importedModule) && !isRootFile) {
+        continue;
+      }
+
+      if (!filterDisabled) {
+        const edge = classifyImportEdge(
+          importedModule,
+          importDepKeys,
+          matchedDynamicImportKeys
         );
-
-      for (const importedModule of entry.importedModules) {
-        if (!importedModule.id) continue;
-
-        const importedModulePathname = canonicalModuleKey(importedModule.id);
-        if (entryIsStyle && !isCSSRequest(importedModulePathname)) {
+        const isRootCss =
+          isRootFile && isBuildableCSSRequest(importedModule.url);
+        if (edge === 'none' && !isRootCss) {
           continue;
         }
-
-        const isFileTypeNeedingServerModule =
-          fileExtensionsNeedingServerModule.has(
-            path.extname(importedModulePathname)
-          );
-
-        if (isFileTypeNeedingServerModule) {
-          const mod = serverEnvironment.getModuleById(importedModule.id);
-          if (!mod?.ssrModule) {
-            try {
-              await serverEnvironment.importModule(importedModule.id);
-            } catch {
-              /** Likely an out-of-date module entry! Silently continue. */
-            }
-          }
-        }
-
-        if (!isImportedBy(id, importedModule)) {
-          continue;
-        }
-
-        if (!filterDisabled) {
-          const edge = classifyImportEdge(
-            importedModule,
-            importDepKeys,
-            matchedDynamicImportKeys
-          );
-          if (edge === 'none') {
-            continue;
-          }
-          importedModules.add(importedModule);
-        } else {
-          importedModules.add(importedModule);
-        }
+        importedModules.add(importedModule);
+      } else {
+        importedModules.add(importedModule);
       }
     }
   }
 
   for (const importedModule of importedModules) {
-    if (!importedModule.id || scanned.has(importedModule.id)) {
+    if (!importedModule.id) {
+      continue;
+    }
+    const importedKey = moduleIdentityKey(importedModule.id);
+    if (scanned.has(importedKey)) {
       continue;
     }
 
@@ -363,9 +398,10 @@ async function* crawlGraph(
   }
 }
 
-function isImportedBy(parent: string, entry: EnvironmentModuleNode) {
+function isImportedBy(parentId: string, entry: EnvironmentModuleNode) {
+  const parentKey = moduleIdentityKey(parentId);
   for (const importer of entry.importers) {
-    if (importer.id === parent) {
+    if (importer.id && moduleIdentityKey(importer.id) === parentKey) {
       return true;
     }
   }

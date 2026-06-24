@@ -48,6 +48,27 @@ describe('createRouterPluginHost', () => {
     });
   });
 
+  test('returns in-memory routemap during dev when cache is set', async () => {
+    const host = createRouterPluginHost({
+      readFile: async () => {
+        throw new Error('readFile should not be called');
+      },
+    });
+
+    host.initialize({
+      dev: true,
+      resolvedWebRouterConfig: createTestConfig('/project'),
+    } as any);
+
+    host.setDevServerRoutemap({
+      routes: [{ module: './routes/dev@route.tsx', pathname: '/dev' }],
+    });
+
+    await expect(host.api.serverRoutemap()).resolves.toEqual({
+      routes: [{ module: './routes/dev@route.tsx', pathname: '/dev' }],
+    });
+  });
+
   test('throws when host is not initialized', () => {
     const host = createRouterPluginHost();
     expect(() => host.api.config).toThrow(

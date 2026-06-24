@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getRoutemap } from '@/dev/routing';
+import { getRoutemap } from '@/internal/routemap-from-fs';
 import type { ResolvedWebRouterConfig } from '@/types';
 import { defaultFileExistsSync, type FileExistsSync } from './io';
 

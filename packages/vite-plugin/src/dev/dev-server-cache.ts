@@ -1,6 +1,6 @@
 /**
- * Monotonic revision bumped when server dev modules are invalidated (HMR / routemap).
- * Used to bust WebRouter and getMeta caches without per-request reload.
+ * Monotonic revision bumped when server entry/routemap modules are invalidated.
+ * Used only to bust the WebRouter instance cache in dev middleware — not for CSS meta.
  */
 let revision = 0;
 

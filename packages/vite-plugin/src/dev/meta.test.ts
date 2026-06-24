@@ -1,6 +1,12 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { EnvironmentModuleNode, TransformResult } from 'vite';
 import { getMeta } from './meta';
 import type { ServerDevEnvironment } from '@/internal/environment';
+
+const examplesRoot = path.resolve(
+  fileURLToPath(new URL('../../../../examples/react', import.meta.url))
+);
 
 function createModuleNode(
   partial: Partial<EnvironmentModuleNode> &
@@ -52,7 +58,7 @@ function createMockServerDevEnvironment(
   });
 
   return {
-    name: 'ssr',
+    name: 'server',
     root: '/project',
     getModulesByFile(file: string) {
       if (file.endsWith('style@route.tsx')) {
@@ -108,6 +114,68 @@ describe('getMeta', () => {
         expect.objectContaining({
           type: 'module',
           src: '/project/routes/style.css',
+        }),
+      ])
+    );
+  });
+
+  it('collects CSS when the route module id includes a Vite query suffix', async () => {
+    const routeModule = createModuleNode({
+      id: '/project/routes/style@route.tsx?v=1',
+      url: '/project/routes/style@route.tsx?v=1',
+      file: '/project/routes/style@route.tsx',
+      transformResult: {
+        code: '',
+        map: null,
+        deps: ['./style.css'],
+        dynamicDeps: [],
+      } as TransformResult,
+      importedModules: new Set([
+        createModuleNode({
+          id: '/project/routes/style.css',
+          url: '/project/routes/style.css',
+          type: 'css',
+          importers: new Set([
+            createModuleNode({
+              id: '/project/routes/style@route.tsx?v=1',
+              url: '/project/routes/style@route.tsx?v=1',
+            }),
+          ]),
+        }),
+      ]),
+    });
+
+    const cssModule = createModuleNode({
+      id: '/project/routes/style.css',
+      url: '/project/routes/style.css',
+      type: 'css',
+      ssrModule: { default: '.title{color:red}' },
+    });
+
+    const environment = createMockServerDevEnvironment({
+      getModulesByFile(file: string) {
+        if (file.endsWith('style@route.tsx')) {
+          return new Set([routeModule]);
+        }
+        return undefined;
+      },
+      getModuleById(id: string) {
+        if (id.endsWith('style.css')) {
+          return cssModule;
+        }
+        if (id.includes('style@route.tsx')) {
+          return routeModule;
+        }
+        return undefined;
+      },
+    });
+
+    const meta = await getMeta('/project/routes/style@route.tsx', environment);
+
+    expect(meta.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          content: '.title{color:red}',
         }),
       ])
     );
@@ -226,5 +294,52 @@ describe('getMeta', () => {
     expect(meta.link).toEqual([]);
     expect(meta.style).toEqual([]);
     expect(meta.script).toEqual([]);
+  });
+
+  it('collects css from source analysis for examples/react index route', async () => {
+    const filePath = path.join(examplesRoot, 'routes/examples/index@route.tsx');
+    const environment = createMockServerDevEnvironment({
+      root: examplesRoot,
+      getModulesByFile() {
+        return undefined;
+      },
+      getModuleById() {
+        return undefined;
+      },
+      async importModule(url: string) {
+        if (url.endsWith('.css')) {
+          return {};
+        }
+        return {};
+      },
+    });
+
+    const meta = await getMeta(filePath, environment);
+
+    expect(
+      meta.link.some((link) => link.href?.includes('index.module.css'))
+    ).toBe(true);
+  });
+
+  it('adds stylesheet links when css importModule fails', async () => {
+    const environment = createMockServerDevEnvironment({
+      async importModule(url: string) {
+        if (url.endsWith('style.css')) {
+          throw new Error('stale module graph');
+        }
+        return {};
+      },
+    });
+
+    const meta = await getMeta('/project/routes/style@route.tsx', environment);
+
+    expect(meta.link).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          rel: 'stylesheet',
+          href: '/project/routes/style.css',
+        }),
+      ])
+    );
   });
 });

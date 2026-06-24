@@ -1,5 +1,8 @@
 import type { Plugin, ViteDevServer } from 'vite';
-import { applyToServerEnvironment } from '@/internal/environment';
+import {
+  applyToServerEnvironment,
+  getServerEnvironmentFromDevServer,
+} from '@/internal/environment';
 import type { RouterPluginHost } from '@/router/host';
 import { invalidateServerDevModules } from './server-invalidation';
 
@@ -25,7 +28,7 @@ export function createServerFullReloadPlugin(host: RouterPluginHost): Plugin {
       }
 
       void invalidateServerDevModules(
-        server.environments.ssr.moduleGraph,
+        getServerEnvironmentFromDevServer(server).moduleGraph,
         host.state.resolvedWebRouterConfig
       ).catch((error) => {
         const prefix = '🚧 @web-widget/vite-plugin server invalidation failed:';
@@ -35,7 +38,6 @@ export function createServerFullReloadPlugin(host: RouterPluginHost): Plugin {
           console.error(prefix, error);
         }
       });
-      sendClientFullReload(server);
       return [];
     },
   };

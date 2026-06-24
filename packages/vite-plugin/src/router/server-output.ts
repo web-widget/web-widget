@@ -1,5 +1,8 @@
 import type { Plugin, ViteBuilder } from 'vite';
-import { isServerEnvironment } from '@/internal/environment';
+import {
+  isServerEnvironment,
+  getServerEnvironmentFromBuilder,
+} from '@/internal/environment';
 import type { RouterPluginHost } from './host';
 
 const SERVER_ENTRY_OUTPUT_NAME = 'index';
@@ -61,7 +64,7 @@ export async function runRouterBuildApp(
   builder: ViteBuilder
 ) {
   const client = builder.environments.client;
-  const server = builder.environments.ssr;
+  const server = getServerEnvironmentFromBuilder(builder);
 
   if (!client || !server) {
     throw new Error('Expected both client and server build environments.');
@@ -75,7 +78,7 @@ export async function runRouterServerBuildApp(
   host: RouterPluginHost,
   builder: ViteBuilder
 ) {
-  const server = builder.environments.ssr;
+  const server = getServerEnvironmentFromBuilder(builder);
   if (!server) {
     throw new Error('Expected server build environment.');
   }

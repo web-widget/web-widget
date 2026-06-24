@@ -1,6 +1,7 @@
 import path from 'node:path';
 import type { RouteMap } from '@/types';
-import { normalizePath } from '@/internal/path';
+import { isPathInsideRoot, normalizePath } from '@/internal/path';
+import { stripModuleIdQuery } from '@/internal/module-id';
 import {
   collectRouteModuleAssets,
   defaultWidgetPathMatcher,
@@ -14,21 +15,182 @@ export type BuildEntryPoints = {
   exposures: Set<string>;
 };
 
+const SOURCE_ROOT_PREFIX = /^(?:routes|pages|src|app)[/\\]/;
+
+function sanitizeEntryName(segments: string[]): string {
+  return segments.join('.').replace(/[^a-zA-Z0-9@_.-]+/g, '_');
+}
+
+/** Collapse trailing `index` segments so directory index modules map to their parent path. */
+export function collapseIndexPathSegments(segments: string[]): string[] {
+  const result = segments.filter(Boolean);
+
+  while (result.length > 0) {
+    const last = result[result.length - 1]!;
+
+    if (last === 'index') {
+      result.pop();
+      if (result.length === 0) {
+        result.push('_root');
+      }
+      continue;
+    }
+
+    const indexAtMatch = last.match(/^index(@.+)$/);
+    if (indexAtMatch) {
+      result.pop();
+      const suffix = indexAtMatch[1]!;
+      if (result.length === 0) {
+        result.push(`_root${suffix}`);
+      } else {
+        result[result.length - 1] += suffix;
+      }
+      continue;
+    }
+
+    const indexDotMatch = last.match(/^index\.(.+)$/);
+    if (indexDotMatch) {
+      result.pop();
+      const suffix = indexDotMatch[1]!;
+      if (result.length === 0) {
+        result.push(`_root.${suffix}`);
+      } else {
+        result[result.length - 1] += `.${suffix}`;
+      }
+      continue;
+    }
+
+    break;
+  }
+
+  return result;
+}
+
 export function entryNameFromModulePath(
   modulePath: string,
   root: string
 ): string {
-  return normalizePath(
-    path
-      .relative(
-        root,
-        modulePath.slice(0, modulePath.length - path.extname(modulePath).length)
-      )
-      .replace(/^(routes|pages|src|app)[/\\]/g, '')
-      .split(path.sep)
-      .join('.')
-      .replace(/[^a-zA-Z0-9@_.-]+/g, '_')
-  );
+  const ext = path.extname(modulePath);
+  const withoutExt = modulePath.slice(0, modulePath.length - ext.length);
+  const relative = path.relative(root, withoutExt);
+  const withoutPrefix = relative.replace(SOURCE_ROOT_PREFIX, '');
+  const segments = withoutPrefix.split(/[/\\]/);
+  const lastIndex = segments.length - 1;
+
+  if (ext && lastIndex >= 0) {
+    const last = segments[lastIndex]!;
+    if (last.includes('@widget') && !last.startsWith('index')) {
+      segments[lastIndex] = `${last}${ext}`;
+    }
+  }
+
+  return entryNameFromRelativePath(segments.filter(Boolean).join(path.sep));
+}
+
+export function entryNameFromRelativePath(
+  relativePathWithoutExt: string
+): string {
+  const segments = relativePathWithoutExt
+    .replace(SOURCE_ROOT_PREFIX, '')
+    .split(/[/\\]/);
+  return normalizePath(sanitizeEntryName(collapseIndexPathSegments(segments)));
+}
+
+export function assetBaseNameFromModuleId(
+  moduleId: string,
+  root: string
+): string | undefined {
+  const pathname = stripModuleIdQuery(moduleId);
+  if (!pathname || pathname.includes('\0')) {
+    return undefined;
+  }
+
+  const resolvedRoot = path.resolve(root);
+  const resolvedModule = path.resolve(pathname);
+  if (!isPathInsideRoot(resolvedRoot, resolvedModule)) {
+    return undefined;
+  }
+
+  const ext = path.extname(resolvedModule);
+  if (!ext) {
+    return undefined;
+  }
+
+  return entryNameFromModulePath(resolvedModule, resolvedRoot);
+}
+
+type BuildChunkInfo = {
+  facadeModuleId: string | null;
+  moduleIds?: string[];
+  name: string;
+};
+
+function resolveChunkBaseNameFromInfo(
+  chunkInfo: BuildChunkInfo,
+  root: string
+): string | undefined {
+  const moduleIds = [
+    chunkInfo.facadeModuleId,
+    ...(chunkInfo.moduleIds ?? []),
+  ].filter((value): value is string => Boolean(value));
+
+  for (const moduleId of moduleIds) {
+    const baseName = assetBaseNameFromModuleId(moduleId, root);
+    if (baseName) {
+      return baseName;
+    }
+  }
+
+  return undefined;
+}
+
+export function createServerAssetFileNameResolver(options: {
+  assetsDir: string;
+  root: string;
+  entryId: string;
+  serverEntryOutputName: string;
+}) {
+  const { assetsDir, entryId, root, serverEntryOutputName } = options;
+
+  return {
+    entryFileNames(chunkInfo: BuildChunkInfo) {
+      if (chunkInfo.name === entryId) {
+        return `${serverEntryOutputName}.js`;
+      }
+
+      const baseName =
+        resolveChunkBaseNameFromInfo(chunkInfo, root) ?? chunkInfo.name;
+      return `${assetsDir}/${baseName}.js`;
+    },
+    chunkFileNames(chunkInfo: BuildChunkInfo) {
+      const baseName =
+        resolveChunkBaseNameFromInfo(chunkInfo, root) ?? chunkInfo.name;
+      return `${assetsDir}/${baseName}.js`;
+    },
+    assetFileNames: `${assetsDir}/[name][extname]`,
+  };
+}
+
+export function createServerManualChunks(root: string) {
+  return (moduleId: string): string | undefined => {
+    const baseName = assetBaseNameFromModuleId(moduleId, root);
+    if (!baseName) {
+      return undefined;
+    }
+
+    if (
+      baseName.includes('@route') ||
+      baseName.includes('@middleware') ||
+      baseName.includes('@action') ||
+      baseName.includes('@layout') ||
+      baseName.includes('@fallback') ||
+      baseName.includes('@widget')
+    ) {
+      return baseName;
+    }
+
+    return undefined;
+  };
 }
 
 function resolveEntryBasename(

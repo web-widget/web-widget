@@ -1,15 +1,22 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { FSWatcher } from 'vite';
-import { walkRoutes } from './walk-routes-dir';
-import { pathToPattern, sortRoutePaths } from './extract';
-import type { RouteSourceFile, OverridePathname } from './types';
+import { getRoutemap } from '@/internal/routemap-from-fs';
 import type { RouteMap } from '@/types';
-import {
-  isPathPrefix,
-  normalizePath,
-  relativePathWithDot,
-} from '@/internal/path';
+import { isPathPrefix } from '@/internal/path';
+import { isStructuralRoutemapChange } from './routemap-diff';
+import { shouldApplyRoutemapUpdate } from './routemap-update';
+import type { OverridePathname } from './types';
+
+export { getRoutemap } from '@/internal/routemap-from-fs';
+
+export interface RoutemapChange {
+  previous?: RouteMap;
+  next: RouteMap;
+  structural: boolean;
+  /** Filesystem routing files changed since the last applied update. */
+  filesystemChanged: boolean;
+}
 
 export interface FileSystemRouteGeneratorOptions {
   basePathname: string;
@@ -17,8 +24,14 @@ export interface FileSystemRouteGeneratorOptions {
   routemapPath: string;
   routesPath: string;
   overridePathname?: OverridePathname;
-  onRoutemapUpdated?: () => void | Promise<void>;
+  onRoutemapComputed?: (routemap: RouteMap) => void;
+  onRoutemapChanged?: (change: RoutemapChange) => void | Promise<void>;
   watcher: FSWatcher;
+}
+
+interface RoutemapFileCache {
+  json?: string;
+  routemap?: RouteMap;
 }
 
 export async function fileSystemRouteGenerator({
@@ -27,40 +40,68 @@ export async function fileSystemRouteGenerator({
   routemapPath,
   routesPath,
   overridePathname,
-  onRoutemapUpdated,
+  onRoutemapComputed,
+  onRoutemapChanged,
   watcher,
 }: FileSystemRouteGeneratorOptions) {
-  const cache = {};
+  const cache: RoutemapFileCache = {};
+  let filesystemDirty = false;
+  let routemapUpdateQueue: Promise<void> = Promise.resolve();
   const absoluteRoutesPath = path.resolve(root, routesPath);
-  await generateRoutemapFile(
+
+  const enqueueRoutemapUpdate = (
+    options: Omit<
+      Parameters<typeof updateRoutemapFile>[0],
+      'cache' | 'onRoutemapComputed' | 'onRoutemapChanged'
+    >
+  ) => {
+    routemapUpdateQueue = routemapUpdateQueue
+      .then(() =>
+        updateRoutemapFile({
+          ...options,
+          cache,
+          onRoutemapComputed,
+          onRoutemapChanged,
+        })
+      )
+      .catch((error) => {
+        logRoutemapError(error);
+      });
+    return routemapUpdateQueue;
+  };
+
+  await enqueueRoutemapUpdate({
     root,
     absoluteRoutesPath,
     basePathname,
     overridePathname,
     routemapPath,
-    cache,
-    onRoutemapUpdated
-  ).catch((error) => logRoutemapError(error));
-  const updateFileSystemRouteing = debounce(() => {
-    void generateRoutemapFile(
+    filesystemDirty: false,
+  });
+
+  const updateFileSystemRouting = debounce(() => {
+    const dirty = filesystemDirty;
+    filesystemDirty = false;
+    enqueueRoutemapUpdate({
       root,
       absoluteRoutesPath,
       basePathname,
       overridePathname,
       routemapPath,
-      cache,
-      onRoutemapUpdated
-    ).catch((error) => logRoutemapError(error));
+      filesystemDirty: dirty,
+    });
   }, 40);
+
   watcher.on('all', (event, filePath) => {
     if (isPathPrefix(absoluteRoutesPath, filePath) && event !== 'change') {
-      updateFileSystemRouteing();
+      filesystemDirty = true;
+      updateFileSystemRouting();
     }
   });
 }
 
-function debounce<Params extends any[]>(
-  func: (...args: Params) => any,
+function debounce<Params extends unknown[]>(
+  func: (...args: Params) => void,
   timeout: number
 ): (...args: Params) => void {
   let timer: NodeJS.Timeout;
@@ -72,32 +113,63 @@ function debounce<Params extends any[]>(
   };
 }
 
-async function generateRoutemapFile(
-  root: string,
-  routesPath: string,
-  basePathname: string,
-  overridePathname: OverridePathname | undefined,
-  routemapPath: string,
-  cache: any,
-  onRoutemapUpdated?: () => void | Promise<void>
-) {
-  const key = Symbol.for('routemap');
+async function updateRoutemapFile(options: {
+  root: string;
+  absoluteRoutesPath: string;
+  basePathname: string;
+  overridePathname: OverridePathname | undefined;
+  routemapPath: string;
+  cache: RoutemapFileCache;
+  filesystemDirty: boolean;
+  onRoutemapComputed?: (routemap: RouteMap) => void;
+  onRoutemapChanged?: (change: RoutemapChange) => void | Promise<void>;
+}) {
+  const {
+    root,
+    absoluteRoutesPath,
+    basePathname,
+    overridePathname,
+    routemapPath,
+    cache,
+    filesystemDirty,
+    onRoutemapComputed,
+    onRoutemapChanged,
+  } = options;
+
   const routemap = await getRoutemap(
     root,
-    routesPath,
+    absoluteRoutesPath,
     basePathname,
     overridePathname
   );
-  const newJson = JSON.stringify(routemap, null, 2);
+  onRoutemapComputed?.(routemap);
 
-  if (newJson !== cache[key]) {
-    await fs.writeFile(routemapPath, JSON.stringify(routemap, null, 2), 'utf8');
-    cache[key] = newJson;
-    try {
-      await onRoutemapUpdated?.();
-    } catch (error) {
+  const newJson = `${JSON.stringify(routemap, null, 2)}\n`;
+  if (!shouldApplyRoutemapUpdate(newJson, cache.json, filesystemDirty)) {
+    return;
+  }
+
+  const previous = cache.routemap;
+  const jsonChanged = newJson !== cache.json;
+  cache.json = newJson;
+  cache.routemap = routemap;
+
+  if (jsonChanged) {
+    void fs.writeFile(routemapPath, newJson, 'utf8').catch((error) => {
       logRoutemapError(error);
-    }
+    });
+  }
+
+  const structural = isStructuralRoutemapChange(previous, routemap);
+  try {
+    await onRoutemapChanged?.({
+      previous,
+      next: routemap,
+      structural,
+      filesystemChanged: filesystemDirty,
+    });
+  } catch (error) {
+    logRoutemapError(error);
   }
 }
 
@@ -108,72 +180,4 @@ function logRoutemapError(error: unknown) {
   } else {
     console.error(prefix, error);
   }
-}
-
-export async function getRoutemap(
-  root: string,
-  routesPath: string,
-  basePathname: string,
-  overridePathname: OverridePathname | undefined
-): Promise<RouteMap> {
-  const sourceFiles = await walkRoutes(routesPath);
-  const fallbacks = sourceFiles.filter((s) => s.type === 'fallback');
-  const layouts = sourceFiles.filter((s) => s.type === 'layout');
-  const middlewares = sourceFiles.filter((s) => s.type === 'middleware');
-  const routes = sourceFiles.filter((s) => s.type === 'route');
-  const actions = sourceFiles.filter((s) => s.type === 'action');
-
-  const routeTypeLike = ['route', 'middleware', 'action'];
-  const toValue = (source: RouteSourceFile) => {
-    let pathname;
-
-    if (routeTypeLike.includes(source.type)) {
-      pathname = normalizePath(basePathname + source.pathname);
-
-      if (pathname.startsWith('/')) {
-        pathname = pathname.substring(1);
-      }
-
-      pathname = pathToPattern(pathname);
-      if (overridePathname) {
-        pathname = overridePathname(pathname, source);
-      }
-    }
-
-    //const name = createFileId(pathname ?? source.name, source.type);
-    const module = relativePathWithDot(root, source.source);
-    const status =
-      source.type === 'fallback'
-        ? parseInt(source.name.replaceAll(/\D/g, ''))
-        : undefined;
-
-    return {
-      pathname,
-      //name,
-      module,
-      status,
-    };
-  };
-
-  return {
-    routes: routes
-      .map(toValue)
-      .sort((a, b) =>
-        sortRoutePaths(a.pathname!, b.pathname!)
-      ) as RouteMap['routes'],
-    actions: actions
-      .map(toValue)
-      .sort((a, b) =>
-        sortRoutePaths(a.pathname!, b.pathname!)
-      ) as RouteMap['actions'],
-    middlewares: middlewares
-      .map(toValue)
-      .sort((a, b) =>
-        sortRoutePaths(a.pathname!, b.pathname!)
-      ) as RouteMap['middlewares'],
-    fallbacks: fallbacks.map(toValue) as RouteMap['fallbacks'],
-    layout: (layouts[0]
-      ? toValue(layouts[0])
-      : undefined) as RouteMap['layout'],
-  };
 }

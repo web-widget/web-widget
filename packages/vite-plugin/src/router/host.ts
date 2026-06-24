@@ -25,6 +25,8 @@ export interface RouterBuildState {
   serverTarget: SSRTarget;
   useAppBuilder: boolean;
   dynamicImportPredicate?: DynamicImportPredicate;
+  /** In-memory routemap while dev server is running (filesystem routing). */
+  devServerRoutemap?: RouteMap;
 }
 
 export interface RouterPluginHost {
@@ -35,6 +37,8 @@ export interface RouterPluginHost {
   patchState(patch: Partial<RouterBuildState>): void;
   /** @internal */
   initialize(state: RouterBuildState): void;
+  /** @internal */
+  setDevServerRoutemap(routemap: RouteMap): void;
 }
 
 export interface CreateRouterPluginHostOptions {
@@ -81,6 +85,9 @@ export function createRouterPluginHost(
       return readJsonFile<ImportMap>(readFile, file, 'client importmap');
     },
     async serverRoutemap() {
+      if (state.dev && state.devServerRoutemap) {
+        return state.devServerRoutemap;
+      }
       const file = api.config.input.server.routemap;
       return readJsonFile<RouteMap>(readFile, file, 'server routemap');
     },
@@ -94,6 +101,9 @@ export function createRouterPluginHost(
     },
     initialize(next) {
       Object.assign(state, next);
+    },
+    setDevServerRoutemap(routemap: RouteMap) {
+      state.devServerRoutemap = routemap;
     },
   };
 }

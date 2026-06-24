@@ -75,7 +75,7 @@ describe('vite build integration', () => {
   it('does not inject async route chunk css into css-lazy-dynamic meta links', () => {
     const routeModulePath = path.join(
       playgroundRoot,
-      'dist/server/assets/css-lazy-dynamic@route2.js'
+      'dist/server/assets/css-lazy-dynamic@route.js'
     );
 
     expect(fs.existsSync(routeModulePath)).toBe(true);

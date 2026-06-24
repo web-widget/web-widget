@@ -4,21 +4,83 @@ import path from 'node:path';
 import { afterEach, describe, expect, it } from '@jest/globals';
 import { defaultWidgetPathMatcher } from './collect-route-assets';
 import {
+  assetBaseNameFromModuleId,
+  collapseIndexPathSegments,
   entryNameFromModulePath,
   resolveClientEntryPoints,
 } from './build-entry-points';
 
+describe('collapseIndexPathSegments', () => {
+  it('collapses directory index route modules onto their parent segment', () => {
+    expect(
+      collapseIndexPathSegments(['examples', 'action', 'index@route'])
+    ).toEqual(['examples', 'action@route']);
+    expect(collapseIndexPathSegments(['index@route'])).toEqual(['_root@route']);
+    expect(
+      collapseIndexPathSegments(['examples', 'static', 'index.module'])
+    ).toEqual(['examples', 'static.module']);
+  });
+
+  it('recursively collapses nested index directories', () => {
+    expect(collapseIndexPathSegments(['foo', 'index', 'index@route'])).toEqual([
+      'foo@route',
+    ]);
+  });
+});
+
 describe('entryNameFromModulePath', () => {
+  const root = path.join('/project', 'examples', 'react');
+
   it('strips file extension from widget module paths', () => {
-    const root = path.join('/project', 'examples', 'react');
     const modulePath = path.join(
       root,
       'routes/examples/(components)/Counter@widget.tsx'
     );
 
     expect(entryNameFromModulePath(modulePath, root)).toBe(
-      'examples._components_.Counter@widget'
+      'examples._components_.Counter@widget.tsx'
     );
+  });
+
+  it('disambiguates @widget modules by file extension', () => {
+    const vuePath = path.join(
+      root,
+      'routes/examples/(components)/Counter@widget.vue'
+    );
+    expect(entryNameFromModulePath(vuePath, root)).toBe(
+      'examples._components_.Counter@widget.vue'
+    );
+  });
+
+  it('maps index route modules to parent directory names', () => {
+    expect(
+      entryNameFromModulePath(path.join(root, 'routes/index@route.tsx'), root)
+    ).toBe('_root@route');
+    expect(
+      entryNameFromModulePath(
+        path.join(root, 'routes/examples/action/index@route.tsx'),
+        root
+      )
+    ).toBe('examples.action@route');
+    expect(
+      entryNameFromModulePath(
+        path.join(root, 'routes/examples/static/index.module.css'),
+        root
+      )
+    ).toBe('examples.static.module');
+  });
+
+  it('resolves build chunk names from absolute module ids', () => {
+    const modulePath = path.join(root, 'routes/examples/fetch/index@route.tsx');
+    expect(assetBaseNameFromModuleId(modulePath, root)).toBe(
+      'examples.fetch@route'
+    );
+    expect(assetBaseNameFromModuleId(`${modulePath}?v=1`, root)).toBe(
+      'examples.fetch@route'
+    );
+    expect(
+      assetBaseNameFromModuleId('/outside/route.ts', root)
+    ).toBeUndefined();
   });
 });
 
@@ -61,9 +123,9 @@ describe('resolveClientEntryPoints', () => {
       }
     );
 
-    expect(entryPoints.points['examples._components_.Counter@widget']).toMatch(
-      /Counter@widget\.tsx$/
-    );
+    expect(
+      entryPoints.points['examples._components_.Counter@widget.tsx']
+    ).toMatch(/Counter@widget\.tsx$/);
     expect(
       entryPoints.points['examples._components_.Counter@widget.vue']
     ).toMatch(/Counter@widget\.vue$/);
