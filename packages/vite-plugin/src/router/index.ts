@@ -1,13 +1,14 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import builtins from 'builtin-modules';
-import type {
-  ConfigEnv,
-  EnvironmentOptions,
-  Plugin,
-  SSRTarget,
-  UserConfig,
-  ViteBuilder,
+import {
+  defaultClientConditions,
+  type ConfigEnv,
+  type EnvironmentOptions,
+  type Plugin,
+  type SSRTarget,
+  type UserConfig,
+  type ViteBuilder,
 } from 'vite';
 import type { InlineConfig as VitestInlineConfig } from 'vitest/node';
 import { parseWebRouterConfig } from '@/internal/config';
@@ -44,12 +45,24 @@ interface VitestUserConfig extends UserConfig {
 
 const ENTRY_ID = '@entry';
 const SERVER_ENTRY_OUTPUT_NAME = 'index';
+/**
+ * Resolve conditions used when ssr.target === 'webworker'.
+ *
+ * Vite defaults to defaultClientConditions (includes browser), which makes
+ * third-party packages resolve to their DOM version (depends on window/document)
+ * and breaks CF/Worker runtimes. We prepend worker/worklet so own packages
+ * resolve to their server entry, and filter out browser so third-party packages
+ * fall back to module/default universal versions.
+ *
+ * Built on top of Vite defaults to keep development|production (so dev mode
+ * can resolve to source files) and to track future Vite evolution. Users can
+ * override this by explicitly setting ssr.resolve.conditions, e.g. when using
+ * @cloudflare/vite-plugin (Vite 6 Environment API).
+ */
 const WEBWORKER_SERVER_RESOLVE_CONDITIONS = [
   'worklet',
   'worker',
-  'import',
-  'module',
-  'default',
+  ...defaultClientConditions.filter((c) => c !== 'browser'),
 ];
 
 type ImportMap = {
@@ -110,7 +123,6 @@ function createEnvironmentBuildOptions(
   const entryPoints = isServer
     ? serverRoutemapEntryPoints
     : clientRoutemapEntryPoints;
-  const rolldownUserExternal = config.build?.rolldownOptions?.external;
   const serverAssetFileNames = isServer
     ? createServerAssetFileNameResolver({
         assetsDir,
@@ -132,13 +144,14 @@ function createEnvironmentBuildOptions(
           ? resolvedWebRouterConfig.output.server
           : resolvedWebRouterConfig.output.client
       ),
-      emptyOutDir: true,
+      emptyOutDir: config.build?.emptyOutDir ?? true,
       cssCodeSplit: true,
       manifest: isServer ? undefined : resolvedWebRouterConfig.output.manifest,
-      ...(isServer ? { minify: false as const } : {}),
-      ...(!isServer && config.build?.minify !== undefined
+      ...(config.build?.minify !== undefined
         ? { minify: config.build.minify }
-        : {}),
+        : isServer
+          ? { minify: false as const }
+          : {}),
       rolldownOptions: {
         input: {
           ...(isServer ? {} : entryPoints.points),
@@ -149,11 +162,7 @@ function createEnvironmentBuildOptions(
         preserveEntrySignatures: 'allow-extension',
         treeshake: config.build?.rolldownOptions?.treeshake ?? true,
         ...(isServer && serverTarget !== 'webworker'
-          ? rolldownUserExternal !== undefined
-            ? {
-                external: rolldownUserExternal,
-              }
-            : {}
+          ? {}
           : {
               external: isServer
                 ? (builtins as string[])
@@ -239,10 +248,10 @@ async function createSharedConfig(
     dev: env.command === 'serve',
     resolvedWebRouterConfig,
     resolveConditions:
-      config.ssr?.resolve?.conditions ??
-      (serverTarget === 'webworker'
+      config.ssr?.resolve?.conditions === undefined &&
+      serverTarget === 'webworker'
         ? WEBWORKER_SERVER_RESOLVE_CONDITIONS
-        : undefined),
+        : undefined,
     root,
     routeClientAssets: new Map(),
     serverRoutemapEntryPoints,
@@ -265,7 +274,6 @@ async function createSharedConfig(
           server: {
             warmup: {
               ssrFiles: [
-                ...(config.server?.warmup?.ssrFiles ?? []),
                 resolvedWebRouterConfig.input.server.entry,
                 resolvedWebRouterConfig.input.server.routemap,
               ],
@@ -276,12 +284,9 @@ async function createSharedConfig(
     ssr: {
       target: serverTarget,
       external: ['node:async_hooks'],
-      resolve: {
-        ...(config.ssr?.resolve ?? {}),
-        ...(host.state.resolveConditions
-          ? { conditions: host.state.resolveConditions }
-          : {}),
-      },
+      ...(host.state.resolveConditions
+        ? { resolve: { conditions: host.state.resolveConditions } }
+        : {}),
     },
     builder:
       env.command === 'build'

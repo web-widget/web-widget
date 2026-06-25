@@ -397,7 +397,54 @@ future: {
 
 若不需要扫描，可删除或收紧 playground 中的 `future` 配置。
 
-## 9. 相关文件与变更集
+## 9. Webworker SSR resolve conditions
+
+### 背景
+
+`ssr.target === 'webworker'` 时，Vite 默认使用 `defaultClientConditions`（含 `browser`）。这会让第三方包命中其 DOM 版本入口（依赖 `window`/`document`），破坏 CF/Worker 运行时——这正是历史上在 `packages/vite-plugin/src/router/index.ts` 中硬编码 `WEBWORKER_SERVER_RESOLVE_CONDITIONS = ['worklet','worker','import','module','default']` 的原因。
+
+但该硬编码存在三个问题：
+
+1. **丢失 `development|production`**：dev 模式下无法命中 package.json `exports` 中的 `"development": "./src/*.ts"`（如 [packages/helpers/package.json](../../helpers/package.json) 的 `module/server`、`module/client` 子条件），只能走 `default` 的 dist 产物，丢失源码 HMR 与断点调试。
+2. **含冗余 `import`/`default`**：这两个是 Node/解析器隐式应用的兜底条件，Vite 官方导出的 `defaultClientConditions`/`defaultServerConditions` 均不含它们，主动声明无意义。
+3. **不跟随 Vite 演进**：硬编码无法继承 Vite 未来对默认值的调整。
+
+### 改进
+
+基于 Vite 导出的 `defaultClientConditions` 构建，前置 `worklet`/`worker` 让自家包命中 server 入口，并剔除 `browser` 让第三方包退回 `module`/`default` 通用版本：
+
+```ts
+import { defaultClientConditions } from 'vite';
+
+const WEBWORKER_SERVER_RESOLVE_CONDITIONS = [
+  'worklet',
+  'worker',
+  ...defaultClientConditions.filter((c) => c !== 'browser'),
+];
+// => ['worklet', 'worker', 'module', 'development|production']
+```
+
+### 与元框架对比
+
+主流元框架（Astro 6、TanStack Start、React Router v7）在 CF 场景下采用 `@cloudflare/vite-plugin` + Vite 6 Environment API，让 dev 直接跑在 workerd 里，依靠运行时防线（workerd 没有 `window`/`document` 会立即报错）暴露问题，**不需要**在解析层手动剔除 `browser`。
+
+web-widget 作为通用框架，未使用 Environment API，缺少运行时防线，因此继续在解析层剔除 `browser` 是合理的权宜方案。已通过显式设置 `ssr.resolve.conditions` 提供 escape hatch——用户使用 `@cloudflare/vite-plugin` 等 Environment API 方案时可覆盖本插件默认值（见 [router/index.ts](../src/router/index.ts) 中 `resolveConditions` 计算）。
+
+### 三种 target 的 conditions 对照
+
+| Target                       | conditions                                 | 来源          |
+| ---------------------------- | ------------------------------------------ | ------------- | ------------------------------------------------- |
+| `ssr.target === 'node'`      | `['module','node','development             | production']` | Vite 默认 `defaultServerConditions`，无需插件介入 |
+| `ssr.target === 'webworker'` | `['worklet','worker','module','development | production']` | 本插件基于 `defaultClientConditions` 构建         |
+| client build                 | `['module','browser','development          | production']` | Vite 默认 `defaultClientConditions`，无需插件介入 |
+
+### 验证
+
+- 自家包（如 `@web-widget/helpers`）命中 `worker` → server 入口
+- 第三方包无 `worker` 条件，退回 `module`/`default` → 通用版本，避开 DOM
+- dev 模式命中 `"development"` 子条件 → 源码，支持 HMR 与断点
+
+## 10. 相关文件与变更集
 
 - 变更集：
   - `.changeset/vite-plugin-environment-api.md`（Environment API / builder）
