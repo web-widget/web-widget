@@ -96,6 +96,78 @@ function createMockServerDevEnvironment(
   };
 }
 
+interface ModuleSpec {
+  path: string;
+  type?: EnvironmentModuleNode['type'];
+  deps?: string[];
+  dynamicDeps?: string[];
+  ssrModule?: Record<string, unknown>;
+}
+
+/**
+ * Builds a connected module graph from specs and returns the lookup functions
+ * a `ServerDevEnvironment` needs (`getModulesByFile`, `getModuleById`,
+ * `resolveId`). Relative `deps`/`dynamicDeps` are resolved against the parent.
+ */
+function buildModuleGraph(root: string, specs: ModuleSpec[]) {
+  const nodes = new Map<string, EnvironmentModuleNode>();
+
+  for (const spec of specs) {
+    const id = path.join(root, spec.path);
+    const hasTransform = spec.deps || spec.dynamicDeps;
+    nodes.set(
+      id,
+      createModuleNode({
+        id,
+        url: id,
+        file: id,
+        type: spec.type,
+        transformResult: hasTransform
+          ? ({
+              code: '',
+              map: null,
+              deps: spec.deps ?? [],
+              dynamicDeps: spec.dynamicDeps ?? [],
+            } as TransformResult)
+          : undefined,
+        ssrModule: spec.ssrModule,
+      })
+    );
+  }
+
+  for (const spec of specs) {
+    const parentId = path.join(root, spec.path);
+    const parent = nodes.get(parentId)!;
+    for (const dep of [...(spec.deps ?? []), ...(spec.dynamicDeps ?? [])]) {
+      const childPath = path.resolve(path.dirname(parentId), dep);
+      const child = nodes.get(childPath);
+      if (child) {
+        parent.importedModules.add(child);
+        child.importers.add(parent);
+      }
+    }
+  }
+
+  return {
+    getModulesByFile(file: string) {
+      const node = nodes.get(file);
+      return node ? new Set([node]) : undefined;
+    },
+    getModuleById(id: string) {
+      return nodes.get(id);
+    },
+    async resolveId(specifier: string, importer: string) {
+      if (specifier.startsWith('.')) {
+        const resolved = path.resolve(path.dirname(importer), specifier);
+        if (nodes.has(resolved)) {
+          return { id: resolved };
+        }
+      }
+      return null;
+    },
+  };
+}
+
 describe('getMeta', () => {
   it('collects inline CSS module content from the server module graph', async () => {
     const meta = await getMeta(
@@ -298,20 +370,31 @@ describe('getMeta', () => {
     expect(meta.script).toEqual([]);
   });
 
-  it('collects css from source analysis for examples/react index route', async () => {
+  it('collects css links for examples/react index route from the module graph', async () => {
     const filePath = path.join(examplesRoot, 'routes/examples/index@route.tsx');
+    const graph = buildModuleGraph(examplesRoot, [
+      {
+        path: 'routes/examples/index@route.tsx',
+        deps: [
+          './index.module.css',
+          './(components)/shared.module.css',
+          './(components)/Counter@widget.tsx',
+          './(components)/BaseLayout.tsx',
+        ],
+      },
+      {
+        path: 'routes/examples/index.module.css',
+        type: 'css',
+      },
+      {
+        path: 'routes/examples/(components)/shared.module.css',
+        type: 'css',
+      },
+    ]);
     const environment = createMockServerDevEnvironment({
       root: examplesRoot,
-      getModulesByFile() {
-        return undefined;
-      },
-      getModuleById() {
-        return undefined;
-      },
-      async importModule(url: string) {
-        if (url.endsWith('.css')) {
-          return {};
-        }
+      ...graph,
+      async importModule() {
         return {};
       },
     });
@@ -345,39 +428,30 @@ describe('getMeta', () => {
     );
   });
 
-  it('collects widget css from static source analysis when route reaches widgets indirectly', async () => {
+  it('collects widget css when route reaches widgets indirectly via the module graph', async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-meta-widget-'));
     const routePath = path.join(root, 'routes/page@route.tsx');
-    const layoutPath = path.join(root, 'routes/BaseLayout.tsx');
-    const widgetPath = path.join(root, 'routes/Counter@widget.tsx');
-    const cssPath = path.join(root, 'routes/counter-common.css');
-
-    await fs.mkdir(path.dirname(routePath), { recursive: true });
-    await fs.writeFile(cssPath, '.counter { color: red; }', 'utf-8');
-    await fs.writeFile(
-      widgetPath,
-      "import './counter-common.css';\nexport default function Counter() {}",
-      'utf-8'
-    );
-    await fs.writeFile(
-      layoutPath,
-      "import Counter from './Counter@widget.tsx';\nexport default function BaseLayout() {}",
-      'utf-8'
-    );
-    await fs.writeFile(
-      routePath,
-      "import BaseLayout from './BaseLayout.tsx';\nexport default function Page() {}",
-      'utf-8'
-    );
-
+    const graph = buildModuleGraph(root, [
+      {
+        path: 'routes/page@route.tsx',
+        deps: ['./BaseLayout.tsx'],
+      },
+      {
+        path: 'routes/BaseLayout.tsx',
+        deps: ['./Counter@widget.tsx'],
+      },
+      {
+        path: 'routes/Counter@widget.tsx',
+        deps: ['./counter-common.css'],
+      },
+      {
+        path: 'routes/counter-common.css',
+        type: 'css',
+      },
+    ]);
     const environment = createMockServerDevEnvironment({
       root,
-      getModulesByFile() {
-        return undefined;
-      },
-      getModuleById() {
-        return undefined;
-      },
+      ...graph,
       async importModule(url: string) {
         if (url.endsWith('counter-common.css')) {
           return { default: '.counter { color: red; }' };
@@ -402,42 +476,31 @@ describe('getMeta', () => {
   it('collects layout and widget css for react-and-vue-like route graph', async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-meta-layout-'));
     const routePath = path.join(root, 'routes/react-and-vue@route.tsx');
-    const layoutPath = path.join(root, 'routes/BaseLayout.tsx');
-    const widgetPath = path.join(root, 'routes/Counter@widget.tsx');
-    const layoutCssPath = path.join(root, 'routes/base-layout.css');
-    const widgetCssPath = path.join(root, 'routes/counter-common.css');
-
-    await fs.mkdir(path.dirname(routePath), { recursive: true });
-    await fs.writeFile(layoutCssPath, '.layout { padding: 1rem; }', 'utf-8');
-    await fs.writeFile(widgetCssPath, '.counter { color: red; }', 'utf-8');
-    await fs.writeFile(
-      widgetPath,
-      "import './counter-common.css';\nexport default function Counter() {}",
-      'utf-8'
-    );
-    await fs.writeFile(
-      layoutPath,
-      "import './base-layout.css';\nexport default function BaseLayout({ children }) { return children; }",
-      'utf-8'
-    );
-    await fs.writeFile(
-      routePath,
-      [
-        "import BaseLayout from './BaseLayout.tsx';",
-        "import Counter from './Counter@widget.tsx';",
-        'export default function Page() { return <BaseLayout><Counter /></BaseLayout>; }',
-      ].join('\n'),
-      'utf-8'
-    );
-
+    const graph = buildModuleGraph(root, [
+      {
+        path: 'routes/react-and-vue@route.tsx',
+        deps: ['./BaseLayout.tsx', './Counter@widget.tsx'],
+      },
+      {
+        path: 'routes/BaseLayout.tsx',
+        deps: ['./base-layout.css'],
+      },
+      {
+        path: 'routes/Counter@widget.tsx',
+        deps: ['./counter-common.css'],
+      },
+      {
+        path: 'routes/base-layout.css',
+        type: 'css',
+      },
+      {
+        path: 'routes/counter-common.css',
+        type: 'css',
+      },
+    ]);
     const environment = createMockServerDevEnvironment({
       root,
-      getModulesByFile() {
-        return undefined;
-      },
-      getModuleById() {
-        return undefined;
-      },
+      ...graph,
       async importModule(url: string) {
         if (url.endsWith('base-layout.css')) {
           return { default: '.layout { padding: 1rem; }' };
@@ -548,6 +611,105 @@ describe('getMeta', () => {
       expect.arrayContaining([
         expect.objectContaining({
           content: '.counter { color: red; }',
+        }),
+      ])
+    );
+  });
+
+  it('collects scoped css from vue sfc widget submodules sharing the canonical module key', async () => {
+    // Vue SFC widgets emit CSS as a virtual submodule whose id shares the
+    // canonical (query-stripped) key with the widget module itself
+    // (e.g. `Counter@widget.vue?vue&type=style&...&lang.css`).
+    // The crawler must keep both modules distinct so the CSS is not skipped
+    // by the visited set.
+    const widgetScopedCssId =
+      '/project/routes/Counter@widget.vue?vue&type=style&index=0&scoped=a3e69a9a&lang.css';
+    const widgetModuleId = '/project/routes/Counter@widget.vue';
+    const scopedCssSpecifier =
+      './Counter@widget.vue?vue&type=style&index=0&scoped=a3e69a9a&lang.css';
+
+    const widgetScopedCssModule = createModuleNode({
+      id: widgetScopedCssId,
+      url: widgetScopedCssId,
+      type: 'css',
+      ssrModule: { default: '.counter[data-v-a3e69a9a]{color:red}' },
+      importers: new Set([
+        createModuleNode({
+          id: widgetModuleId,
+          url: widgetModuleId,
+        }),
+      ]),
+    });
+    const widgetModule = createModuleNode({
+      id: widgetModuleId,
+      url: widgetModuleId,
+      transformResult: {
+        code: '',
+        map: null,
+        deps: [scopedCssSpecifier],
+        dynamicDeps: [],
+      } as TransformResult,
+      importedModules: new Set([widgetScopedCssModule]),
+    });
+    const routeModule = createModuleNode({
+      id: '/project/routes/page@route.tsx',
+      url: '/project/routes/page@route.tsx',
+      transformResult: {
+        code: '',
+        map: null,
+        deps: [],
+        dynamicDeps: ['./Counter@widget.vue'],
+      } as TransformResult,
+      importedModules: new Set(),
+    });
+
+    const environment = createMockServerDevEnvironment({
+      root: '/project',
+      getModulesByFile(file: string) {
+        if (file.endsWith('page@route.tsx')) {
+          return new Set([routeModule]);
+        }
+        return undefined;
+      },
+      getModuleById(id: string) {
+        if (id === widgetModuleId) {
+          return widgetModule;
+        }
+        if (id === widgetScopedCssId) {
+          return widgetScopedCssModule;
+        }
+        if (id.endsWith('page@route.tsx')) {
+          return routeModule;
+        }
+        return undefined;
+      },
+      async resolveId(specifier: string) {
+        if (specifier === scopedCssSpecifier) {
+          return { id: widgetScopedCssId };
+        }
+        if (specifier.endsWith('Counter@widget.vue')) {
+          return { id: widgetModuleId };
+        }
+        return null;
+      },
+      async importModule(url: string) {
+        if (url === widgetScopedCssId) {
+          return { default: '.counter[data-v-a3e69a9a]{color:red}' };
+        }
+        return {};
+      },
+    });
+
+    const meta = await getMeta(
+      '/project/routes/page@route.tsx',
+      environment,
+      (key) => key.includes('@widget.')
+    );
+
+    expect(meta.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          content: '.counter[data-v-a3e69a9a]{color:red}',
         }),
       ])
     );

@@ -1,6 +1,5 @@
 // Based on the code in the MIT licensed `astro` package.
 
-import path from 'node:path';
 import type {
   LinkDescriptor,
   ScriptDescriptor,
@@ -19,11 +18,7 @@ import {
   toManifestFilterKey,
   unwrapViteId,
 } from '@/internal/module-id';
-import {
-  collectRouteModuleAssets,
-  collectWidgetCssModules,
-  matchesWidgetModule,
-} from '@/internal/collect-route-assets';
+import { matchesWidgetModule } from '@/internal/collect-route-assets';
 
 type ServerModuleDependencyKeys = {
   filterDisabled: boolean;
@@ -82,14 +77,6 @@ async function getStylesForURL(
 
   const root = serverEnvironment.root;
 
-  await collectCssFromSourceAssets(
-    filePath,
-    serverEnvironment,
-    dynamicImportPredicate,
-    importedCssUrls,
-    importedStylesMap
-  );
-
   for await (const importedModule of crawlGraph(
     serverEnvironment,
     filePath,
@@ -147,43 +134,6 @@ async function appendCssModuleStyles(
   importedCssUrls.add(moduleUrl);
 }
 
-async function collectCssFromSourceAssets(
-  filePath: string,
-  serverEnvironment: ServerDevEnvironment,
-  dynamicImportPredicate: DynamicImportPredicate | undefined,
-  importedCssUrls: Set<string>,
-  importedStylesMap: Map<string, ImportedStyle>
-): Promise<void> {
-  const assetOptions = {
-    root: serverEnvironment.root,
-    extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.vue', '.json'],
-    dynamicImportPredicate,
-  };
-
-  const assets = await collectRouteModuleAssets(filePath, assetOptions);
-  const cssModules = new Set(assets.cssModules);
-
-  for (const widgetModule of assets.widgetModules) {
-    for (const cssModule of await collectWidgetCssModules(
-      path.resolve(serverEnvironment.root, widgetModule),
-      assetOptions
-    )) {
-      cssModules.add(cssModule);
-    }
-  }
-
-  for (const cssModule of cssModules) {
-    const href = `/${cssModule}`;
-    await appendCssModuleStyles(
-      serverEnvironment,
-      href,
-      path.resolve(serverEnvironment.root, cssModule),
-      importedCssUrls,
-      importedStylesMap
-    );
-  }
-}
-
 const rawRE = /(?:\?|&)raw(?:&|$)/;
 const inlineRE = /(?:\?|&)inline\b/;
 
@@ -191,11 +141,11 @@ const isBuildableCSSRequest = (request: string): boolean =>
   isCSSRequest(request) && !rawRE.test(request) && !inlineRE.test(request);
 
 function moduleIdentityKey(id: string): string {
-  return canonicalModuleKey(id);
+  return unwrapViteId(id);
 }
 
 function moduleKeysMatch(a: string, b: string): boolean {
-  return moduleIdentityKey(a) === moduleIdentityKey(b);
+  return canonicalModuleKey(a) === canonicalModuleKey(b);
 }
 
 function moduleNodeKeys(mod: EnvironmentModuleNode): string[] {

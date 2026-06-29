@@ -82,22 +82,19 @@ async function resolveClientBuildGraph(host: RouterPluginHost) {
   }
 
   const { root, widgetModuleFilter, resolvedWebRouterConfig } = host.state;
-  const { entryPoints, routeClientAssets } = await resolveClientEntryPoints(
+  const entryPoints = await resolveClientEntryPoints(
     context.serverRoutemap,
     context.serverRoutemapPath,
     root,
     {
-      extensions: context.extensions,
       dynamicImportPredicate: widgetModuleFilter,
-      widgetSearchDirs: [
-        resolvedWebRouterConfig.filesystemRouting.dir.replace(/^\.\//, ''),
-      ],
+      searchDirs: resolvedWebRouterConfig.widget.searchDirs,
+      ignore: resolvedWebRouterConfig.ignore,
     }
   );
 
   host.patchState({
     clientRoutemapEntryPoints: entryPoints,
-    routeClientAssets,
   });
 }
 
@@ -225,21 +222,10 @@ async function createSharedConfig(
     serverRoutemapPath,
     root
   );
-  const extensions = config.resolve?.extensions ?? [
-    '.mjs',
-    '.js',
-    '.mts',
-    '.ts',
-    '.jsx',
-    '.tsx',
-    '.vue',
-    '.json',
-  ];
 
   host.initialize({
     base: config.base ?? '/',
     clientBuildGraphContext: {
-      extensions,
       serverRoutemap,
       serverRoutemapPath,
     },
@@ -253,7 +239,6 @@ async function createSharedConfig(
         ? WEBWORKER_SERVER_RESOLVE_CONDITIONS
         : undefined,
     root,
-    routeClientAssets: new Map(),
     serverRoutemapEntryPoints,
     sourcemap: !!config.build?.sourcemap,
     serverTarget,

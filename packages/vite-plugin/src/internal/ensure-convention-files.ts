@@ -122,7 +122,8 @@ async function ensureRoutemapFile(
       root,
       routesPath,
       config.filesystemRouting.basePathname,
-      config.filesystemRouting.overridePathname
+      config.filesystemRouting.overridePathname,
+      config.ignore
     );
     await writeFile(routemapPath, `${JSON.stringify(routemap, null, 2)}\n`);
     return;

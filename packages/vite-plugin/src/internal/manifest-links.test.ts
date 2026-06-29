@@ -433,7 +433,12 @@ describe('getRouteMetaLinks', () => {
 
     const assets = await collectRouteModuleAssets(routePath, {
       root,
-      extensions: ['.tsx', '.ts', '.css'],
+      resolveId: async (specifier, importer) => {
+        if (specifier.startsWith('.')) {
+          return path.resolve(path.dirname(importer), specifier);
+        }
+        return null;
+      },
       dynamicImportPredicate: (key: string) => key.includes('@widget.'),
     });
 

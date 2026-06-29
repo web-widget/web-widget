@@ -15,8 +15,12 @@ export type { RouterBuildState } from './router/host';
 ////////////////////////////////////////
 
 export interface ResolvedWebRouterConfig {
+  ignore: string[];
   asyncContext: {
     enabled: boolean;
+  };
+  widget: {
+    searchDirs: string[];
   };
   serverAction: {
     enabled: boolean;

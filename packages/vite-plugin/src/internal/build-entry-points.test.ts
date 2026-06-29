@@ -96,7 +96,6 @@ describe('resolveClientEntryPoints', () => {
   it('disambiguates widget entries that share the same basename', async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-entry-points-'));
     const routemapPath = path.join(tempDir, 'routemap.server.json');
-    await fs.writeFile(routemapPath, '{}', 'utf-8');
 
     const widgetDir = path.join(tempDir, 'routes/examples/(components)');
     await fs.mkdir(widgetDir, { recursive: true });
@@ -111,14 +110,24 @@ describe('resolveClientEntryPoints', () => {
       'utf-8'
     );
 
-    const { entryPoints } = await resolveClientEntryPoints(
-      { routes: [], actions: [], middlewares: [], fallbacks: [] },
+    const manifest = {
+      routes: [
+        {
+          pathname: '/examples',
+          module: './routes/examples/index@route.tsx',
+        },
+      ],
+      actions: [],
+      middlewares: [],
+      fallbacks: [],
+    };
+    await fs.writeFile(routemapPath, JSON.stringify(manifest), 'utf-8');
+
+    const entryPoints = await resolveClientEntryPoints(
+      manifest,
       routemapPath,
       tempDir,
-      {
-        extensions: ['.tsx', '.vue'],
-        widgetSearchDirs: ['routes'],
-      }
+      {}
     );
 
     expect(
@@ -127,77 +136,6 @@ describe('resolveClientEntryPoints', () => {
     expect(
       entryPoints.points['examples._components_.Counter@widget.vue']
     ).toMatch(/Counter@widget\.vue$/);
-  });
-
-  it('does not promote async route chunk css to client build entries', async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-entry-points-'));
-    const routemapPath = path.join(tempDir, 'routemap.server.json');
-    const cssLazyDir = path.join(tempDir, 'routes/(css-lazy)');
-    await fs.mkdir(cssLazyDir, { recursive: true });
-    await fs.writeFile(
-      routemapPath,
-      JSON.stringify({
-        routes: [
-          {
-            pathname: '/css-lazy-dynamic',
-            module: './routes/css-lazy-dynamic@route.tsx',
-          },
-        ],
-        actions: [],
-        middlewares: [],
-        fallbacks: [],
-      }),
-      'utf-8'
-    );
-    await fs.writeFile(
-      path.join(cssLazyDir, 'lazy-chunk.css'),
-      '.css-lazy-dynamic-box {}',
-      'utf-8'
-    );
-    await fs.writeFile(
-      path.join(cssLazyDir, 'LazyCssChunk.tsx'),
-      "import './lazy-chunk.css';\nexport default function LazyCssChunk() { return null; }",
-      'utf-8'
-    );
-    await fs.writeFile(
-      path.join(tempDir, 'routes/css-lazy-dynamic@route.tsx'),
-      [
-        "import { lazy } from 'react';",
-        "const LazyCssChunk = lazy(() => import('./(css-lazy)/LazyCssChunk.tsx'));",
-        'export default function Page() { return <LazyCssChunk />; }',
-      ].join('\n'),
-      'utf-8'
-    );
-
-    const { entryPoints, routeClientAssets } = await resolveClientEntryPoints(
-      {
-        routes: [
-          {
-            pathname: '/css-lazy-dynamic',
-            module: './routes/css-lazy-dynamic@route.tsx',
-          },
-        ],
-        actions: [],
-        middlewares: [],
-        fallbacks: [],
-      },
-      routemapPath,
-      tempDir,
-      {
-        extensions: ['.tsx', '.ts', '.css'],
-        widgetSearchDirs: ['routes'],
-      }
-    );
-
-    const routeAssets = routeClientAssets.get(
-      'routes/css-lazy-dynamic@route.tsx'
-    );
-    expect(routeAssets?.cssModules ?? []).not.toContain(
-      'routes/(css-lazy)/lazy-chunk.css'
-    );
-    expect(Object.values(entryPoints.points)).not.toEqual(
-      expect.arrayContaining([expect.stringMatching(/lazy-chunk\.css$/)])
-    );
   });
 
   it('excludes widgets rejected by dynamicImportPredicate from client build entries', async () => {
@@ -241,7 +179,7 @@ describe('resolveClientEntryPoints', () => {
     const dynamicImportPredicate = (key: string) =>
       key.includes('Included@widget');
 
-    const { entryPoints, routeClientAssets } = await resolveClientEntryPoints(
+    const entryPoints = await resolveClientEntryPoints(
       {
         routes: [
           {
@@ -256,15 +194,10 @@ describe('resolveClientEntryPoints', () => {
       routemapPath,
       tempDir,
       {
-        extensions: ['.tsx', '.ts'],
         dynamicImportPredicate,
-        widgetSearchDirs: ['routes'],
       }
     );
 
-    expect(
-      routeClientAssets.get('routes/page@route.tsx')?.widgetModules
-    ).toEqual(['routes/Included@widget.tsx']);
     expect(Object.values(entryPoints.points)).toEqual(
       expect.arrayContaining([expect.stringMatching(/Included@widget\.tsx$/)])
     );
@@ -323,7 +256,7 @@ describe('resolveClientEntryPoints', () => {
     const dynamicImportPredicate = (key: string) =>
       key.includes('Included@widget');
 
-    const { entryPoints, routeClientAssets } = await resolveClientEntryPoints(
+    const entryPoints = await resolveClientEntryPoints(
       {
         routes: [
           {
@@ -338,15 +271,10 @@ describe('resolveClientEntryPoints', () => {
       routemapPath,
       tempDir,
       {
-        extensions: ['.tsx', '.ts'],
         dynamicImportPredicate,
-        widgetSearchDirs: ['routes'],
       }
     );
 
-    expect(
-      routeClientAssets.get('routes/page@route.tsx')?.widgetModules
-    ).toEqual(['routes/Included@widget.tsx']);
     expect(Object.values(entryPoints.points)).toEqual(
       expect.arrayContaining([expect.stringMatching(/Included@widget\.tsx$/)])
     );

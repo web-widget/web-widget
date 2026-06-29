@@ -11,7 +11,6 @@ import * as defaultLayoutModule from './layout';
 import { callContext } from '@web-widget/context/server';
 import { ModuleRuntime, type OnFallback } from './module';
 import type {
-  DevOption,
   Env,
   LayoutModule,
   Manifest,
@@ -21,13 +20,10 @@ import type {
   RouteRenderOptions,
   ServerRenderOptions,
 } from './types';
-import { resolveRuntimeOptions } from './resolve-runtime-options';
 
 export type * from './types';
 export type { OnFallback } from './module';
-export { DEV_MODULE_SOURCE_HEADER, DEV_RUNTIME_DEFAULTS } from './types';
-export { resolveRuntimeOptions } from './resolve-runtime-options';
-export type { ResolvedRuntimeOptions } from './resolve-runtime-options';
+export { DEV_MODULE_SOURCE_HEADER } from './types';
 
 // Export router types and implementations
 // export type { Router, Result, Params, RouterType } from './router';
@@ -45,8 +41,8 @@ export type StartOptions<E extends Env = {}> = {
   defaultRenderOptions?: RouteRenderOptions;
   /** @experimental */
   defaultRenderer?: ServerRenderOptions;
-  /** Dev preset or per-field overrides; see {@link DEV_RUNTIME_DEFAULTS}. */
-  dev?: DevOption;
+  /** When true, server error pages include full error details. Defaults to `false`. */
+  exposeErrors?: boolean;
   onFallback?: OnFallback;
 } & ApplicationOptions<E>;
 
@@ -66,10 +62,6 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       module: async () => defaultLayoutModule as LayoutModule,
     };
     const fallbacks = manifest.fallbacks ?? [];
-    const runtimeOptions = resolveRuntimeOptions({
-      manifest,
-      dev: options.dev,
-    });
     const defaultBaseAsset = options.baseAsset ?? '/';
     const defaultMeta = rebaseMeta(
       options.defaultMeta ?? {
@@ -87,7 +79,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       defaultBaseAsset
     );
     const defaultRenderer: RouteRenderOptions = {
-      progressive: runtimeOptions.progressive,
+      progressive: false,
       ...structuredClone(
         options.defaultRenderer ?? options.defaultRenderOptions ?? {}
       ),
@@ -119,8 +111,8 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       defaultBaseAsset,
       defaultRenderer,
       onFallback,
-      exposeErrors: runtimeOptions.exposeErrors,
-      moduleSource: runtimeOptions.moduleSource,
+      exposeErrors: manifest.exposeErrors ?? options.exposeErrors ?? false,
+      moduleSource: manifest.moduleSource,
     });
 
     const router = new WebRouter<E>(options);

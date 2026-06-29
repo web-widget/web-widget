@@ -12,7 +12,7 @@ import {
 import {
   DEV_MODULE_SOURCE_HEADER,
   type ActionModule,
-  type DevRuntimeConfig,
+  type Manifest,
   type HTTPException,
   type LayoutComponentProps,
   type LayoutModule,
@@ -69,7 +69,7 @@ export class ModuleRuntime {
   #defaultRenderer: ServerRenderOptions;
   #onFallback: OnFallback;
   #exposeErrors: boolean;
-  #moduleSource?: DevRuntimeConfig['moduleSource'];
+  #moduleSource?: Manifest['moduleSource'];
 
   // =========================================================================
   // Constructor and Configuration
@@ -82,7 +82,7 @@ export class ModuleRuntime {
     defaultRenderer: ServerRenderOptions;
     onFallback: OnFallback;
     exposeErrors?: boolean;
-    moduleSource?: DevRuntimeConfig['moduleSource'];
+    moduleSource?: Manifest['moduleSource'];
   }) {
     this.#layoutModule = options.layoutModule;
     this.#defaultMeta = options.defaultMeta;

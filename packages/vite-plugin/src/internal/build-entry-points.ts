@@ -5,9 +5,8 @@ import { stripModuleIdQuery } from '@/internal/module-id';
 import {
   collectRouteModuleAssets,
   discoverWidgetModulePaths,
-  type CollectRouteAssetsOptions,
-  type RouteClientAssetsIndex,
 } from './collect-route-assets';
+import type { DynamicImportPredicate } from '@/types';
 
 export type BuildEntryPoints = {
   points: Record<string, string>;
@@ -297,21 +296,21 @@ export function resolveServerEntryPoints(
   return { points, exposures };
 }
 
+export interface ResolveClientEntryPointsOptions {
+  dynamicImportPredicate?: DynamicImportPredicate;
+  searchDirs?: string[];
+  ignore?: string[];
+}
+
 export async function resolveClientEntryPoints(
   manifest: RouteMap,
   routemapPath: string,
   root: string,
-  collectOptions: Omit<CollectRouteAssetsOptions, 'root'> & {
-    widgetSearchDirs?: string[];
-  }
-): Promise<{
-  entryPoints: BuildEntryPoints;
-  routeClientAssets: RouteClientAssetsIndex;
-}> {
+  options: ResolveClientEntryPointsOptions
+): Promise<BuildEntryPoints> {
   const points: Record<string, string> = Object.create(null);
   const exposures = new Set<string>();
-  const routeClientAssets: RouteClientAssetsIndex = new Map();
-  const seenModules = new Map<string, string>();
+  const seenModules = new Set<string>();
 
   const addUniqueModule = (modulePath: string, expose: boolean) => {
     const normalized = path.normalize(modulePath);
@@ -319,24 +318,25 @@ export async function resolveClientEntryPoints(
       return;
     }
     addEntryPoint(points, exposures, normalized, root, expose);
-    seenModules.set(normalized, normalized);
+    seenModules.add(normalized);
   };
 
-  const assetOptions: CollectRouteAssetsOptions = {
-    root,
-    extensions: collectOptions.extensions,
-    dynamicImportPredicate: collectOptions.dynamicImportPredicate,
-  };
+  const searchDirs = options.searchDirs ?? ['.'];
+  const ignore = options.ignore ?? [];
 
+  // Collect CSS and widget modules from each route's import graph so that
+  // only CSS actually referenced by a route becomes a client build entry
+  // (async chunk CSS that is only dynamically imported is excluded).
   const routeModules = collectRoutemapModulePaths(manifest, routemapPath, [
     'routes',
     'fallbacks',
   ]);
 
   for (const { modulePath } of routeModules) {
-    const relativeKey = normalizePath(path.relative(root, modulePath));
-    const assets = await collectRouteModuleAssets(modulePath, assetOptions);
-    routeClientAssets.set(relativeKey, assets);
+    const assets = await collectRouteModuleAssets(modulePath, {
+      root,
+      dynamicImportPredicate: options.dynamicImportPredicate,
+    });
 
     for (const cssModule of assets.cssModules) {
       addUniqueModule(path.resolve(root, cssModule), false);
@@ -346,6 +346,17 @@ export async function resolveClientEntryPoints(
     }
   }
 
+  // Register widgets discovered on disk as client build entries.
+  for (const widgetModule of await discoverWidgetModulePaths(
+    root,
+    searchDirs,
+    ignore,
+    options.dynamicImportPredicate
+  )) {
+    addUniqueModule(path.resolve(root, widgetModule), false);
+  }
+
+  // Register actions as exposed entries.
   for (const { modulePath } of collectRoutemapModulePaths(
     manifest,
     routemapPath,
@@ -354,17 +365,5 @@ export async function resolveClientEntryPoints(
     addUniqueModule(modulePath, true);
   }
 
-  const widgetSearchDirs = collectOptions.widgetSearchDirs ?? ['routes'];
-  for (const widgetModule of await discoverWidgetModulePaths(
-    root,
-    widgetSearchDirs,
-    collectOptions.dynamicImportPredicate
-  )) {
-    addUniqueModule(path.resolve(root, widgetModule), false);
-  }
-
-  return {
-    entryPoints: { points, exposures },
-    routeClientAssets,
-  };
+  return { points, exposures };
 }

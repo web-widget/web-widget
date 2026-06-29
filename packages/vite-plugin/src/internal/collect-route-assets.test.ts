@@ -4,9 +4,7 @@ import path from 'node:path';
 import { afterEach, describe, expect, test } from '@jest/globals';
 import {
   collectRouteModuleAssets,
-  collectWidgetCssModules,
   discoverWidgetModulePaths,
-  resolveLocalImport,
 } from './collect-route-assets';
 
 describe('collect-route-assets', () => {
@@ -27,6 +25,19 @@ describe('collect-route-assets', () => {
       await fs.writeFile(filePath, contents, 'utf-8');
     }
     return tempDir;
+  }
+
+  /** Resolves relative specifiers (with explicit extensions) against the importer. */
+  function relativeResolver(_root: string) {
+    return async (
+      specifier: string,
+      importer: string
+    ): Promise<string | null> => {
+      if (specifier.startsWith('.')) {
+        return path.resolve(path.dirname(importer), specifier);
+      }
+      return null;
+    };
   }
 
   test('collects route css and widgets without bundling route js', async () => {
@@ -51,7 +62,7 @@ describe('collect-route-assets', () => {
       path.join(root, 'routes/page@route.tsx'),
       {
         root,
-        extensions: ['.tsx', '.ts', '.css'],
+        resolveId: relativeResolver(root),
         dynamicImportPredicate: (key) => key.includes('@widget.'),
       }
     );
@@ -83,7 +94,7 @@ describe('collect-route-assets', () => {
       path.join(root, 'routes/page@route.tsx'),
       {
         root,
-        extensions: ['.tsx', '.ts', '.css'],
+        resolveId: relativeResolver(root),
         dynamicImportPredicate: () => true,
       }
     );
@@ -113,7 +124,7 @@ describe('collect-route-assets', () => {
       path.join(root, 'routes/page@route.tsx'),
       {
         root,
-        extensions: ['.tsx', '.ts', '.css'],
+        resolveId: relativeResolver(root),
         dynamicImportPredicate: (key) => key.includes('Included@widget'),
       }
     );
@@ -135,7 +146,7 @@ describe('collect-route-assets', () => {
       path.join(root, 'routes/page@route.tsx'),
       {
         root,
-        extensions: ['.tsx', '.ts', '.css'],
+        resolveId: relativeResolver(root),
         dynamicImportPredicate: () => false,
       }
     );
@@ -158,7 +169,7 @@ describe('collect-route-assets', () => {
       path.join(root, 'routes/page@route.tsx'),
       {
         root,
-        extensions: ['.tsx', '.ts', '.css'],
+        resolveId: relativeResolver(root),
         dynamicImportPredicate: () => false,
       }
     );
@@ -179,7 +190,7 @@ describe('collect-route-assets', () => {
       path.join(root, 'routes/page@route.tsx'),
       {
         root,
-        extensions: ['.tsx', '.ts', '.css'],
+        resolveId: relativeResolver(root),
         dynamicImportPredicate: (key) => key.includes('@widget.'),
       }
     );
@@ -200,7 +211,7 @@ describe('collect-route-assets', () => {
       path.join(root, 'routes/page@route.tsx'),
       {
         root,
-        extensions: ['.tsx', '.ts', '.css'],
+        resolveId: relativeResolver(root),
         dynamicImportPredicate: () => false,
       }
     );
@@ -221,7 +232,7 @@ describe('collect-route-assets', () => {
       path.join(root, 'routes/page@route.tsx'),
       {
         root,
-        extensions: ['.tsx', '.ts', '.css'],
+        resolveId: relativeResolver(root),
         dynamicImportPredicate: (key) => key.includes('@widget.'),
       }
     );
@@ -247,7 +258,7 @@ describe('collect-route-assets', () => {
       path.join(root, 'routes/page@route.tsx'),
       {
         root,
-        extensions: ['.tsx', '.ts', '.css'],
+        resolveId: relativeResolver(root),
         dynamicImportPredicate: (key) => key.includes('@widget.'),
       }
     );
@@ -266,22 +277,11 @@ describe('collect-route-assets', () => {
     const discovered = await discoverWidgetModulePaths(
       root,
       ['routes'],
+      ['node_modules'],
       (key) => key.endsWith('Custom.widget.tsx')
     );
 
     expect(discovered).toEqual(['routes/Custom.widget.tsx']);
-  });
-
-  test('resolveLocalImport resolves extensionless paths', async () => {
-    const root = await writeFixture({
-      'routes/style.css': 'body {}',
-      'routes/page@route.tsx': "import './style.css';",
-    });
-    const importer = path.join(root, 'routes/page@route.tsx');
-
-    expect(
-      resolveLocalImport('./style.css', importer, root, ['.css', '.tsx'])
-    ).toBe(path.join(root, 'routes/style.css'));
   });
 
   test('collects layout css and widget css for react-and-vue-like route graph', async () => {
@@ -307,7 +307,7 @@ describe('collect-route-assets', () => {
       path.join(root, 'routes/react-and-vue@route.tsx'),
       {
         root,
-        extensions: ['.tsx', '.ts', '.css'],
+        resolveId: relativeResolver(root),
         dynamicImportPredicate: (key: string) => key.includes('@widget.'),
       }
     );
@@ -318,35 +318,66 @@ describe('collect-route-assets', () => {
     expect(assets.widgetModules).toEqual(
       expect.arrayContaining(['routes/Counter@widget.tsx'])
     );
-
-    const widgetCssModules = await collectWidgetCssModules(
-      path.join(root, 'routes/Counter@widget.tsx'),
-      {
-        root,
-        extensions: ['.tsx', '.ts', '.css'],
-      }
-    );
-
-    expect(widgetCssModules).toEqual(['routes/counter-common.css']);
   });
 
-  test('collectWidgetCssModules gathers static css from widget sources', async () => {
+  test('collects widgets and css imported via resolve.alias when resolveId is provided', async () => {
     const root = await writeFixture({
-      'routes/counter-common.css': '.counter {}',
-      'routes/Counter@widget.tsx': [
-        "import './counter-common.css';",
-        'export default function Counter() {}',
+      'components/Counter@widget.tsx': 'export default function Counter() {}',
+      'components/theme.css': ':root { --c: red; }',
+      'components/Layout.tsx': [
+        "import './theme.css';",
+        'export default function Layout() {}',
+      ].join('\n'),
+      'routes/page@route.tsx': [
+        "import Counter from '~/components/Counter@widget.tsx';",
+        "import Layout from '~/components/Layout.tsx';",
+        'export default function Page() { return <Layout><Counter /></Layout>; }',
       ].join('\n'),
     });
 
-    const cssModules = await collectWidgetCssModules(
-      path.join(root, 'routes/Counter@widget.tsx'),
+    const assets = await collectRouteModuleAssets(
+      path.join(root, 'routes/page@route.tsx'),
       {
         root,
-        extensions: ['.tsx', '.ts', '.css'],
+        resolveId: async (specifier, importer) => {
+          if (specifier.startsWith('~/')) {
+            return path.join(root, specifier.slice(2));
+          }
+          if (specifier.startsWith('./') || specifier.startsWith('../')) {
+            return path.resolve(path.dirname(importer), specifier);
+          }
+          return null;
+        },
+        dynamicImportPredicate: (key: string) => key.includes('@widget.'),
       }
     );
 
-    expect(cssModules).toEqual(['routes/counter-common.css']);
+    expect(assets.widgetModules).toEqual(['components/Counter@widget.tsx']);
+    expect(assets.cssModules).toEqual(['components/theme.css']);
+  });
+
+  test('discoverCssModulePaths finds css files in search dirs', async () => {
+    const { discoverCssModulePaths } = await import('./collect-route-assets');
+    const root = await writeFixture({
+      'routes/style.css': 'body {}',
+      'routes/theme.module.css': ':root {}',
+      'routes/deep/nested.scss': '.nested {}',
+      'routes/Counter@widget.tsx': 'export default function Counter() {}',
+    });
+
+    const discovered = await discoverCssModulePaths(
+      root,
+      ['routes'],
+      ['node_modules']
+    );
+
+    expect(discovered).toEqual(
+      expect.arrayContaining([
+        'routes/style.css',
+        'routes/theme.module.css',
+        'routes/deep/nested.scss',
+      ])
+    );
+    expect(discovered).not.toContain('routes/Counter@widget.tsx');
   });
 });

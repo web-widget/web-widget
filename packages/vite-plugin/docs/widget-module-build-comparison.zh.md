@@ -4,8 +4,6 @@
 
 相关文档：[Vite 8 迁移与构建改进说明](./vite8-migration-build.zh.md)
 
----
-
 ## 1. Widget Module 是什么
 
 `@web-widget/schema` 定义了技术无关的模块格式。其中 Widget Module 与 React 的 Client Component 在职责上类似：可在服务端渲染外壳，在客户端加载实现并完成水合。
@@ -27,8 +25,6 @@ interface ClientWidgetModule {
 ```
 
 同一份 widget 源码在 **client** 与 **server** 两个 Vite 环境中会被编译成不同语义：client 产出真实 chunk，server 只保留对 client 资产的间接引用。Vite 内部 server 环境 key 仍为 `ssr`（见 [Vite 8 迁移说明](./vite8-migration-build.zh.md#术语)）。
-
----
 
 ## 2. Web Widget 的构建流程
 
@@ -107,8 +103,6 @@ flowchart LR
   client_build --> server_build
 ```
 
----
-
 ## 3. 是否符合 Vite 8 Environment API？
 
 符合，且是官方推荐的框架集成模式之一。
@@ -130,8 +124,6 @@ Web Widget 插件的对应关系：
 | `sharedDuringBuild`                      | `RouterPluginHost` 经 `plugin.api` 跨插件共享               |
 
 当前唯一偏「传统」之处：server 通过 `fs.readFile` 读取磁盘上的 client manifest（`getManifest`），而非内存传递。这在 Remix、SvelteKit 等框架中仍很常见；Vite 社区正在讨论将 manifest 挂到 `BuildEnvironment` 上，但尚未成为稳定 API。
-
----
 
 ## 4. 与 vite-plugin-react 生态对比
 
@@ -207,8 +199,6 @@ flowchart TD
 
 负责环境与 manifest 流程。因此对比 Widget Module 双构建时，应主要看 plugin-rsc，而非基础 plugin-react。
 
----
-
 ## 5. 与其它元框架对比
 
 ### 5.1 双构建 + client manifest（与 Web Widget 最接近）
@@ -238,8 +228,6 @@ flowchart TD
 | @vitejs/plugin-rsc | 三环境 RSC              | Client Reference + env import manifest |
 | Waku               | React RSC on Vite       | 多环境 + RSC 引用图                    |
 
----
-
 ## 6. 概念映射：Widget Module ≈ 轻量 Client Component
 
 可将 Widget Module 理解为一种不依赖 React Flight 的 Client Component 边界：
@@ -259,9 +247,32 @@ Server Widget Module              Client Widget Module
 | 资产清单          | `__vite_rsc_env_imports_manifest.js` 等  | `dist/client/.manifest.json`     |
 | HTML 注入         | `loadBootstrapScriptContent` / `loadCss` | `meta.script` / `meta.link`      |
 
----
+## 7. Widget 发现策略：build 前 entry 注册 vs import 图驱动
 
-## 7. 可选演进方向
+client build 的 `rolldownOptions.input` 必须在 `configEnvironment` 阶段确定，此时 `transform` 还未运行，无法用 Vite resolver 追随 import 关系。因此「transform 阶段发现」实际指让 Rollup import 图驱动 widget 进入 client bundle，而非字面意义的 transform。
+
+### 7.1 两种方向对比
+
+| 维度                         | 方向 A：build 前文件系统扫描（当前） | 方向 B：路由模块作临时 entry，import 图发现（pre-Vite 8） |
+| ---------------------------- | ------------------------------------ | --------------------------------------------------------- |
+| 发现时机                     | `configEnvironment` 扫描目录         | Rollup 跟随路由模块 import 图                             |
+| 未引用 widget                | 会进入产物（tree-shaking 兜底）      | 不进入                                                    |
+| alias / tsconfig path widget | 无法发现                             | 支持（Rollup resolver 兜底）                              |
+| server-only 代码泄露         | 无（路由模块不进 client build）      | 有（同构路由模块的 server import 会被打包）               |
+| widget chunk 边界            | 独立 entry，便于预加载               | 被路由 chunk 包含                                         |
+| 实现复杂度                   | 文件系统遍历 + 约定匹配              | 简洁，复用 Rollup 能力                                    |
+
+方向 B 的 server 代码泄露是根本性问题（安全 + 体积）：路由模块是同构的，既 import client widget 也 import server 模块（db、fs、env 等），Rollup 不区分边界。main 分支注释承认了这一点：`// NOTE: .css or .widget files may be imported by server-side modules.` 要根治需引入边界标记机制（如 Remix 的 `.server` 目录、`server-only` 包），属于较大的架构改动。
+
+### 7.2 已尝试并撤销的第三方向
+
+build 前用 `es-module-lexer` 静态解析路由模块 import，递归遍历只收集被引用的 widget——既不泄露 server 代码，又过滤未引用 widget。但复杂度显著高于文件系统扫描（lexer + 递归 + visited 去重 + 扩展名尝试），且 `resolveProjectImport` 只处理相对路径，alias widget 同样无法发现。为消除「未引用 widget 进入」这个次要问题引入不成比例的复杂度，已撤销。
+
+### 7.3 为何与第 5 节的元框架不同
+
+第 5 节的 Next.js / Remix / Astro / Qwik 能在 transform / 编译阶段识别 client 组件，是因为它们**不把 client 组件当作独立物理 entry**。web-widget 当前把 widget 作为独立 entry（便于预加载、importmap 引用），这个设计选择迫使 widget 必须在 build 前注册。若未来放弃「widget 作为独立 entry」转向「被路由 chunk 引用的子模块」，则可像 Next.js / Astro 一样无需 build 前扫描。
+
+## 8. 可选演进方向
 
 以下改进非必须，当前磁盘 manifest 流程已符合 Vite 8 实践：
 
@@ -269,9 +280,7 @@ Server Widget Module              Client Widget Module
 2. Virtual module：例如 `virtual:web-widget-client-manifest`，仅在 server 环境 resolve，集中 manifest 读取逻辑。
 3. Dev / Build 统一：dev 用模块图 key、build 用 manifest key（已有 `normalizeFilterId` / `toManifestFilterKey` 方向）。
 
----
-
-## 8. 结论
+## 9. 结论
 
 | 问题                                         | 结论                                                                                                  |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
@@ -281,8 +290,6 @@ Server Widget Module              Client Widget Module
 | 其它元框架怎么做？                           | 多数 Vite 全栈框架为 client manifest → server；RSC 系用协议 + module map                              |
 
 Web Widget 的双阶段构建是 Vite 8 Environment API 下的正确且常见的框架集成方式；与 [@vitejs/plugin-rsc](https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-rsc) 同属「多环境 + 跨环境引用」家族，差异主要在边界标记、环境数量与运行时协议，而非构建哲学本身。
-
----
 
 ## 参考
 

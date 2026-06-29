@@ -68,10 +68,19 @@ export type CloudflareFetchContext = {
 
 export interface Manifest {
   /**
-   * Dev preset: `true` applies {@link DEV_RUNTIME_DEFAULTS};
-   * an object merges overrides (e.g. {@link DevRuntimeConfig.moduleSource} for tooling).
+   * Route module source path resolver injected by `@web-widget/vite-plugin`
+   * during dev. The returned path is written to the
+   * {@link DEV_MODULE_SOURCE_HEADER} response header so dev tooling can
+   * locate the source file. Not intended for application code.
    */
-  dev?: DevOption;
+  moduleSource?: (context: RouteContext) => string | void;
+  /**
+   * Whether to expose full error details, injected by
+   * `@web-widget/vite-plugin` during dev so server error pages always
+   * include the underlying error. Takes precedence over
+   * {@link StartOptions.exposeErrors}. Not intended for application code.
+   */
+  exposeErrors?: boolean;
   routes: {
     module: RouteModule | (() => Promise<RouteModule>);
     name?: string;
@@ -123,21 +132,3 @@ export interface LayoutRender extends ServerRender<
 
 /** Response header name for the active route module source path in dev. */
 export const DEV_MODULE_SOURCE_HEADER = 'x-module-source';
-
-/** @see Manifest.dev */
-export type DevOption = boolean | DevRuntimeConfig;
-
-/** Dev runtime overrides when `dev` is a configuration object. */
-export interface DevRuntimeConfig {
-  /** When true, server error pages include full error details instead of sanitized errors. */
-  exposeErrors?: boolean;
-  /** Default progressive streaming for route renders. */
-  progressive?: boolean;
-  /** Returns route module source path (Vite-style, e.g. `/routes/index@route.tsx`); written to {@link DEV_MODULE_SOURCE_HEADER}. */
-  moduleSource?: (context: RouteContext) => string | void;
-}
-
-export const DEV_RUNTIME_DEFAULTS: DevRuntimeConfig = {
-  exposeErrors: true,
-  progressive: false,
-};

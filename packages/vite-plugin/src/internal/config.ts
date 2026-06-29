@@ -56,8 +56,22 @@ function resolveRoutesDir(
 ////////////////////////////////////////
 
 export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
+  ignore: [
+    'node_modules',
+    'dist',
+    'build',
+    'out',
+    'coverage',
+    '.git',
+    '.cache',
+    '.vite',
+    '.turbo',
+  ],
   asyncContext: {
     enabled: true,
+  },
+  widget: {
+    searchDirs: ['.'],
   },
   serverAction: {
     enabled: false,
@@ -91,12 +105,25 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
 };
 
 export const WebRouterConfigSchema = z.object({
+  ignore: z
+    .array(z.string())
+    .optional()
+    .default(WEB_ROUTER_CONFIG_DEFAULTS.ignore),
   asyncContext: z
     .object({
       enabled: z
         .boolean()
         .optional()
         .default(WEB_ROUTER_CONFIG_DEFAULTS.asyncContext.enabled),
+    })
+    .optional()
+    .default({}),
+  widget: z
+    .object({
+      searchDirs: z
+        .array(z.string())
+        .optional()
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.widget.searchDirs),
     })
     .optional()
     .default({}),

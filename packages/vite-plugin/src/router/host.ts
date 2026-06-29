@@ -1,6 +1,5 @@
 import type { SSRTarget } from 'vite';
 import type { BuildEntryPoints } from '@/internal/build-entry-points';
-import type { RouteClientAssetsIndex } from '@/internal/collect-route-assets';
 import { defaultReadFileUtf8, type ReadFileUtf8 } from '@/internal/io';
 import type {
   DynamicImportPredicate,
@@ -13,7 +12,6 @@ import type {
 
 /** Deferred client build graph inputs resolved during `configEnvironment`. */
 export interface ClientBuildGraphContext {
-  extensions: string[];
   serverRoutemap: RouteMap;
   serverRoutemapPath: string;
 }
@@ -28,7 +26,6 @@ export interface RouterBuildState {
   resolvedWebRouterConfig: ResolvedWebRouterConfig;
   resolveConditions?: string[];
   root: string;
-  routeClientAssets: RouteClientAssetsIndex;
   serverRoutemapEntryPoints: BuildEntryPoints;
   sourcemap: boolean;
   serverTarget: SSRTarget;

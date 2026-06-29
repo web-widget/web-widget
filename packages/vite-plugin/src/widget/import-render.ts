@@ -11,6 +11,7 @@ import type {
 import { getManifest, getWebRouterPluginApi } from '@/internal/manifest';
 import { normalizeFilterId, stripModuleIdQuery } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
+import { defaultWidgetPathMatcher } from '@/internal/collect-route-assets';
 import {
   applyToServerEnvironment,
   isServerEnvironment,
@@ -81,6 +82,7 @@ export function importRenderPlugin({
   let sourcemap: boolean;
   let inspectorDevUrl: string | undefined;
   const assetMap: Map<string, string> = new Map();
+  const referencedAssets: Set<string> = new Set();
 
   filter = createFilter(include, exclude);
   importerFilter = createFilter(includeImporter, excludeImporter);
@@ -278,6 +280,9 @@ export function importRenderPlugin({
           throw new Error(`Missing manifest.`);
         }
 
+        assetMap.clear();
+        referencedAssets.clear();
+
         Object.entries(manifest).forEach(([fileName, value]) => {
           if (value.file) {
             assetMap.set(fileName, value.file);
@@ -323,6 +328,7 @@ export function importRenderPlugin({
                 );
               }
 
+              referencedAssets.add(fileName);
               return quotation + base + asset + quotation;
             }
           );
@@ -334,6 +340,21 @@ export function importRenderPlugin({
           code: magicString.toString(),
           map: sourcemap ? magicString.generateMap() : null,
         };
+      },
+      async generateBundle() {
+        if (this.environment.name !== 'ssr' || referencedAssets.size === 0) {
+          return;
+        }
+
+        const orphanWidgets = [...assetMap.keys()]
+          .filter((key) => defaultWidgetPathMatcher(key))
+          .filter((key) => !referencedAssets.has(key));
+
+        for (const orphan of orphanWidgets) {
+          this.warn(
+            `Widget "${orphan}" is registered as a client entry but not referenced by any route module. It will still be emitted; remove it from the source tree or adjust widget.searchDirs if this is unintended.`
+          );
+        }
       },
     },
   ];

@@ -1,13 +1,12 @@
-import path from 'node:path';
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin, Manifest as ViteManifest } from 'vite';
-import { getLinks, getRouteMetaLinks } from '@/internal/manifest-links';
+import { getRouteMetaLinks } from '@/internal/manifest-links';
+import { collectRouteModuleAssets } from '@/internal/collect-route-assets';
 import type { DynamicImportPredicate } from '@/types';
 import { getManifest, getWebRouterPluginApi } from '@/internal/manifest';
 import { normalizeFilterId } from '@/internal/module-id';
-import { normalizePath } from '@/internal/path';
 import { applyToServerEnvironment } from '@/internal/environment';
 
 const alias = (name: string) => `__$${name}$__`;
@@ -161,24 +160,28 @@ export function exportRenderPlugin({
         }
 
         const magicString = new MagicString(code);
-        const fileName = normalizePath(path.relative(root, id));
-        const routerApi = getWebRouterPluginApi(this.environment.config);
-        const routeAssets = routerApi?.build.routeClientAssets.get(fileName);
+
+        // Derive route client assets at transform time using Rollup's
+        // `this.resolve()` so alias / tsconfig paths / third-party resolveId
+        // plugins are honored (no shadow resolver, no configEnvironment
+        // timing dead-end). The route module is server-only and has no
+        // client manifest entry, so we crawl its source here.
+        const routeAssets = await collectRouteModuleAssets(id, {
+          root,
+          resolveId: async (specifier, importer) => {
+            const r = await this.resolve(specifier, importer);
+            return r?.id ?? null;
+          },
+          dynamicImportPredicate,
+        });
+
         const meta = {
-          link: routeAssets
-            ? getRouteMetaLinks(
-                manifest,
-                routeAssets,
-                base,
-                dynamicImportPredicate
-              )
-            : getLinks(
-                manifest,
-                fileName,
-                base,
-                new Set(),
-                dynamicImportPredicate
-              ),
+          link: getRouteMetaLinks(
+            manifest,
+            routeAssets,
+            base,
+            dynamicImportPredicate
+          ),
         };
 
         await esModuleLexer.init;
