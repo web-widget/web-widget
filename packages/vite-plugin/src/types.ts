@@ -49,7 +49,6 @@ export interface ResolvedWebRouterConfig {
   output: {
     client: string;
     dir: string;
-    manifest: string;
     server: string;
   };
 }

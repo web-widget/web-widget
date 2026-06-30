@@ -13,84 +13,66 @@ const clientManifestPath = path.join(
   'dist/client/.manifest.json'
 );
 const serverEntryPath = path.join(playgroundRoot, 'dist/server/index.js');
+const serverAssetsDataPath = path.join(
+  playgroundRoot,
+  'dist/server/assets/.server-assets.js'
+);
 
-function readClientManifest() {
-  return JSON.parse(fs.readFileSync(clientManifestPath, 'utf-8')) as Record<
-    string,
-    {
-      file?: string;
-      isEntry?: boolean;
-      css?: string[];
-    }
-  >;
+type LinkEntry = { href?: string; rel?: string };
+type ServerAssetsData = {
+  assetUrls: Record<string, string>;
+  linkMap: Record<string, LinkEntry[]>;
+};
+
+function readServerAssetsData(): ServerAssetsData {
+  const source = fs.readFileSync(serverAssetsDataPath, 'utf-8');
+  const assetUrlsMatch = source.match(
+    /export const assetUrls = (\{[\s\S]*?\});/
+  );
+  const linkMapMatch = source.match(/export const linkMap = (\{[\s\S]*?\});/);
+  if (!assetUrlsMatch || !linkMapMatch) {
+    throw new Error('Failed to parse server assets data file.');
+  }
+  return {
+    assetUrls: JSON.parse(assetUrlsMatch[1]),
+    linkMap: JSON.parse(linkMapMatch[1]),
+  };
+}
+
+function readRouteLinks(routeId: string): LinkEntry[] {
+  return readServerAssetsData().linkMap[routeId] ?? [];
 }
 
 describe('vite build integration', () => {
-  it('produces client manifest and server entry artifacts', () => {
-    expect(fs.existsSync(clientManifestPath)).toBe(true);
+  it('produces server entry artifacts without leaking manifest to disk', () => {
+    // Manifest is passed in-memory; the file should NOT exist on disk.
+    expect(fs.existsSync(clientManifestPath)).toBe(false);
     expect(fs.existsSync(serverEntryPath)).toBe(true);
     expect(
       fs.existsSync(path.join(playgroundRoot, 'dist/server/package.json'))
     ).toBe(true);
 
-    const manifest = readClientManifest();
-    expect(manifest['entry.client.ts']).toBeDefined();
-
     const serverSource = fs.readFileSync(serverEntryPath, 'utf-8');
     expect(serverSource).toContain('WebRouter');
   });
 
-  it('keeps route modules out of client rolldown entries (Direction A)', () => {
-    const manifest = readClientManifest();
-
-    const routeEntries = Object.entries(manifest).filter(
-      ([key, value]) =>
-        value.isEntry &&
-        (key.includes('@route') ||
-          key.includes('@layout') ||
-          key.includes('@fallback'))
-    );
-    expect(routeEntries).toEqual([]);
-
-    const widgetEntries = Object.entries(manifest).filter(
-      ([key, value]) => value.isEntry && key.includes('@widget')
-    );
-    expect(widgetEntries.length).toBeGreaterThan(0);
-  });
-
-  it('does not treat async route chunk css as standalone client entries', () => {
-    const manifest = readClientManifest();
-
-    expect(manifest['routes/(css-lazy)/lazy-chunk.css']).toBeUndefined();
-
-    const asyncRouteCssEntries = Object.entries(manifest).filter(
-      ([key, value]) =>
-        value.isEntry &&
-        key.includes('lazy-chunk.css') &&
-        !key.includes('@widget')
-    );
-    expect(asyncRouteCssEntries).toEqual([]);
-  });
-
   it('does not inject async route chunk css into css-lazy-dynamic meta links', () => {
+    // The route module should resolve links at runtime via `resolveLinks`
+    // (data lives in the server assets data file, not inlined in the chunk).
     const routeModulePath = path.join(
       playgroundRoot,
       'dist/server/assets/css-lazy-dynamic@route.js'
     );
-
     expect(fs.existsSync(routeModulePath)).toBe(true);
 
     const routeModuleSource = fs.readFileSync(routeModulePath, 'utf-8');
-    const linkInjection = routeModuleSource.match(
-      /\(\(meta\) => \{[\s\S]*?const link = (\[[\s\S]*?\]);[\s\S]*?\}\)\(meta\);/
+    expect(routeModuleSource).toContain(
+      'resolveLinks("routes/css-lazy-dynamic@route.tsx")'
     );
-    expect(linkInjection).toBeTruthy();
 
-    const injectedLinks = JSON.parse(linkInjection![1]) as Array<{
-      href?: string;
-      rel?: string;
-    }>;
-    const hrefs = injectedLinks.map((link) => link.href ?? '');
+    const hrefs = readRouteLinks('routes/css-lazy-dynamic@route.tsx').map(
+      (link) => link.href ?? ''
+    );
 
     expect(hrefs.some((href) => href.includes('lazy-chunk'))).toBe(false);
     expect(hrefs.some((href) => href.includes('_css-lazy_'))).toBe(false);
@@ -101,20 +83,16 @@ describe('vite build integration', () => {
       playgroundRoot,
       'dist/server/assets/_vue3_.helpers.js'
     );
-
     expect(fs.existsSync(routeModulePath)).toBe(true);
 
     const routeModuleSource = fs.readFileSync(routeModulePath, 'utf-8');
-    const linkInjection = routeModuleSource.match(
-      /\(\(meta\) => \{[\s\S]*?const link = (\[[\s\S]*?\]);[\s\S]*?\}\)\(meta\);/
+    expect(routeModuleSource).toContain(
+      'resolveLinks("routes/react-and-vue@route.tsx")'
     );
-    expect(linkInjection).toBeTruthy();
 
-    const injectedLinks = JSON.parse(linkInjection![1]) as Array<{
-      href?: string;
-      rel?: string;
-    }>;
-    const hrefs = injectedLinks.map((link) => link.href ?? '');
+    const hrefs = readRouteLinks('routes/react-and-vue@route.tsx').map(
+      (link) => link.href ?? ''
+    );
 
     expect(hrefs.some((href) => href.includes('counter-common'))).toBe(true);
   });

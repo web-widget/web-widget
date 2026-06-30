@@ -1,9 +1,12 @@
 import path from 'node:path';
+import fs from 'node:fs/promises';
 import type { Plugin, ViteBuilder } from 'vite';
 import {
   isServerEnvironment,
+  isClientEnvironment,
   getServerEnvironmentFromBuilder,
 } from '@/internal/environment';
+import { CLIENT_MANIFEST_FILE_NAME } from '@/internal/config';
 import { writeServerAssetsDataFile } from './server-assets-plugin';
 import type { RouterPluginHost } from './host';
 
@@ -104,4 +107,59 @@ export async function runRouterServerBuildApp(
     throw new Error('Expected server build environment.');
   }
   await builder.build(server);
+}
+
+/**
+ * Captures the Vite client manifest from the client build's bundle in-memory
+ * (via `generateBundle`) and removes it from the bundle so no `.manifest.json`
+ * file is written to disk. The captured manifest is stored in `host.state`
+ * and consumed by `writeServerAssetsDataFile` in the `buildApp` hook.
+ */
+export function createClientManifestCapturePlugin(
+  host: RouterPluginHost
+): Plugin {
+  return {
+    name: '@web-widget:client-manifest-capture',
+    apply: 'build',
+    enforce: 'post',
+
+    generateBundle(_options, bundle) {
+      if (!isClientEnvironment(this.environment)) {
+        return;
+      }
+      const asset = bundle[CLIENT_MANIFEST_FILE_NAME];
+      if (asset && asset.type === 'asset') {
+        const manifest = JSON.parse(
+          typeof asset.source === 'string'
+            ? asset.source
+            : Buffer.from(asset.source).toString('utf-8')
+        );
+        host.patchState({ clientManifest: manifest });
+        // Remove from bundle so the manifest file is not written to disk.
+        delete bundle[CLIENT_MANIFEST_FILE_NAME];
+      }
+    },
+
+    writeBundle(_options, bundle) {
+      if (!isClientEnvironment(this.environment)) {
+        return;
+      }
+      // The native viteManifestPlugin adds the manifest to the bundle after
+      // all JS `generateBundle` hooks. Capture it here if it wasn't available
+      // earlier, then delete the file from disk.
+      const asset = bundle[CLIENT_MANIFEST_FILE_NAME];
+      if (asset && asset.type === 'asset' && !host.state.clientManifest) {
+        const manifest = JSON.parse(
+          typeof asset.source === 'string'
+            ? asset.source
+            : Buffer.from(asset.source).toString('utf-8')
+        );
+        host.patchState({ clientManifest: manifest });
+      }
+      // Delete the manifest file from disk — data is passed in-memory only.
+      const outDir = this.environment.config.build.outDir;
+      const manifestPath = path.join(outDir, CLIENT_MANIFEST_FILE_NAME);
+      fs.unlink(manifestPath).catch(() => {});
+    },
+  };
 }

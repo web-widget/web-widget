@@ -96,10 +96,15 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
   output: {
     client: 'client',
     dir: 'dist',
-    manifest: '.manifest.json',
     server: 'server',
   },
 };
+
+/**
+ * Internal manifest file name used for `build.manifest` and in-bundle lookup.
+ * Not exposed to users — the manifest is captured in-memory from the bundle.
+ */
+export const CLIENT_MANIFEST_FILE_NAME = '.manifest.json';
 
 export const WebRouterConfigSchema = z.object({
   ignore: z
@@ -213,10 +218,6 @@ export const WebRouterConfigSchema = z.object({
         .optional()
         .default(WEB_ROUTER_CONFIG_DEFAULTS.output.client),
       dir: z.string().optional().default(WEB_ROUTER_CONFIG_DEFAULTS.output.dir),
-      manifest: z
-        .string()
-        .optional()
-        .default(WEB_ROUTER_CONFIG_DEFAULTS.output.manifest),
       server: z
         .string()
         .optional()

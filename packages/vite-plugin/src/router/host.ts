@@ -1,4 +1,4 @@
-import type { SSRTarget } from 'vite';
+import type { SSRTarget, Manifest as ViteManifest } from 'vite';
 import type { BuildEntryPoints } from '@/internal/build-entry-points';
 import {
   createRouteAssetCaches,
@@ -45,6 +45,8 @@ export interface RouterBuildState {
   routeAssetCaches?: RouteAssetCaches;
   /** Pre-computed during `buildStart` for O(1) SSR transform lookup. */
   routeClientAssets?: Map<string, RouteClientAssets>;
+  /** Client manifest captured in-memory from the client build's bundle. */
+  clientManifest?: ViteManifest;
 }
 
 export interface RouterPluginHost {

@@ -11,7 +11,10 @@ import {
   type ViteBuilder,
 } from 'vite';
 import type { InlineConfig as VitestInlineConfig } from 'vitest/node';
-import { parseWebRouterConfig } from '@/internal/config';
+import {
+  parseWebRouterConfig,
+  CLIENT_MANIFEST_FILE_NAME,
+} from '@/internal/config';
 import { ensureConventionFiles } from '@/internal/ensure-convention-files';
 import { webRouterDevServerPlugin } from '@/dev';
 import { createServerFullReloadPlugin } from '@/dev/server-full-reload-plugin';
@@ -27,6 +30,7 @@ import {
   runRouterBuildApp,
   runRouterServerBuildApp,
   createServerOutputPlugin,
+  createClientManifestCapturePlugin,
 } from './server-output';
 import {
   createServerAssetFileNameResolver,
@@ -156,7 +160,7 @@ function createEnvironmentBuildOptions(
       ),
       emptyOutDir: config.build?.emptyOutDir ?? true,
       cssCodeSplit: true,
-      manifest: isServer ? undefined : resolvedWebRouterConfig.output.manifest,
+      manifest: isServer ? undefined : CLIENT_MANIFEST_FILE_NAME,
       ...(config.build?.minify !== undefined
         ? { minify: config.build.minify }
         : isServer
@@ -400,6 +404,7 @@ export function createRouterPlugins(
     createRouterPlugin(host, options) as Plugin,
     createServerEntryPlugin(host),
     createServerOutputPlugin(host),
+    createClientManifestCapturePlugin(host),
     createServerAssetsPlugin(host),
     createRemoveAsyncHooksPlugin(host),
     createSkipServerCssPlugin(),

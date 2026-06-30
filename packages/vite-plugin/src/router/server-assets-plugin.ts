@@ -15,7 +15,6 @@ import {
   buildServerAssetsData,
   serializeServerAssetsData,
 } from '@/internal/server-assets-module';
-import { getManifest } from '@/internal/manifest';
 import { defaultWidgetPathMatcher } from '@/internal/collect-route-assets';
 import type { RouterPluginHost } from './host';
 
@@ -107,7 +106,12 @@ export async function writeServerAssetsDataFile(
     host.state;
   const base = host.state.base;
   const routeClientAssets = host.api.getRouteClientAssets();
-  const manifest = await getManifest(root, resolvedWebRouterConfig);
+  const manifest = host.state.clientManifest;
+  if (!manifest) {
+    throw new Error(
+      'Client manifest not available. Ensure the client build has completed before calling writeServerAssetsDataFile.'
+    );
+  }
 
   const clientEntryId = path
     .relative(root, resolvedWebRouterConfig.input.client.entry)
