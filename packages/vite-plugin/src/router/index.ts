@@ -36,10 +36,14 @@ import {
   resolveServerEntryPoints,
   type BuildEntryPoints,
 } from '@/internal/build-entry-points';
-import { collectRouteModuleAssets } from '@/internal/collect-route-assets';
+import {
+  collectRouteModuleAssets,
+  defaultWidgetPathMatcher,
+} from '@/internal/collect-route-assets';
 import { mergeRouterVitestConfig } from '@/vitest-config';
 import { createRemoveAsyncHooksPlugin } from './remove-async-hooks';
 import { createServerEntryPlugin } from './server-entry';
+import { createServerAssetsPlugin } from './server-assets-plugin';
 import { createSkipServerCssPlugin } from './skip-server-css';
 
 interface VitestUserConfig extends UserConfig {
@@ -84,16 +88,21 @@ async function resolveClientBuildGraph(host: RouterPluginHost) {
     return;
   }
 
-  const { root, widgetModuleFilter, resolvedWebRouterConfig } = host.state;
+  const { root, widgetModuleFilter } = host.state;
+  // `widgetModuleFilter` is set by `webWidgetPlugin` in a `config` hook with
+  // `enforce: 'post'`, which runs AFTER this router plugin's `config` hook
+  // (`enforce: 'pre'`). Fall back to the default `[.@]widget.` matcher so
+  // asset/manifest-link collection works even without an explicit
+  // `webWidgetPlugin` (or when its hook has not run yet).
+  const dynamicImportPredicate = widgetModuleFilter ?? defaultWidgetPathMatcher;
   const entryPoints = await resolveClientEntryPoints(
     context.serverRoutemap,
     context.serverRoutemapPath,
     root,
     {
-      dynamicImportPredicate: widgetModuleFilter,
-      searchDirs: resolvedWebRouterConfig.widget.searchDirs,
-      ignore: resolvedWebRouterConfig.ignore,
+      dynamicImportPredicate,
       caches: host.api.getRouteAssetCaches(),
+      routeClientAssets: host.api.getRouteClientAssets(),
     }
   );
 
@@ -243,6 +252,7 @@ async function createSharedConfig(
         ? WEBWORKER_SERVER_RESOLVE_CONDITIONS
         : undefined,
     root,
+    serverAssetsDir: config.build?.assetsDir ?? 'assets',
     serverRoutemapEntryPoints,
     sourcemap: !!config.build?.sourcemap,
     serverTarget,
@@ -345,7 +355,19 @@ function createRouterPlugin(
         return;
       }
       const { root, widgetModuleFilter } = host.state;
-      const caches = host.api.getRouteAssetCaches();
+      // Same fallback as in `resolveClientBuildGraph`: when `webWidgetPlugin`
+      // has not registered a filter yet, use the default widget path matcher.
+      const dynamicImportPredicate =
+        widgetModuleFilter ?? defaultWidgetPathMatcher;
+      // Reuse source/parsing caches from `resolveClientEntryPoints` (configured
+      // at `configEnvironment` time) but use a fresh `resolved` cache: the
+      // resolver here is `this.resolve` (supports aliases), which is different
+      // from the default resolver used earlier.
+      const sharedCaches = host.api.getRouteAssetCaches();
+      const caches = {
+        ...sharedCaches,
+        resolved: new Map(),
+      };
       const assetsMap = host.api.getRouteClientAssets();
       const routeModules = collectRoutemapModulePaths(
         context.serverRoutemap,
@@ -355,7 +377,7 @@ function createRouterPlugin(
       for (const { modulePath } of routeModules) {
         const assets = await collectRouteModuleAssets(modulePath, {
           root,
-          dynamicImportPredicate: widgetModuleFilter,
+          dynamicImportPredicate,
           resolveId: async (specifier, importer) => {
             const r = await this.resolve(specifier, importer);
             return r?.id ?? null;
@@ -378,6 +400,7 @@ export function createRouterPlugins(
     createRouterPlugin(host, options) as Plugin,
     createServerEntryPlugin(host),
     createServerOutputPlugin(host),
+    createServerAssetsPlugin(host),
     createRemoveAsyncHooksPlugin(host),
     createSkipServerCssPlugin(),
     webRouterDevServerPlugin(host),

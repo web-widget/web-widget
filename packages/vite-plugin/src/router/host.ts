@@ -24,6 +24,7 @@ export interface ClientBuildGraphContext {
 /** Build-time state shared across @web-widget router plugins. */
 export interface RouterBuildState {
   base: string;
+  serverAssetsDir: string;
   clientBuildGraphContext?: ClientBuildGraphContext;
   clientImportmap?: ImportMap;
   clientRoutemapEntryPoints: BuildEntryPoints;

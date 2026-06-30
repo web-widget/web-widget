@@ -23,9 +23,6 @@ export interface ResolvedWebRouterConfig {
   asyncContext: {
     enabled: boolean;
   };
-  widget: {
-    searchDirs: string[];
-  };
   serverAction: {
     enabled: boolean;
   };

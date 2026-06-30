@@ -5,7 +5,6 @@ import { afterEach, describe, expect, test } from '@jest/globals';
 import {
   collectRouteModuleAssets,
   createRouteAssetCaches,
-  discoverWidgetModulePaths,
 } from './collect-route-assets';
 
 describe('collect-route-assets', () => {
@@ -268,23 +267,6 @@ describe('collect-route-assets', () => {
     expect(assets.cssModules).not.toContain('routes/inner-lazy.css');
   });
 
-  test('discoverWidgetModulePaths uses import filter when provided', async () => {
-    const root = await writeFixture({
-      'routes/Included@widget.tsx': 'export default function Included() {}',
-      'routes/Excluded@widget.tsx': 'export default function Excluded() {}',
-      'routes/Custom.widget.tsx': 'export default function Custom() {}',
-    });
-
-    const discovered = await discoverWidgetModulePaths(
-      root,
-      ['routes'],
-      ['node_modules'],
-      (key) => key.endsWith('Custom.widget.tsx')
-    );
-
-    expect(discovered).toEqual(['routes/Custom.widget.tsx']);
-  });
-
   test('collects layout css and widget css for react-and-vue-like route graph', async () => {
     const root = await writeFixture({
       'routes/base-layout.css': '.layout {}',
@@ -355,31 +337,6 @@ describe('collect-route-assets', () => {
 
     expect(assets.widgetModules).toEqual(['components/Counter@widget.tsx']);
     expect(assets.cssModules).toEqual(['components/theme.css']);
-  });
-
-  test('discoverCssModulePaths finds css files in search dirs', async () => {
-    const { discoverCssModulePaths } = await import('./collect-route-assets');
-    const root = await writeFixture({
-      'routes/style.css': 'body {}',
-      'routes/theme.module.css': ':root {}',
-      'routes/deep/nested.scss': '.nested {}',
-      'routes/Counter@widget.tsx': 'export default function Counter() {}',
-    });
-
-    const discovered = await discoverCssModulePaths(
-      root,
-      ['routes'],
-      ['node_modules']
-    );
-
-    expect(discovered).toEqual(
-      expect.arrayContaining([
-        'routes/style.css',
-        'routes/theme.module.css',
-        'routes/deep/nested.scss',
-      ])
-    );
-    expect(discovered).not.toContain('routes/Counter@widget.tsx');
   });
 
   test('shared caches reuse read/parse/resolve across routes with common deps', async () => {

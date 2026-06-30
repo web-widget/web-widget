@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import * as esModuleLexer from 'es-module-lexer';
 import type { DynamicImportPredicate } from '@/types';
 import { normalizePath } from '@/internal/path';
@@ -105,8 +106,32 @@ export function resolveLocalImport(
 function createDefaultResolver(
   root: string
 ): (specifier: string, importer: string) => Promise<string | null> {
-  return async (specifier, importer) =>
-    resolveLocalImport(specifier, importer, DEFAULT_EXTENSIONS);
+  // Bare specifiers (e.g. workspace packages like
+  // `@playgrounds/web-router-vue3/Github@widget.vue`) can't be resolved by
+  // `resolveLocalImport`. Use Node module resolution (createRequire) so they
+  // resolve to the symlinked workspace package directory.
+  let nodeRequire: NodeRequire | null = null;
+  try {
+    nodeRequire = createRequire(path.join(root, 'package.json'));
+  } catch {
+    // root has no package.json; bare specifiers can't be resolved
+  }
+
+  return async (specifier, importer) => {
+    const local = resolveLocalImport(specifier, importer, DEFAULT_EXTENSIONS);
+    if (local) {
+      return local;
+    }
+    if (!isLocalSpecifier(specifier) && nodeRequire) {
+      const bare = stripImportQuery(specifier);
+      try {
+        return nodeRequire.resolve(bare, { paths: [path.dirname(importer)] });
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
 }
 
 function unwrapImportSpecifier(specifier: string): string {
@@ -324,69 +349,4 @@ export async function collectRouteModuleAssets(
     cssModules: [...cssModules].sort(),
     widgetModules: [...widgetModules].sort(),
   };
-}
-
-async function walkDirectory(
-  root: string,
-  searchDirs: string[],
-  ignore: string[],
-  visit: (relativePath: string, fullPath: string) => void
-): Promise<void> {
-  const ignored = new Set(ignore);
-  async function walk(dir: string) {
-    let entries;
-    try {
-      entries = await fs.promises.readdir(dir, { withFileTypes: true });
-    } catch {
-      return;
-    }
-
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        if (ignored.has(entry.name)) {
-          continue;
-        }
-        await walk(fullPath);
-      } else if (entry.isFile()) {
-        const relativePath = normalizePath(path.relative(root, fullPath));
-        visit(relativePath, fullPath);
-      }
-    }
-  }
-
-  for (const searchDir of searchDirs) {
-    await walk(path.resolve(root, searchDir));
-  }
-}
-
-export async function discoverCssModulePaths(
-  root: string,
-  searchDirs: string[],
-  ignore: string[]
-): Promise<string[]> {
-  const cssModules = new Set<string>();
-  await walkDirectory(root, searchDirs, ignore, (relativePath) => {
-    if (isCssPath(relativePath)) {
-      cssModules.add(relativePath);
-    }
-  });
-  return [...cssModules].sort();
-}
-
-export async function discoverWidgetModulePaths(
-  root: string,
-  searchDirs: string[],
-  ignore: string[],
-  dynamicImportPredicate?: DynamicImportPredicate
-): Promise<string[]> {
-  const widgets = new Set<string>();
-  await walkDirectory(root, searchDirs, ignore, (relativePath, fullPath) => {
-    if (
-      matchesWidgetModule(root, relativePath, fullPath, dynamicImportPredicate)
-    ) {
-      widgets.add(relativePath);
-    }
-  });
-  return [...widgets].sort();
 }

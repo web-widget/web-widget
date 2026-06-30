@@ -1,13 +1,15 @@
+import path from 'node:path';
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
-import type { Plugin, Manifest as ViteManifest } from 'vite';
-import { getRouteMetaLinks } from '@/internal/manifest-links';
+import type { Plugin } from 'vite';
 import { collectRouteModuleAssets } from '@/internal/collect-route-assets';
 import type { DynamicImportPredicate } from '@/types';
-import { getManifest, getWebRouterPluginApi } from '@/internal/manifest';
+import { getWebRouterPluginApi } from '@/internal/manifest';
 import { normalizeFilterId } from '@/internal/module-id';
 import { applyToServerEnvironment } from '@/internal/environment';
+import { normalizePath } from '@/internal/path';
+import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
 
 const alias = (name: string) => `__$${name}$__`;
 
@@ -21,7 +23,6 @@ export interface ExportRenderPluginOptions {
   exclude?: FilterPattern;
   include?: FilterPattern;
   inject?: string | string[];
-  manifest?: ViteManifest;
   provide: string;
   /** From `webWidgetPlugin` `import.include` / `exclude` via `createFilter`. */
   dynamicImportPredicate: DynamicImportPredicate;
@@ -32,7 +33,6 @@ export function exportRenderPlugin({
   extractFromExportDefault,
   include,
   inject = 'render',
-  manifest,
   provide,
   dynamicImportPredicate,
 }: ExportRenderPluginOptions): Plugin[] {
@@ -40,7 +40,6 @@ export function exportRenderPlugin({
     throw new TypeError(`options.provide must be a string type.`);
   }
 
-  let base: string;
   let root: string;
   let sourcemap: boolean;
   const filter = createFilter(include, exclude);
@@ -140,7 +139,6 @@ export function exportRenderPlugin({
       name: '@web-widget:export-meta',
       enforce: 'post',
       async configResolved(config) {
-        base = config.base;
         root = config.root;
       },
       async transform(code, id) {
@@ -149,41 +147,35 @@ export function exportRenderPlugin({
         }
 
         const api = getWebRouterPluginApi(this.environment.config);
-        if (!manifest) {
-          if (api) {
-            manifest = await getManifest(root, api.config);
-          }
+        if (!api) {
+          throw new Error(
+            `Missing "@web-widget/web-router" plugin. Add it before "@web-widget/vite-plugin".`
+          );
         }
 
-        if (!manifest) {
-          throw new Error(`Missing manifest.`);
-        }
+        // Reversed build order (server -> client): the client manifest is
+        // not available during the server build, so link descriptors for
+        // route modules are resolved at runtime via the
+        // `virtual:web-widget-server-assets` virtual module
+        // (populated after the client build completes).
+        const routeId = normalizePath(path.relative(root, id));
 
         const magicString = new MagicString(code);
 
         // Use pre-computed assets from buildStart when available (O(1)),
         // otherwise fall back to real-time collection (e.g. dev mode).
-        const precomputed = api?.getRouteClientAssets().get(id);
-        const routeAssets =
-          precomputed ??
-          (await collectRouteModuleAssets(id, {
+        const precomputed = api.getRouteClientAssets().get(id);
+        if (!precomputed) {
+          await collectRouteModuleAssets(id, {
             root,
             resolveId: async (specifier, importer) => {
               const r = await this.resolve(specifier, importer);
               return r?.id ?? null;
             },
             dynamicImportPredicate,
-            caches: api?.getRouteAssetCaches(),
-          }));
-
-        const meta = {
-          link: getRouteMetaLinks(
-            manifest,
-            routeAssets,
-            base,
-            dynamicImportPredicate
-          ),
-        };
+            caches: api.getRouteAssetCaches(),
+          });
+        }
 
         await esModuleLexer.init;
         const [, exports] = esModuleLexer.parse(code, id);
@@ -191,11 +183,16 @@ export function exportRenderPlugin({
         if (metaExport) {
           const { n: name, ln: localName } = metaExport;
           const metaExportName = localName ?? name;
+          magicString.prepend(
+            `import { resolveLinks } from ${JSON.stringify(
+              SERVER_ASSETS_MODULE_ID
+            )};\n`
+          );
           magicString.append(
             [
               ``,
               `;((meta) => {`,
-              `  const link = ${JSON.stringify(meta.link, null, 2)};`,
+              `  const link = resolveLinks(${JSON.stringify(routeId)}) || [];`,
               `  meta.link ? meta.link.push(...link) : (meta.link = link);`,
               `})(${metaExportName});`,
             ].join('\n')
@@ -204,8 +201,11 @@ export function exportRenderPlugin({
           magicString.append(
             [
               ``,
+              `import { resolveLinks } from ${JSON.stringify(
+                SERVER_ASSETS_MODULE_ID
+              )};`,
               `export const meta = {`,
-              `  link: ${JSON.stringify(meta.link)},`,
+              `  link: resolveLinks(${JSON.stringify(routeId)}) || [],`,
               `};`,
             ].join('\n')
           );

@@ -5,9 +5,11 @@ import { stripModuleIdQuery } from '@/internal/module-id';
 import {
   collectRouteModuleAssets,
   createRouteAssetCaches,
-  discoverWidgetModulePaths,
 } from './collect-route-assets';
-import type { RouteAssetCaches } from './collect-route-assets';
+import type {
+  RouteAssetCaches,
+  RouteClientAssets,
+} from './collect-route-assets';
 import type { DynamicImportPredicate } from '@/types';
 
 export type BuildEntryPoints = {
@@ -300,8 +302,6 @@ export function resolveServerEntryPoints(
 
 export interface ResolveClientEntryPointsOptions {
   dynamicImportPredicate?: DynamicImportPredicate;
-  searchDirs?: string[];
-  ignore?: string[];
   /**
    * Shared caches for route asset collection. When provided, `readFile`,
    * `es-module-lexer.parse` results are memoized across `resolveClientEntryPoints`
@@ -311,6 +311,14 @@ export interface ResolveClientEntryPointsOptions {
    * repopulated by SSR transform's `this.resolve`.
    */
   caches?: RouteAssetCaches;
+  /**
+   * Pre-computed route client assets collected during the server build's
+   * `buildStart` (using `this.resolve`, which supports aliases). When provided,
+   * these are used as the source of truth for widget/CSS entries instead of
+   * re-crawling with the default resolver — this ensures alias-imported
+   * modules are included as client entries.
+   */
+  routeClientAssets?: Map<string, RouteClientAssets>;
 }
 
 export async function resolveClientEntryPoints(
@@ -332,9 +340,6 @@ export async function resolveClientEntryPoints(
     seenModules.add(normalized);
   };
 
-  const searchDirs = options.searchDirs ?? ['.'];
-  const ignore = options.ignore ?? [];
-
   // Collect CSS and widget modules from each route's import graph so that
   // only CSS actually referenced by a route becomes a client build entry
   // (async chunk CSS that is only dynamically imported is excluded).
@@ -342,14 +347,19 @@ export async function resolveClientEntryPoints(
     'routes',
     'fallbacks',
   ]);
-  const caches = createRouteAssetCaches();
+  const caches = options.caches ?? createRouteAssetCaches();
 
   for (const { modulePath } of routeModules) {
-    const assets = await collectRouteModuleAssets(modulePath, {
-      root,
-      dynamicImportPredicate: options.dynamicImportPredicate,
-      caches,
-    });
+    // Prefer pre-computed assets from the server build (collected with
+    // `this.resolve`, which supports aliases). Fall back to real-time
+    // collection when not available (e.g. first build without server phase).
+    const assets =
+      options.routeClientAssets?.get(modulePath) ??
+      (await collectRouteModuleAssets(modulePath, {
+        root,
+        dynamicImportPredicate: options.dynamicImportPredicate,
+        caches,
+      }));
 
     for (const cssModule of assets.cssModules) {
       addUniqueModule(path.resolve(root, cssModule), false);
@@ -357,16 +367,6 @@ export async function resolveClientEntryPoints(
     for (const widgetModule of assets.widgetModules) {
       addUniqueModule(path.resolve(root, widgetModule), false);
     }
-  }
-
-  // Register widgets discovered on disk as client build entries.
-  for (const widgetModule of await discoverWidgetModulePaths(
-    root,
-    searchDirs,
-    ignore,
-    options.dynamicImportPredicate
-  )) {
-    addUniqueModule(path.resolve(root, widgetModule), false);
   }
 
   // Register actions as exposed entries.

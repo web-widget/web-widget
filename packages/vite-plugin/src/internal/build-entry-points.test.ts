@@ -109,6 +109,17 @@ describe('resolveClientEntryPoints', () => {
       '<template><div /></template>',
       'utf-8'
     );
+    // Route module imports both widgets so they are discovered via the
+    // import graph (not disk scanning).
+    await fs.writeFile(
+      path.join(tempDir, 'routes/examples/index@route.tsx'),
+      [
+        "import CounterTsx from './(components)/Counter@widget.tsx';",
+        "import CounterVue from './(components)/Counter@widget.vue';",
+        'export default function Page() { return null; }',
+      ].join('\n'),
+      'utf-8'
+    );
 
     const manifest = {
       routes: [

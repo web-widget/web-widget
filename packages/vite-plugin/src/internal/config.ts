@@ -70,9 +70,6 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
   asyncContext: {
     enabled: true,
   },
-  widget: {
-    searchDirs: ['.'],
-  },
   serverAction: {
     enabled: false,
   },
@@ -115,15 +112,6 @@ export const WebRouterConfigSchema = z.object({
         .boolean()
         .optional()
         .default(WEB_ROUTER_CONFIG_DEFAULTS.asyncContext.enabled),
-    })
-    .optional()
-    .default({}),
-  widget: z
-    .object({
-      searchDirs: z
-        .array(z.string())
-        .optional()
-        .default(WEB_ROUTER_CONFIG_DEFAULTS.widget.searchDirs),
     })
     .optional()
     .default({}),

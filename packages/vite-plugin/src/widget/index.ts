@@ -11,7 +11,6 @@ export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
   }
 
   const {
-    manifest,
     provide,
     toWebWidgets,
     toComponents,
@@ -37,7 +36,6 @@ export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
       exclude: exports?.exclude,
       include: exports?.include,
       inject: exports?.inject,
-      manifest,
       provide,
       dynamicImportPredicate,
     }),
@@ -50,7 +48,6 @@ export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
       include: imports?.include,
       includeImporter: imports?.includeImporter,
       inject: imports?.inject,
-      manifest,
       provide,
     }),
   ];
