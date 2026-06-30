@@ -75,4 +75,11 @@ describe('createRouterPluginHost', () => {
       'Web Router plugin is not initialized.'
     );
   });
+
+  test('getRouteAssetCaches lazily creates and reuses a single instance', () => {
+    const host = createRouterPluginHost();
+    const caches1 = host.api.getRouteAssetCaches();
+    expect(caches1).toBe(host.api.getRouteAssetCaches());
+    expect(caches1.source).toBeInstanceOf(Map);
+  });
 });

@@ -1,5 +1,10 @@
 import type { SSRTarget } from 'vite';
 import type { BuildEntryPoints } from '@/internal/build-entry-points';
+import {
+  createRouteAssetCaches,
+  type RouteAssetCaches,
+  type RouteClientAssets,
+} from '@/internal/collect-route-assets';
 import { defaultReadFileUtf8, type ReadFileUtf8 } from '@/internal/io';
 import type {
   DynamicImportPredicate,
@@ -35,6 +40,10 @@ export interface RouterBuildState {
   dynamicImportPredicate?: DynamicImportPredicate;
   /** In-memory routemap while dev server is running (filesystem routing). */
   devServerRoutemap?: RouteMap;
+  /** Shared cache for route asset collection across plugin instances. */
+  routeAssetCaches?: RouteAssetCaches;
+  /** Pre-computed during `buildStart` for O(1) SSR transform lookup. */
+  routeClientAssets?: Map<string, RouteClientAssets>;
 }
 
 export interface RouterPluginHost {
@@ -104,6 +113,18 @@ export function createRouterPluginHost(
       }
       const file = api.config.input.server.routemap;
       return readJsonFile<RouteMap>(readFile, file, 'server routemap');
+    },
+    getRouteAssetCaches() {
+      if (!state.routeAssetCaches) {
+        state.routeAssetCaches = createRouteAssetCaches();
+      }
+      return state.routeAssetCaches;
+    },
+    getRouteClientAssets() {
+      if (!state.routeClientAssets) {
+        state.routeClientAssets = new Map();
+      }
+      return state.routeClientAssets;
     },
   };
 

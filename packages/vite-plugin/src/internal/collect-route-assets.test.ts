@@ -4,6 +4,7 @@ import path from 'node:path';
 import { afterEach, describe, expect, test } from '@jest/globals';
 import {
   collectRouteModuleAssets,
+  createRouteAssetCaches,
   discoverWidgetModulePaths,
 } from './collect-route-assets';
 
@@ -379,5 +380,67 @@ describe('collect-route-assets', () => {
       ])
     );
     expect(discovered).not.toContain('routes/Counter@widget.tsx');
+  });
+
+  test('shared caches reuse read/parse/resolve across routes with common deps', async () => {
+    const root = await writeFixture({
+      'routes/shared.css': '.shared { color: red; }',
+      'routes/Shared.tsx': [
+        "import './shared.css';",
+        'export default function Shared() {}',
+      ].join('\n'),
+      'routes/a@route.tsx': [
+        "import './Shared.tsx';",
+        'export default function PageA() {}',
+      ].join('\n'),
+      'routes/b@route.tsx': [
+        "import './Shared.tsx';",
+        'export default function PageB() {}',
+      ].join('\n'),
+    });
+
+    let resolveCalls = 0;
+    const caches = createRouteAssetCaches();
+    const countingResolver = async (
+      specifier: string,
+      importer: string
+    ): Promise<string | null> => {
+      resolveCalls++;
+      if (specifier.startsWith('.')) {
+        return path.resolve(path.dirname(importer), specifier);
+      }
+      return null;
+    };
+
+    const options = {
+      root,
+      resolveId: countingResolver,
+      dynamicImportPredicate: () => false,
+      caches,
+    } as const;
+
+    const assetsA = await collectRouteModuleAssets(
+      path.join(root, 'routes/a@route.tsx'),
+      options
+    );
+    const firstCallCount = resolveCalls;
+
+    const assetsB = await collectRouteModuleAssets(
+      path.join(root, 'routes/b@route.tsx'),
+      options
+    );
+
+    // Both routes resolve the shared dependency.
+    expect(assetsA.cssModules).toEqual(['routes/shared.css']);
+    expect(assetsB.cssModules).toEqual(['routes/shared.css']);
+
+    // Second route must not re-resolve the already-cached `Shared.tsx` imports.
+    // Only the new route module itself and its direct edge to `Shared.tsx`
+    // need a fresh resolve; the shared module's internal imports are cached.
+    expect(resolveCalls).toBeGreaterThan(firstCallCount);
+    expect(resolveCalls - firstCallCount).toBeLessThan(firstCallCount);
+    // Shared module's own imports are resolved exactly once across both routes.
+    expect(caches.source.size).toBe(3);
+    expect(caches.parsedImports.size).toBe(3);
   });
 });

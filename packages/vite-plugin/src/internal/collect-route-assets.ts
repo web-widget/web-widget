@@ -20,6 +20,25 @@ export interface CollectRouteAssetsOptions {
   resolveId?: (specifier: string, importer: string) => Promise<string | null>;
   /** From `webWidgetPlugin` `import.include/exclude`; also drives static widget discovery. */
   dynamicImportPredicate?: DynamicImportPredicate;
+  /** Shared caches to memoize read/parse/resolve across routes with common deps. */
+  caches?: RouteAssetCaches;
+}
+
+/** Shared caches for route asset collection. Resolver-scoped (one per resolveId impl). */
+export interface RouteAssetCaches {
+  source: Map<string, string>;
+  parsedImports: Map<string, ParsedImport[]>;
+  resolved: Map<string, string | null>;
+  exists: Map<string, boolean>;
+}
+
+export function createRouteAssetCaches(): RouteAssetCaches {
+  return {
+    source: new Map(),
+    parsedImports: new Map(),
+    resolved: new Map(),
+    exists: new Map(),
+  };
 }
 
 const DEFAULT_EXTENSIONS = [
@@ -186,7 +205,8 @@ async function crawlRouteModule(
   options: CollectRouteAssetsOptions,
   cssModules: Set<string>,
   widgetModules: Set<string>,
-  visited: Set<string>
+  visited: Set<string>,
+  caches: RouteAssetCaches
 ): Promise<void> {
   const normalizedEntry = path.normalize(entryPath);
   if (visited.has(normalizedEntry)) {
@@ -194,20 +214,39 @@ async function crawlRouteModule(
   }
   visited.add(normalizedEntry);
 
-  if (!fs.existsSync(normalizedEntry)) {
+  let exists = caches.exists.get(normalizedEntry);
+  if (exists === undefined) {
+    exists = fs.existsSync(normalizedEntry);
+    caches.exists.set(normalizedEntry, exists);
+  }
+  if (!exists) {
     return;
   }
 
-  const source = await fs.promises.readFile(normalizedEntry, 'utf-8');
-  const imports = await parseImports(source, normalizedEntry);
+  let source = caches.source.get(normalizedEntry);
+  if (source === undefined) {
+    source = await fs.promises.readFile(normalizedEntry, 'utf-8');
+    caches.source.set(normalizedEntry, source);
+  }
+
+  let imports = caches.parsedImports.get(normalizedEntry);
+  if (imports === undefined) {
+    imports = await parseImports(source, normalizedEntry);
+    caches.parsedImports.set(normalizedEntry, imports);
+  }
+
   const resolve = options.resolveId ?? createDefaultResolver(options.root);
 
   for (const { specifier, isDynamic } of imports) {
-    let resolved: string | null;
-    try {
-      resolved = await resolve(specifier, normalizedEntry);
-    } catch {
-      continue;
+    const resolveKey = `${specifier}::${normalizedEntry}`;
+    let resolved = caches.resolved.get(resolveKey);
+    if (resolved === undefined) {
+      try {
+        resolved = await resolve(specifier, normalizedEntry);
+      } catch {
+        resolved = null;
+      }
+      caches.resolved.set(resolveKey, resolved);
     }
     if (!resolved) {
       continue;
@@ -259,7 +298,8 @@ async function crawlRouteModule(
       options,
       cssModules,
       widgetModules,
-      visited
+      visited,
+      caches
     );
   }
 }
@@ -270,12 +310,14 @@ export async function collectRouteModuleAssets(
 ): Promise<RouteClientAssets> {
   const cssModules = new Set<string>();
   const widgetModules = new Set<string>();
+  const caches = options.caches ?? createRouteAssetCaches();
   await crawlRouteModule(
     entryPath,
     options,
     cssModules,
     widgetModules,
-    new Set()
+    new Set(),
+    caches
   );
 
   return {

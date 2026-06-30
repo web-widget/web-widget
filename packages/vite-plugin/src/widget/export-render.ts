@@ -148,8 +148,8 @@ export function exportRenderPlugin({
           return null;
         }
 
+        const api = getWebRouterPluginApi(this.environment.config);
         if (!manifest) {
-          const api = getWebRouterPluginApi(this.environment.config);
           if (api) {
             manifest = await getManifest(root, api.config);
           }
@@ -161,19 +161,20 @@ export function exportRenderPlugin({
 
         const magicString = new MagicString(code);
 
-        // Derive route client assets at transform time using Rollup's
-        // `this.resolve()` so alias / tsconfig paths / third-party resolveId
-        // plugins are honored (no shadow resolver, no configEnvironment
-        // timing dead-end). The route module is server-only and has no
-        // client manifest entry, so we crawl its source here.
-        const routeAssets = await collectRouteModuleAssets(id, {
-          root,
-          resolveId: async (specifier, importer) => {
-            const r = await this.resolve(specifier, importer);
-            return r?.id ?? null;
-          },
-          dynamicImportPredicate,
-        });
+        // Use pre-computed assets from buildStart when available (O(1)),
+        // otherwise fall back to real-time collection (e.g. dev mode).
+        const precomputed = api?.getRouteClientAssets().get(id);
+        const routeAssets =
+          precomputed ??
+          (await collectRouteModuleAssets(id, {
+            root,
+            resolveId: async (specifier, importer) => {
+              const r = await this.resolve(specifier, importer);
+              return r?.id ?? null;
+            },
+            dynamicImportPredicate,
+            caches: api?.getRouteAssetCaches(),
+          }));
 
         const meta = {
           link: getRouteMetaLinks(

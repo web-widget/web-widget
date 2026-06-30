@@ -31,13 +31,16 @@ import {
 import {
   createServerAssetFileNameResolver,
   createServerManualChunks,
+  collectRoutemapModulePaths,
   resolveClientEntryPoints,
   resolveServerEntryPoints,
   type BuildEntryPoints,
 } from '@/internal/build-entry-points';
+import { collectRouteModuleAssets } from '@/internal/collect-route-assets';
 import { mergeRouterVitestConfig } from '@/vitest-config';
 import { createRemoveAsyncHooksPlugin } from './remove-async-hooks';
 import { createServerEntryPlugin } from './server-entry';
+import { createSkipServerCssPlugin } from './skip-server-css';
 
 interface VitestUserConfig extends UserConfig {
   test?: VitestInlineConfig;
@@ -90,6 +93,7 @@ async function resolveClientBuildGraph(host: RouterPluginHost) {
       dynamicImportPredicate: widgetModuleFilter,
       searchDirs: resolvedWebRouterConfig.widget.searchDirs,
       ignore: resolvedWebRouterConfig.ignore,
+      caches: host.api.getRouteAssetCaches(),
     }
   );
 
@@ -329,6 +333,38 @@ function createRouterPlugin(
 
       return createEnvironmentBuildOptions(host, config, name);
     },
+
+    async buildStart() {
+      // Pre-compute route client assets so SSR transform can look them up
+      // in O(1) instead of re-crawling each route's import graph.
+      if (host.state.routeClientAssets?.size) {
+        return;
+      }
+      const context = host.state.clientBuildGraphContext;
+      if (!context) {
+        return;
+      }
+      const { root, widgetModuleFilter } = host.state;
+      const caches = host.api.getRouteAssetCaches();
+      const assetsMap = host.api.getRouteClientAssets();
+      const routeModules = collectRoutemapModulePaths(
+        context.serverRoutemap,
+        context.serverRoutemapPath,
+        ['routes', 'fallbacks']
+      );
+      for (const { modulePath } of routeModules) {
+        const assets = await collectRouteModuleAssets(modulePath, {
+          root,
+          dynamicImportPredicate: widgetModuleFilter,
+          resolveId: async (specifier, importer) => {
+            const r = await this.resolve(specifier, importer);
+            return r?.id ?? null;
+          },
+          caches,
+        });
+        assetsMap.set(modulePath, assets);
+      }
+    },
   };
   return plugin;
 }
@@ -343,6 +379,7 @@ export function createRouterPlugins(
     createServerEntryPlugin(host),
     createServerOutputPlugin(host),
     createRemoveAsyncHooksPlugin(host),
+    createSkipServerCssPlugin(),
     webRouterDevServerPlugin(host),
     createServerFullReloadPlugin(host),
     webRouterPreviewServerPlugin(),

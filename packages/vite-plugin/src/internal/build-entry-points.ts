@@ -4,8 +4,10 @@ import { isPathInsideRoot, normalizePath } from '@/internal/path';
 import { stripModuleIdQuery } from '@/internal/module-id';
 import {
   collectRouteModuleAssets,
+  createRouteAssetCaches,
   discoverWidgetModulePaths,
 } from './collect-route-assets';
+import type { RouteAssetCaches } from './collect-route-assets';
 import type { DynamicImportPredicate } from '@/types';
 
 export type BuildEntryPoints = {
@@ -234,7 +236,7 @@ function addEntryPoint(
   return basename;
 }
 
-function collectRoutemapModulePaths(
+export function collectRoutemapModulePaths(
   manifest: RouteMap,
   routemapPath: string,
   types: (keyof RouteMap)[]
@@ -300,6 +302,15 @@ export interface ResolveClientEntryPointsOptions {
   dynamicImportPredicate?: DynamicImportPredicate;
   searchDirs?: string[];
   ignore?: string[];
+  /**
+   * Shared caches for route asset collection. When provided, `readFile`,
+   * `es-module-lexer.parse` results are memoized across `resolveClientEntryPoints`
+   * and subsequent SSR `@web-widget:export-meta` transform calls sharing the
+   * same cache instance — critical for builds with many routes that share
+   * common dependencies. The `resolved` cache is resolver-scoped and will be
+   * repopulated by SSR transform's `this.resolve`.
+   */
+  caches?: RouteAssetCaches;
 }
 
 export async function resolveClientEntryPoints(
@@ -331,11 +342,13 @@ export async function resolveClientEntryPoints(
     'routes',
     'fallbacks',
   ]);
+  const caches = createRouteAssetCaches();
 
   for (const { modulePath } of routeModules) {
     const assets = await collectRouteModuleAssets(modulePath, {
       root,
       dynamicImportPredicate: options.dynamicImportPredicate,
+      caches,
     });
 
     for (const cssModule of assets.cssModules) {

@@ -4,6 +4,10 @@ import type { Manifest, StartOptions } from '@web-widget/web-router';
 import type { FilterPattern, Plugin, Manifest as ViteManifest } from 'vite';
 import type { WebRouterConfigSchema } from './internal/config';
 import type { RouteSourceFile } from './dev/routing/types';
+import type {
+  RouteAssetCaches,
+  RouteClientAssets,
+} from './internal/collect-route-assets';
 import type { RouterBuildState } from './router/host';
 
 export type { RouterBuildState } from './router/host';
@@ -126,6 +130,10 @@ export interface WebRouterPluginApi {
   readonly dynamicImportPredicate?: WidgetModuleFilter;
   /** @deprecated Use `setWidgetModuleFilter`. */
   setDynamicImportPredicate(filter: WidgetModuleFilter): void;
+  /** Shared cache for route asset collection across plugin instances. */
+  getRouteAssetCaches(): RouteAssetCaches;
+  /** Pre-computed during `buildStart` for O(1) SSR transform lookup. */
+  getRouteClientAssets(): Map<string, RouteClientAssets>;
 }
 
 export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {
