@@ -1,5 +1,5 @@
 ---
-'@web-widget/vite-plugin': minor
+'@web-widget/vite-plugin': major
 ---
 
 Migrate to **Vite 8 Environment API** so router builds and dev SSR match how Vite expects frameworks to work today.
