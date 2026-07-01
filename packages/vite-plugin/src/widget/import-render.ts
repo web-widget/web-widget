@@ -35,15 +35,18 @@ export interface ImportRenderPluginOptions {
  * ...
  * <MyComponent title="My component" />
  *
- * Becomes:
+ * Becomes (client build):
  *
  * import { defineWebWidget } from "@web-widget/react";
  * const MyComponent = defineWebWidget(() => import("../widgets/my-component@widget.vue"), {
- *   import: new URL("../widgets/my-component@widget.vue", import.meta.url).href,
  *   name: "MyComponent",
  * });
  * ...
  * <MyComponent title="My component" />
+ *
+ * The `import` option is omitted for the client build — the runtime derives
+ * the hashed chunk URL from the loader via `parseModuleId(loader)`.
+ * For the server build, `resolveWidgetAsset(asset)` is used instead.
  */
 export function importRenderPlugin({
   cache = new Set<string>(),
@@ -222,7 +225,12 @@ export function importRenderPlugin({
             ? JSON.stringify(toDevUrl(asset, base))
             : isServer
               ? `resolveWidgetAsset(${JSON.stringify(asset)})`
-              : `new URL(${JSON.stringify(moduleName)}, import.meta.url).href`;
+              : undefined;
+
+          const importProperty = clientModuleExpression
+            ? `import: ${clientModuleExpression}, `
+            : '';
+
           const clientContainerOptions = {
             name: componentName,
           };
@@ -232,7 +240,7 @@ export function importRenderPlugin({
           replacementStatements.push(
             `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
               moduleName
-            )}), { import: ${clientModuleExpression}, ${JSON.stringify(
+            )}), { ${importProperty}${JSON.stringify(
               clientContainerOptions
             ).replaceAll(/^\{|\}$/g, '')} });`
           );
