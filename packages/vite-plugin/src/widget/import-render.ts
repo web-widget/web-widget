@@ -6,10 +6,7 @@ import MagicString from 'magic-string';
 import type { IndexHtmlTransformResult, Plugin } from 'vite';
 import { normalizeFilterId, stripModuleIdQuery } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
-import {
-  applyToServerEnvironment,
-  isServerEnvironment,
-} from '@/internal/environment';
+import { isServerEnvironment } from '@/internal/environment';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
 
 const IMPORT_DEFAULT_NAME_REG = /import\s+([a-zA-Z_$][\w$]*)\s+/;
@@ -44,8 +41,9 @@ export interface ImportRenderPluginOptions {
  * ...
  * <MyComponent title="My component" />
  *
- * The `import` option is omitted for the client build — the runtime derives
- * the hashed chunk URL from the loader via `parseModuleId(loader)`.
+ * For the client build, the hashed chunk URL is resolved at build time via
+ * `emitFile` + `import.meta.ROLLUP_FILE_URL_*` (Rolldown replaces the
+ * placeholder with `new URL(fileName, import.meta.url).href`).
  * For the server build, `resolveWidgetAsset(asset)` is used instead.
  */
 export function importRenderPlugin({
@@ -143,6 +141,7 @@ export function importRenderPlugin({
         const modules: {
           moduleId: string;
           moduleName: string;
+          resolvedId: string;
           statementEnd: number;
           statementStart: number;
         }[] = [];
@@ -188,6 +187,7 @@ export function importRenderPlugin({
               modules.push({
                 moduleId: resolvedModuleId,
                 moduleName: moduleName as string,
+                resolvedId: importModule,
                 statementEnd,
                 statementStart,
               });
@@ -210,6 +210,7 @@ export function importRenderPlugin({
           statementEnd,
           moduleId,
           moduleName,
+          resolvedId,
         } of modules) {
           const componentName = parseComponentName(
             code.substring(statementStart, statementEnd)
@@ -225,7 +226,12 @@ export function importRenderPlugin({
             ? JSON.stringify(toDevUrl(asset, base))
             : isServer
               ? `resolveWidgetAsset(${JSON.stringify(asset)})`
-              : undefined;
+              : `import.meta.ROLLUP_FILE_URL_${this.emitFile({
+                  type: 'chunk',
+                  id: resolvedId,
+                  preserveSignature: 'allow-extension',
+                  importer: id,
+                })}`;
 
           const importProperty = clientModuleExpression
             ? `import: ${clientModuleExpression}, `
@@ -237,6 +243,11 @@ export function importRenderPlugin({
 
           const definerName = alias(inject);
           definerNames.push(definerName);
+
+          // The loader `() => import()` is kept on the client even though
+          // the `<web-widget>` element uses the `import` attribute at
+          // runtime. The dynamic import creates a manifest edge that the
+          // CSS collection logic relies on to discover nested widget CSS.
           replacementStatements.push(
             `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
               moduleName
