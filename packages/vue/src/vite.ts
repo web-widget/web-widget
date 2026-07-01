@@ -33,28 +33,18 @@ export default function vueWebWidgetPlugin(
   const routePattern = `[.@]route`;
   const modulesPattern = `[.@](?:route|widget)`;
   const extensionPattern = `\\.vue`;
-  // Patterns tolerate query parameters (e.g. `?as=jsx`, `?import`, `?t=123`)
-  // so the native Vite/Rolldown filter API can match at the Rust level
-  // without JS-side `normalizeFilterId` normalization.
-  const queryBoundary = `(?:\\?|$)`;
-  // Vue SFC virtual sub-modules (script/style/template blocks) must be excluded
-  // so export-render/import-render only process the main SFC module.
-  // import.includeImporter allows `?vue&type=script` (build mode script block)
-  // but excludes style/template blocks.
-  const vueVirtualModuleQuery = `\\?vue&type=`;
-  const vueStyleOrTemplateQuery = `\\?vue&type=(?:style|template)`;
+  const vueBuildModeQueryPattern = `(?:\\?vue&type=script\\b.*)`;
 
   const routeRegExp = new RegExp(
-    `^${workspacePattern}[^?]*${routePattern}${extensionPattern}${queryBoundary}`
+    `^${workspacePattern}.*${routePattern}${extensionPattern}$`
   );
 
   return webWidgetPlugin({
     manifest,
     provide,
     export: {
-      exclude: new RegExp(vueVirtualModuleQuery),
       include: new RegExp(
-        `^${workspacePattern}[^?]*${modulesPattern}${extensionPattern}${queryBoundary}`
+        `^${workspacePattern}[^?]*${modulesPattern}${extensionPattern}$`
       ),
       extractFromExportDefault: [
         {
@@ -71,11 +61,11 @@ export default function vueWebWidgetPlugin(
       ...exportWidget,
     },
     import: {
-      exclude: new RegExp(vueVirtualModuleQuery),
-      include: new RegExp(`^[^?]*${widgetPattern}\\.`),
-      excludeImporter: new RegExp(vueStyleOrTemplateQuery),
+      include: new RegExp(`^[^?]*${widgetPattern}\\.[^?]*$`),
       includeImporter: new RegExp(
-        `^${workspacePattern}[^?]*${extensionPattern}${queryBoundary}`
+        // vite dev mode: .vue
+        // vite build mode: .vue?vue&type=script&setup=true&lang.ts
+        `^${workspacePattern}[^?]*${extensionPattern}${vueBuildModeQueryPattern}?$`
       ),
       ...importWidget,
     },

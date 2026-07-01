@@ -31,24 +31,20 @@ export default function reactWebWidgetPlugin(
   const widgetPattern = `[.@]widget`;
   const modulesPattern = `[.@](?:route|widget)`;
   const extensionPattern = `\\.(?:tsx|jsx)`;
-  // Patterns tolerate query parameters (e.g. `?as=jsx`, `?import`, `?t=123`)
-  // so the native Vite/Rolldown filter API can match at the Rust level
-  // without JS-side `normalizeFilterId` normalization.
-  const queryBoundary = `(?:\\?|$)`;
 
   return webWidgetPlugin({
     manifest,
     provide,
     export: {
       include: new RegExp(
-        `^${workspacePattern}[^?]*${modulesPattern}${extensionPattern}${queryBoundary}`
+        `^${workspacePattern}[^?]*${modulesPattern}${extensionPattern}$`
       ),
       ...exportWidget,
     },
     import: {
-      include: new RegExp(`^[^?]*${widgetPattern}\\.`),
+      include: new RegExp(`^[^?]*${widgetPattern}\\.[^?]*$`),
       includeImporter: new RegExp(
-        `^${workspacePattern}[^?]*${extensionPattern}${queryBoundary}`
+        `^${workspacePattern}[^?]*${extensionPattern}$`
       ),
       ...importWidget,
     },

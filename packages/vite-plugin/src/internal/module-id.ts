@@ -1,5 +1,4 @@
 import path from 'node:path';
-import type { FilterPattern } from 'vite';
 
 import { normalizePath } from './path';
 
@@ -53,34 +52,4 @@ export function normalizeFilterId(id: string) {
     })
     .join('&');
   return normalizedQuery ? `${pathname}?${normalizedQuery}` : pathname;
-}
-
-/**
- * Converts `FilterPattern` (used by `createFilter`) to the object shape
- * expected by the native Vite/Rolldown hook `filter` API.
- *
- * Only `RegExp` values are forwarded; string glob patterns are dropped
- * because the native filter treats strings as substring matches, not
- * micromatch globs. The project's adapters exclusively use `RegExp`.
- */
-export function toNativeIdFilter(
-  include?: FilterPattern,
-  exclude?: FilterPattern
-):
-  | { id: { include?: RegExp | RegExp[]; exclude?: RegExp | RegExp[] } }
-  | undefined {
-  const collect = (p: FilterPattern | undefined): RegExp[] | undefined => {
-    if (p == null) return undefined;
-    if (Array.isArray(p)) {
-      const regs = p.filter((v): v is RegExp => v instanceof RegExp);
-      return regs.length ? regs : undefined;
-    }
-    return p instanceof RegExp ? [p] : undefined;
-  };
-
-  const inc = collect(include);
-  const exc = collect(exclude);
-
-  if (!inc && !exc) return undefined;
-  return { id: { include: inc, exclude: exc } };
 }

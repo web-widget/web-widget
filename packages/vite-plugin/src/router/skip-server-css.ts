@@ -43,17 +43,6 @@ export function createSkipServerCssPlugin(): Plugin {
     sharedDuringBuild: true,
     load: {
       order: 'pre',
-      // Native filter: only invoke the handler for CSS-like ids, skipping
-      // CSS Modules, Vue module styles, and virtual modules at the Rust level.
-      filter: {
-        id: {
-          include: [
-            /\.(?:css|less|scss|sass|styl|stylus)(?:[?#]|$)/,
-            /[?&]vue&type=style/,
-          ],
-          exclude: [/\.module\./, /[?&]module(=|&|$)/, /^\0/],
-        },
-      },
       handler(id) {
         if (isSkippableServerCss(id)) {
           return '/* web-widget: css skipped in ssr */';
