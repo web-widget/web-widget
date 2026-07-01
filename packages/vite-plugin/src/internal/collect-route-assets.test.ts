@@ -400,4 +400,251 @@ describe('collect-route-assets', () => {
     expect(caches.source.size).toBe(3);
     expect(caches.parsedImports.size).toBe(3);
   });
+
+  test('does not collect less @import as independent css entry when lexer falls back', async () => {
+    // Simulate a Vue SFC: es-module-lexer fails to parse and falls back to regex.
+    // The regex must not match Less/CSS `@import` statements.
+    const root = await writeFixture({
+      'routes/mobile.less': '.mobile { color: red; }',
+      'routes/Component.vue': [
+        '<template><div></div></template>',
+        '<style lang="less">',
+        "@import './mobile.less';",
+        '@b: ~"component";',
+        '.@{b}__main { color: blue; }',
+        '</style>',
+        '<script>',
+        "import { defineComponent } from 'vue';",
+        'export default defineComponent({});',
+        '</script>',
+      ].join('\n'),
+      'routes/page@route.tsx': [
+        "import Component from './Component.vue';",
+        'export default function Page() { return <Component />; }',
+      ].join('\n'),
+    });
+
+    const assets = await collectRouteModuleAssets(
+      path.join(root, 'routes/page@route.tsx'),
+      {
+        root,
+        resolveId: relativeResolver(root),
+        dynamicImportPredicate: () => false,
+      }
+    );
+
+    // mobile.less must not be collected as an independent CSS entry
+    expect(assets.cssModules).not.toContain('routes/mobile.less');
+  });
+
+  test('does not collect scss @import as independent css entry when lexer falls back', async () => {
+    const root = await writeFixture({
+      'routes/_variables.scss': '$color: red;',
+      'routes/Component.vue': [
+        '<template><div></div></template>',
+        '<style lang="scss">',
+        "@import './_variables.scss';",
+        '.main { color: $color; }',
+        '</style>',
+        '<script>',
+        "import { defineComponent } from 'vue';",
+        'export default defineComponent({});',
+        '</script>',
+      ].join('\n'),
+      'routes/page@route.tsx': [
+        "import Component from './Component.vue';",
+        'export default function Page() { return <Component />; }',
+      ].join('\n'),
+    });
+
+    const assets = await collectRouteModuleAssets(
+      path.join(root, 'routes/page@route.tsx'),
+      {
+        root,
+        resolveId: relativeResolver(root),
+        dynamicImportPredicate: () => false,
+      }
+    );
+
+    expect(assets.cssModules).not.toContain('routes/_variables.scss');
+  });
+
+  test('does not collect css @import url() as independent css entry when lexer falls back', async () => {
+    const root = await writeFixture({
+      'routes/base.css': '.base { color: red; }',
+      'routes/Component.vue': [
+        '<template><div></div></template>',
+        '<style>',
+        '@import url("./base.css");',
+        '.main { color: blue; }',
+        '</style>',
+        '<script>',
+        "import { defineComponent } from 'vue';",
+        'export default defineComponent({});',
+        '</script>',
+      ].join('\n'),
+      'routes/page@route.tsx': [
+        "import Component from './Component.vue';",
+        'export default function Page() { return <Component />; }',
+      ].join('\n'),
+    });
+
+    const assets = await collectRouteModuleAssets(
+      path.join(root, 'routes/page@route.tsx'),
+      {
+        root,
+        resolveId: relativeResolver(root),
+        dynamicImportPredicate: () => false,
+      }
+    );
+
+    expect(assets.cssModules).not.toContain('routes/base.css');
+  });
+
+  test('does not collect inline @import in css when lexer falls back', async () => {
+    // Verify @import is excluded even when not at line start (preceded by whitespace)
+    const root = await writeFixture({
+      'routes/base.css': '.base { color: red; }',
+      'routes/Component.vue': [
+        '<template><div></div></template>',
+        '<style>',
+        '  @import "./base.css";',
+        '.main { color: blue; }',
+        '</style>',
+        '<script>',
+        "import { defineComponent } from 'vue';",
+        'export default defineComponent({});',
+        '</script>',
+      ].join('\n'),
+      'routes/page@route.tsx': [
+        "import Component from './Component.vue';",
+        'export default function Page() { return <Component />; }',
+      ].join('\n'),
+    });
+
+    const assets = await collectRouteModuleAssets(
+      path.join(root, 'routes/page@route.tsx'),
+      {
+        root,
+        resolveId: relativeResolver(root),
+        dynamicImportPredicate: () => false,
+      }
+    );
+
+    expect(assets.cssModules).not.toContain('routes/base.css');
+  });
+
+  test('still collects legitimate js imports in various positions when lexer falls back', async () => {
+    // Verify the negative lookbehind does not exclude legitimate JS import statements.
+    // dep.js imports a CSS file; if dep.js is correctly crawled, the CSS is collected.
+    const root = await writeFixture({
+      'routes/style.css': '.a { color: red; }',
+      'routes/dep.js': "import './style.css';",
+      'routes/page@route.tsx': [
+        // Line start
+        "import './dep.js';",
+        // Indented
+        "  import './dep.js';",
+        // After semicolon
+        "const a = 1;import './dep.js';",
+        // After opening brace
+        "{import './dep.js';}",
+        // Dynamic import (after assignment)
+        "const x = import('./dep.js');",
+        // Awaited dynamic import
+        "const y = await import('./dep.js');",
+        'export default function Page() { return null; }',
+      ].join('\n'),
+    });
+
+    const assets = await collectRouteModuleAssets(
+      path.join(root, 'routes/page@route.tsx'),
+      {
+        root,
+        resolveId: relativeResolver(root),
+        dynamicImportPredicate: () => false,
+      }
+    );
+
+    // style.css is collected transitively via dep.js, proving the import statements were matched
+    expect(assets.cssModules).toContain('routes/style.css');
+  });
+
+  test('does not match import substring inside identifiers when lexer falls back', async () => {
+    // Verify "import" substrings inside identifiers are not matched as ES imports.
+    // style.css exists but is only referenced by string literals, so it must not be collected.
+    const root = await writeFixture({
+      'routes/style.css': '.a { color: red; }',
+      'routes/page@route.tsx': [
+        "const myimport = './style.css';",
+        "const _import = './style.css';",
+        "const $import = './style.css';",
+        "function importHelper() { return './style.css'; }",
+        'export default function Page() { return null; }',
+      ].join('\n'),
+    });
+
+    const assets = await collectRouteModuleAssets(
+      path.join(root, 'routes/page@route.tsx'),
+      {
+        root,
+        resolveId: relativeResolver(root),
+        dynamicImportPredicate: () => false,
+      }
+    );
+
+    // "import" substrings inside identifiers must not trigger module resolution
+    expect(assets.cssModules).toEqual([]);
+    expect(assets.widgetModules).toEqual([]);
+  });
+
+  test('does not collect imports from comments when lexer falls back', async () => {
+    // Verify import statements inside comments are not matched.
+    // commented.css exists but is only referenced in comments, so it must not be collected.
+    const root = await writeFixture({
+      'routes/commented.css': '.a { color: red; }',
+      'routes/page@route.tsx': [
+        "// import './commented.css';",
+        "/* import './commented.css'; */",
+        'export default function Page() { return null; }',
+      ].join('\n'),
+    });
+
+    const assets = await collectRouteModuleAssets(
+      path.join(root, 'routes/page@route.tsx'),
+      {
+        root,
+        resolveId: relativeResolver(root),
+        dynamicImportPredicate: () => false,
+      }
+    );
+
+    expect(assets.cssModules).toEqual([]);
+    expect(assets.widgetModules).toEqual([]);
+  });
+
+  test('does not collect imports from string literals when lexer falls back', async () => {
+    // Verify import statements inside string literals are not matched.
+    // stringified.css exists but is only referenced inside strings, so it must not be collected.
+    const root = await writeFixture({
+      'routes/stringified.css': '.a { color: red; }',
+      'routes/page@route.tsx': [
+        'const code = "import \'./stringified.css\';";',
+        "const template = `import './stringified.css';`;",
+        'export default function Page() { return null; }',
+      ].join('\n'),
+    });
+
+    const assets = await collectRouteModuleAssets(
+      path.join(root, 'routes/page@route.tsx'),
+      {
+        root,
+        resolveId: relativeResolver(root),
+        dynamicImportPredicate: () => false,
+      }
+    );
+
+    expect(assets.cssModules).toEqual([]);
+    expect(assets.widgetModules).toEqual([]);
+  });
 });
