@@ -33,18 +33,28 @@ export default function vue2WebWidgetPlugin(
   const routePattern = `[.@]route`;
   const modulesPattern = `[.@](?:route|widget)`;
   const extensionPattern = `\\.vue`;
-  const vueBuildModeQueryPattern = `(?:\\?vue&type=script\\b.*)`;
+  // Patterns tolerate query parameters (e.g. `?as=jsx`, `?import`, `?t=123`)
+  // so the native Vite/Rolldown filter API can match at the Rust level
+  // without JS-side `normalizeFilterId` normalization.
+  const queryBoundary = `(?:\\?|$)`;
+  // Vue SFC virtual sub-modules (script/style/template blocks) must be excluded
+  // so export-render/import-render only process the main SFC module.
+  // import.includeImporter allows `?vue&type=script` (build mode script block)
+  // but excludes style/template blocks.
+  const vueVirtualModuleQuery = `\\?vue&type=`;
+  const vueStyleOrTemplateQuery = `\\?vue&type=(?:style|template)`;
 
   const routeRegExp = new RegExp(
-    `^${workspacePattern}.*${routePattern}${extensionPattern}$`
+    `^${workspacePattern}[^?]*${routePattern}${extensionPattern}${queryBoundary}`
   );
 
   return webWidgetPlugin({
     manifest,
     provide,
     export: {
+      exclude: new RegExp(vueVirtualModuleQuery),
       include: new RegExp(
-        `^${workspacePattern}[^?]*${modulesPattern}${extensionPattern}$`
+        `^${workspacePattern}[^?]*${modulesPattern}${extensionPattern}${queryBoundary}`
       ),
       extractFromExportDefault: [
         {
@@ -61,11 +71,11 @@ export default function vue2WebWidgetPlugin(
       ...exportWidget,
     },
     import: {
-      include: new RegExp(`^[^?]*${widgetPattern}\\.[^?]*$`),
+      exclude: new RegExp(vueVirtualModuleQuery),
+      include: new RegExp(`^[^?]*${widgetPattern}\\.`),
+      excludeImporter: new RegExp(vueStyleOrTemplateQuery),
       includeImporter: new RegExp(
-        // vite dev mode: .vue
-        // vite build mode: .vue?vue&type=script&setup=true&lang.ts
-        `^${workspacePattern}[^?]*${extensionPattern}${vueBuildModeQueryPattern}?$`
+        `^${workspacePattern}[^?]*${extensionPattern}${queryBoundary}`
       ),
       ...importWidget,
     },
