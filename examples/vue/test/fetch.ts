@@ -11,7 +11,7 @@ declare global {
 if (!globalThis.__WEB_WIDGET_TEST_FETCH_PATCHED__) {
   const nativeFetch = globalThis.fetch.bind(globalThis);
 
-  globalThis.fetch = (input, init) => {
+  globalThis.fetch = async (input, init) => {
     const href =
       typeof input === 'string'
         ? input
