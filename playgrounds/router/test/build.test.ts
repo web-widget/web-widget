@@ -10,7 +10,7 @@ const playgroundRoot = path.resolve(
 
 const clientManifestPath = path.join(
   playgroundRoot,
-  'dist/client/.manifest.json'
+  'dist/client/.vite/manifest.json'
 );
 const serverEntryPath = path.join(playgroundRoot, 'dist/server/index.js');
 const serverAssetsDataPath = path.join(
@@ -44,9 +44,10 @@ function readRouteLinks(routeId: string): LinkEntry[] {
 }
 
 describe('vite build integration', () => {
-  it('produces server entry artifacts without leaking manifest to disk', () => {
-    // Manifest is passed in-memory; the file should NOT exist on disk.
-    expect(fs.existsSync(clientManifestPath)).toBe(false);
+  it('produces server entry artifacts and keeps the client manifest on disk', () => {
+    // The manifest file is controlled by Vite's `build.manifest` config and
+    // left on disk for external tooling to consume.
+    expect(fs.existsSync(clientManifestPath)).toBe(true);
     expect(fs.existsSync(serverEntryPath)).toBe(true);
     expect(
       fs.existsSync(path.join(playgroundRoot, 'dist/server/package.json'))

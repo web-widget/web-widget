@@ -100,12 +100,6 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
   },
 };
 
-/**
- * Internal manifest file name used for `build.manifest` and in-bundle lookup.
- * Not exposed to users — the manifest is captured in-memory from the bundle.
- */
-export const CLIENT_MANIFEST_FILE_NAME = '.manifest.json';
-
 export const WebRouterConfigSchema = z.object({
   ignore: z
     .array(z.string())

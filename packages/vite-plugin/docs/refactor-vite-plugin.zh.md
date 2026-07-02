@@ -377,7 +377,7 @@ packages/vite-plugin/src/
 
 ### Playground 集成（`playgrounds/router`）
 
-- `test/build.test.ts`：断言 `dist/server/index.js` 等双构建产物（client manifest 不再落盘，通过内存传递给 server 构建）
+- `test/build.test.ts`：断言 `dist/server/index.js` 等双构建产物，以及 client manifest 文件（`.vite/manifest.json`）保留在磁盘上供外部工具读取
 - `vite.config.ts`：开启 `future.*: 'warn'`，用于扫描生态中仍使用旧 API 的插件（见下文）
 
 ## 7. 对使用者的影响
@@ -401,7 +401,7 @@ packages/vite-plugin/src/
 
 - Dev：服务端代码修改后，浏览器会自动刷新；亦可在不刷新时通过下一次 HTTP 请求拿到新服务端逻辑
 - Build：双环境构建在同一 `vite build` 内完成，日志会出现 `building client environment` / `building ssr environment`（后者为 Vite 日志中的 server 环境名）
-- client manifest：route 不再标记为 `isEntry`；widget 与 CSS 为独立 entry；manifest 不再落盘，通过 `host.state` 内存传递给 server 构建
+- client manifest：route 不再标记为 `isEntry`；widget 与 CSS 为独立 entry；client 构建强制开启 `build.manifest: true`（Vite 默认输出 `.vite/manifest.json`），manifest 文件保留在磁盘上供外部工具读取，同时由 `createClientManifestCapturePlugin` 在 `generateBundle` / `writeBundle` 钩子中捕获到内存（`host.state.clientManifest`）供 server 构建消费
 - **构建产物文件名**：client / server 的 `assets/` 下 chunk 名不再大量以 `index` 开头或带 `.index.` 段；若外部脚本硬编码了旧 hashed 路径，需改为依赖 manifest 或源路径 key，而非猜测 chunk basename
 - 终端：若 playground 开启了 `future: 'warn'`，可能看到来自 `@vitejs/plugin-vue` / `plugin-vue2` 的 `[vite future]` 警告——不是 `@web-widget/vite-plugin` 的问题
 

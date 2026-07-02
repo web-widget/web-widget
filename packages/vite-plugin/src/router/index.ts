@@ -11,10 +11,7 @@ import {
   type ViteBuilder,
 } from 'vite';
 import type { InlineConfig as VitestInlineConfig } from 'vitest/node';
-import {
-  parseWebRouterConfig,
-  CLIENT_MANIFEST_FILE_NAME,
-} from '@/internal/config';
+import { parseWebRouterConfig } from '@/internal/config';
 import { ensureConventionFiles } from '@/internal/ensure-convention-files';
 import { webRouterDevServerPlugin } from '@/dev';
 import { createServerFullReloadPlugin } from '@/dev/server-full-reload-plugin';
@@ -160,7 +157,7 @@ function createEnvironmentBuildOptions(
       ),
       emptyOutDir: config.build?.emptyOutDir ?? true,
       cssCodeSplit: true,
-      manifest: isServer ? undefined : CLIENT_MANIFEST_FILE_NAME,
+      manifest: isServer ? undefined : true,
       ...(config.build?.minify !== undefined
         ? { minify: config.build.minify }
         : isServer

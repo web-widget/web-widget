@@ -1,16 +1,29 @@
 import path from 'node:path';
-import fs from 'node:fs/promises';
-import type { Plugin, ViteBuilder } from 'vite';
+import type { Plugin, ResolvedConfig, ViteBuilder } from 'vite';
 import {
   isServerEnvironment,
   isClientEnvironment,
   getServerEnvironmentFromBuilder,
 } from '@/internal/environment';
-import { CLIENT_MANIFEST_FILE_NAME } from '@/internal/config';
 import { writeServerAssetsDataFile } from './server-assets-plugin';
 import type { RouterPluginHost } from './host';
 
 const SERVER_ENTRY_OUTPUT_NAME = 'index';
+
+/**
+ * Resolves the manifest file name from Vite's resolved config.
+ * Returns `false` or `undefined` when manifest generation is disabled.
+ * When `build.manifest === true`, Vite defaults to `.vite/manifest.json`.
+ */
+function getManifestFileName(
+  config: ResolvedConfig
+): string | false | undefined {
+  const manifest = config.build.manifest;
+  if (manifest === true) {
+    return '.vite/manifest.json';
+  }
+  return manifest;
+}
 
 export function createServerOutputPlugin(host: RouterPluginHost): Plugin {
   return {
@@ -111,9 +124,8 @@ export async function runRouterServerBuildApp(
 
 /**
  * Captures the Vite client manifest from the client build's bundle in-memory
- * (via `generateBundle`) and removes it from the bundle so no `.manifest.json`
- * file is written to disk. The captured manifest is stored in `host.state`
- * and consumed by `writeServerAssetsDataFile` in the `buildApp` hook.
+ * (via `generateBundle` and `writeBundle`) so it can be consumed by
+ * `writeServerAssetsDataFile` in the `buildApp` hook.
  */
 export function createClientManifestCapturePlugin(
   host: RouterPluginHost
@@ -127,7 +139,11 @@ export function createClientManifestCapturePlugin(
       if (!isClientEnvironment(this.environment)) {
         return;
       }
-      const asset = bundle[CLIENT_MANIFEST_FILE_NAME];
+      const manifestFileName = getManifestFileName(this.environment.config);
+      if (!manifestFileName) {
+        return;
+      }
+      const asset = bundle[manifestFileName];
       if (asset && asset.type === 'asset') {
         const manifest = JSON.parse(
           typeof asset.source === 'string'
@@ -135,8 +151,6 @@ export function createClientManifestCapturePlugin(
             : Buffer.from(asset.source).toString('utf-8')
         );
         host.patchState({ clientManifest: manifest });
-        // Remove from bundle so the manifest file is not written to disk.
-        delete bundle[CLIENT_MANIFEST_FILE_NAME];
       }
     },
 
@@ -144,10 +158,14 @@ export function createClientManifestCapturePlugin(
       if (!isClientEnvironment(this.environment)) {
         return;
       }
+      const manifestFileName = getManifestFileName(this.environment.config);
+      if (!manifestFileName) {
+        return;
+      }
       // The native viteManifestPlugin adds the manifest to the bundle after
       // all JS `generateBundle` hooks. Capture it here if it wasn't available
-      // earlier, then delete the file from disk.
-      const asset = bundle[CLIENT_MANIFEST_FILE_NAME];
+      // earlier.
+      const asset = bundle[manifestFileName];
       if (asset && asset.type === 'asset' && !host.state.clientManifest) {
         const manifest = JSON.parse(
           typeof asset.source === 'string'
@@ -156,10 +174,6 @@ export function createClientManifestCapturePlugin(
         );
         host.patchState({ clientManifest: manifest });
       }
-      // Delete the manifest file from disk — data is passed in-memory only.
-      const outDir = this.environment.config.build.outDir;
-      const manifestPath = path.join(outDir, CLIENT_MANIFEST_FILE_NAME);
-      fs.unlink(manifestPath).catch(() => {});
     },
   };
 }
