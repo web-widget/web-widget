@@ -22,6 +22,7 @@ import {
 } from './module-source';
 import { resolveDevOrigin } from './resolve-dev-origin';
 import { getDevServerRevision } from './dev-server-cache';
+import { logPluginError } from '@/internal/errors';
 import { warmupServerDevModules } from './warmup';
 import { printDevWelcome } from './welcome';
 
@@ -81,7 +82,7 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin {
                 }
               );
             } catch (error) {
-              logDevError('Routemap server invalidation failed', error);
+              logPluginError('Routemap server invalidation failed', error);
             }
           },
           watcher: viteServer.watcher,
@@ -97,10 +98,10 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin {
             void warmupServerDevModules(
               viteServer,
               resolvedWebRouterConfig
-            ).catch((error) => logDevError('Server warmup failed', error));
+            ).catch((error) => logPluginError('Server warmup failed', error));
             printDevWelcome();
           } catch (error) {
-            logDevError('Service startup failed', error);
+            logPluginError('Service startup failed', error);
           }
         };
 
@@ -113,7 +114,7 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin {
             register();
           }
         } catch (error) {
-          logDevError('Service startup failed', error);
+          logPluginError('Service startup failed', error);
         }
       };
     },
@@ -229,29 +230,19 @@ function createWebRouterDevMiddleware(
   return nodeAdapter.middleware;
 }
 
-function logDevError(prefix: string, error: unknown) {
-  if (error instanceof Error) {
-    console.error(`${prefix}: ${error.stack}`);
-  } else {
-    console.error(`${prefix}:`, error);
-  }
-}
-
 function renderHandlerError(
   viteServer: ViteDevServer,
   requestUrl: string,
   error: unknown
 ) {
   let message: string;
-  const prefix = `🚧 @web-widget/web-router ${requestUrl} exception:`;
   if (error instanceof Error) {
     viteServer.ssrFixStacktrace(error);
     message = stripAnsi(error.stack ?? error.message);
-    console.error(`${prefix} ${error.stack}`);
   } else {
     message = `Unknown error.`;
-    console.error(prefix, error);
   }
+  logPluginError(`${requestUrl} exception`, error, '@web-widget/web-router');
 
   return new Response(errorTemplate(message), {
     status: 500,

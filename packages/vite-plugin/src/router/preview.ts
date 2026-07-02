@@ -5,6 +5,7 @@ import type WebRouter from '@web-widget/web-router';
 import type { ResolvedWebRouterConfig } from '@/types';
 import { getWebRouterPluginApi } from '@/internal/manifest';
 import { resolvePreviewOrigin } from '@/dev/resolve-dev-origin';
+import { logPluginError } from '@/internal/errors';
 
 export function webRouterPreviewServerPlugin(
   options?: ResolvedWebRouterConfig
@@ -60,11 +61,7 @@ export function webRouterPreviewServerPlugin(
           });
           viteServer.middlewares.use(nodeAdapter.middleware);
         } catch (error) {
-          const message =
-            error instanceof Error
-              ? (error.stack ?? error.message)
-              : String(error);
-          console.error(`Service startup failed: ${message}`);
+          logPluginError('Service startup failed', error);
         }
       };
     },

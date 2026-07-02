@@ -6,6 +6,7 @@ import type { RouteMap } from '@/types';
 import { isPathPrefix } from '@/internal/path';
 import { isStructuralRoutemapChange } from './routemap-diff';
 import { shouldApplyRoutemapUpdate } from './routemap-update';
+import { logPluginError } from '@/internal/errors';
 import type { OverridePathname } from './types';
 
 export { getRoutemap } from '@/internal/routemap-from-fs';
@@ -67,7 +68,7 @@ export async function fileSystemRouteGenerator({
         })
       )
       .catch((error) => {
-        logRoutemapError(error);
+        logPluginError('Routemap update failed', error);
       });
     return routemapUpdateQueue;
   };
@@ -163,7 +164,7 @@ async function updateRoutemapFile(options: {
 
   if (jsonChanged) {
     void fs.writeFile(routemapPath, newJson, 'utf8').catch((error) => {
-      logRoutemapError(error);
+      logPluginError('Routemap update failed', error);
     });
   }
 
@@ -176,15 +177,6 @@ async function updateRoutemapFile(options: {
       filesystemChanged: filesystemDirty,
     });
   } catch (error) {
-    logRoutemapError(error);
-  }
-}
-
-function logRoutemapError(error: unknown) {
-  const prefix = '🚧 @web-widget/vite-plugin routemap update failed:';
-  if (error instanceof Error) {
-    console.error(`${prefix} ${error.stack}`);
-  } else {
-    console.error(prefix, error);
+    logPluginError('Routemap update failed', error);
   }
 }
