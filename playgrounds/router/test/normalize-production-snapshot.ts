@@ -134,6 +134,13 @@ export function normalizeProductionBody(html: string): string {
     '<link href="/assets/styles.css" rel="stylesheet" />'
   );
 
+  // Normalize inlined CSS (<style> tags) to a stable placeholder so snapshot
+  // tests don't break when CSS merging/inlining changes content.
+  body = body.replace(
+    /<style>(?!web-widget\{display:contents\})[\s\S]*?<\/style>/g,
+    '<style>INLINED_CSS</style>'
+  );
+
   body = body.replace(HASHED_ASSET, (assetPath) => {
     const extension = assetPath.endsWith('.css') ? '.css' : '.js';
     const basename = assetPath

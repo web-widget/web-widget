@@ -4,20 +4,16 @@ import type { Manifest as ViteManifest } from 'vite';
 import type { RouteClientAssets } from './collect-route-assets';
 import type { WidgetModuleFilter } from '@/types';
 import { getLinks, getRouteMetaLinks } from './manifest-links';
+import { processCssLinks, type CssConfig } from './css-merge';
 import { normalizePath } from './path';
 
 /**
  * Virtual module id for the server-side asset resolver.
- * Server code imports `resolveWidgetAsset` / `resolveLinks` from this module
- * to look up client-hashed URLs at runtime, decoupling server transform from
- * the client manifest.
- */
-/**
- * Virtual module id for the server-side asset resolver.
- * Server code imports `resolveWidgetAsset` / `resolveLinks` from this module
- * to look up client-hashed URLs at runtime, decoupling server transform from
- * the client manifest. The module is statically imported by the server
- * transform (via the `virtual:` protocol handled by `resolveId`).
+ * Server code imports `resolveWidgetAsset` / `resolveLinks` / `resolveStyle`
+ * from this module to look up client-hashed URLs at runtime, decoupling
+ * server transform from the client manifest. The module is statically
+ * imported by the server transform (via the `virtual:` protocol handled
+ * by `resolveId`).
  */
 export const SERVER_ASSETS_MODULE_ID = 'virtual:web-widget-server-assets';
 export const SERVER_ASSETS_RESOLVED_ID = '\0web-widget-server-assets';
@@ -47,7 +43,10 @@ export const SERVER_ASSETS_DATA_FILE_NAME = '.server-assets.js';
 /** Asset URL map: relative module path → fully-qualified URL (base + hashed file). */
 export interface ServerAssetsData {
   assetUrls: Record<string, string>;
+  /** route module / widget module → link descriptor list (CSS merged to single link at build time). */
   linkMap: Record<string, LinkDescriptor[]>;
+  /** route module / widget module → inline CSS content (mutually exclusive with CSS links in linkMap). */
+  styleMap: Record<string, string>;
 }
 
 /**
@@ -55,14 +54,17 @@ export interface ServerAssetsData {
  * Called after the client build completes (so the client manifest is available)
  * to produce the final content written to `.server-assets.js`.
  */
-export function buildServerAssetsData(
+export async function buildServerAssetsData(
   manifest: ViteManifest,
   routeClientAssets: Map<string, RouteClientAssets>,
   base: string,
   root: string,
-  widgetModuleFilter?: WidgetModuleFilter,
-  clientEntryId?: string
-): ServerAssetsData {
+  widgetModuleFilter: WidgetModuleFilter | undefined,
+  clientEntryId: string | undefined,
+  cssConfig: CssConfig,
+  clientOutDir: string,
+  assetsDir: string
+): Promise<ServerAssetsData> {
   const assetUrls: Record<string, string> = {};
   const linkMap: Record<string, LinkDescriptor[]> = {};
 
@@ -128,7 +130,18 @@ export function buildServerAssetsData(
     );
   }
 
-  return { assetUrls, linkMap };
+  // Process CSS links: inline small CSS into `styleMap`, merge remaining CSS
+  // into single files. Non-CSS links (modulepreload, preload, etc.) are
+  // preserved in `linkMap`.
+  const { linkMap: processedLinkMap, styleMap } = await processCssLinks({
+    linkMap,
+    base,
+    clientOutDir,
+    assetsDir,
+    cssConfig,
+  });
+
+  return { assetUrls, linkMap: processedLinkMap, styleMap };
 }
 
 /**
@@ -144,7 +157,7 @@ export function buildServerAssetsData(
 export function generateServerAssetsModuleCode(): string {
   return [
     `/* web-widget: server assets — statically imports the data virtual module */`,
-    `import { assetUrls, linkMap } from ${JSON.stringify(
+    `import { assetUrls, linkMap, styleMap } from ${JSON.stringify(
       SERVER_ASSETS_DATA_MODULE_ID
     )};`,
     `export function resolveWidgetAsset(id) {`,
@@ -155,7 +168,10 @@ export function generateServerAssetsModuleCode(): string {
     `export function resolveLinks(id) {`,
     `  return linkMap[id] ?? [];`,
     `}`,
-    `export { assetUrls, linkMap };`,
+    `export function resolveStyle(id) {`,
+    `  return styleMap[id];`,
+    `}`,
+    `export { assetUrls, linkMap, styleMap };`,
     ``,
   ].join('\n');
 }
@@ -174,13 +190,17 @@ export function generateServerAssetsDevModuleCode(): string {
     `/* web-widget: server assets — dev stub (real data computed by dev middleware) */`,
     `const assetUrls = Object.create(null);`,
     `const linkMap = Object.create(null);`,
+    `const styleMap = Object.create(null);`,
     `export function resolveWidgetAsset(id) {`,
     `  return assetUrls[id];`,
     `}`,
     `export function resolveLinks(_id) {`,
     `  return [];`,
     `}`,
-    `export { assetUrls, linkMap };`,
+    `export function resolveStyle(_id) {`,
+    `  return undefined;`,
+    `}`,
+    `export { assetUrls, linkMap, styleMap };`,
     ``,
   ].join('\n');
 }
@@ -203,7 +223,8 @@ export function generateServerAssetsDataModuleCode(): string {
     `const mod = await import(dataUrl);`,
     `const assetUrls = mod.assetUrls;`,
     `const linkMap = mod.linkMap;`,
-    `export { assetUrls, linkMap };`,
+    `const styleMap = mod.styleMap;`,
+    `export { assetUrls, linkMap, styleMap };`,
     ``,
   ].join('\n');
 }
@@ -219,6 +240,7 @@ export function generateServerAssetsPlaceholderCode(): string {
     `/* web-widget: server assets data — placeholder, populated after client build */`,
     `export const assetUrls = Object.create(null);`,
     `export const linkMap = Object.create(null);`,
+    `export const styleMap = Object.create(null);`,
     ``,
   ].join('\n');
 }
@@ -233,6 +255,7 @@ export function serializeServerAssetsData(data: ServerAssetsData): string {
     `/* web-widget: server assets data — generated after client build */`,
     `export const assetUrls = ${JSON.stringify(data.assetUrls)};`,
     `export const linkMap = ${JSON.stringify(data.linkMap)};`,
+    `export const styleMap = ${JSON.stringify(data.styleMap)};`,
     ``,
   ].join('\n');
 }

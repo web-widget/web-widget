@@ -83,6 +83,10 @@ export const WEB_ROUTER_CONFIG_DEFAULTS: ResolvedWebRouterConfig = {
     enabled: false,
     url: 'https://ga.jspm.io/npm:es-module-shims@1.10.0/dist/es-module-shims.js',
   },
+  css: {
+    inlineStrategy: 'auto',
+    inlineThreshold: 8192,
+  },
   input: {
     client: {
       entry: 'entry.client',
@@ -171,6 +175,21 @@ export const WebRouterConfigSchema = z.object({
         .string()
         .optional()
         .default(WEB_ROUTER_CONFIG_DEFAULTS.importShim.url),
+    })
+    .optional()
+    .default({}),
+  css: z
+    .object({
+      inlineStrategy: z
+        .enum(['auto', 'always', 'never'])
+        .optional()
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.css.inlineStrategy),
+      inlineThreshold: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .default(WEB_ROUTER_CONFIG_DEFAULTS.css.inlineThreshold),
     })
     .optional()
     .default({}),

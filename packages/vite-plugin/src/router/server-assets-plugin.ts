@@ -122,13 +122,22 @@ export async function writeServerAssetsDataFile(
   // still collected for the linkMap.
   const widgetFilter = widgetModuleFilter ?? defaultWidgetPathMatcher;
 
-  const data = buildServerAssetsData(
+  const clientOutDir = path.join(
+    root,
+    resolvedWebRouterConfig.output.dir,
+    resolvedWebRouterConfig.output.client
+  );
+
+  const data = await buildServerAssetsData(
     manifest,
     routeClientAssets,
     base,
     root,
     widgetFilter,
-    clientEntryId
+    clientEntryId,
+    resolvedWebRouterConfig.css,
+    clientOutDir,
+    serverAssetsDir || 'assets'
   );
 
   const code = serializeServerAssetsData(data);

@@ -28,6 +28,7 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/react-server-component'],
   ['/react-streaming'],
   ['/style'],
+  ['/large-css'],
   // TODO: Fix the issue with the React import widgets.
   // ['/react-import-widgets'],
   ['/dynamic-routes', 404],

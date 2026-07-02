@@ -22,6 +22,7 @@ type LinkEntry = { href?: string; rel?: string };
 type ServerAssetsData = {
   assetUrls: Record<string, string>;
   linkMap: Record<string, LinkEntry[]>;
+  styleMap: Record<string, string>;
 };
 
 function readServerAssetsData(): ServerAssetsData {
@@ -30,12 +31,14 @@ function readServerAssetsData(): ServerAssetsData {
     /export const assetUrls = (\{[\s\S]*?\});/
   );
   const linkMapMatch = source.match(/export const linkMap = (\{[\s\S]*?\});/);
+  const styleMapMatch = source.match(/export const styleMap = (\{[\s\S]*?\});/);
   if (!assetUrlsMatch || !linkMapMatch) {
     throw new Error('Failed to parse server assets data file.');
   }
   return {
     assetUrls: JSON.parse(assetUrlsMatch[1]),
     linkMap: JSON.parse(linkMapMatch[1]),
+    styleMap: styleMapMatch ? JSON.parse(styleMapMatch[1]) : {},
   };
 }
 
@@ -91,10 +94,18 @@ describe('vite build integration', () => {
       'resolveLinks("routes/react-and-vue@route.tsx")'
     );
 
-    const hrefs = readRouteLinks('routes/react-and-vue@route.tsx').map(
+    const data = readServerAssetsData();
+    const routeHrefs = (data.linkMap['routes/react-and-vue@route.tsx'] ?? []).map(
       (link) => link.href ?? ''
     );
+    const routeStyle = data.styleMap['routes/react-and-vue@route.tsx'];
 
-    expect(hrefs.some((href) => href.includes('counter-common'))).toBe(true);
+    // Widget CSS is included in the route module's links/styles (merged/inlined
+    // together with route CSS at build time).
+    const hasCssLink = routeHrefs.some((href) =>
+      href.includes('counter-common')
+    );
+    const hasInlineStyle = routeStyle && routeStyle.includes('counter');
+    expect(hasCssLink || hasInlineStyle).toBe(true);
   });
 });

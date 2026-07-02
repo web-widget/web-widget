@@ -100,15 +100,16 @@ export function createServerEntryPlugin(host: RouterPluginHost): Plugin {
         ].join(', ');
 
         metaCode = [
-          `import { resolveWidgetAsset, resolveLinks } from ${JSON.stringify(
+          `import { resolveWidgetAsset, resolveLinks, resolveStyle } from ${JSON.stringify(
             SERVER_ASSETS_MODULE_ID
           )};`,
           `const __entryId__ = ${JSON.stringify(entryFileName)};`,
           `const __entryModule__ = resolveWidgetAsset(__entryId__);`,
           `const __entryLinks__ = resolveLinks(__entryId__) || [];`,
+          `const __entryStyle__ = resolveStyle(__entryId__);`,
           `${FRAMEWORK}.meta = {`,
           `  link: [...__entryLinks__, { rel: 'modulepreload', href: __entryModule__ }],`,
-          `  style: [{ content: 'web-widget{display:contents}' }],`,
+          `  style: [{ content: 'web-widget{display:contents}' }, ...(__entryStyle__ ? [{ content: __entryStyle__ }] : [])],`,
           `  script: [${scriptsArray}],`,
           `};`,
         ].join('\n');

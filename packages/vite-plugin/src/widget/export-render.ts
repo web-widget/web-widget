@@ -184,7 +184,7 @@ export function exportRenderPlugin({
           const { n: name, ln: localName } = metaExport;
           const metaExportName = localName ?? name;
           magicString.prepend(
-            `import { resolveLinks } from ${JSON.stringify(
+            `import { resolveLinks, resolveStyle } from ${JSON.stringify(
               SERVER_ASSETS_MODULE_ID
             )};\n`
           );
@@ -194,6 +194,10 @@ export function exportRenderPlugin({
               `;((meta) => {`,
               `  const link = resolveLinks(${JSON.stringify(routeId)}) || [];`,
               `  meta.link ? meta.link.push(...link) : (meta.link = link);`,
+              `  const style = resolveStyle(${JSON.stringify(routeId)});`,
+              `  if (style) {`,
+              `    meta.style ? meta.style.push({ content: style }) : (meta.style = [{ content: style }]);`,
+              `  }`,
               `})(${metaExportName});`,
             ].join('\n')
           );
@@ -201,12 +205,16 @@ export function exportRenderPlugin({
           magicString.append(
             [
               ``,
-              `import { resolveLinks } from ${JSON.stringify(
+              `import { resolveLinks, resolveStyle } from ${JSON.stringify(
                 SERVER_ASSETS_MODULE_ID
               )};`,
-              `export const meta = {`,
-              `  link: resolveLinks(${JSON.stringify(routeId)}) || [],`,
-              `};`,
+              `export const meta = (() => {`,
+              `  const style = resolveStyle(${JSON.stringify(routeId)});`,
+              `  return {`,
+              `    link: resolveLinks(${JSON.stringify(routeId)}) || [],`,
+              `    style: style ? [{ content: style }] : [],`,
+              `  };`,
+              `})();`,
             ].join('\n')
           );
         }

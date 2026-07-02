@@ -36,6 +36,10 @@ export interface ResolvedWebRouterConfig {
     enabled: boolean;
     url: string;
   };
+  css: {
+    inlineStrategy: 'auto' | 'always' | 'never';
+    inlineThreshold: number;
+  };
   input: {
     client: {
       entry: string;

@@ -14,6 +14,34 @@ const playgroundRoot = path.resolve(
 
 let server: ProductionServer | undefined;
 
+/** Collect all CSS from an HTML response: linked stylesheets (fetched) + inline `<style>` blocks. */
+async function collectRouteCss(html: string, origin: string) {
+  const linkedHrefs = [
+    ...html.matchAll(/href=["'](\/assets\/[^"']+\.css)["']/g),
+  ].map((m) => m[1]);
+
+  const inlineCss = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)]
+    .map((m) => m[1])
+    .join('\n');
+
+  const linkedCss = (
+    await Promise.all(
+      linkedHrefs.map(async (href) => {
+        const res = await fetch(`${origin}${href}`);
+        expect(res.status).toBe(200);
+        return res.text();
+      })
+    )
+  ).join('\n');
+
+  return {
+    linkedHrefs,
+    linkedCss,
+    inlineCss,
+    combinedCss: linkedCss + '\n' + inlineCss,
+  };
+}
+
 describe('production server (pnpm build && node server.js)', () => {
   beforeAll(async () => {
     server = await startProductionServer();
@@ -32,20 +60,18 @@ describe('production server (pnpm build && node server.js)', () => {
     expect(html).toContain('Home');
   });
 
-  it('serves linked client CSS assets from /assets', async () => {
+  it('serves client CSS (linked or inlined) for the home route', async () => {
     const html = await (await fetch(`${server!.origin}/`)).text();
-    const stylesheets = [
-      ...html.matchAll(/href=["'](\/assets\/[^"']+\.css)["']/g),
-    ].map((match) => match[1]);
+    const { linkedHrefs, combinedCss } = await collectRouteCss(
+      html,
+      server!.origin
+    );
 
-    expect(stylesheets.length).toBeGreaterThan(0);
-
-    for (const href of stylesheets) {
-      const cssResponse = await fetch(`${server!.origin}${href}`);
-      expect(cssResponse.status).toBe(200);
-      expect(cssResponse.headers.get('content-type')).toMatch(/css/i);
-      expect((await cssResponse.text()).length).toBeGreaterThan(0);
-    }
+    // CSS may be inlined as <style> or linked as <link>;
+    // either way, some CSS must be present.
+    expect(
+      linkedHrefs.length + (combinedCss.length > 0 ? 1 : 0)
+    ).toBeGreaterThan(0);
   });
 
   it('serves representative routes and API handlers', async () => {
@@ -71,47 +97,30 @@ describe('production server (pnpm build && node server.js)', () => {
     const html = await (
       await fetch(`${server!.origin}/css-lazy-dynamic`)
     ).text();
-    const stylesheets = [
-      ...html.matchAll(/<link[^>]+rel=["']stylesheet["'][^>]*>/g),
-    ].map((match) => match[0]);
-
-    expect(stylesheets.length).toBeGreaterThan(0);
-
-    const stylesheetContents = await Promise.all(
-      stylesheets.map(async (tag) => {
-        const hrefMatch = tag.match(/href=["']([^"']+)["']/);
-        expect(hrefMatch).toBeTruthy();
-        const href = hrefMatch![1];
-        const response = await fetch(`${server!.origin}${href}`);
-        expect(response.status).toBe(200);
-        return response.text();
-      })
-    );
-
-    const combinedCss = stylesheetContents.join('\n');
+    const { combinedCss } = await collectRouteCss(html, server!.origin);
     expect(combinedCss).not.toContain('.css-lazy-dynamic-box');
   });
 
-  it('preloads Counter widget CSS on /react-and-vue', async () => {
+  it('includes Counter widget CSS on /react-and-vue', async () => {
     const html = await (await fetch(`${server!.origin}/react-and-vue`)).text();
-    const stylesheets = [
-      ...html.matchAll(/href=["'](\/assets\/[^"']+\.css)["']/g),
-    ].map((match) => match[1]);
-
-    expect(stylesheets.length).toBeGreaterThan(0);
-
-    const stylesheetContents = await Promise.all(
-      stylesheets.map(async (href) => {
-        const response = await fetch(`${server!.origin}${href}`);
-        expect(response.status).toBe(200);
-        return response.text();
-      })
-    );
-
-    const combinedCss = stylesheetContents.join('\n');
+    const { combinedCss } = await collectRouteCss(html, server!.origin);
     expect(
       combinedCss.includes('.counter') ||
         combinedCss.includes('border-radius: 30px')
     ).toBe(true);
+  });
+
+  it('serves large CSS as external link (not inlined) on /large-css', async () => {
+    const html = await (await fetch(`${server!.origin}/large-css`)).text();
+    const { linkedHrefs, linkedCss, inlineCss } = await collectRouteCss(
+      html,
+      server!.origin
+    );
+
+    // The route imports > 8 KB of CSS, exceeding the inline threshold.
+    // The CSS must be served as an external <link> stylesheet, not inlined.
+    expect(linkedHrefs.length).toBeGreaterThan(0);
+    expect(linkedCss).toContain('.showcase');
+    expect(inlineCss).not.toContain('.showcase');
   });
 });

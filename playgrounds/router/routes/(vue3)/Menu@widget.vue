@@ -31,6 +31,9 @@
       <a href="/style">Styling</a>
     </li>
     <li>
+      <a href="/large-css">Large CSS (external link)</a>
+    </li>
+    <li>
       <a href="/meta">Meta</a>
     </li>
     <li>
