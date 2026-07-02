@@ -2,7 +2,7 @@ import path from 'node:path';
 import type { LinkDescriptor } from '@web-widget/helpers';
 import type { Manifest as ViteManifest } from 'vite';
 import type { RouteClientAssets } from './collect-route-assets';
-import type { DynamicImportPredicate } from '@/types';
+import type { WidgetModuleFilter } from '@/types';
 import { getLinks, getRouteMetaLinks } from './manifest-links';
 import { normalizePath } from './path';
 
@@ -60,7 +60,7 @@ export function buildServerAssetsData(
   routeClientAssets: Map<string, RouteClientAssets>,
   base: string,
   root: string,
-  dynamicImportPredicate?: DynamicImportPredicate,
+  widgetModuleFilter?: WidgetModuleFilter,
   clientEntryId?: string
 ): ServerAssetsData {
   const assetUrls: Record<string, string> = {};
@@ -91,7 +91,7 @@ export function buildServerAssetsData(
       manifest,
       assets,
       base,
-      dynamicImportPredicate
+      widgetModuleFilter
     );
     // Collect widget module paths so we can generate link entries for them too.
     for (const widgetModule of assets.widgetModules) {
@@ -112,7 +112,7 @@ export function buildServerAssetsData(
         relativeId,
         base,
         new Set(),
-        dynamicImportPredicate
+        widgetModuleFilter
       );
     }
   }
@@ -124,7 +124,7 @@ export function buildServerAssetsData(
       clientEntryId,
       base,
       new Set(),
-      dynamicImportPredicate
+      widgetModuleFilter
     );
   }
 

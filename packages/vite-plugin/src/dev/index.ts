@@ -192,7 +192,7 @@ function createWebRouterDevMiddleware(
             const meta = await getMeta(
               source,
               serverDev,
-              getWebRouterPluginApi(viteServer.config)?.dynamicImportPredicate
+              getWebRouterPluginApi(viteServer.config)?.widgetModuleFilter
             );
             const url = new URL(request.url);
             const viteHtml = await viteServer.transformIndexHtml(

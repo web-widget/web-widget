@@ -4,7 +4,7 @@ import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
 import { collectRouteModuleAssets } from '@/internal/collect-route-assets';
-import type { DynamicImportPredicate } from '@/types';
+import type { WidgetModuleFilter } from '@/types';
 import { getWebRouterPluginApi } from '@/internal/manifest';
 import { normalizeFilterId } from '@/internal/module-id';
 import { applyToServerEnvironment } from '@/internal/environment';
@@ -25,7 +25,7 @@ export interface ExportRenderPluginOptions {
   inject?: string | string[];
   provide: string;
   /** From `webWidgetPlugin` `import.include` / `exclude` via `createFilter`. */
-  dynamicImportPredicate: DynamicImportPredicate;
+  widgetModuleFilter: WidgetModuleFilter;
 }
 
 export function exportRenderPlugin({
@@ -34,7 +34,7 @@ export function exportRenderPlugin({
   include,
   inject = 'render',
   provide,
-  dynamicImportPredicate,
+  widgetModuleFilter,
 }: ExportRenderPluginOptions): Plugin[] {
   if (typeof provide !== 'string') {
     throw new TypeError(`options.provide must be a string type.`);
@@ -172,7 +172,7 @@ export function exportRenderPlugin({
               const r = await this.resolve(specifier, importer);
               return r?.id ?? null;
             },
-            dynamicImportPredicate,
+            widgetModuleFilter,
             caches: api.getRouteAssetCaches(),
           });
         }

@@ -204,7 +204,7 @@ describe('getLinks', () => {
     expect(links.map((l) => l.href)).toContain(`${base}assets/demo-widget.css`);
   });
 
-  test('static import chain propagates dynamicImportPredicate: intermediary chunk’s dynamicImport(widget) still emits CSS', () => {
+  test('static import chain propagates widgetModuleFilter: intermediary chunk’s dynamicImport(widget) still emits CSS', () => {
     const m = {
       'routes/page@route.tsx': {
         file: 'assets/page.js',
@@ -249,7 +249,7 @@ describe('getLinks', () => {
     expect(links.map((l) => l.href)).toContain(`${base}assets/w.css`);
   });
 
-  test('multi-hop static imports still propagate dynamicImportPredicate before dynamicImport(widget)', () => {
+  test('multi-hop static imports still propagate widgetModuleFilter before dynamicImport(widget)', () => {
     const m = {
       'routes/page@route.tsx': {
         file: 'assets/page.js',
@@ -439,7 +439,7 @@ describe('getRouteMetaLinks', () => {
         }
         return null;
       },
-      dynamicImportPredicate: (key: string) => key.includes('@widget.'),
+      widgetModuleFilter: (key: string) => key.includes('@widget.'),
     });
 
     const manifest = {
@@ -470,7 +470,7 @@ describe('getRouteMetaLinks', () => {
   });
 });
 
-describe('getLinks dynamicImportPredicate', () => {
+describe('getLinks widgetModuleFilter', () => {
   const base = '/';
 
   test('does not follow convention widget dynamic imports when predicate is omitted', () => {

@@ -275,7 +275,7 @@ describe('getMeta', () => {
     expect(meta.style).toHaveLength(0);
   });
 
-  it('skips css from route dynamic imports unless the target matches dynamicImportPredicate', async () => {
+  it('skips css from route dynamic imports unless the target matches widgetModuleFilter', async () => {
     const lazyCssModule = createModuleNode({
       id: '/project/routes/lazy-chunk.css',
       url: '/project/routes/lazy-chunk.css',

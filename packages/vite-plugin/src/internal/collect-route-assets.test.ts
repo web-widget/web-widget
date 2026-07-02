@@ -63,7 +63,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: (key) => key.includes('@widget.'),
+        widgetModuleFilter: (key) => key.includes('@widget.'),
       }
     );
 
@@ -95,7 +95,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => true,
+        widgetModuleFilter: () => true,
       }
     );
 
@@ -125,7 +125,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: (key) => key.includes('Included@widget'),
+        widgetModuleFilter: (key) => key.includes('Included@widget'),
       }
     );
 
@@ -147,7 +147,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => false,
+        widgetModuleFilter: () => false,
       }
     );
 
@@ -170,7 +170,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => false,
+        widgetModuleFilter: () => false,
       }
     );
 
@@ -191,7 +191,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: (key) => key.includes('@widget.'),
+        widgetModuleFilter: (key) => key.includes('@widget.'),
       }
     );
 
@@ -212,7 +212,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => false,
+        widgetModuleFilter: () => false,
       }
     );
 
@@ -233,7 +233,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: (key) => key.includes('@widget.'),
+        widgetModuleFilter: (key) => key.includes('@widget.'),
       }
     );
 
@@ -259,7 +259,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: (key) => key.includes('@widget.'),
+        widgetModuleFilter: (key) => key.includes('@widget.'),
       }
     );
 
@@ -291,7 +291,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: (key: string) => key.includes('@widget.'),
+        widgetModuleFilter: (key: string) => key.includes('@widget.'),
       }
     );
 
@@ -331,7 +331,7 @@ describe('collect-route-assets', () => {
           }
           return null;
         },
-        dynamicImportPredicate: (key: string) => key.includes('@widget.'),
+        widgetModuleFilter: (key: string) => key.includes('@widget.'),
       }
     );
 
@@ -372,7 +372,7 @@ describe('collect-route-assets', () => {
     const options = {
       root,
       resolveId: countingResolver,
-      dynamicImportPredicate: () => false,
+      widgetModuleFilter: () => false,
       caches,
     } as const;
 
@@ -429,7 +429,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => false,
+        widgetModuleFilter: () => false,
       }
     );
 
@@ -462,7 +462,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => false,
+        widgetModuleFilter: () => false,
       }
     );
 
@@ -494,7 +494,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => false,
+        widgetModuleFilter: () => false,
       }
     );
 
@@ -527,7 +527,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => false,
+        widgetModuleFilter: () => false,
       }
     );
 
@@ -562,7 +562,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => false,
+        widgetModuleFilter: () => false,
       }
     );
 
@@ -589,7 +589,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => false,
+        widgetModuleFilter: () => false,
       }
     );
 
@@ -615,7 +615,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => false,
+        widgetModuleFilter: () => false,
       }
     );
 
@@ -640,7 +640,7 @@ describe('collect-route-assets', () => {
       {
         root,
         resolveId: relativeResolver(root),
-        dynamicImportPredicate: () => false,
+        widgetModuleFilter: () => false,
       }
     );
 

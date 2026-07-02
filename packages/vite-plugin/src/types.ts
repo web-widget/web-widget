@@ -111,9 +111,6 @@ export interface ImportMap {
  */
 export type WidgetModuleFilter = (modulePath: string) => boolean;
 
-/** @deprecated Use `WidgetModuleFilter`. */
-export type DynamicImportPredicate = WidgetModuleFilter;
-
 export interface WebRouterPluginApi {
   readonly config: ResolvedWebRouterConfig;
   /** @internal Build-time state populated during the config hook. */
@@ -122,10 +119,6 @@ export interface WebRouterPluginApi {
   serverRoutemap(): Promise<RouteMap>;
   readonly widgetModuleFilter?: WidgetModuleFilter;
   setWidgetModuleFilter(filter: WidgetModuleFilter): void;
-  /** @deprecated Use `widgetModuleFilter`. */
-  readonly dynamicImportPredicate?: WidgetModuleFilter;
-  /** @deprecated Use `setWidgetModuleFilter`. */
-  setDynamicImportPredicate(filter: WidgetModuleFilter): void;
   /** Shared cache for route asset collection across plugin instances. */
   getRouteAssetCaches(): RouteAssetCaches;
   /** Pre-computed during `buildStart` for O(1) SSR transform lookup. */

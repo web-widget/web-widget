@@ -4,7 +4,7 @@ import mime from 'mime-types';
 import type { Manifest as ViteManifest } from 'vite';
 
 import type { RouteClientAssets } from '@/internal/collect-route-assets';
-import type { DynamicImportPredicate } from '@/types';
+import type { WidgetModuleFilter } from '@/types';
 import { stripModuleIdQuery } from '@/internal/module-id';
 
 const RESOLVE_URL_REG = /^(?:\w+:)?\//;
@@ -50,7 +50,7 @@ function getLinksInternal(
   base: string,
   containSelf: boolean,
   cache: Set<string>,
-  dynamicImportPredicate?: DynamicImportPredicate
+  widgetModuleFilter?: WidgetModuleFilter
 ): LinkDescriptor[] {
   if (cache.has(srcFileName)) {
     return [];
@@ -102,7 +102,7 @@ function getLinksInternal(
           base,
           true,
           cache,
-          dynamicImportPredicate
+          widgetModuleFilter
         )
           // Note: In the web router, all client components are loaded asynchronously.
           .filter((link) => link.rel !== 'modulepreload')
@@ -111,14 +111,14 @@ function getLinksInternal(
   }
 
   const canFollowDynamicImport = (dep: string) => {
-    if (!dynamicImportPredicate) {
+    if (!widgetModuleFilter) {
       return false;
     }
     const depPath = stripModuleIdQuery(dep);
-    return dynamicImportPredicate(dep) || dynamicImportPredicate(depPath);
+    return widgetModuleFilter(dep) || widgetModuleFilter(depPath);
   };
 
-  if (dynamicImportPredicate && Array.isArray(item.dynamicImports)) {
+  if (widgetModuleFilter && Array.isArray(item.dynamicImports)) {
     item.dynamicImports.filter(canFollowDynamicImport).forEach((dep) => {
       links.push(
         ...getLinksInternal(
@@ -127,7 +127,7 @@ function getLinksInternal(
           base,
           true,
           cache,
-          dynamicImportPredicate
+          widgetModuleFilter
         )
       );
     });
@@ -141,7 +141,7 @@ export function getRouteMetaLinks(
   manifest: ViteManifest,
   assets: RouteClientAssets,
   base: string,
-  dynamicImportPredicate?: DynamicImportPredicate
+  widgetModuleFilter?: WidgetModuleFilter
 ): LinkDescriptor[] {
   const cache = new Set<string>();
   const links: LinkDescriptor[] = [];
@@ -152,7 +152,7 @@ export function getRouteMetaLinks(
 
   for (const widgetModule of assets.widgetModules) {
     links.push(
-      ...getLinks(manifest, widgetModule, base, cache, dynamicImportPredicate)
+      ...getLinks(manifest, widgetModule, base, cache, widgetModuleFilter)
     );
   }
 
@@ -167,7 +167,7 @@ export function getLinks(
   srcFileName: string,
   base: string,
   cache: Set<string> = new Set(),
-  dynamicImportPredicate?: DynamicImportPredicate
+  widgetModuleFilter?: WidgetModuleFilter
 ): LinkDescriptor[] {
   return getLinksInternal(
     manifest,
@@ -175,6 +175,6 @@ export function getLinks(
     base,
     false,
     cache,
-    dynamicImportPredicate
+    widgetModuleFilter
   );
 }

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import * as esModuleLexer from 'es-module-lexer';
-import type { DynamicImportPredicate } from '@/types';
+import type { WidgetModuleFilter } from '@/types';
 import { normalizePath } from '@/internal/path';
 
 export interface RouteClientAssets {
@@ -20,7 +20,7 @@ export interface CollectRouteAssetsOptions {
    */
   resolveId?: (specifier: string, importer: string) => Promise<string | null>;
   /** From `webWidgetPlugin` `import.include/exclude`; also drives static widget discovery. */
-  dynamicImportPredicate?: DynamicImportPredicate;
+  widgetModuleFilter?: WidgetModuleFilter;
   /** Shared caches to memoize read/parse/resolve across routes with common deps. */
   caches?: RouteAssetCaches;
 }
@@ -168,17 +168,17 @@ export function matchesWidgetModule(
   root: string,
   relativePath: string,
   resolvedPath: string,
-  dynamicImportPredicate?: DynamicImportPredicate
+  widgetModuleFilter?: WidgetModuleFilter
 ): boolean {
-  if (!dynamicImportPredicate) {
+  if (!widgetModuleFilter) {
     return defaultWidgetPathMatcher(relativePath);
   }
 
   const normalized = normalizePath(relativePath);
   return (
-    dynamicImportPredicate(normalized) ||
-    dynamicImportPredicate(resolvedPath) ||
-    dynamicImportPredicate(path.resolve(root, normalized))
+    widgetModuleFilter(normalized) ||
+    widgetModuleFilter(resolvedPath) ||
+    widgetModuleFilter(path.resolve(root, normalized))
   );
 }
 
@@ -299,7 +299,7 @@ async function crawlRouteModule(
           options.root,
           relativePath,
           resolved,
-          options.dynamicImportPredicate
+          options.widgetModuleFilter
         )
       ) {
         widgetModules.add(relativePath);
@@ -313,7 +313,7 @@ async function crawlRouteModule(
         options.root,
         relativePath,
         resolved,
-        options.dynamicImportPredicate
+        options.widgetModuleFilter
       )
     ) {
       continue;

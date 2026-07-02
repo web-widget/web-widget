@@ -7,7 +7,6 @@ import {
 } from '@/internal/collect-route-assets';
 import { defaultReadFileUtf8, type ReadFileUtf8 } from '@/internal/io';
 import type {
-  DynamicImportPredicate,
   ImportMap,
   ResolvedWebRouterConfig,
   RouteMap,
@@ -37,8 +36,6 @@ export interface RouterBuildState {
   serverTarget: SSRTarget;
   useAppBuilder: boolean;
   widgetModuleFilter?: WidgetModuleFilter;
-  /** @deprecated Use `widgetModuleFilter`. */
-  dynamicImportPredicate?: DynamicImportPredicate;
   /** In-memory routemap while dev server is running (filesystem routing). */
   devServerRoutemap?: RouteMap;
   /** Shared cache for route asset collection across plugin instances. */
@@ -99,12 +96,6 @@ export function createRouterPluginHost(
     },
     setWidgetModuleFilter(filter) {
       state.widgetModuleFilter = filter;
-    },
-    get dynamicImportPredicate() {
-      return state.widgetModuleFilter;
-    },
-    setDynamicImportPredicate(predicate) {
-      state.widgetModuleFilter = predicate;
     },
     async clientImportmap() {
       const file = api.config.input.client.importmap;

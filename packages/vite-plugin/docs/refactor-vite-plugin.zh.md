@@ -132,9 +132,9 @@ manifest **查找 key 仍是源文件路径**（如 `routes/examples/action/inde
 `createRouterPlugins()` 创建单一 `RouterPluginHost`，子插件工厂通过闭包共享同一 host；对外暴露为 `@web-widget:router` 的 `plugin.api`：
 
 - `config` / `build`：resolved 配置、entry points、`routeClientAssets` 等
-- `setDynamicImportPredicate()`（已废弃，推荐使用 `widgetModuleFilter`）：供 `webWidgetPlugin` 注册 widget 动态 import 过滤
+- `setWidgetModuleFilter()`：供 `webWidgetPlugin` 注册 widget 模块过滤
 
-不再使用模块级 global singleton 或事后扫描 `config.plugins` 写回状态（`webWidgetPlugin` 在 `config` 钩子中调用 `api.setDynamicImportPredicate`）。
+不再使用模块级 global singleton 或事后扫描 `config.plugins` 写回状态（`webWidgetPlugin` 在 `config` 钩子中调用 `api.setWidgetModuleFilter`）。
 
 ## 3. 开发服务器：server 模块加载与 HMR
 

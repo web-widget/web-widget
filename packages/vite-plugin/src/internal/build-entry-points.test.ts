@@ -149,7 +149,7 @@ describe('resolveClientEntryPoints', () => {
     ).toMatch(/Counter@widget\.vue$/);
   });
 
-  it('excludes widgets rejected by dynamicImportPredicate from client build entries', async () => {
+  it('excludes widgets rejected by widgetModuleFilter from client build entries', async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-entry-points-'));
     const routemapPath = path.join(tempDir, 'routemap.server.json');
     await fs.writeFile(
@@ -187,8 +187,7 @@ describe('resolveClientEntryPoints', () => {
       'utf-8'
     );
 
-    const dynamicImportPredicate = (key: string) =>
-      key.includes('Included@widget');
+    const widgetModuleFilter = (key: string) => key.includes('Included@widget');
 
     const entryPoints = await resolveClientEntryPoints(
       {
@@ -205,7 +204,7 @@ describe('resolveClientEntryPoints', () => {
       routemapPath,
       tempDir,
       {
-        dynamicImportPredicate,
+        widgetModuleFilter,
       }
     );
 
@@ -264,8 +263,7 @@ describe('resolveClientEntryPoints', () => {
       'utf-8'
     );
 
-    const dynamicImportPredicate = (key: string) =>
-      key.includes('Included@widget');
+    const widgetModuleFilter = (key: string) => key.includes('Included@widget');
 
     const entryPoints = await resolveClientEntryPoints(
       {
@@ -282,7 +280,7 @@ describe('resolveClientEntryPoints', () => {
       routemapPath,
       tempDir,
       {
-        dynamicImportPredicate,
+        widgetModuleFilter,
       }
     );
 

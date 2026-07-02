@@ -98,13 +98,13 @@ async function resolveClientBuildGraph(host: RouterPluginHost) {
   // (`enforce: 'pre'`). Fall back to the default `[.@]widget.` matcher so
   // asset/manifest-link collection works even without an explicit
   // `webWidgetPlugin` (or when its hook has not run yet).
-  const dynamicImportPredicate = widgetModuleFilter ?? defaultWidgetPathMatcher;
+  const widgetFilter = widgetModuleFilter ?? defaultWidgetPathMatcher;
   const entryPoints = await resolveClientEntryPoints(
     context.serverRoutemap,
     context.serverRoutemapPath,
     root,
     {
-      dynamicImportPredicate,
+      widgetModuleFilter: widgetFilter,
       caches: host.api.getRouteAssetCaches(),
       routeClientAssets: host.api.getRouteClientAssets(),
     }
@@ -361,8 +361,7 @@ function createRouterPlugin(
       const { root, widgetModuleFilter } = host.state;
       // Same fallback as in `resolveClientBuildGraph`: when `webWidgetPlugin`
       // has not registered a filter yet, use the default widget path matcher.
-      const dynamicImportPredicate =
-        widgetModuleFilter ?? defaultWidgetPathMatcher;
+      const widgetFilter = widgetModuleFilter ?? defaultWidgetPathMatcher;
       // Reuse source/parsing caches from `resolveClientEntryPoints` (configured
       // at `configEnvironment` time) but use a fresh `resolved` cache: the
       // resolver here is `this.resolve` (supports aliases), which is different
@@ -381,7 +380,7 @@ function createRouterPlugin(
       for (const { modulePath } of routeModules) {
         const assets = await collectRouteModuleAssets(modulePath, {
           root,
-          dynamicImportPredicate,
+          widgetModuleFilter: widgetFilter,
           resolveId: async (specifier, importer) => {
             const r = await this.resolve(specifier, importer);
             return r?.id ?? null;

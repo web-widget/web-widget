@@ -10,7 +10,7 @@ import type {
   RouteAssetCaches,
   RouteClientAssets,
 } from './collect-route-assets';
-import type { DynamicImportPredicate } from '@/types';
+import type { WidgetModuleFilter } from '@/types';
 
 export type BuildEntryPoints = {
   points: Record<string, string>;
@@ -301,7 +301,7 @@ export function resolveServerEntryPoints(
 }
 
 export interface ResolveClientEntryPointsOptions {
-  dynamicImportPredicate?: DynamicImportPredicate;
+  widgetModuleFilter?: WidgetModuleFilter;
   /**
    * Shared caches for route asset collection. When provided, `readFile`,
    * `es-module-lexer.parse` results are memoized across `resolveClientEntryPoints`
@@ -357,7 +357,7 @@ export async function resolveClientEntryPoints(
       options.routeClientAssets?.get(modulePath) ??
       (await collectRouteModuleAssets(modulePath, {
         root,
-        dynamicImportPredicate: options.dynamicImportPredicate,
+        widgetModuleFilter: options.widgetModuleFilter,
         caches,
       }));
 

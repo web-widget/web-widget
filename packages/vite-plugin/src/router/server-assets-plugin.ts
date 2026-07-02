@@ -120,14 +120,14 @@ export async function writeServerAssetsDataFile(
   // `widgetModuleFilter` may not be set yet (see `resolveClientBuildGraph`).
   // Fall back to the default widget path matcher so widget CSS links are
   // still collected for the linkMap.
-  const dynamicImportPredicate = widgetModuleFilter ?? defaultWidgetPathMatcher;
+  const widgetFilter = widgetModuleFilter ?? defaultWidgetPathMatcher;
 
   const data = buildServerAssetsData(
     manifest,
     routeClientAssets,
     base,
     root,
-    dynamicImportPredicate,
+    widgetFilter,
     clientEntryId
   );
 

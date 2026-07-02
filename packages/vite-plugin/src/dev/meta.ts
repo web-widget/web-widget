@@ -9,7 +9,7 @@ import type {
 import type { EnvironmentModuleNode } from 'vite';
 import { isCSSRequest } from 'vite';
 
-import type { DynamicImportPredicate } from '@/types';
+import type { WidgetModuleFilter } from '@/types';
 import type { ServerDevEnvironment } from '@/internal/environment';
 import {
   canonicalModuleKey,
@@ -29,7 +29,7 @@ type ServerModuleDependencyKeys = {
 export async function getMeta(
   filePath: string,
   serverEnvironment: ServerDevEnvironment,
-  dynamicImportPredicate?: DynamicImportPredicate
+  widgetModuleFilter?: WidgetModuleFilter
 ): Promise<{
   link: LinkDescriptor[];
   style: StyleDescriptor[];
@@ -40,7 +40,7 @@ export async function getMeta(
   const { urls: styleUrls, styles } = await getStylesForURL(
     filePath,
     serverEnvironment,
-    dynamicImportPredicate
+    widgetModuleFilter
   );
   let link: LinkDescriptor[] = styleUrls.map((href) => ({
     rel: 'stylesheet',
@@ -70,7 +70,7 @@ interface ImportedStyle {
 async function getStylesForURL(
   filePath: string,
   serverEnvironment: ServerDevEnvironment,
-  dynamicImportPredicate?: DynamicImportPredicate
+  widgetModuleFilter?: WidgetModuleFilter
 ): Promise<{ urls: string[]; styles: ImportedStyle[] }> {
   const importedCssUrls = new Set<string>();
   const importedStylesMap = new Map<string, ImportedStyle>();
@@ -83,7 +83,7 @@ async function getStylesForURL(
     true,
     new Set(),
     root,
-    dynamicImportPredicate
+    widgetModuleFilter
   )) {
     await appendCssModuleStyles(
       serverEnvironment,
@@ -223,7 +223,7 @@ async function resolveServerModuleDependencyKeys(
   serverEnvironment: ServerDevEnvironment,
   entry: EnvironmentModuleNode,
   root: string,
-  dynamicImportPredicate?: DynamicImportPredicate
+  widgetModuleFilter?: WidgetModuleFilter
 ): Promise<ServerModuleDependencyKeys> {
   const entryPath = entry.id ? canonicalModuleKey(entry.id) : '';
   const entryIsStyle =
@@ -266,9 +266,7 @@ async function resolveServerModuleDependencyKeys(
           continue;
         }
         const relativeKey = toManifestFilterKey(r.id, root);
-        if (
-          matchesWidgetModule(root, relativeKey, r.id, dynamicImportPredicate)
-        ) {
+        if (matchesWidgetModule(root, relativeKey, r.id, widgetModuleFilter)) {
           matchedDynamicImportKeys.add(canonicalModuleKey(r.id));
         }
       } catch {
@@ -288,7 +286,7 @@ async function resolveWidgetModulesFromDynamicDeps(
   serverEnvironment: ServerDevEnvironment,
   entry: EnvironmentModuleNode,
   root: string,
-  dynamicImportPredicate?: DynamicImportPredicate
+  widgetModuleFilter?: WidgetModuleFilter
 ): Promise<EnvironmentModuleNode[]> {
   await ensureServerTransformResult(serverEnvironment, entry);
 
@@ -306,9 +304,7 @@ async function resolveWidgetModulesFromDynamicDeps(
         continue;
       }
       const relativeKey = toManifestFilterKey(r.id, root);
-      if (
-        !matchesWidgetModule(root, relativeKey, r.id, dynamicImportPredicate)
-      ) {
+      if (!matchesWidgetModule(root, relativeKey, r.id, widgetModuleFilter)) {
         continue;
       }
 
@@ -334,7 +330,7 @@ async function* crawlGraph(
   isRootFile: boolean,
   scanned: Set<string>,
   root: string,
-  dynamicImportPredicate?: DynamicImportPredicate
+  widgetModuleFilter?: WidgetModuleFilter
 ): AsyncGenerator<EnvironmentModuleNode, void, unknown> {
   const id = unwrapViteId(_id);
   const importedModules = new Set<EnvironmentModuleNode>();
@@ -362,7 +358,7 @@ async function* crawlGraph(
         serverEnvironment,
         entry,
         root,
-        dynamicImportPredicate
+        widgetModuleFilter
       );
 
     for (const importedModule of entry.importedModules) {
@@ -399,7 +395,7 @@ async function* crawlGraph(
         serverEnvironment,
         entry,
         root,
-        dynamicImportPredicate
+        widgetModuleFilter
       )) {
         importedModules.add(widgetModule);
       }
@@ -422,7 +418,7 @@ async function* crawlGraph(
       false,
       scanned,
       root,
-      dynamicImportPredicate
+      widgetModuleFilter
     );
   }
 }

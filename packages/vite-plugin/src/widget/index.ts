@@ -19,15 +19,15 @@ export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
   } = options;
 
   const filterImportPath = createFilter(imports?.include, imports?.exclude);
-  const dynamicImportPredicate = (key: string) => filterImportPath(key);
+  const widgetModuleFilter = (key: string) => filterImportPath(key);
 
   return [
     {
-      name: '@web-widget:dynamic-import-predicate',
+      name: '@web-widget:widget-module-filter',
       enforce: 'post',
       config(config) {
-        getWebRouterPluginApi(config)?.setDynamicImportPredicate(
-          dynamicImportPredicate
+        getWebRouterPluginApi(config)?.setWidgetModuleFilter(
+          widgetModuleFilter
         );
       },
     },
@@ -37,7 +37,7 @@ export function webWidgetPlugin(options: WebWidgetUserConfig): Plugin[] {
       include: exports?.include,
       inject: exports?.inject,
       provide,
-      dynamicImportPredicate,
+      widgetModuleFilter,
     }),
 
     ...importRenderPlugin({
