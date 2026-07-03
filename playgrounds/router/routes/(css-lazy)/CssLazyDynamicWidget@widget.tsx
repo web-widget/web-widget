@@ -22,10 +22,10 @@ export default function CssLazyDynamicWidget() {
     <section className="css-lazy-widget-root">
       <h2>Widget: click → dynamic import + CSS</h2>
       <p>
-        This block is a <code>@widget</code> module (SSR/client boundary). For
-        widget meta, dynamic-chunk CSS is omitted from head by default — search
-        page source for <code>widget-inner-lazy</code> before clicking; after
-        load, Vite injects styles.
+        This block is a <code>@widget</code> module (server/client boundary).
+        For widget meta, dynamic-chunk CSS is omitted from head by default —
+        search page source for <code>widget-inner-lazy</code> before clicking;
+        after load, Vite injects styles.
       </p>
       {!Inner ? (
         <button type="button" onClick={handleClick} disabled={loading}>

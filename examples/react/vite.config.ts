@@ -25,10 +25,4 @@ export default defineConfig({
   build: {
     target: ['chrome76'],
   },
-  test: {
-    api: {
-      port: Number(process.env.TEST_PORT ?? 51204),
-      strictPort: true,
-    },
-  },
 });

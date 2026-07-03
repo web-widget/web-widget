@@ -50,9 +50,9 @@
     "dev": "vite",
     "preview": "vite preview",
     "start": "node server.js",
-    "test": "cross-env TEST_PORT=51224 vitest",
-    "test:run": "cross-env TEST_PORT=51224 vitest run",
-    "test:ui": "cross-env TEST_PORT=51224 vitest --ui"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "type": "module"
 }
