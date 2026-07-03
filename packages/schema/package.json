@@ -19,12 +19,13 @@
   "exports": {
     ".": {
       "types": "./schema.d.ts",
-      "default": "./schema.d.ts"
+      "default": "./placeholder.js"
     }
   },
   "files": [
     "types",
-    "schema.d.ts"
+    "schema.d.ts",
+    "placeholder.js"
   ],
   "publishConfig": {
     "access": "public"
