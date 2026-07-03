@@ -6,13 +6,8 @@ import stripAnsi from 'strip-ansi';
 import type { Plugin, ViteDevServer } from 'vite';
 import { isRunnableDevEnvironment } from 'vite';
 import type WebRouter from '@web-widget/web-router';
-import {
-  getMeta,
-  cssContentCache,
-  CSS_LANGS_RE,
-  rawRE,
-  inlineRE,
-} from './meta';
+import { getMeta, cssContentCache } from './meta';
+import { CSS_LANGS_RE, cssExcludeRE } from '@/internal/module-id';
 import { fileSystemRouteGenerator } from './routing';
 import { handleDevRoutemapChange } from './routemap-invalidation';
 import type { ResolvedWebRouterConfig } from '@/types';
@@ -63,7 +58,7 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin {
       filter: {
         id: {
           include: [CSS_LANGS_RE],
-          exclude: [rawRE, inlineRE],
+          exclude: cssExcludeRE,
         },
       },
       handler(code, id) {
@@ -215,22 +210,23 @@ function createWebRouterDevMiddleware(
               serverDev,
               getWebRouterPluginApi(viteServer.config)?.widgetModuleFilter
             );
-            const url = new URL(request.url);
-            const viteHtml = await viteServer.transformIndexHtml(
-              url.pathname + url.search,
-              html.replace(/(<\/head>)/, renderMetaToString(meta) + '$1')
+            meta.script.unshift({ type: 'module', src: '/@vite/client' });
+
+            const finalHtml = html.replace(
+              /(<\/head>)/,
+              renderMetaToString(meta) + '$1'
             );
             const headers = new Headers(res.headers);
 
-            if (html !== viteHtml && headers.has('etag')) {
+            if (html !== finalHtml && headers.has('etag')) {
               const newEtag = crypto
                 .createHash('sha1')
-                .update(viteHtml)
+                .update(finalHtml)
                 .digest('hex');
               headers.set('etag', `W/"${newEtag}"`);
             }
 
-            res = new Response(viteHtml, {
+            res = new Response(finalHtml, {
               status: res.status,
               statusText: res.statusText,
               headers,

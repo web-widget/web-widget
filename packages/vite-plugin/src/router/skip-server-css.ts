@@ -1,14 +1,15 @@
 import type { Plugin } from 'vite';
+import {
+  CSS_LANGS_RE,
+  CSS_MODULE_RE,
+  VUE_STYLE_QUERY_RE,
+  VUE_CSS_MODULE_QUERY_RE,
+} from '@/internal/module-id';
 
 /** Inlined to avoid transitive `vite` ESM import issues in jest. */
 function applyToServerEnvironment(): Plugin['applyToEnvironment'] {
   return (environment) => environment.config.consumer === 'server';
 }
-
-const CSS_EXTENSION_RE = /\.(css|less|scss|sass|styl|stylus)$/;
-const CSS_MODULE_RE = /\.module\./;
-const VUE_STYLE_QUERY_RE = /[?&]vue&type=style/;
-const VUE_CSS_MODULE_QUERY_RE = /[?&]module(=|&|$)/;
 
 /**
  * Returns `true` when `id` is a regular (non-module) CSS file or Vue SFC
@@ -24,7 +25,7 @@ function isSkippableServerCss(id: string): boolean {
   }
 
   const cleanId = id.replace(/[?#].*$/, '');
-  if (!CSS_EXTENSION_RE.test(cleanId)) return false;
+  if (!CSS_LANGS_RE.test(cleanId)) return false;
   if (CSS_MODULE_RE.test(cleanId)) return false;
   return true;
 }

@@ -13,6 +13,7 @@ import type { WidgetModuleFilter } from '@/types';
 import type { ServerDevEnvironment } from '@/internal/environment';
 import {
   canonicalModuleKey,
+  cssExcludeRE,
   normalizeFilterId,
   stripModuleIdQuery,
   toManifestFilterKey,
@@ -155,14 +156,6 @@ async function appendCssModuleStyles(
   });
 }
 
-const rawRE = /(?:\?|&)raw(?:&|$)/;
-const inlineRE = /(?:\?|&)inline\b/;
-
-const CSS_LANGS_RE =
-  /\.(css|less|sass|scss|styl|stylus|pcss|postcss|sss)(?:$|\?)/;
-
-export { CSS_LANGS_RE, rawRE, inlineRE };
-
 /**
  * Cache of CSS content keyed by module id. Populated by the `transform`
  * hook in the dev server plugin — the hook receives the raw CSS from the
@@ -173,7 +166,7 @@ export { CSS_LANGS_RE, rawRE, inlineRE };
 export const cssContentCache = new Map<string, string>();
 
 const isBuildableCSSRequest = (request: string): boolean =>
-  isCSSRequest(request) && !rawRE.test(request) && !inlineRE.test(request);
+  isCSSRequest(request) && !cssExcludeRE.some((re) => re.test(request));
 
 function moduleIdentityKey(id: string): string {
   return unwrapViteId(id);

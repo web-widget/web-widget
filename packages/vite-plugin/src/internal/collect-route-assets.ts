@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import * as esModuleLexer from 'es-module-lexer';
 import type { WidgetModuleFilter } from '@/types';
 import { normalizePath } from '@/internal/path';
+import { CSS_LANGS_RE } from '@/internal/module-id';
 
 export interface RouteClientAssets {
   cssModules: string[];
@@ -152,7 +153,7 @@ function stripImportQuery(specifier: string): string {
 
 export function isCssPath(filePath: string): boolean {
   const pathname = stripImportQuery(filePath);
-  return /\.(css|scss|sass|less|styl)$/.test(pathname);
+  return CSS_LANGS_RE.test(pathname);
 }
 
 function toRelativeKey(root: string, absolutePath: string): string {
