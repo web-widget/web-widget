@@ -1,7 +1,6 @@
 import type { Loader } from '../types';
-const ASSET_PLACEHOLDER = 'asset://';
 const MODULE_REG =
-  /\b(?:import|__vite_ssr_dynamic_import__)\(["']([^"']*)["']\)/;
+  /\b(?:import|__vite_ssr_dynamic_import__)\(["'`]([^"'`]*)["'`]\)/;
 
 export function parseModuleId(loader: Loader) {
   const match = String(loader).match(MODULE_REG);
@@ -35,17 +34,7 @@ export function getClientModuleId(
     base?: string;
   }
 ) {
-  const isAssetPlaceholder = options.import?.startsWith(ASSET_PLACEHOLDER);
-
-  if (isAssetPlaceholder) {
-    console.warn(
-      `The ${JSON.stringify(
-        options.import
-      )} protocol is not recognized, please check if the module is built correctly.`
-    );
-  }
-
-  return options.import && !isAssetPlaceholder
+  return options.import
     ? options.import
     : options.base && !options.base.startsWith('file://')
       ? options.base + parseModuleId(loader)

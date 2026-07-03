@@ -18,6 +18,22 @@ function use(
   });
 }
 
+use('*', async function streamingDemo(ctx, next) {
+  const pathname = new URL(ctx.request.url).pathname;
+  // `manifest.moduleSource` is injected by vite-plugin only in dev, so its
+  // absence marks production. Avoid `import.meta.env.DEV` here: it is replaced
+  // with `true` during SSR build and would let DCE strip the block.
+  if (
+    (pathname === '/react-streaming' || pathname === '/vue3-streaming') &&
+    !manifest.moduleSource &&
+    ctx.renderer
+  ) {
+    ctx.renderer.progressive = true;
+  }
+
+  return next();
+});
+
 use('*', async function spider(ctx, next) {
   const isSpider = /spider|bot/i.test(
     String(ctx.request.headers.get('User-Agent'))
@@ -28,8 +44,8 @@ use('*', async function spider(ctx, next) {
 
   if (isSpider || isDebugSpider) {
     console.log('spider..');
-    if (ctx.renderOptions) {
-      ctx.renderOptions.progressive = false;
+    if (ctx.renderer) {
+      ctx.renderer.progressive = false;
     }
   }
 

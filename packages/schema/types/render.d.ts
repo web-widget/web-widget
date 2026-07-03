@@ -4,7 +4,7 @@
  * This module defines the types for both server-side and client-side
  * rendering, including render functions, options, and lifecycle hooks.
  * These types provide the foundation for the rendering system,
- * supporting SSR, CSR, and hydration scenarios.
+ * supporting server rendering, client rendering, and hydration scenarios.
  *
  * @module Rendering Types
  */
@@ -52,7 +52,7 @@ export interface ServerRender<
 export interface ClientRenderOptions {
   /** The target DOM element or fragment where the component will be mounted. */
   container: Element | DocumentFragment;
-  /** Indicates whether hydration should be used (i.e., recovering from SSR). */
+  /** Indicates whether hydration should be used (i.e., recovering from server render). */
   recovering?: boolean;
 }
 
@@ -74,7 +74,7 @@ export type ClientRenderResult<Data = unknown> = {
 };
 
 /**
- * A function that renders a component on the client (CSR or hydration).
+ * A function that renders a component on the client (client render or hydration).
  * This is the core interface for client-side rendering in the framework.
  * @param component The component to be rendered.
  * @param data The data to be passed to the component.
