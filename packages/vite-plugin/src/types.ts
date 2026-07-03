@@ -2,8 +2,15 @@ import type WebRouter from '@web-widget/web-router';
 import type { z } from 'zod';
 import type { Manifest, StartOptions } from '@web-widget/web-router';
 import type { FilterPattern, Plugin, Manifest as ViteManifest } from 'vite';
-import type { WebRouterConfigSchema } from './config';
+import type { WebRouterConfigSchema } from './internal/config';
 import type { RouteSourceFile } from './dev/routing/types';
+import type {
+  RouteAssetCaches,
+  RouteClientAssets,
+} from './internal/collect-route-assets';
+import type { RouterBuildState } from './router/host';
+
+export type { RouterBuildState } from './router/host';
 
 ////////////////////////////////////////
 //////                            //////
@@ -12,7 +19,7 @@ import type { RouteSourceFile } from './dev/routing/types';
 ////////////////////////////////////////
 
 export interface ResolvedWebRouterConfig {
-  autoFullBuild: boolean;
+  ignore: string[];
   asyncContext: {
     enabled: boolean;
   };
@@ -29,6 +36,10 @@ export interface ResolvedWebRouterConfig {
     enabled: boolean;
     url: string;
   };
+  css: {
+    inlineStrategy: 'auto' | 'always' | 'never';
+    inlineThreshold: number;
+  };
   input: {
     client: {
       entry: string;
@@ -42,7 +53,6 @@ export interface ResolvedWebRouterConfig {
   output: {
     client: string;
     dir: string;
-    manifest: string;
     server: string;
   };
 }
@@ -100,20 +110,23 @@ export interface ImportMap {
 }
 
 /**
- * Whether to follow a `dynamicImports` target key (Vite client manifest in build;
- * same-shaped normalized project paths in dev SSR). Not a generic import hook.
+ * Whether a module path should be treated as a widget module for build graph,
+ * manifest links, and dev meta collection.
  */
-export type DynamicImportPredicate = (chunkKey: string) => boolean;
+export type WidgetModuleFilter = (modulePath: string) => boolean;
 
 export interface WebRouterPluginApi {
-  config: ResolvedWebRouterConfig;
+  readonly config: ResolvedWebRouterConfig;
+  /** @internal Build-time state populated during the config hook. */
+  readonly build: Readonly<RouterBuildState>;
   clientImportmap(): Promise<ImportMap>;
   serverRoutemap(): Promise<RouteMap>;
-  /**
-   * Registered by `webWidgetPlugin` from `import.include` / `exclude`.
-   * Dev SSR meta reads this via `getWebRouterPluginApi` (`./utils.ts`).
-   */
-  dynamicImportPredicate?: DynamicImportPredicate;
+  readonly widgetModuleFilter?: WidgetModuleFilter;
+  setWidgetModuleFilter(filter: WidgetModuleFilter): void;
+  /** Shared cache for route asset collection across plugin instances. */
+  getRouteAssetCaches(): RouteAssetCaches;
+  /** Pre-computed during `buildStart` for O(1) SSR transform lookup. */
+  getRouteClientAssets(): Map<string, RouteClientAssets>;
 }
 
 export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {
