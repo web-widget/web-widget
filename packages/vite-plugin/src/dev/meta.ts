@@ -37,14 +37,16 @@ export async function getMeta(
 }> {
   const script: ScriptDescriptor[] = [];
 
-  const { urls: styleUrls, styles } = await getStylesForURL(
+  const { links, styles } = await getCssForURL(
     filePath,
     serverEnvironment,
     widgetModuleFilter
   );
-  let link: LinkDescriptor[] = styleUrls.map((href) => ({
+
+  let link: LinkDescriptor[] = links.map(({ url, id }) => ({
     rel: 'stylesheet',
-    href,
+    href: url,
+    'data-vite-dev-id': id,
   }));
 
   let style: StyleDescriptor[] = styles.map(({ id, url, content }) => {
@@ -67,12 +69,17 @@ interface ImportedStyle {
   content: string;
 }
 
-async function getStylesForURL(
+interface ImportedLink {
+  id: string;
+  url: string;
+}
+
+async function getCssForURL(
   filePath: string,
   serverEnvironment: ServerDevEnvironment,
   widgetModuleFilter?: WidgetModuleFilter
-): Promise<{ urls: string[]; styles: ImportedStyle[] }> {
-  const importedCssUrls = new Set<string>();
+): Promise<{ links: ImportedLink[]; styles: ImportedStyle[] }> {
+  const importedLinksMap = new Map<string, ImportedLink>();
   const importedStylesMap = new Map<string, ImportedStyle>();
 
   const root = serverEnvironment.root;
@@ -89,14 +96,14 @@ async function getStylesForURL(
       serverEnvironment,
       importedModule.url,
       importedModule.id ?? importedModule.url,
-      importedCssUrls,
+      importedLinksMap,
       importedStylesMap,
       importedModule.ssrModule
     );
   }
 
   return {
-    urls: [...importedCssUrls],
+    links: [...importedLinksMap.values()],
     styles: [...importedStylesMap.values()],
   };
 }
@@ -105,7 +112,7 @@ async function appendCssModuleStyles(
   serverEnvironment: ServerDevEnvironment,
   moduleUrl: string,
   moduleId: string,
-  importedCssUrls: Set<string>,
+  importedLinksMap: Map<string, ImportedLink>,
   importedStylesMap: Map<string, ImportedStyle>,
   preloadedModule?: Record<string, any> | null
 ): Promise<void> {
@@ -118,7 +125,10 @@ async function appendCssModuleStyles(
     serverModule =
       preloadedModule ?? (await serverEnvironment.importModule(moduleUrl));
   } catch {
-    importedCssUrls.add(moduleUrl);
+    importedLinksMap.set(moduleUrl, {
+      id: moduleId,
+      url: moduleUrl,
+    });
     return;
   }
 
@@ -131,7 +141,10 @@ async function appendCssModuleStyles(
     return;
   }
 
-  importedCssUrls.add(moduleUrl);
+  importedLinksMap.set(moduleUrl, {
+    id: moduleId,
+    url: moduleUrl,
+  });
 }
 
 const rawRE = /(?:\?|&)raw(?:&|$)/;
