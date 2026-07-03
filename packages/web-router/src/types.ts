@@ -7,6 +7,7 @@ import type {
   HTTPException,
   MiddlewareModule,
   RouteComponentProps,
+  RouteContext,
   RouteModule,
   ServerRender,
   ServerRenderResult,
@@ -66,7 +67,20 @@ export type CloudflareFetchContext = {
 ////////////////////////////////////////
 
 export interface Manifest {
-  dev?: boolean;
+  /**
+   * Route module source path resolver injected by `@web-widget/vite-plugin`
+   * during dev. The returned path is written to the
+   * {@link DEV_MODULE_SOURCE_HEADER} response header so dev tooling can
+   * locate the source file. Not intended for application code.
+   */
+  moduleSource?: (context: RouteContext) => string | void;
+  /**
+   * Whether to expose full error details, injected by
+   * `@web-widget/vite-plugin` during dev so server error pages always
+   * include the underlying error. Takes precedence over
+   * {@link StartOptions.exposeErrors}. Not intended for application code.
+   */
+  exposeErrors?: boolean;
   routes: {
     module: RouteModule | (() => Promise<RouteModule>);
     name?: string;
@@ -116,14 +130,5 @@ export interface LayoutRender extends ServerRender<
   LayoutComponentProps
 > {}
 
-////////////////////////////////////////
-//////                            //////
-//////             Dev            //////
-//////                            //////
-////////////////////////////////////////
-
-export type DevRouteModule = RouteModule & {
-  $source: string;
-};
-
-export type DevHttpHandler = 'x-module-source';
+/** Response header name for the active route module source path in dev. */
+export const DEV_MODULE_SOURCE_HEADER = 'x-module-source';
