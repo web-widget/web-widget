@@ -6,7 +6,13 @@ import { renderMetaToString } from '@web-widget/helpers';
 import stripAnsi from 'strip-ansi';
 import type { Plugin, ViteDevServer } from 'vite';
 import type WebRouter from '@web-widget/web-router';
-import { getMeta } from './meta';
+import {
+  getMeta,
+  cssContentCache,
+  CSS_LANGS_RE,
+  rawRE,
+  inlineRE,
+} from './meta';
 import { fileSystemRouteGenerator } from './routing';
 import type { ResolvedWebRouterConfig } from '@/types';
 import { getWebRouterPluginApi } from '@/utils';
@@ -45,6 +51,21 @@ export function webRouterDevServerPlugin(
       if (!resolvedWebRouterConfig) {
         throw new Error('Missing options.');
       }
+    },
+
+    transform: {
+      filter: {
+        id: {
+          include: [CSS_LANGS_RE],
+          exclude: [rawRE, inlineRE],
+        },
+      },
+      handler(code, id) {
+        if (typeof code === 'string') {
+          cssContentCache.set(id, code);
+        }
+        return undefined;
+      },
     },
 
     async configureServer(viteServer) {

@@ -1,31 +1,26 @@
 // Based on the code in the MIT licensed `astro` package.
 
-import path from 'node:path';
 import type {
   LinkDescriptor,
   ScriptDescriptor,
   StyleDescriptor,
 } from '@web-widget/helpers';
 
-import type { ViteDevServer, ModuleNode } from 'vite';
+import type { EnvironmentModuleNode } from 'vite';
 import { isCSSRequest } from 'vite';
 
-import type { DynamicImportPredicate } from '../types';
+import type { WidgetModuleFilter } from '@/types';
+import type { ServerDevEnvironment } from '@/internal/environment';
 import {
   canonicalModuleKey,
   normalizeFilterId,
   stripModuleIdQuery,
   toManifestFilterKey,
   unwrapViteId,
-} from '../utils';
+} from '@/internal/module-id';
+import { matchesWidgetModule } from '@/internal/collect-route-assets';
 
-/**
- * Dev-time dependency keys for `crawlGraph`, parallel to `getLinksInternal` in
- * `./manifest-links.ts`:
- * - `importDepKeys`: static edges (`imports` / SSR `deps`)
- * - `matchedDynamicImportKeys`: `dynamicImports` / SSR `dynamicDeps` targets accepted by `dynamicImportPredicate`
- */
-type SsrModuleDependencyKeys = {
+type ServerModuleDependencyKeys = {
   filterDisabled: boolean;
   importDepKeys: Set<string>;
   matchedDynamicImportKeys: Set<string>;
@@ -33,42 +28,42 @@ type SsrModuleDependencyKeys = {
 
 export async function getMeta(
   filePath: string,
-  viteDevServer: ViteDevServer,
-  dynamicImportPredicate?: DynamicImportPredicate
+  serverEnvironment: ServerDevEnvironment,
+  widgetModuleFilter?: WidgetModuleFilter
 ): Promise<{
   link: LinkDescriptor[];
   style: StyleDescriptor[];
   script: ScriptDescriptor[];
 }> {
-  // Add hoisted script tags
   const script: ScriptDescriptor[] = [];
+  const style: StyleDescriptor[] = [];
 
-  // Pass framework CSS in as style tags to be appended to the page.
-  const { urls: styleUrls, styles } = await getStylesForURL(
+  const { styles, moduleScripts } = await getCssForURL(
     filePath,
-    viteDevServer,
-    dynamicImportPredicate
+    serverEnvironment,
+    widgetModuleFilter
   );
-  let link: LinkDescriptor[] = styleUrls.map((href) => ({
-    rel: 'stylesheet',
-    href,
-  }));
 
-  let style: StyleDescriptor[] = styles.map(({ id, url, content }) => {
-    // Vite handles HMR for styles injected as scripts
-    script.push({
-      type: 'module',
-      src: url,
-    });
-    // But we still want to inject the styles to avoid FOUC. The style tags
-    // should emulate what Vite injects so further HMR works as expected.
-    return {
-      'data-vite-dev-id': id,
-      content,
-    };
-  });
+  // CSS modules with cached content: emit <style> for immediate CSS
+  // (no FOUC) and <script> so Vite's client can hot-update the <style>
+  // via updateStyle().
+  for (const { id, url, content } of styles) {
+    script.push({ type: 'module', src: url });
+    style.push({ 'data-vite-dev-id': id, content });
+  }
 
-  return { script, style, link };
+  // CSS modules without cached content (transform failed and cache was
+  // empty): emit <script> to load the module (enables HMR) and an empty
+  // <style data-vite-dev-id> so Vite's client registers it in sheetsMap
+  // and updateStyle() can fill/update it. This mirrors Astro's approach
+  // — never use <link rel="stylesheet"> because it registers in
+  // linkSheetsMap which makes updateStyle() short-circuit and blocks HMR.
+  for (const { id, url } of moduleScripts) {
+    script.push({ type: 'module', src: url });
+    style.push({ 'data-vite-dev-id': id, content: '' });
+  }
+
+  return { script, style, link: [] };
 }
 
 interface ImportedStyle {
@@ -77,66 +72,118 @@ interface ImportedStyle {
   content: string;
 }
 
-/** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
-async function getStylesForURL(
-  filePath: string,
-  viteDevServer: ViteDevServer,
-  dynamicImportPredicate?: DynamicImportPredicate
-): Promise<{ urls: string[]; styles: ImportedStyle[] }> {
-  const importedCssUrls = new Set<string>();
-  // Map of url to injected style object. Use a `url` key to deduplicate styles
-  const importedStylesMap = new Map<string, ImportedStyle>();
+interface ImportedModuleScript {
+  id: string;
+  url: string;
+}
 
-  const root = viteDevServer.config.root;
+async function getCssForURL(
+  filePath: string,
+  serverEnvironment: ServerDevEnvironment,
+  widgetModuleFilter?: WidgetModuleFilter
+): Promise<{
+  styles: ImportedStyle[];
+  moduleScripts: ImportedModuleScript[];
+}> {
+  const importedStylesMap = new Map<string, ImportedStyle>();
+  const importedModuleScriptsMap = new Map<string, ImportedModuleScript>();
+
+  const root = serverEnvironment.root;
 
   for await (const importedModule of crawlGraph(
-    viteDevServer,
+    serverEnvironment,
     filePath,
     true,
     new Set(),
     root,
-    dynamicImportPredicate
+    widgetModuleFilter
   )) {
-    if (isBuildableCSSRequest(importedModule.url)) {
-      let ssrModule: Record<string, any>;
-      try {
-        // The SSR module is possibly not loaded. Load it if it's null.
-        ssrModule =
-          importedModule.ssrModule ??
-          (await viteDevServer.ssrLoadModule(importedModule.url));
-      } catch {
-        // The module may not be inline-able, e.g. SCSS partials. Skip it as it may already
-        // be inlined into other modules if it happens to be in the graph.
-        continue;
-      }
-      if (
-        typeof ssrModule?.default === 'string' // ignore JS module styles
-      ) {
-        importedStylesMap.set(importedModule.url, {
-          id: importedModule.id ?? importedModule.url,
-          url: importedModule.url,
-          content: ssrModule.default,
-        });
-      } else {
-        // NOTE: We use the `url` property here. `id` would break Windows.
-        importedCssUrls.add(importedModule.url);
-      }
-    }
+    await appendCssModuleStyles(
+      serverEnvironment,
+      importedModule.url,
+      importedModule.id ?? importedModule.url,
+      importedStylesMap,
+      importedModuleScriptsMap
+    );
   }
 
   return {
-    urls: [...importedCssUrls],
     styles: [...importedStylesMap.values()],
+    moduleScripts: [...importedModuleScriptsMap.values()],
   };
+}
+
+async function appendCssModuleStyles(
+  serverEnvironment: ServerDevEnvironment,
+  moduleUrl: string,
+  moduleId: string,
+  importedStylesMap: Map<string, ImportedStyle>,
+  importedModuleScriptsMap: Map<string, ImportedModuleScript>
+): Promise<void> {
+  if (!isBuildableCSSRequest(moduleUrl)) {
+    return;
+  }
+
+  // Trigger the transform pipeline so the `transform` hook fills
+  // `cssContentCache` with the raw CSS content. We use `transformRequest`
+  // rather than `importModule` to avoid executing the module's JS code
+  // (e.g. Vue SFC style sub-modules call `updateStyle()` at runtime,
+  // which is a meaningless side effect in SSR). This mirrors Astro's
+  // approach — the transform hook receives the raw CSS from the load
+  // stage before Vite's cssPlugin converts it to an empty JS module.
+  try {
+    await serverEnvironment.transformRequest(moduleUrl);
+  } catch {
+    // Transform may fail for virtual or special modules. Fall through
+    // to cache lookup — the content may already be cached from a
+    // previous transform, or we emit an empty <style> as fallback.
+  }
+
+  const cachedCss = cssContentCache.get(moduleId);
+  if (typeof cachedCss === 'string' && cachedCss.length > 0) {
+    importedStylesMap.set(moduleUrl, {
+      id: moduleId,
+      url: moduleUrl,
+      content: cachedCss,
+    });
+    return;
+  }
+
+  importedModuleScriptsMap.set(moduleUrl, {
+    id: moduleId,
+    url: moduleUrl,
+  });
 }
 
 const rawRE = /(?:\?|&)raw(?:&|$)/;
 const inlineRE = /(?:\?|&)inline\b/;
 
+const CSS_LANGS_RE =
+  /\.(css|less|sass|scss|styl|stylus|pcss|postcss|sss)(?:$|\?)/;
+
+export { CSS_LANGS_RE, rawRE, inlineRE };
+
+/**
+ * Cache of CSS content keyed by module id. Populated by the `transform`
+ * hook in the dev server plugin — the hook receives the raw CSS from the
+ * `load` stage (before Vite's cssPlugin converts it to an empty JS module
+ * for SSR). `appendCssModuleStyles` reads from this cache to emit
+ * `<style>` tags with content, avoiding FOUC.
+ */
+export const cssContentCache = new Map<string, string>();
+
 const isBuildableCSSRequest = (request: string): boolean =>
   isCSSRequest(request) && !rawRE.test(request) && !inlineRE.test(request);
 
-function moduleNodeKeys(mod: ModuleNode): string[] {
+function moduleIdentityKey(id: string): string {
+  return unwrapViteId(id);
+}
+
+function moduleKeysMatch(a: string, b: string): boolean {
+  return canonicalModuleKey(a) === canonicalModuleKey(b);
+}
+
+function moduleNodeKeys(mod: EnvironmentModuleNode): string[] {
   const keys: string[] = [];
   if (mod.id) {
     keys.push(canonicalModuleKey(mod.id));
@@ -151,7 +198,7 @@ function moduleNodeKeys(mod: ModuleNode): string[] {
 }
 
 function classifyImportEdge(
-  mod: ModuleNode,
+  mod: EnvironmentModuleNode,
   importDepKeys: Set<string>,
   matchedDynamicImportKeys: Set<string>
 ): 'import' | 'dynamic-import' | 'none' {
@@ -174,33 +221,29 @@ function classifyImportEdge(
   return 'none';
 }
 
-async function ensureSsrTransformResult(
-  viteDevServer: ViteDevServer,
-  mod: ModuleNode
+async function ensureServerTransformResult(
+  serverEnvironment: ServerDevEnvironment,
+  mod: EnvironmentModuleNode
 ) {
-  if (mod.ssrTransformResult) {
+  if (mod.transformResult) {
     return;
   }
   try {
-    await viteDevServer.transformRequest(normalizeFilterId(mod.url), {
-      ssr: true,
-    });
+    await serverEnvironment.transformRequest(normalizeFilterId(mod.url));
   } catch {
     /** transform may fail for virtual / special modules */
   }
 }
 
 async function resolveSpecifierKeys(
-  viteDevServer: ViteDevServer,
+  serverEnvironment: ServerDevEnvironment,
   importer: string,
   specifiers: readonly string[] | undefined
 ): Promise<Set<string>> {
   const keys = new Set<string>();
   for (const spec of specifiers ?? []) {
     try {
-      const r = await viteDevServer.pluginContainer.resolveId(spec, importer, {
-        ssr: true,
-      });
+      const r = await serverEnvironment.resolveId(spec, importer);
       if (r?.id) {
         keys.add(canonicalModuleKey(r.id));
       }
@@ -211,12 +254,12 @@ async function resolveSpecifierKeys(
   return keys;
 }
 
-async function resolveSsrModuleDependencyKeys(
-  viteDevServer: ViteDevServer,
-  entry: ModuleNode,
+async function resolveServerModuleDependencyKeys(
+  serverEnvironment: ServerDevEnvironment,
+  entry: EnvironmentModuleNode,
   root: string,
-  dynamicImportPredicate?: DynamicImportPredicate
-): Promise<SsrModuleDependencyKeys> {
+  widgetModuleFilter?: WidgetModuleFilter
+): Promise<ServerModuleDependencyKeys> {
   const entryPath = entry.id ? canonicalModuleKey(entry.id) : '';
   const entryIsStyle =
     entry.type === 'css' ||
@@ -231,9 +274,9 @@ async function resolveSsrModuleDependencyKeys(
     };
   }
 
-  await ensureSsrTransformResult(viteDevServer, entry);
+  await ensureServerTransformResult(serverEnvironment, entry);
 
-  const tr = entry.ssrTransformResult;
+  const tr = entry.transformResult;
   const importer = entry.file ?? entry.id;
   if (!tr || !importer) {
     return {
@@ -244,23 +287,21 @@ async function resolveSsrModuleDependencyKeys(
   }
 
   const importDepKeys = await resolveSpecifierKeys(
-    viteDevServer,
+    serverEnvironment,
     importer,
     tr.deps
   );
 
   const matchedDynamicImportKeys = new Set<string>();
-  if (dynamicImportPredicate && tr.dynamicDeps?.length) {
+  if (tr.dynamicDeps?.length) {
     for (const dep of tr.dynamicDeps) {
       try {
-        const r = await viteDevServer.pluginContainer.resolveId(dep, importer, {
-          ssr: true,
-        });
+        const r = await serverEnvironment.resolveId(dep, importer);
         if (!r?.id) {
           continue;
         }
-        const manifestKey = toManifestFilterKey(r.id, root);
-        if (dynamicImportPredicate(manifestKey)) {
+        const relativeKey = toManifestFilterKey(r.id, root);
+        if (matchesWidgetModule(root, relativeKey, r.id, widgetModuleFilter)) {
           matchedDynamicImportKeys.add(canonicalModuleKey(r.id));
         }
       } catch {
@@ -276,135 +317,151 @@ async function resolveSsrModuleDependencyKeys(
   };
 }
 
-/**
- * List of file extensions signalling we can (and should) SSR ahead-of-time
- * See usage below
- */
-const fileExtensionsToSSR = new Set();
+async function resolveWidgetModulesFromDynamicDeps(
+  serverEnvironment: ServerDevEnvironment,
+  entry: EnvironmentModuleNode,
+  root: string,
+  widgetModuleFilter?: WidgetModuleFilter
+): Promise<EnvironmentModuleNode[]> {
+  await ensureServerTransformResult(serverEnvironment, entry);
 
-/** recursively crawl the module graph to get all style files imported by parent id */
+  const tr = entry.transformResult;
+  const importer = entry.file ?? entry.id;
+  if (!tr?.dynamicDeps?.length || !importer) {
+    return [];
+  }
+
+  const modules: EnvironmentModuleNode[] = [];
+  for (const dep of tr.dynamicDeps) {
+    try {
+      const r = await serverEnvironment.resolveId(dep, importer);
+      if (!r?.id) {
+        continue;
+      }
+      const relativeKey = toManifestFilterKey(r.id, root);
+      if (!matchesWidgetModule(root, relativeKey, r.id, widgetModuleFilter)) {
+        continue;
+      }
+
+      let mod = serverEnvironment.getModuleById(r.id);
+      if (!mod) {
+        await serverEnvironment.transformRequest(normalizeFilterId(r.id));
+        mod = serverEnvironment.getModuleById(r.id) ?? undefined;
+      }
+      if (mod?.id) {
+        modules.push(mod);
+      }
+    } catch {
+      /** unresolved optional deps, etc. */
+    }
+  }
+
+  return modules;
+}
+
 async function* crawlGraph(
-  viteDevServer: ViteDevServer,
+  serverEnvironment: ServerDevEnvironment,
   _id: string,
   isRootFile: boolean,
   scanned: Set<string>,
   root: string,
-  dynamicImportPredicate?: DynamicImportPredicate
-): AsyncGenerator<ModuleNode, void, unknown> {
+  widgetModuleFilter?: WidgetModuleFilter
+): AsyncGenerator<EnvironmentModuleNode, void, unknown> {
   const id = unwrapViteId(_id);
-  const importedModules = new Set<ModuleNode>();
+  const importedModules = new Set<EnvironmentModuleNode>();
 
   const moduleEntriesForId = isRootFile
-    ? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),
-      // So we can get up-to-date info on initial server load.
-      // Needed for slower CSS preprocessing like Tailwind
-      (viteDevServer.moduleGraph.getModulesByFile(id) ?? new Set())
-    : // For non-root files, we're safe to pull from "getModuleById" based on testing.
-      // TODO: Find better invalidation start to use "getModuleById" in all cases!
-      new Set([viteDevServer.moduleGraph.getModuleById(id)]);
+    ? (serverEnvironment.getModulesByFile(id) ?? new Set())
+    : new Set([serverEnvironment.getModuleById(id)]);
 
-  // Collect all imported modules for the module(s).
   for (const entry of moduleEntriesForId) {
-    // Handle this in case an module entries weren't found for ID
-    // This seems possible with some virtual IDs
-    if (!entry) {
+    if (!entry?.id) {
       continue;
     }
-    if (id === entry.id) {
-      scanned.add(id);
-      const entryPath = stripModuleIdQuery(id);
-      const entryIsStyle = isCSSRequest(entryPath) || isCSSRequest(id);
 
-      const { filterDisabled, importDepKeys, matchedDynamicImportKeys } =
-        await resolveSsrModuleDependencyKeys(
-          viteDevServer,
-          entry,
-          root,
-          dynamicImportPredicate
+    const entryId = entry.id;
+    if (!isRootFile && !moduleKeysMatch(id, entryId)) {
+      continue;
+    }
+
+    scanned.add(moduleIdentityKey(entryId));
+    const entryPath = stripModuleIdQuery(entryId);
+    const entryIsStyle = isCSSRequest(entryPath) || isCSSRequest(entryId);
+
+    const { filterDisabled, importDepKeys, matchedDynamicImportKeys } =
+      await resolveServerModuleDependencyKeys(
+        serverEnvironment,
+        entry,
+        root,
+        widgetModuleFilter
+      );
+
+    for (const importedModule of entry.importedModules) {
+      if (!importedModule.id) continue;
+
+      const importedModulePathname = canonicalModuleKey(importedModule.id);
+      if (entryIsStyle && !isCSSRequest(importedModulePathname)) {
+        continue;
+      }
+
+      if (!isImportedBy(entryId, importedModule) && !isRootFile) {
+        continue;
+      }
+
+      if (!filterDisabled) {
+        const edge = classifyImportEdge(
+          importedModule,
+          importDepKeys,
+          matchedDynamicImportKeys
         );
-
-      for (const importedModule of entry.importedModules) {
-        if (!importedModule.id) continue;
-
-        // some dynamically imported modules are *not* server rendered in time
-        // to only SSR modules that we can safely transform, we check against
-        // a list of file extensions based on our built-in vite plugins
-
-        // Strip special query params like "?content".
-        // NOTE: Cannot use `new URL()` here because not all IDs will be valid paths.
-        // For example, `virtual:image-loader` if you don't have the plugin installed.
-        const importedModulePathname = canonicalModuleKey(importedModule.id);
-        // If the entry is a style, skip any modules that are not also styles.
-        // Tools like Tailwind might add HMR dependencies as `importedModules`
-        // but we should skip them--they aren't really imported. Without this,
-        // every hoisted script in the project is added to every page!
-        if (entryIsStyle && !isCSSRequest(importedModulePathname)) {
+        const isRootCss =
+          isRootFile && isBuildableCSSRequest(importedModule.url);
+        if (edge === 'none' && !isRootCss) {
           continue;
         }
+        importedModules.add(importedModule);
+      } else {
+        importedModules.add(importedModule);
+      }
+    }
 
-        const isFileTypeNeedingSSR = fileExtensionsToSSR.has(
-          path.extname(importedModulePathname)
-        );
-
-        if (isFileTypeNeedingSSR) {
-          const mod = viteDevServer.moduleGraph.getModuleById(
-            importedModule.id
-          );
-          if (!mod?.ssrModule) {
-            try {
-              await viteDevServer.ssrLoadModule(importedModule.id);
-            } catch {
-              /** Likely an out-of-date module entry! Silently continue. */
-            }
-          }
-        }
-
-        // Make sure the `importedModule` traversed is explicitly imported by the user, and not by HMR
-        if (!isImportedBy(id, importedModule)) {
-          continue;
-        }
-
-        if (!filterDisabled) {
-          const edge = classifyImportEdge(
-            importedModule,
-            importDepKeys,
-            matchedDynamicImportKeys
-          );
-          if (edge === 'none') {
-            continue;
-          }
-          importedModules.add(importedModule);
-        } else {
-          importedModules.add(importedModule);
-        }
+    if (!filterDisabled) {
+      for (const widgetModule of await resolveWidgetModulesFromDynamicDeps(
+        serverEnvironment,
+        entry,
+        root,
+        widgetModuleFilter
+      )) {
+        importedModules.add(widgetModule);
       }
     }
   }
 
-  // scan imported modules for CSS imports & add them to our collection.
-  // Then, crawl that file to follow and scan all deep imports as well.
   for (const importedModule of importedModules) {
-    if (!importedModule.id || scanned.has(importedModule.id)) {
+    if (!importedModule.id) {
+      continue;
+    }
+    const importedKey = moduleIdentityKey(importedModule.id);
+    if (scanned.has(importedKey)) {
       continue;
     }
 
     yield importedModule;
     yield* crawlGraph(
-      viteDevServer,
+      serverEnvironment,
       importedModule.id,
       false,
       scanned,
       root,
-      dynamicImportPredicate
+      widgetModuleFilter
     );
   }
 }
 
-// Verify true imports. If the child module has the parent as an importers, it's
-// a real import.
-function isImportedBy(parent: string, entry: ModuleNode) {
+function isImportedBy(parentId: string, entry: EnvironmentModuleNode) {
+  const parentKey = moduleIdentityKey(parentId);
   for (const importer of entry.importers) {
-    if (importer.id === parent) {
+    if (importer.id && moduleIdentityKey(importer.id) === parentKey) {
       return true;
     }
   }
