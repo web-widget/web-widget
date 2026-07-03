@@ -1,10 +1,10 @@
-import path from 'node:path';
 import crypto from 'node:crypto';
 import type { Middleware } from '@web-widget/node';
 import NodeAdapter from '@web-widget/node';
 import { renderMetaToString } from '@web-widget/helpers';
 import stripAnsi from 'strip-ansi';
 import type { Plugin, ViteDevServer } from 'vite';
+import { isRunnableDevEnvironment } from 'vite';
 import type WebRouter from '@web-widget/web-router';
 import {
   getMeta,
@@ -14,13 +14,25 @@ import {
   inlineRE,
 } from './meta';
 import { fileSystemRouteGenerator } from './routing';
+import { handleDevRoutemapChange } from './routemap-invalidation';
 import type { ResolvedWebRouterConfig } from '@/types';
-import { getWebRouterPluginApi } from '@/utils';
-import { SOURCE_PROTOCOL } from '@/constants';
+import type { RouterPluginHost } from '@/router/host';
+import {
+  asServerDevEnvironment,
+  getServerEnvironmentFromDevServer,
+} from '@/internal/environment';
+import { getWebRouterPluginApi } from '@/internal/manifest';
+import {
+  DEV_MODULE_SOURCE_HEADER,
+  resolveModuleSourcePath,
+} from './module-source';
+import { resolveDevOrigin } from './resolve-dev-origin';
+import { getDevServerRevision } from './dev-server-cache';
+import { logPluginError } from '@/internal/errors';
+import { warmupServerDevModules } from './warmup';
+import { printDevWelcome } from './welcome';
 
-export function webRouterDevServerPlugin(
-  options?: ResolvedWebRouterConfig
-): Plugin {
+export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin {
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;
   let root: string;
   return {
@@ -37,20 +49,14 @@ export function webRouterDevServerPlugin(
     async configResolved(config) {
       root = config.root;
 
-      if (options) {
-        resolvedWebRouterConfig = options;
-      }
+      const resolvedConfig =
+        host?.api.config ?? getWebRouterPluginApi(config)?.config;
 
-      if (!resolvedWebRouterConfig) {
-        const webRouterPluginApi = getWebRouterPluginApi(config);
-        if (webRouterPluginApi) {
-          resolvedWebRouterConfig = webRouterPluginApi.config;
-        }
-      }
-
-      if (!resolvedWebRouterConfig) {
+      if (!resolvedConfig) {
         throw new Error('Missing options.');
       }
+
+      resolvedWebRouterConfig = resolvedConfig;
     },
 
     transform: {
@@ -69,17 +75,6 @@ export function webRouterDevServerPlugin(
     },
 
     async configureServer(viteServer) {
-      const [webRouter, restartWebRouter] = autoRestartMiddleware(
-        viteServer,
-        () => {
-          return viteWebRouterMiddlewareV2(
-            root,
-            resolvedWebRouterConfig,
-            viteServer
-          );
-        }
-      );
-
       if (resolvedWebRouterConfig.filesystemRouting.enabled) {
         const {
           dir: routesPath,
@@ -93,91 +88,101 @@ export function webRouterDevServerPlugin(
           routemapPath,
           routesPath,
           overridePathname,
-          update(padding) {
-            restartWebRouter(padding);
+          ignore: resolvedWebRouterConfig.ignore,
+          onRoutemapComputed(routemap) {
+            host?.setDevServerRoutemap(routemap);
+          },
+          async onRoutemapChanged(change) {
+            try {
+              await handleDevRoutemapChange(
+                viteServer,
+                resolvedWebRouterConfig,
+                {
+                  structural: change.structural,
+                  filesystemChanged: change.filesystemChanged,
+                }
+              );
+            } catch (error) {
+              logPluginError('Routemap server invalidation failed', error);
+            }
           },
           watcher: viteServer.watcher,
         });
       }
 
       return async () => {
-        try {
-          viteServer.middlewares.use(webRouter);
-        } catch (error) {
-          if (error instanceof Error) {
-            viteServer.ssrFixStacktrace(error);
-            console.error(`Service startup failed: ${error.stack}`);
-          } else {
-            console.error(`Service startup failed: ${error}`);
+        const register = () => {
+          try {
+            viteServer.middlewares.use(
+              createWebRouterDevMiddleware(resolvedWebRouterConfig, viteServer)
+            );
+            void warmupServerDevModules(
+              viteServer,
+              resolvedWebRouterConfig
+            ).catch((error) => logPluginError('Server warmup failed', error));
+            printDevWelcome();
+          } catch (error) {
+            logPluginError('Service startup failed', error);
           }
+        };
+
+        try {
+          if (viteServer.httpServer?.listening) {
+            register();
+          } else if (viteServer.httpServer) {
+            viteServer.httpServer.once('listening', register);
+          } else {
+            register();
+          }
+        } catch (error) {
+          logPluginError('Service startup failed', error);
         }
       };
     },
   };
 }
 
-function autoRestartMiddleware(
-  viteServer: ViteDevServer,
-  callback: () => Promise<Middleware>
-) {
-  let middleware;
-  let promise = Promise.resolve();
-  const send = viteServer.ws.send;
-
-  viteServer.ws.send = function () {
-    // @see https://github.com/vitejs/vite/blob/b361ffa6724d9191fc6a581acfeab5bc3ebbd931/packages/vite/src/node/server/hmr.ts#L194
-    if (arguments[0]?.type === 'full-reload') {
-      middleware = undefined;
-    }
-    // @ts-ignore
-    send.apply(this, arguments);
-  };
-
-  async function autoRestartMiddleware(...args: any[]) {
-    await promise;
-    middleware ??= await callback();
-    return middleware(...args);
-  }
-
-  function restart(padding: Promise<any>) {
-    promise = padding;
-    middleware = undefined;
-  }
-
-  return [autoRestartMiddleware, restart];
-}
-
-async function viteWebRouterMiddlewareV2(
-  root: string,
+function createWebRouterDevMiddleware(
   resolvedWebRouterConfig: ResolvedWebRouterConfig,
   viteServer: ViteDevServer
-): Promise<Middleware> {
-  let origin: string;
-  const resolvedUrls = viteServer.resolvedUrls;
+): Middleware {
+  const origin = resolveDevOrigin(viteServer);
+  const viteServerEnvironment = getServerEnvironmentFromDevServer(viteServer);
 
-  if (resolvedUrls?.local && resolvedUrls?.local[0]) {
-    origin = new URL(resolvedUrls.local[0]).origin;
-  } else {
-    const protocol = viteServer.config.preview.https ? 'https' : 'http';
-    const host = viteServer.config.preview.host || 'localhost';
-    const port = viteServer.config.preview.port || 5173;
-    const { ORIGIN } = process.env;
-    origin = ORIGIN ?? `${protocol}://${host}:${port}`;
+  if (!isRunnableDevEnvironment(viteServerEnvironment)) {
+    throw new Error(
+      'Expected a RunnableDevEnvironment for the server environment.'
+    );
   }
 
-  const webRouter: WebRouter = (
-    await viteServer.ssrLoadModule(resolvedWebRouterConfig.input.server.entry, {
-      fixStacktrace: true,
-    })
-  ).default;
+  const serverDev = asServerDevEnvironment(viteServerEnvironment);
+  const serverEntry = resolvedWebRouterConfig.input.server.entry;
 
-  webRouter.fixErrorStack = (error: Error) => {
-    viteServer.ssrFixStacktrace(error);
-  };
+  /** Rebuilt when server module invalidation bumps {@link getDevServerRevision}. */
+  let cachedWebRouter: WebRouter | undefined;
+  let cachedWebRouterRevision = -1;
 
   const nodeAdapter = new NodeAdapter(
     {
       async handler(request, ...args) {
+        let webRouter: WebRouter;
+        const revision = getDevServerRevision();
+
+        try {
+          if (cachedWebRouter && cachedWebRouterRevision === revision) {
+            webRouter = cachedWebRouter;
+          } else {
+            webRouter = (await serverDev.importModule(serverEntry)).default;
+            cachedWebRouter = webRouter;
+            cachedWebRouterRevision = revision;
+          }
+          webRouter.fixErrorStack = (error) => {
+            viteServer.ssrFixStacktrace(error);
+          };
+        } catch (error) {
+          return renderHandlerError(viteServer, request.url, error);
+        }
+
         try {
           let res = await webRouter.handler(request, ...args);
           if (request.method === 'HEAD') {
@@ -196,27 +201,25 @@ async function viteWebRouterMiddlewareV2(
             return res;
           }
 
-          const xModuleSource = 'x-module-source';
-          const sourceProtocol = res.headers.get(xModuleSource);
+          const moduleSource = res.headers.get(DEV_MODULE_SOURCE_HEADER);
 
-          if (sourceProtocol) {
-            const source = path.resolve(
-              path.dirname(resolvedWebRouterConfig.input.server.routemap),
-              sourceProtocol.replace(`${SOURCE_PROTOCOL}//`, '')
+          if (moduleSource) {
+            const source = resolveModuleSourcePath(
+              moduleSource,
+              viteServer.config.root
             );
 
             const html = await res.text();
             const meta = await getMeta(
               source,
-              viteServer,
-              getWebRouterPluginApi(viteServer.config)?.dynamicImportPredicate
+              serverDev,
+              getWebRouterPluginApi(viteServer.config)?.widgetModuleFilter
             );
             const url = new URL(request.url);
             const viteHtml = await viteServer.transformIndexHtml(
               url.pathname + url.search,
               html.replace(/(<\/head>)/, renderMetaToString(meta) + '$1')
             );
-            //.catch(() => html);
             const headers = new Headers(res.headers);
 
             if (html !== viteHtml && headers.has('etag')) {
@@ -236,23 +239,7 @@ async function viteWebRouterMiddlewareV2(
 
           return res;
         } catch (error) {
-          let message: string;
-          const prefix = `🚧 @web-widget/web-router ${request.url} exception:`;
-          if (error instanceof Error) {
-            message = stripAnsi(error.stack ?? error.message);
-            console.error(`${prefix} ${error.stack}`);
-          } else {
-            message = `Unknown error.`;
-            console.error(prefix, error);
-          }
-
-          return new Response(errorTemplate(message), {
-            status: 500,
-            statusText: 'Internal Server Error',
-            headers: {
-              'content-type': 'text/html; charset=utf-8',
-            },
-          });
+          return renderHandlerError(viteServer, request.url, error);
         }
       },
     },
@@ -262,6 +249,29 @@ async function viteWebRouterMiddlewareV2(
   );
 
   return nodeAdapter.middleware;
+}
+
+function renderHandlerError(
+  viteServer: ViteDevServer,
+  requestUrl: string,
+  error: unknown
+) {
+  let message: string;
+  if (error instanceof Error) {
+    viteServer.ssrFixStacktrace(error);
+    message = stripAnsi(error.stack ?? error.message);
+  } else {
+    message = `Unknown error.`;
+  }
+  logPluginError(`${requestUrl} exception`, error, '@web-widget/web-router');
+
+  return new Response(errorTemplate(message), {
+    status: 500,
+    statusText: 'Internal Server Error',
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+    },
+  });
 }
 
 function errorTemplate(message: string) {
