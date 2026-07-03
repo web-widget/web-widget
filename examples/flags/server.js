@@ -5,8 +5,8 @@ import NodeAdapter from '@web-widget/node';
 import connectToKoa from 'koa-connect';
 import webRouter from './dist/server/index.js';
 
-const PORT = 9000;
-const ORIGIN = `http://localhost:${PORT}`;
+const PORT = Number(process.env.PORT ?? 9000);
+const HOST = process.env.HOST ?? '127.0.0.1';
 const app = new Koa();
 
 app.use(async (ctx, next) => {
@@ -20,11 +20,13 @@ app.use(async (ctx, next) => {
 });
 
 const webRouterMiddleware = new NodeAdapter(webRouter, {
-  defaultOrigin: ORIGIN,
+  defaultOrigin: `http://${HOST}:${PORT}`,
 }).middleware;
 
 app.use(connectToKoa(webRouterMiddleware));
 
-app.listen(PORT, () => {
-  console.log(ORIGIN);
+const server = app.listen(PORT, HOST, () => {
+  const address = server.address();
+  const port = typeof address === 'object' && address ? address.port : PORT;
+  console.log(`http://${HOST}:${port}`);
 });

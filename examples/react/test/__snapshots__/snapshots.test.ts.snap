@@ -28,7 +28,7 @@ exports[`Should match snapshot > Request "/examples" should match snapshot > /ex
 exports[`Should match snapshot > Request "/examples" should match snapshot > /examples@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/examples/index@route.tsx",
+  "x-module-source": "/routes/examples/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -52,7 +52,7 @@ exports[`Should match snapshot > Request "/examples/_404" should match snapshot 
 exports[`Should match snapshot > Request "/examples/_404" should match snapshot > /examples/_404@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/examples/[...notFound]@route.tsx",
+  "x-module-source": "/routes/examples/[...notFound]@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -76,7 +76,7 @@ exports[`Should match snapshot > Request "/examples/action" should match snapsho
 exports[`Should match snapshot > Request "/examples/action" should match snapshot > /examples/action@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/examples/action/index@route.tsx",
+  "x-module-source": "/routes/examples/action/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -113,7 +113,7 @@ exports[`Should match snapshot > Request "/examples/fetch" should match snapshot
 exports[`Should match snapshot > Request "/examples/fetch" should match snapshot > /examples/fetch@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/examples/fetch/index@route.tsx",
+  "x-module-source": "/routes/examples/fetch/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -137,7 +137,7 @@ exports[`Should match snapshot > Request "/examples/frameworks" should match sna
 exports[`Should match snapshot > Request "/examples/frameworks" should match snapshot > /examples/frameworks@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/examples/frameworks/index@route.tsx",
+  "x-module-source": "/routes/examples/frameworks/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -161,7 +161,7 @@ exports[`Should match snapshot > Request "/examples/middleware" should match sna
 exports[`Should match snapshot > Request "/examples/middleware" should match snapshot > /examples/middleware@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/examples/middleware/index@route.tsx",
+  "x-module-source": "/routes/examples/middleware/index@route.tsx",
   "x-powered-by": "Web Widget Middleware Example",
 }
 `;
@@ -185,7 +185,7 @@ exports[`Should match snapshot > Request "/examples/static" should match snapsho
 exports[`Should match snapshot > Request "/examples/static" should match snapshot > /examples/static@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/examples/static/index@route.tsx",
+  "x-module-source": "/routes/examples/static/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
