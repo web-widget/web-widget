@@ -27,9 +27,9 @@ describe('ModuleRuntime', () => {
       layoutModule: mockLayoutModule,
       defaultMeta: { title: 'Default Title' } as Meta,
       defaultBaseAsset: '/assets/',
-      defaultRenderer: { ssr: true } as ServerRenderOptions,
+      defaultRenderer: {} as ServerRenderOptions,
       onFallback: mockOnFallback,
-      dev: true,
+      exposeErrors: true,
     };
 
     runtime = new ModuleRuntime(options);
@@ -51,9 +51,9 @@ describe('ModuleRuntime', () => {
         layoutModule: asyncLayoutLoader,
         defaultMeta: { title: 'Test' } as Meta,
         defaultBaseAsset: '/assets/',
-        defaultRenderer: { ssr: true } as ServerRenderOptions,
+        defaultRenderer: {} as ServerRenderOptions,
         onFallback: mockOnFallback,
-        dev: false,
+        exposeErrors: false,
       });
 
       expect(runtimeWithAsyncLayout).toBeInstanceOf(ModuleRuntime);
@@ -290,26 +290,56 @@ describe('ModuleRuntime', () => {
       ).rejects.toThrow('Module is missing export "handler".');
     });
 
-    test('should cache middleware handler', async () => {
-      let callCount = 0;
-      const mockMiddleware: MiddlewareModule = {
-        handler: async (context, next) => {
-          callCount++;
-          return next();
+    test('should cache middleware handler in production', async () => {
+      let loadCount = 0;
+      const asyncLoader = async () => {
+        loadCount++;
+        return {
+          handler: async (_context, next) => next(),
+        } as MiddlewareModule;
+      };
+
+      const prodRuntime = new ModuleRuntime({
+        layoutModule: {
+          default: () => '<html>test</html>',
+          render: async () => '<html>rendered</html>',
         },
+        defaultMeta: { title: 'Default Title' } as Meta,
+        defaultBaseAsset: '/assets/',
+        defaultRenderer: {} as ServerRenderOptions,
+        onFallback: mockOnFallback,
+        exposeErrors: false,
+      });
+
+      const mockContext: Partial<MiddlewareContext> = {};
+      const mockNext = () => new Response('cached');
+
+      const handler = prodRuntime.createMiddlewareHandler(asyncLoader);
+
+      await handler(mockContext as MiddlewareContext, mockNext);
+      await handler(mockContext as MiddlewareContext, mockNext);
+
+      expect(loadCount).toBe(1);
+    });
+
+    test('should cache middleware module in dev when module graph is stable', async () => {
+      let loadCount = 0;
+      const asyncLoader = async () => {
+        loadCount++;
+        return {
+          handler: async (_context, next) => next(),
+        } as MiddlewareModule;
       };
 
       const mockContext: Partial<MiddlewareContext> = {};
       const mockNext = () => new Response('cached');
 
-      const handler = runtime.createMiddlewareHandler(mockMiddleware);
+      const handler = runtime.createMiddlewareHandler(asyncLoader);
 
-      // First call
       await handler(mockContext as MiddlewareContext, mockNext);
-      // Second call should use cached handler
       await handler(mockContext as MiddlewareContext, mockNext);
 
-      expect(callCount).toBe(2); // Handler should be called twice but cached
+      expect(loadCount).toBe(1);
     });
   });
 
@@ -408,9 +438,67 @@ describe('ModuleRuntime', () => {
       expect(responseData).toHaveProperty('result');
     });
 
-    test('should cache action handler', async () => {
-      const mockAction: ActionModule = {
-        cachedAction: async () => ({ cached: true }),
+    test('should cache action module loader in production', async () => {
+      let loadCount = 0;
+      const asyncLoader = async () => {
+        loadCount++;
+        return {
+          cachedAction: async () => ({ cached: true }),
+        } as ActionModule;
+      };
+
+      const prodRuntime = new ModuleRuntime({
+        layoutModule: {
+          default: () => '<html>test</html>',
+          render: async () => '<html>rendered</html>',
+        },
+        defaultMeta: { title: 'Default Title' } as Meta,
+        defaultBaseAsset: '/assets/',
+        defaultRenderer: {} as ServerRenderOptions,
+        onFallback: mockOnFallback,
+        exposeErrors: false,
+      });
+
+      const requestBody = {
+        jsonrpc: '2.0',
+        id: '1',
+        method: 'cachedAction',
+        params: [],
+      };
+
+      const handler = prodRuntime.createActionHandler(asyncLoader);
+
+      const mockRequest1 = new Request('http://test.com/action', {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const mockRequest2 = new Request('http://test.com/action', {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      await handler(
+        { request: mockRequest1 } as MiddlewareContext,
+        () => new Response('next')
+      );
+      await handler(
+        { request: mockRequest2 } as MiddlewareContext,
+        () => new Response('next')
+      );
+
+      expect(loadCount).toBe(1);
+    });
+
+    test('should cache action module in dev when module graph is stable', async () => {
+      let loadCount = 0;
+      const asyncLoader = async () => {
+        loadCount++;
+        return {
+          cachedAction: async () => ({ cached: true }),
+        } as ActionModule;
       };
 
       const requestBody = {
@@ -420,41 +508,30 @@ describe('ModuleRuntime', () => {
         params: [],
       };
 
-      const handler = runtime.createActionHandler(mockAction);
+      const handler = runtime.createActionHandler(asyncLoader);
 
-      // First call
       const mockRequest1 = new Request('http://test.com/action', {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const mockContext1: Partial<MiddlewareContext> = {
-        request: mockRequest1,
-      };
-
-      const result1 = await handler(
-        mockContext1 as MiddlewareContext,
-        () => new Response('next')
-      );
-      expect(result1).toBeInstanceOf(Response);
-
-      // Second call should use cached handler (create new request to avoid body reuse)
       const mockRequest2 = new Request('http://test.com/action', {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const mockContext2: Partial<MiddlewareContext> = {
-        request: mockRequest2,
-      };
-
-      const result2 = await handler(
-        mockContext2 as MiddlewareContext,
+      await handler(
+        { request: mockRequest1 } as MiddlewareContext,
         () => new Response('next')
       );
-      expect(result2).toBeInstanceOf(Response);
+      await handler(
+        { request: mockRequest2 } as MiddlewareContext,
+        () => new Response('next')
+      );
+
+      expect(loadCount).toBe(1);
     });
   });
 
@@ -548,9 +625,9 @@ describe('ModuleRuntime', () => {
         } as LayoutModule,
         defaultMeta: { title: 'Dev Title' } as Meta,
         defaultBaseAsset: '/dev-assets/',
-        defaultRenderer: { ssr: true } as ServerRenderOptions,
+        defaultRenderer: {} as ServerRenderOptions,
         onFallback: mockOnFallback,
-        dev: true,
+        exposeErrors: true,
       });
 
       expect(devModuleRuntime).toBeInstanceOf(ModuleRuntime);
@@ -568,9 +645,9 @@ describe('ModuleRuntime', () => {
         } as LayoutModule,
         defaultMeta: { title: 'Dev Title' } as Meta,
         defaultBaseAsset: '/dev-assets/',
-        defaultRenderer: { ssr: true } as ServerRenderOptions,
+        defaultRenderer: {} as ServerRenderOptions,
         onFallback: devOnFallback,
-        dev: true,
+        exposeErrors: true,
       });
 
       expect(devModuleRuntime).toBeInstanceOf(ModuleRuntime);
