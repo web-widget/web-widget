@@ -6,7 +6,7 @@ import { compose } from '@web-widget/helpers';
 import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { createHttpError } from '@web-widget/helpers/error';
 import { Context } from './context';
-import { ModuleRuntime } from './module';
+import { ModuleRuntime, type DevMetaProvider } from './module';
 import type { Router } from './router';
 import {
   METHOD_NAME_ALL,
@@ -295,6 +295,12 @@ class Application<
   /** @internal Clears route activation on rewrite and when a request completes. */
   useModuleRuntime(runtime: ModuleRuntime): this {
     this.#moduleRuntime = runtime;
+    return this;
+  }
+
+  /** @internal Sets the dev meta provider at runtime (used by vite-plugin dev middleware). */
+  setDevMetaProvider(provider: DevMetaProvider): this {
+    this.#moduleRuntime?.setDevMetaProvider(provider);
     return this;
   }
 

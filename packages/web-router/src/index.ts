@@ -23,7 +23,6 @@ import type {
 
 export type * from './types';
 export type { OnFallback } from './module';
-export { DEV_MODULE_SOURCE_HEADER } from './types';
 
 // Export router types and implementations
 // export type { Router, Result, Params, RouterType } from './router';
@@ -112,7 +111,6 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       defaultRenderer,
       onFallback,
       exposeErrors: manifest.exposeErrors ?? options.exposeErrors ?? false,
-      moduleSource: manifest.moduleSource,
     });
 
     const router = new WebRouter<E>(options);

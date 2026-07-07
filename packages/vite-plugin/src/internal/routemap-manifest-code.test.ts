@@ -37,11 +37,9 @@ describe('routemap-manifest-code', () => {
       '"./routes/examples/middleware/index@middleware.ts": "/routes/examples/middleware/index@middleware.ts"'
     );
     expect(code).toContain('$source: __WEB_WIDGET_MODULE_SOURCES__[source]');
-    expect(code).toContain('manifest.moduleSource = ');
-    expect(code).toContain('moduleSource');
+    expect(code).not.toContain('manifest.moduleSource');
     expect(code).not.toContain('responseHeaders');
     expect(code).toContain('manifest.exposeErrors = true');
-    expect(code).toContain('mod.$source');
   });
 
   test('buildProdManifestCode inlines route modules as imports', () => {

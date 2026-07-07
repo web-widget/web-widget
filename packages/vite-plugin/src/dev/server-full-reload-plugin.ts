@@ -4,7 +4,7 @@ import {
   getServerEnvironmentFromDevServer,
 } from '@/internal/environment';
 import type { RouterPluginHost } from '@/router/host';
-import { logPluginError } from '@/internal/errors';
+import { logPluginError } from '@/internal/log';
 import { invalidateServerDevModules } from './server-invalidation';
 
 export function sendClientFullReload(server: ViteDevServer) {

@@ -80,10 +80,6 @@ ${framework}.manifest = (() => {
       createLoader(value);
     }
   }
-  manifest.moduleSource = function(ctx) {
-    var mod = ctx.module;
-    if (mod && mod.$source) return mod.$source;
-  };
   manifest.exposeErrors = true;
   return manifest;
 })();

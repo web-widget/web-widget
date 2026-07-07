@@ -37,6 +37,27 @@ export function getServerEnvironmentFromDevServer(
   return environment;
 }
 
+/**
+ * Vite client-side dev environment (`environments.client`).
+ * Used to obtain CSS content that the SSR environment discards.
+ */
+export function getClientEnvironmentFromDevServer(
+  viteServer: ViteDevServer
+): ClientDevEnvironment {
+  const environment = viteServer.environments.client;
+  if (!environment) {
+    throw new Error(
+      'Expected Vite client environment at viteServer.environments.client.'
+    );
+  }
+  return {
+    root: environment.config.root,
+    async transformRequest(url) {
+      return environment.transformRequest(url);
+    },
+  };
+}
+
 /** Server build environment from Vite builder (`environments.ssr`). */
 export function getServerEnvironmentFromBuilder(builder: ViteBuilder) {
   const environment = builder.environments.ssr;
@@ -61,6 +82,17 @@ export interface ServerDevEnvironment {
     specifier: string,
     importer: string
   ): Promise<{ id: string } | null | undefined>;
+  readonly root: string;
+  transformRequest(url: string): Promise<TransformResult | null>;
+}
+
+/**
+ * Minimal client dev environment surface for extracting CSS content.
+ * The client environment's `vite:css-post` wraps CSS in
+ * `const __vite__css = "..."` (unlike SSR which discards it as `export {}`),
+ * so we can call `transformRequest` and extract the CSS from that pattern.
+ */
+export interface ClientDevEnvironment {
   readonly root: string;
   transformRequest(url: string): Promise<TransformResult | null>;
 }

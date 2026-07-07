@@ -355,7 +355,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     this.initializeEventListeners();
     this.updateWidgetCount();
     this.loadStoredState();
-    this.loadRouteModuleSourceFromHeaders();
   }
 
   override disconnectedCallback(): void {
@@ -930,25 +929,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
       return url.pathname;
     } catch {
       return source;
-    }
-  }
-
-  private loadRouteModuleSourceFromHeaders(): void {
-    if (!this.pageSource) {
-      fetch(window.location.href, { method: 'HEAD' })
-        .then((response: Response) => {
-          const moduleSource = response.headers.get('x-module-source');
-          if (moduleSource) {
-            this.pageSource = moduleSource;
-            this.requestUpdate();
-          }
-        })
-        .catch((error) => {
-          console.error(
-            'Error loading route module source from headers:',
-            error
-          );
-        });
     }
   }
 

@@ -6,7 +6,7 @@ import type { RouteMap } from '@/types';
 import { isPathPrefix } from '@/internal/path';
 import { isStructuralRoutemapChange } from './routemap-diff';
 import { shouldApplyRoutemapUpdate } from './routemap-update';
-import { logPluginError } from '@/internal/errors';
+import { logPluginError } from '@/internal/log';
 import type { OverridePathname } from './types';
 
 export { getRoutemap } from '@/internal/routemap-from-fs';

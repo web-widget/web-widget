@@ -89,6 +89,10 @@
       "module": "./routes/style@route.tsx"
     },
     {
+      "pathname": "/vue-module-css",
+      "module": "./routes/vue-module-css@route.tsx"
+    },
+    {
       "pathname": "/vue2-import-widgets",
       "module": "./routes/(vue2)/vue2-import-widgets/index@route.tsx"
     },

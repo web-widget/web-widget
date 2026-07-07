@@ -1,11 +1,8 @@
 import path from 'node:path';
 
-/** Must match {@link @web-widget/web-router#DEV_MODULE_SOURCE_HEADER}. */
-export const DEV_MODULE_SOURCE_HEADER = 'x-module-source';
-
 /**
  * Converts a routemap module path (`./routes/...`) to the canonical
- * `x-module-source` / `$source` path (`/routes/...`).
+ * `$source` path (`/routes/...`).
  */
 export function encodeModuleSource(modulePath: string): string {
   if (modulePath.startsWith('./')) {

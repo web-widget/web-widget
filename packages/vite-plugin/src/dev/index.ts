@@ -1,36 +1,34 @@
-import crypto from 'node:crypto';
 import type { Middleware } from '@web-widget/node';
 import NodeAdapter from '@web-widget/node';
-import { renderMetaToString } from '@web-widget/helpers';
 import stripAnsi from 'strip-ansi';
+import { createRequire } from 'node:module';
 import type { Plugin, ViteDevServer } from 'vite';
 import { isRunnableDevEnvironment } from 'vite';
 import type WebRouter from '@web-widget/web-router';
-import { getMeta, cssContentCache } from './meta';
-import { CSS_LANGS_RE, cssExcludeRE } from '@/internal/module-id';
+import { getMeta } from './meta';
+import { parseHeadTags, type DevHeadTags } from './parse-head-tags';
 import { fileSystemRouteGenerator } from './routing';
 import { handleDevRoutemapChange } from './routemap-invalidation';
 import type { ResolvedWebRouterConfig } from '@/types';
 import type { RouterPluginHost } from '@/router/host';
 import {
   asServerDevEnvironment,
+  getClientEnvironmentFromDevServer,
   getServerEnvironmentFromDevServer,
 } from '@/internal/environment';
 import { getWebRouterPluginApi } from '@/internal/manifest';
-import {
-  DEV_MODULE_SOURCE_HEADER,
-  resolveModuleSourcePath,
-} from './module-source';
+import { resolveModuleSourcePath } from './module-source';
 import { resolveDevOrigin } from './resolve-dev-origin';
 import { getDevServerRevision } from './dev-server-cache';
-import { logPluginError } from '@/internal/errors';
+import { logPluginError } from '@/internal/log';
 import { warmupServerDevModules } from './warmup';
 import { printDevWelcome } from './welcome';
 
-export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin {
+export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin[] {
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;
   let root: string;
-  return {
+
+  const devServerPlugin: Plugin = {
     name: '@web-widget:dev',
     enforce: 'pre',
     apply: 'serve',
@@ -52,21 +50,6 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin {
       }
 
       resolvedWebRouterConfig = resolvedConfig;
-    },
-
-    transform: {
-      filter: {
-        id: {
-          include: [CSS_LANGS_RE],
-          exclude: cssExcludeRE,
-        },
-      },
-      handler(code, id) {
-        if (typeof code === 'string') {
-          cssContentCache.set(id, code);
-        }
-        return undefined;
-      },
     },
 
     async configureServer(viteServer) {
@@ -135,6 +118,8 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin {
       };
     },
   };
+
+  return [devServerPlugin];
 }
 
 function createWebRouterDevMiddleware(
@@ -151,7 +136,39 @@ function createWebRouterDevMiddleware(
   }
 
   const serverDev = asServerDevEnvironment(viteServerEnvironment);
+  const clientDev = getClientEnvironmentFromDevServer(viteServer);
   const serverEntry = resolvedWebRouterConfig.input.server.entry;
+  const root = viteServer.config.root;
+  const base = viteServer.config.base;
+  const widgetModuleFilter = getWebRouterPluginApi(
+    viteServer.config
+  )?.widgetModuleFilter;
+
+  // Resolve the Inspector module URL once, from the vite-plugin package
+  // itself (which depends on @web-widget/inspector). The page source is
+  // passed to the element via its `page-source` attribute.
+  const inspectorEntry = createRequire(import.meta.url).resolve(
+    '@web-widget/inspector'
+  );
+  const inspectorScriptUrl = `${base}@fs${inspectorEntry}`;
+
+  // Pre-extract head tags that Vite plugins inject via
+  // transformIndexHtml (e.g. @vitejs/plugin-react's refresh preamble,
+  // /@vite/client, plugin-injected styles/links). We run
+  // transformIndexHtml on an empty HTML shell once and cache the
+  // result, then merge into meta via setDevMetaProvider. This avoids
+  // calling transformIndexHtml on the final SSR HTML (which would
+  // buffer the response and break streaming), while still supporting
+  // framework plugins that rely on transformIndexHtml for HMR
+  // injection.
+  let cachedDevTags: DevHeadTags | undefined;
+  async function getDevTags(): Promise<DevHeadTags> {
+    if (cachedDevTags) return cachedDevTags;
+    const shell = '<!doctype html><html><head></head><body></body></html>';
+    const transformed = await viteServer.transformIndexHtml('/', shell);
+    cachedDevTags = parseHeadTags(transformed);
+    return cachedDevTags;
+  }
 
   /** Rebuilt when server module invalidation bumps {@link getDevServerRevision}. */
   let cachedWebRouter: WebRouter | undefined;
@@ -168,6 +185,43 @@ function createWebRouterDevMiddleware(
             webRouter = cachedWebRouter;
           } else {
             webRouter = (await serverDev.importModule(serverEntry)).default;
+            // Inject dev meta provider so dev assets (CSS, HMR client,
+            // Inspector, page source) are collected at the rendering level,
+            // preserving streaming support.
+            webRouter.setDevMetaProvider(async (context) => {
+              const source = (
+                context.module as { $source?: string } | undefined
+              )?.$source;
+              if (!source) return;
+              const meta = await getMeta(
+                resolveModuleSourcePath(source, root),
+                serverDev,
+                clientDev,
+                widgetModuleFilter
+              );
+              // Merge dev tags from transformIndexHtml (React refresh
+              // preamble, /@vite/client, plugin styles/links/meta) into
+              // the structured meta arrays.
+              const devTags = await getDevTags();
+              meta.script.unshift(...devTags.script);
+              meta.style.unshift(...devTags.style);
+              meta.link.unshift(...devTags.link);
+              meta.meta.unshift(...devTags.meta);
+              // Bootstrap the Inspector, passing the route module source
+              // path via the element's `page-source` attribute.
+              meta.script.push({
+                content: `import(${JSON.stringify(inspectorScriptUrl)}).then(()=>{
+                  var el=document.querySelector('web-widget-inspector');
+                  if(!el){
+                    el=document.createElement('web-widget-inspector');
+                    el.dir=${JSON.stringify(root)};
+                    document.body.appendChild(el);
+                  }
+                  el.setAttribute('page-source',${JSON.stringify(source)});
+                });`,
+              });
+              return meta;
+            });
             cachedWebRouter = webRouter;
             cachedWebRouterRevision = revision;
           }
@@ -179,61 +233,7 @@ function createWebRouterDevMiddleware(
         }
 
         try {
-          let res = await webRouter.handler(request, ...args);
-          if (request.method === 'HEAD') {
-            return res;
-          }
-          const contentType = res.headers.get('content-type') || '';
-          const isHtml = contentType.includes('text/html');
-          const isJSON = request.url.endsWith('.json');
-          const isEmptyStatus =
-            ((res.status / 100) | 0) === 1 ||
-            res.status === 204 ||
-            res.status === 205 ||
-            res.status === 304;
-
-          if (isEmptyStatus || !isHtml || isJSON) {
-            return res;
-          }
-
-          const moduleSource = res.headers.get(DEV_MODULE_SOURCE_HEADER);
-
-          if (moduleSource) {
-            const source = resolveModuleSourcePath(
-              moduleSource,
-              viteServer.config.root
-            );
-
-            const html = await res.text();
-            const meta = await getMeta(
-              source,
-              serverDev,
-              getWebRouterPluginApi(viteServer.config)?.widgetModuleFilter
-            );
-            meta.script.unshift({ type: 'module', src: '/@vite/client' });
-
-            const finalHtml = html.replace(
-              /(<\/head>)/,
-              renderMetaToString(meta) + '$1'
-            );
-            const headers = new Headers(res.headers);
-
-            if (html !== finalHtml && headers.has('etag')) {
-              const newEtag = crypto
-                .createHash('sha1')
-                .update(finalHtml)
-                .digest('hex');
-              headers.set('etag', `W/"${newEtag}"`);
-            }
-
-            res = new Response(finalHtml, {
-              status: res.status,
-              statusText: res.statusText,
-              headers,
-            });
-          }
-
-          return res;
+          return await webRouter.handler(request, ...args);
         } catch (error) {
           return renderHandlerError(viteServer, request.url, error);
         }

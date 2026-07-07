@@ -407,7 +407,7 @@ export function createRouterPlugins(
     createServerAssetsPlugin(host),
     createRemoveAsyncHooksPlugin(host),
     createSkipServerCssPlugin(),
-    webRouterDevServerPlugin(host),
+    ...webRouterDevServerPlugin(host),
     createServerFullReloadPlugin(host),
     webRouterPreviewServerPlugin(),
     importActionPlugin(),

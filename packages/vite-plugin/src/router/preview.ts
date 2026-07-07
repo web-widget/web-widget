@@ -5,7 +5,7 @@ import type WebRouter from '@web-widget/web-router';
 import type { ResolvedWebRouterConfig } from '@/types';
 import { getWebRouterPluginApi } from '@/internal/manifest';
 import { resolvePreviewOrigin } from '@/dev/resolve-dev-origin';
-import { logPluginError } from '@/internal/errors';
+import { logPluginError } from '@/internal/log';
 
 export function webRouterPreviewServerPlugin(
   options?: ResolvedWebRouterConfig

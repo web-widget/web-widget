@@ -62,7 +62,10 @@ export function buildDevServerEntryMeta(
 ): string {
   const meta = {
     style: [{ content: 'web-widget{display:contents}' }],
-    script: [{ type: 'module', src: entryFileName }],
+    script: [
+      { type: 'module', src: '/@vite/client' },
+      { type: 'module', src: entryFileName },
+    ],
   };
 
   return `${framework}.meta = ${JSON.stringify(meta, null, 2)};`;

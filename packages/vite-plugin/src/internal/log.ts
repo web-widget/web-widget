@@ -19,3 +19,16 @@ export function logPluginError(
     console.error(prefix, error);
   }
 }
+
+/**
+ * Centralized warning logging for the vite-plugin package.
+ *
+ * @param message Warning message to display.
+ * @param scope   Package scope for the prefix (default: `@web-widget/vite-plugin`).
+ */
+export function logPluginWarn(
+  message: string,
+  scope: string = '@web-widget/vite-plugin'
+): void {
+  console.warn(`🚧 ${scope}: ${message}`);
+}

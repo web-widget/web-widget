@@ -3,8 +3,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { EnvironmentModuleNode, TransformResult } from 'vite';
-import { getMeta, cssContentCache } from './meta';
-import type { ServerDevEnvironment } from '@/internal/environment';
+import { getMeta } from './meta';
+import type {
+  ClientDevEnvironment,
+  ServerDevEnvironment,
+} from '@/internal/environment';
 
 const examplesRoot = path.resolve(
   fileURLToPath(new URL('../../../../examples/react', import.meta.url))
@@ -23,6 +26,39 @@ function createModuleNode(
     type: partial.type ?? 'js',
     ...partial,
   } as EnvironmentModuleNode;
+}
+
+/**
+ * Wraps CSS content in the `const __vite__css = "..."` pattern that the
+ * client environment's `vite:css-post` produces. This is what
+ * `extractViteCss` parses in `meta.ts`.
+ */
+function wrapViteCss(css: string): string {
+  return [
+    'import { updateStyle as __vite__updateStyle } from "/@vite/client"',
+    `const __vite__id = "test"`,
+    `const __vite__css = ${JSON.stringify(css)}`,
+    `__vite__updateStyle(__vite__id, __vite__css)`,
+    'export {}',
+  ].join('\n');
+}
+
+function createMockClientEnvironment(
+  cssById: Map<string, string> = new Map(),
+  overrides: Partial<ClientDevEnvironment> = {}
+): ClientDevEnvironment {
+  return {
+    root: '/project',
+    async transformRequest(url: string) {
+      const id = url;
+      const css = cssById.get(id);
+      if (css !== undefined) {
+        return { code: wrapViteCss(css), map: null } as TransformResult;
+      }
+      return null;
+    },
+    ...overrides,
+  };
 }
 
 function createMockServerDevEnvironment(
@@ -77,9 +113,6 @@ function createMockServerDevEnvironment(
       return undefined;
     },
     async transformRequest(url: string) {
-      if (url.endsWith('style.css')) {
-        cssContentCache.set('/project/routes/style.css', '.title{color:red}');
-      }
       return null;
     },
     async resolveId(specifier: string) {
@@ -88,14 +121,18 @@ function createMockServerDevEnvironment(
       }
       return null;
     },
-    async importModule(url: string) {
-      if (url.endsWith('style.css')) {
-        return { default: '.title{color:red}' };
-      }
+    async importModule() {
       return {};
     },
     ...overrides,
   };
+}
+
+/** Default client environment matching the default mock module graph (style.css). */
+function createDefaultClientEnvironment(): ClientDevEnvironment {
+  return createMockClientEnvironment(
+    new Map([['/project/routes/style.css', '.title{color:red}']])
+  );
 }
 
 interface ModuleSpec {
@@ -109,10 +146,16 @@ interface ModuleSpec {
 /**
  * Builds a connected module graph from specs and returns the lookup functions
  * a `ServerDevEnvironment` needs (`getModulesByFile`, `getModuleById`,
- * `resolveId`). Relative `deps`/`dynamicDeps` are resolved against the parent.
+ * `resolveId`, `importModule`). CSS nodes with `cssContent` populate the
+ * returned `clientEnvironment` mock, mirroring how the client environment's
+ * `vite:css-post` wraps CSS in `__vite__css`.
  */
-function buildModuleGraph(root: string, specs: ModuleSpec[]) {
+function buildModuleGraph(
+  root: string,
+  specs: (ModuleSpec & { cssContent?: string })[]
+) {
   const nodes = new Map<string, EnvironmentModuleNode>();
+  const cssById = new Map<string, string>();
 
   for (const spec of specs) {
     const id = path.join(root, spec.path);
@@ -135,6 +178,9 @@ function buildModuleGraph(root: string, specs: ModuleSpec[]) {
         ssrModule: spec.ssrModule,
       })
     );
+    if (spec.cssContent !== undefined) {
+      cssById.set(id, spec.cssContent);
+    }
   }
 
   for (const spec of specs) {
@@ -149,6 +195,17 @@ function buildModuleGraph(root: string, specs: ModuleSpec[]) {
       }
     }
   }
+
+  const clientEnvironment: ClientDevEnvironment = {
+    root,
+    async transformRequest(url: string) {
+      const css = cssById.get(url);
+      if (css !== undefined) {
+        return { code: wrapViteCss(css), map: null } as TransformResult;
+      }
+      return null;
+    },
+  };
 
   return {
     getModulesByFile(file: string) {
@@ -167,18 +224,19 @@ function buildModuleGraph(root: string, specs: ModuleSpec[]) {
       }
       return null;
     },
+    async importModule() {
+      return {};
+    },
+    clientEnvironment,
   };
 }
 
 describe('getMeta', () => {
-  afterEach(() => {
-    cssContentCache.clear();
-  });
-
   it('collects inline CSS module content from the server module graph', async () => {
     const meta = await getMeta(
       '/project/routes/style@route.tsx',
-      createMockServerDevEnvironment()
+      createMockServerDevEnvironment(),
+      createDefaultClientEnvironment()
     );
 
     expect(meta.style).toEqual(
@@ -249,7 +307,11 @@ describe('getMeta', () => {
       },
     });
 
-    const meta = await getMeta('/project/routes/style@route.tsx', environment);
+    const meta = await getMeta(
+      '/project/routes/style@route.tsx',
+      environment,
+      createDefaultClientEnvironment()
+    );
 
     expect(meta.style).toEqual(
       expect.arrayContaining([
@@ -260,21 +322,18 @@ describe('getMeta', () => {
     );
   });
 
-  it('emits style with cached CSS content', async () => {
-    cssContentCache.set('/project/routes/style.css', '.title{color:red}');
+  it('emits style with inline CSS content', async () => {
+    const environment = createMockServerDevEnvironment();
 
-    const environment = createMockServerDevEnvironment({
-      async transformRequest() {
-        // Simulate a module whose CSS was already stripped by SSR transform
-        return null;
-      },
-    });
+    const meta = await getMeta(
+      '/project/routes/style@route.tsx',
+      environment,
+      createDefaultClientEnvironment()
+    );
 
-    const meta = await getMeta('/project/routes/style@route.tsx', environment);
-
-    // When the transform hook cached CSS content, emit <style> with
-    // content + <script> for HMR. This avoids FOUC while keeping HMR
-    // working.
+    // When CSS content is available from the client environment transform,
+    // emit <style> with content + <script> for HMR. This avoids FOUC while
+    // keeping HMR working.
     expect(meta.script).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -294,15 +353,16 @@ describe('getMeta', () => {
     );
   });
 
-  it('emits empty style when cache is empty', async () => {
-    const environment = createMockServerDevEnvironment({
-      async transformRequest() {
-        // Simulate a module whose CSS content was not cached
-        return null;
-      },
-    });
+  it('emits empty style when client environment returns no CSS', async () => {
+    const environment = createMockServerDevEnvironment();
+    // Client environment returns null for transformRequest
+    const clientEnv = createMockClientEnvironment();
 
-    const meta = await getMeta('/project/routes/style@route.tsx', environment);
+    const meta = await getMeta(
+      '/project/routes/style@route.tsx',
+      environment,
+      clientEnv
+    );
 
     // Fallback: emit <script> + empty <style> so HMR can still work
     expect(meta.script).toEqual(
@@ -319,6 +379,141 @@ describe('getMeta', () => {
         expect.objectContaining({
           'data-vite-dev-id': '/project/routes/style.css',
           content: '',
+        }),
+      ])
+    );
+  });
+
+  it('emits empty style when client transform returns no __vite__css', async () => {
+    const environment = createMockServerDevEnvironment();
+    // Client returns code without the __vite__css pattern
+    const clientEnv: ClientDevEnvironment = {
+      root: '/project',
+      async transformRequest() {
+        return { code: 'export {}', map: null } as TransformResult;
+      },
+    };
+
+    const meta = await getMeta(
+      '/project/routes/style@route.tsx',
+      environment,
+      clientEnv
+    );
+
+    expect(meta.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          'data-vite-dev-id': '/project/routes/style.css',
+          content: '',
+        }),
+      ])
+    );
+  });
+
+  it('emits empty style when client environment has no entry for module', async () => {
+    const environment = createMockServerDevEnvironment();
+    const clientEnv = createMockClientEnvironment();
+
+    const meta = await getMeta(
+      '/project/routes/style@route.tsx',
+      environment,
+      clientEnv
+    );
+
+    expect(meta.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          'data-vite-dev-id': '/project/routes/style.css',
+          content: '',
+        }),
+      ])
+    );
+  });
+
+  it('uses client css content for vue sfc style submodules', async () => {
+    const vueStyleUrl =
+      '/project/routes/Counter@widget.vue?vue&type=style&index=0&scoped=abc123&lang.css';
+    const widgetModuleId = '/project/routes/Counter@widget.vue';
+
+    const widgetScopedCssModule = createModuleNode({
+      id: vueStyleUrl,
+      url: vueStyleUrl,
+      type: 'css',
+      importers: new Set([
+        createModuleNode({
+          id: widgetModuleId,
+          url: widgetModuleId,
+        }),
+      ]),
+    });
+    const widgetModule = createModuleNode({
+      id: widgetModuleId,
+      url: widgetModuleId,
+      transformResult: {
+        code: '',
+        map: null,
+        deps: [
+          './Counter@widget.vue?vue&type=style&index=0&scoped=abc123&lang.css',
+        ],
+        dynamicDeps: [],
+      } as TransformResult,
+      importedModules: new Set([widgetScopedCssModule]),
+    });
+    const routeModule = createModuleNode({
+      id: '/project/routes/page@route.tsx',
+      url: '/project/routes/page@route.tsx',
+      transformResult: {
+        code: '',
+        map: null,
+        deps: [],
+        dynamicDeps: ['./Counter@widget.vue'],
+      } as TransformResult,
+      importedModules: new Set(),
+    });
+
+    const environment = createMockServerDevEnvironment({
+      root: '/project',
+      getModulesByFile(file: string) {
+        if (file.endsWith('page@route.tsx')) {
+          return new Set([routeModule]);
+        }
+        return undefined;
+      },
+      getModuleById(id: string) {
+        if (id === widgetModuleId) return widgetModule;
+        if (id === vueStyleUrl) return widgetScopedCssModule;
+        if (id.endsWith('page@route.tsx')) return routeModule;
+        return undefined;
+      },
+      async resolveId(specifier: string) {
+        if (specifier.includes('Counter@widget.vue?vue')) {
+          return { id: vueStyleUrl };
+        }
+        if (specifier.endsWith('Counter@widget.vue')) {
+          return { id: widgetModuleId };
+        }
+        return null;
+      },
+    });
+
+    const clientEnv = createMockClientEnvironment(
+      new Map([[vueStyleUrl, '.counter[data-v-abc123]{color:red}']])
+    );
+
+    const meta = await getMeta(
+      '/project/routes/page@route.tsx',
+      environment,
+      clientEnv,
+      (key) => key.includes('@widget.')
+    );
+
+    // CSS content is extracted from the client environment's __vite__css
+    // output. No `?inline` query is needed, so CSS Modules hashes and
+    // scoped attributes are preserved.
+    expect(meta.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          content: '.counter[data-v-abc123]{color:red}',
         }),
       ])
     );
@@ -405,6 +600,7 @@ describe('getMeta', () => {
     const meta = await getMeta(
       '/project/routes/page@route.tsx',
       environment,
+      createMockClientEnvironment(),
       widgetOnlyPredicate
     );
 
@@ -415,7 +611,7 @@ describe('getMeta', () => {
 
   it('collects css links for examples/react index route from the module graph', async () => {
     const filePath = path.join(examplesRoot, 'routes/examples/index@route.tsx');
-    const graph = buildModuleGraph(examplesRoot, [
+    const { clientEnvironment, ...graphEnv } = buildModuleGraph(examplesRoot, [
       {
         path: 'routes/examples/index@route.tsx',
         deps: [
@@ -436,12 +632,12 @@ describe('getMeta', () => {
     ]);
     const environment = createMockServerDevEnvironment({
       root: examplesRoot,
-      ...graph,
+      ...graphEnv,
     });
 
-    const meta = await getMeta(filePath, environment);
+    const meta = await getMeta(filePath, environment, clientEnvironment);
 
-    // CSS modules without an inline default export are loaded as
+    // CSS modules without client-side CSS content are loaded as
     // `<script type="module">` so Vite's client-side `updateStyle()` can
     // inject and hot-update the CSS.
     expect(
@@ -449,20 +645,19 @@ describe('getMeta', () => {
     ).toBe(true);
   });
 
-  it('emits script and style when css transformRequest fails', async () => {
-    const environment = createMockServerDevEnvironment({
-      async transformRequest(url: string) {
-        if (url.endsWith('style.css')) {
-          throw new Error('stale module graph');
-        }
-        return null;
-      },
-    });
+  it('emits script and empty style when client transform returns null', async () => {
+    const environment = createMockServerDevEnvironment();
+    // Client environment returns null (module not yet transformed)
+    const clientEnv = createMockClientEnvironment();
 
-    const meta = await getMeta('/project/routes/style@route.tsx', environment);
+    const meta = await getMeta(
+      '/project/routes/style@route.tsx',
+      environment,
+      clientEnv
+    );
 
-    // Failed SSR imports are still emitted as <script> + <style> so the
-    // client-side module can load and HMR can work once the error is fixed.
+    // CSS module is in the graph but client returns no CSS: emit <script> +
+    // empty <style> so the client-side module can load and HMR can work.
     expect(meta.link).toEqual([]);
     expect(meta.script).toEqual(
       expect.arrayContaining([
@@ -482,10 +677,34 @@ describe('getMeta', () => {
     );
   });
 
+  it('extracts css from client environment transformRequest', async () => {
+    // Client environment returns __vite__css-wrapped CSS on transformRequest
+    const clientEnv = createMockClientEnvironment(
+      new Map([['/project/routes/style.css', '.title{color:red}']])
+    );
+    const environment = createMockServerDevEnvironment();
+
+    const meta = await getMeta(
+      '/project/routes/style@route.tsx',
+      environment,
+      clientEnv
+    );
+
+    // CSS content is extracted from the __vite__css pattern
+    expect(meta.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          content: '.title{color:red}',
+          'data-vite-dev-id': '/project/routes/style.css',
+        }),
+      ])
+    );
+  });
+
   it('collects widget css when route reaches widgets indirectly via the module graph', async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-meta-widget-'));
     const routePath = path.join(root, 'routes/page@route.tsx');
-    const graph = buildModuleGraph(root, [
+    const { clientEnvironment, ...graphEnv } = buildModuleGraph(root, [
       {
         path: 'routes/page@route.tsx',
         deps: ['./BaseLayout.tsx'],
@@ -501,20 +720,19 @@ describe('getMeta', () => {
       {
         path: 'routes/counter-common.css',
         type: 'css',
+        cssContent: '.counter { color: red; }',
       },
     ]);
     const environment = createMockServerDevEnvironment({
       root,
-      ...graph,
+      ...graphEnv,
     });
 
-    cssContentCache.set(
-      path.join(root, 'routes/counter-common.css'),
-      '.counter { color: red; }'
-    );
-
-    const meta = await getMeta(routePath, environment, (key) =>
-      key.includes('@widget.')
+    const meta = await getMeta(
+      routePath,
+      environment,
+      clientEnvironment,
+      (key) => key.includes('@widget.')
     );
 
     expect(meta.style).toEqual(
@@ -529,7 +747,7 @@ describe('getMeta', () => {
   it('collects layout and widget css for react-and-vue-like route graph', async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-meta-layout-'));
     const routePath = path.join(root, 'routes/react-and-vue@route.tsx');
-    const graph = buildModuleGraph(root, [
+    const { clientEnvironment, ...graphEnv } = buildModuleGraph(root, [
       {
         path: 'routes/react-and-vue@route.tsx',
         deps: ['./BaseLayout.tsx', './Counter@widget.tsx'],
@@ -545,28 +763,24 @@ describe('getMeta', () => {
       {
         path: 'routes/base-layout.css',
         type: 'css',
+        cssContent: '.layout { padding: 1rem; }',
       },
       {
         path: 'routes/counter-common.css',
         type: 'css',
+        cssContent: '.counter { color: red; }',
       },
     ]);
     const environment = createMockServerDevEnvironment({
       root,
-      ...graph,
+      ...graphEnv,
     });
 
-    cssContentCache.set(
-      path.join(root, 'routes/base-layout.css'),
-      '.layout { padding: 1rem; }'
-    );
-    cssContentCache.set(
-      path.join(root, 'routes/counter-common.css'),
-      '.counter { color: red; }'
-    );
-
-    const meta = await getMeta(routePath, environment, (key: string) =>
-      key.includes('@widget.')
+    const meta = await getMeta(
+      routePath,
+      environment,
+      clientEnvironment,
+      (key: string) => key.includes('@widget.')
     );
 
     expect(meta.style).toEqual(
@@ -647,14 +861,16 @@ describe('getMeta', () => {
       },
     });
 
-    cssContentCache.set(
-      '/project/routes/counter-common.css',
-      '.counter { color: red; }'
+    const clientEnv = createMockClientEnvironment(
+      new Map([
+        ['/project/routes/counter-common.css', '.counter { color: red; }'],
+      ])
     );
 
     const meta = await getMeta(
       '/project/routes/page@route.tsx',
       environment,
+      clientEnv,
       (key) => key.includes('@widget.')
     );
 
@@ -670,7 +886,7 @@ describe('getMeta', () => {
   it('collects scoped css from vue sfc widget submodules sharing the canonical module key', async () => {
     // Vue SFC widgets emit CSS as a virtual submodule whose id shares the
     // canonical (query-stripped) key with the widget module itself
-    // (e.g. `Counter@widget.vue?vue&type=style&...&lang.css`).
+    // (e.g. `Counter@widget.vue?vue&type=style&index=0&scoped=a3e69a9a&lang.css`).
     // The crawler must keep both modules distinct so the CSS is not skipped
     // by the visited set.
     const widgetScopedCssId =
@@ -744,14 +960,14 @@ describe('getMeta', () => {
       },
     });
 
-    cssContentCache.set(
-      widgetScopedCssId,
-      '.counter[data-v-a3e69a9a]{color:red}'
+    const clientEnv = createMockClientEnvironment(
+      new Map([[widgetScopedCssId, '.counter[data-v-a3e69a9a]{color:red}']])
     );
 
     const meta = await getMeta(
       '/project/routes/page@route.tsx',
       environment,
+      clientEnv,
       (key) => key.includes('@widget.')
     );
 

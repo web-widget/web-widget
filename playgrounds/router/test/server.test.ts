@@ -123,4 +123,14 @@ describe('production server (pnpm build && node server.js)', () => {
     expect(linkedCss).toContain('.showcase');
     expect(inlineCss).not.toContain('.showcase');
   });
+
+  it('includes Vue SFC CSS Modules styles on /vue-module-css', async () => {
+    const html = await (await fetch(`${server!.origin}/vue-module-css`)).text();
+    const { combinedCss } = await collectRouteCss(html, server!.origin);
+
+    // CSS Modules generates hashed class names like `_box_<hash>`; verify
+    // the CSS content is present in the SSR output (inlined or linked).
+    expect(combinedCss).toContain('linear-gradient(315deg');
+    expect(combinedCss).toContain('border-radius:30px');
+  });
 });

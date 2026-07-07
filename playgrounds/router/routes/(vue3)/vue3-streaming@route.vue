@@ -17,9 +17,6 @@ const Loading = h(
 <template>
   <BaseLayout>
     <h1>Vue3 Route: Streaming</h1>
-    <p v-if="dev" style="background: yellow">
-      💡 This example needs to run `pnpm start`
-    </p>
     <VueWaitDemo :fallback="Loading" id="demo:0" />
     <hr />
     <VueWaitDemo :fallback="Loading" id="demo:1" />

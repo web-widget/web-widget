@@ -2,6 +2,7 @@
 
 import type {
   LinkDescriptor,
+  MetaDescriptor,
   ScriptDescriptor,
   StyleDescriptor,
 } from '@web-widget/helpers';
@@ -10,7 +11,10 @@ import type { EnvironmentModuleNode } from 'vite';
 import { isCSSRequest } from 'vite';
 
 import type { WidgetModuleFilter } from '@/types';
-import type { ServerDevEnvironment } from '@/internal/environment';
+import type {
+  ClientDevEnvironment,
+  ServerDevEnvironment,
+} from '@/internal/environment';
 import {
   canonicalModuleKey,
   cssExcludeRE,
@@ -30,22 +34,26 @@ type ServerModuleDependencyKeys = {
 export async function getMeta(
   filePath: string,
   serverEnvironment: ServerDevEnvironment,
+  clientEnvironment: ClientDevEnvironment,
   widgetModuleFilter?: WidgetModuleFilter
 ): Promise<{
   link: LinkDescriptor[];
   style: StyleDescriptor[];
   script: ScriptDescriptor[];
+  meta: MetaDescriptor[];
 }> {
   const script: ScriptDescriptor[] = [];
   const style: StyleDescriptor[] = [];
+  const meta: MetaDescriptor[] = [];
 
   const { styles, moduleScripts } = await getCssForURL(
     filePath,
     serverEnvironment,
+    clientEnvironment,
     widgetModuleFilter
   );
 
-  // CSS modules with cached content: emit <style> for immediate CSS
+  // CSS modules with inline content: emit <style> for immediate CSS
   // (no FOUC) and <script> so Vite's client can hot-update the <style>
   // via updateStyle().
   for (const { id, url, content } of styles) {
@@ -53,18 +61,18 @@ export async function getMeta(
     style.push({ 'data-vite-dev-id': id, content });
   }
 
-  // CSS modules without cached content (transform failed and cache was
-  // empty): emit <script> to load the module (enables HMR) and an empty
-  // <style data-vite-dev-id> so Vite's client registers it in sheetsMap
-  // and updateStyle() can fill/update it. This mirrors Astro's approach
-  // — never use <link rel="stylesheet"> because it registers in
-  // linkSheetsMap which makes updateStyle() short-circuit and blocks HMR.
+  // CSS modules without inline content (import failed): emit <script> to
+  // load the module (enables HMR) and an empty <style data-vite-dev-id>
+  // so Vite's client registers it in sheetsMap and updateStyle() can
+  // fill/update it. This mirrors Astro's approach — never use
+  // <link rel="stylesheet"> because it registers in linkSheetsMap which
+  // makes updateStyle() short-circuit and blocks HMR.
   for (const { id, url } of moduleScripts) {
     script.push({ type: 'module', src: url });
     style.push({ 'data-vite-dev-id': id, content: '' });
   }
 
-  return { script, style, link: [] };
+  return { script, style, link: [], meta };
 }
 
 interface ImportedStyle {
@@ -81,7 +89,8 @@ interface ImportedModuleScript {
 async function getCssForURL(
   filePath: string,
   serverEnvironment: ServerDevEnvironment,
-  widgetModuleFilter?: WidgetModuleFilter
+  clientEnvironment: ClientDevEnvironment,
+  widgetModuleFilter: WidgetModuleFilter | undefined
 ): Promise<{
   styles: ImportedStyle[];
   moduleScripts: ImportedModuleScript[];
@@ -100,7 +109,7 @@ async function getCssForURL(
     widgetModuleFilter
   )) {
     await appendCssModuleStyles(
-      serverEnvironment,
+      clientEnvironment,
       importedModule.url,
       importedModule.id ?? importedModule.url,
       importedStylesMap,
@@ -114,8 +123,28 @@ async function getCssForURL(
   };
 }
 
+/**
+ * Extracts CSS content from the client environment's transform output.
+ * The client environment's `vite:css-post` wraps CSS in
+ * `const __vite__css = "..."` (a JSON-stringified value), preserving
+ * scoped attributes and CSS Modules hashes. This avoids the SSR
+ * environment which discards CSS as `export {}`.
+ */
+const VITE_CSS_RE = /const __vite__css\s*=\s*(.+)$/m;
+
+function extractViteCss(code: string | undefined): string | undefined {
+  if (!code) return undefined;
+  const match = code.match(VITE_CSS_RE);
+  if (!match) return undefined;
+  try {
+    return JSON.parse(match[1]);
+  } catch {
+    return undefined;
+  }
+}
+
 async function appendCssModuleStyles(
-  serverEnvironment: ServerDevEnvironment,
+  clientEnvironment: ClientDevEnvironment,
   moduleUrl: string,
   moduleId: string,
   importedStylesMap: Map<string, ImportedStyle>,
@@ -125,27 +154,27 @@ async function appendCssModuleStyles(
     return;
   }
 
-  // Trigger the transform pipeline so the `transform` hook fills
-  // `cssContentCache` with the raw CSS content. We use `transformRequest`
-  // rather than `importModule` to avoid executing the module's JS code
-  // (e.g. Vue SFC style sub-modules call `updateStyle()` at runtime,
-  // which is a meaningless side effect in SSR). This mirrors Astro's
-  // approach — the transform hook receives the raw CSS from the load
-  // stage before Vite's cssPlugin converts it to an empty JS module.
+  // Use the client environment to obtain CSS content. The client
+  // environment's `vite:css-post` preserves CSS (wrapped in
+  // `__vite__css`), while the SSR environment discards it (`export {}`).
+  // This also ensures Vue SFC scoped attributes and CSS Modules hashes
+  // are correct, because framework transforms run before `vite:css-post`
+  // in both environments.
+  let css: string | undefined;
   try {
-    await serverEnvironment.transformRequest(moduleUrl);
+    const result = await clientEnvironment.transformRequest(
+      normalizeFilterId(moduleUrl)
+    );
+    css = extractViteCss(result?.code);
   } catch {
-    // Transform may fail for virtual or special modules. Fall through
-    // to cache lookup — the content may already be cached from a
-    // previous transform, or we emit an empty <style> as fallback.
+    // transform may fail for virtual or special modules
   }
 
-  const cachedCss = cssContentCache.get(moduleId);
-  if (typeof cachedCss === 'string' && cachedCss.length > 0) {
+  if (typeof css === 'string' && css.length > 0) {
     importedStylesMap.set(moduleUrl, {
       id: moduleId,
       url: moduleUrl,
-      content: cachedCss,
+      content: css,
     });
     return;
   }
@@ -155,15 +184,6 @@ async function appendCssModuleStyles(
     url: moduleUrl,
   });
 }
-
-/**
- * Cache of CSS content keyed by module id. Populated by the `transform`
- * hook in the dev server plugin — the hook receives the raw CSS from the
- * `load` stage (before Vite's cssPlugin converts it to an empty JS module
- * for SSR). `appendCssModuleStyles` reads from this cache to emit
- * `<style>` tags with content, avoiding FOUC.
- */
-export const cssContentCache = new Map<string, string>();
 
 const isBuildableCSSRequest = (request: string): boolean =>
   isCSSRequest(request) && !cssExcludeRE.some((re) => re.test(request));
@@ -222,7 +242,11 @@ async function ensureServerTransformResult(
     return;
   }
   try {
-    await serverEnvironment.transformRequest(normalizeFilterId(mod.url));
+    // Use mod.url directly (not normalizeFilterId) because transformRequest
+    // needs the exact URL including meaningful query params like ?as=jsx.
+    // Stripping ?as=jsx would transform a different module (the base SFC)
+    // leaving the ?as=jsx variant's transformResult and importedModules empty.
+    await serverEnvironment.transformRequest(mod.url);
   } catch {
     /** transform may fail for virtual / special modules */
   }
@@ -338,7 +362,7 @@ async function resolveWidgetModulesFromDynamicDeps(
 
       let mod = serverEnvironment.getModuleById(r.id);
       if (!mod) {
-        await serverEnvironment.transformRequest(normalizeFilterId(r.id));
+        await serverEnvironment.transformRequest(r.id);
         mod = serverEnvironment.getModuleById(r.id) ?? undefined;
       }
       if (mod?.id) {

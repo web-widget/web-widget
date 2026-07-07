@@ -1,9 +1,8 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
-import type { IndexHtmlTransformResult, Plugin } from 'vite';
+import type { Plugin } from 'vite';
 import { normalizeFilterId, stripModuleIdQuery } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
 import { isServerEnvironment } from '@/internal/environment';
@@ -65,11 +64,10 @@ export function importRenderPlugin({
 
   let dev = false;
   let root: string;
+  let base: string;
   let filter: (id: string | unknown) => boolean;
   let importerFilter: (id: string | unknown) => boolean;
-  let base: string;
   let sourcemap: boolean;
-  let inspectorDevUrl: string | undefined;
 
   filter = createFilter(include, exclude);
   importerFilter = createFilter(includeImporter, excludeImporter);
@@ -82,44 +80,6 @@ export function importRenderPlugin({
         root = config.root;
         base = config.base;
         sourcemap = !!config.build?.sourcemap;
-        if (dev) {
-          inspectorDevUrl = `${base}@fs${fileURLToPath(await import.meta.resolve('@web-widget/inspector'))}`;
-        }
-      },
-      async transformIndexHtml(html, { server: dev }) {
-        const inspectorId = 'web-widget:inspector';
-        const result: IndexHtmlTransformResult = [];
-
-        if (!html.includes(`</web-widget>`)) {
-          return result;
-        }
-
-        if (
-          dev &&
-          process.env.NODE_ENV !== 'test' &&
-          !html.includes(`id="${inspectorId}"`)
-        ) {
-          const src = inspectorDevUrl ?? `${base}@fs/@web-widget/inspector`;
-          result.push({
-            injectTo: 'body',
-            tag: 'web-widget-inspector',
-            attrs: {
-              id: inspectorId,
-              dir: root,
-            },
-            children: [
-              {
-                tag: 'script',
-                attrs: {
-                  type: 'module',
-                  src,
-                },
-              },
-            ],
-          });
-        }
-
-        return result;
       },
       async transform(code, id) {
         const isServer = isServerEnvironment(this.environment);

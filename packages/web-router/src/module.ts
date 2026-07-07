@@ -10,9 +10,7 @@ import {
 } from '@web-widget/helpers/module';
 
 import {
-  DEV_MODULE_SOURCE_HEADER,
   type ActionModule,
-  type Manifest,
   type HTTPException,
   type LayoutComponentProps,
   type LayoutModule,
@@ -52,6 +50,10 @@ interface CachedModuleData {
 
 const MODULE_CACHE = new WeakMap<RouteModule, CachedModuleData>();
 
+export type DevMetaProvider = (
+  context: RouteContext
+) => Promise<Meta | void> | Meta | void;
+
 export type OnFallback = (
   error: HTTPException,
   context?: MiddlewareContext
@@ -69,7 +71,7 @@ export class ModuleRuntime {
   #defaultRenderer: ServerRenderOptions;
   #onFallback: OnFallback;
   #exposeErrors: boolean;
-  #moduleSource?: Manifest['moduleSource'];
+  #devMeta?: DevMetaProvider;
 
   // =========================================================================
   // Constructor and Configuration
@@ -82,7 +84,6 @@ export class ModuleRuntime {
     defaultRenderer: ServerRenderOptions;
     onFallback: OnFallback;
     exposeErrors?: boolean;
-    moduleSource?: Manifest['moduleSource'];
   }) {
     this.#layoutModule = options.layoutModule;
     this.#defaultMeta = options.defaultMeta;
@@ -90,7 +91,11 @@ export class ModuleRuntime {
     this.#defaultRenderer = options.defaultRenderer;
     this.#onFallback = options.onFallback;
     this.#exposeErrors = options.exposeErrors ?? false;
-    this.#moduleSource = options.moduleSource;
+  }
+
+  /** @internal Sets the dev meta provider at runtime (used by vite-plugin dev middleware). */
+  setDevMetaProvider(provider: DevMetaProvider): void {
+    this.#devMeta = provider;
   }
 
   /** @internal */
@@ -338,6 +343,19 @@ export class ModuleRuntime {
         : this.#createSafeError(unsafeError)
       : undefined;
 
+    // Inject dev-only meta (Vite client, CSS) at the rendering level so
+    // streaming responses work without buffering the entire HTML.
+    if (this.#devMeta) {
+      try {
+        const devMeta = await this.#devMeta(context);
+        if (devMeta) {
+          meta = mergeMeta(meta, devMeta);
+        }
+      } catch {
+        // Dev meta injection is best-effort; don't fail the render.
+      }
+    }
+
     // Build common component props
     const componentProps: RouteComponentProps = {
       data,
@@ -398,11 +416,6 @@ export class ModuleRuntime {
       // NOTE: Disable Nginx buffering for progressive responses.
       // https://nginx.org/en/docs/http/ngx_http_proxy_module.html
       headers.set('x-accel-buffering', 'no');
-    }
-
-    const moduleSource = this.#moduleSource?.(context);
-    if (moduleSource) {
-      headers.set(DEV_MODULE_SOURCE_HEADER, moduleSource);
     }
 
     return new Response(html, {
