@@ -36,3 +36,6 @@ docs/_merged_includes/
 ## Turbo
 .turbo/
 turbo-build.log
+
+## V8 heap snapshots (memory leak tests)
+**/.heap-snapshots/
