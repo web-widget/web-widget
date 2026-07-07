@@ -1,15 +1,12 @@
 import { defineServerRender } from '@web-widget/helpers';
-import type { Fallback, HTML, UnsafeHTML } from '@worker-tools/html';
-import { fallback, html, unsafeHTML } from '@worker-tools/html';
-import {
-  asyncIterToStream,
-  streamToAsyncIter,
-} from 'whatwg-stream-to-async-iter';
+import type { Fallback, HTML, UnsafeHTML } from './html';
+import { fallback, html, unsafeHTML } from './html';
+import { asyncIterToStream, streamToAsyncIter } from './stream-utils';
 
 export * from '@web-widget/helpers';
 export * from './web-widget';
 export { fallback, html, unsafeHTML };
-export type { Fallback, HTML };
+export type { Fallback, HTML, UnsafeHTML };
 
 export const unsafeStreamToHTML = (
   stream: ReadableStream

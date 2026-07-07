@@ -1,4 +1,4 @@
-export type { HTML, Fallback } from '@worker-tools/html';
+export type { HTML, Fallback } from './html';
 export * from '@web-widget/helpers';
 export * from './web-widget';
 
