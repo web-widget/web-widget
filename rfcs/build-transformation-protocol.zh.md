@@ -4,65 +4,7 @@
 
 ## 摘要
 
-`@web-widget/schema` 已定义技术无关的通用模块格式（`RouteModule`、`WidgetModule`）与渲染接口（`ServerRender`、`ClientRender`），构成 Web Widget 生态的目标格式。本文档定义**构建转换层**——如何通过标准化的适配器，将市面上的 UI 框架组件（React、Vue、Svelte 等）在构建期转换为上述通用模块格式。通过标准化适配器接口，任何 UI 框架都可以实现统一的接口来获得 Web Widget 生态系统的支持，而无需了解具体的构建工具实现细节。
-
-## 上下文：目标格式与转换层定位
-
-### 两层架构
-
-Web Widget 的模块互操作能力由两层构成：
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  目标格式层（@web-widget/schema，已定义）                  │
-│  - RouteModule / WidgetModule                            │
-│  - ServerRender / ClientRender                           │
-│  - Meta / Action / Middleware                            │
-│  技术无关的接口契约，定义「组件应该长什么样」                 │
-└─────────────────────────────────────────────────────────┘
-                        ▲
-                        │ 构建期转换（本文档）
-                        │
-┌─────────────────────────────────────────────────────────┐
-│  源码层（框架特定）                                        │
-│  - React: Counter.tsx, App.tsx                          │
-│  - Vue: Counter.vue, App.vue                            │
-│  - Svelte: Counter.svelte, App.svelte                   │
-└─────────────────────────────────────────────────────────┘
-```
-
-### 目标格式回顾
-
-`@web-widget/schema` 已定义以下渲染接口，作为所有框架适配器的**转换目标**：
-
-```typescript
-// 渲染接口 - 所有框架的渲染函数必须符合此契约
-interface ServerRender<Component, Data, Options, Result> {
-  (
-    component: Component,
-    data: Data,
-    options: Options
-  ): Result | Promise<Result>;
-}
-
-interface ClientRender<Component, Data, Options, Result> {
-  (
-    component: Component,
-    data: Data,
-    options: Options
-  ): Result | Promise<Result>;
-}
-```
-
-### 转换层职责
-
-本文档定义的构建转换层负责将框架特定的源码**转换为符合上述目标格式的模块**。具体而言，对于一份框架组件源码（如 `Counter.tsx`），构建转换需要：
-
-1. **注入渲染函数**：为模块注入符合 `ServerRender` / `ClientRender` 契约的 `render` 导出
-2. **注入容器函数**：为 widget 模块注入 `defineWebWidget` 容器，使其可作为跨框架复用的组件单元
-3. **环境适配**：通过条件导出，使同一份源码在 server / client 环境下产出不同实现，但都符合目标格式
-
-适配器标准化的目的，就是让上述转换逻辑以**框架无关的接口**暴露给构建工具，使构建工具无需了解每个框架的具体转换细节。
+`@web-widget/schema` 已定义技术无关的通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。本 RFC 定义构建转换层——通过标准化的 `ComponentProcessor` 协议，将 UI 框架组件在构建期转换为通用模块，使构建工具与框架适配器解耦演进。
 
 ## 动机
 
