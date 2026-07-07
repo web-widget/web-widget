@@ -149,7 +149,9 @@ export default function cache(options?: CacheOptions) {
     // `createFetch`. On cache miss, origin throws propagate to the framework `onError`
     // handler. Revalidation failures are converted to 5xx inside shared-cache for
     // `stale-if-error` / `stale-while-revalidate` semantics.
-    return createCacheHandler(cache, {
+    let progressiveResponse: Response | undefined;
+
+    const cacheResult = await createCacheHandler(cache, {
       cacheControlOverride: cacheControl,
       cacheKeyRules,
       debugCacheKey,
@@ -158,13 +160,47 @@ export default function cache(options?: CacheOptions) {
       varyOverride: vary,
     }).resolve(
       request,
-      // The origin request from shared-cache is ignored; `next()` uses middleware context.
-      (_req: Request, _ctx: CacheOriginContext) => next(),
+      async (_req: Request, ctx: CacheOriginContext) => {
+        const response = await next();
+
+        // Origin responses marked `no-store` must not be cached (RFC 7234
+        // §5.2.2.3). `cacheControlOverride` below would otherwise force a
+        // cacheable directive onto them. This also covers progressive
+        // (streaming) responses, which the rendering layer declares
+        // `no-store` — caching requires buffering the entire body, which would
+        // defeat streaming. Return a non-cacheable sentinel so shared-cache
+        // skips storage, and surface the real response directly.
+        if (
+          response.headers
+            .get('cache-control')
+            ?.toLowerCase()
+            .includes('no-store')
+        ) {
+          if (ctx.phase === 'miss') {
+            progressiveResponse = response;
+          }
+          // Non-2xx bypasses cacheControlOverride (only applied when ok),
+          // and no-store ensures shared-cache won't store it.
+          return new Response(null, {
+            status: 500,
+            headers: { 'cache-control': 'no-store' },
+          });
+        }
+
+        return response;
+      },
       {
         waitUntil,
         signal,
       }
     );
+
+    if (progressiveResponse) {
+      setCacheStatus(progressiveResponse.headers, 'BYPASS');
+      return progressiveResponse;
+    }
+
+    return cacheResult;
   });
 }
 

@@ -416,6 +416,16 @@ export class ModuleRuntime {
       // NOTE: Disable Nginx buffering for progressive responses.
       // https://nginx.org/en/docs/http/ngx_http_proxy_module.html
       headers.set('x-accel-buffering', 'no');
+      // Progressive responses are streamed and cannot be safely cached without
+      // buffering the entire body (which defeats streaming). Declare this at the
+      // HTTP level for downstream caches (CDN, proxy, browser). Respect any
+      // cache-control explicitly set by the route handler.
+      // - no-store: caches must not store the response.
+      // - no-transform: intermediaries must not transform (e.g. compress) the
+      //   body, which would require buffering and break progressive rendering.
+      if (!headers.has('cache-control')) {
+        headers.set('cache-control', 'no-store, no-transform');
+      }
     }
 
     return new Response(html, {

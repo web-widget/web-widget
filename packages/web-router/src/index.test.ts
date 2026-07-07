@@ -557,6 +557,39 @@ describe('html method', () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get('x-accel-buffering')).toBe('no');
+    expect(response.headers.get('cache-control')).toBe(
+      'no-store, no-transform'
+    );
+  });
+
+  test('progressive rendering should respect explicit cache-control', async () => {
+    const app = WebRouter.fromManifest({
+      routes: [
+        {
+          pathname: '/test',
+          module: {
+            handler: {
+              async GET(ctx: RouteContext) {
+                return ctx.html(
+                  {},
+                  {
+                    renderer: { progressive: true },
+                    headers: { 'cache-control': 'max-age=60' },
+                  }
+                );
+              },
+            },
+            render: async () => '<div>Progressive</div>',
+            default: () => null,
+          },
+        },
+      ],
+    });
+
+    const response = await app.dispatch('http://localhost/test');
+
+    expect(response.headers.get('x-accel-buffering')).toBe('no');
+    expect(response.headers.get('cache-control')).toBe('max-age=60');
   });
 });
 

@@ -688,3 +688,57 @@ describe('conditional-get middleware', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('non-cacheable (no-store) responses', () => {
+  test('should bypass cache and not buffer the body', async () => {
+    const caches = createCaches();
+    const app = createApp(caches, { cacheControl: { maxAge: 10 } }, [
+      {
+        pathname: '*',
+        module: {
+          handler: async () => {
+            return new Response('streamed', {
+              headers: { 'cache-control': 'no-store' },
+            });
+          },
+        },
+      },
+    ]);
+
+    const res1 = await app.dispatch(TEST_URL);
+    expect(res1.status).toBe(200);
+    expect(res1.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(res1.headers.get('cache-control')).toBe('no-store');
+    expect(await res1.text()).toBe('streamed');
+
+    // no-store responses are never cached — second request also bypasses.
+    const res2 = await app.dispatch(TEST_URL);
+    expect(res2.headers.get('x-cache-status')).toBe(BYPASS);
+    expect(await res2.text()).toBe('streamed');
+
+    // Nothing should have been written to the cache store.
+    const cache = await caches.open('default');
+    const cached = await cache.match(new Request(TEST_URL));
+    expect(cached).toBeUndefined();
+  });
+
+  test('cacheable responses should still be cached normally', async () => {
+    const caches = createCaches();
+    const app = createApp(caches, { cacheControl: { maxAge: 10 } }, [
+      {
+        pathname: '*',
+        module: {
+          handler: async () => new Response('buffered'),
+        },
+      },
+    ]);
+
+    const res1 = await app.dispatch(TEST_URL);
+    expect(res1.headers.get('x-cache-status')).toBe(MISS);
+    expect(await res1.text()).toBe('buffered');
+
+    const res2 = await app.dispatch(TEST_URL);
+    expect(res2.headers.get('x-cache-status')).toBe(HIT);
+    expect(await res2.text()).toBe('buffered');
+  });
+});
