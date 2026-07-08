@@ -1,5 +1,65 @@
 # @web-widget/vite-plugin
 
+## 3.0.0-beta.0
+
+### Major Changes
+
+- f3328bf: Migrate to **Vite 8 Environment API** so router builds and dev SSR match how Vite expects frameworks to work today.
+
+  ### Features
+  - **One `vite build` for client + server** — a single build now produces both environments; build order is reversed to server → client so the server build no longer depends on the client manifest.
+  - **Smaller, clearer client bundles** — client chunks come from `entry.client`, widgets, actions, and CSS referenced by routes; `@route` / `@layout` / `@fallback` stay server-only, reducing what ships to the browser.
+  - **CSS merging for faster first paint** — per-entry CSS is no longer split into many `<link>` tags. By default, CSS under 8 KB is inlined as a single `<style>`; larger sets are merged into one external stylesheet, reducing requests and improving FCP. Configure via `css.inlineStrategy` (`'auto'` | `'always'` | `'never'`) and `css.inlineThreshold`.
+  - **Convention files auto-ensure** — missing `importmap.client.json` and `routemap.server.json` are created automatically on first `vite dev` / `vite build`; only `entry.client` and `entry.server` must be provided.
+  - **Faster dev startup on large apps** — dev routemap loads each route on demand via analyzable `import(path)` loaders instead of importing every route at entry cold start.
+  - **Predictable SSR refresh** — server file changes invalidate the SSR graph and refresh the browser via standard `hotUpdate` / `full-reload`, replacing fragile `ws.send` hijacks and middleware restarts.
+  - **Server warmup and revision-based caching** — `entry.server` and `routemap.server.json` are pre-warmed at startup; `WebRouter` is cached per-revision and re-imported only when the server module graph is invalidated.
+
+  ### Fixes
+  - **Predictable build artifact names** — `index` path segments are folded and chunks are named by module path (e.g. `examples.action@route.js` instead of `index@route4.js`), making `assets/` output easier to map back to source.
+  - **Steadier dev server** — request and background failures (routemap regen, HMR) are logged instead of crashing the process.
+  - **Correct request URLs in dev/preview** — origin resolution follows Vite's `server.origin` → `resolvedUrls` → config fallback, fixing misuse of `config.preview` and premature `resolvedUrls` reads.
+  - **Webworker SSR resolve conditions** — conditions are now derived from Vite's `defaultClientConditions` (prepending `worklet`/`worker`, dropping `browser`) instead of a hardcoded list, so dev mode picks up `development` export conditions for source-level HMR.
+  - **Respects native Vite manifest config** — the client manifest now follows Vite's `build.manifest` setting instead of a custom `output.manifest` path. The manifest cannot be disabled (server asset resolution depends on it).
+
+  ### Breaking Changes
+  - `autoFullBuild` and `output.manifest` config options are removed; `dynamicImportPredicate` is replaced by `widgetModuleFilter`. Use `vite build --ssr` when you only need the server output.
+
+### Minor Changes
+
+- 7111eb2: Remove `?as=jsx` / `?as=tsx` query parameter support and rename `toReact` to `asReactWidget`. Use `asReactWidget()` type adapter instead of `?as=jsx` imports. `toReact` is kept as a deprecated alias.
+
+### Patch Changes
+
+- 8ec5a22: Fix HTTP/2 HEAD request handling in Node adapter and Vite dev middleware.
+
+  ### Fixes
+  - **Correct HTTP/2 response detection** — detect `Http2ServerResponse` via `stream` when `httpVersionMajor` is missing, and skip writing `statusMessage` on HTTP/2 responses.
+  - **No duplicate middleware calls** — avoid calling Connect `next()` after the response has already been sent.
+  - **HEAD requests in dev** — skip `transformIndexHtml` for HEAD requests in dev middleware.
+
+- 49a408b: Upgrade the default `es-module-shims` polyfill URL from `1.10.0` to `2.8.2`.
+
+  The `importShim.url` default now points at the latest `es-module-shims` release,
+  keeping the import-maps polyfill current for browsers without native support.
+
+- f3328bf: Enable streaming SSR in dev and simplify the dev configuration surface.
+
+  ### Features
+  - **Streaming SSR in dev** — dev no longer buffers responses; `progressive` works the same as in production.
+
+  ### Breaking Changes
+  - `Manifest.dev` and `StartOptions.dev` are removed; use `exposeErrors` instead. The `DevRouteModule` and `DevHttpHandler` types are removed. `progressive` now defaults to `false` in all environments (was `true` in production via `!dev`); set `defaultRenderer.progressive` explicitly if you need streaming.
+
+- Updated dependencies [8ec5a22]
+- Updated dependencies [05f5a25]
+- Updated dependencies [0f81364]
+- Updated dependencies [f3328bf]
+  - @web-widget/node@3.0.0-beta.0
+  - @web-widget/web-router@3.0.0-beta.0
+  - @web-widget/inspector@3.0.0-beta.0
+  - @web-widget/helpers@3.0.0-beta.0
+
 ## 2.3.1
 
 ### Patch Changes

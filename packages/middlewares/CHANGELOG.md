@@ -1,5 +1,29 @@
 # @web-widget/middlewares
 
+## 3.0.0-beta.0
+
+### Minor Changes
+
+- 05f5a25: Progressive (streaming) rendering is now coordinated with the cache and etag
+  middleware so streaming responses are no longer silently buffered.
+
+  - Progressive responses are declared non-cacheable via the standard
+    `Cache-Control: no-store, no-transform`. `no-transform` prevents
+    intermediaries from compressing the body, which would require buffering.
+  - The `cache` middleware marks such responses as `BYPASS` and never stores them.
+  - The `etag` middleware skips ETag calculation for non-cacheable responses.
+
+- 0f81364: Upgrade to `@web-widget/shared-cache` 2.x and adopt `createCacheHandler` for cache middleware origin resolution.
+
+  ### Fixes
+  - **Better error propagation** — server errors during cache miss now propagate to the router error handler; errors during background revalidation return 5xx responses instead of being swallowed.
+  - **Cleaner internals** — removed the `x-transform-error` workaround from web-router.
+
+### Patch Changes
+
+- @web-widget/helpers@3.0.0-beta.0
+- @web-widget/schema@3.0.0-beta.0
+
 ## 2.3.1
 
 ### Patch Changes
