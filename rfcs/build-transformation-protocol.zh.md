@@ -4,7 +4,7 @@
 
 ## 摘要
 
-`@web-widget/schema` 已定义技术无关的通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。本 RFC 定义构建转换层——通过标准化的 `ComponentProcessor` 协议，将 UI 框架组件在构建期转换为通用模块，使构建工具与框架适配器解耦演进。
+`@web-widget/schema` 已定义技术无关的通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。本 RFC 定义构建转换层——通过标准化的 `WebWidgetAdapter` 协议，将 UI 框架组件在构建期转换为通用模块，使构建工具与框架适配器解耦演进。
 
 ## 动机
 
@@ -19,14 +19,14 @@
 
 ## 设计提案
 
-### 核心提议：ComponentProcessor 协议
+### 核心提议：WebWidgetAdapter 协议
 
 `@web-widget/schema` 定义了通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。但要完成转换，构建工具还需要知道：**哪些文件属于哪个框架**，以及**从哪里获取该框架的渲染实现**。
 
-本 RFC 的核心提议是 `ComponentProcessor` 协议——一个连接构建工具与 UI 框架的适配器接口。它告诉构建工具遇到哪类文件时、从哪里获取渲染实现，从而使框架源码在构建期被转换为符合 `ServerRender` / `ClientRender` 契约的通用模块。
+本 RFC 的核心提议是 `WebWidgetAdapter` 协议——一个连接构建工具与 UI 框架的适配器接口。它告诉构建工具遇到哪类文件时、从哪里获取渲染实现，从而使框架源码在构建期被转换为符合 `ServerRender` / `ClientRender` 契约的通用模块。
 
 ```typescript
-interface ComponentProcessor {
+interface WebWidgetAdapter {
   /**
    * UI 框架标识符，用于在多框架共存时区分处理器。
    * 也是构建工具配置中引用适配器的键。
@@ -41,41 +41,49 @@ interface ComponentProcessor {
   extensions: string[];
 
   /**
-   * 渲染函数子路径，指向适配器包通过条件导出提供的渲染实现。
-   * 构建工具会将该子路径的导出注入到匹配的模块中，
-   * 使其 `render` 导出符合 ServerRender / ClientRender 契约。
-   * 如 "./render" 会被解析为 "@web-widget/react/render"，
+   * 运行时模块子路径，指向适配器包通过条件导出提供的运行时实现。
+   * 构建工具会将该模块的导出注入到匹配的模块中：
+   * - render：注入为模块导出，使其符合 ServerRender / ClientRender 契约
+   * - container：包装 widget 的导入方，使其可被跨框架复用
+   * 如 "./runtime" 会被解析为 "@web-widget/react/runtime"，
    * 再由条件导出根据环境自动选取 server 或 client 实现。
    */
-  render: string;
-
-  /**
-   * 容器函数子路径（可选）。
-   * 与 render 对称：render 让模块自身可渲染（注入导出），
-   * container 让模块可被当作 widget 导入（包装导入方）。
-   * 构建工具用容器函数包装 widget 的导入，使其成为独立加载、
-   * 独立渲染的组件边界，从而支持跨框架互操作。
-   */
-  container?: string;
+  runtime: string;
 }
 ```
 
-协议的设计遵循一个原则：**框架知道「怎么渲染」，构建工具知道「怎么集成」**。适配器包提供框架特定的渲染实现，不需要了解任何构建工具的插件 API；构建工具负责文件匹配和代码注入，不需要了解每个框架的渲染细节。两者通过 `ComponentProcessor` 协议交互，各自独立演进。
+协议的设计遵循一个原则：**框架知道「怎么渲染」，构建工具知道「怎么集成」**。适配器包提供框架特定的渲染实现，不需要了解任何构建工具的插件 API；构建工具负责文件匹配和代码注入，不需要了解每个框架的渲染细节。两者通过 `WebWidgetAdapter` 协议交互，各自独立演进。
 
-以下各节围绕这一协议展开：容器函数如何实现跨框架互操作（1.1）、构建工具如何集成（1.2）、渲染实现如何适配不同环境（1.3）、适配器包如何组织（1.4）、版本管理（1.5）。
+以下各节围绕这一协议展开：运行时模块如何提供渲染与互操作能力（1.1）、构建工具如何集成（1.2）、运行时实现如何适配不同环境（1.3）、适配器包如何组织（1.4）、版本管理（1.5）。
 
-#### 1.1 容器函数
+#### 1.1 运行时模块
 
-`container` 指向的容器函数（通常命名为 `defineWebWidget`）是跨框架互操作的关键。它将通用模块转换为当前框架的原生组件，使框架之间不直接调用彼此的组件，而是通过容器函数建立标准化的组件边界。
-
-容器函数的契约：
+`runtime` 字段指向的模块是适配器的核心——它提供框架特定的运行时函数，构建工具负责将这些函数注入到匹配的模块中。该模块需符合 `RuntimeModule` 契约：
 
 ```typescript
+import type {
+  ServerRender,
+  ClientRender,
+  WidgetModule,
+} from '@web-widget/schema';
+
+/**
+ * 运行时模块契约
+ * 适配器包的 runtime 子路径所指向的模块文件必须导出以下成员。
+ */
+type RuntimeModule = {
+  /** 渲染函数，注入为模块导出，使其符合 ServerRender / ClientRender 契约 */
+  render: ServerRender | ClientRender;
+
+  /** 容器函数，将通用模块转换为当前框架的原生组件，支持跨框架互操作 */
+  container: Container;
+};
+
 /** 通用模块加载器，返回符合 WidgetModule 的模块 */
-type Loader = () => Promise<ServerWidgetModule | ClientWidgetModule>;
+type Loader = () => Promise<WidgetModule>;
 
 /** 容器函数：将通用模块转换为当前框架的组件 */
-interface DefineWebWidget {
+interface Container {
   (
     loader: Loader,
     options?: {
@@ -86,22 +94,22 @@ interface DefineWebWidget {
 }
 ```
 
-容器函数接收一个通用模块加载器，返回当前框架原生的组件类型。加载器返回的模块必须符合 `WidgetModule` 契约（带有 `render`、`default`、`meta`），这正是 `render` 字段注入的产物。容器函数内部负责：加载模块、调用 `render`、将渲染结果适配为当前框架的组件树。
+`render` 让模块**自身可渲染**（注入为导出），`container` 让模块**可被当作 widget 导入**（包装导入方）。两者共同构成跨框架互操作的基础：`render` 产出符合通用格式的模块，`container` 消费通用格式的模块。
 
-以 React 为例，`@web-widget/react` 的 `defineWebWidget` 返回一个 `React.FC`，内部调用通用模块的 `render` 并将结果包装为 React 元素：
+以 React 为例，`@web-widget/react` 的 `container` 返回一个 `React.FC`，内部调用通用模块的 `render` 并将结果包装为 React 元素：
 
 ```typescript
-import { defineWebWidget } from '@web-widget/react';
+import { container } from '@web-widget/react';
 
 // 将 Vue widget 包装为 React 组件
-const Counter = defineWebWidget(() => import('./Counter@widget.vue'));
+const Counter = container(() => import('./Counter@widget.vue'));
 
 function App() {
   return <Counter count={42} />;
 }
 ```
 
-`Counter` 在 React 中是一个普通组件，可以正常传 props、参与渲染。但它的内部实现运行在 Vue 运行时中——React 不感知这一点。反之，`@web-widget/vue` 的 `defineWebWidget` 同样能将 React widget 包装为 Vue 组件。
+`Counter` 在 React 中是一个普通组件，可以正常传 props、参与渲染。但它的内部实现运行在 Vue 运行时中——React 不感知这一点。反之，`@web-widget/vue` 的 `container` 同样能将 React widget 包装为 Vue 组件。
 
 #### 1.2 构建工具集成
 
@@ -113,7 +121,7 @@ export default defineConfig({
   plugins: [
     webWidgetPlugin({
       moduleMarkers: ['@widget', '@route'], // 如 Counter@widget.tsx、index@route.vue
-      processors: [
+      adapters: [
         // from 指向的适配器包已提供 name 和 extensions 的默认值
         { from: '@web-widget/react' },
         // vue2 与 vue3 共存时，用 scope 限定各自的生效范围
@@ -125,18 +133,18 @@ export default defineConfig({
 });
 ```
 
-`processors` 支持直接传字符串（简写 `from`），也可传对象覆盖默认值或用 `scope` 消歧扩展名冲突：
+`adapters` 支持直接传字符串（简写 `from`），也可传对象覆盖默认值或用 `scope` 消歧扩展名冲突：
 
 ```typescript
 interface WebWidgetPluginOptions {
   /** 文件名中包含这些标记的模块会被识别为通用可渲染模块 */
   moduleMarkers?: string[];
-  processors: (
+  adapters: (
     | string
-    | (Omit<ComponentProcessor, 'name' | 'extensions'> & {
+    | (Omit<WebWidgetAdapter, 'name' | 'extensions'> & {
         name?: string;
         extensions?: string[];
-        /** 适配器包名，构建工具从此包导入 render / container 实现 */
+        /** 适配器包名，构建工具从此包导入 runtime 实现 */
         from: string;
         /**
          * 处理器生效范围（目录路径）。
@@ -151,91 +159,95 @@ interface WebWidgetPluginOptions {
 
 #### 1.3 环境适应性
 
-`ServerRender` 和 `ClientRender` 是不同的契约——服务端渲染为 HTML 字符串或流，客户端渲染负责挂载和水合。但协议只提供了一个 `render` 子路径。构建工具在服务端构建和客户端构建时，需要从这个子路径分别加载到 `ServerRender` 和 `ClientRender` 实现，而无需适配器或用户手动区分环境。
+`ServerRender` 和 `ClientRender` 是不同的契约——服务端渲染为 HTML 字符串或流，客户端渲染负责挂载和水合。但协议只提供了一个 `runtime` 子路径。构建工具在服务端构建和客户端构建时，需要从这个子路径分别加载到不同的 `RuntimeModule` 实现，而无需适配器或用户手动区分环境。
 
 借助 Node.js / 构建工具通用的 `package.json` `exports` 条件导出机制，适配器包可以在同一个子路径下为不同环境提供不同实现：
 
 ```json
 {
   "exports": {
-    "./render": {
+    "./runtime": {
       "worker": {
-        "types": "./dist/render.server.d.ts",
-        "default": "./dist/render.server.js"
+        "types": "./dist/runtime.server.d.ts",
+        "default": "./dist/runtime.server.js"
       },
       "browser": {
-        "types": "./dist/render.client.d.ts",
-        "default": "./dist/render.client.js"
+        "types": "./dist/runtime.client.d.ts",
+        "default": "./dist/runtime.client.js"
       },
       "default": {
-        "types": "./dist/render.server.d.ts",
-        "default": "./dist/render.server.js"
+        "types": "./dist/runtime.server.d.ts",
+        "default": "./dist/runtime.server.js"
       }
     }
   }
 }
 ```
 
-- **`worker`**: 服务端 / Worker 环境（如 Cloudflare Workers、Vite SSR），解析到 `ServerRender` 实现
-- **`browser`**: 浏览器环境（客户端构建），解析到 `ClientRender` 实现
+- **`worker`**: 服务端 / Worker 环境（如 Cloudflare Workers、Vite SSR），解析到包含 `ServerRender` 的 `RuntimeModule`
+- **`browser`**: 浏览器环境（客户端构建），解析到包含 `ClientRender` 的 `RuntimeModule`
 - **`default`**: 未匹配上述条件时的回退，通常等同服务端实现
 
-条件导出将环境判断下沉到包解析层，构建工具只需一行代码即可加载渲染实现，环境差异由条件导出自动处理：
+条件导出将环境判断下沉到包解析层，构建工具只需一行代码即可加载运行时实现，环境差异由条件导出自动处理：
 
 ```typescript
 // 无论客户端构建还是服务端构建，都用同一条路径
-const renderModule = await import(`${packageName}${processor.render}`);
-// → 客户端构建时解析到 render.client.js（ClientRender）
-// → 服务端构建时解析到 render.server.js（ServerRender）
+const runtimeModule = await import(`${packageName}${processor.runtime}`);
+// → 客户端构建时解析到 runtime.client.js（ClientRender）
+// → 服务端构建时解析到 runtime.server.js（ServerRender）
 ```
 
 #### 1.4 适配器包结构
 
-一个完整的适配器包（以 `@web-widget/react` 为例）的文件结构和导出：
+一个完整的适配器包（以 `@web-widget/react` 为例）的结构和导出：
 
 ```typescript
-// @web-widget/react/processor.ts —— ComponentProcessor 配置
-const processor: ComponentProcessor = {
-  name: 'react',
-  extensions: ['.tsx', '.jsx'],
-  render: './render',
-  container: './container',
-};
-export default processor;
+// @web-widget/react/runtime/server.ts —— 服务端 RuntimeModule
+import type { ServerRender } from '@web-widget/schema';
 
-// @web-widget/react/render/server.ts —— ServerRender 实现
-export default function createServerRender(): ServerRender {
+export const render: ServerRender = (component, data, options) => {
   // 使用 react-dom/server 将组件渲染为 HTML
-}
+};
 
-// @web-widget/react/render/client.ts —— ClientRender 实现
-export default function createClientRender(): ClientRender {
-  // 使用 react-dom 的 hydrateRoot / createRoot
-}
-
-// @web-widget/react/container.ts —— 容器函数
-export default function defineWebWidget(loader, options) {
+export function container(loader, options) {
   // 将组件包装为可独立加载、渲染的 widget 边界
 }
-
-// @web-widget/react/index.ts —— 包入口
-export { default } from './processor';
-// 可选：导出框架特定的 Vite 插件（向后兼容）
-export { default as vitePlugin } from './vite';
 ```
 
-`package.json` 的 `exports` 将上述文件组织为标准子路径：
+```typescript
+// @web-widget/react/runtime/client.ts —— 客户端 RuntimeModule
+import type { ClientRender } from '@web-widget/schema';
+
+export const render: ClientRender = (component, data, options) => {
+  // 使用 react-dom 的 hydrateRoot / createRoot
+};
+
+export function container(loader, options) {
+  // 客户端容器实现
+}
+```
+
+```typescript
+// @web-widget/react/index.ts —— 包入口
+export { container } from './runtime';
+```
+
+`package.json` 中通过 `webWidget` 字段声明 `WebWidgetAdapter` 配置，`exports` 组织子路径：
 
 ```json
 {
+  "name": "@web-widget/react",
+  "webWidget": {
+    "name": "react",
+    "extensions": [".tsx", ".jsx"],
+    "runtime": "./runtime"
+  },
   "exports": {
     ".": { "default": "./dist/index.js" },
-    "./processor": { "default": "./dist/processor.js" },
-    "./container": { "default": "./dist/container.js" },
-    "./render": {
-      "worker": { "default": "./dist/render.server.js" },
-      "browser": { "default": "./dist/render.client.js" },
-      "default": { "default": "./dist/render.server.js" }
+    "./runtime": {
+      "worker": { "default": "./dist/runtime.server.js" },
+      "browser": { "default": "./dist/runtime.client.js" },
+      "default": { "default": "./dist/runtime.server.js" }
     }
   }
 }
@@ -246,3 +258,7 @@ export { default as vitePlugin } from './vite';
 #### 1.5 版本管理
 
 适配器格式通过 `version` 字段标识所遵循的格式版本，构建工具据此进行兼容性检查。当格式演进引入不兼容变更时（如字段语义改变、新增必需字段），主版本号递增；构建工具可声明支持的版本范围，遇到不兼容的适配器时给出明确错误而非静默失败。
+
+## 参考
+
+- [Astro 渲染器设计调查](./references/astro-renderer-design.zh.md) — 对比 Astro `AstroRenderer` 与 `WebWidgetAdapter` 的设计差异
