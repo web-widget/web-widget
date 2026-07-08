@@ -1,0 +1,32 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@benchmarks/web-router": "1.0.16",
+    "@examples/flags": "0.0.0",
+    "@examples/react": "0.0.0",
+    "@examples/vue": "0.0.0",
+    "@internal/eslint-config": "0.0.0",
+    "@web-widget/action": "2.3.1",
+    "@web-widget/context": "2.3.1",
+    "@web-widget/helpers": "2.3.1",
+    "@web-widget/html": "2.3.1",
+    "@web-widget/inspector": "2.3.1",
+    "@web-widget/lifecycle-cache": "2.3.1",
+    "@web-widget/middlewares": "2.3.1",
+    "@web-widget/node": "2.3.1",
+    "@web-widget/purify": "2.3.1",
+    "@web-widget/react": "2.3.1",
+    "@web-widget/schema": "2.3.1",
+    "@web-widget/vite-plugin": "2.3.1",
+    "@web-widget/vue": "2.3.1",
+    "@web-widget/vue2": "2.3.1",
+    "@web-widget/web-router": "2.3.1",
+    "@web-widget/web-widget": "2.3.1",
+    "@playgrounds/router": "0.0.0",
+    "@playgrounds/web-router-vue2": "0.0.1",
+    "@playgrounds/web-router-vue3": "0.0.1",
+    "@playgrounds/widget": "0.0.0"
+  },
+  "changesets": []
+}
