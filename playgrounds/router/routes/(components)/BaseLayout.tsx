@@ -1,7 +1,10 @@
 import './base-layout.css';
 
 import type { ComponentProps } from 'react';
-import Menu from '@playgrounds/web-router-vue3/Menu@widget.vue?as=jsx';
+import Menu from '@playgrounds/web-router-vue3/Menu@widget.vue';
+import { asReactWidget } from '@playgrounds/web-router-vue3/helpers';
+
+const RMenu = asReactWidget(Menu);
 
 export default function BaseLayout({ children }: ComponentProps<any>) {
   return (
@@ -11,7 +14,7 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
       </header>
       <div className="container">
         <aside>
-          <Menu renderStage="server" />
+          <RMenu renderStage="server" />
         </aside>
         <main>{children}</main>
       </div>

@@ -56,6 +56,9 @@ describe('createSkipServerCssPlugin', () => {
       '/project/src/App.vue?vue&type=style&index=0&module=true&lang.css',
       '/project/src/App.vue?vue&type=style&index=0&module=true&scoped=abc&lang.less',
       '/project/src/Comp.vue?vue&type=style&index=0&module&lang.scss',
+      // Vue 3 uses lang.module.css (no separate ?module query param)
+      '/project/src/ModuleCss@widget.vue?vue&type=style&index=0&lang.module.css',
+      '/project/src/ModuleCss@widget.vue?vue&type=style&index=0&scoped=abc&lang.module.css',
     ];
     for (const id of vueModuleStyleIds) {
       expect(handler.call({}, id)).toBeNull();

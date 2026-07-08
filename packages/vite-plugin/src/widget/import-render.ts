@@ -3,7 +3,7 @@ import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
-import { normalizeFilterId, stripModuleIdQuery } from '@/internal/module-id';
+import { stripModuleIdQuery } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
 import { isServerEnvironment } from '@/internal/environment';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
@@ -83,7 +83,7 @@ export function importRenderPlugin({
       },
       async transform(code, id) {
         const isServer = isServerEnvironment(this.environment);
-        const normalizedImporterId = normalizeFilterId(id);
+        const normalizedImporterId = stripModuleIdQuery(id);
         const importerMatched = importerFilter(normalizedImporterId);
         if (!importerMatched) {
           return null;
@@ -123,7 +123,7 @@ export function importRenderPlugin({
             : undefined;
 
           const normalizedImportModule = importModule
-            ? normalizeFilterId(importModule)
+            ? stripModuleIdQuery(importModule)
             : undefined;
           const importMatched = normalizedImportModule
             ? filter(normalizedImportModule)

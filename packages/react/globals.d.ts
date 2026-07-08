@@ -32,16 +32,6 @@ declare module '*.widget.tsx' {
   export default reactWidgetComponent;
 }
 
-declare module '*?as=jsx' {
-  const reactWidgetComponent: ReactWidgetComponent<any>;
-  export default reactWidgetComponent;
-}
-
-declare module '*?as=tsx' {
-  const reactWidgetComponent: ReactWidgetComponent<any>;
-  export default reactWidgetComponent;
-}
-
 declare module 'react-dom/server.edge' {
   import type { ReactNode } from 'react';
   import type {

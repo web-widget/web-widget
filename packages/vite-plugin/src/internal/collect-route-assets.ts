@@ -279,7 +279,7 @@ async function crawlRouteModule(
       continue;
     }
 
-    // Strip query parameters (e.g. `?as=jsx`, `?vue&type=style`) from the
+    // Strip query parameters (e.g. `?vue&type=style`) from the
     // resolved path so module keys align with Vite client manifest keys,
     // which never include import queries.
     const resolvedNoQuery = stripImportQuery(resolved);

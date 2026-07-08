@@ -86,22 +86,20 @@ extractViteCss(result.code)          → 从 __vite__css = "..." 中提取
 
 模块 URL 上存在两类查询参数，必须区分处理：
 
-| 类别          | 示例                          | 语义                                        | 处理方式                          |
-| ------------- | ----------------------------- | ------------------------------------------- | --------------------------------- |
-| 框架变体参数  | `?as=jsx`                     | 同一文件的不同 transform 变体（不同依赖链） | **保留**，用于 `transformRequest` |
-| Vite 内部参数 | `?import`、`?t=xxx`、`?v=xxx` | Vite 模块图内部标记                         | **剥离**，用于模块图缓存键匹配    |
+| 类别          | 示例                          | 语义                | 处理方式                       |
+| ------------- | ----------------------------- | ------------------- | ------------------------------ |
+| Vite 内部参数 | `?import`、`?t=xxx`、`?v=xxx` | Vite 模块图内部标记 | **剥离**，用于模块图缓存键匹配 |
 
-设计规则：
+`normalizeFilterId` 会剥离 `import`、`t`、`v` 三类参数，保留 `?vue&type=style` 等框架子模块参数。设计规则：
 
 ```
-transformRequest(url)        → 用完整 URL（mod.url 或 r.id）
-模块图缓存键匹配             → 用 normalizeFilterId(url)（剥离内部参数）
-CSS 模块的 transformRequest  → 用 normalizeFilterId(url)（剥离 ?import）
+普通模块 transformRequest(url)  → 用完整 URL（mod.url 或 r.id）
+export-render filter 匹配       → 用 normalizeFilterId(url)（剥离 import/t/v，保留 ?vue&type=style 以拒绝 CSS 子模块）
+import-render filter 匹配       → 用 stripModuleIdQuery(url)（剥离所有查询参数）
+CSS 模块的 transformRequest     → 用 normalizeFilterId(url)（仅剥离 ?import 等内部参数，保留 ?vue&type=style）
 ```
 
-**陷阱**：`normalizeFilterId` 会剥离 `?as=jsx` 等框架变体参数。如果在 `transformRequest` 中使用，会转换错误的基础模块，导致目标模块的 `transformResult` 始终为 `null`、`importedModules` 为空、`crawlGraph` 无法遍历到 CSS 依赖。
-
-**原则**：`normalizeFilterId` 仅用于**模块图缓存键匹配**，不用于 `transformRequest`。
+**原则**：`normalizeFilterId` 用于需要保留框架子模块查询参数的场景（export-render filter 匹配、CSS transform）；`stripModuleIdQuery` 用于可以安全剥离所有查询参数的场景（import-render filter 匹配）。
 
 ### 模块图遍历设计
 
@@ -117,23 +115,30 @@ Vite 的 `serverEnvironment.moduleGraph` 记录了模块间的导入关系，但
 
 ```
 crawlGraph(serverEnv, entryFile):
-  1. 获取入口模块的所有变体（getModulesByFile，因为同一文件可能有 ?as=jsx 等变体）
+  1. 获取入口模块的所有变体（getModulesByFile，因为同一文件可能有不同查询参数的变体）
   2. 对每个模块：
-     a. ensureServerTransformResult — 确保 transformResult 存在（触发依赖注册）
-     b. 从 transformResult.deps 解析静态依赖 → importDepKeys
-     c. 从 transformResult.dynamicDeps 解析动态依赖 → 过滤出 widget 模块 → matchedDynamicImportKeys
-     d. 遍历 entry.importedModules：
+     a. resolveServerModuleDependencyKeys:
+        - 若模块本身是 CSS（entryIsStyle），跳过过滤（filterDisabled=true）
+        - 否则 ensureServerTransformResult — 确保 transformResult 存在（触发依赖注册）
+        - 从 transformResult.deps 解析静态依赖 → importDepKeys
+        - 从 transformResult.dynamicDeps 解析动态依赖 → 过滤出 widget 模块 → matchedDynamicImportKeys
+     b. 遍历 entry.importedModules：
+        - 若 entryIsStyle，跳过非 CSS 子模块（避免拉入 @import 的 JS 依赖）
+        - 用 isImportedBy 反向校验 importer 关系（非根入口）
         - 用 classifyImportEdge 判断是静态还是动态导入
-        - 过滤掉不属于 depKeys 的边（避免收集到无关模块）
-     e. 对 widget 动态导入，用 resolveWidgetModulesFromDynamicDeps 显式加载
+        - 过滤掉不属于 depKeys 的边（edge === 'none'），但根入口直接导入的 CSS 例外（isRootCss）
+     c. 对 widget 动态导入，用 resolveWidgetModulesFromDynamicDeps 显式加载
   3. 递归遍历子模块
 ```
 
 #### 关键设计点
 
-- **`ensureServerTransformResult`**：模块可能被 import 但 transformResult 未生成（lazy transform）。必须显式调用 `transformRequest(mod.url)` 触发 transform，否则 `importedModules` 和 `transformResult.deps` 为空。
+- **`ensureServerTransformResult`**：模块可能被 import 但 transformResult 未生成（lazy transform）。必须显式调用 `transformRequest(mod.url)` 触发 transform，否则 `importedModules` 和 `transformResult.deps` 为空。**必须用 `mod.url` 而非 `normalizeFilterId(url)`**，因为后者会剥离查询参数，导致转换错误的基础模块。
 - **动态导入的显式加载**：`importedModules` 只包含已执行的导入。动态导入的模块可能未执行，需要通过 `transformResult.dynamicDeps` 显式 resolve + transform。
 - **widget 过滤**：动态导入可能包含非 widget 模块（如路由组件），只收集 widget 边界的 CSS。
+- **CSS 模块的依赖过滤**：当模块本身是 CSS 时（`entryIsStyle`），其 `importedModules` 可能包含 `@import` 拉入的非 CSS 模块，必须跳过。
+- **importer 反向校验**：非根入口遍历 `importedModules` 时，用 `isImportedBy` 验证子模块的 `importers` 中确实包含当前 entry，避免模块图边方向错误。
+- **根入口 CSS 例外**：根入口直接导入的 CSS（`isRootCss`）即使 `classifyImportEdge` 返回 `'none'` 也收集，确保入口级 CSS 不遗漏。
 
 ### HMR 链路设计
 
@@ -171,15 +176,29 @@ CSS 文件变更
 ```ts
 {
   name: '@web-widget:server-full-reload',
+  apply: 'serve', // 仅 dev 模式
   applyToEnvironment: applyToServerEnvironment(), // 只在 ssr env
   hotUpdate({ server, modules }) {
-    invalidateServerDevModules(...); // 使 SSR 模块缓存失效
+    if (modules.length === 0) return; // 空模块提前退出
+    void invalidateServerDevModules(
+      getServerEnvironmentFromDevServer(server).moduleGraph,
+      config
+    ).catch((error) => logPluginError('Server invalidation failed', error));
     return []; // 返回空数组 = ssr env 无 HMR 更新
   },
 }
 ```
 
+实现中的健壮性保障：
+
+- **`apply: 'serve'`**：限制插件仅在 dev 模式生效，避免影响生产构建。
+- **空模块守卫**：`modules.length === 0` 时提前退出，避免无意义的失效操作。
+- **异步错误处理**：`invalidateServerDevModules` 是异步的，用 `void ...catch(logPluginError)` 包裹，避免未捕获的 Promise rejection 导致 Vite 报错。
+- **软失效**：`invalidateModule(mod, undefined, Date.now(), true)` 的第四参数 `soft: true` 表示软失效——保留模块节点但清空 `transformResult`，下次请求重新 transform，比硬失效更轻量。
+
 **为什么返回 `[]`**：SSR 模块不参与浏览器 HMR。返回空数组表示该环境无更新，避免 Vite 触发不必要的 HMR 传播。Client env 的 `hotUpdate` 不受此插件影响（`applyToEnvironment` 过滤），正常发送 HMR update。
+
+> **注意**：此插件只处理 CSS / server 模块的内容变更（返回 `[]`，不触发浏览器刷新）。路由结构变更（`routemap.server.json` 改动）的浏览器刷新由独立的 `sendClientFullReload` 函数负责，通过 `routemap-invalidation.ts` 在结构变更时调用 `server.environments.client.hot.send({ type: 'full-reload' })`。
 
 ## 边界情况
 

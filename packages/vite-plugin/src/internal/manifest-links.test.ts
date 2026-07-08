@@ -174,36 +174,6 @@ describe('getLinks', () => {
     expect(links.some((l) => l.href?.includes('w-inner.js'))).toBe(false);
   });
 
-  test('dynamicImport with ?as= query still matches predicate written for source path', () => {
-    const m = {
-      'routes/page@route.tsx': {
-        file: 'assets/page.js',
-        src: 'routes/page@route.tsx',
-        imports: [],
-        dynamicImports: ['routes/Demo@widget.vue?as=jsx'],
-        css: [],
-      },
-      'routes/Demo@widget.vue?as=jsx': {
-        file: 'assets/demo-widget.js',
-        src: 'routes/Demo@widget.vue?as=jsx',
-        imports: [],
-        dynamicImports: [],
-        css: ['assets/demo-widget.css'],
-      },
-    } as unknown as Manifest;
-
-    // Common user predicate: match widget source path without query parameters.
-    const predicate = (key: string) => /[.@]widget\.[^?]*$/.test(key);
-    const links = getLinks(
-      m,
-      'routes/page@route.tsx',
-      base,
-      new Set(),
-      predicate
-    );
-    expect(links.map((l) => l.href)).toContain(`${base}assets/demo-widget.css`);
-  });
-
   test('static import chain propagates widgetModuleFilter: intermediary chunk’s dynamicImport(widget) still emits CSS', () => {
     const m = {
       'routes/page@route.tsx': {

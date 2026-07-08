@@ -85,7 +85,7 @@ describe('vite build integration', () => {
   it('injects Counter widget CSS into react-and-vue route meta links', () => {
     const routeModulePath = path.join(
       playgroundRoot,
-      'dist/server/assets/_vue3_.helpers.js'
+      'dist/server/assets/react-and-vue@route.js'
     );
     expect(fs.existsSync(routeModulePath)).toBe(true);
 
@@ -107,5 +107,21 @@ describe('vite build integration', () => {
     );
     const hasInlineStyle = routeStyle && routeStyle.includes('counter');
     expect(hasCssLink || hasInlineStyle).toBe(true);
+  });
+
+  it('preserves Vue SFC CSS Modules class-name exports in SSR build', () => {
+    // The Vue SFC <style module> block must NOT be skipped in SSR build —
+    // its hashed class names are needed for SSR rendering.
+    const widgetModulePath = path.join(
+      playgroundRoot,
+      'dist/server/assets/_vue3_.ModuleCss@widget.vue.js'
+    );
+    expect(fs.existsSync(widgetModulePath)).toBe(true);
+
+    const source = fs.readFileSync(widgetModulePath, 'utf-8');
+    // The CSS Modules export must not be an empty object.
+    expect(source).not.toContain(
+      'ModuleCss_widget_vue_vue_type_style_index_0_lang_module_default = {};'
+    );
   });
 });

@@ -15,7 +15,7 @@ describe('unwrapViteId', () => {
 
 describe('stripModuleIdQuery', () => {
   test('removes query and hash', () => {
-    expect(stripModuleIdQuery('/a.vue?as=jsx&t=1')).toBe('/a.vue');
+    expect(stripModuleIdQuery('/a.vue?t=1')).toBe('/a.vue');
     expect(stripModuleIdQuery('/a.vue#frag')).toBe('/a.vue');
     expect(stripModuleIdQuery('/a.vue?vue&type=style')).toBe('/a.vue');
   });
@@ -41,31 +41,11 @@ describe('toManifestFilterKey', () => {
 describe('normalizeFilterId', () => {
   const cases: [id: string, expected: string][] = [
     [
-      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
-      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
-    ],
-    [
-      '/routes/react-import-widgets/ImportWidgets@widget.tsx?as=jsx',
-      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
-    ],
-    [
-      '/routes/react-import-widgets/ImportWidgets@widget.tsx?t=123',
-      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
-    ],
-    [
-      '/routes/react-import-widgets/ImportWidgets@widget.tsx?v=abc&t=123',
-      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
-    ],
-    [
-      '/routes/react-import-widgets/ImportWidgets@widget.tsx?as=jsx&t=123',
-      '/routes/react-import-widgets/ImportWidgets@widget.tsx',
-    ],
-    [
       '/routes/react-import-widgets/ImportWidgets@widget.tsx?import',
       '/routes/react-import-widgets/ImportWidgets@widget.tsx',
     ],
     [
-      '/routes/react-import-widgets/ImportWidgets@widget.tsx?import&t=123',
+      '/routes/react-import-widgets/ImportWidgets@widget.tsx?t=123',
       '/routes/react-import-widgets/ImportWidgets@widget.tsx',
     ],
     [
@@ -74,6 +54,10 @@ describe('normalizeFilterId', () => {
     ],
     [
       '/routes/(vue2)/Counter@widget.vue?vue&type=style&index=0&scoped=4029556e&lang.css&t=123',
+      '/routes/(vue2)/Counter@widget.vue?vue&type=style&index=0&scoped=4029556e&lang.css',
+    ],
+    [
+      '/routes/(vue2)/Counter@widget.vue?vue&type=style&index=0&scoped=4029556e&lang.css&import',
       '/routes/(vue2)/Counter@widget.vue?vue&type=style&index=0&scoped=4029556e&lang.css',
     ],
   ];

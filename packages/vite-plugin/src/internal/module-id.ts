@@ -23,8 +23,8 @@ export const CSS_MODULE_RE = /\.module\./;
 /** Matches Vue SFC `<style>` sub-modules (`?vue&type=style`). */
 export const VUE_STYLE_QUERY_RE = /[?&]vue&type=style/;
 
-/** Matches Vue SFC CSS Modules sub-modules (`?module`). */
-export const VUE_CSS_MODULE_QUERY_RE = /[?&]module(=|&|$)/;
+/** Matches Vue SFC CSS Modules sub-modules (`?module` or `lang.module.css`). */
+export const VUE_CSS_MODULE_QUERY_RE = /[?&]module(=|&|$)|lang\.module\./;
 
 /** Prefix Vite prepends to resolved ids that are not valid browser import specifiers. */
 const VITE_VALID_ID_PREFIX = '/@id/';
@@ -72,7 +72,7 @@ export function normalizeFilterId(id: string) {
       }
       const equalIndex = part.indexOf('=');
       const key = equalIndex >= 0 ? part.slice(0, equalIndex) : part;
-      return key !== 'as' && key !== 'import' && key !== 't' && key !== 'v';
+      return key !== 'import' && key !== 't' && key !== 'v';
     })
     .join('&');
   return normalizedQuery ? `${pathname}?${normalizedQuery}` : pathname;

@@ -1,6 +1,9 @@
 import { defineMeta, defineRouteComponent } from '@web-widget/react';
 import BaseLayout from '../../(components)/BaseLayout';
-import App from './App@widget?as=jsx';
+import App from './App@widget';
+import { asReactWidget } from '@web-widget/vue';
+
+const RApp = asReactWidget<any>(App);
 
 export const meta = defineMeta({
   title: 'Hello, Vue Router',
@@ -13,7 +16,7 @@ export default defineRouteComponent(function Page(props) {
   return (
     <BaseLayout>
       <h1>Vue3 router</h1>
-      <App route={fullPath} />
+      <RApp route={fullPath} />
     </BaseLayout>
   );
 });

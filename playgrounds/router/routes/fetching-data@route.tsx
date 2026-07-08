@@ -4,9 +4,14 @@ import type { HelloData } from './api/hello-world@route.ts';
 import BaseLayout from './(components)/BaseLayout.tsx';
 import ReactGithub from './(components)/Github@widget.tsx';
 import VanillaGithub from './(components)/VanillaGithub@widget';
-import VueGithub from '@playgrounds/web-router-vue3/Github@widget.vue?as=jsx';
-import Vue2Github from '@playgrounds/web-router-vue2/Github@widget.vue?as=jsx';
+import VueGithub from '@playgrounds/web-router-vue3/Github@widget.vue';
+import Vue2Github from '@playgrounds/web-router-vue2/Github@widget.vue';
+import { asReactWidget } from '@playgrounds/web-router-vue3/helpers';
+import { asReactWidget as vue2AsReactWidget } from '@playgrounds/web-router-vue2/helpers';
 import UserCard from './(components)/UserCard@widget.tsx';
+
+const RVueGithub = asReactWidget(VueGithub);
+const RVue2Github = vue2AsReactWidget(Vue2Github);
 
 async function fetchData(url: URL) {
   const data = await fetch(`${url.origin}/api/hello-world`);
@@ -33,12 +38,12 @@ export default defineRouteComponent<HelloData>(function Page({ data }) {
 
         <div>
           <h3>Vue3 Component</h3>
-          <VueGithub username="vuejs" />
+          <RVueGithub username="vuejs" />
         </div>
 
         <div>
           <h3>Vue2 Component</h3>
-          <Vue2Github username="angular" />
+          <RVue2Github username="angular" />
         </div>
 
         <div>

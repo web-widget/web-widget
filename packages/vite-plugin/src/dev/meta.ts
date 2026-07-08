@@ -243,9 +243,9 @@ async function ensureServerTransformResult(
   }
   try {
     // Use mod.url directly (not normalizeFilterId) because transformRequest
-    // needs the exact URL including meaningful query params like ?as=jsx.
-    // Stripping ?as=jsx would transform a different module (the base SFC)
-    // leaving the ?as=jsx variant's transformResult and importedModules empty.
+    // needs the exact URL including meaningful query params.
+    // Stripping them would transform a different module (the base SFC)
+    // leaving the variant's transformResult and importedModules empty.
     await serverEnvironment.transformRequest(mod.url);
   } catch {
     /** transform may fail for virtual / special modules */
