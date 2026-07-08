@@ -269,9 +269,6 @@ async function createSharedConfig(
     root,
     mode: env.mode,
     appType: 'custom',
-    optimizeDeps: {
-      exclude: [],
-    },
     ...(env.command === 'serve'
       ? {
           server: {
@@ -280,6 +277,7 @@ async function createSharedConfig(
                 resolvedWebRouterConfig.input.server.entry,
                 resolvedWebRouterConfig.input.server.routemap,
               ],
+              clientFiles: [resolvedWebRouterConfig.input.client.entry],
             },
           },
         }
