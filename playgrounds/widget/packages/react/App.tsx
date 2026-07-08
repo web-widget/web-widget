@@ -3,9 +3,14 @@ import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
 
-import VueCounter from '../vue3/Counter@widget.vue?as=jsx';
-import Vue2Counter from '../vue2/Counter@widget.vue?as=jsx';
+import VueCounter from '../vue3/Counter@widget.vue';
+import Vue2Counter from '../vue2/Counter@widget.vue';
+import { asReactWidget } from '../vue3/helpers';
+import { asReactWidget as vue2AsReactWidget } from '../vue2/helpers';
 import ReactCounter from './Counter@widget';
+
+const RVueCounter = asReactWidget(VueCounter);
+const RVue2Counter = vue2AsReactWidget(Vue2Counter);
 
 function App() {
   const [count, setCount] = useState(0);
@@ -26,10 +31,10 @@ function App() {
         <ReactCounter count={3} />
 
         <h2>Vue3 component:</h2>
-        <VueCounter count={3} />
+        <RVueCounter count={3} />
 
         <h2>Vue2 component:</h2>
-        <Vue2Counter count={3} />
+        <RVue2Counter count={3} />
       </div>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>

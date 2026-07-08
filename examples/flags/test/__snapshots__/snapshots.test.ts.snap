@@ -17,7 +17,7 @@ exports[`Should match snapshot > Request "/flags" should match snapshot > /flags
 "<!doctype html>
     <html lang="en">
       <head>
-        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Flags SDK Examples - Web Router</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/flags","params":{}}</script>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Flags SDK Examples - Web Router</title><style >web-widget{display:contents}</style><script type="module" src="/@vite/client"></script><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/flags","params":{}}</script>
       </head>
       <body>
         <header class="_header_054370"><nav><ul><li><a href="/flags">Flags Examples</a></li><li><a href="/flags/dashboard-pages">Dashboard Pages</a></li><li><a href="/flags/marketing-pages-manual-approach">Marketing Manual</a></li><li><a href="/flags/marketing-pages">Marketing Pages</a></li></ul></nav></header><main class="_main_054370"><div class="_container_fc19f4"><h1 class="_title_fc19f4">Flags SDK Examples</h1><p class="_description_fc19f4">This page contains example snippets for the Flags SDK using Web Router.</p><p class="_links_fc19f4">See<!-- --> <a href="https://flags-sdk.dev" target="_blank" rel="noopener noreferrer">flags-sdk.dev</a> <!-- -->for the full documentation, or<!-- --> <a href="https://github.com/vercel/flags/tree/main/examples/web-router-example" target="_blank" rel="noopener noreferrer">GitHub</a> <!-- -->for the source code.</p><div class="_examples_fc19f4"><a class="_card_fc19f4" href="/flags/dashboard-pages"><div class="_cardContent_fc19f4"><div class="_cardTitle_fc19f4">Dashboard Pages</div><div class="_cardDescription_fc19f4">Using feature flags on user-controlled pages</div></div></a><a class="_card_fc19f4" href="/flags/marketing-pages-manual-approach"><div class="_cardContent_fc19f4"><div class="_cardTitle_fc19f4">Marketing Pages (manual approach)</div><div class="_cardDescription_fc19f4">Simple but not scalable approach to feature flags on content-driven pages</div></div></a><a class="_card_fc19f4" href="/flags/marketing-pages"><div class="_cardContent_fc19f4"><div class="_cardTitle_fc19f4">Marketing Pages</div><div class="_cardDescription_fc19f4">Using feature flags on content-driven pages with precomputed routes</div></div></a></div></div></main><footer class="_footer_054370"><p>See<!-- --> <a href="https://flags-sdk.dev" target="_blank" rel="noopener noreferrer">flags-sdk.dev</a> <!-- -->for the full documentation</p></footer>
@@ -28,7 +28,6 @@ exports[`Should match snapshot > Request "/flags" should match snapshot > /flags
 exports[`Should match snapshot > Request "/flags" should match snapshot > /flags@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/flags/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -41,7 +40,7 @@ exports[`Should match snapshot > Request "/flags/dashboard-pages" should match s
 "<!doctype html>
     <html lang="en">
       <head>
-        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Dashboard Pages - Flags SDK</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/flags/dashboard-pages","params":{}}</script>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Dashboard Pages - Flags SDK</title><style >web-widget{display:contents}</style><script type="module" src="/@vite/client"></script><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/flags/dashboard-pages","params":{}}</script>
       </head>
       <body>
         <header class="_header_054370"><nav><ul><li><a href="/flags">Flags Examples</a></li><li><a href="/flags/dashboard-pages">Dashboard Pages</a></li><li><a href="/flags/marketing-pages-manual-approach">Marketing Manual</a></li><li><a href="/flags/marketing-pages">Marketing Pages</a></li></ul></nav></header><main class="_main_054370"><div class="_container_45c110"><h1 class="_title_45c110">Dashboard Pages</h1><p class="_description_45c110">This example demonstrates using feature flags on user-controlled pages.</p><div class="_flagResult_45c110 _flagFalse_45c110"><div class="_flagMessage_45c110">The feature flag<!-- --> <span class="_flagName_45c110">showNewDashboard</span> <!-- -->evaluated to <span class="_flagValue_45c110">false</span>.</div></div><!--$--><web-widget import="/routes/flags/(components)/FlagControls@widget.tsx" name="FlagControls" loading="lazy" rendertarget="light" contextdata="{&quot;flagName&quot;:&quot;showNewDashboard&quot;,&quot;cookieName&quot;:&quot;showNewDashboard&quot;}" recovering=""><div class="_controls_837229"><p class="_controlsTitle_837229">Test this feature flag:</p><div class="_buttons_837229"><button class="_button_837229">Act as flagged in user</button><button class="_button_837229">Act as a regular user</button><button class="_button_837229 _buttonSecondary_837229">Clear cookie</button></div></div></web-widget><!--/$--></div></main><footer class="_footer_054370"><p>See<!-- --> <a href="https://flags-sdk.dev" target="_blank" rel="noopener noreferrer">flags-sdk.dev</a> <!-- -->for the full documentation</p></footer>
@@ -52,7 +51,6 @@ exports[`Should match snapshot > Request "/flags/dashboard-pages" should match s
 exports[`Should match snapshot > Request "/flags/dashboard-pages" should match snapshot > /flags/dashboard-pages@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/flags/dashboard-pages/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -65,7 +63,7 @@ exports[`Should match snapshot > Request "/flags/marketing-pages" should match s
 "<!doctype html>
     <html lang="en">
       <head>
-        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Marketing Pages - Flags SDK</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/flags/marketing-pages","params":{}}</script>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Marketing Pages - Flags SDK</title><style >web-widget{display:contents}</style><script type="module" src="/@vite/client"></script><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/flags/marketing-pages","params":{}}</script>
       </head>
       <body>
         <header class="_header_054370"><nav><ul><li><a href="/flags">Flags Examples</a></li><li><a href="/flags/dashboard-pages">Dashboard Pages</a></li><li><a href="/flags/marketing-pages-manual-approach">Marketing Manual</a></li><li><a href="/flags/marketing-pages">Marketing Pages</a></li></ul></nav></header><main class="_main_054370"><div class="_container_900847"><h1 class="_title_900847">Marketing Pages</h1><p class="_description_900847">This example demonstrates using feature flags on content-driven pages with precomputed routes. Multiple flags are evaluated based on the visitor ID. The URL stays clean using header-based precomputation.</p><div class="_flagResults_900847"><div class="_flagResult_900847 _flagFalse_900847"><div class="_flagMessage_900847">The feature flag<!-- --> <span class="_flagName_900847">firstMarketingABTest</span> <!-- -->evaluated to<!-- --> <span class="_flagValue_900847">false</span>.</div></div><div class="_flagResult_900847 _flagTrue_900847"><div class="_flagMessage_900847">The feature flag<!-- --> <span class="_flagName_900847">secondMarketingABTest</span> <!-- -->evaluated to<!-- --> <span class="_flagValue_900847">true</span>.</div></div></div><div class="_content_900847"><h2>Content Based on Flags:</h2><div class="_variant_900847"><h3>🚀 Second Flag Active - Feature B</h3><p>You&#x27;re seeing content with the second marketing feature enabled.</p></div></div><!--$--><web-widget import="/routes/flags/marketing-pages/VisitorIdControls@widget.tsx" name="VisitorIdControls" loading="lazy" rendertarget="light" recovering=""><div class="_controls_837229"><p class="_controlsTitle_837229">Test different visitor IDs:</p><div class="_buttons_837229"><button class="_button_837229">Reset visitor ID</button></div><p style="font-size:0.875rem;color:#64748b;margin-top:0.75rem">The visitor ID determines which combination of flags you see. Each ID produces a consistent set of flag values. Resetting will generate a new random visitor ID via middleware.</p></div></web-widget><!--/$--></div></main><footer class="_footer_054370"><p>See<!-- --> <a href="https://flags-sdk.dev" target="_blank" rel="noopener noreferrer">flags-sdk.dev</a> <!-- -->for the full documentation</p></footer>
@@ -77,7 +75,6 @@ exports[`Should match snapshot > Request "/flags/marketing-pages" should match s
 {
   "content-type": "text/html; charset=utf-8",
   "vary": "x-flags-code",
-  "x-module-source": "source://./routes/flags/marketing-pages/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;
@@ -90,7 +87,7 @@ exports[`Should match snapshot > Request "/flags/marketing-pages-manual-approach
 "<!doctype html>
     <html lang="en">
       <head>
-        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Marketing Pages Manual Approach - Flags SDK</title><style >web-widget{display:contents}</style><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/flags/marketing-pages-manual-approach","params":{}}</script>
+        <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title >Marketing Pages Manual Approach - Flags SDK</title><style >web-widget{display:contents}</style><script type="module" src="/@vite/client"></script><script type="module" src="/entry.client.ts"></script><script type="server:context">{"pathname":"/flags/marketing-pages-manual-approach","params":{}}</script>
       </head>
       <body>
         <header class="_header_054370"><nav><ul><li><a href="/flags">Flags Examples</a></li><li><a href="/flags/dashboard-pages">Dashboard Pages</a></li><li><a href="/flags/marketing-pages-manual-approach">Marketing Manual</a></li><li><a href="/flags/marketing-pages">Marketing Pages</a></li></ul></nav></header><main class="_main_054370"><div class="_container_91706f"><h1 class="_title_91706f">Marketing Pages (Manual Approach)</h1><p class="_description_91706f">This example demonstrates a simple but not scalable approach to feature flags on content-driven pages. The flag value is checked manually in each route.</p><div class="_flagResult_91706f _flagFalse_91706f"><div class="_flagMessage_91706f">The feature flag<!-- --> <span class="_flagName_91706f">marketingABTestManualApproach</span> <!-- -->evaluated to <span class="_flagValue_91706f">false</span>.</div><div class="_variantContent_91706f"><h3>📢 Variant B - Standard Message</h3><p>Welcome to our store! Browse our latest products.</p></div></div><!--$--><web-widget import="/routes/flags/(components)/FlagControls@widget.tsx" name="FlagControls" loading="lazy" rendertarget="light" contextdata="{&quot;flagName&quot;:&quot;marketingABTestManualApproach&quot;,&quot;cookieName&quot;:&quot;marketingManual&quot;,&quot;trueLabel&quot;:&quot;Show Variant A&quot;,&quot;falseLabel&quot;:&quot;Show Variant B&quot;,&quot;clearLabel&quot;:&quot;Reset&quot;}" recovering=""><div class="_controls_837229"><p class="_controlsTitle_837229">Test this feature flag:</p><div class="_buttons_837229"><button class="_button_837229">Show Variant A</button><button class="_button_837229">Show Variant B</button><button class="_button_837229 _buttonSecondary_837229">Reset</button></div></div></web-widget><!--/$--></div></main><footer class="_footer_054370"><p>See<!-- --> <a href="https://flags-sdk.dev" target="_blank" rel="noopener noreferrer">flags-sdk.dev</a> <!-- -->for the full documentation</p></footer>
@@ -101,7 +98,6 @@ exports[`Should match snapshot > Request "/flags/marketing-pages-manual-approach
 exports[`Should match snapshot > Request "/flags/marketing-pages-manual-approach" should match snapshot > /flags/marketing-pages-manual-approach@headers 1`] = `
 {
   "content-type": "text/html; charset=utf-8",
-  "x-module-source": "source://./routes/flags/marketing-pages-manual-approach/index@route.tsx",
   "x-powered-by": "@web-widget/web-router",
 }
 `;

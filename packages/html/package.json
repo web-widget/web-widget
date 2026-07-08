@@ -13,13 +13,12 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@web-widget/helpers": "workspace:*",
-    "@worker-tools/html": "^2.0.0-pre.13",
-    "whatwg-stream-to-async-iter": "^0.6.2"
+    "@web-widget/helpers": "workspace:*"
   },
   "devDependencies": {
     "tsup": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "exports": {
     ".": {
@@ -68,7 +67,10 @@
     "clean:node": "rm -rf node_modules",
     "dev": "pnpm exec tsup --watch",
     "lint": "eslint src",
-    "prebuild": "pnpm run clean:build"
+    "prebuild": "pnpm run clean:build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "type": "module"
 }

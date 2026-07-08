@@ -16,6 +16,15 @@ export default function etag(options?: EtagOptions) {
       return res;
     }
 
+    // Responses marked `no-store` cannot be cached by any cache (RFC 7234
+    // §5.2.2.3), so conditional requests are impossible and an ETag serves no
+    // purpose. This also covers progressive (streaming) responses, which are
+    // declared `no-store` at the rendering layer — computing an ETag would
+    // require buffering the entire body and defeat streaming.
+    if (res.headers.get('cache-control')?.toLowerCase().includes('no-store')) {
+      return res;
+    }
+
     const entity = res.clone().body || '';
 
     if (entity) {

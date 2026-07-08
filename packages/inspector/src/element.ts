@@ -11,6 +11,10 @@ import {
 } from './utils/debug-data';
 import type { ElementBounds } from './types';
 import { getElementBox } from './utils/box';
+import {
+  isRouteModuleSource,
+  resolveModuleSourcePath,
+} from './utils/module-source';
 
 export class HTMLWebWidgetInspectorElement extends LitElement {
   @property({ type: String })
@@ -351,7 +355,6 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     this.initializeEventListeners();
     this.updateWidgetCount();
     this.loadStoredState();
-    this.loadRouteModuleSourceFromHeaders();
   }
 
   override disconnectedCallback(): void {
@@ -909,32 +912,23 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
   private getCurrentFilePath(): string {
     if (!this.pageSource) return '';
 
+    const source = this.pageSource;
+
+    if (this.dir && isRouteModuleSource(source)) {
+      return resolveModuleSourcePath(source, this.dir);
+    }
+
     try {
-      if (this.pageSource.startsWith('source://')) {
-        return this.pageSource.replace('source://', '');
+      const url = new URL(source, document.baseURI);
+      if (url.pathname.startsWith('/@fs')) {
+        return url.pathname.slice('/@fs'.length);
       }
-      const url = new URL(this.pageSource);
+      if (this.dir && url.origin === location.origin) {
+        return resolveModuleSourcePath(url.pathname, this.dir);
+      }
       return url.pathname;
     } catch {
-      return this.pageSource;
-    }
-  }
-
-  private loadRouteModuleSourceFromHeaders(): void {
-    if (!this.pageSource) {
-      fetch(window.location.href, { method: 'HEAD' })
-        .then((response: Response) => {
-          const moduleSource = response.headers.get('x-module-source');
-          if (moduleSource) {
-            this.pageSource = moduleSource;
-          }
-        })
-        .catch((error) => {
-          console.error(
-            'Error loading route module source from headers:',
-            error
-          );
-        });
+      return source;
     }
   }
 

@@ -103,9 +103,7 @@ export function isolateVueSfcPlugin(
     ) as Plugin['transform'],
     handleHotUpdate: wrapPluginHook(
       plugin.handleHotUpdate as
-        | HookHandler
-        | ObjectHook<HookHandler>
-        | undefined,
+        HookHandler | ObjectHook<HookHandler> | undefined,
       (args) =>
         toPosixPath((args[0] as { file: string }).file).startsWith(workspace),
       () => undefined
@@ -263,6 +261,13 @@ function createVueRuntimeResolvePlugin(
         optimizeDeps: {
           // Avoid version conflicts caused by `optimizeDeps`.
           exclude: ['vue', 'vue-router'],
+        },
+        ssr: {
+          // Vite's module runner externalizes bare imports via `tryNodeResolve`
+          // (bypassing `resolveId`), which would resolve `vue` to the hoisted
+          // Vue 3. Keep `vue` internal so the per-importer `resolveId` hook
+          // can route it to the correct runtime.
+          noExternal: ['vue'],
         },
       };
     },

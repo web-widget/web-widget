@@ -66,7 +66,13 @@ export type CloudflareFetchContext = {
 ////////////////////////////////////////
 
 export interface Manifest {
-  dev?: boolean;
+  /**
+   * Whether to expose full error details, injected by
+   * `@web-widget/vite-plugin` during dev so server error pages always
+   * include the underlying error. Takes precedence over
+   * {@link StartOptions.exposeErrors}. Not intended for application code.
+   */
+  exposeErrors?: boolean;
   routes: {
     module: RouteModule | (() => Promise<RouteModule>);
     name?: string;
@@ -115,15 +121,3 @@ export interface LayoutRender extends ServerRender<
   LayoutComponent,
   LayoutComponentProps
 > {}
-
-////////////////////////////////////////
-//////                            //////
-//////             Dev            //////
-//////                            //////
-////////////////////////////////////////
-
-export type DevRouteModule = RouteModule & {
-  $source: string;
-};
-
-export type DevHttpHandler = 'x-module-source';

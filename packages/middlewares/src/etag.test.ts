@@ -92,6 +92,38 @@ describe('etag()', function () {
     });
   });
 
+  describe('when body is a non-cacheable response', function () {
+    test('should not add ETag for no-store response', async function () {
+      const app = WebRouter.fromManifest({
+        routes: [
+          {
+            pathname: '/',
+            module: {
+              async handler() {
+                return new Response('Hello World', {
+                  headers: { 'cache-control': 'no-store' },
+                });
+              },
+            },
+          },
+        ],
+        middlewares: [
+          {
+            pathname: '*',
+            module: {
+              handler: etag(),
+            },
+          },
+        ],
+      });
+      const res = await app.dispatch('http://localhost/');
+
+      expect(res.headers.get('ETag')).toBe(null);
+      expect(await res.text()).toBe('Hello World');
+      expect(res.status).toBe(200);
+    });
+  });
+
   describe('when with options', function () {
     test('should add weak ETag', async function () {
       const options = { weak: true };

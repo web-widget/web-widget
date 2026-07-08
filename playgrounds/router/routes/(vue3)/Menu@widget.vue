@@ -16,6 +16,9 @@
       <a href="/react-and-vue">Using react and vue together</a>
     </li>
     <li>
+      <a href="/vue-module-css">Vue CSS Modules</a>
+    </li>
+    <li>
       <a href="/custom-handlers">Custom handlers</a>
     </li>
     <li>
@@ -29,6 +32,9 @@
     </li>
     <li>
       <a href="/style">Styling</a>
+    </li>
+    <li>
+      <a href="/large-css">Large CSS (external link)</a>
     </li>
     <li>
       <a href="/meta">Meta</a>

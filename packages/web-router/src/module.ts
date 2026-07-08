@@ -1,5 +1,5 @@
 /**
- * @fileoverview ModuleRuntime — executes schema modules and the SSR pipeline
+ * @fileoverview ModuleRuntime — executes schema modules and the server render pipeline
  */
 import { handleRpc } from '@web-widget/action/server';
 import { contextToScriptDescriptor } from '@web-widget/context/server';
@@ -9,24 +9,22 @@ import {
   rebaseMeta,
 } from '@web-widget/helpers/module';
 
-import type {
-  ActionModule,
-  DevHttpHandler,
-  DevRouteModule,
-  HTTPException,
-  LayoutComponentProps,
-  LayoutModule,
-  Meta,
-  MiddlewareContext,
-  MiddlewareHandler,
-  MiddlewareModule,
-  RouteComponentProps,
-  RouteContext,
-  RouteHandler,
-  RouteHandlers,
-  RouteModule,
-  RouteRenderOptions,
-  ServerRenderOptions,
+import {
+  type ActionModule,
+  type HTTPException,
+  type LayoutComponentProps,
+  type LayoutModule,
+  type Meta,
+  type MiddlewareContext,
+  type MiddlewareHandler,
+  type MiddlewareModule,
+  type RouteComponentProps,
+  type RouteContext,
+  type RouteHandler,
+  type RouteHandlers,
+  type RouteModule,
+  type RouteRenderOptions,
+  type ServerRenderOptions,
 } from './types';
 
 declare module '@web-widget/helpers' {
@@ -52,6 +50,10 @@ interface CachedModuleData {
 
 const MODULE_CACHE = new WeakMap<RouteModule, CachedModuleData>();
 
+export type DevMetaProvider = (
+  context: RouteContext
+) => Promise<Meta | void> | Meta | void;
+
 export type OnFallback = (
   error: HTTPException,
   context?: MiddlewareContext
@@ -60,7 +62,7 @@ export type OnFallback = (
 type SafeError = { proxy: true } & HTTPException;
 
 /**
- * Runtime for schema modules: handler factories, route activation, and SSR.
+ * Runtime for schema modules: handler factories, route activation, and server rendering.
  */
 export class ModuleRuntime {
   #layoutModule: LayoutModule | (() => Promise<LayoutModule>);
@@ -68,7 +70,8 @@ export class ModuleRuntime {
   #defaultBaseAsset: string;
   #defaultRenderer: ServerRenderOptions;
   #onFallback: OnFallback;
-  #dev: boolean;
+  #exposeErrors: boolean;
+  #devMeta?: DevMetaProvider;
 
   // =========================================================================
   // Constructor and Configuration
@@ -80,14 +83,19 @@ export class ModuleRuntime {
     defaultBaseAsset: string;
     defaultRenderer: ServerRenderOptions;
     onFallback: OnFallback;
-    dev: boolean;
+    exposeErrors?: boolean;
   }) {
     this.#layoutModule = options.layoutModule;
     this.#defaultMeta = options.defaultMeta;
     this.#defaultBaseAsset = options.defaultBaseAsset;
     this.#defaultRenderer = options.defaultRenderer;
     this.#onFallback = options.onFallback;
-    this.#dev = options.dev;
+    this.#exposeErrors = options.exposeErrors ?? false;
+  }
+
+  /** @internal Sets the dev meta provider at runtime (used by vite-plugin dev middleware). */
+  setDevMetaProvider(provider: DevMetaProvider): void {
+    this.#devMeta = provider;
   }
 
   /** @internal */
@@ -99,10 +107,6 @@ export class ModuleRuntime {
   clearActivation(context: MiddlewareContext): void {
     invalidateRouteActivation(context);
   }
-
-  // =========================================================================
-  // Public API - Handler Factory Methods
-  // =========================================================================
 
   createRouteContextHandler(
     module: RouteModule | (() => Promise<RouteModule>)
@@ -130,6 +134,10 @@ export class ModuleRuntime {
     };
   }
 
+  /**
+   * Production keeps module activation caches for static imports.
+   * Hosts may invalidate caches via module graph / router lifecycle.
+   */
   createMiddlewareHandler(
     module: MiddlewareModule | (() => Promise<MiddlewareModule>)
   ): MiddlewareHandler {
@@ -155,12 +163,11 @@ export class ModuleRuntime {
 
     return async (context, next) => {
       if (!cachedHandler) {
+        const resolvedModule =
+          await this.#normalizeModule<ActionModule>(module);
         cachedHandler = async (context) => {
-          const resolvedModule =
-            await this.#normalizeModule<ActionModule>(module);
           const { request } = context;
 
-          // Actions only accept POST requests
           if (request.method !== 'POST') {
             return new Response(null, {
               status: 405,
@@ -331,10 +338,23 @@ export class ModuleRuntime {
     }
 
     const error = unsafeError
-      ? this.#dev
+      ? this.#exposeErrors
         ? unsafeError
         : this.#createSafeError(unsafeError)
       : undefined;
+
+    // Inject dev-only meta (Vite client, CSS) at the rendering level so
+    // streaming responses work without buffering the entire HTML.
+    if (this.#devMeta) {
+      try {
+        const devMeta = await this.#devMeta(context);
+        if (devMeta) {
+          meta = mergeMeta(meta, devMeta);
+        }
+      } catch {
+        // Dev meta injection is best-effort; don't fail the render.
+      }
+    }
 
     // Build common component props
     const componentProps: RouteComponentProps = {
@@ -396,12 +416,16 @@ export class ModuleRuntime {
       // NOTE: Disable Nginx buffering for progressive responses.
       // https://nginx.org/en/docs/http/ngx_http_proxy_module.html
       headers.set('x-accel-buffering', 'no');
-    }
-
-    if (this.#dev) {
-      const source = (context.module as DevRouteModule).$source;
-      const devSourceKey: DevHttpHandler = 'x-module-source';
-      headers.set(devSourceKey, source);
+      // Progressive responses are streamed and cannot be safely cached without
+      // buffering the entire body (which defeats streaming). Declare this at the
+      // HTTP level for downstream caches (CDN, proxy, browser). Respect any
+      // cache-control explicitly set by the route handler.
+      // - no-store: caches must not store the response.
+      // - no-transform: intermediaries must not transform (e.g. compress) the
+      //   body, which would require buffering and break progressive rendering.
+      if (!headers.has('cache-control')) {
+        headers.set('cache-control', 'no-store, no-transform');
+      }
     }
 
     return new Response(html, {

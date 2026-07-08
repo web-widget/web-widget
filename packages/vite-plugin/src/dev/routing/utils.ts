@@ -1,5 +1,5 @@
 import { basename, dirname } from 'node:path';
-import { normalizePath } from '@/utils';
+import { normalizePath } from '@/internal/path';
 
 /**
  * Adopted from Qwik
@@ -67,4 +67,20 @@ export function createFileId(pathname: string, explicitFileType?: string) {
     .reverse()
     .join('')
     .concat(toTitleCase(explicitFileType || ''));
+}
+
+function isFilePathname(pathname: string) {
+  const basename = pathname.split('/').at(-1);
+  // Match: /foo/bar/index.html
+  // Mismatch: /foo/bar/(.*)
+  return basename && /[^(]\.[^)]+/.test(basename);
+}
+
+export function addTrailingSlash(pathname: string) {
+  if (!pathname.endsWith('/')) {
+    if (!isFilePathname(pathname)) {
+      return pathname + '/';
+    }
+  }
+  return pathname;
 }

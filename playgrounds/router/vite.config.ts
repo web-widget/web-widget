@@ -17,6 +17,17 @@ function reactPresetsPlugin() {
 }
 
 export default defineConfig({
+  future: {
+    removePluginHookHandleHotUpdate: 'warn',
+    removePluginHookSsrArgument: 'warn',
+    removeServerModuleGraph: 'warn',
+    removeServerReloadModule: 'warn',
+    removeServerPluginContainer: 'warn',
+    removeServerHot: 'warn',
+    removeServerTransformRequest: 'warn',
+    removeServerWarmupRequest: 'warn',
+    removeSsrLoadModule: 'warn',
+  },
   // Node Koa server (`server.js`) — avoid treating all Node built-ins as Rolldown
   // externals (breaks CJS deps such as vue-server-renderer under ESM output).
   ssr: {
@@ -49,10 +60,7 @@ export default defineConfig({
     target: ['chrome76'],
   },
   test: {
-    api: {
-      port: Number(process.env.TEST_PORT ?? 51204),
-      strictPort: true,
-    },
+    globalSetup: './test/global-setup.ts',
   },
   preview: {
     open: true,

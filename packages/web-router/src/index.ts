@@ -40,8 +40,8 @@ export type StartOptions<E extends Env = {}> = {
   defaultRenderOptions?: RouteRenderOptions;
   /** @experimental */
   defaultRenderer?: ServerRenderOptions;
-  /** @deprecated */
-  dev?: boolean;
+  /** When true, server error pages include full error details. Defaults to `false`. */
+  exposeErrors?: boolean;
   onFallback?: OnFallback;
 } & ApplicationOptions<E>;
 
@@ -61,7 +61,6 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       module: async () => defaultLayoutModule as LayoutModule,
     };
     const fallbacks = manifest.fallbacks ?? [];
-    const dev = manifest.dev ?? options.dev ?? false;
     const defaultBaseAsset = options.baseAsset ?? '/';
     const defaultMeta = rebaseMeta(
       options.defaultMeta ?? {
@@ -79,7 +78,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       defaultBaseAsset
     );
     const defaultRenderer: RouteRenderOptions = {
-      progressive: !dev,
+      progressive: false,
       ...structuredClone(
         options.defaultRenderer ?? options.defaultRenderOptions ?? {}
       ),
@@ -111,7 +110,7 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       defaultBaseAsset,
       defaultRenderer,
       onFallback,
-      dev,
+      exposeErrors: manifest.exposeErrors ?? options.exposeErrors ?? false,
     });
 
     const router = new WebRouter<E>(options);

@@ -4,9 +4,8 @@ export default defineConfig({
   dts: true,
   entry: {
     vite: 'src/index.ts',
-    'vitest-node-environment': 'src/helpers/vitest-node-environment.ts',
-    'vitest-edge-runtime-environment':
-      'src/helpers/vitest-edge-runtime-environment.ts',
+    'vitest-node-environment': 'src/vitest-node-environment.ts',
+    'vitest-edge-runtime-environment': 'src/vitest-edge-runtime-environment.ts',
   },
   external: [],
   format: 'esm',

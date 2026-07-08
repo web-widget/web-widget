@@ -53,6 +53,7 @@
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build",
     "test": "vitest run",
+    "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:memory-leak": "vitest run --config vitest.e2e.config.ts"
   },
