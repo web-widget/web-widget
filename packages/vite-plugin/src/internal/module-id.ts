@@ -5,9 +5,8 @@ import { normalizePath } from './path';
 /**
  * Vite-specific regexes for CSS module id matching.
  *
- * Centralized here so dev (meta.ts), build (skip-server-css.ts), and
- * asset collection (collect-route-assets.ts) share a single source of
- * truth instead of maintaining copies.
+ * Centralized here so dev (meta.ts) and asset collection
+ * (collect-route-assets.ts) share a single source of truth.
  */
 
 /** Matches CSS and CSS-like file extensions (Vite's CSS_LANGS_RE equivalent). */
@@ -17,14 +16,8 @@ export const CSS_LANGS_RE =
 /** Query suffixes that make a CSS-like request non-buildable. */
 export const cssExcludeRE = [/(?:\?|&)raw(?:&|$)/, /(?:\?|&)inline\b/];
 
-/** Matches CSS Modules filenames (e.g. `foo.module.css`). */
-export const CSS_MODULE_RE = /\.module\./;
-
 /** Matches Vue SFC `<style>` sub-modules (`?vue&type=style`). */
 export const VUE_STYLE_QUERY_RE = /[?&]vue&type=style/;
-
-/** Matches Vue SFC CSS Modules sub-modules (`?module` or `lang.module.css`). */
-export const VUE_CSS_MODULE_QUERY_RE = /[?&]module(=|&|$)|lang\.module\./;
 
 /** Prefix Vite prepends to resolved ids that are not valid browser import specifiers. */
 const VITE_VALID_ID_PREFIX = '/@id/';

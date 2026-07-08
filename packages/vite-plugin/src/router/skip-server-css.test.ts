@@ -10,26 +10,25 @@ describe('createSkipServerCssPlugin', () => {
     expect(typeof plugin.applyToEnvironment).toBe('function');
   });
 
-  test('load returns empty content for regular css', () => {
+  test('load returns empty content for plain .css files', () => {
     const load = plugin.load as any;
     const handler = typeof load === 'object' ? load.handler : load;
-    const result = handler.call({}, '/project/src/style.css');
-    expect(result).toBe('/* web-widget: css skipped in ssr */');
+    expect(handler.call({}, '/project/src/style.css')).toBe(
+      '/* web-widget: css skipped in ssr */'
+    );
   });
 
-  test('load returns empty content for preprocessor files', () => {
+  test('load does NOT skip preprocessor files (.scss, .less, etc.)', () => {
     const load = plugin.load as any;
     const handler = typeof load === 'object' ? load.handler : load;
     for (const ext of ['.less', '.scss', '.sass', '.styl']) {
-      const result = handler.call(
-        {},
-        `/project/node_modules/antd/dist/style${ext}`
-      );
-      expect(result).toBe('/* web-widget: css skipped in ssr */');
+      expect(
+        handler.call({}, `/project/node_modules/antd/dist/style${ext}`)
+      ).toBeNull();
     }
   });
 
-  test('load does NOT skip CSS Modules (needed for class-name exports)', () => {
+  test('load does NOT skip CSS Modules', () => {
     const load = plugin.load as any;
     const handler = typeof load === 'object' ? load.handler : load;
     expect(handler.call({}, '/project/src/styles.module.css')).toBeNull();
@@ -56,11 +55,23 @@ describe('createSkipServerCssPlugin', () => {
       '/project/src/App.vue?vue&type=style&index=0&module=true&lang.css',
       '/project/src/App.vue?vue&type=style&index=0&module=true&scoped=abc&lang.less',
       '/project/src/Comp.vue?vue&type=style&index=0&module&lang.scss',
-      // Vue 3 uses lang.module.css (no separate ?module query param)
       '/project/src/ModuleCss@widget.vue?vue&type=style&index=0&lang.module.css',
       '/project/src/ModuleCss@widget.vue?vue&type=style&index=0&scoped=abc&lang.module.css',
     ];
     for (const id of vueModuleStyleIds) {
+      expect(handler.call({}, id)).toBeNull();
+    }
+  });
+
+  test('load does NOT skip other IDs with query parameters', () => {
+    const load = plugin.load as any;
+    const handler = typeof load === 'object' ? load.handler : load;
+    const idsWithQuery = [
+      '/project/src/styles.module.css?import',
+      '/project/src/style.css?import',
+      '/project/src/style.css?raw',
+    ];
+    for (const id of idsWithQuery) {
       expect(handler.call({}, id)).toBeNull();
     }
   });
@@ -70,14 +81,6 @@ describe('createSkipServerCssPlugin', () => {
     const handler = typeof load === 'object' ? load.handler : load;
     expect(handler.call({}, '/project/src/app.tsx')).toBeNull();
     expect(handler.call({}, '/project/src/index.ts')).toBeNull();
-  });
-
-  test('load skips CSS with query strings (e.g. ?import)', () => {
-    const load = plugin.load as any;
-    const handler = typeof load === 'object' ? load.handler : load;
-    expect(handler.call({}, '/project/src/style.css?import')).toBe(
-      '/* web-widget: css skipped in ssr */'
-    );
   });
 
   test('load does NOT skip internal virtual modules (\\0 prefix)', () => {
