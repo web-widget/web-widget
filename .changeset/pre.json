@@ -28,5 +28,14 @@
     "@playgrounds/web-router-vue3": "0.0.1",
     "@playgrounds/widget": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "fix-http2-head-response",
+    "html-internalize-stream-utils",
+    "middleware-progressive-rendering-coordination",
+    "middleware-shared-cache-handler",
+    "remove-as-query-and-rename-toReact",
+    "upgrade-es-module-shims",
+    "vite-plugin-environment-api",
+    "web-router-dev-module-loading"
+  ]
 }

@@ -1,5 +1,43 @@
 # @web-widget/web-router
 
+## 3.0.0-beta.0
+
+### Major Changes
+
+- f3328bf: Enable streaming SSR in dev and simplify the dev configuration surface.
+
+  ### Features
+  - **Streaming SSR in dev** — dev no longer buffers responses; `progressive` works the same as in production.
+
+  ### Breaking Changes
+  - `Manifest.dev` and `StartOptions.dev` are removed; use `exposeErrors` instead. The `DevRouteModule` and `DevHttpHandler` types are removed. `progressive` now defaults to `false` in all environments (was `true` in production via `!dev`); set `defaultRenderer.progressive` explicitly if you need streaming.
+
+### Minor Changes
+
+- 05f5a25: Progressive (streaming) rendering is now coordinated with the cache and etag
+  middleware so streaming responses are no longer silently buffered.
+
+  - Progressive responses are declared non-cacheable via the standard
+    `Cache-Control: no-store, no-transform`. `no-transform` prevents
+    intermediaries from compressing the body, which would require buffering.
+  - The `cache` middleware marks such responses as `BYPASS` and never stores them.
+  - The `etag` middleware skips ETag calculation for non-cacheable responses.
+
+### Patch Changes
+
+- 0f81364: Upgrade to `@web-widget/shared-cache` 2.x and adopt `createCacheHandler` for cache middleware origin resolution.
+
+  ### Fixes
+  - **Better error propagation** — server errors during cache miss now propagate to the router error handler; errors during background revalidation return 5xx responses instead of being swallowed.
+  - **Cleaner internals** — removed the `x-transform-error` workaround from web-router.
+
+- Updated dependencies [c2cbde5]
+  - @web-widget/html@3.0.0-beta.0
+  - @web-widget/action@3.0.0-beta.0
+  - @web-widget/context@3.0.0-beta.0
+  - @web-widget/helpers@3.0.0-beta.0
+  - @web-widget/lifecycle-cache@3.0.0-beta.0
+
 ## 2.3.1
 
 ### Patch Changes

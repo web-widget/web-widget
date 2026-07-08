@@ -1,5 +1,24 @@
 # @web-widget/vue
 
+## 3.0.0-beta.0
+
+### Minor Changes
+
+- 7111eb2: Remove `?as=jsx` / `?as=tsx` query parameter support and rename `toReact` to `asReactWidget`. Use `asReactWidget()` type adapter instead of `?as=jsx` imports. `toReact` is kept as a deprecated alias.
+
+### Patch Changes
+
+- Updated dependencies [8ec5a22]
+- Updated dependencies [7111eb2]
+- Updated dependencies [49a408b]
+- Updated dependencies [f3328bf]
+- Updated dependencies [f3328bf]
+  - @web-widget/vite-plugin@3.0.0-beta.0
+  - @web-widget/react@3.0.0-beta.0
+  - @web-widget/web-widget@3.0.0-beta.0
+  - @web-widget/helpers@3.0.0-beta.0
+  - @web-widget/schema@3.0.0-beta.0
+
 ## 2.3.1
 
 ### Patch Changes
