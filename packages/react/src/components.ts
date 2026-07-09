@@ -111,3 +111,9 @@ export /*#__PURE__*/ function defineWebWidget(
     });
   });
 }
+
+/**
+ * Container function (WebWidgetAdapter protocol).
+ * Alias of `defineWebWidget` — wraps a generic widget module as a React component.
+ */
+export const container = defineWebWidget;

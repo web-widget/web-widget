@@ -5,7 +5,6 @@ export default defineConfig({
   entry: {
     'vue.server': 'src/server.ts',
     'vue.client': 'src/client.ts',
-    vite: 'src/vite.ts',
   },
   external: [],
   format: 'esm',

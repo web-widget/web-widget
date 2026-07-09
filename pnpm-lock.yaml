@@ -12,9 +12,6 @@ catalogs:
     '@jest/globals':
       specifier: ^29.7.0
       version: 29.7.0
-    '@rollup/pluginutils':
-      specifier: ^5.1.4
-      version: 5.1.4
     '@types/jest':
       specifier: ^29.5.12
       version: 29.5.12
@@ -713,18 +710,12 @@ importers:
 
   packages/react:
     dependencies:
-      '@rollup/pluginutils':
-        specifier: 'catalog:'
-        version: 5.1.4(rollup@4.59.0)
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
-      '@web-widget/vite-plugin':
-        specifier: workspace:*
-        version: link:../vite-plugin
       '@web-widget/web-widget':
         specifier: workspace:*
         version: link:../web-widget
@@ -835,9 +826,6 @@ importers:
 
   packages/vue:
     dependencies:
-      '@rollup/pluginutils':
-        specifier: 'catalog:'
-        version: 5.1.4(rollup@4.59.0)
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -847,9 +835,6 @@ importers:
       '@web-widget/schema':
         specifier: workspace:*
         version: link:../schema
-      '@web-widget/vite-plugin':
-        specifier: workspace:*
-        version: link:../vite-plugin
       '@web-widget/web-widget':
         specifier: workspace:*
         version: link:../web-widget
@@ -860,27 +845,18 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
-      vite:
-        specifier: 'catalog:'
-        version: 8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2)
       vue:
         specifier: ^3.5.34
         version: 3.5.34(typescript@5.5.4)
 
   packages/vue2:
     dependencies:
-      '@rollup/pluginutils':
-        specifier: 'catalog:'
-        version: 5.1.4(rollup@4.59.0)
       '@web-widget/helpers':
         specifier: workspace:*
         version: link:../helpers
       '@web-widget/react':
         specifier: workspace:*
         version: link:../react
-      '@web-widget/vite-plugin':
-        specifier: workspace:*
-        version: link:../vite-plugin
       '@web-widget/web-widget':
         specifier: workspace:*
         version: link:../web-widget
@@ -894,9 +870,6 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
-      vite:
-        specifier: 'catalog:'
-        version: 8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2)
       vue:
         specifier: ^2.7.16
         version: 2.7.16
@@ -1029,6 +1002,12 @@ importers:
       '@web-widget/vite-plugin':
         specifier: workspace:*
         version: link:../../packages/vite-plugin
+      '@web-widget/vue':
+        specifier: workspace:*
+        version: link:../../packages/vue
+      '@web-widget/vue2':
+        specifier: workspace:*
+        version: link:../../packages/vue2
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -1131,6 +1110,15 @@ importers:
       '@web-widget/react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@web-widget/vite-plugin':
+        specifier: workspace:*
+        version: link:../../packages/vite-plugin
+      '@web-widget/vue':
+        specifier: workspace:*
+        version: link:../../packages/vue
+      '@web-widget/vue2':
+        specifier: workspace:*
+        version: link:../../packages/vue2
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3

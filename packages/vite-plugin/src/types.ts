@@ -1,7 +1,7 @@
 import type WebRouter from '@web-widget/web-router';
 import type { z } from 'zod';
 import type { Manifest, StartOptions } from '@web-widget/web-router';
-import type { FilterPattern, Plugin, Manifest as ViteManifest } from 'vite';
+import type { Plugin } from 'vite';
 import type { WebRouterConfigSchema } from './internal/config';
 import type { RouteSourceFile } from './dev/routing/types';
 import type {
@@ -135,41 +135,49 @@ export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {
 
 ////////////////////////////////////////
 //////                            //////
-//////       WebWidgetPlugin      //////
+//////   WebWidgetAdapterConfig   //////
 //////                            //////
 ////////////////////////////////////////
 
-export interface ResolvedWebWidgetConfig {
-  provide: string;
-  manifest?: ViteManifest;
-  export?: {
-    /** @default `"render"` */
-    inject?: string | string[];
-    extractFromExportDefault?: {
-      name: string;
-      default: string;
-      exclude?: FilterPattern;
-      include?: FilterPattern;
-    }[];
-    exclude?: FilterPattern;
-    include?: FilterPattern;
-  };
-  import?: {
-    /** @default `"defineWebWidget"` */
-    inject?: string;
-    cache?: Set<string>;
-    /** @deprecated Please use `import.includeImporter` instead. */
-    component?: FilterPattern;
-    exclude?: FilterPattern;
-    excludeImporter?: FilterPattern;
-    include?: FilterPattern;
-    includeImporter?: FilterPattern;
-  };
+/**
+ * Adapter entry in `WebWidgetPluginOptions.adapters`.
+ * Can be a string (shorthand for `from`) or an object that overrides
+ * the adapter's default `name` / `extensions` / `runtime` and adds
+ * a `scope` for disambiguating extension conflicts.
+ */
+export interface WebWidgetAdapterConfig {
+  /** Adapter package name, e.g. "@web-widget/react". */
+  from: string;
+  /** Override the adapter's declared name. */
+  name?: string;
+  /** Override the adapter's declared extensions. */
+  extensions?: string[];
+  /** Override the adapter's declared runtime subpath. */
+  runtime?: string;
+  /** Override the adapter's declared version. */
+  version?: string;
+  /**
+   * Directory scope (path prefix). Only files under this directory
+   * will match this adapter, used to disambiguate extension conflicts
+   * (e.g. vue2 and vue3 both using `.vue`).
+   */
+  scope?: string;
 }
 
-export interface WebWidgetUserConfig extends ResolvedWebWidgetConfig {
-  /** @deprecated Please use `export` instead. */
-  toWebWidgets?: ResolvedWebWidgetConfig['export'];
-  /** @deprecated Please use `import` instead. */
-  toComponents?: ResolvedWebWidgetConfig['import'];
+/**
+ * Options for the adapter-based `webWidgetPlugin`.
+ */
+export interface WebWidgetPluginOptions {
+  /**
+   * File name markers that identify renderable modules.
+   * e.g. ['@widget', '@route'] matches `Counter@widget.tsx`, `index@route.vue`.
+   * @default ['@widget', '@route']
+   */
+  moduleMarkers?: string[];
+  /**
+   * Framework adapters to use. Each adapter tells the build tool
+   * which files belong to which framework and where to get the
+   * runtime implementation.
+   */
+  adapters: (string | WebWidgetAdapterConfig)[];
 }

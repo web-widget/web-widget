@@ -14,16 +14,13 @@
   "license": "MIT",
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
-    "@web-widget/vite-plugin": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
-    "@web-widget/react": "workspace:*",
-    "@rollup/pluginutils": "catalog:"
+    "@web-widget/react": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
     "vue": "^2.7.16",
     "vue-server-renderer": "^2.7.16"
   },
@@ -45,17 +42,46 @@
         "default": "./dist/vue2.server.js"
       }
     },
-    "./vite": {
-      "types": "./dist/vite.d.ts",
-      "development": "./src/vite.ts",
-      "default": "./dist/vite.js"
+    "./runtime": {
+      "worker": {
+        "types": "./dist/vue2.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/vue2.server.js"
+      },
+      "browser": {
+        "types": "./dist/vue2.client.d.ts",
+        "development": "./src/client.ts",
+        "default": "./dist/vue2.client.js"
+      },
+      "default": {
+        "types": "./dist/vue2.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/vue2.server.js"
+      }
     }
+  },
+  "webWidget": {
+    "version": "1.0.0",
+    "name": "vue2",
+    "extensions": [
+      ".vue"
+    ],
+    "runtime": "./runtime",
+    "deriveExports": [
+      {
+        "name": "handler",
+        "default": "{GET({render}){return render()}}"
+      },
+      {
+        "name": "meta",
+        "default": "{}"
+      }
+    ]
   },
   "files": [
     "dist"
   ],
   "peerDependencies": {
-    "vite": "catalog:",
     "vue": "^2.7.16",
     "vue-server-renderer": "^2.7.16"
   },
@@ -76,9 +102,19 @@
           "default": "./dist/vue2.server.js"
         }
       },
-      "./vite": {
-        "types": "./dist/vite.d.ts",
-        "default": "./dist/vite.js"
+      "./runtime": {
+        "worker": {
+          "types": "./dist/vue2.server.d.ts",
+          "default": "./dist/vue2.server.js"
+        },
+        "browser": {
+          "types": "./dist/vue2.client.d.ts",
+          "default": "./dist/vue2.client.js"
+        },
+        "default": {
+          "types": "./dist/vue2.server.d.ts",
+          "default": "./dist/vue2.server.js"
+        }
       }
     }
   },

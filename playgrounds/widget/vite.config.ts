@@ -1,6 +1,5 @@
-import path from 'node:path';
-import fs from 'node:fs';
 import { defineConfig, type Plugin } from 'vite';
+import { webWidgetPlugin } from '@web-widget/vite-plugin';
 import { vuePresetsPlugin } from './packages/vue3/vite-plugins';
 import { vue2PresetsPlugin } from './packages/vue2/vite-plugins';
 import { reactPresetsPlugin } from './packages/react/vite-plugins';
@@ -55,20 +54,19 @@ function createInputMap(names: string[], type: 'client' | 'server') {
 
 export default defineConfig(({ isSsrBuild }) => {
   const type = isSsrBuild ? 'server' : 'client';
-  const manifest = isSsrBuild
-    ? JSON.parse(
-        fs.readFileSync(
-          path.resolve(__dirname, 'dist/client/.vite/manifest.json'),
-          'utf-8'
-        )
-      )
-    : undefined;
   return {
     plugins: [
       patchVuePluginConfig(),
-      reactPresetsPlugin(manifest),
-      vuePresetsPlugin(manifest),
-      vue2PresetsPlugin(manifest),
+      reactPresetsPlugin(),
+      vuePresetsPlugin(),
+      vue2PresetsPlugin(),
+      webWidgetPlugin({
+        adapters: [
+          { from: '@web-widget/react', scope: 'packages/react' },
+          { from: '@web-widget/vue', scope: 'packages/vue3' },
+          { from: '@web-widget/vue2', scope: 'packages/vue2' },
+        ],
+      }),
     ],
     build: {
       manifest: isSsrBuild ? false : true,
