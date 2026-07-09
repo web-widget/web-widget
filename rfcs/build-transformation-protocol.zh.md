@@ -143,7 +143,6 @@ function App() {
 export default defineConfig({
   plugins: [
     webWidgetPlugin({
-      moduleMarkers: ['@widget', '@route'], // 如 Counter@widget.tsx、index@route.vue
       adapters: [
         // from 指向的适配器包已提供 name 和 extensions 的默认值
         { from: '@web-widget/react' },
@@ -160,8 +159,6 @@ export default defineConfig({
 
 ```typescript
 interface WebWidgetPluginOptions {
-  /** 文件名中包含这些标记的模块会被识别为通用可渲染模块 */
-  moduleMarkers?: string[];
   adapters: (
     | string
     | (Omit<WebWidgetAdapter, 'name' | 'extensions'> & {
