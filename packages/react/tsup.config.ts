@@ -5,7 +5,6 @@ export default defineConfig({
   entry: {
     'react.server': 'src/server.ts',
     'react.client': 'src/client.ts',
-    vite: 'src/vite.ts',
   },
   external: [],
   format: 'esm',

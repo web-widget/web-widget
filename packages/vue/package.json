@@ -14,16 +14,13 @@
   "license": "MIT",
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
-    "@web-widget/vite-plugin": "workspace:*",
     "@web-widget/web-widget": "workspace:*",
     "@web-widget/schema": "workspace:*",
-    "@web-widget/react": "workspace:*",
-    "@rollup/pluginutils": "catalog:"
+    "@web-widget/react": "workspace:*"
   },
   "devDependencies": {
     "tsup": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
     "vue": "^3.5.34"
   },
   "exports": {
@@ -44,17 +41,46 @@
         "default": "./dist/vue.server.js"
       }
     },
-    "./vite": {
-      "types": "./dist/vite.d.ts",
-      "development": "./src/vite.ts",
-      "default": "./dist/vite.js"
+    "./runtime": {
+      "worker": {
+        "types": "./dist/vue.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/vue.server.js"
+      },
+      "browser": {
+        "types": "./dist/vue.client.d.ts",
+        "development": "./src/client.ts",
+        "default": "./dist/vue.client.js"
+      },
+      "default": {
+        "types": "./dist/vue.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/vue.server.js"
+      }
     }
+  },
+  "webWidget": {
+    "version": "1.0.0",
+    "name": "vue",
+    "extensions": [
+      ".vue"
+    ],
+    "runtime": "./runtime",
+    "deriveExports": [
+      {
+        "name": "handler",
+        "default": "{GET({html}){return html()}}"
+      },
+      {
+        "name": "meta",
+        "default": "{}"
+      }
+    ]
   },
   "files": [
     "dist"
   ],
   "peerDependencies": {
-    "vite": "catalog:",
     "vue": ">3.3.3"
   },
   "publishConfig": {
@@ -74,9 +100,19 @@
           "default": "./dist/vue.server.js"
         }
       },
-      "./vite": {
-        "types": "./dist/vite.d.ts",
-        "default": "./dist/vite.js"
+      "./runtime": {
+        "worker": {
+          "types": "./dist/vue.server.d.ts",
+          "default": "./dist/vue.server.js"
+        },
+        "browser": {
+          "types": "./dist/vue.client.d.ts",
+          "default": "./dist/vue.client.js"
+        },
+        "default": {
+          "types": "./dist/vue.server.d.ts",
+          "default": "./dist/vue.server.js"
+        }
       }
     }
   },

@@ -1,8 +1,7 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import { webRouterPlugin } from '@web-widget/vite-plugin';
-import reactWebWidgetPlugin from '@web-widget/react/vite';
+import { webRouterPlugin, webWidgetPlugin } from '@web-widget/vite-plugin';
 import { vue2PresetsPlugin } from './routes/(vue2)/vite-plugins';
 import { vuePresetsPlugin } from './routes/(vue3)/vite-plugins';
 
@@ -13,7 +12,7 @@ Reflect.defineProperty(global, 'window', {
 });
 
 function reactPresetsPlugin() {
-  return [react(), reactWebWidgetPlugin()];
+  return [react()];
 }
 
 export default defineConfig({
@@ -55,6 +54,13 @@ export default defineConfig({
     reactPresetsPlugin(),
     vuePresetsPlugin(),
     vue2PresetsPlugin(),
+    webWidgetPlugin({
+      adapters: [
+        '@web-widget/react',
+        { from: '@web-widget/vue', scope: 'routes/(vue3)' },
+        { from: '@web-widget/vue2', scope: 'routes/(vue2)' },
+      ],
+    }),
   ],
   build: {
     target: ['chrome76'],

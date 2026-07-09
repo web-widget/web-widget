@@ -2,7 +2,6 @@ import url from 'node:url';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import vue2Plugin from '@vitejs/plugin-vue2';
-import vue2WebWidgetPlugin from '@web-widget/vue2/vite';
 import { normalizePath } from 'vite';
 import {
   type VueRuntimeResolveRule,
@@ -49,10 +48,5 @@ export function vue2PresetsPlugin() {
     }
   );
 
-  return [
-    vuePlugin,
-    vue2WebWidgetPlugin({
-      workspace,
-    }),
-  ];
+  return [vuePlugin];
 }

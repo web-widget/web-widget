@@ -91,6 +91,12 @@ export /*#__PURE__*/ function defineWebWidget(
 }
 
 /**
+ * Container function (WebWidgetAdapter protocol).
+ * Alias of `defineWebWidget` — wraps a generic widget module as a Vue2 component.
+ */
+export const container = defineWebWidget;
+
+/**
  * Adapt Vue component types to React widget component types.
  *
  * This is a type-level cast only — the actual cross-framework rendering

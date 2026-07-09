@@ -1,7 +1,6 @@
 import url from 'node:url';
 import path from 'node:path';
 import vue3Plugin from '@vitejs/plugin-vue';
-import vue3WebWidgetPlugin from '@web-widget/vue/vite';
 import { normalizePath } from 'vite';
 import {
   type VueRuntimeResolveRule,
@@ -45,11 +44,5 @@ export function vuePresetsPlugin() {
     }
   );
 
-  return [
-    ...runtimeResolvePlugins,
-    vuePlugin,
-    vue3WebWidgetPlugin({
-      workspace,
-    }),
-  ];
+  return [...runtimeResolvePlugins, vuePlugin];
 }

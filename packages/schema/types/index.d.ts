@@ -7,6 +7,7 @@
  */
 
 export * from './action';
+export * from './adapter';
 export * from './http';
 export * from './meta';
 export * from './middleware';

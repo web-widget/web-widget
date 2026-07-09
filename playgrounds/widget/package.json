@@ -13,7 +13,10 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "cross-env": "^7.0.3",
-    "@web-widget/react": "workspace:*"
+    "@web-widget/react": "workspace:*",
+    "@web-widget/vite-plugin": "workspace:*",
+    "@web-widget/vue": "workspace:*",
+    "@web-widget/vue2": "workspace:*"
   },
   "engines": {
     "node": ">=18"

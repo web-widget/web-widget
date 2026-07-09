@@ -15,9 +15,7 @@
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
     "@web-widget/schema": "workspace:*",
-    "@web-widget/vite-plugin": "workspace:*",
-    "@web-widget/web-widget": "workspace:*",
-    "@rollup/pluginutils": "catalog:"
+    "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.2.14",
@@ -46,14 +44,35 @@
         "default": "./dist/react.server.js"
       }
     },
-    "./vite": {
-      "types": "./dist/vite.d.ts",
-      "development": "./src/vite.ts",
-      "default": "./dist/vite.js"
+    "./runtime": {
+      "worker": {
+        "types": "./dist/react.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/react.server.js"
+      },
+      "browser": {
+        "types": "./dist/react.client.d.ts",
+        "development": "./src/client.ts",
+        "default": "./dist/react.client.js"
+      },
+      "default": {
+        "types": "./dist/react.server.d.ts",
+        "development": "./src/server.ts",
+        "default": "./dist/react.server.js"
+      }
     },
     "./globals": {
       "types": "./globals.d.ts"
     }
+  },
+  "webWidget": {
+    "version": "1.0.0",
+    "name": "react",
+    "extensions": [
+      ".tsx",
+      ".jsx"
+    ],
+    "runtime": "./runtime"
   },
   "files": [
     "dist",
@@ -61,8 +80,7 @@
   ],
   "peerDependencies": {
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "vite": "catalog:"
+    "react-dom": "^19.0.0"
   },
   "publishConfig": {
     "access": "public",
@@ -81,9 +99,19 @@
           "default": "./dist/react.server.js"
         }
       },
-      "./vite": {
-        "types": "./dist/vite.d.ts",
-        "default": "./dist/vite.js"
+      "./runtime": {
+        "worker": {
+          "types": "./dist/react.server.d.ts",
+          "default": "./dist/react.server.js"
+        },
+        "browser": {
+          "types": "./dist/react.client.d.ts",
+          "default": "./dist/react.client.js"
+        },
+        "default": {
+          "types": "./dist/react.server.d.ts",
+          "default": "./dist/react.server.js"
+        }
       },
       "./globals": {
         "types": "./globals.d.ts"

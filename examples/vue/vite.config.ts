@@ -1,10 +1,8 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import { webRouterPlugin } from '@web-widget/vite-plugin';
-import reactWebWidgetPlugin from '@web-widget/react/vite';
+import reactPlugin from '@vitejs/plugin-react';
 import vuePlugin from '@vitejs/plugin-vue';
-import vueWebWidgetPlugin from '@web-widget/vue/vite';
+import { webRouterPlugin, webWidgetPlugin } from '@web-widget/vite-plugin';
 
 export default defineConfig({
   plugins: [
@@ -19,8 +17,11 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    [react(), reactWebWidgetPlugin()],
-    [vuePlugin(), vueWebWidgetPlugin()],
+    reactPlugin(),
+    vuePlugin(),
+    webWidgetPlugin({
+      adapters: ['@web-widget/react', '@web-widget/vue'],
+    }),
   ],
   build: {
     target: ['chrome76'],
