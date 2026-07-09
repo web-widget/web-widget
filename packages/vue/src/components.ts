@@ -3,7 +3,7 @@ import { WebWidgetRenderer } from '@web-widget/web-widget';
 import { h, defineComponent, Suspense, useAttrs } from 'vue';
 import type { VNode, PropType, ComponentPublicInstance, Component } from 'vue';
 import { IS_CLIENT } from '@web-widget/helpers/env';
-import type { ReactWidgetComponent } from '@web-widget/react';
+import type { ReactWidgetComponent } from '@web-widget/react/runtime';
 
 const WebWidget = /*#__PURE__*/ defineComponent({
   name: 'WebWidgetRoot',

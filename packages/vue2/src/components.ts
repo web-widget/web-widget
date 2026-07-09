@@ -2,7 +2,7 @@ import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import Vue, { h, defineComponent, useAttrs, getCurrentInstance } from 'vue';
 import type { Component, ComponentPublicInstance, PropType } from 'vue';
-import type { ReactWidgetComponent } from '@web-widget/react';
+import type { ReactWidgetComponent } from '@web-widget/react/runtime';
 import { DefaultProps } from 'vue/types/options';
 
 Vue.config.ignoredElements = ['web-widget'];
