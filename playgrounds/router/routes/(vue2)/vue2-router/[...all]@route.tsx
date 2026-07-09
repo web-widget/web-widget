@@ -1,4 +1,4 @@
-import { defineMeta, defineRouteComponent } from '@web-widget/react';
+import { defineMeta, defineRouteComponent } from '@web-widget/helpers';
 import BaseLayout from '../../(components)/BaseLayout';
 import App from './App@widget';
 import { asReactWidget } from '@web-widget/vue2';

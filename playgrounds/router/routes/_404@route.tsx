@@ -1,5 +1,5 @@
 import './(css)/error.css';
-import { defineRouteFallbackComponent } from '@web-widget/react';
+import { defineRouteFallbackComponent } from '@web-widget/helpers';
 import VueCounter from '@playgrounds/web-router-vue3/Counter@widget.vue';
 import { asReactWidget } from '@playgrounds/web-router-vue3/helpers';
 

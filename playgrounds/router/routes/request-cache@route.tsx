@@ -1,4 +1,4 @@
-import { defineRouteComponent } from '@web-widget/react';
+import { defineRouteComponent } from '@web-widget/helpers';
 import { lifecycleCache } from '@web-widget/helpers/cache';
 import BaseLayout from './(components)/BaseLayout.tsx';
 import RequestCache from './(components)/RequestCache@widget.tsx';

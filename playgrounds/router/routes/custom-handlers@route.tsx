@@ -1,4 +1,4 @@
-import { defineRouteComponent, defineRouteHandler } from '@web-widget/react';
+import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import BaseLayout from './(components)/BaseLayout';
 
 export const handler = defineRouteHandler({

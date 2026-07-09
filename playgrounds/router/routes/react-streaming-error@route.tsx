@@ -1,4 +1,4 @@
-import { defineRouteComponent } from '@web-widget/react';
+import { defineRouteComponent } from '@web-widget/helpers';
 import BaseLayout from './(components)/BaseLayout.js';
 import ReactWaitDemo from './(components)/Wait@widget.js';
 import ReactFailDemo from './(components)/Fail@widget.js';
