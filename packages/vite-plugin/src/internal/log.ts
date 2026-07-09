@@ -1,34 +1,38 @@
 /**
- * Centralized error logging for the vite-plugin package. Formats Error
- * instances with their stack trace and falls back to `console.error` for
- * non-Error values.
- *
- * @param message Short description of what failed.
- * @param error   The caught value to log.
- * @param scope   Package scope for the prefix (default: `@web-widget/vite-plugin`).
+ * Log severity level for the vite-plugin package.
  */
-export function logPluginError(
-  message: string,
-  error: unknown,
-  scope: string = '@web-widget/vite-plugin'
-): void {
-  const prefix = `🚧 ${scope}: ${message}:`;
-  if (error instanceof Error) {
-    console.error(`${prefix} ${error.stack ?? error.message}`);
-  } else {
-    console.error(prefix, error);
-  }
-}
+export type LogLevel = 'error' | 'warn' | 'info';
+
+const LEVEL_ICONS: Record<LogLevel, string> = {
+  error: '✖',
+  warn: '⚠',
+  info: 'ℹ',
+};
 
 /**
- * Centralized warning logging for the vite-plugin package.
+ * Centralized logger for the vite-plugin package. Formats the message with a
+ * per-level icon and scope prefix, attaches `Error` stack traces when present,
+ * and dispatches to the matching `console` stream.
  *
- * @param message Warning message to display.
+ * @param level   Severity — controls icon and console stream.
+ * @param message Short description of what happened.
+ * @param error   Optional caught value; `Error` instances print their stack.
  * @param scope   Package scope for the prefix (default: `@web-widget/vite-plugin`).
  */
-export function logPluginWarn(
+export function logPlugin(
+  level: LogLevel,
   message: string,
+  error?: unknown,
   scope: string = '@web-widget/vite-plugin'
 ): void {
-  console.warn(`🚧 ${scope}: ${message}`);
+  const prefix = `${LEVEL_ICONS[level]} ${scope}: ${message}`;
+  if (error !== undefined) {
+    if (error instanceof Error) {
+      console[level](`${prefix}: ${error.stack ?? error.message}`);
+    } else {
+      console[level](prefix, error);
+    }
+  } else {
+    console[level](prefix);
+  }
 }

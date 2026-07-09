@@ -4,7 +4,7 @@ import type {
   ScriptDescriptor,
   StyleDescriptor,
 } from '@web-widget/helpers';
-import { logPluginWarn } from '@/internal/log';
+import { logPlugin } from '@/internal/log';
 
 export interface DevHeadTags {
   script: ScriptDescriptor[];
@@ -37,7 +37,8 @@ export function parseHeadTags(html: string): DevHeadTags {
 
   for (const tag of tokenize(headHtml)) {
     if (!SUPPORTED_TAGS.has(tag.name)) {
-      logPluginWarn(
+      logPlugin(
+        'warn',
         `Unsupported <head> tag <${tag.name}> was injected by a Vite plugin via transformIndexHtml. ` +
           `It will not appear in the SSR output. Supported tags: <script>, <style>, <link>, <meta>.`
       );

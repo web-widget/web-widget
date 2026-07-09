@@ -6,7 +6,7 @@ import type { RouteMap } from '@/types';
 import { isPathPrefix } from '@/internal/path';
 import { isStructuralRoutemapChange } from './routemap-diff';
 import { shouldApplyRoutemapUpdate } from './routemap-update';
-import { logPluginError } from '@/internal/log';
+import { logPlugin } from '@/internal/log';
 import type { OverridePathname } from './types';
 
 export { getRoutemap } from '@/internal/routemap-from-fs';
@@ -68,7 +68,7 @@ export async function fileSystemRouteGenerator({
         })
       )
       .catch((error) => {
-        logPluginError('Routemap update failed', error);
+        logPlugin('error', 'Routemap update failed', error);
       });
     return routemapUpdateQueue;
   };
@@ -164,7 +164,7 @@ async function updateRoutemapFile(options: {
 
   if (jsonChanged) {
     void fs.writeFile(routemapPath, newJson, 'utf8').catch((error) => {
-      logPluginError('Routemap update failed', error);
+      logPlugin('error', 'Routemap update failed', error);
     });
   }
 
@@ -177,6 +177,6 @@ async function updateRoutemapFile(options: {
       filesystemChanged: filesystemDirty,
     });
   } catch (error) {
-    logPluginError('Routemap update failed', error);
+    logPlugin('error', 'Routemap update failed', error);
   }
 }

@@ -3,6 +3,7 @@ import { join, relative } from 'node:path';
 import type { RouteSourceFile } from './types';
 import { getSourceFile } from './source-file';
 import { normalizePath } from '@/internal/path';
+import { logPlugin } from '@/internal/log';
 
 export async function walkRoutes(routesDir: string, ignore: string[] = []) {
   const sourceFiles: RouteSourceFile[] = [];
@@ -34,6 +35,7 @@ async function walkRouteDir(
         try {
           stat = await fs.promises.stat(source);
         } catch (e) {
+          logPlugin('warn', `Failed to stat route file: ${source}`);
           return;
         }
 

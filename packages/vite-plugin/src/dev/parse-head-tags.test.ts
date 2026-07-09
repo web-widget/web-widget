@@ -112,12 +112,12 @@ describe('parseHeadTags', () => {
     parseHeadTags(html);
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining(
-        '🚧 @web-widget/vite-plugin: Unsupported <head> tag <base>'
+        '⚠ @web-widget/vite-plugin: Unsupported <head> tag <base>'
       )
     );
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining(
-        '🚧 @web-widget/vite-plugin: Unsupported <head> tag <title>'
+        '⚠ @web-widget/vite-plugin: Unsupported <head> tag <title>'
       )
     );
     warnSpy.mockRestore();

@@ -20,7 +20,7 @@ import { getWebRouterPluginApi } from '@/internal/manifest';
 import { resolveModuleSourcePath } from './module-source';
 import { resolveDevOrigin } from './resolve-dev-origin';
 import { getDevServerRevision } from './dev-server-cache';
-import { logPluginError } from '@/internal/log';
+import { logPlugin } from '@/internal/log';
 import { warmupServerDevModules } from './warmup';
 import { printDevWelcome } from './welcome';
 
@@ -81,7 +81,7 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin[] {
                 }
               );
             } catch (error) {
-              logPluginError('Routemap server invalidation failed', error);
+              logPlugin('error', 'Routemap server invalidation failed', error);
             }
           },
           watcher: viteServer.watcher,
@@ -97,10 +97,12 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin[] {
             void warmupServerDevModules(
               viteServer,
               resolvedWebRouterConfig
-            ).catch((error) => logPluginError('Server warmup failed', error));
+            ).catch((error) =>
+              logPlugin('error', 'Server warmup failed', error)
+            );
             printDevWelcome();
           } catch (error) {
-            logPluginError('Service startup failed', error);
+            logPlugin('error', 'Service startup failed', error);
           }
         };
 
@@ -113,7 +115,7 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin[] {
             register();
           }
         } catch (error) {
-          logPluginError('Service startup failed', error);
+          logPlugin('error', 'Service startup failed', error);
         }
       };
     },
@@ -259,7 +261,12 @@ function renderHandlerError(
   } else {
     message = `Unknown error.`;
   }
-  logPluginError(`${requestUrl} exception`, error, '@web-widget/web-router');
+  logPlugin(
+    'error',
+    `${requestUrl} exception`,
+    error,
+    '@web-widget/web-router'
+  );
 
   return new Response(errorTemplate(message), {
     status: 500,

@@ -39,11 +39,6 @@ function isFallbackName(name: string) {
   if (!FALLBACK_NAME_REG.test(name)) {
     return false;
   }
-  try {
-    const statusCode = parseInt(name.slice(1), 10);
-    return statusCode >= 400 && statusCode <= 599;
-  } catch (e) {
-    //
-  }
-  return false;
+  const statusCode = parseInt(name.slice(1), 10);
+  return statusCode >= 400 && statusCode <= 599;
 }

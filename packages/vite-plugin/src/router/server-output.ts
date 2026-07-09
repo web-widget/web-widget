@@ -5,6 +5,7 @@ import {
   isClientEnvironment,
   getServerEnvironmentFromBuilder,
 } from '@/internal/environment';
+import { logPlugin } from '@/internal/log';
 import { writeServerAssetsDataFile } from './server-assets-plugin';
 import type { RouterPluginHost } from './host';
 
@@ -82,7 +83,7 @@ export function createServerOutputPlugin(host: RouterPluginHost): Plugin {
             resolvedWebRouterConfig.output.server
           );
           await writeServerAssetsDataFile(host, serverOutDir);
-          console.info(`@web-widget: build success!`);
+          logPlugin('info', 'build success!');
         }
       },
     },
