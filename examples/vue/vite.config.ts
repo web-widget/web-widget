@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
+import reactPlugin from '@vitejs/plugin-react';
 import vuePlugin from '@vitejs/plugin-vue';
 import { webRouterPlugin, webWidgetPlugin } from '@web-widget/vite-plugin';
 
@@ -17,7 +17,7 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    react(),
+    reactPlugin(),
     vuePlugin(),
     webWidgetPlugin({
       adapters: ['@web-widget/react', '@web-widget/vue'],
