@@ -21,6 +21,10 @@ describe('Should match snapshot', () => {
         `${pathname}@headers`
       );
       expect(await result.text()).toMatchSnapshot(`${pathname}@body`);
-    }
+    },
+    // The first request pays the cold-start cost of compiling route modules
+    // through Vite's transform pipeline, which can exceed the default timeout
+    // on slower CI machines.
+    30000
   );
 });
