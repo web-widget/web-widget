@@ -4,7 +4,7 @@ import {
   getServerEnvironmentFromDevServer,
 } from '@/internal/environment';
 import type { RouterPluginHost } from '@/router/host';
-import { logPluginError } from '@/internal/log';
+import { logPlugin } from '@/internal/log';
 import { invalidateServerDevModules } from './server-invalidation';
 
 export function sendClientFullReload(server: ViteDevServer) {
@@ -31,7 +31,9 @@ export function createServerFullReloadPlugin(host: RouterPluginHost): Plugin {
       void invalidateServerDevModules(
         getServerEnvironmentFromDevServer(server).moduleGraph,
         host.state.resolvedWebRouterConfig
-      ).catch((error) => logPluginError('Server invalidation failed', error));
+      ).catch((error) =>
+        logPlugin('error', 'Server invalidation failed', error)
+      );
       return [];
     },
   };
