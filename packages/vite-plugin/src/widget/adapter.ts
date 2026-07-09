@@ -128,19 +128,10 @@ function extPattern(extensions: string[]): string {
   return `\\.(?:${extensions.map((e) => e.replace(/^\./, '')).join('|')})`;
 }
 
-function markersPattern(markers: string[]): string {
-  return `[.@](?:${markers.map((m) => m.replace(/^[.@]/, '')).join('|')})`;
-}
-
-function widgetMarker(markers: string[]): string {
-  const m = markers.find((m) => m.includes('widget')) ?? markers[0];
-  return `[.@]${m.replace(/^[.@]/, '')}`;
-}
-
-function routeMarker(markers: string[]): string | null {
-  const m = markers.find((m) => m.includes('route'));
-  return m ? `[.@]${m.replace(/^[.@]/, '')}` : null;
-}
+/** Protocol-level module markers: `@widget` and `@route`. */
+const MARKERS_RE = `[.@](?:widget|route)`;
+const WIDGET_MARKER_RE = `[.@]widget`;
+const ROUTE_MARKER_RE = `[.@]route`;
 
 function scopePrefix(scope: string | undefined, root: string): string {
   if (!scope) return '';
@@ -152,7 +143,6 @@ function scopePrefix(scope: string | undefined, root: string): string {
 
 function buildPluginsForAdapter(
   adapter: ResolvedAdapter,
-  markers: string[],
   root: string
 ): Plugin[] {
   const { from, extensions, runtime, scope, deriveExports } = adapter;
@@ -161,32 +151,28 @@ function buildPluginsForAdapter(
   const provide = `${from}/${runtime.replace(/^\.\//, '')}`;
 
   const ext = extPattern(extensions);
-  const markersRe = markersPattern(markers);
-  const widgetRe = widgetMarker(markers);
-  const routeRe = routeMarker(markers);
   const scopeRe = scopePrefix(scope, root);
 
   // Native filters (Rust layer): broad pre-filters on pathname to skip
   // obviously unrelated modules. Framework-specific sub-modules (e.g. Vue SFC
   // ?vue&type=script) still reach the handler, where cleanId/stripModuleIdQuery
   // does the precise check.
-  const exportNativeFilter = new RegExp(`${markersRe}${ext}`);
-  const importNativeFilter = new RegExp(`${widgetRe}\\.|${ext}`);
+  const exportNativeFilter = new RegExp(`${MARKERS_RE}${ext}`);
+  const importNativeFilter = new RegExp(`${WIDGET_MARKER_RE}\\.|${ext}`);
 
   // JS-layer precise patterns (tested against query-stripped id):
-  const exportPattern = new RegExp(`^${scopeRe}[^?]*${markersRe}${ext}$`);
-  const importPattern = new RegExp(`^[^?]*${widgetRe}\\.[^?]*$`);
+  const exportPattern = new RegExp(`^${scopeRe}[^?]*${MARKERS_RE}${ext}$`);
+  const importPattern = new RegExp(`^[^?]*${WIDGET_MARKER_RE}\\.[^?]*$`);
   const importerPattern = new RegExp(`^${scopeRe}[^?]*${ext}$`);
 
   // Derive handler/meta exports from route modules
-  const derive =
-    deriveExports && routeRe
-      ? deriveExports.map((item) => ({
-          name: item.name,
-          default: item.default,
-          include: new RegExp(`^${scopeRe}[^?]*${routeRe}${ext}$`),
-        }))
-      : undefined;
+  const derive = deriveExports
+    ? deriveExports.map((item) => ({
+        name: item.name,
+        default: item.default,
+        include: new RegExp(`^${scopeRe}[^?]*${ROUTE_MARKER_RE}${ext}$`),
+      }))
+    : undefined;
 
   return [
     {
@@ -240,7 +226,6 @@ export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
     );
   }
 
-  const markers = options.moduleMarkers ?? ['@widget', '@route'];
   const root = process.cwd();
 
   const adapters = options.adapters.map((a) => resolveAdapter(a, root));
@@ -263,5 +248,5 @@ export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
     }
   }
 
-  return adapters.flatMap((a) => buildPluginsForAdapter(a, markers, root));
+  return adapters.flatMap((a) => buildPluginsForAdapter(a, root));
 }

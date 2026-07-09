@@ -169,12 +169,6 @@ export interface WebWidgetAdapterConfig {
  */
 export interface WebWidgetPluginOptions {
   /**
-   * File name markers that identify renderable modules.
-   * e.g. ['@widget', '@route'] matches `Counter@widget.tsx`, `index@route.vue`.
-   * @default ['@widget', '@route']
-   */
-  moduleMarkers?: string[];
-  /**
    * Framework adapters to use. Each adapter tells the build tool
    * which files belong to which framework and where to get the
    * runtime implementation.
