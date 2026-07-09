@@ -1,13 +1,10 @@
-import type { IncomingHttpHeaders } from 'node:http';
-import type { IncomingMessage } from 'node:http';
+import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { Readable } from 'node:stream';
 import type {
   BuildDependencies,
   RequestOptions,
 } from '@edge-runtime/node-utils';
-import {
-  buildToHeaders,
-  buildToReadableStream,
-} from '@edge-runtime/node-utils';
+import { buildToHeaders } from '@edge-runtime/node-utils';
 
 /**
  * HTTP/2 pseudo-headers (e.g. `:method`, `:path`) are valid on Node
@@ -83,6 +80,54 @@ export function computeRequestOrigin(
   }
 
   return `${protocol}://${authority}`;
+}
+
+/**
+ * Wraps a Node.js Readable as a WHATWG ReadableStream.
+ *
+ * This replaces the upstream `buildToReadableStream`, which copies every chunk
+ * via `new Uint8Array([...new Uint8Array(chunk)])` — spreading each byte into a
+ * plain JS array first. That is both slow and allocates a large intermediate
+ * array. Here we use `new Uint8Array(chunk)` (an efficient element copy) and
+ * apply backpressure by pausing the source stream when the queue fills up, and
+ * cancelling/destroying it when the consumer aborts.
+ */
+function buildToReadableStream(
+  dependencies: BuildDependencies
+): (stream: Readable) => ReadableStream {
+  const { ReadableStream: ReadableStreamCtor, Uint8Array: Uint8ArrayCtor } =
+    dependencies;
+  return function toReadableStream(stream: Readable): ReadableStream {
+    return new ReadableStreamCtor({
+      start(controller: ReadableStreamDefaultController<Uint8Array>) {
+        const onData = (chunk: Uint8Array) => {
+          // Node Buffers may be backed by a shared pool and reused across
+          // 'data' events, so copy defensively before enqueueing.
+          controller.enqueue(new Uint8ArrayCtor(chunk));
+          // Apply backpressure: pause the source when the internal queue
+          // is full to avoid buffering an entire upload in memory.
+          if (controller.desiredSize !== null && controller.desiredSize <= 0) {
+            stream.pause();
+          }
+        };
+        const onEnd = () => controller.close();
+        const onError = (err: Error) => controller.error(err);
+
+        stream.on('data', onData);
+        stream.on('end', onEnd);
+        stream.on('error', onError);
+      },
+      pull() {
+        // Consumer drained some data; resume the paused source stream.
+        stream.resume();
+      },
+      cancel() {
+        // Consumer aborted (e.g. request body discarded); tear down the
+        // underlying Node stream to release file descriptors / sockets.
+        stream.destroy();
+      },
+    });
+  };
 }
 
 /**

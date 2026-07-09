@@ -108,8 +108,8 @@ function toMiddleware(
   const toRequest = buildToRequestWithHttp2Compat(dependencies);
   const toFetchEvent = buildToFetchEvent(dependencies);
   return async function middleware(incomingMessage, serverResponse, next) {
+    const request = toRequest(incomingMessage, options);
     try {
-      const request = toRequest(incomingMessage, options);
       const env = process.env;
       const event = toFetchEvent(request);
       const webResponse = await webHandler(request, env, event);
@@ -118,25 +118,20 @@ function toMiddleware(
         await next();
       }
     } catch (error: unknown) {
-      let responded = false;
-      if (checkWritable(serverResponse) && !serverResponse.headersSent) {
-        try {
-          serverResponse.statusCode = 500;
-          setHttp1StatusMessage(serverResponse, 'Internal Server Error');
-          serverResponse.setHeader('content-type', 'text/plain; charset=utf-8');
-          serverResponse.end(
-            error instanceof Error ? error.message : 'Internal Server Error'
-          );
-          responded = true;
-        } catch {
-          /* ignore: socket may already be closed */
-        }
-      }
-      if (responded) {
+      if (
+        sendServerError(
+          serverResponse,
+          error instanceof Error ? error.message : undefined
+        )
+      ) {
         next();
       } else {
         next(error);
       }
+    } finally {
+      // Release any unconsumed request body so the underlying socket / file
+      // descriptor is not held alive after the response completes.
+      cancelRequestBody(request);
     }
   };
 }
@@ -181,27 +176,60 @@ async function writeReadableStreamToWritable(
   stream: ReadableStream,
   writable: Writable
 ) {
-  let reader = stream.getReader();
-  let flushable = writable as { flush?: Function };
+  if (stream.locked) {
+    throw new TypeError('ReadableStream is locked.');
+  }
+
+  const reader = stream.getReader();
+  const flushable = writable as Writable & { flush?: () => void };
+
+  // Cancel the source stream when the destination closes early (e.g. the
+  // client disconnects), so reading stops and upstream resources release.
+  const onAbort = () => {
+    reader.cancel().catch(() => {});
+  };
+  writable.once('close', onAbort);
+  writable.once('error', onAbort);
 
   try {
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      let { done, value } = await reader.read();
-
+    while (!writable.destroyed) {
+      const { done, value } = await reader.read();
       if (done) {
-        writable.end();
+        if (!writable.destroyed) writable.end();
         break;
       }
-
-      writable.write(value);
+      // Respect backpressure: when the writable's internal buffer is full,
+      // wait for it to drain before pulling the next chunk. Without this a
+      // slow client + large body causes unbounded memory growth.
+      if (writable.write(value) === false) {
+        await new Promise<void>((resolve) => {
+          if (writable.destroyed) {
+            resolve();
+          } else {
+            writable.once('drain', resolve);
+          }
+        });
+      }
       if (typeof flushable.flush === 'function') {
         flushable.flush();
       }
     }
   } catch (error: unknown) {
-    writable.destroy(error as Error);
-    throw error;
+    // Source stream errored. If the destination is still alive, tear it down
+    // so the client doesn't hang waiting for more data. If it's already gone
+    // (client disconnect), there is nothing more to do.
+    if (!writable.destroyed) {
+      writable.destroy(error instanceof Error ? error : undefined);
+      throw error;
+    }
+  } finally {
+    writable.removeListener('close', onAbort);
+    writable.removeListener('error', onAbort);
+    try {
+      reader.releaseLock();
+    } catch {
+      /* lock already released via cancel() */
+    }
   }
 }
 
@@ -228,6 +256,41 @@ function checkWritable(serverResponse: ServerResponse) {
   return socket.writable;
 }
 
+/**
+ * Sends a 500 response when a handler throws. Returns `true` when a response
+ * was written, `false` when it was not possible (headers already sent, socket
+ * closed, etc.) so the caller can decide whether to forward the error.
+ */
+function sendServerError(
+  serverResponse: ServerResponse,
+  message?: string
+): boolean {
+  if (!checkWritable(serverResponse) || serverResponse.headersSent) {
+    return false;
+  }
+  try {
+    serverResponse.statusCode = 500;
+    setHttp1StatusMessage(serverResponse, 'Internal Server Error');
+    serverResponse.setHeader('content-type', 'text/plain; charset=utf-8');
+    serverResponse.end(message || 'Internal Server Error');
+    return true;
+  } catch {
+    /* ignore: socket may already be closed */
+    return false;
+  }
+}
+
+/**
+ * Cancels an unconsumed request body so the underlying Node stream (and its
+ * socket / file descriptor) is released once the response has been sent.
+ */
+function cancelRequestBody(request: Request) {
+  const body = request.body;
+  if (body && !body.locked) {
+    body.cancel().catch(() => {});
+  }
+}
+
 function buildToNodeHandler(
   dependencies: BuildDependencies,
   options: RequestOptions
@@ -243,32 +306,15 @@ function buildToNodeHandler(
       const env = process.env;
       const event = toFetchEvent(request);
       const maybePromise = webHandler(request, env, event);
+      const respond = (response: Response | null | undefined) =>
+        toServerResponse(response, serverResponse).finally(() =>
+          cancelRequestBody(request)
+        );
+      const fail = () => sendServerError(serverResponse);
       if (maybePromise instanceof Promise) {
-        maybePromise
-          .then((response) => toServerResponse(response, serverResponse))
-          .catch(() => {
-            if (checkWritable(serverResponse) && !serverResponse.headersSent) {
-              serverResponse.statusCode = 500;
-              setHttp1StatusMessage(serverResponse, 'Internal Server Error');
-              serverResponse.setHeader(
-                'content-type',
-                'text/plain; charset=utf-8'
-              );
-              serverResponse.end('Internal Server Error');
-            }
-          });
+        maybePromise.then(respond).catch(fail);
       } else {
-        toServerResponse(maybePromise, serverResponse).catch(() => {
-          if (checkWritable(serverResponse) && !serverResponse.headersSent) {
-            serverResponse.statusCode = 500;
-            setHttp1StatusMessage(serverResponse, 'Internal Server Error');
-            serverResponse.setHeader(
-              'content-type',
-              'text/plain; charset=utf-8'
-            );
-            serverResponse.end('Internal Server Error');
-          }
-        });
+        respond(maybePromise).catch(fail);
       }
     };
   };
