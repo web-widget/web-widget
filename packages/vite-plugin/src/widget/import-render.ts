@@ -2,7 +2,7 @@ import path from 'node:path';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
-import { stripModuleIdQuery } from '@/internal/module-id';
+import { stripModuleIdQuery, CSS_LANGS_RE } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
 import { isServerEnvironment } from '@/internal/environment';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
@@ -71,6 +71,11 @@ export function importRenderPlugin({
             await esModuleLexer.init;
             [imports] = esModuleLexer.parse(code, id);
           } catch (error) {
+            // CSS modules (e.g. Vue SFC ?vue&type=style) are not parseable
+            // as ESM and cannot contain import statements, skip them.
+            if (CSS_LANGS_RE.test(id)) {
+              return null;
+            }
             return this.error(error as Error);
           }
 
