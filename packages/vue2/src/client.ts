@@ -4,7 +4,6 @@ import type { Component } from 'vue';
 import Vue from 'vue';
 import type { CreateVueRenderOptions } from './types';
 
-export * from '@web-widget/helpers';
 export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
@@ -13,7 +12,7 @@ type EnhancedComponent = Component & {
 };
 
 function sanitizeComponentName(name: string): string {
-  return name.replace('@', '.');
+  return name.replace('@', '-');
 }
 
 function clearContainerContent(container: Element | Node) {

@@ -1,25 +1,35 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import Vue, { h, defineComponent, useAttrs, getCurrentInstance } from 'vue';
-import type { Component, ComponentPublicInstance, PropType } from 'vue';
-import type { ReactWidgetComponent } from '@web-widget/react/runtime';
-import { DefaultProps } from 'vue/types/options';
+import type { Component, PropType } from 'vue';
 
-Vue.config.ignoredElements = ['web-widget'];
-
-/**
- * The thrown promise is not necessarily a real error,
- * it will be handled by the web widget container.
- * @link ../lifecycle-cache/src/provider.ts#cacheProviderIsLoading
- */
-Vue.config.warnHandler = (msg, _vm, trace) => {
-  if (msg.includes(`[object Promise]`)) {
-    return;
-  }
-  console.error('[Vue warn]: '.concat(msg).concat(trace));
-};
+export { asReactWidget, toReact } from './as-react-widget';
 
 type WebWidgetRenderer = InstanceType<typeof WebWidgetRenderer>;
+
+// Lazy-init global Vue config (only once, on first defineWebWidget call).
+let globalConfigInitialized = false;
+function ensureGlobalVueConfig() {
+  if (globalConfigInitialized) return;
+  globalConfigInitialized = true;
+
+  Vue.config.ignoredElements = ['web-widget'];
+
+  // The thrown promise is not necessarily a real error,
+  // it will be handled by the web widget container.
+  // @link ../lifecycle-cache/src/provider.ts#cacheProviderIsLoading
+  const prevWarnHandler = Vue.config.warnHandler;
+  Vue.config.warnHandler = (msg, _vm, trace) => {
+    if (msg.includes(`[object Promise]`)) {
+      return;
+    }
+    if (prevWarnHandler) {
+      prevWarnHandler.call(null, msg, _vm, trace);
+    } else {
+      console.error('[Vue warn]: '.concat(msg).concat(trace));
+    }
+  };
+}
 
 export interface DefineWebWidgetOptions {
   base?: WebWidgetRendererOptions['base'];
@@ -37,6 +47,8 @@ export /*#__PURE__*/ function defineWebWidget(
   if (!loader) {
     throw new TypeError(`Missing loader.`);
   }
+
+  ensureGlobalVueConfig();
 
   return defineComponent({
     name: 'WebWidgetRoot',
@@ -95,22 +107,3 @@ export /*#__PURE__*/ function defineWebWidget(
  * Alias of `defineWebWidget` — wraps a generic widget module as a Vue2 component.
  */
 export const container = defineWebWidget;
-
-/**
- * Adapt Vue component types to React widget component types.
- *
- * This is a type-level cast only — the actual cross-framework rendering
- * is handled by the `@widget` system. Use this when importing a Vue
- * widget (e.g. `Counter@widget.vue`) into a React/JSX file so that
- * TypeScript treats it as a React component.
- */
-export /*#__PURE__*/ function asReactWidget<T extends DefaultProps>(
-  component: Component<never, never, never, T, never>
-) {
-  return component as unknown as ReactWidgetComponent<
-    Omit<T, keyof ComponentPublicInstance | '$route' | '$router'>
-  >;
-}
-
-/** @deprecated Use `asReactWidget` instead. */
-export const toReact = asReactWidget;

@@ -3,6 +3,7 @@ import { defineConfig } from 'tsup';
 export default defineConfig({
   dts: true,
   entry: {
+    index: 'src/index.ts',
     'vue.server': 'src/server.ts',
     'vue.client': 'src/client.ts',
   },

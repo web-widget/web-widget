@@ -108,5 +108,6 @@
     "prebuild": "pnpm run clean:build",
     "test": "jest"
   },
+  "sideEffects": false,
   "type": "module"
 }

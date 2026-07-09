@@ -26,21 +26,9 @@
   },
   "exports": {
     ".": {
-      "worker": {
-        "types": "./dist/vue2.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/vue2.server.js"
-      },
-      "browser": {
-        "types": "./dist/vue2.client.d.ts",
-        "development": "./src/client.ts",
-        "default": "./dist/vue2.client.js"
-      },
-      "default": {
-        "types": "./dist/vue2.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/vue2.server.js"
-      }
+      "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
     },
     "./runtime": {
       "worker": {
@@ -89,18 +77,8 @@
     "access": "public",
     "exports": {
       ".": {
-        "worker": {
-          "types": "./dist/vue2.server.d.ts",
-          "default": "./dist/vue2.server.js"
-        },
-        "browser": {
-          "types": "./dist/vue2.client.d.ts",
-          "default": "./dist/vue2.client.js"
-        },
-        "default": {
-          "types": "./dist/vue2.server.d.ts",
-          "default": "./dist/vue2.server.js"
-        }
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
       },
       "./runtime": {
         "worker": {
@@ -126,5 +104,6 @@
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build"
   },
+  "sideEffects": false,
   "type": "module"
 }

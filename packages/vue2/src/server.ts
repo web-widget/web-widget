@@ -1,32 +1,12 @@
 import { defineServerRender } from '@web-widget/helpers';
 import { escapeJson } from '@web-widget/helpers/purify';
-// import { Readable } from "node:stream";
-// import { TransformStream } from "node:stream/web";
 import type { Component } from 'vue';
 import Vue from 'vue';
 import { createRenderer } from 'vue-server-renderer';
 import type { CreateVueRenderOptions } from './types';
 
-export * from '@web-widget/helpers';
 export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
-
-// const __FEATURE_STREAM__ = false;
-
-// function appendStringToReadableStream(
-//   stream: ReadableStream,
-//   text: string
-// ): ReadableStream {
-//   const encoder = new TextEncoder();
-//   const uint8Array = encoder.encode(text);
-//   return stream.pipeThrough(
-//     new TransformStream({
-//       flush(controller) {
-//         controller.enqueue(uint8Array);
-//       },
-//     })
-//   );
-// }
 
 type BuildedComponent = Component & {
   __name?: string;
@@ -71,11 +51,6 @@ export const createVueRender = ({
 
       await onCreatedApp(app, context, component, mergedProps);
 
-      // const result =
-      //   __FEATURE_STREAM__ && Readable.toWeb
-      //     ? Readable.toWeb(renderer.renderToStream(app))
-      //     : await renderer.renderToString(app);
-
       if (progressive) {
         console.warn(`Vue2 does not support progressive rendering.`);
       }
@@ -90,9 +65,6 @@ export const createVueRender = ({
       if (state) {
         const json = escapeJson(JSON.stringify(state));
         const script = `<script as="state" type="application/json">${json}</script>`;
-        // return typeof result === "string"
-        //   ? result + script
-        //   : appendStringToReadableStream(result, script);
         return result + script;
       } else {
         return result;

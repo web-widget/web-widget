@@ -1,33 +1,14 @@
 ---
 '@web-widget/react': minor
-'@web-widget/vue': patch
-'@web-widget/vue2': patch
+'@web-widget/vue': minor
+'@web-widget/vue2': minor
 ---
 
-React Widget island error recovery: `defineWebWidget` now integrates
-`ErrorBoundary` and `Suspense` internally so a widget rendering failure is
-contained within its own island instead of crashing the whole page.
+React Widget island error recovery: widget rendering failures are now
+contained within their own island via integrated ErrorBoundary and Suspense.
+The `fallback` prop supports `{ loading?, error? }` to differentiate states.
 
-- The `fallback` prop accepts either a `ReactNode` (used for both loading and
-  error) or `{ loading?, error? }` to differentiate the two states.
-- Widget render errors in streaming SSR no longer leave the loading fallback
-  permanently visible — the error UI replaces it via React's `$RC` mechanism.
-- `onError` now always calls `console.error` per the React docs.
-- Non-streaming mode correctly rejects on shell errors, enabling the
-  framework's `_500` error page.
-
-**Breaking**: `@web-widget/react` package entry split — the `.` entry no longer
-exports anything. User-facing APIs (`defineRouteComponent`, `defineMeta`, etc.)
-must be imported from `@web-widget/helpers`. Runtime code (`render`,
-`defineWebWidget`, `useWidgetState`) moves to `./runtime`:
-
-```diff
-- import { defineRouteComponent, defineMeta } from '@web-widget/react';
-+ import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
-
-- import { render, defineWebWidget } from '@web-widget/react';
-+ import { render, defineWebWidget } from '@web-widget/react/runtime';
-```
-
-`@web-widget/vue` and `@web-widget/vue2` updated to import
-`ReactWidgetComponent` from `@web-widget/react/runtime`.
+**Breaking**: all framework adapters split their package entry. The `.` entry
+no longer re-exports `@web-widget/helpers` — import user-facing APIs from
+`@web-widget/helpers` and runtime code from `./runtime`. `asReactWidget`
+remains available from the `.` entry of `@web-widget/vue` and `@web-widget/vue2`.
