@@ -141,6 +141,11 @@ export type WidgetContainerConfig = {
   /**
    * Fallback UI for loading and error states.
    *
+   * Only effective during server-side rendering: loading UI shows while the
+   * widget module renders; error UI shows if rendering fails. Both are
+   * serialized into the HTML stream — no client-side retry exists in the
+   * islands architecture.
+   *
    * - `ReactNode` — used for both loading (Suspense) and error (ErrorBoundary).
    * - `{ loading?, error? }` — specify independently; `error` defaults to `loading`.
    *
@@ -152,11 +157,11 @@ export type WidgetContainerConfig = {
    * <Widget widget={{ fallback: { loading: <Spinner />, error: <ErrorUI /> } }} />
    */
   fallback?: WidgetFallback;
-  /** Client-side module loading strategy */
+  /** Client-side module loading strategy: `'lazy'` loads on first render, `'eager'` on module parse, `'idle'` on browser idle. */
   loading?: WebWidgetRendererOptions['loading'];
-  /** Widget renders only on the server, not mounted on the client. Mutually exclusive with `clientOnly`. */
+  /** Widget renders only on the server (SSR), producing static HTML with no client-side mount. Mutually exclusive with `clientOnly`. */
   serverOnly?: true;
-  /** Widget renders only on the client, producing no server HTML. Mutually exclusive with `serverOnly`. */
+  /** Widget renders only on the client, producing no server HTML (empty placeholder until client mount). Mutually exclusive with `serverOnly`. */
   clientOnly?: true;
 };
 

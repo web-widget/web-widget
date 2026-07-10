@@ -89,9 +89,16 @@ export interface DefineWebWidgetOptions {
 }
 
 export interface WidgetContainerConfig {
+  /**
+   * Fallback UI shown via Suspense while the widget module is loading or
+   * fails to render. Only effective during server-side rendering.
+   */
   fallback?: VNode;
+  /** Client-side module loading strategy: `'lazy'` loads on first render, `'eager'` on module parse, `'idle'` on browser idle. */
   loading?: WebWidgetRendererOptions['loading'];
+  /** Widget renders only on the server (SSR), producing static HTML with no client-side mount. Mutually exclusive with `clientOnly`. */
   serverOnly?: true;
+  /** Widget renders only on the client, producing no server HTML (empty placeholder until client mount). Mutually exclusive with `serverOnly`. */
   clientOnly?: true;
 }
 

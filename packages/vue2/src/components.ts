@@ -1,7 +1,7 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import Vue, { h, defineComponent, useAttrs, getCurrentInstance } from 'vue';
-import type { Component, PropType } from 'vue';
+import type { PropType } from 'vue';
 
 export { asReactWidget, toReact } from './as-react-widget';
 
@@ -41,9 +41,11 @@ export interface DefineWebWidgetOptions {
 }
 
 export interface WidgetContainerConfig {
-  fallback?: Component;
+  /** Client-side module loading strategy */
   loading?: WebWidgetRendererOptions['loading'];
+  /** Widget renders only on the server, not mounted on the client. Mutually exclusive with `clientOnly`. */
   serverOnly?: true;
+  /** Widget renders only on the client, producing no server HTML. Mutually exclusive with `serverOnly`. */
   clientOnly?: true;
 }
 
