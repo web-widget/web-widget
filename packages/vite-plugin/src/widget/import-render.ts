@@ -6,6 +6,7 @@ import { stripModuleIdQuery, CSS_LANGS_RE } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
 import { isServerEnvironment } from '@/internal/environment';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
+import { createAliasGenerator } from '@/internal/alias';
 
 const IMPORT_DEFAULT_NAME_REG = /import\s+([a-zA-Z_$][\w$]*)\s+/;
 const parseComponentName = (code: string) =>
@@ -40,8 +41,7 @@ export function importRenderPlugin({
     throw new TypeError(`options.provide must be a string type.`);
   }
 
-  let aliasIndex = 0;
-  const alias = (name: string) => `__$${name}${aliasIndex++}$__`;
+  const alias = createAliasGenerator();
 
   let dev = false;
   let root: string;

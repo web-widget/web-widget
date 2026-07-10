@@ -55,8 +55,10 @@ describe('routemap-manifest-code', () => {
       },
     });
 
-    expect(code).toContain('import * as _0 from "./routes/index.ts"');
-    expect(code).toContain('"module": _0');
+    expect(code).toContain(
+      'import * as __$module0$__ from "./routes/index.ts"'
+    );
+    expect(code).toContain('"module": __$module0$__');
     expect(code).toContain('__framework__.manifest =');
   });
 });

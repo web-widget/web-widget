@@ -8,8 +8,7 @@ import { applyToServerEnvironment } from '@/internal/environment';
 import { normalizePath } from '@/internal/path';
 import { normalizeFilterId as cleanId } from '@/internal/module-id';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
-
-const alias = (name: string) => `__$${name}$__`;
+import { createCachedAliasGenerator } from '@/internal/alias';
 
 export interface ExportRenderPluginOptions {
   /** Native Rust-layer filter (broad pre-filter on raw id). */
@@ -60,12 +59,17 @@ export function exportRenderPlugin({
           }
 
           const magicString = new MagicString(code);
+          const alias = createCachedAliasGenerator();
 
-          // Inject `render` from the runtime module
+          // Inject `render` from the runtime module.
+          // Use `export { alias as render }` instead of `export const render`
+          // so that no local binding named `render` is introduced into user
+          // code, avoiding conflicts with user-defined identifiers.
           if (!exports.some(({ n: name }) => name === 'render')) {
+            const renderAlias = alias('render');
             magicString.prepend(
-              `import { render as ${alias('render')} } from ${JSON.stringify(provide)};\n` +
-                `export const render = ${alias('render')};\n`
+              `import { render as ${renderAlias} } from ${JSON.stringify(provide)};\n` +
+                `export { ${renderAlias} as render };\n`
             );
           }
 
@@ -101,10 +105,14 @@ export function exportRenderPlugin({
                 !exports.some(({ n: name }) => name === item.name) &&
                 (!item.include || item.include.test(normalizedId))
               ) {
+                // Use `const { name: alias = default } = ...; export { alias as name }`
+                // so that no local binding named `item.name` is introduced,
+                // avoiding conflicts with user-defined identifiers.
+                const itemAlias = alias(item.name);
                 magicString.append(
-                  `\nexport const { ${item.name} = ${item.default} } = ${alias(
+                  `\nconst { ${item.name}: ${itemAlias} = ${item.default} } = ${alias(
                     from
-                  )};`
+                  )};\nexport { ${itemAlias} as ${item.name} };`
                 );
               }
             });
