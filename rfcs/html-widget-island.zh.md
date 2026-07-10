@@ -1,307 +1,292 @@
-# RFC：HTML 模板中的 Widget 孤岛
+# RFC：HTML 模板 Widget 孤岛设计
 
 状态：已实现
 
 ## 摘要
 
-为 `@web-widget/html` 新增 `widget()` 函数，使 HTML 模板可以像引用普通模板片段一样引用 React / Vue / Vue2 等框架的 widget，并在客户端自动水合。HTML 模板充当服务端外壳（layout、路由、数据获取），widget 作为交互孤岛嵌入其中，复用已有的 `<web-widget>` 自定义元素机制。
-
-## 动机
-
-当前 `@web-widget/html` 是纯服务端模板引擎：用 tagged template 生成流式 HTML，没有客户端交互能力。如果项目同时需要：
-
-- **轻量的服务端渲染**：用 HTML 模板写路由、layout、错误页，不需要引入 React/Vue 全家桶
-- **局部的客户端交互**：某些区域需要 React/Vue 组件（计数器、表单、图表等）
-
-则没有原生方案。用户只能选择：
-
-1. 全站迁移到 React/Vue 适配器——引入框架运行时开销，服务端渲染变重
-2. 手动拼接 `<web-widget>` HTML 字符串——容易出错，无法利用类型检查和流式渲染
-
-本 RFC 的目标是让 HTML 模板原生支持 widget 孤岛，使两种能力可以无缝组合。
+定义 `@web-widget/html` 中 widget 孤岛的架构设计：HTML 模板作为服务端外壳，框架 widget（React、Vue、Vue2 等）作为交互孤岛嵌入其中。通过 `WebWidgetAdapter` 协议，构建工具自动注入 `render` 和 `container`，使用户无需手动编写样板代码。同时定义类型适配方案，使 widget 导入在 TypeScript 中获得正确的类型提示。
 
 ## 背景
 
-### 现有架构回顾
+### HTML 模板的定位
 
-`<web-widget>` 自定义元素（`@web-widget/web-widget`）是框架无关的容器：
+`@web-widget/html` 是服务端模板引擎，用 tagged template 生成流式 HTML。它负责路由、布局、错误页等"外壳"职责，不处理客户端交互。
 
-```
-服务端：WebWidgetRenderer.renderOuterHTMLToString()
-  → loader() 加载 WidgetModule
-  → 调用 module.render(component, data, {progressive: false}) 渲染为 HTML 字符串
-  → 输出 <web-widget import="..." contextdata="...">innerHTML</web-widget>
+当页面需要局部交互时，引入框架 widget 作为孤岛——`<web-widget>` 自定义元素负责客户端加载和水合，与宿主模板完全解耦。
 
-客户端：HTMLWebWidgetElement (custom element)
-  → connectedCallback → load() → bootstrap() → mount()
-  → 独立加载 widget 模块，执行 ClientRender 生命周期
-  → 不依赖宿主页面的框架
-```
+### 孤岛架构的三层自治
 
-关键点：**widget 的服务端渲染和客户端水合都不依赖宿主模板**。React/Vue 的 `container()` 函数之所以存在，是因为框架组件需要被包装为原生组件（React.FC / Vue.Component）才能在组件树中使用。HTML 模板没有组件树，只需要拿到 widget 的 HTML 字符串并插入模板流。
+与 [React 孤岛设计](./react-widget-opinionated-design.zh.md)一样，每个 widget 孤岛需要：
 
-### 与框架适配器的区别
+1. **隔离**：一个 widget 的故障不影响页面其他部分
+2. **自治**：widget 内部自行管理加载、错误、恢复
+3. **独立**：widget 有自己的生命周期、状态、渲染根
 
-| 维度                    | React/Vue `container()`                    | HTML `widget()`                   |
-| ----------------------- | ------------------------------------------ | --------------------------------- |
-| 返回类型                | 框架原生组件（React.FC / Vue.Component）   | `Promise<UnsafeHTML>`（模板节点） |
-| 错误隔离                | `WidgetErrorBoundary` + `Suspense` + `$RC` | `fallback()` 模板函数             |
-| 流式协调                | React Suspense Promise reject 协议         | async iterable 天然流式           |
-| 构建转换                | 需要（JSX/SFC → 通用模块）                 | 不需要（模板是普通函数）          |
-| `WebWidgetAdapter` 协议 | 需要（`webWidget` 字段 + `./runtime`）     | 不需要                            |
+### 与 React 孤岛的区别
 
-`widget()` 不是框架适配器，不声明 `webWidget` 字段，不需要构建转换。它只是一个运行时工具函数，复用 `WebWidgetRenderer`。
+React 孤岛在 React 组件树内运行，需要处理 React 流式 SSR 特有的错误恢复（Suspense Promise reject → `$RC` 替换 → ErrorBoundary 兜底）。
 
-## 提议
+HTML 模板不存在这些复杂度：
 
-### API
+| 问题       | React 孤岛                                 | HTML 模板               |
+| ---------- | ------------------------------------------ | ----------------------- |
+| 错误隔离   | `WidgetErrorBoundary` + `Suspense` + `$RC` | `fallback()` 模板函数   |
+| 流式协调   | Promise reject 协议                        | async iterable 天然流式 |
+| 客户端水合 | 路由级无 hydration，widget 独立 hydrate    | 相同                    |
+| 状态更新   | React 组件树驱动                           | 不需要（静态 HTML）     |
 
-```typescript
-import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
+## 设计方案
 
-/**
- * 将框架 widget 嵌入 HTML 模板。
- *
- * 在服务端渲染为 <web-widget> 元素的 HTML 字符串，
- * 客户端由 <web-widget> 自定义元素自动加载并水合。
- *
- * @param loader Widget 模块加载器
- * @param options 渲染选项
- * @returns Promise<UnsafeHTML>，可直接插入 html`` 模板
- */
-export function widget(
-  loader: Loader,
-  options?: WidgetOptions
-): Promise<UnsafeHTML>;
+### 1. 适配器协议
 
-interface WidgetOptions extends WebWidgetRendererOptions {
-  // WebWidgetRendererOptions 已有的字段：
-  // - data: 传递给 widget 的数据（序列化为 contextdata 属性）
-  // - loading: 客户端加载策略 ('lazy' | 'eager' | 'idle')
-  // - name: widget 名称
-  // - renderTarget: 渲染目标 ('light' | 'shadow')
-  // - renderStage: 渲染阶段 ('server' | 'client')
-}
-```
-
-`widget()` 返回 `Promise<UnsafeHTML>`。由于 HTML 模板的插值机制已经支持 Promise（async iterable），可以直接在 `html`` ` 中使用：
-
-```typescript
-import { html, render, widget, fallback } from '@web-widget/html';
-
-export { render };
-
-export default function Page() {
-  return html`<!doctype html>
-    <html>
-      <body>
-        <h1>My Page</h1>
-        ${fallback(
-          widget(() => import('./Counter@widget.tsx'), {
-            data: { count: 1 },
-            loading: 'lazy',
-          }),
-          () => html`<div>Widget failed to load</div>`
-        )}
-      </body>
-    </html>`;
-}
-```
-
-### 实现原理
-
-```mermaid
-sequenceDiagram
-    participant T as html模板
-    participant W as widget()
-    participant R as WebWidgetRenderer
-    participant M as WidgetModule
-
-    T->>W: widget(loader, options)
-    W->>R: new WebWidgetRenderer(loader, options)
-    W->>R: renderOuterHTMLToString()
-    R->>M: loader()
-    M-->>R: { default, render, meta }
-    R->>M: render(component, data, {progressive:false})
-    M-->>R: HTML string
-    R-->>W: "<web-widget import=...>innerHTML</web-widget>"
-    W-->>T: UnsafeHTML(htmlString)
-    T->>T: 流式发送（先发外壳，widget ready 后插入）
-```
-
-核心实现约 10 行：
-
-```typescript
-import {
-  WebWidgetRenderer,
-  type Loader,
-  type WebWidgetRendererOptions,
-} from '@web-widget/web-widget';
-import { unsafeHTML } from './html';
-
-export function widget(
-  loader: Loader,
-  options: WebWidgetRendererOptions = {}
-): Promise<UnsafeHTML> {
-  const renderer = new WebWidgetRenderer(loader, options);
-  return renderer.renderOuterHTMLToString().then(unsafeHTML);
-}
-```
-
-### 流式行为
-
-HTML 模板的 async iterable 机制天然支持流式：
-
-1. **立即发送** Promise 之前的 HTML（如 `<!doctype html>...<h1>My Page</h1>`）
-2. **等待** `renderOuterHTMLToString()` resolve（widget 服务端渲染完成）
-3. **发送** widget HTML（`<web-widget>...</web-widget>`）
-4. **继续发送** Promise 之后的 HTML
-
-这意味着用户在等待 widget 渲染时，已经能看到页面外壳。与 React Suspense 的效果一致，但不需要 `$RC` 占位符替换协议。
-
-**注意**：widget 内部内容是 `progressive: false`（渲染为完整字符串再嵌入）。这与 React container 的行为相同——`WebWidgetRenderer.renderInnerHTMLToString()` 也强制 `progressive: false`。模板级流式已经覆盖了主要收益（数据获取期间先发送外壳 HTML）。
-
-### 错误处理
-
-利用 html 已有的 `fallback()` 模板函数实现错误隔离：
-
-```typescript
-${fallback(
-  widget(() => import('./Counter@widget.tsx'), { data: { count: 1 } }),
-  () => html`<div class="error">Widget failed</div>`
-)}
-```
-
-当 widget 渲染失败时：
-
-- `renderOuterHTMLToString()` reject
-- `fallback()` 捕获错误，渲染替代 HTML
-- 不影响页面其他部分
-
-这与 React 的 `WidgetErrorBoundary` 目标一致（错误限制在单个孤岛内），但实现更简单——不需要 class component + `getDerivedStateFromError`。
-
-### 客户端行为
-
-无需额外代码。`<web-widget>` 自定义元素（`@web-widget/web-widget`）已经实现了完整的客户端生命周期：
-
-```
-connectedCallback
-  → load()：通过 import 属性加载 widget 模块
-  → bootstrap()：调用 ClientRender，获取 mount/unmount 生命周期
-  → mount()：在渲染根中挂载组件
-```
-
-widget 模块（如 `Counter@widget.tsx`）经过构建转换后导出 `render`（ClientRender），由 `<web-widget>` 元素独立加载和执行，不依赖宿主 HTML 模板。
-
-## 与 React Widget 孤岛设计（RFC 1）的关系
-
-[React 孤岛设计](./react-widget-opinionated-design.zh.md)解决的是 **React 组件树内** 的 widget 错误恢复问题：
-
-- React 流式 SSR 中，Promise reject 会导致 Suspense 永久 loading
-- 需要 `WidgetErrorBoundary` + `.catch(err => err)` + `$RC` 机制来恢复
-- 客户端需要 `WidgetErrorBoundary` 来捕获 hydration 错误
-
-HTML 模板不存在这些问题：
-
-- 没有 React 流式 SSR，没有 Suspense Promise reject
-- `fallback()` 模板函数在 async iterable 层面捕获错误
-- 客户端没有组件树需要 hydration（路由 HTML 是静态的）
-
-因此 `widget()` 是 React 孤岛设计的一个**简化子集**：同样的孤岛架构（widget 隔离 + 服务端渲染 + 客户端水合），但省去了 React 特有的错误恢复机制。
-
-## 依赖变更
-
-`@web-widget/html` 需要新增 `@web-widget/web-widget` 作为 dependency：
+`@web-widget/html` 声明 `WebWidgetAdapter` 协议，使用 `.html.ts` 扩展名：
 
 ```json
 {
-  "dependencies": {
-    "@web-widget/helpers": "workspace:*",
-    "@web-widget/web-widget": "workspace:*"
+  "webWidget": {
+    "version": "1.0.0",
+    "name": "html",
+    "extensions": [".html.ts"],
+    "runtime": "./runtime"
   }
 }
 ```
 
-`@web-widget/web-widget` 已经是 `@web-widget/react`、`@web-widget/vue`、`@web-widget/vue2` 的依赖，体量可控。
+构建工具对 `.html.ts` 文件执行两种自动注入：
 
-## 导出
+- **`render` 注入**：`Page@route.html.ts` 不再需要 `export { render }`
+- **`container` 注入**：导入 widget 时自动包装为可调用函数
 
-从 `@web-widget/html` 的 `.` 入口导出：
+使用 `.html.ts` 而非 `.ts`，避免与原生 JS 模块（`VanillaCounter@widget.ts`）和 API 路由（`api/hello@route.ts`）冲突。
 
-```typescript
-// server.ts
-export { widget } from './widget';
+### 2. 封装结构
+
+```mermaid
+flowchart TD
+    A["fallback()"] --> B["widget() / container()"]
+    B --> C["WebWidgetRenderer"]
+
+    style A fill:#bbdefb,color:#0d47a1
+    style B fill:#c8e6c9,color:#1a5e20
+    style C fill:#fff3e0,color:#e65100
 ```
 
-客户端（`client.ts`）导出 `notImplemented` stub，与 `render`、`html` 等保持一致：
+| 层                         | 职责                                     | 实现方式                                      |
+| -------------------------- | ---------------------------------------- | --------------------------------------------- |
+| **fallback()**             | 捕获渲染错误，渲染替代 HTML              | 模板函数，async iterable 层面 try/catch       |
+| **widget() / container()** | 将 widget 模块渲染为 `<web-widget>` HTML | `WebWidgetRenderer.renderOuterHTMLToString()` |
+| **WebWidgetRenderer**      | 加载模块、调用 render、输出 HTML 字符串  | `@web-widget/web-widget` 提供的框架无关渲染器 |
+
+### 3. container 与 widget
+
+**`container()`**（构建工具注入，来自 `./runtime`）：
 
 ```typescript
-export const widget = notImplemented('widget');
+import Counter from './Counter@widget.tsx';
+// 构建工具自动转换为：
+// const Counter = container(() => import('./Counter@widget.tsx'), { import: '...', name: 'Counter' });
+
+// widget 自身的 props 直接平铺，widget prop 控制容器行为
+html`<div>${Counter({ count: 1, widget: { serverOnly: true } })}</div>`;
+```
+
+`container()` 返回的函数接受 `HtmlWidgetProps`——widget 自身的 props 直接展开，`widget` prop 持有容器配置：
+
+```typescript
+type HtmlWidgetProps<T = unknown> = T & {
+  /** 容器配置，与 widget 自身的 props 隔离 */
+  widget?: WidgetContainerConfig;
+};
+
+type WidgetContainerConfig = {
+  /** 客户端加载策略 */
+  loading?: 'lazy' | 'eager' | 'idle';
+  /** 仅服务端渲染，产出静态 HTML，不挂载客户端 */
+  serverOnly?: true;
+  /** 仅客户端渲染，不产出服务端 HTML */
+  clientOnly?: true;
+};
+```
+
+这与 React 适配器的 `widget` prop 设计完全一致——容器配置与 widget 自身的 props 物理隔离，避免命名冲突。
+
+**`widget()`**（用户手动调用，来自 `.` 入口`）：
+
+```typescript
+import { html, widget, fallback } from '@web-widget/html';
+
+html`<div>
+  ${fallback(
+    widget(() => import('./Counter@widget.tsx'), { data: { count: 1 } }),
+    () => html`<div>Widget failed</div>`
+  )}
+</div>`;
+```
+
+两者底层都调用 `WebWidgetRenderer`，区别在于：
+
+|          | `widget()`                      | `container()`                       |
+| -------- | ------------------------------- | ----------------------------------- |
+| 来源     | `.` 入口（用户导入）            | `./runtime`（构建工具注入）         |
+| 返回     | `Promise<UnsafeHTML>`（一次性） | `HtmlWidgetComponent`（可重复调用） |
+| 调用方式 | `(loader, options)`             | `({ data?, widget? })`              |
+| 用途     | 手动嵌入，控制力强              | 自动包装 widget 导入                |
+
+### 4. 类型适配
+
+构建工具将 `import Counter from './Counter@widget.tsx'` 转换为 `container()` 调用后，`Counter` 的运行时类型变为 `HtmlWidgetComponent`。但 TypeScript 在构建前已经按原始模块解析了类型——React widget 的默认导出是 `React.FC`，不是 `HtmlWidgetComponent`。
+
+React 适配器使用 `asReactWidget` 类型辅助函数解决跨框架 widget 导入的类型问题。HTML 适配器采用同样的模式，提供 `asHtmlWidget`：
+
+```typescript
+import Counter from './Counter@widget.tsx';
+import { asHtmlWidget } from '@web-widget/html';
+
+// 类型层面转换：React.FC → HtmlWidgetComponent<{ count: number }>
+const HtmlCounter = asHtmlWidget<{ count: number }>(Counter);
+
+// 现在调用时获得正确的类型提示
+html`<div>${HtmlCounter({ count: 1 })}</div>`;
+```
+
+`asHtmlWidget` 是纯类型转换（type cast），不做任何运行时操作：
+
+```typescript
+export function asHtmlWidget<T>(component: unknown): HtmlWidgetComponent<T> {
+  return component as HtmlWidgetComponent<T>;
+}
+```
+
+用户通过泛型参数 `T` 显式声明 widget 的数据类型，获得类型检查和自动补全。
+
+未来可以通过构建工具生成类型声明文件（如 `Counter@widget.tsx.d.ts`）来提供精确的类型推导，但这需要构建工具的额外支持，属于后续演进方向。
+
+### 5. 错误处理
+
+利用 HTML 模板已有的 `fallback()` 函数：
+
+```typescript
+${fallback(
+  Counter({ count: 1 }),
+  () => html`<div class="error">Widget failed</div>`
+)}
+```
+
+- `Counter()` 内部的 `renderOuterHTMLToString()` reject
+- `fallback()` 捕获错误，渲染替代 HTML
+- 不影响页面其他部分
+
+这与 React 的 `WidgetErrorBoundary` 目标一致，但实现更简单——不需要 class component + `getDerivedStateFromError` + `$RC` 流式替换协议。
+
+**已知限制**：错误恢复仅在服务端生效。客户端 widget 水合失败（如模块加载 404）时，用户看到的是空的 `<web-widget>` 元素。这与 React 孤岛设计的客户端限制一致。
+
+### 6. 流式行为
+
+HTML 模板的 async iterable 机制天然支持流式：
+
+1. **立即发送** Promise 之前的 HTML（如 `<!doctype html>...<h1>Dashboard</h1>`）
+2. **等待** widget 的 `renderOuterHTMLToString()` resolve
+3. **发送** widget HTML（`<web-widget>...</web-widget>`）
+4. **继续发送** Promise 之后的 HTML
+
+与 React Suspense 效果一致，但不需要 `$RC` 占位符替换协议。
+
+**注意**：widget 内部渲染是 `progressive: false`（完整字符串）。这与 React container 行为一致——`WebWidgetRenderer.renderInnerHTMLToString()` 也强制非流式。
+
+### 7. 客户端水合
+
+无需额外代码。`<web-widget>` 自定义元素独立处理：
+
+```
+connectedCallback → load() → bootstrap() → mount()
+```
+
+widget 模块通过 `import` 属性独立加载，执行 `ClientRender` 生命周期，不依赖宿主 HTML 模板。
+
+## API 总结
+
+```typescript
+// 用户 API（从 @web-widget/html 导入）
+import { html, fallback, widget, asHtmlWidget, render } from '@web-widget/html';
+// 构建工具注入的 container（用户不直接导入）
+// import { container } from '@web-widget/html/runtime';
+
+// 用户 API（从 @web-widget/helpers 导入）
+import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
+```
+
+## 使用示例
+
+### 基本路由（自动注入 render）
+
+```typescript
+// Page@route.html.ts
+import { html } from '@web-widget/html';
+
+export default function Page() {
+  return html`<h1>Hello World</h1>`;
+}
+// 构建工具自动注入 render，无需 export { render }
+```
+
+### 导入 widget（自动注入 container + 类型适配）
+
+```typescript
+// Dashboard@route.html.ts
+import Counter from './Counter@widget.tsx';
+import { html, fallback, asHtmlWidget } from '@web-widget/html';
+
+const HtmlCounter = asHtmlWidget<{ count: number }>(Counter);
+
+export default function Page() {
+  return html`<div>
+    <h1>Dashboard</h1>
+    ${fallback(
+      HtmlCounter({ count: 42 }),
+      () => html`<div>Widget unavailable</div>`
+    )}
+  </div>`;
+}
+```
+
+### 手动 widget()
+
+```typescript
+// Chart@route.html.ts
+import { html, widget, fallback } from '@web-widget/html';
+
+export default function Page() {
+  return html`<div>
+    ${fallback(
+      widget(() => import('./Chart@widget.tsx'), {
+        data: { type: 'bar' },
+        loading: 'lazy',
+      }),
+      () => html`<div>Chart unavailable</div>`
+    )}
+  </div>`;
+}
 ```
 
 ## 已知限制
 
 ### Widget 内部不支持流式渲染
 
-`WebWidgetRenderer.renderInnerHTMLToString()` 强制 `progressive: false`，widget 内部渲染为完整字符串后才嵌入模板流。如果 widget 内部需要长时间数据获取，整个模板流会在该位置等待。
+`WebWidgetRenderer.renderInnerHTMLToString()` 强制 `progressive: false`。
 
-这与 React container 行为一致。如果未来需要 widget 内部流式，需要扩展 `WebWidgetRenderer` 支持 `progressive: true` + ReadableStream 嵌入，属于另一个 RFC 的范畴。
+### @layout 文件需要手动导出 render
 
-### 不支持 serverOnly / clientOnly
+`MARKERS_RE` 只匹配 `@route` 和 `@widget`，不匹配 `@layout`。这对所有适配器一致。
 
-当前 `WidgetOptions` 继承 `WebWidgetRendererOptions`，可以通过 `renderStage: 'server'` 或 `renderStage: 'client'` 控制。但不提供 React container 的 `serverOnly` / `clientOnly` 布尔语法糖——HTML 模板用户可以直接设置 `renderStage`。
+### .ts 文件不受 adapter 影响
 
-如果后续发现需求，可以增加便捷选项。
+`.ts`（而非 `.html.ts`）的路由/widget 文件不会被任何 adapter 处理，用户需手动导出。这是有意为之——保持与原生 JS 模块的兼容。
 
-## 使用示例
+### 类型推导需要手动声明
 
-### 基本用法
+`asHtmlWidget<T>` 的泛型 `T` 需要用户手动指定，无法自动从 widget 源文件推导。这与 React 适配器的 `asReactWidget` 面临同样的限制。未来可以通过构建工具生成类型声明文件来提供自动推导。
 
-```typescript
-import { html, render, widget } from '@web-widget/html';
+## 参考
 
-export { render };
-
-export default function Page() {
-  return html`<div>
-    <h1>Dashboard</h1>
-    ${widget(() => import('./Chart@widget.tsx'), { data: { type: 'bar' } })}
-  </div>`;
-}
-```
-
-### 带错误恢复
-
-```typescript
-import { html, render, widget, fallback } from '@web-widget/html';
-
-export { render };
-
-export default function Page() {
-  return html`<div>
-    <h1>Dashboard</h1>
-    ${fallback(
-      widget(() => import('./Chart@widget.tsx'), { data: { type: 'bar' } }),
-      () => html`<div class="error">Chart unavailable</div>`
-    )}
-  </div>`;
-}
-```
-
-### 懒加载
-
-```typescript
-${widget(
-  () => import('./HeavyWidget@widget.vue'),
-  { loading: 'lazy' }  // 滚动到可视区域时才加载
-)}
-```
-
-### 仅服务端渲染（静态 HTML，无客户端水合）
-
-```typescript
-${widget(
-  () => import('./StaticReport@widget.tsx'),
-  { renderStage: 'server' }
-)}
-```
+- [React Widget 孤岛设计](./react-widget-opinionated-design.zh.md)
+- [框架组件构建转换协议](./build-transformation-protocol.zh.md)

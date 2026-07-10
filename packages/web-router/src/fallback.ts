@@ -2,7 +2,8 @@
  * @fileoverview Default error page module for web-router
  */
 import type { Meta, RouteFallbackComponentProps } from './types';
-import { html, render } from '@web-widget/html';
+import { html } from '@web-widget/html';
+import { render } from '@web-widget/html/runtime';
 
 export { render };
 
@@ -115,11 +116,11 @@ const CopyErrorButton = (error: RouteFallbackComponentProps) => {
     class="copy-error-btn"
     onclick="
       const stackTrace = \`${errorInfo.stack
-      .replace(/`/g, '\\`')
-      .replace(/\$/g, '\\$')}\`;
+        .replace(/`/g, '\\`')
+        .replace(/\$/g, '\\$')}\`;
       const causeInfo = \`${JSON.stringify(errorInfo.cause, null, 2)
-      .replace(/`/g, '\\`')
-      .replace(/\$/g, '\\$')}\`;
+        .replace(/`/g, '\\`')
+        .replace(/\$/g, '\\$')}\`;
       
       const fullErrorText = \`# Error Report
 
@@ -170,15 +171,19 @@ export const fallback = (error: RouteFallbackComponentProps) => {
     <div class="error-title">${title}</div>
     <div class="error-desc">${desc}</div>
 
-    ${hasDebugInfo
-      ? html`<div class="error-debug">
-          ${error.message ? CodeBlock('Error Message', error.message) : ''}
-          ${error.stack ? CodeBlock('Stack Trace', error.stack) : ''}
-          ${error.cause
-            ? CodeBlock('Caused by', JSON.stringify(error.cause, null, 2))
-            : ''}
-          ${CopyErrorButton(error)}
-        </div>`
-      : CopyErrorButton(error)}
+    ${
+      hasDebugInfo
+        ? html`<div class="error-debug">
+            ${error.message ? CodeBlock('Error Message', error.message) : ''}
+            ${error.stack ? CodeBlock('Stack Trace', error.stack) : ''}
+            ${
+            error.cause
+              ? CodeBlock('Caused by', JSON.stringify(error.cause, null, 2))
+              : ''
+          }
+            ${CopyErrorButton(error)}
+          </div>`
+        : CopyErrorButton(error)
+    }
   </div>`;
 };

@@ -1,12 +1,11 @@
 import { defineServerRender } from '@web-widget/helpers';
-import { widget } from './web-widget';
+import { widget, container } from './runtime.server';
 
 const mockRender = defineServerRender(async (_component, data: any) => {
   return `<div>count: ${data?.count ?? 0}</div>`;
 });
 
 function createMockLoader() {
-  // The loader source must contain import("...") for parseModuleId
   return () =>
     Promise.resolve({
       default: () => {},
@@ -35,7 +34,7 @@ describe('widget', () => {
     });
 
     const text = result.toString();
-    expect(text).toContain('"count":7');
+    expect(text).toContain('&quot;count&quot;:7');
   });
 
   test('includes import attribute for client-side loading', async () => {
@@ -54,7 +53,6 @@ describe('widget', () => {
       data: { count: 1 },
     });
 
-    // UnsafeHTML has asyncIterator and toString
     expect(typeof result.toString).toBe('function');
     expect(result[Symbol.asyncIterator]).toBeDefined();
   });
@@ -72,5 +70,49 @@ describe('widget', () => {
     await expect(
       widget(failingLoader, { import: './Broken@widget.tsx' })
     ).rejects.toThrow('Widget render failed');
+  });
+});
+
+describe('container', () => {
+  test('returns a callable function', () => {
+    const Counter = container(createMockLoader(), {
+      import: './Counter@widget.tsx',
+      name: 'Counter',
+    });
+    expect(typeof Counter).toBe('function');
+  });
+
+  test('calling with data renders widget HTML', async () => {
+    const Counter = container(createMockLoader(), {
+      import: './Counter@widget.tsx',
+      name: 'Counter',
+    });
+    const result = await Counter({ count: 5 });
+    const text = result.toString();
+    expect(text).toContain('<web-widget');
+    expect(text).toContain('count: 5');
+  });
+
+  test('widget prop controls loading and renderStage', async () => {
+    const Counter = container(createMockLoader(), {
+      import: './Counter@widget.tsx',
+      name: 'Counter',
+    });
+
+    // serverOnly → no import attribute, no recovering
+    const serverResult = await Counter({
+      count: 99,
+      widget: { serverOnly: true },
+    });
+    const serverText = serverResult.toString();
+    expect(serverText).not.toContain('recovering');
+    expect(serverText).not.toContain('import=');
+
+    // default → has import and recovering
+    const defaultResult = await Counter({ count: 1 });
+    const defaultText = defaultResult.toString();
+    expect(defaultText).toContain('recovering');
+    expect(defaultText).toContain('loading="lazy"');
+    expect(defaultText).toContain('rendertarget="light"');
   });
 });

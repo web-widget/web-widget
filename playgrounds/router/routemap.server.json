@@ -49,12 +49,16 @@
       "module": "./routes/form@route.tsx"
     },
     {
+      "pathname": "/html-widget-islands",
+      "module": "./routes/html-widget-islands@route.html.ts"
+    },
+    {
       "pathname": "/large-css",
       "module": "./routes/large-css@route.tsx"
     },
     {
       "pathname": "/lit-html-template",
-      "module": "./routes/lit-html-template@route.ts"
+      "module": "./routes/lit-html-template@route.html.ts"
     },
     {
       "pathname": "/meta",

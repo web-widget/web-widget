@@ -53,11 +53,15 @@ function tryRenderLifecycleCacheLayer(): string {
   }
 }
 
+function escapeAttr(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
 function unsafeAttrsToHtml(attrs: Record<string, string>) {
   return Object.entries(attrs)
     .map(
       ([attrName, attrValue]) =>
-        `${attrName}${attrValue === '' ? '' : '="' + attrValue + '"'}`
+        `${attrName}${attrValue === '' ? '' : '="' + escapeAttr(attrValue) + '"'}`
     )
     .join(' ');
 }

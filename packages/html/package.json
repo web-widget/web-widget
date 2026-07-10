@@ -23,22 +23,23 @@
   },
   "exports": {
     ".": {
-      "worker": {
-        "types": "./dist/html.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/html.server.js"
-      },
-      "browser": {
-        "types": "./dist/html.client.d.ts",
-        "development": "./src/client.ts",
-        "default": "./dist/html.client.js"
-      },
-      "default": {
-        "types": "./dist/html.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/html.server.js"
-      }
+      "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime.server.d.ts",
+      "development": "./src/runtime.server.ts",
+      "default": "./dist/runtime.server.js"
     }
+  },
+  "webWidget": {
+    "version": "1.0.0",
+    "name": "html",
+    "extensions": [
+      ".html.ts"
+    ],
+    "runtime": "./runtime"
   },
   "files": [
     "dist"
@@ -47,18 +48,12 @@
     "access": "public",
     "exports": {
       ".": {
-        "worker": {
-          "types": "./dist/html.server.d.ts",
-          "default": "./dist/html.server.js"
-        },
-        "browser": {
-          "types": "./dist/html.client.d.ts",
-          "default": "./dist/html.client.js"
-        },
-        "default": {
-          "types": "./dist/html.server.d.ts",
-          "default": "./dist/html.server.js"
-        }
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./runtime": {
+        "types": "./dist/runtime.server.d.ts",
+        "default": "./dist/runtime.server.js"
       }
     }
   },

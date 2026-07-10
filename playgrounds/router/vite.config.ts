@@ -56,6 +56,7 @@ export default defineConfig({
     vue2PresetsPlugin(),
     webWidgetPlugin({
       adapters: [
+        '@web-widget/html',
         '@web-widget/react',
         { from: '@web-widget/vue', scope: 'routes/(vue3)' },
         { from: '@web-widget/vue2', scope: 'routes/(vue2)' },

@@ -2,23 +2,12 @@
 '@web-widget/html': minor
 ---
 
-Add `widget()` function to embed framework widgets (React, Vue, Vue2, etc.)
-as interactive islands in HTML templates. The widget renders server-side as
-a `<web-widget>` element and hydrates client-side via the existing custom
-element lifecycle — no host template framework needed.
+Implement WebWidgetAdapter protocol for @web-widget/html. HTML route files
+using `.html.ts` extension now get automatic `render` injection and widget
+`container` wrapping — no more manual `export { render }`.
 
-```ts
-import { html, render, widget, fallback } from '@web-widget/html';
-
-export { render };
-
-export default function Page() {
-  return html`<div>
-    <h1>Dashboard</h1>
-    ${fallback(
-      widget(() => import('./Counter@widget.tsx'), { data: { count: 1 } }),
-      () => html`<div>Widget failed</div>`
-    )}
-  </div>`;
-}
-```
+- Add `webWidget` field with `.html.ts` extension and `./runtime` subpath
+- `exportRenderPlugin` auto-injects `render` into `@route.html.ts` / `@widget.html.ts`
+- `importRenderPlugin` auto-wraps widget imports via `container()`
+- `deriveExports` provides default `handler` and `meta` (same as Vue adapter)
+- Manual `widget()` function still available for advanced use cases

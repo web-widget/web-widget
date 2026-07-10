@@ -78,6 +78,9 @@
       <a target="_blank" href="/lit-html-template"> Lit html template </a>
     </li>
     <li>
+      <a target="_blank" href="/html-widget-islands"> HTML widget islands </a>
+    </li>
+    <li>
       <a target="_blank" href="/api/hello-world"> Api route </a>
     </li>
   </ul>

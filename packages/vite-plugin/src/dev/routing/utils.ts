@@ -18,8 +18,14 @@ export function getExtension(fileName: string) {
     const parts = fileName.trim().toLowerCase().split('.');
     if (parts.length > 1) {
       const ext = parts.pop()!.split('?')[0].split('#')[0];
-      if (ext === 'ts' && parts.pop() === 'd') {
-        return '.d.ts';
+      if (ext === 'ts') {
+        const sub = parts.pop();
+        if (sub === 'd') {
+          return '.d.ts';
+        }
+        if (sub === 'html') {
+          return '.html.ts';
+        }
       }
       return '.' + ext;
     }
