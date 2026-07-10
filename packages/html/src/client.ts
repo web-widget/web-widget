@@ -10,3 +10,4 @@ export const html = notImplemented('html');
 export const unsafeStreamToHTML = notImplemented('unsafeStreamToHTML');
 export const streamToHTML = notImplemented('streamToHTML');
 export const render = notImplemented('render');
+export const widget = notImplemented('widget');
