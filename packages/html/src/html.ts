@@ -191,11 +191,6 @@ export class Fallback extends AbstractHTML {
 export function html(
   strings: TemplateStringsArray,
   ...args: HTMLContent[]
-): HTML;
-export function html(strings: TemplateStringsArray, ...args: any[]): HTML;
-export function html(
-  strings: TemplateStringsArray,
-  ...args: HTMLContent[]
 ): HTML {
   return new HTML(strings, args);
 }
@@ -206,14 +201,6 @@ export function unsafeHTML(content: string): UnsafeHTML {
 }
 
 /** Creates an error boundary. On throw, renders `fallback` instead. */
-export function fallback(
-  content: HTMLContent,
-  fallback: HTML | ((e: any) => HTML)
-): Fallback;
-export function fallback(
-  content: any,
-  fallback: HTML | ((e: any) => HTML)
-): Fallback;
 export function fallback(
   content: HTMLContent,
   fallback: HTML | ((e: any) => HTML)

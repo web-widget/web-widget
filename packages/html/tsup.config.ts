@@ -3,9 +3,8 @@ import { defineConfig } from 'tsup';
 export default defineConfig({
   dts: true,
   entry: {
-    index: 'src/index.ts',
-    'html.server': 'src/server.ts',
-    'runtime.server': 'src/runtime.server.ts',
+    html: 'src/index.ts',
+    'html.runtime': 'src/runtime.ts',
   },
   external: [],
   format: 'esm',

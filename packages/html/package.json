@@ -23,14 +23,14 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/html.d.ts",
       "development": "./src/index.ts",
-      "default": "./dist/index.js"
+      "default": "./dist/html.js"
     },
     "./runtime": {
-      "types": "./dist/runtime.server.d.ts",
-      "development": "./src/runtime.server.ts",
-      "default": "./dist/runtime.server.js"
+      "types": "./dist/html.runtime.d.ts",
+      "development": "./src/runtime.ts",
+      "default": "./dist/html.runtime.js"
     }
   },
   "webWidget": {
@@ -48,12 +48,12 @@
     "access": "public",
     "exports": {
       ".": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
+        "types": "./dist/html.d.ts",
+        "default": "./dist/html.js"
       },
       "./runtime": {
-        "types": "./dist/runtime.server.d.ts",
-        "default": "./dist/runtime.server.js"
+        "types": "./dist/html.runtime.d.ts",
+        "default": "./dist/html.runtime.js"
       }
     }
   },
@@ -68,5 +68,6 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
+  "sideEffects": false,
   "type": "module"
 }

@@ -1,15 +1,9 @@
-/**
- * Utilities for converting between ReadableStream and async iterables.
- *
- * Replaces the `whatwg-stream-to-async-iter` dependency to fix:
- * - Resource leak: reader lock not released on early termination (break/return/throw)
- * - Resource leak: stream not cancelled when consumer stops early
- * - No backpressure in TransformStream fallback (unbounded memory buffering)
- * - Wrong cancellation method: used iterator.throw() instead of iterator.return()
- */
+import type { HTML, UnsafeHTML } from './html';
+import { unsafeHTML } from './html';
 
-type ForAwaitable<T> = Iterable<T> | AsyncIterable<T>;
+export type ForAwaitable<T> = Iterable<T> | AsyncIterable<T>;
 type ForAwaitableIterator<T> = AsyncIterator<T> | Iterator<T>;
+type Awaitable<T> = T | Promise<T>;
 
 const isAsyncIterable = <T>(x: unknown): x is AsyncIterable<T> =>
   x != null && typeof x === 'object' && Symbol.asyncIterator in x;
@@ -42,9 +36,6 @@ export async function* streamToAsyncIter<T>(
       yield value as T;
     }
   } finally {
-    // Cancel the stream to signal the producer to stop on early termination.
-    // On normal completion the stream is already closed (no-op).
-    // On error the stream is errored (cancel rejects — hence the catch).
     try {
       await reader.cancel();
     } catch {
@@ -58,7 +49,9 @@ export async function* streamToAsyncIter<T>(
  * Convert an async iterable to a ReadableStream using the ReadableStream
  * constructor (pull-based with proper backpressure).
  */
-function asyncIterToStreamRS<T>(iterable: ForAwaitable<T>): ReadableStream<T> {
+export function asyncIterToStream<T>(
+  iterable: ForAwaitable<T>
+): ReadableStream<T> {
   let iterator: ForAwaitableIterator<T>;
   return new ReadableStream<T>({
     start() {
@@ -77,7 +70,6 @@ function asyncIterToStreamRS<T>(iterable: ForAwaitable<T>): ReadableStream<T> {
       }
     },
     async cancel(reason) {
-      // Use return() (not throw()) to signal normal completion per WHATWG spec.
       try {
         await iterator.return?.(reason);
       } catch {
@@ -87,40 +79,40 @@ function asyncIterToStreamRS<T>(iterable: ForAwaitable<T>): ReadableStream<T> {
   });
 }
 
-/**
- * Fallback for environments without ReadableStream constructor support.
- * Uses TransformStream instead. Properly awaits writes for backpressure.
- */
-function asyncIterToStreamTS<T>(iterable: ForAwaitable<T>): ReadableStream<T> {
-  const { readable, writable } = new TransformStream<T, T>();
-  (async () => {
-    const writer = writable.getWriter();
-    try {
-      for await (const x of iterable) {
-        await writer.write(x); // Await for backpressure
-      }
-      await writer.close();
-    } catch (err) {
-      try {
-        await writer.abort(err);
-      } catch {
-        // Stream may already be errored; ignore.
-      }
-    }
-  })();
-  return readable;
+const maybeStreamToAsyncIter = <T>(x: ForAwaitable<T> | ReadableStream<T>) =>
+  x instanceof ReadableStream ? streamToAsyncIter(x) : x;
+
+async function* aMap<A, B>(
+  iterable: ForAwaitable<A>,
+  f: (a: A) => Awaitable<B>
+): AsyncIterableIterator<B> {
+  for await (const x of iterable) yield f(x);
 }
 
-const supportsReadableStreamConstructor = (() => {
-  try {
-    return !!new ReadableStream({});
-  } catch {
-    return false;
-  }
-})();
+/** Converts an HTML template result into a UTF-8 encoded ReadableStream. */
+export const HTMLToStream = (html: HTML): ReadableStream => {
+  const textEncoder = new TextEncoder();
+  return asyncIterToStream(
+    aMap(maybeStreamToAsyncIter(html), (x: string) => textEncoder.encode(x))
+  );
+};
 
-export const asyncIterToStream: <T>(
-  iterable: ForAwaitable<T>
-) => ReadableStream<T> = supportsReadableStreamConstructor
-  ? asyncIterToStreamRS
-  : asyncIterToStreamTS;
+/** Converts a byte stream into an async iterable of UnsafeHTML chunks. */
+export const unsafeStreamToHTML = (
+  stream: ReadableStream
+): AsyncIterableIterator<UnsafeHTML> => {
+  const textDecoder = new TextDecoder();
+  return aMap(maybeStreamToAsyncIter(stream), (part) =>
+    unsafeHTML(textDecoder.decode(part, { stream: true }))
+  );
+};
+
+/** Converts a byte stream into an async iterable of string chunks. */
+export const streamToHTML = (
+  stream: ReadableStream
+): AsyncIterableIterator<string> => {
+  const textDecoder = new TextDecoder();
+  return aMap(maybeStreamToAsyncIter(stream), (part) =>
+    textDecoder.decode(part, { stream: true })
+  );
+};

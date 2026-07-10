@@ -1,5 +1,6 @@
 import { defineServerRender } from '@web-widget/helpers';
-import { widget, container } from './runtime.server';
+import { widget } from './widget';
+import { container } from './runtime';
 
 const mockRender = defineServerRender(async (_component, data: any) => {
   return `<div>count: ${data?.count ?? 0}</div>`;
