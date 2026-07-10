@@ -12,7 +12,7 @@ import {
 import type { FunctionComponent, ReactNode } from 'react';
 
 export interface ReactWidgetComponent<T> extends FunctionComponent<
-  T & WebWidgetSuspenseProps
+  T & ReactWidgetProps
 > {}
 
 export interface WebWidgetProps {
@@ -137,8 +137,7 @@ export function resolveFallback(fallback: WidgetFallback | undefined): {
   };
 }
 
-export interface WebWidgetSuspenseProps {
-  children?: ReactNode;
+export type WidgetContainerConfig = {
   /**
    * Fallback UI for loading and error states.
    *
@@ -147,15 +146,24 @@ export interface WebWidgetSuspenseProps {
    *
    * @example
    * // Simple: same UI for both states
-   * <Widget fallback={<Spinner />} />
+   * <Widget widget={{ fallback: <Spinner /> }} />
    *
    * // Differentiated: separate loading and error UI
-   * <Widget fallback={{ loading: <Spinner />, error: <ErrorUI /> }} />
+   * <Widget widget={{ fallback: { loading: <Spinner />, error: <ErrorUI /> } }} />
    */
   fallback?: WidgetFallback;
-  experimental_loading?: WebWidgetRendererOptions['loading'];
-  renderStage?: WebWidgetRendererOptions['renderStage'];
-  experimental_renderTarget?: WebWidgetRendererOptions['renderTarget'];
+  /** Client-side module loading strategy */
+  loading?: WebWidgetRendererOptions['loading'];
+  /** Widget renders only on the server, not mounted on the client. Mutually exclusive with `clientOnly`. */
+  serverOnly?: true;
+  /** Widget renders only on the client, producing no server HTML. Mutually exclusive with `serverOnly`. */
+  clientOnly?: true;
+};
+
+export interface ReactWidgetProps {
+  children?: ReactNode;
+  /** Container configuration, isolated from widget's own props */
+  widget?: WidgetContainerConfig;
 }
 
 /**
@@ -186,18 +194,25 @@ class WidgetErrorBoundary extends Component<
   }
 }
 
-export /*#__PURE__*/ function defineWebWidget(
+export /*#__PURE__*/ function container(
   loader: Loader,
   options: DefineWebWidgetOptions
 ) {
-  return memo(function WebWidgetSuspense({
+  return memo(function ReactWidget({
     children,
-    fallback,
-    experimental_loading = options.loading ?? 'lazy',
-    renderStage = options.renderStage,
-    experimental_renderTarget = options.renderTarget ?? 'light',
+    widget: {
+      fallback,
+      loading = options.loading ?? 'lazy',
+      serverOnly,
+      clientOnly,
+    } = {},
     ...data
-  }: WebWidgetSuspenseProps) {
+  }: ReactWidgetProps) {
+    const renderStage = serverOnly
+      ? 'server'
+      : clientOnly
+        ? 'client'
+        : options.renderStage;
     const { loadingFallback, errorFallback } = resolveFallback(fallback);
     return createElement(
       WidgetErrorBoundary,
@@ -211,9 +226,8 @@ export /*#__PURE__*/ function defineWebWidget(
             children,
             data,
             loader,
-            loading: experimental_loading,
+            loading,
             renderStage,
-            renderTarget: experimental_renderTarget,
           }),
         }),
       })
@@ -223,6 +237,5 @@ export /*#__PURE__*/ function defineWebWidget(
 
 /**
  * Container function (WebWidgetAdapter protocol).
- * Alias of `defineWebWidget` — wraps a generic widget module as a React component.
+ * Wraps a generic widget module as a React component.
  */
-export const container = defineWebWidget;

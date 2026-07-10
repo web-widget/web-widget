@@ -8,14 +8,14 @@
 
 ## 背景
 
-Widget 是独立的客户端模块，构建后产出独立的 hashed chunk。前端 UI 组件通过 `defineWebWidget` 导入 Widget 模块：
+Widget 是独立的客户端模块，构建后产出独立的 hashed chunk。前端 UI 组件通过 `container` 导入 Widget 模块：
 
 ```javascript
 // 源码：React 组件导入 Widget
 import Counter from "./Counter@widget.tsx";
 
 // 插件 transform 后
-const Counter = defineWebWidget(() => import("./Counter@widget.tsx"), {
+const Counter = container(() => import("./Counter@widget.tsx"), {
   import: ???,  // 应填入什么？
   name: "Counter"
 });
@@ -33,7 +33,7 @@ const Counter = defineWebWidget(() => import("./Counter@widget.tsx"), {
 2. **跨技术栈一致**：无论宿主 UI 框架是 React、Vue 还是 Solid，Widget 模块的 URL 解析行为一致
 3. **构建顺序兼容**：适配 server → client 反向构建顺序，server 构建时不依赖 client manifest
 
-核心挑战在于：transform 阶段生成 `defineWebWidget` 调用时，hashed chunk URL 尚不可知。需要一种机制在构建时或运行时填补这个信息缺口。
+核心挑战在于：transform 阶段生成 `container` 调用时，hashed chunk URL 尚不可知。需要一种机制在构建时或运行时填补这个信息缺口。
 
 ## 详细设计
 
@@ -50,7 +50,7 @@ flowchart LR
 
 ```javascript
 // server transform 产物
-defineWebWidget(() => import('./Counter@widget.tsx'), {
+container(() => import('./Counter@widget.tsx'), {
   import: resolveWidgetAsset('routes/(components)/Counter@widget.tsx'),
   name: 'Counter',
 });
@@ -71,12 +71,12 @@ defineWebWidget(() => import('./Counter@widget.tsx'), {
 const referenceId = this.emitFile({
   type: 'chunk', id: moduleId, preserveSignature: 'allow-extension', importer: id,
 });
-defineWebWidget(() => import("./Counter@widget.tsx"), {
+container(() => import("./Counter@widget.tsx"), {
   import: import.meta.ROLLUP_FILE_URL_${referenceId},
   name: "Counter"
 });
 // Rolldown 解析后
-defineWebWidget(() => import("./Counter@widget.tsx-HASH.js"), {
+container(() => import("./Counter@widget.tsx-HASH.js"), {
   import: new URL("Counter@widget-HASH.js", import.meta.url).href,
   name: "Counter"
 });
@@ -92,11 +92,11 @@ defineWebWidget(() => import("./Counter@widget.tsx-HASH.js"), {
 
 ```javascript
 // 客户端 transform（省略 import）
-defineWebWidget(() => import('./Counter@widget.tsx'), {
+container(() => import('./Counter@widget.tsx'), {
   name: 'Counter',
 });
 // Rolldown 重写 import() 路径
-defineWebWidget(() => import('./Counter@widget.tsx-HASH.js'), {
+container(() => import('./Counter@widget.tsx-HASH.js'), {
   name: 'Counter',
 });
 ```

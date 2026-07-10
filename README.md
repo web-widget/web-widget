@@ -589,10 +589,10 @@ export default defineRouteComponent(function Page() {
 
 ```tsx
 // Server-only rendering
-<StaticChart renderStage="server" data={chartData} />
+<StaticChart widget={{ serverOnly: true }} data={chartData} />
 
 // Client-only rendering
-<InteractiveMap renderStage="client" location={coords} />
+<InteractiveMap widget={{ clientOnly: true }} location={coords} />
 ```
 
 #### Working with Context
