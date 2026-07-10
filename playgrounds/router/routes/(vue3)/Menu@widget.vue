@@ -46,6 +46,9 @@
       <a href="/fallback">Error handling</a>
     </li>
     <li><a href="/react-streaming">React: Streaming</a></li>
+    <li>
+      <a href="/react-streaming-error">React: Streaming error</a>
+    </li>
     <li><a href="/vue3-streaming">Vue3: Streaming</a></li>
     <li>
       <a href="/experimental-async-component">Async component</a>

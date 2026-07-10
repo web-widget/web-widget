@@ -14,7 +14,6 @@ declare module '@web-widget/schema' {
   }
 }
 
-export * from '@web-widget/helpers';
 export { useWidgetAsyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 

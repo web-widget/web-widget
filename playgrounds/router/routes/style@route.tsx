@@ -1,5 +1,5 @@
 import './(css)/style.css';
-import { defineRouteComponent } from '@web-widget/react';
+import { defineRouteComponent } from '@web-widget/helpers';
 import BaseLayout from './(components)/BaseLayout';
 
 export default defineRouteComponent(function Page() {

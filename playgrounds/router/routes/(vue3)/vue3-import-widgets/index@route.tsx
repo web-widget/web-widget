@@ -1,4 +1,4 @@
-import { defineRouteComponent } from '@web-widget/react';
+import { defineRouteComponent } from '@web-widget/helpers';
 import BaseLayout from '../../(components)/BaseLayout.tsx';
 import App from './App@widget.vue';
 import { asReactWidget } from '@web-widget/vue';

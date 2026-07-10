@@ -77,6 +77,10 @@
       "module": "./routes/react-streaming@route.tsx"
     },
     {
+      "pathname": "/react-streaming-error",
+      "module": "./routes/react-streaming-error@route.tsx"
+    },
+    {
       "pathname": "/request-cache",
       "module": "./routes/request-cache@route.tsx"
     },

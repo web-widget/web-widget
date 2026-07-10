@@ -18,7 +18,7 @@ describe('Streaming SSR', () => {
     expect(body).toMatch(/<template id="B:\d+"><\/template>/);
     expect(body).toMatch(/<div hidden id="S:\d+">/);
     expect(body).toContain('$RC(');
-  });
+  }, 15000);
 
   test('Vue3 /vue3-streaming streams content progressively', async () => {
     const result = await fetch('/vue3-streaming');

@@ -3,6 +3,7 @@ import { defineConfig } from 'tsup';
 export default defineConfig({
   dts: true,
   entry: {
+    react: 'src/index.ts',
     'react.server': 'src/server.ts',
     'react.client': 'src/client.ts',
   },

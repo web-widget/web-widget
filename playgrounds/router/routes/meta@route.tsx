@@ -1,11 +1,11 @@
-import type { Meta } from '@web-widget/react';
+import type { Meta } from '@web-widget/helpers';
 import {
   defineMeta,
   defineRouteComponent,
   defineRouteHandler,
   mergeMeta,
   renderMetaToString,
-} from '@web-widget/react';
+} from '@web-widget/helpers';
 import icon from '../public/favicon.svg';
 import BaseLayout from './(components)/BaseLayout.tsx';
 import ReactCounter from './(components)/Counter@widget';

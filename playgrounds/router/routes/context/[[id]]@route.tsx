@@ -1,4 +1,4 @@
-import { defineRouteComponent, defineRouteHandler } from '@web-widget/react';
+import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import { params } from '@web-widget/helpers/navigation';
 import type { HelloData } from '../api/hello-world@route.ts';
 import BaseLayout from '../(components)/BaseLayout.tsx';

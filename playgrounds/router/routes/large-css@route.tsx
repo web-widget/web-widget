@@ -1,5 +1,5 @@
 import './(css)/large.css';
-import { defineMeta, defineRouteComponent } from '@web-widget/react';
+import { defineMeta, defineRouteComponent } from '@web-widget/helpers';
 import BaseLayout from './(components)/BaseLayout';
 
 export const meta = defineMeta({

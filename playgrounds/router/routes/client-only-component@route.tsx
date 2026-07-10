@@ -1,4 +1,4 @@
-import { defineRouteComponent } from '@web-widget/react';
+import { defineRouteComponent } from '@web-widget/helpers';
 import ReactCounter from './(components)/Counter@widget';
 import BaseLayout from './(components)/BaseLayout.tsx';
 

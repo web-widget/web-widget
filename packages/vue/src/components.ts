@@ -1,9 +1,10 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import { h, defineComponent, Suspense, useAttrs } from 'vue';
-import type { VNode, PropType, ComponentPublicInstance, Component } from 'vue';
+import type { VNode, PropType } from 'vue';
 import { IS_CLIENT } from '@web-widget/helpers/env';
-import type { ReactWidgetComponent } from '@web-widget/react';
+
+export { asReactWidget, toReact } from './as-react-widget';
 
 const WebWidget = /*#__PURE__*/ defineComponent({
   name: 'WebWidgetRoot',
@@ -151,20 +152,3 @@ export /*#__PURE__*/ function defineWebWidget(
  * Alias of `defineWebWidget` — wraps a generic widget module as a Vue component.
  */
 export const container = defineWebWidget;
-
-/**
- * Adapt Vue component types to React widget component types.
- *
- * This is a type-level cast only — the actual cross-framework rendering
- * is handled by the `@widget` system. Use this when importing a Vue
- * widget (e.g. `Counter@widget.vue`) into a React/JSX file so that
- * TypeScript treats it as a React component.
- */
-export /*#__PURE__*/ function asReactWidget<T>(component: Component<T>) {
-  return component as unknown as ReactWidgetComponent<
-    Omit<T, keyof ComponentPublicInstance | '$route' | '$router'>
-  >;
-}
-
-/** @deprecated Use `asReactWidget` instead. */
-export const toReact = asReactWidget;

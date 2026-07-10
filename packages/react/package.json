@@ -18,31 +18,22 @@
     "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
+    "@types/jest": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "jest": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "ts-jest": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
   },
   "exports": {
     ".": {
-      "worker": {
-        "types": "./dist/react.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/react.server.js"
-      },
-      "browser": {
-        "types": "./dist/react.client.d.ts",
-        "development": "./src/client.ts",
-        "default": "./dist/react.client.js"
-      },
-      "default": {
-        "types": "./dist/react.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/react.server.js"
-      }
+      "types": "./dist/react.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/react.js"
     },
     "./runtime": {
       "worker": {
@@ -86,18 +77,8 @@
     "access": "public",
     "exports": {
       ".": {
-        "worker": {
-          "types": "./dist/react.server.d.ts",
-          "default": "./dist/react.server.js"
-        },
-        "browser": {
-          "types": "./dist/react.client.d.ts",
-          "default": "./dist/react.client.js"
-        },
-        "default": {
-          "types": "./dist/react.server.d.ts",
-          "default": "./dist/react.server.js"
-        }
+        "types": "./dist/react.d.ts",
+        "default": "./dist/react.js"
       },
       "./runtime": {
         "worker": {
@@ -124,7 +105,9 @@
     "clean:node": "rm -rf node_modules",
     "dev": "pnpm exec tsup --watch",
     "lint": "eslint src",
-    "prebuild": "pnpm run clean:build"
+    "prebuild": "pnpm run clean:build",
+    "test": "jest"
   },
+  "sideEffects": false,
   "type": "module"
 }

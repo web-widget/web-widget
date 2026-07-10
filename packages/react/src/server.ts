@@ -1,5 +1,5 @@
 import { defineServerRender } from '@web-widget/helpers';
-import type { FunctionComponent } from 'react';
+import { Component, type FunctionComponent, type ReactNode } from 'react';
 import { createElement, StrictMode } from 'react';
 
 import {
@@ -31,6 +31,32 @@ export interface ReactRenderOptions {
 
 const DEFAULT_TIMEOUT_MS = 1000 * 10;
 
+/**
+ * Route-level ErrorBoundary that acts as the last line of defense during
+ * streaming SSR. Errors not caught by widget-level boundaries bubble here.
+ */
+class RouteErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown) {
+    console.error('[route] Uncaught rendering error:', error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null;
+    }
+    return this.props.children;
+  }
+}
+
 export const render = defineServerRender<FunctionComponent>(
   async (component, data, { progressive, react }) => {
     data = data ?? {};
@@ -41,18 +67,15 @@ export const render = defineServerRender<FunctionComponent>(
 
     const reactRenderOptions: StreamOptions = Object.create(react ?? null);
 
-    let error: unknown;
     const { onError, awaitAllReady, signal } = reactRenderOptions;
 
     reactRenderOptions.signal =
       signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS);
 
     reactRenderOptions.onError = (e: unknown, i: any) => {
-      error = e;
+      // Per React docs: onError must always call console.error.
+      console.error(e);
       onError?.(e instanceof Error ? e : new Error(String(e)), i);
-      if (!onError && progressive && !awaitAllReady) {
-        console.error(e);
-      }
     };
 
     const isAsyncFunction =
@@ -60,6 +83,13 @@ export const render = defineServerRender<FunctionComponent>(
     let vNode = isAsyncFunction
       ? await component(data as any)
       : createElement(component, data as any);
+
+    if (progressive) {
+      // In streaming mode, wrap in RouteErrorBoundary to prevent shell errors
+      // from aborting the stream (which would leave the client with nothing).
+      // The error is still reported via onError → didError.
+      vNode = createElement(RouteErrorBoundary, null, vNode);
+    }
 
     vNode = createElement(StrictMode, null, vNode);
 
@@ -72,10 +102,6 @@ export const render = defineServerRender<FunctionComponent>(
       'allReady' in (result as ReactDOMServerReadableStream)
     ) {
       await (result as ReactDOMServerReadableStream).allReady;
-    }
-
-    if (error) {
-      throw error;
     }
 
     return result;

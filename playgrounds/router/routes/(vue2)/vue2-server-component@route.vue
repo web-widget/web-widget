@@ -1,6 +1,6 @@
 <script lang="ts">
 import BaseLayout from './BaseLayout.vue';
-import { mergeMeta, defineMeta, defineRouteHandler } from '@web-widget/vue2';
+import { mergeMeta, defineMeta, defineRouteHandler } from '@web-widget/helpers';
 
 type PageData = {
   message: string;

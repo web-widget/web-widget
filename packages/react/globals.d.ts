@@ -1,7 +1,9 @@
 /// <reference types="react" />
 
+type WebWidgetFallback = ReactNode | { loading?: ReactNode; error?: ReactNode };
+
 interface WebWidgetSuspenseProps {
-  fallback?: ReactNode;
+  fallback?: WebWidgetFallback;
   experimental_loading?: 'lazy' | 'eager' | 'idle';
   renderStage?: 'server' | 'client';
   experimental_renderTarget?: 'light' | 'shadow';
