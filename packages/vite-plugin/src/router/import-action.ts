@@ -5,6 +5,7 @@ import type { ExportSpecifier } from 'es-module-lexer';
 import { applyToClientEnvironment } from '@/internal/environment';
 import { getWebRouterPluginApi } from '@/internal/manifest';
 import { relativePathWithDot } from '@/internal/path';
+import { createAliasGenerator } from '@/internal/alias';
 
 export interface ImportActionPluginOptions {
   cache?: Set<string>;
@@ -24,9 +25,9 @@ export interface ImportActionPluginOptions {
  * Becomes(client): functions@action.ts
  *
  * import { rpcClient } from "@web-widget/helpers/action";
- * const $exports = rpcClient("/functions");
- * export const echo = $exports.echo;
- * export default $exports.default;
+ * const __$exports0$__ = rpcClient("/functions");
+ * export const echo = __$exports0$__.echo;
+ * export default __$exports0$__.default;
  */
 export function importActionPlugin(
   options: ImportActionPluginOptions = {}
@@ -119,15 +120,18 @@ export function importActionPlugin(
         );
       }
 
+      const alias = createAliasGenerator();
+      const exportsVar = alias('exports');
+
       let content =
         `import { rpcClient } from "@web-widget/helpers/action";\n` +
-        `const $exports = /* @__PURE__ */ rpcClient(${JSON.stringify(url)})`;
+        `const ${exportsVar} = /* @__PURE__ */ rpcClient(${JSON.stringify(url)})`;
 
       names.forEach((name) => {
         if (name === 'default') {
-          content += `\nexport default $exports.default;`;
+          content += `\nexport default ${exportsVar}.default;`;
         } else {
-          content += `\nexport const ${name} = $exports.${name};`;
+          content += `\nexport const ${name} = ${exportsVar}.${name};`;
         }
       });
 

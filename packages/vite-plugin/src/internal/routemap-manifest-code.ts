@@ -1,6 +1,7 @@
 import { encodeModuleSource } from '@/dev/module-source';
 import type { RouteMap } from '@/types';
 import { escapeRegExp } from '@/internal/regexp';
+import { createAliasGenerator } from '@/internal/alias';
 
 export function collectRoutemapModulePaths(
   routemapJson: RouteMap | Record<string, unknown>
@@ -93,12 +94,14 @@ export function buildProdManifestCode(options: {
   const { framework, routemapJson } = options;
   const imports = collectRoutemapModulePaths(routemapJson);
   const routemapJsonCode = JSON.stringify(routemapJson, null, 2);
+  const alias = createAliasGenerator();
+  const moduleAliases = imports.map(() => alias('module'));
 
   return (
     imports
       .map(
         (module, index) =>
-          `import * as _${index} from ${JSON.stringify(module)};`
+          `import * as ${moduleAliases[index]} from ${JSON.stringify(module)};`
       )
       .join('\n') +
     '\n\n' +
@@ -106,7 +109,7 @@ export function buildProdManifestCode(options: {
       (code, source, index) =>
         code.replaceAll(
           new RegExp(`(\\s*)${escapeRegExp(`"module": "${source}"`)}`, 'g'),
-          `$1"module": _${index}`
+          `$1"module": ${moduleAliases[index]}`
         ),
       routemapJsonCode
     )}`
