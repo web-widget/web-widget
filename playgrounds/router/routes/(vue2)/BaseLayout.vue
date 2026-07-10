@@ -9,9 +9,11 @@ import Menu from './Menu@widget.vue';
     </header>
     <div class="container">
       <aside>
-        <Menu renderStage="server" />
+        <Menu :widget="{ serverOnly: true }" />
       </aside>
-      <main><slot></slot></main>
+      <main>
+        <slot></slot>
+      </main>
     </div>
     <footer>
       <p>This is a footer</p>

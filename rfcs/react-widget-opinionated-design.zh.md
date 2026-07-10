@@ -4,19 +4,19 @@
 
 ## 摘要
 
-定义 `@web-widget/react` 中 `defineWebWidget` 的架构设计：将每个 widget 封装为自治的"孤岛"，内部集成 Suspense（加载管理）与 ErrorBoundary（错误隔离），通过统一的 `fallback` API 暴露加载态与错误态的控制能力。
+定义 `@web-widget/react` 中 `container` 的架构设计：将每个 widget 封装为自治的"孤岛"，内部集成 Suspense（加载管理）与 ErrorBoundary（错误隔离），通过统一的 `fallback` API 暴露加载态与错误态的控制能力。
 
 ## 背景
 
 ### Widget 在架构中的角色
 
-`defineWebWidget` 将一个 widget 模块封装为 React 组件。该组件在服务端渲染 `<web-widget>` 自定义元素的 HTML，在客户端由 custom element 接管模块的加载、引导和挂载。
+`container` 将一个 widget 模块封装为 React 组件。该组件在服务端渲染 `<web-widget>` 自定义元素的 HTML，在客户端由 custom element 接管模块的加载、引导和挂载。
 
 ```tsx
-const Counter = defineWebWidget(() => import('./Counter@widget.tsx'));
+const Counter = container(() => import('./Counter@widget.tsx'));
 
 function Page() {
-  return <Counter fallback={<Spinner />} count={1} />;
+  return <Counter widget={{ fallback: <Spinner /> }} count={1} />;
 }
 ```
 
@@ -60,10 +60,10 @@ flowchart TD
 
 ```tsx
 // 简单形式：ReactNode，同时用于 loading 和 error
-<Widget fallback={<Spinner />} />
+<Widget widget={{ fallback: <Spinner /> }} />
 
 // 对象形式：分别指定
-<Widget fallback={{ loading: <Spinner />, error: <ErrorUI /> }} />
+<Widget widget={{ fallback: { loading: <Spinner />, error: <ErrorUI /> } }} />
 ```
 
 解析规则：
@@ -143,19 +143,38 @@ createElement(localName, {
 
 ## API 总结
 
+容器配置通过 `widget` prop 嵌套传入，与 widget 自身 props 物理隔离，避免命名冲突。
+
 ```tsx
 type WidgetFallback = ReactNode | { loading?: ReactNode; error?: ReactNode };
 
-interface WebWidgetSuspenseProps {
+type WidgetContainerConfig = {
   /** 加载态和错误态的占位 UI */
   fallback?: WidgetFallback;
-  /** 模块加载策略 */
-  experimental_loading?: 'lazy' | 'eager' | 'idle';
-  /** 渲染阶段 */
-  renderStage?: 'server' | 'client';
-  /** 渲染目标 */
-  experimental_renderTarget?: 'light' | 'shadow';
+  /** 客户端模块加载策略 */
+  loading?: 'lazy' | 'eager' | 'idle';
+  /** widget 仅在服务端渲染，不在客户端挂载。与 clientOnly 互斥 */
+  serverOnly?: true;
+  /** widget 仅在客户端渲染，不产出服务端 HTML。与 serverOnly 互斥 */
+  clientOnly?: true;
+};
+
+interface ReactWidgetProps {
+  /** 容器配置 */
+  widget?: WidgetContainerConfig;
 }
+```
+
+使用示例：
+
+```tsx
+<Counter widget={{ fallback: <Spinner /> }} count={1} />
+
+// 仅服务端渲染
+<Counter widget={{ serverOnly: true }} count={1} />
+
+// 仅客户端渲染
+<Counter widget={{ clientOnly: true }} count={1} />
 ```
 
 ## 已知限制

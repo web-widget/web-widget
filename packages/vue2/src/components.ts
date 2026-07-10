@@ -1,13 +1,13 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import Vue, { h, defineComponent, useAttrs, getCurrentInstance } from 'vue';
-import type { Component, PropType } from 'vue';
+import type { PropType } from 'vue';
 
 export { asReactWidget, toReact } from './as-react-widget';
 
 type WebWidgetRenderer = InstanceType<typeof WebWidgetRenderer>;
 
-// Lazy-init global Vue config (only once, on first defineWebWidget call).
+// Lazy-init global Vue config (only once, on first container call).
 let globalConfigInitialized = false;
 function ensureGlobalVueConfig() {
   if (globalConfigInitialized) return;
@@ -40,7 +40,16 @@ export interface DefineWebWidgetOptions {
   renderTarget?: WebWidgetRendererOptions['renderTarget'];
 }
 
-export /*#__PURE__*/ function defineWebWidget(
+export interface WidgetContainerConfig {
+  /** Client-side module loading strategy */
+  loading?: WebWidgetRendererOptions['loading'];
+  /** Widget renders only on the server, not mounted on the client. Mutually exclusive with `clientOnly`. */
+  serverOnly?: true;
+  /** Widget renders only on the client, producing no server HTML. Mutually exclusive with `serverOnly`. */
+  clientOnly?: true;
+}
+
+export /*#__PURE__*/ function container(
   loader: Loader,
   options: DefineWebWidgetOptions
 ) {
@@ -51,23 +60,12 @@ export /*#__PURE__*/ function defineWebWidget(
   ensureGlobalVueConfig();
 
   return defineComponent({
-    name: 'WebWidgetRoot',
+    name: 'VueWidget',
     inheritAttrs: false,
     props: {
-      fallback: {
-        type: Object as PropType<Component>,
-      },
-      experimental_loading: {
-        type: String as PropType<WebWidgetRendererOptions['loading']>,
-        default: options.loading ?? 'lazy',
-      },
-      renderStage: {
-        type: String as PropType<WebWidgetRendererOptions['renderStage']>,
-        default: options.renderStage,
-      },
-      experimental_renderTarget: {
-        type: String as PropType<WebWidgetRendererOptions['renderTarget']>,
-        default: options.renderTarget ?? 'light',
+      widget: {
+        type: Object as PropType<WidgetContainerConfig>,
+        default: () => ({}),
       },
     },
     async serverPrefetch() {
@@ -79,13 +77,28 @@ export /*#__PURE__*/ function defineWebWidget(
         throw new TypeError(`Slot not supported.`);
       }
 
+      if (props.widget && 'fallback' in props.widget) {
+        throw new TypeError(`fallback is not supported in Vue2 (no Suspense).`);
+      }
+
+      const {
+        loading = options.loading ?? 'lazy',
+        serverOnly,
+        clientOnly,
+      } = props.widget;
+      const renderStage = serverOnly
+        ? 'server'
+        : clientOnly
+          ? 'client'
+          : options.renderStage;
+
       const data = useAttrs() as WebWidgetRendererOptions['data'];
       const widget = new WebWidgetRenderer(loader, {
         ...options,
         data,
-        loading: props.experimental_loading,
-        renderStage: props.renderStage,
-        renderTarget: props.experimental_renderTarget,
+        loading,
+        renderStage,
+        renderTarget: options.renderTarget ?? 'light',
       });
 
       const instance = getCurrentInstance()!;
@@ -104,6 +117,5 @@ export /*#__PURE__*/ function defineWebWidget(
 
 /**
  * Container function (WebWidgetAdapter protocol).
- * Alias of `defineWebWidget` — wraps a generic widget module as a Vue2 component.
+ * Wraps a generic widget module as a Vue2 component.
  */
-export const container = defineWebWidget;

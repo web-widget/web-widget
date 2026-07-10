@@ -88,39 +88,45 @@ export interface DefineWebWidgetOptions {
   renderTarget?: WebWidgetRendererOptions['renderTarget'];
 }
 
-export /*#__PURE__*/ function defineWebWidget(
+export interface WidgetContainerConfig {
+  /**
+   * Fallback UI shown via Suspense while the widget module is loading or
+   * fails to render. Only effective during server-side rendering.
+   */
+  fallback?: VNode;
+  /** Client-side module loading strategy: `'lazy'` loads on first render, `'eager'` on module parse, `'idle'` on browser idle. */
+  loading?: WebWidgetRendererOptions['loading'];
+  /** Widget renders only on the server (SSR), producing static HTML with no client-side mount. Mutually exclusive with `clientOnly`. */
+  serverOnly?: true;
+  /** Widget renders only on the client, producing no server HTML (empty placeholder until client mount). Mutually exclusive with `serverOnly`. */
+  clientOnly?: true;
+}
+
+export /*#__PURE__*/ function container(
   loader: Loader,
   options: DefineWebWidgetOptions
 ) {
   return defineComponent({
-    name: 'WebWidgetSuspense',
+    name: 'VueWidget',
     inheritAttrs: false,
     props: {
-      fallback: {
-        type: Object as PropType<VNode>,
-      },
-      experimental_loading: {
-        type: String as PropType<WebWidgetRendererOptions['loading']>,
-        default: options.loading ?? 'lazy',
-      },
-      renderStage: {
-        type: String as PropType<WebWidgetRendererOptions['renderStage']>,
-        default: options.renderStage,
-      },
-      experimental_renderTarget: {
-        type: String as PropType<WebWidgetRendererOptions['renderTarget']>,
-        default: options.renderTarget ?? 'light',
+      widget: {
+        type: Object as PropType<WidgetContainerConfig>,
+        default: () => ({}),
       },
     },
-    setup(
-      {
+    setup({ widget }, { slots }) {
+      const {
         fallback,
-        experimental_loading,
-        renderStage,
-        experimental_renderTarget,
-      },
-      { slots }
-    ) {
+        loading = options.loading ?? 'lazy',
+        serverOnly,
+        clientOnly,
+      } = widget;
+      const renderStage = serverOnly
+        ? 'server'
+        : clientOnly
+          ? 'client'
+          : options.renderStage;
       const data = useAttrs() as WebWidgetRendererOptions['data'];
 
       return () =>
@@ -134,9 +140,9 @@ export /*#__PURE__*/ function defineWebWidget(
                 ...options,
                 data,
                 loader,
-                loading: experimental_loading,
+                loading,
                 renderStage,
-                renderTarget: experimental_renderTarget,
+                renderTarget: options.renderTarget ?? 'light',
               },
               slots
             ),
@@ -149,6 +155,5 @@ export /*#__PURE__*/ function defineWebWidget(
 
 /**
  * Container function (WebWidgetAdapter protocol).
- * Alias of `defineWebWidget` — wraps a generic widget module as a Vue component.
+ * Wraps a generic widget module as a Vue component.
  */
-export const container = defineWebWidget;

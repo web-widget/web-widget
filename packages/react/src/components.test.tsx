@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import { defineWebWidget, resolveFallback } from './components';
+import { container, resolveFallback } from './components';
 
 // Mock the WebWidgetRenderer to avoid needing the full widget runtime.
 jest.mock('@web-widget/web-widget', () => {
@@ -63,14 +63,14 @@ describe('resolveFallback', () => {
   });
 });
 
-describe('defineWebWidget', () => {
+describe('container', () => {
   const mockLoader = (() =>
     Promise.resolve({
       default: () => createElement('div', null, 'hello'),
     })) as any;
 
   test('returns a valid memoized component', () => {
-    const Widget = defineWebWidget(mockLoader, { name: 'TestWidget' });
+    const Widget = container(mockLoader, { name: 'TestWidget' });
     expect(Widget).toBeDefined();
     expect(typeof Widget).toBe('object');
   });
