@@ -25,9 +25,9 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/vue.d.ts",
       "development": "./src/index.ts",
-      "default": "./dist/index.js"
+      "default": "./dist/vue.js"
     },
     "./runtime": {
       "worker": {
@@ -75,8 +75,8 @@
     "access": "public",
     "exports": {
       ".": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
+        "types": "./dist/vue.d.ts",
+        "default": "./dist/vue.js"
       },
       "./runtime": {
         "worker": {

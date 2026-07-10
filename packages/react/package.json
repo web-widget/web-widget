@@ -31,9 +31,9 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/react.d.ts",
       "development": "./src/index.ts",
-      "default": "./dist/index.js"
+      "default": "./dist/react.js"
     },
     "./runtime": {
       "worker": {
@@ -77,8 +77,8 @@
     "access": "public",
     "exports": {
       ".": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
+        "types": "./dist/react.d.ts",
+        "default": "./dist/react.js"
       },
       "./runtime": {
         "worker": {
