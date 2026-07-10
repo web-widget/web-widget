@@ -142,6 +142,7 @@ export /*#__PURE__*/ function container(
                 loader,
                 loading,
                 renderStage,
+                renderTarget: options.renderTarget ?? 'light',
               },
               slots
             ),

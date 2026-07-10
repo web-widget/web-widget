@@ -14,7 +14,7 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
       </header>
       <div className="container">
         <aside>
-          <RMenu renderStage="server" />
+          <RMenu widget={{ serverOnly: true }} />
         </aside>
         <main>{children}</main>
       </div>

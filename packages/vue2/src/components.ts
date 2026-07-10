@@ -98,6 +98,7 @@ export /*#__PURE__*/ function container(
         data,
         loading,
         renderStage,
+        renderTarget: options.renderTarget ?? 'light',
       });
 
       const instance = getCurrentInstance()!;
