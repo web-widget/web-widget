@@ -17,16 +17,16 @@ const Loading = h(
 <template>
   <BaseLayout>
     <h1>Vue3 Route: Streaming</h1>
-    <VueWaitDemo :fallback="Loading" id="demo:0" />
+    <VueWaitDemo :widget="{ fallback: Loading }" id="demo:0" />
     <hr />
-    <VueWaitDemo :fallback="Loading" id="demo:1" />
+    <VueWaitDemo :widget="{ fallback: Loading }" id="demo:1" />
     <hr />
-    <VueWaitDemo :fallback="Loading" id="demo:2" />
+    <VueWaitDemo :widget="{ fallback: Loading }" id="demo:2" />
     <hr />
-    <ReactWaitDemo :fallback="Loading" id="demo:3" />
+    <ReactWaitDemo :widget="{ fallback: Loading }" id="demo:3" />
     <hr />
-    <ReactWaitDemo :fallback="Loading" id="demo:4" />
+    <ReactWaitDemo :widget="{ fallback: Loading }" id="demo:4" />
     <hr />
-    <ReactWaitDemo :fallback="Loading" id="demo:5" />
+    <ReactWaitDemo :widget="{ fallback: Loading }" id="demo:5" />
   </BaseLayout>
 </template>

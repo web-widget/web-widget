@@ -14,17 +14,17 @@ export default defineRouteComponent(async function Page() {
   return (
     <BaseLayout>
       <h1>React Route: Streaming</h1>
-      <RVueWaitDemo fallback={Loading} id="demo:0" />
+      <RVueWaitDemo widget={{ fallback: Loading }} id="demo:0" />
       <hr />
-      <RVueWaitDemo fallback={Loading} id="demo:1" />
+      <RVueWaitDemo widget={{ fallback: Loading }} id="demo:1" />
       <hr />
-      <RVueWaitDemo fallback={Loading} id="demo:2" />
+      <RVueWaitDemo widget={{ fallback: Loading }} id="demo:2" />
       <hr />
-      <ReactWaitDemo fallback={Loading} id="demo:3" />
+      <ReactWaitDemo widget={{ fallback: Loading }} id="demo:3" />
       <hr />
-      <ReactWaitDemo fallback={Loading} id="demo:4" />
+      <ReactWaitDemo widget={{ fallback: Loading }} id="demo:4" />
       <hr />
-      <ReactWaitDemo fallback={Loading} id="demo:5" />
+      <ReactWaitDemo widget={{ fallback: Loading }} id="demo:5" />
     </BaseLayout>
   );
 });
