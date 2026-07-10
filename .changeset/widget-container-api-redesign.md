@@ -2,6 +2,7 @@
 '@web-widget/react': minor
 '@web-widget/vue': minor
 '@web-widget/vue2': minor
+'@web-widget/html': minor
 ---
 
 Widget container API redesign: container props are now grouped under a single
@@ -23,3 +24,8 @@ All framework adapters split their package entry. The `.` entry no longer
 re-exports `@web-widget/helpers` — import user-facing APIs from
 `@web-widget/helpers` and runtime code from `./runtime`. `asReactWidget`
 remains available from the `.` entry of `@web-widget/vue` and `@web-widget/vue2`.
+
+`@web-widget/html` also no longer re-exports `@web-widget/helpers` from its `.`
+entry — import user-facing APIs from `@web-widget/helpers` directly. Runtime
+APIs (`render`, `html`, `unsafeHTML`, etc.) remain available from
+`@web-widget/html`.

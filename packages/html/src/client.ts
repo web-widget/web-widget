@@ -1,6 +1,4 @@
 export type { HTML, Fallback } from './html';
-export * from '@web-widget/helpers';
-export * from './web-widget';
 
 const notImplemented = (name: string) => () => {
   throw new Error(`Client is not implemented: ${name}()`);
