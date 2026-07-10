@@ -3,8 +3,6 @@ import type { Fallback, HTML, UnsafeHTML } from './html';
 import { fallback, html, unsafeHTML } from './html';
 import { asyncIterToStream, streamToAsyncIter } from './stream-utils';
 
-export * from '@web-widget/helpers';
-export * from './web-widget';
 export { fallback, html, unsafeHTML };
 export type { Fallback, HTML, UnsafeHTML };
 

@@ -1,4 +1,5 @@
-import { render, html, defineRouteComponent } from '@web-widget/html';
+import { render, html } from '@web-widget/html';
+import { defineRouteComponent } from '@web-widget/helpers';
 import type { HelloData } from './api/hello-world@route';
 
 export { render };
