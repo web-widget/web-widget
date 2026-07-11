@@ -67,7 +67,6 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin[] {
           routesPath,
           overridePathname,
           ignore: resolvedWebRouterConfig.ignore,
-          compoundExtensions: host?.state.compoundExtensions,
           onRoutemapComputed(routemap) {
             host?.setDevServerRoutemap(routemap);
           },

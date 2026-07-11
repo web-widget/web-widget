@@ -248,22 +248,5 @@ export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
     }
   }
 
-  // Collect compound extensions (e.g., `.html.ts`) for the routing layer,
-  // so it can correctly strip them when parsing route file names.
-  const compoundExtensions = adapters.flatMap((a) =>
-    a.extensions.filter((e) => e.split('.').length > 2)
-  );
-
-  return [
-    {
-      name: '@web-widget:widget-compound-extensions',
-      enforce: 'post',
-      config(config) {
-        getWebRouterPluginApi(config)?.setCompoundExtensions(
-          compoundExtensions
-        );
-      },
-    },
-    ...adapters.flatMap((a) => buildPluginsForAdapter(a, root)),
-  ];
+  return adapters.flatMap((a) => buildPluginsForAdapter(a, root));
 }

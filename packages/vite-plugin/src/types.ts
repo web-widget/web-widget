@@ -123,8 +123,6 @@ export interface WebRouterPluginApi {
   serverRoutemap(): Promise<RouteMap>;
   readonly widgetModuleFilter?: WidgetModuleFilter;
   setWidgetModuleFilter(filter: WidgetModuleFilter): void;
-  readonly compoundExtensions?: readonly string[];
-  setCompoundExtensions(extensions: readonly string[]): void;
   /** Shared cache for route asset collection across plugin instances. */
   getRouteAssetCaches(): RouteAssetCaches;
   /** Pre-computed during `buildStart` for O(1) SSR transform lookup. */

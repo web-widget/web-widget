@@ -29,7 +29,6 @@ export interface FileSystemRouteGeneratorOptions {
   onRoutemapChanged?: (change: RoutemapChange) => void | Promise<void>;
   watcher: FSWatcher;
   ignore?: string[];
-  compoundExtensions?: readonly string[];
 }
 
 interface RoutemapFileCache {
@@ -47,7 +46,6 @@ export async function fileSystemRouteGenerator({
   onRoutemapChanged,
   watcher,
   ignore,
-  compoundExtensions,
 }: FileSystemRouteGeneratorOptions) {
   const cache: RoutemapFileCache = {};
   let filesystemDirty = false;
@@ -83,7 +81,6 @@ export async function fileSystemRouteGenerator({
     routemapPath,
     filesystemDirty: false,
     ignore,
-    compoundExtensions,
   });
 
   const updateFileSystemRouting = debounce(() => {
@@ -97,7 +94,6 @@ export async function fileSystemRouteGenerator({
       routemapPath,
       filesystemDirty: dirty,
       ignore,
-      compoundExtensions,
     });
   }, 40);
 
@@ -131,7 +127,6 @@ async function updateRoutemapFile(options: {
   cache: RoutemapFileCache;
   filesystemDirty: boolean;
   ignore?: string[];
-  compoundExtensions?: readonly string[];
   onRoutemapComputed?: (routemap: RouteMap) => void;
   onRoutemapChanged?: (change: RoutemapChange) => void | Promise<void>;
 }) {
@@ -144,7 +139,6 @@ async function updateRoutemapFile(options: {
     cache,
     filesystemDirty,
     ignore,
-    compoundExtensions,
     onRoutemapComputed,
     onRoutemapChanged,
   } = options;
@@ -154,8 +148,7 @@ async function updateRoutemapFile(options: {
     absoluteRoutesPath,
     basePathname,
     overridePathname,
-    ignore,
-    compoundExtensions
+    ignore
   );
   onRoutemapComputed?.(routemap);
 

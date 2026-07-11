@@ -45,10 +45,9 @@ export async function getRoutemap(
   routesPath: string,
   basePathname: string,
   overridePathname: OverridePathname | undefined,
-  ignore: string[] = [],
-  compoundExtensions: readonly string[] = []
+  ignore: string[] = []
 ): Promise<RouteMap> {
-  const sourceFiles = await walkRoutes(routesPath, ignore, compoundExtensions);
+  const sourceFiles = await walkRoutes(routesPath, ignore);
   const fallbacks: RouteSourceFile[] = [];
   const layouts: RouteSourceFile[] = [];
   const middlewares: RouteSourceFile[] = [];

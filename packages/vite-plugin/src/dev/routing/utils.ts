@@ -13,10 +13,7 @@ function toTitleCase(str: string) {
   });
 }
 
-export function getExtension(
-  fileName: string,
-  compoundExtensions: readonly string[] = []
-) {
+export function getExtension(fileName: string) {
   if (typeof fileName === 'string') {
     const parts = fileName.trim().toLowerCase().split('.');
     if (parts.length > 1) {
@@ -26,9 +23,14 @@ export function getExtension(
         if (sub === 'd') {
           return '.d.ts';
         }
-        const compound = '.' + sub + '.' + ext;
-        if (compoundExtensions.includes(compound)) {
-          return compound;
+        // TODO: This hardcodes `html` to support the `.html.ts` / `.html.js`
+        // compound extensions declared by `@web-widget/html`. Ideally this
+        // should be driven by adapter-declared compound extensions passed
+        // through the plugin API, but that requires plumbing the extension
+        // list through the routing layer. For now, this is a temporary
+        // shortcut.
+        if (sub === 'html') {
+          return '.' + sub + '.' + ext;
         }
       }
       return '.' + ext;
@@ -37,13 +39,10 @@ export function getExtension(
   return '';
 }
 
-export function removeExtension(
-  fileName: string,
-  compoundExtensions: readonly string[] = []
-) {
+export function removeExtension(fileName: string) {
   if (typeof fileName === 'string') {
     fileName = fileName.trim();
-    const ext = getExtension(fileName, compoundExtensions);
+    const ext = getExtension(fileName);
     return fileName.slice(0, fileName.length - ext.length);
   }
   return '';

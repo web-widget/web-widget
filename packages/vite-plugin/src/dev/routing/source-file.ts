@@ -12,12 +12,9 @@ const types: RouteSourceType[] = [
   'route',
 ];
 
-export function getSourceFile(
-  fileName: string,
-  compoundExtensions: readonly string[] = []
-) {
-  const ext = getExtension(fileName, compoundExtensions);
-  const base = removeExtension(fileName, compoundExtensions);
+export function getSourceFile(fileName: string) {
+  const ext = getExtension(fileName);
+  const base = removeExtension(fileName);
   const matched = base.match(NAME_REG);
   const groups = matched?.groups;
 

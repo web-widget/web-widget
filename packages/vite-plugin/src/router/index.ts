@@ -224,7 +224,6 @@ async function createSharedConfig(
   await ensureConventionFiles({
     config: resolvedWebRouterConfig,
     root,
-    compoundExtensions: host.state.compoundExtensions,
   });
 
   const serverRoutemapPath = resolvedWebRouterConfig.input.server.routemap;
