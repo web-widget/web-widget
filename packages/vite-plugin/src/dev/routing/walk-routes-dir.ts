@@ -5,14 +5,19 @@ import { getSourceFile } from './source-file';
 import { normalizePath } from '@/internal/path';
 import { logPlugin } from '@/internal/log';
 
-export async function walkRoutes(routesDir: string, ignore: string[] = []) {
+export async function walkRoutes(
+  routesDir: string,
+  ignore: string[] = [],
+  compoundExtensions: readonly string[] = []
+) {
   const sourceFiles: RouteSourceFile[] = [];
   const ignored = new Set(ignore);
   await walkRouteDir(
     sourceFiles,
     ignored,
     normalizePath(routesDir),
-    normalizePath(routesDir)
+    normalizePath(routesDir),
+    compoundExtensions
   );
   return sourceFiles.sort((a, b) => a.pathname.localeCompare(b.pathname, 'en'));
 }
@@ -21,7 +26,8 @@ async function walkRouteDir(
   sourceFiles: RouteSourceFile[],
   ignore: Set<string>,
   dir: string,
-  root: string
+  root: string,
+  compoundExtensions: readonly string[] = []
 ) {
   const dirItemNames = await fs.promises.readdir(dir);
 
@@ -40,9 +46,15 @@ async function walkRouteDir(
         }
 
         if (stat.isDirectory()) {
-          await walkRouteDir(sourceFiles, ignore, source, root);
+          await walkRouteDir(
+            sourceFiles,
+            ignore,
+            source,
+            root,
+            compoundExtensions
+          );
         } else {
-          const sourceFileName = getSourceFile(itemName);
+          const sourceFileName = getSourceFile(itemName, compoundExtensions);
           if (sourceFileName !== null) {
             sourceFiles.push({
               ...sourceFileName,

@@ -1,12 +1,12 @@
 // User-facing entry. Adapter protocol (render, container) is in ./runtime.
-export { asHtmlWidget, widget } from './widget';
-export { container } from './runtime';
+export { asHtmlWidget, container } from './components';
 export type {
   HtmlWidgetComponent,
   HtmlWidgetProps,
   WidgetContainerConfig,
   DefineWebWidgetOptions,
-} from './runtime';
-export { unsafeStreamToHTML, streamToHTML, HTMLToStream } from './stream';
-export { fallback, html, unsafeHTML } from './html';
-export type { Fallback, HTML, UnsafeHTML } from './html';
+} from './components';
+export { unsafeStreamToHTML, streamToHTML, renderToStream } from './render';
+export { fallback, html, suspense, unsafeHTML } from './html';
+export type { Fallback, HTML, Suspense, UnsafeHTML } from './html';
+export { classMap, styleMap, ifDefined, when, join } from './directives';

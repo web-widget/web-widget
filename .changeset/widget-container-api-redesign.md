@@ -13,7 +13,7 @@ from the widget's own props to prevent naming collisions.
 
 ```diff
 - <Counter fallback={<Spinner />} experimental_loading="lazy" count={1} />
-+ <Counter widget={{ fallback: <Spinner />, loading: 'lazy' }} count={1} />
++ <Counter widget={{ fallback: <Spinner />, padding: 'lazy' }} count={1} />
 ```
 
 `experimental_loading` → `loading`, `experimental_renderTarget` removed

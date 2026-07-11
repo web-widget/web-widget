@@ -10,4 +10,3 @@ using `.html.ts` extension now get automatic `render` injection and widget
 - `exportRenderPlugin` auto-injects `render` into `@route.html.ts` / `@widget.html.ts`
 - `importRenderPlugin` auto-wraps widget imports via `container()`
 - `deriveExports` provides default `handler` and `meta` (same as Vue adapter)
-- Manual `widget()` function still available for advanced use cases

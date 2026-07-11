@@ -23,7 +23,9 @@ use('*', async function streamingDemo(ctx, next) {
   if (
     (pathname === '/react-streaming' ||
       pathname === '/react-streaming-error' ||
-      pathname === '/vue3-streaming') &&
+      pathname === '/vue3-streaming' ||
+      pathname === '/html-suspense-streaming' ||
+      pathname === '/html-streaming-error') &&
     ctx.renderer
   ) {
     ctx.renderer.progressive = true;

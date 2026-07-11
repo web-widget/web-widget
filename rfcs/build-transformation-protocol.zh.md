@@ -326,6 +326,84 @@ export default __$default$__;
 
 派生规则与框架的渲染方式相关——Vue3 的 `handler` 兜底使用 `html()` 渲染，Vue2 使用 `render()` 渲染——因此由适配器包声明而非用户配置。`deriveExports` 仅对路由模块（文件名包含路由标记的模块）生效。
 
+#### 1.7 Widget 容器配置
+
+当框架支持流式 SSR 时（如 React、HTML 模板），widget 的异步渲染可能阻塞流。为了让用户在所有框架中获得一致的 Suspense 体验，各适配器包的 `WidgetContainerConfig` 应采用统一的 `fallback` 设计：
+
+```typescript
+type WidgetContainerConfig<TFallback> = {
+  /**
+   * 待定和错误状态的回退 UI。
+   *
+   * 仅在服务端渲染期间生效：待定 UI 在 widget 模块异步渲染时显示，
+   * 错误 UI 在渲染失败时显示。两者都被序列化到 HTML 流中——
+   * Islands 架构下不存在客户端重试。
+   *
+   * - `TFallback` — 待定（Suspense）和错误共用同一 UI。
+   * - `{ pending?, error? }` — 分别指定；省略 `error` 时回退到 `pending`。
+   *
+   * 不提供 `fallback` 时，widget 阻塞渲染（无 Suspense 边界）。
+   *
+   * @example
+   * // 简单：两种状态共用同一 UI
+   * { fallback: <Spinner /> }
+   *
+   * // 区分：分别指定待定和错误 UI
+   * { fallback: { pending: <Spinner />, error: <ErrorUI /> } }
+   */
+  fallback?: TFallback | { pending?: TFallback; error?: TFallback };
+
+  /**
+   * 客户端模块加载策略。
+   * - `'lazy'`（默认）：首次渲染时加载
+   * - `'eager'`：模块解析时立即加载
+   * - `'idle'`：浏览器空闲时加载
+   */
+  loading?: 'lazy' | 'eager' | 'idle';
+
+  /**
+   * 仅服务端渲染（SSR），产出静态 HTML，无客户端水合。
+   * 与 `clientOnly` 互斥。
+   */
+  serverOnly?: true;
+
+  /**
+   * 仅客户端渲染，不产出服务端 HTML（空占位符直到客户端挂载）。
+   * 与 `serverOnly` 互斥。
+   */
+  clientOnly?: true;
+};
+```
+
+`TFallback` 是框架特定的 UI 类型，例如 ReactNode、VNode 等。
+
+**各框架用法对照**：
+
+```tsx
+// React — TFallback = ReactNode
+<Widget widget={{ fallback: <Spinner /> }} />
+<Widget widget={{ fallback: { pending: <Spinner />, error: <ErrorUI /> } }} />
+```
+
+```typescript
+// HTML 模板 — TFallback = HTML
+Widget({ widget: { fallback: html`<div>Loading...</div>` } });
+Widget({
+  widget: {
+    fallback: {
+      pending: html`<div>Loading...</div>`,
+      error: html`<div>Error!</div>`,
+    },
+  },
+});
+```
+
+```vue
+<!-- Vue — TFallback = VNode -->
+<Widget :widget="{ fallback: h(Spinner) }" />
+<Widget :widget="{ fallback: { pending: h(Spinner), error: h(ErrorUI) } }" />
+```
+
 ## 参考
 
 - [Astro 渲染器设计调查](./references/astro-renderer-design.zh.md) — 对比 Astro `AstroRenderer` 与 `WebWidgetAdapter` 的设计差异

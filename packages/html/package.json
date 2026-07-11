@@ -37,7 +37,8 @@
     "version": "1.0.0",
     "name": "html",
     "extensions": [
-      ".html.ts"
+      ".html.ts",
+      ".html.js"
     ],
     "runtime": "./runtime"
   },

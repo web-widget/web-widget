@@ -36,6 +36,8 @@ export interface RouterBuildState {
   serverTarget: SSRTarget;
   useAppBuilder: boolean;
   widgetModuleFilter?: WidgetModuleFilter;
+  /** Compound file extensions from adapters (e.g., `.html.ts`, `.html.js`). */
+  compoundExtensions?: readonly string[];
   /** In-memory routemap while dev server is running (filesystem routing). */
   devServerRoutemap?: RouteMap;
   /** Shared cache for route asset collection across plugin instances. */
@@ -96,6 +98,9 @@ export function createRouterPluginHost(
     },
     setWidgetModuleFilter(filter) {
       state.widgetModuleFilter = filter;
+    },
+    setCompoundExtensions(extensions) {
+      state.compoundExtensions = extensions;
     },
     async clientImportmap() {
       const file = api.config.input.client.importmap;

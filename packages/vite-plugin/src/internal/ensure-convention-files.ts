@@ -60,6 +60,7 @@ export function requireConventionEntry(
 export interface EnsureConventionFilesOptions {
   config: ResolvedWebRouterConfig;
   root: string;
+  compoundExtensions?: readonly string[];
   fileExists?: FileExistsSync;
   writeFile?: (filePath: string, data: string) => Promise<void>;
   mkdir?: (dir: string) => Promise<void>;
@@ -71,6 +72,7 @@ export async function ensureConventionFiles(
   const {
     config,
     root,
+    compoundExtensions,
     fileExists = defaultFileExistsSync,
     writeFile = (filePath, data) => fs.writeFile(filePath, data, 'utf-8'),
     mkdir = async (dir) => {
@@ -79,7 +81,14 @@ export async function ensureConventionFiles(
   } = options;
 
   await ensureImportmapFile(config, fileExists, writeFile);
-  await ensureRoutemapFile(config, root, fileExists, writeFile, mkdir);
+  await ensureRoutemapFile(
+    config,
+    root,
+    compoundExtensions,
+    fileExists,
+    writeFile,
+    mkdir
+  );
 }
 
 async function ensureImportmapFile(
@@ -102,6 +111,7 @@ async function ensureImportmapFile(
 async function ensureRoutemapFile(
   config: ResolvedWebRouterConfig,
   root: string,
+  compoundExtensions: readonly string[] | undefined,
   fileExists: FileExistsSync,
   writeFile: (filePath: string, data: string) => Promise<void>,
   mkdir: (dir: string) => Promise<void>
@@ -123,7 +133,8 @@ async function ensureRoutemapFile(
       routesPath,
       config.filesystemRouting.basePathname,
       config.filesystemRouting.overridePathname,
-      config.ignore
+      config.ignore,
+      compoundExtensions
     );
     await writeFile(routemapPath, `${JSON.stringify(routemap, null, 2)}\n`);
     return;

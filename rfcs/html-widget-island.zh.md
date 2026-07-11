@@ -39,31 +39,31 @@ HTML 模板不存在这些复杂度：
 
 ### 1. 适配器协议
 
-`@web-widget/html` 声明 `WebWidgetAdapter` 协议，使用 `.html.ts` 扩展名：
+`@web-widget/html` 声明 `WebWidgetAdapter` 协议，使用 `.html.ts` / `.html.js` 扩展名：
 
 ```json
 {
   "webWidget": {
     "version": "1.0.0",
     "name": "html",
-    "extensions": [".html.ts"],
+    "extensions": [".html.ts", ".html.js"],
     "runtime": "./runtime"
   }
 }
 ```
 
-构建工具对 `.html.ts` 文件执行两种自动注入：
+构建工具对 `.html.ts` / `.html.js` 文件执行两种自动注入：
 
 - **`render` 注入**：`Page@route.html.ts` 不再需要 `export { render }`
 - **`container` 注入**：导入 widget 时自动包装为可调用函数
 
-使用 `.html.ts` 而非 `.ts`，避免与原生 JS 模块（`VanillaCounter@widget.ts`）和 API 路由（`api/hello@route.ts`）冲突。
+使用 `.html.ts` / `.html.js` 而非 `.ts` / `.js`，避免与原生 JS 模块（`VanillaCounter@widget.ts`）和 API 路由（`api/hello@route.ts`）冲突。
 
 ### 2. 封装结构
 
 ```mermaid
 flowchart TD
-    A["fallback()"] --> B["widget() / container()"]
+    A["fallback()"] --> B["container()"]
     B --> C["WebWidgetRenderer"]
 
     style A fill:#bbdefb,color:#0d47a1
@@ -71,11 +71,11 @@ flowchart TD
     style C fill:#fff3e0,color:#e65100
 ```
 
-| 层                         | 职责                                     | 实现方式                                      |
-| -------------------------- | ---------------------------------------- | --------------------------------------------- |
-| **fallback()**             | 捕获渲染错误，渲染替代 HTML              | 模板函数，async iterable 层面 try/catch       |
-| **widget() / container()** | 将 widget 模块渲染为 `<web-widget>` HTML | `WebWidgetRenderer.renderOuterHTMLToString()` |
-| **WebWidgetRenderer**      | 加载模块、调用 render、输出 HTML 字符串  | `@web-widget/web-widget` 提供的框架无关渲染器 |
+| 层                    | 职责                                     | 实现方式                                      |
+| --------------------- | ---------------------------------------- | --------------------------------------------- |
+| **fallback()**        | 捕获渲染错误，渲染替代 HTML              | 模板函数，async iterable 层面 try/catch       |
+| **container()**       | 将 widget 模块渲染为 `<web-widget>` HTML | `WebWidgetRenderer.renderOuterHTMLToString()` |
+| **WebWidgetRenderer** | 加载模块、调用 render、输出 HTML 字符串  | `@web-widget/web-widget` 提供的框架无关渲染器 |
 
 ### 3. container 与 widget
 
@@ -109,28 +109,6 @@ type WidgetContainerConfig = {
 ```
 
 这与 React 适配器的 `widget` prop 设计完全一致——容器配置与 widget 自身的 props 物理隔离，避免命名冲突。
-
-**`widget()`**（用户手动调用，来自 `.` 入口`）：
-
-```typescript
-import { html, widget, fallback } from '@web-widget/html';
-
-html`<div>
-  ${fallback(
-    widget(() => import('./Counter@widget.tsx'), { data: { count: 1 } }),
-    () => html`<div>Widget failed</div>`
-  )}
-</div>`;
-```
-
-两者底层都调用 `WebWidgetRenderer`，区别在于：
-
-|          | `widget()`                      | `container()`                       |
-| -------- | ------------------------------- | ----------------------------------- |
-| 来源     | `.` 入口（用户导入）            | `./runtime`（构建工具注入）         |
-| 返回     | `Promise<UnsafeHTML>`（一次性） | `HtmlWidgetComponent`（可重复调用） |
-| 调用方式 | `(loader, options)`             | `({ data?, widget? })`              |
-| 用途     | 手动嵌入，控制力强              | 自动包装 widget 导入                |
 
 ### 4. 类型适配
 
@@ -249,25 +227,6 @@ export default function Page() {
 }
 ```
 
-### 手动 widget()
-
-```typescript
-// Chart@route.html.ts
-import { html, widget, fallback } from '@web-widget/html';
-
-export default function Page() {
-  return html`<div>
-    ${fallback(
-      widget(() => import('./Chart@widget.tsx'), {
-        data: { type: 'bar' },
-        loading: 'lazy',
-      }),
-      () => html`<div>Chart unavailable</div>`
-    )}
-  </div>`;
-}
-```
-
 ## 已知限制
 
 ### Widget 内部不支持流式渲染
@@ -278,9 +237,9 @@ export default function Page() {
 
 `MARKERS_RE` 只匹配 `@route` 和 `@widget`，不匹配 `@layout`。这对所有适配器一致。
 
-### .ts 文件不受 adapter 影响
+### .ts / .js 文件不受 adapter 影响
 
-`.ts`（而非 `.html.ts`）的路由/widget 文件不会被任何 adapter 处理，用户需手动导出。这是有意为之——保持与原生 JS 模块的兼容。
+`.ts` / `.js`（而非 `.html.ts` / `.html.js`）的路由/widget 文件不会被任何 adapter 处理，用户需手动导出。这是有意为之——保持与原生 JS 模块的兼容。
 
 ### 类型推导需要手动声明
 

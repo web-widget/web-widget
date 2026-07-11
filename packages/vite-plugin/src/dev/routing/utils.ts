@@ -13,18 +13,22 @@ function toTitleCase(str: string) {
   });
 }
 
-export function getExtension(fileName: string) {
+export function getExtension(
+  fileName: string,
+  compoundExtensions: readonly string[] = []
+) {
   if (typeof fileName === 'string') {
     const parts = fileName.trim().toLowerCase().split('.');
     if (parts.length > 1) {
       const ext = parts.pop()!.split('?')[0].split('#')[0];
-      if (ext === 'ts') {
+      if (ext === 'ts' || ext === 'js') {
         const sub = parts.pop();
         if (sub === 'd') {
           return '.d.ts';
         }
-        if (sub === 'html') {
-          return '.html.ts';
+        const compound = '.' + sub + '.' + ext;
+        if (compoundExtensions.includes(compound)) {
+          return compound;
         }
       }
       return '.' + ext;
@@ -33,10 +37,13 @@ export function getExtension(fileName: string) {
   return '';
 }
 
-export function removeExtension(fileName: string) {
+export function removeExtension(
+  fileName: string,
+  compoundExtensions: readonly string[] = []
+) {
   if (typeof fileName === 'string') {
     fileName = fileName.trim();
-    const ext = getExtension(fileName);
+    const ext = getExtension(fileName, compoundExtensions);
     return fileName.slice(0, fileName.length - ext.length);
   }
   return '';
