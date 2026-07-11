@@ -41,16 +41,14 @@ describe('renderToString', () => {
     const throws = async () => {
       throw new Error('boom');
     };
-    const page = html`<div>
-      ${fallback(suspense(throws, html`pending`), html`err`)}
-    </div>`;
+    // prettier-ignore
+    const page = html`<div>${fallback(suspense(throws, html`pending`), html`err`)}</div>`;
     expect(await renderToString(page)).toBe('<div>err</div>');
   });
 
   test('nested templates', async () => {
-    const page = html`<ul>
-      ${[1, 2, 3].map((n) => html`<li>${n}</li>`)}
-    </ul>`;
+    // prettier-ignore
+    const page = html`<ul>${[1, 2, 3].map((n) => html`<li>${n}</li>`)}</ul>`;
     expect(await renderToString(page)).toBe(
       '<ul><li>1</li><li>2</li><li>3</li></ul>'
     );

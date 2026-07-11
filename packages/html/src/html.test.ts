@@ -227,14 +227,8 @@ describe('html', () => {
     const throws = () => {
       throw new Error('inner');
     };
-    const t = html`<div>
-      ${fallback(
-        html`<outer
-          >${fallback(html`<inner>${throws}</inner>`, html`<i>caught</i>`)}</outer
-        >`,
-        html`<o>outer-fallback</o>`
-      )}
-    </div>`;
+    // prettier-ignore
+    const t = html`<div>${fallback(html`<outer>${fallback(html`<inner>${throws}</inner>`, html`<i>caught</i>`)}</outer>`, html`<o>outer-fallback</o>`)}</div>`;
     // Inner fallback catches; note </inner> after the throw is not yielded
     expect(await stringify(t)).toBe(
       '<div><outer><inner><i>caught</i></outer></div>'
@@ -245,9 +239,8 @@ describe('html', () => {
     const throws = async () => {
       throw new Error('propagate');
     };
-    const t = html`<div>
-      ${fallback(html`<outer>${throws}</outer>`, html`<o>caught</o>`)}
-    </div>`;
+    // prettier-ignore
+    const t = html`<div>${fallback(html`<outer>${throws}</outer>`, html`<o>caught</o>`)}</div>`;
     // Outer fallback catches; </outer> after the throw is not yielded
     expect(await stringify(t)).toBe('<div><outer><o>caught</o></div>');
   });
@@ -257,7 +250,8 @@ describe('html', () => {
       yield html`<p>ok</p>`;
       throw new Error('mid-stream');
     };
-    const t = html`<div>${fallback(gen, html`<err />`)}</div>`;
+    // prettier-ignore
+    const t = html`<div>${fallback(gen, html`<err/>`)}</div>`;
     expect(await stringify(t)).toBe('<div><p>ok</p><err/></div>');
   });
 
@@ -276,7 +270,8 @@ describe('html', () => {
 
   test('unpack handles function content', async () => {
     const chunks: string[] = [];
-    for await (const c of unpack(() => html`<x />`)) {
+    // prettier-ignore
+    for await (const c of unpack(() => html`<x/>`)) {
       chunks.push(c);
     }
     expect(chunks.join('')).toBe('<x/>');
@@ -324,9 +319,8 @@ describe('suspense (passthrough mode)', () => {
     const throws = async () => {
       throw new Error('boom');
     };
-    const t = html`<div>
-      ${fallback(suspense(throws, html`<p>pending</p>`), html`<p>fallback</p>`)}
-    </div>`;
+    // prettier-ignore
+    const t = html`<div>${fallback(suspense(throws, html`<p>pending</p>`), html`<p>fallback</p>`)}</div>`;
     expect(await stringify(t)).toBe('<div><p>fallback</p></div>');
   });
 });
