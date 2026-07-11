@@ -1,6 +1,7 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import { htmlCompress } from '@web-widget/html/vite-plugin';
 import { webRouterPlugin, webWidgetPlugin } from '@web-widget/vite-plugin';
 import { vue2PresetsPlugin } from './routes/(vue2)/vite-plugins';
 import { vuePresetsPlugin } from './routes/(vue3)/vite-plugins';
@@ -37,6 +38,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    htmlCompress(),
     webRouterPlugin({
       asyncContext: {
         enabled: true,

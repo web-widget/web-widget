@@ -14,11 +14,13 @@
   "license": "MIT",
   "dependencies": {
     "@web-widget/helpers": "workspace:*",
-    "@web-widget/web-widget": "workspace:*"
+    "@web-widget/web-widget": "workspace:*",
+    "magic-string": "^0.30.5"
   },
   "devDependencies": {
     "tsup": "catalog:",
     "typescript": "catalog:",
+    "vite": "catalog:",
     "vitest": "catalog:"
   },
   "exports": {
@@ -31,7 +33,15 @@
       "types": "./dist/html.runtime.d.ts",
       "development": "./src/runtime.ts",
       "default": "./dist/html.runtime.js"
+    },
+    "./vite-plugin": {
+      "types": "./dist/html.vite-plugin.d.ts",
+      "development": "./src/vite-plugin.ts",
+      "default": "./dist/html.vite-plugin.js"
     }
+  },
+  "peerDependencies": {
+    "vite": "catalog:"
   },
   "webWidget": {
     "version": "1.0.0",
@@ -55,6 +65,10 @@
       "./runtime": {
         "types": "./dist/html.runtime.d.ts",
         "default": "./dist/html.runtime.js"
+      },
+      "./vite-plugin": {
+        "types": "./dist/html.vite-plugin.d.ts",
+        "default": "./dist/html.vite-plugin.js"
       }
     }
   },

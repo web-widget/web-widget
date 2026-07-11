@@ -5,6 +5,7 @@ export default defineConfig({
   entry: {
     html: 'src/index.ts',
     'html.runtime': 'src/runtime.ts',
+    'html.vite-plugin': 'src/vite-plugin.ts',
   },
   external: [],
   format: 'esm',

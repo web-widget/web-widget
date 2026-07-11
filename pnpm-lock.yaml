@@ -567,6 +567,9 @@ importers:
       '@web-widget/web-widget':
         specifier: workspace:*
         version: link:../web-widget
+      magic-string:
+        specifier: ^0.30.5
+        version: 0.30.21
     devDependencies:
       tsup:
         specifier: 'catalog:'
@@ -574,6 +577,9 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
+      vite:
+        specifier: 'catalog:'
+        version: 8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2)
       vitest:
         specifier: 'catalog:'
         version: 4.1.6(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3)(vite@8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2))
@@ -5957,9 +5963,6 @@ packages:
     resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}
     engines: {node: '>=12'}
 
-  magic-string@0.30.12:
-    resolution: {integrity: sha512-Ea8I3sQMVXr8JhN4z+H/d8zwo+tYDgHE9+5G4Wnrwhs0gaK9fXTKx0Tw5Xwsd/bCPTTZNRAdpyzvoeORe9LYpw==}
-
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
@@ -9688,7 +9691,7 @@ snapshots:
   '@rollup/plugin-replace@5.0.7(rollup@3.30.0)':
     dependencies:
       '@rollup/pluginutils': 5.1.4(rollup@3.30.0)
-      magic-string: 0.30.12
+      magic-string: 0.30.21
     optionalDependencies:
       rollup: 3.30.0
 
@@ -13567,10 +13570,6 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  magic-string@0.30.12:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
-
   magic-string@0.30.21:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -14564,7 +14563,7 @@ snapshots:
 
   rollup-plugin-dts@5.3.1(rollup@3.30.0)(typescript@5.5.4):
     dependencies:
-      magic-string: 0.30.12
+      magic-string: 0.30.21
       rollup: 3.30.0
       typescript: 5.5.4
     optionalDependencies:
@@ -15395,7 +15394,7 @@ snapshots:
       globby: 13.2.2
       hookable: 5.5.3
       jiti: 1.21.6
-      magic-string: 0.30.12
+      magic-string: 0.30.21
       mkdist: 1.6.0(typescript@5.5.4)
       mlly: 1.7.4
       mri: 1.2.0
