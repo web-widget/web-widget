@@ -49,12 +49,21 @@
     <li>
       <a href="/react-streaming-error">React: Streaming error</a>
     </li>
+    <li>
+      <a href="/react-shell-error">React: Shell error (500)</a>
+    </li>
     <li><a href="/vue3-streaming">Vue3: Streaming</a></li>
+    <li>
+      <a href="/vue3-shell-error">Vue3: Shell Error (500)</a>
+    </li>
     <li>
       <a href="/html-suspense-streaming">HTML: Suspense Streaming</a>
     </li>
     <li>
       <a href="/html-streaming-error">HTML: Streaming Error</a>
+    </li>
+    <li>
+      <a href="/html-shell-error">HTML: Shell Error (500)</a>
     </li>
     <li>
       <a href="/experimental-async-component">Async component</a>

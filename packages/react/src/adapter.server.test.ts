@@ -1,4 +1,4 @@
-import { createElement } from 'react';
+import { createElement, Suspense } from 'react';
 
 // Mock dependencies to avoid ESM workspace package loading issues in Jest.
 jest.mock('@web-widget/helpers', () => ({
@@ -68,6 +68,48 @@ describe('render (server)', () => {
     await expect(
       render(ThrowingComponent, {}, { progressive: false })
     ).rejects.toThrow('render failed');
+  });
+
+  test('shell error in progressive mode rejects (enables 500)', async () => {
+    const ThrowingComponent = () => {
+      throw new Error('shell render failed');
+    };
+
+    // Progressive mode: per React docs, shell errors cause
+    // renderToReadableStream to reject, enabling the framework to
+    // return a 500 fallback response.
+    await expect(
+      render(ThrowingComponent, {}, { progressive: true })
+    ).rejects.toThrow('shell render failed');
+  });
+
+  test('non-shell error in progressive mode does not reject', async () => {
+    const LazyContent = () => {
+      throw new Error('content error');
+    };
+    const Component = () =>
+      createElement(
+        'div',
+        null,
+        createElement(
+          Suspense,
+          { fallback: 'Loading' },
+          createElement(LazyContent)
+        )
+      );
+
+    // Errors inside <Suspense> are recoverable — React emits the fallback
+    // and retries on the client. The render should resolve successfully.
+    const result = await render(Component, {}, { progressive: true });
+    expect(result).toBeInstanceOf(ReadableStream);
+
+    const decoder = new TextDecoder();
+    let html = '';
+    // @ts-ignore
+    for await (const chunk of result as ReadableStream) {
+      html += decoder.decode(chunk, { stream: true });
+    }
+    expect(html).toContain('Loading');
   });
 
   test('async component is supported', async () => {

@@ -49,6 +49,40 @@ describe('Streaming SSR', () => {
     expect(body).toContain('Section A loaded!');
   }, 15000);
 
+  test('React /react-shell-error returns 500 for shell errors', async () => {
+    const result = await fetch('/react-shell-error');
+    expect(result.status).toBe(500);
+    expect(result.body).toBeInstanceOf(ReadableStream);
+
+    const body = await result.text();
+
+    // The _500 fallback page is served.
+    expect(body).toContain('500');
+    expect(body).toContain('Shell error');
+  }, 15000);
+
+  test('HTML /html-shell-error returns 500 for shell errors', async () => {
+    const result = await fetch('/html-shell-error');
+    expect(result.status).toBe(500);
+
+    const body = await result.text();
+
+    // The _500 fallback page is served.
+    expect(body).toContain('500');
+    expect(body).toContain('Shell error');
+  }, 15000);
+
+  test('Vue3 /vue3-shell-error returns 500 for shell errors', async () => {
+    const result = await fetch('/vue3-shell-error');
+    expect(result.status).toBe(500);
+
+    const body = await result.text();
+
+    // The _500 fallback page is served.
+    expect(body).toContain('500');
+    expect(body).toContain('Shell error');
+  }, 15000);
+
   test('HTML /html-streaming-error recovers from errors', async () => {
     const result = await fetch('/html-streaming-error');
     expect(result.status).toBe(200);
