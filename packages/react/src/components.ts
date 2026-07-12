@@ -85,7 +85,7 @@ function WebWidget({
   // Throwing would cause React streaming SSR to abandon the subtree,
   // leaving the loading fallback permanently (no client retry in islands).
   if (html instanceof Error) {
-    console.error('[widget] Rendering error:', html);
+    console.error('[ReactWidget] Rendering error:', html);
     return createElement(Fragment, null, errorFallback);
   }
 

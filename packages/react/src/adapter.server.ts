@@ -45,9 +45,21 @@ export const render = defineServerRender<FunctionComponent>(
     reactRenderOptions.signal =
       signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS);
 
+    // Defer error logging to avoid duplicates:
+    // - Shell errors cause renderMethod to reject → the framework's onFallback
+    //   logs them, so we skip.
+    // - Non-shell errors (caught by Suspense/ErrorBoundary) don't reject →
+    //   we log them after a successful render.
+    // - Post-shell errors (streaming phase) are always non-shell → log directly.
+    const preShellErrors: unknown[] = [];
+    let shellRendered = false;
+
     reactRenderOptions.onError = (e: unknown, i: any) => {
-      // Per React docs: onError must always call console.error.
-      console.error(e);
+      if (shellRendered) {
+        console.error(e);
+      } else {
+        preShellErrors.push(e);
+      }
       onError?.(e instanceof Error ? e : new Error(String(e)), i);
     };
 
@@ -61,6 +73,12 @@ export const render = defineServerRender<FunctionComponent>(
 
     const renderMethod = progressive ? renderToReadableStream : renderToString;
     const result = await renderMethod(vNode, reactRenderOptions);
+
+    // Shell rendered successfully — log collected non-shell errors.
+    shellRendered = true;
+    for (const e of preShellErrors) {
+      console.error(e);
+    }
 
     if (
       progressive &&
