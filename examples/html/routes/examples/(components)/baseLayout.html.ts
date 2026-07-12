@@ -18,7 +18,7 @@ export function baseLayout(content: HTML) {
             <span class="${styles.techText}">HTML Example</span>
           </div>
         </div>
-        ${Navigation()}
+        ${navigation()}
       </div>
     </header>
     <main id="main-content" class="${styles.main}" tabindex="-1">

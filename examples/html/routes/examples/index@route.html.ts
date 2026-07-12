@@ -5,7 +5,7 @@ import { baseLayout } from './(components)/baseLayout.html';
 import styles from './index.module.css';
 import shared from './(components)/shared.module.css';
 
-const Counter = asHtmlWidget<{ count: number }>(CounterWidget);
+const counter = asHtmlWidget<{ count: number }>(CounterWidget);
 
 export const meta = defineMeta({
   title: 'Web Widget',

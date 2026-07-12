@@ -38,7 +38,7 @@ export default defineRouteComponent(function Page() {
               Counter component implemented with React 19 and modern Hooks
             </p>
             <div class="${shared.mt3}">
-              ${ReactWidget({ count: 0, variant: 'react' })}
+              ${reactWidget({ count: 0, variant: 'react' })}
             </div>
           </div>
 

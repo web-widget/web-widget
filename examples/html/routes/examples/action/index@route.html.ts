@@ -61,7 +61,7 @@ export default defineRouteComponent(function Page() {
           be sent to the server-side function for processing, and return a
           response containing timestamp and server information.
         </p>
-        <div style="margin-top: 1.5rem;">${Echo()}</div>
+        <div style="margin-top: 1.5rem;">${echo()}</div>
       </div>
 
       <div class="${shared.comparison}">
