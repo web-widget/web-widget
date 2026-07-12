@@ -416,7 +416,8 @@ describe('suspense (streaming mode via renderToStream)', () => {
     const result = await readStream(renderToStream(page));
 
     // Function definition appears exactly once
-    const defCount = (result.match(/window\.\$HRC=function/g) || []).length;
+    const defCount = (result.match(/window\.\$HRC\s*=\s*function/g) || [])
+      .length;
     expect(defCount).toBe(1);
   });
 });

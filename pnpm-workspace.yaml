@@ -25,3 +25,4 @@ catalog:
   'miniflare': ^4.20250409.0
   'typescript': ^5.5.4
   '@rollup/pluginutils': ^5.1.4
+  'rolldown': ^1.0.0
