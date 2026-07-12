@@ -84,30 +84,6 @@ export function resolveFallback(fallback: WidgetFallback): {
 }
 
 /**
- * Adapt a framework component type to an HTML widget component type.
- *
- * This is a type-level cast only — the actual cross-framework rendering
- * is handled by the `@widget` system. Use this when importing a widget
- * (e.g. `Counter@widget.tsx`) into an HTML template file so that
- * TypeScript treats it as a callable returning `Promise<UnsafeHTML>`.
- *
- * The props type `T` should be specified manually to match the widget's
- * props interface.
- *
- * @example
- * ```ts
- * import ReactCounter from './Counter@widget.tsx';
- * const Counter = asHtmlWidget<{ count: number }>(ReactCounter);
- * Counter({ count: 1 });
- * ```
- */
-export /*#__INLINE__*/ function asHtmlWidget<T = unknown>(
-  component: unknown
-): HtmlWidgetComponent<T> {
-  return component as unknown as HtmlWidgetComponent<T>;
-}
-
-/**
  * Container function (WebWidgetAdapter protocol).
  *
  * Wraps a widget module loader into a callable function that returns

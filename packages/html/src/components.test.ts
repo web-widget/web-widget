@@ -1,5 +1,6 @@
 import { html, unsafeHTML } from './html';
-import { resolveFallback, asHtmlWidget } from './components';
+import { resolveFallback } from './components';
+import { asHtmlWidget } from './adapter';
 
 describe('resolveFallback', () => {
   test('HTML form — same fallback for pending and error', () => {

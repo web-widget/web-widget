@@ -2,7 +2,7 @@ import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
 import ReactCounter from '../(components)/Counter@widget.tsx';
 import BaseLayout from '../(components)/BaseLayout.tsx';
 import VueCounter from '../(components)/Counter@widget.vue';
-import { asReactWidget } from '@web-widget/vue';
+import { asReactWidget } from '@web-widget/vue/adapter';
 import shared from '../(components)/shared.module.css';
 
 const RVueCounter = asReactWidget(VueCounter);

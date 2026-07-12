@@ -14,7 +14,6 @@ declare module '@web-widget/schema' {
   }
 }
 
-export { useWidgetAsyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
 // Helper function to create the WidgetSuspense component

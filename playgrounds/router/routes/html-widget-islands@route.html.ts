@@ -1,4 +1,5 @@
-import { html, fallback, asHtmlWidget } from '@web-widget/html';
+import { html, fallback } from '@web-widget/html';
+import { asHtmlWidget } from '@web-widget/html/adapter';
 import { defineRouteComponent } from '@web-widget/helpers';
 import ReactCounter from './(components)/Counter@widget';
 

@@ -1,1 +1,1 @@
-export { asReactWidget } from '@web-widget/vue';
+export { asReactWidget } from '@web-widget/vue/adapter';
