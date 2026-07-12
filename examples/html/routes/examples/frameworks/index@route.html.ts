@@ -5,10 +5,10 @@ import VueCounter from '../(components)/Counter@widget.vue';
 import { baseLayout } from '../(components)/baseLayout.html';
 import shared from '../(components)/shared.module.css';
 
-const ReactWidget = asHtmlWidget<{ count: number; variant?: string }>(
+const reactWidget = asHtmlWidget<{ count: number; variant?: string }>(
   ReactCounter
 );
-const VueWidget = asHtmlWidget<{ count: number; variant?: string }>(VueCounter);
+const vueWidget = asHtmlWidget<{ count: number; variant?: string }>(VueCounter);
 
 export const meta = defineMeta({
   title: 'Widgets - Web Widget',
@@ -48,7 +48,7 @@ export default defineRouteComponent(function Page() {
               Counter component implemented with Vue 3 Composition API
             </p>
             <div class="${shared.mt3}">
-              ${VueWidget({ count: 0, variant: 'vue' })}
+              ${vueWidget({ count: 0, variant: 'vue' })}
             </div>
           </div>
         </div>

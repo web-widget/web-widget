@@ -3,7 +3,7 @@ import './global.css';
 import styles from './baseLayout.module.css';
 import NavigationWidget from './Navigation@widget.tsx';
 
-const Navigation = asHtmlWidget(NavigationWidget);
+const navigation = asHtmlWidget(NavigationWidget);
 
 export function baseLayout(content: HTML) {
   return html`

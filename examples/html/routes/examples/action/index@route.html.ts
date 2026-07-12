@@ -4,7 +4,7 @@ import EchoWidget from './Echo@widget.tsx';
 import { baseLayout } from '../(components)/baseLayout.html';
 import shared from '../(components)/shared.module.css';
 
-const Echo = asHtmlWidget(EchoWidget);
+const echo = asHtmlWidget(EchoWidget);
 
 export const meta = defineMeta({
   title: 'Server Actions - Web Widget',
