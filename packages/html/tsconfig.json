@@ -2,9 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
-    "types": ["vitest/globals"]
+    "rootDir": ".",
+    "types": ["vitest/globals", "node"]
   },
-  "exclude": ["node_modules"],
-  "include": ["src/**/*"]
+  "exclude": ["node_modules", "dist"],
+  "include": ["src/**/*", "*.config.ts", "scripts/**/*"]
 }

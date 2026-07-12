@@ -1,6 +1,9 @@
 import type { HTML, UnsafeHTML, HTMLContent } from './html';
 import { unsafeHTML, unpack, RENDER } from './html';
 import type { RenderContext } from './html';
+// Raw import: the file content is inlined as a string at build time
+// (minified in production via tsup, verbatim in vitest).
+import HRC_SOURCE from './hrc-runtime.js?raw';
 
 export type ForAwaitable<T> = Iterable<T> | AsyncIterable<T>;
 type ForAwaitableIterator<T> = AsyncIterator<T> | Iterator<T>;
@@ -160,57 +163,7 @@ class AsyncQueue<T> {
   }
 }
 
-/**
- * `$HRC` (HTML Replace Content) client script.
- *
- * Injected once per stream when deferred content exists. Batches multiple
- * Suspense swaps into a single requestAnimationFrame to avoid redundant
- * reflows, and marks boundaries as `$H~` (scheduled) to prevent re-entry.
- */
-const HRC_SOURCE = [
-  '(function(){',
-  // Batch buffer: pairs of [sourceId, boundaryId]
-  'var b=[],s=!1;',
-  // Flush: process all pending swaps in one DOM pass
-  'function flush(){',
-  's=!1;',
-  'for(var i=0;i<b.length;i+=2){',
-  // Lookup hidden source container and boundary template
-  'var c=b[i],e=b[i+1],',
-  'src=document.getElementById("HS:"+c),',
-  'dst=document.getElementById("HB:"+e);',
-  'if(!src||!dst)continue;',
-  // Walk to boundary start marker <!--$H?--> or <!--$H~-->
-  'var p=dst.parentNode,start=dst;',
-  'while(start=start.previousSibling){',
-  'if(start.nodeType===8&&(start.nodeValue==="$H?"||start.nodeValue==="$H~"))break',
-  '}',
-  // Walk to boundary end marker <!--/$H-->
-  'var end=dst;',
-  'while(end=end.nextSibling){',
-  'if(end.nodeType===8&&end.nodeValue==="/$H")break',
-  '}',
-  'if(!start||!end)continue;',
-  // Mark as scheduled to prevent re-entry
-  'start.nodeValue="$H~";',
-  // Remove fallback nodes between markers
-  'var n=start.nextSibling;',
-  'while(n&&n!==end){var nx=n.nextSibling;p.removeChild(n);n=nx}',
-  // Move real content into place
-  'while(src.firstChild){p.insertBefore(src.firstChild,end)}',
-  // Clean up markers
-  'src.remove();start.nodeValue="$H";end.remove()',
-  '}',
-  'b.length=0',
-  '}',
-  // Public API: queue a swap, schedule flush via rAF
-  'window.$HRC=function(c,e){',
-  'b.push(c,e);',
-  'if(!s){s=!0;requestAnimationFrame(flush)}',
-  '}})()',
-].join('');
-
-const RC_SCRIPT = `<script id="$HRC">${HRC_SOURCE}</script>`;
+const RC_SCRIPT = `<script>${HRC_SOURCE}</script>`;
 
 /**
  * Collects a deferred's resolved content into a single swap chunk.

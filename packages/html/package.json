@@ -18,26 +18,27 @@
     "magic-string": "^0.30.5"
   },
   "devDependencies": {
-    "tsup": "catalog:",
+    "@types/node": "catalog:",
+    "rolldown": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   },
   "exports": {
     ".": {
-      "types": "./dist/html.d.ts",
+      "types": "./dist/index.d.ts",
       "development": "./src/index.ts",
-      "default": "./dist/html.js"
+      "default": "./dist/index.js"
     },
     "./adapter": {
-      "types": "./dist/html.adapter.d.ts",
+      "types": "./dist/adapter.d.ts",
       "development": "./src/adapter.ts",
-      "default": "./dist/html.adapter.js"
+      "default": "./dist/adapter.js"
     },
     "./vite-plugin": {
-      "types": "./dist/html.vite-plugin.d.ts",
+      "types": "./dist/vite-plugin.d.ts",
       "development": "./src/vite-plugin.ts",
-      "default": "./dist/html.vite-plugin.js"
+      "default": "./dist/vite-plugin.js"
     }
   },
   "peerDependencies": {
@@ -59,24 +60,24 @@
     "access": "public",
     "exports": {
       ".": {
-        "types": "./dist/html.d.ts",
-        "default": "./dist/html.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
       },
       "./adapter": {
-        "types": "./dist/html.adapter.d.ts",
-        "default": "./dist/html.adapter.js"
+        "types": "./dist/adapter.d.ts",
+        "default": "./dist/adapter.js"
       },
       "./vite-plugin": {
-        "types": "./dist/html.vite-plugin.d.ts",
-        "default": "./dist/html.vite-plugin.js"
+        "types": "./dist/vite-plugin.d.ts",
+        "default": "./dist/vite-plugin.js"
       }
     }
   },
   "scripts": {
-    "build": "pnpm exec tsup",
+    "build": "rolldown -c && tsc -p tsconfig.build.json --emitDeclarationOnly --outDir dist",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
-    "dev": "pnpm exec tsup --watch",
+    "dev": "rolldown -c --watch",
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build",
     "test": "vitest run",
