@@ -283,8 +283,10 @@ describe('html', () => {
 // ---------------------------------------------------------------------------
 
 /** Reads a ReadableStream into a single string. */
-async function readStream(stream: ReadableStream): Promise<string> {
-  const reader = stream.getReader();
+async function readStream(
+  stream: ReadableStream | Promise<ReadableStream>
+): Promise<string> {
+  const reader = (await stream).getReader();
   const decoder = new TextDecoder();
   let result = '';
   while (true) {
@@ -296,8 +298,10 @@ async function readStream(stream: ReadableStream): Promise<string> {
 }
 
 /** Collects chunks from a ReadableStream in order. */
-async function readStreamChunks(stream: ReadableStream): Promise<string[]> {
-  const reader = stream.getReader();
+async function readStreamChunks(
+  stream: ReadableStream | Promise<ReadableStream>
+): Promise<string[]> {
+  const reader = (await stream).getReader();
   const decoder = new TextDecoder();
   const chunks: string[] = [];
   while (true) {

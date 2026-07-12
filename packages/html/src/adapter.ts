@@ -20,6 +20,8 @@ export const render = defineServerRender<Function>(
 
     const content: HTML = await component(data as any);
 
-    return progressive ? renderToStream(content) : renderToString(content);
+    return progressive
+      ? await renderToStream(content)
+      : renderToString(content);
   }
 );

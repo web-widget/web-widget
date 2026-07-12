@@ -49,6 +49,10 @@
       "module": "./routes/form@route.tsx"
     },
     {
+      "pathname": "/html-shell-error",
+      "module": "./routes/html-shell-error@route.html.ts"
+    },
+    {
       "pathname": "/html-streaming-error",
       "module": "./routes/html-streaming-error@route.html.ts"
     },
@@ -83,6 +87,10 @@
     {
       "pathname": "/react-server-component",
       "module": "./routes/react-server-component@route.tsx"
+    },
+    {
+      "pathname": "/react-shell-error",
+      "module": "./routes/react-shell-error@route.tsx"
     },
     {
       "pathname": "/react-streaming",
@@ -131,6 +139,10 @@
     {
       "pathname": "/vue3-server-component",
       "module": "./routes/(vue3)/vue3-server-component@route.vue"
+    },
+    {
+      "pathname": "/vue3-shell-error",
+      "module": "./routes/(vue3)/vue3-shell-error@route.vue"
     },
     {
       "pathname": "/vue3-streaming",

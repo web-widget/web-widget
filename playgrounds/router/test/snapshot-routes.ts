@@ -26,6 +26,9 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/html-widget-islands'],
   ['/meta'],
   ['/react-and-vue'],
+  ['/react-shell-error', 500],
+  ['/html-shell-error', 500],
+  ['/vue3-shell-error', 500],
   ['/vue-module-css'],
   ['/react-server-component'],
   // Streaming routes (/react-streaming, /vue3-streaming) are verified in

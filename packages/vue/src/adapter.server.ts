@@ -50,10 +50,65 @@ export const createVueRender = ({
       // Call the user-defined lifecycle hook
       await onCreatedApp(app, context, component, data);
 
-      // Render the app to a string or stream based on the progressive flag
-      const html = progressive
-        ? renderToWebStream(app, ssrContext)
-        : await renderToString(app, ssrContext);
+      if (progressive) {
+        const stream = renderToWebStream(app, ssrContext);
+
+        // Vue's renderToWebStream renders asynchronously (via Promise
+        // microtasks). Consume the first chunk to flush the microtask queue,
+        // ensuring errorHandler has fired before we check for errors.
+        // This mirrors React's renderToReadableStream shell-error semantics:
+        // if rendering fails, the Promise rejects so the framework can
+        // return a 500 response.
+        const reader = stream.getReader();
+        const first = await reader.read();
+
+        try {
+          if (ssrContext?.teleports) {
+            const file = Reflect.get(component, '__file') ?? 'unknown';
+            throw new Error(
+              `Teleports are not supported in SSR: ${JSON.stringify(ssrContext.teleports, null, 2)} in ${file}` +
+                `\nDo conditionally render Teleport when mounted on the client.`
+            );
+          }
+
+          if (error) {
+            throw error;
+          }
+        } catch (e) {
+          // Release the reader lock and cancel the source stream on error.
+          await reader.cancel();
+          throw e;
+        }
+
+        // Return a stream that replays the buffered first chunk,
+        // then continues piping the remaining chunks.
+        return new ReadableStream({
+          start(controller) {
+            if (first.done) {
+              controller.close();
+            } else {
+              controller.enqueue(first.value);
+            }
+          },
+          async pull(controller) {
+            try {
+              const { value, done } = await reader.read();
+              if (done) {
+                controller.close();
+              } else {
+                controller.enqueue(value);
+              }
+            } catch (e) {
+              controller.error(e);
+            }
+          },
+          async cancel() {
+            await reader.cancel();
+          },
+        });
+      }
+
+      const html = await renderToString(app, ssrContext);
 
       if (ssrContext?.teleports) {
         const file = Reflect.get(component, '__file') ?? 'unknown';

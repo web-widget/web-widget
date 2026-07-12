@@ -1,6 +1,7 @@
 import { html, suspense, fallback } from './html';
 import {
   renderToString,
+  renderToStream,
   streamToAsyncIter,
   asyncIterToStream,
   unsafeStreamToHTML,
@@ -209,5 +210,67 @@ describe('streamToHTML', () => {
       parts.push(part);
     }
     expect(parts).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// renderToStream
+// ---------------------------------------------------------------------------
+
+/** Reads a ReadableStream<Uint8Array> into a string. */
+async function readByteStream(
+  stream: ReadableStream<Uint8Array>
+): Promise<string> {
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let result = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    result += decoder.decode(value, { stream: true });
+  }
+  return result;
+}
+
+describe('renderToStream', () => {
+  test('renders simple template as a stream', async () => {
+    const stream = await renderToStream(html`<div>hi</div>`);
+    expect(stream).toBeInstanceOf(ReadableStream);
+    expect(await readByteStream(stream)).toBe('<div>hi</div>');
+  });
+
+  test('shell error rejects (enables 500)', async () => {
+    const throwing = async () => {
+      throw new Error('shell error');
+    };
+    // Error before any output is produced = shell error → reject.
+    // (Errors after the first chunk behave like React's "bootstrap" errors:
+    // the stream errors but the status is already 200.)
+    await expect(renderToStream(html`${throwing()}`)).rejects.toThrow(
+      'shell error'
+    );
+  });
+
+  test('non-shell error does not reject (recoverable via fallback)', async () => {
+    const slowFail = async () => {
+      await timeout(10);
+      throw new Error('deferred error');
+    };
+    // Error inside Suspense + fallback = non-shell, recoverable.
+    const page = html`<div>
+      ${fallback(suspense(slowFail(), html`pending`), html`err`)}
+    </div>`;
+    const stream = await renderToStream(page);
+    expect(stream).toBeInstanceOf(ReadableStream);
+    expect(await readByteStream(stream)).toContain('err');
+  });
+
+  test('streams deferred content after shell', async () => {
+    const slow = timeout(10).then(() => html`<p>resolved</p>`);
+    const page = html`<div>${suspense(slow, html`loading`)}</div>`;
+    const stream = await renderToStream(page);
+    const body = await readByteStream(stream);
+    expect(body).toContain('loading');
+    expect(body).toContain('resolved');
   });
 });
