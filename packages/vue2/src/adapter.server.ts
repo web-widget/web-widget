@@ -5,7 +5,6 @@ import Vue from 'vue';
 import { createRenderer } from 'vue-server-renderer';
 import type { CreateVueRenderOptions } from './types';
 
-export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
 type BuildedComponent = Component & {

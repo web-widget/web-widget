@@ -1,4 +1,5 @@
-import { html, suspense, asHtmlWidget } from '@web-widget/html';
+import { html, suspense } from '@web-widget/html';
+import { asHtmlWidget } from '@web-widget/html/adapter';
 import { defineRouteComponent } from '@web-widget/helpers';
 import Wait from './(components)/Wait@widget';
 

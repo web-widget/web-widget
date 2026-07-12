@@ -4,7 +4,6 @@ import type { Component } from 'vue';
 import Vue from 'vue';
 import type { CreateVueRenderOptions } from './types';
 
-export { useWidgetSyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
 type EnhancedComponent = Component & {

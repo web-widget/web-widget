@@ -4,7 +4,6 @@ import { Suspense, createApp, createSSRApp, h } from 'vue';
 import type { CreateVueRenderOptions } from './types';
 import errorHandler from './error-handler';
 
-export { useWidgetAsyncState as useWidgetState } from '@web-widget/helpers/state';
 export * from './components';
 
 // Helper function to create the WidgetSuspense component

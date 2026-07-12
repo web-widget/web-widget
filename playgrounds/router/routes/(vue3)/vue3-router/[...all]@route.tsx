@@ -1,7 +1,7 @@
 import { defineMeta, defineRouteComponent } from '@web-widget/helpers';
 import BaseLayout from '../../(components)/BaseLayout';
 import App from './App@widget';
-import { asReactWidget } from '@web-widget/vue';
+import { asReactWidget } from '@web-widget/vue/adapter';
 
 const RApp = asReactWidget<any>(App);
 

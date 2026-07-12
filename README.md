@@ -186,7 +186,7 @@ The real power emerges when you effortlessly combine different frameworks:
 // Mix React and Vue in the same page
 import ReactCounter from './Counter@widget.tsx';
 import VueCounter from './Counter@widget.vue';
-import { asReactWidget } from '@web-widget/vue';
+import { asReactWidget } from '@web-widget/vue/adapter';
 
 const RVueCounter = asReactWidget(VueCounter);
 
@@ -561,7 +561,7 @@ import { defineRouteComponent } from '@web-widget/helpers';
 import BaseLayout from './components/BaseLayout';
 import ReactCounter from './components/Counter@widget.tsx';
 import VueCounter from './components/Counter@widget.vue';
-import { asReactWidget } from '@web-widget/vue';
+import { asReactWidget } from '@web-widget/vue/adapter';
 
 const RVueCounter = asReactWidget(VueCounter);
 

@@ -1,6 +1,6 @@
 import BaseLayout from '../../(components)/BaseLayout.tsx';
 import App from './App@widget.vue';
-import { asReactWidget } from '@web-widget/vue2';
+import { asReactWidget } from '@web-widget/vue2/adapter';
 
 const RApp = asReactWidget(App);
 
