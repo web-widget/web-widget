@@ -28,7 +28,7 @@ jest.mock('./edge', () => {
   };
 });
 
-import { render } from './server';
+import { render } from './adapter.server';
 
 describe('render (server)', () => {
   const SimpleComponent = () => createElement('div', null, 'Hello World');

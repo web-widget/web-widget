@@ -35,21 +35,21 @@
       "development": "./src/index.ts",
       "default": "./dist/react.js"
     },
-    "./runtime": {
+    "./adapter": {
       "worker": {
-        "types": "./dist/react.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/react.server.js"
+        "types": "./dist/react.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/react.adapter.server.js"
       },
       "browser": {
-        "types": "./dist/react.client.d.ts",
-        "development": "./src/client.ts",
-        "default": "./dist/react.client.js"
+        "types": "./dist/react.adapter.client.d.ts",
+        "development": "./src/adapter.client.ts",
+        "default": "./dist/react.adapter.client.js"
       },
       "default": {
-        "types": "./dist/react.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/react.server.js"
+        "types": "./dist/react.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/react.adapter.server.js"
       }
     },
     "./globals": {
@@ -63,7 +63,7 @@
       ".tsx",
       ".jsx"
     ],
-    "runtime": "./runtime"
+    "adapter": "./adapter"
   },
   "files": [
     "dist",
@@ -80,18 +80,18 @@
         "types": "./dist/react.d.ts",
         "default": "./dist/react.js"
       },
-      "./runtime": {
+      "./adapter": {
         "worker": {
-          "types": "./dist/react.server.d.ts",
-          "default": "./dist/react.server.js"
+          "types": "./dist/react.adapter.server.d.ts",
+          "default": "./dist/react.adapter.server.js"
         },
         "browser": {
-          "types": "./dist/react.client.d.ts",
-          "default": "./dist/react.client.js"
+          "types": "./dist/react.adapter.client.d.ts",
+          "default": "./dist/react.adapter.client.js"
         },
         "default": {
-          "types": "./dist/react.server.d.ts",
-          "default": "./dist/react.server.js"
+          "types": "./dist/react.adapter.server.d.ts",
+          "default": "./dist/react.adapter.server.js"
         }
       },
       "./globals": {

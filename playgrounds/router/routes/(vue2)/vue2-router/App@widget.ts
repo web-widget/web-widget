@@ -1,4 +1,4 @@
-import { createVueRender } from '@web-widget/vue2/runtime';
+import { createVueRender } from '@web-widget/vue2/adapter';
 import type { RawLocation } from 'vue-router';
 import App from './App.vue';
 import createRouter from './router';

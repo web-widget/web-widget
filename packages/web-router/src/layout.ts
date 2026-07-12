@@ -2,7 +2,7 @@
  * @fileoverview Default layout module for web-router
  */
 import { html, unsafeHTML, unsafeStreamToHTML } from '@web-widget/html';
-import { render } from '@web-widget/html/runtime';
+import { render } from '@web-widget/html/adapter';
 
 import type { HTML } from '@web-widget/html';
 import { renderMetaToString } from '@web-widget/helpers';

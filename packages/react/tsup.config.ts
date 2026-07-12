@@ -4,8 +4,8 @@ export default defineConfig({
   dts: true,
   entry: {
     react: 'src/index.ts',
-    'react.server': 'src/server.ts',
-    'react.client': 'src/client.ts',
+    'react.adapter.server': 'src/adapter.server.ts',
+    'react.adapter.client': 'src/adapter.client.ts',
   },
   external: [],
   format: 'esm',

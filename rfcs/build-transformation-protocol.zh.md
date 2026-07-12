@@ -41,14 +41,14 @@ interface WebWidgetAdapter {
   extensions: string[];
 
   /**
-   * 运行时模块子路径，指向适配器包通过条件导出提供的运行时实现。
+   * 适配器模块子路径，指向适配器包通过条件导出提供的运行时实现。
    * 构建工具会将该模块的导出注入到匹配的模块中：
    * - render：注入为模块导出，使其符合 ServerRender / ClientRender 契约
    * - container：包装 widget 的导入方，使其可被跨框架复用
-   * 如 "./runtime" 会被解析为 "@web-widget/react/runtime"，
+   * 如 "./adapter" 会被解析为 "@web-widget/react/adapter"，
    * 再由条件导出根据环境自动选取 server 或 client 实现。
    */
-  runtime: string;
+  adapter: string;
 
   /**
    * 派生导出声明（可选）。
@@ -73,7 +73,7 @@ interface DeriveExport {
 
 #### 1.1 运行时模块
 
-`runtime` 字段指向的模块是适配器的核心——它提供框架特定的运行时函数，构建工具负责将这些函数注入到匹配的模块中。该模块需符合 `RuntimeModule` 契约：
+`adapter` 字段指向的模块是适配器的核心——它提供框架特定的运行时函数，构建工具负责将这些函数注入到匹配的模块中。该模块需符合 `RuntimeModule` 契约：
 
 ```typescript
 import type {
@@ -84,7 +84,7 @@ import type {
 
 /**
  * 运行时模块契约
- * 适配器包的 runtime 子路径所指向的模块文件必须导出以下成员。
+ * 适配器包的 adapter 子路径所指向的模块文件必须导出以下成员。
  */
 type RuntimeModule = {
   /** 渲染函数，注入为模块导出，使其符合 ServerRender / ClientRender 契约 */
@@ -164,7 +164,7 @@ interface WebWidgetPluginOptions {
     | (Omit<WebWidgetAdapter, 'name' | 'extensions'> & {
         name?: string;
         extensions?: string[];
-        /** 适配器包名，构建工具从此包导入 runtime 实现 */
+        /** 适配器包名，构建工具从此包导入 adapter 实现 */
         from: string;
         /**
          * 处理器生效范围（目录路径）。
@@ -179,25 +179,25 @@ interface WebWidgetPluginOptions {
 
 #### 1.3 环境适应性
 
-`ServerRender` 和 `ClientRender` 是不同的契约——服务端渲染为 HTML 字符串或流，客户端渲染负责挂载和水合。但协议只提供了一个 `runtime` 子路径。构建工具在服务端构建和客户端构建时，需要从这个子路径分别加载到不同的 `RuntimeModule` 实现，而无需适配器或用户手动区分环境。
+`ServerRender` 和 `ClientRender` 是不同的契约——服务端渲染为 HTML 字符串或流，客户端渲染负责挂载和水合。但协议只提供了一个 `adapter` 子路径。构建工具在服务端构建和客户端构建时，需要从这个子路径分别加载到不同的 `RuntimeModule` 实现，而无需适配器或用户手动区分环境。
 
 借助 Node.js / 构建工具通用的 `package.json` `exports` 条件导出机制，适配器包可以在同一个子路径下为不同环境提供不同实现：
 
 ```json
 {
   "exports": {
-    "./runtime": {
+    "./adapter": {
       "worker": {
-        "types": "./dist/runtime.server.d.ts",
-        "default": "./dist/runtime.server.js"
+        "types": "./dist/adapter.server.d.ts",
+        "default": "./dist/adapter.server.js"
       },
       "browser": {
-        "types": "./dist/runtime.client.d.ts",
-        "default": "./dist/runtime.client.js"
+        "types": "./dist/adapter.client.d.ts",
+        "default": "./dist/adapter.client.js"
       },
       "default": {
-        "types": "./dist/runtime.server.d.ts",
-        "default": "./dist/runtime.server.js"
+        "types": "./dist/adapter.server.d.ts",
+        "default": "./dist/adapter.server.js"
       }
     }
   }
@@ -212,9 +212,9 @@ interface WebWidgetPluginOptions {
 
 ```typescript
 // 无论客户端构建还是服务端构建，都用同一条路径
-const runtimeModule = await import(`${packageName}${processor.runtime}`);
-// → 客户端构建时解析到 runtime.client.js（ClientRender）
-// → 服务端构建时解析到 runtime.server.js（ServerRender）
+const adapterModule = await import(`${packageName}${processor.adapter}`);
+// → 客户端构建时解析到 adapter.client.js（ClientRender）
+// → 服务端构建时解析到 adapter.server.js（ServerRender）
 ```
 
 #### 1.4 适配器包结构
@@ -222,7 +222,7 @@ const runtimeModule = await import(`${packageName}${processor.runtime}`);
 一个完整的适配器包（以 `@web-widget/react` 为例）的结构和导出：
 
 ```typescript
-// @web-widget/react/runtime/server.ts —— 服务端 RuntimeModule
+// @web-widget/react/adapter/server.ts —— 服务端 RuntimeModule
 import type { ServerRender } from '@web-widget/schema';
 
 export const render: ServerRender = (component, data, options) => {
@@ -235,7 +235,7 @@ export function container(loader, options) {
 ```
 
 ```typescript
-// @web-widget/react/runtime/client.ts —— 客户端 RuntimeModule
+// @web-widget/react/adapter/client.ts —— 客户端 RuntimeModule
 import type { ClientRender } from '@web-widget/schema';
 
 export const render: ClientRender = (component, data, options) => {
@@ -249,7 +249,7 @@ export function container(loader, options) {
 
 ```typescript
 // @web-widget/react/index.ts —— 包入口
-export { container } from './runtime';
+export { container } from './adapter';
 ```
 
 `package.json` 中通过 `webWidget` 字段声明 `WebWidgetAdapter` 配置，`exports` 组织子路径：
@@ -260,14 +260,14 @@ export { container } from './runtime';
   "webWidget": {
     "name": "react",
     "extensions": [".tsx", ".jsx"],
-    "runtime": "./runtime"
+    "adapter": "./adapter"
   },
   "exports": {
     ".": { "default": "./dist/index.js" },
-    "./runtime": {
-      "worker": { "default": "./dist/runtime.server.js" },
-      "browser": { "default": "./dist/runtime.client.js" },
-      "default": { "default": "./dist/runtime.server.js" }
+    "./adapter": {
+      "worker": { "default": "./dist/adapter.server.js" },
+      "browser": { "default": "./dist/adapter.client.js" },
+      "default": { "default": "./dist/adapter.server.js" }
     }
   }
 }

@@ -1,5 +1,5 @@
 import type { Component, ComponentPublicInstance } from 'vue';
-import type { ReactWidgetComponent } from '@web-widget/react/runtime';
+import type { ReactWidgetComponent } from '@web-widget/react/adapter';
 
 /**
  * Adapt Vue component types to React widget component types.

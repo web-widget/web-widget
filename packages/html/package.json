@@ -29,10 +29,10 @@
       "development": "./src/index.ts",
       "default": "./dist/html.js"
     },
-    "./runtime": {
-      "types": "./dist/html.runtime.d.ts",
-      "development": "./src/runtime.ts",
-      "default": "./dist/html.runtime.js"
+    "./adapter": {
+      "types": "./dist/html.adapter.d.ts",
+      "development": "./src/adapter.ts",
+      "default": "./dist/html.adapter.js"
     },
     "./vite-plugin": {
       "types": "./dist/html.vite-plugin.d.ts",
@@ -50,7 +50,7 @@
       ".html.ts",
       ".html.js"
     ],
-    "runtime": "./runtime"
+    "adapter": "./adapter"
   },
   "files": [
     "dist"
@@ -62,9 +62,9 @@
         "types": "./dist/html.d.ts",
         "default": "./dist/html.js"
       },
-      "./runtime": {
-        "types": "./dist/html.runtime.d.ts",
-        "default": "./dist/html.runtime.js"
+      "./adapter": {
+        "types": "./dist/html.adapter.d.ts",
+        "default": "./dist/html.adapter.js"
       },
       "./vite-plugin": {
         "types": "./dist/html.vite-plugin.d.ts",

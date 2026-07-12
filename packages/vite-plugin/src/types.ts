@@ -142,7 +142,7 @@ export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {
 /**
  * Adapter entry in `WebWidgetPluginOptions.adapters`.
  * Can be a string (shorthand for `from`) or an object that overrides
- * the adapter's default `name` / `extensions` / `runtime` and adds
+ * the adapter's default `name` / `extensions` / `adapter` and adds
  * a `scope` for disambiguating extension conflicts.
  */
 export interface WebWidgetAdapterConfig {
@@ -152,8 +152,8 @@ export interface WebWidgetAdapterConfig {
   name?: string;
   /** Override the adapter's declared extensions. */
   extensions?: string[];
-  /** Override the adapter's declared runtime subpath. */
-  runtime?: string;
+  /** Override the adapter's declared adapter subpath. */
+  adapter?: string;
   /** Override the adapter's declared version. */
   version?: string;
   /**

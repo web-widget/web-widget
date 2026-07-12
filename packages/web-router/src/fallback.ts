@@ -3,7 +3,7 @@
  */
 import type { Meta, RouteFallbackComponentProps } from './types';
 import { html } from '@web-widget/html';
-import { render } from '@web-widget/html/runtime';
+import { render } from '@web-widget/html/adapter';
 
 export { render };
 
@@ -177,10 +177,10 @@ export const fallback = (error: RouteFallbackComponentProps) => {
             ${error.message ? CodeBlock('Error Message', error.message) : ''}
             ${error.stack ? CodeBlock('Stack Trace', error.stack) : ''}
             ${
-            error.cause
-              ? CodeBlock('Caused by', JSON.stringify(error.cause, null, 2))
-              : ''
-          }
+              error.cause
+                ? CodeBlock('Caused by', JSON.stringify(error.cause, null, 2))
+                : ''
+            }
             ${CopyErrorButton(error)}
           </div>`
         : CopyErrorButton(error)

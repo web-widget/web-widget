@@ -30,21 +30,21 @@
       "development": "./src/index.ts",
       "default": "./dist/vue2.js"
     },
-    "./runtime": {
+    "./adapter": {
       "worker": {
-        "types": "./dist/vue2.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/vue2.server.js"
+        "types": "./dist/vue2.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/vue2.adapter.server.js"
       },
       "browser": {
-        "types": "./dist/vue2.client.d.ts",
-        "development": "./src/client.ts",
-        "default": "./dist/vue2.client.js"
+        "types": "./dist/vue2.adapter.client.d.ts",
+        "development": "./src/adapter.client.ts",
+        "default": "./dist/vue2.adapter.client.js"
       },
       "default": {
-        "types": "./dist/vue2.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/vue2.server.js"
+        "types": "./dist/vue2.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/vue2.adapter.server.js"
       }
     }
   },
@@ -54,7 +54,7 @@
     "extensions": [
       ".vue"
     ],
-    "runtime": "./runtime",
+    "adapter": "./adapter",
     "deriveExports": [
       {
         "name": "handler",
@@ -80,18 +80,18 @@
         "types": "./dist/vue2.d.ts",
         "default": "./dist/vue2.js"
       },
-      "./runtime": {
+      "./adapter": {
         "worker": {
-          "types": "./dist/vue2.server.d.ts",
-          "default": "./dist/vue2.server.js"
+          "types": "./dist/vue2.adapter.server.d.ts",
+          "default": "./dist/vue2.adapter.server.js"
         },
         "browser": {
-          "types": "./dist/vue2.client.d.ts",
-          "default": "./dist/vue2.client.js"
+          "types": "./dist/vue2.adapter.client.d.ts",
+          "default": "./dist/vue2.adapter.client.js"
         },
         "default": {
-          "types": "./dist/vue2.server.d.ts",
-          "default": "./dist/vue2.server.js"
+          "types": "./dist/vue2.adapter.server.d.ts",
+          "default": "./dist/vue2.adapter.server.js"
         }
       }
     }
