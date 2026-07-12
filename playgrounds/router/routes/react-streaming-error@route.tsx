@@ -7,13 +7,12 @@ const Loading = (
   <div style={{ background: '#f3f3f3', padding: '20px' }}>Loading..</div>
 );
 
-const ErrorUI = (
+const Error = (
   <div
     style={{
       background: '#ffe0e0',
       color: '#b71c1c',
       padding: '20px',
-      border: '1px solid #ef9a9a',
     }}>
     Widget failed to render (error recovered)
   </div>
@@ -34,7 +33,7 @@ export default defineRouteComponent(async function Page() {
 
       <h2>Failing widget with differentiated fallback (loading vs error)</h2>
       <ReactFailDemo
-        widget={{ fallback: { loading: Loading, error: ErrorUI } }}
+        widget={{ fallback: { pending: Loading, error: Error } }}
         id="fail:0"
       />
 
