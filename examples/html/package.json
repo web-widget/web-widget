@@ -1,0 +1,58 @@
+{
+  "name": "@examples/html",
+  "description": "HTML template demo based on @web-widget/html",
+  "version": "0.0.0",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "examples/html"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@web-widget/helpers": "^3.0.0-beta.0",
+    "@web-widget/html": "^3.0.0-beta.0",
+    "@web-widget/node": "^3.0.0-beta.0",
+    "@web-widget/react": "^3.0.0-beta.0",
+    "@web-widget/vue": "^3.0.0-beta.0",
+    "@web-widget/web-router": "^3.0.0-beta.0",
+    "@web-widget/web-widget": "^3.0.0-beta.0",
+    "koa": "^3.1.2",
+    "koa-connect": "^2.1.0",
+    "koa-send": "^5.0.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "vue": "^3.5.34"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.13.6",
+    "@types/koa-send": "^4.1.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@web-widget/vite-plugin": "^3.0.0-beta.0",
+    "cross-env": "^7.0.3",
+    "typescript": "^5.5.4",
+    "vite": "^8.0.12",
+    "vitest": "^4.1.6"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "packageManager": "pnpm@9.7.0",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "start": "node server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "type": "module"
+}

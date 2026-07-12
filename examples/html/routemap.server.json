@@ -1,0 +1,57 @@
+{
+  "routes": [
+    {
+      "pathname": "/examples",
+      "module": "./routes/examples/index@route.html.ts"
+    },
+    {
+      "pathname": "/examples/action",
+      "module": "./routes/examples/action/index@route.html.ts"
+    },
+    {
+      "pathname": "/examples/api/hello",
+      "module": "./routes/examples/api/hello@route.ts"
+    },
+    {
+      "pathname": "/examples/fetch",
+      "module": "./routes/examples/fetch/index@route.html.ts"
+    },
+    {
+      "pathname": "/examples/frameworks",
+      "module": "./routes/examples/frameworks/index@route.html.ts"
+    },
+    {
+      "pathname": "/examples/middleware",
+      "module": "./routes/examples/middleware/index@route.html.ts"
+    },
+    {
+      "pathname": "/examples/params/:name",
+      "module": "./routes/examples/params/[name]@route.html.ts"
+    },
+    {
+      "pathname": "/examples/static",
+      "module": "./routes/examples/static/index@route.html.ts"
+    },
+    {
+      "pathname": "/examples/:notFound*",
+      "module": "./routes/examples/[...notFound]@route.html.ts"
+    },
+    {
+      "pathname": "/",
+      "module": "./routes/index@route.html.ts"
+    }
+  ],
+  "actions": [
+    {
+      "pathname": "/examples/action/functions",
+      "module": "./routes/examples/action/functions@action.ts"
+    }
+  ],
+  "middlewares": [
+    {
+      "pathname": "/examples/middleware",
+      "module": "./routes/examples/middleware/index@middleware.ts"
+    }
+  ],
+  "fallbacks": []
+}
