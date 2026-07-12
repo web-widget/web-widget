@@ -87,8 +87,8 @@ describe('ifDefined', () => {
     expect(ifDefined(undefined)).toBe('');
   });
 
-  test('null is not treated as undefined', () => {
-    expect(ifDefined(null)).toBe(null);
+  test('null is treated as undefined (lit-html uses ?? nothing)', () => {
+    expect(ifDefined(null)).toBe('');
   });
 
   test('falsy values are preserved (0, false, empty string)', () => {

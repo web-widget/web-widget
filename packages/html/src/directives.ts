@@ -50,7 +50,7 @@ export function styleMap(styles: Readonly<Record<string, string>>): string {
  * html`<a href="${ifDefined(url)}">link</a>`
  */
 export function ifDefined<T>(value: T | undefined): T | '' {
-  return value === undefined ? '' : value;
+  return value ?? '';
 }
 
 /**

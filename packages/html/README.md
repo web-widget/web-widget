@@ -206,7 +206,7 @@ const result = html`<div>
 | ------------------- | ------------------------------------------------------------------------------ |
 | `classMap(classes)` | Joins truthy class names into a space-separated string                         |
 | `styleMap(styles)`  | Converts a style object to CSS text (camelCase → kebab-case, skips null/empty) |
-| `ifDefined(value)`  | Returns empty string for `undefined` — useful for optional attributes          |
+| `ifDefined(value)`  | Returns empty string for `null`/`undefined` — useful for optional attributes   |
 | `when(cond, a, b?)` | Renders `a` when truthy, `b` (or nothing) when falsy                           |
 | `join(items, sep)`  | Renders an iterable with a separator between each pair                         |
 
@@ -234,6 +234,7 @@ In lit-html, `ifDefined(undefined)` **removes the entire attribute**. Here the a
 html`<a href="${ifDefined(url)}">link</a>`;
 // url === 'https://a.com'  =>  <a href="https://a.com">link</a>   (same as lit-html)
 // url === undefined        =>  <a href="">link</a>                 (lit-html: <a>link</a>)
+// url === null             =>  <a href="">link</a>                 (same as lit-html: removes attribute)
 ```
 
 > Note: an empty `href` resolves to the current page URL in browsers. If you need to conditionally omit an attribute, branch the template with `when()` instead.
@@ -297,7 +298,7 @@ Converts an object of CSS properties to a style string. CamelCase keys are conve
 
 ### `ifDefined(value): string`
 
-Returns the value if defined, otherwise empty string.
+Returns the value if not `null`/`undefined`, otherwise empty string.
 
 ### `when(condition, trueCase, falseCase?): HTMLContent`
 
