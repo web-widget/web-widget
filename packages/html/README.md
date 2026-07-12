@@ -195,9 +195,9 @@ const result = html`<div>
   ${when(isAdmin, html`<button>Admin Panel</button>`)}
   <ul>
     ${join(
-    items.map((i) => html`<li>${i}</li>`),
-    html`<hr />`
-  )}
+      items.map((i) => html`<li>${i}</li>`),
+      html`<hr />`
+    )}
   </ul>
 </div>`;
 ```
@@ -211,6 +211,63 @@ const result = html`<div>
 | `join(items, sep)`  | Renders an iterable with a separator between each pair                         |
 
 All directives compose with streaming rendering, `fallback`, and `suspense`.
+
+## Differences from lit-html
+
+This library targets **server-side rendering** and aims to be a **subset of lit-html's template syntax** — not a full runtime replacement. The `html` tagged template call signature, auto-escaping, nested templates, and array spreading are compatible. The differences below stem from the server-only, string-based streaming model.
+
+### Not supported (client-only features)
+
+These lit-html features are intentionally omitted because they require a live DOM and a reactive update cycle, which do not exist on the server:
+
+- Event binding: `@click=${handler}`
+- Property binding: `.value=${v}`
+- Boolean attribute binding: `?hidden=${bool}`
+- Reactive update / diffing: `render(result, container)` re-renders on state change
+- Stateful directives: `repeat`, `cache`, `guard`, `keyed`
+
+### `ifDefined` — attribute is not removed
+
+In lit-html, `ifDefined(undefined)` **removes the entire attribute**. Here the attribute is left as an empty string, because the static `attr="` fragment is already part of the template literal and cannot be retroactively removed:
+
+```ts
+html`<a href="${ifDefined(url)}">link</a>`;
+// url === 'https://a.com'  =>  <a href="https://a.com">link</a>   (same as lit-html)
+// url === undefined        =>  <a href="">link</a>                 (lit-html: <a>link</a>)
+```
+
+> Note: an empty `href` resolves to the current page URL in browsers. If you need to conditionally omit an attribute, branch the template with `when()` instead.
+
+### Directives are pure functions (not interchangeable)
+
+`classMap`, `styleMap`, `ifDefined`, `when`, and `join` are **stateless value transformers** that return plain strings or `HTMLContent`. They do not extend lit-html's `Directive` class, so directives from `lit-html`/`lit` cannot be used here, and vice versa.
+
+### Superset: async values as first-class interpolations
+
+lit-html requires directives to handle async content. Here, Promises, async iterables, and async generators can be interpolated directly:
+
+```ts
+html`<p>${fetch('/api').then((r) => r.text())}</p>`;
+```
+
+| This library                         | lit-html equivalent                        |
+| ------------------------------------ | ------------------------------------------ |
+| `${promise}` (blocks until resolved) | `until(promise, ...)`                      |
+| `${asyncIterable}`                   | `asyncReplace(iter)` / `asyncAppend(iter)` |
+| `suspense(content, pending)`         | `until(content, pending)`                  |
+
+### Superset: function interpolation (no lit-html equivalent)
+
+A function passed as an interpolation is invoked lazily during rendering. This has no lit-html counterpart — in lit-html a function value is coerced to a string. It exists here so that errors thrown inside the function body are caught by the enclosing `fallback()` boundary, and so async work inside the function runs within the render stream:
+
+```ts
+html`<div>
+  ${() => {
+    if (!user) throw new Error('no user');
+    return html`<span>${user.name}</span>`;
+  }}
+</div>`;
+```
 
 ## API
 
