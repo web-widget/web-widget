@@ -114,7 +114,7 @@ export interface Container {
 /**
  * Runtime module contract.
  *
- * The module pointed to by the adapter package's `runtime` subpath
+ * The module pointed to by the adapter package's `adapter` subpath
  * must export these members.
  */
 export type RuntimeModule = {

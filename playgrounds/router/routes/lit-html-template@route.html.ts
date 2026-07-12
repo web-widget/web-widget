@@ -1,8 +1,6 @@
-import { render, html } from '@web-widget/html';
+import { html } from '@web-widget/html';
 import { defineRouteComponent } from '@web-widget/helpers';
 import type { HelloData } from './api/hello-world@route';
-
-export { render };
 
 async function fetchData(url: URL) {
   const data = await fetch(`${url.origin}/api/hello-world`);

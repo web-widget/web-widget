@@ -18,8 +18,20 @@ export function getExtension(fileName: string) {
     const parts = fileName.trim().toLowerCase().split('.');
     if (parts.length > 1) {
       const ext = parts.pop()!.split('?')[0].split('#')[0];
-      if (ext === 'ts' && parts.pop() === 'd') {
-        return '.d.ts';
+      if (ext === 'ts' || ext === 'js') {
+        const sub = parts.pop();
+        if (sub === 'd') {
+          return '.d.ts';
+        }
+        // TODO: This hardcodes `html` to support the `.html.ts` / `.html.js`
+        // compound extensions declared by `@web-widget/html`. Ideally this
+        // should be driven by adapter-declared compound extensions passed
+        // through the plugin API, but that requires plumbing the extension
+        // list through the routing layer. For now, this is a temporary
+        // shortcut.
+        if (sub === 'html') {
+          return '.' + sub + '.' + ext;
+        }
       }
       return '.' + ext;
     }

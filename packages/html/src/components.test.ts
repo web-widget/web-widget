@@ -1,0 +1,52 @@
+import { html, unsafeHTML } from './html';
+import { resolveFallback, asHtmlWidget } from './components';
+
+describe('resolveFallback', () => {
+  test('HTML form — same fallback for pending and error', () => {
+    const fb = html`<div>loading</div>`;
+    const { pendingFallback, errorFallback } = resolveFallback(fb);
+    expect(pendingFallback).toBe(fb);
+    expect(errorFallback).toBe(fb);
+  });
+
+  test('object form with pending only — error defaults to pending', () => {
+    const pending = html`<div>loading</div>`;
+    const { pendingFallback, errorFallback } = resolveFallback({ pending });
+    expect(pendingFallback).toBe(pending);
+    expect(errorFallback).toBe(pending);
+  });
+
+  test('object form with both pending and error', () => {
+    const pending = html`<div>loading</div>`;
+    const error = html`<div>error</div>`;
+    const { pendingFallback, errorFallback } = resolveFallback({
+      pending,
+      error,
+    });
+    expect(pendingFallback).toBe(pending);
+    expect(errorFallback).toBe(error);
+  });
+
+  test('object form with error function', () => {
+    const pending = html`<div>loading</div>`;
+    const errorFn = (e: any) => html`<div>${e.message}</div>`;
+    const { errorFallback } = resolveFallback({ pending, error: errorFn });
+    expect(errorFallback).toBe(errorFn);
+  });
+});
+
+describe('asHtmlWidget', () => {
+  test('returns the same component as a callable', () => {
+    const fn = () => {};
+    const result = asHtmlWidget(fn);
+    expect(result).toBe(fn);
+    expect(typeof result).toBe('function');
+  });
+
+  test('result is callable and returns a promise', async () => {
+    const component = async () => unsafeHTML('<div/>');
+    const widget = asHtmlWidget<{ x: number }>(component);
+    const result = await widget({ x: 1 });
+    expect(result.toString()).toBe('<div/>');
+  });
+});

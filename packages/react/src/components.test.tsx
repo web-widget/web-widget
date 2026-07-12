@@ -21,44 +21,44 @@ jest.mock('@web-widget/web-widget', () => {
 
 describe('resolveFallback', () => {
   test('undefined fallback resolves to undefined for both', () => {
-    const { loadingFallback, errorFallback } = resolveFallback(undefined);
-    expect(loadingFallback).toBeUndefined();
+    const { pendingFallback, errorFallback } = resolveFallback(undefined);
+    expect(pendingFallback).toBeUndefined();
     expect(errorFallback).toBeUndefined();
   });
 
-  test('ReactNode fallback is used for both loading and error', () => {
+  test('ReactNode fallback is used for both pending and error', () => {
     const spinner = createElement('div', null, 'Loading');
-    const { loadingFallback, errorFallback } = resolveFallback(spinner);
-    expect(loadingFallback).toBe(spinner);
+    const { pendingFallback, errorFallback } = resolveFallback(spinner);
+    expect(pendingFallback).toBe(spinner);
     expect(errorFallback).toBe(spinner);
   });
 
-  test('object with only loading uses loading for both', () => {
+  test('object with only pending uses pending for both', () => {
     const spinner = createElement('div', null, 'Loading');
-    const { loadingFallback, errorFallback } = resolveFallback({
-      loading: spinner,
+    const { pendingFallback, errorFallback } = resolveFallback({
+      pending: spinner,
     });
-    expect(loadingFallback).toBe(spinner);
+    expect(pendingFallback).toBe(spinner);
     expect(errorFallback).toBe(spinner);
   });
 
-  test('object with only error uses undefined for loading', () => {
+  test('object with only error uses undefined for pending', () => {
     const errorUI = createElement('div', null, 'Error');
-    const { loadingFallback, errorFallback } = resolveFallback({
+    const { pendingFallback, errorFallback } = resolveFallback({
       error: errorUI,
     });
-    expect(loadingFallback).toBeUndefined();
+    expect(pendingFallback).toBeUndefined();
     expect(errorFallback).toBe(errorUI);
   });
 
-  test('object with both loading and error uses them independently', () => {
+  test('object with both pending and error uses them independently', () => {
     const spinner = createElement('div', null, 'Loading');
     const errorUI = createElement('div', null, 'Error');
-    const { loadingFallback, errorFallback } = resolveFallback({
-      loading: spinner,
+    const { pendingFallback, errorFallback } = resolveFallback({
+      pending: spinner,
       error: errorUI,
     });
-    expect(loadingFallback).toBe(spinner);
+    expect(pendingFallback).toBe(spinner);
     expect(errorFallback).toBe(errorUI);
   });
 });

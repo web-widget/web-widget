@@ -3,8 +3,9 @@ import { defineConfig } from 'tsup';
 export default defineConfig({
   dts: true,
   entry: {
-    'html.server': 'src/server.ts',
-    'html.client': 'src/client.ts',
+    html: 'src/index.ts',
+    'html.adapter': 'src/adapter.ts',
+    'html.vite-plugin': 'src/vite-plugin.ts',
   },
   external: [],
   format: 'esm',

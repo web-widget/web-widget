@@ -41,14 +41,14 @@ interface WebWidgetAdapter {
   extensions: string[];
 
   /**
-   * 运行时模块子路径，指向适配器包通过条件导出提供的运行时实现。
+   * 适配器模块子路径，指向适配器包通过条件导出提供的运行时实现。
    * 构建工具会将该模块的导出注入到匹配的模块中：
    * - render：注入为模块导出，使其符合 ServerRender / ClientRender 契约
    * - container：包装 widget 的导入方，使其可被跨框架复用
-   * 如 "./runtime" 会被解析为 "@web-widget/react/runtime"，
+   * 如 "./adapter" 会被解析为 "@web-widget/react/adapter"，
    * 再由条件导出根据环境自动选取 server 或 client 实现。
    */
-  runtime: string;
+  adapter: string;
 
   /**
    * 派生导出声明（可选）。
@@ -73,7 +73,7 @@ interface DeriveExport {
 
 #### 1.1 运行时模块
 
-`runtime` 字段指向的模块是适配器的核心——它提供框架特定的运行时函数，构建工具负责将这些函数注入到匹配的模块中。该模块需符合 `RuntimeModule` 契约：
+`adapter` 字段指向的模块是适配器的核心——它提供框架特定的运行时函数，构建工具负责将这些函数注入到匹配的模块中。该模块需符合 `RuntimeModule` 契约：
 
 ```typescript
 import type {
@@ -84,7 +84,7 @@ import type {
 
 /**
  * 运行时模块契约
- * 适配器包的 runtime 子路径所指向的模块文件必须导出以下成员。
+ * 适配器包的 adapter 子路径所指向的模块文件必须导出以下成员。
  */
 type RuntimeModule = {
   /** 渲染函数，注入为模块导出，使其符合 ServerRender / ClientRender 契约 */
@@ -164,7 +164,7 @@ interface WebWidgetPluginOptions {
     | (Omit<WebWidgetAdapter, 'name' | 'extensions'> & {
         name?: string;
         extensions?: string[];
-        /** 适配器包名，构建工具从此包导入 runtime 实现 */
+        /** 适配器包名，构建工具从此包导入 adapter 实现 */
         from: string;
         /**
          * 处理器生效范围（目录路径）。
@@ -179,25 +179,25 @@ interface WebWidgetPluginOptions {
 
 #### 1.3 环境适应性
 
-`ServerRender` 和 `ClientRender` 是不同的契约——服务端渲染为 HTML 字符串或流，客户端渲染负责挂载和水合。但协议只提供了一个 `runtime` 子路径。构建工具在服务端构建和客户端构建时，需要从这个子路径分别加载到不同的 `RuntimeModule` 实现，而无需适配器或用户手动区分环境。
+`ServerRender` 和 `ClientRender` 是不同的契约——服务端渲染为 HTML 字符串或流，客户端渲染负责挂载和水合。但协议只提供了一个 `adapter` 子路径。构建工具在服务端构建和客户端构建时，需要从这个子路径分别加载到不同的 `RuntimeModule` 实现，而无需适配器或用户手动区分环境。
 
 借助 Node.js / 构建工具通用的 `package.json` `exports` 条件导出机制，适配器包可以在同一个子路径下为不同环境提供不同实现：
 
 ```json
 {
   "exports": {
-    "./runtime": {
+    "./adapter": {
       "worker": {
-        "types": "./dist/runtime.server.d.ts",
-        "default": "./dist/runtime.server.js"
+        "types": "./dist/adapter.server.d.ts",
+        "default": "./dist/adapter.server.js"
       },
       "browser": {
-        "types": "./dist/runtime.client.d.ts",
-        "default": "./dist/runtime.client.js"
+        "types": "./dist/adapter.client.d.ts",
+        "default": "./dist/adapter.client.js"
       },
       "default": {
-        "types": "./dist/runtime.server.d.ts",
-        "default": "./dist/runtime.server.js"
+        "types": "./dist/adapter.server.d.ts",
+        "default": "./dist/adapter.server.js"
       }
     }
   }
@@ -212,9 +212,9 @@ interface WebWidgetPluginOptions {
 
 ```typescript
 // 无论客户端构建还是服务端构建，都用同一条路径
-const runtimeModule = await import(`${packageName}${processor.runtime}`);
-// → 客户端构建时解析到 runtime.client.js（ClientRender）
-// → 服务端构建时解析到 runtime.server.js（ServerRender）
+const adapterModule = await import(`${packageName}${processor.adapter}`);
+// → 客户端构建时解析到 adapter.client.js（ClientRender）
+// → 服务端构建时解析到 adapter.server.js（ServerRender）
 ```
 
 #### 1.4 适配器包结构
@@ -222,7 +222,7 @@ const runtimeModule = await import(`${packageName}${processor.runtime}`);
 一个完整的适配器包（以 `@web-widget/react` 为例）的结构和导出：
 
 ```typescript
-// @web-widget/react/runtime/server.ts —— 服务端 RuntimeModule
+// @web-widget/react/adapter/server.ts —— 服务端 RuntimeModule
 import type { ServerRender } from '@web-widget/schema';
 
 export const render: ServerRender = (component, data, options) => {
@@ -235,7 +235,7 @@ export function container(loader, options) {
 ```
 
 ```typescript
-// @web-widget/react/runtime/client.ts —— 客户端 RuntimeModule
+// @web-widget/react/adapter/client.ts —— 客户端 RuntimeModule
 import type { ClientRender } from '@web-widget/schema';
 
 export const render: ClientRender = (component, data, options) => {
@@ -249,7 +249,7 @@ export function container(loader, options) {
 
 ```typescript
 // @web-widget/react/index.ts —— 包入口
-export { container } from './runtime';
+export { container } from './adapter';
 ```
 
 `package.json` 中通过 `webWidget` 字段声明 `WebWidgetAdapter` 配置，`exports` 组织子路径：
@@ -260,14 +260,14 @@ export { container } from './runtime';
   "webWidget": {
     "name": "react",
     "extensions": [".tsx", ".jsx"],
-    "runtime": "./runtime"
+    "adapter": "./adapter"
   },
   "exports": {
     ".": { "default": "./dist/index.js" },
-    "./runtime": {
-      "worker": { "default": "./dist/runtime.server.js" },
-      "browser": { "default": "./dist/runtime.client.js" },
-      "default": { "default": "./dist/runtime.server.js" }
+    "./adapter": {
+      "worker": { "default": "./dist/adapter.server.js" },
+      "browser": { "default": "./dist/adapter.client.js" },
+      "default": { "default": "./dist/adapter.server.js" }
     }
   }
 }
@@ -325,6 +325,84 @@ export default __$default$__;
 ```
 
 派生规则与框架的渲染方式相关——Vue3 的 `handler` 兜底使用 `html()` 渲染，Vue2 使用 `render()` 渲染——因此由适配器包声明而非用户配置。`deriveExports` 仅对路由模块（文件名包含路由标记的模块）生效。
+
+#### 1.7 Widget 容器配置
+
+当框架支持流式 SSR 时（如 React、HTML 模板），widget 的异步渲染可能阻塞流。为了让用户在所有框架中获得一致的 Suspense 体验，各适配器包的 `WidgetContainerConfig` 应采用统一的 `fallback` 设计：
+
+```typescript
+type WidgetContainerConfig<TFallback> = {
+  /**
+   * 待定和错误状态的回退 UI。
+   *
+   * 仅在服务端渲染期间生效：待定 UI 在 widget 模块异步渲染时显示，
+   * 错误 UI 在渲染失败时显示。两者都被序列化到 HTML 流中——
+   * Islands 架构下不存在客户端重试。
+   *
+   * - `TFallback` — 待定（Suspense）和错误共用同一 UI。
+   * - `{ pending?, error? }` — 分别指定；省略 `error` 时回退到 `pending`。
+   *
+   * 不提供 `fallback` 时，widget 阻塞渲染（无 Suspense 边界）。
+   *
+   * @example
+   * // 简单：两种状态共用同一 UI
+   * { fallback: <Spinner /> }
+   *
+   * // 区分：分别指定待定和错误 UI
+   * { fallback: { pending: <Spinner />, error: <ErrorUI /> } }
+   */
+  fallback?: TFallback | { pending?: TFallback; error?: TFallback };
+
+  /**
+   * 客户端模块加载策略。
+   * - `'lazy'`（默认）：首次渲染时加载
+   * - `'eager'`：模块解析时立即加载
+   * - `'idle'`：浏览器空闲时加载
+   */
+  loading?: 'lazy' | 'eager' | 'idle';
+
+  /**
+   * 仅服务端渲染（SSR），产出静态 HTML，无客户端水合。
+   * 与 `clientOnly` 互斥。
+   */
+  serverOnly?: true;
+
+  /**
+   * 仅客户端渲染，不产出服务端 HTML（空占位符直到客户端挂载）。
+   * 与 `serverOnly` 互斥。
+   */
+  clientOnly?: true;
+};
+```
+
+`TFallback` 是框架特定的 UI 类型，例如 ReactNode、VNode 等。
+
+**各框架用法对照**：
+
+```tsx
+// React — TFallback = ReactNode
+<Widget widget={{ fallback: <Spinner /> }} />
+<Widget widget={{ fallback: { pending: <Spinner />, error: <ErrorUI /> } }} />
+```
+
+```typescript
+// HTML 模板 — TFallback = HTML
+Widget({ widget: { fallback: html`<div>Loading...</div>` } });
+Widget({
+  widget: {
+    fallback: {
+      pending: html`<div>Loading...</div>`,
+      error: html`<div>Error!</div>`,
+    },
+  },
+});
+```
+
+```vue
+<!-- Vue — TFallback = VNode -->
+<Widget :widget="{ fallback: h(Spinner) }" />
+<Widget :widget="{ fallback: { pending: h(Spinner), error: h(ErrorUI) } }" />
+```
 
 ## 参考
 

@@ -23,6 +23,7 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/form'],
   ['/'],
   ['/lit-html-template'],
+  ['/html-widget-islands'],
   ['/meta'],
   ['/react-and-vue'],
   ['/vue-module-css'],

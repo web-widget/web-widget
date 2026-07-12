@@ -4,8 +4,8 @@ export default defineConfig({
   dts: true,
   entry: {
     vue: 'src/index.ts',
-    'vue.server': 'src/server.ts',
-    'vue.client': 'src/client.ts',
+    'vue.adapter.server': 'src/adapter.server.ts',
+    'vue.adapter.client': 'src/adapter.client.ts',
   },
   external: [],
   format: 'esm',

@@ -1,7 +1,8 @@
 /**
  * @fileoverview Default layout module for web-router
  */
-import { html, render, unsafeHTML, unsafeStreamToHTML } from '@web-widget/html';
+import { html, unsafeHTML, unsafeStreamToHTML } from '@web-widget/html';
+import { render } from '@web-widget/html/adapter';
 
 import type { HTML } from '@web-widget/html';
 import { renderMetaToString } from '@web-widget/helpers';
@@ -20,9 +21,11 @@ export default function DefaultRootLayout({
         ${unsafeHTML(renderMetaToString(meta))}
       </head>
       <body>
-        ${typeof children === 'string'
-          ? unsafeHTML(children)
-          : unsafeStreamToHTML(children)}
+        ${
+          typeof children === 'string'
+            ? unsafeHTML(children)
+            : unsafeStreamToHTML(children)
+        }
       </body>
     </html>`;
 }

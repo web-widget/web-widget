@@ -29,7 +29,7 @@ export type Unpackable<T> =
   | Promise<AsyncIterable<Iterable<Promise<T>>>>;
 
 export type Renderable =
-  null | Exclude<Primitive, symbol> | HTML | UnsafeHTML | Fallback;
+  null | Exclude<Primitive, symbol> | HTML | UnsafeHTML | Fallback | Suspense;
 
 export type HTMLContentStatic = Unpackable<Renderable>;
 export type HTMLContent = Callable<HTMLContentStatic>;
@@ -81,39 +81,73 @@ function escapeHtml(string: string): string {
   return lastIndex !== index ? html + str.substring(lastIndex, index) : html;
 }
 
+/** @internal A deferred async content item registered by a Suspense boundary. */
+export interface DeferredItem {
+  id: number;
+  content: HTMLContent;
+  errorFallback?: HTML | ((e: any) => HTML);
+}
+
+/**
+ * @internal Per-renderToStream context (local, not global).
+ *
+ * Each `renderToStream` call creates its own `RenderContext` and threads it
+ * down through the render tree via the `[RENDER]` symbol. This eliminates the
+ * module-level global stacks that caused concurrency bugs when multiple
+ * `renderToStream` calls interleaved at `await` points.
+ */
+export interface RenderContext {
+  deferreds: DeferredItem[];
+  nextId: number;
+  /** Error handler stack — pushed by `Fallback`, captured by `Suspense`. */
+  errorStack: (HTML | ((e: any) => HTML))[];
+}
+
+/** @internal Internal render entry point that accepts a context. */
+export const RENDER = Symbol('render');
+
+/** @internal Exported for renderToStream to resolve deferred content. */
+export async function* unpack(
+  content: HTMLContent,
+  ctx?: RenderContext
+): AsyncGenerator<string> {
+  yield* unpackContent(
+    typeof content === 'function' ? content() : content,
+    ctx
+  );
+}
+
 async function* unpackContent(
-  content: HTMLContentStatic
+  content: HTMLContentStatic,
+  ctx?: RenderContext
 ): AsyncGenerator<string> {
   const x = await content;
   if (x == null || x === '' || x === false) {
     yield '';
   } else if (x instanceof AbstractHTML) {
-    yield* x;
+    yield* x[RENDER](ctx);
   } else if (isIterable(x)) {
     for (const xi of x) {
-      yield* unpackContent(xi);
+      yield* unpackContent(xi, ctx);
     }
   } else if (isAsyncIterable(x)) {
     for await (const xi of x) {
-      yield* unpackContent(xi);
+      yield* unpackContent(xi, ctx);
     }
   } else {
     yield escapeHtml(x as string);
   }
 }
 
-async function* unpack(content: HTMLContent): AsyncGenerator<string> {
-  try {
-    yield* unpackContent(typeof content === 'function' ? content() : content);
-  } catch (err) {
-    if (err instanceof AbstractHTML) yield* err;
-    else throw err;
-  }
-}
-
 /** Abstract base class for HTML result types (async iterable of strings). */
 export abstract class AbstractHTML {
-  abstract [Symbol.asyncIterator](): AsyncGenerator<string>;
+  /** Standard async iterator — delegates to `[RENDER]` without a context. */
+  [Symbol.asyncIterator](): AsyncGenerator<string> {
+    return this[RENDER]();
+  }
+
+  /** @internal Render entry point. `ctx` is set only inside `renderToStream`. */
+  abstract [RENDER](ctx?: RenderContext): AsyncGenerator<string>;
 }
 
 /** Result of `html` tagged template. Interleaves literal strings with escaped interpolations. */
@@ -127,7 +161,7 @@ export class HTML extends AbstractHTML {
     this.#args = args;
   }
 
-  async *[Symbol.asyncIterator](): AsyncGenerator<string> {
+  async *[RENDER](ctx?: RenderContext): AsyncGenerator<string> {
     const stringsIt = this.#strings[Symbol.iterator]();
     const argsIt = this.#args[Symbol.iterator]();
     while (true) {
@@ -139,7 +173,7 @@ export class HTML extends AbstractHTML {
       const { done: argDone, value: arg } =
         argsIt.next() as IteratorYieldResult<HTMLContent>;
       if (argDone) break;
-      yield* unpack(arg);
+      yield* unpack(arg, ctx);
     }
     const { done: stringDone, value: string } =
       stringsIt.next() as IteratorYieldResult<string>;
@@ -154,7 +188,7 @@ export class UnsafeHTML extends AbstractHTML {
     super();
     this.#value = value || '';
   }
-  async *[Symbol.asyncIterator](): AsyncGenerator<string> {
+  async *[RENDER](): AsyncGenerator<string> {
     yield this.#value;
   }
   toString(): string {
@@ -165,7 +199,13 @@ export class UnsafeHTML extends AbstractHTML {
   }
 }
 
-/** Error boundary: tries `content`, falls back on throw. */
+/** Error boundary: tries `content`, falls back on throw.
+ *
+ * During iteration, pushes its error handler onto the context's error stack
+ * (when streaming). Inner `Suspense` boundaries capture this handler so that
+ * deferred errors (which occur after Phase 1 iteration) can be handled in
+ * Phase 2.
+ */
 export class Fallback extends AbstractHTML {
   #content: HTMLContent;
   #fallback: HTML | ((e: any) => HTML);
@@ -176,23 +216,21 @@ export class Fallback extends AbstractHTML {
     this.#fallback = fallback;
   }
 
-  async *[Symbol.asyncIterator](): AsyncGenerator<string> {
+  async *[RENDER](ctx?: RenderContext): AsyncGenerator<string> {
+    if (ctx) ctx.errorStack.push(this.#fallback);
     try {
-      yield* unpack(this.#content);
+      yield* unpack(this.#content, ctx);
     } catch (e) {
       yield* typeof this.#fallback === 'function'
         ? this.#fallback(e)
         : this.#fallback;
+    } finally {
+      if (ctx) ctx.errorStack.pop();
     }
   }
 }
 
 /** Tagged template function. Auto-escapes interpolated values. */
-export function html(
-  strings: TemplateStringsArray,
-  ...args: HTMLContent[]
-): HTML;
-export function html(strings: TemplateStringsArray, ...args: any[]): HTML;
 export function html(
   strings: TemplateStringsArray,
   ...args: HTMLContent[]
@@ -209,14 +247,59 @@ export function unsafeHTML(content: string): UnsafeHTML {
 export function fallback(
   content: HTMLContent,
   fallback: HTML | ((e: any) => HTML)
-): Fallback;
-export function fallback(
-  content: any,
-  fallback: HTML | ((e: any) => HTML)
-): Fallback;
-export function fallback(
-  content: HTMLContent,
-  fallback: HTML | ((e: any) => HTML)
 ): Fallback {
   return new Fallback(content, fallback);
+}
+
+/**
+ * Suspense boundary for progressive rendering.
+ *
+ * In streaming mode (inside `renderToStream`): immediately outputs `pending`
+ * content wrapped in boundary markers, defers the async content to be
+ * streamed (and swapped via `$HRC` script) when ready.
+ *
+ * In passthrough mode (direct `for await...of`): blocks until content
+ * resolves; on error, defers to the nearest enclosing `fallback()` boundary.
+ *
+ * For error recovery, compose with `fallback()`:
+ * ```ts
+ * fallback(suspense(content, pendingUI), errorUI)
+ * ```
+ * The `fallback()` boundary's error handler is captured at registration time
+ * and applied to deferred errors in Phase 2.
+ */
+export class Suspense extends AbstractHTML {
+  #content: HTMLContent;
+  #pending: HTML;
+
+  constructor(content: HTMLContent, pending: HTML) {
+    super();
+    this.#content = content;
+    this.#pending = pending;
+  }
+
+  async *[RENDER](ctx?: RenderContext): AsyncGenerator<string> {
+    if (!ctx) {
+      // Passthrough mode: block on content.
+      // Errors propagate to enclosing fallback() boundary (if any).
+      yield* unpack(this.#content);
+      return;
+    }
+    // Streaming mode: output pending + markers, register deferred.
+    // Capture nearest error handler from the context's error stack.
+    const id = ctx.nextId++;
+    ctx.deferreds.push({
+      id,
+      content: this.#content,
+      errorFallback: ctx.errorStack[ctx.errorStack.length - 1],
+    });
+    yield `<!--$H?--><template id="HB:${id}"></template>`;
+    yield* this.#pending[RENDER](ctx);
+    yield `<!--/$H-->`;
+  }
+}
+
+/** Creates a Suspense boundary for progressive rendering. */
+export function suspense(content: HTMLContent, pending: HTML): Suspense {
+  return new Suspense(content, pending);
 }

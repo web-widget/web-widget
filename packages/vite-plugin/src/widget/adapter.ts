@@ -16,7 +16,7 @@ interface AdapterMetadata {
   version?: string;
   name: string;
   extensions: string[];
-  runtime: string;
+  adapter: string;
   deriveExports?: {
     name: string;
     from?: string;
@@ -28,7 +28,7 @@ interface ResolvedAdapter {
   from: string;
   name: string;
   extensions: string[];
-  runtime: string;
+  adapter: string;
   scope?: string;
   deriveExports?: AdapterMetadata['deriveExports'];
 }
@@ -73,10 +73,10 @@ function readAdapterMetadata(from: string, root: string): AdapterMetadata {
     );
   }
 
-  if (!meta.name || !meta.extensions || !meta.runtime) {
+  if (!meta.name || !meta.extensions || !meta.adapter) {
     throw new Error(
       `Adapter package "${from}" has an incomplete "webWidget" field. ` +
-        `Required: name, extensions, runtime.`
+        `Required: name, extensions, adapter.`
     );
   }
 
@@ -112,7 +112,7 @@ function resolveAdapter(
     from,
     name: overrides.name ?? declared.name,
     extensions: overrides.extensions ?? declared.extensions,
-    runtime: overrides.runtime ?? declared.runtime,
+    adapter: overrides.adapter ?? declared.adapter,
     scope,
     deriveExports: declared.deriveExports,
   };
@@ -142,13 +142,13 @@ function scopePrefix(scope: string | undefined, root: string): string {
 // ── plugin generation ─────────────────────────────────────────────
 
 function buildPluginsForAdapter(
-  adapter: ResolvedAdapter,
+  resolved: ResolvedAdapter,
   root: string
 ): Plugin[] {
-  const { from, extensions, runtime, scope, deriveExports } = adapter;
+  const { from, extensions, adapter, scope, deriveExports } = resolved;
 
-  // Runtime module specifier: "@web-widget/react/runtime"
-  const provide = `${from}/${runtime.replace(/^\.\//, '')}`;
+  // Adapter module specifier: "@web-widget/react/adapter"
+  const provide = `${from}/${adapter.replace(/^\.\//, '')}`;
 
   const ext = extPattern(extensions);
   const scopeRe = scopePrefix(scope, root);

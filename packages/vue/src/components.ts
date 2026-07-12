@@ -1,6 +1,13 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
-import { h, defineComponent, Suspense, useAttrs } from 'vue';
+import {
+  h,
+  defineComponent,
+  Suspense,
+  useAttrs,
+  ref,
+  onErrorCaptured,
+} from 'vue';
 import type { VNode, PropType } from 'vue';
 import { IS_CLIENT } from '@web-widget/helpers/env';
 
@@ -88,12 +95,55 @@ export interface DefineWebWidgetOptions {
   renderTarget?: WebWidgetRendererOptions['renderTarget'];
 }
 
+export type WidgetFallback = VNode | { pending?: VNode; error?: VNode };
+
+/**
+ * Resolve a WidgetFallback into separate pending and error VNodes.
+ * - `VNode` — used for both pending and error.
+ * - `{ pending?, error? }` — specify independently; `error` defaults to `pending`.
+ */
+export function resolveFallback(fallback: WidgetFallback | undefined): {
+  pendingFallback: VNode;
+  errorFallback: VNode;
+} {
+  if (
+    fallback !== null &&
+    typeof fallback === 'object' &&
+    !('__v_isVNode' in fallback) &&
+    ('pending' in fallback || 'error' in fallback)
+  ) {
+    const obj = fallback as { pending?: VNode; error?: VNode };
+    return {
+      pendingFallback: obj.pending!,
+      errorFallback: obj.error ?? obj.pending!,
+    };
+  }
+  return {
+    pendingFallback: fallback as VNode,
+    errorFallback: fallback as VNode,
+  };
+}
+
 export interface WidgetContainerConfig {
   /**
-   * Fallback UI shown via Suspense while the widget module is loading or
-   * fails to render. Only effective during server-side rendering.
+   * Fallback UI for loading and error states.
+   *
+   * Only effective during server-side rendering: loading UI shows while the
+   * widget module renders; error UI shows if rendering fails. Both are
+   * serialized into the HTML stream — no client-side retry exists in the
+   * islands architecture.
+   *
+   * - `VNode` — used for both pending (Suspense) and error.
+   * - `{ pending?, error? }` — specify independently; `error` defaults to `pending`.
+   *
+   * @example
+   * // Simple: same UI for both states
+   * <Widget :widget="{ fallback: h(Spinner) }" />
+   *
+   * // Differentiated: separate pending and error UI
+   * <Widget :widget="{ fallback: { pending: h(Spinner), error: h(ErrorUI) } }" />
    */
-  fallback?: VNode;
+  fallback?: WidgetFallback;
   /** Client-side module loading strategy: `'lazy'` loads on first render, `'eager'` on module parse, `'idle'` on browser idle. */
   loading?: WebWidgetRendererOptions['loading'];
   /** Widget renders only on the server (SSR), producing static HTML with no client-side mount. Mutually exclusive with `clientOnly`. */
@@ -122,6 +172,7 @@ export /*#__PURE__*/ function container(
         serverOnly,
         clientOnly,
       } = widget;
+      const { pendingFallback, errorFallback } = resolveFallback(fallback);
       const renderStage = serverOnly
         ? 'server'
         : clientOnly
@@ -129,8 +180,17 @@ export /*#__PURE__*/ function container(
           : options.renderStage;
       const data = useAttrs() as WebWidgetRendererOptions['data'];
 
-      return () =>
-        h(
+      const error = ref<unknown>(null);
+      onErrorCaptured((err) => {
+        error.value = err;
+        return false;
+      });
+
+      return () => {
+        if (error.value && errorFallback) {
+          return errorFallback;
+        }
+        return h(
           Suspense,
           {},
           {
@@ -146,9 +206,10 @@ export /*#__PURE__*/ function container(
               },
               slots
             ),
-            fallback,
+            fallback: pendingFallback,
           }
         );
+      };
     },
   });
 }

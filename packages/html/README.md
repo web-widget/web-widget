@@ -83,7 +83,7 @@ function handleRequest() {
     .then((t) => timeEl(new Date(t)));
 
   return new Response(
-    HTMLToStream(
+    renderToStream(
       pageLayout(
         'Hello World!',
         html`
@@ -101,17 +101,17 @@ While there's ways around the lack of async/await in the above example (namely I
 ```ts
 function handleRequest() {
   return new Response(
-    HTMLToStream(
+    renderToStream(
       pageLayout(
         'Hello World!',
         html`
           <h1>Hello World!</h1>
           ${async () => {
-      const timeStamp = new Date(
-        await fetch('https://time.api/now').then((r) => r.text())
-      );
-      return html`<p>The current time is ${timeEl(timeStamp)}.</p>`;
-    }}
+            const timeStamp = new Date(
+              await fetch('https://time.api/now').then((r) => r.text())
+            );
+            return html`<p>The current time is ${timeEl(timeStamp)}.</p>`;
+          }}
         `
       )
     )
@@ -152,6 +152,66 @@ const result = html`<div>
 
 The `fallback` function accepts either a static `HTML` fallback or a function that receives the error and returns an `HTML`.
 
+### Suspense / Progressive Rendering
+
+Use `suspense` for progressive rendering — a placeholder is sent immediately, and the real content replaces it when ready, without blocking subsequent content:
+
+```ts
+import { suspense, fallback } from '@web-widget/html';
+
+const result = html`<div>
+  <h1>Dashboard</h1>
+  ${fallback(
+    suspense(fetchUserData(), html`<div>Loading...</div>`),
+    html`<div>Failed to load</div>`
+  )}
+  <p>This renders immediately.</p>
+</div>`;
+```
+
+`suspense` and `fallback` follow React's separation of concerns: `suspense(content, pending)` handles pending → ready, while `fallback(content, errorFn)` handles error → error UI. Combine them freely: `fallback(suspense(content, pending), errorFn)`.
+
+### Directives
+
+`@web-widget/html` provides lit-html compatible directive functions. They are stateless value transformers — no framework runtime required:
+
+```ts
+import {
+  html,
+  classMap,
+  styleMap,
+  ifDefined,
+  when,
+  join,
+} from '@web-widget/html';
+
+const result = html`<div>
+  <span
+    class="${classMap({ active: true, disabled: false })}"
+    style="${styleMap({ color: 'red', fontSize: '14px' })}">
+    Active
+  </span>
+  <a href="${ifDefined(user.url)}">Profile</a>
+  ${when(isAdmin, html`<button>Admin Panel</button>`)}
+  <ul>
+    ${join(
+    items.map((i) => html`<li>${i}</li>`),
+    html`<hr />`
+  )}
+  </ul>
+</div>`;
+```
+
+| Directive           | Description                                                                    |
+| ------------------- | ------------------------------------------------------------------------------ |
+| `classMap(classes)` | Joins truthy class names into a space-separated string                         |
+| `styleMap(styles)`  | Converts a style object to CSS text (camelCase → kebab-case, skips null/empty) |
+| `ifDefined(value)`  | Returns empty string for `undefined` — useful for optional attributes          |
+| `when(cond, a, b?)` | Renders `a` when truthy, `b` (or nothing) when falsy                           |
+| `join(items, sep)`  | Renders an iterable with a separator between each pair                         |
+
+All directives compose with streaming rendering, `fallback`, and `suspense`.
+
 ## API
 
 ### `html(strings, ...args): HTML`
@@ -164,15 +224,43 @@ Wraps a raw string without HTML escaping.
 
 ### `fallback(content, fallback): Fallback`
 
-Creates an error boundary. On throw, renders `fallback` instead.
+Creates an error boundary. On throw, renders `fallback` instead. Accepts either a static `HTML` or a function `(e) => HTML`.
+
+### `suspense(content, pending): Suspense`
+
+Creates a streaming boundary for progressive rendering. Sends `pending` immediately; replaces with real content when `content` resolves.
+
+### `classMap(classes): string`
+
+Converts an object of class names to a space-separated string, including only truthy values.
+
+### `styleMap(styles): string`
+
+Converts an object of CSS properties to a style string. CamelCase keys are converted to kebab-case.
+
+### `ifDefined(value): string`
+
+Returns the value if defined, otherwise empty string.
+
+### `when(condition, trueCase, falseCase?): HTMLContent`
+
+Renders `trueCase` when condition is truthy, otherwise `falseCase` (or nothing).
+
+### `join(items, separator): HTMLContent`
+
+Joins an iterable of items with a separator between each pair.
 
 ### `HTML`
 
 An async iterable of string chunks. Interleaves literal strings with escaped interpolations. Supports nested `HTML`, promises, async iterables, arrays, and functions.
 
-### `HTMLToStream(html: HTML): ReadableStream`
+### `renderToStream(html: HTML): ReadableStream`
 
 Converts an `HTML` instance to a `ReadableStream<Uint8Array>` for HTTP responses.
+
+### `renderToString(html: HTML): Promise<string>`
+
+Converts an `HTML` instance to a complete string.
 
 ### `streamToHTML(stream: ReadableStream): AsyncIterableIterator<string>`
 

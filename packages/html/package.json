@@ -13,31 +13,44 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@web-widget/helpers": "workspace:*"
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/web-widget": "workspace:*",
+    "magic-string": "^0.30.5"
   },
   "devDependencies": {
     "tsup": "catalog:",
     "typescript": "catalog:",
+    "vite": "catalog:",
     "vitest": "catalog:"
   },
   "exports": {
     ".": {
-      "worker": {
-        "types": "./dist/html.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/html.server.js"
-      },
-      "browser": {
-        "types": "./dist/html.client.d.ts",
-        "development": "./src/client.ts",
-        "default": "./dist/html.client.js"
-      },
-      "default": {
-        "types": "./dist/html.server.d.ts",
-        "development": "./src/server.ts",
-        "default": "./dist/html.server.js"
-      }
+      "types": "./dist/html.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/html.js"
+    },
+    "./adapter": {
+      "types": "./dist/html.adapter.d.ts",
+      "development": "./src/adapter.ts",
+      "default": "./dist/html.adapter.js"
+    },
+    "./vite-plugin": {
+      "types": "./dist/html.vite-plugin.d.ts",
+      "development": "./src/vite-plugin.ts",
+      "default": "./dist/html.vite-plugin.js"
     }
+  },
+  "peerDependencies": {
+    "vite": "catalog:"
+  },
+  "webWidget": {
+    "version": "1.0.0",
+    "name": "html",
+    "extensions": [
+      ".html.ts",
+      ".html.js"
+    ],
+    "adapter": "./adapter"
   },
   "files": [
     "dist"
@@ -46,18 +59,16 @@
     "access": "public",
     "exports": {
       ".": {
-        "worker": {
-          "types": "./dist/html.server.d.ts",
-          "default": "./dist/html.server.js"
-        },
-        "browser": {
-          "types": "./dist/html.client.d.ts",
-          "default": "./dist/html.client.js"
-        },
-        "default": {
-          "types": "./dist/html.server.d.ts",
-          "default": "./dist/html.server.js"
-        }
+        "types": "./dist/html.d.ts",
+        "default": "./dist/html.js"
+      },
+      "./adapter": {
+        "types": "./dist/html.adapter.d.ts",
+        "default": "./dist/html.adapter.js"
+      },
+      "./vite-plugin": {
+        "types": "./dist/html.vite-plugin.d.ts",
+        "default": "./dist/html.vite-plugin.js"
       }
     }
   },
@@ -72,5 +83,6 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
+  "sideEffects": false,
   "type": "module"
 }

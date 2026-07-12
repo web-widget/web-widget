@@ -1,4 +1,5 @@
-import { html, render, unsafeHTML, unsafeStreamToHTML } from '@web-widget/html';
+import { html, unsafeHTML, unsafeStreamToHTML } from '@web-widget/html';
+import { render } from '@web-widget/html/adapter';
 
 import type { HTML } from '@web-widget/html';
 import type { LayoutComponentProps } from '@web-widget/web-router';
@@ -17,9 +18,11 @@ export default function RootLayout({
         ${unsafeHTML(renderMetaToString(meta))}
       </head>
       <body>
-        ${children instanceof ReadableStream
-          ? unsafeStreamToHTML(children)
-          : unsafeHTML(children)}
+        ${
+          children instanceof ReadableStream
+            ? unsafeStreamToHTML(children)
+            : unsafeHTML(children)
+        }
       </body>
     </html>`;
 }

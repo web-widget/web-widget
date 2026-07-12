@@ -107,15 +107,15 @@ export type DefineWebWidgetOptions = Partial<
 >;
 
 export type WidgetFallback =
-  ReactNode | { loading?: ReactNode; error?: ReactNode };
+  ReactNode | { pending?: ReactNode; error?: ReactNode };
 
 /**
- * Resolve a WidgetFallback into separate loading and error UI.
- * - ReactNode: used for both loading and error.
- * - { loading?, error? }: error defaults to loading if omitted.
+ * Resolve a WidgetFallback into separate pending and error UI.
+ * - `ReactNode`: used for both pending and error.
+ * - `{ pending?, error? }`: error defaults to pending if omitted.
  */
 export function resolveFallback(fallback: WidgetFallback | undefined): {
-  loadingFallback: ReactNode;
+  pendingFallback: ReactNode;
   errorFallback: ReactNode;
 } {
   if (
@@ -123,16 +123,16 @@ export function resolveFallback(fallback: WidgetFallback | undefined): {
     typeof fallback === 'object' &&
     !isValidElement(fallback) &&
     !Array.isArray(fallback) &&
-    ('loading' in fallback || 'error' in fallback)
+    ('pending' in fallback || 'error' in fallback)
   ) {
-    const obj = fallback as { loading?: ReactNode; error?: ReactNode };
+    const obj = fallback as { pending?: ReactNode; error?: ReactNode };
     return {
-      loadingFallback: obj.loading,
-      errorFallback: obj.error ?? obj.loading,
+      pendingFallback: obj.pending,
+      errorFallback: obj.error ?? obj.pending,
     };
   }
   return {
-    loadingFallback: fallback as ReactNode,
+    pendingFallback: fallback as ReactNode,
     errorFallback: fallback as ReactNode,
   };
 }
@@ -146,15 +146,15 @@ export type WidgetContainerConfig = {
    * serialized into the HTML stream — no client-side retry exists in the
    * islands architecture.
    *
-   * - `ReactNode` — used for both loading (Suspense) and error (ErrorBoundary).
-   * - `{ loading?, error? }` — specify independently; `error` defaults to `loading`.
+   * - `ReactNode` — used for both pending (Suspense) and error (ErrorBoundary).
+   * - `{ pending?, error? }` — specify independently; `error` defaults to `pending`.
    *
    * @example
    * // Simple: same UI for both states
    * <Widget widget={{ fallback: <Spinner /> }} />
    *
-   * // Differentiated: separate loading and error UI
-   * <Widget widget={{ fallback: { loading: <Spinner />, error: <ErrorUI /> } }} />
+   * // Differentiated: separate pending and error UI
+   * <Widget widget={{ fallback: { pending: <Spinner />, error: <ErrorUI /> } }} />
    */
   fallback?: WidgetFallback;
   /** Client-side module loading strategy: `'lazy'` loads on first render, `'eager'` on module parse, `'idle'` on browser idle. */
@@ -218,12 +218,12 @@ export /*#__PURE__*/ function container(
       : clientOnly
         ? 'client'
         : options.renderStage;
-    const { loadingFallback, errorFallback } = resolveFallback(fallback);
+    const { pendingFallback, errorFallback } = resolveFallback(fallback);
     return createElement(
       WidgetErrorBoundary,
       { fallback: errorFallback },
       createElement(Suspense, {
-        fallback: loadingFallback,
+        fallback: pendingFallback,
         children: createElement(WebWidget, {
           errorFallback,
           ...renderWebWidget({

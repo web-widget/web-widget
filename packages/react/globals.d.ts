@@ -1,21 +1,21 @@
 /// <reference types="react" />
 
-type WebWidgetFallback = ReactNode | { loading?: ReactNode; error?: ReactNode };
+type WebWidgetFallback = ReactNode | { pending?: ReactNode; error?: ReactNode };
 
 /**
  * Container configuration, isolated from the widget's own props.
  */
 type WidgetContainerConfig = {
   /**
-   * Fallback UI for loading and error states.
+   * Fallback UI for pending and error states.
    *
-   * Only effective during server-side rendering: loading UI shows while the
+   * Only effective during server-side rendering: pending UI shows while the
    * widget module renders; error UI shows if rendering fails. Both are
    * serialized into the HTML stream — no client-side retry exists in the
    * islands architecture.
    *
-   * - `ReactNode` — used for both loading (Suspense) and error (ErrorBoundary).
-   * - `{ loading?, error? }` — specify independently; `error` defaults to `loading`.
+   * - `ReactNode` — used for both pending (Suspense) and error (ErrorBoundary).
+   * - `{ pending?, error? }` — specify independently; `error` defaults to `pending`.
    */
   fallback?: WebWidgetFallback;
   /** Client-side module loading strategy: `'lazy'` loads on first render, `'eager'` on module parse, `'idle'` on browser idle. */
