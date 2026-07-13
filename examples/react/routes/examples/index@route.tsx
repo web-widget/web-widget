@@ -1,5 +1,4 @@
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
-import ReactCounter from './(components)/Counter@widget.tsx';
 import BaseLayout from './(components)/BaseLayout.tsx';
 import styles from './index.module.css';
 import shared from './(components)/shared.module.css';
@@ -23,17 +22,6 @@ export default defineRouteComponent(function Page() {
             Built on web standards, cross-platform, integrates with different
             frontend UI frameworks
           </p>
-        </div>
-
-        {/* Demo Section */}
-        <div className={styles.demoSection}>
-          <div className={styles.heroDemo}>
-            <p className={styles.demoIntro}>✨ Widget in the page</p>
-            <ReactCounter count={0} />
-            <p className={styles.demoHint}>
-              This is an interactive widget demo, which can use any tech stack
-            </p>
-          </div>
         </div>
 
         {/* Features Section */}

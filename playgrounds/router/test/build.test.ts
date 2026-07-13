@@ -106,7 +106,15 @@ describe('vite build integration', () => {
       href.includes('counter-common')
     );
     const hasInlineStyle = routeStyle && routeStyle.includes('counter');
-    expect(hasCssLink || hasInlineStyle).toBe(true);
+    // CSS may be merged into a single file with a hash name; check the file
+    // content for counter styles.
+    const hasMergedCss = routeHrefs.some((href) => {
+      if (!href.startsWith('/assets/')) return false;
+      const cssPath = path.join(playgroundRoot, 'dist/client', href);
+      if (!fs.existsSync(cssPath)) return false;
+      return fs.readFileSync(cssPath, 'utf-8').includes('.counter');
+    });
+    expect(hasCssLink || hasInlineStyle || hasMergedCss).toBe(true);
   });
 
   it('preserves Vue SFC CSS Modules class-name exports in SSR build', () => {

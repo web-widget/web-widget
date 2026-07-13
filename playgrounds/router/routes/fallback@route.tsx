@@ -6,6 +6,7 @@ import {
 } from '@web-widget/helpers';
 import { createHttpError } from '@web-widget/helpers/error';
 import BaseLayout from './(components)/BaseLayout';
+import { PageHeader, Section } from './(components)/ui';
 
 export const handler = defineRouteHandler({
   async GET(ctx) {
@@ -40,8 +41,10 @@ export const fallback = defineRouteFallbackComponent(function (
 ) {
   return (
     <BaseLayout>
-      <h1>❌{error.name}</h1>
-      <h2>{error.message}</h2>
+      <PageHeader title={`❌${error.name}`} />
+      <Section>
+        <p>{error.message}</p>
+      </Section>
     </BaseLayout>
   );
 });
@@ -49,7 +52,10 @@ export const fallback = defineRouteFallbackComponent(function (
 export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
-      <h1>Error handling</h1>
+      <PageHeader
+        title="Error handling"
+        description="When a route fails to render, a fallback UI takes over. Trigger an error below to see the fallback in action."
+      />
       <ul>
         <li>
           <a href="?404">Show 404 error</a>

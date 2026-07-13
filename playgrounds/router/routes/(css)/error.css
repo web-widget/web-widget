@@ -1,1 +1,111 @@
-body { color: red ;}
+:root {
+  --sk-bg: #fdfbf7;
+  --sk-bg-subtle: #f5f1e8;
+  --sk-border: #4a4438;
+  --sk-border-light: rgba(74, 68, 56, 0.2);
+  --sk-ink: #2d2a24;
+  --sk-ink-light: #5a5448;
+  --sk-ink-muted: #9a9080;
+  --sk-red: #dc2626;
+  --sk-orange: #ea580c;
+  --sk-blue: #2563eb;
+  --sk-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
+    sans-serif;
+  --sk-font-mono: 'SFMono-Regular', 'JetBrains Mono', Consolas, 'Liberation Mono',
+    Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--sk-font-sans);
+  color: var(--sk-ink);
+  background-color: var(--sk-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.error-card {
+  background: var(--sk-bg);
+  border: 3px solid var(--sk-border);
+  border-radius: 8px 16px 8px 18px;
+  padding: 48px 40px;
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 6px 6px 0 var(--sk-border-light);
+}
+
+.error-code {
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin: 0 0 8px;
+}
+
+.error-code-404 {
+  color: var(--sk-red);
+}
+
+.error-code-500 {
+  color: var(--sk-orange);
+}
+
+.error-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: var(--sk-ink);
+  border-bottom: 2px dashed var(--sk-border-light);
+  display: inline-block;
+  padding-bottom: 4px;
+}
+
+.error-message {
+  font-family: var(--sk-font-mono);
+  font-size: 0.8rem;
+  color: var(--sk-ink-light);
+  background: var(--sk-bg-subtle);
+  border: 2px solid var(--sk-border-light);
+  border-radius: 4px 8px 4px 10px;
+  padding: 12px 16px;
+  margin: 0 0 24px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: left;
+}
+
+.error-home {
+  display: inline-block;
+  padding: 8px 20px;
+  border: 2px solid var(--sk-border);
+  border-radius: 4px 10px 4px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--sk-ink);
+  background: var(--sk-bg);
+  box-shadow: 3px 3px 0 var(--sk-border-light);
+  transition: all 0.1s ease;
+}
+
+.error-home:hover {
+  background: var(--sk-bg-subtle);
+  color: var(--sk-ink);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--sk-border-light);
+}

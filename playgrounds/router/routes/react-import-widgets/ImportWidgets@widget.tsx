@@ -13,17 +13,25 @@ export default function Page() {
   const [count, setCount] = useState(0);
   return (
     <div>
-      <h2>React component:</h2>
-      <ReactCounter count={3} />
+      <section className="ds-section">
+        <h2>React component</h2>
+        <ReactCounter count={3} />
+      </section>
 
-      <h2>Vue3 component:</h2>
-      <RVueCounter count={3} />
+      <section className="ds-section">
+        <h2>Vue3 component</h2>
+        <RVueCounter count={3} />
+      </section>
 
-      <h2>Vue2 component:</h2>
-      <RVue2Counter count={3} />
+      <section className="ds-section">
+        <h2>Vue2 component</h2>
+        <RVue2Counter count={3} />
+      </section>
 
-      <h2>Vanilla component:</h2>
-      <VanillaCounter count={3} />
+      <section className="ds-section">
+        <h2>Vanilla component</h2>
+        <VanillaCounter count={3} />
+      </section>
 
       <div>
         <button onClick={() => setCount((count) => count + 1)}>

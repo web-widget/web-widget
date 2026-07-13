@@ -1,0 +1,58 @@
+/* Shared styles for progressive rendering demo states.
+   Used by React, Vue, and HTML template routes for visual consistency.
+   All states share the same min-height to prevent layout shift. */
+
+.demo-loading,
+.demo-success,
+.demo-info,
+.demo-error {
+  min-height: 60px;
+  box-sizing: border-box;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px 8px 4px 10px;
+  margin: 8px 0;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.demo-loading {
+  background: #f5f1e8;
+  color: #5a5448;
+  border-color: rgba(74, 68, 56, 0.2);
+  border-style: dashed;
+}
+
+.demo-success {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #059669;
+}
+
+.demo-info {
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: #2563eb;
+}
+
+.demo-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #dc2626;
+}
+
+/* Resolved widget content - sketch themed, no gradients */
+.demo-result {
+  min-height: 60px;
+  box-sizing: border-box;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px 8px 4px 10px;
+  margin: 8px 0;
+  border: 2px solid #4a4438;
+  background: #f5f1e8;
+  color: #2d2a24;
+  box-shadow: 2px 2px 0 rgba(74, 68, 56, 0.2);
+}

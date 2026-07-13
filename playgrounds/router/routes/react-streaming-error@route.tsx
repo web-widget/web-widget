@@ -1,44 +1,38 @@
 import { defineRouteComponent } from '@web-widget/helpers';
+import './(css)/demo-states.css';
 import BaseLayout from './(components)/BaseLayout.js';
+import { PageHeader, Section } from './(components)/ui';
 import ReactWaitDemo from './(components)/Wait@widget.js';
 import ReactFailDemo from './(components)/Fail@widget.js';
 
-const Loading = (
-  <div style={{ background: '#f3f3f3', padding: '20px' }}>Loading..</div>
-);
+const Loading = <div className="demo-loading">Loading..</div>;
 
 const Error = (
-  <div
-    style={{
-      background: '#ffe0e0',
-      color: '#b71c1c',
-      padding: '20px',
-    }}>
-    Widget failed to render (error recovered)
-  </div>
+  <div className="demo-error">Widget failed to render (error recovered)</div>
 );
 
 export default defineRouteComponent(async function Page() {
   return (
     <BaseLayout>
-      <h1>React Route: Streaming Error Recovery</h1>
-      <p>
-        This page demonstrates streaming SSR error recovery. The failing widget
-        is wrapped in an ErrorBoundary, so errors are contained and the page
-        remains functional.
-      </p>
-
-      <h2>Normal widget (succeeds)</h2>
-      <ReactWaitDemo widget={{ fallback: Loading }} id="ok:0" />
-
-      <h2>Failing widget with differentiated fallback (loading vs error)</h2>
-      <ReactFailDemo
-        widget={{ fallback: { pending: Loading, error: Error } }}
-        id="fail:0"
+      <PageHeader
+        title="React: Streaming error"
+        description="This page demonstrates streaming SSR error recovery. The failing widget is wrapped in an ErrorBoundary so the rest of the page stays functional."
       />
 
-      <h2>Another normal widget after the failure</h2>
-      <ReactWaitDemo widget={{ fallback: Loading }} id="ok:1" />
+      <Section title="Normal widget (succeeds)">
+        <ReactWaitDemo widget={{ fallback: Loading }} id="ok:0" />
+      </Section>
+
+      <Section title="Failing widget with differentiated fallback (loading vs error)">
+        <ReactFailDemo
+          widget={{ fallback: { pending: Loading, error: Error } }}
+          id="fail:0"
+        />
+      </Section>
+
+      <Section title="Another normal widget after the failure">
+        <ReactWaitDemo widget={{ fallback: Loading }} id="ok:1" />
+      </Section>
     </BaseLayout>
   );
 });

@@ -1,5 +1,6 @@
 import { defineMeta, defineRouteComponent } from '@web-widget/helpers';
 import BaseLayout from '../../(components)/BaseLayout';
+import { PageHeader } from '../../(components)/ui';
 import App from './App@widget';
 import { asReactWidget } from '@web-widget/vue/adapter';
 
@@ -15,7 +16,10 @@ export default defineRouteComponent(function Page(props) {
   const fullPath = `${url.pathname}${url.search}`;
   return (
     <BaseLayout>
-      <h1>Vue3 router</h1>
+      <PageHeader
+        title="Vue3: Router"
+        description="Integrate vue-router 4 inside a Web Widget route. Client-side navigation is handled by Vue Router below."
+      />
       <RApp route={fullPath} />
     </BaseLayout>
   );

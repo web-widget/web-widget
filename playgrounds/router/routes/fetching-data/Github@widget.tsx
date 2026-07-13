@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { syncCacheProvider } from '@web-widget/helpers/cache';
 import { context } from '@web-widget/helpers/context';
-import type { MockUserData } from '../api/mock-users@route.ts';
+import type { MockUserData } from '../api/mock-users@route';
 
 interface Props {
   username: string;

@@ -1,5 +1,8 @@
 .box {
   width: 128px;
   height: 128px;
-  background-color: aquamarine;
+  background-color: #fef3c7;
+  border: 3px solid #4a4438;
+  border-radius: 8px 16px 8px 18px;
+  box-shadow: 3px 3px 0 rgba(74, 68, 56, 0.2);
 }

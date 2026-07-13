@@ -1,4 +1,4 @@
-import './base-layout.css';
+import '../(css)/base-layout.css';
 
 import type { ComponentProps } from 'react';
 import Menu from '@playgrounds/web-router-vue3/Menu@widget.vue';
@@ -9,8 +9,8 @@ const RMenu = asReactWidget(Menu);
 export default function BaseLayout({ children }: ComponentProps<any>) {
   return (
     <>
-      <header>
-        <h1>Web Router Examples</h1>
+      <header className="site-header">
+        <h1>Web Router Playground</h1>
       </header>
       <div className="container">
         <aside>
@@ -21,6 +21,11 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
       <footer>
         <p>This is a footer</p>
       </footer>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `(function(){var p=location.pathname;document.querySelectorAll('aside a[href]').forEach(function(a){if(a.getAttribute('href')===p)a.setAttribute('aria-current','page')})})();`,
+        }}
+      />
     </>
   );
 }

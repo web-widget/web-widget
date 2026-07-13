@@ -1,11 +1,8 @@
-import { html, asHtmlWidget } from '@web-widget/html';
+import { html } from '@web-widget/html';
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
-import CounterWidget from './(components)/Counter@widget.tsx';
 import { baseLayout } from './(components)/baseLayout.html';
 import styles from './index.module.css';
 import shared from './(components)/shared.module.css';
-
-const counter = asHtmlWidget<{ count: number }>(CounterWidget);
 
 export const meta = defineMeta({
   title: 'Web Widget',
@@ -24,16 +21,6 @@ export default defineRouteComponent(function Page() {
           Built on web standards, cross-platform, integrates with different
           frontend UI frameworks
         </p>
-      </div>
-
-      <div class="${styles.demoSection}">
-        <div class="${styles.heroDemo}">
-          <p class="${styles.demoIntro}">✨ Widget in the page</p>
-          ${counter({ count: 0 })}
-          <p class="${styles.demoHint}">
-            This is an interactive widget demo, which can use any tech stack
-          </p>
-        </div>
       </div>
 
       <div class="${shared.mb6}">

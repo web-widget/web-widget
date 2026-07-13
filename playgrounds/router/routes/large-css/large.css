@@ -1,0 +1,772 @@
+/* Large CSS showcase — sketch themed.
+   Exceeds the inline threshold (8 KB) so it is served
+   as an external <link> instead of an inlined <style> tag.
+   Uses lc- prefixed class names to avoid collisions. */
+
+/* === Grid === */
+.lc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+/* === Card === */
+.lc-card {
+  background: var(--sk-bg);
+  border: 2px solid var(--sk-border);
+  border-radius: var(--sk-radius-lg);
+  padding: 20px;
+  box-shadow: var(--sk-shadow-sm);
+  transition: all 0.15s ease;
+}
+.lc-card:hover {
+  box-shadow: var(--sk-shadow-lg);
+  transform: translate(-2px, -2px);
+}
+.lc-card-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+}
+.lc-card-text {
+  margin: 0;
+  color: var(--sk-ink-light);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.lc-card-footer {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* === Badge === */
+.lc-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--sk-radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  border: 2px solid var(--sk-border);
+}
+.lc-badge-primary {
+  background: var(--sk-blue-light);
+  color: #1e40af;
+  border-color: var(--sk-blue);
+}
+.lc-badge-success {
+  background: var(--sk-green-light);
+  color: #065f46;
+  border-color: var(--sk-green);
+}
+.lc-badge-danger {
+  background: var(--sk-red-light);
+  color: #991b1b;
+  border-color: var(--sk-red);
+}
+.lc-badge-warning {
+  background: var(--sk-yellow-light);
+  color: #92400e;
+  border-color: var(--sk-yellow);
+}
+.lc-badge-info {
+  background: var(--sk-blue-light);
+  color: #1e40af;
+  border-color: var(--sk-blue);
+}
+
+/* === Button === */
+.lc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 2px solid var(--sk-border);
+  border-radius: var(--sk-radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: var(--sk-shadow-sm);
+  transition: all 0.1s ease;
+}
+.lc-btn-primary {
+  background: var(--sk-blue);
+  color: #fff;
+}
+.lc-btn-primary:hover {
+  background: #1d4ed8;
+  transform: translate(-1px, -1px);
+  box-shadow: var(--sk-shadow);
+}
+.lc-btn-success {
+  background: var(--sk-green);
+  color: #fff;
+}
+.lc-btn-success:hover {
+  background: #047857;
+  transform: translate(-1px, -1px);
+  box-shadow: var(--sk-shadow);
+}
+.lc-btn-danger {
+  background: var(--sk-red);
+  color: #fff;
+}
+.lc-btn-danger:hover {
+  background: #b91c1c;
+  transform: translate(-1px, -1px);
+  box-shadow: var(--sk-shadow);
+}
+.lc-btn-outline {
+  background: var(--sk-bg);
+  border: 2px dashed var(--sk-border);
+  color: var(--sk-ink);
+}
+.lc-btn-outline:hover {
+  background: var(--sk-bg-hover);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--sk-shadow);
+}
+.lc-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+/* === Alert === */
+.lc-alert {
+  padding: 12px 16px;
+  border-radius: var(--sk-radius);
+  margin-bottom: 12px;
+  font-size: 14px;
+  border: 2px solid;
+}
+.lc-alert-success {
+  background: var(--sk-green-light);
+  color: #065f46;
+  border-color: var(--sk-green);
+}
+.lc-alert-danger {
+  background: var(--sk-red-light);
+  color: #991b1b;
+  border-color: var(--sk-red);
+}
+.lc-alert-warning {
+  background: var(--sk-yellow-light);
+  color: #92400e;
+  border-color: var(--sk-yellow);
+}
+.lc-alert-info {
+  background: var(--sk-blue-light);
+  color: #1e40af;
+  border-color: var(--sk-blue);
+}
+
+/* === Progress === */
+.lc-progress {
+  height: 10px;
+  background: var(--sk-bg-subtle);
+  border: 2px solid var(--sk-border);
+  border-radius: var(--sk-radius-pill);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.lc-progress-bar {
+  height: 100%;
+  transition: width 0.3s;
+}
+.lc-progress-primary {
+  background: var(--sk-blue);
+}
+.lc-progress-success {
+  background: var(--sk-green);
+}
+.lc-progress-danger {
+  background: var(--sk-red);
+}
+.lc-progress-warning {
+  background: var(--sk-yellow);
+}
+
+/* === Stat === */
+.lc-stat {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--sk-bg);
+  border: 2px solid var(--sk-border);
+  border-radius: var(--sk-radius-lg);
+  box-shadow: var(--sk-shadow-sm);
+}
+.lc-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--sk-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: var(--sk-blue);
+  color: #fff;
+  border: 2px solid var(--sk-border);
+}
+.lc-stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.lc-stat-label {
+  font-size: 13px;
+  color: var(--sk-ink-muted);
+}
+
+/* === Avatar === */
+.lc-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50% 48% 50% 52%;
+  background: var(--sk-blue);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  border: 2px solid var(--sk-border);
+}
+.lc-avatar-lg {
+  width: 56px;
+  height: 56px;
+  font-size: 20px;
+}
+.lc-avatar-sm {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+
+/* === List === */
+.lc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 2px solid var(--sk-border-light);
+  border-radius: var(--sk-radius);
+}
+.lc-list-item {
+  padding: 12px 16px;
+  border-bottom: 1px dashed var(--sk-border-light);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.lc-list-item:last-child {
+  border-bottom: none;
+}
+
+/* === Table === */
+.lc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  border: 2px solid var(--sk-border);
+  border-radius: var(--sk-radius);
+  overflow: hidden;
+}
+.lc-table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--sk-bg-subtle);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--sk-ink-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--sk-border);
+}
+.lc-table td {
+  padding: 12px 16px;
+  border-bottom: 1px dashed var(--sk-border-light);
+}
+.lc-table tr:last-child td {
+  border-bottom: none;
+}
+.lc-table tr:hover td {
+  background: var(--sk-bg-subtle);
+}
+
+/* === Form === */
+.lc-form-group {
+  margin-bottom: 16px;
+}
+.lc-form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.lc-form-input,
+.lc-form-select,
+.lc-form-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid var(--sk-border);
+  border-radius: var(--sk-radius);
+  font-size: 14px;
+  outline: none;
+  background: var(--sk-bg);
+  font-family: inherit;
+}
+.lc-form-input:focus,
+.lc-form-select:focus,
+.lc-form-textarea:focus {
+  border-color: var(--sk-blue);
+  box-shadow: 0 0 0 2px var(--sk-blue-light);
+}
+.lc-form-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* === Tag === */
+.lc-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--sk-bg-subtle);
+  border: 1px dashed var(--sk-border-light);
+  border-radius: var(--sk-radius);
+  font-size: 12px;
+  color: var(--sk-ink-light);
+  margin: 2px;
+}
+
+/* === Tooltip === */
+.lc-tooltip {
+  position: relative;
+  display: inline-block;
+}
+.lc-tooltip-text {
+  visibility: hidden;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  background: var(--sk-ink);
+  color: var(--sk-bg);
+  border-radius: var(--sk-radius);
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.lc-tooltip:hover .lc-tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* === Modal === */
+.lc-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 42, 36, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lc-modal {
+  background: var(--sk-bg);
+  border: 2px solid var(--sk-border);
+  border-radius: var(--sk-radius-lg);
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: var(--sk-shadow-lg);
+}
+.lc-modal-header {
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  border-bottom: 2px dashed var(--sk-border-light);
+  padding-bottom: 8px;
+}
+.lc-modal-body {
+  margin-bottom: 20px;
+  color: var(--sk-ink-light);
+  line-height: 1.6;
+}
+.lc-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* === Tabs === */
+.lc-tabs {
+  border-bottom: 2px solid var(--sk-border);
+  margin-bottom: 16px;
+}
+.lc-tab {
+  display: inline-block;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sk-ink-muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+.lc-tab:hover {
+  color: var(--sk-ink);
+}
+.lc-tab-active {
+  color: var(--sk-blue);
+  border-bottom-color: var(--sk-blue);
+}
+
+/* === Breadcrumb === */
+.lc-breadcrumb {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  font-size: 14px;
+}
+.lc-breadcrumb li:not(:last-child)::after {
+  content: '>';
+  margin-left: 8px;
+  color: var(--sk-ink-muted);
+}
+.lc-breadcrumb a {
+  color: var(--sk-blue);
+  text-decoration: none;
+  border-bottom: 2px dashed var(--sk-blue);
+}
+.lc-breadcrumb a:hover {
+  background: var(--sk-blue-light);
+}
+
+/* === Skeleton === */
+.lc-skeleton {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--sk-bg-subtle),
+    var(--sk-bg-subtle) 10px,
+    var(--sk-bg-hover) 10px,
+    var(--sk-bg-hover) 20px
+  );
+  border-radius: var(--sk-radius);
+  animation: lc-shimmer 1.5s infinite;
+}
+@keyframes lc-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+.lc-skeleton-text {
+  height: 14px;
+  margin-bottom: 8px;
+}
+.lc-skeleton-title {
+  height: 20px;
+  width: 60%;
+  margin-bottom: 12px;
+}
+.lc-skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50% 48% 50% 52%;
+}
+
+/* === Spinner === */
+.lc-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--sk-bg-subtle);
+  border-top-color: var(--sk-blue);
+  border-radius: 50% 48% 50% 52%;
+  animation: lc-spin 0.8s linear infinite;
+}
+@keyframes lc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* === Divider === */
+.lc-divider {
+  border: none;
+  border-top: 2px dashed var(--sk-border-light);
+  margin: 24px 0;
+}
+
+/* === Color palette utilities === */
+.lc-text-primary {
+  color: var(--sk-blue);
+}
+.lc-text-success {
+  color: var(--sk-green);
+}
+.lc-text-danger {
+  color: var(--sk-red);
+}
+.lc-text-warning {
+  color: var(--sk-yellow);
+}
+.lc-text-info {
+  color: var(--sk-blue);
+}
+.lc-text-muted {
+  color: var(--sk-ink-muted);
+}
+.lc-bg-primary {
+  background: var(--sk-blue);
+}
+.lc-bg-success {
+  background: var(--sk-green);
+}
+.lc-bg-danger {
+  background: var(--sk-red);
+}
+.lc-bg-warning {
+  background: var(--sk-yellow);
+}
+.lc-bg-info {
+  background: var(--sk-blue);
+}
+.lc-bg-light {
+  background: var(--sk-bg-subtle);
+}
+.lc-bg-dark {
+  background: var(--sk-ink);
+}
+
+/* === Spacing utilities === */
+.lc-mt-0 {
+  margin-top: 0;
+}
+.lc-mt-1 {
+  margin-top: 4px;
+}
+.lc-mt-2 {
+  margin-top: 8px;
+}
+.lc-mt-3 {
+  margin-top: 16px;
+}
+.lc-mt-4 {
+  margin-top: 24px;
+}
+.lc-mb-0 {
+  margin-bottom: 0;
+}
+.lc-mb-1 {
+  margin-bottom: 4px;
+}
+.lc-mb-2 {
+  margin-bottom: 8px;
+}
+.lc-mb-3 {
+  margin-bottom: 16px;
+}
+.lc-mb-4 {
+  margin-bottom: 24px;
+}
+.lc-p-0 {
+  padding: 0;
+}
+.lc-p-1 {
+  padding: 4px;
+}
+.lc-p-2 {
+  padding: 8px;
+}
+.lc-p-3 {
+  padding: 16px;
+}
+.lc-p-4 {
+  padding: 24px;
+}
+
+/* === Flex utilities === */
+.lc-flex {
+  display: flex;
+}
+.lc-flex-col {
+  flex-direction: column;
+}
+.lc-flex-wrap {
+  flex-wrap: wrap;
+}
+.lc-flex-1 {
+  flex: 1;
+}
+.lc-items-center {
+  align-items: center;
+}
+.lc-items-start {
+  align-items: flex-start;
+}
+.lc-items-end {
+  align-items: flex-end;
+}
+.lc-justify-center {
+  justify-content: center;
+}
+.lc-justify-between {
+  justify-content: space-between;
+}
+.lc-justify-end {
+  justify-content: flex-end;
+}
+.lc-gap-1 {
+  gap: 4px;
+}
+.lc-gap-2 {
+  gap: 8px;
+}
+.lc-gap-3 {
+  gap: 16px;
+}
+.lc-gap-4 {
+  gap: 24px;
+}
+
+/* === Grid utilities === */
+.lc-grid-cols-1 {
+  grid-template-columns: repeat(1, 1fr);
+}
+.lc-grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.lc-grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.lc-grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* === Text utilities === */
+.lc-text-left {
+  text-align: left;
+}
+.lc-text-center {
+  text-align: center;
+}
+.lc-text-right {
+  text-align: right;
+}
+.lc-text-xs {
+  font-size: 12px;
+}
+.lc-text-sm {
+  font-size: 14px;
+}
+.lc-text-lg {
+  font-size: 18px;
+}
+.lc-text-xl {
+  font-size: 20px;
+}
+.lc-text-2xl {
+  font-size: 24px;
+}
+.lc-font-normal {
+  font-weight: 400;
+}
+.lc-font-medium {
+  font-weight: 500;
+}
+.lc-font-semibold {
+  font-weight: 600;
+}
+.lc-font-bold {
+  font-weight: 700;
+}
+.lc-italic {
+  font-style: italic;
+}
+.lc-uppercase {
+  text-transform: uppercase;
+}
+.lc-lowercase {
+  text-transform: lowercase;
+}
+.lc-capitalize {
+  text-transform: capitalize;
+}
+.lc-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* === Border utilities === */
+.lc-border {
+  border: 2px solid var(--sk-border);
+}
+.lc-border-top {
+  border-top: 2px solid var(--sk-border);
+}
+.lc-border-bottom {
+  border-bottom: 2px solid var(--sk-border);
+}
+.lc-border-left {
+  border-left: 2px solid var(--sk-border);
+}
+.lc-border-right {
+  border-right: 2px solid var(--sk-border);
+}
+.lc-rounded {
+  border-radius: var(--sk-radius);
+}
+.lc-rounded-lg {
+  border-radius: var(--sk-radius-lg);
+}
+.lc-rounded-full {
+  border-radius: 50% 48% 50% 52%;
+}
+
+/* === Display utilities === */
+.lc-block {
+  display: block;
+}
+.lc-inline-block {
+  display: inline-block;
+}
+.lc-inline {
+  display: inline;
+}
+.lc-hidden {
+  display: none;
+}
+
+/* === Width utilities === */
+.lc-w-full {
+  width: 100%;
+}
+.lc-w-auto {
+  width: auto;
+}
+.lc-w-1-2 {
+  width: 50%;
+}
+.lc-w-1-3 {
+  width: 33.333%;
+}
+.lc-w-2-3 {
+  width: 66.666%;
+}
+.lc-w-1-4 {
+  width: 25%;
+}

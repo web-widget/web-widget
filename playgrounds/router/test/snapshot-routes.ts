@@ -22,8 +22,6 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ],
   ['/form'],
   ['/'],
-  ['/lit-html-template'],
-  ['/html-widget-islands'],
   ['/meta'],
   ['/react-and-vue'],
   ['/react-shell-error', 500],

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { defineMeta } from '@web-widget/helpers';
-import VueCounter from './(components)/Counter@widget.vue';
 import BaseLayout from './(components)/BaseLayout.vue';
 import styles from './index.module.css';
 import shared from './(components)/shared.module.css';
@@ -28,17 +27,6 @@ defineOptions({
           Built on web standards, cross-platform, integrates with different
           frontend UI frameworks
         </p>
-      </div>
-
-      <!-- Demo Section -->
-      <div :class="styles.demoSection">
-        <div :class="styles.heroDemo">
-          <p :class="styles.demoIntro">✨ Widget in the page</p>
-          <VueCounter :count="0" />
-          <p :class="styles.demoHint">
-            This is an interactive widget demo, which can use any tech stack
-          </p>
-        </div>
       </div>
 
       <!-- Features Section -->
