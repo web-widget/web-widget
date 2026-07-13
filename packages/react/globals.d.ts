@@ -45,16 +45,6 @@ declare namespace JSX {
   }
 }
 
-declare module '*.widget.jsx' {
-  const reactWidgetComponent: ReactWidgetComponent;
-  export default reactWidgetComponent;
-}
-
-declare module '*.widget.tsx' {
-  const reactWidgetComponent: ReactWidgetComponent;
-  export default reactWidgetComponent;
-}
-
 declare module 'react-dom/server.edge' {
   import type { ReactNode } from 'react';
   import type {
