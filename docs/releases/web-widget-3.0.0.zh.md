@@ -693,7 +693,7 @@ export default {
 };
 ```
 
-压缩发生在 Vite 的 `transform` 阶段（`enforce: 'pre'`），插件扫描源码中的 `html\`...\``标签模板字面量，仅处理静态部分（插值`${...}` 内容不动），递归扫描嵌套模板。`<pre>`、`<textarea>`、`<script>`、`<style>` 等空白敏感元素的内容被原样保留。
+压缩发生在 Vite 的 `transform` 阶段（`enforce: 'pre'`），插件扫描源码中的 `html\`...\``标签模板字面量，仅处理静态部分（插值`${...}` 内容不动），递归扫描嵌套模板。`pre`、`textarea`、`script`、`style` 等空白敏感元素的内容被原样保留。
 
 不引入 `html-minifier-terser`、`minify-html-literals` 等第三方库的原因：标签模板字面量将 HTML 拆分到多个静态片段与插值之间，完整的 HTML 解析器无法处理这种碎片化结构；而主要收益来自空白压缩，用 `magic-string`（monorepo 中已有依赖）做源码转换即可实现，同时天然支持 sourcemap。
 
