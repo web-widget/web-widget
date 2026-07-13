@@ -46,7 +46,7 @@ function App() {
 - 改变运行时的跨框架渲染机制（`container` 函数已稳定）
 - 解决框架内部的 props 类型推导难题（如 Vue SFC 的 props 类型推导本身就是 Vue 生态的问题）
 - 建立统一的跨框架 props 类型系统（各框架的 props 语义差异太大，如 Vue 的 `defineProps` 与 React 的 `FC<T>`）
-- 保持静态 `import` 的零成本体验——跨框架导入显式调用 `container` 是本方案接受的约定变更
+- 改变静态 `import` 的运行时行为（构建工具对 `@widget` 导入的 `container` 注入保持不变）
 
 ## 现状分析
 
@@ -92,7 +92,7 @@ export function asHtmlWidget<T = unknown>(
 
 ### 核心思路
 
-增强 `container` 函数的泛型推导能力。**跨框架 widget 导入必须显式调用 `container`**，不再支持静态 `import`。用户直接编写：
+增强 `container` 函数的泛型推导能力。跨框架 widget 导入**推荐**显式调用 `container` 以获得类型安全：
 
 ```typescript
 import { container } from '@web-widget/react/adapter';
@@ -103,24 +103,27 @@ const Counter = container(() => import('./Counter@widget.vue'));
 
 `container` 成为泛型函数，从 loader 返回的模块类型中推导 props。由于 `container` 调用对 TypeScript 完全可见，类型推导路径完整。
 
+静态 `import` 仍然可用——构建工具照常注入 `container`，运行时行为不受影响。但跨框架场景下 TypeScript 解析到的是源框架的原始模块类型，props 不会自动映射到消费框架的组件类型。需要类型安全的用户主动使用显式 `container()` 调用。
+
 ### 约定变更
 
-- 跨框架 widget：不再支持静态 `import`，必须通过 `container()` 显式导入
-- 同框架 widget（如 React 导入 React widget）：继续支持静态 `import`。类型层面无兼容性问题——源组件类型与消费框架期望类型语义一致，TypeScript 直接从原始模块默认导出推导 props
-- 构建工具不再对跨框架 `@widget` 导入注入 `container`（同框架仍按原逻辑注入）
-- `asReactWidget`、`asHtmlWidget` 等手动转换函数废弃
+- `container()` 成为跨框架 widget 导入的**推荐写法**，提供完整的 props 类型推导
+- 静态 `import` 不受影响——同框架和跨框架均可使用，运行时行为一致
+- 构建工具无需改动——继续对所有 `@widget` 导入统一注入 `container`
+- `asReactWidget`、`asHtmlWidget` 等手动转换函数废弃（`container()` 的泛型推导完全替代）
 
 ### 为什么选择此方案
 
-- 不需要构建工具支持类型生成——`container` 本身就是运行时 API，类型增强是自然延伸
+- 构建工具零改动——`container` 本身就是运行时 API，类型增强是自然延伸，不引入同/跨框架判断逻辑
 - 类型推导路径完整——从源模块类型到消费框架组件类型，全部由 `container` 的泛型签名承载
+- 无运行时风险——静态 `import` 永远可用，`container()` 是 opt-in 的类型增强
 - 与运行时架构一致——运行时 `container` 接收 `Loader`（返回通用 `WidgetModule`），类型层面只需对齐
 
 ## 详细设计
 
 ### adapter 职责划分
 
-一个关键的架构问题是：消费框架的 adapter（如 `@web-widget/react`）是否需要知道各源框架的组件类型？答案是不需要——类型提取是源框架 adapter 的职责，类型映射是消费框架 adapter 的职责，两者通过泛型化的 `WidgetModule<P>` 协议衔接。
+消费框架的 adapter（如 `@web-widget/react`）不需要知道各源框架的组件类型——类型提取是源框架 adapter 的职责，类型映射是消费框架 adapter 的职责，两者通过泛型化的 `WidgetModule<P>` 协议衔接。
 
 ```
                            WidgetModule<P>
@@ -230,11 +233,9 @@ Qwik 组件类型为 `Component<P>`（由 `component$((props: P) => ...)` 创建
 ### 已知限制
 
 - **类型噪音**：推导出的类型可能非常复杂，错误信息难以理解
-- **导入约定变更**：用户必须放弃静态 `import` 的简洁写法，改为显式 `container()` 调用
+- **opt-in 的认知成本**：用户需要知道跨框架场景下显式 `container()` 能提供更好的类型推导，否则会继续使用静态 `import` 并得到不精确的类型
 
 ## 备选方案
-
-以下方案在探讨中被评估，但未作为首选方案。各有其价值，可能在特定场景下补充或替代首选方案。
 
 ### 方案 A：构建期类型声明生成
 
@@ -286,8 +287,6 @@ interface WidgetComponentBase<P = unknown> {
 3. **渐进式路径**：是否可以分阶段实施——先让 `container()` 调用具备完整类型（方案 B），再逐步解决自动导入的类型断裂？
 
 4. **`unknown` 是否可接受**：如果无法精确推导 props 类型，退而求其次让跨框架 widget 的 props 为 `unknown`（接受任意 props，不做类型检查）是否可以接受？这至少消除了手动转换的繁琐。
-
-5. **与 `declare module` 的共存**：React 包已有 `*.widget.tsx` 的模块声明。任何新方案都需要与现有声明协调，避免冲突。
 
 ## 下一步
 
