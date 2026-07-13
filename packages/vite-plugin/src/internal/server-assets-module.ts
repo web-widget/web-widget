@@ -148,7 +148,10 @@ export async function buildServerAssetsData(
   const missingWidgets = [...widgetModulePaths].filter((id) => !assetUrls[id]);
   if (missingWidgets.length) {
     throw new Error(
-      `Widget asset(s) not found in client manifest (referenced by server but no chunk was emitted):\n${missingWidgets.join('\n')}\nEnsure these modules are included in the client build.`
+      `Widget asset(s) not found in client manifest ` +
+        `(referenced by server but no chunk was emitted):\n` +
+        `${missingWidgets.join('\n')}\n` +
+        `Ensure these modules are included in the client build.`
     );
   }
 
