@@ -1,21 +1,21 @@
 import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import { useLocation } from '@web-widget/helpers/navigation';
-import type { HelloData } from './api/hello-world@route.ts';
-import BaseLayout from './(components)/BaseLayout.tsx';
+import type { HelloData } from '../api/hello-world@route.ts';
+import BaseLayout from '../(components)/BaseLayout.tsx';
 import {
   PageHeader,
   Section,
   CardGrid,
   Card,
   CodeBlock,
-} from './(components)/ui';
-import ReactGithub from './(components)/Github@widget.tsx';
-import VanillaGithub from './(components)/VanillaGithub@widget';
+} from '../(components)/ui';
+import ReactGithub from './Github@widget.tsx';
+import VanillaGithub from './VanillaGithub@widget';
 import VueGithub from '@playgrounds/web-router-vue3/Github@widget.vue';
 import Vue2Github from '@playgrounds/web-router-vue2/Github@widget.vue';
 import { asReactWidget } from '@playgrounds/web-router-vue3/helpers';
 import { asReactWidget as vue2AsReactWidget } from '@playgrounds/web-router-vue2/helpers';
-import UserCard from './(components)/UserCard@widget.tsx';
+import UserCard from './UserCard@widget.tsx';
 
 const RVueGithub = asReactWidget(VueGithub);
 const RVue2Github = vue2AsReactWidget(Vue2Github);

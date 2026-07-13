@@ -1,7 +1,7 @@
-import './(css)/large.css';
+import './large.css';
 import { defineMeta, defineRouteComponent } from '@web-widget/helpers';
-import BaseLayout from './(components)/BaseLayout';
-import { PageHeader, Section } from './(components)/ui';
+import BaseLayout from '../(components)/BaseLayout';
+import { PageHeader, Section } from '../(components)/ui';
 
 export const meta = defineMeta({
   title: 'Large CSS',

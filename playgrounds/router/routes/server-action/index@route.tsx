@@ -1,7 +1,7 @@
 import { defineRouteComponent } from '@web-widget/helpers';
-import BaseLayout from './(components)/BaseLayout.tsx';
-import { PageHeader } from './(components)/ui';
-import Echo from './(components)/Echo@widget.tsx';
+import BaseLayout from '../(components)/BaseLayout.tsx';
+import { PageHeader } from '../(components)/ui';
+import Echo from './Echo@widget.tsx';
 
 export default defineRouteComponent(function Page() {
   return (

@@ -1,8 +1,8 @@
 import { defineRouteComponent } from '@web-widget/helpers';
 import { lifecycleCache } from '@web-widget/helpers/cache';
-import BaseLayout from './(components)/BaseLayout.tsx';
-import { PageHeader } from './(components)/ui';
-import RequestCache from './(components)/RequestCache@widget.tsx';
+import BaseLayout from '../(components)/BaseLayout.tsx';
+import { PageHeader } from '../(components)/ui';
+import RequestCache from './RequestCache@widget.tsx';
 
 export default defineRouteComponent(function Page() {
   const cache = lifecycleCache<{ testName: string }>();

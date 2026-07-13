@@ -42,7 +42,7 @@
     },
     {
       "pathname": "/fetching-data",
-      "module": "./routes/fetching-data@route.tsx"
+      "module": "./routes/fetching-data/index@route.tsx"
     },
     {
       "pathname": "/form",
@@ -62,7 +62,7 @@
     },
     {
       "pathname": "/large-css",
-      "module": "./routes/large-css@route.tsx"
+      "module": "./routes/large-css/index@route.tsx"
     },
     {
       "pathname": "/meta",
@@ -94,11 +94,11 @@
     },
     {
       "pathname": "/request-cache",
-      "module": "./routes/request-cache@route.tsx"
+      "module": "./routes/request-cache/index@route.tsx"
     },
     {
       "pathname": "/server-action",
-      "module": "./routes/server-action@route.tsx"
+      "module": "./routes/server-action/index@route.tsx"
     },
     {
       "pathname": "/style",
