@@ -105,8 +105,9 @@ const Counter = container(() => import('./Counter@widget.vue'));
 
 ### 约定变更
 
-- 跨框架 widget 不再支持静态 `import`，必须通过 `container()` 显式导入
-- 构建工具不再对跨框架 `@widget` 导入注入 `container`
+- 跨框架 widget：不再支持静态 `import`，必须通过 `container()` 显式导入
+- 同框架 widget（如 React 导入 React widget）：继续支持静态 `import`。类型层面无兼容性问题——源组件类型与消费框架期望类型语义一致，TypeScript 直接从原始模块默认导出推导 props
+- 构建工具不再对跨框架 `@widget` 导入注入 `container`（同框架仍按原逻辑注入）
 - `asReactWidget`、`asHtmlWidget` 等手动转换函数废弃
 
 ### 为什么选择此方案
