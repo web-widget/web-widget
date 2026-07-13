@@ -2,6 +2,13 @@ import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import { useLocation } from '@web-widget/helpers/navigation';
 import type { HelloData } from './api/hello-world@route.ts';
 import BaseLayout from './(components)/BaseLayout.tsx';
+import {
+  PageHeader,
+  Section,
+  CardGrid,
+  Card,
+  CodeBlock,
+} from './(components)/ui';
 import ReactGithub from './(components)/Github@widget.tsx';
 import VanillaGithub from './(components)/VanillaGithub@widget';
 import VueGithub from '@playgrounds/web-router-vue3/Github@widget.vue';
@@ -28,59 +35,44 @@ export const handler = defineRouteHandler<HelloData>({
 export default defineRouteComponent<HelloData>(function Page({ data }) {
   return (
     <BaseLayout>
-      <h1>Fetching data</h1>
-      <p>
-        Fetch data on the server and render it into HTML before sending the
-        response.
-      </p>
+      <PageHeader
+        title="Fetching data"
+        description="Fetch data on the server and render it into HTML before sending the response."
+      />
 
-      <div style={{ display: 'grid', gap: '20px', marginTop: '20px' }}>
-        <div>
-          <h2>React Component</h2>
-          <ReactGithub username="react" />
-        </div>
+      <Section title="Framework showcase">
+        <CardGrid>
+          <Card title="React Component">
+            <ReactGithub username="react" />
+          </Card>
+          <Card title="Vue3 Component">
+            <RVueGithub username="vuejs" />
+          </Card>
+          <Card title="Vue2 Component">
+            <RVue2Github username="angular" />
+          </Card>
+          <Card title="Vanilla JavaScript Component">
+            <VanillaGithub username="sveltejs" />
+          </Card>
+        </CardGrid>
+      </Section>
 
-        <div>
-          <h2>Vue3 Component</h2>
-          <RVueGithub username="vuejs" />
-        </div>
+      <Section
+        title="Frontend frameworks showcase"
+        description="Display mainstream frontend frameworks using beautiful card components:">
+        <CardGrid>
+          <UserCard username="react" />
+          <UserCard username="vuejs" />
+          <UserCard username="angular" />
+          <UserCard username="sveltejs" />
+          <UserCard username="preactjs" />
+          <UserCard username="solidjs" />
+        </CardGrid>
+      </Section>
 
-        <div>
-          <h2>Vue2 Component</h2>
-          <RVue2Github username="angular" />
-        </div>
-
-        <div>
-          <h2>Vanilla JavaScript Component</h2>
-          <VanillaGithub username="sveltejs" />
-        </div>
-      </div>
-
-      <h2>Frontend Frameworks Showcase</h2>
-      <p>
-        Display mainstream frontend frameworks using beautiful card components:
-      </p>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '20px',
-          marginTop: '20px',
-        }}>
-        <UserCard username="react" />
-        <UserCard username="vuejs" />
-        <UserCard username="angular" />
-        <UserCard username="sveltejs" />
-        <UserCard username="preactjs" />
-        <UserCard username="solidjs" />
-      </div>
-
-      <h2>Data</h2>
-
-      <div>
-        <pre>{JSON.stringify(data, null, 2)}</pre>
-      </div>
+      <Section title="Data">
+        <CodeBlock>{JSON.stringify(data, null, 2)}</CodeBlock>
+      </Section>
     </BaseLayout>
   );
 });

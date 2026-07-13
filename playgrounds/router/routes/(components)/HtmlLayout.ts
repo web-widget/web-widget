@@ -1,5 +1,6 @@
 import { html, type HTML } from '@web-widget/html';
 import '../(css)/base-layout.css';
+import '../(css)/ui.css';
 
 const menuHTML = html`<ul class="menu">
   <li class="menu-home"><a href="/">🏠 Home</a></li>
@@ -53,7 +54,9 @@ const menuHTML = html`<ul class="menu">
 </ul>`;
 
 export function htmlLayout(children: HTML): HTML {
-  return html`<header><h1>Web Router Playground</h1></header>
+  return html`<header class="site-header">
+      <h1>Web Router Playground</h1>
+    </header>
     <div class="container">
       <aside>${menuHTML}</aside>
       <main>${children}</main>

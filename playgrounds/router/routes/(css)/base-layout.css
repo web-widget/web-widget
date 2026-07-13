@@ -105,15 +105,12 @@ a[target='_blank']::after {
 }
 
 /* === Header === */
-header {
+header.site-header {
   border-bottom: var(--sk-border-width) solid var(--sk-border);
   background: var(--sk-bg);
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
 
-header > h1 {
+header.site-header > h1 {
   padding-left: 36px;
   padding-right: 36px;
   max-width: var(--sk-content-max);
@@ -147,8 +144,8 @@ aside ul {
   margin: 0;
   padding-inline-end: 10px;
   position: sticky;
-  top: var(--sk-header-height);
-  max-height: calc(100vh - var(--sk-header-height));
+  top: 0;
+  max-height: 100vh;
   overflow-y: auto;
 }
 aside li {
@@ -224,11 +221,6 @@ aside .menu-home a {
   font-weight: 700;
   letter-spacing: -0.02em;
   margin: 0 0 0.6em;
-  /* Hand-drawn underline - fit-content keeps underline tight */
-  width: fit-content;
-  border-bottom: 3px solid var(--sk-ink);
-  border-radius: 0 4px 0 6px;
-  padding-bottom: 6px;
 }
 
 .container main h2 {
@@ -236,9 +228,6 @@ aside .menu-home a {
   font-weight: 700;
   letter-spacing: -0.01em;
   margin: 2em 0 0.6em;
-  padding-bottom: 6px;
-  border-bottom: 2px dashed var(--sk-border-light);
-  width: fit-content;
 }
 
 .container main h3 {
@@ -374,7 +363,7 @@ footer {
   .container main {
     padding: 24px 20px;
   }
-  header > h1 {
+  header.site-header > h1 {
     padding-left: 20px;
     padding-right: 20px;
   }

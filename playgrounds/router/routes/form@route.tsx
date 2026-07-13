@@ -1,5 +1,6 @@
 import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import BaseLayout from './(components)/BaseLayout';
+import { PageHeader } from './(components)/ui';
 
 export const handler = defineRouteHandler({
   async GET(ctx) {
@@ -25,11 +26,10 @@ export const handler = defineRouteHandler({
 export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
-      <h1>Form submissions</h1>
-      <p>
-        Handle form POST requests with progressive enhancement. Submit the form
-        below and see the server response.
-      </p>
+      <PageHeader
+        title="Form submissions"
+        description="Handle form POST requests with progressive enhancement. Submit the form below and see the server response."
+      />
       <form method="post">
         <input type="email" name="email" value="" />
         <button type="submit">Subscribe</button>

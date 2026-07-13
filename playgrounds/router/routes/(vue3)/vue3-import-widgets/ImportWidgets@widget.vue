@@ -7,16 +7,24 @@ import VanillaCounter from '../../(components)/VanillaCounter@widget';
 
 <template>
   <div>
-    <h2>React component:</h2>
-    <ReactCounter :count="3" />
+    <section class="ds-section">
+      <h2>React component</h2>
+      <ReactCounter :count="3" />
+    </section>
 
-    <h2>Vue3 component:</h2>
-    <Vue3Counter :count="3" />
+    <section class="ds-section">
+      <h2>Vue3 component</h2>
+      <Vue3Counter :count="3" />
+    </section>
 
-    <h2>Vue2 component:</h2>
-    <Vue2Counter :count="3" />
+    <section class="ds-section">
+      <h2>Vue2 component</h2>
+      <Vue2Counter :count="3" />
+    </section>
 
-    <h2>Vanilla component:</h2>
-    <VanillaCounter :count="3" />
+    <section class="ds-section">
+      <h2>Vanilla component</h2>
+      <VanillaCounter :count="3" />
+    </section>
   </div>
 </template>

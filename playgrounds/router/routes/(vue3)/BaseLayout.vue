@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import '../(css)/base-layout.css';
+import '../(css)/ui.css';
 import Menu from './Menu@widget.vue';
 
 onMounted(() => {
@@ -13,7 +14,7 @@ onMounted(() => {
 });
 </script>
 <template>
-  <header>
+  <header class="site-header">
     <h1>Web Router Playground</h1>
   </header>
   <div class="container">

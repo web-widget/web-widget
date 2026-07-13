@@ -1,5 +1,6 @@
 <script>
 import '../(css)/base-layout.css';
+import '../(css)/ui.css';
 import Menu from './Menu@widget.vue';
 
 export default {
@@ -16,7 +17,7 @@ export default {
 </script>
 <template>
   <div>
-    <header>
+    <header class="site-header">
       <h1>Web Router Playground</h1>
     </header>
     <div class="container">

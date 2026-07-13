@@ -27,44 +27,56 @@ const error = html`<div class="demo-error">Something went wrong.</div>`;
 
 export default defineRouteComponent(async function Page() {
   return htmlLayout(
-    html`<h1>HTML: Streaming Error</h1>
-      <p>
-        This page demonstrates Suspense streaming with error recovery. The
-        failing section is caught and its fallback stays visible — the rest of
-        the page remains functional.
-      </p>
+    html`<header class="ds-page-header">
+        <h1>HTML: Streaming Error</h1>
+        <p class="ds-description">
+          This page demonstrates Suspense streaming with error recovery. The
+          failing section is caught and its fallback stays visible — the rest of
+          the page remains functional.
+        </p>
+      </header>
 
-      <h2>Normal section (succeeds in ~1s)</h2>
-      ${suspense(
-      slowHTML(
-        1000,
-        html`<div class="demo-success">Section loaded successfully!</div>`
-      ),
-      loading
-    )}
+      <section class="ds-section">
+        <h2>Normal section (succeeds in ~1s)</h2>
+        ${suspense(
+          slowHTML(
+            1000,
+            html`<div class="demo-success">Section loaded successfully!</div>`
+          ),
+          loading
+        )}
+      </section>
 
-      <h2>Failing section (rejects in ~1s)</h2>
-      ${fallback(suspense(failAfter(1000), loading), error)}
+      <section class="ds-section">
+        <h2>Failing section (rejects in ~1s)</h2>
+        ${fallback(suspense(failAfter(1000), loading), error)}
+      </section>
 
-      <h2>Widget that succeeds (~1-3s)</h2>
-      ${WaitWidget({ id: 'ok:0', widget: { fallback: loading } })}
+      <section class="ds-section">
+        <h2>Widget that succeeds (~1-3s)</h2>
+        ${WaitWidget({ id: 'ok:0', widget: { fallback: loading } })}
+      </section>
 
-      <h2>Widget that fails (~0.5s)</h2>
-      ${FailWidget({
-      id: 'fail:0',
-      widget: { fallback: { pending: loading, error } },
-    })}
+      <section class="ds-section">
+        <h2>Widget that fails (~0.5s)</h2>
+        ${FailWidget({
+          id: 'fail:0',
+          widget: { fallback: { pending: loading, error } },
+        })}
+      </section>
 
-      <h2>Another normal section after the failure</h2>
-      ${suspense(
-      slowHTML(
-        500,
-        html`<div class="demo-info">
-          Page recovered — this section works fine!
-        </div>`
-      ),
-      loading
-    )}
+      <section class="ds-section">
+        <h2>Another normal section after the failure</h2>
+        ${suspense(
+          slowHTML(
+            500,
+            html`<div class="demo-info">
+              Page recovered — this section works fine!
+            </div>`
+          ),
+          loading
+        )}
+      </section>
 
       <p>This footer appears immediately and stays regardless of errors.</p>`
   );

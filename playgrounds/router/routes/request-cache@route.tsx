@@ -1,6 +1,7 @@
 import { defineRouteComponent } from '@web-widget/helpers';
 import { lifecycleCache } from '@web-widget/helpers/cache';
 import BaseLayout from './(components)/BaseLayout.tsx';
+import { PageHeader } from './(components)/ui';
 import RequestCache from './(components)/RequestCache@widget.tsx';
 
 export default defineRouteComponent(function Page() {
@@ -8,11 +9,10 @@ export default defineRouteComponent(function Page() {
   cache.set('testName', 'hello world', true);
   return (
     <BaseLayout>
-      <h1>Request cache</h1>
-      <p>
-        Duplicate fetches within the same request are automatically deduplicated
-        and cached.
-      </p>
+      <PageHeader
+        title="Request cache"
+        description="Duplicate fetches within the same request are automatically deduplicated and cached."
+      />
       <RequestCache />
     </BaseLayout>
   );

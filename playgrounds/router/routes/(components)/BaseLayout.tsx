@@ -9,7 +9,7 @@ const RMenu = asReactWidget(Menu);
 export default function BaseLayout({ children }: ComponentProps<any>) {
   return (
     <>
-      <header>
+      <header className="site-header">
         <h1>Web Router Playground</h1>
       </header>
       <div className="container">

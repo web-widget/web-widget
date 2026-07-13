@@ -1,6 +1,6 @@
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
-import styles from './(css)/index.module.css';
 import BaseLayout from './(components)/BaseLayout';
+import { PageHeader, Section, CardGrid, Card } from './(components)/ui';
 
 export const meta = defineMeta({
   title: 'Web Router Playground',
@@ -243,29 +243,33 @@ const categories: FeatureCategory[] = [
 export default defineRouteComponent(function Home() {
   return (
     <BaseLayout>
-      <h1>Web Router Playground</h1>
-      <p>
-        A collection of examples for <code>@web-widget/web-router</code> —
-        covering server components, progressive rendering, cross-framework
-        widgets, routing, data fetching, styling, and more.
-      </p>
+      <PageHeader
+        title="Web Router Playground"
+        description={
+          <>
+            A collection of examples for <code>@web-widget/web-router</code> —
+            covering server components, progressive rendering, cross-framework
+            widgets, routing, data fetching, styling, and more.
+          </>
+        }
+      />
 
       {categories.map((cat) => (
-        <section key={cat.name}>
-          <h2>{cat.name}</h2>
-          <ul className={styles.featureList}>
+        <Section key={cat.name} title={cat.name}>
+          <CardGrid>
             {cat.items.map((item) => (
-              <li key={item.href} className={styles.featureItem}>
+              <Card key={item.href}>
                 <a
                   href={item.href}
+                  className="ds-card-link"
                   {...(item.external ? { target: '_blank' } : {})}>
                   {item.title}
                 </a>
-                <span className={styles.featureDesc}>{item.desc}</span>
-              </li>
+                <p className="ds-card-desc">{item.desc}</p>
+              </Card>
             ))}
-          </ul>
-        </section>
+          </CardGrid>
+        </Section>
       ))}
     </BaseLayout>
   );

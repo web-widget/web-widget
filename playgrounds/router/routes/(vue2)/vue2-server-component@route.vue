@@ -37,8 +37,10 @@ const props = defineProps({
 
 <template>
   <BaseLayout>
-    <h1>Vue2: Server component</h1>
-    <p>A Vue 2 component rendered on the server and hydrated on the client, coexisting with Vue 3 in the same app.</p>
+    <header class="ds-page-header">
+      <h1>Vue2: Server component</h1>
+      <p class="ds-description">A Vue 2 component rendered on the server and hydrated on the client, coexisting with Vue 3 in the same app.</p>
+    </header>
     <p class="data">{{ props.data }}</p>
   </BaseLayout>
 </template>
