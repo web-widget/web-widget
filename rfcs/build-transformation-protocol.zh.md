@@ -252,12 +252,12 @@ export function container(loader, options) {
 export { container } from './adapter';
 ```
 
-`package.json` 中通过 `webWidget` 字段声明 `WebWidgetAdapter` 配置，`exports` 组织子路径：
+`package.json` 中通过 `webWidgetAdapter` 字段声明 `WebWidgetAdapter` 配置，`exports` 组织子路径：
 
 ```json
 {
   "name": "@web-widget/react",
-  "webWidget": {
+  "webWidgetAdapter": {
     "name": "react",
     "extensions": [".tsx", ".jsx"],
     "adapter": "./adapter"
@@ -283,7 +283,7 @@ export { container } from './adapter';
 
 某些适配器的模块只能产出默认导出，无法直接添加命名导出。但路由协议要求模块导出 `handler`（路由处理器）和 `meta`（元数据）等命名导出。适配器可通过 `deriveExports` 声明需要从默认导出上派生的命名导出及其兜底值。
 
-以 Vue 适配器为例，Vue SFC 编译后只产出 `export default`。`@web-widget/vue` 在 `webWidget` 字段中声明 `deriveExports`：
+以 Vue 适配器为例，Vue SFC 编译后只产出 `export default`。`@web-widget/vue` 在 `webWidgetAdapter` 字段中声明 `deriveExports`：
 
 ```json
 {

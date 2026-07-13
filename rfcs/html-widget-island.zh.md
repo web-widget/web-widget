@@ -43,7 +43,7 @@ HTML 模板不存在这些复杂度：
 
 ```json
 {
-  "webWidget": {
+  "webWidgetAdapter": {
     "version": "1.0.0",
     "name": "html",
     "extensions": [".html.ts", ".html.js"],

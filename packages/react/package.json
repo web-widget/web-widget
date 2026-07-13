@@ -56,7 +56,7 @@
       "types": "./globals.d.ts"
     }
   },
-  "webWidget": {
+  "webWidgetAdapter": {
     "version": "1.0.0",
     "name": "react",
     "extensions": [

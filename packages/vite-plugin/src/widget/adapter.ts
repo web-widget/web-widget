@@ -11,7 +11,7 @@ import type { WebWidgetAdapterConfig, WebWidgetPluginOptions } from '@/types';
 /** Supported adapter format major version. */
 const SUPPORTED_VERSION = 1;
 
-/** Adapter metadata read from package.json `webWidget` field. */
+/** Adapter metadata read from package.json `webWidgetAdapter` field. */
 interface AdapterMetadata {
   version?: string;
   name: string;
@@ -65,17 +65,17 @@ function readAdapterMetadata(from: string, root: string): AdapterMetadata {
   }
 
   const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-  const meta = pkg.webWidget as AdapterMetadata | undefined;
+  const meta = pkg.webWidgetAdapter as AdapterMetadata | undefined;
 
   if (!meta) {
     throw new Error(
-      `Adapter package "${from}" is missing the "webWidget" field in package.json.`
+      `Adapter package "${from}" is missing the "webWidgetAdapter" field in package.json.`
     );
   }
 
   if (!meta.name || !meta.extensions || !meta.adapter) {
     throw new Error(
-      `Adapter package "${from}" has an incomplete "webWidget" field. ` +
+      `Adapter package "${from}" has an incomplete "webWidgetAdapter" field. ` +
         `Required: name, extensions, adapter.`
     );
   }
@@ -204,7 +204,7 @@ function buildPluginsForAdapter(
 /**
  * Web widget build transformation plugin (WebWidgetAdapter protocol).
  *
- * Reads adapter metadata from each package's `webWidget` field in
+ * Reads adapter metadata from each package's `webWidgetAdapter` field in
  * package.json, builds file-matching patterns, and injects the
  * runtime `render` / `container` functions into matching modules.
  *
