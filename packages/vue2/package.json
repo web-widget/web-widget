@@ -48,7 +48,7 @@
       }
     }
   },
-  "webWidget": {
+  "webWidgetAdapter": {
     "version": "1.0.0",
     "name": "vue2",
     "extensions": [
