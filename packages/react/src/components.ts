@@ -188,7 +188,7 @@ class WidgetErrorBoundary extends Component<
   }
 
   componentDidCatch(error: unknown) {
-    console.error('[widget] Rendering error:', error);
+    console.error('[ReactWidget] Rendering error:', error);
   }
 
   render() {

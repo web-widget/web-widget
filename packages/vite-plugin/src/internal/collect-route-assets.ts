@@ -84,9 +84,10 @@ export function resolveLocalImport(
     }
   }
 
-  const { dir, name } = path.parse(absolute);
-  const candidates = extensions.map((ext) => path.join(dir, name + ext));
-  for (const candidate of candidates) {
+  // Append extensions to the full path, matching Vite's resolver behavior
+  // (e.g. `./baseLayout.html` → `baseLayout.html.ts`).
+  for (const ext of extensions) {
+    const candidate = absolute + ext;
     if (fs.existsSync(candidate)) {
       return candidate;
     }

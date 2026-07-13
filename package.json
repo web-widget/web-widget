@@ -30,7 +30,7 @@
   },
   "scripts": {
     "build": "pnpm run build:packages && pnpm run build:examples",
-    "build:examples": "turbo run build --filter=@examples/*",
+    "build:examples": "turbo run build --filter=@examples/* --force",
     "build:packages": "turbo run build --filter=!@examples/*",
     "changeset": "changeset add",
     "clean": "pnpm -r run clean && rm -rf ./node_modules",
