@@ -41,13 +41,6 @@ function App() {
 - **方案无关**：不依赖特定构建工具的私有特性，保持协议的可移植性
 - **adapter 解耦**：不要求消费框架 adapter 知道所有源框架的类型结构
 
-### 非目标
-
-- 改变运行时的跨框架渲染机制（`container` 函数已稳定）
-- 解决框架内部的 props 类型推导难题（如 Vue SFC 的 props 类型推导本身就是 Vue 生态的问题）
-- 建立统一的跨框架 props 类型系统（各框架的 props 语义差异太大，如 Vue 的 `defineProps` 与 React 的 `FC<T>`）
-- 改变静态 `import` 的运行时行为（构建工具对 `@widget` 导入的 `container` 注入保持不变）
-
 ## 现状分析
 
 ### 类型断裂的根源
