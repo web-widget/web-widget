@@ -141,6 +141,17 @@ export async function buildServerAssetsData(
     cssConfig,
   });
 
+  // Build-time validation: ensure every widget module referenced by the
+  // server import graph has a corresponding chunk in the client manifest.
+  // This catches typos and missing client entries at build time rather than
+  // at runtime when `resolveWidgetAsset` would throw.
+  const missingWidgets = [...widgetModulePaths].filter((id) => !assetUrls[id]);
+  if (missingWidgets.length) {
+    throw new Error(
+      `[web-widget] Widget asset(s) not found in client manifest (referenced by server but no chunk was emitted):\n${missingWidgets.join('\n')}\nEnsure these modules are included in the client build.`
+    );
+  }
+
   return { assetUrls, linkMap: processedLinkMap, styleMap };
 }
 
