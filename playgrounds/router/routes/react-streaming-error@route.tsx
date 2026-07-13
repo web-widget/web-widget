@@ -1,31 +1,22 @@
 import { defineRouteComponent } from '@web-widget/helpers';
+import './(css)/demo-states.css';
 import BaseLayout from './(components)/BaseLayout.js';
 import ReactWaitDemo from './(components)/Wait@widget.js';
 import ReactFailDemo from './(components)/Fail@widget.js';
 
-const Loading = (
-  <div style={{ background: '#f3f3f3', padding: '20px' }}>Loading..</div>
-);
+const Loading = <div className="demo-loading">Loading..</div>;
 
 const Error = (
-  <div
-    style={{
-      background: '#ffe0e0',
-      color: '#b71c1c',
-      padding: '20px',
-    }}>
-    Widget failed to render (error recovered)
-  </div>
+  <div className="demo-error">Widget failed to render (error recovered)</div>
 );
 
 export default defineRouteComponent(async function Page() {
   return (
     <BaseLayout>
-      <h1>React Route: Streaming Error Recovery</h1>
+      <h1>React: Streaming error</h1>
       <p>
         This page demonstrates streaming SSR error recovery. The failing widget
-        is wrapped in an ErrorBoundary, so errors are contained and the page
-        remains functional.
+        is wrapped in an ErrorBoundary so the rest of the page stays functional.
       </p>
 
       <h2>Normal widget (succeeds)</h2>

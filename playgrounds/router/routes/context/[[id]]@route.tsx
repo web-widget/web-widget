@@ -30,7 +30,6 @@ export default defineRouteComponent<HelloData>(function Page({ data }) {
           );
         })}
       </ul>
-      <hr />
       <Counter count={3} />
     </BaseLayout>
   );

@@ -50,6 +50,10 @@ export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
       <h1>Error handling</h1>
+      <p>
+        When a route fails to render, a fallback UI takes over. Trigger an error
+        below to see the fallback in action.
+      </p>
       <ul>
         <li>
           <a href="?404">Show 404 error</a>

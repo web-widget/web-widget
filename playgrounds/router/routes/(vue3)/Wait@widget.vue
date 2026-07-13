@@ -12,13 +12,5 @@ const data = (await fetchData()) as string;
 </script>
 
 <template>
-  <div class="box">Vue {{ id }}: {{ data }}</div>
+  <div class="demo-result">Vue {{ id }}: {{ data }}</div>
 </template>
-
-<style scoped>
-.box {
-  background: linear-gradient(315deg, #42d392 25%, #647eff);
-  color: #fff;
-  padding: 20px;
-}
-</style>

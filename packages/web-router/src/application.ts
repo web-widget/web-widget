@@ -4,7 +4,7 @@
 import { callContext } from '@web-widget/context/server';
 import { compose } from '@web-widget/helpers';
 import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
-import { createHttpError } from '@web-widget/helpers/error';
+import { createHttpError, HTTPException } from '@web-widget/helpers/error';
 import { Context } from './context';
 import { ModuleRuntime, type DevMetaProvider } from './module';
 import type { Router } from './router';
@@ -21,7 +21,6 @@ import type {
   Env,
   ErrorHandler,
   ExecutionContext,
-  HTTPException,
   MiddlewareHandler,
   NotFoundHandler,
 } from './types';
@@ -514,9 +513,12 @@ class Application<
   };
 
   async #normalizeHTTPException(error: unknown): Promise<HTTPException> {
-    // If it's an Error object, preserve original stack trace
+    // If it's an Error object, normalize it to HTTPException
     if (error instanceof Error) {
-      return error;
+      if (error instanceof HTTPException) {
+        return error;
+      }
+      return createHttpError(500, error.message, { cause: error });
     }
 
     // If it's a Response object, intelligently parse content

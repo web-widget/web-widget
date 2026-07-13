@@ -17,7 +17,11 @@ export const meta = defineMeta({
 export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
-      <h1>Using react and vue together</h1>
+      <h1>React and Vue together</h1>
+      <p>
+        Mix React, Vue 3, Vue 2, and vanilla widgets on the same page. Each
+        framework's component renders independently below.
+      </p>
 
       <h2>React component:</h2>
       <ReactCounter count={3} />

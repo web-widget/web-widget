@@ -26,6 +26,10 @@ export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
       <h1>Form submissions</h1>
+      <p>
+        Handle form POST requests with progressive enhancement. Submit the form
+        below and see the server response.
+      </p>
       <form method="post">
         <input type="email" name="email" value="" />
         <button type="submit">Subscribe</button>

@@ -19,7 +19,10 @@ export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
       <h1>Background tasks</h1>
-      <p>Please check the terminal log.</p>
+      <p>
+        Work can continue in the background after the response is sent. Check
+        the terminal log to see the delayed task output.
+      </p>
     </BaseLayout>
   );
 });

@@ -1,11 +1,23 @@
-<script setup lang="ts">
+<script>
 import '../(css)/base-layout.css';
 import Menu from './Menu@widget.vue';
+
+export default {
+  components: { Menu },
+  mounted() {
+    const path = location.pathname;
+    document.querySelectorAll('aside a[href]').forEach((a) => {
+      if (a.getAttribute('href') === path) {
+        a.setAttribute('aria-current', 'page');
+      }
+    });
+  },
+};
 </script>
 <template>
   <div>
     <header>
-      <h1>Web Router Examples</h1>
+      <h1>Web Router Playground</h1>
     </header>
     <div class="container">
       <aside>

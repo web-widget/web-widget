@@ -2,7 +2,7 @@ import { defineClientRender, defineServerRender } from '@web-widget/helpers';
 import { syncCacheProvider } from '@web-widget/helpers/cache';
 import { context } from '@web-widget/helpers/context';
 import { IS_SERVER } from '@web-widget/helpers/env';
-import type { MockUserData } from '../api/mock-users@route.ts';
+import type { MockUserData } from '../api/mock-users@route';
 
 interface Props {
   username: string;

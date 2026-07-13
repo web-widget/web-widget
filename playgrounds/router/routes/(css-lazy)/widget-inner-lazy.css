@@ -1,8 +1,9 @@
 .css-lazy-widget-inner {
   margin-top: 0.75rem;
   padding: 0.75rem 1rem;
-  border: 3px solid #6c5ce7;
-  background: #f3f0ff;
-  border-radius: 6px;
+  border: 3px solid #7c3aed;
+  background: #ede9fe;
+  border-radius: 4px 10px 4px 12px;
   font-weight: 600;
+  color: #5b21b6;
 }

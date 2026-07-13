@@ -15,7 +15,8 @@ export default defineRouteComponent(function Page() {
     <BaseLayout>
       <h1>Custom handlers</h1>
       <p>
-        Please open the web inspection pane of your browser's developer tools.
+        This route uses a custom handler to control the HTTP response directly.
+        Open the Network tab in DevTools to inspect the response headers.
       </p>
     </BaseLayout>
   );

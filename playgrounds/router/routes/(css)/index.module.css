@@ -1,3 +1,40 @@
-.title {
-  color: cadetblue;
+/* Feature list styles for the home page */
+
+.featureList {
+  list-style: none;
+  margin: 0 0 1.4em;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.featureItem {
+  padding: 10px 16px;
+  background: var(--sk-bg-subtle, #f5f1e8);
+  border: 1px solid var(--sk-border-light, rgba(74, 68, 56, 0.18));
+  border-radius: 4px 8px 4px 10px;
+  transition: background 0.15s ease;
+}
+.featureItem:hover {
+  background: var(--sk-bg-hover, #efe8d8);
+}
+.featureItem a {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: none;
+  color: var(--sk-ink, #2d2a24);
+}
+.featureItem a:hover {
+  background: none;
+  border-bottom: none;
+  border-radius: 0;
+  color: var(--sk-ink, #2d2a24);
+}
+.featureDesc {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--sk-ink-light, #5a5448);
+  line-height: 1.5;
 }

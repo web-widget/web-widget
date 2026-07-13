@@ -86,11 +86,14 @@ export default defineRouteComponent<MetaPageData>(function Page(props) {
   return (
     <BaseLayout>
       <h1>Meta</h1>
+      <p>
+        Set document head metadata - such as title and description - per route.
+        Check the page source to see the meta tags.
+      </p>
       <h2>JSON:</h2>
       <pre>{JSON.stringify(allMetadata, null, 2)}</pre>
       <h2>HTML:</h2>
       <MetaHtmlCode {...allMetadata} />
-      <hr />
       <ReactCounter count={3} />
       <div>
         <img src={icon} />

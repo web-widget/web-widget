@@ -15,7 +15,11 @@ export default defineRouteComponent(function Page(props) {
   const fullPath = `${url.pathname}${url.search}`;
   return (
     <BaseLayout>
-      <h1>Vue3 router</h1>
+      <h1>Vue3: Router</h1>
+      <p>
+        Integrate vue-router 4 inside a Web Widget route. Client-side navigation
+        is handled by Vue Router below.
+      </p>
       <RApp route={fullPath} />
     </BaseLayout>
   );

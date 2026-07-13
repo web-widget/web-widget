@@ -29,7 +29,7 @@ describe('Streaming SSR', () => {
 
     // Vue3 streaming renders widgets with a `recovering` boundary attribute.
     expect(body).toContain('recovering');
-    expect(body).toContain('Vue3 Route: Streaming');
+    expect(body).toContain('Vue3: Streaming');
   });
 
   test('HTML /html-suspense-streaming streams content progressively', async () => {

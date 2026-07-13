@@ -12,11 +12,10 @@ export const meta = defineMeta({
 export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
-      <h1>Vue SFC CSS Modules</h1>
+      <h1>Vue: CSS Modules</h1>
       <p>
         This page verifies that Vue SFC <code>&lt;style module&gt;</code> CSS is
-        correctly collected during SSR dev. The hashed class names in the SSR
-        HTML must match the client-side class names.
+        correctly scoped and applied.
       </p>
       <RVueModuleCss count={3} />
     </BaseLayout>

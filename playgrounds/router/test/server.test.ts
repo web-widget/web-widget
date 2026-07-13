@@ -120,8 +120,8 @@ describe('production server (pnpm build && node server.js)', () => {
     // The route imports > 8 KB of CSS, exceeding the inline threshold.
     // The CSS must be served as an external <link> stylesheet, not inlined.
     expect(linkedHrefs.length).toBeGreaterThan(0);
-    expect(linkedCss).toContain('.showcase');
-    expect(inlineCss).not.toContain('.showcase');
+    expect(linkedCss).toContain('.lc-card');
+    expect(inlineCss).not.toContain('.lc-card');
   });
 
   it('includes Vue SFC CSS Modules styles on /vue-module-css', async () => {

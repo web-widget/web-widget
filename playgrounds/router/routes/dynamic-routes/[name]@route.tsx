@@ -6,6 +6,10 @@ export default defineRouteComponent(function Page(props) {
   return (
     <BaseLayout>
       <h1>Dynamic routes</h1>
+      <p>
+        File-system routing supports dynamic path parameters. The URL segment
+        below is passed as a parameter to the route.
+      </p>
       <p>Greetings to you, {JSON.stringify(name)}!</p>
       <ul>
         <li>

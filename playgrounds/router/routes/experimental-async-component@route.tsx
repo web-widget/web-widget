@@ -11,7 +11,11 @@ export default defineRouteComponent(async function Page({ request }) {
   const data = await fetchData(new URL(request.url));
   return (
     <BaseLayout>
-      <h1>Async component(experimental)</h1>
+      <h1>Async component</h1>
+      <p>
+        Server components can be async - they await data before rendering,
+        streaming the result to the client.
+      </p>
       <ul>
         {data.map((item, index) => {
           return (

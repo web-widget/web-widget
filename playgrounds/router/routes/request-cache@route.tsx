@@ -9,6 +9,10 @@ export default defineRouteComponent(function Page() {
   return (
     <BaseLayout>
       <h1>Request cache</h1>
+      <p>
+        Duplicate fetches within the same request are automatically deduplicated
+        and cached.
+      </p>
       <RequestCache />
     </BaseLayout>
   );

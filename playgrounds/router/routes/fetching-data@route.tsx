@@ -28,26 +28,30 @@ export const handler = defineRouteHandler<HelloData>({
 export default defineRouteComponent<HelloData>(function Page({ data }) {
   return (
     <BaseLayout>
-      <h1>Data Fetching Example</h1>
+      <h1>Fetching data</h1>
+      <p>
+        Fetch data on the server and render it into HTML before sending the
+        response.
+      </p>
 
       <div style={{ display: 'grid', gap: '20px', marginTop: '20px' }}>
         <div>
-          <h3>React Component</h3>
+          <h2>React Component</h2>
           <ReactGithub username="react" />
         </div>
 
         <div>
-          <h3>Vue3 Component</h3>
+          <h2>Vue3 Component</h2>
           <RVueGithub username="vuejs" />
         </div>
 
         <div>
-          <h3>Vue2 Component</h3>
+          <h2>Vue2 Component</h2>
           <RVue2Github username="angular" />
         </div>
 
         <div>
-          <h3>Vanilla JavaScript Component</h3>
+          <h2>Vanilla JavaScript Component</h2>
           <VanillaGithub username="sveltejs" />
         </div>
       </div>
