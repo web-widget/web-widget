@@ -62,7 +62,7 @@ container(() => import('./Counter@widget.tsx'), {
 - **client 构建完成后**：`buildApp: post` 钩子用内存中的 client manifest 覆写 `.server-assets.js`，填入真实的 chunk URL 映射
 - **server 运行时**：`resolveWidgetAsset` 查询已覆写的 `.server-assets.js`，返回 `"/assets/Counter@widget-HASH.js"`
 
-运行时查表无法在 transform 阶段暴露路径错误（拼写错误、widget 未进入 client bundle 等）。但由于 asset collector 按文件名匹配（`[.@]widget.`）收集所有 widget 模块，无法区分通过 `container()` 动态导入（需要独立 chunk）和通过 `asHtmlWidget()` 静态导入（被内联到父 chunk）的 widget，因此无法在 `buildApp: post` 阶段可靠地交叉比对。当 `resolveWidgetAsset` 在运行时找不到对应 chunk 时会抛出错误，这是预期行为。
+运行时查表无法在 transform 阶段暴露路径错误（拼写错误、widget 未进入 client bundle 等）。为此，`buildApp: post` 钩子在覆写 `.server-assets.js` 前做一次构建期校验：将 server `buildStart` 阶段通过 `this.resolve` 爬 import 图收集的所有 widget 模块路径，与 client manifest 实际产出的 chunk 交叉比对。任一被引用的 widget 在 manifest 中缺失对应 chunk，构建立即失败并输出缺失路径，把错误提前到构建阶段。
 
 ### 客户端：`ROLLUP_FILE_URL` 构建时解析
 

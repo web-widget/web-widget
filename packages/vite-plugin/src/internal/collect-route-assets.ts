@@ -84,6 +84,16 @@ export function resolveLocalImport(
     }
   }
 
+  // Try appending extensions to the full path first. This handles compound
+  // extensions like `baseLayout.html` → `baseLayout.html.ts`, which
+  // `path.parse` below would strip to `baseLayout` (losing the `.html` part).
+  for (const ext of extensions) {
+    const candidate = absolute + ext;
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
   const { dir, name } = path.parse(absolute);
   const candidates = extensions.map((ext) => path.join(dir, name + ext));
   for (const candidate of candidates) {
