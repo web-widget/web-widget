@@ -13,10 +13,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Vite 8 requires Node ^20.19.0 || >=22.12.0
-        # pnpm 11 requires Node 22+
+        # pnpm 11.13 requires Node >= 22.13
         version:
-          - node: "22.12.0"
+          - node: "22.13.0"
           - node: "24"
           - node: "26"
 
@@ -50,7 +49,7 @@ jobs:
       # workerd install calling npm). That can hide stderr from failures. Hooks are skipped in CI.
       - run: pnpm install --recursive --no-frozen-lockfile
         env:
-          SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: "1"
 
       - run: pnpm examples-catalog:check
 
