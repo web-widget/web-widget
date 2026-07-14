@@ -1,5 +1,72 @@
 # @web-widget/vue2
 
+## 3.0.0-beta.1
+
+### Major Changes
+
+- 037add2: Introduce the **WebWidgetAdapter protocol**: framework adapters now declare metadata (`name`, `extensions`, `adapter`, `deriveExports`) via the `webWidgetAdapter` field in `package.json`, and a single `webWidgetPlugin({ adapters: [...] })` replaces all per-framework Vite plugins.
+
+  **Breaking changes:**
+
+  - `reactWebWidgetPlugin` / `vueWebWidgetPlugin` / `vue2WebWidgetPlugin` and their `./vite` subpath exports are removed. Use `webWidgetPlugin({ adapters: [...] })` instead:
+
+    ```diff
+    - import reactWebWidgetPlugin from '@web-widget/react/vite';
+    - import vueWebWidgetPlugin from '@web-widget/vue/vite';
+    + import { webWidgetPlugin } from '@web-widget/vite-plugin';
+
+      plugins: [
+    -   reactWebWidgetPlugin(),
+    -   vueWebWidgetPlugin(),
+    +   webWidgetPlugin({
+    +     adapters: ['@web-widget/react', '@web-widget/vue'],
+    +   }),
+      ],
+    ```
+
+  - Adapter packages no longer depend on `@web-widget/vite-plugin` or `vite`.
+
+### Minor Changes
+
+- 6bd5331: Container type inference: `container()` is now a generic function that
+  automatically infers widget props types from the source module's default export,
+  enabling cross-framework type interoperability without manual conversion
+  functions.
+- a7c8f36: Widget container API redesign: container props are now grouped under a single
+  `widget` prop across all framework adapters (React, Vue, Vue2), isolating them
+  from the widget's own props to prevent naming collisions.
+
+  **Breaking**: container props are no longer passed flat — use the `widget` prop:
+
+  ```diff
+  - <Counter fallback={<Spinner />} experimental_loading="lazy" count={1} />
+  + <Counter widget={{ fallback: <Spinner />, padding: 'lazy' }} count={1} />
+  ```
+
+  `experimental_loading` → `loading`, `experimental_renderTarget` removed
+  (set via container options instead), and `renderStage` is replaced
+  by the mutually exclusive `serverOnly` / `clientOnly` booleans.
+
+  All framework adapters split their package entry. The `.` entry no longer
+  re-exports `@web-widget/helpers` — import user-facing APIs from
+  `@web-widget/helpers` and runtime code from `./runtime`. `asReactWidget`
+  remains available from the `.` entry of `@web-widget/vue` and `@web-widget/vue2`.
+
+  `@web-widget/html` also no longer re-exports `@web-widget/helpers` from its `.`
+  entry — import user-facing APIs from `@web-widget/helpers` directly. Runtime
+  APIs (`render`, `html`, `unsafeHTML`, etc.) remain available from
+  `@web-widget/html`.
+
+### Patch Changes
+
+- Updated dependencies [037add2]
+- Updated dependencies [6bd5331]
+- Updated dependencies [5ba2c6b]
+- Updated dependencies [a7c8f36]
+  - @web-widget/react@3.0.0-beta.1
+  - @web-widget/helpers@3.0.0-beta.1
+  - @web-widget/web-widget@3.0.0-beta.1
+
 ## 3.0.0-beta.0
 
 ### Minor Changes

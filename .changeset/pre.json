@@ -26,16 +26,27 @@
     "@playgrounds/router": "0.0.0",
     "@playgrounds/web-router-vue2": "0.0.1",
     "@playgrounds/web-router-vue3": "0.0.1",
-    "@playgrounds/widget": "0.0.0"
+    "@playgrounds/widget": "0.0.0",
+    "@examples/html": "0.0.0"
   },
   "changesets": [
+    "build-transformation-protocol",
+    "container-generic-type-inference",
+    "devtools-workspace-json",
     "fix-http2-head-response",
     "html-internalize-stream-utils",
+    "html-lit-directives",
+    "html-stream-api-rename",
+    "html-suspense-streaming",
+    "html-widget-island",
     "middleware-progressive-rendering-coordination",
     "middleware-shared-cache-handler",
+    "node-adapter-stream-backpressure",
     "remove-as-query-and-rename-toReact",
+    "streaming-shell-error-handling",
     "upgrade-es-module-shims",
     "vite-plugin-environment-api",
-    "web-router-dev-module-loading"
+    "web-router-dev-module-loading",
+    "widget-container-api-redesign"
   ]
 }

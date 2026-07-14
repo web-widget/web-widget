@@ -1,5 +1,11 @@
 # @web-widget/node
 
+## 3.0.0-beta.1
+
+### Patch Changes
+
+- 3b653e4: Fix memory leaks and improve stream handling in the Node adapter: apply backpressure on response writes, cancel source streams on client disconnect, clean up unconsumed request bodies, and replace inefficient upstream stream conversion.
+
 ## 3.0.0-beta.0
 
 ### Patch Changes

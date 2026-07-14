@@ -1,5 +1,36 @@
 # @web-widget/schema
 
+## 3.0.0-beta.1
+
+### Minor Changes
+
+- 037add2: Introduce the **WebWidgetAdapter protocol**: framework adapters now declare metadata (`name`, `extensions`, `adapter`, `deriveExports`) via the `webWidgetAdapter` field in `package.json`, and a single `webWidgetPlugin({ adapters: [...] })` replaces all per-framework Vite plugins.
+
+  **Breaking changes:**
+
+  - `reactWebWidgetPlugin` / `vueWebWidgetPlugin` / `vue2WebWidgetPlugin` and their `./vite` subpath exports are removed. Use `webWidgetPlugin({ adapters: [...] })` instead:
+
+    ```diff
+    - import reactWebWidgetPlugin from '@web-widget/react/vite';
+    - import vueWebWidgetPlugin from '@web-widget/vue/vite';
+    + import { webWidgetPlugin } from '@web-widget/vite-plugin';
+
+      plugins: [
+    -   reactWebWidgetPlugin(),
+    -   vueWebWidgetPlugin(),
+    +   webWidgetPlugin({
+    +     adapters: ['@web-widget/react', '@web-widget/vue'],
+    +   }),
+      ],
+    ```
+
+  - Adapter packages no longer depend on `@web-widget/vite-plugin` or `vite`.
+
+- 6bd5331: Container type inference: `container()` is now a generic function that
+  automatically infers widget props types from the source module's default export,
+  enabling cross-framework type interoperability without manual conversion
+  functions.
+
 ## 3.0.0-beta.0
 
 ## 2.3.1
