@@ -186,9 +186,6 @@ The real power emerges when you effortlessly combine different frameworks:
 // Mix React and Vue in the same page
 import ReactCounter from './Counter@widget.tsx';
 import VueCounter from './Counter@widget.vue';
-import { asReactWidget } from '@web-widget/vue/adapter';
-
-const RVueCounter = asReactWidget(VueCounter);
 
 export default defineRouteComponent(function MixedPage() {
   return (
@@ -196,8 +193,8 @@ export default defineRouteComponent(function MixedPage() {
       <h2>React Component:</h2>
       <ReactCounter count={0} />
 
-      <h2>Vue Component (as React):</h2>
-      <RVueCounter count={0} />
+      <h2>Vue Component (in React):</h2>
+      <VueCounter count={0} />
     </div>
   );
 });
@@ -561,9 +558,6 @@ import { defineRouteComponent } from '@web-widget/helpers';
 import BaseLayout from './components/BaseLayout';
 import ReactCounter from './components/Counter@widget.tsx';
 import VueCounter from './components/Counter@widget.vue';
-import { asReactWidget } from '@web-widget/vue/adapter';
-
-const RVueCounter = asReactWidget(VueCounter);
 
 export default defineRouteComponent(function Page() {
   return (
@@ -574,7 +568,7 @@ export default defineRouteComponent(function Page() {
       <ReactCounter count={0} />
 
       <h2>Vue Component:</h2>
-      <RVueCounter count={0} />
+      <VueCounter count={0} />
     </BaseLayout>
   );
 });
@@ -852,22 +846,22 @@ my-web-widget-app/
 ```json
 {
   "dependencies": {
-    "@web-widget/helpers": "^1.59.0",
-    "@web-widget/html": "^1.59.0",
-    "@web-widget/node": "^1.59.0",
-    "@web-widget/react": "^1.59.0",
-    "@web-widget/vue": "^1.59.0",
-    "@web-widget/web-router": "^1.59.0",
-    "@web-widget/web-widget": "^1.59.0",
+    "@web-widget/helpers": "^3.0.0",
+    "@web-widget/html": "^3.0.0",
+    "@web-widget/node": "^3.0.0",
+    "@web-widget/react": "^3.0.0",
+    "@web-widget/vue": "^3.0.0",
+    "@web-widget/web-router": "^3.0.0",
+    "@web-widget/web-widget": "^3.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "vue": "^3.4.8"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.1.1",
-    "@vitejs/plugin-vue": "^5.0.0",
-    "@web-widget/vite-plugin": "^1.59.0",
-    "vite": "^5.4.19"
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@web-widget/vite-plugin": "^3.0.0",
+    "vite": "^8.0.12"
   }
 }
 ```
@@ -898,8 +892,8 @@ my-web-widget-app/
 
 #### Performance Tips
 
-- Use `renderStage="server"` for static content that doesn't need interactivity
-- Use `renderStage="client"` for components that require browser APIs
+- Use `widget={{ serverOnly: true }}` for static content that doesn't need interactivity
+- Use `widget={{ clientOnly: true }}` for components that require browser APIs
 - Implement proper caching strategies for expensive operations
 - Keep server components lightweight to improve SSR performance
 
