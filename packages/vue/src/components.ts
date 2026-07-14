@@ -1,4 +1,5 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
+import type { ExtractWidgetProps } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import {
   h,
@@ -27,14 +28,6 @@ export type VueWidgetComponent<T = unknown> = DefineComponent<
  * defineComponent results (which expose `$props`). Falls back to
  * `unknown` for unrecognized component types.
  */
-type ExtractModuleProps<M> = M extends { default: infer C }
-  ? C extends (props: infer P, ...args: any[]) => any
-    ? P
-    : C extends new (...args: any[]) => { $props: infer P }
-      ? P
-      : unknown
-  : unknown;
-
 const WebWidget = /*#__PURE__*/ defineComponent({
   name: 'WebWidgetRoot',
   props: {
@@ -212,7 +205,11 @@ export interface WidgetContainerConfig {
 export function container<M>(
   loader: () => Promise<M>,
   options?: DefineWebWidgetOptions
-): VueWidgetComponent<ExtractModuleProps<M>>;
+): VueWidgetComponent<ExtractWidgetProps<M>>;
+export function container<Props>(
+  loader: Loader,
+  options?: DefineWebWidgetOptions
+): VueWidgetComponent<Props>;
 export function container(
   loader: Loader,
   options: DefineWebWidgetOptions = {}

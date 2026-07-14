@@ -4,6 +4,7 @@ import type {
   WebWidgetRendererOptions,
 } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
+import type { ExtractWidgetProps } from '@web-widget/schema';
 import { unsafeHTML, suspense, fallback } from './html';
 import type { Suspense, Fallback, UnsafeHTML } from './html';
 import { HTML } from './html';
@@ -93,14 +94,6 @@ export function resolveFallback(fallback: WidgetFallback): {
  * - Vue: components expose `$props` via a constructor signature.
  * - Fallback: `unknown` when no pattern matches.
  */
-type ExtractModuleProps<M> = M extends { default: infer C }
-  ? C extends (props: infer P, ...args: any[]) => any
-    ? P
-    : C extends new (...args: any[]) => { $props: infer P }
-      ? P
-      : unknown
-  : unknown;
-
 /**
  * Container function (WebWidgetAdapter protocol).
  *
@@ -123,7 +116,11 @@ type ExtractModuleProps<M> = M extends { default: infer C }
 export function container<M>(
   loader: () => Promise<M>,
   options?: DefineWebWidgetOptions
-): HtmlWidgetComponent<ExtractModuleProps<M>>;
+): HtmlWidgetComponent<ExtractWidgetProps<M>>;
+export function container<Props>(
+  loader: Loader,
+  options?: DefineWebWidgetOptions
+): HtmlWidgetComponent<Props>;
 export function container(
   loader: Loader,
   options: DefineWebWidgetOptions = {}

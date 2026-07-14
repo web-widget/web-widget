@@ -87,6 +87,69 @@ describe('production server (pnpm build && node server.js)', () => {
     expect(await api.text()).toContain('Hello');
   });
 
+  it.each([
+    [
+      'React',
+      '/frameworks/react',
+      ['Vue 3', 'Vue 2', 'Svelte', 'Solid', 'Preact'],
+    ],
+    [
+      'HTML',
+      '/frameworks/html',
+      ['React', 'Vue 3', 'Vue 2', 'Svelte', 'Solid', 'Preact'],
+    ],
+    [
+      'Vue 3',
+      '/frameworks/vue3',
+      ['React', 'Vue 2', 'Svelte', 'Solid', 'Preact'],
+    ],
+    [
+      'Vue 2',
+      '/frameworks/vue2',
+      ['React', 'Vue 3', 'Svelte', 'Solid', 'Preact'],
+    ],
+    [
+      'Preact',
+      '/frameworks/preact',
+      ['React', 'Vue 3', 'Vue 2', 'Svelte', 'Solid'],
+    ],
+    [
+      'Solid',
+      '/frameworks/solid',
+      ['React', 'Vue 3', 'Vue 2', 'Svelte', 'Preact'],
+    ],
+    [
+      'Svelte',
+      '/frameworks/svelte',
+      ['React', 'Vue 3', 'Vue 2', 'Solid', 'Preact'],
+    ],
+  ])(
+    '%s route server-renders its Widget groups',
+    async (framework, path, importedFrameworks) => {
+      const response = await fetch(`${server!.origin}${path}`);
+      const html = await response.text();
+
+      expect(response.status).toBe(200);
+      expect(html).toContain('Widgets from other frameworks');
+      expect(html.includes('Native Widget')).toBe(framework !== 'HTML');
+      for (const importedFramework of importedFrameworks) {
+        expect(html).toContain(`<h3>${importedFramework} Widget</h3>`);
+        expect(html).toContain(`${importedFramework} count is`);
+      }
+      expect(html).toContain('<h3>Web Components Widget</h3>');
+      expect(html).toContain('WebComponentCounter@widget');
+      expect(html).not.toContain('Web Component count is');
+      expect(html).toContain('<h3>Lit Widget</h3>');
+      expect(html).toContain('LitCounter@widget');
+      expect(html).not.toContain('Lit count is');
+      if (framework !== 'HTML') {
+        expect(html.indexOf('Native Widget')).toBeLessThan(
+          html.indexOf('Widgets from other frameworks')
+        );
+      }
+    }
+  );
+
   it('uses the built server entry from dist/', () => {
     expect(
       fs.existsSync(path.join(playgroundRoot, 'dist/server/index.js'))

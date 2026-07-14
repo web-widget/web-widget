@@ -13,7 +13,7 @@ pnpm dev
 
 ## File Description
 
-- `routes/**/*@route.html.ts` Route module using HTML tagged templates, runs only on the server side
+- `routes/**/*@route.ts` Route module using HTML tagged templates, runs only on the server side
 - `routes/**/*@middleware.*` Middleware, runs only on the server side
 - `routes/**/*@widget.*` User-interactive components (React), run on both server and client
 - `entry.client.ts` Client entry

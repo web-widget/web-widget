@@ -2,11 +2,11 @@
   "routes": [
     {
       "pathname": "/examples",
-      "module": "./routes/examples/index@route.html.ts"
+      "module": "./routes/examples/index@route.ts"
     },
     {
       "pathname": "/examples/action",
-      "module": "./routes/examples/action/index@route.html.ts"
+      "module": "./routes/examples/action/index@route.ts"
     },
     {
       "pathname": "/examples/api/hello",
@@ -14,31 +14,31 @@
     },
     {
       "pathname": "/examples/fetch",
-      "module": "./routes/examples/fetch/index@route.html.ts"
+      "module": "./routes/examples/fetch/index@route.ts"
     },
     {
       "pathname": "/examples/frameworks",
-      "module": "./routes/examples/frameworks/index@route.html.ts"
+      "module": "./routes/examples/frameworks/index@route.ts"
     },
     {
       "pathname": "/examples/middleware",
-      "module": "./routes/examples/middleware/index@route.html.ts"
+      "module": "./routes/examples/middleware/index@route.ts"
     },
     {
       "pathname": "/examples/params/:name",
-      "module": "./routes/examples/params/[name]@route.html.ts"
+      "module": "./routes/examples/params/[name]@route.ts"
     },
     {
       "pathname": "/examples/static",
-      "module": "./routes/examples/static/index@route.html.ts"
+      "module": "./routes/examples/static/index@route.ts"
     },
     {
       "pathname": "/examples/:notFound*",
-      "module": "./routes/examples/[...notFound]@route.html.ts"
+      "module": "./routes/examples/[...notFound]@route.ts"
     },
     {
       "pathname": "/",
-      "module": "./routes/index@route.html.ts"
+      "module": "./routes/index@route.ts"
     }
   ],
   "actions": [

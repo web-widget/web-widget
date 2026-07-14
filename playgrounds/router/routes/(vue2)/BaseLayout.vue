@@ -1,7 +1,9 @@
 <script>
 import '../(css)/base-layout.css';
 import '../(css)/ui.css';
-import Menu from './Menu@widget.vue';
+import { container } from '@web-widget/vue2/adapter';
+
+const Menu = container(() => import('../(components)/Menu@widget.ts'));
 
 export default {
   components: { Menu },

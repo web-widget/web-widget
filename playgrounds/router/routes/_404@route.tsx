@@ -6,7 +6,7 @@ const RVueCounter = container(
   () => import('@playgrounds/web-router-vue3/Counter@widget.vue')
 );
 
-export const fallback = defineRouteFallbackComponent(function Page404(ctx) {
+const Page404 = defineRouteFallbackComponent(function Page404(ctx) {
   return (
     <main>
       <div className="error-card">
@@ -23,3 +23,6 @@ export const fallback = defineRouteFallbackComponent(function Page404(ctx) {
     </main>
   );
 });
+
+export { Page404 as fallback };
+export default Page404;

@@ -62,9 +62,9 @@ export default defineConfig(({ isSsrBuild }) => {
       vue2PresetsPlugin(),
       webWidgetPlugin({
         adapters: [
-          { from: '@web-widget/react', scope: 'packages/react' },
-          { from: '@web-widget/vue', scope: 'packages/vue3' },
-          { from: '@web-widget/vue2', scope: 'packages/vue2' },
+          { from: '@web-widget/react', scope: ['packages/react'] },
+          { from: '@web-widget/vue', scope: ['packages/vue3'] },
+          { from: '@web-widget/vue2', scope: ['packages/vue2'] },
         ],
       }),
     ],

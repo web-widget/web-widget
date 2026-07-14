@@ -14,6 +14,35 @@
 import type { ServerRender, ClientRender } from './render';
 import type { WidgetModule } from './widget';
 
+/** Detect an unconstrained parameter without framework-specific types. */
+type IsAnyOrUnknown<T> = unknown extends T ? true : false;
+
+/**
+ * Extract public props from a framework component using stable structural
+ * signatures shared by the supported adapters.
+ */
+export type ExtractComponentProps<C> =
+  // Vue components expose public props on their instance constructor.
+  C extends new (...args: any[]) => { $props: infer P }
+    ? P
+    : C extends (
+          first: infer First,
+          second: infer Second,
+          ...args: any[]
+        ) => any
+      ? // Svelte 5 receives (internals, props). Preact's second argument is any.
+        IsAnyOrUnknown<Second> extends true
+        ? First
+        : Second
+      : C extends (props: infer P, ...args: any[]) => any
+        ? P
+        : unknown;
+
+/** Extract props from the default export of a widget module. */
+export type ExtractWidgetProps<M> = M extends { default: infer C }
+  ? ExtractComponentProps<C>
+  : unknown;
+
 /**
  * The WebWidgetAdapter protocol.
  *
@@ -46,7 +75,7 @@ export interface WebWidgetAdapter {
   extensions: string[];
 
   /**
-   * Runtime module subpath, pointing to the runtime implementation
+   * Adapter module subpath, pointing to the adapter implementation
    * provided by the adapter package via conditional exports.
    *
    * Build tools inject exports from this module into matching modules:
@@ -54,11 +83,11 @@ export interface WebWidgetAdapter {
    *   ServerRender / ClientRender contract
    * - `container`: wraps widget importers for cross-framework reuse
    *
-   * e.g. "./runtime" resolves to "@web-widget/react/runtime",
+   * e.g. "./adapter" resolves to "@web-widget/react/adapter",
    * then conditional exports select server or client implementation
    * based on environment.
    */
-  runtime: string;
+  adapter: string;
 
   /**
    * Optional: derive named exports from the default export.
@@ -125,12 +154,12 @@ export interface Container {
 }
 
 /**
- * Runtime module contract.
+ * Adapter module contract.
  *
  * The module pointed to by the adapter package's `adapter` subpath
  * must export these members.
  */
-export type RuntimeModule = {
+export type AdapterModule = {
   /**
    * Render function, injected as module export to conform to
    * ServerRender / ClientRender contract.

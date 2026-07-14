@@ -1,4 +1,5 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
+import type { ExtractWidgetProps } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import Vue, { h, defineComponent, useAttrs, getCurrentInstance } from 'vue';
 import type { DefineComponent, PropType } from 'vue';
@@ -16,12 +17,6 @@ export type VueWidgetComponent<T = unknown> = DefineComponent<{
  * Extract the props type `P` from a widget module's default export.
  * Vue2's type system is weaker, so extraction is best-effort.
  */
-type ExtractModuleProps<M> = M extends { default: infer C }
-  ? C extends (props: infer P, ...args: any[]) => any
-    ? P
-    : unknown
-  : unknown;
-
 type WebWidgetRenderer = InstanceType<typeof WebWidgetRenderer>;
 
 // Lazy-init global Vue config (only once, on first container call).
@@ -75,7 +70,11 @@ export interface WidgetContainerConfig {
 export function container<M>(
   loader: () => Promise<M>,
   options?: DefineWebWidgetOptions
-): VueWidgetComponent<ExtractModuleProps<M>>;
+): VueWidgetComponent<ExtractWidgetProps<M>>;
+export function container<Props>(
+  loader: Loader,
+  options?: DefineWebWidgetOptions
+): VueWidgetComponent<Props>;
 export function container(
   loader: Loader,
   options: DefineWebWidgetOptions = {}

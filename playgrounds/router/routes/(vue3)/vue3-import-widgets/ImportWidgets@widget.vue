@@ -2,7 +2,6 @@
 import ReactCounter from '../../(components)/Counter@widget';
 import Vue3Counter from '../Counter@widget.vue';
 import Vue2Counter from '../../(vue2)/Counter@widget.vue';
-import VanillaCounter from '../../(components)/VanillaCounter@widget';
 </script>
 
 <template>
@@ -22,9 +21,5 @@ import VanillaCounter from '../../(components)/VanillaCounter@widget';
       <Vue2Counter :count="3" />
     </section>
 
-    <section class="ds-section">
-      <h2>Vanilla component</h2>
-      <VanillaCounter :count="3" />
-    </section>
   </div>
 </template>

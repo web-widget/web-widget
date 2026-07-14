@@ -1,0 +1,65 @@
+{
+  "name": "@web-widget/preact",
+  "description": "Preact adapter",
+  "version": "3.0.0-beta.1",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/web-widget": "workspace:*"
+  },
+  "peerDependencies": {
+    "preact": "^10.0.0",
+    "preact-render-to-string": "^6.0.0"
+  },
+  "devDependencies": {
+    "preact": "catalog:",
+    "preact-render-to-string": "^6.6.4",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/preact.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/preact.js"
+    },
+    "./adapter": {
+      "worker": {
+        "types": "./dist/preact.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/preact.adapter.server.js"
+      },
+      "browser": {
+        "types": "./dist/preact.adapter.client.d.ts",
+        "development": "./src/adapter.client.ts",
+        "default": "./dist/preact.adapter.client.js"
+      },
+      "default": {
+        "types": "./dist/preact.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/preact.adapter.server.js"
+      }
+    }
+  },
+  "webWidgetAdapter": {
+    "version": "1.0.0",
+    "name": "preact",
+    "extensions": [
+      ".tsx",
+      ".jsx"
+    ],
+    "adapter": "./adapter"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "lint": "eslint src"
+  }
+}

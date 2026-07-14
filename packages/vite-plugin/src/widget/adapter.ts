@@ -1,11 +1,16 @@
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import fs from 'node:fs';
-import { normalizePath } from '@rollup/pluginutils';
 import type { Plugin } from 'vite';
 import { exportRenderPlugin } from './export-render';
 import { importRenderPlugin } from './import-render';
+import { scopePrefix } from './adapter-scope';
 import { getWebRouterPluginApi } from '@/internal/manifest';
+import {
+  ROUTE_MARKER_PATTERN,
+  ROUTE_OR_WIDGET_MARKER_PATTERN,
+  WIDGET_MARKER_PATTERN,
+} from '@/internal/module-conventions';
 import type { WebWidgetAdapterConfig, WebWidgetPluginOptions } from '@/types';
 
 /** Supported adapter format major version. */
@@ -29,7 +34,7 @@ interface ResolvedAdapter {
   name: string;
   extensions: string[];
   adapter: string;
-  scope?: string;
+  scope?: string[];
   deriveExports?: AdapterMetadata['deriveExports'];
 }
 
@@ -120,23 +125,8 @@ function resolveAdapter(
 
 // ── regex pattern builders ────────────────────────────────────────
 
-function escapeRegExp(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 function extPattern(extensions: string[]): string {
   return `\\.(?:${extensions.map((e) => e.replace(/^\./, '')).join('|')})`;
-}
-
-/** Protocol-level module markers: `@widget` and `@route`. */
-const MARKERS_RE = `[.@](?:widget|route)`;
-const WIDGET_MARKER_RE = `[.@]widget`;
-const ROUTE_MARKER_RE = `[.@]route`;
-
-function scopePrefix(scope: string | undefined, root: string): string {
-  if (!scope) return '';
-  const resolved = normalizePath(path.resolve(root, scope));
-  return escapeRegExp(resolved.endsWith('/') ? resolved : `${resolved}/`);
 }
 
 // ── plugin generation ─────────────────────────────────────────────
@@ -148,7 +138,7 @@ function buildPluginsForAdapter(
   const { from, extensions, adapter, scope, deriveExports } = resolved;
 
   // Adapter module specifier: "@web-widget/react/adapter"
-  const provide = `${from}/${adapter.replace(/^\.\//, '')}`;
+  const adapterModule = `${from}/${adapter.replace(/^\.\//, '')}`;
 
   const ext = extPattern(extensions);
   const scopeRe = scopePrefix(scope, root);
@@ -157,20 +147,26 @@ function buildPluginsForAdapter(
   // obviously unrelated modules. Framework-specific sub-modules (e.g. Vue SFC
   // ?vue&type=script) still reach the handler, where cleanId/stripModuleIdQuery
   // does the precise check.
-  const exportNativeFilter = new RegExp(`${MARKERS_RE}${ext}`);
-  const importNativeFilter = new RegExp(`${WIDGET_MARKER_RE}\\.|${ext}`);
+  const exportNativeFilter = new RegExp(
+    `${ROUTE_OR_WIDGET_MARKER_PATTERN}${ext}`
+  );
+  const importNativeFilter = new RegExp(`${WIDGET_MARKER_PATTERN}\\.|${ext}`);
 
   // JS-layer precise patterns (tested against query-stripped id):
-  const exportPattern = new RegExp(`^${scopeRe}[^?]*${MARKERS_RE}${ext}$`);
-  const importPattern = new RegExp(`^[^?]*${WIDGET_MARKER_RE}\\.[^?]*$`);
-  const importerPattern = new RegExp(`^${scopeRe}[^?]*${ext}$`);
+  const exportPattern = new RegExp(
+    `^${scopeRe}[^?]*${ROUTE_OR_WIDGET_MARKER_PATTERN}${ext}$`
+  );
+  const importPattern = new RegExp(`^[^?]*${WIDGET_MARKER_PATTERN}\\.[^?]*$`);
+  const importerPattern = new RegExp(
+    `^${scopeRe}[^?]*${ROUTE_OR_WIDGET_MARKER_PATTERN}${ext}$`
+  );
 
   // Derive handler/meta exports from route modules
   const derive = deriveExports
     ? deriveExports.map((item) => ({
         name: item.name,
         default: item.default,
-        include: new RegExp(`^${scopeRe}[^?]*${ROUTE_MARKER_RE}${ext}$`),
+        include: new RegExp(`^${scopeRe}[^?]*${ROUTE_MARKER_PATTERN}${ext}$`),
       }))
     : undefined;
 
@@ -187,14 +183,14 @@ function buildPluginsForAdapter(
     ...exportRenderPlugin({
       nativeFilter: exportNativeFilter,
       exportPattern,
-      provide,
+      adapterModule,
       deriveExports: derive,
     }),
     ...importRenderPlugin({
       nativeFilter: importNativeFilter,
       importPattern,
       importerPattern,
-      provide,
+      adapterModule,
     }),
   ];
 }
@@ -213,8 +209,8 @@ function buildPluginsForAdapter(
  * webWidgetPlugin({
  *   adapters: [
  *     '@web-widget/react',
- *     { from: '@web-widget/vue2', scope: 'src/legacy' },
- *     { from: '@web-widget/vue', scope: 'src/vue3' },
+ *     { from: '@web-widget/vue2', scope: ['src/legacy'] },
+ *     { from: '@web-widget/vue', scope: ['src/vue3'] },
  *   ],
  * })
  * ```
@@ -240,7 +236,7 @@ export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
     }
   }
   for (const [e, list] of extMap) {
-    if (list.filter((a) => !a.scope).length > 1) {
+    if (list.filter((a) => !a.scope?.length).length > 1) {
       throw new Error(
         `Extension "${e}" is used by multiple adapters without a scope: ` +
           `${list.map((a) => a.from).join(', ')}. Use "scope" to disambiguate.`

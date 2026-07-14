@@ -33,14 +33,19 @@ overrides:
   '@web-widget/html': 'workspace:*'
   '@web-widget/inspector': 'workspace:*'
   '@web-widget/lifecycle-cache': 'workspace:*'
+  '@web-widget/lit': 'workspace:*'
   '@web-widget/middlewares': 'workspace:*'
   '@web-widget/node': 'workspace:*'
+  '@web-widget/preact': 'workspace:*'
   '@web-widget/purify': 'workspace:*'
   '@web-widget/react': 'workspace:*'
   '@web-widget/schema': 'workspace:*'
+  '@web-widget/solid': 'workspace:*'
+  '@web-widget/svelte': 'workspace:*'
   '@web-widget/vite-plugin': 'workspace:*'
   '@web-widget/vue': 'workspace:*'
   '@web-widget/vue2': 'workspace:*'
+  '@web-widget/web-components': 'workspace:*'
   '@web-widget/web-router': 'workspace:*'
   '@web-widget/web-widget': 'workspace:*'
   '@types/node': 'catalog:'
@@ -69,6 +74,12 @@ catalog:
   '@types/react-dom': ^19.2.3
   'react': ^19.2.6
   'react-dom': ^19.2.6
+  'svelte': ^5.56.4
+  'solid-js': ^1.9.14
+  'preact': ^10.29.7
+  'lit': ^3.3.3
+  '@sveltejs/vite-plugin-svelte': ^7.2.0
+  'vite-plugin-solid': ^2.11.12
   'vite': ^8.0.12
   'vitest': ^4.1.6
   '@cloudflare/vitest-pool-workers': ^0.16.4
@@ -77,6 +88,6 @@ catalog:
   'ts-jest': 29.2.1
   'jest-environment-miniflare': ^2.14.4
   'miniflare': ^4.20250409.0
-  'typescript': ^5.5.4
+  'typescript': ^5.9.3
   '@rollup/pluginutils': ^5.1.4
   'rolldown': ^1.0.0

@@ -88,3 +88,97 @@
 .ds-code-block {
   margin: 0 0 1.4em;
 }
+
+/* --- Data Table --- */
+.ds-table-wrap {
+  max-width: 100%;
+  margin: 1.25em 0 0;
+  overflow-x: auto;
+  border: var(--sk-border-width) solid var(--sk-border);
+  border-radius: var(--sk-radius);
+  background: var(--sk-bg);
+  box-shadow: var(--sk-shadow-sm);
+}
+
+.ds-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.ds-table th,
+.ds-table td {
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px dashed var(--sk-border-light);
+}
+
+.ds-table thead th {
+  color: var(--sk-ink-light);
+  background: var(--sk-bg-subtle);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: var(--sk-border-width) solid var(--sk-border);
+  white-space: nowrap;
+}
+
+.ds-table tbody th {
+  font-weight: 700;
+}
+
+.ds-table tbody tr:last-child th,
+.ds-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ds-table tbody tr:hover {
+  background: var(--sk-bg-hover);
+}
+
+.ds-table a {
+  font-weight: 700;
+}
+
+.ds-capability {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--sk-ink-light);
+  white-space: nowrap;
+}
+
+.ds-capability::before {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: currentColor;
+  content: '';
+}
+
+.ds-capability[data-capability='yes'] {
+  color: var(--sk-green);
+}
+
+.ds-capability[data-capability='no'] {
+  color: var(--sk-ink-muted);
+}
+
+.ds-capability[data-capability='no']::before {
+  background: transparent;
+}
+
+.ds-capability[data-capability='conditional'] {
+  color: var(--sk-orange);
+}
+
+.ds-capability[data-capability='conditional']::before {
+  background: transparent;
+  box-shadow: inset 4px 0 0 currentColor;
+}

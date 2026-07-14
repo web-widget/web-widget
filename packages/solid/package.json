@@ -1,0 +1,63 @@
+{
+  "name": "@web-widget/solid",
+  "description": "Solid adapter",
+  "version": "3.0.0-beta.1",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/web-widget": "workspace:*"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "solid-js": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/solid.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/solid.js"
+    },
+    "./adapter": {
+      "worker": {
+        "types": "./dist/solid.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/solid.adapter.server.js"
+      },
+      "browser": {
+        "types": "./dist/solid.adapter.client.d.ts",
+        "development": "./src/adapter.client.ts",
+        "default": "./dist/solid.adapter.client.js"
+      },
+      "default": {
+        "types": "./dist/solid.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/solid.adapter.server.js"
+      }
+    }
+  },
+  "webWidgetAdapter": {
+    "version": "1.0.0",
+    "name": "solid",
+    "extensions": [
+      ".tsx",
+      ".jsx"
+    ],
+    "adapter": "./adapter"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "lint": "eslint src"
+  }
+}

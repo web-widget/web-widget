@@ -1,0 +1,62 @@
+{
+  "name": "@web-widget/svelte",
+  "description": "Svelte adapter",
+  "version": "3.0.0-beta.1",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/web-widget": "workspace:*"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "svelte": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/svelte.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/svelte.js"
+    },
+    "./adapter": {
+      "worker": {
+        "types": "./dist/svelte.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/svelte.adapter.server.js"
+      },
+      "browser": {
+        "types": "./dist/svelte.adapter.client.d.ts",
+        "development": "./src/adapter.client.ts",
+        "default": "./dist/svelte.adapter.client.js"
+      },
+      "default": {
+        "types": "./dist/svelte.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/svelte.adapter.server.js"
+      }
+    }
+  },
+  "webWidgetAdapter": {
+    "version": "1.0.0",
+    "name": "svelte",
+    "extensions": [
+      ".svelte"
+    ],
+    "adapter": "./adapter"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "lint": "eslint src"
+  }
+}

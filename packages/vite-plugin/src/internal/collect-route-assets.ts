@@ -5,6 +5,7 @@ import * as esModuleLexer from 'es-module-lexer';
 import type { WidgetModuleFilter } from '@/types';
 import { normalizePath } from '@/internal/path';
 import { CSS_LANGS_RE } from '@/internal/module-id';
+import { WIDGET_MODULE_PATTERN } from '@/internal/module-conventions';
 
 export interface RouteClientAssets {
   cssModules: string[];
@@ -162,7 +163,7 @@ function toRelativeKey(root: string, absolutePath: string): string {
 }
 
 export function defaultWidgetPathMatcher(relativePath: string): boolean {
-  return /[.@]widget\./.test(relativePath);
+  return WIDGET_MODULE_PATTERN.test(relativePath);
 }
 
 /** Whether a module path matches the widget import filter (or `[.@]widget.` by default). */

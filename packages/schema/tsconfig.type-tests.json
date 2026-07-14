@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["schema.d.ts", "types/**/*.d.ts", "type-tests/**/*.ts"]
+}

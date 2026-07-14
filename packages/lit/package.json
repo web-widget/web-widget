@@ -1,0 +1,63 @@
+{
+  "name": "@web-widget/lit",
+  "description": "Lit CSR adapter",
+  "version": "3.0.0-beta.1",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/web-widget": "workspace:*"
+  },
+  "peerDependencies": {
+    "lit": "^3.0.0"
+  },
+  "devDependencies": {
+    "lit": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/lit.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/lit.js"
+    },
+    "./adapter": {
+      "worker": {
+        "types": "./dist/lit.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/lit.adapter.server.js"
+      },
+      "browser": {
+        "types": "./dist/lit.adapter.client.d.ts",
+        "development": "./src/adapter.client.ts",
+        "default": "./dist/lit.adapter.client.js"
+      },
+      "default": {
+        "types": "./dist/lit.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/lit.adapter.server.js"
+      }
+    }
+  },
+  "webWidgetAdapter": {
+    "version": "1.0.0",
+    "name": "lit",
+    "extensions": [
+      ".lit.ts",
+      ".lit.js"
+    ],
+    "adapter": "./adapter"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "lint": "eslint src"
+  }
+}

@@ -157,11 +157,11 @@ export interface WebWidgetAdapterConfig {
   /** Override the adapter's declared version. */
   version?: string;
   /**
-   * Directory scope (path prefix). Only files under this directory
+   * Directory scopes (path prefixes). Only files under these directories
    * will match this adapter, used to disambiguate extension conflicts
    * (e.g. vue2 and vue3 both using `.vue`).
    */
-  scope?: string;
+  scope?: string[];
 }
 
 /**
@@ -171,7 +171,7 @@ export interface WebWidgetPluginOptions {
   /**
    * Framework adapters to use. Each adapter tells the build tool
    * which files belong to which framework and where to get the
-   * runtime implementation.
+   * adapter implementation.
    */
   adapters: (string | WebWidgetAdapterConfig)[];
 }

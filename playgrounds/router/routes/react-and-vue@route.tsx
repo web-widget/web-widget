@@ -1,7 +1,6 @@
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
 import { container } from '@web-widget/react/adapter';
 import ReactCounter from './(components)/Counter@widget';
-import VanillaCounter from './(components)/VanillaCounter@widget';
 import BaseLayout from './(components)/BaseLayout.tsx';
 import { PageHeader, Section } from './(components)/ui';
 
@@ -19,7 +18,7 @@ export default defineRouteComponent(function Page() {
     <BaseLayout>
       <PageHeader
         title="React and Vue together"
-        description="Mix React, Vue 3, Vue 2, and vanilla widgets on the same page. Each framework's component renders independently below."
+        description="Mix React, Vue 3, and Vue 2 widgets on the same page. Each framework's component renders independently below."
       />
 
       <Section title="React component">
@@ -32,10 +31,6 @@ export default defineRouteComponent(function Page() {
 
       <Section title="Vue2 component">
         <RVue2Counter count={3} />
-      </Section>
-
-      <Section title="Vanilla component">
-        <VanillaCounter count={3} />
       </Section>
     </BaseLayout>
   );

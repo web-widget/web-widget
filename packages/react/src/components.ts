@@ -1,4 +1,5 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
+import type { ExtractWidgetProps } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import {
   Component,
@@ -9,7 +10,7 @@ import {
   use,
   memo,
 } from 'react';
-import type { ComponentType, FunctionComponent, ReactNode } from 'react';
+import type { FunctionComponent, ReactNode } from 'react';
 
 export interface ReactWidgetComponent<T> extends FunctionComponent<
   T & ReactWidgetProps
@@ -25,14 +26,6 @@ export interface ReactWidgetComponent<T> extends FunctionComponent<
  * - Vue: components expose `$props` via a constructor signature.
  * - Fallback: `unknown` when no pattern matches.
  */
-type ExtractModuleProps<M> = M extends { default: infer C }
-  ? C extends ComponentType<infer P>
-    ? P
-    : C extends new (...args: any[]) => { $props: infer P }
-      ? P
-      : unknown
-  : unknown;
-
 export interface WebWidgetProps {
   base?: WebWidgetRendererOptions['base'];
   children /**/?: ReactNode;
@@ -224,9 +217,8 @@ class WidgetErrorBoundary extends Component<
  * type inference from the source module's default export.
  *
  * For same-framework imports (React → React), props types are inferred
- * automatically. For cross-framework imports, use explicit `container()`
- * calls — the props type falls back to `unknown` when the source
- * framework's component type cannot be mapped.
+ * automatically. Cross-framework imports use explicit `container()` calls;
+ * sources without a structural props contract can use `container<Props>()`.
  *
  * @example
  * ```tsx
@@ -240,13 +232,17 @@ class WidgetErrorBoundary extends Component<
  *
  * // Cross-framework: explicit container() recommended
  * const VueCounter = container(() => import('./Counter@widget.vue'));
- * <VueCounter count={42} />  // props typed as unknown
+ * <VueCounter count={42} />  // type-checked: ✓
  * ```
  */
 export function container<M>(
   loader: () => Promise<M>,
   options?: DefineWebWidgetOptions
-): ReactWidgetComponent<ExtractModuleProps<M>>;
+): ReactWidgetComponent<ExtractWidgetProps<M>>;
+export function container<Props>(
+  loader: Loader,
+  options?: DefineWebWidgetOptions
+): ReactWidgetComponent<Props>;
 export function container(
   loader: Loader,
   options: DefineWebWidgetOptions = {}

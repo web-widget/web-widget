@@ -49,20 +49,64 @@
       "module": "./routes/form@route.tsx"
     },
     {
+      "pathname": "/frameworks",
+      "module": "./routes/frameworks/index@route.tsx"
+    },
+    {
+      "pathname": "/frameworks/html",
+      "module": "./routes/frameworks/html/index@route.ts"
+    },
+    {
+      "pathname": "/frameworks/preact",
+      "module": "./routes/frameworks/preact/index@route.preact.tsx"
+    },
+    {
+      "pathname": "/frameworks/preact/widget-embedding",
+      "module": "./routes/frameworks/preact/widget-embedding@route.preact.tsx"
+    },
+    {
+      "pathname": "/frameworks/react",
+      "module": "./routes/frameworks/react/index@route.tsx"
+    },
+    {
+      "pathname": "/frameworks/solid",
+      "module": "./routes/frameworks/solid/index@route.solid.tsx"
+    },
+    {
+      "pathname": "/frameworks/solid/widget-embedding",
+      "module": "./routes/frameworks/solid/widget-embedding@route.solid.tsx"
+    },
+    {
+      "pathname": "/frameworks/svelte",
+      "module": "./routes/frameworks/svelte/index@route.svelte"
+    },
+    {
+      "pathname": "/frameworks/svelte/widget-embedding",
+      "module": "./routes/frameworks/svelte/widget-embedding@route.svelte"
+    },
+    {
+      "pathname": "/frameworks/vue2",
+      "module": "./routes/(vue2)/frameworks/vue2/index@route.vue"
+    },
+    {
+      "pathname": "/frameworks/vue3",
+      "module": "./routes/(vue3)/frameworks/vue3/index@route.vue"
+    },
+    {
       "pathname": "/html-import-widgets",
-      "module": "./routes/html-import-widgets@route.html.ts"
+      "module": "./routes/html-import-widgets@route.ts"
     },
     {
       "pathname": "/html-shell-error",
-      "module": "./routes/html-shell-error@route.html.ts"
+      "module": "./routes/html-shell-error@route.ts"
     },
     {
       "pathname": "/html-streaming-error",
-      "module": "./routes/html-streaming-error@route.html.ts"
+      "module": "./routes/html-streaming-error@route.ts"
     },
     {
       "pathname": "/html-suspense-streaming",
-      "module": "./routes/html-suspense-streaming@route.html.ts"
+      "module": "./routes/html-suspense-streaming@route.ts"
     },
     {
       "pathname": "/large-css",
