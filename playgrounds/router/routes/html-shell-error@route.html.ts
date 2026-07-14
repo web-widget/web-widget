@@ -1,4 +1,10 @@
-import { defineRouteComponent } from '@web-widget/helpers';
+import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
+
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    return ctx.html(undefined, { renderer: { progressive: true } });
+  },
+});
 
 /**
  * Shell error demo: the template throws outside any suspense/fallback

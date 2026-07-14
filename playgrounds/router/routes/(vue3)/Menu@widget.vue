@@ -61,6 +61,9 @@
     </li>
     <li><a href="/vue3-streaming">Vue3: Streaming</a></li>
     <li>
+      <a href="/vue3-streaming-error">Vue3: Streaming error</a>
+    </li>
+    <li>
       <a href="/vue3-shell-error">Vue3: Shell Error (500)</a>
     </li>
     <li>

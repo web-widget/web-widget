@@ -145,6 +145,10 @@
       "module": "./routes/(vue3)/vue3-streaming@route.vue"
     },
     {
+      "pathname": "/vue3-streaming-error",
+      "module": "./routes/(vue3)/vue3-streaming-error@route.vue"
+    },
+    {
       "pathname": "/",
       "module": "./routes/index@route.tsx"
     }

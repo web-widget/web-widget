@@ -45,6 +45,10 @@ const WebWidget = /*#__PURE__*/ defineComponent({
       type: Object as PropType<WebWidgetRendererOptions['data']>,
       default: () => ({}),
     },
+    errorFallback: {
+      type: Object as PropType<VNode>,
+      default: null,
+    },
     import: {
       type: String as PropType<WebWidgetRendererOptions['import']>,
     },
@@ -73,7 +77,7 @@ const WebWidget = /*#__PURE__*/ defineComponent({
       default: 'light',
     },
   },
-  async setup({ loader, ...props }, { slots }) {
+  async setup({ loader, errorFallback, ...props }, { slots }) {
     if (!loader) {
       throw new TypeError(`Missing loader.`);
     }
@@ -88,7 +92,24 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     });
     const tag = widget.localName;
     const attrs = widget.attributes;
-    const innerHTML = await widget.renderInnerHTMLToString();
+
+    // Catch render errors and resolve with the Error instead of rejecting.
+    // In the islands architecture there is no client-side retry — a rejected
+    // promise inside Suspense would leave the loading fallback forever.
+    // By resolving with the Error, the render function can render the error
+    // UI without the framework abandoning the subtree.
+    const innerHTML = await widget
+      .renderInnerHTMLToString()
+      .catch((err: unknown) => {
+        const error = err instanceof Error ? err : new Error(String(err));
+        console.error('[VueWidget] Rendering error:', error);
+        return error;
+      });
+
+    // Widget rendering failed — render error UI instead of throwing.
+    if (innerHTML instanceof Error) {
+      return () => errorFallback;
+    }
 
     if (IS_CLIENT) {
       await customElements.whenDefined(tag);
@@ -239,6 +260,7 @@ export function container(
               {
                 ...options,
                 data,
+                errorFallback,
                 loader,
                 loading,
                 renderStage,

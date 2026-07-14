@@ -1,7 +1,7 @@
 import { html, suspense, fallback } from '@web-widget/html';
 import { container } from '@web-widget/html/adapter';
 import type { HTML } from '@web-widget/html';
-import { defineRouteComponent } from '@web-widget/helpers';
+import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import './(css)/demo-states.css';
 import { htmlLayout } from './(components)/HtmlLayout';
 
@@ -22,6 +22,12 @@ function failAfter(ms: number): Promise<HTML> {
 
 const loading = html`<div class="demo-loading">Loading...</div>`;
 const error = html`<div class="demo-error">Something went wrong.</div>`;
+
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    return ctx.html(undefined, { renderer: { progressive: true } });
+  },
+});
 
 export default defineRouteComponent(async function Page() {
   return htmlLayout(
