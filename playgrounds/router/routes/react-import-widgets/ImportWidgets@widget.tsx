@@ -1,13 +1,14 @@
+import { container } from '@web-widget/react/adapter';
 import ReactCounter from '../(components)/Counter@widget';
-import VueCounter from '@playgrounds/web-router-vue3/Counter@widget.vue';
-import Vue2Counter from '@playgrounds/web-router-vue2/Counter@widget.vue';
-import { asReactWidget } from '@playgrounds/web-router-vue3/helpers';
-import { asReactWidget as vue2AsReactWidget } from '@playgrounds/web-router-vue2/helpers';
 import VanillaCounter from '../(components)/VanillaCounter@widget';
 import { useState } from 'react';
 
-const RVueCounter = asReactWidget(VueCounter);
-const RVue2Counter = vue2AsReactWidget(Vue2Counter);
+const RVueCounter = container(
+  () => import('@playgrounds/web-router-vue3/Counter@widget.vue')
+);
+const RVue2Counter = container(
+  () => import('@playgrounds/web-router-vue2/Counter@widget.vue')
+);
 
 export default function Page() {
   const [count, setCount] = useState(0);

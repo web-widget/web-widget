@@ -1,9 +1,26 @@
 import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import Vue, { h, defineComponent, useAttrs, getCurrentInstance } from 'vue';
-import type { PropType } from 'vue';
+import type { DefineComponent, PropType } from 'vue';
 
 export { asReactWidget, toReact } from './as-react-widget';
+
+/**
+ * A Vue2 component wrapping a widget, with props `T` plus container config.
+ */
+export type VueWidgetComponent<T = unknown> = DefineComponent<{
+  widget?: WidgetContainerConfig;
+}> & { attrs: T };
+
+/**
+ * Extract the props type `P` from a widget module's default export.
+ * Vue2's type system is weaker, so extraction is best-effort.
+ */
+type ExtractModuleProps<M> = M extends { default: infer C }
+  ? C extends (props: infer P, ...args: any[]) => any
+    ? P
+    : unknown
+  : unknown;
 
 type WebWidgetRenderer = InstanceType<typeof WebWidgetRenderer>;
 
@@ -49,9 +66,19 @@ export interface WidgetContainerConfig {
   clientOnly?: true;
 }
 
-export /*#__PURE__*/ function container(
+/**
+ * Container function (WebWidgetAdapter protocol).
+ *
+ * Wraps a widget module loader into a Vue2 component with best-effort
+ * props type inference from the source module's default export.
+ */
+export function container<M>(
+  loader: () => Promise<M>,
+  options?: DefineWebWidgetOptions
+): VueWidgetComponent<ExtractModuleProps<M>>;
+export function container(
   loader: Loader,
-  options: DefineWebWidgetOptions
+  options: DefineWebWidgetOptions = {}
 ) {
   if (!loader) {
     throw new TypeError(`Missing loader.`);
@@ -112,10 +139,5 @@ export /*#__PURE__*/ function container(
         });
       };
     },
-  });
+  }) as unknown as VueWidgetComponent<any>;
 }
-
-/**
- * Container function (WebWidgetAdapter protocol).
- * Wraps a generic widget module as a Vue2 component.
- */

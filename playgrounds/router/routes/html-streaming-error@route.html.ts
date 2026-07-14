@@ -1,14 +1,12 @@
 import { html, suspense, fallback } from '@web-widget/html';
-import { asHtmlWidget } from '@web-widget/html/adapter';
+import { container } from '@web-widget/html/adapter';
 import type { HTML } from '@web-widget/html';
 import { defineRouteComponent } from '@web-widget/helpers';
 import './(css)/demo-states.css';
 import { htmlLayout } from './(components)/HtmlLayout';
-import Wait from './(components)/Wait@widget';
-import Fail from './(components)/Fail@widget';
 
-const WaitWidget = asHtmlWidget<{ id: string }>(Wait);
-const FailWidget = asHtmlWidget<{ id: string }>(Fail);
+const WaitWidget = container(() => import('./(components)/Wait@widget'));
+const FailWidget = container(() => import('./(components)/Fail@widget'));
 
 /** A promise that resolves to HTML after `ms` milliseconds. */
 function slowHTML(ms: number, content: HTML): Promise<HTML> {

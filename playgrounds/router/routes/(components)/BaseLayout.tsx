@@ -1,10 +1,11 @@
 import '../(css)/base-layout.css';
 
 import type { ComponentProps } from 'react';
-import Menu from '@playgrounds/web-router-vue3/Menu@widget.vue';
-import { asReactWidget } from '@playgrounds/web-router-vue3/helpers';
+import { container } from '@web-widget/react/adapter';
 
-const RMenu = asReactWidget(Menu);
+const RMenu = container(
+  () => import('@playgrounds/web-router-vue3/Menu@widget.vue')
+);
 
 export default function BaseLayout({ children }: ComponentProps<any>) {
   return (

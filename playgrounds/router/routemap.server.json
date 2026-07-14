@@ -49,6 +49,10 @@
       "module": "./routes/form@route.tsx"
     },
     {
+      "pathname": "/html-import-widgets",
+      "module": "./routes/html-import-widgets@route.html.ts"
+    },
+    {
       "pathname": "/html-shell-error",
       "module": "./routes/html-shell-error@route.html.ts"
     },

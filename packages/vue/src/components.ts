@@ -8,10 +8,32 @@ import {
   ref,
   onErrorCaptured,
 } from 'vue';
-import type { VNode, PropType } from 'vue';
+import type { DefineComponent, VNode, PropType } from 'vue';
 import { IS_CLIENT } from '@web-widget/helpers/env';
 
 export { asReactWidget, toReact } from './as-react-widget';
+
+/**
+ * A Vue component wrapping a widget, with props `T` plus container config.
+ */
+export type VueWidgetComponent<T = unknown> = DefineComponent<
+  T & { widget?: WidgetContainerConfig }
+>;
+
+/**
+ * Extract the props type `P` from a widget module's default export.
+ *
+ * Handles Vue functional components `(props: T) => VNode` and
+ * defineComponent results (which expose `$props`). Falls back to
+ * `unknown` for unrecognized component types.
+ */
+type ExtractModuleProps<M> = M extends { default: infer C }
+  ? C extends (props: infer P, ...args: any[]) => any
+    ? P
+    : C extends new (...args: any[]) => { $props: infer P }
+      ? P
+      : unknown
+  : unknown;
 
 const WebWidget = /*#__PURE__*/ defineComponent({
   name: 'WebWidgetRoot',
@@ -152,9 +174,27 @@ export interface WidgetContainerConfig {
   clientOnly?: true;
 }
 
-export /*#__PURE__*/ function container(
+/**
+ * Container function (WebWidgetAdapter protocol).
+ *
+ * Wraps a widget module loader into a Vue component with props type
+ * inference from the source module's default export.
+ *
+ * @example
+ * ```ts
+ * import { container } from '@web-widget/vue/adapter';
+ *
+ * const Counter = container(() => import('./Counter@widget.vue'));
+ * //    ^? VueWidgetComponent<{ count: number }>
+ * ```
+ */
+export function container<M>(
+  loader: () => Promise<M>,
+  options?: DefineWebWidgetOptions
+): VueWidgetComponent<ExtractModuleProps<M>>;
+export function container(
   loader: Loader,
-  options: DefineWebWidgetOptions
+  options: DefineWebWidgetOptions = {}
 ) {
   return defineComponent({
     name: 'VueWidget',
@@ -211,10 +251,5 @@ export /*#__PURE__*/ function container(
         );
       };
     },
-  });
+  }) as unknown as VueWidgetComponent<any>;
 }
-
-/**
- * Container function (WebWidgetAdapter protocol).
- * Wraps a generic widget module as a Vue component.
- */

@@ -1,12 +1,13 @@
 import { defineRouteComponent } from '@web-widget/helpers';
+import { container } from '@web-widget/react/adapter';
 import './(css)/demo-states.css';
 import BaseLayout from './(components)/BaseLayout.js';
 import { PageHeader } from './(components)/ui';
 import ReactWaitDemo from './(components)/Wait@widget.js';
-import VueWaitDemo from '@playgrounds/web-router-vue3/Wait@widget.vue';
-import { asReactWidget } from '@playgrounds/web-router-vue3/helpers';
 
-const RVueWaitDemo = asReactWidget(VueWaitDemo);
+const RVueWaitDemo = container(
+  () => import('@playgrounds/web-router-vue3/Wait@widget.vue')
+);
 
 const Loading = <div className="demo-loading">Loading..</div>;
 

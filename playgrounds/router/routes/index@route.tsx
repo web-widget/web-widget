@@ -209,6 +209,11 @@ const categories: FeatureCategory[] = [
         title: 'Vue2: Import React and Vue3',
         desc: 'Use React and Vue 3 widgets inside a Vue 2 route.',
       },
+      {
+        href: '/html-import-widgets',
+        title: 'HTML: Import React and Vue',
+        desc: 'Use React, Vue 3, Vue 2, and vanilla widgets inside an HTML template route.',
+      },
     ],
   },
   {

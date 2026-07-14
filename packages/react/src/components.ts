@@ -9,11 +9,29 @@ import {
   use,
   memo,
 } from 'react';
-import type { FunctionComponent, ReactNode } from 'react';
+import type { ComponentType, FunctionComponent, ReactNode } from 'react';
 
 export interface ReactWidgetComponent<T> extends FunctionComponent<
   T & ReactWidgetProps
 > {}
+
+/**
+ * Extract the props type `P` from a widget module's default export.
+ *
+ * Handles multiple component paradigms so that cross-framework widgets
+ * (e.g. Vue imported into React) retain their props types:
+ *
+ * - React: `ComponentType<P>`, `FunctionComponent<P>`, etc.
+ * - Vue: components expose `$props` via a constructor signature.
+ * - Fallback: `unknown` when no pattern matches.
+ */
+type ExtractModuleProps<M> = M extends { default: infer C }
+  ? C extends ComponentType<infer P>
+    ? P
+    : C extends new (...args: any[]) => { $props: infer P }
+      ? P
+      : unknown
+  : unknown;
 
 export interface WebWidgetProps {
   base?: WebWidgetRendererOptions['base'];
@@ -199,9 +217,39 @@ class WidgetErrorBoundary extends Component<
   }
 }
 
-export /*#__PURE__*/ function container(
+/**
+ * Container function (WebWidgetAdapter protocol).
+ *
+ * Wraps a widget module loader into a React component with full props
+ * type inference from the source module's default export.
+ *
+ * For same-framework imports (React → React), props types are inferred
+ * automatically. For cross-framework imports, use explicit `container()`
+ * calls — the props type falls back to `unknown` when the source
+ * framework's component type cannot be mapped.
+ *
+ * @example
+ * ```tsx
+ * import { container } from '@web-widget/react/adapter';
+ *
+ * // Same-framework: full type inference
+ * const Counter = container(() => import('./Counter@widget.tsx'));
+ * //    ^? ReactWidgetComponent<{ count: number }>
+ *
+ * <Counter count={42} />  // type-checked: ✓
+ *
+ * // Cross-framework: explicit container() recommended
+ * const VueCounter = container(() => import('./Counter@widget.vue'));
+ * <VueCounter count={42} />  // props typed as unknown
+ * ```
+ */
+export function container<M>(
+  loader: () => Promise<M>,
+  options?: DefineWebWidgetOptions
+): ReactWidgetComponent<ExtractModuleProps<M>>;
+export function container(
   loader: Loader,
-  options: DefineWebWidgetOptions
+  options: DefineWebWidgetOptions = {}
 ) {
   return memo(function ReactWidget({
     children,
@@ -240,8 +288,3 @@ export /*#__PURE__*/ function container(
     );
   });
 }
-
-/**
- * Container function (WebWidgetAdapter protocol).
- * Wraps a generic widget module as a React component.
- */

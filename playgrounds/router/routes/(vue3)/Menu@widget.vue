@@ -85,6 +85,9 @@
     <li>
       <a href="/vue2-import-widgets">Vue2: Import react and vue3</a>
     </li>
+    <li>
+      <a href="/html-import-widgets">HTML: Import react and vue</a>
+    </li>
     <li class="menu-category">Error Handling</li>
     <li><a href="/fallback">Route-level fallback</a></li>
     <li class="menu-category">Integration</li>

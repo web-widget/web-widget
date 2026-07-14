@@ -8,9 +8,9 @@ const mockRender = defineServerRender(async (_component, data: any) => {
 function createMockLoader() {
   return () =>
     Promise.resolve({
-      default: () => {},
+      default: ((_props?: any) => {}) as (props?: any) => void,
       render: mockRender,
-    }) as any;
+    });
 }
 
 describe('container', () => {
@@ -69,9 +69,9 @@ describe('container', () => {
     });
     const failingLoader = () =>
       Promise.resolve({
-        default: () => {},
+        default: ((_props?: any) => {}) as (props?: any) => void,
         render: failingRender,
-      }) as any;
+      });
 
     const Broken = container(failingLoader, {
       import: './Broken@widget.tsx',

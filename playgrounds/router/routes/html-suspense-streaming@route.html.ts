@@ -1,11 +1,10 @@
 import { html, suspense } from '@web-widget/html';
-import { asHtmlWidget } from '@web-widget/html/adapter';
+import { container } from '@web-widget/html/adapter';
 import { defineRouteComponent } from '@web-widget/helpers';
 import './(css)/demo-states.css';
 import { htmlLayout } from './(components)/HtmlLayout';
-import Wait from './(components)/Wait@widget';
 
-const WaitWidget = asHtmlWidget<{ id: string }>(Wait);
+const WaitWidget = container(() => import('./(components)/Wait@widget'));
 
 /** Simulates a slow data fetch that resolves after `ms` milliseconds. */
 function slowData<T>(data: T, ms: number): Promise<T> {
