@@ -1,5 +1,49 @@
 # @web-widget/vite-plugin
 
+## 3.0.0-beta.1
+
+### Major Changes
+
+- 037add2: Introduce the **WebWidgetAdapter protocol**: framework adapters now declare metadata (`name`, `extensions`, `adapter`, `deriveExports`) via the `webWidgetAdapter` field in `package.json`, and a single `webWidgetPlugin({ adapters: [...] })` replaces all per-framework Vite plugins.
+
+  **Breaking changes:**
+
+  - `reactWebWidgetPlugin` / `vueWebWidgetPlugin` / `vue2WebWidgetPlugin` and their `./vite` subpath exports are removed. Use `webWidgetPlugin({ adapters: [...] })` instead:
+
+    ```diff
+    - import reactWebWidgetPlugin from '@web-widget/react/vite';
+    - import vueWebWidgetPlugin from '@web-widget/vue/vite';
+    + import { webWidgetPlugin } from '@web-widget/vite-plugin';
+
+      plugins: [
+    -   reactWebWidgetPlugin(),
+    -   vueWebWidgetPlugin(),
+    +   webWidgetPlugin({
+    +     adapters: ['@web-widget/react', '@web-widget/vue'],
+    +   }),
+      ],
+    ```
+
+  - Adapter packages no longer depend on `@web-widget/vite-plugin` or `vite`.
+
+### Minor Changes
+
+- 6bd5331: Container type inference: `container()` is now a generic function that
+  automatically infers widget props types from the source module's default export,
+  enabling cross-framework type interoperability without manual conversion
+  functions.
+- 9c8f4d1: Respond to Chrome DevTools' `/.well-known/appspecific/com.chrome.devtools.json` request in the dev server, enabling **Automatic Workspace Folders**.
+
+  DevTools now automatically maps network resources to local source files without manual "Add folder to workspace" setup, and AI-assisted CSS edits can be persisted directly to disk. The workspace UUID is generated once and cached in the Vite cache directory so it survives dev server restarts.
+
+### Patch Changes
+
+- Updated dependencies [3b653e4]
+  - @web-widget/node@3.0.0-beta.1
+  - @web-widget/helpers@3.0.0-beta.1
+  - @web-widget/web-router@3.0.0-beta.1
+  - @web-widget/inspector@3.0.0-beta.1
+
 ## 3.0.0-beta.0
 
 ### Major Changes

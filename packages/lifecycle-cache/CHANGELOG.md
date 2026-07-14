@@ -1,5 +1,15 @@
 # @web-widget/lifecycle-cache
 
+## 3.0.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies [037add2]
+- Updated dependencies [6bd5331]
+  - @web-widget/schema@3.0.0-beta.1
+  - @web-widget/context@3.0.0-beta.1
+  - @web-widget/purify@3.0.0-beta.1
+
 ## 3.0.0-beta.0
 
 ### Patch Changes

@@ -1,5 +1,108 @@
 # @web-widget/html
 
+## 3.0.0-beta.1
+
+### Major Changes
+
+- ef38a43: Rename rendering functions to align with React/Vue SSR conventions.
+
+  | Old name       | New name         |
+  | -------------- | ---------------- |
+  | `HTMLToStream` | `renderToStream` |
+  | `HTMLToString` | `renderToString` |
+
+### Minor Changes
+
+- 6bd5331: Container type inference: `container()` is now a generic function that
+  automatically infers widget props types from the source module's default export,
+  enabling cross-framework type interoperability without manual conversion
+  functions.
+- ef38a43: Add lit-html compatible directives for HTML templates. Five directive
+  functions are now available with signatures matching their lit-html
+  counterparts, easing migration from lit-html.
+
+  - `classMap(classes)` — joins truthy class names into a space-separated string
+  - `styleMap(styles)` — converts a style object to a CSS string, with
+    camelCase → kebab-case conversion and CSS custom property (`--*`) support
+  - `ifDefined(value)` — returns empty string for `undefined`, useful for
+    optional attributes
+  - `when(condition, trueCase, falseCase?)` — conditional rendering with
+    optional else branch
+  - `join(items, separator)` — renders an iterable with a separator between
+    each pair
+
+  Unlike lit-html's directives, these are stateless value transformers that
+  work without any framework runtime.
+
+- ef38a43: Add Suspense streaming for HTML templates. Async content now streams
+  progressively — placeholders are replaced in-place when promises resolve,
+  without blocking the rest of the page.
+
+  - New `suspense(content, fallback, errorFallback?)` template function
+  - `renderToStream` extended with Suspense boundary support
+  - `render` respects the `progressive` option: streaming (Suspense active)
+    when `true`, buffered string output when `false`
+  - `container()` auto-wraps with `suspense()` when `fallback`
+    is provided
+  - Streaming protocol uses `$H` prefix (`$HRC`, `HS:0`, `HB:0`) to avoid
+    conflicts with React's `$RC` — both can coexist on the same page
+
+- ef38a43: Implement WebWidgetAdapter protocol for @web-widget/html. HTML route files
+  using `.html.ts` extension now get automatic `render` injection and widget
+  `container` wrapping — no more manual `export { render }`.
+
+  - Add `webWidgetAdapter` field with `.html.ts` extension and `./runtime` subpath
+  - `exportRenderPlugin` auto-injects `render` into `@route.html.ts` / `@widget.html.ts`
+  - `importRenderPlugin` auto-wraps widget imports via `container()`
+  - `deriveExports` provides default `handler` and `meta` (same as Vue adapter)
+
+- 5ba2c6b: Streaming SSR now surfaces shell-level errors so the framework can return a
+  500 response, matching React's `renderToReadableStream` semantics.
+
+  Previously, shell errors during streaming were silently swallowed — the
+  response started with status 200, leaving the client with a broken page.
+
+  - **React**: removed the `RouteErrorBoundary` wrapper that intercepted shell
+    errors; `renderToReadableStream` now rejects on shell failure, enabling the
+    framework's 500 error page.
+  - **HTML**: `renderToStream` now returns a `Promise<ReadableStream>` instead
+    of a `ReadableStream`. The shell (everything before deferred content) is
+    buffered; if it throws, the promise rejects. Deferred errors inside
+    `suspense()` remain recoverable via `fallback()`.
+  - **Vue**: `renderToWebStream` errors are now detected before the response is
+    sent, by consuming the first stream chunk to flush Vue's async rendering
+    pipeline.
+
+- a7c8f36: Widget container API redesign: container props are now grouped under a single
+  `widget` prop across all framework adapters (React, Vue, Vue2), isolating them
+  from the widget's own props to prevent naming collisions.
+
+  **Breaking**: container props are no longer passed flat — use the `widget` prop:
+
+  ```diff
+  - <Counter fallback={<Spinner />} experimental_loading="lazy" count={1} />
+  + <Counter widget={{ fallback: <Spinner />, padding: 'lazy' }} count={1} />
+  ```
+
+  `experimental_loading` → `loading`, `experimental_renderTarget` removed
+  (set via container options instead), and `renderStage` is replaced
+  by the mutually exclusive `serverOnly` / `clientOnly` booleans.
+
+  All framework adapters split their package entry. The `.` entry no longer
+  re-exports `@web-widget/helpers` — import user-facing APIs from
+  `@web-widget/helpers` and runtime code from `./runtime`. `asReactWidget`
+  remains available from the `.` entry of `@web-widget/vue` and `@web-widget/vue2`.
+
+  `@web-widget/html` also no longer re-exports `@web-widget/helpers` from its `.`
+  entry — import user-facing APIs from `@web-widget/helpers` directly. Runtime
+  APIs (`render`, `html`, `unsafeHTML`, etc.) remain available from
+  `@web-widget/html`.
+
+### Patch Changes
+
+- @web-widget/helpers@3.0.0-beta.1
+- @web-widget/web-widget@3.0.0-beta.1
+
 ## 3.0.0-beta.0
 
 ### Minor Changes
