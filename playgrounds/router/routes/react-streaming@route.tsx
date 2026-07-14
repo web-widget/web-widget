@@ -1,4 +1,4 @@
-import { defineRouteComponent } from '@web-widget/helpers';
+import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import { container } from '@web-widget/react/adapter';
 import './(css)/demo-states.css';
 import BaseLayout from './(components)/BaseLayout.js';
@@ -10,6 +10,12 @@ const RVueWaitDemo = container(
 );
 
 const Loading = <div className="demo-loading">Loading..</div>;
+
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    return ctx.html(undefined, { renderer: { progressive: true } });
+  },
+});
 
 export default defineRouteComponent(async function Page() {
   return (

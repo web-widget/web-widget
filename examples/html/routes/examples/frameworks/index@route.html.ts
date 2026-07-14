@@ -1,14 +1,13 @@
-import { html, asHtmlWidget } from '@web-widget/html';
+import { html } from '@web-widget/html';
+import { container } from '@web-widget/html/adapter';
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
-import ReactCounter from '../(components)/Counter@widget.tsx';
-import VueCounter from '../(components)/Counter@widget.vue';
 import { baseLayout } from '../(components)/baseLayout.html';
 import shared from '../(components)/shared.module.css';
 
-const reactWidget = asHtmlWidget<{ count: number; variant?: string }>(
-  ReactCounter
+const reactWidget = container(
+  () => import('../(components)/Counter@widget.tsx')
 );
-const vueWidget = asHtmlWidget<{ count: number; variant?: string }>(VueCounter);
+const vueWidget = container(() => import('../(components)/Counter@widget.vue'));
 
 export const meta = defineMeta({
   title: 'Widgets - Web Widget',

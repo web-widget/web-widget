@@ -1,6 +1,6 @@
 import { html, suspense } from '@web-widget/html';
 import { container } from '@web-widget/html/adapter';
-import { defineRouteComponent } from '@web-widget/helpers';
+import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import './(css)/demo-states.css';
 import { htmlLayout } from './(components)/HtmlLayout';
 
@@ -10,6 +10,12 @@ const WaitWidget = container(() => import('./(components)/Wait@widget'));
 function slowData<T>(data: T, ms: number): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
 }
+
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    return ctx.html(undefined, { renderer: { progressive: true } });
+  },
+});
 
 export default defineRouteComponent(async function Page() {
   return htmlLayout(

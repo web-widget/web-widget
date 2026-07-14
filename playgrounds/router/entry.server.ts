@@ -18,25 +18,6 @@ function use(
   });
 }
 
-use('*', async function streamingDemo(ctx, next) {
-  const pathname = new URL(ctx.request.url).pathname;
-  if (
-    (pathname === '/react-streaming' ||
-      pathname === '/react-streaming-error' ||
-      pathname === '/react-shell-error' ||
-      pathname === '/vue3-streaming' ||
-      pathname === '/vue3-shell-error' ||
-      pathname === '/html-suspense-streaming' ||
-      pathname === '/html-streaming-error' ||
-      pathname === '/html-shell-error') &&
-    ctx.renderer
-  ) {
-    ctx.renderer.progressive = true;
-  }
-
-  return next();
-});
-
 use('*', async function spider(ctx, next) {
   const isSpider = /spider|bot/i.test(
     String(ctx.request.headers.get('User-Agent'))

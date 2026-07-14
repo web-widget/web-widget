@@ -1,4 +1,4 @@
-import { defineRouteComponent } from '@web-widget/helpers';
+import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import './(css)/demo-states.css';
 import BaseLayout from './(components)/BaseLayout.js';
 import { PageHeader, Section } from './(components)/ui';
@@ -10,6 +10,12 @@ const Loading = <div className="demo-loading">Loading..</div>;
 const Error = (
   <div className="demo-error">Widget failed to render (error recovered)</div>
 );
+
+export const handler = defineRouteHandler({
+  async GET(ctx) {
+    return ctx.html(undefined, { renderer: { progressive: true } });
+  },
+});
 
 export default defineRouteComponent(async function Page() {
   return (

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { defineMeta } from '@web-widget/helpers';
-import ReactCounter from '../(components)/Counter@widget.tsx';
+import { container } from '@web-widget/vue/adapter';
 import BaseLayout from '../(components)/BaseLayout.vue';
 import VueCounter from '../(components)/Counter@widget.vue';
 import shared from '../(components)/shared.module.css';
+
+const ReactCounter = container(() => import('../(components)/Counter@widget.tsx'));
 
 defineOptions({
   meta: defineMeta({
