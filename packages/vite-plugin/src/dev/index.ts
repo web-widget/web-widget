@@ -23,6 +23,7 @@ import { getDevServerRevision } from './dev-server-cache';
 import { logPlugin } from '@/internal/log';
 import { warmupServerDevModules } from './warmup';
 import { printDevWelcome } from './welcome';
+import { createDevToolsJsonMiddleware } from './devtools-json';
 
 export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin[] {
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;
@@ -91,6 +92,9 @@ export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin[] {
       return async () => {
         const register = () => {
           try {
+            viteServer.middlewares.use(
+              createDevToolsJsonMiddleware(viteServer)
+            );
             viteServer.middlewares.use(
               createWebRouterDevMiddleware(resolvedWebRouterConfig, viteServer)
             );
