@@ -84,15 +84,50 @@ export function resolveFallback(fallback: WidgetFallback): {
 }
 
 /**
+ * Extract the props type `P` from a widget module's default export.
+ *
+ * Handles multiple component paradigms so that cross-framework widgets
+ * (e.g. Vue or React imported into HTML) retain their props types:
+ *
+ * - HTML/React functional: `(props?: T, ...) => ...` or `ComponentType<P>`
+ * - Vue: components expose `$props` via a constructor signature.
+ * - Fallback: `unknown` when no pattern matches.
+ */
+type ExtractModuleProps<M> = M extends { default: infer C }
+  ? C extends (props: infer P, ...args: any[]) => any
+    ? P
+    : C extends new (...args: any[]) => { $props: infer P }
+      ? P
+      : unknown
+  : unknown;
+
+/**
  * Container function (WebWidgetAdapter protocol).
  *
  * Wraps a widget module loader into a callable function that returns
  * `Promise<UnsafeHTML>`, interpolatable directly into `html` templates.
  *
- * Injected by the build tool when importing `@widget` modules in `.html.ts`
- * / `.html.js` route files.
+ * Props types are inferred from the source module's default export,
+ * enabling type-safe widget calls without manual conversion functions.
+ *
+ * @example
+ * ```ts
+ * import { container } from '@web-widget/html/adapter';
+ *
+ * const Counter = container(() => import('./Counter@widget.tsx'));
+ * //    ^? HtmlWidgetComponent<{ count: number }>
+ *
+ * const result = await Counter({ count: 42 });  // type-checked: ✓
+ * ```
  */
-export function container(loader: Loader, options: DefineWebWidgetOptions) {
+export function container<M>(
+  loader: () => Promise<M>,
+  options?: DefineWebWidgetOptions
+): HtmlWidgetComponent<ExtractModuleProps<M>>;
+export function container(
+  loader: Loader,
+  options: DefineWebWidgetOptions = {}
+) {
   return async function HtmlWidget<T>(
     {
       widget: { loading, serverOnly, clientOnly, fallback: fb } = {},

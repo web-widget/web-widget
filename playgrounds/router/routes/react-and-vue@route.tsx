@@ -1,15 +1,14 @@
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
+import { container } from '@web-widget/react/adapter';
 import ReactCounter from './(components)/Counter@widget';
 import VanillaCounter from './(components)/VanillaCounter@widget';
 import BaseLayout from './(components)/BaseLayout.tsx';
 import { PageHeader, Section } from './(components)/ui';
-import VueCounter from './(vue3)/Counter@widget.vue';
-import Vue2Counter from '@playgrounds/web-router-vue2/Counter@widget.vue';
-import { asReactWidget } from './(vue3)/helpers';
-import { asReactWidget as vue2AsReactWidget } from './(vue2)/helpers';
 
-const RVueCounter = asReactWidget(VueCounter);
-const RVue2Counter = vue2AsReactWidget(Vue2Counter);
+const RVueCounter = container(() => import('./(vue3)/Counter@widget.vue'));
+const RVue2Counter = container(
+  () => import('@playgrounds/web-router-vue2/Counter@widget.vue')
+);
 
 export const meta = defineMeta({
   title: 'Hello, Web Widget',

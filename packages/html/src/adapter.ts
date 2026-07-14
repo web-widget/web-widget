@@ -8,20 +8,12 @@ import type { HtmlWidgetComponent } from './components';
 /**
  * Adapt a framework component type to an HTML widget component type.
  *
+ * @deprecated Use `container()` from `@web-widget/html/adapter` instead.
+ * The build tool automatically infers props types for both static imports
+ * and explicit `container(() => import(...))` calls.
+ *
  * This is a type-level cast only — the actual cross-framework rendering
- * is handled by the `@widget` system. Use this when importing a widget
- * (e.g. `Counter@widget.tsx`) into an HTML template file so that
- * TypeScript treats it as a callable returning `Promise<UnsafeHTML>`.
- *
- * The props type `T` should be specified manually to match the widget's
- * props interface.
- *
- * @example
- * ```ts
- * import ReactCounter from './Counter@widget.tsx';
- * const Counter = asHtmlWidget<{ count: number }>(ReactCounter);
- * Counter({ count: 1 });
- * ```
+ * is handled by the `@widget` system.
  */
 export /*#__INLINE__*/ function asHtmlWidget<T = unknown>(
   component: unknown

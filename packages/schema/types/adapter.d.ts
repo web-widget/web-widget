@@ -87,8 +87,12 @@ export interface DeriveExport {
 
 /**
  * Generic module loader, returns a module conforming to WidgetModule.
+ *
+ * @typeParam M - The concrete module type. Defaults to `WidgetModule`.
+ *   When the loader returns a typed module (e.g. from a `.vue.d.ts`),
+ *   the concrete M flows through to `container()`'s generic inference.
  */
-export type Loader = () => Promise<WidgetModule>;
+export type Loader<M extends WidgetModule = WidgetModule> = () => Promise<M>;
 
 /**
  * Container function: converts a generic module into the current
@@ -97,10 +101,19 @@ export type Loader = () => Promise<WidgetModule>;
  * The returned component can be used like a normal framework component
  * (e.g. React.FC, Vue.Component) — it accepts props, participates in
  * rendering, and internally runs the widget's render function.
+ *
+ * Each framework adapter provides its own concrete `container` with a
+ * generic signature that infers the props type from the loader's module
+ * type, e.g.:
+ *
+ * ```typescript
+ * // @web-widget/react
+ * function container<M>(loader: () => Promise<M>): ReactWidgetComponent<ExtractProps<M>>;
+ * ```
  */
 export interface Container {
-  (
-    loader: Loader,
+  <M extends WidgetModule>(
+    loader: () => Promise<M>,
     options?: {
       /** Loading timing: `lazy` (default) loads on first render,
        *  `eager` loads on module resolution. */

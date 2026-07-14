@@ -1,6 +1,7 @@
 import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import { useLocation } from '@web-widget/helpers/navigation';
 import type { HelloData } from '../api/hello-world@route.ts';
+import { container } from '@web-widget/react/adapter';
 import BaseLayout from '../(components)/BaseLayout.tsx';
 import {
   PageHeader,
@@ -11,14 +12,14 @@ import {
 } from '../(components)/ui';
 import ReactGithub from './Github@widget.tsx';
 import VanillaGithub from './VanillaGithub@widget';
-import VueGithub from '@playgrounds/web-router-vue3/Github@widget.vue';
-import Vue2Github from '@playgrounds/web-router-vue2/Github@widget.vue';
-import { asReactWidget } from '@playgrounds/web-router-vue3/helpers';
-import { asReactWidget as vue2AsReactWidget } from '@playgrounds/web-router-vue2/helpers';
 import UserCard from './UserCard@widget.tsx';
 
-const RVueGithub = asReactWidget(VueGithub);
-const RVue2Github = vue2AsReactWidget(Vue2Github);
+const RVueGithub = container(
+  () => import('@playgrounds/web-router-vue3/Github@widget.vue')
+);
+const RVue2Github = container(
+  () => import('@playgrounds/web-router-vue2/Github@widget.vue')
+);
 
 async function fetchData(url: URL) {
   const data = await fetch(`${url.origin}/api/hello-world`);
