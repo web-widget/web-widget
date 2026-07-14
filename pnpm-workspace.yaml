@@ -7,6 +7,60 @@ packages:
   - 'internal/*'
   - 'benchmarks/*'
 
+# Migrated from .npmrc (pnpm 11 no longer reads non-auth settings from .npmrc)
+hoist: false
+strictPeerDependencies: true
+dedupePeerDependents: true
+autoInstallPeers: true
+publicHoistPattern:
+  - '*eslint*'
+  - '*prettier*'
+  - 'lint-staged'
+  - '@commitlint/cli'
+  - '@babel/preset-react'
+
+# Migrated from package.json "pnpm" field (pnpm 11 no longer reads it)
+allowBuilds:
+  esbuild: true
+  sharp: true
+  simple-git-hooks: false
+  workerd: true
+
+overrides:
+  '@web-widget/action': 'workspace:*'
+  '@web-widget/context': 'workspace:*'
+  '@web-widget/helpers': 'workspace:*'
+  '@web-widget/html': 'workspace:*'
+  '@web-widget/inspector': 'workspace:*'
+  '@web-widget/lifecycle-cache': 'workspace:*'
+  '@web-widget/middlewares': 'workspace:*'
+  '@web-widget/node': 'workspace:*'
+  '@web-widget/purify': 'workspace:*'
+  '@web-widget/react': 'workspace:*'
+  '@web-widget/schema': 'workspace:*'
+  '@web-widget/vite-plugin': 'workspace:*'
+  '@web-widget/vue': 'workspace:*'
+  '@web-widget/vue2': 'workspace:*'
+  '@web-widget/web-router': 'workspace:*'
+  '@web-widget/web-widget': 'workspace:*'
+  '@types/node': 'catalog:'
+  'typescript': 'catalog:'
+
+packageExtensions:
+  '@cloudflare/vitest-pool-workers':
+    dependencies:
+      undici: '^7.24.8'
+
+patchedDependencies:
+  'yargs@17.7.2': 'patches/yargs@17.7.2.patch'
+
+peerDependencyRules:
+  allowedVersions:
+    '@vitejs/plugin-vue2>vite': '8'
+
+# Override pnpm 11 default (minimumReleaseAge: 1440) to avoid blocking newly published packages
+minimumReleaseAge: 0
+
 catalog:
   '@types/jest': ^29.5.12
   '@jest/globals': ^29.7.0

@@ -5,10 +5,10 @@ on:
     branches:
       - main
     tags:
-      - '!*'
+      - "!*"
 
 env:
-  NODE_VERSION: '22'
+  NODE_VERSION: "22"
 
 permissions:
   contents: write
@@ -39,9 +39,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Upgrade npm for Trusted Publishing
-        run: npm install -g npm@latest
-
       - run: npm install -g corepack@latest
 
       - run: corepack enable && pnpm --version
@@ -49,6 +46,9 @@ jobs:
       - run: pnpm install --recursive --no-frozen-lockfile --loglevel=error
 
       - run: pnpm build
+
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install -g npm@latest
 
       - name: Create Release Pull Request
         uses: changesets/action@v1

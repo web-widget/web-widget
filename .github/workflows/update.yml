@@ -4,7 +4,7 @@ name: Dependabot
 on: pull_request_target
 permissions: read-all
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
 jobs:
   update-lockfile:
     runs-on: ubuntu-latest
