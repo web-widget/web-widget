@@ -13,8 +13,6 @@ import type {
 } from '@web-widget/helpers';
 
 import type { Context } from './context';
-export type * from '@web-widget/helpers';
-
 ////////////////////////////////////////
 //////                            //////
 //////           Values           //////

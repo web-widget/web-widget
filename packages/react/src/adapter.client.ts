@@ -4,7 +4,6 @@ import { createElement, StrictMode } from 'react';
 import type { Root } from 'react-dom/client';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 
-export * from '@web-widget/helpers';
 export * from './components';
 
 export const render = defineClientRender<FunctionComponent>(
