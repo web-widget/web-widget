@@ -9,7 +9,7 @@ import {
 import icon from '../public/favicon.svg';
 import BaseLayout from './(components)/BaseLayout.tsx';
 import { PageHeader, Section, CodeBlock } from './(components)/ui';
-import ReactCounter from './(components)/Counter@widget';
+import ReactCounter from './frameworks/react/Counter@widget';
 import './(css)/style.css';
 
 type MetaPageData = {

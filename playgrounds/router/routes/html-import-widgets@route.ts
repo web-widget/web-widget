@@ -3,12 +3,16 @@ import { container } from '@web-widget/html/adapter';
 import { defineRouteComponent } from '@web-widget/helpers';
 import { htmlLayout } from './(components)/HtmlLayout';
 
-const ReactCounter = container(() => import('./(components)/Counter@widget'));
+const ReactCounter = container(
+  () => import('./frameworks/react/Counter@widget')
+);
 const Vue3Counter = container(
-  () => import('@playgrounds/web-router-vue3/Counter@widget.vue')
+  () =>
+    import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
 );
 const Vue2Counter = container(
-  () => import('@playgrounds/web-router-vue2/Counter@widget.vue')
+  () =>
+    import('@playgrounds/web-router-vue2/frameworks/vue2/Counter@widget.vue')
 );
 export default defineRouteComponent(async function Page() {
   return htmlLayout(

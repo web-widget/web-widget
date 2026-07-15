@@ -3,7 +3,7 @@ import { params } from '@web-widget/helpers/navigation';
 import type { HelloData } from '../api/hello-world@route.ts';
 import BaseLayout from '../(components)/BaseLayout.tsx';
 import { PageHeader } from '../(components)/ui';
-import Counter from '../(components)/Counter@widget.tsx';
+import Counter from '../frameworks/react/Counter@widget.tsx';
 
 async function fetchData(url: URL) {
   const data = await fetch(`${url.origin}/api/hello-world`);

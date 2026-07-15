@@ -3,7 +3,7 @@ import { container } from '@web-widget/solid/adapter';
 import Layout from './Layout';
 
 const ReactCounter = container(
-  () => import('~/routes/(components)/Counter@widget')
+  () => import('~/routes/frameworks/react/Counter@widget')
 );
 
 export const meta = defineMeta({ title: 'Solid Widget embedding' });

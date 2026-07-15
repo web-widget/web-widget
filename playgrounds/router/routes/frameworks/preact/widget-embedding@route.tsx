@@ -4,7 +4,8 @@ import { container } from '@web-widget/preact/adapter';
 import Layout from './Layout';
 
 const VueCounter = container(
-  () => import('@playgrounds/web-router-vue3/Counter@widget.vue')
+  () =>
+    import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
 );
 
 export const meta = defineMeta({ title: 'Preact Widget embedding' });

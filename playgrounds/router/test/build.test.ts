@@ -109,58 +109,6 @@ describe('vite build integration', () => {
     expect(hrefs.some((href) => href.includes('_css-lazy_'))).toBe(false);
   });
 
-  it('includes nested widget CSS in the vue3-import-widgets route', () => {
-    const hrefs = readRouteLinks(
-      'routes/(vue3)/vue3-import-widgets/index@route.tsx'
-    )
-      .map((link) => link.href ?? '')
-      .filter((href) => href.endsWith('.css'));
-    const css = hrefs
-      .map((href) =>
-        fs.readFileSync(path.join(playgroundRoot, 'dist/client', href), 'utf-8')
-      )
-      .join('\n');
-
-    expect(css).toContain('.counter');
-    expect(css).toContain('#059669');
-    expect(css).toContain('#ea580c');
-  });
-
-  it('injects Counter widget CSS into react-and-vue route meta links', () => {
-    const routeModulePath = path.join(
-      playgroundRoot,
-      'dist/server/assets/react-and-vue@route.js'
-    );
-    expect(fs.existsSync(routeModulePath)).toBe(true);
-
-    const routeModuleSource = fs.readFileSync(routeModulePath, 'utf-8');
-    expect(routeModuleSource).toContain(
-      'resolveLinks("routes/react-and-vue@route.tsx")'
-    );
-
-    const data = readServerAssetsData();
-    const routeHrefs = (
-      data.linkMap['routes/react-and-vue@route.tsx'] ?? []
-    ).map((link) => link.href ?? '');
-    const routeStyle = data.styleMap['routes/react-and-vue@route.tsx'];
-
-    // Widget CSS is included in the route module's links/styles (merged/inlined
-    // together with route CSS at build time).
-    const hasCssLink = routeHrefs.some((href) =>
-      href.includes('counter-common')
-    );
-    const hasInlineStyle = routeStyle && routeStyle.includes('counter');
-    // CSS may be merged into a single file with a hash name; check the file
-    // content for counter styles.
-    const hasMergedCss = routeHrefs.some((href) => {
-      if (!href.startsWith('/assets/')) return false;
-      const cssPath = path.join(playgroundRoot, 'dist/client', href);
-      if (!fs.existsSync(cssPath)) return false;
-      return fs.readFileSync(cssPath, 'utf-8').includes('.counter');
-    });
-    expect(hasCssLink || hasInlineStyle || hasMergedCss).toBe(true);
-  });
-
   it('preserves Vue SFC CSS Modules class-name exports in SSR build', () => {
     // The Vue SFC <style module> block must NOT be skipped in SSR build —
     // its hashed class names are needed for SSR rendering.

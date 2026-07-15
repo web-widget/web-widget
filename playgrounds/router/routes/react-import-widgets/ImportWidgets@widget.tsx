@@ -1,12 +1,14 @@
 import { container } from '@web-widget/react/adapter';
-import ReactCounter from '../(components)/Counter@widget';
+import ReactCounter from '../frameworks/react/Counter@widget';
 import { useState } from 'react';
 
 const RVueCounter = container(
-  () => import('@playgrounds/web-router-vue3/Counter@widget.vue')
+  () =>
+    import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
 );
 const RVue2Counter = container(
-  () => import('@playgrounds/web-router-vue2/Counter@widget.vue')
+  () =>
+    import('@playgrounds/web-router-vue2/frameworks/vue2/Counter@widget.vue')
 );
 
 export default function Page() {

@@ -8,7 +8,10 @@
   import Layout from './Layout.svelte';
 
   const Vue2Counter = container(
-    () => import('@playgrounds/web-router-vue2/Counter@widget.vue')
+    () =>
+      import(
+        '@playgrounds/web-router-vue2/frameworks/vue2/Counter@widget.vue'
+      )
   );
 </script>
 

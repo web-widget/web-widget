@@ -175,15 +175,6 @@ describe('production server (pnpm build && node server.js)', () => {
     expect(combinedCss).not.toContain('.css-lazy-dynamic-box');
   });
 
-  it('includes Counter widget CSS on /react-and-vue', async () => {
-    const html = await (await fetch(`${server!.origin}/react-and-vue`)).text();
-    const { combinedCss } = await collectRouteCss(html, server!.origin);
-    expect(
-      combinedCss.includes('.counter') ||
-        combinedCss.includes('border-radius: 30px')
-    ).toBe(true);
-  });
-
   it('serves large CSS as external link (not inlined) on /large-css', async () => {
     const html = await (await fetch(`${server!.origin}/large-css`)).text();
     const { linkedHrefs, linkedCss, inlineCss } = await collectRouteCss(

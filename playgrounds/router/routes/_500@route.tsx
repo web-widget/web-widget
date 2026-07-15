@@ -3,7 +3,8 @@ import { defineRouteFallbackComponent } from '@web-widget/helpers';
 import { container } from '@web-widget/react/adapter';
 
 const RVueCounter = container(
-  () => import('@playgrounds/web-router-vue3/Counter@widget.vue')
+  () =>
+    import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
 );
 
 const Page500 = defineRouteFallbackComponent(function Page500(ctx) {
