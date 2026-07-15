@@ -5,6 +5,7 @@ import type {
   WebWidgetRendererInterface,
   WebWidgetRendererConstructor,
 } from './types';
+import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
 import { getClientModuleId, unsafePropsToAttrs } from './utils/render';
 import { INNER_HTML_PLACEHOLDER } from './element';
 import './install';
@@ -25,6 +26,7 @@ class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
   #clientImport: string;
   #options: WebWidgetElementProps;
   localName = 'web-widget';
+  pendingLocalName = WEB_WIDGET_PENDING_LOCAL_NAME;
 
   constructor(
     loader: Loader,

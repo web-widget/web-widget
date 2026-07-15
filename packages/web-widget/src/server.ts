@@ -11,6 +11,7 @@ import type {
   WebWidgetRendererInterface,
   WebWidgetRendererConstructor,
 } from './types';
+import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
 import {
   getClientModuleId,
   getDisplayModuleId,
@@ -73,6 +74,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   #options: WebWidgetElementProps;
   #renderStage?: string;
   localName = 'web-widget';
+  pendingLocalName = WEB_WIDGET_PENDING_LOCAL_NAME;
 
   constructor(
     loader: Loader,

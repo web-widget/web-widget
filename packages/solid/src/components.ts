@@ -76,15 +76,36 @@ export function container(
       renderStage,
       renderTarget: options.renderTarget ?? 'light',
     });
+    const widgetProps = {
+      component: renderer.localName,
+      ...renderer.attributes,
+    };
+    if (
+      widget.clientOnly &&
+      typeof window === 'undefined' &&
+      fallback.pending != null
+    ) {
+      return createComponent(Dynamic, {
+        ...widgetProps,
+        get children() {
+          return createComponent(Dynamic, {
+            component: renderer.pendingLocalName,
+            'aria-busy': 'true',
+            style: 'display: contents',
+            children: fallback.pending,
+          });
+        },
+      });
+    }
     const [html] = createResource(() => renderer.renderInnerHTMLToString());
-    const content = () =>
-      createComponent(Dynamic, {
-        component: renderer.localName,
-        ...renderer.attributes,
+    const content = () => {
+      return createComponent(Dynamic, {
+        ...widgetProps,
         get innerHTML() {
           return html();
         },
       });
+    };
     return createComponent(ErrorBoundary, {
       fallback: () => fallback.error,
       get children() {

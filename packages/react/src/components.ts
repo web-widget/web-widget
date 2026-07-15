@@ -42,6 +42,7 @@ export interface WebWidgetProps {
 
 interface WebWidgetElement {
   localName: string;
+  pendingLocalName: string;
   attributes: Record<string, string>;
   innerHTML: Promise<string | Error>;
 }
@@ -79,6 +80,7 @@ const renderWebWidget = function ({
     );
   return {
     localName,
+    pendingLocalName: widget.pendingLocalName,
     attributes,
     innerHTML,
   };
@@ -86,10 +88,32 @@ const renderWebWidget = function ({
 
 function WebWidget({
   localName,
+  pendingLocalName,
   attributes,
   innerHTML,
   errorFallback,
-}: WebWidgetElement & { errorFallback?: ReactNode }) {
+  pendingFallback,
+  clientOnly,
+}: WebWidgetElement & {
+  errorFallback?: ReactNode;
+  pendingFallback?: ReactNode;
+  clientOnly?: boolean;
+}) {
+  if (clientOnly && typeof window === 'undefined' && pendingFallback != null) {
+    return createElement(
+      localName,
+      { ...attributes, suppressHydrationWarning: true },
+      createElement(
+        pendingLocalName,
+        {
+          'aria-busy': 'true',
+          style: { display: 'contents' },
+        },
+        pendingFallback
+      )
+    );
+  }
+
   const html = use(innerHTML);
 
   // Widget rendering failed — render error UI instead of throwing.
@@ -156,6 +180,8 @@ export type WidgetContainerConfig = {
    * widget module renders; error UI shows if rendering fails. Both are
    * serialized into the HTML stream — no client-side retry exists in the
    * islands architecture.
+   * For `clientOnly`, pending UI is rendered inside the `<web-widget>` element
+   * and removed immediately before its client mount begins.
    *
    * - `ReactNode` — used for both pending (Suspense) and error (ErrorBoundary).
    * - `{ pending?, error? }` — specify independently; `error` defaults to `pending`.
@@ -269,7 +295,9 @@ export function container(
       createElement(Suspense, {
         fallback: pendingFallback,
         children: createElement(WebWidget, {
+          clientOnly,
           errorFallback,
+          pendingFallback,
           ...renderWebWidget({
             ...options,
             children,

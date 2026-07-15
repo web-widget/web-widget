@@ -86,7 +86,28 @@ class WidgetErrorBoundary extends Component<
 function WebWidget(props: {
   loader: Loader;
   options: WebWidgetRendererOptions;
+  pending?: ComponentChildren;
+  clientOnly?: boolean;
 }) {
+  if (
+    props.clientOnly &&
+    typeof window === 'undefined' &&
+    props.pending != null
+  ) {
+    const renderer = new WebWidgetRenderer(props.loader, props.options);
+    return createElement(
+      renderer.localName,
+      renderer.attributes,
+      createElement(
+        renderer.pendingLocalName,
+        {
+          'aria-busy': 'true',
+          style: { display: 'contents' },
+        },
+        props.pending
+      )
+    );
+  }
   let read = renderResources.get(props.options);
   if (!read) {
     const renderer = new WebWidgetRenderer(props.loader, props.options);
@@ -143,8 +164,10 @@ export function container(
       createElement(Suspense, {
         fallback: pending,
         children: createElement(WebWidget, {
+          clientOnly: widget.clientOnly,
           loader,
           options: rendererOptions,
+          pending,
         }),
       })
     ) as VNode;

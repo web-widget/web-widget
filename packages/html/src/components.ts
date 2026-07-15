@@ -8,6 +8,7 @@ import type { ExtractWidgetProps } from '@web-widget/schema';
 import { unsafeHTML, suspense, fallback } from './html';
 import type { Suspense, Fallback, UnsafeHTML } from './html';
 import { HTML } from './html';
+import { renderToString } from './render';
 
 export type DefineWebWidgetOptions = Partial<
   Pick<
@@ -145,16 +146,27 @@ export function container(
       renderTarget: options.renderTarget ?? 'light',
     });
 
-    const content = renderer
-      .renderOuterHTMLToString()
-      .then((html) => unsafeHTML(html));
-
     if (fb) {
       const { pendingFallback, errorFallback } = resolveFallback(fb);
+      if (clientOnly && pendingFallback) {
+        const [outerHTML, pendingHTML] = await Promise.all([
+          renderer.renderOuterHTMLToString(),
+          renderToString(pendingFallback),
+        ]);
+        const openingTagEnd = outerHTML.indexOf('>') + 1;
+        return unsafeHTML(
+          outerHTML.slice(0, openingTagEnd) +
+            `<${renderer.pendingLocalName} aria-busy="true" style="display:contents">${pendingHTML}</${renderer.pendingLocalName}>` +
+            outerHTML.slice(openingTagEnd)
+        );
+      }
+      const content = renderer
+        .renderOuterHTMLToString()
+        .then((html) => unsafeHTML(html));
       const s = suspense(content, pendingFallback);
       return errorFallback ? fallback(s, errorFallback) : s;
     }
 
-    return content;
+    return renderer.renderOuterHTMLToString().then((html) => unsafeHTML(html));
   };
 }

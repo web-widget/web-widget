@@ -1,5 +1,5 @@
 import { html, unsafeHTML } from './html';
-import { resolveFallback } from './components';
+import { container, resolveFallback } from './components';
 import { asHtmlWidget } from './adapter';
 
 describe('resolveFallback', () => {
@@ -49,5 +49,26 @@ describe('asHtmlWidget', () => {
     const widget = asHtmlWidget<{ x: number }>(component);
     const result = await widget({ x: 1 });
     expect(result.toString()).toBe('<div/>');
+  });
+});
+
+describe('container', () => {
+  test('renders clientOnly pending fallback inside web-widget', async () => {
+    const Widget = container(async () => ({}) as any, {
+      import: '/Counter@widget.js',
+      name: 'Counter',
+    });
+    const result = await Widget({
+      widget: {
+        clientOnly: true,
+        fallback: { pending: html`<div>pending</div>` },
+      },
+    });
+    const output = result.toString();
+
+    expect(output).toContain('<web-widget');
+    expect(output).toContain(
+      '<web-widget-pending aria-busy="true" style="display:contents"><div>pending</div></web-widget-pending>'
+    );
   });
 });
