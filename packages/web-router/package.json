@@ -17,7 +17,8 @@
     "@web-widget/context": "workspace:*",
     "@web-widget/helpers": "workspace:*",
     "@web-widget/html": "workspace:*",
-    "@web-widget/lifecycle-cache": "workspace:*"
+    "@web-widget/lifecycle-cache": "workspace:*",
+    "@web-widget/schema": "workspace:*"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "catalog:",

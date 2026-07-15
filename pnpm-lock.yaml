@@ -1143,6 +1143,9 @@ importers:
       '@web-widget/lifecycle-cache':
         specifier: workspace:*
         version: link:../lifecycle-cache
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../schema
     devDependencies:
       '@cloudflare/vitest-pool-workers':
         specifier: 'catalog:'

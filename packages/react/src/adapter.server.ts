@@ -16,7 +16,6 @@ declare module '@web-widget/schema' {
   }
 }
 
-export * from '@web-widget/helpers';
 export * from './components';
 
 type StreamOptions = {

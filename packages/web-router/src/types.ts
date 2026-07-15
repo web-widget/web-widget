@@ -10,10 +10,29 @@ import type {
   RouteModule,
   ServerRender,
   ServerRenderResult,
-} from '@web-widget/helpers';
+} from '@web-widget/schema';
 
 import type { Context } from './context';
-export type * from '@web-widget/helpers';
+export type {
+  ActionModule,
+  FetchContext,
+  FetchEventLike,
+  HTTPException,
+  Meta,
+  MiddlewareContext,
+  MiddlewareHandler,
+  MiddlewareModule,
+  RouteComponentProps,
+  RouteContext,
+  RouteFallbackComponentProps,
+  RouteHandler,
+  RouteHandlers,
+  RouteModule,
+  RouteRenderOptions,
+  ServerRender,
+  ServerRenderOptions,
+  ServerRenderResult,
+} from '@web-widget/schema';
 
 ////////////////////////////////////////
 //////                            //////
