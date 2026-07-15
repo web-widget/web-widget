@@ -15,8 +15,8 @@ jobs:
       matrix:
         # pnpm 11.13 requires Node >= 22.13
         version:
-          - node: "22.13.0"
-          - node: "24"
+          - node: '22.13.0'
+          - node: '24'
 
     name: Node.js ${{ matrix.version.node }}
     env:
@@ -24,31 +24,23 @@ jobs:
       FLAGS_SECRET: ${{ secrets.FLAGS_SECRET }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - name: Setup Cache
-        uses: actions/cache@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
         with:
-          path: |
-            ~/.pnpm-store
-            node_modules/.cache/turbo
-            node_modules/.pnpm
-          key: ${{ runner.os }}-node${{ matrix.version.node }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          cache: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.version.node }}
 
-      - run: npm install -g corepack@latest
-
-      - run: corepack enable && pnpm --version
-
       # NOTE: Avoid --loglevel=error: pnpm may set npm_config_loglevel for lifecycle scripts (e.g.
       # workerd install calling npm). That can hide stderr from failures. Hooks are skipped in CI.
-      - run: pnpm install --recursive --no-frozen-lockfile
+      - run: pnpm install --recursive --frozen-lockfile
         env:
-          SKIP_INSTALL_SIMPLE_GIT_HOOKS: "1"
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
 
       - run: pnpm examples-catalog:check
 

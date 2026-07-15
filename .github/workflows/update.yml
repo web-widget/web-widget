@@ -4,7 +4,7 @@ name: Dependabot
 on: pull_request_target
 permissions: read-all
 env:
-  NODE_VERSION: '22'
+  NODE_VERSION: '22.13.0'
 jobs:
   update-lockfile:
     runs-on: ubuntu-latest
@@ -13,17 +13,13 @@ jobs:
       pull-requests: write
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-          
-      - run: npm install -g corepack@latest
-  
-      - run: corepack enable && pnpm --version
 
       - run: pnpm install --lockfile-only
 

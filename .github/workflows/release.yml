@@ -5,11 +5,10 @@ on:
     branches:
       - main
     tags:
-      - "!*"
+      - '!*'
 
 env:
-  # npm@latest requires a newer Node runtime than the minimum supported by pnpm.
-  NODE_VERSION: "24"
+  NODE_VERSION: '24'
 
 permissions:
   contents: write
@@ -24,37 +23,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Setup Cache
-        uses: actions/cache@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
         with:
-          path: |
-            ~/.pnpm-store
-            node_modules/.cache/turbo
-            node_modules/.pnpm
-          key: ${{ runner.os }}-node${{ env.NODE_VERSION }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          cache: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
-      - run: npm install -g corepack@latest
-
-      - run: corepack enable && pnpm --version
-
-      - run: pnpm install --recursive --no-frozen-lockfile
+      - run: pnpm install --recursive --frozen-lockfile
         env:
-          SKIP_INSTALL_SIMPLE_GIT_HOOKS: "1"
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
 
       - run: pnpm build
 
-      - name: Upgrade npm for Trusted Publishing
-        run: npm install -g npm@latest
+      - name: Setup npm for Trusted Publishing
+        run: npm install -g npm@11
 
       - name: Create Release Pull Request
-        uses: changesets/action@v1
+        uses: changesets/action@v1.9.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
