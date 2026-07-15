@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 3.0.0-beta.3
+
+### Minor Changes
+
+- 2fe95e0: Support pending fallback UI for client-only widgets until client mounting begins.
+
+### Patch Changes
+
+- @web-widget/helpers@3.0.0-beta.3
+- @web-widget/lifecycle-cache@3.0.0-beta.3
+
 ## 3.0.0-beta.2
 
 ### Patch Changes

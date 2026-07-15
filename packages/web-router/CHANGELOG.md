@@ -1,5 +1,16 @@
 # @web-widget/web-router
 
+## 3.0.0-beta.3
+
+### Patch Changes
+
+- Updated dependencies [2fe95e0]
+  - @web-widget/html@3.0.0-beta.3
+  - @web-widget/action@3.0.0-beta.3
+  - @web-widget/context@3.0.0-beta.3
+  - @web-widget/helpers@3.0.0-beta.3
+  - @web-widget/lifecycle-cache@3.0.0-beta.3
+
 ## 3.0.0-beta.2
 
 ### Patch Changes

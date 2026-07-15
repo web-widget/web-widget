@@ -1,5 +1,14 @@
 # @web-widget/vite-plugin
 
+## 3.0.0-beta.3
+
+### Patch Changes
+
+- @web-widget/inspector@3.0.0-beta.3
+- @web-widget/web-router@3.0.0-beta.3
+- @web-widget/helpers@3.0.0-beta.3
+- @web-widget/node@3.0.0-beta.3
+
 ## 3.0.0-beta.2
 
 ### Major Changes

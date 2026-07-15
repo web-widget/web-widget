@@ -1,5 +1,12 @@
 # @web-widget/middlewares
 
+## 3.0.0-beta.3
+
+### Patch Changes
+
+- @web-widget/helpers@3.0.0-beta.3
+- @web-widget/schema@3.0.0-beta.3
+
 ## 3.0.0-beta.2
 
 ### Patch Changes
