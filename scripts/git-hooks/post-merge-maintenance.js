@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * post-merge / post-rebase: refresh generated files when upstream changed
- * catalog or workspace package names. Leaves unstaged edits for review.
+ * post-merge / post-rebase: refresh generated files when the upstream catalog
+ * changed. Leaves unstaged edits for review.
  */
 
 import {
@@ -23,30 +23,16 @@ if (changed.length === 0) {
 }
 
 const needsExamplesCatalog = changed.some((f) => f === 'pnpm-workspace.yaml');
-const needsPnpmOverrides = changed.some(
-  (f) => f.startsWith('packages/') && f.endsWith('/package.json')
-);
 
-if (needsExamplesCatalog) {
-  sh('node scripts/materialize-examples-catalog.js');
-}
-
-if (needsPnpmOverrides) {
-  sh('node scripts/sync-pnpm-overrides.js');
-}
-
-if (!needsExamplesCatalog && !needsPnpmOverrides) {
+if (!needsExamplesCatalog) {
   process.exit(0);
 }
+
+sh('node scripts/materialize-examples-catalog.js');
 
 console.log(
   '\nNOTE: Maintenance scripts updated workspace files. Review and stage if needed:'
 );
-if (needsExamplesCatalog) {
-  for (const rel of examplePackageJsonRelPaths()) {
-    console.log(`  ${rel}`);
-  }
-}
-if (needsPnpmOverrides) {
-  console.log('  package.json');
+for (const rel of examplePackageJsonRelPaths()) {
+  console.log(`  ${rel}`);
 }
