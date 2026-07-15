@@ -1,4 +1,5 @@
 import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
 import { container, resolveFallback } from './components';
 
 // Mock the WebWidgetRenderer to avoid needing the full widget runtime.
@@ -6,6 +7,7 @@ jest.mock('@web-widget/web-widget', () => {
   return {
     WebWidgetRenderer: class {
       localName = 'web-widget';
+      pendingLocalName = 'web-widget-pending';
       attributes: Record<string, string> = {};
       constructor(_loader: unknown, options: { name?: string }) {
         if (options.name) {
@@ -73,5 +75,22 @@ describe('container', () => {
     const Widget = container(mockLoader, { name: 'TestWidget' });
     expect(Widget).toBeDefined();
     expect(typeof Widget).toBe('object');
+  });
+
+  test('renders clientOnly pending fallback inside web-widget', () => {
+    const Widget = container(mockLoader);
+    const output = renderToString(
+      createElement(Widget, {
+        widget: {
+          clientOnly: true,
+          fallback: { pending: createElement('div', null, 'pending') },
+        },
+      })
+    );
+
+    expect(output).toContain('<web-widget');
+    expect(output).toContain(
+      '<web-widget-pending aria-busy="true" style="display:contents"><div>pending</div></web-widget-pending>'
+    );
   });
 });

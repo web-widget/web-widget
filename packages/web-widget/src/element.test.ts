@@ -1,5 +1,6 @@
 import { expect } from '@esm-bundle/chai';
 import { HTMLWebWidgetElement } from './element';
+import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
 import './install';
 import type { ClientRenderOptions } from '@web-widget/helpers';
 
@@ -306,6 +307,21 @@ describe('Application property: data', () => {
 });
 
 describe('Events', () => {
+  it('clears pending boundary on mounting', () =>
+    createInactiveWidget(async ({ getElement }) => {
+      const widget = getElement();
+      const pending = document.createElement(WEB_WIDGET_PENDING_LOCAL_NAME);
+      pending.textContent = 'pending';
+      widget.append(pending);
+
+      await widget.load();
+      await widget.bootstrap();
+      expect(pending.isConnected).to.equal(true);
+
+      await widget.mount();
+      expect(pending.isConnected).to.equal(false);
+    }));
+
   it('statuschange', () =>
     createInactiveWidget(async ({ getStatusHistory, getElement }) => {
       expect(getStatusHistory()).to.deep.equal([]);

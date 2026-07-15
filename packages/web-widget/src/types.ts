@@ -4,6 +4,10 @@ import type {
   Meta,
   SerializableValue,
 } from '@web-widget/helpers';
+
+/** Internal element name for the client-only pending boundary. */
+export const WEB_WIDGET_PENDING_LOCAL_NAME = 'web-widget-pending';
+
 export interface SerializableObject {
   [key: string]: SerializableValue;
 }
@@ -29,6 +33,7 @@ export interface WebWidgetRendererOptions extends WebWidgetElementProps {
 
 export interface WebWidgetRendererInterface {
   localName: string;
+  pendingLocalName: string;
   attributes: Record<string, string>;
   renderInnerHTMLToString(): Promise<string>;
   renderOuterHTMLToString(): Promise<string>;

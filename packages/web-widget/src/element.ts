@@ -15,6 +15,7 @@ import {
   Timeouts,
 } from './container';
 import { WebWidgetError } from './error';
+import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
 
 let globalTimeouts: Timeouts = Object.create(null);
 
@@ -494,9 +495,18 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   #statusChangeCallback(value: Status) {
+    if (value === status.MOUNTING) {
+      this.#clearPending();
+    }
     this.#updateStatus(value);
     this.#markPerformance(value);
     this.#dispatchStatusChangeEvent();
+  }
+
+  #clearPending() {
+    for (const child of Array.from(this.children)) {
+      if (child.localName === WEB_WIDGET_PENDING_LOCAL_NAME) child.remove();
+    }
   }
 
   #updateStatus(value: Status) {

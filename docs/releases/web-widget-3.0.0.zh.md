@@ -575,7 +575,12 @@ webWidgetPlugin({
 
 // serverOnly / clientOnly 互斥缩写
 <Counter widget={{ serverOnly: true }} count={1} />
+
+// clientOnly 在客户端挂载前显示 pending UI
+<Counter widget={{ clientOnly: true, fallback: { pending: <Spinner /> } }} count={1} />
 ```
+
+`clientOnly` 的 pending UI 会由服务端直接输出，不依赖渐进式渲染，并在 widget 开始挂载时自动移除。
 
 容器配置（`fallback`、`loading`、`serverOnly`、`clientOnly`）全部收进 `widget` 对象，彻底避免与 widget 自身 props 的命名冲突。
 

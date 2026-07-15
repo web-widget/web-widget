@@ -168,6 +168,8 @@ export interface WidgetContainerConfig {
    * widget module renders; error UI shows if rendering fails. Both are
    * serialized into the HTML stream — no client-side retry exists in the
    * islands architecture.
+   * For `clientOnly`, pending UI is rendered inside the `<web-widget>` element
+   * and removed immediately before its client mount begins.
    *
    * - `VNode` — used for both pending (Suspense) and error.
    * - `{ pending?, error? }` — specify independently; `error` defaults to `pending`.
@@ -237,6 +239,30 @@ export function container(
           ? 'client'
           : options.renderStage;
       const data = useAttrs() as WebWidgetRendererOptions['data'];
+
+      if (clientOnly && !IS_CLIENT && pendingFallback) {
+        const renderer = new WebWidgetRenderer(loader, {
+          ...options,
+          children: '',
+          data,
+          loading,
+          renderStage,
+          renderTarget: options.renderTarget ?? 'light',
+        });
+        return () =>
+          h(
+            renderer.localName,
+            renderer.attributes,
+            h(
+              renderer.pendingLocalName,
+              {
+                'aria-busy': 'true',
+                style: { display: 'contents' },
+              },
+              pendingFallback
+            )
+          );
+      }
 
       const error = ref<unknown>(null);
       onErrorCaptured((err) => {
