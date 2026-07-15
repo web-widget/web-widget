@@ -13,6 +13,14 @@ import type {
 } from '@web-widget/helpers';
 
 import type { Context } from './context';
+export type {
+  Meta,
+  RouteContext,
+  RouteModule,
+  RouteRenderOptions,
+  ServerRenderOptions,
+} from '@web-widget/schema';
+
 ////////////////////////////////////////
 //////                            //////
 //////           Values           //////
