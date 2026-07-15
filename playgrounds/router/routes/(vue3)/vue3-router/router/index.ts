@@ -5,7 +5,7 @@ import {
 } from 'vue-router';
 
 export default function createRouter(
-  scrollingElement?: Element | DocumentFragment
+  _scrollingElement?: Element | DocumentFragment
 ) {
   return router({
     history: import.meta.env.SSR ? createMemoryHistory() : createWebHistory(),

@@ -1,0 +1,59 @@
+{
+  "name": "@web-widget/web-components",
+  "description": "Web Components CSR adapter",
+  "version": "3.0.0-beta.1",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "dependencies": {
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/schema": "workspace:*",
+    "@web-widget/web-widget": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/web-components.d.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/web-components.js"
+    },
+    "./adapter": {
+      "worker": {
+        "types": "./dist/web-components.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/web-components.adapter.server.js"
+      },
+      "browser": {
+        "types": "./dist/web-components.adapter.client.d.ts",
+        "development": "./src/adapter.client.ts",
+        "default": "./dist/web-components.adapter.client.js"
+      },
+      "default": {
+        "types": "./dist/web-components.adapter.server.d.ts",
+        "development": "./src/adapter.server.ts",
+        "default": "./dist/web-components.adapter.server.js"
+      }
+    }
+  },
+  "webWidgetAdapter": {
+    "version": "1.0.0",
+    "name": "web-components",
+    "extensions": [
+      ".wc.ts",
+      ".wc.js"
+    ],
+    "adapter": "./adapter"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsup",
+    "clean:build": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "lint": "eslint src"
+  }
+}

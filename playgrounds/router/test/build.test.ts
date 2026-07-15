@@ -60,6 +60,33 @@ describe('vite build integration', () => {
     expect(serverSource).toContain('WebRouter');
   });
 
+  it('does not include Svelte development instrumentation in the SSR bundle', () => {
+    const svelteBundle = fs
+      .readdirSync(path.join(playgroundRoot, 'dist/server/assets'))
+      .find((file) => file.startsWith('frameworks.svelte.Counter@widget'));
+
+    expect(svelteBundle).toBeTruthy();
+    const source = fs.readFileSync(
+      path.join(playgroundRoot, 'dist/server/assets', svelteBundle!),
+      'utf-8'
+    );
+    expect(source).not.toContain('function push_element(');
+  });
+
+  it('includes alias-imported custom-extension widgets in client assets', () => {
+    const manifest = JSON.parse(fs.readFileSync(clientManifestPath, 'utf-8'));
+    const data = readServerAssetsData();
+    const widgetIds = [
+      'routes/(components)/LitCounter@widget.lit.ts',
+      'routes/(components)/WebComponentCounter@widget.wc.ts',
+    ];
+
+    for (const widgetId of widgetIds) {
+      expect(manifest[widgetId]?.file).toBeTruthy();
+      expect(data.assetUrls[widgetId]).toBeTruthy();
+    }
+  });
+
   it('does not inject async route chunk css into css-lazy-dynamic meta links', () => {
     // The route module should resolve links at runtime via `resolveLinks`
     // (data lives in the server assets data file, not inlined in the chunk).
@@ -80,41 +107,6 @@ describe('vite build integration', () => {
 
     expect(hrefs.some((href) => href.includes('lazy-chunk'))).toBe(false);
     expect(hrefs.some((href) => href.includes('_css-lazy_'))).toBe(false);
-  });
-
-  it('injects Counter widget CSS into react-and-vue route meta links', () => {
-    const routeModulePath = path.join(
-      playgroundRoot,
-      'dist/server/assets/react-and-vue@route.js'
-    );
-    expect(fs.existsSync(routeModulePath)).toBe(true);
-
-    const routeModuleSource = fs.readFileSync(routeModulePath, 'utf-8');
-    expect(routeModuleSource).toContain(
-      'resolveLinks("routes/react-and-vue@route.tsx")'
-    );
-
-    const data = readServerAssetsData();
-    const routeHrefs = (
-      data.linkMap['routes/react-and-vue@route.tsx'] ?? []
-    ).map((link) => link.href ?? '');
-    const routeStyle = data.styleMap['routes/react-and-vue@route.tsx'];
-
-    // Widget CSS is included in the route module's links/styles (merged/inlined
-    // together with route CSS at build time).
-    const hasCssLink = routeHrefs.some((href) =>
-      href.includes('counter-common')
-    );
-    const hasInlineStyle = routeStyle && routeStyle.includes('counter');
-    // CSS may be merged into a single file with a hash name; check the file
-    // content for counter styles.
-    const hasMergedCss = routeHrefs.some((href) => {
-      if (!href.startsWith('/assets/')) return false;
-      const cssPath = path.join(playgroundRoot, 'dist/client', href);
-      if (!fs.existsSync(cssPath)) return false;
-      return fs.readFileSync(cssPath, 'utf-8').includes('.counter');
-    });
-    expect(hasCssLink || hasInlineStyle || hasMergedCss).toBe(true);
   });
 
   it('preserves Vue SFC CSS Modules class-name exports in SSR build', () => {

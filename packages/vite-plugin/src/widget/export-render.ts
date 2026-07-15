@@ -9,14 +9,15 @@ import { normalizePath } from '@/internal/path';
 import { normalizeFilterId as cleanId } from '@/internal/module-id';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
 import { createCachedAliasGenerator } from '@/internal/alias';
+import { hasDefaultExport } from './module-exports';
 
 export interface ExportRenderPluginOptions {
   /** Native Rust-layer filter (broad pre-filter on raw id). */
   nativeFilter: RegExp;
   /** Precise pattern tested against query-stripped id. */
   exportPattern: RegExp;
-  /** Runtime module specifier for render injection. */
-  provide: string;
+  /** Adapter module specifier for render injection. */
+  adapterModule: string;
   /** Derive named exports from another export (route handler/meta). */
   deriveExports?: {
     name: string;
@@ -29,7 +30,7 @@ export interface ExportRenderPluginOptions {
 export function exportRenderPlugin({
   nativeFilter,
   exportPattern,
-  provide,
+  adapterModule,
   deriveExports,
 }: ExportRenderPluginOptions): Plugin[] {
   let root: string;
@@ -58,17 +59,21 @@ export function exportRenderPlugin({
             );
           }
 
+          if (!exports.some(({ n }) => n === 'default')) {
+            return null;
+          }
+
           const magicString = new MagicString(code);
           const alias = createCachedAliasGenerator();
 
-          // Inject `render` from the runtime module.
+          // Inject `render` from the adapter module.
           // Use `export { alias as render }` instead of `export const render`
           // so that no local binding named `render` is introduced into user
           // code, avoiding conflicts with user-defined identifiers.
           if (!exports.some(({ n: name }) => name === 'render')) {
             const renderAlias = alias('render');
             magicString.prepend(
-              `import { render as ${renderAlias} } from ${JSON.stringify(provide)};\n` +
+              `import { render as ${renderAlias} } from ${JSON.stringify(adapterModule)};\n` +
                 `export { ${renderAlias} as render };\n`
             );
           }
@@ -142,6 +147,16 @@ export function exportRenderPlugin({
         async handler(code, id) {
           if (!exportPattern.test(cleanId(id))) {
             return null;
+          }
+
+          try {
+            if (!(await hasDefaultExport(code, id))) {
+              return null;
+            }
+          } catch (error) {
+            return this.error(
+              error instanceof Error ? error : { message: String(error) }
+            );
           }
 
           const api = getWebRouterPluginApi(this.environment.config);

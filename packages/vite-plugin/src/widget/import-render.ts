@@ -6,6 +6,7 @@ import { stripModuleIdQuery, CSS_LANGS_RE } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
 import { createAliasGenerator } from '@/internal/alias';
+import { hasDefaultExport } from './module-exports';
 
 const IMPORT_DEFAULT_NAME_REG =
   /import\s+(?:([a-zA-Z_$][\w$]*)|{\s*default\s+as\s+([a-zA-Z_$][\w$]*)\s*})\s+from/;
@@ -44,8 +45,8 @@ export interface ImportRenderPluginOptions {
   importPattern: RegExp;
   /** Importer pattern tested against query-stripped id. */
   importerPattern: RegExp;
-  /** Runtime module specifier for container injection. */
-  provide: string;
+  /** Adapter module specifier for container injection. */
+  adapterModule: string;
 }
 
 /**
@@ -83,8 +84,8 @@ export interface TransformWidgetImportsOptions {
   sourcemap: boolean;
   /** Widget module pattern tested against query-stripped id. */
   importPattern: RegExp;
-  /** Runtime module specifier for container injection. */
-  provide: string;
+  /** Adapter module specifier for container injection. */
+  adapterModule: string;
 }
 
 export interface TransformWidgetImportsContext {
@@ -131,7 +132,7 @@ export async function transformWidgetImports(
     base,
     sourcemap,
     importPattern,
-    provide,
+    adapterModule,
   } = options;
 
   const cleanImporterId = stripModuleIdQuery(id);
@@ -239,6 +240,7 @@ export async function transformWidgetImports(
   const magicString = new MagicString(code);
   const replacementStatements: string[] = [];
   const definerNames: string[] = [];
+  let transformedContainerCalls = 0;
   const alias = createAliasGenerator();
 
   for (const {
@@ -325,12 +327,17 @@ export async function transformWidgetImports(
     if (code[pos] === ')') {
       // container(() => import('...'))  — no options, inject them.
       magicString.appendLeft(pos, `, { ${props} }`);
+      transformedContainerCalls++;
     } else if (code[pos] === ',') {
       // container(() => import('...'), { ... }) — merge into options.
       pos++;
       while (pos < code.length && /\s/.test(code[pos])) pos++;
       if (code[pos] === '{') {
+        if (/^\s*import\s*:/.test(code.slice(pos + 1))) {
+          continue;
+        }
         magicString.appendLeft(pos + 1, ` ${props},`);
+        transformedContainerCalls++;
       } else {
         throw new SyntaxError(
           `Cannot inject options into container(): second argument must be an object literal.`
@@ -343,13 +350,13 @@ export async function transformWidgetImports(
     }
   }
 
-  if (replacementStatements.length === 0 && containerCalls.length === 0) {
+  if (replacementStatements.length === 0 && transformedContainerCalls === 0) {
     return null;
   }
 
   const header = [
     ...(isServer &&
-    (replacementStatements.length > 0 || containerCalls.length > 0)
+    (replacementStatements.length > 0 || transformedContainerCalls > 0)
       ? [
           `import { resolveWidgetAsset } from ${JSON.stringify(
             SERVER_ASSETS_MODULE_ID
@@ -359,7 +366,7 @@ export async function transformWidgetImports(
     ...definerNames.map(
       (definerName) =>
         `import { container as ${definerName} } from ${JSON.stringify(
-          provide
+          adapterModule
         )};`
     ),
     '',
@@ -415,10 +422,10 @@ export function importRenderPlugin({
   nativeFilter,
   importPattern,
   importerPattern,
-  provide,
+  adapterModule,
 }: ImportRenderPluginOptions): Plugin[] {
-  if (typeof provide !== 'string') {
-    throw new TypeError(`options.provide must be a string type.`);
+  if (typeof adapterModule !== 'string') {
+    throw new TypeError(`options.adapterModule must be a string type.`);
   }
 
   let dev = false;
@@ -445,6 +452,9 @@ export function importRenderPlugin({
           }
 
           try {
+            if (!(await hasDefaultExport(code, id))) {
+              return null;
+            }
             const result = await transformWidgetImports(
               {
                 resolve: (specifier, importer) =>
@@ -460,7 +470,7 @@ export function importRenderPlugin({
                 base,
                 sourcemap,
                 importPattern,
-                provide,
+                adapterModule,
               }
             );
             return result;

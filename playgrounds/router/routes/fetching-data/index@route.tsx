@@ -11,7 +11,6 @@ import {
   CodeBlock,
 } from '../(components)/ui';
 import ReactGithub from './Github@widget.tsx';
-import VanillaGithub from './VanillaGithub@widget';
 import UserCard from './UserCard@widget.tsx';
 
 const RVueGithub = container(
@@ -51,9 +50,6 @@ export default defineRouteComponent<HelloData>(function Page({ data }) {
           </Card>
           <Card title="Vue2 Component">
             <RVue2Github username="angular" />
-          </Card>
-          <Card title="Vanilla JavaScript Component">
-            <VanillaGithub username="sveltejs" />
           </Card>
         </CardGrid>
       </Section>

@@ -13,7 +13,7 @@
 
 🌟 A revolutionary meta-framework that seamlessly integrates multiple frontend technologies with unprecedented simplicity.
 
-Break free from technology stack lock-in while maintaining elegant simplicity. Experience the power of running React, Vue, and other frameworks together with ease.
+Break free from technology stack lock-in while maintaining elegant simplicity. Run React, Vue, Preact, Solid, Svelte, Lit, Web Components, and HTML templates together with ease.
 
 > ⚠️ **Preview Release**: This project is currently in preview stage with API subject to changes. Some features mentioned may be under development.
 
@@ -41,7 +41,7 @@ Our framework is built on the core principle that powerful technology should be 
 
 ### ⚡ **Powerful by Nature**
 
-- **Multi-Framework**: React 19, Vue 3, Vue 2 - with more frameworks coming soon
+- **Multi-Framework**: React, Vue, Preact, Solid, Svelte, Lit, Web Components, and HTML templates
 - **Web Standards**: Built on solid foundations that won't become obsolete
 - **Real-World Ready**: Designed to handle production applications
 - **Future Proof**: Open architecture that evolves with the web platform
@@ -97,13 +97,16 @@ npm run dev
 
 ### 🎯 **Current Framework Support**
 
-| Framework | Status         | Version  |
-| --------- | -------------- | -------- |
-| React     | ✅ Supported   | 19.x     |
-| Vue       | ✅ Supported   | 3.x, 2.x |
-| Svelte    | 🚧 Coming Soon | -        |
-| Solid     | 🚧 Coming Soon | -        |
-| Angular   | 🚧 Planned     | -        |
+| Framework      | Rendering        | Version  |
+| -------------- | ---------------- | -------- |
+| React          | SSR + hydration  | 19.x     |
+| Vue            | SSR + hydration  | 3.x, 2.x |
+| Preact         | SSR + hydration  | 10.x     |
+| Solid          | SSR + hydration  | 1.x      |
+| Svelte         | SSR + hydration  | 5.x      |
+| HTML templates | SSR + streaming  | Built-in |
+| Lit            | Client rendering | 3.x      |
+| Web Components | Client rendering | Native   |
 
 > 💡 **Preview Status**: Web Widget is currently in preview. A dedicated CLI tool (`create-web-widget-app`) is planned for future releases.
 
@@ -212,7 +215,7 @@ export default defineRouteComponent(function MixedPage() {
 
 ### 🔄 **Technology Flexibility Without Complexity**
 
-- **Currently Supported**: React 19, Vue 3, Vue 2 (Svelte, Solid, and more coming soon)
+- **Supported Adapters**: React, Vue 3, Vue 2, Preact, Solid, Svelte, HTML, Lit, and Web Components
 - **Progressive Migration**: Upgrade frameworks piece by piece
 - **Component Interop**: Share components across different frameworks
 - **No Lock-in**: Each component can use its preferred framework

@@ -8,6 +8,8 @@ import {
 import { logPlugin } from '@/internal/log';
 import { writeServerAssetsDataFile } from './server-assets-plugin';
 import type { RouterPluginHost } from './host';
+import { resolveClientEntryPoints } from '@/internal/build-entry-points';
+import { defaultWidgetPathMatcher } from '@/internal/collect-route-assets';
 
 const SERVER_ENTRY_OUTPUT_NAME = 'index';
 
@@ -109,6 +111,30 @@ export async function runRouterBuildApp(
   // module with real asset URLs and link lists derived from the client
   // manifest.
   await builder.build(server);
+
+  // The server build resolves aliases through the real Vite plugin pipeline.
+  // Refresh client inputs with that graph before starting the client build.
+  const context = host.state.clientBuildGraphContext;
+  if (context) {
+    const entryPoints = await resolveClientEntryPoints(
+      context.serverRoutemap,
+      context.serverRoutemapPath,
+      host.state.root,
+      {
+        widgetModuleFilter:
+          host.state.widgetModuleFilter ?? defaultWidgetPathMatcher,
+        caches: host.api.getRouteAssetCaches(),
+        routeClientAssets: host.api.getRouteClientAssets(),
+      }
+    );
+    const input = client.config.build.rolldownOptions.input;
+    if (!input || Array.isArray(input) || typeof input !== 'object') {
+      throw new TypeError('Expected client build input to be an object.');
+    }
+    Object.assign(input, entryPoints.points);
+    host.patchState({ clientRoutemapEntryPoints: entryPoints });
+  }
+
   await builder.build(client);
 }
 

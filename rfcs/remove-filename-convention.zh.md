@@ -104,7 +104,7 @@ for (const adapter of adapters) {
 }
 ```
 
-当解析到目标模块路径后，取其扩展名查表即可确定 source adapter。`scope` 机制同样适用——路径前缀 + 扩展名联合匹配。
+当解析到目标模块路径后，取其扩展名查表即可确定 source adapter。`scope` 机制同样适用——任一目录路径前缀 + 扩展名联合匹配。
 
 ### 3. 同框架场景的简化
 

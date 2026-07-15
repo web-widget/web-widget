@@ -136,6 +136,35 @@ describe('getLinks', () => {
     expect(links.some((l) => l.href?.includes('w-inner.js'))).toBe(false);
   });
 
+  test('follows a dynamic shared chunk used by a widget entry', () => {
+    const widgetManifest = {
+      'routes/Host@widget.vue': {
+        file: 'assets/host-entry.js',
+        src: 'routes/Host@widget.vue',
+        imports: ['_Host@widget-shared.js'],
+      },
+      'routes/Outer@widget.vue': {
+        file: 'assets/outer.js',
+        src: 'routes/Outer@widget.vue',
+        dynamicImports: ['_Host@widget-shared.js'],
+      },
+      '_Host@widget-shared.js': {
+        file: 'assets/host-shared.js',
+        css: ['assets/host.css'],
+      },
+    } as unknown as Manifest;
+
+    const links = getLinks(
+      widgetManifest,
+      'routes/Outer@widget.vue',
+      base,
+      new Set(),
+      fixtureIncludeDynamicImport
+    );
+
+    expect(links.map((link) => link.href)).toContain(`${base}assets/host.css`);
+  });
+
   test('route → widget boundary: follows matching dynamicImport; deeper dynamic chunk omitted by filter', () => {
     const m = {
       'routes/page@route.tsx': {

@@ -50,34 +50,28 @@ const Counter = container(() => import('./Counter@widget.vue'));
 //    ^? ReactWidgetComponent<{ count: number }>
 ```
 
-由于 `container` 调用对 TypeScript 完全可见，类型推导路径完整。静态 `import` 也由构建工具自动转换为 `container` 调用，运行时行为一致。
+由于 `container` 调用对 TypeScript 完全可见，类型推导路径完整。静态 `import` 也由构建工具自动转换为 `container` 调用，因此运行时行为一致；但构建转换发生在 TypeScript 类型检查之后，静态跨框架导入不会获得消费框架的组件类型。跨框架类型互操作必须使用显式 `container()`。
 
 ### `ExtractModuleProps` 实现
 
-各框架 adapter 在自己的 `container` 签名中实现 `ExtractModuleProps<M>`，从模块的默认导出提取 props 类型：
-
-**React**（消费端 adapter，匹配源框架的组件类型）：
+各框架 adapter 的 `container` 签名使用 `@web-widget/schema` 提供的共享 `ExtractWidgetProps<M>`，从模块的默认导出提取 props 类型，避免不同 adapter 的支持范围发生漂移：
 
 ```typescript
-type ExtractModuleProps<M> = M extends { default: infer C }
-  ? C extends ComponentType<infer P> // React 组件
-    ? P
-    : C extends new (...args: any[]) => { $props: infer P } // Vue 组件
-      ? P
-      : unknown
+type ExtractWidgetProps<M> = M extends { default: infer C }
+  ? ExtractComponentProps<C>
   : unknown;
-```
 
-**HTML**（同理，额外匹配函数组件签名）：
-
-```typescript
-type ExtractModuleProps<M> = M extends { default: infer C }
-  ? C extends (props: infer P, ...args: any[]) => any // HTML/React 函数组件
-    ? P
-    : C extends new (...args: any[]) => { $props: infer P } // Vue 组件
+type ExtractComponentProps<C> = C extends new (...args: any[]) => {
+  $props: infer P;
+} // Vue
+  ? P
+  : C extends (first: infer A, second: infer B, ...args: any[]) => any
+    ? unknown extends B
+      ? A // React / Preact / Solid / HTML
+      : B // Svelte 5: (internals, props)
+    : C extends (props: infer P, ...args: any[]) => any
       ? P
-      : unknown
-  : unknown;
+      : unknown;
 ```
 
 ### adapter 职责划分
@@ -102,15 +96,15 @@ defineProps<T>()      │                      │        ReactWidgetComponent<P
 两种写法在运行时等价，构建工具统一处理：
 
 ```typescript
-// 1. 静态导入（约定式，构建工具自动转换为 container 调用）
+// 1. 同框架静态导入（构建工具自动转换为 container 调用）
 import Counter from './Counter@widget.vue';
 
-// 2. 显式 container() 调用
+// 2. 跨框架导入：显式调用才能获得消费框架组件类型
 import { container } from '@web-widget/react/adapter';
 const Counter = container(() => import('./Counter@widget.vue'));
 ```
 
-显式写法适用于需要添加额外选项（如 `loading`、`renderTarget`）的场景。
+显式写法也适用于需要添加额外选项（如 `loading`、`renderTarget`）的场景。
 
 ### 各框架 props 类型推导可行性
 
@@ -132,6 +126,8 @@ const Counter = container(() => import('./Counter@widget.vue'));
 ### 已知限制
 
 - **Vue 2 运行时声明**：仅用 `props: ['count']`（数组声明）时，Vue 类型系统无法携带 props 类型，推导结果为 `unknown`
+- **Lit / Web Components**：无法仅从元素类的实例字段可靠区分公开 widget props 与 DOM API，必须使用 `container<Props>()` 显式声明
+- **静态跨框架导入**：构建期转换不参与 TypeScript 类型检查，必须使用显式 `container()` 才能映射为消费框架组件类型
 - **Angular 输入模型**：Angular 的 `input()` / `@Input()` 与 widget props 语义差异较大，且依赖 `ngtsc` 专用编译器，类型提取可行性较低
 
 ## 未选择的方案

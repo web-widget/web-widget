@@ -3,10 +3,11 @@ import { defineRouteFallbackComponent } from '@web-widget/helpers';
 import { container } from '@web-widget/react/adapter';
 
 const RVueCounter = container(
-  () => import('@playgrounds/web-router-vue3/Counter@widget.vue')
+  () =>
+    import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
 );
 
-export const fallback = defineRouteFallbackComponent(function Page500(ctx) {
+const Page500 = defineRouteFallbackComponent(function Page500(ctx) {
   return (
     <main>
       <div className="error-card">
@@ -23,3 +24,6 @@ export const fallback = defineRouteFallbackComponent(function Page500(ctx) {
     </main>
   );
 });
+
+export { Page500 as fallback };
+export default Page500;

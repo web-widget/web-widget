@@ -73,7 +73,7 @@ interface DeriveExport {
 
 #### 1.1 运行时模块
 
-`adapter` 字段指向的模块是适配器的核心——它提供框架特定的运行时函数，构建工具负责将这些函数注入到匹配的模块中。该模块需符合 `RuntimeModule` 契约：
+`adapter` 字段指向的模块是适配器的核心——它提供框架特定的运行时函数，构建工具负责将这些函数注入到匹配的模块中。该模块需符合 `AdapterModule` 契约：
 
 ```typescript
 import type {
@@ -86,7 +86,7 @@ import type {
  * 运行时模块契约
  * 适配器包的 adapter 子路径所指向的模块文件必须导出以下成员。
  */
-type RuntimeModule = {
+type AdapterModule = {
   /** 渲染函数，注入为模块导出，使其符合 ServerRender / ClientRender 契约 */
   render: ServerRender | ClientRender;
 
@@ -147,8 +147,8 @@ export default defineConfig({
         // from 指向的适配器包已提供 name 和 extensions 的默认值
         { from: '@web-widget/react' },
         // vue2 与 vue3 共存时，用 scope 限定各自的生效范围
-        { from: '@web-widget/vue2', scope: 'src/legacy' },
-        { from: '@web-widget/vue', scope: 'src/vue3' },
+        { from: '@web-widget/vue2', scope: ['src/legacy'] },
+        { from: '@web-widget/vue', scope: ['src/vue3'] },
       ],
     }),
   ],
@@ -167,11 +167,11 @@ interface WebWidgetPluginOptions {
         /** 适配器包名，构建工具从此包导入 adapter 实现 */
         from: string;
         /**
-         * 处理器生效范围（目录路径）。
-         * 仅在该目录下的文件才会匹配此处理器，用于扩展名冲突时消歧义。
-         * 匹配方式为路径前缀，与 extensions 的后缀匹配一样原子化。
+         * 处理器生效范围（目录路径列表）。
+         * 仅在任一目录下的文件才会匹配此处理器，用于扩展名冲突时消歧义。
+         * 每个目录的匹配方式为路径前缀，与 extensions 的后缀匹配一样原子化。
          */
-        scope?: string;
+        scope?: string[];
       })
   )[];
 }
@@ -179,7 +179,7 @@ interface WebWidgetPluginOptions {
 
 #### 1.3 环境适应性
 
-`ServerRender` 和 `ClientRender` 是不同的契约——服务端渲染为 HTML 字符串或流，客户端渲染负责挂载和水合。但协议只提供了一个 `adapter` 子路径。构建工具在服务端构建和客户端构建时，需要从这个子路径分别加载到不同的 `RuntimeModule` 实现，而无需适配器或用户手动区分环境。
+`ServerRender` 和 `ClientRender` 是不同的契约——服务端渲染为 HTML 字符串或流，客户端渲染负责挂载和水合。但协议只提供了一个 `adapter` 子路径。构建工具在服务端构建和客户端构建时，需要从这个子路径分别加载到不同的 `AdapterModule` 实现，而无需适配器或用户手动区分环境。
 
 借助 Node.js / 构建工具通用的 `package.json` `exports` 条件导出机制，适配器包可以在同一个子路径下为不同环境提供不同实现：
 
@@ -204,8 +204,8 @@ interface WebWidgetPluginOptions {
 }
 ```
 
-- **`worker`**: 服务端 / Worker 环境（如 Cloudflare Workers、Vite SSR），解析到包含 `ServerRender` 的 `RuntimeModule`
-- **`browser`**: 浏览器环境（客户端构建），解析到包含 `ClientRender` 的 `RuntimeModule`
+- **`worker`**: 服务端 / Worker 环境（如 Cloudflare Workers、Vite SSR），解析到包含 `ServerRender` 的 `AdapterModule`
+- **`browser`**: 浏览器环境（客户端构建），解析到包含 `ClientRender` 的 `AdapterModule`
 - **`default`**: 未匹配上述条件时的回退，通常等同服务端实现
 
 条件导出将环境判断下沉到包解析层，构建工具只需一行代码即可加载运行时实现，环境差异由条件导出自动处理：
@@ -222,7 +222,7 @@ const adapterModule = await import(`${packageName}${processor.adapter}`);
 一个完整的适配器包（以 `@web-widget/react` 为例）的结构和导出：
 
 ```typescript
-// @web-widget/react/adapter/server.ts —— 服务端 RuntimeModule
+// @web-widget/react/adapter/server.ts —— 服务端 AdapterModule
 import type { ServerRender } from '@web-widget/schema';
 
 export const render: ServerRender = (component, data, options) => {
@@ -235,7 +235,7 @@ export function container(loader, options) {
 ```
 
 ```typescript
-// @web-widget/react/adapter/client.ts —— 客户端 RuntimeModule
+// @web-widget/react/adapter/client.ts —— 客户端 AdapterModule
 import type { ClientRender } from '@web-widget/schema';
 
 export const render: ClientRender = (component, data, options) => {

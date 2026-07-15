@@ -1,3 +1,8 @@
 {
-  "recommendations": ["orta.vscode-jest", "bierner.lit-html", "vue.volar"]
+  "recommendations": [
+    "orta.vscode-jest",
+    "bierner.lit-html",
+    "vue.volar",
+    "svelte.svelte-vscode"
+  ]
 }

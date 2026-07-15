@@ -30,6 +30,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "tsc -p tsconfig.type-tests.json"
+  },
   "type": "module"
 }

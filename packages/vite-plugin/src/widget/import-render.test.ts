@@ -8,7 +8,7 @@ import {
 const ROOT = '/project';
 const BASE = '/';
 const IMPORT_PATTERN = /@widget/;
-const PROVIDE = '@web-widget/react/adapter';
+const ADAPTER_MODULE = '@web-widget/react/adapter';
 const IMPORTER_ID = '/project/src/page@route.tsx';
 
 function makeCtx(
@@ -36,7 +36,7 @@ function makeOptions(
     base: BASE,
     sourcemap: false,
     importPattern: IMPORT_PATTERN,
-    provide: PROVIDE,
+    adapterModule: ADAPTER_MODULE,
     ...overrides,
   };
 }
@@ -135,6 +135,15 @@ describe('transformWidgetImports', () => {
         '\n' +
           'const Counter = container(() => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter", loading: \'eager\' });'
       );
+    });
+
+    test('is idempotent when import options were already injected', async () => {
+      const code = `const Counter = container(() => import('./Counter@widget.vue'), { import: resolveWidgetAsset("src/Counter@widget.vue"), name: "Counter" });`;
+      const result = await transformWidgetImports(
+        makeCtx(),
+        makeOptions(code, { dev: false, isServer: true })
+      );
+      expect(result).toBeNull();
     });
 
     test('let declaration', async () => {

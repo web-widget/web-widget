@@ -9,8 +9,8 @@ import type { HtmlWidgetComponent } from './components';
  * Adapt a framework component type to an HTML widget component type.
  *
  * @deprecated Use `container()` from `@web-widget/html/adapter` instead.
- * The build tool automatically infers props types for both static imports
- * and explicit `container(() => import(...))` calls.
+ * Explicit `container(() => import(...))` calls infer cross-framework props.
+ * Static imports preserve the source component type during type checking.
  *
  * This is a type-level cast only — the actual cross-framework rendering
  * is handled by the `@widget` system.

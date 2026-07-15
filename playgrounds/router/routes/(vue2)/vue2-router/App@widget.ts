@@ -8,7 +8,7 @@ type Props = {
 } & any;
 
 export const render = createVueRender({
-  async onBeforeCreateApp(context, _component: any, props: any) {
+  async onBeforeCreateApp(context, _component: any, _props: any) {
     const container = context.container;
 
     const router = createRouter(container);

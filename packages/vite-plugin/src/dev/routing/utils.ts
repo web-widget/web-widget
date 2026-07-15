@@ -1,5 +1,6 @@
 import { basename, dirname } from 'node:path';
 import { normalizePath } from '@/internal/path';
+import { ROUTE_OR_WIDGET_MARKER_AT_END_PATTERN } from '@/internal/module-conventions';
 
 /**
  * Adopted from Qwik
@@ -18,18 +19,17 @@ export function getExtension(fileName: string) {
     const parts = fileName.trim().toLowerCase().split('.');
     if (parts.length > 1) {
       const ext = parts.pop()!.split('?')[0].split('#')[0];
-      if (ext === 'ts' || ext === 'js') {
+      if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
         const sub = parts.pop();
-        if (sub === 'd') {
+        if (sub === 'd' && ext === 'ts') {
           return '.d.ts';
         }
-        // TODO: This hardcodes `html` to support the `.html.ts` / `.html.js`
-        // compound extensions declared by `@web-widget/html`. Ideally this
-        // should be driven by adapter-declared compound extensions passed
-        // through the plugin API, but that requires plumbing the extension
-        // list through the routing layer. For now, this is a temporary
-        // shortcut.
-        if (sub === 'html') {
+        const marker = parts.at(-1);
+        if (
+          sub &&
+          marker &&
+          ROUTE_OR_WIDGET_MARKER_AT_END_PATTERN.test(marker)
+        ) {
           return '.' + sub + '.' + ext;
         }
       }

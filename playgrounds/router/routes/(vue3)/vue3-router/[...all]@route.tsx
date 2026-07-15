@@ -1,8 +1,8 @@
 import type React from 'react';
 import { defineMeta, defineRouteComponent } from '@web-widget/helpers';
 import { container } from '@web-widget/react/adapter';
-import BaseLayout from '../../(components)/BaseLayout';
-import { PageHeader } from '../../(components)/ui';
+import BaseLayout from '~/routes/(components)/BaseLayout';
+import { PageHeader } from '~/routes/(components)/ui';
 
 // `route` is consumed by createVueRender's onCreatedApp, not a component prop.
 const RApp = container(() => import('./App@widget')) as React.FC<any>;

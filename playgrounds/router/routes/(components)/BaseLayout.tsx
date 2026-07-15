@@ -3,9 +3,7 @@ import '../(css)/base-layout.css';
 import type { ComponentProps } from 'react';
 import { container } from '@web-widget/react/adapter';
 
-const RMenu = container(
-  () => import('@playgrounds/web-router-vue3/Menu@widget.vue')
-);
+const Menu = container(() => import('./Menu@widget.ts'));
 
 export default function BaseLayout({ children }: ComponentProps<any>) {
   return (
@@ -15,7 +13,7 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
       </header>
       <div className="container">
         <aside>
-          <RMenu widget={{ serverOnly: true }} />
+          <Menu widget={{ serverOnly: true }} />
         </aside>
         <main>{children}</main>
       </div>

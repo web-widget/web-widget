@@ -4,7 +4,7 @@ import Router from 'vue-router';
 Vue.use(Router);
 
 export default function createRouter(
-  scrollingElement?: Element | DocumentFragment
+  _scrollingElement?: Element | DocumentFragment
 ) {
   return new Router({
     mode: 'history',

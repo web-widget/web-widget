@@ -6,6 +6,7 @@ import { applyToClientEnvironment } from '@/internal/environment';
 import { getWebRouterPluginApi } from '@/internal/manifest';
 import { relativePathWithDot } from '@/internal/path';
 import { createAliasGenerator } from '@/internal/alias';
+import { ACTION_MODULE_PATTERN } from '@/internal/module-conventions';
 
 export interface ImportActionPluginOptions {
   cache?: Set<string>;
@@ -43,7 +44,7 @@ export function importActionPlugin(
     sharedDuringBuild: true,
 
     async configResolved(config) {
-      const { exclude, include = /[.@]action\..*$/ } = options;
+      const { exclude, include = ACTION_MODULE_PATTERN } = options;
 
       filter = createFilter(include, exclude);
       root = config.root;
