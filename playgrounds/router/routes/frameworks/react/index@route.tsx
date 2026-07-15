@@ -1,8 +1,8 @@
 import { defineMeta, defineRouteComponent } from '@web-widget/helpers';
 import { container } from '@web-widget/react/adapter';
 import Counter from './Counter@widget';
-import BaseLayout from '../../(components)/BaseLayout';
-import { PageHeader, Section } from '../../(components)/ui';
+import BaseLayout from '~/routes/(components)/BaseLayout';
+import { PageHeader, Section } from '~/routes/(components)/ui';
 
 const Vue3Counter = container(
   () =>
@@ -15,15 +15,13 @@ const Vue2Counter = container(
 const SvelteCounter = container(
   () => import('../svelte/Counter@widget.svelte')
 );
-const SolidCounter = container(() => import('../solid/Counter@widget.solid'));
-const PreactCounter = container(
-  () => import('../preact/Counter@widget.preact')
-);
+const SolidCounter = container(() => import('../solid/Counter@widget'));
+const PreactCounter = container(() => import('../preact/Counter@widget'));
 const WebComponentCounter = container<{ count?: number }>(
-  () => import('../../(components)/WebComponentCounter@widget.wc')
+  () => import('~/routes/(components)/WebComponentCounter@widget.wc')
 );
 const LitCounter = container<{ count?: number }>(
-  () => import('../../(components)/LitCounter@widget.lit')
+  () => import('~/routes/(components)/LitCounter@widget.lit')
 );
 
 export const meta = defineMeta({ title: 'React route' });

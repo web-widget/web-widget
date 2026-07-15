@@ -15,13 +15,13 @@
   const Vue3Counter = container(
     () => import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
   );
-  const SolidCounter = container(() => import('../solid/Counter@widget.solid'));
-  const PreactCounter = container(() => import('../preact/Counter@widget.preact'));
+  const SolidCounter = container(() => import('../solid/Counter@widget'));
+  const PreactCounter = container(() => import('../preact/Counter@widget'));
   const WebComponentCounter = container<{ count?: number }>(
-    () => import('../../(components)/WebComponentCounter@widget.wc')
+    () => import('~/routes/(components)/WebComponentCounter@widget.wc')
   );
   const LitCounter = container<{ count?: number }>(
-    () => import('../../(components)/LitCounter@widget.lit')
+    () => import('~/routes/(components)/LitCounter@widget.lit')
   );
 </script>
 

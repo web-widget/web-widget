@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js';
-import '../../(css)/base-layout.css';
-import '../../(css)/ui.css';
-import Menu from './Menu.solid';
+import '~/routes/(css)/base-layout.css';
+import '~/routes/(css)/ui.css';
+import Menu from './Menu';
 
 export default function Layout(props: { children: JSX.Element }) {
   return (

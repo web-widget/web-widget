@@ -87,6 +87,17 @@ describe('production server (pnpm build && node server.js)', () => {
     expect(await api.text()).toContain('Hello');
   });
 
+  it('initializes Solid hydration before streamed coordination scripts', async () => {
+    const html = await (
+      await fetch(`${server!.origin}/frameworks/solid`)
+    ).text();
+    const hydrationIndex = html.indexOf('window._$HY');
+    const coordinationIndex = html.indexOf('_$HY.r[');
+
+    expect(hydrationIndex).toBeGreaterThanOrEqual(0);
+    expect(coordinationIndex).toBeGreaterThan(hydrationIndex);
+  });
+
   it.each([
     [
       'React',

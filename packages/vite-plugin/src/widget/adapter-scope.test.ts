@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { scopePrefix } from './adapter-scope';
+import { adapterScopePrefix, scopePrefix } from './adapter-scope';
 
 describe('scopePrefix', () => {
   test('matches files under any configured directory', () => {
@@ -19,4 +19,25 @@ describe('scopePrefix', () => {
       expect(scopePrefix(scope, '/project')).toBe('');
     }
   );
+});
+
+describe('adapterScopePrefix', () => {
+  it('uses the adapter scope when present', () => {
+    const pattern = new RegExp(
+      `^${adapterScopePrefix(['routes/solid'], ['routes/preact'], '/project')}[^?]*\\.tsx$`
+    );
+
+    expect(pattern.test('/project/routes/solid/page@route.tsx')).toBe(true);
+    expect(pattern.test('/project/routes/preact/page@route.tsx')).toBe(false);
+  });
+
+  it('excludes scoped adapters from an unscoped fallback', () => {
+    const pattern = new RegExp(
+      `^${adapterScopePrefix(undefined, ['routes/solid', 'routes/preact'], '/project')}[^?]*\\.tsx$`
+    );
+
+    expect(pattern.test('/project/routes/react/page@route.tsx')).toBe(true);
+    expect(pattern.test('/project/routes/solid/page@route.tsx')).toBe(false);
+    expect(pattern.test('/project/routes/preact/page@route.tsx')).toBe(false);
+  });
 });

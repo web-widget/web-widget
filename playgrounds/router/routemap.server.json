@@ -58,11 +58,11 @@
     },
     {
       "pathname": "/frameworks/preact",
-      "module": "./routes/frameworks/preact/index@route.preact.tsx"
+      "module": "./routes/frameworks/preact/index@route.tsx"
     },
     {
       "pathname": "/frameworks/preact/widget-embedding",
-      "module": "./routes/frameworks/preact/widget-embedding@route.preact.tsx"
+      "module": "./routes/frameworks/preact/widget-embedding@route.tsx"
     },
     {
       "pathname": "/frameworks/react",
@@ -70,11 +70,11 @@
     },
     {
       "pathname": "/frameworks/solid",
-      "module": "./routes/frameworks/solid/index@route.solid.tsx"
+      "module": "./routes/frameworks/solid/index@route.tsx"
     },
     {
       "pathname": "/frameworks/solid/widget-embedding",
-      "module": "./routes/frameworks/solid/widget-embedding@route.solid.tsx"
+      "module": "./routes/frameworks/solid/widget-embedding@route.tsx"
     },
     {
       "pathname": "/frameworks/svelte",

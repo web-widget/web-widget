@@ -60,6 +60,20 @@ describe('vite build integration', () => {
     expect(serverSource).toContain('WebRouter');
   });
 
+  it('includes alias-imported custom-extension widgets in client assets', () => {
+    const manifest = JSON.parse(fs.readFileSync(clientManifestPath, 'utf-8'));
+    const data = readServerAssetsData();
+    const widgetIds = [
+      'routes/(components)/LitCounter@widget.lit.ts',
+      'routes/(components)/WebComponentCounter@widget.wc.ts',
+    ];
+
+    for (const widgetId of widgetIds) {
+      expect(manifest[widgetId]?.file).toBeTruthy();
+      expect(data.assetUrls[widgetId]).toBeTruthy();
+    }
+  });
+
   it('does not inject async route chunk css into css-lazy-dynamic meta links', () => {
     // The route module should resolve links at runtime via `resolveLinks`
     // (data lives in the server assets data file, not inlined in the chunk).

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import type { Plugin } from 'vite';
 import { exportRenderPlugin } from './export-render';
 import { importRenderPlugin } from './import-render';
-import { scopePrefix } from './adapter-scope';
+import { adapterScopePrefix } from './adapter-scope';
 import { getWebRouterPluginApi } from '@/internal/manifest';
 import {
   ROUTE_MARKER_PATTERN,
@@ -133,7 +133,8 @@ function extPattern(extensions: string[]): string {
 
 function buildPluginsForAdapter(
   resolved: ResolvedAdapter,
-  root: string
+  root: string,
+  excludedScopes: string[]
 ): Plugin[] {
   const { from, extensions, adapter, scope, deriveExports } = resolved;
 
@@ -141,7 +142,7 @@ function buildPluginsForAdapter(
   const adapterModule = `${from}/${adapter.replace(/^\.\//, '')}`;
 
   const ext = extPattern(extensions);
-  const scopeRe = scopePrefix(scope, root);
+  const scopeRe = adapterScopePrefix(scope, excludedScopes, root);
 
   // Native filters (Rust layer): broad pre-filters on pathname to skip
   // obviously unrelated modules. Framework-specific sub-modules (e.g. Vue SFC
@@ -244,5 +245,18 @@ export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
     }
   }
 
-  return adapters.flatMap((a) => buildPluginsForAdapter(a, root));
+  return adapters.flatMap((adapter) => {
+    const excludedScopes = adapters
+      .filter(
+        (candidate) =>
+          candidate !== adapter &&
+          candidate.scope?.length &&
+          candidate.extensions.some((extension) =>
+            adapter.extensions.includes(extension)
+          )
+      )
+      .flatMap((candidate) => candidate.scope ?? []);
+
+    return buildPluginsForAdapter(adapter, root, excludedScopes);
+  });
 }

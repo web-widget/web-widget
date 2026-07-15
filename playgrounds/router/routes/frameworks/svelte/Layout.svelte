@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { onMount } from 'svelte';
-  import '../../(css)/base-layout.css';
-  import '../../(css)/ui.css';
+  import '~/routes/(css)/base-layout.css';
+  import '~/routes/(css)/ui.css';
 
   let { children }: { children: Snippet } = $props();
   import Menu from './Menu.svelte';

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navigation } from '../../(components)/catalog';
+  import { navigation } from '~/routes/(components)/catalog';
 </script>
 
 <ul class="menu">

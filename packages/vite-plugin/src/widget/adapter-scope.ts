@@ -13,3 +13,15 @@ export function scopePrefix(scope: string[] | undefined, root: string): string {
   });
   return `(?:${prefixes.join('|')})`;
 }
+
+export function adapterScopePrefix(
+  scope: string[] | undefined,
+  excludedScopes: string[],
+  root: string
+): string {
+  const included = scopePrefix(scope, root);
+  if (included) return included;
+
+  const excluded = scopePrefix(excludedScopes, root);
+  return excluded ? `(?!${excluded})` : '';
+}

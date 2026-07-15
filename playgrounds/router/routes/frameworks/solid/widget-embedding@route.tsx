@@ -1,9 +1,9 @@
 import { defineMeta } from '@web-widget/helpers';
 import { container } from '@web-widget/solid/adapter';
-import Layout from './Layout.solid';
+import Layout from './Layout';
 
 const ReactCounter = container(
-  () => import('../../(components)/Counter@widget')
+  () => import('~/routes/(components)/Counter@widget')
 );
 
 export const meta = defineMeta({ title: 'Solid Widget embedding' });

@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import { defineMeta } from '@web-widget/helpers';
 import { container } from '@web-widget/preact/adapter';
-import Counter from './Counter@widget.preact';
-import Layout from './Layout.preact';
+import Counter from './Counter@widget';
+import Layout from './Layout';
 
 const Vue3Counter = container(
   () =>
@@ -16,12 +16,12 @@ const Vue2Counter = container(
 const SvelteCounter = container(
   () => import('../svelte/Counter@widget.svelte')
 );
-const SolidCounter = container(() => import('../solid/Counter@widget.solid'));
+const SolidCounter = container(() => import('../solid/Counter@widget'));
 const WebComponentCounter = container<{ count?: number }>(
-  () => import('../../(components)/WebComponentCounter@widget.wc')
+  () => import('~/routes/(components)/WebComponentCounter@widget.wc')
 );
 const LitCounter = container<{ count?: number }>(
-  () => import('../../(components)/LitCounter@widget.lit')
+  () => import('~/routes/(components)/LitCounter@widget.lit')
 );
 
 export const meta = defineMeta({ title: 'Preact route' });

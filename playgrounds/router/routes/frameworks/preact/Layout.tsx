@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
 import type { ComponentChildren } from 'preact';
-import '../../(css)/base-layout.css';
-import '../../(css)/ui.css';
-import Menu from './Menu.preact';
+import '~/routes/(css)/base-layout.css';
+import '~/routes/(css)/ui.css';
+import Menu from './Menu';
 
 export default function Layout({ children }: { children: ComponentChildren }) {
   return (

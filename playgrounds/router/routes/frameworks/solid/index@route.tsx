@@ -1,7 +1,7 @@
 import { defineMeta } from '@web-widget/helpers';
 import { container } from '@web-widget/solid/adapter';
-import Counter from './Counter@widget.solid';
-import Layout from './Layout.solid';
+import Counter from './Counter@widget';
+import Layout from './Layout';
 
 const ReactCounter = container(() => import('../react/Counter@widget'));
 const Vue3Counter = container(
@@ -15,14 +15,12 @@ const Vue2Counter = container(
 const SvelteCounter = container(
   () => import('../svelte/Counter@widget.svelte')
 );
-const PreactCounter = container(
-  () => import('../preact/Counter@widget.preact')
-);
+const PreactCounter = container(() => import('../preact/Counter@widget'));
 const WebComponentCounter = container<{ count?: number }>(
-  () => import('../../(components)/WebComponentCounter@widget.wc')
+  () => import('~/routes/(components)/WebComponentCounter@widget.wc')
 );
 const LitCounter = container<{ count?: number }>(
-  () => import('../../(components)/LitCounter@widget.lit')
+  () => import('~/routes/(components)/LitCounter@widget.lit')
 );
 
 export const meta = defineMeta({ title: 'Solid route' });

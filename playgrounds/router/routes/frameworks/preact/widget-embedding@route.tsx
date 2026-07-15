@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import { defineMeta } from '@web-widget/helpers';
 import { container } from '@web-widget/preact/adapter';
-import Layout from './Layout.preact';
+import Layout from './Layout';
 
 const VueCounter = container(
   () => import('@playgrounds/web-router-vue3/Counter@widget.vue')

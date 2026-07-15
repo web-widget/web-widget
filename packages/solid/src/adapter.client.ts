@@ -12,7 +12,15 @@ export const render = defineClientRender<Component<any>>(
     return {
       mount() {
         const view = () => createComponent(component, data ?? {});
-        const canHydrate = recovering && Reflect.has(globalThis, '_$HY');
+        // Solid hydration uses the global _$HY registry and a renderId-based
+        // key namespace. Isolated web-widget roots do not have their own
+        // renderId yet, so hydrating them can collide with the page root.
+        const isIsolatedWidget =
+          container instanceof Element &&
+          container.hasAttribute('recovering') &&
+          container.hasAttribute('import');
+        const canHydrate =
+          recovering && !isIsolatedWidget && Reflect.has(globalThis, '_$HY');
         if (canHydrate) {
           dispose = hydrate(view, container);
         } else {

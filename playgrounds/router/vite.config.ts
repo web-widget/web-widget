@@ -21,7 +21,7 @@ function reactPresetsPlugin() {
 
 function solidPresetsPlugin(): Plugin {
   const plugin = solid({
-    include: [/routes\/frameworks\/solid\/.+\.solid\.[jt]sx$/],
+    include: [/routes\/frameworks\/solid\/.+\.[jt]sx$/],
     ssr: true,
   });
   const transform = plugin.transform;
@@ -37,6 +37,7 @@ function solidPresetsPlugin(): Plugin {
     transform(code, id, options) {
       return transform.call(this, code, id, {
         ...options,
+        moduleType: options?.moduleType ?? 'tsx',
         ssr: this.environment.config.consumer === 'server',
       });
     },
@@ -44,6 +45,11 @@ function solidPresetsPlugin(): Plugin {
 }
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '~': import.meta.dirname,
+    },
+  },
   future: {
     removePluginHookHandleHotUpdate: 'warn',
     removePluginHookSsrArgument: 'warn',
@@ -61,7 +67,7 @@ export default defineConfig({
     target: 'node',
     // Keep SSR package resolution ESM-first under Vite 8 module runner.
     resolve: {
-      conditions: ['import', 'module', 'default'],
+      conditions: ['node', 'import', 'module', 'default'],
     },
   },
   plugins: [
@@ -94,11 +100,11 @@ export default defineConfig({
         '@web-widget/svelte',
         {
           from: '@web-widget/solid',
-          extensions: ['.solid.tsx', '.solid.jsx'],
+          scope: ['routes/frameworks/solid'],
         },
         {
           from: '@web-widget/preact',
-          extensions: ['.preact.tsx', '.preact.jsx'],
+          scope: ['routes/frameworks/preact'],
         },
         '@web-widget/web-components',
         '@web-widget/lit',

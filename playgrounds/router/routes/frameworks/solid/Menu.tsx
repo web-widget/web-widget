@@ -1,5 +1,4 @@
-/** @jsxImportSource preact */
-import { navigation } from '../../(components)/catalog';
+import { navigation } from '~/routes/(components)/catalog';
 
 export default function Menu() {
   return (
