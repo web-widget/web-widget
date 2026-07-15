@@ -44,7 +44,9 @@ jobs:
 
       - run: corepack enable && pnpm --version
 
-      - run: pnpm install --recursive --no-frozen-lockfile --loglevel=error
+      - run: pnpm install --recursive --no-frozen-lockfile
+        env:
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: "1"
 
       - run: pnpm build
 
