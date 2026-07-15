@@ -1,5 +1,18 @@
 # @web-widget/html
 
+## 3.0.0-beta.3
+
+### Minor Changes
+
+- 2fe95e0: Support pending fallback UI for client-only widgets until client mounting begins.
+
+### Patch Changes
+
+- Updated dependencies [2fe95e0]
+  - @web-widget/web-widget@3.0.0-beta.3
+  - @web-widget/helpers@3.0.0-beta.3
+  - @web-widget/schema@3.0.0-beta.3
+
 ## 3.0.0-beta.2
 
 ### Major Changes

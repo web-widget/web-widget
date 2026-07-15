@@ -37,6 +37,7 @@
   "changesets": [
     "add-framework-adapters",
     "build-transformation-protocol",
+    "client-only-pending-fallback",
     "container-generic-type-inference",
     "devtools-workspace-json",
     "fix-http2-head-response",

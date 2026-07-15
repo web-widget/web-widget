@@ -1,5 +1,14 @@
 # @web-widget/svelte
 
+## 3.0.0-beta.3
+
+### Patch Changes
+
+- Updated dependencies [2fe95e0]
+  - @web-widget/web-widget@3.0.0-beta.3
+  - @web-widget/helpers@3.0.0-beta.3
+  - @web-widget/schema@3.0.0-beta.3
+
 ## 3.0.0-beta.2
 
 ### Minor Changes
