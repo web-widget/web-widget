@@ -1,3 +1,4 @@
+/** @jsxImportSource solid-js */
 import { defineMeta } from '@web-widget/helpers';
 import { container } from '@web-widget/solid/adapter';
 import Layout from './Layout';

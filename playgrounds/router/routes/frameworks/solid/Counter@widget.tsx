@@ -1,3 +1,4 @@
+/** @jsxImportSource solid-js */
 import { createSignal } from 'solid-js';
 
 export default function Counter(props: { count?: number }) {

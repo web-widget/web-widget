@@ -1,3 +1,4 @@
+/** @jsxImportSource solid-js */
 import { navigation } from '~/routes/(components)/catalog';
 
 export default function Menu() {

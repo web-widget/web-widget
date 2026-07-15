@@ -1,3 +1,4 @@
+/** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
 import '~/routes/(css)/base-layout.css';
 import '~/routes/(css)/ui.css';
