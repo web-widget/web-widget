@@ -32,7 +32,7 @@ function Page() {
 
 web-widget 架构中，路由组件被渲染为静态 HTML，不存在路由级 React hydration。每个 `<web-widget>` 元素在客户端独立 hydrate。
 
-这意味着 React 流式 SSR 的标准错误恢复机制（Suspense 内 Promise reject → 客户端重试 → ErrorBoundary 兜底）**不适用**：没有路由级 React root 来执行客户端重试，reject 会导致 loading fallback 永久停留。
+这意味着 React 流式 SSR 的标准错误恢复机制（Suspense 内 Promise reject → 客户端重试 → ErrorBoundary 兜底）**不适用**：没有路由级 React root 来执行客户端重试，reject 会导致 pending fallback 永久停留。
 
 ## 设计方案
 
@@ -51,7 +51,7 @@ flowchart TD
 | 层                      | 职责                                                                 | 实现方式                                     |
 | ----------------------- | -------------------------------------------------------------------- | -------------------------------------------- |
 | **WidgetErrorBoundary** | 捕获渲染错误（非流式模式），隔离故障                                 | class component + `getDerivedStateFromError` |
-| **Suspense**            | 等待 `use(innerHTML)` resolve，期间显示 loadingFallback              | `<Suspense fallback={loadingFallback}>`      |
+| **Suspense**            | 等待 `use(innerHTML)` resolve，期间显示 pendingFallback              | `<Suspense fallback={pendingFallback}>`      |
 | **WebWidget**           | 渲染 `<web-widget>` 元素；若 innerHTML 为 Error 则渲染 errorFallback | `use()` + `.catch(err => err)`               |
 
 ### 2. fallback API
@@ -59,22 +59,22 @@ flowchart TD
 `fallback` 支持两种形式，通过 `resolveFallback` 统一解析：
 
 ```tsx
-// 简单形式：ReactNode，同时用于 loading 和 error
+// 简单形式：ReactNode，同时用于 pending 和 error
 <Widget widget={{ fallback: <Spinner /> }} />
 
 // 对象形式：分别指定
-<Widget widget={{ fallback: { loading: <Spinner />, error: <ErrorUI /> } }} />
+<Widget widget={{ fallback: { pending: <Spinner />, error: <ErrorUI /> } }} />
 ```
 
 解析规则：
 
-| fallback 值                                    | loadingFallback | errorFallback                   |
+| fallback 值                                    | pendingFallback | errorFallback                   |
 | ---------------------------------------------- | --------------- | ------------------------------- |
 | `undefined`                                    | `undefined`     | `undefined`                     |
 | `<Spinner />`                                  | `<Spinner />`   | `<Spinner />`                   |
-| `{ loading: <Spinner /> }`                     | `<Spinner />`   | `<Spinner />`（回退到 loading） |
+| `{ pending: <Spinner /> }`                     | `<Spinner />`   | `<Spinner />`（回退到 pending） |
 | `{ error: <ErrorUI /> }`                       | `undefined`     | `<ErrorUI />`                   |
-| `{ loading: <Spinner />, error: <ErrorUI /> }` | `<Spinner />`   | `<ErrorUI />`                   |
+| `{ pending: <Spinner />, error: <ErrorUI /> }` | `<Spinner />`   | `<ErrorUI />`                   |
 
 ### 3. 错误处理机制
 
@@ -96,7 +96,7 @@ function WebWidget({ localName, attributes, innerHTML, errorFallback }) {
 }
 ```
 
-**为什么不用 throw？** throw 会导致 React 流式 SSR 放弃该子树（永久 loading fallback），因为 islands 架构没有路由级 hydration 来执行客户端重试。正常 return errorFallback 让 React 完成流式渲染，errorFallback 通过 `$RC` 机制替换 loading fallback。
+**为什么不用 throw？** throw 会导致 React 流式 SSR 放弃该子树（永久 pending fallback），因为 islands 架构没有路由级 hydration 来执行客户端重试。正常 return errorFallback 让 React 完成流式渲染，errorFallback 通过 `$RC` 机制替换 pending fallback。
 
 ### 4. 数据流
 
@@ -146,7 +146,7 @@ createElement(localName, {
 容器配置通过 `widget` prop 嵌套传入，与 widget 自身 props 物理隔离，避免命名冲突。
 
 ```tsx
-type WidgetFallback = ReactNode | { loading?: ReactNode; error?: ReactNode };
+type WidgetFallback = ReactNode | { pending?: ReactNode; error?: ReactNode };
 
 type WidgetContainerConfig = {
   /** 加载态和错误态的占位 UI */
@@ -181,7 +181,7 @@ interface ReactWidgetProps {
 
 ### 客户端错误恢复不可用
 
-当前设计在**服务端**完整处理 loading 与 error 状态——errorFallback 在服务端确定并通过 `$RC` 流式输出到客户端。但一旦 HTML 到达浏览器后，**无法在客户端层面恢复或重试失败的 widget**。
+当前设计在**服务端**完整处理 pending 与 error 状态——errorFallback 在服务端确定并通过 `$RC` 流式输出到客户端。但一旦 HTML 到达浏览器后，**无法在客户端层面恢复或重试失败的 widget**。
 
 原因在于 islands 架构没有路由级 React hydration：路由组件的 React 树在服务端渲染为静态 HTML 后销毁，客户端不存在对应的 React 组件实例。因此：
 

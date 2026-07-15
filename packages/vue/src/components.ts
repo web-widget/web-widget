@@ -88,7 +88,7 @@ const WebWidget = /*#__PURE__*/ defineComponent({
 
     // Catch render errors and resolve with the Error instead of rejecting.
     // In the islands architecture there is no client-side retry — a rejected
-    // promise inside Suspense would leave the loading fallback forever.
+    // promise inside Suspense would leave the pending fallback forever.
     // By resolving with the Error, the render function can render the error
     // UI without the framework abandoning the subtree.
     const innerHTML = await widget
@@ -162,9 +162,9 @@ export function resolveFallback(fallback: WidgetFallback | undefined): {
 
 export interface WidgetContainerConfig {
   /**
-   * Fallback UI for loading and error states.
+   * Fallback UI for pending and error states.
    *
-   * Only effective during server-side rendering: loading UI shows while the
+   * Only effective during server-side rendering: pending UI shows while the
    * widget module renders; error UI shows if rendering fails. Both are
    * serialized into the HTML stream — no client-side retry exists in the
    * islands architecture.

@@ -564,7 +564,7 @@ webWidgetPlugin({
 
 ## 10. Widget 孤岛错误恢复
 
-此前 widget 渲染失败时错误会向上冒泡，导致整页崩溃或流式渲染中永久显示 loading fallback。widget 容器现在内部集成了 `ErrorBoundary` 和 `Suspense`，错误被限制在单个孤岛内，自动渲染用户提供的 `fallback`：
+此前 widget 渲染失败时错误会向上冒泡，导致整页崩溃或流式渲染中永久显示 pending fallback。widget 容器现在内部集成了 `ErrorBoundary` 和 `Suspense`，错误被限制在单个孤岛内，自动渲染用户提供的 `fallback`：
 
 ```tsx
 // 容器配置通过 widget prop 传入，与组件自身 props 命名空间隔离
