@@ -2,6 +2,15 @@
   "name": "@web-widget/solid",
   "description": "Solid adapter",
   "version": "3.0.0-beta.3",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/solid"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
   "license": "MIT",
   "type": "module",
   "sideEffects": false,

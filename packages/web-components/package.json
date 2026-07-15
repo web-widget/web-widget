@@ -2,6 +2,15 @@
   "name": "@web-widget/web-components",
   "description": "Web Components CSR adapter",
   "version": "3.0.0-beta.3",
+  "homepage": "https://github.com/web-widget/web-widget#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-widget/web-widget.git",
+    "directory": "packages/web-components"
+  },
+  "bugs": {
+    "url": "https://github.com/web-widget/web-widget/issues"
+  },
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
