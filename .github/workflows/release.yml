@@ -8,7 +8,8 @@ on:
       - "!*"
 
 env:
-  NODE_VERSION: "22.13.0"
+  # npm@latest requires a newer Node runtime than the minimum supported by pnpm.
+  NODE_VERSION: "24"
 
 permissions:
   contents: write
