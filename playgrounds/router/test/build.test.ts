@@ -60,6 +60,19 @@ describe('vite build integration', () => {
     expect(serverSource).toContain('WebRouter');
   });
 
+  it('does not include Svelte development instrumentation in the SSR bundle', () => {
+    const svelteBundle = fs
+      .readdirSync(path.join(playgroundRoot, 'dist/server/assets'))
+      .find((file) => file.startsWith('frameworks.svelte.Counter@widget'));
+
+    expect(svelteBundle).toBeTruthy();
+    const source = fs.readFileSync(
+      path.join(playgroundRoot, 'dist/server/assets', svelteBundle!),
+      'utf-8'
+    );
+    expect(source).not.toContain('function push_element(');
+  });
+
   it('includes alias-imported custom-extension widgets in client assets', () => {
     const manifest = JSON.parse(fs.readFileSync(clientManifestPath, 'utf-8'));
     const data = readServerAssetsData();
@@ -94,6 +107,23 @@ describe('vite build integration', () => {
 
     expect(hrefs.some((href) => href.includes('lazy-chunk'))).toBe(false);
     expect(hrefs.some((href) => href.includes('_css-lazy_'))).toBe(false);
+  });
+
+  it('includes nested widget CSS in the vue3-import-widgets route', () => {
+    const hrefs = readRouteLinks(
+      'routes/(vue3)/vue3-import-widgets/index@route.tsx'
+    )
+      .map((link) => link.href ?? '')
+      .filter((href) => href.endsWith('.css'));
+    const css = hrefs
+      .map((href) =>
+        fs.readFileSync(path.join(playgroundRoot, 'dist/client', href), 'utf-8')
+      )
+      .join('\n');
+
+    expect(css).toContain('.counter');
+    expect(css).toContain('#059669');
+    expect(css).toContain('#ea580c');
   });
 
   it('injects Counter widget CSS into react-and-vue route meta links', () => {

@@ -44,7 +44,7 @@ function solidPresetsPlugin(): Plugin {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   resolve: {
     alias: {
       '~': import.meta.dirname,
@@ -89,7 +89,13 @@ export default defineConfig({
     reactPresetsPlugin(),
     vuePresetsPlugin(),
     vue2PresetsPlugin(),
-    svelte(),
+    svelte({
+      compilerOptions: {
+        // A parent process may leave NODE_ENV=development set for `vite build`.
+        // Keep development-only SSR instrumentation out of production bundles.
+        dev: command === 'serve',
+      },
+    }),
     solidPresetsPlugin(),
     webWidgetPlugin({
       adapters: [
@@ -123,4 +129,4 @@ export default defineConfig({
       'x-server-mode': 'preview',
     },
   },
-});
+}));

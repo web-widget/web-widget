@@ -50,7 +50,8 @@ function getLinksInternal(
   base: string,
   containSelf: boolean,
   cache: Set<string>,
-  widgetModuleFilter?: WidgetModuleFilter
+  widgetModuleFilter?: WidgetModuleFilter,
+  widgetChunkKeys: Set<string> = new Set()
 ): LinkDescriptor[] {
   if (cache.has(srcFileName)) {
     return [];
@@ -102,7 +103,8 @@ function getLinksInternal(
           base,
           true,
           cache,
-          widgetModuleFilter
+          widgetModuleFilter,
+          widgetChunkKeys
         )
           // Note: In the web router, all client components are loaded asynchronously.
           .filter((link) => link.rel !== 'modulepreload')
@@ -115,7 +117,11 @@ function getLinksInternal(
       return false;
     }
     const depPath = stripModuleIdQuery(dep);
-    return widgetModuleFilter(dep) || widgetModuleFilter(depPath);
+    return (
+      widgetModuleFilter(dep) ||
+      widgetModuleFilter(depPath) ||
+      widgetChunkKeys.has(dep)
+    );
   };
 
   if (widgetModuleFilter && Array.isArray(item.dynamicImports)) {
@@ -127,7 +133,8 @@ function getLinksInternal(
           base,
           true,
           cache,
-          widgetModuleFilter
+          widgetModuleFilter,
+          widgetChunkKeys
         )
       );
     });
@@ -169,12 +176,27 @@ export function getLinks(
   cache: Set<string> = new Set(),
   widgetModuleFilter?: WidgetModuleFilter
 ): LinkDescriptor[] {
+  const widgetChunkKeys = new Set<string>();
+  if (widgetModuleFilter) {
+    for (const [key, item] of Object.entries(manifest)) {
+      const source = item.src ? stripModuleIdQuery(item.src) : undefined;
+      if (
+        !widgetModuleFilter(key) &&
+        (!source || !widgetModuleFilter(source))
+      ) {
+        continue;
+      }
+      item.imports?.forEach((dependency) => widgetChunkKeys.add(dependency));
+    }
+  }
+
   return getLinksInternal(
     manifest,
     srcFileName,
     base,
     false,
     cache,
-    widgetModuleFilter
+    widgetModuleFilter,
+    widgetChunkKeys
   );
 }

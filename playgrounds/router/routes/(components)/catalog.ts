@@ -230,21 +230,6 @@ export const navigation: NavigationGroup[] = [
     name: 'Interoperability',
     items: [
       {
-        href: '/frameworks/preact',
-        title: 'Preact Widget embedding',
-        description: 'Embed a Vue 3 Widget in a Preact route.',
-      },
-      {
-        href: '/frameworks/solid',
-        title: 'Solid Widget embedding',
-        description: 'Embed a React Widget in a Solid route.',
-      },
-      {
-        href: '/frameworks/svelte',
-        title: 'Svelte Widget embedding',
-        description: 'Embed a Vue 2 Widget in a Svelte route.',
-      },
-      {
         href: '/react-and-vue',
         title: 'Mixed framework page',
         description: 'Render React and Vue widgets together.',

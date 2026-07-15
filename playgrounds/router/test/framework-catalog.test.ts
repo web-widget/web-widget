@@ -35,4 +35,12 @@ describe('framework catalog', () => {
       expect.objectContaining({ title: name })
     );
   });
+
+  it('does not repeat links across navigation groups', () => {
+    const links = navigation.flatMap((group) =>
+      group.items.map((item) => item.href)
+    );
+
+    expect(new Set(links).size).toBe(links.length);
+  });
 });
