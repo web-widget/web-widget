@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.0.0-beta.2
+
+### Patch Changes
+
+- @web-widget/helpers@3.0.0-beta.2
+- @web-widget/lifecycle-cache@3.0.0-beta.2
+
 ## 3.0.0-beta.1
 
 ### Patch Changes

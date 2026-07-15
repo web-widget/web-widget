@@ -1,5 +1,12 @@
 # @benchmarks/web-router
 
+## 1.0.17-beta.2
+
+### Patch Changes
+
+- @web-widget/web-router@3.0.0-beta.2
+- @web-widget/node@3.0.0-beta.2
+
 ## 1.0.17-beta.1
 
 ### Patch Changes

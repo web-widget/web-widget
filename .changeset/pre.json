@@ -27,9 +27,15 @@
     "@playgrounds/web-router-vue2": "0.0.1",
     "@playgrounds/web-router-vue3": "0.0.1",
     "@playgrounds/widget": "0.0.0",
-    "@examples/html": "0.0.0"
+    "@examples/html": "0.0.0",
+    "@web-widget/lit": "3.0.0-beta.1",
+    "@web-widget/preact": "3.0.0-beta.1",
+    "@web-widget/solid": "3.0.0-beta.1",
+    "@web-widget/svelte": "3.0.0-beta.1",
+    "@web-widget/web-components": "3.0.0-beta.1"
   },
   "changesets": [
+    "add-framework-adapters",
     "build-transformation-protocol",
     "container-generic-type-inference",
     "devtools-workspace-json",
