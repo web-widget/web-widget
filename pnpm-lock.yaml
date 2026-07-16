@@ -173,6 +173,9 @@ importers:
       koa:
         specifier: ^3.2.1
         version: 3.2.1
+      urlpattern-polyfill:
+        specifier: ^9.0.0
+        version: 9.0.0
     devDependencies:
       '@types/express':
         specifier: ^5.0.6

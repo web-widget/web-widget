@@ -11,6 +11,12 @@ pnpm install
 # Run benchmark tests
 pnpm benchmark
 
+# Run the isolated router matcher benchmark
+pnpm benchmark:router
+
+# Run every matcher scenario with short samples
+pnpm benchmark:router:quick
+
 # Test framework compatibility
 pnpm test:compatibility
 ```
@@ -25,6 +31,7 @@ benchmarks/web-router/
 │   ├── config/                  # Configuration management
 │   │   ├── loader.js           # Configuration loader
 │   │   └── validator.js        # Configuration validator
+│   ├── router/                  # Isolated matcher benchmark cases
 │   ├── test/                   # Test management
 │   │   ├── cases.js           # Test case management
 │   │   └── chart.js           # Chart generation
@@ -70,9 +77,55 @@ benchmarks/web-router/
 
 ```bash
 pnpm benchmark              # Run benchmarks
+pnpm benchmark:router       # Run isolated router matcher benchmarks
+pnpm benchmark:router:quick # Validate matcher scenarios with short samples
 pnpm report                 # Generate reports
 pnpm test:compatibility     # Test framework compatibility
 ```
+
+### Router Matcher Benchmark
+
+The HTTP benchmark measures the complete server lifecycle. The router matcher
+benchmark isolates `Router.match()` so route-table scaling and candidate
+selection are visible independently of Request, Response, and socket overhead.
+
+```bash
+# Full matcher run (three measured samples per scenario)
+pnpm benchmark:router
+
+# Fast correctness and smoke run
+pnpm benchmark:router:quick
+
+# Run one scenario family
+pnpm benchmark:router -- --suite=scale-shared
+
+# Select the JSON output path, or disable output
+pnpm benchmark:router -- --output=./router-results.json
+pnpm benchmark:router -- --no-output
+```
+
+The runner validates expected handlers, match counts, parameter decoding,
+multi-match ordering, and fresh dynamic parameter objects before timing. It
+then calibrates a batch size, warms up each router, and reports the median of
+the configured samples. Configuration lives in
+`config/router-benchmark.json`.
+
+| Suite                | Coverage                                                        |
+| -------------------- | --------------------------------------------------------------- |
+| `baseline`           | Current HTTP route mix, encoded params, dot normalization       |
+| `scale-static`       | 10 to 10,000 exact static routes                                |
+| `scale-shared`       | 10 to 10,000 dynamic routes in one first-segment bucket         |
+| `scale-distributed`  | Dynamic routes distributed across first segments                |
+| `hit-position`       | First, middle, last, and missing route in a large shared bucket |
+| `distribution`       | Deterministic 80/15/5 hot, warm, and cold path mix              |
+| `method-selectivity` | One shared bucket distributed across five HTTP methods          |
+| `wildcard`           | Terminal wildcard scaling                                       |
+| `overlap`            | Output-sensitive matching where many routes match one pathname  |
+| `complex-urlpattern` | Regex-constrained URLPattern fallback scaling                   |
+
+Matcher JSON reports are written to `reports/latest/` and include environment,
+configuration, raw samples, registration time, first-match time, calibrated
+batch size, and a checksum that consumes benchmark results.
 
 ### Node.js Version Scripts
 
@@ -220,6 +273,7 @@ volta run node@24.4.1 -- pnpm benchmark
 - **Configuration-driven**: All routes defined in `routes.json`
 - **Framework-agnostic**: Unified adapter interface
 - **Real performance testing**: Uses autocannon for accurate metrics
+- **Matcher scaling coverage**: Isolates route lookup from HTTP lifecycle costs
 - **Response validation**: Verifies status, content type, and exact response body
 - **Multiple report formats**: Markdown, JSON, ASCII charts
 - **Automatic compatibility detection**: Skips unsupported frameworks
@@ -235,3 +289,6 @@ volta run node@24.4.1 -- pnpm benchmark
 - **Latency percentiles** - Response time analysis
 - **Error rate** - Reliability assessment
 - **Timeout rate** - Stability evaluation
+
+The matcher benchmark additionally reports matches per second, route setup
+time, first-match time, and raw per-sample throughput.
