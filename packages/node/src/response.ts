@@ -106,10 +106,11 @@ function snapshotCachedHeaders(
       firstName = normalizedName;
       firstValue = normalizedValue;
     } else {
-      snapshot ??= Object.assign(Object.create(null), {
-        [firstName]: firstValue!,
-      });
-      snapshot[normalizedName] = normalizedValue;
+      const headerSnapshot =
+        snapshot ??
+        Object.assign(Object.create(null), { [firstName]: firstValue! });
+      snapshot = headerSnapshot;
+      headerSnapshot[normalizedName] = normalizedValue;
     }
   }
 

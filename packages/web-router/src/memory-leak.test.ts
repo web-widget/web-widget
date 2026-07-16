@@ -51,7 +51,7 @@ function createMockRuntime(): ModuleRuntime {
     defaultBaseAsset: '/assets/',
     defaultRenderer: {} as ServerRenderOptions,
     onFallback: () => {},
-    dev: false,
+    exposeErrors: false,
   });
 }
 

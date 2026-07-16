@@ -102,7 +102,17 @@ jobs:
 
       - run: pnpm examples-catalog:check
 
-      - run: pnpm build
+      - name: Build packages
+        run: pnpm build:packages
+
+      - name: Smoke-test examples
+        run: pnpm test:smoke
+
+      - name: Check package metadata
+        run: pnpm publint
+
+      - name: Type-check packages
+        run: pnpm typecheck
 
       - run: pnpm run test
 
