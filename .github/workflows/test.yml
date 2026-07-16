@@ -7,6 +7,34 @@ on:
     branches: [main]
 
 jobs:
+  benchmark:
+    if: ${{ github.event_name == 'pull_request' }}
+    name: Web Router benchmark
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          cache: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - run: pnpm install --recursive --frozen-lockfile
+        env:
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
+
+      - name: Build benchmark dependencies
+        run: pnpm --filter @benchmarks/web-router... build
+
+      - name: Compare Web Router with Hono
+        run: pnpm --filter @benchmarks/web-router benchmark:quick
+
   build:
     runs-on: ubuntu-latest
 

@@ -15,9 +15,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 class ProcessIsolatedBenchmark {
-  constructor() {
+  constructor(args = process.argv.slice(2)) {
     this.results = [];
-    this.config = getTestConfiguration();
+    this.config = createBenchmarkConfiguration(getTestConfiguration(), args);
     this.frameworkStatus = new Map();
     this.frameworkLogs = new Map();
   }
@@ -347,6 +347,34 @@ class ProcessIsolatedBenchmark {
       }
     }
   }
+}
+
+export function createBenchmarkConfiguration(baseConfig, args) {
+  const config = {
+    ...baseConfig,
+    frameworks: baseConfig.frameworks.slice(),
+  };
+  const frameworksArgument = args.find((arg) =>
+    arg.startsWith('--frameworks=')
+  );
+
+  if (frameworksArgument) {
+    const frameworks = frameworksArgument
+      .slice('--frameworks='.length)
+      .split(',')
+      .map((framework) => framework.trim())
+      .filter(Boolean);
+    if (frameworks.length === 0) {
+      throw new Error('--frameworks requires at least one framework');
+    }
+    config.frameworks = frameworks;
+  }
+
+  if (args.includes('--quick')) {
+    config['benchmark-rounds'] = 1;
+  }
+
+  return config;
 }
 
 function median(values) {

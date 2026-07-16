@@ -11,6 +11,9 @@ pnpm install
 # Run benchmark tests
 pnpm benchmark
 
+# Run one HTTP benchmark round comparing Web Router with Hono
+pnpm benchmark:quick
+
 # Run the isolated router matcher benchmark
 pnpm benchmark:router
 
@@ -76,6 +79,7 @@ benchmarks/web-router/
 
 ```bash
 pnpm benchmark              # Run benchmarks
+pnpm benchmark:quick        # Run one Web Router/Hono HTTP benchmark round
 pnpm benchmark:router       # Run isolated router matcher benchmarks
 pnpm benchmark:router:quick # Validate matcher scenarios with short samples
 pnpm report                 # Generate reports
