@@ -1,10 +1,8 @@
-import { defineConfig } from 'eslint-define-config';
-
 // const OFF = 0;
 const WARN = 1;
 const ERROR = 2;
 
-export default defineConfig({
+export default {
   rules: {
     'import/first': ERROR,
     'import/no-amd': ERROR,
@@ -18,4 +16,4 @@ export default defineConfig({
       },
     ],
   },
-});
+};

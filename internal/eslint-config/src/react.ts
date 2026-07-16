@@ -1,10 +1,8 @@
-import { defineConfig } from 'eslint-define-config';
-
 const OFF = 0;
 const WARN = 1;
 const ERROR = 2;
 
-export default defineConfig({
+export default {
   rules: {
     'react/display-name': WARN,
     'react/forbid-foreign-prop-types': [WARN, { allowInPropTypes: true }],
@@ -31,4 +29,4 @@ export default defineConfig({
     'react-hooks/exhaustive-deps': WARN,
     'react-hooks/rules-of-hooks': WARN,
   },
-});
+};

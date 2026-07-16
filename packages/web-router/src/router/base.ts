@@ -22,6 +22,10 @@ export interface Router<T> {
 
 export type Params = Record<string, string>;
 
+export function decodePathParam(value: string): string {
+  return value.indexOf('%') === -1 ? value : decodeURIComponent(value);
+}
+
 /**
  * Router result type
  *
@@ -94,7 +98,7 @@ export class RouterUtils {
       // In Cloudflare Workers, optional parameters return empty string instead of undefined
       // We need to normalize this to undefined for consistency with Web standards
       if (value !== undefined && value !== '') {
-        params[key] = decodeURIComponent(value);
+        params[key] = decodePathParam(value);
       }
     }
     Object.freeze(params);

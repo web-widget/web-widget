@@ -12,6 +12,7 @@ coverage/
 
 ## npm
 node_modules/
+.pnpm-store/
 npm-debug.log
 yarn-error.log
 

@@ -1,10 +1,8 @@
-import { defineConfig } from 'eslint-define-config';
-
 // const OFF = 0;
 const WARN = 1;
 const ERROR = 2;
 
-export default defineConfig({
+export default {
   rules: {
     'no-param-reassign': [WARN, { props: true }],
     'array-callback-return': WARN,
@@ -100,4 +98,4 @@ export default defineConfig({
     'use-isnan': WARN,
     'valid-typeof': WARN,
   },
-});
+};

@@ -13,13 +13,13 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@edge-runtime/node-utils": "^4.0.0",
     "@edge-runtime/primitives": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "tsup": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": ">=18"
@@ -49,7 +49,9 @@
     "clean:node": "rm -rf node_modules",
     "dev": "pnpm exec tsup --watch",
     "lint": "eslint src",
-    "prebuild": "pnpm run clean:build"
+    "prebuild": "pnpm run clean:build",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "type": "module"
 }

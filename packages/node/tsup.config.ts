@@ -8,5 +8,6 @@ export default defineConfig({
   outDir: 'dist',
   sourcemap: false,
   splitting: true,
-  target: 'chrome67',
+  // Node 18 is the package minimum and preserves native private fields.
+  target: 'node18',
 });

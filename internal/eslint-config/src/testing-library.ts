@@ -1,10 +1,8 @@
-import { defineConfig } from 'eslint-define-config';
-
 // const OFF = 0;
 const WARN = 1;
 const ERROR = 2;
 
-export default defineConfig({
+export default {
   rules: {
     'testing-library/await-async-query': ERROR,
     'testing-library/await-async-utils': ERROR,
@@ -26,4 +24,4 @@ export default defineConfig({
     'testing-library/prefer-wait-for': WARN,
     'testing-library/render-result-naming-convention': WARN,
   },
-});
+};

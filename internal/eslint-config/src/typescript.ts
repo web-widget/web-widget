@@ -1,6 +1,4 @@
-import { defineConfig } from 'eslint-define-config';
-
-export default defineConfig({
+export default {
   rules: {
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/ban-types': 'off',
@@ -54,4 +52,4 @@ export default defineConfig({
     '@typescript-eslint/consistent-type-assertions': 'warn',
     '@typescript-eslint/consistent-type-imports': 'warn',
   },
-});
+};

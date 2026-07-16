@@ -67,6 +67,41 @@ describe('complex', () => {
   });
 });
 
+describe('optimized path matching', () => {
+  test('does not match an empty required parameter', () => {
+    const router = new URLPatternRouter<string>();
+    router.add('GET', '/:id', 'item');
+
+    expect(router.match('GET', '/')).toHaveLength(0);
+  });
+
+  test('falls back to URLPattern normalization for a relative pathname', () => {
+    const router = new URLPatternRouter<string>();
+    router.add('GET', '/:id', 'item');
+
+    expect(router.match('GET', 'value')[0][1]).toEqual({ id: 'value' });
+  });
+
+  test('falls back to URLPattern normalization for encoded static paths', () => {
+    const router = new URLPatternRouter<string>();
+    router.add('GET', '/caf\u00e9', 'cafe');
+    router.add('GET', '/hello%20world', 'hello');
+
+    expect(router.match('GET', '/caf%C3%A9')[0][0]).toBe('cafe');
+    expect(router.match('GET', '/hello%20world')[0][0]).toBe('hello');
+  });
+
+  test('preserves URLPattern dot-segment normalization', () => {
+    const router = new URLPatternRouter<string>();
+    router.add('GET', '/a/../item', 'static item');
+    router.add('GET', '/x/../users/:id', 'parameter item');
+
+    expect(router.match('GET', '/item')[0][0]).toBe('static item');
+    expect(router.match('GET', '/users/value')[0][1]).toEqual({ id: 'value' });
+    expect(router.match('GET', '/a/%2e%2e/item')[0][0]).toBe('static item');
+  });
+});
+
 describe('multi match', () => {
   const router = new URLPatternRouter<string>();
 

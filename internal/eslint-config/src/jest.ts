@@ -1,10 +1,8 @@
-import { defineConfig } from 'eslint-define-config';
-
 // const OFF = 0;
 const WARN = 1;
 const ERROR = 2;
 
-export default defineConfig({
+export default {
   rules: {
     'jest/no-conditional-expect': WARN,
     'jest/no-deprecated-functions': WARN,
@@ -20,4 +18,4 @@ export default defineConfig({
     'jest/valid-expect': ERROR,
     'jest/valid-expect-in-promise': ERROR,
   },
-});
+};
