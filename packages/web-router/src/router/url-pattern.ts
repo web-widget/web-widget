@@ -5,80 +5,204 @@
 
 import type { Router, Result, Params } from './base';
 import { decodePathParam, METHOD_NAME_ALL, UnsupportedPathError } from './base';
+import {
+  compileLinearMatcher,
+  CompiledPathMatcher,
+  getPathTokenBucketKey,
+  LINEAR_BUCKET_LIMIT,
+  PARAM_SEGMENT,
+  scanPathname,
+  WILDCARD_SEGMENT,
+  type PathSegment,
+  type PathToken,
+} from './compiled-path';
 
-interface SegmentMatcher {
-  segments: string[];
-  paramNames: (string | undefined)[];
-  paramIndexes?: number[];
-  matcher?: RegExp;
-  trailingSlash: boolean;
+interface SimplePath {
+  tokens: readonly PathToken[];
+  paramIndexes: readonly number[];
+  paramNames: readonly string[];
 }
 
-type OptimizedRoute<T> = [
-  URLPattern,
-  string,
-  T,
-  string | undefined,
-  SegmentMatcher | undefined,
-  number,
-];
+interface OptimizedRoute<T> {
+  routeId: number;
+  method: string;
+  handler: T;
+  pattern: URLPattern;
+  patternPathname: string;
+  staticPath?: string;
+  tokens: readonly PathToken[];
+  paramIndexes: readonly number[];
+  paramNames: readonly string[];
+  complexPrefix: readonly string[];
+  linearMatcher?: RegExp;
+}
+
+interface CompiledPlan<T> {
+  staticRoutes: Map<string, OptimizedRoute<T>[]>;
+  linearBuckets: Map<string, OptimizedRoute<T>[]>;
+  trieMatcher?: CompiledPathMatcher<OptimizedRoute<T>>;
+  fallbackMatcher?: CompiledPathMatcher<FallbackRoute<T>>;
+  hasDynamicRoutes: boolean;
+  hasFallbackRoutes: boolean;
+}
+
+interface FallbackRoute<T> {
+  route: OptimizedRoute<T>;
+  tokens: readonly PathToken[];
+}
+
+type ParamEntry = readonly [string, string];
+
+interface Candidate<T> {
+  route: OptimizedRoute<T>;
+  segments?: readonly PathSegment[];
+  linearMatch?: RegExpExecArray;
+  patternMatch?: URLPatternResult;
+}
+
+interface CachedMatch {
+  routeId: number;
+  params: readonly ParamEntry[];
+  freshEmptyParams: boolean;
+}
 
 const EMPTY_PARAMS = Object.freeze(Object.create(null)) as Params;
+const EMPTY_ENTRIES: readonly ParamEntry[] = Object.freeze([]);
 const STATIC_PATH = /^\/[\w.~!$&'+,;=@/-]*$/;
+const STATIC_SEGMENT = /^[\w.~!$&'+,;=@-]*$/;
+const PARAM_NAME = /^[a-z_$][\w$]*$/i;
+const MATCH_PLAN_CACHE_LIMIT = 128;
 
 function requiresPathNormalization(pathname: string): boolean {
   if (!pathname.includes('.') && !pathname.includes('%')) return false;
   return /(?:^|\/)(?:\.|%2e){1,2}(?:\/|$)/i.test(pathname);
 }
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function splitPathname(pathname: string): string[] {
+  return pathname === '/' ? [] : pathname.slice(1).split('/');
 }
 
-function createSegmentMatcher(pathname: string): SegmentMatcher | undefined {
-  if (pathname === '/' || !pathname.startsWith('/')) return undefined;
+function getFirstSegment(pathname: string): string {
+  const firstSlash = pathname.indexOf('/', 1);
+  return firstSlash === -1 ? pathname.slice(1) : pathname.slice(1, firstSlash);
+}
 
-  const segments = pathname.slice(1).split('/');
-  const paramNames: (string | undefined)[] = [];
+function createSimplePath(pathname: string): SimplePath | undefined {
+  if (!pathname.startsWith('/')) return undefined;
+
+  const segments = splitPathname(pathname);
+  const tokens: PathToken[] = [];
   const paramIndexes: number[] = [];
-  const patternSegments: string[] = [];
-  let captureIndex = 0;
-  for (const segment of segments) {
+  const paramNames: string[] = [];
+  for (let index = 0; index < segments.length; index++) {
+    const segment = segments[index];
     if (segment.startsWith(':')) {
       const name = segment.slice(1);
-      if (!/^[a-z_$][\w$]*$/i.test(name)) return undefined;
+      if (!PARAM_NAME.test(name)) return undefined;
+      tokens.push(PARAM_SEGMENT);
+      paramIndexes.push(index);
       paramNames.push(name);
-      paramIndexes.push(++captureIndex);
-      patternSegments.push('([^/]+)');
-    } else {
-      if (!/^[\w.~!$&'+,;=@-]*$/.test(segment)) return undefined;
-      paramNames.push(undefined);
-      paramIndexes.push(0);
-      patternSegments.push(escapeRegExp(segment));
+      continue;
     }
+
+    if (!STATIC_SEGMENT.test(segment)) return undefined;
+    tokens.push(segment);
   }
 
-  return {
-    segments,
-    paramNames,
-    paramIndexes,
-    matcher: pathname.endsWith('/')
-      ? undefined
-      : new RegExp(`^/${patternSegments.join('/')}$`),
-    trailingSlash: pathname.endsWith('/'),
-  };
+  return { tokens, paramIndexes, paramNames };
+}
+
+/** Return only the literal prefix that can be used as a conservative bucket. */
+function createComplexPrefix(pathname: string): string[] {
+  const prefix: string[] = [];
+  if (!pathname.startsWith('/')) return prefix;
+
+  for (const segment of splitPathname(pathname)) {
+    if (!segment || !STATIC_SEGMENT.test(segment)) break;
+    prefix.push(segment);
+  }
+  return prefix;
+}
+
+function extractParamEntries(match: URLPatternResult): ParamEntry[] {
+  const entries: ParamEntry[] = [];
+  for (const key in match.pathname.groups) {
+    const value = match.pathname.groups[key];
+    if (value !== undefined && value !== '') {
+      entries.push([key, decodePathParam(value)]);
+    }
+  }
+  return entries;
+}
+
+function simpleParamEntries<T>(
+  route: OptimizedRoute<T>,
+  pathname: string,
+  segments: readonly PathSegment[]
+): ParamEntry[] {
+  if (route.paramNames.length === 0) return [];
+
+  const entries: ParamEntry[] = [];
+  for (let index = 0; index < route.paramNames.length; index++) {
+    const segment = segments[route.paramIndexes[index]];
+    entries.push([
+      route.paramNames[index],
+      decodePathParam(pathname.slice(segment.start, segment.end)),
+    ]);
+  }
+  return entries;
+}
+
+function linearParamEntries<T>(
+  route: OptimizedRoute<T>,
+  match: RegExpExecArray
+): ParamEntry[] {
+  if (route.paramNames.length === 0) return [];
+
+  const entries: ParamEntry[] = [];
+  for (let index = 0; index < route.paramNames.length; index++) {
+    entries.push([route.paramNames[index], decodePathParam(match[index + 1])]);
+  }
+  return entries;
+}
+
+function createParams(
+  entries: readonly ParamEntry[],
+  freshEmptyParams: boolean
+): Params {
+  if (entries.length === 0 && !freshEmptyParams) return EMPTY_PARAMS;
+
+  const params = Object.create(null) as Params;
+  for (const [name, value] of entries) params[name] = value;
+  Object.freeze(params);
+  return params;
+}
+
+function materializeResult<T>(
+  routes: readonly OptimizedRoute<T>[],
+  matches: readonly CachedMatch[]
+): Result<T> {
+  const results: Result<T> = [];
+  for (const match of matches) {
+    const route = routes[match.routeId];
+    results.push([
+      route.handler,
+      createParams(match.params, match.freshEmptyParams),
+      route.patternPathname,
+    ]);
+  }
+  return results;
 }
 
 export class URLPatternRouter<T> implements Router<T> {
   #routes: OptimizedRoute<T>[] = [];
   #staticRoutes = new Map<string, OptimizedRoute<T>[]>();
-  #staticPaths = new Set<string>();
-  #shadowedStaticPaths = new Set<string>();
-  #dynamicPatterns: URLPattern[] = [];
-  #dynamicBuckets = new Map<string, OptimizedRoute<T>[]>();
+  #hasNonStaticRoutes = false;
+  #compiled = new Map<string, CompiledPlan<T>>();
+  #matchPlanCache = new Map<string, readonly CachedMatch[]>();
 
-  add(method: string, pathname: string, handler: T) {
-    let pattern;
+  add(method: string, pathname: string, handler: T): void {
+    let pattern: URLPattern;
     try {
       pattern = new URLPattern({ pathname });
     } catch (error) {
@@ -86,179 +210,261 @@ export class URLPatternRouter<T> implements Router<T> {
         cause: error,
       });
     }
-    const canonicalPathname = pattern.pathname;
-    const staticPath = STATIC_PATH.test(canonicalPathname)
-      ? canonicalPathname
-      : undefined;
-    const segmentMatcher = staticPath
-      ? undefined
-      : createSegmentMatcher(canonicalPathname);
-    const route: OptimizedRoute<T> = [
-      pattern,
+
+    const patternPathname = pattern.pathname;
+    const simplePath = createSimplePath(patternPathname);
+    const route: OptimizedRoute<T> = {
+      routeId: this.#routes.length,
       method,
       handler,
-      staticPath,
-      segmentMatcher,
-      this.#routes.length,
-    ];
+      pattern,
+      patternPathname,
+      staticPath: STATIC_PATH.test(patternPathname)
+        ? patternPathname
+        : undefined,
+      tokens: simplePath?.tokens ?? [],
+      paramIndexes: simplePath?.paramIndexes ?? [],
+      paramNames: simplePath?.paramNames ?? [],
+      complexPrefix: simplePath ? [] : createComplexPrefix(patternPathname),
+    };
     this.#routes.push(route);
-    if (staticPath !== undefined) {
-      const routes = this.#staticRoutes.get(staticPath);
+    if (route.staticPath !== undefined) {
+      const routes = this.#staticRoutes.get(route.staticPath);
       if (routes) routes.push(route);
-      else this.#staticRoutes.set(staticPath, [route]);
-      this.#staticPaths.add(staticPath);
-      for (const dynamicPattern of this.#dynamicPatterns) {
-        if (dynamicPattern.exec({ pathname: staticPath })) {
-          this.#shadowedStaticPaths.add(staticPath);
-          break;
-        }
-      }
+      else this.#staticRoutes.set(route.staticPath, [route]);
     } else {
-      this.#dynamicPatterns.push(pattern);
-      const bucketKey =
-        segmentMatcher && segmentMatcher.paramNames[0] === undefined
-          ? segmentMatcher.segments[0]
-          : '';
-      const routes = this.#dynamicBuckets.get(bucketKey);
-      if (routes) routes.push(route);
-      else this.#dynamicBuckets.set(bucketKey, [route]);
-      for (const staticPath of this.#staticPaths) {
-        if (pattern.exec({ pathname: staticPath })) {
-          this.#shadowedStaticPaths.add(staticPath);
-        }
-      }
+      this.#hasNonStaticRoutes = true;
     }
+    this.#compiled.clear();
+    this.#matchPlanCache.clear();
   }
 
   match(method: string, pathname: string): Result<T> {
-    const handlers: [T, Params, string][] = [];
-
-    let pathSegments: string[] | undefined;
     const canUseFastPath =
       pathname.startsWith('/') && !requiresPathNormalization(pathname);
+    if (canUseFastPath && !this.#hasNonStaticRoutes) {
+      return this.#materializeStaticRoutes(
+        this.#staticRoutes.get(pathname),
+        method
+      );
+    }
+    const plan = canUseFastPath ? this.#getCompiledPlan(method) : undefined;
+    if (plan && !plan.hasDynamicRoutes && !plan.hasFallbackRoutes) {
+      return this.#materializeStaticRoutes(
+        plan.staticRoutes.get(pathname),
+        method
+      );
+    }
 
-    if (canUseFastPath && !this.#shadowedStaticPaths.has(pathname)) {
-      const staticRoutes = this.#staticRoutes.get(pathname);
-      if (staticRoutes) {
-        const staticHandlers: [T, Params, string][] = [];
-        for (const [pattern, routeMethod, handler] of staticRoutes) {
-          if (routeMethod === METHOD_NAME_ALL || routeMethod === method) {
-            staticHandlers.push([handler, EMPTY_PARAMS, pattern.pathname]);
-          }
+    const cacheKey = `${method}\0${pathname}`;
+    const cached = this.#matchPlanCache.get(cacheKey);
+    if (cached) {
+      this.#matchPlanCache.delete(cacheKey);
+      this.#matchPlanCache.set(cacheKey, cached);
+      return materializeResult(this.#routes, cached);
+    }
+
+    const matches = canUseFastPath
+      ? this.#matchFast(method, pathname, plan)
+      : this.#matchWithURLPattern(method, pathname);
+    this.#storeMatchPlan(cacheKey, matches);
+    return materializeResult(this.#routes, matches);
+  }
+
+  #getCompiledPlan(method: string): CompiledPlan<T> {
+    const existing = this.#compiled.get(method);
+    if (existing) return existing;
+
+    const staticRoutes = new Map<string, OptimizedRoute<T>[]>();
+    const dynamicBuckets = new Map<string, OptimizedRoute<T>[]>();
+    const fallbackRoutes: FallbackRoute<T>[] = [];
+    for (const route of this.#routes) {
+      if (route.method !== method && route.method !== METHOD_NAME_ALL) {
+        continue;
+      }
+
+      if (route.staticPath !== undefined) {
+        const routes = staticRoutes.get(route.staticPath);
+        if (routes) routes.push(route);
+        else staticRoutes.set(route.staticPath, [route]);
+        continue;
+      }
+
+      if (route.paramNames.length > 0 || route.tokens.length > 0) {
+        const key = getPathTokenBucketKey(route.tokens);
+        const bucket = dynamicBuckets.get(key);
+        if (bucket) bucket.push(route);
+        else dynamicBuckets.set(key, [route]);
+        continue;
+      }
+
+      // The prefix trie only selects candidates. URLPattern remains the
+      // authority for regex, optional, and wildcard semantics.
+      fallbackRoutes.push({
+        route,
+        tokens: [...route.complexPrefix, WILDCARD_SEGMENT],
+      });
+    }
+
+    const trieRoutes: OptimizedRoute<T>[] = [];
+    const linearBuckets = new Map<string, OptimizedRoute<T>[]>();
+    for (const [key, routes] of dynamicBuckets) {
+      if (routes.length <= LINEAR_BUCKET_LIMIT) {
+        for (const route of routes) {
+          route.linearMatcher ??= compileLinearMatcher(route.tokens);
         }
-        return staticHandlers;
+        linearBuckets.set(key, routes);
+      } else {
+        trieRoutes.push(...routes);
       }
     }
 
-    let candidateRoutes = this.#routes;
-    if (canUseFastPath && !this.#staticRoutes.has(pathname)) {
-      const firstSlash = pathname.indexOf('/', 1);
-      const firstSegment =
-        firstSlash === -1 ? pathname.slice(1) : pathname.slice(1, firstSlash);
-      const specific = firstSegment
-        ? this.#dynamicBuckets.get(firstSegment)
-        : undefined;
-      const generic = this.#dynamicBuckets.get('');
-      candidateRoutes =
-        specific && generic
-          ? [...specific, ...generic].sort((a, b) => a[5] - b[5])
-          : (specific ?? generic ?? []);
+    const plan: CompiledPlan<T> = {
+      staticRoutes,
+      linearBuckets,
+      trieMatcher:
+        trieRoutes.length > 0 ? new CompiledPathMatcher(trieRoutes) : undefined,
+      fallbackMatcher:
+        fallbackRoutes.length > 0
+          ? new CompiledPathMatcher(fallbackRoutes)
+          : undefined,
+      hasDynamicRoutes: dynamicBuckets.size > 0 || trieRoutes.length > 0,
+      hasFallbackRoutes: fallbackRoutes.length > 0,
+    };
+    this.#compiled.set(method, plan);
+    return plan;
+  }
+
+  #materializeStaticRoutes(
+    routes: readonly OptimizedRoute<T>[] | undefined,
+    method: string
+  ): Result<T> {
+    if (!routes) return [];
+
+    const results: Result<T> = [];
+    for (const route of routes) {
+      if (route.method !== method && route.method !== METHOD_NAME_ALL) {
+        continue;
+      }
+      results.push([route.handler, EMPTY_PARAMS, route.patternPathname]);
+    }
+    return results;
+  }
+
+  #matchFast(
+    method: string,
+    pathname: string,
+    compiledPlan?: CompiledPlan<T>
+  ): readonly CachedMatch[] {
+    const plan = compiledPlan ?? this.#getCompiledPlan(method);
+    const staticRoutes = plan.staticRoutes.get(pathname);
+    if (!plan.hasDynamicRoutes && !plan.hasFallbackRoutes) {
+      return staticRoutes
+        ? staticRoutes.map((route) => ({
+            routeId: route.routeId,
+            params: EMPTY_ENTRIES,
+            freshEmptyParams: false,
+          }))
+        : [];
     }
 
-    for (const [
-      pattern,
-      routeMethod,
-      handler,
-      staticPath,
-      segmentMatcher,
-    ] of candidateRoutes) {
-      if (routeMethod === METHOD_NAME_ALL || routeMethod === method) {
-        if (staticPath !== undefined && canUseFastPath) {
-          if (staticPath === pathname) {
-            handlers.push([handler, EMPTY_PARAMS, pattern.pathname]);
-          }
-          continue;
-        }
+    let segments: readonly PathSegment[] | undefined;
+    const candidates: Candidate<T>[] = [];
+    if (staticRoutes) {
+      for (const route of staticRoutes) candidates.push({ route });
+    }
 
-        if (segmentMatcher && canUseFastPath) {
-          if (segmentMatcher.trailingSlash !== pathname.endsWith('/')) {
-            continue;
-          }
-
-          if (segmentMatcher.matcher) {
-            const match = segmentMatcher.matcher.exec(pathname);
-            if (!match) continue;
-
-            let params: Params | undefined;
-            for (
-              let index = 0;
-              index < segmentMatcher.paramNames.length;
-              index++
-            ) {
-              const paramName = segmentMatcher.paramNames[index];
-              if (paramName) {
-                const value = match[segmentMatcher.paramIndexes![index]];
-                (params ??= Object.create(null))[paramName] =
-                  decodePathParam(value);
-              }
-            }
-            if (params) Object.freeze(params);
-            handlers.push([handler, params ?? EMPTY_PARAMS, pattern.pathname]);
-            continue;
-          }
-
-          pathSegments ??= pathname.slice(1).split('/');
-          if (pathSegments.length !== segmentMatcher.segments.length) {
-            continue;
-          }
-
-          let matched = true;
-          for (let index = 0; index < pathSegments.length; index++) {
-            const paramName = segmentMatcher.paramNames[index];
-            if (
-              (paramName && pathSegments[index] === '') ||
-              (!paramName &&
-                segmentMatcher.segments[index] !== pathSegments[index])
-            ) {
-              matched = false;
-              break;
-            }
-          }
-
-          if (matched) {
-            let params: Params | undefined;
-            for (let index = 0; index < pathSegments.length; index++) {
-              const paramName = segmentMatcher.paramNames[index];
-              if (paramName) {
-                (params ??= Object.create(null))[paramName] = decodePathParam(
-                  pathSegments[index]
-                );
-              }
-            }
-            if (params) Object.freeze(params);
-            handlers.push([handler, params ?? EMPTY_PARAMS, pattern.pathname]);
-          }
-          continue;
-        }
-
-        const match = pattern.exec({ pathname });
-        if (match) {
-          const params = Object.create(null) as Params;
-          for (const key in match.pathname.groups) {
-            const value = match.pathname.groups[key];
-
-            // In Cloudflare Workers, optional parameters return empty string instead of undefined
-            // We need to normalize this to undefined for consistency with Web standards
-            if (value !== undefined && value !== '') {
-              params[key] = decodePathParam(value);
-            }
-          }
-          Object.freeze(params);
-          handlers.push([handler, params, pattern.pathname]);
-        }
+    if (plan.trieMatcher) {
+      segments ??= scanPathname(pathname);
+      for (const match of plan.trieMatcher.matchPath(pathname, segments)) {
+        candidates.push({ route: match.route, segments: match.segments });
       }
     }
 
-    return handlers;
+    this.#collectLinearCandidates(pathname, plan.linearBuckets, (route) => {
+      const match = route.linearMatcher!.exec(pathname);
+      if (match) candidates.push({ route, linearMatch: match });
+    });
+
+    if (plan.hasFallbackRoutes) {
+      segments ??= scanPathname(pathname);
+      for (const match of plan.fallbackMatcher!.matchPath(pathname, segments)) {
+        const route = match.route.route;
+        const patternMatch = route.pattern.exec({ pathname });
+        if (patternMatch) candidates.push({ route, patternMatch });
+      }
+    }
+
+    if (candidates.length > 1) {
+      candidates.sort(
+        (left, right) => left.route.routeId - right.route.routeId
+      );
+    }
+    return this.#cacheCandidates(pathname, candidates);
+  }
+
+  #collectLinearCandidates(
+    pathname: string,
+    buckets: Map<string, OptimizedRoute<T>[]>,
+    visit: (route: OptimizedRoute<T>) => void
+  ): void {
+    const generic = buckets.get('');
+    const firstSegment = getFirstSegment(pathname);
+    const specific = firstSegment ? buckets.get(firstSegment) : undefined;
+    if (generic) for (const route of generic) visit(route);
+    if (specific && specific !== generic) {
+      for (const route of specific) visit(route);
+    }
+  }
+
+  #matchWithURLPattern(
+    method: string,
+    pathname: string
+  ): readonly CachedMatch[] {
+    const candidates: Candidate<T>[] = [];
+    for (const route of this.#routes) {
+      if (route.method !== method && route.method !== METHOD_NAME_ALL) {
+        continue;
+      }
+      const match = route.pattern.exec({ pathname });
+      if (match) candidates.push({ route, patternMatch: match });
+    }
+    return this.#cacheCandidates(pathname, candidates);
+  }
+
+  #cacheCandidates(
+    _pathname: string,
+    candidates: readonly Candidate<T>[]
+  ): readonly CachedMatch[] {
+    const matches: CachedMatch[] = [];
+    for (const candidate of candidates) {
+      let params: ParamEntry[];
+      if (candidate.segments) {
+        params = simpleParamEntries(
+          candidate.route,
+          _pathname,
+          candidate.segments
+        );
+      } else if (candidate.linearMatch) {
+        params = linearParamEntries(candidate.route, candidate.linearMatch);
+      } else if (candidate.patternMatch) {
+        params = extractParamEntries(candidate.patternMatch);
+      } else {
+        params = [];
+      }
+      matches.push({
+        routeId: candidate.route.routeId,
+        params,
+        freshEmptyParams: candidate.patternMatch !== undefined,
+      });
+    }
+    return matches;
+  }
+
+  #storeMatchPlan(key: string, matches: readonly CachedMatch[]): void {
+    this.#matchPlanCache.set(key, matches);
+    while (this.#matchPlanCache.size > MATCH_PLAN_CACHE_LIMIT) {
+      this.#matchPlanCache.delete(this.#matchPlanCache.keys().next().value!);
+    }
   }
 }

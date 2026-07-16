@@ -1,47 +1,47 @@
 /**
  * @fileoverview Radix Tree Router Implementation
- * High-performance routing using Radix Tree algorithm
- * Inspired by find-my-way: https://github.com/delvedor/find-my-way
+ * High-performance routing using a compiled segment trie.
  */
 
 import type { Router, Result, Params } from './base';
 import { RouterUtils, CommonRouteValidation, decodePathParam } from './base';
+import {
+  compileLinearMatcher,
+  CompiledPathMatcher,
+  getPathTokenBucketKey,
+  LINEAR_BUCKET_LIMIT,
+  PARAM_SEGMENT,
+  WILDCARD_SEGMENT,
+  type PathToken,
+} from './compiled-path';
 
-interface RadixNode<T> {
-  label: string;
-  prefix: string;
-  children: Map<string, RadixNode<T>>;
-  handlers: Map<string, T>;
-  wildcardChild?: RadixNode<T>;
-  paramChild?: RadixNode<T>;
-  paramName?: string;
-  isLeaf: boolean;
-}
-
-interface StaticRoute<T> {
-  method: string;
-  handler: T;
-}
-
-interface DynamicPath {
-  segments: string[];
+interface ParamBinding {
+  index: number;
+  name: string;
+  wildcard: boolean;
 }
 
 interface CompiledRoute<T> {
   method: string;
   handler: T;
   pathname: string;
-  matcher: RegExp;
-  paramNames: string[];
+  tokens: readonly PathToken[];
+  params: readonly ParamBinding[];
   priority: string;
   score: number;
+  index: number;
+  isStatic: boolean;
+  linearMatcher?: RegExp;
+}
+
+interface CompiledPlan<T> {
+  matcher?: CompiledPathMatcher<CompiledRoute<T>>;
+  linearBuckets?: Map<string, CompiledRoute<T>[]>;
+  fallbackRoutes: CompiledRoute<T>[];
+  shadowedStaticPaths: Set<string>;
 }
 
 const EMPTY_PARAMS = Object.freeze({}) as Params;
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
 
 function compareCompiledRoutes<T>(
   left: CompiledRoute<T>,
@@ -49,51 +49,334 @@ function compareCompiledRoutes<T>(
 ): number {
   if (left.priority < right.priority) return -1;
   if (left.priority > right.priority) return 1;
-  return right.score - left.score;
+  const score = right.score - left.score;
+  return score === 0 ? left.index - right.index : score;
+}
+
+function materializeParams(
+  route: CompiledRoute<unknown>,
+  pathSegments: readonly string[]
+): Params {
+  if (route.params.length === 0) return EMPTY_PARAMS;
+
+  let params: Params | undefined;
+  for (const binding of route.params) {
+    const encoded = binding.wildcard
+      ? pathSegments.slice(binding.index).join('/')
+      : pathSegments[binding.index];
+    if (encoded) {
+      (params ??= Object.create(null))[binding.name] = decodePathParam(encoded);
+    }
+  }
+  return params ?? EMPTY_PARAMS;
+}
+
+function materializeFallbackParams(pathSegments: readonly string[]): Params {
+  const wildcard = pathSegments.join('/');
+  return wildcard ? { '*': wildcard } : EMPTY_PARAMS;
+}
+
+function materializeLinearParams(
+  route: CompiledRoute<unknown>,
+  match: RegExpExecArray
+): Params {
+  if (route.params.length === 0) return EMPTY_PARAMS;
+
+  let params: Params | undefined;
+  for (let index = 0; index < route.params.length; index++) {
+    const value = match[index + 1];
+    if (value) {
+      (params ??= Object.create(null))[route.params[index].name] =
+        decodePathParam(value);
+    }
+  }
+  return params ?? EMPTY_PARAMS;
+}
+
+function getFirstSegment(pathname: string): string {
+  const firstSlash = pathname.indexOf('/', 1);
+  return firstSlash === -1 ? pathname.slice(1) : pathname.slice(1, firstSlash);
 }
 
 export class RadixTreeRouter<T> implements Router<T> {
-  #root: RadixNode<T>;
-  #staticRoutes = new Map<string, StaticRoute<T>[]>();
-  #staticPaths = new Set<string>();
-  #dynamicPaths: DynamicPath[] = [];
-  #shadowedStaticPaths = new Set<string>();
-  #dynamicBuckets = new Map<string, CompiledRoute<T>[]>();
-
-  constructor() {
-    this.#root = this.#createNode('', '');
-  }
+  #routes: CompiledRoute<T>[] = [];
+  #staticRoutes = new Map<string, CompiledRoute<T>[]>();
+  #hasDynamicRoutes = false;
+  #compiled?: CompiledPlan<T>;
 
   add(method: string, pathname: string, handler: T): void {
-    // Apply common validation
     RouterUtils.validateBasicPathname(pathname);
     CommonRouteValidation.checkDuplicateParameters(pathname);
     CommonRouteValidation.validateParameterNames(pathname);
-
-    // Apply RadixTree-specific validation
     this.#validateRadixTreePathname(pathname);
 
     const normalizedPath = RouterUtils.normalizePath(pathname);
-    this.#addRoute(method, normalizedPath, handler);
+    const segments = RouterUtils.splitPath(normalizedPath);
+    const tokens: PathToken[] = [];
+    const params: ParamBinding[] = [];
+    const priority: string[] = [];
+    let score = 0;
+    let isStatic = true;
+
+    for (let index = 0; index < segments.length; index++) {
+      const segment = segments[index];
+      if (segment === '*') {
+        tokens.push(WILDCARD_SEGMENT);
+        params.push({ index, name: '*', wildcard: true });
+        priority.push('2');
+        score -= 100;
+        isStatic = false;
+        continue;
+      }
+
+      if (segment.startsWith(':')) {
+        tokens.push(PARAM_SEGMENT);
+        params.push({
+          index,
+          name: segment.slice(1),
+          wildcard: false,
+        });
+        priority.push('1');
+        score += 1;
+        isStatic = false;
+        continue;
+      }
+
+      tokens.push(segment);
+      priority.push('0');
+      score += 2;
+    }
+
+    const route: CompiledRoute<T> = {
+      method,
+      handler,
+      pathname: normalizedPath,
+      tokens,
+      params,
+      priority: priority.join(''),
+      score: score + segments.length,
+      index: this.#routes.length,
+      isStatic,
+    };
+    this.#routes.push(route);
+
+    if (isStatic) {
+      const routes = this.#staticRoutes.get(normalizedPath);
+      if (routes) routes.push(route);
+      else this.#staticRoutes.set(normalizedPath, [route]);
+    } else {
+      this.#hasDynamicRoutes = true;
+    }
+    this.#compiled = undefined;
   }
 
   match(method: string, pathname: string): Result<T> {
     const normalizedPath = RouterUtils.normalizePath(pathname);
-    return this.#findRoute(method, normalizedPath);
+    const staticRoutes = this.#staticRoutes.get(normalizedPath);
+    if (staticRoutes && !this.#hasDynamicRoutes) {
+      return this.#matchStaticRoutes(method, staticRoutes);
+    }
+    if (!staticRoutes && !this.#hasDynamicRoutes) return [];
+
+    const compiled = this.#getCompiledPlan();
+    if (staticRoutes && !compiled.shadowedStaticPaths.has(normalizedPath)) {
+      return this.#matchStaticRoutes(method, staticRoutes);
+    }
+    return this.#matchCompiled(method, normalizedPath, compiled, staticRoutes);
   }
 
-  /**
-   * Validate pathname for RadixTree-specific restrictions
-   */
+  #getCompiledPlan(): CompiledPlan<T> {
+    if (this.#compiled) return this.#compiled;
+
+    const trieRoutes: CompiledRoute<T>[] = [];
+    const dynamicBuckets = new Map<string, CompiledRoute<T>[]>();
+    const fallbackRoutes: CompiledRoute<T>[] = [];
+    for (const route of this.#routes) {
+      if (route.isStatic) continue;
+      if (route.tokens[0] === WILDCARD_SEGMENT) {
+        fallbackRoutes.push(route);
+        continue;
+      }
+
+      const key = getPathTokenBucketKey(route.tokens);
+      const bucket = dynamicBuckets.get(key);
+      if (bucket) bucket.push(route);
+      else dynamicBuckets.set(key, [route]);
+    }
+
+    const useLinearMatcher = [...dynamicBuckets.values()].every(
+      (routes) => routes.length <= LINEAR_BUCKET_LIMIT
+    );
+    let linearBuckets: Map<string, CompiledRoute<T>[]> | undefined;
+    if (useLinearMatcher) {
+      for (const routes of dynamicBuckets.values()) {
+        for (const route of routes) {
+          route.linearMatcher ??= compileLinearMatcher(route.tokens);
+        }
+        if (routes.length > 1) routes.sort(compareCompiledRoutes);
+      }
+      linearBuckets = dynamicBuckets;
+    } else {
+      for (const routes of dynamicBuckets.values()) trieRoutes.push(...routes);
+    }
+
+    const matcher =
+      trieRoutes.length > 0 ? new CompiledPathMatcher(trieRoutes) : undefined;
+    const shadowedStaticPaths = new Set<string>();
+    for (const staticPath of this.#staticRoutes.keys()) {
+      if (fallbackRoutes.length > 0) {
+        shadowedStaticPaths.add(staticPath);
+        continue;
+      }
+      if (matcher?.some(RouterUtils.splitPath(staticPath), () => true)) {
+        shadowedStaticPaths.add(staticPath);
+        continue;
+      }
+      if (
+        linearBuckets &&
+        this.#getLinearCandidates(staticPath, linearBuckets).some((route) =>
+          route.linearMatcher!.test(staticPath)
+        )
+      ) {
+        shadowedStaticPaths.add(staticPath);
+      }
+    }
+
+    return (this.#compiled = {
+      matcher,
+      linearBuckets,
+      fallbackRoutes,
+      shadowedStaticPaths,
+    });
+  }
+
+  #getLinearCandidates(
+    pathname: string,
+    buckets: Map<string, CompiledRoute<T>[]>
+  ): CompiledRoute<T>[] {
+    const generic = buckets.get('');
+    const firstSegment = getFirstSegment(pathname);
+    if (!firstSegment) return generic ?? [];
+
+    const specific = buckets.get(firstSegment);
+    if (!generic) return specific ?? [];
+    if (!specific) return generic;
+    return [...generic, ...specific].sort(compareCompiledRoutes);
+  }
+
+  #matchStaticRoutes(
+    method: string,
+    routes: readonly CompiledRoute<T>[]
+  ): Result<T> {
+    const results: Result<T> = [];
+    for (const route of routes) {
+      if (route.method === method || route.method === 'ALL') {
+        results.push([route.handler, EMPTY_PARAMS, route.pathname]);
+      }
+    }
+    return results;
+  }
+
+  #matchCompiled(
+    method: string,
+    pathname: string,
+    compiled: CompiledPlan<T>,
+    staticRoutes?: readonly CompiledRoute<T>[]
+  ): Result<T> {
+    if (
+      !staticRoutes &&
+      compiled.linearBuckets &&
+      compiled.fallbackRoutes.length === 0
+    ) {
+      return this.#matchLinearRoutes(method, pathname, compiled.linearBuckets);
+    }
+
+    const pathSegments = RouterUtils.splitPath(pathname);
+    const candidates = staticRoutes ? [...staticRoutes] : [];
+    if (compiled.matcher) {
+      candidates.push(...compiled.matcher.match(pathSegments));
+    }
+    if (compiled.linearBuckets) {
+      for (const route of this.#getLinearCandidates(
+        pathname,
+        compiled.linearBuckets
+      )) {
+        if (
+          (route.method === method || route.method === 'ALL') &&
+          route.linearMatcher!.test(pathname)
+        ) {
+          candidates.push(route);
+        }
+      }
+    }
+    if (staticRoutes && pathSegments.length > 0) {
+      candidates.push(...compiled.fallbackRoutes);
+    }
+    if (candidates.length > 1) candidates.sort(compareCompiledRoutes);
+
+    const results: Result<T> = [];
+    for (const route of candidates) {
+      if (route.method !== method && route.method !== 'ALL') continue;
+      if (
+        staticRoutes &&
+        route.params.some(
+          (binding) => binding.wildcard && binding.index === pathSegments.length
+        )
+      ) {
+        continue;
+      }
+      results.push([
+        route.handler,
+        route.tokens[0] === WILDCARD_SEGMENT
+          ? materializeFallbackParams(pathSegments)
+          : materializeParams(route, pathSegments),
+        route.pathname,
+      ]);
+    }
+
+    if (!staticRoutes && results.length === 0 && pathSegments.length > 0) {
+      for (const route of compiled.fallbackRoutes) {
+        if (route.method === method || route.method === 'ALL') {
+          results.push([
+            route.handler,
+            materializeFallbackParams(pathSegments),
+            route.pathname,
+          ]);
+        }
+      }
+    }
+    return results;
+  }
+
+  #matchLinearRoutes(
+    method: string,
+    pathname: string,
+    buckets: Map<string, CompiledRoute<T>[]>
+  ): Result<T> {
+    const candidates = this.#getLinearCandidates(pathname, buckets);
+    const results: Result<T> = [];
+    for (const route of candidates) {
+      if (route.method !== method && route.method !== 'ALL') continue;
+      const match = route.linearMatcher!.exec(pathname);
+      if (match) {
+        results.push([
+          route.handler,
+          materializeLinearParams(route, match),
+          route.pathname,
+        ]);
+      }
+    }
+    return results;
+  }
+
   #validateRadixTreePathname(pathname: string): void {
-    // Check for unsupported URLPattern features
     const unsupportedPatterns = [
-      /{[^}]*}/g, // URLPattern groups like {version}
-      /\\d\+/g, // Regex patterns like \d+
-      /\\w\+/g, // Regex patterns like \w+
-      /\[[^\]]*\]/g, // Character classes
-      /\([^)]*\)/g, // Grouping parentheses
-      /\?/g, // Optional segments
+      /\{[^}]*\}/g,
+      /\\d\+/g,
+      /\\w\+/g,
+      /\[[^\]]*\]/g,
+      /\([^)]*\)/g,
+      /\?/g,
     ];
 
     for (const pattern of unsupportedPatterns) {
@@ -105,338 +388,12 @@ export class RadixTreeRouter<T> implements Router<T> {
       }
     }
 
-    // Check for wildcard in middle of path
     const segments = RouterUtils.splitPath(pathname);
-    for (let i = 0; i < segments.length - 1; i++) {
-      if (segments[i] === '*') {
+    for (let index = 0; index < segments.length - 1; index++) {
+      if (segments[index] === '*') {
         throw new Error(
           `Wildcard (*) is only allowed at the end of the path: ${pathname}`
         );
-      }
-    }
-  }
-
-  #createNode(label: string, prefix: string): RadixNode<T> {
-    return {
-      label,
-      prefix,
-      children: new Map(),
-      handlers: new Map(),
-      isLeaf: false,
-    };
-  }
-
-  #addRoute(method: string, pathname: string, handler: T): void {
-    const segments = RouterUtils.splitPath(pathname);
-    let currentNode = this.#root;
-    let currentPath = '';
-
-    // Handle empty path or root path
-    if (segments.length === 0) {
-      currentNode.isLeaf = true;
-      currentNode.handlers.set(method, handler);
-      this.#registerStaticRoute('/', method, handler);
-      return;
-    }
-
-    const isStatic = segments.every(
-      (segment) => !segment.startsWith(':') && segment !== '*'
-    );
-    if (isStatic) {
-      this.#registerStaticRoute(pathname, method, handler);
-    } else {
-      const dynamicPath = { segments };
-      this.#dynamicPaths.push(dynamicPath);
-      this.#registerDynamicRoute(method, pathname, handler, segments);
-      for (const staticPath of this.#staticPaths) {
-        if (this.#dynamicPathMatches(dynamicPath.segments, staticPath)) {
-          this.#shadowedStaticPaths.add(staticPath);
-        }
-      }
-    }
-
-    for (let i = 0; i < segments.length; i++) {
-      const segment = segments[i];
-      const isLastSegment = i === segments.length - 1;
-      const isParam = segment.startsWith(':');
-      const isWildcard = segment === '*';
-
-      if (isParam) {
-        // Handle parameter segment
-        const paramName = segment.slice(1);
-        if (!currentNode.paramChild) {
-          currentNode.paramChild = this.#createNode(
-            segment,
-            currentPath + '/' + segment
-          );
-          currentNode.paramChild.paramName = paramName;
-        }
-        currentNode = currentNode.paramChild;
-        currentPath += '/' + segment;
-      } else if (isWildcard) {
-        // Handle wildcard segment (only at the end)
-        if (!currentNode.wildcardChild) {
-          currentNode.wildcardChild = this.#createNode(
-            segment,
-            currentPath + '/' + segment
-          );
-        }
-        currentNode = currentNode.wildcardChild;
-        currentPath += '/' + segment;
-      } else {
-        // Handle static segment
-        if (!currentNode.children.has(segment)) {
-          currentNode.children.set(
-            segment,
-            this.#createNode(segment, currentPath + '/' + segment)
-          );
-        }
-        currentNode = currentNode.children.get(segment)!;
-        currentPath += '/' + segment;
-      }
-
-      if (isLastSegment) {
-        currentNode.isLeaf = true;
-        currentNode.handlers.set(method, handler);
-      }
-    }
-  }
-
-  #registerStaticRoute(pathname: string, method: string, handler: T): void {
-    const routes = this.#staticRoutes.get(pathname);
-    if (routes) {
-      routes.push({ method, handler });
-    } else {
-      this.#staticRoutes.set(pathname, [{ method, handler }]);
-    }
-    this.#staticPaths.add(pathname);
-    for (const dynamicPath of this.#dynamicPaths) {
-      if (this.#dynamicPathMatches(dynamicPath.segments, pathname)) {
-        this.#shadowedStaticPaths.add(pathname);
-        break;
-      }
-    }
-  }
-
-  #registerDynamicRoute(
-    method: string,
-    pathname: string,
-    handler: T,
-    segments: string[]
-  ): void {
-    let pattern = '^';
-    const paramNames: string[] = [];
-    const priority: string[] = [];
-    let score = 0;
-
-    for (const segment of segments) {
-      if (segment === '*') {
-        pattern += '(?:/(.*))?$';
-        paramNames.push('*');
-        priority.push('2');
-        score -= 100;
-        break;
-      }
-
-      pattern += '/';
-      if (segment.startsWith(':')) {
-        pattern += '([^/]+)';
-        paramNames.push(segment.slice(1));
-        priority.push('1');
-        score += 1;
-      } else {
-        pattern += escapeRegExp(segment);
-        priority.push('0');
-        score += 2;
-      }
-    }
-
-    if (!pattern.endsWith('$')) pattern += '$';
-    const firstSegment = segments[0];
-    const bucketKey =
-      firstSegment.startsWith(':') || firstSegment === '' ? '' : firstSegment;
-    const route: CompiledRoute<T> = {
-      method,
-      handler,
-      pathname,
-      matcher: new RegExp(pattern),
-      paramNames,
-      priority: priority.join(''),
-      score: score + segments.length,
-    };
-    const bucket = this.#dynamicBuckets.get(bucketKey);
-    if (!bucket) {
-      this.#dynamicBuckets.set(bucketKey, [route]);
-      return;
-    }
-
-    let index = bucket.length;
-    while (index > 0 && compareCompiledRoutes(bucket[index - 1], route) > 0) {
-      index--;
-    }
-    bucket.splice(index, 0, route);
-  }
-
-  #matchDynamicRoutes(method: string, pathname: string): Result<T> | undefined {
-    const firstSlash = pathname.indexOf('/', 1);
-    const firstSegment =
-      firstSlash === -1 ? pathname.slice(1) : pathname.slice(1, firstSlash);
-    const specific = firstSegment
-      ? this.#dynamicBuckets.get(firstSegment)
-      : undefined;
-    const generic = this.#dynamicBuckets.get('');
-    if (!specific && !generic) return undefined;
-
-    const candidates =
-      specific && generic
-        ? [...specific, ...generic].sort(compareCompiledRoutes)
-        : (specific ?? generic!);
-    const results: Result<T> = [];
-    for (const route of candidates) {
-      if (route.method !== method && route.method !== 'ALL') continue;
-      const match = route.matcher.exec(pathname);
-      if (!match) continue;
-
-      let params: Params | undefined;
-      for (let index = 0; index < route.paramNames.length; index++) {
-        const value = match[index + 1];
-        if (value) {
-          (params ??= Object.create(null))[route.paramNames[index]] =
-            decodePathParam(value);
-        }
-      }
-      results.push([route.handler, params ?? EMPTY_PARAMS, route.pathname]);
-    }
-    return results;
-  }
-
-  #dynamicPathMatches(segments: string[], pathname: string): boolean {
-    const staticSegments = RouterUtils.splitPath(pathname);
-    for (let index = 0; index < segments.length; index++) {
-      const segment = segments[index];
-      if (segment === '*') return true;
-      if (index >= staticSegments.length) return false;
-      if (!segment.startsWith(':') && segment !== staticSegments[index]) {
-        return false;
-      }
-    }
-    return segments.length === staticSegments.length;
-  }
-
-  #findRoute(method: string, pathname: string): Result<T> {
-    const staticRoutes = this.#staticRoutes.get(pathname);
-    if (staticRoutes && !this.#shadowedStaticPaths.has(pathname)) {
-      const results: Result<T> = [];
-      for (const route of staticRoutes) {
-        if (route.method === method || route.method === 'ALL') {
-          results.push([route.handler, EMPTY_PARAMS, pathname]);
-        }
-      }
-      return results;
-    }
-
-    if (!this.#staticRoutes.has(pathname)) {
-      const dynamicResults = this.#matchDynamicRoutes(method, pathname);
-      if (dynamicResults?.length) return dynamicResults;
-    }
-
-    const segments = RouterUtils.splitPath(pathname);
-    const results: Result<T> = [];
-
-    // Handle empty path or root path
-    if (segments.length === 0) {
-      if (this.#root.isLeaf) {
-        const handler =
-          this.#root.handlers.get(method) || this.#root.handlers.get('ALL');
-        if (handler) {
-          results.push([handler, EMPTY_PARAMS, '/']);
-        }
-      }
-      return results;
-    }
-
-    this.#findRouteRecursive(this.#root, segments, 0, {}, method, results, 0);
-    return results;
-  }
-
-  #findRouteRecursive(
-    node: RadixNode<T>,
-    segments: string[],
-    segmentIndex: number,
-    params: Params,
-    method: string,
-    results: Result<T>,
-    paramCount: number
-  ): void {
-    if (segmentIndex >= segments.length) {
-      // We've reached the end of the path
-      if (node.isLeaf) {
-        const handler = node.handlers.get(method) || node.handlers.get('ALL');
-        if (handler) {
-          results.push([
-            handler,
-            paramCount === 0 ? EMPTY_PARAMS : { ...params },
-            node.prefix,
-          ]);
-        }
-      }
-      return;
-    }
-
-    const currentSegment = segments[segmentIndex];
-    const isLastSegment = segmentIndex === segments.length - 1;
-
-    // Try static match first (higher priority)
-    const staticChild = node.children.get(currentSegment);
-    if (staticChild) {
-      this.#findRouteRecursive(
-        staticChild,
-        segments,
-        segmentIndex + 1,
-        params,
-        method,
-        results,
-        paramCount
-      );
-      // If we found a static match, don't try parameter match
-      // if (results.length > 0) {
-      //   return;
-      // }
-    }
-
-    // Try parameter match (lower priority)
-    if (node.paramChild) {
-      const paramName = node.paramChild.paramName!;
-      params[paramName] = decodePathParam(currentSegment);
-      this.#findRouteRecursive(
-        node.paramChild,
-        segments,
-        segmentIndex + 1,
-        params,
-        method,
-        results,
-        paramCount + 1
-      );
-      delete params[paramName]; // Backtrack
-    }
-
-    // Try wildcard match (only for last segment or if wildcard is at the end)
-    if (node.wildcardChild && (isLastSegment || node.wildcardChild.isLeaf)) {
-      const remainingPath = segments.slice(segmentIndex).join('/');
-      if (remainingPath) {
-        params['*'] = remainingPath;
-      }
-      this.#findRouteRecursive(
-        node.wildcardChild,
-        segments,
-        segments.length,
-        params,
-        method,
-        results,
-        remainingPath ? paramCount + 1 : paramCount
-      );
-      if (remainingPath) {
-        delete params['*']; // Backtrack
       }
     }
   }

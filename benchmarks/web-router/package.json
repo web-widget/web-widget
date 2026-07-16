@@ -27,7 +27,7 @@
     "fastify": "^5.10.0",
     "hono": "^4.12.30",
     "koa": "^3.2.1",
-    "urlpattern-polyfill": "^9.0.0"
+    "urlpattern-polyfill": "^10.1.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

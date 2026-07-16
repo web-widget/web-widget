@@ -24,7 +24,7 @@
     "@cloudflare/vitest-pool-workers": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",
-    "urlpattern-polyfill": "^9.0.0",
+    "urlpattern-polyfill": "^10.1.0",
     "vitest": "catalog:"
   },
   "exports": {

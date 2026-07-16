@@ -309,4 +309,46 @@ describe('RadixTreeRouter', () => {
       });
     });
   });
+
+  describe('Compiled Matching', () => {
+    it('recompiles after add and keeps route-specific parameter names', () => {
+      const router = new RadixTreeRouter<string>();
+      router.add('GET', '/api/:id', 'id');
+
+      expect(router.match('GET', '/api/123')[0][1]).toEqual({ id: '123' });
+
+      router.add('GET', '/api/:name', 'name');
+      router.add('GET', '/api/fixed', 'static');
+
+      const result = router.match('GET', '/api/fixed');
+      expect(result.map((entry) => entry[0])).toEqual(['static', 'id', 'name']);
+      expect(result[1][1]).toEqual({ id: 'fixed' });
+      expect(result[2][1]).toEqual({ name: 'fixed' });
+    });
+
+    it('preserves wildcard behavior when an exact static route is added', () => {
+      const router = new RadixTreeRouter<string>();
+      router.add('GET', '/api/*', 'wildcard');
+      expect(router.match('GET', '/api').map((entry) => entry[0])).toEqual([
+        'wildcard',
+      ]);
+
+      router.add('GET', '/api', 'static');
+      expect(router.match('GET', '/api').map((entry) => entry[0])).toEqual([
+        'static',
+      ]);
+    });
+
+    it('selects one route from a large shared-prefix trie', () => {
+      const router = new RadixTreeRouter<number>();
+      for (let index = 0; index < 2000; index++) {
+        router.add('GET', `/api/resource-${index}/:id`, index);
+      }
+
+      const result = router.match('GET', '/api/resource-1999/123');
+      expect(result).toHaveLength(1);
+      expect(result[0][0]).toBe(1999);
+      expect(result[0][1]).toEqual({ id: '123' });
+    });
+  });
 });
