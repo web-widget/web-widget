@@ -33,7 +33,29 @@ jobs:
         run: pnpm --filter @benchmarks/web-router... build
 
       - name: Compare Web Router with Hono
-        run: pnpm --filter @benchmarks/web-router benchmark:quick
+        shell: bash
+        run: |
+          set -o pipefail
+          pnpm --filter @benchmarks/web-router benchmark:quick 2>&1 | tee benchmark-output.txt
+
+      - name: Publish benchmark summary
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          chart=$(find benchmarks/web-router/reports/latest -name 'performance-chart-*.txt' -type f | sort | tail -n 1)
+          {
+            echo '## Web Router performance'
+            echo
+            if [[ -n "$chart" ]]; then
+              echo '```text'
+              cat "$chart"
+              echo '```'
+            else
+              echo 'The benchmark did not produce a performance chart.'
+            fi
+            echo
+            grep -E 'Performance ratio:|Performance regression:' benchmark-output.txt || true
+          } >> "$GITHUB_STEP_SUMMARY"
 
   build:
     runs-on: ubuntu-latest
