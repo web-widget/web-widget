@@ -11,7 +11,7 @@ pnpm install
 # Run benchmark tests
 pnpm benchmark
 
-# Run one HTTP benchmark round comparing Web Router with Hono
+# Run the PR-sized HTTP benchmark workload
 pnpm benchmark:quick
 
 # Select frameworks and the number of measured rounds
@@ -32,7 +32,7 @@ pnpm test:compatibility
 
 `--assert-ratio` accepts `subject:reference:minimum` and can be repeated for
 multiple performance gates. The quick benchmark only selects the PR-sized
-workload; CI owns its comparison and threshold policy.
+workload; CI owns its baseline and threshold policy.
 
 ## Project Structure
 
@@ -89,7 +89,7 @@ benchmarks/web-router/
 
 ```bash
 pnpm benchmark              # Run benchmarks
-pnpm benchmark:quick        # Run one Web Router/Hono HTTP benchmark round
+pnpm benchmark:quick        # Run the PR-sized HTTP benchmark workload
 pnpm benchmark:router       # Run isolated router matcher benchmarks
 pnpm benchmark:router:quick # Validate matcher scenarios with short samples
 pnpm report                 # Generate reports

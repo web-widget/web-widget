@@ -12,8 +12,8 @@ jobs:
     name: Web Router benchmark
     runs-on: ubuntu-latest
     env:
-      WEB_ROUTER_HONO_BASELINE_RATIO: '1.238'
-      WEB_ROUTER_HONO_MINIMUM_RATIO: '1.052'
+      PERFORMANCE_RECORDED_RATIO: '1.238'
+      PERFORMANCE_MINIMUM_RATIO: '1.052'
 
     steps:
       - uses: actions/checkout@v7
@@ -35,14 +35,14 @@ jobs:
       - name: Build benchmark dependencies
         run: pnpm --filter @benchmarks/web-router... build
 
-      - name: Compare Web Router with Hono
+      - name: Run performance benchmark
         shell: bash
         run: |
           set -o pipefail
           pnpm --filter @benchmarks/web-router benchmark -- \
             --rounds=1 \
             --frameworks=web-router,hono \
-            --assert-ratio=web-router:hono:${WEB_ROUTER_HONO_MINIMUM_RATIO} \
+            --assert-ratio=web-router:hono:${PERFORMANCE_MINIMUM_RATIO} \
             2>&1 | tee benchmark-output.txt
 
       - name: Publish benchmark summary
@@ -51,7 +51,7 @@ jobs:
         run: |
           chart=$(find benchmarks/web-router/reports/latest -name 'performance-chart-*.txt' -type f | sort | tail -n 1)
           {
-            echo '## Web Router performance'
+            echo '## Web Router benchmark'
             echo
             if [[ -n "$chart" ]]; then
               echo '```text'
@@ -61,7 +61,7 @@ jobs:
               echo 'The benchmark did not produce a performance chart.'
             fi
             echo
-            echo "Recorded baseline ratio: ${WEB_ROUTER_HONO_BASELINE_RATIO}"
+            echo "Recorded baseline ratio: ${PERFORMANCE_RECORDED_RATIO}"
             grep -E 'Performance ratio:|Performance regression:' benchmark-output.txt || true
           } >> "$GITHUB_STEP_SUMMARY"
 
