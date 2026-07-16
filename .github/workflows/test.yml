@@ -114,6 +114,9 @@ jobs:
       - name: Type-check packages
         run: pnpm typecheck
 
+      - name: Test repository scripts
+        run: pnpm test:scripts
+
       - run: pnpm run test
 
       - name: Generate coverage

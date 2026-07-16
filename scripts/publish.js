@@ -13,8 +13,13 @@
  */
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
+import {
+  findPackageJsonPaths,
+  withPublishedPackageManifests,
+} from './published-package-manifests.js';
 
 const pkgPath = new URL('../package.json', import.meta.url).pathname;
+const root = new URL('..', import.meta.url).pathname;
 const original = readFileSync(pkgPath, 'utf8');
 const pkg = JSON.parse(original);
 
@@ -23,7 +28,10 @@ pkg.packageManager = 'npm@11';
 writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 
 try {
-  execSync('changeset publish', { stdio: 'inherit' });
+  const packagePaths = await findPackageJsonPaths(root);
+  await withPublishedPackageManifests(packagePaths, () => {
+    execSync('changeset publish', { stdio: 'inherit' });
+  });
 } finally {
   // Always restore the original package.json.
   writeFileSync(pkgPath, original);

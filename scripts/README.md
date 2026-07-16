@@ -22,3 +22,20 @@ node scripts/materialize-examples-catalog.js
 pnpm examples-catalog:materialize
 pnpm examples-catalog:check   # CI: fail if examples drift from catalog
 ```
+
+## Published package manifests
+
+Workspace package exports use the `development` condition to resolve source
+files locally. `published-package-manifests.js` replaces those exports with
+`publishConfig.exports` when provided and otherwise removes `development`
+conditions recursively. Package validation applies this transformation in an
+isolated temporary workspace; publishing restores the original manifests after
+the command, including when it fails.
+
+```bash
+pnpm publint       # Pack and validate every published package
+pnpm test:scripts  # Test manifest transformation and restoration
+```
+
+`publish.js` uses the same transformation before running Changesets, keeping
+the validated tarball shape and the release path consistent.
