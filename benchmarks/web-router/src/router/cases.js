@@ -1,5 +1,3 @@
-const ROUTER_TYPES = ['url-pattern', 'radix-tree'];
-
 function expected(count, handler, params, handlers) {
   return { count, handler, params, handlers };
 }
@@ -9,10 +7,7 @@ function request(path, expectation, method = 'GET') {
 }
 
 function scenario(options) {
-  return {
-    routerTypes: ROUTER_TYPES,
-    ...options,
-  };
+  return options;
 }
 
 function createBaselineCases() {
@@ -77,7 +72,6 @@ function createBaselineCases() {
       suite: 'baseline',
       name: 'URLPattern dot-segment normalization',
       routeCount: 1,
-      routerTypes: ['url-pattern'],
       register(router) {
         router.add('GET', '/a/../item', 0);
       },
@@ -286,7 +280,6 @@ function createComplexPatternCases(routeCounts) {
         suite: 'complex-urlpattern',
         name: `${routeCount} regex routes sharing /api`,
         routeCount,
-        routerTypes: ['url-pattern'],
         register(router) {
           for (let index = 0; index < routeCount; index++) {
             router.add('GET', `/api/resource-${index}/:id([0-9]+)`, index);

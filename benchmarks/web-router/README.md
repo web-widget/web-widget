@@ -53,7 +53,6 @@ benchmarks/web-router/
 - **Hono** - Modern web framework with Web API compatibility
 - **Web Router** - Standard mode with URLPattern-based routing
 - **Web Router#Direct** - Direct mode (`app.get(route, fn)`)
-- **Web Router#Radix Tree** - Radix tree-based routing
 - **Web Router#Manifest** - Manifest mode (`WebRouter.fromManifest()`)
 - **urlpattern-simple** - Minimal URLPattern-based framework
 - **Express** - Traditional Node.js web framework

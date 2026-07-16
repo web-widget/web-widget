@@ -50,8 +50,8 @@ function parseArguments(args) {
   };
 }
 
-function createRouter(routerType) {
-  return new WebRouter({ routerType }).router;
+function createRouter() {
+  return new WebRouter().router;
 }
 
 function assert(condition, message) {
@@ -104,8 +104,8 @@ function validateRequest(router, item, label) {
   );
 }
 
-function validateCase(router, benchmarkCase, routerType) {
-  const label = `${benchmarkCase.id}/${routerType}`;
+function validateCase(router, benchmarkCase) {
+  const label = benchmarkCase.id;
   for (const item of benchmarkCase.requests) {
     validateRequest(router, item, label);
   }
@@ -167,9 +167,9 @@ function formatRate(value) {
   return Math.round(value).toLocaleString('en-US');
 }
 
-async function benchmarkRouter(benchmarkCase, routerType) {
+async function benchmarkRouter(benchmarkCase) {
   const setupStart = performance.now();
-  const router = createRouter(routerType);
+  const router = createRouter();
   benchmarkCase.register(router);
   const setupMs = performance.now() - setupStart;
 
@@ -178,7 +178,7 @@ async function benchmarkRouter(benchmarkCase, routerType) {
   router.match(firstRequest.method, firstRequest.path);
   const firstMatchUs = (performance.now() - firstMatchStart) * 1000;
 
-  validateCase(router, benchmarkCase, routerType);
+  validateCase(router, benchmarkCase);
   const operation = createOperation(router, benchmarkCase.requests);
   const batchSize = calibrateBatchSize(operation);
   measure(operation, config['warmup-duration-ms'], batchSize);
@@ -192,7 +192,6 @@ async function benchmarkRouter(benchmarkCase, routerType) {
     id: benchmarkCase.id,
     suite: benchmarkCase.suite,
     scenario: benchmarkCase.name,
-    router: routerType,
     routes: benchmarkCase.routeCount,
     workloadPaths: benchmarkCase.requests.length,
     matchesPerSecond: median(samples),
@@ -216,33 +215,19 @@ if (arguments_.suite) console.log(`Suite filter: ${arguments_.suite}`);
 console.log('');
 
 const results = [];
-for (let caseIndex = 0; caseIndex < cases.length; caseIndex++) {
-  const benchmarkCase = cases[caseIndex];
-  const routerTypes =
-    caseIndex % 2 === 0
-      ? benchmarkCase.routerTypes
-      : benchmarkCase.routerTypes.slice().reverse();
-
-  for (const routerType of routerTypes) {
-    const result = await benchmarkRouter(benchmarkCase, routerType);
-    results.push(result);
-    console.log(
-      `${result.id.padEnd(34)} ${routerType.padEnd(12)} ${formatRate(result.matchesPerSecond).padStart(14)} match/s`
-    );
-  }
+for (const benchmarkCase of cases) {
+  const result = await benchmarkRouter(benchmarkCase);
+  results.push(result);
+  console.log(
+    `${result.id.padEnd(34)} ${formatRate(result.matchesPerSecond).padStart(14)} match/s`
+  );
 }
 
 const summary = results.map((result) => {
-  const peers = results.filter((candidate) => candidate.id === result.id);
-  const fastest = Math.max(
-    ...peers.map((candidate) => candidate.matchesPerSecond)
-  );
   return {
     scenario: result.id,
-    router: result.router,
     routes: result.routes,
     'match/s': formatRate(result.matchesPerSecond),
-    relative: `${((result.matchesPerSecond / fastest) * 100).toFixed(1)}%`,
     'setup ms': result.setupMs.toFixed(2),
     'first match us': result.firstMatchUs.toFixed(2),
   };

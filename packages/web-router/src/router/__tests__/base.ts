@@ -106,10 +106,7 @@ export class CommonRouterTestRules {
         const result1 = router.match('GET', '/users');
         const match1 = this.getMostSpecificMatch(result1);
         expect(match1).toBeDefined();
-        // Different routers may handle path normalization differently
-        // URLPattern normalizes paths, while RadixTree may not
-        // Different routers may handle path normalization differently
-        // URLPattern normalizes paths, while RadixTree may not
+        // URLPattern normalizes paths before matching.
         expect(match1![0]).toMatch(/get-users/);
 
         const result2 = router.match('GET', 'users');
