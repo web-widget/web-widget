@@ -2,6 +2,7 @@ import path from 'node:path';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
+import { hasDefaultExport } from './module-exports';
 import { collectRouteModuleAssets } from '@/internal/collect-route-assets';
 import { getWebRouterPluginApi } from '@/internal/manifest';
 import { applyToServerEnvironment } from '@/internal/environment';
@@ -9,7 +10,6 @@ import { normalizePath } from '@/internal/path';
 import { normalizeFilterId as cleanId } from '@/internal/module-id';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
 import { createCachedAliasGenerator } from '@/internal/alias';
-import { hasDefaultExport } from './module-exports';
 
 export interface ExportRenderPluginOptions {
   /** Native Rust-layer filter (broad pre-filter on raw id). */

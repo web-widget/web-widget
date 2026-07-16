@@ -2,14 +2,14 @@ import path from 'node:path';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
+import { hasDefaultExport } from './module-exports';
 import { stripModuleIdQuery, CSS_LANGS_RE } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
 import { createAliasGenerator } from '@/internal/alias';
-import { hasDefaultExport } from './module-exports';
 
 const IMPORT_DEFAULT_NAME_REG =
-  /import\s+(?:([a-zA-Z_$][\w$]*)|{\s*default\s+as\s+([a-zA-Z_$][\w$]*)\s*})\s+from/;
+  /import\s+(?:([a-zA-Z_$][\w$]*)|\{\s*default\s+as\s+([a-zA-Z_$][\w$]*)\s*\})\s+from/;
 const parseComponentName = (code: string) => {
   const m = code.match(IMPORT_DEFAULT_NAME_REG);
   return m?.[1] ?? m?.[2];

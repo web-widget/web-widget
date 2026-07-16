@@ -74,12 +74,7 @@ function getRequestId(req: unknown) {
  * Valid RPC return types that can be serialized.
  */
 export type RpcResult =
-  | string
-  | number
-  | boolean
-  | null
-  | RpcResult[]
-  | { [key: string]: RpcResult };
+  string | number | boolean | null | RpcResult[] | { [key: string]: RpcResult };
 
 /**
  * Signature that all RPC methods must adhere to.

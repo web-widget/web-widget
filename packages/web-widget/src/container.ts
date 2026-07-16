@@ -221,11 +221,7 @@ export class ModuleContainer<Data = unknown> {
       );
     }
     this.#setStatus(next);
-    try {
-      await this.#safeExecute(action, fn, errorStatus);
-    } catch (err) {
-      throw err;
-    }
+    await this.#safeExecute(action, fn, errorStatus);
   }
 
   /** Loads the widget module. */

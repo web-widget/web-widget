@@ -592,7 +592,7 @@ describe('Race Condition Fix', () => {
     window.onerror = originalError;
 
     // Should not have caused the race condition error
-    expect(errorOccurred).to.be.false;
+    expect(errorOccurred).to.equal(false);
     expect(loadCallCount).to.equal(1);
     expect(element.status).to.equal('mounted');
   });

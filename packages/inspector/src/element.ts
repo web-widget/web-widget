@@ -799,7 +799,7 @@ export class HTMLWebWidgetInspectorElement extends LitElement {
     tooltip.style.display = 'block';
 
     // Force reflow to get accurate dimensions
-    tooltip.offsetHeight;
+    void tooltip.offsetHeight;
 
     const elementRect = this.currentElementBounds;
     const tooltipRect = tooltip.getBoundingClientRect();

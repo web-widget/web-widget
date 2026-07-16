@@ -143,8 +143,7 @@ export interface RequestCacheControl {
 
 const mappings: {
   [key in keyof (ResponseCacheControl & RequestCacheControl)]:
-    | string
-    | ((value: any) => string);
+    string | ((value: any) => string);
 } = {
   immutable: 'immutable',
   maxAge: (value: number) => `max-age=${value}`,

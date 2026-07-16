@@ -5,9 +5,8 @@ import type {
 } from '@web-widget/web-widget';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import type { ExtractWidgetProps } from '@web-widget/schema';
-import { unsafeHTML, suspense, fallback } from './html';
+import { unsafeHTML, suspense, fallback, HTML } from './html';
 import type { Suspense, Fallback, UnsafeHTML } from './html';
-import { HTML } from './html';
 import { renderToString } from './render';
 
 export type DefineWebWidgetOptions = Partial<
@@ -20,7 +19,7 @@ export type DefineWebWidgetOptions = Partial<
 export type WidgetFallback =
   HTML | { pending?: HTML; error?: HTML | ((e: any) => HTML) };
 
-export type WidgetContainerConfig = {
+export interface WidgetContainerConfig {
   /**
    * Fallback UI for pending and error states.
    *
@@ -44,7 +43,7 @@ export type WidgetContainerConfig = {
   serverOnly?: true;
   /** Widget renders only on the client, producing no server HTML (empty placeholder until client mount). Mutually exclusive with `serverOnly`. */
   clientOnly?: true;
-};
+}
 
 /**
  * Props accepted by an HTML widget component.

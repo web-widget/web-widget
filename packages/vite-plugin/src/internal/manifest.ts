@@ -4,8 +4,7 @@ import type { WebRouterPlugin } from '@/types';
 
 export function getWebRouterPluginApi(
   config:
-    | Pick<ResolvedConfig, 'plugins'>
-    | { plugins?: readonly PluginOption[] }
+    Pick<ResolvedConfig, 'plugins'> | { plugins?: readonly PluginOption[] }
 ) {
   for (const plugin of config.plugins ?? []) {
     if (

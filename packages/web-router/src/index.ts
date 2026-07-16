@@ -4,11 +4,11 @@
 import { rebaseMeta } from '@web-widget/helpers';
 import { createHttpError } from '@web-widget/helpers/error';
 
+import { callContext } from '@web-widget/context/server';
 import type { ApplicationOptions } from './application';
 import { Application } from './application';
 import * as defaultFallbackModule from './fallback';
 import * as defaultLayoutModule from './layout';
-import { callContext } from '@web-widget/context/server';
 import { ModuleRuntime, type OnFallback } from './module';
 import type {
   Env,

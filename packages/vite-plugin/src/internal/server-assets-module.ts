@@ -2,10 +2,10 @@ import path from 'node:path';
 import type { LinkDescriptor } from '@web-widget/helpers';
 import type { Manifest as ViteManifest } from 'vite';
 import type { RouteClientAssets } from './collect-route-assets';
-import type { WidgetModuleFilter } from '@/types';
 import { getLinks, getRouteMetaLinks } from './manifest-links';
 import { processCssLinks, type CssConfig } from './css-merge';
 import { normalizePath } from './path';
+import type { WidgetModuleFilter } from '@/types';
 
 /**
  * Virtual module id for the server-side asset resolver.

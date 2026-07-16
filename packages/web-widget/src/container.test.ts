@@ -1,5 +1,6 @@
 import { expect } from '@esm-bundle/chai';
-import { ModuleContainer, ModuleLoader, status } from './container';
+import type { ModuleLoader } from './container';
+import { ModuleContainer, status } from './container';
 
 describe('ModuleContainer', () => {
   let mockModuleLoader: ModuleLoader;
@@ -40,7 +41,7 @@ describe('ModuleContainer', () => {
 
     try {
       await container.load();
-    } catch (e) {
+    } catch {
       expect(container.status).to.equal(status.LOAD_ERROR);
     }
   });
@@ -82,7 +83,7 @@ describe('ModuleContainer', () => {
 
     try {
       await container.load();
-    } catch (e) {
+    } catch {
       expect(container.status).to.equal(status.LOAD_ERROR);
     }
 

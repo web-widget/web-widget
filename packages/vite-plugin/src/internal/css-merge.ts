@@ -25,7 +25,7 @@ export interface ProcessCssResult {
   styleMap: Record<string, string>;
 }
 
-const ABSOLUTE_URL_REG = /^(?:[a-z][a-z0-9+.-]*:|data:|\/|#)/i;
+const ABSOLUTE_URL_REG = /^(?:[a-z][a-z0-9+.-]*:|\/|#)/i;
 
 /**
  * Rebase relative `url()` references in CSS content to absolute (root-relative)

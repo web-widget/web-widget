@@ -2,7 +2,6 @@ import type { RouteSourceFileName, RouteSourceType } from './types';
 import { getExtension, removeExtension } from './utils';
 import { MODULE_MARKER_SEPARATOR_PATTERN } from '@/internal/module-conventions';
 
-// eslint-disable-next-line regexp/no-super-linear-backtracking
 const NAME_REG = new RegExp(
   `^(?<name>.*)${MODULE_MARKER_SEPARATOR_PATTERN}(?<type>.*)$`
 );

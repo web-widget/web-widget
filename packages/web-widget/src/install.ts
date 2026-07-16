@@ -1,9 +1,7 @@
-import {
-  HTMLWebWidgetElement,
-  HTMLWebWidgetElementAttributes,
-} from './element';
-import { queueMicrotask } from './utils/queue-microtask';
 import { mountLifecycleCacheLayer } from '@web-widget/lifecycle-cache/client';
+import type { HTMLWebWidgetElementAttributes } from './element';
+import { HTMLWebWidgetElement } from './element';
+import { queueMicrotask } from './utils/queue-microtask';
 
 function install() {
   Object.assign(window, {

@@ -1,7 +1,4 @@
 import path from 'node:path';
-import type { RouteMap } from '@/types';
-import { isPathInsideRoot, normalizePath } from '@/internal/path';
-import { stripModuleIdQuery } from '@/internal/module-id';
 import {
   collectRouteModuleAssets,
   createRouteAssetCaches,
@@ -10,17 +7,19 @@ import type {
   RouteAssetCaches,
   RouteClientAssets,
 } from './collect-route-assets';
-import type { WidgetModuleFilter } from '@/types';
+import type { RouteMap, WidgetModuleFilter } from '@/types';
+import { isPathInsideRoot, normalizePath } from '@/internal/path';
+import { stripModuleIdQuery } from '@/internal/module-id';
 
-export type BuildEntryPoints = {
+export interface BuildEntryPoints {
   points: Record<string, string>;
   exposures: Set<string>;
-};
+}
 
 const SOURCE_ROOT_PREFIX = /^(?:routes|pages|src|app)[/\\]/;
 
 function sanitizeEntryName(segments: string[]): string {
-  return segments.join('.').replace(/[^a-zA-Z0-9@_.-]+/g, '_');
+  return segments.join('.').replace(/[^\w@.-]+/g, '_');
 }
 
 /** Collapse trailing `index` segments so directory index modules map to their parent path. */
@@ -121,11 +120,11 @@ export function assetBaseNameFromModuleId(
   return entryNameFromModulePath(resolvedModule, resolvedRoot);
 }
 
-type BuildChunkInfo = {
+interface BuildChunkInfo {
   facadeModuleId: string | null;
   moduleIds?: string[];
   name: string;
-};
+}
 
 function resolveChunkBaseNameFromInfo(
   chunkInfo: BuildChunkInfo,

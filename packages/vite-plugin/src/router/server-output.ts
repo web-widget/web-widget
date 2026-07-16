@@ -1,13 +1,13 @@
 import path from 'node:path';
 import type { Plugin, ResolvedConfig, ViteBuilder } from 'vite';
+import { writeServerAssetsDataFile } from './server-assets-plugin';
+import type { RouterPluginHost } from './host';
 import {
   isServerEnvironment,
   isClientEnvironment,
   getServerEnvironmentFromBuilder,
 } from '@/internal/environment';
 import { logPlugin } from '@/internal/log';
-import { writeServerAssetsDataFile } from './server-assets-plugin';
-import type { RouterPluginHost } from './host';
 import { resolveClientEntryPoints } from '@/internal/build-entry-points';
 import { defaultWidgetPathMatcher } from '@/internal/collect-route-assets';
 

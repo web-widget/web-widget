@@ -191,16 +191,17 @@ interface ParsedImport {
 }
 
 // Negative lookbehind excludes `@import` (Less/CSS syntax), matching only ES imports
-const STATIC_IMPORT_RE =
-  /(?<![@\w$])import\s+(?:type\s+)?(?:[\w$*\s{},]+?\s+from\s+)?['"]([^'"]+)['"]/g;
+const STATIC_IMPORT_RE = /(?<![@\w$])import\b(?![ \t]*\()[^;\r\n]*/g;
+const IMPORT_SPECIFIER_RE = /['"]([^'"]+)['"]/;
 const DYNAMIC_IMPORT_RE = /(?<![@\w$])import\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 
 function parseImportsFallback(source: string): ParsedImport[] {
   const imports: ParsedImport[] = [];
 
   for (const match of source.matchAll(STATIC_IMPORT_RE)) {
-    if (match[1]) {
-      imports.push({ specifier: match[1], isDynamic: false });
+    const specifier = match[0].match(IMPORT_SPECIFIER_RE)?.[1];
+    if (specifier) {
+      imports.push({ specifier, isDynamic: false });
     }
   }
 

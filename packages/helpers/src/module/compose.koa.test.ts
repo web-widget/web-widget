@@ -193,7 +193,7 @@ describe('`koa-compose` test cases', () => {
         array.push(6);
         res = await next();
         array.push(7);
-      } catch (err) {
+      } catch {
         array.push(2);
         res = new Response(null, {
           status: 500,

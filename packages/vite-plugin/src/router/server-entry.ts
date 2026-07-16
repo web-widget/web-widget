@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { Plugin } from 'vite';
-import { applyToServerEnvironment } from '@/internal/environment';
 import type { RouterPluginHost } from './host';
+import { applyToServerEnvironment } from '@/internal/environment';
 import {
   buildDevManifestCode,
   buildProdManifestCode,

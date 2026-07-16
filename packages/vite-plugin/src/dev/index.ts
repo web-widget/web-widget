@@ -1,7 +1,7 @@
+import { createRequire } from 'node:module';
 import type { Middleware } from '@web-widget/node';
 import NodeAdapter from '@web-widget/node';
 import stripAnsi from 'strip-ansi';
-import { createRequire } from 'node:module';
 import type { Plugin, ViteDevServer } from 'vite';
 import { isRunnableDevEnvironment } from 'vite';
 import type WebRouter from '@web-widget/web-router';
@@ -9,6 +9,12 @@ import { getMeta } from './meta';
 import { parseHeadTags, type DevHeadTags } from './parse-head-tags';
 import { fileSystemRouteGenerator } from './routing';
 import { handleDevRoutemapChange } from './routemap-invalidation';
+import { resolveModuleSourcePath } from './module-source';
+import { resolveDevOrigin } from './resolve-dev-origin';
+import { getDevServerRevision } from './dev-server-cache';
+import { warmupServerDevModules } from './warmup';
+import { printDevWelcome } from './welcome';
+import { createDevToolsJsonMiddleware } from './devtools-json';
 import type { ResolvedWebRouterConfig } from '@/types';
 import type { RouterPluginHost } from '@/router/host';
 import {
@@ -17,13 +23,7 @@ import {
   getServerEnvironmentFromDevServer,
 } from '@/internal/environment';
 import { getWebRouterPluginApi } from '@/internal/manifest';
-import { resolveModuleSourcePath } from './module-source';
-import { resolveDevOrigin } from './resolve-dev-origin';
-import { getDevServerRevision } from './dev-server-cache';
 import { logPlugin } from '@/internal/log';
-import { warmupServerDevModules } from './warmup';
-import { printDevWelcome } from './welcome';
-import { createDevToolsJsonMiddleware } from './devtools-json';
 
 export function webRouterDevServerPlugin(host?: RouterPluginHost): Plugin[] {
   let resolvedWebRouterConfig: ResolvedWebRouterConfig;

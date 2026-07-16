@@ -34,7 +34,7 @@ async function walkRouteDir(
 
         try {
           stat = await fs.promises.stat(source);
-        } catch (e) {
+        } catch {
           logPlugin('warn', `Failed to stat route file: ${source}`);
           return;
         }

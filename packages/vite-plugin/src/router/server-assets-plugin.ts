@@ -1,6 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { Plugin } from 'vite';
+import type { RouterPluginHost } from './host';
 import { applyToServerEnvironment } from '@/internal/environment';
 import {
   SERVER_ASSETS_MODULE_ID,
@@ -16,7 +17,6 @@ import {
   serializeServerAssetsData,
 } from '@/internal/server-assets-module';
 import { defaultWidgetPathMatcher } from '@/internal/collect-route-assets';
-import type { RouterPluginHost } from './host';
 
 /**
  * Provides two virtual modules for the server-side asset resolver:

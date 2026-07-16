@@ -72,15 +72,15 @@ export function sortRoutePaths(a: string, b: string) {
 }
 
 /** Negative if the shorter path (already matched) should sort before `longer`. */
-function prefixContinuationOrder(longer: string, from: number): number {
-  const kind = segmentTailKind(longer, from);
-  return kind !== TailKind.Neutral ? -1 : 0;
-}
-
 const enum TailKind {
   Neutral = 0,
   Dynamic = 1,
   Static = 2,
+}
+
+function prefixContinuationOrder(longer: string, from: number): number {
+  const kind = segmentTailKind(longer, from);
+  return kind !== TailKind.Neutral ? -1 : 0;
 }
 
 /** Classify `path[from..]` after a full segment boundary (must start with `/`). */

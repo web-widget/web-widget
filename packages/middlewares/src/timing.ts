@@ -29,9 +29,7 @@ interface TimingOptions {
   totalDescription?: string;
   autoEnd?: boolean;
   crossOrigin?:
-    | boolean
-    | string
-    | ((context: MiddlewareContext) => boolean | string);
+    boolean | string | ((context: MiddlewareContext) => boolean | string);
 }
 
 function getTime(): number {
@@ -42,7 +40,7 @@ function getTime(): number {
 }
 
 function validName(name: string) {
-  const tokenRegex = /^[!#$%&'*+\-.^_`|~0-9a-zA-Z]+$/;
+  const tokenRegex = /^[!#$%&'*+\-.^\w`|~]+$/;
   if (!tokenRegex.test(name)) {
     throw new Error(`Invalid Server-Timing name: ${name}`);
   }

@@ -1,10 +1,10 @@
 import type { RouteMap } from '@/types';
 
-type RoutemapEntry = {
+interface RoutemapEntry {
   module: string;
   pathname?: string;
   status?: number;
-};
+}
 
 function signatureForEntries(
   entries: RoutemapEntry[] | undefined,

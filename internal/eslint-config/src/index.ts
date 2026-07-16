@@ -27,8 +27,18 @@ export default {
   },
   settings: {
     'import/resolver': {
-      typescript: true,
+      typescript: {
+        noWarnOnMultipleProjects: true,
+        project: [
+          'packages/*/tsconfig.json',
+          'examples/*/tsconfig.json',
+          'playgrounds/*/tsconfig.json',
+        ],
+      },
       node: true,
+    },
+    react: {
+      version: '19.0',
     },
   },
   plugins: ['import', 'react', 'react-hooks'],

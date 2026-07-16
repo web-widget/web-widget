@@ -172,7 +172,7 @@ export function resolveFallback(fallback: WidgetFallback | undefined): {
   };
 }
 
-export type WidgetContainerConfig = {
+export interface WidgetContainerConfig {
   /**
    * Fallback UI for pending and error states.
    *
@@ -200,7 +200,7 @@ export type WidgetContainerConfig = {
   serverOnly?: true;
   /** Widget renders only on the client, producing no server HTML (empty placeholder until client mount). Mutually exclusive with `serverOnly`. */
   clientOnly?: true;
-};
+}
 
 export interface ReactWidgetProps {
   children?: ReactNode;

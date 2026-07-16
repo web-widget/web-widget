@@ -6,6 +6,7 @@ export default {
   rules: {
     'n/no-missing-import': OFF,
     'n/no-unpublished-import': OFF,
+    'n/no-unsupported-features/node-builtins': OFF,
     'n/no-process-exit': WARN,
     'n/no-unsupported-features/es-syntax': [
       'error',
