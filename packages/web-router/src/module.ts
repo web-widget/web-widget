@@ -81,7 +81,7 @@ export type DevMetaProvider = (
 export type OnFallback = (
   error: HTTPException,
   context?: MiddlewareContext
-) => void;
+) => void | Promise<void>;
 
 type SafeError = { proxy: true } & HTTPException;
 
@@ -294,10 +294,15 @@ export class ModuleRuntime {
           const resolvedModule =
             await this.#normalizeModule<RouteModule>(module);
 
-          // For error scenarios, execute onFallback callback immediately upon module activation
-          this.#onFallback(error, context);
+          try {
+            await this.#onFallback(error, context);
+          } catch (cause) {
+            console.error(
+              new Error('The onFallback callback failed.', { cause })
+            );
+          }
 
-          // Activate error module with immediate callback execution
+          // Keep diagnostics isolated from the actual error-page render.
           await this.#activateModule(routeContext, resolvedModule, error);
 
           // Use the cached handler (already handles error scenarios correctly)

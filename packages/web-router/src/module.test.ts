@@ -614,6 +614,42 @@ describe('ModuleRuntime', () => {
       expect(result2).toBeInstanceOf(Response);
       expect(secondContext.module).toBe(mockRoute);
     });
+
+    test('renders the error page when an async onFallback callback fails', async () => {
+      const callbackError = new Error('logging failed');
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const errorRuntime = new ModuleRuntime({
+        layoutModule: {
+          default: () => '<html>test</html>',
+          render: async () => '<html>rendered</html>',
+        } as LayoutModule,
+        defaultMeta: { title: 'Default Title' } as Meta,
+        defaultBaseAsset: '/',
+        defaultRenderer: {} as ServerRenderOptions,
+        onFallback: async () => {
+          throw callbackError;
+        },
+      });
+      const errorHandler = errorRuntime.createErrorHandler({
+        handler: () => new Response('custom error page', { status: 500 }),
+      });
+
+      const response = await errorHandler(
+        new Error('route failed'),
+        {} as MiddlewareContext
+      );
+
+      expect(await response.text()).toBe('custom error page');
+      expect(consoleError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'The onFallback callback failed.',
+          cause: callbackError,
+        })
+      );
+      consoleError.mockRestore();
+    });
   });
 
   describe('error handling in development mode', () => {
