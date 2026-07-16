@@ -448,6 +448,12 @@
     "warmup-duration": 2,
     "benchmark-rounds": 3,
     "connections": 50,
-    "pipelining": 4
+    "pipelining": 4,
+    "performance-baseline": {
+      "subject": "web-router",
+      "reference": "hono",
+      "ratio": 1.238,
+      "tolerance": 0.15
+    }
   }
 }

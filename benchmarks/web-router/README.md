@@ -27,6 +27,10 @@ pnpm benchmark:router:quick
 pnpm test:compatibility
 ```
 
+The quick benchmark asserts the Node.js 24 baseline ratio between Web Router
+and Hono. The recorded ratio is `1.238`; CI allows a 15% regression and fails
+when the measured ratio is below `1.052`.
+
 ## Project Structure
 
 ```
