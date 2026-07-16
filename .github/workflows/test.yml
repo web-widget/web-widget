@@ -7,6 +7,64 @@ on:
     branches: [main]
 
 jobs:
+  benchmark:
+    if: ${{ github.event_name == 'pull_request' }}
+    name: Web Router benchmark
+    runs-on: ubuntu-latest
+    env:
+      PERFORMANCE_RECORDED_RATIO: '1.238'
+      PERFORMANCE_MINIMUM_RATIO: '1.052'
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          cache: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - run: pnpm install --recursive --frozen-lockfile
+        env:
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
+
+      - name: Build benchmark dependencies
+        run: pnpm --filter @benchmarks/web-router... build
+
+      - name: Run performance benchmark
+        shell: bash
+        run: |
+          set -o pipefail
+          pnpm --filter @benchmarks/web-router benchmark -- \
+            --rounds=1 \
+            --frameworks=web-router,hono \
+            --assert-ratio=web-router:hono:${PERFORMANCE_MINIMUM_RATIO} \
+            2>&1 | tee benchmark-output.txt
+
+      - name: Publish benchmark summary
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          chart=$(find benchmarks/web-router/reports/latest -name 'performance-chart-*.txt' -type f | sort | tail -n 1)
+          {
+            echo '## Web Router benchmark'
+            echo
+            if [[ -n "$chart" ]]; then
+              echo '```text'
+              cat "$chart"
+              echo '```'
+            else
+              echo 'The benchmark did not produce a performance chart.'
+            fi
+            echo
+            echo "Recorded baseline ratio: ${PERFORMANCE_RECORDED_RATIO}"
+            grep -E 'Performance ratio:|Performance regression:' benchmark-output.txt || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
   build:
     runs-on: ubuntu-latest
 

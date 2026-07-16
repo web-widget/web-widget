@@ -1,0 +1,8 @@
+{
+  "warmup-duration-ms": 150,
+  "sample-duration-ms": 300,
+  "samples": 3,
+  "route-counts": [10, 100, 1000, 10000],
+  "stress-route-count": 1000,
+  "overlap-route-count": 100
+}

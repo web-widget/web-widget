@@ -24,16 +24,6 @@ import type {
 export type * from './types';
 export type { OnFallback } from './module';
 
-// Export router types and implementations
-// export type { Router, Result, Params, RouterType } from './router';
-// export {
-//   URLPatternRouter,
-//   RadixTreeRouter,
-//   createRouter,
-//   getDefaultRouterType,
-//   isValidRouterType,
-// } from './router';
-
 export type StartOptions<E extends Env = {}> = {
   baseAsset?: string;
   defaultMeta?: Meta;

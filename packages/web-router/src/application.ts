@@ -7,15 +7,7 @@ import { createHttpError } from '@web-widget/helpers/error';
 import { Context, type RequestInput, type RequestSource } from './context';
 import { ModuleRuntime, type DevMetaProvider } from './module';
 import type { Router } from './router';
-import {
-  METHOD_NAME_ALL,
-  METHODS,
-  createRouter,
-  getDefaultRouterType,
-  isValidRouterType,
-  type Result,
-  type RouterType,
-} from './router';
+import { METHOD_NAME_ALL, METHODS, createRouter, type Result } from './router';
 import type {
   Env,
   ErrorHandler,
@@ -184,12 +176,6 @@ export interface ApplicationOptions<E extends Env> {
   router?: Router<MiddlewareHandler>;
   getPath?: GetPath<E>;
   /**
-   * Router type to use. Defaults to 'url-pattern' for backward compatibility.
-   * Use 'radix-tree' for better performance with large route sets.
-   * @experimental
-   */
-  routerType?: RouterType;
-  /**
    * Whether to enable proxy mode. When set to true, ensure that the last reverse proxy
    * trusted is removing or overwriting the following HTTP headers:
    * X-Forwarded-Host and X-Forwarded-Proto. Otherwise, the client may provide any value.
@@ -231,19 +217,14 @@ class Application<
     };
 
     const strict = options.strict ?? true;
-    const routerType = options.routerType ?? getDefaultRouterType();
     delete options.strict;
-    delete options.routerType;
     this.#getPathRequiresRequest = strict && options.getPath !== undefined;
     this.getPath = strict ? (options.getPath ?? getPath) : getPathNoStrict;
 
     if (options.router) {
       this.router = options.router;
     } else {
-      if (!isValidRouterType(routerType)) {
-        throw new Error(`Invalid router type: ${routerType}`);
-      }
-      this.router = createRouter<MiddlewareHandler>(routerType);
+      this.router = createRouter<MiddlewareHandler>();
     }
 
     this.#proxy = !!options.proxy;

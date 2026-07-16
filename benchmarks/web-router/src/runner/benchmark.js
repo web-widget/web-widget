@@ -15,9 +15,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 class ProcessIsolatedBenchmark {
-  constructor() {
+  constructor(args = process.argv.slice(2)) {
     this.results = [];
-    this.config = getTestConfiguration();
+    this.config = createBenchmarkConfiguration(getTestConfiguration(), args);
     this.frameworkStatus = new Map();
     this.frameworkLogs = new Map();
   }
@@ -271,6 +271,10 @@ class ProcessIsolatedBenchmark {
 
     console.log('\n📊 Generating benchmark reports...');
     await this.generateReport();
+
+    for (const assertion of this.config['performance-assertions']) {
+      assertPerformanceRatio(this.results, assertion);
+    }
   }
 
   /**
@@ -346,6 +350,87 @@ class ProcessIsolatedBenchmark {
         console.log(`🟠 Could not generate detailed reports: ${error.message}`);
       }
     }
+  }
+}
+
+export function createBenchmarkConfiguration(baseConfig, args) {
+  const config = {
+    ...baseConfig,
+    frameworks: baseConfig.frameworks.slice(),
+  };
+  const frameworksArgument = args.find((arg) =>
+    arg.startsWith('--frameworks=')
+  );
+
+  if (frameworksArgument) {
+    const frameworks = frameworksArgument
+      .slice('--frameworks='.length)
+      .split(',')
+      .map((framework) => framework.trim())
+      .filter(Boolean);
+    if (frameworks.length === 0) {
+      throw new Error('--frameworks requires at least one framework');
+    }
+    config.frameworks = frameworks;
+  }
+
+  const roundsArgument = args.find((arg) => arg.startsWith('--rounds='));
+  if (roundsArgument) {
+    const rounds = Number(roundsArgument.slice('--rounds='.length));
+    if (!Number.isInteger(rounds) || rounds < 1) {
+      throw new Error('--rounds must be a positive integer');
+    }
+    config['benchmark-rounds'] = rounds;
+  }
+
+  config['performance-assertions'] = args
+    .filter((arg) => arg.startsWith('--assert-ratio='))
+    .map((arg) => {
+      const parts = arg.slice('--assert-ratio='.length).split(':');
+      const [subject, reference, minimumRatioValue] = parts;
+      const minimumRatio = Number(minimumRatioValue);
+      if (
+        parts.length !== 3 ||
+        !subject ||
+        !reference ||
+        !Number.isFinite(minimumRatio) ||
+        minimumRatio <= 0
+      ) {
+        throw new Error(
+          '--assert-ratio must use subject:reference:minimum format'
+        );
+      }
+      return { subject, reference, minimumRatio };
+    });
+
+  return config;
+}
+
+export function assertPerformanceRatio(results, assertion) {
+  const subject = results.find(
+    (result) => result.framework === assertion.subject
+  );
+  const reference = results.find(
+    (result) => result.framework === assertion.reference
+  );
+  if (!subject || !reference) {
+    throw new Error(
+      `Performance assertion requires ${assertion.subject} and ${assertion.reference}`
+    );
+  }
+  if (reference.requests <= 0) {
+    throw new Error('Performance baseline reference must be greater than zero');
+  }
+
+  const actualRatio = subject.requests / reference.requests;
+  console.log(
+    `\nPerformance ratio: ${assertion.subject}/${assertion.reference} = ${actualRatio.toFixed(3)} ` +
+      `(minimum ${assertion.minimumRatio.toFixed(3)})`
+  );
+  if (actualRatio < assertion.minimumRatio) {
+    throw new Error(
+      `Performance regression: ${actualRatio.toFixed(3)} is below ${assertion.minimumRatio.toFixed(3)}`
+    );
   }
 }
 

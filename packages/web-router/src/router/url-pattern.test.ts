@@ -102,6 +102,107 @@ describe('optimized path matching', () => {
   });
 });
 
+describe('compiled hybrid matching', () => {
+  test('recompiles after add and preserves order across matcher lanes', () => {
+    const router = new URLPatternRouter<string>();
+    router.add('GET', '*', 'global');
+    router.add('GET', '/api/:id', 'simple');
+
+    expect(router.match('GET', '/api/123').map((entry) => entry[0])).toEqual([
+      'global',
+      'simple',
+    ]);
+
+    router.add('GET', '/api/:id([0-9]+)', 'regex');
+    router.add('GET', '/api/123', 'static');
+    router.add('GET', '/other/:id([0-9]+)', 'other-prefix');
+
+    const result = router.match('GET', '/api/123');
+    expect(result.map((entry) => entry[0])).toEqual([
+      'global',
+      'simple',
+      'regex',
+      'static',
+    ]);
+    expect(result[1][1]).toEqual({ id: '123' });
+    expect(result[2][1]).toEqual({ id: '123' });
+  });
+
+  test('selects one route from a large shared-prefix trie', () => {
+    const router = new URLPatternRouter<number>();
+    for (let index = 0; index < 2000; index++) {
+      router.add('GET', `/api/resource-${index}/:id`, index);
+    }
+
+    const result = router.match('GET', '/api/resource-1999/123');
+    expect(result).toHaveLength(1);
+    expect(result[0][0]).toBe(1999);
+    expect(result[0][1]).toEqual({ id: '123' });
+  });
+
+  test('keeps route-specific parameter names on a shared trie terminal', () => {
+    const router = new URLPatternRouter<string>();
+    router.add('GET', '/users/:id', 'id');
+    router.add('GET', '/users/:name', 'name');
+    for (let index = 0; index < 7; index++) {
+      router.add('GET', `/users/static-${index}/:value`, `filler-${index}`);
+    }
+
+    const result = router.match('GET', '/users/alice');
+    expect(result.map((entry) => entry[0])).toEqual(['id', 'name']);
+    expect(result[0][1]).toEqual({ id: 'alice' });
+    expect(result[1][1]).toEqual({ name: 'alice' });
+  });
+
+  test('merges method-specific and ALL routes in registration order', () => {
+    const router = new URLPatternRouter<string>();
+    router.add('ALL', '/api/:id', 'all-first');
+    router.add('POST', '/api/:id', 'post');
+    router.add('GET', '/api/:name', 'get');
+    router.add('ALL', '*', 'all-last');
+
+    expect(router.match('GET', '/api/123').map((entry) => entry[0])).toEqual([
+      'all-first',
+      'get',
+      'all-last',
+    ]);
+    expect(router.match('POST', '/api/123').map((entry) => entry[0])).toEqual([
+      'all-first',
+      'post',
+      'all-last',
+    ]);
+  });
+
+  test('merges linear and trie lanes in registration order', () => {
+    const router = new URLPatternRouter<string>();
+    router.add('GET', '/:type/:id', 'generic-linear');
+    for (let index = 0; index < 9; index++) {
+      router.add('GET', `/api/:value${index}`, `api-trie-${index}`);
+    }
+
+    const result = router.match('GET', '/api/token');
+    expect(result.map((entry) => entry[0])).toEqual([
+      'generic-linear',
+      ...Array.from({ length: 9 }, (_, index) => `api-trie-${index}`),
+    ]);
+  });
+
+  test('materializes fresh frozen params from a cached match plan', () => {
+    const router = new URLPatternRouter<string>();
+    router.add('GET', '/users/:id', 'user');
+
+    const first = router.match('GET', '/users/alice');
+    const second = router.match('GET', '/users/alice');
+
+    expect(second).not.toBe(first);
+    expect(second[0]).not.toBe(first[0]);
+    expect(second[0][1]).not.toBe(first[0][1]);
+    expect(second[0][1]).toEqual({ id: 'alice' });
+    expect(Object.isFrozen(second[0][1])).toBe(true);
+    expect(Object.getPrototypeOf(second[0][1])).toBeNull();
+  });
+});
+
 describe('multi match', () => {
   const router = new URLPatternRouter<string>();
 

@@ -6,6 +6,10 @@
   "type": "module",
   "scripts": {
     "benchmark": "node src/runner/benchmark.js",
+    "benchmark:quick": "pnpm run benchmark -- --rounds=1 --frameworks=web-router,hono",
+    "benchmark:router": "node src/runner/router-benchmark.js",
+    "benchmark:router:quick": "pnpm run benchmark:router -- --quick",
+    "prebenchmark:router": "pnpm --filter @web-widget/web-router build",
     "report": "node src/runner/report.js",
     "generate-report": "node src/runner/generate-report.js",
     "benchmark:node18": "./scripts/run-with-node.sh 18",
@@ -23,7 +27,8 @@
     "express": "^5.2.1",
     "fastify": "^5.10.0",
     "hono": "^4.12.30",
-    "koa": "^3.2.1"
+    "koa": "^3.2.1",
+    "urlpattern-polyfill": "^10.1.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

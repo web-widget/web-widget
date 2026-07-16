@@ -217,7 +217,6 @@ cat reports/latest/performance-chart-*.txt
           {
             'web-router': 'Node Adapter',
             'web-router#direct': 'Direct Web API',
-            'web-router#radix-tree': 'Radix Tree',
             'web-router#manifest': 'Manifest',
           }[result.framework] || result.framework;
         report += `- **${mode} (${result.framework})**: ${result.requests?.toFixed(2) || 'N/A'} req/s\n`;
