@@ -1,9 +1,9 @@
 import type { ViteDevServer } from 'vite';
-import type { ResolvedWebRouterConfig } from '@/types';
 import { shouldClientFullReload } from './routing/routemap-update';
 import { sendClientFullReload } from './server-full-reload-plugin';
-import { getServerEnvironmentFromDevServer } from '@/internal/environment';
 import { invalidateServerDevModules } from './server-invalidation';
+import { getServerEnvironmentFromDevServer } from '@/internal/environment';
+import type { ResolvedWebRouterConfig } from '@/types';
 
 export async function handleDevRoutemapChange(
   viteServer: ViteDevServer,

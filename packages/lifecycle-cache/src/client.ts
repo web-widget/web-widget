@@ -39,8 +39,7 @@ export class LifecycleCacheLayer implements ArrayLike<any> {
 export function mountLifecycleCacheLayer(callback: () => void) {
   callContext(getSafeSerializableContext(), () => {
     const currentState = self[LIFECYCLE_CACHE_LAYER] as unknown as
-      | undefined
-      | any[];
+      undefined | any[];
     const { state } = context();
     self[LIFECYCLE_CACHE_LAYER] = new LifecycleCacheLayer((item) =>
       Object.assign(state, item)

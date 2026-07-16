@@ -27,6 +27,19 @@ export default [
   ...compat.config({
     overrides: [
       {
+        files: [
+          'packages/html/src/hrc-runtime.js',
+          'packages/web-widget/src/__fixtures__/**/*.js',
+        ],
+        env: {
+          browser: true,
+        },
+      },
+    ],
+  }),
+  ...compat.config({
+    overrides: [
+      {
         files: ['packages/**/test/**/*.js', 'packages/**/examples/**/*.js'],
         env: {
           amd: false,

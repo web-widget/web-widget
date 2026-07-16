@@ -5,10 +5,10 @@ import { lifecycleCache } from './cache';
 const CACHE_VALUE_ERROR_MESSAGE =
   'The cached value cannot be null or undefined.';
 
-export type CacheProviderOptions = {
+export interface CacheProviderOptions {
   cache?: LifecycleCache<any>;
   serverOnly?: boolean;
-};
+}
 
 function composeCacheKey(cacheKey: string, args?: any[]): string {
   cacheKey = `^${cacheKey}`;

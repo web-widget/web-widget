@@ -14,7 +14,6 @@ export default function DefaultRootLayout({
   meta,
   children,
 }: LayoutComponentProps): HTML {
-  /* eslint-disable prettier/prettier */
   return html`<!doctype html>
     <html lang="${meta.lang}">
       <head>

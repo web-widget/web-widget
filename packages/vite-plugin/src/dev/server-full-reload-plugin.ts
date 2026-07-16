@@ -1,11 +1,11 @@
 import type { Plugin, ViteDevServer } from 'vite';
+import { invalidateServerDevModules } from './server-invalidation';
 import {
   applyToServerEnvironment,
   getServerEnvironmentFromDevServer,
 } from '@/internal/environment';
 import type { RouterPluginHost } from '@/router/host';
 import { logPlugin } from '@/internal/log';
-import { invalidateServerDevModules } from './server-invalidation';
 
 export function sendClientFullReload(
   server: ViteDevServer,

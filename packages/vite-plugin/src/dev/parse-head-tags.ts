@@ -112,7 +112,7 @@ function* tokenize(html: string): Generator<TagToken> {
     const selfClosing = raw.endsWith('/');
     if (selfClosing) raw = raw.slice(0, -1).trim();
 
-    const nameMatch = /^([a-zA-Z][a-zA-Z0-9-]*)/.exec(raw);
+    const nameMatch = /^([a-z][a-z0-9-]*)/i.exec(raw);
     if (!nameMatch) {
       pos = gt + 1;
       continue;
@@ -143,7 +143,7 @@ function* tokenize(html: string): Generator<TagToken> {
 /** Parse a tag's attribute string into a key-value record. */
 function parseAttrs(attrsStr: string): Record<string, string> {
   const attrs: Record<string, string> = {};
-  for (const m of attrsStr.matchAll(/([a-zA-Z-]+)\s*=\s*["']([^"']*)["']/g)) {
+  for (const m of attrsStr.matchAll(/([a-z-]+)\s*=\s*["']([^"']*)["']/gi)) {
     attrs[m[1]] = m[2];
   }
   return attrs;

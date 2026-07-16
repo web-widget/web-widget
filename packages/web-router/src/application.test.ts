@@ -1068,7 +1068,7 @@ describe('multiple handler', () => {
 describe('context is not finalized', () => {
   test('should throw error - lack `await next()`', async () => {
     const app = new Application();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
     // @ts-ignore
     app.use('*', () => {});
     app.get('/foo', (c) => {
@@ -1087,7 +1087,7 @@ describe('context is not finalized', () => {
     app.use('*', async (_c, next) => {
       return next();
     });
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
     // @ts-ignore
     app.get('/foo', () => {});
     app.onError((err, c) => {

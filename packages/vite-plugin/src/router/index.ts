@@ -11,24 +11,28 @@ import {
   type ViteBuilder,
 } from 'vite';
 import type { InlineConfig as VitestInlineConfig } from 'vitest/node';
-import { parseWebRouterConfig } from '@/internal/config';
-import { ensureConventionFiles } from '@/internal/ensure-convention-files';
-import { webRouterDevServerPlugin } from '@/dev';
-import { createServerFullReloadPlugin } from '@/dev/server-full-reload-plugin';
 import { importActionPlugin } from './import-action';
 import { webRouterPreviewServerPlugin } from './preview';
 import { createRouterPluginHost, type RouterPluginHost } from './host';
-import {
-  type RouteMap,
-  type WebRouterPlugin,
-  type WebRouterUserConfig,
-} from '@/types';
 import {
   runRouterBuildApp,
   runRouterServerBuildApp,
   createServerOutputPlugin,
   createClientManifestCapturePlugin,
 } from './server-output';
+import { createRemoveAsyncHooksPlugin } from './remove-async-hooks';
+import { createServerEntryPlugin } from './server-entry';
+import { createServerAssetsPlugin } from './server-assets-plugin';
+import { createSkipServerCssPlugin } from './skip-server-css';
+import { parseWebRouterConfig } from '@/internal/config';
+import { ensureConventionFiles } from '@/internal/ensure-convention-files';
+import { webRouterDevServerPlugin } from '@/dev';
+import { createServerFullReloadPlugin } from '@/dev/server-full-reload-plugin';
+import {
+  type RouteMap,
+  type WebRouterPlugin,
+  type WebRouterUserConfig,
+} from '@/types';
 import {
   createServerAssetFileNameResolver,
   createServerManualChunks,
@@ -42,10 +46,6 @@ import {
   defaultWidgetPathMatcher,
 } from '@/internal/collect-route-assets';
 import { mergeRouterVitestConfig } from '@/vitest-config';
-import { createRemoveAsyncHooksPlugin } from './remove-async-hooks';
-import { createServerEntryPlugin } from './server-entry';
-import { createServerAssetsPlugin } from './server-assets-plugin';
-import { createSkipServerCssPlugin } from './skip-server-css';
 
 interface VitestUserConfig extends UserConfig {
   test?: VitestInlineConfig;
@@ -73,10 +73,10 @@ const WEBWORKER_SERVER_RESOLVE_CONDITIONS = [
   ...defaultClientConditions.filter((c) => c !== 'browser'),
 ];
 
-type ImportMap = {
+interface ImportMap {
   imports?: Record<string, string>;
   scopes?: Record<string, Record<string, string>>;
-};
+}
 
 const EMPTY_CLIENT_ENTRY_POINTS: BuildEntryPoints = {
   points: Object.create(null),

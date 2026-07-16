@@ -1,6 +1,6 @@
-import { getElementBox } from './box';
-import type { ElementBounds } from '../types';
 import type { HTMLWebWidgetElement } from '@web-widget/web-widget/element';
+import type { ElementBounds } from '../types';
+import { getElementBox } from './box';
 
 export interface DebugDataItem {
   key: string;

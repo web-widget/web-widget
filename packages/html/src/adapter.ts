@@ -1,9 +1,9 @@
-export * from './components';
-
 import { defineServerRender } from '@web-widget/helpers';
 import type { HTML } from './html';
 import { renderToStream, renderToString } from './render';
 import type { HtmlWidgetComponent } from './components';
+
+export * from './components';
 
 /**
  * Adapt a framework component type to an HTML widget component type.

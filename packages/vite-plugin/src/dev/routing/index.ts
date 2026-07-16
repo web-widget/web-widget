@@ -1,13 +1,13 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { FSWatcher } from 'vite';
+import { isStructuralRoutemapChange } from './routemap-diff';
+import { shouldApplyRoutemapUpdate } from './routemap-update';
+import type { OverridePathname } from './types';
 import { getRoutemap } from '@/internal/routemap-from-fs';
 import type { RouteMap } from '@/types';
 import { isPathPrefix } from '@/internal/path';
-import { isStructuralRoutemapChange } from './routemap-diff';
-import { shouldApplyRoutemapUpdate } from './routemap-update';
 import { logPlugin } from '@/internal/log';
-import type { OverridePathname } from './types';
 
 export { getRoutemap } from '@/internal/routemap-from-fs';
 

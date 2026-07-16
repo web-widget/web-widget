@@ -1,5 +1,7 @@
 import { createElement, Suspense } from 'react';
 
+import { render } from './adapter.server';
+
 // Mock dependencies to avoid ESM workspace package loading issues in Jest.
 jest.mock('@web-widget/helpers', () => ({
   defineServerRender: (fn: any) => fn,
@@ -27,8 +29,6 @@ jest.mock('./edge', () => {
       ReactDOMServer.renderToString(node),
   };
 });
-
-import { render } from './adapter.server';
 
 describe('render (server)', () => {
   const SimpleComponent = () => createElement('div', null, 'Hello World');

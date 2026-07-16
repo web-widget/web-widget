@@ -1,5 +1,5 @@
-import type { ResolvedWebRouterConfig } from '@/types';
 import { bumpDevServerRevision } from './dev-server-cache';
+import type { ResolvedWebRouterConfig } from '@/types';
 
 /** Minimal server module graph surface for dev invalidation tests. */
 export interface ServerDevModuleGraph {

@@ -1,9 +1,9 @@
 /**
  * @fileoverview Default error page module for web-router
  */
-import type { Meta, RouteFallbackComponentProps } from './types';
 import { html } from '@web-widget/html';
 import { render } from '@web-widget/html/adapter';
+import type { Meta, RouteFallbackComponentProps } from './types';
 
 export { render };
 

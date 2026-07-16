@@ -15,11 +15,11 @@
  * Usage:
  *   pnpm --filter @web-widget/web-router test:memory-leak
  */
-import { afterAll, beforeAll, describe, test, expect } from 'vitest';
 import { mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import v8 from 'node:v8';
+import { afterAll, beforeAll, describe, test, expect } from 'vitest';
 import 'urlpattern-polyfill';
 import { callContext, context } from '@web-widget/context/server';
 import { lifecycleCache, cacheProvider } from '@web-widget/lifecycle-cache';

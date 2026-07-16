@@ -26,8 +26,8 @@ export interface HtmlCompressOptions {
 // Scanner — finds `html` tagged template literals in source code
 // ---------------------------------------------------------------------------
 
-const IDENT_START = /[A-Za-z_$]/;
-const IDENT_PART = /[A-Za-z0-9_$]/;
+const IDENT_START = /[A-Z_$]/i;
+const IDENT_PART = /[\w$]/;
 
 interface StaticPart {
   /** Start offset of the static text in source (after `` ` `` or `}`). */

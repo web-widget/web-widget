@@ -6,14 +6,8 @@ import { createVisibleObserver } from './utils/lazy';
 import { triggerModulePreload } from './utils/module-preload';
 import { queueMicrotask } from './utils/queue-microtask';
 import { reportError } from './utils/report-error';
-import {
-  Lifecycle,
-  ModuleContainer,
-  ModuleLoader,
-  Status,
-  status,
-  Timeouts,
-} from './container';
+import type { Lifecycle, ModuleLoader, Status, Timeouts } from './container';
+import { ModuleContainer, status } from './container';
 import { WebWidgetError } from './error';
 import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
 
@@ -28,12 +22,12 @@ const innerHTMLDescriptor = Object.getOwnPropertyDescriptor(
 )!;
 const innerHTMLSetter = innerHTMLDescriptor.set!;
 
-export type PerformanceMarkDetail = {
+export interface PerformanceMarkDetail {
   name: string;
   import: string;
   source: string;
   timestamp: number;
-};
+}
 
 export const INNER_HTML_PLACEHOLDER = `<!--web-widget:placeholder-->`;
 
@@ -269,7 +263,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    */
   get import() {
     let value = this.getAttribute('import');
-    const bareImportRE = /^(?![a-zA-Z]:)[\w@](?!.*:\/\/)/;
+    const bareImportRE = /^(?![a-z]:)[\w@](?!.*:\/\/)/i;
     if (value && !bareImportRE.test(value)) {
       value = new URL(value, this.base).href;
     }
@@ -344,7 +338,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
     function importModule(target: string) {
       if (!supportsImportMaps && typeof importShim === 'function') {
         // @see https://github.com/guybedford/es-module-shims
-        // eslint-disable-next-line no-undef
+
         return importShim(target);
       }
       return import(/* @vite-ignore */ /* webpackIgnore: true */ target);
@@ -518,7 +512,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       try {
         this.#internals.states.clear();
         this.#internals.states.add(value);
-      } catch (error) {
+      } catch {
         this.setAttribute('status', value);
       }
     } else {
@@ -543,7 +537,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       performance.mark(`${markNameSpace}:${value}`, { detail });
 
       switch (value) {
-        case status.LOADED:
+        case status.LOADED: {
           const loadMeasure = performance.measure(`${componentName}:load`, {
             start: `${markNameSpace}:${status.LOADING}`,
             end: `${markNameSpace}:${status.LOADED}`,
@@ -555,7 +549,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
           }
           this.performance.loadTime = `${Math.round(loadMeasure.duration)}ms`;
           break;
-        case status.MOUNTED:
+        }
+        case status.MOUNTED: {
           const mountMeasure = performance.measure(`${componentName}:mount`, {
             start: `${markNameSpace}:${status.MOUNTING}`,
             end: `${markNameSpace}:${status.MOUNTED}`,
@@ -567,8 +562,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
           }
           this.performance.mountTime = `${Math.round(mountMeasure.duration)}ms`;
           break;
+        }
       }
-    } catch (e) {}
+    } catch {}
   }
 
   #dispatchStatusChangeEvent() {

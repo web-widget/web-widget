@@ -10,11 +10,7 @@ export interface RouteSourceFileName {
 }
 
 export type RouteSourceType =
-  | 'action'
-  | 'fallback'
-  | 'layout'
-  | 'middleware'
-  | 'route';
+  'action' | 'fallback' | 'layout' | 'middleware' | 'route';
 
 export type OverridePathname = (
   pathname: string,

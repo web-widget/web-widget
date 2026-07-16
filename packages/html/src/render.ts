@@ -1,6 +1,5 @@
-import type { HTML, UnsafeHTML, HTMLContent } from './html';
+import type { HTML, UnsafeHTML, HTMLContent, RenderContext } from './html';
 import { unsafeHTML, unpack, RENDER } from './html';
-import type { RenderContext } from './html';
 // Raw import: the file content is inlined as a string at build time
 // (minified in production via tsup, verbatim in vitest).
 import HRC_SOURCE from './hrc-runtime.js?raw';

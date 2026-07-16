@@ -1,8 +1,8 @@
 import './global';
 import type { MiddlewareContext, ScriptDescriptor } from '@web-widget/schema';
+import { escapeJson } from '@web-widget/purify';
 import { tryGetAsyncLocalStorage } from './context';
 import { SCRIPT_TYPE, EXPOSED_TO_CLIENT } from './constants';
-import { escapeJson } from '@web-widget/purify';
 export const exposedToClient = EXPOSED_TO_CLIENT;
 
 export function contextToScriptDescriptor(

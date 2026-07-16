@@ -25,11 +25,11 @@ import {
 } from '@/internal/module-id';
 import { matchesWidgetModule } from '@/internal/collect-route-assets';
 
-type ServerModuleDependencyKeys = {
+interface ServerModuleDependencyKeys {
   filterDisabled: boolean;
   importDepKeys: Set<string>;
   matchedDynamicImportKeys: Set<string>;
-};
+}
 
 export async function getMeta(
   filePath: string,
@@ -130,7 +130,7 @@ async function getCssForURL(
  * scoped attributes and CSS Modules hashes. This avoids the SSR
  * environment which discards CSS as `export {}`.
  */
-const VITE_CSS_RE = /const __vite__css\s*=\s*(.+)$/m;
+const VITE_CSS_RE = /const __vite__css\s*=\s*(".*")$/m;
 
 function extractViteCss(code: string | undefined): string | undefined {
   if (!code) return undefined;
