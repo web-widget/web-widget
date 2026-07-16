@@ -1,33 +1,49 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Writable } from 'node:stream';
-import type {
-  BuildDependencies,
-  NodeHandler,
-  RequestOptions,
-} from '@edge-runtime/node-utils';
-import {
-  buildToFetchEvent,
-  mergeIntoServerResponse,
-  toOutgoingHeaders,
-} from '@edge-runtime/node-utils';
 import primitives from '@edge-runtime/primitives';
 
-import { buildToRequestWithHttp2Compat } from './incoming-request';
+import {
+  buildToRequestSource,
+  buildToRequestWithHttp2Compat,
+  type NodeRequestSource,
+} from './incoming-request';
+import {
+  buildToFetchEvent,
+  type BuildDependencies,
+  type EdgeFetchEvent,
+  type NodeHandler,
+  type RequestOptions,
+} from './node-utils';
+import {
+  getCachedResponse,
+  installCachedResponse,
+  type CachedResponse,
+} from './response';
 
 type WebHandler = (
   req: Request,
   env: Record<string, unknown>,
-  event: FetchEvent
+  event: EdgeFetchEvent
 ) => Promise<Response> | Response | null | undefined;
+
+type RequestSourceHandler = (
+  req: NodeRequestSource,
+  env: Record<string, unknown>,
+  executionContext: typeof NODE_EXECUTION_CONTEXT
+) => Promise<Response> | Response | null | undefined;
+
+const REQUEST_SOURCE_HANDLER = Symbol.for(
+  '@web-widget/web-router.request-source-handler'
+);
+const NODE_EXECUTION_CONTEXT = {
+  waitUntil(_promise: Promise<unknown>) {},
+  passThroughOnException() {},
+};
 
 const dependencies: BuildDependencies = {
   Headers,
   ReadableStream,
-  Request: class extends Request {
-    constructor(input: RequestInfo | URL, init?: RequestInit | undefined) {
-      super(input, addDuplexToInit(init));
-    }
-  },
+  Request,
   Uint8Array: Uint8Array,
   FetchEvent: primitives.FetchEvent,
 };
@@ -50,6 +66,19 @@ export default class NodeAdapter {
     },
     options: NodeAdapterOptions
   ) {
+    installCachedResponse();
+    const requestSourceHandler = Reflect.get(
+      webRouter,
+      REQUEST_SOURCE_HANDLER
+    ) as RequestSourceHandler | undefined;
+
+    if (typeof requestSourceHandler === 'function') {
+      const handler = requestSourceHandler.bind(webRouter);
+      this.#handler = buildToNodeSourceHandler(dependencies, options)(handler);
+      this.#middleware = toRequestSourceMiddleware(handler, options);
+      return;
+    }
+
     const handler = webRouter.handler.bind(webRouter);
     this.#handler = buildToNodeHandler(dependencies, options)(handler);
 
@@ -69,18 +98,6 @@ export default class NodeAdapter {
   get handler() {
     return this.#handler;
   }
-}
-
-/**
- * Add `duplex: 'half'` by default to all requests
- * https://github.com/vercel/edge-runtime/blob/bf167c418247a79d3941bfce4a5d43c37f512502/packages/primitives/src/primitives/fetch.js#L22-L26
- * https://developer.chrome.com/articles/fetch-streaming-requests/#streaming-request-bodies
- */
-function addDuplexToInit(init: RequestInit | undefined) {
-  if (typeof init === 'undefined' || typeof init === 'object') {
-    return { duplex: 'half', ...init };
-  }
-  return init;
 }
 
 function isHttp2ServerResponse(serverResponse: ServerResponse): boolean {
@@ -136,10 +153,44 @@ function toMiddleware(
   };
 }
 
-async function toServerResponse(
+function toRequestSourceMiddleware(
+  webHandler: RequestSourceHandler,
+  options: RequestOptions
+): Middleware {
+  const toRequestSource = buildToRequestSource(dependencies, options);
+  return async function middleware(incomingMessage, serverResponse, next) {
+    const source = toRequestSource(incomingMessage);
+    try {
+      const webResponse = await webHandler(
+        source,
+        process.env,
+        NODE_EXECUTION_CONTEXT
+      );
+      await toServerResponse(webResponse, serverResponse);
+      if (!serverResponse.headersSent && !serverResponse.writableEnded) {
+        await next();
+      }
+    } catch (error: unknown) {
+      if (
+        sendServerError(
+          serverResponse,
+          error instanceof Error ? error.message : undefined
+        )
+      ) {
+        next();
+      } else {
+        next(error);
+      }
+    } finally {
+      source.cancel();
+    }
+  };
+}
+
+export function toServerResponse(
   webResponse: Response | null | undefined,
   serverResponse: ServerResponse
-) {
+): void | Promise<void> {
   if (!checkWritable(serverResponse)) {
     return;
   }
@@ -149,16 +200,26 @@ async function toServerResponse(
     return;
   }
 
+  const cached = getCachedResponse(webResponse);
+  if (cached) {
+    return writeCachedResponse(cached, serverResponse);
+  }
+
   const isHttp2 = isHttp2ServerResponse(serverResponse);
-  const headers = toOutgoingHeaders(webResponse.headers);
+  const headers: Record<string, string | string[]> = {};
+  const responseHeaders = webResponse.headers;
+  const setCookies = responseHeaders.getSetCookie?.();
+  for (const [name, value] of responseHeaders) {
+    headers[name] =
+      name === 'set-cookie' && setCookies?.length ? setCookies : value;
+  }
   const status = webResponse.status;
 
   if (!serverResponse.headersSent) {
-    mergeIntoServerResponse(headers, serverResponse);
-    serverResponse.statusCode = status;
     if (!isHttp2) {
       setHttp1StatusMessage(serverResponse, webResponse.statusText);
     }
+    serverResponse.writeHead(status, headers);
   } else if (!isHttp2) {
     serverResponse.statusCode = status;
     setHttp1StatusMessage(serverResponse, webResponse.statusText);
@@ -169,68 +230,183 @@ async function toServerResponse(
     return;
   }
 
-  await writeReadableStreamToWritable(webResponse.body, serverResponse);
+  return writeReadableStreamToWritable(webResponse.body, serverResponse);
 }
 
-async function writeReadableStreamToWritable(
+function writeCachedResponse(
+  response: CachedResponse,
+  serverResponse: ServerResponse
+): void | Promise<void> {
+  const { body } = response;
+  const cachedHeaders = response.headers;
+
+  if (
+    !cachedHeaders ||
+    (!Array.isArray(cachedHeaders) && !(cachedHeaders instanceof Headers))
+  ) {
+    const outgoingHeaders: Record<string, string | string[]> = {
+      ...cachedHeaders,
+    };
+    if (response.headerName) {
+      outgoingHeaders[response.headerName] = response.headerValue!;
+    }
+
+    if (typeof body === 'string' && !outgoingHeaders['content-type']) {
+      outgoingHeaders['content-type'] = 'text/plain;charset=UTF-8';
+    } else if (
+      body instanceof Blob &&
+      body.type &&
+      !outgoingHeaders['content-type']
+    ) {
+      outgoingHeaders['content-type'] = body.type;
+    }
+
+    if (!outgoingHeaders['content-length']) {
+      if (typeof body === 'string') {
+        outgoingHeaders['content-length'] = String(Buffer.byteLength(body));
+      } else if (body instanceof Uint8Array) {
+        outgoingHeaders['content-length'] = String(body.byteLength);
+      } else if (body instanceof Blob) {
+        outgoingHeaders['content-length'] = String(body.size);
+      }
+    }
+
+    return writeCachedBody(response, body, outgoingHeaders, serverResponse);
+  }
+
+  const headers = new Headers(cachedHeaders);
+
+  if (typeof body === 'string' && !headers.has('content-type')) {
+    headers.set('content-type', 'text/plain;charset=UTF-8');
+  } else if (
+    body instanceof Blob &&
+    body.type &&
+    !headers.has('content-type')
+  ) {
+    headers.set('content-type', body.type);
+  }
+
+  if (!headers.has('content-length')) {
+    if (typeof body === 'string') {
+      headers.set('content-length', String(Buffer.byteLength(body)));
+    } else if (body instanceof Uint8Array) {
+      headers.set('content-length', String(body.byteLength));
+    } else if (body instanceof Blob) {
+      headers.set('content-length', String(body.size));
+    }
+  }
+
+  const outgoingHeaders: Record<string, string | string[]> = {};
+  const setCookies = headers.getSetCookie?.();
+  for (const [name, value] of headers) {
+    outgoingHeaders[name] =
+      name === 'set-cookie' && setCookies?.length ? setCookies : value;
+  }
+
+  return writeCachedBody(response, body, outgoingHeaders, serverResponse);
+}
+
+function writeCachedBody(
+  response: CachedResponse,
+  body: CachedResponse['body'],
+  outgoingHeaders: Record<string, string | string[]>,
+  serverResponse: ServerResponse
+): void | Promise<void> {
+  if (!serverResponse.headersSent) {
+    if (!isHttp2ServerResponse(serverResponse) && response.statusText) {
+      setHttp1StatusMessage(serverResponse, response.statusText);
+    }
+    serverResponse.writeHead(response.status, outgoingHeaders);
+  }
+
+  if (body === null) {
+    serverResponse.end();
+  } else if (typeof body === 'string' || body instanceof Uint8Array) {
+    serverResponse.end(body);
+  } else if (body instanceof Blob) {
+    return body.arrayBuffer().then((buffer) => {
+      serverResponse.end(new Uint8Array(buffer));
+    });
+  } else {
+    return writeReadableStreamToWritable(body, serverResponse);
+  }
+}
+
+function writeReadableStreamToWritable(
   stream: ReadableStream,
   writable: Writable
-) {
+): Promise<void> {
   if (stream.locked) {
     throw new TypeError('ReadableStream is locked.');
   }
 
   const reader = stream.getReader();
   const flushable = writable as Writable & { flush?: () => void };
+  return new Promise<void>((resolve, reject) => {
+    let settled = false;
 
-  // Cancel the source stream when the destination closes early (e.g. the
-  // client disconnects), so reading stops and upstream resources release.
-  const onAbort = () => {
-    reader.cancel().catch(() => {});
-  };
-  writable.once('close', onAbort);
-  writable.once('error', onAbort);
+    const cleanup = () => {
+      writable.removeListener('close', onAbort);
+      writable.removeListener('error', onAbort);
+      writable.removeListener('drain', read);
+      try {
+        reader.releaseLock();
+      } catch {
+        /* lock already released via cancel() */
+      }
+    };
 
-  try {
-    while (!writable.destroyed) {
-      const { done, value } = await reader.read();
+    const finish = (error?: unknown) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      if (error !== undefined) reject(error);
+      else resolve();
+    };
+
+    const onAbort = () => {
+      reader.cancel().then(
+        () => finish(),
+        () => finish()
+      );
+    };
+
+    const handleError = (error: unknown) => {
+      if (!writable.destroyed) {
+        writable.destroy(error instanceof Error ? error : undefined);
+      }
+      finish(error);
+    };
+
+    function read() {
+      if (writable.destroyed) {
+        onAbort();
+        return;
+      }
+      reader.read().then(flow, handleError);
+    }
+
+    const flow = ({ done, value }: ReadableStreamReadResult<unknown>) => {
       if (done) {
         if (!writable.destroyed) writable.end();
-        break;
+        finish();
+        return;
       }
-      // Respect backpressure: when the writable's internal buffer is full,
-      // wait for it to drain before pulling the next chunk. Without this a
-      // slow client + large body causes unbounded memory growth.
+
       if (writable.write(value) === false) {
-        await new Promise<void>((resolve) => {
-          if (writable.destroyed) {
-            resolve();
-          } else {
-            writable.once('drain', resolve);
-          }
-        });
+        writable.once('drain', read);
+      } else {
+        read();
       }
       if (typeof flushable.flush === 'function') {
         flushable.flush();
       }
-    }
-  } catch (error: unknown) {
-    // Source stream errored. If the destination is still alive, tear it down
-    // so the client doesn't hang waiting for more data. If it's already gone
-    // (client disconnect), there is nothing more to do.
-    if (!writable.destroyed) {
-      writable.destroy(error instanceof Error ? error : undefined);
-      throw error;
-    }
-  } finally {
-    writable.removeListener('close', onAbort);
-    writable.removeListener('error', onAbort);
-    try {
-      reader.releaseLock();
-    } catch {
-      /* lock already released via cancel() */
-    }
-  }
+    };
+
+    writable.once('close', onAbort);
+    writable.once('error', onAbort);
+    read();
+  });
 }
 
 /**
@@ -291,7 +467,7 @@ function cancelRequestBody(request: Request) {
   }
 }
 
-function buildToNodeHandler(
+export function buildToNodeHandler(
   dependencies: BuildDependencies,
   options: RequestOptions
 ) {
@@ -306,15 +482,123 @@ function buildToNodeHandler(
       const env = process.env;
       const event = toFetchEvent(request);
       const maybePromise = webHandler(request, env, event);
-      const respond = (response: Response | null | undefined) =>
-        toServerResponse(response, serverResponse).finally(() =>
-          cancelRequestBody(request)
-        );
-      const fail = () => sendServerError(serverResponse);
       if (maybePromise instanceof Promise) {
-        maybePromise.then(respond).catch(fail);
-      } else {
-        respond(maybePromise).catch(fail);
+        maybePromise.then(
+          (response) => {
+            try {
+              const writing = toServerResponse(response, serverResponse);
+              if (writing instanceof Promise) {
+                writing.then(
+                  () => cancelRequestBody(request),
+                  () => {
+                    cancelRequestBody(request);
+                    sendServerError(serverResponse);
+                  }
+                );
+              } else {
+                cancelRequestBody(request);
+              }
+            } catch {
+              cancelRequestBody(request);
+              sendServerError(serverResponse);
+            }
+          },
+          () => {
+            cancelRequestBody(request);
+            sendServerError(serverResponse);
+          }
+        );
+        return;
+      }
+
+      try {
+        const writing = toServerResponse(maybePromise, serverResponse);
+        if (writing instanceof Promise) {
+          writing.then(
+            () => cancelRequestBody(request),
+            () => {
+              cancelRequestBody(request);
+              sendServerError(serverResponse);
+            }
+          );
+        } else {
+          cancelRequestBody(request);
+        }
+      } catch {
+        cancelRequestBody(request);
+        sendServerError(serverResponse);
+      }
+    };
+  };
+}
+
+function buildToNodeSourceHandler(
+  dependencies: BuildDependencies,
+  options: RequestOptions
+) {
+  const toRequestSource = buildToRequestSource(dependencies, options);
+  return function toNodeHandler(webHandler: RequestSourceHandler): NodeHandler {
+    return (
+      incomingMessage: IncomingMessage,
+      serverResponse: ServerResponse
+    ) => {
+      const source = toRequestSource(incomingMessage);
+      const needsSourceCleanup =
+        source.method !== 'GET' && source.method !== 'HEAD';
+      const maybePromise = webHandler(
+        source,
+        process.env,
+        NODE_EXECUTION_CONTEXT
+      );
+      if (maybePromise instanceof Promise) {
+        maybePromise.then(
+          (response) => {
+            try {
+              const writing = toServerResponse(response, serverResponse);
+              if (writing instanceof Promise) {
+                writing.then(
+                  () => {
+                    if (needsSourceCleanup) source.cancel();
+                  },
+                  () => {
+                    if (needsSourceCleanup) source.cancel();
+                    sendServerError(serverResponse);
+                  }
+                );
+              } else if (needsSourceCleanup) {
+                source.cancel();
+              }
+            } catch {
+              if (needsSourceCleanup) source.cancel();
+              sendServerError(serverResponse);
+            }
+          },
+          () => {
+            if (needsSourceCleanup) source.cancel();
+            sendServerError(serverResponse);
+          }
+        );
+        return;
+      }
+
+      try {
+        const writing = toServerResponse(maybePromise, serverResponse);
+        if (writing instanceof Promise) {
+          writing.then(
+            () => {
+              if (needsSourceCleanup) source.cancel();
+            },
+            () => {
+              if (needsSourceCleanup) source.cancel();
+              sendServerError(serverResponse);
+            }
+          );
+        } else if (needsSourceCleanup) {
+          source.cancel();
+        }
+      } catch {
+        if (needsSourceCleanup) source.cancel();
+        sendServerError(serverResponse);
       }
     };
   };

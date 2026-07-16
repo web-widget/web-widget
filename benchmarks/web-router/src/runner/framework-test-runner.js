@@ -113,7 +113,7 @@ class FrameworkTestRunner {
       if (adapter.isSupported) {
         const isSupported = adapter.isSupported();
         if (!isSupported) {
-          this.error('Framework not supported in current environment');
+          this.warning('Framework not supported in current environment');
           this.updateStatus('not_supported');
           return false;
         }
@@ -243,22 +243,33 @@ class FrameworkTestRunner {
         const testPath = testCase.path || testCase; // Handle both object and string
         const response = await fetch(`${baseUrl}${testPath}`);
 
-        if (!response.ok) {
+        const expected = expectedResponses[testPath];
+        if (!expected) {
+          this.error(`No expected response configured for ${testPath}`);
+          return false;
+        }
+
+        if (response.status !== expected.status) {
           this.error(
-            `Test case failed: ${testPath} - HTTP ${response.status} ${response.statusText}`
+            `Status mismatch for ${testPath} (expected: ${expected.status}, got: ${response.status})`
           );
           return false;
         }
 
-        const expected = expectedResponses[testPath];
-        if (expected) {
-          const contentType = response.headers.get('content-type');
-          if (!contentType?.includes(expected.contentType)) {
-            this.error(
-              `Content-Type mismatch for ${testPath} (expected: ${expected.contentType}, got: ${contentType})`
-            );
-            return false;
-          }
+        const contentType = response.headers.get('content-type');
+        if (!contentType?.includes(expected.contentType)) {
+          this.error(
+            `Content-Type mismatch for ${testPath} (expected: ${expected.contentType}, got: ${contentType})`
+          );
+          return false;
+        }
+
+        const body = await response.text();
+        if (body !== expected.content) {
+          this.error(
+            `Body mismatch for ${testPath} (expected: ${JSON.stringify(expected.content)}, got: ${JSON.stringify(body)})`
+          );
+          return false;
         }
       }
 
@@ -285,12 +296,21 @@ class FrameworkTestRunner {
         return `${baseUrl}${testPath}`;
       });
 
-      const result = await autocannon({
+      const options = {
         url: urls[0], // Use first URL as base
         connections: this.config.connections || 10,
-        duration: this.config['benchmark-duration'] || 10,
         pipelining: this.config.pipelining || 1,
         requests: urls.map((url) => ({ url })),
+      };
+
+      await autocannon({
+        ...options,
+        duration: this.config['warmup-duration'] || 2,
+      });
+
+      const result = await autocannon({
+        ...options,
+        duration: this.config['benchmark-duration'] || 10,
       });
 
       this.updateStatus('benchmark_completed');
@@ -301,11 +321,10 @@ class FrameworkTestRunner {
         requests: result.requests.average,
         latency: {
           p50: result.latency.p50,
-          p95: result.latency.p95,
           p99: result.latency.p99,
           max: result.latency.max,
         },
-        throughput: result.throughput.average,
+        throughput: result.throughput.average / 1024 / 1024,
         errors: result.errors,
         timeouts: result.timeouts,
         status: this.status,
@@ -365,11 +384,10 @@ class FrameworkTestRunner {
       // Check framework support
       const isSupported = await this.checkFrameworkSupport();
       if (!isSupported) {
-        this.sendMessage('log', {
-          level: 'warning',
-          message: 'Framework skipped',
+        this.sendMessage('skipped', {
+          reason: 'not supported in the current runtime',
         });
-        process.exit(1);
+        process.exit(0);
       }
 
       // Start server

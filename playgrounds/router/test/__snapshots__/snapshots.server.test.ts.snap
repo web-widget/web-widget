@@ -4,6 +4,7 @@ exports[`Should match snapshot (production server) > Request "/" should match sn
 
 exports[`Should match snapshot (production server) > Request "/" should match snapshot > /@headers 1`] = `
 {
+  "content-length": "10787",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -15,6 +16,7 @@ exports[`Should match snapshot (production server) > Request "/api/hello-world" 
 
 exports[`Should match snapshot (production server) > Request "/api/hello-world" should match snapshot > /api/hello-world@headers 1`] = `
 {
+  "content-length": "246",
   "content-type": "application/json; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -26,6 +28,7 @@ exports[`Should match snapshot (production server) > Request "/api/mock-users?us
 
 exports[`Should match snapshot (production server) > Request "/api/mock-users?username=react" should match snapshot > /api/mock-users?username=react@headers 1`] = `
 {
+  "content-length": "236",
   "content-type": "application/json; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -37,6 +40,7 @@ exports[`Should match snapshot (production server) > Request "/background-tasks"
 
 exports[`Should match snapshot (production server) > Request "/background-tasks" should match snapshot > /background-tasks@headers 1`] = `
 {
+  "content-length": "4022",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -48,6 +52,7 @@ exports[`Should match snapshot (production server) > Request "/client-only-compo
 
 exports[`Should match snapshot (production server) > Request "/client-only-component" should match snapshot > /client-only-component@headers 1`] = `
 {
+  "content-length": "4394",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -59,6 +64,7 @@ exports[`Should match snapshot (production server) > Request "/css-lazy-dynamic"
 
 exports[`Should match snapshot (production server) > Request "/css-lazy-dynamic" should match snapshot > /css-lazy-dynamic@headers 1`] = `
 {
+  "content-length": "4822",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -70,6 +76,7 @@ exports[`Should match snapshot (production server) > Request "/custom-handlers" 
 
 exports[`Should match snapshot (production server) > Request "/custom-handlers" should match snapshot > /custom-handlers@headers 1`] = `
 {
+  "content-length": "4039",
   "content-type": "text/html; charset=utf-8",
   "x-custom-header": "Hello",
   "x-powered-by": "@web-widget/web-router",
@@ -83,6 +90,7 @@ exports[`Should match snapshot (production server) > Request "/dynamic-routes" s
 
 exports[`Should match snapshot (production server) > Request "/dynamic-routes" should match snapshot > /dynamic-routes@headers 1`] = `
 {
+  "content-length": "3559",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -94,6 +102,7 @@ exports[`Should match snapshot (production server) > Request "/dynamic-routes/1"
 
 exports[`Should match snapshot (production server) > Request "/dynamic-routes/1" should match snapshot > /dynamic-routes/1@headers 1`] = `
 {
+  "content-length": "4374",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -105,6 +114,7 @@ exports[`Should match snapshot (production server) > Request "/experimental-asyn
 
 exports[`Should match snapshot (production server) > Request "/experimental-async-component" should match snapshot > /experimental-async-component@headers 1`] = `
 {
+  "content-length": "4283",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -116,6 +126,7 @@ exports[`Should match snapshot (production server) > Request "/fallback" should 
 
 exports[`Should match snapshot (production server) > Request "/fallback" should match snapshot > /fallback@headers 1`] = `
 {
+  "content-length": "4208",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -127,6 +138,7 @@ exports[`Should match snapshot (production server) > Request "/fallback?404" sho
 
 exports[`Should match snapshot (production server) > Request "/fallback?404" should match snapshot > /fallback?404@headers 1`] = `
 {
+  "content-length": "3934",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -138,6 +150,7 @@ exports[`Should match snapshot (production server) > Request "/fallback?500" sho
 
 exports[`Should match snapshot (production server) > Request "/fallback?500" should match snapshot > /fallback?500@headers 1`] = `
 {
+  "content-length": "3938",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -149,6 +162,7 @@ exports[`Should match snapshot (production server) > Request "/fallback?global-4
 
 exports[`Should match snapshot (production server) > Request "/fallback?global-404" should match snapshot > /fallback?global-404@headers 1`] = `
 {
+  "content-length": "3566",
   "content-type": "text/html; charset=utf-8",
 }
 `;
@@ -159,6 +173,7 @@ exports[`Should match snapshot (production server) > Request "/fallback?global-5
 
 exports[`Should match snapshot (production server) > Request "/fallback?global-500" should match snapshot > /fallback?global-500@headers 1`] = `
 {
+  "content-length": "3573",
   "content-type": "text/html; charset=utf-8",
 }
 `;
@@ -226,6 +241,7 @@ exports[`Should match snapshot (production server) > Request "/fetching-data" sh
 
 exports[`Should match snapshot (production server) > Request "/fetching-data" should match snapshot > /fetching-data@headers 1`] = `
 {
+  "content-length": "19425",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -237,6 +253,7 @@ exports[`Should match snapshot (production server) > Request "/form" should matc
 
 exports[`Should match snapshot (production server) > Request "/form" should match snapshot > /form@headers 1`] = `
 {
+  "content-length": "4108",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -248,6 +265,7 @@ exports[`Should match snapshot (production server) > Request "/html-shell-error"
 
 exports[`Should match snapshot (production server) > Request "/html-shell-error" should match snapshot > /html-shell-error@headers 1`] = `
 {
+  "content-length": "3610",
   "content-type": "text/html; charset=utf-8",
 }
 `;
@@ -258,6 +276,7 @@ exports[`Should match snapshot (production server) > Request "/large-css" should
 
 exports[`Should match snapshot (production server) > Request "/large-css" should match snapshot > /large-css@headers 1`] = `
 {
+  "content-length": "6654",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -352,6 +371,7 @@ exports[`Should match snapshot (production server) > Request "/meta" should matc
 
 exports[`Should match snapshot (production server) > Request "/meta" should match snapshot > /meta@headers 1`] = `
 {
+  "content-length": "10613",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -363,6 +383,7 @@ exports[`Should match snapshot (production server) > Request "/react-and-vue" sh
 
 exports[`Should match snapshot (production server) > Request "/react-and-vue" should match snapshot > /react-and-vue@headers 1`] = `
 {
+  "content-length": "5023",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -374,6 +395,7 @@ exports[`Should match snapshot (production server) > Request "/react-server-comp
 
 exports[`Should match snapshot (production server) > Request "/react-server-component" should match snapshot > /react-server-component@headers 1`] = `
 {
+  "content-length": "3955",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -385,6 +407,7 @@ exports[`Should match snapshot (production server) > Request "/react-shell-error
 
 exports[`Should match snapshot (production server) > Request "/react-shell-error" should match snapshot > /react-shell-error@headers 1`] = `
 {
+  "content-length": "3611",
   "content-type": "text/html; charset=utf-8",
 }
 `;
@@ -395,6 +418,7 @@ exports[`Should match snapshot (production server) > Request "/style" should mat
 
 exports[`Should match snapshot (production server) > Request "/style" should match snapshot > /style@headers 1`] = `
 {
+  "content-length": "4017",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -406,6 +430,7 @@ exports[`Should match snapshot (production server) > Request "/vue-module-css" s
 
 exports[`Should match snapshot (production server) > Request "/vue-module-css" should match snapshot > /vue-module-css@headers 1`] = `
 {
+  "content-length": "4401",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -417,6 +442,7 @@ exports[`Should match snapshot (production server) > Request "/vue2-import-widge
 
 exports[`Should match snapshot (production server) > Request "/vue2-import-widgets" should match snapshot > /vue2-import-widgets@headers 1`] = `
 {
+  "content-length": "5689",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -428,6 +454,7 @@ exports[`Should match snapshot (production server) > Request "/vue2-router" shou
 
 exports[`Should match snapshot (production server) > Request "/vue2-router" should match snapshot > /vue2-router@headers 1`] = `
 {
+  "content-length": "13568",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -439,6 +466,7 @@ exports[`Should match snapshot (production server) > Request "/vue2-router/about
 
 exports[`Should match snapshot (production server) > Request "/vue2-router/about" should match snapshot > /vue2-router/about@headers 1`] = `
 {
+  "content-length": "5505",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -454,6 +482,7 @@ exports[`Should match snapshot (production server) > Request "/vue2-server-compo
 
 exports[`Should match snapshot (production server) > Request "/vue2-server-component" should match snapshot > /vue2-server-component@headers 1`] = `
 {
+  "content-length": "4038",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -465,6 +494,7 @@ exports[`Should match snapshot (production server) > Request "/vue3-import-widge
 
 exports[`Should match snapshot (production server) > Request "/vue3-import-widgets" should match snapshot > /vue3-import-widgets@headers 1`] = `
 {
+  "content-length": "5621",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -476,6 +506,7 @@ exports[`Should match snapshot (production server) > Request "/vue3-router" shou
 
 exports[`Should match snapshot (production server) > Request "/vue3-router" should match snapshot > /vue3-router@headers 1`] = `
 {
+  "content-length": "13544",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -487,6 +518,7 @@ exports[`Should match snapshot (production server) > Request "/vue3-router/about
 
 exports[`Should match snapshot (production server) > Request "/vue3-router/about" should match snapshot > /vue3-router/about@headers 1`] = `
 {
+  "content-length": "5497",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -502,6 +534,7 @@ exports[`Should match snapshot (production server) > Request "/vue3-server-compo
 
 exports[`Should match snapshot (production server) > Request "/vue3-server-component" should match snapshot > /vue3-server-component@headers 1`] = `
 {
+  "content-length": "4004",
   "content-type": "text/html; charset=utf-8",
   "x-powered-by": "@web-widget/web-router",
 }
@@ -513,6 +546,7 @@ exports[`Should match snapshot (production server) > Request "/vue3-shell-error"
 
 exports[`Should match snapshot (production server) > Request "/vue3-shell-error" should match snapshot > /vue3-shell-error@headers 1`] = `
 {
+  "content-length": "3610",
   "content-type": "text/html; charset=utf-8",
 }
 `;

@@ -1,10 +1,8 @@
-import { defineConfig } from 'eslint-define-config';
-
 const OFF = 0;
 const WARN = 1;
 const ERROR = 2;
 
-export default defineConfig({
+export default {
   rules: {
     'n/no-missing-import': OFF,
     'n/no-unpublished-import': OFF,
@@ -23,4 +21,4 @@ export default defineConfig({
       },
     ],
   },
-});
+};

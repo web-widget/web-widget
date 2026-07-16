@@ -48,7 +48,9 @@ export default defineConfig({
   outDir: DIST,
   sourcemap: false,
   splitting: true,
-  target: 'chrome67',
+  // WinterCG runtimes support native private fields; transpiling to chrome67
+  // turns every request context access into a WeakMap operation.
+  target: 'es2022',
   onSuccess: async () => {
     try {
       await fs.writeFile(PLACEHOLDER_PATH, PLACEHOLDER_CODE, 'utf8');

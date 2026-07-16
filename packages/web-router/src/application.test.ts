@@ -69,6 +69,50 @@ function queries(req: Request, name: string) {
   return url.searchParams.getAll(name);
 }
 
+describe('host request source', () => {
+  const sourceHandler = Symbol.for(
+    '@web-widget/web-router.request-source-handler'
+  );
+
+  function createSource(pathname: string) {
+    let materializations = 0;
+    let request: Request | undefined;
+    return {
+      source: {
+        method: 'GET',
+        url: `http://localhost${pathname}`,
+        toRequest() {
+          materializations++;
+          return (request ??= new Request(this.url));
+        },
+      },
+      get materializations() {
+        return materializations;
+      },
+    };
+  }
+
+  test('materializes only when public request state is accessed', async () => {
+    const app = new Application();
+    app.get('/fast', () => new Response('fast'));
+    app.get('/request', (context) => {
+      const copy = new Request(context.request);
+      return new Response(copy.url);
+    });
+    const handler = Reflect.get(app, sourceHandler).bind(app);
+
+    const fast = createSource('/fast');
+    expect(await (await handler(fast.source)).text()).toBe('fast');
+    expect(fast.materializations).toBe(0);
+
+    const accessed = createSource('/request');
+    expect(await (await handler(accessed.source)).text()).toBe(
+      'http://localhost/request'
+    );
+    expect(accessed.materializations).toBe(1);
+  });
+});
+
 describe('GET Request', () => {
   const app = new Application();
 

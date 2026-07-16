@@ -1,10 +1,8 @@
-import { defineConfig } from 'eslint-define-config';
-
 // const OFF = 0;
 const WARN = 1;
 // const ERROR = 2;
 
-export default defineConfig({
+export default {
   rules: {
     'jest-dom/prefer-checked': WARN,
     'jest-dom/prefer-empty': WARN,
@@ -18,4 +16,4 @@ export default defineConfig({
     'jest-dom/prefer-to-have-text-content': WARN,
     'jest-dom/prefer-to-have-value': WARN,
   },
-});
+};

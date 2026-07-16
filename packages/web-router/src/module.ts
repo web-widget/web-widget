@@ -3,11 +3,8 @@
  */
 import { handleRpc } from '@web-widget/action/server';
 import { contextToScriptDescriptor } from '@web-widget/context/server';
-import {
-  mergeMeta,
-  methodsToHandler,
-  rebaseMeta,
-} from '@web-widget/helpers/module';
+import { mergeMeta, rebaseMeta } from '@web-widget/helpers/module';
+import { Context } from './context';
 
 import {
   type ActionModule,
@@ -38,6 +35,33 @@ declare module '@web-widget/helpers' {
 }
 
 const HANDLER = Symbol('handler');
+
+function moduleMethodsToHandler<T>(
+  methods: Record<string, unknown>,
+  disallowUnknownMethod: boolean
+): T {
+  for (const handler of Object.values(methods)) {
+    if (typeof handler !== 'function') {
+      throw new TypeError('Method must be composed of functions.');
+    }
+  }
+
+  const mergedMethods = { ...methods };
+  return ((context: MiddlewareContext, next: () => Promise<Response>) => {
+    const method =
+      context instanceof Context
+        ? context.requestMethod
+        : context.request.method;
+    const handler = Reflect.get(mergedMethods, method);
+    if (typeof handler === 'function') return handler(context, next);
+    if (!disallowUnknownMethod) return next();
+    return new Response(null, {
+      status: 405,
+      statusText: 'Method Not Allowed',
+      headers: { Accept: Object.keys(mergedMethods).join(', ') },
+    });
+  }) as T;
+}
 
 // Type for cached module data
 interface CachedModuleData {
@@ -559,11 +583,10 @@ export class ModuleRuntime {
       if (handlerObj[HANDLER]) {
         return handlerObj[HANDLER]!;
       } else {
-        // Use type assertion to handle the methodsToHandler call
-        return (handlerObj[HANDLER] = methodsToHandler(
-          handlerObj as any,
+        return (handlerObj[HANDLER] = moduleMethodsToHandler<T>(
+          handlerObj,
           disallowUnknownMethod
-        ) as T);
+        ));
       }
     }
   }

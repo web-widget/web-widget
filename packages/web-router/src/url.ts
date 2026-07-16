@@ -2,9 +2,14 @@
  * @fileoverview URL processing utility functions
  */
 export const getPath = (request: Request): string => {
-  // Optimized: RegExp is faster than indexOf() + slice()
-  const match = request.url.match(/^https?:\/\/[^/]+(\/[^?]*)/);
-  return match ? match[1] : '';
+  const url = request.url;
+  const pathStart = url.indexOf('/', url.indexOf('://') + 3);
+  if (pathStart === -1) return '';
+
+  const queryStart = url.indexOf('?', pathStart);
+  return queryStart === -1
+    ? url.slice(pathStart)
+    : url.slice(pathStart, queryStart);
 };
 
 export const getQueryStrings = (url: string): string => {

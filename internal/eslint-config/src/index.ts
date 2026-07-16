@@ -1,4 +1,3 @@
-import { defineConfig } from 'eslint-define-config';
 import coreRules from './core';
 import importRules from './import';
 import reactRules from './react';
@@ -9,7 +8,7 @@ const OFF = 0;
 // const WARN = 1;
 // const ERROR = 2;
 
-export default defineConfig({
+export default {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     sourceType: 'module',
@@ -108,4 +107,4 @@ export default defineConfig({
     },
   ],
   ignorePatterns: ['**/vendor/**', '**/dist/**', '**/node_modules/**'],
-});
+};

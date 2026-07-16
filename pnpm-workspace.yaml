@@ -24,6 +24,7 @@ allowBuilds:
   esbuild: true
   sharp: true
   simple-git-hooks: false
+  unrs-resolver: true
   workerd: true
 
 overrides:

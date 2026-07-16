@@ -68,8 +68,11 @@ class ProcessIsolatedBenchmark {
         break;
 
       case 'result':
-        this.results.push(data);
         console.log(`✅ ${frameworkName}: ${data.requests.toFixed(0)} req/sec`);
+        break;
+
+      case 'skipped':
+        console.log(`⏭️ ${frameworkName}: ${data.reason}`);
         break;
 
       case 'error':
@@ -115,6 +118,9 @@ class ProcessIsolatedBenchmark {
         if (message.type === 'result' && !hasResolved) {
           hasResolved = true;
           resolve(message.data);
+        } else if (message.type === 'skipped' && !hasResolved) {
+          hasResolved = true;
+          resolve({ framework: frameworkName, skipped: true });
         } else if (message.type === 'error' && !hasResolved) {
           hasResolved = true;
           resolve(null);
@@ -183,14 +189,23 @@ class ProcessIsolatedBenchmark {
         }
       });
 
-      // Timeout fallback
-      setTimeout(() => {
+      // Allow enough time for startup, validation, warmup, and the measured run.
+      const timeout =
+        ((this.config['warmup-duration'] || 2) +
+          (this.config['benchmark-duration'] || 10) +
+          20) *
+        1000;
+      const timeoutId = setTimeout(() => {
         if (!hasResolved) {
-          console.log(`❌ ${frameworkName}: timeout after 60 seconds`);
+          console.log(
+            `❌ ${frameworkName}: timeout after ${timeout / 1000} seconds`
+          );
           child.kill();
           resolve(null);
         }
-      }, 60000);
+      }, timeout);
+
+      child.once('close', () => clearTimeout(timeoutId));
     });
   }
 
@@ -206,8 +221,52 @@ class ProcessIsolatedBenchmark {
       return;
     }
 
-    for (const framework of this.config.frameworks) {
-      await this.runFrameworkTest(framework);
+    const rounds = this.config['benchmark-rounds'] || 3;
+    const samples = new Map(
+      this.config.frameworks.map((framework) => [framework, []])
+    );
+    const skipped = new Set();
+
+    // Rotate the starting framework each round so machine drift does not always
+    // favor the same entry while retaining process isolation.
+    for (let round = 0; round < rounds; round++) {
+      console.log(`\n🔁 Benchmark round ${round + 1}/${rounds}`);
+      const frameworks = this.config.frameworks.slice();
+      const offset = round % frameworks.length;
+      const roundOrder = frameworks
+        .slice(offset)
+        .concat(frameworks.slice(0, offset));
+
+      for (const framework of roundOrder) {
+        if (skipped.has(framework)) continue;
+        const result = await this.runFrameworkTest(framework);
+        if (result?.skipped) {
+          skipped.add(framework);
+        } else if (result) {
+          samples.get(framework).push(result);
+        }
+      }
+    }
+
+    const incomplete = [...samples].filter(
+      ([framework, values]) =>
+        !skipped.has(framework) && values.length !== rounds
+    );
+    if (incomplete.length > 0) {
+      const details = incomplete
+        .map(
+          ([framework, values]) => `${framework} (${values.length}/${rounds})`
+        )
+        .join(', ');
+      throw new Error(`Incomplete benchmark results: ${details}`);
+    }
+
+    this.results = [...samples]
+      .filter(([framework]) => !skipped.has(framework))
+      .map(([, values]) => aggregateResults(values));
+
+    if (this.results.length === 0) {
+      throw new Error('All configured frameworks were skipped');
     }
 
     console.log('\n📊 Generating benchmark reports...');
@@ -288,6 +347,32 @@ class ProcessIsolatedBenchmark {
       }
     }
   }
+}
+
+function median(values) {
+  const sorted = values.slice().sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2
+    ? sorted[middle]
+    : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+export function aggregateResults(samples) {
+  const metrics = (selector) => median(samples.map(selector));
+  return {
+    framework: samples[0].framework,
+    requests: metrics((sample) => sample.requests),
+    latency: {
+      p50: metrics((sample) => sample.latency.p50),
+      p99: metrics((sample) => sample.latency.p99),
+      max: metrics((sample) => sample.latency.max),
+    },
+    throughput: metrics((sample) => sample.throughput),
+    errors: metrics((sample) => sample.errors),
+    timeouts: metrics((sample) => sample.timeouts),
+    samples: samples.map((sample) => sample.requests),
+    status: 'benchmark_completed',
+  };
 }
 
 // Run benchmark if this file is executed directly

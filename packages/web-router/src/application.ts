@@ -2,10 +2,9 @@
  * @fileoverview Application domain object - HTTP request/response lifecycle management
  */
 import { callContext } from '@web-widget/context/server';
-import { compose } from '@web-widget/helpers';
 import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { createHttpError } from '@web-widget/helpers/error';
-import { Context } from './context';
+import { Context, type RequestInput, type RequestSource } from './context';
 import { ModuleRuntime, type DevMetaProvider } from './module';
 import type { Router } from './router';
 import {
@@ -29,6 +28,9 @@ import { getPath, getPathNoStrict } from './url';
 
 type Methods = (typeof METHODS)[number];
 type DispatchMode = 'initial' | 'rewrite';
+const REQUEST_SOURCE_HANDLER = Symbol.for(
+  '@web-widget/web-router.request-source-handler'
+);
 
 function defineDynamicClass(): {
   new <E extends Env = Env, BasePath extends string = '/'>(): {
@@ -119,10 +121,15 @@ function resetRouteActivationOnViewChange(
   }
 }
 
-function toInternalRequest(request: Request): Request {
+function materializeRequest(request: RequestInput): Request {
+  return 'toRequest' in request ? request.toRequest() : request;
+}
+
+function toInternalRequest(request: RequestInput): RequestInput {
   if (request.method !== 'HEAD') {
     return request;
   }
+  request = materializeRequest(request);
   return new Request(request.url, {
     method: 'GET',
     headers: request.headers,
@@ -130,10 +137,10 @@ function toInternalRequest(request: Request): Request {
 }
 
 function finalizeHeadResponse(
-  originalRequest: Request,
+  originalMethod: string,
   response: Response
 ): Response {
-  if (originalRequest.method !== 'HEAD') {
+  if (originalMethod !== 'HEAD') {
     return response;
   }
   if (response.body && !response.body.locked) {
@@ -148,35 +155,9 @@ function finalizeHeadResponse(
 
 function filterExecutedHandlers(
   handlers: Result<MiddlewareHandler>,
-  executedHandlers: WeakSet<MiddlewareHandler>
+  executedHandlers: MiddlewareHandler[]
 ): Result<MiddlewareHandler> {
-  return handlers.filter((entry) => !executedHandlers.has(entry[0]));
-}
-
-function wrapHandlerWithNextGuard(
-  handler: MiddlewareHandler,
-  frame: DispatchFrame,
-  context: Context
-): MiddlewareHandler {
-  return (ctx, next) => {
-    const guardedNext = () => {
-      if (frame.subsequentInternalRequest) {
-        context.updateRequest(frame.subsequentInternalRequest);
-        frame.method = frame.subsequentInternalRequest.method;
-      }
-      return Promise.resolve(next()).then(
-        (response: Response) => {
-          frame.nextCompleted = true;
-          return response;
-        },
-        (error: unknown) => {
-          frame.nextCompleted = true;
-          throw error;
-        }
-      );
-    };
-    return handler(ctx, guardedNext);
-  };
+  return handlers.filter((entry) => !executedHandlers.includes(entry[0]));
 }
 
 type GetPath<E extends Env> = (
@@ -190,10 +171,10 @@ interface DispatchFrame<E extends Env = Env> {
    * NOTE: Tracked by function reference — do not register the same handler on
    * multiple routes; a second registration would be skipped after the first runs.
    */
-  executedHandlers: WeakSet<MiddlewareHandler>;
+  executedHandlers: MiddlewareHandler[];
   subsequentInternalRequest?: Request;
   nextCompleted: boolean;
-  visited: Set<string>;
+  visited?: Set<string>;
   method: string;
   env: E['Bindings'] | undefined;
 }
@@ -226,6 +207,7 @@ class Application<
   */
   router!: Router<MiddlewareHandler>;
   readonly getPath: GetPath<E>;
+  #getPathRequiresRequest = false;
 
   constructor(options: ApplicationOptions<E> = {}) {
     super();
@@ -252,6 +234,7 @@ class Application<
     const routerType = options.routerType ?? getDefaultRouterType();
     delete options.strict;
     delete options.routerType;
+    this.#getPathRequiresRequest = strict && options.getPath !== undefined;
     this.getPath = strict ? (options.getPath ?? getPath) : getPathNoStrict;
 
     if (options.router) {
@@ -270,6 +253,12 @@ class Application<
   #notFoundHandler: NotFoundHandler = notFoundHandler;
   #errorHandler: ErrorHandler = errorHandler;
   #moduleRuntime?: ModuleRuntime;
+  #rewriteDispatcher = (
+    context: Context,
+    state: unknown,
+    input: RequestInfo | URL,
+    init?: RequestInit
+  ) => this.#rewrite(context, state as DispatchFrame, input, init);
 
   /**
    * @internal
@@ -313,6 +302,13 @@ class Application<
     return this.router.match(method, path);
   }
 
+  #getInitialPath(request: RequestInput, env: E['Bindings'] | undefined) {
+    const input = this.#getPathRequiresRequest
+      ? materializeRequest(request)
+      : (request as Request);
+    return this.getPath(input, { env });
+  }
+
   #rewrite(
     context: Context,
     frame: DispatchFrame,
@@ -341,10 +337,11 @@ class Application<
       nextRequest.method !== callerRequest.method;
 
     if (nextPathKey !== currentPathKey) {
-      if (frame.visited.has(nextPathKey)) {
+      const visited = (frame.visited ??= new Set([currentPathKey]));
+      if (visited.has(nextPathKey)) {
         throw createHttpError(508, 'Rewrite loop detected');
       }
-      frame.visited.add(nextPathKey);
+      visited.add(nextPathKey);
     }
 
     if (routeViewChanged) {
@@ -355,35 +352,103 @@ class Application<
     frame.method = nextRequest.method;
 
     const path = this.getPath(context.request, { env: frame.env });
-    return this.#dispatchMatched(context, path, frame, 'rewrite').finally(
-      () => {
-        context.updateRequest(callerRequest);
-        frame.subsequentInternalRequest = nextRequest;
-        frame.method = nextRequest.method;
-      }
-    );
+    return Promise.resolve(
+      this.#dispatchMatched(context, path, frame, 'rewrite')
+    ).finally(() => {
+      context.updateRequest(callerRequest);
+      frame.subsequentInternalRequest = nextRequest;
+      frame.method = nextRequest.method;
+    });
   }
 
-  async #dispatchMatched(
+  #dispatchMatched(
     context: Context,
     path: string,
     frame: DispatchFrame,
     mode: DispatchMode = 'initial'
-  ): Promise<Response> {
+  ): Response | Promise<Response> {
     let matched = this.#matchRoute(frame.method, path);
     if (mode === 'rewrite') {
       matched = filterExecutedHandlers(matched, frame.executedHandlers);
     }
 
-    const composed = compose<(typeof matched)[0], Context>(matched, (entry) => {
+    // Most requests resolve to a single handler. Keep this path synchronous
+    // when the handler is synchronous, matching Hono's low-overhead dispatch
+    // branch and avoiding an async function/recursive dispatcher allocation.
+    if (matched.length === 1) {
+      const entry = matched[0];
       context.params = entry[1];
       context.pathname = entry[2];
-      frame.executedHandlers.add(entry[0]);
-      return wrapHandlerWithNextGuard(entry[0], frame, context);
-    });
+      frame.executedHandlers.push(entry[0]);
 
-    const res = await composed(context, this.#notFoundHandler);
-    return assertHandlerResponse(res);
+      let nextCalled = false;
+      const next = () => {
+        if (nextCalled) {
+          throw new Error('next() called multiple times.');
+        }
+        nextCalled = true;
+        if (frame.subsequentInternalRequest) {
+          context.updateRequest(frame.subsequentInternalRequest);
+          frame.method = frame.subsequentInternalRequest.method;
+        }
+        return Promise.resolve(this.#notFoundHandler(context)).then(
+          (response) => {
+            frame.nextCompleted = true;
+            return response;
+          },
+          (error: unknown) => {
+            frame.nextCompleted = true;
+            throw error;
+          }
+        );
+      };
+
+      const result = entry[0](context, next);
+      return result instanceof Promise
+        ? result.then(assertHandlerResponse)
+        : assertHandlerResponse(result);
+    }
+
+    let index = -1;
+    const dispatch = (nextIndex: number): Response | Promise<Response> => {
+      if (nextIndex <= index) {
+        throw new Error('next() called multiple times.');
+      }
+      index = nextIndex;
+
+      const entry = matched[nextIndex];
+      if (!entry) {
+        return this.#notFoundHandler(context);
+      }
+
+      context.params = entry[1];
+      context.pathname = entry[2];
+      frame.executedHandlers.push(entry[0]);
+
+      const next = () => {
+        if (frame.subsequentInternalRequest) {
+          context.updateRequest(frame.subsequentInternalRequest);
+          frame.method = frame.subsequentInternalRequest.method;
+        }
+        return Promise.resolve(dispatch(nextIndex + 1)).then(
+          (response) => {
+            frame.nextCompleted = true;
+            return response;
+          },
+          (error: unknown) => {
+            frame.nextCompleted = true;
+            throw error;
+          }
+        );
+      };
+
+      const result = entry[0](context, next);
+      return result instanceof Promise
+        ? result.then(assertHandlerResponse)
+        : assertHandlerResponse(result);
+    };
+
+    return dispatch(0);
   }
 
   handler(
@@ -391,14 +456,31 @@ class Application<
     env: E['Bindings'] | undefined = Object.create(null),
     executionContext?: ExecutionContext
   ): Response | Promise<Response> {
+    return this.#handleRequest(request, env, executionContext);
+  }
+
+  [REQUEST_SOURCE_HANDLER](
+    request: RequestSource,
+    env: E['Bindings'] | undefined = Object.create(null),
+    executionContext?: ExecutionContext
+  ): Response | Promise<Response> {
+    return this.#handleRequest(request, env, executionContext);
+  }
+
+  #handleRequest(
+    request: RequestInput,
+    env: E['Bindings'] | undefined,
+    executionContext?: ExecutionContext
+  ): Response | Promise<Response> {
     if (this.#proxy) {
-      request = normalizeForwardedRequest(request);
+      request = normalizeForwardedRequest(materializeRequest(request));
     }
 
     const originalRequest = request;
+    const originalMethod = originalRequest.method;
     const internalRequest = toInternalRequest(originalRequest);
 
-    const path = this.getPath(internalRequest, { env });
+    const path = this.#getInitialPath(internalRequest, env);
     const context = new Context(internalRequest, {
       env,
       executionContext,
@@ -406,42 +488,65 @@ class Application<
     });
 
     const frame: DispatchFrame = {
-      executedHandlers: new WeakSet(),
+      executedHandlers: [],
       nextCompleted: false,
-      visited: new Set([pathKeyFromUrl(internalRequest.url)]),
       method: internalRequest.method,
       env,
     };
 
-    context.rewrite = (input, init) =>
-      this.#rewrite(context, frame, input, init);
+    context.setRewriteDispatcher(this.#rewriteDispatcher, frame);
 
-    return (async () => {
+    let result: Response | Promise<Response>;
+    try {
+      result = this.#dispatchMatched(context, path, frame);
+    } catch (error) {
+      return this.#handleError(error, context, originalMethod);
+    }
+
+    if (!(result instanceof Promise)) {
       try {
-        const res = await this.#dispatchMatched(context, path, frame);
-
-        // NOTE: Cache middleware uses `createCacheHandler`, which propagates origin
-        // throws on cache miss to this catch block. The former `x-transform-error`
-        // response round-trip is no longer needed.
-
-        return finalizeHeadResponse(originalRequest, res);
-      } catch (error) {
-        this.fixErrorStack(error as Error);
-        // Re-enter AsyncLocalStorage / unctx scope so onError and fallbacks can use
-        // context() and other ALS-backed APIs (see web-widget#716).
-        return callContext(context, async () =>
-          finalizeHeadResponse(
-            originalRequest,
-            await this.#errorHandler(
-              await this.#normalizeHTTPException(error),
-              context
-            )
-          )
-        );
-      } finally {
+        const finalized = finalizeHeadResponse(originalMethod, result);
         this.#releaseRouteActivation(context);
+        return finalized;
+      } catch (error) {
+        return this.#handleError(error, context, originalMethod);
       }
-    })();
+    }
+
+    return result.then(
+      (response) => {
+        try {
+          const finalized = finalizeHeadResponse(originalMethod, response);
+          this.#releaseRouteActivation(context);
+          return finalized;
+        } catch (error) {
+          return this.#handleError(error, context, originalMethod);
+        }
+      },
+      (error) => this.#handleError(error, context, originalMethod)
+    );
+  }
+
+  #handleError(
+    error: unknown,
+    context: Context,
+    originalMethod: string
+  ): Response | Promise<Response> {
+    this.fixErrorStack(error as Error);
+    // Re-enter AsyncLocalStorage / unctx scope so onError and fallbacks can use
+    // context() and other ALS-backed APIs (see web-widget#716).
+    const handled = callContext(context, async () =>
+      finalizeHeadResponse(
+        originalMethod,
+        await this.#errorHandler(
+          await this.#normalizeHTTPException(error),
+          context
+        )
+      )
+    );
+    return handled instanceof Promise
+      ? handled.finally(() => this.#releaseRouteActivation(context))
+      : (this.#releaseRouteActivation(context), handled);
   }
 
   /** Clears route activation after dispatch; defers until `waitUntil` tasks finish. */
