@@ -28,6 +28,35 @@ export default [
     overrides: [
       {
         files: [
+          'packages/**/src/**/*client*.{js,jsx,ts,tsx}',
+          'packages/**/src/**/*browser*.{js,jsx,ts,tsx}',
+        ],
+        rules: {
+          'no-restricted-imports': [
+            'error',
+            {
+              patterns: [
+                {
+                  group: ['node:*'],
+                  message:
+                    'Client runtime code must use Web APIs instead of Node.js built-ins.',
+                },
+                {
+                  group: ['@web-widget/node', '@web-widget/node/*'],
+                  message:
+                    'Client runtime code must not depend on the Node.js adapter.',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ],
+  }),
+  ...compat.config({
+    overrides: [
+      {
+        files: [
           'packages/html/src/hrc-runtime.js',
           'packages/web-widget/src/__fixtures__/**/*.js',
         ],
