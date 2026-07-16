@@ -5,17 +5,153 @@
 
 import type { Router, Result, Params } from './base';
 import { decodePathParam, METHOD_NAME_ALL, UnsupportedPathError } from './base';
-import {
-  compileLinearMatcher,
-  CompiledPathMatcher,
-  getPathTokenBucketKey,
-  LINEAR_BUCKET_LIMIT,
-  PARAM_SEGMENT,
-  scanPathname,
-  WILDCARD_SEGMENT,
-  type PathSegment,
-  type PathToken,
-} from './compiled-path';
+
+const PARAM_SEGMENT: unique symbol = Symbol('param-segment');
+const WILDCARD_SEGMENT: unique symbol = Symbol('wildcard-segment');
+const LINEAR_BUCKET_LIMIT = 8;
+
+type PathToken = string | typeof PARAM_SEGMENT | typeof WILDCARD_SEGMENT;
+
+interface PathSegment {
+  start: number;
+  end: number;
+}
+
+interface PathMatch<T> {
+  route: T;
+  segments: readonly PathSegment[];
+}
+
+interface CompiledPathRoute {
+  tokens: readonly PathToken[];
+}
+
+interface CompiledPathNode<T> {
+  staticChildren?: Map<string, CompiledPathNode<T>>;
+  paramChild?: CompiledPathNode<T>;
+  routes?: T[];
+  wildcardRoutes?: T[];
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function getPathTokenBucketKey(tokens: readonly PathToken[]): string {
+  const first = tokens[0];
+  return typeof first === 'string' && first ? first : '';
+}
+
+function compileLinearMatcher(tokens: readonly PathToken[]): RegExp {
+  let pattern = '^';
+  for (const token of tokens) {
+    if (token === WILDCARD_SEGMENT) {
+      pattern += '(?:/(.*))?$';
+      break;
+    }
+
+    pattern += '/';
+    pattern += token === PARAM_SEGMENT ? '([^/]+)' : escapeRegExp(token);
+  }
+  if (!pattern.endsWith('$')) pattern += '$';
+  return new RegExp(pattern);
+}
+
+function scanPathname(pathname: string): PathSegment[] {
+  if (pathname === '/' || pathname.length === 0) return [];
+
+  const segments: PathSegment[] = [];
+  let start = pathname.charCodeAt(0) === 47 ? 1 : 0;
+  for (let index = start; index <= pathname.length; index++) {
+    if (index !== pathname.length && pathname.charCodeAt(index) !== 47) {
+      continue;
+    }
+    segments.push({ start, end: index });
+    start = index + 1;
+  }
+  return segments;
+}
+
+function createPathNode<T>(): CompiledPathNode<T> {
+  return {};
+}
+
+class CompiledPathMatcher<T extends CompiledPathRoute> {
+  readonly #root = createPathNode<T>();
+
+  constructor(routes: readonly T[]) {
+    for (const route of routes) this.#add(route);
+  }
+
+  #add(route: T): void {
+    let node = this.#root;
+    for (const token of route.tokens) {
+      if (token === WILDCARD_SEGMENT) {
+        (node.wildcardRoutes ??= []).push(route);
+        return;
+      }
+
+      if (token === PARAM_SEGMENT) {
+        node = node.paramChild ??= createPathNode<T>();
+        continue;
+      }
+
+      const children = (node.staticChildren ??= new Map());
+      let child = children.get(token);
+      if (!child) {
+        child = createPathNode<T>();
+        children.set(token, child);
+      }
+      node = child;
+    }
+    (node.routes ??= []).push(route);
+  }
+
+  matchPath(
+    pathname: string,
+    segments: readonly PathSegment[]
+  ): PathMatch<T>[] {
+    const results: PathMatch<T>[] = [];
+    const nodes: CompiledPathNode<T>[] = [this.#root];
+    const indexes: number[] = [0];
+
+    while (nodes.length > 0) {
+      const node = nodes.pop()!;
+      const index = indexes.pop()!;
+
+      if (node.wildcardRoutes) {
+        for (const route of node.wildcardRoutes) {
+          results.push({ route, segments });
+        }
+      }
+
+      if (index === segments.length) {
+        if (node.routes) {
+          for (const route of node.routes) results.push({ route, segments });
+        }
+        continue;
+      }
+
+      const segment = segments[index];
+      const staticChild = node.staticChildren
+        ? node.staticChildren.get(pathname.slice(segment.start, segment.end))
+        : undefined;
+      const paramChild =
+        segment.start === segment.end ? undefined : node.paramChild;
+
+      if (paramChild) {
+        nodes.push(paramChild);
+        indexes.push(index + 1);
+      }
+      if (staticChild) {
+        nodes.push(staticChild);
+        indexes.push(index + 1);
+      }
+    }
+
+    return results;
+  }
+}
 
 interface SimplePath {
   tokens: readonly PathToken[];

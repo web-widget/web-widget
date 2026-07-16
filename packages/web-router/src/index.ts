@@ -23,8 +23,6 @@ import type {
 
 export type * from './types';
 export type { OnFallback } from './module';
-export type { Router, Result, Params } from './router';
-export { URLPatternRouter, createRouter } from './router';
 
 export type StartOptions<E extends Env = {}> = {
   baseAsset?: string;
