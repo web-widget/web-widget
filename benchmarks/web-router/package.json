@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "benchmark": "node src/runner/benchmark.js",
-    "benchmark:quick": "pnpm run benchmark -- --rounds=1 --frameworks=web-router,hono --assert-performance",
+    "benchmark:quick": "pnpm run benchmark -- --rounds=1 --frameworks=web-router,hono",
     "benchmark:router": "node src/runner/router-benchmark.js",
     "benchmark:router:quick": "pnpm run benchmark:router -- --quick",
     "prebenchmark:router": "pnpm --filter @web-widget/web-router build",

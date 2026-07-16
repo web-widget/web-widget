@@ -17,6 +17,9 @@ pnpm benchmark:quick
 # Select frameworks and the number of measured rounds
 pnpm benchmark -- --frameworks=web-router,hono --rounds=2
 
+# Fail when one framework falls below a custom ratio to another
+pnpm benchmark -- --frameworks=web-router,hono --assert-ratio=web-router:hono:1.05
+
 # Run the isolated router matcher benchmark
 pnpm benchmark:router
 
@@ -27,9 +30,9 @@ pnpm benchmark:router:quick
 pnpm test:compatibility
 ```
 
-The quick benchmark asserts the Node.js 24 baseline ratio between Web Router
-and Hono. The recorded ratio is `1.238`; CI allows a 15% regression and fails
-when the measured ratio is below `1.052`.
+`--assert-ratio` accepts `subject:reference:minimum` and can be repeated for
+multiple performance gates. The quick benchmark only selects the PR-sized
+workload; CI owns its comparison and threshold policy.
 
 ## Project Structure
 

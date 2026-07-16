@@ -11,6 +11,9 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
     name: Web Router benchmark
     runs-on: ubuntu-latest
+    env:
+      WEB_ROUTER_HONO_BASELINE_RATIO: '1.238'
+      WEB_ROUTER_HONO_MINIMUM_RATIO: '1.052'
 
     steps:
       - uses: actions/checkout@v7
@@ -36,7 +39,11 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          pnpm --filter @benchmarks/web-router benchmark:quick 2>&1 | tee benchmark-output.txt
+          pnpm --filter @benchmarks/web-router benchmark -- \
+            --rounds=1 \
+            --frameworks=web-router,hono \
+            --assert-ratio=web-router:hono:${WEB_ROUTER_HONO_MINIMUM_RATIO} \
+            2>&1 | tee benchmark-output.txt
 
       - name: Publish benchmark summary
         if: ${{ always() }}
@@ -54,6 +61,7 @@ jobs:
               echo 'The benchmark did not produce a performance chart.'
             fi
             echo
+            echo "Recorded baseline ratio: ${WEB_ROUTER_HONO_BASELINE_RATIO}"
             grep -E 'Performance ratio:|Performance regression:' benchmark-output.txt || true
           } >> "$GITHUB_STEP_SUMMARY"
 

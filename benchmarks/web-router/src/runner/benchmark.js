@@ -272,11 +272,8 @@ class ProcessIsolatedBenchmark {
     console.log('\n📊 Generating benchmark reports...');
     await this.generateReport();
 
-    if (this.config['assert-performance']) {
-      assertPerformanceBaseline(
-        this.results,
-        this.config['performance-baseline']
-      );
+    for (const assertion of this.config['performance-assertions']) {
+      assertPerformanceRatio(this.results, assertion);
     }
   }
 
@@ -386,32 +383,39 @@ export function createBenchmarkConfiguration(baseConfig, args) {
     config['benchmark-rounds'] = rounds;
   }
 
-  config['assert-performance'] = args.includes('--assert-performance');
+  config['performance-assertions'] = args
+    .filter((arg) => arg.startsWith('--assert-ratio='))
+    .map((arg) => {
+      const parts = arg.slice('--assert-ratio='.length).split(':');
+      const [subject, reference, minimumRatioValue] = parts;
+      const minimumRatio = Number(minimumRatioValue);
+      if (
+        parts.length !== 3 ||
+        !subject ||
+        !reference ||
+        !Number.isFinite(minimumRatio) ||
+        minimumRatio <= 0
+      ) {
+        throw new Error(
+          '--assert-ratio must use subject:reference:minimum format'
+        );
+      }
+      return { subject, reference, minimumRatio };
+    });
 
   return config;
 }
 
-export function assertPerformanceBaseline(results, baseline) {
-  if (!baseline) throw new Error('Performance baseline is not configured');
-  if (
-    typeof baseline.ratio !== 'number' ||
-    baseline.ratio <= 0 ||
-    typeof baseline.tolerance !== 'number' ||
-    baseline.tolerance < 0 ||
-    baseline.tolerance >= 1
-  ) {
-    throw new Error('Performance baseline ratio or tolerance is invalid');
-  }
-
+export function assertPerformanceRatio(results, assertion) {
   const subject = results.find(
-    (result) => result.framework === baseline.subject
+    (result) => result.framework === assertion.subject
   );
   const reference = results.find(
-    (result) => result.framework === baseline.reference
+    (result) => result.framework === assertion.reference
   );
   if (!subject || !reference) {
     throw new Error(
-      `Performance baseline requires ${baseline.subject} and ${baseline.reference}`
+      `Performance assertion requires ${assertion.subject} and ${assertion.reference}`
     );
   }
   if (reference.requests <= 0) {
@@ -419,14 +423,13 @@ export function assertPerformanceBaseline(results, baseline) {
   }
 
   const actualRatio = subject.requests / reference.requests;
-  const minimumRatio = baseline.ratio * (1 - baseline.tolerance);
   console.log(
-    `\nPerformance ratio: ${baseline.subject}/${baseline.reference} = ${actualRatio.toFixed(3)} ` +
-      `(minimum ${minimumRatio.toFixed(3)}, baseline ${baseline.ratio.toFixed(3)})`
+    `\nPerformance ratio: ${assertion.subject}/${assertion.reference} = ${actualRatio.toFixed(3)} ` +
+      `(minimum ${assertion.minimumRatio.toFixed(3)})`
   );
-  if (actualRatio < minimumRatio) {
+  if (actualRatio < assertion.minimumRatio) {
     throw new Error(
-      `Performance regression: ${actualRatio.toFixed(3)} is below ${minimumRatio.toFixed(3)}`
+      `Performance regression: ${actualRatio.toFixed(3)} is below ${assertion.minimumRatio.toFixed(3)}`
     );
   }
 }
