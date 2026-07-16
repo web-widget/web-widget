@@ -4,7 +4,7 @@
 
 ## 📚 文档
 
-- **[贡献指南](./CONTRIBUTING.md)** - 包含架构设计和贡献工作流程的完整指南
+- **[贡献指南](./CONTRIBUTING.zh.md)** - 包含架构设计和贡献工作流程的完整指南
 - **[中文文档](./README.zh.md)** - 中文文档
 - **[中文贡献指南](./CONTRIBUTING.zh.md)** - 中文贡献指南
 
@@ -34,16 +34,20 @@ const response = await router.dispatch('http://localhost/hello');
 
 ## 🏗️ 架构概览
 
-web-router 采用**领域驱动设计**，具有清晰的关注点分离：
+Web Router 将 manifest 装配、HTTP 调度、路由匹配、模块执行、渲染和错误处理分开：
 
-- **Application** - HTTP 请求/响应生命周期管理
-- **Router** - URL 模式匹配和路由注册
-- **ModuleRuntime** - schema 模块运行时（handler 工厂、SSR）
-- **Context** - 请求上下文（`request`、`originalRequest`、`rewrite` 等）
+- **WebRouter** 将 manifest 装配为执行管道。
+- **Application** 管理 HTTP 生命周期、middleware 调度和 rewrite。
+- **URLPatternRouter** 执行编译后的路由匹配。
+- **ModuleRuntime** 协调模块加载、激活、handler 和渲染。
+- **Context** 保存请求级状态和后台任务。
+- **错误处理**归一化任意抛出值，并路由到 fallback module。
+
+职责边界、请求与错误流程图、缓存所有权和内部模块结构见[中文贡献指南](./CONTRIBUTING.zh.md)。
 
 ## 🤝 贡献
 
-我们欢迎贡献！请查看我们的[贡献指南](./CONTRIBUTING.md)了解详情：
+我们欢迎贡献！请查看我们的[贡献指南](./CONTRIBUTING.zh.md)了解详情：
 
 - 设置开发环境
 - 代码标准和最佳实践

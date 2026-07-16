@@ -1,6 +1,6 @@
-import { ModuleRuntime, type OnFallback } from './module';
 import type {
   ActionModule,
+  HTTPException,
   LayoutModule,
   Meta,
   MiddlewareContext,
@@ -8,7 +8,8 @@ import type {
   RouteContext,
   RouteModule,
   ServerRenderOptions,
-} from './types';
+} from '../types';
+import { ModuleRuntime, type OnFallback } from './index';
 
 describe('ModuleRuntime', () => {
   let runtime: ModuleRuntime;
@@ -232,6 +233,146 @@ describe('ModuleRuntime', () => {
       runtime.clearActivation(mockContext as RouteContext);
       await handler(mockContext as RouteContext, mockNext);
       expect(mockContext.module).toBe(firstModule);
+    });
+
+    test('should load an async route module only once across requests', async () => {
+      let loadCount = 0;
+      const routeModule: RouteModule = {
+        handler: {
+          GET: () => new Response('route content'),
+        },
+      };
+      const loader = async () => {
+        loadCount++;
+        return routeModule;
+      };
+      const contextHandler = runtime.createRouteContextHandler(loader);
+      const routeHandler = runtime.createRouteHandler(loader);
+      const next = () => new Response('next');
+
+      for (let index = 0; index < 2; index++) {
+        const context = {
+          request: new Request('http://localhost/'),
+        } as RouteContext;
+        await contextHandler(context, next);
+        await routeHandler(context, next);
+      }
+
+      expect(loadCount).toBe(1);
+    });
+
+    test('should retry a failed module load and share concurrent retries', async () => {
+      let loadCount = 0;
+      const routeModule: RouteModule = {
+        render: () => 'route content',
+      };
+      const loader = (() => {
+        loadCount++;
+        if (loadCount === 1) {
+          throw new Error('temporary load failure');
+        }
+        return Promise.resolve(routeModule);
+      }) as () => Promise<RouteModule>;
+      const handler = runtime.createRouteContextHandler(loader);
+      const next = () => new Response('next');
+
+      await expect(handler({} as RouteContext, next)).rejects.toThrow(
+        'temporary load failure'
+      );
+      await Promise.all([
+        handler({} as RouteContext, next),
+        handler({} as RouteContext, next),
+      ]);
+
+      expect(loadCount).toBe(2);
+    });
+
+    test('should isolate render caches between runtime instances', async () => {
+      const sharedRouteModule: RouteModule = {
+        default: () => 'route',
+        render: async () => 'route content',
+      };
+      const createRuntime = (name: string) =>
+        new ModuleRuntime({
+          layoutModule: {
+            default: () => 'layout',
+            render: async (_component, props) => `${name}:${props.children}`,
+          } as LayoutModule,
+          defaultMeta: { title: name } as Meta,
+          defaultBaseAsset: '/',
+          defaultRenderer: { name } as ServerRenderOptions,
+          onFallback: () => {},
+        });
+      const createContext = () =>
+        ({
+          params: {},
+          pathname: '/',
+          request: new Request('http://localhost/'),
+          state: {},
+        }) as unknown as RouteContext;
+      const firstRuntime = createRuntime('first');
+      const secondRuntime = createRuntime('second');
+      const firstContext = createContext();
+      const secondContext = createContext();
+
+      await firstRuntime.createRouteContextHandler(sharedRouteModule)(
+        firstContext,
+        () => new Response('next')
+      );
+      await secondRuntime.createRouteContextHandler(sharedRouteModule)(
+        secondContext,
+        () => new Response('next')
+      );
+
+      expect(firstContext.meta.title).toBe('first');
+      expect(await (await firstContext.html()).text()).toBe(
+        'first:route content'
+      );
+      expect(secondContext.meta.title).toBe('second');
+      expect(await (await secondContext.html()).text()).toBe(
+        'second:route content'
+      );
+    });
+
+    test('should not expose errors through another runtime render cache', async () => {
+      const sharedErrorModule: RouteModule = {
+        default: () => 'route',
+        fallback: () => 'error',
+        render: async (_component, props) =>
+          `stack:${Reflect.get(props, 'stack')}`,
+      };
+      const createRuntime = (exposeErrors: boolean) =>
+        new ModuleRuntime({
+          layoutModule: {
+            default: () => 'layout',
+            render: async (_component, props) => props.children,
+          } as LayoutModule,
+          defaultMeta: {} as Meta,
+          defaultBaseAsset: '/',
+          defaultRenderer: {} as ServerRenderOptions,
+          onFallback: () => {},
+          exposeErrors,
+        });
+      const createContext = () =>
+        ({
+          params: {},
+          pathname: '/',
+          request: new Request('http://localhost/'),
+          state: {},
+        }) as unknown as RouteContext;
+      const error = new Error('private failure') as HTTPException;
+      error.status = 500;
+      error.stack = 'SECRET_STACK';
+
+      const exposedResponse = await createRuntime(true).createErrorHandler(
+        sharedErrorModule
+      )(error, createContext());
+      const hiddenResponse = await createRuntime(false).createErrorHandler(
+        sharedErrorModule
+      )(error, createContext());
+
+      expect(await exposedResponse.text()).toContain('SECRET_STACK');
+      expect(await hiddenResponse.text()).not.toContain('SECRET_STACK');
     });
   });
 

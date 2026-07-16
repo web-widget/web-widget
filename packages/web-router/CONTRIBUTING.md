@@ -1,263 +1,308 @@
-# Contributing Guide - Web-Router
+# Web Router Contributing Guide
 
-Welcome to contributing to the web-router project! This guide helps you quickly understand how to participate in project development.
+This guide is for contributors changing the internals of `@web-widget/web-router`. It focuses on architectural boundaries, request flow, and verification. See [README.md](./README.md) for usage and [`@web-widget/schema`](../schema/README.md) for the module format.
 
-## 🚀 Quick Start
-
-### Environment Setup
+## Quick Start
 
 ```bash
-# Clone the project
 git clone https://github.com/web-widget/web-widget.git
 cd web-widget
-
-# Install dependencies
 pnpm install
-
-# Navigate to web-router directory
 cd packages/web-router
 ```
 
-### Running Tests
+Common commands:
 
 ```bash
-# Unit tests (using Vitest)
-pnpm test
-
-# Watch mode during development
-pnpm run test:watch
-
-# Coverage report
+pnpm test             # Run unit tests
+pnpm run test:watch   # Watch mode
 pnpm run test:coverage
-
-# Integration tests
-cd ../../playgrounds/router
-pnpm test
+pnpm run test:memory-leak
+pnpm run lint
+pnpm run build        # Build JavaScript and type declarations
 ```
 
-### Test Infrastructure
+Tests run with Vitest and `@cloudflare/vitest-pool-workers` to match the Cloudflare Workers runtime.
 
-The project uses **Vitest** with **@cloudflare/vitest-pool-workers** for optimal Cloudflare Workers environment compatibility:
+## Architecture Overview
 
-- **Test runner**: Vitest (faster than Jest, better Workers support)
-- **Configuration**: `vitest.config.ts`
-- **Environment**: Cloudflare Workers runtime
-- **Coverage**: 158 comprehensive tests with 100% ModuleRuntime method coverage
+Web Router has six major areas: assembly, HTTP dispatch, route matching, module runtime, rendering, and error handling.
 
-## 📐 Architecture Overview
-
-web-router adopts **Domain-Driven Design** with core components:
-
+```mermaid
+flowchart TD
+  M["Manifest / StartOptions"] --> W["WebRouter.fromManifest"]
+  W --> A["Application: HTTP lifecycle"]
+  W --> R["ModuleRuntime: module adaptation and coordination"]
+  A --> P["URLPatternRouter: route matching"]
+  P --> D["Middleware dispatch chain"]
+  D --> R
+  R --> H["Route / Action / HTML Response"]
+  D --> E["Error normalization"]
+  E --> F["Fallback resolution"]
+  F --> R
 ```
-┌─────────────┐    ┌────────────────┐    ┌─────────────────┐    ┌────────────┐
-│ Application │───▶│ Router         │───▶│ ModuleRuntime   │───▶│ Context    │
-│ HTTP Layer  │    │ Route Matching │    │ Module & SSR    │    │ State Mgmt │
-└─────────────┘    └────────────────┘    └─────────────────┘    └────────────┘
+
+### Module Responsibilities
+
+| Module           | Responsibility                                                             |
+| ---------------- | -------------------------------------------------------------------------- |
+| `index.ts`       | Create and assemble a complete `WebRouter` from a manifest                 |
+| `application.ts` | Request lifecycle, middleware dispatch, rewrite, HEAD, and error boundary  |
+| `router/`        | Route registration and compiled URLPattern matching                        |
+| `context.ts`     | Per-request state, lazy Request, rewrite, and `waitUntil`                  |
+| `module/`        | Schema module loading, handler adaptation, route activation, and rendering |
+| `error.ts`       | Error normalization, status selection, and fallback routing                |
+| `layout.ts`      | Default page layout                                                        |
+| `fallback.ts`    | Default error page                                                         |
+| `types.ts`       | Schema type aggregation and router-specific types                          |
+
+### Directory Structure
+
+```text
+packages/web-router/src/
+├── index.ts
+├── application.ts
+├── context.ts
+├── error.ts
+├── fallback.ts
+├── layout.ts
+├── types.ts
+├── url.ts
+├── router/
+│   ├── index.ts
+│   ├── base.ts
+│   └── url-pattern.ts
+└── module/
+    ├── index.ts       # ModuleRuntime facade
+    ├── activation.ts  # Per-request route activation
+    ├── handler.ts     # Handler normalization
+    ├── loader.ts      # Runtime-scoped module loading
+    ├── renderer.ts    # Route/Layout rendering
+    └── index.test.ts
 ```
 
-- **Application** (`application.ts`) - HTTP request/response lifecycle
-- **Router** (`router.ts`) - URL pattern matching and route registration
-- **ModuleRuntime** (`module.ts`) - 🌟 **Core**: Schema module runtime (handler factories, SSR pipeline)
-- **Context** (`context.ts`) - Request context (`request`, `originalRequest`, `rewrite`, …)
+`module/index.ts` is the only runtime facade. Internal components are not exported through the package entry point, and callers continue to use `import './module'`.
 
-> 💡 **Key Point**: ModuleRuntime wires Route / Middleware / Action modules into the Application dispatch stack
+## Startup Assembly
 
-### Module Format Standard
+`WebRouter.fromManifest()` compiles a declarative manifest into the Application handler registration sequence. Registration order is part of request behavior:
 
-web-router follows the **`@web-widget/schema`** specifications, which define a technology-agnostic module format standard for web applications. This ensures consistency, interoperability, and type safety across the entire framework.
+```text
+RouteContextHandler
+→ callContext
+→ MiddlewareHandler
+→ ActionHandler
+→ RouteHandler
+```
 
-**Key Module Types:**
+1. `RouteContextHandler` identifies the matched route module and prepares route activation.
+2. `callContext` establishes the AsyncLocalStorage/unctx scope.
+3. Regular middleware executes before actions and final route handlers.
+4. Actions accept POST JSON-RPC requests only.
+5. `RouteHandler` invokes the business handler or enters default HTML rendering.
+6. The 404 and generic error handlers are installed last.
 
-- **Route Modules** (`RouteModule`) - Handle HTTP requests and render pages
-- **Middleware Modules** (`MiddlewareModule`) - Process requests and modify context
-- **Action Modules** (`ActionModule`) - Server-side functions callable from client (JSON-RPC)
+Changing registration order can alter context visibility, error boundaries, and final responses. Add integration coverage for such changes.
 
-**Standard Benefits:**
+## Request Flow
 
-- **Type Safety** - Comprehensive TypeScript definitions ensure compile-time type checking
-- **Framework Agnostic** - Module format works across different frontend technologies
-- **Web Standards Compliance** - Built on Fetch API, ReadableStream, and standard HTTP methods
-- **Consistent Interface** - All modules follow the same structure and patterns
+The host entry point is `Application.handler()`; tests generally use `Application.dispatch()`.
 
-**Example Module Structure:**
+```mermaid
+sequenceDiagram
+  participant Host
+  participant Application
+  participant Router
+  participant Middleware
+  participant Runtime as ModuleRuntime
+
+  Host->>Application: Request
+  Application->>Application: Normalize proxy / HEAD state
+  Application->>Application: Create Context + DispatchFrame
+  Application->>Router: match(method, path)
+  Router-->>Application: Matched handler list
+  Application->>Middleware: Run handler / next chain
+  Middleware->>Runtime: Load and activate route module
+  Runtime-->>Application: Response
+  Application->>Application: Finalize HEAD + release activation
+  Application-->>Host: Response
+```
+
+Important behavior:
+
+- HEAD requests match as GET internally, retain `originalRequest`, and have their response body removed at finalization.
+- A single synchronous handler uses a fast path without a recursive dispatcher or extra Promise allocation.
+- Multiple handlers are chained with `next()`; calling `next()` more than once throws.
+- Every handler must return a `Response`; missing or invalid results enter the error boundary.
+- Proxy mode normalizes forwarded requests before matching.
+- Route activation is released after the request; when `waitUntil()` is used, cleanup waits for background tasks.
+
+## ModuleRuntime
+
+`ModuleRuntime` adapts schema modules into Application middleware and coordinates four focused internal components.
+
+| Internal component | Responsibility                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| `activation.ts`    | Store request-scoped route state in WeakMaps and install/remove Context accessors    |
+| `handler.ts`       | Normalize functions or HTTP method maps into a single handler                        |
+| `loader.ts`        | Cache async module loaders, deduplicate concurrent loads, and retry failures         |
+| `renderer.ts`      | Merge meta, render route/layout components, hide error details, and create Responses |
+
+### Cache Boundaries
+
+There are two cache layers and they must not be mixed:
+
+```text
+ModuleRuntime instance cache
+  ├── RouteModule → handler / meta / renderer / render / html
+  └── loader function → shared loading Promise
+
+Request activation
+  └── Context → module / meta / data / error / bound render functions
+```
+
+- Module caches belong to a `ModuleRuntime` instance because layout, default meta, renderer settings, and `exposeErrors` are runtime configuration.
+- The same loader shares its result across context, route, and error handler factories.
+- Concurrent first requests share one Promise; a failed load clears pending state so later requests can retry.
+- Activation belongs to one request and must never be stored in the runtime module cache.
+
+## Rendering Flow
+
+Route modules and error modules use the same rendering pipeline:
+
+```text
+route data / error
+→ choose module.default or module.fallback
+→ route module render()
+→ layout module render()
+→ status / headers / streaming headers
+→ Response
+```
+
+`renderer.ts` is responsible for:
+
+- Merging default meta, route meta, and development meta.
+- Hiding `stack` and `cause` according to `exposeErrors`.
+- Setting `x-accel-buffering: no` for progressive responses.
+- Defaulting progressive responses to `cache-control: no-store, no-transform`.
+- Preserving explicit route status, status text, and headers.
+
+## Error Flow
+
+```mermaid
+flowchart TD
+  T["Any thrown value"] --> N["normalizeHTTPException"]
+  N --> C["Re-enter callContext"]
+  C --> FR["Resolve fallback by status"]
+  FR --> OF["Run onFallback"]
+  OF --> ER["Activate error RouteModule"]
+  ER --> RP["Render custom or default error page"]
+  RP --> X{"Render succeeded?"}
+  X -->|Yes| RESP["4xx / 5xx Response"]
+  X -->|No| LAST["Final plain-text 500"]
+```
+
+The error boundary accepts `Error`, `Response`, objects, strings, and other JavaScript thrown values. Normalization itself must never throw.
+
+Fallback resolution rules:
+
+1. Prefer an exact status such as 418.
+2. Other 4xx errors use 400, or 404 when no 400 fallback exists.
+3. Other 5xx errors use 500.
+4. Use the built-in fallback when no custom module exists.
+
+`onFallback` is a diagnostic hook. Its synchronous or asynchronous failure is logged but cannot prevent error-page rendering. If the error page itself fails, Application returns the final plain-text 500 response.
+
+## Rewrite Flow
+
+`context.rewrite()` switches the internal Request and rematches within the same request lifecycle:
+
+1. Create a new internal Request relative to the current Request.
+2. Allow relative or same-origin destinations only.
+3. Compare pathname, search, and method to detect a route-view change.
+4. Detect repeated paths and produce 508 for rewrite loops.
+5. Clear old activation when the route view changes.
+6. Rematch the new method/path and skip handlers that already executed.
+7. Restore the caller-visible Request after rewrite while passing the rewritten Request to later middleware.
+
+Rewrite, middleware, and activation share `DispatchFrame`. Changes in this area should cover synchronous handlers, asynchronous handlers, nested `next()`, rewrite loops, and error paths.
+
+## Module Format
+
+Web Router follows the technology-independent module format from `@web-widget/schema`.
 
 ```typescript
-// Route Module following @web-widget/schema
 interface RouteModule {
-  handler?: RouteHandler | RouteHandlers; // HTTP method handlers
-  render?: ServerRender; // Server-side rendering function
-  meta?: Meta; // HTML head metadata
-  default?: RouteComponent; // Component reference
+  handler?: RouteHandler | RouteHandlers;
+  render?: ServerRender;
+  meta?: Meta;
+  default?: RouteComponent;
+  fallback?: RouteFallbackComponent;
 }
 ```
 
-> 📋 **Reference**: See `packages/schema/README.md` for complete module format specifications and type definitions.
+Core module types:
 
-### Design Principles
+- `RouteModule`: HTTP handlers and page rendering.
+- `MiddlewareModule`: Request processing and context mutation.
+- `ActionModule`: Client-callable JSON-RPC actions.
+- `LayoutModule`: Outer page layout rendering.
 
-- **Standardized Module Format** - Follows `@web-widget/schema` specifications for technology-agnostic module definitions
-- **Domain-Driven Design** - Use clear domain objects instead of functional composition
-- **Unified Processing Pipeline** - All requests (normal/error) go through consistent processing flow
-- **Single Responsibility** - Each component has clear responsibility boundaries
-- **Backward Compatibility** - Maintain existing API unchanged
-- **Comprehensive Testing** - 100% method coverage with enterprise-level test quality
+Module boundaries should remain framework-independent and depend only on Fetch APIs, ReadableStream, and schema types.
 
-### File Structure
+## Design Constraints
 
-```
-packages/web-router/src/
-├── index.ts          # Entry file, WebRouter class definition
-├── application.ts    # Application domain object
-├── router.ts         # Router domain object
-├── module.ts         # ModuleRuntime domain object (core)
-├── context.ts        # Context domain object
-├── types.ts          # TypeScript type definitions
-├── layout.ts         # Default layout module
-├── fallback.ts       # Default error page module
-├── url.ts            # URL processing utilities
-└── vitest.config.ts  # Vitest configuration for Cloudflare Workers
-```
+- `Application` owns the HTTP lifecycle and does not load or render schema modules.
+- `Router` registers and matches routes; it does not invoke business handlers.
+- `ModuleRuntime` is a facade; loading, activation, and rendering details live in focused `module/` internals.
+- Runtime caches must not contain request data or share configuration-dependent results across runtimes.
+- Error pages share the normal rendering pipeline but must honor `exposeErrors`.
+- Public API and manifest changes require corresponding schema, README, changeset, and integration-test updates.
+- Hot-path changes must retain the synchronous fast path and consider extra URL, Request, Promise, and closure allocations.
 
-### Data Flow
+## Development Workflow
 
-#### Request Processing Flow
-
-1. **HTTP Request** → Application receives request
-2. **Route Matching** → Router matches route patterns
-3. **Context Creation** → Create request context
-4. **Module Processing** → ModuleRuntime processes modules (Route/Middleware/Action)
-5. **Render Pipeline** → Unified rendering pipeline processing
-6. **HTTP Response** → Return response
-
-#### Module Types
-
-- **Route Module**: Page route handlers
-- **Middleware Module**: Middleware handlers
-- **Action Module**: RPC action handlers
-
-#### Rendering Pipeline
-
-All response types (200/404/500) use unified rendering flow:
-
-```
-Handler → render() → ModuleRuntime → Layout → Response
-```
-
-### Key Design Decisions
-
-#### 1. Unified Rendering Pipeline
-
-Let normal pages and error pages use the same rendering flow, ensuring consistent user experience and shared layout system.
-
-#### 2. ModuleRuntime Pattern
-
-Centralized management of module processing, caching mechanisms, and error handling, avoiding code duplication and providing consistent processing interfaces.
-
-#### 3. Caching Mechanism
-
-Cache handlers and render pipeline config per module; disable caching in development for hot reload, enable in production for performance.
-
-#### 4. Error Handling
-
-Unified error handling flow, support custom error pages, differentiated display for development/production environments.
-
-#### 5. Test Infrastructure Modernization
-
-Migration to Vitest provides:
-
-- **3-5x faster** test execution compared to Jest
-- **Native Cloudflare Workers** environment support
-- **Better TypeScript** integration and error reporting
-- **Modern testing features** like async/await throughout
-
-## 🔧 Development Workflow
-
-### 1. Feature Development
+Run at least the following before submitting a change:
 
 ```bash
-# Create feature branch
-git checkout -b feature/your-feature-name
-
-# Development...
-# Testing...
-
-# Commit code
-git add .
-git commit -m "feat: add your feature description"
-```
-
-### 2. Test Verification
-
-```bash
-# Run all tests (158 comprehensive tests)
-pnpm test
-
-# Watch mode for TDD
-pnpm run test:watch
-
-# Type checking
-npx tsc --noEmit
-
-# Code style checking
 pnpm run lint
-
-# Coverage report (verify 100% ModuleRuntime coverage)
-pnpm run test:coverage
+pnpm run build
+pnpm test
 ```
 
-### 3. Submit PR
+For activation or background-task changes, also run:
 
-1. Push to your branch
-2. Create Pull Request
-3. Wait for code review
-4. Modify based on feedback
+```bash
+pnpm run test:memory-leak
+```
 
-## 📚 Deep Learning
+Tests should cover successful and failing paths. Cache changes should cover:
 
-### Required Reading
+- Reuse within one runtime.
+- Isolation between runtimes.
+- Concurrent first loads.
+- Retry after a failed load.
+- Error details not leaking across runtimes.
 
-1. **[README.md](./README.md)** - Project overview and quick start
-2. **[packages/schema/README.md](../schema/README.md)** - Module format standard specifications and type definitions
-3. **This document** - Complete contribution guide and architecture design
+## Suggested Reading Order
 
-### Code Reading Path
+1. `types.ts`: Public data structures.
+2. `context.ts`: Request state and host-adapter boundary.
+3. `router/`: How matching results are produced.
+4. `application.ts`: How requests are dispatched.
+5. `module/index.ts`: How schema modules enter the dispatch chain.
+6. `module/activation.ts` and `module/loader.ts`: State and cache boundaries.
+7. `module/renderer.ts`: SSR and error-detail handling.
+8. `index.ts`: How a manifest assembles a complete Router.
 
-Recommended reading order:
+See `playgrounds/router` for actual usage and end-to-end behavior.
 
-1. **`types.ts`** - Understand type definitions
-2. **`context.ts`** - Learn about context objects
-3. **`router.ts`** - Master route matching
-4. **`module.ts`** - 🌟 **Focus**: Core business logic
-5. **`application.ts`** - HTTP layer processing
-6. **`index.ts`** - Overall integration
-7. **`*.test.ts`** - Study comprehensive test patterns
+## Submission Checklist
 
-### Practice Projects
-
-Check actual usage examples in `playgrounds/router`:
-
-- Route definition and processing
-- Middleware usage
-- Error page handling
-- Streaming rendering
-
-## 🎉 Contribution Recognition
-
-All contributors will be recognized in the project! Thank you for helping web-router become better!
-
----
-
-## 📋 Checklist
-
-Before submitting a PR, please confirm:
-
-- [ ] Code follows project standards
-- [ ] Added comprehensive tests (follow ModuleRuntime test pattern)
-- [ ] All tests pass with Vitest
-- [ ] Updated relevant documentation
-- [ ] No TypeScript type errors
-- [ ] Backward compatible (if applicable)
-- [ ] Performance considerations addressed
-- [ ] Cloudflare Workers compatibility maintained
-
-**Happy Coding! 🚀**
+- [ ] The change follows the responsibility boundaries above.
+- [ ] Success, error, and edge paths have tests.
+- [ ] Lint, build, and relevant tests pass.
+- [ ] Public behavior changes include a changeset.
+- [ ] English and Chinese documentation remain synchronized.
+- [ ] Workers and standard Fetch API compatibility is preserved.
+- [ ] Performance, cache isolation, and memory cleanup were considered.
