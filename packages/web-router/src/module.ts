@@ -135,6 +135,21 @@ export class ModuleRuntime {
   createRouteContextHandler(
     module: RouteModule | (() => Promise<RouteModule>)
   ): MiddlewareHandler {
+    if (module && typeof module !== 'function' && !module.render) {
+      const resolvedModule = module;
+      const handler = this.#getCachedRouteHandler(resolvedModule);
+
+      return (context, next) => {
+        const routeContext = context as RouteContext;
+        if (!hasRouteActivation(routeContext)) {
+          this.#activateHandlerModule(routeContext, resolvedModule, handler);
+        } else {
+          ensureRouteAccessors(routeContext);
+        }
+        return next();
+      };
+    }
+
     let cachedHandler: MiddlewareHandler | null = null;
 
     return async (context, next) => {
@@ -213,6 +228,24 @@ export class ModuleRuntime {
   createRouteHandler(
     module: RouteModule | (() => Promise<RouteModule>)
   ): MiddlewareHandler {
+    if (module && typeof module !== 'function' && !module.render) {
+      const resolvedModule = module;
+      const normalizedHandler = this.#getCachedRouteHandler(resolvedModule);
+
+      return (context, next) => {
+        const routeContext = context as RouteContext;
+        if (!getRouteActivation(routeContext)?._handler) {
+          this.#activateHandlerModule(
+            routeContext,
+            resolvedModule,
+            normalizedHandler
+          );
+        }
+        this.#addContextScriptDescriptor(routeContext);
+        return normalizedHandler(routeContext);
+      };
+    }
+
     let cachedHandler: MiddlewareHandler | null = null;
 
     return async (context, next) => {
@@ -283,6 +316,25 @@ export class ModuleRuntime {
   // =========================================================================
   // Core Business Logic - Module Activation
   // =========================================================================
+
+  #getCachedRouteHandler(module: RouteModule): RouteHandler {
+    let cached = MODULE_CACHE.get(module);
+    if (!cached) {
+      cached = { handler: this.#normalizeRouteHandler(module) };
+      MODULE_CACHE.set(module, cached);
+    }
+    return cached.handler;
+  }
+
+  #activateHandlerModule(
+    context: RouteContext,
+    module: RouteModule,
+    handler: RouteHandler
+  ): void {
+    const state = ensureRouteActivation(context);
+    state.module = module;
+    state._handler = handler;
+  }
 
   /**
    * Unified module activation method
