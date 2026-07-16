@@ -370,8 +370,13 @@ export function createBenchmarkConfiguration(baseConfig, args) {
     config.frameworks = frameworks;
   }
 
-  if (args.includes('--quick')) {
-    config['benchmark-rounds'] = 1;
+  const roundsArgument = args.find((arg) => arg.startsWith('--rounds='));
+  if (roundsArgument) {
+    const rounds = Number(roundsArgument.slice('--rounds='.length));
+    if (!Number.isInteger(rounds) || rounds < 1) {
+      throw new Error('--rounds must be a positive integer');
+    }
+    config['benchmark-rounds'] = rounds;
   }
 
   return config;

@@ -14,6 +14,9 @@ pnpm benchmark
 # Run one HTTP benchmark round comparing Web Router with Hono
 pnpm benchmark:quick
 
+# Select frameworks and the number of measured rounds
+pnpm benchmark -- --frameworks=web-router,hono --rounds=2
+
 # Run the isolated router matcher benchmark
 pnpm benchmark:router
 
