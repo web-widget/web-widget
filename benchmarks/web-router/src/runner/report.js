@@ -152,11 +152,11 @@ cat reports/latest/performance-chart-*.txt
 
     // Summary Table
     report += `## Performance Summary\n\n`;
-    report += `| Framework | Requests/sec | Latency P50 (ms) | Latency P95 (ms) | Latency P99 (ms) | Throughput (MB/s) | Errors |\n`;
-    report += `|-----------|-------------|------------------|------------------|------------------|-------------------|--------|\n`;
+    report += `| Framework | Requests/sec | Latency P50 (ms) | Latency P99 (ms) | Throughput (MiB/s) | Errors |\n`;
+    report += `|-----------|-------------|------------------|------------------|-------------------|--------|\n`;
 
     results.forEach((result) => {
-      report += `| ${result.framework} | ${result.requests?.toFixed(2) || 'N/A'} | ${result.latency?.p50?.toFixed(2) || 'N/A'} | ${result.latency?.p95?.toFixed(2) || 'N/A'} | ${result.latency?.p99?.toFixed(2) || 'N/A'} | ${result.throughput?.toFixed(2) || 'N/A'} | ${result.errors || 0} |\n`;
+      report += `| ${result.framework} | ${result.requests?.toFixed(2) || 'N/A'} | ${result.latency?.p50?.toFixed(2) || 'N/A'} | ${result.latency?.p99?.toFixed(2) || 'N/A'} | ${result.throughput?.toFixed(2) || 'N/A'} | ${result.errors || 0} |\n`;
     });
 
     // Performance Analysis
@@ -214,7 +214,12 @@ cat reports/latest/performance-chart-*.txt
       report += `## Web Router Mode Comparison\n\n`;
       webRouterResults.forEach((result) => {
         const mode =
-          result.framework === 'web-router' ? 'Direct Mode' : 'Manifest Mode';
+          {
+            'web-router': 'Node Adapter',
+            'web-router#direct': 'Direct Web API',
+            'web-router#radix-tree': 'Radix Tree',
+            'web-router#manifest': 'Manifest',
+          }[result.framework] || result.framework;
         report += `- **${mode} (${result.framework})**: ${result.requests?.toFixed(2) || 'N/A'} req/s\n`;
       });
       report += `\n`;
@@ -223,6 +228,8 @@ cat reports/latest/performance-chart-*.txt
     // Configuration
     report += `## Test Configuration\n\n`;
     report += `- **Duration:** ${this.config['benchmark-duration'] || 10} seconds\n`;
+    report += `- **Warmup:** ${this.config['warmup-duration'] || 2} seconds\n`;
+    report += `- **Rounds:** ${this.config['benchmark-rounds'] || 3}\n`;
     report += `- **Connections:** ${this.config.connections || 10}\n`;
     report += `- **Pipelining:** ${this.config.pipelining || 1}\n`;
     report += `- **Patterns:** ${(this.config.patterns || []).join(', ')}\n`;
@@ -274,10 +281,14 @@ cat reports/latest/performance-chart-*.txt
         throughput: result.throughput,
         errors: result.errors,
         timeouts: result.timeouts,
+        samples: result.samples,
       })),
       configuration: {
         testDuration: this.config['benchmark-duration'] || 10,
+        warmupDuration: this.config['warmup-duration'] || 2,
+        rounds: this.config['benchmark-rounds'] || 3,
         connections: this.config.connections || 10,
+        pipelining: this.config.pipelining || 1,
         patterns: this.config.patterns || [],
         frameworks: this.config.frameworks || [],
       },
@@ -308,9 +319,8 @@ cat reports/latest/performance-chart-*.txt
     console.warn(
       '🟠 displayAsciiChart is deprecated, use chart-utils.js instead'
     );
-    const { displayAsciiChart: displayChart } = await import(
-      '../test/chart.js'
-    );
+    const { displayAsciiChart: displayChart } =
+      await import('../test/chart.js');
     displayChart(results);
   }
 

@@ -214,11 +214,13 @@ volta run node@24.4.1 -- pnpm benchmark
 ## Key Features
 
 - **Process isolation**: Each framework runs in its own process
+- **Noise control**: Three interleaved rounds are summarized by median results
+- **Warmup**: The full request mix runs before each measured sample
 - **Standard IPC communication**: Uses Node.js IPC instead of stdout parsing
 - **Configuration-driven**: All routes defined in `routes.json`
 - **Framework-agnostic**: Unified adapter interface
 - **Real performance testing**: Uses autocannon for accurate metrics
-- **Response validation**: Ensures test correctness
+- **Response validation**: Verifies status, content type, and exact response body
 - **Multiple report formats**: Markdown, JSON, ASCII charts
 - **Automatic compatibility detection**: Skips unsupported frameworks
 - **Complete isolation**: Prevents framework interference

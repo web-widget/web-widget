@@ -457,6 +457,8 @@
       "koa"
     ],
     "benchmark-duration": 5,
+    "warmup-duration": 2,
+    "benchmark-rounds": 3,
     "connections": 50,
     "pipelining": 4
   }
