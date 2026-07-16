@@ -7,6 +7,7 @@ import { createHttpError } from '@web-widget/helpers/error';
 import { callContext } from '@web-widget/context/server';
 import type { ApplicationOptions } from './application';
 import { Application } from './application';
+import { createFallbackResolver, getErrorStatus } from './error';
 import * as defaultFallbackModule from './fallback';
 import * as defaultLayoutModule from './layout';
 import { ModuleRuntime, type OnFallback } from './module';
@@ -124,21 +125,8 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
       router.use(item.pathname, runtime.createRouteHandler(item.module));
     });
 
-    // Create a status code to fallback mapping for efficient lookups
-    const fallbackMap = new Map<number, () => Promise<RouteModule>>();
-
-    // Populate the map with user-defined fallbacks
-    fallbacks.forEach((fallback) => {
-      const normalizedModule =
-        typeof fallback.module === 'function'
-          ? fallback.module
-          : async () => fallback.module as RouteModule;
-      fallbackMap.set(fallback.status, normalizedModule);
-    });
-
-    // Create fallback resolver using the extracted function
     const getFallbackHandler = createFallbackResolver(
-      fallbackMap,
+      fallbacks,
       runtime,
       defaultFallbackModule as RouteModule
     );
@@ -155,12 +143,12 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
     // Setup generic error handler with smart status code routing
     router.onError(async (error, context) => {
       try {
-        const status = (error as { status?: number })?.status ?? 500;
+        const status = getErrorStatus(error);
         const handler = getFallbackHandler(status);
         return await handler(error, context as unknown as RouteContext);
       } catch (cause) {
         console.error(
-          new Error('Custom error page throws an error.', {
+          new Error('Error page rendering failed.', {
             cause,
           })
         );
@@ -173,37 +161,4 @@ export default class WebRouter<E extends Env = Env> extends Application<E> {
 
     return router;
   }
-}
-
-/**
- * Helper function to get appropriate fallback handler for a status code
- */
-function createFallbackResolver(
-  fallbackMap: Map<number, () => Promise<RouteModule>>,
-  runtime: ModuleRuntime,
-  defaultFallbackModule: RouteModule
-) {
-  return (status: number) => {
-    // First try exact status match (highest priority)
-    let fallbackModule = fallbackMap.get(status);
-
-    if (!fallbackModule) {
-      // For 4xx errors, use 400 as default fallback for all client errors
-      // If no 400 page is defined, fallback to 404 for backward compatibility
-      if (status >= 400 && status < 500) {
-        fallbackModule = fallbackMap.get(400) || fallbackMap.get(404);
-      }
-      // For 5xx and above errors, all treat as 500 (server errors)
-      else if (status >= 500) {
-        fallbackModule = fallbackMap.get(500);
-      }
-    }
-
-    // Ultimate fallback to default module
-    if (!fallbackModule) {
-      fallbackModule = async () => defaultFallbackModule;
-    }
-
-    return runtime.createErrorHandler(fallbackModule);
-  };
 }

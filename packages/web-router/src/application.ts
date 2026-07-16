@@ -2,17 +2,22 @@
  * @fileoverview Application domain object - HTTP request/response lifecycle management
  */
 import { callContext } from '@web-widget/context/server';
-import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { createHttpError } from '@web-widget/helpers/error';
+import { normalizeForwardedRequest } from '@web-widget/helpers/proxy';
 import { Context, type RequestInput, type RequestSource } from './context';
+import { normalizeHTTPException } from './error';
 import { ModuleRuntime, type DevMetaProvider } from './module';
-import type { Router } from './router';
-import { METHOD_NAME_ALL, METHODS, createRouter, type Result } from './router';
+import {
+  METHOD_NAME_ALL,
+  METHODS,
+  createRouter,
+  type Result,
+  type Router,
+} from './router';
 import type {
   Env,
   ErrorHandler,
   ExecutionContext,
-  HTTPException,
   MiddlewareHandler,
   NotFoundHandler,
 } from './types';
@@ -513,18 +518,16 @@ class Application<
     context: Context,
     originalMethod: string
   ): Response | Promise<Response> {
-    this.fixErrorStack(error as Error);
     // Re-enter AsyncLocalStorage / unctx scope so onError and fallbacks can use
     // context() and other ALS-backed APIs (see web-widget#716).
-    const handled = callContext(context, async () =>
-      finalizeHeadResponse(
+    const handled = callContext(context, async () => {
+      const normalizedError = await normalizeHTTPException(error);
+      this.fixErrorStack(normalizedError);
+      return finalizeHeadResponse(
         originalMethod,
-        await this.#errorHandler(
-          await this.#normalizeHTTPException(error),
-          context
-        )
-      )
-    );
+        await this.#errorHandler(normalizedError, context)
+      );
+    });
     return handled instanceof Promise
       ? handled.finally(() => this.#releaseRouteActivation(context))
       : (this.#releaseRouteActivation(context), handled);
@@ -598,62 +601,6 @@ class Application<
   ) => {
     return this.dispatch(input, requestInit, env, executionContext);
   };
-
-  async #normalizeHTTPException(error: unknown): Promise<HTTPException> {
-    // If it's an Error object, preserve original stack trace
-    if (error instanceof Error) {
-      return error;
-    }
-
-    // If it's a Response object, intelligently parse content
-    if (error instanceof Response) {
-      const clonedResponse = error.clone();
-      let message = error.statusText;
-      let stack: string | undefined;
-
-      try {
-        const contentType = clonedResponse.headers.get('content-type');
-        if (contentType?.includes('application/json')) {
-          const jsonData = await clonedResponse.json();
-          if (jsonData && typeof jsonData === 'object') {
-            message =
-              jsonData.message ?? jsonData.error ?? JSON.stringify(jsonData);
-            stack =
-              typeof jsonData.stack === 'string'
-                ? jsonData.stack || undefined
-                : undefined;
-          }
-        } else {
-          message = await clonedResponse.text();
-        }
-      } catch {
-        message = error.statusText;
-      }
-
-      return createHttpError(error.status, message, {
-        cause: error,
-        ...(stack !== undefined ? { stack } : {}),
-      });
-    }
-
-    // If it's an object format error
-    if (error && typeof error === 'object' && !Array.isArray(error)) {
-      const errorObj = error as Record<string, any>;
-      const status =
-        errorObj.status >= 400 && errorObj.status < 600 ? errorObj.status : 500;
-      const message =
-        errorObj.message ?? errorObj.error ?? JSON.stringify(error);
-
-      return createHttpError(status, message, {
-        cause: error,
-      });
-    }
-
-    // For other cases, convert to string
-    return createHttpError(500, `Unknown error: ${String(error)}`, {
-      cause: error,
-    });
-  }
 }
 
 export { Application };

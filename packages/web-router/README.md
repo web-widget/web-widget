@@ -34,12 +34,18 @@ const response = await router.dispatch('http://localhost/hello');
 
 ## 🏗️ Architecture Overview
 
-web-router uses **Domain-Driven Design** with clear separation of concerns:
+Web Router separates manifest assembly, HTTP dispatch, route matching, module
+execution, rendering, and error handling:
 
-- **Application** - HTTP request/response lifecycle management
-- **Router** - URL pattern matching and route registration
-- **ModuleRuntime** - Schema module runtime (handler factories, SSR)
-- **Context** - Request context (`request`, `originalRequest`, `rewrite`, …)
+- **WebRouter** assembles a manifest into the execution pipeline.
+- **Application** owns the HTTP lifecycle, middleware dispatch, and rewrite.
+- **URLPatternRouter** performs compiled route matching.
+- **ModuleRuntime** coordinates module loading, activation, handlers, and rendering.
+- **Context** owns request-scoped state and background tasks.
+- **Error handling** normalizes thrown values and routes them to fallback modules.
+
+See the [Contributing Guide](./CONTRIBUTING.md) for responsibility boundaries,
+request and error flow diagrams, cache ownership, and the internal module layout.
 
 ## 🤝 Contributing
 
