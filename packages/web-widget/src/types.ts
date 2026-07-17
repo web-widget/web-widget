@@ -37,12 +37,16 @@ export interface WebWidgetRendererOptions extends WidgetContainerOptions {
   inactive?: boolean;
 }
 
+export interface WebWidgetRenderOptions {
+  pendingHTML?: string;
+}
+
 export interface WebWidgetRendererInterface {
   localName: string;
   pendingBoundary: { ariaBusy: true; display: 'contents'; slot: string };
   attributes: Record<string, string>;
   renderInnerHTMLToString(): Promise<string>;
-  renderOuterHTMLToString(): Promise<string>;
+  renderOuterHTMLToString(options?: WebWidgetRenderOptions): Promise<string>;
 }
 
 export interface WebWidgetRendererConstructor {
