@@ -249,12 +249,6 @@ React / Vue / ...  │
 
 routemap 和 importmap 是特定消费者需要的交付形式，不等同于模块资源层本身。模块资源层可以成为生成或解释这些数据的共同语义来源，但不预设它们必须合并，也不假设所有资源都应进入其中。
 
-### 移除文件名约定 RFC
-
-《移除文件名约定，改用按需注入》讨论 widget 如何由使用方式推导，而不是由目标文件自我声明。模块资源层为这种变化提供更一般的概念基础：无论 widget 由后缀还是 `container()` 使用方式发现，下游看到的都应是同一种 widget 资源。
-
-该 RFC 是否实施，不影响模块资源层成立；模块资源层也不要求所有角色都改为推导式发现。
-
 ## 概念示例
 
 假设生态扩展希望引入 `task` 资源，用于表达由特定运行时调度的后台任务。
@@ -393,7 +387,6 @@ routemap 和 importmap 是特定消费者需要的交付形式，不等同于模
 ## 参考
 
 - [框架组件构建转换协议](./build-transformation-protocol.zh.md)
-- [移除文件名约定，改用按需注入](./remove-filename-convention.zh.md)
 - [Widget Module 双环境反转构建](./widget-module-build.zh.md)
 - [Widget 资产 URL 解析](./widget-asset-url-resolution.zh.md)
 - [生命周期缓存](../docs/helpers/lifecycle-cache.md)
