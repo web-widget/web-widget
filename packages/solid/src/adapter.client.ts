@@ -16,9 +16,7 @@ export const render = defineClientRender<Component<any>>(
         // key namespace. Isolated web-widget roots do not have their own
         // renderId yet, so hydrating them can collide with the page root.
         const isIsolatedWidget =
-          container instanceof Element &&
-          container.hasAttribute('recovering') &&
-          container.hasAttribute('import');
+          recovering && container.getRootNode() instanceof ShadowRoot;
         const canHydrate =
           recovering && !isIsolatedWidget && Reflect.has(globalThis, '_$HY');
         if (canHydrate) {

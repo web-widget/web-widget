@@ -1,7 +1,7 @@
 /**
  * Adapter type definitions.
  *
- * This module defines the WebWidgetAdapter protocol — a framework-agnostic
+ * This module defines the WidgetAdapter protocol — a framework-agnostic
  * adapter interface that connects build tools with UI framework adapters.
  * The adapter tells the build tool which files belong to which framework
  * and where to obtain the rendering implementation, enabling framework
@@ -13,6 +13,7 @@
 
 import type { ServerRender, ClientRender } from './render';
 import type { WidgetModule } from './widget';
+import type { Meta } from './meta';
 
 /** Detect an unconstrained parameter without framework-specific types. */
 type IsAnyOrUnknown<T> = unknown extends T ? true : false;
@@ -44,13 +45,13 @@ export type ExtractWidgetProps<M> = M extends { default: infer C }
   : unknown;
 
 /**
- * The WebWidgetAdapter protocol.
+ * The WidgetAdapter protocol.
  *
  * A framework-agnostic adapter interface that connects build tools with
  * UI framework adapters. It tells the build tool which files belong to
  * which framework and where to obtain the rendering implementation.
  */
-export interface WebWidgetAdapter {
+export interface WidgetAdapter {
   /**
    * Adapter format version. Build tools use this for compatibility
    * checking. When the format evolves with incompatible changes (e.g.
@@ -121,7 +122,54 @@ export interface DeriveExport {
  *   When the loader returns a typed module (e.g. from a `.vue.d.ts`),
  *   the concrete M flows through to `container()`'s generic inference.
  */
-export type Loader<M extends WidgetModule = WidgetModule> = () => Promise<M>;
+export type WidgetModuleLoader<M extends WidgetModule = WidgetModule> =
+  () => Promise<M>;
+
+/** Pending and error UI accepted by a widget container. */
+export type WidgetContainerFallback<TPending, TError = TPending> =
+  TPending | { pending?: TPending; error?: TError };
+
+export type WidgetContainerRenderMode =
+  | {
+      /** Render on the server only and do not load or mount the widget on the client. */
+      serverOnly: true;
+      /** Mutually exclusive with `serverOnly`. */
+      clientOnly?: never;
+    }
+  | {
+      /** Skip server rendering and mount the widget only on the client. */
+      clientOnly: true;
+      /** Mutually exclusive with `clientOnly`. */
+      serverOnly?: never;
+    }
+  | {
+      /** Allow the widget to render on both server and client. */
+      serverOnly?: false;
+      /** Allow the widget to render on both server and client. */
+      clientOnly?: false;
+    };
+
+/** Options accepted by a framework adapter when defining a widget container. */
+export interface WidgetContainerOptions {
+  /** Client-side module loading strategy. */
+  loading?: 'lazy' | 'eager' | 'idle';
+  /** Metadata contributed by the widget. */
+  meta?: Meta;
+  /** Diagnostic name for the widget container. */
+  name?: string;
+  /** Restrict rendering to one side of the server/client boundary. */
+  renderStage?: 'server' | 'client';
+  /** Rendering boundary used by the widget container. */
+  renderTarget?: 'light' | 'shadow';
+}
+
+/** Per-use props passed through a framework widget container. */
+export type WidgetContainerProps<TPending = never, TError = TPending> = {
+  /** UI shown while rendering is pending and, optionally, when rendering fails. */
+  fallback?: WidgetContainerFallback<TPending, TError>;
+  /** Override the container's client-side module loading strategy for this use. */
+  loading?: WidgetContainerOptions['loading'];
+} & WidgetContainerRenderMode;
 
 /**
  * Container function: converts a generic module into the current
@@ -140,16 +188,10 @@ export type Loader<M extends WidgetModule = WidgetModule> = () => Promise<M>;
  * function container<M>(loader: () => Promise<M>): ReactWidgetComponent<ExtractProps<M>>;
  * ```
  */
-export interface Container {
+export interface WidgetContainer {
   <M extends WidgetModule>(
-    loader: () => Promise<M>,
-    options?: {
-      /** Loading timing: `lazy` (default) loads on first render,
-       *  `eager` loads on module resolution. */
-      loading?: 'lazy' | 'eager';
-      /** Rendering stage. */
-      renderStage?: string;
-    }
+    loader: WidgetModuleLoader<M>,
+    options?: WidgetContainerOptions
   ): unknown;
 }
 
@@ -159,7 +201,7 @@ export interface Container {
  * The module pointed to by the adapter package's `adapter` subpath
  * must export these members.
  */
-export type AdapterModule = {
+export interface AdapterModule {
   /**
    * Render function, injected as module export to conform to
    * ServerRender / ClientRender contract.
@@ -170,5 +212,5 @@ export type AdapterModule = {
    * Container function, converts generic module to current framework's
    * native component for cross-framework interop.
    */
-  container: Container;
-};
+  container: WidgetContainer;
+}

@@ -48,6 +48,20 @@ test('private content should not be exposed', () => {
   expect(renderLifecycleCacheLayer(state)).toBe('');
 });
 
+test('should render escaped script attributes', () => {
+  const state = {};
+  const cache = lifecycleCache<{ value?: number }>(state);
+  cache.set('value', 1, true);
+
+  expect(
+    renderLifecycleCacheLayer(state, {
+      scriptAttributes: { slot: 'web-widget-state', nonce: 'a&"b' },
+    })
+  ).toBe(
+    `<script slot="web-widget-state" nonce="a&amp;&quot;b">(self.${LIFECYCLE_CACHE_LAYER}=self.${LIFECYCLE_CACHE_LAYER}||[]).push({"value":1})</script>`
+  );
+});
+
 test('XSS content should be filtered', () => {
   const state = {};
   const cache = lifecycleCache<{

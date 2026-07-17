@@ -1,33 +1,24 @@
 import type { ComponentChildren, ComponentType, VNode } from 'preact';
 import { Component, createElement } from 'preact';
 import { Suspense, memo, useMemo } from 'preact/compat';
-import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
-import type { ExtractWidgetProps } from '@web-widget/schema';
+import type { WebWidgetRendererOptions } from '@web-widget/web-widget';
+import type {
+  ExtractWidgetProps,
+  WidgetContainerOptions,
+  WidgetContainerProps,
+  WidgetModuleLoader,
+} from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
+export type { WidgetContainerOptions } from '@web-widget/schema';
 
-export type DefineWebWidgetOptions = Partial<
-  Pick<
-    WebWidgetRendererOptions,
-    'base' | 'import' | 'loading' | 'name' | 'renderStage' | 'renderTarget'
-  >
->;
-
-export type WidgetFallback =
-  | ComponentChildren
-  | { pending?: ComponentChildren; error?: ComponentChildren };
-
-export interface WidgetContainerConfig {
-  fallback?: WidgetFallback;
-  loading?: WebWidgetRendererOptions['loading'];
-  serverOnly?: true;
-  clientOnly?: true;
-}
+export type PreactWidgetContainerProps =
+  WidgetContainerProps<ComponentChildren>;
 
 export type PreactWidgetComponent<T = unknown> = ComponentType<
-  T & { children?: ComponentChildren; widget?: WidgetContainerConfig }
+  T & { children?: ComponentChildren; widget?: PreactWidgetContainerProps }
 >;
 
-function resolveFallback(fallback: WidgetFallback | undefined) {
+function resolveFallback(fallback: PreactWidgetContainerProps['fallback']) {
   if (
     fallback !== null &&
     typeof fallback === 'object' &&
@@ -84,7 +75,7 @@ class WidgetErrorBoundary extends Component<
 }
 
 function WebWidget(props: {
-  loader: Loader;
+  loader: WidgetModuleLoader;
   options: WebWidgetRendererOptions;
   pending?: ComponentChildren;
   clientOnly?: boolean;
@@ -99,10 +90,11 @@ function WebWidget(props: {
       renderer.localName,
       renderer.attributes,
       createElement(
-        renderer.pendingLocalName,
+        'div',
         {
-          'aria-busy': 'true',
-          style: { display: 'contents' },
+          'aria-busy': String(renderer.pendingBoundary.ariaBusy),
+          slot: renderer.pendingBoundary.slot,
+          style: { display: renderer.pendingBoundary.display },
         },
         props.pending
       )
@@ -129,34 +121,36 @@ function WebWidget(props: {
 
 export function container<M>(
   loader: () => Promise<M>,
-  options?: DefineWebWidgetOptions
+  options?: WidgetContainerOptions
 ): PreactWidgetComponent<ExtractWidgetProps<M>>;
 export function container<Props>(
-  loader: Loader,
-  options?: DefineWebWidgetOptions
+  loader: WidgetModuleLoader,
+  options?: WidgetContainerOptions
 ): PreactWidgetComponent<Props>;
 export function container(
-  loader: Loader,
-  options: DefineWebWidgetOptions = {}
+  loader: WidgetModuleLoader,
+  options: WebWidgetRendererOptions = {}
 ) {
   return memo(function PreactWidget({ children, widget = {}, ...data }: any) {
     if (children) throw new TypeError('Children not supported.');
     const { pending, error } = resolveFallback(widget.fallback);
-    const renderStage = widget.serverOnly
-      ? 'server'
-      : widget.clientOnly
-        ? 'client'
-        : options.renderStage;
+    const renderOptions = {
+      loading: widget.loading ?? options.loading,
+      renderStage: widget.serverOnly
+        ? ('server' as const)
+        : widget.clientOnly
+          ? ('client' as const)
+          : options.renderStage,
+    };
     const rendererOptions = useMemo(
       () => ({
         ...options,
         children: '',
         data,
-        loading: widget.loading ?? options.loading ?? 'lazy',
-        renderStage,
-        renderTarget: options.renderTarget ?? 'light',
+        ...renderOptions,
+        renderTarget: options.renderTarget,
       }),
-      [data, renderStage, widget.loading]
+      [data, renderOptions.loading, renderOptions.renderStage]
     );
     return createElement(
       WidgetErrorBoundary,

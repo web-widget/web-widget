@@ -1,6 +1,6 @@
 import { context } from '@web-widget/context/server';
 import type { State } from '@web-widget/schema';
-import { escapeJson } from '@web-widget/purify';
+import { escapeHtml, escapeJson } from '@web-widget/purify';
 import { LIFECYCLE_CACHE_LAYER, EXPOSE } from './constants';
 
 export { lifecycleCache } from './cache';
@@ -16,7 +16,25 @@ declare module '@web-widget/schema' {
 /**
  * Serialize the cache and transfer it to the client.
  */
-export function renderLifecycleCacheLayer(state?: State) {
+export interface RenderLifecycleCacheLayerOptions {
+  scriptAttributes?: Record<string, string>;
+}
+
+function renderAttributes(attributes: Record<string, string> = {}) {
+  return Object.entries(attributes)
+    .map(([name, value]) => {
+      if (!/^[^\s"'<>/=]+$/.test(name)) {
+        throw new TypeError(`Invalid script attribute name: ${name}`);
+      }
+      return ` ${name}="${escapeHtml(value)}"`;
+    })
+    .join('');
+}
+
+export function renderLifecycleCacheLayer(
+  state?: State,
+  options: RenderLifecycleCacheLayerOptions = {}
+) {
   const cache = state ?? context().state;
   cache.toJSON ??= toJSON;
 
@@ -24,7 +42,7 @@ export function renderLifecycleCacheLayer(state?: State) {
   const json = JSON.stringify(cache);
 
   if (json !== '{}') {
-    result += `<script>`;
+    result += `<script${renderAttributes(options.scriptAttributes)}>`;
     result += `(self.${LIFECYCLE_CACHE_LAYER}=self.${LIFECYCLE_CACHE_LAYER}||[]).push`;
     result += `(${escapeJson(json)})`;
     result += `</script>`;

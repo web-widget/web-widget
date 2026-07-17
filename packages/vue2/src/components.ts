@@ -1,17 +1,23 @@
-import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
-import type { ExtractWidgetProps } from '@web-widget/schema';
+import type { WebWidgetRendererOptions } from '@web-widget/web-widget';
+import type {
+  ExtractWidgetProps,
+  WidgetContainerOptions,
+  WidgetContainerProps,
+  WidgetModuleLoader,
+} from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import Vue, { h, defineComponent, useAttrs, getCurrentInstance } from 'vue';
 import type { DefineComponent, PropType } from 'vue';
+export type { WidgetContainerOptions } from '@web-widget/schema';
 
 export { asReactWidget, toReact } from './as-react-widget';
 
 /**
  * A Vue2 component wrapping a widget, with props `T` plus container config.
  */
-export type VueWidgetComponent<T = unknown> = DefineComponent<{
-  widget?: WidgetContainerConfig;
-}> & { attrs: T };
+export type VueWidgetComponent<T = unknown> = DefineComponent<
+  T & { widget?: Vue2WidgetContainerProps }
+>;
 
 /**
  * Extract the props type `P` from a widget module's default export.
@@ -43,41 +49,25 @@ function ensureGlobalVueConfig() {
   };
 }
 
-export interface DefineWebWidgetOptions {
-  base?: WebWidgetRendererOptions['base'];
-  import?: WebWidgetRendererOptions['import'];
-  loading?: WebWidgetRendererOptions['loading'];
-  name?: WebWidgetRendererOptions['name'];
-  renderStage?: WebWidgetRendererOptions['renderStage'];
-  renderTarget?: WebWidgetRendererOptions['renderTarget'];
-}
-
-export interface WidgetContainerConfig {
-  /** Client-side module loading strategy */
-  loading?: WebWidgetRendererOptions['loading'];
-  /** Widget renders only on the server, not mounted on the client. Mutually exclusive with `clientOnly`. */
-  serverOnly?: true;
-  /** Widget renders only on the client, producing no server HTML. Mutually exclusive with `serverOnly`. */
-  clientOnly?: true;
-}
+export type Vue2WidgetContainerProps = Omit<WidgetContainerProps, 'fallback'>;
 
 /**
- * Container function (WebWidgetAdapter protocol).
+ * Container function (WidgetAdapter protocol).
  *
  * Wraps a widget module loader into a Vue2 component with best-effort
  * props type inference from the source module's default export.
  */
 export function container<M>(
   loader: () => Promise<M>,
-  options?: DefineWebWidgetOptions
+  options?: WidgetContainerOptions
 ): VueWidgetComponent<ExtractWidgetProps<M>>;
 export function container<Props>(
-  loader: Loader,
-  options?: DefineWebWidgetOptions
+  loader: WidgetModuleLoader,
+  options?: WidgetContainerOptions
 ): VueWidgetComponent<Props>;
 export function container(
-  loader: Loader,
-  options: DefineWebWidgetOptions = {}
+  loader: WidgetModuleLoader,
+  options: WebWidgetRendererOptions = {}
 ) {
   if (!loader) {
     throw new TypeError(`Missing loader.`);
@@ -90,7 +80,7 @@ export function container(
     inheritAttrs: false,
     props: {
       widget: {
-        type: Object as PropType<WidgetContainerConfig>,
+        type: Object as PropType<Vue2WidgetContainerProps>,
         default: () => ({}),
       },
     },
@@ -108,23 +98,25 @@ export function container(
       }
 
       const {
-        loading = options.loading ?? 'lazy',
+        loading = options.loading,
         serverOnly,
         clientOnly,
       } = props.widget;
-      const renderStage = serverOnly
-        ? 'server'
-        : clientOnly
-          ? 'client'
-          : options.renderStage;
+      const renderOptions = {
+        loading: loading ?? options.loading,
+        renderStage: serverOnly
+          ? ('server' as const)
+          : clientOnly
+            ? ('client' as const)
+            : options.renderStage,
+      };
 
       const data = useAttrs() as WebWidgetRendererOptions['data'];
       const widget = new WebWidgetRenderer(loader, {
         ...options,
         data,
-        loading,
-        renderStage,
-        renderTarget: options.renderTarget ?? 'light',
+        ...renderOptions,
+        renderTarget: options.renderTarget,
       });
 
       const instance = getCurrentInstance()!;

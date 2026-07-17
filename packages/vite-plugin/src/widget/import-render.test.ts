@@ -42,6 +42,49 @@ function makeOptions(
 }
 
 describe('transformWidgetImports', () => {
+  test('does not inject a render target by default', async () => {
+    const code = `import Counter from './Counter@widget.vue';`;
+    const result = await transformWidgetImports(makeCtx(), makeOptions(code));
+
+    expect(result!.code).not.toContain('renderTarget');
+  });
+
+  test('injects the global widget render target', async () => {
+    const code = `import Counter from './Counter@widget.vue';`;
+    const result = await transformWidgetImports(
+      makeCtx(),
+      makeOptions(code, { defaults: { renderTarget: 'shadow' } })
+    );
+
+    expect(result!.code).toContain('renderTarget: "shadow"');
+  });
+
+  test('injects Vite-transformed dev styles for a shadow widget', async () => {
+    const code = `import Counter from './Counter@widget.vue';`;
+    const result = await transformWidgetImports(
+      makeCtx({
+        resolveDevWidgetStyles: async () => [
+          { id: '/project/src/counter.css', content: '.count{color:red}' },
+        ],
+      }),
+      makeOptions(code, { defaults: { renderTarget: 'shadow' } })
+    );
+
+    expect(result!.code).toContain(
+      'devStyles: [{"id":"/project/src/counter.css","content":".count{color:red}"}]'
+    );
+  });
+
+  test('injects the default loading strategy', async () => {
+    const code = `import Counter from './Counter@widget.vue';`;
+    const result = await transformWidgetImports(
+      makeCtx(),
+      makeOptions(code, { defaults: { loading: 'idle' } })
+    );
+
+    expect(result!.code).toContain('loading: "idle"');
+  });
+
   describe('static import pattern', () => {
     test('dev mode', async () => {
       const code = `import Counter from './Counter@widget.vue';`;
@@ -137,6 +180,50 @@ describe('transformWidgetImports', () => {
       );
     });
 
+    test('preserves a static per-widget render target', async () => {
+      const code = `const Counter = container(() => import('./Counter@widget.vue'), { renderTarget: 'shadow' });`;
+      const result = await transformWidgetImports(
+        makeCtx(),
+        makeOptions(code, {
+          dev: true,
+          defaults: { renderTarget: 'light' },
+        })
+      );
+
+      expect(result!.code).toContain(`renderTarget: 'shadow'`);
+      expect(result!.code).not.toContain(`renderTarget: "light"`);
+    });
+
+    test('recognizes a static render target after comments', async () => {
+      const code = `const Counter = container(() => import('./Counter@widget.vue'), { /* CSS boundary */ renderTarget: 'shadow' });`;
+      const result = await transformWidgetImports(
+        makeCtx(),
+        makeOptions(code, {
+          dev: true,
+          defaults: { renderTarget: 'light' },
+        })
+      );
+
+      expect(result!.code).not.toContain(`renderTarget: "light"`);
+    });
+
+    test('uses a static per-widget target to collect dev styles', async () => {
+      const code = `const Counter = container(() => import('./Counter@widget.vue'), { renderTarget: 'shadow' });`;
+      const result = await transformWidgetImports(
+        makeCtx({
+          resolveDevWidgetStyles: async () => [
+            { id: '/project/src/counter.css', content: '.count{color:red}' },
+          ],
+        }),
+        makeOptions(code, {
+          dev: true,
+          defaults: { renderTarget: 'light' },
+        })
+      );
+
+      expect(result!.code).toContain('devStyles:');
+    });
+
     test('is idempotent when import options were already injected', async () => {
       const code = `const Counter = container(() => import('./Counter@widget.vue'), { import: resolveWidgetAsset("src/Counter@widget.vue"), name: "Counter" });`;
       const result = await transformWidgetImports(
@@ -223,6 +310,21 @@ describe('transformWidgetImports', () => {
       await expect(
         transformWidgetImports(makeCtx(), makeOptions(code))
       ).rejects.toThrow(/object literal/);
+    });
+
+    test.each([
+      `{ renderTarget }`,
+      `{ renderTarget: condition ? 'shadow' : 'light' }`,
+      `{ renderTarget: getRenderTarget() }`,
+      `{ renderTarget: 'shadow', ...options }`,
+      `{ ...options, renderTarget: 'shadow' }`,
+      `{ renderTarget: 'shadow', renderTarget: 'light' }`,
+      `{ [targetKey]: 'shadow' }`,
+    ])('throws on non-static render target options: %s', async (options) => {
+      const code = `const Counter = container(() => import('./Counter@widget.vue'), ${options});`;
+      await expect(
+        transformWidgetImports(makeCtx(), makeOptions(code))
+      ).rejects.toThrow(/renderTarget must be statically defined/);
     });
   });
 

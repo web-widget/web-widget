@@ -1,25 +1,19 @@
 import type { Component, Snippet } from 'svelte';
 import 'svelte/internal/flags/async';
-import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
-import type { ExtractWidgetProps } from '@web-widget/schema';
+import type { WebWidgetRendererOptions } from '@web-widget/web-widget';
+import type {
+  ExtractWidgetProps,
+  WidgetContainerOptions,
+  WidgetContainerProps,
+  WidgetModuleLoader,
+} from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
+export type { WidgetContainerOptions } from '@web-widget/schema';
 
-export type DefineWebWidgetOptions = Partial<
-  Pick<
-    WebWidgetRendererOptions,
-    'base' | 'import' | 'loading' | 'name' | 'renderStage' | 'renderTarget'
-  >
->;
-
-export interface WidgetContainerConfig {
-  fallback?: Snippet | { pending?: Snippet; error?: Snippet };
-  loading?: WebWidgetRendererOptions['loading'];
-  serverOnly?: true;
-  clientOnly?: true;
-}
+export type SvelteWidgetContainerProps = WidgetContainerProps<Snippet>;
 
 export type SvelteWidgetComponent<T = unknown> = Component<
-  T & { widget?: WidgetContainerConfig }
+  T & { widget?: SvelteWidgetContainerProps }
 >;
 
 function escapeAttribute(value: string) {
@@ -41,30 +35,32 @@ function outerHTML(
 
 export function container<M>(
   loader: () => Promise<M>,
-  options?: DefineWebWidgetOptions
+  options?: WidgetContainerOptions
 ): SvelteWidgetComponent<ExtractWidgetProps<M>>;
 export function container<Props>(
-  loader: Loader,
-  options?: DefineWebWidgetOptions
+  loader: WidgetModuleLoader,
+  options?: WidgetContainerOptions
 ): SvelteWidgetComponent<Props>;
 export function container(
-  loader: Loader,
-  options: DefineWebWidgetOptions = {}
+  loader: WidgetModuleLoader,
+  options: WebWidgetRendererOptions = {}
 ) {
   return ((anchor: any, props: Record<string, any>) => {
     const { widget = {}, ...data } = props;
-    const renderStage = widget.serverOnly
-      ? 'server'
-      : widget.clientOnly
-        ? 'client'
-        : options.renderStage;
+    const renderOptions = {
+      loading: widget.loading ?? options.loading,
+      renderStage: widget.serverOnly
+        ? ('server' as const)
+        : widget.clientOnly
+          ? ('client' as const)
+          : options.renderStage,
+    };
     const renderer = new WebWidgetRenderer(loader, {
       ...options,
       children: '',
       data,
-      loading: widget.loading ?? options.loading ?? 'lazy',
-      renderStage,
-      renderTarget: options.renderTarget ?? 'light',
+      ...renderOptions,
+      renderTarget: options.renderTarget,
     });
 
     const render = async () =>
