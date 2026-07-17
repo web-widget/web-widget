@@ -447,6 +447,7 @@
     "benchmark-duration": 5,
     "warmup-duration": 2,
     "benchmark-rounds": 3,
+    "dynamic-path-variants": 256,
     "connections": 50,
     "pipelining": 4
   }

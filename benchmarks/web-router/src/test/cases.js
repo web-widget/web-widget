@@ -41,6 +41,32 @@ class TestCases {
     return testCases;
   }
 
+  getBenchmarkPaths(framework, dynamicPathVariants = 256) {
+    return this.getFrameworkRoutesWithTestCases(framework).flatMap((route) => {
+      const patternSegments = route.pattern.split('/');
+      const pathSegments = route.testCase.split('/');
+      const dynamicIndexes = [];
+
+      for (let index = 0; index < patternSegments.length; index++) {
+        // Constrained patterns need constraint-aware value generation. Keep
+        // those stable rather than accidentally benchmarking route misses.
+        if (
+          patternSegments[index].startsWith(':') &&
+          !patternSegments[index].includes('(')
+        ) {
+          dynamicIndexes.push(index);
+        }
+      }
+      if (dynamicIndexes.length === 0) return [route.testCase];
+
+      return Array.from({ length: dynamicPathVariants }, (_, variant) => {
+        const varied = pathSegments.slice();
+        for (const index of dynamicIndexes) varied[index] += variant;
+        return varied.join('/');
+      });
+    });
+  }
+
   /**
    * Get expected responses for a specific framework
    */
@@ -168,3 +194,5 @@ export const getExpectedResponses = (framework) =>
   testCases.getExpectedResponses(framework);
 export const getFrameworkRoutesWithTestCases = (framework) =>
   testCases.getFrameworkRoutesWithTestCases(framework);
+export const getBenchmarkPaths = (framework, dynamicPathVariants) =>
+  testCases.getBenchmarkPaths(framework, dynamicPathVariants);

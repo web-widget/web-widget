@@ -101,6 +101,8 @@ pnpm test:compatibility     # Test framework compatibility
 The HTTP benchmark measures the complete server lifecycle. The router matcher
 benchmark isolates `Router.match()` so route-table scaling and candidate
 selection are visible independently of Request, Response, and socket overhead.
+Dynamic requests rotate through 256 parameter values, exceeding Web Router's
+128-entry match-plan cache so measured samples do not collapse into cache hits.
 
 ```bash
 # Full matcher run (three measured samples per scenario)
@@ -115,6 +117,7 @@ pnpm benchmark:router -- --suite=scale-shared
 # Select the JSON output path, or disable output
 pnpm benchmark:router -- --output=./router-results.json
 pnpm benchmark:router -- --no-output
+pnpm benchmark:router -- --dynamic-path-variants=1 # cached-path comparison
 ```
 
 The runner validates expected handlers, match counts, parameter decoding,
@@ -147,6 +150,7 @@ pnpm benchmark:node18       # Node.js 18.x
 pnpm benchmark:node20       # Node.js 20.x
 pnpm benchmark:node22       # Node.js 22.x
 pnpm benchmark:node24       # Node.js 24.x
+pnpm benchmark:node26       # Node.js 26.x
 pnpm benchmark:all-versions # All supported versions
 ```
 

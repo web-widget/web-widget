@@ -8,6 +8,7 @@ import {
   getTestCases,
   getExpectedResponses,
   getFrameworkRoutesWithTestCases,
+  getBenchmarkPaths,
 } from '../test/cases.js';
 // Direct framework loading without async-loader (using child process isolation)
 
@@ -290,11 +291,11 @@ class FrameworkTestRunner {
       this.info('Running performance test');
 
       const { default: autocannon } = await import('autocannon');
-      const testCases = getTestCases();
-      const urls = testCases.map((testCase) => {
-        const testPath = testCase.path || testCase; // Handle both object and string
-        return `${baseUrl}${testPath}`;
-      });
+      const dynamicPathVariants = this.config['dynamic-path-variants'] || 256;
+      const urls = getBenchmarkPaths(
+        this.frameworkName,
+        dynamicPathVariants
+      ).map((path) => `${baseUrl}${path}`);
 
       const options = {
         url: urls[0], // Use first URL as base

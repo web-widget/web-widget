@@ -12,16 +12,16 @@ if [ $# -eq 0 ]; then
     echo "Usage: ./run-with-node.sh <version>"
     echo "Example: ./run-with-node.sh 18"
     echo ""
-    echo "Supported versions: 18, 20, 22, 24"
+    echo "Supported versions: 18, 20, 22, 24, 26"
     exit 1
 fi
 
 VERSION=$1
 
 # Validate version
-if [[ ! "$VERSION" =~ ^(18|20|22|24)$ ]]; then
+if [[ ! "$VERSION" =~ ^(18|20|22|24|26)$ ]]; then
     echo "❌ Unsupported Node.js version: $VERSION"
-    echo "Supported versions: 18, 20, 22, 24"
+    echo "Supported versions: 18, 20, 22, 24, 26"
     exit 1
 fi
 
@@ -32,10 +32,10 @@ if command -v fnm &> /dev/null; then
     echo "📦 Using fnm to switch to Node.js $VERSION..."
     eval "$(fnm env)"
     fnm use $VERSION
-    
+
     echo "✅ Node.js version: $(node --version)"
     echo "✅ NPM version: $(npm --version)"
-    
+
     echo "🎯 Running benchmarks with Node.js $VERSION.x..."
     pnpm benchmark
 
@@ -43,10 +43,10 @@ if command -v fnm &> /dev/null; then
 elif command -v nvm &> /dev/null; then
     echo "📦 Using nvm to switch to Node.js $VERSION..."
     nvm use $VERSION
-    
+
     echo "✅ Node.js version: $(node --version)"
     echo "✅ NPM version: $(npm --version)"
-    
+
     echo "🎯 Running benchmarks with Node.js $VERSION.x..."
     pnpm benchmark
 
@@ -62,4 +62,4 @@ else
     echo "   - nvm: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash"
     echo "   - volta: curl https://get.volta.sh | bash"
     exit 1
-fi 
+fi
