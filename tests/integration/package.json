@@ -30,6 +30,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@playgrounds/router": "workspace:*",
     "@playwright/test": "^1.55.0",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

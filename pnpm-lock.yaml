@@ -1522,6 +1522,9 @@ importers:
         specifier: 'catalog:'
         version: 5.56.4(@typescript-eslint/types@8.64.0)
     devDependencies:
+      '@playgrounds/router':
+        specifier: workspace:*
+        version: link:../../playgrounds/router
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.61.1
