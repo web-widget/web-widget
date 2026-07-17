@@ -20,6 +20,10 @@ export type SerializableValue =
   | { [key: string]: SerializableValue }
   | SerializableValue[];
 
+export interface SerializableObject {
+  [key: string]: SerializableValue;
+}
+
 /**
  * Represents an HTTP error that can be thrown or returned by route handlers.
  * Extends the standard Error interface with HTTP-specific properties.

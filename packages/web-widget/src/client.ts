@@ -27,6 +27,7 @@ class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
   #options: WebWidgetElementProps;
   localName = 'web-widget';
   pendingLocalName = WEB_WIDGET_PENDING_LOCAL_NAME;
+  pendingBoundary = { ariaBusy: true as const, display: 'contents' as const, slot: 'pending' };
 
   constructor(
     loader: Loader,
