@@ -1174,6 +1174,9 @@ importers:
       '@web-widget/lifecycle-cache':
         specifier: workspace:*
         version: link:../lifecycle-cache
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../schema
     devDependencies:
       '@esm-bundle/chai':
         specifier: ^4.3.4-fix.0

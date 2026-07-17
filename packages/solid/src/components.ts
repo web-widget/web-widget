@@ -7,29 +7,23 @@ import {
   splitProps,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
-import type { ExtractWidgetProps } from '@web-widget/schema';
+import type { WebWidgetRendererOptions } from '@web-widget/web-widget';
+import type {
+  ExtractWidgetProps,
+  WidgetContainerOptions,
+  WidgetContainerProps,
+  WidgetModuleLoader,
+} from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
+export type { WidgetContainerOptions } from '@web-widget/schema';
 
-export type DefineWebWidgetOptions = Partial<
-  Pick<
-    WebWidgetRendererOptions,
-    'base' | 'import' | 'loading' | 'name' | 'renderStage' | 'renderTarget'
-  >
->;
-
-export interface WidgetContainerConfig {
-  fallback?: JSX.Element | { pending?: JSX.Element; error?: JSX.Element };
-  loading?: WebWidgetRendererOptions['loading'];
-  serverOnly?: true;
-  clientOnly?: true;
-}
+export type SolidWidgetContainerProps = WidgetContainerProps<JSX.Element>;
 
 export type SolidWidgetComponent<T = unknown> = Component<
-  T & { children?: JSX.Element; widget?: WidgetContainerConfig }
+  T & { children?: JSX.Element; widget?: SolidWidgetContainerProps }
 >;
 
-function resolveFallback(fallback: WidgetContainerConfig['fallback']): {
+function resolveFallback(fallback: SolidWidgetContainerProps['fallback']): {
   pending: JSX.Element;
   error: JSX.Element;
 } {
@@ -48,33 +42,35 @@ function resolveFallback(fallback: WidgetContainerConfig['fallback']): {
 
 export function container<M>(
   loader: () => Promise<M>,
-  options?: DefineWebWidgetOptions
+  options?: WidgetContainerOptions
 ): SolidWidgetComponent<ExtractWidgetProps<M>>;
 export function container<Props>(
-  loader: Loader,
-  options?: DefineWebWidgetOptions
+  loader: WidgetModuleLoader,
+  options?: WidgetContainerOptions
 ): SolidWidgetComponent<Props>;
 export function container(
-  loader: Loader,
-  options: DefineWebWidgetOptions = {}
+  loader: WidgetModuleLoader,
+  options: WebWidgetRendererOptions = {}
 ) {
   return ((props: Record<string, any>) => {
     const [local, data] = splitProps(props, ['children', 'widget']);
     if (local.children) throw new TypeError('Children not supported.');
     const widget = local.widget ?? {};
     const fallback = resolveFallback(widget.fallback);
-    const renderStage = widget.serverOnly
-      ? 'server'
-      : widget.clientOnly
-        ? 'client'
-        : options.renderStage;
+    const renderOptions = {
+      loading: widget.loading ?? options.loading,
+      renderStage: widget.serverOnly
+        ? ('server' as const)
+        : widget.clientOnly
+          ? ('client' as const)
+          : options.renderStage,
+    };
     const renderer = new WebWidgetRenderer(loader, {
       ...options,
       children: '',
       data,
-      loading: widget.loading ?? options.loading ?? 'lazy',
-      renderStage,
-      renderTarget: options.renderTarget ?? 'light',
+      ...renderOptions,
+      renderTarget: options.renderTarget,
     });
     const widgetProps = {
       component: renderer.localName,
@@ -89,9 +85,10 @@ export function container(
         ...widgetProps,
         get children() {
           return createComponent(Dynamic, {
-            component: renderer.pendingLocalName,
-            'aria-busy': 'true',
-            style: 'display: contents',
+            component: 'div',
+            'aria-busy': String(renderer.pendingBoundary.ariaBusy),
+            slot: renderer.pendingBoundary.slot,
+            style: `display: ${renderer.pendingBoundary.display}`,
             children: fallback.pending,
           });
         },

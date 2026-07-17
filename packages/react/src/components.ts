@@ -1,5 +1,13 @@
-import type { Loader, WebWidgetRendererOptions } from '@web-widget/web-widget';
-import type { ExtractWidgetProps } from '@web-widget/schema';
+import type {
+  WebWidgetRendererInterface,
+  WebWidgetRendererOptions,
+} from '@web-widget/web-widget';
+import type {
+  ExtractWidgetProps,
+  WidgetContainerOptions,
+  WidgetContainerProps,
+  WidgetModuleLoader,
+} from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import {
   Component,
@@ -11,6 +19,7 @@ import {
   memo,
 } from 'react';
 import type { FunctionComponent, ReactNode } from 'react';
+export type { WidgetContainerOptions } from '@web-widget/schema';
 
 export interface ReactWidgetComponent<T> extends FunctionComponent<
   T & ReactWidgetProps
@@ -26,23 +35,20 @@ export interface ReactWidgetComponent<T> extends FunctionComponent<
  * - Vue: components expose `$props` via a constructor signature.
  * - Fallback: `unknown` when no pattern matches.
  */
-export interface WebWidgetProps {
-  base?: WebWidgetRendererOptions['base'];
-  children /**/?: ReactNode;
-  data?: WebWidgetRendererOptions['data'];
-  import?: WebWidgetRendererOptions['import'];
-  inactive?: WebWidgetRendererOptions['inactive'];
-  loader /**/: Loader;
-  meta?: WebWidgetRendererOptions['meta'];
-  loading?: WebWidgetRendererOptions['loading'];
-  name?: WebWidgetRendererOptions['name'];
-  renderStage?: WebWidgetRendererOptions['renderStage'];
-  renderTarget?: WebWidgetRendererOptions['renderTarget'];
-}
+/** Inputs used by the React renderer wrapper. */
+export type WebWidgetProps = Omit<WebWidgetRendererOptions, 'children'> & {
+  /** Widget module loader supplied by the generated adapter call. */
+  loader: WidgetModuleLoader;
+  /** React children are rejected by the widget renderer, but kept here for the wrapper contract. */
+  children?: ReactNode;
+};
 
 interface WebWidgetElement {
   localName: string;
-  pendingLocalName: string;
+  pendingBoundary: Omit<WebWidgetRendererInterface['pendingBoundary'], 'slot'> & {
+    localName?: string;
+    slot?: string;
+  };
   attributes: Record<string, string>;
   innerHTML: Promise<string | Error>;
 }
@@ -60,7 +66,7 @@ const renderWebWidget = function ({
     throw new TypeError(`Children not supported.`);
   }
 
-  const widget = new WebWidgetRenderer(loader as Loader, {
+  const widget = new WebWidgetRenderer(loader, {
     ...props,
     // TODO children
     children: '',
@@ -80,7 +86,11 @@ const renderWebWidget = function ({
     );
   return {
     localName,
-    pendingLocalName: widget.pendingLocalName,
+    pendingBoundary: widget.pendingBoundary ?? {
+      ariaBusy: true,
+      display: 'contents',
+      localName: 'web-widget-pending',
+    },
     attributes,
     innerHTML,
   };
@@ -88,7 +98,7 @@ const renderWebWidget = function ({
 
 function WebWidget({
   localName,
-  pendingLocalName,
+  pendingBoundary,
   attributes,
   innerHTML,
   errorFallback,
@@ -104,10 +114,11 @@ function WebWidget({
       localName,
       { ...attributes, suppressHydrationWarning: true },
       createElement(
-        pendingLocalName,
+        pendingBoundary.localName ?? 'web-widget-pending',
         {
-          'aria-busy': 'true',
-          style: { display: 'contents' },
+          'aria-busy': String(pendingBoundary.ariaBusy),
+          ...(pendingBoundary.slot ? { slot: pendingBoundary.slot } : {}),
+          style: { display: pendingBoundary.display },
         },
         pendingFallback
       )
@@ -134,22 +145,16 @@ function WebWidget({
   });
 }
 
-export type DefineWebWidgetOptions = Partial<
-  Pick<
-    WebWidgetRendererOptions,
-    'base' | 'import' | 'loading' | 'name' | 'renderStage' | 'renderTarget'
-  >
->;
-
-export type WidgetFallback =
-  ReactNode | { pending?: ReactNode; error?: ReactNode };
+export type ReactWidgetContainerProps = WidgetContainerProps<ReactNode>;
 
 /**
  * Resolve a WidgetFallback into separate pending and error UI.
  * - `ReactNode`: used for both pending and error.
  * - `{ pending?, error? }`: error defaults to pending if omitted.
  */
-export function resolveFallback(fallback: WidgetFallback | undefined): {
+export function resolveFallback(
+  fallback: ReactWidgetContainerProps['fallback']
+): {
   pendingFallback: ReactNode;
   errorFallback: ReactNode;
 } {
@@ -172,40 +177,10 @@ export function resolveFallback(fallback: WidgetFallback | undefined): {
   };
 }
 
-export interface WidgetContainerConfig {
-  /**
-   * Fallback UI for pending and error states.
-   *
-   * Only effective during server-side rendering: pending UI shows while the
-   * widget module renders; error UI shows if rendering fails. Both are
-   * serialized into the HTML stream — no client-side retry exists in the
-   * islands architecture.
-   * For `clientOnly`, pending UI is rendered inside the `<web-widget>` element
-   * and removed immediately before its client mount begins.
-   *
-   * - `ReactNode` — used for both pending (Suspense) and error (ErrorBoundary).
-   * - `{ pending?, error? }` — specify independently; `error` defaults to `pending`.
-   *
-   * @example
-   * // Simple: same UI for both states
-   * <Widget widget={{ fallback: <Spinner /> }} />
-   *
-   * // Differentiated: separate pending and error UI
-   * <Widget widget={{ fallback: { pending: <Spinner />, error: <ErrorUI /> } }} />
-   */
-  fallback?: WidgetFallback;
-  /** Client-side module loading strategy: `'lazy'` loads on first render, `'eager'` on module parse, `'idle'` on browser idle. */
-  loading?: WebWidgetRendererOptions['loading'];
-  /** Widget renders only on the server (SSR), producing static HTML with no client-side mount. Mutually exclusive with `clientOnly`. */
-  serverOnly?: true;
-  /** Widget renders only on the client, producing no server HTML (empty placeholder until client mount). Mutually exclusive with `serverOnly`. */
-  clientOnly?: true;
-}
-
 export interface ReactWidgetProps {
   children?: ReactNode;
   /** Container configuration, isolated from widget's own props */
-  widget?: WidgetContainerConfig;
+  widget?: ReactWidgetContainerProps;
 }
 
 /**
@@ -237,7 +212,7 @@ class WidgetErrorBoundary extends Component<
 }
 
 /**
- * Container function (WebWidgetAdapter protocol).
+ * Container function (WidgetAdapter protocol).
  *
  * Wraps a widget module loader into a React component with full props
  * type inference from the source module's default export.
@@ -263,31 +238,34 @@ class WidgetErrorBoundary extends Component<
  */
 export function container<M>(
   loader: () => Promise<M>,
-  options?: DefineWebWidgetOptions
+  options?: WidgetContainerOptions
 ): ReactWidgetComponent<ExtractWidgetProps<M>>;
 export function container<Props>(
-  loader: Loader,
-  options?: DefineWebWidgetOptions
+  loader: WidgetModuleLoader,
+  options?: WidgetContainerOptions
 ): ReactWidgetComponent<Props>;
 export function container(
-  loader: Loader,
-  options: DefineWebWidgetOptions = {}
+  loader: WidgetModuleLoader,
+  options: WebWidgetRendererOptions = {}
 ) {
   return memo(function ReactWidget({
     children,
     widget: {
       fallback,
-      loading = options.loading ?? 'lazy',
+      loading = options.loading,
       serverOnly,
       clientOnly,
     } = {},
     ...data
   }: ReactWidgetProps) {
-    const renderStage = serverOnly
-      ? 'server'
-      : clientOnly
-        ? 'client'
-        : options.renderStage;
+    const renderOptions = {
+      loading: loading ?? options.loading,
+      renderStage: serverOnly
+        ? ('server' as const)
+        : clientOnly
+          ? ('client' as const)
+          : options.renderStage,
+    };
     const { pendingFallback, errorFallback } = resolveFallback(fallback);
     return createElement(
       WidgetErrorBoundary,
@@ -303,9 +281,8 @@ export function container(
             children,
             data,
             loader,
-            loading,
-            renderStage,
-            renderTarget: options.renderTarget ?? 'light',
+            ...renderOptions,
+            renderTarget: options.renderTarget,
           }),
         }),
       })

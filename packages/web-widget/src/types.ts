@@ -1,42 +1,52 @@
 import type {
-  ServerWidgetModule,
   ClientWidgetModule,
   Meta,
-  SerializableValue,
-} from '@web-widget/helpers';
+  ServerWidgetModule,
+  SerializableObject,
+  WidgetContainerOptions,
+  WidgetModuleLoader,
+} from '@web-widget/schema';
+import type { Timeouts } from './container';
+
+export type { SerializableObject } from '@web-widget/schema';
+
+export const WEB_WIDGET_PENDING_LOCAL_NAME = 'web-widget-pending';
+export type Loader = WidgetModuleLoader<ServerWidgetModule | ClientWidgetModule>;
 
 /** Internal element name for the client-only pending boundary. */
-export const WEB_WIDGET_PENDING_LOCAL_NAME = 'web-widget-pending';
-
-export interface SerializableObject {
-  [key: string]: SerializableValue;
-}
-
-export type Loader = () => Promise<ServerWidgetModule | ClientWidgetModule>;
-
-export interface WebWidgetElementProps {
+export interface WebWidgetElementOptions extends Pick<WidgetContainerOptions, 'loading' | 'renderTarget'> {
+  loader?: WidgetModuleLoader<ClientWidgetModule>;
   base?: string;
+  contextData?: SerializableObject;
   data?: SerializableObject;
   import?: string;
   inactive?: boolean;
-  loading?: 'lazy' | 'eager' | 'idle';
   meta?: Meta;
   name?: string;
-  // recovering?: boolean;
-  renderTarget?: 'light' | 'shadow';
+  recovering?: boolean;
+  timeouts?: Timeouts;
+}
+export type WebWidgetElementProps = WebWidgetElementOptions;
+
+export interface WebWidgetRendererOptions extends WidgetContainerOptions {
+  base?: string;
+  children?: string;
+  data?: SerializableObject;
+  devStyles?: unknown[];
+  import?: string;
+  inactive?: boolean;
 }
 
-export interface WebWidgetRendererOptions extends WebWidgetElementProps {
-  children?: string;
-  renderStage?: 'server' | 'client';
+export interface WebWidgetRenderOptions {
+  pendingHTML?: string;
 }
 
 export interface WebWidgetRendererInterface {
   localName: string;
-  pendingLocalName: string;
+  pendingBoundary: { ariaBusy: true; display: 'contents'; slot: string };
   attributes: Record<string, string>;
   renderInnerHTMLToString(): Promise<string>;
-  renderOuterHTMLToString(): Promise<string>;
+  renderOuterHTMLToString(options?: WebWidgetRenderOptions): Promise<string>;
 }
 
 export interface WebWidgetRendererConstructor {

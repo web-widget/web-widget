@@ -75,11 +75,14 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   #renderStage?: string;
   localName = 'web-widget';
   pendingLocalName = WEB_WIDGET_PENDING_LOCAL_NAME;
+  pendingBoundary = { ariaBusy: true as const, display: 'contents' as const, slot: '' };
 
   constructor(
     loader: Loader,
     { children = '', renderStage, ...options }: WebWidgetRendererOptions
   ) {
+    options.loading ??= 'lazy';
+    options.renderTarget ??= 'light';
     if (children && options.renderTarget !== 'shadow') {
       throw new Error(
         `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
@@ -211,10 +214,13 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
     return result;
   }
 
-  async renderOuterHTMLToString() {
+  async renderOuterHTMLToString({ pendingHTML }: { pendingHTML?: string } = {}) {
     const tag = this.localName;
     const attributes = this.attributes;
-    const children = await this.renderInnerHTMLToString();
+    let children = await this.renderInnerHTMLToString();
+    if (pendingHTML) {
+      children = `<${this.pendingLocalName} aria-busy="true" style="display:contents">${pendingHTML}</${this.pendingLocalName}>${children}`;
+    }
     return `<${tag} ${unsafeAttrsToHtml(attributes)}>${children}</${tag}>`;
   }
 }

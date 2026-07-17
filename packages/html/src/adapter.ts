@@ -22,7 +22,7 @@ export /*#__INLINE__*/ function asHtmlWidget<T = unknown>(
 }
 
 /**
- * Server render function (WebWidgetAdapter protocol).
+ * Server render function (WidgetAdapter protocol).
  *
  * Calls the route component, converts the returned HTML template to a
  * UTF-8 encoded ReadableStream.
