@@ -45,7 +45,9 @@ export type WebWidgetProps = Omit<WebWidgetRendererOptions, 'children'> & {
 
 interface WebWidgetElement {
   localName: string;
-  pendingBoundary: WebWidgetRendererInterface['pendingBoundary'];
+  pendingBoundary: Omit<WebWidgetRendererInterface['pendingBoundary'], 'slot'> & {
+    slot?: string;
+  };
   attributes: Record<string, string>;
   innerHTML: Promise<string | Error>;
 }
@@ -83,7 +85,10 @@ const renderWebWidget = function ({
     );
   return {
     localName,
-    pendingBoundary: widget.pendingBoundary,
+    pendingBoundary: widget.pendingBoundary ?? {
+      ariaBusy: true,
+      display: 'contents',
+    },
     attributes,
     innerHTML,
   };
