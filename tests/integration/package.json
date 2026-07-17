@@ -20,7 +20,7 @@
     "build": "vite build && BUILD_TARGET=server vite build",
     "dev": "vite --host 127.0.0.1 --port 5174",
     "serve:production": "node scripts/production-server.mjs",
-    "test": "playwright test",
+    "test": "tsc --noEmit",
     "test:ci:core:dev": "playwright test --project=chromium --workers=1 --grep-invert 'M0[2-5]|completes hydration/recovery'",
     "test:ci:core:production": "pnpm build && TEST_MODE=production playwright test --project=chromium --workers=1 --grep-invert 'M0[2-5]|completes hydration/recovery'",
     "test:ci:dev:mismatch": "playwright test specs/mismatch.spec.ts --project=chromium --workers=1 --grep 'M0[2-5]'",

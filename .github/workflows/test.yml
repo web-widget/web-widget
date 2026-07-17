@@ -22,6 +22,8 @@ jobs:
       - run: pnpm install --recursive --frozen-lockfile
         env:
           SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
+      - name: Build integration dependencies
+        run: pnpm --filter @tests/integration... build
       - name: Install Chromium
         run: pnpm --filter @tests/integration exec playwright install --with-deps chromium
       - name: Run dev core suite
@@ -53,6 +55,8 @@ jobs:
       - run: pnpm install --recursive --frozen-lockfile
         env:
           SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
+      - name: Build integration dependencies
+        run: pnpm --filter @tests/integration... build
       - name: Install Playwright browsers
         run: pnpm --filter @tests/integration exec playwright install --with-deps chromium firefox webkit
       - name: Run dev mismatch suite
