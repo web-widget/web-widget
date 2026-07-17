@@ -68,7 +68,7 @@ describe('container', () => {
 
     expect(output).toContain('<web-widget');
     expect(output).toContain(
-      '<div aria-busy="true" slot="web-widget-pending" style="display:contents"><div>pending</div></div>'
+      '<web-widget-pending aria-busy="true" style="display:contents"><div>pending</div></web-widget-pending>'
     );
   });
 });

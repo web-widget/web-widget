@@ -7,11 +7,7 @@ jest.mock('@web-widget/web-widget', () => {
   return {
     WebWidgetRenderer: class {
       localName = 'web-widget';
-      pendingBoundary = {
-        ariaBusy: true as const,
-        display: 'contents' as const,
-        slot: 'web-widget-pending',
-      };
+      pendingLocalName = 'web-widget-pending';
       attributes: Record<string, string> = {};
       constructor(_loader: unknown, options: { name?: string }) {
         if (options.name) {
@@ -94,7 +90,7 @@ describe('container', () => {
 
     expect(output).toContain('<web-widget');
     expect(output).toContain(
-      '<div aria-busy="true" slot="web-widget-pending" style="display:contents"><div>pending</div></div>'
+      '<web-widget-pending aria-busy="true" style="display:contents"><div>pending</div></web-widget-pending>'
     );
   });
 });
