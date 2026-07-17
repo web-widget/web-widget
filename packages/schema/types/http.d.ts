@@ -20,11 +20,6 @@ export type SerializableValue =
   | { [key: string]: SerializableValue }
   | SerializableValue[];
 
-/** A JSON-like record that can cross the widget/render boundary. */
-export interface SerializableObject {
-  [key: string]: SerializableValue;
-}
-
 /**
  * Represents an HTTP error that can be thrown or returned by route handlers.
  * Extends the standard Error interface with HTTP-specific properties.
