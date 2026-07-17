@@ -1,5 +1,6 @@
 import type {
   ClientWidgetModule,
+  Meta,
   ServerWidgetModule,
   SerializableObject,
   WidgetContainerOptions,
@@ -15,8 +16,11 @@ export interface WebWidgetElementOptions extends Pick<WidgetContainerOptions, 'l
   loader?: WidgetModuleLoader<ClientWidgetModule>;
   base?: string;
   contextData?: SerializableObject;
+  data?: SerializableObject;
   import?: string;
   inactive?: boolean;
+  meta?: Meta;
+  name?: string;
   recovering?: boolean;
   timeouts?: Timeouts;
 }
