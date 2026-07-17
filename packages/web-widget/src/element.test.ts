@@ -1,8 +1,9 @@
+import type { ClientRenderOptions } from '@web-widget/helpers';
 import { expect } from '@esm-bundle/chai';
+import { WEB_WIDGET_PENDING_SLOT_NAME } from './constants';
 import { HTMLWebWidgetElement } from './element';
 import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
 import './install';
-import type { ClientRenderOptions } from '@web-widget/helpers';
 
 const __FIXTURES__ = '/packages/web-widget/src/__fixtures__/code@widget.js';
 
@@ -85,13 +86,12 @@ describe('Element default properties', () => {
       base: emptyWidget.baseURI,
       data: null,
       contextData: null,
-      contextMeta: null,
       inactive: false,
       recovering: false,
       loading: 'eager',
       status: HTMLWebWidgetElement.INITIAL,
       import: '',
-      renderTarget: 'shadow',
+      renderTarget: 'light',
       loader: null,
     };
 
@@ -300,19 +300,280 @@ describe('Auto load', () => {
     document.body.appendChild(widget);
     widget.import = src;
   });
+
+  it('mounts again after a completed disconnect and reconnect', async () => {
+    const widget = document.createElement('web-widget');
+    let mounts = 0;
+    widget.loader = async () => ({
+      render: async () => ({
+        mount: async () => {
+          mounts++;
+        },
+      }),
+    });
+    const waitForStatus = (expected: string) =>
+      new Promise<void>((resolve) => {
+        if (widget.status === expected) return resolve();
+        const onStatusChange = () => {
+          if (widget.status === expected) {
+            widget.removeEventListener('statuschange', onStatusChange);
+            resolve();
+          }
+        };
+        widget.addEventListener('statuschange', onStatusChange);
+      });
+
+    document.body.appendChild(widget);
+    await waitForStatus(HTMLWebWidgetElement.MOUNTED);
+    const shadowRoot = widget.shadowRoot;
+    widget.remove();
+    await waitForStatus(HTMLWebWidgetElement.INITIAL);
+    document.body.appendChild(widget);
+    await waitForStatus(HTMLWebWidgetElement.MOUNTED);
+
+    expect(mounts).to.equal(2);
+    expect(widget.shadowRoot).to.equal(shadowRoot);
+    widget.remove();
+  });
+
+  it('lazy loads a recovering widget from visible shadow content', async () => {
+    const NativeIntersectionObserver = window.IntersectionObserver;
+    let observedTarget: Element | null = null;
+    class TestIntersectionObserver {
+      #callback: IntersectionObserverCallback;
+
+      constructor(callback: IntersectionObserverCallback) {
+        this.#callback = callback;
+      }
+
+      observe(target: Element) {
+        observedTarget = target;
+        queueMicrotask(() =>
+          this.#callback(
+            [{ isIntersecting: true, target } as IntersectionObserverEntry],
+            this as unknown as IntersectionObserver
+          )
+        );
+      }
+
+      disconnect() {}
+
+      unobserve() {}
+
+      takeRecords() {
+        return [];
+      }
+
+      readonly root = null;
+      readonly rootMargin = '0px';
+      readonly thresholds = [0];
+    }
+    window.IntersectionObserver =
+      TestIntersectionObserver as unknown as typeof IntersectionObserver;
+
+    const widget = document.createElement('web-widget');
+    widget.style.display = 'contents';
+    widget.loading = 'lazy';
+    widget.recovering = true;
+    const root = widget.attachShadow({ mode: 'open' });
+    root.innerHTML =
+      '<web-widget-root style="display:contents">' +
+      '<button>visible shadow content</button>' +
+      '</web-widget-root>';
+    widget.loader = async () => ({
+      render: async () => ({ mount: async () => {} }),
+    });
+
+    const mounted = new Promise<void>((resolve) => {
+      widget.addEventListener('statuschange', () => {
+        if (widget.status === HTMLWebWidgetElement.MOUNTED) resolve();
+      });
+    });
+    try {
+      document.body.appendChild(widget);
+      await mounted;
+
+      expect(observedTarget).to.equal(root.querySelector('button'));
+      expect(widget.recovering).to.equal(false);
+    } finally {
+      widget.remove();
+      window.IntersectionObserver = NativeIntersectionObserver;
+    }
+  });
 });
 
 describe('Application property: container', () => {
   it('container', () =>
     createInactiveWidget(async ({ getElement, getContext }) => {
+      getElement().renderTarget = 'shadow';
       await getElement().load();
       await getElement().bootstrap();
       await getElement().mount();
-      expect(getContext().options.container).to.be.an.instanceof(ShadowRoot);
+      expect(getContext().options.container).to.be.an.instanceof(HTMLElement);
+      expect(getContext().options.container.parentNode).to.be.an.instanceof(
+        ShadowRoot
+      );
       await getElement().unmount();
       await getElement().unload();
-      expect(getContext().options.container).to.be.an.instanceof(ShadowRoot);
+      expect(getContext().options.container).to.be.an.instanceof(HTMLElement);
     }));
+
+  it('recovers a declarative shadow mount root without replacing SSR nodes', async () => {
+    const widget = document.createElement('web-widget');
+    widget.inactive = true;
+    widget.renderTarget = 'shadow';
+    widget.recovering = true;
+    const root = widget.attachShadow({ mode: 'open' });
+    root.innerHTML =
+      '<style data-web-widget-style="ssr">p{color:red}</style>' +
+      '<web-widget-root style="display:contents">' +
+      '<p id="ssr-node">server</p>' +
+      '</web-widget-root>';
+    document.body.appendChild(widget);
+
+    const ssrNode = widget.shadowRoot!.querySelector('#ssr-node');
+    const container = widget.createContainer();
+
+    expect(container).to.equal(ssrNode!.parentNode);
+    expect(widget.shadowRoot!.querySelector('#ssr-node')).to.equal(ssrNode);
+    expect(
+      widget.shadowRoot!.querySelector('[data-web-widget-style="ssr"]')
+    ).not.to.equal(null);
+    widget.remove();
+  });
+
+  it('keeps SSR CSS when dev hydration transfers only the style id', async () => {
+    const widget = document.createElement('web-widget');
+    widget.inactive = true;
+    widget.renderTarget = 'shadow';
+    widget.recovering = true;
+    widget.setAttribute('devstyles', JSON.stringify(['/src/counter.css']));
+    const root = widget.attachShadow({ mode: 'open' });
+    root.innerHTML =
+      '<style data-web-widget-style="/src/counter.css">' +
+      '.count{color:red}' +
+      '</style>' +
+      '<web-widget-root style="display:contents">' +
+      '<button class="count">1</button>' +
+      '</web-widget-root>';
+    document.body.appendChild(widget);
+
+    widget.createContainer();
+
+    expect(
+      root.querySelector<HTMLStyleElement>(
+        'style[data-web-widget-style="/src/counter.css"]'
+      )?.textContent
+    ).to.equal('.count{color:red}');
+    widget.remove();
+  });
+
+  it('rejects recovery when the declarative shadow root is missing', async () => {
+    const widget = document.createElement('web-widget');
+    widget.inactive = true;
+    widget.renderTarget = 'shadow';
+    widget.recovering = true;
+    document.body.appendChild(widget);
+
+    expect(() => widget.createContainer()).to.throw(
+      'declarative ShadowRoot is missing'
+    );
+    widget.remove();
+  });
+
+  it('does not mistake an application slot for the boundary pending slot', () => {
+    const widget = document.createElement('web-widget');
+    widget.inactive = true;
+    widget.renderTarget = 'shadow';
+    widget.innerHTML = '<div slot="web-widget-pending">Loading</div>';
+    const root = widget.attachShadow({ mode: 'open' });
+    root.innerHTML =
+      '<web-widget-root style="display:contents">' +
+      '<section><slot name="web-widget-pending"></slot></section>' +
+      '</web-widget-root>';
+    document.body.appendChild(widget);
+
+    const container = widget.createContainer();
+    const boundarySlots = Array.from(root.children).filter(
+      (element) =>
+        element.localName === 'slot' &&
+        element.getAttribute('name') === 'web-widget-pending'
+    );
+
+    expect(boundarySlots).to.have.length(0);
+    expect(root.firstElementChild).to.equal(container);
+    expect(widget.firstElementChild?.getAttribute('slot')).to.equal(
+      'web-widget-pending'
+    );
+    widget.remove();
+  });
+
+  it('creates a pending slot for the lifecycle-owned pending element', () => {
+    const widget = document.createElement('web-widget');
+    widget.inactive = true;
+    widget.renderTarget = 'shadow';
+    const pending = document.createElement(WEB_WIDGET_PENDING_LOCAL_NAME);
+    pending.slot = WEB_WIDGET_PENDING_SLOT_NAME;
+    widget.append(pending);
+    const root = widget.attachShadow({ mode: 'open' });
+    document.body.appendChild(widget);
+
+    const container = widget.createContainer();
+    const pendingSlot = Array.from(root.children).find(
+      (element) =>
+        element.localName === 'slot' &&
+        element.getAttribute('name') === WEB_WIDGET_PENDING_SLOT_NAME
+    );
+
+    expect(pendingSlot?.nextElementSibling).to.equal(container);
+    widget.remove();
+  });
+
+  it('does not create a pending slot without pending content', () => {
+    const widget = document.createElement('web-widget');
+    widget.inactive = true;
+    widget.renderTarget = 'shadow';
+    const root = widget.attachShadow({ mode: 'open' });
+    document.body.appendChild(widget);
+
+    widget.createContainer();
+
+    expect(root.querySelector('slot[name="web-widget-pending"]')).to.equal(
+      null
+    );
+    widget.remove();
+  });
+
+  it('installs widget styles before the client renderer bootstraps', async () => {
+    const widget = document.createElement('web-widget');
+    widget.inactive = true;
+    widget.renderTarget = 'shadow';
+    let styleWasInstalled = false;
+    widget.loader = async () => ({
+      meta: {
+        style: [{ id: 'client-style', content: '.client { color: green; }' }],
+      },
+      render: async (_component, _data, { container }) => {
+        const root = container.getRootNode() as ShadowRoot;
+        styleWasInstalled = !!root.querySelector(
+          '[data-web-widget-style="client-style"]'
+        );
+        return {};
+      },
+    });
+    document.body.appendChild(widget);
+
+    await widget.load();
+    await widget.bootstrap();
+
+    expect(styleWasInstalled).to.equal(true);
+    expect(
+      widget.shadowRoot!.querySelector(
+        'style[data-web-widget-style="client-style"]'
+      )?.textContent
+    ).to.equal('.client { color: green; }');
+    widget.remove();
+  });
 });
 
 describe('Application property: data', () => {
@@ -381,6 +642,7 @@ describe('Events', () => {
     createInactiveWidget(async ({ getElement }) => {
       const widget = getElement();
       const pending = document.createElement(WEB_WIDGET_PENDING_LOCAL_NAME);
+      pending.slot = WEB_WIDGET_PENDING_SLOT_NAME;
       pending.textContent = 'pending';
       widget.append(pending);
 
@@ -455,7 +717,6 @@ describe('Race Condition Fix', () => {
 
     // Trigger multiple potential autoMount calls rapidly
     element.setAttribute('contextdata', '{"test": "data1"}');
-    element.setAttribute('contextmeta', '{"test": "meta1"}');
     element.setAttribute('loading', 'eager'); // This should not trigger another load
     element.setAttribute('contextdata', '{"test": "data2"}');
 
@@ -529,7 +790,6 @@ describe('Race Condition Fix', () => {
     element.loader = testLoader;
     element.setAttribute('contextdata', '{"test": "data"}');
     element.loader = testLoader; // Set again
-    element.setAttribute('contextmeta', '{"test": "meta"}');
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -653,7 +913,6 @@ describe('Race Condition Fix', () => {
     // Rapidly trigger multiple changes that could cause race condition
     for (let i = 0; i < 5; i++) {
       element.setAttribute('contextdata', `{"test": "data${i}"}`);
-      element.setAttribute('contextmeta', `{"test": "meta${i}"}`);
     }
 
     await new Promise((resolve) => setTimeout(resolve, 100));

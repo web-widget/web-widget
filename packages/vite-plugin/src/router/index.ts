@@ -319,7 +319,8 @@ function createRouterPlugin(
       return createSharedConfig(host, options, config, env);
     },
 
-    async configResolved() {
+    async configResolved(config) {
+      host.registerWidgetPlugins(config.plugins);
       if (
         host.state.dev &&
         Object.keys(host.state.clientRoutemapEntryPoints.points).length === 0

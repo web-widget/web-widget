@@ -4,7 +4,7 @@
 
 ## 摘要
 
-`@web-widget/schema` 已定义技术无关的通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。本 RFC 定义构建转换层——通过标准化的 `WebWidgetAdapter` 协议，将 UI 框架组件在构建期转换为通用模块，使构建工具与框架适配器解耦演进。
+`@web-widget/schema` 已定义技术无关的通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。本 RFC 定义构建转换层——通过标准化的 `WidgetAdapter` 协议，将 UI 框架组件在构建期转换为通用模块，使构建工具与框架适配器解耦演进。
 
 ## 动机
 
@@ -19,14 +19,14 @@
 
 ## 提议
 
-### WebWidgetAdapter 协议
+### WidgetAdapter 协议
 
 `@web-widget/schema` 定义了通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。但要完成转换，构建工具还需要知道：**哪些文件属于哪个框架**，以及**从哪里获取该框架的渲染实现**。
 
-本 RFC 的核心提议是 `WebWidgetAdapter` 协议——一个连接构建工具与 UI 框架的适配器接口。它告诉构建工具遇到哪类文件时、从哪里获取渲染实现，从而使框架源码在构建期被转换为符合 `ServerRender` / `ClientRender` 契约的通用模块。
+本 RFC 的核心提议是 `WidgetAdapter` 协议——一个连接构建工具与 UI 框架的适配器接口。它告诉构建工具遇到哪类文件时、从哪里获取渲染实现，从而使框架源码在构建期被转换为符合 `ServerRender` / `ClientRender` 契约的通用模块。
 
 ```typescript
-interface WebWidgetAdapter {
+interface WidgetAdapter {
   /**
    * UI 框架标识符，用于在多框架共存时区分处理器。
    * 也是构建工具配置中引用适配器的键。
@@ -67,7 +67,7 @@ interface DeriveExport {
 }
 ```
 
-协议的设计遵循一个原则：**框架知道「怎么渲染」，构建工具知道「怎么集成」**。适配器包提供框架特定的渲染实现，不需要了解任何构建工具的插件 API；构建工具负责文件匹配和代码注入，不需要了解每个框架的渲染细节。两者通过 `WebWidgetAdapter` 协议交互，各自独立演进。
+协议的设计遵循一个原则：**框架知道「怎么渲染」，构建工具知道「怎么集成」**。适配器包提供框架特定的渲染实现，不需要了解任何构建工具的插件 API；构建工具负责文件匹配和代码注入，不需要了解每个框架的渲染细节。两者通过 `WidgetAdapter` 协议交互，各自独立演进。
 
 以下各节围绕这一协议展开：运行时模块如何提供渲染与互操作能力（1.1）、构建工具如何集成（1.2）、运行时实现如何适配不同环境（1.3）、适配器包如何组织（1.4）、版本管理（1.5）、派生导出（1.6）。
 
@@ -161,7 +161,7 @@ export default defineConfig({
 interface WebWidgetPluginOptions {
   adapters: (
     | string
-    | (Omit<WebWidgetAdapter, 'name' | 'extensions'> & {
+    | (Omit<WidgetAdapter, 'name' | 'extensions'> & {
         name?: string;
         extensions?: string[];
         /** 适配器包名，构建工具从此包导入 adapter 实现 */
@@ -252,7 +252,7 @@ export function container(loader, options) {
 export { container } from './adapter';
 ```
 
-`package.json` 中通过 `webWidgetAdapter` 字段声明 `WebWidgetAdapter` 配置，`exports` 组织子路径：
+`package.json` 中通过 `webWidgetAdapter` 字段声明 `WidgetAdapter` 配置，`exports` 组织子路径：
 
 ```json
 {
@@ -406,4 +406,4 @@ Widget({
 
 ## 参考
 
-- [Astro 渲染器设计调查](./references/astro-renderer-design.zh.md) — 对比 Astro `AstroRenderer` 与 `WebWidgetAdapter` 的设计差异
+- [Astro 渲染器设计调查](./references/astro-renderer-design.zh.md) — 对比 Astro `AstroRenderer` 与 `WidgetAdapter` 的设计差异

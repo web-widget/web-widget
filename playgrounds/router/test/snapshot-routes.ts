@@ -27,6 +27,7 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/html-shell-error', 500],
   ['/vue3-shell-error', 500],
   ['/react-server-component'],
+  ['/shadow-dom-ssr'],
   // Streaming routes (/react-streaming, /vue3-streaming) are verified in
   // streaming.test.ts — their DOM structure is non-deterministic.
   ['/large-css'],

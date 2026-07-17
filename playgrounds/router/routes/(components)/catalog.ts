@@ -170,6 +170,11 @@ export const navigation: NavigationGroup[] = [
     name: 'Features',
     items: [
       {
+        href: '/shadow-dom-ssr',
+        title: 'Shadow DOM SSR',
+        description: 'Opt one Widget into an isolated declarative shadow root.',
+      },
+      {
         href: '/client-only-component',
         title: 'Client-only rendering',
         description: 'Skip server rendering and mount in the browser.',

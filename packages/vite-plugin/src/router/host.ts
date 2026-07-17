@@ -1,4 +1,4 @@
-import type { SSRTarget, Manifest as ViteManifest } from 'vite';
+import type { Plugin, SSRTarget, Manifest as ViteManifest } from 'vite';
 import type { BuildEntryPoints } from '@/internal/build-entry-points';
 import {
   createRouteAssetCaches,
@@ -12,6 +12,7 @@ import type {
   RouteMap,
   WebRouterPluginApi,
   WidgetModuleFilter,
+  WidgetDefaults,
 } from '@/types';
 
 /** Deferred client build graph inputs resolved during `configEnvironment`. */
@@ -36,6 +37,7 @@ export interface RouterBuildState {
   serverTarget: SSRTarget;
   useAppBuilder: boolean;
   widgetModuleFilter?: WidgetModuleFilter;
+  widgetDefaults?: WidgetDefaults;
   /** In-memory routemap while dev server is running (filesystem routing). */
   devServerRoutemap?: RouteMap;
   /** Shared cache for route asset collection across plugin instances. */
@@ -54,6 +56,8 @@ export interface RouterPluginHost {
   patchState(patch: Partial<RouterBuildState>): void;
   /** @internal */
   initialize(state: RouterBuildState): void;
+  /** @internal */
+  registerWidgetPlugins(plugins: readonly Plugin[]): void;
   /** @internal */
   setDevServerRoutemap(routemap: RouteMap): void;
 }
@@ -94,8 +98,27 @@ export function createRouterPluginHost(
     get widgetModuleFilter() {
       return state.widgetModuleFilter;
     },
+    get widgetDefaults() {
+      return state.widgetDefaults ?? {};
+    },
     setWidgetModuleFilter(filter) {
-      state.widgetModuleFilter = filter;
+      const previous = state.widgetModuleFilter;
+      state.widgetModuleFilter = previous
+        ? (modulePath) => previous(modulePath) || filter(modulePath)
+        : filter;
+    },
+    setWidgetDefaults(defaults) {
+      for (const key of ['loading', 'renderTarget'] as const) {
+        const previous = state.widgetDefaults?.[key];
+        const next = defaults[key];
+        if (previous && next && previous !== next) {
+          throw new Error(
+            `Conflicting widget default "${key}" values: ` +
+              `"${previous}" and "${next}".`
+          );
+        }
+      }
+      state.widgetDefaults = { ...state.widgetDefaults, ...defaults };
     },
     async clientImportmap() {
       const file = api.config.input.client.importmap;
@@ -130,6 +153,25 @@ export function createRouterPluginHost(
     },
     initialize(next) {
       Object.assign(state, next);
+    },
+    registerWidgetPlugins(plugins) {
+      for (const plugin of plugins) {
+        if (plugin.name !== '@web-widget:widget-module-filter') continue;
+        const registration = (
+          plugin as Plugin & {
+            api?: {
+              filter?: WidgetModuleFilter;
+              defaults?: WidgetDefaults;
+            };
+          }
+        ).api;
+        if (registration?.filter) {
+          api.setWidgetModuleFilter(registration.filter);
+        }
+        if (registration?.defaults) {
+          api.setWidgetDefaults(registration.defaults);
+        }
+      }
     },
     setDevServerRoutemap(routemap: RouteMap) {
       state.devServerRoutemap = routemap;

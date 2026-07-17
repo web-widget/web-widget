@@ -31,15 +31,28 @@
       <div data-vue-style-loader hidden></div>
     </main>
     <!-- prettier-ignore -->
-    <web-widget inactive recovering rendertarget="light" adapter="react" data-hydration-widget="react"><div data-mount-root="react"><span class="hydration-probe react-probe" data-hydration-probe="react">__REACT_LABEL__ <!-- -->0</span><button data-hydration-increment="react" type="button">Increment</button></div></web-widget>
+    <web-widget inactive recovering rendertarget="light" adapter="react" data-hydration-widget="react"><div data-mount-root="react"><slot name="label"></slot><span class="hydration-probe react-probe shadow-boundary-probe" data-hydration-probe="react">__REACT_LABEL__ <!-- -->0</span><button data-hydration-increment="react" type="button">Increment</button></div></web-widget>
     <!-- prettier-ignore -->
-    <web-widget inactive recovering rendertarget="light" adapter="vue" data-hydration-widget="vue"><div data-mount-root="vue"><span class="hydration-probe vue-probe" data-hydration-probe="vue">Vue 0</span><button data-hydration-increment="vue" type="button">Increment</button></div></web-widget>
+    <web-widget inactive recovering rendertarget="light" adapter="vue" data-hydration-widget="vue"><div data-mount-root="vue"><slot name="label"></slot><span class="hydration-probe vue-probe shadow-boundary-probe" data-hydration-probe="vue">Vue 0</span><button data-hydration-increment="vue" type="button">Increment</button></div></web-widget>
     <!-- prettier-ignore -->
-    <web-widget inactive recovering rendertarget="light" adapter="preact" data-hydration-widget="preact"><div data-mount-root="preact"><span data-hydration-probe="preact">Preact 0</span><button data-hydration-increment="preact" type="button">Increment</button></div></web-widget>
+    <web-widget inactive recovering rendertarget="light" adapter="preact" data-hydration-widget="preact"><div data-mount-root="preact"><slot name="label"></slot><span class="shadow-boundary-probe" data-hydration-probe="preact">Preact 0</span><button data-hydration-increment="preact" type="button">Increment</button></div></web-widget>
     <!-- prettier-ignore -->
-    <web-widget inactive recovering rendertarget="light" adapter="solid" data-hydration-widget="solid"><div data-mount-root="solid"><span data-hydration-probe="solid">Solid 0</span><button data-hydration-increment="solid" type="button">Increment</button></div></web-widget>
+    <web-widget inactive recovering rendertarget="light" adapter="solid" data-hydration-widget="solid"><div data-mount-root="solid"><slot name="label"></slot><span class="shadow-boundary-probe" data-hydration-probe="solid">Solid 0</span><button data-hydration-increment="solid" type="button">Increment</button></div></web-widget>
     <!-- prettier-ignore -->
-    <web-widget inactive recovering rendertarget="light" adapter="svelte" data-hydration-widget="svelte"><div data-mount-root="svelte"><span data-hydration-probe="svelte">Svelte 0</span><button data-hydration-increment="svelte" type="button">Increment</button></div></web-widget>
+    <web-widget inactive recovering rendertarget="light" adapter="svelte" data-hydration-widget="svelte"><div data-mount-root="svelte"><slot name="label"></slot><span class="shadow-boundary-probe" data-hydration-probe="svelte">Svelte 0</span><button data-hydration-increment="svelte" type="button">Increment</button></div></web-widget>
+    <span class="shadow-boundary-probe" data-shadow-outside-probe
+      >Document style probe</span
+    >
+    <!-- prettier-ignore -->
+    <web-widget inactive recovering rendertarget="shadow" adapter="react" data-shadow-widget="react"><template shadowrootmode="open"><style data-web-widget-style="shadow-react-module">:host{display:block}.shadow-boundary-probe{--shadow-style-owner:module;color:rgb(20, 90, 110)}</style><style data-web-widget-style="shadow-react-override">.shadow-boundary-probe{--shadow-style-owner:override;color:rgb(30, 120, 70)}</style><slot name="web-widget-pending"></slot><web-widget-root style="display:contents"><div data-mount-root="react"><slot name="label"></slot><span class="hydration-probe react-probe shadow-boundary-probe" data-hydration-probe="react">React <!-- -->0</span><button data-hydration-increment="react" type="button">Increment</button></div></web-widget-root></template><web-widget-pending aria-busy="true" slot="web-widget-pending" style="display:contents" data-shadow-pending="react">Pending</web-widget-pending><span slot="label" data-shadow-label="react">React label</span><script type="application/json" slot="web-widget-state" data-shadow-state="react">{}</script></web-widget>
+    <!-- prettier-ignore -->
+    <web-widget inactive recovering rendertarget="shadow" adapter="vue" data-shadow-widget="vue"><template shadowrootmode="open"><style data-web-widget-style="shadow-vue-module">:host{display:block}.shadow-boundary-probe{--shadow-style-owner:module;color:rgb(20, 90, 110)}</style><style data-web-widget-style="shadow-vue-override">.shadow-boundary-probe{--shadow-style-owner:override;color:rgb(30, 120, 70)}</style><slot name="web-widget-pending"></slot><web-widget-root style="display:contents"><div data-mount-root="vue"><slot name="label"></slot><span class="hydration-probe vue-probe shadow-boundary-probe" data-hydration-probe="vue">Vue 0</span><button data-hydration-increment="vue" type="button">Increment</button></div></web-widget-root></template><web-widget-pending aria-busy="true" slot="web-widget-pending" style="display:contents" data-shadow-pending="vue">Pending</web-widget-pending><span slot="label" data-shadow-label="vue">Vue label</span><script type="application/json" slot="web-widget-state" data-shadow-state="vue">{}</script></web-widget>
+    <!-- prettier-ignore -->
+    <web-widget inactive recovering rendertarget="shadow" adapter="preact" data-shadow-widget="preact"><template shadowrootmode="open"><style data-web-widget-style="shadow-preact-module">:host{display:block}.shadow-boundary-probe{--shadow-style-owner:module;color:rgb(20, 90, 110)}</style><style data-web-widget-style="shadow-preact-override">.shadow-boundary-probe{--shadow-style-owner:override;color:rgb(30, 120, 70)}</style><slot name="web-widget-pending"></slot><web-widget-root style="display:contents"><div data-mount-root="preact"><slot name="label"></slot><span class="shadow-boundary-probe" data-hydration-probe="preact">Preact 0</span><button data-hydration-increment="preact" type="button">Increment</button></div></web-widget-root></template><web-widget-pending aria-busy="true" slot="web-widget-pending" style="display:contents" data-shadow-pending="preact">Pending</web-widget-pending><span slot="label" data-shadow-label="preact">Preact label</span><script type="application/json" slot="web-widget-state" data-shadow-state="preact">{}</script></web-widget>
+    <!-- prettier-ignore -->
+    <web-widget inactive recovering rendertarget="shadow" adapter="solid" data-shadow-widget="solid"><template shadowrootmode="open"><style data-web-widget-style="shadow-solid-module">:host{display:block}.shadow-boundary-probe{--shadow-style-owner:module;color:rgb(20, 90, 110)}</style><style data-web-widget-style="shadow-solid-override">.shadow-boundary-probe{--shadow-style-owner:override;color:rgb(30, 120, 70)}</style><slot name="web-widget-pending"></slot><web-widget-root style="display:contents"><div data-mount-root="solid"><slot name="label"></slot><span class="shadow-boundary-probe" data-hydration-probe="solid">Solid 0</span><button data-hydration-increment="solid" type="button">Increment</button></div></web-widget-root></template><web-widget-pending aria-busy="true" slot="web-widget-pending" style="display:contents" data-shadow-pending="solid">Pending</web-widget-pending><span slot="label" data-shadow-label="solid">Solid label</span><script type="application/json" slot="web-widget-state" data-shadow-state="solid">{}</script></web-widget>
+    <!-- prettier-ignore -->
+    <web-widget inactive recovering rendertarget="shadow" adapter="svelte" data-shadow-widget="svelte"><template shadowrootmode="open"><style data-web-widget-style="shadow-svelte-module">:host{display:block}.shadow-boundary-probe{--shadow-style-owner:module;color:rgb(20, 90, 110)}</style><style data-web-widget-style="shadow-svelte-override">.shadow-boundary-probe{--shadow-style-owner:override;color:rgb(30, 120, 70)}</style><slot name="web-widget-pending"></slot><web-widget-root style="display:contents"><div data-mount-root="svelte"><slot name="label"></slot><span class="shadow-boundary-probe" data-hydration-probe="svelte">Svelte 0</span><button data-hydration-increment="svelte" type="button">Increment</button></div></web-widget-root></template><web-widget-pending aria-busy="true" slot="web-widget-pending" style="display:contents" data-shadow-pending="svelte">Pending</web-widget-pending><span slot="label" data-shadow-label="svelte">Svelte label</span><script type="application/json" slot="web-widget-state" data-shadow-state="svelte">{}</script></web-widget>
     <script>
       window.__hydrationErrors = [];
       window.__ssrNodes = {};
@@ -53,6 +66,16 @@
         window.__ssrNodes[`${adapter}:probe`] = host.querySelector(
           '[data-hydration-probe]'
         );
+        const shadowHost = document.querySelector(
+          `[data-shadow-widget="${adapter}"]`
+        );
+        window.__ssrNodes[`shadow:${adapter}:host`] = shadowHost;
+        window.__ssrNodes[`shadow:${adapter}:container`] =
+          shadowHost.shadowRoot?.querySelector('web-widget-root');
+        window.__ssrNodes[`shadow:${adapter}:root`] =
+          shadowHost.shadowRoot?.querySelector('[data-mount-root]');
+        window.__ssrNodes[`shadow:${adapter}:probe`] =
+          shadowHost.shadowRoot?.querySelector('[data-hydration-probe]');
       }
       document.addEventListener('web-widget:hydration-error', (event) => {
         window.__hydrationErrors.push(event.detail);

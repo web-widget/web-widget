@@ -3,10 +3,12 @@ import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
 import { hasDefaultExport } from './module-exports';
+import type { DevWidgetStyle } from '@/dev/meta';
 import { stripModuleIdQuery, CSS_LANGS_RE } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
 import { createAliasGenerator } from '@/internal/alias';
+import type { WidgetDefaults } from '@/types';
 
 const IMPORT_DEFAULT_NAME_REG =
   /import\s+(?:([a-zA-Z_$][\w$]*)|\{\s*default\s+as\s+([a-zA-Z_$][\w$]*)\s*\})\s+from/;
@@ -47,6 +49,8 @@ export interface ImportRenderPluginOptions {
   importerPattern: RegExp;
   /** Adapter module specifier for container injection. */
   adapterModule: string;
+  /** Build-time defaults injected before call-site options. */
+  defaults: WidgetDefaults;
 }
 
 /**
@@ -86,6 +90,8 @@ export interface TransformWidgetImportsOptions {
   importPattern: RegExp;
   /** Adapter module specifier for container injection. */
   adapterModule: string;
+  /** Build-time defaults injected before call-site options. */
+  defaults: WidgetDefaults;
 }
 
 export interface TransformWidgetImportsContext {
@@ -93,6 +99,8 @@ export interface TransformWidgetImportsContext {
   resolve: ResolveFn;
   /** Emit a chunk file (production builds only). */
   emitFile: EmitFileFn;
+  /** Collect Vite-transformed CSS owned by a widget during development. */
+  getDevStyles?: (moduleId: string) => Promise<DevWidgetStyle[]>;
 }
 
 export interface TransformResult {
@@ -122,7 +130,7 @@ export async function transformWidgetImports(
   ctx: TransformWidgetImportsContext,
   options: TransformWidgetImportsOptions
 ): Promise<TransformResult | null> {
-  const { resolve, emitFile } = ctx;
+  const { resolve, emitFile, getDevStyles } = ctx;
   const {
     code,
     id,
@@ -133,6 +141,7 @@ export async function transformWidgetImports(
     sourcemap,
     importPattern,
     adapterModule,
+    defaults,
   } = options;
 
   const cleanImporterId = stripModuleIdQuery(id);
@@ -271,10 +280,14 @@ export async function transformWidgetImports(
       importer: id,
       emitFile,
     });
+    const devStyles =
+      dev && getDevStyles ? await getDevStyles(moduleId) : undefined;
 
-    const importProperty = clientModuleExpression
-      ? `import: ${clientModuleExpression}, `
-      : '';
+    const injectedOptions = serializeInjectedOptions(defaults, {
+      devStyles: devStyles?.length ? JSON.stringify(devStyles) : undefined,
+      import: clientModuleExpression,
+      name: JSON.stringify(componentName),
+    });
 
     const definerName = alias('container');
     definerNames.push(definerName);
@@ -282,7 +295,7 @@ export async function transformWidgetImports(
     replacementStatements.push(
       `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
         moduleName
-      )}), { ${importProperty}name: ${JSON.stringify(componentName)} });`
+      )}), { ${injectedOptions} });`
     );
 
     magicString.update(statementStart, statementEnd, '');
@@ -307,14 +320,18 @@ export async function transformWidgetImports(
       importer: id,
       emitFile,
     });
+    const devStyles =
+      dev && getDevStyles ? await getDevStyles(moduleId) : undefined;
 
     const componentName = parseDeclarationName(
       code.substring(0, containerCallStart)
     );
 
-    const props = `import: ${clientModuleExpression}${
-      componentName ? `, name: ${JSON.stringify(componentName)}` : ''
-    }`;
+    const props = serializeInjectedOptions(defaults, {
+      devStyles: devStyles?.length ? JSON.stringify(devStyles) : undefined,
+      import: clientModuleExpression,
+      name: componentName ? JSON.stringify(componentName) : undefined,
+    });
 
     // Find the `)` that closes `import(...)`.
     let pos = moduleSpecifierEnd;
@@ -415,6 +432,25 @@ function toDevUrl(target: string, base: string) {
   return `${base}${target}`;
 }
 
+function serializeInjectedOptions(
+  defaults: WidgetDefaults,
+  generated: { devStyles?: string; import?: string; name?: string }
+): string {
+  return [
+    defaults.loading
+      ? `loading: ${JSON.stringify(defaults.loading)}`
+      : undefined,
+    defaults.renderTarget
+      ? `renderTarget: ${JSON.stringify(defaults.renderTarget)}`
+      : undefined,
+    generated.devStyles ? `devStyles: ${generated.devStyles}` : undefined,
+    generated.import ? `import: ${generated.import}` : undefined,
+    generated.name ? `name: ${generated.name}` : undefined,
+  ]
+    .filter((value): value is string => !!value)
+    .join(', ');
+}
+
 /**
  * Vite plugin wrapper around {@link transformWidgetImports}.
  */
@@ -423,6 +459,7 @@ export function importRenderPlugin({
   importPattern,
   importerPattern,
   adapterModule,
+  defaults,
 }: ImportRenderPluginOptions): Plugin[] {
   if (typeof adapterModule !== 'string') {
     throw new TypeError(`options.adapterModule must be a string type.`);
@@ -432,6 +469,8 @@ export function importRenderPlugin({
   let root: string;
   let base: string;
   let sourcemap: boolean;
+  let getDevStyles:
+    ((moduleId: string) => Promise<DevWidgetStyle[]>) | undefined;
 
   return [
     {
@@ -441,6 +480,19 @@ export function importRenderPlugin({
         root = config.root;
         base = config.base;
         sourcemap = !!config.build?.sourcemap;
+      },
+      async configureServer(viteServer) {
+        const [{ getDevWidgetStyles }, environment] = await Promise.all([
+          import('@/dev/meta'),
+          import('@/internal/environment'),
+        ]);
+        const serverEnvironment = environment.asServerDevEnvironment(
+          environment.getServerEnvironmentFromDevServer(viteServer)
+        );
+        const clientEnvironment =
+          environment.getClientEnvironmentFromDevServer(viteServer);
+        getDevStyles = (moduleId) =>
+          getDevWidgetStyles(moduleId, serverEnvironment, clientEnvironment);
       },
       transform: {
         filter: { id: nativeFilter },
@@ -460,6 +512,7 @@ export function importRenderPlugin({
                 resolve: (specifier, importer) =>
                   this.resolve(specifier, importer, { skipSelf: true }),
                 emitFile: (file) => this.emitFile(file),
+                getDevStyles,
               },
               {
                 code,
@@ -471,6 +524,7 @@ export function importRenderPlugin({
                 sourcemap,
                 importPattern,
                 adapterModule,
+                defaults,
               }
             );
             return result;

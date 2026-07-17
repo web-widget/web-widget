@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import styles from '~/routes/(css)/counter.module.css';
 
 export default function Counter({
   count: initialCount = 0,
@@ -7,6 +8,8 @@ export default function Counter({
 }) {
   const [count, setCount] = useState(initialCount);
   return (
-    <button onClick={() => setCount(count + 1)}>React count is {count}</button>
+    <button className={styles.button} onClick={() => setCount(count + 1)}>
+      React count is {count}
+    </button>
   );
 }

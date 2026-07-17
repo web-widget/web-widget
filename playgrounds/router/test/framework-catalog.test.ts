@@ -43,4 +43,15 @@ describe('framework catalog', () => {
 
     expect(new Set(links).size).toBe(links.length);
   });
+
+  it('links to the Shadow DOM SSR feature example', () => {
+    const features = navigation.find((group) => group.name === 'Features');
+
+    expect(features?.items).toContainEqual(
+      expect.objectContaining({
+        title: 'Shadow DOM SSR',
+        href: '/shadow-dom-ssr',
+      })
+    );
+  });
 });

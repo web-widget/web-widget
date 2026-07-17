@@ -1,10 +1,5 @@
 import MagicString from 'magic-string';
 
-export const SERVER_ENTRY_HMR_ACCEPT = `if (import.meta.hot) {
-  import.meta.hot.accept();
-}
-`;
-
 export const SERVER_ENTRY_PLACEHOLDER = 'import.meta.framework';
 
 export interface AssembleServerEntryTransformOptions {
@@ -25,7 +20,6 @@ export function assembleServerEntryTransform(
     code,
     id,
     entryId,
-    dev,
     manifestCode,
     metaCode,
     sourcemap = false,
@@ -45,10 +39,6 @@ export function assembleServerEntryTransform(
         `);
 
   magicString.replaceAll(placeholder, FRAMEWORK);
-
-  if (dev && !code.includes('import.meta.hot.accept')) {
-    magicString.append(`\n${SERVER_ENTRY_HMR_ACCEPT}`);
-  }
 
   return {
     code: magicString.toString(),

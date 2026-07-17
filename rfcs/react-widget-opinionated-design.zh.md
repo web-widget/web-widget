@@ -183,7 +183,7 @@ interface ReactWidgetProps {
 
 当前设计在**服务端**完整处理 pending 与 error 状态——errorFallback 在服务端确定并通过 `$RC` 流式输出到客户端。但一旦 HTML 到达浏览器后，**无法在客户端层面恢复或重试失败的 widget**。
 
-`clientOnly` widget 的 `pending` fallback 会在服务端输出到 `<web-widget>` 引导元素内部，并由 `WebWidgetRenderer.pendingLocalName` 指定的协议元素包裹。元素进入 `mounting` 状态时，`HTMLWebWidgetElement` 统一删除该边界；因此 fallback 在模块加载和 bootstrap 期间保持可见，同时不会阻止客户端 widget 启动。
+`clientOnly` widget 的 `pending` fallback 会在服务端输出到 `<web-widget>` 引导元素内部，并由 `WebWidgetRenderer.pendingBoundary` 描述的普通元素包裹。保留 slot `web-widget-pending` 是该边界的唯一 identity；元素进入 `mounting` 状态时，`HTMLWebWidgetElement` 统一删除该边界，因此 fallback 在模块加载和 bootstrap 期间保持可见，同时不会阻止客户端 widget 启动。
 
 原因在于 islands 架构没有路由级 React hydration：路由组件的 React 树在服务端渲染为静态 HTML 后销毁，客户端不存在对应的 React 组件实例。因此：
 
@@ -199,7 +199,7 @@ interface ReactWidgetProps {
 
 ## 未来演进
 
-- **错误上报钩子**：`DefineWebWidgetOptions` 中增加 `onError` 回调
+- **错误上报钩子**：`WidgetAdapterOptions` 中增加 `onError` 回调
 - **超时降级**：在 Suspense 层集成超时机制
 
 ## 参考

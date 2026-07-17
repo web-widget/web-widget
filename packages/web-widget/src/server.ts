@@ -4,14 +4,21 @@ import {
   renderLifecycleCacheLayer,
   callSyncCacheProvider,
 } from '@web-widget/lifecycle-cache/server';
+import type { WidgetModuleLoader } from '@web-widget/schema';
 import type {
-  Loader,
-  WebWidgetElementProps,
   WebWidgetRendererOptions,
   WebWidgetRendererInterface,
   WebWidgetRendererConstructor,
+  WidgetRenderParts,
 } from './types';
 import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
+import {
+  WEB_WIDGET_PENDING_SLOT_NAME,
+  WEB_WIDGET_ROOT_LOCAL_NAME,
+  WEB_WIDGET_STATE_SLOT_NAME,
+} from './constants';
+import { resolveWidgetStyles } from './styles';
+import { resolveWebWidgetRendererOptions } from './options';
 import {
   getClientModuleId,
   getDisplayModuleId,
@@ -19,7 +26,6 @@ import {
 } from './utils/render';
 export type * from './types';
 
-const __FEATURE_INJECTING_STYLES__ = false;
 let showWebContainerWarning = true;
 
 const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
@@ -31,9 +37,16 @@ function isWebContainer() {
   );
 }
 
-function tryRenderLifecycleCacheLayer(): string {
+function tryRenderLifecycleCacheLayer(
+  target: WidgetRenderParts['target']
+): string {
   try {
-    return renderLifecycleCacheLayer();
+    return renderLifecycleCacheLayer(
+      undefined,
+      target === 'shadow'
+        ? { scriptAttributes: { slot: WEB_WIDGET_STATE_SLOT_NAME } }
+        : undefined
+    );
   } catch (error: unknown) {
     const msg =
       error && typeof error === 'object' && 'message' in error
@@ -67,38 +80,109 @@ function unsafeAttrsToHtml(attrs: Record<string, string>) {
     .join(' ');
 }
 
+function renderStylesToString(styles: WidgetRenderParts['styles']): string {
+  return styles
+    .map((descriptor) => {
+      const marker = { 'data-web-widget-style': descriptor.id };
+      return descriptor.href
+        ? renderMetaToString({
+            link: [
+              {
+                ...marker,
+                href: descriptor.href,
+                integrity: descriptor.integrity,
+                media: descriptor.media,
+                rel: 'stylesheet',
+              },
+            ],
+          })
+        : renderMetaToString({
+            style: [
+              {
+                ...marker,
+                content: descriptor.content ?? '',
+                media: descriptor.media,
+              },
+            ],
+          });
+    })
+    .join('');
+}
+
+function serializeInnerHTML(parts: WidgetRenderParts): string {
+  const pendingSlot =
+    parts.target === 'shadow' ? ` slot="${WEB_WIDGET_PENDING_SLOT_NAME}"` : '';
+  const pendingHTML = parts.pendingHTML
+    ? `<${WEB_WIDGET_PENDING_LOCAL_NAME} aria-busy="true"${pendingSlot} style="display:contents">${parts.pendingHTML}</${WEB_WIDGET_PENDING_LOCAL_NAME}>`
+    : '';
+  if (parts.target === 'light') {
+    return parts.appHTML + pendingHTML + parts.transferHTML;
+  }
+
+  const shadowHTML =
+    renderStylesToString(parts.styles) +
+    (pendingHTML
+      ? `<slot name="${WEB_WIDGET_PENDING_SLOT_NAME}"></slot>`
+      : '') +
+    `<${WEB_WIDGET_ROOT_LOCAL_NAME} style="display:contents">` +
+    parts.appHTML +
+    `</${WEB_WIDGET_ROOT_LOCAL_NAME}>`;
+
+  return (
+    `<template shadowrootmode="open">${shadowHTML}</template>` +
+    pendingHTML +
+    parts.lightChildrenHTML +
+    parts.transferHTML
+  );
+}
+
 class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   #children: string;
   #clientImport: string;
-  #loader: Loader;
-  #options: WebWidgetElementProps;
+  #loader: WidgetModuleLoader;
+  #options: Omit<WebWidgetRendererOptions, 'children' | 'renderStage'>;
   #renderStage?: string;
   localName = 'web-widget';
-  pendingLocalName = WEB_WIDGET_PENDING_LOCAL_NAME;
-  pendingBoundary = { ariaBusy: true as const, display: 'contents' as const, slot: '' };
+
+  get pendingBoundary() {
+    return {
+      ariaBusy: true as const,
+      display: 'contents' as const,
+      localName: WEB_WIDGET_PENDING_LOCAL_NAME,
+      slot:
+        this.#options.renderTarget === 'shadow'
+          ? WEB_WIDGET_PENDING_SLOT_NAME
+          : '',
+    };
+  }
 
   constructor(
-    loader: Loader,
+    loader: WidgetModuleLoader,
     { children = '', renderStage, ...options }: WebWidgetRendererOptions
   ) {
-    options.loading ??= 'lazy';
-    options.renderTarget ??= 'light';
-    if (children && options.renderTarget !== 'shadow') {
+    const resolvedOptions = resolveWebWidgetRendererOptions(options);
+
+    if (children && resolvedOptions.renderTarget !== 'shadow') {
       throw new Error(
         `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
       );
     }
 
     this.#children = children;
-    this.#clientImport = getClientModuleId(loader, options);
+    this.#clientImport = getClientModuleId(loader, resolvedOptions);
     this.#loader = loader;
-    this.#options = options;
+    this.#options = resolvedOptions;
     this.#renderStage = renderStage;
   }
 
   get attributes() {
     const clientImport = this.#clientImport;
-    const { data: contextdata, meta: contextmeta, ...options } = this.#options;
+    const {
+      data: contextdata,
+      devStyles,
+      meta: _meta,
+      ...options
+    } = this.#options;
     const renderStage = this.#renderStage;
 
     if (renderStage === 'server') {
@@ -111,33 +195,46 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       ...options,
       // base: options.base?.startsWith("file://") ? undefined : options.base,
       contextdata: JSON.stringify(contextdata),
-      contextmeta: JSON.stringify(contextmeta),
       import: clientImport,
       recovering: renderStage !== 'client',
+      devstyles: devStyles?.length
+        ? JSON.stringify(devStyles.map(({ id }) => id))
+        : undefined,
     });
 
     if (attrs.contextdata === '{}') {
       delete attrs.contextdata;
     }
 
-    if (attrs.contextmeta === '{}') {
-      delete attrs.contextmeta;
-    }
-
     return attrs;
   }
 
-  async renderInnerHTMLToString() {
+  async #renderParts(): Promise<WidgetRenderParts> {
     const children = this.#children;
     const clientImport = this.#clientImport;
     const loader = this.#loader;
     const options = this.#options;
     const renderStage = this.#renderStage;
 
-    let result = '';
+    const target = options.renderTarget === 'shadow' ? 'shadow' : 'light';
+    const attributes = this.attributes;
 
     if (renderStage === 'client') {
-      return tryRenderLifecycleCacheLayer();
+      const meta = rebaseMeta(options.meta ?? {}, clientImport);
+      return {
+        appHTML: '',
+        attributes,
+        lightChildrenHTML: children,
+        styles:
+          target === 'shadow'
+            ? [
+                ...resolveWidgetStyles(meta, clientImport),
+                ...(options.devStyles ?? []),
+              ]
+            : [],
+        target,
+        transferHTML: tryRenderLifecycleCacheLayer(target),
+      };
     }
 
     const module = (await loader()) as ServerWidgetModule;
@@ -161,21 +258,13 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       console.warn(`Script tags in meta will be ignored.`);
     }
 
-    const styleLinks = meta.link
-      ? meta.link.filter(({ rel }) => rel === 'stylesheet')
-      : [];
-    const styles = meta.style || [];
-    const hasStyle = styleLinks.length || styles.length;
-
     const rawResult = await callSyncCacheProvider(() =>
       render(component, options.data, {
         progressive: false,
       })
     );
 
-    if (typeof rawResult === 'string') {
-      result = rawResult;
-    } else {
+    if (typeof rawResult !== 'string') {
       throw new TypeError(
         `Render results in an unknown format: ${getType(rawResult)}: ${getDisplayModuleId(
           loader,
@@ -184,44 +273,32 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       );
     }
 
-    if (hasStyle && __FEATURE_INJECTING_STYLES__) {
-      result += renderMetaToString({
-        link: styleLinks,
-        style: styles,
-      });
-      result += `<web-widget.body>${result}</web-widget.body>`;
-    }
-
-    if (options.renderTarget === 'shadow') {
-      /* @stringify >>> */
-      const shimCode = `(${(
-        a: (target: Element) => void,
-        c = document.currentScript,
-        p = c && c.parentElement,
-        _ = c && c.remove()
-      ) => a && p && a(p)})(window.attachShadowRoots)`.replace(/\s/g, '');
-      /* @stringify <<< */
-
-      // NOTE: Declarative Shadow DOM
-      // @see https://developer.chrome.com/articles/declarative-shadow-dom/
-      result += `<template shadowrootmode="open">${result}</template>`;
-      result += `<script>${shimCode}</script>`;
-      result += children;
-    }
-
-    result += tryRenderLifecycleCacheLayer();
-
-    return result;
+    return {
+      appHTML: rawResult,
+      attributes,
+      lightChildrenHTML: children,
+      styles:
+        target === 'shadow'
+          ? [
+              ...resolveWidgetStyles(meta, clientImport),
+              ...(options.devStyles ?? []),
+            ]
+          : [],
+      target,
+      transferHTML: tryRenderLifecycleCacheLayer(target),
+    };
   }
 
-  async renderOuterHTMLToString({ pendingHTML }: { pendingHTML?: string } = {}) {
+  async renderInnerHTMLToString() {
+    return serializeInnerHTML(await this.#renderParts());
+  }
+
+  async renderOuterHTMLToString(options: { pendingHTML?: string } = {}) {
+    const parts = await this.#renderParts();
+    parts.pendingHTML = options.pendingHTML;
     const tag = this.localName;
-    const attributes = this.attributes;
-    let children = await this.renderInnerHTMLToString();
-    if (pendingHTML) {
-      children = `<${this.pendingLocalName} aria-busy="true" style="display:contents">${pendingHTML}</${this.pendingLocalName}>${children}`;
-    }
-    return `<${tag} ${unsafeAttrsToHtml(attributes)}>${children}</${tag}>`;
+    const children = serializeInnerHTML(parts);
+    return `<${tag} ${unsafeAttrsToHtml(parts.attributes)}>${children}</${tag}>`;
   }
 }
 

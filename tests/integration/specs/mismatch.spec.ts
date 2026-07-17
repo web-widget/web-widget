@@ -105,17 +105,21 @@ test('M02 reloads instead of hydrating an old React DOM with a new component', a
       if (response.request().resourceType() === 'document') documents++;
     });
     await page.goto(server.baseURL, { waitUntil: 'commit' });
-    await expect(page.locator('[data-hydration-probe="react"]')).toHaveText(
-      'React 0'
-    );
+    await expect(
+      page.locator(
+        'web-widget[data-hydration-widget="react"] [data-hydration-probe="react"]'
+      )
+    ).toHaveText('React 0');
     await mutateSource(server, 'src/hydration/ReactWidget.tsx', (source) =>
       source.replace('React {count}', 'Updated React {count}')
     );
     release();
 
-    await expect(page.locator('[data-hydration-probe="react"]')).toHaveText(
-      'Updated React 0'
-    );
+    await expect(
+      page.locator(
+        'web-widget[data-hydration-widget="react"] [data-hydration-probe="react"]'
+      )
+    ).toHaveText('Updated React 0');
     await awaitHydration(page);
     expect(documents).toBe(2);
     expect(await page.evaluate(() => window.__hydrationErrors.length)).toBe(0);
@@ -195,14 +199,15 @@ test('M04 converges when an update lands between bootstrap and mount', async ({
     );
     await page.evaluate(() => window.__releaseRace?.());
 
-    await expect(page.locator('[data-hydration-probe="react"]')).toHaveText(
-      'Updated React 0'
-    );
+    const reactHost = page.locator('web-widget[data-hydration-widget="react"]');
+    await expect(
+      reactHost.locator('[data-hydration-probe="react"]')
+    ).toHaveText('Updated React 0');
     await awaitHydration(page);
-    await page.locator('[data-hydration-increment="react"]').click();
-    await expect(page.locator('[data-hydration-probe="react"]')).toHaveText(
-      'Updated React 1'
-    );
+    await reactHost.locator('[data-hydration-increment="react"]').click();
+    await expect(
+      reactHost.locator('[data-hydration-probe="react"]')
+    ).toHaveText('Updated React 1');
     expect(documents).toBe(2);
     await expect(
       page.locator('web-widget[data-hydration-widget="react"]')

@@ -1,37 +1,54 @@
-/* @stringify >>> */
-export default `(${function attachShadowRoots(
-  root: DocumentFragment | Document = document
-) {
-  (
-    root.querySelectorAll(
-      'template[shadowrootmode]'
-    ) as NodeListOf<HTMLTemplateElement>
-  ).forEach((template) => {
-    const mode = template.getAttribute('shadowrootmode') as 'closed' | 'open';
-    const host = template.parentNode as Element & {
-      attachInternals: Function;
-    };
-    const shadowRoot = host.attachShadow({
-      mode,
-    });
+/**
+ * Converts declarative shadow root templates left unprocessed by the browser.
+ * Native DSD parsers consume these templates before this function runs, making
+ * it a no-op in supported browsers.
+ */
+export function attachDeclarativeShadowRoots(
+  root: ParentNode = document
+): void {
+  const templates = Array.from(
+    root.querySelectorAll<HTMLTemplateElement>('template[shadowrootmode]')
+  );
+
+  for (const template of templates) {
+    const host = template.parentElement;
+    const mode = template.getAttribute('shadowrootmode');
+    if (!host || (mode !== 'open' && mode !== 'closed')) continue;
+
+    let shadowRoot: ShadowRoot;
+    try {
+      shadowRoot = host.attachShadow({ mode });
+    } catch {
+      // An open root may already exist when a fragment is processed twice.
+      if (!host.shadowRoot) continue;
+      shadowRoot = host.shadowRoot;
+    }
+
     const attachInternals = host.attachInternals;
+    host.attachInternals = function () {
+      if (!attachInternals) {
+        return { shadowRoot } as ElementInternals;
+      }
 
-    Object.assign(host, {
-      attachShadow() {
-        shadowRoot.innerHTML = '';
-        return shadowRoot;
-      },
-      attachInternals() {
-        const ei = attachInternals ? attachInternals.call(this, arguments) : {};
-        return Object.create(ei, {
-          shadowRoot: { value: shadowRoot },
+      const internals = attachInternals.call(this);
+      if (internals.shadowRoot === shadowRoot) return internals;
+
+      try {
+        Object.defineProperty(internals, 'shadowRoot', { value: shadowRoot });
+        return internals;
+      } catch {
+        return new Proxy(internals, {
+          get(target, property) {
+            if (property === 'shadowRoot') return shadowRoot;
+            const value = Reflect.get(target, property, target);
+            return typeof value === 'function' ? value.bind(target) : value;
+          },
         });
-      },
-    });
+      }
+    };
 
-    shadowRoot.appendChild((template as HTMLTemplateElement).content);
+    shadowRoot.appendChild(template.content);
     template.remove();
-    attachShadowRoots(shadowRoot);
-  });
-}})()`;
-/* @stringify <<< */
+    attachDeclarativeShadowRoots(shadowRoot);
+  }
+}

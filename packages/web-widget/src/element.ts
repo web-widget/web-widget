@@ -1,6 +1,6 @@
-import type { Meta } from '@web-widget/helpers';
+import type { ClientWidgetModule } from '@web-widget/helpers';
 import { callSyncCacheProvider } from '@web-widget/lifecycle-cache/client';
-import type { SerializableObject } from './types';
+import type { SerializableObject } from '@web-widget/schema';
 import { createIdleObserver } from './utils/idle';
 import { createVisibleObserver } from './utils/lazy';
 import { triggerModulePreload } from './utils/module-preload';
@@ -8,12 +8,15 @@ import { queueMicrotask } from './utils/queue-microtask';
 import { reportError } from './utils/report-error';
 import type { Lifecycle, ModuleLoader, Status, Timeouts } from './container';
 import { ModuleContainer, status } from './container';
+import { prepareShadowBoundary } from './boundary';
 import { WebWidgetError } from './error';
 import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
 import {
   dispatchHydrationError,
   type HydrationErrorPhase,
 } from './hydration-error';
+import type { ResolvedWidgetStyle } from './styles';
+import { installWidgetStyles, resolveWidgetStyles } from './styles';
 
 export * from './hydration-error';
 
@@ -50,7 +53,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #disconnectObserver?: () => void;
 
-  #meta: Meta | null = null;
+  #widgetStyles: ResolvedWidgetStyle[] = [];
 
   #isFirstConnect = false;
 
@@ -189,30 +192,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * WidgetModule meta.
-   */
-  get contextMeta(): Meta | null {
-    if (!this.#meta) {
-      const dataAttr = this.getAttribute('contextmeta');
-      if (dataAttr) {
-        try {
-          this.#meta = JSON.parse(dataAttr);
-        } catch (error) {
-          this.#throwGlobalError(error);
-          this.#meta = {};
-        }
-      }
-    }
-    return this.#meta;
-  }
-
-  set contextMeta(value: Meta) {
-    if (typeof value === 'object') {
-      this.setAttribute('contextmeta', JSON.stringify(value));
-    }
-  }
-
-  /**
    * Whether the module is inactive.
    */
   get inactive(): boolean {
@@ -282,14 +261,30 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   /**
    * WidgetModule render target.
-   * @default "shadow"
+   * @default "light"
    */
   get renderTarget(): RenderTarget {
-    return (this.getAttribute('rendertarget') as 'light') || 'shadow';
+    return (
+      (this.getAttribute('rendertarget') as RenderTarget | null) || 'light'
+    );
   }
 
   set renderTarget(value: RenderTarget) {
     this.setAttribute('rendertarget', value);
+  }
+
+  /** Vite CSS module ids transferred by the dev renderer. */
+  get devStyleIds(): string[] {
+    const value = this.getAttribute('devstyles');
+    if (!value) return [];
+    try {
+      const ids = JSON.parse(value);
+      return Array.isArray(ids)
+        ? ids.filter((id): id is string => typeof id === 'string')
+        : [];
+    } catch {
+      return [];
+    }
   }
 
   /**
@@ -322,12 +317,17 @@ export class HTMLWebWidgetElement extends HTMLElement {
   createContainer(): Element | DocumentFragment {
     let container: Element | DocumentFragment | null = null;
     if (this.renderTarget === 'shadow') {
-      if (this.recovering) {
-        container = this.#internals?.shadowRoot ?? null;
+      const boundary = prepareShadowBoundary(this, this.recovering);
+      container = boundary.container;
+      const styles = [...this.#widgetStyles];
+      for (const id of this.devStyleIds) {
+        if (!styles.some((style) => style.id === id)) {
+          // The attribute transfers only the style identity. Keep any SSR
+          // content until Vite's client-side style source is adopted.
+          styles.push({ id });
+        }
       }
-      if (!container) {
-        container = this.attachShadow({ mode: 'open' });
-      }
+      installWidgetStyles(boundary.root, styles, container);
     } else if (this.renderTarget === 'light') {
       container = this;
     }
@@ -395,21 +395,18 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   connectedCallback() {
-    /** connected */
     if (!this.#isFirstConnect) {
-      this.#firstConnectedCallback();
+      const preload = () => this.import && triggerModulePreload(this.import);
+      const options: AddEventListenerOptions = { once: true, passive: true };
+      ['mousemove', 'touchstart'].forEach((type) =>
+        this.addEventListener(type, preload, options)
+      );
       this.#isFirstConnect = true;
     }
+    this.#connectedCallback();
   }
 
-  #firstConnectedCallback() {
-    const preload = () => this.import && triggerModulePreload(this.import);
-    const options: AddEventListenerOptions = { once: true, passive: true };
-
-    ['mousemove', 'touchstart'].forEach((type) =>
-      this.addEventListener(type, preload, options)
-    );
-
+  #connectedCallback() {
     const loadingStrategies = {
       eager: () => this.#autoMount(),
       lazy: () =>
@@ -435,10 +432,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string) {
-    const cacheClearingAttributes = ['contextdata', 'data', 'contextmeta'];
+    const cacheClearingAttributes = ['contextdata', 'data'];
     if (cacheClearingAttributes.includes(name)) {
       this.#data = null;
-      this.#meta = null;
     }
     if (this.loading === 'eager') {
       this.#autoMount();
@@ -496,7 +492,14 @@ export class HTMLWebWidgetElement extends HTMLElement {
         if (!this.loader) {
           this.loader = this.createLoader();
         }
-        return this.loader();
+        return this.loader().then((module) => {
+          const clientModule = module as ClientWidgetModule;
+          this.#widgetStyles = resolveWidgetStyles(
+            clientModule.meta,
+            this.import || this.base
+          );
+          return clientModule;
+        });
       },
       contextData,
       {
@@ -529,7 +532,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #clearPending() {
     for (const child of Array.from(this.children)) {
-      if (child.localName === WEB_WIDGET_PENDING_LOCAL_NAME) child.remove();
+      if (child.localName === WEB_WIDGET_PENDING_LOCAL_NAME) {
+        child.remove();
+      }
     }
   }
 
@@ -638,7 +643,6 @@ export class HTMLWebWidgetElement extends HTMLElement {
       'loading',
       'import',
       'meta', // @deprecated
-      'contextmeta',
     ];
   }
 
@@ -672,7 +676,6 @@ Object.assign(HTMLWebWidgetElement, status);
 
 export interface HTMLWebWidgetElementAttributes extends Partial<HTMLWebWidgetElement> {
   contextdata?: string;
-  contextmeta?: string;
   inactive?: boolean;
   recovering?: boolean;
   loading?: Loading;

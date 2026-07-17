@@ -1,5 +1,6 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import { invalidateServerDevModules } from './server-invalidation';
+import { shouldReloadClientForServerUpdate } from './server-full-reload-policy';
 import {
   applyToServerEnvironment,
   getServerEnvironmentFromDevServer,
@@ -47,23 +48,19 @@ export function createServerFullReloadPlugin(host: RouterPluginHost): Plugin {
 
       void invalidateServerDevModules(
         getServerEnvironmentFromDevServer(server).moduleGraph,
-        host.state.resolvedWebRouterConfig
+        host.state.resolvedWebRouterConfig,
+        modules.map((mod) => mod.file).filter(Boolean) as string[]
       ).catch((error) =>
         logPlugin('error', 'Server invalidation failed', error)
       );
 
       const clientModuleGraph = server.environments.client.moduleGraph;
-      const hasClientCounterpart = modules.some(
-        (mod) => mod.file && clientModuleGraph.getModulesByFile(mod.file)?.size
-      );
-      if (!hasClientCounterpart) {
+      if (shouldReloadClientForServerUpdate(modules, clientModuleGraph)) {
         sendClientFullReload(
           server,
           modules.map((m) => m.file).filter(Boolean) as string[]
         );
       }
-
-      return [];
     },
   };
 }

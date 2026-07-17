@@ -98,6 +98,40 @@ describe('production server (pnpm build && node server.js)', () => {
     expect(coordinationIndex).toBeGreaterThan(hydrationIndex);
   });
 
+  it('server-renders isolated Shadow DOM widget boundaries', async () => {
+    const html = await (await fetch(`${server!.origin}/shadow-dom-ssr`)).text();
+    const head = html.slice(0, html.indexOf('</head>'));
+    const visibleHtml = html.replace(/<!--.*?-->/gs, '');
+
+    expect(html.match(/<template shadowrootmode="open">/g)).toHaveLength(6);
+    expect(html.match(/data-web-widget-style="shadow-counter-/g)).toHaveLength(
+      6
+    );
+    const shadowTemplates = [
+      ...html.matchAll(
+        /<template shadowrootmode="open">([\s\S]*?)<\/template>/g
+      ),
+    ];
+    for (const [, template] of shadowTemplates) {
+      expect(template).toMatch(/border-radius:\s*var\(--sk-radius-sm/);
+    }
+    expect(html.match(/--shadow-dev-css:1/g)).toHaveLength(1);
+    expect(head).not.toContain('--shadow-dev-css:1');
+    expect(html).not.toContain('contextmeta');
+    for (const [framework, text] of [
+      ['react', 'React count is 3'],
+      ['vue3', 'Vue 3 count is 3'],
+      ['vue2', 'Vue 2 count is 3'],
+      ['svelte', 'Svelte count is 3'],
+      ['preact', 'Preact count is 3'],
+    ]) {
+      expect(html).toContain(
+        `data-web-widget-style="shadow-counter-${framework}"`
+      );
+      expect(visibleHtml).toContain(text);
+    }
+  });
+
   it.each([
     [
       'React',

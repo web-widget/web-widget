@@ -6,10 +6,13 @@ type PlaceholderElement = Element & {
   [placeholder]?: boolean;
 };
 
-const createPlaceholderElement = () =>
-  Object.assign(document.createElement('span'), {
+const createPlaceholderElement = () => {
+  const element = Object.assign(document.createElement('span'), {
     [placeholder]: true,
   }) as PlaceholderElement;
+  element.style.cssText = 'display:block;width:1px;height:1px';
+  return element;
+};
 
 const isPlaceholderElement = (element: Element) =>
   (element as PlaceholderElement)[placeholder];
@@ -47,9 +50,17 @@ export const createVisibleObserver = (
   };
 
   if (isBox(element)) {
-    const children = Array.from(element.children).filter(
-      (node) => !isBox(node)
-    );
+    const shadowRoot = element.shadowRoot;
+    const shadowTarget = shadowRoot
+      ? Array.from(shadowRoot.querySelectorAll('*')).find(
+          (node) => !isBox(node)
+        )
+      : undefined;
+    const children = shadowRoot
+      ? shadowTarget
+        ? [shadowTarget]
+        : []
+      : Array.from(element.children).filter((node) => !isBox(node));
     if (children.length) {
       for (const child of children) {
         observer.observe(child);
@@ -57,9 +68,10 @@ export const createVisibleObserver = (
     } else {
       const placeholderElement = createPlaceholderElement();
 
-      element.firstChild
-        ? element.insertBefore(placeholderElement, element.firstChild)
-        : element.appendChild(placeholderElement);
+      const root = shadowRoot ?? element;
+      root.firstChild
+        ? root.insertBefore(placeholderElement, root.firstChild)
+        : root.appendChild(placeholderElement);
 
       observer.observe(placeholderElement);
     }

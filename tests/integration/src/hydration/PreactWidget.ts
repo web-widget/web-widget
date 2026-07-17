@@ -4,7 +4,15 @@ import { useState } from 'preact/hooks';
 export default function PreactWidget() {
   const [count, setCount] = useState(0);
   return h('div', { 'data-mount-root': 'preact' }, [
-    h('span', { 'data-hydration-probe': 'preact' }, `Preact ${count}`),
+    h('slot', { name: 'label' }),
+    h(
+      'span',
+      {
+        class: 'shadow-boundary-probe',
+        'data-hydration-probe': 'preact',
+      },
+      `Preact ${count}`
+    ),
     h(
       'button',
       {

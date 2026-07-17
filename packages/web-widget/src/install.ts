@@ -1,9 +1,11 @@
 import { mountLifecycleCacheLayer } from '@web-widget/lifecycle-cache/client';
 import type { HTMLWebWidgetElementAttributes } from './element';
 import { HTMLWebWidgetElement } from './element';
+import { attachDeclarativeShadowRoots } from './polyfill';
 import { queueMicrotask } from './utils/queue-microtask';
 
 function install() {
+  attachDeclarativeShadowRoots();
   Object.assign(window, {
     HTMLWebWidgetElement,
   });

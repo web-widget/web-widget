@@ -115,6 +115,17 @@ export interface ImportMap {
  */
 export type WidgetModuleFilter = (modulePath: string) => boolean;
 
+/** Rendering boundary selected for widget containers. */
+export type WidgetRenderTarget = 'light' | 'shadow';
+
+/** Build-time defaults injected into every transformed widget container. */
+export interface WidgetDefaults {
+  /** Client-side module loading strategy. */
+  loading?: 'lazy' | 'eager' | 'idle';
+  /** Rendering boundary used by the widget container. */
+  renderTarget?: WidgetRenderTarget;
+}
+
 export interface WebRouterPluginApi {
   readonly config: ResolvedWebRouterConfig;
   /** @internal Build-time state populated during the config hook. */
@@ -123,6 +134,8 @@ export interface WebRouterPluginApi {
   serverRoutemap(): Promise<RouteMap>;
   readonly widgetModuleFilter?: WidgetModuleFilter;
   setWidgetModuleFilter(filter: WidgetModuleFilter): void;
+  readonly widgetDefaults: Readonly<WidgetDefaults>;
+  setWidgetDefaults(defaults: WidgetDefaults): void;
   /** Shared cache for route asset collection across plugin instances. */
   getRouteAssetCaches(): RouteAssetCaches;
   /** Pre-computed during `buildStart` for O(1) SSR transform lookup. */
@@ -174,4 +187,9 @@ export interface WebWidgetPluginOptions {
    * adapter implementation.
    */
   adapters: (string | WebWidgetAdapterConfig)[];
+  /**
+   * Defaults injected into transformed widget container options. Explicit
+   * options passed to `container()` take precedence.
+   */
+  defaults?: WidgetDefaults;
 }

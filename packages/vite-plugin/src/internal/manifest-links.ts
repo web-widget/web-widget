@@ -4,7 +4,7 @@ import mime from 'mime-types';
 import type { Manifest as ViteManifest } from 'vite';
 
 import type { RouteClientAssets } from '@/internal/collect-route-assets';
-import type { WidgetModuleFilter } from '@/types';
+import type { WidgetModuleFilter, WidgetRenderTarget } from '@/types';
 import { stripModuleIdQuery } from '@/internal/module-id';
 
 const RESOLVE_URL_REG = /^(?:\w+:)?\//;
@@ -148,7 +148,8 @@ export function getRouteMetaLinks(
   manifest: ViteManifest,
   assets: RouteClientAssets,
   base: string,
-  widgetModuleFilter?: WidgetModuleFilter
+  widgetModuleFilter?: WidgetModuleFilter,
+  widgetRenderTarget: WidgetRenderTarget = 'light'
 ): LinkDescriptor[] {
   const cache = new Set<string>();
   const links: LinkDescriptor[] = [];
@@ -158,6 +159,7 @@ export function getRouteMetaLinks(
   }
 
   for (const widgetModule of assets.widgetModules) {
+    if (widgetRenderTarget === 'shadow') continue;
     links.push(
       ...getLinks(manifest, widgetModule, base, cache, widgetModuleFilter)
     );

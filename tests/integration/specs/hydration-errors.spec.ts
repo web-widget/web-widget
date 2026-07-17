@@ -16,8 +16,7 @@ test('reports structured hydration lifecycle errors without unhandled exceptions
     for (const failureAt of ['load', 'bootstrap', 'mount'] as const) {
       const widget = document.createElement('web-widget');
       widget.inactive = true;
-      widget.recovering = true;
-      widget.renderTarget = 'light';
+      widget.renderTarget = 'shadow';
       widget.import = `/fixtures/${failureAt}.js`;
       widget.setAttribute('adapter', 'fixture');
       const error = new Error(`${failureAt} failed`);
@@ -31,6 +30,8 @@ test('reports structured hydration lifecycle errors without unhandled exceptions
         };
       };
       document.body.appendChild(widget);
+      widget.createContainer();
+      widget.recovering = true;
 
       try {
         await widget.load();
@@ -38,10 +39,21 @@ test('reports structured hydration lifecycle errors without unhandled exceptions
         await widget.mount();
       } catch {}
     }
-    return results;
+    return {
+      results,
+      shadowRoots: Array.from(
+        document.querySelectorAll<HTMLElementTagNameMap['web-widget']>(
+          'web-widget[adapter="fixture"]'
+        )
+      ).map((widget) => ({
+        hasMountRoot:
+          widget.shadowRoot?.querySelectorAll('web-widget-root').length === 1,
+        hasShadowRoot: widget.shadowRoot instanceof ShadowRoot,
+      })),
+    };
   });
 
-  expect(details).toEqual([
+  expect(details.results).toEqual([
     expect.objectContaining({
       adapter: 'fixture',
       phase: 'module-import',
@@ -57,6 +69,11 @@ test('reports structured hydration lifecycle errors without unhandled exceptions
       phase: 'boundary-recovery',
       error: 'mount failed',
     }),
+  ]);
+  expect(details.shadowRoots).toEqual([
+    { hasMountRoot: true, hasShadowRoot: true },
+    { hasMountRoot: true, hasShadowRoot: true },
+    { hasMountRoot: true, hasShadowRoot: true },
   ]);
   expect(browserErrors.messages).toEqual([]);
 });

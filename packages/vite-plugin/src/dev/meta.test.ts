@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { EnvironmentModuleNode, TransformResult } from 'vite';
-import { getMeta } from './meta';
+import { getDevWidgetStyles, getMeta } from './meta';
 import type {
   ClientDevEnvironment,
   ServerDevEnvironment,
@@ -744,6 +744,60 @@ describe('getMeta', () => {
     );
   });
 
+  it('omits shadow-only widget css from route head metadata', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-meta-shadow-'));
+    const routePath = path.join(root, 'routes/page@route.tsx');
+    await fs.mkdir(path.dirname(routePath), { recursive: true });
+    await Promise.all([
+      fs.writeFile(
+        routePath,
+        "const Counter = container(() => import('./Counter@widget.tsx'));"
+      ),
+      fs.writeFile(
+        path.join(root, 'routes/Counter@widget.tsx'),
+        "import './counter.css'; export default function Counter() {}"
+      ),
+      fs.writeFile(
+        path.join(root, 'routes/counter.css'),
+        '.counter { color: red; }'
+      ),
+    ]);
+
+    const { clientEnvironment, ...graphEnv } = buildModuleGraph(root, [
+      {
+        path: 'routes/page@route.tsx',
+        dynamicDeps: ['./Counter@widget.tsx'],
+      },
+      {
+        path: 'routes/Counter@widget.tsx',
+        deps: ['./counter.css'],
+      },
+      {
+        path: 'routes/counter.css',
+        type: 'css',
+        cssContent: '.counter { color: red; }',
+      },
+    ]);
+    const environment = createMockServerDevEnvironment({
+      root,
+      ...graphEnv,
+    });
+
+    const meta = await getMeta(
+      routePath,
+      environment,
+      clientEnvironment,
+      (key) => key.includes('@widget.'),
+      'shadow'
+    );
+
+    expect(meta.style).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ content: '.counter { color: red; }' }),
+      ])
+    );
+  });
+
   it('collects layout and widget css for react-and-vue-like route graph', async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-meta-layout-'));
     const routePath = path.join(root, 'routes/react-and-vue@route.tsx');
@@ -978,5 +1032,49 @@ describe('getMeta', () => {
         }),
       ])
     );
+  });
+
+  it('collects a vue sfc style submodule when the widget is the graph root', async () => {
+    const widgetModuleId = '/project/routes/Counter@widget.vue';
+    const widgetStyleId =
+      '/project/routes/Counter@widget.vue?vue&type=style&index=0&lang.module.css';
+    const widgetStyle = createModuleNode({
+      file: widgetModuleId,
+      id: widgetStyleId,
+      type: 'css',
+      url: widgetStyleId,
+    });
+    const widgetModule = createModuleNode({
+      file: widgetModuleId,
+      id: widgetModuleId,
+      importedModules: new Set([widgetStyle]),
+      url: widgetModuleId,
+    });
+    const environment = createMockServerDevEnvironment({
+      root: '/project',
+      getModulesByFile(file: string) {
+        return file === widgetModuleId
+          ? new Set([widgetModule, widgetStyle])
+          : undefined;
+      },
+      getModuleById(id: string) {
+        if (id === widgetModuleId) return widgetModule;
+        if (id === widgetStyleId) return widgetStyle;
+        return undefined;
+      },
+    });
+    const clientEnv = createMockClientEnvironment(
+      new Map([[widgetStyleId, '._box_hash{color:red}']])
+    );
+
+    const styles = await getDevWidgetStyles(
+      widgetModuleId,
+      environment,
+      clientEnv
+    );
+
+    expect(styles).toEqual([
+      { id: widgetStyleId, content: '._box_hash{color:red}' },
+    ]);
   });
 });

@@ -147,8 +147,9 @@ test('U06 updates a shared Widget component and preserves framework state', asyn
     page.on('load', () => loads++);
     await page.goto(server.baseURL);
     await ready(page);
-    const probe = page.locator('[data-hydration-probe="react"]');
-    await page.locator('[data-hydration-increment="react"]').click();
+    const host = page.locator('web-widget[data-hydration-widget="react"]');
+    const probe = host.locator('[data-hydration-probe="react"]');
+    await host.locator('[data-hydration-increment="react"]').click();
     await expect(probe).toHaveText('React 1');
     const navigation = await navigationIdentity(page);
     await mutateSource(server, 'src/hydration/ReactWidget.tsx', (source) =>

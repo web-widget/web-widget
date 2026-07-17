@@ -94,8 +94,9 @@ test('hydrates SSR output from a dynamic production route', async ({
   const fixture = page.getByTestId('fixture');
   await expect(fixture).toHaveAttribute('data-request-path', '/route-a');
   await expect(fixture).toHaveAttribute('data-client-ready', 'true');
-  await page.locator('[data-hydration-increment="react"]').click();
-  await expect(page.locator('[data-hydration-probe="react"]')).toHaveText(
+  const reactHost = page.locator('web-widget[data-hydration-widget="react"]');
+  await reactHost.locator('[data-hydration-increment="react"]').click();
+  await expect(reactHost.locator('[data-hydration-probe="react"]')).toHaveText(
     'React 1'
   );
   expect(await page.evaluate(() => window.__hydrationErrors.length)).toBe(0);

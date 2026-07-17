@@ -1,8 +1,8 @@
-import type { Loader } from '../types';
+import type { WidgetModuleLoader } from '@web-widget/schema';
 const MODULE_REG =
   /\b(?:import|__vite_ssr_dynamic_import__)\(["'`]([^"'`]*)["'`]\)/;
 
-export function parseModuleId(loader: Loader) {
+export function parseModuleId(loader: WidgetModuleLoader) {
   const match = String(loader).match(MODULE_REG);
   const id = match?.[1];
   if (!id) {
@@ -28,7 +28,7 @@ export function unsafePropsToAttrs(props: any) {
 }
 
 export function getClientModuleId(
-  loader: Loader,
+  loader: WidgetModuleLoader,
   options: {
     import?: string;
     base?: string;
@@ -42,7 +42,7 @@ export function getClientModuleId(
 }
 
 export function getDisplayModuleId(
-  loader: Loader,
+  loader: WidgetModuleLoader,
   options: {
     base?: string;
   }

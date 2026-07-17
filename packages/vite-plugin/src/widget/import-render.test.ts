@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, jest, test } from '@jest/globals';
 import {
   transformWidgetImports,
   type TransformWidgetImportsContext,
@@ -37,6 +37,7 @@ function makeOptions(
     sourcemap: false,
     importPattern: IMPORT_PATTERN,
     adapterModule: ADAPTER_MODULE,
+    defaults: {},
     ...overrides,
   };
 }
@@ -110,6 +111,49 @@ describe('transformWidgetImports', () => {
           ';'
       );
     });
+
+    test('injects build-time defaults', async () => {
+      const code = `import Counter from './Counter@widget.vue';`;
+      const result = await transformWidgetImports(
+        makeCtx(),
+        makeOptions(code, {
+          defaults: { loading: 'idle', renderTarget: 'shadow' },
+        })
+      );
+      expect(result!.code).toContain(
+        '{ loading: "idle", renderTarget: "shadow", import: "/src/Counter@widget.vue", name: "Counter" }'
+      );
+    });
+
+    test('injects Vite-transformed widget styles in dev', async () => {
+      const code = `import Counter from './Counter@widget.vue';`;
+      const getDevStyles = async () => [
+        {
+          id: '/project/src/counter.module.css',
+          content: '._button_hash{border-radius:8px}',
+        },
+      ];
+      const result = await transformWidgetImports(
+        makeCtx({ getDevStyles }),
+        makeOptions(code, { dev: true, isServer: true })
+      );
+
+      expect(result!.code).toContain(
+        'devStyles: [{"id":"/project/src/counter.module.css","content":"._button_hash{border-radius:8px}"}]'
+      );
+    });
+
+    test('does not collect widget styles for production builds', async () => {
+      const code = `import Counter from './Counter@widget.vue';`;
+      const getDevStyles = jest.fn(async () => []);
+
+      await transformWidgetImports(
+        makeCtx({ getDevStyles }),
+        makeOptions(code, { dev: false, isServer: true })
+      );
+
+      expect(getDevStyles).not.toHaveBeenCalled();
+    });
   });
 
   describe('explicit container() pattern', () => {
@@ -134,6 +178,35 @@ describe('transformWidgetImports', () => {
       expect(result!.code).toBe(
         '\n' +
           'const Counter = container(() => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter", loading: \'eager\' });'
+      );
+    });
+
+    test('injects widget styles into explicit container options in dev', async () => {
+      const code = `const Counter = container(() => import('./Counter@widget.vue'), { renderTarget: 'shadow' });`;
+      const result = await transformWidgetImports(
+        makeCtx({
+          getDevStyles: async () => [
+            { id: '/project/src/widget.css', content: '.button{color:red}' },
+          ],
+        }),
+        makeOptions(code, { dev: true, isServer: true })
+      );
+
+      expect(result!.code).toContain(
+        '{ devStyles: [{"id":"/project/src/widget.css","content":".button{color:red}"}], import: "/src/Counter@widget.vue", name: "Counter", renderTarget: \'shadow\' }'
+      );
+    });
+
+    test('keeps explicit options after build-time defaults', async () => {
+      const code = `const Counter = container(() => import('./Counter@widget.vue'), { loading: 'eager', renderTarget: 'light' });`;
+      const result = await transformWidgetImports(
+        makeCtx(),
+        makeOptions(code, {
+          defaults: { loading: 'idle', renderTarget: 'shadow' },
+        })
+      );
+      expect(result!.code).toContain(
+        '{ loading: "idle", renderTarget: "shadow", import: "/src/Counter@widget.vue", name: "Counter", loading: \'eager\', renderTarget: \'light\' }'
       );
     });
 

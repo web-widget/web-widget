@@ -5,3 +5,8 @@
 [data-testid='fixture'] {
   color: black;
 }
+
+.shadow-boundary-probe {
+  --shadow-style-owner: document;
+  color: rgb(190, 10, 20);
+}

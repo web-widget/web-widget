@@ -4,7 +4,7 @@
 
 ## 摘要
 
-定义 `@web-widget/html` 中 widget 孤岛的架构设计：HTML 模板作为服务端外壳，框架 widget（React、Vue、Vue2 等）作为交互孤岛嵌入其中。通过 `WebWidgetAdapter` 协议，构建工具自动注入 `render` 和 `container`，使用户无需手动编写样板代码。同时定义类型适配方案，使 widget 导入在 TypeScript 中获得正确的类型提示。
+定义 `@web-widget/html` 中 widget 孤岛的架构设计：HTML 模板作为服务端外壳，框架 widget（React、Vue、Vue2 等）作为交互孤岛嵌入其中。通过 `WidgetAdapter` 协议，构建工具自动注入 `render` 和 `container`，使用户无需手动编写样板代码。同时定义类型适配方案，使 widget 导入在 TypeScript 中获得正确的类型提示。
 
 ## 背景
 
@@ -39,7 +39,7 @@ HTML 模板不存在这些复杂度：
 
 ### 1. 适配器协议
 
-`@web-widget/html` 声明 `WebWidgetAdapter` 协议，使用 `.html.ts` / `.html.js` 扩展名：
+`@web-widget/html` 声明 `WidgetAdapter` 协议，使用 `.html.ts` / `.html.js` 扩展名：
 
 ```json
 {
