@@ -8,6 +8,8 @@ import type {
 } from '@web-widget/schema';
 import type { Timeouts } from './container';
 
+export type { SerializableObject } from '@web-widget/schema';
+
 export const WEB_WIDGET_PENDING_LOCAL_NAME = 'web-widget-pending';
 export type Loader = WidgetModuleLoader<ServerWidgetModule | ClientWidgetModule>;
 
