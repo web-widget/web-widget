@@ -1,4 +1,4 @@
-import type { ServerWidgetModule } from '@web-widget/helpers';
+import type { Meta, ServerWidgetModule } from '@web-widget/helpers';
 import { mergeMeta, rebaseMeta, renderMetaToString } from '@web-widget/helpers';
 import {
   renderLifecycleCacheLayer,
@@ -11,17 +11,19 @@ import type {
   WebWidgetRendererConstructor,
   WidgetRenderParts,
 } from './types';
-import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
 import {
   WEB_WIDGET_PENDING_SLOT_NAME,
   WEB_WIDGET_ROOT_LOCAL_NAME,
   WEB_WIDGET_STATE_SLOT_NAME,
 } from './constants';
-import { resolveWidgetStyles } from './styles';
+import { resolveWidgetStyles } from './style-descriptors';
 import { resolveWebWidgetRendererOptions } from './options';
 import {
+  createPendingBoundary,
   getClientModuleId,
   getDisplayModuleId,
+  serializeAttributes,
+  serializePendingBoundary,
   unsafePropsToAttrs,
 } from './utils/render';
 export type * from './types';
@@ -67,19 +69,6 @@ function tryRenderLifecycleCacheLayer(
   }
 }
 
-function escapeAttr(value: string): string {
-  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-}
-
-function unsafeAttrsToHtml(attrs: Record<string, string>) {
-  return Object.entries(attrs)
-    .map(
-      ([attrName, attrValue]) =>
-        `${attrName}${attrValue === '' ? '' : '="' + escapeAttr(attrValue) + '"'}`
-    )
-    .join(' ');
-}
-
 function renderStylesToString(styles: WidgetRenderParts['styles']): string {
   return styles
     .map((descriptor) => {
@@ -110,11 +99,10 @@ function renderStylesToString(styles: WidgetRenderParts['styles']): string {
 }
 
 function serializeInnerHTML(parts: WidgetRenderParts): string {
-  const pendingSlot =
-    parts.target === 'shadow' ? ` slot="${WEB_WIDGET_PENDING_SLOT_NAME}"` : '';
-  const pendingHTML = parts.pendingHTML
-    ? `<${WEB_WIDGET_PENDING_LOCAL_NAME} aria-busy="true"${pendingSlot} style="display:contents">${parts.pendingHTML}</${WEB_WIDGET_PENDING_LOCAL_NAME}>`
-    : '';
+  const pendingHTML = serializePendingBoundary(
+    createPendingBoundary(parts.target),
+    parts.pendingHTML ?? ''
+  );
   if (parts.target === 'light') {
     return parts.appHTML + pendingHTML + parts.transferHTML;
   }
@@ -145,15 +133,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   localName = 'web-widget';
 
   get pendingBoundary() {
-    return {
-      ariaBusy: true as const,
-      display: 'contents' as const,
-      localName: WEB_WIDGET_PENDING_LOCAL_NAME,
-      slot:
-        this.#options.renderTarget === 'shadow'
-          ? WEB_WIDGET_PENDING_SLOT_NAME
-          : '',
-    };
+    return createPendingBoundary(this.#options.renderTarget);
   }
 
   constructor(
@@ -210,31 +190,14 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   }
 
   async #renderParts(): Promise<WidgetRenderParts> {
-    const children = this.#children;
     const clientImport = this.#clientImport;
     const loader = this.#loader;
     const options = this.#options;
     const renderStage = this.#renderStage;
 
-    const target = options.renderTarget === 'shadow' ? 'shadow' : 'light';
-    const attributes = this.attributes;
-
     if (renderStage === 'client') {
       const meta = rebaseMeta(options.meta ?? {}, clientImport);
-      return {
-        appHTML: '',
-        attributes,
-        lightChildrenHTML: children,
-        styles:
-          target === 'shadow'
-            ? [
-                ...resolveWidgetStyles(meta, clientImport),
-                ...(options.devStyles ?? []),
-              ]
-            : [],
-        target,
-        transferHTML: tryRenderLifecycleCacheLayer(target),
-      };
+      return this.#createRenderParts('', meta);
     }
 
     const module = (await loader()) as ServerWidgetModule;
@@ -273,15 +236,20 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       );
     }
 
+    return this.#createRenderParts(rawResult, meta);
+  }
+
+  #createRenderParts(appHTML: string, meta: Meta): WidgetRenderParts {
+    const target = this.#options.renderTarget === 'shadow' ? 'shadow' : 'light';
     return {
-      appHTML: rawResult,
-      attributes,
-      lightChildrenHTML: children,
+      appHTML,
+      attributes: this.attributes,
+      lightChildrenHTML: this.#children,
       styles:
         target === 'shadow'
           ? [
-              ...resolveWidgetStyles(meta, clientImport),
-              ...(options.devStyles ?? []),
+              ...resolveWidgetStyles(meta, this.#clientImport),
+              ...(this.#options.devStyles ?? []),
             ]
           : [],
       target,
@@ -298,7 +266,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
     parts.pendingHTML = options.pendingHTML;
     const tag = this.localName;
     const children = serializeInnerHTML(parts);
-    return `<${tag} ${unsafeAttrsToHtml(parts.attributes)}>${children}</${tag}>`;
+    return `<${tag} ${serializeAttributes(parts.attributes)}>${children}</${tag}>`;
   }
 }
 

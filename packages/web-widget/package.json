@@ -116,9 +116,9 @@
     "dev": "pnpm exec tsup --watch",
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build",
-    "test": "web-test-runner src/**/*.test.ts",
-    "test:coverage": "web-test-runner src/**/*.test.ts --coverage",
-    "test:watch": "web-test-runner src/**/*.test.ts --watch"
+    "test": "web-test-runner \"src/**/*.test.ts\"",
+    "test:coverage": "web-test-runner \"src/**/*.test.ts\" --coverage",
+    "test:watch": "web-test-runner \"src/**/*.test.ts\" --watch"
   },
   "sideEffects": [
     "src/install.ts",

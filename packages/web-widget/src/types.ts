@@ -7,7 +7,7 @@ import type {
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import type { Timeouts } from './container';
-import type { ResolvedWidgetStyle } from './styles';
+import type { ResolvedWidgetStyle } from './style-descriptors';
 
 export type { SerializableObject } from '@web-widget/schema';
 

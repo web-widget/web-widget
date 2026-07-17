@@ -15,8 +15,9 @@ import {
   dispatchHydrationError,
   type HydrationErrorPhase,
 } from './hydration-error';
-import type { ResolvedWidgetStyle } from './styles';
-import { installWidgetStyles, resolveWidgetStyles } from './styles';
+import type { ResolvedWidgetStyle } from './style-descriptors';
+import { resolveWidgetStyles } from './style-descriptors';
+import { installWidgetStyles } from './styles';
 
 export * from './hydration-error';
 

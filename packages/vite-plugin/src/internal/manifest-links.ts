@@ -6,6 +6,7 @@ import type { Manifest as ViteManifest } from 'vite';
 import type { RouteClientAssets } from '@/internal/collect-route-assets';
 import type { WidgetModuleFilter, WidgetRenderTarget } from '@/types';
 import { stripModuleIdQuery } from '@/internal/module-id';
+import { getWidgetStyleOwner } from '@/internal/widget-style-ownership';
 
 const RESOLVE_URL_REG = /^(?:\w+:)?\//;
 const rebase = (src: string, base: string) => {
@@ -159,7 +160,7 @@ export function getRouteMetaLinks(
   }
 
   for (const widgetModule of assets.widgetModules) {
-    if (widgetRenderTarget === 'shadow') continue;
+    if (getWidgetStyleOwner(widgetRenderTarget) === 'boundary') continue;
     links.push(
       ...getLinks(manifest, widgetModule, base, cache, widgetModuleFilter)
     );

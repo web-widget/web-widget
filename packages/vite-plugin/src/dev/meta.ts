@@ -24,6 +24,7 @@ import {
   unwrapViteId,
 } from '@/internal/module-id';
 import { matchesWidgetModule } from '@/internal/collect-route-assets';
+import { getWidgetStyleOwner } from '@/internal/widget-style-ownership';
 
 interface ServerModuleDependencyKeys {
   filterDisabled: boolean;
@@ -52,7 +53,7 @@ export async function getMeta(
     serverEnvironment,
     clientEnvironment,
     widgetModuleFilter,
-    widgetRenderTarget
+    getWidgetStyleOwner(widgetRenderTarget) === 'document'
   );
 
   // CSS modules with inline content: emit <style> for immediate CSS
@@ -100,7 +101,7 @@ export async function getDevWidgetStyles(
     serverEnvironment,
     clientEnvironment,
     undefined,
-    'light'
+    true
   );
   return styles.map(({ id, content }) => ({ id, content }));
 }
@@ -115,7 +116,7 @@ async function getCssForURL(
   serverEnvironment: ServerDevEnvironment,
   clientEnvironment: ClientDevEnvironment,
   widgetModuleFilter: WidgetModuleFilter | undefined,
-  widgetRenderTarget: WidgetRenderTarget
+  includeWidgetModuleStyles: boolean
 ): Promise<{
   styles: ImportedStyle[];
   moduleScripts: ImportedModuleScript[];
@@ -132,7 +133,7 @@ async function getCssForURL(
     new Set(),
     root,
     widgetModuleFilter,
-    widgetRenderTarget
+    includeWidgetModuleStyles
   )) {
     await appendCssModuleStyles(
       clientEnvironment,
@@ -409,7 +410,7 @@ async function* crawlGraph(
   scanned: Set<string>,
   root: string,
   widgetModuleFilter?: WidgetModuleFilter,
-  widgetRenderTarget: WidgetRenderTarget = 'light'
+  includeWidgetModuleStyles = true
 ): AsyncGenerator<EnvironmentModuleNode, void, unknown> {
   const id = unwrapViteId(_id);
   const importedModules = new Set<EnvironmentModuleNode>();
@@ -490,7 +491,7 @@ async function* crawlGraph(
       continue;
     }
     const importedKey = moduleIdentityKey(importedModule.id);
-    if (widgetRenderTarget === 'shadow') {
+    if (!includeWidgetModuleStyles) {
       const relativeKey = toManifestFilterKey(importedModule.id, root);
       if (
         matchesWidgetModule(
@@ -515,7 +516,7 @@ async function* crawlGraph(
       scanned,
       root,
       widgetModuleFilter,
-      widgetRenderTarget
+      includeWidgetModuleStyles
     );
   }
 }

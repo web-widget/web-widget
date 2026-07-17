@@ -4,9 +4,13 @@ import type {
   WebWidgetRendererInterface,
   WebWidgetRendererConstructor,
 } from './types';
-import { WEB_WIDGET_PENDING_SLOT_NAME } from './constants';
-import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
-import { getClientModuleId, unsafePropsToAttrs } from './utils/render';
+import {
+  createPendingBoundary,
+  getClientModuleId,
+  serializeAttributes,
+  serializePendingBoundary,
+  unsafePropsToAttrs,
+} from './utils/render';
 import { INNER_HTML_PLACEHOLDER } from './element';
 import { resolveWebWidgetRendererOptions } from './options';
 import './install';
@@ -14,30 +18,13 @@ import './install';
 export type * from './types';
 export * from './element';
 
-function unsafeAttrsToHtml(attrs: Record<string, string>) {
-  return Object.entries(attrs)
-    .map(
-      ([attrName, attrValue]) =>
-        `${attrName}${attrValue === '' ? '' : '="' + attrValue + '"'}`
-    )
-    .join(' ');
-}
-
 class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
   #clientImport: string;
   #options: Omit<WebWidgetRendererOptions, 'children' | 'renderStage'>;
   localName = 'web-widget';
 
   get pendingBoundary() {
-    return {
-      ariaBusy: true as const,
-      display: 'contents' as const,
-      localName: WEB_WIDGET_PENDING_LOCAL_NAME,
-      slot:
-        this.#options.renderTarget === 'shadow'
-          ? WEB_WIDGET_PENDING_SLOT_NAME
-          : '',
-    };
+    return createPendingBoundary(this.#options.renderTarget);
   }
 
   constructor(
@@ -98,12 +85,8 @@ class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
     const tag = this.localName;
     const attributes = this.attributes;
     const children = await this.renderInnerHTMLToString();
-    const boundary = this.pendingBoundary;
-    const slot = boundary.slot ? ` slot="${boundary.slot}"` : '';
-    const pending = pendingHTML
-      ? `<${boundary.localName} aria-busy="true"${slot} style="display:contents">${pendingHTML}</${boundary.localName}>`
-      : '';
-    return `<${tag} ${unsafeAttrsToHtml(attributes)}>${children}${pending}</${tag}>`;
+    const pending = serializePendingBoundary(this.pendingBoundary, pendingHTML);
+    return `<${tag} ${serializeAttributes(attributes)}>${children}${pending}</${tag}>`;
   }
 }
 
