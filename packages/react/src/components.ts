@@ -117,7 +117,7 @@ function WebWidget({
         pendingBoundary.localName ?? 'web-widget-pending',
         {
           'aria-busy': String(pendingBoundary.ariaBusy),
-          slot: pendingBoundary.slot,
+          ...(pendingBoundary.slot ? { slot: pendingBoundary.slot } : {}),
           style: { display: pendingBoundary.display },
         },
         pendingFallback

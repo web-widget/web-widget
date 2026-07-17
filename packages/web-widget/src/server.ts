@@ -75,7 +75,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   #renderStage?: string;
   localName = 'web-widget';
   pendingLocalName = WEB_WIDGET_PENDING_LOCAL_NAME;
-  pendingBoundary = { ariaBusy: true as const, display: 'contents' as const, slot: 'pending' };
+  pendingBoundary = { ariaBusy: true as const, display: 'contents' as const, slot: '' };
 
   constructor(
     loader: Loader,
