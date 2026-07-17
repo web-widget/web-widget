@@ -1,0 +1,7 @@
+:root {
+  font-family: sans-serif;
+}
+
+[data-testid='fixture'] {
+  color: black;
+}

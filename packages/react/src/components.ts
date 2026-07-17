@@ -45,7 +45,10 @@ export type WebWidgetProps = Omit<WebWidgetRendererOptions, 'children'> & {
 
 interface WebWidgetElement {
   localName: string;
-  pendingBoundary: Omit<WebWidgetRendererInterface['pendingBoundary'], 'slot'> & {
+  pendingBoundary: Omit<
+    WebWidgetRendererInterface['pendingBoundary'],
+    'slot'
+  > & {
     localName?: string;
     slot?: string;
   };

@@ -6,6 +6,7 @@ packages:
   - 'packages/*'
   - 'internal/*'
   - 'benchmarks/*'
+  - 'tests/*'
 
 # Migrated from .npmrc (pnpm 11 no longer reads non-auth settings from .npmrc)
 hoist: false

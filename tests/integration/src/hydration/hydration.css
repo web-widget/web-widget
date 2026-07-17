@@ -1,0 +1,13 @@
+.hydration-probe {
+  --hydration-token: ready;
+  display: inline-block;
+  width: 43px;
+}
+
+.react-probe {
+  color: rgb(21, 61, 101);
+}
+
+.vue-probe {
+  color: rgb(101, 61, 21);
+}

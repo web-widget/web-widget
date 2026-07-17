@@ -23,15 +23,12 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/form'],
   ['/'],
   ['/meta'],
-  ['/react-and-vue'],
   ['/react-shell-error', 500],
   ['/html-shell-error', 500],
   ['/vue3-shell-error', 500],
-  ['/vue-module-css'],
   ['/react-server-component'],
   // Streaming routes (/react-streaming, /vue3-streaming) are verified in
   // streaming.test.ts — their DOM structure is non-deterministic.
-  ['/style'],
   ['/large-css'],
   // TODO: Fix the issue with the React import widgets.
   // ['/react-import-widgets'],
