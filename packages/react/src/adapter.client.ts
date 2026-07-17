@@ -3,6 +3,7 @@ import type { FunctionComponent } from 'react';
 import { createElement, StrictMode } from 'react';
 import type { Root } from 'react-dom/client';
 import { createRoot, hydrateRoot } from 'react-dom/client';
+import { reportRecoverableError } from './hydration-error';
 
 export * from './components';
 
@@ -31,7 +32,10 @@ export const render = defineClientRender<FunctionComponent>(
         vNode = createElement(StrictMode, null, vNode);
 
         if (recovering) {
-          root = hydrateRoot(container as Element, vNode as any);
+          root = hydrateRoot(container as Element, vNode as any, {
+            onRecoverableError: (error) =>
+              reportRecoverableError(container, error),
+          });
         } else {
           root = createRoot(container);
           root.render(vNode as any);

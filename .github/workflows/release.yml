@@ -18,8 +18,42 @@ permissions:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
+  integration:
+    name: Integration / Release gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          cache: true
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: pnpm install --recursive --frozen-lockfile
+        env:
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
+      - name: Install Playwright browsers
+        run: pnpm --filter @tests/integration exec playwright install --with-deps chromium firefox webkit
+      - name: Run dev mismatch suite
+        run: pnpm --filter @tests/integration test:ci:dev:mismatch
+      - name: Run production extended suite
+        run: pnpm --filter @tests/integration test:ci:extended
+      - name: Upload Playwright diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-release-${{ github.run_attempt }}
+          path: tests/integration/test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
   release:
     name: Release
+    needs: integration
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo

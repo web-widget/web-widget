@@ -10,6 +10,12 @@ import type { Lifecycle, ModuleLoader, Status, Timeouts } from './container';
 import { ModuleContainer, status } from './container';
 import { WebWidgetError } from './error';
 import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
+import {
+  dispatchHydrationError,
+  type HydrationErrorPhase,
+} from './hydration-error';
+
+export * from './hydration-error';
 
 let globalTimeouts: Timeouts = Object.create(null);
 
@@ -454,7 +460,31 @@ export class HTMLWebWidgetElement extends HTMLElement {
     if (!this.#moduleContainer) {
       this.#moduleContainer = this.#createModuleContainer();
     }
-    return this.#moduleContainer[lifecycle](data);
+    try {
+      return await this.#moduleContainer[lifecycle](data);
+    } catch (error) {
+      if (this.recovering && this.#isHydrationLifecycle(lifecycle)) {
+        dispatchHydrationError(this, {
+          moduleURL: this.import,
+          adapter: this.getAttribute('adapter') || 'unknown',
+          phase: this.#hydrationErrorPhase(lifecycle),
+          error,
+        });
+      }
+      throw error;
+    }
+  }
+
+  #isHydrationLifecycle(lifecycle: Lifecycle) {
+    return (
+      lifecycle === 'load' || lifecycle === 'bootstrap' || lifecycle === 'mount'
+    );
+  }
+
+  #hydrationErrorPhase(lifecycle: Lifecycle): HydrationErrorPhase {
+    if (lifecycle === 'load') return 'module-import';
+    if (lifecycle === 'bootstrap') return 'adapter-bootstrap';
+    return 'boundary-recovery';
   }
 
   #createModuleContainer() {

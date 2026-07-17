@@ -200,6 +200,76 @@ describe('Load module: error', () => {
   });
 });
 
+describe('Hydration error event', () => {
+  const createRecoveringWidget = () => {
+    const widget = document.createElement('web-widget');
+    widget.inactive = true;
+    widget.recovering = true;
+    widget.renderTarget = 'light';
+    widget.import = '/fixtures/recovering-widget.js';
+    widget.setAttribute('adapter', 'test-adapter');
+    document.body.appendChild(widget);
+    return widget;
+  };
+
+  it('reports module import errors with the original error', async () => {
+    const widget = createRecoveringWidget();
+    const original = new Error('module failed');
+    widget.loader = async () => {
+      throw original;
+    };
+    let received: CustomEvent | undefined;
+    widget.addEventListener('web-widget:hydration-error', (event) => {
+      received = event;
+    });
+
+    try {
+      await widget.load();
+    } catch {}
+
+    expect(received?.detail).to.deep.include({
+      moduleURL: `${location.origin}/fixtures/recovering-widget.js`,
+      adapter: 'test-adapter',
+      phase: 'module-import',
+      error: original,
+    });
+  });
+
+  it('reports adapter bootstrap and boundary recovery phases', async () => {
+    for (const [phase, failureAt] of [
+      ['adapter-bootstrap', 'bootstrap'],
+      ['boundary-recovery', 'mount'],
+    ] as const) {
+      const widget = createRecoveringWidget();
+      const original = new Error(`${failureAt} failed`);
+      widget.loader = async () => ({
+        render: async () => {
+          if (failureAt === 'bootstrap') throw original;
+          return { mount: async () => Promise.reject(original) };
+        },
+      });
+      const eventPromise = new Promise<CustomEvent>((resolve) =>
+        document.body.addEventListener(
+          'web-widget:hydration-error',
+          (event) => resolve(event),
+          { once: true }
+        )
+      );
+
+      await widget.load();
+      try {
+        await widget.bootstrap();
+        await widget.mount();
+      } catch {}
+
+      const event = await eventPromise;
+      expect(event.bubbles).to.equal(true);
+      expect(event.composed).to.equal(true);
+      expect(event.detail).to.deep.include({ phase, error: original });
+    }
+  });
+});
+
 describe('Auto load', () => {
   const src = __FIXTURES__;
 

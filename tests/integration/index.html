@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="server-version" content="__SERVER_VERSION__" />
+    <meta name="module-version" content="__MODULE_VERSION__" />
+    <meta name="app-version" content="__APP_VERSION__" />
+    <title>Web Widget integration fixture</title>
+  </head>
+  <body>
+    <main data-testid="fixture" data-server-rendered="true">
+      <h1>Integration fixture</h1>
+      <p data-testid="status">Waiting for client</p>
+      <a data-route-structure="__ROUTE_STRUCTURE__" href="__ROUTE_STRUCTURE__"
+        >Route probe</a
+      >
+      <section data-owner="route">
+        <span data-case="C01">C01</span>
+        <span class="__ROUTE_MODULE_CLASS__" data-case="C02">C02</span>
+        <span data-case="C03" data-v-vue-matrix>C03</span>
+        <span data-case="C04" data-v-vue-matrix>C04</span>
+      </section>
+      <section data-testid="widget" data-widget-state="0">
+        <span data-case="C05">C05</span>
+        <span class="ww_widget_probe" data-case="C06">C06</span>
+        <span data-case="C07" data-v-vue-matrix>C07</span>
+        <span data-case="C08" data-v-vue-matrix>C08</span>
+        <button data-testid="increment" type="button">Increment</button>
+      </section>
+      <div data-vue-style-loader hidden></div>
+    </main>
+    <!-- prettier-ignore -->
+    <web-widget inactive recovering rendertarget="light" adapter="react" data-hydration-widget="react"><div data-mount-root="react"><span class="hydration-probe react-probe" data-hydration-probe="react">__REACT_LABEL__ <!-- -->0</span><button data-hydration-increment="react" type="button">Increment</button></div></web-widget>
+    <!-- prettier-ignore -->
+    <web-widget inactive recovering rendertarget="light" adapter="vue" data-hydration-widget="vue"><div data-mount-root="vue"><span class="hydration-probe vue-probe" data-hydration-probe="vue">Vue 0</span><button data-hydration-increment="vue" type="button">Increment</button></div></web-widget>
+    <!-- prettier-ignore -->
+    <web-widget inactive recovering rendertarget="light" adapter="preact" data-hydration-widget="preact"><div data-mount-root="preact"><span data-hydration-probe="preact">Preact 0</span><button data-hydration-increment="preact" type="button">Increment</button></div></web-widget>
+    <!-- prettier-ignore -->
+    <web-widget inactive recovering rendertarget="light" adapter="solid" data-hydration-widget="solid"><div data-mount-root="solid"><span data-hydration-probe="solid">Solid 0</span><button data-hydration-increment="solid" type="button">Increment</button></div></web-widget>
+    <!-- prettier-ignore -->
+    <web-widget inactive recovering rendertarget="light" adapter="svelte" data-hydration-widget="svelte"><div data-mount-root="svelte"><span data-hydration-probe="svelte">Svelte 0</span><button data-hydration-increment="svelte" type="button">Increment</button></div></web-widget>
+    <script>
+      window.__hydrationErrors = [];
+      window.__ssrNodes = {};
+      for (const adapter of ['react', 'vue', 'preact', 'solid', 'svelte']) {
+        const host = document.querySelector(
+          `[data-hydration-widget="${adapter}"]`
+        );
+        window.__ssrNodes[`${adapter}:host`] = host;
+        window.__ssrNodes[`${adapter}:root`] =
+          host.querySelector('[data-mount-root]');
+        window.__ssrNodes[`${adapter}:probe`] = host.querySelector(
+          '[data-hydration-probe]'
+        );
+      }
+      document.addEventListener('web-widget:hydration-error', (event) => {
+        window.__hydrationErrors.push(event.detail);
+      });
+      addEventListener('error', (event) =>
+        window.__hydrationErrors.push(event.error)
+      );
+      addEventListener('unhandledrejection', (event) =>
+        window.__hydrationErrors.push(event.reason)
+      );
+    </script>
+    <script type="module" src="/src/entry.client.ts?v=__APP_VERSION__"></script>
+  </body>
+</html>

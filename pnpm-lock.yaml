@@ -1486,6 +1486,76 @@ importers:
         specifier: 'catalog:'
         version: 8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2)
 
+  tests/integration:
+    dependencies:
+      '@web-widget/preact':
+        specifier: workspace:*
+        version: link:../../packages/preact
+      '@web-widget/react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      '@web-widget/solid':
+        specifier: workspace:*
+        version: link:../../packages/solid
+      '@web-widget/svelte':
+        specifier: workspace:*
+        version: link:../../packages/svelte
+      '@web-widget/vue':
+        specifier: workspace:*
+        version: link:../../packages/vue
+      '@web-widget/web-widget':
+        specifier: workspace:*
+        version: link:../../packages/web-widget
+      preact:
+        specifier: 'catalog:'
+        version: 10.29.7(preact-render-to-string@6.7.0)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.6
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.6(react@19.2.6)
+      solid-js:
+        specifier: 'catalog:'
+        version: 1.9.14
+      svelte:
+        specifier: 'catalog:'
+        version: 5.56.4(@typescript-eslint/types@8.64.0)
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.55.0
+        version: 1.61.1
+      '@sveltejs/vite-plugin-svelte':
+        specifier: 'catalog:'
+        version: 7.2.0(svelte@5.56.4(@typescript-eslint/types@8.64.0))(vite@8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2))
+      '@types/node':
+        specifier: ^22.2.0
+        version: 22.2.0
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(vite@8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2))
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.1
+        version: 6.0.6(vite@8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2))(vue@3.5.34(typescript@5.9.3))
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2)
+      vite-plugin-solid:
+        specifier: 'catalog:'
+        version: 2.11.12(solid-js@1.9.14)(vite@8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2))
+      vue:
+        specifier: ^3.5.26
+        version: 3.5.34(typescript@5.9.3)
+
 packages:
 
   '@75lb/deep-merge@1.1.1':
@@ -2940,6 +3010,11 @@ packages:
   '@pkgr/core@0.3.6':
     resolution: {integrity: sha512-SEeaJLb3qBNF/OaXnaR1NmmBbFYk1zC0ZH/52fATcRPLFg/p791YrcyFFy44Bo9sLaGuSuLp5Q6axbb/O+v/RA==}
     engines: {node: ^14.18.0 || >=16.0.0}
+
+  '@playwright/test@1.61.1':
+    resolution: {integrity: sha512-8nKv6+0RJSL9FE4jYOEGXnPeM/Hg12qZpmqzZjRh3qM0Y7c3z1mrOTfFLids72RDQYVh9WpLEfR5WdpNX4fkig==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   '@polka/url@1.0.0-next.28':
     resolution: {integrity: sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==}
@@ -5497,6 +5572,11 @@ packages:
   fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
+  fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -7225,6 +7305,16 @@ packages:
 
   pkg-types@1.3.1:
     resolution: {integrity: sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ==}
+
+  playwright-core@1.61.1:
+    resolution: {integrity: sha512-h7Qlt6m4REp25qvIdvbDtVmD4LqVXfpRxhORv9L0jzETM05p4fuPJ3dKyuSXQxDSbXnmS79HAgi9589lGSpLkg==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.61.1:
+    resolution: {integrity: sha512-DWnY5o3YbLWK4GovuAVwpqL+1VwGNdUGrRr++8j8PtQQzvAVZUIMjKQ90fY689sEJZJBbZVw1rXaOKSTitkzPQ==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   portfinder@1.0.32:
     resolution: {integrity: sha512-on2ZJVVDXRADWE6jnQaX0ioEylzgBpQk8r55NE4wjXW1ZxO+BgDlY6DXwj20i0V8eB4SenDQ00WEaxfiIQPcxg==}
@@ -10297,6 +10387,10 @@ snapshots:
 
   '@pkgr/core@0.3.6': {}
 
+  '@playwright/test@1.61.1':
+    dependencies:
+      playwright: 1.61.1
+
   '@polka/url@1.0.0-next.28': {}
 
   '@poppinss/colors@4.1.6':
@@ -13352,6 +13446,9 @@ snapshots:
 
   fs.realpath@1.0.0: {}
 
+  fsevents@2.3.2:
+    optional: true
+
   fsevents@2.3.3:
     optional: true
 
@@ -15334,6 +15431,14 @@ snapshots:
       confbox: 0.1.8
       mlly: 1.8.0
       pathe: 2.0.3
+
+  playwright-core@1.61.1: {}
+
+  playwright@1.61.1:
+    dependencies:
+      playwright-core: 1.61.1
+    optionalDependencies:
+      fsevents: 2.3.2
 
   portfinder@1.0.32:
     dependencies:
