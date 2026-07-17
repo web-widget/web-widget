@@ -1,0 +1,14 @@
+{
+  "routes": [
+    {
+      "pathname": "/shadow-dom-ssr",
+      "module": "./routes/shadow-dom-ssr@route.tsx"
+    }
+  ],
+  "actions": [],
+  "middlewares": [],
+  "fallbacks": [],
+  "layout": {
+    "module": "./routes/_root@layout.ts"
+  }
+}

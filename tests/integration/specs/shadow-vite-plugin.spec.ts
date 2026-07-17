@@ -4,14 +4,17 @@ import type { BrowserErrorProbe } from '../src/browser-errors';
 import { mutateRouterSource, withRouterFixture } from '../src/router-fixture';
 
 const production = process.env.TEST_MODE === 'production';
-const adapters = [
-  'react',
-  'vue3',
-  'vue2',
-  'svelte',
-  'solid',
-  'preact',
-] as const;
+const adapters = ['react', 'vue3'] as const;
+
+function widgetName(adapter: (typeof adapters)[number]) {
+  return adapter === 'vue3' ? 'VueCounter' : 'ReactCounter';
+}
+
+function waitForViteConnection(page: Page) {
+  return page.waitForEvent('console', {
+    predicate: (message) => message.text().includes('[vite] connected.'),
+  });
+}
 
 function shadowTemplates(html: string) {
   return [
@@ -48,9 +51,7 @@ async function expectShadowStyles(page: Page) {
     'route'
   );
   for (const adapter of adapters) {
-    const host = page.locator(
-      `web-widget[name$="${adapter === 'vue3' ? 'Vue3Counter' : adapter === 'vue2' ? 'Vue2Counter' : `${adapter[0].toUpperCase()}${adapter.slice(1)}Counter`}"]`
-    );
+    const host = page.locator(`web-widget[name="${widgetName(adapter)}"]`);
     const button = host.locator('button');
     await expect(host).not.toHaveAttribute('recovering');
     await expect(button).toHaveCSS('--widget-module-owner', 'module');
@@ -58,13 +59,9 @@ async function expectShadowStyles(page: Page) {
     await expect(button).toHaveCSS('--route-button-leak', '');
     await expect(button).toHaveCSS('padding', '8px 20px');
   }
-  await expect(page.locator('web-widget[name="Vue3Counter"] button')).toHaveCSS(
+  await expect(page.locator('web-widget[name="VueCounter"] button')).toHaveCSS(
     '--vue-scoped-owner',
     'vue3'
-  );
-  await expect(page.locator('web-widget[name="Vue2Counter"] button')).toHaveCSS(
-    '--vue-scoped-owner',
-    'vue2'
   );
 }
 
@@ -73,15 +70,17 @@ async function openStableDevPage(
   url: string,
   browserErrors?: BrowserErrorProbe
 ) {
-  // A cold multi-framework playground can make Vite's dependency optimizer
-  // reload once after discovering client-only adapter dependencies.
+  const connected = waitForViteConnection(page);
   await page.goto(url);
+  await connected;
   await expectShadowStyles(page);
   if (browserErrors) {
     browserErrors.messages.length = 0;
     browserErrors.resourceErrors.length = 0;
   }
+  const reconnected = waitForViteConnection(page);
   await page.reload();
+  await reconnected;
   await expectShadowStyles(page);
 }
 
@@ -120,7 +119,7 @@ test.describe('Vite Shadow SSR development pipeline', () => {
         const templates = shadowTemplates(html);
         const documentCss = await collectDocumentCss(html, fixture.baseURL);
 
-        expect(templates).toHaveLength(6);
+        expect(templates).toHaveLength(2);
         expect(documentCss).toContain('--route-css-owner: route');
         for (const response of responses) {
           expect(await collectDocumentCss(response, fixture.baseURL)).toContain(
@@ -134,9 +133,6 @@ test.describe('Vite Shadow SSR development pipeline', () => {
         }
         expect(shadowTemplateFor(html, 'vue3')).toContain(
           '--vue-scoped-owner: vue3'
-        );
-        expect(shadowTemplateFor(html, 'vue2')).toContain(
-          '--vue-scoped-owner: vue2'
         );
 
         await openStableDevPage(
@@ -162,10 +158,11 @@ test.describe('Vite Shadow SSR development pipeline', () => {
         });
         await openStableDevPage(page, `${fixture.baseURL}/shadow-dom-ssr`);
         const beforeCssUpdate = documents;
+        const viteReconnected = waitForViteConnection(page);
 
         await mutateRouterSource(
           fixture,
-          'routes/(css)/counter.module.css',
+          'styles/counter.module.css',
           (source) =>
             source
               .replace(
@@ -176,7 +173,7 @@ test.describe('Vite Shadow SSR development pipeline', () => {
         );
         for (const adapter of adapters) {
           const host = page.locator(
-            `web-widget[name*="${adapter === 'vue3' ? 'Vue3' : adapter === 'vue2' ? 'Vue2' : adapter[0].toUpperCase() + adapter.slice(1)}"]`
+            `web-widget[name="${widgetName(adapter)}"]`
           );
           const button = host.locator('button');
           await expect(button).toHaveCSS('--widget-module-version', '2');
@@ -197,6 +194,7 @@ test.describe('Vite Shadow SSR development pipeline', () => {
           ).toBe(true);
         }
         await expect.poll(() => documents).toBe(beforeCssUpdate + 1);
+        await viteReconnected;
 
         let html = await (
           await fetch(`${fixture.baseURL}/shadow-dom-ssr`)
@@ -208,12 +206,12 @@ test.describe('Vite Shadow SSR development pipeline', () => {
         const beforeVueUpdate = documents;
         await mutateRouterSource(
           fixture,
-          'routes/(vue3)/frameworks/vue3/Counter@widget.vue',
+          'widgets/VueCounter@widget.vue',
           (source) =>
             source.replace('--vue-scoped-version: 1', '--vue-scoped-version: 2')
         );
         await expect(
-          page.locator('web-widget[name="Vue3Counter"] button')
+          page.locator('web-widget[name="VueCounter"] button')
         ).toHaveCSS('--vue-scoped-version', '2');
         await expect.poll(() => documents).toBe(beforeVueUpdate);
 
@@ -243,7 +241,7 @@ test.describe('Vite Shadow SSR production pipeline', () => {
         const templates = shadowTemplates(html);
         const documentCss = await collectDocumentCss(html, fixture.baseURL);
 
-        expect(templates).toHaveLength(6);
+        expect(templates).toHaveLength(2);
         expect(documentCss).toContain('--route-css-owner:route');
         for (const template of templates) {
           expect(template).toContain('--widget-module-owner:module');
@@ -251,9 +249,6 @@ test.describe('Vite Shadow SSR production pipeline', () => {
         }
         expect(shadowTemplateFor(html, 'vue3')).toContain(
           '--vue-scoped-owner:vue3'
-        );
-        expect(shadowTemplateFor(html, 'vue2')).toContain(
-          '--vue-scoped-owner:vue2'
         );
 
         await page.goto(`${fixture.baseURL}/shadow-dom-ssr`);

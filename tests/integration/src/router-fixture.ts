@@ -20,7 +20,7 @@ const packageRoot = path.resolve(
   '..'
 );
 const workspaceRoot = path.resolve(packageRoot, '../..');
-const playgroundRoot = path.join(workspaceRoot, 'playgrounds/router');
+const fixtureSourceRoot = path.join(packageRoot, 'fixtures/shadow-router');
 const viteCli = path.resolve(
   path.dirname(fileURLToPath(import.meta.resolve('vite'))),
   '../../bin/vite.js'
@@ -73,17 +73,15 @@ async function createRouterCopy(): Promise<string> {
     await mkdtemp(path.join(os.tmpdir(), 'web-widget-router-'))
   );
   await Promise.all([
-    cp(path.join(playgroundRoot, 'public'), path.join(root, 'public'), {
+    cp(path.join(fixtureSourceRoot, 'routes'), path.join(root, 'routes'), {
       recursive: true,
     }),
-    cp(path.join(playgroundRoot, 'routes'), path.join(root, 'routes'), {
+    cp(path.join(fixtureSourceRoot, 'styles'), path.join(root, 'styles'), {
       recursive: true,
     }),
-    cp(
-      path.join(playgroundRoot, 'vite-plugins'),
-      path.join(root, 'vite-plugins'),
-      { recursive: true }
-    ),
+    cp(path.join(fixtureSourceRoot, 'widgets'), path.join(root, 'widgets'), {
+      recursive: true,
+    }),
     ...[
       'entry.client.ts',
       'entry.server.ts',
@@ -94,31 +92,12 @@ async function createRouterCopy(): Promise<string> {
       'tsconfig.json',
       'vite.config.ts',
     ].map((file) =>
-      copyFile(path.join(playgroundRoot, file), path.join(root, file))
+      copyFile(path.join(fixtureSourceRoot, file), path.join(root, file))
     ),
   ]);
   await symlink(
-    path.join(playgroundRoot, 'node_modules'),
+    path.join(packageRoot, 'node_modules'),
     path.join(root, 'node_modules')
-  );
-
-  const configPath = path.join(root, 'vite.config.ts');
-  const config = await readFile(configPath, 'utf8');
-  await writeFile(
-    configPath,
-    config
-      .replace(
-        '  resolve: {',
-        `  server: { fs: { allow: [${JSON.stringify(root)}, ${JSON.stringify(workspaceRoot)}] } },\n  resolve: {`
-      )
-      .replace(
-        "'~': import.meta.dirname,",
-        [
-          `'~': ${JSON.stringify(root)},`,
-          `      '@playgrounds/web-router-vue3': ${JSON.stringify(path.join(root, 'routes/(vue3)'))},`,
-          `      '@playgrounds/web-router-vue2': ${JSON.stringify(path.join(root, 'routes/(vue2)'))},`,
-        ].join('\n')
-      )
   );
   return root;
 }
@@ -131,7 +110,11 @@ function collectLogs(process: ChildProcess, logs: string[]) {
 async function buildRouter(root: string, logs: string[]) {
   const process = spawn(globalThis.process.execPath, [viteCli, 'build'], {
     cwd: root,
-    env: { ...globalThis.process.env, NO_COLOR: '1' },
+    env: {
+      ...globalThis.process.env,
+      NO_COLOR: '1',
+      WEB_WIDGET_WORKSPACE_ROOT: workspaceRoot,
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   collectLogs(process, logs);
@@ -158,7 +141,7 @@ async function waitForServer(
       );
     }
     try {
-      const response = await fetch(baseURL);
+      const response = await fetch(`${baseURL}/shadow-dom-ssr`);
       if (response.ok) return;
     } catch {
       // The listener can be ready before the route graph has warmed up.
@@ -172,7 +155,7 @@ export async function startRouterFixture(
   mode: RouterFixture['mode']
 ): Promise<RouterFixture> {
   const temporary = mode === 'dev';
-  const root = temporary ? await createRouterCopy() : playgroundRoot;
+  const root = temporary ? await createRouterCopy() : fixtureSourceRoot;
   const logs: string[] = [];
   try {
     if (mode === 'production') await buildRouter(root, logs);
@@ -191,7 +174,12 @@ export async function startRouterFixture(
           ];
     const process = spawn(globalThis.process.execPath, args, {
       cwd: root,
-      env: { ...globalThis.process.env, NO_COLOR: '1', PORT: String(port) },
+      env: {
+        ...globalThis.process.env,
+        NO_COLOR: '1',
+        PORT: String(port),
+        WEB_WIDGET_WORKSPACE_ROOT: workspaceRoot,
+      },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     collectLogs(process, logs);

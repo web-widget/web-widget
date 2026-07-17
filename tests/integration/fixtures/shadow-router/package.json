@@ -1,0 +1,5 @@
+{
+  "name": "@tests/shadow-router-fixture",
+  "private": true,
+  "type": "module"
+}

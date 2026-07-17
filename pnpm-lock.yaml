@@ -1522,9 +1522,6 @@ importers:
         specifier: 'catalog:'
         version: 5.56.4(@typescript-eslint/types@8.64.0)
     devDependencies:
-      '@playgrounds/router':
-        specifier: workspace:*
-        version: link:../../playgrounds/router
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.61.1
@@ -1546,6 +1543,21 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
         version: 6.0.6(vite@8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2))(vue@3.5.34(typescript@5.9.3))
+      '@web-widget/helpers':
+        specifier: workspace:*
+        version: link:../../packages/helpers
+      '@web-widget/html':
+        specifier: workspace:*
+        version: link:../../packages/html
+      '@web-widget/node':
+        specifier: workspace:*
+        version: link:../../packages/node
+      '@web-widget/vite-plugin':
+        specifier: workspace:*
+        version: link:../../packages/vite-plugin
+      '@web-widget/web-router':
+        specifier: workspace:*
+        version: link:../../packages/web-router
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
