@@ -114,14 +114,6 @@ export interface ImportMap {
  * manifest links, and dev meta collection.
  */
 export type WidgetModuleFilter = (modulePath: string) => boolean;
-export type WidgetRenderTarget = 'light' | 'shadow';
-export type WidgetLoading = 'lazy' | 'eager' | 'idle';
-
-/** Defaults injected into every transformed widget container. */
-export interface WidgetDefaults {
-  loading?: WidgetLoading;
-  renderTarget?: WidgetRenderTarget;
-}
 
 export interface WebRouterPluginApi {
   readonly config: ResolvedWebRouterConfig;
@@ -130,9 +122,7 @@ export interface WebRouterPluginApi {
   clientImportmap(): Promise<ImportMap>;
   serverRoutemap(): Promise<RouteMap>;
   readonly widgetModuleFilter?: WidgetModuleFilter;
-  readonly widgetDefaults: Readonly<WidgetDefaults>;
   setWidgetModuleFilter(filter: WidgetModuleFilter): void;
-  setWidgetDefaults(defaults: WidgetDefaults): void;
   /** Shared cache for route asset collection across plugin instances. */
   getRouteAssetCaches(): RouteAssetCaches;
   /** Pre-computed during `buildStart` for O(1) SSR transform lookup. */
@@ -145,7 +135,7 @@ export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {
 
 ////////////////////////////////////////
 //////                            //////
-//////     WidgetAdapterConfig    //////
+//////   WebWidgetAdapterConfig   //////
 //////                            //////
 ////////////////////////////////////////
 
@@ -155,7 +145,7 @@ export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {
  * the adapter's default `name` / `extensions` / `adapter` and adds
  * a `scope` for disambiguating extension conflicts.
  */
-export interface WidgetAdapterConfig {
+export interface WebWidgetAdapterConfig {
   /** Adapter package name, e.g. "@web-widget/react". */
   from: string;
   /** Override the adapter's declared name. */
@@ -183,7 +173,5 @@ export interface WebWidgetPluginOptions {
    * which files belong to which framework and where to get the
    * adapter implementation.
    */
-  adapters: (string | WidgetAdapterConfig)[];
-  /** Defaults applied when a widget container does not declare an option. */
-  defaults?: WidgetDefaults;
+  adapters: (string | WebWidgetAdapterConfig)[];
 }

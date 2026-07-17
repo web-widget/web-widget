@@ -1,15 +1,12 @@
 import path from 'node:path';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
-import type { Plugin, ViteDevServer } from 'vite';
-import { analyzeContainerRenderTarget } from './container-options';
+import type { Plugin } from 'vite';
 import { hasDefaultExport } from './module-exports';
 import { stripModuleIdQuery, CSS_LANGS_RE } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
 import { createAliasGenerator } from '@/internal/alias';
-import type { WidgetDefaults, WidgetRenderTarget } from '@/types';
-import { getDevWidgetStyles, type DevWidgetStyle } from '@/dev/meta';
 
 const IMPORT_DEFAULT_NAME_REG =
   /import\s+(?:([a-zA-Z_$][\w$]*)|\{\s*default\s+as\s+([a-zA-Z_$][\w$]*)\s*\})\s+from/;
@@ -50,7 +47,6 @@ export interface ImportRenderPluginOptions {
   importerPattern: RegExp;
   /** Adapter module specifier for container injection. */
   adapterModule: string;
-  defaults?: WidgetDefaults;
 }
 
 /**
@@ -90,7 +86,6 @@ export interface TransformWidgetImportsOptions {
   importPattern: RegExp;
   /** Adapter module specifier for container injection. */
   adapterModule: string;
-  defaults?: WidgetDefaults;
 }
 
 export interface TransformWidgetImportsContext {
@@ -98,8 +93,6 @@ export interface TransformWidgetImportsContext {
   resolve: ResolveFn;
   /** Emit a chunk file (production builds only). */
   emitFile: EmitFileFn;
-  /** Resolve Vite-transformed widget CSS in dev. */
-  resolveDevWidgetStyles?: (id: string) => Promise<DevWidgetStyle[]>;
 }
 
 export interface TransformResult {
@@ -129,7 +122,7 @@ export async function transformWidgetImports(
   ctx: TransformWidgetImportsContext,
   options: TransformWidgetImportsOptions
 ): Promise<TransformResult | null> {
-  const { resolve, emitFile, resolveDevWidgetStyles } = ctx;
+  const { resolve, emitFile } = ctx;
   const {
     code,
     id,
@@ -140,7 +133,6 @@ export async function transformWidgetImports(
     sourcemap,
     importPattern,
     adapterModule,
-    defaults,
   } = options;
 
   const cleanImporterId = stripModuleIdQuery(id);
@@ -283,19 +275,6 @@ export async function transformWidgetImports(
     const importProperty = clientModuleExpression
       ? `import: ${clientModuleExpression}, `
       : '';
-    const loadingProperty = defaults?.loading
-      ? `, loading: ${JSON.stringify(defaults.loading)}`
-      : '';
-    const renderTargetProperty = defaults?.renderTarget
-      ? `, renderTarget: ${JSON.stringify(defaults.renderTarget)}`
-      : '';
-    const styles =
-      dev && defaults?.renderTarget === 'shadow' && resolveDevWidgetStyles
-        ? await resolveDevWidgetStyles(resolvedId)
-        : [];
-    const stylesProperty = styles.length
-      ? `, devStyles: ${JSON.stringify(styles)}`
-      : '';
 
     const definerName = alias('container');
     definerNames.push(definerName);
@@ -303,9 +282,7 @@ export async function transformWidgetImports(
     replacementStatements.push(
       `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
         moduleName
-      )}), { ${importProperty}name: ${JSON.stringify(
-        componentName
-      )}${loadingProperty}${renderTargetProperty}${stylesProperty} });`
+      )}), { ${importProperty}name: ${JSON.stringify(componentName)} });`
     );
 
     magicString.update(statementStart, statementEnd, '');
@@ -335,61 +312,41 @@ export async function transformWidgetImports(
       code.substring(0, containerCallStart)
     );
 
-    // Find the `)` that closes `import(...)` and inspect the optional second
-    // argument before deciding which target owns the Widget's styles.
+    const props = `import: ${clientModuleExpression}${
+      componentName ? `, name: ${JSON.stringify(componentName)}` : ''
+    }`;
+
+    // Find the `)` that closes `import(...)`.
     let pos = moduleSpecifierEnd;
     while (pos < code.length && code[pos] !== ')') pos++;
+
+    // Skip past `)` of import() and whitespace.
     pos++;
     while (pos < code.length && /\s/.test(code[pos])) pos++;
-
-    let explicitRenderTarget: WidgetRenderTarget | undefined;
-    let optionsStart: number | undefined;
-    if (code[pos] === ',') {
-      pos++;
-      while (pos < code.length && /\s/.test(code[pos])) pos++;
-      if (code[pos] !== '{') {
-        throw new SyntaxError(
-          `Cannot inject options into container(): second argument must be an object literal.`
-        );
-      }
-      optionsStart = pos;
-      explicitRenderTarget = analyzeContainerRenderTarget(code, pos);
-    } else if (code[pos] !== ')') {
-      throw new SyntaxError(
-        `Malformed container() call: expected ')' or ',' after import().`
-      );
-    }
-
-    const effectiveRenderTarget =
-      explicitRenderTarget ?? defaults?.renderTarget;
-    const styles =
-      dev && effectiveRenderTarget === 'shadow' && resolveDevWidgetStyles
-        ? await resolveDevWidgetStyles(resolvedId)
-        : [];
-
-    const props = [
-      `import: ${clientModuleExpression}`,
-      componentName ? `name: ${JSON.stringify(componentName)}` : '',
-      defaults?.loading ? `loading: ${JSON.stringify(defaults.loading)}` : '',
-      explicitRenderTarget === undefined && defaults?.renderTarget
-        ? `renderTarget: ${JSON.stringify(defaults.renderTarget)}`
-        : '',
-      styles.length ? `devStyles: ${JSON.stringify(styles)}` : '',
-    ]
-      .filter(Boolean)
-      .join(', ');
 
     if (code[pos] === ')') {
       // container(() => import('...'))  — no options, inject them.
       magicString.appendLeft(pos, `, { ${props} }`);
       transformedContainerCalls++;
-    } else if (optionsStart !== undefined) {
+    } else if (code[pos] === ',') {
       // container(() => import('...'), { ... }) — merge into options.
-      if (/^\s*import\s*:/.test(code.slice(optionsStart + 1))) {
-        continue;
+      pos++;
+      while (pos < code.length && /\s/.test(code[pos])) pos++;
+      if (code[pos] === '{') {
+        if (/^\s*import\s*:/.test(code.slice(pos + 1))) {
+          continue;
+        }
+        magicString.appendLeft(pos + 1, ` ${props},`);
+        transformedContainerCalls++;
+      } else {
+        throw new SyntaxError(
+          `Cannot inject options into container(): second argument must be an object literal.`
+        );
       }
-      magicString.appendLeft(optionsStart + 1, ` ${props},`);
-      transformedContainerCalls++;
+    } else {
+      throw new SyntaxError(
+        `Malformed container() call: expected ')' or ',' after import().`
+      );
     }
   }
 
@@ -466,7 +423,6 @@ export function importRenderPlugin({
   importPattern,
   importerPattern,
   adapterModule,
-  defaults,
 }: ImportRenderPluginOptions): Plugin[] {
   if (typeof adapterModule !== 'string') {
     throw new TypeError(`options.adapterModule must be a string type.`);
@@ -476,7 +432,6 @@ export function importRenderPlugin({
   let root: string;
   let base: string;
   let sourcemap: boolean;
-  let viteServer: ViteDevServer | undefined;
 
   return [
     {
@@ -486,9 +441,6 @@ export function importRenderPlugin({
         root = config.root;
         base = config.base;
         sourcemap = !!config.build?.sourcemap;
-      },
-      configureServer(server) {
-        viteServer = server;
       },
       transform: {
         filter: { id: nativeFilter },
@@ -508,41 +460,6 @@ export function importRenderPlugin({
                 resolve: (specifier, importer) =>
                   this.resolve(specifier, importer, { skipSelf: true }),
                 emitFile: (file) => this.emitFile(file),
-                resolveDevWidgetStyles: viteServer
-                  ? (widgetId) => {
-                      const server = viteServer!.environments.ssr!;
-                      const client = viteServer!.environments.client!;
-                      return getDevWidgetStyles(
-                        widgetId,
-                        {
-                          name: server.name,
-                          root: server.config.root,
-                          getModuleById: (moduleId) =>
-                            server.moduleGraph.getModuleById(moduleId) ??
-                            undefined,
-                          getModulesByFile: (file) =>
-                            server.moduleGraph.getModulesByFile(file),
-                          importModule: async () => {
-                            throw new Error(
-                              'Module import is unavailable during CSS collection.'
-                            );
-                          },
-                          resolveId: (specifier, importer) =>
-                            server.pluginContainer.resolveId(
-                              specifier,
-                              importer
-                            ),
-                          transformRequest: (url) =>
-                            server.transformRequest(url),
-                        },
-                        {
-                          root: client.config.root,
-                          transformRequest: (url) =>
-                            client.transformRequest(url),
-                        }
-                      );
-                    }
-                  : undefined,
               },
               {
                 code,
@@ -554,7 +471,6 @@ export function importRenderPlugin({
                 sourcemap,
                 importPattern,
                 adapterModule,
-                defaults,
               }
             );
             return result;

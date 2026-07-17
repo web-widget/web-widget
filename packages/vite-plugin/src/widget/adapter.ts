@@ -5,16 +5,13 @@ import type { Plugin } from 'vite';
 import { exportRenderPlugin } from './export-render';
 import { importRenderPlugin } from './import-render';
 import { adapterScopePrefix } from './adapter-scope';
+import { getWebRouterPluginApi } from '@/internal/manifest';
 import {
   ROUTE_MARKER_PATTERN,
   ROUTE_OR_WIDGET_MARKER_PATTERN,
   WIDGET_MARKER_PATTERN,
 } from '@/internal/module-conventions';
-import type {
-  WidgetAdapterConfig,
-  WidgetDefaults,
-  WebWidgetPluginOptions,
-} from '@/types';
+import type { WebWidgetAdapterConfig, WebWidgetPluginOptions } from '@/types';
 
 /** Supported adapter format major version. */
 const SUPPORTED_VERSION = 1;
@@ -108,7 +105,7 @@ function checkVersion(meta: AdapterMetadata, from: string): void {
 }
 
 function resolveAdapter(
-  config: string | WidgetAdapterConfig,
+  config: string | WebWidgetAdapterConfig,
   root: string
 ): ResolvedAdapter {
   const userConfig = typeof config === 'string' ? { from: config } : config;
@@ -137,8 +134,7 @@ function extPattern(extensions: string[]): string {
 function buildPluginsForAdapter(
   resolved: ResolvedAdapter,
   root: string,
-  excludedScopes: string[],
-  defaults?: WidgetDefaults
+  excludedScopes: string[]
 ): Plugin[] {
   const { from, extensions, adapter, scope, deriveExports } = resolved;
 
@@ -179,11 +175,12 @@ function buildPluginsForAdapter(
     {
       name: '@web-widget:widget-module-filter',
       enforce: 'post',
-      api: {
-        filter: (key: string) => importPattern.test(key),
-        defaults,
+      config(config) {
+        getWebRouterPluginApi(config)?.setWidgetModuleFilter((key: string) =>
+          importPattern.test(key)
+        );
       },
-    } as Plugin,
+    },
     ...exportRenderPlugin({
       nativeFilter: exportNativeFilter,
       exportPattern,
@@ -195,7 +192,6 @@ function buildPluginsForAdapter(
       importPattern,
       importerPattern,
       adapterModule,
-      defaults,
     }),
   ];
 }
@@ -203,7 +199,7 @@ function buildPluginsForAdapter(
 // ── public API ────────────────────────────────────────────────────
 
 /**
- * Web widget build transformation plugin (WidgetAdapter protocol).
+ * Web widget build transformation plugin (WebWidgetAdapter protocol).
  *
  * Reads adapter metadata from each package's `webWidgetAdapter` field in
  * package.json, builds file-matching patterns, and injects the
@@ -228,26 +224,6 @@ export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
   }
 
   const root = process.cwd();
-  const defaults = options.defaults;
-  if (
-    defaults?.renderTarget !== undefined &&
-    defaults.renderTarget !== 'light' &&
-    defaults.renderTarget !== 'shadow'
-  ) {
-    throw new TypeError(
-      `webWidgetPlugin: "defaults.renderTarget" must be "light" or "shadow".`
-    );
-  }
-  if (
-    defaults?.loading !== undefined &&
-    defaults.loading !== 'lazy' &&
-    defaults.loading !== 'eager' &&
-    defaults.loading !== 'idle'
-  ) {
-    throw new TypeError(
-      `webWidgetPlugin: "defaults.loading" must be "lazy", "eager", or "idle".`
-    );
-  }
 
   const adapters = options.adapters.map((a) => resolveAdapter(a, root));
 
@@ -281,6 +257,6 @@ export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
       )
       .flatMap((candidate) => candidate.scope ?? []);
 
-    return buildPluginsForAdapter(adapter, root, excludedScopes, defaults);
+    return buildPluginsForAdapter(adapter, root, excludedScopes);
   });
 }
