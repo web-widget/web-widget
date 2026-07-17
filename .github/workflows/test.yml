@@ -23,7 +23,7 @@ jobs:
         env:
           SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
       - name: Build integration dependencies
-        run: pnpm --filter @tests/integration... build
+        run: pnpm turbo run build --filter=@tests/integration...
       - name: Install Chromium
         run: pnpm --filter @tests/integration exec playwright install --with-deps chromium
       - name: Run dev core suite
@@ -56,7 +56,7 @@ jobs:
         env:
           SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
       - name: Build integration dependencies
-        run: pnpm --filter @tests/integration... build
+        run: pnpm turbo run build --filter=@tests/integration...
       - name: Install Playwright browsers
         run: pnpm --filter @tests/integration exec playwright install --with-deps chromium firefox webkit
       - name: Run dev mismatch suite
