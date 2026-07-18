@@ -32,7 +32,7 @@ function ensureHydrationRuntime(): void {
 }
 
 export const render = defineClientRender<Component<any>>(
-  async (component, data, { container, key, recovering }) => {
+  async (component, data, { container, id, recovering }) => {
     if (!component) throw new TypeError('Missing component.');
     if (!container) throw new Error('Missing container.');
     let dispose: (() => void) | undefined;
@@ -53,10 +53,10 @@ export const render = defineClientRender<Component<any>>(
           };
           // Solid marks its single global hydration pass complete after the
           // first delegated event. Re-open that pass for independently loaded
-          // widget roots while preserving their render-key namespaces.
+          // widget roots while preserving their render ID namespaces.
           runtime._$HY.done = false;
           sharedConfig.done = false;
-          dispose = hydrate(view, container, { renderId: key });
+          dispose = hydrate(view, container, { renderId: id });
         } else {
           container.replaceChildren();
           dispose = renderComponent(view, container);

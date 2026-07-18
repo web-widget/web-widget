@@ -255,6 +255,7 @@ export function container(
     children,
     widget: {
       fallback,
+      id,
       loading = options.loading,
       serverOnly,
       clientOnly,
@@ -262,6 +263,7 @@ export function container(
     ...data
   }: ReactWidgetProps) {
     const renderOptions = {
+      id,
       loading: loading ?? options.loading,
       renderStage: serverOnly
         ? ('server' as const)

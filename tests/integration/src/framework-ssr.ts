@@ -6,7 +6,7 @@ import SvelteWidget from './hydration/SvelteWidget.svelte';
 type ServerAdapter = (
   component: unknown,
   data: unknown,
-  options: { key: string; progressive: boolean }
+  options: { id: string; progressive: boolean }
 ) => Promise<ReadableStream<string> | string>;
 
 export interface FrameworkSSRFragments {
@@ -24,25 +24,25 @@ export async function renderFrameworkSSR(): Promise<FrameworkSSRFragments> {
   const renderSvelte = svelteRender as unknown as ServerAdapter;
   const [solidLight, solidShadow, solidLateShadow, svelteLight, svelteShadow] =
     await Promise.all([
-      renderSolid(SolidWidget, {}, { key: 'solid-light', progressive: false }),
-      renderSolid(SolidWidget, {}, { key: 'solid-shadow', progressive: false }),
+      renderSolid(SolidWidget, {}, { id: 'solid-light', progressive: false }),
+      renderSolid(SolidWidget, {}, { id: 'solid-shadow', progressive: false }),
       renderSolid(
         SolidWidget,
         {},
         {
-          key: 'solid-late-shadow',
+          id: 'solid-late-shadow',
           progressive: false,
         }
       ),
       renderSvelte(
         SvelteWidget,
         {},
-        { key: 'svelte-light', progressive: false }
+        { id: 'svelte-light', progressive: false }
       ),
       renderSvelte(
         SvelteWidget,
         {},
-        { key: 'svelte-shadow', progressive: false }
+        { id: 'svelte-shadow', progressive: false }
       ),
     ]);
 

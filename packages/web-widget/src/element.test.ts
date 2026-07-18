@@ -403,13 +403,25 @@ describe('Auto load', () => {
 });
 
 describe('Application property: container', () => {
-  it('passes the server render key to the client adapter', () =>
+  it('passes the widget id to the client adapter', () =>
     createInactiveWidget(async ({ getElement, getContext }) => {
-      getElement().setAttribute('data-key', 'widget-17');
+      getElement().id = 'widget-17';
       await getElement().load();
       await getElement().bootstrap();
 
-      expect(getContext().options.key).to.equal('widget-17');
+      expect(getContext().options.id).to.equal('widget-17');
+      expect(getElement().id).to.equal('widget-17');
+    }));
+
+  it('generates an id only when the widget has none', () =>
+    createInactiveWidget(async ({ getElement, getContext }) => {
+      expect(getElement().hasAttribute('id')).to.equal(false);
+
+      await getElement().load();
+      await getElement().bootstrap();
+
+      expect(getElement().id).to.match(/^w[0-9a-z]+$/);
+      expect(getContext().options.id).to.equal(getElement().id);
     }));
 
   it('container', () =>

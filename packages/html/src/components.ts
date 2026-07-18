@@ -101,11 +101,12 @@ export function container(
 ) {
   return async function HtmlWidget<T>(
     {
-      widget: { loading, serverOnly, clientOnly, fallback: fb } = {},
+      widget: { id, loading, serverOnly, clientOnly, fallback: fb } = {},
       ...data
     }: HtmlWidgetProps<T> = {} as HtmlWidgetProps<T>
   ): Promise<UnsafeHTML | Suspense | Fallback> {
     const renderOptions = {
+      id,
       loading: loading ?? options.loading,
       renderStage: serverOnly
         ? ('server' as const)

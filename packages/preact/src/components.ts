@@ -135,6 +135,7 @@ export function container(
     if (children) throw new TypeError('Children not supported.');
     const { pending, error } = resolveFallback(widget.fallback);
     const renderOptions = {
+      id: widget.id,
       loading: widget.loading ?? options.loading,
       renderStage: widget.serverOnly
         ? ('server' as const)
@@ -150,7 +151,7 @@ export function container(
         ...renderOptions,
         renderTarget: options.renderTarget,
       }),
-      [data, renderOptions.loading, renderOptions.renderStage]
+      [data, renderOptions.id, renderOptions.loading, renderOptions.renderStage]
     );
     return createElement(
       WidgetErrorBoundary,

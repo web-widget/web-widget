@@ -39,7 +39,7 @@ describe('render (server)', () => {
     expect(result).toContain('Hello World');
   });
 
-  test('uses the widget key as the React identifier prefix', async () => {
+  test('uses the widget id as the React identifier prefix', async () => {
     const Component = () => {
       const id = useId();
       return createElement('div', { id });
@@ -49,7 +49,7 @@ describe('render (server)', () => {
       Component,
       {},
       {
-        key: 'w7',
+        id: 'w7',
         progressive: false,
       }
     );

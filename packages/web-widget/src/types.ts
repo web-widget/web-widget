@@ -24,6 +24,7 @@ export interface WebWidgetElementOptions extends Pick<
   base?: string;
   contextData?: SerializableObject;
   data?: SerializableObject;
+  id?: string;
   import?: string;
   inactive?: boolean;
   meta?: Meta;
@@ -41,6 +42,7 @@ export interface WebWidgetRendererOptions extends WidgetContainerOptions {
   /** @internal Vite-transformed CSS descriptors used during development. */
   devStyles?: ResolvedWidgetStyle[];
   import?: string;
+  id?: string;
   inactive?: boolean;
 }
 

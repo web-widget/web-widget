@@ -54,7 +54,7 @@ describe('framework adapter progressive rendering contract', () => {
       Component,
       {},
       {
-        key: 'solid-buffered',
+        id: 'solid-buffered',
         progressive: false,
       }
     );
@@ -62,7 +62,7 @@ describe('framework adapter progressive rendering contract', () => {
       Component,
       {},
       {
-        key: 'solid-progressive',
+        id: 'solid-progressive',
         progressive: true,
       }
     );
@@ -84,7 +84,7 @@ describe('framework adapter progressive rendering contract', () => {
         Component,
         {},
         {
-          key: 'solid-error',
+          id: 'solid-error',
           progressive: true,
         }
       )

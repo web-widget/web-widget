@@ -48,6 +48,7 @@ export function container(
   return ((anchor: any, props: Record<string, any>) => {
     const { widget = {}, ...data } = props;
     const renderOptions = {
+      id: widget.id,
       loading: widget.loading ?? options.loading,
       renderStage: widget.serverOnly
         ? ('server' as const)

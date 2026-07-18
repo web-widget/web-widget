@@ -13,12 +13,12 @@ export * from './components';
 const HYDRATION_SCRIPT = generateHydrationScript();
 
 export const render = defineServerRender<Component<any>>(
-  async (component, data, { key, progressive }) => {
+  async (component, data, { id, progressive }) => {
     if (!component) throw new TypeError('Missing component.');
     const view = () => createComponent(component, data ?? {});
     if (!progressive) {
       return (
-        HYDRATION_SCRIPT + (await renderToStringAsync(view, { renderId: key }))
+        HYDRATION_SCRIPT + (await renderToStringAsync(view, { renderId: id }))
       );
     }
     const stream = new ReadableStream<string>({
@@ -41,7 +41,7 @@ export const render = defineServerRender<Component<any>>(
         };
         try {
           const streamOptions = {
-            renderId: key,
+            renderId: id,
             onError(error: unknown) {
               if (!active) return;
               if (shellPending) {

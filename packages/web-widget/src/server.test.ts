@@ -8,7 +8,7 @@ function count(value: string, pattern: string): number {
 
 describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
   it('shares an id between server render options and client markup', async () => {
-    let renderKey: string | undefined;
+    let renderId: string | undefined;
     const renderer = new WebWidgetRenderer(
       async () => ({
         default: {},
@@ -17,7 +17,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
           _data: unknown,
           options: ServerRenderOptions
         ) => {
-          renderKey = options.key;
+          renderId = options.id;
           return '<p>identified</p>';
         },
       }),
@@ -25,12 +25,30 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
     );
 
     const html = await renderer.renderOuterHTMLToString();
-    const key = html.match(/data-key="([^"]+)"/)?.[1];
+    const id = html.match(/<web-widget[^>]*\sid="([^"]+)"/)?.[1];
 
-    expect(key).to.be.a('string').and.not.equal('');
-    expect(key).to.match(/^w[0-9a-z]+$/);
-    expect(renderKey).to.equal(key);
-    expect(html).not.to.match(/<web-widget[^>]*\skey=/);
+    expect(id).to.be.a('string').and.not.equal('');
+    expect(id).to.match(/^w[0-9a-z]+$/);
+    expect(renderId).to.equal(id);
+  });
+
+  it('preserves a user-provided widget id', async () => {
+    let renderId: string | undefined;
+    const renderer = new WebWidgetRenderer(
+      async () => ({
+        default: {},
+        render: async (_component, _data, options) => {
+          renderId = options.id;
+          return '<p>identified</p>';
+        },
+      }),
+      { id: 'account-summary', import: '/assets/identified.js' }
+    );
+
+    const html = await renderer.renderOuterHTMLToString();
+
+    expect(html).to.match(/<web-widget[^>]*\sid="account-summary"/);
+    expect(renderId).to.equal('account-summary');
   });
 
   it('serializes app HTML once inside a declarative shadow mount root', async () => {

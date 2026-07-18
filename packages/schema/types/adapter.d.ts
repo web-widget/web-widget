@@ -165,6 +165,8 @@ export interface WidgetContainerOptions {
 
 /** Per-use props passed through a framework widget container. */
 export type WidgetContainerProps<TPending = never, TError = TPending> = {
+  /** ID assigned to this Web Widget element instance. */
+  id?: string;
   /** UI shown while rendering is pending and, optionally, when rendering fails. */
   fallback?: WidgetContainerFallback<TPending, TError>;
   /** Override the container's client-side module loading strategy for this use. */

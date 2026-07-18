@@ -9,7 +9,7 @@ import { reportError } from './utils/report-error';
 import type { Lifecycle, ModuleLoader, Status, Timeouts } from './container';
 import { ModuleContainer, status } from './container';
 import { prepareShadowBoundary } from './boundary';
-import { WEB_WIDGET_KEY_ATTRIBUTE } from './constants';
+import { resolveWebWidgetId } from './id';
 import { WebWidgetError } from './error';
 import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
 import {
@@ -487,6 +487,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #createModuleContainer() {
     const view = this;
+    view.id = resolveWebWidgetId(view.hasAttribute('id') ? view.id : undefined);
     let container: Element | DocumentFragment;
     const { recovering, contextData } = this;
     const moduleContainer = new ModuleContainer<unknown>(
@@ -511,8 +512,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
           }
           return container;
         },
-        get key() {
-          return view.getAttribute(WEB_WIDGET_KEY_ATTRIBUTE) ?? undefined;
+        get id() {
+          return view.id;
         },
         get recovering() {
           return recovering;

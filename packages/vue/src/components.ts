@@ -204,12 +204,14 @@ export function container(
     setup({ widget }, { slots }) {
       const {
         fallback,
+        id,
         loading = options.loading,
         serverOnly,
         clientOnly,
       } = widget;
       const { pendingFallback, errorFallback } = resolveFallback(fallback);
       const renderOptions = {
+        id,
         loading: loading ?? options.loading,
         renderStage: serverOnly
           ? ('server' as const)

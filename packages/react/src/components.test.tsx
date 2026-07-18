@@ -9,7 +9,10 @@ jest.mock('@web-widget/web-widget', () => {
       localName = 'web-widget';
       pendingLocalName = 'web-widget-pending';
       attributes: Record<string, string> = {};
-      constructor(_loader: unknown, options: { name?: string }) {
+      constructor(_loader: unknown, options: { id?: string; name?: string }) {
+        if (options.id) {
+          this.attributes.id = options.id;
+        }
         if (options.name) {
           this.attributes.name = options.name;
         }
@@ -92,5 +95,20 @@ describe('container', () => {
     expect(output).toContain(
       '<web-widget-pending aria-busy="true" style="display:contents"><div>pending</div></web-widget-pending>'
     );
+  });
+
+  test('uses widget.id for the host element', () => {
+    const Widget = container(mockLoader);
+    const output = renderToString(
+      createElement(Widget, {
+        widget: {
+          id: 'profile-widget',
+          clientOnly: true,
+          fallback: { pending: createElement('div', null, 'pending') },
+        },
+      })
+    );
+
+    expect(output).toContain('<web-widget id="profile-widget"');
   });
 });

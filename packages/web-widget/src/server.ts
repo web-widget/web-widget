@@ -12,11 +12,11 @@ import type {
   WidgetRenderParts,
 } from './types';
 import {
-  WEB_WIDGET_KEY_ATTRIBUTE,
   WEB_WIDGET_PENDING_SLOT_NAME,
   WEB_WIDGET_ROOT_LOCAL_NAME,
   WEB_WIDGET_STATE_SLOT_NAME,
 } from './constants';
+import { resolveWebWidgetId } from './id';
 import { resolveWidgetStyles } from './style-descriptors';
 import { resolveWebWidgetRendererOptions } from './options';
 import {
@@ -30,12 +30,6 @@ import {
 export type * from './types';
 
 let showWebContainerWarning = true;
-let nextKey = 0;
-
-function createKey(): string {
-  return `w${(nextKey++).toString(36)}`;
-}
-
 const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
 
 function isWebContainer() {
@@ -133,9 +127,9 @@ function serializeInnerHTML(parts: WidgetRenderParts): string {
 class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   #children: string;
   #clientImport: string;
+  #id: string;
   #loader: WidgetModuleLoader;
-  #key = createKey();
-  #options: Omit<WebWidgetRendererOptions, 'children' | 'renderStage'>;
+  #options: Omit<WebWidgetRendererOptions, 'children' | 'id' | 'renderStage'>;
   #renderStage?: string;
   localName = 'web-widget';
 
@@ -145,7 +139,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
 
   constructor(
     loader: WidgetModuleLoader,
-    { children = '', renderStage, ...options }: WebWidgetRendererOptions
+    { children = '', id, renderStage, ...options }: WebWidgetRendererOptions
   ) {
     const resolvedOptions = resolveWebWidgetRendererOptions(options);
 
@@ -157,6 +151,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
 
     this.#children = children;
     this.#clientImport = getClientModuleId(loader, resolvedOptions);
+    this.#id = resolveWebWidgetId(id);
     this.#loader = loader;
     this.#options = resolvedOptions;
     this.#renderStage = renderStage;
@@ -174,6 +169,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
 
     if (renderStage === 'server') {
       return unsafePropsToAttrs({
+        id: this.#id,
         name: options.name,
       });
     }
@@ -183,7 +179,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       // base: options.base?.startsWith("file://") ? undefined : options.base,
       contextdata: JSON.stringify(contextdata),
       import: clientImport,
-      [WEB_WIDGET_KEY_ATTRIBUTE]: this.#key,
+      id: this.#id,
       recovering: renderStage !== 'client',
       devstyles: devStyles?.length
         ? JSON.stringify(devStyles.map(({ id }) => id))
@@ -231,7 +227,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
 
     const rawResult = await callSyncCacheProvider(() =>
       render(component, options.data, {
-        key: this.#key,
+        id: this.#id,
         progressive: false,
       })
     );

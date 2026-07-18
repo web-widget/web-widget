@@ -98,11 +98,13 @@ export function container(
       }
 
       const {
+        id,
         loading = options.loading,
         serverOnly,
         clientOnly,
       } = props.widget;
       const renderOptions = {
+        id,
         loading: loading ?? options.loading,
         renderStage: serverOnly
           ? ('server' as const)

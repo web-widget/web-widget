@@ -58,6 +58,7 @@ export function container(
     const widget = local.widget ?? {};
     const fallback = resolveFallback(widget.fallback);
     const renderOptions = {
+      id: widget.id,
       loading: widget.loading ?? options.loading,
       renderStage: widget.serverOnly
         ? ('server' as const)
