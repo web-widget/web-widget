@@ -21,6 +21,13 @@ export const render = defineServerRender<Component<any>>(
         HYDRATION_SCRIPT + (await renderToStringAsync(view, { renderId: id }))
       );
     }
+    let resolveShell!: () => void;
+    let rejectShell!: (error: unknown) => void;
+    const shellReady = new Promise<void>((resolve, reject) => {
+      resolveShell = resolve;
+      rejectShell = reject;
+    });
+
     const stream = new ReadableStream<string>({
       start(controller) {
         // Web Router treats the first emitted chunk as the framework shell.
@@ -30,13 +37,16 @@ export const render = defineServerRender<Component<any>>(
         const writable = {
           write(chunk: string) {
             if (!active) return;
-            controller.enqueue(shellPending ? HYDRATION_SCRIPT + chunk : chunk);
+            const shell = shellPending;
             shellPending = false;
+            controller.enqueue(shell ? HYDRATION_SCRIPT + chunk : chunk);
+            if (shell) resolveShell();
           },
           end() {
             if (!active) return;
             active = false;
             controller.close();
+            if (shellPending) resolveShell();
           },
         };
         try {
@@ -46,6 +56,7 @@ export const render = defineServerRender<Component<any>>(
               if (!active) return;
               if (shellPending) {
                 active = false;
+                rejectShell(error);
                 controller.error(error);
               } else {
                 console.error(error);
@@ -57,36 +68,15 @@ export const render = defineServerRender<Component<any>>(
           renderToStream(view, streamOptions).pipe(writable);
         } catch (error) {
           active = false;
+          rejectShell(error);
           controller.error(error);
         }
       },
     });
 
-    const reader = stream.getReader();
-    const first = await reader.read();
-
-    // Solid also returns its stream before the shell is ready. Buffer one chunk
-    // so an initial render failure rejects this call instead of committing 200.
-    return new ReadableStream<string>({
-      start(controller) {
-        if (first.done) {
-          controller.close();
-        } else {
-          controller.enqueue(first.value);
-        }
-      },
-      async pull(controller) {
-        try {
-          const { value, done } = await reader.read();
-          if (done) controller.close();
-          else controller.enqueue(value);
-        } catch (error) {
-          controller.error(error);
-        }
-      },
-      cancel(reason) {
-        return reader.cancel(reason);
-      },
-    });
+    // Keep the stream itself as the buffer. Waiting only gates response status
+    // so shell errors still become 500 without creating a second replay stream.
+    await shellReady;
+    return stream;
   }
 );

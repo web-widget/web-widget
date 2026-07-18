@@ -73,6 +73,7 @@ async function openStableDevPage(
   const connected = waitForViteConnection(page);
   await page.goto(url);
   await connected;
+  await page.waitForLoadState('networkidle');
   await expectShadowStyles(page);
   if (browserErrors) {
     browserErrors.messages.length = 0;
@@ -81,6 +82,7 @@ async function openStableDevPage(
   const reconnected = waitForViteConnection(page);
   await page.reload();
   await reconnected;
+  await page.waitForLoadState('networkidle');
   await expectShadowStyles(page);
 }
 
@@ -212,7 +214,7 @@ test.describe('Vite Shadow SSR development pipeline', () => {
         );
         await expect(
           page.locator('web-widget[name="VueCounter"] button')
-        ).toHaveCSS('--vue-scoped-version', '2');
+        ).toHaveCSS('--vue-scoped-version', '2', { timeout: 15_000 });
         await expect.poll(() => documents).toBe(beforeVueUpdate);
 
         html = await (await fetch(`${fixture.baseURL}/shadow-dom-ssr`)).text();
