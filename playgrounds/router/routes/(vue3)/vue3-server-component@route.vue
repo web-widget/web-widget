@@ -33,7 +33,10 @@ const { data } = defineProps<{ data: PageData }>();
   <BaseLayout>
     <header class="ds-page-header">
       <h1>Vue3: Server component</h1>
-      <p class="ds-description">A Vue 3 single-file component rendered on the server and hydrated on the client.</p>
+      <p class="ds-description">
+        A Vue 3 single-file component rendered on the server and hydrated on the
+        client.
+      </p>
     </header>
     <p class="data">{{ data }}</p>
   </BaseLayout>

@@ -75,7 +75,9 @@ defineOptions({
         </h3>
         <div :class="shared.comparisonGrid">
           <div :class="shared.comparisonItem">
-            <h4 :class="shared.cardTitle" style="color: var(--color-error); margin-bottom: 1rem">
+            <h4
+              :class="shared.cardTitle"
+              style="color: var(--color-error); margin-bottom: 1rem">
               Traditional REST API
             </h4>
             <ul style="list-style: none; padding: 0">
@@ -87,7 +89,9 @@ defineOptions({
             </ul>
           </div>
           <div :class="shared.comparisonItem">
-            <h4 :class="shared.cardTitle" style="color: var(--color-success); margin-bottom: 1rem">
+            <h4
+              :class="shared.cardTitle"
+              style="color: var(--color-success); margin-bottom: 1rem">
               Web Widget Server Actions
             </h4>
             <ul style="list-style: none; padding: 0">

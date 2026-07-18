@@ -21,8 +21,10 @@ defineOptions({
   <BaseLayout>
     <header class="ds-page-header">
       <h1>Vue3: Streaming</h1>
-      <p class="ds-description">Stream Vue 3 content progressively with Suspense — slow async components render as they
-        resolve without blocking the page.</p>
+      <p class="ds-description">
+        Stream Vue 3 content progressively with Suspense — slow async components
+        render as they resolve without blocking the page.
+      </p>
     </header>
     <VueWaitDemo :widget="{ fallback: Loading }" id="demo:0" />
     <VueWaitDemo :widget="{ fallback: Loading }" id="demo:1" />
