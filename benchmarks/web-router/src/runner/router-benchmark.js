@@ -19,14 +19,19 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const configPath = resolve(__dirname, '../../config/router-benchmark.json');
 const baseConfig = JSON.parse(readFileSync(configPath, 'utf8'));
 const arguments_ = parseArguments(process.argv.slice(2));
-const config = arguments_.quick
-  ? {
-      ...baseConfig,
-      'warmup-duration-ms': 25,
-      'sample-duration-ms': 50,
-      samples: 1,
-    }
-  : baseConfig;
+const config = {
+  ...baseConfig,
+  ...(arguments_.quick
+    ? {
+        'warmup-duration-ms': 25,
+        'sample-duration-ms': 50,
+        samples: 1,
+      }
+    : {}),
+  ...(arguments_.dynamicPathVariants
+    ? { 'dynamic-path-variants': arguments_.dynamicPathVariants }
+    : {}),
+};
 const cases = createRouterBenchmarkCases(config).filter(
   (item) => !arguments_.suite || item.suite === arguments_.suite
 );
@@ -42,11 +47,20 @@ let checksum = 0;
 function parseArguments(args) {
   const suite = args.find((arg) => arg.startsWith('--suite='))?.slice(8);
   const output = args.find((arg) => arg.startsWith('--output='))?.slice(9);
+  const dynamicPathVariants = Number.parseInt(
+    args.find((arg) => arg.startsWith('--dynamic-path-variants='))?.slice(24) ??
+      '',
+    10
+  );
   return {
     quick: args.includes('--quick'),
     noOutput: args.includes('--no-output'),
     suite,
     output,
+    dynamicPathVariants:
+      Number.isInteger(dynamicPathVariants) && dynamicPathVariants > 0
+        ? dynamicPathVariants
+        : undefined,
   };
 }
 
@@ -111,11 +125,30 @@ function validateCase(router, benchmarkCase) {
   }
 }
 
-function createOperation(router, requests) {
+function createPathVariants(item, count) {
+  if (!item.expected.params || count <= 1) return [item.path];
+
+  return Array.from({ length: count }, (_, variant) => {
+    let path = item.path;
+    for (const value of Object.values(item.expected.params)) {
+      const encoded = encodeURIComponent(value);
+      path = path.replace(encoded, `${encoded}${variant}`);
+    }
+    return path;
+  });
+}
+
+function createOperation(router, requests, dynamicPathVariants) {
+  const workload = requests.flatMap((item) =>
+    createPathVariants(item, dynamicPathVariants).map((path) => ({
+      ...item,
+      path,
+    }))
+  );
   let cursor = 0;
-  return () => {
-    const item = requests[cursor];
-    cursor = cursor + 1 === requests.length ? 0 : cursor + 1;
+  const operation = () => {
+    const item = workload[cursor];
+    cursor = cursor + 1 === workload.length ? 0 : cursor + 1;
     const result = router.match(item.method, item.path);
     const first = result[0];
     const last = result[result.length - 1];
@@ -126,6 +159,7 @@ function createOperation(router, requests) {
         (typeof last?.[0] === 'number' ? last[0] : 0)) |
       0;
   };
+  return { operation, workloadPaths: workload.length };
 }
 
 function runBatch(operation, batchSize) {
@@ -179,7 +213,11 @@ async function benchmarkRouter(benchmarkCase) {
   const firstMatchUs = (performance.now() - firstMatchStart) * 1000;
 
   validateCase(router, benchmarkCase);
-  const operation = createOperation(router, benchmarkCase.requests);
+  const { operation, workloadPaths } = createOperation(
+    router,
+    benchmarkCase.requests,
+    config['dynamic-path-variants']
+  );
   const batchSize = calibrateBatchSize(operation);
   measure(operation, config['warmup-duration-ms'], batchSize);
 
@@ -193,7 +231,7 @@ async function benchmarkRouter(benchmarkCase) {
     suite: benchmarkCase.suite,
     scenario: benchmarkCase.name,
     routes: benchmarkCase.routeCount,
-    workloadPaths: benchmarkCase.requests.length,
+    workloadPaths,
     matchesPerSecond: median(samples),
     minMatchesPerSecond: Math.min(...samples),
     maxMatchesPerSecond: Math.max(...samples),

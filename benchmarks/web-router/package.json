@@ -16,7 +16,8 @@
     "benchmark:node20": "./scripts/run-with-node.sh 20",
     "benchmark:node22": "./scripts/run-with-node.sh 22",
     "benchmark:node24": "./scripts/run-with-node.sh 24",
-    "benchmark:all-versions": "npm run benchmark:node18 && npm run benchmark:node20 && npm run benchmark:node22 && npm run benchmark:node24"
+    "benchmark:node26": "./scripts/run-with-node.sh 26",
+    "benchmark:all-versions": "npm run benchmark:node18 && npm run benchmark:node20 && npm run benchmark:node22 && npm run benchmark:node24 && npm run benchmark:node26"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.10",
