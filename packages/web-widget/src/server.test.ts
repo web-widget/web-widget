@@ -1,4 +1,5 @@
 import { expect } from '@esm-bundle/chai';
+import type { ServerRenderOptions } from '@web-widget/schema';
 import { WebWidgetRenderer } from './server';
 
 function count(value: string, pattern: string): number {
@@ -6,6 +7,32 @@ function count(value: string, pattern: string): number {
 }
 
 describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
+  it('shares an id between server render options and client markup', async () => {
+    let renderKey: string | undefined;
+    const renderer = new WebWidgetRenderer(
+      async () => ({
+        default: {},
+        render: async (
+          _component: unknown,
+          _data: unknown,
+          options: ServerRenderOptions
+        ) => {
+          renderKey = options.key;
+          return '<p>identified</p>';
+        },
+      }),
+      { import: '/assets/identified.js' }
+    );
+
+    const html = await renderer.renderOuterHTMLToString();
+    const key = html.match(/data-key="([^"]+)"/)?.[1];
+
+    expect(key).to.be.a('string').and.not.equal('');
+    expect(key).to.match(/^w[0-9a-z]+$/);
+    expect(renderKey).to.equal(key);
+    expect(html).not.to.match(/<web-widget[^>]*\skey=/);
+  });
+
   it('serializes app HTML once inside a declarative shadow mount root', async () => {
     const renderer = new WebWidgetRenderer(
       async () => ({

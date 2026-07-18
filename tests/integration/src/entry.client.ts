@@ -111,6 +111,19 @@ const hydrationModules = Object.fromEntries(
   ])
 );
 
+window.__mountLateSolid = async () => {
+  const host = document.querySelector<HTMLElementTagNameMap['web-widget']>(
+    'web-widget[data-late-shadow-widget="solid"]'
+  );
+  if (!host) throw new Error('Missing late Solid hydration host');
+  host.loader = (async () => hydrationModules.solid) as NonNullable<
+    typeof host.loader
+  >;
+  await host.load();
+  await host.bootstrap();
+  await host.mount();
+};
+
 window.__hydrationReady = customElements
   .whenDefined('web-widget')
   .then(() =>

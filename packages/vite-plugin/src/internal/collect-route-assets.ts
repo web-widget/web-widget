@@ -191,7 +191,11 @@ interface ParsedImport {
 }
 
 // Negative lookbehind excludes `@import` (Less/CSS syntax), matching only ES imports
-const STATIC_IMPORT_RE = /(?<![@\w$])import\b(?![ \t]*\()[^;\r\n]*/g;
+// The real lexer rejects TSX source in some cases. Keep the fallback line
+// anchored so comments and CSS `@import` are ignored, while allowing named
+// imports to span lines (common in route components).
+const STATIC_IMPORT_RE =
+  /^\s*import\s+(?!\()[\s\S]*?(?:from\s+)?['"][^'"]+['"]\s*;?/gm;
 const IMPORT_SPECIFIER_RE = /['"]([^'"]+)['"]/;
 const DYNAMIC_IMPORT_RE = /(?<![@\w$])import\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 

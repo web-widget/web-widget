@@ -1,4 +1,4 @@
-import { createElement, Suspense } from 'react';
+import { createElement, Suspense, useId } from 'react';
 
 import { render } from './adapter.server';
 
@@ -25,8 +25,8 @@ jest.mock('./edge', () => {
   const ReactDOMServer = jest.requireActual('react-dom/server');
   return {
     renderToReadableStream: ReactDOMServer.renderToReadableStream,
-    renderToString: (node: React.ReactNode) =>
-      ReactDOMServer.renderToString(node),
+    renderToString: (node: React.ReactNode, options: unknown) =>
+      ReactDOMServer.renderToString(node, options),
   };
 });
 
@@ -37,6 +37,24 @@ describe('render (server)', () => {
     const result = await render(SimpleComponent, {}, { progressive: false });
     expect(typeof result).toBe('string');
     expect(result).toContain('Hello World');
+  });
+
+  test('uses the widget key as the React identifier prefix', async () => {
+    const Component = () => {
+      const id = useId();
+      return createElement('div', { id });
+    };
+
+    const result = await render(
+      Component,
+      {},
+      {
+        key: 'w7',
+        progressive: false,
+      }
+    );
+
+    expect(result).toContain('id="_w7R_0_"');
   });
 
   test('progressive render returns ReadableStream', async () => {

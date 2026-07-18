@@ -100,8 +100,16 @@ describe('production server (pnpm build && node server.js)', () => {
 
   it('server-renders isolated Shadow DOM widget boundaries', async () => {
     const html = await (await fetch(`${server!.origin}/shadow-dom-ssr`)).text();
+    const { combinedCss } = await collectRouteCss(html, server!.origin);
     const head = html.slice(0, html.indexOf('</head>'));
     const visibleHtml = html.replace(/<!--.*?-->/gs, '');
+
+    // The route imports ui.css through a multi-line shared component import.
+    // This guards the production route asset collector against dropping the
+    // card grid stylesheet, which makes the page collapse to one column.
+    expect(combinedCss).toContain('.ds-card-grid');
+    expect(combinedCss).toContain('display:grid');
+    expect(combinedCss).toContain('grid-template-columns');
 
     expect(html.match(/<template shadowrootmode="open">/g)).toHaveLength(6);
     expect(html.match(/data-web-widget-style="shadow-counter-/g)).toHaveLength(

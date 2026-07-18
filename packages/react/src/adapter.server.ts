@@ -30,7 +30,7 @@ export interface ReactRenderOptions {
 const DEFAULT_TIMEOUT_MS = 1000 * 10;
 
 export const render = defineServerRender<FunctionComponent>(
-  async (component, data, { progressive, react }) => {
+  async (component, data, { key, progressive, react }) => {
     data = data ?? {};
 
     if (!component) {
@@ -38,6 +38,10 @@ export const render = defineServerRender<FunctionComponent>(
     }
 
     const reactRenderOptions: StreamOptions = Object.create(react ?? null);
+
+    // React uses this namespace for useId(). It must match hydrateRoot and be
+    // unique across independently rendered widget roots in the same document.
+    reactRenderOptions.identifierPrefix = key;
 
     const { onError, awaitAllReady, signal } = reactRenderOptions;
 

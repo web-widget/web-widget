@@ -10,12 +10,19 @@ test('delivers declarative shadow boundaries in the raw document', async ({
   const html = await response.text();
 
   expect(response.ok()).toBe(true);
-  expect(html.match(/<template shadowrootmode="open">/g)).toHaveLength(5);
+  expect(html.match(/<template shadowrootmode="open">/g)).toHaveLength(6);
   expect(
     html.match(/<web-widget-root style="display:contents">/g)
-  ).toHaveLength(5);
+  ).toHaveLength(6);
   expect(html.match(/slot="web-widget-pending"/g)).toHaveLength(5);
   expect(html.match(/slot="web-widget-state"/g)).toHaveLength(5);
+  expect(html).toContain('data-hk="solid-shadow00"');
+  expect(html).toContain(
+    '<web-widget-root style="display:contents"><!--[--><div data-mount-root="svelte">'
+  );
+  expect(html).not.toContain('__SOLID_SHADOW_SSR__');
+  expect(html).not.toContain('__SOLID_LATE_SHADOW_SSR__');
+  expect(html).not.toContain('__SVELTE_SHADOW_SSR__');
   for (const adapter of [...coreAdapters, ...extendedAdapters]) {
     expect(html).toContain(`data-web-widget-style="shadow-${adapter}-module"`);
     expect(html).toContain(
@@ -96,14 +103,12 @@ test('parses, recovers, styles, slots, and mounts shadow widgets', async ({
       styleOrder: [`shadow-${adapter}-module`, `shadow-${adapter}-override`],
       template: 0,
     });
-    if (adapter === 'react' || adapter === 'vue' || adapter === 'preact') {
-      expect(boundary.identity).toEqual({
-        container: true,
-        host: true,
-        probe: true,
-        root: true,
-      });
-    }
+    expect(boundary.identity).toEqual({
+      container: true,
+      host: true,
+      probe: true,
+      root: true,
+    });
 
     await host.locator('[data-hydration-increment]').click();
     const label = adapter[0].toUpperCase() + adapter.slice(1);
@@ -128,6 +133,33 @@ test('parses, recovers, styles, slots, and mounts shadow widgets', async ({
     await expect(host.locator('web-widget-root')).toHaveCount(1);
     await expect(host.locator('[data-mount-root]')).toHaveCount(0);
   }
+
+  const lateSolid = page.locator('[data-late-shadow-widget="solid"]');
+  await page.evaluate(() => window.__mountLateSolid());
+  await expect
+    .poll(() =>
+      lateSolid.evaluate(
+        (element) => (element as HTMLElementTagNameMap['web-widget']).status
+      )
+    )
+    .toBe('mounted');
+  expect(
+    await lateSolid.evaluate((element) => {
+      const root = element.shadowRoot!;
+      return {
+        probe:
+          root.querySelector('[data-hydration-probe]') ===
+          window.__ssrNodes['shadow:solid-late:probe'],
+        root:
+          root.querySelector('[data-mount-root]') ===
+          window.__ssrNodes['shadow:solid-late:root'],
+      };
+    })
+  ).toEqual({ probe: true, root: true });
+  await lateSolid.locator('[data-hydration-increment]').click();
+  await expect(lateSolid.locator('[data-hydration-probe]')).toHaveText(
+    'Solid 1'
+  );
 
   expect(await page.evaluate(() => window.__hydrationErrors.length)).toBe(0);
   expect(browserErrors.messages).toEqual([]);

@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { injectFrameworkSSR, renderFrameworkSSR } from './framework-ssr';
 
 export interface ServerRenderResult {
   body: string;
@@ -18,7 +19,10 @@ function errorDocument(status: number, message: string): string {
   return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>${status}</title></head><body><main data-production-error="${status}"><h1>${message}</h1></main></body></html>`;
 }
 
-export function renderRequest(url: URL, template: string): ServerRenderResult {
+export async function renderRequest(
+  url: URL,
+  template: string
+): Promise<ServerRenderResult> {
   if (url.pathname === '/redirect') {
     return {
       body: '',
@@ -37,6 +41,7 @@ export function renderRequest(url: URL, template: string): ServerRenderResult {
 
   const pathname = escapeAttribute(url.pathname);
   const requestId = randomUUID();
+  template = injectFrameworkSSR(template, await renderFrameworkSSR());
   return {
     body: template
       .replace(

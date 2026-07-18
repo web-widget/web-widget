@@ -8,7 +8,7 @@ import { reportRecoverableError } from './hydration-error';
 export * from './components';
 
 export const render = defineClientRender<FunctionComponent>(
-  async (component, data, { recovering, container }) => {
+  async (component, data, { key, recovering, container }) => {
     data = data ?? {};
 
     if (!component) {
@@ -33,11 +33,12 @@ export const render = defineClientRender<FunctionComponent>(
 
         if (recovering) {
           root = hydrateRoot(container as Element, vNode as any, {
+            identifierPrefix: key,
             onRecoverableError: (error) =>
               reportRecoverableError(container, error),
           });
         } else {
-          root = createRoot(container);
+          root = createRoot(container, { identifierPrefix: key });
           root.render(vNode as any);
         }
       },

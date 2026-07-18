@@ -14,6 +14,8 @@
  * These options control how the server-side rendering process works.
  */
 export interface ServerRenderOptions {
+  /** Opaque key shared by the server and client render of one component. */
+  key?: string;
   /** If true, enable progressive (streaming) rendering. */
   progressive?: boolean;
 }
@@ -52,6 +54,8 @@ export interface ServerRender<
 export interface ClientRenderOptions {
   /** The target DOM element or fragment where the component will be mounted. */
   container: Element | DocumentFragment;
+  /** Opaque key shared by the server and client render of one component. */
+  key?: string;
   /** Indicates whether hydration should be used (i.e., recovering from server render). */
   recovering?: boolean;
 }

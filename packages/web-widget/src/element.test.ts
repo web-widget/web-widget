@@ -403,6 +403,15 @@ describe('Auto load', () => {
 });
 
 describe('Application property: container', () => {
+  it('passes the server render key to the client adapter', () =>
+    createInactiveWidget(async ({ getElement, getContext }) => {
+      getElement().setAttribute('data-key', 'widget-17');
+      await getElement().load();
+      await getElement().bootstrap();
+
+      expect(getContext().options.key).to.equal('widget-17');
+    }));
+
   it('container', () =>
     createInactiveWidget(async ({ getElement, getContext }) => {
       getElement().renderTarget = 'shadow';

@@ -51,7 +51,9 @@ export const createVueRender = ({
       await onCreatedApp(app, context, component, mergedProps);
 
       if (progressive) {
-        console.warn(`Vue2 does not support progressive rendering.`);
+        console.warn(
+          `Vue 2 does not support progressive server rendering; falling back to buffered rendering.`
+        );
       }
 
       // NOTE: Avoid issues with vite-plugin-vue2-jsx by ensuring proper SSR context handling.

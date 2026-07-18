@@ -59,7 +59,7 @@ export const frameworks: FrameworkDefinition[] = [
     capabilities: {
       ssr: true,
       streaming: true,
-      progressiveRendering: false,
+      progressiveRendering: true,
       widgetEmbedding: true,
       hydration: true,
       csr: true,
@@ -110,8 +110,8 @@ export const frameworks: FrameworkDefinition[] = [
     href: '/frameworks/preact',
     capabilities: {
       ssr: true,
-      streaming: false,
-      progressiveRendering: false,
+      streaming: true,
+      progressiveRendering: true,
       widgetEmbedding: true,
       hydration: true,
       csr: true,

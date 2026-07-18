@@ -12,6 +12,7 @@ import type {
   WidgetRenderParts,
 } from './types';
 import {
+  WEB_WIDGET_KEY_ATTRIBUTE,
   WEB_WIDGET_PENDING_SLOT_NAME,
   WEB_WIDGET_ROOT_LOCAL_NAME,
   WEB_WIDGET_STATE_SLOT_NAME,
@@ -29,6 +30,11 @@ import {
 export type * from './types';
 
 let showWebContainerWarning = true;
+let nextKey = 0;
+
+function createKey(): string {
+  return `w${(nextKey++).toString(36)}`;
+}
 
 const getType = (obj: any) => Object.prototype.toString.call(obj).slice(8, -1);
 
@@ -128,6 +134,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   #children: string;
   #clientImport: string;
   #loader: WidgetModuleLoader;
+  #key = createKey();
   #options: Omit<WebWidgetRendererOptions, 'children' | 'renderStage'>;
   #renderStage?: string;
   localName = 'web-widget';
@@ -176,6 +183,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       // base: options.base?.startsWith("file://") ? undefined : options.base,
       contextdata: JSON.stringify(contextdata),
       import: clientImport,
+      [WEB_WIDGET_KEY_ATTRIBUTE]: this.#key,
       recovering: renderStage !== 'client',
       devstyles: devStyles?.length
         ? JSON.stringify(devStyles.map(({ id }) => id))
@@ -223,6 +231,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
 
     const rawResult = await callSyncCacheProvider(() =>
       render(component, options.data, {
+        key: this.#key,
         progressive: false,
       })
     );

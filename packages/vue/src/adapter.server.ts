@@ -50,7 +50,20 @@ export const createVueRender = ({
       await onCreatedApp(app, context, component, data);
 
       if (progressive) {
-        const stream = renderToWebStream(app, ssrContext);
+        const byteStream = renderToWebStream(app, ssrContext);
+        const decoder = new TextDecoder();
+        const stream = byteStream.pipeThrough(
+          new TransformStream<Uint8Array, string>({
+            transform(chunk, controller) {
+              const text = decoder.decode(chunk, { stream: true });
+              if (text) controller.enqueue(text);
+            },
+            flush(controller) {
+              const text = decoder.decode();
+              if (text) controller.enqueue(text);
+            },
+          })
+        );
 
         // Vue's renderToWebStream renders asynchronously (via Promise
         // microtasks). Consume the first chunk to flush the microtask queue,
