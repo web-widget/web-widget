@@ -199,6 +199,31 @@ export const navigation: NavigationGroup[] = [
         title: 'Preact',
         description: 'Progressive rendering with Preact Suspense.',
       },
+      {
+        href: '/streaming/react/shell-error',
+        title: 'React shell error (500)',
+        description: 'An error before the shell is emitted returns HTTP 500.',
+      },
+      {
+        href: '/streaming/vue3/shell-error',
+        title: 'Vue 3 shell error (500)',
+        description: 'An error before the shell is emitted returns HTTP 500.',
+      },
+      {
+        href: '/streaming/html/shell-error',
+        title: 'HTML shell error (500)',
+        description: 'An error before the shell is emitted returns HTTP 500.',
+      },
+      {
+        href: '/streaming/solid/shell-error',
+        title: 'Solid shell error (500)',
+        description: 'An error before the shell is emitted returns HTTP 500.',
+      },
+      {
+        href: '/streaming/preact/shell-error',
+        title: 'Preact shell error (500)',
+        description: 'An error before the shell is emitted returns HTTP 500.',
+      },
     ],
   },
   {

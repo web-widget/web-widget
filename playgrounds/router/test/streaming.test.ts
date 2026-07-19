@@ -84,8 +84,8 @@ describe('Streaming SSR', () => {
     expectUnifiedStates(body, 'Preact');
   }, 15000);
 
-  test('React /react-shell-error returns 500 for shell errors', async () => {
-    const result = await fetch('/react-shell-error');
+  test('React /streaming/react/shell-error returns 500 for shell errors', async () => {
+    const result = await fetch('/streaming/react/shell-error');
     expect(result.status).toBe(500);
     expect(result.body).toBeInstanceOf(ReadableStream);
 
@@ -96,8 +96,8 @@ describe('Streaming SSR', () => {
     expect(body).toContain('Shell error');
   }, 15000);
 
-  test('HTML /html-shell-error returns 500 for shell errors', async () => {
-    const result = await fetch('/html-shell-error');
+  test('HTML /streaming/html/shell-error returns 500 for shell errors', async () => {
+    const result = await fetch('/streaming/html/shell-error');
     expect(result.status).toBe(500);
 
     const body = await result.text();
@@ -107,8 +107,8 @@ describe('Streaming SSR', () => {
     expect(body).toContain('Shell error');
   }, 15000);
 
-  test('Vue3 /vue3-shell-error returns 500 for shell errors', async () => {
-    const result = await fetch('/vue3-shell-error');
+  test('Vue3 /streaming/vue3/shell-error returns 500 for shell errors', async () => {
+    const result = await fetch('/streaming/vue3/shell-error');
     expect(result.status).toBe(500);
 
     const body = await result.text();
@@ -117,6 +117,19 @@ describe('Streaming SSR', () => {
     expect(body).toContain('500');
     expect(body).toContain('Shell error');
   }, 15000);
+
+  test.each([
+    ['Solid', '/streaming/solid/shell-error'],
+    ['Preact', '/streaming/preact/shell-error'],
+  ])(
+    '%s shell errors return 500',
+    async (_name, pathname) => {
+      const result = await fetch(pathname);
+      expect(result.status).toBe(500);
+      expect(await result.text()).toContain('Shell error');
+    },
+    15000
+  );
 
   test('HTML /html-streaming-error recovers from errors', async () => {
     const result = await fetch('/streaming/html/error');

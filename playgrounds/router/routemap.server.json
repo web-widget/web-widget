@@ -97,10 +97,6 @@
       "module": "./routes/html-import-widgets@route.ts"
     },
     {
-      "pathname": "/html-shell-error",
-      "module": "./routes/html-shell-error@route.ts"
-    },
-    {
       "pathname": "/large-css",
       "module": "./routes/large-css/index@route.tsx"
     },
@@ -119,10 +115,6 @@
     {
       "pathname": "/react-server-component",
       "module": "./routes/react-server-component@route.tsx"
-    },
-    {
-      "pathname": "/react-shell-error",
-      "module": "./routes/react-shell-error@route.tsx"
     },
     {
       "pathname": "/request-cache",
@@ -145,8 +137,16 @@
       "module": "./routes/streaming/html/error@route.ts"
     },
     {
+      "pathname": "/streaming/html/shell-error",
+      "module": "./routes/streaming/html/shell-error@route.ts"
+    },
+    {
       "pathname": "/streaming/preact",
       "module": "./routes/streaming/preact/index@route.tsx"
+    },
+    {
+      "pathname": "/streaming/preact/shell-error",
+      "module": "./routes/streaming/preact/shell-error@route.tsx"
     },
     {
       "pathname": "/streaming/react",
@@ -157,12 +157,24 @@
       "module": "./routes/streaming/react/error@route.tsx"
     },
     {
+      "pathname": "/streaming/react/shell-error",
+      "module": "./routes/streaming/react/shell-error@route.tsx"
+    },
+    {
       "pathname": "/streaming/solid",
       "module": "./routes/streaming/solid/index@route.tsx"
     },
     {
+      "pathname": "/streaming/solid/shell-error",
+      "module": "./routes/streaming/solid/shell-error@route.tsx"
+    },
+    {
       "pathname": "/streaming/vue3",
       "module": "./routes/(vue3)/streaming/vue3@route.vue"
+    },
+    {
+      "pathname": "/streaming/vue3/shell-error",
+      "module": "./routes/(vue3)/streaming/vue3/shell-error@route.vue"
     },
     {
       "pathname": "/streaming/vue3-error",
@@ -199,10 +211,6 @@
     {
       "pathname": "/vue3-server-component",
       "module": "./routes/(vue3)/vue3-server-component@route.vue"
-    },
-    {
-      "pathname": "/vue3-shell-error",
-      "module": "./routes/(vue3)/vue3-shell-error@route.vue"
     },
     {
       "pathname": "/",
