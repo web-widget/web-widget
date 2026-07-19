@@ -191,11 +191,6 @@ export const navigation: NavigationGroup[] = [
         description: 'Tag-based progressive HTML rendering.',
       },
       {
-        href: '/streaming/html/suspense',
-        title: 'HTML suspense',
-        description: 'Native suspense boundaries, nesting, and error recovery.',
-      },
-      {
         href: '/streaming/solid',
         title: 'Solid',
         description: 'Progressive rendering with Solid Suspense.',
@@ -204,6 +199,11 @@ export const navigation: NavigationGroup[] = [
         href: '/streaming/preact',
         title: 'Preact',
         description: 'Progressive rendering with Preact Suspense.',
+      },
+      {
+        href: '/streaming/html/suspense',
+        title: 'HTML suspense',
+        description: 'Native suspense boundaries, nesting, and error recovery.',
       },
       {
         href: '/streaming/react/shell-error',

@@ -58,7 +58,8 @@ function suspend<T>(promise: Promise<T>): () => T {
 
 const renderResources = new WeakMap<
   WebWidgetRendererOptions,
-  () => { tag: string; attributes: Record<string, string>; html: string }
+  () =>
+    { tag: string; attributes: Record<string, string>; html: string } | Error
 >();
 
 class WidgetErrorBoundary extends Component<
@@ -78,6 +79,7 @@ function WebWidget(props: {
   loader: WidgetModuleLoader;
   options: WebWidgetRendererOptions;
   pending?: ComponentChildren;
+  error?: ComponentChildren;
   clientOnly?: boolean;
 }) {
   if (
@@ -104,15 +106,22 @@ function WebWidget(props: {
   if (!read) {
     const renderer = new WebWidgetRenderer(props.loader, props.options);
     read = suspend(
-      renderer.renderInnerHTMLToString().then((html) => ({
-        tag: renderer.localName,
-        attributes: renderer.attributes,
-        html,
-      }))
+      renderer
+        .renderInnerHTMLToString()
+        .then((html) => ({
+          tag: renderer.localName,
+          attributes: renderer.attributes,
+          html,
+        }))
+        .catch((error: unknown) =>
+          error instanceof Error ? error : new Error(String(error))
+        )
     );
     renderResources.set(props.options, read);
   }
-  const { tag, attributes, html } = read();
+  const result = read();
+  if (result instanceof Error) return props.error;
+  const { tag, attributes, html } = result;
   return createElement(tag, {
     ...attributes,
     dangerouslySetInnerHTML: { __html: html },
@@ -163,6 +172,7 @@ export function container(
           loader,
           options: rendererOptions,
           pending,
+          error,
         }),
       })
     ) as VNode;

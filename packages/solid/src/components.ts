@@ -95,13 +95,19 @@ export function container(
         },
       });
     }
-    const [html] = createResource(() => renderer.renderInnerHTMLToString());
+    const [html] = createResource<string | Error>(() =>
+      renderer
+        .renderInnerHTMLToString()
+        .catch((error: unknown) =>
+          error instanceof Error ? error : new Error(String(error))
+        )
+    );
     const content = () => {
+      const result = html();
+      if (result instanceof Error) return fallback.error;
       return createComponent(Dynamic, {
         ...widgetProps,
-        get innerHTML() {
-          return html();
-        },
+        innerHTML: result,
       });
     };
     return createComponent(ErrorBoundary, {
