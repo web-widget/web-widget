@@ -64,6 +64,21 @@ describe('Streaming SSR', () => {
     expectUnifiedStates(body, 'HTML');
   }, 15000);
 
+  test('HTML /streaming/html/suspense streams native suspense boundaries', async () => {
+    const result = await fetch('/streaming/html/suspense');
+    expect(result.status).toBe(200);
+    expect(result.body).toBeInstanceOf(ReadableStream);
+
+    const body = await result.text();
+
+    expect(body).toContain('HTML: Suspense component streaming');
+    expect(body).toContain(
+      'Independent boundaries resolve in completion order'
+    );
+    expect(body).toContain('Nested content resolved.');
+    expect(body).toContain('Error: section failed to load.');
+  }, 15000);
+
   test('Solid /streaming/solid streams content progressively', async () => {
     const result = await fetch('/streaming/solid');
     expect(result.status).toBe(200);

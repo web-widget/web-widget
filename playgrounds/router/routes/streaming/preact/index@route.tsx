@@ -1,16 +1,16 @@
 /** @jsxImportSource preact */
 import { defineRouteHandler } from '@web-widget/helpers';
 import { container } from '@web-widget/preact/adapter';
-import '../../(css)/demo-states.css';
-import Layout from '../../frameworks/preact/Layout';
+import '~/routes/(css)/demo-states.css';
+import Layout from '~/routes/frameworks/preact/Layout';
 import PageHeader from './PageHeader';
 import Section from './Section';
 
-const WaitDemo = container(() => import('../../(components)/Wait@widget'));
+const WaitDemo = container(() => import('~/routes/(components)/Wait@widget'));
 const VueWaitDemo = container(
   () => import('@playgrounds/web-router-vue3/Wait@widget.vue')
 );
-const FailDemo = container(() => import('../../(components)/Fail@widget'));
+const FailDemo = container(() => import('~/routes/(components)/Fail@widget'));
 const Pending = <div className="demo-loading">Pending: loading content...</div>;
 const ErrorFallback = (
   <div className="demo-error">Error: content failed to load.</div>

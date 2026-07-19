@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { h } from 'vue';
 import { defineRouteHandler } from '@web-widget/helpers';
-import '../../(css)/demo-states.css';
+import '~/routes/(css)/demo-states.css';
 import BaseLayout from '../BaseLayout.vue';
-import ReactWaitDemo from '../../(components)/Wait@widget.jsx';
+import ReactWaitDemo from '~/routes/(components)/Wait@widget.jsx';
 import VueFailDemo from '../Fail@widget.vue';
 import VueWaitDemo from '../Wait@widget.vue';
 import PageHeader from '../PageHeader.vue';

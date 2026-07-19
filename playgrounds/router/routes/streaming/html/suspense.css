@@ -1,0 +1,25 @@
+.suspense-nested-slot {
+  position: relative;
+  height: 156px;
+  overflow: hidden;
+  display: block;
+}
+
+.suspense-nested-label {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  line-height: 24px;
+}
+
+.suspense-nested-item {
+  position: absolute;
+  right: 20px;
+  bottom: 8px;
+  left: 20px;
+  width: auto;
+  height: 60px;
+  min-height: 60px;
+  margin: 0;
+}

@@ -26,7 +26,8 @@ export interface NavigationGroup {
     | 'Streaming'
     | 'Features'
     | 'Interoperability'
-    | 'Integrations';
+    | 'Integrations'
+    | 'Other';
   items: NavigationItem[];
 }
 
@@ -188,6 +189,11 @@ export const navigation: NavigationGroup[] = [
         href: '/streaming/html',
         title: 'HTML',
         description: 'Tag-based progressive HTML rendering.',
+      },
+      {
+        href: '/streaming/html/suspense',
+        title: 'HTML suspense',
+        description: 'Native suspense boundaries, nesting, and error recovery.',
       },
       {
         href: '/streaming/solid',
@@ -354,6 +360,66 @@ export const navigation: NavigationGroup[] = [
         title: 'API route',
         description: 'Serve JSON alongside page routes.',
         external: true,
+      },
+    ],
+  },
+  {
+    name: 'Other',
+    items: [
+      {
+        href: '/api/mock-users',
+        title: 'Mock users API',
+        description: 'Return mock user data from an API route.',
+      },
+      {
+        href: '/frameworks/preact/widget-embedding',
+        title: 'Preact widget embedding',
+        description: 'Embed Widgets in a Preact component tree.',
+      },
+      {
+        href: '/frameworks/solid/widget-embedding',
+        title: 'Solid widget embedding',
+        description: 'Embed Widgets in a Solid component tree.',
+      },
+      {
+        href: '/frameworks/svelte/widget-embedding',
+        title: 'Svelte widget embedding',
+        description: 'Embed Widgets in a Svelte component tree.',
+      },
+      {
+        href: '/react-server-component',
+        title: 'React server component',
+        description: 'Render a React server component route.',
+      },
+      {
+        href: '/streaming/html/error',
+        title: 'HTML streaming error recovery',
+        description: 'Recover errors inside HTML suspense boundaries.',
+      },
+      {
+        href: '/streaming/react/error',
+        title: 'React streaming error recovery',
+        description: 'Recover errors inside React streaming boundaries.',
+      },
+      {
+        href: '/streaming/vue3-error',
+        title: 'Vue 3 streaming error recovery',
+        description: 'Recover errors inside Vue 3 streaming boundaries.',
+      },
+      {
+        href: '/vue-module-css',
+        title: 'Vue CSS Modules',
+        description: 'Use CSS Modules in a Vue route.',
+      },
+      {
+        href: '/vue2-server-component',
+        title: 'Vue 2 server component',
+        description: 'Render a Vue 2 server component route.',
+      },
+      {
+        href: '/vue3-server-component',
+        title: 'Vue 3 server component',
+        description: 'Render a Vue 3 server component route.',
       },
     ],
   },

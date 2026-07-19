@@ -2,11 +2,11 @@ import { html, suspense, fallback } from '@web-widget/html';
 import { container } from '@web-widget/html/adapter';
 import type { HTML } from '@web-widget/html';
 import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
-import '../../(css)/demo-states.css';
-import { htmlLayout } from '../../(components)/HtmlLayout';
+import '~/routes/(css)/demo-states.css';
+import { htmlLayout } from '~/routes/(components)/HtmlLayout';
 
-const WaitWidget = container(() => import('../../(components)/Wait@widget'));
-const FailWidget = container(() => import('../../(components)/Fail@widget'));
+const WaitWidget = container(() => import('~/routes/(components)/Wait@widget'));
+const FailWidget = container(() => import('~/routes/(components)/Fail@widget'));
 
 /** A promise that resolves to HTML after `ms` milliseconds. */
 function slowHTML(ms: number, content: HTML): Promise<HTML> {

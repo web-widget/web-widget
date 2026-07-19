@@ -141,6 +141,10 @@
       "module": "./routes/streaming/html/shell-error@route.ts"
     },
     {
+      "pathname": "/streaming/html/suspense",
+      "module": "./routes/streaming/html/suspense@route.ts"
+    },
+    {
       "pathname": "/streaming/preact",
       "module": "./routes/streaming/preact/index@route.tsx"
     },

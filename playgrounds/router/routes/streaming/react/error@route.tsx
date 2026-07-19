@@ -1,9 +1,9 @@
 import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
-import '../../(css)/demo-states.css';
-import BaseLayout from '../../(components)/BaseLayout.js';
-import { PageHeader, Section } from '../../(components)/ui';
-import ReactWaitDemo from '../../(components)/Wait@widget.js';
-import ReactFailDemo from '../../(components)/Fail@widget.js';
+import '~/routes/(css)/demo-states.css';
+import BaseLayout from '~/routes/(components)/BaseLayout.js';
+import { PageHeader, Section } from '~/routes/(components)/ui';
+import ReactWaitDemo from '~/routes/(components)/Wait@widget.js';
+import ReactFailDemo from '~/routes/(components)/Fail@widget.js';
 
 const Loading = <div className="demo-loading">Loading..</div>;
 
