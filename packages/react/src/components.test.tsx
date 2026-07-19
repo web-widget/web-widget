@@ -1,9 +1,10 @@
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
+import { vi } from 'vitest';
 import { container, resolveFallback } from './components';
 
 // Mock the WebWidgetRenderer to avoid needing the full widget runtime.
-jest.mock('@web-widget/web-widget', () => {
+vi.mock('@web-widget/web-widget', () => {
   return {
     WebWidgetRenderer: class {
       localName = 'web-widget';

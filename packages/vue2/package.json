@@ -20,8 +20,10 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "happy-dom": "14.12.3",
     "tsup": "catalog:",
     "typescript": "catalog:",
+    "vitest": "catalog:",
     "vue": "^2.7.16",
     "vue-server-renderer": "^2.7.16"
   },
@@ -103,7 +105,8 @@
     "clean:node": "rm -rf node_modules",
     "dev": "pnpm exec tsup --watch",
     "lint": "eslint src",
-    "prebuild": "pnpm run clean:build"
+    "prebuild": "pnpm run clean:build",
+    "test": "vitest run"
   },
   "sideEffects": false,
   "type": "module"

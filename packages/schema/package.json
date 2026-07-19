@@ -14,24 +14,32 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "typescript": "catalog:"
+    "happy-dom": "14.12.3",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "exports": {
     ".": {
       "types": "./schema.d.ts",
       "default": "./placeholder.js"
+    },
+    "./testing": {
+      "types": "./testing.d.ts",
+      "default": "./testing.js"
     }
   },
   "files": [
     "types",
     "schema.d.ts",
-    "placeholder.js"
+    "placeholder.js",
+    "testing.d.ts",
+    "testing.js"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "test": "tsc -p tsconfig.type-tests.json"
+    "test": "tsc -p tsconfig.type-tests.json && vitest run --environment happy-dom"
   },
   "type": "module"
 }

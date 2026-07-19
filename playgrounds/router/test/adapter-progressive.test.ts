@@ -8,17 +8,22 @@ import { render as renderLit } from '@web-widget/lit/adapter';
 import { render as renderWebComponents } from '@web-widget/web-components/adapter';
 import { describe, expect, test, vi } from 'vitest';
 
-async function readChunks(stream: ReadableStream<string>) {
-  const chunks: string[] = [];
+async function readChunks(
+  stream: ReadableStream<string> | ReadableStream<Uint8Array>
+) {
+  const decoder = new TextDecoder();
+  let result = '';
   for await (const chunk of stream) {
-    expect(typeof chunk).toBe('string');
-    chunks.push(chunk);
+    result +=
+      typeof chunk === 'string'
+        ? chunk
+        : decoder.decode(chunk, { stream: true });
   }
-  return chunks.join('');
+  return result + decoder.decode();
 }
 
 describe('framework adapter progressive rendering contract', () => {
-  test('Preact returns buffered HTML by default and a text stream when progressive', async () => {
+  test('Preact returns buffered HTML by default and a stream when progressive', async () => {
     const Component = () => hPreact('p', null, 'Preact output');
 
     const buffered = await renderPreact(Component, {}, { progressive: false });
@@ -33,7 +38,7 @@ describe('framework adapter progressive rendering contract', () => {
     expect(typeof buffered).toBe('string');
     expect(progressive).toBeInstanceOf(ReadableStream);
     await expect(
-      readChunks(progressive as ReadableStream<string>)
+      readChunks(progressive as ReadableStream<Uint8Array>)
     ).resolves.toContain('Preact output');
   });
 
@@ -47,7 +52,7 @@ describe('framework adapter progressive rendering contract', () => {
     ).rejects.toThrow('Preact shell error');
   });
 
-  test('Solid returns buffered HTML by default and a text stream when progressive', async () => {
+  test('Solid returns buffered HTML by default and a stream when progressive', async () => {
     const Component = () => 'Solid output';
 
     const buffered = await renderSolid(
@@ -91,7 +96,7 @@ describe('framework adapter progressive rendering contract', () => {
     ).rejects.toThrow('Solid shell error');
   });
 
-  test('Vue 3 returns buffered HTML by default and a text stream when progressive', async () => {
+  test('Vue 3 returns buffered HTML by default and a stream when progressive', async () => {
     const Component = () => 'Vue 3 output';
 
     const buffered = await renderVue(Component, {}, { progressive: false });
@@ -100,7 +105,7 @@ describe('framework adapter progressive rendering contract', () => {
     expect(typeof buffered).toBe('string');
     expect(progressive).toBeInstanceOf(ReadableStream);
     await expect(
-      readChunks(progressive as ReadableStream<string>)
+      readChunks(progressive as ReadableStream<Uint8Array>)
     ).resolves.toContain('Vue 3 output');
   });
 
@@ -112,8 +117,8 @@ describe('framework adapter progressive rendering contract', () => {
         renderer.push('Svelte output')) as any,
     ],
     ['Vue 2', renderVue2, { render: (h: any) => h('p', 'Vue 2 output') }],
-    ['Lit', renderLit, null],
-    ['Web Components', renderWebComponents, null],
+    ['Lit', renderLit, class {}],
+    ['Web Components', renderWebComponents, class {}],
   ])(
     '%s explicitly warns when progressive rendering is unavailable',
     async (_name, render, component) => {

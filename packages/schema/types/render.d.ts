@@ -20,11 +20,9 @@ export interface ServerRenderOptions {
   progressive?: boolean;
 }
 
-/**
- * The result of a server-side render operation.
- * Can be either a string (complete HTML) or a stream (progressive rendering).
- */
-export type ServerRenderResult = ReadableStream<string> | string;
+/** The result of a server-side render operation. */
+export type ServerRenderResult =
+  ReadableStream<string> | ReadableStream<Uint8Array> | string;
 
 /**
  * A function that renders a component to HTML or stream on the server.

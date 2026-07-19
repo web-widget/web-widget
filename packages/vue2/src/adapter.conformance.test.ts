@@ -1,0 +1,40 @@
+import { describe, expect, test } from 'vitest';
+import { testAdapterConformance } from '@web-widget/schema/testing';
+import * as server from './adapter.server';
+import * as client from './adapter.client';
+
+const Component = {
+  props: ['message'],
+  render(this: { message: string }, h: Function) {
+    return h('p', this.message);
+  },
+};
+
+testAdapterConformance({
+  runner: { describe, test, expect },
+  adapter: {
+    name: 'vue2',
+    server: {
+      module: server,
+      component: Component,
+      data: { message: 'Hello' },
+      progressive: 'buffered',
+      assertRendered(_result, { text }) {
+        expect(text).toContain('<p');
+        expect(text).toContain('Hello');
+      },
+    },
+    client: {
+      module: client,
+      component: Component,
+      data: { message: 'Hello' },
+      createContainer: () => document.createElement('div'),
+      assertMounted(container) {
+        expect(container.textContent).toBe('Hello');
+      },
+      assertUnmounted(container) {
+        expect(container.textContent).toBe('');
+      },
+    },
+  },
+});

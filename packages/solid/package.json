@@ -23,6 +23,7 @@
     "solid-js": "^1.9.0"
   },
   "devDependencies": {
+    "happy-dom": "14.12.3",
     "solid-js": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",

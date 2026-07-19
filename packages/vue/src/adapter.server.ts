@@ -51,19 +51,6 @@ export const createVueRender = ({
 
       if (progressive) {
         const byteStream = renderToWebStream(app, ssrContext);
-        const decoder = new TextDecoder();
-        const stream = byteStream.pipeThrough(
-          new TransformStream<Uint8Array, string>({
-            transform(chunk, controller) {
-              const text = decoder.decode(chunk, { stream: true });
-              if (text) controller.enqueue(text);
-            },
-            flush(controller) {
-              const text = decoder.decode();
-              if (text) controller.enqueue(text);
-            },
-          })
-        );
 
         // Vue's renderToWebStream renders asynchronously (via Promise
         // microtasks). Consume the first chunk to flush the microtask queue,
@@ -71,7 +58,7 @@ export const createVueRender = ({
         // This mirrors React's renderToReadableStream shell-error semantics:
         // if rendering fails, the Promise rejects so the framework can
         // return a 500 response.
-        const reader = stream.getReader();
+        const reader = (byteStream as ReadableStream<Uint8Array>).getReader();
         const first = await reader.read();
 
         try {
@@ -94,7 +81,7 @@ export const createVueRender = ({
 
         // Return a stream that replays the buffered first chunk,
         // then continues piping the remaining chunks.
-        return new ReadableStream({
+        return new ReadableStream<Uint8Array>({
           start(controller) {
             if (first.done) {
               controller.close();

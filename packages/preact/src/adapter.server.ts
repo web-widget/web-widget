@@ -18,25 +18,12 @@ export const render = defineServerRender<ComponentType<any>>(
     // surfaces failures through the readable stream, so consume this promise
     // as well to avoid an unhandled rejection when the shell throws.
     void byteStream.allReady.catch(() => {});
-    const decoder = new TextDecoder();
-    const stream = byteStream.pipeThrough(
-      new TransformStream<Uint8Array, string>({
-        transform(chunk, controller) {
-          const text = decoder.decode(chunk, { stream: true });
-          if (text) controller.enqueue(text);
-        },
-        flush(controller) {
-          const text = decoder.decode();
-          if (text) controller.enqueue(text);
-        },
-      })
-    );
-    const reader = stream.getReader();
+    const reader = byteStream.getReader();
     const first = await reader.read();
 
     // Preact returns a stream immediately. Read the shell before returning so
     // shell errors reject the adapter call and can still produce a 500 response.
-    return new ReadableStream<string>({
+    return new ReadableStream<Uint8Array>({
       start(controller) {
         if (first.done) {
           controller.close();

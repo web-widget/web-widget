@@ -1,17 +1,20 @@
 import { createElement, Suspense, useId } from 'react';
+import { testAdapterConformance } from '@web-widget/schema/testing';
+import { vi } from 'vitest';
 
-import { render } from './adapter.server';
+import * as adapter from './adapter.server';
+const { render } = adapter;
 
 // Mock dependencies to avoid ESM workspace package loading issues in Jest.
-jest.mock('@web-widget/helpers', () => ({
+vi.mock('@web-widget/helpers', () => ({
   defineServerRender: (fn: any) => fn,
 }));
 
-jest.mock('@web-widget/helpers/state', () => ({
+vi.mock('@web-widget/helpers/state', () => ({
   useWidgetSyncState: () => ({}),
 }));
 
-jest.mock('@web-widget/web-widget', () => ({
+vi.mock('@web-widget/web-widget', () => ({
   WebWidgetRenderer: class {
     localName = 'web-widget';
     attributes: Record<string, string> = {};
@@ -21,13 +24,37 @@ jest.mock('@web-widget/web-widget', () => ({
   },
 }));
 
-jest.mock('./edge', () => {
-  const ReactDOMServer = jest.requireActual('react-dom/server');
+vi.mock('./edge', async () => {
+  const ReactDOMServer =
+    await vi.importActual<typeof import('react-dom/server')>(
+      'react-dom/server'
+    );
   return {
     renderToReadableStream: ReactDOMServer.renderToReadableStream,
-    renderToString: (node: React.ReactNode, options: unknown) =>
-      ReactDOMServer.renderToString(node, options),
+    renderToString: (
+      node: React.ReactNode,
+      options: Parameters<typeof ReactDOMServer.renderToString>[1]
+    ) => ReactDOMServer.renderToString(node, options),
   };
+});
+
+const ConformanceComponent = ({ message }: { message: string }) =>
+  createElement('p', null, message);
+
+testAdapterConformance({
+  runner: { describe, test, expect },
+  adapter: {
+    name: 'react-server',
+    server: {
+      module: adapter,
+      component: ConformanceComponent as any,
+      data: { message: 'Hello' },
+      progressive: 'stream',
+      assertRendered(_result, { text }) {
+        expect(text).toContain('Hello');
+      },
+    },
+  },
 });
 
 describe('render (server)', () => {

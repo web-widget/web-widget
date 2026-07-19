@@ -1,6 +1,6 @@
 export default {
   test: {
     globals: true,
-    environment: 'node',
+    environment: 'happy-dom',
   },
 };
