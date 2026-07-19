@@ -25,7 +25,8 @@
   "devDependencies": {
     "solid-js": "catalog:",
     "tsup": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "exports": {
     ".": {
@@ -67,6 +68,7 @@
     "build": "pnpm exec tsup",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run"
   }
 }

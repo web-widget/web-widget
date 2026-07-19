@@ -28,12 +28,12 @@ export const render = defineServerRender<Component<any>>(
       rejectShell = reject;
     });
 
+    let active = true;
     const stream = new ReadableStream<string>({
       start(controller) {
         // Web Router treats the first emitted chunk as the framework shell.
         // Keep the bootstrap and shell together so their ordering is retained.
         let shellPending = true;
-        let active = true;
         const writable = {
           write(chunk: string) {
             if (!active) return;
@@ -71,6 +71,11 @@ export const render = defineServerRender<Component<any>>(
           rejectShell(error);
           controller.error(error);
         }
+      },
+      cancel() {
+        // Solid can keep deferred write tasks scheduled after the HTTP
+        // consumer disconnects. Ignore them once the stream is cancelled.
+        active = false;
       },
     });
 

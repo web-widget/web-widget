@@ -114,9 +114,11 @@ export class Context<E extends Env = Env> implements FetchContext {
       );
       return (this.#waitUntil = (promise: Promise<unknown>) => {
         const pending = (this.#pendingBackgroundTasks ??= new Set());
-        const tracked = Promise.resolve(promise).finally(() => {
-          pending.delete(tracked);
-        });
+        let tracked: Promise<void>;
+        const remove = () => void pending.delete(tracked);
+        // Track lifetime only. Mirroring the task's rejection here creates a
+        // second rejected promise that runtimes do not know to observe.
+        tracked = Promise.resolve(promise).then(remove, remove);
         pending.add(tracked);
         delegate(promise);
       });

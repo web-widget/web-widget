@@ -4,7 +4,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "solid-js",
+    "types": ["vitest/globals"]
   },
   "exclude": ["node_modules"],
   "include": ["src/**/*"]

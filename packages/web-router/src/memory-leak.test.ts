@@ -306,15 +306,14 @@ describe('Memory leak: risky features', () => {
 
       ctx.waitUntil(task);
       expect(ctx.getPendingBackgroundTasks()).toHaveLength(1);
+      const tracked = ctx.getPendingBackgroundTasks()[0];
 
-      // Attach handler to the internally tracked promise BEFORE rejecting
-      // to avoid an unhandled rejection from the .finally() wrapper
-      ctx.getPendingBackgroundTasks()[0].catch(() => {});
+      const rejection = expect(task).rejects.toThrow('boom');
 
       rejectTask(new Error('boom'));
 
-      // Wait for the .finally() cleanup to run
-      await new Promise((r) => setTimeout(r, 0));
+      await rejection;
+      await expect(tracked).resolves.toBeUndefined();
 
       expect(ctx.getPendingBackgroundTasks()).toHaveLength(0);
     });

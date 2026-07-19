@@ -955,6 +955,9 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.6(@edge-runtime/vm@5.0.0)(@types/node@22.2.0)(happy-dom@14.12.3)(vite@8.0.12(@types/node@22.2.0)(esbuild@0.27.3)(jiti@2.4.2))
 
   packages/svelte:
     dependencies:
