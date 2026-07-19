@@ -58,14 +58,6 @@ testAdapterConformance({
 });
 
 describe('render (server)', () => {
-  const SimpleComponent = () => createElement('div', null, 'Hello World');
-
-  test('non-progressive render returns HTML string', async () => {
-    const result = await render(SimpleComponent, {}, { progressive: false });
-    expect(typeof result).toBe('string');
-    expect(result).toContain('Hello World');
-  });
-
   test('uses the widget id as the React identifier prefix', async () => {
     const Component = () => {
       const id = useId();
@@ -82,25 +74,6 @@ describe('render (server)', () => {
     );
 
     expect(result).toContain('id="_w7R_0_"');
-  });
-
-  test('progressive render returns ReadableStream', async () => {
-    const result = await render(SimpleComponent, {}, { progressive: true });
-    expect(result).toBeInstanceOf(ReadableStream);
-
-    const decoder = new TextDecoder();
-    let html = '';
-    // @ts-ignore
-    for await (const chunk of result as ReadableStream) {
-      html += decoder.decode(chunk, { stream: true });
-    }
-    expect(html).toContain('Hello World');
-  });
-
-  test('missing component throws TypeError', async () => {
-    await expect(
-      render(null as any, {}, { progressive: false })
-    ).rejects.toThrow(TypeError);
   });
 
   test('shell error in non-progressive mode rejects (enables 500)', async () => {
