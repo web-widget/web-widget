@@ -58,6 +58,9 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     import: {
       type: String as RendererProp<'import'>,
     },
+    id: {
+      type: String as RendererProp<'id'>,
+    },
     inactive: {
       type: Boolean as RendererProp<'inactive'>,
       default: false,

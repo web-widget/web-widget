@@ -143,10 +143,6 @@ aside ul {
   padding: 16px 0;
   margin: 0;
   padding-inline-end: 10px;
-  position: sticky;
-  top: 0;
-  max-height: 100vh;
-  overflow-y: auto;
 }
 aside li {
   list-style: none;
@@ -355,10 +351,6 @@ footer {
     flex: 0 0 100%;
     border-right: none;
     border-bottom: var(--sk-border-width) dashed var(--sk-border);
-  }
-  aside ul {
-    position: static;
-    max-height: none;
   }
   .container main {
     padding: 24px 20px;
