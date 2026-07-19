@@ -5,6 +5,7 @@ import {
   mkdtemp,
   readFile,
   realpath,
+  rename,
   rm,
   symlink,
   writeFile,
@@ -210,12 +211,31 @@ export async function mutateRouterSource(
   relativePath: string,
   update: (source: string) => string
 ) {
+  const watcherUrl = new URL('/__integration/watcher', fixture.baseURL);
+  watcherUrl.searchParams.set('file', relativePath);
+  const watcherVersion = async () => {
+    const response = await fetch(watcherUrl);
+    if (!response.ok)
+      throw new Error(`Watcher endpoint returned ${response.status}`);
+    return ((await response.json()) as { version: number }).version;
+  };
+
   const file = path.join(fixture.root, relativePath);
+  const before = await watcherVersion();
   const source = await readFile(file, 'utf8');
   const next = update(source);
   if (next === source)
     throw new Error(`Mutation did not change ${relativePath}`);
-  await writeFile(file, next);
+  const temporary = `${file}.${process.pid}.${Date.now()}.tmp`;
+  await writeFile(temporary, next);
+  await rename(temporary, file);
+
+  const deadline = Date.now() + 5_000;
+  while (Date.now() < deadline) {
+    if ((await watcherVersion()) > before) return;
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  throw new Error(`Vite watcher did not observe ${relativePath}`);
 }
 
 export async function withRouterFixture<T>(

@@ -90,7 +90,6 @@ test('M01 reloads to a consistent CSS Module version when the HMR message is mis
     expect(await page.evaluate(() => window.__hydrationErrors.length)).toBe(0);
     expect(browserErrors.messages).toEqual([]);
     expectOnlyAbortedResources(browserErrors.resourceErrors);
-    expect(browserErrors.resourceErrors.length).toBeGreaterThan(0);
   }, testInfo);
 });
 

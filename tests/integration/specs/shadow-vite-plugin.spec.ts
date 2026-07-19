@@ -148,7 +148,7 @@ test.describe('Vite Shadow SSR development pipeline', () => {
     );
   });
 
-  test('keeps CSS Module hashes and Vue scoped CSS current through HMR and fresh SSR', async ({
+  test('keeps CSS Module hashes current through HMR and fresh SSR', async ({
     page,
   }, testInfo) => {
     await withRouterFixture(
@@ -197,13 +197,28 @@ test.describe('Vite Shadow SSR development pipeline', () => {
         }
         await expect.poll(() => documents).toBe(beforeCssUpdate + 1);
         await viteReconnected;
-
-        let html = await (
+        const html = await (
           await fetch(`${fixture.baseURL}/shadow-dom-ssr`)
         ).text();
         for (const template of shadowTemplates(html)) {
           expect(template).toContain('--widget-module-version: 2');
         }
+      },
+      testInfo
+    );
+  });
+
+  test('keeps Vue scoped CSS current through HMR and fresh SSR', async ({
+    page,
+  }, testInfo) => {
+    await withRouterFixture(
+      'dev',
+      async (fixture) => {
+        let documents = 0;
+        page.on('response', (response) => {
+          if (response.request().resourceType() === 'document') documents++;
+        });
+        await openStableDevPage(page, `${fixture.baseURL}/shadow-dom-ssr`);
 
         const beforeVueUpdate = documents;
         await mutateRouterSource(
@@ -217,7 +232,9 @@ test.describe('Vite Shadow SSR development pipeline', () => {
         ).toHaveCSS('--vue-scoped-version', '2', { timeout: 15_000 });
         await expect.poll(() => documents).toBe(beforeVueUpdate);
 
-        html = await (await fetch(`${fixture.baseURL}/shadow-dom-ssr`)).text();
+        const html = await (
+          await fetch(`${fixture.baseURL}/shadow-dom-ssr`)
+        ).text();
         expect(shadowTemplateFor(html, 'vue3')).toContain(
           '--vue-scoped-version: 2'
         );

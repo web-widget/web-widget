@@ -52,7 +52,10 @@ function adoptDevStyleSource(source: HTMLStyleElement) {
     }).observe(source, { childList: true, characterData: true, subtree: true });
   }
   updateRegisteredDevStyle(id, source.textContent ?? '');
-  source.remove();
+  // Keep Vite's source node connected so updateStyle() can mutate it in
+  // place. Disabling its media prevents shadow-owned CSS from leaking into
+  // the document while the per-source observer mirrors updates to each root.
+  source.media = 'not all';
 }
 
 function ensureDevStyleObserver() {

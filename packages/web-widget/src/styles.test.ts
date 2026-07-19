@@ -109,7 +109,8 @@ describe('widget style registry', () => {
     document.head.appendChild(viteStyle);
     await nextMutation();
 
-    expect(viteStyle.isConnected).to.equal(false);
+    expect(viteStyle.isConnected).to.equal(true);
+    expect(viteStyle.media).to.equal('not all');
     viteStyle.textContent = '.count{color:blue}';
     await nextMutation();
 
