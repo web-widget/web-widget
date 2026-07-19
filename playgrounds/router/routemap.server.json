@@ -61,10 +61,6 @@
       "module": "./routes/frameworks/preact/index@route.tsx"
     },
     {
-      "pathname": "/frameworks/preact/widget-embedding",
-      "module": "./routes/frameworks/preact/widget-embedding@route.tsx"
-    },
-    {
       "pathname": "/frameworks/react",
       "module": "./routes/frameworks/react/index@route.tsx"
     },
@@ -73,16 +69,8 @@
       "module": "./routes/frameworks/solid/index@route.tsx"
     },
     {
-      "pathname": "/frameworks/solid/widget-embedding",
-      "module": "./routes/frameworks/solid/widget-embedding@route.tsx"
-    },
-    {
       "pathname": "/frameworks/svelte",
       "module": "./routes/frameworks/svelte/index@route.svelte"
-    },
-    {
-      "pathname": "/frameworks/svelte/widget-embedding",
-      "module": "./routes/frameworks/svelte/widget-embedding@route.svelte"
     },
     {
       "pathname": "/frameworks/vue2",
@@ -113,10 +101,6 @@
       "module": "./routes/react-import-widgets/index.route.tsx"
     },
     {
-      "pathname": "/react-server-component",
-      "module": "./routes/react-server-component@route.tsx"
-    },
-    {
       "pathname": "/request-cache",
       "module": "./routes/request-cache/index@route.tsx"
     },
@@ -131,10 +115,6 @@
     {
       "pathname": "/streaming/html",
       "module": "./routes/streaming/html/index@route.ts"
-    },
-    {
-      "pathname": "/streaming/html/error",
-      "module": "./routes/streaming/html/error@route.ts"
     },
     {
       "pathname": "/streaming/html/shell-error",
@@ -157,10 +137,6 @@
       "module": "./routes/streaming/react/index@route.tsx"
     },
     {
-      "pathname": "/streaming/react/error",
-      "module": "./routes/streaming/react/error@route.tsx"
-    },
-    {
       "pathname": "/streaming/react/shell-error",
       "module": "./routes/streaming/react/shell-error@route.tsx"
     },
@@ -181,10 +157,6 @@
       "module": "./routes/(vue3)/streaming/vue3/shell-error@route.vue"
     },
     {
-      "pathname": "/streaming/vue3-error",
-      "module": "./routes/(vue3)/streaming/vue3-error@route.vue"
-    },
-    {
       "pathname": "/style",
       "module": "./routes/style@route.tsx"
     },
@@ -201,20 +173,12 @@
       "module": "./routes/(vue2)/vue2-router/[...all]@route.tsx"
     },
     {
-      "pathname": "/vue2-server-component",
-      "module": "./routes/(vue2)/vue2-server-component@route.vue"
-    },
-    {
       "pathname": "/vue3-import-widgets",
       "module": "./routes/(vue3)/vue3-import-widgets/index@route.tsx"
     },
     {
       "pathname": "/vue3-router/:all*",
       "module": "./routes/(vue3)/vue3-router/[...all]@route.tsx"
-    },
-    {
-      "pathname": "/vue3-server-component",
-      "module": "./routes/(vue3)/vue3-server-component@route.vue"
     },
     {
       "pathname": "/",

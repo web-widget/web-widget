@@ -28,7 +28,6 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/streaming/vue3/shell-error', 500],
   ['/streaming/solid/shell-error', 500],
   ['/streaming/preact/shell-error', 500],
-  ['/react-server-component'],
   ['/shadow-dom-ssr'],
   // Streaming routes (/streaming/*) are verified in
   // streaming.test.ts — their DOM structure is non-deterministic.
@@ -37,8 +36,6 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   // ['/react-import-widgets'],
   ['/dynamic-routes', 404],
   ['/dynamic-routes/1'],
-  ['/vue2-server-component'],
-  ['/vue3-server-component'],
   ['/vue2-import-widgets'],
   ['/vue3-import-widgets'],
   ['/vue2-router'],

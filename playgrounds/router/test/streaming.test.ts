@@ -145,19 +145,4 @@ describe('Streaming SSR', () => {
     },
     15000
   );
-
-  test('HTML /html-streaming-error recovers from errors', async () => {
-    const result = await fetch('/streaming/html/error');
-    expect(result.status).toBe(200);
-    expect(result.body).toBeInstanceOf(ReadableStream);
-
-    const body = await result.text();
-
-    // Successful sections render.
-    expect(body).toContain('Section loaded successfully!');
-    expect(body).toContain('Page recovered');
-
-    // Failed suspense and widget show error UI (swapped via $HRC).
-    expect(body).toContain('Something went wrong.');
-  }, 15000);
 });
