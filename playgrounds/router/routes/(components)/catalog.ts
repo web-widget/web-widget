@@ -21,7 +21,12 @@ export interface NavigationItem {
 }
 
 export interface NavigationGroup {
-  name: 'Frameworks' | 'Features' | 'Interoperability' | 'Integrations';
+  name:
+    | 'Frameworks'
+    | 'Streaming'
+    | 'Features'
+    | 'Interoperability'
+    | 'Integrations';
   items: NavigationItem[];
 }
 
@@ -167,6 +172,36 @@ export const navigation: NavigationGroup[] = [
     ],
   },
   {
+    name: 'Streaming',
+    items: [
+      {
+        href: '/streaming/react',
+        title: 'React',
+        description: 'Progressive rendering with React Suspense.',
+      },
+      {
+        href: '/streaming/vue3',
+        title: 'Vue 3',
+        description: 'Progressive rendering with Vue Suspense.',
+      },
+      {
+        href: '/streaming/html',
+        title: 'HTML',
+        description: 'Tag-based progressive HTML rendering.',
+      },
+      {
+        href: '/streaming/solid',
+        title: 'Solid',
+        description: 'Progressive rendering with Solid Suspense.',
+      },
+      {
+        href: '/streaming/preact',
+        title: 'Preact',
+        description: 'Progressive rendering with Preact Suspense.',
+      },
+    ],
+  },
+  {
     name: 'Features',
     items: [
       {
@@ -183,21 +218,6 @@ export const navigation: NavigationGroup[] = [
         href: '/experimental-async-component',
         title: 'Async component',
         description: 'Await asynchronous component data before rendering.',
-      },
-      {
-        href: '/react-streaming',
-        title: 'React streaming',
-        description: 'Progressive rendering with React Suspense.',
-      },
-      {
-        href: '/vue3-streaming',
-        title: 'Vue 3 streaming',
-        description: 'Progressive rendering with Vue Suspense.',
-      },
-      {
-        href: '/html-suspense-streaming',
-        title: 'HTML streaming',
-        description: 'Tag-based progressive HTML rendering.',
       },
       {
         href: '/fallback',

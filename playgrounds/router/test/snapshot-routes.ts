@@ -28,7 +28,7 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/vue3-shell-error', 500],
   ['/react-server-component'],
   ['/shadow-dom-ssr'],
-  // Streaming routes (/react-streaming, /vue3-streaming) are verified in
+  // Streaming routes (/streaming/*) are verified in
   // streaming.test.ts — their DOM structure is non-deterministic.
   ['/large-css'],
   // TODO: Fix the issue with the React import widgets.

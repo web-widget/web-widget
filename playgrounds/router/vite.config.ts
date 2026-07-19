@@ -21,7 +21,10 @@ function reactPresetsPlugin() {
 
 function solidPresetsPlugin(): Plugin {
   const plugin = solid({
-    include: [/routes\/frameworks\/solid\/.+\.[jt]sx$/],
+    include: [
+      /routes\/frameworks\/solid\/.+\.[jt]sx$/,
+      /routes\/streaming\/solid\/.+\.[jt]sx$/,
+    ],
     ssr: true,
   });
   const transform = plugin.transform;
@@ -109,11 +112,11 @@ export default defineConfig(({ command }) => ({
         '@web-widget/svelte',
         {
           from: '@web-widget/solid',
-          scope: ['routes/frameworks/solid'],
+          scope: ['routes/frameworks/solid', 'routes/streaming/solid'],
         },
         {
           from: '@web-widget/preact',
-          scope: ['routes/frameworks/preact'],
+          scope: ['routes/frameworks/preact', 'routes/streaming/preact'],
         },
         '@web-widget/web-components',
         '@web-widget/lit',

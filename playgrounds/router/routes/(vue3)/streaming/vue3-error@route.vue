@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { h } from 'vue';
 import { defineRouteHandler } from '@web-widget/helpers';
-import '../(css)/demo-states.css';
-import BaseLayout from './BaseLayout.vue';
-import VueWaitDemo from './Wait@widget.vue';
-import VueFailDemo from './Fail@widget.vue';
+import '../../(css)/demo-states.css';
+import BaseLayout from '../BaseLayout.vue';
+import VueWaitDemo from '../Wait@widget.vue';
+import VueFailDemo from '../Fail@widget.vue';
 
 const Loading = h('div', { class: 'demo-loading' }, 'Loading..');
 const ErrorFallback = h(
