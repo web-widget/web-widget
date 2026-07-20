@@ -31,13 +31,19 @@ defineOptions({
 
 <template>
   <BaseLayout>
-    <PageHeader title="Vue 3: Progressive streaming" description="Pending UI is sent immediately, then replaced by resolved content or an error message as asynchronous work settles." />
-    <Section title="Multiple pending items are replaced in completion order" description="Each loading state appears immediately; results are streamed into their own positions as each request completes.">
+    <PageHeader
+      title="Vue 3: Progressive streaming"
+      description="Pending UI is sent immediately, then replaced by resolved content or an error message as asynchronous work settles." />
+    <Section
+      title="Multiple pending items are replaced in completion order"
+      description="Each loading state appears immediately; results are streamed into their own positions as each request completes.">
       <VueWaitDemo :widget="{ fallback: Pending }" id="Vue 3 Widget 1" />
       <ReactWaitDemo :widget="{ fallback: Pending }" id="React Widget 2" />
       <VueWaitDemo :widget="{ fallback: Pending }" id="Vue 3 Widget 3" />
     </Section>
-    <Section title="Pending content is replaced when rendering fails" description="The loading state appears first, then the error message recovers this section.">
+    <Section
+      title="Pending content is replaced when rendering fails"
+      description="The loading state appears first, then the error message recovers this section.">
       <VueFailDemo
         :widget="{ fallback: { pending: Pending, error: ErrorFallback } }"
         id="vue3:error" />

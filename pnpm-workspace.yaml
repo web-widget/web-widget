@@ -10,6 +10,7 @@ packages:
 
 # Migrated from .npmrc (pnpm 11 no longer reads non-auth settings from .npmrc)
 hoist: false
+linkWorkspacePackages: true
 strictPeerDependencies: true
 dedupePeerDependents: true
 autoInstallPeers: true
@@ -29,27 +30,6 @@ allowBuilds:
   workerd: true
 
 overrides:
-  '@web-widget/action': 'workspace:*'
-  '@web-widget/context': 'workspace:*'
-  '@web-widget/helpers': 'workspace:*'
-  '@web-widget/html': 'workspace:*'
-  '@web-widget/inspector': 'workspace:*'
-  '@web-widget/lifecycle-cache': 'workspace:*'
-  '@web-widget/lit': 'workspace:*'
-  '@web-widget/middlewares': 'workspace:*'
-  '@web-widget/node': 'workspace:*'
-  '@web-widget/preact': 'workspace:*'
-  '@web-widget/purify': 'workspace:*'
-  '@web-widget/react': 'workspace:*'
-  '@web-widget/schema': 'workspace:*'
-  '@web-widget/solid': 'workspace:*'
-  '@web-widget/svelte': 'workspace:*'
-  '@web-widget/vite-plugin': 'workspace:*'
-  '@web-widget/vue': 'workspace:*'
-  '@web-widget/vue2': 'workspace:*'
-  '@web-widget/web-components': 'workspace:*'
-  '@web-widget/web-router': 'workspace:*'
-  '@web-widget/web-widget': 'workspace:*'
   '@types/node': 'catalog:'
   'typescript': 'catalog:'
 
