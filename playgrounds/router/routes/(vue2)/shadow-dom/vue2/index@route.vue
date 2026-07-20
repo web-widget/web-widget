@@ -67,7 +67,7 @@ const LitCounter = widget<{ count?: number }>(
         <SlotPanel :widget="{ id: 'vue2-slot-panel' }">
           <h3 class="shadow-slot-title" slot="title">Vue 2 title</h3>
           <p class="shadow-slot-content">Projected from Vue 2.</p>
-          <div slot="actions"><Vue2Counter :count="0" /></div>
+          <Vue2Counter :count="0" slot="actions" />
         </SlotPanel>
       </div>
     </section>

@@ -17,9 +17,13 @@ const SlottedWidget = server.widget(
 );
 const SlotComponent = defineComponent({
   setup: () => () =>
-    h(SlottedWidget, null, {
-      default: () => h('span', { slot: 'label' }, 'LIGHT_SLOT_MARKER'),
-    }),
+    h(
+      SlottedWidget,
+      { slot: 'adapter-actions' },
+      {
+        default: () => h('span', { slot: 'label' }, 'LIGHT_SLOT_MARKER'),
+      }
+    ),
 });
 
 testAdapterConformance({
@@ -41,6 +45,7 @@ testAdapterConformance({
             }
           ) as Promise<string>;
         },
+        hostSlot: 'adapter-actions',
         shadowMarker: 'SHADOW_SLOT_MARKER',
         lightMarker: 'LIGHT_SLOT_MARKER',
       },

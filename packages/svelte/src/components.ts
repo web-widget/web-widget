@@ -5,6 +5,7 @@ import type {
   ExtractWidgetProps,
   WidgetContainerOptions,
   WidgetContainerProps,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
@@ -13,7 +14,11 @@ export type { WidgetContainerOptions } from '@web-widget/schema';
 export type SvelteWidgetContainerProps = WidgetContainerProps<Snippet>;
 
 export type SvelteWidgetComponent<T = unknown> = Component<
-  T & { children?: Snippet; widget?: SvelteWidgetContainerProps }
+  T &
+    WidgetHostProps & {
+      children?: Snippet;
+      widget?: SvelteWidgetContainerProps;
+    }
 >;
 
 function escapeAttribute(value: string) {
@@ -46,7 +51,7 @@ export function widget(
   options: WebWidgetRendererOptions = {}
 ) {
   return ((anchor: any, props: Record<string, any>) => {
-    const { widget = {}, children, $$slots = {}, ...data } = props;
+    const { widget = {}, children, slot, $$slots = {}, ...data } = props;
     const snippets = [
       children,
       ...Object.entries($$slots)
@@ -77,6 +82,7 @@ export function widget(
         data,
         ...renderOptions,
         renderTarget: options.renderTarget,
+        slot,
       });
 
     const render = async () => {

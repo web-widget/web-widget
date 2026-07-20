@@ -58,9 +58,7 @@ export default defineRouteComponent(() => (
             React title
           </h3>
           <p className="shadow-slot-content">Projected from React.</p>
-          <div slot="actions">
-            <ReactCounter count={0} />
-          </div>
+          <ReactCounter count={0} slot="actions" />
         </SlotPanel>
       </div>
     </Section>

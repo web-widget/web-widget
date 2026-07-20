@@ -80,7 +80,11 @@ export function testAdapterConformance({ runner, adapter }) {
             const templateEnd = text.indexOf('</template>', templateStart);
             const shadowMarker = text.indexOf(server.slots.shadowMarker);
             const lightMarker = text.indexOf(server.slots.lightMarker);
+            const hostStart = text.indexOf('<web-widget');
+            const hostEnd = text.indexOf('>', hostStart);
+            const hostTag = text.slice(hostStart, hostEnd + 1);
 
+            expect(hostTag).toContain(`slot="${server.slots.hostSlot}"`);
             expect(templateStart).toBeGreaterThanOrEqual(0);
             expect(templateEnd).toBeGreaterThan(templateStart);
             expect(shadowMarker).toBeGreaterThan(templateStart);
@@ -88,6 +92,9 @@ export function testAdapterConformance({ runner, adapter }) {
             expect(lightMarker).toBeGreaterThan(templateEnd);
             expect(text).not.toContain(
               `contextdata="${server.slots.lightMarker}`
+            );
+            expect(hostTag).not.toContain(
+              `&quot;slot&quot;:&quot;${server.slots.hostSlot}&quot;`
             );
           });
         }

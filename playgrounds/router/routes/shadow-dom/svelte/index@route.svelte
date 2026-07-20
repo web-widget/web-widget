@@ -62,7 +62,7 @@
       <SlotPanel widget={{ id: 'svelte-slot-panel' }}>
         <h3 class="shadow-slot-title" slot="title">Svelte title</h3>
         <p class="shadow-slot-content">Projected from Svelte.</p>
-        <div slot="actions"><SvelteCounter count={0} /></div>
+        <SvelteCounter count={0} slot="actions" />
       </SlotPanel>
     </div>
   </section>

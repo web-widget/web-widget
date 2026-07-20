@@ -20,6 +20,7 @@ const SlottedWidget = server.widget(
 );
 const SlotComponent = () =>
   createComponent(SlottedWidget, {
+    slot: 'adapter-actions',
     get children() {
       return createComponent(Dynamic, {
         component: 'span',
@@ -28,6 +29,21 @@ const SlotComponent = () =>
       });
     },
   });
+
+const NestedSlotComponent = () =>
+  createComponent(SlottedWidget, {
+    get children() {
+      return createComponent(SlottedWidget, {
+        slot: 'adapter-actions',
+      });
+    },
+  });
+
+async function readStream(stream: ReadableStream<string>): Promise<string> {
+  let text = '';
+  for await (const chunk of stream) text += chunk;
+  return text;
+}
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -48,6 +64,7 @@ testAdapterConformance({
             }
           ) as Promise<string>;
         },
+        hostSlot: 'adapter-actions',
         shadowMarker: 'SHADOW_SLOT_MARKER',
         lightMarker: 'LIGHT_SLOT_MARKER',
       },
@@ -56,4 +73,15 @@ testAdapterConformance({
       },
     },
   },
+});
+
+test('preserves a nested Widget host during progressive rendering', async () => {
+  const result = await server.render(
+    NestedSlotComponent,
+    {},
+    { id: 'nested-slot', progressive: true }
+  );
+  const text = await readStream(result as ReadableStream<string>);
+
+  expect(text).toMatch(/<web-widget[^>]*slot="adapter-actions"/);
 });

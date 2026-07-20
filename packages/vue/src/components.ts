@@ -3,6 +3,7 @@ import type {
   ExtractWidgetProps,
   WidgetContainerOptions,
   WidgetContainerProps,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
@@ -31,7 +32,7 @@ type RenderChildren = (nodes: VNode[], parent: unknown) => Promise<string>;
  * A Vue component wrapping a widget, with props `T` plus container config.
  */
 export type VueWidgetComponent<T = unknown> = DefineComponent<
-  T & { widget?: VueWidgetContainerProps }
+  T & WidgetHostProps & { widget?: VueWidgetContainerProps }
 >;
 
 /**
@@ -91,8 +92,14 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     renderChildren: {
       type: Function as PropType<RenderChildren>,
     },
+    hostSlot: {
+      type: String,
+    },
   },
-  async setup({ loader, errorFallback, renderChildren, ...props }, { slots }) {
+  async setup(
+    { loader, errorFallback, renderChildren, hostSlot, ...props },
+    { slots }
+  ) {
     if (!loader) {
       throw new TypeError(`Missing loader.`);
     }
@@ -114,6 +121,7 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     const widget = new WebWidgetRenderer(loader, {
       ...props,
       children,
+      slot: hostSlot,
     });
     const tag = widget.localName;
     const attrs = widget.attributes;
@@ -248,7 +256,10 @@ export function createWidgetAdapter(
               ? ('client' as const)
               : options.renderStage,
         };
-        const data = useAttrs() as WebWidgetRendererOptions['data'];
+        const attrs = { ...useAttrs() };
+        const slot = typeof attrs.slot === 'string' ? attrs.slot : undefined;
+        delete attrs.slot;
+        const data = attrs as WebWidgetRendererOptions['data'];
 
         if (clientOnly && renderChildren && pendingFallback) {
           const renderer = new WebWidgetRenderer(loader, {
@@ -257,6 +268,7 @@ export function createWidgetAdapter(
             data,
             ...renderOptions,
             renderTarget: options.renderTarget,
+            slot,
           });
           return () =>
             h(
@@ -295,6 +307,7 @@ export function createWidgetAdapter(
                   data,
                   errorFallback,
                   loader,
+                  hostSlot: slot,
                   renderChildren,
                   ...renderOptions,
                   renderTarget: options.renderTarget,

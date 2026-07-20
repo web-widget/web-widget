@@ -19,8 +19,12 @@ vi.mock('@web-widget/web-widget', () => ({
     localName = 'web-widget';
     attributes: Record<string, string> = { id: 'slot-conformance' };
     options: { children?: string };
-    constructor(_loader: unknown, options: { children?: string }) {
+    constructor(
+      _loader: unknown,
+      options: { children?: string; slot?: string }
+    ) {
       this.options = options;
+      if (options.slot) this.attributes.slot = options.slot;
     }
     async renderInnerHTMLToString() {
       return `<template shadowrootmode="open"><slot name="label">SHADOW_SLOT_MARKER</slot></template>${this.options.children ?? ''}`;
@@ -54,7 +58,7 @@ const SlottedWidget = adapter.widget(async () => ({}), {
 const SlotConformanceComponent = () =>
   createElement(
     SlottedWidget,
-    null,
+    { slot: 'adapter-actions' },
     createElement('span', { slot: 'label' }, 'LIGHT_SLOT_MARKER')
   );
 
@@ -77,6 +81,7 @@ testAdapterConformance({
             }
           ) as Promise<string>;
         },
+        hostSlot: 'adapter-actions',
         shadowMarker: 'SHADOW_SLOT_MARKER',
         lightMarker: 'LIGHT_SLOT_MARKER',
       },

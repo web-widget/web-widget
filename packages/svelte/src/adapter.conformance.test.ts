@@ -17,6 +17,7 @@ const SlottedWidget = server.widget(
 );
 const SlotComponent = (renderer: any) =>
   SlottedWidget(renderer, {
+    slot: 'adapter-actions',
     children: (child: { push(value: string): void }) =>
       child.push('<span slot="label">LIGHT_SLOT_MARKER</span>'),
   });
@@ -40,6 +41,7 @@ testAdapterConformance({
             }
           ) as Promise<string>;
         },
+        hostSlot: 'adapter-actions',
         shadowMarker: 'SHADOW_SLOT_MARKER',
         lightMarker: 'LIGHT_SLOT_MARKER',
       },

@@ -12,6 +12,7 @@ import type {
   ExtractWidgetProps,
   WidgetContainerOptions,
   WidgetContainerProps,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
@@ -20,7 +21,11 @@ export type { WidgetContainerOptions } from '@web-widget/schema';
 export type SolidWidgetContainerProps = WidgetContainerProps<JSX.Element>;
 
 export type SolidWidgetComponent<T = unknown> = Component<
-  T & { children?: JSX.Element; widget?: SolidWidgetContainerProps }
+  T &
+    WidgetHostProps & {
+      children?: JSX.Element;
+      widget?: SolidWidgetContainerProps;
+    }
 >;
 
 function resolveFallback(fallback: SolidWidgetContainerProps['fallback']): {
@@ -52,14 +57,23 @@ export interface SolidWidgetFactory {
 }
 
 export function createWidgetAdapter(
-  renderChildren?: (children: JSX.Element) => Promise<string>
+  renderChildren?: (children: JSX.Element) => Promise<string>,
+  renderHost?: (
+    localName: string,
+    attributes: Record<string, string>,
+    children: JSX.Element
+  ) => any,
+  renderInnerHTML?: (html: string) => any
 ): SolidWidgetFactory {
   return ((
       loader: WidgetModuleLoader,
       options: WebWidgetRendererOptions = {}
     ) =>
     (props: Record<string, any>) => {
-      const [local, data] = splitProps(props, ['children', 'widget']);
+      // Reading a Solid children getter can resolve it eagerly. Check ownership
+      // first so the original JSX subtree remains available to the SSR host.
+      const hasChildren = 'children' in props;
+      const [local, data] = splitProps(props, ['children', 'slot', 'widget']);
       const widget = local.widget ?? {};
       const fallback = resolveFallback(widget.fallback);
       const renderOptions = {
@@ -77,12 +91,13 @@ export function createWidgetAdapter(
         data,
         ...renderOptions,
         renderTarget: options.renderTarget,
+        slot: local.slot,
       });
       const widgetProps = {
         component: renderer.localName,
         ...renderer.attributes,
       };
-      if (!renderChildren && local.children) {
+      if (!renderChildren && !renderHost && hasChildren) {
         return createComponent(Dynamic, {
           ...widgetProps,
           get children() {
@@ -120,6 +135,7 @@ export function createWidgetAdapter(
           ...renderOptions,
           id: renderer.attributes.id,
           renderTarget: options.renderTarget,
+          slot: local.slot,
         });
         return serverRenderer
           .renderInnerHTMLToString()
@@ -130,12 +146,14 @@ export function createWidgetAdapter(
       const content = () => {
         const result = html();
         if (result instanceof Error) return fallback.error;
+        if (result === undefined) return result;
+        if (renderInnerHTML) return renderInnerHTML(result);
         return createComponent(Dynamic, {
           ...widgetProps,
           innerHTML: result,
         });
       };
-      return createComponent(ErrorBoundary, {
+      const boundary = createComponent(ErrorBoundary, {
         fallback: () => fallback.error,
         get children() {
           return createComponent(Suspense, {
@@ -146,5 +164,12 @@ export function createWidgetAdapter(
           });
         },
       });
+      // Keep light DOM as Solid JSX under the host. Serializing it into the
+      // renderer string would nest Solid's hydration protocol inside the Shadow
+      // boundary and prevent progressively rendered child widgets from recovering.
+      const hostChildren = hasChildren ? [boundary, local.children] : boundary;
+      return renderHost
+        ? renderHost(renderer.localName, renderer.attributes, hostChildren)
+        : boundary;
     }) as SolidWidgetFactory;
 }

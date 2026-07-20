@@ -18,7 +18,7 @@ const SlottedWidget = server.widget(
 );
 const SlotComponent = {
   render(h: Function) {
-    return h(SlottedWidget, [
+    return h(SlottedWidget, { attrs: { slot: 'adapter-actions' } }, [
       h('span', { attrs: { slot: 'label' } }, 'LIGHT_SLOT_MARKER'),
     ]);
   },
@@ -43,6 +43,7 @@ testAdapterConformance({
             }
           ) as Promise<string>;
         },
+        hostSlot: 'adapter-actions',
         shadowMarker: 'SHADOW_SLOT_MARKER',
         lightMarker: 'LIGHT_SLOT_MARKER',
       },

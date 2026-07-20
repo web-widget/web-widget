@@ -5,7 +5,8 @@ import {
   generateHydrationScript,
   renderToStream,
   renderToStringAsync,
-  resolveSSRNode,
+  ssr,
+  ssrElement,
 } from 'solid-js/web';
 import { createWidgetAdapter } from './components';
 export type {
@@ -15,11 +16,14 @@ export type {
   WidgetContainerOptions,
 } from './components';
 
-async function resolveSSRChildren(value: unknown): Promise<string> {
-  return resolveSSRNode(await value);
-}
-
-export const widget = createWidgetAdapter(resolveSSRChildren);
+// Solid must create the host and its light DOM itself so nested widgets retain
+// their hydration keys; only the rendered Shadow content is injected as raw SSR.
+export const widget = createWidgetAdapter(
+  undefined,
+  (localName, attributes, children) =>
+    ssrElement(localName, attributes, children, true),
+  (html) => ssr(html)
+);
 
 // Each independently recoverable widget needs the same event queue and
 // hydration registry bootstrap that Solid normally emits at document level.

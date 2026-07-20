@@ -64,9 +64,7 @@ export default function Page() {
               Solid title
             </h3>
             <p class="shadow-slot-content">Projected from Solid.</p>
-            <div slot="actions">
-              <SolidCounter count={0} />
-            </div>
+            <SolidCounter count={0} slot="actions" />
           </SlotPanel>
         </div>
       </section>

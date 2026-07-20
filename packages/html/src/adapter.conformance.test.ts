@@ -26,9 +26,11 @@ testAdapterConformance({
         async render() {
           const result = await SlottedWidget({
             children: html`<span slot="label">${LIGHT_MARKER}</span>`,
+            slot: 'adapter-actions',
           });
           return result.toString();
         },
+        hostSlot: 'adapter-actions',
         shadowMarker: SHADOW_MARKER,
         lightMarker: LIGHT_MARKER,
       },

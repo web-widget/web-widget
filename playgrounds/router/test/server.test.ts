@@ -165,6 +165,10 @@ describe('production server (pnpm build && node server.js)', () => {
       const visibleHtml = html
         .replace(/<!--.*?-->/gs, '')
         .replace(/\\x3C!--.*?-->/g, '');
+      const protocolHtml = html
+        .replace(/\\x3C/g, '<')
+        .replace(/\\x3E/g, '>')
+        .replace(/\\"/g, '"');
       const { linkedCss } = await collectRouteCss(html, server!.origin);
       const hostHtml = html.match(
         new RegExp(
@@ -180,6 +184,8 @@ describe('production server (pnpm build && node server.js)', () => {
         hostHtml?.indexOf('</template>') ?? -1
       );
       expect(hostHtml).toContain(`Projected from ${label}.`);
+      expect(protocolHtml).toMatch(/<web-widget[^>]*\sslot="actions"/);
+      expect(protocolHtml).not.toContain('&quot;slot&quot;');
       expect(visibleHtml).toContain(actionText);
       expect(hostHtml).toContain('slot-panel__header');
       expect(hostHtml).toContain('--slot-panel-accent');

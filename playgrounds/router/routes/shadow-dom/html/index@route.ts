@@ -59,7 +59,7 @@ export default defineRouteComponent(function Page() {
                 HTML title
               </h3>
               <p class="shadow-slot-content">Projected from HTML.</p>
-              <div slot="actions">${ReactCounter({ count: 0 })}</div>`,
+              ${ReactCounter({ count: 0, slot: 'actions' })}`,
             widget: { id: 'html-slot-panel' },
           })}
         </div>

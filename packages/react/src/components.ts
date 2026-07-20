@@ -6,6 +6,7 @@ import type {
   ExtractWidgetProps,
   WidgetContainerOptions,
   WidgetContainerProps,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
@@ -203,7 +204,7 @@ export function resolveFallback(
   };
 }
 
-export interface ReactWidgetProps {
+export interface ReactWidgetProps extends WidgetHostProps {
   children?: ReactNode;
   /** Container configuration, isolated from widget's own props */
   widget?: ReactWidgetContainerProps;
@@ -282,6 +283,7 @@ export function createWidgetAdapter(
   ) {
     return memo(function ReactWidget({
       children,
+      slot,
       widget: {
         fallback,
         id,
@@ -319,6 +321,7 @@ export function createWidgetAdapter(
               renderChildren,
               ...renderOptions,
               renderTarget: options.renderTarget,
+              slot,
             }),
           }),
         })

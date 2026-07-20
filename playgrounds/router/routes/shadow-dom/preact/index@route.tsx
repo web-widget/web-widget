@@ -64,9 +64,7 @@ export default function Page() {
               Preact title
             </h3>
             <p class="shadow-slot-content">Projected from Preact.</p>
-            <div slot="actions">
-              <PreactCounter count={0} />
-            </div>
+            <PreactCounter count={0} slot="actions" />
           </SlotPanel>
         </div>
       </section>

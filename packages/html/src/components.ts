@@ -5,6 +5,7 @@ import type {
   SerializableObject,
   WidgetContainerOptions,
   WidgetContainerProps,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import { unsafeHTML, suspense, fallback, HTML } from './html';
@@ -21,12 +22,13 @@ export type HtmlWidgetContainerProps = WidgetContainerProps<
  * Props accepted by an HTML widget component.
  * Widget's own data props are spread directly, `widget` holds container config.
  */
-export type HtmlWidgetProps<T = unknown> = T & {
-  /** Content preserved in the Widget host light DOM for native Shadow DOM slots. */
-  children?: HTML;
-  /** Container configuration, isolated from widget's own props */
-  widget?: HtmlWidgetContainerProps;
-};
+export type HtmlWidgetProps<T = unknown> = T &
+  WidgetHostProps & {
+    /** Content preserved in the Widget host light DOM for native Shadow DOM slots. */
+    children?: HTML;
+    /** Container configuration, isolated from widget's own props */
+    widget?: HtmlWidgetContainerProps;
+  };
 
 export type HtmlWidgetComponent<T = unknown> = (
   props?: HtmlWidgetProps<T>
@@ -104,6 +106,7 @@ export function widget(
   return async function HtmlWidget<T>(
     {
       children,
+      slot,
       widget: { id, loading, serverOnly, clientOnly, fallback: fb } = {},
       ...data
     }: HtmlWidgetProps<T> = {} as HtmlWidgetProps<T>
@@ -125,6 +128,7 @@ export function widget(
       data: data as SerializableObject,
       ...renderOptions,
       renderTarget: options.renderTarget,
+      slot,
     });
 
     if (fb) {

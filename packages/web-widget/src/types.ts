@@ -4,6 +4,7 @@ import type {
   SerializableObject,
   ServerWidgetModule,
   WidgetContainerOptions,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import type { Timeouts } from './container';
@@ -35,7 +36,8 @@ export interface WebWidgetElementOptions extends Pick<
 
 export type WebWidgetElementProps = WebWidgetElementOptions;
 
-export interface WebWidgetRendererOptions extends WidgetContainerOptions {
+export interface WebWidgetRendererOptions
+  extends WidgetContainerOptions, WidgetHostProps {
   base?: string;
   children?: string;
   data?: SerializableObject;

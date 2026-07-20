@@ -3,6 +3,7 @@ import type {
   ExtractWidgetProps,
   WidgetContainerOptions,
   WidgetContainerProps,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
@@ -16,7 +17,7 @@ export { asReactWidget, toReact } from './as-react-widget';
  * A Vue2 component wrapping a widget, with props `T` plus container config.
  */
 export type VueWidgetComponent<T = unknown> = DefineComponent<
-  T & { widget?: Vue2WidgetContainerProps }
+  T & WidgetHostProps & { widget?: Vue2WidgetContainerProps }
 >;
 
 /**
@@ -123,12 +124,15 @@ export function createWidgetAdapter(
               : options.renderStage,
         };
 
-        const data = useAttrs() as WebWidgetRendererOptions['data'];
+        const attrs = { ...useAttrs() };
+        const slot = typeof attrs.slot === 'string' ? attrs.slot : undefined;
+        delete attrs.slot;
         const rendererOptions = {
           ...options,
-          data,
+          data: attrs as WebWidgetRendererOptions['data'],
           ...renderOptions,
           renderTarget: options.renderTarget,
+          slot,
         };
         const createWidget = (children = '') =>
           new WebWidgetRenderer(loader, {

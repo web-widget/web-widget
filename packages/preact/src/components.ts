@@ -6,6 +6,7 @@ import type {
   ExtractWidgetProps,
   WidgetContainerOptions,
   WidgetContainerProps,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
@@ -15,7 +16,11 @@ export type PreactWidgetContainerProps =
   WidgetContainerProps<ComponentChildren>;
 
 export type PreactWidgetComponent<T = unknown> = ComponentType<
-  T & { children?: ComponentChildren; widget?: PreactWidgetContainerProps }
+  T &
+    WidgetHostProps & {
+      children?: ComponentChildren;
+      widget?: PreactWidgetContainerProps;
+    }
 >;
 
 function resolveFallback(fallback: PreactWidgetContainerProps['fallback']) {
@@ -162,7 +167,12 @@ export function createWidgetAdapter(
     loader: WidgetModuleLoader,
     options: WebWidgetRendererOptions = {}
   ) {
-    return memo(function PreactWidget({ children, widget = {}, ...data }: any) {
+    return memo(function PreactWidget({
+      children,
+      slot,
+      widget = {},
+      ...data
+    }: any) {
       const { pending, error } = resolveFallback(widget.fallback);
       const renderOptions = {
         id: widget.id,
@@ -180,12 +190,14 @@ export function createWidgetAdapter(
           data,
           ...renderOptions,
           renderTarget: options.renderTarget,
+          slot,
         }),
         [
           data,
           renderOptions.id,
           renderOptions.loading,
           renderOptions.renderStage,
+          slot,
         ]
       );
       return createElement(

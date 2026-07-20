@@ -163,6 +163,12 @@ export interface WidgetContainerOptions {
   renderTarget?: 'light' | 'shadow';
 }
 
+/** Standard attributes applied to the generated Web Widget host element. */
+export interface WidgetHostProps {
+  /** Assign this widget host to a native Shadow DOM slot. */
+  slot?: string;
+}
+
 /** Per-use props passed through a framework widget container. */
 export type WidgetContainerProps<TPending = never, TError = TPending> = {
   /** ID assigned to this Web Widget element instance. */

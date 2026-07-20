@@ -63,7 +63,7 @@ defineOptions({ meta: defineMeta({ title: 'Vue 3 Shadow DOM route' }) });
           <template #default>
             <h3 class="shadow-slot-title" :slot="'title'">Vue 3 title</h3>
             <p class="shadow-slot-content">Projected from Vue 3.</p>
-            <div :slot="'actions'"><Vue3Counter :count="0" /></div>
+            <Vue3Counter :count="0" :slot="'actions'" />
           </template>
         </SlotPanel>
       </div>

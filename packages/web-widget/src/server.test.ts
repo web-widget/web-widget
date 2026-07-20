@@ -51,6 +51,24 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
     expect(renderId).to.equal('account-summary');
   });
 
+  it('serializes the native slot attribute on the widget host', async () => {
+    const renderer = new WebWidgetRenderer(
+      async () => ({
+        default: {},
+        render: async () => '<p>action</p>',
+      }),
+      {
+        import: '/assets/action.js',
+        renderStage: 'server',
+        slot: 'actions',
+      }
+    );
+
+    const html = await renderer.renderOuterHTMLToString();
+
+    expect(html).to.match(/<web-widget[^>]*\sslot="actions"/);
+  });
+
   it('serializes app HTML once inside a declarative shadow mount root', async () => {
     const renderer = new WebWidgetRenderer(
       async () => ({

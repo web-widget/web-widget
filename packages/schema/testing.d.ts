@@ -37,6 +37,7 @@ export interface ServerConformanceFixture<Component, Data> {
   progressive: 'stream' | 'buffered' | 'none';
   slots?: {
     render(): Awaitable<string>;
+    hostSlot: string;
     shadowMarker: string;
     lightMarker: string;
   };

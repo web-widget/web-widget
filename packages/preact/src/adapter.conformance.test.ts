@@ -13,7 +13,11 @@ const SlottedWidget = server.widget(
   { import: '/slotted-widget.js', renderTarget: 'shadow' }
 );
 const SlotComponent = () =>
-  h(SlottedWidget, null, h('span', { slot: 'label' }, 'LIGHT_SLOT_MARKER'));
+  h(
+    SlottedWidget,
+    { slot: 'adapter-actions' },
+    h('span', { slot: 'label' }, 'LIGHT_SLOT_MARKER')
+  );
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -34,6 +38,7 @@ testAdapterConformance({
             }
           ) as Promise<string>;
         },
+        hostSlot: 'adapter-actions',
         shadowMarker: 'SHADOW_SLOT_MARKER',
         lightMarker: 'LIGHT_SLOT_MARKER',
       },

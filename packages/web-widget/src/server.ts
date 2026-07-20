@@ -171,6 +171,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       return unsafePropsToAttrs({
         id: this.#id,
         name: options.name,
+        slot: options.slot,
       });
     }
 
