@@ -182,3 +182,19 @@
   background: transparent;
   box-shadow: inset 4px 0 0 currentColor;
 }
+
+/* --- Shadow DOM slot example --- */
+.shadow-slot-example {
+  max-width: 620px;
+}
+
+.shadow-slot-title {
+  margin: 0 !important;
+  color: var(--sk-red);
+  font-family: Georgia, serif;
+  font-size: 1.15rem !important;
+}
+
+.shadow-slot-content {
+  margin: 0 !important;
+}

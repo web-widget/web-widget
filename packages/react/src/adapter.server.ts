@@ -9,6 +9,7 @@ import {
   type ReactDOMServerReadableStream,
   type RenderToStringOptions,
 } from './edge';
+import { createWidgetAdapter } from './components';
 
 declare module '@web-widget/schema' {
   interface ServerRenderOptions {
@@ -16,7 +17,19 @@ declare module '@web-widget/schema' {
   }
 }
 
-export * from './components';
+export { resolveFallback } from './components';
+export type {
+  ReactWidgetComponent,
+  ReactWidgetContainerProps,
+  ReactWidgetFactory,
+  ReactWidgetProps,
+  WebWidgetProps,
+  WidgetContainerOptions,
+} from './components';
+
+export const widget = createWidgetAdapter((children) =>
+  renderToString(children, {})
+);
 
 type StreamOptions = {
   awaitAllReady?: boolean;

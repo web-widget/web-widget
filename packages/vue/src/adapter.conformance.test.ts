@@ -8,6 +8,19 @@ const Component = defineComponent({
   props: { message: { type: String, required: true } },
   setup: (props) => () => h('p', props.message),
 });
+const SlottedWidget = server.widget(
+  async () => ({
+    default: {},
+    render: async () => '<slot name="label">SHADOW_SLOT_MARKER</slot>',
+  }),
+  { import: '/slotted-widget.js', renderTarget: 'shadow' }
+);
+const SlotComponent = defineComponent({
+  setup: () => () =>
+    h(SlottedWidget, null, {
+      default: () => h('span', { slot: 'label' }, 'LIGHT_SLOT_MARKER'),
+    }),
+});
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -18,6 +31,19 @@ testAdapterConformance({
       component: Component,
       data: { message: 'Hello' },
       progressive: 'stream',
+      slots: {
+        async render() {
+          return server.render(
+            SlotComponent,
+            {},
+            {
+              progressive: false,
+            }
+          ) as Promise<string>;
+        },
+        shadowMarker: 'SHADOW_SLOT_MARKER',
+        lightMarker: 'LIGHT_SLOT_MARKER',
+      },
       assertRendered(_result, { text }) {
         expect(text).toContain('<p>Hello</p>');
       },

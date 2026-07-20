@@ -71,4 +71,27 @@ describe('widget', () => {
       '<web-widget-pending aria-busy="true" style="display:contents"><div>pending</div></web-widget-pending>'
     );
   });
+
+  test('renders children as light DOM for a shadow Widget', async () => {
+    const Widget = widget(
+      async () => ({
+        default: {},
+        render: async () => '<section><slot name="title"></slot></section>',
+      }),
+      {
+        import: '/Panel@widget.js',
+        renderTarget: 'shadow',
+      }
+    );
+    const result = await Widget({
+      children: html`<h2 slot="title">Account summary</h2>`,
+    });
+    const output = result.toString();
+
+    expect(output).toContain('<template shadowrootmode="open">');
+    expect(output).toContain(
+      '</template><h2 slot="title">Account summary</h2>'
+    );
+    expect(output).not.toContain('contextdata');
+  });
 });

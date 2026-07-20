@@ -109,8 +109,36 @@
       "module": "./routes/server-action/index@route.tsx"
     },
     {
-      "pathname": "/shadow-dom-ssr",
-      "module": "./routes/shadow-dom-ssr@route.tsx"
+      "pathname": "/shadow-dom",
+      "module": "./routes/shadow-dom/index@route.tsx"
+    },
+    {
+      "pathname": "/shadow-dom/html",
+      "module": "./routes/shadow-dom/html/index@route.ts"
+    },
+    {
+      "pathname": "/shadow-dom/preact",
+      "module": "./routes/shadow-dom/preact/index@route.tsx"
+    },
+    {
+      "pathname": "/shadow-dom/react",
+      "module": "./routes/shadow-dom/react/index@route.tsx"
+    },
+    {
+      "pathname": "/shadow-dom/solid",
+      "module": "./routes/shadow-dom/solid/index@route.tsx"
+    },
+    {
+      "pathname": "/shadow-dom/svelte",
+      "module": "./routes/shadow-dom/svelte/index@route.svelte"
+    },
+    {
+      "pathname": "/shadow-dom/vue2",
+      "module": "./routes/(vue2)/shadow-dom/vue2/index@route.vue"
+    },
+    {
+      "pathname": "/shadow-dom/vue3",
+      "module": "./routes/(vue3)/shadow-dom/vue3/index@route.vue"
     },
     {
       "pathname": "/streaming/html",

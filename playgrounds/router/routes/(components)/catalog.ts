@@ -24,6 +24,7 @@ export interface NavigationGroup {
   name:
     | 'Frameworks'
     | 'Streaming'
+    | 'Shadow DOM'
     | 'Features'
     | 'Interoperability'
     | 'Integrations'
@@ -149,6 +150,16 @@ export const frameworks: FrameworkDefinition[] = [
   },
 ];
 
+export const shadowDomFrameworks = frameworks
+  .filter((framework): framework is FrameworkDefinition & { href: string } =>
+    Boolean(framework.href)
+  )
+  .map(({ id, name }) => ({
+    id,
+    name,
+    href: `/shadow-dom/${id}`,
+  }));
+
 export const navigation: NavigationGroup[] = [
   {
     name: 'Frameworks',
@@ -238,13 +249,24 @@ export const navigation: NavigationGroup[] = [
     ],
   },
   {
-    name: 'Features',
+    name: 'Shadow DOM',
     items: [
       {
-        href: '/shadow-dom-ssr',
-        title: 'Shadow DOM SSR',
-        description: 'Opt one Widget into an isolated declarative shadow root.',
+        href: '/shadow-dom',
+        title: 'Overview',
+        description:
+          'Explore isolated rendering across every supported route framework.',
       },
+      ...shadowDomFrameworks.map(({ href, name }) => ({
+        href,
+        title: name,
+        description: `${name} route rendering Widgets in Shadow DOM.`,
+      })),
+    ],
+  },
+  {
+    name: 'Features',
+    items: [
       {
         href: '/client-only-component',
         title: 'Client-only rendering',

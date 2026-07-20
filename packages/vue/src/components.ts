@@ -8,14 +8,15 @@ import type {
 import { WebWidgetRenderer } from '@web-widget/web-widget';
 import {
   h,
+  cloneVNode,
   defineComponent,
   Suspense,
   useAttrs,
+  getCurrentInstance,
   ref,
   onErrorCaptured,
 } from 'vue';
 import type { DefineComponent, VNode, PropType } from 'vue';
-import { IS_CLIENT } from '@web-widget/helpers/env';
 export type { WidgetContainerOptions } from '@web-widget/schema';
 
 export { asReactWidget, toReact } from './as-react-widget';
@@ -23,6 +24,8 @@ export { asReactWidget, toReact } from './as-react-widget';
 type RendererProp<K extends keyof WebWidgetRendererOptions> = PropType<
   WebWidgetRendererOptions[K]
 >;
+
+type RenderChildren = (nodes: VNode[], parent: unknown) => Promise<string>;
 
 /**
  * A Vue component wrapping a widget, with props `T` plus container config.
@@ -85,19 +88,32 @@ const WebWidget = /*#__PURE__*/ defineComponent({
       type: String as RendererProp<'renderTarget'>,
       default: 'light',
     },
+    renderChildren: {
+      type: Function as PropType<RenderChildren>,
+    },
   },
-  async setup({ loader, errorFallback, ...props }, { slots }) {
+  async setup({ loader, errorFallback, renderChildren, ...props }, { slots }) {
     if (!loader) {
       throw new TypeError(`Missing loader.`);
     }
 
-    if (Object.keys(slots).length > 0) {
-      throw new TypeError(`Slot not supported.`);
-    }
+    const renderLightChildren = () =>
+      Object.entries(slots).flatMap(([name, render]) =>
+        render
+          ? render().map((node) =>
+              name === 'default' ? node : cloneVNode(node, { slot: name })
+            )
+          : []
+      );
+    const parent = getCurrentInstance()!;
+    const children =
+      renderChildren && Object.keys(slots).length
+        ? await renderChildren(renderLightChildren(), parent)
+        : '';
 
     const widget = new WebWidgetRenderer(loader, {
       ...props,
-      children: '',
+      children,
     });
     const tag = widget.localName;
     const attrs = widget.attributes;
@@ -120,7 +136,7 @@ const WebWidget = /*#__PURE__*/ defineComponent({
       return () => errorFallback;
     }
 
-    if (IS_CLIENT) {
+    if (!renderChildren) {
       await customElements.whenDefined(tag);
     }
 
@@ -130,10 +146,14 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     return () => {
       const nodeProps = {
         ...attrs,
-        ...(IS_CLIENT ? { '^data': data } : { data }),
-        ...(!IS_CLIENT ? { innerHTML } : null),
+        ...(!renderChildren ? { '^data': data } : { data }),
+        ...(renderChildren ? { innerHTML } : null),
       };
-      return h(tag, nodeProps);
+      return h(
+        tag,
+        nodeProps,
+        renderChildren ? undefined : renderLightChildren()
+      );
     };
   },
 });
@@ -183,101 +203,108 @@ export function resolveFallback(
  * //    ^? VueWidgetComponent<{ count: number }>
  * ```
  */
-export function widget<M>(
-  loader: () => Promise<M>,
-  options?: WidgetContainerOptions
-): VueWidgetComponent<ExtractWidgetProps<M>>;
-export function widget<Props>(
-  loader: WidgetModuleLoader,
-  options?: WidgetContainerOptions
-): VueWidgetComponent<Props>;
-export function widget(
-  loader: WidgetModuleLoader,
-  options: WebWidgetRendererOptions = {}
-) {
-  return defineComponent({
-    name: 'VueWidget',
-    inheritAttrs: false,
-    props: {
-      widget: {
-        type: Object as PropType<VueWidgetContainerProps>,
-        default: () => ({}),
+export interface VueWidgetFactory {
+  <M>(
+    loader: () => Promise<M>,
+    options?: WidgetContainerOptions
+  ): VueWidgetComponent<ExtractWidgetProps<M>>;
+  <Props>(
+    loader: WidgetModuleLoader,
+    options?: WidgetContainerOptions
+  ): VueWidgetComponent<Props>;
+}
+
+export function createWidgetAdapter(
+  renderChildren?: RenderChildren
+): VueWidgetFactory {
+  return ((
+    loader: WidgetModuleLoader,
+    options: WebWidgetRendererOptions = {}
+  ) =>
+    defineComponent({
+      name: 'VueWidget',
+      inheritAttrs: false,
+      props: {
+        widget: {
+          type: Object as PropType<VueWidgetContainerProps>,
+          default: () => ({}),
+        },
       },
-    },
-    setup({ widget }, { slots }) {
-      const {
-        fallback,
-        id,
-        loading = options.loading,
-        serverOnly,
-        clientOnly,
-      } = widget;
-      const { pendingFallback, errorFallback } = resolveFallback(fallback);
-      const renderOptions = {
-        id,
-        loading: loading ?? options.loading,
-        renderStage: serverOnly
-          ? ('server' as const)
-          : clientOnly
-            ? ('client' as const)
-            : options.renderStage,
-      };
-      const data = useAttrs() as WebWidgetRendererOptions['data'];
+      setup({ widget }, { slots }) {
+        const {
+          fallback,
+          id,
+          loading = options.loading,
+          serverOnly,
+          clientOnly,
+        } = widget;
+        const { pendingFallback, errorFallback } = resolveFallback(fallback);
+        const renderOptions = {
+          id,
+          loading: loading ?? options.loading,
+          renderStage: serverOnly
+            ? ('server' as const)
+            : clientOnly
+              ? ('client' as const)
+              : options.renderStage,
+        };
+        const data = useAttrs() as WebWidgetRendererOptions['data'];
 
-      if (clientOnly && !IS_CLIENT && pendingFallback) {
-        const renderer = new WebWidgetRenderer(loader, {
-          ...options,
-          children: '',
-          data,
-          ...renderOptions,
-          renderTarget: options.renderTarget,
-        });
-        return () =>
-          h(
-            renderer.localName,
-            renderer.attributes,
+        if (clientOnly && renderChildren && pendingFallback) {
+          const renderer = new WebWidgetRenderer(loader, {
+            ...options,
+            children: '',
+            data,
+            ...renderOptions,
+            renderTarget: options.renderTarget,
+          });
+          return () =>
             h(
-              'div',
-              {
-                'aria-busy': String(renderer.pendingBoundary.ariaBusy),
-                slot: renderer.pendingBoundary.slot,
-                style: { display: renderer.pendingBoundary.display },
-              },
-              pendingFallback
-            )
-          );
-      }
-
-      const error = ref<unknown>(null);
-      onErrorCaptured((err) => {
-        error.value = err;
-        return false;
-      });
-
-      return () => {
-        if (error.value && errorFallback) {
-          return errorFallback;
+              renderer.localName,
+              renderer.attributes,
+              h(
+                'div',
+                {
+                  'aria-busy': String(renderer.pendingBoundary.ariaBusy),
+                  slot: renderer.pendingBoundary.slot,
+                  style: { display: renderer.pendingBoundary.display },
+                },
+                pendingFallback
+              )
+            );
         }
-        return h(
-          Suspense,
-          {},
-          {
-            default: h(
-              WebWidget,
-              {
-                ...options,
-                data,
-                errorFallback,
-                loader,
-                ...renderOptions,
-                renderTarget: options.renderTarget,
-              },
-              slots
-            ),
-            fallback: pendingFallback,
+
+        const error = ref<unknown>(null);
+        onErrorCaptured((err) => {
+          error.value = err;
+          return false;
+        });
+
+        return () => {
+          if (error.value && errorFallback) {
+            return errorFallback;
           }
-        );
-      };
-    },
-  }) as unknown as VueWidgetComponent<any>;
+          return h(
+            Suspense,
+            {},
+            {
+              default: h(
+                WebWidget,
+                {
+                  ...options,
+                  data,
+                  errorFallback,
+                  loader,
+                  renderChildren,
+                  ...renderOptions,
+                  renderTarget: options.renderTarget,
+                },
+                slots
+              ),
+              fallback: pendingFallback,
+            }
+          );
+        };
+      },
+    })) as unknown as VueWidgetFactory;
 }

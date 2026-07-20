@@ -3,10 +3,12 @@ import { type Component, createSSRApp, h, Suspense } from 'vue';
 import {
   renderToString,
   renderToWebStream,
+  ssrRenderVNode,
   type SSRContext,
 } from 'vue/server-renderer';
 import type { CreateVueRenderOptions } from './types';
 import errorHandler from './error-handler';
+import { createWidgetAdapter } from './components';
 
 declare module '@web-widget/schema' {
   interface ServerRenderOptions {
@@ -14,7 +16,31 @@ declare module '@web-widget/schema' {
   }
 }
 
-export * from './components';
+export { asReactWidget, resolveFallback, toReact } from './components';
+export type {
+  VueWidgetComponent,
+  VueWidgetContainerProps,
+  VueWidgetFactory,
+  WidgetContainerOptions,
+} from './components';
+
+async function resolveSSRBuffer(value: unknown): Promise<string> {
+  const resolved = await value;
+  if (Array.isArray(resolved)) {
+    let html = '';
+    for (const item of resolved) html += await resolveSSRBuffer(item);
+    return html;
+  }
+  return typeof resolved === 'string' ? resolved : '';
+}
+
+export const widget = createWidgetAdapter(async (nodes, parent) => {
+  const buffer: unknown[] = [];
+  for (const node of nodes) {
+    ssrRenderVNode((item) => buffer.push(item), node, parent as any);
+  }
+  return resolveSSRBuffer(buffer);
+});
 
 // Helper function to create the WidgetSuspense component
 const createWidgetSuspense = (component: Component) => (props: any) =>

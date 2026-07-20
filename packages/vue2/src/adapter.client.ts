@@ -4,7 +4,16 @@ import type { Component } from 'vue';
 import Vue from 'vue';
 import type { CreateVueRenderOptions } from './types';
 
-export * from './components';
+export { asReactWidget, toReact } from './components';
+export type {
+  Vue2WidgetContainerProps,
+  Vue2WidgetFactory,
+  VueWidgetComponent,
+  WidgetContainerOptions,
+} from './components';
+import { createWidgetAdapter } from './components';
+
+export const widget = createWidgetAdapter();
 
 type EnhancedComponent = Component & {
   __name?: string;

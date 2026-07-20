@@ -2,7 +2,7 @@
 import { defineRouteHandler } from '@web-widget/helpers';
 import { widget } from '@web-widget/preact/adapter';
 import '~/routes/(css)/demo-states.css';
-import Layout from '~/routes/frameworks/preact/Layout';
+import Layout from '~/routes/(components)/preact/Layout';
 import PageHeader from './PageHeader';
 import Section from './Section';
 

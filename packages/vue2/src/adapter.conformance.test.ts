@@ -9,6 +9,20 @@ const Component = {
     return h('p', this.message);
   },
 };
+const SlottedWidget = server.widget(
+  async () => ({
+    default: {},
+    render: async () => '<slot name="label">SHADOW_SLOT_MARKER</slot>',
+  }),
+  { import: '/slotted-widget.js', renderTarget: 'shadow' }
+);
+const SlotComponent = {
+  render(h: Function) {
+    return h(SlottedWidget, [
+      h('span', { attrs: { slot: 'label' } }, 'LIGHT_SLOT_MARKER'),
+    ]);
+  },
+};
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -19,6 +33,19 @@ testAdapterConformance({
       component: Component,
       data: { message: 'Hello' },
       progressive: 'buffered',
+      slots: {
+        async render() {
+          return server.render(
+            SlotComponent,
+            {},
+            {
+              progressive: false,
+            }
+          ) as Promise<string>;
+        },
+        shadowMarker: 'SHADOW_SLOT_MARKER',
+        lightMarker: 'LIGHT_SLOT_MARKER',
+      },
       assertRendered(_result, { text }) {
         expect(text).toContain('<p');
         expect(text).toContain('Hello');

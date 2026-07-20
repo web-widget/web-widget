@@ -3,14 +3,14 @@ import { widget } from '@web-widget/html/adapter';
 import { defineRouteComponent } from '@web-widget/helpers';
 import { htmlLayout } from './(components)/HtmlLayout';
 
-const ReactCounter = widget(() => import('./frameworks/react/Counter@widget'));
+const ReactCounter = widget(
+  () => import('~/routes/(components)/react/Counter@widget')
+);
 const Vue3Counter = widget(
-  () =>
-    import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
+  () => import('~/routes/(vue3)/(components)/Vue3Counter@widget.vue')
 );
 const Vue2Counter = widget(
-  () =>
-    import('@playgrounds/web-router-vue2/frameworks/vue2/Counter@widget.vue')
+  () => import('~/routes/(vue2)/(components)/Vue2Counter@widget.vue')
 );
 export default defineRouteComponent(async function Page() {
   return htmlLayout(

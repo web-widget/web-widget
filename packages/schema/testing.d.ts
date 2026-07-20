@@ -6,6 +6,11 @@ export interface ConformanceExpect {
   (actual: unknown): {
     toBe(expected: unknown): void;
     toBeInstanceOf(expected: Function): void;
+    toBeGreaterThan(expected: number): void;
+    toBeGreaterThanOrEqual(expected: number): void;
+    toBeLessThan(expected: number): void;
+    toContain(expected: unknown): void;
+    not: { toContain(expected: unknown): void };
     rejects: { toThrow(expected?: unknown): Promise<void> };
   };
 }
@@ -30,6 +35,11 @@ export interface ServerConformanceFixture<Component, Data> {
   component: Component;
   data: Data;
   progressive: 'stream' | 'buffered' | 'none';
+  slots?: {
+    render(): Awaitable<string>;
+    shadowMarker: string;
+    lightMarker: string;
+  };
   assertRendered(
     result: ServerRenderResult,
     context: { progressive: boolean; text: string }

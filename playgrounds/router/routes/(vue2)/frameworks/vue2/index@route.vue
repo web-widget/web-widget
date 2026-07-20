@@ -12,19 +12,19 @@ import { widget } from '@web-widget/vue2/adapter';
 import BaseLayout from '~/routes/(vue2)/BaseLayout.vue';
 
 const ReactCounter = widget(
-  () => import('~/routes/frameworks/react/Counter@widget')
+  () => import('~/routes/(components)/react/Counter@widget')
 );
 const Vue3Counter = widget(
-  () => import('~/routes/(vue3)/frameworks/vue3/Counter@widget.vue')
+  () => import('~/routes/(vue3)/(components)/Vue3Counter@widget.vue')
 );
 const SvelteCounter = widget(
-  () => import('~/routes/frameworks/svelte/Counter@widget.svelte')
+  () => import('~/routes/(components)/svelte/Counter@widget.svelte')
 );
 const SolidCounter = widget(
-  () => import('~/routes/frameworks/solid/Counter@widget')
+  () => import('~/routes/(components)/solid/Counter@widget')
 );
 const PreactCounter = widget(
-  () => import('~/routes/frameworks/preact/Counter@widget')
+  () => import('~/routes/(components)/preact/Counter@widget')
 );
 const WebComponentCounter = widget<{ count?: number }>(
   () => import('~/routes/(components)/WebComponentCounter@widget.wc')

@@ -28,7 +28,14 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/streaming/vue3/shell-error', 500],
   ['/streaming/solid/shell-error', 500],
   ['/streaming/preact/shell-error', 500],
-  ['/shadow-dom-ssr'],
+  ['/shadow-dom'],
+  ['/shadow-dom/react'],
+  ['/shadow-dom/html'],
+  ['/shadow-dom/vue3'],
+  ['/shadow-dom/vue2'],
+  ['/shadow-dom/svelte'],
+  ['/shadow-dom/solid'],
+  ['/shadow-dom/preact'],
   // Streaming routes (/streaming/*) are verified in
   // streaming.test.ts — their DOM structure is non-deterministic.
   ['/large-css'],

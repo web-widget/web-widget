@@ -2,7 +2,15 @@ import { defineClientRender } from '@web-widget/helpers';
 import type { Component } from 'solid-js';
 import { createComponent, sharedConfig } from 'solid-js';
 import { hydrate, render as renderComponent } from 'solid-js/web';
-export * from './components';
+export type {
+  SolidWidgetComponent,
+  SolidWidgetContainerProps,
+  SolidWidgetFactory,
+  WidgetContainerOptions,
+} from './components';
+import { createWidgetAdapter } from './components';
+
+export const widget = createWidgetAdapter();
 
 interface SolidHydrationRuntime {
   completed: WeakSet<Node>;

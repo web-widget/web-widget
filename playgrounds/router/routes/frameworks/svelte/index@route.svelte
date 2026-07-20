@@ -9,14 +9,14 @@
   import Layout from './Layout.svelte';
 
   const Vue2Counter = widget(
-    () => import('@playgrounds/web-router-vue2/frameworks/vue2/Counter@widget.vue')
+    () => import('~/routes/(vue2)/(components)/Vue2Counter@widget.vue')
   );
-  const ReactCounter = widget(() => import('../react/Counter@widget'));
+  const ReactCounter = widget(() => import('~/routes/(components)/react/Counter@widget'));
   const Vue3Counter = widget(
-    () => import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
+    () => import('~/routes/(vue3)/(components)/Vue3Counter@widget.vue')
   );
-  const SolidCounter = widget(() => import('../solid/Counter@widget'));
-  const PreactCounter = widget(() => import('../preact/Counter@widget'));
+  const SolidCounter = widget(() => import('~/routes/(components)/solid/Counter@widget'));
+  const PreactCounter = widget(() => import('~/routes/(components)/preact/Counter@widget'));
   const WebComponentCounter = widget<{ count?: number }>(
     () => import('~/routes/(components)/WebComponentCounter@widget.wc')
   );

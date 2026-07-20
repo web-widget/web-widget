@@ -17,9 +17,13 @@ vi.mock('@web-widget/helpers/state', () => ({
 vi.mock('@web-widget/web-widget', () => ({
   WebWidgetRenderer: class {
     localName = 'web-widget';
-    attributes: Record<string, string> = {};
+    attributes: Record<string, string> = { id: 'slot-conformance' };
+    options: { children?: string };
+    constructor(_loader: unknown, options: { children?: string }) {
+      this.options = options;
+    }
     async renderInnerHTMLToString() {
-      return '';
+      return `<template shadowrootmode="open"><slot name="label">SHADOW_SLOT_MARKER</slot></template>${this.options.children ?? ''}`;
     }
   },
 }));
@@ -31,15 +35,28 @@ vi.mock('./edge', async () => {
     );
   return {
     renderToReadableStream: ReactDOMServer.renderToReadableStream,
-    renderToString: (
+    renderToString: async (
       node: React.ReactNode,
       options: Parameters<typeof ReactDOMServer.renderToString>[1]
-    ) => ReactDOMServer.renderToString(node, options),
+    ) => {
+      const stream = await ReactDOMServer.renderToReadableStream(node, options);
+      await stream.allReady;
+      return new Response(stream).text();
+    },
   };
 });
 
 const ConformanceComponent = ({ message }: { message: string }) =>
   createElement('p', null, message);
+const SlottedWidget = adapter.widget(async () => ({}), {
+  renderTarget: 'shadow',
+});
+const SlotConformanceComponent = () =>
+  createElement(
+    SlottedWidget,
+    null,
+    createElement('span', { slot: 'label' }, 'LIGHT_SLOT_MARKER')
+  );
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -50,6 +67,19 @@ testAdapterConformance({
       component: ConformanceComponent as any,
       data: { message: 'Hello' },
       progressive: 'stream',
+      slots: {
+        async render() {
+          return adapter.render(
+            SlotConformanceComponent,
+            {},
+            {
+              progressive: false,
+            }
+          ) as Promise<string>;
+        },
+        shadowMarker: 'SHADOW_SLOT_MARKER',
+        lightMarker: 'LIGHT_SLOT_MARKER',
+      },
       assertRendered(_result, { text }) {
         expect(text).toContain('Hello');
       },

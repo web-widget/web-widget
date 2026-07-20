@@ -1,8 +1,18 @@
 import { defineServerRender } from '@web-widget/helpers';
-import { h, type ComponentType } from 'preact';
+import { Fragment, h, type ComponentType } from 'preact';
 import { renderToStringAsync } from 'preact-render-to-string';
 import { renderToReadableStream } from 'preact-render-to-string/stream';
-export * from './components';
+import { createWidgetAdapter } from './components';
+export type {
+  PreactWidgetComponent,
+  PreactWidgetContainerProps,
+  PreactWidgetFactory,
+  WidgetContainerOptions,
+} from './components';
+
+export const widget = createWidgetAdapter(
+  async (children) => await renderToStringAsync(h(Fragment, null, children))
+);
 
 export const render = defineServerRender<ComponentType<any>>(
   async (component, data, { progressive }) => {

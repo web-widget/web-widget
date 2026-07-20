@@ -39,7 +39,7 @@ export interface ReactWidgetComponent<T> extends FunctionComponent<
 export type WebWidgetProps = Omit<WebWidgetRendererOptions, 'children'> & {
   /** Widget module loader supplied by the generated adapter call. */
   loader: WidgetModuleLoader;
-  /** React children are rejected by the widget renderer, but kept here for the wrapper contract. */
+  /** React children preserved in the Widget host light DOM. */
   children?: ReactNode;
 };
 
@@ -53,25 +53,24 @@ interface WebWidgetElement {
     slot?: string;
   };
   attributes: Record<string, string>;
+  children?: ReactNode;
   innerHTML: Promise<string | Error>;
 }
 
 const renderWebWidget = function ({
   children,
   loader,
+  renderChildren,
   ...props
-}: WebWidgetProps): WebWidgetElement {
+}: WebWidgetProps & {
+  renderChildren?: (children: ReactNode) => Promise<string>;
+}): WebWidgetElement {
   if (!loader) {
     throw new TypeError(`Missing loader.`);
   }
 
-  if (children) {
-    throw new TypeError(`Children not supported.`);
-  }
-
   const widget = new WebWidgetRenderer(loader, {
     ...props,
-    // TODO children
     children: '',
   });
   const localName = widget.localName;
@@ -82,11 +81,23 @@ const renderWebWidget = function ({
   // inside Suspense would leave the pending fallback forever.
   // By resolving with the Error, use(innerHTML) returns it normally and
   // WebWidget can render the error UI without React abandoning the subtree.
-  const innerHTML = widget
-    .renderInnerHTMLToString()
-    .catch((err: unknown) =>
-      err instanceof Error ? err : new Error(String(err))
-    );
+  const innerHTML = (async () => {
+    if (!renderChildren) {
+      return children ? '' : widget.renderInnerHTMLToString();
+    }
+    if (!children) {
+      return widget.renderInnerHTMLToString();
+    }
+    const lightChildrenHTML = await renderChildren(children);
+    const renderer = new WebWidgetRenderer(loader, {
+      ...props,
+      children: lightChildrenHTML,
+      id: attributes.id,
+    });
+    return renderer.renderInnerHTMLToString();
+  })().catch((err: unknown) =>
+    err instanceof Error ? err : new Error(String(err))
+  );
   return {
     localName,
     pendingBoundary: widget.pendingBoundary ?? {
@@ -95,6 +106,7 @@ const renderWebWidget = function ({
       localName: 'web-widget-pending',
     },
     attributes,
+    children,
     innerHTML,
   };
 };
@@ -107,11 +119,22 @@ function WebWidget({
   errorFallback,
   pendingFallback,
   clientOnly,
+  children,
+  renderChildren,
 }: WebWidgetElement & {
   errorFallback?: ReactNode;
   pendingFallback?: ReactNode;
   clientOnly?: boolean;
+  renderChildren?: (children: ReactNode) => Promise<string>;
 }) {
+  if (!renderChildren && children) {
+    return createElement(
+      localName,
+      { ...attributes, suppressHydrationWarning: true },
+      children
+    );
+  }
+
   if (clientOnly && typeof window === 'undefined' && pendingFallback != null) {
     return createElement(
       localName,
@@ -239,58 +262,67 @@ class WidgetErrorBoundary extends Component<
  * <VueCounter count={42} />  // type-checked: ✓
  * ```
  */
-export function widget<M>(
-  loader: () => Promise<M>,
-  options?: WidgetContainerOptions
-): ReactWidgetComponent<ExtractWidgetProps<M>>;
-export function widget<Props>(
-  loader: WidgetModuleLoader,
-  options?: WidgetContainerOptions
-): ReactWidgetComponent<Props>;
-export function widget(
-  loader: WidgetModuleLoader,
-  options: WebWidgetRendererOptions = {}
-) {
-  return memo(function ReactWidget({
-    children,
-    widget: {
-      fallback,
-      id,
-      loading = options.loading,
-      serverOnly,
-      clientOnly,
-    } = {},
-    ...data
-  }: ReactWidgetProps) {
-    const renderOptions = {
-      id,
-      loading: loading ?? options.loading,
-      renderStage: serverOnly
-        ? ('server' as const)
-        : clientOnly
-          ? ('client' as const)
-          : options.renderStage,
-    };
-    const { pendingFallback, errorFallback } = resolveFallback(fallback);
-    return createElement(
-      WidgetErrorBoundary,
-      { fallback: errorFallback },
-      createElement(Suspense, {
-        fallback: pendingFallback,
-        children: createElement(WebWidget, {
-          clientOnly,
-          errorFallback,
-          pendingFallback,
-          ...renderWebWidget({
-            ...options,
-            children,
-            data,
-            loader,
-            ...renderOptions,
-            renderTarget: options.renderTarget,
+export interface ReactWidgetFactory {
+  <M>(
+    loader: () => Promise<M>,
+    options?: WidgetContainerOptions
+  ): ReactWidgetComponent<ExtractWidgetProps<M>>;
+  <Props>(
+    loader: WidgetModuleLoader,
+    options?: WidgetContainerOptions
+  ): ReactWidgetComponent<Props>;
+}
+
+export function createWidgetAdapter(
+  renderChildren?: (children: ReactNode) => Promise<string>
+): ReactWidgetFactory {
+  return function widget(
+    loader: WidgetModuleLoader,
+    options: WebWidgetRendererOptions = {}
+  ) {
+    return memo(function ReactWidget({
+      children,
+      widget: {
+        fallback,
+        id,
+        loading = options.loading,
+        serverOnly,
+        clientOnly,
+      } = {},
+      ...data
+    }: ReactWidgetProps) {
+      const renderOptions = {
+        id,
+        loading: loading ?? options.loading,
+        renderStage: serverOnly
+          ? ('server' as const)
+          : clientOnly
+            ? ('client' as const)
+            : options.renderStage,
+      };
+      const { pendingFallback, errorFallback } = resolveFallback(fallback);
+      return createElement(
+        WidgetErrorBoundary,
+        { fallback: errorFallback },
+        createElement(Suspense, {
+          fallback: pendingFallback,
+          children: createElement(WebWidget, {
+            clientOnly,
+            errorFallback,
+            pendingFallback,
+            renderChildren,
+            ...renderWebWidget({
+              ...options,
+              children,
+              data,
+              loader,
+              renderChildren,
+              ...renderOptions,
+              renderTarget: options.renderTarget,
+            }),
           }),
-        }),
-      })
-    );
-  });
+        })
+      );
+    });
+  } as ReactWidgetFactory;
 }

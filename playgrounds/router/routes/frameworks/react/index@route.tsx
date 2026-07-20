@@ -5,16 +5,20 @@ import BaseLayout from '~/routes/(components)/BaseLayout';
 import { PageHeader, Section } from '~/routes/(components)/ui';
 
 const Vue3Counter = widget(
-  () =>
-    import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
+  () => import('~/routes/(vue3)/(components)/Vue3Counter@widget.vue')
 );
 const Vue2Counter = widget(
-  () =>
-    import('@playgrounds/web-router-vue2/frameworks/vue2/Counter@widget.vue')
+  () => import('~/routes/(vue2)/(components)/Vue2Counter@widget.vue')
 );
-const SvelteCounter = widget(() => import('../svelte/Counter@widget.svelte'));
-const SolidCounter = widget(() => import('../solid/Counter@widget'));
-const PreactCounter = widget(() => import('../preact/Counter@widget'));
+const SvelteCounter = widget(
+  () => import('~/routes/(components)/svelte/Counter@widget.svelte')
+);
+const SolidCounter = widget(
+  () => import('~/routes/(components)/solid/Counter@widget')
+);
+const PreactCounter = widget(
+  () => import('~/routes/(components)/preact/Counter@widget')
+);
 const WebComponentCounter = widget<{ count?: number }>(
   () => import('~/routes/(components)/WebComponentCounter@widget.wc')
 );

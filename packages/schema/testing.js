@@ -71,6 +71,26 @@ export function testAdapterConformance({ runner, adapter }) {
           if (server.progressive === 'none') expect(text).toBe('');
           await server.assertRendered(result, { progressive: true, text });
         });
+        if (server.slots) {
+          test('preserves native slot children in Shadow DOM', async () => {
+            const text = await server.slots.render();
+            const templateStart = text.indexOf(
+              '<template shadowrootmode="open">'
+            );
+            const templateEnd = text.indexOf('</template>', templateStart);
+            const shadowMarker = text.indexOf(server.slots.shadowMarker);
+            const lightMarker = text.indexOf(server.slots.lightMarker);
+
+            expect(templateStart).toBeGreaterThanOrEqual(0);
+            expect(templateEnd).toBeGreaterThan(templateStart);
+            expect(shadowMarker).toBeGreaterThan(templateStart);
+            expect(shadowMarker).toBeLessThan(templateEnd);
+            expect(lightMarker).toBeGreaterThan(templateEnd);
+            expect(text).not.toContain(
+              `contextdata="${server.slots.lightMarker}`
+            );
+          });
+        }
       });
     }
 

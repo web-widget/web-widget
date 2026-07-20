@@ -3,8 +3,17 @@ import type { App, Component } from 'vue';
 import { Suspense, createApp, createSSRApp, h } from 'vue';
 import type { CreateVueRenderOptions } from './types';
 import errorHandler from './error-handler';
+import { createWidgetAdapter } from './components';
 
-export * from './components';
+export { asReactWidget, resolveFallback, toReact } from './components';
+export type {
+  VueWidgetComponent,
+  VueWidgetContainerProps,
+  VueWidgetFactory,
+  WidgetContainerOptions,
+} from './components';
+
+export const widget = createWidgetAdapter();
 
 // Helper function to create the WidgetSuspense component
 const createWidgetSuspense = (component: Component) => (props: any) =>

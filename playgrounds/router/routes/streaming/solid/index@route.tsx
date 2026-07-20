@@ -2,7 +2,7 @@
 import { defineRouteHandler } from '@web-widget/helpers';
 import { widget } from '@web-widget/solid/adapter';
 import '~/routes/(css)/demo-states.css';
-import Layout from '~/routes/frameworks/solid/Layout';
+import Layout from '~/routes/(components)/solid/Layout';
 import PageHeader from './PageHeader';
 import Section from './Section';
 

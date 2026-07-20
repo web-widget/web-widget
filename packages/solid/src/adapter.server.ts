@@ -5,8 +5,21 @@ import {
   generateHydrationScript,
   renderToStream,
   renderToStringAsync,
+  resolveSSRNode,
 } from 'solid-js/web';
-export * from './components';
+import { createWidgetAdapter } from './components';
+export type {
+  SolidWidgetComponent,
+  SolidWidgetContainerProps,
+  SolidWidgetFactory,
+  WidgetContainerOptions,
+} from './components';
+
+async function resolveSSRChildren(value: unknown): Promise<string> {
+  return resolveSSRNode(await value);
+}
+
+export const widget = createWidgetAdapter(resolveSSRChildren);
 
 // Each independently recoverable widget needs the same event queue and
 // hydration registry bootstrap that Solid normally emits at document level.

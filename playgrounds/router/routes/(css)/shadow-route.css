@@ -1,7 +1,0 @@
-[data-shadow-route-css-probe] {
-  --route-css-owner: route;
-}
-
-button {
-  --route-button-leak: route;
-}

@@ -22,6 +22,8 @@ export type HtmlWidgetContainerProps = WidgetContainerProps<
  * Widget's own data props are spread directly, `widget` holds container config.
  */
 export type HtmlWidgetProps<T = unknown> = T & {
+  /** Content preserved in the Widget host light DOM for native Shadow DOM slots. */
+  children?: HTML;
   /** Container configuration, isolated from widget's own props */
   widget?: HtmlWidgetContainerProps;
 };
@@ -101,6 +103,7 @@ export function widget(
 ) {
   return async function HtmlWidget<T>(
     {
+      children,
       widget: { id, loading, serverOnly, clientOnly, fallback: fb } = {},
       ...data
     }: HtmlWidgetProps<T> = {} as HtmlWidgetProps<T>
@@ -115,8 +118,10 @@ export function widget(
           : options.renderStage,
     };
 
+    const lightChildrenHTML = children ? await renderToString(children) : '';
     const renderer = new WebWidgetRenderer(loader, {
       ...options,
+      children: lightChildrenHTML,
       data: data as SerializableObject,
       ...renderOptions,
       renderTarget: options.renderTarget,

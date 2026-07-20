@@ -5,7 +5,26 @@ import Vue from 'vue';
 import { createRenderer } from 'vue-server-renderer';
 import type { CreateVueRenderOptions } from './types';
 
-export * from './components';
+export { asReactWidget, toReact } from './components';
+export type {
+  Vue2WidgetContainerProps,
+  Vue2WidgetFactory,
+  VueWidgetComponent,
+  WidgetContainerOptions,
+} from './components';
+import { createWidgetAdapter } from './components';
+
+export const widget = createWidgetAdapter(async (children) => {
+  if (!children.length) return '';
+  const renderer = createRenderer();
+  return (
+    await Promise.all(
+      children.map((node) =>
+        renderer.renderToString(new Vue({ render: () => node }))
+      )
+    )
+  ).join('');
+});
 
 type BuildedComponent = Component & {
   __name?: string;

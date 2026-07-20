@@ -1,7 +1,9 @@
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { vi } from 'vitest';
-import { widget, resolveFallback } from './components';
+import { createWidgetAdapter, resolveFallback } from './components';
+
+const widget = createWidgetAdapter();
 
 // Mock the WebWidgetRenderer to avoid needing the full widget runtime.
 vi.mock('@web-widget/web-widget', () => {

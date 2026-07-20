@@ -5,7 +5,18 @@ import type { Root } from 'react-dom/client';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { reportRecoverableError } from './hydration-error';
 
-export * from './components';
+export { resolveFallback } from './components';
+export type {
+  ReactWidgetComponent,
+  ReactWidgetContainerProps,
+  ReactWidgetFactory,
+  ReactWidgetProps,
+  WebWidgetProps,
+  WidgetContainerOptions,
+} from './components';
+import { createWidgetAdapter } from './components';
+
+export const widget = createWidgetAdapter();
 
 export const render = defineClientRender<FunctionComponent>(
   async (component, data, { id, recovering, container }) => {
