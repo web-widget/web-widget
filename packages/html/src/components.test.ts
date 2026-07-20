@@ -1,5 +1,5 @@
 import { html, unsafeHTML } from './html';
-import { container, resolveFallback } from './components';
+import { widget, resolveFallback } from './components';
 import { asHtmlWidget } from './adapter';
 
 describe('resolveFallback', () => {
@@ -52,9 +52,9 @@ describe('asHtmlWidget', () => {
   });
 });
 
-describe('container', () => {
+describe('widget', () => {
   test('renders clientOnly pending fallback inside web-widget', async () => {
-    const Widget = container(async () => ({}) as any, {
+    const Widget = widget(async () => ({}) as any, {
       import: '/Counter@widget.js',
       name: 'Counter',
     });

@@ -1,14 +1,14 @@
 import { html } from '@web-widget/html';
-import { container } from '@web-widget/html/adapter';
+import { widget } from '@web-widget/html/adapter';
 import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import '~/routes/(css)/demo-states.css';
 import { htmlLayout } from '~/routes/(components)/HtmlLayout';
 
-const WaitWidget = container(() => import('~/routes/(components)/Wait@widget'));
-const VueWaitWidget = container(
+const WaitWidget = widget(() => import('~/routes/(components)/Wait@widget'));
+const VueWaitWidget = widget(
   () => import('@playgrounds/web-router-vue3/Wait@widget.vue')
 );
-const FailWidget = container(() => import('~/routes/(components)/Fail@widget'));
+const FailWidget = widget(() => import('~/routes/(components)/Fail@widget'));
 const Pending = html`<div class="demo-loading">
   Pending: loading content...
 </div>`;

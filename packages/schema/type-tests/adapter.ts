@@ -32,7 +32,7 @@ export type WidgetModuleTest = Expect<
   Equal<ExtractWidgetProps<{ default: FunctionComponent }>, Props>
 >;
 
-// Classes without a public props contract must use container<Props>().
+// Classes without a public props contract must use widget<Props>().
 export type CustomElementTest = Expect<
   Equal<ExtractComponentProps<typeof HTMLElement>, unknown>
 >;

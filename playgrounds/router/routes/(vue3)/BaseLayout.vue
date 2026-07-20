@@ -2,9 +2,9 @@
 import { onMounted } from 'vue';
 import '../(css)/base-layout.css';
 import '../(css)/ui.css';
-import { container } from '@web-widget/vue/adapter';
+import { widget } from '@web-widget/vue/adapter';
 
-const Menu = container(() => import('../(components)/Menu@widget.ts'));
+const Menu = widget(() => import('../(components)/Menu@widget.ts'));
 
 onMounted(() => {
   const path = location.pathname;

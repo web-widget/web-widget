@@ -5,22 +5,22 @@
 
 <script lang="ts">
   import Counter from './Counter@widget.svelte';
-  import { container } from '@web-widget/svelte/adapter';
+  import { widget } from '@web-widget/svelte/adapter';
   import Layout from './Layout.svelte';
 
-  const Vue2Counter = container(
+  const Vue2Counter = widget(
     () => import('@playgrounds/web-router-vue2/frameworks/vue2/Counter@widget.vue')
   );
-  const ReactCounter = container(() => import('../react/Counter@widget'));
-  const Vue3Counter = container(
+  const ReactCounter = widget(() => import('../react/Counter@widget'));
+  const Vue3Counter = widget(
     () => import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
   );
-  const SolidCounter = container(() => import('../solid/Counter@widget'));
-  const PreactCounter = container(() => import('../preact/Counter@widget'));
-  const WebComponentCounter = container<{ count?: number }>(
+  const SolidCounter = widget(() => import('../solid/Counter@widget'));
+  const PreactCounter = widget(() => import('../preact/Counter@widget'));
+  const WebComponentCounter = widget<{ count?: number }>(
     () => import('~/routes/(components)/WebComponentCounter@widget.wc')
   );
-  const LitCounter = container<{ count?: number }>(
+  const LitCounter = widget<{ count?: number }>(
     () => import('~/routes/(components)/LitCounter@widget.lit')
   );
 </script>

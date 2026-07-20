@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { testAdapterConformance } from './testing.js';
 
 const component = (data) => data.message;
-const container = () => undefined;
+const widget = () => undefined;
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -10,7 +10,7 @@ testAdapterConformance({
     name: 'fixture',
     server: {
       module: {
-        container,
+        widget,
         render(component, data, { progressive }) {
           if (!component) throw new TypeError('Missing component.');
           const value = component(data ?? {});
@@ -33,7 +33,7 @@ testAdapterConformance({
     },
     client: {
       module: {
-        container,
+        widget,
         render(component, data, { container }) {
           if (!component) throw new TypeError('Missing component.');
           if (!container) throw new Error('Missing container.');

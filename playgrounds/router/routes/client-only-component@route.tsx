@@ -1,11 +1,9 @@
 import { defineRouteComponent } from '@web-widget/helpers';
-import { container } from '@web-widget/react/adapter';
+import { widget } from '@web-widget/react/adapter';
 import BaseLayout from './(components)/BaseLayout.tsx';
 import { PageHeader } from './(components)/ui';
 
-const ReactCounter = container(
-  () => import('./frameworks/react/Counter@widget')
-);
+const ReactCounter = widget(() => import('./frameworks/react/Counter@widget'));
 
 export default defineRouteComponent(function Page() {
   return (

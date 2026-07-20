@@ -221,33 +221,33 @@ class WidgetErrorBoundary extends Component<
  * type inference from the source module's default export.
  *
  * For same-framework imports (React → React), props types are inferred
- * automatically. Cross-framework imports use explicit `container()` calls;
- * sources without a structural props contract can use `container<Props>()`.
+ * automatically. Cross-framework imports use explicit `widget()` calls;
+ * sources without a structural props contract can use `widget<Props>()`.
  *
  * @example
  * ```tsx
- * import { container } from '@web-widget/react/adapter';
+ * import { widget } from '@web-widget/react/adapter';
  *
  * // Same-framework: full type inference
- * const Counter = container(() => import('./Counter@widget.tsx'));
+ * const Counter = widget(() => import('./Counter@widget.tsx'));
  * //    ^? ReactWidgetComponent<{ count: number }>
  *
  * <Counter count={42} />  // type-checked: ✓
  *
- * // Cross-framework: explicit container() recommended
- * const VueCounter = container(() => import('./Counter@widget.vue'));
+ * // Cross-framework: explicit widget() recommended
+ * const VueCounter = widget(() => import('./Counter@widget.vue'));
  * <VueCounter count={42} />  // type-checked: ✓
  * ```
  */
-export function container<M>(
+export function widget<M>(
   loader: () => Promise<M>,
   options?: WidgetContainerOptions
 ): ReactWidgetComponent<ExtractWidgetProps<M>>;
-export function container<Props>(
+export function widget<Props>(
   loader: WidgetModuleLoader,
   options?: WidgetContainerOptions
 ): ReactWidgetComponent<Props>;
-export function container(
+export function widget(
   loader: WidgetModuleLoader,
   options: WebWidgetRendererOptions = {}
 ) {

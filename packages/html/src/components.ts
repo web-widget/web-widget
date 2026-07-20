@@ -79,23 +79,23 @@ export function resolveFallback(
  *
  * @example
  * ```ts
- * import { container } from '@web-widget/html/adapter';
+ * import { widget } from '@web-widget/html/adapter';
  *
- * const Counter = container(() => import('./Counter@widget.tsx'));
+ * const Counter = widget(() => import('./Counter@widget.tsx'));
  * //    ^? HtmlWidgetComponent<{ count: number }>
  *
  * const result = await Counter({ count: 42 });  // type-checked: ✓
  * ```
  */
-export function container<M>(
+export function widget<M>(
   loader: () => Promise<M>,
   options?: WidgetContainerOptions
 ): HtmlWidgetComponent<ExtractWidgetProps<M>>;
-export function container<Props>(
+export function widget<Props>(
   loader: WidgetModuleLoader,
   options?: WidgetContainerOptions
 ): HtmlWidgetComponent<Props>;
-export function container(
+export function widget(
   loader: WidgetModuleLoader,
   options: WebWidgetRendererOptions = {}
 ) {

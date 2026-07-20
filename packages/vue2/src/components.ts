@@ -25,7 +25,7 @@ export type VueWidgetComponent<T = unknown> = DefineComponent<
  */
 type WebWidgetRenderer = InstanceType<typeof WebWidgetRenderer>;
 
-// Lazy-init global Vue config (only once, on first container call).
+// Lazy-init global Vue config (only once, on first widget call).
 let globalConfigInitialized = false;
 function ensureGlobalVueConfig() {
   if (globalConfigInitialized) return;
@@ -57,15 +57,15 @@ export type Vue2WidgetContainerProps = Omit<WidgetContainerProps, 'fallback'>;
  * Wraps a widget module loader into a Vue2 component with best-effort
  * props type inference from the source module's default export.
  */
-export function container<M>(
+export function widget<M>(
   loader: () => Promise<M>,
   options?: WidgetContainerOptions
 ): VueWidgetComponent<ExtractWidgetProps<M>>;
-export function container<Props>(
+export function widget<Props>(
   loader: WidgetModuleLoader,
   options?: WidgetContainerOptions
 ): VueWidgetComponent<Props>;
-export function container(
+export function widget(
   loader: WidgetModuleLoader,
   options: WebWidgetRendererOptions = {}
 ) {

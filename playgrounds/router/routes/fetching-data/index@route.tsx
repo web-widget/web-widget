@@ -1,7 +1,7 @@
 import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
 import { useLocation } from '@web-widget/helpers/navigation';
 import type { HelloData } from '../api/hello-world@route.ts';
-import { container } from '@web-widget/react/adapter';
+import { widget } from '@web-widget/react/adapter';
 import BaseLayout from '../(components)/BaseLayout.tsx';
 import {
   PageHeader,
@@ -13,10 +13,10 @@ import {
 import ReactGithub from './Github@widget.tsx';
 import UserCard from './UserCard@widget.tsx';
 
-const RVueGithub = container(
+const RVueGithub = widget(
   () => import('@playgrounds/web-router-vue3/Github@widget.vue')
 );
-const RVue2Github = container(
+const RVue2Github = widget(
   () => import('@playgrounds/web-router-vue2/Github@widget.vue')
 );
 

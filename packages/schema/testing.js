@@ -15,7 +15,7 @@ function readStream(stream) {
 
 function assertModule(expect, adapterModule) {
   expect(typeof adapterModule.render).toBe('function');
-  expect(typeof adapterModule.container).toBe('function');
+  expect(typeof adapterModule.widget).toBe('function');
 }
 
 /** Register the framework-independent adapter conformance suite. */

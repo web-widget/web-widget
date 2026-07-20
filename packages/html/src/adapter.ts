@@ -8,8 +8,8 @@ export * from './components';
 /**
  * Adapt a framework component type to an HTML widget component type.
  *
- * @deprecated Use `container()` from `@web-widget/html/adapter` instead.
- * Explicit `container(() => import(...))` calls infer cross-framework props.
+ * @deprecated Use `widget()` from `@web-widget/html/adapter` instead.
+ * Explicit `widget(() => import(...))` calls infer cross-framework props.
  * Static imports preserve the source component type during type checking.
  *
  * This is a type-level cast only — the actual cross-framework rendering

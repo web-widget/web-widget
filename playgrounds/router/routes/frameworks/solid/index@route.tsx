@@ -1,26 +1,24 @@
 /** @jsxImportSource solid-js */
 import { defineMeta } from '@web-widget/helpers';
-import { container } from '@web-widget/solid/adapter';
+import { widget } from '@web-widget/solid/adapter';
 import Counter from './Counter@widget';
 import Layout from './Layout';
 
-const ReactCounter = container(() => import('../react/Counter@widget'));
-const Vue3Counter = container(
+const ReactCounter = widget(() => import('../react/Counter@widget'));
+const Vue3Counter = widget(
   () =>
     import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
 );
-const Vue2Counter = container(
+const Vue2Counter = widget(
   () =>
     import('@playgrounds/web-router-vue2/frameworks/vue2/Counter@widget.vue')
 );
-const SvelteCounter = container(
-  () => import('../svelte/Counter@widget.svelte')
-);
-const PreactCounter = container(() => import('../preact/Counter@widget'));
-const WebComponentCounter = container<{ count?: number }>(
+const SvelteCounter = widget(() => import('../svelte/Counter@widget.svelte'));
+const PreactCounter = widget(() => import('../preact/Counter@widget'));
+const WebComponentCounter = widget<{ count?: number }>(
   () => import('~/routes/(components)/WebComponentCounter@widget.wc')
 );
-const LitCounter = container<{ count?: number }>(
+const LitCounter = widget<{ count?: number }>(
   () => import('~/routes/(components)/LitCounter@widget.lit')
 );
 

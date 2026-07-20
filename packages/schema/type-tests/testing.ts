@@ -13,7 +13,7 @@ testAdapterConformance({
   adapter: {
     name: 'typed-fixture',
     server: {
-      module: { render, container: () => undefined },
+      module: { render, widget: () => undefined },
       component: ({ message }) => message,
       data: { message: 'Hello' },
       progressive: 'buffered',

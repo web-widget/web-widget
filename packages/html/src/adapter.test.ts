@@ -1,5 +1,5 @@
 import { defineServerRender } from '@web-widget/helpers';
-import { container } from './components';
+import { widget } from './components';
 
 const mockRender = defineServerRender(async (_component, data: any) => {
   return `<div>count: ${data?.count ?? 0}</div>`;
@@ -13,9 +13,9 @@ function createMockLoader() {
     });
 }
 
-describe('container', () => {
+describe('widget', () => {
   test('returns a callable function', () => {
-    const Counter = container(createMockLoader(), {
+    const Counter = widget(createMockLoader(), {
       import: './Counter@widget.tsx',
       name: 'Counter',
     });
@@ -23,7 +23,7 @@ describe('container', () => {
   });
 
   test('calling with data renders widget HTML', async () => {
-    const Counter = container(createMockLoader(), {
+    const Counter = widget(createMockLoader(), {
       import: './Counter@widget.tsx',
       name: 'Counter',
     });
@@ -34,7 +34,7 @@ describe('container', () => {
   });
 
   test('serializes data into contextdata attribute', async () => {
-    const Counter = container(createMockLoader(), {
+    const Counter = widget(createMockLoader(), {
       import: './Counter@widget.tsx',
       name: 'Counter',
     });
@@ -44,7 +44,7 @@ describe('container', () => {
   });
 
   test('includes import attribute for client-side loading', async () => {
-    const Counter = container(createMockLoader(), {
+    const Counter = widget(createMockLoader(), {
       import: './Counter@widget.tsx',
       name: 'Counter',
     });
@@ -54,7 +54,7 @@ describe('container', () => {
   });
 
   test('returns UnsafeHTML that can be used in templates', async () => {
-    const Counter = container(createMockLoader(), {
+    const Counter = widget(createMockLoader(), {
       import: './Counter@widget.tsx',
       name: 'Counter',
     });
@@ -73,14 +73,14 @@ describe('container', () => {
         render: failingRender,
       });
 
-    const Broken = container(failingLoader, {
+    const Broken = widget(failingLoader, {
       import: './Broken@widget.tsx',
     });
     await expect(Broken()).rejects.toThrow('Widget render failed');
   });
 
   test('widget prop controls loading and renderStage', async () => {
-    const Counter = container(createMockLoader(), {
+    const Counter = widget(createMockLoader(), {
       import: './Counter@widget.tsx',
       name: 'Counter',
     });

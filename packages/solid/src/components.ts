@@ -40,15 +40,15 @@ function resolveFallback(fallback: SolidWidgetContainerProps['fallback']): {
   return { pending: fallback as JSX.Element, error: fallback as JSX.Element };
 }
 
-export function container<M>(
+export function widget<M>(
   loader: () => Promise<M>,
   options?: WidgetContainerOptions
 ): SolidWidgetComponent<ExtractWidgetProps<M>>;
-export function container<Props>(
+export function widget<Props>(
   loader: WidgetModuleLoader,
   options?: WidgetContainerOptions
 ): SolidWidgetComponent<Props>;
-export function container(
+export function widget(
   loader: WidgetModuleLoader,
   options: WebWidgetRendererOptions = {}
 ) {

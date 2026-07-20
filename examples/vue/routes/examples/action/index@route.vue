@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { defineMeta } from '@web-widget/helpers';
-import { container } from '@web-widget/vue/adapter';
+import { widget } from '@web-widget/vue/adapter';
 import BaseLayout from '../(components)/BaseLayout.vue';
 import shared from '../(components)/shared.module.css';
 
-const Echo = container(() => import('./Echo@widget.tsx'));
+const Echo = widget(() => import('./Echo@widget.tsx'));
 
 defineOptions({
   meta: defineMeta({

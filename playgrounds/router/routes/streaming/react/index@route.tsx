@@ -1,12 +1,12 @@
 import { defineRouteComponent, defineRouteHandler } from '@web-widget/helpers';
-import { container } from '@web-widget/react/adapter';
+import { widget } from '@web-widget/react/adapter';
 import '~/routes/(css)/demo-states.css';
 import BaseLayout from '~/routes/(components)/BaseLayout.js';
 import { PageHeader, Section } from '~/routes/(components)/ui';
 import ReactFailDemo from '~/routes/(components)/Fail@widget.js';
 import ReactWaitDemo from '~/routes/(components)/Wait@widget.js';
 
-const VueWaitDemo = container(
+const VueWaitDemo = widget(
   () => import('@playgrounds/web-router-vue3/Wait@widget.vue')
 );
 

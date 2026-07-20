@@ -1,9 +1,9 @@
 import { defineRouteComponent } from '@web-widget/helpers';
-import { container } from '@web-widget/react/adapter';
+import { widget } from '@web-widget/react/adapter';
 import BaseLayout from '~/routes/(components)/BaseLayout.tsx';
 import { PageHeader } from '~/routes/(components)/ui';
 
-const RApp = container(() => import('./App@widget.vue'));
+const RApp = widget(() => import('./App@widget.vue'));
 
 export default defineRouteComponent(function Page() {
   return (

@@ -43,8 +43,8 @@ interface WidgetAdapter {
   /**
    * 适配器模块子路径，指向适配器包通过条件导出提供的运行时实现。
    * 构建工具会将该模块的导出注入到匹配的模块中：
-   * - render：注入为模块导出，使其符合 ServerRender / ClientRender 契约
-   * - container：包装 widget 的导入方，使其可被跨框架复用
+   * - render：导出 `render()`，使其符合 ServerRender / ClientRender 契约
+   * - widget：导出 `widget()`，用于包装 Widget 模块的导入方，使其可被跨框架复用
    * 如 "./adapter" 会被解析为 "@web-widget/react/adapter"，
    * 再由条件导出根据环境自动选取 server 或 client 实现。
    */
@@ -91,14 +91,14 @@ type AdapterModule = {
   render: ServerRender | ClientRender;
 
   /** 容器函数，将通用模块转换为当前框架的原生组件，支持跨框架互操作 */
-  container: Container;
+  widget: WidgetContainer;
 };
 
 /** 通用模块加载器，返回符合 WidgetModule 的模块 */
 type Loader = () => Promise<WidgetModule>;
 
 /** 容器函数：将通用模块转换为当前框架的组件 */
-interface Container {
+interface WidgetContainer {
   (
     loader: Loader,
     options?: {
@@ -109,24 +109,24 @@ interface Container {
 }
 ```
 
-`render` 让模块**自身可渲染**（注入为导出），`container` 让模块**可被当作 widget 导入**（包装导入方）。两者共同构成跨框架互操作的基础：`render` 产出符合通用格式的模块，`container` 消费通用格式的模块。
+`render()` 让模块**自身可渲染**（注入为导出），`widget()` 让模块**可被当作 Widget 导入**（包装导入方）。两者共同构成跨框架互操作的基础：`render()` 产出符合通用格式的模块，`widget()` 消费通用格式的模块。
 
-以 React 为例，`@web-widget/react` 的 `container` 返回一个 `React.FC`，内部调用通用模块的 `render` 并将结果包装为 React 元素：
+以 React 为例，`@web-widget/react` 的 `widget()` 返回一个 `React.FC`，内部调用通用模块的 `render()` 并将结果包装为 React 元素：
 
 ```typescript
-import { container } from '@web-widget/react';
+import { widget } from '@web-widget/react';
 
 // 将 Vue widget 包装为 React 组件
-const Counter = container(() => import('./Counter@widget.vue'));
+const Counter = widget(() => import('./Counter@widget.vue'));
 
 function App() {
   return <Counter count={42} />;
 }
 ```
 
-`Counter` 在 React 中是一个普通组件，可以正常传 props、参与渲染。但它的内部实现运行在 Vue 运行时中——React 不感知这一点。反之，`@web-widget/vue` 的 `container` 同样能将 React widget 包装为 Vue 组件。
+`Counter` 在 React 中是一个普通组件，可以正常传 props、参与渲染。但它的内部实现运行在 Vue 运行时中——React 不感知这一点。反之，`@web-widget/vue` 的 `widget()` 同样能将 React Widget 包装为 Vue 组件。
 
-`Container` 的行为契约：
+`WidgetContainer` 的行为契约：
 
 1. **加载**：调用 `loader` 获取通用模块，按 `loading` 选项决定时机——`lazy`（默认）在组件首次渲染时加载，`eager` 在模块解析时立即加载
 2. **渲染**：调用通用模块的渲染函数，将 `props` 作为数据参数传入，获取渲染结果
@@ -229,7 +229,7 @@ export const render: ServerRender = (component, data, options) => {
   // 使用 react-dom/server 将组件渲染为 HTML
 };
 
-export function container(loader, options) {
+export function widget(loader, options) {
   // 将组件包装为可独立加载、渲染的 widget 边界
 }
 ```
@@ -242,14 +242,14 @@ export const render: ClientRender = (component, data, options) => {
   // 使用 react-dom 的 hydrateRoot / createRoot
 };
 
-export function container(loader, options) {
+export function widget(loader, options) {
   // 客户端容器实现
 }
 ```
 
 ```typescript
 // @web-widget/react/index.ts —— 包入口
-export { container } from './adapter';
+export { widget } from './adapter';
 ```
 
 `package.json` 中通过 `webWidgetAdapter` 字段声明 `WidgetAdapter` 配置，`exports` 组织子路径：

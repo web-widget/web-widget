@@ -1,16 +1,16 @@
 /** @jsxImportSource solid-js */
 import { defineRouteHandler } from '@web-widget/helpers';
-import { container } from '@web-widget/solid/adapter';
+import { widget } from '@web-widget/solid/adapter';
 import '~/routes/(css)/demo-states.css';
 import Layout from '~/routes/frameworks/solid/Layout';
 import PageHeader from './PageHeader';
 import Section from './Section';
 
-const WaitDemo = container(() => import('~/routes/(components)/Wait@widget'));
-const VueWaitDemo = container(
+const WaitDemo = widget(() => import('~/routes/(components)/Wait@widget'));
+const VueWaitDemo = widget(
   () => import('@playgrounds/web-router-vue3/Wait@widget.vue')
 );
-const FailDemo = container(() => import('~/routes/(components)/Fail@widget'));
+const FailDemo = widget(() => import('~/routes/(components)/Fail@widget'));
 const Pending = <div class="demo-loading">Pending: loading content...</div>;
 const ErrorFallback = (
   <div class="demo-error">Error: content failed to load.</div>

@@ -1,13 +1,13 @@
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
-import { container } from '@web-widget/react/adapter';
+import { widget } from '@web-widget/react/adapter';
 import ReactCounter from './frameworks/react/Counter@widget';
 import BaseLayout from './(components)/BaseLayout.tsx';
 import { PageHeader, Section } from './(components)/ui';
 
-const RVueCounter = container(
+const RVueCounter = widget(
   () => import('./(vue3)/frameworks/vue3/Counter@widget.vue')
 );
-const RVue2Counter = container(
+const RVue2Counter = widget(
   () =>
     import('@playgrounds/web-router-vue2/frameworks/vue2/Counter@widget.vue')
 );

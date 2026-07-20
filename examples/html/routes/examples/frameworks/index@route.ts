@@ -1,13 +1,11 @@
 import { html } from '@web-widget/html';
-import { container } from '@web-widget/html/adapter';
+import { widget } from '@web-widget/html/adapter';
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
 import { baseLayout } from '../(components)/baseLayout.html';
 import shared from '../(components)/shared.module.css';
 
-const reactWidget = container(
-  () => import('../(components)/Counter@widget.tsx')
-);
-const vueWidget = container(() => import('../(components)/Counter@widget.vue'));
+const reactWidget = widget(() => import('../(components)/Counter@widget.tsx'));
+const vueWidget = widget(() => import('../(components)/Counter@widget.vue'));
 
 export const meta = defineMeta({
   title: 'Widgets - Web Widget',

@@ -22,7 +22,7 @@ export interface AdapterModuleFixture<
   Render = ServerRender<Component, Data> | ClientRender<Component, Data>,
 > {
   render: Render;
-  container: Function;
+  widget: Function;
 }
 
 export interface ServerConformanceFixture<Component, Data> {

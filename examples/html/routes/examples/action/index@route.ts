@@ -1,10 +1,10 @@
 import { html } from '@web-widget/html';
-import { container } from '@web-widget/html/adapter';
+import { widget } from '@web-widget/html/adapter';
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
 import { baseLayout } from '../(components)/baseLayout.html';
 import shared from '../(components)/shared.module.css';
 
-const echo = container(() => import('./Echo@widget.tsx'));
+const echo = widget(() => import('./Echo@widget.tsx'));
 
 export const meta = defineMeta({
   title: 'Server Actions - Web Widget',

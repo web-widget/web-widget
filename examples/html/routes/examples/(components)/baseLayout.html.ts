@@ -1,9 +1,9 @@
 import { html, type HTML } from '@web-widget/html';
-import { container } from '@web-widget/html/adapter';
+import { widget } from '@web-widget/html/adapter';
 import './global.css';
 import styles from './baseLayout.module.css';
 
-const navigation = container(() => import('./Navigation@widget.tsx'));
+const navigation = widget(() => import('./Navigation@widget.tsx'));
 
 export function baseLayout(content: HTML) {
   return html`

@@ -4,16 +4,16 @@
 
 ## 摘要
 
-定义 `@web-widget/react` 中 `container` 的架构设计：将每个 widget 封装为自治的"孤岛"，内部集成 Suspense（加载管理）与 ErrorBoundary（错误隔离），通过统一的 `fallback` API 暴露加载态与错误态的控制能力。
+定义 `@web-widget/react` 中 `widget()` 函数的架构设计：将每个 Widget 封装为自治的"孤岛"，内部集成 Suspense（加载管理）与 ErrorBoundary（错误隔离），通过统一的 `fallback` API 暴露加载态与错误态的控制能力。
 
 ## 背景
 
 ### Widget 在架构中的角色
 
-`container` 将一个 widget 模块封装为 React 组件。该组件在服务端渲染 `<web-widget>` 自定义元素的 HTML，在客户端由 custom element 接管模块的加载、引导和挂载。
+`widget()` 将一个 Widget 模块封装为 React 组件。该组件在服务端渲染 `<web-widget>` 自定义元素的 HTML，在客户端由 custom element 接管模块的加载、引导和挂载。
 
 ```tsx
-const Counter = container(() => import('./Counter@widget.tsx'));
+const Counter = widget(() => import('./Counter@widget.tsx'));
 
 function Page() {
   return <Counter widget={{ fallback: <Spinner /> }} count={1} />;

@@ -1,8 +1,8 @@
 import './(css)/error.css';
 import { defineRouteFallbackComponent } from '@web-widget/helpers';
-import { container } from '@web-widget/react/adapter';
+import { widget } from '@web-widget/react/adapter';
 
-const RVueCounter = container(
+const RVueCounter = widget(
   () =>
     import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
 );

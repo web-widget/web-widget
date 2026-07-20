@@ -751,7 +751,7 @@ describe('getMeta', () => {
     await Promise.all([
       fs.writeFile(
         routePath,
-        "const Counter = container(() => import('./Counter@widget.tsx'));"
+        "const Counter = widget(() => import('./Counter@widget.tsx'));"
       ),
       fs.writeFile(
         path.join(root, 'routes/Counter@widget.tsx'),

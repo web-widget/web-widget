@@ -33,15 +33,15 @@ function outerHTML(
   return `<${tag}${attrs ? ` ${attrs}` : ''}>${html}</${tag}>`;
 }
 
-export function container<M>(
+export function widget<M>(
   loader: () => Promise<M>,
   options?: WidgetContainerOptions
 ): SvelteWidgetComponent<ExtractWidgetProps<M>>;
-export function container<Props>(
+export function widget<Props>(
   loader: WidgetModuleLoader,
   options?: WidgetContainerOptions
 ): SvelteWidgetComponent<Props>;
-export function container(
+export function widget(
   loader: WidgetModuleLoader,
   options: WebWidgetRendererOptions = {}
 ) {

@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { vi } from 'vitest';
-import { container, resolveFallback } from './components';
+import { widget, resolveFallback } from './components';
 
 // Mock the WebWidgetRenderer to avoid needing the full widget runtime.
 vi.mock('@web-widget/web-widget', () => {
@@ -69,20 +69,20 @@ describe('resolveFallback', () => {
   });
 });
 
-describe('container', () => {
+describe('widget', () => {
   const mockLoader = (() =>
     Promise.resolve({
       default: () => createElement('div', null, 'hello'),
     })) as any;
 
   test('returns a valid memoized component', () => {
-    const Widget = container(mockLoader, { name: 'TestWidget' });
+    const Widget = widget(mockLoader, { name: 'TestWidget' });
     expect(Widget).toBeDefined();
     expect(typeof Widget).toBe('object');
   });
 
   test('renders clientOnly pending fallback inside web-widget', () => {
-    const Widget = container(mockLoader);
+    const Widget = widget(mockLoader);
     const output = renderToString(
       createElement(Widget, {
         widget: {
@@ -99,7 +99,7 @@ describe('container', () => {
   });
 
   test('uses widget.id for the host element', () => {
-    const Widget = container(mockLoader);
+    const Widget = widget(mockLoader);
     const output = renderToString(
       createElement(Widget, {
         widget: {

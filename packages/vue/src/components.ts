@@ -177,21 +177,21 @@ export function resolveFallback(
  *
  * @example
  * ```ts
- * import { container } from '@web-widget/vue/adapter';
+ * import { widget } from '@web-widget/vue/adapter';
  *
- * const Counter = container(() => import('./Counter@widget.vue'));
+ * const Counter = widget(() => import('./Counter@widget.vue'));
  * //    ^? VueWidgetComponent<{ count: number }>
  * ```
  */
-export function container<M>(
+export function widget<M>(
   loader: () => Promise<M>,
   options?: WidgetContainerOptions
 ): VueWidgetComponent<ExtractWidgetProps<M>>;
-export function container<Props>(
+export function widget<Props>(
   loader: WidgetModuleLoader,
   options?: WidgetContainerOptions
 ): VueWidgetComponent<Props>;
-export function container(
+export function widget(
   loader: WidgetModuleLoader,
   options: WebWidgetRendererOptions = {}
 ) {

@@ -189,7 +189,7 @@ export interface WebWidgetPluginOptions {
   adapters: (string | WebWidgetAdapterConfig)[];
   /**
    * Defaults injected into transformed widget container options. Explicit
-   * options passed to `container()` take precedence.
+   * options passed to `widget()` take precedence.
    */
   defaults?: WidgetDefaults;
 }

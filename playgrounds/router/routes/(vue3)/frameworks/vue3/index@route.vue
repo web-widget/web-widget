@@ -1,28 +1,28 @@
 <script setup lang="ts">
 import { defineMeta } from '@web-widget/helpers';
-import { container } from '@web-widget/vue/adapter';
+import { widget } from '@web-widget/vue/adapter';
 import Counter from './Counter@widget.vue';
 import BaseLayout from '~/routes/(vue3)/BaseLayout.vue';
 
-const ReactCounter = container(
+const ReactCounter = widget(
   () => import('~/routes/frameworks/react/Counter@widget')
 );
-const Vue2Counter = container(
+const Vue2Counter = widget(
   () => import('~/routes/(vue2)/frameworks/vue2/Counter@widget.vue')
 );
-const SvelteCounter = container(
+const SvelteCounter = widget(
   () => import('~/routes/frameworks/svelte/Counter@widget.svelte')
 );
-const SolidCounter = container(
+const SolidCounter = widget(
   () => import('~/routes/frameworks/solid/Counter@widget')
 );
-const PreactCounter = container(
+const PreactCounter = widget(
   () => import('~/routes/frameworks/preact/Counter@widget')
 );
-const WebComponentCounter = container<{ count?: number }>(
+const WebComponentCounter = widget<{ count?: number }>(
   () => import('~/routes/(components)/WebComponentCounter@widget.wc')
 );
-const LitCounter = container<{ count?: number }>(
+const LitCounter = widget<{ count?: number }>(
   () => import('~/routes/(components)/LitCounter@widget.lit')
 );
 

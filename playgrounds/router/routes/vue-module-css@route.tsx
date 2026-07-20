@@ -1,9 +1,9 @@
 import { defineRouteComponent, defineMeta } from '@web-widget/helpers';
-import { container } from '@web-widget/react/adapter';
+import { widget } from '@web-widget/react/adapter';
 import BaseLayout from './(components)/BaseLayout';
 import { PageHeader } from './(components)/ui';
 
-const RVueModuleCss = container(() => import('./(vue3)/ModuleCss@widget.vue'));
+const RVueModuleCss = widget(() => import('./(vue3)/ModuleCss@widget.vue'));
 
 export const meta = defineMeta({
   title: 'Vue CSS Modules',

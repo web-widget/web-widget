@@ -82,7 +82,7 @@ export interface WidgetAdapter {
    * Build tools inject exports from this module into matching modules:
    * - `render`: injected as module export to conform to
    *   ServerRender / ClientRender contract
-   * - `container`: wraps widget importers for cross-framework reuse
+   * - `widget`: wraps widget importers for cross-framework reuse
    *
    * e.g. "./adapter" resolves to "@web-widget/react/adapter",
    * then conditional exports select server or client implementation
@@ -120,7 +120,7 @@ export interface DeriveExport {
  *
  * @typeParam M - The concrete module type. Defaults to `WidgetModule`.
  *   When the loader returns a typed module (e.g. from a `.vue.d.ts`),
- *   the concrete M flows through to `container()`'s generic inference.
+ *   the concrete M flows through to `widget()`'s generic inference.
  */
 export type WidgetModuleLoader<M extends WidgetModule = WidgetModule> =
   () => Promise<M>;
@@ -169,7 +169,7 @@ export type WidgetContainerProps<TPending = never, TError = TPending> = {
   id?: string;
   /** UI shown while rendering is pending and, optionally, when rendering fails. */
   fallback?: WidgetContainerFallback<TPending, TError>;
-  /** Override the container's client-side module loading strategy for this use. */
+  /** Override the widget's client-side module loading strategy for this use. */
   loading?: WidgetContainerOptions['loading'];
 } & WidgetContainerRenderMode;
 
@@ -181,13 +181,13 @@ export type WidgetContainerProps<TPending = never, TError = TPending> = {
  * (e.g. React.FC, Vue.Component) — it accepts props, participates in
  * rendering, and internally runs the widget's render function.
  *
- * Each framework adapter provides its own concrete `container` with a
+ * Each framework adapter provides its own concrete `widget` with a
  * generic signature that infers the props type from the loader's module
  * type, e.g.:
  *
  * ```typescript
  * // @web-widget/react
- * function container<M>(loader: () => Promise<M>): ReactWidgetComponent<ExtractProps<M>>;
+ * function widget<M>(loader: () => Promise<M>): ReactWidgetComponent<ExtractProps<M>>;
  * ```
  */
 export interface WidgetContainer {
@@ -214,5 +214,5 @@ export interface AdapterModule {
    * Container function, converts generic module to current framework's
    * native component for cross-framework interop.
    */
-  container: WidgetContainer;
+  widget: WidgetContainer;
 }
