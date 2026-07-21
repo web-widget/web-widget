@@ -2,7 +2,7 @@ import {
   createPendingBoundary,
   serializeAttributes,
   serializePendingBoundary,
-} from './render';
+} from './markup';
 
 describe('render protocol', () => {
   it('escapes serialized attribute values consistently', () => {

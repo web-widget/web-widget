@@ -1,9 +1,9 @@
-import type { ModuleLoader } from './container';
-import { ModuleContainer, status } from './container';
+import type { ModuleLoader } from './runtime';
+import { WidgetRuntime, status } from './runtime';
 
-describe('ModuleContainer', () => {
+describe('WidgetRuntime', () => {
   let mockModuleLoader: ModuleLoader;
-  let container: ModuleContainer<any>;
+  let container: WidgetRuntime<any>;
 
   beforeEach(() => {
     mockModuleLoader = async () => ({
@@ -16,7 +16,7 @@ describe('ModuleContainer', () => {
       }),
     });
 
-    container = new ModuleContainer(mockModuleLoader, null, {
+    container = new WidgetRuntime(mockModuleLoader, null, {
       container: document.createDocumentFragment(),
     });
   });
@@ -34,7 +34,7 @@ describe('ModuleContainer', () => {
     mockModuleLoader = async () => {
       throw new Error('Load failed');
     };
-    container = new ModuleContainer(mockModuleLoader, null, {
+    container = new WidgetRuntime(mockModuleLoader, null, {
       container: document.createDocumentFragment(),
     });
 
@@ -76,7 +76,7 @@ describe('ModuleContainer', () => {
         }),
       };
     };
-    container = new ModuleContainer(mockModuleLoader, null, {
+    container = new WidgetRuntime(mockModuleLoader, null, {
       container: document.createDocumentFragment(),
     });
 
@@ -127,7 +127,7 @@ describe('ModuleContainer', () => {
       };
     };
 
-    container = new ModuleContainer(mockModuleLoader, null, {
+    container = new WidgetRuntime(mockModuleLoader, null, {
       container: document.createDocumentFragment(),
     });
 
@@ -154,7 +154,7 @@ describe('ModuleContainer', () => {
       }),
     });
 
-    container = new ModuleContainer(
+    container = new WidgetRuntime(
       mockModuleLoader,
       { key: 'initial' },
       {

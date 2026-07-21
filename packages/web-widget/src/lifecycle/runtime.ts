@@ -83,7 +83,7 @@ const statusTransitions: Record<Status, Status[]> = {
 };
 
 export type Lifecycle = 'load' | keyof ClientRenderResult;
-export type ModuleContainerOptions = ClientRenderOptions;
+export type WidgetRuntimeOptions = ClientRenderOptions;
 export type ModuleLoader = () => Promise<ClientWidgetModule>;
 export type Status = (typeof status)[keyof typeof status];
 export type StatusListener = (status: Status, prevStatus: Status) => void;
@@ -152,7 +152,7 @@ export type Timeouts = Partial<Record<Lifecycle, number>>;
  * Error states (e.g., LOAD_ERROR) are terminal until explicitly recovered by retrying load() or reset.
  * ```
  */
-export class ModuleContainer<Data = unknown> {
+export class WidgetRuntime<Data = unknown> {
   #moduleLoader: ModuleLoader;
   #module: ClientWidgetModule | null = null;
   #data: Data;

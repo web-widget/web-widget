@@ -1,9 +1,9 @@
 import type { WidgetModuleLoader } from '@web-widget/schema';
-import { WEB_WIDGET_PENDING_SLOT_NAME } from '../constants';
+import { WEB_WIDGET_PENDING_SLOT_NAME } from '../shared/constants';
 import {
   WEB_WIDGET_PENDING_LOCAL_NAME,
   type WebWidgetPendingBoundary,
-} from '../types';
+} from './contracts';
 
 const MODULE_REG =
   /\b(?:import|__vite_ssr_dynamic_import__)\(["'`]([^"'`]*)["'`]\)/;

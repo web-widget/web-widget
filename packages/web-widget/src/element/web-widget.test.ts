@@ -1,7 +1,9 @@
 import type { ClientRenderOptions } from '@web-widget/helpers';
-import { WEB_WIDGET_PENDING_SLOT_NAME } from './constants';
-import { HTMLWebWidgetElement } from './element';
-import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
+import {
+  WEB_WIDGET_PENDING_LOCAL_NAME,
+  WEB_WIDGET_PENDING_SLOT_NAME,
+} from '../shared/constants';
+import { HTMLWebWidgetElement } from './web-widget';
 import './install';
 
 const __FIXTURES__ = '/src/__fixtures__/code@widget.js';

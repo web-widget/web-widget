@@ -119,7 +119,7 @@
     "test:watch": "vitest"
   },
   "sideEffects": [
-    "src/install.ts",
+    "src/element/install.ts",
     "./dist/web-widget.client.js"
   ],
   "type": "module"

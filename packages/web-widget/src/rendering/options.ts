@@ -1,4 +1,4 @@
-import type { WebWidgetRendererOptions } from './types';
+import type { WebWidgetRendererOptions } from './contracts';
 
 type RendererElementOptions = Omit<
   WebWidgetRendererOptions,

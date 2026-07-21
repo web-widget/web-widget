@@ -7,12 +7,11 @@ import type {
   WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
-import type { Timeouts } from './container';
-import type { ResolvedWidgetStyle } from './style-descriptors';
+import type { Timeouts } from '../lifecycle/runtime';
+import type { ResolvedWidgetStyle } from '../shadow/style-descriptors';
 
 export type { SerializableObject } from '@web-widget/schema';
-
-export const WEB_WIDGET_PENDING_LOCAL_NAME = 'web-widget-pending';
+export { WEB_WIDGET_PENDING_LOCAL_NAME } from '../shared/constants';
 export type Loader = WidgetModuleLoader<
   ServerWidgetModule | ClientWidgetModule
 >;

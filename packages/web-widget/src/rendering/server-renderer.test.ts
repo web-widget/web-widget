@@ -1,5 +1,5 @@
 import type { ServerRenderOptions } from '@web-widget/schema';
-import { WebWidgetRenderer } from './server';
+import { WebWidgetRenderer } from './server-renderer';
 
 function count(value: string, pattern: string): number {
   return value.split(pattern).length - 1;

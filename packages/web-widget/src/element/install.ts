@@ -1,8 +1,8 @@
 import { mountLifecycleCacheLayer } from '@web-widget/lifecycle-cache/client';
-import type { HTMLWebWidgetElementAttributes } from './element';
-import { HTMLWebWidgetElement } from './element';
-import { attachDeclarativeShadowRoots } from './polyfill';
-import { queueMicrotask } from './utils/queue-microtask';
+import type { HTMLWebWidgetElementAttributes } from './web-widget';
+import { HTMLWebWidgetElement } from './web-widget';
+import { attachDeclarativeShadowRoots } from '../shadow/polyfill';
+import { queueMicrotask } from '../platform/queue-microtask';
 
 function install() {
   attachDeclarativeShadowRoots();

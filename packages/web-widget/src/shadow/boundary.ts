@@ -1,8 +1,8 @@
 import {
   WEB_WIDGET_PENDING_SLOT_NAME,
   WEB_WIDGET_ROOT_LOCAL_NAME,
-} from './constants';
-import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
+} from '../shared/constants';
+import { WEB_WIDGET_PENDING_LOCAL_NAME } from '../shared/constants';
 
 export interface ShadowBoundary {
   container: HTMLElement;
