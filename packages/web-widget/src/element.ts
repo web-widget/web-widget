@@ -25,7 +25,7 @@ export * from './hydration-error';
 let globalTimeouts: Timeouts = Object.create(null);
 
 type Loading = 'eager' | 'lazy' | 'idle';
-type RenderTarget = 'light' | 'shadow';
+type Root = 'light' | 'shadow';
 
 const innerHTMLDescriptor = Object.getOwnPropertyDescriptor(
   Element.prototype,
@@ -262,17 +262,15 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   /**
-   * WidgetModule render target.
+   * WidgetModule root mode.
    * @default "light"
    */
-  get renderTarget(): RenderTarget {
-    return (
-      (this.getAttribute('rendertarget') as RenderTarget | null) || 'light'
-    );
+  get root(): Root {
+    return (this.getAttribute('root') as Root | null) || 'light';
   }
 
-  set renderTarget(value: RenderTarget) {
-    this.setAttribute('rendertarget', value);
+  set root(value: Root) {
+    this.setAttribute('root', value);
   }
 
   /** Vite CSS module ids transferred by the dev renderer. */
@@ -318,7 +316,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
    */
   createContainer(): Element | DocumentFragment {
     let container: Element | DocumentFragment | null = null;
-    if (this.renderTarget === 'shadow') {
+    if (this.root === 'shadow') {
       const boundary = prepareShadowBoundary(this, this.recovering);
       container = boundary.container;
       const styles = [...this.#widgetStyles];
@@ -330,7 +328,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
         }
       }
       installWidgetStyles(boundary.root, styles, container);
-    } else if (this.renderTarget === 'light') {
+    } else if (this.root === 'light') {
       container = this;
     }
     return container as Element | DocumentFragment;
@@ -686,7 +684,7 @@ export interface HTMLWebWidgetElementAttributes extends Partial<HTMLWebWidgetEle
   recovering?: boolean;
   loading?: Loading;
   import?: string;
-  rendertarget?: RenderTarget;
+  root?: Root;
   base?: string;
   timeouts?: Timeouts;
 }

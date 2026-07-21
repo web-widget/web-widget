@@ -7,7 +7,7 @@ type RendererElementOptions = Omit<
 
 export const defaultWebWidgetRendererOptions = {
   loading: 'lazy',
-  renderTarget: 'light',
+  root: 'light',
 } as const satisfies RendererElementOptions;
 
 export function resolveWebWidgetRendererOptions(
@@ -16,7 +16,6 @@ export function resolveWebWidgetRendererOptions(
   return {
     ...options,
     loading: options.loading ?? defaultWebWidgetRendererOptions.loading,
-    renderTarget:
-      options.renderTarget ?? defaultWebWidgetRendererOptions.renderTarget,
+    root: options.root ?? defaultWebWidgetRendererOptions.root,
   };
 }

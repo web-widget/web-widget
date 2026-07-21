@@ -61,10 +61,8 @@ export function widget(
         )
         .map(([, snippet]) => snippet),
     ].filter((snippet): snippet is Snippet => typeof snippet === 'function');
-    if (snippets.length && options.renderTarget !== 'shadow') {
-      throw new Error(
-        `Rendering content in a slot requires "renderTarget: 'shadow'".`
-      );
+    if (snippets.length && options.root !== 'shadow') {
+      throw new Error(`Rendering content in a slot requires "root: 'shadow'".`);
     }
     const renderOptions = {
       id: widget.id,
@@ -81,7 +79,7 @@ export function widget(
         children: lightChildren,
         data,
         ...renderOptions,
-        renderTarget: options.renderTarget,
+        root: options.root,
         slot,
       });
 

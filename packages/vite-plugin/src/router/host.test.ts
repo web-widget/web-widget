@@ -45,21 +45,21 @@ describe('createRouterPluginHost', () => {
         name: '@web-widget:widget-module-filter',
         api: {
           filter: (modulePath: string) => modulePath.endsWith('.vue'),
-          defaults: { loading: 'idle', renderTarget: 'shadow' },
+          defaults: { loading: 'idle', root: 'shadow' },
         },
       } as any,
       {
         name: '@web-widget:widget-module-filter',
         api: {
           filter: (modulePath: string) => modulePath.endsWith('.tsx'),
-          defaults: { loading: 'idle', renderTarget: 'shadow' },
+          defaults: { loading: 'idle', root: 'shadow' },
         },
       } as any,
     ]);
 
     expect(host.api.widgetDefaults).toEqual({
       loading: 'idle',
-      renderTarget: 'shadow',
+      root: 'shadow',
     });
     expect(host.api.widgetModuleFilter?.('/routes/Counter@widget.vue')).toBe(
       true
@@ -72,10 +72,10 @@ describe('createRouterPluginHost', () => {
   it('rejects conflicting widget defaults', () => {
     const host = createRouterPluginHost();
 
-    host.api.setWidgetDefaults({ renderTarget: 'shadow' });
+    host.api.setWidgetDefaults({ root: 'shadow' });
 
-    expect(() => host.api.setWidgetDefaults({ renderTarget: 'light' })).toThrow(
-      'Conflicting widget default "renderTarget" values'
+    expect(() => host.api.setWidgetDefaults({ root: 'light' })).toThrow(
+      'Conflicting widget default "root" values'
     );
   });
   test('reads importmap and routemap via injected readFile', async () => {

@@ -85,8 +85,8 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     renderStage: {
       type: String as RendererProp<'renderStage'>,
     },
-    renderTarget: {
-      type: String as RendererProp<'renderTarget'>,
+    root: {
+      type: String as RendererProp<'root'>,
       default: 'light',
     },
     renderChildren: {
@@ -267,7 +267,7 @@ export function createWidgetAdapter(
             children: '',
             data,
             ...renderOptions,
-            renderTarget: options.renderTarget,
+            root: options.root,
             slot,
           });
           return () =>
@@ -310,7 +310,7 @@ export function createWidgetAdapter(
                   hostSlot: slot,
                   renderChildren,
                   ...renderOptions,
-                  renderTarget: options.renderTarget,
+                  root: options.root,
                 },
                 slots
               ),

@@ -116,14 +116,14 @@ export interface ImportMap {
 export type WidgetModuleFilter = (modulePath: string) => boolean;
 
 /** Rendering boundary selected for widget containers. */
-export type WidgetRenderTarget = 'light' | 'shadow';
+export type WidgetRoot = 'light' | 'shadow';
 
 /** Build-time defaults injected into every transformed widget container. */
 export interface WidgetDefaults {
   /** Client-side module loading strategy. */
   loading?: 'lazy' | 'eager' | 'idle';
   /** Rendering boundary used by the widget container. */
-  renderTarget?: WidgetRenderTarget;
+  root?: WidgetRoot;
 }
 
 export interface WebRouterPluginApi {

@@ -104,7 +104,7 @@ export default defineConfig(({ command }) => ({
     solidPresetsPlugin(),
     webWidgetPlugin({
       defaults: {
-        renderTarget: 'light', // light | shadow
+        root: 'light', // light | shadow
       },
       adapters: [
         '@web-widget/html',

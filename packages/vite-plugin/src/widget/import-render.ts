@@ -439,9 +439,7 @@ function serializeInjectedOptions(
     defaults.loading
       ? `loading: ${JSON.stringify(defaults.loading)}`
       : undefined,
-    defaults.renderTarget
-      ? `renderTarget: ${JSON.stringify(defaults.renderTarget)}`
-      : undefined,
+    defaults.root ? `root: ${JSON.stringify(defaults.root)}` : undefined,
     generated.devStyles ? `devStyles: ${generated.devStyles}` : undefined,
     generated.import ? `import: ${generated.import}` : undefined,
     generated.name ? `name: ${generated.name}` : undefined,

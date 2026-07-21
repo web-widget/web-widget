@@ -10,7 +10,7 @@ const SlottedWidget = adapter.widget(
     default: {},
     render: async () => `<slot name="label">${SHADOW_MARKER}</slot>`,
   }),
-  { import: '/slotted-widget.js', renderTarget: 'shadow' }
+  { import: '/slotted-widget.js', root: 'shadow' }
 );
 
 testAdapterConformance({

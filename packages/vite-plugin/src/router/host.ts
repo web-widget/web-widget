@@ -108,7 +108,7 @@ export function createRouterPluginHost(
         : filter;
     },
     setWidgetDefaults(defaults) {
-      for (const key of ['loading', 'renderTarget'] as const) {
+      for (const key of ['loading', 'root'] as const) {
         const previous = state.widgetDefaults?.[key];
         const next = defaults[key];
         if (previous && next && previous !== next) {

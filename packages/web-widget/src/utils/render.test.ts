@@ -17,7 +17,7 @@ describe('render protocol', () => {
     );
   });
 
-  it('owns pending boundary placement for each render target', () => {
+  it('owns pending boundary placement for each root mode', () => {
     expect(
       serializePendingBoundary(createPendingBoundary('light'), '<p>wait</p>')
     ).to.equal(

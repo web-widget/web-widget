@@ -80,7 +80,7 @@ describe('widget', () => {
       }),
       {
         import: '/Panel@widget.js',
-        renderTarget: 'shadow',
+        root: 'shadow',
       }
     );
     const result = await Widget({

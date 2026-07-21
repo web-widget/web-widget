@@ -14,7 +14,7 @@ const SlottedWidget = server.widget(
     default: {},
     render: async () => '<slot name="label">SHADOW_SLOT_MARKER</slot>',
   }),
-  { import: '/slotted-widget.js', renderTarget: 'shadow' }
+  { import: '/slotted-widget.js', root: 'shadow' }
 );
 const SlotComponent = {
   render(h: Function) {

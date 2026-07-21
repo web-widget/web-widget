@@ -134,7 +134,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   localName = 'web-widget';
 
   get pendingBoundary() {
-    return createPendingBoundary(this.#options.renderTarget);
+    return createPendingBoundary(this.#options.root);
   }
 
   constructor(
@@ -143,9 +143,9 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   ) {
     const resolvedOptions = resolveWebWidgetRendererOptions(options);
 
-    if (children && resolvedOptions.renderTarget !== 'shadow') {
+    if (children && resolvedOptions.root !== 'shadow') {
       throw new Error(
-        `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
+        `Rendering content in a slot requires "options.root = 'shadow'".`
       );
     }
 
@@ -246,7 +246,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   }
 
   #createRenderParts(appHTML: string, meta: Meta): WidgetRenderParts {
-    const target = this.#options.renderTarget === 'shadow' ? 'shadow' : 'light';
+    const target = this.#options.root === 'shadow' ? 'shadow' : 'light';
     return {
       appHTML,
       attributes: this.attributes,

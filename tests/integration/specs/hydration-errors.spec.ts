@@ -16,7 +16,7 @@ test('reports structured hydration lifecycle errors without unhandled exceptions
     for (const failureAt of ['load', 'bootstrap', 'mount'] as const) {
       const widget = document.createElement('web-widget');
       widget.inactive = true;
-      widget.renderTarget = 'shadow';
+      widget.root = 'shadow';
       widget.import = `/fixtures/${failureAt}.js`;
       widget.setAttribute('adapter', 'fixture');
       const error = new Error(`${failureAt} failed`);

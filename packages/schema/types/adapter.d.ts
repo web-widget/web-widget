@@ -160,7 +160,7 @@ export interface WidgetContainerOptions {
   /** Restrict rendering to one side of the server/client boundary. */
   renderStage?: 'server' | 'client';
   /** Rendering boundary used by the widget container. */
-  renderTarget?: 'light' | 'shadow';
+  root?: 'light' | 'shadow';
 }
 
 /** Standard attributes applied to the generated Web Widget host element. */

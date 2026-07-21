@@ -127,7 +127,7 @@ export function widget(
       children: lightChildrenHTML,
       data: data as SerializableObject,
       ...renderOptions,
-      renderTarget: options.renderTarget,
+      root: options.root,
       slot,
     });
 

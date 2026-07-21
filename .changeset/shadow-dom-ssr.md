@@ -21,7 +21,7 @@ be made root-local. Browsers without native Declarative Shadow DOM parsing use
 a client-side fallback before custom elements are registered.
 
 The new `webWidgetPlugin.defaults` option configures the default `loading` and
-`renderTarget` values for transformed Widget containers. In shadow mode, route
+`root` values for transformed Widget containers. In shadow mode, route
 asset collection omits Widget CSS from the document head and keeps it in each
 shadow boundary. Explicit container options override the injected defaults.
 

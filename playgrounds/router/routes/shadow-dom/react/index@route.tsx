@@ -5,39 +5,39 @@ import { PageHeader, Section } from '~/routes/(components)/ui';
 
 const ReactCounter = widget(
   () => import('~/routes/(components)/react/Counter@widget'),
-  { renderTarget: 'shadow' }
+  { root: 'shadow' }
 );
 const SlotPanel = widget(
   () => import('~/routes/(components)/slots/SlotPanel@widget'),
-  { renderTarget: 'shadow' }
+  { root: 'shadow' }
 );
 const Vue3Counter = widget(
   () => import('~/routes/(vue3)/(components)/Vue3Counter@widget.vue'),
-  { renderTarget: 'shadow' }
+  { root: 'shadow' }
 );
 const Vue2Counter = widget(
   () => import('~/routes/(vue2)/(components)/Vue2Counter@widget.vue'),
-  { renderTarget: 'shadow' }
+  { root: 'shadow' }
 );
 const SvelteCounter = widget(
   () => import('~/routes/(components)/svelte/Counter@widget.svelte'),
-  { renderTarget: 'shadow' }
+  { root: 'shadow' }
 );
 const SolidCounter = widget(
   () => import('~/routes/(components)/solid/Counter@widget'),
-  { renderTarget: 'shadow' }
+  { root: 'shadow' }
 );
 const PreactCounter = widget(
   () => import('~/routes/(components)/preact/Counter@widget'),
-  { renderTarget: 'shadow' }
+  { root: 'shadow' }
 );
 const WebComponentCounter = widget<{ count?: number }>(
   () => import('~/routes/(components)/WebComponentCounter@widget.wc'),
-  { renderTarget: 'shadow' }
+  { root: 'shadow' }
 );
 const LitCounter = widget<{ count?: number }>(
   () => import('~/routes/(components)/LitCounter@widget.lit'),
-  { renderTarget: 'shadow' }
+  { root: 'shadow' }
 );
 
 export const meta = defineMeta({ title: 'React Shadow DOM route' });

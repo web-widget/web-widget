@@ -31,4 +31,4 @@ export interface ElementBounds {
 
 // Re-export types from web-widget to avoid duplication
 export type LoadingStrategy = HTMLWebWidgetElement['loading'];
-export type RenderTarget = HTMLWebWidgetElement['renderTarget'];
+export type Root = HTMLWebWidgetElement['root'];

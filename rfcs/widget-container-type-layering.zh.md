@@ -31,7 +31,7 @@
 
 ### 公共字段重复
 
-`loading`、`renderTarget`、`renderStage` 等字段同时出现在 Schema 和渲染核心中，且部分 adapter 继续通过 `WebWidgetRendererOptions['loading']` 间接引用。字段增加或语义变化时，需要同步修改多个包。
+`loading`、`root`、`renderStage` 等字段同时出现在 Schema 和渲染核心中，且部分 adapter 继续通过 `WebWidgetRendererOptions['loading']` 间接引用。字段增加或语义变化时，需要同步修改多个包。
 
 各框架还重复定义：
 
@@ -96,7 +96,7 @@ vite-plugin ──(生成代码和私有字段)──> framework adapter
 - `Props` 表示返回组件中 `widget` prop 的使用期参数；
 - `Fallback` 和 `RenderMode` 表示由容器边界实现的行为；
 - `Injected` 表示构建工具可用、用户不可见的内部扩展；
-- loading、render target、render stage 直接由所属 options 字段定义；其他层通过索引访问引用，不为字段值集合增加独立导出；
+- loading、root、render stage 直接由所属 options 字段定义；其他层通过索引访问引用，不为字段值集合增加独立导出；
 - `WidgetModuleLoader` 属于模块协议，也不增加 `WidgetContainer` 前缀。
 
 ### Schema：稳定协议
@@ -120,7 +120,7 @@ export interface WidgetContainerOptions {
   meta?: Meta;
   name?: string;
   renderStage?: 'server' | 'client';
-  renderTarget?: 'light' | 'shadow';
+  root?: 'light' | 'shadow';
 }
 ```
 
@@ -158,7 +158,7 @@ export type WidgetContainerProps<TPending = never, TError = TPending> = {
 ```typescript
 export interface WebWidgetElementOptions extends Pick<
   WidgetContainerOptions,
-  'loading' | 'renderTarget'
+  'loading' | 'root'
 > {
   loader?: WidgetModuleLoader<ClientWidgetModule>;
   base?: string;

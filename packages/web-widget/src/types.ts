@@ -19,7 +19,7 @@ export type Loader = WidgetModuleLoader<
 
 export interface WebWidgetElementOptions extends Pick<
   WidgetContainerOptions,
-  'loading' | 'renderTarget'
+  'loading' | 'root'
 > {
   loader?: WidgetModuleLoader<ClientWidgetModule>;
   base?: string;

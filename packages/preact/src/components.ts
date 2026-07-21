@@ -189,7 +189,7 @@ export function createWidgetAdapter(
           children: '',
           data,
           ...renderOptions,
-          renderTarget: options.renderTarget,
+          root: options.root,
           slot,
         }),
         [

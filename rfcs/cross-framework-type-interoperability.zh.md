@@ -104,7 +104,7 @@ import { widget } from '@web-widget/react/adapter';
 const Counter = widget(() => import('./Counter@widget.vue'));
 ```
 
-显式写法也适用于需要添加额外选项（如 `loading`、`renderTarget`）的场景。
+显式写法也适用于需要添加额外选项（如 `loading`、`root`）的场景。
 
 ### 各框架 props 类型推导可行性
 

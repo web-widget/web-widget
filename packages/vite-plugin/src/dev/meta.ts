@@ -10,7 +10,7 @@ import type {
 import type { EnvironmentModuleNode } from 'vite';
 import { isCSSRequest } from 'vite';
 
-import type { WidgetModuleFilter, WidgetRenderTarget } from '@/types';
+import type { WidgetModuleFilter, WidgetRoot } from '@/types';
 import type {
   ClientDevEnvironment,
   ServerDevEnvironment,
@@ -37,7 +37,7 @@ export async function getMeta(
   serverEnvironment: ServerDevEnvironment,
   clientEnvironment: ClientDevEnvironment,
   widgetModuleFilter?: WidgetModuleFilter,
-  widgetRenderTarget: WidgetRenderTarget = 'light'
+  widgetRoot: WidgetRoot = 'light'
 ): Promise<{
   link: LinkDescriptor[];
   style: StyleDescriptor[];
@@ -53,7 +53,7 @@ export async function getMeta(
     serverEnvironment,
     clientEnvironment,
     widgetModuleFilter,
-    getWidgetStyleOwner(widgetRenderTarget) === 'document'
+    getWidgetStyleOwner(widgetRoot) === 'document'
   );
 
   // CSS modules with inline content: emit <style> for immediate CSS

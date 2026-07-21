@@ -96,7 +96,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
         meta: {
           style: [{ id: 'option', content: '.option{color:blue}' }],
         },
-        renderTarget: 'shadow',
+        root: 'shadow',
       }
     );
 
@@ -135,7 +135,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
       {
         children: '<h2 id="light-title" slot="title">Native slot</h2>',
         import: '/assets/panel.js',
-        renderTarget: 'shadow',
+        root: 'shadow',
         renderStage: 'server',
       }
     );
@@ -169,7 +169,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
         default: {},
         render: async () => `<section>${nested}</section>`,
       }),
-      { import: '/assets/outer.js', renderTarget: 'shadow' }
+      { import: '/assets/outer.js', root: 'shadow' }
     );
     const iframe = document.createElement('iframe');
     iframe.srcdoc = await renderer.renderOuterHTMLToString();
@@ -203,7 +203,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
         },
         render: async () => '<p id="strict-csp-content">strict CSP</p>',
       }),
-      { import: '/assets/csp.js', renderTarget: 'shadow' }
+      { import: '/assets/csp.js', root: 'shadow' }
     );
     const html = await renderer.renderOuterHTMLToString();
     const iframe = document.createElement('iframe');
@@ -231,7 +231,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
         meta: { style: [{ content: '.unused{}' }] },
         render: async () => '<p>light</p>',
       }),
-      { import: '/assets/light.js', renderTarget: 'light' }
+      { import: '/assets/light.js', root: 'light' }
     );
 
     const html = await renderer.renderOuterHTMLToString();
@@ -253,7 +253,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
     const html = await renderer.renderOuterHTMLToString();
 
     expect(html).to.contain('loading="lazy"');
-    expect(html).to.contain('rendertarget="light"');
+    expect(html).to.contain('root="light"');
     expect(html).to.contain('><p>defaults</p></web-widget>');
     expect(html).not.to.contain('shadowrootmode');
   });
@@ -268,7 +268,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
       {
         import: '/assets/client.js',
         renderStage: 'client',
-        renderTarget: 'shadow',
+        root: 'shadow',
       }
     );
 
@@ -285,7 +285,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
     const renderer = new WebWidgetRenderer(async () => ({}), {
       import: '/assets/client.js',
       renderStage: 'client',
-      renderTarget: 'shadow',
+      root: 'shadow',
     });
 
     const html = await renderer.renderOuterHTMLToString({
@@ -305,7 +305,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
         style: [{ id: 'client-shell', content: ':host{display:block}' }],
       },
       renderStage: 'client',
-      renderTarget: 'shadow',
+      root: 'shadow',
     });
 
     const html = await renderer.renderOuterHTMLToString();

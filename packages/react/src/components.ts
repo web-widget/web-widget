@@ -368,7 +368,7 @@ export function createWidgetAdapter(
       const { pendingFallback, errorFallback } = resolveFallback(fallback);
       const isServerShadow =
         typeof window === 'undefined' &&
-        options.renderTarget === 'shadow' &&
+        options.root === 'shadow' &&
         !progressive;
       const widgetElement = createElement(
         isServerShadow ? ServerWebWidget : WebWidget,
@@ -384,7 +384,7 @@ export function createWidgetAdapter(
             loader,
             renderChildren,
             ...renderOptions,
-            renderTarget: options.renderTarget,
+            root: options.root,
             slot,
           }),
         }

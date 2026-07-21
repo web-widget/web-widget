@@ -22,13 +22,13 @@ export function serializeAttributes(attrs: Record<string, string>): string {
 }
 
 export function createPendingBoundary(
-  renderTarget: 'light' | 'shadow' | undefined
+  root: 'light' | 'shadow' | undefined
 ): WebWidgetPendingBoundary {
   return {
     ariaBusy: true,
     display: 'contents',
     localName: WEB_WIDGET_PENDING_LOCAL_NAME,
-    slot: renderTarget === 'shadow' ? WEB_WIDGET_PENDING_SLOT_NAME : '',
+    slot: root === 'shadow' ? WEB_WIDGET_PENDING_SLOT_NAME : '',
   };
 }
 

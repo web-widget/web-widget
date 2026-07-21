@@ -16,7 +16,7 @@ const SlottedWidget = server.widget(
     default: {},
     render: async () => '<slot name="label">SHADOW_SLOT_MARKER</slot>',
   }),
-  { import: '/slotted-widget.js', renderTarget: 'shadow' }
+  { import: '/slotted-widget.js', root: 'shadow' }
 );
 const SlotComponent = () =>
   createComponent(SlottedWidget, {
@@ -99,6 +99,6 @@ test('rejects children for a Light Target Widget', async () => {
   await expect(
     server.render(InvalidLightChildrenComponent, {}, { progressive: false })
   ).rejects.toThrow(
-    `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
+    `Rendering content in a slot requires "options.root = 'shadow'".`
   );
 });

@@ -131,7 +131,7 @@ export function createWidgetAdapter(
           ...options,
           data: attrs as WebWidgetRendererOptions['data'],
           ...renderOptions,
-          renderTarget: options.renderTarget,
+          root: options.root,
           slot,
         };
         const createWidget = (children = '') =>

@@ -5,7 +5,7 @@ import type { RouteClientAssets } from './collect-route-assets';
 import { getLinks, getRouteMetaLinks } from './manifest-links';
 import { processCssLinks, type CssConfig } from './css-merge';
 import { normalizePath } from './path';
-import type { WidgetModuleFilter, WidgetRenderTarget } from '@/types';
+import type { WidgetModuleFilter, WidgetRoot } from '@/types';
 
 /**
  * Virtual module id for the server-side asset resolver.
@@ -60,7 +60,7 @@ export async function buildServerAssetsData(
   base: string,
   root: string,
   widgetModuleFilter: WidgetModuleFilter | undefined,
-  widgetRenderTarget: WidgetRenderTarget,
+  widgetRoot: WidgetRoot,
   clientEntryId: string | undefined,
   cssConfig: CssConfig,
   clientOutDir: string,
@@ -95,7 +95,7 @@ export async function buildServerAssetsData(
       assets,
       base,
       widgetModuleFilter,
-      widgetRenderTarget
+      widgetRoot
     );
     // Collect widget module paths so we can generate link entries for them too.
     for (const widgetModule of assets.widgetModules) {

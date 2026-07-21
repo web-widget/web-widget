@@ -32,7 +32,7 @@ webWidgetPlugin({
   adapters: ['@web-widget/react'],
   defaults: {
     loading: 'lazy',
-    renderTarget: 'shadow',
+    root: 'shadow',
   },
 });
 
@@ -55,7 +55,7 @@ const Counter = widget(() => import('./Counter@widget.tsx'));
 Shadow SSR 的规范输出为：
 
 ```html
-<web-widget import="/assets/counter.js" rendertarget="shadow" recovering>
+<web-widget import="/assets/counter.js" root="shadow" recovering>
   <template shadowrootmode="open">
     <style data-web-widget-style="counter.css">
       :host {
@@ -182,14 +182,14 @@ Vite 可以在模块图和构建产物层面复用 CSS asset，但不会理解 `
 
 多个 ShadowRoot 各自持有样式节点不等同于上述重复。除非采用 constructable stylesheet，每个 ShadowRoot 都必须显式引用或包含 Widget CSS；需要消除的是同一 Widget CSS 在 document head 与 ShadowRoot 之间没有作用域收益的重复交付。
 
-资产协议以 `webWidgetPlugin.defaults.renderTarget` 作为构建级契约：
+资产协议以 `webWidgetPlugin.defaults.root` 作为构建级契约：
 
-- `defaults.renderTarget: 'shadow'` 时，Widget CSS 不进入 route head，只保留在 Widget module meta，由 DSD/ShadowRoot 消费。
-- `defaults.renderTarget: 'light'` 时，Widget CSS 进入 route head，不创建 ShadowRoot 样式副本。
-- build transform 将全局值注入每个 Widget renderer，manifest 和 dev module graph 使用同一个值，避免 CSS 所有权与运行时 target 不一致。
+- `defaults.root: 'shadow'` 时，Widget CSS 不进入 route head，只保留在 Widget module meta，由 DSD/ShadowRoot 消费。
+- `defaults.root: 'light'` 时，Widget CSS 进入 route head，不创建 ShadowRoot 样式副本。
+- build transform 将全局值注入每个 Widget renderer，manifest 和 dev module graph 使用同一个值，避免 CSS 所有权与运行时 `root` 不一致。
 - Widget module 自身的 CSS asset 映射始终保留；去重只影响 route head，不影响 ShadowRoot 获取样式。
 
-运行时允许同一个构建混用 light/shadow Widget，但构建期 CSS 去重只能依据 `defaults.renderTarget` 做全局决策，不能静态分析每个 `widget()` 的局部覆盖。局部 target 与全局默认值不同时仍可正确渲染，但 Widget CSS 可能同时出现在 document head 和 ShadowRoot；要求确定 CSS 所有权和零重复交付的应用应选择单一全局 target。非 Vite 集成仍可直接使用底层 `WebWidgetRendererOptions.renderTarget`，但不获得该构建期 CSS 去重协议。
+运行时允许同一个构建混用 light/shadow Widget，但构建期 CSS 去重只能依据 `defaults.root` 做全局决策，不能静态分析每个 `widget()` 的局部覆盖。局部 `root` 与全局默认值不同时仍可正确渲染，但 Widget CSS 可能同时出现在 document head 和 ShadowRoot；要求确定 CSS 所有权和零重复交付的应用应选择单一全局 `root`。非 Vite 集成仍可直接使用底层 `WebWidgetRendererOptions.root`，但不获得该构建期 CSS 去重协议。
 
 ### 限制
 

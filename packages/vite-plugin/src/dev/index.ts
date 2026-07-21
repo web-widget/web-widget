@@ -148,8 +148,7 @@ function createWebRouterDevMiddleware(
   const base = viteServer.config.base;
   const webRouterPluginApi = getWebRouterPluginApi(viteServer.config);
   const widgetModuleFilter = webRouterPluginApi?.widgetModuleFilter;
-  const widgetRenderTarget =
-    webRouterPluginApi?.widgetDefaults.renderTarget ?? 'light';
+  const widgetRoot = webRouterPluginApi?.widgetDefaults.root ?? 'light';
 
   // Resolve the Inspector module URL once, from the vite-plugin package
   // itself (which depends on @web-widget/inspector). The page source is
@@ -205,7 +204,7 @@ function createWebRouterDevMiddleware(
                 serverDev,
                 clientDev,
                 widgetModuleFilter,
-                widgetRenderTarget
+                widgetRoot
               );
               // Merge dev tags from transformIndexHtml (React refresh
               // preamble, /@vite/client, plugin styles/links/meta) into

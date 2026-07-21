@@ -91,7 +91,7 @@ describe('Element default properties', () => {
       loading: 'eager',
       status: HTMLWebWidgetElement.INITIAL,
       import: '',
-      renderTarget: 'light',
+      root: 'light',
       loader: null,
     };
 
@@ -132,7 +132,7 @@ describe('Load module', () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
     widget.import = __FIXTURES__;
-    widget.renderTarget = 'light';
+    widget.root = 'light';
     widget.contextData = testData;
     document.body.appendChild(widget);
 
@@ -205,7 +205,7 @@ describe('Hydration error event', () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
     widget.recovering = true;
-    widget.renderTarget = 'light';
+    widget.root = 'light';
     widget.import = '/fixtures/recovering-widget.js';
     widget.setAttribute('adapter', 'test-adapter');
     document.body.appendChild(widget);
@@ -426,7 +426,7 @@ describe('Application property: container', () => {
 
   it('container', () =>
     createInactiveWidget(async ({ getElement, getContext }) => {
-      getElement().renderTarget = 'shadow';
+      getElement().root = 'shadow';
       await getElement().load();
       await getElement().bootstrap();
       await getElement().mount();
@@ -442,7 +442,7 @@ describe('Application property: container', () => {
   it('recovers a declarative shadow mount root without replacing SSR nodes', async () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
-    widget.renderTarget = 'shadow';
+    widget.root = 'shadow';
     widget.recovering = true;
     const root = widget.attachShadow({ mode: 'open' });
     root.innerHTML =
@@ -466,7 +466,7 @@ describe('Application property: container', () => {
   it('keeps SSR CSS when dev hydration transfers only the style id', async () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
-    widget.renderTarget = 'shadow';
+    widget.root = 'shadow';
     widget.recovering = true;
     widget.setAttribute('devstyles', JSON.stringify(['/src/counter.css']));
     const root = widget.attachShadow({ mode: 'open' });
@@ -492,7 +492,7 @@ describe('Application property: container', () => {
   it('rejects recovery when the declarative shadow root is missing', async () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
-    widget.renderTarget = 'shadow';
+    widget.root = 'shadow';
     widget.recovering = true;
     document.body.appendChild(widget);
 
@@ -505,7 +505,7 @@ describe('Application property: container', () => {
   it('does not mistake an application slot for the boundary pending slot', () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
-    widget.renderTarget = 'shadow';
+    widget.root = 'shadow';
     widget.innerHTML = '<div slot="web-widget-pending">Loading</div>';
     const root = widget.attachShadow({ mode: 'open' });
     root.innerHTML =
@@ -532,7 +532,7 @@ describe('Application property: container', () => {
   it('creates a pending slot for the lifecycle-owned pending element', () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
-    widget.renderTarget = 'shadow';
+    widget.root = 'shadow';
     const pending = document.createElement(WEB_WIDGET_PENDING_LOCAL_NAME);
     pending.slot = WEB_WIDGET_PENDING_SLOT_NAME;
     widget.append(pending);
@@ -553,7 +553,7 @@ describe('Application property: container', () => {
   it('does not create a pending slot without pending content', () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
-    widget.renderTarget = 'shadow';
+    widget.root = 'shadow';
     const root = widget.attachShadow({ mode: 'open' });
     document.body.appendChild(widget);
 
@@ -568,7 +568,7 @@ describe('Application property: container', () => {
   it('installs widget styles before the client renderer bootstraps', async () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
-    widget.renderTarget = 'shadow';
+    widget.root = 'shadow';
     let styleWasInstalled = false;
     widget.loader = async () => ({
       meta: {

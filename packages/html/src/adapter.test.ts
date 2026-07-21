@@ -99,6 +99,6 @@ describe('widget', () => {
     const defaultText = defaultResult.toString();
     expect(defaultText).toContain('recovering');
     expect(defaultText).toContain('loading="lazy"');
-    expect(defaultText).toContain('rendertarget="light"');
+    expect(defaultText).toContain('root="light"');
   });
 });

@@ -55,7 +55,7 @@ vi.mock('./edge', async () => {
 const ConformanceComponent = ({ message }: { message: string }) =>
   createElement('p', null, message);
 const SlottedWidget = adapter.widget(async () => ({}), {
-  renderTarget: 'shadow',
+  root: 'shadow',
 });
 const SlotConformanceComponent = () =>
   createElement(

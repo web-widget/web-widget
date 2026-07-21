@@ -52,7 +52,7 @@ export default defineConfig({
     react(),
     vue(),
     webWidgetPlugin({
-      defaults: { renderTarget: 'shadow' },
+      defaults: { root: 'shadow' },
       adapters: [
         '@web-widget/react',
         { from: '@web-widget/vue', scope: ['widgets'] },

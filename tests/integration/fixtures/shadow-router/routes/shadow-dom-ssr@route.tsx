@@ -14,11 +14,11 @@ function shadowMeta(framework: string): WidgetContainerOptions['meta'] {
 }
 
 const ReactCounter = widget(() => import('../widgets/ReactCounter@widget'), {
-  renderTarget: 'shadow',
+  root: 'shadow',
   meta: shadowMeta('react'),
 });
 const VueCounter = widget(() => import('../widgets/VueCounter@widget.vue'), {
-  renderTarget: 'shadow',
+  root: 'shadow',
   meta: shadowMeta('vue3'),
 });
 

@@ -117,11 +117,11 @@ describe('transformWidgetImports', () => {
       const result = await transformWidgetImports(
         makeCtx(),
         makeOptions(code, {
-          defaults: { loading: 'idle', renderTarget: 'shadow' },
+          defaults: { loading: 'idle', root: 'shadow' },
         })
       );
       expect(result!.code).toContain(
-        '{ loading: "idle", renderTarget: "shadow", import: "/src/Counter@widget.vue", name: "Counter" }'
+        '{ loading: "idle", root: "shadow", import: "/src/Counter@widget.vue", name: "Counter" }'
       );
     });
 
@@ -182,7 +182,7 @@ describe('transformWidgetImports', () => {
     });
 
     test('injects widget styles into explicit widget options in dev', async () => {
-      const code = `const Counter = widget(() => import('./Counter@widget.vue'), { renderTarget: 'shadow' });`;
+      const code = `const Counter = widget(() => import('./Counter@widget.vue'), { root: 'shadow' });`;
       const result = await transformWidgetImports(
         makeCtx({
           getDevStyles: async () => [
@@ -193,20 +193,20 @@ describe('transformWidgetImports', () => {
       );
 
       expect(result!.code).toContain(
-        '{ devStyles: [{"id":"/project/src/widget.css","content":".button{color:red}"}], import: "/src/Counter@widget.vue", name: "Counter", renderTarget: \'shadow\' }'
+        '{ devStyles: [{"id":"/project/src/widget.css","content":".button{color:red}"}], import: "/src/Counter@widget.vue", name: "Counter", root: \'shadow\' }'
       );
     });
 
     test('keeps explicit options after build-time defaults', async () => {
-      const code = `const Counter = widget(() => import('./Counter@widget.vue'), { loading: 'eager', renderTarget: 'light' });`;
+      const code = `const Counter = widget(() => import('./Counter@widget.vue'), { loading: 'eager', root: 'light' });`;
       const result = await transformWidgetImports(
         makeCtx(),
         makeOptions(code, {
-          defaults: { loading: 'idle', renderTarget: 'shadow' },
+          defaults: { loading: 'idle', root: 'shadow' },
         })
       );
       expect(result!.code).toContain(
-        '{ loading: "idle", renderTarget: "shadow", import: "/src/Counter@widget.vue", name: "Counter", loading: \'eager\', renderTarget: \'light\' }'
+        '{ loading: "idle", root: "shadow", import: "/src/Counter@widget.vue", name: "Counter", loading: \'eager\', root: \'light\' }'
       );
     });
 
