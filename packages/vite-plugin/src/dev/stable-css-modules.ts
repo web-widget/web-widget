@@ -1,7 +1,11 @@
 import type { Plugin } from 'vite';
-import { applyToClientEnvironment } from '@/internal/environment';
 import { CSS_MODULE_RE } from '@/internal/module-id';
 import type { RouterPluginHost } from '@/router/host';
+
+/** Inlined to avoid pulling Vite runtime exports into Jest. */
+function applyToClientEnvironment(): Plugin['applyToEnvironment'] {
+  return (environment) => environment.config.consumer === 'client';
+}
 
 export const STABLE_DEV_CSS_MODULE_NAME = '[name]_[local]_[hash:base64:5]';
 
