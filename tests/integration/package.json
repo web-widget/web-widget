@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "vite build && BUILD_TARGET=server vite build",
-    "dev": "vite --host 127.0.0.1 --port 5174",
+    "dev": "vite --host 127.0.0.1 --port 5174 --strictPort",
     "serve:production": "node scripts/production-server.mjs",
     "test": "tsc --noEmit && tsc --noEmit -p fixtures/shadow-router",
     "test:ci:core:dev": "playwright test --project=chromium --workers=1 --grep-invert 'M0[2-5]|completes hydration/recovery'",

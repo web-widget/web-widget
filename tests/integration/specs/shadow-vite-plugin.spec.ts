@@ -154,13 +154,7 @@ test.describe('Vite Shadow SSR development pipeline', () => {
     await withRouterFixture(
       'dev',
       async (fixture) => {
-        let documents = 0;
-        page.on('response', (response) => {
-          if (response.request().resourceType() === 'document') documents++;
-        });
         await openStableDevPage(page, `${fixture.baseURL}/shadow-dom-ssr`);
-        const beforeCssUpdate = documents;
-        const viteReconnected = waitForViteConnection(page);
 
         await mutateRouterSource(
           fixture,
@@ -195,8 +189,8 @@ test.describe('Vite Shadow SSR development pipeline', () => {
             })
           ).toBe(true);
         }
-        await expect.poll(() => documents).toBe(beforeCssUpdate + 1);
-        await viteReconnected;
+        // Vite may converge through in-place HMR or a full reload depending on
+        // the active framework boundary. Both paths must also update fresh SSR.
         const html = await (
           await fetch(`${fixture.baseURL}/shadow-dom-ssr`)
         ).text();

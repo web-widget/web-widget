@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const production = process.env.TEST_MODE === 'production';
-const port = production ? 4174 : 5174;
+const port = Number(process.env.TEST_PORT ?? (production ? 4174 : 5174));
 const extendedBrowsers = process.env.BROWSER_MATRIX === 'extended';
 
 export default defineConfig({
@@ -18,7 +18,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: production ? 'node scripts/production-server.mjs' : 'pnpm dev',
+    command: production
+      ? 'node scripts/production-server.mjs'
+      : `pnpm exec vite --host 127.0.0.1 --port ${port} --strictPort`,
+    env: { PORT: String(port) },
     url: `http://127.0.0.1:${port}`,
     reuseExistingServer: false,
     timeout: 30_000,
