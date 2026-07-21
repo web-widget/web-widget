@@ -198,7 +198,7 @@ describe('render (server)', () => {
     const result = await render(
       () =>
         createElement(ReactRenderProgressiveContext.Consumer, {
-          children: (progressive: boolean) => String(progressive),
+          children: (progressive: boolean | undefined) => String(progressive),
         }),
       {},
       { progressive: true }

@@ -42,6 +42,7 @@ export const widget = createWidgetAdapter((children) =>
 );
 
 type StreamOptions = {
+  /** @deprecated */
   awaitAllReady?: boolean;
 } & RenderToReadableStreamOptions &
   RenderToStringOptions;

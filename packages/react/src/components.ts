@@ -24,9 +24,12 @@ import {
 import type { FunctionComponent, ReactNode } from 'react';
 export type { WidgetContainerOptions } from '@web-widget/schema';
 
-// The server adapter sets this for the current route render so Shadow Widgets
-// can preserve outer progressive rendering without leaking $RC in buffered SSR.
-export const ReactRenderProgressiveContext = createContext(false);
+// The server adapter sets this for the current route render so nested Widgets
+// can preserve progressive rendering or await their final HTML in buffered SSR.
+// `undefined` means the Widget is not currently managed by the server adapter.
+export const ReactRenderProgressiveContext = createContext<boolean | undefined>(
+  undefined
+);
 
 export interface ReactWidgetComponent<T> extends FunctionComponent<
   T & ReactWidgetProps
@@ -218,9 +221,8 @@ async function ServerWebWidget({
     );
   }
 
-  // Server components can await Widget HTML directly. Using use(Promise)
-  // here makes React emit its $RC replacement protocol even when the outer
-  // renderer is explicitly non-progressive.
+  // Buffered SSR awaits Widget HTML directly. Using use(Promise) here can make
+  // React retain its fallback replacement protocol in the resulting string.
   const html = await innerHTML;
   if (html instanceof Error) {
     console.error('[ReactWidget] Rendering error:', html);
@@ -366,12 +368,10 @@ export function createWidgetAdapter(
             : options.renderStage,
       };
       const { pendingFallback, errorFallback } = resolveFallback(fallback);
-      const isServerShadow =
-        typeof window === 'undefined' &&
-        options.root === 'shadow' &&
-        !progressive;
+      const isBufferedServerRender =
+        typeof window === 'undefined' && progressive === false;
       const widgetElement = createElement(
-        isServerShadow ? ServerWebWidget : WebWidget,
+        isBufferedServerRender ? ServerWebWidget : WebWidget,
         {
           clientOnly,
           errorFallback,
@@ -392,7 +392,7 @@ export function createWidgetAdapter(
       return createElement(
         WidgetErrorBoundary,
         { fallback: errorFallback },
-        isServerShadow
+        isBufferedServerRender
           ? widgetElement
           : createElement(Suspense, {
               fallback: pendingFallback,
