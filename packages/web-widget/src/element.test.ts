@@ -88,7 +88,7 @@ describe('Element default properties', () => {
       contextData: null,
       inactive: false,
       recovering: false,
-      loading: 'eager',
+      loading: 'auto',
       status: HTMLWebWidgetElement.INITIAL,
       import: '',
       root: 'light',
@@ -949,12 +949,45 @@ describe('Race Condition Fix', () => {
 
   it('should work correctly with lazy loading', async () => {
     let loadCallCount = 0;
+    const lazyElement = document.createElement('web-widget');
 
+    lazyElement.style.cssText = 'display:block;position:absolute;top:100000px';
     // Set attributes first before setting loader
-    element.loading = 'lazy';
-    element.import = 'test-module';
+    lazyElement.loading = 'lazy';
+    lazyElement.import = 'test-module';
 
-    element.loader = async () => {
+    lazyElement.loader = async () => {
+      loadCallCount++;
+      return {
+        render: async () => ({
+          bootstrap: async () => {},
+          mount: async () => {},
+          update: async () => {},
+          unmount: async () => {},
+          unload: async () => {},
+        }),
+      };
+    };
+    document.body.appendChild(lazyElement);
+
+    // Trigger attribute changes (should not auto-mount with lazy loading)
+    lazyElement.setAttribute('contextdata', '{"test": "data"}');
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Should not have auto-mounted with lazy loading
+    expect(loadCallCount).to.equal(0);
+    expect(lazyElement.status).to.equal('initial');
+    lazyElement.remove();
+  });
+
+  it('should auto-mount a visible widget when its loader is set after connection', async () => {
+    let loadCallCount = 0;
+    const autoElement = document.createElement('web-widget');
+    autoElement.import = 'test-module';
+    document.body.appendChild(autoElement);
+
+    autoElement.loader = async () => {
       loadCallCount++;
       return {
         render: async () => ({
@@ -967,13 +1000,10 @@ describe('Race Condition Fix', () => {
       };
     };
 
-    // Trigger attribute changes (should not auto-mount with lazy loading)
-    element.setAttribute('contextdata', '{"test": "data"}');
-
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // Should not have auto-mounted with lazy loading
-    expect(loadCallCount).to.equal(0);
-    expect(element.status).to.equal('initial');
+    expect(loadCallCount).to.equal(1);
+    expect(autoElement.status).to.equal('mounted');
+    autoElement.remove();
   });
 });

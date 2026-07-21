@@ -128,7 +128,7 @@ function App() {
 
 `WidgetContainer` 的行为契约：
 
-1. **加载**：调用 `loader` 获取通用模块，按 `loading` 选项决定时机——`lazy`（默认）在组件首次渲染时加载，`eager` 在模块解析时立即加载
+1. **加载**：调用 `loader` 获取通用模块，按 `loading` 选项决定时机——`auto`（默认）优先加载可见或发生交互的 Widget，并在空闲阶段加载其余 Widget；`lazy` 等待接近视口，`eager` 立即加载，`idle` 等待浏览器空闲
 2. **渲染**：调用通用模块的渲染函数，将 `props` 作为数据参数传入，获取渲染结果
 3. **适配**：将渲染结果转换为当前框架的原生组件树（如 React 元素树、Vue VNode），使返回的组件可像普通组件一样被使用
 4. **生命周期**：返回的组件需正确处理挂载、更新（props 变化）、卸载，在卸载时清理 widget 的运行时资源
@@ -355,11 +355,12 @@ type WidgetContainerConfig<TFallback> = {
 
   /**
    * 客户端模块加载策略。
-   * - `'lazy'`（默认）：首次渲染时加载
+   * - `'auto'`（默认）：按可见性和交互优先级调度，并最终加载全部 Widget
+   * - `'lazy'`：接近视口时加载
    * - `'eager'`：模块解析时立即加载
    * - `'idle'`：浏览器空闲时加载
    */
-  loading?: 'lazy' | 'eager' | 'idle';
+  loading?: 'auto' | 'lazy' | 'eager' | 'idle';
 
   /**
    * 仅服务端渲染（SSR），产出静态 HTML，无客户端水合。

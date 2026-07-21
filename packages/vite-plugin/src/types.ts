@@ -121,7 +121,7 @@ export type WidgetRoot = 'light' | 'shadow';
 /** Build-time defaults injected into every transformed widget container. */
 export interface WidgetDefaults {
   /** Client-side module loading strategy. */
-  loading?: 'lazy' | 'eager' | 'idle';
+  loading?: 'auto' | 'lazy' | 'eager' | 'idle';
   /** Rendering boundary used by the widget container. */
   root?: WidgetRoot;
 }

@@ -43,7 +43,7 @@ interface WidgetContainerConfig {
         pending?: FrameworkNode;
         error?: FrameworkNode;
       };
-  loading?: 'lazy' | 'eager' | 'idle';
+  loading?: 'auto' | 'lazy' | 'eager' | 'idle';
   serverOnly?: true;
   clientOnly?: true;
 }
@@ -116,7 +116,7 @@ export type WidgetModuleLoader<M extends WidgetModule = WidgetModule> =
 
 ```typescript
 export interface WidgetContainerOptions {
-  loading?: 'lazy' | 'eager' | 'idle';
+  loading?: 'auto' | 'lazy' | 'eager' | 'idle';
   meta?: Meta;
   name?: string;
   renderStage?: 'server' | 'client';
@@ -214,7 +214,7 @@ const renderOptions = {
 };
 ```
 
-默认值由 `resolveWebWidgetRendererOptions` 在 renderer 边界统一应用。元素自身的 getter 继续为直接 DOM 使用提供相同默认值，adapter 不再硬编码 `'lazy'` 或 `'light'`。
+默认值由 `resolveWebWidgetRendererOptions` 在 renderer 边界统一应用。元素自身的 getter 继续为直接 DOM 使用提供相同默认值，adapter 不再硬编码 `'auto'` 或 `'light'`。
 
 ## 框架 adapter 类型
 

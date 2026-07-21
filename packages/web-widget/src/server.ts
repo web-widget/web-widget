@@ -18,7 +18,10 @@ import {
 } from './constants';
 import { resolveWebWidgetId } from './id';
 import { resolveWidgetStyles } from './style-descriptors';
-import { resolveWebWidgetRendererOptions } from './options';
+import {
+  omitDefaultWebWidgetRendererOptions,
+  resolveWebWidgetRendererOptions,
+} from './options';
 import {
   createPendingBoundary,
   getClientModuleId,
@@ -164,7 +167,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       devStyles,
       meta: _meta,
       ...options
-    } = this.#options;
+    } = omitDefaultWebWidgetRendererOptions(this.#options);
     const renderStage = this.#renderStage;
 
     if (renderStage === 'server') {

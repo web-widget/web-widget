@@ -100,7 +100,7 @@ type HtmlWidgetProps<T = unknown> = T & {
 
 type WidgetContainerConfig = {
   /** 客户端加载策略 */
-  loading?: 'lazy' | 'eager' | 'idle';
+  loading?: 'auto' | 'lazy' | 'eager' | 'idle';
   /** 仅服务端渲染，产出静态 HTML，不挂载客户端 */
   serverOnly?: true;
   /** 仅客户端渲染，不产出服务端 HTML */

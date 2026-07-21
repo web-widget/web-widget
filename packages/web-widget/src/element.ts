@@ -3,6 +3,7 @@ import { callSyncCacheProvider } from '@web-widget/lifecycle-cache/client';
 import type { SerializableObject } from '@web-widget/schema';
 import { createIdleObserver } from './utils/idle';
 import { createVisibleObserver } from './utils/lazy';
+import { scheduleAutoMount } from './utils/auto';
 import { triggerModulePreload } from './utils/module-preload';
 import { queueMicrotask } from './utils/queue-microtask';
 import { reportError } from './utils/report-error';
@@ -24,7 +25,7 @@ export * from './hydration-error';
 
 let globalTimeouts: Timeouts = Object.create(null);
 
-type Loading = 'eager' | 'lazy' | 'idle';
+type Loading = 'auto' | 'eager' | 'lazy' | 'idle';
 type Root = 'light' | 'shadow';
 
 const innerHTMLDescriptor = Object.getOwnPropertyDescriptor(
@@ -83,7 +84,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #autoMount() {
     // Prevent duplicate execution
-    if (this.#autoMountPromise) return;
+    if (this.#autoMountPromise) return this.#autoMountPromise;
 
     // Check prerequisites for auto-mounting:
     // - Element must be connected to DOM
@@ -112,6 +113,15 @@ export class HTMLWebWidgetElement extends HTMLElement {
         this.#autoMountPromise = null;
       }
     });
+    return this.#autoMountPromise;
+  }
+
+  #resetLoadingStrategy() {
+    this.#disconnectObserver?.();
+    this.#disconnectObserver = undefined;
+    if (!this.#autoMountPromise) {
+      this.#connectedCallback();
+    }
   }
 
   /**
@@ -127,6 +137,8 @@ export class HTMLWebWidgetElement extends HTMLElement {
       this.#loader = value;
       if (this.loading === 'eager') {
         this.#autoMount();
+      } else if (this.loading === 'auto' && this.isConnected) {
+        this.#resetLoadingStrategy();
       }
     }
   }
@@ -226,10 +238,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   /**
    * Indicates how the browser should load the module.
-   * @default "eager"
+   * @default "auto"
    */
   get loading(): Loading {
-    return (this.getAttribute('loading') as Loading | null) || 'eager';
+    return (this.getAttribute('loading') as Loading | null) || 'auto';
   }
 
   set loading(value: Loading) {
@@ -408,6 +420,12 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #connectedCallback() {
     const loadingStrategies = {
+      auto: () =>
+        (this.#disconnectObserver = scheduleAutoMount(
+          this,
+          () => this.#autoMount(),
+          createVisibleObserver
+        )),
       eager: () => this.#autoMount(),
       lazy: () =>
         (this.#disconnectObserver = createVisibleObserver(this, () =>
@@ -432,12 +450,22 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string) {
+    if (name === 'loading' && this.isConnected) {
+      this.#resetLoadingStrategy();
+      return;
+    }
     const cacheClearingAttributes = ['contextdata', 'data'];
     if (cacheClearingAttributes.includes(name)) {
       this.#data = null;
     }
     if (this.loading === 'eager') {
       this.#autoMount();
+    } else if (
+      name === 'import' &&
+      this.loading === 'auto' &&
+      this.isConnected
+    ) {
+      this.#resetLoadingStrategy();
     }
   }
 

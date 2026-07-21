@@ -98,7 +98,7 @@ describe('widget', () => {
     const defaultResult = await Counter({ count: 1 });
     const defaultText = defaultResult.toString();
     expect(defaultText).toContain('recovering');
-    expect(defaultText).toContain('loading="lazy"');
-    expect(defaultText).toContain('root="light"');
+    expect(defaultText).not.toContain('loading=');
+    expect(defaultText).not.toContain('root=');
   });
 });

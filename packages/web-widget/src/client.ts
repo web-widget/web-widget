@@ -12,7 +12,10 @@ import {
   unsafePropsToAttrs,
 } from './utils/render';
 import { INNER_HTML_PLACEHOLDER } from './element';
-import { resolveWebWidgetRendererOptions } from './options';
+import {
+  omitDefaultWebWidgetRendererOptions,
+  resolveWebWidgetRendererOptions,
+} from './options';
 import './install';
 
 export type * from './types';
@@ -55,7 +58,7 @@ class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
       devStyles,
       meta: _meta,
       ...options
-    } = this.#options;
+    } = omitDefaultWebWidgetRendererOptions(this.#options);
 
     const attrs = unsafePropsToAttrs({
       ...options,

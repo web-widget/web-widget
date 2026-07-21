@@ -241,7 +241,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
     expect(html).not.to.contain('.unused{}');
   });
 
-  it('applies shared light and lazy defaults', async () => {
+  it('omits shared light and auto defaults from SSR attributes', async () => {
     const renderer = new WebWidgetRenderer(
       async () => ({
         default: {},
@@ -252,10 +252,25 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
 
     const html = await renderer.renderOuterHTMLToString();
 
-    expect(html).to.contain('loading="lazy"');
-    expect(html).to.contain('root="light"');
+    expect(html).not.to.contain('loading=');
+    expect(html).not.to.contain('root=');
     expect(html).to.contain('><p>defaults</p></web-widget>');
     expect(html).not.to.contain('shadowrootmode');
+  });
+
+  it('keeps an explicit shadow root while omitting its auto loading default', async () => {
+    const renderer = new WebWidgetRenderer(
+      async () => ({
+        default: {},
+        render: async () => '<p>shadow defaults</p>',
+      }),
+      { import: '/assets/shadow-defaults.js', root: 'shadow', loading: 'auto' }
+    );
+
+    const html = await renderer.renderOuterHTMLToString();
+
+    expect(html).to.match(/<web-widget[^>]*\sroot="shadow"/);
+    expect(html).not.to.contain('loading=');
   });
 
   it('emits an empty non-recovering shadow boundary for client-only widgets', async () => {

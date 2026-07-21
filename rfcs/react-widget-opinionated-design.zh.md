@@ -152,7 +152,7 @@ type WidgetContainerConfig = {
   /** 加载态和错误态的占位 UI */
   fallback?: WidgetFallback;
   /** 客户端模块加载策略 */
-  loading?: 'lazy' | 'eager' | 'idle';
+  loading?: 'auto' | 'lazy' | 'eager' | 'idle';
   /** widget 仅在服务端渲染，不在客户端挂载。与 clientOnly 互斥 */
   serverOnly?: true;
   /** widget 仅在客户端渲染，不产出服务端 HTML。与 serverOnly 互斥 */

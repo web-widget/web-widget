@@ -6,7 +6,7 @@ type RendererElementOptions = Omit<
 >;
 
 export const defaultWebWidgetRendererOptions = {
-  loading: 'lazy',
+  loading: 'auto',
   root: 'light',
 } as const satisfies RendererElementOptions;
 
@@ -18,4 +18,17 @@ export function resolveWebWidgetRendererOptions(
     loading: options.loading ?? defaultWebWidgetRendererOptions.loading,
     root: options.root ?? defaultWebWidgetRendererOptions.root,
   };
+}
+
+export function omitDefaultWebWidgetRendererOptions(
+  options: RendererElementOptions
+): RendererElementOptions {
+  const serializedOptions = { ...options };
+  if (serializedOptions.loading === defaultWebWidgetRendererOptions.loading) {
+    delete serializedOptions.loading;
+  }
+  if (serializedOptions.root === defaultWebWidgetRendererOptions.root) {
+    delete serializedOptions.root;
+  }
+  return serializedOptions;
 }

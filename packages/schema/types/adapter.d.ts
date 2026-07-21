@@ -152,7 +152,7 @@ export type WidgetContainerRenderMode =
 /** Options accepted by a framework adapter when defining a widget container. */
 export interface WidgetContainerOptions {
   /** Client-side module loading strategy. */
-  loading?: 'lazy' | 'eager' | 'idle';
+  loading?: 'auto' | 'lazy' | 'eager' | 'idle';
   /** Metadata contributed by the widget. */
   meta?: Meta;
   /** Diagnostic name for the widget container. */
