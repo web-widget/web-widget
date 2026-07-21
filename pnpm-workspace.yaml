@@ -64,6 +64,8 @@ catalog:
   'vite-plugin-solid': ^2.11.12
   'vite': ^8.0.12
   'vitest': ^4.1.6
+  '@vitest/browser-playwright': 4.1.6
+  '@vitest/coverage-v8': 4.1.6
   '@cloudflare/vitest-pool-workers': ^0.16.4
   'tsup': ^8.3.4
   'jest': ^29.7.0

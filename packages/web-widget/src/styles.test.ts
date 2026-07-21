@@ -1,4 +1,3 @@
-import { expect } from '@esm-bundle/chai';
 import { installWidgetStyles } from './styles';
 
 const nextMutation = () => new Promise((resolve) => setTimeout(resolve));

@@ -1,4 +1,3 @@
-import { expect } from '@esm-bundle/chai';
 import {
   createPendingBoundary,
   serializeAttributes,

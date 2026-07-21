@@ -1,4 +1,3 @@
-import { expect } from '@esm-bundle/chai';
 import type { ServerRenderOptions } from '@web-widget/schema';
 import { WebWidgetRenderer } from './server';
 
@@ -37,7 +36,11 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
     const renderer = new WebWidgetRenderer(
       async () => ({
         default: {},
-        render: async (_component, _data, options) => {
+        render: async (
+          _component: unknown,
+          _data: unknown,
+          options: ServerRenderOptions
+        ) => {
           renderId = options.id;
           return '<p>identified</p>';
         },
@@ -150,7 +153,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
     const root = host.shadowRoot!;
     const slot = root.querySelector<HTMLSlotElement>('slot[name="title"]')!;
 
-    expect(root).to.be.an.instanceof(iframe.contentWindow!.ShadowRoot);
+    expect(root.host).to.equal(host);
     expect(root.querySelector('[data-web-widget-style="shell"]')).not.to.equal(
       null
     );

@@ -1,11 +1,22 @@
 import type { ClientRenderOptions } from '@web-widget/helpers';
-import { expect } from '@esm-bundle/chai';
 import { WEB_WIDGET_PENDING_SLOT_NAME } from './constants';
 import { HTMLWebWidgetElement } from './element';
 import { WEB_WIDGET_PENDING_LOCAL_NAME } from './types';
 import './install';
 
-const __FIXTURES__ = '/packages/web-widget/src/__fixtures__/code@widget.js';
+const __FIXTURES__ = '/src/__fixtures__/code@widget.js';
+
+const consumeNextGlobalError = () =>
+  new Promise<unknown>((resolve) => {
+    window.addEventListener(
+      'error',
+      (event) => {
+        event.preventDefault();
+        resolve(event.error ?? event.message);
+      },
+      { once: true }
+    );
+  });
 
 const createEmptyWidget = async () => {
   const emptyWidget = document.createElement('web-widget');
@@ -182,21 +193,17 @@ describe('Load module: error', () => {
     );
   });
 
-  it('Autoload failure should trigger a global error', () => {
-    const globalError = new Promise((resolve, reject) => {
-      window.onerror = (error) => {
-        reject(error);
-      };
-    });
+  it('Autoload failure should trigger a global error', async () => {
+    const globalError = consumeNextGlobalError();
 
     const widget = document.createElement('web-widget');
     widget.import = '/test/widgets2/404';
     document.body.appendChild(widget);
 
-    return globalError.then(
-      () => Promise.reject(new Error('Not rejected')),
-      () => Promise.resolve()
-    );
+    const error = await globalError;
+    expect(error).to.be.an.instanceof(Error);
+    widget.inactive = true;
+    widget.remove();
   });
 });
 
@@ -273,32 +280,30 @@ describe('Hydration error event', () => {
 describe('Auto load', () => {
   const src = __FIXTURES__;
 
-  it('Connected (import)', (done) => {
+  it('Connected (import)', async () => {
     const widget = document.createElement('web-widget');
-    widget.addEventListener(
-      'statuschange',
-      function (this: HTMLWebWidgetElement) {
-        if (this.status === HTMLWebWidgetElement.MOUNTED) {
-          done();
-        }
-      }
+    const mounted = new Promise<void>((resolve) =>
+      widget.addEventListener('statuschange', () => {
+        if (widget.status === HTMLWebWidgetElement.MOUNTED) resolve();
+      })
     );
     widget.import = src;
     document.body.appendChild(widget);
+    await mounted;
+    widget.remove();
   });
 
-  it('Attribute changed (import)', (done) => {
+  it('Attribute changed (import)', async () => {
     const widget = document.createElement('web-widget');
-    widget.addEventListener(
-      'statuschange',
-      function (this: HTMLWebWidgetElement) {
-        if (this.status === HTMLWebWidgetElement.MOUNTED) {
-          done();
-        }
-      }
+    const mounted = new Promise<void>((resolve) =>
+      widget.addEventListener('statuschange', () => {
+        if (widget.status === HTMLWebWidgetElement.MOUNTED) resolve();
+      })
     );
     document.body.appendChild(widget);
     widget.import = src;
+    await mounted;
+    widget.remove();
   });
 
   it('mounts again after a completed disconnect and reconnect', async () => {
@@ -711,6 +716,7 @@ describe('Race Condition Fix', () => {
 
   afterEach(() => {
     if (element.parentNode) {
+      element.inactive = true;
       element.parentNode.removeChild(element);
     }
   });
@@ -769,11 +775,11 @@ describe('Race Condition Fix', () => {
       };
     };
 
+    const globalError = consumeNextGlobalError();
     element.loading = 'eager';
     element.import = 'test-module';
 
-    // Wait for first load to fail
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await globalError;
 
     // Should be in error state
     expect(element.status).to.equal('load-error');
@@ -880,11 +886,11 @@ describe('Race Condition Fix', () => {
       };
     };
 
+    const globalError = consumeNextGlobalError();
     element.loading = 'eager';
     element.import = 'test-module';
 
-    // Wait for first attempt to fail at mount
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await globalError;
 
     // Should be in mount error state
     expect(element.status).to.equal('mount-error');
@@ -978,6 +984,7 @@ describe('Race Condition Fix', () => {
     // Should not have auto-mounted with lazy loading
     expect(loadCallCount).to.equal(0);
     expect(lazyElement.status).to.equal('initial');
+    lazyElement.inactive = true;
     lazyElement.remove();
   });
 

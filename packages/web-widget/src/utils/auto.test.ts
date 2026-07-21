@@ -1,4 +1,3 @@
-import { expect } from '@esm-bundle/chai';
 import { scheduleAutoMount } from './auto';
 
 describe('scheduleAutoMount', () => {

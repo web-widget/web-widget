@@ -1,4 +1,3 @@
-import { expect } from '@esm-bundle/chai';
 import type { ModuleLoader } from './container';
 import { ModuleContainer, status } from './container';
 

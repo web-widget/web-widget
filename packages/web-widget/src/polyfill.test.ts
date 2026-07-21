@@ -1,4 +1,3 @@
-import { expect } from '@esm-bundle/chai';
 import { attachDeclarativeShadowRoots } from './polyfill';
 
 describe('Declarative Shadow DOM polyfill', () => {

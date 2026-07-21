@@ -2,7 +2,7 @@ const placeholder = Symbol();
 const isBox = (element: Element) =>
   ['contents', 'none'].includes(getComputedStyle(element).display);
 
-type PlaceholderElement = Element & {
+type PlaceholderElement = HTMLElement & {
   [placeholder]?: boolean;
 };
 
