@@ -39,6 +39,15 @@ const NestedSlotComponent = () =>
     },
   });
 
+const InvalidLightChildrenWidget = server.widget(
+  async () => ({ default: {}, render: async () => '<p>widget</p>' }),
+  { import: '/light-widget.js' }
+);
+const InvalidLightChildrenComponent = () =>
+  createComponent(InvalidLightChildrenWidget, {
+    children: 'LIGHT_CHILDREN',
+  });
+
 async function readStream(stream: ReadableStream<string>): Promise<string> {
   let text = '';
   for await (const chunk of stream) text += chunk;
@@ -84,4 +93,12 @@ test('preserves a nested Widget host during progressive rendering', async () => 
   const text = await readStream(result as ReadableStream<string>);
 
   expect(text).toMatch(/<web-widget[^>]*slot="adapter-actions"/);
+});
+
+test('rejects children for a Light Target Widget', async () => {
+  await expect(
+    server.render(InvalidLightChildrenComponent, {}, { progressive: false })
+  ).rejects.toThrow(
+    `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
+  );
 });

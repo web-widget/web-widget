@@ -75,6 +75,14 @@ export function createWidgetAdapter(
       const hasChildren = 'children' in props;
       const [local, data] = splitProps(props, ['children', 'slot', 'widget']);
       const widget = local.widget ?? {};
+      // Solid normally keeps the JSX subtree on the Host for hydration. That
+      // is only valid for Shadow DOM slot projection; Light Target children
+      // must follow the same protocol validation as every other adapter.
+      if (hasChildren && options.renderTarget !== 'shadow') {
+        throw new Error(
+          `Rendering content in a slot requires "options.renderTarget = 'shadow'".`
+        );
+      }
       const fallback = resolveFallback(widget.fallback);
       const renderOptions = {
         id: widget.id,
