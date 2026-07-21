@@ -65,6 +65,7 @@ catalog:
   'vite': ^8.0.12
   'vitest': ^4.1.6
   '@vitest/browser-playwright': 4.1.6
+  'playwright': ^1.61.1
   '@vitest/coverage-v8': 4.1.6
   '@cloudflare/vitest-pool-workers': ^0.16.4
   'tsup': ^8.3.4
