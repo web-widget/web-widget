@@ -8,3 +8,13 @@ export function normalizePath(filename: string): string {
 export function isCSSRequest(id: string): boolean {
   return /\.css(?:$|\?)/.test(id);
 }
+
+export function isRunnableDevEnvironment(
+  environment: unknown
+): environment is { runner: unknown } {
+  return (
+    typeof environment === 'object' &&
+    environment !== null &&
+    'runner' in environment
+  );
+}
