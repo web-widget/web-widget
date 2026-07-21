@@ -28,11 +28,11 @@ function collectImporterChain(
   }
 }
 
-export async function invalidateServerDevModules(
+export function invalidateServerDevModules(
   moduleGraph: ServerDevModuleGraph,
   config: ResolvedWebRouterConfig,
   changedFiles: string[] = []
-): Promise<void> {
+): void {
   const files = [
     ...changedFiles,
     config.input.server.entry,

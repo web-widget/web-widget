@@ -72,7 +72,7 @@ describe('invalidateServerDevModules', () => {
     expect(invalidated).toEqual([cssMod, entryMod]);
   });
 
-  test('invalidates CSS importer chains across framework HMR boundaries', async () => {
+  test('synchronously invalidates CSS importer chains across framework HMR boundaries', () => {
     resetDevServerRevisionForTests();
 
     const routeMod = { id: 'page@route.tsx' };
@@ -105,7 +105,7 @@ describe('invalidateServerDevModules', () => {
       },
     } as ResolvedWebRouterConfig;
 
-    await invalidateServerDevModules(moduleGraph, config, [
+    invalidateServerDevModules(moduleGraph, config, [
       '/project/counter.module.css',
     ]);
 

@@ -12,16 +12,28 @@ describe('shouldReloadClientForServerUpdate', () => {
     expect(
       shouldReloadClientForServerUpdate(
         [{ file: '/project/shared-widget.tsx' }],
-        clientModuleGraph
+        clientModuleGraph,
+        false
       )
     ).toBe(false);
   });
 
-  test('reloads for CSS Modules shared with the client', () => {
+  test('keeps HMR for CSS Modules shared with the client', () => {
     expect(
       shouldReloadClientForServerUpdate(
         [{ file: '/project/shared.module.css' }],
-        clientModuleGraph
+        clientModuleGraph,
+        true
+      )
+    ).toBe(false);
+  });
+
+  test('reloads CSS Modules when custom class names may change', () => {
+    expect(
+      shouldReloadClientForServerUpdate(
+        [{ file: '/project/shared.module.css' }],
+        clientModuleGraph,
+        false
       )
     ).toBe(true);
   });
@@ -30,7 +42,8 @@ describe('shouldReloadClientForServerUpdate', () => {
     expect(
       shouldReloadClientForServerUpdate(
         [{ file: '/project/server-only-route.ts' }],
-        clientModuleGraph
+        clientModuleGraph,
+        true
       )
     ).toBe(true);
   });

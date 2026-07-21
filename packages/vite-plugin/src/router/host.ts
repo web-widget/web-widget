@@ -34,6 +34,7 @@ export interface RouterBuildState {
   root: string;
   serverRoutemapEntryPoints: BuildEntryPoints;
   sourcemap: boolean;
+  stableDevCssModuleNames: boolean;
   serverTarget: SSRTarget;
   useAppBuilder: boolean;
   widgetModuleFilter?: WidgetModuleFilter;

@@ -29,6 +29,10 @@ import { ensureConventionFiles } from '@/internal/ensure-convention-files';
 import { webRouterDevServerPlugin } from '@/dev';
 import { createServerFullReloadPlugin } from '@/dev/server-full-reload-plugin';
 import {
+  createStableDevCssModulesPlugin,
+  STABLE_DEV_CSS_MODULE_NAME,
+} from '@/dev/stable-css-modules';
+import {
   type RouteMap,
   type WebRouterPlugin,
   type WebRouterUserConfig,
@@ -214,6 +218,13 @@ async function createSharedConfig(
 ): Promise<VitestUserConfig> {
   const root = config.root || process.cwd();
   const serverTarget: SSRTarget = config.ssr?.target ?? 'webworker';
+  const cssModules = config.css?.modules;
+  const cssModuleName =
+    cssModules === false ? undefined : cssModules?.generateScopedName;
+  const hasCustomCssModuleNames =
+    cssModuleName !== undefined && cssModuleName !== STABLE_DEV_CSS_MODULE_NAME;
+  const stableDevCssModuleNames =
+    env.command === 'serve' && cssModules !== false && !hasCustomCssModuleNames;
 
   const resolvedWebRouterConfig = parseWebRouterConfig(
     options,
@@ -259,6 +270,7 @@ async function createSharedConfig(
     serverAssetsDir: config.build?.assetsDir ?? 'assets',
     serverRoutemapEntryPoints,
     sourcemap: !!config.build?.sourcemap,
+    stableDevCssModuleNames,
     serverTarget,
     useAppBuilder: env.command === 'build' && shouldBuildClient(env),
   });
@@ -269,6 +281,18 @@ async function createSharedConfig(
     root,
     mode: env.mode,
     appType: 'custom',
+    ...(stableDevCssModuleNames
+      ? {
+          css: {
+            modules: {
+              // Vite's default includes the complete CSS content in the hash.
+              // Stable dev names let declarations update without changing the
+              // SSR/client class map used by delayed widget hydration.
+              generateScopedName: STABLE_DEV_CSS_MODULE_NAME,
+            },
+          },
+        }
+      : {}),
     ...(env.command === 'serve'
       ? {
           server: {
@@ -407,6 +431,7 @@ export function createRouterPlugins(
     createRemoveAsyncHooksPlugin(host),
     createSkipServerCssPlugin(),
     ...webRouterDevServerPlugin(host),
+    createStableDevCssModulesPlugin(host),
     createServerFullReloadPlugin(host),
     webRouterPreviewServerPlugin(),
     importActionPlugin(),
