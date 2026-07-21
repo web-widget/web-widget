@@ -98,6 +98,23 @@ export function testAdapterConformance({ runner, adapter }) {
             );
           });
         }
+        if (server.pendingBoundary) {
+          test('renders the pending boundary protocol', async () => {
+            const text = await server.pendingBoundary.render();
+            const slotIndex = text.indexOf('slot="web-widget-pending"');
+            const start = text.lastIndexOf('<', slotIndex);
+            const end = text.indexOf('>', slotIndex);
+            const tag = text.slice(start, end + 1);
+            const compactTag = tag.replace(/\s/g, '');
+
+            expect(tag.slice(0, 4)).toBe('<div');
+            expect(start).toBeGreaterThanOrEqual(0);
+            expect(tag).toContain('aria-busy="true"');
+            expect(compactTag).toContain('style="display:contents');
+            expect(text).toContain(server.pendingBoundary.marker);
+            expect(tag).toContain('slot="web-widget-pending"');
+          });
+        }
       });
     }
 

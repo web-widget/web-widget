@@ -95,7 +95,6 @@ export function createWidgetAdapter(
       };
       const renderer = new WebWidgetRenderer(loader, {
         ...options,
-        children: '',
         data,
         ...renderOptions,
         root: options.root,
@@ -122,8 +121,8 @@ export function createWidgetAdapter(
           ...widgetProps,
           get children() {
             return createComponent(Dynamic, {
-              component: 'div',
-              'aria-busy': String(renderer.pendingBoundary.ariaBusy),
+              component: renderer.pendingBoundary.localName,
+              'aria-busy': renderer.pendingBoundary.ariaBusy,
               slot: renderer.pendingBoundary.slot,
               style: `display: ${renderer.pendingBoundary.display}`,
               children: fallback.pending,
@@ -136,17 +135,10 @@ export function createWidgetAdapter(
           local.children && renderChildren
             ? await renderChildren(local.children)
             : '';
-        const serverRenderer = new WebWidgetRenderer(loader, {
-          ...options,
-          children,
-          data,
-          ...renderOptions,
-          id: renderer.attributes.id,
-          root: options.root,
-          slot: local.slot,
-        });
-        return serverRenderer
-          .renderInnerHTMLToString()
+        return renderer
+          .renderInnerHTMLToString({
+            children,
+          })
           .catch((error: unknown) =>
             error instanceof Error ? error : new Error(String(error))
           );

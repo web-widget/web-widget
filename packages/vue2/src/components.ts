@@ -97,9 +97,10 @@ export function createWidgetAdapter(
         const lightChildrenHTML = renderChildren
           ? await renderChildren((this as any).$lightChildren)
           : '';
-        const widget = (this as any).$createWidget(lightChildrenHTML);
-        (this as any).$widget = widget;
-        (this as any).$innerHTML = await widget.renderInnerHTMLToString();
+        const widget = (this as any).$widget as WebWidgetRenderer;
+        (this as any).$innerHTML = await widget.renderInnerHTMLToString({
+          children: lightChildrenHTML,
+        });
       },
       setup(props, { slots }) {
         if (props.widget && 'fallback' in props.widget) {
@@ -134,13 +135,7 @@ export function createWidgetAdapter(
           root: options.root,
           slot,
         };
-        const createWidget = (children = '') =>
-          new WebWidgetRenderer(loader, {
-            ...rendererOptions,
-            children,
-            id: renderOptions.id,
-          });
-        const widget = createWidget();
+        const widget = new WebWidgetRenderer(loader, rendererOptions);
         const lightChildren = Object.entries(slots).flatMap(([name, render]) =>
           render
             ? render().map((node: any) => {
@@ -156,7 +151,6 @@ export function createWidgetAdapter(
 
         const instance = getCurrentInstance()!;
         (instance.proxy as any).$widget = widget;
-        (instance.proxy as any).$createWidget = createWidget;
         (instance.proxy as any).$lightChildren = lightChildren;
 
         return () => {

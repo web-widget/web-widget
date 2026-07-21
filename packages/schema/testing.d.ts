@@ -41,6 +41,10 @@ export interface ServerConformanceFixture<Component, Data> {
     shadowMarker: string;
     lightMarker: string;
   };
+  pendingBoundary?: {
+    render(): Awaitable<string>;
+    marker: string;
+  };
   assertRendered(
     result: ServerRenderResult,
     context: { progressive: boolean; text: string }

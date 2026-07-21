@@ -4,7 +4,10 @@ import BaseLayout from './(components)/BaseLayout.tsx';
 import { PageHeader } from './(components)/ui';
 
 const ReactCounter = widget(
-  () => import('~/routes/(components)/react/Counter@widget')
+  () => import('~/routes/(components)/react/Counter@widget'),
+  {
+    root: 'shadow',
+  }
 );
 
 export default defineRouteComponent(function Page() {
@@ -19,7 +22,6 @@ export default defineRouteComponent(function Page() {
           clientOnly: true,
           fallback: (
             <div
-              aria-busy="true"
               style={{
                 padding: '16px',
                 border: '1px dashed #94a3b8',

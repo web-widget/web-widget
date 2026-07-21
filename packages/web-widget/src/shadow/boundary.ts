@@ -2,7 +2,6 @@ import {
   WEB_WIDGET_PENDING_SLOT_NAME,
   WEB_WIDGET_ROOT_LOCAL_NAME,
 } from '../shared/constants';
-import { WEB_WIDGET_PENDING_LOCAL_NAME } from '../shared/constants';
 
 export interface ShadowBoundary {
   container: HTMLElement;
@@ -51,10 +50,9 @@ export function prepareShadowBoundary(
   }
 
   const pendingElements = Array.from(host.children).filter(
-    (element) =>
-      element.localName === WEB_WIDGET_PENDING_LOCAL_NAME &&
-      element.getAttribute('slot') === WEB_WIDGET_PENDING_SLOT_NAME
+    (element) => element.getAttribute('slot') === WEB_WIDGET_PENDING_SLOT_NAME
   );
+  // Only a direct ShadowRoot slot can project the host's pending boundary.
   const hasPendingSlot = children.some(
     (element) =>
       element.localName === 'slot' &&

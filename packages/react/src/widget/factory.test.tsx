@@ -1,7 +1,8 @@
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { vi } from 'vitest';
-import { createWidgetAdapter, resolveFallback } from './components';
+import { resolveFallback } from './fallback';
+import { createWidgetAdapter } from './factory';
 
 const widget = createWidgetAdapter();
 
@@ -10,7 +11,12 @@ vi.mock('@web-widget/web-widget', () => {
   return {
     WebWidgetRenderer: class {
       localName = 'web-widget';
-      pendingLocalName = 'web-widget-pending';
+      pendingBoundary = {
+        ariaBusy: true,
+        display: 'contents',
+        localName: 'div',
+        slot: 'web-widget-pending',
+      } as const;
       attributes: Record<string, string> = {};
       constructor(_loader: unknown, options: { id?: string; name?: string }) {
         if (options.id) {
@@ -83,7 +89,7 @@ describe('widget', () => {
     expect(typeof Widget).toBe('object');
   });
 
-  test('renders clientOnly pending fallback inside web-widget', () => {
+  test('renders clientOnly fallback using the renderer pending boundary', () => {
     const Widget = widget(mockLoader);
     const output = renderToString(
       createElement(Widget, {
@@ -96,7 +102,7 @@ describe('widget', () => {
 
     expect(output).toContain('<web-widget');
     expect(output).toContain(
-      '<web-widget-pending aria-busy="true" style="display:contents"><div>pending</div></web-widget-pending>'
+      '<div aria-busy="true" slot="web-widget-pending" style="display:contents"><div>pending</div></div>'
     );
   });
 

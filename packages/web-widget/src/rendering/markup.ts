@@ -1,9 +1,6 @@
 import type { WidgetModuleLoader } from '@web-widget/schema';
 import { WEB_WIDGET_PENDING_SLOT_NAME } from '../shared/constants';
-import {
-  WEB_WIDGET_PENDING_LOCAL_NAME,
-  type WebWidgetPendingBoundary,
-} from './contracts';
+import type { WebWidgetPendingBoundary } from './contracts';
 
 const MODULE_REG =
   /\b(?:import|__vite_ssr_dynamic_import__)\(["'`]([^"'`]*)["'`]\)/;
@@ -21,14 +18,12 @@ export function serializeAttributes(attrs: Record<string, string>): string {
     .join(' ');
 }
 
-export function createPendingBoundary(
-  root: 'light' | 'shadow' | undefined
-): WebWidgetPendingBoundary {
+export function createPendingBoundary(): WebWidgetPendingBoundary {
   return {
     ariaBusy: true,
     display: 'contents',
-    localName: WEB_WIDGET_PENDING_LOCAL_NAME,
-    slot: root === 'shadow' ? WEB_WIDGET_PENDING_SLOT_NAME : '',
+    localName: 'div',
+    slot: WEB_WIDGET_PENDING_SLOT_NAME,
   };
 }
 
@@ -37,8 +32,7 @@ export function serializePendingBoundary(
   content: string
 ): string {
   if (!content) return '';
-  const slot = boundary.slot ? ` slot="${boundary.slot}"` : '';
-  return `<${boundary.localName} aria-busy="true"${slot} style="display:${boundary.display}">${content}</${boundary.localName}>`;
+  return `<${boundary.localName} aria-busy="true" slot="${boundary.slot}" style="display:${boundary.display}">${content}</${boundary.localName}>`;
 }
 
 export function parseModuleId(loader: WidgetModuleLoader) {

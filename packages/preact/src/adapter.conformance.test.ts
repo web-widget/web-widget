@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { h } from 'preact';
 import { testAdapterConformance } from '@web-widget/schema/testing';
 import * as server from './adapter.server';
@@ -18,6 +18,17 @@ const SlotComponent = () =>
     { slot: 'adapter-actions' },
     h('span', { slot: 'label' }, 'LIGHT_SLOT_MARKER')
   );
+const PendingWidget = server.widget(async () => ({ default: {} }), {
+  import: '/pending-widget.js',
+  root: 'shadow',
+});
+const PendingComponent = () =>
+  h(PendingWidget, {
+    widget: {
+      clientOnly: true,
+      fallback: h('span', null, 'PENDING_BOUNDARY_MARKER'),
+    },
+  });
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -41,6 +52,24 @@ testAdapterConformance({
         hostSlot: 'adapter-actions',
         shadowMarker: 'SHADOW_SLOT_MARKER',
         lightMarker: 'LIGHT_SLOT_MARKER',
+      },
+      pendingBoundary: {
+        async render() {
+          const browserWindow = globalThis.window;
+          vi.stubGlobal('window', undefined);
+          try {
+            return (await server.render(
+              PendingComponent,
+              {},
+              {
+                progressive: false,
+              }
+            )) as string;
+          } finally {
+            vi.stubGlobal('window', browserWindow);
+          }
+        },
+        marker: 'PENDING_BOUNDARY_MARKER',
       },
       assertRendered(_result, { text }) {
         expect(text).toContain('<p>Hello</p>');

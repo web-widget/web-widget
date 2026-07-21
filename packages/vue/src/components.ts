@@ -120,7 +120,6 @@ const WebWidget = /*#__PURE__*/ defineComponent({
 
     const widget = new WebWidgetRenderer(loader, {
       ...props,
-      children,
       slot: hostSlot,
     });
     const tag = widget.localName;
@@ -132,7 +131,7 @@ const WebWidget = /*#__PURE__*/ defineComponent({
     // By resolving with the Error, the render function can render the error
     // UI without the framework abandoning the subtree.
     const innerHTML = await widget
-      .renderInnerHTMLToString()
+      .renderInnerHTMLToString({ children })
       .catch((err: unknown) => {
         const error = err instanceof Error ? err : new Error(String(err));
         console.error('[VueWidget] Rendering error:', error);
@@ -264,7 +263,6 @@ export function createWidgetAdapter(
         if (clientOnly && renderChildren && pendingFallback) {
           const renderer = new WebWidgetRenderer(loader, {
             ...options,
-            children: '',
             data,
             ...renderOptions,
             root: options.root,
@@ -275,9 +273,9 @@ export function createWidgetAdapter(
               renderer.localName,
               renderer.attributes,
               h(
-                'div',
+                renderer.pendingBoundary.localName,
                 {
-                  'aria-busy': String(renderer.pendingBoundary.ariaBusy),
+                  'aria-busy': renderer.pendingBoundary.ariaBusy,
                   slot: renderer.pendingBoundary.slot,
                   style: { display: renderer.pendingBoundary.display },
                 },

@@ -11,7 +11,7 @@ import type { Timeouts } from '../lifecycle/runtime';
 import type { ResolvedWidgetStyle } from '../shadow/style-descriptors';
 
 export type { SerializableObject } from '@web-widget/schema';
-export { WEB_WIDGET_PENDING_LOCAL_NAME } from '../shared/constants';
+export { WEB_WIDGET_PENDING_SLOT_NAME } from '../shared/constants';
 export type Loader = WidgetModuleLoader<
   ServerWidgetModule | ClientWidgetModule
 >;
@@ -38,7 +38,6 @@ export type WebWidgetElementProps = WebWidgetElementOptions;
 export interface WebWidgetRendererOptions
   extends WidgetContainerOptions, WidgetHostProps {
   base?: string;
-  children?: string;
   data?: SerializableObject;
   /** @internal Vite-transformed CSS descriptors used during development. */
   devStyles?: ResolvedWidgetStyle[];
@@ -60,11 +59,15 @@ export interface WidgetRenderParts {
 export interface WebWidgetPendingBoundary {
   ariaBusy: true;
   display: 'contents';
-  localName: string;
+  localName: 'div';
   slot: string;
 }
 
 export interface WebWidgetRenderOptions {
+  children?: string;
+}
+
+export interface WebWidgetOuterRenderOptions extends WebWidgetRenderOptions {
   pendingHTML?: string;
 }
 
@@ -72,8 +75,10 @@ export interface WebWidgetRendererInterface {
   localName: string;
   pendingBoundary: WebWidgetPendingBoundary;
   attributes: Record<string, string>;
-  renderInnerHTMLToString(): Promise<string>;
-  renderOuterHTMLToString(options?: WebWidgetRenderOptions): Promise<string>;
+  renderInnerHTMLToString(options?: WebWidgetRenderOptions): Promise<string>;
+  renderOuterHTMLToString(
+    options?: WebWidgetOuterRenderOptions
+  ): Promise<string>;
 }
 
 export interface WebWidgetRendererConstructor {

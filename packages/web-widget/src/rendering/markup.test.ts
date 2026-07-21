@@ -16,16 +16,17 @@ describe('render protocol', () => {
     );
   });
 
-  it('owns pending boundary placement for each root mode', () => {
+  it('describes the reserved pending slot boundary', () => {
+    expect(createPendingBoundary()).to.deep.equal({
+      ariaBusy: true,
+      display: 'contents',
+      localName: 'div',
+      slot: 'web-widget-pending',
+    });
     expect(
-      serializePendingBoundary(createPendingBoundary('light'), '<p>wait</p>')
+      serializePendingBoundary(createPendingBoundary(), '<p>wait</p>')
     ).to.equal(
-      '<web-widget-pending aria-busy="true" style="display:contents"><p>wait</p></web-widget-pending>'
-    );
-    expect(
-      serializePendingBoundary(createPendingBoundary('shadow'), '<p>wait</p>')
-    ).to.equal(
-      '<web-widget-pending aria-busy="true" slot="web-widget-pending" style="display:contents"><p>wait</p></web-widget-pending>'
+      '<div aria-busy="true" slot="web-widget-pending" style="display:contents"><p>wait</p></div>'
     );
   });
 });

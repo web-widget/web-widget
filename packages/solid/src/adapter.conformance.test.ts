@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { createComponent } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { testAdapterConformance } from '@web-widget/schema/testing';
@@ -47,6 +47,17 @@ const InvalidLightChildrenComponent = () =>
   createComponent(InvalidLightChildrenWidget, {
     children: 'LIGHT_CHILDREN',
   });
+const PendingWidget = server.widget(async () => ({ default: {} }), {
+  import: '/pending-widget.js',
+  root: 'shadow',
+});
+const PendingComponent = () =>
+  createComponent(PendingWidget, {
+    widget: {
+      clientOnly: true,
+      fallback: 'PENDING_BOUNDARY_MARKER',
+    },
+  });
 
 async function readStream(stream: ReadableStream<string>): Promise<string> {
   let text = '';
@@ -76,6 +87,24 @@ testAdapterConformance({
         hostSlot: 'adapter-actions',
         shadowMarker: 'SHADOW_SLOT_MARKER',
         lightMarker: 'LIGHT_SLOT_MARKER',
+      },
+      pendingBoundary: {
+        async render() {
+          const browserWindow = globalThis.window;
+          vi.stubGlobal('window', undefined);
+          try {
+            return (await server.render(
+              PendingComponent,
+              {},
+              {
+                progressive: false,
+              }
+            )) as string;
+          } finally {
+            vi.stubGlobal('window', browserWindow);
+          }
+        },
+        marker: 'PENDING_BOUNDARY_MARKER',
       },
       assertRendered(_result, { text }) {
         expect(text).toContain('Hello');

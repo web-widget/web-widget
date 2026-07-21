@@ -25,6 +25,19 @@ const SlotComponent = defineComponent({
       }
     ),
 });
+const PendingWidget = server.widget(async () => ({ default: {} }), {
+  import: '/pending-widget.js',
+  root: 'shadow',
+});
+const PendingComponent = defineComponent({
+  setup: () => () =>
+    h(PendingWidget, {
+      widget: {
+        clientOnly: true,
+        fallback: h('span', 'PENDING_BOUNDARY_MARKER'),
+      },
+    }),
+});
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -48,6 +61,18 @@ testAdapterConformance({
         hostSlot: 'adapter-actions',
         shadowMarker: 'SHADOW_SLOT_MARKER',
         lightMarker: 'LIGHT_SLOT_MARKER',
+      },
+      pendingBoundary: {
+        async render() {
+          return server.render(
+            PendingComponent,
+            {},
+            {
+              progressive: false,
+            }
+          ) as Promise<string>;
+        },
+        marker: 'PENDING_BOUNDARY_MARKER',
       },
       assertRendered(_result, { text }) {
         expect(text).toContain('<p>Hello</p>');

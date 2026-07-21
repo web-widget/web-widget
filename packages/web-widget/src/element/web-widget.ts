@@ -13,7 +13,7 @@ import { WidgetRuntime, status } from '../lifecycle/runtime';
 import { prepareShadowBoundary } from '../shadow/boundary';
 import { resolveWebWidgetId } from '../shared/id';
 import { reportWebWidgetError } from './error';
-import { WEB_WIDGET_PENDING_LOCAL_NAME } from '../shared/constants';
+import { WEB_WIDGET_PENDING_SLOT_NAME } from '../shared/constants';
 import {
   dispatchHydrationError,
   type HydrationErrorPhase,
@@ -475,8 +475,9 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   #clearPending() {
+    // The reserved slot is also the lifecycle marker in both root modes.
     for (const child of Array.from(this.children)) {
-      if (child.localName === WEB_WIDGET_PENDING_LOCAL_NAME) {
+      if (child.getAttribute('slot') === WEB_WIDGET_PENDING_SLOT_NAME) {
         child.remove();
       }
     }

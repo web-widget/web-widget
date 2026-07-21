@@ -1,8 +1,5 @@
 import type { ClientRenderOptions } from '@web-widget/helpers';
-import {
-  WEB_WIDGET_PENDING_LOCAL_NAME,
-  WEB_WIDGET_PENDING_SLOT_NAME,
-} from '../shared/constants';
+import { WEB_WIDGET_PENDING_SLOT_NAME } from '../shared/constants';
 import { HTMLWebWidgetElement } from './web-widget';
 import './install';
 
@@ -509,7 +506,7 @@ describe('Application property: container', () => {
     widget.remove();
   });
 
-  it('does not mistake an application slot for the boundary pending slot', () => {
+  it('does not mistake a nested application slot for the pending outlet', () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
     widget.root = 'shadow';
@@ -528,19 +525,19 @@ describe('Application property: container', () => {
         element.getAttribute('name') === 'web-widget-pending'
     );
 
-    expect(boundarySlots).to.have.length(0);
-    expect(root.firstElementChild).to.equal(container);
+    expect(boundarySlots).to.have.length(1);
+    expect(boundarySlots[0].nextElementSibling).to.equal(container);
     expect(widget.firstElementChild?.getAttribute('slot')).to.equal(
       'web-widget-pending'
     );
     widget.remove();
   });
 
-  it('creates a pending slot for the lifecycle-owned pending element', () => {
+  it('creates a pending outlet for an element using the reserved slot', () => {
     const widget = document.createElement('web-widget');
     widget.inactive = true;
     widget.root = 'shadow';
-    const pending = document.createElement(WEB_WIDGET_PENDING_LOCAL_NAME);
+    const pending = document.createElement('div');
     pending.slot = WEB_WIDGET_PENDING_SLOT_NAME;
     widget.append(pending);
     const root = widget.attachShadow({ mode: 'open' });
@@ -669,7 +666,7 @@ describe('Events', () => {
   it('clears pending boundary on mounting', () =>
     createInactiveWidget(async ({ getElement }) => {
       const widget = getElement();
-      const pending = document.createElement(WEB_WIDGET_PENDING_LOCAL_NAME);
+      const pending = document.createElement('section');
       pending.slot = WEB_WIDGET_PENDING_SLOT_NAME;
       pending.textContent = 'pending';
       widget.append(pending);

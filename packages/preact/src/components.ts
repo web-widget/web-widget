@@ -107,9 +107,9 @@ function WebWidget(props: {
       renderer.localName,
       renderer.attributes,
       createElement(
-        'div',
+        renderer.pendingBoundary.localName,
         {
-          'aria-busy': String(renderer.pendingBoundary.ariaBusy),
+          'aria-busy': renderer.pendingBoundary.ariaBusy,
           slot: renderer.pendingBoundary.slot,
           style: { display: renderer.pendingBoundary.display },
         },
@@ -119,17 +119,14 @@ function WebWidget(props: {
   }
   let read = renderResources.get(props.options);
   if (!read) {
+    const renderer = new WebWidgetRenderer(props.loader, props.options);
     read = suspend(
       (async () => {
         const children =
           props.children && props.renderChildren
             ? await props.renderChildren(props.children)
             : '';
-        const renderer = new WebWidgetRenderer(props.loader, {
-          ...props.options,
-          children,
-        });
-        return renderer.renderInnerHTMLToString().then((html) => ({
+        return renderer.renderInnerHTMLToString({ children }).then((html) => ({
           tag: renderer.localName,
           attributes: renderer.attributes,
           html,
@@ -186,7 +183,6 @@ export function createWidgetAdapter(
       const rendererOptions = useMemo(
         () => ({
           ...options,
-          children: '',
           data,
           ...renderOptions,
           root: options.root,

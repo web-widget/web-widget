@@ -1,7 +1,6 @@
 import { renderToReadableStream as _renderToReadableStream } from 'react-dom/server.edge';
 import { prerender as _prerender } from 'react-dom/static.edge';
 import type {
-  ReactDOMServerReadableStream,
   renderToReadableStream as RenderToReadableStream,
   RenderToReadableStreamOptions,
 } from 'react-dom/server';
@@ -18,9 +17,9 @@ const prerender = _prerender;
 const renderToReadableStream: typeof RenderToReadableStream =
   _renderToReadableStream;
 
-export type RenderToStringOptions = PrerenderOptions;
+export type PrerenderToStringOptions = PrerenderOptions;
 
-async function renderToString(
+async function prerenderToString(
   vNode: ReactNode,
   options: RenderToReadableStreamOptions
 ): Promise<string> {
@@ -39,9 +38,5 @@ async function readableStreamToString(readableStream: ReadableStream) {
   return result;
 }
 
-export {
-  renderToString,
-  renderToReadableStream,
-  RenderToReadableStreamOptions,
-  ReactDOMServerReadableStream,
-};
+export { prerenderToString, renderToReadableStream };
+export type { RenderToReadableStreamOptions };

@@ -73,10 +73,9 @@ export function widget(
           ? ('client' as const)
           : options.renderStage,
     };
-    const createRenderer = (lightChildren = '') =>
+    const createRenderer = () =>
       new WebWidgetRenderer(loader, {
         ...options,
-        children: lightChildren,
         data,
         ...renderOptions,
         root: options.root,

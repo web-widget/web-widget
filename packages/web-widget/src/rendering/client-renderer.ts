@@ -1,8 +1,11 @@
 import type { WidgetModuleLoader } from '@web-widget/schema';
+import { INNER_HTML_PLACEHOLDER } from '../element/web-widget';
 import type {
   WebWidgetRendererOptions,
   WebWidgetRendererInterface,
   WebWidgetRendererConstructor,
+  WebWidgetRenderOptions,
+  WebWidgetOuterRenderOptions,
 } from './contracts';
 import {
   createPendingBoundary,
@@ -11,7 +14,6 @@ import {
   serializePendingBoundary,
   unsafePropsToAttrs,
 } from './markup';
-import { INNER_HTML_PLACEHOLDER } from '../element/web-widget';
 import {
   omitDefaultWebWidgetRendererOptions,
   resolveWebWidgetRendererOptions,
@@ -21,22 +23,18 @@ export * from '../element/web-widget';
 
 class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
   #clientImport: string;
-  #options: Omit<WebWidgetRendererOptions, 'children' | 'renderStage'>;
+  #options: Omit<WebWidgetRendererOptions, 'renderStage'>;
   localName = 'web-widget';
 
   get pendingBoundary() {
-    return createPendingBoundary(this.#options.root);
+    return createPendingBoundary();
   }
 
   constructor(
     loader: WidgetModuleLoader,
-    { children = '', renderStage, ...options }: WebWidgetRendererOptions
+    { renderStage, ...options }: WebWidgetRendererOptions
   ) {
     const resolvedOptions = resolveWebWidgetRendererOptions(options);
-
-    if (children && resolvedOptions.root !== 'shadow') {
-      throw new Error(`Rendering content in a slot requires "root: 'shadow'".`);
-    }
 
     if (renderStage === 'server') {
       throw new Error(
@@ -76,16 +74,24 @@ class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
     return attrs;
   }
 
-  async renderInnerHTMLToString() {
+  async renderInnerHTMLToString({
+    children = '',
+  }: WebWidgetRenderOptions = {}) {
+    if (children && this.#options.root !== 'shadow') {
+      throw new Error(`Rendering content in a slot requires "root: 'shadow'".`);
+    }
     return INNER_HTML_PLACEHOLDER;
   }
 
-  async renderOuterHTMLToString({ pendingHTML = '' } = {}) {
+  async renderOuterHTMLToString({
+    children = '',
+    pendingHTML = '',
+  }: WebWidgetOuterRenderOptions = {}) {
     const tag = this.localName;
     const attributes = this.attributes;
-    const children = await this.renderInnerHTMLToString();
+    const innerHTML = await this.renderInnerHTMLToString({ children });
     const pending = serializePendingBoundary(this.pendingBoundary, pendingHTML);
-    return `<${tag} ${serializeAttributes(attributes)}>${children}${pending}</${tag}>`;
+    return `<${tag} ${serializeAttributes(attributes)}>${innerHTML}${pending}</${tag}>`;
   }
 }
 

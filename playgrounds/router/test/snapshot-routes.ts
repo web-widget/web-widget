@@ -1,3 +1,8 @@
+import {
+  normalizeSolidWidgetSnapshot,
+  normalizeWidgetIds,
+} from './normalize-widget-snapshot';
+
 export type SnapshotRoute = [
   pathname: string,
   status?: number,
@@ -6,7 +11,7 @@ export type SnapshotRoute = [
 
 export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/background-tasks'],
-  ['/client-only-component'],
+  ['/client-only-component', 200, normalizeWidgetIds],
   ['/css-lazy-dynamic'],
   ['/custom-handlers'],
   ['/experimental-async-component'],
@@ -34,7 +39,7 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/shadow-dom/vue3'],
   ['/shadow-dom/vue2'],
   ['/shadow-dom/svelte'],
-  ['/shadow-dom/solid'],
+  ['/shadow-dom/solid', 200, normalizeSolidWidgetSnapshot],
   ['/shadow-dom/preact'],
   // Streaming routes (/streaming/*) are verified in
   // streaming.test.ts — their DOM structure is non-deterministic.

@@ -3,7 +3,7 @@ import { testAdapterConformance } from '@web-widget/schema/testing';
 import { vi } from 'vitest';
 
 import * as adapter from './adapter.server';
-import { ReactRenderProgressiveContext } from './components';
+import { ReactServerRenderModeContext } from './server/context';
 const { render } = adapter;
 
 // Mock dependencies to avoid ESM workspace package loading issues in Jest.
@@ -19,29 +19,24 @@ vi.mock('@web-widget/web-widget', () => ({
   WebWidgetRenderer: class {
     localName = 'web-widget';
     attributes: Record<string, string> = { id: 'slot-conformance' };
-    options: { children?: string };
-    constructor(
-      _loader: unknown,
-      options: { children?: string; slot?: string }
-    ) {
-      this.options = options;
+    constructor(_loader: unknown, options: { slot?: string }) {
       if (options.slot) this.attributes.slot = options.slot;
     }
-    async renderInnerHTMLToString() {
+    async renderInnerHTMLToString({ children = '' } = {}) {
       await new Promise((resolve) => setTimeout(resolve, 25));
-      return `<template shadowrootmode="open"><slot name="label">SHADOW_SLOT_MARKER</slot></template>${this.options.children ?? ''}`;
+      return `<template shadowrootmode="open"><slot name="label">SHADOW_SLOT_MARKER</slot></template>${children}`;
     }
   },
 }));
 
-vi.mock('./edge', async () => {
+vi.mock('./server/react-dom', async () => {
   const ReactDOMServer =
     await vi.importActual<typeof import('react-dom/server')>(
       'react-dom/server'
     );
   return {
     renderToReadableStream: ReactDOMServer.renderToReadableStream,
-    renderToString: async (
+    prerenderToString: async (
       node: React.ReactNode,
       options: Parameters<typeof ReactDOMServer.renderToString>[1]
     ) => {
@@ -118,7 +113,7 @@ describe('render (server)', () => {
       throw new Error('render failed');
     };
 
-    // Non-progressive mode: shell errors cause renderToString to reject,
+    // Non-progressive mode: shell errors cause prerenderToString to reject,
     // which propagates to the framework's error handler (e.g. _500 route).
     await expect(
       render(ThrowingComponent, {}, { progressive: false })
@@ -197,8 +192,8 @@ describe('render (server)', () => {
   test('provides progressive mode to nested Widget rendering', async () => {
     const result = await render(
       () =>
-        createElement(ReactRenderProgressiveContext.Consumer, {
-          children: (progressive: boolean | undefined) => String(progressive),
+        createElement(ReactServerRenderModeContext.Consumer, {
+          children: (mode) => String(mode),
         }),
       {},
       { progressive: true }
@@ -208,6 +203,6 @@ describe('render (server)', () => {
       html += new TextDecoder().decode(chunk);
     }
 
-    expect(html).toContain('true');
+    expect(html).toContain('progressive');
   });
 });

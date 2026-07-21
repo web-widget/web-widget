@@ -124,7 +124,6 @@ export function widget(
     const lightChildrenHTML = children ? await renderToString(children) : '';
     const renderer = new WebWidgetRenderer(loader, {
       ...options,
-      children: lightChildrenHTML,
       data: data as SerializableObject,
       ...renderOptions,
       root: options.root,
@@ -136,16 +135,21 @@ export function widget(
       if (clientOnly && pendingFallback) {
         const pendingHTML = await renderToString(pendingFallback);
         return unsafeHTML(
-          await renderer.renderOuterHTMLToString({ pendingHTML })
+          await renderer.renderOuterHTMLToString({
+            children: lightChildrenHTML,
+            pendingHTML,
+          })
         );
       }
       const content = renderer
-        .renderOuterHTMLToString()
+        .renderOuterHTMLToString({ children: lightChildrenHTML })
         .then((html) => unsafeHTML(html));
       const s = suspense(content, pendingFallback);
       return errorFallback ? fallback(s, errorFallback) : s;
     }
 
-    return renderer.renderOuterHTMLToString().then((html) => unsafeHTML(html));
+    return renderer
+      .renderOuterHTMLToString({ children: lightChildrenHTML })
+      .then((html) => unsafeHTML(html));
   };
 }

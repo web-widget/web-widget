@@ -3,25 +3,16 @@ import type { FunctionComponent } from 'react';
 import { createElement, StrictMode } from 'react';
 import type { Root } from 'react-dom/client';
 import { createRoot, hydrateRoot } from 'react-dom/client';
-import { reportRecoverableError } from './hydration-error';
+import { reportRecoverableError } from './client/hydration-error';
+import { createWidgetAdapter } from './widget/factory';
 
-export { resolveFallback } from './components';
-export type {
-  ReactWidgetComponent,
-  ReactWidgetContainerProps,
-  ReactWidgetFactory,
-  ReactWidgetProps,
-  WebWidgetProps,
-  WidgetContainerOptions,
-} from './components';
-import { createWidgetAdapter } from './components';
+export { resolveFallback } from './widget/fallback';
+export type * from './widget/types';
 
 export const widget = createWidgetAdapter();
 
 export const render = defineClientRender<FunctionComponent>(
   async (component, data, { id, recovering, container }) => {
-    data = data ?? {};
-
     if (!component) {
       throw new TypeError(`Missing component.`);
     }
@@ -30,6 +21,7 @@ export const render = defineClientRender<FunctionComponent>(
       throw new Error(`Missing container.`);
     }
 
+    const props = data ?? {};
     let root: Root | null;
     return {
       async mount() {
@@ -37,8 +29,8 @@ export const render = defineClientRender<FunctionComponent>(
           Object.prototype.toString.call(component) ===
           '[object AsyncFunction]';
         let vNode = isAsyncFunction
-          ? await component(data as any)
-          : createElement(component as FunctionComponent, data as any);
+          ? await component(props as any)
+          : createElement(component as FunctionComponent, props as any);
 
         vNode = createElement(StrictMode, null, vNode);
 

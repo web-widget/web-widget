@@ -94,7 +94,6 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
           '<section class="component"><slot name="label"></slot></section>',
       }),
       {
-        children: '<span slot="label">Label</span>',
         import: '/assets/counter.js',
         meta: {
           style: [{ id: 'option', content: '.option{color:blue}' }],
@@ -103,7 +102,9 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
       }
     );
 
-    const html = await renderer.renderOuterHTMLToString();
+    const html = await renderer.renderOuterHTMLToString({
+      children: '<span slot="label">Label</span>',
+    });
 
     expect(count(html, '<section class="component">')).to.equal(1);
     expect(html).to.contain('<template shadowrootmode="open">');
@@ -123,7 +124,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
     expect(html).to.contain('</template><span slot="label">Label</span>');
     expect(html).not.to.contain('contextmeta');
     expect(html).not.to.contain('attachShadowRoots');
-    expect(html).not.to.contain('web-widget-pending');
+    expect(html).not.to.contain('slot="web-widget-pending"');
   });
 
   it('is parsed by the browser with native named slot assignment', async () => {
@@ -136,14 +137,15 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
         render: async () => '<header><slot name="title"></slot></header>',
       }),
       {
-        children: '<h2 id="light-title" slot="title">Native slot</h2>',
         import: '/assets/panel.js',
         root: 'shadow',
         renderStage: 'server',
       }
     );
     const iframe = document.createElement('iframe');
-    iframe.srcdoc = await renderer.renderOuterHTMLToString();
+    iframe.srcdoc = await renderer.renderOuterHTMLToString({
+      children: '<h2 id="light-title" slot="title">Native slot</h2>',
+    });
     document.body.appendChild(iframe);
     await new Promise<void>((resolve) =>
       iframe.addEventListener('load', () => resolve(), { once: true })
@@ -244,6 +246,60 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
     expect(html).not.to.contain('.unused{}');
   });
 
+  it('rejects render-time children for a light root', async () => {
+    const renderer = new WebWidgetRenderer(
+      async () => ({
+        default: {},
+        render: async () => '<p>light</p>',
+      }),
+      { import: '/assets/light.js' }
+    );
+
+    let error: unknown;
+    try {
+      await renderer.renderInnerHTMLToString({ children: '<p>invalid</p>' });
+    } catch (cause) {
+      error = cause;
+    }
+
+    expect(error)
+      .to.be.an('error')
+      .with.property(
+        'message',
+        `Rendering content in a slot requires "options.root = 'shadow'".`
+      );
+  });
+
+  it('renders children without changing renderer identity or state', async () => {
+    const renderer = new WebWidgetRenderer(
+      async () => ({
+        default: {},
+        render: async () => '<slot name="content"></slot>',
+      }),
+      {
+        import: '/assets/reusable.js',
+        root: 'shadow',
+        renderStage: 'server',
+      }
+    );
+    const id = renderer.attributes.id;
+
+    const first = await renderer.renderOuterHTMLToString({
+      children: '<p slot="content">first</p>',
+    });
+    const second = await renderer.renderOuterHTMLToString({
+      children: '<p slot="content">second</p>',
+    });
+
+    expect(renderer.attributes.id).to.equal(id);
+    expect(first).to.contain(`id="${id}"`);
+    expect(first).to.contain('<p slot="content">first</p>');
+    expect(first).not.to.contain('second');
+    expect(second).to.contain(`id="${id}"`);
+    expect(second).to.contain('<p slot="content">second</p>');
+    expect(second).not.to.contain('first');
+  });
+
   it('omits shared light and auto defaults from SSR attributes', async () => {
     const renderer = new WebWidgetRenderer(
       async () => ({
@@ -295,7 +351,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
     expect(loaded).to.equal(false);
     expect(html).to.contain('<template shadowrootmode="open">');
     expect(html).to.contain('<web-widget-root style="display:contents">');
-    expect(html).not.to.contain('web-widget-pending');
+    expect(html).not.to.contain('slot="web-widget-pending"');
     expect(html).not.to.contain('recovering');
   });
 
@@ -312,7 +368,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
 
     expect(html).to.contain('<slot name="web-widget-pending"></slot>');
     expect(html).to.contain(
-      '<web-widget-pending aria-busy="true" slot="web-widget-pending" style="display:contents"><p>Loading</p></web-widget-pending>'
+      '<div aria-busy="true" slot="web-widget-pending" style="display:contents"><p>Loading</p></div>'
     );
   });
 
