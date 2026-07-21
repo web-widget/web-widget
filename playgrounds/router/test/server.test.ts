@@ -113,6 +113,9 @@ describe('production server (pnpm build && node server.js)', () => {
     expect(combinedCss).toContain('grid-template-columns');
 
     expect(html.match(/<template shadowrootmode="open">/g)).toHaveLength(10);
+    // The shared layout may retain its own B:0 boundary, but Shadow Widgets
+    // must be complete before the non-progressive response is serialized.
+    expect(html).not.toContain('$RC("B:1"');
     const shadowTemplates = [
       ...html.matchAll(
         /<template shadowrootmode="open">([\s\S]*?)<\/template>/g

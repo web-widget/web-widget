@@ -14,13 +14,19 @@ import {
   Component,
   Fragment,
   Suspense,
+  createContext,
   createElement,
   isValidElement,
   use,
+  useContext,
   memo,
 } from 'react';
 import type { FunctionComponent, ReactNode } from 'react';
 export type { WidgetContainerOptions } from '@web-widget/schema';
+
+// The server adapter sets this for the current route render so Shadow Widgets
+// can preserve outer progressive rendering without leaking $RC in buffered SSR.
+export const ReactRenderProgressiveContext = createContext(false);
 
 export interface ReactWidgetComponent<T> extends FunctionComponent<
   T & ReactWidgetProps
@@ -172,6 +178,62 @@ function WebWidget({
   });
 }
 
+async function ServerWebWidget({
+  localName,
+  pendingBoundary,
+  attributes,
+  innerHTML,
+  errorFallback,
+  pendingFallback,
+  clientOnly,
+  children,
+  renderChildren,
+}: WebWidgetElement & {
+  errorFallback?: ReactNode;
+  pendingFallback?: ReactNode;
+  clientOnly?: boolean;
+  renderChildren?: (children: ReactNode) => Promise<string>;
+}) {
+  if (!renderChildren && children) {
+    return createElement(
+      localName,
+      { ...attributes, suppressHydrationWarning: true },
+      children
+    );
+  }
+
+  if (clientOnly && pendingFallback != null) {
+    return createElement(
+      localName,
+      { ...attributes, suppressHydrationWarning: true },
+      createElement(
+        pendingBoundary.localName ?? 'web-widget-pending',
+        {
+          'aria-busy': String(pendingBoundary.ariaBusy),
+          ...(pendingBoundary.slot ? { slot: pendingBoundary.slot } : {}),
+          style: { display: pendingBoundary.display },
+        },
+        pendingFallback
+      )
+    );
+  }
+
+  // Server components can await Widget HTML directly. Using use(Promise)
+  // here makes React emit its $RC replacement protocol even when the outer
+  // renderer is explicitly non-progressive.
+  const html = await innerHTML;
+  if (html instanceof Error) {
+    console.error('[ReactWidget] Rendering error:', html);
+    return createElement(Fragment, null, errorFallback);
+  }
+
+  return createElement(localName, {
+    ...attributes,
+    dangerouslySetInnerHTML: { __html: html },
+    suppressHydrationWarning: true,
+  });
+}
+
 export type ReactWidgetContainerProps = WidgetContainerProps<ReactNode>;
 
 /**
@@ -293,6 +355,7 @@ export function createWidgetAdapter(
       } = {},
       ...data
     }: ReactWidgetProps) {
+      const progressive = useContext(ReactRenderProgressiveContext);
       const renderOptions = {
         id,
         loading: loading ?? options.loading,
@@ -303,28 +366,38 @@ export function createWidgetAdapter(
             : options.renderStage,
       };
       const { pendingFallback, errorFallback } = resolveFallback(fallback);
+      const isServerShadow =
+        typeof window === 'undefined' &&
+        options.renderTarget === 'shadow' &&
+        !progressive;
+      const widgetElement = createElement(
+        isServerShadow ? ServerWebWidget : WebWidget,
+        {
+          clientOnly,
+          errorFallback,
+          pendingFallback,
+          renderChildren,
+          ...renderWebWidget({
+            ...options,
+            children,
+            data,
+            loader,
+            renderChildren,
+            ...renderOptions,
+            renderTarget: options.renderTarget,
+            slot,
+          }),
+        }
+      );
       return createElement(
         WidgetErrorBoundary,
         { fallback: errorFallback },
-        createElement(Suspense, {
-          fallback: pendingFallback,
-          children: createElement(WebWidget, {
-            clientOnly,
-            errorFallback,
-            pendingFallback,
-            renderChildren,
-            ...renderWebWidget({
-              ...options,
-              children,
-              data,
-              loader,
-              renderChildren,
-              ...renderOptions,
-              renderTarget: options.renderTarget,
-              slot,
-            }),
-          }),
-        })
+        isServerShadow
+          ? widgetElement
+          : createElement(Suspense, {
+              fallback: pendingFallback,
+              children: widgetElement,
+            })
       );
     });
   } as ReactWidgetFactory;

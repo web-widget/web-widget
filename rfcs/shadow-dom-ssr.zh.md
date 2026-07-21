@@ -243,6 +243,8 @@ export default function Panel() {
 
 Boundary 不复制 children，不把 children 传给子框架，也不参与 slot assignment。浏览器负责 `assignedNodes()`、`assignedElements()` 和 `slotchange`。
 
+组件调用的顶层 props 仍属于 Widget 数据。顶层 `slot` 作为原生组合的常用简写保留，并由适配器透明地附加到实际 Widget Host。其他 Host 属性和协议属性由容器内部管理；组件 props 是否作用于内部 DOM，由组件自行决定。
+
 需要遵守以下限制：
 
 - `::slotted()` 只能选择直接分配到 slot 的元素；

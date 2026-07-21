@@ -575,7 +575,11 @@ webWidgetPlugin({
 
 Shadow 模式使用 Declarative Shadow DOM 输出可直接显示的服务端内容与 Widget CSS；客户端复用已有 ShadowRoot，并由各框架完成水合或挂载。Route CSS 仍属于 document，Widget CSS 属于对应 ShadowRoot，CSS 自定义属性可用于跨边界主题配置。
 
-Light DOM 子节点继续由宿主框架渲染，并通过浏览器原生 slot 投影。`slot` 被视为 Widget Host 属性，因此可将另一个可交互 Widget 直接放入具名插槽，无需额外包装元素。
+Light DOM 子节点继续由宿主框架渲染，并通过浏览器原生 slot 投影。`slot` 作为 Widget Host 属性，因此可将另一个可交互 Widget 直接放入具名插槽，无需额外包装元素。其他属性仍属于组件 props，由组件决定是否应用到内部 DOM：
+
+```tsx
+<Counter slot="actions" />
+```
 
 当前不会自动重定向 Widget 内部懒加载模块引入的 CSS；Vite 仍可能将其注入 document head。此类样式应静态导入 Widget 入口，或由组件显式安装到 ShadowRoot。完整边界见 [Shadow DOM SSR RFC](../../rfcs/shadow-dom-ssr.zh.md)。
 

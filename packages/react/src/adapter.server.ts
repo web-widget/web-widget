@@ -9,7 +9,10 @@ import {
   type ReactDOMServerReadableStream,
   type RenderToStringOptions,
 } from './edge';
-import { createWidgetAdapter } from './components';
+import {
+  ReactRenderProgressiveContext,
+  createWidgetAdapter,
+} from './components';
 
 declare module '@web-widget/schema' {
   interface ServerRenderOptions {
@@ -28,7 +31,14 @@ export type {
 } from './components';
 
 export const widget = createWidgetAdapter((children) =>
-  renderToString(children, {})
+  renderToString(
+    createElement(
+      ReactRenderProgressiveContext.Provider,
+      { value: false },
+      children
+    ),
+    {}
+  )
 );
 
 type StreamOptions = {
@@ -85,7 +95,11 @@ export const render = defineServerRender<FunctionComponent>(
       ? await component(data as any)
       : createElement(component, data as any);
 
-    vNode = createElement(StrictMode, null, vNode);
+    vNode = createElement(
+      ReactRenderProgressiveContext.Provider,
+      { value: Boolean(progressive) },
+      createElement(StrictMode, null, vNode)
+    );
 
     const renderMethod = progressive ? renderToReadableStream : renderToString;
     const result = await renderMethod(vNode, reactRenderOptions);

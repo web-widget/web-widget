@@ -3,6 +3,7 @@ import { testAdapterConformance } from '@web-widget/schema/testing';
 import { vi } from 'vitest';
 
 import * as adapter from './adapter.server';
+import { ReactRenderProgressiveContext } from './components';
 const { render } = adapter;
 
 // Mock dependencies to avoid ESM workspace package loading issues in Jest.
@@ -27,6 +28,7 @@ vi.mock('@web-widget/web-widget', () => ({
       if (options.slot) this.attributes.slot = options.slot;
     }
     async renderInnerHTMLToString() {
+      await new Promise((resolve) => setTimeout(resolve, 25));
       return `<template shadowrootmode="open"><slot name="label">SHADOW_SLOT_MARKER</slot></template>${this.options.children ?? ''}`;
     }
   },
@@ -171,5 +173,41 @@ describe('render (server)', () => {
 
     const result = await render(AsyncComponent, {}, { progressive: false });
     expect(result).toContain('Async Content');
+  });
+
+  test('non-progressive Suspense SSR waits without emitting replacement scripts', async () => {
+    const AsyncComponent = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      return createElement('div', null, 'Async Suspense Content');
+    };
+    const Component = () =>
+      createElement(
+        Suspense,
+        { fallback: createElement('span', null, 'Loading') },
+        createElement(AsyncComponent)
+      );
+
+    const result = await render(Component, {}, { progressive: false });
+
+    expect(result).toContain('Async Suspense Content');
+    expect(result).not.toContain('$RC(');
+    expect(result).not.toContain('Loading');
+  });
+
+  test('provides progressive mode to nested Widget rendering', async () => {
+    const result = await render(
+      () =>
+        createElement(ReactRenderProgressiveContext.Consumer, {
+          children: (progressive: boolean) => String(progressive),
+        }),
+      {},
+      { progressive: true }
+    );
+    let html = '';
+    for await (const chunk of result as ReadableStream<Uint8Array>) {
+      html += new TextDecoder().decode(chunk);
+    }
+
+    expect(html).toContain('true');
   });
 });
