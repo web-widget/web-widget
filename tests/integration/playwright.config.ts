@@ -14,6 +14,7 @@ export default defineConfig({
   reporter: 'line',
   use: {
     baseURL: `http://127.0.0.1:${port}`,
+    headless: true,
     trace: 'retain-on-failure',
   },
   webServer: {
