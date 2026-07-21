@@ -1,18 +1,12 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { onMount } from 'svelte';
   import '~/routes/(css)/base-layout.css';
   import '~/routes/(css)/ui.css';
   import Menu from './Menu.svelte';
 
   let { children }: { children: Snippet } = $props();
 
-  onMount(() => {
-    const path = location.pathname;
-    document.querySelectorAll('aside a[href]').forEach((anchor) => {
-      if (anchor.getAttribute('href') === path) anchor.setAttribute('aria-current', 'page');
-    });
-  });
+  const activeMenuScript = `<script>(function(){var p=location.pathname;document.querySelectorAll('aside a[href]').forEach(function(a){if(a.getAttribute('href')===p)a.setAttribute('aria-current','page')})})();<\/script>`;
 </script>
 
 <header class="site-header">
@@ -27,3 +21,4 @@
 <footer>
   <p>This is a footer</p>
 </footer>
+{@html activeMenuScript}
