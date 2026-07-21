@@ -1,4 +1,5 @@
 import '../(css)/base-layout.css';
+import '../(css)/ui.css';
 
 import type { ComponentProps } from 'react';
 import { widget } from '@web-widget/react/adapter';
