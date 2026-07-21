@@ -23,9 +23,11 @@
     "solid-js": "^1.9.0"
   },
   "devDependencies": {
+    "happy-dom": "14.12.3",
     "solid-js": "catalog:",
     "tsup": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "exports": {
     ".": {
@@ -67,6 +69,7 @@
     "build": "pnpm exec tsup",
     "clean:build": "rm -rf dist",
     "clean:node": "rm -rf node_modules",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run"
   }
 }

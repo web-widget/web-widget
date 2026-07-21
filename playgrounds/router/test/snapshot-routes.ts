@@ -1,3 +1,8 @@
+import {
+  normalizeSolidWidgetSnapshot,
+  normalizeWidgetIds,
+} from './normalize-widget-snapshot';
+
 export type SnapshotRoute = [
   pathname: string,
   status?: number,
@@ -6,7 +11,7 @@ export type SnapshotRoute = [
 
 export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/background-tasks'],
-  ['/client-only-component'],
+  ['/client-only-component', 200, normalizeWidgetIds],
   ['/css-lazy-dynamic'],
   ['/custom-handlers'],
   ['/experimental-async-component'],
@@ -23,19 +28,26 @@ export const SNAPSHOT_ROUTES: SnapshotRoute[] = [
   ['/form'],
   ['/'],
   ['/meta'],
-  ['/react-shell-error', 500],
-  ['/html-shell-error', 500],
-  ['/vue3-shell-error', 500],
-  ['/react-server-component'],
-  // Streaming routes (/react-streaming, /vue3-streaming) are verified in
+  ['/streaming/react/shell-error', 500],
+  ['/streaming/html/shell-error', 500],
+  ['/streaming/vue3/shell-error', 500],
+  ['/streaming/solid/shell-error', 500],
+  ['/streaming/preact/shell-error', 500],
+  ['/shadow-dom'],
+  ['/shadow-dom/react'],
+  ['/shadow-dom/html'],
+  ['/shadow-dom/vue3'],
+  ['/shadow-dom/vue2'],
+  ['/shadow-dom/svelte'],
+  ['/shadow-dom/solid', 200, normalizeSolidWidgetSnapshot],
+  ['/shadow-dom/preact'],
+  // Streaming routes (/streaming/*) are verified in
   // streaming.test.ts — their DOM structure is non-deterministic.
   ['/large-css'],
   // TODO: Fix the issue with the React import widgets.
   // ['/react-import-widgets'],
   ['/dynamic-routes', 404],
   ['/dynamic-routes/1'],
-  ['/vue2-server-component'],
-  ['/vue3-server-component'],
   ['/vue2-import-widgets'],
   ['/vue3-import-widgets'],
   ['/vue2-router'],

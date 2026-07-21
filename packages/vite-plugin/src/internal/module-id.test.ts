@@ -1,10 +1,28 @@
 import {
+  CSS_MODULE_RE,
   canonicalModuleKey,
   normalizeFilterId,
   stripModuleIdQuery,
   toManifestFilterKey,
   unwrapViteId,
 } from './module-id';
+
+describe('CSS_MODULE_RE', () => {
+  test.each([
+    '/src/button.module.css',
+    '/src/button.module.scss?direct',
+    '/src/Button.vue?vue&type=style&lang.module.less',
+  ])('matches CSS Module request %p', (id) => {
+    expect(CSS_MODULE_RE.test(id)).toBe(true);
+  });
+
+  test.each(['/src/button.css', '/src/button.module.ts'])(
+    'does not match non-CSS Module request %p',
+    (id) => {
+      expect(CSS_MODULE_RE.test(id)).toBe(false);
+    }
+  );
+});
 
 describe('unwrapViteId', () => {
   test('strips /@id/ prefix', () => {

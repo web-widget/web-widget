@@ -4,7 +4,7 @@
 
 ## 摘要
 
-`@web-widget/schema` 已定义技术无关的通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。本 RFC 定义构建转换层——通过标准化的 `WebWidgetAdapter` 协议，将 UI 框架组件在构建期转换为通用模块，使构建工具与框架适配器解耦演进。
+`@web-widget/schema` 已定义技术无关的通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。本 RFC 定义构建转换层——通过标准化的 `WidgetAdapter` 协议，将 UI 框架组件在构建期转换为通用模块，使构建工具与框架适配器解耦演进。
 
 ## 动机
 
@@ -19,14 +19,14 @@
 
 ## 提议
 
-### WebWidgetAdapter 协议
+### WidgetAdapter 协议
 
 `@web-widget/schema` 定义了通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。但要完成转换，构建工具还需要知道：**哪些文件属于哪个框架**，以及**从哪里获取该框架的渲染实现**。
 
-本 RFC 的核心提议是 `WebWidgetAdapter` 协议——一个连接构建工具与 UI 框架的适配器接口。它告诉构建工具遇到哪类文件时、从哪里获取渲染实现，从而使框架源码在构建期被转换为符合 `ServerRender` / `ClientRender` 契约的通用模块。
+本 RFC 的核心提议是 `WidgetAdapter` 协议——一个连接构建工具与 UI 框架的适配器接口。它告诉构建工具遇到哪类文件时、从哪里获取渲染实现，从而使框架源码在构建期被转换为符合 `ServerRender` / `ClientRender` 契约的通用模块。
 
 ```typescript
-interface WebWidgetAdapter {
+interface WidgetAdapter {
   /**
    * UI 框架标识符，用于在多框架共存时区分处理器。
    * 也是构建工具配置中引用适配器的键。
@@ -43,8 +43,8 @@ interface WebWidgetAdapter {
   /**
    * 适配器模块子路径，指向适配器包通过条件导出提供的运行时实现。
    * 构建工具会将该模块的导出注入到匹配的模块中：
-   * - render：注入为模块导出，使其符合 ServerRender / ClientRender 契约
-   * - container：包装 widget 的导入方，使其可被跨框架复用
+   * - render：导出 `render()`，使其符合 ServerRender / ClientRender 契约
+   * - widget：导出 `widget()`，用于包装 Widget 模块的导入方，使其可被跨框架复用
    * 如 "./adapter" 会被解析为 "@web-widget/react/adapter"，
    * 再由条件导出根据环境自动选取 server 或 client 实现。
    */
@@ -67,7 +67,7 @@ interface DeriveExport {
 }
 ```
 
-协议的设计遵循一个原则：**框架知道「怎么渲染」，构建工具知道「怎么集成」**。适配器包提供框架特定的渲染实现，不需要了解任何构建工具的插件 API；构建工具负责文件匹配和代码注入，不需要了解每个框架的渲染细节。两者通过 `WebWidgetAdapter` 协议交互，各自独立演进。
+协议的设计遵循一个原则：**框架知道「怎么渲染」，构建工具知道「怎么集成」**。适配器包提供框架特定的渲染实现，不需要了解任何构建工具的插件 API；构建工具负责文件匹配和代码注入，不需要了解每个框架的渲染细节。两者通过 `WidgetAdapter` 协议交互，各自独立演进。
 
 以下各节围绕这一协议展开：运行时模块如何提供渲染与互操作能力（1.1）、构建工具如何集成（1.2）、运行时实现如何适配不同环境（1.3）、适配器包如何组织（1.4）、版本管理（1.5）、派生导出（1.6）。
 
@@ -91,14 +91,14 @@ type AdapterModule = {
   render: ServerRender | ClientRender;
 
   /** 容器函数，将通用模块转换为当前框架的原生组件，支持跨框架互操作 */
-  container: Container;
+  widget: WidgetContainer;
 };
 
 /** 通用模块加载器，返回符合 WidgetModule 的模块 */
 type Loader = () => Promise<WidgetModule>;
 
 /** 容器函数：将通用模块转换为当前框架的组件 */
-interface Container {
+interface WidgetContainer {
   (
     loader: Loader,
     options?: {
@@ -109,26 +109,26 @@ interface Container {
 }
 ```
 
-`render` 让模块**自身可渲染**（注入为导出），`container` 让模块**可被当作 widget 导入**（包装导入方）。两者共同构成跨框架互操作的基础：`render` 产出符合通用格式的模块，`container` 消费通用格式的模块。
+`render()` 让模块**自身可渲染**（注入为导出），`widget()` 让模块**可被当作 Widget 导入**（包装导入方）。两者共同构成跨框架互操作的基础：`render()` 产出符合通用格式的模块，`widget()` 消费通用格式的模块。
 
-以 React 为例，`@web-widget/react` 的 `container` 返回一个 `React.FC`，内部调用通用模块的 `render` 并将结果包装为 React 元素：
+以 React 为例，`@web-widget/react` 的 `widget()` 返回一个 `React.FC`，内部调用通用模块的 `render()` 并将结果包装为 React 元素：
 
 ```typescript
-import { container } from '@web-widget/react';
+import { widget } from '@web-widget/react';
 
 // 将 Vue widget 包装为 React 组件
-const Counter = container(() => import('./Counter@widget.vue'));
+const Counter = widget(() => import('./Counter@widget.vue'));
 
 function App() {
   return <Counter count={42} />;
 }
 ```
 
-`Counter` 在 React 中是一个普通组件，可以正常传 props、参与渲染。但它的内部实现运行在 Vue 运行时中——React 不感知这一点。反之，`@web-widget/vue` 的 `container` 同样能将 React widget 包装为 Vue 组件。
+`Counter` 在 React 中是一个普通组件，可以正常传 props、参与渲染。但它的内部实现运行在 Vue 运行时中——React 不感知这一点。反之，`@web-widget/vue` 的 `widget()` 同样能将 React Widget 包装为 Vue 组件。
 
-`Container` 的行为契约：
+`WidgetContainer` 的行为契约：
 
-1. **加载**：调用 `loader` 获取通用模块，按 `loading` 选项决定时机——`lazy`（默认）在组件首次渲染时加载，`eager` 在模块解析时立即加载
+1. **加载**：调用 `loader` 获取通用模块，按 `loading` 选项决定时机——`auto`（默认）优先加载可见或发生交互的 Widget，并在空闲阶段加载其余 Widget；`lazy` 等待接近视口，`eager` 立即加载，`idle` 等待浏览器空闲
 2. **渲染**：调用通用模块的渲染函数，将 `props` 作为数据参数传入，获取渲染结果
 3. **适配**：将渲染结果转换为当前框架的原生组件树（如 React 元素树、Vue VNode），使返回的组件可像普通组件一样被使用
 4. **生命周期**：返回的组件需正确处理挂载、更新（props 变化）、卸载，在卸载时清理 widget 的运行时资源
@@ -161,7 +161,7 @@ export default defineConfig({
 interface WebWidgetPluginOptions {
   adapters: (
     | string
-    | (Omit<WebWidgetAdapter, 'name' | 'extensions'> & {
+    | (Omit<WidgetAdapter, 'name' | 'extensions'> & {
         name?: string;
         extensions?: string[];
         /** 适配器包名，构建工具从此包导入 adapter 实现 */
@@ -229,7 +229,7 @@ export const render: ServerRender = (component, data, options) => {
   // 使用 react-dom/server 将组件渲染为 HTML
 };
 
-export function container(loader, options) {
+export function widget(loader, options) {
   // 将组件包装为可独立加载、渲染的 widget 边界
 }
 ```
@@ -242,17 +242,17 @@ export const render: ClientRender = (component, data, options) => {
   // 使用 react-dom 的 hydrateRoot / createRoot
 };
 
-export function container(loader, options) {
+export function widget(loader, options) {
   // 客户端容器实现
 }
 ```
 
 ```typescript
 // @web-widget/react/index.ts —— 包入口
-export { container } from './adapter';
+export { widget } from './adapter';
 ```
 
-`package.json` 中通过 `webWidgetAdapter` 字段声明 `WebWidgetAdapter` 配置，`exports` 组织子路径：
+`package.json` 中通过 `webWidgetAdapter` 字段声明 `WidgetAdapter` 配置，`exports` 组织子路径：
 
 ```json
 {
@@ -355,11 +355,12 @@ type WidgetContainerConfig<TFallback> = {
 
   /**
    * 客户端模块加载策略。
-   * - `'lazy'`（默认）：首次渲染时加载
+   * - `'auto'`（默认）：按可见性和交互优先级调度，并最终加载全部 Widget
+   * - `'lazy'`：接近视口时加载
    * - `'eager'`：模块解析时立即加载
    * - `'idle'`：浏览器空闲时加载
    */
-  loading?: 'lazy' | 'eager' | 'idle';
+  loading?: 'auto' | 'lazy' | 'eager' | 'idle';
 
   /**
    * 仅服务端渲染（SSR），产出静态 HTML，无客户端水合。
@@ -406,4 +407,4 @@ Widget({
 
 ## 参考
 
-- [Astro 渲染器设计调查](./references/astro-renderer-design.zh.md) — 对比 Astro `AstroRenderer` 与 `WebWidgetAdapter` 的设计差异
+- [Astro 渲染器设计调查](./references/astro-renderer-design.zh.md) — 对比 Astro `AstroRenderer` 与 `WidgetAdapter` 的设计差异

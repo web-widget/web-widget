@@ -1,5 +1,6 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import { invalidateServerDevModules } from './server-invalidation';
+import { shouldReloadClientForServerUpdate } from './server-full-reload-policy';
 import {
   applyToServerEnvironment,
   getServerEnvironmentFromDevServer,
@@ -45,24 +46,40 @@ export function createServerFullReloadPlugin(host: RouterPluginHost): Plugin {
         return;
       }
 
-      void invalidateServerDevModules(
-        getServerEnvironmentFromDevServer(server).moduleGraph,
-        host.state.resolvedWebRouterConfig
-      ).catch((error) =>
-        logPlugin('error', 'Server invalidation failed', error)
-      );
+      let serverInvalidationFailed = false;
+      try {
+        // Invalidate the complete server importer chain before allowing client
+        // HMR. CSS Modules export class maps during SSR, so stale renderers can
+        // otherwise disagree with a client that already received the update.
+        invalidateServerDevModules(
+          getServerEnvironmentFromDevServer(server).moduleGraph,
+          host.state.resolvedWebRouterConfig,
+          modules.map((mod) => mod.file).filter(Boolean) as string[]
+        );
+      } catch (error) {
+        serverInvalidationFailed = true;
+        logPlugin('error', 'Server invalidation failed', error);
+      }
 
       const clientModuleGraph = server.environments.client.moduleGraph;
-      const hasClientCounterpart = modules.some(
-        (mod) => mod.file && clientModuleGraph.getModulesByFile(mod.file)?.size
-      );
-      if (!hasClientCounterpart) {
+      if (
+        serverInvalidationFailed ||
+        shouldReloadClientForServerUpdate(
+          modules,
+          clientModuleGraph,
+          host.state.stableDevCssModuleNames
+        )
+      ) {
         sendClientFullReload(
           server,
           modules.map((m) => m.file).filter(Boolean) as string[]
         );
+        return [];
       }
 
+      // Stop SSR HMR propagation from reaching route modules without an HMR
+      // boundary. The client environment handles shared modules (including
+      // CSS Modules) while the invalidation above keeps future SSR fresh.
       return [];
     },
   };

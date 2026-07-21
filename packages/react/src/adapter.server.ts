@@ -1,14 +1,16 @@
 import { defineServerRender } from '@web-widget/helpers';
 import { type FunctionComponent } from 'react';
 import { createElement, StrictMode } from 'react';
+import type { ReactDOMServerReadableStream } from 'react-dom/server';
 
 import {
+  prerenderToString,
   renderToReadableStream,
-  renderToString,
+  type PrerenderToStringOptions,
   type RenderToReadableStreamOptions,
-  type ReactDOMServerReadableStream,
-  type RenderToStringOptions,
-} from './edge';
+} from './server/react-dom';
+import { ReactServerRenderModeContext } from './server/context';
+import { createWidgetAdapter } from './widget/factory';
 
 declare module '@web-widget/schema' {
   interface ServerRenderOptions {
@@ -16,12 +18,25 @@ declare module '@web-widget/schema' {
   }
 }
 
-export * from './components';
+export { resolveFallback } from './widget/fallback';
+export type * from './widget/types';
+
+export const widget = createWidgetAdapter((children) =>
+  prerenderToString(
+    createElement(
+      ReactServerRenderModeContext.Provider,
+      { value: 'buffered' },
+      children
+    ),
+    {}
+  )
+);
 
 type StreamOptions = {
+  /** @deprecated */
   awaitAllReady?: boolean;
 } & RenderToReadableStreamOptions &
-  RenderToStringOptions;
+  PrerenderToStringOptions;
 
 export interface ReactRenderOptions {
   react?: StreamOptions;
@@ -30,19 +45,14 @@ export interface ReactRenderOptions {
 const DEFAULT_TIMEOUT_MS = 1000 * 10;
 
 export const render = defineServerRender<FunctionComponent>(
-  async (component, data, { progressive, react }) => {
-    data = data ?? {};
-
+  async (component, data, { id, progressive, react }) => {
     if (!component) {
       throw new TypeError(`Missing component.`);
     }
 
-    const reactRenderOptions: StreamOptions = Object.create(react ?? null);
-
-    const { onError, awaitAllReady, signal } = reactRenderOptions;
-
-    reactRenderOptions.signal =
-      signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS);
+    const props = data ?? {};
+    const { awaitAllReady, onError, signal, ...configuredOptions } =
+      react ?? {};
 
     // Defer error logging to avoid duplicates:
     // - Shell errors cause renderMethod to reject → the framework's onFallback
@@ -53,24 +63,37 @@ export const render = defineServerRender<FunctionComponent>(
     const preShellErrors: unknown[] = [];
     let shellRendered = false;
 
-    reactRenderOptions.onError = (e: unknown, i: any) => {
-      if (shellRendered) {
-        console.error(e);
-      } else {
-        preShellErrors.push(e);
-      }
-      onError?.(e instanceof Error ? e : new Error(String(e)), i);
+    const reactRenderOptions: StreamOptions = {
+      ...configuredOptions,
+      // React uses this namespace for useId(). It must match hydrateRoot and
+      // be unique across independently rendered widget roots in one document.
+      identifierPrefix: id,
+      signal: signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
+      onError(e: unknown, i: any) {
+        if (shellRendered) {
+          console.error(e);
+        } else {
+          preShellErrors.push(e);
+        }
+        onError?.(e instanceof Error ? e : new Error(String(e)), i);
+      },
     };
 
     const isAsyncFunction =
       Object.prototype.toString.call(component) === '[object AsyncFunction]';
     let vNode = isAsyncFunction
-      ? await component(data as any)
-      : createElement(component, data as any);
+      ? await component(props as any)
+      : createElement(component, props as any);
 
-    vNode = createElement(StrictMode, null, vNode);
+    vNode = createElement(
+      ReactServerRenderModeContext.Provider,
+      { value: progressive ? 'progressive' : 'buffered' },
+      createElement(StrictMode, null, vNode)
+    );
 
-    const renderMethod = progressive ? renderToReadableStream : renderToString;
+    const renderMethod = progressive
+      ? renderToReadableStream
+      : prerenderToString;
     const result = await renderMethod(vNode, reactRenderOptions);
 
     // Shell rendered successfully — log collected non-shell errors.

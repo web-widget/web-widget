@@ -134,6 +134,7 @@ export async function writeServerAssetsDataFile(
     base,
     root,
     widgetFilter,
+    host.api.widgetDefaults.root ?? 'light',
     clientEntryId,
     resolvedWebRouterConfig.css,
     clientOutDir,

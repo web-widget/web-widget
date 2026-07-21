@@ -14,15 +14,15 @@
  * These options control how the server-side rendering process works.
  */
 export interface ServerRenderOptions {
+  /** Page-unique widget element ID shared by server and client rendering. */
+  id?: string;
   /** If true, enable progressive (streaming) rendering. */
   progressive?: boolean;
 }
 
-/**
- * The result of a server-side render operation.
- * Can be either a string (complete HTML) or a stream (progressive rendering).
- */
-export type ServerRenderResult = ReadableStream<string> | string;
+/** The result of a server-side render operation. */
+export type ServerRenderResult =
+  ReadableStream<string> | ReadableStream<Uint8Array> | string;
 
 /**
  * A function that renders a component to HTML or stream on the server.
@@ -52,6 +52,8 @@ export interface ServerRender<
 export interface ClientRenderOptions {
   /** The target DOM element or fragment where the component will be mounted. */
   container: Element | DocumentFragment;
+  /** Page-unique widget element ID shared by server and client rendering. */
+  id?: string;
   /** Indicates whether hydration should be used (i.e., recovering from server render). */
   recovering?: boolean;
 }
@@ -60,7 +62,7 @@ export interface ClientRenderOptions {
  * Lifecycle hooks returned by a client-side renderer.
  * These hooks allow for fine-grained control over the component lifecycle.
  */
-export type ClientRenderResult<Data = unknown> = {
+export interface ClientRenderResult<Data = unknown> {
   /** Prepare any required state before mount. */
   bootstrap?: () => void | Promise<void>;
   /** Mount the component into the DOM. */
@@ -71,7 +73,7 @@ export type ClientRenderResult<Data = unknown> = {
   unmount?: () => void | Promise<void>;
   /** Clean up resources after unmount. */
   unload?: () => void | Promise<void>;
-};
+}
 
 /**
  * A function that renders a component on the client (client render or hydration).

@@ -1,0 +1,6 @@
+.button {
+  --widget-module-owner: module;
+  --widget-module-version: 1;
+  box-sizing: border-box;
+  padding: 8px 20px;
+}

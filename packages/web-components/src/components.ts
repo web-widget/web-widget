@@ -10,7 +10,7 @@ export function resolveTagName(component: WebComponent): string {
   return tagName;
 }
 
-export function container(
+export function widget(
   loader: () => Promise<{ default: WebComponent }>
 ): CustomElementConstructor {
   return class WebWidgetContainer extends HTMLElement {

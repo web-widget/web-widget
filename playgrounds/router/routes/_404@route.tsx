@@ -1,10 +1,9 @@
 import './(css)/error.css';
 import { defineRouteFallbackComponent } from '@web-widget/helpers';
-import { container } from '@web-widget/react/adapter';
+import { widget } from '@web-widget/react/adapter';
 
-const RVueCounter = container(
-  () =>
-    import('@playgrounds/web-router-vue3/frameworks/vue3/Counter@widget.vue')
+const RVueCounter = widget(
+  () => import('~/routes/(vue3)/(components)/Vue3Counter@widget.vue')
 );
 
 const Page404 = defineRouteFallbackComponent(function Page404(ctx) {

@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { FixtureServer } from './server-fixture';
 
@@ -25,7 +25,9 @@ export async function mutateSource(
   const next = update(source);
   if (next === source)
     throw new Error(`Mutation did not change ${relativePath}`);
-  await writeFile(file, next);
+  const temporary = `${file}.${process.pid}.${Date.now()}.tmp`;
+  await writeFile(temporary, next);
+  await rename(temporary, file);
 
   const deadline = Date.now() + 5_000;
   while (Date.now() < deadline) {

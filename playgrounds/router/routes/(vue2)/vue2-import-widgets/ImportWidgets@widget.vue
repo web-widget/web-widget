@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import ReactCounter from '~/routes/frameworks/react/Counter@widget';
-import Vue3Counter from '~/routes/(vue3)/frameworks/vue3/Counter@widget.vue';
-import Vue2Counter from '../frameworks/vue2/Counter@widget.vue';
+import ReactCounter from '~/routes/(components)/react/Counter@widget';
+import Vue3Counter from '~/routes/(vue3)/(components)/Vue3Counter@widget.vue';
+import Vue2Counter from '~/routes/(vue2)/(components)/Vue2Counter@widget.vue';
 </script>
 
 <template>

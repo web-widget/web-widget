@@ -12,7 +12,7 @@ export interface WebWidgetDebugData {
   name?: string;
   module?: string;
   loading?: string;
-  renderTarget?: string;
+  root?: string;
   status?: string;
   inactive?: boolean;
   contextData?: Record<string, any>;
@@ -86,10 +86,10 @@ export function collectWebWidgetData(element: HTMLElement): WebWidgetDebugData {
     data.loading = loading;
   }
 
-  // Render target
-  const renderTarget = webWidgetElement.renderTarget;
-  if (renderTarget && renderTarget !== 'light') {
-    data.renderTarget = renderTarget;
+  // Root mode
+  const root = webWidgetElement.root;
+  if (root && root !== 'light') {
+    data.root = root;
   }
 
   // Status information
@@ -198,10 +198,10 @@ export function formatDebugData(
       items.push({ key: 'Loading', value: widgetData.loading, priority: 4 });
     }
 
-    if (widgetData.renderTarget) {
+    if (widgetData.root) {
       items.push({
         key: 'Render',
-        value: widgetData.renderTarget,
+        value: widgetData.root,
         priority: 4,
       });
     }

@@ -1,7 +1,8 @@
+import { Writable } from 'node:stream';
 import primitives from '@edge-runtime/primitives';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import NodeAdapter, { buildToNodeHandler } from '../adapter';
+import NodeAdapter, { buildToNodeHandler, toServerResponse } from '../adapter';
 import type { BuildDependencies } from '../node-utils';
 import { installCachedResponse } from '../response';
 import {
@@ -30,6 +31,7 @@ const transform = buildToNodeHandler(dependencies, {
 let server: TestServer | undefined;
 
 afterEach(async () => {
+  vi.restoreAllMocks();
   await server?.close();
   server = undefined;
 });
@@ -40,6 +42,38 @@ async function serve(handler: Parameters<typeof transform>[0]) {
 }
 
 describe('Node response conversion', () => {
+  it('contains request conversion failures within the middleware request', async () => {
+    const handler = vi.fn();
+    const adapter = new NodeAdapter(
+      { handler },
+      { defaultOrigin: 'http://example.com' }
+    );
+    const response = {
+      end: vi.fn(),
+      finished: false,
+      headersSent: false,
+      setHeader: vi.fn(),
+      socket: undefined,
+      statusCode: 200,
+      statusMessage: '',
+      writableEnded: false,
+    };
+    const next = vi.fn();
+
+    await (
+      adapter.middleware as unknown as (
+        request: unknown,
+        response: unknown,
+        next: () => void
+      ) => Promise<void>
+    )({ headers: {}, method: 'GET', url: 'http://[invalid' }, response, next);
+
+    expect(handler).not.toHaveBeenCalled();
+    expect(response.statusCode).toBe(500);
+    expect(response.end).toHaveBeenCalledOnce();
+    expect(next).toHaveBeenCalledWith();
+  });
+
   it('uses the explicit web-router request source protocol', async () => {
     let receivedSource = false;
     const requestSourceHandler = Symbol.for(
@@ -64,6 +98,37 @@ describe('Node response conversion', () => {
       `${server.url}/source`
     );
     expect(receivedSource).toBe(true);
+  });
+
+  it('observes rejected background tasks from the request source protocol', async () => {
+    const error = new Error('background failed');
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const requestSourceHandler = Symbol.for(
+      '@web-widget/web-router.request-source-handler'
+    );
+    const router = {
+      handler() {
+        throw new Error('Standard handler should not run');
+      },
+      [requestSourceHandler](
+        _source: unknown,
+        _env: unknown,
+        context: { waitUntil(promise: Promise<unknown>): void }
+      ) {
+        context.waitUntil(Promise.reject(error));
+        return new Response('OK');
+      },
+    };
+    const adapter = new NodeAdapter(router, {
+      defaultOrigin: 'http://example.com',
+    });
+    server = await runTestServer(adapter.handler);
+
+    expect(await (await server.fetch('/background')).text()).toBe('OK');
+    await new Promise((resolve) => setImmediate(resolve));
+    expect(consoleError).toHaveBeenCalledWith('Background task failed.', error);
   });
 
   it('turns null and empty responses into empty HTTP responses', async () => {
@@ -156,6 +221,43 @@ describe('Node response conversion', () => {
         )
     );
     expect(await (await current.fetch('/')).text()).toBe('hello world');
+  });
+
+  it('rejects the request when writing a streamed response throws', async () => {
+    const error = new Error('write failed');
+    const writable = new Writable({
+      write(_chunk, _encoding, callback) {
+        callback();
+      },
+    }) as Writable & {
+      finished: boolean;
+      headersSent: boolean;
+      writeHead(status: number, headers: Record<string, string>): void;
+    };
+    writable.finished = false;
+    writable.headersSent = false;
+    writable.writeHead = () => {
+      writable.headersSent = true;
+    };
+    writable.write = () => {
+      throw error;
+    };
+
+    const body = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new Uint8Array([1]));
+      },
+    });
+    const response = {
+      body,
+      headers: new Headers(),
+      status: 200,
+      statusText: 'OK',
+    } as Response;
+
+    await expect(toServerResponse(response, writable as never)).rejects.toBe(
+      error
+    );
   });
 
   it('consumes incoming body and headers', async () => {

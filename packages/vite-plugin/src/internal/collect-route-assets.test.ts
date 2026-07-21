@@ -17,6 +17,32 @@ describe('collect-route-assets', () => {
     }
   });
 
+  test('collects CSS imported through shared component modules', async () => {
+    const root = await writeFixture({
+      'routes/page@route.tsx': [
+        'import {',
+        '  Card,',
+        '  CardGrid,',
+        "} from './components/ui';",
+        'export default function Page() {',
+        '  return <CardGrid><Card /></CardGrid>;',
+        '}',
+      ].join('\n'),
+      'routes/components/ui.tsx': [
+        "import '../styles/ui.css';",
+        'export function Card() { return <div />; }',
+        'export function CardGrid({ children }) { return <div>{children}</div>; }',
+      ].join('\n'),
+      'routes/styles/ui.css': '.grid { display: grid; }',
+    });
+    const assets = await collectRouteModuleAssets(
+      path.join(root, 'routes/page@route.tsx'),
+      { root, widgetModuleFilter: () => false }
+    );
+
+    expect(assets.cssModules).toContain('routes/styles/ui.css');
+  });
+
   async function writeFixture(structure: Record<string, string>) {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-route-assets-'));
     for (const [relativePath, contents] of Object.entries(structure)) {

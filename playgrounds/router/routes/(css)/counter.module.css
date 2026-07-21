@@ -1,0 +1,35 @@
+.button {
+  --widget-module-owner: module;
+  --widget-module-version: 1;
+  box-sizing: border-box;
+  padding: 8px 20px;
+  border: var(--sk-border-width, 2px) solid var(--sk-border, #4a4438);
+  border-radius: var(--sk-radius-sm, 4px 8px 4px 10px);
+  background: var(--sk-bg, #fdfbf7);
+  color: var(--sk-ink, #2d2a24);
+  box-shadow: var(--sk-shadow-sm, 2px 2px 0 rgba(74, 68, 56, 0.18));
+  font-family: var(
+    --sk-font-sans,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif
+  );
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition:
+    background 0.1s ease,
+    box-shadow 0.1s ease,
+    transform 0.1s ease;
+}
+
+.button:hover {
+  background: var(--sk-bg-hover, #efe8d8);
+  box-shadow: var(--sk-shadow, 3px 3px 0 rgba(74, 68, 56, 0.18));
+  transform: translate(-1px, -1px);
+}
+
+.button:active {
+  box-shadow: none;
+  transform: translate(1px, 1px);
+}

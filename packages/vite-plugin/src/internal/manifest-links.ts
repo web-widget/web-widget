@@ -4,8 +4,9 @@ import mime from 'mime-types';
 import type { Manifest as ViteManifest } from 'vite';
 
 import type { RouteClientAssets } from '@/internal/collect-route-assets';
-import type { WidgetModuleFilter } from '@/types';
+import type { WidgetModuleFilter, WidgetRoot } from '@/types';
 import { stripModuleIdQuery } from '@/internal/module-id';
+import { getWidgetStyleOwner } from '@/internal/widget-style-ownership';
 
 const RESOLVE_URL_REG = /^(?:\w+:)?\//;
 const rebase = (src: string, base: string) => {
@@ -148,7 +149,8 @@ export function getRouteMetaLinks(
   manifest: ViteManifest,
   assets: RouteClientAssets,
   base: string,
-  widgetModuleFilter?: WidgetModuleFilter
+  widgetModuleFilter?: WidgetModuleFilter,
+  widgetRoot: WidgetRoot = 'light'
 ): LinkDescriptor[] {
   const cache = new Set<string>();
   const links: LinkDescriptor[] = [];
@@ -158,6 +160,7 @@ export function getRouteMetaLinks(
   }
 
   for (const widgetModule of assets.widgetModules) {
+    if (getWidgetStyleOwner(widgetRoot) === 'boundary') continue;
     links.push(
       ...getLinks(manifest, widgetModule, base, cache, widgetModuleFilter)
     );

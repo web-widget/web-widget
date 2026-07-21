@@ -4,16 +4,16 @@
 
 ## 摘要
 
-定义 `@web-widget/react` 中 `container` 的架构设计：将每个 widget 封装为自治的"孤岛"，内部集成 Suspense（加载管理）与 ErrorBoundary（错误隔离），通过统一的 `fallback` API 暴露加载态与错误态的控制能力。
+定义 `@web-widget/react` 中 `widget()` 函数的架构设计：将每个 Widget 封装为自治的"孤岛"，内部集成 Suspense（加载管理）与 ErrorBoundary（错误隔离），通过统一的 `fallback` API 暴露加载态与错误态的控制能力。
 
 ## 背景
 
 ### Widget 在架构中的角色
 
-`container` 将一个 widget 模块封装为 React 组件。该组件在服务端渲染 `<web-widget>` 自定义元素的 HTML，在客户端由 custom element 接管模块的加载、引导和挂载。
+`widget()` 将一个 Widget 模块封装为 React 组件。该组件在服务端渲染 `<web-widget>` 自定义元素的 HTML，在客户端由 custom element 接管模块的加载、引导和挂载。
 
 ```tsx
-const Counter = container(() => import('./Counter@widget.tsx'));
+const Counter = widget(() => import('./Counter@widget.tsx'));
 
 function Page() {
   return <Counter widget={{ fallback: <Spinner /> }} count={1} />;
@@ -152,7 +152,7 @@ type WidgetContainerConfig = {
   /** 加载态和错误态的占位 UI */
   fallback?: WidgetFallback;
   /** 客户端模块加载策略 */
-  loading?: 'lazy' | 'eager' | 'idle';
+  loading?: 'auto' | 'lazy' | 'eager' | 'idle';
   /** widget 仅在服务端渲染，不在客户端挂载。与 clientOnly 互斥 */
   serverOnly?: true;
   /** widget 仅在客户端渲染，不产出服务端 HTML。与 serverOnly 互斥 */
@@ -183,7 +183,7 @@ interface ReactWidgetProps {
 
 当前设计在**服务端**完整处理 pending 与 error 状态——errorFallback 在服务端确定并通过 `$RC` 流式输出到客户端。但一旦 HTML 到达浏览器后，**无法在客户端层面恢复或重试失败的 widget**。
 
-`clientOnly` widget 的 `pending` fallback 会在服务端输出到 `<web-widget>` 引导元素内部，并由 `WebWidgetRenderer.pendingLocalName` 指定的协议元素包裹。元素进入 `mounting` 状态时，`HTMLWebWidgetElement` 统一删除该边界；因此 fallback 在模块加载和 bootstrap 期间保持可见，同时不会阻止客户端 widget 启动。
+`clientOnly` widget 的 `pending` fallback 会在服务端输出到 `<web-widget>` 引导元素内部，并由 `WebWidgetRenderer.pendingBoundary` 描述的普通元素包裹。保留 slot `web-widget-pending` 是该边界的唯一 identity；元素进入 `mounting` 状态时，`HTMLWebWidgetElement` 统一删除该边界，因此 fallback 在模块加载和 bootstrap 期间保持可见，同时不会阻止客户端 widget 启动。
 
 原因在于 islands 架构没有路由级 React hydration：路由组件的 React 树在服务端渲染为静态 HTML 后销毁，客户端不存在对应的 React 组件实例。因此：
 
@@ -199,7 +199,7 @@ interface ReactWidgetProps {
 
 ## 未来演进
 
-- **错误上报钩子**：`DefineWebWidgetOptions` 中增加 `onError` 回调
+- **错误上报钩子**：`WidgetAdapterOptions` 中增加 `onError` 回调
 - **超时降级**：在 Suspense 层集成超时机制
 
 ## 参考

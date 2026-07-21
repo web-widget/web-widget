@@ -3,10 +3,12 @@ import { type Component, createSSRApp, h, Suspense } from 'vue';
 import {
   renderToString,
   renderToWebStream,
+  ssrRenderVNode,
   type SSRContext,
 } from 'vue/server-renderer';
 import type { CreateVueRenderOptions } from './types';
 import errorHandler from './error-handler';
+import { createWidgetAdapter } from './components';
 
 declare module '@web-widget/schema' {
   interface ServerRenderOptions {
@@ -14,7 +16,31 @@ declare module '@web-widget/schema' {
   }
 }
 
-export * from './components';
+export { asReactWidget, resolveFallback, toReact } from './components';
+export type {
+  VueWidgetComponent,
+  VueWidgetContainerProps,
+  VueWidgetFactory,
+  WidgetContainerOptions,
+} from './components';
+
+async function resolveSSRBuffer(value: unknown): Promise<string> {
+  const resolved = await value;
+  if (Array.isArray(resolved)) {
+    let html = '';
+    for (const item of resolved) html += await resolveSSRBuffer(item);
+    return html;
+  }
+  return typeof resolved === 'string' ? resolved : '';
+}
+
+export const widget = createWidgetAdapter(async (nodes, parent) => {
+  const buffer: unknown[] = [];
+  for (const node of nodes) {
+    ssrRenderVNode((item) => buffer.push(item), node, parent as any);
+  }
+  return resolveSSRBuffer(buffer);
+});
 
 // Helper function to create the WidgetSuspense component
 const createWidgetSuspense = (component: Component) => (props: any) =>
@@ -50,7 +76,7 @@ export const createVueRender = ({
       await onCreatedApp(app, context, component, data);
 
       if (progressive) {
-        const stream = renderToWebStream(app, ssrContext);
+        const byteStream = renderToWebStream(app, ssrContext);
 
         // Vue's renderToWebStream renders asynchronously (via Promise
         // microtasks). Consume the first chunk to flush the microtask queue,
@@ -58,7 +84,7 @@ export const createVueRender = ({
         // This mirrors React's renderToReadableStream shell-error semantics:
         // if rendering fails, the Promise rejects so the framework can
         // return a 500 response.
-        const reader = stream.getReader();
+        const reader = (byteStream as ReadableStream<Uint8Array>).getReader();
         const first = await reader.read();
 
         try {
@@ -81,7 +107,7 @@ export const createVueRender = ({
 
         // Return a stream that replays the buffered first chunk,
         // then continues piping the remaining chunks.
-        return new ReadableStream({
+        return new ReadableStream<Uint8Array>({
           start(controller) {
             if (first.done) {
               controller.close();

@@ -36,7 +36,11 @@ const REQUEST_SOURCE_HANDLER = Symbol.for(
   '@web-widget/web-router.request-source-handler'
 );
 const NODE_EXECUTION_CONTEXT = {
-  waitUntil(_promise: Promise<unknown>) {},
+  waitUntil(promise: Promise<unknown>) {
+    void Promise.resolve(promise).catch((error) => {
+      console.error('Background task failed.', error);
+    });
+  },
   passThroughOnException() {},
 };
 
@@ -125,8 +129,9 @@ function toMiddleware(
   const toRequest = buildToRequestWithHttp2Compat(dependencies);
   const toFetchEvent = buildToFetchEvent(dependencies);
   return async function middleware(incomingMessage, serverResponse, next) {
-    const request = toRequest(incomingMessage, options);
+    let request: Request | undefined;
     try {
+      request = toRequest(incomingMessage, options);
       const env = process.env;
       const event = toFetchEvent(request);
       const webResponse = await webHandler(request, env, event);
@@ -148,7 +153,7 @@ function toMiddleware(
     } finally {
       // Release any unconsumed request body so the underlying socket / file
       // descriptor is not held alive after the response completes.
-      cancelRequestBody(request);
+      if (request) cancelRequestBody(request);
     }
   };
 }
@@ -159,8 +164,9 @@ function toRequestSourceMiddleware(
 ): Middleware {
   const toRequestSource = buildToRequestSource(dependencies, options);
   return async function middleware(incomingMessage, serverResponse, next) {
-    const source = toRequestSource(incomingMessage);
+    let source: ReturnType<typeof toRequestSource> | undefined;
     try {
+      source = toRequestSource(incomingMessage);
       const webResponse = await webHandler(
         source,
         process.env,
@@ -182,7 +188,7 @@ function toRequestSourceMiddleware(
         next(error);
       }
     } finally {
-      source.cancel();
+      source?.cancel();
     }
   };
 }
@@ -372,8 +378,15 @@ function writeReadableStreamToWritable(
     };
 
     const handleError = (error: unknown) => {
-      if (!writable.destroyed) {
-        writable.destroy(error instanceof Error ? error : undefined);
+      try {
+        if (!writable.destroyed) {
+          // Propagate the source/write failure through this request's promise.
+          // Passing it to destroy() would emit a later EventEmitter `error`
+          // after cleanup removed our listener, turning it into a process error.
+          writable.destroy();
+        }
+      } catch {
+        // The original response error is the useful failure for this request.
       }
       finish(error);
     };
@@ -383,7 +396,7 @@ function writeReadableStreamToWritable(
         onAbort();
         return;
       }
-      reader.read().then(flow, handleError);
+      reader.read().then(flow).catch(handleError);
     }
 
     const flow = ({ done, value }: ReadableStreamReadResult<unknown>) => {

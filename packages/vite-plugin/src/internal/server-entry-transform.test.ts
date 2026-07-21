@@ -22,7 +22,7 @@ describe('server-entry-transform', () => {
 
     expect(result?.code).toContain('__import_meta_framework__.manifest = {}');
     expect(result?.code).toContain('"src": "entry.client.ts"');
-    expect(result?.code).toContain('import.meta.hot.accept');
+    expect(result?.code).not.toContain('import.meta.hot.accept');
     expect(result?.code).not.toContain(SERVER_ENTRY_PLACEHOLDER);
   });
 

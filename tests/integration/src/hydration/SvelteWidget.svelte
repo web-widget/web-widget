@@ -3,6 +3,7 @@
 </script>
 
 <div data-mount-root="svelte">
-  <span data-hydration-probe="svelte">Svelte {count}</span>
+  <svelte:element this={'slot'} name="label"></svelte:element>
+  <span class="shadow-boundary-probe" data-hydration-probe="svelte">Svelte {count}</span>
   <button data-hydration-increment="svelte" type="button" onclick={() => count++}>Increment</button>
 </div>

@@ -4,7 +4,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "jsx": "react-jsx",
-    "types": ["@types/react", "@types/react-dom", "jest"]
+    "types": ["@types/react", "@types/react-dom", "vitest/globals"]
   },
   "exclude": ["node_modules"],
   "include": ["src/**/*", "globals.d.ts"]

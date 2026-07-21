@@ -8,28 +8,28 @@ export default {
 
 <script setup lang="ts">
 import Counter from './Counter@widget.vue';
-import { container } from '@web-widget/vue2/adapter';
+import { widget } from '@web-widget/vue2/adapter';
 import BaseLayout from '~/routes/(vue2)/BaseLayout.vue';
 
-const ReactCounter = container(
-  () => import('~/routes/frameworks/react/Counter@widget')
+const ReactCounter = widget(
+  () => import('~/routes/(components)/react/Counter@widget')
 );
-const Vue3Counter = container(
-  () => import('~/routes/(vue3)/frameworks/vue3/Counter@widget.vue')
+const Vue3Counter = widget(
+  () => import('~/routes/(vue3)/(components)/Vue3Counter@widget.vue')
 );
-const SvelteCounter = container(
-  () => import('~/routes/frameworks/svelte/Counter@widget.svelte')
+const SvelteCounter = widget(
+  () => import('~/routes/(components)/svelte/Counter@widget.svelte')
 );
-const SolidCounter = container(
-  () => import('~/routes/frameworks/solid/Counter@widget')
+const SolidCounter = widget(
+  () => import('~/routes/(components)/solid/Counter@widget')
 );
-const PreactCounter = container(
-  () => import('~/routes/frameworks/preact/Counter@widget')
+const PreactCounter = widget(
+  () => import('~/routes/(components)/preact/Counter@widget')
 );
-const WebComponentCounter = container<{ count?: number }>(
+const WebComponentCounter = widget<{ count?: number }>(
   () => import('~/routes/(components)/WebComponentCounter@widget.wc')
 );
-const LitCounter = container<{ count?: number }>(
+const LitCounter = widget<{ count?: number }>(
   () => import('~/routes/(components)/LitCounter@widget.lit')
 );
 </script>

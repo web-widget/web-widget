@@ -13,6 +13,9 @@ The suite currently covers:
 - `Y01-Y05`: React, Vue 3, Preact, Solid, and Svelte hydration;
 - `U01-U08`: Vite HMR versus full-reload policy after source mutations;
 - `M01-M05`: server/client version skew and hydration races;
+- Shadow SSR: native DSD parsing, internal mount-root recovery, style
+  isolation/order, named slots, pending cleanup, and interaction across React,
+  Vue 3, Preact, Solid, and Svelte;
 - production delivery: a built SSR entry and hashed client assets served by a
   standalone Node server without Vite at runtime;
 - structured hydration errors, resource failures, and fixture lifecycle.
@@ -73,22 +76,24 @@ the temporary Vite server log are attached under `test-results/`.
 
 ## Layout
 
-| Path                              | Responsibility                                                   |
-| --------------------------------- | ---------------------------------------------------------------- |
-| `src/cases.ts`                    | Static scenario registry and matrix validation                   |
-| `src/cases/`                      | CSS and Vue fixtures used by the matrix                          |
-| `src/hydration/`                  | Framework hydration fixtures                                     |
-| `src/entry.server.ts`             | Production request routing and dynamic SSR response contract     |
-| `src/assertions.ts`               | Computed style, navigation identity, and Widget state assertions |
-| `src/source-mutation.ts`          | Source editing with Vite watcher acknowledgement                 |
-| `src/server-fixture.ts`           | Temporary fixture copy and random-port Vite lifecycle            |
-| `specs/css-static.spec.ts`        | SSR, CSS asset, selector, and computed-style behavior            |
-| `specs/hydration*.spec.ts`        | Hydration identity, lifecycle, and structured errors             |
-| `specs/updates.spec.ts`           | Dev HMR/full-reload policy                                       |
-| `specs/mismatch.spec.ts`          | Version skew and hydration race recovery                         |
-| `specs/production-server.spec.ts` | Production HTTP, cache, fallback, and security behavior          |
-| `scripts/production-server.mjs`   | Loads the built SSR entry and serves client assets without Vite  |
-| `vite.config.ts`                  | Fixture transforms, update policy, and test control endpoints    |
+| Path                               | Responsibility                                                   |
+| ---------------------------------- | ---------------------------------------------------------------- |
+| `src/cases.ts`                     | Static scenario registry and matrix validation                   |
+| `src/cases/`                       | CSS and Vue fixtures used by the matrix                          |
+| `src/hydration/`                   | Framework hydration fixtures                                     |
+| `src/entry.server.ts`              | Production request routing and dynamic SSR response contract     |
+| `src/assertions.ts`                | Computed style, navigation identity, and Widget state assertions |
+| `src/source-mutation.ts`           | Source editing with Vite watcher acknowledgement                 |
+| `src/server-fixture.ts`            | Temporary fixture copy and random-port Vite lifecycle            |
+| `specs/css-static.spec.ts`         | SSR, CSS asset, selector, and computed-style behavior            |
+| `specs/hydration*.spec.ts`         | Hydration identity, lifecycle, and structured errors             |
+| `specs/shadow-ssr.spec.ts`         | Declarative Shadow DOM parsing, recovery, styles, and slots      |
+| `specs/shadow-vite-plugin.spec.ts` | Router/Vite CSS ownership, aliases, HMR, scoped CSS, production  |
+| `specs/updates.spec.ts`            | Dev HMR/full-reload policy                                       |
+| `specs/mismatch.spec.ts`           | Version skew and hydration race recovery                         |
+| `specs/production-server.spec.ts`  | Production HTTP, cache, fallback, and security behavior          |
+| `scripts/production-server.mjs`    | Loads the built SSR entry and serves client assets without Vite  |
+| `vite.config.ts`                   | Fixture transforms, update policy, and test control endpoints    |
 
 ## Adding coverage
 
@@ -118,6 +123,36 @@ case and its acceptance contract together with the implementation.
 4. Assert node identity, computed style, one interaction, update/unmount
    lifecycle, `window.__hydrationErrors`, console errors, and resource errors.
 5. Add production browser coverage when introducing a new adapter.
+
+### Shadow DOM SSR behavior
+
+Keep Shadow DOM cases in `specs/shadow-ssr.spec.ts` rather than adding
+`shadow` to the document/light CSS matrix. Assert the raw DSD protocol before
+navigation, then assert the parsed open `ShadowRoot`, the single direct
+`web-widget-root`, style ownership and order, slot assignment, pending removal,
+framework interaction, and error channels. Development covers the core
+React/Vue path; production covers all five hydration fixtures against built
+package output.
+
+`specs/shadow-vite-plugin.spec.ts` owns the bundler boundary that the core
+fixture deliberately does not model. Its development tests run a temporary
+copy of the router playground so source mutation cannot dirty the workspace;
+its production test builds the real playground so workspace package aliases
+and multi-environment client entries use their actual resolution model.
+
+| Risk dimension               | Development contract                                                                                       | Production contract                                               |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Route/Widget and CSS aliases | Vue Widgets resolve through package aliases; all Widgets resolve shared CSS through `~`                    | The real workspace build resolves the same imports                |
+| CSS Modules                  | Raw DSD and computed styles use the same transformed class/CSS version                                     | Widget CSS is embedded in each DSD boundary                       |
+| Vue scoped CSS               | Vue 2/3 virtual styles are embedded, hot-updated, and present in a fresh SSR response                      | Scoped selectors remain shadow-local after build                  |
+| Route vs Widget CSS          | Route CSS applies to a document probe and cannot style shadow buttons                                      | Route CSS is delivered by document assets, not copied into DSD    |
+| HMR                          | CSS Module changes reload once; SFC scoped CSS updates without navigation; fresh SSR is current            | Not applicable                                                    |
+| Hydration errors             | `hydration-errors.spec.ts` covers load/bootstrap/mount errors while preserving a ShadowRoot and mount root | Core production hydration remains covered by `shadow-ssr.spec.ts` |
+
+Do not replace these assertions with style-tag counts. Each ownership case must
+assert raw server HTML and browser computed style. Each mutation must also
+request fresh SSR so an active page HMR success cannot hide stale server-side
+`devStyles`.
 
 ### HMR or reload policy
 
@@ -162,7 +197,8 @@ dynamic route.
 - The fixture uses deterministic readiness/watcher signals instead of sleeps.
 - Dev and production coverage match the behavior's scope.
 - Production tests do not start Vite or exercise dev-only mutation endpoints.
-- New framework coverage does not introduce Vue 2 into this workspace.
+- New core fixture framework coverage does not introduce Vue 2; the router
+  boundary fixture may reuse the playground's existing Vue 2 package.
 - CI scripts are updated if the case belongs to a different test layer.
 - This README records any new case category or update-policy contract.
 

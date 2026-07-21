@@ -1,11 +1,11 @@
 import type React from 'react';
 import { defineMeta, defineRouteComponent } from '@web-widget/helpers';
-import { container } from '@web-widget/react/adapter';
+import { widget } from '@web-widget/react/adapter';
 import BaseLayout from '~/routes/(components)/BaseLayout';
 import { PageHeader } from '~/routes/(components)/ui';
 
 // `route` is consumed by createVueRender's onCreatedApp, not a component prop.
-const RApp = container(() => import('./App@widget')) as React.FC<any>;
+const RApp = widget(() => import('./App@widget')) as React.FC<any>;
 
 export const meta = defineMeta({
   title: 'Hello, Vue Router',

@@ -165,6 +165,9 @@ jobs:
         env:
           SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
 
+      - name: Install Chromium for browser tests
+        run: pnpm --filter @web-widget/web-widget exec playwright install --with-deps chromium
+
       - run: pnpm examples-catalog:check
 
       - run: pnpm build

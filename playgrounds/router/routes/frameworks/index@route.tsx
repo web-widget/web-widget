@@ -14,7 +14,7 @@ export default defineRouteComponent(function Page() {
       />
       <Section
         title="Capability matrix"
-        description="Streaming means the adapter can return a streamed response. Progressive rendering means async content can be revealed incrementally over that stream. Widget embedding means the framework can integrate Widgets into its component tree through container().">
+        description="Streaming means the adapter can return a streamed response. Progressive rendering means async content can be revealed incrementally over that stream. Widget embedding means the framework can integrate Widgets into its component tree through widget().">
         <div className="ds-table-wrap">
           <table className="ds-table">
             <thead>

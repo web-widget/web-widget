@@ -6,6 +6,7 @@ import type {
   ExtractWidgetProps,
   WidgetContainerOptions,
   WidgetContainerProps,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
@@ -15,7 +16,11 @@ export type PreactWidgetContainerProps =
   WidgetContainerProps<ComponentChildren>;
 
 export type PreactWidgetComponent<T = unknown> = ComponentType<
-  T & { children?: ComponentChildren; widget?: PreactWidgetContainerProps }
+  T &
+    WidgetHostProps & {
+      children?: ComponentChildren;
+      widget?: PreactWidgetContainerProps;
+    }
 >;
 
 function resolveFallback(fallback: PreactWidgetContainerProps['fallback']) {
@@ -58,7 +63,8 @@ function suspend<T>(promise: Promise<T>): () => T {
 
 const renderResources = new WeakMap<
   WebWidgetRendererOptions,
-  () => { tag: string; attributes: Record<string, string>; html: string }
+  () =>
+    { tag: string; attributes: Record<string, string>; html: string } | Error
 >();
 
 class WidgetErrorBoundary extends Component<
@@ -75,11 +81,22 @@ class WidgetErrorBoundary extends Component<
 }
 
 function WebWidget(props: {
+  children?: ComponentChildren;
   loader: WidgetModuleLoader;
   options: WebWidgetRendererOptions;
   pending?: ComponentChildren;
+  error?: ComponentChildren;
   clientOnly?: boolean;
+  renderChildren?: (children: ComponentChildren) => Promise<string>;
 }) {
+  if (!props.renderChildren && props.children) {
+    const renderer = new WebWidgetRenderer(props.loader, props.options);
+    return createElement(
+      renderer.localName,
+      renderer.attributes,
+      props.children
+    );
+  }
   if (
     props.clientOnly &&
     typeof window === 'undefined' &&
@@ -90,9 +107,9 @@ function WebWidget(props: {
       renderer.localName,
       renderer.attributes,
       createElement(
-        'div',
+        renderer.pendingBoundary.localName,
         {
-          'aria-busy': String(renderer.pendingBoundary.ariaBusy),
+          'aria-busy': renderer.pendingBoundary.ariaBusy,
           slot: renderer.pendingBoundary.slot,
           style: { display: renderer.pendingBoundary.display },
         },
@@ -104,66 +121,97 @@ function WebWidget(props: {
   if (!read) {
     const renderer = new WebWidgetRenderer(props.loader, props.options);
     read = suspend(
-      renderer.renderInnerHTMLToString().then((html) => ({
-        tag: renderer.localName,
-        attributes: renderer.attributes,
-        html,
-      }))
+      (async () => {
+        const children =
+          props.children && props.renderChildren
+            ? await props.renderChildren(props.children)
+            : '';
+        return renderer.renderInnerHTMLToString({ children }).then((html) => ({
+          tag: renderer.localName,
+          attributes: renderer.attributes,
+          html,
+        }));
+      })().catch((error: unknown) =>
+        error instanceof Error ? error : new Error(String(error))
+      )
     );
     renderResources.set(props.options, read);
   }
-  const { tag, attributes, html } = read();
+  const result = read();
+  if (result instanceof Error) return props.error;
+  const { tag, attributes, html } = result;
   return createElement(tag, {
     ...attributes,
     dangerouslySetInnerHTML: { __html: html },
   });
 }
 
-export function container<M>(
-  loader: () => Promise<M>,
-  options?: WidgetContainerOptions
-): PreactWidgetComponent<ExtractWidgetProps<M>>;
-export function container<Props>(
-  loader: WidgetModuleLoader,
-  options?: WidgetContainerOptions
-): PreactWidgetComponent<Props>;
-export function container(
-  loader: WidgetModuleLoader,
-  options: WebWidgetRendererOptions = {}
-) {
-  return memo(function PreactWidget({ children, widget = {}, ...data }: any) {
-    if (children) throw new TypeError('Children not supported.');
-    const { pending, error } = resolveFallback(widget.fallback);
-    const renderOptions = {
-      loading: widget.loading ?? options.loading,
-      renderStage: widget.serverOnly
-        ? ('server' as const)
-        : widget.clientOnly
-          ? ('client' as const)
-          : options.renderStage,
-    };
-    const rendererOptions = useMemo(
-      () => ({
-        ...options,
-        children: '',
-        data,
-        ...renderOptions,
-        renderTarget: options.renderTarget,
-      }),
-      [data, renderOptions.loading, renderOptions.renderStage]
-    );
-    return createElement(
-      WidgetErrorBoundary,
-      { fallback: error },
-      createElement(Suspense, {
-        fallback: pending,
-        children: createElement(WebWidget, {
-          clientOnly: widget.clientOnly,
-          loader,
-          options: rendererOptions,
-          pending,
+export interface PreactWidgetFactory {
+  <M>(
+    loader: () => Promise<M>,
+    options?: WidgetContainerOptions
+  ): PreactWidgetComponent<ExtractWidgetProps<M>>;
+  <Props>(
+    loader: WidgetModuleLoader,
+    options?: WidgetContainerOptions
+  ): PreactWidgetComponent<Props>;
+}
+
+export function createWidgetAdapter(
+  renderChildren?: (children: ComponentChildren) => Promise<string>
+): PreactWidgetFactory {
+  return function widget(
+    loader: WidgetModuleLoader,
+    options: WebWidgetRendererOptions = {}
+  ) {
+    return memo(function PreactWidget({
+      children,
+      slot,
+      widget = {},
+      ...data
+    }: any) {
+      const { pending, error } = resolveFallback(widget.fallback);
+      const renderOptions = {
+        id: widget.id,
+        loading: widget.loading ?? options.loading,
+        renderStage: widget.serverOnly
+          ? ('server' as const)
+          : widget.clientOnly
+            ? ('client' as const)
+            : options.renderStage,
+      };
+      const rendererOptions = useMemo(
+        () => ({
+          ...options,
+          data,
+          ...renderOptions,
+          root: options.root,
+          slot,
         }),
-      })
-    ) as VNode;
-  });
+        [
+          data,
+          renderOptions.id,
+          renderOptions.loading,
+          renderOptions.renderStage,
+          slot,
+        ]
+      );
+      return createElement(
+        WidgetErrorBoundary,
+        { fallback: error },
+        createElement(Suspense, {
+          fallback: pending,
+          children: createElement(WebWidget, {
+            clientOnly: widget.clientOnly,
+            children,
+            loader,
+            options: rendererOptions,
+            pending,
+            error,
+            renderChildren,
+          }),
+        })
+      ) as VNode;
+    });
+  } as PreactWidgetFactory;
 }

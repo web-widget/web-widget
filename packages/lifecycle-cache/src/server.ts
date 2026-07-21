@@ -16,7 +16,14 @@ declare module '@web-widget/schema' {
 /**
  * Serialize the cache and transfer it to the client.
  */
-export function renderLifecycleCacheLayer(state?: State) {
+export interface RenderLifecycleCacheLayerOptions {
+  scriptAttributes?: Record<string, string>;
+}
+
+export function renderLifecycleCacheLayer(
+  state?: State,
+  options: RenderLifecycleCacheLayerOptions = {}
+) {
   const cache = state ?? context().state;
   cache.toJSON ??= toJSON;
 
@@ -24,13 +31,27 @@ export function renderLifecycleCacheLayer(state?: State) {
   const json = JSON.stringify(cache);
 
   if (json !== '{}') {
-    result += `<script>`;
+    result += `<script${renderAttributes(options.scriptAttributes)}>`;
     result += `(self.${LIFECYCLE_CACHE_LAYER}=self.${LIFECYCLE_CACHE_LAYER}||[]).push`;
     result += `(${escapeJson(json)})`;
     result += `</script>`;
   }
 
   return result;
+}
+
+function renderAttributes(attributes: Record<string, string> | undefined) {
+  if (!attributes) return '';
+  return Object.entries(attributes)
+    .map(([name, value]) => {
+      if (!/^[a-z][a-z\d:_-]*$/i.test(name)) {
+        throw new TypeError(`Invalid script attribute name: ${name}`);
+      }
+      return ` ${name}="${value
+        .replaceAll('&', '&amp;')
+        .replaceAll('"', '&quot;')}"`;
+    })
+    .join('');
 }
 
 function toJSON(this: State): any {

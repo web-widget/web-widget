@@ -20,6 +20,64 @@ function createTestConfig(root: string): ResolvedWebRouterConfig {
 }
 
 describe('createRouterPluginHost', () => {
+  it('combines widget module filters registered by multiple adapters', () => {
+    const host = createRouterPluginHost();
+
+    host.api.setWidgetModuleFilter((modulePath) => modulePath.endsWith('.vue'));
+    host.api.setWidgetModuleFilter((modulePath) => modulePath.endsWith('.tsx'));
+
+    expect(host.api.widgetModuleFilter?.('/routes/Counter@widget.vue')).toBe(
+      true
+    );
+    expect(host.api.widgetModuleFilter?.('/routes/Counter@widget.tsx')).toBe(
+      true
+    );
+    expect(host.api.widgetModuleFilter?.('/routes/Counter@widget.svelte')).toBe(
+      false
+    );
+  });
+
+  it('registers widget metadata from resolved adapter plugins', () => {
+    const host = createRouterPluginHost();
+
+    host.registerWidgetPlugins([
+      {
+        name: '@web-widget:widget-module-filter',
+        api: {
+          filter: (modulePath: string) => modulePath.endsWith('.vue'),
+          defaults: { loading: 'idle', root: 'shadow' },
+        },
+      } as any,
+      {
+        name: '@web-widget:widget-module-filter',
+        api: {
+          filter: (modulePath: string) => modulePath.endsWith('.tsx'),
+          defaults: { loading: 'idle', root: 'shadow' },
+        },
+      } as any,
+    ]);
+
+    expect(host.api.widgetDefaults).toEqual({
+      loading: 'idle',
+      root: 'shadow',
+    });
+    expect(host.api.widgetModuleFilter?.('/routes/Counter@widget.vue')).toBe(
+      true
+    );
+    expect(host.api.widgetModuleFilter?.('/routes/Counter@widget.tsx')).toBe(
+      true
+    );
+  });
+
+  it('rejects conflicting widget defaults', () => {
+    const host = createRouterPluginHost();
+
+    host.api.setWidgetDefaults({ root: 'shadow' });
+
+    expect(() => host.api.setWidgetDefaults({ root: 'light' })).toThrow(
+      'Conflicting widget default "root" values'
+    );
+  });
   test('reads importmap and routemap via injected readFile', async () => {
     const files = new Map<string, string>([
       ['/project/importmap.client.json', '{"imports":{}}'],

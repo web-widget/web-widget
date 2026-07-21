@@ -3,10 +3,12 @@ import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
 import { hasDefaultExport } from './module-exports';
+import type { DevWidgetStyle } from '@/dev/meta';
 import { stripModuleIdQuery, CSS_LANGS_RE } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
 import { createAliasGenerator } from '@/internal/alias';
+import type { WidgetDefaults } from '@/types';
 
 const IMPORT_DEFAULT_NAME_REG =
   /import\s+(?:([a-zA-Z_$][\w$]*)|\{\s*default\s+as\s+([a-zA-Z_$][\w$]*)\s*\})\s+from/;
@@ -16,21 +18,20 @@ const parseComponentName = (code: string) => {
 };
 
 /**
- * Matches the tail of a `container(() =>` or `container(async () =>` expression.
- * Used to detect user-written `container()` calls that wrap a dynamic import.
+ * Matches the tail of a `widget(() =>` or `widget(async () =>` expression.
+ * Used to detect user-written `widget()` calls that wrap a dynamic import.
  * `[\s\S]` allows multi-line formatting (e.g. Prettier wrapping).
- * `(^|[^\w.])` prevents matching `obj.container(...)` method calls.
+ * `(^|[^\w.])` prevents matching `obj.widget(...)` method calls.
  *
- * Limitation: the callee must be literally named `container` (no renamed imports).
+ * Limitation: the callee must be literally named `widget` (no renamed imports).
  */
-const CONTAINER_CALL_TAIL_REG =
-  /(?:^|[^\w.])container\s*\([\s\S]*\(\s*\)\s*=>\s*$/;
+const WIDGET_CALL_TAIL_REG = /(?:^|[^\w.])widget\s*\([\s\S]*\(\s*\)\s*=>\s*$/;
 
 /**
- * Extracts the variable name from `const Foo = container(...)` statements.
+ * Extracts the variable name from `const Foo = widget(...)` statements.
  *
  * Limitation: only matches `const`/`let`/`var` declarations, so
- * `render(container(() => import(...)))` yields no `name` option.
+ * `render(widget(() => import(...)))` yields no `name` option.
  */
 const DECLARATION_NAME_REG = /(?:const|let|var)\s+([a-zA-Z_$][\w$]*)\s*=/g;
 const parseDeclarationName = (code: string) => {
@@ -45,8 +46,10 @@ export interface ImportRenderPluginOptions {
   importPattern: RegExp;
   /** Importer pattern tested against query-stripped id. */
   importerPattern: RegExp;
-  /** Adapter module specifier for container injection. */
+  /** Adapter module specifier for widget injection. */
   adapterModule: string;
+  /** Build-time defaults injected before call-site options. */
+  defaults: WidgetDefaults;
 }
 
 /**
@@ -84,8 +87,10 @@ export interface TransformWidgetImportsOptions {
   sourcemap: boolean;
   /** Widget module pattern tested against query-stripped id. */
   importPattern: RegExp;
-  /** Adapter module specifier for container injection. */
+  /** Adapter module specifier for widget injection. */
   adapterModule: string;
+  /** Build-time defaults injected before call-site options. */
+  defaults: WidgetDefaults;
 }
 
 export interface TransformWidgetImportsContext {
@@ -93,6 +98,8 @@ export interface TransformWidgetImportsContext {
   resolve: ResolveFn;
   /** Emit a chunk file (production builds only). */
   emitFile: EmitFileFn;
+  /** Collect Vite-transformed CSS owned by a widget during development. */
+  getDevStyles?: (moduleId: string) => Promise<DevWidgetStyle[]>;
 }
 
 export interface TransformResult {
@@ -102,16 +109,16 @@ export interface TransformResult {
 
 /**
  * Transform widget imports into framework-native components via the
- * adapter's `container` function.
+ * adapter's `widget` function.
  *
  * Supports two patterns:
  *
  * 1. **Static import** (conventional):
  *    `import Foo from './Foo@widget.vue'`
- *    → converted to `const Foo = container(() => import(...), { import, name })`
+ *    → converted to `const Foo = widget(() => import(...), { import, name })`
  *
- * 2. **Explicit `container()` call** (for cross-framework type safety):
- *    `const Foo = container(() => import('./Foo@widget.vue'))`
+ * 2. **Explicit `widget()` call** (for cross-framework type safety):
+ *    `const Foo = widget(() => import('./Foo@widget.vue'))`
  *    → `import` and `name` options are injected automatically
  *
  * For client build, the hashed chunk URL is resolved at build time via
@@ -122,7 +129,7 @@ export async function transformWidgetImports(
   ctx: TransformWidgetImportsContext,
   options: TransformWidgetImportsOptions
 ): Promise<TransformResult | null> {
-  const { resolve, emitFile } = ctx;
+  const { resolve, emitFile, getDevStyles } = ctx;
   const {
     code,
     id,
@@ -133,6 +140,7 @@ export async function transformWidgetImports(
     sourcemap,
     importPattern,
     adapterModule,
+    defaults,
   } = options;
 
   const cleanImporterId = stripModuleIdQuery(id);
@@ -156,13 +164,13 @@ export async function transformWidgetImports(
     statementStart: number;
   }[] = [];
 
-  /** User-written `container(() => import('./Foo@widget.vue'))` calls. */
-  const containerCalls: {
+  /** User-written `widget(() => import('./Foo@widget.vue'))` calls. */
+  const widgetCalls: {
     moduleId: string;
     moduleName: string;
     resolvedId: string;
-    /** Start of the `container(...)` call expression. */
-    containerCallStart: number;
+    /** Start of the `widget(...)` call expression. */
+    widgetCallStart: number;
     /** End of the module specifier string (`e` from es-module-lexer). */
     moduleSpecifierEnd: number;
   }[] = [];
@@ -193,32 +201,32 @@ export async function transformWidgetImports(
         continue;
       }
       if (dynamicImport !== -1) {
-        // Dynamic import — only allowed inside a container() call.
+        // Dynamic import — only allowed inside a widget() call.
         // `ss` points at the `import` keyword; we scan backward to
-        // find the `container(() =>` prefix.
-        // Search for `container(` (not bare `container`) to avoid
+        // find the `widget(() =>` prefix.
+        // Search for `widget(` (not bare `widget`) to avoid
         // false positives from the word appearing in comments.
-        const lookback = code.lastIndexOf('container(', statementStart);
+        const lookback = code.lastIndexOf('widget(', statementStart);
         // Include the preceding char so the regex's `[^\w.]` guard
-        // can reject `obj.container(...)`.
+        // can reject `obj.widget(...)`.
         const substringStart = Math.max(0, lookback - 1);
         const isInsideContainer =
           lookback !== -1 &&
-          CONTAINER_CALL_TAIL_REG.test(
+          WIDGET_CALL_TAIL_REG.test(
             code.substring(substringStart, statementStart)
           );
 
         if (!isInsideContainer) {
           throw new SyntaxError(
-            `Widget modules can only be dynamically imported inside container().`
+            `Widget modules can only be dynamically imported inside widget().`
           );
         }
 
-        containerCalls.push({
+        widgetCalls.push({
           moduleId: cleanImportModule ?? importModule,
           moduleName: moduleName as string,
           resolvedId: importModule,
-          containerCallStart: lookback,
+          widgetCallStart: lookback,
           moduleSpecifierEnd: specifierEnd,
         });
       } else {
@@ -233,14 +241,14 @@ export async function transformWidgetImports(
     }
   }
 
-  if (modules.length === 0 && containerCalls.length === 0) {
+  if (modules.length === 0 && widgetCalls.length === 0) {
     return null;
   }
 
   const magicString = new MagicString(code);
   const replacementStatements: string[] = [];
   const definerNames: string[] = [];
-  let transformedContainerCalls = 0;
+  let transformedWidgetCalls = 0;
   const alias = createAliasGenerator();
 
   for (const {
@@ -271,31 +279,35 @@ export async function transformWidgetImports(
       importer: id,
       emitFile,
     });
+    const devStyles =
+      dev && getDevStyles ? await getDevStyles(moduleId) : undefined;
 
-    const importProperty = clientModuleExpression
-      ? `import: ${clientModuleExpression}, `
-      : '';
+    const injectedOptions = serializeInjectedOptions(defaults, {
+      devStyles: devStyles?.length ? JSON.stringify(devStyles) : undefined,
+      import: clientModuleExpression,
+      name: JSON.stringify(componentName),
+    });
 
-    const definerName = alias('container');
+    const definerName = alias('widget');
     definerNames.push(definerName);
 
     replacementStatements.push(
       `const ${componentName} = /* @__PURE__ */ ${definerName}(() => import(${JSON.stringify(
         moduleName
-      )}), { ${importProperty}name: ${JSON.stringify(componentName)} });`
+      )}), { ${injectedOptions} });`
     );
 
     magicString.update(statementStart, statementEnd, '');
   }
 
   // Inject `import` (and `name`) options into user-written
-  // `container(() => import('./Foo@widget.vue'))` calls.
+  // `widget(() => import('./Foo@widget.vue'))` calls.
   for (const {
     moduleId,
     resolvedId,
-    containerCallStart,
+    widgetCallStart,
     moduleSpecifierEnd,
-  } of containerCalls) {
+  } of widgetCalls) {
     const asset = normalizePath(path.relative(root, moduleId));
 
     const clientModuleExpression = buildClientModuleExpression({
@@ -307,14 +319,18 @@ export async function transformWidgetImports(
       importer: id,
       emitFile,
     });
+    const devStyles =
+      dev && getDevStyles ? await getDevStyles(moduleId) : undefined;
 
     const componentName = parseDeclarationName(
-      code.substring(0, containerCallStart)
+      code.substring(0, widgetCallStart)
     );
 
-    const props = `import: ${clientModuleExpression}${
-      componentName ? `, name: ${JSON.stringify(componentName)}` : ''
-    }`;
+    const props = serializeInjectedOptions(defaults, {
+      devStyles: devStyles?.length ? JSON.stringify(devStyles) : undefined,
+      import: clientModuleExpression,
+      name: componentName ? JSON.stringify(componentName) : undefined,
+    });
 
     // Find the `)` that closes `import(...)`.
     let pos = moduleSpecifierEnd;
@@ -325,11 +341,11 @@ export async function transformWidgetImports(
     while (pos < code.length && /\s/.test(code[pos])) pos++;
 
     if (code[pos] === ')') {
-      // container(() => import('...'))  — no options, inject them.
+      // widget(() => import('...'))  — no options, inject them.
       magicString.appendLeft(pos, `, { ${props} }`);
-      transformedContainerCalls++;
+      transformedWidgetCalls++;
     } else if (code[pos] === ',') {
-      // container(() => import('...'), { ... }) — merge into options.
+      // widget(() => import('...'), { ... }) — merge into options.
       pos++;
       while (pos < code.length && /\s/.test(code[pos])) pos++;
       if (code[pos] === '{') {
@@ -337,26 +353,26 @@ export async function transformWidgetImports(
           continue;
         }
         magicString.appendLeft(pos + 1, ` ${props},`);
-        transformedContainerCalls++;
+        transformedWidgetCalls++;
       } else {
         throw new SyntaxError(
-          `Cannot inject options into container(): second argument must be an object literal.`
+          `Cannot inject options into widget(): second argument must be an object literal.`
         );
       }
     } else {
       throw new SyntaxError(
-        `Malformed container() call: expected ')' or ',' after import().`
+        `Malformed widget() call: expected ')' or ',' after import().`
       );
     }
   }
 
-  if (replacementStatements.length === 0 && transformedContainerCalls === 0) {
+  if (replacementStatements.length === 0 && transformedWidgetCalls === 0) {
     return null;
   }
 
   const header = [
     ...(isServer &&
-    (replacementStatements.length > 0 || transformedContainerCalls > 0)
+    (replacementStatements.length > 0 || transformedWidgetCalls > 0)
       ? [
           `import { resolveWidgetAsset } from ${JSON.stringify(
             SERVER_ASSETS_MODULE_ID
@@ -365,7 +381,7 @@ export async function transformWidgetImports(
       : []),
     ...definerNames.map(
       (definerName) =>
-        `import { container as ${definerName} } from ${JSON.stringify(
+        `import { widget as ${definerName} } from ${JSON.stringify(
           adapterModule
         )};`
     ),
@@ -415,6 +431,23 @@ function toDevUrl(target: string, base: string) {
   return `${base}${target}`;
 }
 
+function serializeInjectedOptions(
+  defaults: WidgetDefaults,
+  generated: { devStyles?: string; import?: string; name?: string }
+): string {
+  return [
+    defaults.loading
+      ? `loading: ${JSON.stringify(defaults.loading)}`
+      : undefined,
+    defaults.root ? `root: ${JSON.stringify(defaults.root)}` : undefined,
+    generated.devStyles ? `devStyles: ${generated.devStyles}` : undefined,
+    generated.import ? `import: ${generated.import}` : undefined,
+    generated.name ? `name: ${generated.name}` : undefined,
+  ]
+    .filter((value): value is string => !!value)
+    .join(', ');
+}
+
 /**
  * Vite plugin wrapper around {@link transformWidgetImports}.
  */
@@ -423,6 +456,7 @@ export function importRenderPlugin({
   importPattern,
   importerPattern,
   adapterModule,
+  defaults,
 }: ImportRenderPluginOptions): Plugin[] {
   if (typeof adapterModule !== 'string') {
     throw new TypeError(`options.adapterModule must be a string type.`);
@@ -432,6 +466,8 @@ export function importRenderPlugin({
   let root: string;
   let base: string;
   let sourcemap: boolean;
+  let getDevStyles:
+    ((moduleId: string) => Promise<DevWidgetStyle[]>) | undefined;
 
   return [
     {
@@ -441,6 +477,19 @@ export function importRenderPlugin({
         root = config.root;
         base = config.base;
         sourcemap = !!config.build?.sourcemap;
+      },
+      async configureServer(viteServer) {
+        const [{ getDevWidgetStyles }, environment] = await Promise.all([
+          import('@/dev/meta'),
+          import('@/internal/environment'),
+        ]);
+        const serverEnvironment = environment.asServerDevEnvironment(
+          environment.getServerEnvironmentFromDevServer(viteServer)
+        );
+        const clientEnvironment =
+          environment.getClientEnvironmentFromDevServer(viteServer);
+        getDevStyles = (moduleId) =>
+          getDevWidgetStyles(moduleId, serverEnvironment, clientEnvironment);
       },
       transform: {
         filter: { id: nativeFilter },
@@ -460,6 +509,7 @@ export function importRenderPlugin({
                 resolve: (specifier, importer) =>
                   this.resolve(specifier, importer, { skipSelf: true }),
                 emitFile: (file) => this.emitFile(file),
+                getDevStyles,
               },
               {
                 code,
@@ -471,6 +521,7 @@ export function importRenderPlugin({
                 sourcemap,
                 importPattern,
                 adapterModule,
+                defaults,
               }
             );
             return result;

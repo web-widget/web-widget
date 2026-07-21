@@ -5,8 +5,25 @@ import vue from '@vitejs/plugin-vue';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import solid from 'vite-plugin-solid';
 import { readFile } from 'node:fs/promises';
+import type { ViteDevServer } from 'vite';
 
 const serverBuild = process.env.BUILD_TARGET === 'server';
+
+function frameworkSSRPlugin(): Plugin {
+  let devServer: ViteDevServer | undefined;
+  return {
+    name: 'integration-framework-ssr',
+    configureServer(server) {
+      devServer = server;
+    },
+    async transformIndexHtml(html) {
+      if (!devServer) return html;
+      const module = await devServer.ssrLoadModule('/src/framework-ssr.ts');
+      const fragments = await module.renderFrameworkSSR();
+      return module.injectFrameworkSSR(html, fragments);
+    },
+  };
+}
 
 function integrationControlPlugin(): Plugin {
   const versions = new Map<string, number>();
@@ -164,12 +181,28 @@ export default defineConfig({
     },
   },
   plugins: serverBuild
-    ? []
+    ? [
+        solid({
+          include: /SolidWidget\.tsx\?solid-ssr$/,
+          ssr: true,
+          solid: { hydratable: true },
+        }),
+        svelte(),
+      ]
     : [
         react({ exclude: /SolidWidget\.tsx$/ }),
-        solid({ include: /SolidWidget\.tsx$/ }),
+        solid({
+          include: /SolidWidget\.tsx$/,
+          solid: { hydratable: true },
+        }),
+        solid({
+          include: /SolidWidget\.tsx\?solid-ssr$/,
+          ssr: true,
+          solid: { hydratable: true },
+        }),
         svelte(),
         vue(),
+        frameworkSSRPlugin(),
         stableVueScopePlugin(),
         updatePolicyPlugin(),
         integrationControlPlugin(),

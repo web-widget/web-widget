@@ -2,6 +2,133 @@
    Reusable component styles built on top of the sketch theme.
    All pages use these for consistent structure and appearance. */
 
+/* --- Content defaults ---
+   Keep these selectors low-specificity so component styles can override them. */
+:where(.container main) :where(h1) {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.6em;
+}
+
+:where(.container main) :where(h2) {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 2em 0 0.6em;
+}
+
+:where(.container main) :where(h3) {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.6em 0 0.6em;
+}
+
+:where(.container main) :where(p) {
+  margin: 0 0 1.2em;
+  color: var(--sk-ink);
+}
+
+:where(.container main) :where(ul) {
+  margin: 0 0 1.4em;
+  padding-left: 1.4em;
+}
+
+:where(.container main) :where(li) {
+  margin: 0.4em 0;
+}
+
+:where(.container main) :where(li)::marker {
+  color: var(--sk-ink-muted);
+}
+
+:where(.container main) :where(hr) {
+  border: none;
+  border-top: 2px dashed var(--sk-border-light);
+  margin: 2em 0;
+}
+
+:where(.container main) :where(code) {
+  font-family: var(--sk-font-mono);
+  font-size: 0.85em;
+  background: var(--sk-bg-subtle);
+  padding: 2px 6px;
+  border: 1px solid var(--sk-border-light);
+  border-radius: var(--sk-radius-sm);
+}
+
+:where(.container main) :where(pre) {
+  padding: 16px 20px;
+  overflow-x: auto;
+  background: var(--sk-bg-subtle);
+  border: var(--sk-border-width) solid var(--sk-border);
+  border-radius: var(--sk-radius);
+  box-shadow: var(--sk-shadow-sm);
+}
+
+:where(.container main) :where(pre code) {
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+:where(.container main) :where(blockquote) {
+  margin: 1.2em 0;
+  padding: 12px 20px;
+  color: var(--sk-ink-light);
+  font-style: italic;
+  background: var(--sk-bg-subtle);
+  border-left: 4px solid var(--sk-purple);
+  border-radius: 0 var(--sk-radius-sm) var(--sk-radius-sm) 0;
+}
+
+:where(.container main)
+  :where(
+    input[type='text'],
+    input[type='email'],
+    input[type='search'],
+    select,
+    textarea
+  ) {
+  padding: 8px 12px;
+  color: var(--sk-ink);
+  font-family: var(--sk-font-sans);
+  font-size: 0.95rem;
+  background: var(--sk-bg);
+  border: var(--sk-border-width) solid var(--sk-border);
+  border-radius: var(--sk-radius-sm);
+  outline: none;
+}
+
+:where(.container main) :where(input, select, textarea):focus {
+  border-color: var(--sk-blue);
+  box-shadow: 0 0 0 3px var(--sk-blue-light);
+}
+
+:where(.container main) :where(button, input[type='submit']) {
+  padding: 8px 20px;
+  color: var(--sk-ink);
+  font-family: var(--sk-font-sans);
+  font-size: 0.95rem;
+  cursor: pointer;
+  background: var(--sk-bg);
+  border: var(--sk-border-width) solid var(--sk-border);
+  border-radius: var(--sk-radius-sm);
+  box-shadow: var(--sk-shadow-sm);
+  transition: all 0.1s ease;
+}
+
+:where(.container main) :where(button, input[type='submit']):hover {
+  background: var(--sk-bg-hover);
+  box-shadow: var(--sk-shadow);
+  transform: translate(-1px, -1px);
+}
+
+:where(.container main) :where(button, input[type='submit']):active {
+  box-shadow: none;
+  transform: translate(1px, 1px);
+}
+
 /* --- Page Header --- */
 .ds-page-header {
   margin-bottom: 2em;
@@ -181,4 +308,20 @@
 .ds-capability[data-capability='conditional']::before {
   background: transparent;
   box-shadow: inset 4px 0 0 currentColor;
+}
+
+/* --- Shadow DOM slot example --- */
+.shadow-slot-example {
+  max-width: 620px;
+}
+
+.shadow-slot-title {
+  margin: 0 !important;
+  color: var(--sk-red);
+  font-family: Georgia, serif;
+  font-size: 1.15rem !important;
+}
+
+.shadow-slot-content {
+  margin: 0 !important;
 }

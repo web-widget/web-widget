@@ -98,6 +98,105 @@ describe('production server (pnpm build && node server.js)', () => {
     expect(coordinationIndex).toBeGreaterThan(hydrationIndex);
   });
 
+  it('server-renders isolated Shadow DOM widget boundaries', async () => {
+    const html = await (
+      await fetch(`${server!.origin}/shadow-dom/react`)
+    ).text();
+    const { combinedCss } = await collectRouteCss(html, server!.origin);
+    const visibleHtml = html.replace(/<!--.*?-->/gs, '');
+
+    // The route imports ui.css through a multi-line shared component import.
+    // This guards the production route asset collector against dropping the
+    // card grid stylesheet, which makes the page collapse to one column.
+    expect(combinedCss).toContain('.ds-card-grid');
+    expect(combinedCss).toContain('display:grid');
+    expect(combinedCss).toContain('grid-template-columns');
+
+    expect(html.match(/<template shadowrootmode="open">/g)).toHaveLength(10);
+    // The shared layout may retain its own B:0 boundary, but Shadow Widgets
+    // must be complete before the non-progressive response is serialized.
+    expect(html).not.toContain('$RC("B:1"');
+    const shadowTemplates = [
+      ...html.matchAll(
+        /<template shadowrootmode="open">([\s\S]*?)<\/template>/g
+      ),
+    ];
+    const serverRenderedTemplates = shadowTemplates.filter(([, template]) =>
+      template.includes('<button')
+    );
+    expect(serverRenderedTemplates).toHaveLength(7);
+    for (const [, template] of serverRenderedTemplates) {
+      expect(template).toMatch(/border-radius:\s*var\(--sk-radius-sm/);
+    }
+    const clientOnlyTemplates = shadowTemplates.filter(([, template]) =>
+      template.includes(
+        '<web-widget-root style="display:contents"></web-widget-root>'
+      )
+    );
+    expect(clientOnlyTemplates).toHaveLength(2);
+    for (const [, template] of clientOnlyTemplates) {
+      expect(template).toContain(
+        '<web-widget-root style="display:contents"></web-widget-root>'
+      );
+    }
+    expect(html).not.toContain('contextmeta');
+    for (const text of [
+      'React count is 3',
+      'Vue 3 count is 3',
+      'Vue 2 count is 3',
+      'Svelte count is 3',
+      'Solid count is 3',
+      'Preact count is 3',
+    ]) {
+      expect(visibleHtml).toContain(text);
+    }
+  });
+
+  it.each([
+    ['react', 'React', 'React count is 0'],
+    ['html', 'HTML', 'React count is 0'],
+    ['vue3', 'Vue 3', 'Vue 3 count is 0'],
+    ['vue2', 'Vue 2', 'Vue 2 count is 0'],
+    ['svelte', 'Svelte', 'Svelte count is 0'],
+    ['solid', 'Solid', 'Solid count is 0'],
+    ['preact', 'Preact', 'Preact count is 0'],
+  ])(
+    '%s Shadow DOM route server-renders native slot children',
+    async (framework, label, actionText) => {
+      const response = await fetch(`${server!.origin}/shadow-dom/${framework}`);
+      const html = await response.text();
+      const visibleHtml = html
+        .replace(/<!--.*?-->/gs, '')
+        .replace(/\\x3C!--.*?-->/g, '');
+      const protocolHtml = html
+        .replace(/\\x3C/g, '<')
+        .replace(/\\x3E/g, '>')
+        .replace(/\\"/g, '"');
+      const { linkedCss } = await collectRouteCss(html, server!.origin);
+      const hostHtml = html.match(
+        new RegExp(
+          `<web-widget[^>]*id="${framework}-slot-panel"[^>]*>([\\s\\S]*?)<\\/web-widget>`
+        )
+      )?.[1];
+
+      expect(response.status).toBe(200);
+      expect(hostHtml).toContain('<template shadowrootmode="open">');
+      expect(hostHtml).toContain('<slot name="title">');
+      expect(hostHtml).toContain('<slot name="actions">');
+      expect(hostHtml?.indexOf(`${label} title`)).toBeGreaterThan(
+        hostHtml?.indexOf('</template>') ?? -1
+      );
+      expect(hostHtml).toContain(`Projected from ${label}.`);
+      expect(protocolHtml).toMatch(/<web-widget[^>]*\sslot="actions"/);
+      expect(protocolHtml).not.toContain('&quot;slot&quot;');
+      expect(visibleHtml).toContain(actionText);
+      expect(hostHtml).toContain('slot-panel__header');
+      expect(hostHtml).toContain('--slot-panel-accent');
+      expect(linkedCss).not.toContain('.slot-panel__header');
+      expect(html).not.toContain('contextdata="{&quot;children&quot;');
+    }
+  );
+
   it.each([
     [
       'React',

@@ -1,4 +1,4 @@
-import { reportRecoverableError } from './hydration-error';
+import { reportRecoverableError } from './client/hydration-error';
 
 describe('React hydration error reporting', () => {
   test('dispatches a structured mismatch event from the Widget host', () => {

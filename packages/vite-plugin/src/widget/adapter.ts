@@ -5,13 +5,17 @@ import type { Plugin } from 'vite';
 import { exportRenderPlugin } from './export-render';
 import { importRenderPlugin } from './import-render';
 import { adapterScopePrefix } from './adapter-scope';
-import { getWebRouterPluginApi } from '@/internal/manifest';
 import {
   ROUTE_MARKER_PATTERN,
   ROUTE_OR_WIDGET_MARKER_PATTERN,
   WIDGET_MARKER_PATTERN,
 } from '@/internal/module-conventions';
-import type { WebWidgetAdapterConfig, WebWidgetPluginOptions } from '@/types';
+import type {
+  WebWidgetAdapterConfig,
+  WebWidgetPluginOptions,
+  WidgetDefaults,
+  WidgetModuleFilter,
+} from '@/types';
 
 /** Supported adapter format major version. */
 const SUPPORTED_VERSION = 1;
@@ -134,7 +138,8 @@ function extPattern(extensions: string[]): string {
 function buildPluginsForAdapter(
   resolved: ResolvedAdapter,
   root: string,
-  excludedScopes: string[]
+  excludedScopes: string[],
+  defaults: WidgetDefaults
 ): Plugin[] {
   const { from, extensions, adapter, scope, deriveExports } = resolved;
 
@@ -161,6 +166,7 @@ function buildPluginsForAdapter(
   const importerPattern = new RegExp(
     `^${scopeRe}[^?]*${ROUTE_OR_WIDGET_MARKER_PATTERN}${ext}$`
   );
+  const filter: WidgetModuleFilter = (key) => importPattern.test(key);
 
   // Derive handler/meta exports from route modules
   const derive = deriveExports
@@ -175,10 +181,9 @@ function buildPluginsForAdapter(
     {
       name: '@web-widget:widget-module-filter',
       enforce: 'post',
-      config(config) {
-        getWebRouterPluginApi(config)?.setWidgetModuleFilter((key: string) =>
-          importPattern.test(key)
-        );
+      api: {
+        filter,
+        defaults,
       },
     },
     ...exportRenderPlugin({
@@ -192,6 +197,7 @@ function buildPluginsForAdapter(
       importPattern,
       importerPattern,
       adapterModule,
+      defaults,
     }),
   ];
 }
@@ -257,6 +263,11 @@ export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
       )
       .flatMap((candidate) => candidate.scope ?? []);
 
-    return buildPluginsForAdapter(adapter, root, excludedScopes);
+    return buildPluginsForAdapter(
+      adapter,
+      root,
+      excludedScopes,
+      options.defaults ?? {}
+    );
   });
 }

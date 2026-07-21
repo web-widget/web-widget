@@ -4,7 +4,7 @@
 
 ## 摘要
 
-在 Web Widget 的跨框架互操作架构中，一个框架的 widget 可以被另一个框架导入使用。运行时层面，`container` 函数已完成跨框架渲染的桥接。本 RFC 描述如何通过 `container` 函数的泛型推导能力，在类型层面实现跨框架 props 类型的自动推导，消除手动类型转换函数（`asReactWidget`、`asHtmlWidget` 等）。
+在 Web Widget 的跨框架互操作架构中，一个框架的 Widget 可以被另一个框架导入使用。运行时层面，`widget()` 函数已完成跨框架渲染的桥接。本 RFC 描述如何通过 `widget()` 的泛型推导能力，在类型层面实现跨框架 props 类型的自动推导，消除手动类型转换函数（`asReactWidget`、`asHtmlWidget` 等）。
 
 ## 动机
 
@@ -41,20 +41,20 @@ function App() {
 
 ### 核心思路
 
-`container` 函数作为跨框架 widget 导入的统一入口，通过 `ExtractModuleProps<M>` 泛型类型从模块的默认导出自动推导 props：
+`widget()` 函数作为跨框架 Widget 导入的统一入口，通过 `ExtractModuleProps<M>` 泛型类型从模块的默认导出自动推导 props：
 
 ```typescript
-import { container } from '@web-widget/react/adapter';
+import { widget } from '@web-widget/react/adapter';
 
-const Counter = container(() => import('./Counter@widget.vue'));
+const Counter = widget(() => import('./Counter@widget.vue'));
 //    ^? ReactWidgetComponent<{ count: number }>
 ```
 
-由于 `container` 调用对 TypeScript 完全可见，类型推导路径完整。静态 `import` 也由构建工具自动转换为 `container` 调用，因此运行时行为一致；但构建转换发生在 TypeScript 类型检查之后，静态跨框架导入不会获得消费框架的组件类型。跨框架类型互操作必须使用显式 `container()`。
+由于 `widget()` 调用对 TypeScript 完全可见，类型推导路径完整。静态 `import` 也由构建工具自动转换为 `widget()` 调用，因此运行时行为一致；但构建转换发生在 TypeScript 类型检查之后，静态跨框架导入不会获得消费框架的组件类型。跨框架类型互操作必须使用显式 `widget()`。
 
 ### `ExtractModuleProps` 实现
 
-各框架 adapter 的 `container` 签名使用 `@web-widget/schema` 提供的共享 `ExtractWidgetProps<M>`，从模块的默认导出提取 props 类型，避免不同 adapter 的支持范围发生漂移：
+各框架 adapter 的 `widget` 签名使用 `@web-widget/schema` 提供的共享 `ExtractWidgetProps<M>`，从模块的默认导出提取 props 类型，避免不同 adapter 的支持范围发生漂移：
 
 ```typescript
 type ExtractWidgetProps<M> = M extends { default: infer C }
@@ -96,15 +96,15 @@ defineProps<T>()      │                      │        ReactWidgetComponent<P
 两种写法在运行时等价，构建工具统一处理：
 
 ```typescript
-// 1. 同框架静态导入（构建工具自动转换为 container 调用）
+// 1. 同框架静态导入（构建工具自动转换为 widget() 调用）
 import Counter from './Counter@widget.vue';
 
 // 2. 跨框架导入：显式调用才能获得消费框架组件类型
-import { container } from '@web-widget/react/adapter';
-const Counter = container(() => import('./Counter@widget.vue'));
+import { widget } from '@web-widget/react/adapter';
+const Counter = widget(() => import('./Counter@widget.vue'));
 ```
 
-显式写法也适用于需要添加额外选项（如 `loading`、`renderTarget`）的场景。
+显式写法也适用于需要添加额外选项（如 `loading`、`root`）的场景。
 
 ### 各框架 props 类型推导可行性
 
@@ -126,8 +126,8 @@ const Counter = container(() => import('./Counter@widget.vue'));
 ### 已知限制
 
 - **Vue 2 运行时声明**：仅用 `props: ['count']`（数组声明）时，Vue 类型系统无法携带 props 类型，推导结果为 `unknown`
-- **Lit / Web Components**：无法仅从元素类的实例字段可靠区分公开 widget props 与 DOM API，必须使用 `container<Props>()` 显式声明
-- **静态跨框架导入**：构建期转换不参与 TypeScript 类型检查，必须使用显式 `container()` 才能映射为消费框架组件类型
+- **Lit / Web Components**：无法仅从元素类的实例字段可靠区分公开 widget props 与 DOM API，必须使用 `widget<Props>()` 显式声明
+- **静态跨框架导入**：构建期转换不参与 TypeScript 类型检查，必须使用显式 `widget()` 才能映射为消费框架组件类型
 - **Angular 输入模型**：Angular 的 `input()` / `@Input()` 与 widget props 语义差异较大，且依赖 `ngtsc` 专用编译器，类型提取可行性较低
 
 ## 未选择的方案
@@ -152,6 +152,6 @@ const Counter = container(() => import('./Counter@widget.vue'));
 
 ## 参考
 
-- [框架组件构建转换协议](./build-transformation-protocol.zh.md) — `WebWidgetAdapter` 协议与 `container` 的定义
-- [React Widget 孤岛设计](./react-widget-opinionated-design.zh.md) — React `container` 的运行时行为
-- [HTML 模板 Widget 孤岛设计](./html-widget-island.zh.md) — HTML `container` 的设计动机
+- [框架组件构建转换协议](./build-transformation-protocol.zh.md) — `WidgetAdapter` 协议与 `widget()` 的定义
+- [React Widget 孤岛设计](./react-widget-opinionated-design.zh.md) — React `widget` 的运行时行为
+- [HTML 模板 Widget 孤岛设计](./html-widget-island.zh.md) — HTML `widget` 的设计动机

@@ -18,8 +18,8 @@ type WidgetContainerConfig = {
    * - `{ pending?, error? }` — specify independently; `error` defaults to `pending`.
    */
   fallback?: WebWidgetFallback;
-  /** Client-side module loading strategy: `'lazy'` loads on first render, `'eager'` on module parse, `'idle'` on browser idle. */
-  loading?: 'lazy' | 'eager' | 'idle';
+  /** Client-side module loading strategy. `'auto'` prioritizes visible widgets and eventually loads all widgets. */
+  loading?: 'auto' | 'lazy' | 'eager' | 'idle';
   /** Widget renders only on the server (SSR), producing static HTML with no client-side mount. Mutually exclusive with `clientOnly`. */
   serverOnly?: true;
   /** Widget renders only on the client, producing no server HTML (empty placeholder until client mount). Mutually exclusive with `serverOnly`. */

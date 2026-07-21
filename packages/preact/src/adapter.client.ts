@@ -5,7 +5,15 @@ import {
   render as renderComponent,
   type ComponentType,
 } from 'preact';
-export * from './components';
+export type {
+  PreactWidgetComponent,
+  PreactWidgetContainerProps,
+  PreactWidgetFactory,
+  WidgetContainerOptions,
+} from './components';
+import { createWidgetAdapter } from './components';
+
+export const widget = createWidgetAdapter();
 
 export const render = defineClientRender<ComponentType<any>>(
   async (component, data, { container, recovering }) => {

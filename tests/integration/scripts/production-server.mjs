@@ -108,7 +108,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (path.extname(pathname) === '') {
-    const result = renderRequest(
+    const result = await renderRequest(
       new URL(request.url ?? '/', 'http://integration.test'),
       template
     );

@@ -18,16 +18,14 @@
     "@web-widget/web-widget": "workspace:*"
   },
   "devDependencies": {
-    "@types/jest": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "jest": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "ts-jest": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vitest": "catalog:"
   },
   "exports": {
     ".": {
@@ -106,7 +104,7 @@
     "dev": "pnpm exec tsup --watch",
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build",
-    "test": "jest"
+    "test": "vitest run"
   },
   "sideEffects": false,
   "type": "module"

@@ -18,13 +18,12 @@
     "@web-widget/schema": "workspace:*"
   },
   "devDependencies": {
-    "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@types/chai": "^4.3.17",
-    "@types/mocha": "^10.0.7",
-    "@web/dev-server-esbuild": "^1.0.2",
-    "@web/test-runner": "^0.18.3",
+    "@vitest/browser-playwright": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "playwright": "catalog:",
     "tsup": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "exports": {
     ".": {
@@ -116,12 +115,13 @@
     "dev": "pnpm exec tsup --watch",
     "lint": "eslint src",
     "prebuild": "pnpm run clean:build",
-    "test": "web-test-runner src/**/*.test.ts",
-    "test:coverage": "web-test-runner src/**/*.test.ts --coverage",
-    "test:watch": "web-test-runner src/**/*.test.ts --watch"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
   },
   "sideEffects": [
-    "src/install.ts",
+    "./src/client.ts",
+    "./src/element/install.ts",
     "./dist/web-widget.client.js"
   ],
   "type": "module"

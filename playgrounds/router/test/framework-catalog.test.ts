@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { frameworks, navigation } from '../routes/(components)/catalog';
+import {
+  frameworks,
+  navigation,
+  shadowDomFrameworks,
+} from '../routes/(components)/catalog';
 
 describe('framework catalog', () => {
   it('shows the HTML template adapter in framework navigation', () => {
@@ -42,5 +46,16 @@ describe('framework catalog', () => {
     );
 
     expect(new Set(links).size).toBe(links.length);
+  });
+
+  it('exposes Shadow DOM examples as a top-level navigation group', () => {
+    const shadowDom = navigation.find((group) => group.name === 'Shadow DOM');
+
+    expect(
+      shadowDom?.items.map(({ title, href }) => ({ title, href }))
+    ).toEqual([
+      { title: 'Overview', href: '/shadow-dom' },
+      ...shadowDomFrameworks.map(({ name, href }) => ({ title: name, href })),
+    ]);
   });
 });

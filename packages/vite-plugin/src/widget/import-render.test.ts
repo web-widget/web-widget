@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, jest, test } from '@jest/globals';
 import {
   transformWidgetImports,
   type TransformWidgetImportsContext,
@@ -37,6 +37,7 @@ function makeOptions(
     sourcemap: false,
     importPattern: IMPORT_PATTERN,
     adapterModule: ADAPTER_MODULE,
+    defaults: {},
     ...overrides,
   };
 }
@@ -50,8 +51,8 @@ describe('transformWidgetImports', () => {
         makeOptions(code, { dev: true })
       );
       expect(result!.code).toBe(
-        'import { container as __$container0$__ } from "@web-widget/react/adapter";\n' +
-          'const Counter = /* @__PURE__ */ __$container0$__(() => import("./Counter@widget.vue"), { import: "/src/Counter@widget.vue", name: "Counter" });\n' +
+        'import { widget as __$widget0$__ } from "@web-widget/react/adapter";\n' +
+          'const Counter = /* @__PURE__ */ __$widget0$__(() => import("./Counter@widget.vue"), { import: "/src/Counter@widget.vue", name: "Counter" });\n' +
           ';'
       );
     });
@@ -63,8 +64,8 @@ describe('transformWidgetImports', () => {
         makeOptions(code, { dev: false, isServer: false })
       );
       expect(result!.code).toBe(
-        'import { container as __$container0$__ } from "@web-widget/react/adapter";\n' +
-          'const Counter = /* @__PURE__ */ __$container0$__(() => import("./Counter@widget.vue"), { import: import.meta.ROLLUP_FILE_URL_fake-ref-id, name: "Counter" });\n' +
+        'import { widget as __$widget0$__ } from "@web-widget/react/adapter";\n' +
+          'const Counter = /* @__PURE__ */ __$widget0$__(() => import("./Counter@widget.vue"), { import: import.meta.ROLLUP_FILE_URL_fake-ref-id, name: "Counter" });\n' +
           ';'
       );
     });
@@ -77,8 +78,8 @@ describe('transformWidgetImports', () => {
       );
       expect(result!.code).toBe(
         'import { resolveWidgetAsset } from "virtual:web-widget-server-assets";\n' +
-          'import { container as __$container0$__ } from "@web-widget/react/adapter";\n' +
-          'const Counter = /* @__PURE__ */ __$container0$__(() => import("./Counter@widget.vue"), { import: resolveWidgetAsset("src/Counter@widget.vue"), name: "Counter" });\n' +
+          'import { widget as __$widget0$__ } from "@web-widget/react/adapter";\n' +
+          'const Counter = /* @__PURE__ */ __$widget0$__(() => import("./Counter@widget.vue"), { import: resolveWidgetAsset("src/Counter@widget.vue"), name: "Counter" });\n' +
           ';'
       );
     });
@@ -90,10 +91,10 @@ describe('transformWidgetImports', () => {
         makeOptions(code, { dev: true })
       );
       expect(result!.code).toBe(
-        'import { container as __$container0$__ } from "@web-widget/react/adapter";\n' +
-          'import { container as __$container1$__ } from "@web-widget/react/adapter";\n' +
-          'const Header = /* @__PURE__ */ __$container0$__(() => import("./Header@widget.vue"), { import: "/src/Header@widget.vue", name: "Header" });\n' +
-          'const Footer = /* @__PURE__ */ __$container1$__(() => import("./Footer@widget.vue"), { import: "/src/Footer@widget.vue", name: "Footer" });\n' +
+        'import { widget as __$widget0$__ } from "@web-widget/react/adapter";\n' +
+          'import { widget as __$widget1$__ } from "@web-widget/react/adapter";\n' +
+          'const Header = /* @__PURE__ */ __$widget0$__(() => import("./Header@widget.vue"), { import: "/src/Header@widget.vue", name: "Header" });\n' +
+          'const Footer = /* @__PURE__ */ __$widget1$__(() => import("./Footer@widget.vue"), { import: "/src/Footer@widget.vue", name: "Footer" });\n' +
           ';\n;'
       );
     });
@@ -105,40 +106,112 @@ describe('transformWidgetImports', () => {
         makeOptions(code, { dev: true })
       );
       expect(result!.code).toBe(
-        'import { container as __$container0$__ } from "@web-widget/react/adapter";\n' +
-          'const Counter = /* @__PURE__ */ __$container0$__(() => import("./Counter@widget.vue"), { import: "/src/Counter@widget.vue", name: "Counter" });\n' +
+        'import { widget as __$widget0$__ } from "@web-widget/react/adapter";\n' +
+          'const Counter = /* @__PURE__ */ __$widget0$__(() => import("./Counter@widget.vue"), { import: "/src/Counter@widget.vue", name: "Counter" });\n' +
           ';'
       );
     });
+
+    test('injects build-time defaults', async () => {
+      const code = `import Counter from './Counter@widget.vue';`;
+      const result = await transformWidgetImports(
+        makeCtx(),
+        makeOptions(code, {
+          defaults: { loading: 'idle', root: 'shadow' },
+        })
+      );
+      expect(result!.code).toContain(
+        '{ loading: "idle", root: "shadow", import: "/src/Counter@widget.vue", name: "Counter" }'
+      );
+    });
+
+    test('injects Vite-transformed widget styles in dev', async () => {
+      const code = `import Counter from './Counter@widget.vue';`;
+      const getDevStyles = async () => [
+        {
+          id: '/project/src/counter.module.css',
+          content: '._button_hash{border-radius:8px}',
+        },
+      ];
+      const result = await transformWidgetImports(
+        makeCtx({ getDevStyles }),
+        makeOptions(code, { dev: true, isServer: true })
+      );
+
+      expect(result!.code).toContain(
+        'devStyles: [{"id":"/project/src/counter.module.css","content":"._button_hash{border-radius:8px}"}]'
+      );
+    });
+
+    test('does not collect widget styles for production builds', async () => {
+      const code = `import Counter from './Counter@widget.vue';`;
+      const getDevStyles = jest.fn(async () => []);
+
+      await transformWidgetImports(
+        makeCtx({ getDevStyles }),
+        makeOptions(code, { dev: false, isServer: true })
+      );
+
+      expect(getDevStyles).not.toHaveBeenCalled();
+    });
   });
 
-  describe('explicit container() pattern', () => {
+  describe('explicit widget() pattern', () => {
     test('no existing options', async () => {
-      const code = `const Counter = container(() => import('./Counter@widget.vue'));`;
+      const code = `const Counter = widget(() => import('./Counter@widget.vue'));`;
       const result = await transformWidgetImports(
         makeCtx(),
         makeOptions(code, { dev: true })
       );
       expect(result!.code).toBe(
         '\n' +
-          'const Counter = container(() => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter" });'
+          'const Counter = widget(() => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter" });'
       );
     });
 
     test('merge into existing options', async () => {
-      const code = `const Counter = container(() => import('./Counter@widget.vue'), { loading: 'eager' });`;
+      const code = `const Counter = widget(() => import('./Counter@widget.vue'), { loading: 'eager' });`;
       const result = await transformWidgetImports(
         makeCtx(),
         makeOptions(code, { dev: true })
       );
       expect(result!.code).toBe(
         '\n' +
-          'const Counter = container(() => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter", loading: \'eager\' });'
+          'const Counter = widget(() => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter", loading: \'eager\' });'
+      );
+    });
+
+    test('injects widget styles into explicit widget options in dev', async () => {
+      const code = `const Counter = widget(() => import('./Counter@widget.vue'), { root: 'shadow' });`;
+      const result = await transformWidgetImports(
+        makeCtx({
+          getDevStyles: async () => [
+            { id: '/project/src/widget.css', content: '.button{color:red}' },
+          ],
+        }),
+        makeOptions(code, { dev: true, isServer: true })
+      );
+
+      expect(result!.code).toContain(
+        '{ devStyles: [{"id":"/project/src/widget.css","content":".button{color:red}"}], import: "/src/Counter@widget.vue", name: "Counter", root: \'shadow\' }'
+      );
+    });
+
+    test('keeps explicit options after build-time defaults', async () => {
+      const code = `const Counter = widget(() => import('./Counter@widget.vue'), { loading: 'eager', root: 'light' });`;
+      const result = await transformWidgetImports(
+        makeCtx(),
+        makeOptions(code, {
+          defaults: { loading: 'idle', root: 'shadow' },
+        })
+      );
+      expect(result!.code).toContain(
+        '{ loading: "idle", root: "shadow", import: "/src/Counter@widget.vue", name: "Counter", loading: \'eager\', root: \'light\' }'
       );
     });
 
     test('is idempotent when import options were already injected', async () => {
-      const code = `const Counter = container(() => import('./Counter@widget.vue'), { import: resolveWidgetAsset("src/Counter@widget.vue"), name: "Counter" });`;
+      const code = `const Counter = widget(() => import('./Counter@widget.vue'), { import: resolveWidgetAsset("src/Counter@widget.vue"), name: "Counter" });`;
       const result = await transformWidgetImports(
         makeCtx(),
         makeOptions(code, { dev: false, isServer: true })
@@ -147,65 +220,65 @@ describe('transformWidgetImports', () => {
     });
 
     test('let declaration', async () => {
-      const code = `let Counter = container(() => import('./Counter@widget.vue'));`;
+      const code = `let Counter = widget(() => import('./Counter@widget.vue'));`;
       const result = await transformWidgetImports(
         makeCtx(),
         makeOptions(code, { dev: true })
       );
       expect(result!.code).toBe(
         '\n' +
-          'let Counter = container(() => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter" });'
+          'let Counter = widget(() => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter" });'
       );
     });
 
     test('Fast Refresh injected code (_c = )', async () => {
-      const code = `const Counter = container(_c = () => import('./Counter@widget.vue'));`;
+      const code = `const Counter = widget(_c = () => import('./Counter@widget.vue'));`;
       const result = await transformWidgetImports(
         makeCtx(),
         makeOptions(code, { dev: true })
       );
       expect(result!.code).toBe(
         '\n' +
-          'const Counter = container(_c = () => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter" });'
+          'const Counter = widget(_c = () => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter" });'
       );
     });
 
     test('async arrow function', async () => {
-      const code = `const Counter = container(async () => import('./Counter@widget.vue'));`;
+      const code = `const Counter = widget(async () => import('./Counter@widget.vue'));`;
       const result = await transformWidgetImports(
         makeCtx(),
         makeOptions(code, { dev: true })
       );
       expect(result!.code).toBe(
         '\n' +
-          'const Counter = container(async () => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter" });'
+          'const Counter = widget(async () => import(\'./Counter@widget.vue\'), { import: "/src/Counter@widget.vue", name: "Counter" });'
       );
     });
 
     test('multi-line formatting (Prettier wrapping)', async () => {
       const code =
-        "const Counter = container(\n  () => import('./Counter@widget.vue')\n);";
+        "const Counter = widget(\n  () => import('./Counter@widget.vue')\n);";
       const result = await transformWidgetImports(
         makeCtx(),
         makeOptions(code, { dev: true })
       );
       expect(result!.code).toBe(
         '\n' +
-          'const Counter = container(\n  () => import(\'./Counter@widget.vue\')\n, { import: "/src/Counter@widget.vue", name: "Counter" });'
+          'const Counter = widget(\n  () => import(\'./Counter@widget.vue\')\n, { import: "/src/Counter@widget.vue", name: "Counter" });'
       );
     });
   });
 
   describe('error handling', () => {
-    test('throws on dynamic widget import outside container()', async () => {
+    test('throws on dynamic widget import outside widget()', async () => {
       const code = `const mod = await import('./Counter@widget.vue');`;
       await expect(
         transformWidgetImports(makeCtx(), makeOptions(code))
       ).rejects.toThrow(SyntaxError);
     });
 
-    test('throws on obj.container() method call', async () => {
-      const code = `const Counter = obj.container(() => import('./Counter@widget.vue'));`;
+    test('throws on obj.widget() method call', async () => {
+      const code = `const Counter = obj.widget(() => import('./Counter@widget.vue'));`;
       await expect(
         transformWidgetImports(makeCtx(), makeOptions(code))
       ).rejects.toThrow(SyntaxError);
@@ -218,8 +291,8 @@ describe('transformWidgetImports', () => {
       ).rejects.toThrow(/default import/);
     });
 
-    test('throws on container() with variable options', async () => {
-      const code = `const Counter = container(() => import('./Counter@widget.vue'), opts);`;
+    test('throws on widget() with variable options', async () => {
+      const code = `const Counter = widget(() => import('./Counter@widget.vue'), opts);`;
       await expect(
         transformWidgetImports(makeCtx(), makeOptions(code))
       ).rejects.toThrow(/object literal/);
@@ -246,30 +319,30 @@ describe('transformWidgetImports', () => {
   });
 
   describe('mixed imports', () => {
-    test('static import + container call', async () => {
-      const code = `import Header from './Header@widget.vue';\nconst Footer = container(() => import('./Footer@widget.vue'));`;
+    test('static import + widget call', async () => {
+      const code = `import Header from './Header@widget.vue';\nconst Footer = widget(() => import('./Footer@widget.vue'));`;
       const result = await transformWidgetImports(
         makeCtx(),
         makeOptions(code, { dev: true })
       );
       expect(result!.code).toBe(
-        'import { container as __$container0$__ } from "@web-widget/react/adapter";\n' +
-          'const Header = /* @__PURE__ */ __$container0$__(() => import("./Header@widget.vue"), { import: "/src/Header@widget.vue", name: "Header" });\n' +
+        'import { widget as __$widget0$__ } from "@web-widget/react/adapter";\n' +
+          'const Header = /* @__PURE__ */ __$widget0$__(() => import("./Header@widget.vue"), { import: "/src/Header@widget.vue", name: "Header" });\n' +
           ';\n' +
-          'const Footer = container(() => import(\'./Footer@widget.vue\'), { import: "/src/Footer@widget.vue", name: "Footer" });'
+          'const Footer = widget(() => import(\'./Footer@widget.vue\'), { import: "/src/Footer@widget.vue", name: "Footer" });'
       );
     });
 
-    test('multiple container calls', async () => {
-      const code = `const A = container(() => import('./A@widget.vue'));\nconst B = container(() => import('./B@widget.vue'));`;
+    test('multiple widget calls', async () => {
+      const code = `const A = widget(() => import('./A@widget.vue'));\nconst B = widget(() => import('./B@widget.vue'));`;
       const result = await transformWidgetImports(
         makeCtx(),
         makeOptions(code, { dev: true })
       );
       expect(result!.code).toBe(
         '\n' +
-          'const A = container(() => import(\'./A@widget.vue\'), { import: "/src/A@widget.vue", name: "A" });\n' +
-          'const B = container(() => import(\'./B@widget.vue\'), { import: "/src/B@widget.vue", name: "B" });'
+          'const A = widget(() => import(\'./A@widget.vue\'), { import: "/src/A@widget.vue", name: "A" });\n' +
+          'const B = widget(() => import(\'./B@widget.vue\'), { import: "/src/B@widget.vue", name: "B" });'
       );
     });
   });

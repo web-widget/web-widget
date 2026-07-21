@@ -1,5 +1,5 @@
 import { html, unsafeHTML } from './html';
-import { container, resolveFallback } from './components';
+import { widget, resolveFallback } from './components';
 import { asHtmlWidget } from './adapter';
 
 describe('resolveFallback', () => {
@@ -52,9 +52,9 @@ describe('asHtmlWidget', () => {
   });
 });
 
-describe('container', () => {
+describe('widget', () => {
   test('renders clientOnly pending fallback inside web-widget', async () => {
-    const Widget = container(async () => ({}) as any, {
+    const Widget = widget(async () => ({}) as any, {
       import: '/Counter@widget.js',
       name: 'Counter',
     });
@@ -68,7 +68,30 @@ describe('container', () => {
 
     expect(output).toContain('<web-widget');
     expect(output).toContain(
-      '<web-widget-pending aria-busy="true" style="display:contents"><div>pending</div></web-widget-pending>'
+      '<div aria-busy="true" slot="web-widget-pending" style="display:contents"><div>pending</div></div>'
     );
+  });
+
+  test('renders children as light DOM for a shadow Widget', async () => {
+    const Widget = widget(
+      async () => ({
+        default: {},
+        render: async () => '<section><slot name="title"></slot></section>',
+      }),
+      {
+        import: '/Panel@widget.js',
+        root: 'shadow',
+      }
+    );
+    const result = await Widget({
+      children: html`<h2 slot="title">Account summary</h2>`,
+    });
+    const output = result.toString();
+
+    expect(output).toContain('<template shadowrootmode="open">');
+    expect(output).toContain(
+      '</template><h2 slot="title">Account summary</h2>'
+    );
+    expect(output).not.toContain('contextdata');
   });
 });

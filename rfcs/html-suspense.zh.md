@@ -213,7 +213,7 @@ export function fallback(
 
 ### 与现有 API 的集成
 
-- `renderToStream` 扩展为支持 Suspense 渐进式渲染，在 `runtime.ts` 的 `render` 函数中使用
+- `renderToStream` 扩展为支持 Suspense 渐进式渲染，在 `runtime.ts` 的 `render()` 函数中使用
 - `Suspense` 和 `Fallback` 均继承 `AbstractHTML`，可嵌入模板
 
 ## 使用示例
@@ -260,11 +260,11 @@ const page = html`<div>
 
 ### 结合 Widget 使用
 
-`container()` 内部自动组合 `suspense` + `fallback`：
+`widget()` 内部自动组合 `suspense` + `fallback`：
 
 ```typescript
 import { html } from '@web-widget/html';
-// 构建工具自动注入 container，Chart 已是可调用组件
+// 构建工具自动注入 widget()，Chart 已是可调用组件
 import Chart from './Chart@widget.tsx';
 
 export default function Page() {
@@ -285,7 +285,7 @@ export default function Page() {
 | --------------- | --------------------------------------------------------------------------------- |
 | `html.ts`       | `Fallback` 增加错误上下文栈；`Suspense` 简化为双参数 + 从上下文捕获 error handler |
 | `stream.ts`     | `renderToStream` 扩展支持 Suspense + AsyncQueue + `$HRC` 脚本常量                 |
-| `components.ts` | `container()` 内部组合 `fallback(suspense(...), errorFn)`                         |
+| `components.ts` | `widget()` 内部组合 `fallback(suspense(...), errorFn)`                            |
 | `index.ts`      | 导出 `suspense`、`fallback`                                                       |
 | `html.test.ts`  | Suspense + fallback 组合测试                                                      |
 

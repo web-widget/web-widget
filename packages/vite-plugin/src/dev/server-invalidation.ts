@@ -3,20 +3,43 @@ import type { ResolvedWebRouterConfig } from '@/types';
 
 /** Minimal server module graph surface for dev invalidation tests. */
 export interface ServerDevModuleGraph {
-  getModulesByFile(file: string): Set<unknown> | undefined;
+  getModulesByFile(file: string): Set<ServerDevModule> | undefined;
   invalidateModule(
-    mod: unknown,
-    seen?: Set<unknown>,
+    mod: ServerDevModule,
+    seen?: Set<ServerDevModule>,
     timestamp?: number,
-    soft?: boolean
+    isHmr?: boolean
   ): void;
 }
 
-export async function invalidateServerDevModules(
+export interface ServerDevModule {
+  readonly id?: string | null;
+  readonly importers?: Set<ServerDevModule>;
+}
+
+function collectImporterChain(
+  module: ServerDevModule,
+  collected: Set<ServerDevModule>
+) {
+  if (collected.has(module)) return;
+  collected.add(module);
+  for (const importer of module.importers ?? []) {
+    collectImporterChain(importer, collected);
+  }
+}
+
+export function invalidateServerDevModules(
   moduleGraph: ServerDevModuleGraph,
-  config: ResolvedWebRouterConfig
-): Promise<void> {
-  const files = [config.input.server.entry, config.input.server.routemap];
+  config: ResolvedWebRouterConfig,
+  changedFiles: string[] = []
+): void {
+  const files = [
+    ...changedFiles,
+    config.input.server.entry,
+    config.input.server.routemap,
+  ];
+  const timestamp = Date.now();
+  const modulesToInvalidate = new Set<ServerDevModule>();
 
   for (const file of files) {
     const modules = moduleGraph.getModulesByFile(file);
@@ -24,8 +47,16 @@ export async function invalidateServerDevModules(
       continue;
     }
     for (const mod of modules) {
-      moduleGraph.invalidateModule(mod, undefined, Date.now(), true);
+      // Widget styles are serialized into importer transforms as devStyles.
+      // CSS can also originate from Vue/Svelte/etc. module transforms, so
+      // every changed server module must cross accepted HMR boundaries.
+      collectImporterChain(mod, modulesToInvalidate);
     }
+  }
+
+  const invalidated = new Set<ServerDevModule>();
+  for (const mod of modulesToInvalidate) {
+    moduleGraph.invalidateModule(mod, invalidated, timestamp, true);
   }
 
   bumpDevServerRevision();

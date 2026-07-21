@@ -5,6 +5,7 @@ import type {
   SerializableObject,
   WidgetContainerOptions,
   WidgetContainerProps,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import { unsafeHTML, suspense, fallback, HTML } from './html';
@@ -21,10 +22,13 @@ export type HtmlWidgetContainerProps = WidgetContainerProps<
  * Props accepted by an HTML widget component.
  * Widget's own data props are spread directly, `widget` holds container config.
  */
-export type HtmlWidgetProps<T = unknown> = T & {
-  /** Container configuration, isolated from widget's own props */
-  widget?: HtmlWidgetContainerProps;
-};
+export type HtmlWidgetProps<T = unknown> = T &
+  WidgetHostProps & {
+    /** Content preserved in the Widget host light DOM for native Shadow DOM slots. */
+    children?: HTML;
+    /** Container configuration, isolated from widget's own props */
+    widget?: HtmlWidgetContainerProps;
+  };
 
 export type HtmlWidgetComponent<T = unknown> = (
   props?: HtmlWidgetProps<T>
@@ -79,33 +83,36 @@ export function resolveFallback(
  *
  * @example
  * ```ts
- * import { container } from '@web-widget/html/adapter';
+ * import { widget } from '@web-widget/html/adapter';
  *
- * const Counter = container(() => import('./Counter@widget.tsx'));
+ * const Counter = widget(() => import('./Counter@widget.tsx'));
  * //    ^? HtmlWidgetComponent<{ count: number }>
  *
  * const result = await Counter({ count: 42 });  // type-checked: ✓
  * ```
  */
-export function container<M>(
+export function widget<M>(
   loader: () => Promise<M>,
   options?: WidgetContainerOptions
 ): HtmlWidgetComponent<ExtractWidgetProps<M>>;
-export function container<Props>(
+export function widget<Props>(
   loader: WidgetModuleLoader,
   options?: WidgetContainerOptions
 ): HtmlWidgetComponent<Props>;
-export function container(
+export function widget(
   loader: WidgetModuleLoader,
   options: WebWidgetRendererOptions = {}
 ) {
   return async function HtmlWidget<T>(
     {
-      widget: { loading, serverOnly, clientOnly, fallback: fb } = {},
+      children,
+      slot,
+      widget: { id, loading, serverOnly, clientOnly, fallback: fb } = {},
       ...data
     }: HtmlWidgetProps<T> = {} as HtmlWidgetProps<T>
   ): Promise<UnsafeHTML | Suspense | Fallback> {
     const renderOptions = {
+      id,
       loading: loading ?? options.loading,
       renderStage: serverOnly
         ? ('server' as const)
@@ -114,11 +121,13 @@ export function container(
           : options.renderStage,
     };
 
+    const lightChildrenHTML = children ? await renderToString(children) : '';
     const renderer = new WebWidgetRenderer(loader, {
       ...options,
       data: data as SerializableObject,
       ...renderOptions,
-      renderTarget: options.renderTarget,
+      root: options.root,
+      slot,
     });
 
     if (fb) {
@@ -126,16 +135,21 @@ export function container(
       if (clientOnly && pendingFallback) {
         const pendingHTML = await renderToString(pendingFallback);
         return unsafeHTML(
-          await renderer.renderOuterHTMLToString({ pendingHTML })
+          await renderer.renderOuterHTMLToString({
+            children: lightChildrenHTML,
+            pendingHTML,
+          })
         );
       }
       const content = renderer
-        .renderOuterHTMLToString()
+        .renderOuterHTMLToString({ children: lightChildrenHTML })
         .then((html) => unsafeHTML(html));
       const s = suspense(content, pendingFallback);
       return errorFallback ? fallback(s, errorFallback) : s;
     }
 
-    return renderer.renderOuterHTMLToString().then((html) => unsafeHTML(html));
+    return renderer
+      .renderOuterHTMLToString({ children: lightChildrenHTML })
+      .then((html) => unsafeHTML(html));
   };
 }

@@ -5,6 +5,7 @@ import type {
   ExtractWidgetProps,
   WidgetContainerOptions,
   WidgetContainerProps,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
@@ -13,7 +14,11 @@ export type { WidgetContainerOptions } from '@web-widget/schema';
 export type SvelteWidgetContainerProps = WidgetContainerProps<Snippet>;
 
 export type SvelteWidgetComponent<T = unknown> = Component<
-  T & { widget?: SvelteWidgetContainerProps }
+  T &
+    WidgetHostProps & {
+      children?: Snippet;
+      widget?: SvelteWidgetContainerProps;
+    }
 >;
 
 function escapeAttribute(value: string) {
@@ -33,21 +38,34 @@ function outerHTML(
   return `<${tag}${attrs ? ` ${attrs}` : ''}>${html}</${tag}>`;
 }
 
-export function container<M>(
+export function widget<M>(
   loader: () => Promise<M>,
   options?: WidgetContainerOptions
 ): SvelteWidgetComponent<ExtractWidgetProps<M>>;
-export function container<Props>(
+export function widget<Props>(
   loader: WidgetModuleLoader,
   options?: WidgetContainerOptions
 ): SvelteWidgetComponent<Props>;
-export function container(
+export function widget(
   loader: WidgetModuleLoader,
   options: WebWidgetRendererOptions = {}
 ) {
   return ((anchor: any, props: Record<string, any>) => {
-    const { widget = {}, ...data } = props;
+    const { widget = {}, children, slot, $$slots = {}, ...data } = props;
+    const snippets = [
+      children,
+      ...Object.entries($$slots)
+        .filter(
+          ([name, snippet]) =>
+            name !== 'default' && typeof snippet === 'function'
+        )
+        .map(([, snippet]) => snippet),
+    ].filter((snippet): snippet is Snippet => typeof snippet === 'function');
+    if (snippets.length && options.root !== 'shadow') {
+      throw new Error(`Rendering content in a slot requires "root: 'shadow'".`);
+    }
     const renderOptions = {
+      id: widget.id,
       loading: widget.loading ?? options.loading,
       renderStage: widget.serverOnly
         ? ('server' as const)
@@ -55,31 +73,51 @@ export function container(
           ? ('client' as const)
           : options.renderStage,
     };
-    const renderer = new WebWidgetRenderer(loader, {
-      ...options,
-      children: '',
-      data,
-      ...renderOptions,
-      renderTarget: options.renderTarget,
-    });
+    const createRenderer = () =>
+      new WebWidgetRenderer(loader, {
+        ...options,
+        data,
+        ...renderOptions,
+        root: options.root,
+        slot,
+      });
 
-    const render = async () =>
-      outerHTML(
-        renderer.localName,
-        renderer.attributes,
-        await renderer.renderInnerHTMLToString()
-      );
+    const render = async () => {
+      const renderer = createRenderer();
+      return {
+        html: outerHTML(
+          renderer.localName,
+          renderer.attributes,
+          await renderer.renderInnerHTMLToString()
+        ),
+        renderer,
+      };
+    };
 
     // Svelte's server renderer exposes child(), which tracks returned promises
     // and makes the top-level render output awaitable.
     if (typeof anchor?.child === 'function') {
-      anchor.child(async (child: { push(value: string): void }) => {
-        child.push(await render());
+      anchor.child((child: any) => {
+        let result: Awaited<ReturnType<typeof render>>;
+        const rendering = render().then((value) => {
+          result = value;
+        });
+        child.async([rendering], (output: any) => {
+          if (!snippets.length) {
+            output.push(result.html);
+            return;
+          }
+          const templateEnd = result.html.indexOf('</template>');
+          const boundaryEnd = templateEnd + '</template>'.length;
+          output.push(result.html.slice(0, boundaryEnd));
+          for (const snippet of snippets) (snippet as Function)(output);
+          output.push(result.html.slice(boundaryEnd));
+        });
       });
       return;
     }
 
-    void render().then((html) => {
+    void render().then(({ html, renderer }) => {
       const existing = anchor.nextSibling;
       if (
         existing instanceof HTMLElement &&
@@ -93,7 +131,12 @@ export function container(
       const template = document.createElement('template');
       template.innerHTML = html;
       const element = template.content.firstElementChild;
-      if (element) anchor.before(element);
+      if (element) {
+        anchor.before(element);
+        const childAnchor = document.createTextNode('');
+        element.append(childAnchor);
+        for (const snippet of snippets) (snippet as Function)(childAnchor);
+      }
     });
   }) as SvelteWidgetComponent<any>;
 }

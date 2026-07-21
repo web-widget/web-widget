@@ -1,4 +1,4 @@
-import '@web-widget/web-widget/client';
+import { HTMLWebWidgetElement } from '@web-widget/web-widget/client';
 import { render as reactRender } from '@web-widget/react/adapter';
 import { render as vueRender } from '@web-widget/vue/adapter';
 import { render as preactRender } from '@web-widget/preact/adapter';
@@ -81,43 +81,89 @@ increment.addEventListener('click', () => {
   widget.dataset.widgetState = String(Number(widget.dataset.widgetState) + 1);
 });
 
-const extendedHydrationModules = import.meta.env.PROD
-  ? {
-      preact: { default: PreactWidget, render: preactRender },
-      solid: { default: SolidWidget, render: solidRender },
-      svelte: { default: SvelteWidget, render: svelteRender },
-    }
-  : {};
-
-const hydrationModules = {
+const baseHydrationModules = {
   react: { default: ReactWidget, render: reactRender },
   vue: { default: VueWidget, render: vueRender },
-  ...extendedHydrationModules,
+  preact: { default: PreactWidget, render: preactRender },
+  solid: { default: SolidWidget, render: solidRender },
+  svelte: { default: SvelteWidget, render: svelteRender },
+};
+
+const hydrationModules = Object.fromEntries(
+  Object.entries(baseHydrationModules).map(([adapter, module]) => [
+    adapter,
+    {
+      ...module,
+      meta: {
+        style: [
+          {
+            id: `shadow-${adapter}-module`,
+            content:
+              ':host{display:block}' +
+              '.shadow-boundary-probe{' +
+              '--shadow-style-owner:module;' +
+              'color:rgb(20, 90, 110)' +
+              '}',
+          },
+        ],
+      },
+    },
+  ])
+);
+
+window.__mountLateSolid = async () => {
+  const host = document.querySelector<HTMLElementTagNameMap['web-widget']>(
+    'web-widget[data-late-shadow-widget="solid"]'
+  );
+  if (!host) throw new Error('Missing late Solid hydration host');
+  host.loader = (async () => hydrationModules.solid) as NonNullable<
+    typeof host.loader
+  >;
+  await host.load();
+  await host.bootstrap();
+  await host.mount();
 };
 
 window.__hydrationReady = customElements
   .whenDefined('web-widget')
-  .then(() =>
-    Promise.all(
+  .then(() => {
+    if (customElements.get('web-widget') !== HTMLWebWidgetElement) {
+      throw new Error('The web-widget custom element was not registered');
+    }
+    return Promise.all(
       Object.entries(hydrationModules).map(async ([adapter, module]) => {
-        const host = document.querySelector<
+        const hosts = document.querySelectorAll<
           HTMLElementTagNameMap['web-widget']
-        >(`web-widget[data-hydration-widget="${adapter}"]`);
-        if (!host) throw new Error(`Missing ${adapter} hydration host`);
-        host.loader = (async () => module) as NonNullable<typeof host.loader>;
-        await host.load();
-        await host.bootstrap();
-        if (window.__raceBeforeMount) {
-          window.__raceWaiting = (window.__raceWaiting ?? 0) + 1;
-          await window.__raceBeforeMount;
-          if (!(await hasConsistentAppVersion())) {
-            await new Promise<never>(() => {});
-          }
+        >(
+          `web-widget[data-hydration-widget="${adapter}"],` +
+            `web-widget[data-shadow-widget="${adapter}"]`
+        );
+        if (hosts.length !== 2) {
+          throw new Error(`Missing ${adapter} hydration host`);
         }
-        await host.mount();
+        await Promise.all(
+          Array.from(hosts).map(async (host) => {
+            host.loader = (async () => module) as NonNullable<
+              typeof host.loader
+            >;
+            await host.load();
+            await host.bootstrap();
+            if (
+              host.hasAttribute('data-hydration-widget') &&
+              window.__raceBeforeMount
+            ) {
+              window.__raceWaiting = (window.__raceWaiting ?? 0) + 1;
+              await window.__raceBeforeMount;
+              if (!(await hasConsistentAppVersion())) {
+                await new Promise<never>(() => {});
+              }
+            }
+            await host.mount();
+          })
+        );
       })
-    )
-  )
+    );
+  })
   .then(() => undefined)
   .catch((error) => {
     window.__hydrationErrors.push(error);

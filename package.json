@@ -31,9 +31,7 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "build": "pnpm run build:packages && pnpm run build:examples",
-    "build:examples": "turbo run build --filter=@examples/* --force",
-    "build:packages": "turbo run build --filter=!@examples/*",
+    "build": "turbo run build --output-logs=new-only",
     "changeset": "changeset add",
     "clean": "pnpm -r run clean && rm -rf ./node_modules",
     "clean:build": "pnpm -r run clean:build",
@@ -50,7 +48,7 @@
     "prebuild": "pnpm -r run clean:build",
     "prettier": "prettier **/*.{ts,tsx,js,vue} --write",
     "syncpack:json": "syncpack format --source '**/*package.json'",
-    "test": "c8 --reporter=lcov --reporter=text turbo run test",
+    "test": "c8 --reporter=lcov --reporter=text turbo run test --output-logs=new-only",
     "update": "pnpm -r exec ncu -- --upgrade && ncu -- --upgrade",
     "update:check": "pnpm -r exec ncu -- --errorLevel 2 && ncu -- --errorLevel 2",
     "version:prepare": "changeset version && pnpm install --no-frozen-lockfile",

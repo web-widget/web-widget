@@ -21,7 +21,14 @@ export interface NavigationItem {
 }
 
 export interface NavigationGroup {
-  name: 'Frameworks' | 'Features' | 'Interoperability' | 'Integrations';
+  name:
+    | 'Frameworks'
+    | 'Streaming'
+    | 'Shadow DOM'
+    | 'Features'
+    | 'Interoperability'
+    | 'Integrations'
+    | 'Other';
   items: NavigationItem[];
 }
 
@@ -59,7 +66,7 @@ export const frameworks: FrameworkDefinition[] = [
     capabilities: {
       ssr: true,
       streaming: true,
-      progressiveRendering: false,
+      progressiveRendering: true,
       widgetEmbedding: true,
       hydration: true,
       csr: true,
@@ -110,8 +117,8 @@ export const frameworks: FrameworkDefinition[] = [
     href: '/frameworks/preact',
     capabilities: {
       ssr: true,
-      streaming: false,
-      progressiveRendering: false,
+      streaming: true,
+      progressiveRendering: true,
       widgetEmbedding: true,
       hydration: true,
       csr: true,
@@ -143,6 +150,16 @@ export const frameworks: FrameworkDefinition[] = [
   },
 ];
 
+export const shadowDomFrameworks = frameworks
+  .filter((framework): framework is FrameworkDefinition & { href: string } =>
+    Boolean(framework.href)
+  )
+  .map(({ id, name }) => ({
+    id,
+    name,
+    href: `/shadow-dom/${id}`,
+  }));
+
 export const navigation: NavigationGroup[] = [
   {
     name: 'Frameworks',
@@ -167,6 +184,87 @@ export const navigation: NavigationGroup[] = [
     ],
   },
   {
+    name: 'Streaming',
+    items: [
+      {
+        href: '/streaming/react',
+        title: 'React',
+        description: 'Progressive rendering with React Suspense.',
+      },
+      {
+        href: '/streaming/vue3',
+        title: 'Vue 3',
+        description: 'Progressive rendering with Vue Suspense.',
+      },
+      {
+        href: '/streaming/html',
+        title: 'HTML',
+        description: 'Tag-based progressive HTML rendering.',
+      },
+      {
+        href: '/streaming/solid',
+        title: 'Solid',
+        description: 'Progressive rendering with Solid Suspense.',
+      },
+      {
+        href: '/streaming/preact',
+        title: 'Preact',
+        description: 'Progressive rendering with Preact Suspense.',
+      },
+      {
+        href: '/streaming/html/suspense',
+        title: 'HTML suspense',
+        description: 'Native suspense boundaries, nesting, and error recovery.',
+      },
+      {
+        href: '/streaming/react/shell-error',
+        title: 'React shell error (500)',
+        description: 'An error before the shell is emitted returns HTTP 500.',
+        external: true,
+      },
+      {
+        href: '/streaming/vue3/shell-error',
+        title: 'Vue 3 shell error (500)',
+        description: 'An error before the shell is emitted returns HTTP 500.',
+        external: true,
+      },
+      {
+        href: '/streaming/html/shell-error',
+        title: 'HTML shell error (500)',
+        description: 'An error before the shell is emitted returns HTTP 500.',
+        external: true,
+      },
+      {
+        href: '/streaming/solid/shell-error',
+        title: 'Solid shell error (500)',
+        description: 'An error before the shell is emitted returns HTTP 500.',
+        external: true,
+      },
+      {
+        href: '/streaming/preact/shell-error',
+        title: 'Preact shell error (500)',
+        description: 'An error before the shell is emitted returns HTTP 500.',
+        external: true,
+      },
+    ],
+  },
+  {
+    name: 'Shadow DOM',
+    items: [
+      {
+        href: '/shadow-dom',
+        title: 'Overview',
+        description:
+          'Explore isolated rendering across every supported route framework.',
+      },
+      ...shadowDomFrameworks.map(({ href, name }) => ({
+        href,
+        title: name,
+        description: `${name} route rendering Widgets in Shadow DOM.`,
+      })),
+    ],
+  },
+  {
     name: 'Features',
     items: [
       {
@@ -178,21 +276,6 @@ export const navigation: NavigationGroup[] = [
         href: '/experimental-async-component',
         title: 'Async component',
         description: 'Await asynchronous component data before rendering.',
-      },
-      {
-        href: '/react-streaming',
-        title: 'React streaming',
-        description: 'Progressive rendering with React Suspense.',
-      },
-      {
-        href: '/vue3-streaming',
-        title: 'Vue 3 streaming',
-        description: 'Progressive rendering with Vue Suspense.',
-      },
-      {
-        href: '/html-suspense-streaming',
-        title: 'HTML streaming',
-        description: 'Tag-based progressive HTML rendering.',
       },
       {
         href: '/fallback',
@@ -304,6 +387,16 @@ export const navigation: NavigationGroup[] = [
         title: 'API route',
         description: 'Serve JSON alongside page routes.',
         external: true,
+      },
+    ],
+  },
+  {
+    name: 'Other',
+    items: [
+      {
+        href: '/vue-module-css',
+        title: 'Vue CSS Modules',
+        description: 'Use CSS Modules in a Vue route.',
       },
     ],
   },

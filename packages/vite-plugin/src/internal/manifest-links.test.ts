@@ -396,6 +396,36 @@ describe('getRouteMetaLinks', () => {
     expect(hrefs).toContain(`${base}assets/counter-common-abc.css`);
   });
 
+  test('omits widget css from route links in global shadow mode', () => {
+    const manifest = {
+      'routes/layout.css': {
+        file: 'assets/layout.css',
+        src: 'routes/layout.css',
+        isEntry: true,
+      },
+      'routes/Counter@widget.tsx': {
+        file: 'assets/counter.js',
+        src: 'routes/Counter@widget.tsx',
+        css: ['assets/counter.css'],
+      },
+    } as unknown as Manifest;
+
+    const links = getRouteMetaLinks(
+      manifest,
+      {
+        cssModules: ['routes/layout.css'],
+        widgetModules: ['routes/Counter@widget.tsx'],
+      },
+      base,
+      fixtureIncludeDynamicImport,
+      'shadow'
+    );
+    const hrefs = links.map((link) => link.href);
+
+    expect(hrefs).toContain(`${base}assets/layout.css`);
+    expect(hrefs).not.toContain(`${base}assets/counter.css`);
+  });
+
   test('collectRouteModuleAssets and getRouteMetaLinks agree on react-and-vue-like css set', async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-meta-links-'));
     const routePath = path.join(root, 'routes/react-and-vue@route.tsx');

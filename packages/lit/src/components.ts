@@ -12,7 +12,7 @@ export function defineLitElement(component: LitComponent): string {
   return component.tagName;
 }
 
-export function container(
+export function widget(
   loader: () => Promise<{ default: LitComponent }>
 ): CustomElementConstructor {
   return class LitWidgetContainer extends HTMLElement {

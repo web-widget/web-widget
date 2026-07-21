@@ -59,3 +59,17 @@ test('XSS content should be filtered', () => {
     `<script>(self.${LIFECYCLE_CACHE_LAYER}=self.${LIFECYCLE_CACHE_LAYER}||[]).push({"string":"\\u003cscript\\u003ealert(1)\\u003c/script\\u003e"})</script>`
   );
 });
+
+test('should render script attributes for an isolated boundary', () => {
+  const state = {};
+  const cache = lifecycleCache<{ value?: string }>(state);
+  cache.set('value', 'cached', true);
+
+  expect(
+    renderLifecycleCacheLayer(state, {
+      scriptAttributes: { slot: 'web-widget-state' },
+    })
+  ).toBe(
+    `<script slot="web-widget-state">(self.${LIFECYCLE_CACHE_LAYER}=self.${LIFECYCLE_CACHE_LAYER}||[]).push({"value":"cached"})</script>`
+  );
+});

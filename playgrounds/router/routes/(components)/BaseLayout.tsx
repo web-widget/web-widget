@@ -1,9 +1,10 @@
 import '../(css)/base-layout.css';
+import '../(css)/ui.css';
 
 import type { ComponentProps } from 'react';
-import { container } from '@web-widget/react/adapter';
+import { widget } from '@web-widget/react/adapter';
 
-const Menu = container(() => import('./Menu@widget.ts'));
+const Menu = widget(() => import('./Menu@widget.ts'));
 
 export default function BaseLayout({ children }: ComponentProps<any>) {
   return (

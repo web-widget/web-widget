@@ -43,11 +43,13 @@
   --sk-radius-pill: 20px 24px 20px 26px;
 
   /* Typography */
-  --sk-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+  --sk-font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
     sans-serif;
-  --sk-font-mono: 'SFMono-Regular', 'JetBrains Mono', Consolas, 'Liberation Mono',
-    Menlo, monospace;
+  --sk-font-mono:
+    'SFMono-Regular', 'JetBrains Mono', Consolas, 'Liberation Mono', Menlo,
+    monospace;
 
   /* Layout */
   --sk-content-max: 1200px;
@@ -143,10 +145,6 @@ aside ul {
   padding: 16px 0;
   margin: 0;
   padding-inline-end: 10px;
-  position: sticky;
-  top: 0;
-  max-height: 100vh;
-  overflow-y: auto;
 }
 aside li {
   list-style: none;
@@ -204,7 +202,7 @@ aside .menu-home a {
   color: var(--sk-ink);
 }
 
-/* === Main content === */
+/* === Main content layout === */
 .container main {
   padding: 36px 44px 56px;
   display: flex;
@@ -214,130 +212,6 @@ aside .menu-home a {
   -webkit-box-flex: 1;
   min-width: 1px;
   margin-right: auto;
-}
-
-.container main h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 0 0 0.6em;
-}
-
-.container main h2 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  margin: 2em 0 0.6em;
-}
-
-.container main h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 1.6em 0 0.6em;
-}
-
-.container main p {
-  margin: 0 0 1.2em;
-  color: var(--sk-ink);
-}
-
-.container main ul {
-  margin: 0 0 1.4em;
-  padding-left: 1.4em;
-}
-
-.container main li {
-  margin: 0.4em 0;
-}
-
-.container main li::marker {
-  color: var(--sk-ink-muted);
-}
-
-.container main hr {
-  border: none;
-  border-top: 2px dashed var(--sk-border-light);
-  margin: 2em 0;
-}
-
-.container main code {
-  font-family: var(--sk-font-mono);
-  font-size: 0.85em;
-  background: var(--sk-bg-subtle);
-  padding: 2px 6px;
-  border-radius: var(--sk-radius-sm);
-  border: 1px solid var(--sk-border-light);
-}
-
-.container main pre {
-  background: var(--sk-bg-subtle);
-  border: var(--sk-border-width) solid var(--sk-border);
-  border-radius: var(--sk-radius);
-  padding: 16px 20px;
-  overflow-x: auto;
-  box-shadow: var(--sk-shadow-sm);
-}
-
-.container main pre code {
-  background: none;
-  border: none;
-  padding: 0;
-}
-
-.container main blockquote {
-  margin: 1.2em 0;
-  padding: 12px 20px;
-  border-left: 4px solid var(--sk-purple);
-  background: var(--sk-bg-subtle);
-  border-radius: 0 var(--sk-radius-sm) var(--sk-radius-sm) 0;
-  color: var(--sk-ink-light);
-  font-style: italic;
-}
-
-.container main input[type='text'],
-.container main input[type='email'],
-.container main input[type='search'],
-.container main select,
-.container main textarea {
-  font-family: var(--sk-font-sans);
-  font-size: 0.95rem;
-  padding: 8px 12px;
-  border: var(--sk-border-width) solid var(--sk-border);
-  border-radius: var(--sk-radius-sm);
-  background: var(--sk-bg);
-  color: var(--sk-ink);
-  outline: none;
-}
-.container main input:focus,
-.container main select:focus,
-.container main textarea:focus {
-  border-color: var(--sk-blue);
-  box-shadow: 0 0 0 3px var(--sk-blue-light);
-}
-
-.container main button,
-.container main input[type='submit'] {
-  font-family: var(--sk-font-sans);
-  font-size: 0.95rem;
-  padding: 8px 20px;
-  border: var(--sk-border-width) solid var(--sk-border);
-  border-radius: var(--sk-radius-sm);
-  background: var(--sk-bg);
-  color: var(--sk-ink);
-  cursor: pointer;
-  box-shadow: var(--sk-shadow-sm);
-  transition: all 0.1s ease;
-}
-.container main button:hover,
-.container main input[type='submit']:hover {
-  background: var(--sk-bg-hover);
-  transform: translate(-1px, -1px);
-  box-shadow: var(--sk-shadow);
-}
-.container main button:active,
-.container main input[type='submit']:active {
-  transform: translate(1px, 1px);
-  box-shadow: none;
 }
 
 /* === Footer === */
@@ -355,10 +229,6 @@ footer {
     flex: 0 0 100%;
     border-right: none;
     border-bottom: var(--sk-border-width) dashed var(--sk-border);
-  }
-  aside ul {
-    position: static;
-    max-height: none;
   }
   .container main {
     padding: 24px 20px;

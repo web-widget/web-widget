@@ -10,7 +10,7 @@ import type {
 import type { EnvironmentModuleNode } from 'vite';
 import { isCSSRequest } from 'vite';
 
-import type { WidgetModuleFilter } from '@/types';
+import type { WidgetModuleFilter, WidgetRoot } from '@/types';
 import type {
   ClientDevEnvironment,
   ServerDevEnvironment,
@@ -24,6 +24,7 @@ import {
   unwrapViteId,
 } from '@/internal/module-id';
 import { matchesWidgetModule } from '@/internal/collect-route-assets';
+import { getWidgetStyleOwner } from '@/internal/widget-style-ownership';
 
 interface ServerModuleDependencyKeys {
   filterDisabled: boolean;
@@ -35,7 +36,8 @@ export async function getMeta(
   filePath: string,
   serverEnvironment: ServerDevEnvironment,
   clientEnvironment: ClientDevEnvironment,
-  widgetModuleFilter?: WidgetModuleFilter
+  widgetModuleFilter?: WidgetModuleFilter,
+  widgetRoot: WidgetRoot = 'light'
 ): Promise<{
   link: LinkDescriptor[];
   style: StyleDescriptor[];
@@ -50,7 +52,8 @@ export async function getMeta(
     filePath,
     serverEnvironment,
     clientEnvironment,
-    widgetModuleFilter
+    widgetModuleFilter,
+    getWidgetStyleOwner(widgetRoot) === 'document'
   );
 
   // CSS modules with inline content: emit <style> for immediate CSS
@@ -81,6 +84,28 @@ interface ImportedStyle {
   content: string;
 }
 
+export interface DevWidgetStyle {
+  id: string;
+  content: string;
+}
+
+/** Collect Vite-transformed CSS owned by one widget module in dev. */
+export async function getDevWidgetStyles(
+  filePath: string,
+  serverEnvironment: ServerDevEnvironment,
+  clientEnvironment: ClientDevEnvironment
+): Promise<DevWidgetStyle[]> {
+  await serverEnvironment.transformRequest(normalizeFilterId(filePath));
+  const { styles } = await getCssForURL(
+    filePath,
+    serverEnvironment,
+    clientEnvironment,
+    undefined,
+    true
+  );
+  return styles.map(({ id, content }) => ({ id, content }));
+}
+
 interface ImportedModuleScript {
   id: string;
   url: string;
@@ -90,7 +115,8 @@ async function getCssForURL(
   filePath: string,
   serverEnvironment: ServerDevEnvironment,
   clientEnvironment: ClientDevEnvironment,
-  widgetModuleFilter: WidgetModuleFilter | undefined
+  widgetModuleFilter: WidgetModuleFilter | undefined,
+  includeWidgetModuleStyles: boolean
 ): Promise<{
   styles: ImportedStyle[];
   moduleScripts: ImportedModuleScript[];
@@ -106,7 +132,8 @@ async function getCssForURL(
     true,
     new Set(),
     root,
-    widgetModuleFilter
+    widgetModuleFilter,
+    includeWidgetModuleStyles
   )) {
     await appendCssModuleStyles(
       clientEnvironment,
@@ -382,7 +409,8 @@ async function* crawlGraph(
   isRootFile: boolean,
   scanned: Set<string>,
   root: string,
-  widgetModuleFilter?: WidgetModuleFilter
+  widgetModuleFilter?: WidgetModuleFilter,
+  includeWidgetModuleStyles = true
 ): AsyncGenerator<EnvironmentModuleNode, void, unknown> {
   const id = unwrapViteId(_id);
   const importedModules = new Set<EnvironmentModuleNode>();
@@ -401,9 +429,13 @@ async function* crawlGraph(
       continue;
     }
 
-    scanned.add(moduleIdentityKey(entryId));
     const entryPath = stripModuleIdQuery(entryId);
     const entryIsStyle = isCSSRequest(entryPath) || isCSSRequest(entryId);
+    if (isRootFile && entryIsStyle) {
+      importedModules.add(entry);
+    } else {
+      scanned.add(moduleIdentityKey(entryId));
+    }
 
     const { filterDisabled, importDepKeys, matchedDynamicImportKeys } =
       await resolveServerModuleDependencyKeys(
@@ -459,6 +491,19 @@ async function* crawlGraph(
       continue;
     }
     const importedKey = moduleIdentityKey(importedModule.id);
+    if (!includeWidgetModuleStyles) {
+      const relativeKey = toManifestFilterKey(importedModule.id, root);
+      if (
+        matchesWidgetModule(
+          root,
+          relativeKey,
+          importedModule.id,
+          widgetModuleFilter
+        )
+      ) {
+        continue;
+      }
+    }
     if (scanned.has(importedKey)) {
       continue;
     }
@@ -470,7 +515,8 @@ async function* crawlGraph(
       false,
       scanned,
       root,
-      widgetModuleFilter
+      widgetModuleFilter,
+      includeWidgetModuleStyles
     );
   }
 }

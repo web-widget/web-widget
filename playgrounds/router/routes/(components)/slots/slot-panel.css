@@ -1,0 +1,49 @@
+:host {
+  --slot-panel-accent: #0f766e;
+  display: block;
+  color: #20201d;
+}
+
+.slot-panel {
+  overflow: hidden;
+  border: 2px solid var(--slot-panel-accent);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 4px 4px 0 rgb(15 118 110 / 16%);
+}
+
+.slot-panel__header,
+.slot-panel__body,
+.slot-panel__footer {
+  padding: 12px 16px;
+}
+
+.slot-panel__header {
+  border-bottom: 1px solid rgb(15 118 110 / 24%);
+  background: #ecfdf5;
+}
+
+.slot-panel__body {
+  min-height: 54px;
+}
+
+.slot-panel__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-top: 1px dashed rgb(32 32 29 / 22%);
+  background: #fafaf9;
+}
+
+.slot-panel__fallback {
+  color: #78716c;
+  font-style: italic;
+}
+
+slot[name='title']::slotted(*) {
+  margin: 0;
+}
+
+slot[name='actions']::slotted(*) {
+  flex: 0 0 auto;
+}

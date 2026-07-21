@@ -1,4 +1,4 @@
-// User-facing entry. Adapter protocol (render, container, asHtmlWidget) is in ./adapter.
+// User-facing entry. Adapter protocol (render, widget, asHtmlWidget) is in ./adapter.
 export { unsafeStreamToHTML, streamToHTML, renderToStream } from './render';
 export { fallback, html, suspense, unsafeHTML } from './html';
 export type { Fallback, HTML, Suspense, UnsafeHTML } from './html';

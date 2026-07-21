@@ -18,16 +18,16 @@
   },
   "scripts": {
     "build": "vite build && BUILD_TARGET=server vite build",
-    "dev": "vite --host 127.0.0.1 --port 5174",
+    "dev": "vite --host 127.0.0.1 --port 5174 --strictPort",
     "serve:production": "node scripts/production-server.mjs",
-    "test": "tsc --noEmit",
+    "test": "tsc --noEmit && tsc --noEmit -p fixtures/shadow-router",
     "test:ci:core:dev": "playwright test --project=chromium --workers=1 --grep-invert 'M0[2-5]|completes hydration/recovery'",
     "test:ci:core:production": "pnpm build && TEST_MODE=production playwright test --project=chromium --workers=1 --grep-invert 'M0[2-5]|completes hydration/recovery'",
     "test:ci:dev:mismatch": "playwright test specs/mismatch.spec.ts --project=chromium --workers=1 --grep 'M0[2-5]'",
     "test:ci:extended": "pnpm build && BROWSER_MATRIX=extended TEST_MODE=production playwright test specs/hydration.spec.ts specs/frameworks.spec.ts specs/production-server.spec.ts --workers=1",
     "test:dev": "playwright test",
     "test:production": "pnpm build && TEST_MODE=production playwright test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p fixtures/shadow-router"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
@@ -37,6 +37,11 @@
     "@sveltejs/vite-plugin-svelte": "catalog:",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitejs/plugin-vue": "^6.0.1",
+    "@web-widget/helpers": "workspace:*",
+    "@web-widget/html": "workspace:*",
+    "@web-widget/node": "workspace:*",
+    "@web-widget/vite-plugin": "workspace:*",
+    "@web-widget/web-router": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-solid": "catalog:",

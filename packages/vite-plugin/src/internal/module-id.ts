@@ -13,6 +13,9 @@ import { normalizePath } from './path';
 export const CSS_LANGS_RE =
   /\.(css|less|sass|scss|styl|stylus|pcss|postcss|sss)(?:$|\?)/;
 
+/** Matches Vite CSS Module requests, including supported preprocessors. */
+export const CSS_MODULE_RE = new RegExp(`\\.module${CSS_LANGS_RE.source}`);
+
 /** Query suffixes that make a CSS-like request non-buildable. */
 export const cssExcludeRE = [/(?:\?|&)raw(?:&|$)/, /(?:\?|&)inline\b/];
 

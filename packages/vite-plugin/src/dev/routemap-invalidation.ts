@@ -13,7 +13,7 @@ export async function handleDevRoutemapChange(
     filesystemChanged: boolean;
   }
 ): Promise<void> {
-  await invalidateServerDevModules(
+  invalidateServerDevModules(
     getServerEnvironmentFromDevServer(viteServer).moduleGraph,
     config
   );

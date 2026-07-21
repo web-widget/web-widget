@@ -3,6 +3,7 @@ import type {
   ExtractWidgetProps,
   WidgetContainerOptions,
   WidgetContainerProps,
+  WidgetHostProps,
   WidgetModuleLoader,
 } from '@web-widget/schema';
 import { WebWidgetRenderer } from '@web-widget/web-widget';
@@ -16,7 +17,7 @@ export { asReactWidget, toReact } from './as-react-widget';
  * A Vue2 component wrapping a widget, with props `T` plus container config.
  */
 export type VueWidgetComponent<T = unknown> = DefineComponent<
-  T & { widget?: Vue2WidgetContainerProps }
+  T & WidgetHostProps & { widget?: Vue2WidgetContainerProps }
 >;
 
 /**
@@ -25,7 +26,9 @@ export type VueWidgetComponent<T = unknown> = DefineComponent<
  */
 type WebWidgetRenderer = InstanceType<typeof WebWidgetRenderer>;
 
-// Lazy-init global Vue config (only once, on first container call).
+type RenderChildren = (children: any[]) => Promise<string>;
+
+// Lazy-init global Vue config (only once, on first widget call).
 let globalConfigInitialized = false;
 function ensureGlobalVueConfig() {
   if (globalConfigInitialized) return;
@@ -57,78 +60,113 @@ export type Vue2WidgetContainerProps = Omit<WidgetContainerProps, 'fallback'>;
  * Wraps a widget module loader into a Vue2 component with best-effort
  * props type inference from the source module's default export.
  */
-export function container<M>(
-  loader: () => Promise<M>,
-  options?: WidgetContainerOptions
-): VueWidgetComponent<ExtractWidgetProps<M>>;
-export function container<Props>(
-  loader: WidgetModuleLoader,
-  options?: WidgetContainerOptions
-): VueWidgetComponent<Props>;
-export function container(
-  loader: WidgetModuleLoader,
-  options: WebWidgetRendererOptions = {}
-) {
-  if (!loader) {
-    throw new TypeError(`Missing loader.`);
-  }
+export interface Vue2WidgetFactory {
+  <M>(
+    loader: () => Promise<M>,
+    options?: WidgetContainerOptions
+  ): VueWidgetComponent<ExtractWidgetProps<M>>;
+  <Props>(
+    loader: WidgetModuleLoader,
+    options?: WidgetContainerOptions
+  ): VueWidgetComponent<Props>;
+}
 
-  ensureGlobalVueConfig();
+export function createWidgetAdapter(
+  renderChildren?: RenderChildren
+): Vue2WidgetFactory {
+  return ((
+    loader: WidgetModuleLoader,
+    options: WebWidgetRendererOptions = {}
+  ) => {
+    if (!loader) {
+      throw new TypeError(`Missing loader.`);
+    }
 
-  return defineComponent({
-    name: 'VueWidget',
-    inheritAttrs: false,
-    props: {
-      widget: {
-        type: Object as PropType<Vue2WidgetContainerProps>,
-        default: () => ({}),
+    ensureGlobalVueConfig();
+
+    return defineComponent({
+      name: 'VueWidget',
+      inheritAttrs: false,
+      props: {
+        widget: {
+          type: Object as PropType<Vue2WidgetContainerProps>,
+          default: () => ({}),
+        },
       },
-    },
-    async serverPrefetch() {
-      const widget = (this as any).$widget as WebWidgetRenderer;
-      (this as any).$innerHTML = await widget.renderInnerHTMLToString();
-    },
-    setup(props, { slots }) {
-      if (Object.keys(slots).length > 0) {
-        throw new TypeError(`Slot not supported.`);
-      }
-
-      if (props.widget && 'fallback' in props.widget) {
-        throw new TypeError(`fallback is not supported in Vue2 (no Suspense).`);
-      }
-
-      const {
-        loading = options.loading,
-        serverOnly,
-        clientOnly,
-      } = props.widget;
-      const renderOptions = {
-        loading: loading ?? options.loading,
-        renderStage: serverOnly
-          ? ('server' as const)
-          : clientOnly
-            ? ('client' as const)
-            : options.renderStage,
-      };
-
-      const data = useAttrs() as WebWidgetRendererOptions['data'];
-      const widget = new WebWidgetRenderer(loader, {
-        ...options,
-        data,
-        ...renderOptions,
-        renderTarget: options.renderTarget,
-      });
-
-      const instance = getCurrentInstance()!;
-      (instance.proxy as any).$widget = widget;
-
-      return () => {
-        const innerHTML = (instance.proxy as any).$innerHTML;
-        return h(widget.localName, {
-          attrs: widget.attributes,
-          domProps: { innerHTML },
+      async serverPrefetch() {
+        const lightChildrenHTML = renderChildren
+          ? await renderChildren((this as any).$lightChildren)
+          : '';
+        const widget = (this as any).$widget as WebWidgetRenderer;
+        (this as any).$innerHTML = await widget.renderInnerHTMLToString({
+          children: lightChildrenHTML,
         });
-      };
-    },
-  }) as unknown as VueWidgetComponent<any>;
+      },
+      setup(props, { slots }) {
+        if (props.widget && 'fallback' in props.widget) {
+          throw new TypeError(
+            `fallback is not supported in Vue2 (no Suspense).`
+          );
+        }
+
+        const {
+          id,
+          loading = options.loading,
+          serverOnly,
+          clientOnly,
+        } = props.widget;
+        const renderOptions = {
+          id,
+          loading: loading ?? options.loading,
+          renderStage: serverOnly
+            ? ('server' as const)
+            : clientOnly
+              ? ('client' as const)
+              : options.renderStage,
+        };
+
+        const attrs = { ...useAttrs() };
+        const slot = typeof attrs.slot === 'string' ? attrs.slot : undefined;
+        delete attrs.slot;
+        const rendererOptions = {
+          ...options,
+          data: attrs as WebWidgetRendererOptions['data'],
+          ...renderOptions,
+          root: options.root,
+          slot,
+        };
+        const widget = new WebWidgetRenderer(loader, rendererOptions);
+        const lightChildren = Object.entries(slots).flatMap(([name, render]) =>
+          render
+            ? render().map((node: any) => {
+                if (name !== 'default') {
+                  node.data ??= {};
+                  node.data.attrs ??= {};
+                  node.data.attrs.slot ??= name;
+                }
+                return node;
+              })
+            : []
+        );
+
+        const instance = getCurrentInstance()!;
+        (instance.proxy as any).$widget = widget;
+        (instance.proxy as any).$lightChildren = lightChildren;
+
+        return () => {
+          const activeWidget = (instance.proxy as any)
+            .$widget as WebWidgetRenderer;
+          const innerHTML = (instance.proxy as any).$innerHTML;
+          return h(
+            activeWidget.localName,
+            {
+              attrs: activeWidget.attributes,
+              ...(renderChildren ? { domProps: { innerHTML } } : null),
+            },
+            renderChildren ? undefined : lightChildren
+          );
+        };
+      },
+    });
+  }) as Vue2WidgetFactory;
 }
