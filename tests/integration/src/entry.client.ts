@@ -1,4 +1,4 @@
-import '@web-widget/web-widget/client';
+import { HTMLWebWidgetElement } from '@web-widget/web-widget/client';
 import { render as reactRender } from '@web-widget/react/adapter';
 import { render as vueRender } from '@web-widget/vue/adapter';
 import { render as preactRender } from '@web-widget/preact/adapter';
@@ -126,8 +126,11 @@ window.__mountLateSolid = async () => {
 
 window.__hydrationReady = customElements
   .whenDefined('web-widget')
-  .then(() =>
-    Promise.all(
+  .then(() => {
+    if (customElements.get('web-widget') !== HTMLWebWidgetElement) {
+      throw new Error('The web-widget custom element was not registered');
+    }
+    return Promise.all(
       Object.entries(hydrationModules).map(async ([adapter, module]) => {
         const hosts = document.querySelectorAll<
           HTMLElementTagNameMap['web-widget']
@@ -159,8 +162,8 @@ window.__hydrationReady = customElements
           })
         );
       })
-    )
-  )
+    );
+  })
   .then(() => undefined)
   .catch((error) => {
     window.__hydrationErrors.push(error);

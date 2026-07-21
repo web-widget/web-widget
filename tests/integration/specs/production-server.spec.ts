@@ -91,6 +91,9 @@ test('hydrates SSR output from a dynamic production route', async ({
   browserErrors,
 }) => {
   await page.goto('/route-a');
+  expect(
+    await page.evaluate(() => customElements.get('web-widget') !== undefined)
+  ).toBe(true);
   const fixture = page.getByTestId('fixture');
   await expect(fixture).toHaveAttribute('data-request-path', '/route-a');
   await expect(fixture).toHaveAttribute('data-client-ready', 'true');

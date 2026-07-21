@@ -16,8 +16,6 @@ import {
   omitDefaultWebWidgetRendererOptions,
   resolveWebWidgetRendererOptions,
 } from './options';
-import '../element/install';
-
 export type * from './contracts';
 export * from '../element/web-widget';
 
