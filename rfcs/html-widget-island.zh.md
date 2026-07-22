@@ -4,7 +4,7 @@
 
 ## 摘要
 
-定义 `@web-widget/html` 中 Widget 孤岛的架构设计：HTML 模板作为服务端外壳，框架 Widget（React、Vue、Vue2 等）作为交互孤岛嵌入其中。通过 `WidgetAdapter` 协议，构建工具自动注入 `render()` 和 `widget()`，使用户无需手动编写样板代码。同时定义类型适配方案，使 Widget 导入在 TypeScript 中获得正确的类型提示。
+定义 `@web-widget/html` 中 Widget 孤岛的架构设计：HTML 模板作为服务端外壳，框架 Widget（React、Vue、Vue2 等）作为交互孤岛嵌入其中。通过 `WidgetTransform` 协议，构建工具自动注入 `render()` 和 `widget()`，使用户无需手动编写样板代码。同时定义类型适配方案，使 Widget 导入在 TypeScript 中获得正确的类型提示。
 
 ## 背景
 
@@ -37,19 +37,18 @@ HTML 模板不存在这些复杂度：
 
 ## 设计方案
 
-### 1. 适配器协议
+### 1. 构建转换协议
 
-`@web-widget/html` 声明 `WidgetAdapter` 协议，使用 `.html.ts` / `.html.js` 扩展名：
+`@web-widget/html/transform` 导出 `WidgetTransform` 定义，匹配 `.ts` / `.js` 扩展名：
 
-```json
-{
-  "webWidgetAdapter": {
-    "version": "1.0.0",
-    "name": "html",
-    "extensions": [".html.ts", ".html.js"],
-    "runtime": "./runtime"
-  }
-}
+```typescript
+import type { WidgetTransform } from '@web-widget/schema';
+
+export default {
+  name: 'html',
+  extensions: ['.ts', '.js'],
+  adapter: '@web-widget/html/adapter',
+} satisfies WidgetTransform;
 ```
 
 构建工具对 `.html.ts` / `.html.js` 文件执行两种自动注入：
@@ -57,7 +56,7 @@ HTML 模板不存在这些复杂度：
 - **`render()` 注入**：`Page@route.html.ts` 不再需要 `export { render }`
 - **`widget()` 注入**：导入 Widget 时自动包装为可调用函数
 
-使用 `.html.ts` / `.html.js` 而非 `.ts` / `.js`，避免与原生 JS 模块（`VanillaCounter@widget.ts`）和 API 路由（`api/hello@route.ts`）冲突。
+项目通常在配置中为 HTML transform 设置 `scope`，只匹配 HTML 模板所在目录，避免与原生 JS 模块（`VanillaCounter@widget.ts`）和 API 路由（`api/hello@route.ts`）冲突。
 
 ### 2. 封装结构
 

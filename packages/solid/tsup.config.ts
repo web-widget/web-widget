@@ -3,6 +3,7 @@ export default defineConfig({
   dts: true,
   entry: {
     solid: 'src/index.ts',
+    'solid.transform': 'src/transform.ts',
     'solid.adapter.server': 'src/adapter.server.ts',
     'solid.adapter.client': 'src/adapter.client.ts',
   },

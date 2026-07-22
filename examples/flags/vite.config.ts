@@ -1,6 +1,7 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import reactTransform from '@web-widget/react/transform';
 import { webRouterPlugin, webWidgetPlugin } from '@web-widget/vite-plugin';
 import { builtinModules } from 'module';
 
@@ -19,7 +20,7 @@ export default defineConfig({
     }),
     react(),
     webWidgetPlugin({
-      adapters: ['@web-widget/react'],
+      transforms: [reactTransform],
     }),
   ],
   build: {

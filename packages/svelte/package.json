@@ -35,6 +35,11 @@
       "development": "./src/index.ts",
       "default": "./dist/svelte.js"
     },
+    "./transform": {
+      "types": "./dist/svelte.transform.d.ts",
+      "development": "./src/transform.ts",
+      "default": "./dist/svelte.transform.js"
+    },
     "./adapter": {
       "worker": {
         "types": "./dist/svelte.adapter.server.d.ts",
@@ -52,14 +57,6 @@
         "default": "./dist/svelte.adapter.server.js"
       }
     }
-  },
-  "webWidgetAdapter": {
-    "version": "1.0.0",
-    "name": "svelte",
-    "extensions": [
-      ".svelte"
-    ],
-    "adapter": "./adapter"
   },
   "files": [
     "dist"

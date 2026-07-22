@@ -1,9 +1,9 @@
 /**
  * Adapter type definitions.
  *
- * This module defines the WidgetAdapter protocol — a framework-agnostic
- * adapter interface that connects build tools with UI framework adapters.
- * The adapter tells the build tool which files belong to which framework
+ * This module defines the WidgetTransform protocol — a framework-agnostic
+ * transform definition that connects build tools with UI framework adapters.
+ * The transform tells the build tool which files belong to which framework
  * and where to obtain the rendering implementation, enabling framework
  * source code to be transformed at build time into generic modules
  * conforming to the ServerRender / ClientRender contract.
@@ -45,21 +45,13 @@ export type ExtractWidgetProps<M> = M extends { default: infer C }
   : unknown;
 
 /**
- * The WidgetAdapter protocol.
+ * The WidgetTransform protocol.
  *
- * A framework-agnostic adapter interface that connects build tools with
+ * A framework-agnostic transform definition that connects build tools with
  * UI framework adapters. It tells the build tool which files belong to
  * which framework and where to obtain the rendering implementation.
  */
-export interface WidgetAdapter {
-  /**
-   * Adapter format version. Build tools use this for compatibility
-   * checking. When the format evolves with incompatible changes (e.g.
-   * field semantics change, required fields added), the major version
-   * number is incremented.
-   */
-  version: string;
-
+export interface WidgetTransform {
   /**
    * UI framework identifier, used to distinguish handlers when multiple
    * frameworks coexist. Also the key used to reference the adapter in
@@ -76,17 +68,16 @@ export interface WidgetAdapter {
   extensions: string[];
 
   /**
-   * Adapter module subpath, pointing to the adapter implementation
-   * provided by the adapter package via conditional exports.
+   * Unresolved adapter module ID, pointing to the implementation provided
+   * by the adapter package via conditional exports.
    *
    * Build tools inject exports from this module into matching modules:
    * - `render`: injected as module export to conform to
    *   ServerRender / ClientRender contract
    * - `widget`: wraps widget importers for cross-framework reuse
    *
-   * e.g. "./adapter" resolves to "@web-widget/react/adapter",
-   * then conditional exports select server or client implementation
-   * based on environment.
+   * e.g. "@web-widget/react/adapter" is resolved by the target build so
+   * conditional exports can select the server or client implementation.
    */
   adapter: string;
 

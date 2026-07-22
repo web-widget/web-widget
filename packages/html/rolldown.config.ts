@@ -31,6 +31,7 @@ export default defineConfig({
   input: {
     index: 'src/index.ts',
     adapter: 'src/adapter.ts',
+    transform: 'src/transform.ts',
     'vite-plugin': 'src/vite-plugin.ts',
   },
   output: {

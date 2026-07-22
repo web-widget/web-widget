@@ -31,6 +31,11 @@
       "development": "./src/index.ts",
       "default": "./dist/web-components.js"
     },
+    "./transform": {
+      "types": "./dist/web-components.transform.d.ts",
+      "development": "./src/transform.ts",
+      "default": "./dist/web-components.transform.js"
+    },
     "./adapter": {
       "worker": {
         "types": "./dist/web-components.adapter.server.d.ts",
@@ -48,15 +53,6 @@
         "default": "./dist/web-components.adapter.server.js"
       }
     }
-  },
-  "webWidgetAdapter": {
-    "version": "1.0.0",
-    "name": "web-components",
-    "extensions": [
-      ".wc.ts",
-      ".wc.js"
-    ],
-    "adapter": "./adapter"
   },
   "files": [
     "dist"
