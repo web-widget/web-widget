@@ -13,6 +13,22 @@
     "test": {
       "env": ["FLAGS_SECRET"]
     },
+    "@examples/flags#test": {
+      "dependsOn": ["^build"],
+      "env": ["FLAGS_SECRET"]
+    },
+    "@examples/html#test": {
+      "dependsOn": ["^build"],
+      "env": ["FLAGS_SECRET"]
+    },
+    "@examples/react#test": {
+      "dependsOn": ["^build"],
+      "env": ["FLAGS_SECRET"]
+    },
+    "@examples/vue#test": {
+      "dependsOn": ["^build"],
+      "env": ["FLAGS_SECRET"]
+    },
     "lint": {}
   }
 }
