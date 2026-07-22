@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { syncCacheProvider } from '@web-widget/helpers/cache';
 import { context } from '@web-widget/helpers/context';
 import type { MockUserData } from '../api/mock-users@route';
+import styles from './user-card.module.css';
 
 interface Props {
   username: string;
@@ -77,17 +78,7 @@ const UserCard: React.FC<Props> = ({ username }: Props) => {
         <span>📦 {data.public_repos} repos</span>
       </div>
 
-      <button
-        onClick={() => setShow(!show)}
-        style={{
-          background: '#0366d6',
-          color: 'white',
-          border: 'none',
-          padding: '8px 16px',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          fontSize: '14px',
-        }}>
+      <button className={styles.button} onClick={() => setShow(!show)}>
         {show ? 'Hide' : 'Show'} Raw Data
       </button>
 

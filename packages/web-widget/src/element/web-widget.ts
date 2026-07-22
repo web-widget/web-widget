@@ -13,7 +13,11 @@ import { WidgetRuntime, status } from '../lifecycle/runtime';
 import { prepareShadowBoundary } from '../shadow/boundary';
 import { resolveWebWidgetId } from '../shared/id';
 import { reportWebWidgetError } from './error';
-import { WEB_WIDGET_PENDING_SLOT_NAME } from '../shared/constants';
+import {
+  INNER_HTML_PLACEHOLDER,
+  WEB_WIDGET_PENDING_SLOT_NAME,
+  WEB_WIDGET_RECOVERING_CHANGE_EVENT,
+} from '../shared/constants';
 import {
   dispatchHydrationError,
   type HydrationErrorPhase,
@@ -29,14 +33,18 @@ export type { PerformanceMarkDetail } from './performance';
 let globalTimeouts: Timeouts = Object.create(null);
 
 type Root = 'light' | 'shadow';
+type LifecycleTarget = typeof status.INITIAL | typeof status.MOUNTED;
+type ReconciledLifecycle =
+  'load' | 'bootstrap' | 'mount' | 'unmount' | 'unload';
 
 const innerHTMLDescriptor = Object.getOwnPropertyDescriptor(
   Element.prototype,
   'innerHTML'
 )!;
+const innerHTMLGetter = innerHTMLDescriptor.get!;
 const innerHTMLSetter = innerHTMLDescriptor.set!;
 
-export const INNER_HTML_PLACEHOLDER = `<!--web-widget:placeholder-->`;
+export { INNER_HTML_PLACEHOLDER } from '../shared/constants';
 
 /**
  * Web Widget Container
@@ -59,13 +67,13 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   #loadingController = new WidgetLoadingController(
     this,
-    async () => {
-      await this.load();
-      await this.bootstrap();
-      await this.mount();
-    },
+    () => this.#requestLifecycle(status.MOUNTED),
     (error) => this.#throwGlobalError(error)
   );
+
+  #lifecycleTarget: LifecycleTarget = status.INITIAL;
+
+  #lifecycleTask: Promise<void> | null = null;
 
   // Performance data fields
   performance?: WidgetPerformance;
@@ -263,10 +271,15 @@ export class HTMLWebWidgetElement extends HTMLElement {
     this.#timeouts = value || null;
   }
 
-  // NOTE: This is a temporary solution for React.
-  // NOTE: Prevent React components from clearing innerHTML when re-rendering on the client side.
+  // Parent frameworks treat a recovering Widget as an opaque SSR boundary.
+  get innerHTML() {
+    return this.recovering
+      ? INNER_HTML_PLACEHOLDER
+      : innerHTMLGetter.call(this);
+  }
+
   set innerHTML(value: string) {
-    if (value === INNER_HTML_PLACEHOLDER) {
+    if (String(value) === INNER_HTML_PLACEHOLDER) {
       return;
     } else {
       innerHTMLSetter.call(this, value);
@@ -370,6 +383,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string) {
+    if (name === 'recovering') {
+      this.dispatchEvent(new Event(WEB_WIDGET_RECOVERING_CHANGE_EVENT));
+      return;
+    }
     if (name === 'loading' && this.isConnected) {
       this.#loadingController.loadingChanged();
       return;
@@ -385,11 +402,48 @@ export class HTMLWebWidgetElement extends HTMLElement {
 
   destroyedCallback() {
     this.#loadingController.disconnect();
-    if (!this.inactive) {
-      this.unmount()
-        .then(() => this.unload())
-        .catch((error) => this.#throwGlobalError(error));
+    if (this.inactive) return;
+
+    this.#requestLifecycle(status.INITIAL).catch((error) =>
+      this.#throwGlobalError(error)
+    );
+  }
+
+  #requestLifecycle(target: LifecycleTarget) {
+    this.#lifecycleTarget = target;
+    const task = this.#lifecycleTask
+      ? this.#lifecycleTask.then(() => this.#reconcileLifecycle())
+      : this.#reconcileLifecycle();
+    const settledTask = task.catch(() => {});
+    this.#lifecycleTask = settledTask;
+    void settledTask.then(() => {
+      if (this.#lifecycleTask === settledTask) this.#lifecycleTask = null;
+    });
+    return task;
+  }
+
+  async #reconcileLifecycle() {
+    let lifecycle: ReconciledLifecycle | undefined;
+    while ((lifecycle = this.#nextLifecycle())) {
+      await this[lifecycle]();
     }
+  }
+
+  #nextLifecycle(): ReconciledLifecycle | undefined {
+    if (this.#lifecycleTarget === status.MOUNTED) {
+      if (this.status === status.INITIAL || this.status === status.LOAD_ERROR) {
+        return 'load';
+      }
+      if (this.status === status.LOADED) return 'bootstrap';
+      if (this.status === status.BOOTSTRAPPED) return 'mount';
+      return;
+    }
+
+    if (this.status === status.MOUNTED) return 'unmount';
+    if (this.status === status.LOADED || this.status === status.BOOTSTRAPPED) {
+      return 'unload';
+    }
+    return;
   }
 
   async #call(lifecycle: Lifecycle, data?: SerializableObject) {
@@ -533,6 +587,7 @@ export class HTMLWebWidgetElement extends HTMLElement {
       'loading',
       'import',
       'meta', // @deprecated
+      'recovering',
     ];
   }
 

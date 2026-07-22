@@ -143,21 +143,30 @@ export function createWidgetAdapter(
             error instanceof Error ? error : new Error(String(error))
           );
       });
+      const renderServerHost = (children: JSX.Element) =>
+        renderHost && !hasChildren
+          ? renderHost(renderer.localName, renderer.attributes, children)
+          : children;
       const content = () => {
         const result = html();
-        if (result instanceof Error) return fallback.error;
+        if (result instanceof Error) return renderServerHost(fallback.error);
         if (result === undefined) return result;
-        if (renderInnerHTML) return renderInnerHTML(result);
+        if (renderInnerHTML) {
+          return renderServerHost(renderInnerHTML(result));
+        }
         return createComponent(Dynamic, {
           ...widgetProps,
           innerHTML: result,
         });
       };
       const boundary = createComponent(ErrorBoundary, {
-        fallback: () => fallback.error,
+        fallback: () => renderServerHost(fallback.error),
         get children() {
           return createComponent(Suspense, {
-            fallback: fallback.pending,
+            fallback:
+              fallback.pending == null
+                ? fallback.pending
+                : renderServerHost(fallback.pending),
             get children() {
               return content();
             },
@@ -168,7 +177,7 @@ export function createWidgetAdapter(
       // renderer string would nest Solid's hydration protocol inside the Shadow
       // boundary and prevent progressively rendered child widgets from recovering.
       const hostChildren = hasChildren ? [boundary, local.children] : boundary;
-      return renderHost
+      return renderHost && hasChildren
         ? renderHost(renderer.localName, renderer.attributes, hostChildren)
         : boundary;
     }) as SolidWidgetFactory;

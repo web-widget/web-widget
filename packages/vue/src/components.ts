@@ -1,4 +1,7 @@
-import type { WebWidgetRendererOptions } from '@web-widget/web-widget';
+import type {
+  WebWidgetRendererInterface,
+  WebWidgetRendererOptions,
+} from '@web-widget/web-widget';
 import type {
   ExtractWidgetProps,
   WidgetContainerOptions,
@@ -17,16 +20,22 @@ import {
   ref,
   onErrorCaptured,
 } from 'vue';
-import type { DefineComponent, VNode, PropType } from 'vue';
+import type { DefineComponent, VNode, PropType, Slots } from 'vue';
 export type { WidgetContainerOptions } from '@web-widget/schema';
 
 export { asReactWidget, toReact } from './as-react-widget';
 
-type RendererProp<K extends keyof WebWidgetRendererOptions> = PropType<
-  WebWidgetRendererOptions[K]
->;
-
 type RenderChildren = (nodes: VNode[], parent: unknown) => Promise<string>;
+
+function renderLightChildren(slots: Readonly<Slots>) {
+  return Object.entries(slots).flatMap(([name, render]) =>
+    render
+      ? render().map((node) =>
+          name === 'default' ? node : cloneVNode(node, { slot: name })
+        )
+      : []
+  );
+}
 
 /**
  * A Vue component wrapping a widget, with props `T` plus container config.
@@ -42,95 +51,37 @@ export type VueWidgetComponent<T = unknown> = DefineComponent<
  * defineComponent results (which expose `$props`). Falls back to
  * `unknown` for unrecognized component types.
  */
-const WebWidget = /*#__PURE__*/ defineComponent({
-  name: 'WebWidgetRoot',
+const ServerWebWidget = /*#__PURE__*/ defineComponent({
+  name: 'ServerWebWidget',
   props: {
-    base: {
-      type: String as RendererProp<'base'>,
-    },
-    data: {
-      type: Object as RendererProp<'data'>,
-      default: () => ({}),
-    },
-    devStyles: {
-      type: Array as RendererProp<'devStyles'>,
-    },
     errorFallback: {
       type: Object as PropType<VNode>,
       default: null,
     },
-    import: {
-      type: String as RendererProp<'import'>,
-    },
-    id: {
-      type: String as RendererProp<'id'>,
-    },
-    inactive: {
-      type: Boolean as RendererProp<'inactive'>,
-      default: false,
-    },
-    loader: {
-      type: Function as PropType<WidgetModuleLoader>,
+    renderer: {
+      type: Object as PropType<WebWidgetRendererInterface>,
       required: true,
-    },
-    loading: {
-      type: String as RendererProp<'loading'>,
-    },
-    meta: {
-      type: Object as RendererProp<'meta'>,
-    },
-    name: {
-      type: String as RendererProp<'name'>,
-    },
-    renderStage: {
-      type: String as RendererProp<'renderStage'>,
-    },
-    root: {
-      type: String as RendererProp<'root'>,
-      default: 'light',
     },
     renderChildren: {
       type: Function as PropType<RenderChildren>,
-    },
-    hostSlot: {
-      type: String,
+      required: true,
     },
   },
-  async setup(
-    { loader, errorFallback, renderChildren, hostSlot, ...props },
-    { slots }
-  ) {
-    if (!loader) {
-      throw new TypeError(`Missing loader.`);
-    }
-
-    const renderLightChildren = () =>
-      Object.entries(slots).flatMap(([name, render]) =>
-        render
-          ? render().map((node) =>
-              name === 'default' ? node : cloneVNode(node, { slot: name })
-            )
-          : []
-      );
+  async setup({ renderer, errorFallback, renderChildren }, { slots }) {
     const parent = getCurrentInstance()!;
-    const children =
-      renderChildren && Object.keys(slots).length
-        ? await renderChildren(renderLightChildren(), parent)
-        : '';
+    const children = Object.keys(slots).length
+      ? await renderChildren(renderLightChildren(slots), parent)
+      : '';
 
-    const widget = new WebWidgetRenderer(loader, {
-      ...props,
-      slot: hostSlot,
-    });
-    const tag = widget.localName;
-    const attrs = widget.attributes;
+    const tag = renderer.localName;
+    const attrs = renderer.attributes;
 
     // Catch render errors and resolve with the Error instead of rejecting.
     // In the islands architecture there is no client-side retry — a rejected
     // promise inside Suspense would leave the pending fallback forever.
     // By resolving with the Error, the render function can render the error
     // UI without the framework abandoning the subtree.
-    const innerHTML = await widget
+    const innerHTML = await renderer
       .renderInnerHTMLToString({ children })
       .catch((err: unknown) => {
         const error = err instanceof Error ? err : new Error(String(err));
@@ -143,25 +94,7 @@ const WebWidget = /*#__PURE__*/ defineComponent({
       return () => errorFallback;
     }
 
-    if (!renderChildren) {
-      await customElements.whenDefined(tag);
-    }
-
-    const data = attrs.data;
-    delete attrs.data;
-
-    return () => {
-      const nodeProps = {
-        ...attrs,
-        ...(!renderChildren ? { '^data': data } : { data }),
-        ...(renderChildren ? { innerHTML } : null),
-      };
-      return h(
-        tag,
-        nodeProps,
-        renderChildren ? undefined : renderLightChildren()
-      );
-    };
+    return () => h(tag, { ...attrs, innerHTML });
   },
 });
 
@@ -259,15 +192,32 @@ export function createWidgetAdapter(
         const slot = typeof attrs.slot === 'string' ? attrs.slot : undefined;
         delete attrs.slot;
         const data = attrs as WebWidgetRendererOptions['data'];
+        const renderer = new WebWidgetRenderer(loader, {
+          ...options,
+          data,
+          ...renderOptions,
+          slot,
+        });
 
-        if (clientOnly && renderChildren && pendingFallback) {
-          const renderer = new WebWidgetRenderer(loader, {
-            ...options,
-            data,
-            ...renderOptions,
-            root: options.root,
-            slot,
-          });
+        if (renderer.opaqueInnerHTML !== undefined) {
+          return () => {
+            const lightChildren = Object.keys(slots).length
+              ? renderLightChildren(slots)
+              : [];
+            return h(
+              renderer.localName,
+              {
+                ...renderer.attributes,
+                ...(lightChildren.length === 0
+                  ? { innerHTML: renderer.opaqueInnerHTML }
+                  : null),
+              },
+              lightChildren.length ? lightChildren : undefined
+            );
+          };
+        }
+
+        if (clientOnly && pendingFallback) {
           return () =>
             h(
               renderer.localName,
@@ -282,6 +232,10 @@ export function createWidgetAdapter(
                 pendingFallback
               )
             );
+        }
+
+        if (!renderChildren) {
+          throw new TypeError('Missing server children renderer.');
         }
 
         const error = ref<unknown>(null);
@@ -299,16 +253,11 @@ export function createWidgetAdapter(
             {},
             {
               default: h(
-                WebWidget,
+                ServerWebWidget,
                 {
-                  ...options,
-                  data,
                   errorFallback,
-                  loader,
-                  hostSlot: slot,
                   renderChildren,
-                  ...renderOptions,
-                  root: options.root,
+                  renderer,
                 },
                 slots
               ),

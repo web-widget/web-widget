@@ -1,5 +1,6 @@
 import type { ModuleLoader, Status } from '../lifecycle/runtime';
 import { status } from '../lifecycle/runtime';
+import { WEB_WIDGET_RECOVERING_CHANGE_EVENT } from '../shared/constants';
 import { scheduleAutoMount } from './auto';
 import { createIdleObserver } from './idle';
 import { createVisibleObserver } from './visible';
@@ -15,10 +16,12 @@ interface LoadingHost extends Element {
 }
 
 export class WidgetLoadingController {
+  #disconnectRecoveryGate?: () => void;
   #disconnectStrategy?: () => void;
   #host: LoadingHost;
   #mount: () => Promise<void>;
   #mountPromise: Promise<void> | null = null;
+  #mountRequested = false;
   #reportError: (error: unknown) => void;
 
   constructor(
@@ -36,8 +39,11 @@ export class WidgetLoadingController {
   }
 
   disconnect() {
+    this.#disconnectRecoveryGate?.();
+    this.#disconnectRecoveryGate = undefined;
     this.#disconnectStrategy?.();
     this.#disconnectStrategy = undefined;
+    this.#mountRequested = false;
   }
 
   loadingChanged() {
@@ -85,7 +91,10 @@ export class WidgetLoadingController {
   }
 
   #autoMount() {
-    if (this.#mountPromise) return this.#mountPromise;
+    if (this.#mountPromise) {
+      this.#mountRequested = true;
+      return this.#mountPromise;
+    }
     if (
       !this.#host.isConnected ||
       this.#host.inactive ||
@@ -99,6 +108,7 @@ export class WidgetLoadingController {
     ) {
       return;
     }
+    if (this.#waitForRecovery()) return;
 
     this.#mountPromise = Promise.resolve().then(async () => {
       try {
@@ -107,8 +117,31 @@ export class WidgetLoadingController {
         this.#reportError(error);
       } finally {
         this.#mountPromise = null;
+        if (this.#mountRequested) {
+          this.#mountRequested = false;
+          this.#autoMount();
+        }
       }
     });
     return this.#mountPromise;
+  }
+
+  #waitForRecovery() {
+    const ancestor = this.#host.parentElement?.closest(
+      'web-widget[recovering]'
+    );
+    if (!ancestor) return false;
+    if (this.#disconnectRecoveryGate) return true;
+
+    const resume = () => {
+      if (ancestor.hasAttribute('recovering')) return;
+      this.#disconnectRecoveryGate?.();
+      this.#disconnectRecoveryGate = undefined;
+      if (this.#host.isConnected) this.#autoMount();
+    };
+    ancestor.addEventListener(WEB_WIDGET_RECOVERING_CHANGE_EVENT, resume);
+    this.#disconnectRecoveryGate = () =>
+      ancestor.removeEventListener(WEB_WIDGET_RECOVERING_CHANGE_EVENT, resume);
+    return true;
   }
 }

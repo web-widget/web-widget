@@ -1,5 +1,5 @@
 import type { WidgetModuleLoader } from '@web-widget/schema';
-import { INNER_HTML_PLACEHOLDER } from '../element/web-widget';
+import { INNER_HTML_PLACEHOLDER } from '../shared/constants';
 import type {
   WebWidgetRendererOptions,
   WebWidgetRendererInterface,
@@ -25,6 +25,7 @@ class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
   #clientImport: string;
   #options: Omit<WebWidgetRendererOptions, 'renderStage'>;
   localName = 'web-widget';
+  opaqueInnerHTML = INNER_HTML_PLACEHOLDER;
 
   get pendingBoundary() {
     return createPendingBoundary();

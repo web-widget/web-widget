@@ -134,6 +134,24 @@ describe('Element default properties', () => {
       expect(emptyWidget).to.have.property(hook).is.a('function');
     });
   });
+
+  it('protects SSR innerHTML while a widget is recovering', async () => {
+    const widget = await createEmptyWidget();
+    widget.innerHTML = '<button>server content</button>';
+    document.body.appendChild(widget);
+
+    widget.recovering = true;
+    expect(widget.innerHTML).to.equal('<!--web-widget:placeholder-->');
+    expect(widget.firstElementChild?.textContent).to.equal('server content');
+    (widget as any).innerHTML = {
+      toString: () => '<!--web-widget:placeholder-->',
+    };
+    expect(widget.firstElementChild?.textContent).to.equal('server content');
+
+    widget.recovering = false;
+    expect(widget.innerHTML).to.equal('<button>server content</button>');
+    widget.remove();
+  });
 });
 
 describe('Load module', () => {
@@ -337,6 +355,93 @@ describe('Auto load', () => {
 
     expect(mounts).to.equal(2);
     expect(widget.shadowRoot).to.equal(shadowRoot);
+    widget.remove();
+  });
+
+  it('waits for a recovering ancestor before mounting a nested widget', async () => {
+    const parent = document.createElement('web-widget');
+    parent.inactive = true;
+    parent.recovering = true;
+
+    const child = document.createElement('web-widget');
+    child.loading = 'eager';
+    let loads = 0;
+    const mounted = new Promise<void>((resolve) => {
+      child.addEventListener('statuschange', () => {
+        if (child.status === HTMLWebWidgetElement.MOUNTED) resolve();
+      });
+    });
+
+    parent.appendChild(child);
+    document.body.appendChild(parent);
+    child.loader = async () => {
+      loads++;
+      return { render: async () => ({}) };
+    };
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(loads).to.equal(0);
+
+    parent.recovering = false;
+    await mounted;
+    expect(loads).to.equal(1);
+    parent.remove();
+  });
+
+  it('cancels a pending mount cleanly when disconnected', async () => {
+    let resolveLoader!: (module: any) => void;
+    const loader = new Promise<any>((resolve) => {
+      resolveLoader = resolve;
+    });
+    const widget = document.createElement('web-widget');
+    widget.loading = 'eager';
+    widget.loader = () => loader;
+    const initial = new Promise<void>((resolve) => {
+      widget.addEventListener('statuschange', () => {
+        if (widget.status === HTMLWebWidgetElement.INITIAL) resolve();
+      });
+    });
+
+    document.body.appendChild(widget);
+    await Promise.resolve();
+    expect(widget.status).to.equal(HTMLWebWidgetElement.LOADING);
+    widget.remove();
+    resolveLoader({ render: async () => ({}) });
+
+    await initial;
+    expect(widget.status).to.equal(HTMLWebWidgetElement.INITIAL);
+  });
+
+  it('mounts after reconnecting while a previous load is still pending', async () => {
+    let resolveFirstLoad!: (module: any) => void;
+    const firstLoad = new Promise<any>((resolve) => {
+      resolveFirstLoad = resolve;
+    });
+    const widget = document.createElement('web-widget');
+    widget.loading = 'eager';
+    let loads = 0;
+    widget.loader = async () => {
+      loads++;
+      return loads === 1 ? firstLoad : { render: async () => ({ mount() {} }) };
+    };
+    const mounted = new Promise<void>((resolve) => {
+      widget.addEventListener('statuschange', () => {
+        if (widget.status === HTMLWebWidgetElement.MOUNTED) resolve();
+      });
+    });
+
+    document.body.appendChild(widget);
+    await Promise.resolve();
+    expect(widget.status).to.equal(HTMLWebWidgetElement.LOADING);
+
+    widget.remove();
+    await Promise.resolve();
+    document.body.appendChild(widget);
+    resolveFirstLoad({ render: async () => ({}) });
+
+    await mounted;
+    expect(loads).to.equal(2);
+    expect(widget.status).to.equal(HTMLWebWidgetElement.MOUNTED);
     widget.remove();
   });
 

@@ -4,6 +4,9 @@ import { vi } from 'vitest';
 import { resolveFallback } from './fallback';
 import { createWidgetAdapter } from './factory';
 
+const rendererMock = vi.hoisted(() => ({
+  opaqueInnerHTML: undefined as string | undefined,
+}));
 const widget = createWidgetAdapter();
 
 // Mock the WebWidgetRenderer to avoid needing the full widget runtime.
@@ -11,6 +14,7 @@ vi.mock('@web-widget/web-widget', () => {
   return {
     WebWidgetRenderer: class {
       localName = 'web-widget';
+      opaqueInnerHTML = rendererMock.opaqueInnerHTML;
       pendingBoundary = {
         ariaBusy: true,
         display: 'contents',
@@ -83,6 +87,10 @@ describe('widget', () => {
       default: () => createElement('div', null, 'hello'),
     })) as any;
 
+  beforeEach(() => {
+    rendererMock.opaqueInnerHTML = undefined;
+  });
+
   test('returns a valid memoized component', () => {
     const Widget = widget(mockLoader, { name: 'TestWidget' });
     expect(Widget).toBeDefined();
@@ -119,5 +127,14 @@ describe('widget', () => {
     );
 
     expect(output).toContain('<web-widget id="profile-widget"');
+  });
+
+  test('renders opaque client content without a Suspense boundary', () => {
+    rendererMock.opaqueInnerHTML = '<!--web-widget:placeholder-->';
+    const Widget = widget(mockLoader);
+    const output = renderToString(createElement(Widget));
+
+    expect(output).toContain('<!--web-widget:placeholder-->');
+    expect(output).not.toContain('<!--$-->');
   });
 });

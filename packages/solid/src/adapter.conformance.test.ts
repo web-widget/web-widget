@@ -47,6 +47,14 @@ const InvalidLightChildrenComponent = () =>
   createComponent(InvalidLightChildrenWidget, {
     children: 'LIGHT_CHILDREN',
   });
+const LightWidget = server.widget(
+  async () => ({
+    default: {},
+    render: async () => '<button>LIGHT_WIDGET_MARKER</button>',
+  }),
+  { import: '/light-widget.js' }
+);
+const LightWidgetComponent = () => createComponent(LightWidget, {});
 const PendingWidget = server.widget(async () => ({ default: {} }), {
   import: '/pending-widget.js',
   root: 'shadow',
@@ -122,6 +130,18 @@ test('preserves a nested Widget host during progressive rendering', async () => 
   const text = await readStream(result as ReadableStream<string>);
 
   expect(text).toMatch(/<web-widget[^>]*slot="adapter-actions"/);
+});
+
+test('keeps Solid coordination markers outside a light Widget host', async () => {
+  const text = (await server.render(
+    LightWidgetComponent,
+    {},
+    { id: 'light-widget', progressive: false }
+  )) as string;
+  const host = text.match(/<web-widget[^>]*>([\s\S]*?)<\/web-widget>/);
+
+  expect(host?.[1]).toContain('<button>LIGHT_WIDGET_MARKER</button>');
+  expect(host?.[1]).not.toContain('<!--!$');
 });
 
 test('rejects children for a Light Target Widget', async () => {

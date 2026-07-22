@@ -157,13 +157,18 @@ export function createWidgetAdapter(
           const activeWidget = (instance.proxy as any)
             .$widget as WebWidgetRenderer;
           const innerHTML = (instance.proxy as any).$innerHTML;
+          const children = renderChildren
+            ? undefined
+            : lightChildren.length
+              ? lightChildren
+              : undefined;
           return h(
             activeWidget.localName,
             {
               attrs: activeWidget.attributes,
-              ...(renderChildren ? { domProps: { innerHTML } } : null),
+              ...(innerHTML !== undefined ? { domProps: { innerHTML } } : null),
             },
-            renderChildren ? undefined : lightChildren
+            children
           );
         };
       },
