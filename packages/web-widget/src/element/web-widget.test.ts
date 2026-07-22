@@ -110,6 +110,13 @@ describe('Element default properties', () => {
     });
   });
 
+  it('falls back to auto for an invalid loading attribute', async () => {
+    const widget = await createEmptyWidget();
+    widget.setAttribute('loading', 'immediate');
+
+    expect(widget.loading).to.equal('auto');
+  });
+
   it('should have default methods', async () => {
     const emptyWidget = await createEmptyWidget();
     const expectedMethods = [

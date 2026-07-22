@@ -1,10 +1,10 @@
-type Task = {
+interface Task {
   callback: () => void | Promise<void>;
   cleanups: Array<() => void>;
   priority: number;
   sequence: number;
   started: boolean;
-};
+}
 
 const tasks: Task[] = [];
 let sequence = 0;
@@ -63,8 +63,13 @@ export const scheduleAutoMount = (
     once: true,
     passive: true,
   });
+  element.addEventListener('pointerdown', promote, {
+    once: true,
+    passive: true,
+  });
   element.addEventListener('focusin', promote, { once: true, passive: true });
   task.cleanups.push(() => element.removeEventListener('pointerover', promote));
+  task.cleanups.push(() => element.removeEventListener('pointerdown', promote));
   task.cleanups.push(() => element.removeEventListener('focusin', promote));
 
   const idle = () => enqueue(1);
