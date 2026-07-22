@@ -154,7 +154,7 @@ export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {
 ////////////////////////////////////////
 
 /**
- * Build transform entry with an optional directory scope for
+ * Build transform entry with optional directory scopes for
  * disambiguating extension conflicts.
  */
 export interface ConfiguredWidgetTransform extends WidgetTransform {
@@ -163,7 +163,7 @@ export interface ConfiguredWidgetTransform extends WidgetTransform {
    * will match this adapter, used to disambiguate extension conflicts
    * (e.g. vue2 and vue3 both using `.vue`).
    */
-  scope?: string[];
+  scopes?: string[];
 }
 
 /**

@@ -56,7 +56,7 @@ export default {
 - **`render()` 注入**：`Page@route.html.ts` 不再需要 `export { render }`
 - **`widget()` 注入**：导入 Widget 时自动包装为可调用函数
 
-项目通常在配置中为 HTML transform 设置 `scope`，只匹配 HTML 模板所在目录，避免与原生 JS 模块（`VanillaCounter@widget.ts`）和 API 路由（`api/hello@route.ts`）冲突。
+项目通常在配置中为 HTML transform 设置 `scopes`，只匹配 HTML 模板所在目录，避免与原生 JS 模块（`VanillaCounter@widget.ts`）和 API 路由（`api/hello@route.ts`）冲突。
 
 ### 2. 封装结构
 

@@ -65,9 +65,9 @@ export default defineConfig(({ isSsrBuild }) => {
       vue2PresetsPlugin(),
       webWidgetPlugin({
         transforms: [
-          { ...reactTransform, scope: ['packages/react'] },
-          { ...vueTransform, scope: ['packages/vue3'] },
-          { ...vue2Transform, scope: ['packages/vue2'] },
+          { ...reactTransform, scopes: ['packages/react'] },
+          { ...vueTransform, scopes: ['packages/vue3'] },
+          { ...vue2Transform, scopes: ['packages/vue2'] },
         ],
       }),
     ],

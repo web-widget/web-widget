@@ -22,7 +22,7 @@
 
   Widget and route modules now accept either `@widget` / `@route` or `.widget` / `.route` markers. Adapter scopes are arrays of directory prefixes, and shared structural prop extraction improves cross-framework `container()` inference with an explicit `container<Props>()` fallback.
 
-  The HTML adapter now matches `.ts` and `.js` within its configured scope instead of requiring `.html.ts` and `.html.js`.
+  The HTML adapter now matches `.ts` and `.js` under the directories configured in `scopes` instead of requiring `.html.ts` and `.html.js`.
 
 ### Patch Changes
 

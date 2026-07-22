@@ -14,15 +14,15 @@ describe('scopePrefix', () => {
   });
 
   test.each([undefined, []])(
-    'does not restrict an empty scope: %p',
-    (scope) => {
-      expect(scopePrefix(scope, '/project')).toBe('');
+    'does not restrict empty scopes: %p',
+    (scopes) => {
+      expect(scopePrefix(scopes, '/project')).toBe('');
     }
   );
 });
 
 describe('transformScopePrefix', () => {
-  it('uses the transform scope when present', () => {
+  it('uses the transform scopes when present', () => {
     const pattern = new RegExp(
       `^${transformScopePrefix(['routes/solid'], ['routes/preact'], '/project')}[^?]*\\.tsx$`
     );

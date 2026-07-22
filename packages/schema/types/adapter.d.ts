@@ -63,7 +63,7 @@ export interface WidgetTransform {
    * List of component file extensions.
    * Build tools use this to determine which source files belong to this
    * framework and need render transformation.
-   * e.g. [".tsx", ".jsx"] matches all React components.
+   * e.g. ['.tsx', '.jsx'] matches all React components.
    */
   extensions: string[];
 
