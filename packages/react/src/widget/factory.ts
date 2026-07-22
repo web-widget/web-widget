@@ -55,7 +55,7 @@ export function createWidgetAdapter(
         }
       );
 
-      return buffered
+      return buffered || task.opaqueInnerHTML !== undefined
         ? view
         : createElement(Suspense, {
             fallback: pendingFallback,

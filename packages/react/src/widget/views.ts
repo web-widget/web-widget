@@ -59,6 +59,16 @@ export function StreamingWidgetView({
   const directChildren = renderDirectChildren(task);
   if (directChildren) return directChildren;
 
+  // The client renderer only needs an opaque host. Its protected innerHTML
+  // placeholder keeps SSR content intact while the nested Widget hydrates.
+  if (task.opaqueInnerHTML !== undefined) {
+    return renderResult(
+      task,
+      { status: 'success', html: task.opaqueInnerHTML },
+      errorFallback
+    );
+  }
+
   if (clientOnly && typeof window === 'undefined' && pendingFallback != null) {
     return renderPending(task, pendingFallback);
   }

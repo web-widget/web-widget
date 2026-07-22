@@ -75,6 +75,8 @@ export interface WebWidgetRendererInterface {
   localName: string;
   pendingBoundary: WebWidgetPendingBoundary;
   attributes: Record<string, string>;
+  /** Synchronous content used when a parent framework must preserve SSR DOM. */
+  opaqueInnerHTML?: string;
   renderInnerHTMLToString(options?: WebWidgetRenderOptions): Promise<string>;
   renderOuterHTMLToString(
     options?: WebWidgetOuterRenderOptions
