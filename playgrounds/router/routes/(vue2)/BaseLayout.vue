@@ -2,18 +2,15 @@
 import '../(css)/base-layout.css';
 import '../(css)/ui.css';
 import { widget } from '@web-widget/vue2/adapter';
+import { menuEnhancementScript } from '../(components)/menu-client';
 
 const Menu = widget(() => import('../(components)/Menu@widget.ts'));
+const enhancementMarkup = `<script>${menuEnhancementScript}<\/script>`;
 
 export default {
   components: { Menu },
-  mounted() {
-    const path = location.pathname;
-    document.querySelectorAll('aside a[href]').forEach((a) => {
-      if (a.getAttribute('href') === path) {
-        a.setAttribute('aria-current', 'page');
-      }
-    });
+  data() {
+    return { enhancementMarkup };
   },
 };
 </script>
@@ -23,7 +20,7 @@ export default {
       <h1>Web Router Playground</h1>
     </header>
     <div class="container">
-      <aside>
+      <aside data-playground-menu>
         <Menu :widget="{ serverOnly: true }" />
       </aside>
       <main>
@@ -33,5 +30,6 @@ export default {
     <footer>
       <p>This is a footer</p>
     </footer>
+    <div v-html="enhancementMarkup" hidden></div>
   </div>
 </template>

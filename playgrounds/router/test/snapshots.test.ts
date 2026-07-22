@@ -33,14 +33,24 @@ describe('Should match snapshot', () => {
     const response = await fetch('/shadow-dom/svelte');
     const html = await response.text();
     const menuLink = '<a href="/shadow-dom/svelte"';
-    const activeMenuScript =
-      "document.querySelectorAll('aside a[href]').forEach";
+    const menuEnhancementScript = 'web-router-playground:menu-scroll';
 
     expect(response.status).toBe(200);
     expect(html).toContain(menuLink);
-    expect(html).toContain(activeMenuScript);
-    expect(html.indexOf(activeMenuScript)).toBeGreaterThan(
+    expect(html).toContain(menuEnhancementScript);
+    expect(html.indexOf(menuEnhancementScript)).toBeGreaterThan(
       html.indexOf(menuLink)
     );
+  });
+
+  test('HTML layout emits an executable menu enhancement script', async () => {
+    const response = await fetch('/frameworks/html');
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain(
+      "document.querySelector('[data-playground-menu]')"
+    );
+    expect(html).not.toContain('document.querySelector(&#39;');
   });
 });

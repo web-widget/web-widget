@@ -3,17 +3,18 @@
   import '~/routes/(css)/base-layout.css';
   import '~/routes/(css)/ui.css';
   import Menu from './Menu.svelte';
+  import { menuEnhancementScript } from '../menu-client';
 
   let { children }: { children: Snippet } = $props();
 
-  const activeMenuScript = `<script>(function(){var p=location.pathname;document.querySelectorAll('aside a[href]').forEach(function(a){if(a.getAttribute('href')===p)a.setAttribute('aria-current','page')})})();<\/script>`;
+  const enhancementScript = `<script>${menuEnhancementScript}<\/script>`;
 </script>
 
 <header class="site-header">
   <h1>Web Router Playground</h1>
 </header>
 <div class="container">
-  <aside>
+  <aside data-playground-menu>
     <Menu />
   </aside>
   <main>{@render children()}</main>
@@ -21,4 +22,4 @@
 <footer>
   <p>This is a footer</p>
 </footer>
-{@html activeMenuScript}
+{@html enhancementScript}

@@ -110,6 +110,9 @@ a[target='_blank']::after {
 header.site-header {
   border-bottom: var(--sk-border-width) solid var(--sk-border);
   background: var(--sk-bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 header.site-header > h1 {
@@ -140,6 +143,15 @@ aside {
   border-right: var(--sk-border-width) dashed var(--sk-border);
   background: var(--sk-bg-subtle);
   flex: 0 0 var(--sk-sidebar-width);
+  position: sticky;
+  top: calc(var(--sk-header-height) + var(--sk-border-width));
+  align-self: flex-start;
+  max-height: calc(
+    100vh - var(--sk-header-height) - var(--sk-border-width)
+  );
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 aside ul {
   padding: 16px 0;
@@ -229,6 +241,10 @@ footer {
     flex: 0 0 100%;
     border-right: none;
     border-bottom: var(--sk-border-width) dashed var(--sk-border);
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+    scrollbar-gutter: auto;
   }
   .container main {
     padding: 24px 20px;

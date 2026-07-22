@@ -6,7 +6,7 @@ const WIDGET_IMPORT_ASSET =
 
 const CSS_MODULE_CLASS = /_([a-zA-Z0-9-]+)_[a-z0-9]+/g;
 
-const VUE_SCOPED_ATTR = / data-v-[a-f0-9]+/g;
+const VUE_SCOPED_ID = /data-v-[a-f0-9]+/g;
 
 function hiddenBlockSortKey(block: string): string {
   const username = block.match(/username&quot;:&quot;([^&]+)&quot;/);
@@ -153,7 +153,7 @@ export function normalizeProductionBody(html: string): string {
     (_match, basename, extension) => `/assets/${basename}.${extension}`
   );
   body = body.replace(CSS_MODULE_CLASS, '_$1_HASH');
-  body = body.replace(VUE_SCOPED_ATTR, ' data-v-HASH');
+  body = body.replace(VUE_SCOPED_ID, 'data-v-HASH');
 
   return body;
 }
