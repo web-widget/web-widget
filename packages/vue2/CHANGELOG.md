@@ -32,22 +32,24 @@
 
 ### Major Changes
 
-- 037add2: Introduce the **WebWidgetAdapter protocol**: framework adapters now declare metadata (`name`, `extensions`, `adapter`, `deriveExports`) via the `webWidgetAdapter` field in `package.json`, and a single `webWidgetPlugin({ adapters: [...] })` replaces all per-framework Vite plugins.
+- 037add2: Introduce the **WidgetTransform protocol**: framework adapters export build-time definitions from `./transform`, and a single `webWidgetPlugin({ transforms: [...] })` replaces all per-framework Vite plugins.
 
   **Breaking changes:**
 
-  - `reactWebWidgetPlugin` / `vueWebWidgetPlugin` / `vue2WebWidgetPlugin` and their `./vite` subpath exports are removed. Use `webWidgetPlugin({ adapters: [...] })` instead:
+  - `reactWebWidgetPlugin` / `vueWebWidgetPlugin` / `vue2WebWidgetPlugin` and their `./vite` subpath exports are removed. Use `webWidgetPlugin({ transforms: [...] })` instead:
 
     ```diff
     - import reactWebWidgetPlugin from '@web-widget/react/vite';
     - import vueWebWidgetPlugin from '@web-widget/vue/vite';
     + import { webWidgetPlugin } from '@web-widget/vite-plugin';
+    + import reactTransform from '@web-widget/react/transform';
+    + import vueTransform from '@web-widget/vue/transform';
 
       plugins: [
     -   reactWebWidgetPlugin(),
     -   vueWebWidgetPlugin(),
     +   webWidgetPlugin({
-    +     adapters: ['@web-widget/react', '@web-widget/vue'],
+    +     transforms: [reactTransform, vueTransform],
     +   }),
       ],
     ```

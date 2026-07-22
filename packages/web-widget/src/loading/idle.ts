@@ -3,7 +3,7 @@ const supportRequestIdleCallback = 'requestIdleCallback' in window;
 export const createIdleObserver = (
   element: Element,
   callback: () => void,
-  options: IdleRequestOptions = {}
+  options: IdleRequestOptions = { timeout: 1000 }
 ) => {
   let id: number;
   if (supportRequestIdleCallback) {

@@ -4,6 +4,7 @@ export default defineConfig({
   dts: true,
   entry: {
     react: 'src/index.ts',
+    'react.transform': 'src/transform.ts',
     'react.adapter.server': 'src/adapter.server.ts',
     'react.adapter.client': 'src/adapter.client.ts',
   },

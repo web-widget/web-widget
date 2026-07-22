@@ -33,6 +33,11 @@
       "development": "./src/index.ts",
       "default": "./dist/react.js"
     },
+    "./transform": {
+      "types": "./dist/react.transform.d.ts",
+      "development": "./src/transform.ts",
+      "default": "./dist/react.transform.js"
+    },
     "./adapter": {
       "worker": {
         "types": "./dist/react.adapter.server.d.ts",
@@ -54,15 +59,6 @@
       "types": "./globals.d.ts"
     }
   },
-  "webWidgetAdapter": {
-    "version": "1.0.0",
-    "name": "react",
-    "extensions": [
-      ".tsx",
-      ".jsx"
-    ],
-    "adapter": "./adapter"
-  },
   "files": [
     "dist",
     "globals.d.ts"
@@ -77,6 +73,10 @@
       ".": {
         "types": "./dist/react.d.ts",
         "default": "./dist/react.js"
+      },
+      "./transform": {
+        "types": "./dist/react.transform.d.ts",
+        "default": "./dist/react.transform.js"
       },
       "./adapter": {
         "worker": {

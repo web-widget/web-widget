@@ -62,7 +62,7 @@ export type Vue2WidgetContainerProps = DistributiveOmit<
 >;
 
 /**
- * Container function (WidgetAdapter protocol).
+ * Container function (AdapterModule contract).
  *
  * Wraps a widget module loader into a Vue2 component with best-effort
  * props type inference from the source module's default export.

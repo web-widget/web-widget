@@ -4,13 +4,13 @@
 
 ## 摘要
 
-`@web-widget/schema` 已定义技术无关的通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。本 RFC 定义构建转换层——通过标准化的 `WidgetAdapter` 协议，将 UI 框架组件在构建期转换为通用模块，使构建工具与框架适配器解耦演进。
+`@web-widget/schema` 已定义技术无关的通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。本 RFC 定义构建转换层——通过标准化的 `WidgetTransform` 协议，将 UI 框架组件在构建期转换为通用模块，使构建工具与框架适配器解耦演进。
 
 ## 动机
 
 `@web-widget/schema` 已定义技术无关的通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。但要让一个框架真正接入 Web Widget 生态，构建工具还需要完成大量重复的集成工作：识别框架文件、注入渲染函数、处理 SSR/客户端环境差异、支持跨框架互操作。如果这些工作没有标准化，每新增一个框架都需要在构建工具中编写专门的插件，适配门槛高、维护成本大。
 
-本 RFC 的目标是将上述集成逻辑提炼为一个框架无关的适配器协议，使新框架接入只需实现运行时渲染逻辑并声明元数据，无需了解构建工具的内部机制。协议同时为跨框架互操作提供统一约定——任何框架的组件都可被转换为通用模块，也可作为 widget 被其他框架导入。
+本 RFC 的目标是将上述集成逻辑提炼为一个框架无关的转换协议，使新框架接入只需实现运行时适配逻辑并声明转换定义，无需了解构建工具的内部机制。协议同时为跨框架互操作提供统一约定——任何框架的组件都可被转换为通用模块，也可作为 widget 被其他框架导入。
 
 本 RFC **不涉及**如何构建 React、Vue 等框架的组件本身（如 JSX 编译、SFC 解析、模板编译等，这些由各框架自己的构建插件完成）。本 RFC 只关注两件事：
 
@@ -19,14 +19,14 @@
 
 ## 提议
 
-### WidgetAdapter 协议
+### WidgetTransform 协议
 
 `@web-widget/schema` 定义了通用渲染接口（`ServerRender`、`ClientRender`），这是所有框架的转换目标。但要完成转换，构建工具还需要知道：**哪些文件属于哪个框架**，以及**从哪里获取该框架的渲染实现**。
 
-本 RFC 的核心提议是 `WidgetAdapter` 协议——一个连接构建工具与 UI 框架的适配器接口。它告诉构建工具遇到哪类文件时、从哪里获取渲染实现，从而使框架源码在构建期被转换为符合 `ServerRender` / `ClientRender` 契约的通用模块。
+本 RFC 的核心提议是 `WidgetTransform` 协议——一个连接构建工具与 UI 框架的转换定义。它告诉构建工具遇到哪类文件时、从哪里获取运行时适配实现，从而使框架源码在构建期被转换为符合 `ServerRender` / `ClientRender` 契约的通用模块。
 
 ```typescript
-interface WidgetAdapter {
+interface WidgetTransform {
   /**
    * UI 框架标识符，用于在多框架共存时区分处理器。
    * 也是构建工具配置中引用适配器的键。
@@ -41,18 +41,18 @@ interface WidgetAdapter {
   extensions: string[];
 
   /**
-   * 适配器模块子路径，指向适配器包通过条件导出提供的运行时实现。
+   * 尚未解析的运行时模块 ID，指向适配器包通过条件导出提供的实现。
    * 构建工具会将该模块的导出注入到匹配的模块中：
    * - render：导出 `render()`，使其符合 ServerRender / ClientRender 契约
    * - widget：导出 `widget()`，用于包装 Widget 模块的导入方，使其可被跨框架复用
-   * 如 "./adapter" 会被解析为 "@web-widget/react/adapter"，
-   * 再由条件导出根据环境自动选取 server 或 client 实现。
+   * 如 "@web-widget/react/adapter"，由构建目标的模块解析器根据环境
+   * 自动选取 server 或 client 实现。
    */
   adapter: string;
 
   /**
    * 派生导出声明（可选）。
-   * 详见 1.6 节「派生导出」。
+   * 详见 1.5 节「派生导出」。
    */
   deriveExports?: DeriveExport[];
 }
@@ -67,9 +67,9 @@ interface DeriveExport {
 }
 ```
 
-协议的设计遵循一个原则：**框架知道「怎么渲染」，构建工具知道「怎么集成」**。适配器包提供框架特定的渲染实现，不需要了解任何构建工具的插件 API；构建工具负责文件匹配和代码注入，不需要了解每个框架的渲染细节。两者通过 `WidgetAdapter` 协议交互，各自独立演进。
+协议的设计遵循一个原则：**框架知道「怎么渲染」，构建工具知道「怎么集成」**。适配器包提供框架特定的渲染实现，不需要了解任何构建工具的插件 API；构建工具负责文件匹配和代码注入，不需要了解每个框架的渲染细节。两者通过 `WidgetTransform` 协议交互，各自独立演进。
 
-以下各节围绕这一协议展开：运行时模块如何提供渲染与互操作能力（1.1）、构建工具如何集成（1.2）、运行时实现如何适配不同环境（1.3）、适配器包如何组织（1.4）、版本管理（1.5）、派生导出（1.6）。
+以下各节围绕这一协议展开：运行时模块如何提供渲染与互操作能力（1.1）、构建工具如何集成（1.2）、运行时实现如何适配不同环境（1.3）、适配器包如何组织（1.4）、派生导出（1.5）。
 
 #### 1.1 运行时模块
 
@@ -85,7 +85,7 @@ import type {
 
 /**
  * 运行时模块契约
- * 适配器包的 adapter 子路径所指向的模块文件必须导出以下成员。
+ * WidgetTransform.adapter 模块 ID 所指向的模块必须导出以下成员。
  */
 type AdapterModule = {
   /** 渲染函数，注入为模块导出，使其符合 ServerRender / ClientRender 契约 */
@@ -131,52 +131,59 @@ function App() {
 
 #### 1.2 构建工具集成
 
-用户在构建工具配置中声明项目使用了哪些框架适配器：
+适配器包含两个加载时机不同的部分：
+
+1. **构建期转换定义**：`WidgetTransform` 对象，描述名称、扩展名和运行时模块 ID，在执行构建配置时由 JavaScript 运行时原生加载。
+2. **运行时实现**：`adapter` 指向的 `AdapterModule`，构建工具只把它作为尚未解析的模块 ID 注入目标模块，留到客户端或服务端构建时解析。
+
+用户通过原生模块语法显式导入构建期定义：
 
 ```typescript
 // vite.config.ts
+import reactTransform from '@web-widget/react/transform';
+import vue2Transform from '@web-widget/vue2/transform';
+import vueTransform from '@web-widget/vue/transform';
+
 export default defineConfig({
   plugins: [
     webWidgetPlugin({
-      adapters: [
-        // from 指向的适配器包已提供 name 和 extensions 的默认值
-        { from: '@web-widget/react' },
+      transforms: [
+        reactTransform,
         // vue2 与 vue3 共存时，用 scope 限定各自的生效范围
-        { from: '@web-widget/vue2', scope: ['src/legacy'] },
-        { from: '@web-widget/vue', scope: ['src/vue3'] },
+        { ...vue2Transform, scope: ['src/legacy'] },
+        { ...vueTransform, scope: ['src/vue3'] },
       ],
     }),
   ],
 });
 ```
 
-`adapters` 支持直接传字符串（简写 `from`），也可传对象覆盖默认值或用 `scope` 消歧扩展名冲突：
+显式导入让包管理器和 JavaScript 运行时负责模块解析，能够自然支持 pnpm、Yarn PnP、本地模块和 TypeScript 类型检查，也避免构建工具重复实现一套插件查找规则。构建工具不接受包名字符串，也不读取依赖包的自定义 `package.json` 字段。
+
+完整配置类型如下：
 
 ```typescript
+interface ConfiguredWidgetTransform extends WidgetTransform {
+  /**
+   * 处理器生效范围（目录路径列表）。
+   * 仅在任一目录下的文件才会匹配此处理器，用于扩展名冲突时消歧义。
+   * 每个目录的匹配方式为路径前缀，与 extensions 的后缀匹配一样原子化。
+   */
+  scope?: string[];
+}
+
 interface WebWidgetPluginOptions {
-  adapters: (
-    | string
-    | (Omit<WidgetAdapter, 'name' | 'extensions'> & {
-        name?: string;
-        extensions?: string[];
-        /** 适配器包名，构建工具从此包导入 adapter 实现 */
-        from: string;
-        /**
-         * 处理器生效范围（目录路径列表）。
-         * 仅在任一目录下的文件才会匹配此处理器，用于扩展名冲突时消歧义。
-         * 每个目录的匹配方式为路径前缀，与 extensions 的后缀匹配一样原子化。
-         */
-        scope?: string[];
-      })
-  )[];
+  transforms: ConfiguredWidgetTransform[];
 }
 ```
 
+`ConfiguredWidgetTransform` 是构建工具唯一接受的输入。用户可以通过对象展开覆盖定义或添加 `scope`，但必须显式保留完整的 `WidgetTransform` 契约。导入构建期转换定义不会提前导入或执行运行时 `AdapterModule`。
+
 #### 1.3 环境适应性
 
-`ServerRender` 和 `ClientRender` 是不同的契约——服务端渲染为 HTML 字符串或流，客户端渲染负责挂载和水合。但协议只提供了一个 `adapter` 子路径。构建工具在服务端构建和客户端构建时，需要从这个子路径分别加载到不同的 `AdapterModule` 实现，而无需适配器或用户手动区分环境。
+`ServerRender` 和 `ClientRender` 是不同的契约——服务端渲染为 HTML 字符串或流，客户端渲染负责挂载和水合。但协议只提供一个 `adapter` 模块 ID。构建工具在服务端构建和客户端构建时，需要从同一个模块 ID 分别解析到不同的 `AdapterModule` 实现，而无需适配器或用户手动区分环境。
 
-借助 Node.js / 构建工具通用的 `package.json` `exports` 条件导出机制，适配器包可以在同一个子路径下为不同环境提供不同实现：
+借助 Node.js / 构建工具通用的 `package.json` `exports` 条件导出机制，适配器包可以在同一个模块 ID 下为不同环境提供不同实现：
 
 ```json
 {
@@ -199,22 +206,39 @@ interface WebWidgetPluginOptions {
 }
 ```
 
-- **`worker`**: 服务端 / Worker 环境（如 Cloudflare Workers、Vite SSR），解析到包含 `ServerRender` 的 `AdapterModule`
-- **`browser`**: 浏览器环境（客户端构建），解析到包含 `ClientRender` 的 `AdapterModule`
-- **`default`**: 未匹配上述条件时的回退，通常等同服务端实现
+- **`worker`**：Worker 服务端环境，解析到包含 `ServerRender` 的 `AdapterModule`。这是构建工具启用的自定义条件，不代表所有 Vite SSR
+- **`browser`**：浏览器客户端构建，解析到包含 `ClientRender` 的 `AdapterModule`
+- **`default`**：未匹配上述条件时的回退，通常用于 Node.js SSR，并指向服务端实现
 
-条件导出将环境判断下沉到包解析层，构建工具只需一行代码即可加载运行时实现，环境差异由条件导出自动处理：
+普通 Vite SSR 默认使用 `node` 等服务端条件，不会自动匹配 `worker`；当 SSR 目标是 `webworker` 时，Vite 默认条件还可能包含 `browser`。因此，面向 Worker 的构建集成必须显式把 `worker` 加入服务端解析条件，并移除会错误选择客户端实现的 `browser`。条件选择属于具体构建工具集成的职责，协议本身不把 `worker` 泛化为所有服务端环境。
+
+条件导出将环境判断下沉到目标构建的包解析层。构建工具不会在执行配置时动态导入运行时实现，而是向目标模块注入同一个模块 ID：
 
 ```typescript
-// 无论客户端构建还是服务端构建，都用同一条路径
-const adapterModule = await import(`${packageName}${processor.adapter}`);
-// → 客户端构建时解析到 adapter.client.js（ClientRender）
-// → 服务端构建时解析到 adapter.server.js（ServerRender）
+// adapter.adapter === '@web-widget/react/adapter'
+// 生成到目标模块中的导入；具体代码形态由构建工具决定
+import { render, widget } from '@web-widget/react/adapter';
+
+// 客户端构建解析到 adapter.client.js（ClientRender）
+// 服务端构建解析到 adapter.server.js（ServerRender）
 ```
+
+这种延迟解析是不能把运行时 `AdapterModule` 直接导入 `vite.config.ts` 的原因：配置文件运行在 Node.js 中，提前导入会过早固定为服务端分支。构建期定义可以显式导入，运行时模块 ID 则必须保留到目标构建阶段。
 
 #### 1.4 适配器包结构
 
 一个完整的适配器包（以 `@web-widget/react` 为例）的结构和导出：
+
+```typescript
+// @web-widget/react/transform.ts —— 构建期转换定义，不导入运行时实现
+import type { WidgetTransform } from '@web-widget/schema';
+
+export default {
+  name: 'react',
+  extensions: ['.tsx', '.jsx'],
+  adapter: '@web-widget/react/adapter',
+} satisfies WidgetTransform;
+```
 
 ```typescript
 // @web-widget/react/adapter/server.ts —— 服务端 AdapterModule
@@ -247,18 +271,17 @@ export function widget(loader, options) {
 export { widget } from './adapter';
 ```
 
-`package.json` 中通过 `webWidgetAdapter` 字段声明 `WidgetAdapter` 配置，`exports` 组织子路径：
+`exports` 分别暴露构建期转换定义和条件化的运行时适配实现。转换定义是普通 JavaScript 模块，不需要在 `package.json` 中维护一份重复的自定义元数据：
 
 ```json
 {
   "name": "@web-widget/react",
-  "webWidgetAdapter": {
-    "name": "react",
-    "extensions": [".tsx", ".jsx"],
-    "adapter": "./adapter"
-  },
   "exports": {
     ".": { "default": "./dist/index.js" },
+    "./transform": {
+      "types": "./dist/transform.d.ts",
+      "default": "./dist/transform.js"
+    },
     "./adapter": {
       "worker": { "default": "./dist/adapter.server.js" },
       "browser": { "default": "./dist/adapter.client.js" },
@@ -268,25 +291,24 @@ export { widget } from './adapter';
 }
 ```
 
+`transform` 中的 `adapter` 使用完整模块 ID，使导入后的定义不依赖隐含的包名上下文，并让构建工具可以把它原样交给目标构建的模块解析器。
+
 其他框架（Vue、Svelte 等）的适配器包结构相同，只是渲染实现不同。
 
-#### 1.5 版本管理
-
-适配器格式通过 `version` 字段标识所遵循的格式版本，构建工具据此进行兼容性检查。当格式演进引入不兼容变更时（如字段语义改变、新增必需字段），主版本号递增；构建工具可声明支持的版本范围，遇到不兼容的适配器时给出明确错误而非静默失败。
-
-#### 1.6 派生导出
+#### 1.5 派生导出
 
 某些适配器的模块只能产出默认导出，无法直接添加命名导出。但路由协议要求模块导出 `handler`（路由处理器）和 `meta`（元数据）等命名导出。适配器可通过 `deriveExports` 声明需要从默认导出上派生的命名导出及其兜底值。
 
-以 Vue 适配器为例，Vue SFC 编译后只产出 `export default`。`@web-widget/vue` 在 `webWidgetAdapter` 字段中声明 `deriveExports`：
+以 Vue 适配器为例，Vue SFC 编译后只产出 `export default`。`@web-widget/vue/transform` 在构建期转换定义中声明 `deriveExports`：
 
-```json
-{
-  "deriveExports": [
-    { "name": "handler", "default": "{GET({html}){return html()}}" },
-    { "name": "meta", "default": "{}" }
-  ]
-}
+```typescript
+export default {
+  // ...其他 WidgetTransform 字段
+  deriveExports: [
+    { name: 'handler', default: '{GET({html}){return html()}}' },
+    { name: 'meta', default: '{}' },
+  ],
+} satisfies WidgetTransform;
 ```
 
 构建工具在转换时将默认导出对象的属性解构为命名导出。属性存在时使用属性值，不存在时使用兜底值。因此用户可以在 SFC 中直接定义 `handler`：
@@ -402,4 +424,9 @@ Widget({
 
 ## 参考
 
-- [Astro 渲染器设计调查](./references/astro-renderer-design.zh.md) — 对比 Astro `AstroRenderer` 与 `WidgetAdapter` 的设计差异
+- [Astro 渲染器设计调查](./references/astro-renderer-design.zh.md) — 对比 Astro `AstroRenderer` 与 `WidgetTransform` 的设计差异
+- [ESLint flat config 设计说明](https://eslint.org/blog/2022/08/new-config-system-part-2/) — 使用原生模块加载取代宿主自定义插件解析
+- [ESLint 插件配置](https://eslint.org/docs/latest/use/configure/plugins) — 显式导入插件对象以及本地、虚拟插件的用法
+- [Vite 插件用法](https://vite.dev/guide/using-plugins.html) — 显式导入并注册插件实例
+- [Vite SSR 解析条件](https://vite.dev/config/ssr-options.html) — Node 与 Web Worker SSR 的默认条件差异
+- [Node.js 条件导出](https://nodejs.org/api/packages.html#conditional-exports) — 条件匹配、`default` 回退与社区条件约定

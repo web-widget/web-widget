@@ -35,6 +35,11 @@
       "development": "./src/index.ts",
       "default": "./dist/solid.js"
     },
+    "./transform": {
+      "types": "./dist/solid.transform.d.ts",
+      "development": "./src/transform.ts",
+      "default": "./dist/solid.transform.js"
+    },
     "./adapter": {
       "worker": {
         "types": "./dist/solid.adapter.server.d.ts",
@@ -52,15 +57,6 @@
         "default": "./dist/solid.adapter.server.js"
       }
     }
-  },
-  "webWidgetAdapter": {
-    "version": "1.0.0",
-    "name": "solid",
-    "extensions": [
-      ".tsx",
-      ".jsx"
-    ],
-    "adapter": "./adapter"
   },
   "files": [
     "dist"

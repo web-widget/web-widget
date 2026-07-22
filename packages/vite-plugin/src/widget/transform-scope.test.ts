@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { adapterScopePrefix, scopePrefix } from './adapter-scope';
+import { scopePrefix, transformScopePrefix } from './transform-scope';
 
 describe('scopePrefix', () => {
   test('matches files under any configured directory', () => {
@@ -21,19 +21,19 @@ describe('scopePrefix', () => {
   );
 });
 
-describe('adapterScopePrefix', () => {
-  it('uses the adapter scope when present', () => {
+describe('transformScopePrefix', () => {
+  it('uses the transform scope when present', () => {
     const pattern = new RegExp(
-      `^${adapterScopePrefix(['routes/solid'], ['routes/preact'], '/project')}[^?]*\\.tsx$`
+      `^${transformScopePrefix(['routes/solid'], ['routes/preact'], '/project')}[^?]*\\.tsx$`
     );
 
     expect(pattern.test('/project/routes/solid/page@route.tsx')).toBe(true);
     expect(pattern.test('/project/routes/preact/page@route.tsx')).toBe(false);
   });
 
-  it('excludes scoped adapters from an unscoped fallback', () => {
+  it('excludes scoped transforms from an unscoped fallback', () => {
     const pattern = new RegExp(
-      `^${adapterScopePrefix(undefined, ['routes/solid', 'routes/preact'], '/project')}[^?]*\\.tsx$`
+      `^${transformScopePrefix(undefined, ['routes/solid', 'routes/preact'], '/project')}[^?]*\\.tsx$`
     );
 
     expect(pattern.test('/project/routes/react/page@route.tsx')).toBe(true);

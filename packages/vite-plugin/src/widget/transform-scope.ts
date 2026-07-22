@@ -14,7 +14,7 @@ export function scopePrefix(scope: string[] | undefined, root: string): string {
   return `(?:${prefixes.join('|')})`;
 }
 
-export function adapterScopePrefix(
+export function transformScopePrefix(
   scope: string[] | undefined,
   excludedScopes: string[],
   root: string

@@ -33,6 +33,11 @@
       "development": "./src/index.ts",
       "default": "./dist/vue2.js"
     },
+    "./transform": {
+      "types": "./dist/vue2.transform.d.ts",
+      "development": "./src/transform.ts",
+      "default": "./dist/vue2.transform.js"
+    },
     "./adapter": {
       "worker": {
         "types": "./dist/vue2.adapter.server.d.ts",
@@ -51,24 +56,6 @@
       }
     }
   },
-  "webWidgetAdapter": {
-    "version": "1.0.0",
-    "name": "vue2",
-    "extensions": [
-      ".vue"
-    ],
-    "adapter": "./adapter",
-    "deriveExports": [
-      {
-        "name": "handler",
-        "default": "{GET({render}){return render()}}"
-      },
-      {
-        "name": "meta",
-        "default": "{}"
-      }
-    ]
-  },
   "files": [
     "dist"
   ],
@@ -82,6 +69,10 @@
       ".": {
         "types": "./dist/vue2.d.ts",
         "default": "./dist/vue2.js"
+      },
+      "./transform": {
+        "types": "./dist/vue2.transform.d.ts",
+        "default": "./dist/vue2.transform.js"
       },
       "./adapter": {
         "worker": {

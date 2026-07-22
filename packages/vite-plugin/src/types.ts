@@ -1,4 +1,5 @@
 import type WebRouter from '@web-widget/web-router';
+import type { WidgetTransform } from '@web-widget/schema';
 import type { z } from 'zod';
 import type { Manifest, StartOptions } from '@web-widget/web-router';
 import type { Plugin } from 'vite';
@@ -148,27 +149,15 @@ export interface WebRouterPlugin extends Plugin<WebRouterPluginApi> {
 
 ////////////////////////////////////////
 //////                            //////
-//////   WebWidgetAdapterConfig   //////
+//////   WidgetTransform          //////
 //////                            //////
 ////////////////////////////////////////
 
 /**
- * Adapter entry in `WebWidgetPluginOptions.adapters`.
- * Can be a string (shorthand for `from`) or an object that overrides
- * the adapter's default `name` / `extensions` / `adapter` and adds
- * a `scope` for disambiguating extension conflicts.
+ * Build transform entry with an optional directory scope for
+ * disambiguating extension conflicts.
  */
-export interface WebWidgetAdapterConfig {
-  /** Adapter package name, e.g. "@web-widget/react". */
-  from: string;
-  /** Override the adapter's declared name. */
-  name?: string;
-  /** Override the adapter's declared extensions. */
-  extensions?: string[];
-  /** Override the adapter's declared adapter subpath. */
-  adapter?: string;
-  /** Override the adapter's declared version. */
-  version?: string;
+export interface ConfiguredWidgetTransform extends WidgetTransform {
   /**
    * Directory scopes (path prefixes). Only files under these directories
    * will match this adapter, used to disambiguate extension conflicts
@@ -178,15 +167,15 @@ export interface WebWidgetAdapterConfig {
 }
 
 /**
- * Options for the adapter-based `webWidgetPlugin`.
+ * Options for the transform-based `webWidgetPlugin`.
  */
 export interface WebWidgetPluginOptions {
   /**
-   * Framework adapters to use. Each adapter tells the build tool
+   * Framework transforms to use. Each transform tells the build tool
    * which files belong to which framework and where to get the
    * adapter implementation.
    */
-  adapters: (string | WebWidgetAdapterConfig)[];
+  transforms: ConfiguredWidgetTransform[];
   /**
    * Defaults injected into transformed widget container options. Explicit
    * options passed to `widget()` take precedence.

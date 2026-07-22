@@ -4,6 +4,7 @@ export default defineConfig({
   dts: true,
   entry: {
     vue2: 'src/index.ts',
+    'vue2.transform': 'src/transform.ts',
     'vue2.adapter.client': 'src/adapter.client.ts',
     'vue2.adapter.server': 'src/adapter.server.ts',
   },

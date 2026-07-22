@@ -50,10 +50,15 @@ export class WidgetLoadingController {
     if (this.#host.isConnected) this.#resetStrategy();
   }
 
+  inactiveChanged() {
+    if (!this.#host.isConnected) return;
+    this.#resetStrategy();
+  }
+
   sourceChanged() {
-    if (this.#host.loading === 'eager') {
+    if (this.#mountPromise) {
       this.#autoMount();
-    } else if (this.#host.loading === 'auto' && this.#host.isConnected) {
+    } else if (this.#host.isConnected) {
       this.#resetStrategy();
     }
   }
@@ -64,6 +69,10 @@ export class WidgetLoadingController {
   }
 
   #configureStrategy() {
+    if (this.#host.inactive || !(this.#host.import || this.#host.loader)) {
+      return;
+    }
+
     const strategies: Record<Loading, () => void> = {
       auto: () => {
         this.#disconnectStrategy = scheduleAutoMount(

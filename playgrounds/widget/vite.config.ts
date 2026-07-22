@@ -1,5 +1,8 @@
 import { defineConfig, type Plugin } from 'vite';
 import { webWidgetPlugin } from '@web-widget/vite-plugin';
+import reactTransform from '@web-widget/react/transform';
+import vueTransform from '@web-widget/vue/transform';
+import vue2Transform from '@web-widget/vue2/transform';
 import { vuePresetsPlugin } from './packages/vue3/vite-plugins';
 import { vue2PresetsPlugin } from './packages/vue2/vite-plugins';
 import { reactPresetsPlugin } from './packages/react/vite-plugins';
@@ -61,10 +64,10 @@ export default defineConfig(({ isSsrBuild }) => {
       vuePresetsPlugin(),
       vue2PresetsPlugin(),
       webWidgetPlugin({
-        adapters: [
-          { from: '@web-widget/react', scope: ['packages/react'] },
-          { from: '@web-widget/vue', scope: ['packages/vue3'] },
-          { from: '@web-widget/vue2', scope: ['packages/vue2'] },
+        transforms: [
+          { ...reactTransform, scope: ['packages/react'] },
+          { ...vueTransform, scope: ['packages/vue3'] },
+          { ...vue2Transform, scope: ['packages/vue2'] },
         ],
       }),
     ],
