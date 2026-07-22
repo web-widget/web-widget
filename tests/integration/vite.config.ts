@@ -141,7 +141,7 @@ function updatePolicyPlugin(): Plugin {
           '__ROUTE_MODULE_CLASS__',
           `ww_route_${moduleClass ?? 'missing'}`
         )
-        .replace('__REACT_LABEL__', reactLabel);
+        .replaceAll('__REACT_LABEL__', reactLabel);
     },
     hotUpdate({ file, server }) {
       if (
