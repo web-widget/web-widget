@@ -12,6 +12,24 @@ const SlottedWidget = adapter.widget(
   }),
   { import: '/slotted-widget.js', root: 'shadow' }
 );
+const FailingWidget = adapter.widget(
+  async () => ({
+    default: {},
+    render: async () => {
+      throw new Error('RENDER_FAILURE');
+    },
+  }),
+  { import: '/failing-widget.js' }
+);
+const FailingComponent = () =>
+  html`${FailingWidget({
+    widget: {
+      fallback: {
+        pending: html`<span>PENDING_BOUNDARY_MARKER</span>`,
+        error: html`<span>ERROR_BOUNDARY_MARKER</span>`,
+      },
+    },
+  })}`;
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -33,6 +51,10 @@ testAdapterConformance({
         hostSlot: 'adapter-actions',
         shadowMarker: SHADOW_MARKER,
         lightMarker: LIGHT_MARKER,
+      },
+      errorFallback: {
+        component: FailingComponent,
+        marker: 'ERROR_BOUNDARY_MARKER',
       },
       assertRendered(_result, { text }) {
         expect(text).toContain('<p>Hello</p>');

@@ -29,6 +29,24 @@ const PendingComponent = () =>
       fallback: h('span', null, 'PENDING_BOUNDARY_MARKER'),
     },
   });
+const FailingWidget = server.widget(
+  async () => ({
+    default: {},
+    render: async () => {
+      throw new Error('RENDER_FAILURE');
+    },
+  }),
+  { import: '/failing-widget.js' }
+);
+const FailingComponent = () =>
+  h(FailingWidget, {
+    widget: {
+      fallback: {
+        pending: h('span', null, 'PENDING_BOUNDARY_MARKER'),
+        error: h('span', null, 'ERROR_BOUNDARY_MARKER'),
+      },
+    },
+  });
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -70,6 +88,10 @@ testAdapterConformance({
           }
         },
         marker: 'PENDING_BOUNDARY_MARKER',
+      },
+      errorFallback: {
+        component: FailingComponent,
+        marker: 'ERROR_BOUNDARY_MARKER',
       },
       assertRendered(_result, { text }) {
         expect(text).toContain('<p>Hello</p>');

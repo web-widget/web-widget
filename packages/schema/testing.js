@@ -115,6 +115,24 @@ export function testAdapterConformance({ runner, adapter }) {
             expect(tag).toContain('slot="web-widget-pending"');
           });
         }
+        if (server.errorFallback) {
+          test('renders server error fallbacks outside a recoverable Widget host', async () => {
+            // Use buffered output so the assertion observes the terminal
+            // error state rather than an earlier progressive pending chunk.
+            const data =
+              'data' in server.errorFallback
+                ? server.errorFallback.data
+                : server.data;
+            const result = await server.module.render(
+              server.errorFallback.component,
+              data,
+              { progressive: false }
+            );
+            expect(typeof result).toBe('string');
+            expect(result).toContain(server.errorFallback.marker);
+            expect(result).not.toContain('recovering');
+          });
+        }
       });
     }
 

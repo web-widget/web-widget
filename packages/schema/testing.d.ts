@@ -45,6 +45,11 @@ export interface ServerConformanceFixture<Component, Data> {
     render(): Awaitable<string>;
     marker: string;
   };
+  errorFallback?: {
+    component: Component;
+    data?: Data;
+    marker: string;
+  };
   assertRendered(
     result: ServerRenderResult,
     context: { progressive: boolean; text: string }

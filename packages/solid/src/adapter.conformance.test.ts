@@ -132,6 +132,10 @@ testAdapterConformance({
         },
         marker: 'PENDING_BOUNDARY_MARKER',
       },
+      errorFallback: {
+        component: FailingComponent,
+        marker: 'ERROR_BOUNDARY_MARKER',
+      },
       assertRendered(_result, { text }) {
         expect(text).toContain('Hello');
       },
@@ -168,15 +172,4 @@ test('rejects children for a Light Target Widget', async () => {
   ).rejects.toThrow(
     `Rendering content in a slot requires "options.root = 'shadow'".`
   );
-});
-
-test('renders a server error fallback without a recoverable Widget host', async () => {
-  const text = (await server.render(
-    FailingComponent,
-    {},
-    { progressive: false }
-  )) as string;
-
-  expect(text).toContain('ERROR_BOUNDARY_MARKER');
-  expect(text).not.toContain('<web-widget');
 });
