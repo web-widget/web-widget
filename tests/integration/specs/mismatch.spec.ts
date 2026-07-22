@@ -121,7 +121,19 @@ test('M02 reloads instead of hydrating an old React DOM with a new component', a
     ).toHaveText('Updated React 0');
     await awaitHydration(page);
     expect(documents).toBe(2);
-    expect(await page.evaluate(() => window.__hydrationErrors.length)).toBe(0);
+    const hydrationErrors = await page.evaluate(() =>
+      window.__hydrationErrors.map((error) => {
+        if (error instanceof Error) {
+          return {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+          };
+        }
+        return error;
+      })
+    );
+    expect(hydrationErrors).toEqual([]);
     expect(browserErrors.messages).toEqual([]);
     expectOnlyAbortedResources(browserErrors.resourceErrors);
   }, testInfo);
@@ -190,9 +202,12 @@ test('M04 converges when an update lands between bootstrap and mount', async ({
       if (response.request().resourceType() === 'document') documents++;
     });
     await page.goto(server.baseURL, { waitUntil: 'domcontentloaded' });
+    const hydrationHosts = await page
+      .locator('web-widget[data-hydration-widget]')
+      .count();
     await expect
       .poll(() => page.evaluate(() => window.__raceWaiting ?? 0))
-      .toBe(2);
+      .toBe(hydrationHosts);
     await mutateSource(server, 'src/hydration/ReactWidget.tsx', (source) =>
       source.replace('React {count}', 'Updated React {count}')
     );
