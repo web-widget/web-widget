@@ -28,7 +28,7 @@
 ```typescript
 interface WidgetTransform {
   /**
-   * UI 框架标识符，用于在多框架共存时区分处理器。
+   * UI 框架标识符，用于在多框架共存时区分转换定义。
    * 也是构建工具配置中引用适配器的键。
    */
   name: string;
@@ -36,7 +36,7 @@ interface WidgetTransform {
   /**
    * 组件文件扩展名列表。
    * 构建工具据此判断哪些源文件属于该框架，需要执行渲染转换。
-   * 如 [".tsx", ".jsx"] 匹配所有 React 组件。
+   * 如 ['.tsx', '.jsx'] 匹配所有 React 组件。
    */
   extensions: string[];
 
@@ -44,9 +44,9 @@ interface WidgetTransform {
    * 尚未解析的运行时模块 ID，指向适配器包通过条件导出提供的实现。
    * 构建工具会将该模块的导出注入到匹配的模块中：
    * - render：导出 `render()`，使其符合 ServerRender / ClientRender 契约
-   * - widget：导出 `widget()`，用于包装 Widget 模块的导入方，使其可被跨框架复用
-   * 如 "@web-widget/react/adapter"，由构建目标的模块解析器根据环境
-   * 自动选取 server 或 client 实现。
+   * - widget：导出 `widget()`，用于包装 widget 模块的导入方，使其可被跨框架复用
+   * 如 '@web-widget/react/adapter'，由构建目标的模块解析器根据环境
+   * 自动选取服务端或客户端实现。
    */
   adapter: string;
 
@@ -58,9 +58,9 @@ interface WidgetTransform {
 }
 
 interface DeriveExport {
-  /** 派生的导出名，如 "handler"、"meta" */
+  /** 派生的导出名，如 'handler'、'meta' */
   name: string;
-  /** 从哪个导出派生，默认 "default" */
+  /** 从哪个导出派生，默认 'default' */
   from?: string;
   /** 属性不存在时的兜底值 */
   default: string;
@@ -69,7 +69,7 @@ interface DeriveExport {
 
 协议的设计遵循一个原则：**框架知道「怎么渲染」，构建工具知道「怎么集成」**。适配器包提供框架特定的渲染实现，不需要了解任何构建工具的插件 API；构建工具负责文件匹配和代码注入，不需要了解每个框架的渲染细节。两者通过 `WidgetTransform` 协议交互，各自独立演进。
 
-以下各节围绕这一协议展开：运行时模块如何提供渲染与互操作能力（1.1）、构建工具如何集成（1.2）、运行时实现如何适配不同环境（1.3）、适配器包如何组织（1.4）、派生导出（1.5）。
+以下各节围绕这一协议展开：运行时模块如何提供渲染与互操作能力（1.1）、构建工具如何集成（1.2）、运行时实现如何适配不同环境（1.3）、适配器包如何组织（1.4）、派生导出（1.5）、widget 容器属性（1.6）。
 
 #### 1.1 运行时模块
 
@@ -149,9 +149,9 @@ export default defineConfig({
     webWidgetPlugin({
       transforms: [
         reactTransform,
-        // vue2 与 vue3 共存时，用 scope 限定各自的生效范围
-        { ...vue2Transform, scope: ['src/legacy'] },
-        { ...vueTransform, scope: ['src/vue3'] },
+        // Vue 2 与 Vue 3 共存时，用 scopes 限定各自的生效范围
+        { ...vue2Transform, scopes: ['src/legacy'] },
+        { ...vueTransform, scopes: ['src/vue3'] },
       ],
     }),
   ],
@@ -165,11 +165,11 @@ export default defineConfig({
 ```typescript
 interface ConfiguredWidgetTransform extends WidgetTransform {
   /**
-   * 处理器生效范围（目录路径列表）。
-   * 仅在任一目录下的文件才会匹配此处理器，用于扩展名冲突时消歧义。
+   * 转换定义的生效范围（目录路径列表）。
+   * 仅在任一目录下的文件才会匹配此转换定义，用于扩展名冲突时消歧义。
    * 每个目录的匹配方式为路径前缀，与 extensions 的后缀匹配一样原子化。
    */
-  scope?: string[];
+  scopes?: string[];
 }
 
 interface WebWidgetPluginOptions {
@@ -177,7 +177,7 @@ interface WebWidgetPluginOptions {
 }
 ```
 
-`ConfiguredWidgetTransform` 是构建工具唯一接受的输入。用户可以通过对象展开覆盖定义或添加 `scope`，但必须显式保留完整的 `WidgetTransform` 契约。导入构建期转换定义不会提前导入或执行运行时 `AdapterModule`。
+`ConfiguredWidgetTransform` 是构建工具唯一接受的输入。用户可以通过对象展开覆盖定义或添加 `scopes`，但必须显式保留完整的 `WidgetTransform` 契约。导入构建期转换定义不会提前导入或执行运行时 `AdapterModule`。
 
 #### 1.3 环境适应性
 
@@ -341,14 +341,17 @@ export const {
 export default __$default$__;
 ```
 
-派生规则与框架的渲染方式相关——Vue3 的 `handler` 兜底使用 `html()` 渲染，Vue2 使用 `render()` 渲染——因此由适配器包声明而非用户配置。`deriveExports` 仅对路由模块（文件名包含路由标记的模块）生效。
+派生规则与框架的渲染方式相关——Vue 3 的 `handler` 兜底使用 `html()` 渲染，Vue 2 使用 `render()` 渲染——因此由适配器包声明而非用户配置。`deriveExports` 仅对路由模块（文件名包含路由标记的模块）生效。
 
-#### 1.7 Widget 容器配置
+#### 1.6 widget 容器属性
 
-当框架支持流式 SSR 时（如 React、HTML 模板），widget 的异步渲染可能阻塞流。为了让用户在所有框架中获得一致的 Suspense 体验，各适配器包的 `WidgetContainerConfig` 应采用统一的 `fallback` 设计：
+当框架支持流式 SSR 时（如 React、HTML 模板），widget 的异步渲染可能阻塞流。为了让用户在所有框架中获得一致的 Suspense 体验，各适配器返回的框架组件应通过 `WidgetContainerProps` 提供统一的 `fallback` 设计：
 
 ```typescript
-type WidgetContainerConfig<TFallback> = {
+type WidgetContainerProps<TPending = never, TError = TPending> = {
+  /** 分配给 Web Widget 元素实例的 ID。 */
+  id?: string;
+
   /**
    * 待定和错误状态的回退 UI。
    *
@@ -356,7 +359,7 @@ type WidgetContainerConfig<TFallback> = {
    * 错误 UI 在渲染失败时显示。两者都被序列化到 HTML 流中——
    * Islands 架构下不存在客户端重试。
    *
-   * - `TFallback` — 待定（Suspense）和错误共用同一 UI。
+   * - `TPending` — 待定（Suspense）和错误共用同一 UI。
    * - `{ pending?, error? }` — 分别指定；省略 `error` 时回退到 `pending`。
    *
    * 不提供 `fallback` 时，widget 阻塞渲染（无 Suspense 边界）。
@@ -368,43 +371,37 @@ type WidgetContainerConfig<TFallback> = {
    * // 区分：分别指定待定和错误 UI
    * { fallback: { pending: <Spinner />, error: <ErrorUI /> } }
    */
-  fallback?: TFallback | { pending?: TFallback; error?: TFallback };
+  fallback?: TPending | { pending?: TPending; error?: TError };
 
   /**
    * 客户端模块加载策略。
-   * - `'auto'`（默认）：按可见性和交互优先级调度，并最终加载全部 Widget
+   * - `'auto'`（默认）：按可见性和交互优先级调度，并最终加载全部 widget
    * - `'lazy'`：接近视口时加载
    * - `'eager'`：模块解析时立即加载
    * - `'idle'`：浏览器空闲时加载
    */
   loading?: 'auto' | 'lazy' | 'eager' | 'idle';
 
-  /**
-   * 仅服务端渲染（SSR），产出静态 HTML，无客户端水合。
-   * 与 `clientOnly` 互斥。
-   */
-  serverOnly?: true;
+} & WidgetContainerRenderMode;
 
-  /**
-   * 仅客户端渲染，不产出服务端 HTML（空占位符直到客户端挂载）。
-   * 与 `serverOnly` 互斥。
-   */
-  clientOnly?: true;
-};
+type WidgetContainerRenderMode =
+  | { serverOnly: true; clientOnly?: never }
+  | { clientOnly: true; serverOnly?: never }
+  | { serverOnly?: false; clientOnly?: false };
 ```
 
-`TFallback` 是框架特定的 UI 类型，例如 ReactNode、VNode 等。
+`TPending` 和 `TError` 是框架特定的 UI 类型，例如 `ReactNode`、`VNode` 等。`WidgetContainerRenderMode` 通过联合类型保证 `serverOnly` 与 `clientOnly` 互斥。
 
 **各框架用法对照**：
 
 ```tsx
-// React — TFallback = ReactNode
+// React — TPending/TError = ReactNode
 <Widget widget={{ fallback: <Spinner /> }} />
 <Widget widget={{ fallback: { pending: <Spinner />, error: <ErrorUI /> } }} />
 ```
 
 ```typescript
-// HTML 模板 — TFallback = HTML
+// HTML 模板 — TPending = HTML，TError = HTML | ((error: unknown) => HTML)
 Widget({ widget: { fallback: html`<div>Loading...</div>` } });
 Widget({
   widget: {
@@ -417,7 +414,7 @@ Widget({
 ```
 
 ```vue
-<!-- Vue — TFallback = VNode -->
+<!-- Vue — TPending/TError = VNode -->
 <Widget :widget="{ fallback: h(Spinner) }" />
 <Widget :widget="{ fallback: { pending: h(Spinner), error: h(ErrorUI) } }" />
 ```

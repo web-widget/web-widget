@@ -118,12 +118,12 @@ export default defineConfig(({ command }) => ({
       transforms: [
         htmlTransform,
         reactTransform,
-        { ...vueTransform, scope: ['routes/(vue3)'] },
-        { ...vue2Transform, scope: ['routes/(vue2)'] },
+        { ...vueTransform, scopes: ['routes/(vue3)'] },
+        { ...vue2Transform, scopes: ['routes/(vue2)'] },
         svelteTransform,
         {
           ...solidTransform,
-          scope: [
+          scopes: [
             'routes/(components)/solid',
             'routes/frameworks/solid',
             'routes/shadow-dom/solid',
@@ -132,7 +132,7 @@ export default defineConfig(({ command }) => ({
         },
         {
           ...preactTransform,
-          scope: [
+          scopes: [
             'routes/(components)/preact',
             'routes/frameworks/preact',
             'routes/shadow-dom/preact',

@@ -31,12 +31,12 @@ function buildPluginsForTransform(
   const {
     extensions,
     adapter: adapterModule,
-    scope,
+    scopes,
     deriveExports,
   } = transform;
 
   const ext = extPattern(extensions);
-  const scopeRe = transformScopePrefix(scope, excludedScopes, root);
+  const scopeRe = transformScopePrefix(scopes, excludedScopes, root);
 
   // Native filters (Rust layer): broad pre-filters on pathname to skip
   // obviously unrelated modules. Framework-specific sub-modules (e.g. Vue SFC
@@ -105,8 +105,8 @@ function buildPluginsForTransform(
  * webWidgetPlugin({
  *   transforms: [
  *     reactTransform,
- *     { ...vue2Transform, scope: ['src/legacy'] },
- *     { ...vueTransform, scope: ['src/vue3'] },
+ *     { ...vue2Transform, scopes: ['src/legacy'] },
+ *     { ...vueTransform, scopes: ['src/vue3'] },
  *   ],
  * })
  * ```
@@ -122,7 +122,7 @@ export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
 
   const transforms = options.transforms;
 
-  // Detect extension conflicts without scope
+  // Detect extension conflicts without scopes
   const extMap = new Map<string, ConfiguredWidgetTransform[]>();
   for (const transform of transforms) {
     for (const e of transform.extensions) {
@@ -132,11 +132,11 @@ export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
     }
   }
   for (const [e, list] of extMap) {
-    if (list.filter((a) => !a.scope?.length).length > 1) {
+    if (list.filter((a) => !a.scopes?.length).length > 1) {
       throw new Error(
-        `Extension "${e}" is used by multiple transforms without a scope: ` +
+        `Extension "${e}" is used by multiple transforms without scopes: ` +
           `${list.map((transform) => transform.name).join(', ')}. ` +
-          `Use "scope" to disambiguate.`
+          `Use "scopes" to disambiguate.`
       );
     }
   }
@@ -146,12 +146,12 @@ export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
       .filter(
         (candidate) =>
           candidate !== transform &&
-          candidate.scope?.length &&
+          candidate.scopes?.length &&
           candidate.extensions.some((extension) =>
             transform.extensions.includes(extension)
           )
       )
-      .flatMap((candidate) => candidate.scope ?? []);
+      .flatMap((candidate) => candidate.scopes ?? []);
 
     return buildPluginsForTransform(
       transform,

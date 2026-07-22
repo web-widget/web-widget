@@ -55,7 +55,7 @@ export default defineConfig({
     vue(),
     webWidgetPlugin({
       defaults: { root: 'shadow' },
-      transforms: [reactTransform, { ...vueTransform, scope: ['widgets'] }],
+      transforms: [reactTransform, { ...vueTransform, scopes: ['widgets'] }],
     }),
   ],
 });
