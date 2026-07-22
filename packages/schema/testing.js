@@ -133,6 +133,26 @@ export function testAdapterConformance({ runner, adapter }) {
             expect(result).not.toContain('recovering');
           });
         }
+        if (server.renderModes) {
+          test('renders widgets on both server and client by default', async () => {
+            const text = await server.renderModes.render('default');
+            expect(text).toContain(server.renderModes.serverMarker);
+            expect(text).toContain('import=');
+            expect(text).toContain('recovering');
+          });
+          test('renders server-only widgets without client bootstrapping', async () => {
+            const text = await server.renderModes.render('serverOnly');
+            expect(text).toContain(server.renderModes.serverMarker);
+            expect(text).not.toContain('import=');
+            expect(text).not.toContain('recovering');
+          });
+          test('renders client-only widgets without server content', async () => {
+            const text = await server.renderModes.render('clientOnly');
+            expect(text).not.toContain(server.renderModes.serverMarker);
+            expect(text).toContain('import=');
+            expect(text).not.toContain('recovering');
+          });
+        }
       });
     }
 

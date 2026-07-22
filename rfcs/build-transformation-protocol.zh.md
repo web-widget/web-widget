@@ -79,6 +79,7 @@ interface DeriveExport {
 import type {
   ServerRender,
   ClientRender,
+  WidgetContainerOptions,
   WidgetModule,
 } from '@web-widget/schema';
 
@@ -99,13 +100,7 @@ type Loader = () => Promise<WidgetModule>;
 
 /** 容器函数：将通用模块转换为当前框架的组件 */
 interface WidgetContainer {
-  (
-    loader: Loader,
-    options?: {
-      loading?: 'lazy' | 'eager'; // 加载时机
-      renderStage?: string; // 渲染阶段
-    }
-  ): FrameworkComponent; // 如 React.FC、Vue.Component
+  (loader: Loader, options?: WidgetContainerOptions): FrameworkComponent; // 如 React.FC、Vue.Component
 }
 ```
 

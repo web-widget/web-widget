@@ -23,7 +23,7 @@ export * from '../element/web-widget';
 
 class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
   #clientImport: string;
-  #options: Omit<WebWidgetRendererOptions, 'renderStage'>;
+  #options: Omit<WebWidgetRendererOptions, 'serverOnly' | 'clientOnly'>;
   localName = 'web-widget';
   opaqueInnerHTML = INNER_HTML_PLACEHOLDER;
 
@@ -33,13 +33,16 @@ class ClientWebWidgetRenderer implements WebWidgetRendererInterface {
 
   constructor(
     loader: WidgetModuleLoader,
-    { renderStage, ...options }: WebWidgetRendererOptions
+    { serverOnly, clientOnly, ...options }: WebWidgetRendererOptions
   ) {
+    if (serverOnly && clientOnly) {
+      throw new TypeError(`serverOnly and clientOnly cannot both be true.`);
+    }
     const resolvedOptions = resolveWebWidgetRendererOptions(options);
 
-    if (renderStage === 'server') {
+    if (serverOnly) {
       throw new Error(
-        `"renderStage: 'server'" usually comes from server-side rendering,` +
+        `"serverOnly: true" usually comes from server-side rendering,` +
           ` it doesn't make sense to enable it on the client side.`
       );
     }

@@ -1,5 +1,7 @@
-import type { WebWidgetRendererOptions } from '@web-widget/web-widget';
-import { WebWidgetRenderer } from '@web-widget/web-widget';
+import {
+  WebWidgetRenderer,
+  type WebWidgetRendererOptions,
+} from '@web-widget/web-widget';
 import type {
   ExtractWidgetProps,
   SerializableObject,
@@ -107,25 +109,23 @@ export function widget(
     {
       children,
       slot,
-      widget: { id, loading, serverOnly, clientOnly, fallback: fb } = {},
+      widget = {},
       ...data
     }: HtmlWidgetProps<T> = {} as HtmlWidgetProps<T>
   ): Promise<UnsafeHTML | Suspense | Fallback> {
+    const { id, loading, clientOnly, fallback: fb } = widget;
     const renderOptions = {
+      ...options,
+      clientOnly: widget.clientOnly,
       id,
       loading: loading ?? options.loading,
-      renderStage: serverOnly
-        ? ('server' as const)
-        : clientOnly
-          ? ('client' as const)
-          : options.renderStage,
+      serverOnly: widget.serverOnly,
     };
 
     const lightChildrenHTML = children ? await renderToString(children) : '';
     const renderer = new WebWidgetRenderer(loader, {
-      ...options,
-      data: data as SerializableObject,
       ...renderOptions,
+      data: data as SerializableObject,
       root: options.root,
       slot,
     });

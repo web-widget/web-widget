@@ -157,8 +157,6 @@ export interface WidgetContainerOptions {
   meta?: Meta;
   /** Diagnostic name for the widget container. */
   name?: string;
-  /** Restrict rendering to one side of the server/client boundary. */
-  renderStage?: 'server' | 'client';
   /** Rendering boundary used by the widget container. */
   root?: 'light' | 'shadow';
 }

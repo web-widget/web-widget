@@ -171,31 +171,22 @@ export function createWidgetAdapter(
         },
       },
       setup({ widget }, { slots }) {
-        const {
-          fallback,
-          id,
-          loading = options.loading,
-          serverOnly,
-          clientOnly,
-        } = widget;
+        const { fallback, id, loading = options.loading, clientOnly } = widget;
         const { pendingFallback, errorFallback } = resolveFallback(fallback);
         const renderOptions = {
+          ...options,
+          clientOnly: widget.clientOnly,
           id,
           loading: loading ?? options.loading,
-          renderStage: serverOnly
-            ? ('server' as const)
-            : clientOnly
-              ? ('client' as const)
-              : options.renderStage,
+          serverOnly: widget.serverOnly,
         };
         const attrs = { ...useAttrs() };
         const slot = typeof attrs.slot === 'string' ? attrs.slot : undefined;
         delete attrs.slot;
         const data = attrs as WebWidgetRendererOptions['data'];
         const renderer = new WebWidgetRenderer(loader, {
-          ...options,
-          data,
           ...renderOptions,
+          data,
           slot,
         });
 

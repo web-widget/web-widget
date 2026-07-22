@@ -65,19 +65,16 @@ export function widget(
       throw new Error(`Rendering content in a slot requires "root: 'shadow'".`);
     }
     const renderOptions = {
+      ...options,
+      clientOnly: widget.clientOnly,
       id: widget.id,
       loading: widget.loading ?? options.loading,
-      renderStage: widget.serverOnly
-        ? ('server' as const)
-        : widget.clientOnly
-          ? ('client' as const)
-          : options.renderStage,
+      serverOnly: widget.serverOnly,
     };
     const createRenderer = () =>
       new WebWidgetRenderer(loader, {
-        ...options,
-        data,
         ...renderOptions,
+        data,
         root: options.root,
         slot,
       });

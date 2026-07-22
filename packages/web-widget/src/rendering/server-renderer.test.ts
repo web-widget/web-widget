@@ -6,6 +6,16 @@ function count(value: string, pattern: string): number {
 }
 
 describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
+  it('rejects conflicting render modes', () => {
+    expect(
+      () =>
+        new WebWidgetRenderer(async () => ({}), {
+          serverOnly: true,
+          clientOnly: true,
+        })
+    ).to.throw(TypeError, 'serverOnly and clientOnly cannot both be true');
+  });
+
   it('shares an id between server render options and client markup', async () => {
     let renderId: string | undefined;
     const renderer = new WebWidgetRenderer(
@@ -62,7 +72,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
       }),
       {
         import: '/assets/action.js',
-        renderStage: 'server',
+        serverOnly: true,
         slot: 'actions',
       }
     );
@@ -139,7 +149,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
       {
         import: '/assets/panel.js',
         root: 'shadow',
-        renderStage: 'server',
+        serverOnly: true,
       }
     );
     const iframe = document.createElement('iframe');
@@ -279,7 +289,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
       {
         import: '/assets/reusable.js',
         root: 'shadow',
-        renderStage: 'server',
+        serverOnly: true,
       }
     );
     const id = renderer.attributes.id;
@@ -341,7 +351,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
       },
       {
         import: '/assets/client.js',
-        renderStage: 'client',
+        clientOnly: true,
         root: 'shadow',
       }
     );
@@ -358,7 +368,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
   it('serializes the pending boundary and slot only when requested', async () => {
     const renderer = new WebWidgetRenderer(async () => ({}), {
       import: '/assets/client.js',
-      renderStage: 'client',
+      clientOnly: true,
       root: 'shadow',
     });
 
@@ -378,7 +388,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
       meta: {
         style: [{ id: 'client-shell', content: ':host{display:block}' }],
       },
-      renderStage: 'client',
+      clientOnly: true,
       root: 'shadow',
     });
 

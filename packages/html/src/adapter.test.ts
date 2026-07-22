@@ -79,22 +79,12 @@ describe('widget', () => {
     await expect(Broken()).rejects.toThrow('Widget render failed');
   });
 
-  test('widget prop controls loading and renderStage', async () => {
+  test('omits default element options', async () => {
     const Counter = widget(createMockLoader(), {
       import: './Counter@widget.tsx',
       name: 'Counter',
     });
 
-    // serverOnly → no import attribute, no recovering
-    const serverResult = await Counter({
-      count: 99,
-      widget: { serverOnly: true },
-    });
-    const serverText = serverResult.toString();
-    expect(serverText).not.toContain('recovering');
-    expect(serverText).not.toContain('import=');
-
-    // default → has import and recovering
     const defaultResult = await Counter({ count: 1 });
     const defaultText = defaultResult.toString();
     expect(defaultText).toContain('recovering');

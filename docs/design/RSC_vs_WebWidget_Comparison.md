@@ -343,15 +343,12 @@ function HomePage() {
 // Can mix components from different frameworks
 import ReactCounter from './Counter@widget.tsx';
 import VueChart from './Chart@widget.vue';
-import { asReactWidget } from '@web-widget/vue/adapter';
-
-const RVueChart = asReactWidget(VueChart);
 
 export default defineRouteComponent(function DashboardPage() {
   return (
     <div>
       <ReactCounter count={0} />
-      <RVueChart data={chartData} />
+      <VueChart data={chartData} />
     </div>
   );
 });
