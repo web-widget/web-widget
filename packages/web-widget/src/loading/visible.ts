@@ -22,6 +22,7 @@ export const createVisibleObserver = (
   callback: () => void,
   options: IntersectionObserverInit = {}
 ) => {
+  let placeholderElement: HTMLElement | null = null;
   let observer: IntersectionObserver | null = new IntersectionObserver(
     (entries) => {
       for (const { isIntersecting, target } of entries) {
@@ -31,6 +32,7 @@ export const createVisibleObserver = (
         disconnect();
         if (isPlaceholderElement(target)) {
           target.remove();
+          placeholderElement = null;
         }
         callback();
         break;
@@ -47,6 +49,8 @@ export const createVisibleObserver = (
       observer.disconnect();
       observer = null;
     }
+    placeholderElement?.remove();
+    placeholderElement = null;
   };
 
   if (isBox(element)) {
@@ -66,7 +70,7 @@ export const createVisibleObserver = (
         observer.observe(child);
       }
     } else {
-      const placeholderElement = createPlaceholderElement();
+      placeholderElement = createPlaceholderElement();
 
       const root = shadowRoot ?? element;
       root.firstChild

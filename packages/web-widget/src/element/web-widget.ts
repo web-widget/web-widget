@@ -199,7 +199,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
    * @default "auto"
    */
   get loading(): Loading {
-    return (this.getAttribute('loading') as Loading | null) || 'auto';
+    const value = this.getAttribute('loading');
+    return value === 'eager' || value === 'lazy' || value === 'idle'
+      ? value
+      : 'auto';
   }
 
   set loading(value: Loading) {
@@ -389,6 +392,10 @@ export class HTMLWebWidgetElement extends HTMLElement {
     }
     if (name === 'loading' && this.isConnected) {
       this.#loadingController.loadingChanged();
+      return;
+    }
+    if (name === 'inactive') {
+      this.#loadingController.inactiveChanged();
       return;
     }
     const cacheClearingAttributes = ['contextdata', 'data'];

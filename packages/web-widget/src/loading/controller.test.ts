@@ -174,6 +174,26 @@ describe('WidgetLoadingController', () => {
     expect(mounts).to.equal(1);
   });
 
+  it('promotes auto widgets on touch-oriented pointer interaction', async () => {
+    const host = createHost('auto');
+    let mounts = 0;
+    const controller = new WidgetLoadingController(
+      host,
+      async () => {
+        mounts++;
+        host.status = status.MOUNTED;
+      },
+      () => {}
+    );
+
+    controller.connect();
+    host.dispatchEvent(new PointerEvent('pointerdown'));
+    await flushMicrotasks();
+    await flushMicrotasks();
+
+    expect(mounts).to.equal(1);
+  });
+
   it('cancels pending auto work when disconnected', async () => {
     const host = createHost('auto');
     let mounts = 0;
@@ -192,6 +212,22 @@ describe('WidgetLoadingController', () => {
     await flushMicrotasks();
 
     expect(mounts).to.equal(0);
+  });
+
+  it('removes a visibility placeholder when observation is cancelled', () => {
+    const host = createHost('lazy');
+    host.style.display = 'contents';
+    const controller = new WidgetLoadingController(
+      host,
+      async () => {},
+      () => {}
+    );
+
+    controller.connect();
+    expect(host.children).to.have.length(1);
+
+    controller.disconnect();
+    expect(host.children).to.have.length(0);
   });
 
   it('deduplicates mount requests while one is in progress', async () => {
@@ -263,5 +299,60 @@ describe('WidgetLoadingController', () => {
     await flushMicrotasks();
 
     expect(mounts).to.equal(0);
+  });
+
+  it('registers a lazy strategy when a source is added after connection', async () => {
+    const host = createHost('lazy');
+    host.import = '';
+    host.loader = null;
+    let mounts = 0;
+    const controller = new WidgetLoadingController(
+      host,
+      async () => {
+        mounts++;
+        host.status = status.MOUNTED;
+      },
+      () => {}
+    );
+
+    controller.connect();
+    expect(TestIntersectionObserver.instances).to.have.length(0);
+
+    host.import = '/widget.js';
+    controller.sourceChanged();
+    TestIntersectionObserver.instances[0].emit();
+    await flushMicrotasks();
+
+    expect(mounts).to.equal(1);
+  });
+
+  it('registers an idle strategy when an inactive widget becomes active', async () => {
+    let idleCallback!: IdleRequestCallback;
+    window.requestIdleCallback = (callback) => {
+      idleCallback = callback;
+      return 1;
+    };
+    window.cancelIdleCallback = () => {};
+    const host = createHost('idle');
+    host.inactive = true;
+    let mounts = 0;
+    const controller = new WidgetLoadingController(
+      host,
+      async () => {
+        mounts++;
+        host.status = status.MOUNTED;
+      },
+      () => {}
+    );
+
+    controller.connect();
+    expect(idleCallback).to.equal(undefined);
+
+    host.inactive = false;
+    controller.inactiveChanged();
+    idleCallback({ didTimeout: false, timeRemaining: () => 50 });
+    await flushMicrotasks();
+
+    expect(mounts).to.equal(1);
   });
 });
