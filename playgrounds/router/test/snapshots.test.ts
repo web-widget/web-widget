@@ -42,4 +42,15 @@ describe('Should match snapshot', () => {
       html.indexOf(menuLink)
     );
   });
+
+  test('HTML layout emits an executable menu enhancement script', async () => {
+    const response = await fetch('/frameworks/html');
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain(
+      "document.querySelector('[data-playground-menu]')"
+    );
+    expect(html).not.toContain('document.querySelector(&#39;');
+  });
 });

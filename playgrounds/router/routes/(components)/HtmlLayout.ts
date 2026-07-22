@@ -1,4 +1,4 @@
-import { html, type HTML } from '@web-widget/html';
+import { html, type HTML, unsafeHTML } from '@web-widget/html';
 import '../(css)/base-layout.css';
 import '../(css)/ui.css';
 import Menu from './Menu';
@@ -13,7 +13,5 @@ export function htmlLayout(children: HTML): HTML {
       <main>${children}</main>
     </div>
     <footer><p>This is a footer</p></footer>
-    <script>
-      ${menuEnhancementScript};
-    </script>`;
+    <script>${unsafeHTML(menuEnhancementScript)}</script>`;
 }
