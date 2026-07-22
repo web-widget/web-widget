@@ -66,6 +66,24 @@ const PendingComponent = () =>
       fallback: 'PENDING_BOUNDARY_MARKER',
     },
   });
+const FailingWidget = server.widget(
+  async () => ({
+    default: {},
+    render: async () => {
+      throw new Error('RENDER_FAILURE');
+    },
+  }),
+  { import: '/failing-widget.js' }
+);
+const FailingComponent = () =>
+  createComponent(FailingWidget, {
+    widget: {
+      fallback: {
+        pending: 'PENDING_BOUNDARY_MARKER',
+        error: 'ERROR_BOUNDARY_MARKER',
+      },
+    },
+  });
 
 async function readStream(stream: ReadableStream<string>): Promise<string> {
   let text = '';
@@ -113,6 +131,10 @@ testAdapterConformance({
           }
         },
         marker: 'PENDING_BOUNDARY_MARKER',
+      },
+      errorFallback: {
+        component: FailingComponent,
+        marker: 'ERROR_BOUNDARY_MARKER',
       },
       assertRendered(_result, { text }) {
         expect(text).toContain('Hello');

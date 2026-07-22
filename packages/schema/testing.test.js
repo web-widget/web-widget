@@ -1,7 +1,10 @@
+/* global document */
+
 import { describe, expect, test } from 'vitest';
 import { testAdapterConformance } from './testing.js';
 
 const component = (data) => data.message;
+const errorComponent = () => '<div>ERROR_FALLBACK_MARKER</div>';
 const widget = () => undefined;
 
 testAdapterConformance({
@@ -27,6 +30,10 @@ testAdapterConformance({
       component,
       data: { message: 'Hello' },
       progressive: 'stream',
+      errorFallback: {
+        component: errorComponent,
+        marker: 'ERROR_FALLBACK_MARKER',
+      },
       assertRendered(_result, { text }) {
         expect(text).toBe('Hello');
       },

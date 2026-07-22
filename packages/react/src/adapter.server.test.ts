@@ -17,12 +17,21 @@ vi.mock('@web-widget/helpers/state', () => ({
 
 vi.mock('@web-widget/web-widget', () => ({
   WebWidgetRenderer: class {
+    loader: () => Promise<Record<string, any>>;
     localName = 'web-widget';
     attributes: Record<string, string> = { id: 'slot-conformance' };
-    constructor(_loader: unknown, options: { slot?: string }) {
+    constructor(
+      loader: () => Promise<Record<string, any>>,
+      options: { slot?: string }
+    ) {
+      this.loader = loader;
       if (options.slot) this.attributes.slot = options.slot;
     }
     async renderInnerHTMLToString({ children = '' } = {}) {
+      const module = await this.loader();
+      if (module.render) {
+        return module.render(module.default, {}, { progressive: false });
+      }
       await new Promise((resolve) => setTimeout(resolve, 25));
       return `<template shadowrootmode="open"><slot name="label">SHADOW_SLOT_MARKER</slot></template>${children}`;
     }
@@ -58,6 +67,21 @@ const SlotConformanceComponent = () =>
     { slot: 'adapter-actions' },
     createElement('span', { slot: 'label' }, 'LIGHT_SLOT_MARKER')
   );
+const FailingWidget = adapter.widget(async () => ({
+  default: {},
+  render: async () => {
+    throw new Error('RENDER_FAILURE');
+  },
+}));
+const FailingComponent = () =>
+  createElement(FailingWidget, {
+    widget: {
+      fallback: {
+        pending: createElement('span', null, 'PENDING_BOUNDARY_MARKER'),
+        error: createElement('span', null, 'ERROR_BOUNDARY_MARKER'),
+      },
+    },
+  });
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -81,6 +105,10 @@ testAdapterConformance({
         hostSlot: 'adapter-actions',
         shadowMarker: 'SHADOW_SLOT_MARKER',
         lightMarker: 'LIGHT_SLOT_MARKER',
+      },
+      errorFallback: {
+        component: FailingComponent as any,
+        marker: 'ERROR_BOUNDARY_MARKER',
       },
       assertRendered(_result, { text }) {
         expect(text).toContain('Hello');
