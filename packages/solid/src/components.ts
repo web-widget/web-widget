@@ -149,7 +149,7 @@ export function createWidgetAdapter(
           : children;
       const content = () => {
         const result = html();
-        if (result instanceof Error) return renderServerHost(fallback.error);
+        if (result instanceof Error) return fallback.error;
         if (result === undefined) return result;
         if (renderInnerHTML) {
           return renderServerHost(renderInnerHTML(result));
@@ -160,7 +160,7 @@ export function createWidgetAdapter(
         });
       };
       const boundary = createComponent(ErrorBoundary, {
-        fallback: () => renderServerHost(fallback.error),
+        fallback: () => fallback.error,
         get children() {
           return createComponent(Suspense, {
             fallback:

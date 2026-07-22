@@ -66,6 +66,24 @@ const PendingComponent = () =>
       fallback: 'PENDING_BOUNDARY_MARKER',
     },
   });
+const FailingWidget = server.widget(
+  async () => ({
+    default: {},
+    render: async () => {
+      throw new Error('RENDER_FAILURE');
+    },
+  }),
+  { import: '/failing-widget.js' }
+);
+const FailingComponent = () =>
+  createComponent(FailingWidget, {
+    widget: {
+      fallback: {
+        pending: 'PENDING_BOUNDARY_MARKER',
+        error: 'ERROR_BOUNDARY_MARKER',
+      },
+    },
+  });
 
 async function readStream(stream: ReadableStream<string>): Promise<string> {
   let text = '';
@@ -150,4 +168,15 @@ test('rejects children for a Light Target Widget', async () => {
   ).rejects.toThrow(
     `Rendering content in a slot requires "options.root = 'shadow'".`
   );
+});
+
+test('renders a server error fallback without a recoverable Widget host', async () => {
+  const text = (await server.render(
+    FailingComponent,
+    {},
+    { progressive: false }
+  )) as string;
+
+  expect(text).toContain('ERROR_BOUNDARY_MARKER');
+  expect(text).not.toContain('<web-widget');
 });
