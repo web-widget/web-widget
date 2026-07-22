@@ -85,18 +85,15 @@ export function createWidgetAdapter(
       }
       const fallback = resolveFallback(widget.fallback);
       const renderOptions = {
+        ...options,
+        clientOnly: widget.clientOnly,
         id: widget.id,
         loading: widget.loading ?? options.loading,
-        renderStage: widget.serverOnly
-          ? ('server' as const)
-          : widget.clientOnly
-            ? ('client' as const)
-            : options.renderStage,
+        serverOnly: widget.serverOnly,
       };
       const renderer = new WebWidgetRenderer(loader, {
-        ...options,
-        data,
         ...renderOptions,
+        data,
         root: options.root,
         slot: local.slot,
       });

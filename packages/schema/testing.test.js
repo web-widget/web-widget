@@ -34,6 +34,18 @@ testAdapterConformance({
         component: errorComponent,
         marker: 'ERROR_FALLBACK_MARKER',
       },
+      renderModes: {
+        render(mode) {
+          if (mode === 'serverOnly') {
+            return '<web-widget>SERVER_RENDER_MARKER</web-widget>';
+          }
+          if (mode === 'clientOnly') {
+            return '<web-widget import="/widget.js"></web-widget>';
+          }
+          return '<web-widget import="/widget.js" recovering>SERVER_RENDER_MARKER</web-widget>';
+        },
+        serverMarker: 'SERVER_RENDER_MARKER',
+      },
       assertRendered(_result, { text }) {
         expect(text).toBe('Hello');
       },

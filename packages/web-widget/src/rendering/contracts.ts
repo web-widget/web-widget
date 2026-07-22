@@ -38,12 +38,14 @@ export type WebWidgetElementProps = WebWidgetElementOptions;
 export interface WebWidgetRendererOptions
   extends WidgetContainerOptions, WidgetHostProps {
   base?: string;
+  clientOnly?: boolean;
   data?: SerializableObject;
   /** @internal Vite-transformed CSS descriptors used during development. */
   devStyles?: ResolvedWidgetStyle[];
   import?: string;
   id?: string;
   inactive?: boolean;
+  serverOnly?: boolean;
 }
 
 export interface WidgetRenderParts {

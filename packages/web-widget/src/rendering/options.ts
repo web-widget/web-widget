@@ -1,6 +1,9 @@
 import type { WebWidgetRendererOptions } from './contracts';
 
-type RendererElementOptions = Omit<WebWidgetRendererOptions, 'renderStage'>;
+type RendererElementOptions = Omit<
+  WebWidgetRendererOptions,
+  'serverOnly' | 'clientOnly'
+>;
 
 export const defaultWebWidgetRendererOptions = {
   loading: 'auto',

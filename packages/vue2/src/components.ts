@@ -52,7 +52,14 @@ function ensureGlobalVueConfig() {
   };
 }
 
-export type Vue2WidgetContainerProps = Omit<WidgetContainerProps, 'fallback'>;
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
+  ? Omit<T, K>
+  : never;
+
+export type Vue2WidgetContainerProps = DistributiveOmit<
+  WidgetContainerProps,
+  'fallback'
+>;
 
 /**
  * Container function (AdapterModule contract).
@@ -109,29 +116,21 @@ export function createWidgetAdapter(
           );
         }
 
-        const {
-          id,
-          loading = options.loading,
-          serverOnly,
-          clientOnly,
-        } = props.widget;
+        const { id, loading = options.loading } = props.widget;
         const renderOptions = {
+          ...options,
+          clientOnly: props.widget.clientOnly,
           id,
           loading: loading ?? options.loading,
-          renderStage: serverOnly
-            ? ('server' as const)
-            : clientOnly
-              ? ('client' as const)
-              : options.renderStage,
+          serverOnly: props.widget.serverOnly,
         };
 
         const attrs = { ...useAttrs() };
         const slot = typeof attrs.slot === 'string' ? attrs.slot : undefined;
         delete attrs.slot;
         const rendererOptions = {
-          ...options,
-          data: attrs as WebWidgetRendererOptions['data'],
           ...renderOptions,
+          data: attrs as WebWidgetRendererOptions['data'],
           root: options.root,
           slot,
         };

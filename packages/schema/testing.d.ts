@@ -50,6 +50,10 @@ export interface ServerConformanceFixture<Component, Data> {
     data?: Data;
     marker: string;
   };
+  renderModes?: {
+    render(mode: 'default' | 'serverOnly' | 'clientOnly'): Awaitable<string>;
+    serverMarker: string;
+  };
   assertRendered(
     result: ServerRenderResult,
     context: { progressive: boolean; text: string }

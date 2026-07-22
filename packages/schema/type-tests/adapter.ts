@@ -1,4 +1,9 @@
-import type { ExtractComponentProps, ExtractWidgetProps } from '../schema';
+import type {
+  ExtractComponentProps,
+  ExtractWidgetProps,
+  WidgetContainerOptions,
+  WidgetContainerProps,
+} from '../schema';
 
 type Equal<A, B> =
   (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2
@@ -36,3 +41,25 @@ export type WidgetModuleTest = Expect<
 export type CustomElementTest = Expect<
   Equal<ExtractComponentProps<typeof HTMLElement>, unknown>
 >;
+
+export const serverOnlyOptions = {
+  serverOnly: true,
+} satisfies WidgetContainerProps;
+export const clientOnlyOptions = {
+  clientOnly: true,
+} satisfies WidgetContainerProps;
+export const bothSidesOptions = {
+  serverOnly: false,
+  clientOnly: false,
+} satisfies WidgetContainerProps;
+
+export const conflictingRenderMode = {
+  serverOnly: true,
+  clientOnly: true,
+  // @ts-expect-error Render modes are mutually exclusive.
+} satisfies WidgetContainerProps;
+
+export const removedRenderStage = {
+  // @ts-expect-error Use serverOnly or clientOnly instead.
+  renderStage: 'server',
+} satisfies WidgetContainerOptions;

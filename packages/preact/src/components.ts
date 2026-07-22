@@ -171,29 +171,24 @@ export function createWidgetAdapter(
       ...data
     }: any) {
       const { pending, error } = resolveFallback(widget.fallback);
-      const renderOptions = {
-        id: widget.id,
-        loading: widget.loading ?? options.loading,
-        renderStage: widget.serverOnly
-          ? ('server' as const)
-          : widget.clientOnly
-            ? ('client' as const)
-            : options.renderStage,
-      };
       const rendererOptions = useMemo(
         () => ({
           ...options,
+          clientOnly: widget.clientOnly,
           data,
-          ...renderOptions,
+          id: widget.id,
+          loading: widget.loading ?? options.loading,
           root: options.root,
+          serverOnly: widget.serverOnly,
           slot,
         }),
         [
           data,
-          renderOptions.id,
-          renderOptions.loading,
-          renderOptions.renderStage,
           slot,
+          widget.id,
+          widget.loading,
+          widget.serverOnly,
+          widget.clientOnly,
         ]
       );
       return createElement(

@@ -31,7 +31,7 @@
 
 ### 公共字段重复
 
-`loading`、`root`、`renderStage` 等字段同时出现在 Schema 和渲染核心中，且部分 adapter 继续通过 `WebWidgetRendererOptions['loading']` 间接引用。字段增加或语义变化时，需要同步修改多个包。
+`loading`、`root`、`serverOnly`、`clientOnly` 等字段同时出现在 Schema 和渲染核心中，且部分 adapter 继续通过 `WebWidgetRendererOptions['loading']` 间接引用。字段增加或语义变化时，需要同步修改多个包。
 
 各框架还重复定义：
 
@@ -96,7 +96,7 @@ vite-plugin ──(生成代码和私有字段)──> framework adapter
 - `Props` 表示返回组件中 `widget` prop 的使用期参数；
 - `Fallback` 和 `RenderMode` 表示由容器边界实现的行为；
 - `Injected` 表示构建工具可用、用户不可见的内部扩展；
-- loading、root、render stage 直接由所属 options 字段定义；其他层通过索引访问引用，不为字段值集合增加独立导出；
+- loading、root 直接由所属 options 字段定义；渲染模式复用 `WidgetContainerRenderMode`；其他层通过索引访问引用，不为字段值集合增加独立导出；
 - `WidgetModuleLoader` 属于模块协议，也不增加 `WidgetContainer` 前缀。
 
 ### Schema：稳定协议
@@ -119,7 +119,6 @@ export interface WidgetContainerOptions {
   loading?: 'auto' | 'lazy' | 'eager' | 'idle';
   meta?: Meta;
   name?: string;
-  renderStage?: 'server' | 'client';
   root?: 'light' | 'shadow';
 }
 ```
@@ -179,10 +178,12 @@ Renderer 需要定义期配置、单次数据和内部构建信息：
 ```typescript
 export interface WebWidgetRendererOptions extends WidgetContainerOptions {
   base?: string;
+  clientOnly?: boolean;
   import?: string;
   children?: string;
   data?: SerializableObject;
   inactive?: boolean;
+  serverOnly?: boolean;
 
   /** @internal Injected by build integrations in development. */
   devStyles?: ResolvedWidgetStyle[];
@@ -201,20 +202,18 @@ options: WebWidgetRendererOptions;
 
 ### Adapter 内部解析
 
-各 adapter 在自身的容器边界计算 loading 和 render stage。该逻辑属于定义期配置与单次 props 的组合策略，不作为 `@web-widget/web-widget` 的公共 API：
+各 adapter 在自身的容器边界计算 loading，并把使用期渲染模式直接传给 renderer：
 
 ```typescript
 const renderOptions = {
+  ...options,
+  clientOnly: widget.clientOnly,
   loading: widget.loading ?? options.loading,
-  renderStage: widget.serverOnly
-    ? 'server'
-    : widget.clientOnly
-      ? 'client'
-      : options.renderStage,
+  serverOnly: widget.serverOnly,
 };
 ```
 
-默认值由 `resolveWebWidgetRendererOptions` 在 renderer 边界统一应用。元素自身的 getter 继续为直接 DOM 使用提供相同默认值，adapter 不再硬编码 `'auto'` 或 `'light'`。
+`serverOnly` 与 `clientOnly` 只属于使用期配置，由 `WidgetContainerRenderMode` 在 adapter 边界保证互斥；定义期 options 不提供另一套默认模式或覆盖规则。renderer 仍在运行时拒绝两个值同时为 `true`，以保护 JavaScript 和直接调用场景。其他默认值由 `resolveWebWidgetRendererOptions` 在 renderer 边界统一应用。元素自身的 getter 继续为直接 DOM 使用提供相同默认值，adapter 不再硬编码 `'auto'` 或 `'light'`。
 
 ## 框架 adapter 类型
 
@@ -253,7 +252,14 @@ export type HtmlWidgetContainerProps = WidgetContainerProps<
 Vue 2 不支持 fallback，显式排除该能力：
 
 ```typescript
-export type Vue2WidgetContainerProps = Omit<WidgetContainerProps, 'fallback'>;
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
+  ? Omit<T, K>
+  : never;
+
+export type Vue2WidgetContainerProps = DistributiveOmit<
+  WidgetContainerProps,
+  'fallback'
+>;
 ```
 
 ### widget 签名

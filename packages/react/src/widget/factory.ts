@@ -23,26 +23,23 @@ export function createWidgetAdapter(
     return memo(function ReactWidget({
       children,
       slot,
-      widget: { fallback, id, loading, serverOnly, clientOnly } = {},
+      widget = {},
       ...data
     }: ReactWidgetProps) {
+      const { fallback, id, loading, clientOnly } = widget;
       const serverRenderMode = useContext(ReactServerRenderModeContext);
-      const renderStage = serverOnly
-        ? ('server' as const)
-        : clientOnly
-          ? ('client' as const)
-          : options.renderStage;
       const { pendingFallback, errorFallback } = resolveFallback(fallback);
       const buffered = serverRenderMode === 'buffered';
       const task = createWidgetRenderTask({
         ...options,
+        clientOnly: widget.clientOnly,
         children,
         data,
         id,
         loader,
         loading: loading ?? options.loading,
         renderChildren,
-        renderStage,
+        serverOnly: widget.serverOnly,
         slot,
       });
       const view = createElement(

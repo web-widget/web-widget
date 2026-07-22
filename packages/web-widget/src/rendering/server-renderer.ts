@@ -129,10 +129,11 @@ function serializeInnerHTML(parts: WidgetRenderParts): string {
 
 class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
   #clientImport: string;
+  #clientOnly: boolean;
   #id: string;
   #loader: WidgetModuleLoader;
-  #options: Omit<WebWidgetRendererOptions, 'id' | 'renderStage'>;
-  #renderStage?: string;
+  #options: Omit<WebWidgetRendererOptions, 'id' | 'serverOnly' | 'clientOnly'>;
+  #serverOnly: boolean;
   localName = 'web-widget';
 
   get pendingBoundary() {
@@ -141,14 +142,18 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
 
   constructor(
     loader: WidgetModuleLoader,
-    { id, renderStage, ...options }: WebWidgetRendererOptions
+    { id, serverOnly, clientOnly, ...options }: WebWidgetRendererOptions
   ) {
+    if (serverOnly && clientOnly) {
+      throw new TypeError(`serverOnly and clientOnly cannot both be true.`);
+    }
     const resolvedOptions = resolveWebWidgetRendererOptions(options);
     this.#clientImport = getClientModuleId(loader, resolvedOptions);
     this.#id = resolveWebWidgetId(id);
     this.#loader = loader;
     this.#options = resolvedOptions;
-    this.#renderStage = renderStage;
+    this.#serverOnly = serverOnly === true;
+    this.#clientOnly = clientOnly === true;
   }
 
   get attributes() {
@@ -159,9 +164,8 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       meta: _meta,
       ...options
     } = omitDefaultWebWidgetRendererOptions(this.#options);
-    const renderStage = this.#renderStage;
 
-    if (renderStage === 'server') {
+    if (this.#serverOnly) {
       return unsafePropsToAttrs({
         id: this.#id,
         name: options.name,
@@ -175,7 +179,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       contextdata: JSON.stringify(contextdata),
       import: clientImport,
       id: this.#id,
-      recovering: renderStage !== 'client',
+      recovering: !this.#clientOnly,
       devstyles: devStyles?.length
         ? JSON.stringify(devStyles.map(({ id }) => id))
         : undefined,
@@ -194,7 +198,6 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
     const clientImport = this.#clientImport;
     const loader = this.#loader;
     const options = this.#options;
-    const renderStage = this.#renderStage;
 
     if (children && options.root !== 'shadow') {
       throw new Error(
@@ -202,7 +205,7 @@ class ServerWebWidgetRenderer implements WebWidgetRendererInterface {
       );
     }
 
-    if (renderStage === 'client') {
+    if (this.#clientOnly) {
       const meta = rebaseMeta(options.meta ?? {}, clientImport);
       return this.#createRenderParts('', meta, children);
     }

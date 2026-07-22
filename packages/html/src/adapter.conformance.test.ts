@@ -5,6 +5,7 @@ import { html } from './html';
 
 const SHADOW_MARKER = 'SHADOW_SLOT_MARKER';
 const LIGHT_MARKER = 'LIGHT_SLOT_MARKER';
+const RENDER_MODE_MARKER = 'RENDER_MODE_MARKER';
 const SlottedWidget = adapter.widget(
   async () => ({
     default: {},
@@ -30,6 +31,13 @@ const FailingComponent = () =>
       },
     },
   })}`;
+const RenderModeWidget = adapter.widget(
+  async () => ({
+    default: {},
+    render: async () => `<p>${RENDER_MODE_MARKER}</p>`,
+  }),
+  { import: '/render-mode-widget.js' }
+);
 
 testAdapterConformance({
   runner: { describe, test, expect },
@@ -55,6 +63,19 @@ testAdapterConformance({
       errorFallback: {
         component: FailingComponent,
         marker: 'ERROR_BOUNDARY_MARKER',
+      },
+      renderModes: {
+        async render(mode) {
+          const widget =
+            mode === 'default'
+              ? undefined
+              : mode === 'serverOnly'
+                ? { serverOnly: true as const }
+                : { clientOnly: true as const };
+          const result = await RenderModeWidget({ widget });
+          return result.toString();
+        },
+        serverMarker: RENDER_MODE_MARKER,
       },
       assertRendered(_result, { text }) {
         expect(text).toContain('<p>Hello</p>');
