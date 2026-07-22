@@ -1,26 +1,18 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
 import '../(css)/base-layout.css';
 import '../(css)/ui.css';
 import { widget } from '@web-widget/vue/adapter';
+import { menuEnhancementScript } from '../(components)/menu-client';
 
 const Menu = widget(() => import('../(components)/Menu@widget.ts'));
-
-onMounted(() => {
-  const path = location.pathname;
-  document.querySelectorAll('aside a[href]').forEach((a) => {
-    if (a.getAttribute('href') === path) {
-      a.setAttribute('aria-current', 'page');
-    }
-  });
-});
+const enhancementMarkup = `<script>${menuEnhancementScript}<\/script>`;
 </script>
 <template>
   <header class="site-header">
     <h1>Web Router Playground</h1>
   </header>
   <div class="container">
-    <aside>
+    <aside data-playground-menu>
       <Menu :widget="{ serverOnly: true }" />
     </aside>
     <main><slot></slot></main>
@@ -28,4 +20,5 @@ onMounted(() => {
   <footer>
     <p>This is a footer</p>
   </footer>
+  <div hidden v-html="enhancementMarkup"></div>
 </template>

@@ -3,6 +3,7 @@ import '../(css)/ui.css';
 
 import type { ComponentProps } from 'react';
 import { widget } from '@web-widget/react/adapter';
+import { menuEnhancementScript } from './menu-client';
 
 const Menu = widget(() => import('./Menu@widget.ts'));
 
@@ -13,7 +14,7 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
         <h1>Web Router Playground</h1>
       </header>
       <div className="container">
-        <aside>
+        <aside data-playground-menu>
           <Menu widget={{ serverOnly: true }} />
         </aside>
         <main>{children}</main>
@@ -23,7 +24,7 @@ export default function BaseLayout({ children }: ComponentProps<any>) {
       </footer>
       <script
         dangerouslySetInnerHTML={{
-          __html: `(function(){var p=location.pathname;document.querySelectorAll('aside a[href]').forEach(function(a){if(a.getAttribute('href')===p)a.setAttribute('aria-current','page')})})();`,
+          __html: menuEnhancementScript,
         }}
       />
     </>

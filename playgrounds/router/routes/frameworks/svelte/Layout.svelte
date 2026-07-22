@@ -1,25 +1,20 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { onMount } from 'svelte';
   import '~/routes/(css)/base-layout.css';
   import '~/routes/(css)/ui.css';
+  import { menuEnhancementScript } from '~/routes/(components)/menu-client';
 
   let { children }: { children: Snippet } = $props();
   import Menu from './Menu.svelte';
 
-  onMount(() => {
-    const path = location.pathname;
-    document.querySelectorAll('aside a[href]').forEach((anchor) => {
-      if (anchor.getAttribute('href') === path) anchor.setAttribute('aria-current', 'page');
-    });
-  });
+  const enhancementScript = `<script>${menuEnhancementScript}<\/script>`;
 </script>
 
 <header class="site-header">
   <h1>Web Router Playground</h1>
 </header>
 <div class="container">
-  <aside>
+  <aside data-playground-menu>
     <Menu />
   </aside>
   <main>{@render children()}</main>
@@ -27,3 +22,4 @@
 <footer>
   <p>This is a footer</p>
 </footer>
+{@html enhancementScript}

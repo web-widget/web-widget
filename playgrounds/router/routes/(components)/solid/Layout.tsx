@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js';
 import '~/routes/(css)/base-layout.css';
 import '~/routes/(css)/ui.css';
 import Menu from './Menu';
+import { menuEnhancementScript } from '../menu-client';
 
 export default function Layout(props: { children: JSX.Element }) {
   return (
@@ -11,7 +12,7 @@ export default function Layout(props: { children: JSX.Element }) {
         <h1>Web Router Playground</h1>
       </header>
       <div class="container">
-        <aside>
+        <aside data-playground-menu>
           <Menu />
         </aside>
         <main>{props.children}</main>
@@ -19,9 +20,7 @@ export default function Layout(props: { children: JSX.Element }) {
       <footer>
         <p>This is a footer</p>
       </footer>
-      <script innerHTML={activeMenuScript} />
+      <script innerHTML={menuEnhancementScript} />
     </>
   );
 }
-
-const activeMenuScript = `(function(){var p=location.pathname;document.querySelectorAll('aside a[href]').forEach(function(a){if(a.getAttribute('href')===p)a.setAttribute('aria-current','page')})})();`;

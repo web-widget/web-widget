@@ -3,6 +3,7 @@ import type { ComponentChildren } from 'preact';
 import '~/routes/(css)/base-layout.css';
 import '~/routes/(css)/ui.css';
 import Menu from './Menu';
+import { menuEnhancementScript } from '~/routes/(components)/menu-client';
 
 export default function Layout({ children }: { children: ComponentChildren }) {
   return (
@@ -11,7 +12,7 @@ export default function Layout({ children }: { children: ComponentChildren }) {
         <h1>Web Router Playground</h1>
       </header>
       <div class="container">
-        <aside>
+        <aside data-playground-menu>
           <Menu />
         </aside>
         <main>{children}</main>
@@ -19,9 +20,7 @@ export default function Layout({ children }: { children: ComponentChildren }) {
       <footer>
         <p>This is a footer</p>
       </footer>
-      <script dangerouslySetInnerHTML={{ __html: activeMenuScript }} />
+      <script dangerouslySetInnerHTML={{ __html: menuEnhancementScript }} />
     </>
   );
 }
-
-const activeMenuScript = `(function(){var p=location.pathname;document.querySelectorAll('aside a[href]').forEach(function(a){if(a.getAttribute('href')===p)a.setAttribute('aria-current','page')})})();`;
