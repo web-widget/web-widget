@@ -152,6 +152,6 @@ const Counter = widget(() => import('./Counter@widget.vue'));
 
 ## 参考
 
-- [框架组件构建转换协议](./build-transformation-protocol.zh.md) — `WidgetAdapter` 协议与 `widget()` 的定义
+- [框架组件构建转换协议](./build-transformation-protocol.zh.md) — `WidgetTransform` 协议与 `widget()` 的定义
 - [React Widget 孤岛设计](./react-widget-opinionated-design.zh.md) — React `widget` 的运行时行为
 - [HTML 模板 Widget 孤岛设计](./html-widget-island.zh.md) — HTML `widget` 的设计动机

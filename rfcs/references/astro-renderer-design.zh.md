@@ -69,9 +69,9 @@ Astro 通过 `.astro` 文件中的 island 指令（`client:load`、`client:idle`
 
 Astro 的各框架组件是平行的，不互相导入。React 组件不会导入 Vue 组件。每个框架组件作为 island 独立水合。
 
-## 与 WidgetAdapter 的对比
+## 与 WidgetTransform 的对比
 
-| 维度         | WidgetAdapter                      | AstroRenderer                            |
+| 维度         | WidgetTransform                    | AstroRenderer                            |
 | ------------ | ---------------------------------- | ---------------------------------------- |
 | 设计目标     | 跨框架互操作（组件级）             | 多框架共存（页面级）                     |
 | 构建工具耦合 | 无（纯数据协议）                   | 强耦合（Integration 直接操作 Vite 配置） |
@@ -93,17 +93,17 @@ Integration 与 Vite 深度耦合。如果 Astro 要支持 Rspack，每个 Integ
 
 ### Web Widget 的优势
 
-协议层解耦。`WidgetAdapter` 是纯数据，不依赖任何构建工具 API。同一个适配器包可以被 Vite、Webpack、Rspack 等任何构建工具消费。
+协议层解耦。`WidgetTransform` 是纯数据，不依赖任何构建工具 API。同一个适配器包可以被 Vite、Webpack、Rspack 等任何构建工具消费。
 
 ### Web Widget 的局限
 
 纯数据协议的表达力有限。适配器无法主动注入构建工具特定的优化。所有构建工具必须自行实现转换逻辑。
 
-## 对 WidgetAdapter 协议的启示
+## 对 WidgetTransform 协议的启示
 
 1. **纯数据设计是正确选择**——因为目标是构建工具无关。Astro 不需要这个目标，所以可以用更耦合的方式。
 
-2. **`widget()` 是独有核心价值**——Astro 没有跨框架互操作，所以不需要容器函数。这是 `WidgetAdapter` 比 `AstroRenderer` 多出的维度。
+2. **`widget()` 是独有核心价值**——Astro 没有跨框架互操作，所以不需要容器函数。这是 `WidgetTransform` 配合 `AdapterModule` 比 `AstroRenderer` 多出的维度。
 
 3. **环境分离方式不同但等价**——条件导出更优雅（单路径自动解析），但依赖构建工具正确支持 `exports` 条件。
 

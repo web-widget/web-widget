@@ -1,5 +1,7 @@
 import react from '@vitejs/plugin-react';
 import vue from '@vitejs/plugin-vue';
+import reactTransform from '@web-widget/react/transform';
+import vueTransform from '@web-widget/vue/transform';
 import path from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import { webRouterPlugin, webWidgetPlugin } from '@web-widget/vite-plugin';
@@ -53,10 +55,7 @@ export default defineConfig({
     vue(),
     webWidgetPlugin({
       defaults: { root: 'shadow' },
-      adapters: [
-        '@web-widget/react',
-        { from: '@web-widget/vue', scope: ['widgets'] },
-      ],
+      transforms: [reactTransform, { ...vueTransform, scope: ['widgets'] }],
     }),
   ],
 });

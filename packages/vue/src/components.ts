@@ -130,7 +130,7 @@ export function resolveFallback(
 }
 
 /**
- * Container function (WidgetAdapter protocol).
+ * Container function (AdapterModule contract).
  *
  * Wraps a widget module loader into a Vue component with props type
  * inference from the source module's default export.

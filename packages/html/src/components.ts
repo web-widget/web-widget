@@ -73,7 +73,7 @@ export function resolveFallback(
  * - Fallback: `unknown` when no pattern matches.
  */
 /**
- * Container function (WidgetAdapter protocol).
+ * Container function (AdapterModule contract).
  *
  * Wraps a widget module loader into a callable function that returns
  * `Promise<UnsafeHTML>`, interpolatable directly into `html` templates.

@@ -37,6 +37,11 @@
       "development": "./src/index.ts",
       "default": "./dist/preact.js"
     },
+    "./transform": {
+      "types": "./dist/preact.transform.d.ts",
+      "development": "./src/transform.ts",
+      "default": "./dist/preact.transform.js"
+    },
     "./adapter": {
       "worker": {
         "types": "./dist/preact.adapter.server.d.ts",
@@ -54,15 +59,6 @@
         "default": "./dist/preact.adapter.server.js"
       }
     }
-  },
-  "webWidgetAdapter": {
-    "version": "1.0.0",
-    "name": "preact",
-    "extensions": [
-      ".tsx",
-      ".jsx"
-    ],
-    "adapter": "./adapter"
   },
   "files": [
     "dist"

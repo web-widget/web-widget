@@ -28,8 +28,10 @@ Web Widget 希望让组件作为独立交付单元嵌入未知宿主，但 `<web
 构建配置声明 Widget 容器的默认选项：
 
 ```typescript
+import reactTransform from '@web-widget/react/transform';
+
 webWidgetPlugin({
-  adapters: ['@web-widget/react'],
+  transforms: [reactTransform],
   defaults: {
     loading: 'lazy',
     root: 'shadow',

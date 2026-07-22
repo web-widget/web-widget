@@ -3,6 +3,7 @@ export default defineConfig({
   dts: true,
   entry: {
     'web-components': 'src/index.ts',
+    'web-components.transform': 'src/transform.ts',
     'web-components.adapter.server': 'src/adapter.server.ts',
     'web-components.adapter.client': 'src/adapter.client.ts',
   },

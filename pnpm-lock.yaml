@@ -1004,6 +1004,9 @@ importers:
       '@web-widget/node':
         specifier: workspace:*
         version: link:../node
+      '@web-widget/schema':
+        specifier: workspace:*
+        version: link:../schema
       '@web-widget/web-router':
         specifier: workspace:*
         version: link:../web-router

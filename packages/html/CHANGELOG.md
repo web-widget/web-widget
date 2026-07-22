@@ -77,11 +77,11 @@
   - Streaming protocol uses `$H` prefix (`$HRC`, `HS:0`, `HB:0`) to avoid
     conflicts with React's `$RC` — both can coexist on the same page
 
-- ef38a43: Implement WebWidgetAdapter protocol for @web-widget/html. HTML route files
+- ef38a43: Implement the WidgetTransform protocol for @web-widget/html. HTML route files
   using `.html.ts` extension now get automatic `render` injection and widget
   `container` wrapping — no more manual `export { render }`.
 
-  - Add `webWidgetAdapter` field with `.html.ts` extension and `./runtime` subpath
+  - Export the build definition from `./transform` with `.html.ts` matching and an explicit adapter module ID
   - `exportRenderPlugin` auto-injects `render` into `@route.html.ts` / `@widget.html.ts`
   - `importRenderPlugin` auto-wraps widget imports via `container()`
   - `deriveExports` provides default `handler` and `meta` (same as Vue adapter)

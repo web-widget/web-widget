@@ -6,6 +6,15 @@ import solid from 'vite-plugin-solid';
 import type { Plugin } from 'vite';
 import { htmlCompress } from '@web-widget/html/vite-plugin';
 import { webRouterPlugin, webWidgetPlugin } from '@web-widget/vite-plugin';
+import htmlTransform from '@web-widget/html/transform';
+import litTransform from '@web-widget/lit/transform';
+import preactTransform from '@web-widget/preact/transform';
+import reactTransform from '@web-widget/react/transform';
+import solidTransform from '@web-widget/solid/transform';
+import svelteTransform from '@web-widget/svelte/transform';
+import vueTransform from '@web-widget/vue/transform';
+import vue2Transform from '@web-widget/vue2/transform';
+import webComponentsTransform from '@web-widget/web-components/transform';
 import { vue2PresetsPlugin } from './routes/(vue2)/vite-plugins';
 import { vuePresetsPlugin } from './routes/(vue3)/vite-plugins';
 
@@ -106,14 +115,14 @@ export default defineConfig(({ command }) => ({
       defaults: {
         root: 'light', // light | shadow
       },
-      adapters: [
-        '@web-widget/html',
-        '@web-widget/react',
-        { from: '@web-widget/vue', scope: ['routes/(vue3)'] },
-        { from: '@web-widget/vue2', scope: ['routes/(vue2)'] },
-        '@web-widget/svelte',
+      transforms: [
+        htmlTransform,
+        reactTransform,
+        { ...vueTransform, scope: ['routes/(vue3)'] },
+        { ...vue2Transform, scope: ['routes/(vue2)'] },
+        svelteTransform,
         {
-          from: '@web-widget/solid',
+          ...solidTransform,
           scope: [
             'routes/(components)/solid',
             'routes/frameworks/solid',
@@ -122,7 +131,7 @@ export default defineConfig(({ command }) => ({
           ],
         },
         {
-          from: '@web-widget/preact',
+          ...preactTransform,
           scope: [
             'routes/(components)/preact',
             'routes/frameworks/preact',
@@ -130,8 +139,8 @@ export default defineConfig(({ command }) => ({
             'routes/streaming/preact',
           ],
         },
-        '@web-widget/web-components',
-        '@web-widget/lit',
+        webComponentsTransform,
+        litTransform,
       ],
     }),
   ],

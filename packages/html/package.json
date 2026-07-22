@@ -31,6 +31,11 @@
       "development": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./transform": {
+      "types": "./dist/transform.d.ts",
+      "development": "./src/transform.ts",
+      "default": "./dist/transform.js"
+    },
     "./adapter": {
       "types": "./dist/adapter.d.ts",
       "development": "./src/adapter.ts",
@@ -45,15 +50,6 @@
   "peerDependencies": {
     "vite": "catalog:"
   },
-  "webWidgetAdapter": {
-    "version": "1.0.0",
-    "name": "html",
-    "extensions": [
-      ".ts",
-      ".js"
-    ],
-    "adapter": "./adapter"
-  },
   "files": [
     "dist"
   ],
@@ -63,6 +59,10 @@
       ".": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      },
+      "./transform": {
+        "types": "./dist/transform.d.ts",
+        "default": "./dist/transform.js"
       },
       "./adapter": {
         "types": "./dist/adapter.d.ts",
