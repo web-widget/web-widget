@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite';
 import { exportRenderPlugin } from './export-render';
 import { importRenderPlugin } from './import-render';
-import { adapterScopePrefix } from './adapter-scope';
+import { transformScopePrefix } from './transform-scope';
 import {
   ROUTE_MARKER_PATTERN,
   ROUTE_OR_WIDGET_MARKER_PATTERN,
@@ -36,7 +36,7 @@ function buildPluginsForTransform(
   } = transform;
 
   const ext = extPattern(extensions);
-  const scopeRe = adapterScopePrefix(scope, excludedScopes, root);
+  const scopeRe = transformScopePrefix(scope, excludedScopes, root);
 
   // Native filters (Rust layer): broad pre-filters on pathname to skip
   // obviously unrelated modules. Framework-specific sub-modules (e.g. Vue SFC

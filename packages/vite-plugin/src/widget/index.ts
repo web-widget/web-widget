@@ -1,1 +1,1 @@
-export { webWidgetPlugin } from './adapter';
+export { webWidgetPlugin } from './transform';
