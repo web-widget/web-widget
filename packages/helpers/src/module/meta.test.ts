@@ -4,16 +4,20 @@ import { mergeMeta, rebaseMeta, renderMetaToString } from './meta';
 describe('mergeMeta', () => {
   test('Should return the new object', () => {
     const defaults = {
-      meta: [],
+      base: { href: '/default/' },
+      meta: [{ name: 'description', content: 'default' }],
     };
     const overrides = {
-      meta: [],
+      meta: [{ name: 'description', content: 'override' }],
     };
     const result = mergeMeta(defaults, overrides);
     expect(result).not.toBe(defaults);
     expect(result).not.toBe(overrides);
+    expect(result.base).not.toBe(defaults.base);
     expect(result.meta).not.toBe(defaults.meta);
     expect(result.meta).not.toBe(overrides.meta);
+    expect(result.meta?.[0]).not.toBe(defaults.meta[0]);
+    expect(result.meta?.[0]).not.toBe(overrides.meta[0]);
   });
 
   test('Should cover content', () => {
@@ -97,6 +101,63 @@ describe('mergeMeta', () => {
       ],
     });
   });
+
+  test('should preserve repeatable Open Graph metadata', () => {
+    const defaults = {
+      meta: [{ property: 'og:image', content: 'default.jpg' }],
+    };
+    const overrides = {
+      meta: [
+        { property: 'og:image', content: 'first.jpg' },
+        { property: 'og:image', content: 'second.jpg' },
+      ],
+    };
+
+    expect(mergeMeta(defaults, overrides)).toEqual({
+      meta: [...defaults.meta, ...overrides.meta],
+    });
+  });
+
+  test('should override canonical links', () => {
+    const defaults = {
+      link: [
+        { rel: 'stylesheet', href: '/default.css' },
+        { rel: 'canonical', href: '/default' },
+      ],
+    };
+    const overrides = {
+      link: [{ rel: 'CANONICAL', href: '/override' }],
+    };
+
+    expect(mergeMeta(defaults, overrides)).toEqual({
+      link: [defaults.link[0], overrides.link[0]],
+    });
+  });
+
+  test('should override charset and http-equiv metadata', () => {
+    const defaults = {
+      meta: [
+        { charset: 'utf-8' },
+        {
+          'http-equiv': 'Content-Security-Policy',
+          content: "default-src 'self'",
+        },
+      ],
+    };
+    const overrides = {
+      meta: [
+        { charset: 'utf-16' },
+        {
+          'http-equiv': 'content-security-policy',
+          content: "default-src 'none'",
+        },
+      ],
+    };
+
+    expect(mergeMeta(defaults, overrides)).toEqual({
+      meta: overrides.meta,
+    });
+  });
 });
 
 describe('rebaseMeta', () => {
@@ -157,13 +218,10 @@ describe('renderMetaToString', () => {
           name: 'test',
           content: 'test',
         },
-        {
-          [`"`]: `"`,
-        },
       ],
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<title >test</title><meta name="test" content="test" /><meta &quot;="&quot;" />`
+      `<title>test</title><meta name="test" content="test" />`
     );
   });
 
@@ -213,7 +271,7 @@ describe('renderMetaToString', () => {
       ],
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<style >a {}</style><style >b {}</style>`
+      `<style>a {}</style><style>b {}</style>`
     );
   });
 
@@ -294,7 +352,7 @@ describe('renderMetaToString', () => {
     expect(renderMetaToString(meta)).toEqual(
       `<meta charset="utf-8" />` +
         `<meta name="viewport" content="width=device-width, initial-scale=1.0" />` +
-        `<title >😄New title!</title>` +
+        `<title>😄New title!</title>` +
         `<meta name="description" content="HTML Meta Data Example" />` +
         `<meta name="keywords" content="c, d" />` +
         `<meta property="og:title" content="New Site" />` +
@@ -304,7 +362,7 @@ describe('renderMetaToString', () => {
         `<base href="https://google.com/" />` +
         `<script type="importmap">{}</script>` +
         `<link type="application/json" href="https://google.com/test.json" />` +
-        `<style >a {}</style>` +
+        `<style>a {}</style>` +
         `<script id="state:web-router" type="application/json">{"pathname":"/meta","params":{},"body":{}}</script>`
     );
   });
@@ -317,15 +375,25 @@ describe('renderMetaToString', () => {
           name: 'test',
           content: `"'&<>`,
         },
-        {
-          [`"'&<>`]: `"'&<>`,
-        },
       ],
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<title >&quot;&#39;&amp;&lt;&gt;</title><meta name="test" content="&quot;&#39;&amp;&lt;&gt;" />` +
-        `<meta &quot;&#39;&amp;&lt;&gt;="&quot;&#39;&amp;&lt;&gt;" />`
+      `<title>&quot;&#39;&amp;&lt;&gt;</title><meta name="test" content="&quot;&#39;&amp;&lt;&gt;" />`
     );
+  });
+
+  test('Invalid attribute names should throw an exception', () => {
+    expect(() =>
+      renderMetaToString({
+        link: [
+          {
+            rel: 'stylesheet',
+            href: '/missing.css',
+            'data-marker onerror': 'alert(1)',
+          },
+        ],
+      })
+    ).toThrow('Invalid attribute name: data-marker onerror');
   });
 
   test('Raw text should be processed correctly', () => {
@@ -342,7 +410,49 @@ describe('renderMetaToString', () => {
       ],
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<style >/*"'&<>*/</style><script >/*"'&<>*/</script>`
+      `<style>/*"'&<>*/</style><script>/*"'&<>*/</script>`
+    );
+  });
+
+  test('JSON script content should escape less-than signs', () => {
+    expect(
+      renderMetaToString({
+        script: [
+          {
+            type: 'application/json',
+            content: '{"value":"</script>"}',
+          },
+        ],
+      })
+    ).toBe(
+      `<script type="application/json">{"value":"\\u003c/script>"}</script>`
+    );
+  });
+
+  test.each([
+    ['script', { script: [{ content: '</script>' }] }],
+    ['style', { style: [{ content: '</STYLE >' }] }],
+  ])('Closing %s tags in raw text should throw an exception', (tag, meta) => {
+    expect(() => renderMetaToString(meta)).toThrow(
+      `Invalid ${tag} content: closing tag is not allowed`
+    );
+  });
+
+  test('Basic metadata fields should override matching descriptors', () => {
+    expect(
+      renderMetaToString({
+        description: 'primary description',
+        keywords: '',
+        meta: [
+          { name: 'Description', content: 'duplicate description' },
+          { name: 'KEYWORDS', content: 'duplicate keywords' },
+          { name: 'author', content: 'Web Widget' },
+        ],
+      })
+    ).toBe(
+      `<meta name="description" content="primary description" />` +
+        `<meta name="keywords" content />` +
+        `<meta name="author" content="Web Widget" />`
     );
   });
 

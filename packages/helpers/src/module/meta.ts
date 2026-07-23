@@ -1,37 +1,92 @@
 import type { Meta } from '@web-widget/schema';
 import { escapeHtml } from '@web-widget/purify';
 
-const safeAttributeName = (value: string) =>
-  escapeHtml(String(value)).toLowerCase();
+const RAW_TEXT_CLOSING_TAG = {
+  script: /<\/script(?=[\t\n\f\r />])/i,
+  style: /<\/style(?=[\t\n\f\r />])/i,
+};
+
+const isInvalidAttributeName = (name: string) => {
+  for (const character of name) {
+    const codePoint = character.codePointAt(0) as number;
+    const planeCodePoint = codePoint & 0xffff;
+    if (
+      codePoint <= 0x20 ||
+      (codePoint >= 0x7f && codePoint <= 0x9f) ||
+      (codePoint >= 0xfdd0 && codePoint <= 0xfdef) ||
+      planeCodePoint === 0xfffe ||
+      planeCodePoint === 0xffff ||
+      `"'<>/=`.includes(character)
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const safeAttributeName = (value: string) => {
+  const name = String(value).toLowerCase();
+  if (isInvalidAttributeName(name)) {
+    throw new TypeError(`Invalid attribute name: ${value}`);
+  }
+  return name;
+};
 const safeAttributeValue = (value: string) => escapeHtml(String(value));
 
-const createAttributes = (attrs: Record<string, string | undefined>) =>
-  Object.entries(attrs)
-    .map(([attrName, attrValue]) =>
-      typeof attrValue === 'string'
-        ? `${safeAttributeName(attrName)}${
-            attrValue === '' ? '' : '="' + safeAttributeValue(attrValue) + '"'
-          }`
-        : ''
-    )
-    .join(' ');
+const createAttributes = (attributes: object) => {
+  const serialized: string[] = [];
+  for (const [attributeName, attributeValue] of Object.entries(attributes)) {
+    if (typeof attributeValue !== 'string') {
+      continue;
+    }
+    const name = safeAttributeName(attributeName);
+    serialized.push(
+      attributeValue === ''
+        ? name
+        : `${name}="${safeAttributeValue(attributeValue)}"`
+    );
+  }
+  return serialized.join(' ');
+};
 
 function createElement(
   name: string,
-  attributes: Record<string, string | undefined>,
+  attributes: object,
   children?: string
 ): string {
+  const serializedAttributes = createAttributes(attributes);
+  const startTag = `<${name}${
+    serializedAttributes ? ` ${serializedAttributes}` : ''
+  }`;
   return typeof children === 'string'
-    ? `<${name} ${createAttributes(attributes)}>${children}</${name}>`
-    : `<${name} ${createAttributes(attributes)} />`;
+    ? `${startTag}>${children}</${name}>`
+    : `${startTag} />`;
 }
 
 function createText(data: string) {
   return escapeHtml(data);
 }
 
-function createRawText(data: string) {
+function createRawText(name: keyof typeof RAW_TEXT_CLOSING_TAG, data: string) {
+  if (RAW_TEXT_CLOSING_TAG[name].test(data)) {
+    throw new TypeError(`Invalid ${name} content: closing tag is not allowed`);
+  }
   return data;
+}
+
+const getScriptTypeEssence = (type?: string) =>
+  type?.trim().toLowerCase().split(';', 1)[0];
+
+function createScriptText(data: string, type?: string) {
+  const essence = getScriptTypeEssence(type);
+  if (
+    essence === 'importmap' ||
+    essence === 'application/json' ||
+    essence?.endsWith('+json')
+  ) {
+    return data.replace(/</g, '\\u003c');
+  }
+  return createRawText('script', data);
 }
 
 export function renderMetaToString(metadata: Meta): string {
@@ -52,93 +107,98 @@ export function renderMetaToString(metadata: Meta): string {
     throw new Error(`Unknown tag: ${tag}`);
   }
 
-  let systemTags = '';
-  let basicTags = '';
-  let baseTags = '';
-  let metaTags = '';
-  let importmapTags = '';
-  let linkTags = '';
-  let styleTags = '';
-  let scriptTags = '';
+  const systemTags: string[] = [];
+  const basicTags: string[] = [];
+  const metaTags: string[] = [];
+  const baseTags: string[] = [];
+  const importmapTags: string[] = [];
+  const linkTags: string[] = [];
+  const styleTags: string[] = [];
+  const scriptTags: string[] = [];
 
-  if (title) {
-    basicTags += createElement('title', {}, createText(title));
+  if (title !== undefined) {
+    basicTags.push(createElement('title', {}, createText(title)));
   }
 
-  if (description) {
-    basicTags += createElement('meta', {
-      name: 'description',
-      content: description,
-    });
+  if (description !== undefined) {
+    basicTags.push(
+      createElement('meta', {
+        name: 'description',
+        content: description,
+      })
+    );
   }
 
-  if (keywords) {
-    basicTags += createElement('meta', { name: 'keywords', content: keywords });
+  if (keywords !== undefined) {
+    basicTags.push(
+      createElement('meta', { name: 'keywords', content: keywords })
+    );
   }
 
   if (meta) {
-    for (const attributes of meta as Record<string, string>[]) {
-      if (attributes.name === 'viewport' || attributes.charset) {
-        systemTags += createElement('meta', attributes);
-      } else if (
-        attributes.name === 'description' ||
-        attributes.name === 'keywords'
+    for (const attributes of meta) {
+      const name = attributes.name?.toLowerCase();
+      if (
+        (name === 'description' && description !== undefined) ||
+        (name === 'keywords' && keywords !== undefined)
       ) {
-        basicTags += createElement('meta', attributes);
+        continue;
+      }
+      const element = createElement('meta', attributes);
+      if (name === 'viewport' || attributes.charset) {
+        systemTags.push(element);
+      } else if (name === 'description' || name === 'keywords') {
+        basicTags.push(element);
       } else {
-        metaTags += createElement('meta', attributes);
+        metaTags.push(element);
       }
     }
   }
 
   if (base) {
-    baseTags += createElement('base', base as Record<string, string>);
+    baseTags.push(createElement('base', base));
   }
 
   if (link) {
-    for (const attributes of link as Record<string, string>[]) {
-      linkTags += createElement('link', attributes);
+    for (const attributes of link) {
+      linkTags.push(createElement('link', attributes));
     }
   }
 
   if (style) {
-    for (const { content = '', ...attributes } of style as Record<
-      string,
-      string
-    >[]) {
-      styleTags += createElement('style', attributes, createRawText(content));
+    for (const { content = '', ...attributes } of style) {
+      styleTags.push(
+        createElement('style', attributes, createRawText('style', content))
+      );
     }
   }
 
   if (script) {
-    for (const { content = '', ...attributes } of script as Record<
-      string,
-      string
-    >[]) {
-      const script = createElement(
+    for (const { content = '', ...attributes } of script) {
+      const element = createElement(
         'script',
         attributes,
-        createRawText(content)
+        createScriptText(content, attributes.type)
       );
-      if (attributes?.type === 'importmap') {
+      if (getScriptTypeEssence(attributes.type) === 'importmap') {
         // NOTE: ImportMap must precede link[rel=modulepreload] elements
-        importmapTags += script;
+        importmapTags.push(element);
       } else {
-        scriptTags += script;
+        scriptTags.push(element);
       }
     }
   }
 
-  return (
-    systemTags +
-    basicTags +
-    metaTags +
-    baseTags +
-    importmapTags +
-    linkTags +
-    styleTags +
-    scriptTags
-  );
+  return [
+    ...systemTags,
+    ...basicTags,
+    ...metaTags,
+    ...baseTags,
+    ...importmapTags,
+    ...linkTags,
+    ...styleTags,
+    ...scriptTags,
+  ].join('');
 }
 
 export function rebaseMeta(meta: Meta, importer: string): Meta {
@@ -179,42 +239,99 @@ export function rebaseMeta(meta: Meta, importer: string): Meta {
   };
 }
 
-export const mergeMeta = (defaults: Meta, overrides: Meta): Meta => {
-  const mergedMeta = Object.entries(defaults).reduce(
-    (meta, [key, value]) => {
-      meta[key] = Array.isArray(value)
-        ? [...value.map((item) => ({ ...item }))]
-        : value;
-      return meta;
-    },
-    {} as Record<string, string | Record<string, string>[]>
+type Descriptor = Record<string, string | undefined>;
+
+const REPEATABLE_OPEN_GRAPH_PROPERTIES = new Set([
+  'og:audio',
+  'og:image',
+  'og:locale:alternate',
+  'og:video',
+]);
+
+const cloneMetaValue = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value.map((item) => ({ ...item }));
+  }
+  if (value && typeof value === 'object') {
+    return { ...value };
+  }
+  return value;
+};
+
+const isCanonical = (descriptor: Descriptor) =>
+  descriptor.rel
+    ?.split(/\s+/)
+    .some((relation) => relation.toLowerCase() === 'canonical') ?? false;
+
+const isSameMeta = (current: Descriptor, override: Descriptor) => {
+  if (override.charset !== undefined) {
+    return current.charset !== undefined;
+  }
+  if (override['http-equiv'] !== undefined) {
+    return (
+      current['http-equiv']?.toLowerCase() ===
+      override['http-equiv'].toLowerCase()
+    );
+  }
+  return (
+    (current.name !== undefined && current.name === override.name) ||
+    (current.property !== undefined && current.property === override.property)
   );
+};
+
+const replaceDescriptors = (
+  target: Descriptor[],
+  key: string,
+  replacement: Descriptor
+) => {
+  const replacementIsCanonical = key === 'link' && isCanonical(replacement);
+  const compacted: Descriptor[] = [];
+  let insertionIndex = -1;
+
+  for (const descriptor of target) {
+    const matches =
+      (key === 'meta' && isSameMeta(descriptor, replacement)) ||
+      (replacementIsCanonical && isCanonical(descriptor));
+    if (matches) {
+      insertionIndex =
+        insertionIndex === -1 ? compacted.length : insertionIndex;
+    } else {
+      compacted.push(descriptor);
+    }
+  }
+
+  if (insertionIndex === -1) {
+    compacted.push(replacement);
+  } else {
+    compacted.splice(insertionIndex, 0, replacement);
+  }
+  return compacted;
+};
+
+export const mergeMeta = (defaults: Meta, overrides: Meta): Meta => {
+  const mergedMeta = Object.fromEntries(
+    Object.entries(defaults).map(([key, value]) => [key, cloneMetaValue(value)])
+  ) as Meta;
+  const result = mergedMeta as Record<string, unknown>;
 
   for (const [key, value] of Object.entries(overrides)) {
     if (Array.isArray(value)) {
-      const target = (mergedMeta[key] ??= []) as Record<string, string>[];
+      let target = (result[key] ??= []) as Descriptor[];
       for (const override of value) {
-        const index =
-          key === 'meta'
-            ? target.findIndex(
-                (meta) =>
-                  ('name' in meta &&
-                    'name' in override &&
-                    meta.name === override.name) ||
-                  ('property' in meta &&
-                    'property' in override &&
-                    meta.property === override.property)
-                // ("key" in meta && "key" in override)
-              )
-            : -1;
-        if (index > -1) {
-          target.splice(index, 1, override);
+        const clonedOverride = { ...override } as Descriptor;
+        const isRepeatable =
+          key === 'meta' &&
+          clonedOverride.property !== undefined &&
+          REPEATABLE_OPEN_GRAPH_PROPERTIES.has(clonedOverride.property);
+        if (isRepeatable) {
+          target.push(clonedOverride);
         } else {
-          target.push(override);
+          target = replaceDescriptors(target, key, clonedOverride);
         }
       }
+      result[key] = target;
     } else {
-      mergedMeta[key] = value;
+      result[key] = cloneMetaValue(value);
     }
   }
 
