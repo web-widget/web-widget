@@ -33,25 +33,34 @@ const safeAttributeName = (value: string) => {
 };
 const safeAttributeValue = (value: string) => escapeHtml(String(value));
 
-const createAttributes = (attrs: Record<string, string | undefined>) =>
-  Object.entries(attrs)
-    .map(([attrName, attrValue]) =>
-      typeof attrValue === 'string'
-        ? `${safeAttributeName(attrName)}${
-            attrValue === '' ? '' : '="' + safeAttributeValue(attrValue) + '"'
-          }`
-        : ''
-    )
-    .join(' ');
+const createAttributes = (attributes: object) => {
+  const serialized: string[] = [];
+  for (const [attributeName, attributeValue] of Object.entries(attributes)) {
+    if (typeof attributeValue !== 'string') {
+      continue;
+    }
+    const name = safeAttributeName(attributeName);
+    serialized.push(
+      attributeValue === ''
+        ? name
+        : `${name}="${safeAttributeValue(attributeValue)}"`
+    );
+  }
+  return serialized.join(' ');
+};
 
 function createElement(
   name: string,
-  attributes: Record<string, string | undefined>,
+  attributes: object,
   children?: string
 ): string {
+  const serializedAttributes = createAttributes(attributes);
+  const startTag = `<${name}${
+    serializedAttributes ? ` ${serializedAttributes}` : ''
+  }`;
   return typeof children === 'string'
-    ? `<${name} ${createAttributes(attributes)}>${children}</${name}>`
-    : `<${name} ${createAttributes(attributes)} />`;
+    ? `${startTag}>${children}</${name}>`
+    : `${startTag} />`;
 }
 
 function createText(data: string) {
@@ -63,6 +72,21 @@ function createRawText(name: keyof typeof RAW_TEXT_CLOSING_TAG, data: string) {
     throw new TypeError(`Invalid ${name} content: closing tag is not allowed`);
   }
   return data;
+}
+
+const getScriptTypeEssence = (type?: string) =>
+  type?.trim().toLowerCase().split(';', 1)[0];
+
+function createScriptText(data: string, type?: string) {
+  const essence = getScriptTypeEssence(type);
+  if (
+    essence === 'importmap' ||
+    essence === 'application/json' ||
+    essence?.endsWith('+json')
+  ) {
+    return data.replace(/</g, '\\u003c');
+  }
+  return createRawText('script', data);
 }
 
 export function renderMetaToString(metadata: Meta): string {
@@ -83,101 +107,98 @@ export function renderMetaToString(metadata: Meta): string {
     throw new Error(`Unknown tag: ${tag}`);
   }
 
-  let systemTags = '';
-  let basicTags = '';
-  let baseTags = '';
-  let metaTags = '';
-  let importmapTags = '';
-  let linkTags = '';
-  let styleTags = '';
-  let scriptTags = '';
+  const systemTags: string[] = [];
+  const basicTags: string[] = [];
+  const metaTags: string[] = [];
+  const baseTags: string[] = [];
+  const importmapTags: string[] = [];
+  const linkTags: string[] = [];
+  const styleTags: string[] = [];
+  const scriptTags: string[] = [];
 
   if (title !== undefined) {
-    basicTags += createElement('title', {}, createText(title));
+    basicTags.push(createElement('title', {}, createText(title)));
   }
 
   if (description !== undefined) {
-    basicTags += createElement('meta', {
-      name: 'description',
-      content: description,
-    });
+    basicTags.push(
+      createElement('meta', {
+        name: 'description',
+        content: description,
+      })
+    );
   }
 
   if (keywords !== undefined) {
-    basicTags += createElement('meta', { name: 'keywords', content: keywords });
+    basicTags.push(
+      createElement('meta', { name: 'keywords', content: keywords })
+    );
   }
 
   if (meta) {
-    for (const attributes of meta as Record<string, string>[]) {
+    for (const attributes of meta) {
       const name = attributes.name?.toLowerCase();
+      if (
+        (name === 'description' && description !== undefined) ||
+        (name === 'keywords' && keywords !== undefined)
+      ) {
+        continue;
+      }
+      const element = createElement('meta', attributes);
       if (name === 'viewport' || attributes.charset) {
-        systemTags += createElement('meta', attributes);
-      } else if (name === 'description') {
-        if (description === undefined) {
-          basicTags += createElement('meta', attributes);
-        }
-      } else if (name === 'keywords') {
-        if (keywords === undefined) {
-          basicTags += createElement('meta', attributes);
-        }
+        systemTags.push(element);
+      } else if (name === 'description' || name === 'keywords') {
+        basicTags.push(element);
       } else {
-        metaTags += createElement('meta', attributes);
+        metaTags.push(element);
       }
     }
   }
 
   if (base) {
-    baseTags += createElement('base', base as Record<string, string>);
+    baseTags.push(createElement('base', base));
   }
 
   if (link) {
-    for (const attributes of link as Record<string, string>[]) {
-      linkTags += createElement('link', attributes);
+    for (const attributes of link) {
+      linkTags.push(createElement('link', attributes));
     }
   }
 
   if (style) {
-    for (const { content = '', ...attributes } of style as Record<
-      string,
-      string
-    >[]) {
-      styleTags += createElement(
-        'style',
-        attributes,
-        createRawText('style', content)
+    for (const { content = '', ...attributes } of style) {
+      styleTags.push(
+        createElement('style', attributes, createRawText('style', content))
       );
     }
   }
 
   if (script) {
-    for (const { content = '', ...attributes } of script as Record<
-      string,
-      string
-    >[]) {
-      const script = createElement(
+    for (const { content = '', ...attributes } of script) {
+      const element = createElement(
         'script',
         attributes,
-        createRawText('script', content)
+        createScriptText(content, attributes.type)
       );
-      if (attributes?.type === 'importmap') {
+      if (getScriptTypeEssence(attributes.type) === 'importmap') {
         // NOTE: ImportMap must precede link[rel=modulepreload] elements
-        importmapTags += script;
+        importmapTags.push(element);
       } else {
-        scriptTags += script;
+        scriptTags.push(element);
       }
     }
   }
 
-  return (
-    systemTags +
-    basicTags +
-    metaTags +
-    baseTags +
-    importmapTags +
-    linkTags +
-    styleTags +
-    scriptTags
-  );
+  return [
+    ...systemTags,
+    ...basicTags,
+    ...metaTags,
+    ...baseTags,
+    ...importmapTags,
+    ...linkTags,
+    ...styleTags,
+    ...scriptTags,
+  ].join('');
 }
 
 export function rebaseMeta(meta: Meta, importer: string): Meta {

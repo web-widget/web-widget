@@ -221,7 +221,7 @@ describe('renderMetaToString', () => {
       ],
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<title >test</title><meta name="test" content="test" />`
+      `<title>test</title><meta name="test" content="test" />`
     );
   });
 
@@ -271,7 +271,7 @@ describe('renderMetaToString', () => {
       ],
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<style >a {}</style><style >b {}</style>`
+      `<style>a {}</style><style>b {}</style>`
     );
   });
 
@@ -352,7 +352,7 @@ describe('renderMetaToString', () => {
     expect(renderMetaToString(meta)).toEqual(
       `<meta charset="utf-8" />` +
         `<meta name="viewport" content="width=device-width, initial-scale=1.0" />` +
-        `<title >😄New title!</title>` +
+        `<title>😄New title!</title>` +
         `<meta name="description" content="HTML Meta Data Example" />` +
         `<meta name="keywords" content="c, d" />` +
         `<meta property="og:title" content="New Site" />` +
@@ -362,7 +362,7 @@ describe('renderMetaToString', () => {
         `<base href="https://google.com/" />` +
         `<script type="importmap">{}</script>` +
         `<link type="application/json" href="https://google.com/test.json" />` +
-        `<style >a {}</style>` +
+        `<style>a {}</style>` +
         `<script id="state:web-router" type="application/json">{"pathname":"/meta","params":{},"body":{}}</script>`
     );
   });
@@ -378,7 +378,7 @@ describe('renderMetaToString', () => {
       ],
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<title >&quot;&#39;&amp;&lt;&gt;</title><meta name="test" content="&quot;&#39;&amp;&lt;&gt;" />`
+      `<title>&quot;&#39;&amp;&lt;&gt;</title><meta name="test" content="&quot;&#39;&amp;&lt;&gt;" />`
     );
   });
 
@@ -410,15 +410,27 @@ describe('renderMetaToString', () => {
       ],
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<style >/*"'&<>*/</style><script >/*"'&<>*/</script>`
+      `<style>/*"'&<>*/</style><script>/*"'&<>*/</script>`
+    );
+  });
+
+  test('JSON script content should escape less-than signs', () => {
+    expect(
+      renderMetaToString({
+        script: [
+          {
+            type: 'application/json',
+            content: '{"value":"</script>"}',
+          },
+        ],
+      })
+    ).toBe(
+      `<script type="application/json">{"value":"\\u003c/script>"}</script>`
     );
   });
 
   test.each([
-    [
-      'script',
-      { script: [{ type: 'application/json', content: '</script>' }] },
-    ],
+    ['script', { script: [{ content: '</script>' }] }],
     ['style', { style: [{ content: '</STYLE >' }] }],
   ])('Closing %s tags in raw text should throw an exception', (tag, meta) => {
     expect(() => renderMetaToString(meta)).toThrow(
