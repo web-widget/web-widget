@@ -179,42 +179,99 @@ export function rebaseMeta(meta: Meta, importer: string): Meta {
   };
 }
 
-export const mergeMeta = (defaults: Meta, overrides: Meta): Meta => {
-  const mergedMeta = Object.entries(defaults).reduce(
-    (meta, [key, value]) => {
-      meta[key] = Array.isArray(value)
-        ? [...value.map((item) => ({ ...item }))]
-        : value;
-      return meta;
-    },
-    {} as Record<string, string | Record<string, string>[]>
+type Descriptor = Record<string, string | undefined>;
+
+const REPEATABLE_OPEN_GRAPH_PROPERTIES = new Set([
+  'og:audio',
+  'og:image',
+  'og:locale:alternate',
+  'og:video',
+]);
+
+const cloneMetaValue = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value.map((item) => ({ ...item }));
+  }
+  if (value && typeof value === 'object') {
+    return { ...value };
+  }
+  return value;
+};
+
+const isCanonical = (descriptor: Descriptor) =>
+  descriptor.rel
+    ?.split(/\s+/)
+    .some((relation) => relation.toLowerCase() === 'canonical') ?? false;
+
+const isSameMeta = (current: Descriptor, override: Descriptor) => {
+  if (override.charset !== undefined) {
+    return current.charset !== undefined;
+  }
+  if (override['http-equiv'] !== undefined) {
+    return (
+      current['http-equiv']?.toLowerCase() ===
+      override['http-equiv'].toLowerCase()
+    );
+  }
+  return (
+    (current.name !== undefined && current.name === override.name) ||
+    (current.property !== undefined && current.property === override.property)
   );
+};
+
+const replaceDescriptors = (
+  target: Descriptor[],
+  key: string,
+  replacement: Descriptor
+) => {
+  const replacementIsCanonical = key === 'link' && isCanonical(replacement);
+  const compacted: Descriptor[] = [];
+  let insertionIndex = -1;
+
+  for (const descriptor of target) {
+    const matches =
+      (key === 'meta' && isSameMeta(descriptor, replacement)) ||
+      (replacementIsCanonical && isCanonical(descriptor));
+    if (matches) {
+      insertionIndex =
+        insertionIndex === -1 ? compacted.length : insertionIndex;
+    } else {
+      compacted.push(descriptor);
+    }
+  }
+
+  if (insertionIndex === -1) {
+    compacted.push(replacement);
+  } else {
+    compacted.splice(insertionIndex, 0, replacement);
+  }
+  return compacted;
+};
+
+export const mergeMeta = (defaults: Meta, overrides: Meta): Meta => {
+  const mergedMeta = Object.fromEntries(
+    Object.entries(defaults).map(([key, value]) => [key, cloneMetaValue(value)])
+  ) as Meta;
+  const result = mergedMeta as Record<string, unknown>;
 
   for (const [key, value] of Object.entries(overrides)) {
     if (Array.isArray(value)) {
-      const target = (mergedMeta[key] ??= []) as Record<string, string>[];
+      let target = (result[key] ??= []) as Descriptor[];
       for (const override of value) {
-        const index =
-          key === 'meta'
-            ? target.findIndex(
-                (meta) =>
-                  ('name' in meta &&
-                    'name' in override &&
-                    meta.name === override.name) ||
-                  ('property' in meta &&
-                    'property' in override &&
-                    meta.property === override.property)
-                // ("key" in meta && "key" in override)
-              )
-            : -1;
-        if (index > -1) {
-          target.splice(index, 1, override);
+        const clonedOverride = { ...override } as Descriptor;
+        const isRepeatable =
+          key === 'meta' &&
+          clonedOverride.property !== undefined &&
+          REPEATABLE_OPEN_GRAPH_PROPERTIES.has(clonedOverride.property);
+        if (isRepeatable) {
+          target.push(clonedOverride);
         } else {
-          target.push(override);
+          target = replaceDescriptors(target, key, clonedOverride);
         }
       }
+      result[key] = target;
     } else {
-      mergedMeta[key] = value;
+      result[key] = cloneMetaValue(value);
     }
   }
 

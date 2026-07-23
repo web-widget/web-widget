@@ -4,16 +4,20 @@ import { mergeMeta, rebaseMeta, renderMetaToString } from './meta';
 describe('mergeMeta', () => {
   test('Should return the new object', () => {
     const defaults = {
-      meta: [],
+      base: { href: '/default/' },
+      meta: [{ name: 'description', content: 'default' }],
     };
     const overrides = {
-      meta: [],
+      meta: [{ name: 'description', content: 'override' }],
     };
     const result = mergeMeta(defaults, overrides);
     expect(result).not.toBe(defaults);
     expect(result).not.toBe(overrides);
+    expect(result.base).not.toBe(defaults.base);
     expect(result.meta).not.toBe(defaults.meta);
     expect(result.meta).not.toBe(overrides.meta);
+    expect(result.meta?.[0]).not.toBe(defaults.meta[0]);
+    expect(result.meta?.[0]).not.toBe(overrides.meta[0]);
   });
 
   test('Should cover content', () => {
@@ -95,6 +99,63 @@ describe('mergeMeta', () => {
           content: 'http://newsblog.org/news/136756249803614',
         },
       ],
+    });
+  });
+
+  test('should preserve repeatable Open Graph metadata', () => {
+    const defaults = {
+      meta: [{ property: 'og:image', content: 'default.jpg' }],
+    };
+    const overrides = {
+      meta: [
+        { property: 'og:image', content: 'first.jpg' },
+        { property: 'og:image', content: 'second.jpg' },
+      ],
+    };
+
+    expect(mergeMeta(defaults, overrides)).toEqual({
+      meta: [...defaults.meta, ...overrides.meta],
+    });
+  });
+
+  test('should override canonical links', () => {
+    const defaults = {
+      link: [
+        { rel: 'stylesheet', href: '/default.css' },
+        { rel: 'canonical', href: '/default' },
+      ],
+    };
+    const overrides = {
+      link: [{ rel: 'CANONICAL', href: '/override' }],
+    };
+
+    expect(mergeMeta(defaults, overrides)).toEqual({
+      link: [defaults.link[0], overrides.link[0]],
+    });
+  });
+
+  test('should override charset and http-equiv metadata', () => {
+    const defaults = {
+      meta: [
+        { charset: 'utf-8' },
+        {
+          'http-equiv': 'Content-Security-Policy',
+          content: "default-src 'self'",
+        },
+      ],
+    };
+    const overrides = {
+      meta: [
+        { charset: 'utf-16' },
+        {
+          'http-equiv': 'content-security-policy',
+          content: "default-src 'none'",
+        },
+      ],
+    };
+
+    expect(mergeMeta(defaults, overrides)).toEqual({
+      meta: overrides.meta,
     });
   });
 });
