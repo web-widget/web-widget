@@ -28,6 +28,33 @@ function getManifestFileName(
   return manifest;
 }
 
+function captureClientManifest(
+  host: RouterPluginHost,
+  config: ResolvedConfig,
+  bundle: Record<
+    string,
+    { type: string; source?: string | Uint8Array<ArrayBufferLike> }
+  >,
+  preserveExisting: boolean
+): void {
+  if (preserveExisting && host.state.clientManifest) {
+    return;
+  }
+  const manifestFileName = getManifestFileName(config);
+  if (!manifestFileName) {
+    return;
+  }
+  const asset = bundle[manifestFileName];
+  if (!asset || asset.type !== 'asset' || asset.source === undefined) {
+    return;
+  }
+  const source =
+    typeof asset.source === 'string'
+      ? asset.source
+      : Buffer.from(asset.source).toString('utf-8');
+  host.patchState({ clientManifest: JSON.parse(source) });
+}
+
 export function createServerOutputPlugin(host: RouterPluginHost): Plugin {
   return {
     name: '@web-widget:server-output',
@@ -166,41 +193,17 @@ export function createClientManifestCapturePlugin(
       if (!isClientEnvironment(this.environment)) {
         return;
       }
-      const manifestFileName = getManifestFileName(this.environment.config);
-      if (!manifestFileName) {
-        return;
-      }
-      const asset = bundle[manifestFileName];
-      if (asset && asset.type === 'asset') {
-        const manifest = JSON.parse(
-          typeof asset.source === 'string'
-            ? asset.source
-            : Buffer.from(asset.source).toString('utf-8')
-        );
-        host.patchState({ clientManifest: manifest });
-      }
+      captureClientManifest(host, this.environment.config, bundle, false);
     },
 
     writeBundle(_options, bundle) {
       if (!isClientEnvironment(this.environment)) {
         return;
       }
-      const manifestFileName = getManifestFileName(this.environment.config);
-      if (!manifestFileName) {
-        return;
-      }
       // The native viteManifestPlugin adds the manifest to the bundle after
       // all JS `generateBundle` hooks. Capture it here if it wasn't available
       // earlier.
-      const asset = bundle[manifestFileName];
-      if (asset && asset.type === 'asset' && !host.state.clientManifest) {
-        const manifest = JSON.parse(
-          typeof asset.source === 'string'
-            ? asset.source
-            : Buffer.from(asset.source).toString('utf-8')
-        );
-        host.patchState({ clientManifest: manifest });
-      }
+      captureClientManifest(host, this.environment.config, bundle, true);
     },
   };
 }
