@@ -1,5 +1,38 @@
 # @web-widget/schema
 
+## 3.0.0-beta.4
+
+### Major Changes
+
+- d2ccffa: Add `loading: 'auto'` and make it the default Widget loading strategy. Auto
+  loading prioritizes visible and interactive Widgets and loads all remaining
+  Widgets when the browser is idle, while leaving resource concurrency to the
+  browser. Explicit `eager`, `lazy`, and `idle` strategies retain their existing
+  behavior.
+- 4e19787: Unify Widget render-mode configuration around the mutually exclusive
+  `serverOnly` and `clientOnly` booleans.
+
+  **Breaking:** `WidgetContainerOptions` and `WebWidgetRendererOptions` no longer
+  accept `renderStage`. Pass `serverOnly: true` or `clientOnly: true` through the
+  per-use `widget` prop instead. Render mode is no longer a definition-time
+  `widget(loader, options)` default, so adapters can pass the mutually exclusive
+  props directly to the renderer without a separate merge policy.
+
+- d2ccffa: Rename the adapter widget wrapper API from `container()` to `widget()`.
+  The `AdapterModule.container` contract field is now `AdapterModule.widget`,
+  and generated imports use `widget` exclusively. This is a breaking change;
+  there is no compatibility export for the old API.
+
+### Minor Changes
+
+- d2ccffa: Add `@web-widget/schema/testing`, a runner-neutral adapter conformance suite,
+  and use it to verify the server and client lifecycle contracts of every built-in
+  adapter.
+
+  Server render streams may contain either string chunks or UTF-8 encoded byte
+  chunks, allowing adapters to expose framework-native streams without decoding
+  them first.
+
 ## 3.0.0-beta.3
 
 ## 3.0.0-beta.2
