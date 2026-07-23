@@ -6,6 +6,11 @@ import { normalizePath, relativePathWithDot } from '@/internal/path';
 
 const ROUTE_TYPE_LIKE = new Set(['route', 'middleware', 'action']);
 
+export type ReadRouteSourceFiles = (
+  routesPath: string,
+  ignore?: string[]
+) => Promise<RouteSourceFile[]>;
+
 function toRouteMapValue(
   root: string,
   basePathname: string,
@@ -45,9 +50,10 @@ export async function getRoutemap(
   routesPath: string,
   basePathname: string,
   overridePathname: OverridePathname | undefined,
-  ignore: string[] = []
+  ignore: string[] = [],
+  readRouteSourceFiles: ReadRouteSourceFiles = walkRoutes
 ): Promise<RouteMap> {
-  const sourceFiles = await walkRoutes(routesPath, ignore);
+  const sourceFiles = await readRouteSourceFiles(routesPath, ignore);
   const fallbacks: RouteSourceFile[] = [];
   const layouts: RouteSourceFile[] = [];
   const middlewares: RouteSourceFile[] = [];

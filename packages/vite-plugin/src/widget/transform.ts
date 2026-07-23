@@ -112,13 +112,19 @@ function buildPluginsForTransform(
  * ```
  */
 export function webWidgetPlugin(options: WebWidgetPluginOptions): Plugin[] {
+  return createWidgetTransformPlugins(options, process.cwd());
+}
+
+/** Builds widget transform plugins against an explicit project root. */
+export function createWidgetTransformPlugins(
+  options: WebWidgetPluginOptions,
+  root: string
+): Plugin[] {
   if (!options?.transforms?.length) {
     throw new TypeError(
       `webWidgetPlugin: "transforms" is required and must not be empty.`
     );
   }
-
-  const root = process.cwd();
 
   const transforms = options.transforms;
 

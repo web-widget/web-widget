@@ -52,10 +52,9 @@ export function importActionPlugin(
       const webRouterPluginApi = getWebRouterPluginApi(config);
 
       if (options.serverUrl) {
+        enabled = true;
         serverUrl = options.serverUrl;
-      }
-
-      if (!serverUrl && webRouterPluginApi) {
+      } else if (webRouterPluginApi) {
         enabled = webRouterPluginApi.config.serverAction.enabled;
         serverUrl = async (file) => {
           const id = relativePathWithDot(root, file);
@@ -73,9 +72,7 @@ export function importActionPlugin(
 
           return action.pathname;
         };
-      }
-
-      if (!serverUrl) {
+      } else {
         throw new Error('"serverUrl" option is required.');
       }
     },
