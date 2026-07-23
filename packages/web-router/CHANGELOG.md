@@ -272,7 +272,7 @@
 
 ### Minor Changes
 
-- 42379b1: Added faster RadixTreeRouter (experimental).
+- 42379b1: Added the faster hybrid URLPattern router (experimental).
 
 ### Patch Changes
 
