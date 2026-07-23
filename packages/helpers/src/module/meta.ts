@@ -1,8 +1,36 @@
 import type { Meta } from '@web-widget/schema';
 import { escapeHtml } from '@web-widget/purify';
 
-const safeAttributeName = (value: string) =>
-  escapeHtml(String(value)).toLowerCase();
+const RAW_TEXT_CLOSING_TAG = {
+  script: /<\/script(?=[\t\n\f\r />])/i,
+  style: /<\/style(?=[\t\n\f\r />])/i,
+};
+
+const isInvalidAttributeName = (name: string) => {
+  for (const character of name) {
+    const codePoint = character.codePointAt(0) as number;
+    const planeCodePoint = codePoint & 0xffff;
+    if (
+      codePoint <= 0x20 ||
+      (codePoint >= 0x7f && codePoint <= 0x9f) ||
+      (codePoint >= 0xfdd0 && codePoint <= 0xfdef) ||
+      planeCodePoint === 0xfffe ||
+      planeCodePoint === 0xffff ||
+      `"'<>/=`.includes(character)
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const safeAttributeName = (value: string) => {
+  const name = String(value).toLowerCase();
+  if (isInvalidAttributeName(name)) {
+    throw new TypeError(`Invalid attribute name: ${value}`);
+  }
+  return name;
+};
 const safeAttributeValue = (value: string) => escapeHtml(String(value));
 
 const createAttributes = (attrs: Record<string, string | undefined>) =>
@@ -30,7 +58,10 @@ function createText(data: string) {
   return escapeHtml(data);
 }
 
-function createRawText(data: string) {
+function createRawText(name: keyof typeof RAW_TEXT_CLOSING_TAG, data: string) {
+  if (RAW_TEXT_CLOSING_TAG[name].test(data)) {
+    throw new TypeError(`Invalid ${name} content: closing tag is not allowed`);
+  }
   return data;
 }
 
@@ -61,30 +92,34 @@ export function renderMetaToString(metadata: Meta): string {
   let styleTags = '';
   let scriptTags = '';
 
-  if (title) {
+  if (title !== undefined) {
     basicTags += createElement('title', {}, createText(title));
   }
 
-  if (description) {
+  if (description !== undefined) {
     basicTags += createElement('meta', {
       name: 'description',
       content: description,
     });
   }
 
-  if (keywords) {
+  if (keywords !== undefined) {
     basicTags += createElement('meta', { name: 'keywords', content: keywords });
   }
 
   if (meta) {
     for (const attributes of meta as Record<string, string>[]) {
-      if (attributes.name === 'viewport' || attributes.charset) {
+      const name = attributes.name?.toLowerCase();
+      if (name === 'viewport' || attributes.charset) {
         systemTags += createElement('meta', attributes);
-      } else if (
-        attributes.name === 'description' ||
-        attributes.name === 'keywords'
-      ) {
-        basicTags += createElement('meta', attributes);
+      } else if (name === 'description') {
+        if (description === undefined) {
+          basicTags += createElement('meta', attributes);
+        }
+      } else if (name === 'keywords') {
+        if (keywords === undefined) {
+          basicTags += createElement('meta', attributes);
+        }
       } else {
         metaTags += createElement('meta', attributes);
       }
@@ -106,7 +141,11 @@ export function renderMetaToString(metadata: Meta): string {
       string,
       string
     >[]) {
-      styleTags += createElement('style', attributes, createRawText(content));
+      styleTags += createElement(
+        'style',
+        attributes,
+        createRawText('style', content)
+      );
     }
   }
 
@@ -118,7 +157,7 @@ export function renderMetaToString(metadata: Meta): string {
       const script = createElement(
         'script',
         attributes,
-        createRawText(content)
+        createRawText('script', content)
       );
       if (attributes?.type === 'importmap') {
         // NOTE: ImportMap must precede link[rel=modulepreload] elements

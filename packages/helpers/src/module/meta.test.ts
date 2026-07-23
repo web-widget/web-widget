@@ -218,13 +218,10 @@ describe('renderMetaToString', () => {
           name: 'test',
           content: 'test',
         },
-        {
-          [`"`]: `"`,
-        },
       ],
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<title >test</title><meta name="test" content="test" /><meta &quot;="&quot;" />`
+      `<title >test</title><meta name="test" content="test" />`
     );
   });
 
@@ -378,15 +375,25 @@ describe('renderMetaToString', () => {
           name: 'test',
           content: `"'&<>`,
         },
-        {
-          [`"'&<>`]: `"'&<>`,
-        },
       ],
     };
     expect(renderMetaToString(meta)).toEqual(
-      `<title >&quot;&#39;&amp;&lt;&gt;</title><meta name="test" content="&quot;&#39;&amp;&lt;&gt;" />` +
-        `<meta &quot;&#39;&amp;&lt;&gt;="&quot;&#39;&amp;&lt;&gt;" />`
+      `<title >&quot;&#39;&amp;&lt;&gt;</title><meta name="test" content="&quot;&#39;&amp;&lt;&gt;" />`
     );
+  });
+
+  test('Invalid attribute names should throw an exception', () => {
+    expect(() =>
+      renderMetaToString({
+        link: [
+          {
+            rel: 'stylesheet',
+            href: '/missing.css',
+            'data-marker onerror': 'alert(1)',
+          },
+        ],
+      })
+    ).toThrow('Invalid attribute name: data-marker onerror');
   });
 
   test('Raw text should be processed correctly', () => {
@@ -404,6 +411,36 @@ describe('renderMetaToString', () => {
     };
     expect(renderMetaToString(meta)).toEqual(
       `<style >/*"'&<>*/</style><script >/*"'&<>*/</script>`
+    );
+  });
+
+  test.each([
+    [
+      'script',
+      { script: [{ type: 'application/json', content: '</script>' }] },
+    ],
+    ['style', { style: [{ content: '</STYLE >' }] }],
+  ])('Closing %s tags in raw text should throw an exception', (tag, meta) => {
+    expect(() => renderMetaToString(meta)).toThrow(
+      `Invalid ${tag} content: closing tag is not allowed`
+    );
+  });
+
+  test('Basic metadata fields should override matching descriptors', () => {
+    expect(
+      renderMetaToString({
+        description: 'primary description',
+        keywords: '',
+        meta: [
+          { name: 'Description', content: 'duplicate description' },
+          { name: 'KEYWORDS', content: 'duplicate keywords' },
+          { name: 'author', content: 'Web Widget' },
+        ],
+      })
+    ).toBe(
+      `<meta name="description" content="primary description" />` +
+        `<meta name="keywords" content />` +
+        `<meta name="author" content="Web Widget" />`
     );
   });
 
