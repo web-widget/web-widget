@@ -395,7 +395,7 @@ describe('ServerWebWidgetRenderer Shadow DOM SSR', () => {
     const html = await renderer.renderOuterHTMLToString();
 
     expect(html).to.contain(
-      '<style data-web-widget-style="client-shell" >:host{display:block}</style>'
+      '<style data-web-widget-style="client-shell">:host{display:block}</style>'
     );
   });
 });
