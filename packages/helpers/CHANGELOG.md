@@ -1,5 +1,20 @@
 # @web-widget/helpers
 
+## 3.0.0-beta.4
+
+### Patch Changes
+
+- b60f210: Fix metadata merging to preserve repeatable Open Graph values, replace singleton canonical, charset, and HTTP-equivalent declarations, and avoid retaining references to input descriptors. Harden metadata rendering against invalid attribute names and raw-text closing tags, and prevent duplicate basic metadata declarations.
+- Updated dependencies [d2ccffa]
+- Updated dependencies [d2ccffa]
+- Updated dependencies [4e19787]
+- Updated dependencies [d2ccffa]
+  - @web-widget/schema@3.0.0-beta.4
+  - @web-widget/context@3.0.0-beta.4
+  - @web-widget/lifecycle-cache@3.0.0-beta.4
+  - @web-widget/action@3.0.0-beta.4
+  - @web-widget/purify@3.0.0-beta.4
+
 ## 3.0.0-beta.3
 
 ### Patch Changes
