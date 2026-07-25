@@ -1,5 +1,58 @@
 # @web-widget/vite-plugin
 
+## 3.0.0-beta.4
+
+### Major Changes
+
+- d2ccffa: Add `loading: 'auto'` and make it the default Widget loading strategy. Auto
+  loading prioritizes visible and interactive Widgets and loads all remaining
+  Widgets when the browser is idle, while leaving resource concurrency to the
+  browser. Explicit `eager`, `lazy`, and `idle` strategies retain their existing
+  behavior.
+- d2ccffa: Rename the adapter widget wrapper API from `container()` to `widget()`.
+  The `AdapterModule.container` contract field is now `AdapterModule.widget`,
+  and generated imports use `widget` exclusively. This is a breaking change;
+  there is no compatibility export for the old API.
+
+### Minor Changes
+
+- d2ccffa: Add experimental Shadow DOM SSR boundaries with declarative shadow roots,
+  native slot projection, isolated widget styles, and an internal HTMLElement
+  mount root shared by framework adapters.
+
+  Widget `meta.style` and stylesheet links are installed in shadow boundaries on
+  the server and client. Solid widgets conservatively fall back to client
+  rendering inside isolated shadow roots until their hydration key namespace can
+  be made root-local. Browsers without native Declarative Shadow DOM parsing use
+  a client-side fallback before custom elements are registered.
+
+  The new `webWidgetPlugin.defaults` option configures the default `loading` and
+  `root` values for transformed Widget containers. In shadow mode, route
+  asset collection omits Widget CSS from the document head and keeps it in each
+  shadow boundary. Explicit container options override the injected defaults.
+
+  In development, Vite-transformed Widget CSS is embedded in declarative shadow
+  roots and tracked by stable style IDs for HMR. CSS updates invalidate the
+  server importer chain so CSS Modules class maps and shadow-local selectors stay
+  in sync after reloads.
+
+### Patch Changes
+
+- 6952d76: Enable action transforms configured with a custom `serverUrl`, and improve the
+  testability and unit coverage of route, widget, development, and build plugins.
+- Updated dependencies [d2ccffa]
+- Updated dependencies [d2ccffa]
+- Updated dependencies [b60f210]
+- Updated dependencies [9933976]
+- Updated dependencies [4e19787]
+- Updated dependencies [30aecb5]
+- Updated dependencies [d2ccffa]
+  - @web-widget/schema@3.0.0-beta.4
+  - @web-widget/helpers@3.0.0-beta.4
+  - @web-widget/web-router@3.0.0-beta.4
+  - @web-widget/node@3.0.0-beta.4
+  - @web-widget/inspector@3.0.0-beta.4
+
 ## 3.0.0-beta.3
 
 ### Patch Changes
