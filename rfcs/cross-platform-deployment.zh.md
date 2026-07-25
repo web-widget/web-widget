@@ -99,7 +99,7 @@ Web Widget 适合采用 SvelteKit/Astro 的显式 adapter 体验，并保留 Rea
 
 | 名称 | 含义 |
 | --- | --- |
-| `WebWidgetAdapter` | 现有 UI 框架转换协议；其 `./adapter` 是条件导出的运行时渲染与容器入口 |
+| `WidgetTransform` | 现有 UI 框架构建期转换协议；框架包通过 `./transform` 显式导出转换定义，其中 `adapter` 字段指向条件导出的运行时渲染与容器入口 |
 | `RuntimeAdapter` | 本 RFC 沿用的运行时概念，负责 Node HTTP 或 Worker fetch 与 `WebRouter.handler()` 之间的协议转换 |
 | `DeploymentIntegration` | 本 RFC 新增的构建期协议，负责 Vite 配置、模拟环境、能力验证和平台产物 |
 | `Server Build` | 平台无关的 Web Router ESM 产物，默认导出 `WebRouter` |
@@ -482,7 +482,7 @@ integration 应允许接入 instrumentation，但 capability 为 `false` 时构�
 
 `./deployment` 子路径只能在构建配置中导入，可以依赖 Vite、Wrangler 和 provider 构建工具；`./adapter` 子路径会进入生产 bundle，禁止依赖 Vite 或构建工具。Cloudflare runtime adapter 不得被 Node integration 依赖，Node runtime adapter 不得进入 Worker bundle。
 
-这一结构复用 UI 框架包的核心原则：构建工具负责发现和注入，`./adapter` 负责运行时。但 deployment options 具有 provider 特定类型，首版仍使用显式 `./deployment` 工厂，不复制 `webWidgetAdapter` 的 package metadata 自动发现。若未来引入 `webWidgetDeployment` metadata，它也只能声明 `integration: './deployment'` 与 `adapter: './adapter'` 的对应关系，不能把两者合并为同一模块。
+这一结构复用 UI 框架包的核心原则：`WidgetTransform` 负责构建期发现和注入，`./adapter` 负责运行时。deployment options 具有 provider 特定类型，因此首版使用显式 `./deployment` 工厂，不复用 `WidgetTransform` 协议。若未来引入 deployment 的声明式配置，它也只能声明 `integration: './deployment'` 与 `adapter: './adapter'` 的对应关系，不能把两者合并为同一模块。
 
 ## 向后兼容与迁移
 
@@ -592,8 +592,8 @@ Vite target 只决定 bundle 语义，不能生成 server、Worker entry、asset
 
 ### Web Widget 当前实现
 
-- [UI adapter 的运行时条件导出与 `webWidgetAdapter` metadata](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/react/package.json)
-- [构建工具读取 metadata 并解析 `./adapter` 运行时入口](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/vite-plugin/src/widget/adapter.ts)
+- [React 的 `WidgetTransform` 定义](https://github.com/web-widget/web-widget/blob/1d2071eeb8c556c1a51978abce076f0b2cc1f9ca/packages/react/src/transform.ts)
+- [构建工具接收显式 transforms 并解析 `./adapter` 运行时入口](https://github.com/web-widget/web-widget/blob/1d2071eeb8c556c1a51978abce076f0b2cc1f9ca/packages/vite-plugin/src/widget/transform.ts)
 - [`WebRouter.handler()` 的跨平台签名](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/web-router/src/application.ts)
 - [Web Router bindings 与 execution context 类型](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/web-router/src/types.ts)
 - [Vite server target 与 Worker resolve conditions](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/vite-plugin/src/router/index.ts)
