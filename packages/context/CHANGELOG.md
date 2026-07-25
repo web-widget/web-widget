@@ -1,5 +1,16 @@
 # @web-widget/context
 
+## 3.0.0-beta.4
+
+### Patch Changes
+
+- Updated dependencies [d2ccffa]
+- Updated dependencies [d2ccffa]
+- Updated dependencies [4e19787]
+- Updated dependencies [d2ccffa]
+  - @web-widget/schema@3.0.0-beta.4
+  - @web-widget/purify@3.0.0-beta.4
+
 ## 3.0.0-beta.3
 
 ### Patch Changes

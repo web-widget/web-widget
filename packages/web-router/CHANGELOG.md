@@ -1,5 +1,38 @@
 # @web-widget/web-router
 
+## 3.0.0-beta.4
+
+### Patch Changes
+
+- 9933976: Make Web Router error handling resilient to consumed responses, invalid status
+  values, circular objects, bigint values, and hostile thrown objects. Isolate
+  sync and async `onFallback` failures from error-page rendering, and cache
+  status fallback handlers. Isolate route render caches between router runtime
+  instances, and load shared async route modules once with retryable failures.
+  Split module activation, handler normalization, loading, and rendering into
+  focused runtime internals.
+- 30aecb5: Improve Web Router request throughput across the Node adapter, middleware dispatch, and route matching hot paths.
+
+  - Lazily materialize Web `Request` and `Response` objects for the common Node request path.
+  - Add synchronous single-handler dispatch and lazy per-request state allocation.
+  - Index static routes, bucket dynamic routes, and precompile common parameter matchers while preserving URLPattern fallbacks.
+  - Target ES2022 and avoid unnecessary URL parsing and parameter decoding work.
+
+  On Node.js 22, the optimized three-round medians are 83,974 req/s for the default router, 84,051 req/s for Radix Tree, and 50,192 req/s for Manifest mode. Compared with the archived single-run baselines, these are approximately 3.03x, 1.99x, and 2.97x respectively. The ratios are directional because the historical baselines predate the warmup and multi-round benchmark methodology.
+
+- Updated dependencies [d2ccffa]
+- Updated dependencies [d2ccffa]
+- Updated dependencies [b60f210]
+- Updated dependencies [d2ccffa]
+- Updated dependencies [4e19787]
+- Updated dependencies [d2ccffa]
+  - @web-widget/schema@3.0.0-beta.4
+  - @web-widget/html@3.0.0-beta.4
+  - @web-widget/helpers@3.0.0-beta.4
+  - @web-widget/context@3.0.0-beta.4
+  - @web-widget/lifecycle-cache@3.0.0-beta.4
+  - @web-widget/action@3.0.0-beta.4
+
 ## 3.0.0-beta.3
 
 ### Patch Changes
