@@ -394,4 +394,4 @@ routemap 和 importmap 是特定消费者需要的交付形式，不等同于模
 - 项目内：`packages/vite-plugin/src/internal/routemap-from-fs.ts`
 - 项目内：`packages/vite-plugin/src/internal/build-entry-points.ts`
 - 项目内：`packages/vite-plugin/src/router/import-action.ts`
-- 项目内：`packages/vite-plugin/src/widget/adapter.ts`
+- 项目内：`packages/vite-plugin/src/widget/transform.ts`

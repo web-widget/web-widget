@@ -178,6 +178,8 @@ interface DeploymentIntegration {
 
 `./adapter` 不得依赖 Vite、Wrangler 或其他构建工具。`./deployment` 只用于构建配置。
 
+这一边界与 UI 框架包一致：`WidgetTransform` 负责构建期发现和注入，`./adapter` 负责运行时。Deployment Integration 具有 provider 专用配置，因此使用独立的 `./deployment` 工厂，不复用 `WidgetTransform` 协议。
+
 ### 生命周期
 
 `configure()` 在 Vite environment 最终确定前运行，可增加平台 Vite plugins、受限配置、虚拟入口、watch 文件和类型声明。
@@ -276,9 +278,12 @@ cloudflare({
 
 ### Web Widget
 
-- [UI adapter metadata](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/react/package.json)
-- [Vite plugin 解析 `./adapter`](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/vite-plugin/src/widget/adapter.ts)
-- [`WebRouter.handler()`](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/web-router/src/application.ts)
+- [React 的 `WidgetTransform` 定义](https://github.com/web-widget/web-widget/blob/1d2071eeb8c556c1a51978abce076f0b2cc1f9ca/packages/react/src/transform.ts)
+- [Vite plugin 接收 transforms 并解析 `./adapter`](https://github.com/web-widget/web-widget/blob/1d2071eeb8c556c1a51978abce076f0b2cc1f9ca/packages/vite-plugin/src/widget/transform.ts)
+- [`WebRouter.handler()` 的跨平台签名](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/web-router/src/application.ts)
+- [Web Router bindings 与 execution context](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/web-router/src/types.ts)
+- [Vite server target 与 Worker resolve conditions](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/vite-plugin/src/router/index.ts)
+- [平台无关 server assets 虚拟模块](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/vite-plugin/src/router/server-assets-plugin.ts)
 - [Node request/response bridge](https://github.com/web-widget/web-widget/blob/295be4b7c75bf40aab5b6567c43bc783e7ffaf95/packages/node/src/adapter.ts)
 - [元框架多运行时支持调研](./references/meta-framework-multi-runtime-research.md)
 
