@@ -27,7 +27,7 @@
     "autocannon": "^8.0.0",
     "express": "^5.2.1",
     "fastify": "^5.10.0",
-    "hono": "^4.12.30",
+    "hono": "^4.12.34",
     "koa": "^3.2.1",
     "urlpattern-polyfill": "^10.1.0"
   },
