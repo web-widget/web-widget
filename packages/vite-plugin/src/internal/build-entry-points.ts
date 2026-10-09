@@ -19,7 +19,10 @@ export interface BuildEntryPoints {
 const SOURCE_ROOT_PREFIX = /^(?:routes|pages|src|app)[/\\]/;
 
 function sanitizeEntryName(segments: string[]): string {
-  return segments.join('.').replace(/[^\w@.-]+/g, '_');
+  return segments
+    .join('.')
+    .replace(/[^\w@.-]+/g, '_')
+    .replace(/^\.+/, '_');
 }
 
 /** Collapse trailing `index` segments so directory index modules map to their parent path. */

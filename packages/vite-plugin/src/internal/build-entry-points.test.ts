@@ -81,6 +81,13 @@ describe('entryNameFromModulePath', () => {
       assetBaseNameFromModuleId('/outside/route.ts', root)
     ).toBeUndefined();
   });
+
+  it('keeps entries outside the project root inside the assets directory', () => {
+    const modulePath = path.join('/project', 'packages', 'shared', 'style.css');
+    expect(entryNameFromModulePath(modulePath, root)).toBe(
+      '_packages.shared.style'
+    );
+  });
 });
 
 describe('resolveClientEntryPoints', () => {
