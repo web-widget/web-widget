@@ -34,7 +34,9 @@ function ensureGlobalVueConfig() {
   if (globalConfigInitialized) return;
   globalConfigInitialized = true;
 
-  Vue.config.ignoredElements = ['web-widget'];
+  if (!Vue.config.ignoredElements.includes('web-widget')) {
+    Vue.config.ignoredElements.push('web-widget');
+  }
 
   // The thrown promise is not necessarily a real error,
   // it will be handled by the web widget container.
