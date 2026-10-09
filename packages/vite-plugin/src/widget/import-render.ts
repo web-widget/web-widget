@@ -46,6 +46,8 @@ export interface ImportRenderPluginOptions {
   importPattern: RegExp;
   /** Importer pattern tested against query-stripped id. */
   importerPattern: RegExp;
+  /** Importers that should retain native framework imports. */
+  excludeImporterPattern?: RegExp;
   /** Adapter module specifier for widget injection. */
   adapterModule: string;
   /** Build-time defaults injected before call-site options. */
@@ -196,6 +198,9 @@ export async function transformWidgetImports(
       : false;
     const isSelfImport =
       cleanImportModule && cleanImportModule === cleanImporterId;
+    if (importModule && /[?&](?:direct|raw)(?:&|$)/.test(importModule)) {
+      continue;
+    }
     if (importModule && importMatched) {
       if (isSelfImport) {
         continue;
@@ -455,6 +460,7 @@ export function importRenderPlugin({
   nativeFilter,
   importPattern,
   importerPattern,
+  excludeImporterPattern,
   adapterModule,
   defaults,
 }: ImportRenderPluginOptions): Plugin[] {
@@ -496,7 +502,11 @@ export function importRenderPlugin({
         async handler(code, id) {
           const isServer = this.environment.config.consumer === 'server';
           const cleanImporterId = stripModuleIdQuery(id);
-          if (!importerPattern.test(cleanImporterId)) {
+          if (
+            /[?&](?:direct|raw)(?:&|$)/.test(id) ||
+            !importerPattern.test(cleanImporterId) ||
+            excludeImporterPattern?.test(cleanImporterId)
+          ) {
             return null;
           }
 
