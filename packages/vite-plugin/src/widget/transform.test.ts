@@ -18,6 +18,16 @@ describe('widget transform plugin construction', () => {
     return typeof transform === 'function' ? transform : transform.handler;
   }
 
+  function importRenderPluginForTest(
+    plugins: ReturnType<typeof webWidgetPlugin>
+  ) {
+    const plugin = plugins.find(
+      (candidate) => candidate.name === '@web-widget:import-render'
+    );
+    if (!plugin) throw new Error('Missing import-render transform.');
+    return plugin;
+  }
+
   const transformContext = {
     error(error: unknown): never {
       throw error instanceof Error ? error : new Error(String(error));
@@ -94,5 +104,37 @@ describe('widget transform plugin construction', () => {
     expect(moduleFilter?.api).toMatchObject({ defaults });
     expect((moduleFilter?.api as any).filter('/Card@widget.tsx')).toBe(true);
     expect((moduleFilter?.api as any).filter('/Card.tsx')).toBe(false);
+  });
+
+  test.each([
+    [
+      '/project/routes/components/View.tsx',
+      'export default function View() {}',
+    ],
+    ['/project/routes/page@route.tsx', 'export const View = () => null;'],
+  ])('transforms widget imports from %s', async (id, declaration) => {
+    const plugin = importRenderPluginForTest(
+      createWidgetTransformPlugins({ transforms: [react] }, '/project')
+    );
+    await (plugin.configResolved as Function)({
+      command: 'serve',
+      root: '/project',
+      base: '/',
+      build: {},
+    });
+    const handler = (plugin.transform as { handler: Function }).handler;
+    const result = await handler.call(
+      {
+        environment: { config: { consumer: 'client' } },
+        resolve: async () => ({ id: '/project/routes/Counter@widget.vue' }),
+        emitFile: () => 'unused',
+        ...transformContext,
+      },
+      `import Counter from './Counter@widget.vue';\n${declaration}`,
+      id
+    );
+
+    expect(result?.code).toContain('const Counter =');
+    expect(result?.code).toContain('@web-widget/react/adapter');
   });
 });

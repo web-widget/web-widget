@@ -2,7 +2,6 @@ import path from 'node:path';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
-import { hasDefaultExport } from './module-exports';
 import type { DevWidgetStyle } from '@/dev/meta';
 import { stripModuleIdQuery, CSS_LANGS_RE } from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
@@ -501,9 +500,6 @@ export function importRenderPlugin({
           }
 
           try {
-            if (!(await hasDefaultExport(code, id))) {
-              return null;
-            }
             const result = await transformWidgetImports(
               {
                 resolve: (specifier, importer) =>
