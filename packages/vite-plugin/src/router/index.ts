@@ -368,49 +368,95 @@ function createRouterPlugin(
         await resolveClientBuildGraph(host);
       }
 
-      return createEnvironmentBuildOptions(host, config, name);
+      const environmentOptions = createEnvironmentBuildOptions(
+        host,
+        config,
+        name
+      );
+      if (name === 'client') {
+        host.patchState({
+          clientInputSnapshot: {
+            ...host.state.clientRoutemapEntryPoints.points,
+          },
+        });
+      }
+      return environmentOptions;
     },
 
     async buildStart() {
       // Pre-compute route client assets so SSR transform can look them up
       // in O(1) instead of re-crawling each route's import graph.
-      if (host.state.routeClientAssets?.size) {
+      if (!host.state.routeClientAssets?.size) {
+        const context = host.state.clientBuildGraphContext;
+        if (!context) {
+          return;
+        }
+        const { root, widgetModuleFilter } = host.state;
+        // Same fallback as in `resolveClientBuildGraph`: when `webWidgetPlugin`
+        // has not registered a filter yet, use the default widget path matcher.
+        const widgetFilter = widgetModuleFilter ?? defaultWidgetPathMatcher;
+        // Reuse source/parsing caches from `resolveClientEntryPoints` but use a
+        // fresh resolver cache because this.resolve supports aliases.
+        const sharedCaches = host.api.getRouteAssetCaches();
+        const caches = {
+          ...sharedCaches,
+          resolved: new Map(),
+        };
+        const assetsMap = host.api.getRouteClientAssets();
+        const routeModules = collectRoutemapModulePaths(
+          context.serverRoutemap,
+          context.serverRoutemapPath,
+          ['routes', 'fallbacks']
+        );
+        for (const { modulePath } of routeModules) {
+          const assets = await collectRouteModuleAssets(modulePath, {
+            root,
+            widgetModuleFilter: widgetFilter,
+            resolveId: async (specifier, importer) => {
+              const r = await this.resolve(specifier, importer);
+              return r?.id ?? null;
+            },
+            caches,
+          });
+          assetsMap.set(modulePath, assets);
+        }
+      }
+
+      await resolveClientBuildGraph(host);
+      const snapshot = host.state.clientInputSnapshot;
+      if (
+        host.state.dev ||
+        this.environment?.config.consumer !== 'client' ||
+        !snapshot
+      ) {
         return;
       }
-      const context = host.state.clientBuildGraphContext;
-      if (!context) {
-        return;
-      }
-      const { root, widgetModuleFilter } = host.state;
-      // Same fallback as in `resolveClientBuildGraph`: when `webWidgetPlugin`
-      // has not registered a filter yet, use the default widget path matcher.
-      const widgetFilter = widgetModuleFilter ?? defaultWidgetPathMatcher;
-      // Reuse source/parsing caches from `resolveClientEntryPoints` (configured
-      // at `configEnvironment` time) but use a fresh `resolved` cache: the
-      // resolver here is `this.resolve` (supports aliases), which is different
-      // from the default resolver used earlier.
-      const sharedCaches = host.api.getRouteAssetCaches();
-      const caches = {
-        ...sharedCaches,
-        resolved: new Map(),
-      };
-      const assetsMap = host.api.getRouteClientAssets();
-      const routeModules = collectRoutemapModulePaths(
-        context.serverRoutemap,
-        context.serverRoutemapPath,
-        ['routes', 'fallbacks']
-      );
-      for (const { modulePath } of routeModules) {
-        const assets = await collectRouteModuleAssets(modulePath, {
-          root,
-          widgetModuleFilter: widgetFilter,
-          resolveId: async (specifier, importer) => {
-            const r = await this.resolve(specifier, importer);
-            return r?.id ?? null;
-          },
-          caches,
+
+      const points = host.state.clientRoutemapEntryPoints.points;
+      const usedNames = new Set([
+        ...Object.keys(snapshot),
+        ...Object.keys(points),
+      ]);
+      for (const [name, id] of Object.entries(points)) {
+        if (snapshot[name] === id) {
+          continue;
+        }
+        let emittedName = name;
+        if (snapshot[name]) {
+          const suffix = path.extname(id).slice(1) || 'resolved';
+          emittedName = `${name}.${suffix}`;
+          let index = 2;
+          while (usedNames.has(emittedName)) {
+            emittedName = `${name}.${suffix}.${index++}`;
+          }
+        }
+        usedNames.add(emittedName);
+        this.emitFile({
+          type: 'chunk',
+          id,
+          name: emittedName,
+          preserveSignature: 'allow-extension',
         });
-        assetsMap.set(modulePath, assets);
       }
     },
   };

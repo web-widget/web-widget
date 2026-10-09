@@ -28,6 +28,8 @@ export interface RouterBuildState {
   clientBuildGraphContext?: ClientBuildGraphContext;
   clientImportmap?: ImportMap;
   clientRoutemapEntryPoints: BuildEntryPoints;
+  /** Inputs already handed to Rolldown before server-side resolution finishes. */
+  clientInputSnapshot?: Record<string, string>;
   dev: boolean;
   resolvedWebRouterConfig: ResolvedWebRouterConfig;
   resolveConditions?: string[];
