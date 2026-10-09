@@ -32,6 +32,7 @@ function buildPluginsForTransform(
     extensions,
     adapter: adapterModule,
     scopes,
+    excludeImporter,
     deriveExports,
   } = transform;
 
@@ -83,6 +84,7 @@ function buildPluginsForTransform(
       nativeFilter: importNativeFilter,
       importPattern,
       importerPattern,
+      excludeImporterPattern: excludeImporter,
       adapterModule,
       defaults,
     }),

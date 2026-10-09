@@ -164,6 +164,8 @@ export interface ConfiguredWidgetTransform extends WidgetTransform {
    * (e.g. vue2 and vue3 both using `.vue`).
    */
   scopes?: string[];
+  /** Importers whose widget imports should retain their native framework form. */
+  excludeImporter?: RegExp;
 }
 
 /**

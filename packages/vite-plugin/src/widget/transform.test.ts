@@ -137,4 +137,41 @@ describe('widget transform plugin construction', () => {
     expect(result?.code).toContain('const Counter =');
     expect(result?.code).toContain('@web-widget/react/adapter');
   });
+
+  test.each([
+    ['/project/routes/Counter.spec.tsx', null],
+    ['/project/routes/other@route.tsx?direct', null],
+    ['/project/routes/other@route.tsx?raw', null],
+    ['/project/routes/other@route.tsx', 'transformed'],
+  ])('honors importer boundary for %s', async (id, expected) => {
+    const plugin = importRenderPluginForTest(
+      createWidgetTransformPlugins(
+        { transforms: [{ ...react, excludeImporter: /\.spec\.tsx$/ }] },
+        '/project'
+      )
+    );
+    await (plugin.configResolved as Function)({
+      command: 'serve',
+      root: '/project',
+      base: '/',
+      build: {},
+    });
+    const handler = (plugin.transform as { handler: Function }).handler;
+    const result = await handler.call(
+      {
+        environment: { config: { consumer: 'server' } },
+        resolve: async () => ({ id: '/project/routes/Counter@widget.vue' }),
+        emitFile: () => 'unused',
+        ...transformContext,
+      },
+      `import Counter from './Counter@widget.vue';\nexport default Counter;`,
+      id
+    );
+
+    if (expected === null) {
+      expect(result).toBeNull();
+    } else {
+      expect(result?.code).toContain('const Counter =');
+    }
+  });
 });

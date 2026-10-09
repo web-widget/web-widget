@@ -300,6 +300,21 @@ describe('transformWidgetImports', () => {
   });
 
   describe('no-op cases', () => {
+    test.each(['direct', 'raw'])(
+      'keeps ?%s widget imports in their native form',
+      async (query) => {
+        const result = await transformWidgetImports(
+          makeCtx({
+            resolve: async () => ({
+              id: `/project/src/Counter@widget.vue?${query}`,
+            }),
+          }),
+          makeOptions(`import Counter from './Counter@widget.vue?${query}';`)
+        );
+        expect(result).toBeNull();
+      }
+    );
+
     test('returns null when no widget imports', async () => {
       const code = `import React from 'react';\nimport { foo } from './utils';`;
       const result = await transformWidgetImports(makeCtx(), makeOptions(code));
