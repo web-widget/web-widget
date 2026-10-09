@@ -290,6 +290,9 @@ async function crawlRouteModule(
     // resolved path so module keys align with Vite client manifest keys,
     // which never include import queries.
     const resolvedNoQuery = stripImportQuery(resolved);
+    if (!path.isAbsolute(resolvedNoQuery)) {
+      continue;
+    }
     const relativePath = toRelativeKey(options.root, resolvedNoQuery);
 
     if (isCssPath(resolved)) {

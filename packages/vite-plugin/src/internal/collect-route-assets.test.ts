@@ -43,6 +43,27 @@ describe('collect-route-assets', () => {
     expect(assets.cssModules).toContain('routes/styles/ui.css');
   });
 
+  test('ignores virtual and bare resolved ids instead of treating them as files', async () => {
+    const root = await writeFixture({
+      'routes/page@route.tsx': [
+        "import 'virtual:theme.css';",
+        "import Counter from 'virtual:Counter@widget.tsx';",
+        'export default function Page() { return Counter; }',
+      ].join('\n'),
+    });
+    const assets = await collectRouteModuleAssets(
+      path.join(root, 'routes/page@route.tsx'),
+      {
+        root,
+        resolveId: async (specifier) => specifier,
+        widgetModuleFilter: () => true,
+      }
+    );
+
+    expect(assets.cssModules).toEqual([]);
+    expect(assets.widgetModules).toEqual([]);
+  });
+
   async function writeFixture(structure: Record<string, string>) {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ww-route-assets-'));
     for (const [relativePath, contents] of Object.entries(structure)) {
