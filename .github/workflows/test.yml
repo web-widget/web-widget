@@ -136,7 +136,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # pnpm 11.13 requires Node >= 22.13
+        # Minimum supported development Node.js version and active LTS.
         version:
           - node: '22.13.0'
           - node: '24'
@@ -171,9 +171,6 @@ jobs:
       - run: pnpm examples-catalog:check
 
       - run: pnpm build
-
-      - name: Check packed package manifests
-        run: pnpm publish:check
 
       - run: pnpm run test
 

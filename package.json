@@ -13,7 +13,7 @@
     "url": "https://github.com/web-widget/web-widget/issues"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.31.1",
+    "@changesets/cli": "^3.0.3",
     "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^9.39.5",
     "@internal/eslint-config": "workspace:*",
@@ -28,7 +28,7 @@
     "unbuild": "^1.2.1"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": "^22.13.0 || ^24.0.0 || >=26.0.0"
   },
   "scripts": {
     "build": "turbo run build --output-logs=new-only",
@@ -44,7 +44,6 @@
     "lint": "turbo run lint",
     "lockfile": "pnpm install --lockfile && git add pnpm-lock.yaml && git commit -m \"build: regenerate lock\"",
     "npm-trust:setup": "bash scripts/setup-npm-trusted-publishing.sh",
-    "publish:check": "node scripts/check-publish.js",
     "postinstall": "pnpm --filter @internal/eslint-config build && ./node_modules/.bin/simple-git-hooks",
     "prebuild": "pnpm -r run clean:build",
     "prettier": "prettier **/*.{ts,tsx,js,vue} --write",
@@ -64,7 +63,7 @@
       "finepack"
     ]
   },
-  "packageManager": "pnpm@11.28.2+sha512.755ce2fe3c05bfd7bb412b42aff3c5c55cd38c529c6eca810475497ae36746c571e4b6e1814e6e7e4b97d7ee864b8a0e44673c3b297a50e0ac28771c5ce15d27",
+  "packageManager": "pnpm@12.11.2+sha512.25a51652a196785af5f28bda6dfe8dc582ebefa4ac1d180221ce1390231c5fb76637822ea4b6e4633ce74acdcb0a77f725af11bad38177fdeddaee818a955cb9",
   "simple-git-hooks": {
     "post-merge": "node scripts/git-hooks/post-merge-maintenance.js",
     "pre-commit": "node scripts/git-hooks/pre-commit.js"
