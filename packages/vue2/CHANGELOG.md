@@ -1,5 +1,15 @@
 # @web-widget/vue2
 
+## 3.0.0-beta.5
+
+### Patch Changes
+
+- f61a0c3: Preserve existing Vue ignored elements when registering the `web-widget` custom element.
+  - @web-widget/helpers@3.0.0-beta.5
+  - @web-widget/react@3.0.0-beta.5
+  - @web-widget/schema@3.0.0-beta.5
+  - @web-widget/web-widget@3.0.0-beta.5
+
 ## 3.0.0-beta.4
 
 ### Major Changes

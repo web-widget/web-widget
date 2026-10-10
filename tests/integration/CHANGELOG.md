@@ -1,5 +1,16 @@
 # @tests/integration
 
+## 0.0.1-beta.1
+
+### Patch Changes
+
+- @web-widget/preact@3.0.0-beta.5
+- @web-widget/react@3.0.0-beta.5
+- @web-widget/solid@3.0.0-beta.5
+- @web-widget/svelte@3.0.0-beta.5
+- @web-widget/vue@3.0.0-beta.5
+- @web-widget/web-widget@3.0.0-beta.5
+
 ## 0.0.1-beta.0
 
 ### Patch Changes
