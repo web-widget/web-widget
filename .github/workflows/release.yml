@@ -79,8 +79,8 @@ jobs:
 
       - run: pnpm build
 
-      - name: Setup npm for Trusted Publishing
-        run: npm install -g npm@11
+      - name: Check packed package manifests
+        run: pnpm publish:check
 
       - name: Create Release Pull Request
         uses: changesets/action@v1.9.0

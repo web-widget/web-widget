@@ -44,6 +44,7 @@
     "lint": "turbo run lint",
     "lockfile": "pnpm install --lockfile && git add pnpm-lock.yaml && git commit -m \"build: regenerate lock\"",
     "npm-trust:setup": "bash scripts/setup-npm-trusted-publishing.sh",
+    "publish:check": "node scripts/check-publish.js",
     "postinstall": "pnpm --filter @internal/eslint-config build && ./node_modules/.bin/simple-git-hooks",
     "prebuild": "pnpm -r run clean:build",
     "prettier": "prettier **/*.{ts,tsx,js,vue} --write",
@@ -52,7 +53,7 @@
     "update": "pnpm -r exec ncu -- --upgrade && ncu -- --upgrade",
     "update:check": "pnpm -r exec ncu -- --errorLevel 2 && ncu -- --errorLevel 2",
     "version:prepare": "changeset version && pnpm install --no-frozen-lockfile",
-    "version:publish": "node scripts/publish.js"
+    "version:publish": "changeset publish"
   },
   "private": true,
   "nano-staged": {

@@ -2,6 +2,18 @@
 
 This directory contains project maintenance scripts.
 
+## check-publish.js
+
+Run `pnpm publish:check` to pack every public package into a temporary directory
+and verify that its dependency ranges contain no local protocols and that
+`publishConfig.exports` is applied. CI runs this check after building and before
+publishing.
+
+`version:publish` runs Changesets directly so it selects the pinned pnpm version
+for publishing. pnpm resolves `workspace:` and `catalog:` ranges and applies
+`publishConfig` while packing. pnpm 11.28.2 supports native OIDC Trusted Publishing;
+keep the release workflow's `id-token: write` permission enabled.
+
 ## Git hooks (`scripts/git-hooks/`)
 
 Installed via **`simple-git-hooks`** (runs on `pnpm install`).

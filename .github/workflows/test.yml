@@ -172,6 +172,9 @@ jobs:
 
       - run: pnpm build
 
+      - name: Check packed package manifests
+        run: pnpm publish:check
+
       - run: pnpm run test
 
       - name: Generate coverage
