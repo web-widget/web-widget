@@ -244,7 +244,7 @@ overrides:
 packageExtensionsChecksum: sha256-WM2QfVBMmUV7nhhglMfJ+R426yb4xvXn+yKQaX8TVuA=
 
 patchedDependencies:
-  yargs@17.7.2: 703fd3425c6eac0db2a4ea24eaa958345329af7c108ac9d9f366befbbb1cf953
+  yargs@17.7.2: a6038b5a67847d342b911f30cbec67fc827d8d4037243e90f01e630dc9c65ded
 
 importers:
 
@@ -13256,7 +13256,7 @@ snapshots:
       jest-config: 29.7.0(@types/node@22.2.0)(supports-color@10.2.2)(ts-node@10.9.2(@types/node@22.2.0)(typescript@5.9.3))
       jest-util: 29.7.0
       jest-validate: 29.7.0
-      yargs: 17.7.2(patch_hash=703fd3425c6eac0db2a4ea24eaa958345329af7c108ac9d9f366befbbb1cf953)
+      yargs: 17.7.2(patch_hash=a6038b5a67847d342b911f30cbec67fc827d8d4037243e90f01e630dc9c65ded)
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -16172,7 +16172,7 @@ snapshots:
 
   yargs-parser@22.0.0: {}
 
-  yargs@17.7.2(patch_hash=703fd3425c6eac0db2a4ea24eaa958345329af7c108ac9d9f366befbbb1cf953):
+  yargs@17.7.2(patch_hash=a6038b5a67847d342b911f30cbec67fc827d8d4037243e90f01e630dc9c65ded):
     dependencies:
       cliui: 8.0.1
       escalade: 3.2.0
