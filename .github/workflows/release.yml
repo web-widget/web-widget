@@ -10,10 +10,7 @@ on:
 env:
   NODE_VERSION: '24'
 
-permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
+permissions: {}
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -22,9 +19,13 @@ jobs:
     name: Integration / Release gate
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - name: Setup pnpm
         uses: pnpm/action-setup@v6.1.0
         with:
@@ -53,39 +54,116 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  release:
-    name: Release
+  select-mode:
+    name: Select release mode
     needs: integration
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      mode: ${{ steps.select-mode.outputs.mode }}
+      publish-plan-artifact-id: ${{ steps.select-mode.outputs.publish-plan-artifact-id }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v7.0.1
-
+        with:
+          persist-credentials: false
       - name: Setup pnpm
         uses: pnpm/action-setup@v6.1.0
-        with:
-          cache: true
-
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: https://registry.npmjs.org
           package-manager-cache: false
-
       - run: pnpm install --recursive --frozen-lockfile
         env:
           SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
+      - name: Select Changesets mode
+        id: select-mode
+        uses: changesets/action/select-mode@v2.1.2
 
-      - run: pnpm build
-
-      - name: Setup npm for Trusted Publishing
-        run: npm install -g npm@11
-
-      - name: Create Release Pull Request
-        uses: changesets/action@v1.9.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  version:
+    name: Create Release Pull Request
+    needs: select-mode
+    if: ${{ needs.select-mode.outputs.mode == 'version' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v7.0.1
         with:
-          version: pnpm version:prepare
-          publish: pnpm version:publish
+          persist-credentials: false
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6.1.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
+      - run: pnpm install --recursive --frozen-lockfile
+        env:
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
+      - name: Version packages
+        uses: changesets/action/version@v2.1.2
+        with:
+          script: pnpm version:prepare
+
+  pack:
+    name: Build and pack packages
+    needs: select-mode
+    if: ${{ needs.select-mode.outputs.mode == 'publish' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      pack-dir-artifact-id: ${{ steps.pack.outputs.pack-dir-artifact-id }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6.1.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
+      - run: pnpm install --recursive --frozen-lockfile
+        env:
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
+      - run: pnpm build
+      - name: Pack packages
+        id: pack
+        uses: changesets/action/pack@v2.1.2
+        with:
+          publish-plan-artifact-id: ${{ needs.select-mode.outputs.publish-plan-artifact-id }}
+
+  publish:
+    name: Publish packages
+    needs: pack
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6.1.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
+      - run: pnpm install --recursive --frozen-lockfile --ignore-scripts
+        env:
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: '1'
+      - name: Publish packed packages
+        uses: changesets/action/publish@v2.1.2
+        with:
+          pack-dir-artifact-id: ${{ needs.pack.outputs.pack-dir-artifact-id }}

@@ -136,7 +136,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # pnpm 11.13 requires Node >= 22.13
+        # Minimum supported development Node.js version and active LTS.
         version:
           - node: '22.13.0'
           - node: '24'
