@@ -1,5 +1,15 @@
 # @web-widget/inspector
 
+## 3.0.0-beta.4
+
+### Patch Changes
+
+- Updated dependencies [d2ccffa]
+- Updated dependencies [2e0fd18]
+- Updated dependencies [d2ccffa]
+- Updated dependencies [4e19787]
+  - @web-widget/web-widget@3.0.0-beta.4
+
 ## 3.0.0-beta.3
 
 ### Patch Changes
