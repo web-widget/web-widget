@@ -1,5 +1,18 @@
 # @web-widget/vite-plugin
 
+## 3.0.0-beta.5
+
+### Patch Changes
+
+- be8b149: Prevent parent-directory segments in client entry names from producing invalid asset URLs.
+- dbf427b: Skip virtual and bare module IDs while collecting local route assets.
+- a4f10a1: Resolve cross-framework widget imports from ordinary framework files and modules without default exports, including client asset URLs for explicit `widget()` calls. Preserve native same-framework imports, skip raw/direct requests, and avoid production asset imports during development.
+  - @web-widget/helpers@3.0.0-beta.5
+  - @web-widget/inspector@3.0.0-beta.5
+  - @web-widget/node@3.0.0-beta.5
+  - @web-widget/schema@3.0.0-beta.5
+  - @web-widget/web-router@3.0.0-beta.5
+
 ## 3.0.0-beta.4
 
 ### Major Changes

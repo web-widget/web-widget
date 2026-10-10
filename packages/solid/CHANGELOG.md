@@ -1,5 +1,13 @@
 # @web-widget/solid
 
+## 3.0.0-beta.5
+
+### Patch Changes
+
+- @web-widget/helpers@3.0.0-beta.5
+- @web-widget/schema@3.0.0-beta.5
+- @web-widget/web-widget@3.0.0-beta.5
+
 ## 3.0.0-beta.4
 
 ### Major Changes

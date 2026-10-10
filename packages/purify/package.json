@@ -1,7 +1,7 @@
 {
   "name": "@web-widget/purify",
   "description": "HTML purify",
-  "version": "3.0.0-beta.4",
+  "version": "3.0.0-beta.5",
   "homepage": "https://github.com/web-widget/web-widget#readme",
   "repository": {
     "type": "git",
