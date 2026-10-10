@@ -2,9 +2,12 @@ import path from 'node:path';
 import * as esModuleLexer from 'es-module-lexer';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
-import { hasDefaultExport } from './module-exports';
 import type { DevWidgetStyle } from '@/dev/meta';
-import { stripModuleIdQuery, CSS_LANGS_RE } from '@/internal/module-id';
+import {
+  stripModuleIdQuery,
+  CSS_LANGS_RE,
+  isDirectOrRawRequest,
+} from '@/internal/module-id';
 import { normalizePath } from '@/internal/path';
 import { SERVER_ASSETS_MODULE_ID } from '@/internal/server-assets-module';
 import { createAliasGenerator } from '@/internal/alias';
@@ -46,6 +49,10 @@ export interface ImportRenderPluginOptions {
   importPattern: RegExp;
   /** Importer pattern tested against query-stripped id. */
   importerPattern: RegExp;
+  /** Convention importers retain their existing widget conversion behavior. */
+  conventionImporterPattern: RegExp;
+  /** Same-adapter widgets kept as native static imports elsewhere. */
+  nativeWidgetPattern: RegExp;
   /** Adapter module specifier for widget injection. */
   adapterModule: string;
   /** Build-time defaults injected before call-site options. */
@@ -87,6 +94,10 @@ export interface TransformWidgetImportsOptions {
   sourcemap: boolean;
   /** Widget module pattern tested against query-stripped id. */
   importPattern: RegExp;
+  /** Static widget imports to preserve as native framework components. */
+  preserveStaticImportPattern?: RegExp;
+  /** Whether to infer diagnostic names for explicit widget() calls. */
+  inferWidgetCallName?: boolean;
   /** Adapter module specifier for widget injection. */
   adapterModule: string;
   /** Build-time defaults injected before call-site options. */
@@ -119,7 +130,7 @@ export interface TransformResult {
  *
  * 2. **Explicit `widget()` call** (for cross-framework type safety):
  *    `const Foo = widget(() => import('./Foo@widget.vue'))`
- *    → `import` and `name` options are injected automatically
+ *    → `import` is injected automatically; convention modules also infer `name`
  *
  * For client build, the hashed chunk URL is resolved at build time via
  * `emitFile` + `import.meta.ROLLUP_FILE_URL_*`.
@@ -139,6 +150,8 @@ export async function transformWidgetImports(
     base,
     sourcemap,
     importPattern,
+    preserveStaticImportPattern,
+    inferWidgetCallName = true,
     adapterModule,
     defaults,
   } = options;
@@ -196,8 +209,18 @@ export async function transformWidgetImports(
       : false;
     const isSelfImport =
       cleanImportModule && cleanImportModule === cleanImporterId;
+    if (importModule && isDirectOrRawRequest(importModule)) {
+      continue;
+    }
     if (importModule && importMatched) {
       if (isSelfImport) {
+        continue;
+      }
+      if (
+        dynamicImport === -1 &&
+        cleanImportModule &&
+        preserveStaticImportPattern?.test(cleanImportModule)
+      ) {
         continue;
       }
       if (dynamicImport !== -1) {
@@ -300,7 +323,7 @@ export async function transformWidgetImports(
     magicString.update(statementStart, statementEnd, '');
   }
 
-  // Inject `import` (and `name`) options into user-written
+  // Inject `import` (and convention-module `name`) into user-written
   // `widget(() => import('./Foo@widget.vue'))` calls.
   for (const {
     moduleId,
@@ -322,9 +345,9 @@ export async function transformWidgetImports(
     const devStyles =
       dev && getDevStyles ? await getDevStyles(moduleId) : undefined;
 
-    const componentName = parseDeclarationName(
-      code.substring(0, widgetCallStart)
-    );
+    const componentName = inferWidgetCallName
+      ? parseDeclarationName(code.substring(0, widgetCallStart))
+      : undefined;
 
     const props = serializeInjectedOptions(defaults, {
       devStyles: devStyles?.length ? JSON.stringify(devStyles) : undefined,
@@ -372,6 +395,7 @@ export async function transformWidgetImports(
 
   const header = [
     ...(isServer &&
+    !dev &&
     (replacementStatements.length > 0 || transformedWidgetCalls > 0)
       ? [
           `import { resolveWidgetAsset } from ${JSON.stringify(
@@ -455,6 +479,8 @@ export function importRenderPlugin({
   nativeFilter,
   importPattern,
   importerPattern,
+  conventionImporterPattern,
+  nativeWidgetPattern,
   adapterModule,
   defaults,
 }: ImportRenderPluginOptions): Plugin[] {
@@ -496,14 +522,16 @@ export function importRenderPlugin({
         async handler(code, id) {
           const isServer = this.environment.config.consumer === 'server';
           const cleanImporterId = stripModuleIdQuery(id);
-          if (!importerPattern.test(cleanImporterId)) {
+          if (
+            isDirectOrRawRequest(id) ||
+            !importerPattern.test(cleanImporterId)
+          ) {
             return null;
           }
 
           try {
-            if (!(await hasDefaultExport(code, id))) {
-              return null;
-            }
+            const isConventionImporter =
+              conventionImporterPattern.test(cleanImporterId);
             const result = await transformWidgetImports(
               {
                 resolve: (specifier, importer) =>
@@ -520,6 +548,10 @@ export function importRenderPlugin({
                 base,
                 sourcemap,
                 importPattern,
+                preserveStaticImportPattern: isConventionImporter
+                  ? undefined
+                  : nativeWidgetPattern,
+                inferWidgetCallName: isConventionImporter,
                 adapterModule,
                 defaults,
               }

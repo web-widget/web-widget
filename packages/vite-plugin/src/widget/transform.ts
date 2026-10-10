@@ -52,8 +52,9 @@ function buildPluginsForTransform(
     `^${scopeRe}[^?]*${ROUTE_OR_WIDGET_MARKER_PATTERN}${ext}$`
   );
   const importPattern = new RegExp(`^[^?]*${WIDGET_MARKER_PATTERN}\\.[^?]*$`);
-  const importerPattern = new RegExp(
-    `^${scopeRe}[^?]*${ROUTE_OR_WIDGET_MARKER_PATTERN}${ext}$`
+  const importerPattern = new RegExp(`^${scopeRe}[^?]*${ext}$`);
+  const nativeWidgetPattern = new RegExp(
+    `^${scopeRe}[^?]*${WIDGET_MARKER_PATTERN}${ext}$`
   );
   const filter: WidgetModuleFilter = (key) => importPattern.test(key);
 
@@ -85,6 +86,8 @@ function buildPluginsForTransform(
       nativeFilter: importNativeFilter,
       importPattern,
       importerPattern,
+      conventionImporterPattern: exportPattern,
+      nativeWidgetPattern,
       adapterModule,
       defaults,
     }),
