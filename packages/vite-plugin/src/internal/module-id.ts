@@ -16,8 +16,16 @@ export const CSS_LANGS_RE =
 /** Matches Vite CSS Module requests, including supported preprocessors. */
 export const CSS_MODULE_RE = new RegExp(`\\.module${CSS_LANGS_RE.source}`);
 
+const RAW_QUERY_RE = /[?&]raw(?:&|$)/;
+const DIRECT_QUERY_RE = /[?&]direct(?:&|$)/;
+
 /** Query suffixes that make a CSS-like request non-buildable. */
-export const cssExcludeRE = [/(?:\?|&)raw(?:&|$)/, /(?:\?|&)inline\b/];
+export const cssExcludeRE = [RAW_QUERY_RE, /(?:\?|&)inline\b/];
+
+/** Whether a request uses a direct or raw query flag. */
+export function isDirectOrRawRequest(id: string): boolean {
+  return DIRECT_QUERY_RE.test(id) || RAW_QUERY_RE.test(id);
+}
 
 /** Matches Vue SFC `<style>` sub-modules (`?vue&type=style`). */
 export const VUE_STYLE_QUERY_RE = /[?&]vue&type=style/;
