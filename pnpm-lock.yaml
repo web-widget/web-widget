@@ -240,11 +240,9 @@ catalogs:
 overrides:
   '@types/node': ^22.2.0
   typescript: ^5.9.3
+  jest-cli>yargs: 17.7.3
 
 packageExtensionsChecksum: sha256-WM2QfVBMmUV7nhhglMfJ+R426yb4xvXn+yKQaX8TVuA=
-
-patchedDependencies:
-  yargs@17.7.2: a6038b5a67847d342b911f30cbec67fc827d8d4037243e90f01e630dc9c65ded
 
 importers:
 
@@ -8588,8 +8586,8 @@ packages:
     resolution: {integrity: sha512-rwu/ClNdSMpkSrUb+d6BRsSkLUq1fmfsY6TOpYzTwvwkg1/NRG85KBy3kq++A8LKQwX6lsu+aWad+2khvuXrqw==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=23}
 
-  yargs@17.7.2:
-    resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==}
+  yargs@17.7.3:
+    resolution: {integrity: sha512-GZtjxm/J/4TSxuL3FNYjCmLktBTnIw/rVmKSIyKeYAZpmJB2ig9VauCC5xsa82GNKVKDAqpOn3KVzNt0zmrU0g==}
     engines: {node: '>=12'}
 
   yargs@18.0.0:
@@ -13256,7 +13254,7 @@ snapshots:
       jest-config: 29.7.0(@types/node@22.2.0)(supports-color@10.2.2)(ts-node@10.9.2(@types/node@22.2.0)(typescript@5.9.3))
       jest-util: 29.7.0
       jest-validate: 29.7.0
-      yargs: 17.7.2(patch_hash=a6038b5a67847d342b911f30cbec67fc827d8d4037243e90f01e630dc9c65ded)
+      yargs: 17.7.3
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -16172,7 +16170,7 @@ snapshots:
 
   yargs-parser@22.0.0: {}
 
-  yargs@17.7.2(patch_hash=a6038b5a67847d342b911f30cbec67fc827d8d4037243e90f01e630dc9c65ded):
+  yargs@17.7.3:
     dependencies:
       cliui: 8.0.1
       escalade: 3.2.0

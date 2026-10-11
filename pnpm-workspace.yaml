@@ -32,14 +32,12 @@ allowBuilds:
 overrides:
   '@types/node': 'catalog:'
   'typescript': 'catalog:'
+  'jest-cli>yargs': '17.7.3'
 
 packageExtensions:
   '@cloudflare/vitest-pool-workers':
     dependencies:
       undici: '^7.24.8'
-
-patchedDependencies:
-  'yargs@17.7.2': 'patches/yargs@17.7.2.patch'
 
 peerDependencyRules:
   allowedVersions:
