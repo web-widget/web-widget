@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 3.0.0-beta.6
+
+### Patch Changes
+
+- ed4dcc1: Publish packages through pnpm so workspace and catalog dependencies are converted
+  to installable version ranges and production exports are applied. Restore native
+  OIDC Trusted Publishing with the latest pnpm and Changesets releases.
+- @web-widget/helpers@3.0.0-beta.6
+  - @web-widget/lifecycle-cache@3.0.0-beta.6
+  - @web-widget/schema@3.0.0-beta.6
+
 ## 3.0.0-beta.5
 
 ### Patch Changes
