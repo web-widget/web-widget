@@ -14,7 +14,7 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "happy-dom": "14.12.3",
+    "happy-dom": "20.8.9",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
