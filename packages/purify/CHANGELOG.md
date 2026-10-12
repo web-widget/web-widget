@@ -1,5 +1,9 @@
 # @web-widget/purify
 
+## 3.0.0-beta.6
+
+No changes in this release.
+
 ## 3.0.0-beta.5
 
 ## 3.0.0-beta.4
