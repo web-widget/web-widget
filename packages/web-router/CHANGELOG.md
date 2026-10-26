@@ -1,5 +1,16 @@
 # @web-widget/web-router
 
+## 3.0.0-beta.8
+
+### Patch Changes
+
+- @web-widget/action@3.0.0-beta.8
+  - @web-widget/context@3.0.0-beta.8
+  - @web-widget/helpers@3.0.0-beta.8
+  - @web-widget/html@3.0.0-beta.8
+  - @web-widget/lifecycle-cache@3.0.0-beta.8
+  - @web-widget/schema@3.0.0-beta.8
+
 ## 3.0.0-beta.7
 
 ### Patch Changes
