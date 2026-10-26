@@ -181,10 +181,6 @@ interface WebWidgetPluginOptions {
 
 `ConfiguredWidgetTransform` 是构建工具唯一接受的输入。用户可以通过对象展开覆盖定义或添加 `scopes`，但必须显式保留完整的 `WidgetTransform` 契约。导入构建期转换定义不会提前导入或执行运行时 `AdapterModule`。
 
-`extensions` 和 `scopes` 确定导入方所属的框架，但不表示每个匹配文件都应改写普通导入。构建工具分别处理两种转换：对 `@route` / `@widget` 模块注入 `render` 导出；对导入方中的 widget 导入注入 `widget()` 容器。前一种转换保留目标模块的默认导出，后一种转换会改变静态导入获得的对象。
-
-Vite 集成默认保留 `*.test.*`、`*.spec.*` 以及 `__tests__` 目录中模块的普通静态和动态导入，使单元测试能取得原始组件并使用 `mount`、`vi.mock()` 等机制。测试中显式写出的 `widget(() => import('./Counter@widget.vue'))` 仍会补全构建期选项。需要验证隐式 widget 导入行为的集成测试可设置 `testModuleImports: 'transform'`。此设置只影响测试模块作为导入方时的转换；被测试的应用模块及其内部导入仍按通常规则转换。
-
 #### 1.3 环境适应性
 
 `ServerRender` 和 `ClientRender` 是不同的契约——服务端渲染为 HTML 字符串或流，客户端渲染负责挂载和水合。但协议只提供一个 `adapter` 模块 ID。构建工具在服务端构建和客户端构建时，需要从同一个模块 ID 分别解析到不同的 `AdapterModule` 实现，而无需适配器或用户手动区分环境。
@@ -336,7 +332,9 @@ defineOptions({
 如果不定义 `handler`，构建工具会注入兜底值——默认调用 `html()` 渲染组件。转换后的代码等价于：
 
 ```javascript
-const __$default$__ = {/* SFC 编译产物 */};
+const __$default$__ = {
+  /* SFC 编译产物 */
+};
 export const {
   handler = {
     GET({ html }) {
@@ -387,7 +385,6 @@ type WidgetContainerProps<TPending = never, TError = TPending> = {
    * - `'idle'`：浏览器空闲时加载
    */
   loading?: 'auto' | 'lazy' | 'eager' | 'idle';
-
 } & WidgetContainerRenderMode;
 
 type WidgetContainerRenderMode =
