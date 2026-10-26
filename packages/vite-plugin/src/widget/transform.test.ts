@@ -115,7 +115,54 @@ describe('widget transform plugin construction', () => {
     expect((moduleFilter?.api as any).filter('/Card.tsx')).toBe(false);
   });
 
-  test('converts same-adapter widget imports in ordinary React components', async () => {
+  test.each([
+    { mode: undefined, transformed: false },
+    { mode: 'widget' as const, transformed: true },
+  ])(
+    'sameFrameworkImports $mode in ordinary React components',
+    async ({ mode, transformed }) => {
+      const plugins = createWidgetTransformPlugins(
+        { transforms: [{ ...react, sameFrameworkImports: mode }] },
+        '/project'
+      );
+      const { configResolved, handler } = importRenderHandler(plugins);
+      await configResolved({
+        command: 'serve',
+        root: '/project',
+        base: '/',
+        build: {},
+      });
+
+      const result = await handler.call(
+        {
+          environment: { config: { consumer: 'server' } },
+          resolve: async () => ({
+            id: '/project/src/HeroInteraction@widget.tsx',
+          }),
+          emitFile: () => 'ref',
+          error: transformContext.error,
+        },
+        "import HeroInteraction from './HeroInteraction@widget';\nexport default function HeroCreator() { return <HeroInteraction />; }",
+        '/project/src/HeroCreator.tsx'
+      );
+
+      if (!transformed) {
+        expect(result).toBeNull();
+        return;
+      }
+
+      expect(result.code).toContain('@web-widget/react/adapter');
+      expect(result.code).toContain('const HeroInteraction =');
+      expect(result.code).toContain('() => import("./HeroInteraction@widget")');
+      expect(result.code).toContain(
+        'import: "/src/HeroInteraction@widget.tsx"'
+      );
+      expect(result.code).not.toContain('import HeroInteraction from');
+      expect(result.code).toContain('return <HeroInteraction />');
+    }
+  );
+
+  test('converts same-framework imports in route modules by default', async () => {
     const plugins = createWidgetTransformPlugins(
       { transforms: [react] },
       '/project'
@@ -137,16 +184,48 @@ describe('widget transform plugin construction', () => {
         emitFile: () => 'ref',
         error: transformContext.error,
       },
-      "import HeroInteraction from './HeroInteraction@widget';\nexport default function HeroCreator() { return <HeroInteraction />; }",
-      '/project/src/HeroCreator.tsx'
+      "import HeroInteraction from './HeroInteraction@widget';",
+      '/project/src/HeroCreator@route.tsx'
     );
 
-    expect(result.code).toContain('@web-widget/react/adapter');
     expect(result.code).toContain('const HeroInteraction =');
-    expect(result.code).toContain('() => import("./HeroInteraction@widget")');
-    expect(result.code).toContain('import: "/src/HeroInteraction@widget.tsx"');
-    expect(result.code).not.toContain('import HeroInteraction from');
-    expect(result.code).toContain('return <HeroInteraction />');
+  });
+
+  test('sameFrameworkImports is scoped to its framework transform', async () => {
+    const vue: ConfiguredWidgetTransform = {
+      name: 'vue',
+      extensions: ['.vue'],
+      adapter: '@web-widget/vue/adapter',
+    };
+    const plugins = createWidgetTransformPlugins(
+      { transforms: [{ ...react, sameFrameworkImports: 'widget' }, vue] },
+      '/project'
+    );
+    const vuePlugins = plugins.filter(
+      (plugin) => plugin.name === '@web-widget:import-render'
+    );
+    const { configResolved, handler } = importRenderHandler(
+      vuePlugins.slice(1)
+    );
+    await configResolved({
+      command: 'serve',
+      root: '/project',
+      base: '/',
+      build: {},
+    });
+
+    const result = await handler.call(
+      {
+        environment: { config: { consumer: 'server' } },
+        resolve: async () => ({ id: '/project/src/Navigation@widget.vue' }),
+        emitFile: () => 'ref',
+        error: transformContext.error,
+      },
+      "import Navigation from './Navigation@widget.vue';",
+      '/project/src/BaseLayout.vue'
+    );
+
+    expect(result).toBeNull();
   });
 
   test.each([

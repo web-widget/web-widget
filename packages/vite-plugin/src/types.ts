@@ -164,6 +164,12 @@ export interface ConfiguredWidgetTransform extends WidgetTransform {
    * (e.g. vue2 and vue3 both using `.vue`).
    */
   scopes?: string[];
+  /**
+   * How same-framework static widget imports in ordinary component modules
+   * are handled. Defaults to 'native' to preserve server-rendered components.
+   * Convention modules and explicit widget() calls are always transformed.
+   */
+  sameFrameworkImports?: 'native' | 'widget';
 }
 
 /**
