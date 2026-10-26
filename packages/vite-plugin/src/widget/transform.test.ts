@@ -28,10 +28,9 @@ describe('widget transform plugin construction', () => {
       (candidate) => candidate.name === '@web-widget:import-render'
     );
     const transform = plugin?.transform as
-      | { handler: Function }
-      | Function
-      | undefined;
-    if (!plugin || !transform) throw new Error('Missing import-render transform.');
+      { handler: Function } | Function | undefined;
+    if (!plugin || !transform)
+      throw new Error('Missing import-render transform.');
     return {
       configResolved: plugin.configResolved as Function,
       handler: typeof transform === 'function' ? transform : transform.handler,
@@ -116,12 +115,46 @@ describe('widget transform plugin construction', () => {
     expect((moduleFilter?.api as any).filter('/Card.tsx')).toBe(false);
   });
 
+  test('converts React widget imports in ordinary components', async () => {
+    const plugins = createWidgetTransformPlugins(
+      { transforms: [react] },
+      '/project'
+    );
+    const { configResolved, handler } = importRenderHandler(plugins);
+    await configResolved({
+      command: 'serve',
+      root: '/project',
+      base: '/',
+      build: {},
+    });
+
+    const result = await handler.call(
+      {
+        environment: { config: { consumer: 'server' } },
+        resolve: async () => ({
+          id: '/project/src/HeroInteraction@widget.tsx',
+        }),
+        emitFile: () => 'ref',
+        error: transformContext.error,
+      },
+      "import HeroInteraction from './HeroInteraction@widget';",
+      '/project/src/HeroCreator.tsx'
+    );
+
+    expect(result.code).toContain('const HeroInteraction =');
+    expect(result.code).toContain('import: "/src/HeroInteraction@widget.tsx"');
+    expect(result.code).toContain('native: true');
+  });
+
   test.each([
     '/project/src/Counter.test.ts',
     '/project/src/Counter.spec.ts?import',
     '/project/src/__tests__/Counter.ts',
   ])('preserves widget imports in test importer %s', async (id) => {
-    const plugins = createWidgetTransformPlugins({ transforms: [html] }, '/project');
+    const plugins = createWidgetTransformPlugins(
+      { transforms: [html] },
+      '/project'
+    );
     const { configResolved, handler } = importRenderHandler(plugins);
     await configResolved({
       command: 'serve',
@@ -181,7 +214,10 @@ describe('widget transform plugin construction', () => {
   );
 
   test('still rewrites imports in application modules by default', async () => {
-    const plugins = createWidgetTransformPlugins({ transforms: [html] }, '/project');
+    const plugins = createWidgetTransformPlugins(
+      { transforms: [html] },
+      '/project'
+    );
     const { configResolved, handler } = importRenderHandler(plugins);
     await configResolved({
       command: 'serve',

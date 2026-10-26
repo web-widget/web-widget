@@ -54,6 +54,8 @@ export interface ImportRenderPluginOptions {
   conventionImporterPattern: RegExp;
   /** Same-adapter widgets kept as native static imports elsewhere. */
   nativeWidgetPattern: RegExp;
+  /** React static imports that can render natively in serverOnly mode. */
+  nativeStaticImportPattern?: RegExp;
   /** Adapter module specifier for widget injection. */
   adapterModule: string;
   /** Build-time defaults injected before call-site options. */
@@ -99,6 +101,8 @@ export interface TransformWidgetImportsOptions {
   importPattern: RegExp;
   /** Static widget imports to preserve as native framework components. */
   preserveStaticImportPattern?: RegExp;
+  /** Static React imports that support native serverOnly rendering. */
+  nativeStaticImportPattern?: RegExp;
   /** Preserve ordinary imports while still processing explicit widget() calls. */
   preserveImplicitImports?: boolean;
   /** Whether to infer diagnostic names for explicit widget() calls. */
@@ -156,6 +160,7 @@ export async function transformWidgetImports(
     sourcemap,
     importPattern,
     preserveStaticImportPattern,
+    nativeStaticImportPattern,
     preserveImplicitImports = false,
     inferWidgetCallName = true,
     adapterModule,
@@ -321,6 +326,7 @@ export async function transformWidgetImports(
       devStyles: devStyles?.length ? JSON.stringify(devStyles) : undefined,
       import: clientModuleExpression,
       name: JSON.stringify(componentName),
+      native: nativeStaticImportPattern?.test(moduleId) ? 'true' : undefined,
     });
 
     const definerName = alias('widget');
@@ -469,7 +475,12 @@ function toDevUrl(target: string, base: string) {
 
 function serializeInjectedOptions(
   defaults: WidgetDefaults,
-  generated: { devStyles?: string; import?: string; name?: string }
+  generated: {
+    devStyles?: string;
+    import?: string;
+    name?: string;
+    native?: string;
+  }
 ): string {
   return [
     defaults.loading
@@ -479,6 +490,7 @@ function serializeInjectedOptions(
     generated.devStyles ? `devStyles: ${generated.devStyles}` : undefined,
     generated.import ? `import: ${generated.import}` : undefined,
     generated.name ? `name: ${generated.name}` : undefined,
+    generated.native ? `native: ${generated.native}` : undefined,
   ]
     .filter((value): value is string => !!value)
     .join(', ');
@@ -493,6 +505,7 @@ export function importRenderPlugin({
   importerPattern,
   conventionImporterPattern,
   nativeWidgetPattern,
+  nativeStaticImportPattern,
   adapterModule,
   defaults,
   testModuleImports,
@@ -561,9 +574,11 @@ export function importRenderPlugin({
                 base,
                 sourcemap,
                 importPattern,
-                preserveStaticImportPattern: isConventionImporter
-                  ? undefined
-                  : nativeWidgetPattern,
+                preserveStaticImportPattern:
+                  isConventionImporter || nativeStaticImportPattern
+                    ? undefined
+                    : nativeWidgetPattern,
+                nativeStaticImportPattern,
                 preserveImplicitImports:
                   testModuleImports === 'preserve' &&
                   TEST_MODULE_RE.test(cleanImporterId),

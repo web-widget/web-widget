@@ -118,6 +118,28 @@ testAdapterConformance({
 });
 
 describe('render (server)', () => {
+  test('renders same-React serverOnly widgets without a host', async () => {
+    const ServerOnlyWidget = adapter.widget(
+      async () => ({ default: ConformanceComponent }),
+      { native: true } as any
+    );
+
+    const result = await render(
+      () =>
+        createElement(ServerOnlyWidget, {
+          message: 'Server only',
+          widget: { serverOnly: true },
+        }),
+      {},
+      { progressive: false }
+    );
+
+    expect(result).toContain('<p>Server only</p>');
+    expect(result).not.toContain('<web-widget');
+    expect(result).not.toContain('<script');
+    expect(result).not.toContain('import=');
+  });
+
   test('uses the widget id as the React identifier prefix', async () => {
     const Component = () => {
       const id = useId();

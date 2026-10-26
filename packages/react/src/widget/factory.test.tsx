@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { vi } from 'vitest';
+import { prerenderToString } from '../server/react-dom';
 import { resolveFallback } from './fallback';
 import { createWidgetAdapter } from './factory';
 
@@ -136,5 +137,74 @@ describe('widget', () => {
 
     expect(output).toContain('<!--web-widget:placeholder-->');
     expect(output).not.toContain('<!--$-->');
+  });
+
+  test('renders same-adapter serverOnly widgets without a host', async () => {
+    const NativeWidget = createWidgetAdapter()(
+      async () => ({
+        default: ({ label }: { label: string }) =>
+          createElement('span', null, label),
+      }),
+      { native: true } as any
+    );
+
+    const output = await prerenderToString(
+      createElement(NativeWidget, {
+        label: 'server only',
+        widget: { serverOnly: true },
+      }),
+      {}
+    );
+
+    expect(output).toContain('<span>server only</span>');
+    expect(output).not.toContain('<web-widget');
+  });
+
+  test('rejects conflicting render modes before native rendering', async () => {
+    const NativeWidget = createWidgetAdapter()(
+      async () => ({
+        default: () => createElement('span', null, 'native'),
+      }),
+      { native: true } as any
+    );
+
+    await expect(
+      prerenderToString(
+        createElement(NativeWidget, {
+          widget: { serverOnly: true, clientOnly: true } as any,
+        }),
+        {}
+      )
+    ).rejects.toThrow('serverOnly and clientOnly cannot both be true.');
+  });
+
+  test('keeps the host for shadow serverOnly widgets', async () => {
+    const ShadowWidget = createWidgetAdapter()(
+      async () => ({
+        default: () => createElement('span', null, 'shadow'),
+      }),
+      { root: 'shadow', native: true } as any
+    );
+
+    const output = await prerenderToString(
+      createElement(ShadowWidget, { widget: { serverOnly: true } }),
+      {}
+    );
+
+    expect(output).toContain('<web-widget');
+  });
+
+  test('keeps the host for foreign serverOnly widgets', async () => {
+    const ForeignWidget = createWidgetAdapter()(async () => ({
+      default: {},
+      render: () => null,
+    }));
+
+    const output = await prerenderToString(
+      createElement(ForeignWidget, { widget: { serverOnly: true } }),
+      {}
+    );
+
+    expect(output).toContain('<web-widget');
   });
 });

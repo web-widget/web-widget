@@ -3,8 +3,10 @@ import type { WidgetModuleLoader } from '@web-widget/schema';
 import {
   Suspense,
   createElement,
+  lazy,
   memo,
   useContext,
+  type FunctionComponent,
   type ReactNode,
 } from 'react';
 import { ReactServerRenderModeContext } from '../server/context';
@@ -18,8 +20,13 @@ export function createWidgetAdapter(
 ): ReactWidgetFactory {
   return function widget(
     loader: WidgetModuleLoader,
-    options: WebWidgetRendererOptions = {}
+    options: WebWidgetRendererOptions & { native?: true } = {}
   ) {
+    const { native, ...rendererOptions } = options;
+    const NativeComponent = native
+      ? lazy(loader as () => Promise<{ default: FunctionComponent }>)
+      : null;
+
     return memo(function ReactWidget({
       children,
       slot,
@@ -27,17 +34,28 @@ export function createWidgetAdapter(
       ...data
     }: ReactWidgetProps) {
       const { fallback, id, loading, clientOnly } = widget;
+      if (widget.serverOnly && clientOnly) {
+        throw new TypeError('serverOnly and clientOnly cannot both be true.');
+      }
       const serverRenderMode = useContext(ReactServerRenderModeContext);
+      if (
+        widget.serverOnly &&
+        NativeComponent &&
+        rendererOptions.root !== 'shadow'
+      ) {
+        return createElement(NativeComponent, { ...data, slot }, children);
+      }
+
       const { pendingFallback, errorFallback } = resolveFallback(fallback);
       const buffered = serverRenderMode === 'buffered';
       const task = createWidgetRenderTask({
-        ...options,
+        ...rendererOptions,
         clientOnly: widget.clientOnly,
         children,
         data,
         id,
         loader,
-        loading: loading ?? options.loading,
+        loading: loading ?? rendererOptions.loading,
         renderChildren,
         serverOnly: widget.serverOnly,
         slot,

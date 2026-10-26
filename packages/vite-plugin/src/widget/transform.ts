@@ -89,6 +89,8 @@ function buildPluginsForTransform(
       importerPattern,
       conventionImporterPattern: exportPattern,
       nativeWidgetPattern,
+      nativeStaticImportPattern:
+        transform.name === 'react' ? nativeWidgetPattern : undefined,
       adapterModule,
       defaults,
       testModuleImports,

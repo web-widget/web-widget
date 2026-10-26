@@ -2,10 +2,11 @@
 
 Vite plugin for Web Router.
 
-In ordinary component modules, same-framework static `@widget` imports render
-as native components. Use the existing `widget(() => import(...))` adapter API
-when an independent widget boundary is needed. Static imports in route and
-widget modules continue to create widget boundaries automatically.
+React components statically importing React `@widget` modules create independent
+widget boundaries, including imports from ordinary components. A light-DOM
+React widget used with `widget={{ serverOnly: true }}` renders as a native
+component without an independent widget host or client mount. Other framework
+transforms retain their existing import behavior.
 
 ## 文档
 

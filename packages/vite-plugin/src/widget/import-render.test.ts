@@ -44,6 +44,21 @@ function makeOptions(
 
 describe('transformWidgetImports', () => {
   describe('static import pattern', () => {
+    test('marks only React widget imports for native serverOnly rendering', async () => {
+      const code =
+        "import ReactCounter from './ReactCounter@widget.tsx';\n" +
+        "import VueCounter from './VueCounter@widget.vue';";
+      const result = await transformWidgetImports(
+        makeCtx(),
+        makeOptions(code, {
+          nativeStaticImportPattern: /@widget\.(tsx|jsx)$/,
+        })
+      );
+
+      expect(result!.code).toContain('name: "ReactCounter", native: true');
+      expect(result!.code).toContain('name: "VueCounter" });');
+    });
+
     test('dev mode', async () => {
       const code = `import Counter from './Counter@widget.vue';`;
       const result = await transformWidgetImports(
@@ -344,9 +359,7 @@ describe('transformWidgetImports', () => {
       expect(result?.code).toContain(
         "import Counter from './Counter@widget.vue';"
       );
-      expect(result?.code).toContain(
-        'import: "/src/Counter@widget.vue"'
-      );
+      expect(result?.code).toContain('import: "/src/Counter@widget.vue"');
       expect(result?.code).not.toContain('__$widget0$__');
     });
   });
