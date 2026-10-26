@@ -50,10 +50,8 @@ export interface ImportRenderPluginOptions {
   importPattern: RegExp;
   /** Importer pattern tested against query-stripped id. */
   importerPattern: RegExp;
-  /** Convention importers retain their existing widget conversion behavior. */
+  /** Convention importers infer names for explicit widget() calls. */
   conventionImporterPattern: RegExp;
-  /** Same-adapter widgets kept as native static imports elsewhere. */
-  nativeWidgetPattern: RegExp;
   /** Adapter module specifier for widget injection. */
   adapterModule: string;
   /** Build-time defaults injected before call-site options. */
@@ -97,8 +95,6 @@ export interface TransformWidgetImportsOptions {
   sourcemap: boolean;
   /** Widget module pattern tested against query-stripped id. */
   importPattern: RegExp;
-  /** Static widget imports to preserve as native framework components. */
-  preserveStaticImportPattern?: RegExp;
   /** Preserve ordinary imports while still processing explicit widget() calls. */
   preserveImplicitImports?: boolean;
   /** Whether to infer diagnostic names for explicit widget() calls. */
@@ -155,7 +151,6 @@ export async function transformWidgetImports(
     base,
     sourcemap,
     importPattern,
-    preserveStaticImportPattern,
     preserveImplicitImports = false,
     inferWidgetCallName = true,
     adapterModule,
@@ -223,13 +218,6 @@ export async function transformWidgetImports(
         continue;
       }
       if (preserveImplicitImports && dynamicImport === -1) {
-        continue;
-      }
-      if (
-        dynamicImport === -1 &&
-        cleanImportModule &&
-        preserveStaticImportPattern?.test(cleanImportModule)
-      ) {
         continue;
       }
       if (dynamicImport !== -1) {
@@ -492,7 +480,6 @@ export function importRenderPlugin({
   importPattern,
   importerPattern,
   conventionImporterPattern,
-  nativeWidgetPattern,
   adapterModule,
   defaults,
   testModuleImports,
@@ -561,9 +548,6 @@ export function importRenderPlugin({
                 base,
                 sourcemap,
                 importPattern,
-                preserveStaticImportPattern: isConventionImporter
-                  ? undefined
-                  : nativeWidgetPattern,
                 preserveImplicitImports:
                   testModuleImports === 'preserve' &&
                   TEST_MODULE_RE.test(cleanImporterId),

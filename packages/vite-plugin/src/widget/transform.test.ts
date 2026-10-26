@@ -7,6 +7,11 @@ describe('widget transform plugin construction', () => {
     extensions: ['.tsx', '.jsx'],
     adapter: '@web-widget/react/adapter',
   };
+  const vue: ConfiguredWidgetTransform = {
+    name: 'vue',
+    extensions: ['.vue'],
+    adapter: '@web-widget/vue/adapter',
+  };
   const html: ConfiguredWidgetTransform = {
     name: 'html',
     extensions: ['.ts'],
@@ -202,5 +207,109 @@ describe('widget transform plugin construction', () => {
     );
 
     expect(result.code).toContain('@web-widget/html/adapter');
+  });
+
+  test.each(['/project/src/HeroCreator.tsx', '/project/src/heroes@route.tsx'])(
+    'rewrites same-framework widget imports in React importer %s',
+    async (id) => {
+      const plugins = createWidgetTransformPlugins(
+        { transforms: [react] },
+        '/project'
+      );
+      const { configResolved, handler } = importRenderHandler(plugins);
+      await configResolved({
+        command: 'serve',
+        root: '/project',
+        base: '/',
+        build: {},
+      });
+
+      const result = await handler.call(
+        {
+          environment: { config: { consumer: 'client' } },
+          resolve: async () => ({
+            id: '/project/src/HeroInteraction@widget.tsx',
+          }),
+          emitFile: () => 'ref',
+          error: transformContext.error,
+        },
+        [
+          "import HeroInteraction from './HeroInteraction@widget';",
+          'export default function HeroCreator() {',
+          '  return <HeroInteraction />;',
+          '}',
+        ].join('\n'),
+        id
+      );
+
+      expect(result?.code).toContain(
+        'import { widget as __$widget0$__ } from "@web-widget/react/adapter";'
+      );
+      expect(result?.code).toContain(
+        'const HeroInteraction = /* @__PURE__ */ __$widget0$__(() => import("./HeroInteraction@widget"), { import: "/src/HeroInteraction@widget.tsx", name: "HeroInteraction" });'
+      );
+      expect(result?.code).toContain('return <HeroInteraction />;');
+    }
+  );
+
+  test('preserves same-framework widget imports in React test modules', async () => {
+    const plugins = createWidgetTransformPlugins(
+      { transforms: [react] },
+      '/project'
+    );
+    const { configResolved, handler } = importRenderHandler(plugins);
+    await configResolved({
+      command: 'serve',
+      root: '/project',
+      base: '/',
+      build: {},
+    });
+
+    const result = await handler.call(
+      {
+        environment: { config: { consumer: 'client' } },
+        resolve: async () => ({
+          id: '/project/src/HeroInteraction@widget.tsx',
+        }),
+        emitFile: () => 'ref',
+        error: transformContext.error,
+      },
+      "import HeroInteraction from './HeroInteraction@widget';",
+      '/project/src/HeroCreator.test.tsx'
+    );
+
+    expect(result).toBeNull();
+  });
+
+  test('rewrites same-framework widget imports in ordinary Vue components', async () => {
+    const plugins = createWidgetTransformPlugins(
+      { transforms: [vue] },
+      '/project'
+    );
+    const { configResolved, handler } = importRenderHandler(plugins);
+    await configResolved({
+      command: 'serve',
+      root: '/project',
+      base: '/',
+      build: {},
+    });
+
+    const result = await handler.call(
+      {
+        environment: { config: { consumer: 'client' } },
+        resolve: async () => ({
+          id: '/project/src/HeroInteraction@widget.vue',
+        }),
+        emitFile: () => 'ref',
+        error: transformContext.error,
+      },
+      "import HeroInteraction from './HeroInteraction@widget.vue';",
+      '/project/src/HeroCreator.vue'
+    );
+
+    expect(result?.code).toContain('@web-widget/vue/adapter');
+    expect(result?.code).toContain(
+      'const HeroInteraction = /* @__PURE__ */ __$widget0$__(() => import("./HeroInteraction@widget.vue"), { import: "/src/HeroInteraction@widget.vue", name: "HeroInteraction" });'
+    );
   });
 });
