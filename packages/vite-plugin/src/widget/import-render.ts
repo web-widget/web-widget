@@ -37,6 +37,7 @@ const WIDGET_CALL_TAIL_REG = /(?:^|[^\w.])widget\s*\([\s\S]*\(\s*\)\s*=>\s*$/;
  * `render(widget(() => import(...)))` yields no `name` option.
  */
 const DECLARATION_NAME_REG = /(?:const|let|var)\s+([a-zA-Z_$][\w$]*)\s*=/g;
+const TEST_MODULE_RE = /(?:^|[/\\])__tests__[/\\]|\.(?:test|spec)\.[^./\\]+$/;
 const parseDeclarationName = (code: string) => {
   const matches = [...code.matchAll(DECLARATION_NAME_REG)];
   return matches[matches.length - 1]?.[1];
@@ -57,6 +58,8 @@ export interface ImportRenderPluginOptions {
   adapterModule: string;
   /** Build-time defaults injected before call-site options. */
   defaults: WidgetDefaults;
+  /** Whether to rewrite conventional imports in test modules. */
+  testModuleImports: 'preserve' | 'transform';
 }
 
 /**
@@ -96,6 +99,8 @@ export interface TransformWidgetImportsOptions {
   importPattern: RegExp;
   /** Static widget imports to preserve as native framework components. */
   preserveStaticImportPattern?: RegExp;
+  /** Preserve ordinary imports while still processing explicit widget() calls. */
+  preserveImplicitImports?: boolean;
   /** Whether to infer diagnostic names for explicit widget() calls. */
   inferWidgetCallName?: boolean;
   /** Adapter module specifier for widget injection. */
@@ -151,6 +156,7 @@ export async function transformWidgetImports(
     sourcemap,
     importPattern,
     preserveStaticImportPattern,
+    preserveImplicitImports = false,
     inferWidgetCallName = true,
     adapterModule,
     defaults,
@@ -216,6 +222,9 @@ export async function transformWidgetImports(
       if (isSelfImport) {
         continue;
       }
+      if (preserveImplicitImports && dynamicImport === -1) {
+        continue;
+      }
       if (
         dynamicImport === -1 &&
         cleanImportModule &&
@@ -240,6 +249,9 @@ export async function transformWidgetImports(
           );
 
         if (!isInsideContainer) {
+          if (preserveImplicitImports) {
+            continue;
+          }
           throw new SyntaxError(
             `Widget modules can only be dynamically imported inside widget().`
           );
@@ -483,6 +495,7 @@ export function importRenderPlugin({
   nativeWidgetPattern,
   adapterModule,
   defaults,
+  testModuleImports,
 }: ImportRenderPluginOptions): Plugin[] {
   if (typeof adapterModule !== 'string') {
     throw new TypeError(`options.adapterModule must be a string type.`);
@@ -551,6 +564,9 @@ export function importRenderPlugin({
                 preserveStaticImportPattern: isConventionImporter
                   ? undefined
                   : nativeWidgetPattern,
+                preserveImplicitImports:
+                  testModuleImports === 'preserve' &&
+                  TEST_MODULE_RE.test(cleanImporterId),
                 inferWidgetCallName: isConventionImporter,
                 adapterModule,
                 defaults,

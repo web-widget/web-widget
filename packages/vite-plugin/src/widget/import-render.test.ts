@@ -316,6 +316,39 @@ describe('transformWidgetImports', () => {
       );
       expect(result).toBeNull();
     });
+
+    test('preserves ordinary test imports of widget modules', async () => {
+      const code = [
+        "import Counter from './Counter@widget.vue';",
+        "import { render } from './Counter@widget.vue';",
+        "const load = () => import('./Counter@widget.vue');",
+      ].join('\n');
+      const result = await transformWidgetImports(
+        makeCtx(),
+        makeOptions(code, { preserveImplicitImports: true })
+      );
+
+      expect(result).toBeNull();
+    });
+
+    test('still augments explicit widget calls in test modules', async () => {
+      const code = [
+        "import Counter from './Counter@widget.vue';",
+        "const Wrapped = widget(() => import('./Counter@widget.vue'));",
+      ].join('\n');
+      const result = await transformWidgetImports(
+        makeCtx(),
+        makeOptions(code, { preserveImplicitImports: true })
+      );
+
+      expect(result?.code).toContain(
+        "import Counter from './Counter@widget.vue';"
+      );
+      expect(result?.code).toContain(
+        'import: "/src/Counter@widget.vue"'
+      );
+      expect(result?.code).not.toContain('__$widget0$__');
+    });
   });
 
   describe('mixed imports', () => {
