@@ -1,5 +1,11 @@
 # @web-widget/inspector
 
+## 3.0.0-beta.7
+
+### Patch Changes
+
+- @web-widget/web-widget@3.0.0-beta.7
+
 ## 3.0.0-beta.6
 
 ### Patch Changes

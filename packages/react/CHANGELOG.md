@@ -1,5 +1,13 @@
 # @web-widget/react
 
+## 3.0.0-beta.7
+
+### Patch Changes
+
+- @web-widget/helpers@3.0.0-beta.7
+  - @web-widget/schema@3.0.0-beta.7
+  - @web-widget/web-widget@3.0.0-beta.7
+
 ## 3.0.0-beta.6
 
 ### Patch Changes

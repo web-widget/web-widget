@@ -1,5 +1,16 @@
 # @web-widget/vite-plugin
 
+## 3.0.0-beta.7
+
+### Patch Changes
+
+- 5e2ff87: Preserve native widget imports in test modules by default so component tests receive the original component. Explicit `widget()` calls still receive build-time options, and `testModuleImports: 'transform'` restores implicit import conversion for integration tests.
+- @web-widget/helpers@3.0.0-beta.7
+  - @web-widget/inspector@3.0.0-beta.7
+  - @web-widget/node@3.0.0-beta.7
+  - @web-widget/schema@3.0.0-beta.7
+  - @web-widget/web-router@3.0.0-beta.7
+
 ## 3.0.0-beta.6
 
 ### Patch Changes
