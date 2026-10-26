@@ -2,4 +2,4 @@
 '@web-widget/vite-plugin': patch
 ---
 
-Allow projects to opt into widget boundary conversion for same-framework static imports in ordinary component modules, while preserving native imports by default for server-rendered components.
+Allow framework transforms to opt into island composition for local widgets in ordinary components, while preserving inline composition by default.

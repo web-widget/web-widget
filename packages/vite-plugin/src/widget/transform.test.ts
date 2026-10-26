@@ -117,12 +117,12 @@ describe('widget transform plugin construction', () => {
 
   test.each([
     { mode: undefined, transformed: false },
-    { mode: 'widget' as const, transformed: true },
+    { mode: 'island' as const, transformed: true },
   ])(
-    'sameFrameworkImports $mode in ordinary React components',
+    'widgetComposition $mode in ordinary React components',
     async ({ mode, transformed }) => {
       const plugins = createWidgetTransformPlugins(
-        { transforms: [{ ...react, sameFrameworkImports: mode }] },
+        { transforms: [{ ...react, widgetComposition: mode }] },
         '/project'
       );
       const { configResolved, handler } = importRenderHandler(plugins);

@@ -165,11 +165,11 @@ export interface ConfiguredWidgetTransform extends WidgetTransform {
    */
   scopes?: string[];
   /**
-   * How same-framework static widget imports in ordinary component modules
-   * are handled. Defaults to 'native' to preserve server-rendered components.
-   * Convention modules and explicit widget() calls are always transformed.
+   * Whether local widgets composed in ordinary components render inline or
+   * form independently hydrated islands. Defaults to 'inline'. Convention
+   * modules and explicit widget() calls always form widget boundaries.
    */
-  sameFrameworkImports?: 'native' | 'widget';
+  widgetComposition?: 'inline' | 'island';
 }
 
 /**

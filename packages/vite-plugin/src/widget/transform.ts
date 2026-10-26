@@ -89,7 +89,7 @@ function buildPluginsForTransform(
       importerPattern,
       conventionImporterPattern: exportPattern,
       nativeWidgetPattern:
-        transform.sameFrameworkImports === 'widget'
+        transform.widgetComposition === 'island'
           ? undefined
           : nativeWidgetPattern,
       adapterModule,
