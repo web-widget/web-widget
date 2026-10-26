@@ -54,9 +54,6 @@ function buildPluginsForTransform(
   );
   const importPattern = new RegExp(`^[^?]*${WIDGET_MARKER_PATTERN}\\.[^?]*$`);
   const importerPattern = new RegExp(`^${scopeRe}[^?]*${ext}$`);
-  const nativeWidgetPattern = new RegExp(
-    `^${scopeRe}[^?]*${WIDGET_MARKER_PATTERN}${ext}$`
-  );
   const filter: WidgetModuleFilter = (key) => importPattern.test(key);
 
   // Derive handler/meta exports from route modules
@@ -88,7 +85,6 @@ function buildPluginsForTransform(
       importPattern,
       importerPattern,
       conventionImporterPattern: exportPattern,
-      nativeWidgetPattern,
       adapterModule,
       defaults,
       testModuleImports,
