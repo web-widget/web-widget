@@ -34,7 +34,6 @@ function buildPluginsForTransform(
     adapter: adapterModule,
     scopes,
     deriveExports,
-    sameFrameworkImports = 'native',
   } = transform;
 
   const ext = extPattern(extensions);
@@ -89,8 +88,10 @@ function buildPluginsForTransform(
       importPattern,
       importerPattern,
       conventionImporterPattern: exportPattern,
-      nativeWidgetPattern,
-      sameFrameworkImports,
+      nativeWidgetPattern:
+        transform.sameFrameworkImports === 'widget'
+          ? undefined
+          : nativeWidgetPattern,
       adapterModule,
       defaults,
       testModuleImports,

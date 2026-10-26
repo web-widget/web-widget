@@ -50,12 +50,10 @@ export interface ImportRenderPluginOptions {
   importPattern: RegExp;
   /** Importer pattern tested against query-stripped id. */
   importerPattern: RegExp;
-  /** Convention importers also provide names for explicit widget() calls. */
+  /** Convention importers retain their existing widget conversion behavior. */
   conventionImporterPattern: RegExp;
-  /** Same-adapter widget modules eligible for native imports. */
-  nativeWidgetPattern: RegExp;
-  /** Whether ordinary modules convert same-adapter static imports. */
-  sameFrameworkImports: 'native' | 'widget';
+  /** Same-adapter widgets kept as native static imports elsewhere. */
+  nativeWidgetPattern?: RegExp;
   /** Adapter module specifier for widget injection. */
   adapterModule: string;
   /** Build-time defaults injected before call-site options. */
@@ -99,7 +97,7 @@ export interface TransformWidgetImportsOptions {
   sourcemap: boolean;
   /** Widget module pattern tested against query-stripped id. */
   importPattern: RegExp;
-  /** Static widget imports to preserve as framework-native components. */
+  /** Static widget imports to preserve as native framework components. */
   preserveStaticImportPattern?: RegExp;
   /** Preserve ordinary imports while still processing explicit widget() calls. */
   preserveImplicitImports?: boolean;
@@ -495,7 +493,6 @@ export function importRenderPlugin({
   importerPattern,
   conventionImporterPattern,
   nativeWidgetPattern,
-  sameFrameworkImports,
   adapterModule,
   defaults,
   testModuleImports,
@@ -564,10 +561,9 @@ export function importRenderPlugin({
                 base,
                 sourcemap,
                 importPattern,
-                preserveStaticImportPattern:
-                  isConventionImporter || sameFrameworkImports === 'widget'
-                    ? undefined
-                    : nativeWidgetPattern,
+                preserveStaticImportPattern: isConventionImporter
+                  ? undefined
+                  : nativeWidgetPattern,
                 preserveImplicitImports:
                   testModuleImports === 'preserve' &&
                   TEST_MODULE_RE.test(cleanImporterId),
