@@ -2,11 +2,10 @@
 
 Vite plugin for Web Router.
 
-In ordinary component modules, local widgets are composed inline by default.
-Set `widgetComposition: 'island'` on a framework transform in
-`webWidgetPlugin({ transforms: [...] })` to give them independent widget
-boundaries and client hydration. Static imports in route and widget modules,
-and explicit `widget(() => import(...))` calls, always create widget boundaries.
+In ordinary component modules, same-framework static `@widget` imports render
+as native components. Use the existing `widget(() => import(...))` adapter API
+when an independent widget boundary is needed. Static imports in route and
+widget modules continue to create widget boundaries automatically.
 
 ## 文档
 

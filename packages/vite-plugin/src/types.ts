@@ -164,12 +164,6 @@ export interface ConfiguredWidgetTransform extends WidgetTransform {
    * (e.g. vue2 and vue3 both using `.vue`).
    */
   scopes?: string[];
-  /**
-   * Whether local widgets composed in ordinary components render inline or
-   * form independently hydrated islands. Defaults to 'inline'. Convention
-   * modules and explicit widget() calls always form widget boundaries.
-   */
-  widgetComposition?: 'inline' | 'island';
 }
 
 /**

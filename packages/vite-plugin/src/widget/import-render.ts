@@ -53,7 +53,7 @@ export interface ImportRenderPluginOptions {
   /** Convention importers retain their existing widget conversion behavior. */
   conventionImporterPattern: RegExp;
   /** Same-adapter widgets kept as native static imports elsewhere. */
-  nativeWidgetPattern?: RegExp;
+  nativeWidgetPattern: RegExp;
   /** Adapter module specifier for widget injection. */
   adapterModule: string;
   /** Build-time defaults injected before call-site options. */
