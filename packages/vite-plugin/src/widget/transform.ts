@@ -26,7 +26,8 @@ function buildPluginsForTransform(
   transform: ConfiguredWidgetTransform,
   root: string,
   excludedScopes: string[],
-  defaults: WidgetDefaults
+  defaults: WidgetDefaults,
+  testModuleImports: 'preserve' | 'transform'
 ): Plugin[] {
   const {
     extensions,
@@ -90,6 +91,7 @@ function buildPluginsForTransform(
       nativeWidgetPattern,
       adapterModule,
       defaults,
+      testModuleImports,
     }),
   ];
 }
@@ -166,7 +168,8 @@ export function createWidgetTransformPlugins(
       transform,
       root,
       excludedScopes,
-      options.defaults ?? {}
+      options.defaults ?? {},
+      options.testModuleImports ?? 'preserve'
     );
   });
 }

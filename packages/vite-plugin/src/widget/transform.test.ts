@@ -7,6 +7,11 @@ describe('widget transform plugin construction', () => {
     extensions: ['.tsx', '.jsx'],
     adapter: '@web-widget/react/adapter',
   };
+  const html: ConfiguredWidgetTransform = {
+    name: 'html',
+    extensions: ['.ts'],
+    adapter: '@web-widget/html/adapter',
+  };
 
   function exportRenderHandler(plugins: ReturnType<typeof webWidgetPlugin>) {
     const plugin = plugins.find(
@@ -16,6 +21,21 @@ describe('widget transform plugin construction', () => {
       { handler: Function } | Function | undefined;
     if (!transform) throw new Error('Missing export-render transform.');
     return typeof transform === 'function' ? transform : transform.handler;
+  }
+
+  function importRenderHandler(plugins: ReturnType<typeof webWidgetPlugin>) {
+    const plugin = plugins.find(
+      (candidate) => candidate.name === '@web-widget:import-render'
+    );
+    const transform = plugin?.transform as
+      | { handler: Function }
+      | Function
+      | undefined;
+    if (!plugin || !transform) throw new Error('Missing import-render transform.');
+    return {
+      configResolved: plugin.configResolved as Function,
+      handler: typeof transform === 'function' ? transform : transform.handler,
+    };
   }
 
   const transformContext = {
@@ -94,5 +114,93 @@ describe('widget transform plugin construction', () => {
     expect(moduleFilter?.api).toMatchObject({ defaults });
     expect((moduleFilter?.api as any).filter('/Card@widget.tsx')).toBe(true);
     expect((moduleFilter?.api as any).filter('/Card.tsx')).toBe(false);
+  });
+
+  test.each([
+    '/project/src/Counter.test.ts',
+    '/project/src/Counter.spec.ts?import',
+    '/project/src/__tests__/Counter.ts',
+  ])('preserves widget imports in test importer %s', async (id) => {
+    const plugins = createWidgetTransformPlugins({ transforms: [html] }, '/project');
+    const { configResolved, handler } = importRenderHandler(plugins);
+    await configResolved({
+      command: 'serve',
+      root: '/project',
+      base: '/',
+      build: {},
+    });
+
+    const result = await handler.call(
+      {
+        environment: { config: { consumer: 'client' } },
+        resolve: async () => ({ id: '/project/src/Counter@widget.vue' }),
+        emitFile: () => 'ref',
+        error: transformContext.error,
+      },
+      "import Counter from './Counter@widget.vue';",
+      id
+    );
+
+    expect(result).toBeNull();
+  });
+
+  test.each([
+    { mode: undefined, transformed: false },
+    { mode: 'transform' as const, transformed: true },
+  ])(
+    'testModuleImports $mode controls test import rewriting',
+    async ({ mode, transformed }) => {
+      const plugins = createWidgetTransformPlugins(
+        { transforms: [html], testModuleImports: mode },
+        '/project'
+      );
+      const { configResolved, handler } = importRenderHandler(plugins);
+      await configResolved({
+        command: 'serve',
+        root: '/project',
+        base: '/',
+        build: {},
+      });
+
+      const result = await handler.call(
+        {
+          environment: { config: { consumer: 'client' } },
+          resolve: async () => ({ id: '/project/src/Counter@widget.vue' }),
+          emitFile: () => 'ref',
+          error: transformContext.error,
+        },
+        "import Counter from './Counter@widget.vue';",
+        '/project/src/Counter.test.ts'
+      );
+
+      expect(result !== null).toBe(transformed);
+      if (transformed) {
+        expect(result.code).toContain('@web-widget/html/adapter');
+      }
+    }
+  );
+
+  test('still rewrites imports in application modules by default', async () => {
+    const plugins = createWidgetTransformPlugins({ transforms: [html] }, '/project');
+    const { configResolved, handler } = importRenderHandler(plugins);
+    await configResolved({
+      command: 'serve',
+      root: '/project',
+      base: '/',
+      build: {},
+    });
+
+    const result = await handler.call(
+      {
+        environment: { config: { consumer: 'client' } },
+        resolve: async () => ({ id: '/project/src/Counter@widget.vue' }),
+        emitFile: () => 'ref',
+        error: transformContext.error,
+      },
+      "import Counter from './Counter@widget.vue';",
+      '/project/src/page.ts'
+    );
+
+    expect(result.code).toContain('@web-widget/html/adapter');
   });
 });

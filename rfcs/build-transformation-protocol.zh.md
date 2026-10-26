@@ -174,6 +174,8 @@ interface ConfiguredWidgetTransform extends WidgetTransform {
 
 interface WebWidgetPluginOptions {
   transforms: ConfiguredWidgetTransform[];
+  /** 测试模块中的隐式 widget 导入：默认保留原始导入 */
+  testModuleImports?: 'preserve' | 'transform';
 }
 ```
 
@@ -330,7 +332,9 @@ defineOptions({
 如果不定义 `handler`，构建工具会注入兜底值——默认调用 `html()` 渲染组件。转换后的代码等价于：
 
 ```javascript
-const __$default$__ = {/* SFC 编译产物 */};
+const __$default$__ = {
+  /* SFC 编译产物 */
+};
 export const {
   handler = {
     GET({ html }) {
@@ -381,7 +385,6 @@ type WidgetContainerProps<TPending = never, TError = TPending> = {
    * - `'idle'`：浏览器空闲时加载
    */
   loading?: 'auto' | 'lazy' | 'eager' | 'idle';
-
 } & WidgetContainerRenderMode;
 
 type WidgetContainerRenderMode =

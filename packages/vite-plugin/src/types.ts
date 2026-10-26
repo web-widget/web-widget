@@ -177,6 +177,12 @@ export interface WebWidgetPluginOptions {
    */
   transforms: ConfiguredWidgetTransform[];
   /**
+   * How conventional widget imports in .test/.spec files and __tests__
+   * directories are handled. Explicit widget() calls are always transformed.
+   * Defaults to 'preserve' so unit tests receive the original component.
+   */
+  testModuleImports?: 'preserve' | 'transform';
+  /**
    * Defaults injected into transformed widget container options. Explicit
    * options passed to `widget()` take precedence.
    */
