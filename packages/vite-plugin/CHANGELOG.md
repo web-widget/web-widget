@@ -1,5 +1,16 @@
 # @web-widget/vite-plugin
 
+## 3.0.0-beta.8
+
+### Patch Changes
+
+- b604b7d: Restore automatic Widget conversion for same-framework static `@widget` imports in ordinary framework modules, matching v2 behavior. Test modules continue to preserve native imports by default.
+- @web-widget/helpers@3.0.0-beta.8
+  - @web-widget/inspector@3.0.0-beta.8
+  - @web-widget/node@3.0.0-beta.8
+  - @web-widget/schema@3.0.0-beta.8
+  - @web-widget/web-router@3.0.0-beta.8
+
 ## 3.0.0-beta.7
 
 ### Patch Changes

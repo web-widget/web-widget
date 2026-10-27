@@ -1,5 +1,14 @@
 # @web-widget/vue2
 
+## 3.0.0-beta.8
+
+### Patch Changes
+
+- @web-widget/helpers@3.0.0-beta.8
+  - @web-widget/react@3.0.0-beta.8
+  - @web-widget/schema@3.0.0-beta.8
+  - @web-widget/web-widget@3.0.0-beta.8
+
 ## 3.0.0-beta.7
 
 ### Patch Changes
